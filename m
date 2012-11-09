@@ -1,60 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 12/13] HID: introduce Scan Time
-Date: Fri, 9 Nov 2012 00:45:27 -0800
-Message-ID: <20121109084527.GA15371@core.coreip.homeip.net>
-References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352306256-12180-13-git-send-email-benjamin.tissoires@gmail.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification
+ implementation
+Date: Fri, 9 Nov 2012 10:49:21 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211091048590.27271@pobox.suse.cz>
+References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com> <507D182E.9010902@suse.cz> <CAN+gG=E3QhwKeZfJtOhFrOqOnPW=hdbij-U7euvVEQ_MuNaXaQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:55438 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751126Ab2KIIpd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 03:45:33 -0500
-Content-Disposition: inline
-In-Reply-To: <1352306256-12180-13-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAN+gG=E3QhwKeZfJtOhFrOqOnPW=hdbij-U7euvVEQ_MuNaXaQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+On Tue, 16 Oct 2012, Benjamin Tissoires wrote:
 
-On Wed, Nov 07, 2012 at 05:37:35PM +0100, Benjamin Tissoires wrote:
-> Win 8 digitizer devices provides the actual scan time computed by the
-> hardware itself. The value is global to the frame and is not specific
-> to the multitouch protocol (though only touch, not pen, should use it
-> according to the specification).
+> >> --- /dev/null
+> >> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> > ...
+> >> +static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
+> >> +{
+> >> +     /* the worst case is computed from the set_report command with a
+> >> +      * reportID > 15 and the maximum report length */
+> >> +     int args_len = sizeof(__u8) + /* optional ReportID byte */
+> >> +                    sizeof(__u16) + /* data register */
+> >> +                    sizeof(__u16) + /* size of the report */
+> >> +                    ihid->bufsize; /* report */
+> >> +
+> >> +     ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+> >> +
+> >> +     if (!ihid->inbuf)
+> >> +             return -ENOMEM;
+> >> +
+> >> +     ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
+> >> +
+> >> +     if (!ihid->argsbuf) {
+> >> +             kfree(ihid->inbuf);
+> >> +             return -ENOMEM;
+> >> +     }
+> >> +
+> >> +     ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
+> >> +
+> >> +     if (!ihid->cmdbuf) {
+> >> +             kfree(ihid->inbuf);
+> >> +             kfree(ihid->argsbuf);
+> >> +             return -ENOMEM;
+> >> +     }
+> >> +
+> >> +     return 0;
+> >
+> > If this is called from hid_start and some of the latter allocation fails
+> > here, you free the buffers appropriately. However if another start
+> > occurs (e.g. by loading another module for that particular device), it
+> > will crash, as the buffers will remain unallocated because at this point
+> > ihid->bufsize == old_bufsize. You should set ihid->bufsize back to
+> > old_bufsize if i2c_hid_alloc_buffers fails and also set the pointers to
+> > NULL here.
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
->  Documentation/input/event-codes.txt | 9 +++++++++
->  drivers/hid/hid-input.c             | 4 ++++
->  include/linux/hid.h                 | 1 +
->  include/linux/input.h               | 1 +
->  4 files changed, 15 insertions(+)
-> 
-> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-> index 53305bd..80c06e5 100644
-> --- a/Documentation/input/event-codes.txt
-> +++ b/Documentation/input/event-codes.txt
-> @@ -174,6 +174,15 @@ A few EV_ABS codes have special meanings:
->      the input device may be used freely in three dimensions, consider ABS_Z
->      instead.
->  
-> +* ABS_SCAN_TIME:
-> +  - Used to report the number of microseconds since the last reset. This event
-> +    should be coded as an uint32 value, which is allowed to wrap around with
-> +    no special consequence. It is assumed that the time difference between two
-> +    consecutive events is reliable on a reasonable time scale (hours).
-> +    A reset to zero can happen, in which case the time since the last event is
-> +    unknown.  If the device does not provide this information, the driver must
-> +    not provide it to the user space.
-> +
+> well spotted, thanks.
+> I'll change it in v3 then.
 
-This should not be an absolute event but rather EV_MSC/MSC_TIMESTAMP.
+Benjamin,
 
-Thanks.
+just a quick check -- are you planning on submitting v3 eventually?
+
+Thanks,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

@@ -1,95 +1,65 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 Subject: Re: [PATCH 1/3] input: stmpe-keyboard: Use devm_*() routines
-Date: Fri, 9 Nov 2012 08:45:03 -0800
-Message-ID: <20121109164503.GA17752@core.coreip.homeip.net>
+Date: Fri, 9 Nov 2012 22:33:56 +0530
+Message-ID: <CAKohponMrv5W2vgvN6+kqj0ZuXxCc38=-3zDzYDAh3mhvh9R_g@mail.gmail.com>
 References: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
+	<20121109164503.GA17752@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
+In-Reply-To: <20121109164503.GA17752@core.coreip.homeip.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Viresh,
+On 9 November 2012 22:15, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> If input device was alocated with devm_* interface it does not need be
+> explicitly unregistered/freed.
 
-On Fri, Nov 09, 2012 at 08:57:48PM +0530, Viresh Kumar wrote:
-> This patch frees stmpe-keyboard driver from tension of freeing resources :)
-> devm_* derivatives of multiple routines are used while allocating resources,
-> which would be freed automatically by kernel.
-> 
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> ---
->  drivers/input/keyboard/stmpe-keypad.c | 31 ++++++++++---------------------
->  1 file changed, 10 insertions(+), 21 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
-> index 470a877..6e25497 100644
-> --- a/drivers/input/keyboard/stmpe-keypad.c
-> +++ b/drivers/input/keyboard/stmpe-keypad.c
-> @@ -275,15 +275,14 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
->  	if (irq < 0)
->  		return irq;
->  
-> -	keypad = kzalloc(sizeof(struct stmpe_keypad), GFP_KERNEL);
-> +	keypad = devm_kzalloc(&pdev->dev, sizeof(struct stmpe_keypad),
-> +			GFP_KERNEL);
->  	if (!keypad)
->  		return -ENOMEM;
->  
-> -	input = input_allocate_device();
-> -	if (!input) {
-> -		ret = -ENOMEM;
-> -		goto out_freekeypad;
-> -	}
-> +	input = devm_input_allocate_device(&pdev->dev);
-> +	if (!input)
-> +		return -ENOMEM;
->  
->  	input->name = "STMPE keypad";
->  	input->id.bustype = BUS_I2C;
-> @@ -294,7 +293,7 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
->  					 STMPE_KEYPAD_MAX_COLS,
->  					 keypad->keymap, input);
->  	if (ret)
-> -		goto out_freeinput;
-> +		return ret;
->  
->  	input_set_capability(input, EV_MSC, MSC_SCAN);
->  	if (!plat->no_autorepeat)
-> @@ -314,17 +313,17 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
->  
->  	ret = stmpe_keypad_chip_init(keypad);
->  	if (ret < 0)
-> -		goto out_freeinput;
-> +		return ret;
->  
->  	ret = input_register_device(input);
->  	if (ret) {
->  		dev_err(&pdev->dev,
->  			"unable to register input device: %d\n", ret);
-> -		goto out_freeinput;
-> +		return ret;
->  	}
->  
-> -	ret = request_threaded_irq(irq, NULL, stmpe_keypad_irq, IRQF_ONESHOT,
-> -				   "stmpe-keypad", keypad);
-> +	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL, stmpe_keypad_irq,
-> +			IRQF_ONESHOT, "stmpe-keypad", keypad);
->  	if (ret) {
->  		dev_err(&pdev->dev, "unable to get irq: %d\n", ret);
->  		goto out_unregisterinput;
-> @@ -336,11 +335,6 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
->  
->  out_unregisterinput:
->  	input_unregister_device(input);
+Thanks for pointing out:
 
-If input device was alocated with devm_* interface it does not need be
-explicitly unregistered/freed.
+Fixup:
 
-Thanks.
+commit 4bf57c85f49f16a139af80f8de76fa01eee77a5d
+Author: Viresh Kumar <viresh.kumar@linaro.org>
+Date:   Fri Nov 9 22:31:34 2012 +0530
 
--- 
-Dmitry
+    fixup! input: stmpe-keyboard: Use devm_*() routines
+---
+ drivers/input/keyboard/stmpe-keypad.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/drivers/input/keyboard/stmpe-keypad.c
+b/drivers/input/keyboard/stmpe-keypad.c
+index 6e25497..706b16f 100644
+--- a/drivers/input/keyboard/stmpe-keypad.c
++++ b/drivers/input/keyboard/stmpe-keypad.c
+@@ -326,16 +326,12 @@ static int __devinit stmpe_keypad_probe(struct
+platform_device *pdev)
+                        IRQF_ONESHOT, "stmpe-keypad", keypad);
+        if (ret) {
+                dev_err(&pdev->dev, "unable to get irq: %d\n", ret);
+-               goto out_unregisterinput;
++               return ret;
+        }
+
+        platform_set_drvdata(pdev, keypad);
+
+        return 0;
+-
+-out_unregisterinput:
+-       input_unregister_device(input);
+-       return ret;
+ }
+
+ static int __devexit stmpe_keypad_remove(struct platform_device *pdev)
+@@ -344,7 +340,6 @@ static int __devexit stmpe_keypad_remove(struct
+platform_device *pdev)
+        struct stmpe *stmpe = keypad->stmpe;
+
+        stmpe_disable(stmpe, STMPE_BLOCK_KEYPAD);
+-       input_unregister_device(keypad->input);
+
+        return 0;
+ }

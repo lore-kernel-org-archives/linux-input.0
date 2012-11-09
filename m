@@ -1,102 +1,111 @@
-From: "AnilKumar, Chimata" <anilkumar@ti.com>
-Subject: RE: [PATCH v4] Input: matrix-keypad - Add device tree support
-Date: Fri, 9 Nov 2012 11:07:38 +0000
-Message-ID: <331ABD5ECB02734CA317220B2BBEABC13EA68909@DBDE01.ent.ti.com>
-References: <1352280725-452-1-git-send-email-anilkumar@ti.com>
- <509BE405.60204@wwwdotorg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 1/3] input: stmpe-keyboard: Use devm_*() routines
+Date: Fri,  9 Nov 2012 20:57:48 +0530
+Message-ID: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:51567 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752115Ab2KILHp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 06:07:45 -0500
-In-Reply-To: <509BE405.60204@wwwdotorg.org>
-Content-Language: en-US
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:43523 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754025Ab2KIP2A (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 10:28:00 -0500
+Received: by mail-pb0-f46.google.com with SMTP id rr4so2903062pbb.19
+        for <linux-input@vger.kernel.org>; Fri, 09 Nov 2012 07:28:00 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Stephen Warren' <swarren@wwwdotorg.org>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "dgdunix@gmail.com" <dgdunix@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, Viresh Kumar <viresh.kumar@linaro.org>
 
-On Thu, Nov 08, 2012 at 22:25:33, Stephen Warren wrote:
-> On 11/07/2012 02:32 AM, AnilKumar Ch wrote:
-> > Add device tree support to matrix keypad driver and usage details
-> > are added to device tree documentation. Driver was tested on AM335x
-> > EVM.
-> 
-> > diff --git a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
-> 
-> > +Optional Properties:
-> 
-> > +- clustered-irq:	have clustered irq number, that is needed if the irq
-> > +			is a combined irq source for the whole matrix keypad.
-> > +			This is useful if rows and columns of the keypad are
-> > +			connected to a GPIO expander.
-> > +- clustered-irq-flags:	clustered irq flags to specify the interrupt line
-> > +			behavior among IRQF_TRIGGER_*
-> 
-> I still don't understand why there's a need for a clustered-irq-flags
-> property; if those flags are the flags for an interrupt, why aren't the
-> flags part of the clustered-irq interrupt specifier, just like any other
-> interrupt in DT?
+This patch frees stmpe-keyboard driver from tension of freeing resources :)
+devm_* derivatives of multiple routines are used while allocating resources,
+which would be freed automatically by kernel.
 
-Exactly, I agree with you on this.
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ drivers/input/keyboard/stmpe-keypad.c | 31 ++++++++++---------------------
+ 1 file changed, 10 insertions(+), 21 deletions(-)
 
-Honestly, I added clustered_xxx properties to DT considering the 
-platform_data currently implemented in driver. And I do not have
-hardware to  validate clustered_xxx execution flow.
-
-I looked at the commit which adds support for clustered_irq,
-
-Commit Description:
+diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
+index 470a877..6e25497 100644
+--- a/drivers/input/keyboard/stmpe-keypad.c
++++ b/drivers/input/keyboard/stmpe-keypad.c
+@@ -275,15 +275,14 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+ 	if (irq < 0)
+ 		return irq;
  
-"This one adds support of a combined irq source for the whole matrix
-keypad. This can be useful if all rows and columns of the keypad are
-e.g. connected to a GPIO expander, which only has one interrupt line
-for all events on every single GPIO."
+-	keypad = kzalloc(sizeof(struct stmpe_keypad), GFP_KERNEL);
++	keypad = devm_kzalloc(&pdev->dev, sizeof(struct stmpe_keypad),
++			GFP_KERNEL);
+ 	if (!keypad)
+ 		return -ENOMEM;
+ 
+-	input = input_allocate_device();
+-	if (!input) {
+-		ret = -ENOMEM;
+-		goto out_freekeypad;
+-	}
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input)
++		return -ENOMEM;
+ 
+ 	input->name = "STMPE keypad";
+ 	input->id.bustype = BUS_I2C;
+@@ -294,7 +293,7 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+ 					 STMPE_KEYPAD_MAX_COLS,
+ 					 keypad->keymap, input);
+ 	if (ret)
+-		goto out_freeinput;
++		return ret;
+ 
+ 	input_set_capability(input, EV_MSC, MSC_SCAN);
+ 	if (!plat->no_autorepeat)
+@@ -314,17 +313,17 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+ 
+ 	ret = stmpe_keypad_chip_init(keypad);
+ 	if (ret < 0)
+-		goto out_freeinput;
++		return ret;
+ 
+ 	ret = input_register_device(input);
+ 	if (ret) {
+ 		dev_err(&pdev->dev,
+ 			"unable to register input device: %d\n", ret);
+-		goto out_freeinput;
++		return ret;
+ 	}
+ 
+-	ret = request_threaded_irq(irq, NULL, stmpe_keypad_irq, IRQF_ONESHOT,
+-				   "stmpe-keypad", keypad);
++	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL, stmpe_keypad_irq,
++			IRQF_ONESHOT, "stmpe-keypad", keypad);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "unable to get irq: %d\n", ret);
+ 		goto out_unregisterinput;
+@@ -336,11 +335,6 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+ 
+ out_unregisterinput:
+ 	input_unregister_device(input);
+-	input = NULL;
+-out_freeinput:
+-	input_free_device(input);
+-out_freekeypad:
+-	kfree(keypad);
+ 	return ret;
+ }
+ 
+@@ -348,14 +342,9 @@ static int __devexit stmpe_keypad_remove(struct platform_device *pdev)
+ {
+ 	struct stmpe_keypad *keypad = platform_get_drvdata(pdev);
+ 	struct stmpe *stmpe = keypad->stmpe;
+-	int irq = platform_get_irq(pdev, 0);
+ 
+ 	stmpe_disable(stmpe, STMPE_BLOCK_KEYPAD);
+-
+-	free_irq(irq, keypad);
+ 	input_unregister_device(keypad->input);
+-	platform_set_drvdata(pdev, NULL);
+-	kfree(keypad);
+ 
+ 	return 0;
+ }
+-- 
+1.7.12.rc2.18.g61b472e
 
-
-So I believe this was meant for matrix keypad interfaced over I2C
-expander, But I am not sure how it is being used.
-
-The hardware is connected in any of the following methods, the driver
-should supports the same.
-
-i) gpio interrupt can be used as keypad interrupt, connection is
-like this (MPU<===>IOEXP)
-            |_______| (gpio line)
-
-Here I expect driver should have gpio_to_irq implementation, but
-its missing from driver. So platform code must be doing it, but
-surprisingly I couldn't able to find any platform which uses this.
-
-ii) i2c interrupt can be used as keypad interrupt
-
-Here driver is not using threaded irq.
-
-As a reference I looked tca6416-keypad.c driver and it has right implementation,
-
-if (pdata->irq_is_gpio)
-	chip->irqnum = gpio_to_irq(client->irq);
-else
-	chip->irqnum = client->irq;
-
-
-As per my understanding matrix-keypad driver has to change
-accordingly to tca6416-keypad.c driver to handle clustered-irq.
-
-So I left with below options,
-
-1. Lets only support normal GPIO based matrix key-pad, without
-clustered_irq support in DT.
-
-2. Cleanup the driver to remove clustered_irq all together,
-considering the fact that we do not have any platform in kernel
-to use it. And once we get known platform in the future, we can
-again add it.
-
-I vote for option-1, what do you think?
-
-Thanks
-AnilKumar

@@ -1,110 +1,40 @@
-From: Robert Hancock <hancockrwd@gmail.com>
-Subject: Re: Why Cypress does not upstream its trackpad driver?
-Date: Thu, 08 Nov 2012 22:06:23 -0600
-Message-ID: <509C813F.1080905@gmail.com>
-References: <CAFub=KTf2dWxM9=saG2JaNJpEioJM8rM3UBG9BkyxRN-+j0psQ@mail.gmail.com> <C825ADB6BE8AC2468577BFFCE7DF5B8A1F080FA111@VMBX133.ihostexchange.net> <EE629F2C-DD83-403C-AD73-E9ED966EEA91@cypress.com> <2208882.BvOrfBvj6F@dtor-d630.eng.vmware.com> <C6B11F3154DB7242B32DD96C876EA7847BAFFAFA95@VMBX113.ihostexchange.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] input: spear-keyboard: Use devm_*() routines
+Date: Thu, 8 Nov 2012 21:33:11 -0800
+Message-ID: <20121109053311.GA12105@core.coreip.homeip.net>
+References: <9f07bb7dbf29978970d901bbe89add0a333cc925.1352381962.git.viresh.kumar@linaro.org>
+ <20121108163835.GA8877@core.coreip.homeip.net>
+ <CAKohpo=PdNoBzpZoHWcHSqh_az2OOGGGegNzCXPxjUDVOHostw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-9;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ia0-f174.google.com ([209.85.210.174]:59637 "EHLO
-	mail-ia0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751454Ab2KIEG1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Nov 2012 23:06:27 -0500
-In-Reply-To: <C6B11F3154DB7242B32DD96C876EA7847BAFFAFA95@VMBX113.ihostexchange.net>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:35565 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750890Ab2KIFdP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 00:33:15 -0500
+Content-Disposition: inline
+In-Reply-To: <CAKohpo=PdNoBzpZoHWcHSqh_az2OOGGGegNzCXPxjUDVOHostw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Solda <dso@cypress.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Troy Abercrombia <ta@cypress.com>, Kamal Mostafa <kamal@canonical.com>, =?ISO-8859-9?Q?Ozan_=C7a=F0layan?= <ozancag@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, customercare <customercare@cypress.com>, "mario_limonciello@dell.com" <mario_limonciello@dell.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com
 
-On 11/07/2012 06:26 PM, David Solda wrote:
-> Dmitry, all,
->
-> To clarify my comment.  Our protocol utilizes 8 bytes which are neede=
-d in our driver.  In order for the Linux system to accept 8 bytes of da=
-ta, the Linux psmouse system driver is required to be modified.  Withou=
-t this modification, the driver that you are referring to will not work=
- correctly.  The psmouse system driver change that would be required is=
- the item that would be rejected.
->
-> I appreciate your comments and of course, if the driver could be upst=
-reamed, it would (we already have I2C drivers updstreamed for Chrome sy=
-stems), but there is a difference here.
->
-> I will again look into the possibility of what you are requesting, ho=
-wever, the changes are extremely low if not zero that it will be accept=
-ed.
+On Fri, Nov 09, 2012 at 08:06:29AM +0530, Viresh Kumar wrote:
+> On 8 November 2012 22:08, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > On Thu, Nov 08, 2012 at 07:10:47PM +0530, Viresh Kumar wrote:
+> > It also breaks the error unwinding/removal of the driver as it frees
+> > input device while IRQ handler is still active.
+> 
+> I have heard of this argument before, probably from you. :)
+> Just need clarification again. How will we get an interrupt when the controller
+> is stopped, unless we have a shared irq.
 
-Why? If drivers were kept out of the kernel because the hardware they=20
-are designed to run requires strange things or was badly designed, ther=
-e=20
-would be a lot fewer drivers in the kernel than there are today.=20
-=46irmware and hardware frequently does bizarre or nonsensical things a=
-nd=20
-we just have to deal with it.
+My bad, I missed that spear-keyboard driver implements open() and
+close() methods and shuts off the device properly. Still, thanks for
+switching everything to devm_*, I think it is much cleaner this way as
+opposed to mixing managed and unmanaged resources.
 
->
-> Dave
->
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Wednesday, November 07, 2012 4:16 PM
-> To: David Solda
-> Cc: Troy Abercrombia; Kamal Mostafa; Ozan =C7a=F0layan; linux-kernel@=
-vger.kernel.org; linux-input@vger.kernel.org; customercare; mario_limon=
-ciello@dell.com
-> Subject: Re: Why Cypress does not upstream its trackpad driver?
->
-> Hi David,
->
-> On Wednesday, November 07, 2012 06:30:11 PM David Solda wrote:
->> Kamal,
->>
->> My name is Dave Solda and I would be happy to answer any other
->> questions that you have. Troy's response is correct however as in
->> order to support the default Linux mouse class, our firmware would
->> also have to be modified to do so, which cannot be done in system. O=
-ur
->> packet protocol maxes out at an 8 byte packet, which requires a chan=
-ge
->> to the Linux standard in this case.
->
-> I am unable to parse this... I do not believe anyone asks you to chan=
-ge your firmware and if your protocol needs 8 bytes to transmit device =
-state - that's fine.
->
->> Our goal in working with canonical was to provide something on Linux
->> that would support multi-touch and not only have default single fing=
-er
->> movement supported.
->
->> If I am mistaken and he Linux kernel would accept this, then we can
->> proceed to upstream, however all indications we have is that this
->> patch would be rejected.  If you (or others on from the locus alias)
->> have any inputs, I would be happy to receive them.
->
-> This really depends on whether the changes to the psmouse framework m=
-ake sense or not. Please start submitting patches for review/discussion=
- and we can go from there.
->
-> Thanks.
->
-> --
-> Dmitry
->
-> This message and any attachments may contain Cypress (or its subsidia=
-ries) confidential information. If it has been received in error, pleas=
-e advise the sender and immediately delete this message.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Thanks.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

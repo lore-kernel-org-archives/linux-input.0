@@ -1,74 +1,38 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] input: fix input-mt kernel-doc warning
-Date: Thu, 8 Nov 2012 18:56:09 +0100
-Message-ID: <20121108175609.GA11114@polaris.bitmath.org>
-References: <5099B45E.8080105@infradead.org>
- <20121107194617.GA3738@polaris.bitmath.org>
- <20121108170431.GD8877@core.coreip.homeip.net>
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH 1/3] input: spear-keyboard: Use devm_*() routines
+Date: Fri, 9 Nov 2012 08:06:29 +0530
+Message-ID: <CAKohpo=PdNoBzpZoHWcHSqh_az2OOGGGegNzCXPxjUDVOHostw@mail.gmail.com>
+References: <9f07bb7dbf29978970d901bbe89add0a333cc925.1352381962.git.viresh.kumar@linaro.org>
+	<20121108163835.GA8877@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:43335 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756201Ab2KHRuW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Nov 2012 12:50:22 -0500
-Content-Disposition: inline
-In-Reply-To: <20121108170431.GD8877@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121108163835.GA8877@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com
+List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On 8 November 2012 22:08, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On Thu, Nov 08, 2012 at 07:10:47PM +0530, Viresh Kumar wrote:
+> It also breaks the error unwinding/removal of the driver as it frees
+> input device while IRQ handler is still active.
 
-> > > From: Randy Dunlap <rdunlap@infradead.org>
-> > > 
-> > > Fix new kernel-doc warning in input-mt.c:
-> > > 
-> > > Warning(drivers/input/input-mt.c:38): No description found for parameter 'flags'
-> > 
-> > Thanks for the patch. It seemed reasonable to expand the function
-> > documentation a bit as well, hope you are alright with the patch
-> > below, Dmitry, care to pick this up for 3.7? Otherwise I can carry it
-> > for 3.8.
-> 
-> Randy, Henrik,
-> 
-> I'll try getting it in 3.7.
+I have heard of this argument before, probably from you. :)
+Just need clarification again. How will we get an interrupt when the controller
+is stopped, unless we have a shared irq.
 
-Seems there were more warnings introduced in 3.7-rc1... adding the
-patch below seems to fix all of them. I guess you want to merge the
-former patch into this one.
+> I will push the patch which implements devm_input_allocate_device() to
+> my 'next' branch in a few, please use it because it will make sure input
+> device will stick around long enough.
 
-Thanks,
-Henrik
+Will surely use that.
 
->From 1ba1d5e18057260a3203625eaee22cc94393fda3 Mon Sep 17 00:00:00 2001
-From: Henrik Rydberg <rydberg@euromail.se>
-Date: Thu, 8 Nov 2012 18:48:22 +0100
-Subject: [PATCH] Input: Document new struct members
+>> +     kbd->io_base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
+>
+> There is devm_request_and_ioremap() which you can use here.
 
-Fixes kernel-doc warnings for the members added in 3.7-rc1.
+Should have been done in V1 only.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- include/linux/input.h | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/include/linux/input.h b/include/linux/input.h
-index cab994b..2d55e55 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -112,6 +112,9 @@ struct input_value {
-  * @h_list: list of input handles associated with the device. When
-  *	accessing the list dev->mutex must be held
-  * @node: used to place the device onto input_dev_list
-+ * @num_vals: number of values queued in the current frame
-+ * @max_vals: maximum number of values queued in a frame
-+ * @vals: array of values queued in the current frame
-  */
- struct input_dev {
- 	const char *name;
--- 
-1.8.0
-
+--
+viresh

@@ -1,91 +1,102 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification implementation
-Date: Fri, 9 Nov 2012 04:59:32 -0500
-Message-ID: <CAN+gG=FFmyuVG63qz+fbFr-cviVG85p-=_1Un3zCLPh+-c25DQ@mail.gmail.com>
-References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com>
-	<507D182E.9010902@suse.cz>
-	<CAN+gG=E3QhwKeZfJtOhFrOqOnPW=hdbij-U7euvVEQ_MuNaXaQ@mail.gmail.com>
-	<alpine.LNX.2.00.1211091048590.27271@pobox.suse.cz>
+From: "AnilKumar, Chimata" <anilkumar@ti.com>
+Subject: RE: [PATCH v4] Input: matrix-keypad - Add device tree support
+Date: Fri, 9 Nov 2012 11:07:38 +0000
+Message-ID: <331ABD5ECB02734CA317220B2BBEABC13EA68909@DBDE01.ent.ti.com>
+References: <1352280725-452-1-git-send-email-anilkumar@ti.com>
+ <509BE405.60204@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1211091048590.27271-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bear.ext.ti.com ([192.94.94.41]:51567 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752115Ab2KILHp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 06:07:45 -0500
+In-Reply-To: <509BE405.60204@wwwdotorg.org>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: 'Stephen Warren' <swarren@wwwdotorg.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "dgdunix@gmail.com" <dgdunix@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Jiri,
+On Thu, Nov 08, 2012 at 22:25:33, Stephen Warren wrote:
+> On 11/07/2012 02:32 AM, AnilKumar Ch wrote:
+> > Add device tree support to matrix keypad driver and usage details
+> > are added to device tree documentation. Driver was tested on AM335x
+> > EVM.
+> 
+> > diff --git a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
+> 
+> > +Optional Properties:
+> 
+> > +- clustered-irq:	have clustered irq number, that is needed if the irq
+> > +			is a combined irq source for the whole matrix keypad.
+> > +			This is useful if rows and columns of the keypad are
+> > +			connected to a GPIO expander.
+> > +- clustered-irq-flags:	clustered irq flags to specify the interrupt line
+> > +			behavior among IRQF_TRIGGER_*
+> 
+> I still don't understand why there's a need for a clustered-irq-flags
+> property; if those flags are the flags for an interrupt, why aren't the
+> flags part of the clustered-irq interrupt specifier, just like any other
+> interrupt in DT?
 
-On Fri, Nov 9, 2012 at 4:49 AM, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org> wrote:
-> On Tue, 16 Oct 2012, Benjamin Tissoires wrote:
->
->> >> --- /dev/null
->> >> +++ b/drivers/hid/i2c-hid/i2c-hid.c
->> > ...
->> >> +static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
->> >> +{
->> >> +     /* the worst case is computed from the set_report command with a
->> >> +      * reportID > 15 and the maximum report length */
->> >> +     int args_len = sizeof(__u8) + /* optional ReportID byte */
->> >> +                    sizeof(__u16) + /* data register */
->> >> +                    sizeof(__u16) + /* size of the report */
->> >> +                    ihid->bufsize; /* report */
->> >> +
->> >> +     ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
->> >> +
->> >> +     if (!ihid->inbuf)
->> >> +             return -ENOMEM;
->> >> +
->> >> +     ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
->> >> +
->> >> +     if (!ihid->argsbuf) {
->> >> +             kfree(ihid->inbuf);
->> >> +             return -ENOMEM;
->> >> +     }
->> >> +
->> >> +     ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
->> >> +
->> >> +     if (!ihid->cmdbuf) {
->> >> +             kfree(ihid->inbuf);
->> >> +             kfree(ihid->argsbuf);
->> >> +             return -ENOMEM;
->> >> +     }
->> >> +
->> >> +     return 0;
->> >
->> > If this is called from hid_start and some of the latter allocation fails
->> > here, you free the buffers appropriately. However if another start
->> > occurs (e.g. by loading another module for that particular device), it
->> > will crash, as the buffers will remain unallocated because at this point
->> > ihid->bufsize == old_bufsize. You should set ihid->bufsize back to
->> > old_bufsize if i2c_hid_alloc_buffers fails and also set the pointers to
->> > NULL here.
->>
->> well spotted, thanks.
->> I'll change it in v3 then.
->
-> Benjamin,
->
-> just a quick check -- are you planning on submitting v3 eventually?
+Exactly, I agree with you on this.
 
-yes sure.
-It was not on my top priority list since I started at Red Hat.
-Moreover, I've been reported a bug yesterday with the set_report
-command.
+Honestly, I added clustered_xxx properties to DT considering the 
+platform_data currently implemented in driver. And I do not have
+hardware to  validate clustered_xxx execution flow.
 
-I'll need to do a few more tests before sending the v3.
+I looked at the commit which adds support for clustered_irq,
 
-If I send it by the end of the day or at the beginning of next week,
-will it have a chance to land into 3.8?
-
-Cheers,
-Benjamin
+Commit Description:
+ 
+"This one adds support of a combined irq source for the whole matrix
+keypad. This can be useful if all rows and columns of the keypad are
+e.g. connected to a GPIO expander, which only has one interrupt line
+for all events on every single GPIO."
 
 
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
+So I believe this was meant for matrix keypad interfaced over I2C
+expander, But I am not sure how it is being used.
+
+The hardware is connected in any of the following methods, the driver
+should supports the same.
+
+i) gpio interrupt can be used as keypad interrupt, connection is
+like this (MPU<===>IOEXP)
+            |_______| (gpio line)
+
+Here I expect driver should have gpio_to_irq implementation, but
+its missing from driver. So platform code must be doing it, but
+surprisingly I couldn't able to find any platform which uses this.
+
+ii) i2c interrupt can be used as keypad interrupt
+
+Here driver is not using threaded irq.
+
+As a reference I looked tca6416-keypad.c driver and it has right implementation,
+
+if (pdata->irq_is_gpio)
+	chip->irqnum = gpio_to_irq(client->irq);
+else
+	chip->irqnum = client->irq;
+
+
+As per my understanding matrix-keypad driver has to change
+accordingly to tca6416-keypad.c driver to handle clustered-irq.
+
+So I left with below options,
+
+1. Lets only support normal GPIO based matrix key-pad, without
+clustered_irq support in DT.
+
+2. Cleanup the driver to remove clustered_irq all together,
+considering the fact that we do not have any platform in kernel
+to use it. And once we get known platform in the future, we can
+again add it.
+
+I vote for option-1, what do you think?
+
+Thanks
+AnilKumar

@@ -1,64 +1,110 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 1/3] input: spear-keyboard: Use devm_*() routines
-Date: Fri, 9 Nov 2012 22:35:22 +0530
-Message-ID: <CAKohponYyB18B92tTxb8_e1dzJhaAL=tqnCJfh_DpoUHavdGVw@mail.gmail.com>
-References: <9f07bb7dbf29978970d901bbe89add0a333cc925.1352381962.git.viresh.kumar@linaro.org>
-	<20121108163835.GA8877@core.coreip.homeip.net>
-	<CAKohpo=PdNoBzpZoHWcHSqh_az2OOGGGegNzCXPxjUDVOHostw@mail.gmail.com>
-	<20121109053311.GA12105@core.coreip.homeip.net>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH v4] Input: matrix-keypad - Add device tree support
+Date: Fri, 09 Nov 2012 10:19:39 -0700
+Message-ID: <509D3B2B.9000608@wwwdotorg.org>
+References: <1352280725-452-1-git-send-email-anilkumar@ti.com> <509BE405.60204@wwwdotorg.org> <331ABD5ECB02734CA317220B2BBEABC13EA68909@DBDE01.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:58466 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754801Ab2KIRFW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 12:05:22 -0500
-Received: by mail-ob0-f174.google.com with SMTP id uo13so4226446obb.19
-        for <linux-input@vger.kernel.org>; Fri, 09 Nov 2012 09:05:22 -0800 (PST)
-In-Reply-To: <20121109053311.GA12105@core.coreip.homeip.net>
+Received: from avon.wwwdotorg.org ([70.85.31.133]:42766 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751726Ab2KIRTm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 12:19:42 -0500
+In-Reply-To: <331ABD5ECB02734CA317220B2BBEABC13EA68909@DBDE01.ent.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com
+To: "AnilKumar, Chimata" <anilkumar@ti.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "dgdunix@gmail.com" <dgdunix@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 9 November 2012 11:03, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Fri, Nov 09, 2012 at 08:06:29AM +0530, Viresh Kumar wrote:
->> On 8 November 2012 22:08, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->> > On Thu, Nov 08, 2012 at 07:10:47PM +0530, Viresh Kumar wrote:
->> > It also breaks the error unwinding/removal of the driver as it frees
->> > input device while IRQ handler is still active.
+On 11/09/2012 04:07 AM, AnilKumar, Chimata wrote:
+> On Thu, Nov 08, 2012 at 22:25:33, Stephen Warren wrote:
+>> On 11/07/2012 02:32 AM, AnilKumar Ch wrote:
+>>> Add device tree support to matrix keypad driver and usage details
+>>> are added to device tree documentation. Driver was tested on AM335x
+>>> EVM.
 >>
->> I have heard of this argument before, probably from you. :)
->> Just need clarification again. How will we get an interrupt when the controller
->> is stopped, unless we have a shared irq.
->
-> My bad, I missed that spear-keyboard driver implements open() and
-> close() methods and shuts off the device properly. Still, thanks for
-> switching everything to devm_*, I think it is much cleaner this way as
-> opposed to mixing managed and unmanaged resources.
+>>> diff --git a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
+>>
+>>> +Optional Properties:
+>>
+>>> +- clustered-irq:	have clustered irq number, that is needed if the irq
+>>> +			is a combined irq source for the whole matrix keypad.
+>>> +			This is useful if rows and columns of the keypad are
+>>> +			connected to a GPIO expander.
+>>> +- clustered-irq-flags:	clustered irq flags to specify the interrupt line
+>>> +			behavior among IRQF_TRIGGER_*
+>>
+>> I still don't understand why there's a need for a clustered-irq-flags
+>> property; if those flags are the flags for an interrupt, why aren't the
+>> flags part of the clustered-irq interrupt specifier, just like any other
+>> interrupt in DT?
+> 
+> Exactly, I agree with you on this.
+> 
+> Honestly, I added clustered_xxx properties to DT considering the 
+> platform_data currently implemented in driver. And I do not have
+> hardware to  validate clustered_xxx execution flow.
+> 
+> I looked at the commit which adds support for clustered_irq,
+> 
+> Commit Description:
+>  
+> "This one adds support of a combined irq source for the whole matrix
+> keypad. This can be useful if all rows and columns of the keypad are
+> e.g. connected to a GPIO expander, which only has one interrupt line
+> for all events on every single GPIO."
+> 
+> 
+> So I believe this was meant for matrix keypad interfaced over I2C
+> expander, But I am not sure how it is being used.
+> 
+> The hardware is connected in any of the following methods, the driver
+> should supports the same.
+> 
+> i) gpio interrupt can be used as keypad interrupt, connection is
+> like this (MPU<===>IOEXP)
+>             |_______| (gpio line)
+> 
+> Here I expect driver should have gpio_to_irq implementation, but
+> its missing from driver. So platform code must be doing it, but
+> surprisingly I couldn't able to find any platform which uses this.
+> 
+> ii) i2c interrupt can be used as keypad interrupt
+> 
+> Here driver is not using threaded irq.
+> 
+> As a reference I looked tca6416-keypad.c driver and it has right implementation,
+> 
+> if (pdata->irq_is_gpio)
+> 	chip->irqnum = gpio_to_irq(client->irq);
+> else
+> 	chip->irqnum = client->irq;
+> 
+> 
+> As per my understanding matrix-keypad driver has to change
+> accordingly to tca6416-keypad.c driver to handle clustered-irq.
 
-Another fixup:
+That sounds correct.
 
-commit ebdec75f51050cf4a5ac41d3a1e880e14bf96a95
-Author: Viresh Kumar <viresh.kumar@linaro.org>
-Date:   Fri Nov 9 22:28:48 2012 +0530
+> So I left with below options,
+> 
+> 1. Lets only support normal GPIO based matrix key-pad, without
+> clustered_irq support in DT.
+> 
+> 2. Cleanup the driver to remove clustered_irq all together,
+> considering the fact that we do not have any platform in kernel
+> to use it. And once we get known platform in the future, we can
+> again add it.
+> 
+> I vote for option-1, what do you think?
 
-    fixup! input: spear-keyboard: Use devm_*() routines
----
- drivers/input/keyboard/spear-keyboard.c | 1 -
- 1 file changed, 1 deletion(-)
+I think that's fine.
 
-diff --git a/drivers/input/keyboard/spear-keyboard.c
-b/drivers/input/keyboard/spear-keyboard.c
-index 25e0a3b..65f5950 100644
---- a/drivers/input/keyboard/spear-keyboard.c
-+++ b/drivers/input/keyboard/spear-keyboard.c
-@@ -292,7 +292,6 @@ static int __devexit spear_kbd_remove(struct
-platform_device *pdev)
- {
-        struct spear_kbd *kbd = platform_get_drvdata(pdev);
-
--       input_unregister_device(kbd->input);
-        clk_unprepare(kbd->clk);
-
-        device_init_wakeup(&pdev->dev, 0);
+The only issue is that it means the DT binding will not be complete the
+first time around, and will probably need to be extended in the future.
+I know that some people will want to see the binding be complete right
+from the very start, to make sure the binding has been fully thought
+through. However, it seems clear that the binding can be extended in a
+backwards-compatible fashion to support clustered IRQs later, so I don't
+think there's any issue here myself.

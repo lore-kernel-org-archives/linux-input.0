@@ -1,37 +1,66 @@
-From: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Subject: Re: [PATCH 2/3] input: stmpe-ts: Use devm_*() routines
-Date: Sat, 10 Nov 2012 09:15:26 +0100
-Message-ID: <20121110081526.GA13787@order.stressinduktion.org>
-References: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org> <52b9fe53a8bd8dff7105209c5b1fab9da7a1510d.1352474824.git.viresh.kumar@linaro.org> <CAKohpomC1KTLk=UVim4gdYhJ5kngTZHOUvUgckD75AVH1w+FHw@mail.gmail.com> <20121110080009.GA12015@core.coreip.homeip.net> <CAKohponua2d95scdwmNsnVpG18nFYA1cuQa703kPfR7D8gF5fg@mail.gmail.com> <CAKohponupMgdMh8bvYaF+i9gRtwSJ9t4j+Gdy7mAieR8imc5Kw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 02/10] arm: at91: move platfarm_data to
+	include/linux/platform_data/atmel.h
+Date: Sat, 10 Nov 2012 00:42:56 -0800
+Message-ID: <20121110084256.GB14761@core.coreip.homeip.net>
+References: <20121107111235.GH20063@game.jcrosoft.org>
+	<1352287374-25176-1-git-send-email-plagnioj@jcrosoft.com>
+	<1352287374-25176-2-git-send-email-plagnioj@jcrosoft.com>
+	<509A5219.2080408@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from order.stressinduktion.org ([87.106.68.36]:45256 "EHLO
-	order.stressinduktion.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751995Ab2KJIP1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Nov 2012 03:15:27 -0500
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAKohponupMgdMh8bvYaF+i9gRtwSJ9t4j+Gdy7mAieR8imc5Kw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <509A5219.2080408-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
+List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pcmcia-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, linux-can-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com
 
-On Sat, Nov 10, 2012 at 01:34:33PM +0530, Viresh Kumar wrote:
-> wrapped again.. Don't know how to disable it. :(
+On Wed, Nov 07, 2012 at 01:20:41PM +0100, Marc Kleine-Budde wrote:
+> On 11/07/2012 12:22 PM, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> > Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+> > Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> > Cc: linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: linux-can-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: linux-pcmcia-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> > Cc: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+> > Cc: spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+> > Cc: linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > ---
+> > HI all,
+> > 
+> > 	If it's ok with everyone this will go via at91
+> > 	with the patch serie than clean up the include/mach
+> 
+> Fine with me.
+> 
+> > 	For preparation to switch to arm multiarch kernel
+> 
+> Acked-by: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> (for the CAN related changes)
 
-To quote Documentation/email-clients.txt:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Gmail (Web GUI)
+Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Does not work for sending patches.
+for input piece.
 
-Gmail web client converts tabs to spaces automatically.
+-- 
+Dmitry
 
-At the same time it wraps lines every 78 chars with CRLF style line breaks
-although tab2space problem can be solved with external editor.
-
-Another problem is that Gmail will base64-encode any message that has a
-non-ASCII character. That includes things like European names.
-
+------------------------------------------------------------------------------
+Everyone hates slow websites. So do we.
+Make your web apps faster with AppDynamics
+Download AppDynamics Lite for free today:
+http://p.sf.net/sfu/appdyn_d2d_nov

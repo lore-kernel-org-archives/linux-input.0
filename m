@@ -1,30 +1,92 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] HIL: remove one goto
-Date: Sat, 10 Nov 2012 00:47:49 -0800
-Message-ID: <20121110084749.GC14761@core.coreip.homeip.net>
-References: <2837529.xgu9k1gmUb@eto>
+From: Joachim Eastwood <manabian@gmail.com>
+Subject: Re: [PATCH 02/10] arm: at91: move platfarm_data to include/linux/platform_data/atmel.h
+Date: Sat, 10 Nov 2012 11:54:27 +0100
+Message-ID: <CAGhQ9VxgbCGzOPVtQq-LYsEPuyyGjRDfB3jHPtvbHr1xLgntXA@mail.gmail.com>
+References: <20121107111235.GH20063@game.jcrosoft.org>
+	<1352287374-25176-1-git-send-email-plagnioj@jcrosoft.com>
+	<1352287374-25176-2-git-send-email-plagnioj@jcrosoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:41319 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750745Ab2KJIrx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Nov 2012 03:47:53 -0500
-Content-Disposition: inline
-In-Reply-To: <2837529.xgu9k1gmUb@eto>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-can-owner@vger.kernel.org>
+In-Reply-To: <1352287374-25176-2-git-send-email-plagnioj@jcrosoft.com>
+Sender: linux-can-owner@vger.kernel.org
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-fbdev@vger.kernel.org, linux-usb@vger.kernel.org, rtc-linux@googlegroups.com, linux-mmc@vger.kernel.org, linux-pcmcia@lists.infradead.org, Nicolas Ferre <nicolas.ferre@atmel.com>, linux-can@vger.kernel.org, linux-ide@vger.kernel.org, netdev@vger.kernel.org, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, spi-devel-general@lists.sourceforge.net
 List-Id: linux-input@vger.kernel.org
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: linux-parisc@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Oct 31, 2012 at 08:24:34PM +0100, Rolf Eike Beer wrote:
-> This goto is only used to skip the next instruction, which can easily be done
-> without a goto.
-> 
-> Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Hi Jean-Christophe,
 
-Applied, thank you Rolf.
+On 7 November 2012 12:22, Jean-Christophe PLAGNIOL-VILLARD
+<plagnioj@jcrosoft.com> wrote:
+> Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+> Cc: Nicolas Ferre <nicolas.ferre@atmel.com>
+> Cc: linux-ide@vger.kernel.org
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-mmc@vger.kernel.org
+> Cc: linux-can@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: linux-pcmcia@lists.infradead.org
+> Cc: rtc-linux@googlegroups.com
+> Cc: spi-devel-general@lists.sourceforge.net
+> Cc: linux-serial@vger.kernel.org
+> Cc: linux-usb@vger.kernel.org
+> Cc: linux-fbdev@vger.kernel.org
+> ---
+> HI all,
+>
+>         If it's ok with everyone this will go via at91
+>         with the patch serie than clean up the include/mach
+>
+>         For preparation to switch to arm multiarch kernel
+>
+> Best Regards,
+> J.
+>  arch/arm/mach-at91/include/mach/board.h     |   55 ----------------------
+>  arch/avr32/mach-at32ap/include/mach/board.h |    7 ---
+>  drivers/ata/pata_at91.c                     |    2 +-
+>  drivers/input/touchscreen/atmel_tsadcc.c    |    2 +-
+>  drivers/mmc/host/atmel-mci.c                |    2 +-
+>  drivers/net/can/at91_can.c                  |    3 +-
+>  drivers/net/ethernet/cadence/at91_ether.c   |    2 +-
+>  drivers/pcmcia/at91_cf.c                    |    2 +-
+>  drivers/rtc/rtc-at91sam9.c                  |    2 +-
+>  drivers/spi/spi-atmel.c                     |    2 +-
+>  drivers/tty/serial/atmel_serial.c           |    2 +-
+>  drivers/usb/gadget/at91_udc.c               |    2 +-
+>  drivers/usb/gadget/atmel_usba_udc.c         |    2 +-
+>  drivers/usb/host/ohci-at91.c                |    2 +-
+>  drivers/video/atmel_lcdfb.c                 |    2 +-
+>  include/linux/platform_data/atmel.h         |   67 +++++++++++++++++++++++++++
+>  16 files changed, 80 insertions(+), 76 deletions(-)
 
--- 
-Dmitry
+<snip>
+
+> diff --git a/drivers/net/ethernet/cadence/at91_ether.c b/drivers/net/ethernet/cadence/at91_ether.c
+> index 4e980a7..35fc6edb 100644
+> --- a/drivers/net/ethernet/cadence/at91_ether.c
+> +++ b/drivers/net/ethernet/cadence/at91_ether.c
+> @@ -31,6 +31,7 @@
+>  #include <linux/clk.h>
+>  #include <linux/gfp.h>
+>  #include <linux/phy.h>
+> +#include <linux/platform_data/atmel.h>
+>
+>  #include <asm/io.h>
+>  #include <asm/uaccess.h>
+> @@ -38,7 +39,6 @@
+>
+>  #include <mach/at91rm9200_emac.h>
+>  #include <asm/gpio.h>
+> -#include <mach/board.h>
+>
+>  #include "at91_ether.h"
+
+The at91_ether driver in net-next does not need to be change since it
+all mach includes has already been removed by other patches and it
+includes linux/platform_data/macb.h directly.
+
+What tree was these patches based on?
+The at91_ether driver changes has been in linux-next for a long while now.
+
+regards
+Joachim Eastwood

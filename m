@@ -1,39 +1,60 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v5] staging: ste_rmi4: Convert to Type-B support
-Date: Fri, 9 Nov 2012 20:26:04 +0100
-Message-ID: <20121109192604.GA16972@polaris.bitmath.org>
-References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
- <20121108150529.b16707c1c84e6fd862e58b6a@tw.synaptics.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/3] input: stmpe-ts: Use devm_*() routines
+Date: Sat, 10 Nov 2012 00:00:09 -0800
+Message-ID: <20121110080009.GA12015@core.coreip.homeip.net>
+References: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
+ <52b9fe53a8bd8dff7105209c5b1fab9da7a1510d.1352474824.git.viresh.kumar@linaro.org>
+ <CAKohpomC1KTLk=UVim4gdYhJ5kngTZHOUvUgckD75AVH1w+FHw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b31.telenor.se ([213.150.131.20]:39541 "EHLO
-	smtprelay-b31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752655Ab2KITUK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Nov 2012 14:20:10 -0500
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:53432 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751912Ab2KJIAO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 10 Nov 2012 03:00:14 -0500
 Content-Disposition: inline
-In-Reply-To: <20121108150529.b16707c1c84e6fd862e58b6a@tw.synaptics.com>
+In-Reply-To: <CAKohpomC1KTLk=UVim4gdYhJ5kngTZHOUvUgckD75AVH1w+FHw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexandra Chin <Alexandra.Chin@tw.synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com
 
-On Thu, Nov 08, 2012 at 03:05:29PM +0800, Alexandra Chin wrote:
-> Convert to MT-B because Synaptics touch devices are capable
-> of tracking identifiable fingers.
+Hi Viresh,
+
+On Fri, Nov 09, 2012 at 10:34:35PM +0530, Viresh Kumar wrote:
+> On 9 November 2012 20:57, Viresh Kumar <viresh.kumar@linaro.org> wrote:
+> > This patch frees stmpe-ts driver from tension of freeing resources :)
+> > devm_* derivatives of multiple routines are used while allocating resources,
+> > which would be freed automatically by kernel.
+> >
+> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 > 
-> Signed-off-by: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+> Fixup:
+> 
+> commit dda6d45808d65aaf8b0d4153e7a418b255365818
+> Author: Viresh Kumar <viresh.kumar@linaro.org>
+> Date:   Fri Nov 9 22:28:26 2012 +0530
+> 
+>     fixup! input: stmpe-ts: Use devm_*() routines
 > ---
-> Changes from v5:
->         - Incorporated Henrik's review comments
->           *rollback to v3 from v4
->           *fix odd line break in v3
->         - Include Alexandra in the list of authors
+>  drivers/input/touchscreen/stmpe-ts.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/stmpe-ts.c
+> b/drivers/input/touchscreen/stmpe-ts.c
+> index 9896095..f2cb15d 100644
+> --- a/drivers/input/touchscreen/stmpe-ts.c
+> +++ b/drivers/input/touchscreen/stmpe-ts.c
+> @@ -344,8 +344,6 @@ static int __devexit stmpe_ts_remove(struct
+> platform_device *pdev)
 
-I am seeing _new_ irrelevant changes in this version... There is no
-need to revert to v3. Just remove the synaptics_rmi4_query_function()
-changes and other uneeded cruft from the v4 patch. No new changes,
-please, and make sure the final patch is tested.
+Sometimes your mailer does wrap long lines, please make sure to turn it
+off for patches.
+
+There is no need to resend this one.
 
 Thanks.
-Henrik
+
+-- 
+Dmitry

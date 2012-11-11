@@ -1,158 +1,178 @@
 From: Stefan Achatz <stefan_achatz@web.de>
-Subject: [PATCH 7/7] HID: roccat: Deprecated some Kovaplus sysfs attributes
-Date: Sun, 11 Nov 2012 06:21:19 +0100
-Message-ID: <1352611279.2463.227.camel@neuromancer.tessier-ashpool>
+Subject: [PATCH 5/7] HID: roccat: Deprecated some Pyra sysfs attributes
+Date: Sun, 11 Nov 2012 06:21:10 +0100
+Message-ID: <1352611270.2463.225.camel@neuromancer.tessier-ashpool>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.3]:49898 "EHLO mout.web.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752945Ab2KKFVa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Nov 2012 00:21:30 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
 To: Rob Landley <rob@landley.net>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 Introduced attribute "control" and made profile_settings and profile_buttons
 readable, which makes profile[1-5]_settings and profile[1-5]_buttons obsolete.
 
 Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 ---
- .../ABI/obsolete/sysfs-driver-hid-roccat-kovaplus  |   25 +++++++++++++++++
- .../ABI/testing/sysfs-driver-hid-roccat-kovaplus   |   29 +++-----------------
- drivers/hid/hid-roccat-kovaplus.c                  |   10 ++++---
- drivers/hid/hid-roccat-kovaplus.h                  |    2 +
- 4 files changed, 37 insertions(+), 29 deletions(-)
+ .../ABI/obsolete/sysfs-driver-hid-roccat-pyra      |   27 ++++++++++++++-
+ .../ABI/testing/sysfs-driver-hid-roccat-pyra       |   37 ++++++-------------
+ drivers/hid/hid-roccat-pyra.c                      |   10 +++--
+ drivers/hid/hid-roccat-pyra.h                      |    2 +
+ 4 files changed, 46 insertions(+), 30 deletions(-)
 
-diff --git a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-kovaplus b/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-kovaplus
-index 4d9fb262..4a98e02 100644
---- a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-kovaplus
-+++ b/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-kovaplus
-@@ -39,3 +39,28 @@ Description:	When read, this file returns the raw integer version number of the
- 		This file is readonly.
- 		Obsoleted by binary sysfs attribute "info".
+diff --git a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-pyra b/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-pyra
+index 0a661b3..87ac87e 100644
+--- a/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-pyra
++++ b/Documentation/ABI/obsolete/sysfs-driver-hid-roccat-pyra
+@@ -37,6 +37,31 @@ Description:	When read, this file returns the raw integer version number of the
+ 		Please use binary attribute "info" which provides this information.
  Users:		http://roccat.sourceforge.net
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/profile[1-5]_buttons
-+Date:		January 2011
+ 
++What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile[1-5]_buttons
++Date:		August 2010
 +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
 +Description:	The mouse can store 5 profiles which can be switched by the
 +		press of a button. A profile is split in settings and buttons.
 +		profile_buttons holds information about button layout.
 +		When read, these files return the respective profile buttons.
-+		The returned data is 23 bytes in size.
++		The returned data is 19 bytes in size.
 +		This file is readonly.
 +		Write control to select profile and read profile_buttons instead.
 +Users:		http://roccat.sourceforge.net
 +
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/profile[1-5]_settings
-+Date:		January 2011
++What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile[1-5]_settings
++Date:		August 2010
 +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
 +Description:	The mouse can store 5 profiles which can be switched by the
 +		press of a button. A profile is split in settings and buttons.
 +		profile_settings holds information like resolution, sensitivity
 +		and light effects.
 +		When read, these files return the respective profile settings.
-+		The returned data is 16 bytes in size.
++		The returned data is 13 bytes in size.
 +		This file is readonly.
 +		Write control to select profile and read profile_settings instead.
 +Users:		http://roccat.sourceforge.net
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus b/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus
-index 507f2c7..e8a04f2 100644
---- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-kovaplus
-@@ -28,18 +28,8 @@ Description:	The mouse can store 5 profiles which can be switched by the
++
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/startup_profile
+ Date:		August 2010
+ Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
+@@ -45,4 +70,4 @@ Description:	The integer value of this attribute ranges from 0-4.
+                 that's active when the mouse is powered on.
+ 		This file is readonly.
+ 		Please use binary attribute "settings" which provides this information.
+-Users:		http://roccat.sourceforge.net
+\ No newline at end of file
++Users:		http://roccat.sourceforge.net
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-pyra b/Documentation/ABI/testing/sysfs-driver-hid-roccat-pyra
+index b0fab8b..6571d8e 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-roccat-pyra
++++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-pyra
+@@ -1,3 +1,11 @@
++What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/info
++Date:		November 2012
++Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
++Description:	When read, this file returns general data like firmware version.
++		When written, the device can be reset.
++		The data is 6 bytes long.
++Users:		http://roccat.sourceforge.net
++
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile_settings
+ Date:		August 2010
+ Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
+@@ -10,19 +18,8 @@ Description:	The mouse can store 5 profiles which can be switched by the
  		The mouse will reject invalid data.
  		Which profile to write is determined by the profile number
  		contained in the data.
 -		This file is writeonly.
 -Users:		http://roccat.sourceforge.net
 -
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/profile[1-5]_buttons
--Date:		January 2011
--Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
--Description:	The mouse can store 5 profiles which can be switched by the
--		press of a button. A profile is split in settings and buttons.
--		profile_buttons holds information about button layout.
--		When read, these files return the respective profile buttons.
--		The returned data is 23 bytes in size.
--		This file is readonly.
-+		Before reading this file, control has to be written to select
-+		which profile to read.
- Users:		http://roccat.sourceforge.net
- 
- What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/profile_settings
-@@ -54,17 +44,6 @@ Description:	The mouse can store 5 profiles which can be switched by the
- 		The mouse will reject invalid data.
- 		Which profile to write is determined by the profile number
- 		contained in the data.
--		This file is writeonly.
--Users:		http://roccat.sourceforge.net
--
--What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/kovaplus/roccatkovaplus<minor>/profile[1-5]_settings
--Date:		January 2011
+-What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile[1-5]_settings
+-Date:		August 2010
 -Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
 -Description:	The mouse can store 5 profiles which can be switched by the
 -		press of a button. A profile is split in settings and buttons.
 -		profile_settings holds information like resolution, sensitivity
 -		and light effects.
 -		When read, these files return the respective profile settings.
--		The returned data is 16 bytes in size.
+-		The returned data is 13 bytes in size.
 -		This file is readonly.
 +		Before reading this file, control has to be written to select
 +		which profile to read.
  Users:		http://roccat.sourceforge.net
-diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
-index 1589fd3..b8b3778 100644
---- a/drivers/hid/hid-roccat-kovaplus.c
-+++ b/drivers/hid/hid-roccat-kovaplus.c
-@@ -218,9 +218,10 @@ KOVAPLUS_SYSFS_R(thingy, THINGY)
- 	.write = kovaplus_sysfs_write_ ## thingy \
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile_buttons
+@@ -36,18 +33,8 @@ Description:	The mouse can store 5 profiles which can be switched by the
+ 		The mouse will reject invalid data.
+ 		Which profile to write is determined by the profile number
+ 		contained in the data.
+-		This file is writeonly.
+-Users:		http://roccat.sourceforge.net
+-
+-What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/profile[1-5]_buttons
+-Date:		August 2010
+-Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
+-Description:	The mouse can store 5 profiles which can be switched by the
+-		press of a button. A profile is split in settings and buttons.
+-		profile_buttons holds information about button layout.
+-		When read, these files return the respective profile buttons.
+-		The returned data is 19 bytes in size.
+-		This file is readonly.
++		Before reading this file, control has to be written to select
++		which profile to read.
+ Users:		http://roccat.sourceforge.net
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/pyra/roccatpyra<minor>/settings
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index 76199fa..d4f1e3b 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -177,9 +177,10 @@ PYRA_SYSFS_R(thingy, THINGY)
+ 	.write = pyra_sysfs_write_ ## thingy \
  }
  
-+KOVAPLUS_SYSFS_W(control, CONTROL)
- KOVAPLUS_SYSFS_RW(info, INFO)
--KOVAPLUS_SYSFS_W(profile_settings, PROFILE_SETTINGS)
--KOVAPLUS_SYSFS_W(profile_buttons, PROFILE_BUTTONS)
-+KOVAPLUS_SYSFS_RW(profile_settings, PROFILE_SETTINGS)
-+KOVAPLUS_SYSFS_RW(profile_buttons, PROFILE_BUTTONS)
++PYRA_SYSFS_W(control, CONTROL)
+ PYRA_SYSFS_RW(info, INFO)
+-PYRA_SYSFS_W(profile_settings, PROFILE_SETTINGS)
+-PYRA_SYSFS_W(profile_buttons, PROFILE_BUTTONS)
++PYRA_SYSFS_RW(profile_settings, PROFILE_SETTINGS)
++PYRA_SYSFS_RW(profile_buttons, PROFILE_BUTTONS)
+ PYRA_SYSFS_R(settings, SETTINGS)
  
- static ssize_t kovaplus_sysfs_read_profilex_settings(struct file *fp,
- 		struct kobject *kobj, struct bin_attribute *attr, char *buf,
-@@ -369,9 +370,10 @@ static struct device_attribute kovaplus_attributes[] = {
+ static ssize_t pyra_sysfs_read_profilex_settings(struct file *fp,
+@@ -312,9 +313,10 @@ static struct device_attribute pyra_attributes[] = {
  };
  
- static struct bin_attribute kovaplus_bin_attributes[] = {
-+	KOVAPLUS_BIN_ATTRIBUTE_W(control, CONTROL),
- 	KOVAPLUS_BIN_ATTRIBUTE_RW(info, INFO),
--	KOVAPLUS_BIN_ATTRIBUTE_W(profile_settings, PROFILE_SETTINGS),
--	KOVAPLUS_BIN_ATTRIBUTE_W(profile_buttons, PROFILE_BUTTONS),
-+	KOVAPLUS_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS),
-+	KOVAPLUS_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS),
+ static struct bin_attribute pyra_bin_attributes[] = {
++	PYRA_BIN_ATTRIBUTE_W(control, CONTROL),
+ 	PYRA_BIN_ATTRIBUTE_RW(info, INFO),
+-	PYRA_BIN_ATTRIBUTE_W(profile_settings, PROFILE_SETTINGS),
+-	PYRA_BIN_ATTRIBUTE_W(profile_buttons, PROFILE_BUTTONS),
++	PYRA_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS),
++	PYRA_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS),
+ 	PYRA_BIN_ATTRIBUTE_RW(settings, SETTINGS),
  	{
  		.attr = { .name = "profile1_settings", .mode = 0440 },
- 		.size = KOVAPLUS_SIZE_PROFILE_SETTINGS,
-diff --git a/drivers/hid/hid-roccat-kovaplus.h b/drivers/hid/hid-roccat-kovaplus.h
-index 1189573..fbb7a16 100644
---- a/drivers/hid/hid-roccat-kovaplus.h
-+++ b/drivers/hid/hid-roccat-kovaplus.h
+diff --git a/drivers/hid/hid-roccat-pyra.h b/drivers/hid/hid-roccat-pyra.h
+index 93e4949..beedcf0 100644
+--- a/drivers/hid/hid-roccat-pyra.h
++++ b/drivers/hid/hid-roccat-pyra.h
 @@ -15,6 +15,7 @@
  #include <linux/types.h>
  
  enum {
-+	KOVAPLUS_SIZE_CONTROL = 0x03,
- 	KOVAPLUS_SIZE_INFO = 0x06,
- 	KOVAPLUS_SIZE_PROFILE_SETTINGS = 0x10,
- 	KOVAPLUS_SIZE_PROFILE_BUTTONS = 0x17,
-@@ -61,6 +62,7 @@ struct kovaplus_info {
++	PYRA_SIZE_CONTROL = 0x03,
+ 	PYRA_SIZE_INFO = 0x06,
+ 	PYRA_SIZE_PROFILE_SETTINGS = 0x0d,
+ 	PYRA_SIZE_PROFILE_BUTTONS = 0x13,
+@@ -57,6 +58,7 @@ struct pyra_info {
+ } __attribute__ ((__packed__));
  
- enum kovaplus_commands {
- 	KOVAPLUS_COMMAND_ACTUAL_PROFILE = 0x5,
-+	KOVAPLUS_COMMAND_CONTROL = 0x4,
- 	KOVAPLUS_COMMAND_PROFILE_SETTINGS = 0x6,
- 	KOVAPLUS_COMMAND_PROFILE_BUTTONS = 0x7,
- 	KOVAPLUS_COMMAND_INFO = 0x9,
+ enum pyra_commands {
++	PYRA_COMMAND_CONTROL = 0x4,
+ 	PYRA_COMMAND_SETTINGS = 0x5,
+ 	PYRA_COMMAND_PROFILE_SETTINGS = 0x6,
+ 	PYRA_COMMAND_PROFILE_BUTTONS = 0x7,
 -- 
 1.7.3.4
 

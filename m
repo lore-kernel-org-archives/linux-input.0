@@ -1,238 +1,56 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH] HID: wiimote: add Nintendo-Wii-Remote-Plus IDs
-Date: Mon, 12 Nov 2012 13:41:26 +0100
-Message-ID: <CANq1E4T+s4igeAj-YN7nW=37UKcprmU_V9JgyML+H5E8eL3fLg@mail.gmail.com>
-References: <1350895071-4017-1-git-send-email-dh.herrmann@googlemail.com>
-	<alpine.LNX.2.00.1210221134580.12268@pobox.suse.cz>
-	<CAEfj2kDDyXbLcJTrhmbrG2MedVcu9u5q6ZmfcRB-86Cc1Rm+Sw@mail.gmail.com>
-	<CANq1E4TJPs0nHVmECkQU7pth6a7Dj7G6Pan00w+12FmhiVPpeA@mail.gmail.com>
-	<CAEfj2kBMzvSF7XswQC7s_AuKJFnhtwAyXeM77wtRmKSM89UR6Q@mail.gmail.com>
-	<CAEfj2kBfjzVp7+Zw+Cn2QfD_eCNz=Z5c1j-ku5vHxL5W-Zb_QA@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] HID: microsoft, do not use compound literal
+Date: Mon, 12 Nov 2012 13:42:20 +0100
+Message-ID: <CAMuHMdX2fFHGnO-eeA0_xFgk=NRFeFP07K_bA06Qje45B1g6KQ@mail.gmail.com>
+References: <1352711769-28911-1-git-send-email-jslaby@suse.cz>
+	<CAMuHMdUEW9K6cfpcUNphte_VzBCL_Oa_od3892DQ3QbX5xMMnA@mail.gmail.com>
+	<alpine.LNX.2.00.1211121314270.27271@pobox.suse.cz>
+	<CAMuHMdWq9S9oO+2OH6oiAogFR+JJxnxrtGoMp+uMm-qXCLr55A@mail.gmail.com>
+	<50A0ED09.6010106@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:45696 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751592Ab2KLMl2 (ORCPT
+Received: from mail-vc0-f174.google.com ([209.85.220.174]:34921 "EHLO
+	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751592Ab2KLMmV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Nov 2012 07:41:28 -0500
-Received: by mail-ea0-f174.google.com with SMTP id o11so230783eaa.19
-        for <linux-input@vger.kernel.org>; Mon, 12 Nov 2012 04:41:27 -0800 (PST)
-In-Reply-To: <CAEfj2kBfjzVp7+Zw+Cn2QfD_eCNz=Z5c1j-ku5vHxL5W-Zb_QA@mail.gmail.com>
+	Mon, 12 Nov 2012 07:42:21 -0500
+In-Reply-To: <50A0ED09.6010106@suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Olson <peter.olson@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jirislaby@gmail.com
 
-Hi Peter
-
-On Mon, Nov 12, 2012 at 7:19 AM, Peter Olson <peter.olson@gmail.com> wrote:
-> (If I'm over-documenting my process, sorry, just wanted it as a record
-> for myself as well) Summary at bottom, oneline is progress but not
-> complete success yet.
+On Mon, Nov 12, 2012 at 1:35 PM, Jiri Slaby <jslaby@suse.cz> wrote:
+> On 11/12/2012 01:30 PM, Geert Uytterhoeven wrote:
+>> My comment was purely cosmetic, as it applies to the quoted compiler error
+>> messages only.
 >
-> Ok, now built bluez with the patch from "[PATCH bluez] wiimote: add
-> Wii-Remote-Plus ID and name detection" with one modification to fit
-> with the current code that I have (bluez-4.101):
-> -+       memcpy(pinbuf, adapter_get_address(adapter), 6);
-> ++       memcpy(pinbuf, &sba, 6);
-> I grabbed bluez-4.101 from the Archlinux ABS, pulled the sources
-> "makepkg -o", applied the patch (change to plugins/wiimote.c) with the
-> change from {adapter_get_address(adapter) => &sba}, then had ABS
-> finish making and installing with "makepkg -ei".
+> Ah, I see. When you are applying the patch Jiri, could you remove errors
+> about line 50 from the commit log? What I wanted to have there
+> apparently was only "hid-microsoft.c:51:18: error: macro "memcmp" passed
+> 6 arguments, but takes just 3".
+
+Right.
+
+>> Your latest version doesn't use memcmp() anymore, so I think there's no need to
+>> include <linux/string.h> anymore.
 >
-> As my desktop system has been updated since last time I tested this
-> (moved to systemd, new linux kernel and more) I decided to re-grab the
-> kernel and rebuild the hid modules. Grabbed base/linux from Arch ABS,
-> pulled sources, applied the patch to the two files
-> (drivers/hid/hid-ids.h and drivers/hid/hid-wiimote-core.c), and then
-> built the kernel "makepkg -e". I then reloaded all of the hid modules
-> to make sure I had the latest versions loaded.
->
-> $ sudo modprobe hid-wiimote (to make sure all dependencies were loaded)
-> $ sudo rmmod hid_wiimote
-> $ sudo rmmod usbhid
-> $ sudo rmmod hid_generic
-> $ sudo rmmod hid
-> $ sudo insmod ./hid.ko
-> $ sudo insmod ./hid-generic.ko
-> $ sudo insmod ./usbhid/usbhid.ko
-> $ sudo insmod ./hid-wiimote.ko
->
-> Then I plugged in my USB bluetooth module, and started the bluetooth
-> service (systemctl start bluetooth).
-> Then I started blueman-applet, had it search, and it saw the wiimote.
-> I clicked pair, and it properly connected with the Wiimote. I clicked
-> Setup, (*) Connect to Input Service, => Forward, and it said it
-> properly connected.
+> s/Your/His/ perhaps :). Otherwise I'd be confused -- did Jiri send some
+> other version?
 
-Yeah, that's how it is supposed to work. Seems like the new Wii
-Remotes require Authentication. I will push the changes to
-bluez-upstream so bluez-5.0 (the next release) will include them.
-Thanks for testing!
+Doh, I'm (still) not awake, and didn't notice there are two different
+Jiri's in this thread...
 
-> Checking dmesg:
-> [247627.881346] hid-generic 0005:057E:0330.0005: unknown main item tag 0x0
-> [247627.881478] input: Nintendo RVL-CNT-01-TR as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:12/input21
-> [247627.881725] hid-generic 0005:057E:0330.0005: input,hidraw4:
-> BLUETOOTH HID v0.01 Gamepad [Nintendo RVL-CNT-01-TR] on
-> 00:02:72:1A:BD:94
+Sorry for the confusion.
 
-Yeah, that means the device isn't listed in "hid_have_special_driver".
-Therefore, the generic driver picks up the device.
+Gr{oetje,eeting}s,
 
-> Ok, something had issues from the kernel side of things connecting to
-> the correct input device. Now going to add:
-> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO,
-> USB_DEVICE_ID_NINTENDO_WIIMOTE_2) },
-> to the hid_have_special_driver[] array in drivers/hid/hid-core.c. This
-> doesn't seem like it should make a difference, as for some reason it
-> was recognizing the hid-wiimote device in my email on 10/22 without
-> this change.
+                        Geert
 
-I really wonder why that worked. Maybe there is some user-space code
-that rewrites the PID/VID under some circumstances to the old Wii
-Remote values or your Wii Remote uses occasionally the old values when
-using auto-reconnect. I have no idea, but I actually don't care that
-much, since as long as we add all IDs, we are on the safe side.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Anyway, if you see any pattern in the VID/PID selection, feel free to
-report these. All the Wii Remote protocol/behavior was
-reverse-engineered so we can never be sure that we got it right.
-
-> SIDE NOTE: All throughout this issue with the kernel module changes,
-> the bluez changes seem to be working. I connected the wiimote by
-> pressing the red button in the battery compartment, and now if I shut
-> down the wiimote (hold power button) and turn it back on,
-> blueman-applet pops up a dialog asking if I want to reconnect. Also,
-> the four LEDs on the bottom of the wiimote have kept flashing
-> continuously for minutes, rather then just the 30 seconds or so that
-> it usually blinks for when trying to connect. Finally, the
-> blueman-applet icon has stayed green during this time, also indicating
-> that the computer thinks that it's remaining connected as well. All of
-> this leads me to believe that the bluez patch is working as intended.
-
-The flashing of the LEDs is a bug. Normally, after connection
-establishment only LED1 should be on. You can then change the LEDs via
-the sysfs API. Anyway, sometimes LEDs just keep flashing, in which
-case I simply reconnect the devices and it works.
-
-> Neither xwiishow nor dolphin-emu detect a wiimote connected, but that
-> could be the kernel module's fault.
-
-dolphin-emu doesn't use this driver. They use their own
-implementation, see here:
-http://code.google.com/p/dolphin-emu/source/browse/Source/Core/Core/Src/HW/WiimoteReal/IONix.cpp
-
-If it is not working, please report a bug to their bugtracker. I have
-never used dolphin-emu, so I cannot help you here, sorry.
-
-> Back to the kernel module. The addition to hid_have_special_driver[]
-> has been made as well as the previous patch. Kernel rebuild and
-> rmmod/insmod all hid modules.
->
-> dmesg success! (Note that I don't have the numchuck plugged in in these tests)
-> [254328.057515] wiimote 0005:057E:0330.0005: unknown main item tag 0x0
-> [254328.057682] wiimote 0005:057E:0330.0005: hidraw4: BLUETOOTH HID
-> v0.01 Gamepad [Nintendo RVL-CNT-01-TR] on 00:02:72:1A:BD:94
-> [254328.057786] input: Nintendo Wii Remote Accelerometer as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0005/input/input35
-> [254328.058005] input: Nintendo Wii Remote IR as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0005/input/input36
-> [254328.058113] input: Nintendo Wii Remote as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0005/input/input37
-> [254329.055694] power_supply wiimote_battery: driver failed to report
-> `capacity' property: -5
-> [254329.055768] Registered led device: 0005:057E:0330.0005:blue:p0
-> [254329.055793] Registered led device: 0005:057E:0330.0005:blue:p1
-> [254329.055813] Registered led device: 0005:057E:0330.0005:blue:p2
-> [254329.055832] Registered led device: 0005:057E:0330.0005:blue:p3
-> [254329.055887] input: Nintendo Wii Remote Extension as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0005/input/input38
-> [254329.056025] input: Nintendo Wii Remote Motion+ as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0005/input/input39
-> [254329.056176] wiimote 0005:057E:0330.0005: New device registered
-> [254329.074105] wiimote 0005:057E:0330.0005: Remote error 2 on req 17
-> [254329.102911] wiimote 0005:057E:0330.0005: Remote error 2 on req 18
-> [254329.109150] wiimote 0005:057E:0330.0005: Remote error 2 on req 18
->
-> However, there are some errors reported, and xwiishow still does not
-> report any wiimotes found. Does xwiishow need to be updated as well?
-
-How do you invoke xwiishow? If it does not work, please try using:
-
-ls -l /sys/bus/hid/devices/
-
-This should list all connected Wii Remotes. xwiishow just tries to
-read these values.
-Your system-log looks fine, nothing wrong there. The device is
-detected and initialized properly and the sysfs attributes are
-created.
-
-> After playing for a bit trying to get any response, I shut down the
-> wiimote by the power button, and dmesg reported the change:
-> [254578.785557] wiimote 0005:057E:0330.0005: Device removed
-> [254580.787965] power_supply wiimote_battery: driver failed to report
-> `capacity' property: -5
-
-That seems fine, too.
-
-> One more time I powered on the wiimote, clicked Accept on the
-> Bluetooth Authentication dialog from blueman-applet, waited a few
-> seconds, and then powered down the wiimote. Below is the dmesg log
-> from start to finish.
-> [254639.813654] wiimote 0005:057E:0330.0006: unknown main item tag 0x0
-> [254639.813714] wiimote 0005:057E:0330.0006: hidraw4: BLUETOOTH HID
-> v0.01 Gamepad [Nintendo RVL-CNT-01-TR] on 00:02:72:1A:BD:94
-> [254639.813738] input: Nintendo Wii Remote Accelerometer as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0006/input/input40
-> [254639.813779] input: Nintendo Wii Remote IR as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0006/input/input41
-> [254639.813821] input: Nintendo Wii Remote as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0006/input/input42
-> [254640.813251] power_supply wiimote_battery: driver failed to report
-> `capacity' property: -5
-> [254640.813323] Registered led device: 0005:057E:0330.0006:blue:p0
-> [254640.813348] Registered led device: 0005:057E:0330.0006:blue:p1
-> [254640.813358] Registered led device: 0005:057E:0330.0006:blue:p2
-> [254640.813367] Registered led device: 0005:057E:0330.0006:blue:p3
-> [254640.813396] input: Nintendo Wii Remote Extension as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0006/input/input43
-> [254640.813746] input: Nintendo Wii Remote Motion+ as
-> /devices/pci0000:00/0000:00:1a.0/usb3/3-1/3-1.1/3-1.1:1.0/bluetooth/hci0/hci0:11/0005:057E:0330.0006/input/input44
-> [254640.813817] wiimote 0005:057E:0330.0006: New device registered
-> [254640.848031] wiimote 0005:057E:0330.0006: Remote error 2 on req 17
-> [254640.871769] wiimote 0005:057E:0330.0006: Remote error 2 on req 18
-> [254640.879275] wiimote 0005:057E:0330.0006: Remote error 2 on req 18
-> [254678.447402] wiimote 0005:057E:0330.0006: Device removed
-> [254680.452375] power_supply wiimote_battery: driver failed to report
-> `capacity' property: -5
->
->
-> Summary, with the bluez patch (plus one change), and the kernel module
-> patch (plus hid_have_special_driver[] change) I now have the wiimote
-> connecting to the computer when I hit any button on the Wiimote. The
-> computer recognizes the wiimote as shown in dmesg. However, there are
-> some errors, and xwiishow still does not detect that any wiimote has
-> been connected with the computer.
->
-> Please let me know if there's anything further I can test, I believe
-> that more changes are needed before I can actually use the wiimote
-> with dolphin-emu or anything else.
-
-Your logs all look fine. If "xwiishow list" doesn't show anything,
-then please try:
-
-./xwiishow /sys/bus/hid/devices/<dev>
-
-Where <dev> is the bluetooth address of your device. You should be
-able to find this with bash-tab-completion.
-
-Thanks a lot for testing this! It really looks like everything is
-working, except xwiishow seems to be unable to find the device via
-sysfs, which is odd. The content of /sys/bus/hid/devices/ while a Wii
-Remote is connected would really help.
-
-Thanks
-David
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

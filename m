@@ -1,76 +1,180 @@
-From: Joe Sweeney <joesweeney413@gmail.com>
-Subject: Fn Keys bug
-Date: Mon, 12 Nov 2012 13:15:51 -0500
-Message-ID: <CA+X-he1=3ykJsGaUQ+4sSEY2Y5WV1QTdyzdrT15jg8cyKKAA=g@mail.gmail.com>
-References: <CA+X-he1ZLfvWWEJ92CSnUUxr4QN5mT_zqgBR2=fj3Z3dCxGK6w@mail.gmail.com>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: =?UTF-8?q?=5BRESEND=20PATCH=20v3=204/4=5D=20input=3A=20misc=3A=20introduce=20retu-pwrbutton?=
+Date: Mon, 12 Nov 2012 21:08:45 +0200
+Message-ID: <1352747326-2195-5-git-send-email-aaro.koskinen@iki.fi>
+References: <1352747326-2195-1-git-send-email-aaro.koskinen@iki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ia0-f174.google.com ([209.85.210.174]:36992 "EHLO
-	mail-ia0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751555Ab2KLSPv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Nov 2012 13:15:51 -0500
-Received: by mail-ia0-f174.google.com with SMTP id y25so22802iay.19
-        for <linux-input@vger.kernel.org>; Mon, 12 Nov 2012 10:15:51 -0800 (PST)
-In-Reply-To: <CA+X-he1ZLfvWWEJ92CSnUUxr4QN5mT_zqgBR2=fj3Z3dCxGK6w@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1352747326-2195-1-git-send-email-aaro.koskinen@iki.fi>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1074169
+Add Retu power button driver.
 
-
-thinkpad edge 15 0319 model. ubuntu 12.10. tried on various kernels,
-only the play pause forward reverse(media keys) work, however
-brightness, sound, mute, wifi, etc keys do not work.
-
-xev | sed -n 's/^.*state \([0-9].*\), keycode *\([0-9]\+\) *\(.*\),
-.*$/keycode \2 = \3, state = \1/p' does not give an output when i
-press the above keys. the bios is set to allow the FN keys to work
-without pressing Fn, i have tried the legacy option as well, in that
-case xev sees the actual 'Fn' key was XFWakeUp.
+Cc: linux-input@vger.kernel.org
+Acked-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
-ApportVersion: 2.6.1-0ubuntu6
-Architecture: amd64
-DistroRelease: Ubuntu 12.10
-InstallationDate: Installed on 2012-10-18 (14 days ago)
-InstallationMedia: Ubuntu 12.10 "Quantal Quetzal" - Release amd64 (20121017.5)
-MarkForUpload: True
-Package: linux (not installed)
-ProcEnviron:
- TERM=xterm
- PATH=(custom, no user)
- XDG_RUNTIME_DIR=<set>
- LANG=en_US.UTF-8
- SHELL=/bin/bash
-Tags: quantal running-unity
-Uname: Linux 3.7.0-030700rc3-generic x86_64
-UnreportableReason: The running kernel is not an Ubuntu kernel
-UpgradeStatus: No upgrade log present (probably fresh install)
-UserGroups: adm cdrom dip lpadmin plugdev sambashare sudo
----
-ApportVersion: 2.6.1-0ubuntu6
-Architecture: amd64
-DistroRelease: Ubuntu 12.10
-InstallationDate: Installed on 2012-10-18 (14 days ago)
-InstallationMedia: Ubuntu 12.10 "Quantal Quetzal" - Release amd64 (20121017.5)
-MarkForUpload: True
-Package: linux (not installed)
-ProcEnviron:
- TERM=xterm
- PATH=(custom, no user)
- XDG_RUNTIME_DIR=<set>
- LANG=en_US.UTF-8
- SHELL=/bin/bash
-Tags: quantal running-unity
-Uname: Linux 3.7.0-030700rc3-generic x86_64
-UnreportableReason: The running kernel is not an Ubuntu kernel
-UpgradeStatus: No upgrade log present (probably fresh install)
-UserGroups: adm cdrom dip lpadmin plugdev sambashare sudo
+ drivers/input/misc/Kconfig          |   10 ++++
+ drivers/input/misc/Makefile         |    1 +
+ drivers/input/misc/retu-pwrbutton.c |  102 +++++++++++++++++++++++++++=
+++++++++
+ 3 files changed, 113 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/retu-pwrbutton.c
 
-
---
-Joe Sweeney
-A+ Network+ Certified Technician
-joesweeney413@gmail.com
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7c0f1ec..e5be189 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -367,6 +367,16 @@ config INPUT_CM109
+ 	  To compile this driver as a module, choose M here: the module will =
+be
+ 	  called cm109.
+=20
++config INPUT_RETU_PWRBUTTON
++	tristate "Retu Power button Driver"
++	depends on MFD_RETU
++	help
++	  Say Y here if you want to enable power key reporting via the
++	  Retu chips found in Nokia Internet Tablets (770, N800, N810).
++
++	  To compile this driver as a module, choose M here. The module will
++	  be called retu-pwrbutton.
++
+ config INPUT_TWL4030_PWRBUTTON
+ 	tristate "TWL4030 Power button Driver"
+ 	depends on TWL4030_CORE
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 83fe6f5..4fbee0d 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -45,6 +45,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+=3D pmic8xxx-pwr=
+key.o
+ obj-$(CONFIG_INPUT_POWERMATE)		+=3D powermate.o
+ obj-$(CONFIG_INPUT_PWM_BEEPER)		+=3D pwm-beeper.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+=3D rb532_button.o
++obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+=3D retu-pwrbutton.o
+ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+=3D rotary_encoder.o
+ obj-$(CONFIG_INPUT_SGI_BTNS)		+=3D sgi_btns.o
+ obj-$(CONFIG_INPUT_SPARCSPKR)		+=3D sparcspkr.o
+diff --git a/drivers/input/misc/retu-pwrbutton.c b/drivers/input/misc/r=
+etu-pwrbutton.c
+new file mode 100644
+index 0000000..043a12b
+--- /dev/null
++++ b/drivers/input/misc/retu-pwrbutton.c
+@@ -0,0 +1,102 @@
++/*
++ * Retu power button driver.
++ *
++ * Copyright (C) 2004-2010 Nokia Corporation
++ *
++ * Original code written by Ari Saastamoinen, Juha Yrj=C3=B6l=C3=A4 an=
+d Felipe Balbi.
++ * Rewritten by Aaro Koskinen.
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of thi=
+s
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/irq.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/errno.h>
++#include <linux/input.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mfd/retu.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++
++#define RETU_STATUS_PWRONX (1 << 5)
++
++static irqreturn_t retu_pwrbutton_irq(int irq, void *_pwr)
++{
++	bool state;
++	struct input_dev *idev =3D _pwr;
++	struct retu_dev *rdev =3D input_get_drvdata(idev);
++
++	state =3D !(retu_read(rdev, RETU_REG_STATUS) & RETU_STATUS_PWRONX);
++	input_report_key(idev, KEY_POWER, state);
++	input_sync(idev);
++
++	return IRQ_HANDLED;
++}
++
++static int __devinit retu_pwrbutton_probe(struct platform_device *pdev=
+)
++{
++	struct retu_dev *rdev =3D dev_get_drvdata(pdev->dev.parent);
++	struct input_dev *idev;
++	int ret;
++
++	idev =3D input_allocate_device();
++	if (!idev)
++		return -ENOMEM;
++
++	idev->evbit[0]				=3D BIT_MASK(EV_KEY);
++	idev->keybit[BIT_WORD(KEY_POWER)]	=3D BIT_MASK(KEY_POWER);
++	idev->name				=3D "retu-pwrbutton";
++
++	platform_set_drvdata(pdev, idev);
++	input_set_drvdata(idev, rdev);
++
++	ret =3D input_register_device(idev);
++	if (ret < 0) {
++		input_free_device(idev);
++		return ret;
++	}
++
++	ret =3D devm_request_threaded_irq(&pdev->dev, platform_get_irq(pdev, =
+0),
++					NULL, retu_pwrbutton_irq, 0,
++					"retu-pwrbutton", idev);
++	if (ret < 0)
++		input_unregister_device(idev);
++
++	return ret;
++}
++
++static int __devexit retu_pwrbutton_remove(struct platform_device *pde=
+v)
++{
++	struct input_dev *idev =3D platform_get_drvdata(pdev);
++
++	disable_irq(platform_get_irq(pdev, 0));
++	input_unregister_device(idev);
++
++	return 0;
++}
++
++static struct platform_driver retu_pwrbutton_driver =3D {
++	.probe		=3D retu_pwrbutton_probe,
++	.remove		=3D __devexit_p(retu_pwrbutton_remove),
++	.driver		=3D {
++		.name	=3D "retu-pwrbutton",
++		.owner	=3D THIS_MODULE,
++	},
++};
++module_platform_driver(retu_pwrbutton_driver);
++
++MODULE_ALIAS("platform:retu-pwrbutton");
++MODULE_DESCRIPTION("Retu Power Button");
++MODULE_AUTHOR("Ari Saastamoinen");
++MODULE_AUTHOR("Felipe Balbi");
++MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen@iki.fi>");
++MODULE_LICENSE("GPL");
+--=20
+1.7.2.5

@@ -1,171 +1,213 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3 11/13] HID: hid-multitouch: support for hovering devices
-Date: Tue, 13 Nov 2012 18:29:12 +0100
-Message-ID: <CAN+gG=EbAdfOG_vwt2uamV+JcAKLFqM=zTo9oRQ9RLayrpdsoA@mail.gmail.com>
+Subject: Re: [PATCH v3 13/13] HID: hid-multitouch: forwards ABS_SCAN_TIME
+Date: Tue, 13 Nov 2012 18:45:07 +0100
+Message-ID: <CAN+gG=HdOqVu1M2pycMZUBd4Z7wK9Bx=NLkCaaFwFie1-E3tdQ@mail.gmail.com>
 References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1352306256-12180-12-git-send-email-benjamin.tissoires@gmail.com>
-	<20121113164239.GA712@polaris.bitmath.org>
+	<1352306256-12180-14-git-send-email-benjamin.tissoires@gmail.com>
+	<50A25990.6040302@gmail.com>
+	<20121113172711.GA856@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121113164239.GA712@polaris.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:47694 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755184Ab2KMRpJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Nov 2012 12:45:09 -0500
+In-Reply-To: <20121113172711.GA856@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 Hi Henrik,
 
-thanks for the review of the patchset. I'll do my best for the next version :)
-
-On Tue, Nov 13, 2012 at 5:42 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> On Wed, Nov 07, 2012 at 05:37:34PM +0100, Benjamin Tissoires wrote:
->> Win8 devices supporting hovering must provides InRange HID field.
+On Tue, Nov 13, 2012 at 6:27 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> Hi Benjamin,
 >
-> provide the
->
->> The information that the finger is here but is not touching the surface
->> is sent to the user space through ABS_MT_DISTANCE as required by the
->> multitouch protocol.
->
-> In the absence of more detailed information, use ABS_MT_DISTANCE with
-> a [0,1] interval to distinguish between presence (1) and touch (0).
->
+>> From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> Date: Tue, 13 Nov 2012 15:12:17 +0100
+>> Subject: [PATCH v4] HID: hid-multitouch: forwards MSC_TIMESTAMP
+>>
+>> Computes the device timestamp according to the specification.
+>> It also ensures that if the time between two events is greater
+>> than MAX_TIMESTAMP_INTERVAL, the timestamp will be reset.
 >>
 >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 >> ---
->>  drivers/hid/hid-multitouch.c | 24 ++++++++++++++++++++----
->>  1 file changed, 20 insertions(+), 4 deletions(-)
+>>  drivers/hid/hid-multitouch.c | 46 +++++++++++++++++++++++++++++++++++++++++---
+>>  include/linux/hid.h          |  1 +
+>>  2 files changed, 44 insertions(+), 3 deletions(-)
 >>
 >> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
->> index b393c6c..1f3d1e0 100644
+>> index caf0f0b..3f8432d 100644
 >> --- a/drivers/hid/hid-multitouch.c
 >> +++ b/drivers/hid/hid-multitouch.c
->> @@ -59,6 +59,7 @@ struct mt_slot {
->>       __s32 x, y, cx, cy, p, w, h;
->>       __s32 contactid;        /* the device ContactID assigned to this slot */
->>       bool touch_state;       /* is the touch valid? */
->> +     bool inrange_state;     /* is the finger in proximity of the sensor? */
+>> @@ -32,6 +32,7 @@
+>>  #include <linux/slab.h>
+>>  #include <linux/usb.h>
+>>  #include <linux/input/mt.h>
+>> +#include <linux/jiffies.h>
+>
+> Why?
+>
+>>  #include "usbhid/usbhid.h"
+>>
+>>
+>> @@ -98,6 +99,9 @@ struct mt_device {
+>>       bool serial_maybe;      /* need to check for serial protocol */
+>>       bool curvalid;          /* is the current contact valid? */
+>>       unsigned mt_flags;      /* flags to pass to input-mt */
+>> +     __s32 dev_time;         /* the scan time provided by the device */
+>> +     unsigned long jiffies;  /* the frame's jiffies */
+>> +     unsigned timestamp;     /* the timestamp to be sent */
+>
+> Why not just dev_time here?
+
+because max dev_time is at least 65535 according to the norm, and the
+win 8 device I have has his max value of 65535.
+Which means that every 6 seconds and a half the counter resets, and
+the value is not properly reset in the way I understand the
+specification. The device just forwards an internal clock that is
+never reset.
+So if you wait 653500 us + 8ms, everything happens as if the device
+sent this frame right after the previous one (you get the same value).
+
+I think that it's the job of the kernel to provide clean and coherent
+values through evdev, which won't be the case if the jiffies thing is
+not in place: every devices will have a different behavior, leading to
+complicate things in the user-space.
+
+>
 >>  };
 >>
->>  struct mt_class {
->> @@ -397,6 +398,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->>       case HID_UP_DIGITIZER:
->>               switch (usage->hid) {
->>               case HID_DG_INRANGE:
->> +                     if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED) {
->> +                             hid_map_usage(hi, usage, bit, max,
->> +                                     EV_ABS, ABS_MT_DISTANCE);
->> +                             input_set_abs_params(hi->input,
->> +                                     ABS_MT_DISTANCE, -1, 1, 0, 0);
+>>  /* classes of device behavior */
+>> @@ -126,6 +130,8 @@ struct mt_device {
+>>  #define MT_DEFAULT_MAXCONTACT        10
+>>  #define MT_MAX_MAXCONTACT    250
+>>
+>> +#define MAX_TIMESTAMP_INTERVAL       500000
+>> +
 >
-> Why [-1,1] here?
-
-At first, I only used [0,1]. However, it's still the same problem with
-the information being kept between the touches:
-if you start an application after having touched your device, you
-normally have to ask for the different per-touche states to get x, y,
-distance, pressure, etc...
-However, this is not much mandatory because the protocol in its
-current form ensures that you will get the new states of the axes when
-a new touch occurs.
-
-ABS_MT_DISTANCE is a little bit different here because the protocol
-guarantees that once you get the "not in range" state through
-tracking_id == -1, distance should be 1.
-When the new touch of the very same slot occurs, you also have the
-guarantee that distance is at 1 too.
-
-So basically, if you don't ask for the slot states, you will never get
-that very first distance.
-
-I know that it's a user-space problem, but honestly, I don't want to
-fix several user-space problems when we could fix it through the
-protocol.
-
-I can see 2 solutions:
-- set the range to: [0,1] and still sending -1 (or 2) for the invalid
-distance value (if it's not clamped)
-- set the range to: [0,2] and having: 0 for touch, 1 for hovering, and
-2 for not in range
-
-Does that make sense?
-
+> Needs to be done in userland anyways, so no need to check this in the kernel.
 >
->> +                     }
+>>  #define MT_USB_DEVICE(v, p)  HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH, v, p)
+>>  #define MT_BT_DEVICE(v, p)   HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_MULTITOUCH, v, p)
+>>
+>> @@ -451,12 +457,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 >>                       mt_store_field(usage, td, hi);
 >>                       td->last_field_index = field->index;
 >>                       return 1;
->> @@ -516,6 +523,10 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->>               if (slotnum < 0 || slotnum >= td->maxcontacts)
->>                       return;
+>> +             case HID_DG_SCANTIME:
+>> +                     hid_map_usage(hi, usage, bit, max,
+>> +                             EV_MSC, MSC_TIMESTAMP);
+>> +                     set_bit(MSC_TIMESTAMP, hi->input->mscbit);
+>> +                     td->last_field_index = field->index;
+>> +                     return 1;
+>>               case HID_DG_CONTACTCOUNT:
+>>                       td->last_field_index = field->index;
+>>                       return 1;
+>>               case HID_DG_CONTACTMAX:
+>> -                     /* we don't set td->last_slot_field as contactcount and
+>> -                      * contact max are global to the report */
+>> +                     /* we don't set td->last_slot_field as scan time,
+>> +                      * contactcount and contact max are global to the
+>> +                      * report */
+>>                       td->last_field_index = field->index;
+>>                       return -1;
+>>               }
+>> @@ -485,7 +498,8 @@ static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+>>               struct hid_field *field, struct hid_usage *usage,
+>>               unsigned long **bit, int *max)
+>>  {
+>> -     if (usage->type == EV_KEY || usage->type == EV_ABS)
+>> +     if (usage->type == EV_KEY || usage->type == EV_ABS ||
+>> +         usage->type == EV_MSC)
+>>               set_bit(usage->type, hi->input->evbit);
 >>
->> +             if (!test_bit(ABS_MT_DISTANCE, input->absbit))
->> +                     /* If InRange is not present, rely on TipSwitch */
->> +                     s->inrange_state = s->touch_state;
+>>       return -1;
+>> @@ -565,11 +579,34 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>>   */
+>>  static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
+>>  {
+>> +     input_event(input, EV_MSC, MSC_TIMESTAMP, td->timestamp);
+>
+> I think this should go after the frame sync,
+>
+>>       input_mt_sync_frame(input);
+>
+> And the computation (100 * td->dev_time) should work fine. It will wrap
+> properly.
+>
+>>       input_sync(input);
+>>       td->num_received = 0;
+>>  }
+>>
+>> +static void mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
+>> +             __s32 value)
+>> +{
+>> +     long delta = value - td->dev_time;
+>> +     unsigned long jdelta = jiffies_to_usecs(jiffies - td->jiffies);
+>> +
+>> +     td->jiffies = jiffies;
+>> +     td->dev_time = value;
+>> +
+>> +     if (delta < 0)
+>> +             delta += field->logical_maximum;
+>> +
+>> +     /* HID_DG_SCANTIME is expressed in 100us, we want it in ms. */
+>> +     delta *= 100;
+>> +
+>> +     if (abs(delta - jdelta) > MAX_TIMESTAMP_INTERVAL)
+>> +             /* obviously wrong clock -> the device time has been reset */
+>> +             td->timestamp = 0;
+>> +     else
+>> +             td->timestamp += delta;
+>> +}
 >> +
 >
-> This could be skipped, see below.
+> Can be skipped entirely.
 >
->>               if (td->mtclass.quirks & MT_QUIRK_IGNORE_DUPLICATES &&
->>                   input_mt_is_active(&input->mt->slots[slotnum]) &&
->>                   input_mt_is_used(input->mt, &input->mt->slots[slotnum]))
->> @@ -523,9 +534,9 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->>
->>               input_mt_slot(input, slotnum);
->>               input_mt_report_slot_state(input, MT_TOOL_FINGER,
->> -                     s->touch_state);
->> -             if (s->touch_state) {
->> -                     /* this finger is on the screen */
->> +                     s->inrange_state);
->> +             if (s->inrange_state) {
->> +                     /* this finger is in proximity of the sensor */
+>>  static int mt_event(struct hid_device *hid, struct hid_field *field,
+>>                               struct hid_usage *usage, __s32 value)
+>>  {
+>> @@ -617,6 +654,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+>>               case HID_DG_HEIGHT:
+>>                       td->curdata.h = value;
+>>                       break;
+>> +             case HID_DG_SCANTIME:
+>> +                     mt_compute_timestamp(td, field, value);
 >
-> Using (s->touch_state || s->inrange_state) here seems simpler.
+> Just td->dev_time = value should work fine here.
+>
+>> +                     break;
+>>               case HID_DG_CONTACTCOUNT:
+>>                       /*
+>>                        * Includes multi-packet support where subsequent
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index 6b4f322..0337e50 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -279,6 +279,7 @@ struct hid_item {
+>>  #define HID_DG_DEVICEINDEX   0x000d0053
+>>  #define HID_DG_CONTACTCOUNT  0x000d0054
+>>  #define HID_DG_CONTACTMAX    0x000d0055
+>> +#define HID_DG_SCANTIME              0x000d0056
+>
+> Was this missing this the old patch, or did it get moved here?
 
-agree.
-
->
->>                       int wide = (s->w > s->h);
->>                       /* divided by two to match visual scale of touch */
->>                       int major = max(s->w, s->h) >> 1;
->> @@ -535,11 +546,14 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->>                       input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
->>                       input_event(input, EV_ABS, ABS_MT_TOOL_X, s->cx);
->>                       input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
->> +                     input_event(input, EV_ABS, ABS_MT_DISTANCE,
->> +                             !s->touch_state);
->>                       input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
->>                       input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
->>                       input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
->>                       input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
->> -             }
->> +             } else
->> +                     input_event(input, EV_ABS, ABS_MT_DISTANCE, -1);
->
-> Just skip this, please.
-
-see above.
+Sorry for that. I moved it there because I cleaned a little the other
+patch by removing the hid things.
 
 Cheers,
 Benjamin
 
 >
->>       }
 >>
->>       td->num_received++;
->> @@ -567,6 +581,8 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->>               case HID_DG_INRANGE:
->>                       if (quirks & MT_QUIRK_VALID_IS_INRANGE)
->>                               td->curvalid = value;
->> +                     if (quirks & MT_QUIRK_WIN_8_CERTIFIED)
->> +                             td->curdata.inrange_state = value;
->>                       break;
->>               case HID_DG_TIPSWITCH:
->>                       if (quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
+>>  /*
+>>   * HID report types --- Ouch! HID spec says 1 2 3!
 >> --
->> 1.7.11.7
->>
+>> 1.8.0
 >
 > Thanks,
 > Henrik

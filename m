@@ -1,74 +1,68 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 04/13] HID: hid-input: add usage_index in struct
- hid_usage.
-Date: Tue, 13 Nov 2012 16:38:33 +0100
-Message-ID: <20121113153833.GA485@polaris.bitmath.org>
+Subject: Re: [PATCH v3 05/13] HID: hid-multitouch: support arrays for the
+ split of the touches in a report
+Date: Tue, 13 Nov 2012 16:44:00 +0100
+Message-ID: <20121113154400.GA536@polaris.bitmath.org>
 References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352306256-12180-5-git-send-email-benjamin.tissoires@gmail.com>
+ <1352306256-12180-6-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:58314 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752232Ab2KMPhj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Nov 2012 10:37:39 -0500
 Content-Disposition: inline
-In-Reply-To: <1352306256-12180-5-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1352306256-12180-6-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin,
-
-> Currently, there is no way to know the index of the current field
-> in the .input_mapping and .event callbacks  when this field is inside
-> an array of HID fields.
-> This patch adds this index to the struct hid_usage so that this
-> information is available to input_mapping and event callbacks.
+On Wed, Nov 07, 2012 at 05:37:28PM +0100, Benjamin Tissoires wrote:
+> Win8 certification introduced the ability to transmit two X and two Y per
+> touch. The specification precises that it must be used in an array.
+> 
+> This test guarantees that we split the touches on the last element
+> in this array.
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > ---
->  drivers/hid/hid-core.c | 4 ++++
->  include/linux/hid.h    | 1 +
->  2 files changed, 5 insertions(+)
+>  drivers/hid/hid-multitouch.c | 15 +++++++++------
+>  1 file changed, 9 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 9da3007..8f82c4c 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -92,6 +92,7 @@ EXPORT_SYMBOL_GPL(hid_register_report);
->  static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
->  {
->  	struct hid_field *field;
-> +	int i;
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 9f64e36..a6a4e0a 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -577,12 +577,15 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+>  			return 0;
+>  		}
 >  
->  	if (report->maxfield == HID_MAX_FIELDS) {
->  		hid_err(report->device, "too many fields in report\n");
-> @@ -110,6 +111,9 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned
->  	field->value = (s32 *)(field->usage + usages);
->  	field->report = report;
->  
-> +	for (i = 0; i < usages; i++)
-> +		field->usage[i].usage_index = i;
+> -		if (usage->hid == td->last_slot_field)
+> -			mt_complete_slot(td, field->hidinput->input);
+> -
+> -		if (field->index == td->last_field_index
+> -			&& td->num_received >= td->num_expected)
+> -			mt_sync_frame(td, field->hidinput->input);
+> +		if (usage->usage_index + 1 == field->report_count) {
+> +			/* we only take into account the last report. */
+> +			if (usage->hid == td->last_slot_field)
+> +				mt_complete_slot(td, field->hidinput->input);
 > +
->  	return field;
->  }
+> +			if (field->index == td->last_field_index
+> +				&& td->num_received >= td->num_expected)
+> +				mt_sync_frame(td, field->hidinput->input);
+> +		}
 >  
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index a110a3e..6b4f322 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -380,6 +380,7 @@ struct hid_usage {
->  	unsigned  hid;			/* hid usage code */
->  	unsigned  collection_index;	/* index into collection array */
->  	/* hidinput data */
-> +	unsigned  usage_index;		/* index into usage array */
-
-Is  this really hidinput data? Should it not be one line above?
-
->  	__u16     code;			/* input driver code */
->  	__u8      type;			/* input driver type */
->  	__s8	  hat_min;		/* hat switch fun */
+>  	}
+>  
 > -- 
 > 1.7.11.7
 > 
+
+    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
 Thanks,
 Henrik

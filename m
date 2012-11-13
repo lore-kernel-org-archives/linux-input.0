@@ -1,105 +1,129 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 10/13] HID: hid-multitouch: fix Win 8 protocol
-Date: Tue, 13 Nov 2012 17:31:38 +0100
-Message-ID: <20121113163138.GA707@polaris.bitmath.org>
+Subject: Re: [PATCH v3 11/13] HID: hid-multitouch: support for hovering
+ devices
+Date: Tue, 13 Nov 2012 17:42:39 +0100
+Message-ID: <20121113164239.GA712@polaris.bitmath.org>
 References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352306256-12180-11-git-send-email-benjamin.tissoires@gmail.com>
+ <1352306256-12180-12-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:48119 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754106Ab2KMQZR (ORCPT
+Received: from smtprelay-b31.telenor.se ([213.150.131.20]:33133 "EHLO
+	smtprelay-b31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754612Ab2KMQgS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Nov 2012 11:25:17 -0500
+	Tue, 13 Nov 2012 11:36:18 -0500
 Content-Disposition: inline
-In-Reply-To: <1352306256-12180-11-git-send-email-benjamin.tissoires@gmail.com>
+In-Reply-To: <1352306256-12180-12-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+On Wed, Nov 07, 2012 at 05:37:34PM +0100, Benjamin Tissoires wrote:
+> Win8 devices supporting hovering must provides InRange HID field.
 
-> Win 8 specification is much more precise than the Win 7 one.
-> Moreover devices that need to take certification must be submitted
-> to Microsoft.
-> 
-> The result is a better protocol support and we can rely on that to
-> skip all the messy tests we used to do.
-> 
+provide the
 
-You could possibly start the commit message here..
+> The information that the finger is here but is not touching the surface
+> is sent to the user space through ABS_MT_DISTANCE as required by the
+> multitouch protocol.
 
-> The protocol specify the fact that each valid touch must be reported
+In the absence of more detailed information, use ABS_MT_DISTANCE with
+a [0,1] interval to distinguish between presence (1) and touch (0).
 
-The win8 protocol...
-
-> within a frame until it is released.
-> So we can use the always_valid quirk and dismiss reports when we see
-
-We can therefore...
-
-> duplicates contact ID.
-
-duplicate contacts.
-
-> 
-> We recognize Win8 certified devices from their vendor feature 0xff0000c5
-> where Microsoft put a signed blob in the report to check if the device
-> passed the certification.
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > ---
->  drivers/hid/hid-multitouch.c | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
+>  drivers/hid/hid-multitouch.c | 24 ++++++++++++++++++++----
+>  1 file changed, 20 insertions(+), 4 deletions(-)
 > 
 > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 351c814..b393c6c 100644
+> index b393c6c..1f3d1e0 100644
 > --- a/drivers/hid/hid-multitouch.c
 > +++ b/drivers/hid/hid-multitouch.c
-> @@ -53,6 +53,7 @@ MODULE_LICENSE("GPL");
->  #define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
->  #define MT_QUIRK_NO_AREA		(1 << 9)
->  #define MT_QUIRK_IGNORE_DUPLICATES	(1 << 10)
-> +#define MT_QUIRK_WIN_8_CERTIFIED	(1 << 11)
->  
->  struct mt_slot {
+> @@ -59,6 +59,7 @@ struct mt_slot {
 >  	__s32 x, y, cx, cy, p, w, h;
-> @@ -293,6 +294,10 @@ static void mt_feature_mapping(struct hid_device *hdev,
->  			td->maxcontacts = td->mtclass.maxcontacts;
+>  	__s32 contactid;	/* the device ContactID assigned to this slot */
+>  	bool touch_state;	/* is the touch valid? */
+> +	bool inrange_state;	/* is the finger in proximity of the sensor? */
+>  };
 >  
->  		break;
-> +	case 0xff0000c5:
-> +		if (field->report_count == 256 && field->report_size == 8)
-> +			td->mtclass.quirks |= MT_QUIRK_WIN_8_CERTIFIED;
-> +		break;
->  	}
->  }
->  
-> @@ -679,14 +684,17 @@ static void mt_post_parse_default_settings(struct mt_device *td)
->  {
->  	__s32 quirks = td->mtclass.quirks;
->  
-> -	/* unknown serial device needs special quirks */
-> -	if (td->touches_by_report == 1) {
-> +	/* unknown serial devices or win8 ones need special quirks */
-> +	if (td->touches_by_report == 1 || (quirks & MT_QUIRK_WIN_8_CERTIFIED)) {
->  		quirks |= MT_QUIRK_ALWAYS_VALID;
->  		quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
->  		quirks &= ~MT_QUIRK_VALID_IS_INRANGE;
+>  struct mt_class {
+> @@ -397,6 +398,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  	case HID_UP_DIGITIZER:
+>  		switch (usage->hid) {
+>  		case HID_DG_INRANGE:
+> +			if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED) {
+> +				hid_map_usage(hi, usage, bit, max,
+> +					EV_ABS, ABS_MT_DISTANCE);
+> +				input_set_abs_params(hi->input,
+> +					ABS_MT_DISTANCE, -1, 1, 0, 0);
 
-Won't this line interfere with the hovering functionality?
+Why [-1,1] here?
 
->  		quirks &= ~MT_QUIRK_VALID_IS_CONFIDENCE;
->  	}
+> +			}
+>  			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+> @@ -516,6 +523,10 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>  		if (slotnum < 0 || slotnum >= td->maxcontacts)
+>  			return;
 >  
-> +	if (quirks & MT_QUIRK_WIN_8_CERTIFIED)
-> +		quirks |= MT_QUIRK_IGNORE_DUPLICATES;
+> +		if (!test_bit(ABS_MT_DISTANCE, input->absbit))
+> +			/* If InRange is not present, rely on TipSwitch */
+> +			s->inrange_state = s->touch_state;
 > +
->  	td->mtclass.quirks = quirks;
->  }
+
+This could be skipped, see below.
+
+>  		if (td->mtclass.quirks & MT_QUIRK_IGNORE_DUPLICATES &&
+>  		    input_mt_is_active(&input->mt->slots[slotnum]) &&
+>  		    input_mt_is_used(input->mt, &input->mt->slots[slotnum]))
+> @@ -523,9 +534,9 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
 >  
+>  		input_mt_slot(input, slotnum);
+>  		input_mt_report_slot_state(input, MT_TOOL_FINGER,
+> -			s->touch_state);
+> -		if (s->touch_state) {
+> -			/* this finger is on the screen */
+> +			s->inrange_state);
+> +		if (s->inrange_state) {
+> +			/* this finger is in proximity of the sensor */
+
+Using (s->touch_state || s->inrange_state) here seems simpler.
+
+>  			int wide = (s->w > s->h);
+>  			/* divided by two to match visual scale of touch */
+>  			int major = max(s->w, s->h) >> 1;
+> @@ -535,11 +546,14 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>  			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
+>  			input_event(input, EV_ABS, ABS_MT_TOOL_X, s->cx);
+>  			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
+> +			input_event(input, EV_ABS, ABS_MT_DISTANCE,
+> +				!s->touch_state);
+>  			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
+>  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
+>  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+>  			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+> -		}
+> +		} else
+> +			input_event(input, EV_ABS, ABS_MT_DISTANCE, -1);
+
+Just skip this, please.
+
+>  	}
+>  
+>  	td->num_received++;
+> @@ -567,6 +581,8 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+>  		case HID_DG_INRANGE:
+>  			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
+>  				td->curvalid = value;
+> +			if (quirks & MT_QUIRK_WIN_8_CERTIFIED)
+> +				td->curdata.inrange_state = value;
+>  			break;
+>  		case HID_DG_TIPSWITCH:
+>  			if (quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
 > -- 
 > 1.7.11.7
 > 

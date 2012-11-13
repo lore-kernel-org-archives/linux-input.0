@@ -1,188 +1,45 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 13/13] HID: hid-multitouch: forwards ABS_SCAN_TIME
-Date: Tue, 13 Nov 2012 18:27:11 +0100
-Message-ID: <20121113172711.GA856@polaris.bitmath.org>
+Subject: Re: [PATCH v3 00/13] Win 8 support for digitizers
+Date: Tue, 13 Nov 2012 18:33:53 +0100
+Message-ID: <20121113173353.GA878@polaris.bitmath.org>
 References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352306256-12180-14-git-send-email-benjamin.tissoires@gmail.com>
- <50A25990.6040302@gmail.com>
+ <alpine.LNX.2.00.1211130845270.15877@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:40234 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932229Ab2KMRUu (ORCPT
+Received: from smtprelay-b31.telenor.se ([213.150.131.20]:49619 "EHLO
+	smtprelay-b31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753488Ab2KMR1c (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Nov 2012 12:20:50 -0500
+	Tue, 13 Nov 2012 12:27:32 -0500
 Content-Disposition: inline
-In-Reply-To: <50A25990.6040302@gmail.com>
+In-Reply-To: <alpine.LNX.2.00.1211130845270.15877@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 Hi Benjamin,
 
-> From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> Date: Tue, 13 Nov 2012 15:12:17 +0100
-> Subject: [PATCH v4] HID: hid-multitouch: forwards MSC_TIMESTAMP
-> 
-> Computes the device timestamp according to the specification.
-> It also ensures that if the time between two events is greater
-> than MAX_TIMESTAMP_INTERVAL, the timestamp will be reset.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
->  drivers/hid/hid-multitouch.c | 46 +++++++++++++++++++++++++++++++++++++++++---
->  include/linux/hid.h          |  1 +
->  2 files changed, 44 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index caf0f0b..3f8432d 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -32,6 +32,7 @@
->  #include <linux/slab.h>
->  #include <linux/usb.h>
->  #include <linux/input/mt.h>
-> +#include <linux/jiffies.h>
+> > here is the third version of this patchset.
+> > I think I included most of Henrik's comments.
+> > 
+> > Happy reviewing :)
 
-Why?
+thanks for the changes :-)
 
->  #include "usbhid/usbhid.h"
->  
->  
-> @@ -98,6 +99,9 @@ struct mt_device {
->  	bool serial_maybe;	/* need to check for serial protocol */
->  	bool curvalid;		/* is the current contact valid? */
->  	unsigned mt_flags;	/* flags to pass to input-mt */
-> +	__s32 dev_time;		/* the scan time provided by the device */
-> +	unsigned long jiffies;	/* the frame's jiffies */
-> +	unsigned timestamp;	/* the timestamp to be sent */
+Jiri,
 
-Why not just dev_time here?
+> I am fine with the HID-specific changes (and I have sent out my Acks to 
+> the invidivual patches).
 
->  };
->  
->  /* classes of device behavior */
-> @@ -126,6 +130,8 @@ struct mt_device {
->  #define MT_DEFAULT_MAXCONTACT	10
->  #define MT_MAX_MAXCONTACT	250
->  
-> +#define MAX_TIMESTAMP_INTERVAL	500000
-> +
+Looks reasonable to me too (although I have not looked through the exponent
+code enough to want to formally ack it).
 
-Needs to be done in userland anyways, so no need to check this in the kernel.
+> For hid-multitouch changes, I'd like to have Reviewed-by: from Henrik as 
+> well. Henrik, are you planning to review this patchset, please?
 
->  #define MT_USB_DEVICE(v, p)	HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH, v, p)
->  #define MT_BT_DEVICE(v, p)	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_MULTITOUCH, v, p)
->  
-> @@ -451,12 +457,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			mt_store_field(usage, td, hi);
->  			td->last_field_index = field->index;
->  			return 1;
-> +		case HID_DG_SCANTIME:
-> +			hid_map_usage(hi, usage, bit, max,
-> +				EV_MSC, MSC_TIMESTAMP);
-> +			set_bit(MSC_TIMESTAMP, hi->input->mscbit);
-> +			td->last_field_index = field->index;
-> +			return 1;
->  		case HID_DG_CONTACTCOUNT:
->  			td->last_field_index = field->index;
->  			return 1;
->  		case HID_DG_CONTACTMAX:
-> -			/* we don't set td->last_slot_field as contactcount and
-> -			 * contact max are global to the report */
-> +			/* we don't set td->last_slot_field as scan time,
-> +			 * contactcount and contact max are global to the
-> +			 * report */
->  			td->last_field_index = field->index;
->  			return -1;
->  		}
-> @@ -485,7 +498,8 @@ static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
->  		struct hid_field *field, struct hid_usage *usage,
->  		unsigned long **bit, int *max)
->  {
-> -	if (usage->type == EV_KEY || usage->type == EV_ABS)
-> +	if (usage->type == EV_KEY || usage->type == EV_ABS ||
-> +	    usage->type == EV_MSC)
->  		set_bit(usage->type, hi->input->evbit);
->  
->  	return -1;
-> @@ -565,11 +579,34 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->   */
->  static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
->  {
-> +	input_event(input, EV_MSC, MSC_TIMESTAMP, td->timestamp);
+Yes, and finally done.
 
-I think this should go after the frame sync,
-
->  	input_mt_sync_frame(input);
-
-And the computation (100 * td->dev_time) should work fine. It will wrap
-properly.
-
->  	input_sync(input);
->  	td->num_received = 0;
->  }
->  
-> +static void mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
-> +		__s32 value)
-> +{
-> +	long delta = value - td->dev_time;
-> +	unsigned long jdelta = jiffies_to_usecs(jiffies - td->jiffies);
-> +
-> +	td->jiffies = jiffies;
-> +	td->dev_time = value;
-> +
-> +	if (delta < 0)
-> +		delta += field->logical_maximum;
-> +
-> +	/* HID_DG_SCANTIME is expressed in 100us, we want it in ms. */
-> +	delta *= 100;
-> +
-> +	if (abs(delta - jdelta) > MAX_TIMESTAMP_INTERVAL)
-> +		/* obviously wrong clock -> the device time has been reset */
-> +		td->timestamp = 0;
-> +	else
-> +		td->timestamp += delta;
-> +}
-> +
-
-Can be skipped entirely.
-
->  static int mt_event(struct hid_device *hid, struct hid_field *field,
->  				struct hid_usage *usage, __s32 value)
->  {
-> @@ -617,6 +654,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  		case HID_DG_HEIGHT:
->  			td->curdata.h = value;
->  			break;
-> +		case HID_DG_SCANTIME:
-> +			mt_compute_timestamp(td, field, value);
-
-Just td->dev_time = value should work fine here.
-
-> +			break;
->  		case HID_DG_CONTACTCOUNT:
->  			/*
->  			 * Includes multi-packet support where subsequent
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 6b4f322..0337e50 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -279,6 +279,7 @@ struct hid_item {
->  #define HID_DG_DEVICEINDEX	0x000d0053
->  #define HID_DG_CONTACTCOUNT	0x000d0054
->  #define HID_DG_CONTACTMAX	0x000d0055
-> +#define HID_DG_SCANTIME		0x000d0056
-
-Was this missing this the old patch, or did it get moved here?
-
->  
->  /*
->   * HID report types --- Ouch! HID spec says 1 2 3!
-> -- 
-> 1.8.0
-
-Thanks,
+Cheers,
 Henrik

@@ -1,63 +1,129 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 05/13] HID: hid-multitouch: support arrays for the
- split of the touches in a report
-Date: Tue, 13 Nov 2012 16:44:00 +0100
-Message-ID: <20121113154400.GA536@polaris.bitmath.org>
+Subject: Re: [PATCH v3 07/13] HID: hid-multitouch: support T and C for win8
+ devices
+Date: Tue, 13 Nov 2012 16:56:06 +0100
+Message-ID: <20121113155606.GA561@polaris.bitmath.org>
 References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352306256-12180-6-git-send-email-benjamin.tissoires@gmail.com>
+ <1352306256-12180-8-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b22.telenor.se ([195.54.99.213]:58314 "EHLO
-	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752232Ab2KMPhj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Nov 2012 10:37:39 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1352306256-12180-6-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <1352306256-12180-8-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 07, 2012 at 05:37:28PM +0100, Benjamin Tissoires wrote:
-> Win8 certification introduced the ability to transmit two X and two Y per
-> touch. The specification precises that it must be used in an array.
-> 
-> This test guarantees that we split the touches on the last element
-> in this array.
+On Wed, Nov 07, 2012 at 05:37:30PM +0100, Benjamin Tissoires wrote:
+> Win8 input specification clarifies the X and Y sent by devices.
+> It distincts the position where the user wants to Touch (T) from
+> the center of the ellipsoide (C). This patch enable supports for this
+> distinction in hid-multitouch.
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > ---
->  drivers/hid/hid-multitouch.c | 15 +++++++++------
->  1 file changed, 9 insertions(+), 6 deletions(-)
+>  drivers/hid/hid-multitouch.c | 46 +++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 37 insertions(+), 9 deletions(-)
 > 
 > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 9f64e36..a6a4e0a 100644
+> index ae57b8f..54367f4 100644
 > --- a/drivers/hid/hid-multitouch.c
 > +++ b/drivers/hid/hid-multitouch.c
-> @@ -577,12 +577,15 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  			return 0;
->  		}
+> @@ -54,7 +54,7 @@ MODULE_LICENSE("GPL");
+>  #define MT_QUIRK_NO_AREA		(1 << 9)
 >  
-> -		if (usage->hid == td->last_slot_field)
-> -			mt_complete_slot(td, field->hidinput->input);
-> -
-> -		if (field->index == td->last_field_index
-> -			&& td->num_received >= td->num_expected)
-> -			mt_sync_frame(td, field->hidinput->input);
-> +		if (usage->usage_index + 1 == field->report_count) {
-> +			/* we only take into account the last report. */
-> +			if (usage->hid == td->last_slot_field)
-> +				mt_complete_slot(td, field->hidinput->input);
+>  struct mt_slot {
+> -	__s32 x, y, p, w, h;
+> +	__s32 x, y, cx, cy, p, w, h;
+>  	__s32 contactid;	/* the device ContactID assigned to this slot */
+>  	bool touch_state;	/* is the touch valid? */
+>  };
+> @@ -323,6 +323,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  	struct mt_device *td = hid_get_drvdata(hdev);
+>  	struct mt_class *cls = &td->mtclass;
+>  	int code;
+> +	struct hid_usage *prev_usage = NULL;
+>  
+>  	/* Only map fields from TouchScreen or TouchPad collections.
+>  	* We need to ignore fields that belong to other collections
+> @@ -345,23 +346,42 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  	if (field->physical == HID_DG_STYLUS)
+>  		return -1;
+>  
+> +	if (usage->usage_index)
+> +		prev_usage = &field->usage[usage->usage_index - 1];
 > +
-> +			if (field->index == td->last_field_index
-> +				&& td->num_received >= td->num_expected)
-> +				mt_sync_frame(td, field->hidinput->input);
-> +		}
+>  	switch (usage->hid & HID_USAGE_PAGE) {
 >  
->  	}
+>  	case HID_UP_GENDESK:
+>  		switch (usage->hid) {
+>  		case HID_GD_X:
+> -			hid_map_usage(hi, usage, bit, max,
+> +			if (prev_usage && (prev_usage->hid == usage->hid)) {
+> +				hid_map_usage(hi, usage, bit, max,
+> +					EV_ABS, ABS_MT_TOOL_X);
+> +				set_abs(hi->input, ABS_MT_TOOL_X, field,
+> +					cls->sn_move);
+> +			} else {
+> +				hid_map_usage(hi, usage, bit, max,
+>  					EV_ABS, ABS_MT_POSITION_X);
+> -			set_abs(hi->input, ABS_MT_POSITION_X, field,
+> -				cls->sn_move);
+> +				set_abs(hi->input, ABS_MT_POSITION_X, field,
+> +					cls->sn_move);
+> +			}
+> +
+>  			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+>  		case HID_GD_Y:
+> -			hid_map_usage(hi, usage, bit, max,
+> +			if (prev_usage && (prev_usage->hid == usage->hid)) {
+> +				hid_map_usage(hi, usage, bit, max,
+> +					EV_ABS, ABS_MT_TOOL_Y);
+> +				set_abs(hi->input, ABS_MT_TOOL_Y, field,
+> +					cls->sn_move);
+> +			} else {
+> +				hid_map_usage(hi, usage, bit, max,
+>  					EV_ABS, ABS_MT_POSITION_Y);
+> -			set_abs(hi->input, ABS_MT_POSITION_Y, field,
+> -				cls->sn_move);
+> +				set_abs(hi->input, ABS_MT_POSITION_Y, field,
+> +					cls->sn_move);
+> +			}
+> +
+>  			mt_store_field(usage, td, hi);
+>  			td->last_field_index = field->index;
+>  			return 1;
+> @@ -502,6 +522,8 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
 >  
+>  			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
+>  			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
+> +			input_event(input, EV_ABS, ABS_MT_TOOL_X, s->cx);
+> +			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
+>  			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
+>  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
+>  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+> @@ -553,10 +575,16 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+>  			td->curdata.p = value;
+>  			break;
+>  		case HID_GD_X:
+> -			td->curdata.x = value;
+> +			if (usage->code == ABS_MT_TOOL_X)
+> +				td->curdata.cx = value;
+> +			else
+> +				td->curdata.x = value;
+>  			break;
+>  		case HID_GD_Y:
+> -			td->curdata.y = value;
+> +			if (usage->code == ABS_MT_TOOL_Y)
+> +				td->curdata.cy = value;
+> +			else
+> +				td->curdata.y = value;
+>  			break;
+>  		case HID_DG_WIDTH:
+>  			td->curdata.w = value;
 > -- 
 > 1.7.11.7
 > 

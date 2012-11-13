@@ -1,244 +1,133 @@
-From: Chris Moeller <kode54@gmail.com>
-Subject: [PATCH 3.6.6 1/1] xpad: fix xbox360w initial LED setting and
- implement LED setting interface
-Date: Mon, 12 Nov 2012 19:30:07 -0800
-Message-ID: <20121112193007.72a7a8b7@umaro.lan>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v3 03/13] HID: core: fix unit exponent parsing
+Date: Tue, 13 Nov 2012 08:43:19 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211130843060.15877@pobox.suse.cz>
+References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com> <1352306256-12180-4-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:33505 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750875Ab2KMDaW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Nov 2012 22:30:22 -0500
-Received: by mail-pb0-f46.google.com with SMTP id rr4so4830495pbb.19
-        for <linux-input@vger.kernel.org>; Mon, 12 Nov 2012 19:30:21 -0800 (PST)
+Received: from cantor2.suse.de ([195.135.220.15]:40296 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751347Ab2KMHnZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Nov 2012 02:43:25 -0500
+In-Reply-To: <1352306256-12180-4-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch for XBox360 Wireless Controllers fixes the initial player
-indicator setting, and also implements the LED setting interface.
+On Wed, 7 Nov 2012, Benjamin Tissoires wrote:
 
-Signed-off-by: Chris Moeller <kode54@gmail.com>
+> HID spec details special values for the HID field unit exponent.
+> Basically, the range [0x8..0xf] correspond to [-8..-1], so this is
+> a standard two's complement on a half-byte.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
----
+Acked-by: Jiri Kosina <jkosina@suse.cz>
 
-This patch still duplicates the LED setting code for the initial player
-indicator setting function, as that function needs to send the same
-packet without any mutex locking.
+> ---
+>  drivers/hid/hid-core.c  | 16 +++++++++++++++-
+>  drivers/hid/hid-input.c | 13 +++++++++----
+>  include/linux/hid.h     |  1 +
+>  3 files changed, 25 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 3d0da29..9da3007 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -315,6 +315,7 @@ static s32 item_sdata(struct hid_item *item)
+>  
+>  static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
+>  {
+> +	__u32 raw_value;
+>  	switch (item->tag) {
+>  	case HID_GLOBAL_ITEM_TAG_PUSH:
+>  
+> @@ -365,7 +366,14 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
+>  		return 0;
+>  
+>  	case HID_GLOBAL_ITEM_TAG_UNIT_EXPONENT:
+> -		parser->global.unit_exponent = item_sdata(item);
+> +		/* Units exponent negative numbers are given through a
+> +		 * two's complement.
+> +		 * See "6.2.2.7 Global Items" for more information. */
+> +		raw_value = item_udata(item);
+> +		if (!(raw_value & 0xfffffff0))
+> +			parser->global.unit_exponent = hid_snto32(raw_value, 4);
+> +		else
+> +			parser->global.unit_exponent = raw_value;
+>  		return 0;
+>  
+>  	case HID_GLOBAL_ITEM_TAG_UNIT:
+> @@ -865,6 +873,12 @@ static s32 snto32(__u32 value, unsigned n)
+>  	return value & (1 << (n - 1)) ? value | (-1 << n) : value;
+>  }
+>  
+> +s32 hid_snto32(__u32 value, unsigned n)
+> +{
+> +	return snto32(value, n);
+> +}
+> +EXPORT_SYMBOL_GPL(hid_snto32);
+> +
+>  /*
+>   * Convert a signed 32-bit integer to a signed n-bit integer.
+>   */
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 67044f3..7015080 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -192,7 +192,6 @@ static int hidinput_setkeycode(struct input_dev *dev,
+>  	return -EINVAL;
+>  }
+>  
+> -
+>  /**
+>   * hidinput_calc_abs_res - calculate an absolute axis resolution
+>   * @field: the HID report field to calculate resolution for
+> @@ -235,17 +234,23 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+>  	case ABS_MT_TOOL_Y:
+>  	case ABS_MT_TOUCH_MAJOR:
+>  	case ABS_MT_TOUCH_MINOR:
+> -		if (field->unit == 0x11) {		/* If centimeters */
+> +		if (field->unit & 0xffffff00)		/* Not a length */
+> +			return 0;
+> +		unit_exponent += hid_snto32(field->unit >> 4, 4) - 1;
+> +		switch (field->unit & 0xf) {
+> +		case 0x1:				/* If centimeters */
+>  			/* Convert to millimeters */
+>  			unit_exponent += 1;
+> -		} else if (field->unit == 0x13) {	/* If inches */
+> +			break;
+> +		case 0x3:				/* If inches */
+>  			/* Convert to millimeters */
+>  			prev = physical_extents;
+>  			physical_extents *= 254;
+>  			if (physical_extents < prev)
+>  				return 0;
+>  			unit_exponent -= 1;
+> -		} else {
+> +			break;
+> +		default:
+>  			return 0;
+>  		}
+>  		break;
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 9edb06c..a110a3e 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -754,6 +754,7 @@ int hid_connect(struct hid_device *hid, unsigned int connect_mask);
+>  void hid_disconnect(struct hid_device *hid);
+>  const struct hid_device_id *hid_match_id(struct hid_device *hdev,
+>  					 const struct hid_device_id *id);
+> +s32 hid_snto32(__u32 value, unsigned n);
+>  
+>  /**
+>   * hid_map_usage - map usage input bits
+> -- 
+> 1.7.11.7
+> 
 
---- linux-3.6.orig/drivers/input/joystick/xpad.c	2012-09-30 16:47:46.000000000 -0700
-+++ linux-3.6/drivers/input/joystick/xpad.c	2012-11-12 17:26:11.809145345 -0800
-@@ -260,13 +260,12 @@ struct usb_xpad {
- 
- 	int pad_present;
- 
-+	int interface_number;
-+
- 	struct urb *irq_in;		/* urb for interrupt in report */
- 	unsigned char *idata;		/* input data */
- 	dma_addr_t idata_dma;
- 
--	struct urb *bulk_out;
--	unsigned char *bdata;
--
- #if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
- 	struct urb *irq_out;		/* urb for interrupt out report */
- 	unsigned char *odata;		/* output data */
-@@ -447,7 +446,22 @@ static void xpad360w_process_packet(stru
- 	if (data[0] & 0x08) {
- 		if (data[1] & 0x80) {
- 			xpad->pad_present = 1;
--			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
-+#if defined(CONFIG_JOYSTICK_XPAD_LEDS)
-+			xpad->odata[0] = 0x00;
-+			xpad->odata[1] = 0x00;
-+			xpad->odata[2] = 0x08;
-+			xpad->odata[3] = 0x42 + (xpad->interface_number & 6) / 2;
-+			xpad->odata[4] = 0x00;
-+			xpad->odata[5] = 0x00;
-+			xpad->odata[6] = 0x00;
-+			xpad->odata[7] = 0x00;
-+			xpad->odata[8] = 0x00;
-+			xpad->odata[9] = 0x00;
-+			xpad->odata[10] = 0x00;
-+			xpad->odata[11] = 0x00;
-+			xpad->irq_out->transfer_buffer_length = 12;
-+			usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+#endif
- 		} else
- 			xpad->pad_present = 0;
- 	}
-@@ -502,28 +516,6 @@ exit:
- 			__func__, retval);
- }
- 
--static void xpad_bulk_out(struct urb *urb)
--{
--	struct usb_xpad *xpad = urb->context;
--	struct device *dev = &xpad->intf->dev;
--
--	switch (urb->status) {
--	case 0:
--		/* success */
--		break;
--	case -ECONNRESET:
--	case -ENOENT:
--	case -ESHUTDOWN:
--		/* this urb is terminated, clean up */
--		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
--			__func__, urb->status);
--		break;
--	default:
--		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
--			__func__, urb->status);
--	}
--}
--
- #if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
- static void xpad_irq_out(struct urb *urb)
- {
-@@ -704,14 +696,37 @@ struct xpad_led {
- 
- static void xpad_send_led_command(struct usb_xpad *xpad, int command)
- {
--	if (command >= 0 && command < 14) {
--		mutex_lock(&xpad->odata_mutex);
--		xpad->odata[0] = 0x01;
--		xpad->odata[1] = 0x03;
--		xpad->odata[2] = command;
--		xpad->irq_out->transfer_buffer_length = 3;
--		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
--		mutex_unlock(&xpad->odata_mutex);
-+	if (xpad->xtype == XTYPE_XBOX || xpad->xtype == XTYPE_XBOX360) {
-+		if (command >= 0 && command < 14) {
-+			mutex_lock(&xpad->odata_mutex);
-+			xpad->odata[0] = 0x01;
-+			xpad->odata[1] = 0x03;
-+			xpad->odata[2] = command;
-+			xpad->irq_out->transfer_buffer_length = 3;
-+			usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+			mutex_unlock(&xpad->odata_mutex);
-+		}
-+	} else if (xpad->xtype == XTYPE_XBOX360W) {
-+		if (command >= 0 && command < 17) {
-+			if (command == 16)
-+				command = 2 + (xpad->interface_number & 6) / 2;
-+			mutex_lock(&xpad->odata_mutex);
-+			xpad->odata[0] = 0x00;
-+			xpad->odata[1] = 0x00;
-+			xpad->odata[2] = 0x08;
-+			xpad->odata[3] = 0x40 + command;
-+			xpad->odata[4] = 0x00;
-+			xpad->odata[5] = 0x00;
-+			xpad->odata[6] = 0x00;
-+			xpad->odata[7] = 0x00;
-+			xpad->odata[8] = 0x00;
-+			xpad->odata[9] = 0x00;
-+			xpad->odata[10] = 0x00;
-+			xpad->odata[11] = 0x00;
-+			xpad->irq_out->transfer_buffer_length = 12;
-+			usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+			mutex_unlock(&xpad->odata_mutex);
-+		}
- 	}
- }
- 
-@@ -732,7 +747,7 @@ static int xpad_led_probe(struct usb_xpa
- 	struct led_classdev *led_cdev;
- 	int error;
- 
--	if (xpad->xtype != XTYPE_XBOX360)
-+	if (xpad->xtype != XTYPE_XBOX360 && xpad->xtype != XTYPE_XBOX360W)
- 		return 0;
- 
- 	xpad->led = led = kzalloc(sizeof(struct xpad_led), GFP_KERNEL);
-@@ -758,7 +773,8 @@ static int xpad_led_probe(struct usb_xpa
- 	/*
- 	 * Light up the segment corresponding to controller number
- 	 */
--	xpad_send_led_command(xpad, (led_no % 4) + 2);
-+    if (xpad->xtype == XTYPE_XBOX360)
-+		xpad_send_led_command(xpad, (led_no % 4) + 2);
- 
- 	return 0;
- }
-@@ -960,42 +976,7 @@ static int xpad_probe(struct usb_interfa
- 	usb_set_intfdata(intf, xpad);
- 
- 	if (xpad->xtype == XTYPE_XBOX360W) {
--		/*
--		 * Setup the message to set the LEDs on the
--		 * controller when it shows up
--		 */
--		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
--		if (!xpad->bulk_out) {
--			error = -ENOMEM;
--			goto fail7;
--		}
--
--		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
--		if (!xpad->bdata) {
--			error = -ENOMEM;
--			goto fail8;
--		}
--
--		xpad->bdata[2] = 0x08;
--		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
--		case 0:
--			xpad->bdata[3] = 0x42;
--			break;
--		case 2:
--			xpad->bdata[3] = 0x43;
--			break;
--		case 4:
--			xpad->bdata[3] = 0x44;
--			break;
--		case 6:
--			xpad->bdata[3] = 0x45;
--		}
--
--		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
--		usb_fill_bulk_urb(xpad->bulk_out, udev,
--				usb_sndbulkpipe(udev, ep_irq_in->bEndpointAddress),
--				xpad->bdata, XPAD_PKT_LEN, xpad_bulk_out, xpad);
--
-+		xpad->interface_number = intf->cur_altsetting->desc.bInterfaceNumber;
- 		/*
- 		 * Submit the int URB immediately rather than waiting for open
- 		 * because we get status messages from the device whether
-@@ -1006,13 +987,11 @@ static int xpad_probe(struct usb_interfa
- 		xpad->irq_in->dev = xpad->udev;
- 		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
- 		if (error)
--			goto fail9;
-+			goto fail7;
- 	}
- 
- 	return 0;
- 
-- fail9:	kfree(xpad->bdata);
-- fail8:	usb_free_urb(xpad->bulk_out);
-  fail7:	input_unregister_device(input_dev);
- 	input_dev = NULL;
-  fail6:	xpad_led_disconnect(xpad);
-@@ -1036,8 +1015,6 @@ static void xpad_disconnect(struct usb_i
- 	xpad_deinit_output(xpad);
- 
- 	if (xpad->xtype == XTYPE_XBOX360W) {
--		usb_kill_urb(xpad->bulk_out);
--		usb_free_urb(xpad->bulk_out);
- 		usb_kill_urb(xpad->irq_in);
- 	}
- 
-@@ -1045,7 +1022,6 @@ static void xpad_disconnect(struct usb_i
- 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
- 			xpad->idata, xpad->idata_dma);
- 
--	kfree(xpad->bdata);
- 	kfree(xpad);
- 
- 	usb_set_intfdata(intf, NULL);
+-- 
+Jiri Kosina
+SUSE Labs

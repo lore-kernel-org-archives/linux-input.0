@@ -1,132 +1,90 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 11/13] HID: hid-multitouch: support for hovering
- devices
-Date: Tue, 13 Nov 2012 17:42:39 +0100
-Message-ID: <20121113164239.GA712@polaris.bitmath.org>
+Subject: Re: [PATCH v3 12/13] HID: introduce Scan Time
+Date: Tue, 13 Nov 2012 18:15:53 +0100
+Message-ID: <20121113171553.GA821@polaris.bitmath.org>
 References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352306256-12180-12-git-send-email-benjamin.tissoires@gmail.com>
+ <1352306256-12180-13-git-send-email-benjamin.tissoires@gmail.com>
+ <20121109084527.GA15371@core.coreip.homeip.net>
+ <50A25861.5060803@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b31.telenor.se ([213.150.131.20]:33133 "EHLO
-	smtprelay-b31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754612Ab2KMQgS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Nov 2012 11:36:18 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1352306256-12180-12-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <50A25861.5060803@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 07, 2012 at 05:37:34PM +0100, Benjamin Tissoires wrote:
-> Win8 devices supporting hovering must provides InRange HID field.
+Hi Benjamin,
 
-provide the
+> From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> Date: Tue, 13 Nov 2012 15:11:22 +0100
+> Subject: [PATCH] Input: introduce EV_MSC Timestamp
+> 
+> Win 8 digitizer devices provides the actual timestamp (hid_dg_scan_time)
+> computed by the hardware itself. The value is global to the frame and is
+> not specific to the multitouch protocol (though only touch, not pen,
+> should use it according to the specification).
 
-> The information that the finger is here but is not touching the surface
-> is sent to the user space through ABS_MT_DISTANCE as required by the
-> multitouch protocol.
-
-In the absence of more detailed information, use ABS_MT_DISTANCE with
-a [0,1] interval to distinguish between presence (1) and touch (0).
+I think it is good to use win8 as an example here, but this feature is
+present in many other devices as well, and this feature is generic to
+all of them. It would thus make sense to start off a bit more general here.
 
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > ---
->  drivers/hid/hid-multitouch.c | 24 ++++++++++++++++++++----
->  1 file changed, 20 insertions(+), 4 deletions(-)
+>  Documentation/input/event-codes.txt | 11 +++++++++++
+>  include/linux/input.h               |  1 +
+>  2 files changed, 12 insertions(+)
 > 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index b393c6c..1f3d1e0 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -59,6 +59,7 @@ struct mt_slot {
->  	__s32 x, y, cx, cy, p, w, h;
->  	__s32 contactid;	/* the device ContactID assigned to this slot */
->  	bool touch_state;	/* is the touch valid? */
-> +	bool inrange_state;	/* is the finger in proximity of the sensor? */
->  };
+> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+> index 53305bd..6f28e11 100644
+> --- a/Documentation/input/event-codes.txt
+> +++ b/Documentation/input/event-codes.txt
+> @@ -196,6 +196,17 @@ EV_MSC:
+>  EV_MSC events are used for input and output events that do not fall under other
+>  categories.
 >  
->  struct mt_class {
-> @@ -397,6 +398,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  	case HID_UP_DIGITIZER:
->  		switch (usage->hid) {
->  		case HID_DG_INRANGE:
-> +			if (cls->quirks & MT_QUIRK_WIN_8_CERTIFIED) {
-> +				hid_map_usage(hi, usage, bit, max,
-> +					EV_ABS, ABS_MT_DISTANCE);
-> +				input_set_abs_params(hi->input,
-> +					ABS_MT_DISTANCE, -1, 1, 0, 0);
+> +A few EV_MSC codes have special meanings:
 
-Why [-1,1] here?
+meaning:
 
-> +			}
->  			mt_store_field(usage, td, hi);
->  			td->last_field_index = field->index;
->  			return 1;
-> @@ -516,6 +523,10 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  		if (slotnum < 0 || slotnum >= td->maxcontacts)
->  			return;
->  
-> +		if (!test_bit(ABS_MT_DISTANCE, input->absbit))
-> +			/* If InRange is not present, rely on TipSwitch */
-> +			s->inrange_state = s->touch_state;
 > +
+> +* MSC_TIMESTAMP:
+> +  - Used to report the number of microseconds since the last reset. This event
+> +    should be coded as an uint32 value, which is allowed to wrap around with
+> +    no special consequence. It is assumed that the time difference between two
+> +    consecutive events is reliable on a reasonable time scale (hours).
+> +    A reset to zero can happen, in which case the time since the last event is
+> +    unknown.  If the device does not provide this information, the driver must
+> +    not provide it to the user space.
 
-This could be skipped, see below.
+to user space.
 
->  		if (td->mtclass.quirks & MT_QUIRK_IGNORE_DUPLICATES &&
->  		    input_mt_is_active(&input->mt->slots[slotnum]) &&
->  		    input_mt_is_used(input->mt, &input->mt->slots[slotnum]))
-> @@ -523,9 +534,9 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+> +
+>  EV_LED:
+>  ----------
+>  EV_LED events are used for input and output to set and query the state of
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index ba48743..25354f3 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -858,6 +858,7 @@ struct input_keymap_entry {
+>  #define MSC_GESTURE		0x02
+>  #define MSC_RAW			0x03
+>  #define MSC_SCAN		0x04
+> +#define MSC_TIMESTAMP		0x05
+>  #define MSC_MAX			0x07
+>  #define MSC_CNT			(MSC_MAX+1)
 >  
->  		input_mt_slot(input, slotnum);
->  		input_mt_report_slot_state(input, MT_TOOL_FINGER,
-> -			s->touch_state);
-> -		if (s->touch_state) {
-> -			/* this finger is on the screen */
-> +			s->inrange_state);
-> +		if (s->inrange_state) {
-> +			/* this finger is in proximity of the sensor */
-
-Using (s->touch_state || s->inrange_state) here seems simpler.
-
->  			int wide = (s->w > s->h);
->  			/* divided by two to match visual scale of touch */
->  			int major = max(s->w, s->h) >> 1;
-> @@ -535,11 +546,14 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
->  			input_event(input, EV_ABS, ABS_MT_TOOL_X, s->cx);
->  			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
-> +			input_event(input, EV_ABS, ABS_MT_DISTANCE,
-> +				!s->touch_state);
->  			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
->  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
-> -		}
-> +		} else
-> +			input_event(input, EV_ABS, ABS_MT_DISTANCE, -1);
-
-Just skip this, please.
-
->  	}
->  
->  	td->num_received++;
-> @@ -567,6 +581,8 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  		case HID_DG_INRANGE:
->  			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
->  				td->curvalid = value;
-> +			if (quirks & MT_QUIRK_WIN_8_CERTIFIED)
-> +				td->curdata.inrange_state = value;
->  			break;
->  		case HID_DG_TIPSWITCH:
->  			if (quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
 > -- 
-> 1.7.11.7
+> 1.8.0
 > 
+> Cheers,
+> Benjamin
+
+    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
 Thanks,
 Henrik

@@ -1,122 +1,177 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3 12/13] HID: introduce Scan Time
-Date: Tue, 13 Nov 2012 15:25:37 +0100
-Message-ID: <50A25861.5060803@gmail.com>
-References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com> <1352306256-12180-13-git-send-email-benjamin.tissoires@gmail.com> <20121109084527.GA15371@core.coreip.homeip.net>
+Subject: Re: [PATCH v3 13/13] HID: hid-multitouch: forwards ABS_SCAN_TIME
+Date: Tue, 13 Nov 2012 15:30:40 +0100
+Message-ID: <50A25990.6040302@gmail.com>
+References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com> <1352306256-12180-14-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:49845 "EHLO
+Received: from mail-la0-f46.google.com ([209.85.215.46]:57831 "EHLO
 	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754540Ab2KMOZu (ORCPT
+	with ESMTP id S1754778Ab2KMOat (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Nov 2012 09:25:50 -0500
-In-Reply-To: <20121109084527.GA15371@core.coreip.homeip.net>
+	Tue, 13 Nov 2012 09:30:49 -0500
+In-Reply-To: <1352306256-12180-14-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
 
-On 11/09/2012 09:45 AM, Dmitry Torokhov wrote:
-> Hi Benjamin,
+On 11/07/2012 05:37 PM, Benjamin Tissoires wrote:
+> Computes the scan time according to the specification.
+> It also ensures that if the time between two events is greater
+> than MAX_SCAN_INTERVAL, the scan time will be reset.
 > 
-> On Wed, Nov 07, 2012 at 05:37:35PM +0100, Benjamin Tissoires wrote:
->> Win 8 digitizer devices provides the actual scan time computed by the
->> hardware itself. The value is global to the frame and is not specific
->> to the multitouch protocol (though only touch, not pen, should use it
->> according to the specification).
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
->> ---
->>   Documentation/input/event-codes.txt | 9 +++++++++
->>   drivers/hid/hid-input.c             | 4 ++++
->>   include/linux/hid.h                 | 1 +
->>   include/linux/input.h               | 1 +
->>   4 files changed, 15 insertions(+)
->>
->> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
->> index 53305bd..80c06e5 100644
->> --- a/Documentation/input/event-codes.txt
->> +++ b/Documentation/input/event-codes.txt
->> @@ -174,6 +174,15 @@ A few EV_ABS codes have special meanings:
->>       the input device may be used freely in three dimensions, consider ABS_Z
->>       instead.
->>   
->> +* ABS_SCAN_TIME:
->> +  - Used to report the number of microseconds since the last reset. This event
->> +    should be coded as an uint32 value, which is allowed to wrap around with
->> +    no special consequence. It is assumed that the time difference between two
->> +    consecutive events is reliable on a reasonable time scale (hours).
->> +    A reset to zero can happen, in which case the time since the last event is
->> +    unknown.  If the device does not provide this information, the driver must
->> +    not provide it to the user space.
->> +
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
+>   drivers/hid/hid-multitouch.c | 45 ++++++++++++++++++++++++++++++++++++++++++--
+>   1 file changed, 43 insertions(+), 2 deletions(-)
 > 
-> This should not be an absolute event but rather EV_MSC/MSC_TIMESTAMP.
+[snipped]
+>   			/*
+>   			 * Includes multi-packet support where subsequent
 > 
-> Thanks.
 
-Hi Dmitry,
 
-alright.
-However, since we are using EV_MSC now and the hid layer is not so friendly with them,
-the change in hid-input can not be done in the same way, so let's drop it for now.
-
-How about this?
-
+Since ABS_SCAN_TIME has been replaced by MSC_TIMESTAMP, this patch is modified as this:
 
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Date: Tue, 13 Nov 2012 15:11:22 +0100
-Subject: [PATCH] Input: introduce EV_MSC Timestamp
+Date: Tue, 13 Nov 2012 15:12:17 +0100
+Subject: [PATCH v4] HID: hid-multitouch: forwards MSC_TIMESTAMP
 
-Win 8 digitizer devices provides the actual timestamp (hid_dg_scan_time)
-computed by the hardware itself. The value is global to the frame and is
-not specific to the multitouch protocol (though only touch, not pen,
-should use it according to the specification).
+Computes the device timestamp according to the specification.
+It also ensures that if the time between two events is greater
+than MAX_TIMESTAMP_INTERVAL, the timestamp will be reset.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- Documentation/input/event-codes.txt | 11 +++++++++++
- include/linux/input.h               |  1 +
- 2 files changed, 12 insertions(+)
+ drivers/hid/hid-multitouch.c | 46 +++++++++++++++++++++++++++++++++++++++++---
+ include/linux/hid.h          |  1 +
+ 2 files changed, 44 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-index 53305bd..6f28e11 100644
---- a/Documentation/input/event-codes.txt
-+++ b/Documentation/input/event-codes.txt
-@@ -196,6 +196,17 @@ EV_MSC:
- EV_MSC events are used for input and output events that do not fall under other
- categories.
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index caf0f0b..3f8432d 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -32,6 +32,7 @@
+ #include <linux/slab.h>
+ #include <linux/usb.h>
+ #include <linux/input/mt.h>
++#include <linux/jiffies.h>
+ #include "usbhid/usbhid.h"
  
-+A few EV_MSC codes have special meanings:
-+
-+* MSC_TIMESTAMP:
-+  - Used to report the number of microseconds since the last reset. This event
-+    should be coded as an uint32 value, which is allowed to wrap around with
-+    no special consequence. It is assumed that the time difference between two
-+    consecutive events is reliable on a reasonable time scale (hours).
-+    A reset to zero can happen, in which case the time since the last event is
-+    unknown.  If the device does not provide this information, the driver must
-+    not provide it to the user space.
-+
- EV_LED:
- ----------
- EV_LED events are used for input and output to set and query the state of
-diff --git a/include/linux/input.h b/include/linux/input.h
-index ba48743..25354f3 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -858,6 +858,7 @@ struct input_keymap_entry {
- #define MSC_GESTURE		0x02
- #define MSC_RAW			0x03
- #define MSC_SCAN		0x04
-+#define MSC_TIMESTAMP		0x05
- #define MSC_MAX			0x07
- #define MSC_CNT			(MSC_MAX+1)
  
+@@ -98,6 +99,9 @@ struct mt_device {
+ 	bool serial_maybe;	/* need to check for serial protocol */
+ 	bool curvalid;		/* is the current contact valid? */
+ 	unsigned mt_flags;	/* flags to pass to input-mt */
++	__s32 dev_time;		/* the scan time provided by the device */
++	unsigned long jiffies;	/* the frame's jiffies */
++	unsigned timestamp;	/* the timestamp to be sent */
+ };
+ 
+ /* classes of device behavior */
+@@ -126,6 +130,8 @@ struct mt_device {
+ #define MT_DEFAULT_MAXCONTACT	10
+ #define MT_MAX_MAXCONTACT	250
+ 
++#define MAX_TIMESTAMP_INTERVAL	500000
++
+ #define MT_USB_DEVICE(v, p)	HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH, v, p)
+ #define MT_BT_DEVICE(v, p)	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_MULTITOUCH, v, p)
+ 
+@@ -451,12 +457,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			return 1;
++		case HID_DG_SCANTIME:
++			hid_map_usage(hi, usage, bit, max,
++				EV_MSC, MSC_TIMESTAMP);
++			set_bit(MSC_TIMESTAMP, hi->input->mscbit);
++			td->last_field_index = field->index;
++			return 1;
+ 		case HID_DG_CONTACTCOUNT:
+ 			td->last_field_index = field->index;
+ 			return 1;
+ 		case HID_DG_CONTACTMAX:
+-			/* we don't set td->last_slot_field as contactcount and
+-			 * contact max are global to the report */
++			/* we don't set td->last_slot_field as scan time,
++			 * contactcount and contact max are global to the
++			 * report */
+ 			td->last_field_index = field->index;
+ 			return -1;
+ 		}
+@@ -485,7 +498,8 @@ static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
+-	if (usage->type == EV_KEY || usage->type == EV_ABS)
++	if (usage->type == EV_KEY || usage->type == EV_ABS ||
++	    usage->type == EV_MSC)
+ 		set_bit(usage->type, hi->input->evbit);
+ 
+ 	return -1;
+@@ -565,11 +579,34 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+  */
+ static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
+ {
++	input_event(input, EV_MSC, MSC_TIMESTAMP, td->timestamp);
+ 	input_mt_sync_frame(input);
+ 	input_sync(input);
+ 	td->num_received = 0;
+ }
+ 
++static void mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
++		__s32 value)
++{
++	long delta = value - td->dev_time;
++	unsigned long jdelta = jiffies_to_usecs(jiffies - td->jiffies);
++
++	td->jiffies = jiffies;
++	td->dev_time = value;
++
++	if (delta < 0)
++		delta += field->logical_maximum;
++
++	/* HID_DG_SCANTIME is expressed in 100us, we want it in ms. */
++	delta *= 100;
++
++	if (abs(delta - jdelta) > MAX_TIMESTAMP_INTERVAL)
++		/* obviously wrong clock -> the device time has been reset */
++		td->timestamp = 0;
++	else
++		td->timestamp += delta;
++}
++
+ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 				struct hid_usage *usage, __s32 value)
+ {
+@@ -617,6 +654,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 		case HID_DG_HEIGHT:
+ 			td->curdata.h = value;
+ 			break;
++		case HID_DG_SCANTIME:
++			mt_compute_timestamp(td, field, value);
++			break;
+ 		case HID_DG_CONTACTCOUNT:
+ 			/*
+ 			 * Includes multi-packet support where subsequent
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 6b4f322..0337e50 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -279,6 +279,7 @@ struct hid_item {
+ #define HID_DG_DEVICEINDEX	0x000d0053
+ #define HID_DG_CONTACTCOUNT	0x000d0054
+ #define HID_DG_CONTACTMAX	0x000d0055
++#define HID_DG_SCANTIME		0x000d0056
+ 
+ /*
+  * HID report types --- Ouch! HID spec says 1 2 3!
 -- 
 1.8.0
 

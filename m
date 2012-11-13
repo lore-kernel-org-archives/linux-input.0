@@ -1,230 +1,124 @@
-From: Alexandra Chin <Alexandra.Chin@tw.synaptics.com>
-Subject: [PATCH v6] staging: ste_rmi4: Convert to Type-B support
-Date: Tue, 13 Nov 2012 20:12:12 +0800
-Message-ID: <20121113201212.8550fb074e1f7cce78f29d97@tw.synaptics.com>
-References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v3 12/13] HID: introduce Scan Time
+Date: Tue, 13 Nov 2012 15:25:37 +0100
+Message-ID: <50A25861.5060803@gmail.com>
+References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com> <1352306256-12180-13-git-send-email-benjamin.tissoires@gmail.com> <20121109084527.GA15371@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:8069 "EHLO
-	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751749Ab2KMMMQ (ORCPT
+Received: from mail-la0-f46.google.com ([209.85.215.46]:49845 "EHLO
+	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754540Ab2KMOZu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Nov 2012 07:12:16 -0500
-In-Reply-To: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
+	Tue, 13 Nov 2012 09:25:50 -0500
+In-Reply-To: <20121109084527.GA15371@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Convert to MT-B because Synaptics touch devices are capable
-of tracking identifiable fingers.
- 
-Signed-off-by: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+
+
+On 11/09/2012 09:45 AM, Dmitry Torokhov wrote:
+> Hi Benjamin,
+> 
+> On Wed, Nov 07, 2012 at 05:37:35PM +0100, Benjamin Tissoires wrote:
+>> Win 8 digitizer devices provides the actual scan time computed by the
+>> hardware itself. The value is global to the frame and is not specific
+>> to the multitouch protocol (though only touch, not pen, should use it
+>> according to the specification).
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> ---
+>>   Documentation/input/event-codes.txt | 9 +++++++++
+>>   drivers/hid/hid-input.c             | 4 ++++
+>>   include/linux/hid.h                 | 1 +
+>>   include/linux/input.h               | 1 +
+>>   4 files changed, 15 insertions(+)
+>>
+>> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+>> index 53305bd..80c06e5 100644
+>> --- a/Documentation/input/event-codes.txt
+>> +++ b/Documentation/input/event-codes.txt
+>> @@ -174,6 +174,15 @@ A few EV_ABS codes have special meanings:
+>>       the input device may be used freely in three dimensions, consider ABS_Z
+>>       instead.
+>>   
+>> +* ABS_SCAN_TIME:
+>> +  - Used to report the number of microseconds since the last reset. This event
+>> +    should be coded as an uint32 value, which is allowed to wrap around with
+>> +    no special consequence. It is assumed that the time difference between two
+>> +    consecutive events is reliable on a reasonable time scale (hours).
+>> +    A reset to zero can happen, in which case the time since the last event is
+>> +    unknown.  If the device does not provide this information, the driver must
+>> +    not provide it to the user space.
+>> +
+> 
+> This should not be an absolute event but rather EV_MSC/MSC_TIMESTAMP.
+> 
+> Thanks.
+
+Hi Dmitry,
+
+alright.
+However, since we are using EV_MSC now and the hid layer is not so friendly with them,
+the change in hid-input can not be done in the same way, so let's drop it for now.
+
+How about this?
+
+
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Date: Tue, 13 Nov 2012 15:11:22 +0100
+Subject: [PATCH] Input: introduce EV_MSC Timestamp
+
+Win 8 digitizer devices provides the actual timestamp (hid_dg_scan_time)
+computed by the hardware itself. The value is global to the frame and is
+not specific to the multitouch protocol (though only touch, not pen,
+should use it according to the specification).
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
-This patch was tested on Pandaboard.
+ Documentation/input/event-codes.txt | 11 +++++++++++
+ include/linux/input.h               |  1 +
+ 2 files changed, 12 insertions(+)
 
-Changes from v6:
-        - Incorporated Henrik's review comments
-          *remove irrelevant changes within the patch
-
-Changes from v5:
-        - Incorporated Henrik's review comments
-          *rollback to v3 from v4
-          *fix odd line break in v3
-
-Changes from v4:
-        - Incorporated Henrik's review comments
-          *split function synpatics_rmi4_touchscreen_report
-          *split function synaptics_rmi4_i2c_query_device
-
-Changes from v3:
-	- Incorporated Henrik's review comments
-	  *remove 'else' after an error path return
-	  *add input_mt_sync_frame() for pointer emulation effects
-	  *correct names of touchscreen
-	- Replace printk with dev_err
-
-Changes from v2:
-	- Incorporated Henrik's review comments
-	  *directly report finger state with Type-B
-	- Against 3.7-rcX
-	  *call input_mt_init_slots with INPUT_MT_DIRECT flag
----
- drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c |   76 +++++++++++--------------
- 1 files changed, 33 insertions(+), 43 deletions(-)
-
-diff --git a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-index 277491a..ed304e0 100644
---- a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-+++ b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
-@@ -31,6 +31,7 @@
- #include <linux/interrupt.h>
- #include <linux/regulator/consumer.h>
- #include <linux/module.h>
-+#include <linux/input/mt.h>
- #include "synaptics_i2c_rmi4.h"
+diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+index 53305bd..6f28e11 100644
+--- a/Documentation/input/event-codes.txt
++++ b/Documentation/input/event-codes.txt
+@@ -196,6 +196,17 @@ EV_MSC:
+ EV_MSC events are used for input and output events that do not fall under other
+ categories.
  
- /* TODO: for multiple device support will need a per-device mutex */
-@@ -67,7 +68,6 @@
- #define PDT_START_SCAN_LOCATION (0x00E9)
- #define PDT_END_SCAN_LOCATION	(0x000A)
- #define PDT_ENTRY_SIZE		(0x0006)
--#define RMI4_NUMBER_OF_MAX_FINGERS		(8)
- #define SYNAPTICS_RMI4_TOUCHPAD_FUNC_NUM	(0x11)
- #define SYNAPTICS_RMI4_DEVICE_CONTROL_FUNC_NUM	(0x01)
- 
-@@ -164,6 +164,7 @@ struct synaptics_rmi4_device_info {
-  * @regulator: pointer to the regulator structure
-  * @wait: wait queue structure variable
-  * @touch_stopped: flag to stop the thread function
-+ * @fingers_supported: maximum supported fingers
-  *
-  * This structure gives the device data information.
-  */
-@@ -184,6 +185,7 @@ struct synaptics_rmi4_data {
- 	struct regulator	*regulator;
- 	wait_queue_head_t	wait;
- 	bool			touch_stopped;
-+	unsigned char		fingers_supported;
- };
- 
- /**
-@@ -303,22 +305,21 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
- 	/* number of touch points - fingers down in this case */
- 	int	touch_count = 0;
- 	int	finger;
--	int	fingers_supported;
- 	int	finger_registers;
- 	int	reg;
- 	int	finger_shift;
- 	int	finger_status;
- 	int	retval;
-+	int	x, y;
-+	int	wx, wy;
- 	unsigned short	data_base_addr;
- 	unsigned short	data_offset;
- 	unsigned char	data_reg_blk_size;
- 	unsigned char	values[2];
- 	unsigned char	data[DATA_LEN];
--	int	x[RMI4_NUMBER_OF_MAX_FINGERS];
--	int	y[RMI4_NUMBER_OF_MAX_FINGERS];
--	int	wx[RMI4_NUMBER_OF_MAX_FINGERS];
--	int	wy[RMI4_NUMBER_OF_MAX_FINGERS];
-+	unsigned char	fingers_supported = pdata->fingers_supported;
- 	struct	i2c_client *client = pdata->i2c_client;
-+	struct	input_dev *input_dev = pdata->input_dev;
- 
- 	/* get 2D sensor finger data */
- 	/*
-@@ -333,7 +334,6 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
- 	 *	10 = finger present but data may not be accurate,
- 	 *	11 = reserved for product use.
- 	 */
--	fingers_supported	= rfi->num_of_data_points;
- 	finger_registers	= (fingers_supported + 3)/4;
- 	data_base_addr		= rfi->fn_desc.data_base_addr;
- 	retval = synaptics_rmi4_i2c_block_read(pdata, data_base_addr, values,
-@@ -358,7 +358,11 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
- 		 * if finger status indicates a finger is present then
- 		 * read the finger data and report it
- 		 */
--		if (finger_status == 1 || finger_status == 2) {
-+		input_mt_slot(input_dev, finger);
-+		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
-+							finger_status != 0);
++A few EV_MSC codes have special meanings:
 +
-+		if (finger_status) {
- 			/* Read the finger data */
- 			data_offset = data_base_addr +
- 					((finger * data_reg_blk_size) +
-@@ -367,50 +371,33 @@ static int synpatics_rmi4_touchpad_report(struct synaptics_rmi4_data *pdata,
- 						data_offset, data,
- 						data_reg_blk_size);
- 			if (retval != data_reg_blk_size) {
--				printk(KERN_ERR "%s:read data failed\n",
-+				dev_err(&client->dev, "%s:read data failed\n",
- 								__func__);
- 				return 0;
--			} else {
--				x[touch_count]	=
--					(data[0] << 4) | (data[2] & MASK_4BIT);
--				y[touch_count]	=
--					(data[1] << 4) |
--					((data[2] >> 4) & MASK_4BIT);
--				wy[touch_count]	=
--						(data[3] >> 4) & MASK_4BIT;
--				wx[touch_count]	=
--						(data[3] & MASK_4BIT);
--
--				if (pdata->board->x_flip)
--					x[touch_count] =
--						pdata->sensor_max_x -
--								x[touch_count];
--				if (pdata->board->y_flip)
--					y[touch_count] =
--						pdata->sensor_max_y -
--								y[touch_count];
- 			}
-+			x = (data[0] << 4) | (data[2] & MASK_4BIT);
-+			y = (data[1] << 4) | ((data[2] >> 4) & MASK_4BIT);
-+			wy = (data[3] >> 4) & MASK_4BIT;
-+			wx = (data[3] & MASK_4BIT);
++* MSC_TIMESTAMP:
++  - Used to report the number of microseconds since the last reset. This event
++    should be coded as an uint32 value, which is allowed to wrap around with
++    no special consequence. It is assumed that the time difference between two
++    consecutive events is reliable on a reasonable time scale (hours).
++    A reset to zero can happen, in which case the time since the last event is
++    unknown.  If the device does not provide this information, the driver must
++    not provide it to the user space.
 +
-+			if (pdata->board->x_flip)
-+				x = pdata->sensor_max_x - x;
-+			if (pdata->board->y_flip)
-+				y = pdata->sensor_max_y - y;
-+
-+			input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
-+								max(wx, wy));
-+			input_report_abs(input_dev, ABS_MT_POSITION_X, x);
-+			input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-+
- 			/* number of active touch points */
- 			touch_count++;
- 		}
- 	}
+ EV_LED:
+ ----------
+ EV_LED events are used for input and output to set and query the state of
+diff --git a/include/linux/input.h b/include/linux/input.h
+index ba48743..25354f3 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -858,6 +858,7 @@ struct input_keymap_entry {
+ #define MSC_GESTURE		0x02
+ #define MSC_RAW			0x03
+ #define MSC_SCAN		0x04
++#define MSC_TIMESTAMP		0x05
+ #define MSC_MAX			0x07
+ #define MSC_CNT			(MSC_MAX+1)
  
--	/* report to input subsystem */
--	if (touch_count) {
--		for (finger = 0; finger < touch_count; finger++) {
--			input_report_abs(pdata->input_dev, ABS_MT_TOUCH_MAJOR,
--						max(wx[finger] , wy[finger]));
--			input_report_abs(pdata->input_dev, ABS_MT_POSITION_X,
--								x[finger]);
--			input_report_abs(pdata->input_dev, ABS_MT_POSITION_Y,
--								y[finger]);
--			input_mt_sync(pdata->input_dev);
--		}
--	} else
--		input_mt_sync(pdata->input_dev);
--
- 	/* sync after groups of events */
--	input_sync(pdata->input_dev);
-+	input_mt_sync_frame(input_dev);
-+	input_sync(input_dev);
- 	/* return the number of touch points */
- 	return touch_count;
- }
-@@ -575,6 +562,7 @@ static int synpatics_rmi4_touchpad_detect(struct synaptics_rmi4_data *pdata,
- 		if ((queries[1] & MASK_3BIT) == 5)
- 			rfi->num_of_data_points = 10;
- 	}
-+	pdata->fingers_supported = rfi->num_of_data_points;
- 	/* Need to get interrupt info for handling interrupts */
- 	rfi->index_to_intr_reg = (interruptcount + 7)/8;
- 	if (rfi->index_to_intr_reg != 0)
-@@ -988,6 +976,8 @@ static int __devinit synaptics_rmi4_probe
- 					rmi4_data->sensor_max_y, 0, 0);
- 	input_set_abs_params(rmi4_data->input_dev, ABS_MT_TOUCH_MAJOR, 0,
- 						MAX_TOUCH_MAJOR, 0, 0);
-+	input_mt_init_slots(rmi4_data->input_dev,
-+				rmi4_data->fingers_supported, 0);
- 
- 	/* Clear interrupts */
- 	synaptics_rmi4_i2c_block_read(rmi4_data,
 -- 
-1.7.5.4
+1.8.0
 
+Cheers,
+Benjamin

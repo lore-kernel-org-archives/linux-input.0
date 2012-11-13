@@ -1,20 +1,19 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 09/13] HID: hid-multitouch: add
- MT_QUIRK_IGNORE_DUPLICATES
-Date: Tue, 13 Nov 2012 17:25:31 +0100
-Message-ID: <20121113162531.GA669@polaris.bitmath.org>
+Subject: Re: [PATCH v3 10/13] HID: hid-multitouch: fix Win 8 protocol
+Date: Tue, 13 Nov 2012 17:31:38 +0100
+Message-ID: <20121113163138.GA707@polaris.bitmath.org>
 References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352306256-12180-10-git-send-email-benjamin.tissoires@gmail.com>
+ <1352306256-12180-11-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:42299 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751643Ab2KMQTM (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:48119 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754106Ab2KMQZR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Nov 2012 11:19:12 -0500
+	Tue, 13 Nov 2012 11:25:17 -0500
 Content-Disposition: inline
-In-Reply-To: <1352306256-12180-10-git-send-email-benjamin.tissoires@gmail.com>
+In-Reply-To: <1352306256-12180-11-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
@@ -22,71 +21,85 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 
 Hi Benjamin,
 
-> this prevents a device to reuse contact id 0 several time when
-> sending garbage values to complete the report.
+> Win 8 specification is much more precise than the Win 7 one.
+> Moreover devices that need to take certification must be submitted
+> to Microsoft.
+> 
+> The result is a better protocol support and we can rely on that to
+> skip all the messy tests we used to do.
+> 
 
-This quirk allows a device to reuse a contact id when sending garbage
-inactive contacts at the end of a report.
+You could possibly start the commit message here..
 
+> The protocol specify the fact that each valid touch must be reported
+
+The win8 protocol...
+
+> within a frame until it is released.
+> So we can use the always_valid quirk and dismiss reports when we see
+
+We can therefore...
+
+> duplicates contact ID.
+
+duplicate contacts.
+
+> 
+> We recognize Win8 certified devices from their vendor feature 0xff0000c5
+> where Microsoft put a signed blob in the report to check if the device
+> passed the certification.
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > ---
->  drivers/hid/hid-multitouch.c | 6 ++++++
->  include/linux/input/mt.h     | 6 ++++++
->  2 files changed, 12 insertions(+)
+>  drivers/hid/hid-multitouch.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 2352770..351c814 100644
+> index 351c814..b393c6c 100644
 > --- a/drivers/hid/hid-multitouch.c
 > +++ b/drivers/hid/hid-multitouch.c
-> @@ -52,6 +52,7 @@ MODULE_LICENSE("GPL");
->  #define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 6)
+> @@ -53,6 +53,7 @@ MODULE_LICENSE("GPL");
 >  #define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
 >  #define MT_QUIRK_NO_AREA		(1 << 9)
-> +#define MT_QUIRK_IGNORE_DUPLICATES	(1 << 10)
+>  #define MT_QUIRK_IGNORE_DUPLICATES	(1 << 10)
+> +#define MT_QUIRK_WIN_8_CERTIFIED	(1 << 11)
 >  
 >  struct mt_slot {
 >  	__s32 x, y, cx, cy, p, w, h;
-> @@ -510,6 +511,11 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  		if (slotnum < 0 || slotnum >= td->maxcontacts)
->  			return;
+> @@ -293,6 +294,10 @@ static void mt_feature_mapping(struct hid_device *hdev,
+>  			td->maxcontacts = td->mtclass.maxcontacts;
 >  
-> +		if (td->mtclass.quirks & MT_QUIRK_IGNORE_DUPLICATES &&
-
-Don't like parenthesis, i see :-)
-
-> +		    input_mt_is_active(&input->mt->slots[slotnum]) &&
-> +		    input_mt_is_used(input->mt, &input->mt->slots[slotnum]))
-> +				return;
-> +
-
-It init_mt_slots failed earlier (no checks), input->mt can be NULL
-here. Also, a local variable instead of repetition would be nice.
-
->  		input_mt_slot(input, slotnum);
->  		input_mt_report_slot_state(input, MT_TOOL_FINGER,
->  			s->touch_state);
-> diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
-> index cc5cca7..2e86bd0 100644
-> --- a/include/linux/input/mt.h
-> +++ b/include/linux/input/mt.h
-> @@ -69,6 +69,12 @@ static inline bool input_mt_is_active(const struct input_mt_slot *slot)
->  	return input_mt_get_value(slot, ABS_MT_TRACKING_ID) >= 0;
+>  		break;
+> +	case 0xff0000c5:
+> +		if (field->report_count == 256 && field->report_size == 8)
+> +			td->mtclass.quirks |= MT_QUIRK_WIN_8_CERTIFIED;
+> +		break;
+>  	}
 >  }
 >  
-> +static inline bool input_mt_is_used(const struct input_mt *mt,
-> +				    const struct input_mt_slot *slot)
-> +{
-> +	return slot->frame == mt->frame;
-> +}
+> @@ -679,14 +684,17 @@ static void mt_post_parse_default_settings(struct mt_device *td)
+>  {
+>  	__s32 quirks = td->mtclass.quirks;
+>  
+> -	/* unknown serial device needs special quirks */
+> -	if (td->touches_by_report == 1) {
+> +	/* unknown serial devices or win8 ones need special quirks */
+> +	if (td->touches_by_report == 1 || (quirks & MT_QUIRK_WIN_8_CERTIFIED)) {
+>  		quirks |= MT_QUIRK_ALWAYS_VALID;
+>  		quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
+>  		quirks &= ~MT_QUIRK_VALID_IS_INRANGE;
+
+Won't this line interfere with the hovering functionality?
+
+>  		quirks &= ~MT_QUIRK_VALID_IS_CONFIDENCE;
+>  	}
+>  
+> +	if (quirks & MT_QUIRK_WIN_8_CERTIFIED)
+> +		quirks |= MT_QUIRK_IGNORE_DUPLICATES;
 > +
-
-This is ok, although I would prefer to also change input-mt.c to use
-this helper function. Possibly that turns this hunk into a separate patch.
-
->  int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
->  			unsigned int flags);
->  void input_mt_destroy_slots(struct input_dev *dev);
+>  	td->mtclass.quirks = quirks;
+>  }
+>  
 > -- 
 > 1.7.11.7
 > 

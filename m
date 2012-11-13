@@ -1,61 +1,67 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3 00/13] Win 8 support for digitizers
-Date: Tue, 13 Nov 2012 18:52:18 +0100
-Message-ID: <CAN+gG=HRabzaOBprZxTQEAu_7mvavdf6YEC=f5LKSn7hgNm0xQ@mail.gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v3 11/13] HID: hid-multitouch: support for hovering
+ devices
+Date: Tue, 13 Nov 2012 19:04:53 +0100
+Message-ID: <20121113180453.GA3622@polaris.bitmath.org>
 References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
-	<alpine.LNX.2.00.1211130845270.15877@pobox.suse.cz>
-	<20121113173353.GA878@polaris.bitmath.org>
+ <1352306256-12180-12-git-send-email-benjamin.tissoires@gmail.com>
+ <20121113164239.GA712@polaris.bitmath.org>
+ <CAN+gG=EbAdfOG_vwt2uamV+JcAKLFqM=zTo9oRQ9RLayrpdsoA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121113173353.GA878@polaris.bitmath.org>
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=EbAdfOG_vwt2uamV+JcAKLFqM=zTo9oRQ9RLayrpdsoA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Henrik,
+Hi Benjamin,
 
-On Tue, Nov 13, 2012 at 6:33 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> Hi Benjamin,
->
->> > here is the third version of this patchset.
->> > I think I included most of Henrik's comments.
->> >
->> > Happy reviewing :)
->
-> thanks for the changes :-)
+> > Why [-1,1] here?
+> 
+> At first, I only used [0,1]. However, it's still the same problem with
+> the information being kept between the touches:
+> if you start an application after having touched your device, you
+> normally have to ask for the different per-touche states to get x, y,
+> distance, pressure, etc...
+> However, this is not much mandatory because the protocol in its
+> current form ensures that you will get the new states of the axes when
+> a new touch occurs.
 
-and thanks for the review.
+Right, the stateful communication requires a full state read after
+opening the deivce, although in most cases this is not really
+necessary. This is no different for ABS_MT_DISTANCE, of course.
 
->
-> Jiri,
->
->> I am fine with the HID-specific changes (and I have sent out my Acks to
->> the invidivual patches).
->
-> Looks reasonable to me too (although I have not looked through the exponent
-> code enough to want to formally ack it).
->
->> For hid-multitouch changes, I'd like to have Reviewed-by: from Henrik as
->> well. Henrik, are you planning to review this patchset, please?
->
-> Yes, and finally done.
->
-> Cheers,
-> Henrik
+> ABS_MT_DISTANCE is a little bit different here because the protocol
+> guarantees that once you get the "not in range" state through
+> tracking_id == -1, distance should be 1.
+> When the new touch of the very same slot occurs, you also have the
+> guarantee that distance is at 1 too.
 
-Jiri,
+ABS_MT_DISTANCE is just another attribute of the slot, so it really is
+no different.
 
-I'll send a new patchset tomorrow with the different acked, reviewed
-and requested changes.
+> So basically, if you don't ask for the slot states, you will never get
+> that very first distance.
 
-Some patches at the end may need an other review, so I'll make sure to
-get the reviewed patches at the beginning of the set so that you can
-pick them for 3.8.
-It will also allow me not to send dozens of patches in a row :)
+Which will not be important either; as long as the slot is unused, it
+does not matter what the attributes of that slot are.
 
-Is it good for you?
+> I know that it's a user-space problem, but honestly, I don't want to
+> fix several user-space problems when we could fix it through the
+> protocol.
+> 
+> I can see 2 solutions:
+> - set the range to: [0,1] and still sending -1 (or 2) for the invalid
+> distance value (if it's not clamped)
+> - set the range to: [0,2] and having: 0 for touch, 1 for hovering, and
+> 2 for not in range
+> 
+> Does that make sense?
 
-Cheers,
-Benjamin
+I just do not see what problem you want to solve here.
+
+Thanks,
+Henrik

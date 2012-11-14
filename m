@@ -1,37 +1,87 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 11/13] HID: hid-multitouch: support for hovering
- devices
-Date: Tue, 13 Nov 2012 19:55:05 +0100
-Message-ID: <20121113185505.GA3641@polaris.bitmath.org>
-References: <1352306256-12180-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352306256-12180-12-git-send-email-benjamin.tissoires@gmail.com>
- <20121113164239.GA712@polaris.bitmath.org>
- <CAN+gG=EbAdfOG_vwt2uamV+JcAKLFqM=zTo9oRQ9RLayrpdsoA@mail.gmail.com>
- <20121113180453.GA3622@polaris.bitmath.org>
- <CAN+gG=HyDrr7mWsYGFue_xuzX0xm45n1EDpsDgU1RKJ8SkuP9Q@mail.gmail.com>
+From: Alban Bedel <alban.bedel@avionic-design.de>
+Subject: Re: [PATCH] Input: marix-keymap - automatically allocate memory for
+ keymap
+Date: Wed, 14 Nov 2012 10:40:59 +0100
+Message-ID: <20121114104059.7442d460@avionic-0020.adnet.avionic-design.de>
+References: <20121108164519.GA9334@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:44760 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755193Ab2KMSso (ORCPT
+Received: from moutng.kundenserver.de ([212.227.126.187]:61157 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932813Ab2KNJlD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Nov 2012 13:48:44 -0500
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=HyDrr7mWsYGFue_xuzX0xm45n1EDpsDgU1RKJ8SkuP9Q@mail.gmail.com>
+	Wed, 14 Nov 2012 04:41:03 -0500
+In-Reply-To: <20121108164519.GA9334@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-> I just intend to force the update of the distance value at the
-> beginning of the touch.
-> This is just to send a coherent state when the finger goes in range,
-> and to make sure that user-space application do not rely on the
-> undefined value (0) whereas the kernel thought it was set to 1.
+On Thu, 8 Nov 2012 08:45:21 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-Right, so we use EVIOCGMTSLOTS. This "problem" occurs with
-ABS_MT_ORIENTATION as well.
+> In device tree enabled setups requiring preallocated memory for storing keymap
+> is quite often awkward, so let's provide an option of allocating it directly
+> in matrix_keypad_build_keymap().
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/matrix-keymap.c | 22 +++++++++++++++++++++-
+>  1 file changed, 21 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
+> index 443ad64b..da04f13 100644
+> --- a/drivers/input/matrix-keymap.c
+> +++ b/drivers/input/matrix-keymap.c
+> @@ -122,6 +122,11 @@ static int matrix_keypad_parse_of_keymap(const char *propname,
+>   * it will attempt load the keymap from property specified by @keymap_name
+>   * argument (or "linux,keymap" if @keymap_name is %NULL).
+>   *
+> + * If @keymap is %NULL the function will automatically allocate managed
+> + * block of memory to store the keymap. This memory will be associated with
+> + * the parent device and automatically freed when device unbinds from the
+> + * driver.
+> + *
+>   * Callers are expected to set up input_dev->dev.parent before calling this
+>   * function.
+>   */
+> @@ -132,12 +137,27 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
+>  			       struct input_dev *input_dev)
+>  {
+>  	unsigned int row_shift = get_count_order(cols);
+> +	size_t max_keys = rows << row_shift;
+>  	int i;
+>  	int error;
+>  
+> +	if (WARN_ON(!input_dev->dev.parent))
+> +		return -EINVAL;
+> +
+> +	if (!keymap) {
+> +		keymap = devm_kzalloc(input_dev->dev.parent,
+> +				      max_keys * sizeof(*keymap),
+> +				      GFP_KERNEL);
 
-Thanks,
-Henrik
+In my tree GFP_KERNEL isn't defined at that point. Is an include
+missing in this patch or is my tree (3.6+some next cherry picks)
+missing a commit?
+
+> +		if (!keymap) {
+> +			dev_err(input_dev->dev.parent,
+> +				"Unable to allocate memory for keymap");
+> +			return -ENOMEM;
+> +		}
+> +	}
+> +
+>  	input_dev->keycode = keymap;
+>  	input_dev->keycodesize = sizeof(*keymap);
+> -	input_dev->keycodemax = rows << row_shift;
+> +	input_dev->keycodemax = max_keys;
+>  
+>  	__set_bit(EV_KEY, input_dev->evbit);
+>  
+
+Otherwise that look good to me.
+
+Alban

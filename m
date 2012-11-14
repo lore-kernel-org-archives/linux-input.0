@@ -1,96 +1,86 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 3/5] Input: bu21013_ts - Add support for Device Tree booting
-Date: Wed, 14 Nov 2012 13:47:15 +0000
-Message-ID: <1352900837-20759-4-git-send-email-lee.jones@linaro.org>
-References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: [PATCH v4 00/14] Win 8 support for digitizers
+Date: Wed, 14 Nov 2012 16:59:12 +0100
+Message-ID: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:43778 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932909Ab2KNP7j (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Nov 2012 10:59:39 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Now we can register the BU21013_ts touch screen when booting with
-Device Tree enabled. Here we parse all the necessary components
-previously expected to be passed from platform data.
+Hi Guys,
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/input/touchscreen/bu21013_ts.c |   39 ++++++++++++++++++++++++++++----
- 1 file changed, 35 insertions(+), 4 deletions(-)
+here is the forth version of this patchset.
 
-diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
-index 5d8fc75..afef874 100644
---- a/drivers/input/touchscreen/bu21013_ts.c
-+++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -15,6 +15,8 @@
- #include <linux/regulator/consumer.h>
- #include <linux/module.h>
- #include <linux/gpio.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
- 
- /* Reference tracking for multiple displays. */
- static int bu21013_devices = 0;
-@@ -487,13 +489,33 @@ static void bu21013_free_irq(struct bu21013_ts_data *bu21013_data)
-  * This function used to initializes the i2c-client touchscreen
-  * driver and returns integer.
-  */
-+static void __devinit bu21013_of_probe(struct device_node *np,
-+				struct bu21013_platform_device *pdata)
-+{
-+	pdata->y_flip = pdata->x_flip = false;
-+
-+	if (of_get_property(np, "rohm,flip-x", NULL))
-+		pdata->x_flip = true;
-+
-+	if (of_get_property(np, "rohm,flip-y", NULL))
-+		pdata->y_flip = true;
-+
-+	of_property_read_u32(np, "rohm,touch-max-x", &pdata->touch_x_max);
-+	of_property_read_u32(np, "rohm,touch-max-y", &pdata->touch_y_max);
-+
-+	pdata->touch_pin = of_get_named_gpio(np, "touch-gpio", 0);
-+	pdata->cs_pin = of_get_named_gpio(np, "reset-gpio", 0);
-+
-+	pdata->ext_clk = false;
-+}
-+
- static int __devinit bu21013_probe(struct i2c_client *client,
- 					const struct i2c_device_id *id)
- {
- 	struct bu21013_ts_data *bu21013_data;
- 	struct input_dev *in_dev;
--	const struct bu21013_platform_device *pdata =
--					client->dev.platform_data;
-+	struct device_node *np = client->dev.of_node;
-+	struct bu21013_platform_device *pdata = client->dev.platform_data;
- 	int error;
- 
- 	if (!i2c_check_functionality(client->adapter,
-@@ -503,8 +525,17 @@ static int __devinit bu21013_probe(struct i2c_client *client,
- 	}
- 
- 	if (!pdata) {
--		dev_err(&client->dev, "platform data not defined\n");
--		return -EINVAL;
-+		if (np) {
-+			pdata = devm_kzalloc(&client->dev, sizeof(*pdata),
-+					GFP_KERNEL);
-+			if (!pdata)
-+				return -ENOMEM;
-+
-+			bu21013_of_probe(np, pdata);
-+		} else {
-+			dev_err(&client->dev, "no device tree or platform data\n");
-+			return -EINVAL;
-+		}
- 	}
- 
- 	pdata->irq = gpio_to_irq(pdata->touch_pin);
+* patches 1-9 has already been reviewed and are ready for inclusion I would say.
+* Jiri, I kept your ack on patch 4 even if I changed the place of the comment in hid.h
+* patch 10 is half new as it is splitted from a patch of the v3
+* patch 11 has been changed according to Henrik's comments
+* patches 12-13 have been splitted since v3 to introduce QUIRK_HOVERING and setup WIN 8
+devices in a better way.
+* patch 14 has been copied from the v3 as Dmitry wanted to use a MSC event for the timestamp.
+
+Cheers,
+Benjamin
+
+v1 introduction:
+So, this is an update for supporting Win 8 multitouch devices in the kernel.
+As I wanted to reliably forward the resolution, I noticed a bug in the
+processing of the unit_exponent in the hid core layer.
+Thus the fixes for hid-core and hid-input.
+
+v2 changes:
+* added missing initial patch that prevents the series to be applied on top of Jiri's tree
+* update to include latest hid changes
+* taken into account Alan's patch: "hid: put the case in the right switch statement"
+
+v3 changes:
+* splitted "round return value of hidinput_calc_abs_res" in a separate patch
+* export snto32 in hid.h as we need to use it in hid-input.c
+* didn't change all drivers, but add a field in hid_usage instead
+* add quirk MT_QUIRK_IGNORE_DUPLICATES so that any device can rely on it
+* easier understandable support of hovering devices
+* changed scan time definition
+* applied new definition of scan time in hid-multitouch
+* some other few things.
+
+v4 changes:
+* introduced QUIRK_HOVERING for hovering devices (not necessarily win 8 ones)
+* removed QUIRK_WIN8_CERTIFIED as it's not relevant anymore
+* made the change in input-mt.c
+* add a test against input->mt != null
+
+Benjamin Tissoires (14):
+  HID: hid-input: export hidinput_calc_abs_res
+  HID: hid-input: round return value of hidinput_calc_abs_res
+  HID: core: fix unit exponent parsing
+  HID: hid-input: add usage_index in struct hid_usage.
+  HID: hid-multitouch: support arrays for the split of the touches in a
+    report
+  HID: hid-multitouch: get maxcontacts also from logical_max value
+  HID: hid-multitouch: support T and C for win8 devices
+  HID: hid-multitouch: move ALWAYS_VALID quirk check
+  Input: introduce EV_MSC Timestamp
+  Input: mt: add input_mt_is_used
+  HID: hid-multitouch: add MT_QUIRK_IGNORE_DUPLICATES
+  HID: hid-multitouch: support for hovering devices
+  HID: hid-multitouch: fix Win 8 protocol
+  HID: hid-multitouch: forwards MSC_TIMESTAMP
+
+ Documentation/input/event-codes.txt |  11 +++
+ drivers/hid/hid-core.c              |  20 ++++-
+ drivers/hid/hid-input.c             |  24 ++++--
+ drivers/hid/hid-multitouch.c        | 155 ++++++++++++++++++++++++++++++------
+ drivers/input/input-mt.c            |   2 +-
+ include/linux/hid.h                 |   4 +
+ include/linux/input.h               |   1 +
+ include/linux/input/mt.h            |   6 ++
+ 8 files changed, 191 insertions(+), 32 deletions(-)
+
 -- 
-1.7.9.5
+1.8.0
+

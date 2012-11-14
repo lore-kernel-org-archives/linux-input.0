@@ -1,83 +1,78 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH v4 01/14] HID: hid-input: export hidinput_calc_abs_res
-Date: Wed, 14 Nov 2012 16:59:13 +0100
-Message-ID: <1352908766-4492-2-git-send-email-benjamin.tissoires@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 09/14] Input: introduce EV_MSC Timestamp
+Date: Wed, 14 Nov 2012 08:33:59 -0800
+Message-ID: <20121114163357.GA29131@core.coreip.homeip.net>
 References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+ <1352908766-4492-10-git-send-email-benjamin.tissoires@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:64966 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422671Ab2KNQeN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Nov 2012 11:34:13 -0500
+Content-Disposition: inline
+In-Reply-To: <1352908766-4492-10-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Exporting the function allows us to calculate the resolution in third
-party drivers like hid-multitouch.
-This patch also complete the function with additional valid axes.
+On Wed, Nov 14, 2012 at 04:59:21PM +0100, Benjamin Tissoires wrote:
+> Some devices provides the actual timestamp (hid_dg_scan_time in win8 ones)
+> computed by the hardware itself. This value is global to the frame and is
+> not specific to the multitouch protocol.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/hid-input.c      | 9 ++++++++-
- drivers/hid/hid-multitouch.c | 1 +
- include/linux/hid.h          | 1 +
- 3 files changed, 10 insertions(+), 1 deletion(-)
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 10248cf..f5b1d57 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -208,7 +208,7 @@ static int hidinput_setkeycode(struct input_dev *dev,
-  * Only exponent 1 length units are processed. Centimeters and inches are
-  * converted to millimeters. Degrees are converted to radians.
-  */
--static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
-+__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- {
- 	__s32 unit_exponent = field->unit_exponent;
- 	__s32 logical_extents = field->logical_maximum -
-@@ -229,6 +229,12 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	case ABS_X:
- 	case ABS_Y:
- 	case ABS_Z:
-+	case ABS_MT_POSITION_X:
-+	case ABS_MT_POSITION_Y:
-+	case ABS_MT_TOOL_X:
-+	case ABS_MT_TOOL_Y:
-+	case ABS_MT_TOUCH_MAJOR:
-+	case ABS_MT_TOUCH_MINOR:
- 		if (field->unit == 0x11) {		/* If centimeters */
- 			/* Convert to millimeters */
- 			unit_exponent += 1;
-@@ -283,6 +289,7 @@ static __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	/* Calculate resolution */
- 	return logical_extents / physical_extents;
- }
-+EXPORT_SYMBOL_GPL(hidinput_calc_abs_res);
- 
- #ifdef CONFIG_HID_BATTERY_STRENGTH
- static enum power_supply_property hidinput_battery_props[] = {
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3eb02b9..9f64e36 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -298,6 +298,7 @@ static void set_abs(struct input_dev *input, unsigned int code,
- 	int fmax = field->logical_maximum;
- 	int fuzz = snratio ? (fmax - fmin) / snratio : 0;
- 	input_set_abs_params(input, code, fmin, fmax, fuzz, 0);
-+	input_abs_set_res(input, code, hidinput_calc_abs_res(field, code));
- }
- 
- static void mt_store_field(struct hid_usage *usage, struct mt_device *td,
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 7e1f37d..9edb06c 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -743,6 +743,7 @@ int hid_input_report(struct hid_device *, int type, u8 *, int, int);
- int hidinput_find_field(struct hid_device *hid, unsigned int type, unsigned int code, struct hid_field **field);
- struct hid_field *hidinput_get_led_field(struct hid_device *hid);
- unsigned int hidinput_count_leds(struct hid_device *hid);
-+__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
- void hid_output_report(struct hid_report *report, __u8 *data);
- struct hid_device *hid_allocate_device(void);
- struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
+I take it will go through Jiri's tree, right?
+
+> ---
+>  Documentation/input/event-codes.txt | 11 +++++++++++
+>  include/linux/input.h               |  1 +
+>  2 files changed, 12 insertions(+)
+> 
+> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+> index 53305bd..f1ea2c6 100644
+> --- a/Documentation/input/event-codes.txt
+> +++ b/Documentation/input/event-codes.txt
+> @@ -196,6 +196,17 @@ EV_MSC:
+>  EV_MSC events are used for input and output events that do not fall under other
+>  categories.
+>  
+> +A few EV_MSC codes have special meaning:
+> +
+> +* MSC_TIMESTAMP:
+> +  - Used to report the number of microseconds since the last reset. This event
+> +    should be coded as an uint32 value, which is allowed to wrap around with
+> +    no special consequence. It is assumed that the time difference between two
+> +    consecutive events is reliable on a reasonable time scale (hours).
+> +    A reset to zero can happen, in which case the time since the last event is
+> +    unknown.  If the device does not provide this information, the driver must
+> +    not provide it to user space.
+> +
+>  EV_LED:
+>  ----------
+>  EV_LED events are used for input and output to set and query the state of
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index ba48743..25354f3 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -858,6 +858,7 @@ struct input_keymap_entry {
+>  #define MSC_GESTURE		0x02
+>  #define MSC_RAW			0x03
+>  #define MSC_SCAN		0x04
+> +#define MSC_TIMESTAMP		0x05
+>  #define MSC_MAX			0x07
+>  #define MSC_CNT			(MSC_MAX+1)
+>  
+> -- 
+> 1.8.0
+> 
+
 -- 
-1.8.0
+Dmitry

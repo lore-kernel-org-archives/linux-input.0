@@ -1,78 +1,66 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 09/14] Input: introduce EV_MSC Timestamp
-Date: Wed, 14 Nov 2012 08:33:59 -0800
-Message-ID: <20121114163357.GA29131@core.coreip.homeip.net>
-References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352908766-4492-10-git-send-email-benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] Input: marix-keymap - automatically allocate memory for
+ keymap
+Date: Wed, 14 Nov 2012 08:37:07 -0800
+Message-ID: <20121114163707.GB29131@core.coreip.homeip.net>
+References: <20121108164519.GA9334@core.coreip.homeip.net>
+ <20121114104059.7442d460@avionic-0020.adnet.avionic-design.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:64966 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422671Ab2KNQeN (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:38311 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964820Ab2KNQhM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Nov 2012 11:34:13 -0500
+	Wed, 14 Nov 2012 11:37:12 -0500
+Received: by mail-pb0-f46.google.com with SMTP id wy7so481546pbc.19
+        for <linux-input@vger.kernel.org>; Wed, 14 Nov 2012 08:37:11 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1352908766-4492-10-git-send-email-benjamin.tissoires@gmail.com>
+In-Reply-To: <20121114104059.7442d460@avionic-0020.adnet.avionic-design.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alban Bedel <alban.bedel@avionic-design.de>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Nov 14, 2012 at 04:59:21PM +0100, Benjamin Tissoires wrote:
-> Some devices provides the actual timestamp (hid_dg_scan_time in win8 ones)
-> computed by the hardware itself. This value is global to the frame and is
-> not specific to the multitouch protocol.
+Hi Alban,
+
+On Wed, Nov 14, 2012 at 10:40:59AM +0100, Alban Bedel wrote:
+> On Thu, 8 Nov 2012 08:45:21 -0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-I take it will go through Jiri's tree, right?
-
-> ---
->  Documentation/input/event-codes.txt | 11 +++++++++++
->  include/linux/input.h               |  1 +
->  2 files changed, 12 insertions(+)
+> > +	if (!keymap) {
+> > +		keymap = devm_kzalloc(input_dev->dev.parent,
+> > +				      max_keys * sizeof(*keymap),
+> > +				      GFP_KERNEL);
 > 
-> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-> index 53305bd..f1ea2c6 100644
-> --- a/Documentation/input/event-codes.txt
-> +++ b/Documentation/input/event-codes.txt
-> @@ -196,6 +196,17 @@ EV_MSC:
->  EV_MSC events are used for input and output events that do not fall under other
->  categories.
->  
-> +A few EV_MSC codes have special meaning:
-> +
-> +* MSC_TIMESTAMP:
-> +  - Used to report the number of microseconds since the last reset. This event
-> +    should be coded as an uint32 value, which is allowed to wrap around with
-> +    no special consequence. It is assumed that the time difference between two
-> +    consecutive events is reliable on a reasonable time scale (hours).
-> +    A reset to zero can happen, in which case the time since the last event is
-> +    unknown.  If the device does not provide this information, the driver must
-> +    not provide it to user space.
-> +
->  EV_LED:
->  ----------
->  EV_LED events are used for input and output to set and query the state of
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index ba48743..25354f3 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -858,6 +858,7 @@ struct input_keymap_entry {
->  #define MSC_GESTURE		0x02
->  #define MSC_RAW			0x03
->  #define MSC_SCAN		0x04
-> +#define MSC_TIMESTAMP		0x05
->  #define MSC_MAX			0x07
->  #define MSC_CNT			(MSC_MAX+1)
->  
-> -- 
-> 1.8.0
+> In my tree GFP_KERNEL isn't defined at that point. Is an include
+> missing in this patch or is my tree (3.6+some next cherry picks)
+> missing a commit?
+
+No, I apparetnly had an older tree when I created a patch, i have since
+added include/linux/gfp.h
+
 > 
+> > +		if (!keymap) {
+> > +			dev_err(input_dev->dev.parent,
+> > +				"Unable to allocate memory for keymap");
+> > +			return -ENOMEM;
+> > +		}
+> > +	}
+> > +
+> >  	input_dev->keycode = keymap;
+> >  	input_dev->keycodesize = sizeof(*keymap);
+> > -	input_dev->keycodemax = rows << row_shift;
+> > +	input_dev->keycodemax = max_keys;
+> >  
+> >  	__set_bit(EV_KEY, input_dev->evbit);
+> >  
+> 
+> Otherwise that look good to me.
+
+Great, I am putting you down as reviewed-by then.
+
+Thanks.
 
 -- 
 Dmitry

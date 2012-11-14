@@ -1,56 +1,85 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH v4 08/14] HID: hid-multitouch: move ALWAYS_VALID quirk check
-Date: Wed, 14 Nov 2012 16:59:20 +0100
-Message-ID: <1352908766-4492-9-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH v4 12/14] HID: hid-multitouch: support for hovering devices
+Date: Wed, 14 Nov 2012 16:59:24 +0100
+Message-ID: <1352908766-4492-13-git-send-email-benjamin.tissoires@gmail.com>
 References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:62102 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422999Ab2KNP7x (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Nov 2012 10:59:53 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Win 8 device specification changed the requirements for the hid usages
-of the multitouch devices. Now InRange is optional and must be only
-used when the device supports hovering.
-
-This ensures that the quirk ALWAYS_VALID is taken into account and
-also ensures its precedence over the other VALID* quirks.
+Win8 devices supporting hovering must provides InRange HID field.
+The information that the finger is here but is not touching the surface
+is sent to the user space through ABS_MT_DISTANCE as required by the
+multitouch protocol.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/hid/hid-multitouch.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/hid/hid-multitouch.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 54367f4..2352770 100644
+index c5b81a7..5f26b2f 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -503,7 +503,7 @@ static int mt_compute_slot(struct mt_device *td, struct input_dev *input)
-  */
- static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
- {
--	if (td->curvalid) {
-+	if (td->curvalid || (td->mtclass.quirks & MT_QUIRK_ALWAYS_VALID)) {
- 		int slotnum = mt_compute_slot(td, input);
- 		struct mt_slot *s = &td->curdata;
+@@ -53,11 +53,13 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
+ #define MT_QUIRK_NO_AREA		(1 << 9)
+ #define MT_QUIRK_IGNORE_DUPLICATES	(1 << 10)
++#define MT_QUIRK_HOVERING		(1 << 11)
  
-@@ -554,9 +554,7 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
- 	if (hid->claimed & HID_CLAIMED_INPUT) {
+ struct mt_slot {
+ 	__s32 x, y, cx, cy, p, w, h;
+ 	__s32 contactid;	/* the device ContactID assigned to this slot */
+ 	bool touch_state;	/* is the touch valid? */
++	bool inrange_state;	/* is the finger in proximity of the sensor? */
+ };
+ 
+ struct mt_class {
+@@ -392,6 +394,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	case HID_UP_DIGITIZER:
  		switch (usage->hid) {
  		case HID_DG_INRANGE:
--			if (quirks & MT_QUIRK_ALWAYS_VALID)
--				td->curvalid = true;
--			else if (quirks & MT_QUIRK_VALID_IS_INRANGE)
-+			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
++			if (cls->quirks & MT_QUIRK_HOVERING) {
++				hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_DISTANCE);
++				input_set_abs_params(hi->input,
++					ABS_MT_DISTANCE, 0, 1, 0, 0);
++			}
+ 			mt_store_field(usage, td, hi);
+ 			td->last_field_index = field->index;
+ 			return 1;
+@@ -521,9 +529,9 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+ 
+ 		input_mt_slot(input, slotnum);
+ 		input_mt_report_slot_state(input, MT_TOOL_FINGER,
+-			s->touch_state);
+-		if (s->touch_state) {
+-			/* this finger is on the screen */
++			s->touch_state || s->inrange_state);
++		if (s->touch_state || s->inrange_state) {
++			/* this finger is in proximity of the sensor */
+ 			int wide = (s->w > s->h);
+ 			/* divided by two to match visual scale of touch */
+ 			int major = max(s->w, s->h) >> 1;
+@@ -533,6 +541,8 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+ 			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
+ 			input_event(input, EV_ABS, ABS_MT_TOOL_X, s->cx);
+ 			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
++			input_event(input, EV_ABS, ABS_MT_DISTANCE,
++				!s->touch_state);
+ 			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
+ 			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+@@ -565,6 +575,8 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 		case HID_DG_INRANGE:
+ 			if (quirks & MT_QUIRK_VALID_IS_INRANGE)
  				td->curvalid = value;
++			if (quirks & MT_QUIRK_HOVERING)
++				td->curdata.inrange_state = value;
  			break;
  		case HID_DG_TIPSWITCH:
+ 			if (quirks & MT_QUIRK_NOT_SEEN_MEANS_UP)
 -- 
 1.8.0
-

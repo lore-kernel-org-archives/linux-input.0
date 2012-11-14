@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4/5] Input: Enable STMPE keypad driver for Device Tree
-Date: Wed, 14 Nov 2012 13:47:16 +0000
-Message-ID: <1352900837-20759-5-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 3/5] Input: bu21013_ts - Add support for Device Tree booting
+Date: Wed, 14 Nov 2012 13:47:15 +0000
+Message-ID: <1352900837-20759-4-git-send-email-lee.jones@linaro.org>
 References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
@@ -10,11 +10,9 @@ To: linux-kernel@vger.kernel.org
 Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch allows the STMPE driver to be successfully probed and
-initialised when Device Tree support is enabled. Besides the usual
-platform data changes, we also separate the process of filling in
-the 'in use' pin bitmap, as we have to extract the information from
-Device Tree in the DT boot case.
+Now we can register the BU21013_ts touch screen when booting with
+Device Tree enabled. Here we parse all the necessary components
+previously expected to be passed from platform data.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
@@ -22,116 +20,77 @@ Acked-by: Arnd Bergmann <arnd@arndb.de>
 Acked-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/input/keyboard/stmpe-keypad.c |   67 ++++++++++++++++++++++++++++-----
- drivers/mfd/stmpe.c                   |    1 +
- 2 files changed, 59 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/bu21013_ts.c |   39 ++++++++++++++++++++++++++++----
+ 1 file changed, 35 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
-index 470a877..4ae01d5 100644
---- a/drivers/input/keyboard/stmpe-keypad.c
-+++ b/drivers/input/keyboard/stmpe-keypad.c
-@@ -257,19 +257,73 @@ static int __devinit stmpe_keypad_chip_init(struct stmpe_keypad *keypad)
- 			      (plat->debounce_ms << 1));
- }
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+index 5d8fc75..afef874 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -15,6 +15,8 @@
+ #include <linux/regulator/consumer.h>
+ #include <linux/module.h>
+ #include <linux/gpio.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
  
-+static int stmpe_keypad_fill_used_pins(struct platform_device *pdev,
-+				struct stmpe_keypad *keypad,
-+				struct stmpe_keypad_platform_data *plat)
+ /* Reference tracking for multiple displays. */
+ static int bu21013_devices = 0;
+@@ -487,13 +489,33 @@ static void bu21013_free_irq(struct bu21013_ts_data *bu21013_data)
+  * This function used to initializes the i2c-client touchscreen
+  * driver and returns integer.
+  */
++static void __devinit bu21013_of_probe(struct device_node *np,
++				struct bu21013_platform_device *pdata)
 +{
-+	struct device_node *np = pdev->dev.of_node;
-+	unsigned int proplen;
-+	const __be32 *prop;
-+	int i;
++	pdata->y_flip = pdata->x_flip = false;
 +
-+	if (np) {
-+		prop = of_get_property(np, "linux,keymap", &proplen);
-+		if (!prop) {
-+			dev_err(&pdev->dev,
-+				"linux,keymap property not defined\n");
-+			return -EINVAL;
-+		}
++	if (of_get_property(np, "rohm,flip-x", NULL))
++		pdata->x_flip = true;
 +
-+		for (i = 0; i < proplen / sizeof(u32); i++) {
-+			unsigned int key = be32_to_cpup(prop + i);
++	if (of_get_property(np, "rohm,flip-y", NULL))
++		pdata->y_flip = true;
 +
-+			keypad->cols |= 1 << KEY_COL(key);
-+			keypad->rows |= 1 << KEY_ROW(key);
-+		}
-+	} else {
-+		for (i = 0; i < plat->keymap_data->keymap_size; i++) {
-+			unsigned int key = plat->keymap_data->keymap[i];
++	of_property_read_u32(np, "rohm,touch-max-x", &pdata->touch_x_max);
++	of_property_read_u32(np, "rohm,touch-max-y", &pdata->touch_y_max);
 +
-+			keypad->cols |= 1 << KEY_COL(key);
-+			keypad->rows |= 1 << KEY_ROW(key);
-+		}
-+	}
++	pdata->touch_pin = of_get_named_gpio(np, "touch-gpio", 0);
++	pdata->cs_pin = of_get_named_gpio(np, "reset-gpio", 0);
 +
-+	return 0;
++	pdata->ext_clk = false;
 +}
 +
-+static void __devinit stmpe_keypad_of_probe(struct device_node *np,
-+				struct stmpe_keypad_platform_data *plat)
-+{
-+	of_property_read_u32(np, "debounce-interval", &plat->debounce_ms);
-+	of_property_read_u32(np, "st,scan-count", &plat->scan_count);
-+
-+	if (of_get_property(np, "st,no-autorepeat", NULL))
-+		plat->no_autorepeat = true;
-+}
-+
- static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+ static int __devinit bu21013_probe(struct i2c_client *client,
+ 					const struct i2c_device_id *id)
  {
- 	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
- 	struct stmpe_keypad_platform_data *plat;
-+	struct device_node *np = pdev->dev.of_node;
- 	struct stmpe_keypad *keypad;
- 	struct input_dev *input;
- 	int ret;
- 	int irq;
--	int i;
+ 	struct bu21013_ts_data *bu21013_data;
+ 	struct input_dev *in_dev;
+-	const struct bu21013_platform_device *pdata =
+-					client->dev.platform_data;
++	struct device_node *np = client->dev.of_node;
++	struct bu21013_platform_device *pdata = client->dev.platform_data;
+ 	int error;
  
- 	plat = stmpe->pdata->keypad;
--	if (!plat)
--		return -ENODEV;
-+	if (!plat) {
+ 	if (!i2c_check_functionality(client->adapter,
+@@ -503,8 +525,17 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+ 	}
+ 
+ 	if (!pdata) {
+-		dev_err(&client->dev, "platform data not defined\n");
+-		return -EINVAL;
 +		if (np) {
-+			plat = devm_kzalloc(&pdev->dev,
-+					sizeof(*plat), GFP_KERNEL);
-+			if (!plat)
++			pdata = devm_kzalloc(&client->dev, sizeof(*pdata),
++					GFP_KERNEL);
++			if (!pdata)
 +				return -ENOMEM;
 +
-+			stmpe_keypad_of_probe(np, plat);
-+		} else
-+			return -ENODEV;
-+	}
++			bu21013_of_probe(np, pdata);
++		} else {
++			dev_err(&client->dev, "no device tree or platform data\n");
++			return -EINVAL;
++		}
+ 	}
  
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0)
-@@ -300,12 +354,7 @@ static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
- 	if (!plat->no_autorepeat)
- 		__set_bit(EV_REP, input->evbit);
- 
--	for (i = 0; i < plat->keymap_data->keymap_size; i++) {
--		unsigned int key = plat->keymap_data->keymap[i];
--
--		keypad->cols |= 1 << KEY_COL(key);
--		keypad->rows |= 1 << KEY_ROW(key);
--	}
-+	stmpe_keypad_fill_used_pins(pdev, keypad, plat);
- 
- 	keypad->stmpe = stmpe;
- 	keypad->plat = plat;
-diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
-index ba157d4..b03cc64 100644
---- a/drivers/mfd/stmpe.c
-+++ b/drivers/mfd/stmpe.c
-@@ -321,6 +321,7 @@ static struct resource stmpe_keypad_resources[] = {
- 
- static struct mfd_cell stmpe_keypad_cell = {
- 	.name		= "stmpe-keypad",
-+	.of_compatible  = "st,stmpe-keypad",
- 	.resources	= stmpe_keypad_resources,
- 	.num_resources	= ARRAY_SIZE(stmpe_keypad_resources),
- };
+ 	pdata->irq = gpio_to_irq(pdata->touch_pin);
 -- 
 1.7.9.5

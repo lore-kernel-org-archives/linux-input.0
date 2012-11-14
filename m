@@ -1,46 +1,51 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH v4 02/14] HID: hid-input: round return value of hidinput_calc_abs_res
-Date: Wed, 14 Nov 2012 16:59:14 +0100
-Message-ID: <1352908766-4492-3-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH v4 05/14] HID: hid-multitouch: support arrays for the split of the touches in a report
+Date: Wed, 14 Nov 2012 16:59:17 +0100
+Message-ID: <1352908766-4492-6-git-send-email-benjamin.tissoires@gmail.com>
 References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:43778 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161113Ab2KNP7m (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Nov 2012 10:59:42 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-hidinput_calc_abs_res should return the closest int in the division
-instead of the floor.
-On a device with a logical_max of 3008 and a physical_max of 255mm,
-previous implementation gave a resolution of 11 instead of 12.
-With 11, user-space computes a physical size of 273.5mm and the
-round_closest results gives 250.6mm.
-The old implementation introduced an error of 2cm in this example.
+Win8 certification introduced the ability to transmit two X and two Y per
+touch. The specification precises that it must be used in an array.
+
+This test guarantees that we split the touches on the last element
+in this array.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
+Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/hid/hid-input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-multitouch.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index f5b1d57..67044f3 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -287,7 +287,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
- 	}
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 9f64e36..a6a4e0a 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -577,12 +577,15 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 			return 0;
+ 		}
  
- 	/* Calculate resolution */
--	return logical_extents / physical_extents;
-+	return DIV_ROUND_CLOSEST(logical_extents, physical_extents);
- }
- EXPORT_SYMBOL_GPL(hidinput_calc_abs_res);
+-		if (usage->hid == td->last_slot_field)
+-			mt_complete_slot(td, field->hidinput->input);
+-
+-		if (field->index == td->last_field_index
+-			&& td->num_received >= td->num_expected)
+-			mt_sync_frame(td, field->hidinput->input);
++		if (usage->usage_index + 1 == field->report_count) {
++			/* we only take into account the last report. */
++			if (usage->hid == td->last_slot_field)
++				mt_complete_slot(td, field->hidinput->input);
++
++			if (field->index == td->last_field_index
++				&& td->num_received >= td->num_expected)
++				mt_sync_frame(td, field->hidinput->input);
++		}
+ 
+ 	}
  
 -- 
 1.8.0
-

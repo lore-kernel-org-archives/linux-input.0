@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH v4 07/14] HID: hid-multitouch: support T and C for win8 devices
-Date: Wed, 14 Nov 2012 16:59:19 +0100
-Message-ID: <1352908766-4492-8-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH v4 14/14] HID: hid-multitouch: forwards MSC_TIMESTAMP
+Date: Wed, 14 Nov 2012 16:59:26 +0100
+Message-ID: <1352908766-4492-15-git-send-email-benjamin.tissoires@gmail.com>
 References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -9,114 +9,134 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Win8 input specification clarifies the X and Y sent by devices.
-It distincts the position where the user wants to Touch (T) from
-the center of the ellipsoide (C). This patch enable supports for this
-distinction in hid-multitouch.
+Computes the device timestamp according to the specification.
+It also ensures that if the time between two events is greater
+than MAX_TIMESTAMP_INTERVAL, the timestamp will be reset.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/hid/hid-multitouch.c | 46 +++++++++++++++++++++++++++++++++++---------
- 1 file changed, 37 insertions(+), 9 deletions(-)
+ drivers/hid/hid-multitouch.c | 46 +++++++++++++++++++++++++++++++++++++++++---
+ include/linux/hid.h          |  1 +
+ 2 files changed, 44 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index ae57b8f..54367f4 100644
+index efae60c..47ccf3a 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -54,7 +54,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_NO_AREA		(1 << 9)
+@@ -32,6 +32,7 @@
+ #include <linux/slab.h>
+ #include <linux/usb.h>
+ #include <linux/input/mt.h>
++#include <linux/jiffies.h>
+ #include "usbhid/usbhid.h"
  
- struct mt_slot {
--	__s32 x, y, p, w, h;
-+	__s32 x, y, cx, cy, p, w, h;
- 	__s32 contactid;	/* the device ContactID assigned to this slot */
- 	bool touch_state;	/* is the touch valid? */
+ 
+@@ -98,6 +99,9 @@ struct mt_device {
+ 	bool serial_maybe;	/* need to check for serial protocol */
+ 	bool curvalid;		/* is the current contact valid? */
+ 	unsigned mt_flags;	/* flags to pass to input-mt */
++	__s32 dev_time;		/* the scan time provided by the device */
++	unsigned long jiffies;	/* the frame's jiffies */
++	unsigned timestamp;	/* the timestamp to be sent */
  };
-@@ -323,6 +323,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	struct mt_device *td = hid_get_drvdata(hdev);
- 	struct mt_class *cls = &td->mtclass;
- 	int code;
-+	struct hid_usage *prev_usage = NULL;
  
- 	/* Only map fields from TouchScreen or TouchPad collections.
- 	* We need to ignore fields that belong to other collections
-@@ -345,23 +346,42 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	if (field->physical == HID_DG_STYLUS)
- 		return -1;
+ /* classes of device behavior */
+@@ -126,6 +130,8 @@ struct mt_device {
+ #define MT_DEFAULT_MAXCONTACT	10
+ #define MT_MAX_MAXCONTACT	250
  
-+	if (usage->usage_index)
-+		prev_usage = &field->usage[usage->usage_index - 1];
++#define MAX_TIMESTAMP_INTERVAL	500000
 +
- 	switch (usage->hid & HID_USAGE_PAGE) {
+ #define MT_USB_DEVICE(v, p)	HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH, v, p)
+ #define MT_BT_DEVICE(v, p)	HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_MULTITOUCH, v, p)
  
- 	case HID_UP_GENDESK:
- 		switch (usage->hid) {
- 		case HID_GD_X:
--			hid_map_usage(hi, usage, bit, max,
-+			if (prev_usage && (prev_usage->hid == usage->hid)) {
-+				hid_map_usage(hi, usage, bit, max,
-+					EV_ABS, ABS_MT_TOOL_X);
-+				set_abs(hi->input, ABS_MT_TOOL_X, field,
-+					cls->sn_move);
-+			} else {
-+				hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_POSITION_X);
--			set_abs(hi->input, ABS_MT_POSITION_X, field,
--				cls->sn_move);
-+				set_abs(hi->input, ABS_MT_POSITION_X, field,
-+					cls->sn_move);
-+			}
-+
+@@ -459,12 +465,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
  			mt_store_field(usage, td, hi);
  			td->last_field_index = field->index;
  			return 1;
- 		case HID_GD_Y:
--			hid_map_usage(hi, usage, bit, max,
-+			if (prev_usage && (prev_usage->hid == usage->hid)) {
-+				hid_map_usage(hi, usage, bit, max,
-+					EV_ABS, ABS_MT_TOOL_Y);
-+				set_abs(hi->input, ABS_MT_TOOL_Y, field,
-+					cls->sn_move);
-+			} else {
-+				hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_POSITION_Y);
--			set_abs(hi->input, ABS_MT_POSITION_Y, field,
--				cls->sn_move);
-+				set_abs(hi->input, ABS_MT_POSITION_Y, field,
-+					cls->sn_move);
-+			}
-+
- 			mt_store_field(usage, td, hi);
++		case HID_DG_SCANTIME:
++			hid_map_usage(hi, usage, bit, max,
++				EV_MSC, MSC_TIMESTAMP);
++			set_bit(MSC_TIMESTAMP, hi->input->mscbit);
++			td->last_field_index = field->index;
++			return 1;
+ 		case HID_DG_CONTACTCOUNT:
  			td->last_field_index = field->index;
  			return 1;
-@@ -502,6 +522,8 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+ 		case HID_DG_CONTACTMAX:
+-			/* we don't set td->last_slot_field as contactcount and
+-			 * contact max are global to the report */
++			/* we don't set td->last_slot_field as scan time,
++			 * contactcount and contact max are global to the
++			 * report */
+ 			td->last_field_index = field->index;
+ 			return -1;
+ 		}
+@@ -493,7 +506,8 @@ static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
+-	if (usage->type == EV_KEY || usage->type == EV_ABS)
++	if (usage->type == EV_KEY || usage->type == EV_ABS ||
++	    usage->type == EV_MSC)
+ 		set_bit(usage->type, hi->input->evbit);
  
- 			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
- 			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
-+			input_event(input, EV_ABS, ABS_MT_TOOL_X, s->cx);
-+			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
- 			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
- 			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
- 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
-@@ -553,10 +575,16 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
- 			td->curdata.p = value;
+ 	return -1;
+@@ -572,10 +586,33 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+ static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
+ {
+ 	input_mt_sync_frame(input);
++	input_event(input, EV_MSC, MSC_TIMESTAMP, td->timestamp);
+ 	input_sync(input);
+ 	td->num_received = 0;
+ }
+ 
++static void mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
++		__s32 value)
++{
++	long delta = value - td->dev_time;
++	unsigned long jdelta = jiffies_to_usecs(jiffies - td->jiffies);
++
++	td->jiffies = jiffies;
++	td->dev_time = value;
++
++	if (delta < 0)
++		delta += field->logical_maximum;
++
++	/* HID_DG_SCANTIME is expressed in 100us, we want it in ms. */
++	delta *= 100;
++
++	if (abs(delta - jdelta) > MAX_TIMESTAMP_INTERVAL)
++		/* obviously wrong clock -> the device time has been reset */
++		td->timestamp = 0;
++	else
++		td->timestamp += delta;
++}
++
+ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 				struct hid_usage *usage, __s32 value)
+ {
+@@ -623,6 +660,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 		case HID_DG_HEIGHT:
+ 			td->curdata.h = value;
  			break;
- 		case HID_GD_X:
--			td->curdata.x = value;
-+			if (usage->code == ABS_MT_TOOL_X)
-+				td->curdata.cx = value;
-+			else
-+				td->curdata.x = value;
- 			break;
- 		case HID_GD_Y:
--			td->curdata.y = value;
-+			if (usage->code == ABS_MT_TOOL_Y)
-+				td->curdata.cy = value;
-+			else
-+				td->curdata.y = value;
- 			break;
- 		case HID_DG_WIDTH:
- 			td->curdata.w = value;
++		case HID_DG_SCANTIME:
++			mt_compute_timestamp(td, field, value);
++			break;
+ 		case HID_DG_CONTACTCOUNT:
+ 			/*
+ 			 * Includes multi-packet support where subsequent
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index ce14c32..aaba0e7 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -279,6 +279,7 @@ struct hid_item {
+ #define HID_DG_DEVICEINDEX	0x000d0053
+ #define HID_DG_CONTACTCOUNT	0x000d0054
+ #define HID_DG_CONTACTMAX	0x000d0055
++#define HID_DG_SCANTIME		0x000d0056
+ 
+ /*
+  * HID report types --- Ouch! HID spec says 1 2 3!
 -- 
 1.8.0

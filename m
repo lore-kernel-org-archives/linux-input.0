@@ -1,43 +1,63 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/5] Input: tca8418_keypad - use dev_get_platdata() to retrieve platform data
-Date: Wed, 14 Nov 2012 08:48:05 -0800
-Message-ID: <1352911688-5001-2-git-send-email-dmitry.torokhov@gmail.com>
-References: <1352911688-5001-1-git-send-email-dmitry.torokhov@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: [PATCH] HID: usbhid: add quirk HID_QUIRK_NOGET to TPV optical touchscreen
+Date: Wed, 14 Nov 2012 17:53:56 +0100
+Message-ID: <1352912036-6670-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:45862 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423066Ab2KNQsN (ORCPT
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:37519 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932701Ab2KNQyG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Nov 2012 11:48:13 -0500
-Received: by mail-pb0-f46.google.com with SMTP id wy7so488529pbc.19
-        for <linux-input@vger.kernel.org>; Wed, 14 Nov 2012 08:48:13 -0800 (PST)
-In-Reply-To: <1352911688-5001-1-git-send-email-dmitry.torokhov@gmail.com>
+	Wed, 14 Nov 2012 11:54:06 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alban Bedel <alban.bedel@avionic-design.de>
-Cc: linux-input@vger.kernel.org
+To: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Chris MacDonald <chris@fourthandvine.com>
 
-We need to use proper accessor functions instead of directly poking into
-various structures.
+Without this, the device is blocked in dmesg at:
+hid-multitouch 0003:25AA:8883.000X: usb_submit_urb(ctrl) failed: -1
+hid-multitouch 0003:25AA:8883.000X: timeout initializing reports
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- drivers/input/keyboard/tca8418_keypad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
-index 4618ce0..7f2869f 100644
---- a/drivers/input/keyboard/tca8418_keypad.c
-+++ b/drivers/input/keyboard/tca8418_keypad.c
-@@ -283,7 +283,7 @@ static int __devinit tca8418_keypad_probe(struct i2c_client *client,
- {
- 	struct device *dev = &client->dev;
- 	const struct tca8418_keypad_platform_data *pdata =
--						client->dev.platform_data;
-+						dev_get_platdata(dev);
- 	struct tca8418_keypad *keypad_data;
- 	struct input_dev *input;
- 	const struct matrix_keymap_data *keymap_data = NULL;
+Hi guys,
+
+Even if Chris did not answered, I had the confirmation that this device works
+with the quirk in place.
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-ids.h           | 3 +++
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 30bc2db..56d5528 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -765,6 +765,9 @@
+ #define USB_VENDOR_ID_TOUCHPACK		0x1bfd
+ #define USB_DEVICE_ID_TOUCHPACK_RTS	0x1688
+ 
++#define USB_VENDOR_ID_TPV		0x25aa
++#define USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN	0x8883
++
+ #define USB_VENDOR_ID_TURBOX		0x062a
+ #define USB_DEVICE_ID_TURBOX_KEYBOARD	0x0201
+ #define USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART	0x7100
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 11c7932..38a7cdd 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -82,6 +82,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_1, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_2, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U, HID_QUIRK_MULTI_INPUT },
 -- 
-1.7.11.7
+1.8.0
 

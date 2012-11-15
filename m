@@ -1,85 +1,37 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v4 09/14] Input: introduce EV_MSC Timestamp
-Date: Thu, 15 Nov 2012 10:14:24 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211151014030.15877@pobox.suse.cz>
-References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com> <1352908766-4492-10-git-send-email-benjamin.tissoires@gmail.com> <20121114163357.GA29131@core.coreip.homeip.net>
+Subject: Re: [PATCH v4 00/14] Win 8 support for digitizers
+Date: Thu, 15 Nov 2012 10:33:47 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211151033070.15877@pobox.suse.cz>
+References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com> <20121114200141.GA15074@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58479 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:59254 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756660Ab2KOJO3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Nov 2012 04:14:29 -0500
-In-Reply-To: <20121114163357.GA29131@core.coreip.homeip.net>
+	id S1423157Ab2KOJdv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Nov 2012 04:33:51 -0500
+In-Reply-To: <20121114200141.GA15074@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 14 Nov 2012, Dmitry Torokhov wrote:
+On Wed, 14 Nov 2012, Henrik Rydberg wrote:
 
-> On Wed, Nov 14, 2012 at 04:59:21PM +0100, Benjamin Tissoires wrote:
-> > Some devices provides the actual timestamp (hid_dg_scan_time in win8 ones)
-> > computed by the hardware itself. This value is global to the frame and is
-> > not specific to the multitouch protocol.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> > Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+> > * patches 1-9 has already been reviewed and are ready for inclusion I would say.
+> > * Jiri, I kept your ack on patch 4 even if I changed the place of the comment in hid.h
+> > * patch 10 is half new as it is splitted from a patch of the v3
+> > * patch 11 has been changed according to Henrik's comments
+> > * patches 12-13 have been splitted since v3 to introduce QUIRK_HOVERING and setup WIN 8
+> > devices in a better way.
+> > * patch 14 has been copied from the v3 as Dmitry wanted to use a MSC event for the timestamp.
 > 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> I take it will go through Jiri's tree, right?
+> Everything but the last patch looks good now, me thinks. Thanks!
 
-Yup, I am taking it together with the rest of the series, and including 
-your Ack. Thanks a lot.
+I have now applied everything (with all the gathered Acks/Reviewed-by 
+incorporated) but the patch #14.
 
-> 
-> > ---
-> >  Documentation/input/event-codes.txt | 11 +++++++++++
-> >  include/linux/input.h               |  1 +
-> >  2 files changed, 12 insertions(+)
-> > 
-> > diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-> > index 53305bd..f1ea2c6 100644
-> > --- a/Documentation/input/event-codes.txt
-> > +++ b/Documentation/input/event-codes.txt
-> > @@ -196,6 +196,17 @@ EV_MSC:
-> >  EV_MSC events are used for input and output events that do not fall under other
-> >  categories.
-> >  
-> > +A few EV_MSC codes have special meaning:
-> > +
-> > +* MSC_TIMESTAMP:
-> > +  - Used to report the number of microseconds since the last reset. This event
-> > +    should be coded as an uint32 value, which is allowed to wrap around with
-> > +    no special consequence. It is assumed that the time difference between two
-> > +    consecutive events is reliable on a reasonable time scale (hours).
-> > +    A reset to zero can happen, in which case the time since the last event is
-> > +    unknown.  If the device does not provide this information, the driver must
-> > +    not provide it to user space.
-> > +
-> >  EV_LED:
-> >  ----------
-> >  EV_LED events are used for input and output to set and query the state of
-> > diff --git a/include/linux/input.h b/include/linux/input.h
-> > index ba48743..25354f3 100644
-> > --- a/include/linux/input.h
-> > +++ b/include/linux/input.h
-> > @@ -858,6 +858,7 @@ struct input_keymap_entry {
-> >  #define MSC_GESTURE		0x02
-> >  #define MSC_RAW			0x03
-> >  #define MSC_SCAN		0x04
-> > +#define MSC_TIMESTAMP		0x05
-> >  #define MSC_MAX			0x07
-> >  #define MSC_CNT			(MSC_MAX+1)
-> >  
-> > -- 
-> > 1.8.0
-> > 
-> 
-> -- 
-> Dmitry
-> 
+Thanks,
 
 -- 
 Jiri Kosina

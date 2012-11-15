@@ -1,56 +1,143 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v4 00/14] Win 8 support for digitizers
-Date: Thu, 15 Nov 2012 12:11:13 +0100
-Message-ID: <CAN+gG=F-U1R2UqnUmLAs5FjxDCNQhcrvs5UMSPeNaWVYKrJUBA@mail.gmail.com>
-References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
-	<20121114200141.GA15074@polaris.bitmath.org>
-	<alpine.LNX.2.00.1211151033070.15877@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/1] input: samsung-keypad: Use devm_* functions
+Date: Thu, 15 Nov 2012 17:26:38 +0530
+Message-ID: <1352980598-6305-1-git-send-email-sachin.kamat@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:46835 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S2993226Ab2KOLLP (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:48894 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S2993257Ab2KOMCv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Nov 2012 06:11:15 -0500
-In-Reply-To: <alpine.LNX.2.00.1211151033070.15877@pobox.suse.cz>
+	Thu, 15 Nov 2012 07:02:51 -0500
+Received: by mail-pa0-f46.google.com with SMTP id hz1so1031620pad.19
+        for <linux-input@vger.kernel.org>; Thu, 15 Nov 2012 04:02:51 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, patches@linaro.org
 
-On Thu, Nov 15, 2012 at 10:33 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 14 Nov 2012, Henrik Rydberg wrote:
->
->> > * patches 1-9 has already been reviewed and are ready for inclusion I would say.
->> > * Jiri, I kept your ack on patch 4 even if I changed the place of the comment in hid.h
->> > * patch 10 is half new as it is splitted from a patch of the v3
->> > * patch 11 has been changed according to Henrik's comments
->> > * patches 12-13 have been splitted since v3 to introduce QUIRK_HOVERING and setup WIN 8
->> > devices in a better way.
->> > * patch 14 has been copied from the v3 as Dmitry wanted to use a MSC event for the timestamp.
->>
->> Everything but the last patch looks good now, me thinks. Thanks!
+devm_* functions are device managed and make error handling
+and code simpler.
 
-Hi Henrik,
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+---
+ drivers/input/keyboard/samsung-keypad.c |   59 +++++++++---------------------
+ 1 files changed, 18 insertions(+), 41 deletions(-)
 
-Thanks for the review!
+diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+index 9d7a111..abf6d3d 100644
+--- a/drivers/input/keyboard/samsung-keypad.c
++++ b/drivers/input/keyboard/samsung-keypad.c
+@@ -405,36 +405,29 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
+ 	row_shift = get_count_order(pdata->cols);
+ 	keymap_size = (pdata->rows << row_shift) * sizeof(keypad->keycodes[0]);
+ 
+-	keypad = kzalloc(sizeof(*keypad) + keymap_size, GFP_KERNEL);
+-	input_dev = input_allocate_device();
+-	if (!keypad || !input_dev) {
+-		error = -ENOMEM;
+-		goto err_free_mem;
+-	}
++	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad) + keymap_size, GFP_KERNEL);
++	input_dev = devm_input_allocate_device(&pdev->dev);
++	if (!keypad || !input_dev)
++		return -ENOMEM;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		error = -ENODEV;
+-		goto err_free_mem;
+-	}
++	if (!res)
++		return -ENODEV;
+ 
+-	keypad->base = ioremap(res->start, resource_size(res));
+-	if (!keypad->base) {
+-		error = -EBUSY;
+-		goto err_free_mem;
+-	}
++	keypad->base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
++	if (!keypad->base)
++		return -EBUSY;
+ 
+-	keypad->clk = clk_get(&pdev->dev, "keypad");
++	keypad->clk = devm_clk_get(&pdev->dev, "keypad");
+ 	if (IS_ERR(keypad->clk)) {
+ 		dev_err(&pdev->dev, "failed to get keypad clk\n");
+-		error = PTR_ERR(keypad->clk);
+-		goto err_unmap_base;
++		return PTR_ERR(keypad->clk);
+ 	}
+ 
+ 	error = clk_prepare(keypad->clk);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "keypad clock prepare failed\n");
+-		goto err_put_clk;
++		goto err_dt_gpio_free;
+ 	}
+ 
+ 	keypad->input_dev = input_dev;
+@@ -479,14 +472,15 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
+ 	keypad->irq = platform_get_irq(pdev, 0);
+ 	if (keypad->irq < 0) {
+ 		error = keypad->irq;
+-		goto err_put_clk;
++		goto err_dt_gpio_free;
+ 	}
+ 
+-	error = request_threaded_irq(keypad->irq, NULL, samsung_keypad_irq,
+-			IRQF_ONESHOT, dev_name(&pdev->dev), keypad);
++	error = devm_request_threaded_irq(&pdev->dev, keypad->irq, NULL,
++					  samsung_keypad_irq, IRQF_ONESHOT,
++					  dev_name(&pdev->dev), keypad);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to register keypad interrupt\n");
+-		goto err_put_clk;
++		goto err_dt_gpio_free;
+ 	}
+ 
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+@@ -505,20 +499,13 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ err_free_irq:
+-	free_irq(keypad->irq, keypad);
+ 	pm_runtime_disable(&pdev->dev);
+ 	device_init_wakeup(&pdev->dev, 0);
+ 	platform_set_drvdata(pdev, NULL);
+ err_unprepare_clk:
+ 	clk_unprepare(keypad->clk);
+-err_put_clk:
+-	clk_put(keypad->clk);
++err_dt_gpio_free:
+ 	samsung_keypad_dt_gpio_free(keypad);
+-err_unmap_base:
+-	iounmap(keypad->base);
+-err_free_mem:
+-	input_free_device(input_dev);
+-	kfree(keypad);
+ 
+ 	return error;
+ }
+@@ -533,19 +520,9 @@ static int __devexit samsung_keypad_remove(struct platform_device *pdev)
+ 
+ 	input_unregister_device(keypad->input_dev);
+ 
+-	/*
+-	 * It is safe to free IRQ after unregistering device because
+-	 * samsung_keypad_close will shut off interrupts.
+-	 */
+-	free_irq(keypad->irq, keypad);
+-
+ 	clk_unprepare(keypad->clk);
+-	clk_put(keypad->clk);
+ 	samsung_keypad_dt_gpio_free(keypad);
+ 
+-	iounmap(keypad->base);
+-	kfree(keypad);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.7.4.1
 
->
-> I have now applied everything (with all the gathered Acks/Reviewed-by
-> incorporated) but the patch #14.
->
-
-Hi Jiri,
-
-many thanks for applying it. Patch #14 is less critical, so we can
-take more time to include it.
-
-Cheers,
-Benjamin
-
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs

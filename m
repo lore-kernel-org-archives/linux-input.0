@@ -1,216 +1,53 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v4 14/14] HID: hid-multitouch: forwards MSC_TIMESTAMP
-Date: Wed, 14 Nov 2012 22:27:15 +0100
-Message-ID: <50A40CB3.8070105@gmail.com>
-References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com> <1352908766-4492-15-git-send-email-benjamin.tissoires@gmail.com> <20121114195852.GA14840@polaris.bitmath.org>
+From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+Subject: RE: [RFC] staging: ste_rmi4: merge into the main kernel tree
+Date: Thu, 15 Nov 2012 02:56:45 +0000
+Message-ID: <CC51EC7B5B7F984AA566DC102237848896F6299E@hkdcw-mail1.synaptics-inc.local>
+References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
+ <20121113201212.8550fb074e1f7cce78f29d97@tw.synaptics.com>
+ <20121113175309.GA3601@polaris.bitmath.org>
+ <CC51EC7B5B7F984AA566DC102237848896F62894@hkdcw-mail1.synaptics-inc.local>
+ <20121114180401.GC29131@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f178.google.com ([209.85.212.178]:50922 "EHLO
-	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933092Ab2KNV1Z (ORCPT
+Received: from tw-mx2.synaptics.com.tw ([203.163.83.68]:51726 "EHLO
+	tw-mx2.synaptics.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933167Ab2KOC5C convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Nov 2012 16:27:25 -0500
-In-Reply-To: <20121114195852.GA14840@polaris.bitmath.org>
+	Wed, 14 Nov 2012 21:57:02 -0500
+In-Reply-To: <20121114180401.GC29131@core.coreip.homeip.net>
+Content-Language: zh-HK
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
 
-Hi Henrik,
+Hi Dmitry,
 
-On 11/14/2012 08:58 PM, Henrik Rydberg wrote:
-> Hi Benjamin,
+> > As I know, currently there is no synaptics RMI4 touchscreen driver in the
+> > main tree. In order to support our customers effectively, is it able to merge
+> > staging ste_rmi4 driver into the main kernel.org tree? If it is accepted, should
+> > I send a patch for this change?
 > 
->> Computes the device timestamp according to the specification.
->> It also ensures that if the time between two events is greater
->> than MAX_TIMESTAMP_INTERVAL, the timestamp will be reset.
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
->> ---
+> I believe that we should keep ste_rmi4 in staging, not as reflection of
+> its code quality, but rather because it is a temporary solution until
+> full-fledged RMI4 driver is merged.
 > 
-> This was not what I envisioned from the discussion yesterday, I was
-> probably too vague. Firstly, the absolute time interval checked seems
-> to be 500 ms, which is arbitrary. Second, the wrap should probably use
+> Please have Greg commit the patch that Henrik reviewed to staging and
+> then work with Christopher Heiny group on getting the full featured
+> driver into mainline.
 
-Not exactly. The time interval was 5s, near enough the minimum requirement for this field (6.5535 s).
+Thank you for the prompt reply. The ste_rmi4 driver is actually not intended to be
+a temporary solution for the full-fledged driver. We have requests from a number
+of our customers and partners (Qualcomm, Samsung, Intel etc.) urging us to have
+a driver available in the kernel mainline that is specific to touchscreen with simple
+architecture and supporting our S3200 family of Touch Controllers and above. We
+are committing resources to continue to maintain this driver and provide updates
+to support future touch controller revisions from Synaptics.
+It would be greatly appreciated if this driver can be considered for inclusion in the
+kernel mainline.
 
-> (logical_maximum + 1). Third, we are still not sure whether we should
-> take the 'time = 0 means reset' logic literally, I think it needs to
-> be tested.
+Thank you.
 
-Again, the device I have never does any reset at the first touch, it just wraps the counter.
-The problem is that when there is no event, we now that no events occurred since the previous timestamp, modulus 6.5535 seconds.
-
-
-> 
-> In light of this, I would like to suggest the patch below instead. It
-> should follow the current interpretation of the definition to the
-> letter. I imagine very few devices will actually do anything but wrap
-> the counter, but that remains to be seen. In that case, we could
-> simplify the code further, since we will have no hope of detecting
-> large intervals properly anyways.
-> 
-> Thanks,
-> Henrik
-> 
->  From 448808dd988e96d58b79148292fde147935305ab Mon Sep 17 00:00:00 2001
-> From: Henrik Rydberg <rydberg@euromail.se>
-> Date: Wed, 14 Nov 2012 20:53:17 +0100
-> Subject: [PATCH] HID: hid-multitouch: send the device timestamp when present
-> 
-> Compute and relay the device timestamp when present. The counter
-> value range varies between devices, but the MSC_TIMESTAMP event
-> is always 32 bits long. A value of zero means the time since the
-> previous event is unknown.
-> 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
->   drivers/hid/hid-multitouch.c | 36 +++++++++++++++++++++++++++++++++---
->   include/linux/hid.h          |  1 +
->   2 files changed, 34 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 61543c0..586f9c6 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -98,6 +98,8 @@ struct mt_device {
->   	bool serial_maybe;	/* need to check for serial protocol */
->   	bool curvalid;		/* is the current contact valid? */
->   	unsigned mt_flags;	/* flags to pass to input-mt */
-> +	unsigned dev_time;	/* device scan time in units of 100 us */
-> +	unsigned timestamp;	/* the timestamp to be sent */
->   };
->   
->   /* classes of device behavior */
-> @@ -458,12 +460,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->   			mt_store_field(usage, td, hi);
->   			td->last_field_index = field->index;
->   			return 1;
-> +		case HID_DG_SCANTIME:
-> +			hid_map_usage(hi, usage, bit, max,
-> +				EV_MSC, MSC_TIMESTAMP);
-> +			set_bit(MSC_TIMESTAMP, hi->input->mscbit);
-> +			td->last_field_index = field->index;
-> +			return 1;
->   		case HID_DG_CONTACTCOUNT:
->   			td->last_field_index = field->index;
->   			return 1;
->   		case HID_DG_CONTACTMAX:
-> -			/* we don't set td->last_slot_field as contactcount and
-> -			 * contact max are global to the report */
-> +			/* we don't set td->last_slot_field as scan time,
-> +			 * contactcount and contact max are global to the
-> +			 * report */
->   			td->last_field_index = field->index;
->   			return -1;
->   		case HID_DG_TOUCH:
-> @@ -492,7 +501,8 @@ static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
->   		struct hid_field *field, struct hid_usage *usage,
->   		unsigned long **bit, int *max)
->   {
-> -	if (usage->type == EV_KEY || usage->type == EV_ABS)
-> +	if (usage->type == EV_KEY || usage->type == EV_ABS ||
-> +	    usage->type == EV_MSC)
->   		set_bit(usage->type, hi->input->evbit);
->   
->   	return -1;
-> @@ -571,10 +581,27 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->   static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
->   {
->   	input_mt_sync_frame(input);
-> +	input_event(input, EV_MSC, MSC_TIMESTAMP, td->timestamp);
->   	input_sync(input);
->   	td->num_received = 0;
->   }
->   
-> +static void mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
-> +				 unsigned value)
-> +{
-> +	unsigned dt;
-> +
-> +	if (value) {
-> +		dt = (value - td->dev_time) % (field->logical_maximum + 1);
-
-The curious thing is that this is not working on my kernel:
-
-this is the output of the following printk:
- printk(KERN_ERR "%s timestamp=%d value=%d dt=%d field->logical_maximum=%d !td->timestamp=%d\n", __func__, td->timestamp, value, dt, field->logical_maximum, !td->timestamp);
-
-Nov 14 22:09:55 localhost kernel: [ 1288.821899] mt_compute_timestamp timestamp=6535900 value=65359 dt=93 field->logical_maximum=65535 !td->timestamp=0
-Nov 14 22:09:55 localhost kernel: [ 1288.831938] mt_compute_timestamp timestamp=6545200 value=65452 dt=93 field->logical_maximum=65535 !td->timestamp=0
-Nov 14 22:09:55 localhost kernel: [ 1288.841852] mt_compute_timestamp timestamp=900 value=9 dt=-65443 field->logical_maximum=65535 !td->timestamp=0
-Nov 14 22:09:55 localhost kernel: [ 1288.850852] mt_compute_timestamp timestamp=10300 value=103 dt=94 field->logical_maximum=65535 !td->timestamp=0
-Nov 14 22:09:55 localhost kernel: [ 1288.860839] mt_compute_timestamp timestamp=19600 value=196 dt=93 field->logical_maximum=65535 !td->timestamp=0
-
-I know I cheated when I put "dt=%d" for an unsigned, but the fact is that the counter rolls back...
-
-However, his construction works:
-
-static void mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
-		__s32 value)
-{
-	__s32 dt;
-
-	if (value) {
-		dt = value - td->dev_time;
-		if (dt < 0)
-			dt += field->logical_maximum + 1;
-		td->timestamp += 100 * dt;
-	} else {
-		td->timestamp = 0;
-	}
-
-	td->dev_time = value;
-}
-
-
-> +		td->timestamp += 100 * dt;
-> +		td->timestamp += !td->timestamp;
-
-I don't understand the meaning of adding !td->timestamp. :/
-
-> +	} else {
-> +		td->timestamp = 0;
-
-My particular device never falls into this case... So I never reset the timestamp.
-This is problematic because we compute the timestamp on an unsigned, and the struct input_absinfo sends __s32... I'm afraid we will have some troubles after a long use of the device.
-
-Anyway, many thanks for the review of this whole patchset!
-
-Cheers,
-Benjamin
-
-
-> +	}
-> +
-> +	td->dev_time = value;
-> +}
-> +
->   static int mt_event(struct hid_device *hid, struct hid_field *field,
->   				struct hid_usage *usage, __s32 value)
->   {
-> @@ -622,6 +649,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->   		case HID_DG_HEIGHT:
->   			td->curdata.h = value;
->   			break;
-> +		case HID_DG_SCANTIME:
-> +			mt_compute_timestamp(td, field, value);
-> +			break;
->   		case HID_DG_CONTACTCOUNT:
->   			/*
->   			 * Includes multi-packet support where subsequent
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index d2c42dd..eb7ec6c 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -242,6 +242,7 @@ struct hid_item {
->   #define HID_DG_DEVICEINDEX	0x000d0053
->   #define HID_DG_CONTACTCOUNT	0x000d0054
->   #define HID_DG_CONTACTMAX	0x000d0055
-> +#define HID_DG_SCANTIME		0x000d0056
->   
->   /*
->    * HID report types --- Ouch! HID spec says 1 2 3!
-> 
+Alexandra Chin

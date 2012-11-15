@@ -1,60 +1,72 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification implementation
-Date: Thu, 15 Nov 2012 15:04:54 +0100
-Message-ID: <CAN+gG=FeNBzdbBcH6uSWB_rUOS6PjyjpVSuY3b--g1mXo17fXA@mail.gmail.com>
-References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
-	<alpine.LNX.2.00.1211151450140.15877@pobox.suse.cz>
+From: "AnilKumar, Chimata" <anilkumar@ti.com>
+Subject: RE: [PATCH v6] Input: matrix-keypad - Add device tree support
+Date: Thu, 15 Nov 2012 14:11:59 +0000
+Message-ID: <331ABD5ECB02734CA317220B2BBEABC13EA6C98F@DBDE01.ent.ti.com>
+References: <1352976179-29790-1-git-send-email-anilkumar@ti.com>
+ <50A4F488.5000808@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1211151450140.15877-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:47253 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933154Ab2KOOML convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Nov 2012 09:12:11 -0500
+In-Reply-To: <50A4F488.5000808@gmail.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rob Herring <robherring2@gmail.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "dgdunix@gmail.com" <dgdunix@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, Nov 15, 2012 at 2:51 PM, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org> wrote:
-> On Mon, 12 Nov 2012, Benjamin Tissoires wrote:
->
->> Microsoft published the protocol specification of HID over i2c:
->> http://msdn.microsoft.com/en-us/library/windows/hardware/hh852380.aspx
->>
->> This patch introduces an implementation of this protocol.
->>
->> This implementation does not includes the ACPI part of the specification.
->> This will come when ACPI 5.0 devices enumeration will be available.
->>
->> Once the ACPI part is done, OEM will not have to declare HID over I2C
->> devices in their platform specific driver.
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->
-> Out of curiosity -- has this been tested on a real device (is there any
-> such device available anyway?), or is that just the implementation of the
-> defined protocol?
+On Thu, Nov 15, 2012 at 19:26:24, Rob Herring wrote:
+> On 11/15/2012 04:42 AM, AnilKumar Ch wrote:
+> > Add device tree support to matrix keypad driver and usage details
+> > are added to device tree documentation. Also modified the driver
+> > according to recent update of matrix_keypad_build_keymap(), which
+> > automatically allocate memory for keymap.
+> > 
+> > Signed-off-by: AnilKumar Ch <anilkumar@ti.com>
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> > This patch was tested on AM335x-EVM and based on linux-next, cleanly
+> > applies on top of "input/next"
+> > 
+> > Changes from v5:
+> > 	- Updated based on Dmitry's patch.
+> > 	  * Modified the driver acc. to matrix_keypad_build_keymap()
+> > 	    recent update.
+> > 	  * Combined row_gpios & col_gpios devm_kzalloc's to single
+> > 	    devm_kzalloc.
+> > 	  * Added proper return values for different failures in
+> > 	    matrix_keypad_parse_dt().
+> > 
+> > Changes from v4:
+> > 	- Removed clustered-irq support through DT. This should be
+> > 	  added if any platform requires in the future.
+> > 
+> > Changes from v3:
+> > 	- Incorporated Stephen Warren's review comments on v3
+> > 	  * Added description to clustered-irq-flags binding
+> > 
+> > Changes from v2:
+> > 	- Incorporated Stephen Warren's review comments on v2
+> > 	  * Renamed the bindings file to gpio-matrix-keypad.txt
+> > 	  * Added description to clustered-irq binding
+> > 
+> > Changes from v1:
+> > 	- Incorporated Rob's review comments on v1
+> > 	  * Changed matix-keypad compatible to gpio-matrix-keypad
+> > 	  * Removed unnecessary props (num of gpios)
+> > 	  * Used of_match_ptr()
+> > 	- Removed first patch based on Dmitry's comments on v1
+> > 
+> >  drivers/input/keyboard/matrix_keypad.c |  119 ++++++++++++++++++++++++++------
+> 
+> What happened to the binding doc?
 
-It has been tested on an ELAN microelectronics device (a prototype),
-on an odroid-x board. That's how we figure out the bug in the
-set_report command.
-I think we manage to test all main features of the protocol
-(get_report, irqs, hid descriptor, report descriptors, set_report).
+Rebase mistake, right away I am resending the patch.
 
-I'm currently waiting for a Synaptics touchpad to check if it's also
-working with their devices.
-
-The thing is that HID over i2c for x86 platform will presumably
-require the Haswell platform from Intel (we need ACPI 5 for
-enumeration), but it would be very nice to get this in the kernel just
-before hardware arrive on the market :)
-However, I won't be surprise if android OEMs also start using this
-specification because it won't force them to write kernel drivers...
-
-Cheers,
-Benjamin
-
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
+Thanks
+AnilKumar

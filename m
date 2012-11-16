@@ -1,59 +1,78 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: 3.7-rc3: mouses stopped working
-Date: Fri, 16 Nov 2012 13:37:31 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211161335180.20577@pobox.suse.cz>
-References: <20121115132849.GA4062@elf.ucw.cz> <alpine.LNX.2.00.1211151429240.15877@pobox.suse.cz> <20121115140736.GA2651@elf.ucw.cz> <alpine.LNX.2.00.1211151508350.15877@pobox.suse.cz> <20121116013405.GA2002@elf.ucw.cz> <alpine.LNX.2.00.1211161153290.20577@pobox.suse.cz>
- <20121116122400.GA10994@elf.ucw.cz>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification implementation
+Date: Fri, 16 Nov 2012 15:56:01 +0100
+Message-ID: <CAN+gG=Gm2JXur1HsL=-EEpahGZjqG5BQqoR6hpO8Dvsah0XyVg@mail.gmail.com>
+References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1211151450140.15877@pobox.suse.cz>
+	<CAN+gG=FeNBzdbBcH6uSWB_rUOS6PjyjpVSuY3b--g1mXo17fXA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121116122400.GA10994@elf.ucw.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:42140 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751799Ab2KPO4D (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Nov 2012 09:56:03 -0500
+In-Reply-To: <CAN+gG=FeNBzdbBcH6uSWB_rUOS6PjyjpVSuY3b--g1mXo17fXA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, ramalingamc@nvidia.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, fabien.andre@gmail.com, scott.liu@emc.com.tw, Jean Delvare <khali@linux-fr.org>, JJ Ding <jj_ding@emc.com.tw>, Jiri Slaby <jslaby@suse.cz>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2012, Pavel Machek wrote:
+On Thu, Nov 15, 2012 at 3:04 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Thu, Nov 15, 2012 at 2:51 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> On Mon, 12 Nov 2012, Benjamin Tissoires wrote:
+>>
+>>> Microsoft published the protocol specification of HID over i2c:
+>>> http://msdn.microsoft.com/en-us/library/windows/hardware/hh852380.aspx
+>>>
+>>> This patch introduces an implementation of this protocol.
+>>>
+>>> This implementation does not includes the ACPI part of the specification.
+>>> This will come when ACPI 5.0 devices enumeration will be available.
+>>>
+>>> Once the ACPI part is done, OEM will not have to declare HID over I2C
+>>> devices in their platform specific driver.
+>>>
+>>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>>
+>> Out of curiosity -- has this been tested on a real device (is there any
+>> such device available anyway?), or is that just the implementation of the
+>> defined protocol?
+>
+> It has been tested on an ELAN microelectronics device (a prototype),
+> on an odroid-x board. That's how we figure out the bug in the
+> set_report command.
+> I think we manage to test all main features of the protocol
+> (get_report, irqs, hid descriptor, report descriptors, set_report).
+>
+> I'm currently waiting for a Synaptics touchpad to check if it's also
+> working with their devices.
+>
+> The thing is that HID over i2c for x86 platform will presumably
+> require the Haswell platform from Intel (we need ACPI 5 for
+> enumeration), but it would be very nice to get this in the kernel just
+> before hardware arrive on the market :)
+> However, I won't be surprise if android OEMs also start using this
+> specification because it won't force them to write kernel drivers...
 
-> > > root@amd:/tmp# uname -a
-> > > Linux amd 3.7.0-rc5+ #236 SMP Thu Nov 15 20:07:26 CET 2012 i686 GNU/Linux
-> > > root@amd:/tmp# cat /dev/input/mice
-> > > cat: /dev/input/mice: No such device or address
-> > > root@amd:/tmp# ls -al /dev/input/mice
-> > > crw-rw---- 1 root root 13, 63 Apr 25  2010 /dev/input/mice
-> > > root@amd:/tmp# 
-> > 
-> > Let's see whether this is /dev/input/mice issue or something else first.
-> > 
-> > Is anything coming out of corresponding /dev/input/eventX node?
-> 
-> /dev/input/mouse0 and /dev/input/mouse1 generate events when I move
-> internal/USB mouse.
-> 
-> ls -al /dev/input/mouse0 
-> crw-rw---- 1 root root 13, 32 Apr 25  2010 /dev/input/mouse0
-> pavel@amd:/tmp$ ls -al /dev/input/mouse1
-> crw------T 1 root root 13, 33 Aug 30 16:41 /dev/input/mouse1
-> pavel@amd:/tmp$ 
-> 
-> > And /dev/hidrawX?
-> 
-> /dev/hidraw0 seems to correspond to USB mouse and generates
-> events. Could not find hidraw corresponding to PS/2 mouse.
+And as a complement, Ramalingam tested it for Nvidia on an early
+NVIDIA's Tegra reference board for PISMO which is registered at
+http://www.arm.linux.org.uk/developer/machines/list.php?id=4439 , with
+a HID over i2c keyboard.
+He is up to test also his Synaptics touchpad.
 
-That is correct and expected behavior.
+Cheers,
+Benjamin
 
-> So it seems to be "/dev/input/mice" issue. Does it work for you?
-
-Yes, it works for me properly (testing with rc4+, 1b42fc4 more precisely). 
-Even after disconnect/reconnect cycle of USB mouse, I am getting events 
-properly from /dev/input/mice (frankly I am surprised that you noticed ... 
-Xorg has been using evdev driver for ages already by default, right?)
-
-What was the last kernel version that worked for you in this respect?
-
-Adding Dmitry and linux-input.
-
--- 
-Jiri Kosina
-SUSE Labs
+>
+> Cheers,
+> Benjamin
+>
+>>
+>> Thanks,
+>>
+>> --
+>> Jiri Kosina
+>> SUSE Labs

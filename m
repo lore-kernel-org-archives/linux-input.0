@@ -1,48 +1,79 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [RFC] staging: ste_rmi4: merge into the main kernel tree
-Date: Thu, 15 Nov 2012 20:05:41 +0100
-Message-ID: <CACRpkdbB5ijaRLmiB2DbFGunJQUUAM2+nhwBOOqSkMWQZVNHTQ@mail.gmail.com>
-References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
-	<20121113201212.8550fb074e1f7cce78f29d97@tw.synaptics.com>
-	<20121113175309.GA3601@polaris.bitmath.org>
-	<CC51EC7B5B7F984AA566DC102237848896F62894@hkdcw-mail1.synaptics-inc.local>
-	<20121114180401.GC29131@core.coreip.homeip.net>
-	<CC51EC7B5B7F984AA566DC102237848896F6299E@hkdcw-mail1.synaptics-inc.local>
-	<20121115064359.GA17551@core.coreip.homeip.net>
-	<CACRpkdZtsTpNiRBzs3rUz48AvoZ4UpcrO-4__xmsb0XezUVFtg@mail.gmail.com>
-	<20121115185522.GA4077@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121115185522.GA4077@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alexandra Chin <alexandra.chin@tw.synaptics.com>, Henrik Rydberg <rydberg@euromail.se>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
+From: Tushar Behera <tushar.behera@linaro.org>
+Subject: [PATCH 00/14] Modify signed comparisons of unsigned variables
+Date: Fri, 16 Nov 2012 12:20:32 +0530
+Message-ID: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:62670 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750960Ab2KPG46 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Nov 2012 01:56:58 -0500
+Received: by mail-pa0-f46.google.com with SMTP id hz1so1660177pad.19
+        for <linux-input@vger.kernel.org>; Thu, 15 Nov 2012 22:56:58 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: patches@linaro.org, Mauro Carvalho Chehab <mchehab@infradead.org>, Linus Walleij <linus.walleij@linaro.org>, Ian Campbell <ian.campbell@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Chas Williams <chas@cmf.nrl.navy.mil>, Jack Steiner <steiner@sgi.com>, Arnd Bergmann <arnd@arndb.de>, Luciano Coelho <coelho@ti.com>, Jiri Kosina <jkosina@suse.cz>, ivtv-devel@ivtvdriver.org, linux-media@vger.kernel.org, xen-devel@lists.xensource.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-atm-general@lists.sourceforge.net, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-wireless@vger.kernel.org
 
-On Thu, Nov 15, 2012 at 7:55 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Nov 15, 2012 at 06:41:26PM +0100, Linus Walleij wrote:
->>
->> The benefit is that the ugliness in
->> drivers/staging/ste_rmi4/board-mop500-u8500uib-rmi4.c
->> can be avoided, as today we're unable to pass the compulsory
->> platform data in any sane way. I'm being told that this weak symbol
->> override actually does not really work... especially if there are more
->> than 1 I2C device on the bus :-P
->
-> I am confused as to why this would be a benefit of ste_rmi4 over full
-> RMI4 implementation from Christopher's group?
+The occurrences were identified through the coccinelle script at
+following location.
 
-So we don't need to keep our real platform data and board files
-out-of-tree like we've done for the last 2 years or so.
+http://www.emn.fr/z-info/coccinelle/rules/find_unsigned.cocci
 
-But I only said it's a benefit, not that I think it's a good idea.
+Signed checks for unsigned variables are removed if it is also checked
+for upper error limit. For error checks, IS_ERR_VALUE() macros is used.
 
-> I think what we really need is to accelerate work on the full driver so
-> it is in mainline in 3.9ish.
+Tushar Behera (14):
+  [media] ivtv: Remove redundant check on unsigned variable
+  [media] meye: Remove redundant check on unsigned variable
+  [media] saa7134: Remove redundant check on unsigned variable
+  [media] tlg2300: Remove redundant check on unsigned variable
+  [media] atmel-isi: Update error check for unsigned variables
+  pinctrl: samsung: Update error check for unsigned variables
+  pinctrl: SPEAr: Update error check for unsigned variables
+  xen: netback: Remove redundant check on unsigned variable
+  xen: events: Remove redundant check on unsigned variable
+  atm: Removed redundant check on unsigned variable
+  HID: hiddev: Remove redundant check on unsigned variable
+  gru: Remove redundant check on unsigned variable
+  misc: tsl2550: Remove redundant check on unsigned variable
+  wlcore: Remove redundant check on unsigned variable
 
-Yep, agreed.
+ drivers/atm/fore200e.c                        |    2 +-
+ drivers/hid/usbhid/hiddev.c                   |    2 +-
+ drivers/media/pci/ivtv/ivtv-ioctl.c           |    2 +-
+ drivers/media/pci/meye/meye.c                 |    2 +-
+ drivers/media/pci/saa7134/saa7134-video.c     |    2 +-
+ drivers/media/platform/soc_camera/atmel-isi.c |    2 +-
+ drivers/media/usb/tlg2300/pd-video.c          |    2 +-
+ drivers/misc/sgi-gru/grukdump.c               |    2 +-
+ drivers/misc/tsl2550.c                        |    4 ++--
+ drivers/net/wireless/ti/wlcore/debugfs.c      |    2 +-
+ drivers/net/xen-netback/netback.c             |    4 ++--
+ drivers/pinctrl/pinctrl-samsung.c             |    2 +-
+ drivers/pinctrl/spear/pinctrl-plgpio.c        |    2 +-
+ drivers/xen/events.c                          |    2 +-
+ 14 files changed, 16 insertions(+), 16 deletions(-)
 
-Yours,
-Linus Walleij
+-- 
+1.7.4.1
+
+CC: Mauro Carvalho Chehab <mchehab@infradead.org>
+CC: Linus Walleij <linus.walleij@linaro.org>
+CC: Ian Campbell <ian.campbell@citrix.com>
+CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+CC: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Chas Williams <chas@cmf.nrl.navy.mil>
+CC: Jack Steiner <steiner@sgi.com>
+CC: Arnd Bergmann <arnd@arndb.de>
+CC: Luciano Coelho <coelho@ti.com>
+CC: Jiri Kosina <jkosina@suse.cz>
+CC: ivtv-devel@ivtvdriver.org
+CC: linux-media@vger.kernel.org
+CC: xen-devel@lists.xensource.com
+CC: netdev@vger.kernel.org
+CC: virtualization@lists.linux-foundation.org
+CC: linux-atm-general@lists.sourceforge.net
+CC: linux-usb@vger.kernel.org
+CC: linux-input@vger.kernel.org
+CC: linux-wireless@vger.kernel.org

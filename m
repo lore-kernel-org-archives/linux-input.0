@@ -1,56 +1,59 @@
-From: "Patil, Rachna" <rachna@ti.com>
-Subject: RE: [PATCH RESEND 0/7] MFD: ti_am335x_tscadc: DT support and TSC
- features addition
-Date: Fri, 16 Nov 2012 10:33:00 +0000
-Message-ID: <4CE347531D4CA947960AF71FF095B9323E96C54A@DBDE01.ent.ti.com>
-References: <1352271124-5513-1-git-send-email-rachna@ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: 3.7-rc3: mouses stopped working
+Date: Fri, 16 Nov 2012 13:37:31 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211161335180.20577@pobox.suse.cz>
+References: <20121115132849.GA4062@elf.ucw.cz> <alpine.LNX.2.00.1211151429240.15877@pobox.suse.cz> <20121115140736.GA2651@elf.ucw.cz> <alpine.LNX.2.00.1211151508350.15877@pobox.suse.cz> <20121116013405.GA2002@elf.ucw.cz> <alpine.LNX.2.00.1211161153290.20577@pobox.suse.cz>
+ <20121116122400.GA10994@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1352271124-5513-1-git-send-email-rachna@ti.com>
-Content-Language: en-US
+In-Reply-To: <20121116122400.GA10994@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Patil, Rachna" <rachna@ti.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
-Cc: Rob Landley <rob@landley.net>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jonathan Cameron <jic23@cam.ac.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Fri, 16 Nov 2012, Pavel Machek wrote:
 
-This is just a gentle reminder of the patch set I had posted earlier viz.
-"[PATCH RESEND 0/7] MFD: ti_am335x_tscadc: DT support and TSC features addition"
-Can this patch set be pulled in if there are no review comments.
-This patch set does not break anything existing, it just adds new features and DT support for the MFD core and its clients.
+> > > root@amd:/tmp# uname -a
+> > > Linux amd 3.7.0-rc5+ #236 SMP Thu Nov 15 20:07:26 CET 2012 i686 GNU/Linux
+> > > root@amd:/tmp# cat /dev/input/mice
+> > > cat: /dev/input/mice: No such device or address
+> > > root@amd:/tmp# ls -al /dev/input/mice
+> > > crw-rw---- 1 root root 13, 63 Apr 25  2010 /dev/input/mice
+> > > root@amd:/tmp# 
+> > 
+> > Let's see whether this is /dev/input/mice issue or something else first.
+> > 
+> > Is anything coming out of corresponding /dev/input/eventX node?
+> 
+> /dev/input/mouse0 and /dev/input/mouse1 generate events when I move
+> internal/USB mouse.
+> 
+> ls -al /dev/input/mouse0 
+> crw-rw---- 1 root root 13, 32 Apr 25  2010 /dev/input/mouse0
+> pavel@amd:/tmp$ ls -al /dev/input/mouse1
+> crw------T 1 root root 13, 33 Aug 30 16:41 /dev/input/mouse1
+> pavel@amd:/tmp$ 
+> 
+> > And /dev/hidrawX?
+> 
+> /dev/hidraw0 seems to correspond to USB mouse and generates
+> events. Could not find hidraw corresponding to PS/2 mouse.
 
-Regards,
-Rachna
+That is correct and expected behavior.
 
-On Wed, Nov 07, 2012 at 12:21:57, Patil, Rachna wrote:
-> This patch set is a cumulative set of [1] and [2] sent earlier.
-> 
-> Note that there are no code changes in either of the patch set, only rebased on top of MFD-next to make sure that all the patches apply without any conflicts.
-> 
-> This patch set has been tested on AM335x EVM and is based on top of [3].
-> 
-> [1] http://www.spinics.net/lists/linux-input/msg23060.html
-> [2] http://www.spinics.net/lists/linux-input/msg23090.html
-> [3] https://lkml.org/lkml/2012/11/6/67
-> 
-> Patil, Rachna (7):
->   input: ti_am335x_tsc: Step enable bits made configurable
->   input: ti_am335x_tsc: Order of TSC wires, made configurable
->   input: ti_am335x_tsc: Add variance filter
->   MFD: ti_am335x_tscadc: add device tree binding information
->   MFD: ti_am335x_tscadc: Add DT support
->   input: ti_am335x_tsc: Add DT support
->   IIO: ti_am335x_adc: Add DT support
-> 
->  .../devicetree/bindings/mfd/ti_am335x_tscadc.txt   |   35 +++
->  drivers/iio/adc/ti_am335x_adc.c                    |   24 ++-
->  drivers/input/touchscreen/ti_am335x_tsc.c          |  239 +++++++++++++++++---
->  drivers/mfd/ti_am335x_tscadc.c                     |   28 ++-
->  include/linux/input/ti_am335x_tsc.h                |   12 +
->  include/linux/mfd/ti_am335x_tscadc.h               |   11 +-
->  6 files changed, 308 insertions(+), 41 deletions(-)  create mode 100644 Documentation/devicetree/bindings/mfd/ti_am335x_tscadc.txt
-> 
-> 
+> So it seems to be "/dev/input/mice" issue. Does it work for you?
+
+Yes, it works for me properly (testing with rc4+, 1b42fc4 more precisely). 
+Even after disconnect/reconnect cycle of USB mouse, I am getting events 
+properly from /dev/input/mice (frankly I am surprised that you noticed ... 
+Xorg has been using evdev driver for ages already by default, right?)
+
+What was the last kernel version that worked for you in this respect?
+
+Adding Dmitry and linux-input.
+
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,40 +1,74 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v6] staging: ste_rmi4: Convert to Type-B support
-Date: Fri, 16 Nov 2012 11:50:08 -0800
-Message-ID: <20121116195008.GA9153@kroah.com>
-References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
- <20121116163146.f4b53f6965ee08ca1a1fc96c@tw.synaptics.com>
- <20121116195433.GA573@polaris.bitmath.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v4 14/14] HID: hid-multitouch: forwards MSC_TIMESTAMP
+Date: Fri, 16 Nov 2012 21:09:26 +0100
+Message-ID: <20121116200926.GA652@polaris.bitmath.org>
+References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1352908766-4492-15-git-send-email-benjamin.tissoires@gmail.com>
+ <20121114195852.GA14840@polaris.bitmath.org>
+ <50A40CB3.8070105@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:51575 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750853Ab2KPTuN (ORCPT
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:35231 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751749Ab2KPUCo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Nov 2012 14:50:13 -0500
-Received: by mail-pa0-f46.google.com with SMTP id hz1so2078087pad.19
-        for <linux-input@vger.kernel.org>; Fri, 16 Nov 2012 11:50:12 -0800 (PST)
+	Fri, 16 Nov 2012 15:02:44 -0500
 Content-Disposition: inline
-In-Reply-To: <20121116195433.GA573@polaris.bitmath.org>
+In-Reply-To: <50A40CB3.8070105@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Alexandra Chin <Alexandra.Chin@tw.synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Nov 16, 2012 at 08:54:33PM +0100, Henrik Rydberg wrote:
-> Hi Alexandra,
-> 
-> > Convert to MT-B because Synaptics touch devices are capable
-> > of tracking identifiable fingers.
-> > 
-> > Signed-off-by: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-> 
-> For next time: Once you have received an acked-by or reviewed-by, you
-> may add that line under your own signed-off-by in subsequent
-> mails. That way, the status of the patch can be tracked properly,
-> making life easier for everyone.
-> 
-> Greg, I think we are ready now. :-)
+Hi Benjamin,
 
-All applied.
+> > This was not what I envisioned from the discussion yesterday, I was
+> > probably too vague. Firstly, the absolute time interval checked seems
+> > to be 500 ms, which is arbitrary. Second, the wrap should probably use
+> 
+> Not exactly. The time interval was 5s, near enough the minimum requirement for this field (6.5535 s).
+
+Sorry about that, but the argument remains; it should depend on logical_maximum.
+
+> > (logical_maximum + 1). Third, we are still not sure whether we should
+> > take the 'time = 0 means reset' logic literally, I think it needs to
+> > be tested.
+> 
+> Again, the device I have never does any reset at the first touch, it just wraps the counter.
+> The problem is that when there is no event, we now that no events occurred since the previous timestamp, modulus 6.5535 seconds.
+
+So the very first win8 device we test already diverges from the win8
+specification, how nice.
+
+Ok, you have conviced me that comparing to a proper time makes
+sense. However, I am not happy about using a separate time for this,
+given that we will fill in the event time later in the
+chain.
+
+In addition, it would make perfect sense to extend the validity of the
+hardware time with the event time for longer intervals. The relative
+error only makes a difference on milisecond intervals.
+
+A patch that seamlessly extends the validity of the hardware time,
+ideally using the event time, seems like a viable solution.
+
+> > +static void mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
+> > +				 unsigned value)
+> > +{
+> > +	unsigned dt;
+> > +
+> > +	if (value) {
+> > +		dt = (value - td->dev_time) % (field->logical_maximum + 1);
+> 
+> The curious thing is that this is not working on my kernel:
+
+Oups, I suspect (value - td->dev_time) needs to be explicitly converted to unsigned.
+
+> I don't understand the meaning of adding !td->timestamp. :/
+
+With the definition that timestamp == 0 means an unknown interval, we
+do not want to send that value by accident.
+
+Thanks,
+Henrik

@@ -1,43 +1,38 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH] HID: roccat: Fixed wrong sysfs attr size for koneplus tcu.
-Date: Sat, 17 Nov 2012 21:27:11 +0100
-Message-ID: <1353184031.4973.9.camel@neuromancer.tessier-ashpool>
-Reply-To: erazor_de@users.sourceforge.net
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
+Date: Sat, 17 Nov 2012 13:54:15 -0800
+Message-ID: <20121117215415.GA5624@kroah.com>
+References: <1353124734-16803-1-git-send-email-cheiny@synaptics.com>
+ <1353124734-16803-3-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-18.arcor-online.net ([151.189.21.58]:55200 "EHLO
-	mail-in-18.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752133Ab2KQU1O (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 17 Nov 2012 15:27:14 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1353124734-16803-3-git-send-email-cheiny@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-More thorough testing revealed a typo in last koneplus cleanups.
+On Fri, Nov 16, 2012 at 07:58:50PM -0800, Christopher Heiny wrote:
+> +static void release_rmidev_device(struct device *dev)
+> +{
+> +	device_unregister(dev);
+> +}
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- drivers/hid/hid-roccat-koneplus.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+You just leaked memory here, right?
 
-diff --git a/drivers/hid/hid-roccat-koneplus.h b/drivers/hid/hid-roccat-koneplus.h
-index d2b55f2..af7f57e 100644
---- a/drivers/hid/hid-roccat-koneplus.h
-+++ b/drivers/hid/hid-roccat-koneplus.h
-@@ -24,7 +24,7 @@ enum {
- 	KONEPLUS_SIZE_PROFILE_BUTTONS = 0x4d,
- 	KONEPLUS_SIZE_SENSOR = 0x06,
- 	KONEPLUS_SIZE_TALK = 0x10,
--	KONEPLUS_SIZE_TCU = 0x03,
-+	KONEPLUS_SIZE_TCU = 0x04,
- 	KONEPLUS_SIZE_TCU_IMAGE = 0x0404,
- };
- 
--- 
-1.7.3.4
+Also, you already unregistered the device, otherwise this function would
+have never been called, so you just ended up in a loop?
 
+Have you ever tried removing a device?  Are you sure it's working
+properly?
 
+> +EXPORT_SYMBOL(rmi_register_phys_device);
 
+Just curious, but why not EXPORT_SYMBOL_GPL() on all of these new
+symbols you are creating?
+
+thanks,
+
+greg k-h

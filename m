@@ -1,74 +1,102 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v4 14/14] HID: hid-multitouch: forwards MSC_TIMESTAMP
-Date: Fri, 16 Nov 2012 21:09:26 +0100
-Message-ID: <20121116200926.GA652@polaris.bitmath.org>
-References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352908766-4492-15-git-send-email-benjamin.tissoires@gmail.com>
- <20121114195852.GA14840@polaris.bitmath.org>
- <50A40CB3.8070105@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [RFC PATCH 00/06] input: Synaptics RMI4 Touchscreen Driver
+Date: Fri, 16 Nov 2012 19:58:48 -0800
+Message-ID: <1353124734-16803-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:35231 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751749Ab2KPUCo (ORCPT
+Received: from [12.239.217.82] ([12.239.217.82]:30743 "EHLO
+	brontomerus.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753904Ab2KQD74 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Nov 2012 15:02:44 -0500
-Content-Disposition: inline
-In-Reply-To: <50A40CB3.8070105@gmail.com>
+	Fri, 16 Nov 2012 22:59:56 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-Hi Benjamin,
+This patch implements a driver supporting Synaptics ClearPad and other
+touchscreen sensors that use the RMI4 protocol, as defined here:
 
-> > This was not what I envisioned from the discussion yesterday, I was
-> > probably too vague. Firstly, the absolute time interval checked seems
-> > to be 500 ms, which is arbitrary. Second, the wrap should probably use
-> 
-> Not exactly. The time interval was 5s, near enough the minimum requirement for this field (6.5535 s).
+    http://www.synaptics.com/sites/default/files/511-000136-01-Rev-E-RMI4%20Intrfacing%20Guide.pdf
 
-Sorry about that, but the argument remains; it should depend on logical_maximum.
+as well as successor documents that haven't made their way through to
+publication yet.
 
-> > (logical_maximum + 1). Third, we are still not sure whether we should
-> > take the 'time = 0 means reset' logic literally, I think it needs to
-> > be tested.
-> 
-> Again, the device I have never does any reset at the first touch, it just wraps the counter.
-> The problem is that when there is no event, we now that no events occurred since the previous timestamp, modulus 6.5535 seconds.
+This code supersedes the patch submitted on 2012-10-05.  For all files
+included in this patch, we believe that all outstanding issues arising
+from the previous submissions have been addressed, except as follows:
 
-So the very first win8 device we test already diverges from the win8
-specification, how nice.
+* we've investigated using irq_chip to manage chip interrupt dispatch, and
+that certainly is a good idea.  However, we need to support kernels back to
+3.0.x, and the required functionality is not yet present in those older kernels.
+Once we no longer need to support 3.0.x, we'll jump onto irq_chip right
+away.
 
-Ok, you have conviced me that comparing to a proper time makes
-sense. However, I am not happy about using a separate time for this,
-given that we will fill in the event time later in the
-chain.
+* some of the requested changes to rmi_f11.c are simply not possible while
+still retaining general driver functionality.  We've clarified existing comments
+and added new ones to explain why that is the case.
 
-In addition, it would make perfect sense to extend the validity of the
-hardware time with the event time for longer intervals. The relative
-error only makes a difference on milisecond intervals.
 
-A patch that seamlessly extends the validity of the hardware time,
-ideally using the event time, seems like a viable solution.
+This patch is against the v3.7-rc5 tag of Linus' kernel tree, object
+77b67063bb6bce6d475e910d3b886a606d0d91f7.  It should work fine with that kernel,
+but will not work with earlier kernels due to changes in the input subsystem.
 
-> > +static void mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
-> > +				 unsigned value)
-> > +{
-> > +	unsigned dt;
-> > +
-> > +	if (value) {
-> > +		dt = (value - td->dev_time) % (field->logical_maximum + 1);
-> 
-> The curious thing is that this is not working on my kernel:
 
-Oups, I suspect (value - td->dev_time) needs to be explicitly converted to unsigned.
 
-> I don't understand the meaning of adding !td->timestamp. :/
+Included in this patch are:
+    - full support for an RMI virtual bus as a standard kernel bus
 
-With the definition that timestamp == 0 means an unknown interval, we
-do not want to send that value by accident.
+    - physical layer implementation for I2C
 
-Thanks,
-Henrik
+    - device driver for general RMI4 sensor functionality
+
+    - function implementations for the following RMI4 functions:
+        * F01 device control
+        * F11 multifinger pointing
+
+The driver supports a system having one or more RMI sensors attached to it.
+Most devices have just a single touch sensor, but some have more than one.
+An example is the Fuse concept phone, which has 4 RMI sensors in it.
+
+Each sensor is presented as a device on the RMI logical bus (/sys/bus/rmi).
+Devices are named/numbered in the order they are discovered on the bus,
+starting with /sys/bus/rmi/devices/sensor00 for the first once, .../sensor01
+for the second one, and so on.
+
+Individual RMI functions are presented as child devices of the sensor device.
+For example, sensor00.fn01, sensor00.fn11, and so on.  Control of an RMI
+function's operating parameters is implemented via sysfs or debugfs (depending
+on whether the parameters are used during normal operation or system
+development/prototyping).
+
+
+
+The amount of feedback received on previous patches precludes addressing each
+item individually.  However, major changes for this patch are:
+    - elimination of sysfs management macros
+    - elimination of roll-your-own bitmask management
+    - moved potentially large arrays and structs from the stack to the heap
+    - elimination of the union/struct idiom for mapping register groups
+    - corrected identification of input devices, including adding a BUS_RMI
+      bus type.
+
+
+We've broken this patch into 6 parts, as follows:
+    01 - public header files and documentation
+    02 - core sensor and bus implementation
+    03 - I2C physical layer driver
+    04 - Kconfigs and Makefiles
+    05..06 - drivers for individual RMI functions
+
+
+Comments and other feedback on this driver are welcomed.
+
+Christopher Heiny and the Synaptics RMI4 driver team
+
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+Cc: Joeri de Gram <j.de.gram@gmail.com>
+
+---

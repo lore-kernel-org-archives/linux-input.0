@@ -1,102 +1,172 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RFC PATCH 00/06] input: Synaptics RMI4 Touchscreen Driver
-Date: Fri, 16 Nov 2012 19:58:48 -0800
-Message-ID: <1353124734-16803-1-git-send-email-cheiny@synaptics.com>
+Subject: [RFC PATCH 04/06] input/rmi4: Config files and makefiles
+Date: Fri, 16 Nov 2012 19:58:52 -0800
+Message-ID: <1353124734-16803-5-git-send-email-cheiny@synaptics.com>
+References: <1353124734-16803-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [12.239.217.82] ([12.239.217.82]:30743 "EHLO
+Received: from [12.239.217.82] ([12.239.217.82]:64069 "EHLO
 	brontomerus.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753904Ab2KQD74 (ORCPT
+	by vger.kernel.org with ESMTP id S1753904Ab2KQEAK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Nov 2012 22:59:56 -0500
+	Fri, 16 Nov 2012 23:00:10 -0500
+In-Reply-To: <1353124734-16803-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-This patch implements a driver supporting Synaptics ClearPad and other
-touchscreen sensors that use the RMI4 protocol, as defined here:
 
-    http://www.synaptics.com/sites/default/files/511-000136-01-Rev-E-RMI4%20Intrfacing%20Guide.pdf
+Infrastructure files for configuration and building.
 
-as well as successor documents that haven't made their way through to
-publication yet.
-
-This code supersedes the patch submitted on 2012-10-05.  For all files
-included in this patch, we believe that all outstanding issues arising
-from the previous submissions have been addressed, except as follows:
-
-* we've investigated using irq_chip to manage chip interrupt dispatch, and
-that certainly is a good idea.  However, we need to support kernels back to
-3.0.x, and the required functionality is not yet present in those older kernels.
-Once we no longer need to support 3.0.x, we'll jump onto irq_chip right
-away.
-
-* some of the requested changes to rmi_f11.c are simply not possible while
-still retaining general driver functionality.  We've clarified existing comments
-and added new ones to explain why that is the case.
-
-
-This patch is against the v3.7-rc5 tag of Linus' kernel tree, object
-77b67063bb6bce6d475e910d3b886a606d0d91f7.  It should work fine with that kernel,
-but will not work with earlier kernels due to changes in the input subsystem.
-
-
-
-Included in this patch are:
-    - full support for an RMI virtual bus as a standard kernel bus
-
-    - physical layer implementation for I2C
-
-    - device driver for general RMI4 sensor functionality
-
-    - function implementations for the following RMI4 functions:
-        * F01 device control
-        * F11 multifinger pointing
-
-The driver supports a system having one or more RMI sensors attached to it.
-Most devices have just a single touch sensor, but some have more than one.
-An example is the Fuse concept phone, which has 4 RMI sensors in it.
-
-Each sensor is presented as a device on the RMI logical bus (/sys/bus/rmi).
-Devices are named/numbered in the order they are discovered on the bus,
-starting with /sys/bus/rmi/devices/sensor00 for the first once, .../sensor01
-for the second one, and so on.
-
-Individual RMI functions are presented as child devices of the sensor device.
-For example, sensor00.fn01, sensor00.fn11, and so on.  Control of an RMI
-function's operating parameters is implemented via sysfs or debugfs (depending
-on whether the parameters are used during normal operation or system
-development/prototyping).
-
-
-
-The amount of feedback received on previous patches precludes addressing each
-item individually.  However, major changes for this patch are:
-    - elimination of sysfs management macros
-    - elimination of roll-your-own bitmask management
-    - moved potentially large arrays and structs from the stack to the heap
-    - elimination of the union/struct idiom for mapping register groups
-    - corrected identification of input devices, including adding a BUS_RMI
-      bus type.
-
-
-We've broken this patch into 6 parts, as follows:
-    01 - public header files and documentation
-    02 - core sensor and bus implementation
-    03 - I2C physical layer driver
-    04 - Kconfigs and Makefiles
-    05..06 - drivers for individual RMI functions
-
-
-Comments and other feedback on this driver are welcomed.
-
-Christopher Heiny and the Synaptics RMI4 driver team
 
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 
-Cc: Jean Delvare <khali@linux-fr.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Linus Walleij <linus.walleij@stericsson.com>
 Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 Cc: Joeri de Gram <j.de.gram@gmail.com>
 
+
 ---
+
+ drivers/input/Kconfig       |    2 +
+ drivers/input/Makefile      |    3 ++
+ drivers/input/rmi4/Kconfig  |   76 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/input/rmi4/Makefile |   22 ++++++++++++
+ 4 files changed, 103 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
+index 55f7e57..2c543c0 100644
+--- a/drivers/input/Kconfig
++++ b/drivers/input/Kconfig
+@@ -188,6 +188,8 @@ source "drivers/input/touchscreen/Kconfig"
+
+ source "drivers/input/misc/Kconfig"
+
++source "drivers/input/rmi4/Kconfig"
++
+ endif
+
+ menu "Hardware I/O ports"
+diff --git a/drivers/input/Makefile b/drivers/input/Makefile
+index 5ca3f63..88354fc 100644
+--- a/drivers/input/Makefile
++++ b/drivers/input/Makefile
+@@ -24,4 +24,7 @@ obj-$(CONFIG_INPUT_TABLET)	+= tablet/
+ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
+ obj-$(CONFIG_INPUT_MISC)	+= misc/
+
++obj-y += rmi4/
++
+ obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
++
+diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+new file mode 100644
+index 0000000..41cbbee
+--- /dev/null
++++ b/drivers/input/rmi4/Kconfig
+@@ -0,0 +1,76 @@
++#
++# RMI4 configuration
++#
++config RMI4_BUS
++	bool "Synaptics RMI4 bus support"
++	help
++	  Say Y here if you want to support the Synaptics RMI4 bus.  This is
++	  required for all RMI4 device support.
++
++	  If unsure, say Y.
++
++	  This feature is not currently available as a loadable module.
++
++config RMI4_DEBUG
++	bool "RMI4 Debugging"
++	depends on RMI4_BUS
++	select DEBUG_FS
++	help
++	  Say Y here to enable debug feature in the RMI4 driver.
++
++	  Note that the RMI4 driver debug features can generate a lot of
++	  output (potentially clogging up your dmesg output) and generally
++	  slow down driver operation.  It's recommended to enable them only
++	  if you are actively developing/debugging RMI4 features.
++
++	  If unsure, say N.
++
++config RMI4_I2C
++	bool "RMI4 I2C Support"
++	depends on RMI4_BUS && I2C
++	help
++	  Say Y here if you want to support RMI4 devices connected to an I2C
++	  bus.
++
++	  If unsure, say Y.
++
++	  This feature is not currently available as a loadable module.
++
++config RMI4_GENERIC
++	bool "RMI4 Generic driver"
++	depends on RMI4_BUS
++	help
++	  Say Y here if you want to support generic RMI4 devices.
++
++	  This is pretty much required if you want to do anything useful with
++	  your RMI device.
++
++	  This feature is not currently available as a loadable module.
++
++config RMI4_F11
++	tristate "RMI4 Function 11 (2D pointing)"
++	depends on RMI4_BUS && RMI4_GENERIC
++	help
++	  Say Y here if you want to add support for RMI4 function 11.
++
++	  Function 11 provides 2D multifinger pointing for touchscreens and
++	  touchpads.  For sensors that support relative pointing, F11 also
++	  provides mouse input.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called rmi-f11.
++
++config RMI4_F11_PEN
++	bool "RMI4 F11 Pen Support"
++	depends on RMI4_F11
++	help
++	  Say Y here to add support for pen input to RMI4 function 11.
++
++	  If this feature is enabled, when pen inputs are detected they
++	  will be reported to the input stream as MT_TOOL_PEN.  Otherwise,
++	  pens will be treated the same as fingers.
++
++	  Not all UI implementations deal gracefully with pen discrimination.
++	  If your system is not recognizing pen touches and you know your
++	  sensor supports pen input, you probably want to turn this feature
++	  off.
+diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
+new file mode 100644
+index 0000000..8882c3d
+--- /dev/null
++++ b/drivers/input/rmi4/Makefile
+@@ -0,0 +1,22 @@
++obj-$(CONFIG_RMI4_BUS) += rmi_bus.o
++obj-$(CONFIG_RMI4_I2C) += rmi_i2c.o
++obj-$(CONFIG_RMI4_GENERIC) += rmi_driver.o rmi_f01.o
++obj-$(CONFIG_RMI4_F11) += rmi_f11.o
++
++ccflags-$(CONFIG_RMI4_DEBUG) += -DDEBUG
++
++ifeq ($(KERNELRELEASE),)
++
++# KERNELDIR ?= /home/<AndroidKernelDirectory>
++PWD := $(shell pwd)
++
++.PHONY: build clean
++
++build:
++	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
++
++clean:
++	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c
++
++endif
++

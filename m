@@ -1,67 +1,80 @@
-From: Igor Grinberg <grinberg@compulab.co.il>
-Subject: [PATCH v2 1/2] ads7846: enable pendown GPIO debounce time setting
-Date: Mon, 19 Nov 2012 19:01:13 +0200
-Message-ID: <1353344473-14753-1-git-send-email-grinberg@compulab.co.il>
-References: <1353341038-14381-2-git-send-email-grinberg@compulab.co.il>
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1353341038-14381-2-git-send-email-grinberg@compulab.co.il>
-Sender: linux-omap-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Kevin Hilman <khilman@ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Igor Grinberg <grinberg@compulab.co.il>
+From: Bill Pemberton <wfp5p@virginia.edu>
+Subject: [PATCH 309/493] input: remove use of __devinitdata
+Date: Mon, 19 Nov 2012 13:24:18 -0500
+Message-ID: <1353349642-3677-309-git-send-email-wfp5p@virginia.edu>
+References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from viridian.itc.Virginia.EDU ([128.143.12.139]:41461 "EHLO
+	viridian.itc.virginia.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753956Ab2KSSeZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Nov 2012 13:34:25 -0500
+In-Reply-To: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: gregkh@linuxfoundation.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Some platforms need the pendown GPIO debounce time setting programmed.
-Since the pendown GPIO is handled by the driver, the debounce time
-should also be handled along with the pendown GPIO request.
+CONFIG_HOTPLUG is going away as an option so __devinitdata is no
+longer needed.
 
-Signed-off-by: Igor Grinberg <grinberg@compulab.co.il>
+Signed-off-by: Bill Pemberton <wfp5p@virginia.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com> 
+Cc: linux-input@vger.kernel.org 
 ---
-v2: fix the comment style
+ drivers/input/keyboard/tegra-kbc.c | 4 ++--
+ drivers/input/misc/bma150.c        | 2 +-
+ drivers/input/touchscreen/mms114.c | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
- drivers/input/touchscreen/ads7846.c |    6 +++++-
- include/linux/spi/ads7846.h         |    5 +++--
- 2 files changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index f02028e..78e5d9a 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -955,7 +955,8 @@ static int ads7846_resume(struct device *dev)
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 18c428316..cf8ab68 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -87,7 +87,7 @@ struct tegra_kbc {
+ 	struct clk *clk;
+ };
  
- static SIMPLE_DEV_PM_OPS(ads7846_pm, ads7846_suspend, ads7846_resume);
+-static const u32 tegra_kbc_default_keymap[] __devinitdata = {
++static const u32 tegra_kbc_default_keymap[] = {
+ 	KEY(0, 2, KEY_W),
+ 	KEY(0, 3, KEY_S),
+ 	KEY(0, 4, KEY_A),
+@@ -223,7 +223,7 @@ static const u32 tegra_kbc_default_keymap[] __devinitdata = {
+ };
  
--static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads7846 *ts)
-+static int __devinit ads7846_setup_pendown(struct spi_device *spi,
-+					   struct ads7846 *ts)
- {
- 	struct ads7846_platform_data *pdata = spi->dev.platform_data;
- 	int err;
-@@ -981,6 +982,9 @@ static int __devinit ads7846_setup_pendown(struct spi_device *spi, struct ads784
+ static const
+-struct matrix_keymap_data tegra_kbc_default_keymap_data __devinitdata = {
++struct matrix_keymap_data tegra_kbc_default_keymap_data = {
+ 	.keymap		= tegra_kbc_default_keymap,
+ 	.keymap_size	= ARRAY_SIZE(tegra_kbc_default_keymap),
+ };
+diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+index b009244..a3219c2 100644
+--- a/drivers/input/misc/bma150.c
++++ b/drivers/input/misc/bma150.c
+@@ -158,7 +158,7 @@ struct bma150_data {
+  * are stated and verified by Bosch Sensortec where they are configured
+  * to provide a generic sensitivity performance.
+  */
+-static struct bma150_cfg default_cfg __devinitdata = {
++static struct bma150_cfg default_cfg = {
+ 	.any_motion_int = 1,
+ 	.hg_int = 1,
+ 	.lg_int = 1,
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 7a75a57..633737e 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -576,7 +576,7 @@ static const struct i2c_device_id mms114_id[] = {
+ MODULE_DEVICE_TABLE(i2c, mms114_id);
  
- 		ts->gpio_pendown = pdata->gpio_pendown;
- 
-+		if (pdata->gpio_pendown_debounce)
-+			gpio_set_debounce(pdata->gpio_pendown,
-+					  pdata->gpio_pendown_debounce);
- 	} else {
- 		dev_err(&spi->dev, "no get_pendown_state nor gpio_pendown?\n");
- 		return -EINVAL;
-diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
-index c64de9d..2f694f3 100644
---- a/include/linux/spi/ads7846.h
-+++ b/include/linux/spi/ads7846.h
-@@ -46,8 +46,9 @@ struct ads7846_platform_data {
- 	u16	debounce_rep;		/* additional consecutive good readings
- 					 * required after the first two */
- 	int	gpio_pendown;		/* the GPIO used to decide the pendown
--					 * state if get_pendown_state == NULL
--					 */
-+					 * state if get_pendown_state == NULL */
-+	int	gpio_pendown_debounce;	/* platform specific debounce time for
-+					 * the gpio_pendown */
- 	int	(*get_pendown_state)(void);
- 	int	(*filter_init)	(const struct ads7846_platform_data *pdata,
- 				 void **filter_data);
+ #ifdef CONFIG_OF
+-static struct of_device_id __devinitdata mms114_dt_match[] = {
++static struct of_device_id mms114_dt_match[] = {
+ 	{ .compatible = "melfas,mms114" },
+ 	{ }
+ };
 -- 
-1.7.3.4
+1.8.0
 

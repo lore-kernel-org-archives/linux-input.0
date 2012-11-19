@@ -1,37 +1,108 @@
-From: Jan-Matthias Braun <jan_braun@gmx.net>
-Subject: hid-multitouch: eGalax Touchscreen not resuming after suspend
-Date: Mon, 19 Nov 2012 12:58:57 +0100
-Message-ID: <8159607.SRZZrRIPNF@orthese>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v4 14/14] HID: hid-multitouch: forwards MSC_TIMESTAMP
+Date: Mon, 19 Nov 2012 15:50:53 +0100
+Message-ID: <CAN+gG=F=bHdJF0=0LHGuVQ+ObHvWKJnL0GYcAEWBeD+Z-yyGSA@mail.gmail.com>
+References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1352908766-4492-15-git-send-email-benjamin.tissoires@gmail.com>
+	<20121114195852.GA14840@polaris.bitmath.org>
+	<50A40CB3.8070105@gmail.com>
+	<20121116200926.GA652@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.23]:34780 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751827Ab2KSME5 (ORCPT
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:52661 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751994Ab2KSOuz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Nov 2012 07:04:57 -0500
+	Mon, 19 Nov 2012 09:50:55 -0500
+In-Reply-To: <20121116200926.GA652@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Dear List,
+Hi Henrik,
 
-using the current (Linux v2.6.7) hid-multitouch driver I have the problem, that the touchscreen works fine after a fresh boot, but after a suspend the touchscreen does not come back to live and I am asking for assistance to get this working. As I can reproduce this problem on a standard tty device without X (see below) I am suspecting a driver problem, but I might as well be wrong.
+On Fri, Nov 16, 2012 at 9:09 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> Hi Benjamin,
+>
+>> > This was not what I envisioned from the discussion yesterday, I was
+>> > probably too vague. Firstly, the absolute time interval checked seems
+>> > to be 500 ms, which is arbitrary. Second, the wrap should probably use
+>>
+>> Not exactly. The time interval was 5s, near enough the minimum requirement for this field (6.5535 s).
+>
+> Sorry about that, but the argument remains; it should depend on logical_maximum.
 
-The device in question is the Touchscreen of a Dell Inspron Duo convertable, a USB device with id 0eef:725e (D-WAV Scientific Co., Ltd), found and registered as an input device by the kernel as
-[    6.931638] usb 4-1: Manufacturer: eGalax Inc.
-[   16.186272] input: eGalax Inc. USB TouchController as /devices/pci0000:00/0000:00:1d.2/usb4/4-1/4-1:1.0/input/input10
-[   16.187162] hid-multitouch 0003:0EEF:725E.0001: input,hiddev0,hidraw0: USB HID v2.10 Pointer
-		 [eGalax Inc. USB TouchController] on usb-0000:00:1d.2-1/input0
+I must be tired when I read your mail, I only understand now what you
+meant by logical_maximum in your first mail... sorry.
 
-I have tested the behaviour with and without X11. Without X11 I was using a standard tty and using cat on the input device.
-After boot the input device gives lot of output while touching the screen, after resume the device stays silent.
+So, totally agree, we could make this kind of thing depending on logical_max.
 
-I have this problem since moving to hid-multitouch for handling this device.
+>
+>> > (logical_maximum + 1). Third, we are still not sure whether we should
+>> > take the 'time = 0 means reset' logic literally, I think it needs to
+>> > be tested.
+>>
+>> Again, the device I have never does any reset at the first touch, it just wraps the counter.
+>> The problem is that when there is no event, we now that no events occurred since the previous timestamp, modulus 6.5535 seconds.
+>
+> So the very first win8 device we test already diverges from the win8
+> specification, how nice.
 
-I will be happy to test and supply more information. Thanks a lot for looking into this,
+hehe... well, the scan time is not as critical as can be the other
+fields. Anyway, it's fun :)
 
-Jan-Matthias Braun
+>
+> Ok, you have conviced me that comparing to a proper time makes
+> sense. However, I am not happy about using a separate time for this,
+> given that we will fill in the event time later in the
+> chain.
 
-PS: As I am not subscribed to the mailing list, please CC me.
+that may explains the delta I observed from the kernel time and the device time.
+
+>
+> In addition, it would make perfect sense to extend the validity of the
+> hardware time with the event time for longer intervals. The relative
+> error only makes a difference on milisecond intervals.
+>
+> A patch that seamlessly extends the validity of the hardware time,
+> ideally using the event time, seems like a viable solution.
+
+Just to be sure:
+When I receive scan_time, I increment timestamp with the device value.
+When not, I find out the number of counter wrap I missed with the
+kernel timer (jiffies) to get the actual device time.
+
+Is that ok for you?
+
+>
+>> > +static void mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
+>> > +                            unsigned value)
+>> > +{
+>> > +   unsigned dt;
+>> > +
+>> > +   if (value) {
+>> > +           dt = (value - td->dev_time) % (field->logical_maximum + 1);
+>>
+>> The curious thing is that this is not working on my kernel:
+>
+> Oups, I suspect (value - td->dev_time) needs to be explicitly converted to unsigned.
+
+I can't remember if I tried this one, but I'll try to make it one line
+in the next version.
+
+>
+>> I don't understand the meaning of adding !td->timestamp. :/
+>
+> With the definition that timestamp == 0 means an unknown interval, we
+> do not want to send that value by accident.
+
+ok, makes sense.
+
+Cheers,
+Benjamin
+
+>
+> Thanks,
+> Henrik

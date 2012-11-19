@@ -1,61 +1,37 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification implementation
-Date: Mon, 19 Nov 2012 11:23:49 +0100
-Message-ID: <CAN+gG=FurTLa8jJpMti6+cp60RZ6+TB7HxNfQMX1P20cFcGWHA@mail.gmail.com>
-References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
-	<alpine.LNX.2.00.1211191106020.20577@pobox.suse.cz>
+From: Jan-Matthias Braun <jan_braun@gmx.net>
+Subject: hid-multitouch: eGalax Touchscreen not resuming after suspend
+Date: Mon, 19 Nov 2012 12:58:57 +0100
+Message-ID: <8159607.SRZZrRIPNF@orthese>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1211191106020.20577@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout-de.gmx.net ([213.165.64.23]:34780 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751827Ab2KSME5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Nov 2012 07:04:57 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Mon, Nov 19, 2012 at 11:06 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Mon, 12 Nov 2012, Benjamin Tissoires wrote:
->
->> Microsoft published the protocol specification of HID over i2c:
->> http://msdn.microsoft.com/en-us/library/windows/hardware/hh852380.aspx
->>
->> This patch introduces an implementation of this protocol.
->>
->> This implementation does not includes the ACPI part of the specification.
->> This will come when ACPI 5.0 devices enumeration will be available.
->>
->> Once the ACPI part is done, OEM will not have to declare HID over I2C
->> devices in their platform specific driver.
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
->> ---
->>
->> Hi Guys,
->>
->> here is the v3 of the HID over I2C driver.
->>
->> Changes in v3:
->> * fix i2c_hid_alloc_buffers when allocation failed
->> * fix error messages to be more "human"
->> * fix i2c_hid_set_report as it didn't followed the protocol
->> * remove i2c_hid_write_out_report (hid-core doesn't present the callback that
->> could use this feature of the protocol)
->> * reject HID_OUTPUT_REPORT in i2c_hid_get_raw_report
->> * fix output report id in i2c_hid_output_raw_report and reject HID_INPUT_REPORT
->
-> Benjamin,
->
-> I am now queuing this in for-3.8/i2c-hid branch, so please send any
-> potential followup patches on top of that.
+Dear List,
 
-Ok, thanks a lot Jiri.
+using the current (Linux v2.6.7) hid-multitouch driver I have the problem, that the touchscreen works fine after a fresh boot, but after a suspend the touchscreen does not come back to live and I am asking for assistance to get this working. As I can reproduce this problem on a standard tty device without X (see below) I am suspecting a driver problem, but I might as well be wrong.
 
-Cheers,
-Benjamin
+The device in question is the Touchscreen of a Dell Inspron Duo convertable, a USB device with id 0eef:725e (D-WAV Scientific Co., Ltd), found and registered as an input device by the kernel as
+[    6.931638] usb 4-1: Manufacturer: eGalax Inc.
+[   16.186272] input: eGalax Inc. USB TouchController as /devices/pci0000:00/0000:00:1d.2/usb4/4-1/4-1:1.0/input/input10
+[   16.187162] hid-multitouch 0003:0EEF:725E.0001: input,hiddev0,hidraw0: USB HID v2.10 Pointer
+		 [eGalax Inc. USB TouchController] on usb-0000:00:1d.2-1/input0
 
->
-> Thanks a lot for all your work on this so far.
->
-> --
-> Jiri Kosina
-> SUSE Labs
+I have tested the behaviour with and without X11. Without X11 I was using a standard tty and using cat on the input device.
+After boot the input device gives lot of output while touching the screen, after resume the device stays silent.
+
+I have this problem since moving to hid-multitouch for handling this device.
+
+I will be happy to test and supply more information. Thanks a lot for looking into this,
+
+Jan-Matthias Braun
+
+PS: As I am not subscribed to the mailing list, please CC me.

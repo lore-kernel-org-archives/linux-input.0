@@ -1,37 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] input: Cypress PS/2 Trackpad link into psmouse-base
-Date: Mon, 19 Nov 2012 15:48:01 -0800
-Message-ID: <20121119234801.GB21922@core.coreip.homeip.net>
-References: <1353367837-18229-1-git-send-email-kamal@canonical.com>
- <1353367837-18229-3-git-send-email-kamal@canonical.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
+Date: Mon, 19 Nov 2012 20:56:12 -0800
+Message-ID: <50AB0D6C.9040003@synaptics.com>
+References: <1353124734-16803-1-git-send-email-cheiny@synaptics.com> <1353124734-16803-3-git-send-email-cheiny@synaptics.com> <20121117215415.GA5624@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1353367837-18229-3-git-send-email-kamal@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kamal Mostafa <kamal@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Cypress Semiconductor Corporation <customercare@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx3.synaptics.com ([12.239.217.85]:62364 "EHLO
+	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750770Ab2KTE4O (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Nov 2012 23:56:14 -0500
+In-Reply-To: <20121117215415.GA5624@kroah.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-Hi Kamal,
+On 11/17/2012 01:54 PM, Greg Kroah-Hartman wrote:
+> On Fri, Nov 16, 2012 at 07:58:50PM -0800, Christopher Heiny wrote:
+>> +static void release_rmidev_device(struct device *dev)
+>> +{
+>> +	device_unregister(dev);
+>> +}
+>
+> You just leaked memory here, right?
+>
+> Also, you already unregistered the device, otherwise this function would
+> have never been called, so you just ended up in a loop?
 
-On Mon, Nov 19, 2012 at 03:30:37PM -0800, Kamal Mostafa wrote:
-> @@ -321,6 +323,13 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
->  	if (psmouse->state <= PSMOUSE_RESYNCING)
->  		goto out;
->  
-> +	/* For Cypress Trackpad to read some special data more than 6 bytes. */
-> +	if (psmouse->state == PSMOUSE_CMD_CYTP) {
-> +		psmouse->packet[psmouse->pktcnt++] = data;
-> +		wake_up(&psmouse->ps2dev.wait);
-> +		goto out;
-> +	}
+Roger.  We'll fix that.
 
-Instead of doing this have you tried extending size of cmdbuf in ps2dev
-structure to 8?
 
-Thanks.
+> Have you ever tried removing a device?  Are you sure it's working
+> properly?
 
--- 
-Dmitry
+Hmmmm.  If it leads to the loop you mention above, then the test I'm 
+using must not be doing what I thought it was.  I'll fix that, too.
+
+
+>> +EXPORT_SYMBOL(rmi_register_phys_device);
+>
+> Just curious, but why not EXPORT_SYMBOL_GPL() on all of these new
+> symbols you are creating?
+
+We'll change that.
+
+				Thanks very much!
+						Chris

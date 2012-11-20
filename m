@@ -1,54 +1,136 @@
 From: Kamal Mostafa <kamal@canonical.com>
-Subject: Re: [PATCH 2/2] input: Cypress PS/2 Trackpad link into psmouse-base
-Date: Tue, 20 Nov 2012 13:28:49 -0800
-Message-ID: <1353446929.28318.43.camel@fourier>
-References: <1353367837-18229-1-git-send-email-kamal@canonical.com>
-	 <1353367837-18229-3-git-send-email-kamal@canonical.com>
-	 <20121119234801.GB21922@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v2 3/3] input: Cypress PS/2 Trackpad link into psmouse-base
+Date: Tue, 20 Nov 2012 13:30:10 -0800
+Message-ID: <1353447010-4852-4-git-send-email-kamal@canonical.com>
+References: <1353447010-4852-1-git-send-email-kamal@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:53403 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:53415 "EHLO
 	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753345Ab2KTV2q (ORCPT
+	with ESMTP id S1753345Ab2KTVaE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Nov 2012 16:28:46 -0500
-In-Reply-To: <20121119234801.GB21922@core.coreip.homeip.net>
+	Tue, 20 Nov 2012 16:30:04 -0500
+In-Reply-To: <1353447010-4852-1-git-send-email-kamal@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Cypress Semiconductor Corporation <customercare@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>, Dudley Du <dudl@cypress.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+Cc: David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Dudley Du <dudl@cypress.com>, Cypress Semiconductor Corporation <customercare@cypress.com>, Kamal Mostafa <kamal@canonical.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
 
-On Mon, 2012-11-19 at 15:48 -0800, Dmitry Torokhov wrote:
-> Hi Kamal,
-> 
-> On Mon, Nov 19, 2012 at 03:30:37PM -0800, Kamal Mostafa wrote:
-> > @@ -321,6 +323,13 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
-> >  	if (psmouse->state <= PSMOUSE_RESYNCING)
-> >  		goto out;
-> >  
-> > +	/* For Cypress Trackpad to read some special data more than 6 bytes. */
-> > +	if (psmouse->state == PSMOUSE_CMD_CYTP) {
-> > +		psmouse->packet[psmouse->pktcnt++] = data;
-> > +		wake_up(&psmouse->ps2dev.wait);
-> > +		goto out;
-> > +	}
-> 
-> Instead of doing this have you tried extending size of cmdbuf in ps2dev
-> structure to 8?
-> 
+From: Cypress Semiconductor Corporation <customercare@cypress.com>
 
-Thanks for suggesting this Dmitry.  I have now done that (and modified
-cypress_ps2.c to set psmouse->state to the common PSMOUSE_CMD_MODE
-instead).  This makes the psmouse-base linkage entirely clean, I
-think...
+Original code contributed by Cypress Semiconductor Corporation,
+modified by Kamal Mostafa.
 
-And it *almost* works!  (Multitouch no longer works after suspend now).
+BugLink: http://launchpad.net/bugs/978807
 
-Please see the forthcoming [PATCH v2] set, and thanks again for your
-help.
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+Signed-off-by: Mario Limonciello <mario_limonciello@dell.com>
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+---
+ drivers/input/mouse/Kconfig        |   10 ++++++++++
+ drivers/input/mouse/Makefile       |    1 +
+ drivers/input/mouse/psmouse-base.c |   32 ++++++++++++++++++++++++++++++++
+ drivers/input/mouse/psmouse.h      |    1 +
+ 4 files changed, 44 insertions(+)
 
- -Kamal
-
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index cd6268c..88954dd 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -68,6 +68,16 @@ config MOUSE_PS2_SYNAPTICS
+ 
+ 	  If unsure, say Y.
+ 
++config MOUSE_PS2_CYPRESS
++       bool "Cypress PS/2 mouse protocol extension" if EXPERT
++       default y
++       depends on MOUSE_PS2
++       help
++         Say Y here if you have a Cypress PS/2 Trackpad connected to
++         your system.
++
++         If unsure, say Y.
++
+ config MOUSE_PS2_LIFEBOOK
+ 	bool "Fujitsu Lifebook PS/2 mouse protocol extension" if EXPERT
+ 	default y
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+index 46ba755..323e352 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -32,3 +32,4 @@ psmouse-$(CONFIG_MOUSE_PS2_LIFEBOOK)	+= lifebook.o
+ psmouse-$(CONFIG_MOUSE_PS2_SENTELIC)	+= sentelic.o
+ psmouse-$(CONFIG_MOUSE_PS2_TRACKPOINT)	+= trackpoint.o
+ psmouse-$(CONFIG_MOUSE_PS2_TOUCHKIT)	+= touchkit_ps2.o
++psmouse-$(CONFIG_MOUSE_PS2_CYPRESS)	+= cypress_ps2.o
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 22fe254..cff065f 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -34,6 +34,7 @@
+ #include "touchkit_ps2.h"
+ #include "elantech.h"
+ #include "sentelic.h"
++#include "cypress_ps2.h"
+ 
+ #define DRIVER_DESC	"PS/2 mouse driver"
+ 
+@@ -759,6 +760,28 @@ static int psmouse_extensions(struct psmouse *psmouse,
+ 	}
+ 
+ /*
++ * Try Cypress Trackpad.
++ * Must try it before Finger Sensing Pad because Finger Sensing Pad probe
++ * upsets some modules of Cypress Trackpads.
++ */
++	if (max_proto > PSMOUSE_IMEX &&
++			cypress_detect(psmouse, set_properties) == 0) {
++		if (cypress_supported()) {
++			if (cypress_init(psmouse) == 0)
++				return PSMOUSE_CYPRESS;
++
++			/*
++			 * Finger Sensing Pad probe upsets some modules of
++			 * Cypress Trackpad, must avoid Finger Sensing Pad
++			 * probe if Cypress Trackpad device detected.
++			 */
++			return PSMOUSE_PS2;
++		}
++
++		max_proto = PSMOUSE_IMEX;
++	}
++
++/*
+  * Try ALPS TouchPad
+  */
+ 	if (max_proto > PSMOUSE_IMEX) {
+@@ -896,6 +919,15 @@ static const struct psmouse_protocol psmouse_protocols[] = {
+ 		.alias		= "thinkps",
+ 		.detect		= thinking_detect,
+ 	},
++#ifdef CONFIG_MOUSE_PS2_CYPRESS
++	{
++		.type		= PSMOUSE_CYPRESS,
++		.name		= "CyPS/2",
++		.alias		= "cypress",
++		.detect		= cypress_detect,
++		.init		= cypress_init,
++	},
++#endif
+ 	{
+ 		.type		= PSMOUSE_GENPS,
+ 		.name		= "GenPS/2",
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index fe1df23..2f0b39d 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -95,6 +95,7 @@ enum psmouse_type {
+ 	PSMOUSE_ELANTECH,
+ 	PSMOUSE_FSP,
+ 	PSMOUSE_SYNAPTICS_RELATIVE,
++	PSMOUSE_CYPRESS,
+ 	PSMOUSE_AUTO		/* This one should always be last */
+ };
+ 
+-- 
+1.7.10.4
 

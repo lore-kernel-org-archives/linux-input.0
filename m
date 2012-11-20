@@ -1,51 +1,44 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 408/493] input: remove use of __devexit
-Date: Tue, 20 Nov 2012 15:49:22 +0900
-Message-ID: <20121120064920.GQ10560@opensource.wolfsonmicro.com>
-References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
- <1353349642-3677-408-git-send-email-wfp5p@virginia.edu>
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH 3/3] input:stmpe-ts:Initialize the phys field for input device
+Date: Tue, 20 Nov 2012 12:28:08 +0530
+Message-ID: <CAKohpo=NyLCzu+1urTFTusigR7X9+jZy_z=ndgjyu4dOSOnAeg@mail.gmail.com>
+References: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
+	<94587f7ddc4cf5503a1824df4c1fb53e553881b7.1352474824.git.viresh.kumar@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="glwmnIOgU1tcuP7N"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1353349642-3677-408-git-send-email-wfp5p@virginia.edu>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Bill Pemberton <wfp5p@virginia.edu>
-Cc: gregkh@linuxfoundation.org, Kukjin Kim <kgene.kim@samsung.com>, Russell King <linux@arm.linux.org.uk>, device-drivers-devel@blackfin.uclinux.org, Wan ZongShun <mcuos.com@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, patches@opensource.wolfsonmicro.com, Miloslav Trmac <mitr@volny.cz>, linux-samsung-soc@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, Pau Oliva Fora <pof@eslack.org>, Javier Martinez Canillas <javier@dowhile0.org>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ia0-f174.google.com ([209.85.210.174]:61287 "EHLO
+	mail-ia0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751379Ab2KTG6J (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Nov 2012 01:58:09 -0500
+Received: by mail-ia0-f174.google.com with SMTP id y25so4014845iay.19
+        for <linux-input@vger.kernel.org>; Mon, 19 Nov 2012 22:58:09 -0800 (PST)
+In-Reply-To: <94587f7ddc4cf5503a1824df4c1fb53e553881b7.1352474824.git.viresh.kumar@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, Vipul Kumar Samar <vipulkumar.samar@st.com>
 
+On 9 November 2012 20:57, Viresh Kumar <viresh.kumar@linaro.org> wrote:
+> From: Vipul Kumar Samar <vipulkumar.samar@st.com>
+>
+> Signed-off-by: Vipul Kumar Samar <vipulkumar.samar@st.com>
+> ---
+>  drivers/input/touchscreen/stmpe-ts.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+> index 66b932e..9896095 100644
+> --- a/drivers/input/touchscreen/stmpe-ts.c
+> +++ b/drivers/input/touchscreen/stmpe-ts.c
+> @@ -317,6 +317,7 @@ static int __devinit stmpe_input_probe(struct platform_device *pdev)
+>                 return ret;
+>
+>         idev->name = STMPE_TS_NAME;
+> +       idev->phys = STMPE_TS_NAME"/input0";
+>         idev->id.bustype = BUS_I2C;
+>         idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+>         idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
 
---glwmnIOgU1tcuP7N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Mon, Nov 19, 2012 at 01:25:57PM -0500, Bill Pemberton wrote:
-> CONFIG_HOTPLUG is going away as an option so __devexit is no
-> longer needed.
-
-Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-
---glwmnIOgU1tcuP7N
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQqyfqAAoJELSic+t+oim9sLMQAI46bZMkpSRacdpHfcoEQLxe
-aVOkus0nYCr4GygsorxRKciw0iYA/3Q44NQn8X8EFF7e8b1LhXOM0mRnHcEHBf8h
-4i5wQ49Nh5xMNcqVbHj6flPulYmMxRwWLx+heKs9YaxEbOr7NNF2l9GtEGnpCDDt
-Zk5d/2fCC/uCv1gNfDzGLSBUXD6KeToTTLADTVxYDISYuHRlf8huAncFIhCh/jAC
-1AKjk4nLx5WQ6IwvliRjgEppShbk/tFMyBd1hFJ2cgXHXTzcElS27rt2dDoBJINY
-dtKOW4Tr3r1Mq5TcWxo83PLYDBu4dXXGbsKW+EOu66vxEMcrKuFgGj/AkZaXs+ZY
-gBNPGQtWbS3ZQOakS19O4jUc9QmtBGOek+oPAAszjvbfgVSYrrfgZ69E1Bwbuo7T
-icTKp22LBPm1a9HFiN/ofcbUBE1NRDcdGQTicXlY40ROSpQtE9n+6NBtznKRLi36
-3GZn2kKOZSb+zd8eDHkVDTwSVYMWUSpjWnSSR+g6EgPbzHFip6v4NDGrWdrxYNgJ
-NQRHizDRL1pKWVrR5a520KEOaGtg1eRd+5q5lIUuO6xZA1mOICD1t+Li3dX2+n98
-zqBnzvTcRFlr7E5cJvSYkFYEou4kwvZSmpXXV3+8N4oWuNh4o7Jo99bYLk8KFhEF
-8ZWii9Vz9PT3QFum2N3M
-=TTSn
------END PGP SIGNATURE-----
-
---glwmnIOgU1tcuP7N--
+Missed this one too?

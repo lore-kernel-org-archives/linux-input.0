@@ -1,47 +1,54 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 1/1] input: added driver support for the t5400 pressure sensor.
-Date: Tue, 20 Nov 2012 21:21:42 +0000
-Message-ID: <201211202121.42414.arnd@arndb.de>
-References: <1353445355-2517-1-git-send-email-stefan.nilsson@unixphere.com> <1353445355-2517-2-git-send-email-stefan.nilsson@unixphere.com>
+From: Kamal Mostafa <kamal@canonical.com>
+Subject: Re: [PATCH 2/2] input: Cypress PS/2 Trackpad link into psmouse-base
+Date: Tue, 20 Nov 2012 13:28:49 -0800
+Message-ID: <1353446929.28318.43.camel@fourier>
+References: <1353367837-18229-1-git-send-email-kamal@canonical.com>
+	 <1353367837-18229-3-git-send-email-kamal@canonical.com>
+	 <20121119234801.GB21922@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:65144 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753129Ab2KTVVp (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:53403 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753345Ab2KTV2q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Nov 2012 16:21:45 -0500
-In-Reply-To: <1353445355-2517-2-git-send-email-stefan.nilsson@unixphere.com>
+	Tue, 20 Nov 2012 16:28:46 -0500
+In-Reply-To: <20121119234801.GB21922@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Nilsson <stefan.nilsson@unixphere.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, rob.herring@calxeda.com, matthias.schmidt@epcos.com, armin.schober@epcos.com, eric.andersson@unixphere.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Cypress Semiconductor Corporation <customercare@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>, Dudley Du <dudl@cypress.com>
 
-On Tuesday 20 November 2012, Stefan Nilsson wrote:
-> +Optional properties:
-> +- gpio-irq: platform gpio pin connected to the t5400 irq pin
-> +- op-mode: operation modes to be set according to enum t5400_op_mode in t5400.h
-> +
-> +Example of having the t5400 on an i2c bus:
-> +
-> +pressure@77 {
-> +       compatible = "tdk-epcos,t5400";
-> +       reg = <0x77>;
-> +       gpio-irq = <18>;
-> +       op-mode = <1>;
+On Mon, 2012-11-19 at 15:48 -0800, Dmitry Torokhov wrote:
+> Hi Kamal,
+> 
+> On Mon, Nov 19, 2012 at 03:30:37PM -0800, Kamal Mostafa wrote:
+> > @@ -321,6 +323,13 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
+> >  	if (psmouse->state <= PSMOUSE_RESYNCING)
+> >  		goto out;
+> >  
+> > +	/* For Cypress Trackpad to read some special data more than 6 bytes. */
+> > +	if (psmouse->state == PSMOUSE_CMD_CYTP) {
+> > +		psmouse->packet[psmouse->pktcnt++] = data;
+> > +		wake_up(&psmouse->ps2dev.wait);
+> > +		goto out;
+> > +	}
+> 
+> Instead of doing this have you tried extending size of cmdbuf in ps2dev
+> structure to 8?
+> 
 
-The way that the "gpio-irq" is specified doesn't look right. If you want to specify
-a gpio line, use the gpio binding. If you just want to specify an interrupt, use the
-"interrupts" property with a proper interrupt-parent.
+Thanks for suggesting this Dmitry.  I have now done that (and modified
+cypress_ps2.c to set psmouse->state to the common PSMOUSE_CMD_MODE
+instead).  This makes the psmouse-base linkage entirely clean, I
+think...
 
-> +       int gpio-irq;
-> ...
-> +       if (t5400->gpio-irq > 0) {
-> +               error = request_threaded_irq(t5400->gpio-irq, NULL,
+And it *almost* works!  (Multitouch no longer works after suspend now).
+
+Please see the forthcoming [PATCH v2] set, and thanks again for your
+help.
+
+ -Kamal
 
 
-I'm pretty sure this doesn't even compile. '-' is not part of an identifier in C.
-
-	Arnd

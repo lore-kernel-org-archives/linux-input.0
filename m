@@ -1,30 +1,54 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 3/3] input:stmpe-ts:Initialize the phys field for input device
-Date: Tue, 20 Nov 2012 13:27:12 +0530
-Message-ID: <CAKohpo=bLgNarr6dx9=aLRqCCUF61rGzpCtbGc9B-1z-nywV+Q@mail.gmail.com>
-References: <3d6f34ca5960203a5efb761f4d56b4e10ee24827.1352474824.git.viresh.kumar@linaro.org>
-	<94587f7ddc4cf5503a1824df4c1fb53e553881b7.1352474824.git.viresh.kumar@linaro.org>
-	<CAKohpo=NyLCzu+1urTFTusigR7X9+jZy_z=ndgjyu4dOSOnAeg@mail.gmail.com>
-	<20121120074744.GA28115@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/2] ARM: OMAP: ads7846: fix pendown debounce setting
+Date: Tue, 20 Nov 2012 00:21:36 -0800
+Message-ID: <20121120082136.GB28115@core.coreip.homeip.net>
+References: <1353341038-14381-1-git-send-email-grinberg@compulab.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f174.google.com ([209.85.223.174]:38913 "EHLO
-	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751513Ab2KTH5N (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Nov 2012 02:57:13 -0500
-Received: by mail-ie0-f174.google.com with SMTP id k13so8145112iea.19
-        for <linux-input@vger.kernel.org>; Mon, 19 Nov 2012 23:57:12 -0800 (PST)
-In-Reply-To: <20121120074744.GA28115@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1353341038-14381-1-git-send-email-grinberg@compulab.co.il>
+Sender: linux-omap-owner@vger.kernel.org
+To: Igor Grinberg <grinberg@compulab.co.il>
+Cc: Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, Vipul Kumar Samar <vipulkumar.samar@st.com>
 
-On 20 November 2012 13:17, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> Nope, it's commit b8d52e2b9f7eb43075e6ef4e23f5e51e70548f11
+On Mon, Nov 19, 2012 at 06:03:56PM +0200, Igor Grinberg wrote:
+> Commit 97ee9f01 (ARM: OMAP: fix the ads7846 init code) have enabled the
+> pendown GPIO debounce time setting by the below sequence:
+> 
+>   gpio_request_one()
+>   gpio_set_debounce()
+>   gpio_free()
+> 
+> It also revealed a bug in the OMAP GPIO handling code which prevented
+> the GPIO debounce clock to be disabled and CORE transition to low power
+> states.
+> 
+> Commit c9c55d9 (gpio/omap: fix off-mode bug: clear debounce settings on
+> free/reset) fixes the OMAP GPIO handling code by making sure that the
+> GPIO debounce clock gets disabled if no GPIO is requested from current
+> bank.
+> 
+> While fixing the OMAP GPIO handling code (in the right way), the above
+> commit makes the gpio_request->set_debounce->free sequence invalid as
+> after freeing the GPIO, the debounce settings are lost.
+> 
+> This patch set:
+> 1) Adds the pendown GPIO debounce time setting to the platform data
+>    structure of the ads7846 driver.
+> 2) Fixes the OMAP platform code to pass the debounce time value
+>    to the driver instead of handling it by itself.
+> 
+> Igor Grinberg (2):
+>   ads7846: enable pendown GPIO debounce time setting
+>   ARM: OMAP: ads7846: fix pendown debounce setting
+> 
 
-Sorry, my fault.
-I searched for Viresh in git log of your master and next branches. And i
-didn't signed-off this patch.
+Makes sense to me. Tony, I have some stuff to push for 3.7 final, mind
+if I pick OMAP change as well?
+
+Thanks.
+
+-- 
+Dmitry

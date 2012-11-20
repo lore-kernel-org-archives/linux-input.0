@@ -1,51 +1,56 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
-Date: Mon, 19 Nov 2012 20:56:12 -0800
-Message-ID: <50AB0D6C.9040003@synaptics.com>
-References: <1353124734-16803-1-git-send-email-cheiny@synaptics.com> <1353124734-16803-3-git-send-email-cheiny@synaptics.com> <20121117215415.GA5624@kroah.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 230/493] input: remove use of __devinit
+Date: Tue, 20 Nov 2012 15:45:18 +0900
+Message-ID: <20121120064517.GM10560@opensource.wolfsonmicro.com>
+References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
+ <1353349642-3677-230-git-send-email-wfp5p@virginia.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="m+utxuhC6KVTvgNz"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:62364 "EHLO
-	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750770Ab2KTE4O (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:39091 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750952Ab2KTGpj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Nov 2012 23:56:14 -0500
-In-Reply-To: <20121117215415.GA5624@kroah.com>
+	Tue, 20 Nov 2012 01:45:39 -0500
+Content-Disposition: inline
+In-Reply-To: <1353349642-3677-230-git-send-email-wfp5p@virginia.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
-
-On 11/17/2012 01:54 PM, Greg Kroah-Hartman wrote:
-> On Fri, Nov 16, 2012 at 07:58:50PM -0800, Christopher Heiny wrote:
->> +static void release_rmidev_device(struct device *dev)
->> +{
->> +	device_unregister(dev);
->> +}
->
-> You just leaked memory here, right?
->
-> Also, you already unregistered the device, otherwise this function would
-> have never been called, so you just ended up in a loop?
-
-Roger.  We'll fix that.
+To: Bill Pemberton <wfp5p@virginia.edu>
+Cc: gregkh@linuxfoundation.org, Kukjin Kim <kgene.kim@samsung.com>, Russell King <linux@arm.linux.org.uk>, device-drivers-devel@blackfin.uclinux.org, Wan ZongShun <mcuos.com@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, patches@opensource.wolfsonmicro.com, Miloslav Trmac <mitr@volny.cz>, linux-samsung-soc@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, Pau Oliva Fora <pof@eslack.org>, Javier Martinez Canillas <javier@dowhile0.org>, linux-arm-kernel@lists.infradead.org
 
 
-> Have you ever tried removing a device?  Are you sure it's working
-> properly?
+--m+utxuhC6KVTvgNz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hmmmm.  If it leads to the loop you mention above, then the test I'm 
-using must not be doing what I thought it was.  I'll fix that, too.
+On Mon, Nov 19, 2012 at 01:22:59PM -0500, Bill Pemberton wrote:
+> CONFIG_HOTPLUG is going away as an option so __devinit is no longer
+> needed.
 
+Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 
->> +EXPORT_SYMBOL(rmi_register_phys_device);
->
-> Just curious, but why not EXPORT_SYMBOL_GPL() on all of these new
-> symbols you are creating?
+--m+utxuhC6KVTvgNz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-We'll change that.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-				Thanks very much!
-						Chris
+iQIcBAEBAgAGBQJQqyboAAoJELSic+t+oim9uY8QAIudRmqeL40YM2LC2yVLZKLt
+rvC0Q1e0GPgpMiFkNxMUKqybssFO8ns7gfQJTfBT+aJluqpiwjylwsNcNNDWBl+m
+11gHGBL7TzKQQsNLgoArwwyn3YFOO9vv4Fvtqidak16EAegD7Hj06OZ9j78amsFW
+ztaaQXcKo+RL1yo1/1EyHlAw5E/IB3nxjF5ABwTTUWb5luoySFC3KbD/h+MYFWYK
+ZccJ80MeDfR+1HaQ0kWKs3ajLhRqoeRpYzzIXAwSXoZLRjEvjhmUoDLgRKgeRVh1
+1gOOLdILngXNncLH/YHd8iQdE5lu2eZGDYlZXgQQH1sqtKGxqguXt80ePK89SbPV
+hKdPryz3DbzLJgDbTY7C60ypkIkWBKcu0wy+EQ3YXmJ5Toum7/TNiCwtuLWIecpJ
+ZtiwqcIK43ALgpn+qA1Ene2BWvSasPaurDbiTpQhlbXJwBYOGMk2GIHJLg+BVvOL
+7yDCyYoeO0Y1Oae8LPXCbJqY/Y6TTFUtW4yIBf5xHV5P32Y7G2+sqOQu+gGtvExY
+McpVuJJyn9k+MNYYyswvKBmNh2JO4YuUztL9wTsl+IH/VjOmvuwAUGt0MMkLCobD
+nCdx2IPm2kZrne0szI2/+nXJ6JB/JVulgS2RzvoLtc0dafPTEpcJBa2HSrj3Hs0h
+Sv4whMoCV1RSoHdd5nfD
+=pa+/
+-----END PGP SIGNATURE-----
+
+--m+utxuhC6KVTvgNz--

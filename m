@@ -1,67 +1,98 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: hid-multitouch: eGalax Touchscreen not resuming after suspend
-Date: Tue, 20 Nov 2012 13:47:23 +0100
-Message-ID: <CAN+gG=Ho7c6B27B5Lqo2T-qKT8PQH1Xr+kLVnr1nCOStPatfqA@mail.gmail.com>
-References: <8159607.SRZZrRIPNF@orthese>
+From: Ramalingam C <ramalingamc@nvidia.com>
+Subject: RE: [PATCH v3] i2c-hid: introduce HID over i2c specification
+ implementation
+Date: Tue, 20 Nov 2012 19:58:44 +0530
+Message-ID: <EC245B9844DE6242B3F3C3BED1ECD10F6D5A21CAC0@BGMAIL02.nvidia.com>
+References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1211151450140.15877@pobox.suse.cz>
+	<CAN+gG=FeNBzdbBcH6uSWB_rUOS6PjyjpVSuY3b--g1mXo17fXA@mail.gmail.com>
+ <CAN+gG=Gm2JXur1HsL=-EEpahGZjqG5BQqoR6hpO8Dvsah0XyVg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:54360 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753627Ab2KTMrY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Nov 2012 07:47:24 -0500
-Received: by mail-lb0-f174.google.com with SMTP id gi11so1794104lbb.19
-        for <linux-input@vger.kernel.org>; Tue, 20 Nov 2012 04:47:23 -0800 (PST)
-In-Reply-To: <8159607.SRZZrRIPNF@orthese>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAN+gG=Gm2JXur1HsL=-EEpahGZjqG5BQqoR6hpO8Dvsah0XyVg@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, "fabien.andre@gmail.com" <fabien.andre@gmail.com>, "scott.liu@emc.com.tw" <scott.liu@emc.com.tw>, Jean Delvare <khali@linux-fr.org>, JJ Ding <jj_ding@emc.com.tw>, Jiri Slaby <jslaby@suse.cz>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jan-Matthias Braun <jan_braun@gmx.net>
-Cc: linux-input@vger.kernel.org
 
-Hi Jan-Matthias,
+Hi,
 
-On Mon, Nov 19, 2012 at 12:58 PM, Jan-Matthias Braun <jan_braun@gmx.net> wrote:
-> Dear List,
->
-> using the current (Linux v2.6.7) hid-multitouch driver I have the problem, that the touchscreen works fine after a fresh boot, but after a suspend the touchscreen does not come back to live and I am asking for assistance to get this working. As I can reproduce this problem on a standard tty device without X (see below) I am suspecting a driver problem, but I might as well be wrong.
+> -----Original Message-----
+> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
+> Sent: Friday, November 16, 2012 8:26 PM
+> To: Jiri Kosina; Ramalingam C
+> Cc: Dmitry Torokhov; Stephane Chatty; fabien.andre@gmail.com;
+> scott.liu@emc.com.tw; Jean Delvare; JJ Ding; Jiri Slaby; Shubhrajyoti Datta;
+> linux-i2c@vger.kernel.org; linux-input@vger.kernel.org; linux-
+> kernel@vger.kernel.org
+> Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification
+> implementation
+> 
+> On Thu, Nov 15, 2012 at 3:04 PM, Benjamin Tissoires
+> <benjamin.tissoires@gmail.com> wrote:
+> > On Thu, Nov 15, 2012 at 2:51 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> >> On Mon, 12 Nov 2012, Benjamin Tissoires wrote:
+> >>
+> >>> Microsoft published the protocol specification of HID over i2c:
+> >>> http://msdn.microsoft.com/en-
+> us/library/windows/hardware/hh852380.as
+> >>> px
+> >>>
+> >>> This patch introduces an implementation of this protocol.
+> >>>
+> >>> This implementation does not includes the ACPI part of the specification.
+> >>> This will come when ACPI 5.0 devices enumeration will be available.
+> >>>
+> >>> Once the ACPI part is done, OEM will not have to declare HID over
+> >>> I2C devices in their platform specific driver.
+> >>>
+> >>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> >>
+> >> Out of curiosity -- has this been tested on a real device (is there
+> >> any such device available anyway?), or is that just the
+> >> implementation of the defined protocol?
+> >
+> > It has been tested on an ELAN microelectronics device (a prototype),
+> > on an odroid-x board. That's how we figure out the bug in the
+> > set_report command.
+> > I think we manage to test all main features of the protocol
+> > (get_report, irqs, hid descriptor, report descriptors, set_report).
+> >
+> > I'm currently waiting for a Synaptics touchpad to check if it's also
+> > working with their devices.
+> >
+> > The thing is that HID over i2c for x86 platform will presumably
+> > require the Haswell platform from Intel (we need ACPI 5 for
+> > enumeration), but it would be very nice to get this in the kernel just
+> > before hardware arrive on the market :) However, I won't be surprise
+> > if android OEMs also start using this specification because it won't
+> > force them to write kernel drivers...
+> 
+> And as a complement, Ramalingam tested it for Nvidia on an early NVIDIA's
+> Tegra reference board for PISMO which is registered at
+> http://www.arm.linux.org.uk/developer/machines/list.php?id=4439 , with a
+> HID over i2c keyboard.
+> He is up to test also his Synaptics touchpad.
 
-I assume you are talking about v3.6.7...
+I have tested with Synaptics trackpad. It is working fine. Thank you Benjamin.
 
->
-> The device in question is the Touchscreen of a Dell Inspron Duo convertable, a USB device with id 0eef:725e (D-WAV Scientific Co., Ltd), found and registered as an input device by the kernel as
-> [    6.931638] usb 4-1: Manufacturer: eGalax Inc.
-> [   16.186272] input: eGalax Inc. USB TouchController as /devices/pci0000:00/0000:00:1d.2/usb4/4-1/4-1:1.0/input/input10
-> [   16.187162] hid-multitouch 0003:0EEF:725E.0001: input,hiddev0,hidraw0: USB HID v2.10 Pointer
->                  [eGalax Inc. USB TouchController] on usb-0000:00:1d.2-1/input0
->
-> I have tested the behaviour with and without X11. Without X11 I was using a standard tty and using cat on the input device.
-> After boot the input device gives lot of output while touching the screen, after resume the device stays silent.
+Thanks and Regards,
+Ramalingam C
 
-strange. I have tested the procedure with the eGalax 0x72FA I got, and
-I'm not seeing this problem on a 3.6 kernel.
-
-Is the config symbol CONFIG_PM set to "y" in your .config file?
-
-Also, can you try to rmmod / modprobe hid-multitouch when the device
-is not responding and see if this solves things.
-
->
-> I have this problem since moving to hid-multitouch for handling this device.
-
-What kind of driver did you use before?
-
-Cheers,
-Benjamin
-
->
-> I will be happy to test and supply more information. Thanks a lot for looking into this,
->
-> Jan-Matthias Braun
->
-> PS: As I am not subscribed to the mailing list, please CC me.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> Cheers,
+> Benjamin
+> 
+> >
+> > Cheers,
+> > Benjamin
+> >
+> >>
+> >> Thanks,
+> >>
+> >> --
+> >> Jiri Kosina
+> >> SUSE Labs

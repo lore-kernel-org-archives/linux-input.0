@@ -1,40 +1,51 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] HID: i2c-hid: fix memory leak during probe
-Date: Tue, 20 Nov 2012 17:09:40 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211201706300.4609@pobox.suse.cz>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: i2c-hid: fix memory leak during probe
+Date: Tue, 20 Nov 2012 17:34:04 +0100
+Message-ID: <CAN+gG=Fy4ixGRXJSF3bXCGWTYxMiVuO7xbNAQzx_pjUoyhGbVA@mail.gmail.com>
+References: <alpine.LNX.2.00.1211201706300.4609@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58633 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753002Ab2KTQJp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Nov 2012 11:09:45 -0500
+Received: from mail-qc0-f174.google.com ([209.85.216.174]:48383 "EHLO
+	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751856Ab2KTQeG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Nov 2012 11:34:06 -0500
+In-Reply-To: <alpine.LNX.2.00.1211201706300.4609@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-In case we are returning from i2c_hid_probe() through the 'err' or 
-err_mem_free labels, there is noone freeing the buffers allocated by 
-i2c_hid_alloc_buffers().
+On Tue, Nov 20, 2012 at 5:09 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> In case we are returning from i2c_hid_probe() through the 'err' or
+> err_mem_free labels, there is noone freeing the buffers allocated by
+> i2c_hid_alloc_buffers().
 
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/i2c-hid/i2c-hid.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ouch... thanks Jiri
+I hope there are not so much others like this one :)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 11140bd..67ab5b7 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -892,6 +892,7 @@ err:
- 	if (ihid->irq)
- 		free_irq(ihid->irq, ihid);
- 
-+	i2c_hid_free_buffers(ihid);
- 	kfree(ihid);
- 	return ret;
- }
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
--- 
-Jiri Kosina
-SUSE Labs
+>
+> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 11140bd..67ab5b7 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -892,6 +892,7 @@ err:
+>         if (ihid->irq)
+>                 free_irq(ihid->irq, ihid);
+>
+> +       i2c_hid_free_buffers(ihid);
+>         kfree(ihid);
+>         return ret;
+>  }
+>
+> --
+> Jiri Kosina
+> SUSE Labs

@@ -1,29 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND 3/7] input: ti_am335x_tsc: Add variance filter
-Date: Wed, 21 Nov 2012 10:33:50 -0800
-Message-ID: <20121121183350.GB18950@core.coreip.homeip.net>
-References: <1352271124-5513-1-git-send-email-rachna@ti.com>
- <1352271124-5513-4-git-send-email-rachna@ti.com>
+Subject: Re: [PATCH RFC] input: Add new driver for GPIO beeper
+Date: Wed, 21 Nov 2012 10:40:33 -0800
+Message-ID: <20121121184033.GC18950@core.coreip.homeip.net>
+References: <1353511962-21883-1-git-send-email-shc_work@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:55031 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755683Ab2KUSkh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 Nov 2012 13:40:37 -0500
+Received: by mail-pa0-f46.google.com with SMTP id bh2so2275871pad.19
+        for <linux-input@vger.kernel.org>; Wed, 21 Nov 2012 10:40:36 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1352271124-5513-4-git-send-email-rachna@ti.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: "Patil, Rachna" <rachna@ti.com>
-Cc: linux-doc@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>
+In-Reply-To: <1353511962-21883-1-git-send-email-shc_work@mail.ru>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
-Hi Rachna,
+Hi Alexander,
 
-On Wed, Nov 07, 2012 at 12:22:00PM +0530, Patil, Rachna wrote:
-> Only fine tuning variance parameter present in tslib
-> utility does not help in removing all the ADC noise.
-> This logic of filtering is necessary to get this
-> touchscreen to work finely.
+On Wed, Nov 21, 2012 at 07:32:42PM +0400, Alexander Shiyan wrote:
+> This patch adds a new driver for the beeper controlled via GPIO pin.
+> The driver does not depend on the architecture and is positioned as
+> a replacement for the specific drivers that are used for this function,
+> for example drivers/input/misc/ixp4xx-beeper.
+> Since this patch is only RFC, comments are welcome.
 
-No, if filtering in tslib is not adequate please fix tslib so that your
-work is usable for other devices as well.
+This looks reasonable, but if it is to be a generic solution it should
+handle GPIOs that need sleep so you need to schedule a work item from
+event() and toggle gpio from there.
 
 Thanks.
 

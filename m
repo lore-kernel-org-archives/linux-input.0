@@ -1,37 +1,125 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH 2/2] hid: hid-sensor-hub: Move NULL check to beginning
-Date: Wed, 21 Nov 2012 09:11:39 -0800
-Message-ID: <50AD0B4B.10109@linux.intel.com>
-References: <1353478830-23788-1-git-send-email-sachin.kamat@linaro.org> <1353478830-23788-2-git-send-email-sachin.kamat@linaro.org> <20121121124251.7bc7102b@pyramind.ukuu.org.uk>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH RESEND 6/7] input: ti_am335x_tsc: Add DT support
+Date: Wed, 21 Nov 2012 10:32:23 -0800
+Message-ID: <20121121183223.GA18950@core.coreip.homeip.net>
+References: <1352271124-5513-1-git-send-email-rachna@ti.com>
+ <1352271124-5513-7-git-send-email-rachna@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:59653 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753318Ab2KURKu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Nov 2012 12:10:50 -0500
-In-Reply-To: <20121121124251.7bc7102b@pyramind.ukuu.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1352271124-5513-7-git-send-email-rachna-l0cyMroinI0@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Cc: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, jic23@kernel.org
-Cc: Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, jkosina@suse.cz, patches@linaro.org
 
-Hi Jonathan,
+Hi Rachna,
 
-Please check and merge Alan Cox's patch. I have forwarded this patch to you.
+On Wed, Nov 07, 2012 at 12:22:03PM +0530, Patil, Rachna wrote:
+> Add DT support for client touchscreen driver
+> 
+> Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+> ---
+>  drivers/input/touchscreen/ti_am335x_tsc.c |   60 ++++++++++++++++++++++++-----
+>  1 files changed, 50 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index 7a26810..c063cf6 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -26,6 +26,8 @@
+>  #include <linux/io.h>
+>  #include <linux/input/ti_am335x_tsc.h>
+>  #include <linux/delay.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+>  
+>  #include <linux/mfd/ti_am335x_tscadc.h>
+>  
+> @@ -398,12 +400,18 @@ static int __devinit titsc_probe(struct platform_device *pdev)
+>  	struct titsc *ts_dev;
+>  	struct input_dev *input_dev;
+>  	struct ti_tscadc_dev *tscadc_dev = pdev->dev.platform_data;
+> -	struct mfd_tscadc_board	*pdata;
+> -	int err;
+> -
+> -	pdata = tscadc_dev->dev->platform_data;
+> -
+> -	if (!pdata) {
+> +	int err, i;
+> +	struct mfd_tscadc_board	*pdata = NULL;
+> +	struct device_node *node = NULL;
+> +	u32 val32, wires_conf[4];
+> +
+> +	if (tscadc_dev->dev->of_node) {
+> +		node = tscadc_dev->dev->of_node;
+> +		node = of_find_node_by_name(node, "tsc");
+> +	} else
+> +		pdata = tscadc_dev->dev->platform_data;
+> +
+> +	if (!pdata && !node) {
+>  		dev_err(&pdev->dev, "Could not find platform data\n");
+>  		return -EINVAL;
+>  	}
+> @@ -421,11 +429,43 @@ static int __devinit titsc_probe(struct platform_device *pdev)
+>  	ts_dev->mfd_tscadc = tscadc_dev;
+>  	ts_dev->input = input_dev;
+>  	ts_dev->irq = tscadc_dev->irq;
+> -	ts_dev->wires = pdata->tsc_init->wires;
+> -	ts_dev->x_plate_resistance = pdata->tsc_init->x_plate_resistance;
+> -	ts_dev->steps_to_configure = pdata->tsc_init->steps_to_configure;
+> -	memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
+> +
+> +	if (node) {
+> +		err = of_property_read_u32(node, "wires", &val32);
+> +		if (err < 0)
+> +			goto err_free_mem;
+> +		else
+> +			ts_dev->wires = val32;
+> +
+> +		err = of_property_read_u32(node, "x-plate-resistance", &val32);
+> +		if (err < 0)
+> +			goto err_free_mem;
+> +		else
+> +			ts_dev->x_plate_resistance = val32;
+> +
+> +		err = of_property_read_u32(node, "steps-to-configure", &val32);
+> +		if (err < 0)
+> +			goto err_free_mem;
+> +		else
+> +			ts_dev->steps_to_configure = val32;
+> +
+> +		err = of_property_read_u32_array(node, "wire-config",
+> +				wires_conf, ARRAY_SIZE(wires_conf));
+> +		if (err < 0)
+> +			goto err_free_mem;
+> +		else {
+> +			for (i = 0; i < ARRAY_SIZE(wires_conf); i++)
+> +				ts_dev->config_inp[i] = wires_conf[i];
+> +		}
+> +	} else {
+> +		ts_dev->wires = pdata->tsc_init->wires;
+> +		ts_dev->x_plate_resistance =
+> +			pdata->tsc_init->x_plate_resistance;
+> +		ts_dev->steps_to_configure =
+> +			pdata->tsc_init->steps_to_configure;
+> +		memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
+>  			sizeof(pdata->tsc_init->wire_config));
 
-Thanks,
-Srinivas
+I believe if platform data is supplied it should take precedence over DT
+data so that parameters can be adjusted if really needed.
 
+> +	}
+>  
+>  	err = request_irq(ts_dev->irq, titsc_irq,
+>  			  0, pdev->dev.driver->name, ts_dev);
+> -- 
+> 1.7.0.4
+> 
+> 
 
-On 11/21/2012 04:42 AM, Alan Cox wrote:
-> On Wed, 21 Nov 2012 11:50:30 +0530
-> Sachin Kamat <sachin.kamat@linaro.org> wrote:
->
->> This avoids a possible NULL pointer dereference error when report
->> is NULL.
-> This is wrong. Please see the patch I sent a while ago - it can't be
-> NULL, the check just needs removing.
->
+Thanks.
 
+-- 
+Dmitry

@@ -1,45 +1,42 @@
-From: Haojian Zhuang <haojian.zhuang@gmail.com>
-Subject: [GIT PULL][for 3.8] pull request from arch-pxa tree on input/keyboard branch
-Date: Wed, 21 Nov 2012 13:34:58 +0800
-Message-ID: <CAN1soZzDgmGDypbTMiFt+44xO=ZCeojHiyReaPO=vzv+Dpwz+A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/2] hid: usbhid: Return -ENOMEM instead of -1 for memory allocation failure
+Date: Wed, 21 Nov 2012 11:50:29 +0530
+Message-ID: <1353478830-23788-1-git-send-email-sachin.kamat@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:52788 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750873Ab2KUFe7 (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:59725 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750824Ab2KUG0q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Nov 2012 00:34:59 -0500
-Received: by mail-ee0-f46.google.com with SMTP id e53so2077771eek.19
-        for <linux-input@vger.kernel.org>; Tue, 20 Nov 2012 21:34:58 -0800 (PST)
+	Wed, 21 Nov 2012 01:26:46 -0500
+Received: by mail-pa0-f46.google.com with SMTP id bh2so1840080pad.19
+        for <linux-input@vger.kernel.org>; Tue, 20 Nov 2012 22:26:46 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, jic23@kernel.org, sachin.kamat@linaro.org, patches@linaro.org
 
-Hi Dmitry,
+Silences the following smatch warning:
+drivers/hid/usbhid/hiddev.c:897 hiddev_connect() warn:
+returning -1 instead of -ENOMEM is sloppy
 
-Please help to merge input/keyboard branch from arch-pxa git tree.
-There's one patch on pxa27x keypad driver.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+---
+ drivers/hid/usbhid/hiddev.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Regards
-Haojian
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index 14599e2..50e2ab8 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -894,7 +894,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+ 	}
+ 
+ 	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
+-		return -1;
++		return -ENOMEM;
+ 
+ 	init_waitqueue_head(&hiddev->wait);
+ 	INIT_LIST_HEAD(&hiddev->list);
+-- 
+1.7.4.1
 
-The following changes since commit 8f0d8163b50e01f398b14bcd4dc039ac5ab18d64:
-
-  Linux 3.7-rc3 (2012-10-28 12:24:48 -0700)
-
-are available in the git repository at:
-
-  git://github.com/hzhuang1/linux.git input/keyboard
-
-for you to fetch changes up to ff77736d37ff68c5323e2d1e3bc8d38235325aeb:
-
-  input: pxa27x_keypad: clear initial pending interrupt (2012-11-21
-13:31:25 +0800)
-
-----------------------------------------------------------------
-Vasily Khoruzhick (1):
-      input: pxa27x_keypad: clear initial pending interrupt
-
- drivers/input/keyboard/pxa27x_keypad.c |    3 +++
- 1 file changed, 3 insertions(+)

@@ -1,55 +1,45 @@
-From: Kamal Mostafa <kamal@canonical.com>
-Subject: [PATCH v2 0/3] Cypress PS/2 Trackpad driver
-Date: Tue, 20 Nov 2012 13:30:07 -0800
-Message-ID: <1353447010-4852-1-git-send-email-kamal@canonical.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
-Cc: David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Dudley Du <dudl@cypress.com>, Cypress Semiconductor Corporation <customercare@cypress.com>, Kamal Mostafa <kamal@canonical.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
+From: Haojian Zhuang <haojian.zhuang@gmail.com>
+Subject: [GIT PULL][for 3.8] pull request from arch-pxa tree on input/keyboard branch
+Date: Wed, 21 Nov 2012 13:34:58 +0800
+Message-ID: <CAN1soZzDgmGDypbTMiFt+44xO=ZCeojHiyReaPO=vzv+Dpwz+A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f46.google.com ([74.125.83.46]:52788 "EHLO
+	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750873Ab2KUFe7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 Nov 2012 00:34:59 -0500
+Received: by mail-ee0-f46.google.com with SMTP id e53so2077771eek.19
+        for <linux-input@vger.kernel.org>; Tue, 20 Nov 2012 21:34:58 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-This driver, submitted on behalf of Cypress Semiconductor Corporation and
-additional contributors, provides support for the Cypress PS/2 Trackpad.
+Hi Dmitry,
 
-This [PATCH v2] version differs from my first submission[0]:
+Please help to merge input/keyboard branch from arch-pxa git tree.
+There's one patch on pxa27x keypad driver.
 
- - Increases the size the of the cmdbuf[] array in struct ps2dev from
-   6 to 8 bytes, per Dmitry Torokhov's suggestion.  ** This change has
-   not been tested with respect to any other touchpads.  Is it safe? **
+Regards
+Haojian
 
- - Removes the special Cypress handling from psmouse-base.c
+The following changes since commit 8f0d8163b50e01f398b14bcd4dc039ac5ab18d64:
 
-And it *almost* works properly... Cypress PS/2 Trackpad is recognized and
-works fine on boot, but after a suspend-resume multitouch features no longer
-work (one and two finger tap works, but three does not).  Restarting X does
-fix it, until the next suspend.  The previous version of the driver[0] does
-not exhibit that problem.
+  Linux 3.7-rc3 (2012-10-28 12:24:48 -0700)
 
-Help identifying and fixing the suspend-resume issue will be much
-appreciated.
+are available in the git repository at:
 
- -Kamal Mostafa <kamal@canonical.com>
+  git://github.com/hzhuang1/linux.git input/keyboard
 
-[0] http://www.spinics.net/lists/linux-input/msg23690.html
+for you to fetch changes up to ff77736d37ff68c5323e2d1e3bc8d38235325aeb:
 
+  input: pxa27x_keypad: clear initial pending interrupt (2012-11-21
+13:31:25 +0800)
 
-Cypress Semiconductor Corporation (2):
-  input: Cypress PS/2 Trackpad psmouse driver
-  input: Cypress PS/2 Trackpad link into psmouse-base
+----------------------------------------------------------------
+Vasily Khoruzhick (1):
+      input: pxa27x_keypad: clear initial pending interrupt
 
-Kamal Mostafa (1):
-  input: increase struct ps2dev cmdbuf[] to 8 bytes
-
- drivers/input/mouse/Kconfig        |   10 +
- drivers/input/mouse/Makefile       |    1 +
- drivers/input/mouse/cypress_ps2.c  |  956 ++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/cypress_ps2.h  |  220 +++++++++
- drivers/input/mouse/psmouse-base.c |   32 ++
- drivers/input/mouse/psmouse.h      |    1 +
- include/linux/libps2.h             |    2 +-
- 7 files changed, 1221 insertions(+), 1 deletion(-)
- create mode 100644 drivers/input/mouse/cypress_ps2.c
- create mode 100644 drivers/input/mouse/cypress_ps2.h
-
--- 
-1.7.10.4
+ drivers/input/keyboard/pxa27x_keypad.c |    3 +++
+ 1 file changed, 3 insertions(+)

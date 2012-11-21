@@ -1,65 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] ARM: OMAP: ads7846: fix pendown debounce setting
-Date: Wed, 21 Nov 2012 12:55:24 -0800
-Message-ID: <20121121205524.GB25470@core.coreip.homeip.net>
-References: <1353341038-14381-1-git-send-email-grinberg@compulab.co.il>
- <20121120082136.GB28115@core.coreip.homeip.net>
- <20121121190929.GF18567@atomide.com>
+Subject: Re: [PATCH 1/2] input : wacom - Simplify type check for newer V5
+ devices
+Date: Wed, 21 Nov 2012 13:13:57 -0800
+Message-ID: <20121121211357.GC25470@core.coreip.homeip.net>
+References: <1353523360-6431-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:64524 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964798Ab2KUUz2 (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:36295 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964856Ab2KUVOF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Nov 2012 15:55:28 -0500
+	Wed, 21 Nov 2012 16:14:05 -0500
+Received: by mail-pb0-f46.google.com with SMTP id wy7so5364926pbc.19
+        for <linux-input@vger.kernel.org>; Wed, 21 Nov 2012 13:14:04 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20121121190929.GF18567@atomide.com>
+In-Reply-To: <1353523360-6431-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Igor Grinberg <grinberg@compulab.co.il>, Kevin Hilman <khilman@ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-On Wed, Nov 21, 2012 at 11:09:30AM -0800, Tony Lindgren wrote:
-> * Dmitry Torokhov <dmitry.torokhov@gmail.com> [121120 00:23]:
-> > On Mon, Nov 19, 2012 at 06:03:56PM +0200, Igor Grinberg wrote:
-> > > Commit 97ee9f01 (ARM: OMAP: fix the ads7846 init code) have enabled the
-> > > pendown GPIO debounce time setting by the below sequence:
-> > > 
-> > >   gpio_request_one()
-> > >   gpio_set_debounce()
-> > >   gpio_free()
-> > > 
-> > > It also revealed a bug in the OMAP GPIO handling code which prevented
-> > > the GPIO debounce clock to be disabled and CORE transition to low power
-> > > states.
-> > > 
-> > > Commit c9c55d9 (gpio/omap: fix off-mode bug: clear debounce settings on
-> > > free/reset) fixes the OMAP GPIO handling code by making sure that the
-> > > GPIO debounce clock gets disabled if no GPIO is requested from current
-> > > bank.
-> > > 
-> > > While fixing the OMAP GPIO handling code (in the right way), the above
-> > > commit makes the gpio_request->set_debounce->free sequence invalid as
-> > > after freeing the GPIO, the debounce settings are lost.
-> > > 
-> > > This patch set:
-> > > 1) Adds the pendown GPIO debounce time setting to the platform data
-> > >    structure of the ads7846 driver.
-> > > 2) Fixes the OMAP platform code to pass the debounce time value
-> > >    to the driver instead of handling it by itself.
-> > > 
-> > > Igor Grinberg (2):
-> > >   ads7846: enable pendown GPIO debounce time setting
-> > >   ARM: OMAP: ads7846: fix pendown debounce setting
-> > > 
-> > 
-> > Makes sense to me. Tony, I have some stuff to push for 3.7 final, mind
-> > if I pick OMAP change as well?
+On Wed, Nov 21, 2012 at 10:42:40AM -0800, Ping Cheng wrote:
+> The updated type enum enables this implementation.
 > 
-> No please go ahead, I just acked the related patch.
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> ---
+>  drivers/input/tablet/wacom_wac.c |    4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+> index 7554a04..f09f39e 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -467,9 +467,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
+>  	/* general pen packet */
+>  	if ((data[1] & 0xb8) == 0xa0) {
+>  		t = (data[6] << 2) | ((data[7] >> 6) & 3);
+> -		if ((features->type >= INTUOS4S && features->type <= INTUOS4L) ||
+> -                    (features->type >= INTUOS5S && features->type <= INTUOS5L) ||
+> -		    (features->type >= WACOM_21UX2 && features->type <= WACOM_24HD)) {
+> +		if ((features->type >= INTUOS4S && features->type <= WACOM_24HD)) {
 
-Thanks Tony.
+This has extra parenthesis.
+
+Anyway, applied both, thanks Ping.
 
 -- 
 Dmitry

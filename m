@@ -1,41 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] input: added driver support for the t5400 pressure
- sensor.
-Date: Tue, 20 Nov 2012 23:06:25 -0800
-Message-ID: <20121121070625.GE16772@core.coreip.homeip.net>
-References: <1353445355-2517-1-git-send-email-stefan.nilsson@unixphere.com>
- <1353445355-2517-2-git-send-email-stefan.nilsson@unixphere.com>
+From: "founder.fang" <founder.fang@gmail.com>
+Subject: [PATCH] HID: hidraw: fix nonblock read return EAGAIN after device removed
+Date: Wed, 21 Nov 2012 15:20:31 +0800
+Message-ID: <CAHLfQU=Hrufny=652k2mM7OcjxnRMH-kgj510FZrrKtiKNxdgw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:43361 "EHLO
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:55482 "EHLO
 	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751653Ab2KUHGa (ORCPT
+	with ESMTP id S1752125Ab2KUHUc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Nov 2012 02:06:30 -0500
-Received: by mail-pb0-f46.google.com with SMTP id wy7so4871828pbc.19
-        for <linux-input@vger.kernel.org>; Tue, 20 Nov 2012 23:06:29 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1353445355-2517-2-git-send-email-stefan.nilsson@unixphere.com>
+	Wed, 21 Nov 2012 02:20:32 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Nilsson <stefan.nilsson@unixphere.com>
-Cc: linux-input@vger.kernel.org, rob.herring@calxeda.com, arnd@arndb.de, matthias.schmidt@epcos.com, armin.schober@epcos.com, eric.andersson@unixphere.com
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Stefan,
+when nonblock read the condition check (file->f_flags & O_NONBLOCK)
+always be true,
+signal_pending and device exist checking never get a chance to run, so
+the user mode code always
+get EAGAIN even if device removed. move nonblock mode checking to the
+last can fix this problem.
 
-On Tue, Nov 20, 2012 at 10:02:34PM +0100, Stefan Nilsson wrote:
-> +
-> +	idev->evbit[0] = BIT_MASK(EV_ABS);
-> +	input_set_abs_params(idev, ABS_PRESSURE, T5400_ABS_MIN_PRES,
-> +					T5400_ABS_MAX_PRES, 0, 0);
-> +	input_set_abs_params(idev, ABS_MISC, T5400_ABS_MIN_TEMP,
-> +					T5400_ABS_MAX_TEMP, 0, 0);
-> +
+Signed-off-by: Founder Fang <founder.fang@gmail.com>
 
-This driver should be using IIO, not input subsystem.
+--- hid-git/drivers/hid/hidraw.c.orig	2012-11-21 14:37:04.977106383 +0800
++++ hid-git/drivers/hid/hidraw.c	2012-11-21 14:40:35.882152200 +0800
+@@ -57,10 +57,6 @@ static ssize_t hidraw_read(struct file *
+ 			set_current_state(TASK_INTERRUPTIBLE);
 
-Thanks.
+ 			while (list->head == list->tail) {
+-				if (file->f_flags & O_NONBLOCK) {
+-					ret = -EAGAIN;
+-					break;
+-				}
+ 				if (signal_pending(current)) {
+ 					ret = -ERESTARTSYS;
+ 					break;
+@@ -69,6 +65,10 @@ static ssize_t hidraw_read(struct file *
+ 					ret = -EIO;
+ 					break;
+ 				}
++				if (file->f_flags & O_NONBLOCK) {
++					ret = -EAGAIN;
++					break;
++				}
 
--- 
-Dmitry
+ 				/* allow O_NONBLOCK to work well from other threads */
+ 				mutex_unlock(&list->read_mutex);

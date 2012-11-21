@@ -1,42 +1,49 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 1/2] input : wacom - Simplify type check for newer V5 devices
-Date: Wed, 21 Nov 2012 10:42:40 -0800
-Message-ID: <1353523360-6431-1-git-send-email-pingc@wacom.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/5] Input: bu21013_ts - Move GPIO init and exit
+ functions into the driver
+Date: Wed, 21 Nov 2012 10:42:56 -0800
+Message-ID: <20121121184256.GD18950@core.coreip.homeip.net>
+References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
+ <1352900837-20759-3-git-send-email-lee.jones@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:54786 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755689Ab2KUSmu (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:42158 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755691Ab2KUSnA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Nov 2012 13:42:50 -0500
-Received: by mail-da0-f46.google.com with SMTP id p5so1834547dak.19
-        for <linux-input@vger.kernel.org>; Wed, 21 Nov 2012 10:42:50 -0800 (PST)
+	Wed, 21 Nov 2012 13:43:00 -0500
+Content-Disposition: inline
+In-Reply-To: <1352900837-20759-3-git-send-email-lee.jones@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-The updated type enum enables this implementation.
+Hi Lee,
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/input/tablet/wacom_wac.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+On Wed, Nov 14, 2012 at 01:47:14PM +0000, Lee Jones wrote:
+> @@ -272,6 +276,60 @@ static irqreturn_t bu21013_gpio_irq(int irq, void *device_data)
+>  }
+>  
+>  /**
+> + * bu21013_gpio_board_init() - configures the touch panel
+> + * @reset_pin: reset pin number
+> + *
+> + * This function is used to configure the voltage and
+> + * reset the touch panel controller.
+> + */
+> +static int bu21013_gpio_board_init(int reset_pin)
+> +{
+> +	int retval = 0;
+> +
+> +	bu21013_devices++;
+> +	if (bu21013_devices == 1) {
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 7554a04..f09f39e 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -467,9 +467,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
- 	/* general pen packet */
- 	if ((data[1] & 0xb8) == 0xa0) {
- 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
--		if ((features->type >= INTUOS4S && features->type <= INTUOS4L) ||
--                    (features->type >= INTUOS5S && features->type <= INTUOS5L) ||
--		    (features->type >= WACOM_21UX2 && features->type <= WACOM_24HD)) {
-+		if ((features->type >= INTUOS4S && features->type <= WACOM_24HD)) {
- 			t = (t << 1) | (data[1] & 1);
- 		}
- 		input_report_abs(input, ABS_PRESSURE, t);
+This does not make sense. If gpio is per-device now then we should
+simply set it up and not count devices.
+
+Thanks.
+
 -- 
-1.7.10.4
-
+Dmitry

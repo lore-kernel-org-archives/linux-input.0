@@ -1,66 +1,53 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v4 14/14] HID: hid-multitouch: forwards MSC_TIMESTAMP
-Date: Thu, 22 Nov 2012 22:03:24 +0100
-Message-ID: <20121122210324.GA593@polaris.bitmath.org>
-References: <1352908766-4492-1-git-send-email-benjamin.tissoires@gmail.com>
- <1352908766-4492-15-git-send-email-benjamin.tissoires@gmail.com>
- <20121114195852.GA14840@polaris.bitmath.org>
- <50A40CB3.8070105@gmail.com>
- <20121116200926.GA652@polaris.bitmath.org>
- <CAN+gG=F=bHdJF0=0LHGuVQ+ObHvWKJnL0GYcAEWBeD+Z-yyGSA@mail.gmail.com>
- <20121120205147.GA4658@polaris.bitmath.org>
- <20121120205421.GA4664@polaris.bitmath.org>
- <CAN+gG=HY3ai3sKqbqMoiFNHW+c8=dUKGXzF1sU-JaZ16_w1S9w@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] hid: usbhid: Return -ENOMEM instead of -1 for memory
+ allocation failure
+Date: Thu, 22 Nov 2012 22:03:44 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211222202530.4609@pobox.suse.cz>
+References: <1353478830-23788-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=HY3ai3sKqbqMoiFNHW+c8=dUKGXzF1sU-JaZ16_w1S9w@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:43609 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754346Ab2KVVDs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 22 Nov 2012 16:03:48 -0500
+In-Reply-To: <1353478830-23788-1-git-send-email-sachin.kamat@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, jic23@kernel.org, patches@linaro.org
 
-Hi Benjamin,
+On Wed, 21 Nov 2012, Sachin Kamat wrote:
 
-> well, I'm not very satisfied with this patch. I first thought it was a
-> good idea but I can see now several cons:
-> 1. Henrik would like to partially base the time spent between two
-> events when the device wraps on the *event* time. This is a great idea
-> for consistency, but I'm afraid I won't be able to implement it
-> because this time is computed *after* we call input_event and is only
-> used by evdev. Thus, I still need to add an other clock and some
-> differences may occur.
-
-Alternatively, device times need to become part of input core.
-
-> 2. the user space (at least X) will not use it before a long time:
-> they already have the time of the event and it will not add that much
-> consistency.
-
-Ok.
-
-> 3. it will wake up the whole input chain when fingers are present but
-> no moves occurs on the digitizer: the only events we get are
-> MSC_TIMESTAMP and EV_SYN and the user-space will be awaken just for
-> that.
-
-Good point, and a second argument for including this in the input core.
-
-> 4. MSC_TIMESTAMP does not have an abs_max value, thus we are forced to
-> compute sth consistent in the kernel that can be forwarded to the user
-> space.
-
-Granted, but we do not really lose anything by doing so.
-
-> So, I propose not to include this feature, and eventually reverting
-> the patch that introduced MSC_TIMESTAMP as it's useless if we don't
-> use it right now.
+> Silences the following smatch warning:
+> drivers/hid/usbhid/hiddev.c:897 hiddev_connect() warn:
+> returning -1 instead of -ENOMEM is sloppy
 > 
-> Jiri, Dmitry, Henrik, are ok with that?
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> ---
+>  drivers/hid/usbhid/hiddev.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+> index 14599e2..50e2ab8 100644
+> --- a/drivers/hid/usbhid/hiddev.c
+> +++ b/drivers/hid/usbhid/hiddev.c
+> @@ -894,7 +894,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+>  	}
+>  
+>  	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
+> -		return -1;
+> +		return -ENOMEM;
+>  
+>  	init_waitqueue_head(&hiddev->wait);
+>  	INIT_LIST_HEAD(&hiddev->list);
 
-I think it is fine to postpone the patch, but based on the comments
-above, I do not think we need to revert the input definition.
+Well, this would make sense only if the callers would be actualling doing 
+something useful with that return value. But the only check we are 
+performing at callsites is non-zero test ...
 
 Thanks,
-Henrik
+
+-- 
+Jiri Kosina
+SUSE Labs

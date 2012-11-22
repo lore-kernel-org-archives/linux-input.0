@@ -1,81 +1,64 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/2] input: gpio-keys: Add runtime support
-Date: Thu, 22 Nov 2012 14:51:53 +0000
-Message-ID: <20121122145153.GB10986@gmail.com>
-References: <1353590617-11466-1-git-send-email-lee.jones@linaro.org>
- <1353590617-11466-2-git-send-email-lee.jones@linaro.org>
+Subject: Re: [PATCH 2/5] Input: bu21013_ts - Move GPIO init and exit
+ functions into the driver
+Date: Thu, 22 Nov 2012 11:28:36 +0000
+Message-ID: <20121122112836.GF4328@gmail.com>
+References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
+ <1352900837-20759-3-git-send-email-lee.jones@linaro.org>
+ <20121121184256.GD18950@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:47257 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755367Ab2KVSlv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 22 Nov 2012 13:41:51 -0500
+Received: by mail-bk0-f46.google.com with SMTP id q16so3586158bkw.19
+        for <linux-input@vger.kernel.org>; Thu, 22 Nov 2012 10:41:50 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1353590617-11466-2-git-send-email-lee.jones@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: linus.walleij@stericsson.com, Jonas Aaberg <jonas.aberg@stericsson.com>, Philippe Langlais <philippe.langlais@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, arnd@arndb.de, linux-input@vger.kernel.org
+In-Reply-To: <20121121184256.GD18950@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-SWdub3JlIHRoaXMuCgpJJ3ZlIGp1c3QgcmViYXNlZCBhbmQgdGhlIEFQSSBoYXMgY2hhbmdlZCBz
-bGlnaHRseS4KCldpbGwgZml4dXAgYW5kIHJlc2VuZC4KCj4gRnJvbTogSm9uYXMgQWFiZXJnIDxq
-b25hcy5hYmVyZ0BzdGVyaWNzc29uLmNvbT4KPiAKPiBDYzogRG1pdHJ5IFRvcm9raG92IDxkbWl0
-cnkudG9yb2tob3ZAZ21haWwuY29tPgo+IENjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcK
-PiBTaWduZWQtb2ZmLWJ5OiBMZWUgSm9uZXMgPGxlZS5qb25lc0BsaW5hcm8ub3JnPgo+IFNpZ25l
-ZC1vZmYtYnk6IEpvbmFzIEFhYmVyZyA8am9uYXMuYWJlcmdAc3Rlcmljc3Nvbi5jb20+Cj4gU2ln
-bmVkLW9mZi1ieTogUGhpbGlwcGUgTGFuZ2xhaXMgPHBoaWxpcHBlLmxhbmdsYWlzQGxpbmFyby5v
-cmc+Cj4gUmV2aWV3ZWQtYnk6IEJlbmd0IEpvbnNzb24gPGJlbmd0Lmcuam9uc3NvbkBzdGVyaWNz
-c29uLmNvbT4KPiAtLS0KPiAgZHJpdmVycy9pbnB1dC9rZXlib2FyZC9ncGlvX2tleXMuYyB8ICAg
-MTcgKysrKysrKysrKysrKy0tLS0KPiAgMSBmaWxlIGNoYW5nZWQsIDEzIGluc2VydGlvbnMoKyks
-IDQgZGVsZXRpb25zKC0pCj4gCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQv
-Z3Bpb19rZXlzLmMgYi9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2dwaW9fa2V5cy5jCj4gaW5kZXgg
-MmNmNjc1Ny4uY2ZmNTQ4YyAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2dw
-aW9fa2V5cy5jCj4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9ncGlvX2tleXMuYwo+IEBA
-IC0yOSw2ICsyOSw3IEBACj4gICNpbmNsdWRlIDxsaW51eC9vZl9wbGF0Zm9ybS5oPgo+ICAjaW5j
-bHVkZSA8bGludXgvb2ZfZ3Bpby5oPgo+ICAjaW5jbHVkZSA8bGludXgvc3BpbmxvY2suaD4KPiAr
-I2luY2x1ZGUgPGxpbnV4L3BtX3J1bnRpbWUuaD4KPiAgCj4gIHN0cnVjdCBncGlvX2J1dHRvbl9k
-YXRhIHsKPiAgCWNvbnN0IHN0cnVjdCBncGlvX2tleXNfYnV0dG9uICpidXR0b247Cj4gQEAgLTUz
-Myw2ICs1MzQsNyBAQCBzdGF0aWMgaW50IGdwaW9fa2V5c19vcGVuKHN0cnVjdCBpbnB1dF9kZXYg
-KmlucHV0KQo+ICAJc3RydWN0IGdwaW9fa2V5c19kcnZkYXRhICpkZGF0YSA9IGlucHV0X2dldF9k
-cnZkYXRhKGlucHV0KTsKPiAgCWNvbnN0IHN0cnVjdCBncGlvX2tleXNfcGxhdGZvcm1fZGF0YSAq
-cGRhdGEgPSBkZGF0YS0+cGRhdGE7Cj4gIAo+ICsJcG1fcnVudGltZV9nZXRfc3luYyhpbnB1dC0+
-ZGV2LnBhcmVudCk7Cj4gIAlkZGF0YS0+ZW5hYmxlZCA9IHRydWU7Cj4gIAo+ICAJcmV0dXJuIHBk
-YXRhLT5lbmFibGUgPyBwZGF0YS0+ZW5hYmxlKGlucHV0LT5kZXYucGFyZW50KSA6IDA7Cj4gQEAg
-LTU0Nyw2ICs1NDksOCBAQCBzdGF0aWMgdm9pZCBncGlvX2tleXNfY2xvc2Uoc3RydWN0IGlucHV0
-X2RldiAqaW5wdXQpCj4gIAo+ICAJaWYgKHBkYXRhLT5kaXNhYmxlKQo+ICAJCXBkYXRhLT5kaXNh
-YmxlKGlucHV0LT5kZXYucGFyZW50KTsKPiArCj4gKwlwbV9ydW50aW1lX3B1dChpbnB1dC0+ZGV2
-LnBhcmVudCk7Cj4gIH0KPiAgCj4gIC8qCj4gQEAgLTcwOCw2ICs3MTIsOCBAQCBzdGF0aWMgaW50
-IF9fZGV2aW5pdCBncGlvX2tleXNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikK
-PiAgCWlucHV0LT5pZC5wcm9kdWN0ID0gMHgwMDAxOwo+ICAJaW5wdXQtPmlkLnZlcnNpb24gPSAw
-eDAxMDA7Cj4gIAo+ICsJcG1fcnVudGltZV9lbmFibGUoJnBkZXYtPmRldik7Cj4gKwo+ICAJLyog
-RW5hYmxlIGF1dG8gcmVwZWF0IGZlYXR1cmUgb2YgTGludXggaW5wdXQgc3Vic3lzdGVtICovCj4g
-IAlpZiAocGRhdGEtPnJlcCkKPiAgCQlfX3NldF9iaXQoRVZfUkVQLCBpbnB1dC0+ZXZiaXQpOwo+
-IEBAIC03NzMsNiArNzc5LDggQEAgc3RhdGljIGludCBfX2RldmV4aXQgZ3Bpb19rZXlzX3JlbW92
-ZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQo+ICAJc3RydWN0IGlucHV0X2RldiAqaW5w
-dXQgPSBkZGF0YS0+aW5wdXQ7Cj4gIAlpbnQgaTsKPiAgCj4gKwlwbV9ydW50aW1lX2Rpc2FibGUo
-JnBkZXYtPmRldik7Cj4gKwo+ICAJc3lzZnNfcmVtb3ZlX2dyb3VwKCZwZGV2LT5kZXYua29iaiwg
-JmdwaW9fa2V5c19hdHRyX2dyb3VwKTsKPiAgCj4gIAlkZXZpY2VfaW5pdF93YWtldXAoJnBkZXYt
-PmRldiwgMCk7Cj4gQEAgLTgwNSw4ICs4MTMsOCBAQCBzdGF0aWMgaW50IGdwaW9fa2V5c19zdXNw
-ZW5kKHN0cnVjdCBkZXZpY2UgKmRldikKPiAgCQl9Cj4gIAl9IGVsc2Ugewo+ICAJCWRkYXRhLT5l
-bmFibGVfYWZ0ZXJfc3VzcGVuZCA9IGRkYXRhLT5lbmFibGVkOwo+IC0JCWlmIChkZGF0YS0+ZW5h
-YmxlZCkKPiAtCQkJZ3Bpb19rZXlzX2Nsb3NlKGRkYXRhLT5pbnB1dCk7Cj4gKwkJaWYgKGRkYXRh
-LT5lbmFibGVkICYmIGRkYXRhLT5kaXNhYmxlKQo+ICsJCQlkZGF0YS0+ZGlzYWJsZShkZXYpOwo+
-ICAJfQo+ICAKPiAgCXJldHVybiAwOwo+IEBAIC04MjYsOCArODM0LDkgQEAgc3RhdGljIGludCBn
-cGlvX2tleXNfcmVzdW1lKHN0cnVjdCBkZXZpY2UgKmRldikKPiAgCQkJZ3Bpb19rZXlzX2dwaW9f
-cmVwb3J0X2V2ZW50KGJkYXRhKTsKPiAgCX0KPiAgCj4gLQlpZiAoIWRldmljZV9tYXlfd2FrZXVw
-KGRldikgJiYgZGRhdGEtPmVuYWJsZV9hZnRlcl9zdXNwZW5kKQo+IC0JCWdwaW9fa2V5c19vcGVu
-KGRkYXRhLT5pbnB1dCk7Cj4gKwlpZiAoIWRldmljZV9tYXlfd2FrZXVwKGRldikgJiYgZGRhdGEt
-PmVuYWJsZV9hZnRlcl9zdXNwZW5kCj4gKwkgICAgJiYgZGRhdGEtPmVuYWJsZSkKPiArCQlkZGF0
-YS0+ZW5hYmxlKGRldik7Cj4gIAo+ICAJaW5wdXRfc3luYyhkZGF0YS0+aW5wdXQpOwo+ICAKPiAt
-LSAKPiAxLjcuOS41Cj4gCgotLSAKTGVlIEpvbmVzCkxpbmFybyBTVC1Fcmljc3NvbiBMYW5kaW5n
-IFRlYW0gTGVhZApMaW5hcm8ub3JnIOKUgiBPcGVuIHNvdXJjZSBzb2Z0d2FyZSBmb3IgQVJNIFNv
-Q3MKRm9sbG93IExpbmFybzogRmFjZWJvb2sgfCBUd2l0dGVyIHwgQmxvZwoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWls
-aW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0
-cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+On Wed, 21 Nov 2012, Dmitry Torokhov wrote:
+
+> Hi Lee,
+>=20
+> On Wed, Nov 14, 2012 at 01:47:14PM +0000, Lee Jones wrote:
+> > @@ -272,6 +276,60 @@ static irqreturn_t bu21013_gpio_irq(int irq, v=
+oid *device_data)
+> >  }
+> > =20
+> >  /**
+> > + * bu21013_gpio_board_init() - configures the touch panel
+> > + * @reset_pin: reset pin number
+> > + *
+> > + * This function is used to configure the voltage and
+> > + * reset the touch panel controller.
+> > + */
+> > +static int bu21013_gpio_board_init(int reset_pin)
+> > +{
+> > +	int retval =3D 0;
+> > +
+> > +	bu21013_devices++;
+> > +	if (bu21013_devices =3D=3D 1) {
+>=20
+> This does not make sense. If gpio is per-device now then we should
+> simply set it up and not count devices.
+
+No problem. I'll fixup.
+
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

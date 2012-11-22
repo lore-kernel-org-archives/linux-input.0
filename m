@@ -1,13 +1,11 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 2/2] input: gpio-keys: Add runtime support
-Date: Thu, 22 Nov 2012 13:23:37 +0000
-Message-ID: <1353590617-11466-2-git-send-email-lee.jones@linaro.org>
-References: <1353590617-11466-1-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 1/2] input: gpio-keys: Disable hardware on suspend
+Date: Thu, 22 Nov 2012 13:23:36 +0000
+Message-ID: <1353590617-11466-1-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1353590617-11466-1-git-send-email-lee.jones@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -23,6 +21,9 @@ List-Id: linux-input@vger.kernel.org
 
 From: Jonas Aaberg <jonas.aberg@stericsson.com>
 
+Disable hardware if active when suspending if the hw can not
+wake the system from suspend.
+
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
@@ -30,78 +31,69 @@ Signed-off-by: Jonas Aaberg <jonas.aberg@stericsson.com>
 Signed-off-by: Philippe Langlais <philippe.langlais@linaro.org>
 Reviewed-by: Bengt Jonsson <bengt.g.jonsson@stericsson.com>
 ---
- drivers/input/keyboard/gpio_keys.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/gpio_keys.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 2cf6757..cff548c 100644
+index 6a68041..2cf6757 100644
 --- a/drivers/input/keyboard/gpio_keys.c
 +++ b/drivers/input/keyboard/gpio_keys.c
-@@ -29,6 +29,7 @@
- #include <linux/of_platform.h>
- #include <linux/of_gpio.h>
- #include <linux/spinlock.h>
-+#include <linux/pm_runtime.h>
+@@ -46,6 +46,8 @@ struct gpio_keys_drvdata {
+ 	const struct gpio_keys_platform_data *pdata;
+ 	struct input_dev *input;
+ 	struct mutex disable_lock;
++	bool enabled;
++	bool enable_after_suspend;
+ 	struct gpio_button_data data[0];
+ };
  
- struct gpio_button_data {
- 	const struct gpio_keys_button *button;
-@@ -533,6 +534,7 @@ static int gpio_keys_open(struct input_dev *input)
+@@ -531,6 +533,8 @@ static int gpio_keys_open(struct input_dev *input)
  	struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
  	const struct gpio_keys_platform_data *pdata = ddata->pdata;
  
-+	pm_runtime_get_sync(input->dev.parent);
- 	ddata->enabled = true;
- 
- 	return pdata->enable ? pdata->enable(input->dev.parent) : 0;
-@@ -547,6 +549,8 @@ static void gpio_keys_close(struct input_dev *input)
- 
- 	if (pdata->disable)
- 		pdata->disable(input->dev.parent);
++	ddata->enabled = true;
 +
-+	pm_runtime_put(input->dev.parent);
+ 	return pdata->enable ? pdata->enable(input->dev.parent) : 0;
  }
  
- /*
-@@ -708,6 +712,8 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 	input->id.product = 0x0001;
- 	input->id.version = 0x0100;
+@@ -539,6 +543,8 @@ static void gpio_keys_close(struct input_dev *input)
+ 	struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
+ 	const struct gpio_keys_platform_data *pdata = ddata->pdata;
  
-+	pm_runtime_enable(&pdev->dev);
++	ddata->enabled = false;
 +
- 	/* Enable auto repeat feature of Linux input subsystem */
- 	if (pdata->rep)
- 		__set_bit(EV_REP, input->evbit);
-@@ -773,6 +779,8 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
- 	struct input_dev *input = ddata->input;
- 	int i;
+ 	if (pdata->disable)
+ 		pdata->disable(input->dev.parent);
+ }
+@@ -685,6 +691,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
  
-+	pm_runtime_disable(&pdev->dev);
-+
- 	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
+ 	ddata->pdata = pdata;
+ 	ddata->input = input;
++	ddata->enabled = false;
+ 	mutex_init(&ddata->disable_lock);
  
- 	device_init_wakeup(&pdev->dev, 0);
-@@ -805,8 +813,8 @@ static int gpio_keys_suspend(struct device *dev)
+ 	platform_set_drvdata(pdev, ddata);
+@@ -796,6 +803,10 @@ static int gpio_keys_suspend(struct device *dev)
+ 			if (bdata->button->wakeup)
+ 				enable_irq_wake(bdata->irq);
  		}
- 	} else {
- 		ddata->enable_after_suspend = ddata->enabled;
--		if (ddata->enabled)
--			gpio_keys_close(ddata->input);
-+		if (ddata->enabled && ddata->disable)
-+			ddata->disable(dev);
++	} else {
++		ddata->enable_after_suspend = ddata->enabled;
++		if (ddata->enabled)
++			gpio_keys_close(ddata->input);
  	}
  
  	return 0;
-@@ -826,8 +834,9 @@ static int gpio_keys_resume(struct device *dev)
+@@ -814,6 +825,10 @@ static int gpio_keys_resume(struct device *dev)
+ 		if (gpio_is_valid(bdata->button->gpio))
  			gpio_keys_gpio_report_event(bdata);
  	}
- 
--	if (!device_may_wakeup(dev) && ddata->enable_after_suspend)
--		gpio_keys_open(ddata->input);
-+	if (!device_may_wakeup(dev) && ddata->enable_after_suspend
-+	    && ddata->enable)
-+		ddata->enable(dev);
- 
++
++	if (!device_may_wakeup(dev) && ddata->enable_after_suspend)
++		gpio_keys_open(ddata->input);
++
  	input_sync(ddata->input);
  
+ 	return 0;
 -- 
 1.7.9.5

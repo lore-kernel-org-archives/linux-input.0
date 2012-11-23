@@ -1,31 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH] input: stmpe-ts: Add DT support for stmpe touchscreen
-Date: Thu, 22 Nov 2012 23:46:30 -0800
-Message-ID: <20121123074630.GE12631@core.coreip.homeip.net>
+Date: Fri, 23 Nov 2012 10:46:20 +0000
+Message-ID: <20121123104620.GQ17471@gmail.com>
 References: <f56ddb18f4e9c92f6a94c6d3ae3f5fe30e0bd892.1353652106.git.viresh.kumar@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:45693 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932907Ab2KWHqe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Nov 2012 02:46:34 -0500
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <f56ddb18f4e9c92f6a94c6d3ae3f5fe30e0bd892.1353652106.git.viresh.kumar@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, lee.jones@linaro.org, Vipul Kumar Samar <vipulkumar.samar@st.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, Vipul Kumar Samar <vipulkumar.samar@st.com>
+List-Id: linux-input@vger.kernel.org
 
-On Fri, Nov 23, 2012 at 11:59:46AM +0530, Viresh Kumar wrote:
-> From: Vipul Kumar Samar <vipulkumar.samar@st.com>
-> 
-> This patch allows the STMPE Touchscreen driver to be successfully probed and
-> initialised when Device Tree support is enabled. Bindings are mentioned in
-> Documentation too.
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
+> @@ -0,0 +1,43 @@
+> +STMPE Touchscreen
+> +----------------
+> +
+> +Required properties:
+> + - compatible: "st,stmpe-ts"
 
-Applied, thank you Viresh.
+You shouldn't be specifying a compatible string in the DT.
 
--- 
-Dmitry
+> +Example:
+> +
+> +	stmpe_touchscreen {
+> +		compatible =3D "st,stmpe-ts";
+
+This needs to be removed.
+
+> +		st,sample-time =3D <4>;
+> +		st,mod-12b =3D <1>;
+> +		st,ref-sel =3D <0>;
+> +		st,adc-freq =3D <1>;
+> +		st,ave-ctrl =3D <1>;
+> +		st,touch-det-delay =3D <2>;
+> +		st,settling =3D <2>;
+> +		st,fraction-z =3D <7>;
+> +		st,i-drive =3D <1>;
+> +	};
+
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

@@ -1,158 +1,191 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: Re: [PATCH 1/1] input: samsung-keypad: Use devm_* functions
-Date: Fri, 23 Nov 2012 11:59:38 +0530
-Message-ID: <CAK9yfHynYeBP2yQfHU6oznwks6u2P5BAY8L67Lg=NuPCYC3J-Q@mail.gmail.com>
-References: <1352980598-6305-1-git-send-email-sachin.kamat@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH] input: stmpe-ts: Add DT support for stmpe touchscreen
+Date: Fri, 23 Nov 2012 11:59:46 +0530
+Message-ID: <f56ddb18f4e9c92f6a94c6d3ae3f5fe30e0bd892.1353652106.git.viresh.kumar@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:60198 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754616Ab2KWG3j (ORCPT
+Received: from mail-da0-f46.google.com ([209.85.210.46]:39179 "EHLO
+	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754977Ab2KWG35 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Nov 2012 01:29:39 -0500
-Received: by mail-vb0-f46.google.com with SMTP id ff1so3378252vbb.19
-        for <linux-input@vger.kernel.org>; Thu, 22 Nov 2012 22:29:38 -0800 (PST)
-In-Reply-To: <1352980598-6305-1-git-send-email-sachin.kamat@linaro.org>
+	Fri, 23 Nov 2012 01:29:57 -0500
+Received: by mail-da0-f46.google.com with SMTP id p5so2502876dak.19
+        for <linux-input@vger.kernel.org>; Thu, 22 Nov 2012 22:29:56 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, patches@linaro.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, lee.jones@linaro.org, Vipul Kumar Samar <vipulkumar.samar@st.com>, Viresh Kumar <viresh.kumar@linaro.org>
 
-Hi Dmitry,
+From: Vipul Kumar Samar <vipulkumar.samar@st.com>
 
-Any comments on this patch.
+This patch allows the STMPE Touchscreen driver to be successfully probed and
+initialised when Device Tree support is enabled. Bindings are mentioned in
+Documentation too.
 
-On 15 November 2012 17:26, Sachin Kamat <sachin.kamat@linaro.org> wrote:
-> devm_* functions are device managed and make error handling
-> and code simpler.
->
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> ---
->  drivers/input/keyboard/samsung-keypad.c |   59 +++++++++---------------------
->  1 files changed, 18 insertions(+), 41 deletions(-)
->
-> diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-> index 9d7a111..abf6d3d 100644
-> --- a/drivers/input/keyboard/samsung-keypad.c
-> +++ b/drivers/input/keyboard/samsung-keypad.c
-> @@ -405,36 +405,29 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
->         row_shift = get_count_order(pdata->cols);
->         keymap_size = (pdata->rows << row_shift) * sizeof(keypad->keycodes[0]);
->
-> -       keypad = kzalloc(sizeof(*keypad) + keymap_size, GFP_KERNEL);
-> -       input_dev = input_allocate_device();
-> -       if (!keypad || !input_dev) {
-> -               error = -ENOMEM;
-> -               goto err_free_mem;
-> -       }
-> +       keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad) + keymap_size, GFP_KERNEL);
-> +       input_dev = devm_input_allocate_device(&pdev->dev);
-> +       if (!keypad || !input_dev)
-> +               return -ENOMEM;
->
->         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -       if (!res) {
-> -               error = -ENODEV;
-> -               goto err_free_mem;
-> -       }
-> +       if (!res)
-> +               return -ENODEV;
->
-> -       keypad->base = ioremap(res->start, resource_size(res));
-> -       if (!keypad->base) {
-> -               error = -EBUSY;
-> -               goto err_free_mem;
-> -       }
-> +       keypad->base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
-> +       if (!keypad->base)
-> +               return -EBUSY;
->
-> -       keypad->clk = clk_get(&pdev->dev, "keypad");
-> +       keypad->clk = devm_clk_get(&pdev->dev, "keypad");
->         if (IS_ERR(keypad->clk)) {
->                 dev_err(&pdev->dev, "failed to get keypad clk\n");
-> -               error = PTR_ERR(keypad->clk);
-> -               goto err_unmap_base;
-> +               return PTR_ERR(keypad->clk);
->         }
->
->         error = clk_prepare(keypad->clk);
->         if (error) {
->                 dev_err(&pdev->dev, "keypad clock prepare failed\n");
-> -               goto err_put_clk;
-> +               goto err_dt_gpio_free;
->         }
->
->         keypad->input_dev = input_dev;
-> @@ -479,14 +472,15 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
->         keypad->irq = platform_get_irq(pdev, 0);
->         if (keypad->irq < 0) {
->                 error = keypad->irq;
-> -               goto err_put_clk;
-> +               goto err_dt_gpio_free;
->         }
->
-> -       error = request_threaded_irq(keypad->irq, NULL, samsung_keypad_irq,
-> -                       IRQF_ONESHOT, dev_name(&pdev->dev), keypad);
-> +       error = devm_request_threaded_irq(&pdev->dev, keypad->irq, NULL,
-> +                                         samsung_keypad_irq, IRQF_ONESHOT,
-> +                                         dev_name(&pdev->dev), keypad);
->         if (error) {
->                 dev_err(&pdev->dev, "failed to register keypad interrupt\n");
-> -               goto err_put_clk;
-> +               goto err_dt_gpio_free;
->         }
->
->         device_init_wakeup(&pdev->dev, pdata->wakeup);
-> @@ -505,20 +499,13 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
->         return 0;
->
->  err_free_irq:
-> -       free_irq(keypad->irq, keypad);
->         pm_runtime_disable(&pdev->dev);
->         device_init_wakeup(&pdev->dev, 0);
->         platform_set_drvdata(pdev, NULL);
->  err_unprepare_clk:
->         clk_unprepare(keypad->clk);
-> -err_put_clk:
-> -       clk_put(keypad->clk);
-> +err_dt_gpio_free:
->         samsung_keypad_dt_gpio_free(keypad);
-> -err_unmap_base:
-> -       iounmap(keypad->base);
-> -err_free_mem:
-> -       input_free_device(input_dev);
-> -       kfree(keypad);
->
->         return error;
->  }
-> @@ -533,19 +520,9 @@ static int __devexit samsung_keypad_remove(struct platform_device *pdev)
->
->         input_unregister_device(keypad->input_dev);
->
-> -       /*
-> -        * It is safe to free IRQ after unregistering device because
-> -        * samsung_keypad_close will shut off interrupts.
-> -        */
-> -       free_irq(keypad->irq, keypad);
-> -
->         clk_unprepare(keypad->clk);
-> -       clk_put(keypad->clk);
->         samsung_keypad_dt_gpio_free(keypad);
->
-> -       iounmap(keypad->base);
-> -       kfree(keypad);
-> -
->         return 0;
->  }
->
-> --
-> 1.7.4.1
->
+Signed-off-by: Vipul Kumar Samar <vipulkumar.samar@st.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ .../bindings/input/touchscreen/stmpe.txt           | 43 ++++++++++++++
+ drivers/input/touchscreen/stmpe-ts.c               | 65 ++++++++++++++++------
+ drivers/mfd/stmpe.c                                |  1 +
+ 3 files changed, 91 insertions(+), 18 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
 
-
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
+new file mode 100644
+index 0000000..127baa3
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
+@@ -0,0 +1,43 @@
++STMPE Touchscreen
++----------------
++
++Required properties:
++ - compatible: "st,stmpe-ts"
++
++Optional properties:
++- st,sample-time: ADC converstion time in number of clock.  (0 -> 36 clocks, 1 ->
++  44 clocks, 2 -> 56 clocks, 3 -> 64 clocks, 4 -> 80 clocks, 5 -> 96 clocks, 6
++  -> 144 clocks), recommended is 4.
++- st,mod-12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
++- st,ref-sel: ADC reference source (0 -> internal reference, 1 -> external
++  reference)
++- st,adc-freq: ADC Clock speed (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
++- st,ave-ctrl: Sample average control (0 -> 1 sample, 1 -> 2 samples, 2 -> 4
++  samples, 3 -> 8 samples)
++- st,touch-det-delay: Touch detect interrupt delay (0 -> 10 us, 1 -> 50 us, 2 ->
++  100 us, 3 -> 500 us, 4-> 1 ms, 5 -> 5 ms, 6 -> 10 ms, 7 -> 50 ms) recommended
++  is 3
++- st,settling: Panel driver settling time (0 -> 10 us, 1 -> 100 us, 2 -> 500 us, 3
++  -> 1 ms, 4 -> 5 ms, 5 -> 10 ms, 6 for 50 ms, 7 -> 100 ms) recommended is 2
++- st,fraction-z: Length of the fractional part in z (fraction-z ([0..7]) = Count of
++  the fractional part) recommended is 7
++- st,i-drive: current limit value of the touchscreen drivers (0 -> 20 mA typical 35
++  mA max, 1 -> 50 mA typical 80 mA max)
++
++Node name must be stmpe_touchscreen and should be child node of stmpe node to
++which it belongs.
++
++Example:
++
++	stmpe_touchscreen {
++		compatible = "st,stmpe-ts";
++		st,sample-time = <4>;
++		st,mod-12b = <1>;
++		st,ref-sel = <0>;
++		st,adc-freq = <1>;
++		st,ave-ctrl = <1>;
++		st,touch-det-delay = <2>;
++		st,settling = <2>;
++		st,fraction-z = <7>;
++		st,i-drive = <1>;
++	};
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+index b3f7503..8f4985a 100644
+--- a/drivers/input/touchscreen/stmpe-ts.c
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -17,6 +17,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/init.h>
+ #include <linux/device.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
+@@ -262,11 +263,53 @@ static void stmpe_ts_close(struct input_dev *dev)
+ 			STMPE_TSC_CTRL_TSC_EN, 0);
+ }
+ 
+-static int __devinit stmpe_input_probe(struct platform_device *pdev)
++static void stmpe_ts_get_info(struct platform_device *pdev,
++		struct stmpe_touch *ts)
+ {
+ 	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
+-	const struct stmpe_platform_data *pdata = stmpe->pdata;
+-	const struct stmpe_ts_platform_data *ts_pdata = NULL;
++	struct device_node *np = pdev->dev.of_node;
++	struct stmpe_ts_platform_data *ts_pdata = NULL;
++
++	ts->stmpe = stmpe;
++
++	if (stmpe->pdata && stmpe->pdata->ts) {
++		ts_pdata = stmpe->pdata->ts;
++
++		ts->sample_time = ts_pdata->sample_time;
++		ts->mod_12b = ts_pdata->mod_12b;
++		ts->ref_sel = ts_pdata->ref_sel;
++		ts->adc_freq = ts_pdata->adc_freq;
++		ts->ave_ctrl = ts_pdata->ave_ctrl;
++		ts->touch_det_delay = ts_pdata->touch_det_delay;
++		ts->settling = ts_pdata->settling;
++		ts->fraction_z = ts_pdata->fraction_z;
++		ts->i_drive = ts_pdata->i_drive;
++	} else if (np) {
++		u32 val;
++
++		if (!of_property_read_u32(np, "st,sample-time", &val))
++			ts->sample_time = val;
++		if (!of_property_read_u32(np, "st,mod-12b", &val))
++			ts->mod_12b = val;
++		if (!of_property_read_u32(np, "st,ref-sel", &val))
++			ts->ref_sel = val;
++		if (!of_property_read_u32(np, "st,adc-freq", &val))
++			ts->adc_freq = val;
++		if (!of_property_read_u32(np, "st,ave-ctrl", &val))
++			ts->ave_ctrl = val;
++		if (!of_property_read_u32(np, "st,touch-det-delay", &val))
++			ts->touch_det_delay = val;
++		if (!of_property_read_u32(np, "st,settling", &val))
++			ts->settling = val;
++		if (!of_property_read_u32(np, "st,fraction-z", &val))
++			ts->fraction_z = val;
++		if (!of_property_read_u32(np, "st,i-drive", &val))
++			ts->i_drive = val;
++	}
++}
++
++static int __devinit stmpe_input_probe(struct platform_device *pdev)
++{
+ 	struct stmpe_touch *ts;
+ 	struct input_dev *idev;
+ 	int error;
+@@ -285,24 +328,10 @@ static int __devinit stmpe_input_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	platform_set_drvdata(pdev, ts);
+-	ts->stmpe = stmpe;
+ 	ts->idev = idev;
+ 	ts->dev = &pdev->dev;
+ 
+-	if (pdata)
+-		ts_pdata = pdata->ts;
+-
+-	if (ts_pdata) {
+-		ts->sample_time = ts_pdata->sample_time;
+-		ts->mod_12b = ts_pdata->mod_12b;
+-		ts->ref_sel = ts_pdata->ref_sel;
+-		ts->adc_freq = ts_pdata->adc_freq;
+-		ts->ave_ctrl = ts_pdata->ave_ctrl;
+-		ts->touch_det_delay = ts_pdata->touch_det_delay;
+-		ts->settling = ts_pdata->settling;
+-		ts->fraction_z = ts_pdata->fraction_z;
+-		ts->i_drive = ts_pdata->i_drive;
+-	}
++	stmpe_ts_get_info(pdev, ts);
+ 
+ 	INIT_DELAYED_WORK(&ts->work, stmpe_work);
+ 
+diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
+index c757ac3..3e3ca9c 100644
+--- a/drivers/mfd/stmpe.c
++++ b/drivers/mfd/stmpe.c
+@@ -410,6 +410,7 @@ static struct resource stmpe_ts_resources[] = {
+ 
+ static struct mfd_cell stmpe_ts_cell = {
+ 	.name		= "stmpe-ts",
++	.of_compatible	= "st,stmpe-ts",
+ 	.resources	= stmpe_ts_resources,
+ 	.num_resources	= ARRAY_SIZE(stmpe_ts_resources),
+ };
 -- 
-With warm regards,
-Sachin
+1.7.12.rc2.18.g61b472e
+

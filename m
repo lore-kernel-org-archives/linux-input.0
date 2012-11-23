@@ -1,108 +1,188 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 01/11] HID: hid-input factorize hid_input allocation
-Date: Fri, 23 Nov 2012 16:31:24 +0100
-Message-ID: <1353684694-5723-2-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 07/11] HID: hid-multitouch: rename MT_CLS_DEFAULT into MT_CLS_NSMU
+Date: Fri, 23 Nov 2012 16:31:30 +0100
+Message-ID: <1353684694-5723-8-git-send-email-benjamin.tissoires@gmail.com>
 References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-we0-f174.google.com ([74.125.82.174]:63392 "EHLO
+	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752819Ab2KWPhx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Nov 2012 10:37:53 -0500
 In-Reply-To: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This just refactors the allocation of hid_input.
-No semantic changes.
+While trying to add support for Nexio 1870:0100, I found that the
+trick required to make it work is much more reliable than the previous
+default class.
+Rename the current default class for backward compatibility.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- drivers/hid/hid-input.c | 61 +++++++++++++++++++++++++++----------------------
- 1 file changed, 34 insertions(+), 27 deletions(-)
+ drivers/hid/hid-multitouch.c | 48 +++++++++++++++++++++++---------------------
+ 1 file changed, 25 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 7015080..47f98a3 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1163,6 +1163,38 @@ static void report_features(struct hid_device *hid)
- 			}
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index f10105f..50fb79f 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -115,6 +115,7 @@ struct mt_device {
+ #define MT_CLS_DUAL_INRANGE_CONTACTNUMBER	0x0007
+ #define MT_CLS_DUAL_NSMU_CONTACTID		0x0008
+ #define MT_CLS_INRANGE_CONTACTNUMBER		0x0009
++#define MT_CLS_NSMU				0x000a
+ 
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -147,7 +148,8 @@ static int cypress_compute_slot(struct mt_device *td)
  }
  
-+static struct hid_input *hidinput_allocate(struct hid_device *hid)
-+{
-+	struct hid_input *hidinput = kzalloc(sizeof(*hidinput), GFP_KERNEL);
-+	struct input_dev *input_dev = input_allocate_device();
-+	if (!hidinput || !input_dev) {
-+		kfree(hidinput);
-+		input_free_device(input_dev);
-+		hid_err(hid, "Out of memory during hid input probe\n");
-+		return NULL;
-+	}
-+
-+	input_set_drvdata(input_dev, hid);
-+	input_dev->event = hid->ll_driver->hidinput_input_event;
-+	input_dev->open = hidinput_open;
-+	input_dev->close = hidinput_close;
-+	input_dev->setkeycode = hidinput_setkeycode;
-+	input_dev->getkeycode = hidinput_getkeycode;
-+
-+	input_dev->name = hid->name;
-+	input_dev->phys = hid->phys;
-+	input_dev->uniq = hid->uniq;
-+	input_dev->id.bustype = hid->bus;
-+	input_dev->id.vendor  = hid->vendor;
-+	input_dev->id.product = hid->product;
-+	input_dev->id.version = hid->version;
-+	input_dev->dev.parent = hid->dev.parent;
-+	hidinput->input = input_dev;
-+	list_add_tail(&hidinput->list, &hid->inputs);
-+
-+	return hidinput;
-+}
-+
- /*
-  * Register the input device; print a message.
-  * Configure the input layer interface
-@@ -1174,7 +1206,6 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
- 	struct hid_driver *drv = hid->driver;
- 	struct hid_report *report;
- 	struct hid_input *hidinput = NULL;
--	struct input_dev *input_dev;
- 	int i, j, k;
+ static struct mt_class mt_classes[] = {
+-	{ .name = MT_CLS_DEFAULT,
++	{ .name = MT_CLS_DEFAULT},
++	{ .name = MT_CLS_NSMU,
+ 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP },
+ 	{ .name = MT_CLS_SERIAL,
+ 		.quirks = MT_QUIRK_ALWAYS_VALID},
+@@ -927,7 +929,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_3M3266) },
  
- 	INIT_LIST_HEAD(&hid->inputs);
-@@ -1205,33 +1236,9 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
- 				continue;
+ 	/* ActionStar panels */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ACTIONSTAR,
+ 			USB_DEVICE_ID_ACTIONSTAR_1011) },
  
- 			if (!hidinput) {
--				hidinput = kzalloc(sizeof(*hidinput), GFP_KERNEL);
--				input_dev = input_allocate_device();
--				if (!hidinput || !input_dev) {
--					kfree(hidinput);
--					input_free_device(input_dev);
--					hid_err(hid, "Out of memory during hid input probe\n");
-+				hidinput = hidinput_allocate(hid);
-+				if (!hidinput)
- 					goto out_unwind;
--				}
--
--				input_set_drvdata(input_dev, hid);
--				input_dev->event =
--					hid->ll_driver->hidinput_input_event;
--				input_dev->open = hidinput_open;
--				input_dev->close = hidinput_close;
--				input_dev->setkeycode = hidinput_setkeycode;
--				input_dev->getkeycode = hidinput_getkeycode;
--
--				input_dev->name = hid->name;
--				input_dev->phys = hid->phys;
--				input_dev->uniq = hid->uniq;
--				input_dev->id.bustype = hid->bus;
--				input_dev->id.vendor  = hid->vendor;
--				input_dev->id.product = hid->product;
--				input_dev->id.version = hid->version;
--				input_dev->dev.parent = hid->dev.parent;
--				hidinput->input = input_dev;
--				list_add_tail(&hidinput->list, &hid->inputs);
- 			}
+@@ -940,7 +942,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_ATMEL_MXT_DIGITIZER) },
  
- 			for (i = 0; i < report->maxfield; i++)
+ 	/* Baanto multitouch devices */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_BAANTO,
+ 			USB_DEVICE_ID_BAANTO_MT_190W2) },
+ 	/* Cando panels */
+@@ -958,12 +960,12 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_CANDO_MULTI_TOUCH_15_6) },
+ 
+ 	/* Chunghwa Telecom touch panels */
+-	{  .driver_data = MT_CLS_DEFAULT,
++	{  .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
+ 			USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
+ 
+ 	/* CVTouch panels */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
+ 			USB_DEVICE_ID_CVTOUCH_SCREEN) },
+ 
+@@ -1052,12 +1054,12 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS) },
+ 
+ 	/* Gametel game controller */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_BT_DEVICE(USB_VENDOR_ID_FRUCTEL,
+ 			USB_DEVICE_ID_GAMETEL_MT_MODE) },
+ 
+ 	/* GoodTouch panels */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_GOODTOUCH,
+ 			USB_DEVICE_ID_GOODTOUCH_000f) },
+ 
+@@ -1075,7 +1077,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_IDEACOM_IDC6651) },
+ 
+ 	/* Ilitek dual touch panel */
+-	{  .driver_data = MT_CLS_DEFAULT,
++	{  .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
+ 			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
+ 
+@@ -1085,7 +1087,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+ 
+ 	/* LG Display panels */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_LG,
+ 			USB_DEVICE_ID_LG_MULTITOUCH) },
+ 
+@@ -1117,7 +1119,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_PANABOARD_UBT880) },
+ 
+ 	/* Novatek Panel */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_NOVATEK,
+ 			USB_DEVICE_ID_NOVATEK_PCT) },
+ 
+@@ -1173,48 +1175,48 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_TOPSEED2_PERIPAD_701) },
+ 
+ 	/* Touch International panels */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_TOUCH_INTL,
+ 			USB_DEVICE_ID_TOUCH_INTL_MULTI_TOUCH) },
+ 
+ 	/* Unitec panels */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_UNITEC,
+ 			USB_DEVICE_ID_UNITEC_USB_TOUCH_0709) },
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_UNITEC,
+ 			USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19) },
+ 	/* XAT */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XAT,
+ 			USB_DEVICE_ID_XAT_CSR) },
+ 
+ 	/* Xiroku */
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_SPX) },
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_MPX) },
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_CSR) },
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_SPX1) },
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_MPX1) },
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_CSR1) },
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_SPX2) },
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_MPX2) },
+-	{ .driver_data = MT_CLS_DEFAULT,
++	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_CSR2) },
+ 
 -- 
 1.8.0
+

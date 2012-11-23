@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 05/11] HID: hid-multitouch: manually send sync event for pen input report
-Date: Fri, 23 Nov 2012 16:31:28 +0100
-Message-ID: <1353684694-5723-6-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 11/11] HID: hid-multitouch: use MT_QUIRK_CONTACT_COUNT_ACCURATE for win 8 devices
+Date: Fri, 23 Nov 2012 16:31:34 +0100
+Message-ID: <1353684694-5723-12-git-send-email-benjamin.tissoires@gmail.com>
 References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -9,71 +9,27 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Since hid-multitouch sets the quirk HID_QUIRK_NO_INPUT_SYNC, we need
-to manually send the events and then make the SYN_EV.
-
-This patch needs to export hidinput_hid_event
+Win 8 devices can use MT_QUIRK_CONTACT_COUNT_ACCURATE instead of
+MT_QUIRK_IGNORE_DUPLICATES. The process is a little bit faster
+for MT_QUIRK_CONTACT_COUNT_ACCURATE, so let's use it.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- drivers/hid/hid-input.c      |  1 +
- drivers/hid/hid-multitouch.c | 17 ++++++++++++++---
- 2 files changed, 15 insertions(+), 3 deletions(-)
+ drivers/hid/hid-multitouch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index b0572d0..66ddbb6 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1057,6 +1057,7 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
- 	if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type == EV_KEY))
- 		input_event(input, usage->type, usage->code, 0);
- }
-+EXPORT_SYMBOL_GPL(hidinput_hid_event);
- 
- void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
- {
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c894306..0a4c062 100644
+index b374a5a..15d2587 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -84,6 +84,7 @@ struct mt_device {
- 	struct mt_fields *fields;	/* temporary placeholder for storing the
- 					   multitouch fields */
- 	unsigned last_field_index;	/* last field index of the report */
-+	unsigned last_pen_field_index;	/* last field index of the pen report */
- 	unsigned last_slot_field;	/* the last field of a slot */
- 	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
- 	__s8 inputmode_index;	/* InputMode HID feature index in the report */
-@@ -371,8 +372,10 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		td->physical = field->physical;
- 	}
- 
--	if (field->physical == HID_DG_STYLUS)
-+	if (field->physical == HID_DG_STYLUS) {
-+		td->last_pen_field_index = field->index;
- 		return 0;
-+	}
- 
- 	if (usage->usage_index)
- 		prev_usage = &field->usage[usage->usage_index - 1];
-@@ -598,8 +601,16 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
- 	struct mt_device *td = hid_get_drvdata(hid);
- 	__s32 quirks = td->mtclass.quirks;
- 
--	if (field->physical == HID_DG_STYLUS)
--		return 0;
-+	if (field->physical == HID_DG_STYLUS) {
-+		if (hid->claimed & HID_CLAIMED_INPUT)
-+			hidinput_hid_event(hid, field, usage, value);
-+		if (hid->claimed & HID_CLAIMED_HIDDEV && hid->hiddev_hid_event)
-+			hid->hiddev_hid_event(hid, field, usage, value);
-+		if (usage->usage_index + 1 == field->report_count &&
-+		    field->index == td->last_pen_field_index)
-+			input_sync(field->hidinput->input);
-+		return 1;
-+	}
- 
- 	if (hid->claimed & HID_CLAIMED_INPUT) {
- 		switch (usage->hid) {
+@@ -315,7 +315,7 @@ static void mt_feature_mapping(struct hid_device *hdev,
+ 			/* Win 8 devices need special quirks */
+ 			__s32 *quirks = &td->mtclass.quirks;
+ 			*quirks |= MT_QUIRK_ALWAYS_VALID;
+-			*quirks |= MT_QUIRK_IGNORE_DUPLICATES;
++			*quirks |= MT_QUIRK_CONTACT_COUNT_ACCURATE;
+ 			*quirks |= MT_QUIRK_HOVERING;
+ 			*quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
+ 			*quirks &= ~MT_QUIRK_VALID_IS_INRANGE;
 -- 
 1.8.0

@@ -1,74 +1,97 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] input: stmpe-ts: Add DT support for stmpe touchscreen
-Date: Fri, 23 Nov 2012 12:05:01 +0000
-Message-ID: <20121123120501.GA22268@gmail.com>
-References: <f56ddb18f4e9c92f6a94c6d3ae3f5fe30e0bd892.1353652106.git.viresh.kumar@linaro.org>
- <20121123104620.GQ17471@gmail.com>
- <CAKohpon+iU93sviKrkR+sdCJk0Z6rz0FcvTNsh9Ap88+Qy2mVw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: [PATCH 00/11] Support of dual pen/multitouch and new default for win 7 certified devices
+Date: Fri, 23 Nov 2012 16:31:23 +0100
+Message-ID: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:64164 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752169Ab2KWMFH (ORCPT
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:60142 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752235Ab2KWPbo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Nov 2012 07:05:07 -0500
-Received: by mail-bk0-f46.google.com with SMTP id q16so3822511bkw.19
-        for <linux-input@vger.kernel.org>; Fri, 23 Nov 2012 04:05:06 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAKohpon+iU93sviKrkR+sdCJk0Z6rz0FcvTNsh9Ap88+Qy2mVw@mail.gmail.com>
+	Fri, 23 Nov 2012 10:31:44 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, Vipul Kumar Samar <vipulkumar.samar@st.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> >> +++ b/Documentation/devicetree/bindings/input/touchscreen/stmpe.tx=
-t
-> >> @@ -0,0 +1,43 @@
-> >> +STMPE Touchscreen
-> >> +----------------
-> >> +
-> >> +Required properties:
-> >> + - compatible: "st,stmpe-ts"
-> >
-> > You shouldn't be specifying a compatible string in the DT.
-> >
-> >> +Example:
-> >> +
-> >> +     stmpe_touchscreen {
-> >> +             compatible =3D "st,stmpe-ts";
-> >
-> > This needs to be removed.
->=20
-> Copying my earlier reply from stmpe-gpio patch for others to know
-> what i have to say on this :)
->=20
-> I believe these are required by the code you wrote in mfd-core.c
->=20
->         if (parent->of_node && cell->of_compatible) {
->                 for_each_child_of_node(parent->of_node, np) {
->                         if (of_device_is_compatible(np, cell->of_comp=
-atible)) {
->                                 pdev->dev.of_node =3D np;
->                                 break;
->                         }
->                 }
->         }
->=20
-> This matches compatible of child node with compatible of cell. And th=
-at's
-> why you have added that in your keypad mappings as well.
+Hi Guys,
 
-Yes, you're right. Please ignore this comment.
+Last week, I received two new interesting devices report:
+- N-trig win 8 certified pen/touch panel
+- Samsung Nexio 42"
 
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+N-trig device
+-------------
+The first one is the origin of patches 1 to 6.
+The multiouch part worked flawlessly with the win 8 patches I sent before,
+but the pen part was completely ignored.
+I could have used the quirk MULTI_INPUT, but by testing this quirk against
+several devices report I have (https://github.com/bentiss/hid-devices), it
+was a pain because some of them create 4 or 5 useless inputs.
+
+I choose to allow the hid driver to control the creation of input devices, thus
+patches 1 to 3.
+
+
+Nexio device
+------------
+The second one was more problematic. Indeed, it was not working at all with the
+current release of hid-multitouch. I had several ghost points, and any of the
+available quirks worked.
+I finaly found the trick, and this trick applies to all the win7 and win8
+devices I saw so far (same url as before).
+
+So I think I finally understood why the windows driver was better than us: it
+first looks at the announced contact count, and treat only the right number. It
+was so simple... and it works so well...
+
+However, for us, I need to get this information from the raw_event because most
+of the devices put the contact count field at the end of the report.
+
+I also decided to change the default class as it is much more tolerant than the
+previous one. I could have changed all the devices, but in the end, I changed
+only those that get a benefit and that I could test.
+
+
+Debug tool
+----------
+I was able to discover this trick only recently because I made a small C program
+that allows me to replay the hid events through hid-multitouch. The code is
+here: https://github.com/bentiss/hid-replay and you will need a kernel 3.6
+to make it work (it requires uhid).
+
+However, be careful, this program can be the root of many kernel oopses if the
+targeted hid module tries to directly handle the usb or with any of the usbhid
+function.
+So, Henrik, I really need you to push your abstraction of usbhid in all hid
+modules :)
+
+Anyway, this tool can be very helpful to debug hid devices, that's why I share
+it there... and also because I work for an open-source company :)
+
+Happy reviewing.
+
+Cheers,
+Benjamin
+
+Benjamin Tissoires (11):
+  HID: hid-input factorize hid_input allocation
+  HID: hid-input: simplify hid_input allocation and registration
+  HID: hid-input: export hidinput_allocation function
+  HID: hid-multitouch: creates and handle stylus report with dual-sensors
+  HID: hid-multitouch: manually send sync event for pen input report
+  HID: hid-multitouch: append " Pen" to the name of the stylus input
+  HID: hid-multitouch: rename MT_CLS_DEFAULT into MT_CLS_NSMU
+  HID: hid-multitouch: add support for Nexio 42" panel
+  HID: hid-multitouch: check if ContactCount is given for default quirk
+  HID: hid-multitouch: fix protocol for 3 devices
+  HID: hid-multitouch: use MT_QUIRK_CONTACT_COUNT_ACCURATE for win 8 devices
+
+ drivers/hid/hid-ids.h        |   3 +
+ drivers/hid/hid-input.c      | 100 +++++++++++++---------
+ drivers/hid/hid-multitouch.c | 198 +++++++++++++++++++++++++++++++++++--------
+ include/linux/hid.h          |   1 +
+ 4 files changed, 229 insertions(+), 73 deletions(-)
+
+-- 
+1.8.0
+

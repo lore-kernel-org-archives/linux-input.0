@@ -1,108 +1,49 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 5/5] Documentation: Describe bindings for STMPE Keypad
- driver
-Date: Fri, 23 Nov 2012 15:54:21 +0000
-Message-ID: <20121123155421.GG28552@gmail.com>
-References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
- <1352900837-20759-6-git-send-email-lee.jones@linaro.org>
+From: Arthur Skowronek <eisensheng@gmail.com>
+Subject: PROBLEM: ACRUX USB GAMEPAD reports wrong value on axis 0 in certain state
+Date: Fri, 23 Nov 2012 20:46:50 +0100
+Message-ID: <CA+yuk4Z5PJzVc+r6hD6+eKM6QJt9tdUem9L1ROHg=TDAX1td9w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:46581 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754631Ab2KWPy0 (ORCPT
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:50312 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752407Ab2KWTqv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Nov 2012 10:54:26 -0500
-Received: by mail-bk0-f46.google.com with SMTP id q16so3936931bkw.19
-        for <linux-input@vger.kernel.org>; Fri, 23 Nov 2012 07:54:25 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1352900837-20759-6-git-send-email-lee.jones@linaro.org>
+	Fri, 23 Nov 2012 14:46:51 -0500
+Received: by mail-ob0-f174.google.com with SMTP id wc20so9216436obb.19
+        for <linux-input@vger.kernel.org>; Fri, 23 Nov 2012 11:46:50 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Wed, 14 Nov 2012, Lee Jones wrote:
+Dear List,
 
-> Here we add the required documentation for the STMPE Device
-> Tree bindings. It describes all of the bindings currently
-> supported by the driver.
->=20
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  .../devicetree/bindings/input/stmpe-keypad.txt     |   39 ++++++++++=
-++++++++++
->  1 file changed, 39 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/stmpe-key=
-pad.txt
->=20
-> diff --git a/Documentation/devicetree/bindings/input/stmpe-keypad.txt=
- b/Documentation/devicetree/bindings/input/stmpe-keypad.txt
-> new file mode 100644
-> index 0000000..1b97222
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/stmpe-keypad.txt
-> @@ -0,0 +1,39 @@
-> +* STMPE Keypad
-> +
-> +Required properties:
-> + - compatible               : "st,stmpe-keypad"
-> + - linux,keymap             : See ./matrix-keymap.txt
-> +
-> +Optional properties:
-> + - debounce-interval        : Debouncing interval time in millisecon=
-ds
-> + - st,scan-count            : Scanning cycles elapsed before key dat=
-a is updated
-> + - st,no-autorepeat         : If specified device will not autorepea=
-t
-> +
-> +Example:
-> +
-> +	stmpe_keypad {
-> +		compatible =3D "st,stmpe-keypad";
-> +
-> +		debounce-interval =3D <64>;
-> +		st,scan-count =3D <8>;
-> +		st,no-autorepeat;
-> +
-> +		linux,keymap =3D <0x205006b
-> +				0x4010074
-> +				0x3050072
-> +				0x1030004
-> +				0x502006a
-> +				0x500000a
-> +				0x5008b
-> +				0x706001c
-> +				0x405000b
-> +				0x6070003
-> +				0x3040067
-> +				0x303006c
-> +				0x60400e7
-> +				0x602009e
-> +				0x4020073
-> +				0x5050002
-> +				0x4030069
-> +				0x3020008>;
-> +	};
-> --=20
-> 1.7.9.5
->=20
+I have 4 of the acrux usb game pad lying around here and all of them
+show the same behavior.
 
-Last one.
+[1.] One line summary of the problem:
+The driver reports a bad value for the axis 0 whenever I move the
+stick to far to the right and only this direction and only this axis
+is affected.
 
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+[2.] Full description of the problem/report:
+Whenever I move the 0 axis stick to far to the right, the driver
+reports a value of -32767 to the program which is clearly wrong since
+this value means the stick is far to the left. This is the only axis
+affected by this strange behavior. This can also be seen on
+<http://youtu.be/ZbTaqA1ROSY>.
+
+[3.] Keywords (i.e., modules, networking, kernel):
+Game pad, USB HID
+
+[4.] Kernel version (from /proc/version):
+Linux version 3.6.7-1-ARCH (tobias@T-POWA-LX) (gcc version 4.7.2 (GCC)
+) #1 SMP PREEMPT Sun Nov 18 10:11:22 CET 2012
+
+[7.] Environment
+<http://pastebin.com/Y2eShgX0>
+
+Thank you very much
+
+Greetings,
+Arthur S.

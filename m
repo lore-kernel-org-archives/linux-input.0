@@ -1,49 +1,62 @@
-From: Arthur Skowronek <eisensheng@gmail.com>
-Subject: PROBLEM: ACRUX USB GAMEPAD reports wrong value on axis 0 in certain state
-Date: Fri, 23 Nov 2012 20:46:50 +0100
-Message-ID: <CA+yuk4Z5PJzVc+r6hD6+eKM6QJt9tdUem9L1ROHg=TDAX1td9w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Marek Vasut <marex@denx.de>
+Subject: [PATCH] HID: add quirk for Freescale i.MX23 ROM recovery
+Date: Sat, 24 Nov 2012 06:15:57 +0100
+Message-ID: <1353734157-9119-1-git-send-email-marex@denx.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:50312 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752407Ab2KWTqv (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.10]:37367 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750855Ab2KXFQF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Nov 2012 14:46:51 -0500
-Received: by mail-ob0-f174.google.com with SMTP id wc20so9216436obb.19
-        for <linux-input@vger.kernel.org>; Fri, 23 Nov 2012 11:46:50 -0800 (PST)
+	Sat, 24 Nov 2012 00:16:05 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: Marek Vasut <marex@denx.de>, Chen Peter <B29397@freescale.com>, Greg KH <greg@kroah.com>, Jiri Kosina <jkosina@suse.cz>
 
-Dear List,
+The USB recovery mode present in i.MX23 ROM emulates USB HID.
+It needs this quirk to behave properly.
 
-I have 4 of the acrux usb game pad lying around here and all of them
-show the same behavior.
+Even if the official branding of the chip is Freescale i.MX23,
+I named it Sigmatel STMP3780 since that's what the chip really
+is and it even reports itself as STMP3780.
 
-[1.] One line summary of the problem:
-The driver reports a bad value for the axis 0 whenever I move the
-stick to far to the right and only this direction and only this axis
-is affected.
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Chen Peter <B29397@freescale.com>
+Cc: Greg KH <greg@kroah.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-ids.h           |    3 +++
+ drivers/hid/usbhid/hid-quirks.c |    1 +
+ 2 files changed, 4 insertions(+)
 
-[2.] Full description of the problem/report:
-Whenever I move the 0 axis stick to far to the right, the driver
-reports a value of -32767 to the program which is clearly wrong since
-this value means the stick is far to the left. This is the only axis
-affected by this strange behavior. This can also be seen on
-<http://youtu.be/ZbTaqA1ROSY>.
+NOTE: it'd be nice to include this in -stable eventually.
 
-[3.] Keywords (i.e., modules, networking, kernel):
-Game pad, USB HID
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9d7a428..1ef9a9e 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -696,6 +696,9 @@
+ #define USB_VENDOR_ID_SIGMA_MICRO	0x1c4f
+ #define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD	0x0002
+ 
++#define USB_VENDOR_ID_SIGMATEL		0x066F
++#define USB_DEVICE_ID_SIGMATEL_STMP3780	0x3780
++
+ #define USB_VENDOR_ID_SKYCABLE			0x1223
+ #define	USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER	0x3F07
+ 
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 11c7932..0a1429f 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -79,6 +79,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_SIGMATEL, USB_DEVICE_ID_SIGMATEL_STMP3780, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_1, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_2, HID_QUIRK_NOGET },
+-- 
+1.7.10.4
 
-[4.] Kernel version (from /proc/version):
-Linux version 3.6.7-1-ARCH (tobias@T-POWA-LX) (gcc version 4.7.2 (GCC)
-) #1 SMP PREEMPT Sun Nov 18 10:11:22 CET 2012
-
-[7.] Environment
-<http://pastebin.com/Y2eShgX0>
-
-Thank you very much
-
-Greetings,
-Arthur S.

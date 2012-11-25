@@ -1,39 +1,22 @@
-From: =?ISO-8859-1?Q?Ortwin_Gl=FCck?= <odi@odi.ch>
-Subject: [PATCH] HID: hid-input: battery quirk for Apple keyboard
-Date: Sun, 25 Nov 2012 15:08:34 +0100
-Message-ID: <50B22662.4070503@odi.ch>
+From: "devendra.aaru" <devendra.aaru@gmail.com>
+Subject: Re: [PATCH] HID: hid-input: battery quirk for Apple keyboard
+Date: Sun, 25 Nov 2012 09:13:32 -0500
+Message-ID: <CAHdPZaNmODLfRJoJ-vt8PEQT+3n8p1CqXsZf3TUJV7pBgA8jEg@mail.gmail.com>
+References: <50B22662.4070503@odi.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
-Cc: stable@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vc0-f174.google.com ([209.85.220.174]:42783 "EHLO
+	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752712Ab2KYONd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 25 Nov 2012 09:13:33 -0500
+In-Reply-To: <50B22662.4070503@odi.ch>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?ISO-8859-1?Q?Ortwin_Gl=FCck?= <odi@odi.ch>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, stable@vger.kernel.org
 
-Support battery capacity on another Apple wireless
-keyboard.
-
-NB: most likely all other APPLE_ALU_WIRELESS_*
-keyboards should be added as well.
-
-Signed-off-by: Ortwin Gl=FCck <odi@odi.ch>
----
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 5301006..b2ae097 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -299,6 +299,9 @@ static enum power_supply_property hidinput_battery_=
-props[] =3D {
-
-  static const struct hid_device_id hid_battery_quirks[] =3D {
-         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-+                              USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_IS=
-O),
-+         HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
-+       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-                                USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_A=
-NSI),
-           HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
-         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+i think you should simply do a  cc: stable@vger.kernel.org just right
+above your signedoff-by, which is the way that stable patches gets
+into i think.

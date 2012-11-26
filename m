@@ -1,39 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: Drop TOUCHSCREEN_BITSY support
-Date: Mon, 26 Nov 2012 00:13:12 -0800
-Message-ID: <20121126081312.GC21091@core.coreip.homeip.net>
-References: <1353852178-4920-1-git-send-email-shc_work@mail.ru>
+Subject: Re: [PATCH] HID: hidraw: fix nonblock read return EAGAIN after
+ device removed
+Date: Mon, 26 Nov 2012 00:15:12 -0800
+Message-ID: <20121126081512.GD21091@core.coreip.homeip.net>
+References: <CAHLfQU=Hrufny=652k2mM7OcjxnRMH-kgj510FZrrKtiKNxdgw@mail.gmail.com>
+ <CAHLfQUnhEQBC+yzB3jFnJbB7jMvuVjr1M62kzxWzMN2v0i=VzA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:58435 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752631Ab2KZINQ (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:53556 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752631Ab2KZIPQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2012 03:13:16 -0500
-Received: by mail-pb0-f46.google.com with SMTP id wy7so7833562pbc.19
-        for <linux-input@vger.kernel.org>; Mon, 26 Nov 2012 00:13:16 -0800 (PST)
+	Mon, 26 Nov 2012 03:15:16 -0500
 Content-Disposition: inline
-In-Reply-To: <1353852178-4920-1-git-send-email-shc_work@mail.ru>
+In-Reply-To: <CAHLfQUnhEQBC+yzB3jFnJbB7jMvuVjr1M62kzxWzMN2v0i=VzA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-input@vger.kernel.org, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+To: "founder.fang" <founder.fang@gmail.com>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Alexander,
+Hi Founder,
 
-On Sun, Nov 25, 2012 at 06:02:57PM +0400, Alexander Shiyan wrote:
-> The kernel does not contain the symbol SA1100_BITSY so the driver
-> never compiled and can be removed safely.
+On Mon, Nov 26, 2012 at 10:30:37AM +0800, founder.fang wrote:
+> Hi Linux-Input, Jiri, Dmitry,
+> this patch is related to nonblock read on hidraw device.
+> when nonblock read the condition check (file->f_flags & O_NONBLOCK)
+> always be true,
+> signal_pending and device exist checking never get a chance to run, so
+> the user mode code always
+> get EAGAIN even if device removed. move nonblock mode checking to the
+> last can fix this problem.
 > 
-> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-> ---
->  drivers/input/touchscreen/Kconfig          |   12 -
->  drivers/input/touchscreen/Makefile         |    1 -
->  drivers/input/touchscreen/h3600_ts_input.c |  479 ----------------------------
+> Signed-off-by: Founder Fang <founder.fang@gmail.com>
+> 
 
-I applied the touchscreen part, thank you. The staging piece should go
-through Greg KH.
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Makes sense to me. However it looks like your mailer line-wrapped the
+patch, please resend so Jiri can apply it.
 
 Thanks.
 

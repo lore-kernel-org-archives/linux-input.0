@@ -1,41 +1,31 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hidraw: fix nonblock read return EAGAIN after device
- removed
-Date: Mon, 26 Nov 2012 14:18:51 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211261417470.12570@pobox.suse.cz>
-References: <CAHLfQU=Hrufny=652k2mM7OcjxnRMH-kgj510FZrrKtiKNxdgw@mail.gmail.com> <CAHLfQUnhEQBC+yzB3jFnJbB7jMvuVjr1M62kzxWzMN2v0i=VzA@mail.gmail.com> <20121126081512.GD21091@core.coreip.homeip.net>
+Subject: Re: [PATCH] HID: add quirk for Freescale i.MX23 ROM recovery
+Date: Mon, 26 Nov 2012 14:21:18 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211261421050.12570@pobox.suse.cz>
+References: <1353734157-9119-1-git-send-email-marex@denx.de>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121126081512.GD21091@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "founder.fang" <founder.fang@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:44144 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754662Ab2KZNVW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Nov 2012 08:21:22 -0500
+In-Reply-To: <1353734157-9119-1-git-send-email-marex@denx.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Marek Vasut <marex@denx.de>
+Cc: linux-input@vger.kernel.org, Chen Peter <B29397@freescale.com>, Greg KH <greg@kroah.com>
 
-On Mon, 26 Nov 2012, Dmitry Torokhov wrote:
+On Sat, 24 Nov 2012, Marek Vasut wrote:
 
-> > Hi Linux-Input, Jiri, Dmitry,
-> > this patch is related to nonblock read on hidraw device.
-> > when nonblock read the condition check (file->f_flags & O_NONBLOCK)
-> > always be true,
-> > signal_pending and device exist checking never get a chance to run, so
-> > the user mode code always
-> > get EAGAIN even if device removed. move nonblock mode checking to the
-> > last can fix this problem.
-> > 
-> > Signed-off-by: Founder Fang <founder.fang@gmail.com>
-> > 
+> The USB recovery mode present in i.MX23 ROM emulates USB HID.
+> It needs this quirk to behave properly.
 > 
-> Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Makes sense to me. However it looks like your mailer line-wrapped the
-> patch, please resend so Jiri can apply it.
+> Even if the official branding of the chip is Freescale i.MX23,
+> I named it Sigmatel STMP3780 since that's what the chip really
+> is and it even reports itself as STMP3780.
 
-For some reason, the patch has been sent to me twice, once it has been 
-fine and the second time it has been line wrapped.
-
-I have now applied the non-broken version. Thanks,
+Applied, thanks Marek.
 
 -- 
 Jiri Kosina

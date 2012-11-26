@@ -1,110 +1,79 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [RFC PATCH 02/06] input/rmi4: Core files
-Date: Mon, 26 Nov 2012 14:54:23 -0800
-Message-ID: <50B3F31F.6080203@synaptics.com>
-References: <1353124734-16803-1-git-send-email-cheiny@synaptics.com> <1353124734-16803-3-git-send-email-cheiny@synaptics.com> <CAN+gG=HLjJzGs3aZ9JTB0vvbMkJQWv=8cZXNpBhpFNYxdvKmVw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/4] Input - arizona-haptics: Add driver haptics module
+ on Arizona CODECs
+Date: Mon, 26 Nov 2012 15:11:22 -0800
+Message-ID: <20121126231122.GA26836@core.coreip.homeip.net>
+References: <1353965980-32543-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <1353965980-32543-2-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:35677 "EHLO
-	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756146Ab2KZWy0 (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:64408 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932412Ab2KZXL1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2012 17:54:26 -0500
-In-Reply-To: <CAN+gG=HLjJzGs3aZ9JTB0vvbMkJQWv=8cZXNpBhpFNYxdvKmVw@mail.gmail.com>
+	Mon, 26 Nov 2012 18:11:27 -0500
+Received: by mail-pb0-f46.google.com with SMTP id wy7so8390006pbc.19
+        for <linux-input@vger.kernel.org>; Mon, 26 Nov 2012 15:11:27 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1353965980-32543-2-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org
 
-On 11/26/2012 10:41 AM, Benjamin Tissoires wrote:
-> Hi Christopher,
->
-> On Sat, Nov 17, 2012 at 4:58 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
->> rmi_bus.c implements the basic functionality of the RMI bus.  This file is
->> greatly simplified compared to the previous patch - we've switched from
->> "do it yourself" device/driver binding to using device_type to distinguish
->> between the two kinds of devices on the bus (sensor devices and function
->> specific devices) and using the standard bus implementation to manage devices
->> and drivers.
->>
->>
->> rmi_driver.c is a driver for the general functionality of the RMI sensor as a
->> whole, managing those behaviors (including IRQ handling) that are not specific
->> to any RMI4 function.  It has some unavoidable dependencies on F01 behavior,
->> though we have worked to minimize those as far as possible.
->>
->>
->> The header file rmi_driver.h provides definitions that are shared among
->> the modules of the RMI implementation, but not thought to be necessary
->> outside it.
->>
->>
->> Greg KH - Linus Walleij recommended that we seek your input on these core
->> files, particularly the bus implementation.
->>
->>
->> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
->>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> Cc: Linus Walleij <linus.walleij@stericsson.com>
->> Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
->> Cc: Joeri de Gram <j.de.gram@gmail.com>
->>
->> ---
->>
->>   drivers/input/rmi4/rmi_bus.c    |  248 ++++++
->>   drivers/input/rmi4/rmi_driver.c | 1663 +++++++++++++++++++++++++++++++++++++++
->>   drivers/input/rmi4/rmi_driver.h |  139 ++++
->>   include/uapi/linux/input.h      |    1 +
->>   4 files changed, 2051 insertions(+), 0 deletions(-)
->>
-> [snipped]
->> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
->> new file mode 100644
->> index 0000000..05a73ae
->> --- /dev/null
->> +++ b/drivers/input/rmi4/rmi_driver.c
-> [snipped]
->> +/* extract product ID */
->> +void get_prod_id(struct rmi_device *rmi_dev, struct rmi_driver_data *drvdata)
->> +{
->> +       struct device *dev = &rmi_dev->dev;
->> +       int retval;
->> +       int board = 0, rev = 0;
->> +       int i;
->> +       static const char * const pattern[] = {
->> +               "tm%4d-%d", "s%4d-%d", "s%4d-ver%1d"};
->> +       u8 product_id[RMI_PRODUCT_ID_LENGTH+1];
->> +
->> +       retval = rmi_read_block(rmi_dev,
->> +               drvdata->f01_container->fd.query_base_addr+
->> +               sizeof(struct f01_basic_queries),
->> +               product_id, RMI_PRODUCT_ID_LENGTH);
->> +       if (retval < 0) {
->> +               dev_err(dev, "Failed to read product id, code=%d!", retval);
->> +               return;
->> +       }
->> +       product_id[RMI_PRODUCT_ID_LENGTH] = '\0';
->> +
->> +       for (i = 0; i < sizeof(product_id); i++)
->> +               product_id[i] = tolower(product_id[i]);
->> +
->> +       for (i = 0; i < sizeof(pattern); i++) {
->
-> This should be ARRAY_SIZE(pattern).
-> It gave me a wonderful kernel oops :)
+Hi Mark,
 
-Yep, that's a bug!  Oddly enough, it runs without barfing on my systems 
-(though who knows what horrible things are happening under the hood). 
-Thanks for letting us know.
+On Mon, Nov 26, 2012 at 09:39:38PM +0000, Mark Brown wrote:
+> +static int arizona_haptics_play(struct input_dev *input, void *data,
+> +				struct ff_effect *effect)
+> +{
+> +	struct arizona_haptics *haptics = input_get_drvdata(input);
+> +	struct arizona *arizona = haptics->arizona;
+> +	struct mutex *dapm_mutex = &arizona->dapm->card->dapm_mutex;
+> +	u8 val;
+> +	int ret;
+> +
+> +	if (!haptics->arizona->dapm) {
+> +		dev_err(arizona->dev, "No DAPM context\n");
+> +		return -EBUSY;
+> +	}
+> +
+> +	if (effect->u.rumble.strong_magnitude) {
+> +		/* Scale the magnitude into the range the device supports */
+> +		if (arizona->pdata.hap_act) {
+> +			val = effect->u.rumble.strong_magnitude >> 9;
+> +			if (effect->direction < 0x8000)
+> +				val += 0x7f;
+> +		} else {
+> +			val = effect->u.rumble.strong_magnitude >> 8;
+> +		}
+> +
+> +		ret = regmap_update_bits(arizona->regmap,
+> +					 ARIZONA_HAPTICS_PHASE_2_INTENSITY,
+> +					 ARIZONA_PHASE2_INTENSITY_MASK, val);
+> +		if (ret != 0) {
+> +			dev_err(arizona->dev, "Failed to set intensity: %d\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +
+> +		/* This enable sequence will be a noop if already enabled */
+> +		ret = regmap_update_bits(arizona->regmap,
+> +					 ARIZONA_HAPTICS_CONTROL_1,
+> +					 ARIZONA_HAP_CTRL_MASK,
+> +					 1 << ARIZONA_HAP_CTRL_SHIFT);
+> +		if (ret != 0) {
+> +			dev_err(arizona->dev, "Failed to start haptics: %d\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +
+> +		mutex_lock_nested(dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
 
-					Chris
+You cannot sleep in play() methods.
 
->
-> Cheers,
-> Benjamin
+Thanks.
 
-[snip]
+-- 
+Dmitry

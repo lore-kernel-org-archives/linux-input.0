@@ -1,63 +1,138 @@
-From: =?KOI8-R?B?88XSx8XKIOjP0s/bwdfJzg==?= <skhoroshavin@gmail.com>
-Subject: [PATCH] usbhid: GeneralTouch DTL153 touchscreen fix
-Date: Mon, 26 Nov 2012 22:49:25 +0400
-Message-ID: <CAAjB_gwc3rFNY-z3ZTF0xrgHfX-KRT1Oq1dXJjt2PyS=sA8NYg@mail.gmail.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two locks.
+Date: Mon, 26 Nov 2012 19:54:42 +0100
+Message-ID: <CANq1E4Qc_GpRtghL5emCFTWOCh0-0TC1oJ6ZaAsQbOMixgS-5Q@mail.gmail.com>
+References: <CAG_cf+cXnNSyxcrsZncfr2KKFRhiCJ60vHrTt3_aB-Bc7m5eVw@mail.gmail.com>
+	<20121126185627.7bff1f84@neptune.home>
+	<CAN+gG=ENOU1oYRLd2ZMhPeCFPmTtiYRDZuuW3idvULShrnkPUg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:37835 "EHLO
+Received: from mail-ea0-f174.google.com ([209.85.215.174]:33753 "EHLO
 	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754469Ab2KZSt0 (ORCPT
+	with ESMTP id S1751345Ab2KZSyn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2012 13:49:26 -0500
-Received: by mail-ea0-f174.google.com with SMTP id e13so4526238eaa.19
-        for <linux-input@vger.kernel.org>; Mon, 26 Nov 2012 10:49:25 -0800 (PST)
+	Mon, 26 Nov 2012 13:54:43 -0500
+Received: by mail-ea0-f174.google.com with SMTP id e13so4528110eaa.19
+        for <linux-input@vger.kernel.org>; Mon, 26 Nov 2012 10:54:42 -0800 (PST)
+In-Reply-To: <CAN+gG=ENOU1oYRLd2ZMhPeCFPmTtiYRDZuuW3idvULShrnkPUg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: =?ISO-8859-1?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, Andrew de los Reyes <andrew-vger@gizmolabs.org>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-From: Sergey Khoroshavin <skhoroshavin@gmail.com>
+Hi
 
-Fix usbhid sending motion events for Z/RX instead of X/Y axes when
-used with GeneralTouch DTL153 touchscreen (vendor id 1DDB, product id
-0001).
+On Mon, Nov 26, 2012 at 7:34 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> Hi Bruno,
+>
+> On Mon, Nov 26, 2012 at 6:56 PM, Bruno Pr=E9mont
+> <bonbons@linux-vserver.org> wrote:
+>> Hi Andrew,
+>>
+>> [CCing David Herrmann]
+>>
+>>
+>> On Sun, 25 November 2012 Andrew de los Reyes wrote:
+>>> Benjamin Tissoires and Nestor Lopez Casado have been helping me to =
+add
+>>> Linux support for new Logitech Touch Mice (T620, T400). After runni=
+ng
+>>> into a road-block in hid-core, and solving it with this patch, we
+>>> thought it was good to show the community and see if this is okay, =
+or
+>>> if there's a better solution that we've missed.
+>>>
+>>> Thanks for your comments,
+>>> -andrew
+>>>
+>>> This patch separates struct hid_device's driver_lock into two. The
+>>> goal is to allow hid device drivers to receive input during their
+>>> probe() function call. This is necessary because some drivers need =
+to
+>>> communicate with the device to determine parameters needed during
+>>> probe (e.g., size of a multi-touch surface).
+>>>
+>>> Historically, three functions used driver_lock:
+>>>
+>>> - hid_device_probe: blocks to acquire lock
+>>> - hid_device_remove: blocks to acquire lock
+>>> - hid_input_report: if locked returns -EBUSY, else acquires lock
+>>>
+>>> This patch adds another lock (driver_input_lock) which is used to
+>>> block input from occurring. The lock behavior is now:
+>>>
+>>> - hid_device_probe: blocks to acq. driver_lock, then driver_input_l=
+ock
+>>> - hid_device_remove: blocks to acq. driver_lock, then driver_input_=
+lock
+>>> - hid_input_report: if driver_input_lock locked returns -EBUSY, els=
+e
+>>>   acquires driver_input_lock
+>>>
+>>> This results in no behavior change for existing devices and
+>>> drivers. However, during a probe() function call in a driver, that
+>>> driver may now selectively unlock driver_input_lock to let input
+>>> events come through, then re-lock.
+>>
+>> That is more or less a new approach to release the restriction added=
+ in
+>> commit 4ea5454203d991ec85264f64f89ca8855fce69b0
+>> (HID: Fix race condition between driver core and ll-driver).
+>>
+>> From your suggested change the question could be if releasing the in=
+put
+>> lock should be connected to hw_start() / hw_stop() calls...
+>>
+>> Though connecting those together would certainly require some review=
+ of
+>> existing drivers in order not to reopen the can of worms closed by a=
+bove
+>> mentioned commit.
+>>
+>
+> It is clear that the goal is to make commit
+> 4ea5454203d991ec85264f64f89ca8855fce69b0 less restrictive.
+> The problem is that this commit stops any communication with the
+> device, even configuration communication.
+>
+> Logitech devices use their own protocol on top of the HID standard
+> protocol. For touch devices, this proprietary protocol requires to as=
+k
+> the device for axis ranges, etc...
+>
+> So here, the idea is not to open the can of worm for every hid device=
+s
+> through hw_start() / hw_stop() calls, I think the idea of Andrew is
+> just to allow hid-logitech-dj to get rid of this restriction in some
+> particular circumstances.
+> Consider this as a controlled backdoor of the can of worms :)
 
-BUG 51001: https://bugzilla.kernel.org/show_bug.cgi?id=51001
+The problems I was facing back then when writing the patch was that a
+driver wasn't able to properly set itself up before input events might
+be received. Hence, I locked down the whole .probe function. We should
+make sure that this is guaranteed for all drivers when fixing this as
+most of them silently depend on this behavior.
+Releasing the lock with hw_start() would actually be the most logical
+thing to do, but the implementation is ugly as we would release the
+lock inside of the callback that ought to be protected by the lock.
+Therefore, I didn't do this. Furthermore, it is unclear whether this
+fixes all the race-conditions of all hid-drivers.
 
-Signed-off-by: Sergey Khoroshavin <skhoroshavin@gmail.com>
+The fix you are proposing actually looks pretty nice, although it puts
+the burden of locking to the hid-driver instead of the hid-core. So
+every .probe function must go sure that the lock is held when
+returning. This means if you unlock the input-lock, you need to lock
+it before calling return so hid-core can unlock it again. This opens a
+small race-condition where the hid-core might drop important
+input-events as input-lock is held during "return". Any ideas here?
 
----
-
-diff -uprN linux-3.6/drivers/hid/hid-ids.h
-linux-3.6-patched/drivers/hid/hid-ids.h
---- linux-3.6/drivers/hid/hid-ids.h	2012-10-01 03:47:46.000000000 +0400
-+++ linux-3.6-patched/drivers/hid/hid-ids.h	2012-11-24 14:39:04.775148213 +0400
-@@ -306,6 +306,9 @@
- #define USB_VENDOR_ID_GENERAL_TOUCH	0x0dfc
- #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
-
-+#define USB_VENDOR_ID_GENERAL_TOUCH_RESISTIVE	0x1ddb
-+#define USB_DEVICE_ID_GENERAL_TOUCH_DTL153	0x0001
-+
- #define USB_VENDOR_ID_GLAB		0x06c2
- #define USB_DEVICE_ID_4_PHIDGETSERVO_30	0x0038
- #define USB_DEVICE_ID_1_PHIDGETSERVO_30	0x0039
-diff -uprN linux-3.6/drivers/hid/usbhid/hid-quirks.c
-linux-3.6-patched/drivers/hid/usbhid/hid-quirks.c
---- linux-3.6/drivers/hid/usbhid/hid-quirks.c	2012-10-01
-03:47:46.000000000 +0400
-+++ linux-3.6-patched/drivers/hid/usbhid/hid-quirks.c	2012-11-24
-14:44:51.468546301 +0400
-@@ -36,6 +36,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_DWAV, USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER,
-HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_MOJO, USB_DEVICE_ID_RETRO_ADAPTER, HID_QUIRK_MULTI_INPUT },
-+	{ USB_VENDOR_ID_GENERAL_TOUCH_RESISTIVE,
-USB_DEVICE_ID_GENERAL_TOUCH_DTL153, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING, HID_QUIRK_BADPAD |
-HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING, HID_QUIRK_BADPAD |
-HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING, HID_QUIRK_BADPAD
-| HID_QUIRK_MULTI_INPUT },
+Regards
+David
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,65 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] hid: usbhid: Return -ENOMEM instead of -1 for memory
- allocation failure
-Date: Mon, 26 Nov 2012 10:05:30 -0800
-Message-ID: <20121126180530.GE14623@core.coreip.homeip.net>
-References: <1353478830-23788-1-git-send-email-sachin.kamat@linaro.org>
- <alpine.LNX.2.00.1211222202530.4609@pobox.suse.cz>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two
+ locks.
+Date: Mon, 26 Nov 2012 18:56:27 +0100
+Message-ID: <20121126185627.7bff1f84@neptune.home>
+References: <CAG_cf+cXnNSyxcrsZncfr2KKFRhiCJ60vHrTt3_aB-Bc7m5eVw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:63106 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932409Ab2KZSFf (ORCPT
+Received: from smtprelay.restena.lu ([158.64.1.62]:37245 "EHLO
+	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753552Ab2KZSHW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2012 13:05:35 -0500
-Received: by mail-pa0-f46.google.com with SMTP id bh2so5236920pad.19
-        for <linux-input@vger.kernel.org>; Mon, 26 Nov 2012 10:05:35 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1211222202530.4609@pobox.suse.cz>
+	Mon, 26 Nov 2012 13:07:22 -0500
+In-Reply-To: <CAG_cf+cXnNSyxcrsZncfr2KKFRhiCJ60vHrTt3_aB-Bc7m5eVw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, jic23@kernel.org, patches@linaro.org
+To: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Thu, Nov 22, 2012 at 10:03:44PM +0100, Jiri Kosina wrote:
-> On Wed, 21 Nov 2012, Sachin Kamat wrote:
+Hi Andrew,
+
+[CCing David Herrmann]
+
+
+On Sun, 25 November 2012 Andrew de los Reyes wrote:
+> Benjamin Tissoires and Nestor Lopez Casado have been helping me to add
+> Linux support for new Logitech Touch Mice (T620, T400). After running
+> into a road-block in hid-core, and solving it with this patch, we
+> thought it was good to show the community and see if this is okay, or
+> if there's a better solution that we've missed.
 > 
-> > Silences the following smatch warning:
-> > drivers/hid/usbhid/hiddev.c:897 hiddev_connect() warn:
-> > returning -1 instead of -ENOMEM is sloppy
-> > 
-> > Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> > ---
-> >  drivers/hid/usbhid/hiddev.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-> > index 14599e2..50e2ab8 100644
-> > --- a/drivers/hid/usbhid/hiddev.c
-> > +++ b/drivers/hid/usbhid/hiddev.c
-> > @@ -894,7 +894,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
-> >  	}
-> >  
-> >  	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
-> > -		return -1;
-> > +		return -ENOMEM;
-> >  
-> >  	init_waitqueue_head(&hiddev->wait);
-> >  	INIT_LIST_HEAD(&hiddev->list);
+> Thanks for your comments,
+> -andrew
 > 
-> Well, this would make sense only if the callers would be actualling doing 
-> something useful with that return value. But the only check we are 
-> performing at callsites is non-zero test ...
+> This patch separates struct hid_device's driver_lock into two. The
+> goal is to allow hid device drivers to receive input during their
+> probe() function call. This is necessary because some drivers need to
+> communicate with the device to determine parameters needed during
+> probe (e.g., size of a multi-touch surface).
+> 
+> Historically, three functions used driver_lock:
+> 
+> - hid_device_probe: blocks to acquire lock
+> - hid_device_remove: blocks to acquire lock
+> - hid_input_report: if locked returns -EBUSY, else acquires lock
+> 
+> This patch adds another lock (driver_input_lock) which is used to
+> block input from occurring. The lock behavior is now:
+> 
+> - hid_device_probe: blocks to acq. driver_lock, then driver_input_lock
+> - hid_device_remove: blocks to acq. driver_lock, then driver_input_lock
+> - hid_input_report: if driver_input_lock locked returns -EBUSY, else
+>   acquires driver_input_lock
+> 
+> This results in no behavior change for existing devices and
+> drivers. However, during a probe() function call in a driver, that
+> driver may now selectively unlock driver_input_lock to let input
+> events come through, then re-lock.
 
-It is chicken and egg problem - callers can't use the result unless it
-is meaningful and callee's do not bother to send anything meaningful
-because nobody uses it...
+That is more or less a new approach to release the restriction added in
+commit 4ea5454203d991ec85264f64f89ca8855fce69b0
+(HID: Fix race condition between driver core and ll-driver).
 
-If someone takes time to convert to proper return codes I think it would
-be a good thing.
+>From your suggested change the question could be if releasing the input
+lock should be connected to hw_start() / hw_stop() calls...
 
-Thanks.
+Though connecting those together would certainly require some review of
+existing drivers in order not to reopen the can of worms closed by above
+mentioned commit.
 
--- 
-Dmitry
+Bruno

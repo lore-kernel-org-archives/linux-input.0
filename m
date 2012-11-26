@@ -1,219 +1,110 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 08/11] HID: hid-multitouch: add support for Nexio 42" panel
-Date: Mon, 26 Nov 2012 09:37:43 +0100
-Message-ID: <CAN+gG=H_Qi=WGV8BZ_zavJu3O0+Yj4YcSvjoToHnLop4jueuPw@mail.gmail.com>
-References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1353684694-5723-9-git-send-email-benjamin.tissoires@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/2] input: gpio-keys: Disable hardware on suspend
+Date: Mon, 26 Nov 2012 09:05:03 +0000
+Message-ID: <20121126090503.GB12782@gmail.com>
+References: <1353590617-11466-1-git-send-email-lee.jones@linaro.org>
+ <20121125083229.GB21091@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:40125 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754437Ab2KZIhp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2012 03:37:45 -0500
-In-Reply-To: <1353684694-5723-9-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20121125083229.GB21091@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, arnd@arndb.de, linus.walleij@stericsson.com, Jonas Aaberg <jonas.aberg@stericsson.com>, linux-input@vger.kernel.org, Philippe Langlais <philippe.langlais@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Nov 23, 2012 at 4:31 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> This device is the worst device I saw. It keeps TipSwitch and InRange
-> at 1 for fingers that are not touching the panel.
-> The solution is to rely on the field ContactCount, which is accurate
-> as the correct information are packed at the begining of the frame.
->
-> Unfortunately, CountactCount is most of the time at the end of the report.
-> The solution is to pick it when we have the whole report in raw_event.
->
-> Fortunately, it occurs that this behavior is pretty well compliant
-> with all the devices I saw so far. We can make this class the default then.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> On Thu, Nov 22, 2012 at 01:23:36PM +0000, Lee Jones wrote:
+> > From: Jonas Aaberg <jonas.aberg@stericsson.com>
+> >=20
+> > Disable hardware if active when suspending if the hw can not
+> > wake the system from suspend.
+>=20
+> How about below instead (needs the other patch I have just sent out)?
+
+Sorry Dmitry, I'm a little confused. What does this mean?
+
+> Input: gpio-keys - disable hardware on suspend
+>=20
+> From: Jonas Aaberg <jonas.aberg@stericsson.com>
+>=20
+> Disable hardware if active when suspending if the hw can not
+> wake the system from suspend.
+>=20
+> Signed-off-by: Jonas Aaberg <jonas.aberg@stericsson.com>
+> Signed-off-by: Philippe Langlais <philippe.langlais@linaro.org>
+> Reviewed-by: Bengt Jonsson <bengt.g.jonsson@stericsson.com>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/hid/hid-ids.h        |  3 ++
->  drivers/hid/hid-multitouch.c | 82 ++++++++++++++++++++++++++++++++++++++++----
->  2 files changed, 78 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index b84790a..9dfc465 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -599,6 +599,9 @@
->  #define USB_VENDOR_ID_NEC              0x073e
->  #define USB_DEVICE_ID_NEC_USB_GAME_PAD 0x0301
->
-> +#define USB_VENDOR_ID_NEXIO            0x1870
-> +#define USB_DEVICE_ID_NEXIO_MULTITOUCH_420     0x0100
-
-Oops, I made a typo here. The PID should be 0x010d.
-
-I can send a v2 if needed.
-
-Cheers,
-Benjamin
-
-> +
->  #define USB_VENDOR_ID_NEXTWINDOW       0x1926
->  #define USB_DEVICE_ID_NEXTWINDOW_TOUCHSCREEN   0x0003
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 50fb79f..36cf346 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -33,6 +33,8 @@
->  #include <linux/usb.h>
->  #include <linux/input/mt.h>
->  #include <linux/string.h>
-> +#include <asm/unaligned.h>
-> +#include <asm/byteorder.h>
->  #include "usbhid/usbhid.h"
->
->
-> @@ -55,6 +57,7 @@ MODULE_LICENSE("GPL");
->  #define MT_QUIRK_NO_AREA               (1 << 9)
->  #define MT_QUIRK_IGNORE_DUPLICATES     (1 << 10)
->  #define MT_QUIRK_HOVERING              (1 << 11)
-> +#define MT_QUIRK_CONTACT_COUNT_ACCURATE        (1 << 12)
->
->  struct mt_slot {
->         __s32 x, y, cx, cy, p, w, h;
-> @@ -84,6 +87,8 @@ struct mt_device {
->         struct mt_class mtclass;        /* our mt device class */
->         struct mt_fields *fields;       /* temporary placeholder for storing the
->                                            multitouch fields */
-> +       struct hid_field *contactcount; /* the hid_field contact count that
-> +                                          will be picked in mt_raw_event */
->         unsigned last_field_index;      /* last field index of the report */
->         unsigned last_pen_field_index;  /* last field index of the pen report */
->         unsigned last_slot_field;       /* the last field of a slot */
-> @@ -148,7 +153,9 @@ static int cypress_compute_slot(struct mt_device *td)
->  }
->
->  static struct mt_class mt_classes[] = {
-> -       { .name = MT_CLS_DEFAULT},
-> +       { .name = MT_CLS_DEFAULT,
-> +               .quirks = MT_QUIRK_ALWAYS_VALID |
-> +                       MT_QUIRK_CONTACT_COUNT_ACCURATE },
->         { .name = MT_CLS_NSMU,
->                 .quirks = MT_QUIRK_NOT_SEEN_MEANS_UP },
->         { .name = MT_CLS_SERIAL,
-> @@ -487,6 +494,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->                         td->last_field_index = field->index;
->                         return 1;
->                 case HID_DG_CONTACTCOUNT:
-> +                       td->contactcount = field;
->                         td->last_field_index = field->index;
->                         return 1;
->                 case HID_DG_CONTACTMAX:
-> @@ -554,6 +562,10 @@ static int mt_compute_slot(struct mt_device *td, struct input_dev *input)
->   */
->  static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>  drivers/input/keyboard/gpio_keys.c |   27 ++++++++++++++++++++++----=
+-
+>  1 file changed, 22 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keybo=
+ard/gpio_keys.c
+> index c7764ca..79435de 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -803,6 +803,7 @@ static int gpio_keys_remove(struct platform_devic=
+e *pdev)
+>  static int gpio_keys_suspend(struct device *dev)
 >  {
-> +       if ((td->mtclass.quirks & MT_QUIRK_CONTACT_COUNT_ACCURATE) &&
-> +           td->num_received >= td->num_expected)
-> +               return;
-> +
->         if (td->curvalid || (td->mtclass.quirks & MT_QUIRK_ALWAYS_VALID)) {
->                 int slotnum = mt_compute_slot(td, input);
->                 struct mt_slot *s = &td->curdata;
-> @@ -665,12 +677,6 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->                         td->curdata.h = value;
->                         break;
->                 case HID_DG_CONTACTCOUNT:
-> -                       /*
-> -                        * Includes multi-packet support where subsequent
-> -                        * packets are sent with zero contactcount.
-> -                        */
-> -                       if (value)
-> -                               td->num_expected = value;
->                         break;
->                 case HID_DG_TOUCH:
->                         /* do nothing */
-> @@ -700,6 +706,62 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->         return 1;
->  }
->
-> +/*
-> + * Extract/implement a data field from/to a little endian report (bit array).
-> + * Copied from hid-core.c.
-> + *
-> + * Code sort-of follows HID spec:
-> + *     http://www.usb.org/developers/devclass_docs/HID1_11.pdf
-> + *
-> + * While the USB HID spec allows unlimited length bit fields in "report
-> + * descriptors", most devices never use more than 16 bits.
-> + * One model of UPS is claimed to report "LINEV" as a 32-bit field.
-> + * Search linux-kernel and linux-usb-devel archives for "hid-core extract".
-> + */
-> +
-> +static __u32 extract(const struct hid_device *hid, __u8 *report,
-> +                    unsigned offset, unsigned n)
-> +{
-> +       u64 x;
-> +
-> +       if (n > 32)
-> +               hid_warn(hid, "extract() called with n (%d) > 32! (%s)\n",
-> +                        n, current->comm);
-> +
-> +       report += offset >> 3;  /* adjust byte index */
-> +       offset &= 7;            /* now only need bit offset into one byte */
-> +       x = get_unaligned_le64(report);
-> +       x = (x >> offset) & ((1ULL << n) - 1);  /* extract bit field */
-> +       return (u32) x;
-> +}
-> +
-> +
-> +static int mt_raw_event(struct hid_device *hid, struct hid_report *report,
-> +                       u8 *data, int size)
-> +{
-> +       struct mt_device *td = hid_get_drvdata(hid);
-> +       struct hid_field *field = td->contactcount;
-> +       unsigned value;
-> +
-> +       if (field && report->id == field->report->id) {
-> +               /*
-> +                * Pick in advance the field HID_DG_CONTACTCOUNT as it is
-> +                * often placed at the end of the report.
-> +                */
-> +               if (report->id)
-> +                       data++;
-> +               value = extract(hid, data, field->report_offset,
-> +                               field->report_size);
-> +               /*
-> +                * Includes multi-packet support where subsequent
-> +                * packets are sent with zero contactcount.
-> +                */
-> +               if (value)
-> +                       td->num_expected = value;
-> +       }
-> +       return 0;
-> +}
-> +
->  static void mt_set_input_mode(struct hid_device *hdev)
+>  	struct gpio_keys_drvdata *ddata =3D dev_get_drvdata(dev);
+> +	struct input_dev *input =3D ddata->input;
+>  	int i;
+> =20
+>  	if (device_may_wakeup(dev)) {
+> @@ -811,6 +812,11 @@ static int gpio_keys_suspend(struct device *dev)
+>  			if (bdata->button->wakeup)
+>  				enable_irq_wake(bdata->irq);
+>  		}
+> +	} else {
+> +		mutex_lock(&input->mutex);
+> +		if (input->users)
+> +			gpio_keys_close(input);
+> +		mutex_unlock(&input->mutex);
+>  	}
+> =20
+>  	return 0;
+> @@ -819,16 +825,27 @@ static int gpio_keys_suspend(struct device *dev=
+)
+>  static int gpio_keys_resume(struct device *dev)
 >  {
->         struct mt_device *td = hid_get_drvdata(hdev);
-> @@ -1110,6 +1172,11 @@ static const struct hid_device_id mt_devices[] = {
->                 MT_USB_DEVICE(USB_VENDOR_ID_TURBOX,
->                         USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART) },
->
-> +       /* Nexio panels */
-> +       { .driver_data = MT_CLS_DEFAULT,
-> +               MT_USB_DEVICE(USB_VENDOR_ID_NEXIO,
-> +                       USB_DEVICE_ID_NEXIO_MULTITOUCH_420)},
-> +
->         /* Panasonic panels */
->         { .driver_data = MT_CLS_PANASONIC,
->                 MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
-> @@ -1247,6 +1314,7 @@ static struct hid_driver mt_driver = {
->         .feature_mapping = mt_feature_mapping,
->         .usage_table = mt_grabbed_usages,
->         .event = mt_event,
-> +       .raw_event = mt_raw_event,
->  #ifdef CONFIG_PM
->         .reset_resume = mt_reset_resume,
->         .resume = mt_resume,
-> --
-> 1.8.0
->
+>  	struct gpio_keys_drvdata *ddata =3D dev_get_drvdata(dev);
+> +	struct input_dev *input =3D ddata->input;
+> +	int error =3D 0;
+>  	int i;
+> =20
+> -	for (i =3D 0; i < ddata->pdata->nbuttons; i++) {
+> -		struct gpio_button_data *bdata =3D &ddata->data[i];
+> -		if (bdata->button->wakeup && device_may_wakeup(dev))
+> -			disable_irq_wake(bdata->irq);
+> +	if (device_may_wakeup(dev)) {
+> +		for (i =3D 0; i < ddata->pdata->nbuttons; i++) {
+> +			struct gpio_button_data *bdata =3D &ddata->data[i];
+> +			if (bdata->button->wakeup)
+> +				disable_irq_wake(bdata->irq);
+> +		}
+> +	} else {
+> +		mutex_lock(&input->mutex);
+> +		if (input->users)
+> +			error =3D gpio_keys_open(input);
+> +		mutex_unlock(&input->mutex);
+>  	}
+> =20
+> -	gpio_keys_report_state(ddata);
+> +	if (error)
+> +		return error;
+> =20
+> +	gpio_keys_report_state(ddata);
+>  	return 0;
+>  }
+>  #endif
+
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

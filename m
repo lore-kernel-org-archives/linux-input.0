@@ -1,37 +1,32 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hid-input: battery quirk for Apple keyboard
-Date: Mon, 26 Nov 2012 14:27:13 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211261426240.12570@pobox.suse.cz>
-References: <50B22662.4070503@odi.ch>
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH 2/3] Input: spear-keyboard: Add clk_{un}prepare() support
+Date: Mon, 26 Nov 2012 21:57:45 +0530
+Message-ID: <CAKohpon44N8uhEiPEp0Sp8rKAE597Y8A3-YsRFTAZZz4XE8hDw@mail.gmail.com>
+References: <9f07bb7dbf29978970d901bbe89add0a333cc925.1352381962.git.viresh.kumar@linaro.org>
+	<27d9eea3815593df228c85958096bc14d7985e7e.1352381962.git.viresh.kumar@linaro.org>
+	<CAKohpomky4s0OBYtQhDTZc9OeSo6w_mN9uAqUXpukqR1icvKPA@mail.gmail.com>
+	<CAKohpoknJqMzro4gbTH+Rh=T2Bc9ZOVmDbYZsqC4Fjq2Sqsszg@mail.gmail.com>
+	<20121120084758.GA29199@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <50B22662.4070503@odi.ch>
-Sender: stable-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?Ortwin_Gl=FCck?= <odi@odi.ch>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121120084758.GA29199@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, Vipul Kumar Samar <vipulkumar.samar@st.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 25 Nov 2012, Ortwin Gl=FCck wrote:
+On 20 November 2012 14:17, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> No, not really, it just does not work well with devm_* patches that got
+> applied: on removal you unprepare clock as the very first operation and
+> then devm_* does the rest which is wrong order.
+>
+> I am looking at adding dem_* for clocks.
 
-> Support battery capacity on another Apple wireless
-> keyboard.
+I haven't seen your clock patch in your tree. I am asking because i want to
+push this patch :)
 
-Your patch has been whitespace damaged. I have fixed it by hand and=20
-applied, but please fix your process for any future patch submissions.=20
-Thanks.
+You want me to repost it over your patches.
 
-> NB: most likely all other APPLE_ALU_WIRELESS_* keyboards should be ad=
-ded=20
-> as well.
-
-I think it's likely true, but I prefer to have it actually tested befor=
-e=20
-doing such changes blindly.
-
-Thanks,
-
---=20
-Jiri Kosina
-SUSE Labs
+--
+viresh

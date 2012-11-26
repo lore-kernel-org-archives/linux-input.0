@@ -1,72 +1,42 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/5] Input: bu21013_ts - Request a regulator that
- actually exists
-Date: Mon, 26 Nov 2012 12:16:18 +0000
-Message-ID: <20121126121618.GL12782@gmail.com>
-References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
- <1352900837-20759-2-git-send-email-lee.jones@linaro.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: hidraw: fix nonblock read return EAGAIN after device
+ removed
+Date: Mon, 26 Nov 2012 14:18:51 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211261417470.12570@pobox.suse.cz>
+References: <CAHLfQU=Hrufny=652k2mM7OcjxnRMH-kgj510FZrrKtiKNxdgw@mail.gmail.com> <CAHLfQUnhEQBC+yzB3jFnJbB7jMvuVjr1M62kzxWzMN2v0i=VzA@mail.gmail.com> <20121126081512.GD21091@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:37516 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754641Ab2KZMQX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2012 07:16:23 -0500
-Received: by mail-bk0-f46.google.com with SMTP id q16so4521953bkw.19
-        for <linux-input@vger.kernel.org>; Mon, 26 Nov 2012 04:16:22 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1352900837-20759-2-git-send-email-lee.jones@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121126081512.GD21091@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "founder.fang" <founder.fang@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, 14 Nov 2012, Lee Jones wrote:
+On Mon, 26 Nov 2012, Dmitry Torokhov wrote:
 
-> Currently the BU21013 Touch Screen driver requests a regulator by the
-> name of 'V-TOUCH', which doesn't exist anywhere in the kernel. The
-> correct name, as referenced in platform regulator code is 'avdd'. Her=
-e,
-> when we request a regulator, we use the correct name instead.
->=20
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  drivers/input/touchscreen/bu21013_ts.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/t=
-ouchscreen/bu21013_ts.c
-> index 5c487d2..2fae682 100644
-> --- a/drivers/input/touchscreen/bu21013_ts.c
-> +++ b/drivers/input/touchscreen/bu21013_ts.c
-> @@ -461,7 +461,7 @@ static int __devinit bu21013_probe(struct i2c_cli=
-ent *client,
->  	bu21013_data->chip =3D pdata;
->  	bu21013_data->client =3D client;
-> =20
-> -	bu21013_data->regulator =3D regulator_get(&client->dev, "V-TOUCH");
-> +	bu21013_data->regulator =3D regulator_get(&client->dev, "avdd");
->  	if (IS_ERR(bu21013_data->regulator)) {
->  		dev_err(&client->dev, "regulator_get failed\n");
->  		error =3D PTR_ERR(bu21013_data->regulator);
-> --=20
-> 1.7.9.5
+> > Hi Linux-Input, Jiri, Dmitry,
+> > this patch is related to nonblock read on hidraw device.
+> > when nonblock read the condition check (file->f_flags & O_NONBLOCK)
+> > always be true,
+> > signal_pending and device exist checking never get a chance to run, so
+> > the user mode code always
+> > get EAGAIN even if device removed. move nonblock mode checking to the
+> > last can fix this problem.
+> > 
+> > Signed-off-by: Founder Fang <founder.fang@gmail.com>
+> > 
+> 
+> Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> Makes sense to me. However it looks like your mailer line-wrapped the
+> patch, please resend so Jiri can apply it.
 
-Did you see this one also Dmitry?
+For some reason, the patch has been sent to me twice, once it has been 
+fine and the second time it has been line wrapped.
 
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I have now applied the non-broken version. Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

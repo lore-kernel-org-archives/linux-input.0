@@ -1,77 +1,65 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 4/4] ASoC: wm5110: Implement haptics support
-Date: Mon, 26 Nov 2012 21:39:40 +0000
-Message-ID: <1353965980-32543-4-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1353965980-32543-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] hid: usbhid: Return -ENOMEM instead of -1 for memory
+ allocation failure
+Date: Mon, 26 Nov 2012 23:09:03 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211262308230.15521@pobox.suse.cz>
+References: <1353478830-23788-1-git-send-email-sachin.kamat@linaro.org> <alpine.LNX.2.00.1211222202530.4609@pobox.suse.cz> <20121126180530.GE14623@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:38369 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757258Ab2KZVjw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2012 16:39:52 -0500
-In-Reply-To: <1353965980-32543-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Received: from cantor2.suse.de ([195.135.220.15]:45535 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755818Ab2KZWJL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Nov 2012 17:09:11 -0500
+In-Reply-To: <20121126180530.GE14623@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, jic23@kernel.org, patches@linaro.org
 
-Provide a haptics widget for use by the haptics driver and expose the DAPM
-context for it.
+On Mon, 26 Nov 2012, Dmitry Torokhov wrote:
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- sound/soc/codecs/wm5110.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+> > > Silences the following smatch warning:
+> > > drivers/hid/usbhid/hiddev.c:897 hiddev_connect() warn:
+> > > returning -1 instead of -ENOMEM is sloppy
+> > > 
+> > > Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> > > ---
+> > >  drivers/hid/usbhid/hiddev.c |    2 +-
+> > >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > > 
+> > > diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+> > > index 14599e2..50e2ab8 100644
+> > > --- a/drivers/hid/usbhid/hiddev.c
+> > > +++ b/drivers/hid/usbhid/hiddev.c
+> > > @@ -894,7 +894,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+> > >  	}
+> > >  
+> > >  	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
+> > > -		return -1;
+> > > +		return -ENOMEM;
+> > >  
+> > >  	init_waitqueue_head(&hiddev->wait);
+> > >  	INIT_LIST_HEAD(&hiddev->list);
+> > 
+> > Well, this would make sense only if the callers would be actualling doing 
+> > something useful with that return value. But the only check we are 
+> > performing at callsites is non-zero test ...
+> 
+> It is chicken and egg problem - callers can't use the result unless it
+> is meaningful and callee's do not bother to send anything meaningful
+> because nobody uses it...
+> 
+> If someone takes time to convert to proper return codes I think it would
+> be a good thing.
 
-diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
-index 8b81fa5..601d90a 100644
---- a/sound/soc/codecs/wm5110.c
-+++ b/sound/soc/codecs/wm5110.c
-@@ -371,6 +371,7 @@ SND_SOC_DAPM_REGULATOR_SUPPLY("SPKVDDR", 0, 0),
- 
- SND_SOC_DAPM_SIGGEN("TONE"),
- SND_SOC_DAPM_SIGGEN("NOISE"),
-+SND_SOC_DAPM_SIGGEN("HAPTICS"),
- 
- SND_SOC_DAPM_INPUT("IN1L"),
- SND_SOC_DAPM_INPUT("IN1R"),
-@@ -639,6 +640,7 @@ SND_SOC_DAPM_OUTPUT("SPKDAT2R"),
- 	{ name, "Noise Generator", "Noise Generator" }, \
- 	{ name, "Tone Generator 1", "Tone Generator 1" }, \
- 	{ name, "Tone Generator 2", "Tone Generator 2" }, \
-+	{ name, "Haptics", "HAPTICS" }, \
- 	{ name, "AEC", "AEC Loopback" }, \
- 	{ name, "IN1L", "IN1L PGA" }, \
- 	{ name, "IN1R", "IN1R PGA" }, \
-@@ -963,9 +965,20 @@ static int wm5110_codec_probe(struct snd_soc_codec *codec)
- 	int i;
- 
- 	codec->control_data = priv->core.arizona->regmap;
-+	priv->core.arizona->dapm = &codec->dapm;
-+
- 	return snd_soc_codec_set_cache_io(codec, 32, 16, SND_SOC_REGMAP);
- }
- 
-+static int wm5110_codec_remove(struct snd_soc_codec *codec)
-+{
-+	struct wm5110_priv *priv = snd_soc_codec_get_drvdata(codec);
-+
-+	priv->core.arizona->dapm = NULL;
-+
-+	return 0;
-+}
-+
- #define WM5110_DIG_VU 0x0200
- 
- static unsigned int wm5110_digital_vu[] = {
-@@ -994,6 +1007,7 @@ static unsigned int wm5110_digital_vu[] = {
- 
- static struct snd_soc_codec_driver soc_codec_dev_wm5110 = {
- 	.probe = wm5110_codec_probe,
-+	.remove = wm5110_codec_remove,
- 
- 	.idle_bias_off = true,
- 
+Fully agree with you.
+
+But I'd like to have both sides changed together once someone starts 
+taking care of fixing it.
+
+Thanks,
+
 -- 
-1.7.10.4
-
+Jiri Kosina
+SUSE Labs

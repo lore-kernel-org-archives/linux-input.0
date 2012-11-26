@@ -1,32 +1,100 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH 2/3] Input: spear-keyboard: Add clk_{un}prepare() support
-Date: Mon, 26 Nov 2012 21:57:45 +0530
-Message-ID: <CAKohpon44N8uhEiPEp0Sp8rKAE597Y8A3-YsRFTAZZz4XE8hDw@mail.gmail.com>
-References: <9f07bb7dbf29978970d901bbe89add0a333cc925.1352381962.git.viresh.kumar@linaro.org>
-	<27d9eea3815593df228c85958096bc14d7985e7e.1352381962.git.viresh.kumar@linaro.org>
-	<CAKohpomky4s0OBYtQhDTZc9OeSo6w_mN9uAqUXpukqR1icvKPA@mail.gmail.com>
-	<CAKohpoknJqMzro4gbTH+Rh=T2Bc9ZOVmDbYZsqC4Fjq2Sqsszg@mail.gmail.com>
-	<20121120084758.GA29199@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/5 v2] Input: bu21013_ts - Move GPIO init and exit
+ functions into the driver
+Date: Mon, 26 Nov 2012 08:46:18 -0800
+Message-ID: <20121126164618.GA14623@core.coreip.homeip.net>
+References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
+ <1352900837-20759-3-git-send-email-lee.jones@linaro.org>
+ <20121122121030.GG4328@gmail.com>
+ <20121124074359.GA24711@core.coreip.homeip.net>
+ <20121126120143.GK12782@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121120084758.GA29199@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, spear-devel@list.st.com, Vipul Kumar Samar <vipulkumar.samar@st.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:49228 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755168Ab2KZQqZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Nov 2012 11:46:25 -0500
+Content-Disposition: inline
+In-Reply-To: <20121126120143.GK12782@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 20 November 2012 14:17, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> No, not really, it just does not work well with devm_* patches that got
-> applied: on removal you unprepare clock as the very first operation and
-> then devm_* does the rest which is wrong order.
->
-> I am looking at adding dem_* for clocks.
+Hi Lee,
 
-I haven't seen your clock patch in your tree. I am asking because i want to
-push this patch :)
+On Mon, Nov 26, 2012 at 12:01:43PM +0000, Lee Jones wrote:
+>  /**
+> + * bu21013_gpio_board_init() - configures the touch panel
+> + * @reset_pin: reset pin number
+> + *
+> + * This function is used to configure the voltage and
+> + * reset the touch panel controller.
+> + */
+> +static int bu21013_gpio_board_init(int reset_pin)
+> +{
+> +	int retval = 0;
+> +
+> +	retval = gpio_request_one(reset_pin, GPIOF_INIT_HIGH, "touchp_reset");
 
-You want me to repost it over your patches.
+Also need to specify dircetion (even though it defaults to output).
 
---
-viresh
+> +	if (retval) {
+> +		printk(KERN_ERR "Unable to request gpio reset_pin");
+> +		return retval;
+> +	}
+> +
+> +	return retval;
+> +}
+> +
+> +/**
+> + * bu21013_gpio_board_exit() - deconfigures the touch panel controller
+> + * @reset_pin: reset pin number
+> + *
+> + * This function is used to deconfigure the chip selection
+> + * for touch panel controller.
+> + */
+> +static int bu21013_gpio_board_exit(int reset_pin)
+> +{
+> +	int retval = 0;
+> +
+> +	retval = gpio_direction_output(reset_pin, 0);
+> +	if (retval < 0) {
+> +		printk(KERN_ERR "%s: gpio direction failed\n",
+> +		       __func__);
+> +		return retval;
+
+You should not return here, as gpio has to be freed even if you unable
+to toggle it.
+
+> +	}
+> +	gpio_set_value(reset_pin, 0);
+> +	gpio_free(reset_pin);
+> +
+> +	return retval;
+> +}
+> +
+> +/**
+>   * bu21013_init_chip() - power on sequence for the bu21013 controller
+>   * @data: device structure pointer
+>   *
+> @@ -449,6 +493,8 @@ static int __devinit bu21013_probe(struct i2c_client *client,
+>  		return -EINVAL;
+>  	}
+>  
+> +	pdata->irq = gpio_to_irq(pdata->touch_pin);
+> +
+
+No, you still can not do it since pdata is a const pointer. Does not
+your compiler throw a warning here?
+
+I already sent you a version of the patch that does not have these
+issues, is there a particular reason why you needed to roll your own
+instead of simply trying out the one I sent?
+
+Thanks.
+
+-- 
+Dmitry

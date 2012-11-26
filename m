@@ -1,55 +1,41 @@
-From: "founder.fang" <founder.fang@gmail.com>
-Subject: [PATCH] HID: hidraw: fix nonblock read return EAGAIN after device removed
-Date: Mon, 26 Nov 2012 10:30:37 +0800
-Message-ID: <CAHLfQUnhEQBC+yzB3jFnJbB7jMvuVjr1M62kzxWzMN2v0i=VzA@mail.gmail.com>
-References: <CAHLfQU=Hrufny=652k2mM7OcjxnRMH-kgj510FZrrKtiKNxdgw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: Drop TOUCHSCREEN_BITSY support
+Date: Mon, 26 Nov 2012 00:13:12 -0800
+Message-ID: <20121126081312.GC21091@core.coreip.homeip.net>
+References: <1353852178-4920-1-git-send-email-shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:49228 "EHLO
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:58435 "EHLO
 	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753426Ab2KZCai (ORCPT
+	with ESMTP id S1752631Ab2KZINQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Nov 2012 21:30:38 -0500
-In-Reply-To: <CAHLfQU=Hrufny=652k2mM7OcjxnRMH-kgj510FZrrKtiKNxdgw@mail.gmail.com>
+	Mon, 26 Nov 2012 03:13:16 -0500
+Received: by mail-pb0-f46.google.com with SMTP id wy7so7833562pbc.19
+        for <linux-input@vger.kernel.org>; Mon, 26 Nov 2012 00:13:16 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1353852178-4920-1-git-send-email-shc_work@mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: linux-input@vger.kernel.org, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
 
-Hi Linux-Input, Jiri, Dmitry,
-this patch is related to nonblock read on hidraw device.
-when nonblock read the condition check (file->f_flags & O_NONBLOCK)
-always be true,
-signal_pending and device exist checking never get a chance to run, so
-the user mode code always
-get EAGAIN even if device removed. move nonblock mode checking to the
-last can fix this problem.
+Hi Alexander,
 
-Signed-off-by: Founder Fang <founder.fang@gmail.com>
+On Sun, Nov 25, 2012 at 06:02:57PM +0400, Alexander Shiyan wrote:
+> The kernel does not contain the symbol SA1100_BITSY so the driver
+> never compiled and can be removed safely.
+> 
+> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+> ---
+>  drivers/input/touchscreen/Kconfig          |   12 -
+>  drivers/input/touchscreen/Makefile         |    1 -
+>  drivers/input/touchscreen/h3600_ts_input.c |  479 ----------------------------
 
---- hid-git/drivers/hid/hidraw.c.orig   2012-11-21 14:37:04.977106383 +0800
-+++ hid-git/drivers/hid/hidraw.c        2012-11-21 14:40:35.882152200 +0800
-@@ -57,10 +57,6 @@ static ssize_t hidraw_read(struct file *
-                        set_current_state(TASK_INTERRUPTIBLE);
+I applied the touchscreen part, thank you. The staging piece should go
+through Greg KH.
 
-                        while (list->head == list->tail) {
--                               if (file->f_flags & O_NONBLOCK) {
--                                       ret = -EAGAIN;
--                                       break;
--                               }
-                                if (signal_pending(current)) {
-                                        ret = -ERESTARTSYS;
-                                        break;
-@@ -69,6 +65,10 @@ static ssize_t hidraw_read(struct file *
-                                        ret = -EIO;
-                                        break;
-                                }
-+                               if (file->f_flags & O_NONBLOCK) {
-+                                       ret = -EAGAIN;
-+                                       break;
-+                               }
+Thanks.
 
-                                /* allow O_NONBLOCK to work well from
-other threads */
-                                mutex_unlock(&list->read_mutex);
+-- 
+Dmitry

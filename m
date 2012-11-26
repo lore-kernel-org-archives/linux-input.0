@@ -1,65 +1,89 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2] hid: usbhid: Return -ENOMEM instead of -1 for memory
- allocation failure
-Date: Mon, 26 Nov 2012 23:09:03 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211262308230.15521@pobox.suse.cz>
-References: <1353478830-23788-1-git-send-email-sachin.kamat@linaro.org> <alpine.LNX.2.00.1211222202530.4609@pobox.suse.cz> <20121126180530.GE14623@core.coreip.homeip.net>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [RFC PATCH 05/06] input/rmi4: F01 - device control
+Date: Mon, 26 Nov 2012 14:31:27 -0800
+Message-ID: <50B3EDBF.3030209@synaptics.com>
+References: <1353124734-16803-1-git-send-email-cheiny@synaptics.com> <1353124734-16803-6-git-send-email-cheiny@synaptics.com> <20121126094018.GC13792@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45535 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755818Ab2KZWJL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2012 17:09:11 -0500
-In-Reply-To: <20121126180530.GE14623@core.coreip.homeip.net>
+Received: from us-mx3.synaptics.com ([12.239.217.85]:33461 "EHLO
+	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932087Ab2KZWb3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Nov 2012 17:31:29 -0500
+In-Reply-To: <20121126094018.GC13792@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, jic23@kernel.org, patches@linaro.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-On Mon, 26 Nov 2012, Dmitry Torokhov wrote:
+On 11/26/2012 01:40 AM, Dmitry Torokhov wrote:
+> Hi Christopher,
+>
+> On Fri, Nov 16, 2012 at 07:58:53PM -0800, Christopher Heiny wrote:
+>> RMI Function 01 implements basic device control and power management
+>> behaviors for the RMI4 sensor.
+>>
+>> rmi_f01.h exports definitions that we expect to be used by other functionality
+>> in the future (such as firmware reflash).
+>
+> Please see my comments below.
 
-> > > Silences the following smatch warning:
-> > > drivers/hid/usbhid/hiddev.c:897 hiddev_connect() warn:
-> > > returning -1 instead of -ENOMEM is sloppy
-> > > 
-> > > Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> > > ---
-> > >  drivers/hid/usbhid/hiddev.c |    2 +-
-> > >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > > 
-> > > diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-> > > index 14599e2..50e2ab8 100644
-> > > --- a/drivers/hid/usbhid/hiddev.c
-> > > +++ b/drivers/hid/usbhid/hiddev.c
-> > > @@ -894,7 +894,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
-> > >  	}
-> > >  
-> > >  	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
-> > > -		return -1;
-> > > +		return -ENOMEM;
-> > >  
-> > >  	init_waitqueue_head(&hiddev->wait);
-> > >  	INIT_LIST_HEAD(&hiddev->list);
-> > 
-> > Well, this would make sense only if the callers would be actualling doing 
-> > something useful with that return value. But the only check we are 
-> > performing at callsites is non-zero test ...
-> 
-> It is chicken and egg problem - callers can't use the result unless it
-> is meaningful and callee's do not bother to send anything meaningful
-> because nobody uses it...
-> 
-> If someone takes time to convert to proper return codes I think it would
-> be a good thing.
+Hi Dmitry,
 
-Fully agree with you.
+Thanks for the feedback and the patch.  I've got just one question, 
+included below, with a bunch of snipping).
 
-But I'd like to have both sides changed together once someone starts 
-taking care of fixing it.
+				Chris
 
-Thanks,
+>
+>>
+>>
+>> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+>>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Cc: Linus Walleij <linus.walleij@stericsson.com>
+>> Cc: Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+>> Cc: Joeri de Gram <j.de.gram@gmail.com>
+>>
+>>
+>> ---
+>>
+>>   drivers/input/rmi4/rmi_f01.c | 1348 ++++++++++++++++++++++++++++++++++++++++++
+>>   drivers/input/rmi4/rmi_f01.h |  160 +++++
+>>   2 files changed, 1508 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+>> new file mode 100644
+>> index 0000000..038266c
+>> --- /dev/null
+>> +++ b/drivers/input/rmi4/rmi_f01.c
+>> @@ -0,0 +1,1348 @@
+>> +/*
+>> + * Copyright (c) 2011-2012 Synaptics Incorporated
+>> + * Copyright (c) 2011 Unixphere
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License as published by
+>> + * the Free Software Foundation; either version 2 of the License, or
+>> + * (at your option) any later version.
 
--- 
-Jiri Kosina
-SUSE Labs
+[snip]
+
+>> +/**
+>> + * @reset - set this bit to force a firmware reset of the sensor.
+>> + */
+>> +struct f01_device_commands {
+>> +	bool reset:1;
+>> +	u8 reserved:7;
+>
+> When specifying bitwise fields please use u8, u16, etc only.
+
+Um, OK.  Previously patch feedback suggested to use bool instead of u8 
+for single bit fields (see here: 
+http://www.spinics.net/lists/linux-input/msg22198.html).  So I'm a 
+little confused.  It's no big deal to change it back, but I'd like 
+confirmation that it is really what we should do.
+
+[snip]

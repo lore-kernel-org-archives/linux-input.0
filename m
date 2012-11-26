@@ -1,100 +1,36 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 3/5 v2] Input: bu21013_ts - Add support for Device Tree
- booting
-Date: Mon, 26 Nov 2012 10:50:45 +0000
-Message-ID: <20121126105045.GF12782@gmail.com>
-References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
- <1352900837-20759-4-git-send-email-lee.jones@linaro.org>
- <20121123155258.GE28552@gmail.com>
- <20121124075009.GB24711@core.coreip.homeip.net>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCH] Input: omap4-keypad: Remove the OMAP4_KBD_SYSCONFIG and OMAP4_KBD_SYSSTATUS
+Date: Mon, 26 Nov 2012 16:21:19 +0530
+Message-ID: <1353927079-12493-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20121124075009.GB24711@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, b-cousson@ti.com, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-Author: Lee Jones <lee.jones@linaro.org>
-Date:   Fri Sep 28 14:35:43 2012 +0100
+The macros OMAP4_KBD_SYSSTATUS and OMAP4_KBD_SYSSTATUS are not used
+so remove them.
 
-    Input: bu21013_ts - Add support for Device Tree booting
-    
-    Now we can register the BU21013_ts touch screen when booting with
-    Device Tree enabled. Here we parse all the necessary components
-    previously expected to be passed from platform data.
-    
-    Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-    Cc: linux-input@vger.kernel.org
-    Acked-by: Arnd Bergmann <arnd@arndb.de>
-    Acked-by: Linus Walleij <linus.walleij@linaro.org>
-    Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+---
+ drivers/input/keyboard/omap4-keypad.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
-index 08ffb19..7d240f0 100644
---- a/drivers/input/touchscreen/bu21013_ts.c
-+++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -15,6 +15,8 @@
- #include <linux/regulator/consumer.h>
- #include <linux/module.h>
- #include <linux/gpio.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index c05f98c..d2b72b7 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -36,8 +36,6 @@
  
- #define PEN_DOWN_INTR	0
- #define MAX_FINGERS	2
-@@ -478,13 +480,30 @@ static void bu21013_free_irq(struct bu21013_ts_data *bu21013_data)
-  * This function used to initializes the i2c-client touchscreen
-  * driver and returns integer.
-  */
-+static void __devinit bu21013_of_probe(struct device_node *np,
-+				struct bu21013_platform_device *pdata)
-+{
-+	pdata->y_flip = pdata->x_flip = false;
-+
-+	pdata->x_flip = of_property_read_bool(np, "rohm,flip-x");
-+	pdata->y_flip = of_property_read_bool(np, "rohm,flip-y");
-+
-+	of_property_read_u32(np, "rohm,touch-max-x", &pdata->touch_x_max);
-+	of_property_read_u32(np, "rohm,touch-max-y", &pdata->touch_y_max);
-+
-+	pdata->touch_pin = of_get_named_gpio(np, "touch-gpio", 0);
-+	pdata->cs_pin = of_get_named_gpio(np, "reset-gpio", 0);
-+
-+	pdata->ext_clk = false;
-+}
-+
- static int __devinit bu21013_probe(struct i2c_client *client,
- 					const struct i2c_device_id *id)
- {
- 	struct bu21013_ts_data *bu21013_data;
- 	struct input_dev *in_dev;
--	const struct bu21013_platform_device *pdata =
--					client->dev.platform_data;
-+	struct device_node *np = client->dev.of_node;
-+	struct bu21013_platform_device *pdata = client->dev.platform_data;
- 	int error;
- 
- 	if (!i2c_check_functionality(client->adapter,
-@@ -494,8 +513,17 @@ static int __devinit bu21013_probe(struct i2c_client *client,
- 	}
- 
- 	if (!pdata) {
--		dev_err(&client->dev, "platform data not defined\n");
--		return -EINVAL;
-+		if (np) {
-+			pdata = devm_kzalloc(&client->dev, sizeof(*pdata),
-+					GFP_KERNEL);
-+			if (!pdata)
-+				return -ENOMEM;
-+
-+			bu21013_of_probe(np, pdata);
-+		} else {
-+			dev_err(&client->dev, "no device tree or platform data\n");
-+			return -EINVAL;
-+		}
- 	}
- 
- 	pdata->irq = gpio_to_irq(pdata->touch_pin);
+ /* OMAP4 registers */
+ #define OMAP4_KBD_REVISION		0x00
+-#define OMAP4_KBD_SYSCONFIG		0x10
+-#define OMAP4_KBD_SYSSTATUS		0x14
+ #define OMAP4_KBD_IRQSTATUS		0x18
+ #define OMAP4_KBD_IRQENABLE		0x1C
+ #define OMAP4_KBD_WAKEUPENABLE		0x20
+-- 
+1.7.5.4
+

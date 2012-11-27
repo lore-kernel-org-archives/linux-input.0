@@ -1,45 +1,96 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 02/11] HID: hid-input: simplify hid_input allocation and
- registration
-Date: Tue, 27 Nov 2012 21:19:44 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211272118400.3933@pobox.suse.cz>
-References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com> <1353684694-5723-3-git-send-email-benjamin.tissoires@gmail.com> <20121127201407.GA884@polaris.bitmath.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 03/11] HID: hid-input: export hidinput_allocation function
+Date: Tue, 27 Nov 2012 21:21:50 +0100
+Message-ID: <20121127202150.GA895@polaris.bitmath.org>
+References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1353684694-5723-4-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38784 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756012Ab2K0UTt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Nov 2012 15:19:49 -0500
-In-Reply-To: <20121127201407.GA884@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1353684694-5723-4-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2012, Henrik Rydberg wrote:
-
-> > In order to provide fine control for the creation of different
-> > input devices in probe function of third party drivers, this patch
-> > split the allocations, the registrations and the free of input
-> > devices.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> > ---
-> >  drivers/hid/hid-input.c | 28 ++++++++++++++++++----------
-> >  1 file changed, 18 insertions(+), 10 deletions(-)
+On Fri, Nov 23, 2012 at 04:31:26PM +0100, Benjamin Tissoires wrote:
+> During the probe, third party drivers can now safely create a new
+> input devices depending on the parsing of the reports descriptor.
 > 
-> I don't like this patch, nor its purpose. Drivers should not depend on
-> the hid core working in a particular way internally, that spells
-> disaster. There must be some other way in which the same effect can be
-> achieved?
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
+>  drivers/hid/hid-input.c | 14 +++++++++++---
+>  include/linux/hid.h     |  1 +
+>  2 files changed, 12 insertions(+), 3 deletions(-)
 
-The changelog doesn't seem to be really verbose enough to me.
+I can think of two mechanisms that might be useful in finding a
+way to achieve this cleanly: a) Let a driver return a value telling
+whether to change input device, and b) Let a second driver have a go
+at the same device report. Some return value or state could determine
+logic in the hid core saying "we are not done with this device, try
+another driver". Or something. Just not this way, please.
 
-What exactly is the scenario you are looking at here, Benjamin, please? 
+> 
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index eea02b0..b0572d0 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -1163,7 +1163,7 @@ static void report_features(struct hid_device *hid)
+>  			}
+>  }
+>  
+> -static struct hid_input *hidinput_allocate(struct hid_device *hid)
+> +struct hid_input *hidinput_allocate(struct hid_device *hid)
+>  {
+>  	struct hid_input *hidinput = kzalloc(sizeof(*hidinput), GFP_KERNEL);
+>  	struct input_dev *input_dev = input_allocate_device();
+> @@ -1190,10 +1190,16 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
+>  	input_dev->id.version = hid->version;
+>  	input_dev->dev.parent = hid->dev.parent;
+>  	hidinput->input = input_dev;
+> -	list_add_tail(&hidinput->list, &hid->inputs);
+> +	list_add(&hidinput->list, &hid->inputs);
+>  
+>  	return hidinput;
+>  }
+> +EXPORT_SYMBOL_GPL(hidinput_allocate);
+> +
+> +static struct hid_input *hid_get_latest_hidinput(struct hid_device *hid)
+> +{
+> +	return list_first_entry(&hid->inputs, struct hid_input, list);
+> +}
+>  
+>  /*
+>   * Register the input device; print a message.
+> @@ -1243,9 +1249,11 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+>  			}
+>  
+>  			for (i = 0; i < report->maxfield; i++)
+> -				for (j = 0; j < report->field[i]->maxusage; j++)
+> +				for (j = 0; j < report->field[i]->maxusage; j++) {
+> +					hidinput = hid_get_latest_hidinput(hid);
+>  					hidinput_configure_usage(hidinput, report->field[i],
+>  								 report->field[i]->usage + j);
+> +				}
+>  
+>  			if (hid->quirks & HID_QUIRK_MULTI_INPUT) {
+>  				/* This will leave hidinput NULL, so that it
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index d2c42dd..42b02d6 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -701,6 +701,7 @@ extern void hidinput_hid_event(struct hid_device *, struct hid_field *, struct h
+>  extern void hidinput_report_event(struct hid_device *hid, struct hid_report *report);
+>  extern int hidinput_connect(struct hid_device *hid, unsigned int force);
+>  extern void hidinput_disconnect(struct hid_device *);
+> +extern struct hid_input *hidinput_allocate(struct hid_device *hid);
+>  
+>  int hid_set_field(struct hid_field *, unsigned, __s32);
+>  int hid_input_report(struct hid_device *, int type, u8 *, int, int);
+> -- 
+> 1.8.0
+> 
 
 Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Henrik

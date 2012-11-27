@@ -1,87 +1,126 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 4/4] ASoC: wm5110: Implement haptics support
-Date: Tue, 27 Nov 2012 07:08:08 +0000
-Message-ID: <1354000088-30517-4-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1354000088-30517-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: "Patil, Rachna" <rachna@ti.com>
+Subject: RE: [PATCH RESEND 6/7] input: ti_am335x_tsc: Add DT support
+Date: Tue, 27 Nov 2012 07:11:32 +0000
+Message-ID: <4CE347531D4CA947960AF71FF095B9323E96FBF1@DBDE01.ent.ti.com>
+References: <1352271124-5513-1-git-send-email-rachna@ti.com>
+ <1352271124-5513-7-git-send-email-rachna@ti.com>
+ <20121121183223.GA18950@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:56273 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758130Ab2K0HIU (ORCPT
+Received: from bear.ext.ti.com ([192.94.94.41]:44961 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756643Ab2K0HLm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Nov 2012 02:08:20 -0500
-In-Reply-To: <1354000088-30517-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Tue, 27 Nov 2012 02:11:42 -0500
+In-Reply-To: <20121121183223.GA18950@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Liam Girdwood <lrg@ti.com>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>
 
-Provide a haptics widget for use by the haptics driver and expose the DAPM
-context for it.
+Hi Dmitry,
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- sound/soc/codecs/wm5110.c |   25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+On Thu, Nov 22, 2012 at 00:02:23, Dmitry Torokhov wrote:
+> Hi Rachna,
+> 
+> On Wed, Nov 07, 2012 at 12:22:03PM +0530, Patil, Rachna wrote:
+> > Add DT support for client touchscreen driver
+> > 
+> > Signed-off-by: Patil, Rachna <rachna@ti.com>
+> > ---
+> >  drivers/input/touchscreen/ti_am335x_tsc.c |   60 ++++++++++++++++++++++++-----
+> >  1 files changed, 50 insertions(+), 10 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c 
+> > b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > index 7a26810..c063cf6 100644
+> > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > @@ -26,6 +26,8 @@
+> >  #include <linux/io.h>
+> >  #include <linux/input/ti_am335x_tsc.h>  #include <linux/delay.h>
+> > +#include <linux/of.h>
+> > +#include <linux/of_device.h>
+> >  
+> >  #include <linux/mfd/ti_am335x_tscadc.h>
+> >  
+> > @@ -398,12 +400,18 @@ static int __devinit titsc_probe(struct platform_device *pdev)
+> >  	struct titsc *ts_dev;
+> >  	struct input_dev *input_dev;
+> >  	struct ti_tscadc_dev *tscadc_dev = pdev->dev.platform_data;
+> > -	struct mfd_tscadc_board	*pdata;
+> > -	int err;
+> > -
+> > -	pdata = tscadc_dev->dev->platform_data;
+> > -
+> > -	if (!pdata) {
+> > +	int err, i;
+> > +	struct mfd_tscadc_board	*pdata = NULL;
+> > +	struct device_node *node = NULL;
+> > +	u32 val32, wires_conf[4];
+> > +
+> > +	if (tscadc_dev->dev->of_node) {
+> > +		node = tscadc_dev->dev->of_node;
+> > +		node = of_find_node_by_name(node, "tsc");
+> > +	} else
+> > +		pdata = tscadc_dev->dev->platform_data;
+> > +
+> > +	if (!pdata && !node) {
+> >  		dev_err(&pdev->dev, "Could not find platform data\n");
+> >  		return -EINVAL;
+> >  	}
+> > @@ -421,11 +429,43 @@ static int __devinit titsc_probe(struct platform_device *pdev)
+> >  	ts_dev->mfd_tscadc = tscadc_dev;
+> >  	ts_dev->input = input_dev;
+> >  	ts_dev->irq = tscadc_dev->irq;
+> > -	ts_dev->wires = pdata->tsc_init->wires;
+> > -	ts_dev->x_plate_resistance = pdata->tsc_init->x_plate_resistance;
+> > -	ts_dev->steps_to_configure = pdata->tsc_init->steps_to_configure;
+> > -	memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
+> > +
+> > +	if (node) {
+> > +		err = of_property_read_u32(node, "wires", &val32);
+> > +		if (err < 0)
+> > +			goto err_free_mem;
+> > +		else
+> > +			ts_dev->wires = val32;
+> > +
+> > +		err = of_property_read_u32(node, "x-plate-resistance", &val32);
+> > +		if (err < 0)
+> > +			goto err_free_mem;
+> > +		else
+> > +			ts_dev->x_plate_resistance = val32;
+> > +
+> > +		err = of_property_read_u32(node, "steps-to-configure", &val32);
+> > +		if (err < 0)
+> > +			goto err_free_mem;
+> > +		else
+> > +			ts_dev->steps_to_configure = val32;
+> > +
+> > +		err = of_property_read_u32_array(node, "wire-config",
+> > +				wires_conf, ARRAY_SIZE(wires_conf));
+> > +		if (err < 0)
+> > +			goto err_free_mem;
+> > +		else {
+> > +			for (i = 0; i < ARRAY_SIZE(wires_conf); i++)
+> > +				ts_dev->config_inp[i] = wires_conf[i];
+> > +		}
+> > +	} else {
+> > +		ts_dev->wires = pdata->tsc_init->wires;
+> > +		ts_dev->x_plate_resistance =
+> > +			pdata->tsc_init->x_plate_resistance;
+> > +		ts_dev->steps_to_configure =
+> > +			pdata->tsc_init->steps_to_configure;
+> > +		memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
+> >  			sizeof(pdata->tsc_init->wire_config));
+> 
+> I believe if platform data is supplied it should take precedence over DT data so that parameters can be adjusted if really needed.
 
-diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
-index 3485b83..2a075ad 100644
---- a/sound/soc/codecs/wm5110.c
-+++ b/sound/soc/codecs/wm5110.c
-@@ -352,6 +352,7 @@ SND_SOC_DAPM_REGULATOR_SUPPLY("SPKVDDR", 0, 0),
- 
- SND_SOC_DAPM_SIGGEN("TONE"),
- SND_SOC_DAPM_SIGGEN("NOISE"),
-+SND_SOC_DAPM_SIGGEN("HAPTICS"),
- 
- SND_SOC_DAPM_INPUT("IN1L"),
- SND_SOC_DAPM_INPUT("IN1R"),
-@@ -610,6 +611,7 @@ SND_SOC_DAPM_OUTPUT("SPKDAT2R"),
- 	{ name, "Noise Generator", "Noise Generator" }, \
- 	{ name, "Tone Generator 1", "Tone Generator 1" }, \
- 	{ name, "Tone Generator 2", "Tone Generator 2" }, \
-+	{ name, "Haptics", "HAPTICS" }, \
- 	{ name, "AEC", "AEC Loopback" }, \
- 	{ name, "IN1L", "IN1L PGA" }, \
- 	{ name, "IN1R", "IN1R PGA" }, \
-@@ -902,9 +904,29 @@ static struct snd_soc_dai_driver wm5110_dai[] = {
- static int wm5110_codec_probe(struct snd_soc_codec *codec)
- {
- 	struct wm5110_priv *priv = snd_soc_codec_get_drvdata(codec);
-+	int ret;
- 
- 	codec->control_data = priv->core.arizona->regmap;
--	return snd_soc_codec_set_cache_io(codec, 32, 16, SND_SOC_REGMAP);
-+	priv->core.arizona->dapm = &codec->dapm;
-+
-+	ret = snd_soc_codec_set_cache_io(codec, 32, 16, SND_SOC_REGMAP);
-+	if (ret != 0)
-+		return ret;
-+
-+	snd_soc_dapm_disable_pin(&codec->dapm, "HAPTICS");
-+
-+	priv->core.arizona->dapm = &codec->dapm;
-+
-+	return 0;
-+}
-+
-+static int wm5110_codec_remove(struct snd_soc_codec *codec)
-+{
-+	struct wm5110_priv *priv = snd_soc_codec_get_drvdata(codec);
-+
-+	priv->core.arizona->dapm = NULL;
-+
-+	return 0;
- }
- 
- #define WM5110_DIG_VU 0x0200
-@@ -935,6 +957,7 @@ static unsigned int wm5110_digital_vu[] = {
- 
- static struct snd_soc_codec_driver soc_codec_dev_wm5110 = {
- 	.probe = wm5110_codec_probe,
-+	.remove = wm5110_codec_remove,
- 
- 	.idle_bias_off = true,
- 
--- 
-1.7.10.4
+Ok. I will fix this is in v2.
+
+Regards,
+Rachna
 

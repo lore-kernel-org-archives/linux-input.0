@@ -1,356 +1,157 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 2/4] Input - arizona-haptics: Add driver haptics module on Arizona CODECs
-Date: Tue, 27 Nov 2012 10:33:31 +0000
-Message-ID: <1354012413-7960-2-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1354012413-7960-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 3/5 v3] Input: bu21013_ts - Add support for Device Tree
+ booting
+Date: Tue, 27 Nov 2012 11:38:48 +0000
+Message-ID: <20121127113848.GD2013@gmail.com>
+References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
+ <1352900837-20759-4-git-send-email-lee.jones@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:54723 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754088Ab2K0Kdh (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:51352 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754177Ab2K0Lix (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Nov 2012 05:33:37 -0500
-In-Reply-To: <1354012413-7960-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Tue, 27 Nov 2012 06:38:53 -0500
+Received: by mail-bk0-f46.google.com with SMTP id q16so5069253bkw.19
+        for <linux-input@vger.kernel.org>; Tue, 27 Nov 2012 03:38:52 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1352900837-20759-4-git-send-email-lee.jones@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>
-Cc: alsa-devel@alsa-project.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-The Arizona CODECs contain a haptics module providing vibration feedback
-support. Implement basic support for this, providing simple start/stop and
-signal magnitude control.
+Author: Lee Jones <lee.jones@linaro.org>
+Date:   Fri Sep 28 14:35:43 2012 +0100
 
-Since the output path for haptics is routed through the CODEC audio routing
-it is modelled as a signal generator within ASoC, the haptics driver calls
-DAPM to start and stop the output drivers. An appropriate output path must
-be configured via ALSA to connect the haptics source to the correct output.
+    Input: bu21013_ts - Add support for Device Tree booting
+   =20
+    Now we can register the BU21013_ts touch screen when booting with
+    Device Tree enabled. Here we parse all the necessary components
+    previously expected to be passed from platform data.
+   =20
+    Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+    Cc: linux-input@vger.kernel.org
+    Acked-by: Arnd Bergmann <arnd@arndb.de>
+    Acked-by: Linus Walleij <linus.walleij@linaro.org>
+    Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/misc/Kconfig           |   10 ++
- drivers/input/misc/Makefile          |    1 +
- drivers/input/misc/arizona-haptics.c |  255 ++++++++++++++++++++++++++++++++++
- include/linux/mfd/arizona/pdata.h    |    6 +
- 4 files changed, 272 insertions(+)
- create mode 100644 drivers/input/misc/arizona-haptics.c
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 2a1647e..259ef31 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -72,6 +72,16 @@ config INPUT_AD714X_SPI
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called ad714x-spi.
- 
-+config INPUT_ARIZONA_HAPTICS
-+	tristate "Arizona haptics support"
-+	depends on MFD_ARIZONA && SND_SOC
-+	select INPUT_FF_MEMLESS
-+	help
-+	  Say Y to enable support for the haptics module in Arizona CODECs.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called arizona-haptics.
-+
- config INPUT_BMA150
- 	tristate "BMA150/SMB380 acceleration sensor support"
- 	depends on I2C
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 1f874af..1f1e1b1 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -14,6 +14,7 @@ obj-$(CONFIG_INPUT_ADXL34X)		+= adxl34x.o
- obj-$(CONFIG_INPUT_ADXL34X_I2C)		+= adxl34x-i2c.o
- obj-$(CONFIG_INPUT_ADXL34X_SPI)		+= adxl34x-spi.o
- obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
-+obj-$(CONFIG_INPUT_ARIZONA_HAPTICS)	+= arizona-haptics.o
- obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
- obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
- obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
-diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/arizona-haptics.c
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu2101=
+3.txt b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
 new file mode 100644
-index 0000000..6e8730c
+index 0000000..ca5a2c8
 --- /dev/null
-+++ b/drivers/input/misc/arizona-haptics.c
-@@ -0,0 +1,255 @@
-+/*
-+ * Arizona haptics driver
-+ *
-+ * Copyright 2012 Wolfson Microelectronics plc
-+ *
-+ * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
++++ b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
+@@ -0,0 +1,28 @@
++* Rohm BU21013 Touch Screen
 +
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
++Required properties:
++ - compatible              : "rohm,bu21013_tp"
++ - reg                     :  I2C device address
 +
-+#include <sound/soc.h>
-+#include <sound/soc-dapm.h>
++Optional properties:
++ - touch-gpio              : GPIO pin registering a touch event
++ - <supply_name>-supply    : Phandle to a regulator supply
++ - rohm,touch-max-x        : Maximum outward permitted limit in the X =
+axis
++ - rohm,touch-max-y        : Maximum outward permitted limit in the Y =
+axis
++ - rohm,flip-x             : Flip touch coordinates on the X axis
++ - rohm,flip-y             : Flip touch coordinates on the Y axis
 +
-+#include <linux/mfd/arizona/core.h>
-+#include <linux/mfd/arizona/pdata.h>
-+#include <linux/mfd/arizona/registers.h>
++Example:
 +
-+struct arizona_haptics {
-+	struct arizona *arizona;
-+	struct input_dev *input_dev;
-+	struct work_struct work;
++	i2c@80110000 {
++		bu21013_tp@0x5c {
++			compatible =3D "rohm,bu21013_tp";
++			reg =3D <0x5c>;
++			touch-gpio =3D <&gpio2 20 0x4>;
++			avdd-supply =3D <&ab8500_ldo_aux1_reg>;
 +
-+	struct mutex mutex;
-+	u8 intensity;
-+};
-+
-+static void arizona_haptics_work(struct work_struct *work)
++			rohm,touch-max-x =3D <384>;
++			rohm,touch-max-y =3D <704>;
++			rohm,flip-y;
++		};
++	};
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/tou=
+chscreen/bu21013_ts.c
+index 16f29d6..07335ac 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -15,6 +15,8 @@
+ #include <linux/regulator/consumer.h>
+ #include <linux/module.h>
+ #include <linux/gpio.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
+=20
+ #define PEN_DOWN_INTR	0
+ #define MAX_FINGERS	2
+@@ -473,13 +475,30 @@ static void bu21013_free_irq(struct bu21013_ts_da=
+ta *bu21013_data)
+  * This function used to initializes the i2c-client touchscreen
+  * driver and returns integer.
+  */
++static void __devinit bu21013_of_probe(struct device_node *np,
++				struct bu21013_platform_device *pdata)
 +{
-+	struct arizona_haptics *haptics = container_of(work,
-+						       struct arizona_haptics,
-+						       work);
-+	struct arizona *arizona = haptics->arizona;
-+	struct mutex *dapm_mutex = &arizona->dapm->card->dapm_mutex;
-+	int ret;
++	pdata->y_flip =3D pdata->x_flip =3D false;
 +
-+	if (!haptics->arizona->dapm) {
-+		dev_err(arizona->dev, "No DAPM context\n");
-+		return;
-+	}
++	pdata->x_flip =3D of_property_read_bool(np, "rohm,flip-x");
++	pdata->y_flip =3D of_property_read_bool(np, "rohm,flip-y");
 +
-+	if (haptics->intensity) {
-+		ret = regmap_update_bits(arizona->regmap,
-+					 ARIZONA_HAPTICS_PHASE_2_INTENSITY,
-+					 ARIZONA_PHASE2_INTENSITY_MASK,
-+					 haptics->intensity);
-+		if (ret != 0) {
-+			dev_err(arizona->dev, "Failed to set intensity: %d\n",
-+				ret);
-+			return;
-+		}
++	of_property_read_u32(np, "rohm,touch-max-x", &pdata->touch_x_max);
++	of_property_read_u32(np, "rohm,touch-max-y", &pdata->touch_y_max);
 +
-+		/* This enable sequence will be a noop if already enabled */
-+		ret = regmap_update_bits(arizona->regmap,
-+					 ARIZONA_HAPTICS_CONTROL_1,
-+					 ARIZONA_HAP_CTRL_MASK,
-+					 1 << ARIZONA_HAP_CTRL_SHIFT);
-+		if (ret != 0) {
-+			dev_err(arizona->dev, "Failed to start haptics: %d\n",
-+				ret);
-+			return;
-+		}
++	pdata->touch_pin =3D of_get_named_gpio(np, "touch-gpio", 0);
++	pdata->cs_pin =3D of_get_named_gpio(np, "reset-gpio", 0);
 +
-+		mutex_lock_nested(dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
-+
-+		ret = snd_soc_dapm_enable_pin(arizona->dapm, "HAPTICS");
-+		if (ret != 0) {
-+			dev_err(arizona->dev, "Failed to start HAPTICS: %d\n",
-+				ret);
-+			mutex_unlock(dapm_mutex);
-+			return;
-+		}
-+
-+		ret = snd_soc_dapm_sync(arizona->dapm);
-+		if (ret != 0) {
-+			dev_err(arizona->dev, "Failed to sync DAPM: %d\n",
-+				ret);
-+			mutex_unlock(dapm_mutex);
-+			return;
-+		}
-+
-+		mutex_unlock(dapm_mutex);
-+
-+	} else {
-+		/* This disable sequence will be a noop if already enabled */
-+		mutex_lock_nested(dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
-+
-+		ret = snd_soc_dapm_disable_pin(arizona->dapm, "HAPTICS");
-+		if (ret != 0) {
-+			dev_err(arizona->dev, "Failed to disable HAPTICS: %d\n",
-+				ret);
-+			mutex_unlock(dapm_mutex);
-+			return;
-+		}
-+
-+		ret = snd_soc_dapm_sync(arizona->dapm);
-+		if (ret != 0) {
-+			dev_err(arizona->dev, "Failed to sync DAPM: %d\n",
-+				ret);
-+			mutex_unlock(dapm_mutex);
-+			return;
-+		}
-+
-+		mutex_unlock(dapm_mutex);
-+
-+		ret = regmap_update_bits(arizona->regmap,
-+					 ARIZONA_HAPTICS_CONTROL_1,
-+					 ARIZONA_HAP_CTRL_MASK,
-+					 1 << ARIZONA_HAP_CTRL_SHIFT);
-+		if (ret != 0) {
-+			dev_err(arizona->dev, "Failed to stop haptics: %d\n",
-+				ret);
-+			return;
-+		}
-+	}
++	pdata->ext_clk =3D false;
 +}
 +
-+static int arizona_haptics_play(struct input_dev *input, void *data,
-+				struct ff_effect *effect)
-+{
-+	struct arizona_haptics *haptics = input_get_drvdata(input);
-+	struct arizona *arizona = haptics->arizona;
+ static int __devinit bu21013_probe(struct i2c_client *client,
+ 					const struct i2c_device_id *id)
+ {
+ 	struct bu21013_ts_data *bu21013_data;
+ 	struct input_dev *in_dev;
+-	const struct bu21013_platform_device *pdata =3D
+-					client->dev.platform_data;
++	struct device_node *np =3D client->dev.of_node;
++	struct bu21013_platform_device *pdata =3D client->dev.platform_data;
+ 	int error;
+=20
+ 	if (!i2c_check_functionality(client->adapter,
+@@ -489,8 +508,17 @@ static int __devinit bu21013_probe(struct i2c_clie=
+nt *client,
+ 	}
+=20
+ 	if (!pdata) {
+-		dev_err(&client->dev, "platform data not defined\n");
+-		return -EINVAL;
++		if (np) {
++			pdata =3D devm_kzalloc(&client->dev, sizeof(*pdata),
++					GFP_KERNEL);
++			if (!pdata)
++				return -ENOMEM;
 +
-+	if (!arizona->dapm) {
-+		dev_err(arizona->dev, "No DAPM context\n");
-+		return -EBUSY;
-+	}
-+
-+	if (effect->u.rumble.strong_magnitude) {
-+		/* Scale the magnitude into the range the device supports */
-+		if (arizona->pdata.hap_act) {
-+			haptics->intensity = effect->u.rumble.strong_magnitude
-+				>> 9;
-+			if (effect->direction < 0x8000)
-+				haptics->intensity += 0x7f;
++			bu21013_of_probe(np, pdata);
 +		} else {
-+			haptics->intensity = effect->u.rumble.strong_magnitude
-+				>> 8;
++			dev_err(&client->dev, "no device tree or platform data\n");
++			return -EINVAL;
 +		}
-+	} else {
-+		haptics->intensity = 0;
-+	}
-+
-+	schedule_work(&haptics->work);
-+
-+	return 0;
-+}
-+
-+static void arizona_haptics_close(struct input_dev *input)
-+{
-+	struct arizona_haptics *haptics = input_get_drvdata(input);
-+	struct mutex *dapm_mutex = &haptics->arizona->dapm->card->dapm_mutex;
-+
-+	cancel_work_sync(&haptics->work);
-+
-+	mutex_lock_nested(dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
-+
-+	if (haptics->arizona->dapm)
-+		snd_soc_dapm_disable_pin(haptics->arizona->dapm, "HAPTICS");
-+
-+	mutex_unlock(dapm_mutex);
-+}
-+
-+static int arizona_haptics_probe(struct platform_device *pdev)
-+{
-+	struct arizona *arizona = dev_get_drvdata(pdev->dev.parent);
-+	struct arizona_haptics *haptics;
-+	int ret;
-+
-+	haptics = devm_kzalloc(sizeof(*haptics), GFP_KERNEL);
-+	if (!haptics)
-+		return -ENOMEM;
-+
-+	haptics->arizona = arizona;
-+
-+	ret = regmap_update_bits(arizona->regmap, ARIZONA_HAPTICS_CONTROL_1,
-+				 ARIZONA_HAP_ACT, arizona->pdata.hap_act);
-+	if (ret != 0) {
-+		dev_err(arizona->dev, "Failed to set haptics actuator: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	INIT_WORK(&haptics->work, arizona_haptics_work);
-+
-+	haptics->input_dev = input_allocate_device();
-+	if (haptics->input_dev == NULL) {
-+		dev_err(arizona->dev, "Failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_set_drvdata(haptics->input_dev, haptics);
-+
-+	haptics->input_dev->name = "arizona:haptics";
-+	haptics->input_dev->dev.parent = pdev->dev.parent;
-+	haptics->input_dev->close = arizona_haptics_close;
-+	__set_bit(FF_RUMBLE, haptics->input_dev->ffbit);
-+
-+	ret = input_ff_create_memless(haptics->input_dev, NULL,
-+				      arizona_haptics_play);
-+	if (ret < 0) {
-+		dev_err(arizona->dev, "input_ff_create_memless() failed: %d\n",
-+			ret);
-+		goto err_ialloc;
-+	}
-+
-+	ret = input_register_device(haptics->input_dev);
-+	if (ret < 0) {
-+		dev_err(arizona->dev, "couldn't register input device: %d\n",
-+			ret);
-+		goto err_iff;
-+	}
-+
-+	platform_set_drvdata(pdev, haptics);
-+
-+	return 0;
-+
-+err_iff:
-+	if (haptics->input_dev)
-+		input_ff_destroy(haptics->input_dev);
-+err_ialloc:
-+	input_free_device(haptics->input_dev);
-+
-+	return ret;
-+}
-+
-+static int arizona_haptics_remove(struct platform_device *pdev)
-+{
-+	struct arizona_haptics *haptics = platform_get_drvdata(pdev);
-+
-+	input_unregister_device(haptics->input_dev);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver arizona_haptics_driver = {
-+	.probe		= arizona_haptics_probe,
-+	.remove		= arizona_haptics_remove,
-+	.driver		= {
-+		.name	= "arizona-haptics",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+module_platform_driver(arizona_haptics_driver);
-+
-+MODULE_ALIAS("platform:arizona-haptics");
-+MODULE_DESCRIPTION("Arizona haptics driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Mark Brown <broonie@opensource.wolfsonmicro.com>");
-diff --git a/include/linux/mfd/arizona/pdata.h b/include/linux/mfd/arizona/pdata.h
-index 7ab4429..8b1d1da 100644
---- a/include/linux/mfd/arizona/pdata.h
-+++ b/include/linux/mfd/arizona/pdata.h
-@@ -62,6 +62,9 @@
- 
- #define ARIZONA_MAX_OUTPUT 6
- 
-+#define ARIZONA_HAP_ACT_ERM 0
-+#define ARIZONA_HAP_ACT_LRA 2
-+
- #define ARIZONA_MAX_PDM_SPK 2
- 
- struct regulator_init_data;
-@@ -114,6 +117,9 @@ struct arizona_pdata {
- 
- 	/** PDM speaker format */
- 	unsigned int spk_fmt[ARIZONA_MAX_PDM_SPK];
-+
-+	/** Haptic actuator type */
-+	unsigned int hap_act;
- };
- 
- #endif
--- 
-1.7.10.4
+ 	}
+=20
+ 	pdata->irq =3D gpio_to_irq(pdata->touch_pin);
 
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

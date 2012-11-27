@@ -1,46 +1,49 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: Re: [PATCH v2] Input: samsung-keypad - Use devm_* functions
-Date: Tue, 27 Nov 2012 15:54:56 +0530
-Message-ID: <CAK9yfHwD2gv-F1uMXHtdDTY-OpC-UAnmJC1+LS9fvUMjzbVbxg@mail.gmail.com>
-References: <1354010091-31294-1-git-send-email-sachin.kamat@linaro.org>
-	<20121127101320.GD25658@core.coreip.homeip.net>
-	<20121127101422.GE25658@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH 1/4] mfd: arizona: Allow the CODEC DAPM context to be accessed elsewhere
+Date: Tue, 27 Nov 2012 10:33:30 +0000
+Message-ID: <1354012413-7960-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:40438 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755488Ab2K0KY6 (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:54719 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753747Ab2K0Kdg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Nov 2012 05:24:58 -0500
-Received: by mail-vb0-f46.google.com with SMTP id ff1so6657810vbb.19
-        for <linux-input@vger.kernel.org>; Tue, 27 Nov 2012 02:24:57 -0800 (PST)
-In-Reply-To: <20121127101422.GE25658@core.coreip.homeip.net>
+	Tue, 27 Nov 2012 05:33:36 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, patches@linaro.org, Kukjin Kim <kgene.kim@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>
+Cc: alsa-devel@alsa-project.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On 27 November 2012 15:44, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Tue, Nov 27, 2012 at 02:13:21AM -0800, Dmitry Torokhov wrote:
->> On Tue, Nov 27, 2012 at 03:24:51PM +0530, Sachin Kamat wrote:
->> > devm_* functions are device managed and make error handling
->> > and code simpler. While at it also fix error exit paths.
->> >
->>
->> Is this different from the version I sent you?
->
-> Ahh,, I see, there was a typo with extra 'i'... Anything else?
+Some other device functions need to integrate with signal sources in the
+audio portion (primarily for haptics) so allow CODEC to export the DAPM
+context by pointing to it from the core driver.
 
-No. Just rebased it on top of latest next and updated the commit message a bit.
->
-> Thanks.
->
-> -
-> Dmitry
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ include/linux/mfd/arizona/core.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-
-
+diff --git a/include/linux/mfd/arizona/core.h b/include/linux/mfd/arizona/core.h
+index dd231ac..a580363 100644
+--- a/include/linux/mfd/arizona/core.h
++++ b/include/linux/mfd/arizona/core.h
+@@ -78,6 +78,8 @@ enum arizona_type {
+ 
+ #define ARIZONA_NUM_IRQ                   50
+ 
++struct snd_soc_dapm_context;
++
+ struct arizona {
+ 	struct regmap *regmap;
+ 	struct device *dev;
+@@ -98,6 +100,8 @@ struct arizona {
+ 
+ 	struct mutex clk_lock;
+ 	int clk32k_ref;
++
++	struct snd_soc_dapm_context *dapm;
+ };
+ 
+ int arizona_clk32k_enable(struct arizona *arizona);
 -- 
-With warm regards,
-Sachin
+1.7.10.4
+

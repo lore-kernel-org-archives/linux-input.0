@@ -1,121 +1,66 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 01/11] HID: hid-input factorize hid_input allocation
-Date: Tue, 27 Nov 2012 20:47:43 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211272047340.3933@pobox.suse.cz>
-References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com> <1353684694-5723-2-git-send-email-benjamin.tissoires@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/4] Input - arizona-haptics: Add driver haptics module
+ on Arizona CODECs
+Date: Tue, 27 Nov 2012 11:56:44 -0800
+Message-ID: <20121127195644.GA29727@core.coreip.homeip.net>
+References: <1354020025-23881-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <1354020025-23881-2-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1353684694-5723-2-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:46436 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756232Ab2K0T4u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Nov 2012 14:56:50 -0500
+Received: by mail-pa0-f46.google.com with SMTP id bh2so6190226pad.19
+        for <linux-input@vger.kernel.org>; Tue, 27 Nov 2012 11:56:50 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1354020025-23881-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
 
-On Fri, 23 Nov 2012, Benjamin Tissoires wrote:
-
-> This just refactors the allocation of hid_input.
-> No semantic changes.
+On Tue, Nov 27, 2012 at 12:40:23PM +0000, Mark Brown wrote:
+> The Arizona CODECs contain a haptics module providing vibration feedback
+> support. Implement basic support for this, providing simple start/stop and
+> signal magnitude control.
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-
-Fine by me, thanks.
-
-> ---
->  drivers/hid/hid-input.c | 61 +++++++++++++++++++++++++++----------------------
->  1 file changed, 34 insertions(+), 27 deletions(-)
+> Since the output path for haptics is routed through the CODEC audio routing
+> it is modelled as a signal generator within ASoC, the haptics driver calls
+> DAPM to start and stop the output drivers. An appropriate output path must
+> be configured via ALSA to connect the haptics source to the correct output.
 > 
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 7015080..47f98a3 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1163,6 +1163,38 @@ static void report_features(struct hid_device *hid)
->  			}
->  }
->  
-> +static struct hid_input *hidinput_allocate(struct hid_device *hid)
-> +{
-> +	struct hid_input *hidinput = kzalloc(sizeof(*hidinput), GFP_KERNEL);
-> +	struct input_dev *input_dev = input_allocate_device();
-> +	if (!hidinput || !input_dev) {
-> +		kfree(hidinput);
-> +		input_free_device(input_dev);
-> +		hid_err(hid, "Out of memory during hid input probe\n");
-> +		return NULL;
-> +	}
+> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+with minor nits:
+
 > +
-> +	input_set_drvdata(input_dev, hid);
-> +	input_dev->event = hid->ll_driver->hidinput_input_event;
-> +	input_dev->open = hidinput_open;
-> +	input_dev->close = hidinput_close;
-> +	input_dev->setkeycode = hidinput_setkeycode;
-> +	input_dev->getkeycode = hidinput_getkeycode;
-> +
-> +	input_dev->name = hid->name;
-> +	input_dev->phys = hid->phys;
-> +	input_dev->uniq = hid->uniq;
-> +	input_dev->id.bustype = hid->bus;
-> +	input_dev->id.vendor  = hid->vendor;
-> +	input_dev->id.product = hid->product;
-> +	input_dev->id.version = hid->version;
-> +	input_dev->dev.parent = hid->dev.parent;
-> +	hidinput->input = input_dev;
-> +	list_add_tail(&hidinput->list, &hid->inputs);
-> +
-> +	return hidinput;
-> +}
-> +
->  /*
->   * Register the input device; print a message.
->   * Configure the input layer interface
-> @@ -1174,7 +1206,6 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
->  	struct hid_driver *drv = hid->driver;
->  	struct hid_report *report;
->  	struct hid_input *hidinput = NULL;
-> -	struct input_dev *input_dev;
->  	int i, j, k;
->  
->  	INIT_LIST_HEAD(&hid->inputs);
-> @@ -1205,33 +1236,9 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
->  				continue;
->  
->  			if (!hidinput) {
-> -				hidinput = kzalloc(sizeof(*hidinput), GFP_KERNEL);
-> -				input_dev = input_allocate_device();
-> -				if (!hidinput || !input_dev) {
-> -					kfree(hidinput);
-> -					input_free_device(input_dev);
-> -					hid_err(hid, "Out of memory during hid input probe\n");
-> +				hidinput = hidinput_allocate(hid);
-> +				if (!hidinput)
->  					goto out_unwind;
-> -				}
-> -
-> -				input_set_drvdata(input_dev, hid);
-> -				input_dev->event =
-> -					hid->ll_driver->hidinput_input_event;
-> -				input_dev->open = hidinput_open;
-> -				input_dev->close = hidinput_close;
-> -				input_dev->setkeycode = hidinput_setkeycode;
-> -				input_dev->getkeycode = hidinput_getkeycode;
-> -
-> -				input_dev->name = hid->name;
-> -				input_dev->phys = hid->phys;
-> -				input_dev->uniq = hid->uniq;
-> -				input_dev->id.bustype = hid->bus;
-> -				input_dev->id.vendor  = hid->vendor;
-> -				input_dev->id.product = hid->product;
-> -				input_dev->id.version = hid->version;
-> -				input_dev->dev.parent = hid->dev.parent;
-> -				hidinput->input = input_dev;
-> -				list_add_tail(&hidinput->list, &hid->inputs);
->  			}
->  
->  			for (i = 0; i < report->maxfield; i++)
-> -- 
-> 1.8.0
-> 
+> +	if (effect->u.rumble.strong_magnitude) {
+> +		/* Scale the magnitude into the range the device supports */
+> +		if (arizona->pdata.hap_act) {
+> +			haptics->intensity = effect->u.rumble.strong_magnitude
+> +				>> 9;
+
+If we have to fit in 80 columns can we format like this:
+
+			haptics->intensity =
+				effect->u.rumble.strong_magnitude >> 9;
+
+> +			if (effect->direction < 0x8000)
+> +				haptics->intensity += 0x7f;
+> +		} else {
+> +			haptics->intensity = effect->u.rumble.strong_magnitude
+> +				>> 8;
+
+and here as well - I really hate shifts moved over to the next line.
+
+How do you want to merge it? My tree or some other?
+
+Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

@@ -1,58 +1,65 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [PATCH] Input: Document no-sleep requirement for playback()
  callback
-Date: Mon, 26 Nov 2012 22:42:38 -0800
-Message-ID: <20121127064238.GA1989@core.coreip.homeip.net>
+Date: Tue, 27 Nov 2012 06:47:41 +0000
+Message-ID: <20121127064741.GW9411@opensource.wolfsonmicro.com>
 References: <1353997935-7210-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <20121127064238.GA1989@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rUGnr7B6Y4qPBmNO"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:50802 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753881Ab2K0Gmm (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:58145 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755574Ab2K0Gro (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Nov 2012 01:42:42 -0500
-Received: by mail-pa0-f46.google.com with SMTP id bh2so5694571pad.19
-        for <linux-input@vger.kernel.org>; Mon, 26 Nov 2012 22:42:42 -0800 (PST)
+	Tue, 27 Nov 2012 01:47:44 -0500
 Content-Disposition: inline
-In-Reply-To: <1353997935-7210-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+In-Reply-To: <20121127064238.GA1989@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Tue, Nov 27, 2012 at 06:32:15AM +0000, Mark Brown wrote:
-> Avoids surprising users.
-> 
-> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-> ---
->  include/linux/input.h |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index 82ce323..0ba0de1 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -475,7 +475,8 @@ extern struct class input_class;
->   * struct ff_device - force-feedback part of an input device
->   * @upload: Called to upload an new effect into device
->   * @erase: Called to erase an effect from device
-> - * @playback: Called to request device to start playing specified effect
-> + * @playback: Called to request device to start playing specified effect.
-> + *            Must not sleep.
->   * @set_gain: Called to set specified gain
->   * @set_autocenter: Called to auto-center device
->   * @destroy: called by input core when parent input device is being
 
-We already have a few lines below:
+--rUGnr7B6Y4qPBmNO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> * Note that playback(), set_gain() and set_autocenter() are called with
-> * dev->event_lock spinlock held and interrupts off and thus may not
-> * sleep.
+On Mon, Nov 26, 2012 at 10:42:38PM -0800, Dmitry Torokhov wrote:
 
-So I doubt they will pay more attention to your addition ;)
+> We already have a few lines below:
 
-Thanks.
+> > * Note that playback(), set_gain() and set_autocenter() are called with
+> > * dev->event_lock spinlock held and interrupts off and thus may not
+> > * sleep.
 
--- 
-Dmitry
+> So I doubt they will pay more attention to your addition ;)
+
+Ah, it's quite a few lines below - it was actually off the bottom of my
+screen which rather buried the lead (though TBH I think I was most
+surprised by the fact that the lock isn't actually in the struct).
+
+--rUGnr7B6Y4qPBmNO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQtGHZAAoJELSic+t+oim9G3gQAIvu0tJkCo8w0K87PsqHIpS+
+ImE1QVPB5ppPzYtuIn5VzXDYJRY88fRSYtlbMDuEu92OZ6T+VyKuDgMU3gYBwl+I
+xRY/r89w+VvFd1KFDBvhKgpD8yriGn2ePMKeNrQVipZovXYR4PMC4jHlHwJJwbdL
+YPCy4xWcQef0n9PFuxI7G3cMTUsOX7j3yUktSgxmr/5QZ3m9FuyUHsM5PTCrPRGP
+HWxFf4RwIduNx477RsmF6RIetS/4KQ46MZb8vXgCi2DvqbiMCRH4QqryoTHgRCaF
+Q5kfzmumm5tV2znQyabaCF9tRTfF4fl+H7dQJqW4qjjQnMLrgUr+Twx1KnkDPe1d
+Ft5jI1Id7CjpS6FoFSm6RDXX+yzgUq1ZNoQ7VD7ROzwEEuNddaqD+ICw5rGmB/9D
+7aaxJDRZ/JW8ZSxh4LlWu0j8xTLkGPDqBcVOsBpc0x7vlC0js+3NfN1tRKRYBQ04
+lYzmrP556huLN40ycTRxEk8LneNxlPMPWz7JsAoK8MET2Plnvk/+WYXc/3/+vuGp
+/AnlkQqdl5y2iX1ihziWwOWzSBcmruWae4yERNrhB3LDulWnvAsc2mcEeoL3rkYk
+TE+S1WRl7RC5otYbPXsXgXLYAi/+KGzwpHqJDZ+gWGeRBMRYNX1fBM5GwYHxuv4j
+S2tph9KembDvX4HwRILV
+=lQVQ
+-----END PGP SIGNATURE-----
+
+--rUGnr7B6Y4qPBmNO--

@@ -1,43 +1,39 @@
-From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Subject: Re: [PATCH] Input: omap4-keypad: Remove the OMAP4_KBD_SYSCONFIG and OMAP4_KBD_SYSSTATUS
-Date: Tue, 27 Nov 2012 10:47:41 +0530
-Message-ID: <CAM=Q2cu_7gDvT57QhwbUpH1GQA7HgZ3j-sMbVq8UvYemO08TBA@mail.gmail.com>
-References: <1353927079-12493-1-git-send-email-shubhrajyoti@ti.com>
-	<20121126180158.GD14623@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20121126180158.GD14623@core.coreip.homeip.net>
-Sender: linux-omap-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, b-cousson@ti.com
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] Input: Document no-sleep requirement for playback() callback
+Date: Tue, 27 Nov 2012 06:32:15 +0000
+Message-ID: <1353997935-7210-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:41430 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755906Ab2K0GcS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Nov 2012 01:32:18 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Mon, Nov 26, 2012 at 11:31 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Nov 26, 2012 at 04:21:19PM +0530, Shubhrajyoti D wrote:
->> The macros OMAP4_KBD_SYSSTATUS and OMAP4_KBD_SYSSTATUS are not used
->> so remove them.
->
-> They document the existing registers and do not add bloat to the
-> generated objects so let's leave them be.
+Avoids surprising users.
 
-The objective of the patch is not to prevent bloat.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ include/linux/input.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Actually these registers have power/system impact so it was decided
-that the drivers will not
-configure the sysc registers (infact not define). Currently hwmod
-configures the registers.
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 82ce323..0ba0de1 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -475,7 +475,8 @@ extern struct class input_class;
+  * struct ff_device - force-feedback part of an input device
+  * @upload: Called to upload an new effect into device
+  * @erase: Called to erase an effect from device
+- * @playback: Called to request device to start playing specified effect
++ * @playback: Called to request device to start playing specified effect.
++ *            Must not sleep.
+  * @set_gain: Called to set specified gain
+  * @set_autocenter: Called to auto-center device
+  * @destroy: called by input core when parent input device is being
+-- 
+1.7.10.4
 
-To be safe I thought of deleting it.
-
-
->
-> Thanks.
->
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

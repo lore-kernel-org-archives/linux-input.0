@@ -1,157 +1,86 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 3/5 v3] Input: bu21013_ts - Add support for Device Tree
- booting
-Date: Tue, 27 Nov 2012 11:38:48 +0000
-Message-ID: <20121127113848.GD2013@gmail.com>
-References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
- <1352900837-20759-4-git-send-email-lee.jones@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH 3/4] ASoC: wm5102: Implement haptics support
+Date: Tue, 27 Nov 2012 12:40:24 +0000
+Message-ID: <1354020025-23881-3-git-send-email-broonie@opensource.wolfsonmicro.com>
+References: <1354020025-23881-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:51352 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754177Ab2K0Lix (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:33793 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753533Ab2K0Mk3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Nov 2012 06:38:53 -0500
-Received: by mail-bk0-f46.google.com with SMTP id q16so5069253bkw.19
-        for <linux-input@vger.kernel.org>; Tue, 27 Nov 2012 03:38:52 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1352900837-20759-4-git-send-email-lee.jones@linaro.org>
+	Tue, 27 Nov 2012 07:40:29 -0500
+In-Reply-To: <1354020025-23881-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>
+Cc: alsa-devel@alsa-project.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-Author: Lee Jones <lee.jones@linaro.org>
-Date:   Fri Sep 28 14:35:43 2012 +0100
+Provide a haptics widget for use by the haptics driver and expose the DAPM
+context for it.
 
-    Input: bu21013_ts - Add support for Device Tree booting
-   =20
-    Now we can register the BU21013_ts touch screen when booting with
-    Device Tree enabled. Here we parse all the necessary components
-    previously expected to be passed from platform data.
-   =20
-    Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-    Cc: linux-input@vger.kernel.org
-    Acked-by: Arnd Bergmann <arnd@arndb.de>
-    Acked-by: Linus Walleij <linus.walleij@linaro.org>
-    Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ sound/soc/codecs/wm5102.c |   24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu2101=
-3.txt b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
-new file mode 100644
-index 0000000..ca5a2c8
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/bu21013.txt
-@@ -0,0 +1,28 @@
-+* Rohm BU21013 Touch Screen
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index b18fd2e..63c24a3 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -860,6 +860,7 @@ SND_SOC_DAPM_REGULATOR_SUPPLY("SPKVDDR", 0, 0),
+ 
+ SND_SOC_DAPM_SIGGEN("TONE"),
+ SND_SOC_DAPM_SIGGEN("NOISE"),
++SND_SOC_DAPM_SIGGEN("HAPTICS"),
+ 
+ SND_SOC_DAPM_INPUT("IN1L"),
+ SND_SOC_DAPM_INPUT("IN1R"),
+@@ -1094,6 +1095,7 @@ SND_SOC_DAPM_OUTPUT("SPKDAT1R"),
+ 	{ name, "Noise Generator", "Noise Generator" }, \
+ 	{ name, "Tone Generator 1", "Tone Generator 1" }, \
+ 	{ name, "Tone Generator 2", "Tone Generator 2" }, \
++	{ name, "Haptics", "HAPTICS" }, \
+ 	{ name, "AEC", "AEC Loopback" }, \
+ 	{ name, "IN1L", "IN1L PGA" }, \
+ 	{ name, "IN1R", "IN1R PGA" }, \
+@@ -1385,9 +1387,28 @@ static struct snd_soc_dai_driver wm5102_dai[] = {
+ static int wm5102_codec_probe(struct snd_soc_codec *codec)
+ {
+ 	struct wm5102_priv *priv = snd_soc_codec_get_drvdata(codec);
++	int ret;
+ 
+ 	codec->control_data = priv->core.arizona->regmap;
+-	return snd_soc_codec_set_cache_io(codec, 32, 16, SND_SOC_REGMAP);
 +
-+Required properties:
-+ - compatible              : "rohm,bu21013_tp"
-+ - reg                     :  I2C device address
++	ret = snd_soc_codec_set_cache_io(codec, 32, 16, SND_SOC_REGMAP);
++	if (ret != 0)
++		return ret;
 +
-+Optional properties:
-+ - touch-gpio              : GPIO pin registering a touch event
-+ - <supply_name>-supply    : Phandle to a regulator supply
-+ - rohm,touch-max-x        : Maximum outward permitted limit in the X =
-axis
-+ - rohm,touch-max-y        : Maximum outward permitted limit in the Y =
-axis
-+ - rohm,flip-x             : Flip touch coordinates on the X axis
-+ - rohm,flip-y             : Flip touch coordinates on the Y axis
++	snd_soc_dapm_disable_pin(&codec->dapm, "HAPTICS");
 +
-+Example:
++	priv->core.arizona->dapm = &codec->dapm;
 +
-+	i2c@80110000 {
-+		bu21013_tp@0x5c {
-+			compatible =3D "rohm,bu21013_tp";
-+			reg =3D <0x5c>;
-+			touch-gpio =3D <&gpio2 20 0x4>;
-+			avdd-supply =3D <&ab8500_ldo_aux1_reg>;
-+
-+			rohm,touch-max-x =3D <384>;
-+			rohm,touch-max-y =3D <704>;
-+			rohm,flip-y;
-+		};
-+	};
-diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/tou=
-chscreen/bu21013_ts.c
-index 16f29d6..07335ac 100644
---- a/drivers/input/touchscreen/bu21013_ts.c
-+++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -15,6 +15,8 @@
- #include <linux/regulator/consumer.h>
- #include <linux/module.h>
- #include <linux/gpio.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
-=20
- #define PEN_DOWN_INTR	0
- #define MAX_FINGERS	2
-@@ -473,13 +475,30 @@ static void bu21013_free_irq(struct bu21013_ts_da=
-ta *bu21013_data)
-  * This function used to initializes the i2c-client touchscreen
-  * driver and returns integer.
-  */
-+static void __devinit bu21013_of_probe(struct device_node *np,
-+				struct bu21013_platform_device *pdata)
-+{
-+	pdata->y_flip =3D pdata->x_flip =3D false;
-+
-+	pdata->x_flip =3D of_property_read_bool(np, "rohm,flip-x");
-+	pdata->y_flip =3D of_property_read_bool(np, "rohm,flip-y");
-+
-+	of_property_read_u32(np, "rohm,touch-max-x", &pdata->touch_x_max);
-+	of_property_read_u32(np, "rohm,touch-max-y", &pdata->touch_y_max);
-+
-+	pdata->touch_pin =3D of_get_named_gpio(np, "touch-gpio", 0);
-+	pdata->cs_pin =3D of_get_named_gpio(np, "reset-gpio", 0);
-+
-+	pdata->ext_clk =3D false;
++	return 0;
 +}
 +
- static int __devinit bu21013_probe(struct i2c_client *client,
- 					const struct i2c_device_id *id)
- {
- 	struct bu21013_ts_data *bu21013_data;
- 	struct input_dev *in_dev;
--	const struct bu21013_platform_device *pdata =3D
--					client->dev.platform_data;
-+	struct device_node *np =3D client->dev.of_node;
-+	struct bu21013_platform_device *pdata =3D client->dev.platform_data;
- 	int error;
-=20
- 	if (!i2c_check_functionality(client->adapter,
-@@ -489,8 +508,17 @@ static int __devinit bu21013_probe(struct i2c_clie=
-nt *client,
- 	}
-=20
- 	if (!pdata) {
--		dev_err(&client->dev, "platform data not defined\n");
--		return -EINVAL;
-+		if (np) {
-+			pdata =3D devm_kzalloc(&client->dev, sizeof(*pdata),
-+					GFP_KERNEL);
-+			if (!pdata)
-+				return -ENOMEM;
++static int wm5102_codec_remove(struct snd_soc_codec *codec)
++{
++	struct wm5102_priv *priv = snd_soc_codec_get_drvdata(codec);
 +
-+			bu21013_of_probe(np, pdata);
-+		} else {
-+			dev_err(&client->dev, "no device tree or platform data\n");
-+			return -EINVAL;
-+		}
- 	}
-=20
- 	pdata->irq =3D gpio_to_irq(pdata->touch_pin);
++	priv->core.arizona->dapm = NULL;
++
++	return 0;
+ }
+ 
+ #define WM5102_DIG_VU 0x0200
+@@ -1414,6 +1435,7 @@ static unsigned int wm5102_digital_vu[] = {
+ 
+ static struct snd_soc_codec_driver soc_codec_dev_wm5102 = {
+ 	.probe = wm5102_codec_probe,
++	.remove = wm5102_codec_remove,
+ 
+ 	.idle_bias_off = true,
+ 
+-- 
+1.7.10.4
 
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,57 +1,95 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: hidraw: fix signaling SIGIO when hidraw reports an event
-Date: Tue, 27 Nov 2012 19:02:27 -0800
-Message-ID: <1354071747-14007-1-git-send-email-aduggan@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/2] Input: RMI4 - F11 - remove relreport attribute
+Date: Tue, 27 Nov 2012 21:41:48 -0800
+Message-ID: <1354081308-21636-2-git-send-email-dmitry.torokhov@gmail.com>
+References: <1354081308-21636-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:22253 "EHLO
-	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752310Ab2K1DMj (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:39669 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750828Ab2K1Flx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Nov 2012 22:12:39 -0500
+	Wed, 28 Nov 2012 00:41:53 -0500
+In-Reply-To: <1354081308-21636-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, cheiny@synaptics.com
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Linus Walleij <linus.walleij@stericsson.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>
 
-Hi Jiri and Linux-Input,
+This data item does not seem to be used anywhere.
 
-This patch fixes sending SIGIO from hidraw_report_event by creating a fasync
-handler which adds the fasync entry.
-
-
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hidraw.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/input/rmi4/rmi_f11.c | 37 -------------------------------------
+ include/linux/rmi.h          |  1 -
+ 2 files changed, 38 deletions(-)
 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 7c47fc3..d4a5af4 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -295,6 +295,13 @@ out:
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index 717e2d8..da3fd2a 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -832,42 +832,6 @@ enum finger_state_values {
+ 	F11_RESERVED	= 0x03
+ };
  
- }
+-static ssize_t rmi_f11_relreport_show(struct device *dev,
+-				      struct device_attribute *attr,
+-				      char *buf)
+-{
+-	struct rmi_function *fn = to_rmi_function(dev);
+-	struct f11_data *data = fn->data;
+-
+-	return snprintf(buf, PAGE_SIZE, "%u\n",
+-			data->sensors[0].axis_align.rel_report_enabled);
+-}
+-
+-static ssize_t rmi_f11_relreport_store(struct device *dev,
+-				       struct device_attribute *attr,
+-				       const char *buf,
+-				       size_t count)
+-{
+-	struct rmi_function *fn = to_rmi_function(dev);
+-	struct f11_data *data = fn->data;
+-	unsigned int new_value;
+-	int error;
+-
+-	error = kstrtouint(buf, 0, &new_value);
+-	if (error)
+-		return error;
+-
+-	if (new_value > 1)
+-		return -ERANGE;
+-
+-	data->sensors[0].axis_align.rel_report_enabled = new_value;
+-
+-	return count;
+-}
+-
+-static DEVICE_ATTR(relreport, RMI_RW_ATTR,
+-		   rmi_f11_relreport_show, rmi_f11_relreport_store);
+-
+ static ssize_t rmi_f11_rezero_store(struct device *dev,
+ 				    struct device_attribute *attr,
+ 				    const char *buf, size_t count)
+@@ -906,7 +870,6 @@ static ssize_t rmi_f11_rezero_store(struct device *dev,
+ static DEVICE_ATTR(rezero, RMI_WO_ATTR, NULL, rmi_f11_rezero_store);
  
-+static int hidraw_fasync(int fd, struct file *file, int on)
-+{
-+	struct hidraw_list *list = file->private_data;
-+
-+	return fasync_helper(fd, file, on, &list->fasync);
-+}
-+
- static int hidraw_release(struct inode * inode, struct file * file)
- {
- 	unsigned int minor = iminor(inode);
-@@ -438,6 +445,7 @@ static const struct file_operations hidraw_ops = {
- 	.open =         hidraw_open,
- 	.release =      hidraw_release,
- 	.unlocked_ioctl = hidraw_ioctl,
-+	.fasync =	hidraw_fasync,
- #ifdef CONFIG_COMPAT
- 	.compat_ioctl   = hidraw_ioctl,
- #endif
+ static struct attribute *rmi_f11_attrs[] = {
+-	&dev_attr_relreport.attr,
+ 	&dev_attr_rezero.attr,
+ 	NULL
+ };
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index d4e1438..3969e61 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -73,7 +73,6 @@ enum rmi_attn_polarity {
+  *               automatically enabled for this sensor.
+  */
+ struct rmi_f11_2d_axis_alignment {
+-	bool rel_report_enabled;
+ 	u32 swap_axes;	/* boolean, but u32 is needed by debugfs API */
+ 	u32 flip_x;	/* boolean */
+ 	u32 flip_y;	/* boolean */
 -- 
-1.7.10.4
+1.7.11.7
 

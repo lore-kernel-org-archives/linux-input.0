@@ -1,51 +1,62 @@
-From: Fengguang Wu <fengguang.wu@intel.com>
-Subject: Re: [input:synaptics-rmi4 4/11] make[4]: *** No rule to make target
- `drivers/input/rmi4/rmi_f01.o', needed by `drivers/input/rmi4/built-in.o'.
-Date: Wed, 28 Nov 2012 17:37:54 +0800
-Message-ID: <20121128093754.GB23422@localhost>
-References: <50b5ac1d.3WARZ5TfIUdF7U71%fengguang.wu@intel.com>
- <20121128063334.GB23378@core.coreip.homeip.net>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 2/4] Input - arizona-haptics: Add driver haptics module
+ on Arizona CODECs
+Date: Wed, 28 Nov 2012 13:49:20 +0000
+Message-ID: <20121128134920.GQ32691@opensource.wolfsonmicro.com>
+References: <1354020025-23881-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <1354020025-23881-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <20121127195644.GA29727@core.coreip.homeip.net>
+ <20121127200001.GJ4468@opensource.wolfsonmicro.com>
+ <20121128071132.GE23378@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QVgWX4+QEldMe/r9"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:58119 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751720Ab2K1Jh6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Nov 2012 04:37:58 -0500
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:40634 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754690Ab2K1Ntc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Nov 2012 08:49:32 -0500
 Content-Disposition: inline
-In-Reply-To: <20121128063334.GB23378@core.coreip.homeip.net>
+In-Reply-To: <20121128071132.GE23378@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
 
-On Tue, Nov 27, 2012 at 10:33:34PM -0800, Dmitry Torokhov wrote:
-> Hi,
-> 
-> On Wed, Nov 28, 2012 at 02:15:57PM +0800, kbuild test robot wrote:
-> > tree:   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git synaptics-rmi4
-> > head:   0af25383d395fb5ece54b79d12d06138bf8b9836
-> > commit: 49c28c0062548243aa0e15f181098af34bab9712 [4/11] Input: input/rmi4 - Config files and makefiles
-> > config: make ARCH=x86_64 allmodconfig
-> > 
-> > Note: the input/synaptics-rmi4 HEAD 0af2538 builds fine.
-> >       It only hurts bisectibility.
-> 
-> This branch is gonna have a few errors for a while, I am not sure if we
-> want to exclude it or just ignore the errors for now....
 
-Dmitry, reported errors will be remembered by the build system and not
-reported again.
+--QVgWX4+QEldMe/r9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-However if you want to avoid possible new errors being reported, you
-may put this line to any commit of the branch
+On Tue, Nov 27, 2012 at 11:11:32PM -0800, Dmitry Torokhov wrote:
 
-Dont-Auto-Build
+> No, going through ASoc tree is fine with me. But given that it is a new
+> driver I think we should merge it quickly, especially since merge window
+> hasn't opened yet.
 
-The build script will then skip the whole branch.
+I applied them all now.
 
-And remember to remove that line by the time you think it suitable for
-testing again. ;)
+--QVgWX4+QEldMe/r9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Thanks,
-Fengguang
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQthZCAAoJELSic+t+oim9fUAP/03pUT1rSdnDmXteNi0KgCf7
+r8bxAYPzu/jrB7VV6HUMNinpK1OH/46paS8/TQbMUziFKuayNu6LBU1i9xjLCQmj
+laIUd/IAh1gPYf+Cy4ev9pQLMLsG2KK+LHQFEPKQsPlWjRnhpLIFWVVSrAil3ctD
+u+DjyBqesHuw+LvdKNXvjQSGq9yCQYbf3kXsyBH83lAh8FfoPaTCoWJfzIVcFpI9
+gukvy80Vn8o7NtIuen716G5ZXObCEaP4hUK8tkZilCILs7ZlzS+670N1UHozqcsL
+z2UjXP3O9euik4AjzlK7MWeeEMoSbGuqpTMlpxOlLCBVXygoapC0aIsIfECEo4WR
+kZh00NNFAxEhguupfrQgNo0L+gqpn3tZXOzmj1pFtrOR31phZ/FB2Gzkqcoc5fz/
+29Opv87VIFbQGxCulByHkkZgtFyfOvtznHV+enjVzGVlSRtNLPCPY34R/qCsjTDq
+RajFVnT93OEDPC874KqqUiBW0DGPuYWj7GGJM5lOstaGbB+bMLtvdQqNye/7OR/I
+9xzY4UxWgXTmaYG9domWsXvemiGcLPtkENQ1LHHvIIFByg/qnnsCjC4e2Oj7PgId
+gm0uB6yYg/DNXAwd+FKA/e+NGwd6o1yEpS5FOkiQh/lU/oRgUm7KLe5WRbkvvDV6
+MJUPetUVeQaatCw3k+7S
+=oCNk
+-----END PGP SIGNATURE-----
+
+--QVgWX4+QEldMe/r9--

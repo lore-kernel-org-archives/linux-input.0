@@ -1,50 +1,94 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: hid-multitouch: eGalax Touchscreen not resuming after suspend
-Date: Wed, 28 Nov 2012 02:01:53 +0100
-Message-ID: <3042387.HFktfBSNhs@vostro.rjw.lan>
-References: <8159607.SRZZrRIPNF@orthese> <1418196.mMF7t2R2GI@orthese> <alpine.LNX.2.00.1211272123370.3933@pobox.suse.cz>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [RFC PATCH 05/06] input/rmi4: F01 - device control
+Date: Tue, 27 Nov 2012 18:52:54 -0800
+Message-ID: <50B57C86.6090108@synaptics.com>
+References: <1353124734-16803-1-git-send-email-cheiny@synaptics.com> <1353124734-16803-6-git-send-email-cheiny@synaptics.com> <20121126094018.GC13792@core.coreip.homeip.net> <50B3EDBF.3030209@synaptics.com> <20121127092913.GC25658@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hydra.sisk.pl ([212.160.235.94]:34800 "EHLO hydra.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754715Ab2K1A5K (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Nov 2012 19:57:10 -0500
-In-Reply-To: <alpine.LNX.2.00.1211272123370.3933@pobox.suse.cz>
+Received: from us-mx3.synaptics.com ([12.239.217.85]:42494 "EHLO
+	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751640Ab2K1Cw5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Nov 2012 21:52:57 -0500
+In-Reply-To: <20121127092913.GC25658@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jan-Matthias Braun <jan_braun@gmx.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@stericsson.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
 
-On Tuesday, November 27, 2012 09:26:11 PM Jiri Kosina wrote:
-> On Sun, 25 Nov 2012, Jan-Matthias Braun wrote:
-> 
-> > Hi all,
-> > 
-> > sorry for the e-mail address hopping. Answers to both addresses are okay.
-> > 
-> > I have now done a git bisection from 3.0 to 3.1 and have found commit
-> > 1e2ef05bb8cf851a694d38e9170c89e7ff052741 PM: Limit race conditions between runtime PM and system sleep (v2)
-> > to be the first one to introduce the necessity of a module reload after resume.
-> > 
-> > I hope that this helps in finding a solution. As I (again) don't immediatly know how to go on, I kindly ask you to give me some hints for testing/patching or even a possible solution. :-)
-> > In the meat time I would leave out the bisection between kernel versions 3.5 and 3.6, except the case that you think this would be helpful for further diagnoses.
-> > 
-> > Cheers,
-> 
-> Let's add Rafael to CC then.
-> 
-> Rafael, could you please take a look? If you find the below unreadable, 
-> the whole thread can be seen in linux-input archive at
-> 
-> 	http://www.spinics.net/lists/linux-input/msg23675.html
+On 11/27/2012 01:29 AM, Dmitry Torokhov wrote:
+> On Mon, Nov 26, 2012 at 02:31:27PM -0800, Christopher Heiny wrote:
+>> >On 11/26/2012 01:40 AM, Dmitry Torokhov wrote:
+>>> > >Hi Christopher,
+>>> > >
+>>> > >On Fri, Nov 16, 2012 at 07:58:53PM -0800, Christopher Heiny wrote:
+>>>> > >>RMI Function 01 implements basic device control and power management
+>>>> > >>behaviors for the RMI4 sensor.
+>>>> > >>
+>>>> > >>rmi_f01.h exports definitions that we expect to be used by other functionality
+>>>> > >>in the future (such as firmware reflash).
+>>> > >
+>>> > >Please see my comments below.
+>> >
+>> >Hi Dmitry,
+>> >
+>> >Thanks for the feedback and the patch.  I've got just one question,
+>> >included below, with a bunch of snipping).
+>> >
+>> >				Chris
+>> >
+>>> > >
+>>>> > >>
+>>>> > >>
+>>>> > >>Signed-off-by: Christopher Heiny<cheiny@synaptics.com>
+>>>> > >>
+>>>> > >>Cc: Dmitry Torokhov<dmitry.torokhov@gmail.com>
+>>>> > >>Cc: Linus Walleij<linus.walleij@stericsson.com>
+>>>> > >>Cc: Naveen Kumar Gaddipati<naveen.gaddipati@stericsson.com>
+>>>> > >>Cc: Joeri de Gram<j.de.gram@gmail.com>
+>>>> > >>
+>>>> > >>
+>>>> > >>---
+>>>> > >>
+>>>> > >>  drivers/input/rmi4/rmi_f01.c | 1348 ++++++++++++++++++++++++++++++++++++++++++
+>>>> > >>  drivers/input/rmi4/rmi_f01.h |  160 +++++
+>>>> > >>  2 files changed, 1508 insertions(+), 0 deletions(-)
+>>>> > >>
+>>>> > >>diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+>>>> > >>new file mode 100644
+>>>> > >>index 0000000..038266c
+>>>> > >>--- /dev/null
+>>>> > >>+++ b/drivers/input/rmi4/rmi_f01.c
+>>>> > >>@@ -0,0 +1,1348 @@
+>>>> > >>+/*
+>>>> > >>+ * Copyright (c) 2011-2012 Synaptics Incorporated
+>>>> > >>+ * Copyright (c) 2011 Unixphere
+>>>> > >>+ *
+>>>> > >>+ * This program is free software; you can redistribute it and/or modify
+>>>> > >>+ * it under the terms of the GNU General Public License as published by
+>>>> > >>+ * the Free Software Foundation; either version 2 of the License, or
+>>>> > >>+ * (at your option) any later version.
+>> >
+>> >[snip]
+>> >
+>>>> > >>+/**
+>>>> > >>+ * @reset - set this bit to force a firmware reset of the sensor.
+>>>> > >>+ */
+>>>> > >>+struct f01_device_commands {
+>>>> > >>+	bool reset:1;
+>>>> > >>+	u8 reserved:7;
+>>> > >
+>>> > >When specifying bitwise fields please use u8, u16, etc only.
+>> >
+>> >Um, OK.  Previously patch feedback suggested to use bool instead of
+>> >u8 for single bit fields (see here:
+>> >http://www.spinics.net/lists/linux-input/msg22198.html).  So I'm a
+>> >little confused.  It's no big deal to change it back, but I'd like
+>> >confirmation that it is really what we should do.
+ >
+> I believe that it is better to specify exact bitness of the base type of
+> the bitfield so you do not surprised by the alignment.
 
-Thanks for the pointer, I'll have a look at it tomorrow.
-
-Rafael
-
-
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+OK, thanks!

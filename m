@@ -1,86 +1,50 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 4/4] Input: RMI4 - introduce rmi_module_driver() macro
-Date: Tue, 27 Nov 2012 15:46:08 -0800
-Message-ID: <50B550C0.80506@synaptics.com>
-References: <1354008098-26346-1-git-send-email-dmitry.torokhov@gmail.com> <1354008098-26346-4-git-send-email-dmitry.torokhov@gmail.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: hid-multitouch: eGalax Touchscreen not resuming after suspend
+Date: Wed, 28 Nov 2012 02:01:53 +0100
+Message-ID: <3042387.HFktfBSNhs@vostro.rjw.lan>
+References: <8159607.SRZZrRIPNF@orthese> <1418196.mMF7t2R2GI@orthese> <alpine.LNX.2.00.1211272123370.3933@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1354008098-26346-4-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@stericsson.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hydra.sisk.pl ([212.160.235.94]:34800 "EHLO hydra.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754715Ab2K1A5K (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Nov 2012 19:57:10 -0500
+In-Reply-To: <alpine.LNX.2.00.1211272123370.3933@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Jan-Matthias Braun <jan_braun@gmx.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, linux-input@vger.kernel.org
 
-On 11/27/2012 01:21 AM, Dmitry Torokhov wrote:
-> This also allows us to cut down on the boilerplate code in the function
-> handler modules.
+On Tuesday, November 27, 2012 09:26:11 PM Jiri Kosina wrote:
+> On Sun, 25 Nov 2012, Jan-Matthias Braun wrote:
+> 
+> > Hi all,
+> > 
+> > sorry for the e-mail address hopping. Answers to both addresses are okay.
+> > 
+> > I have now done a git bisection from 3.0 to 3.1 and have found commit
+> > 1e2ef05bb8cf851a694d38e9170c89e7ff052741 PM: Limit race conditions between runtime PM and system sleep (v2)
+> > to be the first one to introduce the necessity of a module reload after resume.
+> > 
+> > I hope that this helps in finding a solution. As I (again) don't immediatly know how to go on, I kindly ask you to give me some hints for testing/patching or even a possible solution. :-)
+> > In the meat time I would leave out the bisection between kernel versions 3.5 and 3.6, except the case that you think this would be helpful for further diagnoses.
+> > 
+> > Cheers,
+> 
+> Let's add Rafael to CC then.
+> 
+> Rafael, could you please take a look? If you find the below unreadable, 
+> the whole thread can be seen in linux-input archive at
+> 
+> 	http://www.spinics.net/lists/linux-input/msg23675.html
 
-I like this idea a lot.  We'll adopt it.
+Thanks for the pointer, I'll have a look at it tomorrow.
 
-				Thanks!
-					Chris
-
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->   drivers/input/rmi4/rmi_f11.c | 13 +------------
->   include/linux/rmi.h          | 14 ++++++++++++++
->   2 files changed, 15 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-> index dbb6060..8457ab4 100644
-> --- a/drivers/input/rmi4/rmi_f11.c
-> +++ b/drivers/input/rmi4/rmi_f11.c
-> @@ -2756,18 +2756,7 @@ static struct rmi_function_handler rmi_f11_handler = {
->   #endif  /* defined(CONFIG_HAS_EARLYSUSPEND) */
->   };
->
-> -static int __init rmi_f11_module_init(void)
-> -{
-> -	return rmi_register_function_handler(&rmi_f11_handler);
-> -}
-> -
-> -static void __exit rmi_f11_module_exit(void)
-> -{
-> -	rmi_unregister_function_handler(&rmi_f11_handler);
-> -}
-> -
-> -module_init(rmi_f11_module_init);
-> -module_exit(rmi_f11_module_exit);
-> +module_rmi_driver(rmi_f11_handler);
->
->   MODULE_AUTHOR("Christopher Heiny <cheiny@synaptics.com");
->   MODULE_DESCRIPTION("RMI F11 module");
-> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> index 8a74066..daca41b 100644
-> --- a/include/linux/rmi.h
-> +++ b/include/linux/rmi.h
-> @@ -600,4 +600,18 @@ int rmi_register_phys_device(struct rmi_phys_device *phys);
->   void rmi_unregister_phys_device(struct rmi_phys_device *phys);
->   int rmi_for_each_dev(void *data, int (*func)(struct device *dev, void *data));
->
-> +/**
-> + * module_serio_driver() - Helper macro for registering a serio driver
-> + * @__serio_driver: serio_driver struct
-> + *
-> + * Helper macro for serio drivers which do not do anything special in
-> + * module init/exit. This eliminates a lot of boilerplate. Each module
-> + * may only use this macro once, and calling it replaces module_init()
-> + * and module_exit().
-> + */
-> +#define module_rmi_driver(__rmi_driver)			\
-> +	module_driver(__rmi_driver,			\
-> +		      rmi_register_function_handler,	\
-> +		      rmi_unregister_function_handler)
-> +
->   #endif
->
+Rafael
 
 
 -- 
-
-Christopher Heiny
-Senior Staff Firmware Engineer
-Synaptics Incorporated
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.

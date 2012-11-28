@@ -1,42 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] Input - arizona-haptics: Add driver haptics module
- on Arizona CODECs
-Date: Tue, 27 Nov 2012 23:11:32 -0800
-Message-ID: <20121128071132.GE23378@core.coreip.homeip.net>
-References: <1354020025-23881-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1354020025-23881-2-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20121127195644.GA29727@core.coreip.homeip.net>
- <20121127200001.GJ4468@opensource.wolfsonmicro.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 3/3] Input: bu21013_ts - Add support for Device Tree
+ booting
+Date: Wed, 28 Nov 2012 08:57:31 +0000
+Message-ID: <20121128085731.GH2013@gmail.com>
+References: <1354021990-16978-1-git-send-email-lee.jones@linaro.org>
+ <1354021990-16978-4-git-send-email-lee.jones@linaro.org>
+ <20121128070332.GC23378@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:40066 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751126Ab2K1HLg (ORCPT
+Received: from mail-bk0-f46.google.com ([209.85.214.46]:45702 "EHLO
+	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752720Ab2K1I5h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Nov 2012 02:11:36 -0500
-Received: by mail-da0-f46.google.com with SMTP id p5so4624948dak.19
-        for <linux-input@vger.kernel.org>; Tue, 27 Nov 2012 23:11:35 -0800 (PST)
+	Wed, 28 Nov 2012 03:57:37 -0500
+Received: by mail-bk0-f46.google.com with SMTP id q16so5544847bkw.19
+        for <linux-input@vger.kernel.org>; Wed, 28 Nov 2012 00:57:36 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20121127200001.GJ4468@opensource.wolfsonmicro.com>
+In-Reply-To: <20121128070332.GC23378@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lrg@ti.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, arnd@arndb.de, linus.walleij@stericsson.com, linux-input@vger.kernel.org
 
-On Tue, Nov 27, 2012 at 08:00:02PM +0000, Mark Brown wrote:
-> On Tue, Nov 27, 2012 at 11:56:44AM -0800, Dmitry Torokhov wrote:
-> 
-> > How do you want to merge it? My tree or some other?
-> 
-> I'm not terribly fussed but I guess as it's a new driver for the input
-> tree merging via ASoC will minimise the potential for conflicts?  But
-> we're near the merge window and I'm not sure that's likely anyway so if
-> you want to apply it to your tree.
+Hi Dmitry,
 
-No, going through ASoc tree is fine with me. But given that it is a new
-driver I think we should merge it quickly, especially since merge window
-hasn't opened yet.
+> On Tue, Nov 27, 2012 at 01:13:10PM +0000, Lee Jones wrote:
+> > Now we can register the BU21013_ts touch screen when booting with
+> > Device Tree enabled. Here we parse all the necessary components
+> > previously expected to be passed from platform data.
+>=20
+> I applied these 3 patches, but for DT we also need to specify compati=
+ble
+> ID and set up of_match_table pointer.=20
 
--- 
-Dmitry
+Why do you need a compatible string?
+
+> Please send me a follow-up patches
+> doing that and also describing DT bindings for BU21013.
+
+I'll send the documentation as a seperate reply to your email.
+
+Kind regards,
+Lee
+
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

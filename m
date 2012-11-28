@@ -1,94 +1,57 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [RFC PATCH 05/06] input/rmi4: F01 - device control
-Date: Tue, 27 Nov 2012 18:52:54 -0800
-Message-ID: <50B57C86.6090108@synaptics.com>
-References: <1353124734-16803-1-git-send-email-cheiny@synaptics.com> <1353124734-16803-6-git-send-email-cheiny@synaptics.com> <20121126094018.GC13792@core.coreip.homeip.net> <50B3EDBF.3030209@synaptics.com> <20121127092913.GC25658@core.coreip.homeip.net>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: hidraw: fix signaling SIGIO when hidraw reports an event
+Date: Tue, 27 Nov 2012 19:02:27 -0800
+Message-ID: <1354071747-14007-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx3.synaptics.com ([12.239.217.85]:42494 "EHLO
+Received: from us-mx3.synaptics.com ([12.239.217.85]:22253 "EHLO
 	us-mx3.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751640Ab2K1Cw5 (ORCPT
+	with ESMTP id S1752310Ab2K1DMj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Nov 2012 21:52:57 -0500
-In-Reply-To: <20121127092913.GC25658@core.coreip.homeip.net>
+	Tue, 27 Nov 2012 22:12:39 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@stericsson.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>
+To: jkosina@suse.cz
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, cheiny@synaptics.com
 
-On 11/27/2012 01:29 AM, Dmitry Torokhov wrote:
-> On Mon, Nov 26, 2012 at 02:31:27PM -0800, Christopher Heiny wrote:
->> >On 11/26/2012 01:40 AM, Dmitry Torokhov wrote:
->>> > >Hi Christopher,
->>> > >
->>> > >On Fri, Nov 16, 2012 at 07:58:53PM -0800, Christopher Heiny wrote:
->>>> > >>RMI Function 01 implements basic device control and power management
->>>> > >>behaviors for the RMI4 sensor.
->>>> > >>
->>>> > >>rmi_f01.h exports definitions that we expect to be used by other functionality
->>>> > >>in the future (such as firmware reflash).
->>> > >
->>> > >Please see my comments below.
->> >
->> >Hi Dmitry,
->> >
->> >Thanks for the feedback and the patch.  I've got just one question,
->> >included below, with a bunch of snipping).
->> >
->> >				Chris
->> >
->>> > >
->>>> > >>
->>>> > >>
->>>> > >>Signed-off-by: Christopher Heiny<cheiny@synaptics.com>
->>>> > >>
->>>> > >>Cc: Dmitry Torokhov<dmitry.torokhov@gmail.com>
->>>> > >>Cc: Linus Walleij<linus.walleij@stericsson.com>
->>>> > >>Cc: Naveen Kumar Gaddipati<naveen.gaddipati@stericsson.com>
->>>> > >>Cc: Joeri de Gram<j.de.gram@gmail.com>
->>>> > >>
->>>> > >>
->>>> > >>---
->>>> > >>
->>>> > >>  drivers/input/rmi4/rmi_f01.c | 1348 ++++++++++++++++++++++++++++++++++++++++++
->>>> > >>  drivers/input/rmi4/rmi_f01.h |  160 +++++
->>>> > >>  2 files changed, 1508 insertions(+), 0 deletions(-)
->>>> > >>
->>>> > >>diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
->>>> > >>new file mode 100644
->>>> > >>index 0000000..038266c
->>>> > >>--- /dev/null
->>>> > >>+++ b/drivers/input/rmi4/rmi_f01.c
->>>> > >>@@ -0,0 +1,1348 @@
->>>> > >>+/*
->>>> > >>+ * Copyright (c) 2011-2012 Synaptics Incorporated
->>>> > >>+ * Copyright (c) 2011 Unixphere
->>>> > >>+ *
->>>> > >>+ * This program is free software; you can redistribute it and/or modify
->>>> > >>+ * it under the terms of the GNU General Public License as published by
->>>> > >>+ * the Free Software Foundation; either version 2 of the License, or
->>>> > >>+ * (at your option) any later version.
->> >
->> >[snip]
->> >
->>>> > >>+/**
->>>> > >>+ * @reset - set this bit to force a firmware reset of the sensor.
->>>> > >>+ */
->>>> > >>+struct f01_device_commands {
->>>> > >>+	bool reset:1;
->>>> > >>+	u8 reserved:7;
->>> > >
->>> > >When specifying bitwise fields please use u8, u16, etc only.
->> >
->> >Um, OK.  Previously patch feedback suggested to use bool instead of
->> >u8 for single bit fields (see here:
->> >http://www.spinics.net/lists/linux-input/msg22198.html).  So I'm a
->> >little confused.  It's no big deal to change it back, but I'd like
->> >confirmation that it is really what we should do.
- >
-> I believe that it is better to specify exact bitness of the base type of
-> the bitfield so you do not surprised by the alignment.
+Hi Jiri and Linux-Input,
 
-OK, thanks!
+This patch fixes sending SIGIO from hidraw_report_event by creating a fasync
+handler which adds the fasync entry.
+
+
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/hid/hidraw.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 7c47fc3..d4a5af4 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -295,6 +295,13 @@ out:
+ 
+ }
+ 
++static int hidraw_fasync(int fd, struct file *file, int on)
++{
++	struct hidraw_list *list = file->private_data;
++
++	return fasync_helper(fd, file, on, &list->fasync);
++}
++
+ static int hidraw_release(struct inode * inode, struct file * file)
+ {
+ 	unsigned int minor = iminor(inode);
+@@ -438,6 +445,7 @@ static const struct file_operations hidraw_ops = {
+ 	.open =         hidraw_open,
+ 	.release =      hidraw_release,
+ 	.unlocked_ioctl = hidraw_ioctl,
++	.fasync =	hidraw_fasync,
+ #ifdef CONFIG_COMPAT
+ 	.compat_ioctl   = hidraw_ioctl,
+ #endif
+-- 
+1.7.10.4
+

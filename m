@@ -1,58 +1,117 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: gpio_keys - switch to using gpio_request_one()
-Date: Thu, 29 Nov 2012 09:37:34 -0800
-Message-ID: <20121129173732.GA8078@core.coreip.homeip.net>
+From: Kamal Mostafa <kamal@canonical.com>
+Subject: Re: [PATCH v2 2/3] input: Cypress PS/2 Trackpad psmouse driver
+Date: Thu, 29 Nov 2012 13:55:52 -0800
+Message-ID: <1354226152.12162.6.camel@fourier>
+References: <1353447010-4852-1-git-send-email-kamal@canonical.com>
+	 <1353447010-4852-3-git-send-email-kamal@canonical.com>
+	 <20121121192012.GA1345@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:55295 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753340Ab2K2Rhi (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:38048 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753530Ab2K2Vz5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Nov 2012 12:37:38 -0500
-Content-Disposition: inline
+	Thu, 29 Nov 2012 16:55:57 -0500
+In-Reply-To: <20121121192012.GA1345@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Alexander Shiyan <shc_work@mail.ru>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Dudley Du <dudl@cypress.com>, Cypress Semiconductor Corporation <customercare@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
 
-This saves us a few lines of code.
+Hi Henrik-
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/gpio_keys.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
-
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 79435de..d327f5a 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -440,21 +440,13 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 
- 	if (gpio_is_valid(button->gpio)) {
- 
--		error = gpio_request(button->gpio, desc);
-+		error = gpio_request_one(button->gpio, GPIOF_IN, desc);
- 		if (error < 0) {
- 			dev_err(dev, "Failed to request GPIO %d, error %d\n",
- 				button->gpio, error);
- 			return error;
- 		}
- 
--		error = gpio_direction_input(button->gpio);
--		if (error < 0) {
--			dev_err(dev,
--				"Failed to configure direction for GPIO %d, error %d\n",
--				button->gpio, error);
--			goto fail;
--		}
--
- 		if (button->debounce_interval) {
- 			error = gpio_set_debounce(button->gpio,
- 					button->debounce_interval * 1000);
--- 
-1.7.11.7
+Thanks very much for your detailed review...
 
 
--- 
-Dmitry
+On Wed, 2012-11-21 at 20:20 +0100, Henrik Rydberg wrote:
+> Reading the patch, it looks very much like a typical semi-mt device to
+> me. Any good reason not to handle it that way?
+
+Well, the device does properly report contact-counts up to 5 fingers
+(though only two actual contact positions).  If I understand SEMI_MT
+correctly (and I might not) using it restricts us to reporting only up
+to 2 fingers, which seems undesirable.
+
+That said, my forthcoming PATCH v3 does implement the SEMI_MT /
+2-contacts-only method as you requested (I think) -- and includes one
+more proposed patch to re-enable >2 contacts.
+
+PATCH v3 also implements the majority of your other suggestions,
+including replacing all the custom slot tracking code with
+input_mt_assign_slots.  Large swaths of code have been eliminated
+(thanks!).
+
+Below are notes regarding the few suggestions which I have not
+addressed.
+
+Thanks again for your help, and in advance for your review of PATCH v3.
+
+ -Kamal
+
+
+> > +static int cypress_read_vital_statistics(struct psmouse *psmouse)
+> > +{
+>> [...]
+> > +
+> > +	if (!cytp->tp_max_pressure ||
+> > +	    (cytp->tp_max_pressure < cytp->tp_min_pressure) ||
+> > +	    (!cytp->tp_width || !cytp->tp_high) ||
+> > +	    (!cytp->tp_max_abs_x) ||
+> > +	    (cytp->tp_max_abs_x < cytp->tp_width) ||
+> > +	    (!cytp->tp_max_abs_y) ||
+> > +	    (cytp->tp_max_abs_y < cytp->tp_high))
+> > +		return -1;
+> 
+> Odd parenthesis. Can tp_min_pressure be zero? Don't we trust the
+> values coming from the device?
+
+I do not know, so I have left this as is.
+
+
+> > +static psmouse_ret_t cypress_validate_byte(struct psmouse *psmouse)
+> > +{
+> > +	int contact_cnt;
+> > +	int index = psmouse->pktcnt - 1;
+> > +	unsigned char *packet = psmouse->packet;
+> > +	struct cytp_data *cytp = psmouse->private;
+> > +
+> > +	if (index < 0 || index > cytp->pkt_size)
+> > +		return PSMOUSE_BAD_DATA;
+> > +
+> > +	if ((index == 0) && ((packet[0] & 0xfc) == 0)) {
+> > +		/* call packet process for reporting finger leave. */
+> > +		cypress_process_packet(psmouse, 1);
+> > +		return PSMOUSE_FULL_PACKET;
+> > +	}
+> 
+> Odd placement given the function's name?
+
+Do you mean the call to cypress_process_packet?  I agree that it is odd.
+Left it as is.  :-)
+
+
+> > diff --git a/drivers/input/mouse/cypress_ps2.h b/drivers/input/mouse/cypress_ps2.h
+>> [...]
+> > +
+> > +/* bits of first byte response of E9h-Status Request command. */
+> > +#define RESP_BTN_RIGHT_BIT  0x01
+> > +#define RESP_BTN_MIDDLE_BIT 0x02
+> > +#define RESP_BTN_LEFT_BIT   0x04
+> > +#define RESP_SCALING_BIT    0x10
+> > +#define RESP_ENABLE_BIT     0x20
+> > +#define RESP_REMOTE_BIT     0x40
+> > +#define RESP_SMBUS_BIT      0x80
+> > +
+> > +#define CYTP_MAX_CONTACTS 5
+> > +#define CYTP_MAX_MT_SLOTS 16
+> 
+> Are all these values used?
+
+Some of the #define's are not used, but I'm reluctant to remove them as
+they might be useful for later versions of the driver.  I left them as
+is, pending your advice.
+
+
+

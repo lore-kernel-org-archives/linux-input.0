@@ -1,66 +1,116 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 3/3] Input: bu21013_ts - Add support for Device Tree
- booting
-Date: Thu, 29 Nov 2012 12:00:00 +0000
-Message-ID: <20121129120000.GJ2013@gmail.com>
-References: <1354021990-16978-1-git-send-email-lee.jones@linaro.org>
- <1354021990-16978-4-git-send-email-lee.jones@linaro.org>
- <20121128070332.GC23378@core.coreip.homeip.net>
- <20121128085731.GH2013@gmail.com>
- <20121128163105.GA28698@sirena.org.uk>
- <20121129100808.GW2013@gmail.com>
- <20121129112058.GH32691@opensource.wolfsonmicro.com>
+From: Alban Bedel <alban.bedel@avionic-design.de>
+Subject: Re: [PATCH 1/5] Input: tca8418_keypad - use a temporary variable
+ for parent device
+Date: Thu, 29 Nov 2012 14:47:47 +0100
+Message-ID: <20121129144747.3beece83@avionic-0020.adnet.avionic-design.de>
+References: <1352911688-5001-1-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20121129112058.GH32691@opensource.wolfsonmicro.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linus.walleij@stericsson.com, arnd@arndb.de, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from moutng.kundenserver.de ([212.227.17.10]:49547 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750931Ab2K2Nrv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Nov 2012 08:47:51 -0500
+In-Reply-To: <1352911688-5001-1-git-send-email-dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-T24gVGh1LCAyOSBOb3YgMjAxMiwgTWFyayBCcm93biB3cm90ZToKCj4gT24gVGh1LCBOb3YgMjks
-IDIwMTIgYXQgMTA6MDg6MDhBTSArMDAwMCwgTGVlIEpvbmVzIHdyb3RlOgo+ID4gT24gV2VkLCAy
-OCBOb3YgMjAxMiwgTWFyayBCcm93biB3cm90ZToKPiAKPiA+ID4gVGhlIEkyQyBzdWJzeXN0ZW0g
-Z3Vlc3NlcyBhdCBhIGNvbXBhdGlibGUgc3RyaW5nIGJ5IGRlZmF1bHQgYnV0IGl0J3MKPiA+ID4g
-bXVjaCBiZXR0ZXIgdG8gZXhwbGljaXRseSBzZXQgb25lIGFzIGNvbmZsaWN0cyBkbyBhcmlzZSBm
-cm9tIHRpbWUgdG8KPiA+ID4gdGltZSAoZWcsIFdvbGZzb24gcGFydHMgYXJlIGNhbGxlZCBXTXh4
-eHggYnV0IHRoZSBXTSBwcmVmaXggaXMgYWxzbyB1c2VkCj4gPiA+IGJ5IGF0IGxlYXN0IFdvbmRl
-ck1lZGlhKS4KPiAKPiA+IEl0IHVzZXMgdGhlIGV4YWN0IGRldmljZSBuYW1lLCByYXRoZXIgdGhh
-biBndWVzc2luZy4gSSBkb24ndCB0aGluawo+ID4geW91J3JlIGFsbG93ZWQgdG8gaGF2ZSBkdXBs
-aWNhdGUgZGV2aWNlIG5hbWVzIGluIHRoZSBzeXN0ZW0sIG9yIHRoZXJlCj4gPiB3b3VsZCBiZSBj
-bGFzaGVzIGF0IHJlZ2lzdHJhdGlvbiB0aW1lLgo+IAo+ID4gVGhlIHN5c3RlbSBpcyB0aGUgc2Ft
-ZSBmb3IgcGxhdGZvcm0gZGF0YSBhbmQgRFQgYWxpa2UuCj4gCj4gUmlnaHQsIHdoaWNoIGlzIHdo
-eSB0aGlzIG1vc3RseSB3b3JrcywgYnV0IGl0J3Mgc3RpbGwgYmV0dGVyIHRvIHByb3ZpZGUKPiBh
-biBhY3R1YWwgY29tcGF0aWJsZSBzdHJpbmcgd2hpY2ggd2UgY2FuIGJlIDEwMCUgY2VydGFpbiB3
-aWxsIGF2b2lkCj4gY29uZmxpY3RzLiAgVGhpcyBpcyB2ZXJ5IGxvdyBjb3N0IHdoZW4gb25lIGlz
-IGFscmVhZHkgZGVmaW5pbmcgRFQKPiBiaW5kaW5ncy4KCkkga25vdyB0aGF0IGl0J3MgYW4gZWFz
-eSB0aGluZyB0byBkbywgYnV0IEknbSBtb3JlIHdvcnJpZWQgYWJvdXQKd2hhdCB3b3VsZCBoYXBw
-ZW4gaWYgdGhlIGFuIEkyQyBkZXZpY2UgaXMgcmVnaXN0ZXJlZCB1c2luZyB0aGUKY3VycmVudCB3
-YXkgKHN0cmlwcGluZyB0aGUgY29tcGF0aWJsZSBzdHJpbmcgYW5kIHVzaW5nIGl0IGFzIGEKY2xp
-ZW50IGxvb2stdXApIGFuZCB3ZSBhbHNvIHByb3ZpZGUgYSBjb21wYXRpYmxlIGVudHJ5IGluIHRo
-ZQpkcml2ZXIgaXRzZWxmLiBEbyB5b3Uga25vdyBpZiB0aGVyZSBpcyBhbnkgZGFuZ2VyIG9mIGR1
-cGxpY2F0ZQpyZWdpc3RyYXRpb24gb3Igc3VjaGxpa2U/Cgo+ID4gSGVuY2UsIHRoZXJlIHNob3Vs
-ZCBiZSBubyBuZWVkIHRvIGhhdmUgYSBjb21wYXRpYmxlIHN0cmluZyBpbiBhbnkgaTJjCj4gPiBk
-cml2ZXIgcmVnaXN0cmF0aW9uIGluZm9ybWF0aW9uLgo+IAo+IFdlJ3JlIGdldHRpbmcgYXdheSB3
-aXRoIGl0IGF0IHByZXNlbnQgKGFuZCBmcmFua2x5IG5vYm9keSdzIGdvaW5nIHRvCj4gYnVpbGQg
-aW4gdHdvIGRpZmZlcmVudCBkcml2ZXJzIGZvciBhIGNoaXAgb2YgdGhlIHNhbWUgbmFtZSBmb3Ig
-cHJhY3RpY2FsCj4gc3lzdGVtcyBhbnl3YXkpLgoKUmlnaHQuIEluIHRoZSBzYW1lIHdheSBhcyB3
-ZSdyZSBnZXR0aW5nIGF3YXkgd2l0aCBpdCB3aGVuIHdlCnJlZ2lzdGVyIGEgcGxhdGZvcm1fZGV2
-aWNlIHVzaW5nIHRoZSByZWdpc3Rlci9hZGQgcm91dGluZXMuCgotLSAKTGVlIEpvbmVzCkxpbmFy
-byBTVC1Fcmljc3NvbiBMYW5kaW5nIFRlYW0gTGVhZApMaW5hcm8ub3JnIOKUgiBPcGVuIHNvdXJj
-ZSBzb2Z0d2FyZSBmb3IgQVJNIFNvQ3MKRm9sbG93IExpbmFybzogRmFjZWJvb2sgfCBUd2l0dGVy
-IHwgQmxvZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-bGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZy
-YWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGlu
-dXgtYXJtLWtlcm5lbAo=
+On Wed, 14 Nov 2012 08:48:04 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+
+> Use a temporary variable for our parent device (coming from I2C client
+> structure); we'll be also using it during conversion to managed resources.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Reviewed-by: Alban Bedel <alban.bedel@avionic-design.de>
+
+> ---
+>  drivers/input/keyboard/tca8418_keypad.c | 20 ++++++++++----------
+>  1 file changed, 10 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+> index 65cf5fa..4618ce0 100644
+> --- a/drivers/input/keyboard/tca8418_keypad.c
+> +++ b/drivers/input/keyboard/tca8418_keypad.c
+> @@ -281,6 +281,7 @@ static int __devinit tca8418_configure(struct tca8418_keypad *keypad_data,
+>  static int __devinit tca8418_keypad_probe(struct i2c_client *client,
+>  					  const struct i2c_device_id *id)
+>  {
+> +	struct device *dev = &client->dev;
+>  	const struct tca8418_keypad_platform_data *pdata =
+>  						client->dev.platform_data;
+>  	struct tca8418_keypad *keypad_data;
+> @@ -294,7 +295,7 @@ static int __devinit tca8418_keypad_probe(struct i2c_client *client,
+>  	/* Copy the platform data */
+>  	if (pdata) {
+>  		if (!pdata->keymap_data) {
+> -			dev_err(&client->dev, "no keymap data defined\n");
+> +			dev_err(dev, "no keymap data defined\n");
+>  			return -EINVAL;
+>  		}
+>  		keymap_data = pdata->keymap_data;
+> @@ -303,25 +304,25 @@ static int __devinit tca8418_keypad_probe(struct i2c_client *client,
+>  		rep  = pdata->rep;
+>  		irq_is_gpio = pdata->irq_is_gpio;
+>  	} else {
+> -		struct device_node *np = client->dev.of_node;
+> +		struct device_node *np = dev->of_node;
+>  		of_property_read_u32(np, "keypad,num-rows", &rows);
+>  		of_property_read_u32(np, "keypad,num-columns", &cols);
+>  		rep = of_property_read_bool(np, "keypad,autorepeat");
+>  	}
+>  
+>  	if (!rows || rows > TCA8418_MAX_ROWS) {
+> -		dev_err(&client->dev, "invalid rows\n");
+> +		dev_err(dev, "invalid rows\n");
+>  		return -EINVAL;
+>  	}
+>  
+>  	if (!cols || cols > TCA8418_MAX_COLS) {
+> -		dev_err(&client->dev, "invalid columns\n");
+> +		dev_err(dev, "invalid columns\n");
+>  		return -EINVAL;
+>  	}
+>  
+>  	/* Check i2c driver capabilities */
+>  	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE)) {
+> -		dev_err(&client->dev, "%s adapter not supported\n",
+> +		dev_err(dev, "%s adapter not supported\n",
+>  			dev_driver_string(&client->adapter->dev));
+>  		return -ENODEV;
+>  	}
+> @@ -362,7 +363,7 @@ static int __devinit tca8418_keypad_probe(struct i2c_client *client,
+>  	error = matrix_keypad_build_keymap(keymap_data, NULL, rows, cols,
+>  					   keypad_data->keymap, input);
+>  	if (error) {
+> -		dev_dbg(&client->dev, "Failed to build keymap\n");
+> +		dev_dbg(dev, "Failed to build keymap\n");
+>  		goto fail2;
+>  	}
+>  
+> @@ -381,16 +382,15 @@ static int __devinit tca8418_keypad_probe(struct i2c_client *client,
+>  				     IRQF_ONESHOT,
+>  				     client->name, keypad_data);
+>  	if (error) {
+> -		dev_dbg(&client->dev,
+> -			"Unable to claim irq %d; error %d\n",
+> +		dev_dbg(dev, "Unable to claim irq %d; error %d\n",
+>  			client->irq, error);
+>  		goto fail2;
+>  	}
+>  
+>  	error = input_register_device(input);
+>  	if (error) {
+> -		dev_dbg(&client->dev,
+> -			"Unable to register input device, error: %d\n", error);
+> +		dev_dbg(dev, "Unable to register input device, error: %d\n",
+> +			error);
+>  		goto fail3;
+>  	}
+>  
+

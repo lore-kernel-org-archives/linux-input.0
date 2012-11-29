@@ -1,87 +1,138 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 3/3] Input: bu21013_ts - Add support for Device Tree
- booting
-Date: Thu, 29 Nov 2012 15:15:43 +0000
-Message-ID: <20121129151543.GK32691@opensource.wolfsonmicro.com>
-References: <1354021990-16978-1-git-send-email-lee.jones@linaro.org>
- <1354021990-16978-4-git-send-email-lee.jones@linaro.org>
- <20121128070332.GC23378@core.coreip.homeip.net>
- <20121128085731.GH2013@gmail.com>
- <20121128163105.GA28698@sirena.org.uk>
- <20121129100808.GW2013@gmail.com>
- <20121129112058.GH32691@opensource.wolfsonmicro.com>
- <20121129120000.GJ2013@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 03/11] HID: hid-input: export hidinput_allocation function
+Date: Thu, 29 Nov 2012 16:31:43 +0100
+Message-ID: <CAN+gG=HqecBrhdnZtfgxhByhtXf+uGELPHGsbcD9OAj6Gx7odg@mail.gmail.com>
+References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1353684694-5723-4-git-send-email-benjamin.tissoires@gmail.com>
+	<20121127202150.GA895@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg/E/yN4pR4or5qL"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:57607 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751418Ab2K2PPq (ORCPT
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:34293 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754211Ab2K2Pbq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Nov 2012 10:15:46 -0500
-Content-Disposition: inline
-In-Reply-To: <20121129120000.GJ2013@gmail.com>
+	Thu, 29 Nov 2012 10:31:46 -0500
+In-Reply-To: <20121127202150.GA895@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linus.walleij@stericsson.com
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On Tue, Nov 27, 2012 at 9:21 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> On Fri, Nov 23, 2012 at 04:31:26PM +0100, Benjamin Tissoires wrote:
+>> During the probe, third party drivers can now safely create a new
+>> input devices depending on the parsing of the reports descriptor.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> ---
+>>  drivers/hid/hid-input.c | 14 +++++++++++---
+>>  include/linux/hid.h     |  1 +
+>>  2 files changed, 12 insertions(+), 3 deletions(-)
+>
+> I can think of two mechanisms that might be useful in finding a
+> way to achieve this cleanly: a) Let a driver return a value telling
+> whether to change input device, and b) Let a second driver have a go
+> at the same device report. Some return value or state could determine
+> logic in the hid core saying "we are not done with this device, try
+> another driver". Or something. Just not this way, please.
 
---bg/E/yN4pR4or5qL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi Henrik,
 
-On Thu, Nov 29, 2012 at 12:00:00PM +0000, Lee Jones wrote:
-> On Thu, 29 Nov 2012, Mark Brown wrote:
+ok for the implementation of this patch series, it has to be reworked.
 
-> > Right, which is why this mostly works, but it's still better to provide
-> > an actual compatible string which we can be 100% certain will avoid
-> > conflicts.  This is very low cost when one is already defining DT
-> > bindings.
+As for your proposals:
 
-> I know that it's an easy thing to do, but I'm more worried about
-> what would happen if the an I2C device is registered using the
-> current way (stripping the compatible string and using it as a
-> client look-up) and we also provide a compatible entry in the
-> driver itself. Do you know if there is any danger of duplicate
-> registration or suchlike?
+a) We can not rely on input_mapping because there is a temporal issue:
+we already want to have the new input when we are in input_mapping.
+So, this implies to create a new callback.
 
-That's totally fine, we try first with compatible properties and only
-look for the fallback if there aren't any.
+b) This would implies just too much work in hid-core for taking into
+account a special case of one type of devices.
+Here, we have in the same usb interface 2 different type of reports
+coming from different sensors. It's far too different from the usual
+configuration we have with legacy devices: when we have several hid
+drivers handling the same usb device, it was when hardware makers
+split the different sensors in different interfaces. This situation is
+correctly handled in the usb subsystem and the hid layer has only to
+deal with one driver at a time for a specific interface.
 
-> > > Hence, there should be no need to have a compatible string in any i2c
-> > > driver registration information.
+So, in the next series, I propose a new callback ("new_report" -- the
+name is awful, but I can not manage to find another one ATM) which
+will be called before we call input_mapping for a whole report.
+The driver will then have the possibility to:
+- continue normally (default behavior)
+- ask for a new input device
+- skip the entire report
 
-> > We're getting away with it at present (and frankly nobody's going to
-> > build in two different drivers for a chip of the same name for practical
-> > systems anyway).
+Anyway, Henrik , could you also have a look at patches 7 to 11, they
+have nothing to do with pen support, and I'm sure that you want to say
+something on them too.
 
-> Right. In the same way as we're getting away with it when we
-> register a platform_device using the register/add routines.
+Cheers,
+Benjamin
 
-Those are all completely Linux-defined of course which helps as well.
-
---bg/E/yN4pR4or5qL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQt3wXAAoJELSic+t+oim9B7AP/3iH/RwYN3t5B/y96DrQw3/r
-f9JERuj8k7lGtMyH6VrnyLdMQxMOoVfnjQcM5y9/UusgbmZ+mG2Qd2Wgsy0hIXgU
-Rr1YZrdIqPTfVJbo/YwsULhaJSv4grt9zLNJWcAc8kbhWkRjE80PbWGR1uEnoiIX
-z9V2AmJ5Eh7W6DtT26toyZBV+0GUNvOVTn4cYFm+rlr/OeV3DLR7hEQmPsbyYori
-ExcEDCcnm+ww3F6DB7Df1OdrpmQlFAhQdnIPBLIYKUAm55pt6U9qPHCNjsmT/DVQ
-uaO2Z3AlyFjCbMwhCJ6ntiRSkyq2gra3BCswDhTy6ujC6aC6nSRhRxpS43Cu1L0c
-CHXMY+xDuEvyRM7vibeLWjdMidRFyuUXkVDkYZM65PGYqOCOTMgcBrJ11kpBPGah
-wUVYhYVc9meN0vyYy6WVUyLUz5wNX5FsSGY4ST6uS6eJmOepn5WleB4CZJ8zseyZ
-J9sV/Stw2qyFI50jw5mCHu7LMN8IM4qViTqG1lQYutlHyupE29AR5nBGS0j8C28K
-F31bXmwFD5CL81SugpN2X9u33dq1bzMI1+aguVvNYnmi6bFveUuS/XPyLrRIIsVy
-mgw2Z7cZs9xTBhpEI8LoEQf2Me6gF2SB6RLprBbhdTJ49aRaFOAvbBUb95wnffDl
-cKHryLaDdJwf47/i28FK
-=SVo4
------END PGP SIGNATURE-----
-
---bg/E/yN4pR4or5qL--
+>
+>>
+>> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+>> index eea02b0..b0572d0 100644
+>> --- a/drivers/hid/hid-input.c
+>> +++ b/drivers/hid/hid-input.c
+>> @@ -1163,7 +1163,7 @@ static void report_features(struct hid_device *hid)
+>>                       }
+>>  }
+>>
+>> -static struct hid_input *hidinput_allocate(struct hid_device *hid)
+>> +struct hid_input *hidinput_allocate(struct hid_device *hid)
+>>  {
+>>       struct hid_input *hidinput = kzalloc(sizeof(*hidinput), GFP_KERNEL);
+>>       struct input_dev *input_dev = input_allocate_device();
+>> @@ -1190,10 +1190,16 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
+>>       input_dev->id.version = hid->version;
+>>       input_dev->dev.parent = hid->dev.parent;
+>>       hidinput->input = input_dev;
+>> -     list_add_tail(&hidinput->list, &hid->inputs);
+>> +     list_add(&hidinput->list, &hid->inputs);
+>>
+>>       return hidinput;
+>>  }
+>> +EXPORT_SYMBOL_GPL(hidinput_allocate);
+>> +
+>> +static struct hid_input *hid_get_latest_hidinput(struct hid_device *hid)
+>> +{
+>> +     return list_first_entry(&hid->inputs, struct hid_input, list);
+>> +}
+>>
+>>  /*
+>>   * Register the input device; print a message.
+>> @@ -1243,9 +1249,11 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+>>                       }
+>>
+>>                       for (i = 0; i < report->maxfield; i++)
+>> -                             for (j = 0; j < report->field[i]->maxusage; j++)
+>> +                             for (j = 0; j < report->field[i]->maxusage; j++) {
+>> +                                     hidinput = hid_get_latest_hidinput(hid);
+>>                                       hidinput_configure_usage(hidinput, report->field[i],
+>>                                                                report->field[i]->usage + j);
+>> +                             }
+>>
+>>                       if (hid->quirks & HID_QUIRK_MULTI_INPUT) {
+>>                               /* This will leave hidinput NULL, so that it
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index d2c42dd..42b02d6 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -701,6 +701,7 @@ extern void hidinput_hid_event(struct hid_device *, struct hid_field *, struct h
+>>  extern void hidinput_report_event(struct hid_device *hid, struct hid_report *report);
+>>  extern int hidinput_connect(struct hid_device *hid, unsigned int force);
+>>  extern void hidinput_disconnect(struct hid_device *);
+>> +extern struct hid_input *hidinput_allocate(struct hid_device *hid);
+>>
+>>  int hid_set_field(struct hid_field *, unsigned, __s32);
+>>  int hid_input_report(struct hid_device *, int type, u8 *, int, int);
+>> --
+>> 1.8.0
+>>
+>
+> Thanks,
+> Henrik

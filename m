@@ -1,78 +1,44 @@
-From: Jan-Matthias Braun <jan_braun@gmx.net>
-Subject: Re: hid-multitouch: eGalax Touchscreen not resuming after suspend
-Date: Thu, 29 Nov 2012 15:03:04 +0100
-Message-ID: <3334839.0y63iIARTX@orthese>
-References: <8159607.SRZZrRIPNF@orthese> <alpine.LNX.2.00.1211272123370.3933@pobox.suse.cz> <1655801.HZ7A866RlZ@vostro.rjw.lan>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 01/11] HID: hid-input factorize hid_input allocation
+Date: Thu, 29 Nov 2012 15:58:35 +0100
+Message-ID: <CAN+gG=FO0K=i_WbvCZaaSiwz_yrGZuDXQ_fno3K+t3JOCombtQ@mail.gmail.com>
+References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1353684694-5723-2-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1211291459490.25639@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.23]:39228 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753096Ab2K2ODK (ORCPT
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:50556 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754658Ab2K2O6h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Nov 2012 09:03:10 -0500
-In-Reply-To: <1655801.HZ7A866RlZ@vostro.rjw.lan>
+	Thu, 29 Nov 2012 09:58:37 -0500
+In-Reply-To: <alpine.LNX.2.00.1211291459490.25639@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Rafael,
+On Thu, Nov 29, 2012 at 3:00 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Fri, 23 Nov 2012, Benjamin Tissoires wrote:
+>
+>> This just refactors the allocation of hid_input.
+>> No semantic changes.
+>
+> As this is a generic cleanup, I am taking this one through
+> for-3.8/upstream branch.
 
-thanks for looking into this.
-
-Am Donnerstag, 29. November 2012, 01:20:04 schrieb Rafael J. Wysocki:
-> On Tuesday, November 27, 2012 09:26:11 PM Jiri Kosina wrote:
-> > On Sun, 25 Nov 2012, Jan-Matthias Braun wrote:
-> > > I have now done a git bisection from 3.0 to 3.1 and have found commit
-> > > 1e2ef05bb8cf851a694d38e9170c89e7ff052741 PM: Limit race conditions between runtime PM and system sleep (v2)
-> > > to be the first one to introduce the necessity of a module reload after resume.
-> 
-> So with that commit your device doesn't work after resume from system suspend
-> unless you reload the driver?
-
-Yes. Additionally, with later kernel revisions even this won't help, but I could imagine this to be a consequence of the same problem.
-
-> > > I hope that this helps in finding a solution. As I (again) don't immediatly
-> > > know how to go on, I kindly ask you to give me some hints for testing/patching
-> > > or even a possible solution. :-)
-> 
-> Can you apply the patch below to the current mainline kernel and see if it makes any
-> difference, please?
-
-It does: Current mainline kernel (version >3.7.0-rc7 from git) is not showing the problem, if the patch is applied.
+Thanks Jiri.
+Sorry for not answering earlier, I was working on an other solution
+for pen devices before speculating on the review of the other patches
+:)
 
 Cheers,
+Benjamin
 
-Jan
-
-> ---
->  drivers/base/power/main.c |    4 ----
->  1 file changed, 4 deletions(-)
-> 
-> Index: linux/drivers/base/power/main.c
-> ===================================================================
-> --- linux.orig/drivers/base/power/main.c
-> +++ linux/drivers/base/power/main.c
-> @@ -589,8 +589,6 @@ static int device_resume(struct device *
->  	if (!dev->power.is_suspended)
->  		goto Unlock;
->  
-> -	pm_runtime_enable(dev);
-> -
->  	if (dev->pm_domain) {
->  		info = "power domain ";
->  		callback = pm_op(&dev->pm_domain->ops, state);
-> @@ -1136,8 +1134,6 @@ static int __device_suspend(struct devic
->  
->  	if (error)
->  		async_error = error;
-> -	else if (dev->power.is_suspended)
-> -		__pm_runtime_disable(dev, false);
->  
->  	return error;
->  }
-> 
-> 
-> 
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs

@@ -1,7 +1,7 @@
 From: Kamal Mostafa <kamal@canonical.com>
-Subject: [PATCH v3 1/4] input: increase struct ps2dev cmdbuf[] to 8 bytes
-Date: Thu, 29 Nov 2012 13:57:58 -0800
-Message-ID: <1354226281-3476-2-git-send-email-kamal@canonical.com>
+Subject: [PATCH v3 4/4] input: Cypress PS/2 Trackpad simulated multitouch
+Date: Thu, 29 Nov 2012 13:58:01 -0800
+Message-ID: <1354226281-3476-5-git-send-email-kamal@canonical.com>
 References: <1354226281-3476-1-git-send-email-kamal@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1354226281-3476-1-git-send-email-kamal@canonical.com>
@@ -10,26 +10,74 @@ To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <
 Cc: David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Dudley Du <dudl@cypress.com>, Cypress Semiconductor Corporation <customercare@cypress.com>, Kamal Mostafa <kamal@canonical.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
-Cypress PS/2 Trackpad (drivers/input/mouse/cypress_ps2.c) needs
-this larger cmdbuf[] to handle 8-byte packet responses.
+Instead of SEMI_MT, present a full mt interface with simulated contact
+positions for >=3 fingers.  Enables e.g. multi-finger tap and drag.
 
 Signed-off-by: Kamal Mostafa <kamal@canonical.com>
 ---
- include/linux/libps2.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/cypress_ps2.c |   16 ++++++++++++++++
+ drivers/input/mouse/cypress_ps2.h |   14 +++++++++++++-
+ 2 files changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/libps2.h b/include/linux/libps2.h
-index 79603a6..4ad06e8 100644
---- a/include/linux/libps2.h
-+++ b/include/linux/libps2.h
-@@ -36,7 +36,7 @@ struct ps2dev {
- 	wait_queue_head_t wait;
+diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
+index 472342a..bbaa9b9 100644
+--- a/drivers/input/mouse/cypress_ps2.c
++++ b/drivers/input/mouse/cypress_ps2.c
+@@ -408,7 +408,9 @@ static int cypress_set_input_params(struct input_dev *input,
+ 			return ret;
+ 		}
  
- 	unsigned long flags;
--	unsigned char cmdbuf[6];
-+	unsigned char cmdbuf[8];
- 	unsigned char cmdcnt;
- 	unsigned char nak;
- };
++#if ( CYPRESS_SIMULATED_MT != 1 )
+ 		__set_bit(INPUT_PROP_SEMI_MT, input->propbit);
++#endif
+ 
+ 		if (cytp->tp_res_x && cytp->tp_res_x) {
+ 			input_abs_set_res(input, ABS_X, cytp->tp_res_x);
+@@ -531,6 +533,20 @@ static int cypress_parse_packet(struct psmouse *psmouse,
+ 				((packet[5] & 0x0f) << 8) | packet[7];
+ 			if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
+ 				report_data->contacts[1].z = report_data->contacts[0].z;
++#if ( CYPRESS_SIMULATED_MT == 1 )
++			/* simulate contact positions for >2 fingers */
++			if ( report_data->contact_cnt >= 3 )
++				for ( i=1; i<report_data->contact_cnt; i++ ) {
++				    report_data->contacts[i].x =
++						    report_data->contacts[0].x
++						    + 100*(i)*((i%2)?-1:1);
++				    report_data->contacts[i].y =
++						    report_data->contacts[0].y;
++				    if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
++					    report_data->contacts[i].z =
++						    report_data->contacts[0].z;
++				}
++#endif
+ 		}
+ 
+ 		report_data->left = (header_byte & BTN_LEFT_BIT) ? 1 : 0;
+diff --git a/drivers/input/mouse/cypress_ps2.h b/drivers/input/mouse/cypress_ps2.h
+index ce70462..4b903a9 100644
+--- a/drivers/input/mouse/cypress_ps2.h
++++ b/drivers/input/mouse/cypress_ps2.h
+@@ -134,7 +134,19 @@
+ #define RESP_SMBUS_BIT      0x80
+ 
+ #define CYTP_MAX_CONTACTS 5
+-#define CYTP_MAX_MT_SLOTS 2
++
++/*
++ * CYPRESS_SIMULATED_MT
++ *   set to 1 for simulated multitouch (up to CTYP_MAX_CONTACTS fingers)
++ *   set to 0 for SEMI_MT (2 fingers only)
++ */
++#define CYPRESS_SIMULATED_MT 1
++
++#if ( CYPRESS_SIMULATED_MT == 1 )
++# define CYTP_MAX_MT_SLOTS 16
++#else
++# define CYTP_MAX_MT_SLOTS 2
++#endif
+ 
+ enum cytp_type {
+ 	CYTP_STG,
 -- 
 1.7.10.4

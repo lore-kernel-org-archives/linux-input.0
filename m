@@ -1,81 +1,66 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH 3/3] Input: bu21013_ts - Add support for Device Tree
  booting
-Date: Thu, 29 Nov 2012 11:24:26 +0000
-Message-ID: <20121129112058.GH32691@opensource.wolfsonmicro.com>
+Date: Thu, 29 Nov 2012 12:00:00 +0000
+Message-ID: <20121129120000.GJ2013@gmail.com>
 References: <1354021990-16978-1-git-send-email-lee.jones@linaro.org>
  <1354021990-16978-4-git-send-email-lee.jones@linaro.org>
  <20121128070332.GC23378@core.coreip.homeip.net>
  <20121128085731.GH2013@gmail.com>
  <20121128163105.GA28698@sirena.org.uk>
  <20121129100808.GW2013@gmail.com>
+ <20121129112058.GH32691@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Fh0SynPkUvrWGMR0"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:43697 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752029Ab2K2LY3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Nov 2012 06:24:29 -0500
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20121129100808.GW2013@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20121129112058.GH32691@opensource.wolfsonmicro.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linus.walleij@stericsson.com, arnd@arndb.de, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, arnd@arndb.de, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linus.walleij@stericsson.com
 
-
---Fh0SynPkUvrWGMR0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Nov 29, 2012 at 10:08:08AM +0000, Lee Jones wrote:
-> On Wed, 28 Nov 2012, Mark Brown wrote:
-
-> > The I2C subsystem guesses at a compatible string by default but it's
-> > much better to explicitly set one as conflicts do arise from time to
-> > time (eg, Wolfson parts are called WMxxxx but the WM prefix is also used
-> > by at least WonderMedia).
-
-> It uses the exact device name, rather than guessing. I don't think
-> you're allowed to have duplicate device names in the system, or there
-> would be clashes at registration time.
-
-> The system is the same for platform data and DT alike.
-
-Right, which is why this mostly works, but it's still better to provide
-an actual compatible string which we can be 100% certain will avoid
-conflicts.  This is very low cost when one is already defining DT
-bindings.
-
-> Hence, there should be no need to have a compatible string in any i2c
-> driver registration information.
-
-We're getting away with it at present (and frankly nobody's going to
-build in two different drivers for a chip of the same name for practical
-systems anyway).
-
---Fh0SynPkUvrWGMR0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQt0WpAAoJELSic+t+oim9BCUP/iIu4K6DlJoT3AQOzsGUJxzP
-73/7CCtAvxIWHeqwmE8geGh83LwQJHfP4N6wEtNBaYVlCShzhakjMjZfdjj9KHaY
-V+JTcpHcJvaDYBASiZ+2BZ+c/LunvDeHa6k23cRF0t8r8hF20WPwbVWHjvOwd3Do
-f6GlTDNvVWpN9XOxeMofuy5kQRRwMfYWy0aP8Fy8ND+zE/Rw96PdWyyiywAKrMHv
-SdNs1qrxATa+udO/IQGISi5CTiW4/BxKTmU8zFH0QVotlK6PkJa9KI70Gz+3SGp7
-JNOgCdViezhsiMExgVNXXY1vmkHOUS2cqrQ69UGIqD54hyrWhnpD7BChBSRT0xd1
-nQDBRJxQQeOPkx2njwAQQmrmzNAPGn1FnfFGWmINpkjryLpYtLYjCjo8MXTygGOZ
-WnsNXPHstMznHKi6qu7Cg/luf5lRiKBXi9SN6oo2tZgzoaLKm86f63iMJg++Q2wF
-7lEU2qeOhvKzs2kpI7+jQb+XIjoMdyoB1iufoCtvavt8aprohNr1d+3hcHhFVBNm
-LW+zchxJb8fRukOS1w0wHpPQx3hUz97M/qskcVkTqRBHYlxXWZRFy728TuL3lVNs
-q0PT++vvVnRTNSXyhOD5TNfcG8XxoM3wUFBzAIBc9+x/qniDc+3OgSO5WT8LDQJZ
-OQKGeq0zvT91QLv6172N
-=XvxN
------END PGP SIGNATURE-----
-
---Fh0SynPkUvrWGMR0--
+T24gVGh1LCAyOSBOb3YgMjAxMiwgTWFyayBCcm93biB3cm90ZToKCj4gT24gVGh1LCBOb3YgMjks
+IDIwMTIgYXQgMTA6MDg6MDhBTSArMDAwMCwgTGVlIEpvbmVzIHdyb3RlOgo+ID4gT24gV2VkLCAy
+OCBOb3YgMjAxMiwgTWFyayBCcm93biB3cm90ZToKPiAKPiA+ID4gVGhlIEkyQyBzdWJzeXN0ZW0g
+Z3Vlc3NlcyBhdCBhIGNvbXBhdGlibGUgc3RyaW5nIGJ5IGRlZmF1bHQgYnV0IGl0J3MKPiA+ID4g
+bXVjaCBiZXR0ZXIgdG8gZXhwbGljaXRseSBzZXQgb25lIGFzIGNvbmZsaWN0cyBkbyBhcmlzZSBm
+cm9tIHRpbWUgdG8KPiA+ID4gdGltZSAoZWcsIFdvbGZzb24gcGFydHMgYXJlIGNhbGxlZCBXTXh4
+eHggYnV0IHRoZSBXTSBwcmVmaXggaXMgYWxzbyB1c2VkCj4gPiA+IGJ5IGF0IGxlYXN0IFdvbmRl
+ck1lZGlhKS4KPiAKPiA+IEl0IHVzZXMgdGhlIGV4YWN0IGRldmljZSBuYW1lLCByYXRoZXIgdGhh
+biBndWVzc2luZy4gSSBkb24ndCB0aGluawo+ID4geW91J3JlIGFsbG93ZWQgdG8gaGF2ZSBkdXBs
+aWNhdGUgZGV2aWNlIG5hbWVzIGluIHRoZSBzeXN0ZW0sIG9yIHRoZXJlCj4gPiB3b3VsZCBiZSBj
+bGFzaGVzIGF0IHJlZ2lzdHJhdGlvbiB0aW1lLgo+IAo+ID4gVGhlIHN5c3RlbSBpcyB0aGUgc2Ft
+ZSBmb3IgcGxhdGZvcm0gZGF0YSBhbmQgRFQgYWxpa2UuCj4gCj4gUmlnaHQsIHdoaWNoIGlzIHdo
+eSB0aGlzIG1vc3RseSB3b3JrcywgYnV0IGl0J3Mgc3RpbGwgYmV0dGVyIHRvIHByb3ZpZGUKPiBh
+biBhY3R1YWwgY29tcGF0aWJsZSBzdHJpbmcgd2hpY2ggd2UgY2FuIGJlIDEwMCUgY2VydGFpbiB3
+aWxsIGF2b2lkCj4gY29uZmxpY3RzLiAgVGhpcyBpcyB2ZXJ5IGxvdyBjb3N0IHdoZW4gb25lIGlz
+IGFscmVhZHkgZGVmaW5pbmcgRFQKPiBiaW5kaW5ncy4KCkkga25vdyB0aGF0IGl0J3MgYW4gZWFz
+eSB0aGluZyB0byBkbywgYnV0IEknbSBtb3JlIHdvcnJpZWQgYWJvdXQKd2hhdCB3b3VsZCBoYXBw
+ZW4gaWYgdGhlIGFuIEkyQyBkZXZpY2UgaXMgcmVnaXN0ZXJlZCB1c2luZyB0aGUKY3VycmVudCB3
+YXkgKHN0cmlwcGluZyB0aGUgY29tcGF0aWJsZSBzdHJpbmcgYW5kIHVzaW5nIGl0IGFzIGEKY2xp
+ZW50IGxvb2stdXApIGFuZCB3ZSBhbHNvIHByb3ZpZGUgYSBjb21wYXRpYmxlIGVudHJ5IGluIHRo
+ZQpkcml2ZXIgaXRzZWxmLiBEbyB5b3Uga25vdyBpZiB0aGVyZSBpcyBhbnkgZGFuZ2VyIG9mIGR1
+cGxpY2F0ZQpyZWdpc3RyYXRpb24gb3Igc3VjaGxpa2U/Cgo+ID4gSGVuY2UsIHRoZXJlIHNob3Vs
+ZCBiZSBubyBuZWVkIHRvIGhhdmUgYSBjb21wYXRpYmxlIHN0cmluZyBpbiBhbnkgaTJjCj4gPiBk
+cml2ZXIgcmVnaXN0cmF0aW9uIGluZm9ybWF0aW9uLgo+IAo+IFdlJ3JlIGdldHRpbmcgYXdheSB3
+aXRoIGl0IGF0IHByZXNlbnQgKGFuZCBmcmFua2x5IG5vYm9keSdzIGdvaW5nIHRvCj4gYnVpbGQg
+aW4gdHdvIGRpZmZlcmVudCBkcml2ZXJzIGZvciBhIGNoaXAgb2YgdGhlIHNhbWUgbmFtZSBmb3Ig
+cHJhY3RpY2FsCj4gc3lzdGVtcyBhbnl3YXkpLgoKUmlnaHQuIEluIHRoZSBzYW1lIHdheSBhcyB3
+ZSdyZSBnZXR0aW5nIGF3YXkgd2l0aCBpdCB3aGVuIHdlCnJlZ2lzdGVyIGEgcGxhdGZvcm1fZGV2
+aWNlIHVzaW5nIHRoZSByZWdpc3Rlci9hZGQgcm91dGluZXMuCgotLSAKTGVlIEpvbmVzCkxpbmFy
+byBTVC1Fcmljc3NvbiBMYW5kaW5nIFRlYW0gTGVhZApMaW5hcm8ub3JnIOKUgiBPcGVuIHNvdXJj
+ZSBzb2Z0d2FyZSBmb3IgQVJNIFNvQ3MKRm9sbG93IExpbmFybzogRmFjZWJvb2sgfCBUd2l0dGVy
+IHwgQmxvZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+bGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZy
+YWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGlu
+dXgtYXJtLWtlcm5lbAo=

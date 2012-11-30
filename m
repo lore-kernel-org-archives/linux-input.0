@@ -1,105 +1,112 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: hid-multitouch: eGalax Touchscreen not resuming after suspend
-Date: Thu, 29 Nov 2012 23:28:55 +0100
-Message-ID: <2305931.9GBOrRiDsv@vostro.rjw.lan>
-References: <8159607.SRZZrRIPNF@orthese> <1655801.HZ7A866RlZ@vostro.rjw.lan> <3334839.0y63iIARTX@orthese>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmVbMl06IFtQQVRDSCBSRkMgdjJdIGlucHV0OiBBZGQgbmV3IGRyaXZlciBm?=
+ =?UTF-8?B?b3IgR1BJTyBiZWVwZXI=?=
+Date: Fri, 30 Nov 2012 14:18:00 +0400
+Message-ID: <1354270680.610219472@f26.mail.ru>
+References: <1354210139-25374-1-git-send-email-shc_work@mail.ru> <20121130062815.GA27232@core.coreip.homeip.net>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hydra.sisk.pl ([212.160.235.94]:36509 "EHLO hydra.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752776Ab2K2WYK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Nov 2012 17:24:10 -0500
-In-Reply-To: <3334839.0y63iIARTX@orthese>
+Received: from fallback8.mail.ru ([94.100.176.136]:58977 "EHLO
+	fallback8.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751299Ab2K3KVO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Nov 2012 05:21:14 -0500
+Received: from f26.mail.ru (f26.mail.ru [128.140.169.155])
+	by fallback8.mail.ru (mPOP.Fallback_MX) with ESMTP id D9CF1E807E2
+	for <linux-input@vger.kernel.org>; Fri, 30 Nov 2012 14:18:22 +0400 (MSK)
+In-Reply-To: <20121130062815.GA27232@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jan-Matthias Braun <jan_braun@gmx.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, linux-input@vger.kernel.org
+To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, =?UTF-8?B?QXJuZCBCZXJnbWFubg==?= <arnd@arndb.de>
 
-On Thursday, November 29, 2012 03:03:04 PM Jan-Matthias Braun wrote:
-> Hi Rafael,
-> 
-> thanks for looking into this.
-> 
-> Am Donnerstag, 29. November 2012, 01:20:04 schrieb Rafael J. Wysocki:
-> > On Tuesday, November 27, 2012 09:26:11 PM Jiri Kosina wrote:
-> > > On Sun, 25 Nov 2012, Jan-Matthias Braun wrote:
-> > > > I have now done a git bisection from 3.0 to 3.1 and have found commit
-> > > > 1e2ef05bb8cf851a694d38e9170c89e7ff052741 PM: Limit race conditions between runtime PM and system sleep (v2)
-> > > > to be the first one to introduce the necessity of a module reload after resume.
-> > 
-> > So with that commit your device doesn't work after resume from system suspend
-> > unless you reload the driver?
-> 
-> Yes. Additionally, with later kernel revisions even this won't help, but I could imagine this to be a consequence of the same problem.
-> 
-> > > > I hope that this helps in finding a solution. As I (again) don't immediatly
-> > > > know how to go on, I kindly ask you to give me some hints for testing/patching
-> > > > or even a possible solution. :-)
-> > 
-> > Can you apply the patch below to the current mainline kernel and see if it makes any
-> > difference, please?
-> 
-> It does: Current mainline kernel (version >3.7.0-rc7 from git) is not showing
-> the problem, if the patch is applied.
-
-If you apply the patch below instead of the previous one, does it make
-the problem return, or is it still good?
-
-Rafael
-
-
----
- drivers/base/power/main.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
-
-Index: linux/drivers/base/power/main.c
-===================================================================
---- linux.orig/drivers/base/power/main.c
-+++ linux/drivers/base/power/main.c
-@@ -513,6 +513,8 @@ static int device_resume_early(struct de
- 
-  Out:
- 	TRACE_RESUME(error);
-+
-+	pm_runtime_enable(dev);
- 	return error;
- }
- 
-@@ -589,8 +591,6 @@ static int device_resume(struct device *
- 	if (!dev->power.is_suspended)
- 		goto Unlock;
- 
--	pm_runtime_enable(dev);
--
- 	if (dev->pm_domain) {
- 		info = "power domain ";
- 		callback = pm_op(&dev->pm_domain->ops, state);
-@@ -930,6 +930,8 @@ static int device_suspend_late(struct de
- 	pm_callback_t callback = NULL;
- 	char *info = NULL;
- 
-+	__pm_runtime_disable(dev, false);
-+
- 	if (dev->power.syscore)
- 		return 0;
- 
-@@ -1133,11 +1135,8 @@ static int __device_suspend(struct devic
- 
-  Complete:
- 	complete_all(&dev->power.completion);
--
- 	if (error)
- 		async_error = error;
--	else if (dev->power.is_suspended)
--		__pm_runtime_disable(dev, false);
- 
- 	return error;
- }
-
-
-
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+PiBPbiBUaHUsIE5vdiAyOSwgMjAxMiBhdCAwOToyODo1OVBNICswNDAwLCBBbGV4YW5kZXIgU2hp
+eWFuIHdyb3RlOgo+ID4gVGhpcyBwYXRjaCBhZGRzIGEgbmV3IGRyaXZlciBmb3IgdGhlIGJlZXBl
+ciBjb250cm9sbGVkIHZpYSBHUElPIHBpbi4KPiA+IFRoZSBkcml2ZXIgZG9lcyBub3QgZGVwZW5k
+IG9uIHRoZSBhcmNoaXRlY3R1cmUgYW5kIGlzIHBvc2l0aW9uZWQgYXMKPiA+IGEgcmVwbGFjZW1l
+bnQgZm9yIHRoZSBzcGVjaWZpYyBkcml2ZXJzIHRoYXQgYXJlIHVzZWQgZm9yIHRoaXMgZnVuY3Rp
+b24sCj4gPiBmb3IgZXhhbXBsZSBkcml2ZXJzL2lucHV0L21pc2MvaXhwNHh4LWJlZXBlci4KPiA+
+IFNpbmNlIHRoaXMgcGF0Y2ggaXMgUkZDIG9ubHksIGlubGluZSBjb21tZW50cyBhcmUgd2VsY29t
+ZS4KLi4uCj4gPiArc3RhdGljIGludCBncGlvX2JlZXBlcl9ldmVudChzdHJ1Y3QgaW5wdXRfZGV2
+ICpkZXYsIHVuc2lnbmVkIGludCB0eXBlLAo+ID4gKwkJCSAgICAgdW5zaWduZWQgaW50IGNvZGUs
+IGludCB2YWx1ZSkKPiA+ICt7Cj4gPiArCXN0cnVjdCBncGlvX2JlZXBlcl9wcml2ICpzID0gaW5w
+dXRfZ2V0X2RydmRhdGEoZGV2KTsKPiA+ICsKPiA+ICsJaWYgKCh0eXBlICE9IEVWX1NORCkgfHwg
+KGNvZGUgIT0gU05EX0JFTEwpKQo+ID4gKwkJcmV0dXJuIC1FTk9UU1VQUDsKPiA+ICsKPiA+ICsJ
+aWYgKHZhbHVlIDwgMCkKPiA+ICsJCXJldHVybiAtRUlOVkFMOwo+ID4gKwo+ID4gKwlpZiAoIXZh
+bHVlKQo+ID4gKwkJdmFsdWUgPSAxMDAwOwo+ID4gKwo+ID4gKwkvKiBUdXJuaW5nIGJlZXBlciBP
+TiAqLwo+ID4gKwlncGlvX2JlZXBlcl9jaGFuZ2UocywgMSk7Cj4gCj4gWW91IGFyZSBydW5uaW5n
+IHVuZGVyIHNwaW5sb2NrLCB5b3UgY2FuJ3QgdG91Y2ggR1BJTyBoZXJlIHVzaW5nCj4gImNhbnNs
+ZWVwIiBvcGVyYXRpb25zLgo+IAo+ID4gKwkvKiBTY2hlZHVsZSB3b3JrIGZvciB0dXJuaW5nIE9G
+RiAqLwo+ID4gKwltb2RfZGVsYXllZF93b3JrKHN5c3RlbV93cSwgJnMtPndvcmssIG1zZWNzX3Rv
+X2ppZmZpZXModmFsdWUpKTsKPiA+ICsKPiAKPiBUaGlzIGlzIGluY29ycmVjdC4gVGhlICJ2YWx1
+ZSIgaGVyZSBpcyBwaXRjaCwgbm90IHRoZSBkdXJhdGlvbiBvZiBzb3VuZC4KPiBUaGUgY2FsbGVy
+cyBhcmUgcmVzcG9uc2libGUgdG8gc2h1dCBvZmYgdGhlIHNvdW5kLiBUaGUgZGlmZmVyZW5jZQo+
+IGJldHdlZW4gU05EX0JFTEwgYW5kIFNORF9UT05FIGlzIHRoYXQgbGF0dGVyIGFsbG93cyBjb250
+cm9sbGluZyBwaXRjaAo+IHdoaWxlIHRoZSBmb3JtZXIgdXNlcyBkcml2ZXItIGFuZCBwbGF0Zm9y
+bS1zcGVjaWZpYyBwaXRjaC4KQXMgaXQgdHVybmVkIG91dCwgSSB1bmRlcnN0YW5kIHRoZSBwdXJw
+b3NlIG9mIHRoZSBwYXJhbWV0ZXIgaXMgaW5jb3JyZWN0LgpNeSBtaXN0YWtlLgoKPiBJIHRoaW5r
+IHRoZSBkcml2ZXIgc2hvdWxkIGxvb2sgbGlrZSBpbiB0aGUgcGF0Y2ggYmVsb3cuIENhbiB5b3Ug
+cGxlYXNlCj4gdGVsbCBtZSBpZiBpdCB3b3JrcyBmb3IgeW91PwpXb3Jrcy4gVGhlIHRlc3Qgd2Fz
+IG9uIEFSTSBDTFBTNzExWCBib2FyZCB3aXRoIHRoZSBkcml2ZXIgaXMgY29tcGlsZWQKaW50byB0
+aGUga2VybmVsLCBpZSB3aXRob3V0IG1vZHVsZXMuIE5vbi1jcml0aWNhbCBjb21tZW50cyBpbmxp
+bmVkLgoKCj4gSW5wdXQ6IEFkZCBuZXcgZHJpdmVyIGZvciBHUElPIGJlZXBlcgo+IAo+IEZyb206
+IEFsZXhhbmRlciBTaGl5YW4gPHNoY193b3JrQG1haWwucnU+Cj4gCj4gVGhpcyBwYXRjaCBhZGRz
+IGEgbmV3IGRyaXZlciBmb3IgdGhlIGJlZXBlciBjb250cm9sbGVkIHZpYSBHUElPIHBpbi4KPiBU
+aGUgZHJpdmVyIGRvZXMgbm90IGRlcGVuZCBvbiB0aGUgYXJjaGl0ZWN0dXJlIGFuZCBpcyBwb3Np
+dGlvbmVkIGFzCj4gYSByZXBsYWNlbWVudCBmb3IgdGhlIHNwZWNpZmljIGRyaXZlcnMgdGhhdCBh
+cmUgdXNlZCBmb3IgdGhpcyBmdW5jdGlvbiwKPiBmb3IgZXhhbXBsZSBkcml2ZXJzL2lucHV0L21p
+c2MvaXhwNHh4LWJlZXBlci4KPiBTaW5jZSB0aGlzIHBhdGNoIGlzIFJGQyBvbmx5LCBpbmxpbmUg
+Y29tbWVudHMgYXJlIHdlbGNvbWUuCj4gCj4gU2lnbmVkLW9mZi1ieTogRG1pdHJ5IFRvcm9raG92
+IDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tPgo+IC0tLQo+ICBkcml2ZXJzL2lucHV0L21pc2Mv
+S2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICB8ICAgIDkgKwo+ICBkcml2ZXJzL2lucHV0L21p
+c2MvTWFrZWZpbGUgICAgICAgICAgICAgICAgICAgICB8ICAgIDEgCj4gIGRyaXZlcnMvaW5wdXQv
+bWlzYy9ncGlvLWJlZXBlci5jICAgICAgICAgICAgICAgIHwgIDE1NCArKysrKysrKysrKysrKysr
+KysrKysrKwo+ICBpbmNsdWRlL2xpbnV4L3BsYXRmb3JtX2RhdGEvaW5wdXQtZ3Bpby1iZWVwZXIu
+aCB8ICAgMjAgKysrCgo+ICtzdGF0aWMgaW50IGdwaW9fYmVlcGVyX3Byb2JlKHN0cnVjdCBwbGF0
+Zm9ybV9kZXZpY2UgKnBkZXYpCj4gK3sKPiArCXN0cnVjdCBkZXZpY2UgKmRldiA9ICZwZGV2LT5k
+ZXY7Cj4gKwljb25zdCBzdHJ1Y3QgZ3Bpb19iZWVwZXJfcGRhdGEgKnBkYXRhID0gZGV2X2dldF9w
+bGF0ZGF0YShkZXYpOwo+ICsJc3RydWN0IGdwaW9fYmVlcGVyICpiZWVwZXI7Cj4gKwlzdHJ1Y3Qg
+aW5wdXRfZGV2ICppbnB1dDsKPiArCWludCBlcnJvcjsKPiArCj4gKwlpZiAoIXBkYXRhKSB7Cj4g
+KwkJZGV2X2VycihkZXYsICJNaXNzaW5nIHBsYXRmb3JtIGRhdGFcbiIpOwo+ICsJCXJldHVybiAt
+RUlOVkFMOwo+ICsJfQo+ICsKPiArCWlmICghZ3Bpb19pc192YWxpZChwZGF0YS0+Z3Bpb19ucikp
+IHsKPiArCQlkZXZfZXJyKGRldiwgIkludmFsaWQgZ3BpbyAlaVxuIiwgcGRhdGEtPmdwaW9fbnIp
+Owo+ICsJCXJldHVybiAtRUlOVkFMOwo+ICsJfQo+ICsKPiArCWJlZXBlciA9IGRldm1fa3phbGxv
+YygmcGRldi0+ZGV2LCBzaXplb2Yoc3RydWN0IGdwaW9fYmVlcGVyKSwKPiArCQkJCUdGUF9LRVJO
+RUwpOwpJIHdvdWxkIHByZWZlciB0byBkbyB3aGVuIG1vdmluZyBwYWRkaW5nIG9uIGJyYWNrZXRz
+LgoKPiArCWlmICghYmVlcGVyKSB7Cj4gKwkJZGV2X2VycihkZXYsICJNZW1vcnkgYWxsb2NhdGUg
+ZXJyb3JcbiIpOwo+ICsJCXJldHVybiAtRU5PTUVNOwo+ICsJfQo+ICsKPiArCWJlZXBlci0+Z3Bp
+b19uciA9IHBkYXRhLT5ncGlvX25yOwo+ICsJYmVlcGVyLT5hY3RpdmVfbG93ID0gcGRhdGEtPmFj
+dGl2ZV9sb3c7Cj4gKwo+ICsJSU5JVF9XT1JLKCZiZWVwZXItPndvcmssIGdwaW9fYmVlcGVyX3dv
+cmspOwo+ICsJc25wcmludGYoYmVlcGVyLT5waHlzLCBzaXplb2YoYmVlcGVyLT5waHlzKSwKPiAr
+CQkgIiVzL2lucHV0MCIsIGRldl9uYW1lKGRldikpOwo+ICsKPiArCWlucHV0ID0gZGV2bV9pbnB1
+dF9hbGxvY2F0ZV9kZXZpY2UoZGV2KTsKSSBhbSB0ZW1wb3JhdHkgcmVwbGFjZSB0aGlzIGZ1bmN0
+aW9uIHRvIGlucHV0X2FsbG9jYXRlX2RldmljZSgpIGJlY2F1c2UKSSBhbSB0ZXN0ZWQgdGhpcyBk
+cml2ZXIgb24gMi42LjguCgo+ICsJaWYgKCFpbnB1dCkgewo+ICsJCWRldl9lcnIoJnBkZXYtPmRl
+diwgIklucHV0IGRldmljZSBhbGxvY2F0ZSBlcnJvclxuIik7Cj4gKwkJcmV0dXJuIC1FTk9NRU07
+Cj4gKwl9Cj4gKwo+ICsJaW5wdXQtPm5hbWUJCT0gcGRhdGEtPm5hbWUgPzogIkdQSU8gQmVlcGVy
+IjsKPiArCWlucHV0LT5waHlzCQk9IGJlZXBlci0+cGh5czsKPiArCWlucHV0LT5pZC5idXN0eXBl
+CT0gQlVTX0hPU1Q7Cj4gKwlpbnB1dC0+aWQudmVuZG9yCT0gMHgwMDAxOwo+ICsJaW5wdXQtPmlk
+LnByb2R1Y3QJPSAweDAwMDE7Cj4gKwlpbnB1dC0+aWQudmVyc2lvbgk9IDB4MDEwMDsKPiArCklN
+SE8sIG5vIGVtcHR5IGxpbmUgbmVlZGVkIGhlcmUuCgo+ICsJaW5wdXQtPmNsb3NlCQk9IGdwaW9f
+YmVlcGVyX2Nsb3NlOwo+ICsJaW5wdXQtPmV2ZW50CQk9IGdwaW9fYmVlcGVyX2V2ZW50OwouLi4K
+PiArCj4gKwlpbnB1dF9zZXRfY2FwYWJpbGl0eShpbnB1dCwgRVZfU05ELCBTTkRfQkVMTCk7Cj4g
+Kwo+ICsJZXJyb3IgPSBkZXZtX2dwaW9fcmVxdWVzdChkZXYsIGJlZXBlci0+Z3Bpb19uciwgaW5w
+dXQtPm5hbWUpOwo+ICsJaWYgKGVycm9yKSB7Cj4gKwkJZGV2X2VycihkZXYsICJVbmFibGUgdG8g
+Y2xhaW0gZ3BpbyAlaVxuIiwgYmVlcGVyLT5ncGlvX25yKTsKPiArCQlyZXR1cm4gZXJyb3I7Cj4g
+Kwl9Cj4gKwo+ICsJZ3Bpb19kaXJlY3Rpb25fb3V0cHV0KGJlZXBlci0+Z3Bpb19uciwgYmVlcGVy
+LT5hY3RpdmVfbG93KTsKPiArCj4gKwliZWVwZXItPmlucHV0ID0gaW5wdXQ7Cj4gKwlpbnB1dF9z
+ZXRfZHJ2ZGF0YShpbnB1dCwgYmVlcGVyKTsKPiArCXBsYXRmb3JtX3NldF9kcnZkYXRhKHBkZXYs
+IGJlZXBlcik7Cj4gKwo+ICsJcmV0dXJuIGlucHV0X3JlZ2lzdGVyX2RldmljZShiZWVwZXItPmlu
+cHV0KTsKPiArfQo+ICsKPiArc3RhdGljIHZvaWQgZ3Bpb19iZWVwZXJfc2h1dGRvd24oc3RydWN0
+IHBsYXRmb3JtX2RldmljZSAqcGRldikKPiArewo+ICsJc3RydWN0IGdwaW9fYmVlcGVyICpiZWVw
+ZXIgPSBwbGF0Zm9ybV9nZXRfZHJ2ZGF0YShwZGV2KTsKPiArCj4gKwkvKiBUdXJuaW5nIE9GRiBp
+bW1lZGlhdGVseSAqLwo+ICsJZ3Bpb19iZWVwZXJfY2xvc2UoYmVlcGVyLT5pbnB1dCk7Cj4gK30K
+PiArCj4gK3N0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVyIGdwaW9fYmVlcGVyX3BsYXRmb3Jt
+X2RyaXZlciA9IHsKPiArCS5kcml2ZXIJPSB7Cj4gKwkJLm5hbWUJPSAiZ3Bpby1iZWVwZXIiLAo+
+ICsJCS5vd25lcgk9IFRISVNfTU9EVUxFLAo+ICsJfSwKPiArCS5wcm9iZQkJPSBncGlvX2JlZXBl
+cl9wcm9iZSwKPiArCS5zaHV0ZG93bgk9IGdwaW9fYmVlcGVyX3NodXRkb3duLAo+ICt9Owo+ICtt
+b2R1bGVfcGxhdGZvcm1fZHJpdmVyKGdwaW9fYmVlcGVyX3BsYXRmb3JtX2RyaXZlcik7Ck5vICJy
+ZW1vdmUiIGZ1bmN0aW9uPwoKLS0tCg==

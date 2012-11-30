@@ -1,879 +1,918 @@
-From: Li Wu <willy.woo@gmail.com>
-Subject: [PATCH 1/1] Input: STMicroelectronics multi touch capacitive touchscreen ftk
-Date: Fri, 30 Nov 2012 09:18:54 -0500
-Message-ID: <1354285134-8188-1-git-send-email-willy.woo@gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification
+ implementation
+Date: Fri, 30 Nov 2012 15:56:50 +0100
+Message-ID: <20121130155650.69407e9f@endymion.delvare>
+References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:52655 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758360Ab2K3OTN (ORCPT
+Received: from zoneX.GCU-Squad.org ([194.213.125.0]:26385 "EHLO
+	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752302Ab2K3O5V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Nov 2012 09:19:13 -0500
+	Fri, 30 Nov 2012 09:57:21 -0500
+In-Reply-To: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: willy.woo@gmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Li Wu <li.wu@st.com>, Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, Joe Perches <joe@perches.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, Shawn Landden <shawnlandden@gmail.com>, Felipe Balbi <balbi@ti.com>, Viresh Kumar <viresh.kumar@linaro.org>, Jianchun <jcbian@pixcir.com.cn>, David Dajun Chen <dchen@diasemi.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org
-Cc: victor.phay@st.com
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, fabien.andre@gmail.com, scott.liu@emc.com.tw, JJ Ding <jj_ding@emc.com.tw>, Jiri Slaby <jslaby@suse.cz>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This is a initial driver for STMicroelectronics multi touch
-capacitive touchscren FingertipK. It supports maximum 10 fingers,
-based on I2C interface.
+Hi Benjamin, Jiri,
 
-Tested on Beagleboard, Android ICS.
+Sorry for the late review. But better late than never I guess...
 
-Signed-off-by: Li Wu <willy.woo@gmail.com>
----
- MAINTAINERS                        |    8 +
- drivers/input/touchscreen/Kconfig  |   11 +
- drivers/input/touchscreen/Makefile |    1 +
- drivers/input/touchscreen/ftk.c    |  792 ++++++++++++++++++++++++++++++++++++
- 4 files changed, 812 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/ftk.c
+On Mon, 12 Nov 2012 15:42:59 +0100, Benjamin Tissoires wrote:
+> Microsoft published the protocol specification of HID over i2c:
+> http://msdn.microsoft.com/en-us/library/windows/hardware/hh852380.aspx
+> 
+> This patch introduces an implementation of this protocol.
+> 
+> This implementation does not includes the ACPI part of the specification.
+> This will come when ACPI 5.0 devices enumeration will be available.
+> 
+> Once the ACPI part is done, OEM will not have to declare HID over I2C
+> devices in their platform specific driver.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
+> (..)
+>  drivers/hid/Kconfig           |   2 +
+>  drivers/hid/Makefile          |   1 +
+>  drivers/hid/i2c-hid/Kconfig   |  21 +
+>  drivers/hid/i2c-hid/Makefile  |   5 +
+>  drivers/hid/i2c-hid/i2c-hid.c | 974 ++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c/i2c-hid.h   |  35 ++
+>  6 files changed, 1038 insertions(+)
+>  create mode 100644 drivers/hid/i2c-hid/Kconfig
+>  create mode 100644 drivers/hid/i2c-hid/Makefile
+>  create mode 100644 drivers/hid/i2c-hid/i2c-hid.c
+>  create mode 100644 include/linux/i2c/i2c-hid.h
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 9386a63..3f5398f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -314,6 +314,14 @@ W:	http://wiki.analog.com/AD7879
- S:	Supported
- F:	drivers/input/touchscreen/ad7879.c
- 
-+STM FTK TOUCHSCREEN DRIVER
-+M:      Li Wu <li.wu@st.com>
-+L:      device-drivers-devel@blackfin.uclinux.org
-+W:      http://www.st.com
-+S:      Supported
-+F:      drivers/input/touchscreen/ftk.c
-+
-+
- ADDRESS SPACE LAYOUT RANDOMIZATION (ASLR)
- M:	Jiri Kosina <jkosina@suse.cz>
- S:	Maintained
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index f7668b2..c81e2e7 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -900,4 +900,15 @@ config TOUCHSCREEN_TPS6507X
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called tps6507x_ts.
- 
-+config TOUCHSCREEN_FTK
-+        tristate "STMicroelectronics i2c multitouch touchscreen with FingerTipK"
-+        depends on I2C
-+        help
-+          Say Y here to enable STMicroelectronics touchscreen support.
-+
-+          If unsure, say N.
-+
-+          To compile this driver as a module, choose M here: the
-+          module will be called STM_ts.
-+
- endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 178eb12..6feba9b 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -73,3 +73,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
- obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
-+obj-$(CONFIG_TOUCHSCREEN_FTK)           += ftk.o
-diff --git a/drivers/input/touchscreen/ftk.c b/drivers/input/touchscreen/ftk.c
-new file mode 100644
-index 0000000..7c995f6
---- /dev/null
-+++ b/drivers/input/touchscreen/ftk.c
-@@ -0,0 +1,792 @@
-+/*
-+ * drivers/input/touchscreen/ftk.c
-+ *
-+ * Driver for STMicroelectronics FTK capacity touchscreen
-+ *
-+ * Author: JH Jang <jh.jang@st.com>
-+ *         Victor Phay <victor.phay@st.com>
-+ *	   Li Wu <li.wu@st.com>, <willy.woo@gmail.com>
-+ *
-+ * Copyright (c) 2012 STMicroelectronics Limited
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ *
-+ */
-+
-+#include <linux/ctype.h>
-+#include <linux/delay.h>
-+#include <linux/errno.h>
-+#include <linux/firmware.h>
-+#include <linux/fs.h>
-+#include <linux/gpio.h>
-+#include <linux/hrtimer.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-dev.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/serio.h>
-+#include <linux/slab.h>
-+#include <linux/uaccess.h>
-+
-+/*
-+ * Definitions & global arrays.
-+ */
-+#define DRIVER_DESC                   "ftk i2c touchscreen driver"
-+#define ftk_TS_DRV_NAME               "ftk"
-+#define X_AXIS_MAX                    800
-+#define X_AXIS_MIN                    0
-+#define Y_AXIS_MAX                    480
-+#define Y_AXIS_MIN                    0
-+#define PRESSURE_MIN                  0
-+#define PRESSURE_MAX                  256
-+#define P70_PATCH_ADDR_START          0x00420000
-+#define LEAVE_EVENT                   0x04
-+#define ENTER_EVENT                   0x03
-+#define MOTION_EVENT                  0x05
-+#define RESET_EVENT                   0x10
-+#define MAX_SUPPORTED_FINGERS         10
-+#define MAX_TRANSACTION_LENGTH        8
-+
-+static struct i2c_driver stm_ts_driver;
-+static struct workqueue_struct *stmtouch_wq;
-+static int cor_xyz[10][3];
-+static unsigned char ID_Indx[10] = {
-+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-+};
-+
-+struct B0_write {
-+	u8 addr;
-+	u8 val;
-+};
-+
-+struct ftk_i2c_platform_data {
-+	int (*power)(int on);
-+};
-+
-+struct ftk_ts {
-+	struct device *dev;
-+	struct i2c_client *client;
-+	struct input_dev *input_dev;
-+	struct hrtimer timer;
-+	struct work_struct work;
-+	spinlock_t lock;
-+	int x;
-+	int y;
-+	int z;
-+	int irq;
-+	int (*power)(int on);
-+#ifdef CONFIG_HAS_EARLYSUSPEND
-+	struct early_suspend early_suspend;
-+#endif
-+};
-+
-+#ifdef CONFIG_HAS_EARLYSUSPEND
-+static void stm_ts_early_suspend(struct early_suspend *h);
-+static void stm_ts_late_resume(struct early_suspend *h);
-+#endif
-+
-+static int ftk_write_reg(struct ftk_ts *ftk_ts, u8 *reg, u16 num_com);
-+static int ftk_read_reg(struct ftk_ts *ftk_ts, u8 *reg, int cnum, u8 *buf,
-+			int num);
-+static void touch_ON(struct ftk_ts *ftkts, int x, int y, int z, int id);
-+static void touch_OFF(struct ftk_ts *ftkts);
-+static u8 load_config(struct ftk_ts *ftk_ts, const struct firmware *firmware);
-+static u8 load_patch(struct ftk_ts *ftk_ts, const struct firmware *firmware);
-+static int verify_firmware(const struct firmware *firmware);
-+static int init_ftk(struct ftk_ts *ftk_ts);
-+static enum hrtimer_restart st_ts_timer_func(struct hrtimer *timer);
-+static irqreturn_t ts_interrupt(int irq, void *handle);
-+static u8 decode_data_packet(struct ftk_ts *ftkts, unsigned char data[],
-+			     unsigned char LeftEvent);
-+static void ts_tasklet_proc(struct work_struct *work);
-+static int stm_ts_probe(struct i2c_client *client,
-+			const struct i2c_device_id *idp);
-+static int stm_ts_remove(struct i2c_client *client);
-+static int stm_ts_suspend(struct i2c_client *client, pm_message_t mesg);
-+static int stm_ts_resume(struct i2c_client *client);
-+static int __init stm_ts_init(void);
-+static void __exit stm_ts_exit(void);
-+
-+static int ftk_write_reg(struct ftk_ts *ftk_ts, u8 *reg, u16 num_com)
-+{
-+	struct i2c_msg xfer_msg[2];
-+
-+	xfer_msg[0].addr = ftk_ts->client->addr;
-+	xfer_msg[0].len = num_com;
-+	xfer_msg[0].flags = 0;
-+	xfer_msg[0].buf = reg;
-+
-+	return i2c_transfer(ftk_ts->client->adapter, xfer_msg, 1);
-+}
-+
-+
-+static int ftk_read_reg(struct ftk_ts *ftk_ts, u8 *reg, int cnum, u8 *buf,
-+			int num)
-+{
-+	u16 left = num;
-+	u16 offset = 0;
-+
-+	struct i2c_msg xfer_msg[2];
-+
-+	xfer_msg[0].addr = ftk_ts->client->addr;
-+	xfer_msg[0].len = cnum;
-+	xfer_msg[0].flags = 0;
-+	xfer_msg[0].buf = reg;
-+
-+	xfer_msg[1].addr = ftk_ts->client->addr;
-+	xfer_msg[1].flags = I2C_M_RD;
-+
-+	/* MTK platform */
-+	/* Can only transfer 8 bytes per transaction */
-+	while (left > 0) {
-+		xfer_msg[1].buf = &buf[offset];
-+
-+		if (left > MAX_TRANSACTION_LENGTH) {
-+			xfer_msg[1].len = MAX_TRANSACTION_LENGTH;
-+			left -= MAX_TRANSACTION_LENGTH;
-+			offset += MAX_TRANSACTION_LENGTH;
-+		} else {
-+			xfer_msg[1].len = left;
-+			left = 0;
-+		}
-+
-+		if (i2c_transfer(ftk_ts->client->adapter, xfer_msg, 2) != 2) {
-+			dev_err(ftk_ts->dev, "FTK - i2c Transfer error!\n");
-+			return 1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+
-+static void touch_ON(struct ftk_ts *ftkts, int x, int y, int z, int id)
-+{
-+	input_report_key(ftkts->input_dev, BTN_TOUCH, 1);
-+	input_report_abs(ftkts->input_dev, ABS_MT_POSITION_X, x);
-+	input_report_abs(ftkts->input_dev, ABS_MT_POSITION_Y, y);
-+	input_report_abs(ftkts->input_dev, ABS_MT_TOUCH_MAJOR, z);
-+	input_report_abs(ftkts->input_dev, ABS_MT_TRACKING_ID, id);
-+	input_mt_sync(ftkts->input_dev);
-+}
-+
-+
-+static void touch_OFF(struct ftk_ts *ftkts)
-+{
-+	input_report_key(ftkts->input_dev, BTN_TOUCH, 0);
-+	input_report_abs(ftkts->input_dev, ABS_MT_TRACKING_ID, 0);
-+	input_mt_sync(ftkts->input_dev);
-+}
-+
-+
-+static u8 load_config(struct ftk_ts *ftk_ts, const struct firmware *firmware)
-+{
-+	u16 one_group_length = 0;
-+	u16 patch_length = 0;
-+	u16 config_length = 0;
-+	u16 i = 0;
-+	u8 *pdata;
-+	u8 regAdd[8];
-+	u8 val[8];
-+	int ret;
-+
-+	patch_length = firmware->data[0] * 256 + firmware->data[1];
-+	config_length =
-+		firmware->data[patch_length + 2] * 256 +
-+		firmware->data[patch_length + 2 + 1];
-+	pdata = (u8 *)&firmware->data[patch_length + 4];
-+
-+	while (i < config_length) {
-+		one_group_length = pdata[i] * 256 + pdata[i + 1];
-+
-+		if ((pdata[i + 2] == 0xFF) && (pdata[i + 3] == 0xFF))
-+			mdelay(pdata[i + 4]);
-+		else{
-+			ftk_write_reg(ftk_ts, &(pdata[i + 2]),
-+				      one_group_length);
-+			mdelay(100);
-+		}
-+
-+		i = i + 2;
-+		i = i + one_group_length;
-+	}
-+
-+	regAdd[0] = 0xB0;
-+	regAdd[1] = 0x05;       /* Set Interrupt Polarity */
-+	regAdd[2] = 0x00;       /* '00' - level interrupt */
-+				/* '02' - edge interrupt */
-+	ftk_write_reg(ftk_ts, &regAdd[0], 3);
-+	mdelay(5);
-+
-+	regAdd[0] = 0xB0;
-+	regAdd[1] = 0x06;       /* Enable Touch Detect Interrupt */
-+	regAdd[2] = 0x40;       /* 0xC0 */
-+	ftk_write_reg(ftk_ts, &regAdd[0], 3);
-+	mdelay(5);
-+
-+	regAdd[0] = 0xB0;
-+	regAdd[1] = 0x07;	/* Read 0x07 to clear ISR */
-+	ret = ftk_read_reg(ftk_ts, &regAdd[0], 2, &val[0], 1);
-+	mdelay(5);
-+
-+	regAdd[0] = 0x85;
-+	ret = ftk_read_reg(ftk_ts, &regAdd[0], 1, &val[0], 8);
-+	mdelay(20);
-+
-+	regAdd[0] = 0x85;
-+	ret = ftk_read_reg(ftk_ts, &regAdd[0], 1, &val[0], 8);
-+	mdelay(20);
-+
-+	regAdd[0] = 0xB0;
-+	regAdd[1] = 0x03;
-+	ret = ftk_read_reg(ftk_ts, regAdd, 2, val, 1);
-+	mdelay(5);
-+	dev_info(ftk_ts->dev, "Patch loaded, Version =%X\n", val[0]);
-+
-+	regAdd[0] = 0x83;	/* TS Sense on */
-+	regAdd[1] = 0x00;
-+	ret = ftk_write_reg(ftk_ts, &regAdd[0], 1);
-+	mdelay(5);
-+	return ret;
-+}
-+
-+
-+static u8 load_patch(struct ftk_ts *ftk_ts, const struct firmware *firmware)
-+{
-+	u32 writeAddr, j = 0, i = 0;
-+	u16 patch_length = 0;
-+	u8 byteWork1[256 + 3] = { 0 };
-+	u8 regAdd[3] = { 0 };
-+
-+	patch_length = firmware->data[0] * 256 + firmware->data[1];
-+
-+	while (j < patch_length) {
-+		writeAddr = P70_PATCH_ADDR_START + j;
-+
-+		regAdd[0] = 0xB3;
-+		regAdd[1] = (writeAddr >> 24) & 0xFF;
-+		regAdd[2] = (writeAddr >> 16) & 0xFF;
-+		ftk_write_reg(ftk_ts, &regAdd[0], 3);
-+
-+		byteWork1[0] = 0xB1;
-+		byteWork1[1] = (writeAddr >> 8) & 0xFF;
-+		byteWork1[2] = writeAddr & 0xFF;
-+
-+		i = 0;
-+		while ((j < firmware->size) && (i < 256)) {
-+			byteWork1[i + 3] = firmware->data[j + 2];
-+			i++;
-+			j++;
-+		}
-+		ftk_write_reg(ftk_ts, &byteWork1[0], 256 + 3);
-+	}
-+
-+	return 0;
-+}
-+
-+
-+static int verify_firmware(const struct firmware *firmware)
-+{
-+	u16 firmware_length;
-+	u16 patch_length;
-+	u16 config_length;
-+
-+	firmware_length = firmware->size;
-+	patch_length = firmware->data[0] * 256 + firmware->data[1];
-+	config_length =
-+		firmware->data[patch_length + 2] * 256 +
-+		firmware->data[patch_length + 2 + 1];
-+
-+	if (firmware_length == patch_length + config_length + 4)
-+		return 0;
-+	else
-+		return -1;
-+}
-+
-+
-+static int init_ftk(struct ftk_ts *ftk_ts)
-+{
-+	const struct firmware *firmware;
-+	u8 regAdd[7];
-+	u8 val[8];
-+	int ret;
-+
-+	regAdd[0] = 0xB0;
-+	regAdd[1] = 0x00;
-+	ret = ftk_read_reg(ftk_ts, regAdd, 2, val, 3);
-+
-+	if (ret < 0)
-+		dev_err(ftk_ts->dev, " i2c_transfer failed\n");
-+
-+	mdelay(1);
-+	dev_info(ftk_ts->dev, "Chip ID = %x %x %x\n", val[0], val[1], val[2]);
-+
-+	regAdd[0] = 0x9E; /* TS Soft Reset */
-+	ret = ftk_write_reg(ftk_ts, &regAdd[0], 1);
-+	mdelay(1);
-+
-+	ret = request_firmware(&firmware, "ftk/ftk.bin", ftk_ts->dev);
-+	if (ret < 0)
-+		dev_err(ftk_ts->dev, " request fw fail ,err = %d\n", ret);
-+	else{
-+		ret = verify_firmware(firmware);
-+		if (ret == 0) {
-+			load_patch(ftk_ts, firmware);
-+			load_config(ftk_ts, firmware);
-+		}
-+	}
-+
-+	release_firmware(firmware);
-+
-+	regAdd[0] = 0xB3;
-+	regAdd[1] = 0xFF;
-+	regAdd[2] = 0xFF;
-+	ftk_write_reg(ftk_ts, &regAdd[0], 3);
-+	mdelay(5);
-+
-+	regAdd[0] = 0xA0;
-+	ftk_write_reg(ftk_ts, &regAdd[0], 1);
-+	mdelay(5);
-+
-+	if (ret < 0)
-+		dev_err(ftk_ts->dev, "ftk Not Initialised\n");
-+	else
-+		dev_info(ftk_ts->dev, "ftk Initialised\n");
-+
-+	return 0;
-+}
-+
-+
-+static enum hrtimer_restart st_ts_timer_func(struct hrtimer *timer)
-+{
-+	struct ftk_ts *ftkts = container_of(timer, struct ftk_ts, timer);
-+
-+	queue_work(stmtouch_wq, &ftkts->work);
-+	return HRTIMER_NORESTART;
-+}
-+
-+
-+static irqreturn_t ts_interrupt(int irq, void *handle)
-+{
-+	struct ftk_ts *ftk_ts = handle;
-+
-+	disable_irq_nosync(ftk_ts->client->irq);
-+	queue_work(stmtouch_wq, &ftk_ts->work);
-+	return IRQ_HANDLED;
-+}
-+
-+
-+static u8 decode_data_packet(struct ftk_ts *ftkts, unsigned char data[],
-+			     unsigned char LeftEvent)
-+{
-+	u8 EventNum;
-+	u8 TouchID, EventID;
-+	u8 LastLeftEvent = 0;
-+	u8 i, num_released_finger;
-+	u8 valid_id = 0;
-+
-+	for (EventNum = 0; EventNum < LeftEvent; EventNum++) {
-+		LastLeftEvent = data[7 + EventNum * 8] & 0x0F;
-+		TouchID = data[1 + EventNum * 8] & 0x0F;
-+		EventID = data[EventNum * 8] & 0xFF;
-+
-+		if ((EventID == LEAVE_EVENT) || (EventID == ENTER_EVENT) ||
-+		    (EventID == MOTION_EVENT)) {
-+			/* Enter, Leave or Motion Event */
-+
-+			if (TouchID < MAX_SUPPORTED_FINGERS) {
-+				valid_id = 1;
-+
-+				ID_Indx[TouchID] = EventID;
-+				cor_xyz[TouchID][0] =
-+					((data[4 + EventNum *
-+					       8] &
-+					  0xF0) >>
-+					 4) | ((data[2 + EventNum * 8]) << 4);
-+				cor_xyz[TouchID][1] =
-+					((data[4 + EventNum *
-+					       8] &
-+					  0x0F) |
-+					 ((data[3 + EventNum * 8]) << 4));
-+				cor_xyz[TouchID][2] = data[5 + EventNum * 8];
-+			}
-+		} else if (EventID == RESET_EVENT) {
-+			/* Reset happened */
-+			for (i = 0; i < MAX_SUPPORTED_FINGERS; i++)
-+				ID_Indx[i] = 0;
-+
-+			touch_OFF(ftkts);
-+
-+			input_sync(ftkts->input_dev);
-+			init_ftk(ftkts);
-+			return 0;
-+		}
-+	}
-+
-+	if (valid_id) {
-+		/* Report all fingers on panel */
-+		/* ---------------------------------- */
-+		num_released_finger = 0;
-+		for (i = 0; i < MAX_SUPPORTED_FINGERS; i++) {
-+			if (ID_Indx[i]) {
-+				if (ID_Indx[i] == LEAVE_EVENT) {
-+					ID_Indx[i] = 0;
-+					num_released_finger++;
-+				}
-+
-+				touch_ON(ftkts, cor_xyz[i][0], cor_xyz[i][1],
-+					 cor_xyz[i][2],
-+					 i);
-+			} else
-+				num_released_finger++;
-+		}
-+
-+		input_sync(ftkts->input_dev);
-+		/* ---------------------------------- */
-+
-+		/* Check if all fingers are released */
-+		/* ---------------------------------- */
-+		if (num_released_finger == MAX_SUPPORTED_FINGERS) {
-+			/* All fingers are released */
-+			touch_OFF(ftkts);
-+			input_sync(ftkts->input_dev);
-+		}
-+		/* ---------------------------------- */
-+	}
-+
-+	return LastLeftEvent;
-+}
-+
-+
-+static void ts_tasklet_proc(struct work_struct *work)
-+{
-+	struct ftk_ts *ftkts = container_of(work, struct ftk_ts, work);
-+
-+	unsigned char data[256];
-+	int ret;
-+	u8 status;
-+	u8 regAdd;
-+	u8 i;
-+	u8 FirstLeftEvent = 0;
-+
-+	data[0] = 0xB0;
-+	data[1] = 0x07;
-+	ret = ftk_read_reg(ftkts, &data[0], 2, &status, 1);
-+
-+	if (status & 0x40) {
-+		regAdd = 0x85;
-+		if (ftk_read_reg(ftkts, &regAdd, 1, data, 8) == 0) {
-+			FirstLeftEvent = decode_data_packet(ftkts, data, 1);
-+
-+			/* Read and process 1 event (8bytes) at a time */
-+			for (i = 0; i < FirstLeftEvent; i++) {
-+				regAdd = 0x85;
-+				if (ftk_read_reg(ftkts, &regAdd, 1, data,
-+						 8) == 0)
-+					FirstLeftEvent = decode_data_packet(
-+						ftkts, data, 1);
-+			}
-+		}
-+	}
-+
-+	if (!ftkts->irq)
-+		hrtimer_start(&ftkts->timer, ktime_set(0, 10000000),
-+			      HRTIMER_MODE_REL);
-+	else
-+		enable_irq(ftkts->client->irq);
-+}
-+
-+
-+static int stm_ts_probe(struct i2c_client *client,
-+			const struct i2c_device_id *idp)
-+{
-+	struct ftk_ts *ftk_ts = NULL;
-+	struct ftk_i2c_platform_data *pdata;
-+	int ret = 0;
-+	int err = 0;
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		dev_err(ftk_ts->dev, "err = EIO!\n");
-+		err = EIO;
-+		goto fail;
-+	}
-+
-+	ftk_ts = kzalloc(sizeof(struct ftk_ts), GFP_KERNEL);
-+	if (!ftk_ts) {
-+		dev_err(ftk_ts->dev, "err = ENOMEM!\n");
-+		err = ENOMEM;
-+		goto fail;
-+	}
-+
-+	INIT_WORK(&ftk_ts->work, ts_tasklet_proc);
-+
-+	ftk_ts->client = client;
-+	i2c_set_clientdata(client, ftk_ts);
-+
-+	pdata = client->dev.platform_data;
-+
-+	if (pdata)
-+		ftk_ts->power = pdata->power;
-+
-+	if (ftk_ts->power) {
-+		ret = ftk_ts->power(1);
-+
-+		pdata->power(1);
-+
-+		if (ret < 0) {
-+			pr_err("ftk_probe power on failed\n");
-+			goto fail;
-+		}
-+	}
-+
-+	ftk_ts->dev = &ftk_ts->client->dev;
-+	ftk_ts->input_dev = input_allocate_device();
-+	ftk_ts->input_dev->dev.parent = &client->dev;
-+	if (!ftk_ts->input_dev) {
-+		dev_err(ftk_ts->dev, "err = ENOMEM!\n");
-+		err = ENOMEM;
-+		goto fail;
-+	}
-+	ftk_ts->input_dev->name = "ftk";
-+	ftk_ts->input_dev->phys = "ftk/input0";
-+	ftk_ts->input_dev->id.bustype = BUS_I2C;
-+	ftk_ts->input_dev->id.vendor = 0x0001;
-+	ftk_ts->input_dev->id.product = 0x0002;
-+	ftk_ts->input_dev->id.version = 0x0100;
-+
-+	ftk_ts->input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	ftk_ts->input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+	set_bit(EV_SYN, ftk_ts->input_dev->evbit);
-+	set_bit(EV_KEY, ftk_ts->input_dev->evbit);
-+	set_bit(BTN_TOUCH, ftk_ts->input_dev->keybit);
-+	set_bit(BTN_2, ftk_ts->input_dev->keybit);
-+	set_bit(EV_ABS, ftk_ts->input_dev->evbit);
-+
-+	input_set_abs_params(ftk_ts->input_dev, ABS_X, X_AXIS_MIN, X_AXIS_MAX,
-+			     0, 0);
-+	input_set_abs_params(ftk_ts->input_dev, ABS_Y, Y_AXIS_MIN, Y_AXIS_MAX,
-+			     0, 0);
-+	input_set_abs_params(ftk_ts->input_dev, ABS_PRESSURE, PRESSURE_MIN,
-+			     PRESSURE_MAX, 0, 0);
-+	input_set_abs_params(ftk_ts->input_dev, ABS_MT_TRACKING_ID, 0, 10, 0,
-+			     0);
-+	input_set_abs_params(ftk_ts->input_dev, ABS_MT_TOUCH_MAJOR,
-+			     PRESSURE_MIN, PRESSURE_MAX, 0, 0);
-+	input_set_abs_params(ftk_ts->input_dev, ABS_MT_WIDTH_MAJOR,
-+			     PRESSURE_MIN, PRESSURE_MAX, 0, 0);
-+	input_set_abs_params(ftk_ts->input_dev, ABS_MT_POSITION_X, X_AXIS_MIN,
-+			     X_AXIS_MAX, 0, 0);
-+	input_set_abs_params(ftk_ts->input_dev, ABS_MT_POSITION_Y, Y_AXIS_MIN,
-+			     Y_AXIS_MAX, 0, 0);
-+
-+	err = input_register_device(ftk_ts->input_dev);
-+	if (err) {
-+		dev_err(ftk_ts->dev, "input_register_device fail!\n");
-+		goto fail;
-+	}
-+
-+	err = init_ftk(ftk_ts);
-+	if (err) {
-+		dev_err(ftk_ts->dev, "init_ftk  fail!\n");
-+		goto fail;
-+	}
-+
-+	ftk_ts->irq = client->irq;
-+
-+	if (!ftk_ts->irq) {
-+		hrtimer_init(&ftk_ts->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+		ftk_ts->timer.function = st_ts_timer_func;
-+		hrtimer_start(&ftk_ts->timer, ktime_set(1, 0),
-+			      HRTIMER_MODE_REL);
-+	} else {
-+		if (request_irq
-+			    (ftk_ts->irq, ts_interrupt, IRQF_TRIGGER_LOW,
-+			    client->name, ftk_ts)) {
-+			dev_err(ftk_ts->dev, "request_irq  fail!\n");
-+			err = -EBUSY;
-+			goto fail;
-+		} else
-+			dev_info(ftk_ts->dev, "request_irq  success!\n");
-+	}
-+
-+#ifdef CONFIG_HAS_EARLYSUSPEND
-+	ftk_ts->early_suspend.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN + 1;
-+	ftk_ts->early_suspend.suspend = stm_ts_early_suspend;
-+	ftk_ts->early_suspend.resume = stm_ts_late_resume;
-+	register_early_suspend(&ftk_ts->early_suspend);
-+#endif
-+
-+	return 0;
-+fail:
-+	if (ftk_ts) {
-+		if (ftk_ts->input_dev)
-+			input_free_device(ftk_ts->input_dev);
-+		kfree(ftk_ts);
-+	}
-+	dev_info(ftk_ts->dev, "--ftkts_probe ret=%d\n", err);
-+	return err;
-+}
-+
-+
-+static int stm_ts_remove(struct i2c_client *client)
-+{
-+	struct ftk_ts *ts = i2c_get_clientdata(client);
-+
-+#ifdef CONFIG_HAS_EARLYSUSPEND
-+	unregister_early_suspend(&ts->early_suspend);
-+#endif
-+
-+	if (ts->irq)
-+		free_irq(client->irq, ts);
-+	else
-+		hrtimer_cancel(&ts->timer);
-+
-+	input_unregister_device(ts->input_dev);
-+	kfree(ts);
-+	return 0;
-+}
-+
-+
-+static int stm_ts_suspend(struct i2c_client *client, pm_message_t mesg)
-+{
-+	int ret, i;
-+	u8 regAdd[3];
-+
-+	struct ftk_ts *ts = i2c_get_clientdata(client);
-+
-+	if (ts->irq)
-+		disable_irq(client->irq);
-+	else
-+		hrtimer_cancel(&ts->timer);
-+
-+	ret = cancel_work_sync(&ts->work);
-+
-+	regAdd[0] = 0x80;
-+	regAdd[1] = 0x00;
-+	ret = ftk_write_reg(ts, &regAdd[0], 1);
-+	mdelay(5);
-+
-+	regAdd[0] = 0x88;
-+	regAdd[1] = 0x00;
-+	ret = ftk_write_reg(ts, &regAdd[0], 1);
-+	mdelay(5);
-+
-+	regAdd[0] = 0xB0;
-+	regAdd[1] = 0x06;
-+	regAdd[2] = 0x00;
-+	ret = ftk_write_reg(ts, &regAdd[0], 3);
-+	mdelay(5);
-+
-+	for (i = 0; i < 10; i++)
-+		ID_Indx[i] = 0;
-+
-+	input_mt_sync(ts->input_dev);
-+	input_sync(ts->input_dev);
-+
-+	if (ret < 0)
-+		dev_err(ts->dev, "stm_ts_suspend: i2c_smbus_write_byte_data failed\n");
-+
-+	return 0;
-+}
-+
-+
-+static int stm_ts_resume(struct i2c_client *client)
-+{
-+	int ret;
-+	u8 regAdd[3];
-+	struct ftk_ts *ts = i2c_get_clientdata(client);
-+
-+	if (ts->irq)
-+		enable_irq(client->irq);
-+	else
-+		hrtimer_start(&ts->timer, ktime_set(1, 0), HRTIMER_MODE_REL);
-+
-+	regAdd[0] = 0x81;
-+	regAdd[1] = 0x00;
-+	ret = ftk_write_reg(ts, &regAdd[0], 1);
-+	mdelay(5);
-+
-+	regAdd[0] = 0xB0;
-+	regAdd[1] = 0x06;
-+	regAdd[2] = 0x40;
-+	ret = ftk_write_reg(ts, &regAdd[0], 3);
-+	mdelay(5);
-+
-+	if (ret < 0)
-+		dev_err(ts->dev,
-+		       "stm_ts_suspend: i2c_smbus_write_byte_data failed\n");
-+
-+	return 0;
-+}
-+
-+
-+#ifdef CONFIG_HAS_EARLYSUSPEND
-+static void stm_ts_early_suspend(struct early_suspend *h)
-+{
-+	struct ftk_ts *ts;
-+
-+	ts = container_of(h, struct ftk_ts, early_suspend);
-+	stm_ts_suspend(ts->client, PMSG_SUSPEND);
-+}
-+
-+
-+static void stm_ts_late_resume(struct early_suspend *h)
-+{
-+	struct ftk_ts *ts;
-+
-+	ts = container_of(h, struct ftk_ts, early_suspend);
-+	stm_ts_resume(ts->client);
-+}
-+
-+
-+#endif
-+
-+static const struct i2c_device_id stm_ts_id[] = {
-+	{ "ftk", 0 },
-+	{}
-+};
-+
-+static struct i2c_driver stm_ts_driver = {
-+	.driver		= {
-+		.name	= "ftk",
-+	},
-+	.probe		= stm_ts_probe,
-+	.remove		= stm_ts_remove,
-+#ifndef CONFIG_HAS_EARLYSUSPEND
-+	.suspend	= stm_ts_suspend,
-+	.resume		= stm_ts_resume,
-+#endif
-+	.id_table	= stm_ts_id,
-+};
-+
-+static int __init stm_ts_init(void)
-+{
-+	stmtouch_wq = create_singlethread_workqueue("stmtouch_wq");
-+	if (!stmtouch_wq)
-+		return -ENOMEM;
-+
-+	return i2c_add_driver(&stm_ts_driver);
-+}
-+
-+
-+static void __exit stm_ts_exit(void)
-+{
-+	i2c_del_driver(&stm_ts_driver);
-+	if (stmtouch_wq)
-+		destroy_workqueue(stmtouch_wq);
-+}
-+
-+
-+MODULE_DESCRIPTION("STM MultiTouch IC Driver");
-+MODULE_AUTHOR("Li Wu <li.wu@st.com>");
-+MODULE_LICENSE("GPL");
-+
-+module_init(stm_ts_init);
-+module_exit(stm_ts_exit);
+Looks much better. I still have several random comments which you may
+be interested in.
+
+> (...)
+> diff --git a/drivers/hid/i2c-hid/Kconfig b/drivers/hid/i2c-hid/Kconfig
+> new file mode 100644
+> index 0000000..5b7d4d8
+> --- /dev/null
+> +++ b/drivers/hid/i2c-hid/Kconfig
+> @@ -0,0 +1,21 @@
+> +menu "I2C HID support"
+> +	depends on I2C
+> +
+> +config I2C_HID
+> +	tristate "HID over I2C transport layer"
+> +	default n
+> +	depends on I2C && INPUT
+> +	select HID
+> +	---help---
+> +	  Say Y here if you want to use the HID over i2c protocol
+> +	  implementation.
+
+
+s/i2c/I2C/
+
+The USB equivalent lists a number of examples, maybe you could do the
+same here so that the reader knows if he/she needs this driver.
+
+> +
+> +	  If unsure, say N.
+> +
+> +	  This support is also available as a module.  If so, the module
+> +	  will be called i2c-hid.
+> +
+> +comment "Input core support is needed for HID over I2C input layer"
+> +	depends on I2C_HID && INPUT=n
+
+Given that the HID menu itself depends on INPUT, I fail to see how this
+comment would ever be displayed. Same question holds for the USB
+equivalent.
+
+> +
+> +endmenu
+> (...)
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> new file mode 100644
+> index 0000000..11140bd
+> --- /dev/null
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> (...)
+> +/* flags */
+> +#define I2C_HID_STARTED		(1 << 0)
+> +#define I2C_HID_RESET_PENDING	(1 << 1)
+> +#define I2C_HID_READ_PENDING	(1 << 2)
+> +
+> +#define I2C_HID_PWR_ON		0x00
+> +#define I2C_HID_PWR_SLEEP	0x01
+> +
+> +/* debug option */
+> +static bool debug = false;
+
+Whether you like it or not, that's still an error for checkpatch:
+ERROR: do not initialise statics to 0 or NULL
+#240: FILE: drivers/hid/i2c-hid/i2c-hid.c:49:
++static bool debug = false;
+
+The rationale is that the compiler can write more efficient code if
+initializations to 0 or NULL are implicit.
+
+> +module_param(debug, bool, 0444);
+> +MODULE_PARM_DESC(debug, "print a lot of debug information");
+> +
+> +#define i2c_hid_dbg(ihid, fmt, arg...)	\
+> +	if (debug)			\
+> +		dev_printk(KERN_DEBUG, &(ihid)->client->dev, fmt, ##arg)
+
+This is considered an error by checkpatch too:
+ERROR: Macros with complex values should be enclosed in parenthesis
+#244: FILE: drivers/hid/i2c-hid/i2c-hid.c:53:
++#define i2c_hid_dbg(ihid, fmt, arg...)	\
++	if (debug)			\
++		dev_printk(KERN_DEBUG, &(ihid)->client->dev, fmt, ##arg)
+
+And I wouldn't disagree, as the construct above can lead to bugs which
+are hard to see... Consider the following piece of code:
+
+	if (condition)
+		i2c_hid_dbg(ihid, "Blah blah %d\n", i);
+	else
+		do_something_very_important();
+
+It looks correct, however with the macro definition above, this expands
+to the unexpected:
+
+	if (condition) {
+		if (debug)			\
+			dev_printk(KERN_DEBUG, &ihid->client->dev,
+				   "Blah blah %d\n", i);
+		else
+			do_something_very_important();
+	}
+
+That is, the condition to call do_something_very_important() is
+condition && !debug, and not !condition as the code suggests. This is
+only an example and your driver doesn't currently use any such
+construct. Still I believe this should be fixed.
+
+> (...)
+> +#define I2C_HID_CMD(opcode_) \
+> +	.opcode = opcode_, .length = 4, \
+> +	.registerIndex = offsetof(struct i2c_hid_desc, wCommandRegister)
+> +
+> +/* fetch HID descriptor */
+> +static const struct i2c_hid_cmd hid_descr_cmd = { .length = 2 };
+> +/* fetch report descriptors */
+> +static const struct i2c_hid_cmd hid_report_descr_cmd = {
+> +		.registerIndex = offsetof(struct i2c_hid_desc,
+> +			wReportDescRegister),
+> +		.opcode = 0x00,
+> +		.length = 2 };
+> +/* commands */
+> +static const struct i2c_hid_cmd hid_reset_cmd =		{ I2C_HID_CMD(0x01),
+> +							  .wait = true };
+> +static const struct i2c_hid_cmd hid_get_report_cmd =	{ I2C_HID_CMD(0x02) };
+> +static const struct i2c_hid_cmd hid_set_report_cmd =	{ I2C_HID_CMD(0x03) };
+> +static const struct i2c_hid_cmd hid_get_idle_cmd =	{ I2C_HID_CMD(0x04) };
+> +static const struct i2c_hid_cmd hid_set_idle_cmd =	{ I2C_HID_CMD(0x05) };
+> +static const struct i2c_hid_cmd hid_get_protocol_cmd =	{ I2C_HID_CMD(0x06) };
+> +static const struct i2c_hid_cmd hid_set_protocol_cmd =	{ I2C_HID_CMD(0x07) };
+
+The previous four are never used.
+
+> +static const struct i2c_hid_cmd hid_set_power_cmd =	{ I2C_HID_CMD(0x08) };
+> +/* read/write data register */
+> +static const struct i2c_hid_cmd hid_data_cmd = {
+> +		.registerIndex = offsetof(struct i2c_hid_desc, wDataRegister),
+> +		.opcode = 0x00,
+> +		.length = 2 };
+> +/* write output reports */
+> +static const struct i2c_hid_cmd hid_out_cmd = {
+> +		.registerIndex = offsetof(struct i2c_hid_desc,
+> +			wOutputRegister),
+> +		.opcode = 0x00,
+> +		.length = 2 };
+
+These two are never used either.
+
+> (...)
+> +static int i2c_hid_get_report(struct i2c_client *client, u8 reportType,
+> +		u8 reportID, unsigned char *buf_recv, int data_len)
+> +{
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	u8 args[3];
+> +	int ret;
+> +	int args_len = 0;
+> +	u16 readRegister = le16_to_cpu(ihid->hdesc.wDataRegister);
+> +
+> +	i2c_hid_dbg(ihid, "%s\n", __func__);
+> +
+> +	if (reportID >= 0x0F) {
+> +		args[args_len++] = reportID;
+> +		reportID = 0x0F;
+> +	}
+> +
+> +	args[args_len++] = readRegister & 0xFF;
+> +	args[args_len++] = readRegister >> 8;
+> +
+> +	ret = __i2c_hid_command(client, &hid_get_report_cmd, reportID,
+> +		reportType, args, args_len, buf_recv, data_len);
+> +	if (ret) {
+> +		dev_err(&client->dev,
+> +			"failed to retrieve report from device.\n");
+> +		return -EINVAL;
+
+Why don't you pass the error value from __i2c_hid_command to the
+caller? -EINVAL is for invalid input parameters, which isn't the case
+here.
+
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
+> +		u8 reportID, unsigned char *buf, size_t data_len)
+> +{
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	u8 *args = ihid->argsbuf;
+> +	int ret;
+> +	u16 dataRegister = le16_to_cpu(ihid->hdesc.wDataRegister);
+> +
+> +	/* hidraw already checked that data_len < HID_MAX_BUFFER_SIZE */
+> +	u16 size =	2			/* size */ +
+> +			(reportID ? 1 : 0)	/* reportID */ +
+> +			data_len		/* buf */;
+> +	int args_len =	(reportID >= 0x0F ? 1 : 0) /* optional third byte */ +
+> +			2			/* dataRegister */ +
+> +			size			/* args */;
+> +	int index = 0;
+> +
+> +	i2c_hid_dbg(ihid, "%s\n", __func__);
+> +
+> +	if (reportID >= 0x0F) {
+> +		args[index++] = reportID;
+> +		reportID = 0x0F;
+> +	}
+> +
+> +	args[index++] = dataRegister & 0xFF;
+> +	args[index++] = dataRegister >> 8;
+> +
+> +	args[index++] = size & 0xFF;
+> +	args[index++] = size >> 8;
+> +
+> +	if (reportID)
+> +		args[index++] = reportID;
+> +
+> +	memcpy(&args[index], buf, data_len);
+> +
+> +	ret = __i2c_hid_command(client, &hid_set_report_cmd, reportID,
+> +		reportType, args, args_len, NULL, 0);
+> +	if (ret) {
+> +		dev_err(&client->dev, "failed to set a report to device.\n");
+> +		return -EINVAL;
+
+Same here, returning "ret" would be more informative than hard-coding
+an arbitrary error code.
+
+> +	}
+> +
+> +	return data_len;
+> +}
+> + (...)
+> +static int i2c_hid_get_input(struct i2c_hid *ihid)
+
+The caller never checks the return value. If there is nothing useful
+the caller can do with the value then you should consider making
+i2c_hid_get_input return void.
+
+> +{
+> +	int ret, ret_size;
+> +	int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
+> +
+> +	ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
+> +	if (ret != size) {
+> +		if (ret < 0)
+> +			return ret;
+> +
+> +		dev_err(&ihid->client->dev, "%s: got %d data instead of %d\n",
+> +			__func__, ret, size);
+> +		return ret;
+
+If you don't change this function to return void, you should return
+-Esomething instead of ret here, so that the caller doesn't get an
+unexpected positive number.
+
+> +	}
+> +
+> +	ret_size = ihid->inbuf[0] | ihid->inbuf[1] << 8;
+> +
+> +	if (!ret_size) {
+> +		/* host or device initiated RESET completed */
+> +		if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
+> +			wake_up(&ihid->wait);
+> +		return 0;
+> +	}
+> +
+> +	if (ret_size > size) {
+> +		dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
+> +			__func__, size, ret_size);
+> +		return -EIO;
+> +	}
+> +
+> +	i2c_hid_dbg(ihid, "input: %*ph\n", ret_size, ihid->inbuf);
+> +
+> +	if (test_bit(I2C_HID_STARTED, &ihid->flags))
+> +		hid_input_report(ihid->hid, HID_INPUT_REPORT, ihid->inbuf + 2,
+> +				ret_size - 2, 1);
+> +
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t i2c_hid_irq(int irq, void *dev_id)
+> +{
+> +	struct i2c_hid *ihid = dev_id;
+> +
+> +	if (test_bit(I2C_HID_READ_PENDING, &ihid->flags))
+> +		return IRQ_HANDLED;
+> +
+> +	i2c_hid_get_input(ihid);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> + (...)
+> +static void i2c_hid_init_report(struct hid_report *report, u8 *buffer,
+> +	size_t bufsize)
+> +{
+> +	struct hid_device *hid = report->device;
+> +	struct i2c_client *client = hid->driver_data;
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	unsigned int size, ret_size;
+> +
+> +	size = i2c_hid_get_report_length(report);
+> +	i2c_hid_get_report(client,
+> +			report->type == HID_FEATURE_REPORT ? 0x03 : 0x01,
+> +			report->id, buffer, size);
+
+This can fail.
+
+> +
+> +	i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, ihid->inbuf);
+> +
+> +	ret_size = buffer[0] | (buffer[1] << 8);
+> +
+> +	if (ret_size != size) {
+> +		dev_err(&client->dev, "error in %s size:%d / ret_size:%d\n",
+> +			__func__, size, ret_size);
+> +		return;
+> +	}
+> +
+> +	/* hid->driver_lock is held as we are in probe function,
+> +	 * we just need to setup the input fields, so using
+> +	 * hid_report_raw_event is safe. */
+> +	hid_report_raw_event(hid, report->type, buffer + 2, size - 2, 1);
+> +}
+> +
+> +/*
+> + * Initialize all reports
+> + */
+> +static void i2c_hid_init_reports(struct hid_device *hid)
+> +{
+> +	struct hid_report *report;
+> +	struct i2c_client *client = hid->driver_data;
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	u8 *inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+> +
+> +	if (!inbuf)
+> +		return;
+
+No error logged, no error reported to the caller?
+
+> +
+> +	list_for_each_entry(report,
+> +		&hid->report_enum[HID_INPUT_REPORT].report_list, list)
+> +		i2c_hid_init_report(report, inbuf, ihid->bufsize);
+> +
+> +	list_for_each_entry(report,
+> +		&hid->report_enum[HID_FEATURE_REPORT].report_list, list)
+> +		i2c_hid_init_report(report, inbuf, ihid->bufsize);
+> +
+> +	kfree(inbuf);
+> +}
+> (...)
+> +static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
+> +{
+> +	/* the worst case is computed from the set_report command with a
+> +	 * reportID > 15 and the maximum report length */
+> +	int args_len = sizeof(__u8) + /* optional ReportID byte */
+> +		       sizeof(__u16) + /* data register */
+> +		       sizeof(__u16) + /* size of the report */
+> +		       ihid->bufsize; /* report */
+> +
+> +	ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+> +
+> +	if (!ihid->inbuf)
+> +		return -ENOMEM;
+> +
+> +	ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
+> +
+> +	if (!ihid->argsbuf) {
+> +		kfree(ihid->inbuf);
+
+If it is important to set ihid->inbuf and ihid->argsbuf back to NULL in
+the error path below, then I suppose it is equally important to set
+ihid->inbuf back to NULL here. BTW, I would like to suggest an easier
+and more efficient way to handle this, see below.
+
+> +		return -ENOMEM;
+> +	}
+> +
+> +	ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
+> +
+> +	if (!ihid->cmdbuf) {
+> +		kfree(ihid->inbuf);
+> +		kfree(ihid->argsbuf);
+> +		ihid->inbuf = NULL;
+> +		ihid->argsbuf = NULL;
+> +		return -ENOMEM;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+
+With proper function ordering, the above could be simplified to:
+
+static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
+{
+	/* the worst case is computed from the set_report command with a
+	 * reportID > 15 and the maximum report length */
+	int args_len = sizeof(__u8) + /* optional ReportID byte */
+		       sizeof(__u16) + /* data register */
+		       sizeof(__u16) + /* size of the report */
+		       ihid->bufsize; /* report */
+
+	ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+	ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
+	ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
+
+	if (!ihid->inbuf || !ihid->argsbuf || !ihid->cmdbuf) {
+		i2c_hid_free_buffers(hid);
+		return -ENOMEM;
+	}
+
+	return 0;
+}
+
+> +static void i2c_hid_free_buffers(struct i2c_hid *ihid)
+> +{
+> +	kfree(ihid->inbuf);
+> +	kfree(ihid->argsbuf);
+> +	kfree(ihid->cmdbuf);
+> +	ihid->inbuf = NULL;
+> +	ihid->cmdbuf = NULL;
+> +	ihid->argsbuf = NULL;
+> +}
+> +
+> +static int i2c_hid_get_raw_report(struct hid_device *hid,
+> +		unsigned char report_number, __u8 *buf, size_t count,
+> +		unsigned char report_type)
+> +{
+> +	struct i2c_client *client = hid->driver_data;
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	int ret;
+> +
+> +	if (report_type == HID_OUTPUT_REPORT)
+> +		return -EINVAL;
+> +
+> +	if (count > ihid->bufsize)
+> +		count = ihid->bufsize;
+> +
+> +	ret = i2c_hid_get_report(client,
+> +			report_type == HID_FEATURE_REPORT ? 0x03 : 0x01,
+> +			report_number, ihid->inbuf, count);
+> +
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
+> +
+> +	memcpy(buf, ihid->inbuf + 2, count);
+
+What guarantee do you have that count is not larger than buf's length?
+I hope you don't just count on all hardware out there being nice and
+sane, do you? ;)
+
+> +
+> +	return count;
+> +}
+> + (...)
+> +static int i2c_hid_parse(struct hid_device *hid)
+> +{
+> +	struct i2c_client *client = hid->driver_data;
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	struct i2c_hid_desc *hdesc = &ihid->hdesc;
+> +	unsigned int rsize;
+> +	char *rdesc;
+> +	int ret;
+> +	int tries = 3;
+> +
+> +	i2c_hid_dbg(ihid, "entering %s\n", __func__);
+> +
+> +	rsize = le16_to_cpu(hdesc->wReportDescLength);
+> +	if (!rsize || rsize > HID_MAX_DESCRIPTOR_SIZE) {
+> +		dbg_hid("weird size of report descriptor (%u)\n", rsize);
+> +		return -EINVAL;
+> +	}
+> +
+> +	do {
+> +		ret = i2c_hid_hwreset(client);
+> +		if (ret)
+> +			msleep(1000);
+> +	} while (tries-- > 0 && ret);
+> +
+> +	if (ret)
+> +		return ret;
+> +
+> +	rdesc = kzalloc(rsize, GFP_KERNEL);
+> +
+> +	if (!rdesc) {
+> +		dbg_hid("couldn't allocate rdesc memory\n");
+
+hid_err() would suit better IMHO.
+
+> +		return -ENOMEM;
+> +	}
+> +
+> +	i2c_hid_dbg(ihid, "asking HID report descriptor\n");
+> +
+> +	ret = i2c_hid_command(client, &hid_report_descr_cmd, rdesc, rsize);
+> +	if (ret) {
+> +		hid_err(hid, "reading report descriptor failed\n");
+> +		kfree(rdesc);
+> +		return -EIO;
+> +	}
+> +
+> +	i2c_hid_dbg(ihid, "Report Descriptor: %*ph\n", rsize, rdesc);
+> +
+> +	ret = hid_parse_report(hid, rdesc, rsize);
+> +	kfree(rdesc);
+> +	if (ret) {
+> +		dbg_hid("parsing report descriptor failed\n");
+
+Here too, if this is an unexpected event hid_warn() or hid_err() would
+be better.
+
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int i2c_hid_start(struct hid_device *hid)
+> +{
+> +	struct i2c_client *client = hid->driver_data;
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	int ret;
+> +	int old_bufsize = ihid->bufsize;
+> +
+> +	ihid->bufsize = HID_MIN_BUFFER_SIZE;
+> +	i2c_hid_find_max_report(hid, HID_INPUT_REPORT, &ihid->bufsize);
+> +	i2c_hid_find_max_report(hid, HID_OUTPUT_REPORT, &ihid->bufsize);
+> +	i2c_hid_find_max_report(hid, HID_FEATURE_REPORT, &ihid->bufsize);
+> +
+> +	if (ihid->bufsize > old_bufsize || !ihid->inbuf || !ihid->cmdbuf) {
+
+I don't quite get this condition. As far as I can see, either all 3
+buffers are allocated, or none is. A single test should tell you. If
+you set ihid->bufsize to 0 on memory allocation failure, testing for
+ihid->bufsize > old_bufsize should be sufficient.
+
+> +		i2c_hid_free_buffers(ihid);
+> +
+> +		ret = i2c_hid_alloc_buffers(ihid);
+> +
+> +		if (ret) {
+> +			ihid->bufsize = old_bufsize;
+
+Not really... If we fail here, this means that all 3 buffers have been
+freed, so ihid->bufsize is more like 0.
+
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	if (!(hid->quirks & HID_QUIRK_NO_INIT_REPORTS))
+> +		i2c_hid_init_reports(hid);
+> +
+> +	return 0;
+> +}
+> +
+> +static void i2c_hid_stop(struct hid_device *hid)
+> +{
+> +	struct i2c_client *client = hid->driver_data;
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +
+> +	hid->claimed = 0;
+> +
+> +	i2c_hid_free_buffers(ihid);
+> +}
+> +
+> +static int i2c_hid_open(struct hid_device *hid)
+> +{
+> +	struct i2c_client *client = hid->driver_data;
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	int ret;
+> +
+> +	if (!hid->open++) {
+
+This looks racy. The usbhid driver protects hid->open with a mutex and
+I suspect you should do the same.
+
+> +		ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
+> +		if (ret) {
+> +			hid->open--;
+> +			return -EIO;
+> +		}
+> +		set_bit(I2C_HID_STARTED, &ihid->flags);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static void i2c_hid_close(struct hid_device *hid)
+> +{
+> +	struct i2c_client *client = hid->driver_data;
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +
+> +	/* protecting hid->open to make sure we don't restart
+> +	 * data acquistion due to a resumption we no longer
+> +	 * care about
+> +	 */
+> +	if (!--hid->open) {
+> +		clear_bit(I2C_HID_STARTED, &ihid->flags);
+> +
+> +		/* Save some power */
+> +		i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+> +	}
+> +}
+> (...)
+> +static int i2c_hid_hidinput_input_event(struct input_dev *dev,
+> +		unsigned int type, unsigned int code, int value)
+> +{
+> +	struct hid_device *hid = input_get_drvdata(dev);
+> +	struct hid_field *field;
+> +	int offset;
+> +
+> +	if (type == EV_FF)
+> +		return input_ff_event(dev, type, code, value);
+> +
+> +	if (type != EV_LED)
+> +		return -1;
+> +
+> +	offset = hidinput_find_field(hid, type, code, &field);
+> +
+> +	if (offset == -1) {
+> +		hid_warn(dev, "event field not found\n");
+> +		return -1;
+> +	}
+> +
+> +	hid_set_field(field, offset, value);
+> +
+> +	return 0;
+
+hid_set_field() can fail, so maybe
+
+	return hid_set_field(field, offset, value);
+
+> +}
+> + (...)
+> +static int __devinit i2c_hid_init_irq(struct i2c_client *client)
+> +{
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	int ret;
+> +
+> +	dev_dbg(&client->dev, "Requesting IRQ: %d\n", client->irq);
+> +
+> +	ret = request_threaded_irq(client->irq, NULL, i2c_hid_irq,
+> +			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> +			client->name, ihid);
+> +	if (ret < 0) {
+> +		dev_dbg(&client->dev,
+> +			"Could not register for %s interrupt, irq = %d,"
+> +			" ret = %d\n",
+> +		client->name, client->irq, ret);
+
+dev_warn()? Indentation is broken too.
+
+> +
+> +		return ret;
+> +	}
+> +
+> +	ihid->irq = client->irq;
+
+I don't think you need this. Everywhere you use ihid->irq, you have
+client at hand so you could as well use client->irq. This would avoid
+inconsistencies like free_irq(ihid->irq, ihid) in probing error path
+vs. free_irq(client->irq, ihid) in removal path, or
+enable_irq_wake(ihid->irq) vs. disable_irq_wake(client->irq) in
+suspend/resume.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devinit i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+> +{
+> +	struct i2c_client *client = ihid->client;
+> +	struct i2c_hid_desc *hdesc = &ihid->hdesc;
+> +	unsigned int dsize;
+> +	int ret;
+> +
+> +	/* Fetch the length of HID description, retrieve the 4 first bytes:
+> +	 * bytes 0-1 -> length
+> +	 * bytes 2-3 -> bcdVersion (has to be 1.00) */
+> +	ret = i2c_hid_command(client, &hid_descr_cmd, ihid->hdesc_buffer, 4);
+> +
+> +	i2c_hid_dbg(ihid, "%s, ihid->hdesc_buffer: %*ph\n",
+> +			__func__, 4, ihid->hdesc_buffer);
+> +
+> +	if (ret) {
+> +		dev_err(&client->dev, "HID_DESCR_LENGTH_CMD Fail (ret=%d)\n",
+> +			ret);
+
+This message is a little confusing as HID_DESCR_LENGTH_CMD no longer
+exists.
+
+> +		return -ENODEV;
+> +	}
+> +
+> +	dsize = le16_to_cpu(hdesc->wHIDDescLength);
+> +	if (!dsize || dsize > HID_MAX_DESCRIPTOR_SIZE) {
+> +		dev_err(&client->dev, "weird size of HID descriptor (%u)\n",
+> +			dsize);
+> +		return -ENODEV;
+> +	}
+> +
+> +	/* check bcdVersion == 1.0 */
+> +	if (le16_to_cpu(hdesc->bcdVersion) != 0x0100) {
+> +		dev_err(&client->dev,
+> +			"unexpected HID descriptor bcdVersion (0x%04x)\n",
+
+Should be 0x%04hx.
+
+> +			le16_to_cpu(hdesc->bcdVersion));
+> +		return -ENODEV;
+> +	}
+> +
+> +	i2c_hid_dbg(ihid, "Fetching the HID descriptor\n");
+> +
+> +	ret = i2c_hid_command(client, &hid_descr_cmd, ihid->hdesc_buffer,
+> +				dsize);
+> +	if (ret) {
+> +		dev_err(&client->dev, "hid_descr_cmd Fail\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	i2c_hid_dbg(ihid, "HID Descriptor: %*ph\n", dsize, ihid->hdesc_buffer);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devinit i2c_hid_probe(struct i2c_client *client,
+> +		const struct i2c_device_id *dev_id)
+> +{
+> +	int ret;
+> +	struct i2c_hid *ihid;
+> +	struct hid_device *hid;
+> +	__u16 hidRegister;
+> +	struct i2c_hid_platform_data *platform_data = client->dev.platform_data;
+> +
+> +	dbg_hid("HID probe called for i2c 0x%02x\n", client->addr);
+> +
+> +	if (!platform_data) {
+> +		dev_err(&client->dev, "HID register address not provided\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!client->irq) {
+> +		dev_err(&client->dev,
+> +			"HID over i2c has not been provided an Int IRQ\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	ihid = kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
+> +	if (!ihid)
+> +		return -ENOMEM;
+> +
+> +	i2c_set_clientdata(client, ihid);
+> +
+> +	ihid->client = client;
+> +
+> +	hidRegister = platform_data->hid_descriptor_address;
+> +	ihid->wHIDDescRegister = cpu_to_le16(hidRegister);
+> +
+> +	init_waitqueue_head(&ihid->wait);
+> +
+> +	/* we need to allocate the command buffer without knowing the maximum
+> +	 * size of the reports. Let's use HID_MIN_BUFFER_SIZE, then we do the
+> +	 * real computation later. */
+> +	ihid->bufsize = HID_MIN_BUFFER_SIZE;
+> +	i2c_hid_alloc_buffers(ihid);
+
+This could fail, yet you don't check for an error.
+
+> +
+> +	ret = i2c_hid_fetch_hid_descriptor(ihid);
+> +	if (ret < 0)
+> +		goto err;
+> +
+> +	ret = i2c_hid_init_irq(client);
+> +	if (ret < 0)
+> +		goto err;
+> +
+> +	hid = hid_allocate_device();
+> +	if (IS_ERR(hid)) {
+> +		ret = PTR_ERR(hid);
+> +		goto err;
+> +	}
+> +
+> +	ihid->hid = hid;
+> +
+> +	hid->driver_data = client;
+> +	hid->ll_driver = &i2c_hid_ll_driver;
+> +	hid->hid_get_raw_report = i2c_hid_get_raw_report;
+> +	hid->hid_output_raw_report = i2c_hid_output_raw_report;
+> +	hid->dev.parent = &client->dev;
+> +	hid->bus = BUS_I2C;
+> +	hid->version = le16_to_cpu(ihid->hdesc.bcdVersion);
+> +	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
+> +	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+> +
+> +	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
+
+Should be %04hX:%04hX.
+
+> +		 client->name, hid->vendor, hid->product);
+> +
+> +	ret = hid_add_device(hid);
+> +	if (ret) {
+> +		if (ret != -ENODEV)
+> +			hid_err(client, "can't add hid device: %d\n", ret);
+> +		goto err_mem_free;
+> +	}
+> +
+> +	return 0;
+> +
+> +err_mem_free:
+> +	hid_destroy_device(hid);
+> +
+> +err:
+> +	if (ihid->irq)
+> +		free_irq(ihid->irq, ihid);
+> +
+> +	kfree(ihid);
+> +	return ret;
+> +}
+> +
+> +static int __devexit i2c_hid_remove(struct i2c_client *client)
+> +{
+> +	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> +	struct hid_device *hid;
+> +
+> +	if (WARN_ON(!ihid))
+> +		return -1;
+
+This just can't happen...?
+
+> +
+> +	hid = ihid->hid;
+> +	hid_destroy_device(hid);
+> +
+> +	free_irq(client->irq, ihid);
+> +
+
+Is there any guarantee that i2c_hid_stop() has been called before
+i2c_hid_remove() is? If not, you're missing a call to
+i2c_hid_free_buffers() here. BTW I'm not quite sure why
+i2c_hid_remove() frees the buffers in the first place, but then again I
+don't know a thing about the HID infrastructure.
+
+> +	kfree(ihid);
+> +
+> +	return 0;
+> +}
+> +(...)
+> +static const struct i2c_device_id i2c_hid_id_table[] = {
+> +	{ "i2c_hid", 0 },
+
+I am just realizing "i2c_hid" is a little redundant as an i2c device
+name. Can we make this just "hid"?
+
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(i2c, i2c_hid_id_table);
+
 -- 
-1.7.1
-
+Jean Delvare

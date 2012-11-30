@@ -1,53 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH RFC v2] input: Add new driver for GPIO beeper
-Date: Fri, 30 Nov 2012 00:36:13 -0800
-Message-ID: <20121130083613.GB27232@core.coreip.homeip.net>
+Date: Thu, 29 Nov 2012 22:28:15 -0800
+Message-ID: <20121130062815.GA27232@core.coreip.homeip.net>
 References: <1354210139-25374-1-git-send-email-shc_work@mail.ru>
- <20121130062815.GA27232@core.coreip.homeip.net>
- <1354257967.330947278@f93.mail.ru>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:47303 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755250Ab2K3IgR (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:58604 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755693Ab2K3G2V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Nov 2012 03:36:17 -0500
-Received: by mail-pb0-f46.google.com with SMTP id wy7so284426pbc.19
-        for <linux-input@vger.kernel.org>; Fri, 30 Nov 2012 00:36:16 -0800 (PST)
+	Fri, 30 Nov 2012 01:28:21 -0500
+Received: by mail-pa0-f46.google.com with SMTP id bh2so124219pad.19
+        for <linux-input@vger.kernel.org>; Thu, 29 Nov 2012 22:28:21 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1354257967.330947278@f93.mail.ru>
+In-Reply-To: <1354210139-25374-1-git-send-email-shc_work@mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Alexander Shiyan <shc_work@mail.ru>
 Cc: linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
+Hi Alexander,
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, Nov 29, 2012 at 09:28:59PM +0400, Alexander Shiyan wrote:
+> This patch adds a new driver for the beeper controlled via GPIO pin.
+> The driver does not depend on the architecture and is positioned as
+> a replacement for the specific drivers that are used for this function,
+> for example drivers/input/misc/ixp4xx-beeper.
+> Since this patch is RFC only, inline comments are welcome.
 
-On Fri, Nov 30, 2012 at 10:46:07AM +0400, Alexander Shiyan wrote:
-> ...
-> > I think the driver should look like in the patch below. Can you please
-> > tell me if it works for you?
-> ...
-> 
-> Can you please send me patch as attachment?
-> 
+Your signed-off-by is missing...
 
-Sure, however do you know that if you were to simply save the original
-email and fed it to "patch" command it would pick up the diff and apply
-it?
+> +
+> +static int gpio_beeper_event(struct input_dev *dev, unsigned int type,
+> +			     unsigned int code, int value)
+> +{
+> +	struct gpio_beeper_priv *s = input_get_drvdata(dev);
+> +
+> +	if ((type != EV_SND) || (code != SND_BELL))
+> +		return -ENOTSUPP;
+> +
+> +	if (value < 0)
+> +		return -EINVAL;
+> +
+> +	if (!value)
+> +		value = 1000;
+> +
+> +	/* Turning beeper ON */
+> +	gpio_beeper_change(s, 1);
 
-Thanks.
+You are running under spinlock, you can't touch GPIO here using
+"cansleep" operations.
+
+> +	/* Schedule work for turning OFF */
+> +	mod_delayed_work(system_wq, &s->work, msecs_to_jiffies(value));
+> +
+
+This is incorrect. The "value" here is pitch, not the duration of sound.
+The callers are responsible to shut off the sound. The difference
+between SND_BELL and SND_TONE is that latter allows controlling pitch
+while the former uses driver- and platform-specific pitch.
+
+I think the driver should look like in the patch below. Can you please
+tell me if it works for you?
+
+Thanks!
 
 -- 
 Dmitry
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="input-add-new-driver-for-gpio-beeper.patch"
 
 Input: Add new driver for GPIO beeper
 
@@ -283,9 +304,7 @@ index 0000000..9eb4362
 +struct gpio_beeper_pdata {
 +	const char	*name;		/* Name of device (Optional) */
 +	int		gpio_nr;	/* GPIO number */
-+	int		active_low:1;	/* Set if active level is LOW */
++	bool		active_low;	/* Set if active level is LOW */
 +};
 +
 +#endif
-
---tKW2IUtsqtDRztdT--

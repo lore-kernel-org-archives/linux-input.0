@@ -1,62 +1,99 @@
-From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
-Subject: =?UTF-8?B?UmVbMl06IFtQQVRDSCBSRkMgdjJdIGlucHV0OiBBZGQgbmV3IGRyaXZlciBm?=
- =?UTF-8?B?b3IgR1BJTyBiZWVwZXI=?=
-Date: Fri, 30 Nov 2012 21:03:57 +0400
-Message-ID: <1354295037.675775679@f186.mail.ru>
-References: <1354210139-25374-1-git-send-email-shc_work@mail.ru> <1354270680.610219472@f26.mail.ru> <20121130164435.GA28721@core.coreip.homeip.net>
-Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RFC v2] input: Add new driver for GPIO beeper
+Date: Fri, 30 Nov 2012 09:30:38 -0800
+Message-ID: <1536835.oRFxdYCaAT@dtor-d630.eng.vmware.com>
+References: <1354210139-25374-1-git-send-email-shc_work@mail.ru> <20121130164435.GA28721@core.coreip.homeip.net> <1354295037.675775679@f186.mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from f186.mail.ru ([217.69.129.199]:37031 "EHLO f186.mail.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031196Ab2K3REA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Nov 2012 12:04:00 -0500
-In-Reply-To: <20121130164435.GA28721@core.coreip.homeip.net>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:64504 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754143Ab2K3Rao (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Nov 2012 12:30:44 -0500
+Received: by mail-pa0-f46.google.com with SMTP id bh2so487949pad.19
+        for <linux-input@vger.kernel.org>; Fri, 30 Nov 2012 09:30:44 -0800 (PST)
+In-Reply-To: <1354295037.675775679@f186.mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, =?UTF-8?B?QXJuZCBCZXJnbWFubg==?= <arnd@arndb.de>
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
-Li4uCj4gT24gRnJpLCBOb3YgMzAsIDIwMTIgYXQgMDI6MTg6MDBQTSArMDQwMCwgQWxleGFuZGVy
-IFNoaXlhbiB3cm90ZToKPiA+ID4gT24gVGh1LCBOb3YgMjksIDIwMTIgYXQgMDk6Mjg6NTlQTSAr
-MDQwMCwgQWxleGFuZGVyIFNoaXlhbiB3cm90ZToKPiA+ID4gPiBUaGlzIHBhdGNoIGFkZHMgYSBu
-ZXcgZHJpdmVyIGZvciB0aGUgYmVlcGVyIGNvbnRyb2xsZWQgdmlhIEdQSU8gcGluLgo+ID4gPiA+
-IFRoZSBkcml2ZXIgZG9lcyBub3QgZGVwZW5kIG9uIHRoZSBhcmNoaXRlY3R1cmUgYW5kIGlzIHBv
-c2l0aW9uZWQgYXMKPiA+ID4gPiBhIHJlcGxhY2VtZW50IGZvciB0aGUgc3BlY2lmaWMgZHJpdmVy
-cyB0aGF0IGFyZSB1c2VkIGZvciB0aGlzIGZ1bmN0aW9uLAo+ID4gPiA+IGZvciBleGFtcGxlIGRy
-aXZlcnMvaW5wdXQvbWlzYy9peHA0eHgtYmVlcGVyLgouLi4KPiA+ID4gSSB0aGluayB0aGUgZHJp
-dmVyIHNob3VsZCBsb29rIGxpa2UgaW4gdGhlIHBhdGNoIGJlbG93LiBDYW4geW91IHBsZWFzZQo+
-ID4gPiB0ZWxsIG1lIGlmIGl0IHdvcmtzIGZvciB5b3U/Cj4gPiBXb3Jrcy4gVGhlIHRlc3Qgd2Fz
-IG9uIEFSTSBDTFBTNzExWCBib2FyZCB3aXRoIHRoZSBkcml2ZXIgaXMgY29tcGlsZWQKPiA+IGlu
-dG8gdGhlIGtlcm5lbCwgaWUgd2l0aG91dCBtb2R1bGVzLiBOb24tY3JpdGljYWwgY29tbWVudHMg
-aW5saW5lZC4KPiBFeGNlbGxlbnQsIHRoYW5rIHlvdS4KCj4gPiA+ICsJYmVlcGVyID0gZGV2bV9r
-emFsbG9jKCZwZGV2LT5kZXYsIHNpemVvZihzdHJ1Y3QgZ3Bpb19iZWVwZXIpLAo+ID4gPiArCQkJ
-CUdGUF9LRVJORUwpOwo+ID4gSSB3b3VsZCBwcmVmZXIgdG8gZG8gd2hlbiBtb3ZpbmcgcGFkZGlu
-ZyBvbiBicmFja2V0cy4KPiAKPiBJIGFtIG5vdCBzdXJlIHdoYXQgeW91IHdlcmUgdHJ5aW5nIHRv
-IHNheSBoZXJlLi4uIEFyZSB5b3Ugc2F5aW5nCj4gR0ZQX0tFUk5FTCBzaG91bGQgYmUgYWxpZ25l
-ZCB3aXRoIG9wZW5pbmcgcGFyZW50aGVzaXM/Clllcy4gIFRoaXMgbm90IGltcG9ydGFudCwgYnV0
-IGp1c3QgbG9va3MgYmV0dGVyLiAgOikKCj4gPiA+ICsJaW5wdXQgPSBkZXZtX2lucHV0X2FsbG9j
-YXRlX2RldmljZShkZXYpOwo+ID4gSSBhbSB0ZW1wb3JhdHkgcmVwbGFjZSB0aGlzIGZ1bmN0aW9u
-IHRvIGlucHV0X2FsbG9jYXRlX2RldmljZSgpIGJlY2F1c2UKPiA+IEkgYW0gdGVzdGVkIHRoaXMg
-ZHJpdmVyIG9uIDIuNi44Lgo+IAo+IFN1cmVseSBub3QgMi42PyBBbnl3YXkgZm9yIGRldm1faW5w
-dXRfYWxsb2NhdGVfZGV2aWNlKCkgc3VwcG9ydCB5b3UgbmVlZAo+IHRoZSBmb2xsb3dpbmcgY29t
-bWl0IGZyb20gbXkgJ25leHQnIGJyYW5jaCBpbgo+IGdpdDovL2dpdC5rZXJuZWwub3JnL3B1Yi9z
-Y20vbGludXgva2VybmVsL2dpdC9kdG9yL2lucHV0LmdpdApTb3JyeS4gT2YgY291cnNlIEkgbWVh
-bnQgMy42LjguCgo+ID4gPiArc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIgZ3Bpb19iZWVw
-ZXJfcGxhdGZvcm1fZHJpdmVyID0gewo+ID4gPiArCS5kcml2ZXIJPSB7Cj4gPiA+ICsJCS5uYW1l
-CT0gImdwaW8tYmVlcGVyIiwKPiA+ID4gKwkJLm93bmVyCT0gVEhJU19NT0RVTEUsCj4gPiA+ICsJ
-fSwKPiA+ID4gKwkucHJvYmUJCT0gZ3Bpb19iZWVwZXJfcHJvYmUsCj4gPiA+ICsJLnNodXRkb3du
-CT0gZ3Bpb19iZWVwZXJfc2h1dGRvd24sCj4gPiA+ICt9Owo+ID4gPiArbW9kdWxlX3BsYXRmb3Jt
-X2RyaXZlcihncGlvX2JlZXBlcl9wbGF0Zm9ybV9kcml2ZXIpOwo+ID4gTm8gInJlbW92ZSIgZnVu
-Y3Rpb24/Cj4gCj4gV2l0aCBhbGwgcmVzb3VyY2VzIGJlaW5nIGRldm1fKiBtYW5hZ2VkIChhbmQg
-c2h1dHRpZ24gb2ZmIGJlZXBlcgo+IGhhcHBlbmluZyBpbiBncGlvX2tleXNfY2xvc2UoKSkgdGhl
-IHJlbW92ZSBmdW5jdGlvbiB3b3VsZCBiZSBqdXN0IGFuCj4gZW1wdHkgc3R1Yi4gQXMgZmFyIGFz
-IEkgY2FuIHNlZSBwbGF0Zm9ybSBkZXZpY2VzIG5vdCBoYXZlIHRvIGhhdmUgYQo+IHJlbW92ZSBm
-dW5jdGlvbiwgYnV0IHRlc3RpbmcgdGhpcyBieSB1bmxvYWRpbmcgdGhlIGRyaXZlciBvciB1bmJp
-bmRpbmcKPiBpdCB2aWEgc3lzZnMgd291bGQgYmUgbmljZS4KVW5mb3J0dW5hdGVseSwgSSBhbSB1
-bmFibGUgdG8gY2hlY2sgaW4gYXMgYSBtb2R1bGUuCk90aGVyd2lzZSwgeW91J3JlIHJpZ2h0LCBi
-ZWNhdXNlIHRoZXJlIHdpbGwgYmUgbm8gaW5wdXRfdW5yZWdpc3Rlcl9kZXZpY2UsCndlIGNhbiBu
-b3QgdXNlIHRoZSAicmVtb3ZlIi4KCllvdSBjb21taXQgdGhlIHJlc3VsdD8gT3IgSSBzaG91bGQg
-cmVtYWRlIGNvbXBsZXRlIG5vbi1SRkMgcGF0Y2g/CgotLS0K
+On Friday, November 30, 2012 09:03:57 PM Alexander Shiyan wrote:
+> ...
+> 
+> > On Fri, Nov 30, 2012 at 02:18:00PM +0400, Alexander Shiyan wrote:
+> > > > On Thu, Nov 29, 2012 at 09:28:59PM +0400, Alexander Shiyan wrote:
+> > > > > This patch adds a new driver for the beeper controlled via GPIO pin.
+> > > > > The driver does not depend on the architecture and is positioned as
+> > > > > a replacement for the specific drivers that are used for this
+> > > > > function,
+> > > > > for example drivers/input/misc/ixp4xx-beeper.
+> 
+> ...
+> 
+> > > > I think the driver should look like in the patch below. Can you please
+> > > > tell me if it works for you?
+> > > 
+> > > Works. The test was on ARM CLPS711X board with the driver is compiled
+> > > into the kernel, ie without modules. Non-critical comments inlined.
+> > 
+> > Excellent, thank you.
+> > 
+> > > > +	beeper = devm_kzalloc(&pdev->dev, sizeof(struct gpio_beeper),
+> > > > +				GFP_KERNEL);
+> > > 
+> > > I would prefer to do when moving padding on brackets.
+> > 
+> > I am not sure what you were trying to say here... Are you saying
+> > GFP_KERNEL should be aligned with opening parenthesis?
+> 
+> Yes.  This not important, but just looks better.  :)
+> 
+> > > > +	input = devm_input_allocate_device(dev);
+> > > 
+> > > I am temporaty replace this function to input_allocate_device() because
+> > > I am tested this driver on 2.6.8.
+> > 
+> > Surely not 2.6? Anyway for devm_input_allocate_device() support you need
+> > the following commit from my 'next' branch in
+> > git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+> 
+> Sorry. Of course I meant 3.6.8.
+> 
+> > > > +static struct platform_driver gpio_beeper_platform_driver = {
+> > > > +	.driver	= {
+> > > > +		.name	= "gpio-beeper",
+> > > > +		.owner	= THIS_MODULE,
+> > > > +	},
+> > > > +	.probe		= gpio_beeper_probe,
+> > > > +	.shutdown	= gpio_beeper_shutdown,
+> > > > +};
+> > > > +module_platform_driver(gpio_beeper_platform_driver);
+> > > 
+> > > No "remove" function?
+> > 
+> > With all resources being devm_* managed (and shuttign off beeper
+> > happening in gpio_keys_close()) the remove function would be just an
+> > empty stub. As far as I can see platform devices not have to have a
+> > remove function, but testing this by unloading the driver or unbinding
+> > it via sysfs would be nice.
+> 
+> Unfortunately, I am unable to check in as a module.
+> Otherwise, you're right, because there will be no input_unregister_device,
+> we can not use the "remove".
+
+You can still use input_unregister_device() even if you used
+devm_input_allocate_device() to allocate it. But most often you do not
+have to, as with this driver.
+
+> 
+> You commit the result? Or I should remade complete non-RFC patch?
+
+I will commit, I just need your "Signed-off-by: ..." as you are the author.
+
+Thanks.
+
+-- 
+Dmitry

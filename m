@@ -1,106 +1,61 @@
 From: Andre Guedes <andre.guedes@openbossa.org>
-Subject: [RFC v2 1/4] HID: Add generic handler for LED input events
-Date: Sat,  1 Dec 2012 16:07:18 -0300
-Message-ID: <1354388841-23854-2-git-send-email-andre.guedes@openbossa.org>
-References: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
+Subject: [RFC v2 0/4] uhid LED input events handling
+Date: Sat,  1 Dec 2012 16:07:17 -0300
+Message-ID: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f46.google.com ([209.85.212.46]:42104 "EHLO
-	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752297Ab2LATHl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Dec 2012 14:07:41 -0500
-Received: by mail-vb0-f46.google.com with SMTP id b13so497377vby.19
-        for <linux-input@vger.kernel.org>; Sat, 01 Dec 2012 11:07:40 -0800 (PST)
-In-Reply-To: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
+Received: from mail-vc0-f174.google.com ([209.85.220.174]:34342 "EHLO
+	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752297Ab2LATHj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Dec 2012 14:07:39 -0500
+Received: by mail-vc0-f174.google.com with SMTP id d16so688953vcd.19
+        for <linux-input@vger.kernel.org>; Sat, 01 Dec 2012 11:07:38 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dh.herrmann@googlemail.com
 
-This patch adds the helper hidinput_led_output_report to handle LED
-input events.
+Hi all,
 
-This helper implements a generic handler for LED input events. It
-basically sets the proper field, builds the output report and call
-hid_output_raw_report callback to send the raw report to the device.
+This patchset implements the support for handling LED input events in uhid
+driver.
 
-Signed-off-by: Andre Guedes <andre.guedes@openbossa.org>
----
- drivers/hid/hid-input.c | 51 +++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/hid.h     |  2 ++
- 2 files changed, 53 insertions(+)
+As requested in the previous RFC, it was introduced a new helper in hid-input.c
+to carry out a generic LED input events handling (hidinput_led_output_report).
+The helper is used by uhid driver.
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 21b196c..957f510 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1300,3 +1300,54 @@ void hidinput_disconnect(struct hid_device *hid)
- }
- EXPORT_SYMBOL_GPL(hidinput_disconnect);
- 
-+/*
-+ * hidinput_led_output_report - Generic handler for LED input events
-+ *
-+ * @hid: hid device
-+ * @code: input event code
-+ * @value: input event value
-+ *
-+ * This function implements a generic handler for LED input events. It
-+ * sets the proper LED field, builds the output report and sends it to
-+ * device.
-+ *
-+ * This helper relies on device's .hid_output_raw_report() to send
-+ * reports to the device.
-+ */
-+int hidinput_led_output_report(struct hid_device *hid, unsigned int code,
-+				    int value)
-+{
-+	int offset;
-+	struct hid_field *field;
-+	struct hid_report *report;
-+	u8 *buf;
-+	int len;
-+	int ret;
-+
-+	if (!hid->hid_output_raw_report)
-+		return -ENOTSUPP;
-+
-+	offset = hidinput_find_field(hid, EV_LED, code, &field);
-+	if (offset == -1)
-+		return -ENOENT;
-+
-+	hid_set_field(field, offset, value);
-+
-+	report = field->report;
-+
-+	len = ((report->size - 1) >> 3) + 1 + (report->id > 0);
-+
-+	buf = kzalloc(len, GFP_ATOMIC);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	hid_output_report(report, buf);
-+
-+	ret = hid->hid_output_raw_report(hid, buf, len, HID_OUTPUT_REPORT);
-+
-+	kfree(buf);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(hidinput_led_output_report);
-+
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index d2c42dd..bd02df3 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -701,6 +701,8 @@ extern void hidinput_hid_event(struct hid_device *, struct hid_field *, struct h
- extern void hidinput_report_event(struct hid_device *hid, struct hid_report *report);
- extern int hidinput_connect(struct hid_device *hid, unsigned int force);
- extern void hidinput_disconnect(struct hid_device *);
-+extern int hidinput_led_output_report(struct hid_device *hid,
-+					unsigned int code, int value);
- 
- int hid_set_field(struct hid_field *, unsigned, __s32);
- int hid_input_report(struct hid_device *, int type, u8 *, int, int);
+The helper can also be used in i2c-hid driver since it does a very simply
+handling of LED events too. I have no i2c device to test the i2c-hid patch,
+so it requires some testing before applying it.
+
+As long as the helper relies on device's .hid_output_raw_report() and
+hid-logitech-dj driver doesn't properly implement this callback, the helper is
+not used in hid-logitech-dj driver.
+
+Also, this helper is not used in usbhid driver as long as it does a more
+sophisticated handling than what hidinput_led_output_report helper does. For
+further information about usbhid LEDs handling see comments in the patchset [1].
+
+This patchset is rebased on Jiri's for-next branch.
+
+Best regards,
+
+Andre Guedes
+
+[1] - http://marc.info/?l=linux-usb&m=132013970108623&w=2
+
+
+Andre Guedes (4):
+  HID: Add generic handler for LED input events
+  HID: uhid: Handle LED input events
+  HID: uhid: Use GFP_ATOMIC in uhid_hid_output_raw
+  HID: i2c-hid: LED input events handling
+
+ drivers/hid/hid-input.c       | 51 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/i2c-hid/i2c-hid.c | 11 +---------
+ drivers/hid/uhid.c            | 34 +++++++++++++++++++----------
+ include/linux/hid.h           |  2 ++
+ 4 files changed, 76 insertions(+), 22 deletions(-)
+
 -- 
 1.8.0.1
 

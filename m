@@ -1,37 +1,106 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 1/2] input: gpio-keys: Disable hardware on suspend
-Date: Sat, 1 Dec 2012 18:01:01 +0100
-Message-ID: <CACRpkdYXcC-5hFG+nLK7AT6m-htrivwuhm-HodBnO0LY6RgGfA@mail.gmail.com>
-References: <1353590617-11466-1-git-send-email-lee.jones@linaro.org>
-	<20121125083229.GB21091@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Andre Guedes <andre.guedes@openbossa.org>
+Subject: [RFC v2 1/4] HID: Add generic handler for LED input events
+Date: Sat,  1 Dec 2012 16:07:18 -0300
+Message-ID: <1354388841-23854-2-git-send-email-andre.guedes@openbossa.org>
+References: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:54895 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752589Ab2LARBC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Dec 2012 12:01:02 -0500
-Received: by mail-ee0-f46.google.com with SMTP id e53so859375eek.19
-        for <linux-input@vger.kernel.org>; Sat, 01 Dec 2012 09:01:01 -0800 (PST)
-In-Reply-To: <20121125083229.GB21091@core.coreip.homeip.net>
+Received: from mail-vb0-f46.google.com ([209.85.212.46]:42104 "EHLO
+	mail-vb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752297Ab2LATHl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Dec 2012 14:07:41 -0500
+Received: by mail-vb0-f46.google.com with SMTP id b13so497377vby.19
+        for <linux-input@vger.kernel.org>; Sat, 01 Dec 2012 11:07:40 -0800 (PST)
+In-Reply-To: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, arnd@arndb.de, linus.walleij@stericsson.com, Jonas Aaberg <jonas.aberg@stericsson.com>, linux-input@vger.kernel.org, Philippe Langlais <philippe.langlais@linaro.org>
+To: linux-input@vger.kernel.org
+Cc: dh.herrmann@googlemail.com
 
-On Sun, Nov 25, 2012 at 9:32 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Nov 22, 2012 at 01:23:36PM +0000, Lee Jones wrote:
->> From: Jonas Aaberg <jonas.aberg@stericsson.com>
->>
->> Disable hardware if active when suspending if the hw can not
->> wake the system from suspend.
->
-> How about below instead (needs the other patch I have just sent out)?
+This patch adds the helper hidinput_led_output_report to handle LED
+input events.
 
-LooksGoodToMe(TM)
+This helper implements a generic handler for LED input events. It
+basically sets the proper field, builds the output report and call
+hid_output_raw_report callback to send the raw report to the device.
 
-Acked-by.
+Signed-off-by: Andre Guedes <andre.guedes@openbossa.org>
+---
+ drivers/hid/hid-input.c | 51 +++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/hid.h     |  2 ++
+ 2 files changed, 53 insertions(+)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 21b196c..957f510 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1300,3 +1300,54 @@ void hidinput_disconnect(struct hid_device *hid)
+ }
+ EXPORT_SYMBOL_GPL(hidinput_disconnect);
+ 
++/*
++ * hidinput_led_output_report - Generic handler for LED input events
++ *
++ * @hid: hid device
++ * @code: input event code
++ * @value: input event value
++ *
++ * This function implements a generic handler for LED input events. It
++ * sets the proper LED field, builds the output report and sends it to
++ * device.
++ *
++ * This helper relies on device's .hid_output_raw_report() to send
++ * reports to the device.
++ */
++int hidinput_led_output_report(struct hid_device *hid, unsigned int code,
++				    int value)
++{
++	int offset;
++	struct hid_field *field;
++	struct hid_report *report;
++	u8 *buf;
++	int len;
++	int ret;
++
++	if (!hid->hid_output_raw_report)
++		return -ENOTSUPP;
++
++	offset = hidinput_find_field(hid, EV_LED, code, &field);
++	if (offset == -1)
++		return -ENOENT;
++
++	hid_set_field(field, offset, value);
++
++	report = field->report;
++
++	len = ((report->size - 1) >> 3) + 1 + (report->id > 0);
++
++	buf = kzalloc(len, GFP_ATOMIC);
++	if (!buf)
++		return -ENOMEM;
++
++	hid_output_report(report, buf);
++
++	ret = hid->hid_output_raw_report(hid, buf, len, HID_OUTPUT_REPORT);
++
++	kfree(buf);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(hidinput_led_output_report);
++
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index d2c42dd..bd02df3 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -701,6 +701,8 @@ extern void hidinput_hid_event(struct hid_device *, struct hid_field *, struct h
+ extern void hidinput_report_event(struct hid_device *hid, struct hid_report *report);
+ extern int hidinput_connect(struct hid_device *hid, unsigned int force);
+ extern void hidinput_disconnect(struct hid_device *);
++extern int hidinput_led_output_report(struct hid_device *hid,
++					unsigned int code, int value);
+ 
+ int hid_set_field(struct hid_field *, unsigned, __s32);
+ int hid_input_report(struct hid_device *, int type, u8 *, int, int);
+-- 
+1.8.0.1
+

@@ -1,42 +1,84 @@
-From: Andre Guedes <andre.guedes@openbossa.org>
-Subject: [RFC v2 3/4] HID: uhid: Use GFP_ATOMIC in uhid_hid_output_raw
-Date: Sat,  1 Dec 2012 16:07:20 -0300
-Message-ID: <1354388841-23854-4-git-send-email-andre.guedes@openbossa.org>
-References: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:34342 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752297Ab2LATHp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Dec 2012 14:07:45 -0500
-Received: by mail-vc0-f174.google.com with SMTP id d16so688953vcd.19
-        for <linux-input@vger.kernel.org>; Sat, 01 Dec 2012 11:07:45 -0800 (PST)
-In-Reply-To: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Christopher Heiny <Cheiny@synaptics.com>
+Subject: RE: [PATCH 2/4] Input: RMI4 - move sensor driver and F01 handler
+ into the core
+Date: Sun, 2 Dec 2012 02:36:31 +0000
+Message-ID: <BFABBC009FBA1C43B207B15FD485ABD922D67BCF@USW-MAIL1.synaptics-inc.local>
+References: <1354008098-26346-1-git-send-email-dmitry.torokhov@gmail.com>
+ <1354008098-26346-2-git-send-email-dmitry.torokhov@gmail.com>
+ <50B6EA88.2010506@synaptics.com>,<20121129172120.GA3656@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121129172120.GA3656@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@stericsson.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dh.herrmann@googlemail.com
 
-We should use GFP_ATOMIC in uhid_hid_output_raw as long as it may
-be called in atomic section.
+Sorry for top posting this - I forgot to email while still at work.
 
-Signed-off-by: Andre Guedes <andre.guedes@openbossa.org>
----
- drivers/hid/uhid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I've been poking at this, and think (a) it's possible that I'm being too paranoid, and (b) it looks like it'll work with some of the future stuff.  So I'll back off my objections for the moment, and give these changes a try, possibly with some slight modifications.
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index a5cf905..ef74fc6 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -261,7 +261,7 @@ static int uhid_hid_output_raw(struct hid_device *hid, __u8 *buf, size_t count,
- 	if (count < 1 || count > UHID_DATA_MAX)
- 		return -EINVAL;
- 
--	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
-+	ev = kzalloc(sizeof(*ev), GFP_ATOMIC);
- 	if (!ev)
- 		return -ENOMEM;
- 
--- 
-1.8.0.1
+Thanks!
+Chris
+________________________________________
+From: linux-input-owner@vger.kernel.org [linux-input-owner@vger.kernel.org] on behalf of Dmitry Torokhov [dmitry.torokhov@gmail.com]
+Sent: Thursday, November 29, 2012 9:21 AM
+To: Christopher Heiny
+Cc: Linus Walleij; Linux Input; Linux Kernel; Allie Xiong; Vivian Ly; Daniel Rosenberg; Alexandra Chin; Joerie de Gram; Wolfram Sang; Mathieu Poirier
+Subject: Re: [PATCH 2/4] Input: RMI4 - move sensor driver and F01 handler into the core
 
+Hi Chris,
+On Wed, Nov 28, 2012 at 08:54:32PM -0800, Christopher Heiny wrote:
+> On 11/27/2012 01:21 AM, Dmitry Torokhov wrote:
+> >There is no point in having the sensor driver and F01 handler separate
+> >from the RMI core since it is not useful without them and having them
+> >all together simplifies initialization among other things.
+>
+> Hi Dmitry,
+>
+> I've been looking at this patch as well as your patch 3/4 changes,
+> and I'm not sure it's for the better.
+>
+> One thing that confuses me is that these appear to go against the
+> advice we've been getting over the past months to rely more on
+> standard kernel bus and driver implementations, instead of the
+> "roll-your-own" implementation we had been using before.
+>
+> More importantly, the patches inextricably link the sensor driver
+> implementation and the F01 driver implementation to the bus
+> implementation, and means that any given system can have only one
+> way of managing F01.  As you observed, a sensor is pretty much
+> useless without an F01 handler, but I am reasonably sure that there
+> will be future systems that have more than one RMI4 sensor in them,
+> and there is a strong possibility that these sensors may have
+> different requirements for handling F01.  In the near future, then,
+> these changes will have to be refactored back to something more like
+> the structure of our 2012/11/16 patch set.
+>
+> Additionally, having F01 as a special case means that when we start
+> implementing things such as support for request_firmware(), there
+> will have to be a bunch of special case code to deal with F01, since
+> it's no longer "just another function driver".  That seems to go in
+> exactly the opposite direction of the simplification that you're
+> trying to achieve.
+
+But F01 continues to being "just another function driver" even with my
+changes. It is still registered as rmi_fucntion_handler and uses
+standard matching mechanisms to bind to rmi_functions registered by the
+sensor driver. What I changed is the fact that rmi_f01 is no longer a
+separate module which could be loaded after loading rmi_bus and it can't
+be unloaded without unloading rmi_bus. This simplifies things and makes
+it easier to have rmi core compiled as a module.
+
+Also I do not quite follow your idea that devices might have different
+requirements for handling F01. If that is true then be _can't_ implement
+"F01" as "another function driver"... But that is orthogonal for the 3/4
+change we are discussing here.
+
+Thanks.
+
+--
+Dmitry

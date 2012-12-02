@@ -1,59 +1,88 @@
-From: "Guillermo A. Amaral" <g@maral.me>
-Subject: [PATCH 1/2] Input: xpad - Minor coding style errors fixed.
-Date: Sat,  1 Dec 2012 23:36:19 -0800
-Message-ID: <1354433779-16274-1-git-send-email-g@maral.me>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 03/11] HID: hid-input: export hidinput_allocation function
+Date: Sun, 2 Dec 2012 09:08:37 +0100
+Message-ID: <20121202080837.GA1875@polaris.bitmath.org>
+References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1353684694-5723-4-git-send-email-benjamin.tissoires@gmail.com>
+ <20121127202150.GA895@polaris.bitmath.org>
+ <CAN+gG=HqecBrhdnZtfgxhByhtXf+uGELPHGsbcD9OAj6Gx7odg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:61117 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751458Ab2LBHgt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Dec 2012 02:36:49 -0500
-Received: by mail-da0-f46.google.com with SMTP id p5so852623dak.19
-        for <linux-input@vger.kernel.org>; Sat, 01 Dec 2012 23:36:48 -0800 (PST)
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:43708 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751560Ab2LBIHD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Dec 2012 03:07:03 -0500
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=HqecBrhdnZtfgxhByhtXf+uGELPHGsbcD9OAj6Gx7odg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: gregkh@linuxfoundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Guillermo A. Amaral" <g@maral.me>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: "Guillermo A. Amaral" <g@maral.me>
+Hi Benjamin,
 
-Fixed a few minor coding style issues in xpad driver.
+> > I can think of two mechanisms that might be useful in finding a
+> > way to achieve this cleanly: a) Let a driver return a value telling
+> > whether to change input device, and b) Let a second driver have a go
+> > at the same device report. Some return value or state could determine
+> > logic in the hid core saying "we are not done with this device, try
+> > another driver". Or something. Just not this way, please.
+> 
+> Hi Henrik,
+> 
+> ok for the implementation of this patch series, it has to be reworked.
+> 
+> As for your proposals:
+> 
+> a) We can not rely on input_mapping because there is a temporal issue:
+> we already want to have the new input when we are in input_mapping.
+> So, this implies to create a new callback.
+> 
+> b) This would implies just too much work in hid-core for taking into
+> account a special case of one type of devices.
 
-Signed-off-by: "Guillermo A. Amaral B." <g@maral.me>
----
- drivers/input/joystick/xpad.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+I may look like a special case, but perhaps it is not. Routing
+different sensors to different drivers is what we do all the time, but
+we call that the device-driver bus model. To fit into that concept, we
+would need to split the sensors into separate devices first, then
+apply the driver logic onto those devices. Thus, the problem is not
+really a driver issue at all, but a bus driver one.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 83811e4..3d8f39b 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -235,7 +235,7 @@ static const signed short xpad_abs_triggers[] = {
- 	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,1) }, \
- 	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,129) }
- 
--static struct usb_device_id xpad_table [] = {
-+static struct usb_device_id xpad_table[] = {
- 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
- 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
-@@ -251,7 +251,7 @@ static struct usb_device_id xpad_table [] = {
- 	{ }
- };
- 
--MODULE_DEVICE_TABLE (usb, xpad_table);
-+MODULE_DEVICE_TABLE(usb, xpad_table);
- 
- struct usb_xpad {
- 	struct input_dev *dev;		/* input device interface */
-@@ -783,7 +783,7 @@ static int xpad_open(struct input_dev *dev)
- 	struct usb_xpad *xpad = input_get_drvdata(dev);
- 
- 	/* URB was submitted in probe */
--	if(xpad->xtype == XTYPE_XBOX360W)
-+	if (xpad->xtype == XTYPE_XBOX360W)
- 		return 0;
- 
- 	xpad->irq_in->dev = xpad->udev;
--- 
-1.7.8.6
+Imagine a partition function that is called before device add, and
+which distributes the sensors of a usb device onto a set of hid
+devices. We already started small in this direction by introducing
+device groups, and this particular problem seems to be one of the
+issues that would be resolved by such a construct.
 
+> Here, we have in the same usb interface 2 different type of reports
+> coming from different sensors. It's far too different from the usual
+> configuration we have with legacy devices: when we have several hid
+> drivers handling the same usb device, it was when hardware makers
+> split the different sensors in different interfaces. This situation is
+> correctly handled in the usb subsystem and the hid layer has only to
+> deal with one driver at a time for a specific interface.
+> 
+> So, in the next series, I propose a new callback ("new_report" -- the
+> name is awful, but I can not manage to find another one ATM) which
+> will be called before we call input_mapping for a whole report.
+> The driver will then have the possibility to:
+> - continue normally (default behavior)
+> - ask for a new input device
+> - skip the entire report
+
+This sounds like a better solution, yes, but the root problem still
+remains: do we really want to handle both pen and touch in the same
+driver? And do we _have_ to?
+
+> Anyway, Henrik , could you also have a look at patches 7 to 11, they
+
+> have nothing to do with pen support, and I'm sure that you want to say
+> something on them too.
+
+Indeed, I will just comment here, saying I do not see why you change
+the name of the default. I would prefer it if you resend that set
+cleaned up, with the default name unchanged.
+
+Thanks,
+Henrik

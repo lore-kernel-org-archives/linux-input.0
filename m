@@ -1,301 +1,160 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification implementation
-Date: Mon, 3 Dec 2012 12:32:03 +0100
-Message-ID: <CAN+gG=FjVswyx1W4y6NtbNnBu2AWgZZfxVr0h00ZYujCOz3v7Q@mail.gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification
+ implementation
+Date: Mon, 3 Dec 2012 14:02:26 +0100
+Message-ID: <20121203140226.0fede51e@endymion.delvare>
 References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
 	<20121130155650.69407e9f@endymion.delvare>
+	<CAN+gG=FjVswyx1W4y6NtbNnBu2AWgZZfxVr0h00ZYujCOz3v7Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121130155650.69407e9f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from zoneX.GCU-Squad.org ([194.213.125.0]:29388 "EHLO
+	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753650Ab2LCNDM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Dec 2012 08:03:12 -0500
+In-Reply-To: <CAN+gG=FjVswyx1W4y6NtbNnBu2AWgZZfxVr0h00ZYujCOz3v7Q@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, fabien.andre@gmail.com, scott.liu@emc.com.tw, JJ Ding <jj_ding@emc.com.tw>, Jiri Slaby <jslaby@suse.cz>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jean,
+Hi Benjamin,
 
-On Fri, Nov 30, 2012 at 3:56 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> Hi Benjamin, Jiri,
->
-> Sorry for the late review. But better late than never I guess...
+On Mon, 3 Dec 2012 12:32:03 +0100, Benjamin Tissoires wrote:
+> Hi Jean,
+> 
+> On Fri, Nov 30, 2012 at 3:56 PM, Jean Delvare <khali@linux-fr.org> wrote:
+> > Hi Benjamin, Jiri,
+> >
+> > Sorry for the late review. But better late than never I guess...
+> 
+> Sure! Thanks for the review. As the driver is already in Jiri's tree,
+> I'll do small incremental patches based on this release.
+> 
+> I'll try to address all of your comments.
+> 
+> I have a few answers to some of your remarks (I fully agree with all
+> of the others):
+> 
+> > On Mon, 12 Nov 2012 15:42:59 +0100, Benjamin Tissoires wrote:
+> >> +static int i2c_hid_get_raw_report(struct hid_device *hid,
+> >> +             unsigned char report_number, __u8 *buf, size_t count,
+> >> +             unsigned char report_type)
+> >> +{
+> >> +     struct i2c_client *client = hid->driver_data;
+> >> +     struct i2c_hid *ihid = i2c_get_clientdata(client);
+> >> +     int ret;
+> >> +
+> >> +     if (report_type == HID_OUTPUT_REPORT)
+> >> +             return -EINVAL;
+> >> +
+> >> +     if (count > ihid->bufsize)
+> >> +             count = ihid->bufsize;
+> >> +
+> >> +     ret = i2c_hid_get_report(client,
+> >> +                     report_type == HID_FEATURE_REPORT ? 0x03 : 0x01,
+> >> +                     report_number, ihid->inbuf, count);
+> >> +
+> >> +     if (ret < 0)
+> >> +             return ret;
+> >> +
+> >> +     count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
+> >> +
+> >> +     memcpy(buf, ihid->inbuf + 2, count);
+> >
+> > What guarantee do you have that count is not larger than buf's length?
+> > I hope you don't just count on all hardware out there being nice and
+> > sane, do you? ;)
+> 
+> Hehe, this function is never called from the device, but from the user
+> space. It's called by hidraw_get_report in drivers/hid/hidraw.c, and
+> the caller makes the allocation of buf with a size of count.
+> There is an other usage in hid-input.c with "buf, sizeof(buf)," as arguments.
+> So this should never be a problem as long as anybody else call this
+> function without making sure count is the right size.
 
-Sure! Thanks for the review. As the driver is already in Jiri's tree,
-I'll do small incremental patches based on this release.
+Not sure I follow you here.
 
-I'll try to address all of your comments.
+There are two flavors of "count" in this function. The first one is
+passed as a parameter by the caller and used to set the buffer length
+as passed to i2c_hid_get_report(). This part is fine and I have no
+problem with it. The second flavor is extracted from ihid->inbuf as
+provided by i2c_hid_get_report(). As I understand it,
+i2c_hid_get_report() fills the buffer with data it receives from the
+hardware, so I fail to see how you can have any guarantee that this
+second flavor of count is not greater than buf's length.
 
-I have a few answers to some of your remarks (I fully agree with all
-of the others):
+In fact I don't think you should reuse "count" in the first place,
+that's confusing. Then, looking at the code again, I don't think the
+test "count > ihid->bufsize", and more generally changing the value of
+"count", makes sense. You don't care about the size of "buf" when
+calling i2c_hid_get_report(), you care about the size of ihid->inbuf,
+which should be at least 2 more than the size of "buf". You care about
+the size of "buf" _after_ the call to i2c_hid_get_report(), as you are
+copying the data from ihid->bufsize to "buf". This is precisely the
+check which I claim is missing.
 
->
-> On Mon, 12 Nov 2012 15:42:59 +0100, Benjamin Tissoires wrote:
->> Microsoft published the protocol specification of HID over i2c:
->> http://msdn.microsoft.com/en-us/library/windows/hardware/hh852380.aspx
->>
->> This patch introduces an implementation of this protocol.
->>
->> This implementation does not includes the ACPI part of the specification.
->> This will come when ACPI 5.0 devices enumeration will be available.
->>
->> Once the ACPI part is done, OEM will not have to declare HID over I2C
->> devices in their platform specific driver.
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->> (..)
->>  drivers/hid/Kconfig           |   2 +
->>  drivers/hid/Makefile          |   1 +
->>  drivers/hid/i2c-hid/Kconfig   |  21 +
->>  drivers/hid/i2c-hid/Makefile  |   5 +
->>  drivers/hid/i2c-hid/i2c-hid.c | 974 ++++++++++++++++++++++++++++++++++++++++++
->>  include/linux/i2c/i2c-hid.h   |  35 ++
->>  6 files changed, 1038 insertions(+)
->>  create mode 100644 drivers/hid/i2c-hid/Kconfig
->>  create mode 100644 drivers/hid/i2c-hid/Makefile
->>  create mode 100644 drivers/hid/i2c-hid/i2c-hid.c
->>  create mode 100644 include/linux/i2c/i2c-hid.h
->
-> Looks much better. I still have several random comments which you may
-> be interested in.
->
-> (...)
->> +/* debug option */
->> +static bool debug = false;
->
-> Whether you like it or not, that's still an error for checkpatch:
-> ERROR: do not initialise statics to 0 or NULL
-> #240: FILE: drivers/hid/i2c-hid/i2c-hid.c:49:
-> +static bool debug = false;
->
-> The rationale is that the compiler can write more efficient code if
-> initializations to 0 or NULL are implicit.
+> >> (...)
+> >> +
+> >> +     hid = ihid->hid;
+> >> +     hid_destroy_device(hid);
+> >> +
+> >> +     free_irq(client->irq, ihid);
+> >> +
+> >
+> > Is there any guarantee that i2c_hid_stop() has been called before
+> > i2c_hid_remove() is? If not, you're missing a call to
+> > i2c_hid_free_buffers() here. BTW I'm not quite sure why
+> > i2c_hid_remove() frees the buffers in the first place, but then again I
+> > don't know a thing about the HID infrastructure.
+> 
+> Calling i2c_hid_stop() is the responsibility of the hid driver at his
+> remove. By hid driver, I mean the driver that relies on hid to handle
+> the device (hid-generic in 80% of the cases) So as long as this hid
+> driver is loaded, we can not remove i2c_hid as it is used by the hid
+> driver. So it seems that this guarantees that i2c_hid_stop() has been
+> called before i2c_hid_remove() is.
+> 
+> But now that I think of it, there are cases where i2c_hid_stop() is
+> not called: when the hid driver failed to probe. So definitively,
+> there is a mem leak here. Thanks.
 
-ok, will do.
+Actually this path was fixed by Jiri already:
+http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commitdiff;h=3c62602434c13744df62b3ab0ab7950cd36f24db
 
->
->> +module_param(debug, bool, 0444);
->> +MODULE_PARM_DESC(debug, "print a lot of debug information");
->> +
->> +#define i2c_hid_dbg(ihid, fmt, arg...)       \
->> +     if (debug)                      \
->> +             dev_printk(KERN_DEBUG, &(ihid)->client->dev, fmt, ##arg)
->
-> This is considered an error by checkpatch too:
-> ERROR: Macros with complex values should be enclosed in parenthesis
-> #244: FILE: drivers/hid/i2c-hid/i2c-hid.c:53:
-> +#define i2c_hid_dbg(ihid, fmt, arg...) \
-> +       if (debug)                      \
-> +               dev_printk(KERN_DEBUG, &(ihid)->client->dev, fmt, ##arg)
->
-> And I wouldn't disagree, as the construct above can lead to bugs which
-> are hard to see... Consider the following piece of code:
->
->         if (condition)
->                 i2c_hid_dbg(ihid, "Blah blah %d\n", i);
->         else
->                 do_something_very_important();
->
-> It looks correct, however with the macro definition above, this expands
-> to the unexpected:
->
->         if (condition) {
->                 if (debug)                      \
->                         dev_printk(KERN_DEBUG, &ihid->client->dev,
->                                    "Blah blah %d\n", i);
->                 else
->                         do_something_very_important();
->         }
->
-> That is, the condition to call do_something_very_important() is
-> condition && !debug, and not !condition as the code suggests. This is
-> only an example and your driver doesn't currently use any such
-> construct. Still I believe this should be fixed.
+My worry was that, when probe succeeds, i2c_hid_start/stop() could
+never be called if the module was unloaded immediately for example,
+before user-space has a chance to use the device. But if you are
+certain it can't happen, then alright.
 
-With your explanation, you've convinced me. I was not sure on how
-should I handle this warning as I copied this macro from one in hid.
-I will fix the two then.
+> >> +(...)
+> >> +static const struct i2c_device_id i2c_hid_id_table[] = {
+> >> +     { "i2c_hid", 0 },
+> >
+> > I am just realizing "i2c_hid" is a little redundant as an i2c device
+> > name. Can we make this just "hid"?
+> 
+> I know that it already have been used by one Nvidia team and by Elan
+> for internal tests. So I don't know if it's possible to change it now
+> (though it's not a big deal).
 
->
-> (...)
-> static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
-> {
->         /* the worst case is computed from the set_report command with a
->          * reportID > 15 and the maximum report length */
->         int args_len = sizeof(__u8) + /* optional ReportID byte */
->                        sizeof(__u16) + /* data register */
->                        sizeof(__u16) + /* size of the report */
->                        ihid->bufsize; /* report */
->
->         ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
->         ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
->         ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
->
->         if (!ihid->inbuf || !ihid->argsbuf || !ihid->cmdbuf) {
->                 i2c_hid_free_buffers(hid);
->                 return -ENOMEM;
->         }
->
->         return 0;
-> }
+Yes it is possible, as long as the code isn't in Linus' tree (and I'd
+even say: as long as it is not in any kernel released by Linus.)
+Whoever is already using your driver will have to adjust their code.
+They'll certainly want to anyway, in order to get the bug fixes.
 
-Much better, thanks!
+> Anyway, "hid" is a little weird to me (but this is because I started
+> hacking the kernel from there), as it's really short and does not
+> contain i2c :)
 
->
->> +static void i2c_hid_free_buffers(struct i2c_hid *ihid)
->> +{
->> +     kfree(ihid->inbuf);
->> +     kfree(ihid->argsbuf);
->> +     kfree(ihid->cmdbuf);
->> +     ihid->inbuf = NULL;
->> +     ihid->cmdbuf = NULL;
->> +     ihid->argsbuf = NULL;
->> +}
->> +
->> +static int i2c_hid_get_raw_report(struct hid_device *hid,
->> +             unsigned char report_number, __u8 *buf, size_t count,
->> +             unsigned char report_type)
->> +{
->> +     struct i2c_client *client = hid->driver_data;
->> +     struct i2c_hid *ihid = i2c_get_clientdata(client);
->> +     int ret;
->> +
->> +     if (report_type == HID_OUTPUT_REPORT)
->> +             return -EINVAL;
->> +
->> +     if (count > ihid->bufsize)
->> +             count = ihid->bufsize;
->> +
->> +     ret = i2c_hid_get_report(client,
->> +                     report_type == HID_FEATURE_REPORT ? 0x03 : 0x01,
->> +                     report_number, ihid->inbuf, count);
->> +
->> +     if (ret < 0)
->> +             return ret;
->> +
->> +     count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
->> +
->> +     memcpy(buf, ihid->inbuf + 2, count);
->
-> What guarantee do you have that count is not larger than buf's length?
-> I hope you don't just count on all hardware out there being nice and
-> sane, do you? ;)
+This is exactly my point: no other i2c client (to my knowledge) has
+"i2c" in its name, because it is redundant. 
 
-Hehe, this function is never called from the device, but from the user
-space. It's called by hidraw_get_report in drivers/hid/hidraw.c, and
-the caller makes the allocation of buf with a size of count.
-There is an other usage in hid-input.c with "buf, sizeof(buf)," as arguments.
-So this should never be a problem as long as anybody else call this
-function without making sure count is the right size.
+I would agree that this is kind of a special case as this is a generic
+driver and not a device-specific driver. I would still prefer "hid" but
+if you don't feel like changing it, I guess I can live with that.
 
->
->> +
->> +     return count;
->> +}
->(...)
->> +static int __devinit i2c_hid_init_irq(struct i2c_client *client)
->> +{
->> +     struct i2c_hid *ihid = i2c_get_clientdata(client);
->> +     int ret;
->> +
->> +     dev_dbg(&client->dev, "Requesting IRQ: %d\n", client->irq);
->> +
->> +     ret = request_threaded_irq(client->irq, NULL, i2c_hid_irq,
->> +                     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
->> +                     client->name, ihid);
->> +     if (ret < 0) {
->> +             dev_dbg(&client->dev,
->> +                     "Could not register for %s interrupt, irq = %d,"
->> +                     " ret = %d\n",
->> +             client->name, client->irq, ret);
->
-> dev_warn()? Indentation is broken too.
->
->> +
->> +             return ret;
->> +     }
->> +
->> +     ihid->irq = client->irq;
->
-> I don't think you need this. Everywhere you use ihid->irq, you have
-> client at hand so you could as well use client->irq. This would avoid
-> inconsistencies like free_irq(ihid->irq, ihid) in probing error path
-> vs. free_irq(client->irq, ihid) in removal path, or
-> enable_irq_wake(ihid->irq) vs. disable_irq_wake(client->irq) in
-> suspend/resume.
-
-Yep, these inconsistency are pretty bad. IIRC, I used that to know if
-the setup was fine for the irq, but it may comes from an earlier
-version where I had polling, which is not allowed by the spec.
-So definitively, I'll have to rework that.
-
->
->> +
->> +     return 0;
->> +}
->> +
->(...)
->> +static int __devexit i2c_hid_remove(struct i2c_client *client)
->> +{
->> +     struct i2c_hid *ihid = i2c_get_clientdata(client);
->> +     struct hid_device *hid;
->> +
->> +     if (WARN_ON(!ihid))
->> +             return -1;
->
-> This just can't happen...?
->
->> +
->> +     hid = ihid->hid;
->> +     hid_destroy_device(hid);
->> +
->> +     free_irq(client->irq, ihid);
->> +
->
-> Is there any guarantee that i2c_hid_stop() has been called before
-> i2c_hid_remove() is? If not, you're missing a call to
-> i2c_hid_free_buffers() here. BTW I'm not quite sure why
-> i2c_hid_remove() frees the buffers in the first place, but then again I
-> don't know a thing about the HID infrastructure.
-
-Calling i2c_hid_stop() is the responsibility of the hid driver at his
-remove. By hid driver, I mean the driver that relies on hid to handle
-the device (hid-generic in 80% of the cases) So as long as this hid
-driver is loaded, we can not remove i2c_hid as it is used by the hid
-driver. So it seems that this guarantees that i2c_hid_stop() has been
-called before i2c_hid_remove() is.
-
-But now that I think of it, there are cases where i2c_hid_stop() is
-not called: when the hid driver failed to probe. So definitively,
-there is a mem leak here. Thanks.
-
-
->
->> +     kfree(ihid);
->> +
->> +     return 0;
->> +}
->> +(...)
->> +static const struct i2c_device_id i2c_hid_id_table[] = {
->> +     { "i2c_hid", 0 },
->
-> I am just realizing "i2c_hid" is a little redundant as an i2c device
-> name. Can we make this just "hid"?
-
-I know that it already have been used by one Nvidia team and by Elan
-for internal tests. So I don't know if it's possible to change it now
-(though it's not a big deal).
-Anyway, "hid" is a little weird to me (but this is because I started
-hacking the kernel from there), as it's really short and does not
-contain i2c :)
-
-Cheers,
-Benjamin
-
->
->> +     { },
->> +};
->> +MODULE_DEVICE_TABLE(i2c, i2c_hid_id_table);
->
-> --
-> Jean Delvare
+-- 
+Jean Delvare

@@ -1,23 +1,46 @@
 From: Dudley Du <dudl@cypress.com>
 Subject: RE: [PATCH v3 2/4] input: Cypress PS/2 Trackpad psmouse driver
-Date: Sun, 2 Dec 2012 22:20:46 -0500
-Message-ID: <B27AC323FA92C946BA36D2913DDC8E370234D97E499F@VMBX126.ihostexchange.net>
+Date: Mon, 3 Dec 2012 00:57:42 -0500
+Message-ID: <B27AC323FA92C946BA36D2913DDC8E370234D97E49AE@VMBX126.ihostexchange.net>
 References: <1354226281-3476-1-git-send-email-kamal@canonical.com>
  <1354226281-3476-3-git-send-email-kamal@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.ihostexchange.net ([66.46.182.52]:37151 "EHLO
+Received: from relay.ihostexchange.net ([66.46.182.56]:34038 "EHLO
 	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754678Ab2LCDUx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Dec 2012 22:20:53 -0500
-In-Reply-To: <1354226281-3476-3-git-send-email-kamal@canonical.com>
+	with ESMTP id S1751918Ab2LCF5x convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Dec 2012 00:57:53 -0500
 Content-Language: zh-CN
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Kamal Mostafa <kamal@canonical.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 Cc: David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, customercare <customercare@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>, "dudl@cyress.com" <dudl@cyress.com>
+
+Hi Kamal,
+
+Another question is that new interface input_mt_assign_slots() is introduced since 3.7-rc7 or later,
+So we could not support the kernel releases that earlier than 3.7-rc7 with this driver.
+
+So my idea is that in order to keep compatible with earlier kernel release,
+Let's use our old method to calculate the slots, not using latest interface input_mt_assign_slots() here.
+
+What's your idea about it?
+
+Thanks.
+
+Best Wishes,
+Dudley Du
+dudl@cypress.com
+
+
+-----Original Message-----
+From: Dudley Du
+Sent: Monday, December 03, 2012 11:21 AM
+To: 'Kamal Mostafa'; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Dmitry Torokhov; Henrik Rydberg
+Cc: David Solda; Troy Abercrombia; customercare; Kyle Fazzari; Mario Limonciello; Tim Gardner; Herton Krzesinski; 'dudl@cyress.com'
+Subject: RE: [PATCH v3 2/4] input: Cypress PS/2 Trackpad psmouse driver
 
 Hi Kamal,
 
@@ -27,14 +50,10 @@ Thanks for help upstream this driver.
 I noticed that you marked out the reconnect function for it never work at all.
 But in my test, it seems work fine.
 I do the test steps as below:
-1. load this driver with Cypress trackpad. Cursor moving on system;
-2. directly unplug the trackpad from system;
-3. reconnect the trackpad device to PC again;
-4. moving finger on trackpad to check cursor still working on the system.
+1. load this driver with Cypress trackpad. Cursor moving on system; 2. directly unplug the trackpad from system; 3. reconnect the trackpad device to PC again; 4. moving finger on trackpad to check cursor still working on the system.
 And also, I checked the debug message through dmesg, it makes sure that the reconnection function is called, and also the driver and trackpad still working fine.
 
-So I want to know what situation is in your test to this function,
-could you help describe your test steps to me, so we can figure out this issue.
+So I want to know what situation is in your test to this function, could you help describe your test steps to me, so we can figure out this issue.
 
 Thanks.
 
@@ -59,13 +78,15 @@ dudl@cyrpess.com
 >Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
 >Acked-by: Herton Krzesinski <herton.krzesinski@canonical.com>
 >---
-> drivers/input/mouse/cypress_ps2.c |  830 +++++++++++++++++++++++++++++++++++++
+> drivers/input/mouse/cypress_ps2.c |  830
+>+++++++++++++++++++++++++++++++++++++
 > drivers/input/mouse/cypress_ps2.h |  219 ++++++++++
 > 2 files changed, 1049 insertions(+)
-> create mode 100644 drivers/input/mouse/cypress_ps2.c
-> create mode 100644 drivers/input/mouse/cypress_ps2.h
+> create mode 100644 drivers/input/mouse/cypress_ps2.c  create mode
+>100644 drivers/input/mouse/cypress_ps2.h
 >
->diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
+>diff --git a/drivers/input/mouse/cypress_ps2.c
+>b/drivers/input/mouse/cypress_ps2.c
 >new file mode 100644
 >index 0000000..472342a
 >--- /dev/null
@@ -80,8 +101,10 @@ dudl@cyrpess.com
 >+ *   Kamal Mostafa <kamal@canonical.com>
 >+ *   Kyle Fazzari <git@status.e4ward.com>
 >+ *
->+ * This program is free software; you can redistribute it and/or modify it
->+ * under the terms of the GNU General Public License version 2 as published by
+>+ * This program is free software; you can redistribute it and/or
+>+modify it
+>+ * under the terms of the GNU General Public License version 2 as
+>+published by
 >+ * the Free Software Foundation.
 >+ */
 >+
@@ -114,9 +137,9 @@ dudl@cyrpess.com
 >+
 >+
 >+/* p is a pointer points to the buffer containing Cypress Keys. */
->+#define IS_CYPRESS_KEY(p) ((p[0] == CYPRESS_KEY_1) && (p[1] == CYPRESS_KEY_2))
->+#define CYTP_SET_PACKET_SIZE(n) { psmouse->pktsize = cytp->pkt_size = (n); }
->+#define CYTP_SET_MODE_BIT(x)  \
+>+#define IS_CYPRESS_KEY(p) ((p[0] == CYPRESS_KEY_1) && (p[1] ==
+>+CYPRESS_KEY_2)) #define CYTP_SET_PACKET_SIZE(n) { psmouse->pktsize =
+>+cytp->pkt_size = (n); } #define CYTP_SET_MODE_BIT(x)  \
 >+      do {  \
 >+              if ((x) & CYTP_BIT_ABS_REL_MASK)  \
 >+                      cytp->mode = (cytp->mode & ~CYTP_BIT_ABS_REL_MASK);  \
@@ -126,11 +149,10 @@ dudl@cyrpess.com
 >+
 >+#define CYTP_SUPPORT_ABS
 >+
->+static unsigned char cytp_rate[] = {10, 20, 40, 60, 100, 200};
->+static unsigned char cytp_resolution[] = {0x00, 0x01, 0x02, 0x03};
+>+static unsigned char cytp_rate[] = {10, 20, 40, 60, 100, 200}; static
+>+unsigned char cytp_resolution[] = {0x00, 0x01, 0x02, 0x03};
 >+
->+static int cypress_ps2_sendbyte(struct psmouse *psmouse, int value)
->+{
+>+static int cypress_ps2_sendbyte(struct psmouse *psmouse, int value) {
 >+      struct cytp_data *cytp = psmouse->private;
 >+      struct ps2dev *ps2dev = &psmouse->ps2dev;
 >+
@@ -236,8 +258,7 @@ dudl@cyrpess.com
 >+}
 >+
 >+static int cypress_verify_cmd_state(struct psmouse *psmouse,
->+                                  unsigned char cmd, unsigned char *param)
->+{
+>+                                  unsigned char cmd, unsigned char *param) {
 >+      struct cytp_data *cytp = psmouse->private;
 >+      bool rate_match = 0;
 >+      bool resolution_match = 0;
@@ -300,8 +321,7 @@ dudl@cyrpess.com
 >+
 >+}
 >+
->+int cypress_detect(struct psmouse *psmouse, bool set_properties)
->+{
+>+int cypress_detect(struct psmouse *psmouse, bool set_properties) {
 >+      unsigned char param[3];
 >+
 >+      if (cypress_send_ext_cmd(psmouse, CYTP_CMD_READ_CYPRESS_ID, param))
@@ -318,8 +338,7 @@ dudl@cyrpess.com
 >+      return 0;
 >+}
 >+
->+static int cypress_read_fw_version(struct psmouse *psmouse)
->+{
+>+static int cypress_read_fw_version(struct psmouse *psmouse) {
 >+      struct cytp_data *cytp = psmouse->private;
 >+      unsigned char param[3];
 >+
@@ -330,7 +349,8 @@ dudl@cyrpess.com
 >+              return -ENODEV;
 >+
 >+      cytp->fw_version = param[2] & FW_VERSION_MASX;
->+      cytp->vital_statics_supported = (param[2] & VITAL_STATICS_MASK) ? 1 : 0;
+>+      cytp->vital_statics_supported = (param[2] & VITAL_STATICS_MASK) ? 1 :
+>+0;
 >+
 >+      cytp_dbg("cytp->fw_version = %d\n", cytp->fw_version);
 >+      cytp_dbg("cytp->vital_statics_supported = %d\n",
@@ -338,8 +358,7 @@ dudl@cyrpess.com
 >+      return 0;
 >+}
 >+
->+static int cypress_read_vital_statistics(struct psmouse *psmouse)
->+{
+>+static int cypress_read_vital_statistics(struct psmouse *psmouse) {
 >+      struct cytp_data *cytp = psmouse->private;
 >+      unsigned char param[8];
 >+
@@ -412,8 +431,7 @@ dudl@cyrpess.com
 >+      return 0;
 >+}
 >+
->+static int cypress_query_hardware(struct psmouse *psmouse)
->+{
+>+static int cypress_query_hardware(struct psmouse *psmouse) {
 >+      struct cytp_data *cytp = psmouse->private;
 >+
 >+      if (cypress_read_fw_version(psmouse))
@@ -427,8 +445,7 @@ dudl@cyrpess.com
 >+      return 0;
 >+}
 >+
->+static int cypress_set_absolute_mode(struct psmouse *psmouse)
->+{
+>+static int cypress_set_absolute_mode(struct psmouse *psmouse) {
 >+      struct cytp_data *cytp = psmouse->private;
 >+      unsigned char param[3];
 >+
@@ -445,8 +462,7 @@ dudl@cyrpess.com
 >+ * reset trackpad device to standard relative mode.
 >+ * This is also the defalut mode when trackpad powered on.
 >+ */
->+static void cypress_reset(struct psmouse *psmouse)
->+{
+>+static void cypress_reset(struct psmouse *psmouse) {
 >+      struct cytp_data *cytp = psmouse->private;
 >+
 >+      psmouse_reset(psmouse);
@@ -525,8 +541,7 @@ dudl@cyrpess.com
 >+      return 0;
 >+}
 >+
->+static int cypress_get_finger_count(unsigned char header_byte)
->+{
+>+static int cypress_get_finger_count(unsigned char header_byte) {
 >+      unsigned char bits6_7;
 >+      int finger_count;
 >+
@@ -555,8 +570,7 @@ dudl@cyrpess.com
 >+
 >+
 >+static int cypress_parse_packet(struct psmouse *psmouse,
->+                              struct cytp_data *cytp, struct cytp_report_data *report_data)
->+{
+>+                              struct cytp_data *cytp, struct cytp_report_data *report_data) {
 >+      int i;
 >+      unsigned char *packet = psmouse->packet;
 >+      unsigned char header_byte = packet[0];
@@ -657,8 +671,8 @@ dudl@cyrpess.com
 >+      return 0;
 >+}
 >+
->+static void cypress_process_packet(struct psmouse *psmouse, bool zero_pkt)
->+{
+>+static void cypress_process_packet(struct psmouse *psmouse, bool
+>+zero_pkt) {
 >+      int i;
 >+      struct input_dev *input = psmouse->dev;
 >+      struct cytp_data *cytp = psmouse->private;
@@ -721,8 +735,7 @@ dudl@cyrpess.com
 >+      input_sync(input);
 >+}
 >+
->+static psmouse_ret_t cypress_validate_byte(struct psmouse *psmouse)
->+{
+>+static psmouse_ret_t cypress_validate_byte(struct psmouse *psmouse) {
 >+      int contact_cnt;
 >+      int index = psmouse->pktcnt - 1;
 >+      unsigned char *packet = psmouse->packet;
@@ -782,11 +795,10 @@ dudl@cyrpess.com
 >+              return PSMOUSE_FULL_PACKET;
 >+      }
 >+
->+      return cypress_validate_byte(psmouse);
->+}
+>+      return cypress_validate_byte(psmouse); }
 >+
->+static void cypress_set_rate(struct psmouse *psmouse, unsigned int rate)
->+{
+>+static void cypress_set_rate(struct psmouse *psmouse, unsigned int
+>+rate) {
 >+      struct cytp_data *cytp = psmouse->private;
 >+
 >+      if (rate >= 80) {
@@ -801,8 +813,7 @@ dudl@cyrpess.com
 >+                  PSMOUSE_CMD_SETRATE);
 >+}
 >+
->+static void cypress_disconnect(struct psmouse *psmouse)
->+{
+>+static void cypress_disconnect(struct psmouse *psmouse) {
 >+      cypress_reset(psmouse);
 >+      kfree(psmouse->private);
 >+      psmouse->private = NULL;
@@ -813,8 +824,7 @@ dudl@cyrpess.com
 >+ * FIXME: cypress_reconnect() never works...
 >+ * cypress_detect() always fails here.
 >+ */
->+static int cypress_reconnect(struct psmouse *psmouse)
->+{
+>+static int cypress_reconnect(struct psmouse *psmouse) {
 >+      int tries = CYTP_PS2_CMD_TRIES;
 >+      int rc;
 >+
@@ -845,8 +855,7 @@ dudl@cyrpess.com
 Could you help describe the test steps that you see it never works, so I can help fix this issue. Thanks.
 
 >+
->+int cypress_init(struct psmouse *psmouse)
->+{
+>+int cypress_init(struct psmouse *psmouse) {
 >+      struct cytp_data *cytp;
 >+
 >+      cytp = (struct cytp_data *)kzalloc(sizeof(struct cytp_data), GFP_KERNEL);
@@ -874,13 +883,11 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+      psmouse->model = 1;
 >+      psmouse->protocol_handler = cypress_protocol_handler;
 >+      psmouse->set_rate = cypress_set_rate;
->+      psmouse->disconnect = cypress_disconnect;
->+#if 0
+>+      psmouse->disconnect = cypress_disconnect; #if 0
 >+      /* FIXME: cypress_reconnect() never works...
 >+       * just let psmouse re-init() us for now.
 >+       */
->+      psmouse->reconnect = cypress_reconnect;
->+#endif
+>+      psmouse->reconnect = cypress_reconnect; #endif
 >+      psmouse->cleanup = cypress_reset;
 >+      psmouse->pktsize = 8;
 >+      psmouse->resync_time = 0;
@@ -904,7 +911,8 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+{
 >+      return true;
 >+}
->diff --git a/drivers/input/mouse/cypress_ps2.h b/drivers/input/mouse/cypress_ps2.h
+>diff --git a/drivers/input/mouse/cypress_ps2.h
+>b/drivers/input/mouse/cypress_ps2.h
 >new file mode 100644
 >index 0000000..ce70462
 >--- /dev/null
@@ -940,19 +948,20 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+#define CYTP_CMD_REQUEST_BASELINE_STATUS    ENCODE_CMD(2, 0, 0, 1)
 >+#define CYTP_CMD_REQUEST_RECALIBRATION      ENCODE_CMD(2, 0, 0, 3)
 >+
->+#define DECODE_CMD_AA(x) (((x) >> 6) & CMD_BITS_MASK)
->+#define DECODE_CMD_BB(x) (((x) >> 4) & CMD_BITS_MASK)
->+#define DECODE_CMD_CC(x) (((x) >> 2) & CMD_BITS_MASK)
->+#define DECODE_CMD_DD(x) ((x) & CMD_BITS_MASK)
+>+#define DECODE_CMD_AA(x) (((x) >> 6) & CMD_BITS_MASK) #define
+>+DECODE_CMD_BB(x) (((x) >> 4) & CMD_BITS_MASK) #define DECODE_CMD_CC(x)
+>+(((x) >> 2) & CMD_BITS_MASK) #define DECODE_CMD_DD(x) ((x) &
+>+CMD_BITS_MASK)
 >+
 >+/* Cypress trackpad working mode. */
 >+#define CYTP_BIT_ABS_PRESSURE    (1 << 3)
 >+#define CYTP_BIT_ABS_NO_PRESSURE (1 << 2)
 >+#define CYTP_BIT_CYPRESS_REL     (1 << 1)
 >+#define CYTP_BIT_STANDARD_REL    (1 << 0)
->+#define CYTP_BIT_REL_MASK (CYTP_BIT_CYPRESS_REL | CYTP_BIT_STANDARD_REL)
->+#define CYTP_BIT_ABS_MASK (CYTP_BIT_ABS_PRESSURE | CYTP_BIT_ABS_NO_PRESSURE)
->+#define CYTP_BIT_ABS_REL_MASK (CYTP_BIT_ABS_MASK | CYTP_BIT_REL_MASK)
+>+#define CYTP_BIT_REL_MASK (CYTP_BIT_CYPRESS_REL |
+>+CYTP_BIT_STANDARD_REL) #define CYTP_BIT_ABS_MASK
+>+(CYTP_BIT_ABS_PRESSURE | CYTP_BIT_ABS_NO_PRESSURE) #define
+>+CYTP_BIT_ABS_REL_MASK (CYTP_BIT_ABS_MASK | CYTP_BIT_REL_MASK)
 >+
 >+#define CYTP_BIT_HIGH_RATE       (1 << 4)
 >+/*
@@ -961,9 +970,8 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+ */
 >+#define CYTP_BIT_REPORT_MODE     (1 << 5)
 >+
->+/* scrolling width values for set HSCROLL and VSCROLL width command. */
->+#define SCROLL_WIDTH_NARROW 1
->+#define SCROLL_WIDTH_NORMAL 2
+>+/* scrolling width values for set HSCROLL and VSCROLL width command.
+>+*/ #define SCROLL_WIDTH_NARROW 1 #define SCROLL_WIDTH_NORMAL 2
 >+#define SCROLL_WIDTH_WIDE   3
 >+
 >+#define PALM_GEOMETRY_ENABLE  1
@@ -977,13 +985,11 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+#define FW_VER_HIGH_MASK 0x70
 >+#define FW_VER_LOW_MASK  0x0f
 >+
->+/* Times to retry a ps2_command and millisecond delay between tries. */
->+#define CYTP_PS2_CMD_TRIES 3
->+#define CYTP_PS2_CMD_DELAY 500
+>+/* Times to retry a ps2_command and millisecond delay between tries.
+>+*/ #define CYTP_PS2_CMD_TRIES 3 #define CYTP_PS2_CMD_DELAY 500
 >+
->+/* time out for PS/2 command only in milliseconds. */
->+#define CYTP_CMD_TIMEOUT  200
->+#define CYTP_DATA_TIMEOUT 30
+>+/* time out for PS/2 command only in milliseconds. */ #define
+>+CYTP_CMD_TIMEOUT  200 #define CYTP_DATA_TIMEOUT 30
 >+
 >+#define CYTP_EXT_CMD   0xe8
 >+#define CYTP_PS2_RETRY 0xfe
@@ -995,8 +1001,8 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+
 >+#define CYTP_105001_WIDTH  97   /* Dell XPS 13 */
 >+#define CYTP_105001_HIGH   59
->+#define CYTP_DEFAULT_WIDTH (CYTP_105001_WIDTH)
->+#define CYTP_DEFAULT_HIGH  (CYTP_105001_HIGH)
+>+#define CYTP_DEFAULT_WIDTH (CYTP_105001_WIDTH) #define
+>+CYTP_DEFAULT_HIGH  (CYTP_105001_HIGH)
 >+
 >+#define CYTP_ABS_MAX_X     1600
 >+#define CYTP_ABS_MAX_Y     900
@@ -1010,10 +1016,8 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+#define REL_X_SIGN_BIT 0x10
 >+#define REL_Y_SIGN_BIT 0x20
 >+
->+/* header byte bits of absolute package. */
->+#define ABS_VSCROLL_BIT 0x10
->+#define ABS_HSCROLL_BIT 0x20
->+#define ABS_MULTIFINGER_TAP 0x04
+>+/* header byte bits of absolute package. */ #define ABS_VSCROLL_BIT
+>+0x10 #define ABS_HSCROLL_BIT 0x20 #define ABS_MULTIFINGER_TAP 0x04
 >+#define ABS_EDGE_MOTION_MASK 0x80
 >+
 >+#define DFLT_RESP_BITS_VALID     0x88  /* SMBus bit should not be set. */
@@ -1037,8 +1041,7 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+#define VITAL_BIT_1F_SPIKE           0x03
 >+
 >+/* bits of first byte response of E9h-Status Request command. */
->+#define RESP_BTN_RIGHT_BIT  0x01
->+#define RESP_BTN_MIDDLE_BIT 0x02
+>+#define RESP_BTN_RIGHT_BIT  0x01 #define RESP_BTN_MIDDLE_BIT 0x02
 >+#define RESP_BTN_LEFT_BIT   0x04
 >+#define RESP_SCALING_BIT    0x10
 >+#define RESP_ENABLE_BIT     0x20
@@ -1057,8 +1060,7 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+struct cytp_contact {
 >+      int x;
 >+      int y;
->+      int z;  /* also named as touch pressure. */
->+};
+>+      int z;  /* also named as touch pressure. */ };
 >+
 >+/* The structure of */
 >+struct cytp_report_data {
@@ -1072,8 +1074,8 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+      signed char hscroll;
 >+};
 >+
->+/* The structure of Cypress Trackpad device private data. */
->+struct cytp_data {
+>+/* The structure of Cypress Trackpad device private data. */ struct
+>+cytp_data {
 >+      int fw_version;
 >+
 >+      int pkt_size;
@@ -1105,21 +1107,17 @@ Could you help describe the test steps that you see it never works, so I can hel
 >+
 >+      int prev_contact_cnt;
 >+      int zero_packet_cnt;
->+      struct cytp_report_data prev_report_data;
->+};
+>+      struct cytp_report_data prev_report_data; };
 >+
 >+
 >+#ifdef CONFIG_MOUSE_PS2_CYPRESS
->+int cypress_detect(struct psmouse *psmouse, bool set_properties);
->+int cypress_init(struct psmouse *psmouse);
->+bool cypress_supported(void);
->+#else
->+inline int cypress_detect(struct psmouse *psmouse, bool set_properties)
->+{
+>+int cypress_detect(struct psmouse *psmouse, bool set_properties); int
+>+cypress_init(struct psmouse *psmouse); bool cypress_supported(void);
+>+#else inline int cypress_detect(struct psmouse *psmouse, bool
+>+set_properties) {
 >+      return -ENOSYS;
 >+}
->+inline int cypress_init(struct psmouse *psmouse)
->+{
+>+inline int cypress_init(struct psmouse *psmouse) {
 >+      return -ENOSYS;
 >+}
 >+inline bool cypress_supported(void)

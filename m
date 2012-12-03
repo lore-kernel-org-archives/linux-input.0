@@ -1,52 +1,66 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 0/4] Cypress PS/2 Trackpad driver
-Date: Sun, 2 Dec 2012 23:36:36 -0800
-Message-ID: <20121203073636.GA28682@core.coreip.homeip.net>
-References: <1354226281-3476-1-git-send-email-kamal@canonical.com>
+Subject: Re: [PATCH v2 0/1] Input: xpad - Implement wireless controller LED
+ setting and fix connect time LED setting
+Date: Sun, 2 Dec 2012 23:43:18 -0800
+Message-ID: <20121203074318.GC28682@core.coreip.homeip.net>
+References: <20121130135406.38c9bdc9@umaro.lan>
+ <1994333.0mnJMZMWGT@dtor-d630.eng.vmware.com>
+ <20121130201329.3f8aefa0@umaro.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:37147 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751483Ab2LCHgk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Dec 2012 02:36:40 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1354226281-3476-1-git-send-email-kamal@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20121130201329.3f8aefa0@umaro.lan>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Moeller <kode54@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kamal Mostafa <kamal@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Dudley Du <dudl@cypress.com>, Cypress Semiconductor Corporation <customercare@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
 
-Hi Kamal,
+On Fri, Nov 30, 2012 at 08:13:29PM -0800, Chris Moeller wrote:
+> On Fri, 30 Nov 2012 14:30:23 -0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > Hi Chris,
+> > 
+> > On Friday, November 30, 2012 01:54:06 PM Chris Moeller wrote:
+> > > I've submitted versions of this with prior patch sets, and this part
+> > > was never accepted, possibly because it depended on other patches to
+> > > work, or possibly because it wasn't so cleanly organized. This time,
+> > > I've split the LED setting command off into its own static function,
+> > > then call that on controller connect and optionally on LED setting
+> > > commands. The static function does not include any locking, because
+> > > locking inside the function which receives the incoming packets
+> > > deadlocks the driver, and does not appear to be necessary anyway.
+> > > 
+> > > It also removes all traces of the original bulk out function which
+> > > was designed for the purpose of setting the LED status on connect,
+> > > as I found that it actually does not work at all. It appears to try
+> > > to send the data, but nothing actually happens to the controller
+> > > LEDs.
+> > 
+> > Attached is a reply I sent to on 7/4/11 to which you unfortunately
+> > never responded. The issue is that of force feedback (rumble) and LED
+> > share the same URB then access to that URB should be arbitrated. The
+> > attached message contains a patch that attempts to implement that
+> > arbitration, could you please try it out and see what changes are
+> > needed to make it work?
+> > 
+> > Thanks.
+> > 
+> 
+> So sorry I missed your reply. That's what I get for filtering the
+> mailing list messages past my inbox, then never following up on my
+> filter/folder set for replies to my own messages. I recall you
+> mentioned that potential race condition when I first submitted, but I
+> forgot to do anything about it. I'm glad at least one of us has our
+> stuff together. It seems to work just fine, but there may be a force
+> feedback issue with the following test program, where it leaves the
+> effect playing indefinitely after the program terminates, and then the
+> controller itself ceases to respond until the module is removed and
+> reloaded.
 
-On Thu, Nov 29, 2012 at 01:57:57PM -0800, Kamal Mostafa wrote:
-> This driver, submitted on behalf of Cypress Semiconductor Corporation and
-> additional contributors, provides support for the Cypress PS/2 Trackpad.
-> 
-> This [PATCH v3] version differs from my previous submitted version[1]:
-> 
->   Patch #1 (cmdbuf to 8 bytes) and #3 (link in driver) are unchanged.
-> 
->   Patch #2 (main driver), as recommended by Henrik Rydberg[2]:
->   - use input_mt_assign_slots; drop cypress_cal_finger_id.
->   - enable 2-finger-only SEMI_MT; drop cypress_simulate_fingers.
->   - various code clean-ups.
-> 
->   Henrik, does patch #2 appear to properly use assign_slots and SEMI_MT as
->   you intended?  This SEMI_MT method does work (with 2 finger support only),
->   but I'm not clear why we wouldn't want to handle >2 fingers also, so ...
-> 
->   Patch #4 (new) reintroduces simulated multitouch for up to 5 fingers
->   (#if CYPRESS_SIMULATE_MT), disabling SEMI_MT again.
-> 
->   If that functionality (support for >2 fingers) can be acheived in some
->   better way, please advise.
-
-You can still report true number of fingers on the pad via BTN_TOOL_*TAP
-while reporting the bounding box, the same way as Synaptics, Elantech,
-ALPS and Sentelic drivers are doing it.
-
-Thanks.
+Just to confirm, you see this problem only with the patch being
+discussed and do not see it without it, right?
 
 -- 
 Dmitry

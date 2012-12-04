@@ -1,47 +1,28 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Fix touch support for wacom bamboo fun CTH-461
-Date: Mon, 3 Dec 2012 21:22:05 -0800
-Message-ID: <20121204052205.GA23964@core.coreip.homeip.net>
-References: <3305232.JQ4fXkYdWp@diego-arch>
- <CAF8JNh+s6L1=V1ccxRSvERjgAFPekN5dP-3Y0vLBFTe+ctn52A@mail.gmail.com>
+Subject: Re: [PATCH 1/2] Input: xpad - Minor coding style errors fixed.
+Date: Mon, 3 Dec 2012 21:24:00 -0800
+Message-ID: <20121204052400.GB23964@core.coreip.homeip.net>
+References: <1354433779-16274-1-git-send-email-g@maral.me>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:52064 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751090Ab2LDFWK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 00:22:10 -0500
-Received: by mail-pb0-f46.google.com with SMTP id wy7so2561856pbc.19
-        for <linux-input@vger.kernel.org>; Mon, 03 Dec 2012 21:22:09 -0800 (PST)
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:49054 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751297Ab2LDFYF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 00:24:05 -0500
 Content-Disposition: inline
-In-Reply-To: <CAF8JNh+s6L1=V1ccxRSvERjgAFPekN5dP-3Y0vLBFTe+ctn52A@mail.gmail.com>
+In-Reply-To: <1354433779-16274-1-git-send-email-g@maral.me>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Diego Calleja <diegocg@gmail.com>, linux-input@vger.kernel.org
+To: "Guillermo A. Amaral" <g@maral.me>
+Cc: gregkh@linuxfoundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Dec 03, 2012 at 04:26:23PM -0800, Ping Cheng wrote:
-> On Mon, Dec 3, 2012 at 3:56 PM, Diego Calleja <diegocg@gmail.com> wrote:
+On Sat, Dec 01, 2012 at 11:36:19PM -0800, Guillermo A. Amaral wrote:
+> From: "Guillermo A. Amaral" <g@maral.me>
 > 
-> > Commit f393ee2b814e3291c12565000210b3cf10aa5c1d forgot to add the
-> > touch_max property for wacom bamboo fun CTH-461/S, id 056a:00d2.
-> >
-> > This broke the touch functionality for that device. This patch,
-> > (done with help of Ping Cheng), adds the correct value and makes
-> > touch work again.
-> >
-> > (Note: this problem exists since 3.5, so it may be a candidate for
-> > -stable)
-> >
-> >
-> > Signed-off-by: Diego Calleja <diegocg@gmail.com>
-> >
-> 
-> Thank you Diego for finding and fixing the issue.
-> 
-> Reviewed-by: Ping Cheng <pinglinux@gmail.com>
+> Fixed a few minor coding style issues in xpad driver.
 
-Applied, thanks Diego and Ping.
+Applied both, thanks Guillermo.
 
 -- 
 Dmitry

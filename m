@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 13/14] HID: i2c-hid: also call i2c_hid_free_buffers in i2c_hid_remove
-Date: Tue,  4 Dec 2012 16:27:54 +0100
-Message-ID: <1354634875-5182-14-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 10/14] HID: i2c-hid: reorder allocation/free of buffers
+Date: Tue,  4 Dec 2012 16:27:51 +0100
+Message-ID: <1354634875-5182-11-git-send-email-benjamin.tissoires@gmail.com>
 References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -9,29 +9,127 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In the case where the hid driver in charge of handling the hid part
-of the device (hid-generic for instance) fails at probe, neither
-i2c_hid_start nor i2c_hid_stop are called.
-Thus, the buffers allocated in i2c_hid_probe are never freed.
+Simplifies i2c_hid_alloc_buffers tests, and makes this function
+responsible of the assignment of ihid->bufsize.
+The condition for the reallocation in i2c_hid_start is then simpler.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- drivers/hid/i2c-hid/i2c-hid.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/i2c-hid/i2c-hid.c | 68 ++++++++++++++++++-------------------------
+ 1 file changed, 28 insertions(+), 40 deletions(-)
 
 diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index bea4b13..62988f1 100644
+index dcacfc4..4e3f80b 100644
 --- a/drivers/hid/i2c-hid/i2c-hid.c
 +++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -891,6 +891,9 @@ static int __devexit i2c_hid_remove(struct i2c_client *client)
+@@ -465,48 +465,38 @@ static void i2c_hid_find_max_report(struct hid_device *hid, unsigned int type,
+ 	}
+ }
  
- 	free_irq(client->irq, ihid);
- 
-+	if (ihid->bufsize)
-+		i2c_hid_free_buffers(ihid);
+-static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
++static void i2c_hid_free_buffers(struct i2c_hid *ihid)
++{
++	kfree(ihid->inbuf);
++	kfree(ihid->argsbuf);
++	kfree(ihid->cmdbuf);
++	ihid->inbuf = NULL;
++	ihid->cmdbuf = NULL;
++	ihid->argsbuf = NULL;
++	ihid->bufsize = 0;
++}
 +
- 	kfree(ihid);
++static int i2c_hid_alloc_buffers(struct i2c_hid *ihid, size_t report_size)
+ {
+ 	/* the worst case is computed from the set_report command with a
+ 	 * reportID > 15 and the maximum report length */
+ 	int args_len = sizeof(__u8) + /* optional ReportID byte */
+ 		       sizeof(__u16) + /* data register */
+ 		       sizeof(__u16) + /* size of the report */
+-		       ihid->bufsize; /* report */
+-
+-	ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+-
+-	if (!ihid->inbuf)
+-		return -ENOMEM;
++		       report_size; /* report */
  
- 	return 0;
++	ihid->inbuf = kzalloc(report_size, GFP_KERNEL);
+ 	ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
+-
+-	if (!ihid->argsbuf) {
+-		kfree(ihid->inbuf);
+-		return -ENOMEM;
+-	}
+-
+ 	ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
+ 
+-	if (!ihid->cmdbuf) {
+-		kfree(ihid->inbuf);
+-		kfree(ihid->argsbuf);
+-		ihid->inbuf = NULL;
+-		ihid->argsbuf = NULL;
++	if (!ihid->inbuf || !ihid->argsbuf || !ihid->cmdbuf) {
++		i2c_hid_free_buffers(ihid);
+ 		return -ENOMEM;
+ 	}
+ 
+-	return 0;
+-}
++	ihid->bufsize = report_size;
+ 
+-static void i2c_hid_free_buffers(struct i2c_hid *ihid)
+-{
+-	kfree(ihid->inbuf);
+-	kfree(ihid->argsbuf);
+-	kfree(ihid->cmdbuf);
+-	ihid->inbuf = NULL;
+-	ihid->cmdbuf = NULL;
+-	ihid->argsbuf = NULL;
++	return 0;
+ }
+ 
+ static int i2c_hid_get_raw_report(struct hid_device *hid,
+@@ -611,22 +601,19 @@ static int i2c_hid_start(struct hid_device *hid)
+ 	struct i2c_client *client = hid->driver_data;
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
+ 	int ret;
+-	int old_bufsize = ihid->bufsize;
++	unsigned int bufsize = HID_MIN_BUFFER_SIZE;
+ 
+-	ihid->bufsize = HID_MIN_BUFFER_SIZE;
+-	i2c_hid_find_max_report(hid, HID_INPUT_REPORT, &ihid->bufsize);
+-	i2c_hid_find_max_report(hid, HID_OUTPUT_REPORT, &ihid->bufsize);
+-	i2c_hid_find_max_report(hid, HID_FEATURE_REPORT, &ihid->bufsize);
++	i2c_hid_find_max_report(hid, HID_INPUT_REPORT, &bufsize);
++	i2c_hid_find_max_report(hid, HID_OUTPUT_REPORT, &bufsize);
++	i2c_hid_find_max_report(hid, HID_FEATURE_REPORT, &bufsize);
+ 
+-	if (ihid->bufsize > old_bufsize || !ihid->inbuf || !ihid->cmdbuf) {
++	if (bufsize > ihid->bufsize) {
+ 		i2c_hid_free_buffers(ihid);
+ 
+-		ret = i2c_hid_alloc_buffers(ihid);
++		ret = i2c_hid_alloc_buffers(ihid, bufsize);
+ 
+-		if (ret) {
+-			ihid->bufsize = old_bufsize;
++		if (ret)
+ 			return ret;
+-		}
+ 	}
+ 
+ 	if (!(hid->quirks & HID_QUIRK_NO_INIT_REPORTS))
+@@ -844,8 +831,9 @@ static int __devinit i2c_hid_probe(struct i2c_client *client,
+ 	/* we need to allocate the command buffer without knowing the maximum
+ 	 * size of the reports. Let's use HID_MIN_BUFFER_SIZE, then we do the
+ 	 * real computation later. */
+-	ihid->bufsize = HID_MIN_BUFFER_SIZE;
+-	i2c_hid_alloc_buffers(ihid);
++	ret = i2c_hid_alloc_buffers(ihid, HID_MIN_BUFFER_SIZE);
++	if (ret < 0)
++		goto err;
+ 
+ 	ret = i2c_hid_fetch_hid_descriptor(ihid);
+ 	if (ret < 0)
 -- 
 1.8.0.1

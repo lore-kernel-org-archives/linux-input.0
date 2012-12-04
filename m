@@ -1,42 +1,44 @@
-From: "Guillermo A. Amaral" <g@maral.me>
-Subject: Re: [PATCH 1/2] Input: xpad - Minor coding style errors fixed.
-Date: Mon, 3 Dec 2012 23:28:36 -0800
-Message-ID: <20121204072836.GA16676@MellowWarrior.localdomain>
-References: <1354433779-16274-1-git-send-email-g@maral.me>
- <20121204052400.GB23964@core.coreip.homeip.net>
-Reply-To: g@maral.me
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two
+ locks.
+Date: Tue, 4 Dec 2012 09:04:10 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1212040902270.17055@pobox.suse.cz>
+References: <CAG_cf+cXnNSyxcrsZncfr2KKFRhiCJ60vHrTt3_aB-Bc7m5eVw@mail.gmail.com> <20121126185627.7bff1f84@neptune.home> <CAN+gG=ENOU1oYRLd2ZMhPeCFPmTtiYRDZuuW3idvULShrnkPUg@mail.gmail.com>
+ <CANq1E4Qc_GpRtghL5emCFTWOCh0-0TC1oJ6ZaAsQbOMixgS-5Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:63921 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751202Ab2LDH2k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 02:28:40 -0500
-Received: by mail-da0-f46.google.com with SMTP id p5so1681561dak.19
-        for <linux-input@vger.kernel.org>; Mon, 03 Dec 2012 23:28:40 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20121204052400.GB23964@core.coreip.homeip.net>
+Received: from cantor2.suse.de ([195.135.220.15]:37668 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751007Ab2LDIEP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 4 Dec 2012 03:04:15 -0500
+In-Reply-To: <CANq1E4Qc_GpRtghL5emCFTWOCh0-0TC1oJ6ZaAsQbOMixgS-5Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: gregkh@linuxfoundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, Andrew de los Reyes <andrew-vger@gizmolabs.org>, Linux Input <linux-input@vger.kernel.org>
 
-On Mon, Dec 03, 2012 at 09:24:00PM -0800, Dmitry Torokhov wrote:
-> On Sat, Dec 01, 2012 at 11:36:19PM -0800, Guillermo A. Amaral wrote:
-> > From: "Guillermo A. Amaral" <g@maral.me>
-> > 
-> > Fixed a few minor coding style issues in xpad driver.
-> 
-> Applied both, thanks Guillermo.
+On Mon, 26 Nov 2012, David Herrmann wrote:
 
-Thanks! Sorry about the double email btw, I thought it failed to send the
-first one.
+> The fix you are proposing actually looks pretty nice, although it puts
+> the burden of locking to the hid-driver instead of the hid-core. So
+> every .probe function must go sure that the lock is held when
+> returning. This means if you unlock the input-lock, you need to lock
+> it before calling return so hid-core can unlock it again. This opens a
+> small race-condition where the hid-core might drop important
+> input-events as input-lock is held during "return". Any ideas here?
 
-I've getting quite a few gamepad donations for my game console project, so
-expect more patches. ;)
+But why should we care deeply?
 
-Cheers,
-G
+The lost events wouldn't be the ones that are needed for initialization of 
+the device, as all the probing as been finished already.
+
+So they would be 'regular' events sent by the device. And as the 
+initialization hasn't been finished yet, it really can't be predicted 
+which events make it and which don't.
+
+Thanks,
 
 -- 
-gamaral http://about.me/gamaral
+Jiri Kosina
+SUSE Labs

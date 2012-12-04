@@ -1,40 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input: STMicroelectronics multi touch capacitive
- touchscreen ftk
-Date: Mon, 3 Dec 2012 17:44:43 -0800
-Message-ID: <20121204014442.GA23039@core.coreip.homeip.net>
-References: <1354285134-8188-1-git-send-email-willy.woo@gmail.com>
- <20121130150437.GE17587@arwen.pp.htv.fi>
- <CAEdoeCM94F3RT8J4w8i3S6GJ5Upy1CBCatnuwiFB_7ZzB0Cn6Q@mail.gmail.com>
+Subject: Re: [PATCH] Fix touch support for wacom bamboo fun CTH-461
+Date: Mon, 3 Dec 2012 21:22:05 -0800
+Message-ID: <20121204052205.GA23964@core.coreip.homeip.net>
+References: <3305232.JQ4fXkYdWp@diego-arch>
+ <CAF8JNh+s6L1=V1ccxRSvERjgAFPekN5dP-3Y0vLBFTe+ctn52A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f46.google.com ([209.85.210.46]:34334 "EHLO
-	mail-da0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751415Ab2LDBot (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Dec 2012 20:44:49 -0500
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:52064 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751090Ab2LDFWK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 00:22:10 -0500
+Received: by mail-pb0-f46.google.com with SMTP id wy7so2561856pbc.19
+        for <linux-input@vger.kernel.org>; Mon, 03 Dec 2012 21:22:09 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <CAEdoeCM94F3RT8J4w8i3S6GJ5Upy1CBCatnuwiFB_7ZzB0Cn6Q@mail.gmail.com>
+In-Reply-To: <CAF8JNh+s6L1=V1ccxRSvERjgAFPekN5dP-3Y0vLBFTe+ctn52A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Li Wu <willy.woo@gmail.com>
-Cc: balbi@ti.com, Li Wu <li.wu@st.com>, Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, Joe Perches <joe@perches.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, Shawn Landden <shawnlandden@gmail.com>, Viresh Kumar <viresh.kumar@linaro.org>, Jianchun <jcbian@pixcir.com.cn>, David Dajun Chen <dchen@diasemi.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Diego Calleja <diegocg@gmail.com>, linux-input@vger.kernel.org
 
-Hi Li,
-
-On Tue, Dec 04, 2012 at 08:32:05AM +0800, Li Wu wrote:
-> Thanks Felipe for the nice comments.
+On Mon, Dec 03, 2012 at 04:26:23PM -0800, Ping Cheng wrote:
+> On Mon, Dec 3, 2012 at 3:56 PM, Diego Calleja <diegocg@gmail.com> wrote:
 > 
-> I have consolidated most of your comments to a new version, but I am not
-> sure how should I send it out.
+> > Commit f393ee2b814e3291c12565000210b3cf10aa5c1d forgot to add the
+> > touch_max property for wacom bamboo fun CTH-461/S, id 056a:00d2.
+> >
+> > This broke the touch functionality for that device. This patch,
+> > (done with help of Ping Cheng), adds the correct value and makes
+> > touch work again.
+> >
+> > (Note: this problem exists since 3.5, so it may be a candidate for
+> > -stable)
+> >
+> >
+> > Signed-off-by: Diego Calleja <diegocg@gmail.com>
+> >
 > 
-> I am using git send-email from shell command, then shall I just send out
-> the patch v2? Or do I need send both v1 and v2?
+> Thank you Diego for finding and fixing the issue.
+> 
+> Reviewed-by: Ping Cheng <pinglinux@gmail.com>
 
-Use "git rebase" to squash the 2 commit together and then send it out as
-a single patch.
-
-Thanks.
+Applied, thanks Diego and Ping.
 
 -- 
 Dmitry

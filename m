@@ -1,71 +1,63 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 06/14] HID: i2c-hid: remove unused static declarations
-Date: Tue, 4 Dec 2012 22:51:32 +0100
-Message-ID: <20121204225132.2b7b6f6f@endymion.delvare>
-References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1354634875-5182-7-git-send-email-benjamin.tissoires@gmail.com>
+From: Arthur Skowronek <eisensheng@gmail.com>
+Subject: Re: PROBLEM: ACRUX USB GAMEPAD reports wrong value on axis 0 in
+ certain state
+Date: Tue, 4 Dec 2012 23:23:36 +0100
+Message-ID: <CA+yuk4Z7Tps=vnXqaieqQ-D3FZX=sB2W9hLMFUeOOP2wGkx9Dg@mail.gmail.com>
+References: <CA+yuk4Z5PJzVc+r6hD6+eKM6QJt9tdUem9L1ROHg=TDAX1td9w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zoneX.GCU-Squad.org ([194.213.125.0]:43071 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753046Ab2LDVvj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 16:51:39 -0500
-In-Reply-To: <1354634875-5182-7-git-send-email-benjamin.tissoires@gmail.com>
+Received: from mail-oa0-f46.google.com ([209.85.219.46]:42667 "EHLO
+	mail-oa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751913Ab2LDWXh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 17:23:37 -0500
+Received: by mail-oa0-f46.google.com with SMTP id h16so4514495oag.19
+        for <linux-input@vger.kernel.org>; Tue, 04 Dec 2012 14:23:36 -0800 (PST)
+In-Reply-To: <CA+yuk4Z5PJzVc+r6hD6+eKM6QJt9tdUem9L1ROHg=TDAX1td9w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Tue,  4 Dec 2012 16:27:47 +0100, Benjamin Tissoires wrote:
-> These definitions are not used here, but are defined by the specification.
-> Keeping some of them for documentation purposes.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 25 ++++++++++---------------
->  1 file changed, 10 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 54950be..4452611 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -106,22 +106,17 @@ static const struct i2c_hid_cmd hid_reset_cmd =		{ I2C_HID_CMD(0x01),
->  							  .wait = true };
->  static const struct i2c_hid_cmd hid_get_report_cmd =	{ I2C_HID_CMD(0x02) };
->  static const struct i2c_hid_cmd hid_set_report_cmd =	{ I2C_HID_CMD(0x03) };
-> -static const struct i2c_hid_cmd hid_get_idle_cmd =	{ I2C_HID_CMD(0x04) };
-> -static const struct i2c_hid_cmd hid_set_idle_cmd =	{ I2C_HID_CMD(0x05) };
-> -static const struct i2c_hid_cmd hid_get_protocol_cmd =	{ I2C_HID_CMD(0x06) };
-> -static const struct i2c_hid_cmd hid_set_protocol_cmd =	{ I2C_HID_CMD(0x07) };
->  static const struct i2c_hid_cmd hid_set_power_cmd =	{ I2C_HID_CMD(0x08) };
-> -/* read/write data register */
-> -static const struct i2c_hid_cmd hid_data_cmd = {
-> -		.registerIndex = offsetof(struct i2c_hid_desc, wDataRegister),
-> -		.opcode = 0x00,
-> -		.length = 2 };
-> -/* write output reports */
-> -static const struct i2c_hid_cmd hid_out_cmd = {
-> -		.registerIndex = offsetof(struct i2c_hid_desc,
-> -			wOutputRegister),
-> -		.opcode = 0x00,
-> -		.length = 2 };
-> +
-> +/*
-> + * These definitions are not used here, but are defined by the spec.
-> + * Keeping them here for documentation purposes.
-> + *
-> + * static const struct i2c_hid_cmd hid_get_idle_cmd = { I2C_HID_CMD(0x04) };
-> + * static const struct i2c_hid_cmd hid_set_idle_cmd = { I2C_HID_CMD(0x05) };
-> + * static const struct i2c_hid_cmd hid_get_protocol_cmd = { I2C_HID_CMD(0x06) };
-> + * static const struct i2c_hid_cmd hid_set_protocol_cmd = { I2C_HID_CMD(0x07) };
-> + */
->  
->  /* The main device structure */
->  struct i2c_hid {
+Hi,
 
-Reviewed-by: Jean Delvare <khali@linux-fr.org>
+unfortunately the problem is still there with linux 3.6.8 and using
+any of available calibration tools (jstest, jstest-gtk) won't fix the
+issue with the 0 axis. Please help me with this issue, thank you very
+much.
 
--- 
-Jean Delvare
+
+Greetings,
+Arthur
+
+2012/11/23 Arthur Skowronek <eisensheng@gmail.com>:
+> Dear List,
+>
+> I have 4 of the acrux usb game pad lying around here and all of them
+> show the same behavior.
+>
+> [1.] One line summary of the problem:
+> The driver reports a bad value for the axis 0 whenever I move the
+> stick to far to the right and only this direction and only this axis
+> is affected.
+>
+> [2.] Full description of the problem/report:
+> Whenever I move the 0 axis stick to far to the right, the driver
+> reports a value of -32767 to the program which is clearly wrong since
+> this value means the stick is far to the left. This is the only axis
+> affected by this strange behavior. This can also be seen on
+> <http://youtu.be/ZbTaqA1ROSY>.
+>
+> [3.] Keywords (i.e., modules, networking, kernel):
+> Game pad, USB HID
+>
+> [4.] Kernel version (from /proc/version):
+> Linux version 3.6.7-1-ARCH (tobias@T-POWA-LX) (gcc version 4.7.2 (GCC)
+> ) #1 SMP PREEMPT Sun Nov 18 10:11:22 CET 2012
+>
+> [7.] Environment
+> <http://pastebin.com/Y2eShgX0>
+>
+> Thank you very much
+>
+> Greetings,
+> Arthur S.

@@ -1,47 +1,172 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 01/14] HID: i2c-hid: change I2C name
-Date: Tue, 4 Dec 2012 17:07:12 +0100
-Message-ID: <20121204170712.1bcdcddb@endymion.delvare>
-References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1354634875-5182-2-git-send-email-benjamin.tissoires@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 1/2] input: wacom - Prepare for syncing with input-mt
+ changes
+Date: Tue, 4 Dec 2012 17:10:21 +0100
+Message-ID: <20121204161021.GA1427@polaris.bitmath.org>
+References: <1354570740-2313-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zoneX.GCU-Squad.org ([194.213.125.0]:9250 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754335Ab2LDQHZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 11:07:25 -0500
-In-Reply-To: <1354634875-5182-2-git-send-email-benjamin.tissoires@gmail.com>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:39545 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751724Ab2LDQIi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 11:08:38 -0500
+Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
+	by smtprelay-b22.telenor.se (Postfix) with ESMTP id 59618EB9EB
+	for <linux-input@vger.kernel.org>; Tue,  4 Dec 2012 17:08:36 +0100 (CET)
+Content-Disposition: inline
+In-Reply-To: <1354570740-2313-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Ping Cheng <pingc@wacom.com>, linux-input@vger.kernel.org
 
-On Tue,  4 Dec 2012 16:27:42 +0100, Benjamin Tissoires wrote:
-> no I2C driver has "i2c" in its name. It makes more sense to call this
-> i2c driver "hid".
+Hi Ping,
+
+> Henrik added new MT routines in release 3.7. This patch is to prepare
+> for the use of new MT routines.
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> Signed-off-by: Ping Cheng <pingc@wacom.com>
 > ---
->  drivers/hid/i2c-hid/i2c-hid.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/input/tablet/wacom_wac.c |   85 ++++++++++++++++++++------------------
+>  1 file changed, 45 insertions(+), 40 deletions(-)
 > 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 67ab5b7..0fbb229 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -949,7 +949,7 @@ static int i2c_hid_resume(struct device *dev)
->  static SIMPLE_DEV_PM_OPS(i2c_hid_pm, i2c_hid_suspend, i2c_hid_resume);
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+> index c0f3e91..097b559 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -1444,39 +1444,64 @@ static unsigned int wacom_calculate_touch_res(unsigned int logical_max,
+>         return (logical_max * 100) / physical_max;
+>  }
 >  
->  static const struct i2c_device_id i2c_hid_id_table[] = {
-> -	{ "i2c_hid", 0 },
-> +	{ "hid", 0 },
->  	{ },
->  };
->  MODULE_DEVICE_TABLE(i2c, i2c_hid_id_table);
+> -int wacom_setup_input_capabilities(struct input_dev *input_dev,
+> -				   struct wacom_wac *wacom_wac)
+> +static void wacom_abs_set_axis(struct input_dev *input_dev,
+> +			       struct wacom_wac *wacom_wac)
+>  {
+>  	struct wacom_features *features = &wacom_wac->features;
+> -	int i;
+> -
+> -	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> -
+> -	__set_bit(BTN_TOUCH, input_dev->keybit);
+> -
+> -	input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
+> -			     features->x_fuzz, 0);
+> -	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
+> -			     features->y_fuzz, 0);
+>  
+>  	if (features->device_type == BTN_TOOL_PEN) {
+> -		input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max,
+> -			     features->pressure_fuzz, 0);
+> +		input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
+> +				     features->x_fuzz, 0);
+> +		input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
+> +				     features->y_fuzz, 0);
+> +		input_set_abs_params(input_dev, ABS_PRESSURE, 0,
+> +			features->pressure_max, features->pressure_fuzz, 0);
+>  
+>  		/* penabled devices have fixed resolution for each model */
+>  		input_abs_set_res(input_dev, ABS_X, features->x_resolution);
+>  		input_abs_set_res(input_dev, ABS_Y, features->y_resolution);
+>  	} else {
+> -		input_abs_set_res(input_dev, ABS_X,
+> -			wacom_calculate_touch_res(features->x_max,
+> -						features->x_phy));
+> -		input_abs_set_res(input_dev, ABS_Y,
+> -			wacom_calculate_touch_res(features->y_max,
+> -						features->y_phy));
+> +		if (features->touch_max <= 2) {
+> +			input_set_abs_params(input_dev, ABS_X, 0,
+> +				features->x_max, features->x_fuzz, 0);
+> +			input_set_abs_params(input_dev, ABS_Y, 0,
+> +				features->y_max, features->y_fuzz, 0);
+> +			input_abs_set_res(input_dev, ABS_X,
+> +				wacom_calculate_touch_res(features->x_max,
+> +							features->x_phy));
+> +			input_abs_set_res(input_dev, ABS_Y,
+> +				wacom_calculate_touch_res(features->y_max,
+> +							features->y_phy));
+> +		}
+> +
+> +		if (features->touch_max > 1) {
+> +			input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0,
+> +				features->x_max, features->x_fuzz, 0);
+> +			input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
+> +				features->y_max, features->y_fuzz, 0);
+> +			input_abs_set_res(input_dev, ABS_MT_POSITION_X,
+> +				wacom_calculate_touch_res(features->x_max,
+> +							features->x_phy));
+> +			input_abs_set_res(input_dev, ABS_MT_POSITION_Y,
+> +				wacom_calculate_touch_res(features->y_max,
+> +							features->y_phy));
+> +		}
 
-Reviewed-by: Jean Delvare <khali@linux-fr.org>
+So the (touch_max > 1) logic replaces the branching on features and device type?
 
--- 
-Jean Delvare
+>  	}
+> +}
+>  
+> +int wacom_setup_input_capabilities(struct input_dev *input_dev,
+> +				   struct wacom_wac *wacom_wac)
+> +{
+> +	struct wacom_features *features = &wacom_wac->features;
+> +	int i;
+> +
+> +	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> +
+> +	__set_bit(BTN_TOUCH, input_dev->keybit);
+>  	__set_bit(ABS_MISC, input_dev->absbit);
+>  
+> +	wacom_abs_set_axis(input_dev, wacom_wac);
+> +
+>  	switch (wacom_wac->features.type) {
+>  	case WACOM_MO:
+>  		input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
+> @@ -1625,13 +1650,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+>  			                     0, features->x_max, 0, 0);
+>  			input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR,
+>  			                     0, features->y_max, 0, 0);
+> -
+> -			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+> -					     0, features->x_max,
+> -					     features->x_fuzz, 0);
+> -			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+> -					     0, features->y_max,
+> -					     features->y_fuzz, 0);
+>  		}
+>  		break;
+>  
+> @@ -1677,12 +1695,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+>  	case TABLETPC2FG:
+>  		if (features->device_type == BTN_TOOL_FINGER) {
+>  			input_mt_init_slots(input_dev, features->touch_max, 0);
+> -			input_set_abs_params(input_dev, ABS_MT_TOOL_TYPE,
+> -					0, MT_TOOL_MAX, 0, 0);
+> -			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+> -					0, features->x_max, 0, 0);
+> -			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+> -					0, features->y_max, 0, 0);
+>  		}
+>  		/* fall through */
+>  
+> @@ -1747,13 +1759,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+>  						     ABS_MT_TOUCH_MINOR,
+>  						     0, features->y_max, 0, 0);
+>  			}
+> -
+> -			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+> -					     0, features->x_max,
+> -					     features->x_fuzz, 0);
+> -			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+> -					     0, features->y_max,
+> -					     features->y_fuzz, 0);
+>  		} else if (features->device_type == BTN_TOOL_PEN) {
+>  			__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+>  			__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+> -- 
+> 1.7.10.4
+> 
+
+Thanks,
+Henrik

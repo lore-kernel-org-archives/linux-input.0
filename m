@@ -1,60 +1,132 @@
-From: Jan-Matthias Braun <jan_braun@gmx.net>
-Subject: Re: hid-multitouch: eGalax Touchscreen not resuming after suspend
-Date: Wed, 05 Dec 2012 10:12:57 +0100
-Message-ID: <1462361.9xDllZxTUO@orthese>
-References: <8159607.SRZZrRIPNF@orthese> <201212042311.27348.jan_braun@gmx.net> <2593830.jzurf9PFEe@vostro.rjw.lan>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 07/14] HID: i2c-hid: fix return paths
+Date: Wed, 5 Dec 2012 10:47:37 +0100
+Message-ID: <20121205104737.75b3cf17@endymion.delvare>
+References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1354634875-5182-8-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout-de.gmx.net ([213.165.64.23]:49248 "HELO
-	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751737Ab2LEJNO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 04:13:14 -0500
-In-Reply-To: <2593830.jzurf9PFEe@vostro.rjw.lan>
+Received: from zoneX.GCU-Squad.org ([194.213.125.0]:12632 "EHLO
+	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751148Ab2LEJru (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 04:47:50 -0500
+In-Reply-To: <1354634875-5182-8-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Am Mittwoch, 5. Dezember 2012, 01:28:53 schrieb Rafael J. Wysocki:
-> On Tuesday, December 04, 2012 11:11:27 PM Jan-Matthias Braun wrote:
-> > Am Donnerstag 29. November 2012, 23:28:55 schrieb Rafael J. Wysocki:
-> > > On Thursday, November 29, 2012 03:03:04 PM Jan-Matthias Braun wrote:
-> > > > Am Donnerstag, 29. November 2012, 01:20:04 schrieb Rafael J. Wysocki:
-> > > > > On Tuesday, November 27, 2012 09:26:11 PM Jiri Kosina wrote:
-> > > > > > On Sun, 25 Nov 2012, Jan-Matthias Braun wrote:
-> > > > > > > I have now done a git bisection from 3.0 to 3.1 and have found commit
-> > > > > > > 1e2ef05bb8cf851a694d38e9170c89e7ff052741 PM: Limit race conditions between runtime PM and system sleep (v2)
-> > > > > > > to be the first one to introduce the necessity of a module reload after resume.
-> > > > > 
-> > > > > So with that commit your device doesn't work after resume from system suspend
-> > > > > unless you reload the driver?
-> > > > 
-> > > > Yes. Additionally, with later kernel revisions even this won't help, but I could imagine this to be a consequence of the same problem.
-> > > > 
-> > > > > > > I hope that this helps in finding a solution. As I (again) don't immediatly
-> > > > > > > know how to go on, I kindly ask you to give me some hints for testing/patching
-> > > > > > > or even a possible solution. :-)
-> > > > > 
-> > > > > Can you apply the patch below to the current mainline kernel and see if it makes any
-> > > > > difference, please?
-> > > > 
-> > > > It does: Current mainline kernel (version >3.7.0-rc7 from git) is not showing
-> > > > the problem, if the patch is applied.
-> > > 
-> > > If you apply the patch below instead of the previous one, does it make
-> > > the problem return, or is it still good?
-> > 
-> > again, the problem does not occur; the resume behaviour of the touchscreen is still good.
-> > 
-> > Thanks a lot for testing!
+On Tue,  4 Dec 2012 16:27:48 +0100, Benjamin Tissoires wrote:
+> Forwards appropriate return values.
+> As noone use the error returned by i2c_hid_get_input, let's make it
+> returning void.
 > 
-> Well, thank you. :-)
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
 > 
-> I'll add a changelog to this patch and submit it as a fix for the issue
-> you're observing.
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 4452611..d6fdb3e 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -245,7 +245,7 @@ static int i2c_hid_get_report(struct i2c_client *client, u8 reportType,
+>  	if (ret) {
+>  		dev_err(&client->dev,
+>  			"failed to retrieve report from device.\n");
+> -		return -EINVAL;
+> +		return ret;
+>  	}
+>  
+>  	return 0;
+> @@ -290,7 +290,7 @@ static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
+>  		reportType, args, args_len, NULL, 0);
+>  	if (ret) {
+>  		dev_err(&client->dev, "failed to set a report to device.\n");
+> -		return -EINVAL;
+> +		return ret;
+>  	}
+>  
+>  	return data_len;
+> @@ -334,7 +334,7 @@ static int i2c_hid_hwreset(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> -static int i2c_hid_get_input(struct i2c_hid *ihid)
+> +static void i2c_hid_get_input(struct i2c_hid *ihid)
+>  {
+>  	int ret, ret_size;
+>  	int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
+> @@ -342,11 +342,11 @@ static int i2c_hid_get_input(struct i2c_hid *ihid)
+>  	ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
+>  	if (ret != size) {
+>  		if (ret < 0)
+> -			return ret;
+> +			return;
+>  
+>  		dev_err(&ihid->client->dev, "%s: got %d data instead of %d\n",
+>  			__func__, ret, size);
+> -		return ret;
+> +		return;
+>  	}
+>  
+>  	ret_size = ihid->inbuf[0] | ihid->inbuf[1] << 8;
+> @@ -355,13 +355,13 @@ static int i2c_hid_get_input(struct i2c_hid *ihid)
+>  		/* host or device initiated RESET completed */
+>  		if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
+>  			wake_up(&ihid->wait);
+> -		return 0;
+> +		return;
+>  	}
+>  
+>  	if (ret_size > size) {
+>  		dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
+>  			__func__, size, ret_size);
+> -		return -EIO;
+> +		return;
+>  	}
+>  
+>  	i2c_hid_dbg(ihid, "input: %*ph\n", ret_size, ihid->inbuf);
+> @@ -370,7 +370,7 @@ static int i2c_hid_get_input(struct i2c_hid *ihid)
+>  		hid_input_report(ihid->hid, HID_INPUT_REPORT, ihid->inbuf + 2,
+>  				ret_size - 2, 1);
+>  
+> -	return 0;
+> +	return;
+>  }
+>  
+>  static irqreturn_t i2c_hid_irq(int irq, void *dev_id)
+> @@ -430,8 +430,10 @@ static void i2c_hid_init_reports(struct hid_device *hid)
+>  	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>  	u8 *inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+>  
+> -	if (!inbuf)
+> +	if (!inbuf) {
+> +		dev_err(&client->dev, "can not retrieve initial reports\n");
+>  		return;
+> +	}
 
-Great! Thank you and all others involved for their time!
+This change would have been better located in patch 07/14 IMHO, but
+that's a detail.
 
-Jan-Matthias Braun
+>  
+>  	list_for_each_entry(report,
+>  		&hid->report_enum[HID_INPUT_REPORT].report_list, list)
+> @@ -715,9 +717,7 @@ static int i2c_hid_hidinput_input_event(struct input_dev *dev,
+>  		return -1;
+>  	}
+>  
+> -	hid_set_field(field, offset, value);
+> -
+> -	return 0;
+> +	return hid_set_field(field, offset, value);
+>  }
+>  
+>  static struct hid_ll_driver i2c_hid_ll_driver = {
+
+Reviewed-by: Jean Delvare <khali@linux-fr.org>
+
+-- 
+Jean Delvare

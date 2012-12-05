@@ -1,12 +1,12 @@
 From: Kamal Mostafa <kamal@canonical.com>
-Subject: [PATCH v4 4/4] input: Cypress PS/2 Trackpad simulated multitouch (disabled)
-Date: Tue,  4 Dec 2012 18:24:05 -0800
-Message-ID: <1354674245-25768-5-git-send-email-kamal@canonical.com>
+Subject: [PATCH v4 3/4] input: Cypress PS/2 Trackpad link into psmouse-base
+Date: Tue,  4 Dec 2012 18:24:04 -0800
+Message-ID: <1354674245-25768-4-git-send-email-kamal@canonical.com>
 References: <1354674245-25768-1-git-send-email-kamal@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:58889 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:58897 "EHLO
 	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752810Ab2LECYF (ORCPT
+	with ESMTP id S1753279Ab2LECYF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 21:24:05 -0500
 In-Reply-To: <1354674245-25768-1-git-send-email-kamal@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -14,82 +14,123 @@ List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 Cc: Dudley Du <dudl@cypress.com>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Kamal Mostafa <kamal@canonical.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
 
-This feature is disabled by default; enable with CYPRESS_SIMULATED_MT.
+From: Dudley Du <dudl@cypress.com>
 
-Instead of SEMI_MT, present a full mt interface with simulated contact
-positions for >=3 fingers.  Enables e.g. multi-finger tap and drag for
-old userspace applications which only count the contact positions.
+Original code contributed by Dudley Du (Cypress Semiconductor Corporation),
+modified by Kamal Mostafa.
 
+BugLink: http://launchpad.net/bugs/978807
+
+Signed-off-by: Dudley Du <dudl@cypress.com>
 Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+Signed-off-by: Mario Limonciello <mario_limonciello@dell.com>
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
 ---
- drivers/input/mouse/cypress_ps2.c |   18 ++++++++++++++++++
- drivers/input/mouse/cypress_ps2.h |   16 ++++++++++++++--
- 2 files changed, 32 insertions(+), 2 deletions(-)
+ drivers/input/mouse/Kconfig        |   10 ++++++++++
+ drivers/input/mouse/Makefile       |    1 +
+ drivers/input/mouse/psmouse-base.c |   32 ++++++++++++++++++++++++++++++++
+ drivers/input/mouse/psmouse.h      |    1 +
+ 4 files changed, 44 insertions(+)
 
-diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-index fab4d18..088cdb8 100644
---- a/drivers/input/mouse/cypress_ps2.c
-+++ b/drivers/input/mouse/cypress_ps2.c
-@@ -408,7 +408,9 @@ static int cypress_set_input_params(struct input_dev *input,
- 		if (ret < 0)
- 			return ret;
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index cd6268c..88954dd 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -68,6 +68,16 @@ config MOUSE_PS2_SYNAPTICS
  
-+#if ( CYPRESS_SIMULATED_MT != 1 )
- 		__set_bit(INPUT_PROP_SEMI_MT, input->propbit);
-+#endif
+ 	  If unsure, say Y.
  
- 		if (cytp->tp_res_x && cytp->tp_res_y) {
- 			input_abs_set_res(input, ABS_X, cytp->tp_res_x);
-@@ -531,6 +533,22 @@ static int cypress_parse_packet(struct psmouse *psmouse,
- 				((packet[5] & 0x0f) << 8) | packet[7];
- 			if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
- 				report_data->contacts[1].z = report_data->contacts[0].z;
-+#if ( CYPRESS_SIMULATED_MT == 1 )
-+			/* simulate contact positions for >2 fingers */
-+			if ( report_data->contact_cnt >= 3 ) {
-+				int i;
-+				for ( i=1; i<report_data->contact_cnt; i++ ) {
-+				    report_data->contacts[i].x =
-+						    report_data->contacts[0].x
-+						    + 100*(i)*((i%2)?-1:1);
-+				    report_data->contacts[i].y =
-+						    report_data->contacts[0].y;
-+				    if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
-+					    report_data->contacts[i].z =
-+						    report_data->contacts[0].z;
-+				}
-+			}
-+#endif
- 		}
- 
- 		report_data->left = (header_byte & BTN_LEFT_BIT) ? 1 : 0;
-diff --git a/drivers/input/mouse/cypress_ps2.h b/drivers/input/mouse/cypress_ps2.h
-index a74f985..c38cb6f 100644
---- a/drivers/input/mouse/cypress_ps2.h
-+++ b/drivers/input/mouse/cypress_ps2.h
-@@ -133,8 +133,20 @@
- #define RESP_REMOTE_BIT     0x40
- #define RESP_SMBUS_BIT      0x80
- 
--#define CYTP_MAX_CONTACTS 2
--#define CYTP_MAX_MT_SLOTS 2
-+/*
-+ * CYPRESS_SIMULATED_MT
-+ *   set to 1 for simulated multitouch (up to CTYP_MAX_CONTACTS fingers)
-+ *   set to 0 for SEMI_MT (2 fingers only)
-+ */
-+#define CYPRESS_SIMULATED_MT 0
++config MOUSE_PS2_CYPRESS
++       bool "Cypress PS/2 mouse protocol extension" if EXPERT
++       default y
++       depends on MOUSE_PS2
++       help
++         Say Y here if you have a Cypress PS/2 Trackpad connected to
++         your system.
 +
-+#if ( CYPRESS_SIMULATED_MT == 1 )
-+# define CYTP_MAX_CONTACTS 5
-+# define CYTP_MAX_MT_SLOTS 16
-+#else
-+# define CYTP_MAX_CONTACTS 2
-+# define CYTP_MAX_MT_SLOTS 2
-+#endif
++         If unsure, say Y.
++
+ config MOUSE_PS2_LIFEBOOK
+ 	bool "Fujitsu Lifebook PS/2 mouse protocol extension" if EXPERT
+ 	default y
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+index 46ba755..323e352 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -32,3 +32,4 @@ psmouse-$(CONFIG_MOUSE_PS2_LIFEBOOK)	+= lifebook.o
+ psmouse-$(CONFIG_MOUSE_PS2_SENTELIC)	+= sentelic.o
+ psmouse-$(CONFIG_MOUSE_PS2_TRACKPOINT)	+= trackpoint.o
+ psmouse-$(CONFIG_MOUSE_PS2_TOUCHKIT)	+= touchkit_ps2.o
++psmouse-$(CONFIG_MOUSE_PS2_CYPRESS)	+= cypress_ps2.o
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 22fe254..cff065f 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -34,6 +34,7 @@
+ #include "touchkit_ps2.h"
+ #include "elantech.h"
+ #include "sentelic.h"
++#include "cypress_ps2.h"
  
- enum cytp_type {
- 	CYTP_STG,
+ #define DRIVER_DESC	"PS/2 mouse driver"
+ 
+@@ -759,6 +760,28 @@ static int psmouse_extensions(struct psmouse *psmouse,
+ 	}
+ 
+ /*
++ * Try Cypress Trackpad.
++ * Must try it before Finger Sensing Pad because Finger Sensing Pad probe
++ * upsets some modules of Cypress Trackpads.
++ */
++	if (max_proto > PSMOUSE_IMEX &&
++			cypress_detect(psmouse, set_properties) == 0) {
++		if (cypress_supported()) {
++			if (cypress_init(psmouse) == 0)
++				return PSMOUSE_CYPRESS;
++
++			/*
++			 * Finger Sensing Pad probe upsets some modules of
++			 * Cypress Trackpad, must avoid Finger Sensing Pad
++			 * probe if Cypress Trackpad device detected.
++			 */
++			return PSMOUSE_PS2;
++		}
++
++		max_proto = PSMOUSE_IMEX;
++	}
++
++/*
+  * Try ALPS TouchPad
+  */
+ 	if (max_proto > PSMOUSE_IMEX) {
+@@ -896,6 +919,15 @@ static const struct psmouse_protocol psmouse_protocols[] = {
+ 		.alias		= "thinkps",
+ 		.detect		= thinking_detect,
+ 	},
++#ifdef CONFIG_MOUSE_PS2_CYPRESS
++	{
++		.type		= PSMOUSE_CYPRESS,
++		.name		= "CyPS/2",
++		.alias		= "cypress",
++		.detect		= cypress_detect,
++		.init		= cypress_init,
++	},
++#endif
+ 	{
+ 		.type		= PSMOUSE_GENPS,
+ 		.name		= "GenPS/2",
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index fe1df23..2f0b39d 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -95,6 +95,7 @@ enum psmouse_type {
+ 	PSMOUSE_ELANTECH,
+ 	PSMOUSE_FSP,
+ 	PSMOUSE_SYNAPTICS_RELATIVE,
++	PSMOUSE_CYPRESS,
+ 	PSMOUSE_AUTO		/* This one should always be last */
+ };
+ 
 -- 
 1.7.10.4
 

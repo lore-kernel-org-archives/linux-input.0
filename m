@@ -1,94 +1,27 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH v2 3/4] HID: i2c-hid: remove extra .irq field in struct
- i2c_hid
-Date: Wed, 5 Dec 2012 18:28:12 +0100
-Message-ID: <20121205182812.57262216@endymion.delvare>
-References: <1354716176-12558-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1354716176-12558-4-git-send-email-benjamin.tissoires@gmail.com>
+From: Alexander Holler <holler@ahsoftware.de>
+Subject: HID-sensor(-hub.c) and device IDs
+Date: Wed, 05 Dec 2012 19:44:45 +0100
+Message-ID: <50BF961D.5080101@ahsoftware.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zoneX.GCU-Squad.org ([194.213.125.0]:27893 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752097Ab2LER2T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 12:28:19 -0500
-In-Reply-To: <1354716176-12558-4-git-send-email-benjamin.tissoires@gmail.com>
+Received: from h1446028.stratoserver.net ([85.214.92.142]:50177 "EHLO
+	mail.ahsoftware.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753804Ab2LESpO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 13:45:14 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, srinivas pandruvada <srinivas.pandruvada@intel.com>
 
-On Wed,  5 Dec 2012 15:02:55 +0100, Benjamin Tissoires wrote:
-> There is no point in keeping the irq in i2c_hid as it's already
-> there in client.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 15 +++++----------
->  1 file changed, 5 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index d00f185..c6630d4 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -135,8 +135,6 @@ struct i2c_hid {
->  
->  	unsigned long		flags;		/* device flags */
->  
-> -	int			irq;		/* the interrupt line irq */
-> -
->  	wait_queue_head_t	wait;		/* For waiting the interrupt */
->  };
->  
-> @@ -736,8 +734,6 @@ static int __devinit i2c_hid_init_irq(struct i2c_client *client)
->  		return ret;
->  	}
->  
-> -	ihid->irq = client->irq;
-> -
->  	return 0;
->  }
->  
-> @@ -851,7 +847,7 @@ static int __devinit i2c_hid_probe(struct i2c_client *client,
->  	hid = hid_allocate_device();
->  	if (IS_ERR(hid)) {
->  		ret = PTR_ERR(hid);
-> -		goto err;
-> +		goto err_irq;
->  	}
->  
->  	ihid->hid = hid;
-> @@ -881,10 +877,10 @@ static int __devinit i2c_hid_probe(struct i2c_client *client,
->  err_mem_free:
->  	hid_destroy_device(hid);
->  
-> -err:
-> -	if (ihid->irq)
-> -		free_irq(ihid->irq, ihid);
-> +err_irq:
-> +	free_irq(client->irq, ihid);
->  
-> +err:
->  	i2c_hid_free_buffers(ihid);
->  	kfree(ihid);
->  	return ret;
-> @@ -912,10 +908,9 @@ static int __devexit i2c_hid_remove(struct i2c_client *client)
->  static int i2c_hid_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> -	struct i2c_hid *ihid = i2c_get_clientdata(client);
->  
->  	if (device_may_wakeup(&client->dev))
-> -		enable_irq_wake(ihid->irq);
-> +		enable_irq_wake(client->irq);
->  
->  	/* Save some power */
->  	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+Hello,
 
-Nice clean-up.
+is there any special reason why vendor and devices IDs for HID-sensors 
+must be listed in drivers/hid/hid-sensor-hub.c and drivers/hid/hid-core.c?
 
-Reviewed-by: Jean Delvare <khali@linux-fr.org>
+Maybe I'm missing something, but I don't think this is how HID is 
+supposed to work.
 
--- 
-Jean Delvare
+Regards,
+
+Alexander

@@ -1,180 +1,250 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/2] input: wacom - Prepare for syncing with input-mt
- changes
-Date: Wed, 5 Dec 2012 21:18:03 +0100
-Message-ID: <20121205201803.GA1367@polaris.bitmath.org>
-References: <1354675423-32428-1-git-send-email-pingc@wacom.com>
+Subject: Re: [PATCH 2/2] input: wacom - use new input-mt routines
+Date: Wed, 5 Dec 2012 21:23:24 +0100
+Message-ID: <20121205202324.GB1367@polaris.bitmath.org>
+References: <1354675454-32465-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:45724 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751903Ab2LEUQE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 15:16:04 -0500
-Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
-	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 1687BE9D0C
-	for <linux-input@vger.kernel.org>; Wed,  5 Dec 2012 21:16:01 +0100 (CET)
+Received: from smtprelay-b31.telenor.se ([213.150.131.20]:54473 "EHLO
+	smtprelay-b31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754319Ab2LEUVZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 15:21:25 -0500
+Received: from ipb3.telenor.se (ipb3.telenor.se [195.54.127.166])
+	by smtprelay-b31.telenor.se (Postfix) with ESMTP id 8226EEA62B
+	for <linux-input@vger.kernel.org>; Wed,  5 Dec 2012 21:21:23 +0100 (CET)
 Content-Disposition: inline
-In-Reply-To: <1354675423-32428-1-git-send-email-pingc@wacom.com>
+In-Reply-To: <1354675454-32465-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Ping Cheng <pinglinux@gmail.com>
 Cc: linux-input@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-On Tue, Dec 04, 2012 at 06:43:42PM -0800, Ping Cheng wrote:
-> Henrik added new MT routines in release 3.7. This patch is to
-> prepare for the use of new MT routines.
-> 
-> In the newly added wacom_abs_set_axis() function, the first
-> if-statement assigns ABS_X/Y for number of contacts less or
-> equal to 2. So, it is single and 2 finger touch devices. Two
-> finger touch devices are processed here since they will not
-> use the updtaed input_mt_init_slots(), which does not offer
-> benefit to those devices.
-> 
-> input_mt_init_slots() will take care of ABS_X/Y assignment when
-> flags are not zero. All touch devices with more than two contacts
-> will use input_mt_init_slots() with non-zero flags.
-> 
-> The second if-statement is for all MT devices, which include two
-> finger touch devices.
+Hi Ping,
+
+> This patch brings wacom driver in-sync with input-mt changes
+> made in release 3.7.
 > 
 > Signed-off-by: Ping Cheng <pingc@wacom.com>
 > Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 > ---
->  drivers/input/tablet/wacom_wac.c |   85 ++++++++++++++++++++------------------
->  1 file changed, 45 insertions(+), 40 deletions(-)
+>  drivers/input/tablet/wacom_wac.c |   82 ++++++++++----------------------------
+>  drivers/input/tablet/wacom_wac.h |    1 -
+>  2 files changed, 22 insertions(+), 61 deletions(-)
 > 
 > diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-> index c0f3e91..097b559 100644
+> index 097b559..a318bf4 100644
 > --- a/drivers/input/tablet/wacom_wac.c
 > +++ b/drivers/input/tablet/wacom_wac.c
-> @@ -1444,39 +1444,64 @@ static unsigned int wacom_calculate_touch_res(unsigned int logical_max,
->         return (logical_max * 100) / physical_max;
+> @@ -785,25 +785,6 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+>  	return 1;
 >  }
 >  
-> -int wacom_setup_input_capabilities(struct input_dev *input_dev,
-> -				   struct wacom_wac *wacom_wac)
-> +static void wacom_abs_set_axis(struct input_dev *input_dev,
-> +			       struct wacom_wac *wacom_wac)
->  {
->  	struct wacom_features *features = &wacom_wac->features;
+> -static int find_slot_from_contactid(struct wacom_wac *wacom, int contactid)
+> -{
+> -	int touch_max = wacom->features.touch_max;
 > -	int i;
 > -
-> -	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> -	if (!wacom->slots)
+> -		return -1;
 > -
-> -	__set_bit(BTN_TOUCH, input_dev->keybit);
+> -	for (i = 0; i < touch_max; ++i) {
+> -		if (wacom->slots[i] == contactid)
+> -			return i;
+> -	}
+> -	for (i = 0; i < touch_max; ++i) {
+> -		if (wacom->slots[i] == -1)
+> -			return i;
+> -	}
+> -	return -1;
+> -}
 > -
-> -	input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
-> -			     features->x_fuzz, 0);
-> -	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
-> -			     features->y_fuzz, 0);
+>  static int int_dist(int x1, int y1, int x2, int y2)
+>  {
+>  	int x = x2 - x1;
+> @@ -833,8 +814,7 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
+>  	for (i = 0; i < contacts_to_send; i++) {
+>  		int offset = (WACOM_BYTES_PER_24HDT_PACKET * i) + 1;
+>  		bool touch = data[offset] & 0x1 && !wacom->shared->stylus_in_proximity;
+> -		int id = data[offset + 1];
+> -		int slot = find_slot_from_contactid(wacom, id);
+> +		int slot = input_mt_get_slot_by_key(input, data[offset + 1]);
 >  
->  	if (features->device_type == BTN_TOOL_PEN) {
-> -		input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max,
-> -			     features->pressure_fuzz, 0);
-> +		input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
-> +				     features->x_fuzz, 0);
-> +		input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
-> +				     features->y_fuzz, 0);
-> +		input_set_abs_params(input_dev, ABS_PRESSURE, 0,
-> +			features->pressure_max, features->pressure_fuzz, 0);
->  
->  		/* penabled devices have fixed resolution for each model */
->  		input_abs_set_res(input_dev, ABS_X, features->x_resolution);
->  		input_abs_set_res(input_dev, ABS_Y, features->y_resolution);
->  	} else {
-> -		input_abs_set_res(input_dev, ABS_X,
-> -			wacom_calculate_touch_res(features->x_max,
-> -						features->x_phy));
-> -		input_abs_set_res(input_dev, ABS_Y,
-> -			wacom_calculate_touch_res(features->y_max,
-> -						features->y_phy));
-> +		if (features->touch_max <= 2) {
-> +			input_set_abs_params(input_dev, ABS_X, 0,
-> +				features->x_max, features->x_fuzz, 0);
-> +			input_set_abs_params(input_dev, ABS_Y, 0,
-> +				features->y_max, features->y_fuzz, 0);
-> +			input_abs_set_res(input_dev, ABS_X,
-> +				wacom_calculate_touch_res(features->x_max,
-> +							features->x_phy));
-> +			input_abs_set_res(input_dev, ABS_Y,
-> +				wacom_calculate_touch_res(features->y_max,
-> +							features->y_phy));
-> +		}
-> +
-> +		if (features->touch_max > 1) {
-> +			input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0,
-> +				features->x_max, features->x_fuzz, 0);
-> +			input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
-> +				features->y_max, features->y_fuzz, 0);
-> +			input_abs_set_res(input_dev, ABS_MT_POSITION_X,
-> +				wacom_calculate_touch_res(features->x_max,
-> +							features->x_phy));
-> +			input_abs_set_res(input_dev, ABS_MT_POSITION_Y,
-> +				wacom_calculate_touch_res(features->y_max,
-> +							features->y_phy));
-> +		}
+>  		if (slot < 0)
+>  			continue;
+> @@ -856,9 +836,7 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
+>  			input_report_abs(input, ABS_MT_WIDTH_MINOR, min(w, h));
+>  			input_report_abs(input, ABS_MT_ORIENTATION, w > h);
+>  		}
+> -		wacom->slots[slot] = touch ? id : -1;
 >  	}
-> +}
+> -
+
+Looks like a stray line removal here.
+
+>  	input_mt_report_pointer_emulation(input, true);
 >  
-> +int wacom_setup_input_capabilities(struct input_dev *input_dev,
-> +				   struct wacom_wac *wacom_wac)
-> +{
-> +	struct wacom_features *features = &wacom_wac->features;
-> +	int i;
-> +
-> +	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> +
-> +	__set_bit(BTN_TOUCH, input_dev->keybit);
->  	__set_bit(ABS_MISC, input_dev->absbit);
+>  	wacom->num_contacts_left -= contacts_to_send;
+> @@ -895,7 +873,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
+>  		int offset = (WACOM_BYTES_PER_MT_PACKET + x_offset) * i + 3;
+>  		bool touch = data[offset] & 0x1;
+>  		int id = le16_to_cpup((__le16 *)&data[offset + 1]);
+> -		int slot = find_slot_from_contactid(wacom, id);
+> +		int slot = input_mt_get_slot_by_key(input, id);
 >  
-> +	wacom_abs_set_axis(input_dev, wacom_wac);
+>  		if (slot < 0)
+>  			continue;
+> @@ -908,9 +886,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
+>  			input_report_abs(input, ABS_MT_POSITION_X, x);
+>  			input_report_abs(input, ABS_MT_POSITION_Y, y);
+>  		}
+> -		wacom->slots[slot] = touch ? id : -1;
+>  	}
+> -
+
+And here. Intentionally?
+
+>  	input_mt_report_pointer_emulation(input, true);
+>  
+>  	wacom->num_contacts_left -= contacts_to_send;
+> @@ -942,12 +918,11 @@ static int wacom_tpc_mt_touch(struct wacom_wac *wacom)
+>  			contact_with_no_pen_down_count++;
+>  		}
+>  	}
+> +	input_mt_report_pointer_emulation(input, true);
+>  
+>  	/* keep touch state for pen event */
+>  	wacom->shared->touch_down = (contact_with_no_pen_down_count > 0);
+>  
+> -	input_mt_report_pointer_emulation(input, true);
+> -
+>  	return 1;
+>  }
+>  
+> @@ -1104,12 +1079,15 @@ static int wacom_bpt_touch(struct wacom_wac *wacom)
+>  static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
+>  {
+>  	struct input_dev *input = wacom->input;
+> -	int slot_id = data[0] - 2;  /* data[0] is between 2 and 17 */
+>  	bool touch = data[1] & 0x80;
+> +	int slot = input_mt_get_slot_by_key(input, data[0]);
 > +
->  	switch (wacom_wac->features.type) {
->  	case WACOM_MO:
->  		input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
-> @@ -1625,13 +1650,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+> +	if (slot < 0)
+> +		return;
+>  
+>  	touch = touch && !wacom->shared->stylus_in_proximity;
+>  
+> -	input_mt_slot(input, slot_id);
+> +	input_mt_slot(input, slot);
+>  	input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
+>  
+>  	if (touch) {
+> @@ -1162,7 +1140,6 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
+>  			wacom_bpt3_button_msg(wacom, data + offset);
+>  
+>  	}
+> -
+
+Ditto.
+
+>  	input_mt_report_pointer_emulation(input, true);
+>  
+>  	input_sync(input);
+> @@ -1639,17 +1616,11 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+>  		} else if (features->device_type == BTN_TOOL_FINGER) {
+>  			__clear_bit(ABS_MISC, input_dev->absbit);
+>  
+> -			__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+> -			__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+> -			__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
+> -			__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
+> -
+> -			input_mt_init_slots(input_dev, features->touch_max, 0);
+> -
+>  			input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
 >  			                     0, features->x_max, 0, 0);
 >  			input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR,
 >  			                     0, features->y_max, 0, 0);
-> -
-> -			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> -					     0, features->x_max,
-> -					     features->x_fuzz, 0);
-> -			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> -					     0, features->y_max,
-> -					     features->y_fuzz, 0);
+> +			input_mt_init_slots(input_dev, features->touch_max, INPUT_MT_POINTER);
 >  		}
 >  		break;
 >  
-> @@ -1677,12 +1695,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+> @@ -1680,21 +1651,14 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+>  
+>  	case MTSCREEN:
+>  	case MTTPC:
+> -		if (features->device_type == BTN_TOOL_FINGER) {
+> -			wacom_wac->slots = kmalloc(features->touch_max *
+> -							sizeof(int),
+> -						   GFP_KERNEL);
+> -			if (!wacom_wac->slots)
+> -				return -ENOMEM;
+> -
+> -			for (i = 0; i < features->touch_max; i++)
+> -				wacom_wac->slots[i] = -1;
+> -		}
+> -		/* fall through */
+> -
 >  	case TABLETPC2FG:
 >  		if (features->device_type == BTN_TOOL_FINGER) {
->  			input_mt_init_slots(input_dev, features->touch_max, 0);
-> -			input_set_abs_params(input_dev, ABS_MT_TOOL_TYPE,
-> -					0, MT_TOOL_MAX, 0, 0);
-> -			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> -					0, features->x_max, 0, 0);
-> -			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> -					0, features->y_max, 0, 0);
+> -			input_mt_init_slots(input_dev, features->touch_max, 0);
+> +			unsigned int flags = INPUT_MT_DIRECT;
+> +
+> +			if (wacom_wac->features.type == TABLETPC2FG)
+> +				flags = 0;
+> +
+> +			input_mt_init_slots(input_dev, features->touch_max, flags);
 >  		}
 >  		/* fall through */
 >  
-> @@ -1747,13 +1759,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+> @@ -1737,28 +1701,26 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+>  		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+>  
+>  		if (features->device_type == BTN_TOOL_FINGER) {
+> +			unsigned int flags = INPUT_MT_POINTER;
+> +
+>  			__set_bit(BTN_LEFT, input_dev->keybit);
+>  			__set_bit(BTN_FORWARD, input_dev->keybit);
+>  			__set_bit(BTN_BACK, input_dev->keybit);
+>  			__set_bit(BTN_RIGHT, input_dev->keybit);
+>  
+> -			__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+> -			__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+> -			input_mt_init_slots(input_dev, features->touch_max, 0);
+> -
+>  			if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
+> -				__set_bit(BTN_TOOL_TRIPLETAP,
+> -					  input_dev->keybit);
+> -				__set_bit(BTN_TOOL_QUADTAP,
+> -					  input_dev->keybit);
+> -
+>  				input_set_abs_params(input_dev,
+>  						     ABS_MT_TOUCH_MAJOR,
+>  						     0, features->x_max, 0, 0);
+>  				input_set_abs_params(input_dev,
 >  						     ABS_MT_TOUCH_MINOR,
 >  						     0, features->y_max, 0, 0);
+> +			} else {
+> +				__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+> +				__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+> +				flags = 0;
 >  			}
-> -
-> -			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> -					     0, features->x_max,
-> -					     features->x_fuzz, 0);
-> -			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> -					     0, features->y_max,
-> -					     features->y_fuzz, 0);
+> +			input_mt_init_slots(input_dev, features->touch_max, flags);
 >  		} else if (features->device_type == BTN_TOOL_PEN) {
 >  			__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
 >  			__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+> index 9396d77..06410fe 100644
+> --- a/drivers/input/tablet/wacom_wac.h
+> +++ b/drivers/input/tablet/wacom_wac.h
+> @@ -135,7 +135,6 @@ struct wacom_wac {
+>  	int pid;
+>  	int battery_capacity;
+>  	int num_contacts_left;
+> -	int *slots;
+>  };
+>  
+>  #endif
 > -- 
 > 1.7.10.4
 > 
@@ -183,4 +253,3 @@ On Tue, Dec 04, 2012 at 06:43:42PM -0800, Ping Cheng wrote:
 
 Thanks,
 Henrik
-

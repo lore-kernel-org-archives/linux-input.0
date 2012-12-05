@@ -1,132 +1,84 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 07/14] HID: i2c-hid: fix return paths
-Date: Wed, 5 Dec 2012 11:05:14 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1212051105090.17055@pobox.suse.cz>
-References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com> <1354634875-5182-8-git-send-email-benjamin.tissoires@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 09/14] HID: i2c-hid: i2c_hid_get_report may fail
+Date: Wed, 5 Dec 2012 11:07:17 +0100
+Message-ID: <CAN+gG=EqRgaUCg=Af_LtU6ez+x+gf=s+TM2h5v9dtTx0uQwLHg@mail.gmail.com>
+References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1354634875-5182-10-git-send-email-benjamin.tissoires@gmail.com>
+	<20121205105917.291f483f@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59643 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753245Ab2LEKFS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 5 Dec 2012 05:05:18 -0500
-In-Reply-To: <1354634875-5182-8-git-send-email-benjamin.tissoires@gmail.com>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:35533 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753648Ab2LEKHT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 05:07:19 -0500
+In-Reply-To: <20121205105917.291f483f@endymion.delvare>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jean Delvare <khali@linux-fr.org>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 4 Dec 2012, Benjamin Tissoires wrote:
+On Wed, Dec 5, 2012 at 10:59 AM, Jean Delvare <khali@linux-fr.org> wrote:
+> On Tue,  4 Dec 2012 16:27:50 +0100, Benjamin Tissoires wrote:
+>> If i2c_hid_get_report fails, exit i2c_hid_init_report.
+>> The printk log is already called by i2c_hid_get_report, so no need
+>> to add some more printks.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> ---
+>>  drivers/hid/i2c-hid/i2c-hid.c | 5 +++--
+>>  1 file changed, 3 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+>> index da04948..dcacfc4 100644
+>> --- a/drivers/hid/i2c-hid/i2c-hid.c
+>> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+>> @@ -400,9 +400,10 @@ static void i2c_hid_init_report(struct hid_report *report, u8 *buffer,
+>>       unsigned int size, ret_size;
+>>
+>>       size = i2c_hid_get_report_length(report);
+>> -     i2c_hid_get_report(client,
+>> +     if (i2c_hid_get_report(client,
+>>                       report->type == HID_FEATURE_REPORT ? 0x03 : 0x01,
+>> -                     report->id, buffer, size);
+>> +                     report->id, buffer, size))
+>> +             return;
+>>
+>>       i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, ihid->inbuf);
+>>
+>
+> OK, although I don't quite get the rationale for not reporting the
+> errors from i2c_hid_init_report() and i2c_hid_init_reports() to their
+> respective callers. Does the device have any chance to work properly if
+> i2c_hid_init_reports() fails?
 
-> Forwards appropriate return values.
-> As noone use the error returned by i2c_hid_get_input, let's make it
-> returning void.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Hi Jean,
 
-Applied.
+first thanks for the review you have started.
 
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 4452611..d6fdb3e 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -245,7 +245,7 @@ static int i2c_hid_get_report(struct i2c_client *client, u8 reportType,
->  	if (ret) {
->  		dev_err(&client->dev,
->  			"failed to retrieve report from device.\n");
-> -		return -EINVAL;
-> +		return ret;
->  	}
->  
->  	return 0;
-> @@ -290,7 +290,7 @@ static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
->  		reportType, args, args_len, NULL, 0);
->  	if (ret) {
->  		dev_err(&client->dev, "failed to set a report to device.\n");
-> -		return -EINVAL;
-> +		return ret;
->  	}
->  
->  	return data_len;
-> @@ -334,7 +334,7 @@ static int i2c_hid_hwreset(struct i2c_client *client)
->  	return 0;
->  }
->  
-> -static int i2c_hid_get_input(struct i2c_hid *ihid)
-> +static void i2c_hid_get_input(struct i2c_hid *ihid)
->  {
->  	int ret, ret_size;
->  	int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
-> @@ -342,11 +342,11 @@ static int i2c_hid_get_input(struct i2c_hid *ihid)
->  	ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
->  	if (ret != size) {
->  		if (ret < 0)
-> -			return ret;
-> +			return;
->  
->  		dev_err(&ihid->client->dev, "%s: got %d data instead of %d\n",
->  			__func__, ret, size);
-> -		return ret;
-> +		return;
->  	}
->  
->  	ret_size = ihid->inbuf[0] | ihid->inbuf[1] << 8;
-> @@ -355,13 +355,13 @@ static int i2c_hid_get_input(struct i2c_hid *ihid)
->  		/* host or device initiated RESET completed */
->  		if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
->  			wake_up(&ihid->wait);
-> -		return 0;
-> +		return;
->  	}
->  
->  	if (ret_size > size) {
->  		dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
->  			__func__, size, ret_size);
-> -		return -EIO;
-> +		return;
->  	}
->  
->  	i2c_hid_dbg(ihid, "input: %*ph\n", ret_size, ihid->inbuf);
-> @@ -370,7 +370,7 @@ static int i2c_hid_get_input(struct i2c_hid *ihid)
->  		hid_input_report(ihid->hid, HID_INPUT_REPORT, ihid->inbuf + 2,
->  				ret_size - 2, 1);
->  
-> -	return 0;
-> +	return;
->  }
->  
->  static irqreturn_t i2c_hid_irq(int irq, void *dev_id)
-> @@ -430,8 +430,10 @@ static void i2c_hid_init_reports(struct hid_device *hid)
->  	struct i2c_hid *ihid = i2c_get_clientdata(client);
->  	u8 *inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
->  
-> -	if (!inbuf)
-> +	if (!inbuf) {
-> +		dev_err(&client->dev, "can not retrieve initial reports\n");
->  		return;
-> +	}
->  
->  	list_for_each_entry(report,
->  		&hid->report_enum[HID_INPUT_REPORT].report_list, list)
-> @@ -715,9 +717,7 @@ static int i2c_hid_hidinput_input_event(struct input_dev *dev,
->  		return -1;
->  	}
->  
-> -	hid_set_field(field, offset, value);
-> -
-> -	return 0;
-> +	return hid_set_field(field, offset, value);
->  }
->  
->  static struct hid_ll_driver i2c_hid_ll_driver = {
-> -- 
-> 1.8.0.1
-> 
+For your question, the answer is yes, the device works properly even
+if i2c_hid_init_reports().
+IIRC, the only required steps are:
+- get HID descriptor
+- get HID report descriptors
+- send reset
+- set power on
 
--- 
-Jiri Kosina
-SUSE Labs
+ i2c_hid_init_reports is not part of the specification for the boot
+process, and the Windows driver does not retrieve the reports for
+input reports at all (it does it though for the features).
+Actually, the device I have does not implement get_report for inputs
+(it returns 0), but it's not a problem for it to work.
+
+I put the whole init_reports in place to get the features values
+before sending them to the hid driver, and also to copy the behavior
+of usbhid.
+
+Cheers,
+Benjamin
+
+>
+> Reviewed-by: Jean Delvare <khali@linux-fr.org>
+>
+> --
+> Jean Delvare

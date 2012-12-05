@@ -1,103 +1,60 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v3 2/4] input: Cypress PS/2 Trackpad psmouse driver
-Date: Wed, 5 Dec 2012 01:24:14 -0500
-Message-ID: <B27AC323FA92C946BA36D2913DDC8E370234D9A16FD4@VMBX126.ihostexchange.net>
-References: <1354226281-3476-1-git-send-email-kamal@canonical.com>
-	 <1354226281-3476-3-git-send-email-kamal@canonical.com>
-	 <20121203074520.GA2687@polaris.bitmath.org>
- <1354674169.11174.87.camel@fourier>
+From: Jan-Matthias Braun <jan_braun@gmx.net>
+Subject: Re: hid-multitouch: eGalax Touchscreen not resuming after suspend
+Date: Wed, 05 Dec 2012 10:12:57 +0100
+Message-ID: <1462361.9xDllZxTUO@orthese>
+References: <8159607.SRZZrRIPNF@orthese> <201212042311.27348.jan_braun@gmx.net> <2593830.jzurf9PFEe@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.ihostexchange.net ([66.46.182.58]:53842 "EHLO
-	relay.ihostexchange.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751696Ab2LEGYX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 01:24:23 -0500
-In-Reply-To: <1354674169.11174.87.camel@fourier>
-Content-Language: zh-CN
+Received: from mailout-de.gmx.net ([213.165.64.23]:49248 "HELO
+	mailout-de.gmx.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751737Ab2LEJNO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 04:13:14 -0500
+In-Reply-To: <2593830.jzurf9PFEe@vostro.rjw.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kamal Mostafa <kamal@canonical.com>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>, Dudley Du <dudl@cypress.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, linux-input@vger.kernel.org
 
-SGkgSGVucmlrLCBLYW1hbCwNCg0KVGhhbmtzIGZvciB5b3VyIHJldmlldy4NCkFuZCBJIGFkZCBz
-b21lIGNvbW1lbnRzIGluIGJlbG93Lg0KDQpUaGFua3MuDQpEdWRsZXkgRHUNCmR1ZGxAY3lwcmVz
-cy5jb20NCg0KPiBIaSBIZW5yaWstDQo+DQo+IFRoYW5rcyBhZ2FpbiBmb3IgeW91ciByZXZpZXcu
-ICBUaGUgZm9ydGhjb21pbmcgUEFUQ0ggdjQgaW5jbHVkZXMgdGhlIG1ham9yaXR5IG9mIHlvdXIg
-Y2hhbmdlIHJlcXVlc3RzLCBleGNlcHQgd2hlcmUgbm90ZWQgYmVsb3cgKGFuZCBjb25zaWRlcmlu
-ZyBteSBlbWFpbCAiU3ViamVjdDogU0VNSV9NVCB2cy4gc2ltdWxhdGVkIG10IikuLi4NCj4NCj4N
-Cj4gT24gTW9uLCAyMDEyLTEyLTAzIGF0IDA4OjQ1ICswMTAwLCBIZW5yaWsgUnlkYmVyZyB3cm90
-ZToNCj4NCj4gPiA+ICsgICAgICAgICAvKg0KPiA+ID4gKyAgICAgICAgICAqIHNlbmQgZXh0ZW5z
-aW9uIGNvbW1hbmQgMHhFOCBvciAweEYzLA0KPiA+ID4gKyAgICAgICAgICAqIGlmIHNlbmQgZXh0
-ZW5zaW9uIGNvbW1hbmQgZmFpbGVkLA0KPiA+ID4gKyAgICAgICAgICAqIHRyeSB0byBzZW5kIHJl
-Y292ZXJ5IGNvbW1hbmQgdG8gbWFrZQ0KPiA+ID4gKyAgICAgICAgICAqIHRyYWNrcGFkIGRldmlj
-ZSByZXR1cm4gdG8gcmVhZHkgd2FpdCBjb21tYW5kIHN0YXRlLg0KPiA+ID4gKyAgICAgICAgICAq
-IEl0IGFsd2FzeSBzdWNjZXNzIGJhc2VkIG9uIHRoaXMgcmVjb3ZlcnkgY29tbWFuZHMuDQo+ID4N
-Cj4gPiAtRVBBUlNFDQo+DQo+IEkgZG9uJ3QgdW5kZXJzdGFuZCB0aGUgbWVhbmluZyBvZiB0aGF0
-IGNvbW1lbnQgZWl0aGVyLiAgUGVyaGFwcyB0aGUgb3JpZ2luYWwgYXV0aG9yIER1ZGxleSBEdSBj
-YW4gZXhwbGFpbiBpdC4NCg0KU2luY2UgYWxsIHRyYWNrcGFkIHNwZWNpZmljIGNvbW1hbmRzIGFy
-ZSBzZW50IGFzIGV4dGVuc2lvbiBjb21tYW5kLA0KdGhlIGZvcm1hdCBvZiBleHRlbnNpb24gY29t
-bWFuZCBzZXJpZXMgaXMgIjB4RTggZGQgMHhFOCBjYyAweEU4IGJiIDB4RTgiLg0KQW5kIGFzIHdl
-IGtub3csIGl0IG1heSBmYWlsIHdoZW4gc2VuZGluZyB0aGUgZXh0ZW5zaW9uIGNvbW1hbmQgc2Vy
-aWVzLA0KU28gdGhpcyBjb21tZW50IGp1c3Qgd2FudCB0byBpbmRpY2F0ZXMgdGhhdCBpZiBzb21l
-IHVua25vd24gZXJyb3Igb2NjdXJyZWQgd2hlbiBzZW5kaW5nIHRoZSBleHRlbnNpb24gY29tbWFu
-ZCwNCnRoaXMgY29kZSB3aWxsIHNlbmQgcmVjb3ZlcnkgY29tbWFuZCB0byBtYWtlIHRyYWNrcGFk
-IGZpcm13YXJlIGdvIGJhY2sgdG8gcmVhZHkgc3RhdGUsDQpzbyBzYW1lIGNvbW1hbmQgY2FuIGJl
-IHRyaWVkIHRvIGJlIHJlLXNlbnQuDQpTb3JyeSBmb3IgdGhlIGJhZCBjb21tZW50cyBjYXVzaW5n
-IGNvbmZ1c2lvbi4NCg0KPiA+ID4gK3N0YXRpYyBpbnQgY3lwcmVzc19yZWFkX3ZpdGFsX3N0YXRp
-c3RpY3Moc3RydWN0IHBzbW91c2UgKnBzbW91c2UpDQo+ID4NCj4gPiBXaHkgZG8geW91IGNhbGwg
-dGhpcyBzdGF0aXN0aWNzPw0KPg0KPiBQZXJoYXBzICJjeXByZXNzX3JlYWRfdHBfbWV0cmljcyIg
-d291bGQgYmUgYSBiZXR0ZXIgbmFtZS4gIEFueSB0aG91Z2h0cyBvbiB0aGlzLCBEdWRsZXk/DQo+
-DQo+DQo+ID4gPiArLyoNCj4gPiA+ICsgKiByZXNldCB0cmFja3BhZCBkZXZpY2UgdG8gc3RhbmRh
-cmQgcmVsYXRpdmUgbW9kZS4NCj4gPiA+ICsgKiBUaGlzIGlzIGFsc28gdGhlIGRlZmFsdXQgbW9k
-ZSB3aGVuIHRyYWNrcGFkIHBvd2VyZWQgb24uDQo+ID4gPiArICovDQo+ID4gPiArc3RhdGljIHZv
-aWQgY3lwcmVzc19yZXNldChzdHJ1Y3QgcHNtb3VzZSAqcHNtb3VzZSkgew0KPiA+ID4gKyBzdHJ1
-Y3QgY3l0cF9kYXRhICpjeXRwID0gcHNtb3VzZS0+cHJpdmF0ZTsNCj4gPiA+ICsNCj4gPiA+ICsg
-cHNtb3VzZV9yZXNldChwc21vdXNlKTsNCj4gPiA+ICsNCj4gPiA+ICsgQ1lUUF9TRVRfTU9ERV9C
-SVQoQ1lUUF9CSVRfU1RBTkRBUkRfUkVMKTsNCj4gPiA+ICsgQ1lUUF9TRVRfUEFDS0VUX1NJWkUo
-Myk7DQo+ID4gPiArDQo+ID4gPiArIGN5dHAtPnByZXZfY29udGFjdF9jbnQgPSAwOw0KPiA+ID4g
-K30NCj4gPg0KPiA+IEkgc3VwcG9zZSBpdCBpcywgYnV0IGlzIGl0IG5lY2Vzc2FyeSB0byByZXNl
-dCB0byBkZWZhdWx0IG1vZGU/DQo+DQo+IEkgbGVmdCB0aGlzIHVuY2hhbmdlZCwgYXMgSSB0aGlu
-ayB5b3UgYW5kIERtaXRyeSBhZ3JlZWQuDQo+DQo+DQo+ID4gPiArDQo+ID4gPiArc3RhdGljIGlu
-dCBjeXByZXNzX3NldF9pbnB1dF9wYXJhbXMoc3RydWN0IGlucHV0X2RldiAqaW5wdXQsDQo+ID4g
-PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QgY3l0cF9kYXRhICpjeXRwKQ0K
-PiA+ID4gK3sNCj4gPiA+ICsgaW50IHJldDsNCj4gPiA+ICsNCj4gPiA+ICsgaWYgKGN5dHAtPm1v
-ZGUgJiBDWVRQX0JJVF9BQlNfTUFTSykgew0KPiA+DQo+ID4gSXQgc2VlbXMgdGhlIGRldmljZSB3
-aWxsIGFsd2F5cyBvcGVyYXRlIGluIHRoaXMgbW9kZSwgc28gcGxlYXNlIHNpbXBsaWZ5Lg0KPg0K
-PiBJICNpZmRlZidkIG91dCB0aGUgdW51c2VkIHJlbGF0aXZlLW1vZGUgY29kZSwgYXMgb3Bwb3Nl
-ZCB0byBkZWxldGluZyBpdC4NCj4gV2lsbCB0aGF0IGJlIGFjY2VwdGFibGU/DQoNCkkgdGhpbmsg
-cmVsYXRpdmUtbW9kZSBjb2RlIHNob3VsZCBiZSByZXNlcnZlZCwNCnNpbmNlIGZvciBzb21lIHVu
-a25vd24gcmVhc29uLCB0cmFja3BhZCBtYXkgZmFpbGVkIGluIGFic29sdXRpb24gbW9kZSwNCmFu
-ZCBpbiBvcmRlciB0byBtYWtlIHRyYWNrcGFkIGRldmljZSBrZXB0IG9uIHVzYWJsZSwNCndlIG1h
-eSBzZXQgaXQgdG8gcmVsYXRpdmUtbW9kZSwNCnNvIGluIHRoaXMgc2l0dWF0aW9uLCB0aGUgcmVs
-YXRpdmUtbW9kZSBjb2RlIHNob3VsZCBiZSBleGlzdC4NCg0KDQo+ID4gPiArICAgICAgICAgLyog
-UmVtb3ZlIEhTQ1JPTEwgYml0ICovDQo+ID4gPiArICAgICAgICAgaWYgKHJlcG9ydF9kYXRhLT5j
-b250YWN0X2NudCA9PSA0KQ0KPiA+ID4gKyAgICAgICAgICAgICAgICAgaGVhZGVyX2J5dGUgJj0g
-fihBQlNfSFNDUk9MTF9CSVQpOw0KPiA+DQo+ID4gV2h5IGNvbmRpdGlvbmFsbHk/DQo+DQo+IER1
-ZGxleSwgY2FuIHlvdSBhbnN3ZXIgdGhpcz8gIEkgbGVmdCB0aGlzIChhbmQgYWxsIHRoZSBzY3Jv
-bGwgY29kZSkgdW5jaGFuZ2VkLg0KDQpZZXMsIHRoaXMgY29uZGl0aW9uIHNob3VsZCBiZSByZXNl
-cnZlZC4NCkJlY2F1c2UgQUJTX0hTQ1JPTExfQklUIGlzIHdpbGwgcmV1c2VkIHRvIGluZGljYXRl
-IGZpbmdlciBudW1iZXJzIHdoZW4gZmluZ2VyIG51bWJlciBpcyBiaWdnZXIgdGhhbiAzLg0KQW5k
-IHdoZW4gdGhlIGNvbnRhY3RfY250IGlzIDQsIHRoZSBBQlNfSFNDUk9MTF9CSVQgaXMgc2V0IHRv
-IGluZGljYXRlIDQgZmluZ2VycyB0b3VjaGVkLCBub3QgSFNDUk9MTCBCSVQgc2V0Lg0KQnV0IGl0
-IHdpbGwgYmUgY29uZnVzZWQgd2l0aCB0aGUgZmxhZyBvZiBIU0NST0xMIGJpdCB3aXRoIG9uZSBm
-aW5nZXIgdG91Y2hlZC4NClNvIHdlIG11c3QgY2xlYXIgdGhpcyBiaXQgd2hlbiBjb250YWN0X2Nu
-dCBpcyA0Lg0KDQoNCj4gPiA+ICsjaWYgMA0KPiA+ID4gKyAvKiBGSVhNRTogY3lwcmVzc19yZWNv
-bm5lY3QoKSBuZXZlciB3b3Jrcy4uLg0KPiA+ID4gKyAgKiBqdXN0IGxldCBwc21vdXNlIHJlLWlu
-aXQoKSB1cyBmb3Igbm93Lg0KPiA+ID4gKyAgKi8NCj4gPiA+ICsgcHNtb3VzZS0+cmVjb25uZWN0
-ID0gY3lwcmVzc19yZWNvbm5lY3Q7ICNlbmRpZg0KPiA+DQo+ID4gVGhpcyBuZWVkcyB0byBiZSBy
-ZW1vdmVkIG9yIGZpeGVkLCBvZiBjb3Vyc2UuDQo+DQo+IFBlciBEdWRsZXksIHRoaXMgZG9lcyB3
-b3JrIGluIGhpcyBkaXNjb25uZWN0L3JlY29ubmVjdCBzY2VuYXJpbywgc28gSSByZS1lbmFibGVk
-IGl0LiAgV2Ugd2lsbCBjb250aW51ZSB0byBpbnZlc3RpZ2F0ZSB3aHkgaXQgZmFpbHMNCj4gKGhh
-cm1sZXNzbHkpIGluIG15IHN1c3BlbmQvcmVzdW1lIHNjZW5hcmlvLg0KDQoNCj4gPiA+ICsgaW50
-IHRwX21heF9hYnNfeDsgIC8qIE1heCBYIGFic29sdXRpb24gdW5pdHMgY2FuIGJlIHJlcG9ydGVk
-LiAqLw0KPiA+ID4gKyBpbnQgdHBfbWF4X2Fic195OyAgLyogTWF4IFkgYWJzb2x1dGlvbiB1bml0
-cyBjYW4gYmUgcmVwb3J0ZWQuICovDQo+ID4NCj4gPiBJIGRvIG5vdCB0aGluayB3ZSBhcmUgc2Vl
-a2luZyBhYnNvbHV0aW9uIGhlcmUuIDotKQ0KPg0KPiBIYSEgIFNwZWFrIGZvciB5b3Vyc2VsZiwg
-SGVucmlrISAgOy0pICBJJ20gc3RhcnRpbmcgdG8gZmVlbCBsaWtlIG1heWJlIEkgc2hvdWxkIGJl
-IHNlZWtpbmcgYWJzb2x1dGlvbiBoZXJlIQ0KPg0KPg0KPiAgLUthbWFsDQoNClRoaXMgbWVzc2Fn
-ZSBhbmQgYW55IGF0dGFjaG1lbnRzIG1heSBjb250YWluIEN5cHJlc3MgKG9yIGl0cyBzdWJzaWRp
-YXJpZXMpIGNvbmZpZGVudGlhbCBpbmZvcm1hdGlvbi4gSWYgaXQgaGFzIGJlZW4gcmVjZWl2ZWQg
-aW4gZXJyb3IsIHBsZWFzZSBhZHZpc2UgdGhlIHNlbmRlciBhbmQgaW1tZWRpYXRlbHkgZGVsZXRl
-IHRoaXMgbWVzc2FnZS4NCg==
+Am Mittwoch, 5. Dezember 2012, 01:28:53 schrieb Rafael J. Wysocki:
+> On Tuesday, December 04, 2012 11:11:27 PM Jan-Matthias Braun wrote:
+> > Am Donnerstag 29. November 2012, 23:28:55 schrieb Rafael J. Wysocki:
+> > > On Thursday, November 29, 2012 03:03:04 PM Jan-Matthias Braun wrote:
+> > > > Am Donnerstag, 29. November 2012, 01:20:04 schrieb Rafael J. Wysocki:
+> > > > > On Tuesday, November 27, 2012 09:26:11 PM Jiri Kosina wrote:
+> > > > > > On Sun, 25 Nov 2012, Jan-Matthias Braun wrote:
+> > > > > > > I have now done a git bisection from 3.0 to 3.1 and have found commit
+> > > > > > > 1e2ef05bb8cf851a694d38e9170c89e7ff052741 PM: Limit race conditions between runtime PM and system sleep (v2)
+> > > > > > > to be the first one to introduce the necessity of a module reload after resume.
+> > > > > 
+> > > > > So with that commit your device doesn't work after resume from system suspend
+> > > > > unless you reload the driver?
+> > > > 
+> > > > Yes. Additionally, with later kernel revisions even this won't help, but I could imagine this to be a consequence of the same problem.
+> > > > 
+> > > > > > > I hope that this helps in finding a solution. As I (again) don't immediatly
+> > > > > > > know how to go on, I kindly ask you to give me some hints for testing/patching
+> > > > > > > or even a possible solution. :-)
+> > > > > 
+> > > > > Can you apply the patch below to the current mainline kernel and see if it makes any
+> > > > > difference, please?
+> > > > 
+> > > > It does: Current mainline kernel (version >3.7.0-rc7 from git) is not showing
+> > > > the problem, if the patch is applied.
+> > > 
+> > > If you apply the patch below instead of the previous one, does it make
+> > > the problem return, or is it still good?
+> > 
+> > again, the problem does not occur; the resume behaviour of the touchscreen is still good.
+> > 
+> > Thanks a lot for testing!
+> 
+> Well, thank you. :-)
+> 
+> I'll add a changelog to this patch and submit it as a fix for the issue
+> you're observing.
+
+Great! Thank you and all others involved for their time!
+
+Jan-Matthias Braun

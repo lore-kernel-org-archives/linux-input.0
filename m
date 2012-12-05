@@ -1,68 +1,131 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH 06/14] HID: i2c-hid: remove unused static declarations
-Date: Wed, 5 Dec 2012 11:03:44 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1212051103360.17055@pobox.suse.cz>
-References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com> <1354634875-5182-7-git-send-email-benjamin.tissoires@gmail.com> <20121204225132.2b7b6f6f@endymion.delvare>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 07/14] HID: i2c-hid: fix return paths
+Date: Wed, 5 Dec 2012 11:05:14 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1212051105090.17055@pobox.suse.cz>
+References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com> <1354634875-5182-8-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121204225132.2b7b6f6f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:59643 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753245Ab2LEKFS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 5 Dec 2012 05:05:18 -0500
+In-Reply-To: <1354634875-5182-8-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 4 Dec 2012, Jean Delvare wrote:
+On Tue, 4 Dec 2012, Benjamin Tissoires wrote:
 
-> > These definitions are not used here, but are defined by the specification.
-> > Keeping some of them for documentation purposes.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > ---
-> >  drivers/hid/i2c-hid/i2c-hid.c | 25 ++++++++++---------------
-> >  1 file changed, 10 insertions(+), 15 deletions(-)
-> > 
-> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> > index 54950be..4452611 100644
-> > --- a/drivers/hid/i2c-hid/i2c-hid.c
-> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> > @@ -106,22 +106,17 @@ static const struct i2c_hid_cmd hid_reset_cmd =		{ I2C_HID_CMD(0x01),
-> >  							  .wait = true };
-> >  static const struct i2c_hid_cmd hid_get_report_cmd =	{ I2C_HID_CMD(0x02) };
-> >  static const struct i2c_hid_cmd hid_set_report_cmd =	{ I2C_HID_CMD(0x03) };
-> > -static const struct i2c_hid_cmd hid_get_idle_cmd =	{ I2C_HID_CMD(0x04) };
-> > -static const struct i2c_hid_cmd hid_set_idle_cmd =	{ I2C_HID_CMD(0x05) };
-> > -static const struct i2c_hid_cmd hid_get_protocol_cmd =	{ I2C_HID_CMD(0x06) };
-> > -static const struct i2c_hid_cmd hid_set_protocol_cmd =	{ I2C_HID_CMD(0x07) };
-> >  static const struct i2c_hid_cmd hid_set_power_cmd =	{ I2C_HID_CMD(0x08) };
-> > -/* read/write data register */
-> > -static const struct i2c_hid_cmd hid_data_cmd = {
-> > -		.registerIndex = offsetof(struct i2c_hid_desc, wDataRegister),
-> > -		.opcode = 0x00,
-> > -		.length = 2 };
-> > -/* write output reports */
-> > -static const struct i2c_hid_cmd hid_out_cmd = {
-> > -		.registerIndex = offsetof(struct i2c_hid_desc,
-> > -			wOutputRegister),
-> > -		.opcode = 0x00,
-> > -		.length = 2 };
-> > +
-> > +/*
-> > + * These definitions are not used here, but are defined by the spec.
-> > + * Keeping them here for documentation purposes.
-> > + *
-> > + * static const struct i2c_hid_cmd hid_get_idle_cmd = { I2C_HID_CMD(0x04) };
-> > + * static const struct i2c_hid_cmd hid_set_idle_cmd = { I2C_HID_CMD(0x05) };
-> > + * static const struct i2c_hid_cmd hid_get_protocol_cmd = { I2C_HID_CMD(0x06) };
-> > + * static const struct i2c_hid_cmd hid_set_protocol_cmd = { I2C_HID_CMD(0x07) };
-> > + */
-> >  
-> >  /* The main device structure */
-> >  struct i2c_hid {
+> Forwards appropriate return values.
+> As noone use the error returned by i2c_hid_get_input, let's make it
+> returning void.
 > 
-> Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
 Applied.
+
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 4452611..d6fdb3e 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -245,7 +245,7 @@ static int i2c_hid_get_report(struct i2c_client *client, u8 reportType,
+>  	if (ret) {
+>  		dev_err(&client->dev,
+>  			"failed to retrieve report from device.\n");
+> -		return -EINVAL;
+> +		return ret;
+>  	}
+>  
+>  	return 0;
+> @@ -290,7 +290,7 @@ static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
+>  		reportType, args, args_len, NULL, 0);
+>  	if (ret) {
+>  		dev_err(&client->dev, "failed to set a report to device.\n");
+> -		return -EINVAL;
+> +		return ret;
+>  	}
+>  
+>  	return data_len;
+> @@ -334,7 +334,7 @@ static int i2c_hid_hwreset(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> -static int i2c_hid_get_input(struct i2c_hid *ihid)
+> +static void i2c_hid_get_input(struct i2c_hid *ihid)
+>  {
+>  	int ret, ret_size;
+>  	int size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
+> @@ -342,11 +342,11 @@ static int i2c_hid_get_input(struct i2c_hid *ihid)
+>  	ret = i2c_master_recv(ihid->client, ihid->inbuf, size);
+>  	if (ret != size) {
+>  		if (ret < 0)
+> -			return ret;
+> +			return;
+>  
+>  		dev_err(&ihid->client->dev, "%s: got %d data instead of %d\n",
+>  			__func__, ret, size);
+> -		return ret;
+> +		return;
+>  	}
+>  
+>  	ret_size = ihid->inbuf[0] | ihid->inbuf[1] << 8;
+> @@ -355,13 +355,13 @@ static int i2c_hid_get_input(struct i2c_hid *ihid)
+>  		/* host or device initiated RESET completed */
+>  		if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
+>  			wake_up(&ihid->wait);
+> -		return 0;
+> +		return;
+>  	}
+>  
+>  	if (ret_size > size) {
+>  		dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
+>  			__func__, size, ret_size);
+> -		return -EIO;
+> +		return;
+>  	}
+>  
+>  	i2c_hid_dbg(ihid, "input: %*ph\n", ret_size, ihid->inbuf);
+> @@ -370,7 +370,7 @@ static int i2c_hid_get_input(struct i2c_hid *ihid)
+>  		hid_input_report(ihid->hid, HID_INPUT_REPORT, ihid->inbuf + 2,
+>  				ret_size - 2, 1);
+>  
+> -	return 0;
+> +	return;
+>  }
+>  
+>  static irqreturn_t i2c_hid_irq(int irq, void *dev_id)
+> @@ -430,8 +430,10 @@ static void i2c_hid_init_reports(struct hid_device *hid)
+>  	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>  	u8 *inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+>  
+> -	if (!inbuf)
+> +	if (!inbuf) {
+> +		dev_err(&client->dev, "can not retrieve initial reports\n");
+>  		return;
+> +	}
+>  
+>  	list_for_each_entry(report,
+>  		&hid->report_enum[HID_INPUT_REPORT].report_list, list)
+> @@ -715,9 +717,7 @@ static int i2c_hid_hidinput_input_event(struct input_dev *dev,
+>  		return -1;
+>  	}
+>  
+> -	hid_set_field(field, offset, value);
+> -
+> -	return 0;
+> +	return hid_set_field(field, offset, value);
+>  }
+>  
+>  static struct hid_ll_driver i2c_hid_ll_driver = {
+> -- 
+> 1.8.0.1
+> 
 
 -- 
 Jiri Kosina

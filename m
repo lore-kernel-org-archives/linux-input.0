@@ -1,65 +1,71 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: hid-multitouch: eGalax Touchscreen not resuming after suspend
-Date: Wed, 05 Dec 2012 01:28:53 +0100
-Message-ID: <2593830.jzurf9PFEe@vostro.rjw.lan>
-References: <8159607.SRZZrRIPNF@orthese> <2305931.9GBOrRiDsv@vostro.rjw.lan> <201212042311.27348.jan_braun@gmx.net>
+From: Kamal Mostafa <kamal@canonical.com>
+Subject: SEMI_MT vs. simulated mt (was Re: [PATCH v3 0/4] Cypress PS/2
+ Trackpad driver)
+Date: Tue, 04 Dec 2012 18:22:18 -0800
+Message-ID: <1354674138.11174.86.camel@fourier>
+References: <1354226281-3476-1-git-send-email-kamal@canonical.com>
+	 <20121203073636.GA28682@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hydra.sisk.pl ([212.160.235.94]:39763 "EHLO hydra.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751913Ab2LEAYC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Dec 2012 19:24:02 -0500
-In-Reply-To: <201212042311.27348.jan_braun@gmx.net>
+Received: from youngberry.canonical.com ([91.189.89.112]:58874 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752451Ab2LECWU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Dec 2012 21:22:20 -0500
+In-Reply-To: <20121203073636.GA28682@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jan-Matthias Braun <jan_braun@gmx.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Greg Kroah-Hartman <greg@kroah.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Dudley Du <dudl@cypress.com>
+Cc: linux-kernel@vger.kernel.org, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Herton Krzesinski <herton.krzesinski@canonical.com>, linux-input@vger.kernel.org, Tim Gardner <tim.gardner@canonical.com>
 
-On Tuesday, December 04, 2012 11:11:27 PM Jan-Matthias Braun wrote:
-> Hi Rafael,
-> 
-> Am Donnerstag 29. November 2012, 23:28:55 schrieb Rafael J. Wysocki:
-> > On Thursday, November 29, 2012 03:03:04 PM Jan-Matthias Braun wrote:
-> > > Am Donnerstag, 29. November 2012, 01:20:04 schrieb Rafael J. Wysocki:
-> > > > On Tuesday, November 27, 2012 09:26:11 PM Jiri Kosina wrote:
-> > > > > On Sun, 25 Nov 2012, Jan-Matthias Braun wrote:
-> > > > > > I have now done a git bisection from 3.0 to 3.1 and have found commit
-> > > > > > 1e2ef05bb8cf851a694d38e9170c89e7ff052741 PM: Limit race conditions between runtime PM and system sleep (v2)
-> > > > > > to be the first one to introduce the necessity of a module reload after resume.
-> > > > 
-> > > > So with that commit your device doesn't work after resume from system suspend
-> > > > unless you reload the driver?
-> > > 
-> > > Yes. Additionally, with later kernel revisions even this won't help, but I could imagine this to be a consequence of the same problem.
-> > > 
-> > > > > > I hope that this helps in finding a solution. As I (again) don't immediatly
-> > > > > > know how to go on, I kindly ask you to give me some hints for testing/patching
-> > > > > > or even a possible solution. :-)
-> > > > 
-> > > > Can you apply the patch below to the current mainline kernel and see if it makes any
-> > > > difference, please?
-> > > 
-> > > It does: Current mainline kernel (version >3.7.0-rc7 from git) is not showing
-> > > the problem, if the patch is applied.
+Hi Dmitry and Henrik-
+
+Regarding SEMI_MT vs. "simulated multitouch" . . .
+
 > > 
-> > If you apply the patch below instead of the previous one, does it make
-> > the problem return, or is it still good?
+> >   Patch #4 (new) reintroduces simulated multitouch for up to 5 fingers
+> >   (#if CYPRESS_SIMULATE_MT), disabling SEMI_MT again.
+> > 
+> >   If that functionality (support for >2 fingers) can be acheived in some
+> >   better way, please advise.
+
+
+On Sun, 2012-12-02 at 23:36 -0800, Dmitry Torokhov wrote:
+> You can still report true number of fingers on the pad via BTN_TOOL_*TAP
+> while reporting the bounding box, the same way as Synaptics, Elantech,
+> ALPS and Sentelic drivers are doing it.
+
+
+On Mon, 2012-12-03 at 08:45 +0100, Henrik Rydberg wrote:
+> +		ret = input_mt_init_slots(input, CYTP_MAX_MT_SLOTS,
+> +			INPUT_MT_POINTER|INPUT_MT_DROP_UNUSED|INPUT_MT_TRACK);
 > 
-> again, the problem does not occur; the resume behaviour of the touchscreen is still good.
+> Here, INPUT_MT_POINTER needs to be dropped; for semi-mt devices, the
+> number of fingers is propagated separately using
 > 
-> Thanks a lot for testing!
-
-Well, thank you. :-)
-
-I'll add a changelog to this patch and submit it as a fix for the issue
-you're observing.
-
-Thanks,
-Rafael
+>    input_mt_report_finger_count(dev, finger_count_as_reported_by_the_device),
+> 
+> which conflicts with automatic handling of pointer logic.
 
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Well...  The forthcoming PATCH v4 version now implements all that ^^ as
+you requested, but it appears that my desktop (X with Unity desktop in
+Ubuntu 12.10) does not actually respond to input_mt_report_finger_count
+events (e.g. BTN_TOOL_TRIPLETAP).
+
+I asked a colleague test a couple of other semi-mt touchpads (Synaptics
+and ALPS) and we found the same result:  The desktop doesn't see >2
+finger events with any of these semi-mt devices, even though
+'input-events' does show that the BTN_TOOL_*TAP events are in the input
+stream.  (Do other X desktops actually support BTN_TOOL_*TAP?)
+
+I understand that this may be "a userspace problem", but from my
+perspective the "simulated multitouch" patch is still necessary for >2
+finger tap/drag.  I have left it in my PATCH v4 set for that reason
+(patch 4/4; disabled by an ifdef).  It can be included and left
+disabled, or enabled, or dropped as you see fit.
+
+ -Kamal
+
+

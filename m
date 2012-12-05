@@ -1,262 +1,94 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 2/2] input: wacom - use new input-mt routines
-Date: Wed, 5 Dec 2012 12:26:25 -0800
-Message-ID: <CAF8JNhJmL-rFFYLpnaaDk=w8KQJqFtEb7vYMj9ABWxJKRZkS5w@mail.gmail.com>
-References: <1354675454-32465-1-git-send-email-pingc@wacom.com>
-	<20121205202324.GB1367@polaris.bitmath.org>
+From: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Subject: Re: HID-sensor(-hub.c) and device IDs
+Date: Wed, 05 Dec 2012 22:08:05 +0100
+Message-ID: <50BFB7B5.4000403@ahsoftware.de>
+References: <50BF961D.5080101@ahsoftware.de> <4FA419E87744DF4DAECD5BCE1214B7A91C95FE7C@ORSMSX108.amr.corp.intel.com> <50BFAB5C.6060207@ahsoftware.de> <4FA419E87744DF4DAECD5BCE1214B7A91C95FEB6@ORSMSX108.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:41540 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932095Ab2LEU01 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Dec 2012 15:26:27 -0500
-Received: by mail-lb0-f174.google.com with SMTP id gi11so4765720lbb.19
-        for <linux-input@vger.kernel.org>; Wed, 05 Dec 2012 12:26:26 -0800 (PST)
-In-Reply-To: <20121205202324.GB1367@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4FA419E87744DF4DAECD5BCE1214B7A91C95FEB6-P5GAC/sN6hk8Ug9VwtkbtrfspsVTdybXVpNB7YpNyf8@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input <linux-input@vger.kernel.org>
 
-On Wed, Dec 5, 2012 at 12:23 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> Hi Ping,
->
->> This patch brings wacom driver in-sync with input-mt changes
->> made in release 3.7.
->>
->> Signed-off-by: Ping Cheng <pingc@wacom.com>
->> Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
->> ---
->>  drivers/input/tablet/wacom_wac.c |   82 ++++++++++----------------------------
->>  drivers/input/tablet/wacom_wac.h |    1 -
->>  2 files changed, 22 insertions(+), 61 deletions(-)
->>
->> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
->> index 097b559..a318bf4 100644
->> --- a/drivers/input/tablet/wacom_wac.c
->> +++ b/drivers/input/tablet/wacom_wac.c
->> @@ -785,25 +785,6 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
->>       return 1;
->>  }
->>
->> -static int find_slot_from_contactid(struct wacom_wac *wacom, int contactid)
->> -{
->> -     int touch_max = wacom->features.touch_max;
->> -     int i;
->> -
->> -     if (!wacom->slots)
->> -             return -1;
->> -
->> -     for (i = 0; i < touch_max; ++i) {
->> -             if (wacom->slots[i] == contactid)
->> -                     return i;
->> -     }
->> -     for (i = 0; i < touch_max; ++i) {
->> -             if (wacom->slots[i] == -1)
->> -                     return i;
->> -     }
->> -     return -1;
->> -}
->> -
->>  static int int_dist(int x1, int y1, int x2, int y2)
->>  {
->>       int x = x2 - x1;
->> @@ -833,8 +814,7 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
->>       for (i = 0; i < contacts_to_send; i++) {
->>               int offset = (WACOM_BYTES_PER_24HDT_PACKET * i) + 1;
->>               bool touch = data[offset] & 0x1 && !wacom->shared->stylus_in_proximity;
->> -             int id = data[offset + 1];
->> -             int slot = find_slot_from_contactid(wacom, id);
->> +             int slot = input_mt_get_slot_by_key(input, data[offset + 1]);
->>
->>               if (slot < 0)
->>                       continue;
->> @@ -856,9 +836,7 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
->>                       input_report_abs(input, ABS_MT_WIDTH_MINOR, min(w, h));
->>                       input_report_abs(input, ABS_MT_ORIENTATION, w > h);
->>               }
->> -             wacom->slots[slot] = touch ? id : -1;
->>       }
->> -
->
-> Looks like a stray line removal here.
+Am 05.12.2012 21:24, schrieb Pandruvada, Srinivas:
+> Yes, We can have a black list instead of white list. Are you planning to submit changes?
 
-Yes, I wanted to make them consistent among all routines.
+I've just have implemented my first version of a time sensor. So yes (at 
+least the time sensor).
 
-Thank you for taking time to double check the update.
+That's why I stumbled over that. I had to add a vendor and device ID to 
+those two files. I also noticed that hid-sensors(-hub) doesn't work with 
+combined HID devices (e.g. mouse/keyboard/sensor) and as a first 
+workaround I've just modified the HID-tree of my device. As I'm fairly 
+new to the HID stuff, I'm still in the evaluation phase (reading source 
+and such).
 
-Ping
+In regard to a blacklist, I don't know how to fill it. I only have the 
+one sensor device I've build myself (it's a spare-time project).
 
->
->>       input_mt_report_pointer_emulation(input, true);
->>
->>       wacom->num_contacts_left -= contacts_to_send;
->> @@ -895,7 +873,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
->>               int offset = (WACOM_BYTES_PER_MT_PACKET + x_offset) * i + 3;
->>               bool touch = data[offset] & 0x1;
->>               int id = le16_to_cpup((__le16 *)&data[offset + 1]);
->> -             int slot = find_slot_from_contactid(wacom, id);
->> +             int slot = input_mt_get_slot_by_key(input, id);
->>
->>               if (slot < 0)
->>                       continue;
->> @@ -908,9 +886,7 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
->>                       input_report_abs(input, ABS_MT_POSITION_X, x);
->>                       input_report_abs(input, ABS_MT_POSITION_Y, y);
->>               }
->> -             wacom->slots[slot] = touch ? id : -1;
->>       }
->> -
->
-> And here. Intentionally?
->
->>       input_mt_report_pointer_emulation(input, true);
->>
->>       wacom->num_contacts_left -= contacts_to_send;
->> @@ -942,12 +918,11 @@ static int wacom_tpc_mt_touch(struct wacom_wac *wacom)
->>                       contact_with_no_pen_down_count++;
->>               }
->>       }
->> +     input_mt_report_pointer_emulation(input, true);
->>
->>       /* keep touch state for pen event */
->>       wacom->shared->touch_down = (contact_with_no_pen_down_count > 0);
->>
->> -     input_mt_report_pointer_emulation(input, true);
->> -
->>       return 1;
->>  }
->>
->> @@ -1104,12 +1079,15 @@ static int wacom_bpt_touch(struct wacom_wac *wacom)
->>  static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
->>  {
->>       struct input_dev *input = wacom->input;
->> -     int slot_id = data[0] - 2;  /* data[0] is between 2 and 17 */
->>       bool touch = data[1] & 0x80;
->> +     int slot = input_mt_get_slot_by_key(input, data[0]);
->> +
->> +     if (slot < 0)
->> +             return;
->>
->>       touch = touch && !wacom->shared->stylus_in_proximity;
->>
->> -     input_mt_slot(input, slot_id);
->> +     input_mt_slot(input, slot);
->>       input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
->>
->>       if (touch) {
->> @@ -1162,7 +1140,6 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
->>                       wacom_bpt3_button_msg(wacom, data + offset);
->>
->>       }
->> -
->
-> Ditto.
->
->>       input_mt_report_pointer_emulation(input, true);
->>
->>       input_sync(input);
->> @@ -1639,17 +1616,11 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
->>               } else if (features->device_type == BTN_TOOL_FINGER) {
->>                       __clear_bit(ABS_MISC, input_dev->absbit);
->>
->> -                     __set_bit(BTN_TOOL_FINGER, input_dev->keybit);
->> -                     __set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
->> -                     __set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
->> -                     __set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
->> -
->> -                     input_mt_init_slots(input_dev, features->touch_max, 0);
->> -
->>                       input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
->>                                            0, features->x_max, 0, 0);
->>                       input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR,
->>                                            0, features->y_max, 0, 0);
->> +                     input_mt_init_slots(input_dev, features->touch_max, INPUT_MT_POINTER);
->>               }
->>               break;
->>
->> @@ -1680,21 +1651,14 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
->>
->>       case MTSCREEN:
->>       case MTTPC:
->> -             if (features->device_type == BTN_TOOL_FINGER) {
->> -                     wacom_wac->slots = kmalloc(features->touch_max *
->> -                                                     sizeof(int),
->> -                                                GFP_KERNEL);
->> -                     if (!wacom_wac->slots)
->> -                             return -ENOMEM;
->> -
->> -                     for (i = 0; i < features->touch_max; i++)
->> -                             wacom_wac->slots[i] = -1;
->> -             }
->> -             /* fall through */
->> -
->>       case TABLETPC2FG:
->>               if (features->device_type == BTN_TOOL_FINGER) {
->> -                     input_mt_init_slots(input_dev, features->touch_max, 0);
->> +                     unsigned int flags = INPUT_MT_DIRECT;
->> +
->> +                     if (wacom_wac->features.type == TABLETPC2FG)
->> +                             flags = 0;
->> +
->> +                     input_mt_init_slots(input_dev, features->touch_max, flags);
->>               }
->>               /* fall through */
->>
->> @@ -1737,28 +1701,26 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
->>               __set_bit(INPUT_PROP_POINTER, input_dev->propbit);
->>
->>               if (features->device_type == BTN_TOOL_FINGER) {
->> +                     unsigned int flags = INPUT_MT_POINTER;
->> +
->>                       __set_bit(BTN_LEFT, input_dev->keybit);
->>                       __set_bit(BTN_FORWARD, input_dev->keybit);
->>                       __set_bit(BTN_BACK, input_dev->keybit);
->>                       __set_bit(BTN_RIGHT, input_dev->keybit);
->>
->> -                     __set_bit(BTN_TOOL_FINGER, input_dev->keybit);
->> -                     __set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
->> -                     input_mt_init_slots(input_dev, features->touch_max, 0);
->> -
->>                       if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
->> -                             __set_bit(BTN_TOOL_TRIPLETAP,
->> -                                       input_dev->keybit);
->> -                             __set_bit(BTN_TOOL_QUADTAP,
->> -                                       input_dev->keybit);
->> -
->>                               input_set_abs_params(input_dev,
->>                                                    ABS_MT_TOUCH_MAJOR,
->>                                                    0, features->x_max, 0, 0);
->>                               input_set_abs_params(input_dev,
->>                                                    ABS_MT_TOUCH_MINOR,
->>                                                    0, features->y_max, 0, 0);
->> +                     } else {
->> +                             __set_bit(BTN_TOOL_FINGER, input_dev->keybit);
->> +                             __set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
->> +                             flags = 0;
->>                       }
->> +                     input_mt_init_slots(input_dev, features->touch_max, flags);
->>               } else if (features->device_type == BTN_TOOL_PEN) {
->>                       __set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
->>                       __set_bit(BTN_TOOL_PEN, input_dev->keybit);
->> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
->> index 9396d77..06410fe 100644
->> --- a/drivers/input/tablet/wacom_wac.h
->> +++ b/drivers/input/tablet/wacom_wac.h
->> @@ -135,7 +135,6 @@ struct wacom_wac {
->>       int pid;
->>       int battery_capacity;
->>       int num_contacts_left;
->> -     int *slots;
->>  };
->>
->>  #endif
->> --
->> 1.7.10.4
->>
->
->     Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
->
+I think the first step would be to identify devices usable by 
+hid-sensor-hub, sensor_hub_check_for_sensor_page() looks like the way to 
+go, at least for the current state of the hid-sensor-framework.
+
+Regards,
+
+Alexander
+
 > Thanks,
-> Henrik
+> Srinivas
+>
+>
+> -----Original Message-----
+> From: Alexander Holler [mailto:holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org]
+> Sent: Wednesday, December 05, 2012 12:15 PM
+> To: Pandruvada, Srinivas
+> Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: Re: HID-sensor(-hub.c) and device IDs
+>
+> Am 05.12.2012 20:21, schrieb Pandruvada, Srinivas:
+>> We have not tested on sensor hubs from different vendors except few. It is possible that some vendors are using sensor hub as raw devices . We can remove vendor product ids once we have a good list for support.
+>
+> Hmm, sorry, I don't understand that fully. Does that mean that the list is there to use the driver only with a small group of devices because otherwise some HID-sensors aren't usable as raw devices?
+>
+> I don't know how many HID-sensor devices are already out in the wild, but because the standard looks fairly new, I don't think there are that many. And I wonder how you want to get the list larger, if nobody notifies that they should use hid-sensor-hub.c.
+>
+>
+> I think the correct way would be to build a blacklist instead of a whitelist.
+>
+> Regards,
+>
+> Alexander
+>
+>> Thanks,
+>> Srinivas
+>>
+>> -----Original Message-----
+>> From: Alexander Holler [mailto:holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org]
+>> Sent: Wednesday, December 05, 2012 10:45 AM
+>> To: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+>> Pandruvada, Srinivas
+>> Subject: HID-sensor(-hub.c) and device IDs
+>>
+>> Hello,
+>>
+>> is there any special reason why vendor and devices IDs for HID-sensors must be listed in drivers/hid/hid-sensor-hub.c and drivers/hid/hid-core.c?
+>>
+>> Maybe I'm missing something, but I don't think this is how HID is supposed to work.
+>>
+>> Regards,
+>>
+>> Alexander
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-iio"
+>> in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo
+>> info at  http://vger.kernel.org/majordomo-info.html
+>>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>

@@ -1,97 +1,71 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH v2 3/4] HID: i2c-hid: remove extra .irq field in struct
- i2c_hid
-Date: Thu, 6 Dec 2012 10:56:46 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1212061056410.28002@pobox.suse.cz>
-References: <1354716176-12558-1-git-send-email-benjamin.tissoires@gmail.com> <1354716176-12558-4-git-send-email-benjamin.tissoires@gmail.com> <20121205182812.57262216@endymion.delvare>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2 4/4] HID: i2c-hid: fix i2c_hid_get_raw_report count
+ mismatches
+Date: Thu, 6 Dec 2012 11:01:48 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1212061101100.28002@pobox.suse.cz>
+References: <1354716176-12558-1-git-send-email-benjamin.tissoires@gmail.com> <1354716176-12558-5-git-send-email-benjamin.tissoires@gmail.com> <20121205205926.143070ef@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121205182812.57262216-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121205205926.143070ef@endymion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 On Wed, 5 Dec 2012, Jean Delvare wrote:
 
-> On Wed,  5 Dec 2012 15:02:55 +0100, Benjamin Tissoires wrote:
-> > There is no point in keeping the irq in i2c_hid as it's already
-> > there in client.
+> > The previous memcpy implementation relied on the size advertized by the
+> > device. There were no guarantees that buf was big enough.
 > > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-Applied.
-
+> > Some gymnastic is also required with the +2/-2 to take into account
+> > the first 2 bytes of the returned buffer where the total returned
+> > length is supplied by the device.
+> > 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > > ---
-> >  drivers/hid/i2c-hid/i2c-hid.c | 15 +++++----------
-> >  1 file changed, 5 insertions(+), 10 deletions(-)
+> >  drivers/hid/i2c-hid/i2c-hid.c | 16 ++++++++++++----
+> >  1 file changed, 12 insertions(+), 4 deletions(-)
 > > 
 > > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> > index d00f185..c6630d4 100644
+> > index c6630d4..ce01d59 100644
 > > --- a/drivers/hid/i2c-hid/i2c-hid.c
 > > +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> > @@ -135,8 +135,6 @@ struct i2c_hid {
-> >  
-> >  	unsigned long		flags;		/* device flags */
-> >  
-> > -	int			irq;		/* the interrupt line irq */
-> > -
-> >  	wait_queue_head_t	wait;		/* For waiting the interrupt */
-> >  };
-> >  
-> > @@ -736,8 +734,6 @@ static int __devinit i2c_hid_init_irq(struct i2c_client *client)
-> >  		return ret;
-> >  	}
-> >  
-> > -	ihid->irq = client->irq;
-> > -
-> >  	return 0;
-> >  }
-> >  
-> > @@ -851,7 +847,7 @@ static int __devinit i2c_hid_probe(struct i2c_client *client,
-> >  	hid = hid_allocate_device();
-> >  	if (IS_ERR(hid)) {
-> >  		ret = PTR_ERR(hid);
-> > -		goto err;
-> > +		goto err_irq;
-> >  	}
-> >  
-> >  	ihid->hid = hid;
-> > @@ -881,10 +877,10 @@ static int __devinit i2c_hid_probe(struct i2c_client *client,
-> >  err_mem_free:
-> >  	hid_destroy_device(hid);
-> >  
-> > -err:
-> > -	if (ihid->irq)
-> > -		free_irq(ihid->irq, ihid);
-> > +err_irq:
-> > +	free_irq(client->irq, ihid);
-> >  
-> > +err:
-> >  	i2c_hid_free_buffers(ihid);
-> >  	kfree(ihid);
-> >  	return ret;
-> > @@ -912,10 +908,9 @@ static int __devexit i2c_hid_remove(struct i2c_client *client)
-> >  static int i2c_hid_suspend(struct device *dev)
+> > @@ -502,23 +502,31 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
 > >  {
-> >  	struct i2c_client *client = to_i2c_client(dev);
-> > -	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> >  	struct i2c_client *client = hid->driver_data;
+> >  	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> > +	size_t ret_count, ask_count;
+> >  	int ret;
 > >  
-> >  	if (device_may_wakeup(&client->dev))
-> > -		enable_irq_wake(ihid->irq);
-> > +		enable_irq_wake(client->irq);
+> >  	if (report_type == HID_OUTPUT_REPORT)
+> >  		return -EINVAL;
 > >  
-> >  	/* Save some power */
-> >  	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+> > -	if (count > ihid->bufsize)
+> > -		count = ihid->bufsize;
+> > +	/* +2 bytes to include the size of the reply in the query buffer */
+> > +	ask_count = min(count + 2, (size_t)ihid->bufsize);
+> >  
+> >  	ret = i2c_hid_get_report(client,
+> >  			report_type == HID_FEATURE_REPORT ? 0x03 : 0x01,
+> > -			report_number, ihid->inbuf, count);
+> > +			report_number, ihid->inbuf, ask_count);
+> >  
+> >  	if (ret < 0)
+> >  		return ret;
+> >  
+> > -	count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
+> > +	ret_count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
+> >  
+> > +	if (!ret_count)
 > 
-> Nice clean-up.
-> 
-> Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> 
-> -- 
-> Jean Delvare
-> 
+> I'd make this (ret_count <= 2), as this would let you call memcpy with a
+> null or even negative length.
+
+Good catch, it doesn't account for the 2 bytes needed for storing the 
+reply size.
+
+I have fixed that and applied the patch, thanks everybody!
 
 -- 
 Jiri Kosina

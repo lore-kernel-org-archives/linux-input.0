@@ -1,53 +1,120 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v6] staging: ste_rmi4: Convert to Type-B support
-Date: Thu, 6 Dec 2012 08:34:40 -0800
-Message-ID: <20121206163440.GB8052@kroah.com>
-References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
- <20121116163146.f4b53f6965ee08ca1a1fc96c@tw.synaptics.com>
- <20121116195433.GA573@polaris.bitmath.org>
- <20121116195008.GA9153@kroah.com>
- <CC51EC7B5B7F984AA566DC102237848896F73163@hkdcw-mail2.synaptics-inc.local>
+From: Alberto Mattea <alberto@mattea.info>
+Subject: Zowie Celeritas modifier keys not working in usb mode
+Date: Thu, 06 Dec 2012 19:50:41 +0100
+Message-ID: <2486236.OclY5vx5UC@alby>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:60869 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1424232Ab2LFQeq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Dec 2012 11:34:46 -0500
-Received: by mail-pa0-f46.google.com with SMTP id bh2so4550888pad.19
-        for <linux-input@vger.kernel.org>; Thu, 06 Dec 2012 08:34:46 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CC51EC7B5B7F984AA566DC102237848896F73163@hkdcw-mail2.synaptics-inc.local>
+Received: from fep-mail-smtpout-l1e.virgilio.net ([212.48.21.145]:48984 "EHLO
+	fep-mail-smtpout-l1e.virgilio.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752695Ab2LFTBX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Dec 2012 14:01:23 -0500
+Received: from mattea.info (79.44.155.95) by fep-mail-smtpout-l1e.virgilio.net (8.6.031.01)
+        id 507FD90E01A224AE for linux-input@vger.kernel.org; Thu, 6 Dec 2012 19:50:42 +0100
+Received: from alby.localnet (unknown [192.168.0.35])
+	by mattea.info (Postfix) with ESMTPS id DA0292CE0C5
+	for <linux-input@vger.kernel.org>; Thu,  6 Dec 2012 19:50:41 +0100 (CET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
+To: linux-input@vger.kernel.org
 
-On Thu, Dec 06, 2012 at 11:30:55AM +0000, Alexandra Chin wrote:
-> Hi Greg,
-> 
-> > > For next time: Once you have received an acked-by or reviewed-by, you
-> > > may add that line under your own signed-off-by in subsequent
-> > > mails. That way, the status of the patch can be tracked properly,
-> > > making life easier for everyone.
-> > >
-> > > Greg, I think we are ready now. :-)
-> > 
-> > All applied.
-> 
-> There are coming patches which needs to be updated and based on this patch,
-> but I noticed that this patch has not been submitted in recent mainline
-> archives (3.7-rc7/3.7-rc8).
+Hello,
 
-That is because they were new features, and not regressions, so they
-will be showing up in Linus's tree for 3.8-rc1.
+this problem was first described in detail at
+https://bugs.archlinux.org/task/24505. Basically it seems the usbhid driver is
+not sending SYN events; with PS/2 everything is fine. Although what follows is
+with Arch Linux, I reproduced exactly the same problem with Ubuntu, with 
+kernel 3.6.2.
 
-> May I know status of this patch? Please let me know if there is anything I 
-> should do.
+Quote from the link above:
 
-Didn't you get an email when I applied the patches saying where the
-patches could be seen and when they would be merged to Linus?
+Some keys do not work on the Zowie Celeritas Keyboard :
+- LEFT SHIFT
+- RIGHT SHIFT
+- LEFT CTRL
+- LEFT META
+- LEFT ALT
+- RIGHT ALT
+- RIGHT CTRL
 
-thanks,
+The keys do not work under ArchLinux, but work as expected under Windows
+(Seven).
 
-greg k-h
+The keys do not work, NO MATTER if X is launched or not.
+
+
+KEYMAP OUTPUT
+-------------
+# /lib/udev/keymap -i input/event19
+Press ESC to finish, or Control-C if this device is not your primary keyboard
+driver did not send SYN event in between key events; previous event:
+scan code: 0x700E1 key code: leftshift
+
+Note: each non working key returns the same "SYN" message
+
+
+UDEVADM OUTPUT
+--------------
+UDEV_LOG=0
+DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1:1.0/input/input19/event19
+MAJOR=13
+MINOR=83
+DEVNAME=/dev/input/event19
+SUBSYSTEM=input
+ID_INPUT=1
+ID_INPUT_KEY=1
+ID_INPUT_KEYBOARD=1
+ID_VENDOR=Zowie
+ID_VENDOR_ENC=Zowie
+ID_VENDOR_ID=2345
+ID_MODEL=Zowie
+ID_MODEL_ENC=Zowie
+ID_MODEL_ID=0101
+ID_REVISION=0001
+ID_SERIAL=Zowie_Zowie
+ID_TYPE=hid
+ID_BUS=usb
+ID_USB_INTERFACES=:030101:030000:
+ID_USB_INTERFACE_NUM=00
+ID_USB_DRIVER=usbhid
+ID_PATH=pci-0000:00:1d.0-usb-0:1:1.0
+DEVLINKS=/dev/input/by-id/usb-Zowie_Zowie-event-kbd
+/dev/input/by-path/pci-0000:00:1d.0-usb-0:1:1.0-event-kbd
+
+
+LSUSB OUTPUT
+------------
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 003 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 005 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 007 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 008 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 001 Device 004: ID 04b3:4485 IBM Corp. Serial Converter
+Bus 003 Device 002: ID 046d:c526 Logitech, Inc. Nano Receiver
+Bus 004 Device 002: ID 0a5c:2145 Broadcom Corp. Bluetooth with Enhanced Data
+Rate II
+Bus 001 Device 005: ID 046d:c512 Logitech, Inc. LX-700 Cordless Desktop
+Receiver
+Bus 001 Device 006: ID 1bcf:0c31 Sunplus Innovation Technology Inc.
+Bus 006 Device 002: ID 2345:0101
+
+
+XORG LOGs:
+----------
+[ 2032.140] (II) Loading /usr/lib/xorg/modules/input/evdev_drv.so
+[ 2032.140] (**) Zowie Zowie: always reports core events
+[ 2032.140] (**) Zowie Zowie: Device: "/dev/input/event19"
+[ 2032.149] (--) Zowie Zowie: Found keys
+[ 2032.149] (II) Zowie Zowie: Configuring as keyboard
+[ 2032.149] (**) Option "config_info"
+"udev:/sys/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1:1.0/input/input19/event19"
+[ 2032.149] (II) XINPUT: Adding extended input device "Zowie Zowie" (type:
+KEYBOARD)
+[ 2032.149] (**) Option "xkb_rules" "evdev"
+[ 2032.149] (**) Option "xkb_model" "evdev"
+[ 2032.149] (**) Option "xkb_layout" "fr"

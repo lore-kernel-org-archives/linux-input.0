@@ -1,72 +1,106 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 4/4] HID: i2c-hid: fix i2c_hid_get_raw_report count
- mismatches
-Date: Thu, 6 Dec 2012 11:01:48 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1212061101100.28002@pobox.suse.cz>
-References: <1354716176-12558-1-git-send-email-benjamin.tissoires@gmail.com> <1354716176-12558-5-git-send-email-benjamin.tissoires@gmail.com> <20121205205926.143070ef@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121205205926.143070ef@endymion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/1] Input: samsung-keypad: Add support for pinctrl
+Date: Thu,  6 Dec 2012 15:48:46 +0530
+Message-ID: <1354789126-28304-1-git-send-email-sachin.kamat@linaro.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:56672 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1422997Ab2LFKZs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Dec 2012 05:25:48 -0500
+Received: by mail-pa0-f46.google.com with SMTP id bh2so4338301pad.19
+        for <linux-input@vger.kernel.org>; Thu, 06 Dec 2012 02:25:47 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, kgene.kim@samsung.com, sachin.kamat@linaro.org, linus.walleij@linaro.org, patches@linaro.org
 
-On Wed, 5 Dec 2012, Jean Delvare wrote:
+Added support for pin configuration using pinctrl subsystem
+to the Samsung keypad driver.
 
-> > The previous memcpy implementation relied on the size advertized by the
-> > device. There were no guarantees that buf was big enough.
-> > 
-> > Some gymnastic is also required with the +2/-2 to take into account
-> > the first 2 bytes of the returned buffer where the total returned
-> > length is supplied by the device.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> > ---
-> >  drivers/hid/i2c-hid/i2c-hid.c | 16 ++++++++++++----
-> >  1 file changed, 12 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> > index c6630d4..ce01d59 100644
-> > --- a/drivers/hid/i2c-hid/i2c-hid.c
-> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> > @@ -502,23 +502,31 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
-> >  {
-> >  	struct i2c_client *client = hid->driver_data;
-> >  	struct i2c_hid *ihid = i2c_get_clientdata(client);
-> > +	size_t ret_count, ask_count;
-> >  	int ret;
-> >  
-> >  	if (report_type == HID_OUTPUT_REPORT)
-> >  		return -EINVAL;
-> >  
-> > -	if (count > ihid->bufsize)
-> > -		count = ihid->bufsize;
-> > +	/* +2 bytes to include the size of the reply in the query buffer */
-> > +	ask_count = min(count + 2, (size_t)ihid->bufsize);
-> >  
-> >  	ret = i2c_hid_get_report(client,
-> >  			report_type == HID_FEATURE_REPORT ? 0x03 : 0x01,
-> > -			report_number, ihid->inbuf, count);
-> > +			report_number, ihid->inbuf, ask_count);
-> >  
-> >  	if (ret < 0)
-> >  		return ret;
-> >  
-> > -	count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
-> > +	ret_count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
-> >  
-> > +	if (!ret_count)
-> 
-> I'd make this (ret_count <= 2), as this would let you call memcpy with a
-> null or even negative length.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+---
+ .../devicetree/bindings/input/samsung-keypad.txt   |   12 ++++++++++++
+ drivers/input/keyboard/samsung-keypad.c            |    7 ++++++-
+ 2 files changed, 18 insertions(+), 1 deletions(-)
 
-Good catch, it doesn't account for the 2 bytes needed for storing the 
-reply size.
-
-I have fixed that and applied the patch, thanks everybody!
-
+diff --git a/Documentation/devicetree/bindings/input/samsung-keypad.txt b/Documentation/devicetree/bindings/input/samsung-keypad.txt
+index ce3e394..616cfeb 100644
+--- a/Documentation/devicetree/bindings/input/samsung-keypad.txt
++++ b/Documentation/devicetree/bindings/input/samsung-keypad.txt
+@@ -25,6 +25,7 @@ Required Board Specific Properties:
+ - samsung,keypad-num-columns: Number of column lines connected to the
+   keypad controller.
+ 
++- Samsung GPIO variant (deprecated):
+ - row-gpios: List of gpios used as row lines. The gpio specifier for
+   this property depends on the gpio controller to which these row lines
+   are connected.
+@@ -33,6 +34,10 @@ Required Board Specific Properties:
+   this property depends on the gpio controller to which these column
+   lines are connected.
+ 
++- Pinctrl variant (preferred, if available):
++  - pinctrl-0: Pin control group to be used for this controller.
++  - pinctrl-names: Should contain only one value - "default".
++
+ - Keys represented as child nodes: Each key connected to the keypad
+   controller is represented as a child node to the keypad controller
+   device node and should include the following properties.
+@@ -56,6 +61,7 @@ Example:
+ 		linux,input-no-autorepeat;
+ 		linux,input-wakeup;
+ 
++		/* Samsung GPIO variant begins here */
+ 		row-gpios = <&gpx2 0 3 3 0
+ 			     &gpx2 1 3 3 0>;
+ 
+@@ -67,6 +73,12 @@ Example:
+ 			     &gpx1 5 3 0 0
+ 			     &gpx1 6 3 0 0
+ 			     &gpx1 7 3 0 0>;
++		/* Samsung GPIO variant ends here */
++
++		/* Pinctrl variant begins here */
++		pinctrl-0 = <&keypad_row0 &keypad_col0>;
++		pinctrl-names = "default";
++		/* Pinctrl variant ends here */
+ 
+ 		key_1 {
+ 			keypad,row = <0>;
+diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+index 22e357b..18770e4 100644
+--- a/drivers/input/keyboard/samsung-keypad.c
++++ b/drivers/input/keyboard/samsung-keypad.c
+@@ -27,6 +27,7 @@
+ #include <linux/of_gpio.h>
+ #include <linux/sched.h>
+ #include <linux/input/samsung-keypad.h>
++#include <linux/pinctrl/consumer.h>
+ 
+ #define SAMSUNG_KEYIFCON			0x00
+ #define SAMSUNG_KEYIFSTSCLR			0x04
+@@ -79,6 +80,7 @@ struct samsung_keypad {
+ 	unsigned int rows;
+ 	unsigned int cols;
+ 	unsigned int row_state[SAMSUNG_MAX_COLS];
++	struct pinctrl *pctrl;
+ #ifdef CONFIG_OF
+ 	int row_gpios[SAMSUNG_MAX_ROWS];
+ 	int col_gpios[SAMSUNG_MAX_COLS];
+@@ -424,9 +426,12 @@ static int samsung_keypad_probe(struct platform_device *pdev)
+ 	keypad->stopped = true;
+ 	init_waitqueue_head(&keypad->wait);
+ 
++	keypad->pctrl = devm_pinctrl_get_select_default(&pdev->dev);
++
+ 	if (pdev->dev.of_node) {
+ #ifdef CONFIG_OF
+-		samsung_keypad_parse_dt_gpio(&pdev->dev, keypad);
++		if (IS_ERR(keypad->pctrl))
++			samsung_keypad_parse_dt_gpio(&pdev->dev, keypad);
+ 		keypad->type = of_device_is_compatible(pdev->dev.of_node,
+ 					"samsung,s5pv210-keypad");
+ #endif
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.4.1
+

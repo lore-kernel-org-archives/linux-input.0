@@ -1,21 +1,21 @@
 From: Alberto Mattea <alberto@mattea.info>
 Subject: Zowie Celeritas modifier keys not working in usb mode
-Date: Thu, 06 Dec 2012 19:50:41 +0100
-Message-ID: <2486236.OclY5vx5UC@alby>
+Date: Thu, 06 Dec 2012 20:19:41 +0100
+Message-ID: <1387259.vxq1cCxlcB@alby>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fep-mail-smtpout-l1e.virgilio.net ([212.48.21.145]:48984 "EHLO
+Received: from fep-mail-smtpout-l1e.virgilio.net ([212.48.21.145]:51577 "EHLO
 	fep-mail-smtpout-l1e.virgilio.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752695Ab2LFTBX (ORCPT
+	by vger.kernel.org with ESMTP id S1946899Ab2LFTTn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Dec 2012 14:01:23 -0500
+	Thu, 6 Dec 2012 14:19:43 -0500
 Received: from mattea.info (79.44.155.95) by fep-mail-smtpout-l1e.virgilio.net (8.6.031.01)
-        id 507FD90E01A224AE for linux-input@vger.kernel.org; Thu, 6 Dec 2012 19:50:42 +0100
+        id 507FD90E01A2509D for linux-input@vger.kernel.org; Thu, 6 Dec 2012 20:19:42 +0100
 Received: from alby.localnet (unknown [192.168.0.35])
-	by mattea.info (Postfix) with ESMTPS id DA0292CE0C5
-	for <linux-input@vger.kernel.org>; Thu,  6 Dec 2012 19:50:41 +0100 (CET)
+	by mattea.info (Postfix) with ESMTPS id 1DA0A2CE0C5
+	for <linux-input@vger.kernel.org>; Thu,  6 Dec 2012 20:19:42 +0100 (CET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org

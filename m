@@ -1,123 +1,183 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Fixes kernel oops when turning bluetooth mouse on
-Date: Thu, 6 Dec 2012 15:50:48 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1212061548430.28002@pobox.suse.cz>
-References: <201212061239.55610.lamarque@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v2 1/1] Input: add driver for Cypress APA I2C Trackpad
+Date: Thu, 6 Dec 2012 15:59:11 +0100
+Message-ID: <20121206145911.GA9882@polaris.bitmath.org>
+References: <1341959357-14691-1-git-send-email-bleung@chromium.org>
+ <1354754899-26701-1-git-send-email-bleung@chromium.org>
+ <1354754899-26701-2-git-send-email-bleung@chromium.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33652 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1423567Ab2LFOuw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Dec 2012 09:50:52 -0500
-In-Reply-To: <201212061239.55610.lamarque@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1354754899-26701-2-git-send-email-bleung@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benson Leung <bleung@chromium.org>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, djkurtz@chromium.org, olofj@chromium.org, dudl@cypress.com
 List-Id: linux-input@vger.kernel.org
-To: "Lamarque V. Souza" <lamarque@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gustavo Padovan <gustavo@padovan.org>, linux-bluetooth@vger.kernel.org
 
-On Thu, 6 Dec 2012, Lamarque V. Souza wrote:
+Hi Benson,
 
-> This patch against kernel 3.7.0-rc8 fixes a kernel oops when turning on the 
-> bluetooth mouse with id 0458:0058 [1].
+> This patch introduces a driver for Cypress All Points Addressable
+> I2C Trackpad, including the ones in 2012 Samsung Chromebooks.
 > 
-> The mouse in question supports both input and hid sessions, however it is 
-> blacklisted in drivers/hid/hid-core.c so the input session is one that should 
-> be used. Long ago (around kernel 3.0.0) some changes in the bluetooth 
-> subsystem made the kernel do not fallback to input session when hid session is 
-> not supported or blacklisted. This patch restore that behaviour by making the 
-> kernel try the input session if hid_add_device returns ENODEV.
+> This device is compatible with MT protocol type B, providing identifiable
+> contacts.
 > 
-> OBS: The patch exports hid_ignore() from hid-core.c so that it can be used in 
-> the bluetooth subsystem.
-> 
-> [1] https://bugzilla.kernel.org/show_bug.cgi?id=39882
-> 
-> Signed-off-by: Lamarque V. Souza <lamarque@gmail.com>
-
-I am fine with the hid core change. Adding Gustavo and linux-bluetooth@ 
-for the net/bluetooth/hidp/ change ... Gustavo, could you please give me 
-Ack on the Bluetooth part so that I could merge it?
-
-Thanks.
-
+> Signed-off-by: Dudley Du <dudl@cypress.com>
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> Signed-off-by: Benson Leung <bleung@chromium.org>
 > ---
-> 
-> diff -Nrup a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> --- a/drivers/hid/hid-core.c	2012-12-05 01:43:45.000000000 -0200
-> +++ b/drivers/hid/hid-core.c	2012-12-05 01:26:57.000000000 -0200
-> @@ -2150,8 +2150,13 @@ static const struct hid_device_id hid_mo
->  	{ }
->  };
->  
-> -static bool hid_ignore(struct hid_device *hdev)
-> +bool hid_ignore(struct hid_device *hdev)
->  {
-> +	if (hdev->quirks & HID_QUIRK_NO_IGNORE)
-> +		return false;
-> +	if (hdev->quirks & HID_QUIRK_IGNORE)
-> +		return true;
-> +
->  	switch (hdev->vendor) {
->  	case USB_VENDOR_ID_CODEMERCS:
->  		/* ignore all Code Mercenaries IOWarrior devices */
-> @@ -2197,6 +2202,7 @@ static bool hid_ignore(struct hid_device
->  
->  	return !!hid_match_id(hdev, hid_ignore_list);
->  }
-> +EXPORT_SYMBOL_GPL(hid_ignore);
->  
->  int hid_add_device(struct hid_device *hdev)
->  {
-> @@ -2208,8 +2214,7 @@ int hid_add_device(struct hid_device *hd
->  
->  	/* we need to kill them here, otherwise they will stay allocated to
->  	 * wait for coming driver */
-> -	if (!(hdev->quirks & HID_QUIRK_NO_IGNORE)
-> -            && (hid_ignore(hdev) || (hdev->quirks & HID_QUIRK_IGNORE)))
-> +	if (hid_ignore(hdev))
->  		return -ENODEV;
->  
->  	/*
-> diff -Nrup a/include/linux/hid.h b/include/linux/hid.h
-> --- a/include/linux/hid.h	2012-12-05 01:44:14.000000000 -0200
-> +++ b/include/linux/hid.h	2012-12-05 01:26:57.000000000 -0200
-> @@ -684,6 +684,7 @@ struct hid_ll_driver {
->  
->  extern int hid_debug;
->  
-> +extern bool hid_ignore(struct hid_device *);
->  extern int hid_add_device(struct hid_device *);
->  extern void hid_destroy_device(struct hid_device *);
->  
-> diff -Nrup a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> --- a/net/bluetooth/hidp/core.c	2012-12-05 01:43:15.000000000 -0200
-> +++ b/net/bluetooth/hidp/core.c	2012-12-05 02:29:49.000000000 -0200
-> @@ -941,6 +941,13 @@ static int hidp_setup_hid(struct hidp_se
->  	hid->hid_get_raw_report = hidp_get_raw_report;
->  	hid->hid_output_raw_report = hidp_output_raw_report;
->  
-> +	/* True if device is blacklisted in drivers/hid/hid-core.c */
-> +	if (hid_ignore(hid)) {
-> +		hid_destroy_device(session->hid);
-> +		session->hid = NULL;
-> +		return -ENODEV;
-> +	}
-> +
->  	return 0;
->  
->  fault:
-> @@ -1013,7 +1020,7 @@ int hidp_add_connection(struct hidp_conn
->  
->  	if (req->rd_size > 0) {
->  		err = hidp_setup_hid(session, req);
-> -		if (err)
-> +		if (err && err != -ENODEV)
->  			goto purge;
->  	}
->  
-> 
+>  Version history :
+> v2 : * Removed firmware update.
+>      * Removed sysfs properties related to firmware update and power mode.
+>      * Folded cyapa_detect into cyapa_probe.
+>      * Added support for middle and right mechanical buttons, if they exist.
+>      * Rearranged disable_irq/enable_irq in suspend and resume to prevent
+>          a power mode change from colliding with a read of tracking data.
+>      * Made cyapa_get_state more reliable.
+>      * Use IRQF_ONESHOT for threaded irq
+>      * Simplified cyapa_set_power_mode.
+>      * Removed extra kernel-doc style comments
+>      * Removed dev_dbg messages.
+>      * Cleaned up unused includes.
+>      * Cleaned up unused #defines
+> v1 : Initial
+> ---
+>  drivers/input/mouse/Kconfig  |   12 +
+>  drivers/input/mouse/Makefile |    1 +
+>  drivers/input/mouse/cyapa.c  |  838 ++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 851 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/mouse/cyapa.c
 
--- 
-Jiri Kosina
-SUSE Labs
+Looking good overall. The patch does not compile in 3.7, and it is
+possible to further simplify the MT handling. The patch below takes
+care of those changes. If it still works for you with this applied, we
+should be fine.
+
+Thanks,
+Henrik
+
+diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+index 08cf1ce..762fe9c 100644
+--- a/drivers/input/mouse/cyapa.c
++++ b/drivers/input/mouse/cyapa.c
+@@ -545,7 +545,6 @@ static irqreturn_t cyapa_irq(int irq, void *dev_id)
+ 	int i;
+ 	int ret;
+ 	int num_fingers;
+-	unsigned int mask;
+ 
+ 	if (device_may_wakeup(dev))
+ 		pm_wakeup_event(dev, 0);
+@@ -560,14 +559,12 @@ static irqreturn_t cyapa_irq(int irq, void *dev_id)
+ 		goto irqhandled;
+ 	}
+ 
+-	mask = 0;
+ 	num_fingers = (data.finger_btn >> 4) & 0x0f;
+ 	for (i = 0; i < num_fingers; i++) {
+ 		const struct cyapa_touch *touch = &data.touches[i];
+ 		/* Note: touch->id range is 1 to 15; slots are 0 to 14. */
+ 		int slot = touch->id - 1;
+ 
+-		mask |= (1 << slot);
+ 		input_mt_slot(input, slot);
+ 		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
+ 		input_report_abs(input, ABS_MT_POSITION_X,
+@@ -577,15 +574,8 @@ static irqreturn_t cyapa_irq(int irq, void *dev_id)
+ 		input_report_abs(input, ABS_MT_PRESSURE, touch->pressure);
+ 	}
+ 
+-	/* Invalidate all unreported slots */
+-	for (i = 0; i < CYAPA_MAX_MT_SLOTS; i++) {
+-		if (mask & (1 << i))
+-			continue;
+-		input_mt_slot(input, i);
+-		input_mt_report_slot_state(input, MT_TOOL_FINGER, false);
+-	}
++	input_mt_sync_frame(input);
+ 
+-	input_mt_report_pointer_emulation(input, true);
+ 	if (cyapa->btn_capability & CAPABILITY_LEFT_BTN_MASK) {
+ 		input_report_key(input, BTN_LEFT,
+ 				 !!(data.finger_btn & OP_DATA_LEFT_BTN));
+@@ -610,6 +600,9 @@ static int cyapa_create_input_dev(struct cyapa *cyapa)
+ 	int ret;
+ 	struct input_dev *input;
+ 
++	if (!cyapa->physical_size_x || !cyapa->physical_size_y)
++		return -EINVAL;
++
+ 	input = cyapa->input = input_allocate_device();
+ 	if (!input) {
+ 		dev_err(dev, "allocate memory for input device failed\n");
+@@ -625,47 +618,17 @@ static int cyapa_create_input_dev(struct cyapa *cyapa)
+ 
+ 	input_set_drvdata(input, cyapa);
+ 
+-	__set_bit(EV_ABS, input->evbit);
+-
+-	/*
+-	 * set and report not-MT axes to support synaptics X Driver.
+-	 * When multi-fingers on trackpad, only the first finger touch
+-	 * will be reported as X/Y axes values.
+-	 */
+-	input_set_abs_params(input, ABS_X, 0, cyapa->max_abs_x, 0, 0);
+-	input_set_abs_params(input, ABS_Y, 0, cyapa->max_abs_y, 0, 0);
+-	input_set_abs_params(input, ABS_PRESSURE, 0, 255, 0, 0);
+-
+ 	/* finger position */
+ 	input_set_abs_params(input, ABS_MT_POSITION_X, 0, cyapa->max_abs_x, 0,
+ 			     0);
+ 	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, cyapa->max_abs_y, 0,
+ 			     0);
+ 	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 255, 0, 0);
+-	ret = input_mt_init_slots(input, CYAPA_MAX_MT_SLOTS);
+-	if (ret < 0) {
+-		dev_err(dev, "allocate memory for MT slots failed, %d\n", ret);
+-		goto err_free_device;
+-	}
+-
+-	if (cyapa->physical_size_x && cyapa->physical_size_y) {
+-		input_abs_set_res(input, ABS_X,
+-			cyapa->max_abs_x / cyapa->physical_size_x);
+-		input_abs_set_res(input, ABS_Y,
+-			cyapa->max_abs_y / cyapa->physical_size_y);
+-		input_abs_set_res(input, ABS_MT_POSITION_X,
+-			cyapa->max_abs_x / cyapa->physical_size_x);
+-		input_abs_set_res(input, ABS_MT_POSITION_Y,
+-			cyapa->max_abs_y / cyapa->physical_size_y);
+-	}
+ 
+-	__set_bit(EV_KEY, input->evbit);
+-	__set_bit(BTN_TOUCH, input->keybit);
+-	__set_bit(BTN_TOOL_FINGER, input->keybit);
+-	__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+-	__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
+-	__set_bit(BTN_TOOL_QUADTAP, input->keybit);
+-	__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
++	input_abs_set_res(input, ABS_MT_POSITION_X,
++			  cyapa->max_abs_x / cyapa->physical_size_x);
++	input_abs_set_res(input, ABS_MT_POSITION_Y,
++			  cyapa->max_abs_y / cyapa->physical_size_y);
+ 
+ 	if (cyapa->btn_capability & CAPABILITY_LEFT_BTN_MASK)
+ 		__set_bit(BTN_LEFT, input->keybit);
+@@ -674,9 +637,16 @@ static int cyapa_create_input_dev(struct cyapa *cyapa)
+ 	if (cyapa->btn_capability & CAPABILITY_RIGHT_BTN_MASK)
+ 		__set_bit(BTN_RIGHT, input->keybit);
+ 
+-	__set_bit(INPUT_PROP_POINTER, input->propbit);
+ 	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+ 
++	/* handle pointer emulation and unused slots in core */
++	ret = input_mt_init_slots(input, CYAPA_MAX_MT_SLOTS,
++				  INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED);
++	if (ret) {
++		dev_err(dev, "allocate memory for MT slots failed, %d\n", ret);
++		goto err_free_device;
++	}
++
+ 	/* Register the device in input subsystem */
+ 	ret = input_register_device(input);
+ 	if (ret) {

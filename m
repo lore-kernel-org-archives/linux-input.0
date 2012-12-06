@@ -1,120 +1,42 @@
-From: Alberto Mattea <alberto@mattea.info>
-Subject: Zowie Celeritas modifier keys not working in usb mode
-Date: Thu, 06 Dec 2012 20:19:41 +0100
-Message-ID: <1387259.vxq1cCxlcB@alby>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/1] Input: samsung-keypad: Add support for pinctrl
+Date: Thu, 6 Dec 2012 20:29:14 +0100
+Message-ID: <CACRpkdYjmpB7gPd-z9pia=R2NQPxkeVegpKDrLfViET+2=UOXA@mail.gmail.com>
+References: <1354789126-28304-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fep-mail-smtpout-l1e.virgilio.net ([212.48.21.145]:51577 "EHLO
-	fep-mail-smtpout-l1e.virgilio.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1946899Ab2LFTTn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Dec 2012 14:19:43 -0500
-Received: from mattea.info (79.44.155.95) by fep-mail-smtpout-l1e.virgilio.net (8.6.031.01)
-        id 507FD90E01A2509D for linux-input@vger.kernel.org; Thu, 6 Dec 2012 20:19:42 +0100
-Received: from alby.localnet (unknown [192.168.0.35])
-	by mattea.info (Postfix) with ESMTPS id 1DA0A2CE0C5
-	for <linux-input@vger.kernel.org>; Thu,  6 Dec 2012 20:19:42 +0100 (CET)
+Received: from mail-ea0-f174.google.com ([209.85.215.174]:51254 "EHLO
+	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423225Ab2LFT3P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Dec 2012 14:29:15 -0500
+Received: by mail-ea0-f174.google.com with SMTP id e13so2625523eaa.19
+        for <linux-input@vger.kernel.org>; Thu, 06 Dec 2012 11:29:14 -0800 (PST)
+In-Reply-To: <1354789126-28304-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, kgene.kim@samsung.com, patches@linaro.org
 
-Hello,
+On Thu, Dec 6, 2012 at 11:18 AM, Sachin Kamat <sachin.kamat@linaro.org> wrote:
 
-this problem was first described in detail at
-https://bugs.archlinux.org/task/24505. Basically it seems the usbhid driver is
-not sending SYN events; with PS/2 everything is fine. Although what follows is
-with Arch Linux, I reproduced exactly the same problem with Ubuntu, with 
-kernel 3.6.2.
+> Added support for pin configuration using pinctrl subsystem
+> to the Samsung keypad driver.
+>
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
 
-Quote from the link above:
+So we've tried to add some pinctrl default fetchers into the input drivers
+and Dmitry don't like sprinking calls like that all over the drivers so
+we're trying to come up with some other scheme.
 
-Some keys do not work on the Zowie Celeritas Keyboard :
-- LEFT SHIFT
-- RIGHT SHIFT
-- LEFT CTRL
-- LEFT META
-- LEFT ALT
-- RIGHT ALT
-- RIGHT CTRL
+I sent one patch that tried to pick the pinctrl handles by using
+notifiers but it doesn't work basically due to probe deferral.
 
-The keys do not work under ArchLinux, but work as expected under Windows
-(Seven).
+So next approach will be to try and modify the device core to
+fetch default pinctrl states.
 
-The keys do not work, NO MATTER if X is launched or not.
+You might try to lobby Dmitry to accepting this in the meantime,
+as a stepping stone. (I'm OK with it, Acked-by).
 
-
-KEYMAP OUTPUT
--------------
-# /lib/udev/keymap -i input/event19
-Press ESC to finish, or Control-C if this device is not your primary keyboard
-driver did not send SYN event in between key events; previous event:
-scan code: 0x700E1 key code: leftshift
-
-Note: each non working key returns the same "SYN" message
-
-
-UDEVADM OUTPUT
---------------
-UDEV_LOG=0
-DEVPATH=/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1:1.0/input/input19/event19
-MAJOR=13
-MINOR=83
-DEVNAME=/dev/input/event19
-SUBSYSTEM=input
-ID_INPUT=1
-ID_INPUT_KEY=1
-ID_INPUT_KEYBOARD=1
-ID_VENDOR=Zowie
-ID_VENDOR_ENC=Zowie
-ID_VENDOR_ID=2345
-ID_MODEL=Zowie
-ID_MODEL_ENC=Zowie
-ID_MODEL_ID=0101
-ID_REVISION=0001
-ID_SERIAL=Zowie_Zowie
-ID_TYPE=hid
-ID_BUS=usb
-ID_USB_INTERFACES=:030101:030000:
-ID_USB_INTERFACE_NUM=00
-ID_USB_DRIVER=usbhid
-ID_PATH=pci-0000:00:1d.0-usb-0:1:1.0
-DEVLINKS=/dev/input/by-id/usb-Zowie_Zowie-event-kbd
-/dev/input/by-path/pci-0000:00:1d.0-usb-0:1:1.0-event-kbd
-
-
-LSUSB OUTPUT
-------------
-Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 003 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 005 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 007 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 008 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 001 Device 004: ID 04b3:4485 IBM Corp. Serial Converter
-Bus 003 Device 002: ID 046d:c526 Logitech, Inc. Nano Receiver
-Bus 004 Device 002: ID 0a5c:2145 Broadcom Corp. Bluetooth with Enhanced Data
-Rate II
-Bus 001 Device 005: ID 046d:c512 Logitech, Inc. LX-700 Cordless Desktop
-Receiver
-Bus 001 Device 006: ID 1bcf:0c31 Sunplus Innovation Technology Inc.
-Bus 006 Device 002: ID 2345:0101
-
-
-XORG LOGs:
-----------
-[ 2032.140] (II) Loading /usr/lib/xorg/modules/input/evdev_drv.so
-[ 2032.140] (**) Zowie Zowie: always reports core events
-[ 2032.140] (**) Zowie Zowie: Device: "/dev/input/event19"
-[ 2032.149] (--) Zowie Zowie: Found keys
-[ 2032.149] (II) Zowie Zowie: Configuring as keyboard
-[ 2032.149] (**) Option "config_info"
-"udev:/sys/devices/pci0000:00/0000:00:1d.0/usb6/6-1/6-1:1.0/input/input19/event19"
-[ 2032.149] (II) XINPUT: Adding extended input device "Zowie Zowie" (type:
-KEYBOARD)
-[ 2032.149] (**) Option "xkb_rules" "evdev"
-[ 2032.149] (**) Option "xkb_model" "evdev"
-[ 2032.149] (**) Option "xkb_layout" "fr"
+Yours,
+Linus Walleij

@@ -1,74 +1,60 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH v2 1/1] Input: add driver for Cypress APA I2C Trackpad
-Date: Thu, 6 Dec 2012 09:29:23 +0100
-Message-ID: <20121206092923.54fef9b8@endymion.delvare>
-References: <1341959357-14691-1-git-send-email-bleung@chromium.org>
-	<1354754899-26701-1-git-send-email-bleung@chromium.org>
-	<1354754899-26701-2-git-send-email-bleung@chromium.org>
-	<20121206074817.GA25574@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2 1/4] HID: i2c-hid: fix memory corruption due to missing
+ hid declaration
+Date: Thu, 6 Dec 2012 10:54:34 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1212061054270.28002@pobox.suse.cz>
+References: <1354716176-12558-1-git-send-email-benjamin.tissoires@gmail.com> <1354716176-12558-2-git-send-email-benjamin.tissoires@gmail.com> <20121205182543.0db92d3e@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zoneX.GCU-Squad.org ([194.213.125.0]:18425 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751268Ab2LFI3j (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Dec 2012 03:29:39 -0500
-In-Reply-To: <20121206074817.GA25574@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121205182543.0db92d3e@endymion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benson Leung <bleung@chromium.org>, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, djkurtz@chromium.org, olofj@chromium.org, dudl@cypress.com
 
-On Wed, 5 Dec 2012 23:48:17 -0800, Dmitry Torokhov wrote:
-> Hi Benson,
-> 
-> On Wed, Dec 05, 2012 at 04:48:19PM -0800, Benson Leung wrote:
-> > This patch introduces a driver for Cypress All Points Addressable
-> > I2C Trackpad, including the ones in 2012 Samsung Chromebooks.
+On Wed, 5 Dec 2012, Jean Delvare wrote:
+
+> > HID descriptors contains 4 bytes of reserved field.
+> > The previous implementation was overriding the next fields in struct i2c_hid.
 > > 
-> > This device is compatible with MT protocol type B, providing identifiable
-> > contacts.
-> > 
-> > Signed-off-by: Dudley Du <dudl@cypress.com>
-> > Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> > Signed-off-by: Benson Leung <bleung@chromium.org>
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 > > ---
-> >  Version history :
-> > v2 : * Removed firmware update.
-> >      * Removed sysfs properties related to firmware update and power mode.
-> >      * Folded cyapa_detect into cyapa_probe.
-> >      * Added support for middle and right mechanical buttons, if they exist.
-> >      * Rearranged disable_irq/enable_irq in suspend and resume to prevent
-> >          a power mode change from colliding with a read of tracking data.
-> >      * Made cyapa_get_state more reliable.
-> >      * Use IRQF_ONESHOT for threaded irq
-> >      * Simplified cyapa_set_power_mode.
-> >      * Removed extra kernel-doc style comments
-> >      * Removed dev_dbg messages.
-> >      * Cleaned up unused includes.
-> >      * Cleaned up unused #defines
-> > v1 : Initial
+> >  drivers/hid/i2c-hid/i2c-hid.c | 9 ++++++++-
+> >  1 file changed, 8 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> > index 7062df2..34cca42 100644
+> > --- a/drivers/hid/i2c-hid/i2c-hid.c
+> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> > @@ -69,6 +69,7 @@ struct i2c_hid_desc {
+> >  	__le16 wVendorID;
+> >  	__le16 wProductID;
+> >  	__le16 wVersionID;
+> > +	__le32 reserved;
+> >  } __packed;
+> >  
+> >  struct i2c_hid_cmd {
+> > @@ -776,7 +777,13 @@ static int __devinit i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+> >  	}
+> >  
+> >  	dsize = le16_to_cpu(hdesc->wHIDDescLength);
+> > -	if (!dsize || dsize > HID_MAX_DESCRIPTOR_SIZE) {
+> > +	/*
+> > +	 * the size of the HID descriptor should at least contain
+> > +	 * its size and the bcdVersion (4 bytes), and should not be greater
+> > +	 * than sizeof(struct i2c_hid_desc) as we directly fill this struct
+> > +	 * through i2c_hid_command.
+> > +	 */
+> > +	if (dsize < 4 || dsize > sizeof(struct i2c_hid_desc)) {
+> >  		dev_err(&client->dev, "weird size of HID descriptor (%u)\n",
+> >  			dsize);
+> >  		return -ENODEV;
 > 
-> First of all - this version is excellent compared to the previous ones
-> posted. I have just a few quesutions (and of course I'd like Henrik to
-> look over MT handlingi and Jean for I2C bits).
+> Reviewed-by: Jean Delvare <khali@linux-fr.org>
 
-I did not find any problem with the I2C bits.
-
-> > (...)
-> > +static ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
-> > +					u8 *values)
-> > +{
-> > +	return i2c_smbus_read_i2c_block_data(cyapa->client, reg, len, values);
-> 
-> Does it have to be SMBUS? If it does you need to check the capabilities
-> in probe(). 
-
-Using SMBus calls is recommended as it increases portability of the
-driver. I2C controllers can do SMBus but SMBus controllers can't do
-I2C. Checking the capabilities is needed in both cases anyway, as you
-can't assume anything from an i2c_adapter.
+Applied, thanks.
 
 -- 
-Jean Delvare
+Jiri Kosina
+SUSE Labs

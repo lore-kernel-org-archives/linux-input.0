@@ -1,42 +1,37 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 1/1] Input: samsung-keypad: Add support for pinctrl
-Date: Thu, 6 Dec 2012 20:29:14 +0100
-Message-ID: <CACRpkdYjmpB7gPd-z9pia=R2NQPxkeVegpKDrLfViET+2=UOXA@mail.gmail.com>
-References: <1354789126-28304-1-git-send-email-sachin.kamat@linaro.org>
+From: Alexander Holler <holler@ahsoftware.de>
+Subject: Re: HID-sensor(-hub.c) and device IDs
+Date: Thu, 06 Dec 2012 20:58:24 +0100
+Message-ID: <50C0F8E0.6040601@ahsoftware.de>
+References: <20121206143212.GA610@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:51254 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423225Ab2LFT3P (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Dec 2012 14:29:15 -0500
-Received: by mail-ea0-f174.google.com with SMTP id e13so2625523eaa.19
-        for <linux-input@vger.kernel.org>; Thu, 06 Dec 2012 11:29:14 -0800 (PST)
-In-Reply-To: <1354789126-28304-1-git-send-email-sachin.kamat@linaro.org>
+Received: from h1446028.stratoserver.net ([85.214.92.142]:56844 "EHLO
+	mail.ahsoftware.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751541Ab2LFT6g (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Dec 2012 14:58:36 -0500
+In-Reply-To: <20121206143212.GA610@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, kgene.kim@samsung.com, patches@linaro.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Dec 6, 2012 at 11:18 AM, Sachin Kamat <sachin.kamat@linaro.org> wrote:
-
-> Added support for pin configuration using pinctrl subsystem
-> to the Samsung keypad driver.
+Am 06.12.2012 15:32, schrieb Henrik Rydberg:
+> Hi Alexander,
 >
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+>> I think the first step would be to identify devices usable by
+>> hid-sensor-hub, sensor_hub_check_for_sensor_page() looks like the
+>> way to go, at least for the current state of the hid-sensor-framework.
+>
+> If you can get the gist of that function into hid_scan_usage(), you should be able to drop both the list in hid-core.c and the list in hid-sensor-hub.c
 
-So we've tried to add some pinctrl default fetchers into the input drivers
-and Dmitry don't like sprinking calls like that all over the drivers so
-we're trying to come up with some other scheme.
+Thats what I wanted to suggest. ;)
 
-I sent one patch that tried to pick the pinctrl handles by using
-notifiers but it doesn't work basically due to probe deferral.
+It's just that I only have one self-made HID sensor device and 
+absolutely no knowledge about what HID sensor devices are in the wild 
+and how they are used.
 
-So next approach will be to try and modify the device core to
-fetch default pinctrl states.
+Regards,
 
-You might try to lobby Dmitry to accepting this in the meantime,
-as a stepping stone. (I'm OK with it, Acked-by).
-
-Yours,
-Linus Walleij
+Alexander

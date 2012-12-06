@@ -1,106 +1,42 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH 1/1] Input: samsung-keypad: Add support for pinctrl
-Date: Thu,  6 Dec 2012 15:48:46 +0530
-Message-ID: <1354789126-28304-1-git-send-email-sachin.kamat@linaro.org>
+From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
+Subject: RE: [PATCH v6] staging: ste_rmi4: Convert to Type-B support
+Date: Thu, 6 Dec 2012 11:30:55 +0000
+Message-ID: <CC51EC7B5B7F984AA566DC102237848896F73163@hkdcw-mail2.synaptics-inc.local>
+References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
+ <20121116163146.f4b53f6965ee08ca1a1fc96c@tw.synaptics.com>
+ <20121116195433.GA573@polaris.bitmath.org> <20121116195008.GA9153@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:56672 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1422997Ab2LFKZs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Dec 2012 05:25:48 -0500
-Received: by mail-pa0-f46.google.com with SMTP id bh2so4338301pad.19
-        for <linux-input@vger.kernel.org>; Thu, 06 Dec 2012 02:25:47 -0800 (PST)
+Received: from tw-mx2.synaptics.com.tw ([203.163.83.68]:38812 "EHLO
+	tw-mx2.synaptics.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1423283Ab2LFLbL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Dec 2012 06:31:11 -0500
+In-Reply-To: <20121116195008.GA9153@kroah.com>
+Content-Language: zh-HK
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, kgene.kim@samsung.com, sachin.kamat@linaro.org, linus.walleij@linaro.org, patches@linaro.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
 
-Added support for pin configuration using pinctrl subsystem
-to the Samsung keypad driver.
+Hi Greg,
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
----
- .../devicetree/bindings/input/samsung-keypad.txt   |   12 ++++++++++++
- drivers/input/keyboard/samsung-keypad.c            |    7 ++++++-
- 2 files changed, 18 insertions(+), 1 deletions(-)
+> > For next time: Once you have received an acked-by or reviewed-by, you
+> > may add that line under your own signed-off-by in subsequent
+> > mails. That way, the status of the patch can be tracked properly,
+> > making life easier for everyone.
+> >
+> > Greg, I think we are ready now. :-)
+> 
+> All applied.
 
-diff --git a/Documentation/devicetree/bindings/input/samsung-keypad.txt b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-index ce3e394..616cfeb 100644
---- a/Documentation/devicetree/bindings/input/samsung-keypad.txt
-+++ b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-@@ -25,6 +25,7 @@ Required Board Specific Properties:
- - samsung,keypad-num-columns: Number of column lines connected to the
-   keypad controller.
- 
-+- Samsung GPIO variant (deprecated):
- - row-gpios: List of gpios used as row lines. The gpio specifier for
-   this property depends on the gpio controller to which these row lines
-   are connected.
-@@ -33,6 +34,10 @@ Required Board Specific Properties:
-   this property depends on the gpio controller to which these column
-   lines are connected.
- 
-+- Pinctrl variant (preferred, if available):
-+  - pinctrl-0: Pin control group to be used for this controller.
-+  - pinctrl-names: Should contain only one value - "default".
-+
- - Keys represented as child nodes: Each key connected to the keypad
-   controller is represented as a child node to the keypad controller
-   device node and should include the following properties.
-@@ -56,6 +61,7 @@ Example:
- 		linux,input-no-autorepeat;
- 		linux,input-wakeup;
- 
-+		/* Samsung GPIO variant begins here */
- 		row-gpios = <&gpx2 0 3 3 0
- 			     &gpx2 1 3 3 0>;
- 
-@@ -67,6 +73,12 @@ Example:
- 			     &gpx1 5 3 0 0
- 			     &gpx1 6 3 0 0
- 			     &gpx1 7 3 0 0>;
-+		/* Samsung GPIO variant ends here */
-+
-+		/* Pinctrl variant begins here */
-+		pinctrl-0 = <&keypad_row0 &keypad_col0>;
-+		pinctrl-names = "default";
-+		/* Pinctrl variant ends here */
- 
- 		key_1 {
- 			keypad,row = <0>;
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index 22e357b..18770e4 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -27,6 +27,7 @@
- #include <linux/of_gpio.h>
- #include <linux/sched.h>
- #include <linux/input/samsung-keypad.h>
-+#include <linux/pinctrl/consumer.h>
- 
- #define SAMSUNG_KEYIFCON			0x00
- #define SAMSUNG_KEYIFSTSCLR			0x04
-@@ -79,6 +80,7 @@ struct samsung_keypad {
- 	unsigned int rows;
- 	unsigned int cols;
- 	unsigned int row_state[SAMSUNG_MAX_COLS];
-+	struct pinctrl *pctrl;
- #ifdef CONFIG_OF
- 	int row_gpios[SAMSUNG_MAX_ROWS];
- 	int col_gpios[SAMSUNG_MAX_COLS];
-@@ -424,9 +426,12 @@ static int samsung_keypad_probe(struct platform_device *pdev)
- 	keypad->stopped = true;
- 	init_waitqueue_head(&keypad->wait);
- 
-+	keypad->pctrl = devm_pinctrl_get_select_default(&pdev->dev);
-+
- 	if (pdev->dev.of_node) {
- #ifdef CONFIG_OF
--		samsung_keypad_parse_dt_gpio(&pdev->dev, keypad);
-+		if (IS_ERR(keypad->pctrl))
-+			samsung_keypad_parse_dt_gpio(&pdev->dev, keypad);
- 		keypad->type = of_device_is_compatible(pdev->dev.of_node,
- 					"samsung,s5pv210-keypad");
- #endif
--- 
-1.7.4.1
+There are coming patches which needs to be updated and based on this patch,
+but I noticed that this patch has not been submitted in recent mainline
+archives (3.7-rc7/3.7-rc8).
+May I know status of this patch? Please let me know if there is anything I 
+should do.
+Appreciate your advice.
 
+Best regards,
+Alexandra

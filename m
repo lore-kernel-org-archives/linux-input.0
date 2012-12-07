@@ -1,42 +1,100 @@
-From: Alexandra Chin <alexandra.chin@tw.synaptics.com>
-Subject: RE: [PATCH v6] staging: ste_rmi4: Convert to Type-B support
-Date: Fri, 7 Dec 2012 06:45:17 +0000
-Message-ID: <CC51EC7B5B7F984AA566DC102237848896F733C6@hkdcw-mail2.synaptics-inc.local>
-References: <20121103013623.0f3a1b28168a9a42881b0b00@tw.synaptics.com>
- <20121116163146.f4b53f6965ee08ca1a1fc96c@tw.synaptics.com>
- <20121116195433.GA573@polaris.bitmath.org> <20121116195008.GA9153@kroah.com>
- <CC51EC7B5B7F984AA566DC102237848896F73163@hkdcw-mail2.synaptics-inc.local>
- <20121206163440.GB8052@kroah.com>
- <CC51EC7B5B7F984AA566DC102237848896F73300@hkdcw-mail2.synaptics-inc.local>
- <20121207051135.GA19610@kroah.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Fixes kernel oops when turning bluetooth mouse on
+Date: Fri, 7 Dec 2012 11:21:02 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1212071120410.28002@pobox.suse.cz>
+References: <201212061239.55610.lamarque@gmail.com> <alpine.LNX.2.00.1212061548430.28002@pobox.suse.cz> <20121206202448.GA11409@joana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tw-mx2.synaptics.com.tw ([203.163.83.68]:38665 "EHLO
-	tw-mx2.synaptics.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754553Ab2LGGpY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Dec 2012 01:45:24 -0500
-In-Reply-To: <20121207051135.GA19610@kroah.com>
-Content-Language: zh-HK
+Received: from cantor2.suse.de ([195.135.220.15]:41677 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755554Ab2LGKVI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 Dec 2012 05:21:08 -0500
+In-Reply-To: <20121206202448.GA11409@joana>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, Naveen Kumar Gaddipati <naveen.gaddipati@stericsson.com>, Mahesh Srinivasan <msrinivasan@synaptics.com>, Alex Chang <alex.chang@tw.synaptics.com>, Scott Lin <scott.lin@tw.synaptics.com>, Christopher Heiny <Cheiny@synaptics.com>
+To: Gustavo Padovan <gustavo@padovan.org>
+Cc: "Lamarque V. Souza" <lamarque@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org
 
-Hi Greg,
+On Thu, 6 Dec 2012, Gustavo Padovan wrote:
 
-> > Yes, I've received an email saying that the patch will show up in the next
-> > release of the linux-next tree, but I was not aware that linux-next tree
-> > means 3.8-rc1.
+> > > diff -Nrup a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > > --- a/drivers/hid/hid-core.c	2012-12-05 01:43:45.000000000 -0200
+> > > +++ b/drivers/hid/hid-core.c	2012-12-05 01:26:57.000000000 -0200
+> > > @@ -2150,8 +2150,13 @@ static const struct hid_device_id hid_mo
+> > >  	{ }
+> > >  };
+> > >  
+> > > -static bool hid_ignore(struct hid_device *hdev)
+> > > +bool hid_ignore(struct hid_device *hdev)
+> > >  {
+> > > +	if (hdev->quirks & HID_QUIRK_NO_IGNORE)
+> > > +		return false;
+> > > +	if (hdev->quirks & HID_QUIRK_IGNORE)
+> > > +		return true;
+> > > +
+> > >  	switch (hdev->vendor) {
+> > >  	case USB_VENDOR_ID_CODEMERCS:
+> > >  		/* ignore all Code Mercenaries IOWarrior devices */
+> > > @@ -2197,6 +2202,7 @@ static bool hid_ignore(struct hid_device
+> > >  
+> > >  	return !!hid_match_id(hdev, hid_ignore_list);
+> > >  }
+> > > +EXPORT_SYMBOL_GPL(hid_ignore);
+> > >  
+> > >  int hid_add_device(struct hid_device *hdev)
+> > >  {
+> > > @@ -2208,8 +2214,7 @@ int hid_add_device(struct hid_device *hd
+> > >  
+> > >  	/* we need to kill them here, otherwise they will stay allocated to
+> > >  	 * wait for coming driver */
+> > > -	if (!(hdev->quirks & HID_QUIRK_NO_IGNORE)
+> > > -            && (hid_ignore(hdev) || (hdev->quirks & HID_QUIRK_IGNORE)))
+> > > +	if (hid_ignore(hdev))
+> > >  		return -ENODEV;
+> > >  
+> > >  	/*
+> > > diff -Nrup a/include/linux/hid.h b/include/linux/hid.h
+> > > --- a/include/linux/hid.h	2012-12-05 01:44:14.000000000 -0200
+> > > +++ b/include/linux/hid.h	2012-12-05 01:26:57.000000000 -0200
+> > > @@ -684,6 +684,7 @@ struct hid_ll_driver {
+> > >  
+> > >  extern int hid_debug;
+> > >  
+> > > +extern bool hid_ignore(struct hid_device *);
+> > >  extern int hid_add_device(struct hid_device *);
+> > >  extern void hid_destroy_device(struct hid_device *);
+> > >  
+> > > diff -Nrup a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+> > > --- a/net/bluetooth/hidp/core.c	2012-12-05 01:43:15.000000000 -0200
+> > > +++ b/net/bluetooth/hidp/core.c	2012-12-05 02:29:49.000000000 -0200
+> > > @@ -941,6 +941,13 @@ static int hidp_setup_hid(struct hidp_se
+> > >  	hid->hid_get_raw_report = hidp_get_raw_report;
+> > >  	hid->hid_output_raw_report = hidp_output_raw_report;
+> > >  
+> > > +	/* True if device is blacklisted in drivers/hid/hid-core.c */
+> > > +	if (hid_ignore(hid)) {
+> > > +		hid_destroy_device(session->hid);
+> > > +		session->hid = NULL;
+> > > +		return -ENODEV;
+> > > +	}
+> > > +
+> > >  	return 0;
+> > >  
+> > >  fault:
+> > > @@ -1013,7 +1020,7 @@ int hidp_add_connection(struct hidp_conn
+> > >  
+> > >  	if (req->rd_size > 0) {
+> > >  		err = hidp_setup_hid(session, req);
+> > > -		if (err)
+> > > +		if (err && err != -ENODEV)
+> > >  			goto purge;
+> > >  	}
 > 
-> It does not, you didn't read the next sentance which described when the
-> patch would be sent to Linus...
+> Acked-by: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
 
-Thank you for correcting. Correction to my earlier reply: The patch will
-show up in the next release of the linux-next tree, then to Linus Torvalds.
-And if it gets accepted at each step along the way, it will be merged in
-the mainline :-)
+Queuing in hid.git, thanks.
 
-Best regards,
-Alexandra
+-- 
+Jiri Kosina
+SUSE Labs

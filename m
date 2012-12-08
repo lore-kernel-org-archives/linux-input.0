@@ -1,911 +1,1113 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v3 1/1] Input: add driver for Cypress APA I2C Trackpad
-Date: Sat, 8 Dec 2012 13:42:00 +0100
-Message-ID: <20121208124200.GB3147@polaris.bitmath.org>
-References: <1354754899-26701-1-git-send-email-bleung@chromium.org>
- <1354922656-13506-1-git-send-email-bleung@chromium.org>
- <1354922656-13506-2-git-send-email-bleung@chromium.org>
+Subject: Re: [PATCH v6] Cypress PS/2 Trackpad driver
+Date: Sat, 8 Dec 2012 13:54:05 +0100
+Message-ID: <20121208125405.GA3183@polaris.bitmath.org>
+References: <1354846216-19707-1-git-send-email-kamal@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:54750 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932680Ab2LHMjm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 8 Dec 2012 07:39:42 -0500
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:60238 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755041Ab2LHMvt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 8 Dec 2012 07:51:49 -0500
 Content-Disposition: inline
-In-Reply-To: <1354922656-13506-2-git-send-email-bleung@chromium.org>
+In-Reply-To: <1354846216-19707-1-git-send-email-kamal@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: khali@linux-fr.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, djkurtz@chromium.org, olofj@chromium.org, dudl@cypress.com
+To: Kamal Mostafa <kamal@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dudley Du <dudl@cypress.com>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
 
-On Fri, Dec 07, 2012 at 03:24:16PM -0800, Benson Leung wrote:
-> This patch introduces a driver for Cypress All Points Addressable
-> I2C Trackpad, including the ones in 2012 Samsung Chromebooks.
+Hi Kamal,
+
+> This driver, submitted on behalf of Cypress Semiconductor Corporation and
+> additional contributors, provides support for the Cypress PS/2 Trackpad.
 > 
-> This device is compatible with MT protocol type B, providing identifiable
-> contacts.
+> Note that the patch "increase struct ps2dev cmdbuf[] to 8 bytes" [5] is a
+> PREREQUISITE for this patch.
+> 
+> This [PATCH v6] version differs from my previous submitted version[4]:
+> 
+>   Changes as recommended by Dmitry Torokhov:
+> 
+>   - patches #2 (main driver) and #3 (link in driver) have been merged.
+>   - eliminated cytp_dbg(), is_cypress_key(), and cypress_set_abs_rel_mode().
+>   - restructured cypress_validate_byte() and cypress_reset().
+>   - stopped unnecessary fiddling with psmouse->pktsize.
+>   - fixed cypress_read_cmd_status() printf.
+>   - removed unused members from struct cytp_data.
+>   - misc code and comment style cleanups.
+> 
+> Known problems:  None.
+> 
+>  -Kamal Mostafa <kamal@canonical.com>
+> 
+> [0] PATCH v1: http://www.spinics.net/lists/linux-input/msg23690.html
+> [1] PATCH v2: http://www.spinics.net/lists/linux-input/msg23718.html
+> [2] PATCH v3: http://www.spinics.net/lists/linux-input/msg23943.html
+> [3] PATCH v4: http://www.spinics.net/lists/linux-input/msg24047.html
+> [4] PATCH v5: http://www.spinics.net/lists/linux-input/msg24096.html
+> [5] cmdbuf patch: http://www.spinics.net/lists/linux-input/msg24095.html
+> 
+> -- >8 --
+> From: Dudley Du <dudl@cypress.com>
+> Subject: [PATCH v6] input: Cypress PS/2 Trackpad psmouse driver
+> 
+> Input/mouse driver for Cypress PS/2 Trackpad.
+> 
+> Original code contributed by Dudley Du (Cypress Semiconductor Corporation),
+> modified by Kamal Mostafa and Kyle Fazzari.
+> 
+> BugLink: http://launchpad.net/bugs/978807
 > 
 > Signed-off-by: Dudley Du <dudl@cypress.com>
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> Signed-off-by: Benson Leung <bleung@chromium.org>
+> Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+> Signed-off-by: Kyle Fazzari <git@status.e4ward.com>
+> Signed-off-by: Mario Limonciello <mario_limonciello@dell.com>
+> Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+> Acked-by: Herton Krzesinski <herton.krzesinski@canonical.com>
 > ---
-> Version history :
-> v3 : * Handle pointer emulation and unused slots in core
->      * Fix compile fail on 3.7 for input_mt_init_slots (Thanks Rydberg)
->      * Set BUTTONPAD property only if is a buttonpad based on capabilities.
->      * Removed __devinit/__devexit/__devexit_p
->      * Set to OFF power mode on cyapa_remove
->      * Got rid of kasprintf'd physical location string for static one.
-> 
-> v2 : * Removed firmware update.
->      * Removed sysfs properties related to firmware update and power mode.
->      * Folded cyapa_detect into cyapa_probe.
->      * Added support for middle and right mechanical buttons, if they exist.
->      * Rearranged disable_irq/enable_irq in suspend and resume to prevent
->          a power mode change from colliding with a read of tracking data.
->      * Made cyapa_get_state more reliable.
->      * Use IRQF_ONESHOT for threaded irq
->      * Simplified cyapa_set_power_mode.
->      * Removed extra kernel-doc style comments
->      * Removed dev_dbg messages.
->      * Cleaned up unused includes.
->      * Cleaned up unused #defines
-> 
-> v1 : Initial
-> ---
->  drivers/input/mouse/Kconfig  |   12 +
->  drivers/input/mouse/Makefile |    1 +
->  drivers/input/mouse/cyapa.c  |  803 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 816 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/mouse/cyapa.c
+>  drivers/input/mouse/Kconfig        |   10 +
+>  drivers/input/mouse/Makefile       |    1 +
+>  drivers/input/mouse/cypress_ps2.c  |  719 ++++++++++++++++++++++++++++++++++++
+>  drivers/input/mouse/cypress_ps2.h  |  191 ++++++++++
+>  drivers/input/mouse/psmouse-base.c |   32 ++
+>  drivers/input/mouse/psmouse.h      |    1 +
+>  6 files changed, 954 insertions(+)
+>  create mode 100644 drivers/input/mouse/cypress_ps2.c
+>  create mode 100644 drivers/input/mouse/cypress_ps2.h
 > 
 > diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-> index cd6268c..23db30a 100644
+> index cd6268c..88954dd 100644
 > --- a/drivers/input/mouse/Kconfig
 > +++ b/drivers/input/mouse/Kconfig
-> @@ -193,6 +193,18 @@ config MOUSE_BCM5974
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called bcm5974.
+> @@ -68,6 +68,16 @@ config MOUSE_PS2_SYNAPTICS
 >  
-> +config MOUSE_CYAPA
-> +	tristate "Cypress APA I2C Trackpad support"
-> +	depends on I2C
-> +	help
-> +	  This driver adds support for Cypress All Points Addressable (APA)
-> +	  I2C Trackpads, including the ones used in 2012 Samsung Chromebooks.
+>  	  If unsure, say Y.
+>  
+> +config MOUSE_PS2_CYPRESS
+> +       bool "Cypress PS/2 mouse protocol extension" if EXPERT
+
+Why EXPERT here?
+
+> +       default y
+
+Should it really be default y here?
+
+> +       depends on MOUSE_PS2
+> +       help
+> +         Say Y here if you have a Cypress PS/2 Trackpad connected to
+> +         your system.
 > +
-> +	  Say Y here if you have a Cypress APA I2C Trackpad.
+> +         If unsure, say Y.
 > +
-> +	  To compile this driver as a module, choose M here: the module will be
-> +	  called cyapa.
-> +
->  config MOUSE_INPORT
->  	tristate "InPort/MS/ATIXL busmouse"
->  	depends on ISA
+>  config MOUSE_PS2_LIFEBOOK
+>  	bool "Fujitsu Lifebook PS/2 mouse protocol extension" if EXPERT
+>  	default y
 > diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-> index 46ba755..10b4773 100644
+> index 46ba755..323e352 100644
 > --- a/drivers/input/mouse/Makefile
 > +++ b/drivers/input/mouse/Makefile
-> @@ -8,6 +8,7 @@ obj-$(CONFIG_MOUSE_AMIGA)		+= amimouse.o
->  obj-$(CONFIG_MOUSE_APPLETOUCH)		+= appletouch.o
->  obj-$(CONFIG_MOUSE_ATARI)		+= atarimouse.o
->  obj-$(CONFIG_MOUSE_BCM5974)		+= bcm5974.o
-> +obj-$(CONFIG_MOUSE_CYAPA)		+= cyapa.o
->  obj-$(CONFIG_MOUSE_GPIO)		+= gpio_mouse.o
->  obj-$(CONFIG_MOUSE_INPORT)		+= inport.o
->  obj-$(CONFIG_MOUSE_LOGIBM)		+= logibm.o
-> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+> @@ -32,3 +32,4 @@ psmouse-$(CONFIG_MOUSE_PS2_LIFEBOOK)	+= lifebook.o
+>  psmouse-$(CONFIG_MOUSE_PS2_SENTELIC)	+= sentelic.o
+>  psmouse-$(CONFIG_MOUSE_PS2_TRACKPOINT)	+= trackpoint.o
+>  psmouse-$(CONFIG_MOUSE_PS2_TOUCHKIT)	+= touchkit_ps2.o
+> +psmouse-$(CONFIG_MOUSE_PS2_CYPRESS)	+= cypress_ps2.o
+> diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
 > new file mode 100644
-> index 0000000..0964583
+> index 0000000..310cb49
 > --- /dev/null
-> +++ b/drivers/input/mouse/cyapa.c
-> @@ -0,0 +1,803 @@
+> +++ b/drivers/input/mouse/cypress_ps2.c
+> @@ -0,0 +1,719 @@
 > +/*
-> + * Cypress APA trackpad with I2C interface
+> + * Cypress Trackpad PS/2 mouse driver
 > + *
-> + * Author: Dudley Du <dudl@cypress.com>
-> + * Further cleanup and restructuring by:
-> + *   Daniel Kurtz <djkurtz@chromium.org>
-> + *   Benson Leung <bleung@chromium.org>
+> + * Copyright (c) 2012 Cypress Semiconductor Corporation.
 > + *
-> + * Copyright (C) 2011-2012 Cypress Semiconductor, Inc.
-> + * Copyright (C) 2011-2012 Google, Inc.
+> + * Author:
+> + *   Dudley Du <dudl@cypress.com>
 > + *
-> + * This file is subject to the terms and conditions of the GNU General Public
-> + * License.  See the file COPYING in the main directory of this archive for
-> + * more details.
+> + * Additional contributors include:
+> + *   Kamal Mostafa <kamal@canonical.com>
+> + *   Kyle Fazzari <git@status.e4ward.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2 as published by
+> + * the Free Software Foundation.
 > + */
 > +
-> +#include <linux/delay.h>
-> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/slab.h>
+> +#include <linux/serio.h>
+> +#include <linux/libps2.h>
 > +#include <linux/input.h>
 > +#include <linux/input/mt.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/module.h>
-> +#include <linux/slab.h>
+> +#include <linux/sched.h>
+> +#include <linux/wait.h>
 > +
-> +/* APA trackpad firmware generation */
-> +#define CYAPA_GEN3   0x03   /* support MT-protocol B with tracking ID. */
+> +#include "cypress_ps2.h"
 > +
-> +#define CYAPA_NAME   "Cypress APA Trackpad (cyapa)"
+> +#undef CYTP_DEBUG_VERBOSE  /* define this and DEBUG for more verbose dump */
 > +
-> +/* commands for read/write registers of Cypress trackpad */
-> +#define CYAPA_CMD_SOFT_RESET       0x00
-> +#define CYAPA_CMD_POWER_MODE       0x01
-> +#define CYAPA_CMD_DEV_STATUS       0x02
-> +#define CYAPA_CMD_GROUP_DATA       0x03
-> +#define CYAPA_CMD_GROUP_CMD        0x04
-> +#define CYAPA_CMD_GROUP_QUERY      0x05
-> +#define CYAPA_CMD_BL_STATUS        0x06
-> +#define CYAPA_CMD_BL_HEAD          0x07
-> +#define CYAPA_CMD_BL_CMD           0x08
-> +#define CYAPA_CMD_BL_DATA          0x09
-> +#define CYAPA_CMD_BL_ALL           0x0a
-> +#define CYAPA_CMD_BLK_PRODUCT_ID   0x0b
-> +#define CYAPA_CMD_BLK_HEAD         0x0c
-> +
-> +/* report data start reg offset address. */
-> +#define DATA_REG_START_OFFSET  0x0000
-> +
-> +#define BL_HEAD_OFFSET 0x00
-> +#define BL_DATA_OFFSET 0x10
-> +
-> +/*
-> + * Operational Device Status Register
-> + *
-> + * bit 7: Valid interrupt source
-> + * bit 6 - 4: Reserved
-> + * bit 3 - 2: Power status
-> + * bit 1 - 0: Device status
-> + */
-> +#define REG_OP_STATUS     0x00
-> +#define OP_STATUS_SRC     0x80
-> +#define OP_STATUS_POWER   0x0c
-> +#define OP_STATUS_DEV     0x03
-> +#define OP_STATUS_MASK (OP_STATUS_SRC | OP_STATUS_POWER | OP_STATUS_DEV)
-> +
-> +/*
-> + * Operational Finger Count/Button Flags Register
-> + *
-> + * bit 7 - 4: Number of touched finger
-> + * bit 3: Valid data
-> + * bit 2: Middle Physical Button
-> + * bit 1: Right Physical Button
-> + * bit 0: Left physical Button
-> + */
-> +#define REG_OP_DATA1       0x01
-> +#define OP_DATA_VALID      0x08
-> +#define OP_DATA_MIDDLE_BTN 0x04
-> +#define OP_DATA_RIGHT_BTN  0x02
-> +#define OP_DATA_LEFT_BTN   0x01
-> +#define OP_DATA_BTN_MASK (OP_DATA_MIDDLE_BTN | OP_DATA_RIGHT_BTN | \
-> +			  OP_DATA_LEFT_BTN)
-> +
-> +/*
-> + * Bootloader Status Register
-> + *
-> + * bit 7: Busy
-> + * bit 6 - 5: Reserved
-> + * bit 4: Bootloader running
-> + * bit 3 - 1: Reserved
-> + * bit 0: Checksum valid
-> + */
-> +#define REG_BL_STATUS        0x01
-> +#define BL_STATUS_BUSY       0x80
-> +#define BL_STATUS_RUNNING    0x10
-> +#define BL_STATUS_DATA_VALID 0x08
-> +#define BL_STATUS_CSUM_VALID 0x01
-> +
-> +/*
-> + * Bootloader Error Register
-> + *
-> + * bit 7: Invalid
-> + * bit 6: Invalid security key
-> + * bit 5: Bootloading
-> + * bit 4: Command checksum
-> + * bit 3: Flash protection error
-> + * bit 2: Flash checksum error
-> + * bit 1 - 0: Reserved
-> + */
-> +#define REG_BL_ERROR         0x02
-> +#define BL_ERROR_INVALID     0x80
-> +#define BL_ERROR_INVALID_KEY 0x40
-> +#define BL_ERROR_BOOTLOADING 0x20
-> +#define BL_ERROR_CMD_CSUM    0x10
-> +#define BL_ERROR_FLASH_PROT  0x08
-> +#define BL_ERROR_FLASH_CSUM  0x04
-> +
-> +#define BL_STATUS_SIZE  3  /* length of bootloader status registers */
-> +#define BLK_HEAD_BYTES 32
-> +
-> +#define PRODUCT_ID_SIZE  16
-> +#define QUERY_DATA_SIZE  27
-> +#define REG_PROTOCOL_GEN_QUERY_OFFSET  20
-> +
-> +#define REG_OFFSET_DATA_BASE     0x0000
-> +#define REG_OFFSET_COMMAND_BASE  0x0028
-> +#define REG_OFFSET_QUERY_BASE    0x002a
-> +
-> +#define CAPABILITY_LEFT_BTN_MASK	(0x01 << 3)
-> +#define CAPABILITY_RIGHT_BTN_MASK	(0x01 << 4)
-> +#define CAPABILITY_MIDDLE_BTN_MASK	(0x01 << 5)
-> +#define CAPABILITY_BTN_MASK  (CAPABILITY_LEFT_BTN_MASK | \
-> +			      CAPABILITY_RIGHT_BTN_MASK | \
-> +			      CAPABILITY_MIDDLE_BTN_MASK)
-> +
-> +#define CYAPA_OFFSET_SOFT_RESET  REG_OFFSET_COMMAND_BASE
-> +
-> +#define REG_OFFSET_POWER_MODE (REG_OFFSET_COMMAND_BASE + 1)
-> +
-> +#define PWR_MODE_MASK   0xfc
-> +#define PWR_MODE_FULL_ACTIVE (0x3f << 2)
-> +#define PWR_MODE_IDLE        (0x05 << 2) /* default sleep time is 50 ms. */
-> +#define PWR_MODE_OFF         (0x00 << 2)
-> +
-> +#define PWR_STATUS_MASK      0x0c
-> +#define PWR_STATUS_ACTIVE    (0x03 << 2)
-> +#define PWR_STATUS_IDLE      (0x02 << 2)
-> +#define PWR_STATUS_OFF       (0x00 << 2)
-> +
-> +/*
-> + * CYAPA trackpad device states.
-> + * Used in register 0x00, bit1-0, DeviceStatus field.
-> + * Other values indicate device is in an abnormal state and must be reset.
-> + */
-> +#define CYAPA_DEV_NORMAL  0x03
-> +#define CYAPA_DEV_BUSY    0x01
-> +
-> +enum cyapa_state {
-> +	CYAPA_STATE_OP,
-> +	CYAPA_STATE_BL_IDLE,
-> +	CYAPA_STATE_BL_ACTIVE,
-> +	CYAPA_STATE_BL_BUSY,
-> +	CYAPA_STATE_NO_DEVICE,
-> +};
-> +
-> +
-> +struct cyapa_touch {
-> +	/*
-> +	 * high bits or x/y position value
-> +	 * bit 7 - 4: high 4 bits of x position value
-> +	 * bit 3 - 0: high 4 bits of y position value
-> +	 */
-> +	u8 xy_hi;
-> +	u8 x_lo;  /* low 8 bits of x position value. */
-> +	u8 y_lo;  /* low 8 bits of y position value. */
-> +	u8 pressure;
-> +	/* id range is 1 - 15.  It is incremented with every new touch. */
-> +	u8 id;
-> +} __packed;
-> +
-> +/* The touch.id is used as the MT slot id, thus max MT slot is 15 */
-> +#define CYAPA_MAX_MT_SLOTS  15
-> +
-> +struct cyapa_reg_data {
-> +	/*
-> +	 * bit 0 - 1: device status
-> +	 * bit 3 - 2: power mode
-> +	 * bit 6 - 4: reserved
-> +	 * bit 7: interrupt valid bit
-> +	 */
-> +	u8 device_status;
-> +	/*
-> +	 * bit 7 - 4: number of fingers currently touching pad
-> +	 * bit 3: valid data check bit
-> +	 * bit 2: middle mechanism button state if exists
-> +	 * bit 1: right mechanism button state if exists
-> +	 * bit 0: left mechanism button state if exists
-> +	 */
-> +	u8 finger_btn;
-> +	/* CYAPA reports up to 5 touches per packet. */
-> +	struct cyapa_touch touches[5];
-> +} __packed;
-> +
-> +/* The main device structure */
-> +struct cyapa {
-> +	enum cyapa_state state;
-> +
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	char phys[32];	/* device physical location */
-> +	int irq;
-> +	bool irq_wake;  /* irq wake is enabled */
-> +
-> +	/* read from query data region. */
-> +	char product_id[16];
-> +	u8 btn_capability;
-> +	u8 gen;
-> +	int max_abs_x;
-> +	int max_abs_y;
-> +	int physical_size_x;
-> +	int physical_size_y;
-> +};
-> +
-> +static const u8 bl_deactivate[] = { 0x00, 0xff, 0x3b, 0x00, 0x01, 0x02, 0x03,
-> +		0x04, 0x05, 0x06, 0x07 };
-> +static const u8 bl_exit[] = { 0x00, 0xff, 0xa5, 0x00, 0x01, 0x02, 0x03, 0x04,
-> +		0x05, 0x06, 0x07 };
-> +
-> +struct cyapa_cmd_len {
-> +	u8 cmd;
-> +	u8 len;
-> +};
-> +
-> +static const struct cyapa_cmd_len cyapa_i2c_cmds[] = {
-> +	{CYAPA_OFFSET_SOFT_RESET, 1},
-> +	{REG_OFFSET_COMMAND_BASE + 1, 1},
-> +	{REG_OFFSET_DATA_BASE, 1},
-> +	{REG_OFFSET_DATA_BASE, sizeof(struct cyapa_reg_data)},
-> +	{REG_OFFSET_COMMAND_BASE, 0},
-> +	{REG_OFFSET_QUERY_BASE, QUERY_DATA_SIZE},
-> +	{BL_HEAD_OFFSET, 3},
-> +	{BL_HEAD_OFFSET, 16},
-> +	{BL_HEAD_OFFSET, 16},
-> +	{BL_DATA_OFFSET, 16},
-> +	{BL_HEAD_OFFSET, 32},
-> +	{REG_OFFSET_QUERY_BASE, PRODUCT_ID_SIZE},
-> +	{REG_OFFSET_DATA_BASE, 32}
-> +};
-> +
-> +static ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
-> +					u8 *values)
+> +static void cypress_set_packet_size(struct psmouse *psmouse, unsigned int n)
 > +{
-> +	return i2c_smbus_read_i2c_block_data(cyapa->client, reg, len, values);
+> +	struct cytp_data *cytp = psmouse->private;
+> +	cytp->pkt_size = n;
 > +}
 > +
-> +static ssize_t cyapa_i2c_reg_write_block(struct cyapa *cyapa, u8 reg,
-> +					 size_t len, const u8 *values)
+> +static const unsigned char cytp_rate[] = {10, 20, 40, 60, 100, 200};
+> +static const unsigned char cytp_resolution[] = {0x00, 0x01, 0x02, 0x03};
+> +
+> +static int cypress_ps2_sendbyte(struct psmouse *psmouse, int value)
 > +{
-> +	return i2c_smbus_write_i2c_block_data(cyapa->client, reg, len, values);
-> +}
+> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
 > +
-> +static s32 cyapa_read_byte(struct cyapa *cyapa, u8 cmd_idx)
-> +{
-> +	u8 cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> +
-> +	return i2c_smbus_read_byte_data(cyapa->client, cmd);
-> +}
-> +
-> +static s32 cyapa_write_byte(struct cyapa *cyapa, u8 cmd_idx, u8 value)
-> +{
-> +	u8 cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> +
-> +	return i2c_smbus_write_byte_data(cyapa->client, cmd, value);
-> +}
-> +
-> +static ssize_t cyapa_read_block(struct cyapa *cyapa, u8 cmd_idx, u8 *values)
-> +{
-> +	u8 cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> +	size_t len = cyapa_i2c_cmds[cmd_idx].len;
-> +
-> +	return cyapa_i2c_reg_read_block(cyapa, cmd, len, values);
-> +}
-> +
-> +/*
-> + * Query device for its current operating state.
-> + *
-> + */
-> +static int cyapa_get_state(struct cyapa *cyapa)
-> +{
-> +	int ret;
-> +	u8 status[BL_STATUS_SIZE];
-> +
-> +	cyapa->state = CYAPA_STATE_NO_DEVICE;
-> +
-> +	/*
-> +	 * Get trackpad status by reading 3 registers starting from 0.
-> +	 * If the device is in the bootloader, this will be BL_HEAD.
-> +	 * If the device is in operation mode, this will be the DATA regs.
-> +	 *
-> +	 */
-> +	ret = cyapa_i2c_reg_read_block(cyapa, BL_HEAD_OFFSET, BL_STATUS_SIZE,
-> +				       status);
-> +	if (ret != BL_STATUS_SIZE)
-> +		goto error;
-> +
-> +	if ((status[REG_OP_STATUS] & OP_STATUS_SRC) == OP_STATUS_SRC) {
-> +		switch (status[REG_OP_STATUS] & OP_STATUS_DEV) {
-> +		case CYAPA_DEV_NORMAL:
-> +		case CYAPA_DEV_BUSY:
-> +			cyapa->state = CYAPA_STATE_OP;
-> +			break;
-> +		default:
-> +			ret = -EAGAIN;
-> +			goto error;
-> +		}
-> +	} else {
-> +		if (status[REG_BL_STATUS] & BL_STATUS_BUSY)
-> +			cyapa->state = CYAPA_STATE_BL_BUSY;
-> +		else if (status[REG_BL_ERROR] & BL_ERROR_BOOTLOADING)
-> +			cyapa->state = CYAPA_STATE_BL_ACTIVE;
+> +	if (ps2_sendbyte(ps2dev, value & 0xff, CYTP_CMD_TIMEOUT) < 0) {
+> +		psmouse_dbg(psmouse,
+> +				"send command 0x%02x failed, resp 0x%02x\n",
+> +				value & 0xff, ps2dev->nak);
+> +		if (ps2dev->nak == CYTP_PS2_RETRY)
+> +			return CYTP_PS2_RETRY;
 > +		else
-> +			cyapa->state = CYAPA_STATE_BL_IDLE;
+> +			return CYTP_PS2_ERROR;
 > +	}
 > +
-> +	return 0;
-> +error:
-> +	return (ret < 0) ? ret : -EAGAIN;
-> +}
-> +
-> +/*
-> + * Poll device for its status in a loop, waiting up to timeout for a response.
-> + *
-> + * When the device switches state, it usually takes ~300 ms.
-> + * However, when running a new firmware image, the device must calibrate its
-> + * sensors, which can take as long as 2 seconds.
-> + *
-> + * Note: The timeout has granularity of the polling rate, which is 100 ms.
-> + *
-> + * Returns:
-> + *   0 when the device eventually responds with a valid non-busy state.
-> + *   -ETIMEDOUT if device never responds (too many -EAGAIN)
-> + *   < 0    other errors
-> + */
-> +static int cyapa_poll_state(struct cyapa *cyapa, unsigned int timeout)
-> +{
-> +	int ret;
-> +	int tries = timeout / 100;
-> +
-> +	ret = cyapa_get_state(cyapa);
-> +	while ((ret || cyapa->state >= CYAPA_STATE_BL_BUSY) && tries--) {
-> +		msleep(100);
-> +		ret = cyapa_get_state(cyapa);
-> +	}
-> +	return (ret == -EAGAIN || ret == -ETIMEDOUT) ? -ETIMEDOUT : ret;
-> +}
-> +
-> +static int cyapa_bl_deactivate(struct cyapa *cyapa)
-> +{
-> +	int ret;
-> +
-> +	ret = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_deactivate),
-> +					bl_deactivate);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	/* wait for bootloader to switch to idle state; should take < 100ms */
-> +	msleep(100);
-> +	ret = cyapa_poll_state(cyapa, 500);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (cyapa->state != CYAPA_STATE_BL_IDLE)
-> +		return -EAGAIN;
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Exit bootloader
-> + *
-> + * Send bl_exit command, then wait 50 - 100 ms to let device transition to
-> + * operational mode.  If this is the first time the device's firmware is
-> + * running, it can take up to 2 seconds to calibrate its sensors.  So, poll
-> + * the device's new state for up to 2 seconds.
-> + *
-> + * Returns:
-> + *   -EIO    failure while reading from device
-> + *   -EAGAIN device is stuck in bootloader, b/c it has invalid firmware
-> + *   0       device is supported and in operational mode
-> + */
-> +static int cyapa_bl_exit(struct cyapa *cyapa)
-> +{
-> +	int ret;
-> +
-> +	ret = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_exit), bl_exit);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	/*
-> +	 * Wait for bootloader to exit, and operation mode to start.
-> +	 * Normally, this takes at least 50 ms.
-> +	 */
-> +	usleep_range(50000, 100000);
-> +	/*
-> +	 * In addition, when a device boots for the first time after being
-> +	 * updated to new firmware, it must first calibrate its sensors, which
-> +	 * can take up to an additional 2 seconds.
-> +	 */
-> +	ret = cyapa_poll_state(cyapa, 2000);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (cyapa->state != CYAPA_STATE_OP)
-> +		return -EAGAIN;
+> +#ifdef CYTP_DEBUG_VERBOSE
+> +	psmouse_dbg(psmouse, "send command 0x%02x success, resp 0xfa\n",
+> +			value & 0xff);
+> +#endif
 > +
 > +	return 0;
 > +}
 > +
-> +/*
-> + * Set device power mode
-> + *
-> + */
-> +static int cyapa_set_power_mode(struct cyapa *cyapa, u8 power_mode)
+> +static int cypress_ps2_ext_cmd(struct psmouse *psmouse, unsigned short cmd,
+> +			       unsigned char data)
 > +{
-> +	struct device *dev = &cyapa->client->dev;
-> +	int ret;
-> +	u8 power;
+> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
+> +	int tries = CYTP_PS2_CMD_TRIES;
+> +	int rc;
 > +
-> +	if (cyapa->state != CYAPA_STATE_OP)
-> +		return 0;
+> +	ps2_begin_command(ps2dev);
 > +
-> +	ret = cyapa_read_byte(cyapa, CYAPA_CMD_POWER_MODE);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	power = ret & ~PWR_MODE_MASK;
-> +	power |= power_mode & PWR_MODE_MASK;
-> +	ret = cyapa_write_byte(cyapa, CYAPA_CMD_POWER_MODE, power);
-> +	if (ret < 0)
-> +		dev_err(dev, "failed to set power_mode 0x%02x err = %d\n",
-> +			power_mode, ret);
-> +	return ret;
-> +}
-> +
-> +static int cyapa_get_query_data(struct cyapa *cyapa)
-> +{
-> +	u8 query_data[QUERY_DATA_SIZE];
-> +	int ret;
-> +
-> +	if (cyapa->state != CYAPA_STATE_OP)
-> +		return -EBUSY;
-> +
-> +	ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_QUERY, query_data);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret != QUERY_DATA_SIZE)
-> +		return -EIO;
-> +
-> +	memcpy(&cyapa->product_id[0], &query_data[0], 5);
-> +	cyapa->product_id[5] = '-';
-> +	memcpy(&cyapa->product_id[6], &query_data[5], 6);
-> +	cyapa->product_id[12] = '-';
-> +	memcpy(&cyapa->product_id[13], &query_data[11], 2);
-> +	cyapa->product_id[15] = '\0';
-> +
-> +	cyapa->btn_capability = query_data[19] & CAPABILITY_BTN_MASK;
-> +
-> +	cyapa->gen = query_data[20] & 0x0f;
-> +
-> +	cyapa->max_abs_x = ((query_data[21] & 0xf0) << 4) | query_data[22];
-> +	cyapa->max_abs_y = ((query_data[21] & 0x0f) << 8) | query_data[23];
-> +
-> +	cyapa->physical_size_x =
-> +		((query_data[24] & 0xf0) << 4) | query_data[25];
-> +	cyapa->physical_size_y =
-> +		((query_data[24] & 0x0f) << 8) | query_data[26];
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Check if device is operational.
-> + *
-> + * An operational device is responding, has exited bootloader, and has
-> + * firmware supported by this driver.
-> + *
-> + * Returns:
-> + *   -EBUSY  no device or in bootloader
-> + *   -EIO    failure while reading from device
-> + *   -EAGAIN device is still in bootloader
-> + *           if ->state = CYAPA_STATE_BL_IDLE, device has invalid firmware
-> + *   -EINVAL device is in operational mode, but not supported by this driver
-> + *   0       device is supported
-> + */
-> +static int cyapa_check_is_operational(struct cyapa *cyapa)
-> +{
-> +	struct device *dev = &cyapa->client->dev;
-> +	static const char unique_str[] = "CYTRA";
-> +	int ret;
-> +
-> +	ret = cyapa_poll_state(cyapa, 2000);
-> +	if (ret < 0)
-> +		return ret;
-> +	switch (cyapa->state) {
-> +	case CYAPA_STATE_BL_ACTIVE:
-> +		ret = cyapa_bl_deactivate(cyapa);
-> +		if (ret)
-> +			return ret;
-> +
-> +	/* Fallthrough state */
-> +	case CYAPA_STATE_BL_IDLE:
-> +		ret = cyapa_bl_exit(cyapa);
-> +		if (ret)
-> +			return ret;
-> +
-> +	/* Fallthrough state */
-> +	case CYAPA_STATE_OP:
-> +		ret = cyapa_get_query_data(cyapa);
-> +		if (ret < 0)
-> +			return ret;
-> +
-> +		/* only support firmware protocol gen3 */
-> +		if (cyapa->gen != CYAPA_GEN3) {
-> +			dev_err(dev, "unsupported protocol version (%d)",
-> +				cyapa->gen);
-> +			return -EINVAL;
+> +	do {
+> +		/*
+> +		 * Send extension command byte (0xE8 or 0xF3).
+> +		 * If sending the command fails, send recovery command
+> +		 * to make the device return to the ready state.
+> +		 */
+> +		rc = cypress_ps2_sendbyte(psmouse, cmd & 0xff);
+> +		if (rc == CYTP_PS2_RETRY) {
+> +			rc = cypress_ps2_sendbyte(psmouse, 0x00);
+> +			if (rc == CYTP_PS2_RETRY)
+> +				rc = cypress_ps2_sendbyte(psmouse, 0x0a);
 > +		}
+> +		if (rc == CYTP_PS2_ERROR)
+> +			continue;
 > +
-> +		/* only support product ID starting with CYTRA */
-> +		if (memcmp(cyapa->product_id, unique_str,
-> +			   sizeof(unique_str) - 1) != 0) {
-> +			dev_err(dev, "unsupported product ID (%s)\n",
-> +				cyapa->product_id);
-> +			return -EINVAL;
-> +		}
-> +		return 0;
+> +		rc = cypress_ps2_sendbyte(psmouse, data);
+> +		if (rc == CYTP_PS2_RETRY)
+> +			rc = cypress_ps2_sendbyte(psmouse, data);
+> +		if (rc == CYTP_PS2_ERROR)
+> +			continue;
+> +		else
+> +			break;
+> +	} while (--tries > 0);
 > +
-> +	default:
-> +		return -EIO;
-> +	}
-> +	return 0;
+> +	ps2_end_command(ps2dev);
+> +
+> +	return rc;
 > +}
 > +
-> +static irqreturn_t cyapa_irq(int irq, void *dev_id)
+> +static int cypress_ps2_read_cmd_status(struct psmouse *psmouse,
+> +				       unsigned char cmd,
+> +				       unsigned char *param)
 > +{
-> +	struct cyapa *cyapa = dev_id;
-> +	struct device *dev = &cyapa->client->dev;
-> +	struct input_dev *input = cyapa->input;
-> +	struct cyapa_reg_data data;
+> +	int rc;
+> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
+> +	enum psmouse_state old_state;
+> +	int pktsize;
+> +
+> +	ps2_begin_command(&psmouse->ps2dev);
+> +
+> +	old_state = psmouse->state;
+> +	psmouse->state = PSMOUSE_CMD_MODE;
+> +	psmouse->pktcnt = 0;
+> +
+> +	pktsize = (cmd == CYTP_CMD_READ_TP_METRICS) ? 8 : 3;
+> +	memset(param, 0, pktsize);
+> +
+> +	rc = cypress_ps2_sendbyte(psmouse, 0xe9);
+> +	if (rc < 0)
+> +		goto out;
+> +
+> +	wait_event_timeout(ps2dev->wait,
+> +			(psmouse->pktcnt >= pktsize),
+> +			msecs_to_jiffies(CYTP_CMD_TIMEOUT));
+> +
+> +	memcpy(param, psmouse->packet, pktsize);
+> +
+> +	psmouse_dbg(psmouse, "Command 0x%02x response data (0x): %*ph\n",
+> +			cmd, pktsize, param);
+> +
+> +out:
+> +	psmouse->state = old_state;
+> +	psmouse->pktcnt = 0;
+> +
+> +	ps2_end_command(&psmouse->ps2dev);
+> +
+> +	return rc;
+> +}
+> +
+> +static int cypress_verify_cmd_state(struct psmouse *psmouse,
+> +				    unsigned char cmd, unsigned char *param)
+> +{
+> +	bool rate_match = 0;
+> +	bool resolution_match = 0;
 > +	int i;
-> +	int ret;
-> +	int num_fingers;
 > +
-> +	if (device_may_wakeup(dev))
-> +		pm_wakeup_event(dev, 0);
+> +	/* callers will do further checking. */
+> +	if (cmd == CYTP_CMD_READ_CYPRESS_ID ||
+> +	    cmd == CYTP_CMD_STANDARD_MODE ||
+> +	    cmd == CYTP_CMD_READ_TP_METRICS)
+> +		return 0;
+> +	if ((~param[0] & DFLT_RESP_BITS_VALID) == DFLT_RESP_BITS_VALID &&
+> +	    (param[0] & DFLT_RESP_BIT_MODE) == DFLT_RESP_STREAM_MODE) {
+> +		for (i = 0; i < sizeof(cytp_resolution); i++)
+> +			if (cytp_resolution[i] == param[1])
+> +				resolution_match =  1;
 > +
-> +	ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_DATA, (u8 *)&data);
-> +	if (ret != sizeof(data))
-> +		goto irqhandled;
+> +		for (i = 0; i < sizeof(cytp_rate); i++)
+> +			if (cytp_rate[i] == param[2])
+> +				rate_match = 1;
 > +
-> +	if ((data.device_status & OP_STATUS_SRC) != OP_STATUS_SRC ||
-> +	    (data.device_status & OP_STATUS_DEV) != CYAPA_DEV_NORMAL ||
-> +	    (data.finger_btn & OP_DATA_VALID) != OP_DATA_VALID) {
-> +		goto irqhandled;
+> +		if (resolution_match && rate_match)
+> +			return 0;
 > +	}
 > +
-> +	num_fingers = (data.finger_btn >> 4) & 0x0f;
-> +	for (i = 0; i < num_fingers; i++) {
-> +		const struct cyapa_touch *touch = &data.touches[i];
-> +		/* Note: touch->id range is 1 to 15; slots are 0 to 14. */
-> +		int slot = touch->id - 1;
+> +	psmouse_dbg(psmouse, "verify cmd state failed.\n");
+> +	return -1;
+> +}
 > +
-> +		input_mt_slot(input, slot);
+> +static int cypress_send_ext_cmd(struct psmouse *psmouse, unsigned char cmd,
+> +				unsigned char *param)
+> +{
+> +	int tries = CYTP_PS2_CMD_TRIES;
+> +	int rc;
+> +
+> +	psmouse_dbg(psmouse, "send extension cmd 0x%02x, [%d %d %d %d]\n",
+> +		 cmd, DECODE_CMD_AA(cmd), DECODE_CMD_BB(cmd),
+> +		 DECODE_CMD_CC(cmd), DECODE_CMD_DD(cmd));
+> +	do {
+> +		cypress_ps2_ext_cmd(psmouse,
+> +				    PSMOUSE_CMD_SETRES, DECODE_CMD_DD(cmd));
+> +		cypress_ps2_ext_cmd(psmouse,
+> +				    PSMOUSE_CMD_SETRES, DECODE_CMD_CC(cmd));
+> +		cypress_ps2_ext_cmd(psmouse,
+> +				    PSMOUSE_CMD_SETRES, DECODE_CMD_BB(cmd));
+> +		cypress_ps2_ext_cmd(psmouse,
+> +				    PSMOUSE_CMD_SETRES, DECODE_CMD_AA(cmd));
+> +
+> +		rc = cypress_ps2_read_cmd_status(psmouse, cmd, param);
+> +		if (rc)
+> +			continue;
+> +
+> +		rc = cypress_verify_cmd_state(psmouse, cmd, param);
+> +		if (rc == 0)
+> +			return 0;
+> +	} while (--tries > 0);
+> +
+> +	return -1;
+> +}
+> +
+> +int cypress_detect(struct psmouse *psmouse, bool set_properties)
+> +{
+> +	unsigned char param[3];
+> +
+> +	if (cypress_send_ext_cmd(psmouse, CYTP_CMD_READ_CYPRESS_ID, param))
+> +		return -ENODEV;
+> +
+> +	/* Check for Cypress Trackpad signature bytes: 0x33 0xCC */
+> +	if (param[0] != 0x33 || param[1] != 0xCC)
+> +		return -ENODEV;
+> +
+> +	if (set_properties) {
+> +		psmouse->vendor = "Cypress";
+> +		psmouse->name = "Trackpad";
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int cypress_read_fw_version(struct psmouse *psmouse)
+> +{
+> +	struct cytp_data *cytp = psmouse->private;
+> +	unsigned char param[3];
+> +
+> +	if (cypress_send_ext_cmd(psmouse, CYTP_CMD_READ_CYPRESS_ID, param))
+> +		return -ENODEV;
+> +
+> +	/* Check for Cypress Trackpad signature bytes: 0x33 0xCC */
+> +	if (param[0] != 0x33 || param[1] != 0xCC)
+> +		return -ENODEV;
+> +
+> +	cytp->fw_version = param[2] & FW_VERSION_MASX;
+> +	cytp->tp_metrics_supported = (param[2] & TP_METRICS_MASK) ? 1 : 0;
+> +
+> +	psmouse_dbg(psmouse, "cytp->fw_version = %d\n", cytp->fw_version);
+> +	psmouse_dbg(psmouse, "cytp->tp_metrics_supported = %d\n",
+> +		 cytp->tp_metrics_supported);
+> +	return 0;
+> +}
+> +
+> +static int cypress_read_tp_metrics(struct psmouse *psmouse)
+> +{
+> +	struct cytp_data *cytp = psmouse->private;
+> +	unsigned char param[8];
+> +
+> +	/* set default values for tp metrics. */
+> +	cytp->tp_width = CYTP_DEFAULT_WIDTH;
+> +	cytp->tp_high = CYTP_DEFAULT_HIGH;
+> +	cytp->tp_max_abs_x = CYTP_ABS_MAX_X;
+> +	cytp->tp_max_abs_y = CYTP_ABS_MAX_Y;
+> +	cytp->tp_min_pressure = CYTP_MIN_PRESSURE;
+> +	cytp->tp_max_pressure = CYTP_MAX_PRESSURE;
+> +	cytp->tp_res_x = cytp->tp_max_abs_x / cytp->tp_width;
+> +	cytp->tp_res_y = cytp->tp_max_abs_y / cytp->tp_high;
+> +
+> +	memset(param, 0, sizeof(param));
+> +	if (cypress_send_ext_cmd(psmouse, CYTP_CMD_READ_TP_METRICS, param) == 0) {
+> +		/* Update trackpad parameters. */
+> +		cytp->tp_max_abs_x = (param[1] << 8) | param[0];
+> +		cytp->tp_max_abs_y = (param[3] << 8) | param[2];
+> +		cytp->tp_min_pressure = param[4];
+> +		cytp->tp_max_pressure = param[5];
+> +	}
+> +
+> +	if (!cytp->tp_max_pressure ||
+> +	    cytp->tp_max_pressure < cytp->tp_min_pressure ||
+> +	    !cytp->tp_width || !cytp->tp_high ||
+> +	    !cytp->tp_max_abs_x ||
+> +	    cytp->tp_max_abs_x < cytp->tp_width ||
+> +	    !cytp->tp_max_abs_y ||
+> +	    cytp->tp_max_abs_y < cytp->tp_high)
+> +		return -1;
+> +
+> +	cytp->tp_res_x = cytp->tp_max_abs_x / cytp->tp_width;
+> +	cytp->tp_res_y = cytp->tp_max_abs_y / cytp->tp_high;
+> +
+> +#ifdef CYTP_DEBUG_VERBOSE
+> +	psmouse_dbg(psmouse, "Dump trackpad hardware configuration as below:\n");
+> +	psmouse_dbg(psmouse, "cytp->tp_width = %d\n", cytp->tp_width);
+> +	psmouse_dbg(psmouse, "cytp->tp_high = %d\n", cytp->tp_high);
+> +	psmouse_dbg(psmouse, "cytp->tp_max_abs_x = %d\n", cytp->tp_max_abs_x);
+> +	psmouse_dbg(psmouse, "cytp->tp_max_abs_y = %d\n", cytp->tp_max_abs_y);
+> +	psmouse_dbg(psmouse, "cytp->tp_min_pressure = %d\n", cytp->tp_min_pressure);
+> +	psmouse_dbg(psmouse, "cytp->tp_max_pressure = %d\n", cytp->tp_max_pressure);
+> +	psmouse_dbg(psmouse, "cytp->tp_res_x = %d\n", cytp->tp_res_x);
+> +	psmouse_dbg(psmouse, "cytp->tp_res_y = %d\n", cytp->tp_res_y);
+> +
+> +	psmouse_dbg(psmouse, "tp_type_APA = %d\n",
+> +			(param[6] & TP_METRICS_BIT_APA) ? 1 : 0);
+> +	psmouse_dbg(psmouse, "tp_type_MTG = %d\n",
+> +			(param[6] & TP_METRICS_BIT_MTG) ? 1 : 0);
+> +	psmouse_dbg(psmouse, "tp_palm = %d\n",
+> +			(param[6] & TP_METRICS_BIT_PALM) ? 1 : 0);
+> +	psmouse_dbg(psmouse, "tp_stubborn = %d\n",
+> +			(param[6] & TP_METRICS_BIT_STUBBORN) ? 1 : 0);
+> +	psmouse_dbg(psmouse, "tp_1f_jitter = %d\n",
+> +			(param[6] & TP_METRICS_BIT_1F_JITTER) >> 2);
+> +	psmouse_dbg(psmouse, "tp_2f_jitter = %d\n",
+> +			(param[6] & TP_METRICS_BIT_2F_JITTER) >> 4);
+> +	psmouse_dbg(psmouse, "tp_1f_spike = %d\n",
+> +			param[7] & TP_METRICS_BIT_1F_SPIKE);
+> +	psmouse_dbg(psmouse, "tp_2f_spike = %d\n",
+> +			(param[7] & TP_METRICS_BIT_2F_SPIKE) >> 2);
+> +	psmouse_dbg(psmouse, "tp_abs_packet_format_set = %d\n",
+> +			(param[7] & TP_METRICS_BIT_ABS_PKT_FORMAT_SET) >> 4);
+> +#endif
+> +
+> +	return 0;
+> +}
+> +
+> +static int cypress_query_hardware(struct psmouse *psmouse)
+> +{
+> +	struct cytp_data *cytp = psmouse->private;
+> +	int ret;
+> +
+> +	ret = cypress_read_fw_version(psmouse);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (cytp->tp_metrics_supported) {
+> +		ret = cypress_read_tp_metrics(psmouse);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int cypress_set_absolute_mode(struct psmouse *psmouse)
+> +{
+> +	struct cytp_data *cytp = psmouse->private;
+> +	unsigned char param[3];
+> +
+> +	if (cypress_send_ext_cmd(psmouse, CYTP_CMD_ABS_WITH_PRESSURE_MODE, param) < 0)
+> +		return -1;
+> +
+> +	cytp->mode = (cytp->mode & ~CYTP_BIT_ABS_REL_MASK)
+> +			| CYTP_BIT_ABS_PRESSURE;
+> +	cypress_set_packet_size(psmouse, 5);
+> +
+> +	return 0;
+> +}
+> +
+> +/*
+> + * Reset trackpad device.
+> + * This is also the default mode when trackpad powered on.
+> + */
+> +static void cypress_reset(struct psmouse *psmouse)
+> +{
+> +	struct cytp_data *cytp = psmouse->private;
+> +
+> +	cytp->mode = 0;
+> +
+> +	psmouse_reset(psmouse);
+> +}
+> +
+> +static int cypress_set_input_params(struct input_dev *input,
+> +				    struct cytp_data *cytp)
+> +{
+> +	int ret;
+> +
+> +	if (!cytp->tp_res_x || !cytp->tp_res_y)
+> +		return -EINVAL;
+> +
+> +	__set_bit(EV_ABS, input->evbit);
+> +	input_set_abs_params(input, ABS_X, 0, cytp->tp_max_abs_x, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, cytp->tp_max_abs_y, 0, 0);
+> +	input_set_abs_params(input, ABS_PRESSURE,
+> +			     cytp->tp_min_pressure, cytp->tp_max_pressure, 0, 0);
+> +	input_set_abs_params(input, ABS_TOOL_WIDTH, 0, 255, 0, 0);
+> +
+> +	/* finger position */
+> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, cytp->tp_max_abs_x, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, cytp->tp_max_abs_y, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 255, 0, 0);
+> +
+> +	ret = input_mt_init_slots(input, CYTP_MAX_MT_SLOTS,
+> +			INPUT_MT_DROP_UNUSED|INPUT_MT_TRACK);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	__set_bit(INPUT_PROP_SEMI_MT, input->propbit);
+> +
+> +	input_abs_set_res(input, ABS_X, cytp->tp_res_x);
+> +	input_abs_set_res(input, ABS_Y, cytp->tp_res_y);
+> +
+> +	input_abs_set_res(input, ABS_MT_POSITION_X, cytp->tp_res_x);
+> +	input_abs_set_res(input, ABS_MT_POSITION_Y, cytp->tp_res_y);
+> +
+> +	__set_bit(BTN_TOUCH, input->keybit);
+> +	__set_bit(BTN_TOOL_FINGER, input->keybit);
+> +	__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+> +	__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
+> +	__set_bit(BTN_TOOL_QUADTAP, input->keybit);
+> +	__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
+> +
+> +	__clear_bit(EV_REL, input->evbit);
+> +	__clear_bit(REL_X, input->relbit);
+> +	__clear_bit(REL_Y, input->relbit);
+> +
+> +	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+> +	__set_bit(EV_KEY, input->evbit);
+> +	__set_bit(BTN_LEFT, input->keybit);
+> +	__set_bit(BTN_RIGHT, input->keybit);
+> +	__set_bit(BTN_MIDDLE, input->keybit);
+> +
+> +	input_set_drvdata(input, cytp);
+> +
+> +	return 0;
+> +}
+> +
+> +static int cypress_get_finger_count(unsigned char header_byte)
+> +{
+> +	unsigned char bits6_7;
+> +	int finger_count;
+> +
+> +	bits6_7 = header_byte >> 6;
+> +	finger_count = bits6_7 & 0x03;
+> +
+> +	if (finger_count == 1)
+> +		return 1;
+> +
+> +	if (header_byte & ABS_HSCROLL_BIT) {
+> +		/* HSCROLL gets added on to 0 finger count. */
+> +		switch (finger_count) {
+> +			case 0:	return(4);
+
+No parenthesis on return.
+
+> +			case 2: return(5);
+> +			default:
+> +				/* Invalid contact (e.g. palm). Ignore it. */
+> +				return(0);
+> +		}
+> +	}
+> +
+> +	return finger_count;
+> +}
+> +
+> +
+> +static int cypress_parse_packet(struct psmouse *psmouse,
+> +				struct cytp_data *cytp, struct cytp_report_data *report_data)
+> +{
+> +	unsigned char *packet = psmouse->packet;
+> +	unsigned char header_byte = packet[0];
+> +
+> +	memset(report_data, 0, sizeof(struct cytp_report_data));
+> +
+> +	report_data->contact_cnt = cypress_get_finger_count(header_byte);
+> +
+> +	if (report_data->contact_cnt == 0) /* e.g. palm detect */
+> +		return 0;
+> +
+> +	report_data->tap = (header_byte & ABS_MULTIFINGER_TAP) ? 1 : 0;
+> +
+> +	if (report_data->contact_cnt == 1) {
+> +		report_data->contacts[0].x =
+> +			((packet[1] & 0x70) << 4) | packet[2];
+> +		report_data->contacts[0].y =
+> +			((packet[1] & 0x07) << 8) | packet[3];
+> +		if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
+> +			report_data->contacts[0].z = packet[4];
+> +
+> +	} else if (report_data->contact_cnt >= 2) {
+> +		report_data->contacts[0].x =
+> +			((packet[1] & 0x70) << 4) | packet[2];
+> +		report_data->contacts[0].y =
+> +			((packet[1] & 0x07) << 8) | packet[3];
+> +		if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
+> +			report_data->contacts[0].z = packet[4];
+> +
+> +		report_data->contacts[1].x =
+> +			((packet[5] & 0xf0) << 4) | packet[6];
+> +		report_data->contacts[1].y =
+> +			((packet[5] & 0x0f) << 8) | packet[7];
+> +		if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
+> +			report_data->contacts[1].z = report_data->contacts[0].z;
+> +	}
+> +
+> +	report_data->left = (header_byte & BTN_LEFT_BIT) ? 1 : 0;
+> +	report_data->right = (header_byte & BTN_RIGHT_BIT) ? 1 : 0;
+> +
+> +	/*
+> +	 * This is only true if one of the mouse buttons were tapped.  Make
+> +	 * sure it doesn't turn into a click. The regular tap-to-click
+> +	 * functionality will handle that on its own. If we don't do this,
+> +	 * disabling tap-to-click won't affect the mouse button zones.
+> +	 */
+> +	if (report_data->tap)
+> +		report_data->left = 0;
+> +
+> +#ifdef CYTP_DEBUG_VERBOSE
+> +	{
+> +		int i;
+> +		int n = report_data->contact_cnt;
+> +		psmouse_dbg(psmouse, "Dump parsed report data as below:\n");
+> +		psmouse_dbg(psmouse, "contact_cnt = %d\n",
+> +			report_data->contact_cnt);
+> +		if (n > CYTP_MAX_MT_SLOTS)
+> +		    n = CYTP_MAX_MT_SLOTS;
+> +		for (i = 0; i < n; i++)
+> +			psmouse_dbg(psmouse, "contacts[%d] = {%d, %d, %d}\n", i,
+> +					report_data->contacts[i].x,
+> +					report_data->contacts[i].y,
+> +					report_data->contacts[i].z);
+> +		psmouse_dbg(psmouse, "left = %d\n", report_data->left);
+> +		psmouse_dbg(psmouse, "right = %d\n", report_data->right);
+> +		psmouse_dbg(psmouse, "middle = %d\n", report_data->middle);
+> +	}
+> +#endif
+> +
+> +	return 0;
+> +}
+> +
+> +static void cypress_process_packet(struct psmouse *psmouse, bool zero_pkt)
+> +{
+> +	int i;
+> +	struct input_dev *input = psmouse->dev;
+> +	struct cytp_data *cytp = psmouse->private;
+> +	struct cytp_report_data report_data;
+> +	struct cytp_contact *contact;
+> +	struct input_mt_pos pos[CYTP_MAX_MT_SLOTS];
+> +	int slots[CYTP_MAX_MT_SLOTS];
+> +	int n;
+> +
+> +	if (cypress_parse_packet(psmouse, cytp, &report_data))
+> +		return;
+> +
+> +	n = report_data.contact_cnt;
+> +
+> +	if (n > CYTP_MAX_MT_SLOTS)
+> +		n = CYTP_MAX_MT_SLOTS;
+> +
+> +	for (i = 0; i < n; i++) {
+> +		contact = &report_data.contacts[i];
+> +		pos[i].x = contact->x;
+> +		pos[i].y = contact->y;
+> +	}
+> +
+> +	input_mt_assign_slots(input, slots, pos, n);
+> +
+> +	for (i = 0; i < n; i++) {
+> +		contact = &report_data.contacts[i];
+> +		input_mt_slot(input, slots[i]);
 > +		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
-> +		input_report_abs(input, ABS_MT_POSITION_X,
-> +				 ((touch->xy_hi & 0xf0) << 4) | touch->x_lo);
-> +		input_report_abs(input, ABS_MT_POSITION_Y,
-> +				 ((touch->xy_hi & 0x0f) << 8) | touch->y_lo);
-> +		input_report_abs(input, ABS_MT_PRESSURE, touch->pressure);
+> +		input_report_abs(input, ABS_MT_POSITION_X, contact->x);
+> +		input_report_abs(input, ABS_MT_POSITION_Y, contact->y);
+> +		input_report_abs(input, ABS_MT_PRESSURE, contact->z);
 > +	}
 > +
 > +	input_mt_sync_frame(input);
 > +
-> +	if (cyapa->btn_capability & CAPABILITY_LEFT_BTN_MASK) {
-> +		input_report_key(input, BTN_LEFT,
-> +				 !!(data.finger_btn & OP_DATA_LEFT_BTN));
-> +	}
-> +	if (cyapa->btn_capability & CAPABILITY_MIDDLE_BTN_MASK) {
-> +		input_report_key(input, BTN_MIDDLE,
-> +				 !!(data.finger_btn & OP_DATA_MIDDLE_BTN));
-> +	}
-> +	if (cyapa->btn_capability & CAPABILITY_RIGHT_BTN_MASK) {
-> +		input_report_key(input, BTN_RIGHT,
-> +				 !!(data.finger_btn & OP_DATA_RIGHT_BTN));
-> +	}
+> +	input_mt_report_finger_count(input, report_data.contact_cnt);
+> +
+> +	input_report_key(input, BTN_LEFT, report_data.left);
+> +	input_report_key(input, BTN_RIGHT, report_data.right);
+> +	input_report_key(input, BTN_MIDDLE, report_data.middle);
+> +
 > +	input_sync(input);
-> +
-> +irqhandled:
-> +	return IRQ_HANDLED;
 > +}
 > +
-> +static int cyapa_create_input_dev(struct cyapa *cyapa)
+> +static psmouse_ret_t cypress_validate_byte(struct psmouse *psmouse)
 > +{
-> +	struct device *dev = &cyapa->client->dev;
-> +	int ret;
-> +	struct input_dev *input;
+> +	int contact_cnt;
+> +	int index = psmouse->pktcnt - 1;
+> +	unsigned char *packet = psmouse->packet;
+> +	struct cytp_data *cytp = psmouse->private;
 > +
-> +	if (!cyapa->physical_size_x || !cyapa->physical_size_y)
-> +		return -EINVAL;
+> +	if (index < 0 || index > cytp->pkt_size)
+> +		return PSMOUSE_BAD_DATA;
 > +
-> +	input = cyapa->input = input_allocate_device();
-> +	if (!input) {
-> +		dev_err(dev, "allocate memory for input device failed\n");
-> +		return -ENOMEM;
+> +	if (index == 0 && (packet[0] & 0xfc) == 0) {
+> +		/* call packet process for reporting finger leave. */
+> +		cypress_process_packet(psmouse, 1);
+> +		return PSMOUSE_FULL_PACKET;
 > +	}
-> +
-> +	input->name = CYAPA_NAME;
-> +	input->phys = cyapa->phys;
-> +	input->id.bustype = BUS_I2C;
-> +	input->id.version = 1;
-> +	input->id.product = 0;  /* means any product in eventcomm. */
-> +	input->dev.parent = &cyapa->client->dev;
-> +
-> +	input_set_drvdata(input, cyapa);
-> +
-> +	__set_bit(EV_ABS, input->evbit);
-> +
-> +	/* finger position */
-> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, cyapa->max_abs_x, 0,
-> +			     0);
-> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, cyapa->max_abs_y, 0,
-> +			     0);
-> +	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 255, 0, 0);
-> +
-> +	input_abs_set_res(input, ABS_MT_POSITION_X,
-> +			  cyapa->max_abs_x / cyapa->physical_size_x);
-> +	input_abs_set_res(input, ABS_MT_POSITION_Y,
-> +			  cyapa->max_abs_y / cyapa->physical_size_y);
-> +
-> +	if (cyapa->btn_capability & CAPABILITY_LEFT_BTN_MASK)
-> +		__set_bit(BTN_LEFT, input->keybit);
-> +	if (cyapa->btn_capability & CAPABILITY_MIDDLE_BTN_MASK)
-> +		__set_bit(BTN_MIDDLE, input->keybit);
-> +	if (cyapa->btn_capability & CAPABILITY_RIGHT_BTN_MASK)
-> +		__set_bit(BTN_RIGHT, input->keybit);
-> +	if (cyapa->btn_capability == CAPABILITY_LEFT_BTN_MASK)
-> +		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-> +
-> +	/* handle pointer emulation and unused slots in core */
-> +	ret = input_mt_init_slots(input, CYAPA_MAX_MT_SLOTS,
-> +				  INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED);
-> +	if (ret) {
-> +		dev_err(dev, "allocate memory for MT slots failed, %d\n", ret);
-> +		goto err_free_device;
-> +	}
-> +
-> +	/* Register the device in input subsystem */
-> +	ret = input_register_device(input);
-> +	if (ret) {
-> +		dev_err(dev, "input device register failed, %d\n", ret);
-> +		goto err_free_device;
-> +	}
-> +	return 0;
-> +
-> +err_free_device:
-> +	input_free_device(input);
-> +	cyapa->input = NULL;
-> +	return ret;
-> +}
-> +
-> +static int cyapa_probe(struct i2c_client *client,
-> +		       const struct i2c_device_id *dev_id)
-> +{
-> +	int ret;
-> +	struct cyapa *cyapa;
-> +	struct device *dev = &client->dev;
-> +
-> +	cyapa = kzalloc(sizeof(struct cyapa), GFP_KERNEL);
-> +	if (!cyapa) {
-> +		dev_err(dev, "allocate memory for cyapa failed\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	cyapa->gen = CYAPA_GEN3;
-> +	cyapa->client = client;
-> +	i2c_set_clientdata(client, cyapa);
-> +	sprintf(cyapa->phys, "i2c-%d-%04x/input0", client->adapter->nr,
-> +		client->addr);
-> +
-> +	cyapa->state = CYAPA_STATE_NO_DEVICE;
-> +	ret = cyapa_check_is_operational(cyapa);
-> +	if (ret) {
-> +		dev_err(dev, "device not operational, %d\n", ret);
-> +		goto err_mem_free;
-> +	}
-> +
-> +	ret = cyapa_create_input_dev(cyapa);
-> +	if (ret) {
-> +		dev_err(dev, "create input_dev instance failed, %d\n", ret);
-> +		goto err_mem_free;
-> +	}
-> +
-> +	ret = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
-> +	if (ret) {
-> +		dev_err(dev, "set active power failed, %d\n", ret);
-> +		goto err_unregister_device;
-> +	}
-> +
-> +	cyapa->irq = client->irq;
-> +	ret = request_threaded_irq(cyapa->irq,
-> +				   NULL,
-> +				   cyapa_irq,
-> +				   IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> +				   "cyapa",
-> +				   cyapa);
-> +	if (ret) {
-> +		dev_err(dev, "IRQ request failed: %d\n, ", ret);
-> +		goto err_unregister_device;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_unregister_device:
-> +	input_unregister_device(cyapa->input);
-> +err_mem_free:
-> +	kfree(cyapa);
-> +
-> +	return ret;
-> +}
-> +
-> +static int cyapa_remove(struct i2c_client *client)
-> +{
-> +	struct cyapa *cyapa = i2c_get_clientdata(client);
-> +
-> +	free_irq(cyapa->irq, cyapa);
-> +	input_unregister_device(cyapa->input);
-> +	cyapa_set_power_mode(cyapa, PWR_MODE_OFF);
-> +	kfree(cyapa);
-> +
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM_SLEEP
-> +static int cyapa_suspend(struct device *dev)
-> +{
-> +	int ret;
-> +	u8 power_mode;
-> +	struct cyapa *cyapa = dev_get_drvdata(dev);
-> +
-> +	disable_irq(cyapa->irq);
 > +
 > +	/*
-> +	 * Set trackpad device to idle mode if wakeup is allowed,
-> +	 * otherwise turn off.
+> +	 * Perform validation (and adjust packet size) based only on the
+> +	 * first byte; allow all further bytes through.
 > +	 */
-> +	power_mode = device_may_wakeup(dev) ? PWR_MODE_IDLE
-> +					    : PWR_MODE_OFF;
-> +	ret = cyapa_set_power_mode(cyapa, power_mode);
-> +	if (ret < 0)
-> +		dev_err(dev, "set power mode failed, %d\n", ret);
+> +	if (index != 0)
+> +		return PSMOUSE_GOOD_DATA;
 > +
-> +	if (device_may_wakeup(dev))
-> +		cyapa->irq_wake = (enable_irq_wake(cyapa->irq) == 0);
-> +	return 0;
+> +	/*
+> +	 * If absolute/relative mode bit has not been set yet, just pass
+> +	 * the byte through.
+> +	 */
+> +	if ((cytp->mode & CYTP_BIT_ABS_REL_MASK) == 0)
+> +		return PSMOUSE_GOOD_DATA;
+> +
+> +	if ((packet[0] & 0x08) == 0x08)
+> +		return PSMOUSE_BAD_DATA;
+> +
+> +	contact_cnt = cypress_get_finger_count(packet[0]);
+> +
+> +	if (contact_cnt > 5)
+> +		return PSMOUSE_BAD_DATA;
+> +
+> +	if (cytp->mode & CYTP_BIT_ABS_NO_PRESSURE)
+> +		cypress_set_packet_size(psmouse, contact_cnt == 2 ? 7 : 4);
+> +	else
+> +		cypress_set_packet_size(psmouse, contact_cnt == 2 ? 8 : 5);
+> +
+> +	return PSMOUSE_GOOD_DATA;
 > +}
 > +
-> +static int cyapa_resume(struct device *dev)
+> +static psmouse_ret_t cypress_protocol_handler(struct psmouse *psmouse)
 > +{
-> +	int ret;
-> +	struct cyapa *cyapa = dev_get_drvdata(dev);
+> +	struct cytp_data *cytp = psmouse->private;
 > +
-> +	if (device_may_wakeup(dev) && cyapa->irq_wake)
-> +		disable_irq_wake(cyapa->irq);
+> +	if (psmouse->pktcnt >= cytp->pkt_size) {
+> +		cypress_process_packet(psmouse, 0);
+> +		return PSMOUSE_FULL_PACKET;
+> +	}
 > +
-> +	ret = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
-> +	if (ret)
-> +		dev_warn(dev, "resume active power failed, %d\n", ret);
+> +	return cypress_validate_byte(psmouse);
+> +}
 > +
-> +	enable_irq(cyapa->irq);
+> +static void cypress_set_rate(struct psmouse *psmouse, unsigned int rate)
+> +{
+> +	struct cytp_data *cytp = psmouse->private;
+> +
+> +	if (rate >= 80) {
+> +		psmouse->rate = 80;
+> +		cytp->mode |= CYTP_BIT_HIGH_RATE;
+> +	} else {
+> +		psmouse->rate = 40;
+> +		cytp->mode &= ~CYTP_BIT_HIGH_RATE;
+> +	}
+> +
+> +	ps2_command(&psmouse->ps2dev, (unsigned char *)&psmouse->rate,
+> +		    PSMOUSE_CMD_SETRATE);
+> +}
+> +
+> +static void cypress_disconnect(struct psmouse *psmouse)
+> +{
+> +	cypress_reset(psmouse);
+> +	kfree(psmouse->private);
+> +	psmouse->private = NULL;
+> +}
+> +
+> +static int cypress_reconnect(struct psmouse *psmouse)
+> +{
+> +	int tries = CYTP_PS2_CMD_TRIES;
+> +	int rc;
+> +
+> +	do {
+> +		cypress_reset(psmouse);
+> +		rc = cypress_detect(psmouse, false);
+> +	} while (rc && (--tries > 0));
+> +
+> +	if (rc) {
+> +		psmouse_err(psmouse, "Reconnect: unable to detect trackpad.\n");
+> +		return -1;
+> +	}
+> +
+> +	if (cypress_set_absolute_mode(psmouse)) {
+> +		psmouse_err(psmouse, "Reconnect: Unable to initialize Cypress absolute mode.\n");
+> +		return -1;
+> +	}
+> +
 > +	return 0;
 > +}
-> +#endif /* CONFIG_PM_SLEEP */
 > +
-> +static SIMPLE_DEV_PM_OPS(cyapa_pm_ops, cyapa_suspend, cyapa_resume);
+> +int cypress_init(struct psmouse *psmouse)
+> +{
+> +	struct cytp_data *cytp;
 > +
-> +static const struct i2c_device_id cyapa_id_table[] = {
-> +	{ "cyapa", 0 },
-> +	{ },
+> +	cytp = (struct cytp_data *)kzalloc(sizeof(struct cytp_data), GFP_KERNEL);
+> +	psmouse->private = (void *)cytp;
+> +	if (cytp == NULL)
+> +		return -ENOMEM;
+> +
+> +	cypress_reset(psmouse);
+> +
+> +	psmouse->pktsize = 8;
+> +
+> +	if (cypress_query_hardware(psmouse)) {
+> +		psmouse_err(psmouse, "Unable to query Trackpad hardware.\n");
+> +		goto err_exit;
+> +	}
+> +
+> +	if (cypress_set_absolute_mode(psmouse)) {
+> +		psmouse_err(psmouse, "init: Unable to initialize Cypress absolute mode.\n");
+> +		goto err_exit;
+> +	}
+> +
+> +	if (cypress_set_input_params(psmouse->dev, cytp) < 0) {
+> +		psmouse_err(psmouse, "init: Unable to set input params.\n");
+> +		goto err_exit;
+> +	}
+> +
+> +	psmouse->model = 1;
+> +	psmouse->protocol_handler = cypress_protocol_handler;
+> +	psmouse->set_rate = cypress_set_rate;
+> +	psmouse->disconnect = cypress_disconnect;
+> +	psmouse->reconnect = cypress_reconnect;
+> +	psmouse->cleanup = cypress_reset;
+> +	psmouse->resync_time = 0;
+> +
+> +	return 0;
+> +
+> +err_exit:
+> +	/*
+> +	 * Reset Cypress Trackpad as a standard mouse. Then
+> +	 * let psmouse driver commmunicating with it as default PS2 mouse.
+> +	 */
+> +	cypress_reset(psmouse);
+> +
+> +	psmouse->private = NULL;
+> +	kfree(cytp);
+> +
+> +	return -1;
+> +}
+> +
+> +bool cypress_supported(void)
+> +{
+> +	return true;
+> +}
+> diff --git a/drivers/input/mouse/cypress_ps2.h b/drivers/input/mouse/cypress_ps2.h
+> new file mode 100644
+> index 0000000..4720f21
+> --- /dev/null
+> +++ b/drivers/input/mouse/cypress_ps2.h
+> @@ -0,0 +1,191 @@
+> +#ifndef _CYPRESS_PS2_H
+> +#define _CYPRESS_PS2_H
+> +
+> +#include "psmouse.h"
+> +
+> +#define CMD_BITS_MASK 0x03
+> +#define COMPOSIT(x, s) (((x) & CMD_BITS_MASK) << (s))
+> +
+> +#define ENCODE_CMD(aa, bb, cc, dd) \
+> +	(COMPOSIT((aa), 6) | COMPOSIT((bb), 4) | COMPOSIT((cc), 2) | COMPOSIT((dd), 0))
+> +#define CYTP_CMD_ABS_NO_PRESSURE_MODE       ENCODE_CMD(0, 1, 0, 0)
+> +#define CYTP_CMD_ABS_WITH_PRESSURE_MODE     ENCODE_CMD(0, 1, 0, 1)
+> +#define CYTP_CMD_SMBUS_MODE                 ENCODE_CMD(0, 1, 1, 0)
+> +#define CYTP_CMD_STANDARD_MODE              ENCODE_CMD(0, 2, 0, 0)  /* not implemented yet. */
+> +#define CYTP_CMD_CYPRESS_REL_MODE           ENCODE_CMD(1, 1, 1, 1)  /* not implemented yet. */
+> +#define CYTP_CMD_READ_CYPRESS_ID            ENCODE_CMD(0, 0, 0, 0)
+> +#define CYTP_CMD_READ_TP_METRICS            ENCODE_CMD(0, 0, 0, 1)
+> +#define CYTP_CMD_SET_HSCROLL_WIDTH(w)       ENCODE_CMD(1, 1, 0, (w))
+> +#define     CYTP_CMD_SET_HSCROLL_MASK       ENCODE_CMD(1, 1, 0, 0)
+> +#define CYTP_CMD_SET_VSCROLL_WIDTH(w)       ENCODE_CMD(1, 2, 0, (w))
+> +#define     CYTP_CMD_SET_VSCROLL_MASK       ENCODE_CMD(1, 2, 0, 0)
+> +#define CYTP_CMD_SET_PALM_GEOMETRY(e)       ENCODE_CMD(1, 2, 1, (e))
+> +#define     CYTP_CMD_PALM_GEMMETRY_MASK     ENCODE_CMD(1, 2, 1, 0)
+> +#define CYTP_CMD_SET_PALM_SENSITIVITY(s)    ENCODE_CMD(1, 2, 2, (s))
+> +#define     CYTP_CMD_PALM_SENSITIVITY_MASK  ENCODE_CMD(1, 2, 2, 0)
+> +#define CYTP_CMD_SET_MOUSE_SENSITIVITY(s)   ENCODE_CMD(1, 3, ((s) >> 2), (s))
+> +#define     CYTP_CMD_MOUSE_SENSITIVITY_MASK ENCODE_CMD(1, 3, 0, 0)
+> +#define CYTP_CMD_REQUEST_BASELINE_STATUS    ENCODE_CMD(2, 0, 0, 1)
+> +#define CYTP_CMD_REQUEST_RECALIBRATION      ENCODE_CMD(2, 0, 0, 3)
+> +
+> +#define DECODE_CMD_AA(x) (((x) >> 6) & CMD_BITS_MASK)
+> +#define DECODE_CMD_BB(x) (((x) >> 4) & CMD_BITS_MASK)
+> +#define DECODE_CMD_CC(x) (((x) >> 2) & CMD_BITS_MASK)
+> +#define DECODE_CMD_DD(x) ((x) & CMD_BITS_MASK)
+> +
+> +/* Cypress trackpad working mode. */
+> +#define CYTP_BIT_ABS_PRESSURE    (1 << 3)
+> +#define CYTP_BIT_ABS_NO_PRESSURE (1 << 2)
+> +#define CYTP_BIT_CYPRESS_REL     (1 << 1)
+> +#define CYTP_BIT_STANDARD_REL    (1 << 0)
+> +#define CYTP_BIT_REL_MASK (CYTP_BIT_CYPRESS_REL | CYTP_BIT_STANDARD_REL)
+> +#define CYTP_BIT_ABS_MASK (CYTP_BIT_ABS_PRESSURE | CYTP_BIT_ABS_NO_PRESSURE)
+> +#define CYTP_BIT_ABS_REL_MASK (CYTP_BIT_ABS_MASK | CYTP_BIT_REL_MASK)
+> +
+> +#define CYTP_BIT_HIGH_RATE       (1 << 4)
+> +/*
+> + * report mode bit is set, firmware working in Remote Mode.
+> + * report mode bit is cleared, firmware working in Stream Mode.
+> + */
+> +#define CYTP_BIT_REPORT_MODE     (1 << 5)
+> +
+> +/* scrolling width values for set HSCROLL and VSCROLL width command. */
+> +#define SCROLL_WIDTH_NARROW 1
+> +#define SCROLL_WIDTH_NORMAL 2
+> +#define SCROLL_WIDTH_WIDE   3
+> +
+> +#define PALM_GEOMETRY_ENABLE  1
+> +#define PALM_GEOMETRY_DISABLE 0
+> +
+> +#define TP_METRICS_MASK  0x80
+> +#define FW_VERSION_MASX    0x7f
+> +#define FW_VER_HIGH_MASK 0x70
+> +#define FW_VER_LOW_MASK  0x0f
+> +
+> +/* Times to retry a ps2_command and millisecond delay between tries. */
+> +#define CYTP_PS2_CMD_TRIES 3
+> +#define CYTP_PS2_CMD_DELAY 500
+> +
+> +/* time out for PS/2 command only in milliseconds. */
+> +#define CYTP_CMD_TIMEOUT  200
+> +#define CYTP_DATA_TIMEOUT 30
+> +
+> +#define CYTP_EXT_CMD   0xe8
+> +#define CYTP_PS2_RETRY 0xfe
+> +#define CYTP_PS2_ERROR 0xfc
+> +
+> +#define CYTP_RESP_RETRY 0x01
+> +#define CYTP_RESP_ERROR 0xfe
+> +
+> +
+> +#define CYTP_105001_WIDTH  97   /* Dell XPS 13 */
+> +#define CYTP_105001_HIGH   59
+> +#define CYTP_DEFAULT_WIDTH (CYTP_105001_WIDTH)
+> +#define CYTP_DEFAULT_HIGH  (CYTP_105001_HIGH)
+> +
+> +#define CYTP_ABS_MAX_X     1600
+> +#define CYTP_ABS_MAX_Y     900
+> +#define CYTP_MAX_PRESSURE  255
+> +#define CYTP_MIN_PRESSURE  0
+> +
+> +/* header byte bits of relative package. */
+> +#define BTN_LEFT_BIT   0x01
+> +#define BTN_RIGHT_BIT  0x02
+> +#define BTN_MIDDLE_BIT 0x04
+> +#define REL_X_SIGN_BIT 0x10
+> +#define REL_Y_SIGN_BIT 0x20
+> +
+> +/* header byte bits of absolute package. */
+> +#define ABS_VSCROLL_BIT 0x10
+> +#define ABS_HSCROLL_BIT 0x20
+> +#define ABS_MULTIFINGER_TAP 0x04
+> +#define ABS_EDGE_MOTION_MASK 0x80
+> +
+> +#define DFLT_RESP_BITS_VALID     0x88  /* SMBus bit should not be set. */
+> +#define DFLT_RESP_SMBUS_BIT      0x80
+> +#define   DFLT_SMBUS_MODE        0x80
+> +#define   DFLT_PS2_MODE          0x00
+> +#define DFLT_RESP_BIT_MODE       0x40
+> +#define   DFLT_RESP_REMOTE_MODE  0x40
+> +#define   DFLT_RESP_STREAM_MODE  0x00
+> +#define DFLT_RESP_BIT_REPORTING  0x20
+> +#define DFLT_RESP_BIT_SCALING    0x10
+> +
+> +#define TP_METRICS_BIT_PALM               0x80
+> +#define TP_METRICS_BIT_STUBBORN           0x40
+> +#define TP_METRICS_BIT_2F_JITTER          0x30
+> +#define TP_METRICS_BIT_1F_JITTER          0x0c
+> +#define TP_METRICS_BIT_APA                0x02
+> +#define TP_METRICS_BIT_MTG                0x01
+> +#define TP_METRICS_BIT_ABS_PKT_FORMAT_SET 0xf0
+> +#define TP_METRICS_BIT_2F_SPIKE           0x0c
+> +#define TP_METRICS_BIT_1F_SPIKE           0x03
+> +
+> +/* bits of first byte response of E9h-Status Request command. */
+> +#define RESP_BTN_RIGHT_BIT  0x01
+> +#define RESP_BTN_MIDDLE_BIT 0x02
+> +#define RESP_BTN_LEFT_BIT   0x04
+> +#define RESP_SCALING_BIT    0x10
+> +#define RESP_ENABLE_BIT     0x20
+> +#define RESP_REMOTE_BIT     0x40
+> +#define RESP_SMBUS_BIT      0x80
+> +
+> +#define CYTP_MAX_MT_SLOTS 2
+> +
+> +struct cytp_contact {
+> +	int x;
+> +	int y;
+> +	int z;  /* also named as touch pressure. */
 > +};
-> +MODULE_DEVICE_TABLE(i2c, cyapa_id_table);
 > +
-> +static struct i2c_driver cyapa_driver = {
-> +	.driver = {
-> +		.name = "cyapa",
-> +		.owner = THIS_MODULE,
-> +		.pm = &cyapa_pm_ops,
+> +/* The structure of Cypress Trackpad event data. */
+> +struct cytp_report_data {
+> +	int contact_cnt;
+> +	struct cytp_contact contacts[CYTP_MAX_MT_SLOTS];
+> +	unsigned int left:1;
+> +	unsigned int right:1;
+> +	unsigned int middle:1;
+> +	unsigned int tap:1;  /* multi-finger tap detected. */
+> +};
+> +
+> +/* The structure of Cypress Trackpad device private data. */
+> +struct cytp_data {
+> +	int fw_version;
+> +
+> +	int pkt_size;
+> +	int mode;
+> +
+> +	int tp_min_pressure;
+> +	int tp_max_pressure;
+> +	int tp_width;  /* X direction physical size in mm. */
+> +	int tp_high;  /* Y direction physical size in mm. */
+> +	int tp_max_abs_x;  /* Max X absolute units that can be reported. */
+> +	int tp_max_abs_y;  /* Max Y absolute units that can be reported. */
+> +
+> +	int tp_res_x;  /* X resolution in units/mm. */
+> +	int tp_res_y;  /* Y resolution in units/mm. */
+> +
+> +	int tp_metrics_supported;
+> +};
+> +
+> +
+> +#ifdef CONFIG_MOUSE_PS2_CYPRESS
+> +int cypress_detect(struct psmouse *psmouse, bool set_properties);
+> +int cypress_init(struct psmouse *psmouse);
+> +bool cypress_supported(void);
+> +#else
+> +inline int cypress_detect(struct psmouse *psmouse, bool set_properties)
+> +{
+> +	return -ENOSYS;
+> +}
+> +inline int cypress_init(struct psmouse *psmouse)
+> +{
+> +	return -ENOSYS;
+> +}
+> +inline bool cypress_supported(void)
+> +{
+> +	return 0;
+> +}
+> +#endif /* CONFIG_MOUSE_PS2_CYPRESS */
+> +
+> +#endif  /* _CYPRESS_PS2_H */
+> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+> index 22fe254..cff065f 100644
+> --- a/drivers/input/mouse/psmouse-base.c
+> +++ b/drivers/input/mouse/psmouse-base.c
+> @@ -34,6 +34,7 @@
+>  #include "touchkit_ps2.h"
+>  #include "elantech.h"
+>  #include "sentelic.h"
+> +#include "cypress_ps2.h"
+>  
+>  #define DRIVER_DESC	"PS/2 mouse driver"
+>  
+> @@ -759,6 +760,28 @@ static int psmouse_extensions(struct psmouse *psmouse,
+>  	}
+>  
+>  /*
+> + * Try Cypress Trackpad.
+> + * Must try it before Finger Sensing Pad because Finger Sensing Pad probe
+> + * upsets some modules of Cypress Trackpads.
+> + */
+> +	if (max_proto > PSMOUSE_IMEX &&
+> +			cypress_detect(psmouse, set_properties) == 0) {
+> +		if (cypress_supported()) {
+> +			if (cypress_init(psmouse) == 0)
+> +				return PSMOUSE_CYPRESS;
+> +
+> +			/*
+> +			 * Finger Sensing Pad probe upsets some modules of
+> +			 * Cypress Trackpad, must avoid Finger Sensing Pad
+> +			 * probe if Cypress Trackpad device detected.
+> +			 */
+> +			return PSMOUSE_PS2;
+> +		}
+> +
+> +		max_proto = PSMOUSE_IMEX;
+> +	}
+> +
+> +/*
+>   * Try ALPS TouchPad
+>   */
+>  	if (max_proto > PSMOUSE_IMEX) {
+> @@ -896,6 +919,15 @@ static const struct psmouse_protocol psmouse_protocols[] = {
+>  		.alias		= "thinkps",
+>  		.detect		= thinking_detect,
+>  	},
+> +#ifdef CONFIG_MOUSE_PS2_CYPRESS
+> +	{
+> +		.type		= PSMOUSE_CYPRESS,
+> +		.name		= "CyPS/2",
+> +		.alias		= "cypress",
+> +		.detect		= cypress_detect,
+> +		.init		= cypress_init,
 > +	},
-> +
-> +	.probe = cyapa_probe,
-> +	.remove = cyapa_remove,
-> +	.id_table = cyapa_id_table,
-> +};
-> +
-> +module_i2c_driver(cyapa_driver);
-> +
-> +MODULE_DESCRIPTION("Cypress APA I2C Trackpad Driver");
-> +MODULE_AUTHOR("Dudley Du <dudl@cypress.com>");
-> +MODULE_LICENSE("GPL");
+> +#endif
+>  	{
+>  		.type		= PSMOUSE_GENPS,
+>  		.name		= "GenPS/2",
+> diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+> index fe1df23..2f0b39d 100644
+> --- a/drivers/input/mouse/psmouse.h
+> +++ b/drivers/input/mouse/psmouse.h
+> @@ -95,6 +95,7 @@ enum psmouse_type {
+>  	PSMOUSE_ELANTECH,
+>  	PSMOUSE_FSP,
+>  	PSMOUSE_SYNAPTICS_RELATIVE,
+> +	PSMOUSE_CYPRESS,
+>  	PSMOUSE_AUTO		/* This one should always be last */
+>  };
+>  
 > -- 
-> 1.7.7.3
+> 1.7.10.4
 > 
 
     Reviewed-by: Henrik Rydberg <rydberg@euromail.se>

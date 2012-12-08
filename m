@@ -1,906 +1,683 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: [PATCH v3 1/1] Input: add driver for Cypress APA I2C Trackpad
-Date: Fri,  7 Dec 2012 15:24:16 -0800
-Message-ID: <1354922656-13506-2-git-send-email-bleung@chromium.org>
-References: <1354754899-26701-1-git-send-email-bleung@chromium.org>
- <1354922656-13506-1-git-send-email-bleung@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:45626 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757186Ab2LGXYg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Dec 2012 18:24:36 -0500
-Received: by mail-pb0-f46.google.com with SMTP id wy7so676912pbc.19
-        for <linux-input@vger.kernel.org>; Fri, 07 Dec 2012 15:24:36 -0800 (PST)
-In-Reply-To: <1354922656-13506-1-git-send-email-bleung@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/4] iio: mxs: Implement support for touchscreen
+Date: Sat, 08 Dec 2012 10:13:44 +0000
+Message-ID: <50C312D8.4050405@kernel.org>
+References: <1354893893-26338-1-git-send-email-marex@denx.de> <1354893893-26338-3-git-send-email-marex@denx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1354893893-26338-3-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: khali@linux-fr.org, dmitry.torokhov@gmail.com, rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: bleung@chromium.org, djkurtz@chromium.org, olofj@chromium.org, dudl@cypress.com
 
-This patch introduces a driver for Cypress All Points Addressable
-I2C Trackpad, including the ones in 2012 Samsung Chromebooks.
+On 12/07/2012 03:24 PM, Marek Vasut wrote:
+> This patch implements support for sampling of a touchscreen into
+> the MXS LRADC driver. The LRADC block allows configuring some of
+> it's channels into special mode where they either output the drive
+> voltage or sample it, allowing it to operate a 4-wire or 5-wire
+> resistive touchscreen.
+> 
+> In case the touchscreen mode is enabled, the LRADC slot #7 is
+> reserved for touchscreen only, therefore it is not possible to
+> sample 8 LRADC channels at time, but only 7 channels.
+> 
+> The touchscreen controller is configured such that the PENDOWN event
+> disables touchscreen interrupts and triggers execution of worker
+> thread, which then polls the touchscreen controller for X, Y and
+> Pressure values. This reduces the overhead of interrupt-driven
+> operation. Upon the PENUP event, the worker thread re-enables the
+> PENDOWN detection interrupt and exits.
+> 
+> Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+cc added for linux input and Dmitry.
 
-This device is compatible with MT protocol type B, providing identifiable
-contacts.
+I'd like to gather some opinions on the best way to handle these touch
+screen devices when are sharing some hardware with more generic adc's
+as here.
 
-Signed-off-by: Dudley Du <dudl@cypress.com>
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-Signed-off-by: Benson Leung <bleung@chromium.org>
----
-Version history :
-v3 : * Handle pointer emulation and unused slots in core
-     * Fix compile fail on 3.7 for input_mt_init_slots (Thanks Rydberg)
-     * Set BUTTONPAD property only if is a buttonpad based on capabilities.
-     * Removed __devinit/__devexit/__devexit_p
-     * Set to OFF power mode on cyapa_remove
-     * Got rid of kasprintf'd physical location string for static one.
+What we have is effectively a weird mulitplexing of different signals?
 
-v2 : * Removed firmware update.
-     * Removed sysfs properties related to firmware update and power mode.
-     * Folded cyapa_detect into cyapa_probe.
-     * Added support for middle and right mechanical buttons, if they exist.
-     * Rearranged disable_irq/enable_irq in suspend and resume to prevent
-         a power mode change from colliding with a read of tracking data.
-     * Made cyapa_get_state more reliable.
-     * Use IRQF_ONESHOT for threaded irq
-     * Simplified cyapa_set_power_mode.
-     * Removed extra kernel-doc style comments
-     * Removed dev_dbg messages.
-     * Cleaned up unused includes.
-     * Cleaned up unused #defines
+So could we treat the various axis as separate channels of a normal
+adc (even if they are infact coming from the same pins)?  Then we could
+have a go at having a generic touch screen driver acting as an IIO consumer?
+(the interrupt driven IIO consumer stuff should be going in in the comming
+merge window, but the example input driver didn't get cleaned up in time.)
 
-v1 : Initial
----
- drivers/input/mouse/Kconfig  |   12 +
- drivers/input/mouse/Makefile |    1 +
- drivers/input/mouse/cyapa.c  |  803 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 816 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/mouse/cyapa.c
+The tricks in here with switching from interrupt triggered to polled is a
+little nasty but I'll take your word for it that it is necessary!
 
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index cd6268c..23db30a 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -193,6 +193,18 @@ config MOUSE_BCM5974
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called bcm5974.
- 
-+config MOUSE_CYAPA
-+	tristate "Cypress APA I2C Trackpad support"
-+	depends on I2C
-+	help
-+	  This driver adds support for Cypress All Points Addressable (APA)
-+	  I2C Trackpads, including the ones used in 2012 Samsung Chromebooks.
-+
-+	  Say Y here if you have a Cypress APA I2C Trackpad.
-+
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called cyapa.
-+
- config MOUSE_INPORT
- 	tristate "InPort/MS/ATIXL busmouse"
- 	depends on ISA
-diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-index 46ba755..10b4773 100644
---- a/drivers/input/mouse/Makefile
-+++ b/drivers/input/mouse/Makefile
-@@ -8,6 +8,7 @@ obj-$(CONFIG_MOUSE_AMIGA)		+= amimouse.o
- obj-$(CONFIG_MOUSE_APPLETOUCH)		+= appletouch.o
- obj-$(CONFIG_MOUSE_ATARI)		+= atarimouse.o
- obj-$(CONFIG_MOUSE_BCM5974)		+= bcm5974.o
-+obj-$(CONFIG_MOUSE_CYAPA)		+= cyapa.o
- obj-$(CONFIG_MOUSE_GPIO)		+= gpio_mouse.o
- obj-$(CONFIG_MOUSE_INPORT)		+= inport.o
- obj-$(CONFIG_MOUSE_LOGIBM)		+= logibm.o
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-new file mode 100644
-index 0000000..0964583
---- /dev/null
-+++ b/drivers/input/mouse/cyapa.c
-@@ -0,0 +1,803 @@
-+/*
-+ * Cypress APA trackpad with I2C interface
-+ *
-+ * Author: Dudley Du <dudl@cypress.com>
-+ * Further cleanup and restructuring by:
-+ *   Daniel Kurtz <djkurtz@chromium.org>
-+ *   Benson Leung <bleung@chromium.org>
-+ *
-+ * Copyright (C) 2011-2012 Cypress Semiconductor, Inc.
-+ * Copyright (C) 2011-2012 Google, Inc.
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file COPYING in the main directory of this archive for
-+ * more details.
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input/mt.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+
-+/* APA trackpad firmware generation */
-+#define CYAPA_GEN3   0x03   /* support MT-protocol B with tracking ID. */
-+
-+#define CYAPA_NAME   "Cypress APA Trackpad (cyapa)"
-+
-+/* commands for read/write registers of Cypress trackpad */
-+#define CYAPA_CMD_SOFT_RESET       0x00
-+#define CYAPA_CMD_POWER_MODE       0x01
-+#define CYAPA_CMD_DEV_STATUS       0x02
-+#define CYAPA_CMD_GROUP_DATA       0x03
-+#define CYAPA_CMD_GROUP_CMD        0x04
-+#define CYAPA_CMD_GROUP_QUERY      0x05
-+#define CYAPA_CMD_BL_STATUS        0x06
-+#define CYAPA_CMD_BL_HEAD          0x07
-+#define CYAPA_CMD_BL_CMD           0x08
-+#define CYAPA_CMD_BL_DATA          0x09
-+#define CYAPA_CMD_BL_ALL           0x0a
-+#define CYAPA_CMD_BLK_PRODUCT_ID   0x0b
-+#define CYAPA_CMD_BLK_HEAD         0x0c
-+
-+/* report data start reg offset address. */
-+#define DATA_REG_START_OFFSET  0x0000
-+
-+#define BL_HEAD_OFFSET 0x00
-+#define BL_DATA_OFFSET 0x10
-+
-+/*
-+ * Operational Device Status Register
-+ *
-+ * bit 7: Valid interrupt source
-+ * bit 6 - 4: Reserved
-+ * bit 3 - 2: Power status
-+ * bit 1 - 0: Device status
-+ */
-+#define REG_OP_STATUS     0x00
-+#define OP_STATUS_SRC     0x80
-+#define OP_STATUS_POWER   0x0c
-+#define OP_STATUS_DEV     0x03
-+#define OP_STATUS_MASK (OP_STATUS_SRC | OP_STATUS_POWER | OP_STATUS_DEV)
-+
-+/*
-+ * Operational Finger Count/Button Flags Register
-+ *
-+ * bit 7 - 4: Number of touched finger
-+ * bit 3: Valid data
-+ * bit 2: Middle Physical Button
-+ * bit 1: Right Physical Button
-+ * bit 0: Left physical Button
-+ */
-+#define REG_OP_DATA1       0x01
-+#define OP_DATA_VALID      0x08
-+#define OP_DATA_MIDDLE_BTN 0x04
-+#define OP_DATA_RIGHT_BTN  0x02
-+#define OP_DATA_LEFT_BTN   0x01
-+#define OP_DATA_BTN_MASK (OP_DATA_MIDDLE_BTN | OP_DATA_RIGHT_BTN | \
-+			  OP_DATA_LEFT_BTN)
-+
-+/*
-+ * Bootloader Status Register
-+ *
-+ * bit 7: Busy
-+ * bit 6 - 5: Reserved
-+ * bit 4: Bootloader running
-+ * bit 3 - 1: Reserved
-+ * bit 0: Checksum valid
-+ */
-+#define REG_BL_STATUS        0x01
-+#define BL_STATUS_BUSY       0x80
-+#define BL_STATUS_RUNNING    0x10
-+#define BL_STATUS_DATA_VALID 0x08
-+#define BL_STATUS_CSUM_VALID 0x01
-+
-+/*
-+ * Bootloader Error Register
-+ *
-+ * bit 7: Invalid
-+ * bit 6: Invalid security key
-+ * bit 5: Bootloading
-+ * bit 4: Command checksum
-+ * bit 3: Flash protection error
-+ * bit 2: Flash checksum error
-+ * bit 1 - 0: Reserved
-+ */
-+#define REG_BL_ERROR         0x02
-+#define BL_ERROR_INVALID     0x80
-+#define BL_ERROR_INVALID_KEY 0x40
-+#define BL_ERROR_BOOTLOADING 0x20
-+#define BL_ERROR_CMD_CSUM    0x10
-+#define BL_ERROR_FLASH_PROT  0x08
-+#define BL_ERROR_FLASH_CSUM  0x04
-+
-+#define BL_STATUS_SIZE  3  /* length of bootloader status registers */
-+#define BLK_HEAD_BYTES 32
-+
-+#define PRODUCT_ID_SIZE  16
-+#define QUERY_DATA_SIZE  27
-+#define REG_PROTOCOL_GEN_QUERY_OFFSET  20
-+
-+#define REG_OFFSET_DATA_BASE     0x0000
-+#define REG_OFFSET_COMMAND_BASE  0x0028
-+#define REG_OFFSET_QUERY_BASE    0x002a
-+
-+#define CAPABILITY_LEFT_BTN_MASK	(0x01 << 3)
-+#define CAPABILITY_RIGHT_BTN_MASK	(0x01 << 4)
-+#define CAPABILITY_MIDDLE_BTN_MASK	(0x01 << 5)
-+#define CAPABILITY_BTN_MASK  (CAPABILITY_LEFT_BTN_MASK | \
-+			      CAPABILITY_RIGHT_BTN_MASK | \
-+			      CAPABILITY_MIDDLE_BTN_MASK)
-+
-+#define CYAPA_OFFSET_SOFT_RESET  REG_OFFSET_COMMAND_BASE
-+
-+#define REG_OFFSET_POWER_MODE (REG_OFFSET_COMMAND_BASE + 1)
-+
-+#define PWR_MODE_MASK   0xfc
-+#define PWR_MODE_FULL_ACTIVE (0x3f << 2)
-+#define PWR_MODE_IDLE        (0x05 << 2) /* default sleep time is 50 ms. */
-+#define PWR_MODE_OFF         (0x00 << 2)
-+
-+#define PWR_STATUS_MASK      0x0c
-+#define PWR_STATUS_ACTIVE    (0x03 << 2)
-+#define PWR_STATUS_IDLE      (0x02 << 2)
-+#define PWR_STATUS_OFF       (0x00 << 2)
-+
-+/*
-+ * CYAPA trackpad device states.
-+ * Used in register 0x00, bit1-0, DeviceStatus field.
-+ * Other values indicate device is in an abnormal state and must be reset.
-+ */
-+#define CYAPA_DEV_NORMAL  0x03
-+#define CYAPA_DEV_BUSY    0x01
-+
-+enum cyapa_state {
-+	CYAPA_STATE_OP,
-+	CYAPA_STATE_BL_IDLE,
-+	CYAPA_STATE_BL_ACTIVE,
-+	CYAPA_STATE_BL_BUSY,
-+	CYAPA_STATE_NO_DEVICE,
-+};
-+
-+
-+struct cyapa_touch {
-+	/*
-+	 * high bits or x/y position value
-+	 * bit 7 - 4: high 4 bits of x position value
-+	 * bit 3 - 0: high 4 bits of y position value
-+	 */
-+	u8 xy_hi;
-+	u8 x_lo;  /* low 8 bits of x position value. */
-+	u8 y_lo;  /* low 8 bits of y position value. */
-+	u8 pressure;
-+	/* id range is 1 - 15.  It is incremented with every new touch. */
-+	u8 id;
-+} __packed;
-+
-+/* The touch.id is used as the MT slot id, thus max MT slot is 15 */
-+#define CYAPA_MAX_MT_SLOTS  15
-+
-+struct cyapa_reg_data {
-+	/*
-+	 * bit 0 - 1: device status
-+	 * bit 3 - 2: power mode
-+	 * bit 6 - 4: reserved
-+	 * bit 7: interrupt valid bit
-+	 */
-+	u8 device_status;
-+	/*
-+	 * bit 7 - 4: number of fingers currently touching pad
-+	 * bit 3: valid data check bit
-+	 * bit 2: middle mechanism button state if exists
-+	 * bit 1: right mechanism button state if exists
-+	 * bit 0: left mechanism button state if exists
-+	 */
-+	u8 finger_btn;
-+	/* CYAPA reports up to 5 touches per packet. */
-+	struct cyapa_touch touches[5];
-+} __packed;
-+
-+/* The main device structure */
-+struct cyapa {
-+	enum cyapa_state state;
-+
-+	struct i2c_client *client;
-+	struct input_dev *input;
-+	char phys[32];	/* device physical location */
-+	int irq;
-+	bool irq_wake;  /* irq wake is enabled */
-+
-+	/* read from query data region. */
-+	char product_id[16];
-+	u8 btn_capability;
-+	u8 gen;
-+	int max_abs_x;
-+	int max_abs_y;
-+	int physical_size_x;
-+	int physical_size_y;
-+};
-+
-+static const u8 bl_deactivate[] = { 0x00, 0xff, 0x3b, 0x00, 0x01, 0x02, 0x03,
-+		0x04, 0x05, 0x06, 0x07 };
-+static const u8 bl_exit[] = { 0x00, 0xff, 0xa5, 0x00, 0x01, 0x02, 0x03, 0x04,
-+		0x05, 0x06, 0x07 };
-+
-+struct cyapa_cmd_len {
-+	u8 cmd;
-+	u8 len;
-+};
-+
-+static const struct cyapa_cmd_len cyapa_i2c_cmds[] = {
-+	{CYAPA_OFFSET_SOFT_RESET, 1},
-+	{REG_OFFSET_COMMAND_BASE + 1, 1},
-+	{REG_OFFSET_DATA_BASE, 1},
-+	{REG_OFFSET_DATA_BASE, sizeof(struct cyapa_reg_data)},
-+	{REG_OFFSET_COMMAND_BASE, 0},
-+	{REG_OFFSET_QUERY_BASE, QUERY_DATA_SIZE},
-+	{BL_HEAD_OFFSET, 3},
-+	{BL_HEAD_OFFSET, 16},
-+	{BL_HEAD_OFFSET, 16},
-+	{BL_DATA_OFFSET, 16},
-+	{BL_HEAD_OFFSET, 32},
-+	{REG_OFFSET_QUERY_BASE, PRODUCT_ID_SIZE},
-+	{REG_OFFSET_DATA_BASE, 32}
-+};
-+
-+static ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
-+					u8 *values)
-+{
-+	return i2c_smbus_read_i2c_block_data(cyapa->client, reg, len, values);
-+}
-+
-+static ssize_t cyapa_i2c_reg_write_block(struct cyapa *cyapa, u8 reg,
-+					 size_t len, const u8 *values)
-+{
-+	return i2c_smbus_write_i2c_block_data(cyapa->client, reg, len, values);
-+}
-+
-+static s32 cyapa_read_byte(struct cyapa *cyapa, u8 cmd_idx)
-+{
-+	u8 cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-+
-+	return i2c_smbus_read_byte_data(cyapa->client, cmd);
-+}
-+
-+static s32 cyapa_write_byte(struct cyapa *cyapa, u8 cmd_idx, u8 value)
-+{
-+	u8 cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-+
-+	return i2c_smbus_write_byte_data(cyapa->client, cmd, value);
-+}
-+
-+static ssize_t cyapa_read_block(struct cyapa *cyapa, u8 cmd_idx, u8 *values)
-+{
-+	u8 cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-+	size_t len = cyapa_i2c_cmds[cmd_idx].len;
-+
-+	return cyapa_i2c_reg_read_block(cyapa, cmd, len, values);
-+}
-+
-+/*
-+ * Query device for its current operating state.
-+ *
-+ */
-+static int cyapa_get_state(struct cyapa *cyapa)
-+{
-+	int ret;
-+	u8 status[BL_STATUS_SIZE];
-+
-+	cyapa->state = CYAPA_STATE_NO_DEVICE;
-+
-+	/*
-+	 * Get trackpad status by reading 3 registers starting from 0.
-+	 * If the device is in the bootloader, this will be BL_HEAD.
-+	 * If the device is in operation mode, this will be the DATA regs.
-+	 *
-+	 */
-+	ret = cyapa_i2c_reg_read_block(cyapa, BL_HEAD_OFFSET, BL_STATUS_SIZE,
-+				       status);
-+	if (ret != BL_STATUS_SIZE)
-+		goto error;
-+
-+	if ((status[REG_OP_STATUS] & OP_STATUS_SRC) == OP_STATUS_SRC) {
-+		switch (status[REG_OP_STATUS] & OP_STATUS_DEV) {
-+		case CYAPA_DEV_NORMAL:
-+		case CYAPA_DEV_BUSY:
-+			cyapa->state = CYAPA_STATE_OP;
-+			break;
-+		default:
-+			ret = -EAGAIN;
-+			goto error;
-+		}
-+	} else {
-+		if (status[REG_BL_STATUS] & BL_STATUS_BUSY)
-+			cyapa->state = CYAPA_STATE_BL_BUSY;
-+		else if (status[REG_BL_ERROR] & BL_ERROR_BOOTLOADING)
-+			cyapa->state = CYAPA_STATE_BL_ACTIVE;
-+		else
-+			cyapa->state = CYAPA_STATE_BL_IDLE;
-+	}
-+
-+	return 0;
-+error:
-+	return (ret < 0) ? ret : -EAGAIN;
-+}
-+
-+/*
-+ * Poll device for its status in a loop, waiting up to timeout for a response.
-+ *
-+ * When the device switches state, it usually takes ~300 ms.
-+ * However, when running a new firmware image, the device must calibrate its
-+ * sensors, which can take as long as 2 seconds.
-+ *
-+ * Note: The timeout has granularity of the polling rate, which is 100 ms.
-+ *
-+ * Returns:
-+ *   0 when the device eventually responds with a valid non-busy state.
-+ *   -ETIMEDOUT if device never responds (too many -EAGAIN)
-+ *   < 0    other errors
-+ */
-+static int cyapa_poll_state(struct cyapa *cyapa, unsigned int timeout)
-+{
-+	int ret;
-+	int tries = timeout / 100;
-+
-+	ret = cyapa_get_state(cyapa);
-+	while ((ret || cyapa->state >= CYAPA_STATE_BL_BUSY) && tries--) {
-+		msleep(100);
-+		ret = cyapa_get_state(cyapa);
-+	}
-+	return (ret == -EAGAIN || ret == -ETIMEDOUT) ? -ETIMEDOUT : ret;
-+}
-+
-+static int cyapa_bl_deactivate(struct cyapa *cyapa)
-+{
-+	int ret;
-+
-+	ret = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_deactivate),
-+					bl_deactivate);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* wait for bootloader to switch to idle state; should take < 100ms */
-+	msleep(100);
-+	ret = cyapa_poll_state(cyapa, 500);
-+	if (ret < 0)
-+		return ret;
-+	if (cyapa->state != CYAPA_STATE_BL_IDLE)
-+		return -EAGAIN;
-+	return 0;
-+}
-+
-+/*
-+ * Exit bootloader
-+ *
-+ * Send bl_exit command, then wait 50 - 100 ms to let device transition to
-+ * operational mode.  If this is the first time the device's firmware is
-+ * running, it can take up to 2 seconds to calibrate its sensors.  So, poll
-+ * the device's new state for up to 2 seconds.
-+ *
-+ * Returns:
-+ *   -EIO    failure while reading from device
-+ *   -EAGAIN device is stuck in bootloader, b/c it has invalid firmware
-+ *   0       device is supported and in operational mode
-+ */
-+static int cyapa_bl_exit(struct cyapa *cyapa)
-+{
-+	int ret;
-+
-+	ret = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_exit), bl_exit);
-+	if (ret < 0)
-+		return ret;
-+
-+	/*
-+	 * Wait for bootloader to exit, and operation mode to start.
-+	 * Normally, this takes at least 50 ms.
-+	 */
-+	usleep_range(50000, 100000);
-+	/*
-+	 * In addition, when a device boots for the first time after being
-+	 * updated to new firmware, it must first calibrate its sensors, which
-+	 * can take up to an additional 2 seconds.
-+	 */
-+	ret = cyapa_poll_state(cyapa, 2000);
-+	if (ret < 0)
-+		return ret;
-+	if (cyapa->state != CYAPA_STATE_OP)
-+		return -EAGAIN;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Set device power mode
-+ *
-+ */
-+static int cyapa_set_power_mode(struct cyapa *cyapa, u8 power_mode)
-+{
-+	struct device *dev = &cyapa->client->dev;
-+	int ret;
-+	u8 power;
-+
-+	if (cyapa->state != CYAPA_STATE_OP)
-+		return 0;
-+
-+	ret = cyapa_read_byte(cyapa, CYAPA_CMD_POWER_MODE);
-+	if (ret < 0)
-+		return ret;
-+
-+	power = ret & ~PWR_MODE_MASK;
-+	power |= power_mode & PWR_MODE_MASK;
-+	ret = cyapa_write_byte(cyapa, CYAPA_CMD_POWER_MODE, power);
-+	if (ret < 0)
-+		dev_err(dev, "failed to set power_mode 0x%02x err = %d\n",
-+			power_mode, ret);
-+	return ret;
-+}
-+
-+static int cyapa_get_query_data(struct cyapa *cyapa)
-+{
-+	u8 query_data[QUERY_DATA_SIZE];
-+	int ret;
-+
-+	if (cyapa->state != CYAPA_STATE_OP)
-+		return -EBUSY;
-+
-+	ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_QUERY, query_data);
-+	if (ret < 0)
-+		return ret;
-+	if (ret != QUERY_DATA_SIZE)
-+		return -EIO;
-+
-+	memcpy(&cyapa->product_id[0], &query_data[0], 5);
-+	cyapa->product_id[5] = '-';
-+	memcpy(&cyapa->product_id[6], &query_data[5], 6);
-+	cyapa->product_id[12] = '-';
-+	memcpy(&cyapa->product_id[13], &query_data[11], 2);
-+	cyapa->product_id[15] = '\0';
-+
-+	cyapa->btn_capability = query_data[19] & CAPABILITY_BTN_MASK;
-+
-+	cyapa->gen = query_data[20] & 0x0f;
-+
-+	cyapa->max_abs_x = ((query_data[21] & 0xf0) << 4) | query_data[22];
-+	cyapa->max_abs_y = ((query_data[21] & 0x0f) << 8) | query_data[23];
-+
-+	cyapa->physical_size_x =
-+		((query_data[24] & 0xf0) << 4) | query_data[25];
-+	cyapa->physical_size_y =
-+		((query_data[24] & 0x0f) << 8) | query_data[26];
-+
-+	return 0;
-+}
-+
-+/*
-+ * Check if device is operational.
-+ *
-+ * An operational device is responding, has exited bootloader, and has
-+ * firmware supported by this driver.
-+ *
-+ * Returns:
-+ *   -EBUSY  no device or in bootloader
-+ *   -EIO    failure while reading from device
-+ *   -EAGAIN device is still in bootloader
-+ *           if ->state = CYAPA_STATE_BL_IDLE, device has invalid firmware
-+ *   -EINVAL device is in operational mode, but not supported by this driver
-+ *   0       device is supported
-+ */
-+static int cyapa_check_is_operational(struct cyapa *cyapa)
-+{
-+	struct device *dev = &cyapa->client->dev;
-+	static const char unique_str[] = "CYTRA";
-+	int ret;
-+
-+	ret = cyapa_poll_state(cyapa, 2000);
-+	if (ret < 0)
-+		return ret;
-+	switch (cyapa->state) {
-+	case CYAPA_STATE_BL_ACTIVE:
-+		ret = cyapa_bl_deactivate(cyapa);
-+		if (ret)
-+			return ret;
-+
-+	/* Fallthrough state */
-+	case CYAPA_STATE_BL_IDLE:
-+		ret = cyapa_bl_exit(cyapa);
-+		if (ret)
-+			return ret;
-+
-+	/* Fallthrough state */
-+	case CYAPA_STATE_OP:
-+		ret = cyapa_get_query_data(cyapa);
-+		if (ret < 0)
-+			return ret;
-+
-+		/* only support firmware protocol gen3 */
-+		if (cyapa->gen != CYAPA_GEN3) {
-+			dev_err(dev, "unsupported protocol version (%d)",
-+				cyapa->gen);
-+			return -EINVAL;
-+		}
-+
-+		/* only support product ID starting with CYTRA */
-+		if (memcmp(cyapa->product_id, unique_str,
-+			   sizeof(unique_str) - 1) != 0) {
-+			dev_err(dev, "unsupported product ID (%s)\n",
-+				cyapa->product_id);
-+			return -EINVAL;
-+		}
-+		return 0;
-+
-+	default:
-+		return -EIO;
-+	}
-+	return 0;
-+}
-+
-+static irqreturn_t cyapa_irq(int irq, void *dev_id)
-+{
-+	struct cyapa *cyapa = dev_id;
-+	struct device *dev = &cyapa->client->dev;
-+	struct input_dev *input = cyapa->input;
-+	struct cyapa_reg_data data;
-+	int i;
-+	int ret;
-+	int num_fingers;
-+
-+	if (device_may_wakeup(dev))
-+		pm_wakeup_event(dev, 0);
-+
-+	ret = cyapa_read_block(cyapa, CYAPA_CMD_GROUP_DATA, (u8 *)&data);
-+	if (ret != sizeof(data))
-+		goto irqhandled;
-+
-+	if ((data.device_status & OP_STATUS_SRC) != OP_STATUS_SRC ||
-+	    (data.device_status & OP_STATUS_DEV) != CYAPA_DEV_NORMAL ||
-+	    (data.finger_btn & OP_DATA_VALID) != OP_DATA_VALID) {
-+		goto irqhandled;
-+	}
-+
-+	num_fingers = (data.finger_btn >> 4) & 0x0f;
-+	for (i = 0; i < num_fingers; i++) {
-+		const struct cyapa_touch *touch = &data.touches[i];
-+		/* Note: touch->id range is 1 to 15; slots are 0 to 14. */
-+		int slot = touch->id - 1;
-+
-+		input_mt_slot(input, slot);
-+		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
-+		input_report_abs(input, ABS_MT_POSITION_X,
-+				 ((touch->xy_hi & 0xf0) << 4) | touch->x_lo);
-+		input_report_abs(input, ABS_MT_POSITION_Y,
-+				 ((touch->xy_hi & 0x0f) << 8) | touch->y_lo);
-+		input_report_abs(input, ABS_MT_PRESSURE, touch->pressure);
-+	}
-+
-+	input_mt_sync_frame(input);
-+
-+	if (cyapa->btn_capability & CAPABILITY_LEFT_BTN_MASK) {
-+		input_report_key(input, BTN_LEFT,
-+				 !!(data.finger_btn & OP_DATA_LEFT_BTN));
-+	}
-+	if (cyapa->btn_capability & CAPABILITY_MIDDLE_BTN_MASK) {
-+		input_report_key(input, BTN_MIDDLE,
-+				 !!(data.finger_btn & OP_DATA_MIDDLE_BTN));
-+	}
-+	if (cyapa->btn_capability & CAPABILITY_RIGHT_BTN_MASK) {
-+		input_report_key(input, BTN_RIGHT,
-+				 !!(data.finger_btn & OP_DATA_RIGHT_BTN));
-+	}
-+	input_sync(input);
-+
-+irqhandled:
-+	return IRQ_HANDLED;
-+}
-+
-+static int cyapa_create_input_dev(struct cyapa *cyapa)
-+{
-+	struct device *dev = &cyapa->client->dev;
-+	int ret;
-+	struct input_dev *input;
-+
-+	if (!cyapa->physical_size_x || !cyapa->physical_size_y)
-+		return -EINVAL;
-+
-+	input = cyapa->input = input_allocate_device();
-+	if (!input) {
-+		dev_err(dev, "allocate memory for input device failed\n");
-+		return -ENOMEM;
-+	}
-+
-+	input->name = CYAPA_NAME;
-+	input->phys = cyapa->phys;
-+	input->id.bustype = BUS_I2C;
-+	input->id.version = 1;
-+	input->id.product = 0;  /* means any product in eventcomm. */
-+	input->dev.parent = &cyapa->client->dev;
-+
-+	input_set_drvdata(input, cyapa);
-+
-+	__set_bit(EV_ABS, input->evbit);
-+
-+	/* finger position */
-+	input_set_abs_params(input, ABS_MT_POSITION_X, 0, cyapa->max_abs_x, 0,
-+			     0);
-+	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, cyapa->max_abs_y, 0,
-+			     0);
-+	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 255, 0, 0);
-+
-+	input_abs_set_res(input, ABS_MT_POSITION_X,
-+			  cyapa->max_abs_x / cyapa->physical_size_x);
-+	input_abs_set_res(input, ABS_MT_POSITION_Y,
-+			  cyapa->max_abs_y / cyapa->physical_size_y);
-+
-+	if (cyapa->btn_capability & CAPABILITY_LEFT_BTN_MASK)
-+		__set_bit(BTN_LEFT, input->keybit);
-+	if (cyapa->btn_capability & CAPABILITY_MIDDLE_BTN_MASK)
-+		__set_bit(BTN_MIDDLE, input->keybit);
-+	if (cyapa->btn_capability & CAPABILITY_RIGHT_BTN_MASK)
-+		__set_bit(BTN_RIGHT, input->keybit);
-+	if (cyapa->btn_capability == CAPABILITY_LEFT_BTN_MASK)
-+		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-+
-+	/* handle pointer emulation and unused slots in core */
-+	ret = input_mt_init_slots(input, CYAPA_MAX_MT_SLOTS,
-+				  INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED);
-+	if (ret) {
-+		dev_err(dev, "allocate memory for MT slots failed, %d\n", ret);
-+		goto err_free_device;
-+	}
-+
-+	/* Register the device in input subsystem */
-+	ret = input_register_device(input);
-+	if (ret) {
-+		dev_err(dev, "input device register failed, %d\n", ret);
-+		goto err_free_device;
-+	}
-+	return 0;
-+
-+err_free_device:
-+	input_free_device(input);
-+	cyapa->input = NULL;
-+	return ret;
-+}
-+
-+static int cyapa_probe(struct i2c_client *client,
-+		       const struct i2c_device_id *dev_id)
-+{
-+	int ret;
-+	struct cyapa *cyapa;
-+	struct device *dev = &client->dev;
-+
-+	cyapa = kzalloc(sizeof(struct cyapa), GFP_KERNEL);
-+	if (!cyapa) {
-+		dev_err(dev, "allocate memory for cyapa failed\n");
-+		return -ENOMEM;
-+	}
-+
-+	cyapa->gen = CYAPA_GEN3;
-+	cyapa->client = client;
-+	i2c_set_clientdata(client, cyapa);
-+	sprintf(cyapa->phys, "i2c-%d-%04x/input0", client->adapter->nr,
-+		client->addr);
-+
-+	cyapa->state = CYAPA_STATE_NO_DEVICE;
-+	ret = cyapa_check_is_operational(cyapa);
-+	if (ret) {
-+		dev_err(dev, "device not operational, %d\n", ret);
-+		goto err_mem_free;
-+	}
-+
-+	ret = cyapa_create_input_dev(cyapa);
-+	if (ret) {
-+		dev_err(dev, "create input_dev instance failed, %d\n", ret);
-+		goto err_mem_free;
-+	}
-+
-+	ret = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
-+	if (ret) {
-+		dev_err(dev, "set active power failed, %d\n", ret);
-+		goto err_unregister_device;
-+	}
-+
-+	cyapa->irq = client->irq;
-+	ret = request_threaded_irq(cyapa->irq,
-+				   NULL,
-+				   cyapa_irq,
-+				   IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+				   "cyapa",
-+				   cyapa);
-+	if (ret) {
-+		dev_err(dev, "IRQ request failed: %d\n, ", ret);
-+		goto err_unregister_device;
-+	}
-+
-+	return 0;
-+
-+err_unregister_device:
-+	input_unregister_device(cyapa->input);
-+err_mem_free:
-+	kfree(cyapa);
-+
-+	return ret;
-+}
-+
-+static int cyapa_remove(struct i2c_client *client)
-+{
-+	struct cyapa *cyapa = i2c_get_clientdata(client);
-+
-+	free_irq(cyapa->irq, cyapa);
-+	input_unregister_device(cyapa->input);
-+	cyapa_set_power_mode(cyapa, PWR_MODE_OFF);
-+	kfree(cyapa);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int cyapa_suspend(struct device *dev)
-+{
-+	int ret;
-+	u8 power_mode;
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+
-+	disable_irq(cyapa->irq);
-+
-+	/*
-+	 * Set trackpad device to idle mode if wakeup is allowed,
-+	 * otherwise turn off.
-+	 */
-+	power_mode = device_may_wakeup(dev) ? PWR_MODE_IDLE
-+					    : PWR_MODE_OFF;
-+	ret = cyapa_set_power_mode(cyapa, power_mode);
-+	if (ret < 0)
-+		dev_err(dev, "set power mode failed, %d\n", ret);
-+
-+	if (device_may_wakeup(dev))
-+		cyapa->irq_wake = (enable_irq_wake(cyapa->irq) == 0);
-+	return 0;
-+}
-+
-+static int cyapa_resume(struct device *dev)
-+{
-+	int ret;
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev) && cyapa->irq_wake)
-+		disable_irq_wake(cyapa->irq);
-+
-+	ret = cyapa_set_power_mode(cyapa, PWR_MODE_FULL_ACTIVE);
-+	if (ret)
-+		dev_warn(dev, "resume active power failed, %d\n", ret);
-+
-+	enable_irq(cyapa->irq);
-+	return 0;
-+}
-+#endif /* CONFIG_PM_SLEEP */
-+
-+static SIMPLE_DEV_PM_OPS(cyapa_pm_ops, cyapa_suspend, cyapa_resume);
-+
-+static const struct i2c_device_id cyapa_id_table[] = {
-+	{ "cyapa", 0 },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(i2c, cyapa_id_table);
-+
-+static struct i2c_driver cyapa_driver = {
-+	.driver = {
-+		.name = "cyapa",
-+		.owner = THIS_MODULE,
-+		.pm = &cyapa_pm_ops,
-+	},
-+
-+	.probe = cyapa_probe,
-+	.remove = cyapa_remove,
-+	.id_table = cyapa_id_table,
-+};
-+
-+module_i2c_driver(cyapa_driver);
-+
-+MODULE_DESCRIPTION("Cypress APA I2C Trackpad Driver");
-+MODULE_AUTHOR("Dudley Du <dudl@cypress.com>");
-+MODULE_LICENSE("GPL");
--- 
-1.7.7.3
+As you have it sitting on a different delay channel you'd have to have
+these 'magic channels' as a separate IIO device anyway.  The scan
+would then include all the magic channels.
 
+Hmm.  I'm not sure of the best way to handle this so fully
+open to suggestions!  In some ways perhaps it is better to conclude
+these channels are so touch screen specific (when the hardware is enabled)
+that it's better to do as you have done here.
+
+Dmitry, what do you think is the best way forward?
+
+Jonathan
+> ---
+>  .../bindings/staging/iio/adc/mxs-lradc.txt         |    6 +
+>  drivers/staging/iio/adc/mxs-lradc.c                |  435 +++++++++++++++++++-
+>  2 files changed, 420 insertions(+), 21 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/staging/iio/adc/mxs-lradc.txt b/Documentation/devicetree/bindings/staging/iio/adc/mxs-lradc.txt
+> index 801d58c..4688205 100644
+> --- a/Documentation/devicetree/bindings/staging/iio/adc/mxs-lradc.txt
+> +++ b/Documentation/devicetree/bindings/staging/iio/adc/mxs-lradc.txt
+> @@ -5,6 +5,12 @@ Required properties:
+>  - reg: Address and length of the register set for the device
+>  - interrupts: Should contain the LRADC interrupts
+>  
+> +Optional properties:
+> +- fsl,lradc-touchscreen-wires: Number of wires used to connect the touchscreen
+> +                               to LRADC. Valid value is either 4 or 5. If this
+> +                               property is not present, then the touchscreen is
+> +                               disabled.
+> +
+>  Examples:
+>  
+>  	lradc@80050000 {
+> diff --git a/drivers/staging/iio/adc/mxs-lradc.c b/drivers/staging/iio/adc/mxs-lradc.c
+> index 6249957..b2aa999 100644
+> --- a/drivers/staging/iio/adc/mxs-lradc.c
+> +++ b/drivers/staging/iio/adc/mxs-lradc.c
+> @@ -32,6 +32,8 @@
+>  #include <linux/stmp_device.h>
+>  #include <linux/bitops.h>
+>  #include <linux/completion.h>
+> +#include <linux/delay.h>
+> +#include <linux/input.h>
+>  
+>  #include <mach/mxs.h>
+>  #include <mach/common.h>
+> @@ -59,6 +61,21 @@
+>  #define LRADC_DELAY_TIMER_PER	200
+>  #define LRADC_DELAY_TIMER_LOOP	5
+>  
+> +/*
+> + * Once the pen touches the touchscreen, the touchscreen switches from
+> + * IRQ-driven mode to polling mode to prevent interrupt storm. The polling
+> + * is realized by worker thread, which is called every 20 or so milliseconds.
+> + * This gives the touchscreen enough fluence and does not strain the system
+> + * too much.
+> + */
+> +#define LRADC_TS_SAMPLE_DELAY_MS	5
+> +
+> +/*
+> + * The LRADC reads the following amount of samples from each touchscreen
+> + * channel and the driver then computes avarage of these.
+> + */
+> +#define LRADC_TS_SAMPLE_AMOUNT		4
+> +
+>  static const char * const mxs_lradc_irq_name[] = {
+>  	"mxs-lradc-touchscreen",
+>  	"mxs-lradc-thresh0",
+> @@ -86,21 +103,69 @@ struct mxs_lradc {
+>  	struct mutex		lock;
+>  
+>  	struct completion	completion;
+> +
+> +	/*
+> +	 * Touchscreen LRADC channels receives a private slot in the CTRL4
+> +	 * register, the slot #7. Therefore only 7 slots instead of 8 in the
+> +	 * CTRL4 register can be mapped to LRADC channels when using the
+> +	 * touchscreen.
+> +	 *
+> +	 * Furthermore, certain LRADC channels are shared between touchscreen
+> +	 * and/or touch-buttons and generic LRADC block. Therefore when using
+> +	 * either of these, these channels are not available for the regular
+> +	 * sampling. The shared channels are as follows:
+> +	 *
+> +	 * CH0 -- Touch button #0
+> +	 * CH1 -- Touch button #1
+> +	 * CH2 -- Touch screen XPUL
+> +	 * CH3 -- Touch screen YPLL
+> +	 * CH4 -- Touch screen XNUL
+> +	 * CH5 -- Touch screen YNLR
+> +	 * CH6 -- Touch screen WIPER (5-wire only)
+> +	 *
+> +	 * The bitfields below represents which parts of the LRADC block are
+> +	 * switched into special mode of operation. These channels can not
+> +	 * be sampled as regular LRADC channels. The driver will refuse any
+> +	 * attempt to sample these channels.
+> +	 */
+> +#define CHAN_MASK_TOUCHBUTTON		(0x3 << 0)
+> +#define CHAN_MASK_TOUCHSCREEN_4WIRE	(0xf << 2)
+> +#define CHAN_MASK_TOUCHSCREEN_5WIRE	(0x1f << 2)
+> +	int			use_touchbutton:1;
+> +	int			use_touchscreen_4wire:1;
+> +	int			use_touchscreen_5wire:1;
+> +
+> +	struct input_dev	*ts_input;
+> +	struct work_struct	ts_work;
+>  };
+>  
+>  #define	LRADC_CTRL0				0x00
+> -#define LRADC_CTRL0_TOUCH_DETECT_ENABLE		(1 << 23)
+> -#define LRADC_CTRL0_TOUCH_SCREEN_TYPE		(1 << 22)
+> +#define	LRADC_CTRL0_TOUCH_DETECT_ENABLE		(1 << 23)
+> +#define	LRADC_CTRL0_TOUCH_SCREEN_TYPE		(1 << 22)
+> +#define	LRADC_CTRL0_YNNSW	/* YM */	(1 << 21)
+> +#define	LRADC_CTRL0_YPNSW	/* YP */	(1 << 20)
+> +#define	LRADC_CTRL0_YPPSW	/* YP */	(1 << 19)
+> +#define	LRADC_CTRL0_XNNSW	/* XM */	(1 << 18)
+> +#define	LRADC_CTRL0_XNPSW	/* XM */	(1 << 17)
+> +#define	LRADC_CTRL0_XPPSW	/* XP */	(1 << 16)
+> +#define	LRADC_CTRL0_PLATE_MASK			(0x3f << 16)
+>  
+>  #define	LRADC_CTRL1				0x10
+> -#define	LRADC_CTRL1_LRADC_IRQ(n)		(1 << (n))
+> -#define	LRADC_CTRL1_LRADC_IRQ_MASK		0x1fff
+> +#define	LRADC_CTRL1_TOUCH_DETECT_IRQ_EN		(1 << 24)
+>  #define	LRADC_CTRL1_LRADC_IRQ_EN(n)		(1 << ((n) + 16))
+>  #define	LRADC_CTRL1_LRADC_IRQ_EN_MASK		(0x1fff << 16)
+> +#define	LRADC_CTRL1_LRADC_IRQ_EN_OFFSET		16
+> +#define	LRADC_CTRL1_TOUCH_DETECT_IRQ		(1 << 8)
+> +#define	LRADC_CTRL1_LRADC_IRQ(n)		(1 << (n))
+> +#define	LRADC_CTRL1_LRADC_IRQ_MASK		0x1fff
+> +#define	LRADC_CTRL1_LRADC_IRQ_OFFSET		0
+>  
+>  #define	LRADC_CTRL2				0x20
+>  #define	LRADC_CTRL2_TEMPSENSE_PWD		(1 << 15)
+>  
+> +#define	LRADC_STATUS				0x40
+> +#define	LRADC_STATUS_TOUCH_DETECT_RAW		(1 << 0)
+> +
+>  #define	LRADC_CH(n)				(0x50 + (0x10 * (n)))
+>  #define	LRADC_CH_ACCUMULATE			(1 << 29)
+>  #define	LRADC_CH_NUM_SAMPLES_MASK		(0x1f << 24)
+> @@ -132,6 +197,7 @@ static int mxs_lradc_read_raw(struct iio_dev *iio_dev,
+>  {
+>  	struct mxs_lradc *lradc = iio_priv(iio_dev);
+>  	int ret;
+> +	unsigned long mask;
+>  
+>  	if (m != IIO_CHAN_INFO_RAW)
+>  		return -EINVAL;
+> @@ -140,6 +206,12 @@ static int mxs_lradc_read_raw(struct iio_dev *iio_dev,
+>  	if (chan->channel > LRADC_MAX_TOTAL_CHANS)
+>  		return -EINVAL;
+>  
+> +	/* Validate the channel if it doesn't intersect with reserved chans. */
+> +	bitmap_set(&mask, chan->channel, 1);
+> +	ret = iio_validate_scan_mask_onehot(iio_dev, &mask);
+> +	if (ret)
+> +		return -EINVAL;
+> +
+>  	/*
+>  	 * See if there is no buffered operation in progess. If there is, simply
+>  	 * bail out. This can be improved to support both buffered and raw IO at
+> @@ -161,7 +233,11 @@ static int mxs_lradc_read_raw(struct iio_dev *iio_dev,
+>  		lradc->base + LRADC_CTRL1 + STMP_OFFSET_REG_CLR);
+>  	writel(0xff, lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_CLR);
+>  
+> -	writel(chan->channel, lradc->base + LRADC_CTRL4);
+> +	/* Clean the slot's previous content, then set new one. */
+> +	writel(LRADC_CTRL4_LRADCSELECT_MASK(0),
+> +		lradc->base + LRADC_CTRL4 + STMP_OFFSET_REG_CLR);
+> +	writel(chan->channel, lradc->base + LRADC_CTRL4 + STMP_OFFSET_REG_SET);
+> +
+>  	writel(0, lradc->base + LRADC_CH(0));
+>  
+>  	/* Enable the IRQ and start sampling the channel. */
+> @@ -195,6 +271,243 @@ static const struct iio_info mxs_lradc_iio_info = {
+>  };
+>  
+>  /*
+> + * Touchscreen handling
+> + */
+> +enum lradc_ts_plate {
+> +	LRADC_SAMPLE_X,
+> +	LRADC_SAMPLE_Y,
+> +	LRADC_SAMPLE_PRESSURE,
+> +};
+> +
+> +static int mxs_lradc_ts_touched(struct mxs_lradc *lradc)
+> +{
+> +	uint32_t reg;
+> +
+> +	/* Enable touch detection. */
+> +	writel(LRADC_CTRL0_PLATE_MASK,
+> +		lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_CLR);
+> +	writel(LRADC_CTRL0_TOUCH_DETECT_ENABLE,
+> +		lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_SET);
+> +
+> +	msleep(LRADC_TS_SAMPLE_DELAY_MS);
+> +
+> +	reg = readl(lradc->base + LRADC_STATUS);
+> +
+> +	return reg & LRADC_STATUS_TOUCH_DETECT_RAW;
+> +}
+> +
+> +static int32_t mxs_lradc_ts_sample(struct mxs_lradc *lradc,
+> +				enum lradc_ts_plate plate, int change)
+> +{
+> +	unsigned long delay, jiff;
+> +	uint32_t reg, ctrl0 = 0, chan = 0;
+> +	/* The touchscreen always uses CTRL4 slot #7. */
+> +	const uint8_t slot = 7;
+> +	uint32_t val;
+> +
+> +	/*
+> +	 * There are three correct configurations of the controller sampling
+> +	 * the touchscreen, each of these configuration provides different
+> +	 * information from the touchscreen.
+> +	 *
+> +	 * The following table describes the sampling configurations:
+> +	 * +-------------+-------+-------+-------+
+> +	 * | Wire \ Axis |   X   |   Y   |   Z   |
+> +	 * +---------------------+-------+-------+
+> +	 * |   X+ (CH2)  |   HI  |   TS  |   TS  |
+> +	 * +-------------+-------+-------+-------+
+> +	 * |   X- (CH4)  |   LO  |   SH  |   HI  |
+> +	 * +-------------+-------+-------+-------+
+> +	 * |   Y+ (CH3)  |   SH  |   HI  |   HI  |
+> +	 * +-------------+-------+-------+-------+
+> +	 * |   Y- (CH5)  |   TS  |   LO  |   SH  |
+> +	 * +-------------+-------+-------+-------+
+> +	 *
+> +	 * HI ... strong '1'  ; LO ... strong '0'
+> +	 * SH ... sample here ; TS ... tri-state
+> +	 *
+> +	 * There are a few other ways of obtaining the Z coordinate
+> +	 * (aka. pressure), but the one in the table seems to be the
+> +	 * most reliable one.
+> +	 */
+> +	if (plate == LRADC_SAMPLE_X) {
+> +		ctrl0 = LRADC_CTRL0_XPPSW | LRADC_CTRL0_XNNSW;
+> +		chan = 3;
+> +	} else if (plate == LRADC_SAMPLE_Y) {
+> +		ctrl0 = LRADC_CTRL0_YPPSW | LRADC_CTRL0_YNNSW;
+> +		chan = 4;
+> +	} else if (plate == LRADC_SAMPLE_PRESSURE) {
+> +		ctrl0 = LRADC_CTRL0_YPPSW | LRADC_CTRL0_XNNSW;
+> +		chan = 5;
+> +	}
+> +
+> +	if (change) {
+> +		writel(LRADC_CTRL0_PLATE_MASK,
+> +			lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_CLR);
+> +		writel(ctrl0, lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_SET);
+> +
+> +		writel(LRADC_CTRL4_LRADCSELECT_MASK(slot),
+> +			lradc->base + LRADC_CTRL4 + STMP_OFFSET_REG_CLR);
+> +		writel(chan << LRADC_CTRL4_LRADCSELECT_OFFSET(slot),
+> +			lradc->base + LRADC_CTRL4 + STMP_OFFSET_REG_SET);
+> +	}
+> +
+> +	writel(0xffffffff, lradc->base + LRADC_CH(slot) + STMP_OFFSET_REG_CLR);
+> +	writel(1 << slot, lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_SET);
+> +
+> +	delay = jiffies + msecs_to_jiffies(LRADC_TS_SAMPLE_DELAY_MS);
+> +	do {
+> +		jiff = jiffies;
+> +		reg = readl_relaxed(lradc->base + LRADC_CTRL1);
+> +		if (reg & LRADC_CTRL1_LRADC_IRQ(slot))
+> +			break;
+> +	} while (time_before(jiff, delay));
+> +
+> +	writel(LRADC_CTRL1_LRADC_IRQ(slot),
+> +		lradc->base + LRADC_CTRL1 + STMP_OFFSET_REG_CLR);
+> +
+> +	if (time_after_eq(jiff, delay))
+> +		return -ETIMEDOUT;
+> +
+> +	val = readl(lradc->base + LRADC_CH(slot));
+> +	val &= LRADC_CH_VALUE_MASK;
+> +
+> +	return val;
+> +}
+> +
+> +static int32_t mxs_lradc_ts_sample_filter(struct mxs_lradc *lradc,
+> +				enum lradc_ts_plate plate)
+> +{
+> +	int32_t val, tot = 0;
+> +	int i;
+> +
+> +	val = mxs_lradc_ts_sample(lradc, plate, 1);
+> +
+> +	/* Delay a bit so the touchscreen is stable. */
+> +	mdelay(2);
+> +
+> +	for (i = 0; i < LRADC_TS_SAMPLE_AMOUNT; i++) {
+> +		val = mxs_lradc_ts_sample(lradc, plate, 0);
+> +		tot += val;
+> +	}
+> +
+> +	return tot / LRADC_TS_SAMPLE_AMOUNT;
+> +}
+> +static void mxs_lradc_ts_work(struct work_struct *ts_work)
+> +{
+> +	struct mxs_lradc *lradc = container_of(ts_work,
+> +				struct mxs_lradc, ts_work);
+> +	int val_x, val_y, val_p;
+> +	bool valid = false;
+> +
+> +	while (mxs_lradc_ts_touched(lradc)) {
+> +		/* Disable touch detector so we can sample the touchscreen. */
+> +		writel(LRADC_CTRL0_TOUCH_DETECT_ENABLE,
+> +			lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_CLR);
+> +
+> +		if (likely(valid)) {
+> +			input_report_abs(lradc->ts_input, ABS_X, val_x);
+> +			input_report_abs(lradc->ts_input, ABS_Y, val_y);
+> +			input_report_abs(lradc->ts_input, ABS_PRESSURE, val_p);
+> +			input_report_key(lradc->ts_input, BTN_TOUCH, 1);
+> +			input_sync(lradc->ts_input);
+> +		}
+> +
+> +		valid = false;
+> +
+> +		val_x = mxs_lradc_ts_sample_filter(lradc, LRADC_SAMPLE_X);
+> +		if (val_x < 0)
+> +			continue;
+> +		val_y = mxs_lradc_ts_sample_filter(lradc, LRADC_SAMPLE_Y);
+> +		if (val_y < 0)
+> +			continue;
+> +		val_p = mxs_lradc_ts_sample_filter(lradc, LRADC_SAMPLE_PRESSURE);
+> +		if (val_p < 0)
+> +			continue;
+> +
+> +		valid = true;
+> +	}
+> +
+> +	input_report_abs(lradc->ts_input, ABS_PRESSURE, 0);
+> +	input_report_key(lradc->ts_input, BTN_TOUCH, 0);
+> +	input_sync(lradc->ts_input);
+> +
+> +	/* Restart the touchscreen interrupts. */
+> +	writel(LRADC_CTRL1_TOUCH_DETECT_IRQ,
+> +		lradc->base + LRADC_CTRL1 + STMP_OFFSET_REG_CLR);
+> +	writel(LRADC_CTRL1_TOUCH_DETECT_IRQ_EN,
+> +		lradc->base + LRADC_CTRL1 + STMP_OFFSET_REG_SET);
+> +}
+> +
+> +static int mxs_lradc_ts_open(struct input_dev *dev)
+> +{
+> +	struct mxs_lradc *lradc = input_get_drvdata(dev);
+> +
+> +	writel(LRADC_CTRL0_TOUCH_DETECT_ENABLE,
+> +		lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_SET);
+> +	writel(LRADC_CTRL1_TOUCH_DETECT_IRQ_EN,
+> +		lradc->base + LRADC_CTRL1 + STMP_OFFSET_REG_SET);
+> +
+> +	return 0;
+> +}
+> +
+> +static void mxs_lradc_ts_close(struct input_dev *dev)
+> +{
+> +	struct mxs_lradc *lradc = input_get_drvdata(dev);
+> +
+> +	writel(LRADC_CTRL1_TOUCH_DETECT_IRQ_EN,
+> +		lradc->base + LRADC_CTRL1 + STMP_OFFSET_REG_CLR);
+> +	writel(LRADC_CTRL0_TOUCH_DETECT_ENABLE,
+> +		lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_CLR);
+> +}
+> +
+> +static int mxs_lradc_ts_register(struct mxs_lradc *lradc)
+> +{
+> +	struct input_dev *input;
+> +	struct device *dev = lradc->dev;
+> +
+> +	if (!(lradc->use_touchscreen_4wire || lradc->use_touchscreen_5wire))
+> +		return 0;
+> +
+> +	input = input_allocate_device();
+> +	if (!input) {
+> +		dev_warn(dev, "Failed to allocate TS device, disabling.\n");
+> +		lradc->use_touchscreen_4wire = 0;
+> +		lradc->use_touchscreen_5wire = 0;
+> +		return 0;
+> +	}
+> +
+> +	input->name = DRIVER_NAME;
+> +	input->id.bustype = BUS_HOST;
+> +	input->dev.parent = dev;
+> +	input->open = mxs_lradc_ts_open;
+> +	input->close = mxs_lradc_ts_close;
+> +
+> +	__set_bit(EV_ABS, input->evbit);
+> +	__set_bit(EV_KEY, input->evbit);
+> +	__set_bit(BTN_TOUCH, input->keybit);
+> +	input_set_abs_params(input, ABS_X, 0, LRADC_CH_VALUE_MASK, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, LRADC_CH_VALUE_MASK, 0, 0);
+> +	input_set_abs_params(input, ABS_PRESSURE, 0, LRADC_CH_VALUE_MASK, 0, 0);
+> +
+> +	lradc->ts_input = input;
+> +	input_set_drvdata(input, lradc);
+> +	return input_register_device(input);
+> +}
+> +
+> +static void mxs_lradc_ts_unregister(struct mxs_lradc *lradc)
+> +{
+> +	if (!(lradc->use_touchscreen_4wire || lradc->use_touchscreen_5wire))
+> +		return;
+> +
+> +	if (!lradc->ts_input)
+> +		return;
+> +
+> +	input_unregister_device(lradc->ts_input);
+> +	input_free_device(lradc->ts_input);
+> +}
+> +
+> +/*
+>   * IRQ Handling
+>   */
+>  static irqreturn_t mxs_lradc_handle_irq(int irq, void *data)
+> @@ -202,14 +515,23 @@ static irqreturn_t mxs_lradc_handle_irq(int irq, void *data)
+>  	struct iio_dev *iio = data;
+>  	struct mxs_lradc *lradc = iio_priv(iio);
+>  	unsigned long reg = readl(lradc->base + LRADC_CTRL1);
+> +	const uint32_t ts_irq_mask =
+> +		LRADC_CTRL1_TOUCH_DETECT_IRQ_EN |
+> +		LRADC_CTRL1_TOUCH_DETECT_IRQ;
+>  
+>  	if (!(reg & LRADC_CTRL1_LRADC_IRQ_MASK))
+>  		return IRQ_NONE;
+>  
+>  	/*
+> -	 * Touchscreen IRQ handling code shall probably have priority
+> -	 * and therefore shall be placed here.
+> +	 * Touchscreen IRQ handling code has priority and therefore
+> +	 * is placed here. In case touchscreen IRQ arrives, disable
+> +	 * it ASAP
+>  	 */
+> +	if (reg & LRADC_CTRL1_TOUCH_DETECT_IRQ) {
+> +		writel(ts_irq_mask,
+> +			lradc->base + LRADC_CTRL1 + STMP_OFFSET_REG_CLR);
+> +		schedule_work(&lradc->ts_work);
+> +	}
+>  
+>  	if (iio_buffer_enabled(iio))
+>  		iio_trigger_poll(iio->trig, iio_get_time_ns());
+> @@ -306,8 +628,10 @@ static int mxs_lradc_buffer_preenable(struct iio_dev *iio)
+>  {
+>  	struct mxs_lradc *lradc = iio_priv(iio);
+>  	struct iio_buffer *buffer = iio->buffer;
+> -	int ret = 0, chan, ofs = 0, enable = 0;
+> -	uint32_t ctrl4 = 0;
+> +	int ret = 0, chan, ofs = 0;
+> +	unsigned long enable = 0;
+> +	uint32_t ctrl4_set = 0;
+> +	uint32_t ctrl4_clr = 0;
+>  	uint32_t ctrl1_irq = 0;
+>  	const uint32_t chan_value = LRADC_CH_ACCUMULATE |
+>  		((LRADC_DELAY_TIMER_LOOP - 1) << LRADC_CH_NUM_SAMPLES_OFFSET);
+> @@ -339,17 +663,20 @@ static int mxs_lradc_buffer_preenable(struct iio_dev *iio)
+>  	writel(0xff, lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_CLR);
+>  
+>  	for_each_set_bit(chan, buffer->scan_mask, LRADC_MAX_TOTAL_CHANS) {
+> -		ctrl4 |= chan << LRADC_CTRL4_LRADCSELECT_OFFSET(ofs);
+> +		ctrl4_set |= chan << LRADC_CTRL4_LRADCSELECT_OFFSET(ofs);
+> +		ctrl4_clr |= LRADC_CTRL4_LRADCSELECT_MASK(ofs);
+>  		ctrl1_irq |= LRADC_CTRL1_LRADC_IRQ_EN(ofs);
+>  		writel(chan_value, lradc->base + LRADC_CH(ofs));
+> -		enable |= 1 << ofs;
+> +		bitmap_set(&enable, ofs, 1);
+>  		ofs++;
+>  	};
+>  
+>  	writel(LRADC_DELAY_TRIGGER_LRADCS_MASK | LRADC_DELAY_KICK,
+>  		lradc->base + LRADC_DELAY(0) + STMP_OFFSET_REG_CLR);
+>  
+> -	writel(ctrl4, lradc->base + LRADC_CTRL4);
+> +	writel(ctrl4_clr, lradc->base + LRADC_CTRL4 + STMP_OFFSET_REG_CLR);
+> +	writel(ctrl4_set, lradc->base + LRADC_CTRL4 + STMP_OFFSET_REG_SET);
+> +
+>  	writel(ctrl1_irq, lradc->base + LRADC_CTRL1 + STMP_OFFSET_REG_SET);
+>  
+>  	writel(enable << LRADC_DELAY_TRIGGER_LRADCS_OFFSET,
+> @@ -384,9 +711,33 @@ static int mxs_lradc_buffer_postdisable(struct iio_dev *iio)
+>  static bool mxs_lradc_validate_scan_mask(struct iio_dev *iio,
+>  					const unsigned long *mask)
+>  {
+> -	const int mw = bitmap_weight(mask, iio->masklength);
+> -
+> -	return mw <= LRADC_MAX_MAPPED_CHANS;
+> +	struct mxs_lradc *lradc = iio_priv(iio);
+> +	const int len = iio->masklength;
+> +	const int map_chans = bitmap_weight(mask, len);
+> +	int rsvd_chans = 0;
+> +	unsigned long rsvd_mask = 0;
+> +
+> +	if (lradc->use_touchbutton)
+> +		rsvd_mask |= CHAN_MASK_TOUCHBUTTON;
+> +	if (lradc->use_touchscreen_4wire)
+> +		rsvd_mask |= CHAN_MASK_TOUCHSCREEN_4WIRE;
+> +	if (lradc->use_touchscreen_5wire)
+> +		rsvd_mask |= CHAN_MASK_TOUCHSCREEN_5WIRE;
+> +
+> +	if (lradc->use_touchbutton)
+> +		rsvd_chans++;
+> +	if (lradc->use_touchscreen_4wire || lradc->use_touchscreen_5wire)
+> +		rsvd_chans++;
+> +
+> +	/* Test for attempts to map channels with special mode of operation. */
+> +	if (bitmap_intersects(mask, &rsvd_mask, len))
+> +		return 0;
+> +
+> +	/* Test for attempts to map more channels then available slots. */
+> +	if (map_chans + rsvd_chans > LRADC_MAX_MAPPED_CHANS)
+> +		return 0;
+> +
+> +	return 1;
+>  }
+>  
+>  static const struct iio_buffer_setup_ops mxs_lradc_buffer_ops = {
+> @@ -435,15 +786,29 @@ static const struct iio_chan_spec mxs_lradc_chan_spec[] = {
+>  
+>  static void mxs_lradc_hw_init(struct mxs_lradc *lradc)
+>  {
+> -	int i;
+> -	const uint32_t cfg =
+> +	/* The ADC always uses DELAY CHANNEL 0. */
+> +	const uint32_t adc_cfg =
+> +		(1 << (LRADC_DELAY_TRIGGER_DELAYS_OFFSET + 0)) |
+>  		(LRADC_DELAY_TIMER_PER << LRADC_DELAY_DELAY_OFFSET);
+>  
+>  	stmp_reset_block(lradc->base);
+>  
+> -	for (i = 0; i < LRADC_MAX_DELAY_CHANS; i++)
+> -		writel(cfg | (1 << (LRADC_DELAY_TRIGGER_DELAYS_OFFSET + i)),
+> -			lradc->base + LRADC_DELAY(i));
+> +	/* Configure DELAY CHANNEL 0 for generic ADC sampling. */
+> +	writel(adc_cfg, lradc->base + LRADC_DELAY(0));
+> +
+> +	/* Disable remaining DELAY CHANNELs */
+> +	writel(0, lradc->base + LRADC_DELAY(1));
+> +	writel(0, lradc->base + LRADC_DELAY(2));
+> +	writel(0, lradc->base + LRADC_DELAY(3));
+> +
+> +	/* Configure the touchscreen type */
+> +	if (lradc->use_touchscreen_4wire) {
+> +		writel(LRADC_CTRL0_TOUCH_SCREEN_TYPE,
+> +			lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_CLR);
+> +	} else if (lradc->use_touchscreen_5wire) {
+> +		writel(LRADC_CTRL0_TOUCH_SCREEN_TYPE,
+> +			lradc->base + LRADC_CTRL0 + STMP_OFFSET_REG_SET);
+> +	}
+>  
+>  	/* Start internal temperature sensing. */
+>  	writel(0, lradc->base + LRADC_CTRL2);
+> @@ -463,9 +828,11 @@ static void mxs_lradc_hw_stop(struct mxs_lradc *lradc)
+>  static int __devinit mxs_lradc_probe(struct platform_device *pdev)
+>  {
+>  	struct device *dev = &pdev->dev;
+> +	struct device_node *node = dev->of_node;
+>  	struct mxs_lradc *lradc;
+>  	struct iio_dev *iio;
+>  	struct resource *iores;
+> +	uint32_t ts_wires = 0;
+>  	int ret = 0;
+>  	int i;
+>  
+> @@ -487,6 +854,21 @@ static int __devinit mxs_lradc_probe(struct platform_device *pdev)
+>  		goto err_addr;
+>  	}
+>  
+> +	INIT_WORK(&lradc->ts_work, mxs_lradc_ts_work);
+> +
+> +	/* Check if touchscreen is enabled in DT. */
+> +	ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
+> +				&ts_wires);
+> +	if (ret)
+> +		dev_info(dev, "Touchscreen not enabled.\n");
+> +	else if (ts_wires == 4)
+> +		lradc->use_touchscreen_4wire = 1;
+> +	else if (ts_wires == 5)
+> +		lradc->use_touchscreen_5wire = 1;
+> +	else
+> +		dev_warn(dev, "Unsupported number of touchscreen wires (%d)\n",
+> +				ts_wires);
+> +
+>  	/* Grab all IRQ sources */
+>  	for (i = 0; i < 13; i++) {
+>  		lradc->irq[i] = platform_get_irq(pdev, i);
+> @@ -524,11 +906,16 @@ static int __devinit mxs_lradc_probe(struct platform_device *pdev)
+>  	if (ret)
+>  		goto err_trig;
+>  
+> +	/* Register the touchscreen input device. */
+> +	ret = mxs_lradc_ts_register(lradc);
+> +	if (ret)
+> +		goto err_dev;
+> +
+>  	/* Register IIO device. */
+>  	ret = iio_device_register(iio);
+>  	if (ret) {
+>  		dev_err(dev, "Failed to register IIO device\n");
+> -		goto err_dev;
+> +		goto err_ts;
+>  	}
+>  
+>  	/* Configure the hardware. */
+> @@ -536,6 +923,8 @@ static int __devinit mxs_lradc_probe(struct platform_device *pdev)
+>  
+>  	return 0;
+>  
+> +err_ts:
+> +	mxs_lradc_ts_unregister(lradc);
+>  err_dev:
+>  	mxs_lradc_trigger_remove(iio);
+>  err_trig:
+> @@ -550,6 +939,10 @@ static int __devexit mxs_lradc_remove(struct platform_device *pdev)
+>  	struct iio_dev *iio = platform_get_drvdata(pdev);
+>  	struct mxs_lradc *lradc = iio_priv(iio);
+>  
+> +	mxs_lradc_ts_unregister(lradc);
+> +
+> +	cancel_work_sync(&lradc->ts_work);
+> +
+>  	mxs_lradc_hw_stop(lradc);
+>  
+>  	iio_device_unregister(iio);
+> 

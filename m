@@ -1,155 +1,41 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH 1/2] HID: autodetect USB HID sensor hubs.
-Date: Mon, 10 Dec 2012 16:56:33 +0000
-Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91C960695@ORSMSX108.amr.corp.intel.com>
-References: <50C47811.7010503@ahsoftware.de>
- <1355053470-3939-1-git-send-email-holler@ahsoftware.de>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH v6] Cypress PS/2 Trackpad driver
+Date: Mon, 10 Dec 2012 18:13:59 +0100
+Message-ID: <20121210171359.GA881@polaris.bitmath.org>
+References: <1354846216-19707-1-git-send-email-kamal@canonical.com>
+ <20121208125405.GA3183@polaris.bitmath.org>
+ <1354986225.2795.107.camel@fourier>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1355053470-3939-1-git-send-email-holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
-Content-Language: en-US
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matteo DAMENO <matteo.dameno-qxv4g6HH51o@public.gmane.org>
-Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:44366 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751310Ab2LJRL2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Dec 2012 12:11:28 -0500
+Content-Disposition: inline
+In-Reply-To: <1354986225.2795.107.camel@fourier>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kamal Mostafa <kamal@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dudley Du <dudl@cypress.com>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
 
-Hi Mateo,
+> > > +config MOUSE_PS2_CYPRESS
+> > > +       bool "Cypress PS/2 mouse protocol extension" if EXPERT
+> > 
+> > Why EXPERT here?
+> > 
+> > > +       default y
+> > 
+> > Should it really be default y here?
+> 
+> 
+> This config entry (with phrases "if EXPERT" and "default y") was simply
+> cloned from similar devices (e.g. SYNAPTICS, ALPS, LIFEBOOK).
+> 
+> If your preference is that CYPRESS should be disabled by default, I'll
+> omit those phrases.  Please advise.
 
-Can you give a try with these patches and make sure that it doesn't break functionality with STM sensor hub?
+Dmitry, which default do you prefer here?
 
-Thanks,
-Srinivas
-
------Original Message-----
-From: Alexander Holler [mailto:holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org] 
-Sent: Sunday, December 09, 2012 3:45 AM
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Jonathan Cameron; Jiri Kosina; Pandruvada, Srinivas; Alexander Holler
-Subject: [PATCH 1/2] HID: autodetect USB HID sensor hubs.
-
-It should not be necessary to add IDs for HID sensor hubs to lists in hid-core.c and hid-sensor-hub.c. So instead of a whitelist, autodetect such USB HID sensor hubs, based on a collection of type physical inside a useage page of type sensor. If some sensor hubs stil must be usable as raw devices, a blacklist might be created.
-
-Signed-off-by: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
----
- drivers/hid/hid-core.c         |   11 ++++++++++-
- drivers/hid/hid-sensor-hub.c   |   32 +-------------------------------
- include/linux/hid-sensor-ids.h |    1 -
- include/linux/hid.h            |    2 ++
- 4 files changed, 13 insertions(+), 33 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c index f4109fd..7df5399 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -713,7 +713,12 @@ static int hid_scan_report(struct hid_device *hid)
- 					hid_scan_usage(hid, u);
- 				break;
- 			}
--		}
-+		} else if (page == HID_UP_SENSOR &&
-+			item.type == HID_ITEM_TYPE_MAIN &&
-+			item.tag == HID_MAIN_ITEM_TAG_BEGIN_COLLECTION &&
-+			(item_udata(&item) & 0xff) == HID_COLLECTION_PHYSICAL &&
-+			hid->bus == BUS_USB)
-+			hid->group = HID_GROUP_SENSOR_HUB;
- 	}
- 
- 	return 0;
-@@ -1465,6 +1470,10 @@ EXPORT_SYMBOL_GPL(hid_disconnect);
-  * there is a proper autodetection and autoloading in place (based on presence
-  * of HID_DG_CONTACTID), so those devices don't need to be added to this list,
-  * as we are doing the right thing in hid_scan_usage().
-+ *
-+ * Autodetection for (USB) HID sensor hubs exists too. If a collection 
-+ of type
-+ * physical is found inside a usage page of type sensor, hid-sensor-hub 
-+ will be
-+ * used as a driver. See hid_scan_report().
-  */
- static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) }, diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c index d9d73e9..ca88ddc 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -82,23 +82,6 @@ struct hid_sensor_hub_callbacks_list {
- 	void *priv;
- };
- 
--static int sensor_hub_check_for_sensor_page(struct hid_device *hdev) -{
--	int i;
--	int ret = -EINVAL;
--
--	for (i = 0; i < hdev->maxcollection; i++) {
--		struct hid_collection *col = &hdev->collection[i];
--		if (col->type == HID_COLLECTION_PHYSICAL &&
--		   (col->usage & HID_USAGE_PAGE) == HID_UP_SENSOR) {
--			ret = 0;
--			break;
--		}
--	}
--
--	return ret;
--}
--
- static struct hid_report *sensor_hub_report(int id, struct hid_device *hdev,
- 						int dir)
- {
-@@ -524,10 +507,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 		hid_err(hdev, "parse failed\n");
- 		goto err_free;
- 	}
--	if (sensor_hub_check_for_sensor_page(hdev) < 0) {
--		hid_err(hdev, "sensor page not found\n");
--		goto err_free;
--	}
- 	INIT_LIST_HEAD(&hdev->inputs);
- 
- 	ret = hid_hw_start(hdev, 0);
-@@ -630,16 +609,7 @@ static void sensor_hub_remove(struct hid_device *hdev)  }
- 
- static const struct hid_device_id sensor_hub_devices[] = {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086,
--			USB_DEVICE_ID_SENSOR_HUB_1020) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
--			USB_DEVICE_ID_SENSOR_HUB_1020) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086,
--			USB_DEVICE_ID_SENSOR_HUB_09FA) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
--			USB_DEVICE_ID_SENSOR_HUB_09FA) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
--			USB_DEVICE_ID_SENSOR_HUB_7014) },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_SENSOR_HUB, HID_ANY_ID, HID_ANY_ID) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, sensor_hub_devices); diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h index ca8d7e9..55f2773 100644
---- a/include/linux/hid-sensor-ids.h
-+++ b/include/linux/hid-sensor-ids.h
-@@ -19,7 +19,6 @@
- #ifndef _HID_SENSORS_IDS_H
- #define _HID_SENSORS_IDS_H
- 
--#define HID_UP_SENSOR						0x00200000
- #define HID_MAX_PHY_DEVICES					0xFF
- 
- /* Accel 3D (200073) */
-diff --git a/include/linux/hid.h b/include/linux/hid.h index c076041..c5f6ec2 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -167,6 +167,7 @@ struct hid_item {
- #define HID_UP_MSVENDOR		0xff000000
- #define HID_UP_CUSTOM		0x00ff0000
- #define HID_UP_LOGIVENDOR	0xffbc0000
-+#define HID_UP_SENSOR		0x00200000
- 
- #define HID_USAGE		0x0000ffff
- 
-@@ -292,6 +293,7 @@ struct hid_item {
-  */
- #define HID_GROUP_GENERIC			0x0001
- #define HID_GROUP_MULTITOUCH			0x0002
-+#define HID_GROUP_SENSOR_HUB			0x0003
- 
- /*
-  * This is the global environment of the parser. This information is
---
-1.7.8.6
+Henrik

@@ -1,411 +1,155 @@
-From: Chris Moeller <kode54-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 0/1] Input: xpad - Implement wireless controller LED
- setting and fix connect time LED setting
-Date: Mon, 10 Dec 2012 05:24:02 -0800
-Message-ID: <20121210052402.3ddb0020@umaro.lan>
-References: <20121130135406.38c9bdc9@umaro.lan>
-	<1994333.0mnJMZMWGT@dtor-d630.eng.vmware.com>
-	<20121130201329.3f8aefa0@umaro.lan>
-	<20121203074318.GC28682@core.coreip.homeip.net>
-	<20121210025825.197ddc25@umaro.lan>
-	<20121210044354.5d562079@umaro.lan>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 1/2] HID: autodetect USB HID sensor hubs.
+Date: Mon, 10 Dec 2012 16:56:33 +0000
+Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91C960695@ORSMSX108.amr.corp.intel.com>
+References: <50C47811.7010503@ahsoftware.de>
+ <1355053470-3939-1-git-send-email-holler@ahsoftware.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121210044354.5d562079-mv0dIculHdT/PtFMR13I2A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chris Moeller <kode54-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1355053470-3939-1-git-send-email-holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Content-Language: en-US
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matteo DAMENO <matteo.dameno-qxv4g6HH51o@public.gmane.org>
+Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 10 Dec 2012 04:43:54 -0800
-Chris Moeller <kode54-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+Hi Mateo,
 
-> On Mon, 10 Dec 2012 02:58:25 -0800
-> Chris Moeller <kode54-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> 
-> > On Sun, 2 Dec 2012 23:43:18 -0800
-> > Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > 
-> > > On Fri, Nov 30, 2012 at 08:13:29PM -0800, Chris Moeller wrote:
-> > > > On Fri, 30 Nov 2012 14:30:23 -0800
-> > > > Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > > > 
-> > > > > Hi Chris,
-> > > > > 
-> > > > > On Friday, November 30, 2012 01:54:06 PM Chris Moeller wrote:
-> > > > > > I've submitted versions of this with prior patch sets, and
-> > > > > > this part was never accepted, possibly because it depended
-> > > > > > on other patches to work, or possibly because it wasn't so
-> > > > > > cleanly organized. This time, I've split the LED setting
-> > > > > > command off into its own static function, then call that on
-> > > > > > controller connect and optionally on LED setting commands.
-> > > > > > The static function does not include any locking, because
-> > > > > > locking inside the function which receives the incoming
-> > > > > > packets deadlocks the driver, and does not appear to be
-> > > > > > necessary anyway.
-> > > > > > 
-> > > > > > It also removes all traces of the original bulk out function
-> > > > > > which was designed for the purpose of setting the LED status
-> > > > > > on connect, as I found that it actually does not work at
-> > > > > > all. It appears to try to send the data, but nothing
-> > > > > > actually happens to the controller LEDs.
-> > > > > 
-> > > > > Attached is a reply I sent to on 7/4/11 to which you
-> > > > > unfortunately never responded. The issue is that of force
-> > > > > feedback (rumble) and LED share the same URB then access to
-> > > > > that URB should be arbitrated. The attached message contains a
-> > > > > patch that attempts to implement that arbitration, could you
-> > > > > please try it out and see what changes are needed to make it
-> > > > > work?
-> > > > > 
-> > > > > Thanks.
-> > > > > 
-> > > > 
-> > > > So sorry I missed your reply. That's what I get for filtering
-> > > > the mailing list messages past my inbox, then never following
-> > > > up on my filter/folder set for replies to my own messages. I
-> > > > recall you mentioned that potential race condition when I first
-> > > > submitted, but I forgot to do anything about it. I'm glad at
-> > > > least one of us has our stuff together. It seems to work just
-> > > > fine, but there may be a force feedback issue with the
-> > > > following test program, where it leaves the effect playing
-> > > > indefinitely after the program terminates, and then the
-> > > > controller itself ceases to respond until the module is removed
-> > > > and reloaded.
-> > > 
-> > > Just to confirm, you see this problem only with the patch being
-> > > discussed and do not see it without it, right?
-> > > 
-> > 
-> > Yeah, the problem only happens with this patch. Here's a silly mess
-> > which fixes it. If you can think of a better way to handle pending
-> > commands outside of the IRQ, be my guest. The problem seems to be
-> > that it doesn't like sending further commands from inside the
-> > output irq callback, so further commands are not sent, and the
-> > spinlock is left locked or something. So it seems that it needs to
-> > be such that the callback merely signals when the packet has
-> > completed sending, and the actual queue must be handled outside of
-> > the irq, and somehow kindly wait for the irq to complete for each
-> > command. Unless, you know, there's some other way to queue up
-> > multiple commands without waiting on each one to complete. I know
-> > bulk out doesn't work for the LED setting command, at least.
-> > Anyway, here goes.
-> 
-> Disregard this patch, it locks up frequently. I'm working on something
-> else instead.
+Can you give a try with these patches and make sure that it doesn't break functionality with STM sensor hub?
 
-Okay, this one seems to work. LED setting doesn't lock up like the old
-mutex regulated LED setting mode, and I can successfully power off and
-on the controller while that previously posted test program is still
-running on the event device, without the LED setting clobbering the
-rumble packets, and vice versa.
+Thanks,
+Srinivas
 
+-----Original Message-----
+From: Alexander Holler [mailto:holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org] 
+Sent: Sunday, December 09, 2012 3:45 AM
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Jonathan Cameron; Jiri Kosina; Pandruvada, Srinivas; Alexander Holler
+Subject: [PATCH 1/2] HID: autodetect USB HID sensor hubs.
+
+It should not be necessary to add IDs for HID sensor hubs to lists in hid-core.c and hid-sensor-hub.c. So instead of a whitelist, autodetect such USB HID sensor hubs, based on a collection of type physical inside a useage page of type sensor. If some sensor hubs stil must be usable as raw devices, a blacklist might be created.
+
+Signed-off-by: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
 ---
-diff -urpN a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
---- a/drivers/input/joystick/xpad.c	2012-12-10 03:59:14.407669714 -0800
-+++ b/drivers/input/joystick/xpad.c	2012-12-10 05:13:22.835479280 -0800
-@@ -259,19 +259,17 @@ struct usb_xpad {
- 	struct usb_interface *intf;	/* usb interface */
+ drivers/hid/hid-core.c         |   11 ++++++++++-
+ drivers/hid/hid-sensor-hub.c   |   32 +-------------------------------
+ include/linux/hid-sensor-ids.h |    1 -
+ include/linux/hid.h            |    2 ++
+ 4 files changed, 13 insertions(+), 33 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c index f4109fd..7df5399 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -713,7 +713,12 @@ static int hid_scan_report(struct hid_device *hid)
+ 					hid_scan_usage(hid, u);
+ 				break;
+ 			}
+-		}
++		} else if (page == HID_UP_SENSOR &&
++			item.type == HID_ITEM_TYPE_MAIN &&
++			item.tag == HID_MAIN_ITEM_TAG_BEGIN_COLLECTION &&
++			(item_udata(&item) & 0xff) == HID_COLLECTION_PHYSICAL &&
++			hid->bus == BUS_USB)
++			hid->group = HID_GROUP_SENSOR_HUB;
+ 	}
  
- 	int pad_present;
-+	int interface_number;
- 
- 	struct urb *irq_in;		/* urb for interrupt in report */
- 	unsigned char *idata;		/* input data */
- 	dma_addr_t idata_dma;
- 
--	struct urb *bulk_out;
--	unsigned char *bdata;
--
- #if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
- 	struct urb *irq_out;		/* urb for interrupt out report */
- 	unsigned char *odata;		/* output data */
- 	dma_addr_t odata_dma;
--	struct mutex odata_mutex;
-+	spinlock_t odata_lock;
- #endif
- 
- #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
-@@ -441,13 +439,15 @@ static void xpad360_process_packet(struc
-  *
+ 	return 0;
+@@ -1465,6 +1470,10 @@ EXPORT_SYMBOL_GPL(hid_disconnect);
+  * there is a proper autodetection and autoloading in place (based on presence
+  * of HID_DG_CONTACTID), so those devices don't need to be added to this list,
+  * as we are doing the right thing in hid_scan_usage().
++ *
++ * Autodetection for (USB) HID sensor hubs exists too. If a collection 
++ of type
++ * physical is found inside a usage page of type sensor, hid-sensor-hub 
++ will be
++ * used as a driver. See hid_scan_report().
   */
- 
-+static void xpad_send_led_command(struct usb_xpad *xpad, int command);
-+
- static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
- {
- 	/* Presence change */
- 	if (data[0] & 0x08) {
- 		if (data[1] & 0x80) {
- 			xpad->pad_present = 1;
--			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
-+			xpad_send_led_command(xpad, 16);
- 		} else
- 			xpad->pad_present = 0;
- 	}
-@@ -502,29 +502,6 @@ exit:
- 			__func__, retval);
- }
- 
--static void xpad_bulk_out(struct urb *urb)
--{
--	struct usb_xpad *xpad = urb->context;
--	struct device *dev = &xpad->intf->dev;
--
--	switch (urb->status) {
--	case 0:
--		/* success */
--		break;
--	case -ECONNRESET:
--	case -ENOENT:
--	case -ESHUTDOWN:
--		/* this urb is terminated, clean up */
--		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
--			__func__, urb->status);
--		break;
--	default:
--		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
--			__func__, urb->status);
--	}
--}
--
--#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
- static void xpad_irq_out(struct urb *urb)
- {
- 	struct usb_xpad *xpad = urb->context;
-@@ -574,7 +551,7 @@ static int xpad_init_output(struct usb_i
- 		goto fail1;
- 	}
- 
--	mutex_init(&xpad->odata_mutex);
-+	spin_lock_init(&xpad->odata_lock);
- 
- 	xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!xpad->irq_out) {
-@@ -610,15 +587,12 @@ static void xpad_deinit_output(struct us
- 				xpad->odata, xpad->odata_dma);
- 	}
- }
--#else
--static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
--static void xpad_deinit_output(struct usb_xpad *xpad) {}
--static void xpad_stop_output(struct usb_xpad *xpad) {}
--#endif
- 
- #ifdef CONFIG_JOYSTICK_XPAD_FF
- static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
- {
-+	int retval;
-+	unsigned long flags;
- 	struct usb_xpad *xpad = input_get_drvdata(dev);
- 
- 	if (effect->type == FF_RUMBLE) {
-@@ -628,6 +602,7 @@ static int xpad_play_effect(struct input
- 		switch (xpad->xtype) {
- 
- 		case XTYPE_XBOX:
-+			spin_lock_irqsave(&xpad->odata_lock, flags);
- 			xpad->odata[0] = 0x00;
- 			xpad->odata[1] = 0x06;
- 			xpad->odata[2] = 0x00;
-@@ -636,9 +611,13 @@ static int xpad_play_effect(struct input
- 			xpad->odata[5] = weak / 256;	/* right actuator */
- 			xpad->irq_out->transfer_buffer_length = 6;
- 
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+			retval = usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+			spin_unlock_irqrestore(&xpad->odata_lock, flags);
-+
-+			return retval;
- 
- 		case XTYPE_XBOX360:
-+			spin_lock_irqsave(&xpad->odata_lock, flags);
- 			xpad->odata[0] = 0x00;
- 			xpad->odata[1] = 0x08;
- 			xpad->odata[2] = 0x00;
-@@ -649,9 +628,13 @@ static int xpad_play_effect(struct input
- 			xpad->odata[7] = 0x00;
- 			xpad->irq_out->transfer_buffer_length = 8;
- 
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+			retval = usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+			spin_unlock_irqrestore(&xpad->odata_lock, flags);
-+
-+			return retval;
- 
- 		case XTYPE_XBOX360W:
-+			spin_lock_irqsave(&xpad->odata_lock, flags);
- 			xpad->odata[0] = 0x00;
- 			xpad->odata[1] = 0x01;
- 			xpad->odata[2] = 0x0F;
-@@ -666,7 +649,10 @@ static int xpad_play_effect(struct input
- 			xpad->odata[11] = 0x00;
- 			xpad->irq_out->transfer_buffer_length = 12;
- 
--			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+			retval = usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
-+			spin_unlock_irqrestore(&xpad->odata_lock, flags);
-+
-+			return retval;
- 
- 		default:
- 			dev_dbg(&xpad->dev->dev,
-@@ -693,6 +679,43 @@ static int xpad_init_ff(struct usb_xpad
- static int xpad_init_ff(struct usb_xpad *xpad) { return 0; }
- #endif
- 
-+static void xpad_send_led_command(struct usb_xpad *xpad, int command)
-+{
-+	unsigned long flags;
-+	if (xpad->xtype == XTYPE_XBOX360) {
-+		if (command >= 0 && command < 14) {
-+			spin_lock_irqsave(&xpad->odata_lock, flags);
-+			xpad->odata[0] = 0x01;
-+			xpad->odata[1] = 0x03;
-+			xpad->odata[2] = command;
-+			xpad->irq_out->transfer_buffer_length = 3;
-+			usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+			spin_unlock_irqrestore(&xpad->odata_lock, flags);
-+		}
-+	} else if (xpad->xtype == XTYPE_XBOX360W) {
-+		if (command >= 0 && command < 17) {
-+			if (command == 16)
-+				command = 0x02 + xpad->interface_number;
-+			spin_lock_irqsave(&xpad->odata_lock, flags);
-+			xpad->odata[0] = 0x00;
-+			xpad->odata[1] = 0x00;
-+			xpad->odata[2] = 0x08;
-+			xpad->odata[3] = 0x40 + command;
-+			xpad->odata[4] = 0x00;
-+			xpad->odata[5] = 0x00;
-+			xpad->odata[6] = 0x00;
-+			xpad->odata[7] = 0x00;
-+			xpad->odata[8] = 0x00;
-+			xpad->odata[9] = 0x00;
-+			xpad->odata[10] = 0x00;
-+			xpad->odata[11] = 0x00;
-+			xpad->irq_out->transfer_buffer_length = 12;
-+			usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+			spin_unlock_irqrestore(&xpad->odata_lock, flags);
-+		}
-+	}
-+}
-+
- #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
- #include <linux/leds.h>
- 
-@@ -702,19 +725,6 @@ struct xpad_led {
- 	struct usb_xpad *xpad;
+ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) }, diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c index d9d73e9..ca88ddc 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -82,23 +82,6 @@ struct hid_sensor_hub_callbacks_list {
+ 	void *priv;
  };
  
--static void xpad_send_led_command(struct usb_xpad *xpad, int command)
--{
--	if (command >= 0 && command < 14) {
--		mutex_lock(&xpad->odata_mutex);
--		xpad->odata[0] = 0x01;
--		xpad->odata[1] = 0x03;
--		xpad->odata[2] = command;
--		xpad->irq_out->transfer_buffer_length = 3;
--		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
--		mutex_unlock(&xpad->odata_mutex);
+-static int sensor_hub_check_for_sensor_page(struct hid_device *hdev) -{
+-	int i;
+-	int ret = -EINVAL;
+-
+-	for (i = 0; i < hdev->maxcollection; i++) {
+-		struct hid_collection *col = &hdev->collection[i];
+-		if (col->type == HID_COLLECTION_PHYSICAL &&
+-		   (col->usage & HID_USAGE_PAGE) == HID_UP_SENSOR) {
+-			ret = 0;
+-			break;
+-		}
 -	}
+-
+-	return ret;
 -}
 -
- static void xpad_led_set(struct led_classdev *led_cdev,
- 			 enum led_brightness value)
+ static struct hid_report *sensor_hub_report(int id, struct hid_device *hdev,
+ 						int dir)
  {
-@@ -732,7 +742,7 @@ static int xpad_led_probe(struct usb_xpa
- 	struct led_classdev *led_cdev;
- 	int error;
- 
--	if (xpad->xtype != XTYPE_XBOX360)
-+	if (xpad->xtype != XTYPE_XBOX360 && xpad->xtype != XTYPE_XBOX360W)
- 		return 0;
- 
- 	xpad->led = led = kzalloc(sizeof(struct xpad_led), GFP_KERNEL);
-@@ -758,7 +768,8 @@ static int xpad_led_probe(struct usb_xpa
- 	/*
- 	 * Light up the segment corresponding to controller number
- 	 */
--	xpad_send_led_command(xpad, (led_no % 4) + 2);
-+	if (xpad->xtype == XTYPE_XBOX360)
-+		xpad_send_led_command(xpad, (led_no % 4) + 2);
- 
- 	return 0;
- }
-@@ -960,42 +971,7 @@ static int xpad_probe(struct usb_interfa
- 	usb_set_intfdata(intf, xpad);
- 
- 	if (xpad->xtype == XTYPE_XBOX360W) {
--		/*
--		 * Setup the message to set the LEDs on the
--		 * controller when it shows up
--		 */
--		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
--		if (!xpad->bulk_out) {
--			error = -ENOMEM;
--			goto fail7;
--		}
--
--		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
--		if (!xpad->bdata) {
--			error = -ENOMEM;
--			goto fail8;
--		}
--
--		xpad->bdata[2] = 0x08;
--		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
--		case 0:
--			xpad->bdata[3] = 0x42;
--			break;
--		case 2:
--			xpad->bdata[3] = 0x43;
--			break;
--		case 4:
--			xpad->bdata[3] = 0x44;
--			break;
--		case 6:
--			xpad->bdata[3] = 0x45;
--		}
--
--		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
--		usb_fill_bulk_urb(xpad->bulk_out, udev,
--				usb_sndbulkpipe(udev, ep_irq_in->bEndpointAddress),
--				xpad->bdata, XPAD_PKT_LEN, xpad_bulk_out, xpad);
--
-+		xpad->interface_number = intf->cur_altsetting->desc.bInterfaceNumber / 2;
- 		/*
- 		 * Submit the int URB immediately rather than waiting for open
- 		 * because we get status messages from the device whether
-@@ -1006,13 +982,11 @@ static int xpad_probe(struct usb_interfa
- 		xpad->irq_in->dev = xpad->udev;
- 		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
- 		if (error)
--			goto fail9;
-+			goto fail7;
+@@ -524,10 +507,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 		hid_err(hdev, "parse failed\n");
+ 		goto err_free;
  	}
+-	if (sensor_hub_check_for_sensor_page(hdev) < 0) {
+-		hid_err(hdev, "sensor page not found\n");
+-		goto err_free;
+-	}
+ 	INIT_LIST_HEAD(&hdev->inputs);
  
- 	return 0;
+ 	ret = hid_hw_start(hdev, 0);
+@@ -630,16 +609,7 @@ static void sensor_hub_remove(struct hid_device *hdev)  }
  
-- fail9:	kfree(xpad->bdata);
-- fail8:	usb_free_urb(xpad->bulk_out);
-  fail7:	input_unregister_device(input_dev);
- 	input_dev = NULL;
-  fail6:	xpad_led_disconnect(xpad);
-@@ -1036,8 +1010,6 @@ static void xpad_disconnect(struct usb_i
- 	xpad_deinit_output(xpad);
+ static const struct hid_device_id sensor_hub_devices[] = {
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086,
+-			USB_DEVICE_ID_SENSOR_HUB_1020) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
+-			USB_DEVICE_ID_SENSOR_HUB_1020) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8086,
+-			USB_DEVICE_ID_SENSOR_HUB_09FA) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_INTEL_8087,
+-			USB_DEVICE_ID_SENSOR_HUB_09FA) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
+-			USB_DEVICE_ID_SENSOR_HUB_7014) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_SENSOR_HUB, HID_ANY_ID, HID_ANY_ID) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, sensor_hub_devices); diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h index ca8d7e9..55f2773 100644
+--- a/include/linux/hid-sensor-ids.h
++++ b/include/linux/hid-sensor-ids.h
+@@ -19,7 +19,6 @@
+ #ifndef _HID_SENSORS_IDS_H
+ #define _HID_SENSORS_IDS_H
  
- 	if (xpad->xtype == XTYPE_XBOX360W) {
--		usb_kill_urb(xpad->bulk_out);
--		usb_free_urb(xpad->bulk_out);
- 		usb_kill_urb(xpad->irq_in);
- 	}
+-#define HID_UP_SENSOR						0x00200000
+ #define HID_MAX_PHY_DEVICES					0xFF
  
-@@ -1045,9 +1017,6 @@ static void xpad_disconnect(struct usb_i
- 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
- 			xpad->idata, xpad->idata_dma);
+ /* Accel 3D (200073) */
+diff --git a/include/linux/hid.h b/include/linux/hid.h index c076041..c5f6ec2 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -167,6 +167,7 @@ struct hid_item {
+ #define HID_UP_MSVENDOR		0xff000000
+ #define HID_UP_CUSTOM		0x00ff0000
+ #define HID_UP_LOGIVENDOR	0xffbc0000
++#define HID_UP_SENSOR		0x00200000
  
--	kfree(xpad->bdata);
--	kfree(xpad);
+ #define HID_USAGE		0x0000ffff
+ 
+@@ -292,6 +293,7 @@ struct hid_item {
+  */
+ #define HID_GROUP_GENERIC			0x0001
+ #define HID_GROUP_MULTITOUCH			0x0002
++#define HID_GROUP_SENSOR_HUB			0x0003
+ 
+ /*
+  * This is the global environment of the parser. This information is
+--
+1.7.8.6

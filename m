@@ -1,1122 +1,888 @@
-From: Dudley Du <dudl@cypress.com>
-Subject: RE: [PATCH v6] Cypress PS/2 Trackpad driver
-Date: Sun, 9 Dec 2012 21:44:39 -0500
-Message-ID: <B27AC323FA92C946BA36D2913DDC8E370234D9A175FF@VMBX126.ihostexchange.net>
-References: <1354846216-19707-1-git-send-email-kamal@canonical.com>
- <20121208125405.GA3183@polaris.bitmath.org>
+From: Chris Moeller <kode54@gmail.com>
+Subject: Re: [PATCH v2 0/1] Input: xpad - Implement wireless controller LED
+ setting and fix connect time LED setting
+Date: Mon, 10 Dec 2012 02:58:25 -0800
+Message-ID: <20121210025825.197ddc25@umaro.lan>
+References: <20121130135406.38c9bdc9@umaro.lan>
+	<1994333.0mnJMZMWGT@dtor-d630.eng.vmware.com>
+	<20121130201329.3f8aefa0@umaro.lan>
+	<20121203074318.GC28682@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121208125405.GA3183@polaris.bitmath.org>
-Content-Language: zh-CN
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, Kamal Mostafa <kamal@canonical.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Solda <dso@cypress.com>, Troy Abercrombia <ta@cypress.com>, Kyle Fazzari <git@status.e4ward.com>, Mario Limonciello <mario_limonciello@dell.com>, Tim Gardner <tim.gardner@canonical.com>, Herton Krzesinski <herton.krzesinski@canonical.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:39286 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752547Ab2LJK7Z (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Dec 2012 05:59:25 -0500
+In-Reply-To: <20121203074318.GC28682@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-Hi Kamal,
+On Sun, 2 Dec 2012 23:43:18 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-I think in default branch in cypress_get_finger_count() function return 0 is not suitable,
-We should return a value bigger than 5 to indicate invalid package to avoid unable to distinguish really 0 contact_cnt packages.
-0 contact_cnt packages may still have valid left/right mechanical button events data, so cannot be mixed together.
-otherwise cypress_validate_byte() function cannot filter out invalid package data.
-Could you help double check with it,
-Thanks.
+> On Fri, Nov 30, 2012 at 08:13:29PM -0800, Chris Moeller wrote:
+> > On Fri, 30 Nov 2012 14:30:23 -0800
+> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > 
+> > > Hi Chris,
+> > > 
+> > > On Friday, November 30, 2012 01:54:06 PM Chris Moeller wrote:
+> > > > I've submitted versions of this with prior patch sets, and this
+> > > > part was never accepted, possibly because it depended on other
+> > > > patches to work, or possibly because it wasn't so cleanly
+> > > > organized. This time, I've split the LED setting command off
+> > > > into its own static function, then call that on controller
+> > > > connect and optionally on LED setting commands. The static
+> > > > function does not include any locking, because locking inside
+> > > > the function which receives the incoming packets deadlocks the
+> > > > driver, and does not appear to be necessary anyway.
+> > > > 
+> > > > It also removes all traces of the original bulk out function
+> > > > which was designed for the purpose of setting the LED status on
+> > > > connect, as I found that it actually does not work at all. It
+> > > > appears to try to send the data, but nothing actually happens
+> > > > to the controller LEDs.
+> > > 
+> > > Attached is a reply I sent to on 7/4/11 to which you unfortunately
+> > > never responded. The issue is that of force feedback (rumble) and
+> > > LED share the same URB then access to that URB should be
+> > > arbitrated. The attached message contains a patch that attempts
+> > > to implement that arbitration, could you please try it out and
+> > > see what changes are needed to make it work?
+> > > 
+> > > Thanks.
+> > > 
+> > 
+> > So sorry I missed your reply. That's what I get for filtering the
+> > mailing list messages past my inbox, then never following up on my
+> > filter/folder set for replies to my own messages. I recall you
+> > mentioned that potential race condition when I first submitted, but
+> > I forgot to do anything about it. I'm glad at least one of us has
+> > our stuff together. It seems to work just fine, but there may be a
+> > force feedback issue with the following test program, where it
+> > leaves the effect playing indefinitely after the program
+> > terminates, and then the controller itself ceases to respond until
+> > the module is removed and reloaded.
+> 
+> Just to confirm, you see this problem only with the patch being
+> discussed and do not see it without it, right?
+> 
 
-> > This driver, submitted on behalf of Cypress Semiconductor Corporation
-> > and additional contributors, provides support for the Cypress PS/2 Trackpad.
-> >
-> > Note that the patch "increase struct ps2dev cmdbuf[] to 8 bytes" [5]
-> > is a PREREQUISITE for this patch.
-> >
-> > This [PATCH v6] version differs from my previous submitted version[4]:
-> >
-> >   Changes as recommended by Dmitry Torokhov:
-> >
-> >   - patches #2 (main driver) and #3 (link in driver) have been merged.
-> >   - eliminated cytp_dbg(), is_cypress_key(), and cypress_set_abs_rel_mode().
-> >   - restructured cypress_validate_byte() and cypress_reset().
-> >   - stopped unnecessary fiddling with psmouse->pktsize.
-> >   - fixed cypress_read_cmd_status() printf.
-> >   - removed unused members from struct cytp_data.
-> >   - misc code and comment style cleanups.
-> >
-> > Known problems:  None.
-> >
-> >  -Kamal Mostafa <kamal@canonical.com>
-> >
-> > [0] PATCH v1: http://www.spinics.net/lists/linux-input/msg23690.html
-> > [1] PATCH v2: http://www.spinics.net/lists/linux-input/msg23718.html
-> > [2] PATCH v3: http://www.spinics.net/lists/linux-input/msg23943.html
-> > [3] PATCH v4: http://www.spinics.net/lists/linux-input/msg24047.html
-> > [4] PATCH v5: http://www.spinics.net/lists/linux-input/msg24096.html
-> > [5] cmdbuf patch:
-> > http://www.spinics.net/lists/linux-input/msg24095.html
-> >
-> > -- >8 --
-> > From: Dudley Du <dudl@cypress.com>
-> > Subject: [PATCH v6] input: Cypress PS/2 Trackpad psmouse driver
-> >
-> > Input/mouse driver for Cypress PS/2 Trackpad.
-> >
-> > Original code contributed by Dudley Du (Cypress Semiconductor
-> > Corporation), modified by Kamal Mostafa and Kyle Fazzari.
-> >
-> > BugLink: http://launchpad.net/bugs/978807
-> >
-> > Signed-off-by: Dudley Du <dudl@cypress.com>
-> > Signed-off-by: Kamal Mostafa <kamal@canonical.com>
-> > Signed-off-by: Kyle Fazzari <git@status.e4ward.com>
-> > Signed-off-by: Mario Limonciello <mario_limonciello@dell.com>
-> > Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
-> > Acked-by: Herton Krzesinski <herton.krzesinski@canonical.com>
-> > ---
-> >  drivers/input/mouse/Kconfig        |   10 +
-> >  drivers/input/mouse/Makefile       |    1 +
-> >  drivers/input/mouse/cypress_ps2.c  |  719
-> > ++++++++++++++++++++++++++++++++++++
-> >  drivers/input/mouse/cypress_ps2.h  |  191 ++++++++++
-> >  drivers/input/mouse/psmouse-base.c |   32 ++
-> >  drivers/input/mouse/psmouse.h      |    1 +
-> >  6 files changed, 954 insertions(+)
-> >  create mode 100644 drivers/input/mouse/cypress_ps2.c  create mode
-> > 100644 drivers/input/mouse/cypress_ps2.h
-> >
-> > diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-> > index cd6268c..88954dd 100644
-> > --- a/drivers/input/mouse/Kconfig
-> > +++ b/drivers/input/mouse/Kconfig
-> > @@ -68,6 +68,16 @@ config MOUSE_PS2_SYNAPTICS
-> >
-> >       If unsure, say Y.
-> >
-> > +config MOUSE_PS2_CYPRESS
-> > +       bool "Cypress PS/2 mouse protocol extension" if EXPERT
->
-> Why EXPERT here?
->
-> > +       default y
->
-> Should it really be default y here?
->
-> > +       depends on MOUSE_PS2
-> > +       help
-> > +         Say Y here if you have a Cypress PS/2 Trackpad connected to
-> > +         your system.
-> > +
-> > +         If unsure, say Y.
-> > +
-> >  config MOUSE_PS2_LIFEBOOK
-> >     bool "Fujitsu Lifebook PS/2 mouse protocol extension" if EXPERT
-> >     default y
-> > diff --git a/drivers/input/mouse/Makefile
-> > b/drivers/input/mouse/Makefile index 46ba755..323e352 100644
-> > --- a/drivers/input/mouse/Makefile
-> > +++ b/drivers/input/mouse/Makefile
-> > @@ -32,3 +32,4 @@ psmouse-$(CONFIG_MOUSE_PS2_LIFEBOOK)      += lifebook.o
-> >  psmouse-$(CONFIG_MOUSE_PS2_SENTELIC)       += sentelic.o
-> >  psmouse-$(CONFIG_MOUSE_PS2_TRACKPOINT)     += trackpoint.o
-> >  psmouse-$(CONFIG_MOUSE_PS2_TOUCHKIT)       += touchkit_ps2.o
-> > +psmouse-$(CONFIG_MOUSE_PS2_CYPRESS)        += cypress_ps2.o
-> > diff --git a/drivers/input/mouse/cypress_ps2.c
-> > b/drivers/input/mouse/cypress_ps2.c
-> > new file mode 100644
-> > index 0000000..310cb49
-> > --- /dev/null
-> > +++ b/drivers/input/mouse/cypress_ps2.c
-> > @@ -0,0 +1,719 @@
-> > +/*
-> > + * Cypress Trackpad PS/2 mouse driver
-> > + *
-> > + * Copyright (c) 2012 Cypress Semiconductor Corporation.
-> > + *
-> > + * Author:
-> > + *   Dudley Du <dudl@cypress.com>
-> > + *
-> > + * Additional contributors include:
-> > + *   Kamal Mostafa <kamal@canonical.com>
-> > + *   Kyle Fazzari <git@status.e4ward.com>
-> > + *
-> > + * This program is free software; you can redistribute it and/or
-> > +modify it
-> > + * under the terms of the GNU General Public License version 2 as
-> > +published by
-> > + * the Free Software Foundation.
-> > + */
-> > +
-> > +#include <linux/init.h>
-> > +#include <linux/module.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/slab.h>
-> > +#include <linux/serio.h>
-> > +#include <linux/libps2.h>
-> > +#include <linux/input.h>
-> > +#include <linux/input/mt.h>
-> > +#include <linux/sched.h>
-> > +#include <linux/wait.h>
-> > +
-> > +#include "cypress_ps2.h"
-> > +
-> > +#undef CYTP_DEBUG_VERBOSE  /* define this and DEBUG for more verbose
-> > +dump */
-> > +
-> > +static void cypress_set_packet_size(struct psmouse *psmouse, unsigned
-> > +int n) {
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +   cytp->pkt_size = n;
-> > +}
-> > +
-> > +static const unsigned char cytp_rate[] = {10, 20, 40, 60, 100, 200};
-> > +static const unsigned char cytp_resolution[] = {0x00, 0x01, 0x02,
-> > +0x03};
-> > +
-> > +static int cypress_ps2_sendbyte(struct psmouse *psmouse, int value) {
-> > +   struct ps2dev *ps2dev = &psmouse->ps2dev;
-> > +
-> > +   if (ps2_sendbyte(ps2dev, value & 0xff, CYTP_CMD_TIMEOUT) < 0) {
-> > +           psmouse_dbg(psmouse,
-> > +                           "send command 0x%02x failed, resp 0x%02x\n",
-> > +                           value & 0xff, ps2dev->nak);
-> > +           if (ps2dev->nak == CYTP_PS2_RETRY)
-> > +                   return CYTP_PS2_RETRY;
-> > +           else
-> > +                   return CYTP_PS2_ERROR;
-> > +   }
-> > +
-> > +#ifdef CYTP_DEBUG_VERBOSE
-> > +   psmouse_dbg(psmouse, "send command 0x%02x success, resp 0xfa\n",
-> > +                   value & 0xff);
-> > +#endif
-> > +
-> > +   return 0;
-> > +}
-> > +
-> > +static int cypress_ps2_ext_cmd(struct psmouse *psmouse, unsigned short cmd,
-> > +                          unsigned char data)
-> > +{
-> > +   struct ps2dev *ps2dev = &psmouse->ps2dev;
-> > +   int tries = CYTP_PS2_CMD_TRIES;
-> > +   int rc;
-> > +
-> > +   ps2_begin_command(ps2dev);
-> > +
-> > +   do {
-> > +           /*
-> > +            * Send extension command byte (0xE8 or 0xF3).
-> > +            * If sending the command fails, send recovery command
-> > +            * to make the device return to the ready state.
-> > +            */
-> > +           rc = cypress_ps2_sendbyte(psmouse, cmd & 0xff);
-> > +           if (rc == CYTP_PS2_RETRY) {
-> > +                   rc = cypress_ps2_sendbyte(psmouse, 0x00);
-> > +                   if (rc == CYTP_PS2_RETRY)
-> > +                           rc = cypress_ps2_sendbyte(psmouse, 0x0a);
-> > +           }
-> > +           if (rc == CYTP_PS2_ERROR)
-> > +                   continue;
-> > +
-> > +           rc = cypress_ps2_sendbyte(psmouse, data);
-> > +           if (rc == CYTP_PS2_RETRY)
-> > +                   rc = cypress_ps2_sendbyte(psmouse, data);
-> > +           if (rc == CYTP_PS2_ERROR)
-> > +                   continue;
-> > +           else
-> > +                   break;
-> > +   } while (--tries > 0);
-> > +
-> > +   ps2_end_command(ps2dev);
-> > +
-> > +   return rc;
-> > +}
-> > +
-> > +static int cypress_ps2_read_cmd_status(struct psmouse *psmouse,
-> > +                                  unsigned char cmd,
-> > +                                  unsigned char *param)
-> > +{
-> > +   int rc;
-> > +   struct ps2dev *ps2dev = &psmouse->ps2dev;
-> > +   enum psmouse_state old_state;
-> > +   int pktsize;
-> > +
-> > +   ps2_begin_command(&psmouse->ps2dev);
-> > +
-> > +   old_state = psmouse->state;
-> > +   psmouse->state = PSMOUSE_CMD_MODE;
-> > +   psmouse->pktcnt = 0;
-> > +
-> > +   pktsize = (cmd == CYTP_CMD_READ_TP_METRICS) ? 8 : 3;
-> > +   memset(param, 0, pktsize);
-> > +
-> > +   rc = cypress_ps2_sendbyte(psmouse, 0xe9);
-> > +   if (rc < 0)
-> > +           goto out;
-> > +
-> > +   wait_event_timeout(ps2dev->wait,
-> > +                   (psmouse->pktcnt >= pktsize),
-> > +                   msecs_to_jiffies(CYTP_CMD_TIMEOUT));
-> > +
-> > +   memcpy(param, psmouse->packet, pktsize);
-> > +
-> > +   psmouse_dbg(psmouse, "Command 0x%02x response data (0x): %*ph\n",
-> > +                   cmd, pktsize, param);
-> > +
-> > +out:
-> > +   psmouse->state = old_state;
-> > +   psmouse->pktcnt = 0;
-> > +
-> > +   ps2_end_command(&psmouse->ps2dev);
-> > +
-> > +   return rc;
-> > +}
-> > +
-> > +static int cypress_verify_cmd_state(struct psmouse *psmouse,
-> > +                               unsigned char cmd, unsigned char *param) {
-> > +   bool rate_match = 0;
-> > +   bool resolution_match = 0;
-> > +   int i;
-> > +
-> > +   /* callers will do further checking. */
-> > +   if (cmd == CYTP_CMD_READ_CYPRESS_ID ||
-> > +       cmd == CYTP_CMD_STANDARD_MODE ||
-> > +       cmd == CYTP_CMD_READ_TP_METRICS)
-> > +           return 0;
-> > +   if ((~param[0] & DFLT_RESP_BITS_VALID) == DFLT_RESP_BITS_VALID &&
-> > +       (param[0] & DFLT_RESP_BIT_MODE) == DFLT_RESP_STREAM_MODE) {
-> > +           for (i = 0; i < sizeof(cytp_resolution); i++)
-> > +                   if (cytp_resolution[i] == param[1])
-> > +                           resolution_match =  1;
-> > +
-> > +           for (i = 0; i < sizeof(cytp_rate); i++)
-> > +                   if (cytp_rate[i] == param[2])
-> > +                           rate_match = 1;
-> > +
-> > +           if (resolution_match && rate_match)
-> > +                   return 0;
-> > +   }
-> > +
-> > +   psmouse_dbg(psmouse, "verify cmd state failed.\n");
-> > +   return -1;
-> > +}
-> > +
-> > +static int cypress_send_ext_cmd(struct psmouse *psmouse, unsigned char cmd,
-> > +                           unsigned char *param)
-> > +{
-> > +   int tries = CYTP_PS2_CMD_TRIES;
-> > +   int rc;
-> > +
-> > +   psmouse_dbg(psmouse, "send extension cmd 0x%02x, [%d %d %d %d]\n",
-> > +            cmd, DECODE_CMD_AA(cmd), DECODE_CMD_BB(cmd),
-> > +            DECODE_CMD_CC(cmd), DECODE_CMD_DD(cmd));
-> > +   do {
-> > +           cypress_ps2_ext_cmd(psmouse,
-> > +                               PSMOUSE_CMD_SETRES, DECODE_CMD_DD(cmd));
-> > +           cypress_ps2_ext_cmd(psmouse,
-> > +                               PSMOUSE_CMD_SETRES, DECODE_CMD_CC(cmd));
-> > +           cypress_ps2_ext_cmd(psmouse,
-> > +                               PSMOUSE_CMD_SETRES, DECODE_CMD_BB(cmd));
-> > +           cypress_ps2_ext_cmd(psmouse,
-> > +                               PSMOUSE_CMD_SETRES, DECODE_CMD_AA(cmd));
-> > +
-> > +           rc = cypress_ps2_read_cmd_status(psmouse, cmd, param);
-> > +           if (rc)
-> > +                   continue;
-> > +
-> > +           rc = cypress_verify_cmd_state(psmouse, cmd, param);
-> > +           if (rc == 0)
-> > +                   return 0;
-> > +   } while (--tries > 0);
-> > +
-> > +   return -1;
-> > +}
-> > +
-> > +int cypress_detect(struct psmouse *psmouse, bool set_properties) {
-> > +   unsigned char param[3];
-> > +
-> > +   if (cypress_send_ext_cmd(psmouse, CYTP_CMD_READ_CYPRESS_ID, param))
-> > +           return -ENODEV;
-> > +
-> > +   /* Check for Cypress Trackpad signature bytes: 0x33 0xCC */
-> > +   if (param[0] != 0x33 || param[1] != 0xCC)
-> > +           return -ENODEV;
-> > +
-> > +   if (set_properties) {
-> > +           psmouse->vendor = "Cypress";
-> > +           psmouse->name = "Trackpad";
-> > +   }
-> > +
-> > +   return 0;
-> > +}
-> > +
-> > +static int cypress_read_fw_version(struct psmouse *psmouse) {
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +   unsigned char param[3];
-> > +
-> > +   if (cypress_send_ext_cmd(psmouse, CYTP_CMD_READ_CYPRESS_ID, param))
-> > +           return -ENODEV;
-> > +
-> > +   /* Check for Cypress Trackpad signature bytes: 0x33 0xCC */
-> > +   if (param[0] != 0x33 || param[1] != 0xCC)
-> > +           return -ENODEV;
-> > +
-> > +   cytp->fw_version = param[2] & FW_VERSION_MASX;
-> > +   cytp->tp_metrics_supported = (param[2] & TP_METRICS_MASK) ? 1 : 0;
-> > +
-> > +   psmouse_dbg(psmouse, "cytp->fw_version = %d\n", cytp->fw_version);
-> > +   psmouse_dbg(psmouse, "cytp->tp_metrics_supported = %d\n",
-> > +            cytp->tp_metrics_supported);
-> > +   return 0;
-> > +}
-> > +
-> > +static int cypress_read_tp_metrics(struct psmouse *psmouse) {
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +   unsigned char param[8];
-> > +
-> > +   /* set default values for tp metrics. */
-> > +   cytp->tp_width = CYTP_DEFAULT_WIDTH;
-> > +   cytp->tp_high = CYTP_DEFAULT_HIGH;
-> > +   cytp->tp_max_abs_x = CYTP_ABS_MAX_X;
-> > +   cytp->tp_max_abs_y = CYTP_ABS_MAX_Y;
-> > +   cytp->tp_min_pressure = CYTP_MIN_PRESSURE;
-> > +   cytp->tp_max_pressure = CYTP_MAX_PRESSURE;
-> > +   cytp->tp_res_x = cytp->tp_max_abs_x / cytp->tp_width;
-> > +   cytp->tp_res_y = cytp->tp_max_abs_y / cytp->tp_high;
-> > +
-> > +   memset(param, 0, sizeof(param));
-> > +   if (cypress_send_ext_cmd(psmouse, CYTP_CMD_READ_TP_METRICS, param) == 0) {
-> > +           /* Update trackpad parameters. */
-> > +           cytp->tp_max_abs_x = (param[1] << 8) | param[0];
-> > +           cytp->tp_max_abs_y = (param[3] << 8) | param[2];
-> > +           cytp->tp_min_pressure = param[4];
-> > +           cytp->tp_max_pressure = param[5];
-> > +   }
-> > +
-> > +   if (!cytp->tp_max_pressure ||
-> > +       cytp->tp_max_pressure < cytp->tp_min_pressure ||
-> > +       !cytp->tp_width || !cytp->tp_high ||
-> > +       !cytp->tp_max_abs_x ||
-> > +       cytp->tp_max_abs_x < cytp->tp_width ||
-> > +       !cytp->tp_max_abs_y ||
-> > +       cytp->tp_max_abs_y < cytp->tp_high)
-> > +           return -1;
-> > +
-> > +   cytp->tp_res_x = cytp->tp_max_abs_x / cytp->tp_width;
-> > +   cytp->tp_res_y = cytp->tp_max_abs_y / cytp->tp_high;
-> > +
-> > +#ifdef CYTP_DEBUG_VERBOSE
-> > +   psmouse_dbg(psmouse, "Dump trackpad hardware configuration as below:\n");
-> > +   psmouse_dbg(psmouse, "cytp->tp_width = %d\n", cytp->tp_width);
-> > +   psmouse_dbg(psmouse, "cytp->tp_high = %d\n", cytp->tp_high);
-> > +   psmouse_dbg(psmouse, "cytp->tp_max_abs_x = %d\n", cytp->tp_max_abs_x);
-> > +   psmouse_dbg(psmouse, "cytp->tp_max_abs_y = %d\n", cytp->tp_max_abs_y);
-> > +   psmouse_dbg(psmouse, "cytp->tp_min_pressure = %d\n", cytp->tp_min_pressure);
-> > +   psmouse_dbg(psmouse, "cytp->tp_max_pressure = %d\n", cytp->tp_max_pressure);
-> > +   psmouse_dbg(psmouse, "cytp->tp_res_x = %d\n", cytp->tp_res_x);
-> > +   psmouse_dbg(psmouse, "cytp->tp_res_y = %d\n", cytp->tp_res_y);
-> > +
-> > +   psmouse_dbg(psmouse, "tp_type_APA = %d\n",
-> > +                   (param[6] & TP_METRICS_BIT_APA) ? 1 : 0);
-> > +   psmouse_dbg(psmouse, "tp_type_MTG = %d\n",
-> > +                   (param[6] & TP_METRICS_BIT_MTG) ? 1 : 0);
-> > +   psmouse_dbg(psmouse, "tp_palm = %d\n",
-> > +                   (param[6] & TP_METRICS_BIT_PALM) ? 1 : 0);
-> > +   psmouse_dbg(psmouse, "tp_stubborn = %d\n",
-> > +                   (param[6] & TP_METRICS_BIT_STUBBORN) ? 1 : 0);
-> > +   psmouse_dbg(psmouse, "tp_1f_jitter = %d\n",
-> > +                   (param[6] & TP_METRICS_BIT_1F_JITTER) >> 2);
-> > +   psmouse_dbg(psmouse, "tp_2f_jitter = %d\n",
-> > +                   (param[6] & TP_METRICS_BIT_2F_JITTER) >> 4);
-> > +   psmouse_dbg(psmouse, "tp_1f_spike = %d\n",
-> > +                   param[7] & TP_METRICS_BIT_1F_SPIKE);
-> > +   psmouse_dbg(psmouse, "tp_2f_spike = %d\n",
-> > +                   (param[7] & TP_METRICS_BIT_2F_SPIKE) >> 2);
-> > +   psmouse_dbg(psmouse, "tp_abs_packet_format_set = %d\n",
-> > +                   (param[7] & TP_METRICS_BIT_ABS_PKT_FORMAT_SET) >> 4); #endif
-> > +
-> > +   return 0;
-> > +}
-> > +
-> > +static int cypress_query_hardware(struct psmouse *psmouse) {
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +   int ret;
-> > +
-> > +   ret = cypress_read_fw_version(psmouse);
-> > +   if (ret)
-> > +           return ret;
-> > +
-> > +   if (cytp->tp_metrics_supported) {
-> > +           ret = cypress_read_tp_metrics(psmouse);
-> > +           if (ret)
-> > +                   return ret;
-> > +   }
-> > +
-> > +   return 0;
-> > +}
-> > +
-> > +static int cypress_set_absolute_mode(struct psmouse *psmouse) {
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +   unsigned char param[3];
-> > +
-> > +   if (cypress_send_ext_cmd(psmouse, CYTP_CMD_ABS_WITH_PRESSURE_MODE, param) < 0)
-> > +           return -1;
-> > +
-> > +   cytp->mode = (cytp->mode & ~CYTP_BIT_ABS_REL_MASK)
-> > +                   | CYTP_BIT_ABS_PRESSURE;
-> > +   cypress_set_packet_size(psmouse, 5);
-> > +
-> > +   return 0;
-> > +}
-> > +
-> > +/*
-> > + * Reset trackpad device.
-> > + * This is also the default mode when trackpad powered on.
-> > + */
-> > +static void cypress_reset(struct psmouse *psmouse) {
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +
-> > +   cytp->mode = 0;
-> > +
-> > +   psmouse_reset(psmouse);
-> > +}
-> > +
-> > +static int cypress_set_input_params(struct input_dev *input,
-> > +                               struct cytp_data *cytp)
-> > +{
-> > +   int ret;
-> > +
-> > +   if (!cytp->tp_res_x || !cytp->tp_res_y)
-> > +           return -EINVAL;
-> > +
-> > +   __set_bit(EV_ABS, input->evbit);
-> > +   input_set_abs_params(input, ABS_X, 0, cytp->tp_max_abs_x, 0, 0);
-> > +   input_set_abs_params(input, ABS_Y, 0, cytp->tp_max_abs_y, 0, 0);
-> > +   input_set_abs_params(input, ABS_PRESSURE,
-> > +                        cytp->tp_min_pressure, cytp->tp_max_pressure, 0, 0);
-> > +   input_set_abs_params(input, ABS_TOOL_WIDTH, 0, 255, 0, 0);
-> > +
-> > +   /* finger position */
-> > +   input_set_abs_params(input, ABS_MT_POSITION_X, 0, cytp->tp_max_abs_x, 0, 0);
-> > +   input_set_abs_params(input, ABS_MT_POSITION_Y, 0, cytp->tp_max_abs_y, 0, 0);
-> > +   input_set_abs_params(input, ABS_MT_PRESSURE, 0, 255, 0, 0);
-> > +
-> > +   ret = input_mt_init_slots(input, CYTP_MAX_MT_SLOTS,
-> > +                   INPUT_MT_DROP_UNUSED|INPUT_MT_TRACK);
-> > +   if (ret < 0)
-> > +           return ret;
-> > +
-> > +   __set_bit(INPUT_PROP_SEMI_MT, input->propbit);
-> > +
-> > +   input_abs_set_res(input, ABS_X, cytp->tp_res_x);
-> > +   input_abs_set_res(input, ABS_Y, cytp->tp_res_y);
-> > +
-> > +   input_abs_set_res(input, ABS_MT_POSITION_X, cytp->tp_res_x);
-> > +   input_abs_set_res(input, ABS_MT_POSITION_Y, cytp->tp_res_y);
-> > +
-> > +   __set_bit(BTN_TOUCH, input->keybit);
-> > +   __set_bit(BTN_TOOL_FINGER, input->keybit);
-> > +   __set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-> > +   __set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
-> > +   __set_bit(BTN_TOOL_QUADTAP, input->keybit);
-> > +   __set_bit(BTN_TOOL_QUINTTAP, input->keybit);
-> > +
-> > +   __clear_bit(EV_REL, input->evbit);
-> > +   __clear_bit(REL_X, input->relbit);
-> > +   __clear_bit(REL_Y, input->relbit);
-> > +
-> > +   __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-> > +   __set_bit(EV_KEY, input->evbit);
-> > +   __set_bit(BTN_LEFT, input->keybit);
-> > +   __set_bit(BTN_RIGHT, input->keybit);
-> > +   __set_bit(BTN_MIDDLE, input->keybit);
-> > +
-> > +   input_set_drvdata(input, cytp);
-> > +
-> > +   return 0;
-> > +}
-> > +
-> > +static int cypress_get_finger_count(unsigned char header_byte) {
-> > +   unsigned char bits6_7;
-> > +   int finger_count;
-> > +
-> > +   bits6_7 = header_byte >> 6;
-> > +   finger_count = bits6_7 & 0x03;
-> > +
-> > +   if (finger_count == 1)
-> > +           return 1;
-> > +
-> > +   if (header_byte & ABS_HSCROLL_BIT) {
-> > +           /* HSCROLL gets added on to 0 finger count. */
-> > +           switch (finger_count) {
-> > +                   case 0: return(4);
->
-> No parenthesis on return.
->
-> > +                   case 2: return(5);
-> > +                   default:
-> > +                           /* Invalid contact (e.g. palm). Ignore it. */
-> > +                           return(0);
+Yeah, the problem only happens with this patch. Here's a silly mess
+which fixes it. If you can think of a better way to handle pending
+commands outside of the IRQ, be my guest. The problem seems to be that
+it doesn't like sending further commands from inside the output irq
+callback, so further commands are not sent, and the spinlock is left
+locked or something. So it seems that it needs to be such that the
+callback merely signals when the packet has completed sending, and the
+actual queue must be handled outside of the irq, and somehow kindly
+wait for the irq to complete for each command. Unless, you know,
+there's some other way to queue up multiple commands without waiting on
+each one to complete. I know bulk out doesn't work for the LED setting
+command, at least. Anyway, here goes.
 
-I suggest to return 6 (bigger than 5) to indicate invalid header byte value detected.
-
-> > +           }
-> > +   }
-> > +
-> > +   return finger_count;
-> > +}
-> > +
-> > +
-> > +static int cypress_parse_packet(struct psmouse *psmouse,
-> > +                           struct cytp_data *cytp, struct cytp_report_data *report_data) {
-> > +   unsigned char *packet = psmouse->packet;
-> > +   unsigned char header_byte = packet[0];
-> > +
-> > +   memset(report_data, 0, sizeof(struct cytp_report_data));
-> > +
-> > +   report_data->contact_cnt = cypress_get_finger_count(header_byte);
-> > +
-> > +   if (report_data->contact_cnt == 0) /* e.g. palm detect */
-> > +           return 0;
-
-Depending on my suggestion, should add contact_cnt > 5 check here, and equal to 0 checking should be removed.
-
-When invalid contact_cnt is checked, we can ignore these data.
-But for though really contact_cnt value is 0 packages, we should still go on to process it, cannot return immediately,
-Because 0 contact_cnt package still can report left/right mechanical button events.
-
-if (report_data->contact_cnt > 5) {
-        report_data->contact_cnt = 0;
-        return 0;
-}
-
-
-> > +   report_data->tap = (header_byte & ABS_MULTIFINGER_TAP) ? 1 : 0;
-> > +
-> > +   if (report_data->contact_cnt == 1) {
-> > +           report_data->contacts[0].x =
-> > +                   ((packet[1] & 0x70) << 4) | packet[2];
-> > +           report_data->contacts[0].y =
-> > +                   ((packet[1] & 0x07) << 8) | packet[3];
-> > +           if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
-> > +                   report_data->contacts[0].z = packet[4];
-> > +
-> > +   } else if (report_data->contact_cnt >= 2) {
-> > +           report_data->contacts[0].x =
-> > +                   ((packet[1] & 0x70) << 4) | packet[2];
-> > +           report_data->contacts[0].y =
-> > +                   ((packet[1] & 0x07) << 8) | packet[3];
-> > +           if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
-> > +                   report_data->contacts[0].z = packet[4];
-> > +
-> > +           report_data->contacts[1].x =
-> > +                   ((packet[5] & 0xf0) << 4) | packet[6];
-> > +           report_data->contacts[1].y =
-> > +                   ((packet[5] & 0x0f) << 8) | packet[7];
-> > +           if (cytp->mode & CYTP_BIT_ABS_PRESSURE)
-> > +                   report_data->contacts[1].z = report_data->contacts[0].z;
-> > +   }
-> > +
-> > +   report_data->left = (header_byte & BTN_LEFT_BIT) ? 1 : 0;
-> > +   report_data->right = (header_byte & BTN_RIGHT_BIT) ? 1 : 0;
-> > +
-> > +   /*
-> > +    * This is only true if one of the mouse buttons were tapped.  Make
-> > +    * sure it doesn't turn into a click. The regular tap-to-click
-> > +    * functionality will handle that on its own. If we don't do this,
-> > +    * disabling tap-to-click won't affect the mouse button zones.
-> > +    */
-> > +   if (report_data->tap)
-> > +           report_data->left = 0;
-> > +
-> > +#ifdef CYTP_DEBUG_VERBOSE
-> > +   {
-> > +           int i;
-> > +           int n = report_data->contact_cnt;
-> > +           psmouse_dbg(psmouse, "Dump parsed report data as below:\n");
-> > +           psmouse_dbg(psmouse, "contact_cnt = %d\n",
-> > +                   report_data->contact_cnt);
-> > +           if (n > CYTP_MAX_MT_SLOTS)
-> > +               n = CYTP_MAX_MT_SLOTS;
-> > +           for (i = 0; i < n; i++)
-> > +                   psmouse_dbg(psmouse, "contacts[%d] = {%d, %d, %d}\n", i,
-> > +                                   report_data->contacts[i].x,
-> > +                                   report_data->contacts[i].y,
-> > +                                   report_data->contacts[i].z);
-> > +           psmouse_dbg(psmouse, "left = %d\n", report_data->left);
-> > +           psmouse_dbg(psmouse, "right = %d\n", report_data->right);
-> > +           psmouse_dbg(psmouse, "middle = %d\n", report_data->middle);
-> > +   }
-> > +#endif
-> > +
-> > +   return 0;
-> > +}
-> > +
-> > +static void cypress_process_packet(struct psmouse *psmouse, bool
-> > +zero_pkt) {
-> > +   int i;
-> > +   struct input_dev *input = psmouse->dev;
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +   struct cytp_report_data report_data;
-> > +   struct cytp_contact *contact;
-> > +   struct input_mt_pos pos[CYTP_MAX_MT_SLOTS];
-> > +   int slots[CYTP_MAX_MT_SLOTS];
-> > +   int n;
-> > +
-> > +   if (cypress_parse_packet(psmouse, cytp, &report_data))
-> > +           return;
-> > +
-> > +   n = report_data.contact_cnt;
-> > +
-> > +   if (n > CYTP_MAX_MT_SLOTS)
-> > +           n = CYTP_MAX_MT_SLOTS;
-> > +
-> > +   for (i = 0; i < n; i++) {
-> > +           contact = &report_data.contacts[i];
-> > +           pos[i].x = contact->x;
-> > +           pos[i].y = contact->y;
-> > +   }
-> > +
-> > +   input_mt_assign_slots(input, slots, pos, n);
-> > +
-> > +   for (i = 0; i < n; i++) {
-> > +           contact = &report_data.contacts[i];
-> > +           input_mt_slot(input, slots[i]);
-> > +           input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
-> > +           input_report_abs(input, ABS_MT_POSITION_X, contact->x);
-> > +           input_report_abs(input, ABS_MT_POSITION_Y, contact->y);
-> > +           input_report_abs(input, ABS_MT_PRESSURE, contact->z);
-> > +   }
-> > +
-> > +   input_mt_sync_frame(input);
-> > +
-> > +   input_mt_report_finger_count(input, report_data.contact_cnt);
-> > +
-> > +   input_report_key(input, BTN_LEFT, report_data.left);
-> > +   input_report_key(input, BTN_RIGHT, report_data.right);
-> > +   input_report_key(input, BTN_MIDDLE, report_data.middle);
-> > +
-> > +   input_sync(input);
-> > +}
-> > +
-> > +static psmouse_ret_t cypress_validate_byte(struct psmouse *psmouse) {
-> > +   int contact_cnt;
-> > +   int index = psmouse->pktcnt - 1;
-> > +   unsigned char *packet = psmouse->packet;
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +
-> > +   if (index < 0 || index > cytp->pkt_size)
-> > +           return PSMOUSE_BAD_DATA;
-> > +
-> > +   if (index == 0 && (packet[0] & 0xfc) == 0) {
-> > +           /* call packet process for reporting finger leave. */
-> > +           cypress_process_packet(psmouse, 1);
-> > +           return PSMOUSE_FULL_PACKET;
-> > +   }
-> > +
-> > +   /*
-> > +    * Perform validation (and adjust packet size) based only on the
-> > +    * first byte; allow all further bytes through.
-> > +    */
-> > +   if (index != 0)
-> > +           return PSMOUSE_GOOD_DATA;
-> > +
-> > +   /*
-> > +    * If absolute/relative mode bit has not been set yet, just pass
-> > +    * the byte through.
-> > +    */
-> > +   if ((cytp->mode & CYTP_BIT_ABS_REL_MASK) == 0)
-> > +           return PSMOUSE_GOOD_DATA;
-> > +
-> > +   if ((packet[0] & 0x08) == 0x08)
-> > +           return PSMOUSE_BAD_DATA;
-> > +
-> > +   contact_cnt = cypress_get_finger_count(packet[0]);
-> > +
-> > +   if (contact_cnt > 5)
-> > +           return PSMOUSE_BAD_DATA;
-> > +
-> > +   if (cytp->mode & CYTP_BIT_ABS_NO_PRESSURE)
-> > +           cypress_set_packet_size(psmouse, contact_cnt == 2 ? 7 : 4);
-> > +   else
-> > +           cypress_set_packet_size(psmouse, contact_cnt == 2 ? 8 : 5);
-> > +
-> > +   return PSMOUSE_GOOD_DATA;
-> > +}
-> > +
-> > +static psmouse_ret_t cypress_protocol_handler(struct psmouse
-> > +*psmouse) {
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +
-> > +   if (psmouse->pktcnt >= cytp->pkt_size) {
-> > +           cypress_process_packet(psmouse, 0);
-> > +           return PSMOUSE_FULL_PACKET;
-> > +   }
-> > +
-> > +   return cypress_validate_byte(psmouse); }
-> > +
-> > +static void cypress_set_rate(struct psmouse *psmouse, unsigned int
-> > +rate) {
-> > +   struct cytp_data *cytp = psmouse->private;
-> > +
-> > +   if (rate >= 80) {
-> > +           psmouse->rate = 80;
-> > +           cytp->mode |= CYTP_BIT_HIGH_RATE;
-> > +   } else {
-> > +           psmouse->rate = 40;
-> > +           cytp->mode &= ~CYTP_BIT_HIGH_RATE;
-> > +   }
-> > +
-> > +   ps2_command(&psmouse->ps2dev, (unsigned char *)&psmouse->rate,
-> > +               PSMOUSE_CMD_SETRATE);
-> > +}
-> > +
-> > +static void cypress_disconnect(struct psmouse *psmouse) {
-> > +   cypress_reset(psmouse);
-> > +   kfree(psmouse->private);
-> > +   psmouse->private = NULL;
-> > +}
-> > +
-> > +static int cypress_reconnect(struct psmouse *psmouse) {
-> > +   int tries = CYTP_PS2_CMD_TRIES;
-> > +   int rc;
-> > +
-> > +   do {
-> > +           cypress_reset(psmouse);
-> > +           rc = cypress_detect(psmouse, false);
-> > +   } while (rc && (--tries > 0));
-> > +
-> > +   if (rc) {
-> > +           psmouse_err(psmouse, "Reconnect: unable to detect trackpad.\n");
-> > +           return -1;
-> > +   }
-> > +
-> > +   if (cypress_set_absolute_mode(psmouse)) {
-> > +           psmouse_err(psmouse, "Reconnect: Unable to initialize Cypress absolute mode.\n");
-> > +           return -1;
-> > +   }
-> > +
-> > +   return 0;
-> > +}
-> > +
-> > +int cypress_init(struct psmouse *psmouse) {
-> > +   struct cytp_data *cytp;
-> > +
-> > +   cytp = (struct cytp_data *)kzalloc(sizeof(struct cytp_data), GFP_KERNEL);
-> > +   psmouse->private = (void *)cytp;
-> > +   if (cytp == NULL)
-> > +           return -ENOMEM;
-> > +
-> > +   cypress_reset(psmouse);
-> > +
-> > +   psmouse->pktsize = 8;
-> > +
-> > +   if (cypress_query_hardware(psmouse)) {
-> > +           psmouse_err(psmouse, "Unable to query Trackpad hardware.\n");
-> > +           goto err_exit;
-> > +   }
-> > +
-> > +   if (cypress_set_absolute_mode(psmouse)) {
-> > +           psmouse_err(psmouse, "init: Unable to initialize Cypress absolute mode.\n");
-> > +           goto err_exit;
-> > +   }
-> > +
-> > +   if (cypress_set_input_params(psmouse->dev, cytp) < 0) {
-> > +           psmouse_err(psmouse, "init: Unable to set input params.\n");
-> > +           goto err_exit;
-> > +   }
-> > +
-> > +   psmouse->model = 1;
-> > +   psmouse->protocol_handler = cypress_protocol_handler;
-> > +   psmouse->set_rate = cypress_set_rate;
-> > +   psmouse->disconnect = cypress_disconnect;
-> > +   psmouse->reconnect = cypress_reconnect;
-> > +   psmouse->cleanup = cypress_reset;
-> > +   psmouse->resync_time = 0;
-> > +
-> > +   return 0;
-> > +
-> > +err_exit:
-> > +   /*
-> > +    * Reset Cypress Trackpad as a standard mouse. Then
-> > +    * let psmouse driver commmunicating with it as default PS2 mouse.
-> > +    */
-> > +   cypress_reset(psmouse);
-> > +
-> > +   psmouse->private = NULL;
-> > +   kfree(cytp);
-> > +
-> > +   return -1;
-> > +}
-> > +
-> > +bool cypress_supported(void)
-> > +{
-> > +   return true;
-> > +}
-> > diff --git a/drivers/input/mouse/cypress_ps2.h
-> > b/drivers/input/mouse/cypress_ps2.h
-> > new file mode 100644
-> > index 0000000..4720f21
-> > --- /dev/null
-> > +++ b/drivers/input/mouse/cypress_ps2.h
-> > @@ -0,0 +1,191 @@
-> > +#ifndef _CYPRESS_PS2_H
-> > +#define _CYPRESS_PS2_H
-> > +
-> > +#include "psmouse.h"
-> > +
-> > +#define CMD_BITS_MASK 0x03
-> > +#define COMPOSIT(x, s) (((x) & CMD_BITS_MASK) << (s))
-> > +
-> > +#define ENCODE_CMD(aa, bb, cc, dd) \
-> > +   (COMPOSIT((aa), 6) | COMPOSIT((bb), 4) | COMPOSIT((cc), 2) | COMPOSIT((dd), 0))
-> > +#define CYTP_CMD_ABS_NO_PRESSURE_MODE       ENCODE_CMD(0, 1, 0, 0)
-> > +#define CYTP_CMD_ABS_WITH_PRESSURE_MODE     ENCODE_CMD(0, 1, 0, 1)
-> > +#define CYTP_CMD_SMBUS_MODE                 ENCODE_CMD(0, 1, 1, 0)
-> > +#define CYTP_CMD_STANDARD_MODE              ENCODE_CMD(0, 2, 0, 0)  /* not implemented yet. */
-> > +#define CYTP_CMD_CYPRESS_REL_MODE           ENCODE_CMD(1, 1, 1, 1)  /* not implemented yet. */
-> > +#define CYTP_CMD_READ_CYPRESS_ID            ENCODE_CMD(0, 0, 0, 0)
-> > +#define CYTP_CMD_READ_TP_METRICS            ENCODE_CMD(0, 0, 0, 1)
-> > +#define CYTP_CMD_SET_HSCROLL_WIDTH(w)       ENCODE_CMD(1, 1, 0, (w))
-> > +#define     CYTP_CMD_SET_HSCROLL_MASK       ENCODE_CMD(1, 1, 0, 0)
-> > +#define CYTP_CMD_SET_VSCROLL_WIDTH(w)       ENCODE_CMD(1, 2, 0, (w))
-> > +#define     CYTP_CMD_SET_VSCROLL_MASK       ENCODE_CMD(1, 2, 0, 0)
-> > +#define CYTP_CMD_SET_PALM_GEOMETRY(e)       ENCODE_CMD(1, 2, 1, (e))
-> > +#define     CYTP_CMD_PALM_GEMMETRY_MASK     ENCODE_CMD(1, 2, 1, 0)
-> > +#define CYTP_CMD_SET_PALM_SENSITIVITY(s)    ENCODE_CMD(1, 2, 2, (s))
-> > +#define     CYTP_CMD_PALM_SENSITIVITY_MASK  ENCODE_CMD(1, 2, 2, 0)
-> > +#define CYTP_CMD_SET_MOUSE_SENSITIVITY(s)   ENCODE_CMD(1, 3, ((s) >> 2), (s))
-> > +#define     CYTP_CMD_MOUSE_SENSITIVITY_MASK ENCODE_CMD(1, 3, 0, 0)
-> > +#define CYTP_CMD_REQUEST_BASELINE_STATUS    ENCODE_CMD(2, 0, 0, 1)
-> > +#define CYTP_CMD_REQUEST_RECALIBRATION      ENCODE_CMD(2, 0, 0, 3)
-> > +
-> > +#define DECODE_CMD_AA(x) (((x) >> 6) & CMD_BITS_MASK) #define
-> > +DECODE_CMD_BB(x) (((x) >> 4) & CMD_BITS_MASK) #define
-> > +DECODE_CMD_CC(x) (((x) >> 2) & CMD_BITS_MASK) #define
-> > +DECODE_CMD_DD(x) ((x) & CMD_BITS_MASK)
-> > +
-> > +/* Cypress trackpad working mode. */
-> > +#define CYTP_BIT_ABS_PRESSURE    (1 << 3)
-> > +#define CYTP_BIT_ABS_NO_PRESSURE (1 << 2)
-> > +#define CYTP_BIT_CYPRESS_REL     (1 << 1)
-> > +#define CYTP_BIT_STANDARD_REL    (1 << 0)
-> > +#define CYTP_BIT_REL_MASK (CYTP_BIT_CYPRESS_REL |
-> > +CYTP_BIT_STANDARD_REL) #define CYTP_BIT_ABS_MASK
-> > +(CYTP_BIT_ABS_PRESSURE | CYTP_BIT_ABS_NO_PRESSURE) #define
-> > +CYTP_BIT_ABS_REL_MASK (CYTP_BIT_ABS_MASK | CYTP_BIT_REL_MASK)
-> > +
-> > +#define CYTP_BIT_HIGH_RATE       (1 << 4)
-> > +/*
-> > + * report mode bit is set, firmware working in Remote Mode.
-> > + * report mode bit is cleared, firmware working in Stream Mode.
-> > + */
-> > +#define CYTP_BIT_REPORT_MODE     (1 << 5)
-> > +
-> > +/* scrolling width values for set HSCROLL and VSCROLL width command.
-> > +*/ #define SCROLL_WIDTH_NARROW 1 #define SCROLL_WIDTH_NORMAL 2
-> > +#define SCROLL_WIDTH_WIDE   3
-> > +
-> > +#define PALM_GEOMETRY_ENABLE  1
-> > +#define PALM_GEOMETRY_DISABLE 0
-> > +
-> > +#define TP_METRICS_MASK  0x80
-> > +#define FW_VERSION_MASX    0x7f
-> > +#define FW_VER_HIGH_MASK 0x70
-> > +#define FW_VER_LOW_MASK  0x0f
-> > +
-> > +/* Times to retry a ps2_command and millisecond delay between tries.
-> > +*/ #define CYTP_PS2_CMD_TRIES 3 #define CYTP_PS2_CMD_DELAY 500
-> > +
-> > +/* time out for PS/2 command only in milliseconds. */ #define
-> > +CYTP_CMD_TIMEOUT  200 #define CYTP_DATA_TIMEOUT 30
-> > +
-> > +#define CYTP_EXT_CMD   0xe8
-> > +#define CYTP_PS2_RETRY 0xfe
-> > +#define CYTP_PS2_ERROR 0xfc
-> > +
-> > +#define CYTP_RESP_RETRY 0x01
-> > +#define CYTP_RESP_ERROR 0xfe
-> > +
-> > +
-> > +#define CYTP_105001_WIDTH  97   /* Dell XPS 13 */
-> > +#define CYTP_105001_HIGH   59
-> > +#define CYTP_DEFAULT_WIDTH (CYTP_105001_WIDTH) #define
-> > +CYTP_DEFAULT_HIGH  (CYTP_105001_HIGH)
-> > +
-> > +#define CYTP_ABS_MAX_X     1600
-> > +#define CYTP_ABS_MAX_Y     900
-> > +#define CYTP_MAX_PRESSURE  255
-> > +#define CYTP_MIN_PRESSURE  0
-> > +
-> > +/* header byte bits of relative package. */
-> > +#define BTN_LEFT_BIT   0x01
-> > +#define BTN_RIGHT_BIT  0x02
-> > +#define BTN_MIDDLE_BIT 0x04
-> > +#define REL_X_SIGN_BIT 0x10
-> > +#define REL_Y_SIGN_BIT 0x20
-> > +
-> > +/* header byte bits of absolute package. */ #define ABS_VSCROLL_BIT
-> > +0x10 #define ABS_HSCROLL_BIT 0x20 #define ABS_MULTIFINGER_TAP 0x04
-> > +#define ABS_EDGE_MOTION_MASK 0x80
-> > +
-> > +#define DFLT_RESP_BITS_VALID     0x88  /* SMBus bit should not be set. */
-> > +#define DFLT_RESP_SMBUS_BIT      0x80
-> > +#define   DFLT_SMBUS_MODE        0x80
-> > +#define   DFLT_PS2_MODE          0x00
-> > +#define DFLT_RESP_BIT_MODE       0x40
-> > +#define   DFLT_RESP_REMOTE_MODE  0x40
-> > +#define   DFLT_RESP_STREAM_MODE  0x00
-> > +#define DFLT_RESP_BIT_REPORTING  0x20
-> > +#define DFLT_RESP_BIT_SCALING    0x10
-> > +
-> > +#define TP_METRICS_BIT_PALM               0x80
-> > +#define TP_METRICS_BIT_STUBBORN           0x40
-> > +#define TP_METRICS_BIT_2F_JITTER          0x30
-> > +#define TP_METRICS_BIT_1F_JITTER          0x0c
-> > +#define TP_METRICS_BIT_APA                0x02
-> > +#define TP_METRICS_BIT_MTG                0x01
-> > +#define TP_METRICS_BIT_ABS_PKT_FORMAT_SET 0xf0
-> > +#define TP_METRICS_BIT_2F_SPIKE           0x0c
-> > +#define TP_METRICS_BIT_1F_SPIKE           0x03
-> > +
-> > +/* bits of first byte response of E9h-Status Request command. */
-> > +#define RESP_BTN_RIGHT_BIT  0x01 #define RESP_BTN_MIDDLE_BIT 0x02
-> > +#define RESP_BTN_LEFT_BIT   0x04
-> > +#define RESP_SCALING_BIT    0x10
-> > +#define RESP_ENABLE_BIT     0x20
-> > +#define RESP_REMOTE_BIT     0x40
-> > +#define RESP_SMBUS_BIT      0x80
-> > +
-> > +#define CYTP_MAX_MT_SLOTS 2
-> > +
-> > +struct cytp_contact {
-> > +   int x;
-> > +   int y;
-> > +   int z;  /* also named as touch pressure. */ };
-> > +
-> > +/* The structure of Cypress Trackpad event data. */ struct
-> > +cytp_report_data {
-> > +   int contact_cnt;
-> > +   struct cytp_contact contacts[CYTP_MAX_MT_SLOTS];
-> > +   unsigned int left:1;
-> > +   unsigned int right:1;
-> > +   unsigned int middle:1;
-> > +   unsigned int tap:1;  /* multi-finger tap detected. */ };
-> > +
-> > +/* The structure of Cypress Trackpad device private data. */ struct
-> > +cytp_data {
-> > +   int fw_version;
-> > +
-> > +   int pkt_size;
-> > +   int mode;
-> > +
-> > +   int tp_min_pressure;
-> > +   int tp_max_pressure;
-> > +   int tp_width;  /* X direction physical size in mm. */
-> > +   int tp_high;  /* Y direction physical size in mm. */
-> > +   int tp_max_abs_x;  /* Max X absolute units that can be reported. */
-> > +   int tp_max_abs_y;  /* Max Y absolute units that can be reported. */
-> > +
-> > +   int tp_res_x;  /* X resolution in units/mm. */
-> > +   int tp_res_y;  /* Y resolution in units/mm. */
-> > +
-> > +   int tp_metrics_supported;
-> > +};
-> > +
-> > +
-> > +#ifdef CONFIG_MOUSE_PS2_CYPRESS
-> > +int cypress_detect(struct psmouse *psmouse, bool set_properties); int
-> > +cypress_init(struct psmouse *psmouse); bool cypress_supported(void);
-> > +#else inline int cypress_detect(struct psmouse *psmouse, bool
-> > +set_properties) {
-> > +   return -ENOSYS;
-> > +}
-> > +inline int cypress_init(struct psmouse *psmouse) {
-> > +   return -ENOSYS;
-> > +}
-> > +inline bool cypress_supported(void)
-> > +{
-> > +   return 0;
-> > +}
-> > +#endif /* CONFIG_MOUSE_PS2_CYPRESS */
-> > +
-> > +#endif  /* _CYPRESS_PS2_H */
-> > diff --git a/drivers/input/mouse/psmouse-base.c
-> > b/drivers/input/mouse/psmouse-base.c
-> > index 22fe254..cff065f 100644
-> > --- a/drivers/input/mouse/psmouse-base.c
-> > +++ b/drivers/input/mouse/psmouse-base.c
-> > @@ -34,6 +34,7 @@
-> >  #include "touchkit_ps2.h"
-> >  #include "elantech.h"
-> >  #include "sentelic.h"
-> > +#include "cypress_ps2.h"
-> >
-> >  #define DRIVER_DESC        "PS/2 mouse driver"
-> >
-> > @@ -759,6 +760,28 @@ static int psmouse_extensions(struct psmouse *psmouse,
-> >     }
-> >
-> >  /*
-> > + * Try Cypress Trackpad.
-> > + * Must try it before Finger Sensing Pad because Finger Sensing Pad
-> > +probe
-> > + * upsets some modules of Cypress Trackpads.
-> > + */
-> > +   if (max_proto > PSMOUSE_IMEX &&
-> > +                   cypress_detect(psmouse, set_properties) == 0) {
-> > +           if (cypress_supported()) {
-> > +                   if (cypress_init(psmouse) == 0)
-> > +                           return PSMOUSE_CYPRESS;
-> > +
-> > +                   /*
-> > +                    * Finger Sensing Pad probe upsets some modules of
-> > +                    * Cypress Trackpad, must avoid Finger Sensing Pad
-> > +                    * probe if Cypress Trackpad device detected.
-> > +                    */
-> > +                   return PSMOUSE_PS2;
-> > +           }
-> > +
-> > +           max_proto = PSMOUSE_IMEX;
-> > +   }
-> > +
-> > +/*
-> >   * Try ALPS TouchPad
-> >   */
-> >     if (max_proto > PSMOUSE_IMEX) {
-> > @@ -896,6 +919,15 @@ static const struct psmouse_protocol psmouse_protocols[] = {
-> >             .alias          = "thinkps",
-> >             .detect         = thinking_detect,
-> >     },
-> > +#ifdef CONFIG_MOUSE_PS2_CYPRESS
-> > +   {
-> > +           .type           = PSMOUSE_CYPRESS,
-> > +           .name           = "CyPS/2",
-> > +           .alias          = "cypress",
-> > +           .detect         = cypress_detect,
-> > +           .init           = cypress_init,
-> > +   },
-> > +#endif
-> >     {
-> >             .type           = PSMOUSE_GENPS,
-> >             .name           = "GenPS/2",
-> > diff --git a/drivers/input/mouse/psmouse.h
-> > b/drivers/input/mouse/psmouse.h index fe1df23..2f0b39d 100644
-> > --- a/drivers/input/mouse/psmouse.h
-> > +++ b/drivers/input/mouse/psmouse.h
-> > @@ -95,6 +95,7 @@ enum psmouse_type {
-> >     PSMOUSE_ELANTECH,
-> >     PSMOUSE_FSP,
-> >     PSMOUSE_SYNAPTICS_RELATIVE,
-> > +   PSMOUSE_CYPRESS,
-> >     PSMOUSE_AUTO            /* This one should always be last */
-> >  };
-> >
-> > --
-> > 1.7.10.4
-> >
-
-    Reviewed-by: Dudley Du <dudl@cypress.com>
-
-Thanks,
-Dudley Du
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+---
+diff -urpN a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+--- a/drivers/input/joystick/xpad.c	2012-09-30 16:47:46.000000000 -0700
++++ b/drivers/input/joystick/xpad.c	2012-12-10 02:49:27.402691386 -0800
+@@ -258,23 +258,28 @@ struct usb_xpad {
+ 	struct usb_device *udev;	/* usb device */
+ 	struct usb_interface *intf;	/* usb interface */
+ 
+-	int pad_present;
++	int interface_number;
+ 
+ 	struct urb *irq_in;		/* urb for interrupt in report */
+ 	unsigned char *idata;		/* input data */
+ 	dma_addr_t idata_dma;
+ 
+-	struct urb *bulk_out;
+-	unsigned char *bdata;
+-
+ #if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+ 	struct urb *irq_out;		/* urb for interrupt out report */
+ 	unsigned char *odata;		/* output data */
+ 	dma_addr_t odata_dma;
+-	struct mutex odata_mutex;
++	spinlock_t odata_lock;
++	volatile bool irq_out_pending;
++
++	bool led_pending;
++	int led_command;
++
++	bool ff_pending;
++	u16 rumble_strong;
++	u16 rumble_weak;
+ #endif
+ 
+-#if defined(CONFIG_JOYSTICK_XPAD_LEDS)
++#ifdef CONFIG_JOYSTICK_XPAD_LEDS
+ 	struct xpad_led *led;
+ #endif
+ 
+@@ -284,6 +289,383 @@ struct usb_xpad {
+ 	int xtype;			/* type of xbox device */
+ };
+ 
++#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
++static void xpad_send_pending_output(struct usb_xpad *xpad);
++#endif
++
++#ifdef CONFIG_JOYSTICK_XPAD_FF
++static bool xpad_format_rumble(struct usb_xpad *xpad, u16 strong, u16 weak)
++{
++	switch (xpad->xtype) {
++
++	case XTYPE_XBOX:
++		xpad->odata[0] = 0x00;
++		xpad->odata[1] = 0x06;
++		xpad->odata[2] = 0x00;
++		xpad->odata[3] = strong / 256;	/* left actuator */
++		xpad->odata[4] = 0x00;
++		xpad->odata[5] = weak / 256;	/* right actuator */
++		xpad->irq_out->transfer_buffer_length = 6;
++
++		return true;
++
++	case XTYPE_XBOX360:
++		xpad->odata[0] = 0x00;
++		xpad->odata[1] = 0x08;
++		xpad->odata[2] = 0x00;
++		xpad->odata[3] = strong / 256;  /* left actuator? */
++		xpad->odata[4] = weak / 256;	/* right actuator? */
++		xpad->odata[5] = 0x00;
++		xpad->odata[6] = 0x00;
++		xpad->odata[7] = 0x00;
++		xpad->irq_out->transfer_buffer_length = 8;
++
++		return true;
++
++	case XTYPE_XBOX360W:
++		xpad->odata[0] = 0x00;
++		xpad->odata[1] = 0x01;
++		xpad->odata[2] = 0x0F;
++		xpad->odata[3] = 0xC0;
++		xpad->odata[4] = 0x00;
++		xpad->odata[5] = strong / 256;
++		xpad->odata[6] = weak / 256;
++		xpad->odata[7] = 0x00;
++		xpad->odata[8] = 0x00;
++		xpad->odata[9] = 0x00;
++		xpad->odata[10] = 0x00;
++		xpad->odata[11] = 0x00;
++		xpad->irq_out->transfer_buffer_length = 12;
++
++		return true;
++
++	default:
++		dev_dbg("%s - rumble command sent to unsupported xpad type: %d",
++			__func__, xpad->xtype);
++		return false;
++	}
++}
++
++static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
++{
++	struct usb_xpad *xpad = input_get_drvdata(dev);
++
++	if (effect->type == FF_RUMBLE) {
++		u16 strong = effect->u.rumble.strong_magnitude;
++		u16 weak = effect->u.rumble.weak_magnitude;
++		unsigned long flags;
++
++		xpad_send_pending_output(xpad);
++
++		spin_lock_irqsave(&xpad->odata_lock, flags);
++
++		xpad->rumble_strong = strong;
++		xpad->rumble_weak = weak;
++		xpad->ff_pending = true;
++
++		spin_unlock_irqrestore(&xpad->odata_lock, flags);
++
++		xpad_send_pending_output(xpad);
++	}
++
++	return 0;
++}
++
++static int xpad_init_ff(struct usb_xpad *xpad)
++{
++	if (xpad->xtype == XTYPE_UNKNOWN)
++		return 0;
++
++	input_set_capability(xpad->dev, EV_FF, FF_RUMBLE);
++
++	return input_ff_create_memless(xpad->dev, NULL, xpad_play_effect);
++}
++
++#else
++
++static int xpad_init_ff(struct usb_xpad *xpad)
++{
++	return 0;
++}
++
++#ifdef CONFIG_JOYSTICK_XPAD_LEDS
++static bool xpad_format_rumble(struct usb_xpad *xpad, u16 strong, u16 weak)
++{
++	return false;
++}
++#endif
++
++#endif
++
++#ifdef CONFIG_JOYSTICK_XPAD_LEDS
++#include <linux/leds.h>
++
++struct xpad_led {
++	char name[16];
++	struct led_classdev led_cdev;
++	struct usb_xpad *xpad;
++};
++
++static bool xpad_format_led_command(struct usb_xpad *xpad, int command)
++{
++	switch (xpad->xtype) {
++	case XTYPE_XBOX:
++	case XTYPE_XBOX360:
++		if (command >= 0 && command < 14) {
++			xpad->odata[0] = 0x01;
++			xpad->odata[1] = 0x03;
++			xpad->odata[2] = command;
++			xpad->irq_out->transfer_buffer_length = 3;
++			return true;
++		}
++		break;
++
++	case XTYPE_XBOX360W:
++		if (command >= 0 && command <= 16) {
++			if (command == 16)
++				command = 2 + (xpad->interface_number & 6) / 2;
++			xpad->odata[0] = 0x00;
++			xpad->odata[1] = 0x00;
++			xpad->odata[2] = 0x08;
++			xpad->odata[3] = 0x40 + command;
++			xpad->odata[4] = 0x00;
++			xpad->odata[5] = 0x00;
++			xpad->odata[6] = 0x00;
++			xpad->odata[7] = 0x00;
++			xpad->odata[8] = 0x00;
++			xpad->odata[9] = 0x00;
++			xpad->odata[10] = 0x00;
++			xpad->odata[11] = 0x00;
++			xpad->irq_out->transfer_buffer_length = 12;
++			return true;
++		}
++		break;
++	}
++
++	return false;
++}
++
++static void xpad_send_led_command(struct usb_xpad *xpad, int command)
++{
++	unsigned long flags;
++
++	xpad_send_pending_output(xpad);
++
++	spin_lock_irqsave(&xpad->odata_lock, flags);
++
++	xpad->led_command = command;
++	xpad->led_pending = true;
++
++	spin_unlock_irqrestore(&xpad->odata_lock, flags);
++
++	xpad_send_pending_output(xpad);
++}
++
++static void xpad_led_set(struct led_classdev *led_cdev,
++			 enum led_brightness value)
++{
++	struct xpad_led *xpad_led = container_of(led_cdev,
++						 struct xpad_led, led_cdev);
++
++	xpad_send_led_command(xpad_led->xpad, value);
++}
++
++static int xpad_led_probe(struct usb_xpad *xpad)
++{
++	static atomic_t led_seq	= ATOMIC_INIT(0);
++	long led_no;
++	struct xpad_led *led;
++	struct led_classdev *led_cdev;
++	int error;
++
++	if (xpad->xtype != XTYPE_XBOX360 && xpad->xtype != XTYPE_XBOX360W)
++		return 0;
++
++	xpad->led = led = kzalloc(sizeof(struct xpad_led), GFP_KERNEL);
++	if (!led)
++		return -ENOMEM;
++
++	led_no = (long)atomic_inc_return(&led_seq) - 1;
++
++	snprintf(led->name, sizeof(led->name), "xpad%ld", led_no);
++	led->xpad = xpad;
++
++	led_cdev = &led->led_cdev;
++	led_cdev->name = led->name;
++	led_cdev->brightness_set = xpad_led_set;
++
++	error = led_classdev_register(&xpad->udev->dev, led_cdev);
++	if (error) {
++		kfree(led);
++		xpad->led = NULL;
++		return error;
++	}
++
++	/*
++	 * Light up the segment corresponding to controller number
++	 */
++	if (xpad->xtype == XTYPE_XBOX360)
++		xpad_send_led_command(xpad, (led_no % 4) + 2);
++
++	return 0;
++}
++
++static void xpad_led_disconnect(struct usb_xpad *xpad)
++{
++	struct xpad_led *xpad_led = xpad->led;
++
++	if (xpad_led) {
++		led_classdev_unregister(&xpad_led->led_cdev);
++		kfree(xpad_led);
++	}
++}
++
++#else
++
++static int xpad_led_probe(struct usb_xpad *xpad)
++{
++	return 0;
++}
++
++static void xpad_led_disconnect(struct usb_xpad *xpad)
++{
++}
++
++#ifdef CONFIG_JOYSTICK_XPAD_FF
++static bool xpad_format_led_command(struct usb_xpad *xpad, int command)
++{
++	return false;
++}
++#endif
++
++static void xpad_send_led_command(struct usb_xpad *xpad, int command)
++{
++}
++
++#endif
++
++#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
++static void xpad_send_pending_output(struct usb_xpad *xpad)
++{
++	unsigned int flags;
++	while (xpad->irq_out_pending) {
++		msleep(1);
++	}
++	spin_lock_irqsave(&xpad->odata_lock, flags);
++	if (xpad->ff_pending) {
++		xpad->ff_pending = false;
++		if (xpad_format_rumble(xpad, xpad->rumble_strong, xpad->rumble_weak)) {
++			xpad->irq_out_pending = true;
++			usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
++		}
++	}
++	spin_unlock_irqrestore(&xpad->odata_lock, flags);
++	while (xpad->irq_out_pending) {
++		msleep(1);
++	}
++	spin_lock_irqsave(&xpad->odata_lock, flags);
++	if (xpad->led_pending) {
++		xpad->led_pending = false;
++		if (xpad_format_led_command(xpad, xpad->led_command)) {
++			xpad->irq_out_pending = true;
++			usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
++		}
++	}
++	spin_unlock_irqrestore(&xpad->odata_lock, flags);
++}
++
++static void xpad_irq_out(struct urb *urb)
++{
++	struct usb_xpad *xpad = urb->context;
++	int status = urb->status;
++	int retval;
++	unsigned long flags;
++
++	switch (status) {
++	case 0:
++		/* success */
++		spin_lock_irqsave(&xpad->odata_lock, flags);
++		xpad->irq_out_pending = false;
++		spin_unlock_irqrestore(&xpad->odata_lock, flags);
++
++		return;
++
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++		/* this urb is terminated, clean up */
++		dev_dbg("%s - urb shutting down with status: %d", __func__, status);
++		return;
++
++	default:
++		dev_dbg("%s - nonzero urb status received: %d", __func__, status);
++		goto exit;
++	}
++
++exit:
++	retval = usb_submit_urb(urb, GFP_ATOMIC);
++	if (retval)
++		dev_err("%s - usb_submit_urb failed with result %d",
++		    __func__, retval);
++}
++
++static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
++{
++	struct usb_endpoint_descriptor *ep_irq_out;
++	int error;
++
++	if (xpad->xtype == XTYPE_UNKNOWN)
++		return 0;
++
++	spin_lock_init(&xpad->odata_lock);
++
++	xpad->odata = usb_alloc_coherent(xpad->udev, XPAD_PKT_LEN,
++					 GFP_KERNEL, &xpad->odata_dma);
++	if (!xpad->odata) {
++		error = -ENOMEM;
++		goto fail1;
++	}
++
++	xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
++	if (!xpad->irq_out) {
++		error = -ENOMEM;
++		goto fail2;
++	}
++
++	ep_irq_out = &intf->cur_altsetting->endpoint[1].desc;
++	usb_fill_int_urb(xpad->irq_out, xpad->udev,
++			 usb_sndintpipe(xpad->udev, ep_irq_out->bEndpointAddress),
++			 xpad->odata, XPAD_PKT_LEN,
++			 xpad_irq_out, xpad, ep_irq_out->bInterval);
++	xpad->irq_out->transfer_dma = xpad->odata_dma;
++	xpad->irq_out->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
++	return 0;
++
++ fail2:	usb_free_coherent(xpad->udev, XPAD_PKT_LEN, xpad->odata, xpad->odata_dma);
++ fail1:	return error;
++}
++
++static void xpad_stop_output(struct usb_xpad *xpad)
++{
++	if (xpad->xtype != XTYPE_UNKNOWN)
++		usb_kill_urb(xpad->irq_out);
++}
++
++static void xpad_deinit_output(struct usb_xpad *xpad)
++{
++	if (xpad->xtype != XTYPE_UNKNOWN) {
++		usb_free_urb(xpad->irq_out);
++		usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
++				  xpad->odata, xpad->odata_dma);
++	}
++}
++#else
++static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
++static void xpad_deinit_output(struct usb_xpad *xpad) { }
++static void xpad_stop_output(struct usb_xpad *xpad) { }
++#endif
++
+ /*
+  *	xpad_process_packet
+  *
+@@ -444,13 +826,8 @@ static void xpad360_process_packet(struc
+ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
+ {
+ 	/* Presence change */
+-	if (data[0] & 0x08) {
+-		if (data[1] & 0x80) {
+-			xpad->pad_present = 1;
+-			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
+-		} else
+-			xpad->pad_present = 0;
+-	}
++	if ((data[0] & 0x08) && (data[1] & 0x80))
++		xpad_send_led_command(xpad, 16);
+ 
+ 	/* Valid pad data */
+ 	if (!(data[1] & 0x1))
+@@ -502,282 +879,6 @@ exit:
+ 			__func__, retval);
+ }
+ 
+-static void xpad_bulk_out(struct urb *urb)
+-{
+-	struct usb_xpad *xpad = urb->context;
+-	struct device *dev = &xpad->intf->dev;
+-
+-	switch (urb->status) {
+-	case 0:
+-		/* success */
+-		break;
+-	case -ECONNRESET:
+-	case -ENOENT:
+-	case -ESHUTDOWN:
+-		/* this urb is terminated, clean up */
+-		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
+-			__func__, urb->status);
+-		break;
+-	default:
+-		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
+-			__func__, urb->status);
+-	}
+-}
+-
+-#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+-static void xpad_irq_out(struct urb *urb)
+-{
+-	struct usb_xpad *xpad = urb->context;
+-	struct device *dev = &xpad->intf->dev;
+-	int retval, status;
+-
+-	status = urb->status;
+-
+-	switch (status) {
+-	case 0:
+-		/* success */
+-		return;
+-
+-	case -ECONNRESET:
+-	case -ENOENT:
+-	case -ESHUTDOWN:
+-		/* this urb is terminated, clean up */
+-		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
+-			__func__, status);
+-		return;
+-
+-	default:
+-		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
+-			__func__, status);
+-		goto exit;
+-	}
+-
+-exit:
+-	retval = usb_submit_urb(urb, GFP_ATOMIC);
+-	if (retval)
+-		dev_err(dev, "%s - usb_submit_urb failed with result %d\n",
+-			__func__, retval);
+-}
+-
+-static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
+-{
+-	struct usb_endpoint_descriptor *ep_irq_out;
+-	int error;
+-
+-	if (xpad->xtype == XTYPE_UNKNOWN)
+-		return 0;
+-
+-	xpad->odata = usb_alloc_coherent(xpad->udev, XPAD_PKT_LEN,
+-					 GFP_KERNEL, &xpad->odata_dma);
+-	if (!xpad->odata) {
+-		error = -ENOMEM;
+-		goto fail1;
+-	}
+-
+-	mutex_init(&xpad->odata_mutex);
+-
+-	xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
+-	if (!xpad->irq_out) {
+-		error = -ENOMEM;
+-		goto fail2;
+-	}
+-
+-	ep_irq_out = &intf->cur_altsetting->endpoint[1].desc;
+-	usb_fill_int_urb(xpad->irq_out, xpad->udev,
+-			 usb_sndintpipe(xpad->udev, ep_irq_out->bEndpointAddress),
+-			 xpad->odata, XPAD_PKT_LEN,
+-			 xpad_irq_out, xpad, ep_irq_out->bInterval);
+-	xpad->irq_out->transfer_dma = xpad->odata_dma;
+-	xpad->irq_out->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+-
+-	return 0;
+-
+- fail2:	usb_free_coherent(xpad->udev, XPAD_PKT_LEN, xpad->odata, xpad->odata_dma);
+- fail1:	return error;
+-}
+-
+-static void xpad_stop_output(struct usb_xpad *xpad)
+-{
+-	if (xpad->xtype != XTYPE_UNKNOWN)
+-		usb_kill_urb(xpad->irq_out);
+-}
+-
+-static void xpad_deinit_output(struct usb_xpad *xpad)
+-{
+-	if (xpad->xtype != XTYPE_UNKNOWN) {
+-		usb_free_urb(xpad->irq_out);
+-		usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
+-				xpad->odata, xpad->odata_dma);
+-	}
+-}
+-#else
+-static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
+-static void xpad_deinit_output(struct usb_xpad *xpad) {}
+-static void xpad_stop_output(struct usb_xpad *xpad) {}
+-#endif
+-
+-#ifdef CONFIG_JOYSTICK_XPAD_FF
+-static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
+-{
+-	struct usb_xpad *xpad = input_get_drvdata(dev);
+-
+-	if (effect->type == FF_RUMBLE) {
+-		__u16 strong = effect->u.rumble.strong_magnitude;
+-		__u16 weak = effect->u.rumble.weak_magnitude;
+-
+-		switch (xpad->xtype) {
+-
+-		case XTYPE_XBOX:
+-			xpad->odata[0] = 0x00;
+-			xpad->odata[1] = 0x06;
+-			xpad->odata[2] = 0x00;
+-			xpad->odata[3] = strong / 256;	/* left actuator */
+-			xpad->odata[4] = 0x00;
+-			xpad->odata[5] = weak / 256;	/* right actuator */
+-			xpad->irq_out->transfer_buffer_length = 6;
+-
+-			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+-
+-		case XTYPE_XBOX360:
+-			xpad->odata[0] = 0x00;
+-			xpad->odata[1] = 0x08;
+-			xpad->odata[2] = 0x00;
+-			xpad->odata[3] = strong / 256;  /* left actuator? */
+-			xpad->odata[4] = weak / 256;	/* right actuator? */
+-			xpad->odata[5] = 0x00;
+-			xpad->odata[6] = 0x00;
+-			xpad->odata[7] = 0x00;
+-			xpad->irq_out->transfer_buffer_length = 8;
+-
+-			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+-
+-		case XTYPE_XBOX360W:
+-			xpad->odata[0] = 0x00;
+-			xpad->odata[1] = 0x01;
+-			xpad->odata[2] = 0x0F;
+-			xpad->odata[3] = 0xC0;
+-			xpad->odata[4] = 0x00;
+-			xpad->odata[5] = strong / 256;
+-			xpad->odata[6] = weak / 256;
+-			xpad->odata[7] = 0x00;
+-			xpad->odata[8] = 0x00;
+-			xpad->odata[9] = 0x00;
+-			xpad->odata[10] = 0x00;
+-			xpad->odata[11] = 0x00;
+-			xpad->irq_out->transfer_buffer_length = 12;
+-
+-			return usb_submit_urb(xpad->irq_out, GFP_ATOMIC);
+-
+-		default:
+-			dev_dbg(&xpad->dev->dev,
+-				"%s - rumble command sent to unsupported xpad type: %d\n",
+-				__func__, xpad->xtype);
+-			return -1;
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+-static int xpad_init_ff(struct usb_xpad *xpad)
+-{
+-	if (xpad->xtype == XTYPE_UNKNOWN)
+-		return 0;
+-
+-	input_set_capability(xpad->dev, EV_FF, FF_RUMBLE);
+-
+-	return input_ff_create_memless(xpad->dev, NULL, xpad_play_effect);
+-}
+-
+-#else
+-static int xpad_init_ff(struct usb_xpad *xpad) { return 0; }
+-#endif
+-
+-#if defined(CONFIG_JOYSTICK_XPAD_LEDS)
+-#include <linux/leds.h>
+-
+-struct xpad_led {
+-	char name[16];
+-	struct led_classdev led_cdev;
+-	struct usb_xpad *xpad;
+-};
+-
+-static void xpad_send_led_command(struct usb_xpad *xpad, int command)
+-{
+-	if (command >= 0 && command < 14) {
+-		mutex_lock(&xpad->odata_mutex);
+-		xpad->odata[0] = 0x01;
+-		xpad->odata[1] = 0x03;
+-		xpad->odata[2] = command;
+-		xpad->irq_out->transfer_buffer_length = 3;
+-		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+-		mutex_unlock(&xpad->odata_mutex);
+-	}
+-}
+-
+-static void xpad_led_set(struct led_classdev *led_cdev,
+-			 enum led_brightness value)
+-{
+-	struct xpad_led *xpad_led = container_of(led_cdev,
+-						 struct xpad_led, led_cdev);
+-
+-	xpad_send_led_command(xpad_led->xpad, value);
+-}
+-
+-static int xpad_led_probe(struct usb_xpad *xpad)
+-{
+-	static atomic_t led_seq	= ATOMIC_INIT(0);
+-	long led_no;
+-	struct xpad_led *led;
+-	struct led_classdev *led_cdev;
+-	int error;
+-
+-	if (xpad->xtype != XTYPE_XBOX360)
+-		return 0;
+-
+-	xpad->led = led = kzalloc(sizeof(struct xpad_led), GFP_KERNEL);
+-	if (!led)
+-		return -ENOMEM;
+-
+-	led_no = (long)atomic_inc_return(&led_seq) - 1;
+-
+-	snprintf(led->name, sizeof(led->name), "xpad%ld", led_no);
+-	led->xpad = xpad;
+-
+-	led_cdev = &led->led_cdev;
+-	led_cdev->name = led->name;
+-	led_cdev->brightness_set = xpad_led_set;
+-
+-	error = led_classdev_register(&xpad->udev->dev, led_cdev);
+-	if (error) {
+-		kfree(led);
+-		xpad->led = NULL;
+-		return error;
+-	}
+-
+-	/*
+-	 * Light up the segment corresponding to controller number
+-	 */
+-	xpad_send_led_command(xpad, (led_no % 4) + 2);
+-
+-	return 0;
+-}
+-
+-static void xpad_led_disconnect(struct usb_xpad *xpad)
+-{
+-	struct xpad_led *xpad_led = xpad->led;
+-
+-	if (xpad_led) {
+-		led_classdev_unregister(&xpad_led->led_cdev);
+-		kfree(xpad_led);
+-	}
+-}
+-#else
+-static int xpad_led_probe(struct usb_xpad *xpad) { return 0; }
+-static void xpad_led_disconnect(struct usb_xpad *xpad) { }
+-#endif
+-
+-
+ static int xpad_open(struct input_dev *dev)
+ {
+ 	struct usb_xpad *xpad = input_get_drvdata(dev);
+@@ -959,43 +1060,9 @@ static int xpad_probe(struct usb_interfa
+ 
+ 	usb_set_intfdata(intf, xpad);
+ 
+-	if (xpad->xtype == XTYPE_XBOX360W) {
+-		/*
+-		 * Setup the message to set the LEDs on the
+-		 * controller when it shows up
+-		 */
+-		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
+-		if (!xpad->bulk_out) {
+-			error = -ENOMEM;
+-			goto fail7;
+-		}
+-
+-		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
+-		if (!xpad->bdata) {
+-			error = -ENOMEM;
+-			goto fail8;
+-		}
+-
+-		xpad->bdata[2] = 0x08;
+-		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
+-		case 0:
+-			xpad->bdata[3] = 0x42;
+-			break;
+-		case 2:
+-			xpad->bdata[3] = 0x43;
+-			break;
+-		case 4:
+-			xpad->bdata[3] = 0x44;
+-			break;
+-		case 6:
+-			xpad->bdata[3] = 0x45;
+-		}
+-
+-		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
+-		usb_fill_bulk_urb(xpad->bulk_out, udev,
+-				usb_sndbulkpipe(udev, ep_irq_in->bEndpointAddress),
+-				xpad->bdata, XPAD_PKT_LEN, xpad_bulk_out, xpad);
++	xpad->interface_number = intf->cur_altsetting->desc.bInterfaceNumber;
+ 
++	if (xpad->xtype == XTYPE_XBOX360W) {
+ 		/*
+ 		 * Submit the int URB immediately rather than waiting for open
+ 		 * because we get status messages from the device whether
+@@ -1006,13 +1073,11 @@ static int xpad_probe(struct usb_interfa
+ 		xpad->irq_in->dev = xpad->udev;
+ 		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
+ 		if (error)
+-			goto fail9;
++			goto fail7;
+ 	}
+ 
+ 	return 0;
+ 
+- fail9:	kfree(xpad->bdata);
+- fail8:	usb_free_urb(xpad->bulk_out);
+  fail7:	input_unregister_device(input_dev);
+ 	input_dev = NULL;
+  fail6:	xpad_led_disconnect(xpad);
+@@ -1036,8 +1101,6 @@ static void xpad_disconnect(struct usb_i
+ 	xpad_deinit_output(xpad);
+ 
+ 	if (xpad->xtype == XTYPE_XBOX360W) {
+-		usb_kill_urb(xpad->bulk_out);
+-		usb_free_urb(xpad->bulk_out);
+ 		usb_kill_urb(xpad->irq_in);
+ 	}
+ 
+@@ -1045,7 +1108,6 @@ static void xpad_disconnect(struct usb_i
+ 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
+ 			xpad->idata, xpad->idata_dma);
+ 
+-	kfree(xpad->bdata);
+ 	kfree(xpad);
+ 
+ 	usb_set_intfdata(intf, NULL);

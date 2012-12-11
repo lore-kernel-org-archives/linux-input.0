@@ -1,44 +1,40 @@
-From: =?utf-8?Q?Lothar_Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: Re: [PATCH 3/4] iio: mxs: Implement support for touchscreen
-Date: Tue, 11 Dec 2012 09:18:51 +0100
-Message-ID: <20678.60523.170336.920677@ipc1.ka-ro>
-References: <1354893893-26338-1-git-send-email-marex@denx.de>
- <1354893893-26338-3-git-send-email-marex@denx.de>
- <50C312D8.4050405@kernel.org>
- <20121210222437.GA19008@core.coreip.homeip.net>
+From: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Subject: Re: hid-sensor-hub and autoloading of HID sensor modules
+Date: Tue, 11 Dec 2012 19:34:17 +0100
+Message-ID: <50C77CA9.2090803@ahsoftware.de>
+References: <50C64F29.9030200@ahsoftware.de> <4FA419E87744DF4DAECD5BCE1214B7A91C96075E@ORSMSX108.amr.corp.intel.com> <50C6551B.1030107@ahsoftware.de> <4FA419E87744DF4DAECD5BCE1214B7A91C96077D@ORSMSX108.amr.corp.intel.com> <50C659C1.7060005@ahsoftware.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20121210222437.GA19008@core.coreip.homeip.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Marek Vasut <marex@denx.de>, Fabio Estevam <fabio.estevam@freescale.com>, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Shawn Guo <shawn.guo@linaro.org>, Jonathan Cameron <jic23@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <50C659C1.7060005-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "matteo.dameno-qxv4g6HH51o@public.gmane.org" <matteo.dameno-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-SGksCgpEbWl0cnkgVG9yb2tob3Ygd3JpdGVzOgo+IEhpIE1hcmVrLCBKb25hdGhhbiwKPiAKPiBP
-biBTYXQsIERlYyAwOCwgMjAxMiBhdCAxMDoxMzo0NEFNICswMDAwLCBKb25hdGhhbiBDYW1lcm9u
-IHdyb3RlOgo+ID4gT24gMTIvMDcvMjAxMiAwMzoyNCBQTSwgTWFyZWsgVmFzdXQgd3JvdGU6Clsu
-Li5dCj4gPiA+ICsJaW50CQkJdXNlX3RvdWNoYnV0dG9uOjE7Cj4gCj4gV2h5IHdvdWxkIHNvbWVv
-bmUgbm90IHdhbnQgdG8gdXNlIGl0Pwo+IAo+ID4gPiArCWludAkJCXVzZV90b3VjaHNjcmVlbl80
-d2lyZToxOwo+ID4gPiArCWludAkJCXVzZV90b3VjaHNjcmVlbl81d2lyZToxOwo+IApiaXQgZmll
-bGRzIHNob3VsZCBiZSBvZiB1bnNpZ25lZCB0eXBlLCBiZWNhdXNlIG90aGVyd2lzZSB0aGUgJ3Ry
-dWUnCnZhbHVlIHdpbGwgYmUgJy0xJyByYXRoZXIgdGhhbiAnMScuCgoKTG90aGFyIFdhw59tYW5u
-Ci0tIApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwoKS2EtUm8gZWxlY3Ryb25pY3MgR21iSCB8IFBhc2NhbHN0cmHDn2UgMjIgfCBEIC0g
-NTIwNzYgQWFjaGVuClBob25lOiArNDkgMjQwOCAxNDAyLTAgfCBGYXg6ICs0OSAyNDA4IDE0MDIt
-MTAKR2VzY2jDpGZ0c2bDvGhyZXI6IE1hdHRoaWFzIEthdXNzZW4KSGFuZGVsc3JlZ2lzdGVyZWlu
-dHJhZzogQW10c2dlcmljaHQgQWFjaGVuLCBIUkIgNDk5NgoKd3d3Lmthcm8tZWxlY3Ryb25pY3Mu
-ZGUgfCBpbmZvQGthcm8tZWxlY3Ryb25pY3MuZGUKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0Cmxp
-bnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFk
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+Am 10.12.2012 22:53, schrieb Alexander Holler:
+> Am 10.12.2012 22:40, schrieb Pandruvada, Srinivas:
+>> I mean if your patch is merged, when new kernel is synced in the product line, we can't depend on auto loading of hid-sensor-hub. So we need to do something similar as you suggested.
+> 
+> Those patches aren't meant for your product line (mor for 3.8). But
+> hid-sensor-hub currently (as in 3.7-rc) doesn't load the necessary
+> modules at all, only hid-sensor-hub is currently loaded automatically,
+> not the other modules. That is at least what I've experienced here.
+
+As I'm not sure if I could describe clearly what I meant to say, I try
+it again: ;)
+
+The problem that the necessary modules will not be loaded automatically
+already exists in kernel 3.7. This is indepent of my proposed patches to
+get rid of the vendor and device IDs and load hid-sensor-hub
+automatically for all USB HID sensor hubs.
+
+With or without my proposed patches, only hid-sensor-hub is loaded
+automatically, but not the other drivers like hid-sensor-accel-3d,
+hid-sensor-als, hid-sensor-gyro-3d or hid-sensor-magn-3d (if the are
+build as modules).
+
+Regards,
+
+Alexander

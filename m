@@ -1,49 +1,23 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
 Subject: RE: [PATCH 1/2] HID: autodetect USB HID sensor hubs.
-Date: Wed, 12 Dec 2012 15:37:48 +0000
-Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91C960B9C@ORSMSX108.amr.corp.intel.com>
-References: <50C47811.7010503@ahsoftware.de>
- <1355053470-3939-1-git-send-email-holler@ahsoftware.de>
- <alpine.LNX.2.00.1212121042100.19767@pobox.suse.cz>
+Date: Wed, 12 Dec 2012 16:52:58 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1212121652470.19767@pobox.suse.cz>
+References: <50C47811.7010503@ahsoftware.de> <1355053470-3939-1-git-send-email-holler@ahsoftware.de> <alpine.LNX.2.00.1212121042100.19767@pobox.suse.cz> <4FA419E87744DF4DAECD5BCE1214B7A91C960B9C@ORSMSX108.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1212121042100.19767-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <4FA419E87744DF4DAECD5BCE1214B7A91C960B9C-P5GAC/sN6hk8Ug9VwtkbtrfspsVTdybXVpNB7YpNyf8@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+To: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-I also liked it. You can add my ACK.
+On Wed, 12 Dec 2012, Pandruvada, Srinivas wrote:
 
-Thanks,
-Srinivas
+> I also liked it. You can add my ACK.
 
------Original Message-----
-From: Jiri Kosina [mailto:jkosina-AlSwsSmVLrQ@public.gmane.org] 
-Sent: Wednesday, December 12, 2012 1:43 AM
-To: Alexander Holler
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Jonathan Cameron; Pandruvada, Srinivas
-Subject: Re: [PATCH 1/2] HID: autodetect USB HID sensor hubs.
+Added your Ack and applied, thanks everybody.
 
-On Sun, 9 Dec 2012, Alexander Holler wrote:
-
-> It should not be necessary to add IDs for HID sensor hubs to lists in 
-> hid-core.c and hid-sensor-hub.c. So instead of a whitelist, autodetect 
-> such USB HID sensor hubs, based on a collection of type physical 
-> inside a useage page of type sensor. If some sensor hubs stil must be 
-> usable as raw devices, a blacklist might be created.
-> 
-> Signed-off-by: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
-
-I like this change and would like to merge it, but I'd appreciate Ack from Srinivas first.
-
-Srinivas?
-
-Thanks,
-
---
+-- 
 Jiri Kosina
 SUSE Labs

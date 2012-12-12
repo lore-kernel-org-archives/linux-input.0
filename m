@@ -1,49 +1,34 @@
-From: Christophe TORDEUX <christophe@tordeux.net>
-Subject: Re: [PATCH 01/01] Input multitouch: fix horizontal
- two-finger-scrolling on Sentelic touchpads
-Date: Wed, 12 Dec 2012 02:27:08 +0100
-Message-ID: <20121212012708.GB9043@sherka.no-ip.biz>
-References: <20121212012135.GA9043@sherka.no-ip.biz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] HID: autodetect USB HID sensor hubs.
+Date: Wed, 12 Dec 2012 10:42:41 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1212121042100.19767@pobox.suse.cz>
+References: <50C47811.7010503@ahsoftware.de> <1355053470-3939-1-git-send-email-holler@ahsoftware.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uZ3hkaAS1mZxFaxD"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp02.smtpout.orange.fr ([80.12.242.124]:39654 "EHLO
-	smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753723Ab2LLB1K (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Dec 2012 20:27:10 -0500
-Content-Disposition: inline
-In-Reply-To: <20121212012135.GA9043@sherka.no-ip.biz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1355053470-3939-1-git-send-email-holler@ahsoftware.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alexander Holler <holler@ahsoftware.de>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Jonathan Cameron <jic23@cam.ac.uk>, srinivas pandruvada <srinivas.pandruvada@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Tai-hwa Liang <avatar@sentelic.com>, Oskari Saarenmaa <os@ohmu.fi>, Paul Fox <pgf@laptop.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org
 
+On Sun, 9 Dec 2012, Alexander Holler wrote:
 
---uZ3hkaAS1mZxFaxD
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> It should not be necessary to add IDs for HID sensor hubs to lists
+> in hid-core.c and hid-sensor-hub.c. So instead of a whitelist,
+> autodetect such USB HID sensor hubs, based on a collection of type
+> physical inside a useage page of type sensor. If some sensor hubs
+> stil must be usable as raw devices, a blacklist might be created.
+> 
+> Signed-off-by: Alexander Holler <holler@ahsoftware.de>
 
-I am very sorry I forgot to mention that my patch was done against=20
-kernel version 3.7-rc8. I can re-send the original patch with this=20
-information included if required, just ask me.
+I like this change and would like to merge it, but I'd appreciate Ack from 
+Srinivas first.
 
---uZ3hkaAS1mZxFaxD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Srinivas?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Thanks,
 
-iQEcBAEBAgAGBQJQx91sAAoJEE/hdwZK2YytOMkH/3NRjJH16AK/1R5+u+KOIpwL
-ZIrHYnQjwRb63j1lQTFM/GtGBSHQ2f1ZCgkZFxIZUQ6JS2h+NFcjcuZtP0th+2nZ
-IosWYOkwnzY0ljMAdtlyXHqBXy6naaOLJfKz4SGjpRWDyK1HbxqX6VlpSfC8Tcbg
-NoUcRUBbw2rAcKd0cWPcbD8+nGKSIB/72vkwQMTgQYtffDejDG25Itzvb2B5npTK
-m1MOW2psUFY3zR51vRC0QAD5kbNzmCKJjh2n+JVMwyg2T6iXqpZW3k02E0qVVxv2
-jqN/9/JfkAug+yy5RGMgHYNavQoCCCsnq2gSJ9+p1LTVtV44xNdu7tG99hjJacA=
-=HY7V
------END PGP SIGNATURE-----
-
---uZ3hkaAS1mZxFaxD--
+-- 
+Jiri Kosina
+SUSE Labs

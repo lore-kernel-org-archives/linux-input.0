@@ -1,100 +1,61 @@
-From: Shawn Nematbakhsh <shawnn@chromium.org>
-Subject: [PATCH] atkbd: Fix multi-char scancode handling on reconnect.
-Date: Fri, 14 Dec 2012 16:17:23 -0800
-Message-ID: <1355530643-8177-1-git-send-email-shawnn@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f202.google.com ([74.125.82.202]:62804 "EHLO
-	mail-we0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756797Ab2LOATL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Dec 2012 19:19:11 -0500
-Received: by mail-we0-f202.google.com with SMTP id t57so210616wey.1
-        for <linux-input@vger.kernel.org>; Fri, 14 Dec 2012 16:19:10 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH 5/5] Input: Add ChromeOS EC keyboard driver
+Date: Sat, 15 Dec 2012 01:13:45 +0000
+Message-ID: <20121215011345.9D5973E0BEE@localhost>
+References: <1355348028-19017-1-git-send-email-sjg@chromium.org> <1355348028-19017-6-git-send-email-sjg@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1355348028-19017-6-git-send-email-sjg@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Simon Glass <sjg@chromium.org>, Luigi Semenzato <semenzato@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, Olof Johansson <olof@lixom.net>, Roland Stigge <stigge@antcom.de>, Wolfram Sang <w.sang@pengutronix.de>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Shawn Nematbakhsh <shawnn@chromium.org>, Jesper Juhl <jj@chaosbits.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On resume from suspend there is a possibility for multi-byte scancodes
-to be handled incorrectly. atkbd_reconnect disables the processing of
-scancodes in software by calling atkbd_disable, but the keyboard may
-still be active because no disconnect command was sent. Later, software
-handling is re-enabled. If a multi-byte scancode sent from the keyboard
-straddles the re-enable, only the latter byte(s) will be handled.
+On Wed, 12 Dec 2012 13:33:48 -0800, Simon Glass <sjg@chromium.org> wrote:
+> Use the key-matrix layer to interpret key scan information from the EC
+> and inject input based on the FDT-supplied key map. This driver registers
+> itself with the ChromeOS EC driver to perform communications.
+> 
+> Additional FDT bindings are provided to specify rows/columns and the
+> auto-repeat information.
+> 
+> Signed-off-by: Simon Glass <sjg@chromium.org>
+> Signed-off-by: Luigi Semenzato <semenzato@chromium.org>
+> Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
+> ---
+>  .../devicetree/bindings/input/cros-ec-keyb.txt     |   77 ++++
+>  drivers/input/keyboard/Kconfig                     |   10 +
+>  drivers/input/keyboard/Makefile                    |    1 +
+>  drivers/input/keyboard/cros_ec_keyb.c              |  413 ++++++++++++++++++++
+>  4 files changed, 501 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/cros-ec-keyb.txt
+>  create mode 100644 drivers/input/keyboard/cros_ec_keyb.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/cros-ec-keyb.txt b/Documentation/devicetree/bindings/input/cros-ec-keyb.txt
+> new file mode 100644
+> index 0000000..67f51d8
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/cros-ec-keyb.txt
+> @@ -0,0 +1,77 @@
+> +ChromeOS EC Keyboard
+> +
+> +Google's ChromeOS EC Keyboard is a simple matrix keyboard implemented on
+> +a separate EC (Embedded Controller) device. It provides a message for reading
+> +key scans from the EC. These are then converted into keycodes for processing
+> +by the kernel.
+> +
+> +Required properties:
+> +- compatible: "google,cros-ec-keyb"
+> +- google,key-rows: Number of keyboard rows (must be <= 8)
+> +- google,key-columns: Number of keyboard columns (must be <= 13)
+> +- google,repeat-delay-ms: Key repeat delay in milliseconds
+> +- google,repeat-rate-ms: Key repeat rate in milliseconds
 
-In practice, this leads to cases where multi-byte break codes (ex. "e0
-4d" - break code for right-arrow) are misread as make codes ("4d" - make
-code for numeric 6), leading to one or more unwanted, untyped characters
-being interpreted.
+Hmmm, these should probably be in a common binding. Take a look at
+the other input bindings and make a proposal for properties to add to
+matrix-keymap.txt.
 
-The solution implemented here involves sending command f5 (reset
-disable) to the keyboard prior to disabling software handling of codes.
-Later, the command to re-enable the keyboard is sent only after we are
-prepared to handle scancodes.
+> +- linux.keymap: Key map as for matrix-keypad.txt
 
-Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
----
- drivers/input/keyboard/atkbd.c |   26 ++++++++++++++++++++++++--
- 1 files changed, 24 insertions(+), 2 deletions(-)
+should be: linux,keymap (comma instead of period)
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index add5ffd..da49e8b 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -844,6 +844,24 @@ static int atkbd_activate(struct atkbd *atkbd)
- }
- 
- /*
-+ * atkbd_deactivate() resets and disables the keyboard from sending
-+ * keystrokes.
-+ */
-+static int atkbd_deactivate(struct atkbd *atkbd)
-+{
-+	struct ps2dev *ps2dev = &atkbd->ps2dev;
-+
-+	if (ps2_command(ps2dev, NULL, ATKBD_CMD_RESET_DIS)) {
-+		dev_err(&ps2dev->serio->dev,
-+			"Failed to deactivate keyboard on %s\n",
-+			ps2dev->serio->phys);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-  * atkbd_cleanup() restores the keyboard state so that BIOS is happy after a
-  * reboot.
-  */
-@@ -1199,6 +1217,9 @@ static int atkbd_reconnect(struct serio *serio)
- 
- 	mutex_lock(&atkbd->mutex);
- 
-+	if (atkbd->write)
-+		atkbd_deactivate(atkbd);
-+
- 	atkbd_disable(atkbd);
- 
- 	if (atkbd->write) {
-@@ -1208,8 +1229,6 @@ static int atkbd_reconnect(struct serio *serio)
- 		if (atkbd->set != atkbd_select_set(atkbd, atkbd->set, atkbd->extra))
- 			goto out;
- 
--		atkbd_activate(atkbd);
--
- 		/*
- 		 * Restore LED state and repeat rate. While input core
- 		 * will do this for us at resume time reconnect may happen
-@@ -1224,6 +1243,9 @@ static int atkbd_reconnect(struct serio *serio)
- 	}
- 
- 	atkbd_enable(atkbd);
-+	if (atkbd->write)
-+		atkbd_activate(atkbd);
-+
- 	retval = 0;
- 
-  out:
--- 
-1.7.8.6
-
+g.

@@ -1,70 +1,94 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: Re: [PATCH RFC] Add support for the matrix keyboard used in
- Bachmann's OT200
-Date: Sun, 16 Dec 2012 14:33:13 +0100
-Message-ID: <CAH9NwWf2Xg6uy_w1zW0=6bse4a0n-LfozO84r0LTiELmoVV+SA@mail.gmail.com>
-References: <1355319341-26597-1-git-send-email-christian.gmeiner@gmail.com>
- <20121212190255.GB10583@core.coreip.homeip.net> <CAH9NwWeaU0RO5Zt2wzEeGSw9uNxNCWaFrrfMLBNACqfxUN_LRA@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC PATCH] hid-sony: fix troubles with Sony remote clones
+Date: Sun, 16 Dec 2012 21:37:07 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1212162136250.27319@pobox.suse.cz>
+References: <20121214205734.7d1ab9d8@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f174.google.com ([209.85.220.174]:36422 "EHLO
-	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752765Ab2LPNde (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Dec 2012 08:33:34 -0500
-Received: by mail-vc0-f174.google.com with SMTP id d16so6123979vcd.19
-        for <linux-input@vger.kernel.org>; Sun, 16 Dec 2012 05:33:33 -0800 (PST)
-In-Reply-To: <CAH9NwWeaU0RO5Zt2wzEeGSw9uNxNCWaFrrfMLBNACqfxUN_LRA@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:55936 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751932Ab2LPUhW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 16 Dec 2012 15:37:22 -0500
+In-Reply-To: <20121214205734.7d1ab9d8@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: linux-input@vger.kernel.org, Marcelo Leitner <mleitner@redhat.com>
 
-2012/12/13 Christian Gmeiner <christian.gmeiner@gmail.com>:
-> Hi Dmitry,
->
->> On Wed, Dec 12, 2012 at 02:35:41PM +0100, Christian Gmeiner wrote:
->>> The used matrix keyboard controler (implemented via FPGA) supports
->>> two simultaneous key presses. The driver sends the raw register
->>> values for each key (row & column) to userspace.
->>>
->>> In userspace a small tool is running, which reads a 'mapping'
->>> file, processes the key events and send the configured keycodes
->>> back to the kernel via uinput.
->>
->> This is a bit roundabout way of doing it. Why can't the kernel driver
->> perform lookup in it's internal table and emit proper keycodes itself?
->
-> I thought that T9 can not be done in kernel. The biggest problem is that
-> I need have separate keys to change the behavior:
->
-> - one key to switch between T9 and normal number input
-> - one shift key
-> - one key for caps lock
->
-> This means that I need to have some sort of logic to interpret the same
-> key differently depending on the operation mode.
-> Is this possible in the input subsystem?
->
-> If not it should be no problem to send the raw register value back to userspace
-> and handle it there.
->
->> We have wealth of options for supplying keymaps to the kernel drivers,
->> including:
->>
->> - platform data
->> - device tree data
->> - loading from userspace via EVIOCSKEYCODE ioctl.
->
-> For this driver only EVIOCSKEYCODE could be an option as my company
-> uses the same hardware with different front panels (with different key options).
-> That is the reason I have a userspace tool that parses simple ini file and do
-> the logic there.
->
+On Fri, 14 Dec 2012, Mauro Carvalho Chehab wrote:
 
-As I got no feedback I assume that its okay to do all processing in userspace.
+> There are some Sony clone gamepads that are incompatible
+> with PS3 since firmware 3.50, as they decided to prevent those
+> devices to work, without any good technical reason. I was one of those
+> 'blessed' people affected by their niceness with their customers.
+> 
+> Marcelo also has another device with a similar problem.
+> 
+> Perhaps due to Sony's way to block the device, damaging the device's
+> eeprom, or perhaps because they just have a different, broken Report 
+> descriptor, there are 3 buttons that don't work on both devices
+> (the ones equivalent to square, round and X).
+> 
+> What it happens is that the descriptor generate weird EV_ABS events
+> to those buttons, instead of EV_MSC/EV_KEY.
+> 
+> A fix that seems to be enough for them is to return the original
+> sixaxis table instead of the broken one. That's what this patch
+> does. 
+> 
+> Yet, there are some missing entries at the used keytable. On my
+> tests, all keys are now producing the right events, but the reported
+> keycodes look weird:
+> 
+> "square" key: (Button.0010 = 1)
+> 
+> 1355524363.460835: event type EV_MSC(0x04): scancode = 0x90010
+> 1355524363.460835: event type EV_KEY(0x01) key_up: BTN_DEAD(0x0001)
+> 
+> "round" key: (Button.000e = 1)
+> 
+> 1355524410.908705: event type EV_MSC(0x04): scancode = 0x9000e
+> 1355524410.908705: event type EV_KEY(0x01) key_down: (0x0001)
+> 1355524410.971788: event type EV_MSC(0x04): scancode = 0x9000e
+> 1355524410.971788: event type EV_KEY(0x01) key_up: (0x0001)
+> 
+> "X" key: (Button.000f = 1)
+> 1355524384.880813: event type EV_MSC(0x04): scancode = 0x9000f
+> 1355524384.880813: event type EV_KEY(0x01) key_down: (0x0001)
+> 1355524384.979815: event type EV_MSC(0x04): scancode = 0x9000f
+> 1355524384.979815: event type EV_KEY(0x01) key_up: (0x0001)
+> 
+> The rationale is likely due to those entries at rdesc table, where the
+> Kernel were not likely able to parse:
+> 
+> Button.000d ---> Key.?
+> Button.000e ---> Key.?
+> Button.000f ---> Key.?
+> Button.0010 ---> Key.BtnDead
+> Button.0011 ---> Key.?
+> Button.0012 ---> Key.?
+> Button.0013 ---> Key.?
+> 
+> As a reference, this is the rdisc used on my clone (a Mad Catz
+> model 8846):
+> 
+> 05 01 09 04 a1 01 a1 02 85 01 75 08 95 01 15 00 26 ff 00 81 03 75 01 95 0d 15 00 25 01 35 00 45 01 05 09 19 01 29 0d 81 02 75 01 95 03 06 00 ff 81 03 05 01 25 07 46 3b 01 75 04 95 01 65 14 09 39 81 42 65 00 75 01 95 0c 06 00 ff 81 03 15 00 26 ff 00 05 01 09 01 a1 00 75 08 95 04 15 00 15 00 15 00 35 00 35 00 46 ff 00 09 30 09 31 09 32 09 35 81 02 c0 05 01 75 08 95 27 09 01 81 02 75 08 95 30 09 01 91 02 75 08 95 30 09 01 b1 02 c0 a1 02 85 02 75 08 95 30 09 01 b1 02 c0 a1 02 85 ee 75 08 95 30 09 01 b1 02 c0 a1 02 85 ef 75 08 95 30 09 01 b1 02 c0 c0 
+> 
+> This is what's returned on Marcelo's device (not sure what is
+> the brand name of his device):
+> 
+> 05 01 09 04 a1 01 a1 02 85 01 75 08 95 01 15 00 26 ff 00 81 03 75 01 95 13 15 00 25 01 35 00 45 01 05 09 19 01 29 13 81 02 75 01 95 0d 06 00 ff 81 03 15 00 26 ff 00 05 01 09 01 a1 00 75 08 95 04 35 00 46 ff 00 09 30 09 31 09 32 09 35 81 02 c0 05 01 95 13 09 01 81 02 95 0c 81 01 75 10 95 04 26 ff 03 46 ff 03 09 01 81 02 c0 a1 02 85 02 75 08 95 30 09 01 b1 02 c0 a1 02 85 ee 75 08 95 30 09 01 b1 02 c0 a1 02 85 ef 75 08 95 30 09 01 b1 02 c0 c0 
+> 
+> Reported-by: Marcelo Leitner <mleitner@redhat.com>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 
-thanks
---
-Christian Gmeiner, MSc
+Yeah, this is the way I'd like to have it fixed.
+
+Waiting for Marcelo's Tested-by: before merging it.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

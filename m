@@ -1,7 +1,7 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH 01/05] input: RMI4 header file
-Date: Tue, 18 Dec 2012 16:46:32 -0800
-Message-ID: <1355877996-1433-2-git-send-email-cheiny@synaptics.com>
+Subject: [PATCH 03/05] input: I2C physical layer
+Date: Tue, 18 Dec 2012 16:46:34 -0800
+Message-ID: <1355877996-1433-4-git-send-email-cheiny@synaptics.com>
 References: <1355877996-1433-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1355877996-1433-1-git-send-email-cheiny@synaptics.com>
@@ -10,8 +10,8 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>
 List-Id: linux-input@vger.kernel.org
 
-In addition to the changes described in part 0/5, this fixes some cut&paste
-issues in the comments for module_rmi_function_driver.
+Changes here are limited to those described in the 0/0 of this patchset, plus
+some tweaks to debugging output.
 
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -21,14 +21,14 @@ Acked-by: Jean Delvare <khali@linux-fr.org>
 
 ---
 
- include/linux/rmi.h |   95 +++++++++++++++++++++++----------------------------
- 1 files changed, 43 insertions(+), 52 deletions(-)
+ drivers/input/rmi4/rmi_i2c.c |  141 ++++++------------------------------------
+ 1 files changed, 20 insertions(+), 121 deletions(-)
 
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index daca41b..eec926f 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -2,25 +2,16 @@
+diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+index ca32101..513791c 100644
+--- a/drivers/input/rmi4/rmi_i2c.c
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -2,19 +2,9 @@
   * Copyright (c) 2011, 2012 Synaptics Incorporated
   * Copyright (c) 2011 Unixphere
   *
@@ -50,194 +50,194 @@ index daca41b..eec926f 100644
 + * the Free Software Foundation.
   */
 
- #ifndef _RMI_H
- #define _RMI_H
  #include <linux/kernel.h>
- #include <linux/cdev.h>
-+#include <linux/debugfs.h>
- #include <linux/device.h>
- #include <linux/interrupt.h>
- #include <linux/input.h>
-@@ -31,7 +22,6 @@
- #include <linux/stat.h>
- #include <linux/types.h>
- #include <linux/wait.h>
--#include <linux/debugfs.h>
+@@ -58,7 +48,7 @@ struct rmi_i2c_data {
+ 	u8 *debug_buf;
+ 	int debug_buf_size;
 
- extern struct bus_type rmi_bus_type;
-
-@@ -73,7 +63,7 @@ enum rmi_attn_polarity {
-  *               automatically enabled for this sensor.
-  */
- struct rmi_f11_2d_axis_alignment {
--	bool swap_axes;
-+	u32 swap_axes;
- 	bool flip_x;
- 	bool flip_y;
- 	int clip_X_low;
-@@ -82,7 +72,6 @@ struct rmi_f11_2d_axis_alignment {
- 	int clip_Y_high;
- 	int offset_X;
- 	int offset_Y;
--	int rel_report_enabled;
- 	u8 delta_x_threshold;
- 	u8 delta_y_threshold;
- };
-@@ -105,6 +94,7 @@ enum rmi_f11_sensor_type {
-
- /**
-  * struct rmi_f11_sensor_data - overrides defaults for a single F11 2D sensor.
-+ *
-  * @axis_align - provides axis alignment overrides (see above).
-  * @type_a - all modern RMI F11 firmwares implement Multifinger Type B
-  * protocol.  Set this to true to force MF Type A behavior, in case you find
-@@ -338,13 +328,14 @@ struct rmi_function_descriptor {
- 	u8 function_version;
- };
-
--struct rmi_function;
-+struct rmi_function_dev;
- struct rmi_device;
-
- /**
-- * struct rmi_function_handler - driver routines for a particular RMI function.
-+ * struct rmi_function_driver - driver routines for a particular RMI function.
-  *
-  * @func: The RMI function number
-+ * @probe: Called when the handler is successfully matched to a function device.
-  * @reset: Called when a reset of the touch sensor is detected.  The routine
-  * should perform any out-of-the-ordinary reset handling that might be
-  * necessary.  Restoring of touch sensor configuration registers should be
-@@ -361,37 +352,31 @@ struct rmi_device;
-  *
-  * All callbacks are expected to return 0 on success, error code on failure.
-  */
--struct rmi_function_handler {
-+struct rmi_function_driver {
- 	struct device_driver driver;
-
- 	u8 func;
--	int (*probe)(struct rmi_function *fn);
--	void (*remove)(struct rmi_function *fn);
--	int (*config)(struct rmi_function *fn);
--	int (*reset)(struct rmi_function *fn);
--	int (*attention)(struct rmi_function *fn, unsigned long *irq_bits);
-+	int (*probe)(struct rmi_function_dev *fc);
-+	int (*remove)(struct rmi_function_dev *fc);
-+	int (*config)(struct rmi_function_dev *fc);
-+	int (*reset)(struct rmi_function_dev *fc);
-+	int (*attention)(struct rmi_function_dev *fc,
-+				unsigned long *irq_bits);
- #ifdef CONFIG_PM
--	int (*suspend)(struct rmi_function *fn);
--	int (*resume)(struct rmi_function *fn);
-+	int (*suspend)(struct rmi_function_dev *fc);
-+	int (*resume)(struct rmi_function_dev *fc);
+-	bool comms_debug;
++	u32 comms_debug;
+ #ifdef CONFIG_RMI4_DEBUG
+ 	struct dentry *debugfs_comms;
  #endif
- };
+@@ -66,107 +56,13 @@ struct rmi_i2c_data {
 
--#define to_rmi_function_handler(d) \
--		container_of(d, struct rmi_function_handler, driver)
+ #ifdef CONFIG_RMI4_DEBUG
+
 -
--int __must_check __rmi_register_function_handler(struct rmi_function_handler *,
--						 struct module *, const char *);
--#define rmi_register_function_handler(handler) \
--	__rmi_register_function_handler(handler, THIS_MODULE, KBUILD_MODNAME)
+-/**
+- * struct i2c_debugfs_data - stores information for debugfs
+- *
+- * @done: Indicates that we are done reading debug data. Subsequent reads
+- * will return EOF.
+- * @i2c_data: Pointer to the i2c data
+- *
+- */
+-struct i2c_debugfs_data {
+-	bool done;
+-	struct rmi_i2c_data *i2c_data;
+-};
 -
--void rmi_unregister_function_handler(struct rmi_function_handler *);
-+#define to_rmi_function_driver(d) \
-+		container_of(d, struct rmi_function_driver, driver);
+-static int debug_open(struct inode *inodep, struct file *filp)
+-{
+-	struct i2c_debugfs_data *data;
+-
+-	data = kzalloc(sizeof(struct i2c_debugfs_data), GFP_KERNEL);
+-	if (!data)
+-		return -ENOMEM;
+-
+-	data->i2c_data = inodep->i_private;
+-	filp->private_data = data;
+-	return 0;
+-}
+-
+-static int debug_release(struct inode *inodep, struct file *filp)
+-{
+-	kfree(filp->private_data);
+-	return 0;
+-}
+-
+-static ssize_t comms_debug_read(struct file *filp, char __user *buffer,
+-		size_t size, loff_t *offset) {
+-	int retval;
+-	char *local_buf;
+-	struct i2c_debugfs_data *dfs = filp->private_data;
+-	struct rmi_i2c_data *data = dfs->i2c_data;
+-
+-	if (dfs->done)
+-		return 0;
+-
+-	local_buf = kcalloc(size, sizeof(u8), GFP_KERNEL);
+-	if (!local_buf)
+-		return -ENOMEM;
+-
+-	dfs->done = 1;
+-
+-	retval = snprintf(local_buf, PAGE_SIZE, "%u\n", data->comms_debug);
+-
+-	if (retval <= 0 || copy_to_user(buffer, local_buf, retval))
+-		retval = -EFAULT;
+-	kfree(local_buf);
+-
+-	return retval;
+-}
+-
+-static ssize_t comms_debug_write(struct file *filp, const char __user *buffer,
+-			   size_t size, loff_t *offset) {
+-	int retval;
+-	char *local_buf;
+-	unsigned int new_value;
+-	struct i2c_debugfs_data *dfs = filp->private_data;
+-	struct rmi_i2c_data *data = dfs->i2c_data;
+-
+-	local_buf = kcalloc(size, sizeof(u8), GFP_KERNEL);
+-	if (!local_buf)
+-		return -ENOMEM;
+-	retval = copy_from_user(local_buf, buffer, size);
+-	if (retval) {
+-		kfree(local_buf);
+-		return -EFAULT;
+-	}
+-
+-	retval = sscanf(local_buf, "%u", &new_value);
+-	kfree(local_buf);
+-	if (retval != 1 || new_value > 1)
+-		return -EINVAL;
+-
+-	data->comms_debug = new_value;
+-
+-	return size;
+-}
+-
+-
+-static const struct file_operations comms_debug_fops = {
+-	.owner = THIS_MODULE,
+-	.open = debug_open,
+-	.release = debug_release,
+-	.read = comms_debug_read,
+-	.write = comms_debug_write,
+-};
+-
+ static int setup_debugfs(struct rmi_device *rmi_dev, struct rmi_i2c_data *data)
+ {
+ 	if (!rmi_dev->debugfs_root)
+ 		return -ENODEV;
 
- /**
-- * struct rmi_function - represents the implementation of an RMI4
-- * function for a particular device (basically, a driver for that RMI4 function)
-+ * struct rmi_function_dev - represents an a particular RMI4 function on a given
-+ * RMI4 sensor.
-  *
-  * @fd: The function descriptor of the RMI function
-- * @rmi_dev: Pointer to the RMI device associated with this function container
-+ * @rmi_dev: Pointer to the RMI device associated with this function device
-  * @dev: The device associated with this particular function.
-  *
-  * @num_of_irqs: The number of irqs needed by this function
-@@ -400,11 +385,12 @@ void rmi_unregister_function_handler(struct rmi_function_handler *);
-  * interrupt handling.
-  * @data: Private data pointer
-  *
-- * @list: Used to create a list of function containers.
-+ * @list: Used to create a list of function devices.
-  * @debugfs_root: used during debugging
-  *
-  */
--struct rmi_function {
-+struct rmi_function_dev {
-+
- 	struct rmi_function_descriptor fd;
- 	struct rmi_device *rmi_dev;
- 	struct device dev;
-@@ -414,13 +400,19 @@ struct rmi_function {
- 	void *data;
- 	struct list_head list;
-
--#ifdef CONFIG_RMI4_DEBUG
- 	struct dentry *debugfs_root;
--#endif
- };
-
--#define to_rmi_function(d) \
--		container_of(d, struct rmi_function, dev)
-+#define to_rmi_function_dev(d) \
-+		container_of(d, struct rmi_function_dev, dev);
-+
-+
-+int __must_check __rmi_register_function_driver(struct rmi_function_driver *,
-+						 struct module *, const char *);
-+#define rmi_register_function_driver(handler) \
-+	__rmi_register_function_driver(handler, THIS_MODULE, KBUILD_MODNAME)
-+
-+void rmi_unregister_function_driver(struct rmi_function_driver *);
-
- /**
-  * struct rmi_driver - driver for an RMI4 sensor on the RMI bus.
-@@ -446,6 +438,7 @@ struct rmi_driver {
- 	int (*store_productid)(struct rmi_device *rmi_dev);
- 	int (*set_input_params)(struct rmi_device *rmi_dev,
- 			struct input_dev *input);
-+	int (*remove)(struct rmi_device *rmi_dev);
- 	void *data;
- };
-
-@@ -528,9 +521,7 @@ struct rmi_device {
- 	struct rmi_driver *driver;
- 	struct rmi_phys_device *phys;
-
--#ifdef CONFIG_RMI4_DEBUG
- 	struct dentry *debugfs_root;
--#endif
- };
-
- #define to_rmi_device(d) container_of(d, struct rmi_device, dev);
-@@ -601,17 +592,17 @@ void rmi_unregister_phys_device(struct rmi_phys_device *phys);
- int rmi_for_each_dev(void *data, int (*func)(struct device *dev, void *data));
-
- /**
-- * module_serio_driver() - Helper macro for registering a serio driver
-- * @__serio_driver: serio_driver struct
-+ * module_rmi_function_driver() - Helper macro for registering a function driver
-+ * @__rmi_driver: rmi_function_driver struct
-  *
-- * Helper macro for serio drivers which do not do anything special in
-+ * Helper macro for RMI4 function drivers which do not do anything special in
-  * module init/exit. This eliminates a lot of boilerplate. Each module
-  * may only use this macro once, and calling it replaces module_init()
-  * and module_exit().
-  */
--#define module_rmi_driver(__rmi_driver)			\
-+#define module_rmi_function_driver(__rmi_driver)	\
- 	module_driver(__rmi_driver,			\
--		      rmi_register_function_handler,	\
--		      rmi_unregister_function_handler)
-+		      rmi_register_function_driver,	\
-+		      rmi_unregister_function_driver)
-
+-	data->debugfs_comms = debugfs_create_file("comms_debug", RMI_RW_ATTR,
+-			rmi_dev->debugfs_root, data, &comms_debug_fops);
++	data->debugfs_comms = debugfs_create_bool("comms_debug", RMI_RW_ATTR,
++			rmi_dev->debugfs_root, &data->comms_debug);
+ 	if (!data->debugfs_comms || IS_ERR(data->debugfs_comms)) {
+ 		dev_warn(&rmi_dev->dev, "Failed to create debugfs comms_debug.\n");
+ 		data->debugfs_comms = NULL;
+@@ -180,6 +76,9 @@ static void teardown_debugfs(struct rmi_i2c_data *data)
+ 	if (data->debugfs_comms)
+ 		debugfs_remove(data->debugfs_comms);
+ }
++#else
++#define setup_debugfs(rmi_dev, data) 0
++#define teardown_debugfs(data)
  #endif
+
+ #define COMMS_DEBUG(data) (IS_ENABLED(CONFIG_RMI4_DEBUG) && data->comms_debug)
+@@ -286,8 +185,8 @@ static int rmi_i2c_write_block(struct rmi_phys_device *phys, u16 addr,
+ 	}
+
+ 	if (COMMS_DEBUG(data)) {
+-		retval = copy_to_debug_buf(&client->dev, data, (u8 *) buf, len);
+-		if (!retval)
++		int rc = copy_to_debug_buf(&client->dev, data, (u8 *) buf, len);
++		if (!rc)
+ 			dev_dbg(&client->dev, "writes %d bytes at %#06x:%s\n",
+ 				len, addr, data->debug_buf);
+ 	}
+@@ -341,8 +240,8 @@ static int rmi_i2c_read_block(struct rmi_phys_device *phys, u16 addr,
+ 	if (retval < 0)
+ 		phys->info.rx_errs++;
+ 	else if (COMMS_DEBUG(data)) {
+-		retval = copy_to_debug_buf(&client->dev, data, (u8 *) buf, len);
+-		if (!retval)
++		int rc = copy_to_debug_buf(&client->dev, data, (u8 *) buf, len);
++		if (!rc)
+ 			dev_dbg(&client->dev, "read %d bytes at %#06x:%s\n",
+ 				len, addr, data->debug_buf);
+ 	}
+@@ -369,7 +268,7 @@ static int __devinit rmi_i2c_probe(struct i2c_client *client,
+ 		client->addr, pdata->attn_gpio);
+
+ 	if (pdata->gpio_config) {
+-		dev_info(&client->dev, "Configuring GPIOs.\n");
++		dev_dbg(&client->dev, "Configuring GPIOs.\n");
+ 		retval = pdata->gpio_config(pdata->gpio_data, true);
+ 		if (retval < 0) {
+ 			dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
+@@ -419,15 +318,16 @@ static int __devinit rmi_i2c_probe(struct i2c_client *client,
+
+ 	retval = rmi_register_phys_device(rmi_phys);
+ 	if (retval) {
+-		dev_err(&client->dev,
+-			"failed to register physical driver at 0x%.2X.\n",
++		dev_err(&client->dev, "Failed to register physical driver at 0x%.2X.\n",
+ 			client->addr);
+ 		goto err_gpio;
+ 	}
+ 	i2c_set_clientdata(client, rmi_phys);
+
+-	if (IS_ENABLED(CONFIG_RMI4_DEBUG))
+-		retval = setup_debugfs(rmi_phys->rmi_dev, data);
++	retval = setup_debugfs(rmi_phys->rmi_dev, data);
++	if (retval < 0)
++		dev_warn(&client->dev, "Failed to setup debugfs. Code: %d.\n",
++			 retval);
+
+ 	dev_info(&client->dev, "registered rmi i2c driver at %#04x.\n",
+ 			client->addr);
+@@ -444,8 +344,7 @@ static int __devexit rmi_i2c_remove(struct i2c_client *client)
+ 	struct rmi_phys_device *phys = i2c_get_clientdata(client);
+ 	struct rmi_device_platform_data *pd = client->dev.platform_data;
+
+-	if (IS_ENABLED(CONFIG_RMI4_DEBUG))
+-		teardown_debugfs(phys->data);
++	teardown_debugfs(phys->data);
+
+ 	rmi_unregister_phys_device(phys);

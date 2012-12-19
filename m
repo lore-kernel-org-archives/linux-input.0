@@ -1,113 +1,68 @@
-From: Jesper Juhl <jj@chaosbits.net>
-Subject: Re: [PATCH] atkbd: Fix multi-char scancode handling on reconnect.
-Date: Tue, 18 Dec 2012 22:24:05 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1212182222560.14788@swampdragon.chaosbits.net>
-References: <1355530643-8177-1-git-send-email-shawnn@chromium.org>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [RFC PATCH 00/05] input: Synaptics RMI4 Touchscreen Driver
+Date: Tue, 18 Dec 2012 16:46:31 -0800
+Message-ID: <1355877996-1433-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from swampdragon.chaosbits.net ([90.184.90.115]:59969 "EHLO
-	swampdragon.chaosbits.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753304Ab2LRVYI (ORCPT
+Received: from [12.239.217.82] ([12.239.217.82]:56908 "EHLO
+	venom.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754977Ab2LSArc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Dec 2012 16:24:08 -0500
-In-Reply-To: <1355530643-8177-1-git-send-email-shawnn@chromium.org>
+	Tue, 18 Dec 2012 19:47:32 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shawn Nematbakhsh <shawnn@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>
 
-On Fri, 14 Dec 2012, Shawn Nematbakhsh wrote:
+This patchset implements changes based on the synaptics-rmi4 branch of
+Dmitry's input tree.  The base for the patchset is Dmitry's commit
+0af25383d395fb5ece54b79d12d06138bf8b9836 from 2012-11-28.
 
-> On resume from suspend there is a possibility for multi-byte scancodes
-> to be handled incorrectly. atkbd_reconnect disables the processing of
-> scancodes in software by calling atkbd_disable, but the keyboard may
-> still be active because no disconnect command was sent. Later, software
-> handling is re-enabled. If a multi-byte scancode sent from the keyboard
-> straddles the re-enable, only the latter byte(s) will be handled.
-> 
-> In practice, this leads to cases where multi-byte break codes (ex. "e0
-> 4d" - break code for right-arrow) are misread as make codes ("4d" - make
-> code for numeric 6), leading to one or more unwanted, untyped characters
-> being interpreted.
-> 
-> The solution implemented here involves sending command f5 (reset
-> disable) to the keyboard prior to disabling software handling of codes.
-> Later, the command to re-enable the keyboard is sent only after we are
-> prepared to handle scancodes.
-> 
-> Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
-> ---
->  drivers/input/keyboard/atkbd.c |   26 ++++++++++++++++++++++++--
->  1 files changed, 24 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-> index add5ffd..da49e8b 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -844,6 +844,24 @@ static int atkbd_activate(struct atkbd *atkbd)
->  }
->  
->  /*
-> + * atkbd_deactivate() resets and disables the keyboard from sending
-> + * keystrokes.
-> + */
-> +static int atkbd_deactivate(struct atkbd *atkbd)
+Overall this patchset implements the following changes:
 
-Why bother with a return type when you never check it anyway?
-I'd say, either check for the 0/-1 you return and do something sensible or 
-just let it return void.
+* updates to Dmitry's RMI4_CORE structure from his 2012-11-28 patches.
+This tries to maintain the same approach as Dmitry's implementation, but
+we had to move away from using the bus probe() routine, since it wasn't
+possible for that routine to readily determine if it had a struct driver() for
+an RMI4 sensor or an RMI4 device.  Otherwise, we've stuck close to Dmitry's
+work, which has tidied things up nicely.
 
-> +{
-> +	struct ps2dev *ps2dev = &atkbd->ps2dev;
-> +
-> +	if (ps2_command(ps2dev, NULL, ATKBD_CMD_RESET_DIS)) {
-> +		dev_err(&ps2dev->serio->dev,
-> +			"Failed to deactivate keyboard on %s\n",
-> +			ps2dev->serio->phys);
-> +		return -1;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +/*
->   * atkbd_cleanup() restores the keyboard state so that BIOS is happy after a
->   * reboot.
->   */
-> @@ -1199,6 +1217,9 @@ static int atkbd_reconnect(struct serio *serio)
->  
->  	mutex_lock(&atkbd->mutex);
->  
-> +	if (atkbd->write)
-> +		atkbd_deactivate(atkbd);
-> +
->  	atkbd_disable(atkbd);
->  
->  	if (atkbd->write) {
-> @@ -1208,8 +1229,6 @@ static int atkbd_reconnect(struct serio *serio)
->  		if (atkbd->set != atkbd_select_set(atkbd, atkbd->set, atkbd->extra))
->  			goto out;
->  
-> -		atkbd_activate(atkbd);
-> -
->  		/*
->  		 * Restore LED state and repeat rate. While input core
->  		 * will do this for us at resume time reconnect may happen
-> @@ -1224,6 +1243,9 @@ static int atkbd_reconnect(struct serio *serio)
->  	}
->  
->  	atkbd_enable(atkbd);
-> +	if (atkbd->write)
-> +		atkbd_activate(atkbd);
-> +
->  	retval = 0;
->  
->   out:
-> 
+* We've renamed the structures rmi_function_handler to rmi_function_driver and
+rmi_device to rmi_function_dev, mainly because they actually were being treated
+as drivers and devices for individual RMI4 functions, and the previous
+terminology was somewhat confusing.
 
--- 
-Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
-Don't top-post http://www.catb.org/jargon/html/T/top-post.html
-Plain text mails only, please.
+* Moved much of the debugfs stuff to use standard macros.  This required
+changing a bunch of bools to u32s.  Debugfs interfaces that handled multiple
+values in a single file were NOT changed, because some debug tools depend on
+that format.  Once we've udpate those tools, we'll change or remove the
+remaining interfaces.
 
+* Many other bools were changed to u8, per Dmitry's request.
+
+* Trivial - file copyright header is updated to be more in line with the rest
+of the files under ./input.
+
+
+We've broken this patch into 6 parts, as follows:
+    01 - public header file
+    02 - core sensor and bus implementation
+    03 - I2C physical layer driver
+    04.05 - drivers for individual RMI functions
+
+
+Hopefully this is the last time we'll have wide-ranging structural changes in
+the driver code, and future patchsets can be much smaller and confined to
+one or two areas of interest.
+
+
+Comments and other feedback on this driver are welcomed.
+
+Christopher Heiny and the Synaptics RMI4 driver team
+
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Joeri de Gram <j.de.gram@gmail.com>
+
+---

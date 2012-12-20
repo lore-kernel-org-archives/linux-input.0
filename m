@@ -1,64 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 01/01] Input multitouch: fix horizontal
- two-finger-scrolling on Sentelic touchpads
-Date: Wed, 19 Dec 2012 16:37:05 -0800
-Message-ID: <20121220003705.GA29672@core.coreip.homeip.net>
-References: <20121212012135.GA9043@sherka.no-ip.biz>
- <20121219230945.GA25106@sherka.no-ip.biz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] Input: wm831x-ts: Convert to devm_input_allocate_device()
+Date: Thu, 20 Dec 2012 13:15:42 +0000
+Message-ID: <1356009342-4550-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:49772 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751062Ab2LTAhU (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:37587 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751441Ab2LTNPq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Dec 2012 19:37:20 -0500
-Content-Disposition: inline
-In-Reply-To: <20121219230945.GA25106@sherka.no-ip.biz>
+	Thu, 20 Dec 2012 08:15:46 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christophe TORDEUX <christophe@tordeux.net>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Tai-hwa Liang <avatar@sentelic.com>, Oskari Saarenmaa <os@ohmu.fi>, Paul Fox <pgf@laptop.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Thu, Dec 20, 2012 at 12:09:45AM +0100, Christophe TORDEUX wrote:
-> From: Christophe TORDEUX <christophe@tordeux.net>
-> 
-> Apply the following change to the Sentelic touchpad driver:
-> report only the position of the first finger as absolute non-MT 
-> coordinates, instead of reporting both fingers alternatively. Actual MT 
-> events are unaffected.
-> 
-> Signed-off-by: Christophe TORDEUX <christophe@tordeux.net>
-> ----
-> 
-> This is a much simpler version of my patch. Basically, it makes little 
-> sense to report both fingers alternatively, as long as it's non-MT 
-> events. With this approach, storing coordinates of the previously 
-> reported touch is not necessary. This patch is against kernel version 
-> 3.7. Works with a touchpad version STL3888_C0, very probably works on 
-> all later version, and very probably does not impact any earlier 
-> version. This patch has two effects:
-> 1) fix horizontal and improve vertical scrolling, though maybe in a
-> coincidental way and 2) work towards making the non-MT absolute events
-> a purely legacy single finger fallback mode, without breaking anything.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/wm831x-ts.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-OK, this makes a lot of sense and I will be applying this; thanks!
-
-> 
-> diff -uprN -X vanilla/linux-3.7-rc8/Documentation/dontdiff vanilla/linux-3.7/drivers/input/mouse/sentelic.c linux-3.7/drivers/input/mouse/sentelic.c
-> --- vanilla/linux-3.7/drivers/input/mouse/sentelic.c	2012-12-15 13:51:58.768136524 +0100
-> +++ linux-3.7/drivers/input/mouse/sentelic.c	2012-12-19 23:26:49.289517251 +0100
-> @@ -791,7 +791,7 @@ static psmouse_ret_t fsp_process_byte(st
->  			fsp_set_slot(dev, 0, fgrs > 0, abs_x, abs_y);
->  			fsp_set_slot(dev, 1, false, 0, 0);
->  		}
-> -		if (fgrs > 0) {
-> +		if (fgrs ==1 || (fgrs == 2 && !(packet[0] & FSP_PB0_MFMC_FGR2))) {
->  			input_report_abs(dev, ABS_X, abs_x);
->  			input_report_abs(dev, ABS_Y, abs_y);
->  		}
-
-
-
+diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
+index f88fab5..6be2eb6 100644
+--- a/drivers/input/touchscreen/wm831x-ts.c
++++ b/drivers/input/touchscreen/wm831x-ts.c
+@@ -247,7 +247,7 @@ static int wm831x_ts_probe(struct platform_device *pdev)
+ 
+ 	wm831x_ts = devm_kzalloc(&pdev->dev, sizeof(struct wm831x_ts),
+ 				 GFP_KERNEL);
+-	input_dev = input_allocate_device();
++	input_dev = devm_input_allocate_device(&pdev->dev);
+ 	if (!wm831x_ts || !input_dev) {
+ 		error = -ENOMEM;
+ 		goto err_alloc;
+@@ -376,7 +376,6 @@ err_pd_irq:
+ err_data_irq:
+ 	free_irq(wm831x_ts->data_irq, wm831x_ts);
+ err_alloc:
+-	input_free_device(input_dev);
+ 
+ 	return error;
+ }
+@@ -387,7 +386,6 @@ static int wm831x_ts_remove(struct platform_device *pdev)
+ 
+ 	free_irq(wm831x_ts->pd_irq, wm831x_ts);
+ 	free_irq(wm831x_ts->data_irq, wm831x_ts);
+-	input_unregister_device(wm831x_ts->input_dev);
+ 
+ 	return 0;
+ }
 -- 
-Dmitry
+1.7.10.4
+

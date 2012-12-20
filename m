@@ -1,52 +1,49 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH] Input: wm831x-on - Convert to devm_input_allocate_device()
-Date: Thu, 20 Dec 2012 13:15:58 +0000
-Message-ID: <1356009358-4638-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PATCH 1/4] input: adxl34x: consistently use read/write encapsulation
+Date: Thu, 20 Dec 2012 14:51:08 +0100
+Message-ID: <1356011471-18757-2-git-send-email-w.sang@pengutronix.de>
+References: <1356011471-18757-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:37594 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751628Ab2LTNQB (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:50896 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752714Ab2LTNv3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Dec 2012 08:16:01 -0500
+	Thu, 20 Dec 2012 08:51:29 -0500
+In-Reply-To: <1356011471-18757-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: linux-input@vger.kernel.org
+Cc: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, device-drivers-devel@blackfin.uclinux.org, Wolfram Sang <w.sang@pengutronix.de>
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Don't open code the AC_READ and AC_WRITE macros.
+
+Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
 ---
- drivers/input/misc/wm831x-on.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/input/misc/adxl34x.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/misc/wm831x-on.c b/drivers/input/misc/wm831x-on.c
-index 558767d..caa2c406 100644
---- a/drivers/input/misc/wm831x-on.c
-+++ b/drivers/input/misc/wm831x-on.c
-@@ -86,7 +86,7 @@ static int wm831x_on_probe(struct platform_device *pdev)
- 	wm831x_on->wm831x = wm831x;
- 	INIT_DELAYED_WORK(&wm831x_on->work, wm831x_poll_on);
+diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
+index 1cf72fe..b18d3e2 100644
+--- a/drivers/input/misc/adxl34x.c
++++ b/drivers/input/misc/adxl34x.c
+@@ -732,7 +732,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
+ 	mutex_init(&ac->mutex);
  
--	wm831x_on->dev = input_allocate_device();
-+	wm831x_on->dev = devm_input_allocate_device(&pdev->dev);
- 	if (!wm831x_on->dev) {
- 		dev_err(&pdev->dev, "Can't allocate input dev\n");
- 		ret = -ENOMEM;
-@@ -119,7 +119,6 @@ static int wm831x_on_probe(struct platform_device *pdev)
- err_irq:
- 	free_irq(irq, wm831x_on);
- err_input_dev:
--	input_free_device(wm831x_on->dev);
- err:
- 	return ret;
- }
-@@ -131,7 +130,6 @@ static int wm831x_on_remove(struct platform_device *pdev)
+ 	input_dev->name = "ADXL34x accelerometer";
+-	revid = ac->bops->read(dev, DEVID);
++	revid = AC_READ(ac, DEVID);
  
- 	free_irq(irq, wm831x_on);
- 	cancel_delayed_work_sync(&wm831x_on->work);
--	input_unregister_device(wm831x_on->dev);
+ 	switch (revid) {
+ 	case ID_ADXL345:
+@@ -809,7 +809,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
+ 	if (FIFO_MODE(pdata->fifo_mode) == FIFO_BYPASS)
+ 		ac->fifo_delay = false;
  
- 	return 0;
- }
+-	ac->bops->write(dev, POWER_CTL, 0);
++	AC_WRITE(ac, POWER_CTL, 0);
+ 
+ 	err = request_threaded_irq(ac->irq, NULL, adxl34x_irq,
+ 				   IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
 -- 
 1.7.10.4
 

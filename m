@@ -1,58 +1,68 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: [PATCH 0/4] input adxl34x: give a little love to the driver
-Date: Thu, 20 Dec 2012 15:00:21 +0100
-Message-ID: <50D319F5.8040705@analog.com>
-References: <1356011471-18757-1-git-send-email-w.sang@pengutronix.de>
-Reply-To: <michael.hennerich@analog.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: [RFC v2 0/4] uhid LED input events handling
+Date: Thu, 20 Dec 2012 20:43:55 +0100
+Message-ID: <CANq1E4S_TzeCZ-djPxBcOYHFEoBxUdQpruTe52mtTq-nkCdc2Q@mail.gmail.com>
+References: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
+	<CACJA=fUYX0Wehd--Ay0bwSS+9visC5By=SCWaoVkvKjVsJySKQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from co9ehsobe001.messaging.microsoft.com ([207.46.163.24]:15422
-	"EHLO co9outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751882Ab2LTOBS (ORCPT
+Received: from mail-ea0-f179.google.com ([209.85.215.179]:63342 "EHLO
+	mail-ea0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751630Ab2LTUNX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Dec 2012 09:01:18 -0500
-In-Reply-To: <1356011471-18757-1-git-send-email-w.sang@pengutronix.de>
+	Thu, 20 Dec 2012 15:13:23 -0500
+Received: by mail-ea0-f179.google.com with SMTP id i12so1522342eaa.24
+        for <linux-input@vger.kernel.org>; Thu, 20 Dec 2012 12:13:22 -0800 (PST)
+In-Reply-To: <CACJA=fUYX0Wehd--Ay0bwSS+9visC5By=SCWaoVkvKjVsJySKQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
+To: Andre Guedes <andre.guedes@openbossa.org>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On 12/20/2012 02:51 PM, Wolfram Sang wrote:
-> Hi,
->
-> I needed this driver in a project and there were some minor hurdles in getting
-> it to run smoothly. These four patches are fixing them.
->
-> Kind regards,
->
->     Wolfram
->
->
-> Wolfram Sang (4):
->    input: adxl34x: consistently use read/write encapsulation
->    input: adxl34x: don't set THRESH_TAP twice
->    input: adxl34x: make platform_data include self contained
->    input: adxl34x: default platform_data should not use defines from
->      driver
->
->   drivers/input/misc/adxl34x.c  |    7 +++----
->   include/linux/input/adxl34x.h |    2 ++
->   2 files changed, 5 insertions(+), 4 deletions(-)
->
-looks good to me -
+Hi Andre
 
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+On Mon, Dec 17, 2012 at 2:28 PM, Andre Guedes
+<andre.guedes@openbossa.org> wrote:
+> Ping.
+>
+> On Sat, Dec 1, 2012 at 4:07 PM, Andre Guedes <andre.guedes@openbossa.org> wrote:
+>> Hi all,
+>>
+>> This patchset implements the support for handling LED input events in uhid
+>> driver.
+>>
+>> As requested in the previous RFC, it was introduced a new helper in hid-input.c
+>> to carry out a generic LED input events handling (hidinput_led_output_report).
+>> The helper is used by uhid driver.
+>>
+>> The helper can also be used in i2c-hid driver since it does a very simply
+>> handling of LED events too. I have no i2c device to test the i2c-hid patch,
+>> so it requires some testing before applying it.
+>>
+>> As long as the helper relies on device's .hid_output_raw_report() and
+>> hid-logitech-dj driver doesn't properly implement this callback, the helper is
+>> not used in hid-logitech-dj driver.
+>>
+>> Also, this helper is not used in usbhid driver as long as it does a more
+>> sophisticated handling than what hidinput_led_output_report helper does. For
+>> further information about usbhid LEDs handling see comments in the patchset [1].
 
--- 
-Greetings,
-Michael
+I actually don't like the idea to call hid_output_raw_report() from
+atomic-contexts. Using a work-queue would allow to use your callback
+from usbhid and hidp. Furthermore, you wouldn't need the GFP_ATOMIC
+patch for uhid.
+Also, please first apply the GFP_ATOMIC patch and after that fix uhid
+to use hid_output_raw_report(). We want fully bisectable trees.
 
---
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft: Muenchen; Registergericht: Muenchen HRB 40368;
-Geschaeftsfuehrer:Dr.Carsten Suckrow, Thomas Wessel, William A. Martin,
-Margaret Seif
+I am actually ok with all the uhid patches, but Jiri needs to ack the
+hid-core patches. Maybe he is ok with it, but I'd like to see all
+ll_drivers using this callback. Because the current solution doesn't
+seem any better than just fixing uhid to use it's own implementation.
+Also please elaborate why hidp and usbhid cannot use this callback.
 
-
+Sorry for the delay, but I think this will have to wait until next
+year or at least after the holidays. At least I am not very often
+available during December.
+Regards
+David

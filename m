@@ -1,91 +1,67 @@
-From: Shawn Nematbakhsh <shawnn@chromium.org>
-Subject: [PATCH v2] atkbd: Fix multi-char scancode handling on reconnect.
-Date: Thu, 20 Dec 2012 18:33:11 -0800
-Message-ID: <1356057191-24664-1-git-send-email-shawnn@chromium.org>
+From: Rob Herring <robherring2@gmail.com>
+Subject: Re: [PATCH] RFC: input: Extend matrix-keypad device tree binding
+Date: Fri, 21 Dec 2012 10:47:52 -0600
+Message-ID: <50D492B8.9030205@gmail.com>
+References: <1356035039-21653-1-git-send-email-sjg@chromium.org> <20121220211323.GA24981@core.coreip.homeip.net> <CAPnjgZ0baa73BEJ8VGW=OMGSe0k=FCz4wnCwv95R8VcGUmoRww@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAPnjgZ0baa73BEJ8VGW=OMGSe0k=FCz4wnCwv95R8VcGUmoRww@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: shawnn@chromium.org, jj@chaosbits.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Simon Glass <sjg@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Roland Stigge <stigge@antcom.de>, Vincent Palatin <vpalatin@chromium.org>, linux-doc@vger.kernel.org, Devicetree Discuss <devicetree-discuss@lists.ozlabs.org>, LKML <linux-kernel@vger.kernel.org>, Felipe Balbi <balbi@ti.com>, Wolfram Sang <w.sang@pengutronix.de>, Luigi Semenzato <semenzato@chromium.org>, Rob Herring <rob.herring@calxeda.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, Sourav Poddar <sourav.poddar@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-On resume from suspend there is a possibility for multi-byte scancodes
-to be handled incorrectly. atkbd_reconnect disables the processing of
-scancodes in software by calling atkbd_disable, but the keyboard may
-still be active because no disconnect command was sent. Later, software
-handling is re-enabled. If a multi-byte scancode sent from the keyboard
-straddles the re-enable, only the latter byte(s) will be handled.
+On 12/20/2012 03:41 PM, Simon Glass wrote:
+> Hi Dmitry,
+> 
+> On Thu, Dec 20, 2012 at 1:13 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> Hi Simon,
+>>
+>> On Thu, Dec 20, 2012 at 12:23:58PM -0800, Simon Glass wrote:
+>>>
+>>> For the key repeat feature, we need to set this after the input device
+>>> is registered. So we would need to add a matrix_keypad_setup_input() or
+>>> similar to be called by the driver after input_register_device(). I am
+>>> less keen on that idea, and less again on the alternative of perhaps
+>>> matrix_keypad_register_device() which does input_register_device() and
+>>> then sets up the key repeat. Thoughts?
+>>
+>> No, we already have default rate and delay. Unless you can prove that
+>> random firmware writer's idea of appropriate delay and rate is better
+>> then current default - for everyone - and then can successfully argue
+>> that that obviously best delay/rate combo should not replace the current
+>> one but stay only in DT bindings, let's keep relying on users adjusting
+>> their own preferences from respective desktop environments/console/etc.
+> 
+> Seems reasonable. My only comment on this is that the device tree
+> comes from kernel, not firmware. This lets us configure an embedded
+> system easily (where the user may not have access to repeat rate
+> preferences).
 
-In practice, this leads to cases where multi-byte break codes (ex. "e0
-4d" - break code for right-arrow) are misread as make codes ("4d" - make
-code for numeric 6), leading to one or more unwanted, untyped characters
-being interpreted.
+Maybe for your case, but in general the DT is not tied to the kernel.
 
-The solution implemented here involves sending command f5 (reset
-disable) to the keyboard prior to disabling software handling of codes.
-Later, the command to re-enable the keyboard is sent only after we are
-prepared to handle scancodes.
+> Grant are you OK with me just dropping the repeat settings, and
+> keeping the other two? If so I will respin the patch.
+> 
 
-Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
----
-Changes since v1:
-- Removed unused return values from atkbd_deactivate.
+One comment is these properties are already defined for omap. You should
+delete them from omap-keypad.txt and refer to this.
 
- drivers/input/keyboard/atkbd.c |   22 ++++++++++++++++++++--
- 1 files changed, 20 insertions(+), 2 deletions(-)
+Rob
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index add5ffd..44dcf83 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -844,6 +844,20 @@ static int atkbd_activate(struct atkbd *atkbd)
- }
- 
- /*
-+ * atkbd_deactivate() resets and disables the keyboard from sending
-+ * keystrokes.
-+ */
-+static void atkbd_deactivate(struct atkbd *atkbd)
-+{
-+	struct ps2dev *ps2dev = &atkbd->ps2dev;
-+
-+	if (ps2_command(ps2dev, NULL, ATKBD_CMD_RESET_DIS))
-+		dev_err(&ps2dev->serio->dev,
-+			"Failed to deactivate keyboard on %s\n",
-+			ps2dev->serio->phys);
-+}
-+
-+/*
-  * atkbd_cleanup() restores the keyboard state so that BIOS is happy after a
-  * reboot.
-  */
-@@ -1199,6 +1213,9 @@ static int atkbd_reconnect(struct serio *serio)
- 
- 	mutex_lock(&atkbd->mutex);
- 
-+	if (atkbd->write)
-+		atkbd_deactivate(atkbd);
-+
- 	atkbd_disable(atkbd);
- 
- 	if (atkbd->write) {
-@@ -1208,8 +1225,6 @@ static int atkbd_reconnect(struct serio *serio)
- 		if (atkbd->set != atkbd_select_set(atkbd, atkbd->set, atkbd->extra))
- 			goto out;
- 
--		atkbd_activate(atkbd);
--
- 		/*
- 		 * Restore LED state and repeat rate. While input core
- 		 * will do this for us at resume time reconnect may happen
-@@ -1224,6 +1239,9 @@ static int atkbd_reconnect(struct serio *serio)
- 	}
- 
- 	atkbd_enable(atkbd);
-+	if (atkbd->write)
-+		atkbd_activate(atkbd);
-+
- 	retval = 0;
- 
-  out:
--- 
-1.7.7.3
+> Regards,
+> Simon
+> 
+>>
+>> Thanks.
+>>
+>> --
+>> Dmitry
+> _______________________________________________
+> devicetree-discuss mailing list
+> devicetree-discuss@lists.ozlabs.org
+> https://lists.ozlabs.org/listinfo/devicetree-discuss
+> 

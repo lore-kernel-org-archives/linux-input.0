@@ -1,54 +1,51 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: [PATCH 17/25] wm97xx: don't use [delayed_]work_pending()
-Date: Fri, 21 Dec 2012 17:57:07 -0800
-Message-ID: <1356141435-17340-18-git-send-email-tj@kernel.org>
-References: <1356141435-17340-1-git-send-email-tj@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1356141435-17340-1-git-send-email-tj@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Tejun Heo <tj@kernel.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@slimlogic.co.uk>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Gabor Juhos <juhosg@openwrt.org>
+Subject: [PATCH] Input: gpio_keys_polled - defer probing if GPIO probing is deferred
+Date: Sun, 23 Dec 2012 09:32:03 +0100
+Message-ID: <1356251523-28359-1-git-send-email-juhosg@openwrt.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arrakis.dune.hu ([78.24.191.176]:35270 "EHLO arrakis.dune.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750741Ab2LWIcL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 Dec 2012 03:32:11 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Alexandre Pereira da Silva <aletes.xgr@gmail.com>, Gabor Juhos <juhosg@openwrt.org>, stable@vger.kernel.org
 
-There's no need to test whether a (delayed) work item in pending
-before queueing, flushing or cancelling it.  Most uses are unnecessary
-and quite a few of them are buggy.
+If GPIO probing is deferred, the driver tries to
+claim an invalid GPIO line which leads to an error
+message like this:
 
-Remove unnecessary pending tests from wm97xx.  Instead of testing
-work_pending(), use the return value of queue_work() to decide whether
-to disable IRQ or not.
+  gpio-keys-polled buttons.2: unable to claim gpio 4294966779, err=-22
+  gpio-keys-polled: probe of buttons.2 failed with error -22
 
-Only compile tested.
+The patch ensures that 'gpio_keys_polled_get_devtree_pdata'
+returns -EPROBE_DEFER if any of the GPIOs to register are
+deferred.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Liam Girdwood <lrg@slimlogic.co.uk>
-Cc: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
 ---
-Please let me know how this patch should be routed.  I can take it
-through the workqueue tree if necessary.
+ drivers/input/keyboard/gpio_keys_polled.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Thanks.
-
- drivers/input/touchscreen/wm97xx-core.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index 5dbe73a..fd16c63 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -363,10 +363,8 @@ static irqreturn_t wm97xx_pen_interrupt(int irq, void *dev_id)
- {
- 	struct wm97xx *wm = dev_id;
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index f686fd9..cfb54cc 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -120,6 +120,12 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+ 	if (nbuttons == 0)
+ 		return NULL;
  
--	if (!work_pending(&wm->pen_event_work)) {
-+	if (queue_work(wm->ts_workq, &wm->pen_event_work))
- 		wm->mach_ops->irq_enable(wm, 0);
--		queue_work(wm->ts_workq, &wm->pen_event_work);
--	}
- 
- 	return IRQ_HANDLED;
- }
++	for_each_child_of_node(node, pp) {
++		error = of_get_gpio(pp, 0);
++		if (error == -EPROBE_DEFER)
++			goto err_out;
++	}
++
+ 	pdata = kzalloc(sizeof(*pdata) + nbuttons * (sizeof *button),
+ 			GFP_KERNEL);
+ 	if (!pdata) {
 -- 
-1.8.0.2
+1.7.10
+

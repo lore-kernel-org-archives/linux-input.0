@@ -1,116 +1,105 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Gabor Juhos <juhosg@openwrt.org>
 Subject: Re: [PATCH] Input: gpio_keys_polled - defer probing if GPIO probing
  is deferred
-Date: Sun, 23 Dec 2012 02:06:25 -0800
-Message-ID: <20121223100625.GB17407@core.coreip.homeip.net>
-References: <1356251523-28359-1-git-send-email-juhosg@openwrt.org>
+Date: Sun, 23 Dec 2012 18:51:05 +0100
+Message-ID: <50D74489.2030000@openwrt.org>
+References: <1356251523-28359-1-git-send-email-juhosg@openwrt.org> <20121223100625.GB17407@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1356251523-28359-1-git-send-email-juhosg@openwrt.org>
-Sender: stable-owner@vger.kernel.org
-To: Gabor Juhos <juhosg@openwrt.org>
-Cc: linux-input@vger.kernel.org, Alexandre Pereira da Silva <aletes.xgr@gmail.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arrakis.dune.hu ([78.24.191.176]:33862 "EHLO arrakis.dune.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751599Ab2LWRvF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 Dec 2012 12:51:05 -0500
+In-Reply-To: <20121223100625.GB17407@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Alexandre Pereira da Silva <aletes.xgr@gmail.com>, stable@vger.kernel.org
 
-On Sun, Dec 23, 2012 at 09:32:03AM +0100, Gabor Juhos wrote:
-> If GPIO probing is deferred, the driver tries to
-> claim an invalid GPIO line which leads to an error
-> message like this:
-> 
->   gpio-keys-polled buttons.2: unable to claim gpio 4294966779, err=-22
+2012.12.23. 11:06 keltez=E9ssel, Dmitry Torokhov =EDrta:
+
+> Well spotted, thanks. However I think the patch should look like the =
+one
+> below as we should propagate all errors, not only -EPROBE_DEFER, up t=
+he
+> stack.
+>=20
+> Thanks.
+>=20
+>=20
+> Input: gpio_keys_polled - defer probing if GPIO probing is deferred
+>=20
+> From: Gabor Juhos <juhosg@openwrt.org>
+>=20
+> If GPIO probing is deferred, the driver tries to claim an invalid GPI=
+O line
+> which leads to an error message like this:
+>=20
+>   gpio-keys-polled buttons.2: unable to claim gpio 4294966779, err=3D=
+-22
 >   gpio-keys-polled: probe of buttons.2 failed with error -22
-> 
-> The patch ensures that 'gpio_keys_polled_get_devtree_pdata'
-> returns -EPROBE_DEFER if any of the GPIOs to register are
-> deferred.
-> 
-> Cc: <stable@vger.kernel.org>
+>=20
+> The patch ensures that error code returned by of_get_gpio_flags (incl=
+uding
+> -EPROBE_DEFER) is propagated up the stack.
+>=20
+> Cc: stable@vger.kernel.org
 > Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/input/keyboard/gpio_keys_polled.c |    6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-> index f686fd9..cfb54cc 100644
+>  drivers/input/keyboard/gpio_keys_polled.c |   13 ++++++++++++-
+>  1 file changed, 12 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/inpu=
+t/keyboard/gpio_keys_polled.c
+> index f686fd9..e75ca6b 100644
 > --- a/drivers/input/keyboard/gpio_keys_polled.c
 > +++ b/drivers/input/keyboard/gpio_keys_polled.c
-> @@ -120,6 +120,12 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
->  	if (nbuttons == 0)
->  		return NULL;
->  
-> +	for_each_child_of_node(node, pp) {
-> +		error = of_get_gpio(pp, 0);
-> +		if (error == -EPROBE_DEFER)
-> +			goto err_out;
-> +	}
+> @@ -135,6 +135,7 @@ static struct gpio_keys_platform_data *gpio_keys_=
+polled_get_devtree_pdata(struct
+> =20
+>  	i =3D 0;
+>  	for_each_child_of_node(node, pp) {
+> +		int gpio;
+>  		enum of_gpio_flags flags;
+> =20
+>  		if (!of_find_property(pp, "gpios", NULL)) {
+> @@ -143,9 +144,19 @@ static struct gpio_keys_platform_data *gpio_keys=
+_polled_get_devtree_pdata(struct
+>  			continue;
+>  		}
+> =20
+> +		gpio =3D of_get_gpio_flags(pp, 0, &flags);
+> +		if (gpio < 0) {
+> +			error =3D gpio;
+> +			if (error !=3D -EPROBE_DEFER)
+> +				dev_err(dev,
+> +					"Failed to get gpio flags, error: %d\n",
+> +					error);
+> +			goto err_free_pdata;
+> +		}
 > +
->  	pdata = kzalloc(sizeof(*pdata) + nbuttons * (sizeof *button),
->  			GFP_KERNEL);
->  	if (!pdata) {
-> -- 
+>  		button =3D &pdata->buttons[i++];
+> =20
+> -		button->gpio =3D of_get_gpio_flags(pp, 0, &flags);
+> +		button->gpio =3D gpio;
+>  		button->active_low =3D flags & OF_GPIO_ACTIVE_LOW;
+> =20
+>  		if (of_property_read_u32(pp, "linux,code", &button->code)) {
 
-Well spotted, thanks. However I think the patch should look like the one
-below as we should propagate all errors, not only -EPROBE_DEFER, up the
-stack.
+Yes, this looks saner. I have replaced my patch with this, and it is wo=
+rking as
+intended. The kernel says this:
 
-Thanks.
+platform buttons.2: Driver gpio-keys-polled requests probe deferral
 
--- 
-Dmitry
+BTW, it seems that the gpio-keys driver needs a similar fix.
 
-
-Input: gpio_keys_polled - defer probing if GPIO probing is deferred
-
-From: Gabor Juhos <juhosg@openwrt.org>
-
-If GPIO probing is deferred, the driver tries to claim an invalid GPIO line
-which leads to an error message like this:
-
-  gpio-keys-polled buttons.2: unable to claim gpio 4294966779, err=-22
-  gpio-keys-polled: probe of buttons.2 failed with error -22
-
-The patch ensures that error code returned by of_get_gpio_flags (including
--EPROBE_DEFER) is propagated up the stack.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/gpio_keys_polled.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index f686fd9..e75ca6b 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -135,6 +135,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 
- 	i = 0;
- 	for_each_child_of_node(node, pp) {
-+		int gpio;
- 		enum of_gpio_flags flags;
- 
- 		if (!of_find_property(pp, "gpios", NULL)) {
-@@ -143,9 +144,19 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 			continue;
- 		}
- 
-+		gpio = of_get_gpio_flags(pp, 0, &flags);
-+		if (gpio < 0) {
-+			error = gpio;
-+			if (error != -EPROBE_DEFER)
-+				dev_err(dev,
-+					"Failed to get gpio flags, error: %d\n",
-+					error);
-+			goto err_free_pdata;
-+		}
-+
- 		button = &pdata->buttons[i++];
- 
--		button->gpio = of_get_gpio_flags(pp, 0, &flags);
-+		button->gpio = gpio;
- 		button->active_low = flags & OF_GPIO_ACTIVE_LOW;
- 
- 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
+-Gabor
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

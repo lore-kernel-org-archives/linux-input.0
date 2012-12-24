@@ -1,63 +1,54 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 17/25] wm97xx: don't use [delayed_]work_pending()
-Date: Mon, 24 Dec 2012 16:18:27 +0000
-Message-ID: <20121224161827.GR30837@opensource.wolfsonmicro.com>
-References: <1356141435-17340-1-git-send-email-tj@kernel.org>
- <1356141435-17340-18-git-send-email-tj@kernel.org>
- <20121223095450.GA17407@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/4] input adxl34x: give a little love to the driver
+Date: Mon, 24 Dec 2012 09:53:06 -0800
+Message-ID: <20121224175306.GA16272@core.coreip.homeip.net>
+References: <1356011471-18757-1-git-send-email-w.sang@pengutronix.de>
+ <50D319F5.8040705@analog.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Uw+RRa3pmtkgiNaD"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:43781 "EHLO
-	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752597Ab2LXQSa (ORCPT
+Received: from mail-da0-f43.google.com ([209.85.210.43]:65124 "EHLO
+	mail-da0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753183Ab2LXRxL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Dec 2012 11:18:30 -0500
+	Mon, 24 Dec 2012 12:53:11 -0500
+Received: by mail-da0-f43.google.com with SMTP id u36so3251453dak.16
+        for <linux-input@vger.kernel.org>; Mon, 24 Dec 2012 09:53:10 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20121223095450.GA17407@core.coreip.homeip.net>
+In-Reply-To: <50D319F5.8040705@analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Tejun Heo <tj@kernel.org>, linux-kernel@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>, linux-input@vger.kernel.org
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
 
+On Thu, Dec 20, 2012 at 03:00:21PM +0100, Michael Hennerich wrote:
+> On 12/20/2012 02:51 PM, Wolfram Sang wrote:
+> >Hi,
+> >
+> >I needed this driver in a project and there were some minor hurdles in getting
+> >it to run smoothly. These four patches are fixing them.
+> >
+> >Kind regards,
+> >
+> >    Wolfram
+> >
+> >
+> >Wolfram Sang (4):
+> >   input: adxl34x: consistently use read/write encapsulation
+> >   input: adxl34x: don't set THRESH_TAP twice
+> >   input: adxl34x: make platform_data include self contained
+> >   input: adxl34x: default platform_data should not use defines from
+> >     driver
+> >
+> >  drivers/input/misc/adxl34x.c  |    7 +++----
+> >  include/linux/input/adxl34x.h |    2 ++
+> >  2 files changed, 5 insertions(+), 4 deletions(-)
+> >
+> looks good to me -
+> 
+> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
 
---Uw+RRa3pmtkgiNaD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Applied all 4, thanks everyone.
 
-On Sun, Dec 23, 2012 at 01:54:50AM -0800, Dmitry Torokhov wrote:
-
-> This is not 100% equivalent transformation as now we schedule first and
-> disable IRQ later... Anyway, I think the driver shoudl be converted to
-> threaded IRQ instead. Mark, does the patch below make any sense to you?
-
-I'm a bit nervous about the fact that currently both the pen down IRQ
-and the coordinate read are pushed through a single workqueue so are
-serialised but after your patch they'll be split into the IRQ thread and
-the workqueue.  It *should* be fine but I'd have to sit there and study
-it to convince myself that it's safe.
-
---Uw+RRa3pmtkgiNaD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQ2IBFAAoJELSic+t+oim9mGYP/3C4VuumUxsIPl+RptwTmy4O
-8JNW2IYdnTmsP8FbNGrXH/sAqERbOzTt9gfJuRAz1jhUT02p6+IX4naDcSxSMN68
-4Uxt3ZgFUCRu6J13wV+Wkd6d1714UyzrK8eE+RQG8N5Xyx4I1N5DsT9kPmmzsFUB
-TxCWkK5J7iwPHamgYL34j2AbvKe4kyCeHckxMVEt6pGlDqcm4o6JF+/HL6pLHtkS
-Ez+M0m1/waw/tGASZJgCJ4mANkAja/kT1EPiXmzBD4rrVyej1N9JVoU6GcO2LzT6
-GUrdqw9MQ6J634A+fMkSNfcwy7if4KLJb4kOWTTXiRYaXEISgT83NIdKV30dJdTz
-wzfaGCGVYzXZXvo4jQjUhGAXiP9Kaf8PftmSlH2ebNpK1g0fCbs78Py9bb+MYHdK
-6eBTwydWgD2LwnKGrNwYAIPPjd/+PRDr8rIEHFuME2g6Q/IyAgWkk171CvTvRaZv
-CvnVTOXfa0AOWc96jKVGlBNCVFOJW1zKnTxF3p63LwtAPyxvGdcxH3Eig3G7qTRr
-hK3Qs8ZPdl/LRc12Pj1ZQ84ibbxF+mGzsyjJK63nh2ryGMSB54j71rsRBBr1IpiL
-TEgi1xdpcWAeLu7Sl1M+kXQCd+mopjq1tkvhcc+KXM41+alIPDrYRZjHExGVYgV/
-nvDIPFAUwFwBJAeIvgoo
-=a4ol
------END PGP SIGNATURE-----
-
---Uw+RRa3pmtkgiNaD--
+-- 
+Dmitry

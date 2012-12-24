@@ -1,54 +1,67 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/4] input adxl34x: give a little love to the driver
-Date: Mon, 24 Dec 2012 09:53:06 -0800
-Message-ID: <20121224175306.GA16272@core.coreip.homeip.net>
-References: <1356011471-18757-1-git-send-email-w.sang@pengutronix.de>
- <50D319F5.8040705@analog.com>
+Subject: Re: [PATCH] Input: wm831x-on - Convert to
+ devm_input_allocate_device()
+Date: Mon, 24 Dec 2012 09:53:28 -0800
+Message-ID: <20121224175328.GB16272@core.coreip.homeip.net>
+References: <1356009358-4638-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f43.google.com ([209.85.210.43]:65124 "EHLO
-	mail-da0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753183Ab2LXRxL (ORCPT
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:57146 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753183Ab2LXRxc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Dec 2012 12:53:11 -0500
-Received: by mail-da0-f43.google.com with SMTP id u36so3251453dak.16
-        for <linux-input@vger.kernel.org>; Mon, 24 Dec 2012 09:53:10 -0800 (PST)
+	Mon, 24 Dec 2012 12:53:32 -0500
+Received: by mail-pb0-f53.google.com with SMTP id jt11so4071236pbb.40
+        for <linux-input@vger.kernel.org>; Mon, 24 Dec 2012 09:53:32 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <50D319F5.8040705@analog.com>
+In-Reply-To: <1356009358-4638-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "device-drivers-devel@blackfin.uclinux.org" <device-drivers-devel@blackfin.uclinux.org>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com
 
-On Thu, Dec 20, 2012 at 03:00:21PM +0100, Michael Hennerich wrote:
-> On 12/20/2012 02:51 PM, Wolfram Sang wrote:
-> >Hi,
-> >
-> >I needed this driver in a project and there were some minor hurdles in getting
-> >it to run smoothly. These four patches are fixing them.
-> >
-> >Kind regards,
-> >
-> >    Wolfram
-> >
-> >
-> >Wolfram Sang (4):
-> >   input: adxl34x: consistently use read/write encapsulation
-> >   input: adxl34x: don't set THRESH_TAP twice
-> >   input: adxl34x: make platform_data include self contained
-> >   input: adxl34x: default platform_data should not use defines from
-> >     driver
-> >
-> >  drivers/input/misc/adxl34x.c  |    7 +++----
-> >  include/linux/input/adxl34x.h |    2 ++
-> >  2 files changed, 5 insertions(+), 4 deletions(-)
-> >
-> looks good to me -
+On Thu, Dec 20, 2012 at 01:15:58PM +0000, Mark Brown wrote:
+> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+
+Applied both, thanks Mark.
+
+> ---
+>  drivers/input/misc/wm831x-on.c |    4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-
-Applied all 4, thanks everyone.
+> diff --git a/drivers/input/misc/wm831x-on.c b/drivers/input/misc/wm831x-on.c
+> index 558767d..caa2c406 100644
+> --- a/drivers/input/misc/wm831x-on.c
+> +++ b/drivers/input/misc/wm831x-on.c
+> @@ -86,7 +86,7 @@ static int wm831x_on_probe(struct platform_device *pdev)
+>  	wm831x_on->wm831x = wm831x;
+>  	INIT_DELAYED_WORK(&wm831x_on->work, wm831x_poll_on);
+>  
+> -	wm831x_on->dev = input_allocate_device();
+> +	wm831x_on->dev = devm_input_allocate_device(&pdev->dev);
+>  	if (!wm831x_on->dev) {
+>  		dev_err(&pdev->dev, "Can't allocate input dev\n");
+>  		ret = -ENOMEM;
+> @@ -119,7 +119,6 @@ static int wm831x_on_probe(struct platform_device *pdev)
+>  err_irq:
+>  	free_irq(irq, wm831x_on);
+>  err_input_dev:
+> -	input_free_device(wm831x_on->dev);
+>  err:
+>  	return ret;
+>  }
+> @@ -131,7 +130,6 @@ static int wm831x_on_remove(struct platform_device *pdev)
+>  
+>  	free_irq(irq, wm831x_on);
+>  	cancel_delayed_work_sync(&wm831x_on->work);
+> -	input_unregister_device(wm831x_on->dev);
+>  
+>  	return 0;
+>  }
+> -- 
+> 1.7.10.4
+> 
 
 -- 
 Dmitry

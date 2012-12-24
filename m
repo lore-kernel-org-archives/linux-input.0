@@ -1,105 +1,63 @@
-From: Gabor Juhos <juhosg@openwrt.org>
-Subject: Re: [PATCH] Input: gpio_keys_polled - defer probing if GPIO probing
- is deferred
-Date: Sun, 23 Dec 2012 18:51:05 +0100
-Message-ID: <50D74489.2030000@openwrt.org>
-References: <1356251523-28359-1-git-send-email-juhosg@openwrt.org> <20121223100625.GB17407@core.coreip.homeip.net>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 17/25] wm97xx: don't use [delayed_]work_pending()
+Date: Mon, 24 Dec 2012 16:18:27 +0000
+Message-ID: <20121224161827.GR30837@opensource.wolfsonmicro.com>
+References: <1356141435-17340-1-git-send-email-tj@kernel.org>
+ <1356141435-17340-18-git-send-email-tj@kernel.org>
+ <20121223095450.GA17407@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Uw+RRa3pmtkgiNaD"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arrakis.dune.hu ([78.24.191.176]:33862 "EHLO arrakis.dune.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751599Ab2LWRvF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Dec 2012 12:51:05 -0500
-In-Reply-To: <20121223100625.GB17407@core.coreip.homeip.net>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:43781 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752597Ab2LXQSa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Dec 2012 11:18:30 -0500
+Content-Disposition: inline
+In-Reply-To: <20121223095450.GA17407@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Alexandre Pereira da Silva <aletes.xgr@gmail.com>, stable@vger.kernel.org
+Cc: Tejun Heo <tj@kernel.org>, linux-kernel@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>, linux-input@vger.kernel.org
 
-2012.12.23. 11:06 keltez=E9ssel, Dmitry Torokhov =EDrta:
 
-> Well spotted, thanks. However I think the patch should look like the =
-one
-> below as we should propagate all errors, not only -EPROBE_DEFER, up t=
-he
-> stack.
->=20
-> Thanks.
->=20
->=20
-> Input: gpio_keys_polled - defer probing if GPIO probing is deferred
->=20
-> From: Gabor Juhos <juhosg@openwrt.org>
->=20
-> If GPIO probing is deferred, the driver tries to claim an invalid GPI=
-O line
-> which leads to an error message like this:
->=20
->   gpio-keys-polled buttons.2: unable to claim gpio 4294966779, err=3D=
--22
->   gpio-keys-polled: probe of buttons.2 failed with error -22
->=20
-> The patch ensures that error code returned by of_get_gpio_flags (incl=
-uding
-> -EPROBE_DEFER) is propagated up the stack.
->=20
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Gabor Juhos <juhosg@openwrt.org>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/keyboard/gpio_keys_polled.c |   13 ++++++++++++-
->  1 file changed, 12 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/inpu=
-t/keyboard/gpio_keys_polled.c
-> index f686fd9..e75ca6b 100644
-> --- a/drivers/input/keyboard/gpio_keys_polled.c
-> +++ b/drivers/input/keyboard/gpio_keys_polled.c
-> @@ -135,6 +135,7 @@ static struct gpio_keys_platform_data *gpio_keys_=
-polled_get_devtree_pdata(struct
-> =20
->  	i =3D 0;
->  	for_each_child_of_node(node, pp) {
-> +		int gpio;
->  		enum of_gpio_flags flags;
-> =20
->  		if (!of_find_property(pp, "gpios", NULL)) {
-> @@ -143,9 +144,19 @@ static struct gpio_keys_platform_data *gpio_keys=
-_polled_get_devtree_pdata(struct
->  			continue;
->  		}
-> =20
-> +		gpio =3D of_get_gpio_flags(pp, 0, &flags);
-> +		if (gpio < 0) {
-> +			error =3D gpio;
-> +			if (error !=3D -EPROBE_DEFER)
-> +				dev_err(dev,
-> +					"Failed to get gpio flags, error: %d\n",
-> +					error);
-> +			goto err_free_pdata;
-> +		}
-> +
->  		button =3D &pdata->buttons[i++];
-> =20
-> -		button->gpio =3D of_get_gpio_flags(pp, 0, &flags);
-> +		button->gpio =3D gpio;
->  		button->active_low =3D flags & OF_GPIO_ACTIVE_LOW;
-> =20
->  		if (of_property_read_u32(pp, "linux,code", &button->code)) {
+--Uw+RRa3pmtkgiNaD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Yes, this looks saner. I have replaced my patch with this, and it is wo=
-rking as
-intended. The kernel says this:
+On Sun, Dec 23, 2012 at 01:54:50AM -0800, Dmitry Torokhov wrote:
 
-platform buttons.2: Driver gpio-keys-polled requests probe deferral
+> This is not 100% equivalent transformation as now we schedule first and
+> disable IRQ later... Anyway, I think the driver shoudl be converted to
+> threaded IRQ instead. Mark, does the patch below make any sense to you?
 
-BTW, it seems that the gpio-keys driver needs a similar fix.
+I'm a bit nervous about the fact that currently both the pen down IRQ
+and the coordinate read are pushed through a single workqueue so are
+serialised but after your patch they'll be split into the IRQ thread and
+the workqueue.  It *should* be fine but I'd have to sit there and study
+it to convince myself that it's safe.
 
--Gabor
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--Uw+RRa3pmtkgiNaD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQ2IBFAAoJELSic+t+oim9mGYP/3C4VuumUxsIPl+RptwTmy4O
+8JNW2IYdnTmsP8FbNGrXH/sAqERbOzTt9gfJuRAz1jhUT02p6+IX4naDcSxSMN68
+4Uxt3ZgFUCRu6J13wV+Wkd6d1714UyzrK8eE+RQG8N5Xyx4I1N5DsT9kPmmzsFUB
+TxCWkK5J7iwPHamgYL34j2AbvKe4kyCeHckxMVEt6pGlDqcm4o6JF+/HL6pLHtkS
+Ez+M0m1/waw/tGASZJgCJ4mANkAja/kT1EPiXmzBD4rrVyej1N9JVoU6GcO2LzT6
+GUrdqw9MQ6J634A+fMkSNfcwy7if4KLJb4kOWTTXiRYaXEISgT83NIdKV30dJdTz
+wzfaGCGVYzXZXvo4jQjUhGAXiP9Kaf8PftmSlH2ebNpK1g0fCbs78Py9bb+MYHdK
+6eBTwydWgD2LwnKGrNwYAIPPjd/+PRDr8rIEHFuME2g6Q/IyAgWkk171CvTvRaZv
+CvnVTOXfa0AOWc96jKVGlBNCVFOJW1zKnTxF3p63LwtAPyxvGdcxH3Eig3G7qTRr
+hK3Qs8ZPdl/LRc12Pj1ZQ84ibbxF+mGzsyjJK63nh2ryGMSB54j71rsRBBr1IpiL
+TEgi1xdpcWAeLu7Sl1M+kXQCd+mopjq1tkvhcc+KXM41+alIPDrYRZjHExGVYgV/
+nvDIPFAUwFwBJAeIvgoo
+=a4ol
+-----END PGP SIGNATURE-----
+
+--Uw+RRa3pmtkgiNaD--

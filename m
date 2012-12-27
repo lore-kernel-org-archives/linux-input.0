@@ -1,55 +1,96 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 2/3 V2] iio: mxs: Implement support for touchscreen
-Date: Thu, 27 Dec 2012 19:19:00 +0100
-Message-ID: <201212271919.00794.marex@denx.de>
-References: <1355449598-15980-1-git-send-email-marex@denx.de> <1355449598-15980-2-git-send-email-marex@denx.de> <50DC319B.1050607@kernel.org>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: Re: [PATCH] hid-input/battery: add FEATURE quirk
+Date: Fri, 28 Dec 2012 00:39:54 +0100
+Message-ID: <1356651594.17740.44.camel@deadeye.wl.decadent.org.uk>
+References: <1356651338.17740.39.camel@deadeye.wl.decadent.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <50DC319B.1050607-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-YT44KVo6B4hCuQ7uIoXN"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:47352 "EHLO
+	shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752267Ab2L0XkF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Dec 2012 18:40:05 -0500
+In-Reply-To: <1356651338.17740.39.camel@deadeye.wl.decadent.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-input@vger.kernel.org
 
-Dear Jonathan Cameron,
 
-> On 12/14/2012 01:46 AM, Marek Vasut wrote:
-> > This patch implements support for sampling of a touchscreen into
-> > the MXS LRADC driver. The LRADC block allows configuring some of
-> > it's channels into special mode where they either output the drive
-> > voltage or sample it, allowing it to operate a 4-wire or 5-wire
-> > resistive touchscreen.
-> > 
-> > In case the touchscreen mode is enabled, the LRADC slot #7 is
-> > reserved for touchscreen only, therefore it is not possible to
-> > sample 8 LRADC channels at time, but only 7 channels.
-> > 
-> > The touchscreen controller is configured such that the PENDOWN event
-> > disables touchscreen interrupts and triggers execution of worker
-> > thread, which then polls the touchscreen controller for X, Y and
-> > Pressure values. This reduces the overhead of interrupt-driven
-> > operation. Upon the PENUP event, the worker thread re-enables the
-> > PENDOWN detection interrupt and exits.
-> 
-> I still have a few reservations about this patch.  Firstly
-> I would love to see a more generic approach to this as I outlined
-> before.  Still we can't have everything we want sometimes :)
-> Also, this is a lot of input related code in a driver that isn't
-> in the input subsystem.  Really up to Dmitry on whether he is
-> happy with this, or whether he insists on an mfd.
-> 
-> So all in all, with reservations I'll add this to the IIO tree
-> IF Dmitry is happy with it and there are no other issues raised
-> in the meantime.
+--=-YT44KVo6B4hCuQ7uIoXN
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Understood, I'll wait for Dmitry.
+On Fri, 2011-12-09 at 00:10 -0800, Jeremy Fitzhardinge wrote:
+> Apple keyboards require a FEATURE report to query the battery state,
+> even though they list as an input.  Without this, it returns an error.
+>=20
+> Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
 
-> Jonathan
-> 
-> p.s. If anyone has time, I'd also like to get this out of staging
-> in the coming cycle.
+I'm looking at cherry-picking this and following commits to 3.2:
+
+652aa6a9ac4a hid-input/battery: add FEATURE quirk
+0c47935c5b5c HID: add battery quirk for Apple Wireless ANSI
+4cc854178214 HID: add battery quirk for Apple 2009_ISO keyboard
+
+What I don't understand about this is:
 
 [...]
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -283,12 +283,12 @@ static enum power_supply_property hidinput_battery_=
+props[] =3D {
+>  };
+> =20
+>  #define HID_BATTERY_QUIRK_PERCENT	(1 << 0) /* always reports percent */
+> +#define HID_BATTERY_QUIRK_FEATURE	(1 << 1) /* ask for feature report */
+> =20
+>  static const struct hid_device_id hid_battery_quirks[] =3D {
+> -	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICMO=
+USE),
+> -	  HID_BATTERY_QUIRK_PERCENT },
+> -	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTR=
+ACKPAD),
+> -	  HID_BATTERY_QUIRK_PERCENT },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+> +			       USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
+> +	  HID_BATTERY_QUIRK_PERCENT | HID_BATTERY_QUIRK_FEATURE },
+>  	{}
+>  };
+[...]
+
+why did this also remove quirks for two other device IDs?  Are they all
+part of the same physical device so that the other two quirks are
+redundant?  Or was this a mistake?
+
+Ben.
+
+--=20
+Ben Hutchings
+The world is coming to an end.	Please log off.
+
+--=-YT44KVo6B4hCuQ7uIoXN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIVAwUAUNzcSue/yOyVhhEJAQoTrRAAn/SVf6ePrnZJ2Ne0bpD1IdlS7xHOkw+G
+HY0B1G1q/nlMk17Hk6BfFmD1XvkAxMMQxb/6Dmgj6W0utGPCSbCP7CVHKZNDhDsa
+Gk6CyQz+XYk39k+QW8KdRWW14oKL/iFV2KRQ2tWVJ4ng1HnS+qTYMhMjPJdUvwtI
+mZbSlFGouJ113Q7SzlIafqFXOvvgx+Jt1/+365HdUPzhOYcYgbgVXQi5lm0UD2Q/
+2KmZ3FlGzwBzZrVm58XctwzY/1Yi7tibvnK3eKU8N2A7rz/K+7oPZ5MuVl8gRDON
+lEW9l5YiNOh8A6Ntk6WQmOVnJDWqB5aizXQP9p04aMsTCICdWRORwU7Yuka8HRRe
+9tdcrBXq1enufxLaSmKyu+QMvWHLGD7XcU9EzQ8svez6xuMVeV4JPOT2nEQk+euR
+l9NSNu9jPe1OV2lRyPLwzYeCscQdAHr9flrBG7wFHl8mw7KcN9aSOyZTQaRYu+lS
+CJntT4wqhykgREBYeh5BLDXGSBxLrgnS4yo03gBDK7smQIq5RROeyaCg1OaUztPU
+sBHoQuK9tiTr5JQsu8lkCT9Kg3NCMAJ8eJ0cl9oQgNXbf5lfbD3fU8xrtFKvS5zH
+QPuZGCcWWg43CB9UT4V8Zs6kYL+rFQ2m0R1f0CBqeGgxgODdGz18KUK8ogr84Y1z
+t4CjyAlDovM=
+=8WFP
+-----END PGP SIGNATURE-----
+
+--=-YT44KVo6B4hCuQ7uIoXN--

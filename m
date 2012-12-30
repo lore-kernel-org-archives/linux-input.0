@@ -1,238 +1,168 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: imx_keypad - Add device tree support
-Date: Sun, 30 Dec 2012 15:28:52 -0800
-Message-ID: <20121230232852.GB13899@core.coreip.homeip.net>
-References: <1356872946-2810-1-git-send-email-Ying.Liu@freescale.com>
+From: Tony Prisk <linux@prisktech.co.nz>
+Subject: Re: [PATCH] input: vt8500: Add power button keypad driver
+Date: Mon, 31 Dec 2012 12:44:31 +1300
+Message-ID: <1356911071.26227.10.camel@gitbox>
+References: <1356904862-16417-1-git-send-email-linux@prisktech.co.nz>
+	 <20121230232527.GA13899@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1356872946-2810-1-git-send-email-Ying.Liu@freescale.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Liu Ying <Ying.Liu@freescale.com>
-Cc: grant.likely@secretlab.ca, rob.herring@calxeda.com, rob@landley.net, linux@arm.linux.org.uk, shawn.guo@linaro.org, s.hauer@pengutronix.de, linus.walleij@linaro.org, cjb@laptop.org, broonie@opensource.wolfsonmicro.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, liu.y.victor@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121230232527.GA13899@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, vt8500-wm8505-linux-kernel@googlegroups.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Liu,
-
-On Sun, Dec 30, 2012 at 09:09:04PM +0800, Liu Ying wrote:
-> This patch adds device tree support for imx keypad driver.
-> 1) Basic device tree binding support.
-> 2) Since the probe function needs keymap and keymap size
->    information, we get them from device tree if it is
->    supported, otherwise, we fall back to legacy platform data.
-> 3) Support to configure keypad pins via pinctrl system.
+> > +Example:
+> > +	powerkey: pwrkey@0 {
+> > +		compatible = "wm,power-keypad";
+> > +		interrupts = <22>;
+> > +		keymap = <116>; /* KEY_POWER */
 > 
-> Signed-off-by: Liu Ying <Ying.Liu@freescale.com>
-> ---
->  .../devicetree/bindings/input/imx-keypad.txt       |   54 +++++++++++++
->  drivers/input/keyboard/imx_keypad.c                |   80 ++++++++++++++++++--
->  2 files changed, 127 insertions(+), 7 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/imx-keypad.txt
+> Do we really need this in DT? I'd say just having it manageable from
+> userspace is enough.
+
+Just seemed easier this way. Will be changed.
+
+> > +config KEYBOARD_WMT_POWER_KEYPAD
+> > +	tristate "Wondermedia Power keypad support"
+> > +	depends on ARCH_VT8500
 > 
-> diff --git a/Documentation/devicetree/bindings/input/imx-keypad.txt b/Documentation/devicetree/bindings/input/imx-keypad.txt
-> new file mode 100644
-> index 0000000..1c6e16d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/imx-keypad.txt
-> @@ -0,0 +1,54 @@
-> +* Freescale i.MX Keypad Port(KPP) device tree bindings
-> +
-> +The KPP is designed to interface with a keypad matrix with 2-point contact
-> +or 3-point contact keys. The KPP is designed to simplify the software task
-> +of scanning a keypad matrix. The KPP is capable of detecting, debouncing,
-> +and decoding one or multiple keys pressed simultaneously on a keypad.
-> +
-> +Required SoC Specific Properties:
-> +- compatible: Should be "fsl,imx-kpp".
-> +
-> +- reg: Physical base address of the KPP and length of memory mapped
-> +  region.
-> +
-> +- interrupts: The KPP interrupt number to the CPU(s).
-> +
-> +- clocks: The clock provided by the SoC to the KPP. Some SoCs use ipg clock,
-> +others use dummy clock(The clock for the KPP is provided by the SoCs
-> +automatically).
-> +
-> +Required Board Specific Properties:
-> +- pinctrl-names: The definition can be found at
-> +pinctrl/pinctrl-bindings.txt.
-> +
-> +- pinctrl-0: The definition can be found at
-> +pinctrl/pinctrl-bindings.txt.
-> +
-> +- linux,keymap: The definition can be found at
-> +bindings/input/matrix-keymap.txt.
-> +
-> +Example:
-> +kpp: kpp@73f94000 {
-> +	compatible = "fsl,imx-kpp";
-> +	reg = <0x73f94000 0x4000>;
-> +	interrupts = <60>;
-> +	clocks = <&clks 0>;
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_kpp_1>;
-> +	linux,keymap = <0x00000067	/* KEY_UP */
-> +			0x0001006c	/* KEY_DOWN */
-> +			0x00020072	/* KEY_VOLUMEDOWN */
-> +			0x00030066	/* KEY_HOME */
-> +			0x0100006a	/* KEY_RIGHT */
-> +			0x01010069	/* KEY_LEFT */
-> +			0x0102001c	/* KEY_ENTER */
-> +			0x01030073	/* KEY_VOLUMEUP */
-> +			0x02000040	/* KEY_F6 */
-> +			0x02010042	/* KEY_F8 */
-> +			0x02020043	/* KEY_F9 */
-> +			0x02030044	/* KEY_F10 */
-> +			0x0300003b	/* KEY_F1 */
-> +			0x0301003c	/* KEY_F2 */
-> +			0x0302003d	/* KEY_F3 */
-> +			0x03030074>;	/* KEY_POWER */
-> +};
-> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-> index 6d150e3..e4f5c6a 100644
-> --- a/drivers/input/keyboard/imx_keypad.c
-> +++ b/drivers/input/keyboard/imx_keypad.c
-> @@ -20,6 +20,8 @@
->  #include <linux/jiffies.h>
->  #include <linux/kernel.h>
->  #include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/pinctrl/consumer.h>
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
->  #include <linux/timer.h>
-> @@ -414,17 +416,76 @@ open_err:
->  	return -EIO;
->  }
->  
-> +static struct of_device_id imx_keypad_of_match[] = {
-> +	{ .compatible = "fsl,imx-kpp", },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, imx_keypad_of_match);
-> +
-> +#ifdef CONFIG_OF
-> +static int imx_keypad_parse_dt(struct platform_device *pdev,
-> +			       uint32_t *keymap, int *keymap_size)
-> +{
-> +	struct device_node *np = pdev->dev.of_node;
-> +	struct device *dev = &pdev->dev;
-> +	unsigned int proplen, i;
-> +	const __be32 *prop;
-> +
-> +	if (!np)
-> +		return -ENODEV;
-> +
-> +	prop = of_get_property(np, "linux,keymap", &proplen);
-> +	if (!prop) {
-> +		dev_err(dev, "OF: linux,keymap property not defined in %s\n",
-> +				np->full_name);
-> +		return -ENOENT;
-> +	}
-> +
-> +	if (proplen % sizeof(u32)) {
-> +		dev_err(dev, "OF: Malformed keycode property in %s\n",
-> +				np->full_name);
-> +		return -EINVAL;
-> +	}
-> +
-> +	*keymap_size = proplen / sizeof(u32);
-> +	if (*keymap_size > MAX_MATRIX_KEY_NUM) {
-> +		dev_err(dev, "OF: linux,keymap size overflow\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	for (i = 0; i < *keymap_size; i++)
-> +		keymap[i] = be32_to_cpup(prop + i);
+> I'd feel safer if we added "depends on OF" as well.
+ARCH_VT8500 always selects USE_OF, but I can add it as well if you think
+its necessary.
 
-All of this is implemented in matrix_keypad_build_keymap(), there is no
-need to do it again here.
-
-> +
-> +	return 0;
-> +}
-> +#else
-> +static inline int imx_keypad_parse_dt(struct platform_device *pdev,
-> +				      uint32_t *keymap, int *keymap_size)
-> +{
-> +	return -ENODEV;
-> +}
-> +#endif
-> +
->  static int imx_keypad_probe(struct platform_device *pdev)
->  {
->  	const struct matrix_keymap_data *keymap_data = pdev->dev.platform_data;
->  	struct imx_keypad *keypad;
->  	struct input_dev *input_dev;
->  	struct resource *res;
-> -	int irq, error, i;
-> +	int irq, error, i, keymap_size = 0;
-> +	uint32_t keymap[MAX_MATRIX_KEY_NUM];
-> +	struct pinctrl *pinctrl;
->  
-> -	if (keymap_data == NULL) {
-> -		dev_err(&pdev->dev, "no keymap defined\n");
-> -		return -EINVAL;
-> +	error = imx_keypad_parse_dt(pdev, keymap, &keymap_size);
-> +	if (error) {
-> +		if (keymap_data) {
-> +			keymap_size = keymap_data->keymap_size;
-> +			memcpy(keymap, keymap_data->keymap,
-> +					keymap_size * sizeof(keymap[0]));
-
-I believe kernel-provided platform data should take precedence over
-DT-supplied data.
-
-> +		} else {
-> +			dev_err(&pdev->dev, "no keymap defined\n");
-> +			return -EINVAL;
-> +		}
->  	}
->  
->  	irq = platform_get_irq(pdev, 0);
-> @@ -473,6 +534,10 @@ static int imx_keypad_probe(struct platform_device *pdev)
->  		goto failed_free_priv;
->  	}
->  
-> +	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
-> +	if (IS_ERR(pinctrl))
-> +		dev_warn(&pdev->dev, "failed to get default pinctrl\n");
-> +
-
-No, please let core do this for you. Linus has a patch doing just that.
-
->  	keypad->clk = clk_get(&pdev->dev, NULL);
->  	if (IS_ERR(keypad->clk)) {
->  		dev_err(&pdev->dev, "failed to get keypad clock\n");
-> @@ -481,9 +546,9 @@ static int imx_keypad_probe(struct platform_device *pdev)
->  	}
->  
->  	/* Search for rows and cols enabled */
-> -	for (i = 0; i < keymap_data->keymap_size; i++) {
-> -		keypad->rows_en_mask |= 1 << KEY_ROW(keymap_data->keymap[i]);
-> -		keypad->cols_en_mask |= 1 << KEY_COL(keymap_data->keymap[i]);
-> +	for (i = 0; i < keymap_size; i++) {
-> +		keypad->rows_en_mask |= 1 << KEY_ROW(keymap[i]);
-> +		keypad->cols_en_mask |= 1 << KEY_COL(keymap[i]);
->  	}
->  
->  	if (keypad->rows_en_mask > ((1 << MAX_MATRIX_KEY_ROWS) - 1) ||
-> @@ -631,6 +696,7 @@ static struct platform_driver imx_keypad_driver = {
->  		.name	= "imx-keypad",
->  		.owner	= THIS_MODULE,
->  		.pm	= &imx_kbd_pm_ops,
-> +		.of_match_table = of_match_ptr(imx_keypad_of_match),
->  	},
->  	.probe		= imx_keypad_probe,
->  	.remove		= imx_keypad_remove,
-> -- 
-> 1.7.1
+> > +
+> > +static void __iomem *pmc_base;
+> > +static struct input_dev *kpad_power;
+> > +static spinlock_t kpad_power_lock;
+> > +static int power_button_pressed;
+> > +static struct timer_list kpad_power_timer;
+> > +static unsigned int kpad_power_code;
 > 
+> Maybe wrap it in a structure?
+Will do.
+
 > 
+> > +
+> > +static inline void kpad_power_timeout(unsigned long fcontext)
+> 
+> Why inline? It can't be inlined anyway since its address is used.
+> 
+Umm, no idea why this is inline. Will remove.
 
-Thanks.
+> > +{
+> > +	u32 status;
+> > +	unsigned long flags;
+> > +
+> > +	spin_lock_irqsave(&kpad_power_lock, flags);
+> > +
+> > +	status = readl(pmc_base + 0x14);
+> > +
+> > +	if (power_button_pressed) {
+> 
+> This check is useless, you won't ever get here if button hasn't been
+> pressed.
+> 
+Hmm, correct. Will fix.
 
--- 
-Dmitry
+> > +	status = readl(pmc_base + 0x14);
+> > +	udelay(100);
+> > +	writel(status, pmc_base + 0x14);
+> > +
+> > +	if (status & BIT(14)) {
+> > +		if (!power_button_pressed) {
+> 
+> No need to do this check.
+> 
+The hardware generates multiple interrupts when the button is held.
+Without the !power_button_pressed, it will generate multiple pressed
+events without releases, because the timer doesn't get to finish.
+
+The interrupt is non-maskable.
+
+
+> > +static int vt8500_pwr_kpad_probe(struct platform_device *pdev)
+> > +{
+> > +	struct device_node *np;
+> > +	u32 status;
+> > +	int err;
+> > +	int irq;
+> > +
+> > +	np = of_find_compatible_node(NULL, NULL, "via,vt8500-pmc");
+> > +	if (!np) {
+> > +		dev_err(&pdev->dev, "pmc node not found\n");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	pmc_base = of_iomap(np, 0);
+> > +	if (!pmc_base) {
+> > +		dev_err(&pdev->dev, "unable to map pmc memory\n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	np = pdev->dev.of_node;
+> > +	if (!np) {
+> > +		dev_err(&pdev->dev, "devicenode not found\n");
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	err = of_property_read_u32(np, "keymap", &kpad_power_code);
+> > +	if (err) {
+> > +		dev_warn(&pdev->dev, "defaulting to KEY_POWER\n");
+> > +		kpad_power_code = KEY_POWER;
+> > +	}
+> > +
+> > +	/* set power button to soft-power */
+> > +	status = readl(pmc_base + 0x54);
+> > +	writel(status | 1, pmc_base + 0x54);
+> > +
+> > +	/* clear any pending interrupts */
+> > +	status = readl(pmc_base + 0x14);
+> > +	writel(status, pmc_base + 0x14);
+> > +
+> > +	kpad_power = input_allocate_device();
+> > +	if (!kpad_power) {
+> > +		dev_err(&pdev->dev, "failed to allocate input device\n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	spin_lock_init(&kpad_power_lock);
+> > +	setup_timer(&kpad_power_timer, kpad_power_timeout,
+> > +				       (unsigned long)kpad_power);
+> > +
+> > +	irq = irq_of_parse_and_map(np, 0);
+> > +	err = request_irq(irq, &kpad_power_isr, 0, "pwrbtn", NULL);
+> > +	if (err < 0) {
+> > +		dev_err(&pdev->dev, "failed to request irq\n");
+> > +		return err;
+> > +	}
+> > +
+> > +	kpad_power->evbit[0] = BIT_MASK(EV_KEY);
+> > +	set_bit(kpad_power_code, kpad_power->keybit);
+> > +
+> > +	kpad_power->name = "wmt_power_keypad";
+> > +	kpad_power->phys = "wmt_power_keypad";
+> > +	kpad_power->keycode = &kpad_power_code;
+> > +	kpad_power->keycodesize = sizeof(unsigned int);
+> > +	kpad_power->keycodemax = 1;
+> > +
+> > +	err = input_register_device(kpad_power);
+> > +	if (err < 0) {
+> > +		dev_err(&pdev->dev, "failed to register input device\n");
+> 
+> You either need to use managed resources or clean up after yourself;
+> leaking memory and other resources is not nice. Given that you are using
+> timer, which needs to be canceled, and I am not sure if your device
+> allows enabling/disabling generating interrupts while keeping the
+> interrupt handler registered, manual cleanup looks like the only option
+> for you.
+> 
+> BTW, where is your remove() method?
+Eeek. Too much turkey :) I will tidy this up and resubmit.
+
+Thanks for the quick review.
+
+Regards
+Tony P

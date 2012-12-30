@@ -1,263 +1,38 @@
 From: Tony Prisk <linux@prisktech.co.nz>
-Subject: [PATCH] input: vt8500: Add power button keypad driver
-Date: Mon, 31 Dec 2012 11:01:02 +1300
-Message-ID: <1356904862-16417-1-git-send-email-linux@prisktech.co.nz>
+Subject: [RFC PATCH] Add support for devicetree to i8042 serio driver
+Date: Mon, 31 Dec 2012 11:47:08 +1300
+Message-ID: <1356907629-25459-1-git-send-email-linux@prisktech.co.nz>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmity Torokhov <dtor@mail.ru>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, vt8500-wm8505-linux-kernel@googlegroups.com, linux-input@vger.kernel.org, Tony Prisk <linux@prisktech.co.nz>
+To: Input Mailing List <linux-input@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, vt8500-wm8505-linux-kernel@googlegroups.com, Tony Prisk <linux@prisktech.co.nz>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds support for the Power Button keypad found on
-Wondermedia netbooks/tablets.
+Since this patch may adversely affect a lot of users, I thought I'd post this
+as an RFC first. I don't think the changes should affect any existing i8042
+implementations, but can never be certain.
 
-A keymap property is exposed to allowing defining the key
-event to be generated when the power button is pressed.
+Limitations:
 
-Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
----
- .../bindings/input/vt8500-power-keypad.txt         |   17 ++
- drivers/input/keyboard/Kconfig                     |   10 ++
- drivers/input/keyboard/Makefile                    |    1 +
- drivers/input/keyboard/wmt_power_keypad.c          |  174 ++++++++++++++++++++
- 4 files changed, 202 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/vt8500-power-keypad.txt
- create mode 100644 drivers/input/keyboard/wmt_power_keypad.c
+This patch does not overcome the problem of only being able to select
+a single i8042 platform at compile-time. If compiling for a multiplatform
+kernel, all platforms must use the DT version or only one platform
+can have i8042 support.
 
-diff --git a/Documentation/devicetree/bindings/input/vt8500-power-keypad.txt b/Documentation/devicetree/bindings/input/vt8500-power-keypad.txt
-new file mode 100644
-index 0000000..bae6228
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/vt8500-power-keypad.txt
-@@ -0,0 +1,17 @@
-+* Wondermedia Power Keypad device tree bindings
-+
-+Wondermedia SoCs have a single irq-driven power button attached to
-+the power management controller.
-+
-+Required SoC Specific Properties:
-+- compatible: should be one of the following
-+   - "wm,power-keypad": For all Wondermedia 8xxx-series SoCs.
-+- interrupts: should be the power management controller wakeup interrupt.
-+- keymap: linux keycode to generate when power button pressed.
-+
-+Example:
-+	powerkey: pwrkey@0 {
-+		compatible = "wm,power-keypad";
-+		interrupts = <22>;
-+		keymap = <116>; /* KEY_POWER */
-+	};
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 5a240c6..c270f27 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -595,6 +595,16 @@ config KEYBOARD_TWL4030
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called twl4030_keypad.
- 
-+config KEYBOARD_WMT_POWER_KEYPAD
-+	tristate "Wondermedia Power keypad support"
-+	depends on ARCH_VT8500
-+	help
-+	  Say Y here to enable support for the power button keypad
-+	  on Wondermedia 8xxx-series SoCs.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called wmt_power_keypad.
-+
- config KEYBOARD_XTKBD
- 	tristate "XT keyboard"
- 	select SERIO
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 44e7600..eea31af 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -52,5 +52,6 @@ obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
- obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
- obj-$(CONFIG_KEYBOARD_TNETV107X)	+= tnetv107x-keypad.o
- obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
-+obj-$(CONFIG_KEYBOARD_WMT_POWER_KEYPAD)	+= wmt_power_keypad.o
- obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
- obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
-diff --git a/drivers/input/keyboard/wmt_power_keypad.c b/drivers/input/keyboard/wmt_power_keypad.c
-new file mode 100644
-index 0000000..ce8aa9a
---- /dev/null
-+++ b/drivers/input/keyboard/wmt_power_keypad.c
-@@ -0,0 +1,174 @@
-+/* Wondermedia Power Keypad
-+ *
-+ * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/err.h>
-+#include <linux/io.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/bitops.h>
-+#include <linux/of.h>
-+#include <linux/of_address.h>
-+#include <linux/of_irq.h>
-+#include <linux/of_device.h>
-+
-+static void __iomem *pmc_base;
-+static struct input_dev *kpad_power;
-+static spinlock_t kpad_power_lock;
-+static int power_button_pressed;
-+static struct timer_list kpad_power_timer;
-+static unsigned int kpad_power_code;
-+
-+static inline void kpad_power_timeout(unsigned long fcontext)
-+{
-+	u32 status;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&kpad_power_lock, flags);
-+
-+	status = readl(pmc_base + 0x14);
-+
-+	if (power_button_pressed) {
-+		input_report_key(kpad_power, kpad_power_code, 0);
-+		input_sync(kpad_power);
-+		power_button_pressed = 0;
-+	}
-+
-+	spin_unlock_irqrestore(&kpad_power_lock, flags);
-+}
-+
-+static irqreturn_t kpad_power_isr(int irq_num, void *data)
-+{
-+	u32 status;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&kpad_power_lock, flags);
-+
-+	status = readl(pmc_base + 0x14);
-+	udelay(100);
-+	writel(status, pmc_base + 0x14);
-+
-+	if (status & BIT(14)) {
-+		if (!power_button_pressed) {
-+			input_report_key(kpad_power, kpad_power_code, 1);
-+			input_sync(kpad_power);
-+
-+			power_button_pressed = 1;
-+
-+			mod_timer(&kpad_power_timer,
-+				  jiffies + msecs_to_jiffies(500));
-+		}
-+	}
-+
-+	spin_unlock_irqrestore(&kpad_power_lock, flags);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int vt8500_pwr_kpad_probe(struct platform_device *pdev)
-+{
-+	struct device_node *np;
-+	u32 status;
-+	int err;
-+	int irq;
-+
-+	np = of_find_compatible_node(NULL, NULL, "via,vt8500-pmc");
-+	if (!np) {
-+		dev_err(&pdev->dev, "pmc node not found\n");
-+		return -EINVAL;
-+	}
-+
-+	pmc_base = of_iomap(np, 0);
-+	if (!pmc_base) {
-+		dev_err(&pdev->dev, "unable to map pmc memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	np = pdev->dev.of_node;
-+	if (!np) {
-+		dev_err(&pdev->dev, "devicenode not found\n");
-+		return -ENODEV;
-+	}
-+
-+	err = of_property_read_u32(np, "keymap", &kpad_power_code);
-+	if (err) {
-+		dev_warn(&pdev->dev, "defaulting to KEY_POWER\n");
-+		kpad_power_code = KEY_POWER;
-+	}
-+
-+	/* set power button to soft-power */
-+	status = readl(pmc_base + 0x54);
-+	writel(status | 1, pmc_base + 0x54);
-+
-+	/* clear any pending interrupts */
-+	status = readl(pmc_base + 0x14);
-+	writel(status, pmc_base + 0x14);
-+
-+	kpad_power = input_allocate_device();
-+	if (!kpad_power) {
-+		dev_err(&pdev->dev, "failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	spin_lock_init(&kpad_power_lock);
-+	setup_timer(&kpad_power_timer, kpad_power_timeout,
-+				       (unsigned long)kpad_power);
-+
-+	irq = irq_of_parse_and_map(np, 0);
-+	err = request_irq(irq, &kpad_power_isr, 0, "pwrbtn", NULL);
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "failed to request irq\n");
-+		return err;
-+	}
-+
-+	kpad_power->evbit[0] = BIT_MASK(EV_KEY);
-+	set_bit(kpad_power_code, kpad_power->keybit);
-+
-+	kpad_power->name = "wmt_power_keypad";
-+	kpad_power->phys = "wmt_power_keypad";
-+	kpad_power->keycode = &kpad_power_code;
-+	kpad_power->keycodesize = sizeof(unsigned int);
-+	kpad_power->keycodemax = 1;
-+
-+	err = input_register_device(kpad_power);
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "failed to register input device\n");
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct of_device_id vt8500_pwr_kpad_dt_ids[] = {
-+	{ .compatible = "wm,power-keypad" },
-+	{ /* Sentinel */ },
-+};
-+
-+static struct platform_driver vt8500_pwr_kpad_driver = {
-+	.probe		= vt8500_pwr_kpad_probe,
-+	.driver		= {
-+		.name	= "wmt-power-keypad",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = vt8500_pwr_kpad_dt_ids,
-+	},
-+};
-+
-+module_platform_driver(vt8500_pwr_kpad_driver);
-+
-+MODULE_DESCRIPTION("Wondermedia Power Keypad Driver");
-+MODULE_AUTHOR("Tony Prisk <linux@prisktech.co.nz>");
-+MODULE_LICENSE("GPL v2");
-+MODULE_DEVICE_TABLE(of, vt8500_pwr_kpad_dt_ids);
+The DT version assumes memory-mapped i8042 registers. It can not handle
+IO-mapped modules (eg. x86)
+
+Tony Prisk (1):
+  input: i8042: Add support for devicetree to i8042 serio driver
+
+ .../devicetree/bindings/input/intel-8042.txt       |   29 +++++
+ drivers/input/serio/Kconfig                        |   10 +-
+ drivers/input/serio/i8042-dt.h                     |  127 ++++++++++++++++++++
+ drivers/input/serio/i8042.c                        |   15 ++-
+ drivers/input/serio/i8042.h                        |    4 +-
+ 5 files changed, 181 insertions(+), 4 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/intel-8042.txt
+ create mode 100644 drivers/input/serio/i8042-dt.h
+
 -- 
 1.7.9.5

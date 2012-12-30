@@ -1,301 +1,309 @@
-From: Tony Prisk <linux@prisktech.co.nz>
-Subject: [RFC PATCH] input: i8042: Add support for devicetree to i8042 serio driver
-Date: Mon, 31 Dec 2012 11:47:09 +1300
-Message-ID: <1356907629-25459-2-git-send-email-linux@prisktech.co.nz>
-References: <1356907629-25459-1-git-send-email-linux@prisktech.co.nz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: vt8500: Add power button keypad driver
+Date: Sun, 30 Dec 2012 15:25:27 -0800
+Message-ID: <20121230232527.GA13899@core.coreip.homeip.net>
+References: <1356904862-16417-1-git-send-email-linux@prisktech.co.nz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from server.prisktech.co.nz ([115.188.14.127]:52898 "EHLO
-	server.prisktech.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755160Ab2L3WrO (ORCPT
+Received: from mail-da0-f52.google.com ([209.85.210.52]:33173 "EHLO
+	mail-da0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755222Ab2L3XZb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Dec 2012 17:47:14 -0500
-In-Reply-To: <1356907629-25459-1-git-send-email-linux@prisktech.co.nz>
+	Sun, 30 Dec 2012 18:25:31 -0500
+Content-Disposition: inline
+In-Reply-To: <1356904862-16417-1-git-send-email-linux@prisktech.co.nz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Input Mailing List <linux-input@vger.kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, vt8500-wm8505-linux-kernel@googlegroups.com, Tony Prisk <linux@prisktech.co.nz>
+To: Tony Prisk <linux@prisktech.co.nz>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, vt8500-wm8505-linux-kernel@googlegroups.com, linux-input@vger.kernel.org
 
-This patch adds basic devicetree support for the i8042 controller
-driver.
+Hi Tony,
 
-Simple properties to specify the register offsets.
-Optional properties to specify the linux device descriptions.
+On Mon, Dec 31, 2012 at 11:01:02AM +1300, Tony Prisk wrote:
+> This patch adds support for the Power Button keypad found on
+> Wondermedia netbooks/tablets.
+> 
+> A keymap property is exposed to allowing defining the key
+> event to be generated when the power button is pressed.
+> 
+> Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
+> ---
+>  .../bindings/input/vt8500-power-keypad.txt         |   17 ++
+>  drivers/input/keyboard/Kconfig                     |   10 ++
+>  drivers/input/keyboard/Makefile                    |    1 +
+>  drivers/input/keyboard/wmt_power_keypad.c          |  174 ++++++++++++++++++++
+>  4 files changed, 202 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/vt8500-power-keypad.txt
+>  create mode 100644 drivers/input/keyboard/wmt_power_keypad.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/vt8500-power-keypad.txt b/Documentation/devicetree/bindings/input/vt8500-power-keypad.txt
+> new file mode 100644
+> index 0000000..bae6228
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/vt8500-power-keypad.txt
+> @@ -0,0 +1,17 @@
+> +* Wondermedia Power Keypad device tree bindings
+> +
+> +Wondermedia SoCs have a single irq-driven power button attached to
+> +the power management controller.
+> +
+> +Required SoC Specific Properties:
+> +- compatible: should be one of the following
+> +   - "wm,power-keypad": For all Wondermedia 8xxx-series SoCs.
+> +- interrupts: should be the power management controller wakeup interrupt.
+> +- keymap: linux keycode to generate when power button pressed.
+> +
+> +Example:
+> +	powerkey: pwrkey@0 {
+> +		compatible = "wm,power-keypad";
+> +		interrupts = <22>;
+> +		keymap = <116>; /* KEY_POWER */
 
-Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
----
- .../devicetree/bindings/input/intel-8042.txt       |   29 +++++
- drivers/input/serio/Kconfig                        |   10 +-
- drivers/input/serio/i8042-dt.h                     |  127 ++++++++++++++++++++
- drivers/input/serio/i8042.c                        |   15 ++-
- drivers/input/serio/i8042.h                        |    4 +-
- 5 files changed, 181 insertions(+), 4 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/intel-8042.txt
- create mode 100644 drivers/input/serio/i8042-dt.h
+Do we really need this in DT? I'd say just having it manageable from
+userspace is enough.
 
-diff --git a/Documentation/devicetree/bindings/input/intel-8042.txt b/Documentation/devicetree/bindings/input/intel-8042.txt
-new file mode 100644
-index 0000000..68f6fa2
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/intel-8042.txt
-@@ -0,0 +1,29 @@
-+* Intel 8042 Keyboard controller
-+
-+Required properties:
-+- compatible: should be "intel,8042"
-+- regs: memory for keyboard controller
-+- interrupts: two interrupts should be specified (keyboard and aux).
-+- command-reg: offset in memory for command register
-+- status-reg: offset in memory for status register
-+- data-reg: offset in memory for data register
-+
-+Optional properties:
-+- init-reset: Controller should be reset on init and cleanup
-+
-+Optional linux specific properties:
-+- linux,kbd_phys_desc: defaults to i8042/serio0
-+- linux,aux_phys_desc: defaults to i8042/serio1
-+- linux,mux_phys_desc: defaults to i8042/serio%d
-+
-+
-+Example:
-+	keyboard@d8008800 {
-+		compatible = "intel,8042";
-+		reg = <0xD8008800 0x100>;
-+		interrupts = <23 4>;
-+		command-reg = <0x04>;
-+		status-reg = <0x04>;
-+		data-reg = <0x00>;
-+		mux-ports = <2>;
-+	};
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index 4a4e182..26e97a3 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -21,8 +21,9 @@ if SERIO
- config SERIO_I8042
- 	tristate "i8042 PC Keyboard controller" if EXPERT || !X86
- 	default y
--	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
--		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN
-+	depends on (!PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
-+		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN) || \
-+		   (SERIO_I8042_DT)
- 	help
- 	  i8042 is the chip over which the standard AT keyboard and PS/2
- 	  mouse are connected to the computer. If you use these devices,
-@@ -33,6 +34,11 @@ config SERIO_I8042
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called i8042.
- 
-+config SERIO_I8042_DT
-+	tristate "i8042 Keyboard controller DT support" if EXPERT || !X86
-+	depends on USE_OF
-+	select SERIO_I8042
-+
- config SERIO_SERPORT
- 	tristate "Serial port line discipline"
- 	default y
-diff --git a/drivers/input/serio/i8042-dt.h b/drivers/input/serio/i8042-dt.h
-new file mode 100644
-index 0000000..3875c90
---- /dev/null
-+++ b/drivers/input/serio/i8042-dt.h
-@@ -0,0 +1,127 @@
-+#ifndef _I8042_DT_H
-+#define _I8042_DT_H
-+
-+#include <linux/of.h>
-+#include <linux/of_address.h>
-+#include <linux/of_irq.h>
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+static void __iomem *dt_base;
-+static const char *dt_kbd_phys_desc;
-+static const char *dt_aux_phys_desc;
-+static const char *dt_mux_phys_desc;
-+static int dt_kbd_irq;
-+static int dt_aux_irq;
-+static unsigned int dt_command_reg;
-+static unsigned int dt_status_reg;
-+static unsigned int dt_data_reg;
-+
-+#define I8042_KBD_PHYS_DESC	dt_kbd_phys_desc
-+#define I8042_AUX_PHYS_DESC	dt_aux_phys_desc
-+#define I8042_MUX_PHYS_DESC	dt_mux_phys_desc
-+
-+#define I8042_KBD_IRQ		(dt_kbd_irq)
-+#define I8042_AUX_IRQ		(dt_aux_irq)
-+
-+#define I8042_COMMAND_REG	(dt_command_reg)
-+#define I8042_STATUS_REG	(dt_status_reg)
-+#define I8042_DATA_REG		(dt_data_reg)
-+
-+
-+static inline int i8042_read_data(void)
-+{
-+	return readb(dt_base + dt_data_reg);
-+}
-+
-+static inline int i8042_read_status(void)
-+{
-+	return readb(dt_base + dt_status_reg);
-+}
-+
-+static inline void i8042_write_data(int val)
-+{
-+	writeb(val, dt_base + dt_data_reg);
-+}
-+
-+static inline void i8042_write_command(int val)
-+{
-+	writeb(val, dt_base + dt_command_reg);
-+}
-+
-+static inline int dt_parse_node(struct device_node *np)
-+{
-+	int ret;
-+
-+	dt_base = of_iomap(np, 0);
-+	if (!dt_base)
-+		return -ENOMEM;
-+
-+	ret = of_property_read_u32(np, "command-reg", &dt_command_reg);
-+	if (ret) {
-+		pr_err("i8042-dt: command-reg missing or invalid\n");
-+		return ret;
-+	}
-+
-+	ret = of_property_read_u32(np, "status-reg", &dt_status_reg);
-+	if (ret) {
-+		pr_err("i8042-dt: status-reg missing or invalid\n");
-+		return ret;
-+	}
-+
-+	ret = of_property_read_u32(np, "data-reg", &dt_data_reg);
-+	if (ret) {
-+		pr_err("i8042-dt: data-reg missing or invalid\n");
-+		return ret;
-+	}
-+
-+	dt_kbd_irq = irq_of_parse_and_map(np, 0);
-+	dt_aux_irq = irq_of_parse_and_map(np, 1);
-+
-+	ret = of_property_read_string(np, "linux,kbd_phys_desc",
-+					&dt_kbd_phys_desc);
-+	if (ret)
-+		dt_kbd_phys_desc = "i8042/serio0";
-+
-+	ret = of_property_read_string(np, "linux,aux_phys_desc",
-+					&dt_aux_phys_desc);
-+	if (ret)
-+		dt_aux_phys_desc = "i8042/serio1";
-+
-+	ret = of_property_read_string(np, "linux,mux_phys_desc",
-+					&dt_mux_phys_desc);
-+	if (ret)
-+		dt_mux_phys_desc = "i8042/serio%d";
-+
-+	if (of_get_property(np, "init-reset", NULL))
-+		i8042_reset = true;
-+
-+	return 0;
-+}
-+
-+static inline int i8042_platform_init(void)
-+{
-+	struct device_node *np;
-+
-+	np = of_find_compatible_node(NULL, NULL, "intel,8042");
-+	if (!np) {
-+		pr_err("%s: no devicetree node found\n", __func__);
-+		return -ENODEV;
-+	}
-+
-+	dt_parse_node(np);
-+
-+	return 0;
-+}
-+
-+static inline void i8042_platform_exit(void)
-+{
-+	if (dt_base)
-+		iounmap(dt_base);
-+}
-+
-+#endif
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 78e4de4..c4cb1c4 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -1447,6 +1447,11 @@ static int i8042_remove(struct platform_device *dev)
- 	return 0;
- }
- 
-+static struct of_device_id i8042_dt_ids[] = {
-+	{ .compatible = "intel,8042" },
-+	{ /* Sentinel */ },
-+};
-+
- static struct platform_driver i8042_driver = {
- 	.driver		= {
- 		.name	= "i8042",
-@@ -1454,6 +1459,7 @@ static struct platform_driver i8042_driver = {
- #ifdef CONFIG_PM
- 		.pm	= &i8042_pm_ops,
- #endif
-+		.of_match_table = i8042_dt_ids,
- 	},
- 	.remove		= i8042_remove,
- 	.shutdown	= i8042_shutdown,
-@@ -1461,7 +1467,9 @@ static struct platform_driver i8042_driver = {
- 
- static int __init i8042_init(void)
- {
-+#ifndef CONFIG_SERIO_I8042_DT
- 	struct platform_device *pdev;
-+#endif
- 	int err;
- 
- 	dbg_init();
-@@ -1474,12 +1482,17 @@ static int __init i8042_init(void)
- 	if (err)
- 		goto err_platform_exit;
- 
-+#ifdef CONFIG_SERIO_I8042_DT
-+	err = platform_driver_probe(&i8042_driver, i8042_probe);
-+	if (err)
-+		goto err_platform_exit;
-+#else
- 	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
- 	if (IS_ERR(pdev)) {
- 		err = PTR_ERR(pdev);
- 		goto err_platform_exit;
- 	}
--
-+#endif
- 	panic_blink = i8042_panic_blink;
- 
- 	return 0;
-diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
-index 3452708..c8d70d9 100644
---- a/drivers/input/serio/i8042.h
-+++ b/drivers/input/serio/i8042.h
-@@ -14,7 +14,9 @@
-  * Arch-dependent inline functions and defines.
-  */
- 
--#if defined(CONFIG_MACH_JAZZ)
-+#if defined(CONFIG_SERIO_I8042_DT)
-+#include "i8042-dt.h"
-+#elif defined(CONFIG_MACH_JAZZ)
- #include "i8042-jazzio.h"
- #elif defined(CONFIG_SGI_HAS_I8042)
- #include "i8042-ip22io.h"
+> +	};
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 5a240c6..c270f27 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -595,6 +595,16 @@ config KEYBOARD_TWL4030
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called twl4030_keypad.
+>  
+> +config KEYBOARD_WMT_POWER_KEYPAD
+> +	tristate "Wondermedia Power keypad support"
+> +	depends on ARCH_VT8500
+
+I'd feel safer if we added "depends on OF" as well.
+
+> +	help
+> +	  Say Y here to enable support for the power button keypad
+> +	  on Wondermedia 8xxx-series SoCs.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called wmt_power_keypad.
+> +
+>  config KEYBOARD_XTKBD
+>  	tristate "XT keyboard"
+>  	select SERIO
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index 44e7600..eea31af 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -52,5 +52,6 @@ obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
+>  obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+>  obj-$(CONFIG_KEYBOARD_TNETV107X)	+= tnetv107x-keypad.o
+>  obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
+> +obj-$(CONFIG_KEYBOARD_WMT_POWER_KEYPAD)	+= wmt_power_keypad.o
+>  obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
+>  obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
+> diff --git a/drivers/input/keyboard/wmt_power_keypad.c b/drivers/input/keyboard/wmt_power_keypad.c
+> new file mode 100644
+> index 0000000..ce8aa9a
+> --- /dev/null
+> +++ b/drivers/input/keyboard/wmt_power_keypad.c
+> @@ -0,0 +1,174 @@
+> +/* Wondermedia Power Keypad
+> + *
+> + * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
+> + *
+> + * This software is licensed under the terms of the GNU General Public
+> + * License version 2, as published by the Free Software Foundation, and
+> + * may be copied, distributed, and modified under those terms.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/err.h>
+> +#include <linux/io.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/bitops.h>
+> +#include <linux/of.h>
+> +#include <linux/of_address.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/of_device.h>
+> +
+> +static void __iomem *pmc_base;
+> +static struct input_dev *kpad_power;
+> +static spinlock_t kpad_power_lock;
+> +static int power_button_pressed;
+> +static struct timer_list kpad_power_timer;
+> +static unsigned int kpad_power_code;
+
+Maybe wrap it in a structure?
+
+> +
+> +static inline void kpad_power_timeout(unsigned long fcontext)
+
+Why inline? It can't be inlined anyway since its address is used.
+
+> +{
+> +	u32 status;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&kpad_power_lock, flags);
+> +
+> +	status = readl(pmc_base + 0x14);
+> +
+> +	if (power_button_pressed) {
+
+This check is useless, you won't ever get here if button hasn't been
+pressed.
+
+> +		input_report_key(kpad_power, kpad_power_code, 0);
+> +		input_sync(kpad_power);
+> +		power_button_pressed = 0;
+> +	}
+> +
+> +	spin_unlock_irqrestore(&kpad_power_lock, flags);
+> +}
+> +
+> +static irqreturn_t kpad_power_isr(int irq_num, void *data)
+> +{
+> +	u32 status;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&kpad_power_lock, flags);
+> +
+> +	status = readl(pmc_base + 0x14);
+> +	udelay(100);
+> +	writel(status, pmc_base + 0x14);
+> +
+> +	if (status & BIT(14)) {
+> +		if (!power_button_pressed) {
+
+No need to do this check.
+
+> +			input_report_key(kpad_power, kpad_power_code, 1);
+> +			input_sync(kpad_power);
+> +
+> +			power_button_pressed = 1;
+> +
+> +			mod_timer(&kpad_power_timer,
+> +				  jiffies + msecs_to_jiffies(500));
+> +		}
+> +	}
+> +
+> +	spin_unlock_irqrestore(&kpad_power_lock, flags);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int vt8500_pwr_kpad_probe(struct platform_device *pdev)
+> +{
+> +	struct device_node *np;
+> +	u32 status;
+> +	int err;
+> +	int irq;
+> +
+> +	np = of_find_compatible_node(NULL, NULL, "via,vt8500-pmc");
+> +	if (!np) {
+> +		dev_err(&pdev->dev, "pmc node not found\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	pmc_base = of_iomap(np, 0);
+> +	if (!pmc_base) {
+> +		dev_err(&pdev->dev, "unable to map pmc memory\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	np = pdev->dev.of_node;
+> +	if (!np) {
+> +		dev_err(&pdev->dev, "devicenode not found\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	err = of_property_read_u32(np, "keymap", &kpad_power_code);
+> +	if (err) {
+> +		dev_warn(&pdev->dev, "defaulting to KEY_POWER\n");
+> +		kpad_power_code = KEY_POWER;
+> +	}
+> +
+> +	/* set power button to soft-power */
+> +	status = readl(pmc_base + 0x54);
+> +	writel(status | 1, pmc_base + 0x54);
+> +
+> +	/* clear any pending interrupts */
+> +	status = readl(pmc_base + 0x14);
+> +	writel(status, pmc_base + 0x14);
+> +
+> +	kpad_power = input_allocate_device();
+> +	if (!kpad_power) {
+> +		dev_err(&pdev->dev, "failed to allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	spin_lock_init(&kpad_power_lock);
+> +	setup_timer(&kpad_power_timer, kpad_power_timeout,
+> +				       (unsigned long)kpad_power);
+> +
+> +	irq = irq_of_parse_and_map(np, 0);
+> +	err = request_irq(irq, &kpad_power_isr, 0, "pwrbtn", NULL);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev, "failed to request irq\n");
+> +		return err;
+> +	}
+> +
+> +	kpad_power->evbit[0] = BIT_MASK(EV_KEY);
+> +	set_bit(kpad_power_code, kpad_power->keybit);
+> +
+> +	kpad_power->name = "wmt_power_keypad";
+> +	kpad_power->phys = "wmt_power_keypad";
+> +	kpad_power->keycode = &kpad_power_code;
+> +	kpad_power->keycodesize = sizeof(unsigned int);
+> +	kpad_power->keycodemax = 1;
+> +
+> +	err = input_register_device(kpad_power);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev, "failed to register input device\n");
+
+You either need to use managed resources or clean up after yourself;
+leaking memory and other resources is not nice. Given that you are using
+timer, which needs to be canceled, and I am not sure if your device
+allows enabling/disabling generating interrupts while keeping the
+interrupt handler registered, manual cleanup looks like the only option
+for you.
+
+BTW, where is your remove() method?
+
+> +		return err;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static struct of_device_id vt8500_pwr_kpad_dt_ids[] = {
+> +	{ .compatible = "wm,power-keypad" },
+> +	{ /* Sentinel */ },
+> +};
+> +
+> +static struct platform_driver vt8500_pwr_kpad_driver = {
+> +	.probe		= vt8500_pwr_kpad_probe,
+> +	.driver		= {
+> +		.name	= "wmt-power-keypad",
+> +		.owner	= THIS_MODULE,
+> +		.of_match_table = vt8500_pwr_kpad_dt_ids,
+> +	},
+> +};
+> +
+> +module_platform_driver(vt8500_pwr_kpad_driver);
+> +
+> +MODULE_DESCRIPTION("Wondermedia Power Keypad Driver");
+> +MODULE_AUTHOR("Tony Prisk <linux@prisktech.co.nz>");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_DEVICE_TABLE(of, vt8500_pwr_kpad_dt_ids);
+
+Thanks.
+
 -- 
-1.7.9.5
-
+Dmitry

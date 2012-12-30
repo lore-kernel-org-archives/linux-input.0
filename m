@@ -1,53 +1,66 @@
-From: Nicholas Santos <nicholas.santos-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 1/1] [PATCH] HID: usbhid: Quirk for Formosa IR receiver
-Date: Fri, 28 Dec 2012 22:07:02 -0500
-Message-ID: <1356750422-13372-1-git-send-email-nicholas.santos@gmail.com>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Nicholas Santos <nicholas.santos-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Liu Ying <Ying.Liu@freescale.com>
+Subject: [PATCH 2/3] ARM: dts: imx: Add imx51 KPP entry
+Date: Sun, 30 Dec 2012 21:09:05 +0800
+Message-ID: <1356872946-2810-2-git-send-email-Ying.Liu@freescale.com>
+References: <1356872946-2810-1-git-send-email-Ying.Liu@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1356872946-2810-1-git-send-email-Ying.Liu@freescale.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: grant.likely@secretlab.ca, rob.herring@calxeda.com, rob@landley.net, linux@arm.linux.org.uk, dmitry.torokhov@gmail.com, shawn.guo@linaro.org, s.hauer@pengutronix.de, linus.walleij@linaro.org, cjb@laptop.org, broonie@opensource.wolfsonmicro.com
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, liu.y.victor@gmail.com, Liu Ying <Ying.Liu@freescale.com>
 List-Id: linux-input@vger.kernel.org
 
-Patch to add the Formosa Industrial Computing, Inc. Infrared Receiver [IR605A/Q] to
-hid-ids.h and hid-quirks.c.  This IR receiver causes about a 10 second timeout when the
-usbhid driver attempts to initialze the device.  Adding this device to the quirks list with
-HID_QUIRK_NO_INIT_REPORTS removes the delay.
+1) Add KPP device node entry.
+2) Add one KPP pinctrl entry.
 
-Signed-off-by: Nicholas Santos <nicholas.santos-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Liu Ying <Ying.Liu@freescale.com>
 ---
- drivers/hid/hid-ids.h           |    3 +++
- drivers/hid/usbhid/hid-quirks.c |    1 +
- 2 files changed, 4 insertions(+), 0 deletions(-)
+ arch/arm/boot/dts/imx51.dtsi |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4dfa605..34e2547 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -306,6 +306,9 @@
- #define USB_VENDOR_ID_EZKEY		0x0518
- #define USB_DEVICE_ID_BTC_8193		0x0002
-
-+#define USB_VENDOR_ID_FORMOSA          0x147a
-+#define USB_DEVICE_ID_FORMOSA_IR_RECEIVER      0xe03e
+diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
+index 1f5d45e..3150a31 100644
+--- a/arch/arm/boot/dts/imx51.dtsi
++++ b/arch/arm/boot/dts/imx51.dtsi
+@@ -221,6 +221,14 @@
+ 				#interrupt-cells = <2>;
+ 			};
+ 
++			kpp: kpp@73f94000 {
++				compatible = "fsl,imx-kpp";
++				reg = <0x73f94000 0x4000>;
++				interrupts = <60>;
++				clocks = <&clks 0>;
++				status = "disabled";
++			};
 +
- #define USB_VENDOR_ID_FREESCALE		0x15A2
- #define USB_DEVICE_ID_FREESCALE_MX28	0x004F
+ 			wdog1: wdog@73f98000 {
+ 				compatible = "fsl,imx51-wdt", "fsl,imx21-wdt";
+ 				reg = <0x73f98000 0x4000>;
+@@ -410,6 +418,20 @@
+ 						>;
+ 					};
+ 				};
++				kpp {
++					pinctrl_kpp_1: kppgrp-1 {
++						fsl,pins = <
++							438 0xe0	/* MX51_PAD_KEY_ROW0__KEY_ROW0 */
++							439 0xe0	/* MX51_PAD_KEY_ROW1__KEY_ROW1 */
++							440 0xe0	/* MX51_PAD_KEY_ROW2__KEY_ROW2 */
++							441 0xe0	/* MX51_PAD_KEY_ROW3__KEY_ROW3 */
++							442 0xe8	/* MX51_PAD_KEY_COL0__KEY_COL0 */
++							444 0xe8	/* MX51_PAD_KEY_COL1__KEY_COL1 */
++							446 0xe8	/* MX51_PAD_KEY_COL2__KEY_COL2 */
++							448 0xe8	/* MX51_PAD_KEY_COL3__KEY_COL3 */
++						>;
++					};
++				};
+ 			};
+ 
+ 			pwm1: pwm@73fb4000 {
+-- 
+1.7.1
 
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index ac9e352..90b4a38 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -72,6 +72,7 @@ static const struct hid_blacklist {
-	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
-	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
-	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
-+	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
-	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
-	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
-	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
---
-1.7.8.6
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

@@ -1,174 +1,353 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: imx_keypad - Add device tree support
-Date: Mon, 31 Dec 2012 12:22:17 -0800
-Message-ID: <20121231202217.GB20317@core.coreip.homeip.net>
-References: <1356872946-2810-1-git-send-email-Ying.Liu@freescale.com>
- <20121230232852.GB13899@core.coreip.homeip.net>
- <CA+8Hj81b898ctejvUTiOk-syy=wuVAb4S2Sch7_vX3QmCUmh3g@mail.gmail.com>
+Subject: Re: [PATCH v2] input: vt8500: Add power button keypad driver
+Date: Mon, 31 Dec 2012 12:37:13 -0800
+Message-ID: <20121231203713.GC20317@core.coreip.homeip.net>
+References: <1356919499-9654-1-git-send-email-linux@prisktech.co.nz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f42.google.com ([209.85.210.42]:47585 "EHLO
-	mail-da0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751745Ab2LaUWV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Dec 2012 15:22:21 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CA+8Hj81b898ctejvUTiOk-syy=wuVAb4S2Sch7_vX3QmCUmh3g@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1356919499-9654-1-git-send-email-linux@prisktech.co.nz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tony Prisk <linux@prisktech.co.nz>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, vt8500-wm8505-linux-kernel@googlegroups.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Liu Ying <liu.y.victor@gmail.com>
-Cc: Liu Ying <Ying.Liu@freescale.com>, grant.likely@secretlab.ca, rob.herring@calxeda.com, rob@landley.net, linux@arm.linux.org.uk, shawn.guo@linaro.org, s.hauer@pengutronix.de, linus.walleij@linaro.org, cjb@laptop.org, broonie@opensource.wolfsonmicro.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-doc@vger.kernel.org
 
-On Mon, Dec 31, 2012 at 02:36:54PM +0800, Liu Ying wrote:
-> Hi, Dmitry,
-> 
-> Thanks for reviewing this patch.
-> 
-> 2012/12/31 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > Hi Liu,
-> >
-> > On Sun, Dec 30, 2012 at 09:09:04PM +0800, Liu Ying wrote:
-> >> This patch adds device tree support for imx keypad driver.
-> >> 1) Basic device tree binding support.
-> >> 2) Since the probe function needs keymap and keymap size
-> >>    information, we get them from device tree if it is
-> >>    supported, otherwise, we fall back to legacy platform data.
-> >> 3) Support to configure keypad pins via pinctrl system.
-> >>
-> >> Signed-off-by: Liu Ying <Ying.Liu@freescale.com>
-> >> ---
-> >>  .../devicetree/bindings/input/imx-keypad.txt       |   54 +++++++++++++
-> >>  drivers/input/keyboard/imx_keypad.c                |   80 ++++++++++++++++++--
-> >>  2 files changed, 127 insertions(+), 7 deletions(-)
-> >>  create mode 100644 Documentation/devicetree/bindings/input/imx-keypad.txt
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/input/imx-keypad.txt b/Documentation/devicetree/bindings/input/imx-keypad.txt
-> >> new file mode 100644
-> >> index 0000000..1c6e16d
-> >> --- /dev/null
-> >> +++ b/Documentation/devicetree/bindings/input/imx-keypad.txt
-> >> @@ -0,0 +1,54 @@
-> >> +* Freescale i.MX Keypad Port(KPP) device tree bindings
-> >> +
-> >> +The KPP is designed to interface with a keypad matrix with 2-point contact
-> >> +or 3-point contact keys. The KPP is designed to simplify the software task
-> >> +of scanning a keypad matrix. The KPP is capable of detecting, debouncing,
-> >> +and decoding one or multiple keys pressed simultaneously on a keypad.
-> >> +
-> >> +Required SoC Specific Properties:
-> >> +- compatible: Should be "fsl,imx-kpp".
-> >> +
-> >> +- reg: Physical base address of the KPP and length of memory mapped
-> >> +  region.
-> >> +
-> >> +- interrupts: The KPP interrupt number to the CPU(s).
-> >> +
-> >> +- clocks: The clock provided by the SoC to the KPP. Some SoCs use ipg clock,
-> >> +others use dummy clock(The clock for the KPP is provided by the SoCs
-> >> +automatically).
-> >> +
-> >> +Required Board Specific Properties:
-> >> +- pinctrl-names: The definition can be found at
-> >> +pinctrl/pinctrl-bindings.txt.
-> >> +
-> >> +- pinctrl-0: The definition can be found at
-> >> +pinctrl/pinctrl-bindings.txt.
-> >> +
-> >> +- linux,keymap: The definition can be found at
-> >> +bindings/input/matrix-keymap.txt.
-> >> +
-> >> +Example:
-> >> +kpp: kpp@73f94000 {
-> >> +     compatible = "fsl,imx-kpp";
-> >> +     reg = <0x73f94000 0x4000>;
-> >> +     interrupts = <60>;
-> >> +     clocks = <&clks 0>;
-> >> +     pinctrl-names = "default";
-> >> +     pinctrl-0 = <&pinctrl_kpp_1>;
-> >> +     linux,keymap = <0x00000067      /* KEY_UP */
-> >> +                     0x0001006c      /* KEY_DOWN */
-> >> +                     0x00020072      /* KEY_VOLUMEDOWN */
-> >> +                     0x00030066      /* KEY_HOME */
-> >> +                     0x0100006a      /* KEY_RIGHT */
-> >> +                     0x01010069      /* KEY_LEFT */
-> >> +                     0x0102001c      /* KEY_ENTER */
-> >> +                     0x01030073      /* KEY_VOLUMEUP */
-> >> +                     0x02000040      /* KEY_F6 */
-> >> +                     0x02010042      /* KEY_F8 */
-> >> +                     0x02020043      /* KEY_F9 */
-> >> +                     0x02030044      /* KEY_F10 */
-> >> +                     0x0300003b      /* KEY_F1 */
-> >> +                     0x0301003c      /* KEY_F2 */
-> >> +                     0x0302003d      /* KEY_F3 */
-> >> +                     0x03030074>;    /* KEY_POWER */
-> >> +};
-> >> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-> >> index 6d150e3..e4f5c6a 100644
-> >> --- a/drivers/input/keyboard/imx_keypad.c
-> >> +++ b/drivers/input/keyboard/imx_keypad.c
-> >> @@ -20,6 +20,8 @@
-> >>  #include <linux/jiffies.h>
-> >>  #include <linux/kernel.h>
-> >>  #include <linux/module.h>
-> >> +#include <linux/of.h>
-> >> +#include <linux/pinctrl/consumer.h>
-> >>  #include <linux/platform_device.h>
-> >>  #include <linux/slab.h>
-> >>  #include <linux/timer.h>
-> >> @@ -414,17 +416,76 @@ open_err:
-> >>       return -EIO;
-> >>  }
-> >>
-> >> +static struct of_device_id imx_keypad_of_match[] = {
-> >> +     { .compatible = "fsl,imx-kpp", },
-> >> +     { /* sentinel */ }
-> >> +};
-> >> +MODULE_DEVICE_TABLE(of, imx_keypad_of_match);
-> >> +
-> >> +#ifdef CONFIG_OF
-> >> +static int imx_keypad_parse_dt(struct platform_device *pdev,
-> >> +                            uint32_t *keymap, int *keymap_size)
-> >> +{
-> >> +     struct device_node *np = pdev->dev.of_node;
-> >> +     struct device *dev = &pdev->dev;
-> >> +     unsigned int proplen, i;
-> >> +     const __be32 *prop;
-> >> +
-> >> +     if (!np)
-> >> +             return -ENODEV;
-> >> +
-> >> +     prop = of_get_property(np, "linux,keymap", &proplen);
-> >> +     if (!prop) {
-> >> +             dev_err(dev, "OF: linux,keymap property not defined in %s\n",
-> >> +                             np->full_name);
-> >> +             return -ENOENT;
-> >> +     }
-> >> +
-> >> +     if (proplen % sizeof(u32)) {
-> >> +             dev_err(dev, "OF: Malformed keycode property in %s\n",
-> >> +                             np->full_name);
-> >> +             return -EINVAL;
-> >> +     }
-> >> +
-> >> +     *keymap_size = proplen / sizeof(u32);
-> >> +     if (*keymap_size > MAX_MATRIX_KEY_NUM) {
-> >> +             dev_err(dev, "OF: linux,keymap size overflow\n");
-> >> +             return -EINVAL;
-> >> +     }
-> >> +
-> >> +     for (i = 0; i < *keymap_size; i++)
-> >> +             keymap[i] = be32_to_cpup(prop + i);
-> >
-> > All of this is implemented in matrix_keypad_build_keymap(), there is no
-> > need to do it again here.
-> The probe function of this driver needs the keymap information to set
-> keypad->rows_en_mask and keypad->cols_en_mask so that they can be used
-> later. I plan to change to parse the array keypad->keycodes[], which
-> is set by matrix_keypad_build_keymap(),  to get the row/col mask. Do
-> you think this is acceptable?
+Hi Tony,
 
-Yes, I believe this should be fine.
+On Mon, Dec 31, 2012 at 03:04:59PM +1300, Tony Prisk wrote:
+> This patch adds support for the Power Button keypad found on
+> Wondermedia netbooks/tablets.
+> 
+> Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
+> ---
+> v2:
+> Remove devicetree binding for keycode
+> Add dependency on OF in Kconfig
+> Move static variables in a struct
+> Remove redundant inline modifier from kpad_power_timeout()
+> Remove unneccessary checks against power_button_pressed. Drop variable.
+> Cleanup the fail path code and add a .remove function.
+> Change the button behaviour so that a key-released event is only generated once
+> the key is released, not after timeout.
+> *Changes tested on WM8650 tablet.
+
+
+Thank you for making the requested changes, unfortunately there is some
+more...
+
+> 
+>  .../bindings/input/vt8500-power-keypad.txt         |   15 ++
+>  drivers/input/keyboard/Kconfig                     |   10 +
+>  drivers/input/keyboard/Makefile                    |    1 +
+>  drivers/input/keyboard/wmt_power_keypad.c          |  198 ++++++++++++++++++++
+>  4 files changed, 224 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/vt8500-power-keypad.txt
+>  create mode 100644 drivers/input/keyboard/wmt_power_keypad.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/vt8500-power-keypad.txt b/Documentation/devicetree/bindings/input/vt8500-power-keypad.txt
+> new file mode 100644
+> index 0000000..63f170b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/vt8500-power-keypad.txt
+> @@ -0,0 +1,15 @@
+> +* Wondermedia Power Keypad device tree bindings
+> +
+> +Wondermedia SoCs have a single irq-driven power button attached to
+> +the power management controller.
+> +
+> +Required SoC Specific Properties:
+> +- compatible: should be one of the following
+> +   - "wm,power-keypad": For all Wondermedia 8xxx-series SoCs.
+> +- interrupts: should be the power management controller wakeup interrupt.
+> +
+> +Example:
+> +	powerkey: pwrkey@0 {
+> +		compatible = "wm,power-keypad";
+> +		interrupts = <22>;
+> +	};
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 5a240c6..bb1e04f 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -595,6 +595,16 @@ config KEYBOARD_TWL4030
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called twl4030_keypad.
+>  
+> +config KEYBOARD_WMT_POWER_KEYPAD
+> +	tristate "Wondermedia Power keypad support"
+> +	depends on (OF && ARCH_VT8500)
+> +	help
+> +	  Say Y here to enable support for the power button keypad
+> +	  on Wondermedia 8xxx-series SoCs.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called wmt_power_keypad.
+> +
+>  config KEYBOARD_XTKBD
+>  	tristate "XT keyboard"
+>  	select SERIO
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index 44e7600..eea31af 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -52,5 +52,6 @@ obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
+>  obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+>  obj-$(CONFIG_KEYBOARD_TNETV107X)	+= tnetv107x-keypad.o
+>  obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
+> +obj-$(CONFIG_KEYBOARD_WMT_POWER_KEYPAD)	+= wmt_power_keypad.o
+>  obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
+>  obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
+> diff --git a/drivers/input/keyboard/wmt_power_keypad.c b/drivers/input/keyboard/wmt_power_keypad.c
+> new file mode 100644
+> index 0000000..f3b24d8
+> --- /dev/null
+> +++ b/drivers/input/keyboard/wmt_power_keypad.c
+> @@ -0,0 +1,198 @@
+> +/* Wondermedia Power Keypad
+> + *
+> + * Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
+> + *
+> + * This software is licensed under the terms of the GNU General Public
+> + * License version 2, as published by the Free Software Foundation, and
+> + * may be copied, distributed, and modified under those terms.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/err.h>
+> +#include <linux/io.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/bitops.h>
+> +#include <linux/of.h>
+> +#include <linux/of_address.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/of_device.h>
+> +
+> +struct kpad_pwr_data {
+> +	struct input_dev	*kpad_power;
+> +	void __iomem		*pmc_base;
+> +	int			irq;
+> +	struct timer_list	timer;
+> +	spinlock_t		lock;
+> +	unsigned int		keycode;
+> +};
+> +
+> +static void kpad_power_timeout(unsigned long fcontext)
+> +{
+> +	struct kpad_pwr_data *data = (struct kpad_pwr_data *)fcontext;
+> +	u32 status;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&data->lock, flags);
+> +
+> +	status = readl(data->pmc_base + 0x14);
+> +	if (status & BIT(14)) {
+> +		/* Button isn't release so check again in 50ms */
+> +		mod_timer(&data->timer, jiffies + msecs_to_jiffies(50));
+
+I do not think you need to do this: your ISR does "mod_timer" which
+means that the timer expiration gets extended every time there is
+interrupt, so as long as the button is pressed the timer will not run.
+So I'd just report the button as released here and be done with it.
+
+> +	} else {
+> +		/* Send a button released message */
+> +		input_report_key(data->kpad_power, data->keycode, 0);
+> +		input_sync(data->kpad_power);
+> +	}
+> +
+> +	spin_unlock_irqrestore(&data->lock, flags);
+> +}
+> +
+> +static irqreturn_t kpad_power_isr(int irq_num, void *priv)
+> +{
+> +	struct kpad_pwr_data *data = priv;
+> +	u32 status;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&data->lock, flags);
+> +
+> +	status = readl(data->pmc_base + 0x14);
+> +	writel(status, data->pmc_base + 0x14);
+> +
+> +	if (status & BIT(14)) {
+> +		input_report_key(data->kpad_power, data->keycode, 1);
+> +		input_sync(data->kpad_power);
+> +		mod_timer(&data->timer, jiffies + msecs_to_jiffies(250));
+> +	}
+> +
+> +	spin_unlock_irqrestore(&data->lock, flags);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int vt8500_pwr_kpad_probe(struct platform_device *pdev)
+> +{
+> +	struct device_node *np;
+> +	struct kpad_pwr_data *data;
+> +	u32 status;
+> +	int err;
+> +
+> +	np = of_find_compatible_node(NULL, NULL, "via,vt8500-pmc");
+> +	if (!np) {
+> +		dev_err(&pdev->dev, "pmc node not found\n");
+> +		return -EINVAL;
+> +	}
+
+Hmm, why are we looking up another device? What is it is not there yet?
+Can we have all resources contained in this device DT description?
+
+> +
+> +	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+> +	if (!data) {
+> +		dev_err(&pdev->dev, "unable to allocate private data\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	data->keycode = KEY_POWER;
+> +	spin_lock_init(&data->lock);
+> +
+> +	data->pmc_base = of_iomap(np, 0);
+> +	if (!data->pmc_base) {
+> +		dev_err(&pdev->dev, "unable to map pmc memory\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	np = pdev->dev.of_node;
+> +	if (!np) {
+> +		dev_err(&pdev->dev, "devicenode not found\n");
+
+Your error handling is still incomplete, you need to unmap the memory
+you just mapped above.
+
+I happened to peek at other vt8500 drivers and the lack of proper error
+handling and absence of remove() methods is a common theme among them.
+
+
+> +		return -ENODEV;
+> +	}
+> +
+> +	/* set power button to soft-power */
+> +	status = readl(data->pmc_base + 0x54);
+> +	writel(status | 1, data->pmc_base + 0x54);
+> +
+> +	/* clear any pending interrupts */
+> +	status = readl(data->pmc_base + 0x14);
+> +	writel(status, data->pmc_base + 0x14);
+> +
+> +	data->kpad_power = input_allocate_device();
+> +	if (!data->kpad_power) {
+> +		dev_err(&pdev->dev, "failed to allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	data->kpad_power->evbit[0] = BIT_MASK(EV_KEY);
+> +	set_bit(data->keycode, data->kpad_power->keybit);
+
+Make it:
+
+	input_set_capability(data->kpad_power, EV_KEY, data->keycode);
+
+> +
+> +	data->kpad_power->name = "wmt_power_keypad";
+> +	data->kpad_power->phys = "wmt_power_keypad";
+
+You can have more "human" name in name field, you do not have to have
+underscores. Also if you want to use phys it is common to have it in
+form of "<parent device>/input0" so something like "vt8500-pmic/input0".
+
+> +	data->kpad_power->keycode = &data->keycode;
+> +	data->kpad_power->keycodesize = sizeof(unsigned int);
+> +	data->kpad_power->keycodemax = 1;
+> +
+> +	err = input_register_device(data->kpad_power);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev, "failed to register input device\n");
+> +		goto cleanup_input;
+> +	}
+> +
+
+I'd recommend registering input device after you request irq as it
+simplifies error path (it is OK for ISR to use allocated but not
+registered input device).
+
+> +	setup_timer(&data->timer, kpad_power_timeout, (unsigned long)data);
+> +
+> +	data->irq = irq_of_parse_and_map(np, 0);
+> +	err = request_irq(data->irq, &kpad_power_isr, 0, "pwrbtn", data);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev, "failed to request irq\n");
+> +		goto cleanup_irq;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, data);
+> +
+> +	return 0;
+> +
+> +cleanup_irq:
+> +	del_timer(&data->timer);
+> +cleanup_input:
+> +	input_free_device(data->kpad_power);
+> +
+> +	return err;
+> +}
+> +
+> +static int vt8500_pwr_kpad_remove(struct platform_device *pdev)
+> +
+> +{
+> +	struct kpad_pwr_data *data = platform_get_drvdata(pdev);
+> +
+> +	free_irq(data->irq, data);
+> +	del_timer(&data->timer);
+
+This should be del_timer_sync().
+
+> +	input_unregister_device(data->kpad_power);
+> +	input_free_device(data->kpad_power);
+
+input_free_device() after input_unregister_device() will result in
+double-free. The rule is use input_free_device() if device has not been
+registered, otherwise use input_unregister_device().
+
+You also need to unmap the mapped region.
+
+> +
+> +	return 0;
+> +}
+> +
+> +
+> +static struct of_device_id vt8500_pwr_kpad_dt_ids[] = {
+> +	{ .compatible = "wm,power-keypad" },
+> +	{ /* Sentinel */ },
+> +};
+> +
+> +static struct platform_driver vt8500_pwr_kpad_driver = {
+> +	.probe		= vt8500_pwr_kpad_probe,
+> +	.remove		= vt8500_pwr_kpad_remove,
+> +	.driver		= {
+> +		.name	= "wmt-power-keypad",
+> +		.owner	= THIS_MODULE,
+> +		.of_match_table = vt8500_pwr_kpad_dt_ids,
+> +	},
+> +};
+> +
+> +module_platform_driver(vt8500_pwr_kpad_driver);
+> +
+> +MODULE_DESCRIPTION("Wondermedia Power Keypad Driver");
+> +MODULE_AUTHOR("Tony Prisk <linux@prisktech.co.nz>");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_DEVICE_TABLE(of, vt8500_pwr_kpad_dt_ids);
+> -- 
+> 1.7.9.5
+> 
 
 Thanks.
 

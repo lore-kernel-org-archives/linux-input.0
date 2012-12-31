@@ -1,59 +1,174 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input: samsung-keypad: Add support for pinctrl
-Date: Mon, 31 Dec 2012 12:20:30 -0800
-Message-ID: <20121231202030.GA20317@core.coreip.homeip.net>
-References: <1354789126-28304-1-git-send-email-sachin.kamat@linaro.org>
- <CACRpkdYjmpB7gPd-z9pia=R2NQPxkeVegpKDrLfViET+2=UOXA@mail.gmail.com>
- <CAK9yfHy3j5R+OmVcDP_oByjz7yrGR4Bs9+u92Y9u3mjTY0jcdQ@mail.gmail.com>
+Subject: Re: [PATCH 1/3] Input: imx_keypad - Add device tree support
+Date: Mon, 31 Dec 2012 12:22:17 -0800
+Message-ID: <20121231202217.GB20317@core.coreip.homeip.net>
+References: <1356872946-2810-1-git-send-email-Ying.Liu@freescale.com>
+ <20121230232852.GB13899@core.coreip.homeip.net>
+ <CA+8Hj81b898ctejvUTiOk-syy=wuVAb4S2Sch7_vX3QmCUmh3g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:43688 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751729Ab2LaUUf (ORCPT
+Received: from mail-da0-f42.google.com ([209.85.210.42]:47585 "EHLO
+	mail-da0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751745Ab2LaUWV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Dec 2012 15:20:35 -0500
-Received: by mail-pa0-f46.google.com with SMTP id bh2so7280945pad.19
-        for <linux-input@vger.kernel.org>; Mon, 31 Dec 2012 12:20:35 -0800 (PST)
+	Mon, 31 Dec 2012 15:22:21 -0500
 Content-Disposition: inline
-In-Reply-To: <CAK9yfHy3j5R+OmVcDP_oByjz7yrGR4Bs9+u92Y9u3mjTY0jcdQ@mail.gmail.com>
+In-Reply-To: <CA+8Hj81b898ctejvUTiOk-syy=wuVAb4S2Sch7_vX3QmCUmh3g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-input@vger.kernel.org, kgene.kim@samsung.com, patches@linaro.org, Linus Walleij <linus.walleij@linaro.org>
+To: Liu Ying <liu.y.victor@gmail.com>
+Cc: Liu Ying <Ying.Liu@freescale.com>, grant.likely@secretlab.ca, rob.herring@calxeda.com, rob@landley.net, linux@arm.linux.org.uk, shawn.guo@linaro.org, s.hauer@pengutronix.de, linus.walleij@linaro.org, cjb@laptop.org, broonie@opensource.wolfsonmicro.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-doc@vger.kernel.org
 
-Hi Sachin,
-
-On Mon, Dec 31, 2012 at 09:15:38AM +0530, Sachin Kamat wrote:
-> Hi Dmitry,
+On Mon, Dec 31, 2012 at 02:36:54PM +0800, Liu Ying wrote:
+> Hi, Dmitry,
 > 
-> On 7 December 2012 00:59, Linus Walleij <linus.walleij@linaro.org> wrote:
-> > On Thu, Dec 6, 2012 at 11:18 AM, Sachin Kamat <sachin.kamat@linaro.org> wrote:
+> Thanks for reviewing this patch.
+> 
+> 2012/12/31 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> > Hi Liu,
 > >
-> >> Added support for pin configuration using pinctrl subsystem
-> >> to the Samsung keypad driver.
+> > On Sun, Dec 30, 2012 at 09:09:04PM +0800, Liu Ying wrote:
+> >> This patch adds device tree support for imx keypad driver.
+> >> 1) Basic device tree binding support.
+> >> 2) Since the probe function needs keymap and keymap size
+> >>    information, we get them from device tree if it is
+> >>    supported, otherwise, we fall back to legacy platform data.
+> >> 3) Support to configure keypad pins via pinctrl system.
 > >>
-> >> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> >> Signed-off-by: Liu Ying <Ying.Liu@freescale.com>
+> >> ---
+> >>  .../devicetree/bindings/input/imx-keypad.txt       |   54 +++++++++++++
+> >>  drivers/input/keyboard/imx_keypad.c                |   80 ++++++++++++++++++--
+> >>  2 files changed, 127 insertions(+), 7 deletions(-)
+> >>  create mode 100644 Documentation/devicetree/bindings/input/imx-keypad.txt
+> >>
+> >> diff --git a/Documentation/devicetree/bindings/input/imx-keypad.txt b/Documentation/devicetree/bindings/input/imx-keypad.txt
+> >> new file mode 100644
+> >> index 0000000..1c6e16d
+> >> --- /dev/null
+> >> +++ b/Documentation/devicetree/bindings/input/imx-keypad.txt
+> >> @@ -0,0 +1,54 @@
+> >> +* Freescale i.MX Keypad Port(KPP) device tree bindings
+> >> +
+> >> +The KPP is designed to interface with a keypad matrix with 2-point contact
+> >> +or 3-point contact keys. The KPP is designed to simplify the software task
+> >> +of scanning a keypad matrix. The KPP is capable of detecting, debouncing,
+> >> +and decoding one or multiple keys pressed simultaneously on a keypad.
+> >> +
+> >> +Required SoC Specific Properties:
+> >> +- compatible: Should be "fsl,imx-kpp".
+> >> +
+> >> +- reg: Physical base address of the KPP and length of memory mapped
+> >> +  region.
+> >> +
+> >> +- interrupts: The KPP interrupt number to the CPU(s).
+> >> +
+> >> +- clocks: The clock provided by the SoC to the KPP. Some SoCs use ipg clock,
+> >> +others use dummy clock(The clock for the KPP is provided by the SoCs
+> >> +automatically).
+> >> +
+> >> +Required Board Specific Properties:
+> >> +- pinctrl-names: The definition can be found at
+> >> +pinctrl/pinctrl-bindings.txt.
+> >> +
+> >> +- pinctrl-0: The definition can be found at
+> >> +pinctrl/pinctrl-bindings.txt.
+> >> +
+> >> +- linux,keymap: The definition can be found at
+> >> +bindings/input/matrix-keymap.txt.
+> >> +
+> >> +Example:
+> >> +kpp: kpp@73f94000 {
+> >> +     compatible = "fsl,imx-kpp";
+> >> +     reg = <0x73f94000 0x4000>;
+> >> +     interrupts = <60>;
+> >> +     clocks = <&clks 0>;
+> >> +     pinctrl-names = "default";
+> >> +     pinctrl-0 = <&pinctrl_kpp_1>;
+> >> +     linux,keymap = <0x00000067      /* KEY_UP */
+> >> +                     0x0001006c      /* KEY_DOWN */
+> >> +                     0x00020072      /* KEY_VOLUMEDOWN */
+> >> +                     0x00030066      /* KEY_HOME */
+> >> +                     0x0100006a      /* KEY_RIGHT */
+> >> +                     0x01010069      /* KEY_LEFT */
+> >> +                     0x0102001c      /* KEY_ENTER */
+> >> +                     0x01030073      /* KEY_VOLUMEUP */
+> >> +                     0x02000040      /* KEY_F6 */
+> >> +                     0x02010042      /* KEY_F8 */
+> >> +                     0x02020043      /* KEY_F9 */
+> >> +                     0x02030044      /* KEY_F10 */
+> >> +                     0x0300003b      /* KEY_F1 */
+> >> +                     0x0301003c      /* KEY_F2 */
+> >> +                     0x0302003d      /* KEY_F3 */
+> >> +                     0x03030074>;    /* KEY_POWER */
+> >> +};
+> >> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+> >> index 6d150e3..e4f5c6a 100644
+> >> --- a/drivers/input/keyboard/imx_keypad.c
+> >> +++ b/drivers/input/keyboard/imx_keypad.c
+> >> @@ -20,6 +20,8 @@
+> >>  #include <linux/jiffies.h>
+> >>  #include <linux/kernel.h>
+> >>  #include <linux/module.h>
+> >> +#include <linux/of.h>
+> >> +#include <linux/pinctrl/consumer.h>
+> >>  #include <linux/platform_device.h>
+> >>  #include <linux/slab.h>
+> >>  #include <linux/timer.h>
+> >> @@ -414,17 +416,76 @@ open_err:
+> >>       return -EIO;
+> >>  }
+> >>
+> >> +static struct of_device_id imx_keypad_of_match[] = {
+> >> +     { .compatible = "fsl,imx-kpp", },
+> >> +     { /* sentinel */ }
+> >> +};
+> >> +MODULE_DEVICE_TABLE(of, imx_keypad_of_match);
+> >> +
+> >> +#ifdef CONFIG_OF
+> >> +static int imx_keypad_parse_dt(struct platform_device *pdev,
+> >> +                            uint32_t *keymap, int *keymap_size)
+> >> +{
+> >> +     struct device_node *np = pdev->dev.of_node;
+> >> +     struct device *dev = &pdev->dev;
+> >> +     unsigned int proplen, i;
+> >> +     const __be32 *prop;
+> >> +
+> >> +     if (!np)
+> >> +             return -ENODEV;
+> >> +
+> >> +     prop = of_get_property(np, "linux,keymap", &proplen);
+> >> +     if (!prop) {
+> >> +             dev_err(dev, "OF: linux,keymap property not defined in %s\n",
+> >> +                             np->full_name);
+> >> +             return -ENOENT;
+> >> +     }
+> >> +
+> >> +     if (proplen % sizeof(u32)) {
+> >> +             dev_err(dev, "OF: Malformed keycode property in %s\n",
+> >> +                             np->full_name);
+> >> +             return -EINVAL;
+> >> +     }
+> >> +
+> >> +     *keymap_size = proplen / sizeof(u32);
+> >> +     if (*keymap_size > MAX_MATRIX_KEY_NUM) {
+> >> +             dev_err(dev, "OF: linux,keymap size overflow\n");
+> >> +             return -EINVAL;
+> >> +     }
+> >> +
+> >> +     for (i = 0; i < *keymap_size; i++)
+> >> +             keymap[i] = be32_to_cpup(prop + i);
 > >
-> > So we've tried to add some pinctrl default fetchers into the input drivers
-> > and Dmitry don't like sprinking calls like that all over the drivers so
-> > we're trying to come up with some other scheme.
-> >
-> > I sent one patch that tried to pick the pinctrl handles by using
-> > notifiers but it doesn't work basically due to probe deferral.
-> >
-> > So next approach will be to try and modify the device core to
-> > fetch default pinctrl states.
-> >
-> > You might try to lobby Dmitry to accepting this in the meantime,
-> > as a stepping stone. (I'm OK with it, Acked-by).
-> 
-> What is your opinion about this patch? Can you please accept this
-> until we have some common scheme to handle this.
+> > All of this is implemented in matrix_keypad_build_keymap(), there is no
+> > need to do it again here.
+> The probe function of this driver needs the keymap information to set
+> keypad->rows_en_mask and keypad->cols_en_mask so that they can be used
+> later. I plan to change to parse the array keypad->keycodes[], which
+> is set by matrix_keypad_build_keymap(),  to get the row/col mask. Do
+> you think this is acceptable?
 
-I'd rather we wait for the device core patch to get in (I believe Greg
-KH was basically OK with it so 3.9 is the current target) and you
-carried this patch locally for now.
+Yes, I believe this should be fine.
 
 Thanks.
 

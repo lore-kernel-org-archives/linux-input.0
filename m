@@ -1,26 +1,61 @@
-From: Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH 1/3] Input: imx_keypad - Add device tree support
-Date: Mon, 31 Dec 2012 20:28:47 +0800
-Message-ID: <CAAQ0ZWQ3jsW1=boEdasjRg9W7mivaYdshgsguOr7dsSdAJmMDQ@mail.gmail.com>
-References: <1356872946-2810-1-git-send-email-Ying.Liu@freescale.com>
-	<20121230232852.GB13899@core.coreip.homeip.net>
-	<20121231005527.GC31816@S2101-09.ap.freescale.net>
-	<CA+8Hj81gf=Z2TGj+s1ypBcuS07MngVFb27v4=sdP4tXk40z9Aw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Input: samsung-keypad: Add support for pinctrl
+Date: Mon, 31 Dec 2012 12:20:30 -0800
+Message-ID: <20121231202030.GA20317@core.coreip.homeip.net>
+References: <1354789126-28304-1-git-send-email-sachin.kamat@linaro.org>
+ <CACRpkdYjmpB7gPd-z9pia=R2NQPxkeVegpKDrLfViET+2=UOXA@mail.gmail.com>
+ <CAK9yfHy3j5R+OmVcDP_oByjz7yrGR4Bs9+u92Y9u3mjTY0jcdQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <CA+8Hj81gf=Z2TGj+s1ypBcuS07MngVFb27v4=sdP4tXk40z9Aw@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Liu Ying <liu.y.victor@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Liu Ying <Ying.Liu@freescale.com>, grant.likely@secretlab.ca, rob.herring@calxeda.com, rob@landley.net, linux@arm.linux.org.uk, s.hauer@pengutronix.de, linus.walleij@linaro.org, cjb@laptop.org, broonie@opensource.wolfsonmicro.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-doc@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:43688 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751729Ab2LaUUf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 31 Dec 2012 15:20:35 -0500
+Received: by mail-pa0-f46.google.com with SMTP id bh2so7280945pad.19
+        for <linux-input@vger.kernel.org>; Mon, 31 Dec 2012 12:20:35 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CAK9yfHy3j5R+OmVcDP_oByjz7yrGR4Bs9+u92Y9u3mjTY0jcdQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, kgene.kim@samsung.com, patches@linaro.org, Linus Walleij <linus.walleij@linaro.org>
 
-On 31 December 2012 14:45, Liu Ying <liu.y.victor@gmail.com> wrote:
-> Hi, Shawn,
->
-> I plan to remove pinctrl code in the coming next version driver patch
-> first. Do you think this is ok or not?
->
-Sure.  Just leave the dependency for Dmitry to handle :)
+Hi Sachin,
 
-Shawn
+On Mon, Dec 31, 2012 at 09:15:38AM +0530, Sachin Kamat wrote:
+> Hi Dmitry,
+> 
+> On 7 December 2012 00:59, Linus Walleij <linus.walleij@linaro.org> wrote:
+> > On Thu, Dec 6, 2012 at 11:18 AM, Sachin Kamat <sachin.kamat@linaro.org> wrote:
+> >
+> >> Added support for pin configuration using pinctrl subsystem
+> >> to the Samsung keypad driver.
+> >>
+> >> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> >
+> > So we've tried to add some pinctrl default fetchers into the input drivers
+> > and Dmitry don't like sprinking calls like that all over the drivers so
+> > we're trying to come up with some other scheme.
+> >
+> > I sent one patch that tried to pick the pinctrl handles by using
+> > notifiers but it doesn't work basically due to probe deferral.
+> >
+> > So next approach will be to try and modify the device core to
+> > fetch default pinctrl states.
+> >
+> > You might try to lobby Dmitry to accepting this in the meantime,
+> > as a stepping stone. (I'm OK with it, Acked-by).
+> 
+> What is your opinion about this patch? Can you please accept this
+> until we have some common scheme to handle this.
+
+I'd rather we wait for the device core patch to get in (I believe Greg
+KH was basically OK with it so 3.9 is the current target) and you
+carried this patch locally for now.
+
+Thanks.
+
+-- 
+Dmitry

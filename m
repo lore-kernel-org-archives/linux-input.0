@@ -1,56 +1,80 @@
-From: Mario Scholz <mario@expires-2013.mail.trial-n-error.net>
-Subject: Logitech K810 Bluetooth F-Keys configuration tool
-Date: Wed, 02 Jan 2013 19:49:31 +0100
-Message-ID: <50E4813B.1080708@expires-2013.mail.trial-n-error.net>
+From: Daniel Nicoletti <dantti12@gmail.com>
+Subject: Re: HID battery strength does not emit power_suppy udev events
+Date: Wed, 2 Jan 2013 21:57:58 -0200
+Message-ID: <CACo8zOe6SNeavzyMcY-vbh797kD3JpstZFG+AUA040nNMrLu8g@mail.gmail.com>
+References: <CACo8zOe7MFp_O_2rQhkSPc_+LaSUBxHvsQwSY38ukKRioDHusA@mail.gmail.com>
+	<CAD2FfiEbqUvfuUYpgQFaXoUBAn_7TnV4FnGXNDeD-jHCCfpGVQ@mail.gmail.com>
+	<CACo8zOeSf_0ump=ChJKvgLQL1_OVoOE5Ts0ybw=5S3ZFMzZcGw@mail.gmail.com>
+	<CACo8zOc5QkhotrEPdeK23rfkjPeOa5PgXpXjBUeFPrPWbTAJ1w@mail.gmail.com>
+	<1357069586.8915.11.camel@localhost>
+	<CACo8zOf9LdPA_OZSLZp3iQj80+DvVvQh_Wc6Or902SSJ2hMWVg@mail.gmail.com>
+	<9b7bd03f727fb619965e081b2fb61727.squirrel@webmail.firszt.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay06.ispgateway.de ([80.67.31.101]:46411 "EHLO
-	smtprelay06.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752404Ab3ABSzZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jan 2013 13:55:25 -0500
-Received: from [88.217.114.70] (helo=archvile.trial-n-error.net)
-	by smtprelay06.ispgateway.de with esmtpsa (TLSv1:AES256-SHA:256)
-	(Exim 4.68)
-	(envelope-from <mario@expires-2013.mail.trial-n-error.net>)
-	id 1TqTNd-0002tb-10
-	for linux-input@vger.kernel.org; Wed, 02 Jan 2013 19:49:33 +0100
-Received: from vagary.trial-n-error.net ([10.12.0.22])
-	by archvile.trial-n-error.net with esmtp (TNE-Exim 4.72)
-	(envelope-from <mario@expires-2013.mail.trial-n-error.net>)
-	id 1TqTLl-00020v-RN
-	for linux-input@vger.kernel.org; Wed, 02 Jan 2013 19:47:37 +0100
-Received: from localhost ([127.0.0.1])
-	by vagary.trial-n-error.net with esmtp (Exim 4.80)
-	(envelope-from <mario@expires-2013.mail.trial-n-error.net>)
-	id 1TqTNb-0002Cf-M5
-	for linux-input@vger.kernel.org; Wed, 02 Jan 2013 19:49:31 +0100
+Received: from mail-we0-f181.google.com ([74.125.82.181]:46243 "EHLO
+	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752834Ab3ABX57 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jan 2013 18:57:59 -0500
+Received: by mail-we0-f181.google.com with SMTP id t11so6882010wey.12
+        for <linux-input@vger.kernel.org>; Wed, 02 Jan 2013 15:57:58 -0800 (PST)
+In-Reply-To: <9b7bd03f727fb619965e081b2fb61727.squirrel@webmail.firszt.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>
 
-Dear linux-input list,
+2013/1/2 Przemo Firszt <przemo@firszt.eu>:
+>
+> Dnia 1 Stycznia 2013, 8:39 pm, Wt, Daniel Nicoletti napisa=B3(a):
+>> Well from your logs you can see the udev emitted an 'add ' for
+>> wacom_battery, the odd part is that it sends several add for the bat=
+tery.
+>
+> It's KERNEL and UDEV, so i think it's OK - no duplicates.
+>
+>> Wacom tablets have a different code from handling the battery, i wro=
+te the
+>> code that'sgeneric for hid devices, and the battery part looks like =
+a lot
+>> when looking to tje wacom one but it doesn't emits 'add ' or 'del '
+>> events...
+>> I'm not kernel dev and after reading docs and digging some code I 'm=
+ still
+>> clueless about it...
+>>
+> You might add a few "printk" in hidinput_setup_battery (in kernel
+> drivers/hid/hid-input.c) to see if everything goes OK.
+>
+> What's your device?
+> --
+> Regards,
+> Przemo Firszt
+>
+I have all Apple bluettoth devices (keyboard, mouse, trackpad), this be=
+havior
+will happen with any bt device that uses generic HID battery strenth de=
+scriptor,
+from some docs I read that when registering with udev you must say if t=
+he
+parent has been registered already, but I can't find the code which des=
+cribes
+that.
+There's nothing wrong with my patch regarding the probe for the battery=
+ status,
+but it clearly doesn't follow some rule to add the power_supply infrast=
+ructure,
+I wish I could know what is missing...
 
-there is a new configuration tool available for the Logitech K810
-Bluetooth keyboard.
+Best,
 
-The keyboard requires to press the FN key together with the F-keys for
-normal F-keys function (default behaviour)
+--
+Daniel Nicoletti
 
-If a F-key is pressed without the FN key, they have a special meaning
-(e.g. switch bluetooth target, media buttons, etc.)
-
-There is a windows based software 'SetPoint' which can configure this
-behaviour. The F-keys are then usable for regular purposes without FN
-key. But since it is not permanent and have to be done on each power-on
-I created an initial version of a configuration tool to set this behaviour.
-
-I thought perhaps somebody is in need for it besides me.
-
-Best regards,
- Mario Scholz
-
-http://www.trial-n-error.de/static/articles/k810/k810_conf-v0.1.tar.bz2
-http://www.trial-n-error.de/posts/2012/12/31/logitech-k810-keyboard-configurator/
-
+KDE Developer - http://dantti.wordpress.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

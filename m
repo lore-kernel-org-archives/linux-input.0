@@ -1,38 +1,47 @@
-From: Daniel Nicoletti <dantti12@gmail.com>
-Subject: Re: HID battery strength does not emit power_suppy udev events
-Date: Wed, 2 Jan 2013 01:24:05 -0200
-Message-ID: <CACo8zOd=Si4xFnJPKeknSJCyxjH7P5RibpGt787mnBjdCU8ZAg@mail.gmail.com>
-References: <CACo8zOe7MFp_O_2rQhkSPc_+LaSUBxHvsQwSY38ukKRioDHusA@mail.gmail.com>
-	<CAD2FfiEbqUvfuUYpgQFaXoUBAn_7TnV4FnGXNDeD-jHCCfpGVQ@mail.gmail.com>
-	<CACo8zOeSf_0ump=ChJKvgLQL1_OVoOE5Ts0ybw=5S3ZFMzZcGw@mail.gmail.com>
-	<CACo8zOc5QkhotrEPdeK23rfkjPeOa5PgXpXjBUeFPrPWbTAJ1w@mail.gmail.com>
-	<1357069586.8915.11.camel@localhost>
-	<CACo8zOf9LdPA_OZSLZp3iQj80+DvVvQh_Wc6Or902SSJ2hMWVg@mail.gmail.com>
-	<1357073810.8915.14.camel@localhost>
-	<CACo8zOe6muNzxE+u-V3dFD27e-2h9w7267Pk3SAUZFsF-Ok9Vw@mail.gmail.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: How to identify a gpio-keys-polled input device from userspace?
+Date: Wed, 2 Jan 2013 11:43:55 +0100
+Message-ID: <CAH9NwWdbKePDUGHp1yxxxZ0sRU_GJ8x_pSHsd5ULZNOZtPxCNg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f52.google.com ([74.125.82.52]:40956 "EHLO
-	mail-wg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752497Ab3ABDYH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jan 2013 22:24:07 -0500
-Received: by mail-wg0-f52.google.com with SMTP id 12so6447713wgh.7
-        for <linux-input@vger.kernel.org>; Tue, 01 Jan 2013 19:24:06 -0800 (PST)
-In-Reply-To: <CACo8zOe6muNzxE+u-V3dFD27e-2h9w7267Pk3SAUZFsF-Ok9Vw@mail.gmail.com>
+Received: from mail-vc0-f180.google.com ([209.85.220.180]:54557 "EHLO
+	mail-vc0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752082Ab3ABKoQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jan 2013 05:44:16 -0500
+Received: by mail-vc0-f180.google.com with SMTP id p16so13862733vcq.25
+        for <linux-input@vger.kernel.org>; Wed, 02 Jan 2013 02:44:16 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: linux-input@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@vger.kernel.org
 
-As you can see on the paste, there are no add events for the power_supply
-infrastructure which causes upower not noticing it was added, the same
-happens when removed:
-http://paste.kde.org/635294/
+Hi all...
 
-Best,
+I am running in a small problem right now. I need to identify the
+reset button from userspace on different boards.
 
+I thought that I could iterate over all /dev/input/eventX devices and
+use some ioctl magic to get the correct one.
+
+        char name[256] = "Unknown";
+        ioctl(inputdev->handle(), EVIOCGNAME(sizeof(name)), name);
+
+Returns gpio-keys-polled... looks fine, but I have more then 1 button.
+
+In my out-of-tree platform-glue-driver I have this:
+
+static struct gpio_keys_button bpc600_gpio_keys[] = {
+        {
+                .code = BTN_EXTRA, /* See include/linux/input.h */
+                .gpio = 12,
+                .active_low = 1,
+                .desc = "reset",
+                .wakeup = 0,
+        },
+};
+
+Is there a way to get desc value from userspace?
+
+thanks
 --
-Daniel Nicoletti
-
-KDE Developer - http://dantti.wordpress.com
+Christian Gmeiner, MSc

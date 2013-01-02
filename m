@@ -1,56 +1,56 @@
-From: "Przemo Firszt" <przemo@firszt.eu>
-Subject: Re: HID battery strength does not emit power_suppy udev events
-Date: Wed, 2 Jan 2013 15:04:43 -0000
-Message-ID: <9b7bd03f727fb619965e081b2fb61727.squirrel@webmail.firszt.eu>
-References: <CACo8zOe7MFp_O_2rQhkSPc_+LaSUBxHvsQwSY38ukKRioDHusA@mail.gmail.com>
-    <CAD2FfiEbqUvfuUYpgQFaXoUBAn_7TnV4FnGXNDeD-jHCCfpGVQ@mail.gmail.com>
-    <CACo8zOeSf_0ump=ChJKvgLQL1_OVoOE5Ts0ybw=5S3ZFMzZcGw@mail.gmail.com>
-    <CACo8zOc5QkhotrEPdeK23rfkjPeOa5PgXpXjBUeFPrPWbTAJ1w@mail.gmail.com>
-    <1357069586.8915.11.camel@localhost>
-    <CACo8zOf9LdPA_OZSLZp3iQj80+DvVvQh_Wc6Or902SSJ2hMWVg@mail.gmail.com>
-Reply-To: przemo@firszt.eu
+From: Mario Scholz <mario@expires-2013.mail.trial-n-error.net>
+Subject: Logitech K810 Bluetooth F-Keys configuration tool
+Date: Wed, 02 Jan 2013 19:49:31 +0100
+Message-ID: <50E4813B.1080708@expires-2013.mail.trial-n-error.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wren.arvixe.com ([50.97.138.99]:53372 "EHLO wren.arvixe.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752894Ab3ABPEr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Jan 2013 10:04:47 -0500
-In-Reply-To: <CACo8zOf9LdPA_OZSLZp3iQj80+DvVvQh_Wc6Or902SSJ2hMWVg@mail.gmail.com>
+Received: from smtprelay06.ispgateway.de ([80.67.31.101]:46411 "EHLO
+	smtprelay06.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752404Ab3ABSzZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jan 2013 13:55:25 -0500
+Received: from [88.217.114.70] (helo=archvile.trial-n-error.net)
+	by smtprelay06.ispgateway.de with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.68)
+	(envelope-from <mario@expires-2013.mail.trial-n-error.net>)
+	id 1TqTNd-0002tb-10
+	for linux-input@vger.kernel.org; Wed, 02 Jan 2013 19:49:33 +0100
+Received: from vagary.trial-n-error.net ([10.12.0.22])
+	by archvile.trial-n-error.net with esmtp (TNE-Exim 4.72)
+	(envelope-from <mario@expires-2013.mail.trial-n-error.net>)
+	id 1TqTLl-00020v-RN
+	for linux-input@vger.kernel.org; Wed, 02 Jan 2013 19:47:37 +0100
+Received: from localhost ([127.0.0.1])
+	by vagary.trial-n-error.net with esmtp (Exim 4.80)
+	(envelope-from <mario@expires-2013.mail.trial-n-error.net>)
+	id 1TqTNb-0002Cf-M5
+	for linux-input@vger.kernel.org; Wed, 02 Jan 2013 19:49:31 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Nicoletti <dantti12@gmail.com>
-Cc: Przemo Firszt <przemo@firszt.eu>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>
+To: linux-input@vger.kernel.org
 
+Dear linux-input list,
 
-Dnia 1 Stycznia 2013, 8:39 pm, Wt, Daniel Nicoletti napisa=B3(a):
-> Well from your logs you can see the udev emitted an 'add ' for
-> wacom_battery, the odd part is that it sends several add for the batt=
-ery.
+there is a new configuration tool available for the Logitech K810
+Bluetooth keyboard.
 
-It's KERNEL and UDEV, so i think it's OK - no duplicates.
+The keyboard requires to press the FN key together with the F-keys for
+normal F-keys function (default behaviour)
 
-> Wacom tablets have a different code from handling the battery, i wrot=
-e the
-> code that'sgeneric for hid devices, and the battery part looks like a=
- lot
-> when looking to tje wacom one but it doesn't emits 'add ' or 'del '
-> events...
-> I'm not kernel dev and after reading docs and digging some code I 'm =
-still
-> clueless about it...
->
-You might add a few "printk" in hidinput_setup_battery (in kernel
-drivers/hid/hid-input.c) to see if everything goes OK.
+If a F-key is pressed without the FN key, they have a special meaning
+(e.g. switch bluetooth target, media buttons, etc.)
 
-What's your device?
---=20
-Regards,
-Przemo Firszt
+There is a windows based software 'SetPoint' which can configure this
+behaviour. The F-keys are then usable for regular purposes without FN
+key. But since it is not permanent and have to be done on each power-on
+I created an initial version of a configuration tool to set this behaviour.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I thought perhaps somebody is in need for it besides me.
+
+Best regards,
+ Mario Scholz
+
+http://www.trial-n-error.de/static/articles/k810/k810_conf-v0.1.tar.bz2
+http://www.trial-n-error.de/posts/2012/12/31/logitech-k810-keyboard-configurator/
+

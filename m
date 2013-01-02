@@ -1,47 +1,56 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: How to identify a gpio-keys-polled input device from userspace?
-Date: Wed, 2 Jan 2013 11:43:55 +0100
-Message-ID: <CAH9NwWdbKePDUGHp1yxxxZ0sRU_GJ8x_pSHsd5ULZNOZtPxCNg@mail.gmail.com>
+From: "Przemo Firszt" <przemo@firszt.eu>
+Subject: Re: HID battery strength does not emit power_suppy udev events
+Date: Wed, 2 Jan 2013 15:04:43 -0000
+Message-ID: <9b7bd03f727fb619965e081b2fb61727.squirrel@webmail.firszt.eu>
+References: <CACo8zOe7MFp_O_2rQhkSPc_+LaSUBxHvsQwSY38ukKRioDHusA@mail.gmail.com>
+    <CAD2FfiEbqUvfuUYpgQFaXoUBAn_7TnV4FnGXNDeD-jHCCfpGVQ@mail.gmail.com>
+    <CACo8zOeSf_0ump=ChJKvgLQL1_OVoOE5Ts0ybw=5S3ZFMzZcGw@mail.gmail.com>
+    <CACo8zOc5QkhotrEPdeK23rfkjPeOa5PgXpXjBUeFPrPWbTAJ1w@mail.gmail.com>
+    <1357069586.8915.11.camel@localhost>
+    <CACo8zOf9LdPA_OZSLZp3iQj80+DvVvQh_Wc6Or902SSJ2hMWVg@mail.gmail.com>
+Reply-To: przemo@firszt.eu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f180.google.com ([209.85.220.180]:54557 "EHLO
-	mail-vc0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752082Ab3ABKoQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jan 2013 05:44:16 -0500
-Received: by mail-vc0-f180.google.com with SMTP id p16so13862733vcq.25
-        for <linux-input@vger.kernel.org>; Wed, 02 Jan 2013 02:44:16 -0800 (PST)
+Received: from wren.arvixe.com ([50.97.138.99]:53372 "EHLO wren.arvixe.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752894Ab3ABPEr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jan 2013 10:04:47 -0500
+In-Reply-To: <CACo8zOf9LdPA_OZSLZp3iQj80+DvVvQh_Wc6Or902SSJ2hMWVg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Daniel Nicoletti <dantti12@gmail.com>
+Cc: Przemo Firszt <przemo@firszt.eu>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>
 
-Hi all...
 
-I am running in a small problem right now. I need to identify the
-reset button from userspace on different boards.
+Dnia 1 Stycznia 2013, 8:39 pm, Wt, Daniel Nicoletti napisa=B3(a):
+> Well from your logs you can see the udev emitted an 'add ' for
+> wacom_battery, the odd part is that it sends several add for the batt=
+ery.
 
-I thought that I could iterate over all /dev/input/eventX devices and
-use some ioctl magic to get the correct one.
+It's KERNEL and UDEV, so i think it's OK - no duplicates.
 
-        char name[256] = "Unknown";
-        ioctl(inputdev->handle(), EVIOCGNAME(sizeof(name)), name);
+> Wacom tablets have a different code from handling the battery, i wrot=
+e the
+> code that'sgeneric for hid devices, and the battery part looks like a=
+ lot
+> when looking to tje wacom one but it doesn't emits 'add ' or 'del '
+> events...
+> I'm not kernel dev and after reading docs and digging some code I 'm =
+still
+> clueless about it...
+>
+You might add a few "printk" in hidinput_setup_battery (in kernel
+drivers/hid/hid-input.c) to see if everything goes OK.
 
-Returns gpio-keys-polled... looks fine, but I have more then 1 button.
+What's your device?
+--=20
+Regards,
+Przemo Firszt
 
-In my out-of-tree platform-glue-driver I have this:
-
-static struct gpio_keys_button bpc600_gpio_keys[] = {
-        {
-                .code = BTN_EXTRA, /* See include/linux/input.h */
-                .gpio = 12,
-                .active_low = 1,
-                .desc = "reset",
-                .wakeup = 0,
-        },
-};
-
-Is there a way to get desc value from userspace?
-
-thanks
 --
-Christian Gmeiner, MSc
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

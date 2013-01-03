@@ -1,32 +1,50 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: uhid: use __packed__ for uhid_feature_answer_req
-Date: Thu, 3 Jan 2013 10:40:09 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1301031039590.27348@pobox.suse.cz>
-References: <1355746843-14015-1-git-send-email-dh.herrmann@googlemail.com>
+Subject: Re: Rumble support for Jess/Saitek "color rumble pad"
+Date: Thu, 3 Jan 2013 10:44:18 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1301031042530.27348@pobox.suse.cz>
+References: <1355791689.12070.4.camel@localhost>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51041 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:51172 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750915Ab3ACJkN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Jan 2013 04:40:13 -0500
-In-Reply-To: <1355746843-14015-1-git-send-email-dh.herrmann@googlemail.com>
+	id S1752906Ab3ACJoX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Jan 2013 04:44:23 -0500
+In-Reply-To: <1355791689.12070.4.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: linux-input@vger.kernel.org
+To: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Pantelis Koukousoulas <pktoss@gmail.com>, Anssi Hannula <anssi.hannula@gmail.com>
 
-On Mon, 17 Dec 2012, David Herrmann wrote:
+On Tue, 18 Dec 2012, Michael Karcher wrote:
 
-> We use __packed__ for all API structures so we can extend them without
-> breaking alignment rules. We do try to explicitly align the structures,
-> but to be safe we also use __packed__.
-> uhid_feature_answer_req is already 64bit aligned so we can add __packed__
-> without breaking ABI.
+> Hello developers (and testers)
 > 
-> Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+> The attached pad adds supports for another gamepad to the hid-pl driver.
+> The "color rumble pad P580" marketed using the "Saitek" brand in
+> Germany, and using a USB Vendor ID attributed to "Jess" seems to be
+> electronically identical to the 4-field variant of the "Green Asia"
+> gamepad.
+> 
+> The pad has been tested to support rumble strengths up to 255, not just
+> 127. Currently the patch discriminates the pads by an if on the vendor
+> ID, a bit in the driver_data field with definitely do better, but I
+> recommend the owners of the 4-field green asia pad to verify whether the
+> maximum rumble strength is indeed only 127, otherwise the condition
+> should be removed entirely and 255 used in all cases.
 
-Applied, thanks David.
+Hi Michael,
+
+thanks for the patch. A couple of requests before I can apply it:
+
+- please provide the patch in-line in the e-mail body if your client 
+  doesn't corrupt patches. It's eaiser to review it that way
+- please add your Signed-off-by: line as described in 
+  Documentation/SubmittingPatches
+- don't forget to add the VID/PID to hid_ignore_list[], otherwise the 
+  device <-> driver binding will not work properly
+
+Thanks,
 
 -- 
 Jiri Kosina

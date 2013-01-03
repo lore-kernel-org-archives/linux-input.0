@@ -1,80 +1,63 @@
-From: Daniel Nicoletti <dantti12@gmail.com>
-Subject: Re: HID battery strength does not emit power_suppy udev events
-Date: Wed, 2 Jan 2013 21:57:58 -0200
-Message-ID: <CACo8zOe6SNeavzyMcY-vbh797kD3JpstZFG+AUA040nNMrLu8g@mail.gmail.com>
-References: <CACo8zOe7MFp_O_2rQhkSPc_+LaSUBxHvsQwSY38ukKRioDHusA@mail.gmail.com>
-	<CAD2FfiEbqUvfuUYpgQFaXoUBAn_7TnV4FnGXNDeD-jHCCfpGVQ@mail.gmail.com>
-	<CACo8zOeSf_0ump=ChJKvgLQL1_OVoOE5Ts0ybw=5S3ZFMzZcGw@mail.gmail.com>
-	<CACo8zOc5QkhotrEPdeK23rfkjPeOa5PgXpXjBUeFPrPWbTAJ1w@mail.gmail.com>
-	<1357069586.8915.11.camel@localhost>
-	<CACo8zOf9LdPA_OZSLZp3iQj80+DvVvQh_Wc6Or902SSJ2hMWVg@mail.gmail.com>
-	<9b7bd03f727fb619965e081b2fb61727.squirrel@webmail.firszt.eu>
+From: Shawn Guo <shawn.guo@linaro.org>
+Subject: Re: [PATCH v2 1/3] Input: imx_keypad - Add device tree support
+Date: Thu, 3 Jan 2013 15:11:00 +0800
+Message-ID: <20130103071058.GA2566@S2101-09.ap.freescale.net>
+References: <1357010475-7331-1-git-send-email-Ying.Liu@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f181.google.com ([74.125.82.181]:46243 "EHLO
-	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752834Ab3ABX57 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jan 2013 18:57:59 -0500
-Received: by mail-we0-f181.google.com with SMTP id t11so6882010wey.12
-        for <linux-input@vger.kernel.org>; Wed, 02 Jan 2013 15:57:58 -0800 (PST)
-In-Reply-To: <9b7bd03f727fb619965e081b2fb61727.squirrel@webmail.firszt.eu>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1357010475-7331-1-git-send-email-Ying.Liu@freescale.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Liu Ying <Ying.Liu@freescale.com>
+Cc: broonie@opensource.wolfsonmicro.com, linux@arm.linux.org.uk, linux-doc@vger.kernel.org, liu.y.victor@gmail.com, s.hauer@pengutronix.de, dmitry.torokhov@gmail.com, rob.herring@calxeda.com, grant.likely@secretlab.ca, rob@landley.net, linux-input@vger.kernel.org, cjb@laptop.org, linus.walleij@linaro.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>
 
-2013/1/2 Przemo Firszt <przemo@firszt.eu>:
->
-> Dnia 1 Stycznia 2013, 8:39 pm, Wt, Daniel Nicoletti napisa=B3(a):
->> Well from your logs you can see the udev emitted an 'add ' for
->> wacom_battery, the odd part is that it sends several add for the bat=
-tery.
->
-> It's KERNEL and UDEV, so i think it's OK - no duplicates.
->
->> Wacom tablets have a different code from handling the battery, i wro=
-te the
->> code that'sgeneric for hid devices, and the battery part looks like =
-a lot
->> when looking to tje wacom one but it doesn't emits 'add ' or 'del '
->> events...
->> I'm not kernel dev and after reading docs and digging some code I 'm=
- still
->> clueless about it...
->>
-> You might add a few "printk" in hidinput_setup_battery (in kernel
-> drivers/hid/hid-input.c) to see if everything goes OK.
->
-> What's your device?
-> --
-> Regards,
-> Przemo Firszt
->
-I have all Apple bluettoth devices (keyboard, mouse, trackpad), this be=
-havior
-will happen with any bt device that uses generic HID battery strenth de=
-scriptor,
-from some docs I read that when registering with udev you must say if t=
-he
-parent has been registered already, but I can't find the code which des=
-cribes
-that.
-There's nothing wrong with my patch regarding the probe for the battery=
- status,
-but it clearly doesn't follow some rule to add the power_supply infrast=
-ructure,
-I wish I could know what is missing...
+On Tue, Jan 01, 2013 at 11:21:13AM +0800, Liu Ying wrote:
+> +#ifdef CONFIG_OF
+> +static inline int imx_keypad_check_dt(struct platform_device *pdev)
+> +{
+> +	struct device_node *np = pdev->dev.of_node;
+> +
+> +	if (!np)
+> +		return -ENODEV;
+> +
+> +	return 0;
+> +}
+> +#else
+> +static inline int imx_keypad_check_dt(struct platform_device *pdev)
+> +{
+> +	return -ENODEV;
+> +}
+> +#endif
+> +
+>  static int imx_keypad_probe(struct platform_device *pdev)
+>  {
+>  	const struct matrix_keymap_data *keymap_data = pdev->dev.platform_data;
+>  	struct imx_keypad *keypad;
+>  	struct input_dev *input_dev;
+>  	struct resource *res;
+> -	int irq, error, i;
+> +	int irq, error, i, row, col, row_shift;
+>  
+> -	if (keymap_data == NULL) {
+> +	if (keymap_data == NULL && imx_keypad_check_dt(pdev)) {
 
-Best,
+Shouldn't the following just equally work?
+	
+	if (keymap_data == NULL && pdev->dev.of_node == NULL) {
 
---
-Daniel Nicoletti
+Shawn
 
-KDE Developer - http://dantti.wordpress.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  		dev_err(&pdev->dev, "no keymap defined\n");
+>  		return -EINVAL;
+>  	}

@@ -1,217 +1,274 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 4/4] input: keyboard: tegra: remove default key mapping
-Date: Fri, 4 Jan 2013 16:32:10 +0530
-Message-ID: <1357297330-28878-5-git-send-email-ldewangan@nvidia.com>
-References: <1357297330-28878-1-git-send-email-ldewangan@nvidia.com>
+From: javier Martin <javier.martin@vista-silicon.com>
+Subject: Re: [PATCH v5] input: qt2160: Add support for LEDs.
+Date: Fri, 4 Jan 2013 16:45:05 +0100
+Message-ID: <CACKLOr3DDNawzqU3S1jzfFzTmwmbrsWrDi-V27NU1_kGH7kVqQ@mail.gmail.com>
+References: <1351158824-19432-1-git-send-email-javier.martin@vista-silicon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <1357297330-28878-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f43.google.com ([74.125.82.43]:33828 "EHLO
+	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754980Ab3ADPwf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jan 2013 10:52:35 -0500
+Received: by mail-wg0-f43.google.com with SMTP id e12so7453350wge.34
+        for <linux-input@vger.kernel.org>; Fri, 04 Jan 2013 07:52:34 -0800 (PST)
+In-Reply-To: <1351158824-19432-1-git-send-email-javier.martin@vista-silicon.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, axel.lin@gmail.com, Javier Martin <javier.martin@vista-silicon.com>
 
-Tegra KBC driver have the default key mapping for 16x8 configuration.
-The key mapping can be provided through platform data or through DT
-and the mapping varies from platform to platform, hence this default
-mapping is not so useful. Remove the default mapping to reduce the code
-lines of the driver.
+Hi Dmitry.
 
-Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/input/keyboard/tegra-kbc.c |  156 +-----------------------------------
- 1 files changed, 1 insertions(+), 155 deletions(-)
+On 25 October 2012 11:53, Javier Martin <javier.martin@vista-silicon.com> wrote:
+> Outputs x8..x0 of the qt2160 can have leds attached to it.
+> This patch handles those outputs using the generic LED
+> framework.
+>
+> The PWM controls available in the chip are used to achieve
+> different levels of brightness.
+>
+> Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
+> ---
+>  drivers/input/keyboard/qt2160.c |  142 ++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 140 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
+> index 73ea4b0..eefa2dd 100644
+> --- a/drivers/input/keyboard/qt2160.c
+> +++ b/drivers/input/keyboard/qt2160.c
+> @@ -20,6 +20,7 @@
+>
+>  #include <linux/kernel.h>
+>  #include <linux/init.h>
+> +#include <linux/leds.h>
+>  #include <linux/module.h>
+>  #include <linux/slab.h>
+>  #include <linux/jiffies.h>
+> @@ -39,6 +40,11 @@
+>  #define QT2160_CMD_GPIOS      6
+>  #define QT2160_CMD_SUBVER     7
+>  #define QT2160_CMD_CALIBRATE  10
+> +#define QT2160_CMD_DRIVE_X    70
+> +#define QT2160_CMD_PWMEN_X    74
+> +#define QT2160_CMD_PWM_DUTY   76
+> +
+> +#define QT2160_NUM_LEDS_X      8
+>
+>  #define QT2160_CYCLE_INTERVAL  (2*HZ)
+>
+> @@ -49,6 +55,17 @@ static unsigned char qt2160_key2code[] = {
+>         KEY_C, KEY_D, KEY_E, KEY_F,
+>  };
+>
+> +#ifdef CONFIG_LEDS_CLASS
+> +struct qt2160_led {
+> +       struct qt2160_data *qt2160;
+> +       struct led_classdev cdev;
+> +       struct work_struct work;
+> +       char name[32];
+> +       int id;
+> +       enum led_brightness new_brightness;
+> +};
+> +#endif
+> +
+>  struct qt2160_data {
+>         struct i2c_client *client;
+>         struct input_dev *input;
+> @@ -56,8 +73,61 @@ struct qt2160_data {
+>         spinlock_t lock;        /* Protects canceling/rescheduling of dwork */
+>         unsigned short keycodes[ARRAY_SIZE(qt2160_key2code)];
+>         u16 key_matrix;
+> +#ifdef CONFIG_LEDS_CLASS
+> +       struct qt2160_led leds[QT2160_NUM_LEDS_X];
+> +       struct mutex led_lock;
+> +#endif
+>  };
+>
+> +static int qt2160_read(struct i2c_client *client, u8 reg);
+> +static int qt2160_write(struct i2c_client *client, u8 reg, u8 data);
+> +
+> +#ifdef CONFIG_LEDS_CLASS
+> +
+> +static void qt2160_led_work(struct work_struct *work)
+> +{
+> +       struct qt2160_led *led = container_of(work, struct qt2160_led, work);
+> +       struct qt2160_data *qt2160 = led->qt2160;
+> +       struct i2c_client *client = qt2160->client;
+> +       int value = led->new_brightness;
+> +       u32 drive, pwmen;
+> +
+> +       mutex_lock(&qt2160->led_lock);
+> +
+> +       drive = qt2160_read(client, QT2160_CMD_DRIVE_X);
+> +       pwmen = qt2160_read(client, QT2160_CMD_PWMEN_X);
+> +       if (value != LED_OFF) {
+> +               drive |= (1 << led->id);
+> +               pwmen |= (1 << led->id);
+> +
+> +       } else {
+> +               drive &= ~(1 << led->id);
+> +               pwmen &= ~(1 << led->id);
+> +       }
+> +       qt2160_write(client, QT2160_CMD_DRIVE_X, drive);
+> +       qt2160_write(client, QT2160_CMD_PWMEN_X, pwmen);
+> +
+> +       /*
+> +        * Changing this register will change the brightness
+> +        * of every LED in the qt2160. It's a HW limitation.
+> +        */
+> +       if (value != LED_OFF)
+> +               qt2160_write(client, QT2160_CMD_PWM_DUTY, value);
+> +
+> +       mutex_unlock(&qt2160->led_lock);
+> +}
+> +
+> +static void qt2160_led_set(struct led_classdev *cdev,
+> +                          enum led_brightness value)
+> +{
+> +       struct qt2160_led *led = container_of(cdev, struct qt2160_led, cdev);
+> +
+> +       led->new_brightness = value;
+> +       schedule_work(&led->work);
+> +}
+> +
+> +#endif /* CONFIG_LEDS_CLASS */
+> +
+>  static int qt2160_read_block(struct i2c_client *client,
+>                              u8 inireg, u8 *buffer, unsigned int count)
+>  {
+> @@ -184,7 +254,7 @@ static void qt2160_worker(struct work_struct *work)
+>         qt2160_schedule_read(qt2160);
+>  }
+>
+> -static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
+> +static int qt2160_read(struct i2c_client *client, u8 reg)
+>  {
+>         int ret;
+>
+> @@ -205,7 +275,7 @@ static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
+>         return ret;
+>  }
+>
+> -static int __devinit qt2160_write(struct i2c_client *client, u8 reg, u8 data)
+> +static int qt2160_write(struct i2c_client *client, u8 reg, u8 data)
+>  {
+>         int ret;
+>
+> @@ -217,6 +287,63 @@ static int __devinit qt2160_write(struct i2c_client *client, u8 reg, u8 data)
+>         return ret;
+>  }
+>
+> +#ifdef CONFIG_LEDS_CLASS
+> +
+> +static int __devinit qt2160_register_leds(struct qt2160_data *qt2160)
+> +{
+> +       struct i2c_client *client = qt2160->client;
+> +       int ret;
+> +       int i;
+> +
+> +       mutex_init(&qt2160->led_lock);
+> +
+> +       for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
+> +               struct qt2160_led *led = &qt2160->leds[i];
+> +
+> +               snprintf(led->name, sizeof(led->name), "qt2160:x%d", i);
+> +               led->cdev.name = led->name;
+> +               led->cdev.brightness_set = qt2160_led_set;
+> +               led->cdev.brightness = LED_OFF;
+> +               led->id = i;
+> +               led->qt2160 = qt2160;
+> +
+> +               INIT_WORK(&led->work, qt2160_led_work);
+> +
+> +               ret = led_classdev_register(&client->dev, &led->cdev);
+> +               if (ret < 0)
+> +                       return ret;
+> +       }
+> +
+> +       /* Tur off LEDs */
+> +       qt2160_write(client, QT2160_CMD_DRIVE_X, 0);
+> +       qt2160_write(client, QT2160_CMD_PWMEN_X, 0);
+> +       qt2160_write(client, QT2160_CMD_PWM_DUTY, 0);
+> +
+> +       return 0;
+> +}
+> +
+> +static void __devinit qt2160_unregister_leds(struct qt2160_data *qt2160)
+> +{
+> +       int i;
+> +
+> +       for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
+> +               cancel_work_sync(&qt2160->leds[i].work);
+> +               led_classdev_unregister(&qt2160->leds[i].cdev);
+> +       }
+> +}
+> +
+> +#else
+> +
+> +static int __devinit qt2160_register_leds(struct qt2160_data *qt2160)
+> +{
+> +       return 0;
+> +}
+> +
+> +static void __devinit qt2160_unregister_leds(struct qt2160_data *qt2160)
+> +{
+> +}
+> +
+> +#endif
+>
+>  static bool __devinit qt2160_identify(struct i2c_client *client)
+>  {
+> @@ -249,6 +376,7 @@ static bool __devinit qt2160_identify(struct i2c_client *client)
+>         return true;
+>  }
+>
+> +
+>  static int __devinit qt2160_probe(struct i2c_client *client,
+>                                   const struct i2c_device_id *id)
+>  {
+> @@ -325,8 +453,16 @@ static int __devinit qt2160_probe(struct i2c_client *client,
+>         i2c_set_clientdata(client, qt2160);
+>         qt2160_schedule_read(qt2160);
+>
+> +       error = qt2160_register_leds(qt2160);
+> +       if (error) {
+> +               dev_err(&client->dev, "Failed to register leds\n");
+> +               goto err_unreg_input;
+> +       }
+> +
+>         return 0;
+>
+> +err_unreg_input:
+> +       input_unregister_device(input);
+>  err_free_irq:
+>         if (client->irq)
+>                 free_irq(client->irq, qt2160);
+> @@ -340,6 +476,8 @@ static int __devexit qt2160_remove(struct i2c_client *client)
+>  {
+>         struct qt2160_data *qt2160 = i2c_get_clientdata(client);
+>
+> +       qt2160_unregister_leds(qt2160);
+> +
+>         /* Release IRQ so no queue will be scheduled */
+>         if (client->irq)
+>                 free_irq(client->irq, qt2160);
+> --
+> 1.7.9.5
+>
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 69f8b04..4e33929 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -87,147 +87,6 @@ struct tegra_kbc {
- 	struct clk *clk;
- };
- 
--static const u32 tegra_kbc_default_keymap[] = {
--	KEY(0, 2, KEY_W),
--	KEY(0, 3, KEY_S),
--	KEY(0, 4, KEY_A),
--	KEY(0, 5, KEY_Z),
--	KEY(0, 7, KEY_FN),
--
--	KEY(1, 7, KEY_LEFTMETA),
--
--	KEY(2, 6, KEY_RIGHTALT),
--	KEY(2, 7, KEY_LEFTALT),
--
--	KEY(3, 0, KEY_5),
--	KEY(3, 1, KEY_4),
--	KEY(3, 2, KEY_R),
--	KEY(3, 3, KEY_E),
--	KEY(3, 4, KEY_F),
--	KEY(3, 5, KEY_D),
--	KEY(3, 6, KEY_X),
--
--	KEY(4, 0, KEY_7),
--	KEY(4, 1, KEY_6),
--	KEY(4, 2, KEY_T),
--	KEY(4, 3, KEY_H),
--	KEY(4, 4, KEY_G),
--	KEY(4, 5, KEY_V),
--	KEY(4, 6, KEY_C),
--	KEY(4, 7, KEY_SPACE),
--
--	KEY(5, 0, KEY_9),
--	KEY(5, 1, KEY_8),
--	KEY(5, 2, KEY_U),
--	KEY(5, 3, KEY_Y),
--	KEY(5, 4, KEY_J),
--	KEY(5, 5, KEY_N),
--	KEY(5, 6, KEY_B),
--	KEY(5, 7, KEY_BACKSLASH),
--
--	KEY(6, 0, KEY_MINUS),
--	KEY(6, 1, KEY_0),
--	KEY(6, 2, KEY_O),
--	KEY(6, 3, KEY_I),
--	KEY(6, 4, KEY_L),
--	KEY(6, 5, KEY_K),
--	KEY(6, 6, KEY_COMMA),
--	KEY(6, 7, KEY_M),
--
--	KEY(7, 1, KEY_EQUAL),
--	KEY(7, 2, KEY_RIGHTBRACE),
--	KEY(7, 3, KEY_ENTER),
--	KEY(7, 7, KEY_MENU),
--
--	KEY(8, 4, KEY_RIGHTSHIFT),
--	KEY(8, 5, KEY_LEFTSHIFT),
--
--	KEY(9, 5, KEY_RIGHTCTRL),
--	KEY(9, 7, KEY_LEFTCTRL),
--
--	KEY(11, 0, KEY_LEFTBRACE),
--	KEY(11, 1, KEY_P),
--	KEY(11, 2, KEY_APOSTROPHE),
--	KEY(11, 3, KEY_SEMICOLON),
--	KEY(11, 4, KEY_SLASH),
--	KEY(11, 5, KEY_DOT),
--
--	KEY(12, 0, KEY_F10),
--	KEY(12, 1, KEY_F9),
--	KEY(12, 2, KEY_BACKSPACE),
--	KEY(12, 3, KEY_3),
--	KEY(12, 4, KEY_2),
--	KEY(12, 5, KEY_UP),
--	KEY(12, 6, KEY_PRINT),
--	KEY(12, 7, KEY_PAUSE),
--
--	KEY(13, 0, KEY_INSERT),
--	KEY(13, 1, KEY_DELETE),
--	KEY(13, 3, KEY_PAGEUP),
--	KEY(13, 4, KEY_PAGEDOWN),
--	KEY(13, 5, KEY_RIGHT),
--	KEY(13, 6, KEY_DOWN),
--	KEY(13, 7, KEY_LEFT),
--
--	KEY(14, 0, KEY_F11),
--	KEY(14, 1, KEY_F12),
--	KEY(14, 2, KEY_F8),
--	KEY(14, 3, KEY_Q),
--	KEY(14, 4, KEY_F4),
--	KEY(14, 5, KEY_F3),
--	KEY(14, 6, KEY_1),
--	KEY(14, 7, KEY_F7),
--
--	KEY(15, 0, KEY_ESC),
--	KEY(15, 1, KEY_GRAVE),
--	KEY(15, 2, KEY_F5),
--	KEY(15, 3, KEY_TAB),
--	KEY(15, 4, KEY_F1),
--	KEY(15, 5, KEY_F2),
--	KEY(15, 6, KEY_CAPSLOCK),
--	KEY(15, 7, KEY_F6),
--
--	/* Software Handled Function Keys */
--	KEY(20, 0, KEY_KP7),
--
--	KEY(21, 0, KEY_KP9),
--	KEY(21, 1, KEY_KP8),
--	KEY(21, 2, KEY_KP4),
--	KEY(21, 4, KEY_KP1),
--
--	KEY(22, 1, KEY_KPSLASH),
--	KEY(22, 2, KEY_KP6),
--	KEY(22, 3, KEY_KP5),
--	KEY(22, 4, KEY_KP3),
--	KEY(22, 5, KEY_KP2),
--	KEY(22, 7, KEY_KP0),
--
--	KEY(27, 1, KEY_KPASTERISK),
--	KEY(27, 3, KEY_KPMINUS),
--	KEY(27, 4, KEY_KPPLUS),
--	KEY(27, 5, KEY_KPDOT),
--
--	KEY(28, 5, KEY_VOLUMEUP),
--
--	KEY(29, 3, KEY_HOME),
--	KEY(29, 4, KEY_END),
--	KEY(29, 5, KEY_BRIGHTNESSDOWN),
--	KEY(29, 6, KEY_VOLUMEDOWN),
--	KEY(29, 7, KEY_BRIGHTNESSUP),
--
--	KEY(30, 0, KEY_NUMLOCK),
--	KEY(30, 1, KEY_SCROLLLOCK),
--	KEY(30, 2, KEY_MUTE),
--
--	KEY(31, 4, KEY_HELP),
--};
--
--static const
--struct matrix_keymap_data tegra_kbc_default_keymap_data = {
--	.keymap		= tegra_kbc_default_keymap,
--	.keymap_size	= ARRAY_SIZE(tegra_kbc_default_keymap),
--};
--
- static void tegra_kbc_report_released_keys(struct input_dev *input,
- 					   unsigned short old_keycodes[],
- 					   unsigned int old_num_keys,
-@@ -704,26 +563,13 @@ static int tegra_kbd_setup_keymap(struct tegra_kbc *kbc)
- 	const struct tegra_kbc_platform_data *pdata = kbc->pdata;
- 	const struct matrix_keymap_data *keymap_data = pdata->keymap_data;
- 	unsigned int keymap_rows = KBC_MAX_KEY;
--	int retval;
- 
- 	if (keymap_data && pdata->use_fn_map)
- 		keymap_rows *= 2;
- 
--	retval = matrix_keypad_build_keymap(keymap_data, NULL,
-+	return matrix_keypad_build_keymap(keymap_data, NULL,
- 					    keymap_rows, KBC_MAX_COL,
- 					    kbc->keycode, kbc->idev);
--	if (retval == -ENOSYS || retval == -ENOENT) {
--		/*
--		 * If there is no OF support in kernel or keymap
--		 * property is missing, use default keymap.
--		 */
--		retval = matrix_keypad_build_keymap(
--					&tegra_kbc_default_keymap_data, NULL,
--					keymap_rows, KBC_MAX_COL,
--					kbc->keycode, kbc->idev);
--	}
--
--	return retval;
- }
- 
- static int tegra_kbc_probe(struct platform_device *pdev)
+Could you please apply this patch and the previous one?
+
+[PATCH v2 1/2] input: qt2160: Fix I2C write function.
+[PATCH v5] input: qt2160: Add support for LEDs.
+
+Regards.
+
 -- 
-1.7.1.1
+Javier Martin
+Vista Silicon S.L.
+CDTUC - FASE C - Oficina S-345
+Avda de los Castros s/n
+39005- Santander. Cantabria. Spain
++34 942 25 32 60
+www.vista-silicon.com

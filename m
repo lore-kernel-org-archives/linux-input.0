@@ -1,274 +1,82 @@
-From: javier Martin <javier.martin@vista-silicon.com>
-Subject: Re: [PATCH v5] input: qt2160: Add support for LEDs.
-Date: Fri, 4 Jan 2013 16:45:05 +0100
-Message-ID: <CACKLOr3DDNawzqU3S1jzfFzTmwmbrsWrDi-V27NU1_kGH7kVqQ@mail.gmail.com>
-References: <1351158824-19432-1-git-send-email-javier.martin@vista-silicon.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 3/4] input: keyboard: tegra: add support for rows/cols
+ configuration from dt
+Date: Fri, 04 Jan 2013 12:50:07 -0700
+Message-ID: <50E7326F.7090201@wwwdotorg.org>
+References: <1357297330-28878-1-git-send-email-ldewangan@nvidia.com> <1357297330-28878-4-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:33828 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754980Ab3ADPwf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jan 2013 10:52:35 -0500
-Received: by mail-wg0-f43.google.com with SMTP id e12so7453350wge.34
-        for <linux-input@vger.kernel.org>; Fri, 04 Jan 2013 07:52:34 -0800 (PST)
-In-Reply-To: <1351158824-19432-1-git-send-email-javier.martin@vista-silicon.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1357297330-28878-4-git-send-email-ldewangan@nvidia.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, rob.herring@calxeda.com, swarren@nvidia.com, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, axel.lin@gmail.com, Javier Martin <javier.martin@vista-silicon.com>
 
-Hi Dmitry.
+On 01/04/2013 04:02 AM, Laxman Dewangan wrote:
+> The NVIDIA's Tegra KBC has maximum 24 pins to make matrix keypad.
+> Any pin can be configured as row or column. The maximum column pin
+> can be 8 and maximum row pin can be 16.
+> 
+> Remove the assumption that all first 16 pins will be used as row
+> and remaining as columns and Add the property for configuring pins
+> to either row or column from DT. Update the devicetree binding
+> document accordingly.
 
-On 25 October 2012 11:53, Javier Martin <javier.martin@vista-silicon.com> wrote:
-> Outputs x8..x0 of the qt2160 can have leds attached to it.
-> This patch handles those outputs using the generic LED
-> framework.
->
-> The PWM controls available in the chip are used to achieve
-> different levels of brightness.
->
-> Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
-> ---
->  drivers/input/keyboard/qt2160.c |  142 ++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 140 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
-> index 73ea4b0..eefa2dd 100644
-> --- a/drivers/input/keyboard/qt2160.c
-> +++ b/drivers/input/keyboard/qt2160.c
-> @@ -20,6 +20,7 @@
->
->  #include <linux/kernel.h>
->  #include <linux/init.h>
-> +#include <linux/leds.h>
->  #include <linux/module.h>
->  #include <linux/slab.h>
->  #include <linux/jiffies.h>
-> @@ -39,6 +40,11 @@
->  #define QT2160_CMD_GPIOS      6
->  #define QT2160_CMD_SUBVER     7
->  #define QT2160_CMD_CALIBRATE  10
-> +#define QT2160_CMD_DRIVE_X    70
-> +#define QT2160_CMD_PWMEN_X    74
-> +#define QT2160_CMD_PWM_DUTY   76
-> +
-> +#define QT2160_NUM_LEDS_X      8
->
->  #define QT2160_CYCLE_INTERVAL  (2*HZ)
->
-> @@ -49,6 +55,17 @@ static unsigned char qt2160_key2code[] = {
->         KEY_C, KEY_D, KEY_E, KEY_F,
->  };
->
-> +#ifdef CONFIG_LEDS_CLASS
-> +struct qt2160_led {
-> +       struct qt2160_data *qt2160;
-> +       struct led_classdev cdev;
-> +       struct work_struct work;
-> +       char name[32];
-> +       int id;
-> +       enum led_brightness new_brightness;
-> +};
-> +#endif
-> +
->  struct qt2160_data {
->         struct i2c_client *client;
->         struct input_dev *input;
-> @@ -56,8 +73,61 @@ struct qt2160_data {
->         spinlock_t lock;        /* Protects canceling/rescheduling of dwork */
->         unsigned short keycodes[ARRAY_SIZE(qt2160_key2code)];
->         u16 key_matrix;
-> +#ifdef CONFIG_LEDS_CLASS
-> +       struct qt2160_led leds[QT2160_NUM_LEDS_X];
-> +       struct mutex led_lock;
-> +#endif
->  };
->
-> +static int qt2160_read(struct i2c_client *client, u8 reg);
-> +static int qt2160_write(struct i2c_client *client, u8 reg, u8 data);
-> +
-> +#ifdef CONFIG_LEDS_CLASS
-> +
-> +static void qt2160_led_work(struct work_struct *work)
-> +{
-> +       struct qt2160_led *led = container_of(work, struct qt2160_led, work);
-> +       struct qt2160_data *qt2160 = led->qt2160;
-> +       struct i2c_client *client = qt2160->client;
-> +       int value = led->new_brightness;
-> +       u32 drive, pwmen;
-> +
-> +       mutex_lock(&qt2160->led_lock);
-> +
-> +       drive = qt2160_read(client, QT2160_CMD_DRIVE_X);
-> +       pwmen = qt2160_read(client, QT2160_CMD_PWMEN_X);
-> +       if (value != LED_OFF) {
-> +               drive |= (1 << led->id);
-> +               pwmen |= (1 << led->id);
-> +
-> +       } else {
-> +               drive &= ~(1 << led->id);
-> +               pwmen &= ~(1 << led->id);
-> +       }
-> +       qt2160_write(client, QT2160_CMD_DRIVE_X, drive);
-> +       qt2160_write(client, QT2160_CMD_PWMEN_X, pwmen);
-> +
-> +       /*
-> +        * Changing this register will change the brightness
-> +        * of every LED in the qt2160. It's a HW limitation.
-> +        */
-> +       if (value != LED_OFF)
-> +               qt2160_write(client, QT2160_CMD_PWM_DUTY, value);
-> +
-> +       mutex_unlock(&qt2160->led_lock);
-> +}
-> +
-> +static void qt2160_led_set(struct led_classdev *cdev,
-> +                          enum led_brightness value)
-> +{
-> +       struct qt2160_led *led = container_of(cdev, struct qt2160_led, cdev);
-> +
-> +       led->new_brightness = value;
-> +       schedule_work(&led->work);
-> +}
-> +
-> +#endif /* CONFIG_LEDS_CLASS */
-> +
->  static int qt2160_read_block(struct i2c_client *client,
->                              u8 inireg, u8 *buffer, unsigned int count)
->  {
-> @@ -184,7 +254,7 @@ static void qt2160_worker(struct work_struct *work)
->         qt2160_schedule_read(qt2160);
->  }
->
-> -static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
-> +static int qt2160_read(struct i2c_client *client, u8 reg)
->  {
->         int ret;
->
-> @@ -205,7 +275,7 @@ static int __devinit qt2160_read(struct i2c_client *client, u8 reg)
->         return ret;
->  }
->
-> -static int __devinit qt2160_write(struct i2c_client *client, u8 reg, u8 data)
-> +static int qt2160_write(struct i2c_client *client, u8 reg, u8 data)
->  {
->         int ret;
->
-> @@ -217,6 +287,63 @@ static int __devinit qt2160_write(struct i2c_client *client, u8 reg, u8 data)
->         return ret;
->  }
->
-> +#ifdef CONFIG_LEDS_CLASS
-> +
-> +static int __devinit qt2160_register_leds(struct qt2160_data *qt2160)
-> +{
-> +       struct i2c_client *client = qt2160->client;
-> +       int ret;
-> +       int i;
-> +
-> +       mutex_init(&qt2160->led_lock);
-> +
-> +       for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
-> +               struct qt2160_led *led = &qt2160->leds[i];
-> +
-> +               snprintf(led->name, sizeof(led->name), "qt2160:x%d", i);
-> +               led->cdev.name = led->name;
-> +               led->cdev.brightness_set = qt2160_led_set;
-> +               led->cdev.brightness = LED_OFF;
-> +               led->id = i;
-> +               led->qt2160 = qt2160;
-> +
-> +               INIT_WORK(&led->work, qt2160_led_work);
-> +
-> +               ret = led_classdev_register(&client->dev, &led->cdev);
-> +               if (ret < 0)
-> +                       return ret;
-> +       }
-> +
-> +       /* Tur off LEDs */
-> +       qt2160_write(client, QT2160_CMD_DRIVE_X, 0);
-> +       qt2160_write(client, QT2160_CMD_PWMEN_X, 0);
-> +       qt2160_write(client, QT2160_CMD_PWM_DUTY, 0);
-> +
-> +       return 0;
-> +}
-> +
-> +static void __devinit qt2160_unregister_leds(struct qt2160_data *qt2160)
-> +{
-> +       int i;
-> +
-> +       for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
-> +               cancel_work_sync(&qt2160->leds[i].work);
-> +               led_classdev_unregister(&qt2160->leds[i].cdev);
-> +       }
-> +}
-> +
-> +#else
-> +
-> +static int __devinit qt2160_register_leds(struct qt2160_data *qt2160)
-> +{
-> +       return 0;
-> +}
-> +
-> +static void __devinit qt2160_unregister_leds(struct qt2160_data *qt2160)
-> +{
-> +}
-> +
-> +#endif
->
->  static bool __devinit qt2160_identify(struct i2c_client *client)
->  {
-> @@ -249,6 +376,7 @@ static bool __devinit qt2160_identify(struct i2c_client *client)
->         return true;
->  }
->
-> +
->  static int __devinit qt2160_probe(struct i2c_client *client,
->                                   const struct i2c_device_id *id)
->  {
-> @@ -325,8 +453,16 @@ static int __devinit qt2160_probe(struct i2c_client *client,
->         i2c_set_clientdata(client, qt2160);
->         qt2160_schedule_read(qt2160);
->
-> +       error = qt2160_register_leds(qt2160);
-> +       if (error) {
-> +               dev_err(&client->dev, "Failed to register leds\n");
-> +               goto err_unreg_input;
-> +       }
-> +
->         return 0;
->
-> +err_unreg_input:
-> +       input_unregister_device(input);
->  err_free_irq:
->         if (client->irq)
->                 free_irq(client->irq, qt2160);
-> @@ -340,6 +476,8 @@ static int __devexit qt2160_remove(struct i2c_client *client)
->  {
->         struct qt2160_data *qt2160 = i2c_get_clientdata(client);
->
-> +       qt2160_unregister_leds(qt2160);
-> +
->         /* Release IRQ so no queue will be scheduled */
->         if (client->irq)
->                 free_irq(client->irq, qt2160);
-> --
-> 1.7.9.5
->
+> diff --git a/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt b/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt
 
-Could you please apply this patch and the previous one?
+>  Required properties:
 
-[PATCH v2 1/2] input: qt2160: Fix I2C write function.
-[PATCH v5] input: qt2160: Add support for LEDs.
+> +- nvidia,kbc-rows: The KBC pins which are configured as row. This is the
+> +  array of pinmnumber.
+> +- nvidia,kbc-cols: The KBC pins which are configured as column. This is the
+> +  array of pinmnumber.
 
-Regards.
+"the array of pinmnumber" -> "an array of pin numbers"?
 
--- 
-Javier Martin
-Vista Silicon S.L.
-CDTUC - FASE C - Oficina S-345
-Avda de los Castros s/n
-39005- Santander. Cantabria. Spain
-+34 942 25 32 60
-www.vista-silicon.com
+I wonder if "row-pins" and "col-pins" would be a better name; "rows" and
+"cols" sound like a count not a lines. But perhaps that's just
+bike-shedding.
+
+> +	linux,keymap = < 0x00000074
+> +			 0x00010067
+> +			 0x00020066
+> +			 0x01010068
+> +			 0x02000069
+> +			 0x02010070
+> +			 0x02020071 >;
+
+Nit-pick: no space after < or before >. At least, the Tegra DTs are all
+currently cleaned up that way.
+
+> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+
+> +	/* Set all pins as non-configured */
+> +	for (i = 0; i < KBC_MAX_GPIO; i++) {
+>  		pdata->pin_cfg[i].num = i;
+> +		pdata->pin_cfg[i].type = PIN_CFG_IGNORE;
+> +	}
+...
+> +	for (i = 0; i < num_rows; i++) {
+> +		pdata->pin_cfg[rows_cfg[i]].type = PIN_CFG_ROW;
+> +		pdata->pin_cfg[rows_cfg[i]].num = i;
+
+If we're setting up "num" here for the valid rows/cols, then why is the
+".num = i" assignment needed in the loop above that sets .type = IGNORE?
+
+>  	}
+>  
+> +	for (i = 0; i < num_cols; i++) {
+> +		pdata->pin_cfg[cols_cfg[i]].type = PIN_CFG_COL;
+> +		pdata->pin_cfg[cols_cfg[i]].num = i;
+>  	}
+
+> -	if (!pdata) {
+> +	if (IS_ERR_OR_NULL(pdata)) {
+>  		dev_err(&pdev->dev, "Platform data missing\n");
+> -		return -EINVAL;
+> +		return (pdata) ? PTR_ERR(pdata) : -EINVAL;
+
+No need for () around the first use of pdata there.
+

@@ -1,59 +1,85 @@
-From: Liu Ying <Ying.Liu@freescale.com>
-Subject: [PATCH v3 3/3] ARM i.MX51 babbage: Add keypad support
-Date: Thu, 3 Jan 2013 20:37:34 +0800
-Message-ID: <1357216654-12651-3-git-send-email-Ying.Liu@freescale.com>
-References: <1357216654-12651-1-git-send-email-Ying.Liu@freescale.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.8-rc2
+Date: Fri, 4 Jan 2013 00:56:44 -0800
+Message-ID: <20130104085644.GA29725@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1357216654-12651-1-git-send-email-Ying.Liu@freescale.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: grant.likely@secretlab.ca, rob.herring@calxeda.com, rob@landley.net, linux@arm.linux.org.uk, dmitry.torokhov@gmail.com, shawn.guo@linaro.org, s.hauer@pengutronix.de, linus.walleij@linaro.org, cjb@laptop.org, broonie@opensource.wolfsonmicro.com
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, liu.y.victor@gmail.com, Liu Ying <Ying.Liu@freescale.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-da0-f51.google.com ([209.85.210.51]:44486 "EHLO
+	mail-da0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752710Ab3ADI4s (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jan 2013 03:56:48 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-
-The keypad is on the accessory board of i.MX51 babbage
-main board and is driven by Keypad Port(KPP) in SoC.
-The keymap is the same to i.MX25 3stack platform as
-the accessory board schematic tells that it is designed
-in this way.
-
-Signed-off-by: Liu Ying <Ying.Liu@freescale.com>
----
- arch/arm/boot/dts/imx51-babbage.dts |   22 ++++++++++++++++++++++
- 1 files changed, 22 insertions(+), 0 deletions(-)
-
-diff --git a/arch/arm/boot/dts/imx51-babbage.dts b/arch/arm/boot/dts/imx51-babbage.dts
-index 567e7ee..a9bb799 100644
---- a/arch/arm/boot/dts/imx51-babbage.dts
-+++ b/arch/arm/boot/dts/imx51-babbage.dts
-@@ -281,3 +281,25 @@
- 		mux-ext-port = <3>;
- 	};
- };
-+
-+&kpp {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_kpp_1>;
-+	linux,keymap = <0x00000067	/* KEY_UP */
-+			0x0001006c	/* KEY_DOWN */
-+			0x00020072	/* KEY_VOLUMEDOWN */
-+			0x00030066	/* KEY_HOME */
-+			0x0100006a	/* KEY_RIGHT */
-+			0x01010069	/* KEY_LEFT */
-+			0x0102001c	/* KEY_ENTER */
-+			0x01030073	/* KEY_VOLUMEUP */
-+			0x02000040	/* KEY_F6 */
-+			0x02010042	/* KEY_F8 */
-+			0x02020043	/* KEY_F9 */
-+			0x02030044	/* KEY_F10 */
-+			0x0300003b	/* KEY_F1 */
-+			0x0301003c	/* KEY_F2 */
-+			0x0302003d	/* KEY_F3 */
-+			0x03030074>;	/* KEY_POWER */
-+	status = "okay";
-+};
--- 
-1.7.1
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Linus,
+
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. Just a couple of driver
+fixes this time.
+
+Thanks!
+
+Changelog:
+---------
+
+Christophe TORDEUX (1):
+      Input: sentelic - only report position of first finger as ST coordina=
+tes
+
+Dmitry Torokhov (1):
+      Input: gpio_keys - defer probing if GPIO probing is deferred
+
+Gabor Juhos (1):
+      Input: gpio_keys_polled - defer probing if GPIO probing is deferred
+
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/gpio_keys.c        | 13 ++++++++++++-
+ drivers/input/keyboard/gpio_keys_polled.c | 13 ++++++++++++-
+ drivers/input/mouse/sentelic.c            |  2 +-
+ 3 files changed, 25 insertions(+), 3 deletions(-)
+
+--=20
+Dmitry
+
+
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQ5plMAAoJEH70+W8r6ZYqUYwP/jXM3wMwIA3pZdKvGq8DuWiq
+giGPY53XP67MxIeC6VvVVeXMAGL5Y3LXegW1P6pguN6ISx7jGIm/Aj4mO8ocXRv3
+T5zTiEOfJSXdyr+c9Ae4Lc4TcQZg6wlMZ+b5UelYAJhjQu4JjuaOyOr87aD2bXDb
+fGYeTG+6PhebErR2ZSzg0rSP6uPjnc4U6JWJsZfzlpgKmd7ySxRkc7ufe/rhnG7n
+dSVEhRC0x8Y8rTm2uflsF+H49GYNFalVotnKewa9lM8ro/rXv/fjK8L7YzBS5/xY
+HFGaygFeXAPRw49kDHP/LSzylDteuYWkRJeRM9CwkjfaPFaYoY8lFt5AJbCghUSe
+NQR/qjxSKx4Nw7tSWXVqAAJKwcbsjx0zP001N7HUrUTjg5oYRGRdT3S0DrgHaO0U
+wQU6FVc2K1U3dLBElON7ktwl0+wtSAOM3NevpoD12ZYY/pCu6YplRS4Zj6PGzoh/
+lNBjYbbPePDju8uc9iiLEtnktRTWs24Tpl2D+iMMBJD3YzNmMvuKNi6anXpyMnAk
+JrLlD0TL1kvgtpDJnvbhcwSWcV0WzFrxiyjlC6fKGrK125BQPTTZyjdNmCzsIRcK
+LKB/9iqusDac2kLOruff6KdELo3GYjxdxHKASEtGSimS2fDIhcpiBTFQSOP/imPS
+gbd1ni9kQgxJOE53J0Vi
+=ksdY
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--

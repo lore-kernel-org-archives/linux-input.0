@@ -1,84 +1,50 @@
-From: Corentin Chary <corentincj@iksaif.net>
-Subject: Re: asus_wmi: Unknown key pressed
-Date: Sat, 5 Jan 2013 20:06:32 +0000
-Message-ID: <CAHR064hc+m1HXKVmbC5jrChQSarWLXWGZPFH-KTPwbyAnGD_7w@mail.gmail.com>
-References: <CAHR064jzPejiWM_XqeY0a+Uf7cYPUrYMNd0FDEUvwkgrMB1hDg@mail.gmail.com>
-	<22009182.20.1357413346491.JavaMail.gkos@dynomob>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] drivers/input/keyboard/lm8323.c: fix incorrect left shift
+Date: Sat, 5 Jan 2013 15:01:25 -0800
+Message-ID: <20130105230125.GA6475@core.coreip.homeip.net>
+References: <1357412945-41774-1-git-send-email-nickolai@csail.mit.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f51.google.com ([209.85.214.51]:39684 "EHLO
-	mail-bk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755845Ab3AEUGd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Jan 2013 15:06:33 -0500
-Received: by mail-bk0-f51.google.com with SMTP id ik5so7690839bkc.24
-        for <linux-input@vger.kernel.org>; Sat, 05 Jan 2013 12:06:32 -0800 (PST)
-In-Reply-To: <22009182.20.1357413346491.JavaMail.gkos@dynomob>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:63858 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755935Ab3AEXBa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Jan 2013 18:01:30 -0500
+Content-Disposition: inline
+In-Reply-To: <1357412945-41774-1-git-send-email-nickolai@csail.mit.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Konstantin V. Gavrilenko" <k.gavrilenko@arhont.com>
-Cc: Yong Wang <yong.y.wang@intel.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
+To: Nickolai Zeldovich <nickolai@csail.mit.edu>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sat, Jan 5, 2013 at 7:19 PM, Konstantin V. Gavrilenko
-<k.gavrilenko@arhont.com> wrote:
-> Thanks for a prompt response.
->
-> for all three events the showkey generates the same data
->
-> keycode 240 press
-> keycode 240 release
->
-> ----- Original Message -----
-> From: "Corentin Chary" <corentincj@iksaif.net>
-> To: "Konstantin V. Gavrilenko" <k.gavrilenko@arhont.com>
-> Cc: "Yong Wang" <yong.y.wang@intel.com>, "Dmitry Torokhov" <dtor@mail.ru>
-> Sent: Saturday, 5 January, 2013 6:58:11 PM
-> Subject: Re: asus_wmi: Unknown key pressed
->
-> Hi,
->
-> On Sat, Jan 5, 2013 at 3:17 PM, Konstantin V. Gavrilenko
-> <k.gavrilenko@arhont.com> wrote:
->> Hi Guys,
->>
->> sorry for writing out of the blue, but your email addresses where provided in the kernel modules. I hope you will direct me to a better place where I can report the problem or someone that can help solve the problem with asus_wmi module.
->>
->> In my new laptop UX51VZA v203 my syslog is constantly filled with the following lines, even though I do not press any buttons on the keyboard.
->>
->> Dec 30 08:28:52 dynomob kernel: [22731.108645] asus_wmi: Unknown key c6 pressed
->> Dec 30 08:28:53 dynomob kernel: [22732.110834] asus_wmi: Unknown key c6 pressed
->> Dec 30 08:28:58 dynomob kernel: [22737.079312] asus_wmi: Unknown key c6 pressed
->> Dec 30 08:28:59 dynomob kernel: [22738.075352] asus_wmi: Unknown key c6 pressed
->> Dec 30 08:29:00 dynomob kernel: [22739.076342] asus_wmi: Unknown key c6 pressed
->> Dec 30 08:29:01 dynomob kernel: [22740.083493] asus_wmi: Unknown key c6 pressed
->>
->>
->> It took me a while to work out that this was information from the ambient light sensor )) and since there is no way to operate it or disable it, I had to cover it with a piece of black paper. Such default behavior is very disruptive as it generates an actual unseen key press, that is extremely annoying if you trying to type a password.
->
-> This should not generate any key if the key is unknown. But maybe
-> another key is generated (and not logged). Can you run showkey in a
-> terminal and try to see what keycode you are getting ?
-> I'll make a patch to ignore this key.
->
->> There are couple of other unknown signals tat I managed to figure out, namely
->>
->> Fn+A (ambient light button) generates
->> Jan  5 15:12:08 dynomob kernel: [46786.001579] asus_wmi: Unknown key 7a pressed
->
-> Will map this key to some keycode.
->
->> unplugging of the powercord generates
->> Jan  5 15:13:08 dynomob kernel: [46845.606336] asus_wmi: Unknown key cf pressed
->
-> Don't know what is means, so will probably just be ignored with a comment.
->
-> Thanks,
+On Sat, Jan 05, 2013 at 02:09:05PM -0500, Nickolai Zeldovich wrote:
+> In drivers/input/keyboard/lm8323.c, INT_PWM1 is already a bitmask,
+> not the bit number, so shifting by INT_PWM1 is incorrect.
+> 
+> Signed-off-by: Nickolai Zeldovich <nickolai@csail.mit.edu>
 
-Oh right, Seth added some code to send KEY_UNKNOWN keys in such cases.
-Seth, maybe keys present with KEY_IGNORE type should not send
-KEY_UNKNOWN to avoid this kind of issues ?
+Applied, thank you Nickolai.
 
---
-Corentin Chary
-http://xf.iksaif.net
+> ---
+>  drivers/input/keyboard/lm8323.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
+> index 93c8126..0de23f4 100644
+> --- a/drivers/input/keyboard/lm8323.c
+> +++ b/drivers/input/keyboard/lm8323.c
+> @@ -398,7 +398,7 @@ static irqreturn_t lm8323_irq(int irq, void *_lm)
+>  			lm8323_configure(lm);
+>  		}
+>  		for (i = 0; i < LM8323_NUM_PWMS; i++) {
+> -			if (ints & (1 << (INT_PWM1 + i))) {
+> +			if (ints & (INT_PWM1 << i)) {
+>  				dev_vdbg(&lm->client->dev,
+>  					 "pwm%d engine completed\n", i);
+>  				pwm_done(&lm->pwm[i]);
+> -- 
+> 1.7.10.4
+> 
+
+-- 
+Dmitry

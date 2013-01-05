@@ -1,66 +1,48 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource
- allocation
-Date: Sat, 5 Jan 2013 16:50:58 +0530
-Message-ID: <50E80C9A.7040404@nvidia.com>
-References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com> <1357371910-3164-3-git-send-email-ldewangan@nvidia.com> <20130105080658.GA1315@core.coreip.homeip.net>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH V3 0/4] input: keyboard: tegra: cleanups and DT supports
+Date: Sat, 5 Jan 2013 17:11:47 +0530
+Message-ID: <1357386111-19971-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [216.228.121.35] ([216.228.121.35]:3357 "EHLO
-	hqemgate04.nvidia.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1755501Ab3AELVp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Jan 2013 06:21:45 -0500
-In-Reply-To: <20130105080658.GA1315@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Stephen Warren <swarren@nvidia.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
 
-HI Dmitry,
-Thanks for quick review.
+This patch series:
+ - fix build warning,
+ - use devm_* for allocation,
+ - make column/rows configuration through DT and 
+ - remove the rarely used  key mapping table.
 
-I will take care of your comment in next version. Some have my answer.
+Changes from V1:
+- renames the rows and pins property array.
+- nit cleanups.
 
+Changes from V2:
+- remove the error checks changes from original.
+- return -EBUSY when reg mapping fail.
+- remove unregister_input_device() devm_* version is used.
+- Pass correct argument in free_irq.
 
-On Saturday 05 January 2013 01:36 PM, Dmitry Torokhov wrote:
-> Hi Laxman,
->
-> On Sat, Jan 05, 2013 at 01:15:08PM +0530, Laxman Dewangan wrote:
->> Use devm_* for memory, clock, input device allocation. This reduces
->> code for freeing these resources.
+Laxman Dewangan (4):
+  input: keyboard: tegra: fix build warning
+  input: keyboard: tegra: use devm_* for resource allocation
+  input: keyboard: tegra: add support for rows/cols configuration from
+    dt
+  input: keyboard: tegra: remove default key mapping
 
->>   	err = tegra_kbd_setup_keymap(kbc);
->> -	if (err) {
->> +	if (err < 0) {
-> Why is this change? As far as I can see tegra_kbd_setup_keymap() never
-> returns positive values.
-
-Ok, mostly errors are in negative and hence this change, I will revert 
-it and will keep original.
-
->
->>   		dev_err(&pdev->dev, "failed to setup keymap\n");
->> -		goto err_put_clk;
->> +		return err;
->>   	}
->>   
->>   	__set_bit(EV_REP, input_dev->evbit);
->> @@ -790,15 +784,15 @@ static int tegra_kbc_probe(struct platform_device *pdev)
->>   
->>   	err = request_irq(kbc->irq, tegra_kbc_isr,
->>   			  IRQF_NO_SUSPEND | IRQF_TRIGGER_HIGH, pdev->name, kbc);
->> -	if (err) {
->> +	if (err < 0) {
-> Neither request_irq(). BTW, why not devm_request_irq?
-
-I understand from Mark B on different patches that using 
-devm_request_irq() can create race condition when removing device. 
-Interrupt can occur when device resource release is in process and so it 
-can cause isr call which can use the freed pointer. devm_request_irq() 
-should be avoided.
-
-
-Thanks,
-Laxman
+ .../bindings/input/nvidia,tegra20-kbc.txt          |   22 ++
+ drivers/input/keyboard/tegra-kbc.c                 |  345 ++++++--------------
+ 2 files changed, 118 insertions(+), 249 deletions(-)

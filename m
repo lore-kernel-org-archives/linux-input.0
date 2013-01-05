@@ -1,92 +1,93 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: asus_wmi: Unknown key pressed
-Date: Sat, 5 Jan 2013 15:09:22 -0800
-Message-ID: <20130105230922.GC6475@core.coreip.homeip.net>
-References: <CAHR064jzPejiWM_XqeY0a+Uf7cYPUrYMNd0FDEUvwkgrMB1hDg@mail.gmail.com>
- <22009182.20.1357413346491.JavaMail.gkos@dynomob>
- <CAHR064hc+m1HXKVmbC5jrChQSarWLXWGZPFH-KTPwbyAnGD_7w@mail.gmail.com>
+Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource
+ allocation
+Date: Sat, 5 Jan 2013 15:18:58 -0800
+Message-ID: <20130105231858.GD6475@core.coreip.homeip.net>
+References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
+ <1357371910-3164-3-git-send-email-ldewangan@nvidia.com>
+ <20130105080658.GA1315@core.coreip.homeip.net>
+ <50E80C9A.7040404@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:54285 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755898Ab3AEXJ1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Jan 2013 18:09:27 -0500
-Received: by mail-pa0-f42.google.com with SMTP id rl6so10022762pac.1
-        for <linux-input@vger.kernel.org>; Sat, 05 Jan 2013 15:09:26 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHR064hc+m1HXKVmbC5jrChQSarWLXWGZPFH-KTPwbyAnGD_7w@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <50E80C9A.7040404@nvidia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Stephen Warren <swarren@nvidia.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Corentin Chary <corentincj@iksaif.net>
-Cc: "Konstantin V. Gavrilenko" <k.gavrilenko@arhont.com>, Yong Wang <yong.y.wang@intel.com>, linux-input@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
 
-On Sat, Jan 05, 2013 at 08:06:32PM +0000, Corentin Chary wrote:
-> On Sat, Jan 5, 2013 at 7:19 PM, Konstantin V. Gavrilenko
-> <k.gavrilenko@arhont.com> wrote:
-> > Thanks for a prompt response.
-> >
-> > for all three events the showkey generates the same data
-> >
-> > keycode 240 press
-> > keycode 240 release
-> >
-> > ----- Original Message -----
-> > From: "Corentin Chary" <corentincj@iksaif.net>
-> > To: "Konstantin V. Gavrilenko" <k.gavrilenko@arhont.com>
-> > Cc: "Yong Wang" <yong.y.wang@intel.com>, "Dmitry Torokhov" <dtor@mail.ru>
-> > Sent: Saturday, 5 January, 2013 6:58:11 PM
-> > Subject: Re: asus_wmi: Unknown key pressed
-> >
-> > Hi,
-> >
-> > On Sat, Jan 5, 2013 at 3:17 PM, Konstantin V. Gavrilenko
-> > <k.gavrilenko@arhont.com> wrote:
-> >> Hi Guys,
-> >>
-> >> sorry for writing out of the blue, but your email addresses where provided in the kernel modules. I hope you will direct me to a better place where I can report the problem or someone that can help solve the problem with asus_wmi module.
-> >>
-> >> In my new laptop UX51VZA v203 my syslog is constantly filled with the following lines, even though I do not press any buttons on the keyboard.
-> >>
-> >> Dec 30 08:28:52 dynomob kernel: [22731.108645] asus_wmi: Unknown key c6 pressed
-> >> Dec 30 08:28:53 dynomob kernel: [22732.110834] asus_wmi: Unknown key c6 pressed
-> >> Dec 30 08:28:58 dynomob kernel: [22737.079312] asus_wmi: Unknown key c6 pressed
-> >> Dec 30 08:28:59 dynomob kernel: [22738.075352] asus_wmi: Unknown key c6 pressed
-> >> Dec 30 08:29:00 dynomob kernel: [22739.076342] asus_wmi: Unknown key c6 pressed
-> >> Dec 30 08:29:01 dynomob kernel: [22740.083493] asus_wmi: Unknown key c6 pressed
-> >>
-> >>
-> >> It took me a while to work out that this was information from the ambient light sensor )) and since there is no way to operate it or disable it, I had to cover it with a piece of black paper. Such default behavior is very disruptive as it generates an actual unseen key press, that is extremely annoying if you trying to type a password.
-> >
-> > This should not generate any key if the key is unknown. But maybe
-> > another key is generated (and not logged). Can you run showkey in a
-> > terminal and try to see what keycode you are getting ?
-> > I'll make a patch to ignore this key.
-> >
-> >> There are couple of other unknown signals tat I managed to figure out, namely
-> >>
-> >> Fn+A (ambient light button) generates
-> >> Jan  5 15:12:08 dynomob kernel: [46786.001579] asus_wmi: Unknown key 7a pressed
-> >
-> > Will map this key to some keycode.
-> >
-> >> unplugging of the powercord generates
-> >> Jan  5 15:13:08 dynomob kernel: [46845.606336] asus_wmi: Unknown key cf pressed
-> >
-> > Don't know what is means, so will probably just be ignored with a comment.
-> >
-> > Thanks,
+On Sat, Jan 05, 2013 at 04:50:58PM +0530, Laxman Dewangan wrote:
+> HI Dmitry,
+> Thanks for quick review.
 > 
-> Oh right, Seth added some code to send KEY_UNKNOWN keys in such cases.
-> Seth, maybe keys present with KEY_IGNORE type should not send
-> KEY_UNKNOWN to avoid this kind of issues ?
+> I will take care of your comment in next version. Some have my answer.
+> 
+> 
+> On Saturday 05 January 2013 01:36 PM, Dmitry Torokhov wrote:
+> >Hi Laxman,
+> >
+> >On Sat, Jan 05, 2013 at 01:15:08PM +0530, Laxman Dewangan wrote:
+> >>Use devm_* for memory, clock, input device allocation. This reduces
+> >>code for freeing these resources.
+> 
+> >>  	err = tegra_kbd_setup_keymap(kbc);
+> >>-	if (err) {
+> >>+	if (err < 0) {
+> >Why is this change? As far as I can see tegra_kbd_setup_keymap() never
+> >returns positive values.
+> 
+> Ok, mostly errors are in negative and hence this change, I will
+> revert it and will keep original.
+> 
+> >
+> >>  		dev_err(&pdev->dev, "failed to setup keymap\n");
+> >>-		goto err_put_clk;
+> >>+		return err;
+> >>  	}
+> >>  	__set_bit(EV_REP, input_dev->evbit);
+> >>@@ -790,15 +784,15 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+> >>  	err = request_irq(kbc->irq, tegra_kbc_isr,
+> >>  			  IRQF_NO_SUSPEND | IRQF_TRIGGER_HIGH, pdev->name, kbc);
+> >>-	if (err) {
+> >>+	if (err < 0) {
+> >Neither request_irq(). BTW, why not devm_request_irq?
+> 
+> I understand from Mark B on different patches that using
+> devm_request_irq() can create race condition when removing device.
+> Interrupt can occur when device resource release is in process and
+> so it can cause isr call which can use the freed pointer.
+> devm_request_irq() should be avoided.
 
-KEY_UNKNOWN should not really be mapped to any key so it should not
-interfere with normal typing/other operations while still being able to
-detect the events. The idea is for users to be able to notice the new
-events and then developers can decide if they should be ignored or
-mapped to some particular keycodes (or maybe routed through some other
-subsystem).
+devm_request_irq() has a potential of creating a race condition, but it
+depents on the driver. In this particular case tegra driver ensures that
+interrupts are inhibited when input device is unregistered by providing
+tegra_kbc_close() method, so in this particular case it is safe to
+use devm_request_irq().
+
+Also, when using managed input devices, the unregistering and final
+freeing is a 2-step process, so even in absence of close() method, if
+initialization sequence was:
+
+	devm_input_allocate_device()
+	...
+	devm_request_irq()
+	...
+	input_unregister_device()
+
+then order of freeing resources (behind the scenes) will be
+
+	devm_input_device_unregister();
+	/* input device is still present in memory and can
+	 * handle input_event() calls.
+	 */
+	free_irq();
+	devm_input_device_release();
+
+So using managed request_irq() _together_ with managed input devices is
+OK.
+
+Thanks.
 
 -- 
 Dmitry

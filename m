@@ -1,35 +1,42 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [PATCH 4/4] input: keyboard: tegra: remove default key mapping
-Date: Sat, 5 Jan 2013 12:50:50 +0530
-Message-ID: <50E7D452.8030208@nvidia.com>
-References: <1357297330-28878-1-git-send-email-ldewangan@nvidia.com> <1357297330-28878-5-git-send-email-ldewangan@nvidia.com> <50E7330D.2060107@wwwdotorg.org>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH V2 0/4] input: keyboard: tegra: cleanups and DT supports
+Date: Sat, 5 Jan 2013 13:15:06 +0530
+Message-ID: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [216.228.121.35] ([216.228.121.35]:14334 "EHLO
-	hqemgate04.nvidia.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1754783Ab3AEHVg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Jan 2013 02:21:36 -0500
-In-Reply-To: <50E7330D.2060107@wwwdotorg.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Stephen Warren <swarren@nvidia.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
 
-On Saturday 05 January 2013 01:22 AM, Stephen Warren wrote:
-> On 01/04/2013 04:02 AM, Laxman Dewangan wrote:
->> Tegra KBC driver have the default key mapping for 16x8 configuration.
->> The key mapping can be provided through platform data or through DT
->> and the mapping varies from platform to platform, hence this default
->> mapping is not so useful. Remove the default mapping to reduce the code
->> lines of the driver.
-> Overall, I agree with the intent of this change, but I /think/ the
-> default keymap described here actually /is/ useful for the
-> Seaboard/Springbank platforms. I guess the KBC driver isn't in the
-> device tree for that (or any) board yet, so removing this keymap isn't
-> really a regression, but it would be nice if you could come up with a
-> change to add suitable keymaps to the device tree files too.
+This patch series:
+ - fix build warning,
+ - use devm_* for allocation,
+ - make column/rows configuration through DT and 
+ - remove the rarely used  key mapping table.
 
-OK, I will push the patch for enabling keys in seaboard along with the 
-other changes for DT files for tegra.
+Changes from V1:
+- renames the rows and pins property array.
+- nit cleanups.
+
+Laxman Dewangan (4):
+  input: keyboard: tegra: fix build warning
+  input: keyboard: tegra: use devm_* for resource allocation
+  input: keyboard: tegra: add support for rows/cols configuration from
+    dt
+  input: keyboard: tegra: remove default key mapping
+
+ .../bindings/input/nvidia,tegra20-kbc.txt          |   22 ++
+ drivers/input/keyboard/tegra-kbc.c                 |  345 ++++++--------------
+ 2 files changed, 118 insertions(+), 249 deletions(-)

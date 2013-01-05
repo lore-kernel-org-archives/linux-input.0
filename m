@@ -1,211 +1,193 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [PATCH v2 4/4] input: keyboard: tegra: remove default key mapping
-Date: Sat, 5 Jan 2013 13:15:10 +0530
-Message-ID: <1357371910-3164-5-git-send-email-ldewangan@nvidia.com>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v2] input: keyboard: tegra: add support for rows/cols
+ configuration from dt
+Date: Sat, 5 Jan 2013 13:15:09 +0530
+Message-ID: <1357371910-3164-4-git-send-email-ldewangan@nvidia.com>
 References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: grant.likely@secretlab.ca, rob.herring@calxeda.com, swarren@nvidia.com, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Laxman Dewangan <ldewangan@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <1357371910-3164-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Tegra KBC driver have the default key mapping for 16x8 configuration.
-The key mapping can be provided through platform data or through DT
-and the mapping varies from platform to platform, hence this default
-mapping is not so useful. Remove the default mapping to reduce the code
-lines of the driver.
+The NVIDIA's Tegra KBC has maximum 24 pins to make matrix keypad.
+Any pin can be configured as row or column. The maximum column pin
+can be 8 and maximum row pin can be 16.
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+Remove the assumption that all first 16 pins will be used as row
+and remaining as columns and Add the property for configuring pins
+to either row or column from DT. Update the devicetree binding
+document accordingly.
+
+Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
 Changes from V1:
-- None
+- renames kbc-rows and kbc-cols to kbc-row-pins and kbc-col-pins.
+- cleanusp.
 
- drivers/input/keyboard/tegra-kbc.c |  156 +-----------------------------------
- 1 files changed, 1 insertions(+), 155 deletions(-)
+ .../bindings/input/nvidia,tegra20-kbc.txt          |   22 ++++++
+ drivers/input/keyboard/tegra-kbc.c                 |   74 +++++++++++++++-----
+ 2 files changed, 79 insertions(+), 17 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt b/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt
+index 72683be..2995fae 100644
+--- a/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt
++++ b/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt
+@@ -1,7 +1,18 @@
+ * Tegra keyboard controller
++The key controller has maximum 24 pins to make matrix keypad. Any pin
++can be configured as row or column. The maximum column pin can be 8
++and maximum row pins can be 16 for Tegra20/Tegra30.
+ 
+ Required properties:
+ - compatible: "nvidia,tegra20-kbc"
++- reg: Register base address of KBC.
++- interrupts: Interrupt number for the KBC.
++- nvidia,kbc-row-pins: The KBC pins which are configured as row. This is an
++  array of pin numbers which is used as rows.
++- nvidia,kbc-col-pins: The KBC pins which are configured as column. This is an
++  array of pin numbers which is used as column.
++- linux,keymap: The keymap for keys as described in the binding document
++  devicetree/bindings/input/matrix-keymap.txt.
+ 
+ Optional properties, in addition to those specified by the shared
+ matrix-keyboard bindings:
+@@ -19,5 +30,16 @@ Example:
+ keyboard: keyboard {
+ 	compatible = "nvidia,tegra20-kbc";
+ 	reg = <0x7000e200 0x100>;
++	interrupts = <0 85 0x04>;
+ 	nvidia,ghost-filter;
++	nvidia,debounce-delay-ms = <640>;
++	nvidia,kbc-row-pins = <0 1 2>;    /* pin 0, 1, 2 as rows */
++	nvidia,kbc-col-pins = <11 12 13>; /* pin 11, 12, 13 as columns */
++	linux,keymap = <0x00000074
++			0x00010067
++			0x00020066
++			0x01010068
++			0x02000069
++			0x02010070
++			0x02020071>;
+ };
 diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index ef7a0ac..c6e4985 100644
+index c036425..b65971d 100644
 --- a/drivers/input/keyboard/tegra-kbc.c
 +++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -87,147 +87,6 @@ struct tegra_kbc {
- 	struct clk *clk;
- };
+@@ -614,13 +614,16 @@ static struct tegra_kbc_platform_data *tegra_kbc_dt_parse_pdata(
+ 	struct device_node *np = pdev->dev.of_node;
+ 	u32 prop;
+ 	int i;
+-
+-	if (!np)
+-		return NULL;
++	u32 num_rows = 0;
++	u32 num_cols = 0;
++	u32 cols_cfg[KBC_MAX_GPIO];
++	u32 rows_cfg[KBC_MAX_GPIO];
++	int proplen;
++	int ret;
  
--static const u32 tegra_kbc_default_keymap[] = {
--	KEY(0, 2, KEY_W),
--	KEY(0, 3, KEY_S),
--	KEY(0, 4, KEY_A),
--	KEY(0, 5, KEY_Z),
--	KEY(0, 7, KEY_FN),
--
--	KEY(1, 7, KEY_LEFTMETA),
--
--	KEY(2, 6, KEY_RIGHTALT),
--	KEY(2, 7, KEY_LEFTALT),
--
--	KEY(3, 0, KEY_5),
--	KEY(3, 1, KEY_4),
--	KEY(3, 2, KEY_R),
--	KEY(3, 3, KEY_E),
--	KEY(3, 4, KEY_F),
--	KEY(3, 5, KEY_D),
--	KEY(3, 6, KEY_X),
--
--	KEY(4, 0, KEY_7),
--	KEY(4, 1, KEY_6),
--	KEY(4, 2, KEY_T),
--	KEY(4, 3, KEY_H),
--	KEY(4, 4, KEY_G),
--	KEY(4, 5, KEY_V),
--	KEY(4, 6, KEY_C),
--	KEY(4, 7, KEY_SPACE),
--
--	KEY(5, 0, KEY_9),
--	KEY(5, 1, KEY_8),
--	KEY(5, 2, KEY_U),
--	KEY(5, 3, KEY_Y),
--	KEY(5, 4, KEY_J),
--	KEY(5, 5, KEY_N),
--	KEY(5, 6, KEY_B),
--	KEY(5, 7, KEY_BACKSLASH),
--
--	KEY(6, 0, KEY_MINUS),
--	KEY(6, 1, KEY_0),
--	KEY(6, 2, KEY_O),
--	KEY(6, 3, KEY_I),
--	KEY(6, 4, KEY_L),
--	KEY(6, 5, KEY_K),
--	KEY(6, 6, KEY_COMMA),
--	KEY(6, 7, KEY_M),
--
--	KEY(7, 1, KEY_EQUAL),
--	KEY(7, 2, KEY_RIGHTBRACE),
--	KEY(7, 3, KEY_ENTER),
--	KEY(7, 7, KEY_MENU),
--
--	KEY(8, 4, KEY_RIGHTSHIFT),
--	KEY(8, 5, KEY_LEFTSHIFT),
--
--	KEY(9, 5, KEY_RIGHTCTRL),
--	KEY(9, 7, KEY_LEFTCTRL),
--
--	KEY(11, 0, KEY_LEFTBRACE),
--	KEY(11, 1, KEY_P),
--	KEY(11, 2, KEY_APOSTROPHE),
--	KEY(11, 3, KEY_SEMICOLON),
--	KEY(11, 4, KEY_SLASH),
--	KEY(11, 5, KEY_DOT),
--
--	KEY(12, 0, KEY_F10),
--	KEY(12, 1, KEY_F9),
--	KEY(12, 2, KEY_BACKSPACE),
--	KEY(12, 3, KEY_3),
--	KEY(12, 4, KEY_2),
--	KEY(12, 5, KEY_UP),
--	KEY(12, 6, KEY_PRINT),
--	KEY(12, 7, KEY_PAUSE),
--
--	KEY(13, 0, KEY_INSERT),
--	KEY(13, 1, KEY_DELETE),
--	KEY(13, 3, KEY_PAGEUP),
--	KEY(13, 4, KEY_PAGEDOWN),
--	KEY(13, 5, KEY_RIGHT),
--	KEY(13, 6, KEY_DOWN),
--	KEY(13, 7, KEY_LEFT),
--
--	KEY(14, 0, KEY_F11),
--	KEY(14, 1, KEY_F12),
--	KEY(14, 2, KEY_F8),
--	KEY(14, 3, KEY_Q),
--	KEY(14, 4, KEY_F4),
--	KEY(14, 5, KEY_F3),
--	KEY(14, 6, KEY_1),
--	KEY(14, 7, KEY_F7),
--
--	KEY(15, 0, KEY_ESC),
--	KEY(15, 1, KEY_GRAVE),
--	KEY(15, 2, KEY_F5),
--	KEY(15, 3, KEY_TAB),
--	KEY(15, 4, KEY_F1),
--	KEY(15, 5, KEY_F2),
--	KEY(15, 6, KEY_CAPSLOCK),
--	KEY(15, 7, KEY_F6),
--
--	/* Software Handled Function Keys */
--	KEY(20, 0, KEY_KP7),
--
--	KEY(21, 0, KEY_KP9),
--	KEY(21, 1, KEY_KP8),
--	KEY(21, 2, KEY_KP4),
--	KEY(21, 4, KEY_KP1),
--
--	KEY(22, 1, KEY_KPSLASH),
--	KEY(22, 2, KEY_KP6),
--	KEY(22, 3, KEY_KP5),
--	KEY(22, 4, KEY_KP3),
--	KEY(22, 5, KEY_KP2),
--	KEY(22, 7, KEY_KP0),
--
--	KEY(27, 1, KEY_KPASTERISK),
--	KEY(27, 3, KEY_KPMINUS),
--	KEY(27, 4, KEY_KPPLUS),
--	KEY(27, 5, KEY_KPDOT),
--
--	KEY(28, 5, KEY_VOLUMEUP),
--
--	KEY(29, 3, KEY_HOME),
--	KEY(29, 4, KEY_END),
--	KEY(29, 5, KEY_BRIGHTNESSDOWN),
--	KEY(29, 6, KEY_VOLUMEDOWN),
--	KEY(29, 7, KEY_BRIGHTNESSUP),
--
--	KEY(30, 0, KEY_NUMLOCK),
--	KEY(30, 1, KEY_SCROLLLOCK),
--	KEY(30, 2, KEY_MUTE),
--
--	KEY(31, 4, KEY_HELP),
--};
--
--static const
--struct matrix_keymap_data tegra_kbc_default_keymap_data = {
--	.keymap		= tegra_kbc_default_keymap,
--	.keymap_size	= ARRAY_SIZE(tegra_kbc_default_keymap),
--};
--
- static void tegra_kbc_report_released_keys(struct input_dev *input,
- 					   unsigned short old_keycodes[],
- 					   unsigned int old_num_keys,
-@@ -701,26 +560,13 @@ static int tegra_kbd_setup_keymap(struct tegra_kbc *kbc)
- 	const struct tegra_kbc_platform_data *pdata = kbc->pdata;
- 	const struct matrix_keymap_data *keymap_data = pdata->keymap_data;
- 	unsigned int keymap_rows = KBC_MAX_KEY;
--	int retval;
+ 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
  
- 	if (keymap_data && pdata->use_fn_map)
- 		keymap_rows *= 2;
+ 	if (!of_property_read_u32(np, "nvidia,debounce-delay-ms", &prop))
+ 		pdata->debounce_cnt = prop;
+@@ -634,18 +637,55 @@ static struct tegra_kbc_platform_data *tegra_kbc_dt_parse_pdata(
+ 	if (of_find_property(np, "nvidia,wakeup-source", NULL))
+ 		pdata->wakeup = true;
  
--	retval = matrix_keypad_build_keymap(keymap_data, NULL,
-+	return matrix_keypad_build_keymap(keymap_data, NULL,
- 					    keymap_rows, KBC_MAX_COL,
- 					    kbc->keycode, kbc->idev);
--	if (retval == -ENOSYS || retval == -ENOENT) {
--		/*
--		 * If there is no OF support in kernel or keymap
--		 * property is missing, use default keymap.
--		 */
--		retval = matrix_keypad_build_keymap(
--					&tegra_kbc_default_keymap_data, NULL,
--					keymap_rows, KBC_MAX_COL,
--					kbc->keycode, kbc->idev);
--	}
--
--	return retval;
- }
+-	/*
+-	 * All currently known keymaps with device tree support use the same
+-	 * pin_cfg, so set it up here.
+-	 */
+-	for (i = 0; i < KBC_MAX_ROW; i++) {
+-		pdata->pin_cfg[i].num = i;
+-		pdata->pin_cfg[i].type = PIN_CFG_ROW;
++	if (!of_get_property(np, "nvidia,kbc-row-pins", &proplen)) {
++		dev_err(&pdev->dev, "property nvidia,kbc-row-pins not found\n");
++		return ERR_PTR(-ENOENT);
++	}
++	num_rows = proplen / sizeof(u32);
++
++	if (!of_get_property(np, "nvidia,kbc-col-pins", &proplen)) {
++		dev_err(&pdev->dev, "property nvidia,kbc-col-pins not found\n");
++		return ERR_PTR(-ENOENT);
++	}
++	num_cols = proplen / sizeof(u32);
++
++	if (!of_get_property(np, "linux,keymap", &proplen)) {
++		dev_err(&pdev->dev, "property linux,keymap not found\n");
++		return ERR_PTR(-ENOENT);
++	}
++
++	if (!num_rows || !num_cols || ((num_rows + num_cols) > KBC_MAX_GPIO)) {
++		dev_err(&pdev->dev,
++			"keypad rows/columns not porperly specified\n");
++		return ERR_PTR(-EINVAL);
+ 	}
  
- static int tegra_kbc_probe(struct platform_device *pdev)
+-	for (i = 0; i < KBC_MAX_COL; i++) {
+-		pdata->pin_cfg[KBC_MAX_ROW + i].num = i;
+-		pdata->pin_cfg[KBC_MAX_ROW + i].type = PIN_CFG_COL;
++	/* Set all pins as non-configured */
++	for (i = 0; i < KBC_MAX_GPIO; i++)
++		pdata->pin_cfg[i].type = PIN_CFG_IGNORE;
++
++	ret = of_property_read_u32_array(np, "nvidia,kbc-row-pins",
++				rows_cfg, num_rows);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "Rows configurations are not proper\n");
++		return ERR_PTR(-ENOENT);
++	}
++
++	ret = of_property_read_u32_array(np, "nvidia,kbc-col-pins",
++				cols_cfg, num_cols);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "Cols configurations are not proper\n");
++		return ERR_PTR(-ENOENT);
++	}
++
++	for (i = 0; i < num_rows; i++) {
++		pdata->pin_cfg[rows_cfg[i]].type = PIN_CFG_ROW;
++		pdata->pin_cfg[rows_cfg[i]].num = i;
++	}
++
++	for (i = 0; i < num_cols; i++) {
++		pdata->pin_cfg[cols_cfg[i]].type = PIN_CFG_COL;
++		pdata->pin_cfg[cols_cfg[i]].num = i;
+ 	}
+ 
+ 	return pdata;
+@@ -697,12 +737,12 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 	unsigned int debounce_cnt;
+ 	unsigned int scan_time_rows;
+ 
+-	if (!pdata)
++	if (!pdata && pdev->dev.of_node)
+ 		pdata = tegra_kbc_dt_parse_pdata(pdev);
+ 
+-	if (!pdata) {
++	if (IS_ERR_OR_NULL(pdata)) {
+ 		dev_err(&pdev->dev, "Platform data missing\n");
+-		return -EINVAL;
++		return pdata ? PTR_ERR(pdata) : -EINVAL;
+ 	}
+ 
+ 	if (!tegra_kbc_check_pin_cfg(pdata, &pdev->dev, &num_rows))
 -- 
 1.7.1.1
-

@@ -1,103 +1,107 @@
-From: Corentin Chary <corentincj@iksaif.net>
-Subject: Re: asus_wmi: Unknown key pressed
-Date: Sun, 6 Jan 2013 18:30:40 +0000
-Message-ID: <CAHR064it8jDPQuzRz6VwOm+g+2f2VuydBM1ubaN9fWQ6B+GbPg@mail.gmail.com>
-References: <CAHR064jzPejiWM_XqeY0a+Uf7cYPUrYMNd0FDEUvwkgrMB1hDg@mail.gmail.com>
-	<22009182.20.1357413346491.JavaMail.gkos@dynomob>
-	<CAHR064hc+m1HXKVmbC5jrChQSarWLXWGZPFH-KTPwbyAnGD_7w@mail.gmail.com>
-	<20130105230922.GC6475@core.coreip.homeip.net>
+From: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource
+ allocation
+Date: Sun, 6 Jan 2013 20:27:39 +0100
+Message-ID: <20130106192739.GA11566@avionic-0098.adnet.avionic-design.de>
+References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
+ <1357371910-3164-3-git-send-email-ldewangan@nvidia.com>
+ <20130105080658.GA1315@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f48.google.com ([209.85.214.48]:39851 "EHLO
-	mail-bk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756047Ab3AFSam convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Jan 2013 13:30:42 -0500
-Received: by mail-bk0-f48.google.com with SMTP id jc3so7961082bkc.21
-        for <linux-input@vger.kernel.org>; Sun, 06 Jan 2013 10:30:40 -0800 (PST)
-In-Reply-To: <20130105230922.GC6475@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============5096442939072299005=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <20130105080658.GA1315-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Konstantin V. Gavrilenko" <k.gavrilenko@arhont.com>, Yong Wang <yong.y.wang@intel.com>, linux-input@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
-
-On Sat, Jan 5, 2013 at 11:09 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Sat, Jan 05, 2013 at 08:06:32PM +0000, Corentin Chary wrote:
->> On Sat, Jan 5, 2013 at 7:19 PM, Konstantin V. Gavrilenko
->> <k.gavrilenko@arhont.com> wrote:
->> > Thanks for a prompt response.
->> >
->> > for all three events the showkey generates the same data
->> >
->> > keycode 240 press
->> > keycode 240 release
->> >
->> > ----- Original Message -----
->> > From: "Corentin Chary" <corentincj@iksaif.net>
->> > To: "Konstantin V. Gavrilenko" <k.gavrilenko@arhont.com>
->> > Cc: "Yong Wang" <yong.y.wang@intel.com>, "Dmitry Torokhov" <dtor@mail.ru>
->> > Sent: Saturday, 5 January, 2013 6:58:11 PM
->> > Subject: Re: asus_wmi: Unknown key pressed
->> >
->> > Hi,
->> >
->> > On Sat, Jan 5, 2013 at 3:17 PM, Konstantin V. Gavrilenko
->> > <k.gavrilenko@arhont.com> wrote:
->> >> Hi Guys,
->> >>
->> >> sorry for writing out of the blue, but your email addresses where provided in the kernel modules. I hope you will direct me to a better place where I can report the problem or someone that can help solve the problem with asus_wmi module.
->> >>
->> >> In my new laptop UX51VZA v203 my syslog is constantly filled with the following lines, even though I do not press any buttons on the keyboard.
->> >>
->> >> Dec 30 08:28:52 dynomob kernel: [22731.108645] asus_wmi: Unknown key c6 pressed
->> >> Dec 30 08:28:53 dynomob kernel: [22732.110834] asus_wmi: Unknown key c6 pressed
->> >> Dec 30 08:28:58 dynomob kernel: [22737.079312] asus_wmi: Unknown key c6 pressed
->> >> Dec 30 08:28:59 dynomob kernel: [22738.075352] asus_wmi: Unknown key c6 pressed
->> >> Dec 30 08:29:00 dynomob kernel: [22739.076342] asus_wmi: Unknown key c6 pressed
->> >> Dec 30 08:29:01 dynomob kernel: [22740.083493] asus_wmi: Unknown key c6 pressed
->> >>
->> >>
->> >> It took me a while to work out that this was information from the ambient light sensor )) and since there is no way to operate it or disable it, I had to cover it with a piece of black paper. Such default behavior is very disruptive as it generates an actual unseen key press, that is extremely annoying if you trying to type a password.
->> >
->> > This should not generate any key if the key is unknown. But maybe
->> > another key is generated (and not logged). Can you run showkey in a
->> > terminal and try to see what keycode you are getting ?
->> > I'll make a patch to ignore this key.
->> >
->> >> There are couple of other unknown signals tat I managed to figure out, namely
->> >>
->> >> Fn+A (ambient light button) generates
->> >> Jan  5 15:12:08 dynomob kernel: [46786.001579] asus_wmi: Unknown key 7a pressed
->> >
->> > Will map this key to some keycode.
->> >
->> >> unplugging of the powercord generates
->> >> Jan  5 15:13:08 dynomob kernel: [46845.606336] asus_wmi: Unknown key cf pressed
->> >
->> > Don't know what is means, so will probably just be ignored with a comment.
->> >
->> > Thanks,
->>
->> Oh right, Seth added some code to send KEY_UNKNOWN keys in such cases.
->> Seth, maybe keys present with KEY_IGNORE type should not send
->> KEY_UNKNOWN to avoid this kind of issues ?
->
-> KEY_UNKNOWN should not really be mapped to any key so it should not
-> interfere with normal typing/other operations while still being able to
-> detect the events. The idea is for users to be able to notice the new
-> events and then developers can decide if they should be ignored or
-> mapped to some particular keycodes (or maybe routed through some other
-> subsystem).
-
-The issue here is that the scancode is already present in the keymap
-with the type "KE_IGNORE" instead of "KE_KEY", but sparse_keymap seems
-to send KEY_UNKNOWN anyway.
-And Konstantin seems to say that it's bad in some cases (passwords?).
 
 
+--===============5096442939072299005==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+Content-Disposition: inline
 
---
-Corentin Chary
-http://xf.iksaif.net
+
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, Jan 05, 2013 at 12:06:58AM -0800, Dmitry Torokhov wrote:
+> On Sat, Jan 05, 2013 at 01:15:08PM +0530, Laxman Dewangan wrote:
+[...]
+> > @@ -735,25 +738,16 @@ static int tegra_kbc_probe(struct platform_device=
+ *pdev)
+> >  	spin_lock_init(&kbc->lock);
+> >  	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc=
+);
+> > =20
+> > -	res =3D request_mem_region(res->start, resource_size(res), pdev->name=
+);
+> > -	if (!res) {
+> > -		dev_err(&pdev->dev, "failed to request I/O memory\n");
+> > -		err =3D -EBUSY;
+> > -		goto err_free_mem;
+> > -	}
+> > -
+> > -	kbc->mmio =3D ioremap(res->start, resource_size(res));
+> > +	kbc->mmio =3D devm_request_and_ioremap(&pdev->dev, res);
+> >  	if (!kbc->mmio) {
+> > -		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+> > -		err =3D -ENXIO;
+> > -		goto err_free_mem_region;
+> > +		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
+> > +		return -EADDRNOTAVAIL;
+>=20
+> Erm, no, -EBUSY please.
+
+EADDRNOTAVAIL is the canonical error for devm_request_and_ioremap()
+failure. The kerneldoc comment in lib/devres.c even gives a short
+example that uses this error code.
+
+Thierry
+
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQ6dArAAoJEN0jrNd/PrOhVc8P/RBfk2kdD1xrPNZQe60rRWi3
+NaFakKFbFyZQrapu3n1bryZol6TiZ70hkKzl/sGvuRXGpP8PbzRW0OyOlBCKNtOk
+BJVN56q7/fDEujKEs6sWKa17O9/Qw+rg58/yRgiTaAvjRIua0nT6lzDFaFkWv+k8
+fX5Z6p6HqOPoCs+UjjHjeU4seWJIyv4fd6XsElckcTe64lalxAHqCUyFKERW1nto
+QSEytY/H++u1gonCch0uf7xKZ/jVDobsOEogTbVdBopSqWIbTBKcTS48AIIiUIu3
+0KHFrsOTWgxDVOWZgQXGcUoDZUazulRRHmTy6yV/9SSD7reZyy0KtqRK7inyaoU6
+THckG8hItxhPEO2/JtOCky1toPo9RvVcKy1b/qjTDY8SRY/RlXRKjODWB0DmODfZ
+WjVeZlRN6CTDPqMw65LKT86vr4X8rKw5gfWR4yxMVu7cpU0FDpCYCf8CmRzz8Oai
+GkXyVAs1gLn19F7au/tc923IeBtOzoSMar5MvsZ0QuKAx2ITS1cNXlvYqgGRXLVe
+EwbRHVBtR6ubbFGNQ4bIqDCwfh+JjTYmYx+RCiNmQAwewKfrsX8nNul897uTutge
+SMyeWnzzBdko0B0Acnvwy2IzlhKyI0KIpmUkRmrfQQh0ZVBjvZieP9ksL0Fgo2fC
+etKQZioi7maSHYwWuj7J
+=qLcb
+-----END PGP SIGNATURE-----
+
+--ibTvN161/egqYuK8--
+
+--===============5096442939072299005==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============5096442939072299005==--

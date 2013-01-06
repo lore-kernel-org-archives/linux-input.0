@@ -1,62 +1,35 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource
- allocation
-Date: Sun, 6 Jan 2013 11:57:48 -0800
-Message-ID: <20130106195748.GA28212@core.coreip.homeip.net>
-References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
- <1357371910-3164-3-git-send-email-ldewangan@nvidia.com>
- <20130105080658.GA1315@core.coreip.homeip.net>
- <20130106192739.GA11566@avionic-0098.adnet.avionic-design.de>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 00/11] Support of dual pen/multitouch and new default for
+ win 7 certified devices
+Date: Sun, 6 Jan 2013 21:03:55 +0100
+Message-ID: <20130106200355.GA557@polaris.bitmath.org>
+References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
+ <alpine.LNX.2.00.1301031050060.27348@pobox.suse.cz>
+ <CAN+gG=GxiM-K6mSmQk4GVRbkkc5VwCW1wUeo1BEuXoZ+T-ir_A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:62205 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751831Ab3AFT5x (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Jan 2013 14:57:53 -0500
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:57920 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752811Ab3AFUBQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Jan 2013 15:01:16 -0500
 Content-Disposition: inline
-In-Reply-To: <20130106192739.GA11566@avionic-0098.adnet.avionic-design.de>
+In-Reply-To: <CAN+gG=GxiM-K6mSmQk4GVRbkkc5VwCW1wUeo1BEuXoZ+T-ir_A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thierry Reding <thierry.reding@avionic-design.de>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, grant.likely@secretlab.ca, rob.herring@calxeda.com, swarren@nvidia.com, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Jan 06, 2013 at 08:27:39PM +0100, Thierry Reding wrote:
-> On Sat, Jan 05, 2013 at 12:06:58AM -0800, Dmitry Torokhov wrote:
-> > On Sat, Jan 05, 2013 at 01:15:08PM +0530, Laxman Dewangan wrote:
-> [...]
-> > > @@ -735,25 +738,16 @@ static int tegra_kbc_probe(struct platform_device *pdev)
-> > >  	spin_lock_init(&kbc->lock);
-> > >  	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc);
-> > >  
-> > > -	res = request_mem_region(res->start, resource_size(res), pdev->name);
-> > > -	if (!res) {
-> > > -		dev_err(&pdev->dev, "failed to request I/O memory\n");
-> > > -		err = -EBUSY;
-> > > -		goto err_free_mem;
-> > > -	}
-> > > -
-> > > -	kbc->mmio = ioremap(res->start, resource_size(res));
-> > > +	kbc->mmio = devm_request_and_ioremap(&pdev->dev, res);
-> > >  	if (!kbc->mmio) {
-> > > -		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-> > > -		err = -ENXIO;
-> > > -		goto err_free_mem_region;
-> > > +		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
-> > > +		return -EADDRNOTAVAIL;
-> > 
-> > Erm, no, -EBUSY please.
-> 
-> EADDRNOTAVAIL is the canonical error for devm_request_and_ioremap()
-> failure. The kerneldoc comment in lib/devres.c even gives a short
-> example that uses this error code.
+Hi Benjamin,
 
-I am sorry, but I do not consider a function that was added a little
-over a year ago as a canon. If you look at the uses of EADDRNOTAVAIL it
-is used predominantly in networking code to indicate that attempted
-_network_ address is not available.
+> Henrik, you told us that you have a patch set fixing these
+> dependencies on all the hid drivers, will you prepare it for 3.9? Do
+> you want me to continue your work?
 
-Thanks.
+Yes, no, yes. :-)
 
--- 
-Dmitry
+That is, it would be great if you want to pick up those patches. I
+will send you a pm shortly.
+
+Thanks,
+Henrik

@@ -1,204 +1,84 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] atkbd: Fix multi-char scancode handling on reconnect.
-Date: Sun, 6 Jan 2013 01:10:26 -0800
-Message-ID: <20130106091026.GA17618@core.coreip.homeip.net>
-References: <1356057191-24664-1-git-send-email-shawnn@chromium.org>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource
+ allocation
+Date: Sun, 6 Jan 2013 16:30:28 +0530
+Message-ID: <50E9594C.4040506@nvidia.com>
+References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com> <1357371910-3164-3-git-send-email-ldewangan@nvidia.com> <20130105080658.GA1315@core.coreip.homeip.net> <50E80C9A.7040404@nvidia.com> <20130105231858.GD6475@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:61700 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751493Ab3AFJKb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Jan 2013 04:10:31 -0500
-Content-Disposition: inline
-In-Reply-To: <1356057191-24664-1-git-send-email-shawnn@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130105231858.GD6475-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org" <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Shawn Nematbakhsh <shawnn@chromium.org>
-Cc: jj@chaosbits.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Shawn,
+On Sunday 06 January 2013 04:48 AM, Dmitry Torokhov wrote:
+> On Sat, Jan 05, 2013 at 04:50:58PM +0530, Laxman Dewangan wrote:
+>> HI Dmitry,
+>> Thanks for quick review.
+>>
+>> I will take care of your comment in next version. Some have my answer.
+>>
+>>
+>> On Saturday 05 January 2013 01:36 PM, Dmitry Torokhov wrote:
+>>> Hi Laxman,
+>>>
+>>> On Sat, Jan 05, 2013 at 01:15:08PM +0530, Laxman Dewangan wrote:
+>>>> Use devm_* for memory, clock, input device allocation. This reduces
+>>>> code for freeing these resources.
+>>>>   	err = tegra_kbd_setup_keymap(kbc);
+>>>> -	if (err) {
+>>>> +	if (err < 0) {
+>>> Why is this change? As far as I can see tegra_kbd_setup_keymap() never
+>>> returns positive values.
+>> Ok, mostly errors are in negative and hence this change, I will
+>> revert it and will keep original.
+>>
+>>>>   		dev_err(&pdev->dev, "failed to setup keymap\n");
+>>>> -		goto err_put_clk;
+>>>> +		return err;
+>>>>   	}
+>>>>   	__set_bit(EV_REP, input_dev->evbit);
+>>>> @@ -790,15 +784,15 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+>>>>   	err = request_irq(kbc->irq, tegra_kbc_isr,
+>>>>   			  IRQF_NO_SUSPEND | IRQF_TRIGGER_HIGH, pdev->name, kbc);
+>>>> -	if (err) {
+>>>> +	if (err < 0) {
+>>> Neither request_irq(). BTW, why not devm_request_irq?
+>> I understand from Mark B on different patches that using
+>> devm_request_irq() can create race condition when removing device.
+>> Interrupt can occur when device resource release is in process and
+>> so it can cause isr call which can use the freed pointer.
+>> devm_request_irq() should be avoided.
+> devm_request_irq() has a potential of creating a race condition, but it
+> depents on the driver. In this particular case tegra driver ensures that
+> interrupts are inhibited when input device is unregistered by providing
+> tegra_kbc_close() method, so in this particular case it is safe to
+> use devm_request_irq().
+>
+> Also, when using managed input devices, the unregistering and final
+> freeing is a 2-step process, so even in absence of close() method, if
+> initialization sequence was:
+>
+> 	devm_input_allocate_device()
+> 	...
+> 	devm_request_irq()
+> 	...
+> 	input_unregister_device()
+>
+> then order of freeing resources (behind the scenes) will be
+>
+> 	devm_input_device_unregister();
+> 	/* input device is still present in memory and can
+> 	 * handle input_event() calls.
+> 	 */
+> 	free_irq();
+> 	devm_input_device_release();
+>
+> So using managed request_irq() _together_ with managed input devices is
+> OK.
 
-On Thu, Dec 20, 2012 at 06:33:11PM -0800, Shawn Nematbakhsh wrote:
-> On resume from suspend there is a possibility for multi-byte scancodes
-> to be handled incorrectly. atkbd_reconnect disables the processing of
-> scancodes in software by calling atkbd_disable, but the keyboard may
-> still be active because no disconnect command was sent. Later, software
-> handling is re-enabled. If a multi-byte scancode sent from the keyboard
-> straddles the re-enable, only the latter byte(s) will be handled.
-> 
-> In practice, this leads to cases where multi-byte break codes (ex. "e0
-> 4d" - break code for right-arrow) are misread as make codes ("4d" - make
-> code for numeric 6), leading to one or more unwanted, untyped characters
-> being interpreted.
-> 
-> The solution implemented here involves sending command f5 (reset
-> disable) to the keyboard prior to disabling software handling of codes.
-> Later, the command to re-enable the keyboard is sent only after we are
-> prepared to handle scancodes.
-
-The core tries to avoid disturbing devices that are not keyboards, so I
-believe we should check the device ID first and if it is keyboard, then
-do the reset. We should also reset the internal state (emul and xl_bit)
-when re-enabling the device.
-
-Does the version of the patch below work for you?
-
-Thanks.
-
--- 
-Dmitry
-
-Input: atkbd - fix multi-byte scancode handling on reconnect
-
-From: Shawn Nematbakhsh <shawnn@chromium.org>
-
-On resume from suspend there is a possibility for multi-byte scancodes
-to be handled incorrectly. atkbd_reconnect disables the processing of
-scancodes in software by calling atkbd_disable, but the keyboard may
-still be active because no disconnect command was sent. Later, software
-handling is re-enabled. If a multi-byte scancode sent from the keyboard
-straddles the re-enable, only the latter byte(s) will be handled.
-
-In practice, this leads to cases where multi-byte break codes (ex. "e0
-4d" - break code for right-arrow) are misread as make codes ("4d" - make
-code for numeric 6), leading to one or more unwanted, untyped characters
-being interpreted.
-
-The solution implemented here involves sending command f5 (reset
-disable) to the keyboard prior to disabling software handling of codes.
-Later, the command to re-enable the keyboard is sent only after we are
-prepared to handle scancodes.
-
-Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/atkbd.c |   72 ++++++++++++++++++++++++++++------------
- 1 file changed, 51 insertions(+), 21 deletions(-)
-
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 33d0fcd..2626773 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -676,6 +676,39 @@ static inline void atkbd_disable(struct atkbd *atkbd)
- 	serio_continue_rx(atkbd->ps2dev.serio);
- }
- 
-+static int atkbd_activate(struct atkbd *atkbd)
-+{
-+	struct ps2dev *ps2dev = &atkbd->ps2dev;
-+
-+/*
-+ * Enable the keyboard to receive keystrokes.
-+ */
-+
-+	if (ps2_command(ps2dev, NULL, ATKBD_CMD_ENABLE)) {
-+		dev_err(&ps2dev->serio->dev,
-+			"Failed to enable keyboard on %s\n",
-+			ps2dev->serio->phys);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * atkbd_deactivate() resets and disables the keyboard from sending
-+ * keystrokes.
-+ */
-+
-+static void atkbd_deactivate(struct atkbd *atkbd)
-+{
-+	struct ps2dev *ps2dev = &atkbd->ps2dev;
-+
-+	if (ps2_command(ps2dev, NULL, ATKBD_CMD_RESET_DIS))
-+		dev_err(&ps2dev->serio->dev,
-+			"Failed to deactivate keyboard on %s\n",
-+			ps2dev->serio->phys);
-+}
-+
- /*
-  * atkbd_probe() probes for an AT keyboard on a serio port.
-  */
-@@ -731,6 +764,12 @@ static int atkbd_probe(struct atkbd *atkbd)
- 		return -1;
- 	}
- 
-+/*
-+ * Make sure nothing is coming from the keyboard and disturbs our
-+ * internal state.
-+ */
-+	atkbd_deactivate(atkbd);
-+
- 	return 0;
- }
- 
-@@ -825,24 +864,6 @@ static int atkbd_reset_state(struct atkbd *atkbd)
- 	return 0;
- }
- 
--static int atkbd_activate(struct atkbd *atkbd)
--{
--	struct ps2dev *ps2dev = &atkbd->ps2dev;
--
--/*
-- * Enable the keyboard to receive keystrokes.
-- */
--
--	if (ps2_command(ps2dev, NULL, ATKBD_CMD_ENABLE)) {
--		dev_err(&ps2dev->serio->dev,
--			"Failed to enable keyboard on %s\n",
--			ps2dev->serio->phys);
--		return -1;
--	}
--
--	return 0;
--}
--
- /*
-  * atkbd_cleanup() restores the keyboard state so that BIOS is happy after a
-  * reboot.
-@@ -1150,7 +1171,6 @@ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
- 
- 		atkbd->set = atkbd_select_set(atkbd, atkbd_set, atkbd_extra);
- 		atkbd_reset_state(atkbd);
--		atkbd_activate(atkbd);
- 
- 	} else {
- 		atkbd->set = 2;
-@@ -1165,6 +1185,8 @@ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
- 		goto fail3;
- 
- 	atkbd_enable(atkbd);
-+	if (serio->write)
-+		atkbd_activate(atkbd);
- 
- 	err = input_register_device(atkbd->dev);
- 	if (err)
-@@ -1208,8 +1230,6 @@ static int atkbd_reconnect(struct serio *serio)
- 		if (atkbd->set != atkbd_select_set(atkbd, atkbd->set, atkbd->extra))
- 			goto out;
- 
--		atkbd_activate(atkbd);
--
- 		/*
- 		 * Restore LED state and repeat rate. While input core
- 		 * will do this for us at resume time reconnect may happen
-@@ -1223,7 +1243,17 @@ static int atkbd_reconnect(struct serio *serio)
- 
- 	}
- 
-+	/*
-+	 * Reset our state machine in case reconnect happened in the middle
-+	 * of multi-byte scancode.
-+	 */
-+	atkbd->xl_bit = 0;
-+	atkbd->emul = 0;
-+
- 	atkbd_enable(atkbd);
-+	if (atkbd->write)
-+		atkbd_activate(atkbd);
-+
- 	retval = 0;
- 
-  out:
+Thanks for detail explanation. I will modify and sent the new version of 
+patch.

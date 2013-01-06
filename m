@@ -1,93 +1,41 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource
- allocation
-Date: Sat, 5 Jan 2013 15:18:58 -0800
-Message-ID: <20130105231858.GD6475@core.coreip.homeip.net>
-References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
- <1357371910-3164-3-git-send-email-ldewangan@nvidia.com>
- <20130105080658.GA1315@core.coreip.homeip.net>
- <50E80C9A.7040404@nvidia.com>
+Subject: [PATCH 1/4] Input: walkera0701 - set up input device's parent
+Date: Sun, 06 Jan 2013 00:59:31 -0800
+Message-ID: <20130106085931.18147.78960.stgit@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <50E80C9A.7040404@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Stephen Warren <swarren@nvidia.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:36992 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751740Ab3AFI7f (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Jan 2013 03:59:35 -0500
+Received: by mail-pa0-f54.google.com with SMTP id bi5so10183308pad.41
+        for <linux-input@vger.kernel.org>; Sun, 06 Jan 2013 00:59:34 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Popovec <popovec@fei.tuke.sk>
+Cc: linux-input@vger.kernel.org
 
-On Sat, Jan 05, 2013 at 04:50:58PM +0530, Laxman Dewangan wrote:
-> HI Dmitry,
-> Thanks for quick review.
-> 
-> I will take care of your comment in next version. Some have my answer.
-> 
-> 
-> On Saturday 05 January 2013 01:36 PM, Dmitry Torokhov wrote:
-> >Hi Laxman,
-> >
-> >On Sat, Jan 05, 2013 at 01:15:08PM +0530, Laxman Dewangan wrote:
-> >>Use devm_* for memory, clock, input device allocation. This reduces
-> >>code for freeing these resources.
-> 
-> >>  	err = tegra_kbd_setup_keymap(kbc);
-> >>-	if (err) {
-> >>+	if (err < 0) {
-> >Why is this change? As far as I can see tegra_kbd_setup_keymap() never
-> >returns positive values.
-> 
-> Ok, mostly errors are in negative and hence this change, I will
-> revert it and will keep original.
-> 
-> >
-> >>  		dev_err(&pdev->dev, "failed to setup keymap\n");
-> >>-		goto err_put_clk;
-> >>+		return err;
-> >>  	}
-> >>  	__set_bit(EV_REP, input_dev->evbit);
-> >>@@ -790,15 +784,15 @@ static int tegra_kbc_probe(struct platform_device *pdev)
-> >>  	err = request_irq(kbc->irq, tegra_kbc_isr,
-> >>  			  IRQF_NO_SUSPEND | IRQF_TRIGGER_HIGH, pdev->name, kbc);
-> >>-	if (err) {
-> >>+	if (err < 0) {
-> >Neither request_irq(). BTW, why not devm_request_irq?
-> 
-> I understand from Mark B on different patches that using
-> devm_request_irq() can create race condition when removing device.
-> Interrupt can occur when device resource release is in process and
-> so it can cause isr call which can use the freed pointer.
-> devm_request_irq() should be avoided.
+This will place the joystick's input device into propoer place in sysfs
+hierarchy as long as th port has device assigned to it (i.e. it is not
+legacy port).
 
-devm_request_irq() has a potential of creating a race condition, but it
-depents on the driver. In this particular case tegra driver ensures that
-interrupts are inhibited when input device is unregistered by providing
-tegra_kbc_close() method, so in this particular case it is safe to
-use devm_request_irq().
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/joystick/walkera0701.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-Also, when using managed input devices, the unregistering and final
-freeing is a 2-step process, so even in absence of close() method, if
-initialization sequence was:
+diff --git a/drivers/input/joystick/walkera0701.c b/drivers/input/joystick/walkera0701.c
+index f8f892b..38386ce 100644
+--- a/drivers/input/joystick/walkera0701.c
++++ b/drivers/input/joystick/walkera0701.c
+@@ -241,6 +241,7 @@ static int walkera0701_connect(struct walkera_dev *w, int parport)
+ 	w->input_dev->id.vendor = 0x0001;
+ 	w->input_dev->id.product = 0x0001;
+ 	w->input_dev->id.version = 0x0100;
++	w->input_dev->dev.parent = w->parport->dev;
+ 	w->input_dev->open = walkera0701_open;
+ 	w->input_dev->close = walkera0701_close;
+ 
 
-	devm_input_allocate_device()
-	...
-	devm_request_irq()
-	...
-	input_unregister_device()
-
-then order of freeing resources (behind the scenes) will be
-
-	devm_input_device_unregister();
-	/* input device is still present in memory and can
-	 * handle input_event() calls.
-	 */
-	free_irq();
-	devm_input_device_release();
-
-So using managed request_irq() _together_ with managed input devices is
-OK.
-
-Thanks.
-
--- 
-Dmitry

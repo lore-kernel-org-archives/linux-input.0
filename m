@@ -1,53 +1,25 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] mfd: stmpe: Pull IRQ GPIO number from DT during DT-based
- probe
-Date: Mon, 7 Jan 2013 15:44:01 +0000
-Message-ID: <20130107154401.GW21994@gmail.com>
-References: <1357568989-16237-1-git-send-email-marex@denx.de>
- <20130107150341.GT21994@gmail.com>
- <201301071613.33573.marex@denx.de>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH V4 0/4] input: keyboard: tegra: cleanups and DT supports
+Date: Mon, 07 Jan 2013 09:52:06 -0700
+Message-ID: <50EAFD36.9070909@wwwdotorg.org>
+References: <1357470900-12619-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f46.google.com ([209.85.214.46]:56176 "EHLO
-	mail-bk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753273Ab3AGPoI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jan 2013 10:44:08 -0500
-Received: by mail-bk0-f46.google.com with SMTP id q16so8492520bkw.5
-        for <linux-input@vger.kernel.org>; Mon, 07 Jan 2013 07:44:06 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <201301071613.33573.marex@denx.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1357470900-12619-1-git-send-email-ldewangan@nvidia.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: dmitry.torokhov@gmail.com, swarren@nvidia.com, linux-doc@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, rob.herring@calxeda.com, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>, Vipul Kumar Samar <vipulkumar.samar@st.com>, Viresh Kumar <viresh.kumar@linaro.org>
 
-> > > +	pdata->irq_over_gpio =3D of_get_property(np, "irq-over-gpio", N=
-ULL);
-> >=20
-> > This is a new DT binding and you haven't provided any documentation=
- for it.
-> >=20
-> > Also, there is no reason for the binding to exist.
-> >=20
-> > Lots of drivers use GPIO pins as IRQs.
->=20
-> Right, this can be removed and only the 'irq-gpios' can be kept aroun=
-d. What do=20
-> you say?
+On 01/06/2013 04:14 AM, Laxman Dewangan wrote:
+> This patch series:
+>  - fix build warning,
+>  - use devm_* for allocation,
+>  - make column/rows configuration through DT and 
+>  - remove the rarely used  key mapping table.
 
-I don't like it to be honest.
+The series,
+Reviewed-by: Stephen Warren <swarren@nvidia.com>
 
-How many GPIOs does the STMPE driver need?
-
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

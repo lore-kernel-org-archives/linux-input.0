@@ -1,46 +1,59 @@
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH] mfd: stmpe: Pull IRQ GPIO number from DT during DT-based
- probe
-Date: Mon, 7 Jan 2013 23:49:10 +0530
-Message-ID: <CAKohpon_h2ehq5Cf-fVyne33y7iyXCD35FVV1yuhgoDDstEcFQ@mail.gmail.com>
-References: <1357568989-16237-1-git-send-email-marex@denx.de>
- <20130107150341.GT21994@gmail.com>
- <201301071613.33573.marex@denx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <201301071613.33573.marex@denx.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Marek Vasut <marex@denx.de>
-Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>, Samuel Ortiz <sameo@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH] Input: touchscreen: mc13783_ts.c: Convert to platform driver
+Date: Mon,  7 Jan 2013 18:32:57 -0200
+Message-ID: <1357590777-7498-1-git-send-email-festevam@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vc0-f174.google.com ([209.85.220.174]:45731 "EHLO
+	mail-vc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751185Ab3AGUdN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jan 2013 15:33:13 -0500
+Received: by mail-vc0-f174.google.com with SMTP id d16so19790493vcd.5
+        for <linux-input@vger.kernel.org>; Mon, 07 Jan 2013 12:33:10 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: s.hauer@pengutronix.de, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-On 7 January 2013 20:43, Marek Vasut <marex@denx.de> wrote:
->> > The new
->> > behaviour is the expected one and copies the behavior of
->> > platform_data-based probe.
->>
->> Blindly copying platform data behaviour to DT bindings is seldom a good
->> idea.
->
-> Do you have suggestions how to pass these information? I suspect the irq-over-
-> gpio property can be killed, since if irq-gpios prop is there, it implies irq-
-> over-gpio anyway.
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-Both can be killed. gpios as interrupt lines can be requested as:
+Using module_platform_driver() can make the code smaller and cleaner.
 
- interrupt-parent = <&gpio-controller>;
- interrupts = <25 0x1>;
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/input/touchscreen/mc13783_ts.c |   13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
-and probably the stmpe driver doesn't have to bother at all if
-interrupt was over gpio
-or not.
+diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
+index 02103b6..e881c25 100644
+--- a/drivers/input/touchscreen/mc13783_ts.c
++++ b/drivers/input/touchscreen/mc13783_ts.c
+@@ -243,6 +243,7 @@ static int mc13783_ts_remove(struct platform_device *pdev)
+ }
+ 
+ static struct platform_driver mc13783_ts_driver = {
++	.probe		= mc13783_ts_probe,
+ 	.remove		= mc13783_ts_remove,
+ 	.driver		= {
+ 		.owner	= THIS_MODULE,
+@@ -250,17 +251,7 @@ static struct platform_driver mc13783_ts_driver = {
+ 	},
+ };
+ 
+-static int __init mc13783_ts_init(void)
+-{
+-	return platform_driver_probe(&mc13783_ts_driver, &mc13783_ts_probe);
+-}
+-module_init(mc13783_ts_init);
+-
+-static void __exit mc13783_ts_exit(void)
+-{
+-	platform_driver_unregister(&mc13783_ts_driver);
+-}
+-module_exit(mc13783_ts_exit);
++module_platform_driver(mc13783_ts_driver);
+ 
+ MODULE_DESCRIPTION("MC13783 input touchscreen driver");
+ MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
+-- 
+1.7.9.5
+

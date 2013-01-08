@@ -1,72 +1,126 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: Re: [PATCH 1/1] Input: mms114: Use devm_* APIs
-Date: Tue, 8 Jan 2013 17:08:12 +0530
-Message-ID: <CAK9yfHyAnb02mBGVJuaJ9YZdKZox6vqwE0pNEmxRdAhUOOn0Fw@mail.gmail.com>
-References: <1357639508-15645-1-git-send-email-sachin.kamat@linaro.org>
-	<50EBFE23.7070401@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f178.google.com ([209.85.214.178]:34572 "EHLO
-	mail-ob0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754171Ab3AHLiN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 06:38:13 -0500
-Received: by mail-ob0-f178.google.com with SMTP id eh20so251787obb.9
-        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 03:38:13 -0800 (PST)
-In-Reply-To: <50EBFE23.7070401@nvidia.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH] HID: i2c-hid: add ACPI support
+Date: Tue,  8 Jan 2013 15:05:32 +0200
+Message-ID: <1357650332-30031-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "patches@linaro.org" <patche@linaro.org>, Joonyoung Shim <jy0922.shim@samsung.com>
 
-Hi Laxman,
+The HID over I2C protocol specification states that when the device is
+enumerated from ACPI the HID descriptor address can be obtained by
+executing "_DSM" for the device with function 1. Enable this.
 
-Thank you for your suggestion.
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/hid/i2c-hid/i2c-hid.c |   73 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 71 insertions(+), 2 deletions(-)
 
-On 8 January 2013 16:38, Laxman Dewangan <ldewangan@nvidia.com> wrote:
-> On Tuesday 08 January 2013 03:35 PM, Sachin Kamat wrote:
->>
->> devm_* APIs are device managed and make the exit and clean up code
->> simpler.
->>
->> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
->> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
->> ---
->> Compile tested against linux-next tree (20130108).
->> ---
->>   drivers/input/touchscreen/mms114.c |   41
->> +++++++++++------------------------
->>   1 files changed, 13 insertions(+), 28 deletions(-)
->
->
->>   static int mms114_remove(struct i2c_client *client)
->>   {
->>         struct mms114_data *data = i2c_get_clientdata(client);
->>   -     free_irq(client->irq, data);
->> -       regulator_put(data->io_reg);
->> -       regulator_put(data->core_reg);
->>         input_unregister_device(data->input_dev);
->
->
-> Because you are using devm_input_allocate_device() for allocating input
-> device, you need not to have the input_unregister_device() and so you can
-> get rid of remove() callback at all.
-> This is what I learnt from Dmitry on similar patch for Tegra KBC.
-
-input_free_device() is the one which is not required when you use
-devm_input_allocate_device().
-Unregister call, AFAIK, is required since we are registering using
-input_register_device().
-
-Dmitry, please let me know if my understanding is right.
-
->
-> Thanks,
-> Laxman
-
-
-
-
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 9ef22244..b2eebb6 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -34,6 +34,7 @@
+ #include <linux/kernel.h>
+ #include <linux/hid.h>
+ #include <linux/mutex.h>
++#include <linux/acpi.h>
+ 
+ #include <linux/i2c/i2c-hid.h>
+ 
+@@ -810,6 +811,70 @@ static int __devinit i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_ACPI
++static struct i2c_hid_platform_data *
++i2c_hid_acpi_pdata(struct i2c_client *client)
++{
++	static u8 i2c_hid_guid[] = {
++		0xF7, 0xF6, 0xDF, 0x3C, 0x67, 0x42, 0x55, 0x45,
++		0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE,
++	};
++	struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER, NULL };
++	struct i2c_hid_platform_data *pdata = NULL;
++	union acpi_object params[4], *obj;
++	struct acpi_object_list input;
++	struct acpi_device *adev;
++	acpi_handle handle;
++
++	handle = ACPI_HANDLE(&client->dev);
++	if (!handle || acpi_bus_get_device(handle, &adev))
++		return NULL;
++
++	input.count = ARRAY_SIZE(params);
++	input.pointer = params;
++
++	params[0].type = ACPI_TYPE_BUFFER;
++	params[0].buffer.length = sizeof(i2c_hid_guid);
++	params[0].buffer.pointer = i2c_hid_guid;
++	params[1].type = ACPI_TYPE_INTEGER;
++	params[1].integer.value = 1;
++	params[2].type = ACPI_TYPE_INTEGER;
++	params[2].integer.value = 1; /* HID function */
++	params[3].type = ACPI_TYPE_INTEGER;
++	params[3].integer.value = 0;
++
++	if (ACPI_FAILURE(acpi_evaluate_object(handle, "_DSM", &input, &buf)))
++		return NULL;
++
++	obj = (union acpi_object *)buf.pointer;
++	if (obj->type != ACPI_TYPE_INTEGER)
++		goto fail;
++
++	pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		goto fail;
++
++	pdata->hid_descriptor_address = obj->integer.value;
++
++fail:
++	kfree(buf.pointer);
++	return pdata;
++}
++
++static struct acpi_device_id i2c_hid_acpi_match[] = {
++	{"ACPI0C50", 0 },
++	{"PNP0C50", 0 },
++	{ },
++};
++MODULE_DEVICE_TABLE(acpi, i2c_hid_acpi_match);
++#else
++static inline struct i2c_hid_platform_data *
++i2c_hid_acpi_pdata(struct i2c_client *client)
++{
++	return NULL;
++}
++#endif
++
+ static int __devinit i2c_hid_probe(struct i2c_client *client,
+ 		const struct i2c_device_id *dev_id)
+ {
+@@ -822,8 +887,11 @@ static int __devinit i2c_hid_probe(struct i2c_client *client,
+ 	dbg_hid("HID probe called for i2c 0x%02x\n", client->addr);
+ 
+ 	if (!platform_data) {
+-		dev_err(&client->dev, "HID register address not provided\n");
+-		return -EINVAL;
++		platform_data = i2c_hid_acpi_pdata(client);
++		if (!platform_data) {
++			dev_err(&client->dev, "HID register address not provided\n");
++			return -EINVAL;
++		}
+ 	}
+ 
+ 	if (!client->irq) {
+@@ -964,6 +1032,7 @@ static struct i2c_driver i2c_hid_driver = {
+ 		.name	= "i2c_hid",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &i2c_hid_pm,
++		.acpi_match_table = ACPI_PTR(i2c_hid_acpi_match),
+ 	},
+ 
+ 	.probe		= i2c_hid_probe,
 -- 
-With warm regards,
-Sachin
+1.7.10.4

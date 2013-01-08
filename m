@@ -1,44 +1,80 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH] mfd: stmpe: Pull IRQ GPIO number from DT during DT-based probe
-Date: Tue, 8 Jan 2013 10:48:37 +0100
-Message-ID: <201301081048.38149.marex@denx.de>
-References: <1357568989-16237-1-git-send-email-marex@denx.de> <20130108094134.GA21994@gmail.com> <201301081044.14876.marex@denx.de>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 4/5] Input: Enable STMPE keypad driver for Device Tree
+Date: Tue, 8 Jan 2013 09:53:26 +0000
+Message-ID: <20130108095326.GC21994@gmail.com>
+References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
+ <1352900837-20759-5-git-send-email-lee.jones@linaro.org>
+ <20130108083803.GY21994@gmail.com>
+ <20130108092653.GA29695@core.coreip.homeip.net>
+ <20130108093013.GB29695@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:58775 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754532Ab3AHJsj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 04:48:39 -0500
-In-Reply-To: <201301081044.14876.marex@denx.de>
+Received: from mail-bk0-f50.google.com ([209.85.214.50]:33048 "EHLO
+	mail-bk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754532Ab3AHJxc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 04:53:32 -0500
+Received: by mail-bk0-f50.google.com with SMTP id jf3so108401bkc.23
+        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 01:53:31 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20130108093013.GB29695@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: vipul kumar samar <vipulkumar.samar@st.com>, Viresh Kumar <viresh.kumar@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linus.walleij@linaro.org, arnd@arndb.de
 
-Dear Lee Jones,
+On Tue, 08 Jan 2013, Dmitry Torokhov wrote:
 
-> > > >Both can be killed. gpios as interrupt lines can be requested as:
-> > > >  interrupt-parent =<&gpio-controller>;
-> > > >  interrupts =<25 0x1>;
-> > > >
-> > > >and probably the stmpe driver doesn't have to bother at all if
-> > > >interrupt was over gpio or not.
-> > > 
-> > > Yes, both can be killed and similarly we did for spear1340 machine
-> > > but some how we missed it on spear320-hmi.
-> > 
-> > Bingo!
-> 
-> All right, all right ... got it ;-)
-> 
-> I'll rework it and repost then.
+> On Tue, Jan 08, 2013 at 01:26:54AM -0800, Dmitry Torokhov wrote:
+> > Hi Lee,
+> >=20
+> > On Tue, Jan 08, 2013 at 08:38:03AM +0000, Lee Jones wrote:
+> > >=20
+> > > I'm less than pleased that you _stole_ authorship of this patch!
+> > >=20
+> > > Especially, as I've been asking you to review it for some time.
+> >=20
+> > My sincere apologies, it was never my intention to claim anyones wo=
+rk as
+> > my own.
+> >=20
+> > It appears that "stg squash" command (I use stacked git to manage m=
+y WIP
+> > queue) produces result with authorship changed to the committer and=
+ if
+> > you check the thread you will see that I explicitly mentioned that =
+I
+> > folded the device tree binding documentation (that was also authore=
+d by
+> > you) into this patch.
+> >=20
+> > Now that I am looking it appears that sysrq keyreset patch by Mathi=
+eu
+> > Poirier was also committed as authored by me, and on that patch I a=
+slo
+> > used "stg squash".
+> >=20
+> > OK, I'll now be aware of this behavior and I will rewind my 'next'
+> > branch and correct the authorship on the commits.
+>=20
+> *sigh* It looks like the stmpe patch is already in mainline, so I wil=
+l
+> not be able to correct it.
+>=20
+> I am very sorry.
 
-Maybe I was too quick about understanding the issue at hand. So allow me a 
-stupid question -- who's gonna configure the GPIO as input for it to work as IRQ 
-GPIO?
+Okay, as long as it was a genuine mistake, I will bear no grudges.
 
-Best regards,
-Marek Vasut
+Apology graciously accepted. :)
+
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

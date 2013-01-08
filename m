@@ -1,80 +1,119 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 4/5] Input: Enable STMPE keypad driver for Device Tree
-Date: Tue, 8 Jan 2013 09:53:26 +0000
-Message-ID: <20130108095326.GC21994@gmail.com>
-References: <1352900837-20759-1-git-send-email-lee.jones@linaro.org>
- <1352900837-20759-5-git-send-email-lee.jones@linaro.org>
- <20130108083803.GY21994@gmail.com>
- <20130108092653.GA29695@core.coreip.homeip.net>
- <20130108093013.GB29695@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/1] Input: mms114: Use devm_* APIs
+Date: Tue,  8 Jan 2013 15:35:08 +0530
+Message-ID: <1357639508-15645-1-git-send-email-sachin.kamat@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f50.google.com ([209.85.214.50]:33048 "EHLO
-	mail-bk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754532Ab3AHJxc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 04:53:32 -0500
-Received: by mail-bk0-f50.google.com with SMTP id jf3so108401bkc.23
-        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 01:53:31 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20130108093013.GB29695@core.coreip.homeip.net>
+Received: from mail-da0-f41.google.com ([209.85.210.41]:53277 "EHLO
+	mail-da0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755406Ab3AHKNV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 05:13:21 -0500
+Received: by mail-da0-f41.google.com with SMTP id e20so125736dak.0
+        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 02:13:21 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linus.walleij@linaro.org, arnd@arndb.de
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, patche@linaro.org, Joonyoung Shim <jy0922.shim@samsung.com>
 
-On Tue, 08 Jan 2013, Dmitry Torokhov wrote:
+devm_* APIs are device managed and make the exit and clean up code
+simpler.
 
-> On Tue, Jan 08, 2013 at 01:26:54AM -0800, Dmitry Torokhov wrote:
-> > Hi Lee,
-> >=20
-> > On Tue, Jan 08, 2013 at 08:38:03AM +0000, Lee Jones wrote:
-> > >=20
-> > > I'm less than pleased that you _stole_ authorship of this patch!
-> > >=20
-> > > Especially, as I've been asking you to review it for some time.
-> >=20
-> > My sincere apologies, it was never my intention to claim anyones wo=
-rk as
-> > my own.
-> >=20
-> > It appears that "stg squash" command (I use stacked git to manage m=
-y WIP
-> > queue) produces result with authorship changed to the committer and=
- if
-> > you check the thread you will see that I explicitly mentioned that =
-I
-> > folded the device tree binding documentation (that was also authore=
-d by
-> > you) into this patch.
-> >=20
-> > Now that I am looking it appears that sysrq keyreset patch by Mathi=
-eu
-> > Poirier was also committed as authored by me, and on that patch I a=
-slo
-> > used "stg squash".
-> >=20
-> > OK, I'll now be aware of this behavior and I will rewind my 'next'
-> > branch and correct the authorship on the commits.
->=20
-> *sigh* It looks like the stmpe patch is already in mainline, so I wil=
-l
-> not be able to correct it.
->=20
-> I am very sorry.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+---
+Compile tested against linux-next tree (20130108).
+---
+ drivers/input/touchscreen/mms114.c |   41 +++++++++++------------------------
+ 1 files changed, 13 insertions(+), 28 deletions(-)
 
-Okay, as long as it was a genuine mistake, I will bear no grudges.
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 98841d8..22295ec 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -429,12 +429,12 @@ static int mms114_probe(struct i2c_client *client,
+ 		return -ENODEV;
+ 	}
+ 
+-	data = kzalloc(sizeof(struct mms114_data), GFP_KERNEL);
+-	input_dev = input_allocate_device();
++	data = devm_kzalloc(&client->dev, sizeof(struct mms114_data),
++			    GFP_KERNEL);
++	input_dev = devm_input_allocate_device(&client->dev);
+ 	if (!data || !input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate memory\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++		return -ENOMEM;
+ 	}
+ 
+ 	data->client = client;
+@@ -466,58 +466,43 @@ static int mms114_probe(struct i2c_client *client,
+ 	input_set_drvdata(input_dev, data);
+ 	i2c_set_clientdata(client, data);
+ 
+-	data->core_reg = regulator_get(&client->dev, "avdd");
++	data->core_reg = devm_regulator_get(&client->dev, "avdd");
+ 	if (IS_ERR(data->core_reg)) {
+ 		error = PTR_ERR(data->core_reg);
+ 		dev_err(&client->dev,
+ 			"Unable to get the Core regulator (%d)\n", error);
+-		goto err_free_mem;
++		return error;
+ 	}
+ 
+-	data->io_reg = regulator_get(&client->dev, "vdd");
++	data->io_reg = devm_regulator_get(&client->dev, "vdd");
+ 	if (IS_ERR(data->io_reg)) {
+ 		error = PTR_ERR(data->io_reg);
+ 		dev_err(&client->dev,
+ 			"Unable to get the IO regulator (%d)\n", error);
+-		goto err_core_reg;
++		return error;
+ 	}
+ 
+-	error = request_threaded_irq(client->irq, NULL, mms114_interrupt,
+-			IRQF_TRIGGER_FALLING | IRQF_ONESHOT, "mms114", data);
++	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
++			mms114_interrupt, IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++			"mms114", data);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to register interrupt\n");
+-		goto err_io_reg;
++		return error;
+ 	}
+ 	disable_irq(client->irq);
+ 
+ 	error = input_register_device(data->input_dev);
+ 	if (error)
+-		goto err_free_irq;
++		return error;
+ 
+ 	return 0;
+-
+-err_free_irq:
+-	free_irq(client->irq, data);
+-err_io_reg:
+-	regulator_put(data->io_reg);
+-err_core_reg:
+-	regulator_put(data->core_reg);
+-err_free_mem:
+-	input_free_device(input_dev);
+-	kfree(data);
+-	return error;
+ }
+ 
+ static int mms114_remove(struct i2c_client *client)
+ {
+ 	struct mms114_data *data = i2c_get_clientdata(client);
+ 
+-	free_irq(client->irq, data);
+-	regulator_put(data->io_reg);
+-	regulator_put(data->core_reg);
+ 	input_unregister_device(data->input_dev);
+-	kfree(data);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.7.4.1
 
-Apology graciously accepted. :)
-
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

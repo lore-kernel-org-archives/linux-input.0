@@ -1,119 +1,37 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH 1/1] Input: mms114: Use devm_* APIs
-Date: Tue,  8 Jan 2013 15:35:08 +0530
-Message-ID: <1357639508-15645-1-git-send-email-sachin.kamat@linaro.org>
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH] mfd: stmpe: Pull IRQ GPIO number from DT during DT-based probe
+Date: Tue, 8 Jan 2013 16:17:46 +0530
+Message-ID: <CAKohpo=YnLJN4_xA1WTiJaZeb-Oyc=RypYUyaSibmn6G4X9m4A@mail.gmail.com>
+References: <1357568989-16237-1-git-send-email-marex@denx.de>
+	<20130108094134.GA21994@gmail.com>
+	<201301081044.14876.marex@denx.de>
+	<201301081048.38149.marex@denx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f41.google.com ([209.85.210.41]:53277 "EHLO
-	mail-da0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755406Ab3AHKNV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 05:13:21 -0500
-Received: by mail-da0-f41.google.com with SMTP id e20so125736dak.0
-        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 02:13:21 -0800 (PST)
+Received: from mail-oa0-f41.google.com ([209.85.219.41]:34647 "EHLO
+	mail-oa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755249Ab3AHKrr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 05:47:47 -0500
+Received: by mail-oa0-f41.google.com with SMTP id k14so213064oag.28
+        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 02:47:46 -0800 (PST)
+In-Reply-To: <201301081048.38149.marex@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, patche@linaro.org, Joonyoung Shim <jy0922.shim@samsung.com>
+To: Marek Vasut <marex@denx.de>
+Cc: Lee Jones <lee.jones@linaro.org>, vipul kumar samar <vipulkumar.samar@st.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>
 
-devm_* APIs are device managed and make the exit and clean up code
-simpler.
+On 8 January 2013 15:18, Marek Vasut <marex@denx.de> wrote:
+> Maybe I was too quick about understanding the issue at hand. So allow me a
+> stupid question -- who's gonna configure the GPIO as input for it to work as IRQ
+> GPIO?
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>
----
-Compile tested against linux-next tree (20130108).
----
- drivers/input/touchscreen/mms114.c |   41 +++++++++++------------------------
- 1 files changed, 13 insertions(+), 28 deletions(-)
+Hmm.. I tried a bit, but couldn't find any such call :(
+Probably an assumption is taken here. GPIO pins which are going to be used as
+interrupt lines, wouldn't be getting set in output mode at all. So,
+once they are put
+in input mode in beginning, nobody would change it ever.
 
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 98841d8..22295ec 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -429,12 +429,12 @@ static int mms114_probe(struct i2c_client *client,
- 		return -ENODEV;
- 	}
- 
--	data = kzalloc(sizeof(struct mms114_data), GFP_KERNEL);
--	input_dev = input_allocate_device();
-+	data = devm_kzalloc(&client->dev, sizeof(struct mms114_data),
-+			    GFP_KERNEL);
-+	input_dev = devm_input_allocate_device(&client->dev);
- 	if (!data || !input_dev) {
- 		dev_err(&client->dev, "Failed to allocate memory\n");
--		error = -ENOMEM;
--		goto err_free_mem;
-+		return -ENOMEM;
- 	}
- 
- 	data->client = client;
-@@ -466,58 +466,43 @@ static int mms114_probe(struct i2c_client *client,
- 	input_set_drvdata(input_dev, data);
- 	i2c_set_clientdata(client, data);
- 
--	data->core_reg = regulator_get(&client->dev, "avdd");
-+	data->core_reg = devm_regulator_get(&client->dev, "avdd");
- 	if (IS_ERR(data->core_reg)) {
- 		error = PTR_ERR(data->core_reg);
- 		dev_err(&client->dev,
- 			"Unable to get the Core regulator (%d)\n", error);
--		goto err_free_mem;
-+		return error;
- 	}
- 
--	data->io_reg = regulator_get(&client->dev, "vdd");
-+	data->io_reg = devm_regulator_get(&client->dev, "vdd");
- 	if (IS_ERR(data->io_reg)) {
- 		error = PTR_ERR(data->io_reg);
- 		dev_err(&client->dev,
- 			"Unable to get the IO regulator (%d)\n", error);
--		goto err_core_reg;
-+		return error;
- 	}
- 
--	error = request_threaded_irq(client->irq, NULL, mms114_interrupt,
--			IRQF_TRIGGER_FALLING | IRQF_ONESHOT, "mms114", data);
-+	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+			mms114_interrupt, IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+			"mms114", data);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
--		goto err_io_reg;
-+		return error;
- 	}
- 	disable_irq(client->irq);
- 
- 	error = input_register_device(data->input_dev);
- 	if (error)
--		goto err_free_irq;
-+		return error;
- 
- 	return 0;
--
--err_free_irq:
--	free_irq(client->irq, data);
--err_io_reg:
--	regulator_put(data->io_reg);
--err_core_reg:
--	regulator_put(data->core_reg);
--err_free_mem:
--	input_free_device(input_dev);
--	kfree(data);
--	return error;
- }
- 
- static int mms114_remove(struct i2c_client *client)
- {
- 	struct mms114_data *data = i2c_get_clientdata(client);
- 
--	free_irq(client->irq, data);
--	regulator_put(data->io_reg);
--	regulator_put(data->core_reg);
- 	input_unregister_device(data->input_dev);
--	kfree(data);
--
- 	return 0;
- }
- 
--- 
-1.7.4.1
+Much of gpio controllers configure gpio pins in input mode in their probe().
 
+Maybe, there is something else :)

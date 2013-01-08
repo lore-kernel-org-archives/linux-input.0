@@ -1,226 +1,128 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] HID: i2c-hid: add ACPI support
-Date: Tue, 8 Jan 2013 20:09:59 +0200
-Message-ID: <20130108180958.GL13897@intel.com>
-References: <1357650332-30031-1-git-send-email-mika.westerberg@linux.intel.com>
- <CAN+gG=HzJaOwPfymx5JST1+r9QxfqU5D-gN8i95aVDkqQ=ot8Q@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Input: mms114: Use devm_* APIs
+Date: Tue, 8 Jan 2013 09:25:29 -0800
+Message-ID: <20130108172529.GA6746@core.coreip.homeip.net>
+References: <1357639508-15645-1-git-send-email-sachin.kamat@linaro.org>
+ <50EBFE23.7070401@nvidia.com>
+ <CAK9yfHyAnb02mBGVJuaJ9YZdKZox6vqwE0pNEmxRdAhUOOn0Fw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:49272 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756893Ab3AHSOe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 13:14:34 -0500
+Received: by mail-pa0-f52.google.com with SMTP id fb1so482828pad.11
+        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 10:14:33 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=HzJaOwPfymx5JST1+r9QxfqU5D-gN8i95aVDkqQ=ot8Q@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+In-Reply-To: <CAK9yfHyAnb02mBGVJuaJ9YZdKZox6vqwE0pNEmxRdAhUOOn0Fw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "patches@linaro.org" <patche@linaro.org>, Joonyoung Shim <jy0922.shim@samsung.com>
 
-On Tue, Jan 08, 2013 at 02:51:53PM +0100, Benjamin Tissoires wrote:
-> Hi Mika,
-> 
-> On Tue, Jan 8, 2013 at 2:05 PM, Mika Westerberg
-> <mika.westerberg@linux.intel.com> wrote:
-> > The HID over I2C protocol specification states that when the device is
-> > enumerated from ACPI the HID descriptor address can be obtained by
-> > executing "_DSM" for the device with function 1. Enable this.
-> 
-> Hehe, funny thing, I worked on the very same patch last Friday. I was
-> not able to send it upstream as I still don't have an ACPI 5 enabled
-> device...
-> So thanks for submitting (and testing) this!
-> 
-> Before the review, I just have a quick question. All the HID/i2c
-> devices I saw so far present a reset line (through a GPIO). Does the
-> shipped device you have present this line, and if yes, how this meld
-> with the code (i.e. should we take this into account).
+Hi Sachin,
 
-Yes, there is either one or two GPIO lines. But there are also devices that
-don't have any GPIO lines.
-
-We probably should take this into account. I'm not too familiar with HID
-drivers but what if we set the hid->dev.acpi_node and let the actual HID
-driver to deal with the GPIO?
-
-> Please note that I can only compare this to my patch, based on the
-> DSDT example Microsoft gave in its spec. So sorry if I'm asking
-> useless things, but I like to understand... :)
-> Here are a few comments:
+On Tue, Jan 08, 2013 at 05:08:12PM +0530, Sachin Kamat wrote:
+> Hi Laxman,
 > 
+> Thank you for your suggestion.
+> 
+> On 8 January 2013 16:38, Laxman Dewangan <ldewangan@nvidia.com> wrote:
+> > On Tuesday 08 January 2013 03:35 PM, Sachin Kamat wrote:
+> >>
+> >> devm_* APIs are device managed and make the exit and clean up code
+> >> simpler.
+> >>
+> >> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> >> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+> >> ---
+> >> Compile tested against linux-next tree (20130108).
+> >> ---
+> >>   drivers/input/touchscreen/mms114.c |   41
+> >> +++++++++++------------------------
+> >>   1 files changed, 13 insertions(+), 28 deletions(-)
 > >
-> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > ---
-> >  drivers/hid/i2c-hid/i2c-hid.c |   73 +++++++++++++++++++++++++++++++++++++++--
-> >  1 file changed, 71 insertions(+), 2 deletions(-)
 > >
-> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> > index 9ef22244..b2eebb6 100644
-> > --- a/drivers/hid/i2c-hid/i2c-hid.c
-> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> > @@ -34,6 +34,7 @@
-> >  #include <linux/kernel.h>
-> >  #include <linux/hid.h>
-> >  #include <linux/mutex.h>
-> > +#include <linux/acpi.h>
+> >>   static int mms114_remove(struct i2c_client *client)
+> >>   {
+> >>         struct mms114_data *data = i2c_get_clientdata(client);
+> >>   -     free_irq(client->irq, data);
+> >> -       regulator_put(data->io_reg);
+> >> -       regulator_put(data->core_reg);
+> >>         input_unregister_device(data->input_dev);
 > >
-> >  #include <linux/i2c/i2c-hid.h>
 > >
-> > @@ -810,6 +811,70 @@ static int __devinit i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
-> >         return 0;
-> >  }
-> >
-> > +#ifdef CONFIG_ACPI
-> > +static struct i2c_hid_platform_data *
-> > +i2c_hid_acpi_pdata(struct i2c_client *client)
-> > +{
-> > +       static u8 i2c_hid_guid[] = {
-> > +               0xF7, 0xF6, 0xDF, 0x3C, 0x67, 0x42, 0x55, 0x45,
-> > +               0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE,
-> > +       };
-> > +       struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER, NULL };
-> > +       struct i2c_hid_platform_data *pdata = NULL;
-> > +       union acpi_object params[4], *obj;
-> > +       struct acpi_object_list input;
-> > +       struct acpi_device *adev;
-> > +       acpi_handle handle;
-> > +
-> > +       handle = ACPI_HANDLE(&client->dev);
-> > +       if (!handle || acpi_bus_get_device(handle, &adev))
-> > +               return NULL;
-> > +
-> > +       input.count = ARRAY_SIZE(params);
-> > +       input.pointer = params;
-> > +
-> > +       params[0].type = ACPI_TYPE_BUFFER;
-> > +       params[0].buffer.length = sizeof(i2c_hid_guid);
-> > +       params[0].buffer.pointer = i2c_hid_guid;
-> > +       params[1].type = ACPI_TYPE_INTEGER;
-> > +       params[1].integer.value = 1;
+> > Because you are using devm_input_allocate_device() for allocating input
+> > device, you need not to have the input_unregister_device() and so you can
+> > get rid of remove() callback at all.
+> > This is what I learnt from Dmitry on similar patch for Tegra KBC.
 > 
-> Can you confirm that any value here is ok (this is what I read from
-> the DSDT example Microsoft gave, Arg1 is not used).
-
-It is being used in the Microsoft example for querying the supported
-functions so I decided to stick with the same when calling the func 1.
-
-All the DSDTs I've seen where the _DSM is implemented, this is not checked
-at all.
-
-> > +       params[2].type = ACPI_TYPE_INTEGER;
-> > +       params[2].integer.value = 1; /* HID function */
-> > +       params[3].type = ACPI_TYPE_INTEGER;
-> > +       params[3].integer.value = 0;
+> input_free_device() is the one which is not required when you use
+> devm_input_allocate_device().
+> Unregister call, AFAIK, is required since we are registering using
+> input_register_device().
 > 
-> Again, the DSDT example showed that no Arg3 was used... But again, I
-> never wrote ACPI driver, so I may be wrong.
+> Dmitry, please let me know if my understanding is right.
 
-It is not being used, right. But the _DSM function wants 4 parameters so we
-must pass something.
+Laxman is correct, neither of the calls is normally needed for managed
+input devices. I am considering applying the patch below clarifying this
+fact.
 
-> > +
-> > +       if (ACPI_FAILURE(acpi_evaluate_object(handle, "_DSM", &input, &buf)))
-> > +               return NULL;
-> 
-> As you are returning NULL here, the error that will be raised is
-> -EINVAL. I think it should be -ENODEV in this case. I have no strong
-> opinion on this, but this can be achieved by returning the error from
-> the function, and the returned i2c_hid_platform_data as an argument.
+Thanks.
 
-Good idea.
+-- 
+Dmitry
 
-> 
-> Or maybe just an error message will be sufficient.
-> 
-> > +
-> > +       obj = (union acpi_object *)buf.pointer;
-> > +       if (obj->type != ACPI_TYPE_INTEGER)
-> > +               goto fail;
-> 
-> Again, I would like to know what happened here in case of a failure.
-> So an error message would be good.
 
-OK.
+Input: document that unregistering managed devices is not necessary
 
-> > +
-> > +       pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
-> > +       if (!pdata)
-> > +               goto fail;
-> 
-> idem (and returning -ENOMEM would be better IMHO).
+Apparently some users of managed input devices are confused whether
+input_unregister_device() is needed when working with them. Clarify
+this in the kernel doc for devm_input_allocate_device(): in most cases
+there is no need to call either input_unregister_device() nor
+input_free_device() when working with managed devices.
 
-OK.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/input.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-> 
-> > +
-> > +       pdata->hid_descriptor_address = obj->integer.value;
-> > +
-> > +fail:
-> > +       kfree(buf.pointer);
-> > +       return pdata;
-> > +}
-> > +
-> > +static struct acpi_device_id i2c_hid_acpi_match[] = {
-> > +       {"ACPI0C50", 0 },
-> 
-> I never saw this _CID/_HID. Just out of curiosity, is this a
-> standardized _CID or is it a _HID specific to a device?
-
-In the Microsoft spec you can have either PNPxxxx or ACPIxxxx.
-
-> > +       {"PNP0C50", 0 },
-> > +       { },
-> > +};
-> > +MODULE_DEVICE_TABLE(acpi, i2c_hid_acpi_match);
-> > +#else
-> > +static inline struct i2c_hid_platform_data *
-> > +i2c_hid_acpi_pdata(struct i2c_client *client)
-> > +{
-> > +       return NULL;
-> > +}
-> > +#endif
-> > +
-> >  static int __devinit i2c_hid_probe(struct i2c_client *client,
-> >                 const struct i2c_device_id *dev_id)
-> >  {
-> > @@ -822,8 +887,11 @@ static int __devinit i2c_hid_probe(struct i2c_client *client,
-> >         dbg_hid("HID probe called for i2c 0x%02x\n", client->addr);
-> >
-> >         if (!platform_data) {
-> > -               dev_err(&client->dev, "HID register address not provided\n");
-> > -               return -EINVAL;
-> > +               platform_data = i2c_hid_acpi_pdata(client);
-> > +               if (!platform_data) {
-> > +                       dev_err(&client->dev, "HID register address not provided\n");
-> 
-> You may have a line with more than 80 characters here (it's difficult
-> to guess thanks to my gmail client converting tabs into spaces...
-> grrr)
-
-Shouldn't be as checkpatch.pl didn't complain but I'll re-check.
-
-> > +                       return -EINVAL;
-> 
-> Always returning -EINVAL does not seem to be the exact error code if
-> i2c_hid_acpi_pdata fails.
-
-OK. I'll return whatever error code is returned from i2c_hid_acpi_pdata().
-
-> > +               }
-> >         }
-> >
-> >         if (!client->irq) {
-> > @@ -964,6 +1032,7 @@ static struct i2c_driver i2c_hid_driver = {
-> >                 .name   = "i2c_hid",
-> >                 .owner  = THIS_MODULE,
-> >                 .pm     = &i2c_hid_pm,
-> > +               .acpi_match_table = ACPI_PTR(i2c_hid_acpi_match),
-> 
-> This is something I was wondering when looking at your documentation.
-> If CONFIG_ACPI is not defined, then 'i2c_hid_acpi_match' does not exists.
-> Is there some magic within ACPI_PTR if CONFIG_ACPI is not defined, or
-> should we put the #ifdef around?
-
-if !CONFIG_ACPI then ACPI_PTR(whatever) becomes NULL so it is safe to set
-here.
-
-> Anyway thanks for this job!
-
-No problem and thanks for your review.
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index ce01332f..c044699 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1785,12 +1785,13 @@ static void devm_input_device_release(struct device *dev, void *res)
+  * its driver (or binding fails). Once managed input device is allocated,
+  * it is ready to be set up and registered in the same fashion as regular
+  * input device. There are no special devm_input_device_[un]register()
+- * variants, regular ones work with both managed and unmanaged devices.
++ * variants, regular ones work with both managed and unmanaged devices,
++ * should you need them. In most cases however, managed input device need
++ * not be explicitly unregistered or freed.
+  *
+  * NOTE: the owner device is set up as parent of input device and users
+  * should not override it.
+  */
+-
+ struct input_dev *devm_input_allocate_device(struct device *dev)
+ {
+ 	struct input_dev *input;
+@@ -2004,6 +2005,17 @@ static void devm_input_device_unregister(struct device *dev, void *res)
+  * Once device has been successfully registered it can be unregistered
+  * with input_unregister_device(); input_free_device() should not be
+  * called in this case.
++ *
++ * Note that this function is also used to register managed input devices
++ * (ones allocated with devm_input_allocate_device()). Such managed input
++ * devices need not be explicitly unregistered or freed, their tear down
++ * is controlled by the devres infrastructure. It is also worth noting
++ * that tear down of managed input devices is internally a 2-step process:
++ * registered managed input device is first unregistered, but stays in
++ * memory and can still handle input_event() calls (although events will
++ * not be delivered anywhere). The freeing of managed input device will
++ * happen later, when devres stack is unwound to the point where device
++ * allocation was made.
+  */
+ int input_register_device(struct input_dev *dev)
+ {

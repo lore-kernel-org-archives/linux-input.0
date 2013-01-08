@@ -1,81 +1,141 @@
-From: Andy Walls <awalls@md.metrocast.net>
-Subject: Re: [PATCH 5/5] kfifo: log based kfifo API
-Date: Tue, 08 Jan 2013 16:10:07 -0500
-Message-ID: <f1be90be-ad99-4dff-8332-804383adc5c8@email.android.com>
-References: <1357657073-27352-1-git-send-email-yuanhan.liu@linux.intel.com> <1357657073-27352-6-git-send-email-yuanhan.liu@linux.intel.com> <20130108181645.GA7972@core.coreip.homeip.net>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: i2c-hid: add ACPI support
+Date: Tue, 8 Jan 2013 22:55:59 +0100
+Message-ID: <CAN+gG=FGv=VJ=6Db_s7p_7XJQi3=FJXDfqeE1AVPtFznHnWQ0Q@mail.gmail.com>
+References: <1357650332-30031-1-git-send-email-mika.westerberg@linux.intel.com>
+	<CAN+gG=HzJaOwPfymx5JST1+r9QxfqU5D-gN8i95aVDkqQ=ot8Q@mail.gmail.com>
+	<20130108180958.GL13897@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <owner-linux-mm@kvack.org>
-In-Reply-To: <20130108181645.GA7972@core.coreip.homeip.net>
-Sender: owner-linux-mm@kvack.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yuanhan Liu <yuanhan.liu@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, Stefani Seibold <stefani@seibold.net>, Andrew Morton <akpm@linux-foundation.org>, linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org, libertas-dev@lists.infradead.org, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, linux-pci@vger.kernel.org, open-iscsi@googlegroups.com, linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org, linux-serial@vger.kernel.org, linux-usb@vger.kernel.org, linux-mm@kvack.org, dccp@vger.kernel.org, linux-sctp@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20130108180958.GL13897@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
->Hi Yuanhan,
+On Tue, Jan 8, 2013 at 7:09 PM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> On Tue, Jan 08, 2013 at 02:51:53PM +0100, Benjamin Tissoires wrote:
+>> Hi Mika,
+>>
+>> On Tue, Jan 8, 2013 at 2:05 PM, Mika Westerberg
+>> <mika.westerberg@linux.intel.com> wrote:
+>> > The HID over I2C protocol specification states that when the device is
+>> > enumerated from ACPI the HID descriptor address can be obtained by
+>> > executing "_DSM" for the device with function 1. Enable this.
+>>
+>> Hehe, funny thing, I worked on the very same patch last Friday. I was
+>> not able to send it upstream as I still don't have an ACPI 5 enabled
+>> device...
+>> So thanks for submitting (and testing) this!
+>>
+>> Before the review, I just have a quick question. All the HID/i2c
+>> devices I saw so far present a reset line (through a GPIO). Does the
+>> shipped device you have present this line, and if yes, how this meld
+>> with the code (i.e. should we take this into account).
 >
->On Tue, Jan 08, 2013 at 10:57:53PM +0800, Yuanhan Liu wrote:
->> The current kfifo API take the kfifo size as input, while it rounds
->>  _down_ the size to power of 2 at __kfifo_alloc. This may introduce
->> potential issue.
->>=20
->> Take the code at drivers/hid/hid-logitech-dj.c as example:
->>=20
->> 	if (kfifo_alloc(&djrcv_dev->notif_fifo,
->>                        DJ_MAX_NUMBER_NOTIFICATIONS * sizeof(struct
->dj_report),
->>                        GFP_KERNEL)) {
->>=20
->> Where, DJ_MAX_NUMBER_NOTIFICATIONS is 8, and sizeo of(struct
->dj_report)
->> is 15.
->>=20
->> Which means it wants to allocate a kfifo buffer which can store 8
->> dj_report entries at once. The expected kfifo buffer size would be
->> 8 * 15 =3D 120 then. While, in the end, __kfifo_alloc will turn the
->> size to rounddown_power_of_2(120) =3D  64, and then allocate a buf
->> with 64 bytes, which I don't think this is the original author want.
->>=20
->> With the new log API, we can do like following:
->>=20
->> 	int kfifo_size_order =3D order_base_2(DJ_MAX_NUMBER_NOTIFICATIONS *
->> 					    sizeof(struct dj_report));
->>=20
->> 	if (kfifo_alloc(&djrcv_dev->notif_fifo, kfifo_size_order,
->GFP_KERNEL)) {
->>=20
->> This make sure we will allocate enough kfifo buffer for holding
->> DJ_MAX_NUMBER_NOTIFICATIONS dj_report entries.
+> Yes, there is either one or two GPIO lines. But there are also devices that
+> don't have any GPIO lines.
+
+Ouch. But if they don't have any GPIO, how can they manage to send
+information? If they are using polling, then this will require some
+more work in i2c-hid :(
+
 >
->Why don't you simply change __kfifo_alloc to round the allocation up
->instead of down?
+> We probably should take this into account. I'm not too familiar with HID
+> drivers but what if we set the hid->dev.acpi_node and let the actual HID
+> driver to deal with the GPIO?
+
+Well, HID is a communication layer between the device and the kernel
+in order to make it agnostic of the transport layer (usb, bt or i2c).
+Even if some drivers do some transport tuning, I don't think it's a
+good idea to ask HID drivers to do transport handling such as setting
+up GPIOs.
+
+The closest thing which is already in the kernel tree is the handling
+of device specific quirks in usbhid. We may be forced to do such a
+thing if the DSDT is not explicit enough to guess the right behavior
+(how to trigger the reset line, etc..)
+
+Also, I missed one point in my previous review:
+
 >
->Thanks.
+>> Please note that I can only compare this to my patch, based on the
+>> DSDT example Microsoft gave in its spec. So sorry if I'm asking
+>> useless things, but I like to understand... :)
+>> Here are a few comments:
+>>
+>> >
+>> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>> > ---
+>> >  drivers/hid/i2c-hid/i2c-hid.c |   73 +++++++++++++++++++++++++++++++++++++++--
+>> >  1 file changed, 71 insertions(+), 2 deletions(-)
+>> >
+>> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+>> > index 9ef22244..b2eebb6 100644
+ (...snipped...)
+
+>> > +
+>> > +       pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
+
+Here, I don't think mixing devm_* and regular allocations is a good thing.
+I know it's a pain, but at the time I wrote the driver, the input
+layer was not devm-ized, so I was not able to use devm allocs. Now it
+should be feasible, but I didn't found the time to do it.
+So I'm afraid, this allocation must use a regular kwalloc and it
+should be freed somewhere later, until we devm-ize the whole module.
+
+>> > +       if (!pdata)
+>> > +               goto fail;
+>>
+
+(...snipped...)
+>> >         if (!platform_data) {
+>> > -               dev_err(&client->dev, "HID register address not provided\n");
+>> > -               return -EINVAL;
+>> > +               platform_data = i2c_hid_acpi_pdata(client);
+>> > +               if (!platform_data) {
+>> > +                       dev_err(&client->dev, "HID register address not provided\n");
+>>
+>> You may have a line with more than 80 characters here (it's difficult
+>> to guess thanks to my gmail client converting tabs into spaces...
+>> grrr)
 >
->--=20
->Dmitry
->--
->To unsubscribe from this list: send the line "unsubscribe linux-media"
->in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Shouldn't be as checkpatch.pl didn't complain but I'll re-check.
 
-Hi Dmitry,
+It's strange if it didn't complained: I count 61 chars for the
+dev_err() message + 3 tabs * 8 chars => 85 chars in total...
 
-I agree.   I don't see the benefit in pushing up the change to a kfifo in=
-ternal decision/problem to many different places in the kernel.
+Cheers,
+Benjamin
 
-Regards,
-Andy
-
-=20
-
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=3Dmailto:"dont@kvack.org"> email@kvack.org </a>
+>
+>> > +                       return -EINVAL;
+>>
+>> Always returning -EINVAL does not seem to be the exact error code if
+>> i2c_hid_acpi_pdata fails.
+>
+> OK. I'll return whatever error code is returned from i2c_hid_acpi_pdata().
+>
+>> > +               }
+>> >         }
+>> >
+>> >         if (!client->irq) {
+>> > @@ -964,6 +1032,7 @@ static struct i2c_driver i2c_hid_driver = {
+>> >                 .name   = "i2c_hid",
+>> >                 .owner  = THIS_MODULE,
+>> >                 .pm     = &i2c_hid_pm,
+>> > +               .acpi_match_table = ACPI_PTR(i2c_hid_acpi_match),
+>>
+>> This is something I was wondering when looking at your documentation.
+>> If CONFIG_ACPI is not defined, then 'i2c_hid_acpi_match' does not exists.
+>> Is there some magic within ACPI_PTR if CONFIG_ACPI is not defined, or
+>> should we put the #ifdef around?
+>
+> if !CONFIG_ACPI then ACPI_PTR(whatever) becomes NULL so it is safe to set
+> here.
+>
+>> Anyway thanks for this job!
+>
+> No problem and thanks for your review.

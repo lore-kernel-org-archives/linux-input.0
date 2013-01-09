@@ -1,82 +1,81 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH 1/1] HID: hid-samsung: Fix checkpatch errors
-Date: Wed,  9 Jan 2013 14:26:43 +0530
-Message-ID: <1357721803-31363-1-git-send-email-sachin.kamat@linaro.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:40036 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757414Ab3AIJE6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jan 2013 04:04:58 -0500
-Received: by mail-pb0-f52.google.com with SMTP id ro2so814537pbb.11
-        for <linux-input@vger.kernel.org>; Wed, 09 Jan 2013 01:04:58 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource
+ allocation
+Date: Wed, 9 Jan 2013 01:19:39 -0800
+Message-ID: <20130109091939.GA4369@core.coreip.homeip.net>
+References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
+ <1357371910-3164-3-git-send-email-ldewangan@nvidia.com>
+ <20130105080658.GA1315@core.coreip.homeip.net>
+ <20130106192739.GA11566@avionic-0098.adnet.avionic-design.de>
+ <20130106195748.GA28212@core.coreip.homeip.net>
+ <20130109070745.GA12782@avionic-0098.adnet.avionic-design.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20130109070745.GA12782@avionic-0098.adnet.avionic-design.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: Thierry Reding <thierry.reding@avionic-design.de>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, grant.likely@secretlab.ca, rob.herring@calxeda.com, swarren@nvidia.com, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, sachin.kamat@linaro.org, patches@linaro.org
 
-Fixes the following type of checkpatch errors:
-ERROR: trailing statements should be on next line
+On Wed, Jan 09, 2013 at 08:07:45AM +0100, Thierry Reding wrote:
+> On Sun, Jan 06, 2013 at 11:57:48AM -0800, Dmitry Torokhov wrote:
+> > On Sun, Jan 06, 2013 at 08:27:39PM +0100, Thierry Reding wrote:
+> > > On Sat, Jan 05, 2013 at 12:06:58AM -0800, Dmitry Torokhov wrote:
+> > > > On Sat, Jan 05, 2013 at 01:15:08PM +0530, Laxman Dewangan wrote:
+> > > [...]
+> > > > > @@ -735,25 +738,16 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+> > > > >  	spin_lock_init(&kbc->lock);
+> > > > >  	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc);
+> > > > >  
+> > > > > -	res = request_mem_region(res->start, resource_size(res), pdev->name);
+> > > > > -	if (!res) {
+> > > > > -		dev_err(&pdev->dev, "failed to request I/O memory\n");
+> > > > > -		err = -EBUSY;
+> > > > > -		goto err_free_mem;
+> > > > > -	}
+> > > > > -
+> > > > > -	kbc->mmio = ioremap(res->start, resource_size(res));
+> > > > > +	kbc->mmio = devm_request_and_ioremap(&pdev->dev, res);
+> > > > >  	if (!kbc->mmio) {
+> > > > > -		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+> > > > > -		err = -ENXIO;
+> > > > > -		goto err_free_mem_region;
+> > > > > +		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
+> > > > > +		return -EADDRNOTAVAIL;
+> > > > 
+> > > > Erm, no, -EBUSY please.
+> > > 
+> > > EADDRNOTAVAIL is the canonical error for devm_request_and_ioremap()
+> > > failure. The kerneldoc comment in lib/devres.c even gives a short
+> > > example that uses this error code.
+> > 
+> > I am sorry, but I do not consider a function that was added a little
+> > over a year ago as a canon. If you look at the uses of EADDRNOTAVAIL it
+> > is used predominantly in networking code to indicate that attempted
+> > _network_ address is not available.
+> 
+> EBUSY might be misleading, though. devm_request_and_ioremap() can fail
+> in both the request_mem_region() and ioremap() calls. Furthermore it'd
+> be good to settle on a consistent error-code instead of doing it
+> differently depending on subsystem and/or driver. Currently the various
+> error codes used are:
+> 
+> 	EBUSY, EADDRNOTAVAIL, ENXIO, ENOMEM, ENODEV, ENOENT, EINVAL,
+> 	EIO, EFAULT, EADDRINUSE
+> 
+> Also if we can settle on one error code we should follow up with a patch
+> to make it consistent across the tree and also update that kerneldoc
+> comment. I volunteer to do that if nobody else steps up. I'm also Cc'ing
+> Wolfram (the original author), maybe he has some thoughts on this.
+> 
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
----
- drivers/hid/hid-samsung.c |   44 +++++++++++++++++++++++++++++++++-----------
- 1 files changed, 33 insertions(+), 11 deletions(-)
+If you going to change all drivers make devm_request_and_ioremap()
+return ERR_PTR()-encoded errors and then we can differentiate what
+part of it failed.
 
-diff --git a/drivers/hid/hid-samsung.c b/drivers/hid/hid-samsung.c
-index 7cbb067..2d78091 100644
---- a/drivers/hid/hid-samsung.c
-+++ b/drivers/hid/hid-samsung.c
-@@ -112,17 +112,39 @@ static int samsung_kbd_mouse_input_mapping(struct hid_device *hdev,
- 
- 	switch (usage->hid & HID_USAGE) {
- 	/* report 2 */
--	case 0x183: samsung_kbd_mouse_map_key_clear(KEY_MEDIA); break;
--	case 0x195: samsung_kbd_mouse_map_key_clear(KEY_EMAIL);	break;
--	case 0x196: samsung_kbd_mouse_map_key_clear(KEY_CALC); break;
--	case 0x197: samsung_kbd_mouse_map_key_clear(KEY_COMPUTER); break;
--	case 0x22b: samsung_kbd_mouse_map_key_clear(KEY_SEARCH); break;
--	case 0x22c: samsung_kbd_mouse_map_key_clear(KEY_WWW); break;
--	case 0x22d: samsung_kbd_mouse_map_key_clear(KEY_BACK); break;
--	case 0x22e: samsung_kbd_mouse_map_key_clear(KEY_FORWARD); break;
--	case 0x22f: samsung_kbd_mouse_map_key_clear(KEY_FAVORITES); break;
--	case 0x230: samsung_kbd_mouse_map_key_clear(KEY_REFRESH); break;
--	case 0x231: samsung_kbd_mouse_map_key_clear(KEY_STOP); break;
-+	case 0x183:
-+		samsung_kbd_mouse_map_key_clear(KEY_MEDIA);
-+		break;
-+	case 0x195:
-+		samsung_kbd_mouse_map_key_clear(KEY_EMAIL);
-+		break;
-+	case 0x196:
-+		samsung_kbd_mouse_map_key_clear(KEY_CALC);
-+		break;
-+	case 0x197:
-+		samsung_kbd_mouse_map_key_clear(KEY_COMPUTER);
-+		break;
-+	case 0x22b:
-+		samsung_kbd_mouse_map_key_clear(KEY_SEARCH);
-+		break;
-+	case 0x22c:
-+		samsung_kbd_mouse_map_key_clear(KEY_WWW);
-+		break;
-+	case 0x22d:
-+		samsung_kbd_mouse_map_key_clear(KEY_BACK);
-+		break;
-+	case 0x22e:
-+		samsung_kbd_mouse_map_key_clear(KEY_FORWARD);
-+		break;
-+	case 0x22f:
-+		samsung_kbd_mouse_map_key_clear(KEY_FAVORITES);
-+		break;
-+	case 0x230:
-+		samsung_kbd_mouse_map_key_clear(KEY_REFRESH);
-+		break;
-+	case 0x231:
-+		samsung_kbd_mouse_map_key_clear(KEY_STOP);
-+		break;
- 	default:
- 		return 0;
- 	}
+Thanks.
+
 -- 
-1.7.4.1
-
+Dmitry

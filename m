@@ -1,61 +1,149 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: Re: [PATCH 1/1] Input: samsung-keypad: Remove input_unregister_device()
- call
-Date: Wed, 9 Jan 2013 14:54:37 +0530
-Message-ID: <CAK9yfHzu6Koa-Ex5UTXQL5j2-HYFm5cnG=h5P=fz8qYr-99M7A@mail.gmail.com>
-References: <1357713829-30273-1-git-send-email-sachin.kamat@linaro.org>
-	<20130109092132.GB4369@core.coreip.homeip.net>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] HID: i2c-hid: add ACPI support
+Date: Wed, 9 Jan 2013 11:28:17 +0200
+Message-ID: <20130109092817.GP13897@intel.com>
+References: <1357650332-30031-1-git-send-email-mika.westerberg@linux.intel.com>
+ <CAN+gG=HzJaOwPfymx5JST1+r9QxfqU5D-gN8i95aVDkqQ=ot8Q@mail.gmail.com>
+ <20130108180958.GL13897@intel.com>
+ <CAN+gG=FGv=VJ=6Db_s7p_7XJQi3=FJXDfqeE1AVPtFznHnWQ0Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:46546 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757510Ab3AIJYi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jan 2013 04:24:38 -0500
-Received: by mail-pa0-f43.google.com with SMTP id fb10so913422pad.30
-        for <linux-input@vger.kernel.org>; Wed, 09 Jan 2013 01:24:37 -0800 (PST)
-In-Reply-To: <20130109092132.GB4369@core.coreip.homeip.net>
+Received: from mga02.intel.com ([134.134.136.20]:3265 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757498Ab3AIJY7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Jan 2013 04:24:59 -0500
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=FGv=VJ=6Db_s7p_7XJQi3=FJXDfqeE1AVPtFznHnWQ0Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, patches@linaro.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 
-On 9 January 2013 14:51, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Wed, Jan 09, 2013 at 12:13:49PM +0530, Sachin Kamat wrote:
->> Since devm_input_allocate_device() is used, explicit unregistering
->> of device is not required as it is handled by devres infrastructure.
->>
->> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
->> ---
->>  drivers/input/keyboard/samsung-keypad.c |    2 --
->>  1 files changed, 0 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
->> index 22e357b..fab8972 100644
->> --- a/drivers/input/keyboard/samsung-keypad.c
->> +++ b/drivers/input/keyboard/samsung-keypad.c
->> @@ -501,8 +501,6 @@ static int samsung_keypad_remove(struct platform_device *pdev)
->>       device_init_wakeup(&pdev->dev, 0);
->>       platform_set_drvdata(pdev, NULL);
->>
->> -     input_unregister_device(keypad->input_dev);
->> -
->>       clk_unprepare(keypad->clk);
->>
->
-> No, don't you see clk_unprepare() call? The device must be unregistered
-> before calling clk_unprepare() to keep proper order of operations.
+On Tue, Jan 08, 2013 at 10:55:59PM +0100, Benjamin Tissoires wrote:
+> On Tue, Jan 8, 2013 at 7:09 PM, Mika Westerberg
+> <mika.westerberg@linux.intel.com> wrote:
+> > On Tue, Jan 08, 2013 at 02:51:53PM +0100, Benjamin Tissoires wrote:
+> >> Hi Mika,
+> >>
+> >> On Tue, Jan 8, 2013 at 2:05 PM, Mika Westerberg
+> >> <mika.westerberg@linux.intel.com> wrote:
+> >> > The HID over I2C protocol specification states that when the device is
+> >> > enumerated from ACPI the HID descriptor address can be obtained by
+> >> > executing "_DSM" for the device with function 1. Enable this.
+> >>
+> >> Hehe, funny thing, I worked on the very same patch last Friday. I was
+> >> not able to send it upstream as I still don't have an ACPI 5 enabled
+> >> device...
+> >> So thanks for submitting (and testing) this!
+> >>
+> >> Before the review, I just have a quick question. All the HID/i2c
+> >> devices I saw so far present a reset line (through a GPIO). Does the
+> >> shipped device you have present this line, and if yes, how this meld
+> >> with the code (i.e. should we take this into account).
+> >
+> > Yes, there is either one or two GPIO lines. But there are also devices that
+> > don't have any GPIO lines.
+> 
+> Ouch. But if they don't have any GPIO, how can they manage to send
+> information? If they are using polling, then this will require some
+> more work in i2c-hid :(
 
-Sorry, my bad. I overlooked it. Thanks for noticing.
+Well they don't have GPIO resources because their interrupt is directly
+routed to the ioapic and exposed as an Interrupt resource.
 
->
-> Thanks.
->
-> --
-> Dmitry
+> >
+> > We probably should take this into account. I'm not too familiar with HID
+> > drivers but what if we set the hid->dev.acpi_node and let the actual HID
+> > driver to deal with the GPIO?
+> 
+> Well, HID is a communication layer between the device and the kernel
+> in order to make it agnostic of the transport layer (usb, bt or i2c).
+> Even if some drivers do some transport tuning, I don't think it's a
+> good idea to ask HID drivers to do transport handling such as setting
+> up GPIOs.
 
+If they have reset GPIO or something like that, how else we should we
+handle this if not in the driver? The i2c-hid core doesn't know for what
+purpose a given GPIO line is.
 
+i2c-hid core can handle the GPIO interrupt if client->irq is not set (by
+converting the GPIO into interrupt number and passing it to the hid
+driver). I didn't implement that because we have the client->irq already
+set so I can't test this.
 
--- 
-With warm regards,
-Sachin
+> The closest thing which is already in the kernel tree is the handling
+> of device specific quirks in usbhid. We may be forced to do such a
+> thing if the DSDT is not explicit enough to guess the right behavior
+> (how to trigger the reset line, etc..)
+> 
+> Also, I missed one point in my previous review:
+> 
+> >
+> >> Please note that I can only compare this to my patch, based on the
+> >> DSDT example Microsoft gave in its spec. So sorry if I'm asking
+> >> useless things, but I like to understand... :)
+> >> Here are a few comments:
+> >>
+> >> >
+> >> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> >> > ---
+> >> >  drivers/hid/i2c-hid/i2c-hid.c |   73 +++++++++++++++++++++++++++++++++++++++--
+> >> >  1 file changed, 71 insertions(+), 2 deletions(-)
+> >> >
+> >> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> >> > index 9ef22244..b2eebb6 100644
+>  (...snipped...)
+> 
+> >> > +
+> >> > +       pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
+> 
+> Here, I don't think mixing devm_* and regular allocations is a good thing.
+> I know it's a pain, but at the time I wrote the driver, the input
+> layer was not devm-ized, so I was not able to use devm allocs. Now it
+> should be feasible, but I didn't found the time to do it.
+> So I'm afraid, this allocation must use a regular kwalloc and it
+> should be freed somewhere later, until we devm-ize the whole module.
+
+Good point.
+
+I was thinking to embed the platform data in the i2c_hid structure so that
+it gets allocated at the same time as ihid and then we can handle setting
+the platform data like:
+
+	if (!platform_data) {
+		ret = i2c_hid_acpi_pdata(client, &ihid->pdata);
+		/* handle error */
+	} else {
+		ihid->pdata = *platform_data;	
+	}
+
+Does that sound feasible to you?
+
+> >> > +       if (!pdata)
+> >> > +               goto fail;
+> >>
+> 
+> (...snipped...)
+> >> >         if (!platform_data) {
+> >> > -               dev_err(&client->dev, "HID register address not provided\n");
+> >> > -               return -EINVAL;
+> >> > +               platform_data = i2c_hid_acpi_pdata(client);
+> >> > +               if (!platform_data) {
+> >> > +                       dev_err(&client->dev, "HID register address not provided\n");
+> >>
+> >> You may have a line with more than 80 characters here (it's difficult
+> >> to guess thanks to my gmail client converting tabs into spaces...
+> >> grrr)
+> >
+> > Shouldn't be as checkpatch.pl didn't complain but I'll re-check.
+> 
+> It's strange if it didn't complained: I count 61 chars for the
+> dev_err() message + 3 tabs * 8 chars => 85 chars in total...
+
+You are right, it is over 85 chars.
+
+I've learned that checkpatch.pl doesn't complain if the line is longer than
+80 chars, if it contains quoted string.
+
+I'll fix it up.

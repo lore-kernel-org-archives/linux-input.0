@@ -1,84 +1,40 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [PATCH Resend] Input: mms114: Use devm_* APIs
-Date: Wed, 9 Jan 2013 10:38:31 +0530
-Message-ID: <50ECFB4F.8010501@nvidia.com>
-References: <1357704948-25758-1-git-send-email-sachin.kamat@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/1] Input: samsung-keypad: Remove input_unregister_device() call
+Date: Wed,  9 Jan 2013 12:13:49 +0530
+Message-ID: <1357713829-30273-1-git-send-email-sachin.kamat@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate04.nvidia.com ([216.228.121.35]:11769 "EHLO
-	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750753Ab3AIFIz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jan 2013 00:08:55 -0500
-In-Reply-To: <1357704948-25758-1-git-send-email-sachin.kamat@linaro.org>
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:35535 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757190Ab3AIGwF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jan 2013 01:52:05 -0500
+Received: by mail-pb0-f41.google.com with SMTP id xa7so750212pbc.14
+        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 22:52:04 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "patches@linaro.org" <patches@linaro.org>, Joonyoung Shim <jy0922.shim@samsung.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, patches@linaro.org
 
-On Wednesday 09 January 2013 09:45 AM, Sachin Kamat wrote:
-> devm_* APIs are device managed and make the exit and clean up code
-> simpler.
->
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
-> ---
+Since devm_input_allocate_device() is used, explicit unregistering
+of device is not required as it is handled by devres infrastructure.
 
-I think this is not resend patch, it is Patch V2. Also you can specify 
-the changes done from last patch to this patch so that it will be easy 
-to reviewer.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+---
+ drivers/input/keyboard/samsung-keypad.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-> +	data = devm_kzalloc(&client->dev, sizeof(struct mms114_data),
-Because you are here, better to change the size to sizeof(*data) in 
-place of sizeof(struct..)
+diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+index 22e357b..fab8972 100644
+--- a/drivers/input/keyboard/samsung-keypad.c
++++ b/drivers/input/keyboard/samsung-keypad.c
+@@ -501,8 +501,6 @@ static int samsung_keypad_remove(struct platform_device *pdev)
+ 	device_init_wakeup(&pdev->dev, 0);
+ 	platform_set_drvdata(pdev, NULL);
+ 
+-	input_unregister_device(keypad->input_dev);
+-
+ 	clk_unprepare(keypad->clk);
+ 
+ 	return 0;
+-- 
+1.7.4.1
 
-> +			
-
-> +	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +			mms114_interrupt, IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> +			"mms114", data);
-
-Should be change to devname(&client->dev) in place of hardconding to 
-"mms114".
-
->   	if (error) {
->   		dev_err(&client->dev, "Failed to register interrupt\n");
-> -		goto err_io_reg;
-> +		return error;
->   	}
->   	disable_irq(client->irq);
->   
->   	error = input_register_device(data->input_dev);
->   	if (error)
-
-> -		
-> +		return error;
->   
->   	return 0;
-
-
-Seems the code turn as
-if (error)
-    return error;
-return 0.
-
-I think simply saying return error is fine here as you are not printing 
-any error.
->   }
-> @@ -590,7 +567,6 @@ static struct i2c_driver mms114_driver = {
->   		.of_match_table = of_match_ptr(mms114_dt_match),
->   	},
->   	.probe		= mms114_probe,
-> -	.remove		= mms114_remove,
->   	.id_table	= mms114_id,
->   };
->   
-
-
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------

@@ -1,149 +1,134 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] HID: i2c-hid: add ACPI support
-Date: Wed, 9 Jan 2013 11:28:17 +0200
-Message-ID: <20130109092817.GP13897@intel.com>
-References: <1357650332-30031-1-git-send-email-mika.westerberg@linux.intel.com>
- <CAN+gG=HzJaOwPfymx5JST1+r9QxfqU5D-gN8i95aVDkqQ=ot8Q@mail.gmail.com>
- <20130108180958.GL13897@intel.com>
- <CAN+gG=FGv=VJ=6Db_s7p_7XJQi3=FJXDfqeE1AVPtFznHnWQ0Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH v3] Input: mms114: Use devm_* APIs
+Date: Wed,  9 Jan 2013 14:52:33 +0530
+Message-ID: <1357723353-11144-1-git-send-email-sachin.kamat@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:3265 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757498Ab3AIJY7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 9 Jan 2013 04:24:59 -0500
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=FGv=VJ=6Db_s7p_7XJQi3=FJXDfqeE1AVPtFznHnWQ0Q@mail.gmail.com>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:62207 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757510Ab3AIJbg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jan 2013 04:31:36 -0500
+Received: by mail-pa0-f46.google.com with SMTP id bh2so914236pad.5
+        for <linux-input@vger.kernel.org>; Wed, 09 Jan 2013 01:31:36 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, patches@linaro.org, Joonyoung Shim <jy0922.shim@samsung.com>
 
-On Tue, Jan 08, 2013 at 10:55:59PM +0100, Benjamin Tissoires wrote:
-> On Tue, Jan 8, 2013 at 7:09 PM, Mika Westerberg
-> <mika.westerberg@linux.intel.com> wrote:
-> > On Tue, Jan 08, 2013 at 02:51:53PM +0100, Benjamin Tissoires wrote:
-> >> Hi Mika,
-> >>
-> >> On Tue, Jan 8, 2013 at 2:05 PM, Mika Westerberg
-> >> <mika.westerberg@linux.intel.com> wrote:
-> >> > The HID over I2C protocol specification states that when the device is
-> >> > enumerated from ACPI the HID descriptor address can be obtained by
-> >> > executing "_DSM" for the device with function 1. Enable this.
-> >>
-> >> Hehe, funny thing, I worked on the very same patch last Friday. I was
-> >> not able to send it upstream as I still don't have an ACPI 5 enabled
-> >> device...
-> >> So thanks for submitting (and testing) this!
-> >>
-> >> Before the review, I just have a quick question. All the HID/i2c
-> >> devices I saw so far present a reset line (through a GPIO). Does the
-> >> shipped device you have present this line, and if yes, how this meld
-> >> with the code (i.e. should we take this into account).
-> >
-> > Yes, there is either one or two GPIO lines. But there are also devices that
-> > don't have any GPIO lines.
-> 
-> Ouch. But if they don't have any GPIO, how can they manage to send
-> information? If they are using polling, then this will require some
-> more work in i2c-hid :(
+devm_* APIs are device managed and make the exit and clean up code
+simpler.
 
-Well they don't have GPIO resources because their interrupt is directly
-routed to the ioapic and exposed as an Interrupt resource.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+---
+Compile tested against linux-next (20130109).
+Changes since:
+v2:
+Addressed review comments.
+v1:
+Removed input_unregister_device() call.
+---
+ drivers/input/touchscreen/mms114.c |   54 ++++++++++-------------------------
+ 1 files changed, 16 insertions(+), 38 deletions(-)
 
-> >
-> > We probably should take this into account. I'm not too familiar with HID
-> > drivers but what if we set the hid->dev.acpi_node and let the actual HID
-> > driver to deal with the GPIO?
-> 
-> Well, HID is a communication layer between the device and the kernel
-> in order to make it agnostic of the transport layer (usb, bt or i2c).
-> Even if some drivers do some transport tuning, I don't think it's a
-> good idea to ask HID drivers to do transport handling such as setting
-> up GPIOs.
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 98841d8..a9cb475 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -429,12 +429,12 @@ static int mms114_probe(struct i2c_client *client,
+ 		return -ENODEV;
+ 	}
+ 
+-	data = kzalloc(sizeof(struct mms114_data), GFP_KERNEL);
+-	input_dev = input_allocate_device();
++	data = devm_kzalloc(&client->dev, sizeof(struct mms114_data),
++			    GFP_KERNEL);
++	input_dev = devm_input_allocate_device(&client->dev);
+ 	if (!data || !input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate memory\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++		return -ENOMEM;
+ 	}
+ 
+ 	data->client = client;
+@@ -466,57 +466,36 @@ static int mms114_probe(struct i2c_client *client,
+ 	input_set_drvdata(input_dev, data);
+ 	i2c_set_clientdata(client, data);
+ 
+-	data->core_reg = regulator_get(&client->dev, "avdd");
++	data->core_reg = devm_regulator_get(&client->dev, "avdd");
+ 	if (IS_ERR(data->core_reg)) {
+ 		error = PTR_ERR(data->core_reg);
+ 		dev_err(&client->dev,
+ 			"Unable to get the Core regulator (%d)\n", error);
+-		goto err_free_mem;
++		return error;
+ 	}
+ 
+-	data->io_reg = regulator_get(&client->dev, "vdd");
++	data->io_reg = devm_regulator_get(&client->dev, "vdd");
+ 	if (IS_ERR(data->io_reg)) {
+ 		error = PTR_ERR(data->io_reg);
+ 		dev_err(&client->dev,
+ 			"Unable to get the IO regulator (%d)\n", error);
+-		goto err_core_reg;
++		return error;
+ 	}
+ 
+-	error = request_threaded_irq(client->irq, NULL, mms114_interrupt,
+-			IRQF_TRIGGER_FALLING | IRQF_ONESHOT, "mms114", data);
++	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
++			mms114_interrupt, IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++			dev_name(&client->dev), data);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to register interrupt\n");
+-		goto err_io_reg;
++		return error;
+ 	}
+ 	disable_irq(client->irq);
+ 
+ 	error = input_register_device(data->input_dev);
+-	if (error)
+-		goto err_free_irq;
+-
+-	return 0;
+-
+-err_free_irq:
+-	free_irq(client->irq, data);
+-err_io_reg:
+-	regulator_put(data->io_reg);
+-err_core_reg:
+-	regulator_put(data->core_reg);
+-err_free_mem:
+-	input_free_device(input_dev);
+-	kfree(data);
+-	return error;
+-}
+-
+-static int mms114_remove(struct i2c_client *client)
+-{
+-	struct mms114_data *data = i2c_get_clientdata(client);
+-
+-	free_irq(client->irq, data);
+-	regulator_put(data->io_reg);
+-	regulator_put(data->core_reg);
+-	input_unregister_device(data->input_dev);
+-	kfree(data);
++	if (error) {
++		dev_err(&client->dev, "Failed to register device\n");
++		return error;
++	}
+ 
+ 	return 0;
+ }
+@@ -590,7 +569,6 @@ static struct i2c_driver mms114_driver = {
+ 		.of_match_table = of_match_ptr(mms114_dt_match),
+ 	},
+ 	.probe		= mms114_probe,
+-	.remove		= mms114_remove,
+ 	.id_table	= mms114_id,
+ };
+ 
+-- 
+1.7.4.1
 
-If they have reset GPIO or something like that, how else we should we
-handle this if not in the driver? The i2c-hid core doesn't know for what
-purpose a given GPIO line is.
-
-i2c-hid core can handle the GPIO interrupt if client->irq is not set (by
-converting the GPIO into interrupt number and passing it to the hid
-driver). I didn't implement that because we have the client->irq already
-set so I can't test this.
-
-> The closest thing which is already in the kernel tree is the handling
-> of device specific quirks in usbhid. We may be forced to do such a
-> thing if the DSDT is not explicit enough to guess the right behavior
-> (how to trigger the reset line, etc..)
-> 
-> Also, I missed one point in my previous review:
-> 
-> >
-> >> Please note that I can only compare this to my patch, based on the
-> >> DSDT example Microsoft gave in its spec. So sorry if I'm asking
-> >> useless things, but I like to understand... :)
-> >> Here are a few comments:
-> >>
-> >> >
-> >> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> >> > ---
-> >> >  drivers/hid/i2c-hid/i2c-hid.c |   73 +++++++++++++++++++++++++++++++++++++++--
-> >> >  1 file changed, 71 insertions(+), 2 deletions(-)
-> >> >
-> >> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> >> > index 9ef22244..b2eebb6 100644
->  (...snipped...)
-> 
-> >> > +
-> >> > +       pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
-> 
-> Here, I don't think mixing devm_* and regular allocations is a good thing.
-> I know it's a pain, but at the time I wrote the driver, the input
-> layer was not devm-ized, so I was not able to use devm allocs. Now it
-> should be feasible, but I didn't found the time to do it.
-> So I'm afraid, this allocation must use a regular kwalloc and it
-> should be freed somewhere later, until we devm-ize the whole module.
-
-Good point.
-
-I was thinking to embed the platform data in the i2c_hid structure so that
-it gets allocated at the same time as ihid and then we can handle setting
-the platform data like:
-
-	if (!platform_data) {
-		ret = i2c_hid_acpi_pdata(client, &ihid->pdata);
-		/* handle error */
-	} else {
-		ihid->pdata = *platform_data;	
-	}
-
-Does that sound feasible to you?
-
-> >> > +       if (!pdata)
-> >> > +               goto fail;
-> >>
-> 
-> (...snipped...)
-> >> >         if (!platform_data) {
-> >> > -               dev_err(&client->dev, "HID register address not provided\n");
-> >> > -               return -EINVAL;
-> >> > +               platform_data = i2c_hid_acpi_pdata(client);
-> >> > +               if (!platform_data) {
-> >> > +                       dev_err(&client->dev, "HID register address not provided\n");
-> >>
-> >> You may have a line with more than 80 characters here (it's difficult
-> >> to guess thanks to my gmail client converting tabs into spaces...
-> >> grrr)
-> >
-> > Shouldn't be as checkpatch.pl didn't complain but I'll re-check.
-> 
-> It's strange if it didn't complained: I count 61 chars for the
-> dev_err() message + 3 tabs * 8 chars => 85 chars in total...
-
-You are right, it is over 85 chars.
-
-I've learned that checkpatch.pl doesn't complain if the line is longer than
-80 chars, if it contains quoted string.
-
-I'll fix it up.

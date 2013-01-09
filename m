@@ -1,73 +1,149 @@
-From: Yuanhan Liu <yuanhan.liu@linux.intel.com>
-Subject: Re: [PATCH 5/5] kfifo: log based kfifo API
-Date: Wed, 9 Jan 2013 10:42:26 +0800
-Message-ID: <20130109024226.GD304@yliu-dev.sh.intel.com>
-References: <1357657073-27352-1-git-send-email-yuanhan.liu@linux.intel.com>
- <1357657073-27352-6-git-send-email-yuanhan.liu@linux.intel.com>
- <20130108181645.GA7972@core.coreip.homeip.net>
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: Re: [PATCH 1/1] Input: mms114: Use devm_* APIs
+Date: Wed, 9 Jan 2013 09:25:33 +0530
+Message-ID: <CAK9yfHwd+-8GiRYw1HtDDncydjwb7a0=nw=MvmOqchXgx4cFMQ@mail.gmail.com>
+References: <1357639508-15645-1-git-send-email-sachin.kamat@linaro.org>
+	<50EBFE23.7070401@nvidia.com>
+	<CAK9yfHyAnb02mBGVJuaJ9YZdKZox6vqwE0pNEmxRdAhUOOn0Fw@mail.gmail.com>
+	<20130108172529.GA6746@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <owner-linux-mm@kvack.org>
-Content-Disposition: inline
-In-Reply-To: <20130108181645.GA7972@core.coreip.homeip.net>
-Sender: owner-linux-mm@kvack.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Stefani Seibold <stefani@seibold.net>, Andrew Morton <akpm@linux-foundation.org>, linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org, libertas-dev@lists.infradead.org, linux-wireless@vger.kernel.org, netdev@vger.kernel.org, linux-pci@vger.kernel.org, open-iscsi@googlegroups.com, linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org, linux-serial@vger.kernel.org, linux-usb@vger.kernel.org, linux-mm@kvack.org, dccp@vger.kernel.org, linux-sctp@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:49113 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757167Ab3AIDzd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 22:55:33 -0500
+Received: by mail-ob0-f174.google.com with SMTP id ta14so1771408obb.5
+        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 19:55:33 -0800 (PST)
+In-Reply-To: <20130108172529.GA6746@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-
-On Tue, Jan 08, 2013 at 10:16:46AM -0800, Dmitry Torokhov wrote:
-> Hi Yuanhan,
-> 
-> On Tue, Jan 08, 2013 at 10:57:53PM +0800, Yuanhan Liu wrote:
-> > The current kfifo API take the kfifo size as input, while it rounds
-> >  _down_ the size to power of 2 at __kfifo_alloc. This may introduce
-> > potential issue.
-> > 
-> > Take the code at drivers/hid/hid-logitech-dj.c as example:
-> > 
-> > 	if (kfifo_alloc(&djrcv_dev->notif_fifo,
-> >                        DJ_MAX_NUMBER_NOTIFICATIONS * sizeof(struct dj_report),
-> >                        GFP_KERNEL)) {
-> > 
-> > Where, DJ_MAX_NUMBER_NOTIFICATIONS is 8, and sizeo of(struct dj_report)
-> > is 15.
-> > 
-> > Which means it wants to allocate a kfifo buffer which can store 8
-> > dj_report entries at once. The expected kfifo buffer size would be
-> > 8 * 15 = 120 then. While, in the end, __kfifo_alloc will turn the
-> > size to rounddown_power_of_2(120) =  64, and then allocate a buf
-> > with 64 bytes, which I don't think this is the original author want.
-> > 
-> > With the new log API, we can do like following:
-> > 
-> > 	int kfifo_size_order = order_base_2(DJ_MAX_NUMBER_NOTIFICATIONS *
-> > 					    sizeof(struct dj_report));
-> > 
-> > 	if (kfifo_alloc(&djrcv_dev->notif_fifo, kfifo_size_order, GFP_KERNEL)) {
-> > 
-> > This make sure we will allocate enough kfifo buffer for holding
-> > DJ_MAX_NUMBER_NOTIFICATIONS dj_report entries.
-> 
-> Why don't you simply change __kfifo_alloc to round the allocation up
-> instead of down?
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Joonyoung Shim <jy0922.shim@samsung.com>
 
 Hi Dmitry,
 
-Yes, it would be neat and that was my first reaction as well. I then
-sent out a patch, but it was NACKed by Stefani(the original kfifo
-author). Here is the link:
+On 8 January 2013 22:55, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> Hi Sachin,
+>
+> On Tue, Jan 08, 2013 at 05:08:12PM +0530, Sachin Kamat wrote:
+>> Hi Laxman,
+>>
+>> Thank you for your suggestion.
+>>
+>> On 8 January 2013 16:38, Laxman Dewangan <ldewangan@nvidia.com> wrote:
+>> > On Tuesday 08 January 2013 03:35 PM, Sachin Kamat wrote:
+>> >>
+>> >> devm_* APIs are device managed and make the exit and clean up code
+>> >> simpler.
+>> >>
+>> >> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+>> >> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+>> >> ---
+>> >> Compile tested against linux-next tree (20130108).
+>> >> ---
+>> >>   drivers/input/touchscreen/mms114.c |   41
+>> >> +++++++++++------------------------
+>> >>   1 files changed, 13 insertions(+), 28 deletions(-)
+>> >
+>> >
+>> >>   static int mms114_remove(struct i2c_client *client)
+>> >>   {
+>> >>         struct mms114_data *data = i2c_get_clientdata(client);
+>> >>   -     free_irq(client->irq, data);
+>> >> -       regulator_put(data->io_reg);
+>> >> -       regulator_put(data->core_reg);
+>> >>         input_unregister_device(data->input_dev);
+>> >
+>> >
+>> > Because you are using devm_input_allocate_device() for allocating input
+>> > device, you need not to have the input_unregister_device() and so you can
+>> > get rid of remove() callback at all.
+>> > This is what I learnt from Dmitry on similar patch for Tegra KBC.
+>>
+>> input_free_device() is the one which is not required when you use
+>> devm_input_allocate_device().
+>> Unregister call, AFAIK, is required since we are registering using
+>> input_register_device().
+>>
+>> Dmitry, please let me know if my understanding is right.
+>
+> Laxman is correct, neither of the calls is normally needed for managed
+> input devices. I am considering applying the patch below clarifying this
+> fact.
 
-    https://lkml.org/lkml/2012/10/26/144
+Thank you for clarifying and providing the explanatory patch. I will
+resend my patch with the suggested change.
 
-Then Stefani proposed to change the API to take log of size as input to
-root fix this kind of issues. And here it is.
+I believe the patch a57da347954 ("Input: samsung-keypad - switch to
+using managed resources") also needs similar treatment. I will update
+that as well.
 
-Thanks.
+Laxman,
+Thank you for bringing this point to my notice.
 
-	--yliu
 
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/ .
-Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+>
+> Thanks.
+>
+> --
+> Dmitry
+>
+>
+> Input: document that unregistering managed devices is not necessary
+>
+> Apparently some users of managed input devices are confused whether
+> input_unregister_device() is needed when working with them. Clarify
+> this in the kernel doc for devm_input_allocate_device(): in most cases
+> there is no need to call either input_unregister_device() nor
+> input_free_device() when working with managed devices.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/input.c |   16 ++++++++++++++--
+>  1 file changed, 14 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index ce01332f..c044699 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -1785,12 +1785,13 @@ static void devm_input_device_release(struct device *dev, void *res)
+>   * its driver (or binding fails). Once managed input device is allocated,
+>   * it is ready to be set up and registered in the same fashion as regular
+>   * input device. There are no special devm_input_device_[un]register()
+> - * variants, regular ones work with both managed and unmanaged devices.
+> + * variants, regular ones work with both managed and unmanaged devices,
+> + * should you need them. In most cases however, managed input device need
+> + * not be explicitly unregistered or freed.
+>   *
+>   * NOTE: the owner device is set up as parent of input device and users
+>   * should not override it.
+>   */
+> -
+>  struct input_dev *devm_input_allocate_device(struct device *dev)
+>  {
+>         struct input_dev *input;
+> @@ -2004,6 +2005,17 @@ static void devm_input_device_unregister(struct device *dev, void *res)
+>   * Once device has been successfully registered it can be unregistered
+>   * with input_unregister_device(); input_free_device() should not be
+>   * called in this case.
+> + *
+> + * Note that this function is also used to register managed input devices
+> + * (ones allocated with devm_input_allocate_device()). Such managed input
+> + * devices need not be explicitly unregistered or freed, their tear down
+> + * is controlled by the devres infrastructure. It is also worth noting
+> + * that tear down of managed input devices is internally a 2-step process:
+> + * registered managed input device is first unregistered, but stays in
+> + * memory and can still handle input_event() calls (although events will
+> + * not be delivered anywhere). The freeing of managed input device will
+> + * happen later, when devres stack is unwound to the point where device
+> + * allocation was made.
+>   */
+>  int input_register_device(struct input_dev *dev)
+>  {
+
+
+
+-- 
+With warm regards,
+Sachin

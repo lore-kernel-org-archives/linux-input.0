@@ -1,124 +1,84 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH Resend] Input: mms114: Use devm_* APIs
-Date: Wed,  9 Jan 2013 09:45:48 +0530
-Message-ID: <1357704948-25758-1-git-send-email-sachin.kamat@linaro.org>
+From: Laxman Dewangan <ldewangan@nvidia.com>
+Subject: Re: [PATCH Resend] Input: mms114: Use devm_* APIs
+Date: Wed, 9 Jan 2013 10:38:31 +0530
+Message-ID: <50ECFB4F.8010501@nvidia.com>
+References: <1357704948-25758-1-git-send-email-sachin.kamat@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:51295 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757210Ab3AIEYC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 23:24:02 -0500
-Received: by mail-pb0-f53.google.com with SMTP id jt11so677334pbb.40
-        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 20:24:02 -0800 (PST)
+Received: from hqemgate04.nvidia.com ([216.228.121.35]:11769 "EHLO
+	hqemgate04.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750753Ab3AIFIz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jan 2013 00:08:55 -0500
+In-Reply-To: <1357704948-25758-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, patches@linaro.org, Joonyoung Shim <jy0922.shim@samsung.com>
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "patches@linaro.org" <patches@linaro.org>, Joonyoung Shim <jy0922.shim@samsung.com>
 
-devm_* APIs are device managed and make the exit and clean up code
-simpler.
+On Wednesday 09 January 2013 09:45 AM, Sachin Kamat wrote:
+> devm_* APIs are device managed and make the exit and clean up code
+> simpler.
+>
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+> ---
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>
----
- drivers/input/touchscreen/mms114.c |   50 +++++++++--------------------------
- 1 files changed, 13 insertions(+), 37 deletions(-)
+I think this is not resend patch, it is Patch V2. Also you can specify 
+the changes done from last patch to this patch so that it will be easy 
+to reviewer.
 
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 98841d8..656cc0b 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -429,12 +429,12 @@ static int mms114_probe(struct i2c_client *client,
- 		return -ENODEV;
- 	}
- 
--	data = kzalloc(sizeof(struct mms114_data), GFP_KERNEL);
--	input_dev = input_allocate_device();
-+	data = devm_kzalloc(&client->dev, sizeof(struct mms114_data),
-+			    GFP_KERNEL);
-+	input_dev = devm_input_allocate_device(&client->dev);
- 	if (!data || !input_dev) {
- 		dev_err(&client->dev, "Failed to allocate memory\n");
--		error = -ENOMEM;
--		goto err_free_mem;
-+		return -ENOMEM;
- 	}
- 
- 	data->client = client;
-@@ -466,57 +466,34 @@ static int mms114_probe(struct i2c_client *client,
- 	input_set_drvdata(input_dev, data);
- 	i2c_set_clientdata(client, data);
- 
--	data->core_reg = regulator_get(&client->dev, "avdd");
-+	data->core_reg = devm_regulator_get(&client->dev, "avdd");
- 	if (IS_ERR(data->core_reg)) {
- 		error = PTR_ERR(data->core_reg);
- 		dev_err(&client->dev,
- 			"Unable to get the Core regulator (%d)\n", error);
--		goto err_free_mem;
-+		return error;
- 	}
- 
--	data->io_reg = regulator_get(&client->dev, "vdd");
-+	data->io_reg = devm_regulator_get(&client->dev, "vdd");
- 	if (IS_ERR(data->io_reg)) {
- 		error = PTR_ERR(data->io_reg);
- 		dev_err(&client->dev,
- 			"Unable to get the IO regulator (%d)\n", error);
--		goto err_core_reg;
-+		return error;
- 	}
- 
--	error = request_threaded_irq(client->irq, NULL, mms114_interrupt,
--			IRQF_TRIGGER_FALLING | IRQF_ONESHOT, "mms114", data);
-+	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+			mms114_interrupt, IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+			"mms114", data);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
--		goto err_io_reg;
-+		return error;
- 	}
- 	disable_irq(client->irq);
- 
- 	error = input_register_device(data->input_dev);
- 	if (error)
--		goto err_free_irq;
--
--	return 0;
--
--err_free_irq:
--	free_irq(client->irq, data);
--err_io_reg:
--	regulator_put(data->io_reg);
--err_core_reg:
--	regulator_put(data->core_reg);
--err_free_mem:
--	input_free_device(input_dev);
--	kfree(data);
--	return error;
--}
--
--static int mms114_remove(struct i2c_client *client)
--{
--	struct mms114_data *data = i2c_get_clientdata(client);
--
--	free_irq(client->irq, data);
--	regulator_put(data->io_reg);
--	regulator_put(data->core_reg);
--	input_unregister_device(data->input_dev);
--	kfree(data);
-+		return error;
- 
- 	return 0;
- }
-@@ -590,7 +567,6 @@ static struct i2c_driver mms114_driver = {
- 		.of_match_table = of_match_ptr(mms114_dt_match),
- 	},
- 	.probe		= mms114_probe,
--	.remove		= mms114_remove,
- 	.id_table	= mms114_id,
- };
- 
--- 
-1.7.4.1
+> +	data = devm_kzalloc(&client->dev, sizeof(struct mms114_data),
+Because you are here, better to change the size to sizeof(*data) in 
+place of sizeof(struct..)
 
+> +			
+
+> +	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+> +			mms114_interrupt, IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> +			"mms114", data);
+
+Should be change to devname(&client->dev) in place of hardconding to 
+"mms114".
+
+>   	if (error) {
+>   		dev_err(&client->dev, "Failed to register interrupt\n");
+> -		goto err_io_reg;
+> +		return error;
+>   	}
+>   	disable_irq(client->irq);
+>   
+>   	error = input_register_device(data->input_dev);
+>   	if (error)
+
+> -		
+> +		return error;
+>   
+>   	return 0;
+
+
+Seems the code turn as
+if (error)
+    return error;
+return 0.
+
+I think simply saying return error is fine here as you are not printing 
+any error.
+>   }
+> @@ -590,7 +567,6 @@ static struct i2c_driver mms114_driver = {
+>   		.of_match_table = of_match_ptr(mms114_dt_match),
+>   	},
+>   	.probe		= mms114_probe,
+> -	.remove		= mms114_remove,
+>   	.id_table	= mms114_id,
+>   };
+>   
+
+
+-----------------------------------------------------------------------------------
+This email message is for the sole use of the intended recipient(s) and may contain
+confidential information.  Any unauthorized review, use, disclosure or distribution
+is prohibited.  If you are not the intended recipient, please contact the sender by
+reply email and destroy all copies of the original message.
+-----------------------------------------------------------------------------------

@@ -1,107 +1,108 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: Re: [PATCH Resend] Input: mms114: Use devm_* APIs
-Date: Wed, 9 Jan 2013 12:27:51 +0530
-Message-ID: <CAK9yfHzfZvMFLot2vwkh8R5Q3eMS6b2GDq6AcX2Y=3x76O1X6w@mail.gmail.com>
-References: <1357704948-25758-1-git-send-email-sachin.kamat@linaro.org>
-	<50ECFB4F.8010501@nvidia.com>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource
+ allocation
+Date: Wed, 9 Jan 2013 08:07:45 +0100
+Message-ID: <20130109070745.GA12782@avionic-0098.adnet.avionic-design.de>
+References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
+ <1357371910-3164-3-git-send-email-ldewangan@nvidia.com>
+ <20130105080658.GA1315@core.coreip.homeip.net>
+ <20130106192739.GA11566@avionic-0098.adnet.avionic-design.de>
+ <20130106195748.GA28212@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:41314 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756998Ab3AIG5v (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jan 2013 01:57:51 -0500
-Received: by mail-pb0-f50.google.com with SMTP id wz7so751027pbc.37
-        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 22:57:51 -0800 (PST)
-In-Reply-To: <50ECFB4F.8010501@nvidia.com>
+Received: from moutng.kundenserver.de ([212.227.126.171]:60275 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757142Ab3AIHH6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jan 2013 02:07:58 -0500
+Content-Disposition: inline
+In-Reply-To: <20130106195748.GA28212@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "patches@linaro.org" <patches@linaro.org>, Joonyoung Shim <jy0922.shim@samsung.com>
-
-On 9 January 2013 10:38, Laxman Dewangan <ldewangan@nvidia.com> wrote:
-> On Wednesday 09 January 2013 09:45 AM, Sachin Kamat wrote:
->>
->> devm_* APIs are device managed and make the exit and clean up code
->> simpler.
->>
->> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
->> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
->> ---
->
->
-> I think this is not resend patch, it is Patch V2. Also you can specify the
-> changes done from last patch to this patch so that it will be easy to
-> reviewer.
-
-OK.
-
->
->
->> +       data = devm_kzalloc(&client->dev, sizeof(struct mms114_data),
->
-> Because you are here, better to change the size to sizeof(*data) in place of
-> sizeof(struct..)
-
-In what way is this change useful or better?
-
->
->> +
->
->
->> +       error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
->> +                       mms114_interrupt, IRQF_TRIGGER_FALLING |
->> IRQF_ONESHOT,
->> +                       "mms114", data);
->
->
-> Should be change to devname(&client->dev) in place of hardconding to
-> "mms114".
-
-OK.
-
->
->
->>         if (error) {
->>                 dev_err(&client->dev, "Failed to register interrupt\n");
->> -               goto err_io_reg;
->> +               return error;
->>         }
->>         disable_irq(client->irq);
->>         error = input_register_device(data->input_dev);
->>         if (error)
->
->
->> -
->> +               return error;
->>         return 0;
->
->
->
-> Seems the code turn as
-> if (error)
->    return error;
-> return 0.
->
-> I think simply saying return error is fine here as you are not printing any
-> error.
-
-Right.
-
->
->>   }
->> @@ -590,7 +567,6 @@ static struct i2c_driver mms114_driver = {
->>                 .of_match_table = of_match_ptr(mms114_dt_match),
->>         },
->>         .probe          = mms114_probe,
->> -       .remove         = mms114_remove,
->>         .id_table       = mms114_id,
->>   };
->>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, grant.likely@secretlab.ca, rob.herring@calxeda.com, swarren@nvidia.com, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>
 
 
-I will re-send after making necessary changes.
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-With warm regards,
-Sachin
+On Sun, Jan 06, 2013 at 11:57:48AM -0800, Dmitry Torokhov wrote:
+> On Sun, Jan 06, 2013 at 08:27:39PM +0100, Thierry Reding wrote:
+> > On Sat, Jan 05, 2013 at 12:06:58AM -0800, Dmitry Torokhov wrote:
+> > > On Sat, Jan 05, 2013 at 01:15:08PM +0530, Laxman Dewangan wrote:
+> > [...]
+> > > > @@ -735,25 +738,16 @@ static int tegra_kbc_probe(struct platform_de=
+vice *pdev)
+> > > >  	spin_lock_init(&kbc->lock);
+> > > >  	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long=
+)kbc);
+> > > > =20
+> > > > -	res =3D request_mem_region(res->start, resource_size(res), pdev->=
+name);
+> > > > -	if (!res) {
+> > > > -		dev_err(&pdev->dev, "failed to request I/O memory\n");
+> > > > -		err =3D -EBUSY;
+> > > > -		goto err_free_mem;
+> > > > -	}
+> > > > -
+> > > > -	kbc->mmio =3D ioremap(res->start, resource_size(res));
+> > > > +	kbc->mmio =3D devm_request_and_ioremap(&pdev->dev, res);
+> > > >  	if (!kbc->mmio) {
+> > > > -		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+> > > > -		err =3D -ENXIO;
+> > > > -		goto err_free_mem_region;
+> > > > +		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
+> > > > +		return -EADDRNOTAVAIL;
+> > >=20
+> > > Erm, no, -EBUSY please.
+> >=20
+> > EADDRNOTAVAIL is the canonical error for devm_request_and_ioremap()
+> > failure. The kerneldoc comment in lib/devres.c even gives a short
+> > example that uses this error code.
+>=20
+> I am sorry, but I do not consider a function that was added a little
+> over a year ago as a canon. If you look at the uses of EADDRNOTAVAIL it
+> is used predominantly in networking code to indicate that attempted
+> _network_ address is not available.
+
+EBUSY might be misleading, though. devm_request_and_ioremap() can fail
+in both the request_mem_region() and ioremap() calls. Furthermore it'd
+be good to settle on a consistent error-code instead of doing it
+differently depending on subsystem and/or driver. Currently the various
+error codes used are:
+
+	EBUSY, EADDRNOTAVAIL, ENXIO, ENOMEM, ENODEV, ENOENT, EINVAL,
+	EIO, EFAULT, EADDRINUSE
+
+Also if we can settle on one error code we should follow up with a patch
+to make it consistent across the tree and also update that kerneldoc
+comment. I volunteer to do that if nobody else steps up. I'm also Cc'ing
+Wolfram (the original author), maybe he has some thoughts on this.
+
+Thierry
+
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQ7RdBAAoJEN0jrNd/PrOh0KEP/0IHiXOk8Csr1OOXsTv8Rs8g
+SdJ9H7y/a/Qc+O1pSA29uTBFVFl7y0fhpzvFAGWXJOl/AAbeBMW+as9gsW0hcO5I
+mfNl6j+99egfm2yxf6EDXLXIKylH92Zr+bHGZyqj4So2vpUODmxvFs3WPcuCXqiL
+EGQKOpt89EzxWIRCMViEc+cZ4hphmm0kqZ6fFc0iGI2zUa/Syao8lTsmmHomqD1p
+1mgH3SCSSolS6X/NY1DXkoMU8V3l94SXcuTGUxY8w/c0UlV0wNhh+KLIVTh8feq9
+TwRkhSRZIHz7MTCRW34JWf/KUr55fuWDEOm+Ndyf7H1A1X17G8YJY+PnfZR2V0P8
+hfT07HvpPLjNE6MCl8Ve3qFuWkCnVxWhiE8P6bzSPBRQ3yBjbK4T5kDaeTS8ehiH
+3siBNi1evqjSI0kx2vFbaOhDqup5QVNreiBCWnG6euazuGXIoASgK7ya5Vatj9gy
+x943j9SDZAft3TvWCmJ1PkLiUyDQKNOLqJbM6VA8xj10/KpSjwz+XQ62X+sAZJp6
+kDUxsW3jsonvXwTCfjRy5PvQJ6rxgQ1Zyr/f7Ajc+7UFGnC2YFH71Gm1835nsNC0
+f0Hx9GbIK5gwXTe+9oAxhh2oLc5YV4ap11pifeVd4fYIdG6WGty1K+t/8QdcB8Mu
+ux4f6Vtt0sKs9N5kstMd
+=ljO5
+-----END PGP SIGNATURE-----
+
+--qMm9M+Fa2AknHoGS--

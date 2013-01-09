@@ -1,149 +1,124 @@
 From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: Re: [PATCH 1/1] Input: mms114: Use devm_* APIs
-Date: Wed, 9 Jan 2013 09:25:33 +0530
-Message-ID: <CAK9yfHwd+-8GiRYw1HtDDncydjwb7a0=nw=MvmOqchXgx4cFMQ@mail.gmail.com>
-References: <1357639508-15645-1-git-send-email-sachin.kamat@linaro.org>
-	<50EBFE23.7070401@nvidia.com>
-	<CAK9yfHyAnb02mBGVJuaJ9YZdKZox6vqwE0pNEmxRdAhUOOn0Fw@mail.gmail.com>
-	<20130108172529.GA6746@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH Resend] Input: mms114: Use devm_* APIs
+Date: Wed,  9 Jan 2013 09:45:48 +0530
+Message-ID: <1357704948-25758-1-git-send-email-sachin.kamat@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f174.google.com ([209.85.214.174]:49113 "EHLO
-	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757167Ab3AIDzd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 22:55:33 -0500
-Received: by mail-ob0-f174.google.com with SMTP id ta14so1771408obb.5
-        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 19:55:33 -0800 (PST)
-In-Reply-To: <20130108172529.GA6746@core.coreip.homeip.net>
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:51295 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757210Ab3AIEYC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jan 2013 23:24:02 -0500
+Received: by mail-pb0-f53.google.com with SMTP id jt11so677334pbb.40
+        for <linux-input@vger.kernel.org>; Tue, 08 Jan 2013 20:24:02 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Joonyoung Shim <jy0922.shim@samsung.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, patches@linaro.org, Joonyoung Shim <jy0922.shim@samsung.com>
 
-Hi Dmitry,
+devm_* APIs are device managed and make the exit and clean up code
+simpler.
 
-On 8 January 2013 22:55, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> Hi Sachin,
->
-> On Tue, Jan 08, 2013 at 05:08:12PM +0530, Sachin Kamat wrote:
->> Hi Laxman,
->>
->> Thank you for your suggestion.
->>
->> On 8 January 2013 16:38, Laxman Dewangan <ldewangan@nvidia.com> wrote:
->> > On Tuesday 08 January 2013 03:35 PM, Sachin Kamat wrote:
->> >>
->> >> devm_* APIs are device managed and make the exit and clean up code
->> >> simpler.
->> >>
->> >> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
->> >> Cc: Joonyoung Shim <jy0922.shim@samsung.com>
->> >> ---
->> >> Compile tested against linux-next tree (20130108).
->> >> ---
->> >>   drivers/input/touchscreen/mms114.c |   41
->> >> +++++++++++------------------------
->> >>   1 files changed, 13 insertions(+), 28 deletions(-)
->> >
->> >
->> >>   static int mms114_remove(struct i2c_client *client)
->> >>   {
->> >>         struct mms114_data *data = i2c_get_clientdata(client);
->> >>   -     free_irq(client->irq, data);
->> >> -       regulator_put(data->io_reg);
->> >> -       regulator_put(data->core_reg);
->> >>         input_unregister_device(data->input_dev);
->> >
->> >
->> > Because you are using devm_input_allocate_device() for allocating input
->> > device, you need not to have the input_unregister_device() and so you can
->> > get rid of remove() callback at all.
->> > This is what I learnt from Dmitry on similar patch for Tegra KBC.
->>
->> input_free_device() is the one which is not required when you use
->> devm_input_allocate_device().
->> Unregister call, AFAIK, is required since we are registering using
->> input_register_device().
->>
->> Dmitry, please let me know if my understanding is right.
->
-> Laxman is correct, neither of the calls is normally needed for managed
-> input devices. I am considering applying the patch below clarifying this
-> fact.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+---
+ drivers/input/touchscreen/mms114.c |   50 +++++++++--------------------------
+ 1 files changed, 13 insertions(+), 37 deletions(-)
 
-Thank you for clarifying and providing the explanatory patch. I will
-resend my patch with the suggested change.
-
-I believe the patch a57da347954 ("Input: samsung-keypad - switch to
-using managed resources") also needs similar treatment. I will update
-that as well.
-
-Laxman,
-Thank you for bringing this point to my notice.
-
-
->
-> Thanks.
->
-> --
-> Dmitry
->
->
-> Input: document that unregistering managed devices is not necessary
->
-> Apparently some users of managed input devices are confused whether
-> input_unregister_device() is needed when working with them. Clarify
-> this in the kernel doc for devm_input_allocate_device(): in most cases
-> there is no need to call either input_unregister_device() nor
-> input_free_device() when working with managed devices.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/input.c |   16 ++++++++++++++--
->  1 file changed, 14 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index ce01332f..c044699 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -1785,12 +1785,13 @@ static void devm_input_device_release(struct device *dev, void *res)
->   * its driver (or binding fails). Once managed input device is allocated,
->   * it is ready to be set up and registered in the same fashion as regular
->   * input device. There are no special devm_input_device_[un]register()
-> - * variants, regular ones work with both managed and unmanaged devices.
-> + * variants, regular ones work with both managed and unmanaged devices,
-> + * should you need them. In most cases however, managed input device need
-> + * not be explicitly unregistered or freed.
->   *
->   * NOTE: the owner device is set up as parent of input device and users
->   * should not override it.
->   */
-> -
->  struct input_dev *devm_input_allocate_device(struct device *dev)
->  {
->         struct input_dev *input;
-> @@ -2004,6 +2005,17 @@ static void devm_input_device_unregister(struct device *dev, void *res)
->   * Once device has been successfully registered it can be unregistered
->   * with input_unregister_device(); input_free_device() should not be
->   * called in this case.
-> + *
-> + * Note that this function is also used to register managed input devices
-> + * (ones allocated with devm_input_allocate_device()). Such managed input
-> + * devices need not be explicitly unregistered or freed, their tear down
-> + * is controlled by the devres infrastructure. It is also worth noting
-> + * that tear down of managed input devices is internally a 2-step process:
-> + * registered managed input device is first unregistered, but stays in
-> + * memory and can still handle input_event() calls (although events will
-> + * not be delivered anywhere). The freeing of managed input device will
-> + * happen later, when devres stack is unwound to the point where device
-> + * allocation was made.
->   */
->  int input_register_device(struct input_dev *dev)
->  {
-
-
-
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 98841d8..656cc0b 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -429,12 +429,12 @@ static int mms114_probe(struct i2c_client *client,
+ 		return -ENODEV;
+ 	}
+ 
+-	data = kzalloc(sizeof(struct mms114_data), GFP_KERNEL);
+-	input_dev = input_allocate_device();
++	data = devm_kzalloc(&client->dev, sizeof(struct mms114_data),
++			    GFP_KERNEL);
++	input_dev = devm_input_allocate_device(&client->dev);
+ 	if (!data || !input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate memory\n");
+-		error = -ENOMEM;
+-		goto err_free_mem;
++		return -ENOMEM;
+ 	}
+ 
+ 	data->client = client;
+@@ -466,57 +466,34 @@ static int mms114_probe(struct i2c_client *client,
+ 	input_set_drvdata(input_dev, data);
+ 	i2c_set_clientdata(client, data);
+ 
+-	data->core_reg = regulator_get(&client->dev, "avdd");
++	data->core_reg = devm_regulator_get(&client->dev, "avdd");
+ 	if (IS_ERR(data->core_reg)) {
+ 		error = PTR_ERR(data->core_reg);
+ 		dev_err(&client->dev,
+ 			"Unable to get the Core regulator (%d)\n", error);
+-		goto err_free_mem;
++		return error;
+ 	}
+ 
+-	data->io_reg = regulator_get(&client->dev, "vdd");
++	data->io_reg = devm_regulator_get(&client->dev, "vdd");
+ 	if (IS_ERR(data->io_reg)) {
+ 		error = PTR_ERR(data->io_reg);
+ 		dev_err(&client->dev,
+ 			"Unable to get the IO regulator (%d)\n", error);
+-		goto err_core_reg;
++		return error;
+ 	}
+ 
+-	error = request_threaded_irq(client->irq, NULL, mms114_interrupt,
+-			IRQF_TRIGGER_FALLING | IRQF_ONESHOT, "mms114", data);
++	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
++			mms114_interrupt, IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++			"mms114", data);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to register interrupt\n");
+-		goto err_io_reg;
++		return error;
+ 	}
+ 	disable_irq(client->irq);
+ 
+ 	error = input_register_device(data->input_dev);
+ 	if (error)
+-		goto err_free_irq;
+-
+-	return 0;
+-
+-err_free_irq:
+-	free_irq(client->irq, data);
+-err_io_reg:
+-	regulator_put(data->io_reg);
+-err_core_reg:
+-	regulator_put(data->core_reg);
+-err_free_mem:
+-	input_free_device(input_dev);
+-	kfree(data);
+-	return error;
+-}
+-
+-static int mms114_remove(struct i2c_client *client)
+-{
+-	struct mms114_data *data = i2c_get_clientdata(client);
+-
+-	free_irq(client->irq, data);
+-	regulator_put(data->io_reg);
+-	regulator_put(data->core_reg);
+-	input_unregister_device(data->input_dev);
+-	kfree(data);
++		return error;
+ 
+ 	return 0;
+ }
+@@ -590,7 +567,6 @@ static struct i2c_driver mms114_driver = {
+ 		.of_match_table = of_match_ptr(mms114_dt_match),
+ 	},
+ 	.probe		= mms114_probe,
+-	.remove		= mms114_remove,
+ 	.id_table	= mms114_id,
+ };
+ 
 -- 
-With warm regards,
-Sachin
+1.7.4.1
+

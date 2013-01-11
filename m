@@ -1,42 +1,64 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [PATCH V4 0/4] input: keyboard: tegra: cleanups and DT supports
-Date: Fri, 11 Jan 2013 10:17:34 +0530
-Message-ID: <50EF9966.1010500@nvidia.com>
-References: <1357470900-12619-1-git-send-email-ldewangan@nvidia.com> <50EAFD36.9070909@wwwdotorg.org> <50EE603B.7080702@nvidia.com> <20130110174456.GA2797@core.coreip.homeip.net>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH resend 2/2] Input: twl6040-vibra: Code cleanup in probe
+ with devm_* conversion
+Date: Fri, 11 Jan 2013 10:11:04 +0100
+Message-ID: <50EFD728.8090204@ti.com>
+References: <1357824965-30614-1-git-send-email-peter.ujfalusi@ti.com> <1357824965-30614-3-git-send-email-peter.ujfalusi@ti.com> <20130110175421.GC2797@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20130110174456.GA2797@core.coreip.homeip.net>
-Sender: linux-doc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Stephen Warren <swarren@nvidia.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from comal.ext.ti.com ([198.47.26.152]:46386 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753580Ab3AKJLH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Jan 2013 04:11:07 -0500
+In-Reply-To: <20130110175421.GC2797@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thursday 10 January 2013 11:14 PM, Dmitry Torokhov wrote:
-> Hi Laxman,
->
-> On Thu, Jan 10, 2013 at 12:01:23PM +0530, Laxman Dewangan wrote:
->> Hi Dmitry,
->>
->> On Monday 07 January 2013 10:22 PM, Stephen Warren wrote:
->>> On 01/06/2013 04:14 AM, Laxman Dewangan wrote:
->>>> This patch series:
->>>>   - fix build warning,
->>>>   - use devm_* for allocation,
->>>>   - make column/rows configuration through DT and
->>>>   - remove the rarely used  key mapping table.
->>> The series,
->>> Reviewed-by: Stephen Warren <swarren@nvidia.com>
->>>
->> If you are fine with this series then can it be apply please? I can
->> handle if there is any comment on this series to close this.
->>
-> The patches are applied with minor edits to the 3rd and 4th (there was
-> no point in having a separate keymap setup function anymore).
->
+Hi Dmitry,
 
-Thanks for taking care. I looked the final change from your git and the 
-changes are  fine.
+On 01/10/2013 06:54 PM, Dmitry Torokhov wrote:
+> Hi Peter,
+>=20
+> On Thu, Jan 10, 2013 at 02:36:05PM +0100, Peter Ujfalusi wrote:
+>> Convert the probe to use devm_*. At the same time reorder the calls
+>> so we will register the input device as the last step when the drive=
+r
+>> is loaded.
+>=20
+> If you are doing this please also use devm_input_allocate_device() an=
+d
+> devm_regulator_bulk_get().
+
+Now I remember: I can not switch to devm_regulator_bulk_get() unfortuna=
+tely
+since when we boot with DT the code needs to reach up for the parent's =
+dev to
+get the needed regulator. If I use devm_regulator_bulk_get() the resour=
+ce will
+be bind to the parent dev and not to the vibra driver.
+
+> I also think it is high time to get rid of
+> dedicated work queue - cwq hasn't actually given you a separate thera=
+d
+> for a while now and if you get rid of workqueue you can get ridof ent=
+ire
+> twl6040_vibra_remove().
+
+I agree with the rest. I'll move both twl4030/6040 vibra to use
+devm_input_allocate_device() and also I will move them to use system wi=
+de
+workqueue.
+
+I'm going to resend the series soon with the suggested changes.
+
 Thanks,
-Laxman
+P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

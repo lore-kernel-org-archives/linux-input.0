@@ -1,141 +1,78 @@
 From: Simon Glass <sjg@chromium.org>
-Subject: [PATCH v2] input: Extend matrix-keypad device tree binding
-Date: Thu, 10 Jan 2013 17:41:32 -0800
-Message-ID: <1357868492-16023-1-git-send-email-sjg@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f202.google.com ([209.85.216.202]:63362 "EHLO
-	mail-qc0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754214Ab3AKBli (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jan 2013 20:41:38 -0500
-Received: by mail-qc0-f202.google.com with SMTP id s25so158632qcq.1
-        for <linux-input@vger.kernel.org>; Thu, 10 Jan 2013 17:41:38 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+Subject: Re: [PATCH 5/5] Input: Add ChromeOS EC keyboard driver
+Date: Thu, 10 Jan 2013 17:51:33 -0800
+Message-ID: <CAPnjgZ315QhvTw9C=MLA=QhGa1Wo572tRN5KyRsNpEJ3Wmq4vg@mail.gmail.com>
+References: <1355348028-19017-1-git-send-email-sjg@chromium.org>
+	<1355348028-19017-6-git-send-email-sjg@chromium.org>
+	<20121215011345.9D5973E0BEE@localhost>
+	<2990462.l5jY89jKQx@dtor-d630.eng.vmware.com>
+	<20121219125722.DCD3E3E0AD7@localhost>
+	<20121219181643.GA31435@core.coreip.homeip.net>
+	<CAPnjgZ2MH_iD73oOZe7pEEAVg_8c5dFWHdeaNfD6A4E9NeWRug@mail.gmail.com>
+	<CACxGe6s2UxekcZ1zdYiP_FjgYPhjKzob8HMK-PGN6XD8wBWquA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <CACxGe6s2UxekcZ1zdYiP_FjgYPhjKzob8HMK-PGN6XD8wBWquA@mail.gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Luigi Semenzato <semenzato@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, Olof Johansson <olof@lixom.net>, Roland Stigge <stigge@antcom.de>, Wolfram Sang <w.sang@pengutronix.de>, Devicetree Discuss <devicetree-discuss@lists.ozlabs.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Simon Glass <sjg@chromium.org>, linux-input@vger.kernel.org, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@secretlab.ca>, devicetree-discuss@lists.ozlabs.org, Roland Stigge <stigge@antcom.de>, linux-doc@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>, Wolfram Sang <w.sang@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, Luigi Semenzato <semenzato@chromium.org>, Olof Johansson <olof@lixom.net>, Rob Herring <rob.herring@calxeda.com>, Stephen Warren <swarren@nvidia.com>, Alban Bedel <alban.bedel@avionic-design.de>
 
-Some matrix keypad drivers can support different numbers of rows and
-columns. Add a generic binding for these.
+Hi Grant,
 
-Implementation note:
+On Wed, Dec 19, 2012 at 12:42 PM, Grant Likely
+<grant.likely@secretlab.ca> wrote:
+> On Wed, Dec 19, 2012 at 8:20 PM, Simon Glass <sjg@chromium.org> wrote:
+>> On Wed, Dec 19, 2012 at 10:16 AM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>>>
+>>> On Wed, Dec 19, 2012 at 12:57:22PM +0000, Grant Likely wrote:
+>>> > On Fri, 14 Dec 2012 17:43:31 -0800, Dmitry Torokhov
+>>> > <dmitry.torokhov@gmail.com> wrote:
+>>> > > On Saturday, December 15, 2012 01:13:45 AM Grant Likely wrote:
+>>> > > > > +Required properties:
+>>> > > > > +- compatible: "google,cros-ec-keyb"
+>>> > > > > +- google,key-rows: Number of keyboard rows (must be <= 8)
+>>> > > > > +- google,key-columns: Number of keyboard columns (must be <= 13)
+>>> > > > > +- google,repeat-delay-ms: Key repeat delay in milliseconds
+>>> > > > > +- google,repeat-rate-ms: Key repeat rate in milliseconds
+>>> > > >
+>>> > > > Hmmm, these should probably be in a common binding. Take a look at
+>>> > > > the other input bindings and make a proposal for properties to add
+>>> > > > to
+>>> > > > matrix-keymap.txt.
+>>> > >
+>>> > > Actually these are not essentia for bringup and can be set from
+>>> > > userspace,
+>>> > > so I'd say simply drop them.
+>>> >
+>>> > Aren't they needed for a working keyboard? If so, I would really think
+>>> > they should be set correctly without userspace intervention.
+>>>
+>>> I am sorry if I was unclear, but I was actually talking about the last
+>>> 2: repeat-delay-ms and repeat-rate-ms. Input core has I believe sane
+>>> defaults (250 msec delay, 33 cps autorepeat) and user can adjust if
+>>> other rate is preferred.
+>>
+>>
+>> I seems like I should remove these two, then.
+>>
+>> It would be nice if we could keep these parameters so that the keyboard
+>> doesn't require user-space set up to work, but I understand and agree they
+>> are not essential. Regarding Grant's request to come up with a common
+>> binding, if I remove these then that is not needed, right?
+>
+> I have no problem keeping the properties, but it does look like
+> something applicable to all users, not just this driver.
 
-In order to implement this binding in the kernel, we will need to modify
-matrix_keypad_() to look up the number of rows and cols in
-the keymap. Perhaps this could be done by passing 0 for these parameters?
-Many of the parameters can already be set to NULL. Ick.
+I dropped keyboard repeat from the common binding and resent. If that
+goes in then I can try again later when Dmitry is on holiday :-), or I
+can put it just in our own driver. I don't mind either way, so someone
+should let me know which is best.
 
-Signed-off-by: Simon Glass <sjg@chromium.org>
----
-Changes in v2:
-- Remove repeat rate parameters
-- Update TI OMAP, tca8418 and lpc32xx bindings to use this one
+>
+> g.
 
- .../devicetree/bindings/input/lpc32xx-key.txt      |    9 ++++++---
- .../devicetree/bindings/input/matrix-keymap.txt    |    8 ++++++++
- .../devicetree/bindings/input/omap-keypad.txt      |   13 +++++--------
- .../devicetree/bindings/input/tca8418_keypad.txt   |    6 ++++--
- 4 files changed, 23 insertions(+), 13 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/input/lpc32xx-key.txt b/Documentation/devicetree/bindings/input/lpc32xx-key.txt
-index 31afd50..bcf62f8 100644
---- a/Documentation/devicetree/bindings/input/lpc32xx-key.txt
-+++ b/Documentation/devicetree/bindings/input/lpc32xx-key.txt
-@@ -1,19 +1,22 @@
- NXP LPC32xx Key Scan Interface
- 
-+This binding is based on the matrix-keymap binding with the following
-+changes:
-+
- Required Properties:
- - compatible: Should be "nxp,lpc3220-key"
- - reg: Physical base address of the controller and length of memory mapped
-   region.
- - interrupts: The interrupt number to the cpu.
--- keypad,num-rows: Number of rows and columns, e.g. 1: 1x1, 6: 6x6
--- keypad,num-columns: Must be equal to keypad,num-rows since LPC32xx only
--  supports square matrices
- - nxp,debounce-delay-ms: Debounce delay in ms
- - nxp,scan-delay-ms: Repeated scan period in ms
- - linux,keymap: the key-code to be reported when the key is pressed
-   and released, see also
-   Documentation/devicetree/bindings/input/matrix-keymap.txt
- 
-+Note: keypad,num-rows and keypad,num-columns are required, and must be equal
-+since LPC32xx only supports square matrices
-+
- Example:
- 
- 	key@40050000 {
-diff --git a/Documentation/devicetree/bindings/input/matrix-keymap.txt b/Documentation/devicetree/bindings/input/matrix-keymap.txt
-index 3cd8b98..c54919f 100644
---- a/Documentation/devicetree/bindings/input/matrix-keymap.txt
-+++ b/Documentation/devicetree/bindings/input/matrix-keymap.txt
-@@ -9,6 +9,12 @@ Required properties:
- 	row << 24 | column << 16 | key-code
- 
- Optional properties:
-+Properties for the number of rows and columns are optional because some
-+drivers will use fixed values for these.
-+- keypad,num-rows: Number of row lines connected to the keypad controller.
-+- keypad,num-columns: Number of column lines connected to the keypad
-+  controller.
-+
- Some users of this binding might choose to specify secondary keymaps for
- cases where there is a modifier key such as a Fn key. Proposed names
- for said properties are "linux,fn-keymap" or with another descriptive
-@@ -17,3 +23,5 @@ word for the modifier other from "Fn".
- Example:
- 	linux,keymap = < 0x00030012
- 			 0x0102003a >;
-+	keypad,num-rows = <2>;
-+	keypad,num-columns = <8>;
-diff --git a/Documentation/devicetree/bindings/input/omap-keypad.txt b/Documentation/devicetree/bindings/input/omap-keypad.txt
-index f2fa5e1..34ed1c6 100644
---- a/Documentation/devicetree/bindings/input/omap-keypad.txt
-+++ b/Documentation/devicetree/bindings/input/omap-keypad.txt
-@@ -6,19 +6,16 @@ A key can be placed at each intersection of a unique row and a unique column.
- The keypad controller can sense a key-press and key-release and report the
- event using a interrupt to the cpu.
- 
-+This binding is based on the matrix-keymap binding with the following
-+changes:
-+
-+keypad,num-rows and keypad,num-columns are required.
-+
- Required SoC Specific Properties:
- - compatible: should be one of the following
-    - "ti,omap4-keypad": For controllers compatible with omap4 keypad
-       controller.
- 
--Required Board Specific Properties, in addition to those specified by
--the shared matrix-keyboard bindings:
--- keypad,num-rows: Number of row lines connected to the keypad
--  controller.
--
--- keypad,num-columns: Number of column lines connected to the
--  keypad controller.
--
- Optional Properties specific to linux:
- - linux,keypad-no-autorepeat: do no enable autorepeat feature.
- 
-diff --git a/Documentation/devicetree/bindings/input/tca8418_keypad.txt b/Documentation/devicetree/bindings/input/tca8418_keypad.txt
-index 2a1538f..2551850 100644
---- a/Documentation/devicetree/bindings/input/tca8418_keypad.txt
-+++ b/Documentation/devicetree/bindings/input/tca8418_keypad.txt
-@@ -1,8 +1,10 @@
-+This binding is based on the matrix-keymap binding with the following
-+changes:
-+
-+keypad,num-rows and keypad,num-columns are required.
- 
- Required properties:
- - compatible: "ti,tca8418"
- - reg: the I2C address
- - interrupts: IRQ line number, should trigger on falling edge
--- keypad,num-rows: The number of rows
--- keypad,num-columns: The number of columns
- - linux,keymap: Keys definitions, see keypad-matrix.
--- 
-1.7.7.3
-
+Regards,
+Simon

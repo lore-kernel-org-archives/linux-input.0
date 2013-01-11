@@ -1,18 +1,14 @@
 From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH resend 2/2] Input: twl6040-vibra: Code cleanup in probe
- with devm_* conversion
-Date: Fri, 11 Jan 2013 10:11:04 +0100
-Message-ID: <50EFD728.8090204@ti.com>
-References: <1357824965-30614-1-git-send-email-peter.ujfalusi@ti.com> <1357824965-30614-3-git-send-email-peter.ujfalusi@ti.com> <20130110175421.GC2797@core.coreip.homeip.net>
+Subject: [PATCH v2 0/4] Input: twl*-vibra cleanups (devm_* conversion, system wq)
+Date: Fri, 11 Jan 2013 10:27:59 +0100
+Message-ID: <1357896483-20764-1-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:46386 "EHLO comal.ext.ti.com"
+Received: from bear.ext.ti.com ([192.94.94.41]:49491 "EHLO bear.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753580Ab3AKJLH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jan 2013 04:11:07 -0500
-In-Reply-To: <20130110175421.GC2797@core.coreip.homeip.net>
+	id S1753219Ab3AKJ2H (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Jan 2013 04:28:07 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -20,45 +16,35 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 Hi Dmitry,
 
-On 01/10/2013 06:54 PM, Dmitry Torokhov wrote:
-> Hi Peter,
->=20
-> On Thu, Jan 10, 2013 at 02:36:05PM +0100, Peter Ujfalusi wrote:
->> Convert the probe to use devm_*. At the same time reorder the calls
->> so we will register the input device as the last step when the drive=
-r
->> is loaded.
->=20
-> If you are doing this please also use devm_input_allocate_device() an=
-d
-> devm_regulator_bulk_get().
+Changes since v1:
+- Use devm_input_allocate_device()
+- swtich drivers to use system workqueue
 
-Now I remember: I can not switch to devm_regulator_bulk_get() unfortuna=
-tely
-since when we boot with DT the code needs to reach up for the parent's =
-dev to
-get the needed regulator. If I use devm_regulator_bulk_get() the resour=
-ce will
-be bind to the parent dev and not to the vibra driver.
+Cover letter from v1 (resend set):
 
-> I also think it is high time to get rid of
-> dedicated work queue - cwq hasn't actually given you a separate thera=
-d
-> for a while now and if you get rid of workqueue you can get ridof ent=
-ire
-> twl6040_vibra_remove().
+This series seams to got lost:
+https://lkml.org/lkml/2012/6/15/128
 
-I agree with the rest. I'll move both twl4030/6040 vibra to use
-devm_input_allocate_device() and also I will move them to use system wi=
-de
-workqueue.
+Can you take it for 3.9?
 
-I'm going to resend the series soon with the suggested changes.
+Convert the twl4030, twl6040 vibra drivers to use devm_ at probe time to clean
+up the code a bit.
+The twl6040-vibra driver needed bigger change since the ordering of the
+initialization was not correct.
 
-Thanks,
-P=E9ter
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Peter
+---
+Peter Ujfalusi (4):
+  Input: twl4030-vibra: Convert to use devm_* in probe
+  input: twl4030-vibra: Use system workqueue
+  Input: twl6040-vibra: Code cleanup in probe with devm_* conversion
+  input: twl6040-vibra: Use system workqueue
+
+ drivers/input/misc/twl4030-vibra.c |  45 ++--------------
+ drivers/input/misc/twl6040-vibra.c | 106 +++++++++++++++----------------------
+ 2 files changed, 47 insertions(+), 104 deletions(-)
+
+-- 
+1.8.1
+

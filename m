@@ -1,220 +1,141 @@
-From: Shawn Nematbakhsh <shawnn@chromium.org>
-Subject: Re: [PATCH v2] atkbd: Fix multi-char scancode handling on reconnect.
-Date: Thu, 10 Jan 2013 14:23:15 -0800
-Message-ID: <CALaWCOMqm4fk5sC1VrngTBn4OPbUwxpOmWeMS8ww1eaGpaUhBw@mail.gmail.com>
-References: <1356057191-24664-1-git-send-email-shawnn@chromium.org>
-	<20130106091026.GA17618@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Simon Glass <sjg@chromium.org>
+Subject: [PATCH v2] input: Extend matrix-keypad device tree binding
+Date: Thu, 10 Jan 2013 17:41:32 -0800
+Message-ID: <1357868492-16023-1-git-send-email-sjg@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vb0-f42.google.com ([209.85.212.42]:38743 "EHLO
-	mail-vb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751614Ab3AJWXQ (ORCPT
+Received: from mail-qc0-f202.google.com ([209.85.216.202]:63362 "EHLO
+	mail-qc0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754214Ab3AKBli (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jan 2013 17:23:16 -0500
-Received: by mail-vb0-f42.google.com with SMTP id fa15so867060vbb.1
-        for <linux-input@vger.kernel.org>; Thu, 10 Jan 2013 14:23:15 -0800 (PST)
-In-Reply-To: <20130106091026.GA17618@core.coreip.homeip.net>
+	Thu, 10 Jan 2013 20:41:38 -0500
+Received: by mail-qc0-f202.google.com with SMTP id s25so158632qcq.1
+        for <linux-input@vger.kernel.org>; Thu, 10 Jan 2013 17:41:38 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: jj@chaosbits.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Simon Glass <sjg@chromium.org>, linux-input@vger.kernel.org, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@secretlab.ca>, devicetree-discuss@lists.ozlabs.org, Roland Stigge <stigge@antcom.de>, linux-doc@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>, Wolfram Sang <w.sang@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, Luigi Semenzato <semenzato@chromium.org>, Olof Johansson <olof@lixom.net>, Rob Herring <rob.herring@calxeda.com>, Stephen Warren <swarren@nvidia.com>, Alban Bedel <alban.bedel@avionic-design.de>
 
-Hi Dmitry,
+Some matrix keypad drivers can support different numbers of rows and
+columns. Add a generic binding for these.
 
-On Sun, Jan 6, 2013 at 1:10 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Shawn,
->
-> On Thu, Dec 20, 2012 at 06:33:11PM -0800, Shawn Nematbakhsh wrote:
->> On resume from suspend there is a possibility for multi-byte scancodes
->> to be handled incorrectly. atkbd_reconnect disables the processing of
->> scancodes in software by calling atkbd_disable, but the keyboard may
->> still be active because no disconnect command was sent. Later, software
->> handling is re-enabled. If a multi-byte scancode sent from the keyboard
->> straddles the re-enable, only the latter byte(s) will be handled.
->>
->> In practice, this leads to cases where multi-byte break codes (ex. "e0
->> 4d" - break code for right-arrow) are misread as make codes ("4d" - make
->> code for numeric 6), leading to one or more unwanted, untyped characters
->> being interpreted.
->>
->> The solution implemented here involves sending command f5 (reset
->> disable) to the keyboard prior to disabling software handling of codes.
->> Later, the command to re-enable the keyboard is sent only after we are
->> prepared to handle scancodes.
->
-> The core tries to avoid disturbing devices that are not keyboards, so I
-> believe we should check the device ID first and if it is keyboard, then
-> do the reset. We should also reset the internal state (emul and xl_bit)
-> when re-enabling the device.
->
-> Does the version of the patch below work for you?
->
-> Thanks.
->
-> --
-> Dmitry
+Implementation note:
 
-Thanks for the revision. This version of the patch tests good. I agree
-with your changes, it makes sense to deactivate the keyboard from both
-connect and reconnect, just in case the keyboard is able to send
-scancodes at this point.
+In order to implement this binding in the kernel, we will need to modify
+matrix_keypad_() to look up the number of rows and cols in
+the keymap. Perhaps this could be done by passing 0 for these parameters?
+Many of the parameters can already be set to NULL. Ick.
 
---
-Shawn
+Signed-off-by: Simon Glass <sjg@chromium.org>
+---
+Changes in v2:
+- Remove repeat rate parameters
+- Update TI OMAP, tca8418 and lpc32xx bindings to use this one
 
->
-> Input: atkbd - fix multi-byte scancode handling on reconnect
->
-> From: Shawn Nematbakhsh <shawnn@chromium.org>
->
-> On resume from suspend there is a possibility for multi-byte scancodes
-> to be handled incorrectly. atkbd_reconnect disables the processing of
-> scancodes in software by calling atkbd_disable, but the keyboard may
-> still be active because no disconnect command was sent. Later, software
-> handling is re-enabled. If a multi-byte scancode sent from the keyboard
-> straddles the re-enable, only the latter byte(s) will be handled.
->
-> In practice, this leads to cases where multi-byte break codes (ex. "e0
-> 4d" - break code for right-arrow) are misread as make codes ("4d" - make
-> code for numeric 6), leading to one or more unwanted, untyped characters
-> being interpreted.
->
-> The solution implemented here involves sending command f5 (reset
-> disable) to the keyboard prior to disabling software handling of codes.
-> Later, the command to re-enable the keyboard is sent only after we are
-> prepared to handle scancodes.
->
-> Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/keyboard/atkbd.c |   72 ++++++++++++++++++++++++++++------------
->  1 file changed, 51 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-> index 33d0fcd..2626773 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -676,6 +676,39 @@ static inline void atkbd_disable(struct atkbd *atkbd)
->         serio_continue_rx(atkbd->ps2dev.serio);
->  }
->
-> +static int atkbd_activate(struct atkbd *atkbd)
-> +{
-> +       struct ps2dev *ps2dev = &atkbd->ps2dev;
-> +
-> +/*
-> + * Enable the keyboard to receive keystrokes.
-> + */
-> +
-> +       if (ps2_command(ps2dev, NULL, ATKBD_CMD_ENABLE)) {
-> +               dev_err(&ps2dev->serio->dev,
-> +                       "Failed to enable keyboard on %s\n",
-> +                       ps2dev->serio->phys);
-> +               return -1;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +/*
-> + * atkbd_deactivate() resets and disables the keyboard from sending
-> + * keystrokes.
-> + */
-> +
-> +static void atkbd_deactivate(struct atkbd *atkbd)
-> +{
-> +       struct ps2dev *ps2dev = &atkbd->ps2dev;
-> +
-> +       if (ps2_command(ps2dev, NULL, ATKBD_CMD_RESET_DIS))
-> +               dev_err(&ps2dev->serio->dev,
-> +                       "Failed to deactivate keyboard on %s\n",
-> +                       ps2dev->serio->phys);
-> +}
-> +
->  /*
->   * atkbd_probe() probes for an AT keyboard on a serio port.
->   */
-> @@ -731,6 +764,12 @@ static int atkbd_probe(struct atkbd *atkbd)
->                 return -1;
->         }
->
-> +/*
-> + * Make sure nothing is coming from the keyboard and disturbs our
-> + * internal state.
-> + */
-> +       atkbd_deactivate(atkbd);
-> +
->         return 0;
->  }
->
-> @@ -825,24 +864,6 @@ static int atkbd_reset_state(struct atkbd *atkbd)
->         return 0;
->  }
->
-> -static int atkbd_activate(struct atkbd *atkbd)
-> -{
-> -       struct ps2dev *ps2dev = &atkbd->ps2dev;
-> -
-> -/*
-> - * Enable the keyboard to receive keystrokes.
-> - */
-> -
-> -       if (ps2_command(ps2dev, NULL, ATKBD_CMD_ENABLE)) {
-> -               dev_err(&ps2dev->serio->dev,
-> -                       "Failed to enable keyboard on %s\n",
-> -                       ps2dev->serio->phys);
-> -               return -1;
-> -       }
-> -
-> -       return 0;
-> -}
-> -
->  /*
->   * atkbd_cleanup() restores the keyboard state so that BIOS is happy after a
->   * reboot.
-> @@ -1150,7 +1171,6 @@ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
->
->                 atkbd->set = atkbd_select_set(atkbd, atkbd_set, atkbd_extra);
->                 atkbd_reset_state(atkbd);
-> -               atkbd_activate(atkbd);
->
->         } else {
->                 atkbd->set = 2;
-> @@ -1165,6 +1185,8 @@ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
->                 goto fail3;
->
->         atkbd_enable(atkbd);
-> +       if (serio->write)
-> +               atkbd_activate(atkbd);
->
->         err = input_register_device(atkbd->dev);
->         if (err)
-> @@ -1208,8 +1230,6 @@ static int atkbd_reconnect(struct serio *serio)
->                 if (atkbd->set != atkbd_select_set(atkbd, atkbd->set, atkbd->extra))
->                         goto out;
->
-> -               atkbd_activate(atkbd);
-> -
->                 /*
->                  * Restore LED state and repeat rate. While input core
->                  * will do this for us at resume time reconnect may happen
-> @@ -1223,7 +1243,17 @@ static int atkbd_reconnect(struct serio *serio)
->
->         }
->
-> +       /*
-> +        * Reset our state machine in case reconnect happened in the middle
-> +        * of multi-byte scancode.
-> +        */
-> +       atkbd->xl_bit = 0;
-> +       atkbd->emul = 0;
-> +
->         atkbd_enable(atkbd);
-> +       if (atkbd->write)
-> +               atkbd_activate(atkbd);
-> +
->         retval = 0;
->
->   out:
+ .../devicetree/bindings/input/lpc32xx-key.txt      |    9 ++++++---
+ .../devicetree/bindings/input/matrix-keymap.txt    |    8 ++++++++
+ .../devicetree/bindings/input/omap-keypad.txt      |   13 +++++--------
+ .../devicetree/bindings/input/tca8418_keypad.txt   |    6 ++++--
+ 4 files changed, 23 insertions(+), 13 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/input/lpc32xx-key.txt b/Documentation/devicetree/bindings/input/lpc32xx-key.txt
+index 31afd50..bcf62f8 100644
+--- a/Documentation/devicetree/bindings/input/lpc32xx-key.txt
++++ b/Documentation/devicetree/bindings/input/lpc32xx-key.txt
+@@ -1,19 +1,22 @@
+ NXP LPC32xx Key Scan Interface
+ 
++This binding is based on the matrix-keymap binding with the following
++changes:
++
+ Required Properties:
+ - compatible: Should be "nxp,lpc3220-key"
+ - reg: Physical base address of the controller and length of memory mapped
+   region.
+ - interrupts: The interrupt number to the cpu.
+-- keypad,num-rows: Number of rows and columns, e.g. 1: 1x1, 6: 6x6
+-- keypad,num-columns: Must be equal to keypad,num-rows since LPC32xx only
+-  supports square matrices
+ - nxp,debounce-delay-ms: Debounce delay in ms
+ - nxp,scan-delay-ms: Repeated scan period in ms
+ - linux,keymap: the key-code to be reported when the key is pressed
+   and released, see also
+   Documentation/devicetree/bindings/input/matrix-keymap.txt
+ 
++Note: keypad,num-rows and keypad,num-columns are required, and must be equal
++since LPC32xx only supports square matrices
++
+ Example:
+ 
+ 	key@40050000 {
+diff --git a/Documentation/devicetree/bindings/input/matrix-keymap.txt b/Documentation/devicetree/bindings/input/matrix-keymap.txt
+index 3cd8b98..c54919f 100644
+--- a/Documentation/devicetree/bindings/input/matrix-keymap.txt
++++ b/Documentation/devicetree/bindings/input/matrix-keymap.txt
+@@ -9,6 +9,12 @@ Required properties:
+ 	row << 24 | column << 16 | key-code
+ 
+ Optional properties:
++Properties for the number of rows and columns are optional because some
++drivers will use fixed values for these.
++- keypad,num-rows: Number of row lines connected to the keypad controller.
++- keypad,num-columns: Number of column lines connected to the keypad
++  controller.
++
+ Some users of this binding might choose to specify secondary keymaps for
+ cases where there is a modifier key such as a Fn key. Proposed names
+ for said properties are "linux,fn-keymap" or with another descriptive
+@@ -17,3 +23,5 @@ word for the modifier other from "Fn".
+ Example:
+ 	linux,keymap = < 0x00030012
+ 			 0x0102003a >;
++	keypad,num-rows = <2>;
++	keypad,num-columns = <8>;
+diff --git a/Documentation/devicetree/bindings/input/omap-keypad.txt b/Documentation/devicetree/bindings/input/omap-keypad.txt
+index f2fa5e1..34ed1c6 100644
+--- a/Documentation/devicetree/bindings/input/omap-keypad.txt
++++ b/Documentation/devicetree/bindings/input/omap-keypad.txt
+@@ -6,19 +6,16 @@ A key can be placed at each intersection of a unique row and a unique column.
+ The keypad controller can sense a key-press and key-release and report the
+ event using a interrupt to the cpu.
+ 
++This binding is based on the matrix-keymap binding with the following
++changes:
++
++keypad,num-rows and keypad,num-columns are required.
++
+ Required SoC Specific Properties:
+ - compatible: should be one of the following
+    - "ti,omap4-keypad": For controllers compatible with omap4 keypad
+       controller.
+ 
+-Required Board Specific Properties, in addition to those specified by
+-the shared matrix-keyboard bindings:
+-- keypad,num-rows: Number of row lines connected to the keypad
+-  controller.
+-
+-- keypad,num-columns: Number of column lines connected to the
+-  keypad controller.
+-
+ Optional Properties specific to linux:
+ - linux,keypad-no-autorepeat: do no enable autorepeat feature.
+ 
+diff --git a/Documentation/devicetree/bindings/input/tca8418_keypad.txt b/Documentation/devicetree/bindings/input/tca8418_keypad.txt
+index 2a1538f..2551850 100644
+--- a/Documentation/devicetree/bindings/input/tca8418_keypad.txt
++++ b/Documentation/devicetree/bindings/input/tca8418_keypad.txt
+@@ -1,8 +1,10 @@
++This binding is based on the matrix-keymap binding with the following
++changes:
++
++keypad,num-rows and keypad,num-columns are required.
+ 
+ Required properties:
+ - compatible: "ti,tca8418"
+ - reg: the I2C address
+ - interrupts: IRQ line number, should trigger on falling edge
+-- keypad,num-rows: The number of rows
+-- keypad,num-columns: The number of columns
+ - linux,keymap: Keys definitions, see keypad-matrix.
+-- 
+1.7.7.3
+

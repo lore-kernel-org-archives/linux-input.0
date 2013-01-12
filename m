@@ -1,54 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: Extend matrix-keypad device tree binding
-Date: Fri, 11 Jan 2013 09:13:43 -0800
-Message-ID: <20130111171343.GE11224@core.coreip.homeip.net>
-References: <1357868492-16023-1-git-send-email-sjg@chromium.org>
- <50F0473F.404@wwwdotorg.org>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH] HID: add quirk for Freescale i.MX23 ROM recovery
+Date: Sat, 12 Jan 2013 21:22:48 +0100
+Message-ID: <201301122122.48856.marex@denx.de>
+References: <1353734157-9119-1-git-send-email-marex@denx.de> <alpine.LNX.2.00.1211261421050.12570@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <50F0473F.404@wwwdotorg.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Simon Glass <sjg@chromium.org>, LKML <linux-kernel@vger.kernel.org>, Roland Stigge <stigge@antcom.de>, Vincent Palatin <vpalatin@chromium.org>, linux-doc@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Felipe Balbi <balbi@ti.com>, Luigi Semenzato <semenzato@chromium.org>, Rob Herring <rob.herring@calxeda.com>, linux-input@vger.kernel.org, Stephen Warren <swarren@nvidia.com>, Sourav Poddar <sourav.poddar@ti.com>, Alban Bedel <alban.bedel@avionic-design.de>, devicetree-discuss@lists.ozlabs.org, Laxman Dewangan <ldewangan@nvidia.com>
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-out.m-online.net ([212.18.0.10]:56196 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754059Ab3ALUWy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 12 Jan 2013 15:22:54 -0500
+In-Reply-To: <alpine.LNX.2.00.1211261421050.12570@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Chen Peter <B29397@freescale.com>, Greg KH <greg@kroah.com>
 
-On Fri, Jan 11, 2013 at 10:09:19AM -0700, Stephen Warren wrote:
-> On 01/10/2013 06:41 PM, Simon Glass wrote:
-> > Some matrix keypad drivers can support different numbers of rows and
-> > columns. Add a generic binding for these.
+Hi Jirka,
+
+> On Sat, 24 Nov 2012, Marek Vasut wrote:
+> > The USB recovery mode present in i.MX23 ROM emulates USB HID.
+> > It needs this quirk to behave properly.
 > > 
-> > Implementation note:
-> > 
-> > In order to implement this binding in the kernel, we will need to modify
-> > matrix_keypad_() to look up the number of rows and cols in
-> > the keymap. Perhaps this could be done by passing 0 for these parameters?
-> > Many of the parameters can already be set to NULL. Ick.
+> > Even if the official branding of the chip is Freescale i.MX23,
+> > I named it Sigmatel STMP3780 since that's what the chip really
+> > is and it even reports itself as STMP3780.
 > 
-> Reviewed-by: Stephen Warren <swarren@nvidia.com>
-> 
-> Note that the Tegra bindings are based on matrix-keypad.txt, and
-> recently added the following properties:
-> 
-> > - nvidia,kbc-row-pins: The KBC pins which are configured as row. This is an
-> >   array of pin numbers which is used as rows.
-> > - nvidia,kbc-col-pins: The KBC pins which are configured as column. This is an
-> >   array of pin numbers which is used as column.
-> 
-> Those both define the number of rows/columns (indirectly via the
-> property lengths) *and* define which pins are used for the rows/columns.
-> How will this influence/interact-with any changes you're planning to the
-> core matrix keymap parsing code; would Tegra require your "new"
-> keypad,num-rows/keypad,num-columns properties even though the
-> information is redundant, or will the Tegra driver have some way of
-> passing this information to the core?
+> Applied, thanks Marek.
 
-Even if we decide to move lookup of keypad,num-rows/keypad,num-columns
-into matrix-keypad code we will still allow callers to override DT data,
-like we do with platform keymaps.
+Can we possibly push this into -stable please?
 
-Thanks.
-
--- 
-Dmitry
+Best regards,
+Marek Vasut

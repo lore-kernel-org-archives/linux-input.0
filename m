@@ -1,19 +1,71 @@
-From: =?KOI8-R?B?6dfBziDz19HUz9PMwdc=?= <v.visp2@gmail.com>
-Subject: serio_raw
-Date: Mon, 14 Jan 2013 17:27:00 +0200
-Message-ID: <CAF7QyLyJs29urrhNzC9d27OT3S=rdwoGVLK-2eP4s09zsb=a4Q@mail.gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: [PATCH v3 2/2] input: twl6040-vibra: Use system workqueue
+Date: Mon, 14 Jan 2013 16:34:38 +0100
+Message-ID: <1358177678-16509-3-git-send-email-peter.ujfalusi@ti.com>
+References: <1358177678-16509-1-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f179.google.com ([74.125.82.179]:35728 "EHLO
-	mail-we0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756330Ab3ANP1D (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:54427 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756376Ab3ANPeo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Jan 2013 10:27:03 -0500
-Received: by mail-we0-f179.google.com with SMTP id r6so2158625wey.10
-        for <linux-input@vger.kernel.org>; Mon, 14 Jan 2013 07:27:01 -0800 (PST)
+	Mon, 14 Jan 2013 10:34:44 -0500
+In-Reply-To: <1358177678-16509-1-git-send-email-peter.ujfalusi@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Thank you for your answer (serio_raw) helpful.
+It is time to switch to system wq instead creating a queue for the driver.
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+---
+ drivers/input/misc/twl6040-vibra.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
+index d1e31b8..0c2dfc8 100644
+--- a/drivers/input/misc/twl6040-vibra.c
++++ b/drivers/input/misc/twl6040-vibra.c
+@@ -361,19 +361,13 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	info->workqueue = alloc_workqueue("twl6040-vibra", 0, 0);
+-	if (info->workqueue == NULL) {
+-		dev_err(info->dev, "couldn't create workqueue\n");
+-		ret = -ENOMEM;
+-		goto err_regulator;
+-	}
+ 	INIT_WORK(&info->play_work, vibra_play_work);
+ 
+ 	info->input_dev = input_allocate_device();
+ 	if (info->input_dev == NULL) {
+ 		dev_err(info->dev, "couldn't allocate input device\n");
+ 		ret = -ENOMEM;
+-		goto err_wq;
++		goto err_regulator;
+ 	}
+ 
+ 	input_set_drvdata(info->input_dev, info);
+@@ -404,8 +398,6 @@ err_iff:
+ 	input_ff_destroy(info->input_dev);
+ err_ialloc:
+ 	input_free_device(info->input_dev);
+-err_wq:
+-	destroy_workqueue(info->workqueue);
+ err_regulator:
+ 	regulator_bulk_free(ARRAY_SIZE(info->supplies), info->supplies);
+ 	return ret;
+@@ -417,7 +409,6 @@ static int twl6040_vibra_remove(struct platform_device *pdev)
+ 
+ 	input_unregister_device(info->input_dev);
+ 	regulator_bulk_free(ARRAY_SIZE(info->supplies), info->supplies);
+-	destroy_workqueue(info->workqueue);
+ 
+ 	return 0;
+ }
+-- 
+1.8.1
+

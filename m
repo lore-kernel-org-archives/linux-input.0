@@ -1,51 +1,122 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: Wolfram Sang <w.sang@pengutronix.de>
 Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource
  allocation
-Date: Tue, 15 Jan 2013 13:32:48 +0100
-Message-ID: <20130115123248.GB2625@pengutronix.de>
+Date: Tue, 15 Jan 2013 14:06:23 +0100
+Message-ID: <20130115130623.GC2625@pengutronix.de>
 References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com>
- <20130114161644.GC14721@kroah.com>
- <20130114221551.GA30020@avionic-0098.adnet.avionic-design.de>
- <201301142224.11243.arnd@arndb.de>
+ <1357371910-3164-3-git-send-email-ldewangan@nvidia.com>
+ <20130105080658.GA1315@core.coreip.homeip.net>
+ <20130106192739.GA11566@avionic-0098.adnet.avionic-design.de>
+ <20130106195748.GA28212@core.coreip.homeip.net>
+ <20130109070745.GA12782@avionic-0098.adnet.avionic-design.de>
+ <20130109091939.GA4369@core.coreip.homeip.net>
+ <20130109092352.GA28037@avionic-0098.adnet.avionic-design.de>
+ <20130114154959.GA25049@avionic-0098.adnet.avionic-design.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bCsyhTFzCvuiizWE"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="zCKi3GIZzVBPywwA"
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <201301142224.11243.arnd-r2nGTMty4D4@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20130114154959.GA25049@avionic-0098.adnet.avionic-design.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: Thierry Reding <thierry.reding@avionic-design.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, grant.likely@secretlab.ca, rob.herring@calxeda.com, swarren@nvidia.com, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-input@vger.kernel.org
 
 
---bCsyhTFzCvuiizWE
+--zCKi3GIZzVBPywwA
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 14, 2013 at 10:24:11PM +0000, Arnd Bergmann wrote:
-> On Monday 14 January 2013, Thierry Reding wrote:
-> > It certainly sounds like a less complicated way to do it. But it also
-> > involves adding a function with a made up name and drop a function with
-> > a perfectly good name instead. I wouldn't even know what name to choose
-> > for the new API.
+Hi,
+
+> > > > > I am sorry, but I do not consider a function that was added a lit=
+tle
+> > > > > over a year ago as a canon. If you look at the uses of EADDRNOTAV=
+AIL it
+> > > > > is used predominantly in networking code to indicate that attempt=
+ed
+> > > > > _network_ address is not available.
+> > > >=20
+> > > > EBUSY might be misleading, though. devm_request_and_ioremap() can f=
+ail
+> > > > in both the request_mem_region() and ioremap() calls. Furthermore i=
+t'd
+> > > > be good to settle on a consistent error-code instead of doing it
+> > > > differently depending on subsystem and/or driver. Currently the var=
+ious
+> > > > error codes used are:
+> > > >=20
+> > > > 	EBUSY, EADDRNOTAVAIL, ENXIO, ENOMEM, ENODEV, ENOENT, EINVAL,
+> > > > 	EIO, EFAULT, EADDRINUSE
+> > > >=20
+> > > > Also if we can settle on one error code we should follow up with a =
+patch
+> > > > to make it consistent across the tree and also update that kerneldoc
+> > > > comment. I volunteer to do that if nobody else steps up. I'm also C=
+c'ing
+> > > > Wolfram (the original author), maybe he has some thoughts on this.
+
+Handling the error case was the biggest discussion back then. I
+initially did not want to use ERR_PTR, because I see already enough
+patches adding a forgotten ERR_PTR to drivers. My initial idea was to
+return a simple errno and have the pointer a function argument. I was
+convinced [1], however, that the dev_err printout is enough to make
+visible what actually went wrong and return a NULL pointer instead. So
+much for why the function does NOT return a PTR_ERR, and I still prefer
+that.
+
+Then, I added the example code in the documentation using EADDRNOTAVAIL.
+Yes, I was brave with this one. Yet, EINVAL, EBUSY, ENOENT, did not
+really cut it and are so heavily used in drivers that they turned into a
+generic "something is wrong" error. I tried here to use a not overloaded
+error code in order to be specific again. Since the patches were
+accepted, I assumed it wasn't seen as a namespace violation. (Then
+again, it probably would have been if that error code would go out to
+userspace) Naturally, I didn't have the resources to check all patches
+for a consistent error code.
+
+> > > If you going to change all drivers make devm_request_and_ioremap()
+> > > return ERR_PTR()-encoded errors and then we can differentiate what
+> > > part of it failed.
 > >=20
->=20
-> How about devm_ioremap_resource()? Sounds equally fitting, and is shorter.
+> > Yeah, that thought also crossed my mind. I'll give other people some
+> > time to comment before hurling myself into preparing patches.
 
-2 cents, I wrote back then:
+As said above, that was argued away when committing the patches.
 
-* the new function is not named 'devm_ioremap_resource' because it does mor=
-e than
-  just ioremap, namely request_mem_region. I didn't want to create implicit
-  knowledge here.
+But there is more to that:
+
+When working with this function, there was also the idea to abstract
+getting the resource away. Which then gave Sascha Hauer and me the
+question, if drivers really have to do this or if this couldn't be done
+by the kernel somehow, i.e. giving the drivers already the resources
+they need, completely prepared.
+
+Of course, then we would need a similar function for interrupt
+resources. Which has much bigger problem with return codes, since we
+then step into the area of the "0 is no interrupt" topic (while
+platform_get_irq returns an error code).
+
+As a result, I got the impression that the whole topic needs ONE
+concentrated, major rehaul or at least a master plan. Adding an idea
+here and there doesn't seem to cut it, at least not in the way
+devm_request_and_ioremap() was done. I would be interested in doing that
+but my resources don't allow me to even think about it at the moment,
+sadly.
+
+Regards,
+
+   Wolfram
+
+[1] http://lkml.org/lkml/2011/10/24/278
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---bCsyhTFzCvuiizWE
+--zCKi3GIZzVBPywwA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -53,9 +124,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAlD1THAACgkQD27XaX1/VRsbUQCeO3T9fGRUTenwPGNdf2Wfow+S
-2yQAnjkdp45Tk8czgujiurdGGiEEMDvr
-=LQve
+iEYEARECAAYFAlD1VE8ACgkQD27XaX1/VRuU/wCeKk2fiXMlUbT7bXIrkVR0LMPi
+yF4AoMM7ohK1kf9R4sJSIfMGkGAOKKvT
+=fj7L
 -----END PGP SIGNATURE-----
 
---bCsyhTFzCvuiizWE--
+--zCKi3GIZzVBPywwA--

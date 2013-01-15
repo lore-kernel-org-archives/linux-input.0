@@ -1,150 +1,101 @@
-From: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
-Subject: =?UTF-8?q?=5BPATCH=5D=20Support=20Jess/Saitek=20Color=20Rumble=20Pad?=
-Date: Tue, 15 Jan 2013 18:57:47 +0100
-Message-ID: <1358272668-5124-1-git-send-email-kernel@mkarcher.dialup.fu-berlin.de>
-References: <alpine.LNX.2.00.1301031042530.27348@pobox.suse.cz>
+From: Andre Guedes <andre.guedes@openbossa.org>
+Subject: Re: [RFC v2 0/4] uhid LED input events handling
+Date: Tue, 15 Jan 2013 19:04:50 -0300
+Message-ID: <CACJA=fXx=c4MEmXBJyitr1f5Xi5tbVovAtkNBjhvwDyUP2ARxA@mail.gmail.com>
+References: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
+	<CACJA=fUYX0Wehd--Ay0bwSS+9visC5By=SCWaoVkvKjVsJySKQ@mail.gmail.com>
+	<CANq1E4S_TzeCZ-djPxBcOYHFEoBxUdQpruTe52mtTq-nkCdc2Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------1.7.10.4"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from outpost1.zedat.fu-berlin.de ([130.133.4.66]:35862 "EHLO
-	outpost1.zedat.fu-berlin.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751396Ab3AORzv (ORCPT
+Received: from mail-bk0-f47.google.com ([209.85.214.47]:54855 "EHLO
+	mail-bk0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755375Ab3AOWEw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jan 2013 12:55:51 -0500
-In-Reply-To: <alpine.LNX.2.00.1301031042530.27348@pobox.suse.cz>
-In-Reply-To: <alpine.LNX.2.00.1301031042530.27348@pobox.suse.cz>
+	Tue, 15 Jan 2013 17:04:52 -0500
+Received: by mail-bk0-f47.google.com with SMTP id j4so357698bkw.6
+        for <linux-input@vger.kernel.org>; Tue, 15 Jan 2013 14:04:50 -0800 (PST)
+In-Reply-To: <CANq1E4S_TzeCZ-djPxBcOYHFEoBxUdQpruTe52mtTq-nkCdc2Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-This is a multi-part message in MIME format.
---------------1.7.10.4
-Content-Type: text/plain; charset=UTF-8; format=fixed
-Content-Transfer-Encoding: 8bit
+Hi David,
 
+On Thu, Dec 20, 2012 at 4:43 PM, David Herrmann
+<dh.herrmann@googlemail.com> wrote:
+> Hi Andre
+>
+> On Mon, Dec 17, 2012 at 2:28 PM, Andre Guedes
+> <andre.guedes@openbossa.org> wrote:
+>> Ping.
+>>
+>> On Sat, Dec 1, 2012 at 4:07 PM, Andre Guedes <andre.guedes@openbossa.org> wrote:
+>>> Hi all,
+>>>
+>>> This patchset implements the support for handling LED input events in uhid
+>>> driver.
+>>>
+>>> As requested in the previous RFC, it was introduced a new helper in hid-input.c
+>>> to carry out a generic LED input events handling (hidinput_led_output_report).
+>>> The helper is used by uhid driver.
+>>>
+>>> The helper can also be used in i2c-hid driver since it does a very simply
+>>> handling of LED events too. I have no i2c device to test the i2c-hid patch,
+>>> so it requires some testing before applying it.
+>>>
+>>> As long as the helper relies on device's .hid_output_raw_report() and
+>>> hid-logitech-dj driver doesn't properly implement this callback, the helper is
+>>> not used in hid-logitech-dj driver.
+>>>
+>>> Also, this helper is not used in usbhid driver as long as it does a more
+>>> sophisticated handling than what hidinput_led_output_report helper does. For
+>>> further information about usbhid LEDs handling see comments in the patchset [1].
+>
+> I actually don't like the idea to call hid_output_raw_report() from
+> atomic-contexts. Using a work-queue would allow to use your callback
+> from usbhid and hidp. Furthermore, you wouldn't need the GFP_ATOMIC
+> patch for uhid.
 
-Add support for another gamepad to the hid-pl driver.
-The "color rumble pad P580" marketed using the "Saitek" brand in
-Germany, and using a USB Vendor ID attributed to "Jess" seems to be
-electronically identical to the 4-field variant of the "Green Asia"
-gamepad.
+I agree with you about calling hid_output_raw_report from atomic
+sections. I'll re-write hidinput_led_output_report and use a work.
 
-The pad has been tested to support rumble strengths up to 255, not
-just 127.
+> I am actually ok with all the uhid patches, but Jiri needs to ack the
+> hid-core patches. Maybe he is ok with it, but I'd like to see all
+> ll_drivers using this callback. Because the current solution doesn't
+> seem any better than just fixing uhid to use it's own implementation.
+> Also please elaborate why hidp and usbhid cannot use this callback.
 
-Signed-off-by: Michael Karcher <kernel@mkarcher.dialup.fu-berlin.de>
----
- drivers/hid/hid-core.c |    1 +
- drivers/hid/hid-ids.h  |    3 +++
- drivers/hid/hid-pl.c   |   13 +++++++++++--
- 3 files changed, 15 insertions(+), 2 deletions(-)
+Usbhid uses a more sophisticated approach to handle LED input events.
+When a LED input event occurs it only sets the "field" and schedule a
+work to carry out sending the report to the device. This way, it is
+more likely to gather all LED changes into a single URB. This prevents
+a race condition when trying to suspend a laptop with an attached USB
+keyboard with both NumLock and CapsLock LEDs on. The race condition is
+explained in details in [1, 2, 3].
 
+In hidp, hidinput_led_output_report runs in atomic section, but hidp
+.hid_output_raw_report() callback may sleep.
 
---------------1.7.10.4
-Content-Type: text/x-patch; name="0001-Support-Jess-Saitek-Color-Rumble-Pad.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline; filename="0001-Support-Jess-Saitek-Color-Rumble-Pad.patch"
+Anyway, with the workqueue approach, I believe we'll be able to use
+the helper in all ll_drivers.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index eb2ee11..aad2627 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1599,6 +1599,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK, USB_DEVICE_ID_HOLTEK_ON_LINE_GRIP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4dfa605..3a49334 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -442,6 +442,9 @@
- #define USB_VENDOR_ID_JESS		0x0c45
- #define USB_DEVICE_ID_JESS_YUREX	0x1010
- 
-+#define USB_VENDOR_ID_JESS2		0x0f30
-+#define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
-+
- #define USB_VENDOR_ID_KBGEAR		0x084e
- #define USB_DEVICE_ID_KBGEAR_JAMSTUDIO	0x1001
- 
-diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
-index 47ed74c..1768414 100644
---- a/drivers/hid/hid-pl.c
-+++ b/drivers/hid/hid-pl.c
-@@ -14,6 +14,8 @@
-  *  0e8f:0003 "GASIA USB Gamepad"
-  *   - another version of the König gamepad
-  *
-+ *  0f30:0111 "Saitek Color Rumble Pad"
-+ *
-  *  Copyright (c) 2007, 2009 Anssi Hannula <anssi.hannula@gmail.com>
-  */
- 
-@@ -51,6 +53,7 @@
- 
- struct plff_device {
- 	struct hid_report *report;
-+	s32 maxval;
- 	s32 *strong;
- 	s32 *weak;
- };
-@@ -66,8 +69,8 @@ static int hid_plff_play(struct input_dev *dev, void *data,
- 	right = effect->u.rumble.weak_magnitude;
- 	debug("called with 0x%04x 0x%04x", left, right);
- 
--	left = left * 0x7f / 0xffff;
--	right = right * 0x7f / 0xffff;
-+	left = left * plff->maxval / 0xffff;
-+	right = right * plff->maxval / 0xffff;
- 
- 	*plff->strong = left;
- 	*plff->weak = right;
-@@ -87,6 +90,7 @@ static int plff_init(struct hid_device *hid)
- 	struct list_head *report_ptr = report_list;
- 	struct input_dev *dev;
- 	int error;
-+	s32 maxval;
- 	s32 *strong;
- 	s32 *weak;
- 
-@@ -123,6 +127,7 @@ static int plff_init(struct hid_device *hid)
- 			return -ENODEV;
- 		}
- 
-+		maxval = 0x7f;
- 		if (report->field[0]->report_count >= 4) {
- 			report->field[0]->value[0] = 0x00;
- 			report->field[0]->value[1] = 0x00;
-@@ -135,6 +140,8 @@ static int plff_init(struct hid_device *hid)
- 			report->field[1]->value[0] = 0x00;
- 			strong = &report->field[2]->value[0];
- 			weak = &report->field[3]->value[0];
-+			if (hid->vendor == USB_VENDOR_ID_JESS2)
-+				maxval = 0xff;
- 			debug("detected 4-field device");
- 		} else {
- 			hid_err(hid, "not enough fields or values\n");
-@@ -158,6 +165,7 @@ static int plff_init(struct hid_device *hid)
- 		plff->report = report;
- 		plff->strong = strong;
- 		plff->weak = weak;
-+		plff->maxval = maxval;
- 
- 		*strong = 0x00;
- 		*weak = 0x00;
-@@ -207,6 +215,7 @@ static const struct hid_device_id pl_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR),
- 		.driver_data = 1 }, /* Twin USB Joystick */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0003), },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD), },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, pl_devices);
+As you are ok with uhid changes, I was wondering if we could take an
+incremental approach here. First we would simply fix the uhid driver
+by handling LED events the same way others ll_drivers do. This way, we
+would get uhid sending output reports to userspace and HID over GATT
+working fine. Meanwhile, I'll keep working on this refactoring and
+testing the ll_drivers. As soon as it is well-tested, I send a new
+patchset.
 
---------------1.7.10.4--
+Are you fine with this approach? If you agree, I can send the uhid
+patch right away.
 
+Best regards,
 
+Andre
+
+[1] - http://marc.info/?l=linux-usb&m=132013970108623&w=2
+[2] - http://marc.info/?l=linux-usb&m=132013966708616&w=2
+[3] - http://marc.info/?l=linux-usb&m=132013968208618&w=2

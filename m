@@ -1,44 +1,37 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: add support for Sony RF receiver with USB product
- id 0x0374
-Date: Tue, 15 Jan 2013 17:02:24 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>
-References: <1358221428.9926.1.camel@nexus.lab.ntt.co.jp>  <20130115103638.be566e39f0f5ad7186362dd8@studenti.unina.it>  <50F52986.2080002@lab.ntt.co.jp> <1358246448.4897.3.camel@nexus.lab.ntt.co.jp>
+Subject: Re: [PATCH 00/11] Support of dual pen/multitouch and new default
+ for win 7 certified devices
+Date: Tue, 15 Jan 2013 17:04:42 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1301151704100.7734@pobox.suse.cz>
+References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com> <alpine.LNX.2.00.1301031050060.27348@pobox.suse.cz> <CAN+gG=GxiM-K6mSmQk4GVRbkkc5VwCW1wUeo1BEuXoZ+T-ir_A@mail.gmail.com> <20130106200355.GA557@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1358246448.4897.3.camel@nexus.lab.ntt.co.jp>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?Fernando_Luis_V=E1zquez_Cao?= <fernando_b1@lab.ntt.co.jp>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:60260 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756860Ab3AOQEt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Jan 2013 11:04:49 -0500
+In-Reply-To: <20130106200355.GA557@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2013, Fernando Luis V=C3=A1zquez Cao wrote:
+On Sun, 6 Jan 2013, Henrik Rydberg wrote:
 
-> Some Vaio desktop computers, among them the VGC-LN51JGB multimedia PC=
-, have
-> a RF receiver, multi-interface USB device 054c:0374, that is used to =
-connect
-> a wireless keyboard and a wireless mouse.
->=20
-> The keyboard works flawlessly, but the mouse (VGP-WMS3 in my case) do=
-es not
-> seem to be generating any pointer events. The problem is that the mou=
-se pointer
-> is wrongly declared as a constant non-data variable in the report des=
-criptor
-> (see lsusb and usbhid-dump output below), with the consequence that i=
-t is
-> ignored by the HID code.
->=20
-> Add this device to the have-special-driver list and fix up the report
-> descriptor in the Sony-specific driver which happens to already have =
-a fixup
-> for a similar firmware bug.
+> > Henrik, you told us that you have a patch set fixing these
+> > dependencies on all the hid drivers, will you prepare it for 3.9? Do
+> > you want me to continue your work?
+> 
+> Yes, no, yes. :-)
+> 
+> That is, it would be great if you want to pick up those patches. I
+> will send you a pm shortly.
 
-Applied, thanks.
+So, what is the status of this code now, please?
 
---=20
+Thanks,
+
+-- 
 Jiri Kosina
 SUSE Labs

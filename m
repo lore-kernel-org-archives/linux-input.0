@@ -1,101 +1,63 @@
-From: Andre Guedes <andre.guedes@openbossa.org>
-Subject: Re: [RFC v2 0/4] uhid LED input events handling
-Date: Tue, 15 Jan 2013 19:04:50 -0300
-Message-ID: <CACJA=fXx=c4MEmXBJyitr1f5Xi5tbVovAtkNBjhvwDyUP2ARxA@mail.gmail.com>
-References: <1354388841-23854-1-git-send-email-andre.guedes@openbossa.org>
-	<CACJA=fUYX0Wehd--Ay0bwSS+9visC5By=SCWaoVkvKjVsJySKQ@mail.gmail.com>
-	<CANq1E4S_TzeCZ-djPxBcOYHFEoBxUdQpruTe52mtTq-nkCdc2Q@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 00/11] Support of dual pen/multitouch and new default for
+ win 7 certified devices
+Date: Wed, 16 Jan 2013 03:55:10 +0100
+Message-ID: <CAN+gG=GhqNwiFn71NxF0ueckkh=hbKjkhix+EcaH_263Nd=sPg@mail.gmail.com>
+References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1301031050060.27348@pobox.suse.cz>
+	<CAN+gG=GxiM-K6mSmQk4GVRbkkc5VwCW1wUeo1BEuXoZ+T-ir_A@mail.gmail.com>
+	<20130106200355.GA557@polaris.bitmath.org>
+	<alpine.LNX.2.00.1301151704100.7734@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f47.google.com ([209.85.214.47]:54855 "EHLO
-	mail-bk0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755375Ab3AOWEw (ORCPT
+Received: from mail-lb0-f181.google.com ([209.85.217.181]:52318 "EHLO
+	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756105Ab3APCzM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jan 2013 17:04:52 -0500
-Received: by mail-bk0-f47.google.com with SMTP id j4so357698bkw.6
-        for <linux-input@vger.kernel.org>; Tue, 15 Jan 2013 14:04:50 -0800 (PST)
-In-Reply-To: <CANq1E4S_TzeCZ-djPxBcOYHFEoBxUdQpruTe52mtTq-nkCdc2Q@mail.gmail.com>
+	Tue, 15 Jan 2013 21:55:12 -0500
+In-Reply-To: <alpine.LNX.2.00.1301151704100.7734@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi David,
-
-On Thu, Dec 20, 2012 at 4:43 PM, David Herrmann
-<dh.herrmann@googlemail.com> wrote:
-> Hi Andre
+On Tue, Jan 15, 2013 at 5:04 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Sun, 6 Jan 2013, Henrik Rydberg wrote:
 >
-> On Mon, Dec 17, 2012 at 2:28 PM, Andre Guedes
-> <andre.guedes@openbossa.org> wrote:
->> Ping.
+>> > Henrik, you told us that you have a patch set fixing these
+>> > dependencies on all the hid drivers, will you prepare it for 3.9? Do
+>> > you want me to continue your work?
 >>
->> On Sat, Dec 1, 2012 at 4:07 PM, Andre Guedes <andre.guedes@openbossa.org> wrote:
->>> Hi all,
->>>
->>> This patchset implements the support for handling LED input events in uhid
->>> driver.
->>>
->>> As requested in the previous RFC, it was introduced a new helper in hid-input.c
->>> to carry out a generic LED input events handling (hidinput_led_output_report).
->>> The helper is used by uhid driver.
->>>
->>> The helper can also be used in i2c-hid driver since it does a very simply
->>> handling of LED events too. I have no i2c device to test the i2c-hid patch,
->>> so it requires some testing before applying it.
->>>
->>> As long as the helper relies on device's .hid_output_raw_report() and
->>> hid-logitech-dj driver doesn't properly implement this callback, the helper is
->>> not used in hid-logitech-dj driver.
->>>
->>> Also, this helper is not used in usbhid driver as long as it does a more
->>> sophisticated handling than what hidinput_led_output_report helper does. For
->>> further information about usbhid LEDs handling see comments in the patchset [1].
+>> Yes, no, yes. :-)
+>>
+>> That is, it would be great if you want to pick up those patches. I
+>> will send you a pm shortly.
 >
-> I actually don't like the idea to call hid_output_raw_report() from
-> atomic-contexts. Using a work-queue would allow to use your callback
-> from usbhid and hidp. Furthermore, you wouldn't need the GFP_ATOMIC
-> patch for uhid.
+> So, what is the status of this code now, please?
 
-I agree with you about calling hid_output_raw_report from atomic
-sections. I'll re-write hidinput_led_output_report and use a work.
+Hi Jiri,
 
-> I am actually ok with all the uhid patches, but Jiri needs to ack the
-> hid-core patches. Maybe he is ok with it, but I'd like to see all
-> ll_drivers using this callback. Because the current solution doesn't
-> seem any better than just fixing uhid to use it's own implementation.
-> Also please elaborate why hidp and usbhid cannot use this callback.
+well here are my plans:
+1. polishing the support of Nexio 42" + new default class (95% done)
+2. add support for pen (it may requires more reviews) (60% done)
+3. cleanup Henrik's patches and send them. (1% done - I just went
+through them). Honestly, I don't know if I will be able to make it for
+3.9 for this series. For the time being, it only bothers me in my
+regressions tests, so depending on the work done, we may postpone it
+for later.
 
-Usbhid uses a more sophisticated approach to handle LED input events.
-When a LED input event occurs it only sets the "field" and schedule a
-work to carry out sending the report to the device. This way, it is
-more likely to gather all LED changes into a single URB. This prevents
-a race condition when trying to suspend a laptop with an attached USB
-keyboard with both NumLock and CapsLock LEDs on. The race condition is
-explained in details in [1, 2, 3].
+Last thing, this week, I'm in Boston. The good is that I should be
+able to test tomorrow Mika's patch about i2c-hid at Intel's lab
+directly, but I won't have much time to work on hid-multitouch before
+next Wednesday (the 23rd).
 
-In hidp, hidinput_led_output_report runs in atomic section, but hidp
-.hid_output_raw_report() callback may sleep.
+Cheers,
+Benjamin
 
-Anyway, with the workqueue approach, I believe we'll be able to use
-the helper in all ll_drivers.
-
-As you are ok with uhid changes, I was wondering if we could take an
-incremental approach here. First we would simply fix the uhid driver
-by handling LED events the same way others ll_drivers do. This way, we
-would get uhid sending output reports to userspace and HID over GATT
-working fine. Meanwhile, I'll keep working on this refactoring and
-testing the ll_drivers. As soon as it is well-tested, I send a new
-patchset.
-
-Are you fine with this approach? If you agree, I can send the uhid
-patch right away.
-
-Best regards,
-
-Andre
-
-[1] - http://marc.info/?l=linux-usb&m=132013970108623&w=2
-[2] - http://marc.info/?l=linux-usb&m=132013966708616&w=2
-[3] - http://marc.info/?l=linux-usb&m=132013968208618&w=2
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs

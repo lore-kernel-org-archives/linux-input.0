@@ -1,63 +1,69 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 00/11] Support of dual pen/multitouch and new default for
- win 7 certified devices
-Date: Wed, 16 Jan 2013 03:55:10 +0100
-Message-ID: <CAN+gG=GhqNwiFn71NxF0ueckkh=hbKjkhix+EcaH_263Nd=sPg@mail.gmail.com>
-References: <1353684694-5723-1-git-send-email-benjamin.tissoires@gmail.com>
-	<alpine.LNX.2.00.1301031050060.27348@pobox.suse.cz>
-	<CAN+gG=GxiM-K6mSmQk4GVRbkkc5VwCW1wUeo1BEuXoZ+T-ir_A@mail.gmail.com>
-	<20130106200355.GA557@polaris.bitmath.org>
-	<alpine.LNX.2.00.1301151704100.7734@pobox.suse.cz>
+From: Fernando Luis Vazquez Cao <fernando_b1@lab.ntt.co.jp>
+Subject: Re: [PATCH v2] HID: add support for Sony RF receiver with USB product
+ id 0x0374
+Date: Wed, 16 Jan 2013 14:17:05 +0900
+Message-ID: <50F637D1.8070302@lab.ntt.co.jp>
+References: <1358221428.9926.1.camel@nexus.lab.ntt.co.jp>  <20130115103638.be566e39f0f5ad7186362dd8@studenti.unina.it>  <50F52986.2080002@lab.ntt.co.jp> <1358246448.4897.3.camel@nexus.lab.ntt.co.jp> <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f181.google.com ([209.85.217.181]:52318 "EHLO
-	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756105Ab3APCzM (ORCPT
+Received: from tama500.ecl.ntt.co.jp ([129.60.39.148]:39799 "EHLO
+	tama500.ecl.ntt.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751982Ab3APFRz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jan 2013 21:55:12 -0500
-In-Reply-To: <alpine.LNX.2.00.1301151704100.7734@pobox.suse.cz>
+	Wed, 16 Jan 2013 00:17:55 -0500
+In-Reply-To: <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-
-On Tue, Jan 15, 2013 at 5:04 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Sun, 6 Jan 2013, Henrik Rydberg wrote:
->
->> > Henrik, you told us that you have a patch set fixing these
->> > dependencies on all the hid drivers, will you prepare it for 3.9? Do
->> > you want me to continue your work?
->>
->> Yes, no, yes. :-)
->>
->> That is, it would be great if you want to pick up those patches. I
->> will send you a pm shortly.
->
-> So, what is the status of this code now, please?
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
 
 Hi Jiri,
 
-well here are my plans:
-1. polishing the support of Nexio 42" + new default class (95% done)
-2. add support for pen (it may requires more reviews) (60% done)
-3. cleanup Henrik's patches and send them. (1% done - I just went
-through them). Honestly, I don't know if I will be able to make it for
-3.9 for this series. For the time being, it only bothers me in my
-regressions tests, so depending on the work done, we may postpone it
-for later.
-
-Last thing, this week, I'm in Boston. The good is that I should be
-able to test tomorrow Mika's patch about i2c-hid at Intel's lab
-directly, but I won't have much time to work on hid-multitouch before
-next Wednesday (the 23rd).
-
-Cheers,
-Benjamin
-
+On 2013/01/16 01:02, Jiri Kosina wrote:
+> On Tue, 15 Jan 2013, Fernando Luis V=C3=A1zquez Cao wrote:
 >
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
+>> Some Vaio desktop computers, among them the VGC-LN51JGB multimedia P=
+C, have
+>> a RF receiver, multi-interface USB device 054c:0374, that is used to=
+ connect
+>> a wireless keyboard and a wireless mouse.
+>>
+>> The keyboard works flawlessly, but the mouse (VGP-WMS3 in my case) d=
+oes not
+>> seem to be generating any pointer events. The problem is that the mo=
+use pointer
+>> is wrongly declared as a constant non-data variable in the report de=
+scriptor
+>> (see lsusb and usbhid-dump output below), with the consequence that =
+it is
+>> ignored by the HID code.
+>>
+>> Add this device to the have-special-driver list and fix up the repor=
+t
+>> descriptor in the Sony-specific driver which happens to already have=
+ a fixup
+>> for a similar firmware bug.
+> Applied, thanks.
+
+Thank you.
+
+I noticed that the patch was tagged "for-3.9". Does this mean
+that it is too late to get it merged during the current release
+cycle?
+
+If possible, I would like to get it backported to 3.7-stable (and
+possibly 3.2 stable), since without it a whole family of Sony
+desktop computers is unusable under Linux out of the box.
+Should I do it myself or do you have a process in place for HID
+stable patches?
+
+Regards,
+=46ernando
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,57 +1,56 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: [PATCH v2] hid: Fix uninitialized variable "size" in hid-wiimote-debug
-Date: Thu, 17 Jan 2013 22:07:46 +0100
-Message-ID: <CANq1E4Q+1S+wZU=HOrJq+_CbbnzB++GJg_qgU=rb6K+Ozz23ZA@mail.gmail.com>
-References: <1358456572-22851-1-git-send-email-sque@chromium.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: add ACPI support
+Date: Thu, 17 Jan 2013 16:52:55 -0500
+Message-ID: <CAN+gG=GBYbCxrOKk2S1n9K2e68Rbxvt4CuoV40NJiE9LDNR=Zw@mail.gmail.com>
+References: <1357742588-11366-1-git-send-email-mika.westerberg@linux.intel.com>
+	<CAN+gG=GrrEdgrCLXvO=xJ6SNeKgHFRobq6RSAfLMfesKkJcijA@mail.gmail.com>
+	<alpine.LNX.2.00.1301091551580.12134@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f177.google.com ([209.85.215.177]:62838 "EHLO
-	mail-ea0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756490Ab3AQVHr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Jan 2013 16:07:47 -0500
-Received: by mail-ea0-f177.google.com with SMTP id n13so1176147eaa.8
-        for <linux-input@vger.kernel.org>; Thu, 17 Jan 2013 13:07:46 -0800 (PST)
-In-Reply-To: <1358456572-22851-1-git-send-email-sque@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1301091551580.12134@pobox.suse.cz>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Que <sque@chromium.org>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, msb@chromium.org
 
-Hi Simon
-
-On Thu, Jan 17, 2013 at 10:02 PM, Simon Que <sque@chromium.org> wrote:
-> This variable is initialized conditionally, based on whether a wiimote
-> call succeeds.  However, the logic is not obvious to the compiler so it
-> throws a warning.  Eliminate the warning by initializing "size" to 0.
+On Wed, Jan 9, 2013 at 9:52 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 9 Jan 2013, Benjamin Tissoires wrote:
 >
-> The warning is:
-> files/drivers/hid/hid-wiimote-debug.c:69:18: warning: 'size' may be used
-> uninitialized in this function [-Wmaybe-uninitialized]
-
-Thanks!
-
-Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
-
-> Signed-off-by: Simon Que <sque@chromium.org>
-> ---
->  drivers/hid/hid-wiimote-debug.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+>> <mika.westerberg@linux.intel.com> wrote:
+>> > The HID over I2C protocol specification states that when the device is
+>> > enumerated from ACPI the HID descriptor address can be obtained by
+>> > executing "_DSM" for the device with function 1. Enable this.
+>> >
+>> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>>
+>> I'm eager to test it (hopefully next week).
+>>
+>> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 >
-> diff --git a/drivers/hid/hid-wiimote-debug.c b/drivers/hid/hid-wiimote-debug.c
-> index eec3291..90124ff 100644
-> --- a/drivers/hid/hid-wiimote-debug.c
-> +++ b/drivers/hid/hid-wiimote-debug.c
-> @@ -31,7 +31,7 @@ static ssize_t wiidebug_eeprom_read(struct file *f, char __user *u, size_t s,
->         unsigned long flags;
->         ssize_t ret;
->         char buf[16];
-> -       __u16 size;
-> +       __u16 size = 0;
+> Perfect. I will wait for your Tested-by: as well before applying to public
+> git tree.
+
+Hi Jiri,
+
+well, we tried yesterday to make all those things working, but the
+Haswell platform I was able to have access was not very cooperative.
+So I wasn't able to test the whole autodetection mechanism through
+ACPI (I even not managed to communicate with the various HID over i2c
+devices that were available to test).
+
+However, Mika managed to test this ACPI stuff, and he is able to
+retrieve the HID descriptor address. Given that, I think it's safe to
+include it right now. There will still be the last point with the
+gpios, but it will come when someone get access to a device presenting
+this feature.
+
+Cheers,
+Benjamin
+
 >
->         if (s == 0)
->                 return -EINVAL;
+> Thanks to both of you,
+>
 > --
-> 1.7.8.6
->
+> Jiri Kosina
+> SUSE Labs

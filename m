@@ -1,66 +1,112 @@
-From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v3 8/8] arm/dts: AM335x-evm: Add TSC/ADC MFD device support
-Date: Fri, 18 Jan 2013 16:18:59 +0530
-Message-ID: <1e33c3c4ac95fad513bf2785a5acff7a5f56d4b0.1358502134.git.rachna@ti.com>
-References: <cover.1358502134.git.rachna@ti.com>
+From: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+Subject: [RFC PATCH] Input: gpio_keys: Fix suspend/resume press event lost
+Date: Fri, 18 Jan 2013 14:51:59 +0200
+Message-ID: <1358513519-8258-1-git-send-email-ivan.khoronzhuk@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1358502134.git.rachna-l0cyMroinI0@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Benit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:33717 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751001Ab3ARMxB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Jan 2013 07:53:01 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, NeilBrown <neilb@suse.de>, Bengt Jonsson <bengt.g.jonsson@stericsson.com>, Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
 
-From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+During suspend/resume the key press can be lost if time of resume
+sequence is significant.
 
-Add support for core multifunctional device along
-with its clients touchscreen and ADC.
+If press event cannot be remembered then the driver can read the
+current button state only in time of interrupt handling. But in some
+cases when time between IRQ and IRQ handler is significant we can
+read incorrect state. As a particular case, when device is in suspend
+we press wakupable key and up it back in a jiffy, the interrupt
+handler read the state of up but the interrupt source is press indeed.
+As a result, in a OS like android, we resume then suspend right away
+because the key state is not changed.
 
-Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+This patch add to gpio_keys framework opportunity to recover lost of
+press key event at resuming. The variable "key_pressed" from
+gpio_button_data structure is not used for gpio keys, it is only used
+for gpio irq keys, so it is logically used to remember press lost
+while resuming.
+
+Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
 ---
- arch/arm/boot/dts/am335x-evm.dts |   13 +++++++++++++
- arch/arm/boot/dts/am33xx.dtsi    |    8 ++++++++
- 2 files changed, 21 insertions(+)
+ drivers/input/keyboard/gpio_keys.c |   31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
-index d649644..ea28476 100644
---- a/arch/arm/boot/dts/am335x-evm.dts
-+++ b/arch/arm/boot/dts/am335x-evm.dts
-@@ -244,3 +244,16 @@
- &cpsw_emac1 {
- 	phy_id = <&davinci_mdio>, <1>;
- };
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 62bfce4..aa49aef 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -46,6 +46,7 @@ struct gpio_keys_drvdata {
+ 	struct input_dev *input;
+ 	struct mutex disable_lock;
+ 	unsigned int n_buttons;
++	int suspended;
+ 	int (*enable)(struct device *dev);
+ 	void (*disable)(struct device *dev);
+ 	struct gpio_button_data data[0];
+@@ -328,14 +329,40 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+ {
+ 	const struct gpio_keys_button *button = bdata->button;
+ 	struct input_dev *input = bdata->input;
++	struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
+ 	unsigned int type = button->type ?: EV_KEY;
+ 	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+ 
++	/*
++	 * Don't generate input event while resuming,
++	 * it will be generated at gpio_keys_resume function
++	*/
++	if (ddata->suspended) {
++		/*
++		 * missed press event while resuming so set
++		 * key_pressed flag to generate press and up events
++		 * while gpio_keys_resume function.
++		 */
++		if (button->wakeup && state == 0)
++			bdata->key_pressed = 1;
++		return;
++	}
 +
-+&tscadc {
-+	tsc {
-+		wires = <4>;
-+		x-plate-resistance = <200>;
-+		steps-to-configure = <5>;
-+		wire-config = <0x00 0x11 0x22 0x33>;
-+	};
-+
-+	adc {
-+		adc-channels = <4>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index c2f14e8..211ec42 100644
---- a/arch/arm/boot/dts/am33xx.dtsi
-+++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -385,5 +385,13 @@
- 				mac-address = [ 00 00 00 00 00 00 ];
- 			};
- 		};
-+
-+		tscadc: tscadc@44e0d000 {
-+			compatible = "ti,ti-tscadc";
-+			reg = <0x44e0d000 0x1000>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <16>;
-+			ti,hwmods = "adc_tsc";
-+		};
- 	};
- };
+ 	if (type == EV_ABS) {
+ 		if (state)
+ 			input_event(input, type, button->code, button->value);
+ 	} else {
+-		input_event(input, type, button->code, !!state);
++		/*
++		 * missed press key, so generate press event then up event
++		 */
++		if (bdata->key_pressed) {
++			input_event(bdata->input, EV_KEY, button->code, 1);
++			input_sync(bdata->input);
++			input_event(bdata->input, EV_KEY, button->code, 0);
++			bdata->key_pressed = 0;
++		} else {
++			input_event(input, type, button->code, !!state);
++		}
+ 	}
+ 	input_sync(input);
+ }
+@@ -792,6 +819,7 @@ static int gpio_keys_suspend(struct device *dev)
+ 		}
+ 	}
+ 
++	ddata->suspended = 1;
+ 	return 0;
+ }
+ 
+@@ -800,6 +828,7 @@ static int gpio_keys_resume(struct device *dev)
+ 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
+ 	int i;
+ 
++	ddata->suspended = 0;
+ 	for (i = 0; i < ddata->n_buttons; i++) {
+ 		struct gpio_button_data *bdata = &ddata->data[i];
+ 		if (bdata->button->wakeup && device_may_wakeup(dev))
 -- 
 1.7.9.5
+

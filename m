@@ -1,12 +1,14 @@
 From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v3 0/8] MFD: ti_am335x_tscadc: DT support and TSC features
- addition
-Date: Fri, 18 Jan 2013 16:14:57 +0530
-Message-ID: <cover.1358502134.git.rachna@ti.com>
+Subject: [PATCH v3 1/8] input: ti_am335x_tsc: Step enable bits made
+ configurable
+Date: Fri, 18 Jan 2013 16:17:41 +0530
+Message-ID: <c7c319bc186fd98b35fb834e770561572bfb81b5.1358502134.git.rachna@ti.com>
+References: <cover.1358502134.git.rachna@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <cover.1358502134.git.rachna-l0cyMroinI0@public.gmane.org>
 List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
  <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
@@ -23,45 +25,74 @@ List-Id: linux-input@vger.kernel.org
 
 From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
 
-This patch set is a cumulative set of [1] and [2] sent earlier.
+Current code has hard coded value written to
+step enable bits. Now the bits are updated based
+on how many steps are needed to be configured got
+from platform data.
 
-Note that there are no code changes in either of the patch set,
-only rebased on top of Linus's v3.8-rc3 tag to make sure that
-all the patches apply without any conflicts.
+The user needs to take care not to exceed
+the count more than 16. While using ADC and TSC
+one should take care to set this parameter correctly.
 
-This patch set has been tested on AM335x EVM.
+Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+---
+ drivers/input/touchscreen/ti_am335x_tsc.c |   10 ++++++++--
+ include/linux/mfd/ti_am335x_tscadc.h      |    1 -
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-[1] http://www.spinics.net/lists/linux-input/msg23060.html
-[2] http://www.spinics.net/lists/linux-input/msg23090.html
-
-Changes in v3:
-	No code change.
-
-Changes in v2:
-	Patch "input: ti_am335x_tsc: Add variance filter"
-	from v1 has been dropped.
-	Add MFD device DT node in AM335x EVM.
-
-Patil, Rachna (8):
-  input: ti_am335x_tsc: Step enable bits made configurable
-  input: ti_am335x_tsc: Order of TSC wires, made configurable
-  input: touchscreen: ti_tsc: remove unwanted fifo flush
-  MFD: ti_am335x_tscadc: add device tree binding information
-  MFD: ti_am335x_tscadc: Add DT support
-  input: ti_am335x_tsc: Add DT support
-  IIO: ti_am335x_adc: Add DT support
-  arm/dts: AM335x-evm: Add TSC/ADC MFD device support
-
- .../devicetree/bindings/mfd/ti_am335x_tscadc.txt   |   35 +++
- arch/arm/boot/dts/am335x-evm.dts                   |   13 +
- arch/arm/boot/dts/am33xx.dtsi                      |    8 +
- drivers/iio/adc/ti_am335x_adc.c                    |   26 +-
- drivers/input/touchscreen/ti_am335x_tsc.c          |  266 +++++++++++++++++---
- drivers/mfd/ti_am335x_tscadc.c                     |   28 ++-
- include/linux/input/ti_am335x_tsc.h                |   12 +
- include/linux/mfd/ti_am335x_tscadc.h               |   11 +-
- 8 files changed, 347 insertions(+), 52 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/ti_am335x_tscadc.txt
-
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index 51e7b87..da652e0 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -39,6 +39,7 @@ struct titsc {
+ 	unsigned int		irq;
+ 	unsigned int		wires;
+ 	unsigned int		x_plate_resistance;
++	unsigned int		enable_bits;
+ 	bool			pen_down;
+ 	int			steps_to_configure;
+ };
+@@ -57,6 +58,7 @@ static void titsc_writel(struct titsc *tsc, unsigned int reg,
+ static void titsc_step_config(struct titsc *ts_dev)
+ {
+ 	unsigned int	config;
++	unsigned int	stepenable = 0;
+ 	int i, total_steps;
+ 
+ 	/* Configure the Step registers */
+@@ -128,7 +130,11 @@ static void titsc_step_config(struct titsc *ts_dev)
+ 	titsc_writel(ts_dev, REG_STEPDELAY(total_steps + 2),
+ 			STEPCONFIG_OPENDLY);
+ 
+-	titsc_writel(ts_dev, REG_SE, STPENB_STEPENB_TC);
++	for (i = 0; i <= (total_steps + 2); i++)
++		stepenable |= 1 << i;
++	ts_dev->enable_bits = stepenable;
++
++	titsc_writel(ts_dev, REG_SE, ts_dev->enable_bits);
+ }
+ 
+ static void titsc_read_coordinates(struct titsc *ts_dev,
+@@ -250,7 +256,7 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+ 
+ 	titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
+ 
+-	titsc_writel(ts_dev, REG_SE, STPENB_STEPENB_TC);
++	titsc_writel(ts_dev, REG_SE, ts_dev->enable_bits);
+ 	return IRQ_HANDLED;
+ }
+ 
+diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
+index c79ad5d..23e4f33 100644
+--- a/include/linux/mfd/ti_am335x_tscadc.h
++++ b/include/linux/mfd/ti_am335x_tscadc.h
+@@ -47,7 +47,6 @@
+ #define STEPENB_MASK		(0x1FFFF << 0)
+ #define STEPENB(val)		((val) << 0)
+ #define STPENB_STEPENB		STEPENB(0x1FFFF)
+-#define STPENB_STEPENB_TC	STEPENB(0x1FFF)
+ 
+ /* IRQ enable */
+ #define IRQENB_HW_PEN		BIT(0)
 -- 
 1.7.9.5

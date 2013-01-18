@@ -1,56 +1,47 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2] HID: i2c-hid: add ACPI support
-Date: Thu, 17 Jan 2013 16:52:55 -0500
-Message-ID: <CAN+gG=GBYbCxrOKk2S1n9K2e68Rbxvt4CuoV40NJiE9LDNR=Zw@mail.gmail.com>
-References: <1357742588-11366-1-git-send-email-mika.westerberg@linux.intel.com>
-	<CAN+gG=GrrEdgrCLXvO=xJ6SNeKgHFRobq6RSAfLMfesKkJcijA@mail.gmail.com>
-	<alpine.LNX.2.00.1301091551580.12134@pobox.suse.cz>
+From: Ashish Jangam <ashish.jangam@kpitcummins.com>
+Subject: [Patch v1 5/5] onkey: da9055 change irq state to default
+Date: Fri, 18 Jan 2013 10:58:12 +0530
+Message-ID: <1358486892.14373.17.camel@dhruva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1301091551580.12134@pobox.suse.cz>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch1ehsobe002.messaging.microsoft.com ([216.32.181.182]:51845
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751146Ab3ARFa1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Jan 2013 00:30:27 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Liam Girdwood <lrg@slimlogic.co.uk>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, David Dajun Chen <dchen@diasemi.com>, linux-kernel@vger.kernel.org
 
-On Wed, Jan 9, 2013 at 9:52 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 9 Jan 2013, Benjamin Tissoires wrote:
->
->> <mika.westerberg@linux.intel.com> wrote:
->> > The HID over I2C protocol specification states that when the device is
->> > enumerated from ACPI the HID descriptor address can be obtained by
->> > executing "_DSM" for the device with function 1. Enable this.
->> >
->> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
->>
->> I'm eager to test it (hopefully next week).
->>
->> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->
-> Perfect. I will wait for your Tested-by: as well before applying to public
-> git tree.
+This patch changes the irq state from high to the now default low
+state.
 
-Hi Jiri,
+This patch is dependent on the DA9055 MFD.
 
-well, we tried yesterday to make all those things working, but the
-Haswell platform I was able to have access was not very cooperative.
-So I wasn't able to test the whole autodetection mechanism through
-ACPI (I even not managed to communicate with the various HID over i2c
-devices that were available to test).
+This patch is tested on smdk6410 board.
 
-However, Mika managed to test this ACPI stuff, and he is able to
-retrieve the HID descriptor address. Given that, I think it's safe to
-include it right now. There will still be the last point with the
-gpios, but it will come when someone get access to a device presenting
-this feature.
+Signed-off-by: Ashish Jangam <ashish.jangam@kpitcummins.com>
+---
+ drivers/input/misc/da9055_onkey.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Cheers,
-Benjamin
+diff --git a/drivers/input/misc/da9055_onkey.c b/drivers/input/misc/da9055_onkey.c
+index ee6ae3a..eec55b7 100644
+--- a/drivers/input/misc/da9055_onkey.c
++++ b/drivers/input/misc/da9055_onkey.c
+@@ -112,7 +112,7 @@ static int da9055_onkey_probe(struct platform_device *pdev)
+ 
+ 	irq = regmap_irq_get_virq(da9055->irq_data, irq);
+ 	err = request_threaded_irq(irq, NULL, da9055_onkey_irq,
+-				   IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
++				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+ 				   "ONKEY", onkey);
+ 	if (err < 0) {
+ 		dev_err(&pdev->dev,
+-- 
+1.7.0.4
 
->
-> Thanks to both of you,
->
-> --
-> Jiri Kosina
-> SUSE Labs
+

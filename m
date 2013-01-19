@@ -1,88 +1,243 @@
-From: Hartmut Knaack <knaack.h@gmx.de>
-Subject: [RFC] enumeration of "composite devices" using v-usb
-Date: Fri, 18 Jan 2013 23:56:19 +0100
-Message-ID: <50F9D313.4070803@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.17.21]:54940 "EHLO mout.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754549Ab3ARW4X (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jan 2013 17:56:23 -0500
-Received: from mailout-de.gmx.net ([10.1.76.31]) by mrigmx.server.lan
- (mrigmx001) with ESMTP (Nemesis) id 0MGUOc-1Tj9a13t5s-00DHNM for
- <linux-input@vger.kernel.org>; Fri, 18 Jan 2013 23:56:21 +0100
-Sender: linux-input-owner@vger.kernel.org
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH 01/05] input: RMI4 public header file
+Date: Fri, 18 Jan 2013 17:12:41 -0800
+Message-ID: <1358557965-29065-2-git-send-email-cheiny@synaptics.com>
+References: <1358557965-29065-1-git-send-email-cheiny@synaptics.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1358557965-29065-1-git-send-email-cheiny@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi,
-I've built myself a joystick adapter (project website: http://www.hexagons.de/index.php/USB_Joystickadapter), which has the purpose of connecting up to 2 Atari style joysticks (the ones with db9 connectors, found on 80's home computers like C64, Amiga,...) via USB. Current situation is: on Windows XP, 2 joystick devices get created with 2 axis and 2 buttons each (as intended); while on Linux, just one joystick device (/dev/input/js0) gets created, but with 4 axis and 4 buttons.
-This device provides one interface with one Interrupt-in Endpoint. The division into two joystick devices is done using an HID descriptor [1] with two configurations and the REPORT_ID tag.
-What I would like to know is, is there a problem in the Linux HID parser, or is its behavior intentional and those composite devices more like a dirty solution around the standards?
-Thanks
+In addition to the changes described in part 0/5, this fixes some cut&paste
+issues in the comments for module_rmi_function_driver.
 
-Hartmut Knaack
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Joeri de Gram <j.de.gram@gmail.com>
+Acked-by: Jean Delvare <khali@linux-fr.org>
 
-[1]
-char usbHidReportDescriptor[102] PROGMEM = {
-   
-    // Joystick Port 1
+---
 
-    0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
-    0x09, 0x04,                    // USAGE (Joystick)
-    0xa1, 0x01,                    // COLLECTION (Application)
-    0x85, 0x01,                    // REPORT_ID (1)
-    0x09, 0x01,                    //   USAGE (Pointer)
-    0xa1, 0x00,                    //   COLLECTION (Physical)
-    0x09, 0x30,                    //     USAGE (X)
-    0x09, 0x31,                    //     USAGE (Y)
-    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x26, 0xff, 0x00,               //   LOGICAL_MAXIMUM (255)
-    0x75, 0x08,                    //   REPORT_SIZE (8)
-    0x95, 0x02,                    //   REPORT_COUNT (2)
-    0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-    0xc0,                          // END_COLLECTION
-    0x05, 0x09,                    // USAGE_PAGE (Button)
-    0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
-    0x29, 0x02,                    //   USAGE_MAXIMUM (Button 2)
-    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
-    0x75, 0x01,                    // REPORT_SIZE (1)
-    0x95, 0x02,                    // REPORT_COUNT (2)
-    0x81, 0x02,                    // INPUT (Data,Var,Abs)
-    0x75, 0x06,                    // REPORT_SIZE (6)
-    0x95, 0x01,                    // REPORT_COUNT (1)
-    0x81, 0x03,                    // INPUT (Constant,Var,Abs)
-    0xc0,                          // END_COLLECTION
+ include/linux/rmi.h |   95 +++++++++++++++++++++++----------------------------
+ 1 files changed, 43 insertions(+), 52 deletions(-)
 
-    // Joystick Port 2
-   
-    0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
-    0x09, 0x04,                    // USAGE (Joystick)
-    0xa1, 0x01,                    // COLLECTION (Application)
-    0x85, 0x02,                    // REPORT_ID (2)
-    0x09, 0x01,                    //   USAGE (Pointer)
-    0xa1, 0x00,                    //   COLLECTION (Physical)
-    0x09, 0x30,                    //     USAGE (X)
-    0x09, 0x31,                    //     USAGE (Y)
-    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x26, 0xff, 0x00,               //   LOGICAL_MAXIMUM (255)
-    0x75, 0x08,                    //   REPORT_SIZE (8)
-    0x95, 0x02,                    //   REPORT_COUNT (2)
-    0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-    0xc0,                          // END_COLLECTION
-    0x05, 0x09,                    // USAGE_PAGE (Button)
-    0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
-    0x29, 0x02,                    //   USAGE_MAXIMUM (Button 2)
-    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
-    0x75, 0x01,                    // REPORT_SIZE (1)
-    0x95, 0x02,                    // REPORT_COUNT (2)
-    0x81, 0x02,                    // INPUT (Data,Var,Abs)
-    0x75, 0x06,                    // REPORT_SIZE (6)
-    0x95, 0x01,                    // REPORT_COUNT (1)
-    0x81, 0x03,                    // INPUT (Constant,Var,Abs)
-    0xc0                           // END_COLLECTION
-};
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index daca41b..eec926f 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -2,25 +2,16 @@
+  * Copyright (c) 2011, 2012 Synaptics Incorporated
+  * Copyright (c) 2011 Unixphere
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
+  */
+ 
+ #ifndef _RMI_H
+ #define _RMI_H
+ #include <linux/kernel.h>
+ #include <linux/cdev.h>
++#include <linux/debugfs.h>
+ #include <linux/device.h>
+ #include <linux/interrupt.h>
+ #include <linux/input.h>
+@@ -31,7 +22,6 @@
+ #include <linux/stat.h>
+ #include <linux/types.h>
+ #include <linux/wait.h>
+-#include <linux/debugfs.h>
+ 
+ extern struct bus_type rmi_bus_type;
+ 
+@@ -73,7 +63,7 @@ enum rmi_attn_polarity {
+  *               automatically enabled for this sensor.
+  */
+ struct rmi_f11_2d_axis_alignment {
+-	bool swap_axes;
++	u32 swap_axes;
+ 	bool flip_x;
+ 	bool flip_y;
+ 	int clip_X_low;
+@@ -82,7 +72,6 @@ struct rmi_f11_2d_axis_alignment {
+ 	int clip_Y_high;
+ 	int offset_X;
+ 	int offset_Y;
+-	int rel_report_enabled;
+ 	u8 delta_x_threshold;
+ 	u8 delta_y_threshold;
+ };
+@@ -105,6 +94,7 @@ enum rmi_f11_sensor_type {
+ 
+ /**
+  * struct rmi_f11_sensor_data - overrides defaults for a single F11 2D sensor.
++ *
+  * @axis_align - provides axis alignment overrides (see above).
+  * @type_a - all modern RMI F11 firmwares implement Multifinger Type B
+  * protocol.  Set this to true to force MF Type A behavior, in case you find
+@@ -338,13 +328,14 @@ struct rmi_function_descriptor {
+ 	u8 function_version;
+ };
+ 
+-struct rmi_function;
++struct rmi_function_dev;
+ struct rmi_device;
+ 
+ /**
+- * struct rmi_function_handler - driver routines for a particular RMI function.
++ * struct rmi_function_driver - driver routines for a particular RMI function.
+  *
+  * @func: The RMI function number
++ * @probe: Called when the handler is successfully matched to a function device.
+  * @reset: Called when a reset of the touch sensor is detected.  The routine
+  * should perform any out-of-the-ordinary reset handling that might be
+  * necessary.  Restoring of touch sensor configuration registers should be
+@@ -361,37 +352,31 @@ struct rmi_device;
+  *
+  * All callbacks are expected to return 0 on success, error code on failure.
+  */
+-struct rmi_function_handler {
++struct rmi_function_driver {
+ 	struct device_driver driver;
+ 
+ 	u8 func;
+-	int (*probe)(struct rmi_function *fn);
+-	void (*remove)(struct rmi_function *fn);
+-	int (*config)(struct rmi_function *fn);
+-	int (*reset)(struct rmi_function *fn);
+-	int (*attention)(struct rmi_function *fn, unsigned long *irq_bits);
++	int (*probe)(struct rmi_function_dev *fc);
++	int (*remove)(struct rmi_function_dev *fc);
++	int (*config)(struct rmi_function_dev *fc);
++	int (*reset)(struct rmi_function_dev *fc);
++	int (*attention)(struct rmi_function_dev *fc,
++				unsigned long *irq_bits);
+ #ifdef CONFIG_PM
+-	int (*suspend)(struct rmi_function *fn);
+-	int (*resume)(struct rmi_function *fn);
++	int (*suspend)(struct rmi_function_dev *fc);
++	int (*resume)(struct rmi_function_dev *fc);
+ #endif
+ };
+ 
+-#define to_rmi_function_handler(d) \
+-		container_of(d, struct rmi_function_handler, driver)
+-
+-int __must_check __rmi_register_function_handler(struct rmi_function_handler *,
+-						 struct module *, const char *);
+-#define rmi_register_function_handler(handler) \
+-	__rmi_register_function_handler(handler, THIS_MODULE, KBUILD_MODNAME)
+-
+-void rmi_unregister_function_handler(struct rmi_function_handler *);
++#define to_rmi_function_driver(d) \
++		container_of(d, struct rmi_function_driver, driver);
+ 
+ /**
+- * struct rmi_function - represents the implementation of an RMI4
+- * function for a particular device (basically, a driver for that RMI4 function)
++ * struct rmi_function_dev - represents an a particular RMI4 function on a given
++ * RMI4 sensor.
+  *
+  * @fd: The function descriptor of the RMI function
+- * @rmi_dev: Pointer to the RMI device associated with this function container
++ * @rmi_dev: Pointer to the RMI device associated with this function device
+  * @dev: The device associated with this particular function.
+  *
+  * @num_of_irqs: The number of irqs needed by this function
+@@ -400,11 +385,12 @@ void rmi_unregister_function_handler(struct rmi_function_handler *);
+  * interrupt handling.
+  * @data: Private data pointer
+  *
+- * @list: Used to create a list of function containers.
++ * @list: Used to create a list of function devices.
+  * @debugfs_root: used during debugging
+  *
+  */
+-struct rmi_function {
++struct rmi_function_dev {
++
+ 	struct rmi_function_descriptor fd;
+ 	struct rmi_device *rmi_dev;
+ 	struct device dev;
+@@ -414,13 +400,19 @@ struct rmi_function {
+ 	void *data;
+ 	struct list_head list;
+ 
+-#ifdef CONFIG_RMI4_DEBUG
+ 	struct dentry *debugfs_root;
+-#endif
+ };
+ 
+-#define to_rmi_function(d) \
+-		container_of(d, struct rmi_function, dev)
++#define to_rmi_function_dev(d) \
++		container_of(d, struct rmi_function_dev, dev);
++
++
++int __must_check __rmi_register_function_driver(struct rmi_function_driver *,
++						 struct module *, const char *);
++#define rmi_register_function_driver(handler) \
++	__rmi_register_function_driver(handler, THIS_MODULE, KBUILD_MODNAME)
++
++void rmi_unregister_function_driver(struct rmi_function_driver *);
+ 
+ /**
+  * struct rmi_driver - driver for an RMI4 sensor on the RMI bus.
+@@ -446,6 +438,7 @@ struct rmi_driver {
+ 	int (*store_productid)(struct rmi_device *rmi_dev);
+ 	int (*set_input_params)(struct rmi_device *rmi_dev,
+ 			struct input_dev *input);
++	int (*remove)(struct rmi_device *rmi_dev);
+ 	void *data;
+ };
+ 
+@@ -528,9 +521,7 @@ struct rmi_device {
+ 	struct rmi_driver *driver;
+ 	struct rmi_phys_device *phys;
+ 
+-#ifdef CONFIG_RMI4_DEBUG
+ 	struct dentry *debugfs_root;
+-#endif
+ };
+ 
+ #define to_rmi_device(d) container_of(d, struct rmi_device, dev);
+@@ -601,17 +592,17 @@ void rmi_unregister_phys_device(struct rmi_phys_device *phys);
+ int rmi_for_each_dev(void *data, int (*func)(struct device *dev, void *data));
+ 
+ /**
+- * module_serio_driver() - Helper macro for registering a serio driver
+- * @__serio_driver: serio_driver struct
++ * module_rmi_function_driver() - Helper macro for registering a function driver
++ * @__rmi_driver: rmi_function_driver struct
+  *
+- * Helper macro for serio drivers which do not do anything special in
++ * Helper macro for RMI4 function drivers which do not do anything special in
+  * module init/exit. This eliminates a lot of boilerplate. Each module
+  * may only use this macro once, and calling it replaces module_init()
+  * and module_exit().
+  */
+-#define module_rmi_driver(__rmi_driver)			\
++#define module_rmi_function_driver(__rmi_driver)	\
+ 	module_driver(__rmi_driver,			\
+-		      rmi_register_function_handler,	\
+-		      rmi_unregister_function_handler)
++		      rmi_register_function_driver,	\
++		      rmi_unregister_function_driver)
+ 
+ #endif

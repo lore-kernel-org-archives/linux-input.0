@@ -1,174 +1,118 @@
-From: simon@mungewell.org
-Subject: Bug HID Dial - jstest and evtest see different number of clicks
-Date: Sun, 20 Jan 2013 01:24:04 -0500
-Message-ID: <dd635eb75d3c9621e698d5458b16811a.squirrel@www.mungewell.org>
+From: Kevin Cernekee <cernekee@gmail.com>
+Subject: [PATCH 1/3] Input: ALPS - Introduce helper function for repeated
+ commands
+Date: Sun, 20 Jan 2013 01:31:14 -0800
+Message-ID: <10bf6ea5c8f86eca66cd39498ca38d58@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:32966 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750896Ab3ATGYG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jan 2013 01:24:06 -0500
-Received: from localhost ([127.0.0.1] helo=www.mungewell.org)
-	by host171.canaca.com with esmtpa (Exim 4.69)
-	(envelope-from <simon@mungewell.org>)
-	id 1TwoK4-0005eS-EV
-	for linux-input@vger.kernel.org; Sun, 20 Jan 2013 01:24:04 -0500
+Received: from [69.28.251.93] ([69.28.251.93]:45591 "EHLO b32.net"
+	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1751687Ab3ATJnc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 20 Jan 2013 04:43:32 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: seth.forshee@canonical.com, linux-input@vger.kernel.org
 
-Hi,
-I'm modifying the HID descriptor for a gaming wheel to support the dials
-on it and I'm seeing that jstest does not report/register the highest
-value location, whereas evtest does.
+Several ALPS driver init sequences repeat a command three times, then
+issue PSMOUSE_CMD_GETINFO to read the result.  Move this into a helper
+function to simplify the code.
 
-For example the last dial is 4 position (values 0 to 3) and reported as
-the 'ABS_GAS' control.
---
-                    /*   ---- Dial patch starts here ----   */
-0x05, 0x01,         /*          Usage Page (Desktop),       */
-0x09, 0x37,         /*          Usage (Dial),               */
-0x75, 0x04,         /*          Report Size (4),            */
-0x95, 0x02,         /*          Report Count (2),           */
-0x15, 0x00,         /*          Logical Minimum (0),        */
-0x25, 0x0b,         /*          Logical Maximum (b),        */
-0x81, 0x02,         /*          Input (Variable),           */
-0x09, 0x37,         /*          Usage (Dial),               */
-0x75, 0x04,         /*          Report Size (4),            */
-0x95, 0x01,         /*          Report Count (1),           */
-0x25, 0x03,         /*          Logical Maximum (3),        */
-0x81, 0x02,         /*          Input (Variable),           */
-                    /*    ---- Dial patch ends here ----    */
---
+Signed-off-by: Kevin Cernekee <cernekee@gmail.com>
+---
+ drivers/input/mouse/alps.c |   50 +++++++++++++++++++++-----------------------
+ 1 file changed, 24 insertions(+), 26 deletions(-)
 
-Jstest only reports 3 positions and 'misses' the last click
---
-simon@simon-virtual-machine:~/linux-git$ jstest --event /dev/input/js0
-Driver version is 2.1.0.
-Joystick (SteelSeries SRWheel) has 8 axes (X, Y, Z, Rudder, Wheel, Gas,
-Hat0X, Hat0Y)
-and 17 buttons (BtnX, BtnY, BtnZ, BtnTL, BtnTR, BtnTL2, BtnTR2, BtnSelect,
-BtnStart, BtnMode, BtnThumbL, BtnThumbR, ?, ?, ?, ?, (null)).
-Testing ... (interrupt to exit)
-Event: type 129, time 5915608, number 0, value 0
-Event: type 129, time 5915608, number 1, value 0
-Event: type 129, time 5915608, number 2, value 0
-Event: type 129, time 5915608, number 3, value 0
-Event: type 129, time 5915608, number 4, value 0
-Event: type 129, time 5915608, number 5, value 0
-Event: type 129, time 5915608, number 6, value 0
-Event: type 129, time 5915608, number 7, value 0
-Event: type 129, time 5915608, number 8, value 0
-Event: type 129, time 5915608, number 9, value 0
-Event: type 129, time 5915608, number 10, value 0
-Event: type 129, time 5915608, number 11, value 0
-Event: type 129, time 5915608, number 12, value 0
-Event: type 129, time 5915608, number 13, value 0
-Event: type 129, time 5915608, number 14, value 0
-Event: type 129, time 5915608, number 15, value 0
-Event: type 129, time 5915608, number 16, value 0
-Event: type 130, time 5915608, number 0, value 0
-Event: type 130, time 5915608, number 1, value -32767
-Event: type 130, time 5915608, number 2, value -32767
-Event: type 130, time 5915608, number 3, value -32767
-Event: type 130, time 5915608, number 4, value -32767
-Event: type 130, time 5915608, number 5, value -32767
-Event: type 130, time 5915608, number 6, value 0
-Event: type 130, time 5915608, number 7, value 0
-Event: type 2, time 5922404, number 5, value 0
-Event: type 2, time 5925804, number 5, value 32767
-Event: type 2, time 5938004, number 5, value 0
-Event: type 2, time 5940096, number 5, value -32767
-^C
---
-
-Whereas evtest (simultaneously) sees all 4 positions
---
-simon@simon-virtual-machine:~$ evtest /dev/input/event4
-Input driver version is 1.0.1
-Input device ID: bus 0x3 vendor 0x1038 product 0x1410 version 0x111
-Input device name: "SteelSeries SRWheel"
-Supported events:
-  Event type 0 (EV_SYN)
-  Event type 1 (EV_KEY)
-    Event code 304 (BTN_A)
-    Event code 305 (BTN_B)
-    Event code 306 (BTN_C)
-    Event code 307 (BTN_X)
-    Event code 308 (BTN_Y)
-    Event code 309 (BTN_Z)
-    Event code 310 (BTN_TL)
-    Event code 311 (BTN_TR)
-    Event code 312 (BTN_TL2)
-    Event code 313 (BTN_TR2)
-    Event code 314 (BTN_SELECT)
-    Event code 315 (BTN_START)
-    Event code 316 (BTN_MODE)
-    Event code 317 (BTN_THUMBL)
-    Event code 318 (BTN_THUMBR)
-    Event code 319 (?)
-    Event code 704 (BTN_TRIGGER_HAPPY1)
-  Event type 3 (EV_ABS)
-    Event code 0 (ABS_X)
-      Value   1800
-      Min    -1800
-      Max     1800
-      Fuzz      14
-      Flat     225
-    Event code 1 (ABS_Y)
-      Value      0
-      Min        0
-      Max     1023
-      Fuzz       3
-      Flat      63
-    Event code 2 (ABS_Z)
-      Value      0
-      Min        0
-      Max     1023
-      Fuzz       3
-      Flat      63
-    Event code 7 (ABS_RUDDER)
-      Value      0
-      Min        0
-      Max       11
-    Event code 8 (ABS_WHEEL)
-      Value      0
-      Min        0
-      Max       11
-    Event code 9 (ABS_GAS)
-      Value      0
-      Min        0
-      Max        3
-    Event code 16 (ABS_HAT0X)
-      Value      0
-      Min       -1
-      Max        1
-    Event code 17 (ABS_HAT0Y)
-      Value      0
-      Min       -1
-      Max        1
-  Event type 4 (EV_MSC)
-    Event code 4 (MSC_SCAN)
-Properties:
-Testing ... (interrupt to exit)
-Event: time 1358662071.788346, type 3 (EV_ABS), code 9 (ABS_GAS), value 1
-Event: time 1358662071.788346, -------------- SYN_REPORT ------------
-Event: time 1358662075.188293, type 3 (EV_ABS), code 9 (ABS_GAS), value 2
-Event: time 1358662075.188293, -------------- SYN_REPORT ------------
-Event: time 1358662079.725606, type 3 (EV_ABS), code 9 (ABS_GAS), value 3
-Event: time 1358662079.725606, -------------- SYN_REPORT ------------
-Event: time 1358662084.757001, type 3 (EV_ABS), code 9 (ABS_GAS), value 2
-Event: time 1358662084.757001, -------------- SYN_REPORT ------------
-Event: time 1358662087.388547, type 3 (EV_ABS), code 9 (ABS_GAS), value 1
-Event: time 1358662087.388547, -------------- SYN_REPORT ------------
-Event: time 1358662089.477327, type 3 (EV_ABS), code 9 (ABS_GAS), value 0
-Event: time 1358662089.477327, -------------- SYN_REPORT ------------
-^C
---
-
-Can anyone else confirm this is a bug, or am I messing up some where?
-Simon.
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index e229fa3..bb99923 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -967,16 +967,31 @@ static int alps_command_mode_write_reg(struct psmouse *psmouse, int addr,
+ 	return __alps_command_mode_write_reg(psmouse, value);
+ }
+ 
++static int alps_rpt_cmd(struct ps2dev *ps2dev, int init_command,
++			int repeated_command, unsigned char *param)
++{
++	param[0] = 0;
++	if (init_command && ps2_command(ps2dev, param, init_command))
++		return -EIO;
++
++	if (ps2_command(ps2dev,  NULL, repeated_command) ||
++	    ps2_command(ps2dev,  NULL, repeated_command) ||
++	    ps2_command(ps2dev,  NULL, repeated_command))
++		return -EIO;
++
++	param[0] = param[1] = param[2] = 0xff;
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++		return -EIO;
++	return 0;
++}
++
+ static int alps_enter_command_mode(struct psmouse *psmouse,
+ 				   unsigned char *resp)
+ {
+ 	unsigned char param[4];
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 
+-	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_WRAP) ||
+-	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_WRAP) ||
+-	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_WRAP) ||
+-	    ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO)) {
++	if (alps_rpt_cmd(ps2dev, 0, PSMOUSE_CMD_RESET_WRAP, param)) {
+ 		psmouse_err(psmouse, "failed to enter command mode\n");
+ 		return -1;
+ 	}
+@@ -1015,15 +1030,8 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
+ 	 * The bits 0-2 of the first byte will be 1s if some buttons are
+ 	 * pressed.
+ 	 */
+-	param[0] = 0;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) ||
+-	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11) ||
+-	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11) ||
+-	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11))
+-		return NULL;
+-
+-	param[0] = param[1] = param[2] = 0xff;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++	if (alps_rpt_cmd(ps2dev, PSMOUSE_CMD_SETRES, PSMOUSE_CMD_SETSCALE11,
++			 param))
+ 		return NULL;
+ 
+ 	psmouse_dbg(psmouse, "E6 report: %2.2x %2.2x %2.2x",
+@@ -1037,15 +1045,8 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
+ 	 * Now try "E7 report". Allowed responses are in
+ 	 * alps_model_data[].signature
+ 	 */
+-	param[0] = 0;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) ||
+-	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE21) ||
+-	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE21) ||
+-	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE21))
+-		return NULL;
+-
+-	param[0] = param[1] = param[2] = 0xff;
+-	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++	if (alps_rpt_cmd(ps2dev, PSMOUSE_CMD_SETRES, PSMOUSE_CMD_SETSCALE21,
++			 param))
+ 		return NULL;
+ 
+ 	psmouse_dbg(psmouse, "E7 report: %2.2x %2.2x %2.2x",
+@@ -1140,10 +1141,7 @@ static int alps_get_status(struct psmouse *psmouse, char *param)
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 
+ 	/* Get status: 0xF5 0xF5 0xF5 0xE9 */
+-	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE) ||
+-	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE) ||
+-	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE) ||
+-	    ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++	if (alps_rpt_cmd(ps2dev, 0, PSMOUSE_CMD_DISABLE, param))
+ 		return -1;
+ 
+ 	psmouse_dbg(psmouse, "Status: %2.2x %2.2x %2.2x",
+-- 
+1.7.10.4
 

@@ -1,74 +1,74 @@
-From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Subject: Re: [PATCH v3 4/8] MFD: ti_am335x_tscadc: add device tree binding
- information
-Date: Sat, 19 Jan 2013 23:28:14 +0100
-Message-ID: <50FB1DFE.6090805@metafoo.de>
-References: <cover.1358502134.git.rachna@ti.com> <daf18b4779ac3c6b69b1e7e2d1a4abd18b13fee5.1358502134.git.rachna@ti.com>
+From: simon@mungewell.org
+Subject: Support for Steelseries SRW-S1 in progress
+Date: Sat, 19 Jan 2013 19:27:09 -0500
+Message-ID: <8ef34405feec3732c3de78686371356e.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <daf18b4779ac3c6b69b1e7e2d1a4abd18b13fee5.1358502134.git.rachna-l0cyMroinI0@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
-Cc: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Benit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:51255 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752054Ab3ATBbJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 19 Jan 2013 20:31:09 -0500
+Received: from localhost ([127.0.0.1] helo=mungewell.org)
+	by host171.canaca.com with esmtpa (Exim 4.69)
+	(envelope-from <simon@mungewell.org>)
+	id 1Twikf-0001zc-S9
+	for linux-input@vger.kernel.org; Sat, 19 Jan 2013 19:27:09 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi,
+Hi all,
+I've started working on a module for the SRW-S1 which requires a HID
+descriptor patch to get it going (basis 'usage page simulator' -> 'usage
+page desktop').
 
-On 01/18/2013 11:48 AM, Patil, Rachna wrote:
-> From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
-> 
-> Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
-> ---
->  .../devicetree/bindings/mfd/ti_am335x_tscadc.txt   |   35 ++++++++++++++++++++
->  1 file changed, 35 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/ti_am335x_tscadc.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/ti_am335x_tscadc.txt b/Documentation/devicetree/bindings/mfd/ti_am335x_tscadc.txt
-> new file mode 100644
-> index 0000000..c13c492
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/ti_am335x_tscadc.txt
-> @@ -0,0 +1,35 @@
-> +Texas Instruments - TSC / ADC multi-functional device
-> +
-> +ti_tscadc is a multi-function device with touchscreen and ADC on chip.
-> +This document describes the binding for mfd device.
-> +
-> +Required properties:
-> +- compatible: "ti,ti-tscadc"
-> +- reg: Specifies the address of MFD block
-> +- interrupts: IRQ line connected to the main SoC
-> +- interrupt-parent: The parent interrupt controller
+If you're interested see:
+http://community.speed-dreams.org/viewtopic.php?f=3&t=210
 
-The subnodes and their properties also need documentation.
+One question I have is whether there's a way to control how Linux labels
+the buttons. With my WIP driver jstest reports
+--
+# jstest /dev/input/js0
+Driver version is 2.1.0.
+Joystick (SteelSeries SRWheel) has 5 axes (X, Y, Z, Hat0X, Hat0Y)
+and 17 buttons (BtnX, BtnY, BtnZ, BtnTL, BtnTR, BtnTL2, BtnTR2, BtnSelect,
+BtnStart, BtnMode, BtnThumbL, BtnThumbR, ?, ?, ?, ?, (null)).
+--
 
-> +
-> +Optional properties:
-> +- ti,hwmods: Hardware information related to TSC/ADC MFD device
-> +
-> +Example:
-> +
-> +	tscadc: tscadc@44e0d000 {
-> +		compatible = "ti,ti-tscadc";
-> +		reg = <0x44e0d000 0x1000>;
-> +
-> +		interrupt-parent = <&intc>;
-> +		interrupts = <16>;
-> +		ti,hwmods = "adc_tsc";
-> +
-> +		tsc {
-> +			wires = <4>;
-> +			x-plate-resistance = <200>;
-> +			steps-to-configure = <5>;
-> +			wire-config = <0x00 0x11 0x22 0x33>;
+The bit allocation vs. labeling on the device is as follows
+--
+d1 ff 00 00 00 0f 00 00 00 f0 ff ff ff ff ff ff
+|| || || || || || || || ||  + Assist val (0-3)
+|| || || || || || || || +| Assists  (0-b)
+|| || || || || || || ||  + Steer Sens (0-b)
+|| || || || || || || +| Gear Right (8)
+|| || || || || || || +| Speed Limiter (4)
+|| || || || || || || +| Launch Control (2)
+|| || || || || || || +| HUD (1)
+|| || || || || || ||  + Horn (8)
+|| || || || || || ||  + Boost (4)
+|| || || || || || ||  + Look Right (2)
+|| || || || || || ||  + Camera (1)
+|| || || || || || +| Gear Left (8)
+|| || || || || || +| Request Pit (4)
+|| || || || || || +| F.Brake Balance (2)
+|| || || || || || +| R.Brake Balance (1)
+|| || || || || ||  + Look Back (8)
+|| || || || || ||  + Lights (4)
+|| || || || || ||  + Look Left (2)
+|| || || || || ||  + Back (1)
+|| || || || || +| Select (8)
+|| || || || ||  + DPad/Hat (F=Null,0-7)
+|| || || +| ++ Break Axis (0-3ff)
+|| || ++  + Accel Axis (0-3ff)
+++ ++ Steer Axis (f8f8-0708)
+--
 
-Non-standard properties should have a vendor prefix.
+Are such labels worthwhile, or even available? Or should I just ignore
+this aspect of the driver?
 
-> +		};
-> +
-> +		adc {
-> +			adc-channels = <4>;
-> +		};
-> +	};
+Simon
+

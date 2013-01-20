@@ -1,118 +1,75 @@
 From: Kevin Cernekee <cernekee@gmail.com>
-Subject: [PATCH 1/3] Input: ALPS - Introduce helper function for repeated
- commands
-Date: Sun, 20 Jan 2013 01:31:14 -0800
-Message-ID: <10bf6ea5c8f86eca66cd39498ca38d58@localhost>
+Subject: [PATCH 3/3] Input: ALPS - Detect Pinnacle AGx using EC report
+ instead of E7 report
+Date: Sun, 20 Jan 2013 01:31:16 -0800
+Message-ID: <57b6e6cb34a2e5f58a16032fadffc844@localhost>
+References: <10bf6ea5c8f86eca66cd39498ca38d58@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [69.28.251.93] ([69.28.251.93]:45591 "EHLO b32.net"
+Received: from [69.28.251.93] ([69.28.251.93]:45602 "EHLO b32.net"
 	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1751687Ab3ATJnc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jan 2013 04:43:32 -0500
+	id S1751679Ab3ATJnh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 20 Jan 2013 04:43:37 -0500
+In-Reply-To: <10bf6ea5c8f86eca66cd39498ca38d58@localhost>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: seth.forshee@canonical.com, linux-input@vger.kernel.org
 
-Several ALPS driver init sequences repeat a command three times, then
-issue PSMOUSE_CMD_GETINFO to read the result.  Move this into a helper
-function to simplify the code.
+The E7 report output can be ambiguous for newer touchpads; the
+manufacturer's own drivers use the EC report instead, and check a wider
+range of IDs than what is in the current table.  Implement similar
+behavior in alps.c.
+
+Tested on Dell E6410 (E7 report: 73 02 64; EC report: 88 07 9d)
 
 Signed-off-by: Kevin Cernekee <cernekee@gmail.com>
 ---
- drivers/input/mouse/alps.c |   50 +++++++++++++++++++++-----------------------
- 1 file changed, 24 insertions(+), 26 deletions(-)
+ drivers/input/mouse/alps.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index e229fa3..bb99923 100644
+index 338e97e..21fc8c9 100644
 --- a/drivers/input/mouse/alps.c
 +++ b/drivers/input/mouse/alps.c
-@@ -967,16 +967,31 @@ static int alps_command_mode_write_reg(struct psmouse *psmouse, int addr,
- 	return __alps_command_mode_write_reg(psmouse, value);
- }
+@@ -109,8 +109,6 @@ static const struct alps_model_info alps_model_data[] = {
+ 	{ { 0x73, 0x02, 0x50 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },		/* Dell Vostro 1400 */
+ 	{ { 0x52, 0x01, 0x14 }, 0x00, ALPS_PROTO_V2, 0xff, 0xff,
+ 		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },				/* Toshiba Tecra A11-11L */
+-	{ { 0x73, 0x02, 0x64 },	0x9b, ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT },
+-	{ { 0x73, 0x02, 0x64 },	0x9d, ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT },
+ 	{ { 0x73, 0x02, 0x64 },	0x8a, ALPS_PROTO_V4, 0x8f, 0x8f, 0 },
+ };
  
-+static int alps_rpt_cmd(struct ps2dev *ps2dev, int init_command,
-+			int repeated_command, unsigned char *param)
-+{
-+	param[0] = 0;
-+	if (init_command && ps2_command(ps2dev, param, init_command))
-+		return -EIO;
+@@ -118,6 +116,10 @@ static const struct alps_model_info alps_model_rushmore = {
+ 	{ ALPS_RUSHMORE }, 0x00, ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT
+ };
+ 
++static const struct alps_model_info alps_model_pinnacle_agx = {
++	{ ALPS_PINAGX }, 0x00, ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT
++};
 +
-+	if (ps2_command(ps2dev,  NULL, repeated_command) ||
-+	    ps2_command(ps2dev,  NULL, repeated_command) ||
-+	    ps2_command(ps2dev,  NULL, repeated_command))
-+		return -EIO;
-+
-+	param[0] = param[1] = param[2] = 0xff;
-+	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
-+		return -EIO;
-+	return 0;
-+}
-+
- static int alps_enter_command_mode(struct psmouse *psmouse,
- 				   unsigned char *resp)
- {
- 	unsigned char param[4];
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ /*
+  * XXX - this entry is suspicious. First byte has zero lower nibble,
+  * which is what a normal mouse would report. Also, the value 0x0e
+@@ -1040,13 +1042,13 @@ static const struct alps_model_info *alps_probe_pinnacle(
+ 	    (param[1] != 0x07 && param[1] != 0x08))
+ 		goto out;
  
--	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_WRAP) ||
--	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_WRAP) ||
--	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_WRAP) ||
--	    ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO)) {
-+	if (alps_rpt_cmd(ps2dev, 0, PSMOUSE_CMD_RESET_WRAP, param)) {
- 		psmouse_err(psmouse, "failed to enter command mode\n");
- 		return -1;
- 	}
-@@ -1015,15 +1030,8 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
- 	 * The bits 0-2 of the first byte will be 1s if some buttons are
- 	 * pressed.
- 	 */
--	param[0] = 0;
--	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) ||
--	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11) ||
--	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11) ||
--	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11))
--		return NULL;
--
--	param[0] = param[1] = param[2] = 0xff;
--	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
-+	if (alps_rpt_cmd(ps2dev, PSMOUSE_CMD_SETRES, PSMOUSE_CMD_SETSCALE11,
-+			 param))
- 		return NULL;
+-	/* For now this code has only been verified to detect Rushmore */
++	/* This code has not been tested with Pinnacle AG or Pinnacle */
+ 	if (param[1] == 0x08)
+ 		model = &alps_model_rushmore;
+ 	else if (param[2] >= 0x80 && param[2] <= 0x8f)
+ 		psmouse_info(psmouse, "detected Pinnacle AG via EC report\n");
+ 	else if (param[2] >= 0x90 && param[2] <= 0x9d)
+-		psmouse_info(psmouse, "detected Pinnacle AGx via EC report\n");
++		model = &alps_model_pinnacle_agx;
+ 	else if (param[2] < 0x80)
+ 		psmouse_info(psmouse, "detected Pinnacle via EC report\n");
  
- 	psmouse_dbg(psmouse, "E6 report: %2.2x %2.2x %2.2x",
-@@ -1037,15 +1045,8 @@ static const struct alps_model_info *alps_get_model(struct psmouse *psmouse, int
- 	 * Now try "E7 report". Allowed responses are in
- 	 * alps_model_data[].signature
- 	 */
--	param[0] = 0;
--	if (ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) ||
--	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE21) ||
--	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE21) ||
--	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE21))
--		return NULL;
--
--	param[0] = param[1] = param[2] = 0xff;
--	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
-+	if (alps_rpt_cmd(ps2dev, PSMOUSE_CMD_SETRES, PSMOUSE_CMD_SETSCALE21,
-+			 param))
- 		return NULL;
- 
- 	psmouse_dbg(psmouse, "E7 report: %2.2x %2.2x %2.2x",
-@@ -1140,10 +1141,7 @@ static int alps_get_status(struct psmouse *psmouse, char *param)
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
- 
- 	/* Get status: 0xF5 0xF5 0xF5 0xE9 */
--	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE) ||
--	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE) ||
--	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_DISABLE) ||
--	    ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
-+	if (alps_rpt_cmd(ps2dev, 0, PSMOUSE_CMD_DISABLE, param))
- 		return -1;
- 
- 	psmouse_dbg(psmouse, "Status: %2.2x %2.2x %2.2x",
 -- 
 1.7.10.4
 

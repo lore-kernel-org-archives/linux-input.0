@@ -1,61 +1,115 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: Re: [PATCH 12/33] Input: Convert to devm_ioremap_resource()
-Date: Mon, 21 Jan 2013 12:00:56 +0100
-Message-ID: <20130121110053.GA11522@avionic-0098.adnet.avionic-design.de>
-References: <1358762966-20791-1-git-send-email-thierry.reding@avionic-design.de>
- <1358762966-20791-13-git-send-email-thierry.reding@avionic-design.de>
- <CAOh2x==ECCN-2wEkFuNQ6DN2K6LMe3kvYMXXpk1bzQvUVo19Wg@mail.gmail.com>
- <20130121104946.GA27252@avionic-0098.adnet.avionic-design.de>
- <CAKohpomN3tzdyHpv4ms2kgMK2DAQ9Q-8554He-1LjkVF0iXr_Q@mail.gmail.com>
+From: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+Subject: [RFC PATCH] Input: gpio_keys: Fix suspend/resume press event lost
+Date: Mon, 21 Jan 2013 15:15:14 +0200
+Message-ID: <1358774114-8281-1-git-send-email-ivan.khoronzhuk@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAKohpomN3tzdyHpv4ms2kgMK2DAQ9Q-8554He-1LjkVF0iXr_Q@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <w.sang@pengutronix.de>, linux-input@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from devils.ext.ti.com ([198.47.26.153]:35137 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753987Ab3AUNQb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Jan 2013 08:16:31 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Bengt Jonsson <bengt.g.jonsson@stericsson.com>, NeilBrown <neilb@suse.de>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Bill Pemberton <wfp5p@virginia.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
 
+Rebased on linux_omap/master.
 
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+During suspend/resume the key press can be lost if time of resume
+sequence is significant.
 
-On Mon, Jan 21, 2013 at 04:27:03PM +0530, Viresh Kumar wrote:
-> On 21 January 2013 16:19, Thierry Reding
-> <thierry.reding@avionic-design.de> wrote:
-> > Can you specify why? devm_request_and_ioremap() and the new
-> > devm_ioremap_resource() both already output an error message if they
-> > can't request or ioremap the memory region, so all this does is output a
-> > duplicate error message.
->=20
-> because i missed implementations of these routines.. Ignore this comment
-> wherever i gave it :)
+If press event cannot be remembered then the driver can read the
+current button state only in time of interrupt handling. But in some
+cases when time between IRQ and IRQ handler is significant we can
+read incorrect state. As a particular case, when device is in suspend
+we press wakupable key and up it back in a jiffy, the interrupt
+handler read the state of up but the interrupt source is press indeed.
+As a result, in a OS like android, we resume then suspend right away
+because the key state is not changed.
 
-Done. =3D)
+This patch add to gpio_keys framework opportunity to recover lost of
+press key event at resuming. The variable "key_pressed" from
+gpio_button_data structure is not used for gpio keys, it is only used
+for gpio irq keys, so it is logically used to remember press lost
+while resuming.
 
---45Z9DzgjV8m4Oswq
-Content-Type: application/pgp-signature
+Signed-off-by: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
+---
+ drivers/input/keyboard/gpio_keys.c |   31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index b29ca65..33ac8c5 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -45,6 +45,7 @@ struct gpio_button_data {
+ struct gpio_keys_drvdata {
+ 	const struct gpio_keys_platform_data *pdata;
+ 	struct input_dev *input;
++	int suspended;
+ 	struct mutex disable_lock;
+ 	struct gpio_button_data data[0];
+ };
+@@ -326,14 +327,40 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+ {
+ 	const struct gpio_keys_button *button = bdata->button;
+ 	struct input_dev *input = bdata->input;
++	struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
+ 	unsigned int type = button->type ?: EV_KEY;
+ 	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^ button->active_low;
+ 
++	/*
++	 * Don't generate input event while resuming,
++	 * it will be generated at gpio_keys_resume function
++	*/
++	if (ddata->suspended) {
++		/*
++		 * missed press event while resuming so set
++		 * key_pressed flag to generate press and up events
++		 * while gpio_keys_resume function.
++		 */
++		if (button->wakeup && state == 0)
++			bdata->key_pressed = 1;
++		return;
++	}
++
+ 	if (type == EV_ABS) {
+ 		if (state)
+ 			input_event(input, type, button->code, button->value);
+ 	} else {
+-		input_event(input, type, button->code, !!state);
++		/*
++		 * missed press key, so generate press event then up event
++		 */
++		if (bdata->key_pressed) {
++			input_event(bdata->input, EV_KEY, button->code, 1);
++			input_sync(bdata->input);
++			input_event(bdata->input, EV_KEY, button->code, 0);
++			bdata->key_pressed = 0;
++		} else {
++			input_event(input, type, button->code, !!state);
++		}
+ 	}
+ 	input_sync(input);
+ }
+@@ -822,6 +849,7 @@ static int gpio_keys_suspend(struct device *dev)
+ 		mutex_unlock(&input->mutex);
+ 	}
+ 
++	ddata->suspended = 1;
+ 	return 0;
+ }
+ 
+@@ -832,6 +860,7 @@ static int gpio_keys_resume(struct device *dev)
+ 	int error = 0;
+ 	int i;
+ 
++	ddata->suspended = 0;
+ 	if (device_may_wakeup(dev)) {
+ 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
+ 			struct gpio_button_data *bdata = &ddata->data[i];
+-- 
+1.7.9.5
 
-iQIcBAEBAgAGBQJQ/R/lAAoJEN0jrNd/PrOho4IQAIj+L5PNBf6Z2DaSqCuCPDfg
-dh7KtpJuZKPDtqwo/owwfXuPxqT1Ur5P6Cim0VIv4XRoJ9Mx2qOWjvbbAQ5stpb2
-AE0vxBzgIrnUYrJWyiHHuQrkoNoBI0pOj2g2GezvE1ZS6Ph01h2/2S1L4Zegb4P8
-94XTL3yXPjQRH+4OxZZtH0pCsWHXZJ7GWjqrZfsmgaRiLqdryLeGAtztXCOYhy18
-3bernuV29xauEAHqj+oD9Zov4mBg0StHTYI6VQPaXbvQTHyCWCibM2nxReZtlddn
-Zgl+aH0Yrr2flAVq4AASFLvHS+OOUJM66LmSwBG7sInwhafe+uNK3bPezSb6UuRU
-Sg3UIdG7xIP7VDHRXfZRpcFWOrVmSsDr3aPp8cANKI/6V0SIG6qeTqqucYa8XNB7
-ZbnTUfas/neAZciA/FyKXPYWWRxT0ggTfXeToKM9d+tUgSmnvVoSxT+J2l21E94z
-3ctbULrviv6oJDng1w0qu126Oji1eEFzmptC4jzNboF/nGgiti/4gtI2ORX7A70j
-s9KwYAbl4IrFloypTD2o2W+/quuNrwrc0rzoVO3kDVhWm8EdPkbFf1ZOENvKR/D5
-R+NABRbSE3ZRLfIzNkAEZmw+Wzir4gOlskHb4hJTM18QBjEnOZv+WMVJdl3ho4AT
-m3f1fNE9DUu96IUs9o45
-=Or9h
------END PGP SIGNATURE-----
-
---45Z9DzgjV8m4Oswq--

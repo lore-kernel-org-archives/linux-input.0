@@ -1,97 +1,71 @@
-From: NeilBrown <neilb@suse.de>
-Subject: Re: [RFC PATCH] Input: gpio_keys: Fix suspend/resume press event
- lost
-Date: Tue, 22 Jan 2013 16:24:34 +1100
-Message-ID: <20130122162434.5bcf3e14@notabene.brown>
-References: <1358774114-8281-1-git-send-email-ivan.khoronzhuk@ti.com>
-	<20130121235718.GB16638@core.coreip.homeip.net>
+From: Fernando Luis Vazquez Cao <fernando_b1-Zyj7fXuS5i5L9jVzuh4AOg@public.gmane.org>
+Subject: Re: [PATCH v2] HID: add support for Sony RF receiver with USB product
+ id 0x0374
+Date: Tue, 22 Jan 2013 14:57:08 +0900
+Message-ID: <50FE2A34.3050607@lab.ntt.co.jp>
+References: <1358221428.9926.1.camel@nexus.lab.ntt.co.jp>  <20130115103638.be566e39f0f5ad7186362dd8@studenti.unina.it>  <50F52986.2080002@lab.ntt.co.jp>  <1358246448.4897.3.camel@nexus.lab.ntt.co.jp>  <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>  <50F637D1.8070302@lab.ntt.co.jp>  <alpine.LNX.2.00.1301161141250.14768@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_/vXaF_GlJqM7.9kyn9AqXu+A"; protocol="application/pgp-signature"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60311 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750899Ab3AVFYw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Jan 2013 00:24:52 -0500
-In-Reply-To: <20130121235718.GB16638@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LNX.2.00.1301161141250.14768-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Bengt Jonsson <bengt.g.jonsson@stericsson.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Bill Pemberton <wfp5p@virginia.edu>
 
---Sig_/vXaF_GlJqM7.9kyn9AqXu+A
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Wed, 2013-01-16 at 11:44 +0100, Jiri Kosina wrote:
+> On Wed, 16 Jan 2013, Fernando Luis Vazquez Cao wrote:
+>
+> > I noticed that the patch was tagged "for-3.9". Does this mean
+> > that it is too late to get it merged during the current release
+> > cycle?
+>
+> I currently don't have anything queued for 3.8, and this particular patch
+> doesn't justify a separate pull request.
+>
+> Once it's in Linus' tree, it can be easily pushed out to all existing
+> -stable branches (including 3.8-stable, once it's created).
+>
+> If I am gfoing to be sending pull request for 3.8 to Linus still due to
+> some important bugfix, I will be including this.
 
-On Mon, 21 Jan 2013 15:57:18 -0800 Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+Ok, thank you for the explanation. I really appreciate it.
 
-> Hi Ivan,
->=20
-> On Mon, Jan 21, 2013 at 03:15:14PM +0200, Ivan Khoronzhuk wrote:
-> > Rebased on linux_omap/master.
-> >=20
-> > During suspend/resume the key press can be lost if time of resume
-> > sequence is significant.
-> >=20
-> > If press event cannot be remembered then the driver can read the
-> > current button state only in time of interrupt handling. But in some
-> > cases when time between IRQ and IRQ handler is significant we can
-> > read incorrect state. As a particular case, when device is in suspend
-> > we press wakupable key and up it back in a jiffy, the interrupt
-> > handler read the state of up but the interrupt source is press indeed.
-> > As a result, in a OS like android, we resume then suspend right away
-> > because the key state is not changed.
-> >=20
-> > This patch add to gpio_keys framework opportunity to recover lost of
-> > press key event at resuming. The variable "key_pressed" from
-> > gpio_button_data structure is not used for gpio keys, it is only used
-> > for gpio irq keys, so it is logically used to remember press lost
-> > while resuming.
->=20
-> The same could happen if you delay processing of interrupt long enough
-> during normal operation. If key is released by the time you get around
-> to reading it you will not see a key press.
->=20
-> To me this sounds like you need to speed up your resume process so that
-> you can start serving interrupts quicker.
->=20
 
-Agreed.  When I was looking at this I found that any genuine button press
-would have at least 70msec between press and release, while the device could
-wake up to the point of being able to handle interrupts in about 14msec.
-That is enough of a gap to make it pointless to try to 'fix' the code.
+> > If possible, I would like to get it backported to 3.7-stable (and
+> > possibly 3.2 stable), since without it a whole family of Sony desktop
+> > computers is unusable under Linux out of the box. Should I do it myself
+> > or do you have a process in place for HID stable patches?
+>
+> If the patch had
+>
+> 	Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>
+> in it, it'd be picked for -stable queue automatically.
 
-With enough verbose debugging enabled that 14msec can easily grow to
-hundreds, but then if  you have debugging enabled to can discipline yourself
-to hold the button for longer.
+I considered doing that but I thought and upstream commit
+ID was needed.
 
-Ivan: What sort of delay are you seeing between the button press and the
-interrupt routine running?  And can you measure how long the button is
-typically down for?
 
-NeilBrown
+> Otherwise, anyone is free to take it once it's in Linus' tree and sent
+> to to stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org for inclusion.
 
---Sig_/vXaF_GlJqM7.9kyn9AqXu+A
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
+So it is the standard procedure. I just wanted to make
+sure whether you wanted to have all the -stable patches
+funnelled through you. I will send the patch to -stable
+directly and Cc you as soon as it makes it into Linus'
+tree.
 
-iQIVAwUBUP4ikjnsnt1WYoG5AQLovhAAuBtOrL0nol96GN+AHuxQt4PM1SrYlEMC
-cLjSBx0Yj/brBp3eoRKKfaOs+MFDVzNzf8WLt5zomI84tMQ7L98jKHne3CBMkdVc
-nttYhALNCMqnRzxDKA/TRZg2MYXqSlwl4Vj76HzTLxUvRvuWDw7umCWHwbeVVB+8
-Y60ahWbX9oDI+s2UhOwdpB2wT0H9Aq8cMOaEwwGM3bwXRvJnkm+o0ZXmIbzoMfRh
-ZVgemaJw121D6ixoj0QsnwuDvqCI+U7cNSnUef+jPVP3tqbwJ8eZJE36tBGRc6kP
-dbIN+x565kmz7UwN+Cnn7zDtNTz6EjaWaG+qeh0Q3aQ+U298wtFLQTuL7mfvwUMr
-+6wM1UOJi2MVzVdwHuhGRm3B+lBqUqWtGHfP9P5QEHAgJ6Jcy4+WOFs1ws3/A3nu
-EMiO8k8N3GDxufFKltXJ3B2Ff6LxCUdae2rHI9AafZEBElxdorrbf0Pl40RL4nJi
-YZ7oPByrafmM0DGWDy+AePxZdcHFGrokKfW9almBPILUOn/xK3n4x5A83YuQXyFd
-NkRKbKucu249p391sxuRbE0jIWe/ksK660PIxmvTPONSDtznby++9tOFocvbY60M
-eu6vCXRej8q32Uv3gylhLZ9TCWwBddvoqZAM+k8im75EwRBvSe3fI2cJFJ1tDtwQ
-F9DcoMGJx74=
-=TEVN
------END PGP SIGNATURE-----
 
---Sig_/vXaF_GlJqM7.9kyn9AqXu+A--
+By the way, I will be replying to this email with a
+follow-up patch that I forgot to send the last time
+around. It is just documentation for the quirk.
+
+Thanks,
+Fernando
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

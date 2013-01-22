@@ -1,71 +1,66 @@
-From: Fernando Luis Vazquez Cao <fernando_b1-Zyj7fXuS5i5L9jVzuh4AOg@public.gmane.org>
-Subject: Re: [PATCH v2] HID: add support for Sony RF receiver with USB product
- id 0x0374
-Date: Tue, 22 Jan 2013 14:57:08 +0900
-Message-ID: <50FE2A34.3050607@lab.ntt.co.jp>
-References: <1358221428.9926.1.camel@nexus.lab.ntt.co.jp>  <20130115103638.be566e39f0f5ad7186362dd8@studenti.unina.it>  <50F52986.2080002@lab.ntt.co.jp>  <1358246448.4897.3.camel@nexus.lab.ntt.co.jp>  <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>  <50F637D1.8070302@lab.ntt.co.jp>  <alpine.LNX.2.00.1301161141250.14768@pobox.suse.cz>
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao
+	<fernando_b1@lab.ntt.co.jp>
+Subject: HID: clean up quirk for Sony RF receivers
+Date: Tue, 22 Jan 2013 15:20:38 +0900
+Message-ID: <1358835638.6336.1.camel@nexus.lab.ntt.co.jp>
+References: <1358221428.9926.1.camel@nexus.lab.ntt.co.jp>
+	  <20130115103638.be566e39f0f5ad7186362dd8@studenti.unina.it>
+	  <50F52986.2080002@lab.ntt.co.jp>
+	  <1358246448.4897.3.camel@nexus.lab.ntt.co.jp>
+	  <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>
+	  <50F637D1.8070302@lab.ntt.co.jp>
+	  <alpine.LNX.2.00.1301161141250.14768@pobox.suse.cz>
+	 <50FE2A34.3050607@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1301161141250.14768-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from tama50.ecl.ntt.co.jp ([129.60.39.147]:52966 "EHLO
+	tama50.ecl.ntt.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752467Ab3AVGV2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jan 2013 01:21:28 -0500
+In-Reply-To: <50FE2A34.3050607@lab.ntt.co.jp>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
 
-On Wed, 2013-01-16 at 11:44 +0100, Jiri Kosina wrote:
-> On Wed, 16 Jan 2013, Fernando Luis Vazquez Cao wrote:
->
-> > I noticed that the patch was tagged "for-3.9". Does this mean
-> > that it is too late to get it merged during the current release
-> > cycle?
->
-> I currently don't have anything queued for 3.8, and this particular patch
-> doesn't justify a separate pull request.
->
-> Once it's in Linus' tree, it can be easily pushed out to all existing
-> -stable branches (including 3.8-stable, once it's created).
->
-> If I am gfoing to be sending pull request for 3.8 to Linus still due to
-> some important bugfix, I will be including this.
+Document what the fix-up is does and make it more robust by ensuring
+that it is only applied to the USB interface that corresponds to the
+mouse (sony_report_fixup() is called once per interface during probing).
 
-Ok, thank you for the explanation. I really appreciate it.
+Cc: linux-input@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Fernando Luis Vazquez Cao <fernando@oss.ntt.co.jp>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
 
-
-> > If possible, I would like to get it backported to 3.7-stable (and
-> > possibly 3.2 stable), since without it a whole family of Sony desktop
-> > computers is unusable under Linux out of the box. Should I do it myself
-> > or do you have a process in place for HID stable patches?
->
-> If the patch had
->
-> 	Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->
-> in it, it'd be picked for -stable queue automatically.
-
-I considered doing that but I thought and upstream commit
-ID was needed.
-
-
-> Otherwise, anyone is free to take it once it's in Linus' tree and sent
-> to to stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org for inclusion.
-
-
-So it is the standard procedure. I just wanted to make
-sure whether you wanted to have all the -stable patches
-funnelled through you. I will send the patch to -stable
-directly and Cc you as soon as it makes it into Linus'
-tree.
+diff -urNp linux-3.8-rc4-orig/drivers/hid/hid-sony.c linux-3.8-rc4/drivers/hid/hid-sony.c
+--- linux-3.8-rc4-orig/drivers/hid/hid-sony.c	2013-01-22 14:21:13.380552283 +0900
++++ linux-3.8-rc4/drivers/hid/hid-sony.c	2013-01-22 14:41:56.316934002 +0900
+@@ -43,9 +43,19 @@ static __u8 *sony_report_fixup(struct hi
+ {
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
+ 
+-	if ((sc->quirks & VAIO_RDESC_CONSTANT) &&
+-			*rsize >= 56 && rdesc[54] == 0x81 && rdesc[55] == 0x07) {
++	/*
++	 * Some Sony RF receivers wrongly declare the mouse pointer as a
++	 * a constant non-data variable.
++	 */
++	if ((sc->quirks & VAIO_RDESC_CONSTANT) && *rsize >= 56 &&
++	    /* usage page: generic desktop controls */
++	    /* rdesc[0] == 0x05 && rdesc[1] == 0x01 && */
++	    /* usage: mouse */
++	    rdesc[2] == 0x09 && rdesc[3] == 0x02 &&
++	    /* input (usage page for x,y axes): constant, variable, relative */
++	    rdesc[54] == 0x81 && rdesc[55] == 0x07) {
+ 		hid_info(hdev, "Fixing up Sony RF Receiver report descriptor\n");
++		/* input: data, variable, relative */
+ 		rdesc[55] = 0x06;
+ 	}
+ 
 
 
-By the way, I will be replying to this email with a
-follow-up patch that I forgot to send the last time
-around. It is just documentation for the quirk.
-
-Thanks,
-Fernando
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

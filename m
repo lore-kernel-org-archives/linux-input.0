@@ -1,66 +1,35 @@
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao
-	<fernando_b1@lab.ntt.co.jp>
-Subject: HID: clean up quirk for Sony RF receivers
-Date: Tue, 22 Jan 2013 15:20:38 +0900
-Message-ID: <1358835638.6336.1.camel@nexus.lab.ntt.co.jp>
-References: <1358221428.9926.1.camel@nexus.lab.ntt.co.jp>
-	  <20130115103638.be566e39f0f5ad7186362dd8@studenti.unina.it>
-	  <50F52986.2080002@lab.ntt.co.jp>
-	  <1358246448.4897.3.camel@nexus.lab.ntt.co.jp>
-	  <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>
-	  <50F637D1.8070302@lab.ntt.co.jp>
-	  <alpine.LNX.2.00.1301161141250.14768@pobox.suse.cz>
-	 <50FE2A34.3050607@lab.ntt.co.jp>
+From: Allen Violet Large <fanny.gibert@zstore2.insa-lyon.fr>
+Subject: Hello Friend
+Date: Tue, 22 Jan 2013 07:27:53 +0100 (CET)
+Message-ID: <758337791.5132734.1358836073388.JavaMail.root@insa-lyon.fr>
+Reply-To: Allen Violet Large <allenviolet-large3@ozledim.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tama50.ecl.ntt.co.jp ([129.60.39.147]:52966 "EHLO
-	tama50.ecl.ntt.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752467Ab3AVGV2 (ORCPT
+Received: from smtp2.insa-lyon.fr ([134.214.76.44]:39673 "EHLO
+	smtp2.insa-lyon.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750936Ab3AVGfN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Jan 2013 01:21:28 -0500
-In-Reply-To: <50FE2A34.3050607@lab.ntt.co.jp>
+	Tue, 22 Jan 2013 01:35:13 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
 
-Document what the fix-up is does and make it more robust by ensuring
-that it is only applied to the USB interface that corresponds to the
-mouse (sony_report_fixup() is called once per interface during probing).
-
-Cc: linux-input@vger.kernel.org
-Cc: linux-usb@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Fernando Luis Vazquez Cao <fernando@oss.ntt.co.jp>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
-
-diff -urNp linux-3.8-rc4-orig/drivers/hid/hid-sony.c linux-3.8-rc4/drivers/hid/hid-sony.c
---- linux-3.8-rc4-orig/drivers/hid/hid-sony.c	2013-01-22 14:21:13.380552283 +0900
-+++ linux-3.8-rc4/drivers/hid/hid-sony.c	2013-01-22 14:41:56.316934002 +0900
-@@ -43,9 +43,19 @@ static __u8 *sony_report_fixup(struct hi
- {
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
- 
--	if ((sc->quirks & VAIO_RDESC_CONSTANT) &&
--			*rsize >= 56 && rdesc[54] == 0x81 && rdesc[55] == 0x07) {
-+	/*
-+	 * Some Sony RF receivers wrongly declare the mouse pointer as a
-+	 * a constant non-data variable.
-+	 */
-+	if ((sc->quirks & VAIO_RDESC_CONSTANT) && *rsize >= 56 &&
-+	    /* usage page: generic desktop controls */
-+	    /* rdesc[0] == 0x05 && rdesc[1] == 0x01 && */
-+	    /* usage: mouse */
-+	    rdesc[2] == 0x09 && rdesc[3] == 0x02 &&
-+	    /* input (usage page for x,y axes): constant, variable, relative */
-+	    rdesc[54] == 0x81 && rdesc[55] == 0x07) {
- 		hid_info(hdev, "Fixing up Sony RF Receiver report descriptor\n");
-+		/* input: data, variable, relative */
- 		rdesc[55] = 0x06;
- 	}
- 
+Hello Friend
 
 
+This is a personal email directed to you. 
+
+My wife and I won a Jackpot Lottery of $11.3 million in July and have voluntarily decided to donate the sum of $500,000.00 USD to you as part of our own charity project to improve the lot of 10 lucky individuals all over the world. If you have received this email then you are one of the lucky recipients and all you have to do is get back with us so that we can send your details to the payout bank.Please note that you have to contact my private email for more informations (allenviolet-large3@ozledim.net)
+
+You can verify this by visiting the web pages below.
+
+http://www.dailymail.co.uk/news/article-1326473/Canadian-couple-Allen-Violet-
+Large-away-entire-11-2m-lottery-win.html
+
+http://www.cbc.ca/news/canada/nova-scotia/story/2010/11/04/ns-allen-violet-
+large-lottery-winning.html
+
+Goodluck,
+Allen and Violet Large
+Email: allenviolet-large3@ozledim.net

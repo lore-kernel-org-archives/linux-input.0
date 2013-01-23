@@ -1,310 +1,124 @@
-From: Alan Cox <alan@linux.intel.com>
-Subject: [PATCH] goldfish: virtual input event driver
-Date: Wed, 23 Jan 2013 17:38:43 +0000
-Message-ID: <20130123173840.996.9588.stgit@bob.linux.org.uk>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [RFC] enumeration of "composite devices" using v-usb
+Date: Wed, 23 Jan 2013 19:22:19 +0100
+Message-ID: <CAN+gG=EY2RpypiT5hAvBT1WqgZs9b3Z8J221614hUD_h_v8fNQ@mail.gmail.com>
+References: <50F9D313.4070803@gmx.de>
+	<CAN+gG=EKTkCBifd1zgriigJObq0PHBNuqgAu9sD=144PRcXtSw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:36021 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754634Ab3AWRSS (ORCPT
+Received: from mail-la0-f52.google.com ([209.85.215.52]:33462 "EHLO
+	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754381Ab3AWSWV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Jan 2013 12:18:18 -0500
-Received: from bob.linux.org.uk (earthlight.etchedpixels.co.uk [81.2.110.250])
-	by lxorguk.ukuu.org.uk (8.14.5/8.14.1) with ESMTP id r0NI1do8018822
-	for <linux-input@vger.kernel.org>; Wed, 23 Jan 2013 18:01:45 GMT
+	Wed, 23 Jan 2013 13:22:21 -0500
+Received: by mail-la0-f52.google.com with SMTP id fs12so2081042lab.25
+        for <linux-input@vger.kernel.org>; Wed, 23 Jan 2013 10:22:19 -0800 (PST)
+In-Reply-To: <CAN+gG=EKTkCBifd1zgriigJObq0PHBNuqgAu9sD=144PRcXtSw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Hartmut Knaack <knaack.h@gmx.de>
+Cc: linux-input@vger.kernel.org
 
-From: Brian Swetland <swetland@google.com>
+On Mon, Jan 21, 2013 at 4:45 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Fri, Jan 18, 2013 at 5:56 PM, Hartmut Knaack <knaack.h@gmx.de> wrote:
+>> Hi,
+>> I've built myself a joystick adapter (project website: http://www.hexagons.de/index.php/USB_Joystickadapter), which has the purpose of connecting up to 2 Atari style joysticks (the ones with db9 connectors, found on 80's home computers like C64, Amiga,...) via USB. Current situation is: on Windows XP, 2 joystick devices get created with 2 axis and 2 buttons each (as intended); while on Linux, just one joystick device (/dev/input/js0) gets created, but with 4 axis and 4 buttons.
+>> This device provides one interface with one Interrupt-in Endpoint. The division into two joystick devices is done using an HID descriptor [1] with two configurations and the REPORT_ID tag.
+>> What I would like to know is, is there a problem in the Linux HID parser, or is its behavior intentional and those composite devices more like a dirty solution around the standards?
+>
+> Hi,
+>
+> well, currently, the HID parser does not split the different reportID
+> into several devices. It's a known limitation and we are working on it
+> (at least we already saw problems with that), but it will not make it
+> in 3.9 I think.
+> The solution that works for now is to use several usb interfaces. The
+> usb layer splits the different interfaces, so it will give you 2
+> different HID devices.
 
-This device is a direct pipe from "hardware" to the input
-event subsystem, allowing us to avoid having to route
-"keypad" style events through an AT keyboard driver (gross!)
+I just figured out that you could use the quirk HID_QUIRK_MULTI_INPUT
+in usbhid/hid-quirks.c
+The reportID split is still missing, but this is an easier short term
+solution for you.
 
-As with the other submissions this driver is cross architecture.
+Sorry,
+Benjamin
 
-Signed-off-by: Mike A. Chan <mikechan@google.com>
-[Tided up to work on x86]
-Signed-off-by: Sheng Yang <sheng@linux.intel.com>
-Signed-off-by: Yunhong Jiang <yunhong.jiang@intel.com>
-Signed-off-by: Xiaohui Xin <xiaohui.xin@intel.com>
-Signed-off-by: Jun Nakajima <jun.nakajima@intel.com>
-Signed-off-by: Bruce Beare <bruce.j.beare@intel.com>
-[Ported to 3.4]
-Signed-off-by: Tom Keel <thomas.keel@intel.com>
-[Cleaned up for 3.7 and submission]
-Signed-off-by: Alan Cox <alan@linux.intel.com>
----
-
- drivers/input/keyboard/Kconfig           |   10 ++
- drivers/input/keyboard/Makefile          |    1 
- drivers/input/keyboard/goldfish_events.c |  186 ++++++++++++++++++++++++++++++
- drivers/tty/goldfish.c                   |   19 +--
- 4 files changed, 204 insertions(+), 12 deletions(-)
- create mode 100644 drivers/input/keyboard/goldfish_events.c
-
-
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 008f96a..07f7bb2 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -482,6 +482,16 @@ config KEYBOARD_SAMSUNG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called samsung-keypad.
- 
-+config KEYBOARD_GOLDFISH_EVENTS
-+	depends on GOLDFISH
-+	tristate "Generic Input Event device for Goldfish"
-+	help
-+	  Say Y here to get an input event device for the Goldfish virtual
-+	  device emulator.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called goldfish-events.
-+
- if TTY
- 
- config KEYBOARD_STOWAWAY
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 44e7600..49b1645 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -13,6 +13,7 @@ obj-$(CONFIG_KEYBOARD_ATKBD)		+= atkbd.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
- obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keyscan.o
- obj-$(CONFIG_KEYBOARD_EP93XX)		+= ep93xx_keypad.o
-+obj-$(CONFIG_KEYBOARD_GOLDFISH_EVENTS)	+= goldfish_events.o
- obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
- obj-$(CONFIG_KEYBOARD_GPIO_POLLED)	+= gpio_keys_polled.o
- obj-$(CONFIG_KEYBOARD_TCA6416)		+= tca6416-keypad.o
-diff --git a/drivers/input/keyboard/goldfish_events.c b/drivers/input/keyboard/goldfish_events.c
-new file mode 100644
-index 0000000..27b767c
---- /dev/null
-+++ b/drivers/input/keyboard/goldfish_events.c
-@@ -0,0 +1,186 @@
-+/*
-+ * Copyright (C) 2007 Google, Inc.
-+ * Copyright (C) 2012 Intel, Inc.
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/types.h>
-+#include <linux/input.h>
-+#include <linux/kernel.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+#include <linux/irq.h>
-+#include <linux/io.h>
-+
-+enum {
-+	REG_READ        = 0x00,
-+	REG_SET_PAGE    = 0x00,
-+	REG_LEN         = 0x04,
-+	REG_DATA        = 0x08,
-+
-+	PAGE_NAME       = 0x00000,
-+	PAGE_EVBITS     = 0x10000,
-+	PAGE_ABSDATA    = 0x20000 | EV_ABS,
-+};
-+
-+struct event_dev {
-+	struct input_dev *input;
-+	int irq;
-+	void __iomem *addr;
-+	char name[0];
-+};
-+
-+static irqreturn_t events_interrupt(int irq, void *dev_id)
-+{
-+	struct event_dev *edev = dev_id;
-+	unsigned type, code, value;
-+
-+	type = __raw_readl(edev->addr + REG_READ);
-+	code = __raw_readl(edev->addr + REG_READ);
-+	value = __raw_readl(edev->addr + REG_READ);
-+
-+	input_event(edev->input, type, code, value);
-+	input_sync(edev->input);
-+	return IRQ_HANDLED;
-+}
-+
-+static void events_import_bits(struct event_dev *edev,
-+			unsigned long bits[], unsigned type, size_t count)
-+{
-+	int i, j;
-+	size_t size;
-+	uint8_t val;
-+	void __iomem *addr = edev->addr;
-+	__raw_writel(PAGE_EVBITS | type, addr + REG_SET_PAGE);
-+	size = __raw_readl(addr + REG_LEN) * 8;
-+	if (size < count)
-+		count = size;
-+	addr = addr + REG_DATA;
-+	for (i = 0; i < count; i += 8) {
-+		val = __raw_readb(addr++);
-+		for (j = 0; j < 8; j++)
-+			if (val & 1 << j)
-+				set_bit(i + j, bits);
-+	}
-+}
-+
-+static int events_probe(struct platform_device *pdev)
-+{
-+	struct input_dev *input_dev;
-+	struct event_dev *edev = NULL;
-+	struct resource *res;
-+	unsigned keymapnamelen;
-+	int i;
-+	int count;
-+	int irq;
-+	void __iomem *addr;
-+	int ret;
-+
-+	input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!input_dev)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!input_dev || !res)
-+		return -EINVAL;
-+
-+	addr = devm_ioremap(&pdev->dev, res->start, 4096);
-+	if (!addr)
-+		return -ENOMEM;
-+		
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return -EINVAL;
-+
-+	__raw_writel(PAGE_NAME, addr + REG_SET_PAGE);
-+	keymapnamelen = __raw_readl(addr + REG_LEN);
-+
-+	edev = devm_kzalloc(&pdev->dev, sizeof(struct event_dev) + keymapnamelen + 1,
-+								GFP_KERNEL);
-+	if (!edev)
-+		return -ENOMEM;
-+
-+	edev->input = input_dev;
-+	edev->addr = addr;
-+	edev->irq = irq;
-+
-+	for (i = 0; i < keymapnamelen; i++)
-+		edev->name[i] = __raw_readb(edev->addr + REG_DATA + i);
-+
-+	pr_debug("events_probe() keymap=%s\n", edev->name);
-+
-+	events_import_bits(edev, input_dev->evbit, EV_SYN, EV_MAX);
-+	events_import_bits(edev, input_dev->keybit, EV_KEY, KEY_MAX);
-+	events_import_bits(edev, input_dev->relbit, EV_REL, REL_MAX);
-+	events_import_bits(edev, input_dev->absbit, EV_ABS, ABS_MAX);
-+	events_import_bits(edev, input_dev->mscbit, EV_MSC, MSC_MAX);
-+	events_import_bits(edev, input_dev->ledbit, EV_LED, LED_MAX);
-+	events_import_bits(edev, input_dev->sndbit, EV_SND, SND_MAX);
-+	events_import_bits(edev, input_dev->ffbit, EV_FF, FF_MAX);
-+	events_import_bits(edev, input_dev->swbit, EV_SW, SW_MAX);
-+
-+	__raw_writel(PAGE_ABSDATA, addr + REG_SET_PAGE);
-+	count = __raw_readl(addr + REG_LEN) / (4 * 4);
-+	if (count > ABS_MAX)
-+		count = ABS_MAX;
-+	for (i = 0; i < count; i++) {
-+		int val[4];
-+		int j;
-+		if (!test_bit(i, input_dev->absbit))
-+			continue;
-+		for (j = 0; j < ARRAY_SIZE(val); j++)
-+			val[j] = __raw_readl(edev->addr + REG_DATA + (i * ARRAY_SIZE(val) + j) * 4);
-+		input_set_abs_params(input_dev, i, val[0], val[1],
-+							val[2], val[3]);
-+	}
-+
-+	platform_set_drvdata(pdev, edev);
-+
-+	input_dev->name = edev->name;
-+	input_set_drvdata(input_dev, edev);
-+
-+	ret = input_register_device(input_dev);
-+	if (ret)
-+		return ret;
-+
-+	if (devm_request_irq(&pdev->dev, edev->irq, events_interrupt, 0,
-+				"goldfish-events-keypad", edev) < 0)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static int events_remove(struct platform_device *pdev)
-+{
-+	struct event_dev *edev = platform_get_drvdata(pdev);
-+	struct input_dev *input_dev = edev->input;
-+	input_unregister_device(input_dev);
-+	return 0;
-+}
-+
-+static struct platform_driver events_driver = {
-+	.probe = events_probe,
-+	.remove = events_remove,
-+	.driver = {
-+		.owner = THIS_MODULE,
-+		.name = "goldfish_events",
-+	},
-+};
-+
-+module_platform_driver(events_driver);
-+
-+MODULE_AUTHOR("Brian Swetland");
-+MODULE_DESCRIPTION("Goldfish Event Device");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
-index e2ccb6d..f17d2e4 100644
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -72,23 +72,18 @@ static irqreturn_t goldfish_tty_interrupt(int irq, void *dev_id)
- 	unsigned long irq_flags;
- 	unsigned char *buf;
- 	u32 count;
--	struct tty_struct *tty;
- 
- 	count = readl(base + GOLDFISH_TTY_BYTES_READY);
- 	if(count == 0)
- 		return IRQ_NONE;
- 
--	tty = tty_port_tty_get(&qtty->port);
--	if (tty) {
--		count = tty_prepare_flip_string(tty, &buf, count);
--		spin_lock_irqsave(&qtty->lock, irq_flags);
--		writel((u32)buf, base + GOLDFISH_TTY_DATA_PTR);
--		writel(count, base + GOLDFISH_TTY_DATA_LEN);
--		writel(GOLDFISH_TTY_CMD_READ_BUFFER, base + GOLDFISH_TTY_CMD);
--		spin_unlock_irqrestore(&qtty->lock, irq_flags);
--		tty_schedule_flip(tty);
--		tty_kref_put(tty);
--	}
-+	count = tty_prepare_flip_string(&qtty->port, &buf, count);
-+	spin_lock_irqsave(&qtty->lock, irq_flags);
-+	writel((u32)buf, base + GOLDFISH_TTY_DATA_PTR);
-+	writel(count, base + GOLDFISH_TTY_DATA_LEN);
-+	writel(GOLDFISH_TTY_CMD_READ_BUFFER, base + GOLDFISH_TTY_CMD);
-+	spin_unlock_irqrestore(&qtty->lock, irq_flags);
-+	tty_schedule_flip(&qtty->port);
- 	return IRQ_HANDLED;
- }
- 
-
+> Oh, and if you want to contribute to split the device in the HID
+> parser under Linux, you are welcome as well :)
+>
+> Cheers,
+> Benjamin
+>
+>> Thanks
+>>
+>> Hartmut Knaack
+>>
+>> [1]
+>> char usbHidReportDescriptor[102] PROGMEM = {
+>>
+>>     // Joystick Port 1
+>>
+>>     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+>>     0x09, 0x04,                    // USAGE (Joystick)
+>>     0xa1, 0x01,                    // COLLECTION (Application)
+>>     0x85, 0x01,                    // REPORT_ID (1)
+>>     0x09, 0x01,                    //   USAGE (Pointer)
+>>     0xa1, 0x00,                    //   COLLECTION (Physical)
+>>     0x09, 0x30,                    //     USAGE (X)
+>>     0x09, 0x31,                    //     USAGE (Y)
+>>     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+>>     0x26, 0xff, 0x00,               //   LOGICAL_MAXIMUM (255)
+>>     0x75, 0x08,                    //   REPORT_SIZE (8)
+>>     0x95, 0x02,                    //   REPORT_COUNT (2)
+>>     0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+>>     0xc0,                          // END_COLLECTION
+>>     0x05, 0x09,                    // USAGE_PAGE (Button)
+>>     0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
+>>     0x29, 0x02,                    //   USAGE_MAXIMUM (Button 2)
+>>     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+>>     0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
+>>     0x75, 0x01,                    // REPORT_SIZE (1)
+>>     0x95, 0x02,                    // REPORT_COUNT (2)
+>>     0x81, 0x02,                    // INPUT (Data,Var,Abs)
+>>     0x75, 0x06,                    // REPORT_SIZE (6)
+>>     0x95, 0x01,                    // REPORT_COUNT (1)
+>>     0x81, 0x03,                    // INPUT (Constant,Var,Abs)
+>>     0xc0,                          // END_COLLECTION
+>>
+>>     // Joystick Port 2
+>>
+>>     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+>>     0x09, 0x04,                    // USAGE (Joystick)
+>>     0xa1, 0x01,                    // COLLECTION (Application)
+>>     0x85, 0x02,                    // REPORT_ID (2)
+>>     0x09, 0x01,                    //   USAGE (Pointer)
+>>     0xa1, 0x00,                    //   COLLECTION (Physical)
+>>     0x09, 0x30,                    //     USAGE (X)
+>>     0x09, 0x31,                    //     USAGE (Y)
+>>     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+>>     0x26, 0xff, 0x00,               //   LOGICAL_MAXIMUM (255)
+>>     0x75, 0x08,                    //   REPORT_SIZE (8)
+>>     0x95, 0x02,                    //   REPORT_COUNT (2)
+>>     0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+>>     0xc0,                          // END_COLLECTION
+>>     0x05, 0x09,                    // USAGE_PAGE (Button)
+>>     0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
+>>     0x29, 0x02,                    //   USAGE_MAXIMUM (Button 2)
+>>     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+>>     0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
+>>     0x75, 0x01,                    // REPORT_SIZE (1)
+>>     0x95, 0x02,                    // REPORT_COUNT (2)
+>>     0x81, 0x02,                    // INPUT (Data,Var,Abs)
+>>     0x75, 0x06,                    // REPORT_SIZE (6)
+>>     0x95, 0x01,                    // REPORT_COUNT (1)
+>>     0x81, 0x03,                    // INPUT (Constant,Var,Abs)
+>>     0xc0                           // END_COLLECTION
+>> };
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html

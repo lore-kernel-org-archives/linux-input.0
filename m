@@ -1,50 +1,52 @@
-From: Brad Tilley <brad@16s.us>
-Subject: Re: PROBLEM: 3.8.0-rc4 keyboard failure at boot
-Date: Wed, 23 Jan 2013 11:51:56 -0500
-Message-ID: <20130123165156.GB29114@16s.us>
-References: <20130121213604.GA31225@16s.us>
- <20130122001346.GD16638@core.coreip.homeip.net>
- <alpine.LNX.2.00.1301221122380.20374@pobox.suse.cz>
- <20130122121947.GB27072@16s.us>
- <alpine.LNX.2.00.1301221341550.20374@pobox.suse.cz>
- <20130122134658.GA27683@16s.us>
- <alpine.LNX.2.00.1301221821160.20374@pobox.suse.cz>
+From: simon@mungewell.org
+Subject: Re: BUG: Joydev - Broken line compensation does not work for small
+ range inputs
+Date: Wed, 23 Jan 2013 12:06:42 -0500
+Message-ID: <65291f9461742ff807017cf8acec5dca.squirrel@mungewell.org>
+References: <dd635eb75d3c9621e698d5458b16811a.squirrel@www.mungewell.org>
+    <04d6d378f8654bc2923cd22e11fd6569.squirrel@www.mungewell.org>
+    <b778032fe6aef2b537b734c6a248c219.squirrel@www.mungewell.org>
+    <4466640c-69ae-4232-8136-871955ae6ee6@email.android.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mxout-08.mxes.net ([216.86.168.183]:30784 "EHLO
-	mxout-08.mxes.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753105Ab3AWQv6 (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:41808 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756242Ab3AWRGo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Jan 2013 11:51:58 -0500
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1301221821160.20374@pobox.suse.cz>
+	Wed, 23 Jan 2013 12:06:44 -0500
+In-Reply-To: <4466640c-69ae-4232-8136-871955ae6ee6@email.android.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: simon@mungewell.org, linux-input@vger.kernel.org
 
-On Tue, Jan 22, 2013 at 06:22:42PM +0100, Jiri Kosina wrote:
-> On Tue, 22 Jan 2013, Brad Tilley wrote:
-> 
-> > See attached. Two dmesgs from the same machine. One from 3.7.3, the 
-> > other from 3.8-rc4 (with a ps2 keyboard). USB keyboards on this machine 
-> > never work with 3.8, but always works with 3.7.
-> > 
-> > I used an old ps2 keyboard to enter the dm-crypt password. After that, 
-> > the boot process continues and the USB keyboard and mouse become active 
-> > and begin to work. However, USB keyboards do not work when the user is 
-> > prompted to enter the dm-crypt decryption password early in the boot 
-> > process. That's the primary issue.
-> 
-> Are you sure that HID modules are loaded at the time you are being asked 
-> for the dmcrypt password?
 
-Thanks... I believe that was the problem. I added some modules to /etc/initramfs-tools/modules and made a new initramfs image. Here are the modules I added (likely overkill, but now the keyboards work 100% of the time on all systems):
+>>The problem is that the 'broken line' calibration can not properly
+>>represent/process a value with a small range - I guess this does not
+>>matter when there is a large input range.
+>>
+>>In my system I have a dial (RZ) with 4 positions (0..3):
+>>      expect to see -32768, -10922, +10922, +32768
+> Hi Simon,
+>
+> I think you should simply use evdev, joydev is legacy interface useful for
+> real joysticks.
 
-ehci_pci usbcore usb_common xhci_hcd uhci_hcd ehci_hcd ohci_hcd usbhid hid_generic
+If the use of joydev is truely depricated then a "won't fix" is fine I
+guess, but a lot of applications seem to use this...
+
+As I noted you can disable the calibration with something like 'jscal -s
+8,0,0,0,0,0...' in order to get 'raw' values via '/dev/input/js0'
+interface - this might be sufficient for a user to make use of the
+dial/etc.
 
 Thanks,
+Simon.
 
-Brad
+PS. The irony is that although SDL2.0 use the evdev interface, they show a
+similar problem due to integer math in their calibration code/coefs... ho
+hum off to patch I guess :-)
+
 

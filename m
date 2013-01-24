@@ -1,72 +1,54 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH v3 0/2] Input: twl6040-vibra cleanups (devm_* conversion,
- system wq)
-Date: Thu, 24 Jan 2013 12:44:29 +0100
-Message-ID: <51011E9D.7050409@ti.com>
-References: <1358177678-16509-1-git-send-email-peter.ujfalusi@ti.com>
+From: Alan Cox <alan@linux.intel.com>
+Subject: Re: [PATCH] goldfish: virtual input event driver
+Date: Thu, 24 Jan 2013 17:16:42 +0000
+Message-ID: <20130124171642.387d7e40@bob.linux.org.uk>
+References: <20130123173840.996.9588.stgit@bob.linux.org.uk>
+	<20130124041547.GB7112@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:54035 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753055Ab3AXLoc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jan 2013 06:44:32 -0500
-In-Reply-To: <1358177678-16509-1-git-send-email-peter.ujfalusi@ti.com>
+Received: from mga14.intel.com ([143.182.124.37]:3315 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752143Ab3AXQ4X (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Jan 2013 11:56:23 -0500
+In-Reply-To: <20130124041547.GB7112@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Wed, 23 Jan 2013 20:15:47 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-On 01/14/2013 04:34 PM, Peter Ujfalusi wrote:
-> Hi Dmitry,
->=20
-> Changes since v2:
-> - twl4030-vibra patches are left out (they have been applied)
-> - Do not use devm_input_allocate_device() in twl6040-vibra
+> Hi Alan,
+> 
+> On Wed, Jan 23, 2013 at 05:38:43PM +0000, Alan Cox wrote:
+> > From: Brian Swetland <swetland@google.com>
+> > 
+> > This device is a direct pipe from "hardware" to the input
+> > event subsystem, allowing us to avoid having to route
+> > "keypad" style events through an AT keyboard driver (gross!)
+> > 
+> > As with the other submissions this driver is cross architecture.
+> > 
+> > Signed-off-by: Mike A. Chan <mikechan@google.com>
+> > [Tided up to work on x86]
+> > Signed-off-by: Sheng Yang <sheng@linux.intel.com>
+> > Signed-off-by: Yunhong Jiang <yunhong.jiang@intel.com>
+> > Signed-off-by: Xiaohui Xin <xiaohui.xin@intel.com>
+> > Signed-off-by: Jun Nakajima <jun.nakajima@intel.com>
+> > Signed-off-by: Bruce Beare <bruce.j.beare@intel.com>
+> > [Ported to 3.4]
+> > Signed-off-by: Tom Keel <thomas.keel@intel.com>
+> > [Cleaned up for 3.7 and submission]
+> > Signed-off-by: Alan Cox <alan@linux.intel.com>
+> 
+> I do not have drivers/tty/goldfish.c so I dropped that change... I
+> also had a few more cleanups, the result is below.
 
-Do you want me to resend this two patch for 3.9?
+Looks good to me - I wasn't sure about the remove method so I copied
+the other keyboard drivers that still had one even though they used
+devm_ methods for the allocation.
 
-Regards,
-P=E9ter
-
->=20
-> Changes since v1:
-> - Use devm_input_allocate_device()
-> - swtich drivers to use system workqueue
->=20
-> Cover letter from v1 (resend set):
->=20
-> This series seams to got lost:
-> https://lkml.org/lkml/2012/6/15/128
->=20
-> Can you take it for 3.9?
->=20
-> Convert the twl4030, twl6040 vibra drivers to use devm_ at probe time=
- to clean
-> up the code a bit.
-> The twl6040-vibra driver needed bigger change since the ordering of t=
-he
-> initialization was not correct.
->=20
-> Regards,
-> Peter
-> ---
-> Peter Ujfalusi (2):
->   Input: twl6040-vibra: Code cleanup in probe with devm_* conversion
->   input: twl6040-vibra: Use system workqueue
->=20
->  drivers/input/misc/twl6040-vibra.c | 100 +++++++++++++++------------=
-----------
->  1 file changed, 41 insertions(+), 59 deletions(-)
->=20
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Alan

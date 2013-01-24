@@ -1,47 +1,72 @@
-From: kbuild test robot <fengguang.wu@intel.com>
-Subject: [input:synaptics-rmi4 24/24]
- drivers/input/rmi4/rmi_driver.c:1194:8: error: 'rmi_driver_suspend'
- undeclared here (not in a function)
-Date: Thu, 24 Jan 2013 13:33:45 +0800
-Message-ID: <5100c7b9.UbyxnRjwqNXfmD1Q%fengguang.wu@intel.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH v3 0/2] Input: twl6040-vibra cleanups (devm_* conversion,
+ system wq)
+Date: Thu, 24 Jan 2013 12:44:29 +0100
+Message-ID: <51011E9D.7050409@ti.com>
+References: <1358177678-16509-1-git-send-email-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:31433 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750709Ab3AXFdr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jan 2013 00:33:47 -0500
+Received: from devils.ext.ti.com ([198.47.26.153]:54035 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753055Ab3AXLoc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Jan 2013 06:44:32 -0500
+In-Reply-To: <1358177678-16509-1-git-send-email-peter.ujfalusi@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-tree:   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git synaptics-rmi4
-head:   fc30f2265940e9f48a3b4afa7dde45d096dd835b
-commit: fc30f2265940e9f48a3b4afa7dde45d096dd835b [24/24] Input: RMI4 - bus code reshuffle
-config: make ARCH=ia64 allmodconfig
+Hi Dmitry,
 
-All error/warnings:
+On 01/14/2013 04:34 PM, Peter Ujfalusi wrote:
+> Hi Dmitry,
+>=20
+> Changes since v2:
+> - twl4030-vibra patches are left out (they have been applied)
+> - Do not use devm_input_allocate_device() in twl6040-vibra
 
-   In file included from drivers/input/rmi4/rmi_driver.c:33:0:
-   drivers/input/rmi4/rmi_f01.h:95:1: note: offset of packed bit-field 'month' has changed in GCC 4.4
->> drivers/input/rmi4/rmi_driver.c:1194:8: error: 'rmi_driver_suspend' undeclared here (not in a function)
->> drivers/input/rmi4/rmi_driver.c:1194:8: error: 'rmi_driver_resume' undeclared here (not in a function)
+Do you want me to resend this two patch for 3.9?
 
-vim +/rmi_driver_suspend +1194 drivers/input/rmi4/rmi_driver.c
+Regards,
+P=E9ter
 
-  1188		return 0;
-  1189	
-  1190	 err_free_data:
-  1191		return retval;
-  1192	}
-  1193	
-> 1194	static UNIVERSAL_DEV_PM_OPS(rmi_driver_pm, rmi_driver_suspend,
-  1195				    rmi_driver_resume, NULL);
-  1196	
-  1197	struct rmi_driver rmi_physical_driver = {
+>=20
+> Changes since v1:
+> - Use devm_input_allocate_device()
+> - swtich drivers to use system workqueue
+>=20
+> Cover letter from v1 (resend set):
+>=20
+> This series seams to got lost:
+> https://lkml.org/lkml/2012/6/15/128
+>=20
+> Can you take it for 3.9?
+>=20
+> Convert the twl4030, twl6040 vibra drivers to use devm_ at probe time=
+ to clean
+> up the code a bit.
+> The twl6040-vibra driver needed bigger change since the ordering of t=
+he
+> initialization was not correct.
+>=20
+> Regards,
+> Peter
+> ---
+> Peter Ujfalusi (2):
+>   Input: twl6040-vibra: Code cleanup in probe with devm_* conversion
+>   input: twl6040-vibra: Use system workqueue
+>=20
+>  drivers/input/misc/twl6040-vibra.c | 100 +++++++++++++++------------=
+----------
+>  1 file changed, 41 insertions(+), 59 deletions(-)
+>=20
 
----
-0-DAY kernel build testing backend              Open Source Technology Center
-http://lists.01.org/mailman/listinfo/kbuild                 Intel Corporation
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

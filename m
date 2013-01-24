@@ -1,66 +1,125 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] goldfish: virtual input event driver
-Date: Thu, 24 Jan 2013 09:04:57 -0800
-Message-ID: <e9d16f77-1e92-48ee-ad51-d775c14e3318@email.android.com>
-References: <20130123173840.996.9588.stgit@bob.linux.org.uk> <20130124041547.GB7112@core.coreip.homeip.net> <20130124171642.387d7e40@bob.linux.org.uk>
+From: Hartmut Knaack <knaack.h@gmx.de>
+Subject: Re: [RFC] enumeration of "composite devices" using v-usb
+Date: Thu, 24 Jan 2013 23:48:41 +0100
+Message-ID: <5101BA49.3040006@gmx.de>
+References: <50F9D313.4070803@gmx.de> <CAN+gG=EKTkCBifd1zgriigJObq0PHBNuqgAu9sD=144PRcXtSw@mail.gmail.com> <CAN+gG=EY2RpypiT5hAvBT1WqgZs9b3Z8J221614hUD_h_v8fNQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:43060 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751617Ab3AXRFJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jan 2013 12:05:09 -0500
-Received: by mail-pa0-f51.google.com with SMTP id fb11so5628616pad.24
-        for <linux-input@vger.kernel.org>; Thu, 24 Jan 2013 09:05:09 -0800 (PST)
-In-Reply-To: <20130124171642.387d7e40@bob.linux.org.uk>
+Received: from mout.gmx.net ([212.227.17.21]:52827 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755982Ab3AXWsp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Jan 2013 17:48:45 -0500
+Received: from mailout-de.gmx.net ([10.1.76.12]) by mrigmx.server.lan
+ (mrigmx002) with ESMTP (Nemesis) id 0M6yV9-1UuRwc3Eub-00wkwi for
+ <linux-input@vger.kernel.org>; Thu, 24 Jan 2013 23:48:43 +0100
+In-Reply-To: <CAN+gG=EY2RpypiT5hAvBT1WqgZs9b3Z8J221614hUD_h_v8fNQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@linux.intel.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-Alan Cox <alan@linux.intel.com> wrote:
-
->On Wed, 23 Jan 2013 20:15:47 -0800
->Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Benjamin Tissoires schrieb:
+> On Mon, Jan 21, 2013 at 4:45 PM, Benjamin Tissoires
+> <benjamin.tissoires@gmail.com> wrote:
+>> On Fri, Jan 18, 2013 at 5:56 PM, Hartmut Knaack <knaack.h@gmx.de> wrote:
+>>> Hi,
+>>> I've built myself a joystick adapter (project website: http://www.hexagons.de/index.php/USB_Joystickadapter), which has the purpose of connecting up to 2 Atari style joysticks (the ones with db9 connectors, found on 80's home computers like C64, Amiga,...) via USB. Current situation is: on Windows XP, 2 joystick devices get created with 2 axis and 2 buttons each (as intended); while on Linux, just one joystick device (/dev/input/js0) gets created, but with 4 axis and 4 buttons.
+>>> This device provides one interface with one Interrupt-in Endpoint. The division into two joystick devices is done using an HID descriptor [1] with two configurations and the REPORT_ID tag.
+>>> What I would like to know is, is there a problem in the Linux HID parser, or is its behavior intentional and those composite devices more like a dirty solution around the standards?
+>> Hi,
+>>
+>> well, currently, the HID parser does not split the different reportID
+>> into several devices. It's a known limitation and we are working on it
+>> (at least we already saw problems with that), but it will not make it
+>> in 3.9 I think.
+>> The solution that works for now is to use several usb interfaces. The
+>> usb layer splits the different interfaces, so it will give you 2
+>> different HID devices.
+> I just figured out that you could use the quirk HID_QUIRK_MULTI_INPUT
+> in usbhid/hid-quirks.c
+> The reportID split is still missing, but this is an easier short term
+> solution for you.
 >
->> Hi Alan,
->> 
->> On Wed, Jan 23, 2013 at 05:38:43PM +0000, Alan Cox wrote:
->> > From: Brian Swetland <swetland@google.com>
->> > 
->> > This device is a direct pipe from "hardware" to the input
->> > event subsystem, allowing us to avoid having to route
->> > "keypad" style events through an AT keyboard driver (gross!)
->> > 
->> > As with the other submissions this driver is cross architecture.
->> > 
->> > Signed-off-by: Mike A. Chan <mikechan@google.com>
->> > [Tided up to work on x86]
->> > Signed-off-by: Sheng Yang <sheng@linux.intel.com>
->> > Signed-off-by: Yunhong Jiang <yunhong.jiang@intel.com>
->> > Signed-off-by: Xiaohui Xin <xiaohui.xin@intel.com>
->> > Signed-off-by: Jun Nakajima <jun.nakajima@intel.com>
->> > Signed-off-by: Bruce Beare <bruce.j.beare@intel.com>
->> > [Ported to 3.4]
->> > Signed-off-by: Tom Keel <thomas.keel@intel.com>
->> > [Cleaned up for 3.7 and submission]
->> > Signed-off-by: Alan Cox <alan@linux.intel.com>
->> 
->> I do not have drivers/tty/goldfish.c so I dropped that change... I
->> also had a few more cleanups, the result is below.
+> Sorry,
+> Benjamin
 >
->Looks good to me - I wasn't sure about the remove method so I copied
->the other keyboard drivers that still had one even though they used
->devm_ methods for the allocation.
->
+>> Oh, and if you want to contribute to split the device in the HID
+>> parser under Linux, you are welcome as well :)
+>>
+>> Cheers,
+>> Benjamin
+Thanks for clearing things up a bit. I would preferably try to get the parser fixed, rather than changing the controllers firmware to use multiple interfaces (that seems to be the better long term solution, since there are already several similar projects on the internet to use multiple NES, SNES or Sega gamepads - all working with this reportID trick).
+I have a certain experience in driver development (don't expect too much, though), but so far the complexity of usb and the hid-core are pretty overwhelming and give me a tough start. So, if you could give me a hint on which function to start looking at first, that would be highly appreciated.
+You also mentioned, that my issue is already known and you would be working on it. Which search terms would I need to use to find information of your current state of development?
+>>> Thanks
+>>>
+>>> Hartmut Knaack
+>>>
+>>> [1]
+>>> char usbHidReportDescriptor[102] PROGMEM = {
+>>>
+>>>     // Joystick Port 1
+>>>
+>>>     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+>>>     0x09, 0x04,                    // USAGE (Joystick)
+>>>     0xa1, 0x01,                    // COLLECTION (Application)
+>>>     0x85, 0x01,                    // REPORT_ID (1)
+>>>     0x09, 0x01,                    //   USAGE (Pointer)
+>>>     0xa1, 0x00,                    //   COLLECTION (Physical)
+>>>     0x09, 0x30,                    //     USAGE (X)
+>>>     0x09, 0x31,                    //     USAGE (Y)
+>>>     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+>>>     0x26, 0xff, 0x00,               //   LOGICAL_MAXIMUM (255)
+>>>     0x75, 0x08,                    //   REPORT_SIZE (8)
+>>>     0x95, 0x02,                    //   REPORT_COUNT (2)
+>>>     0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+>>>     0xc0,                          // END_COLLECTION
+>>>     0x05, 0x09,                    // USAGE_PAGE (Button)
+>>>     0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
+>>>     0x29, 0x02,                    //   USAGE_MAXIMUM (Button 2)
+>>>     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+>>>     0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
+>>>     0x75, 0x01,                    // REPORT_SIZE (1)
+>>>     0x95, 0x02,                    // REPORT_COUNT (2)
+>>>     0x81, 0x02,                    // INPUT (Data,Var,Abs)
+>>>     0x75, 0x06,                    // REPORT_SIZE (6)
+>>>     0x95, 0x01,                    // REPORT_COUNT (1)
+>>>     0x81, 0x03,                    // INPUT (Constant,Var,Abs)
+>>>     0xc0,                          // END_COLLECTION
+>>>
+>>>     // Joystick Port 2
+>>>
+>>>     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+>>>     0x09, 0x04,                    // USAGE (Joystick)
+>>>     0xa1, 0x01,                    // COLLECTION (Application)
+>>>     0x85, 0x02,                    // REPORT_ID (2)
+>>>     0x09, 0x01,                    //   USAGE (Pointer)
+>>>     0xa1, 0x00,                    //   COLLECTION (Physical)
+>>>     0x09, 0x30,                    //     USAGE (X)
+>>>     0x09, 0x31,                    //     USAGE (Y)
+>>>     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+>>>     0x26, 0xff, 0x00,               //   LOGICAL_MAXIMUM (255)
+>>>     0x75, 0x08,                    //   REPORT_SIZE (8)
+>>>     0x95, 0x02,                    //   REPORT_COUNT (2)
+>>>     0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+>>>     0xc0,                          // END_COLLECTION
+>>>     0x05, 0x09,                    // USAGE_PAGE (Button)
+>>>     0x19, 0x01,                    //   USAGE_MINIMUM (Button 1)
+>>>     0x29, 0x02,                    //   USAGE_MAXIMUM (Button 2)
+>>>     0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+>>>     0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
+>>>     0x75, 0x01,                    // REPORT_SIZE (1)
+>>>     0x95, 0x02,                    // REPORT_COUNT (2)
+>>>     0x81, 0x02,                    // INPUT (Data,Var,Abs)
+>>>     0x75, 0x06,                    // REPORT_SIZE (6)
+>>>     0x95, 0x01,                    // REPORT_COUNT (1)
+>>>     0x81, 0x03,                    // INPUT (Constant,Var,Abs)
+>>>     0xc0                           // END_COLLECTION
+>>> };
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Probably because some other resources are not devm managed and we need to preserve order. Or maybe just bugs...
-
-
-Thanks.
-
--- 
-Dmitry

@@ -1,37 +1,36 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 03/25] HID: multitouch: fix Win8 protocol for Sharp like devices
-Date: Fri, 25 Jan 2013 14:22:48 +0100
-Message-ID: <1359120190-18281-4-git-send-email-benjamin.tissoires@gmail.com>
-References: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: dturvene <dturvene@dahetral.com>
+Subject: ACPI and the psmouse alps driver
+Date: Fri, 25 Jan 2013 11:07:49 -0500
+Message-ID: <5102ADD5.1020900@dahetral.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from dahetral.com ([128.177.27.153]:56262 "EHLO dahetral.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756837Ab3AYQHu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Jan 2013 11:07:50 -0500
+Received: from [192.168.1.13] (pool-108-28-181-146.washdc.fios.verizon.net [108.28.181.146])
+	(authenticated bits=0)
+	by dahetral.com (8.13.8/8.13.8) with ESMTP id r0PG7nwB008691
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <linux-input@vger.kernel.org>; Fri, 25 Jan 2013 11:07:49 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-The Sharp LC-20FE1-W screen (04dd:9681) behaves like the Nexio 42".
-It may report out of ranges values that are filtered out by relying
-on the Contact Count HID field.
-Adding the quirk MT_QUIRK_CONTACT_CNT_ACCURATE makes hid-multitouch
-strongest against this kind of device, without breaking the current
-devices.
+While I'm thinking of it, in the my last alps driver dkms, I put in an 
+ACPI interface to uniquely detect the touchpad type.  After spending a 
+good couple of days figuring out the ACPI spec and this mysterious _HID 
+(hardware id) and _CID (compatibility id) as it relates to how ALPS 
+identifies its touchpads, I can confirm Linus' quote "ACPI is a complete 
+design disaster in every way. But we're kind of stuck with it."   Some 
+ALPS touchpads have different _HID values.  Some have the same _HID but 
+different behavior.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
----
- drivers/hid/hid-multitouch.c | 1 +
- 1 file changed, 1 insertion(+)
+As far as I can tell ACPI has varying degrees of usefulness based on the 
+h/w manufacturer.  The ALPS MS Windows drivers appear to use ACPI to 
+figure out if the touchpad is, in fact, from ALPS and then a complicated 
+series of proprietary retrievals to figure out the behavior.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c4acdd0..8d0a9f9 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -317,6 +317,7 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 			*quirks |= MT_QUIRK_ALWAYS_VALID;
- 			*quirks |= MT_QUIRK_IGNORE_DUPLICATES;
- 			*quirks |= MT_QUIRK_HOVERING;
-+			*quirks |= MT_QUIRK_CONTACT_CNT_ACCURATE;
- 			*quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
- 			*quirks &= ~MT_QUIRK_VALID_IS_INRANGE;
- 			*quirks &= ~MT_QUIRK_VALID_IS_CONFIDENCE;
--- 
-1.8.1
+

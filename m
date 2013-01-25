@@ -1,78 +1,135 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 00/25] Support of Nexio 42" and new default class for hid-multitouch
-Date: Fri, 25 Jan 2013 14:22:45 +0100
-Message-ID: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 01/25] HID: break out hid_extract_field
+Date: Fri, 25 Jan 2013 14:22:46 +0100
+Message-ID: <1359120190-18281-2-git-send-email-benjamin.tissoires@gmail.com>
+References: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f51.google.com ([209.85.214.51]:36635 "EHLO
-	mail-bk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756791Ab3AYNXa (ORCPT
+Received: from mail-bk0-f44.google.com ([209.85.214.44]:45947 "EHLO
+	mail-bk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756941Ab3AYNXc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jan 2013 08:23:30 -0500
+	Fri, 25 Jan 2013 08:23:32 -0500
+In-Reply-To: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi guys,
+Breaking out this function allows third parties hid drivers to retrieve
+the data fields of a hid report in the raw_event callback.
 
-finally, I managed to send a new bunch of patches. Sorry for the delay from the
-previous version, but meanwhile, I implemented an automatic regressions tests
-for hid device [1].
-So this series seems pretty big, but it does not break any known devices (I ran
-40 successful tests for this series)[2].
+No functional changes, only exports the function.
 
-To sum up:
-- Nexio devices were problematic in the sense they use out of range values for
-some of the fields, and consider that the driver won't treat the extra touches
-based on the reported contact count.
-- fortunately, this behavior (relying on contact count) is compatible with all
-the devices I know, which leads to think that this is how the Windows 7/8 driver
-manage to handle such a different bunch of devices.
-- thanks to the automatic testing, I was able to fix broken devices
-(Sharp LC-20FE1-W screen 04dd:9681, Sitronix 1403:5001 and Cando 2087:0a02)
-and optimize many others. In order to allow a bisection to be done, I split
-the patches in many different ones, one per device type.
-- finally, I changed the default class in order to handle the new devices in a
-better way.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+---
+ drivers/hid/hid-core.c | 60 ++++++++++++++++++++++++++++++++++----------------
+ include/linux/hid.h    |  1 +
+ 2 files changed, 42 insertions(+), 19 deletions(-)
 
-Cheers,
-Benjamin
-
-[1] https://github.com/bentiss/hid-test
-[2] https://github.com/bentiss/hid-devices
-
-Benjamin Tissoires (25):
-  HID: break out hid_extract_field
-  HID: multitouch: add support for Nexio 42" panel
-  HID: multitouch: fix Win8 protocol for Sharp like devices
-  HID: multitouch: ensure that serial devices make no use of contact count
-  HID: multitouch: fix protocol for Sitronix 1403:5001
-  HID: multitouch: optimize FlatFrog panels
-  HID: multitouch: optimize 3M panels
-  HID: multitouch: optimize Cypress panels
-  HID: multitouch: optimize eGalax panels
-  HID: multitouch: optimize Stantum panels
-  HID: multitouch: optimize Quanta panels
-  HID: multitouch: optimize Lumio panels
-  HID: multitouch: optimize MosArt panels
-  HID: multitouch: optimize Elo panels
-  HID: multitouch: optimize Hanvon panels
-  HID: multitouch: optimize IRTouch panels
-  HID: multitouch: fix protocol for Cando 2087:0a02
-  HID: multitouch: optimize Cando panels
-  HID: multitouch: optimize ActionStar panels
-  HID: multitouch: optimize Atmel panels
-  HID: multitouch: optimize Ideacom panels
-  HID: multitouch: optimize LG panels
-  HID: multitouch: optimize Nexio panels
-  HID: multitouch: remove useless DUAL_NSMU_CONTACTID class
-  HID: multitouch: make MT_CLS_ALWAYS_TRUE the new default class
-
- drivers/hid/hid-core.c       |  60 +++++++++----
- drivers/hid/hid-ids.h        |   3 +
- drivers/hid/hid-multitouch.c | 206 ++++++++++++++++++++++++++++++-------------
- include/linux/hid.h          |   1 +
- 4 files changed, 189 insertions(+), 81 deletions(-)
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 5ae2cb1..ea478f5 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -962,6 +962,45 @@ static void implement(const struct hid_device *hid, __u8 *report,
+ }
+ 
+ /*
++ * Extract and allocate a data field from a little endian report (bit array).
++ */
++
++s32 *hid_extract_field(const struct hid_device *hid, struct hid_field *field,
++		       __u8 *data)
++{
++	unsigned n;
++	unsigned count = field->report_count;
++	unsigned offset = field->report_offset;
++	unsigned size = field->report_size;
++	__s32 min = field->logical_minimum;
++	__s32 max = field->logical_maximum;
++	__s32 *value;
++
++	value = kmalloc(sizeof(__s32) * count, GFP_ATOMIC);
++	if (!value)
++		return value;
++
++	for (n = 0; n < count; n++) {
++
++		value[n] = min < 0 ?
++			snto32(extract(hid, data, offset + n * size, size),
++			       size) :
++			extract(hid, data, offset + n * size, size);
++
++		/* Ignore report if ErrorRollOver */
++		if (!(field->flags & HID_MAIN_ITEM_VARIABLE) &&
++		    value[n] >= min && value[n] <= max &&
++		    field->usage[value[n] - min].hid == HID_UP_KEYBOARD + 1) {
++			kfree(value);
++			return NULL;
++		}
++	}
++
++	return value;
++}
++EXPORT_SYMBOL_GPL(hid_extract_field);
++
++/*
+  * Search an array for a value.
+  */
+ 
+@@ -1059,32 +1098,15 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
+ {
+ 	unsigned n;
+ 	unsigned count = field->report_count;
+-	unsigned offset = field->report_offset;
+-	unsigned size = field->report_size;
+ 	__s32 min = field->logical_minimum;
+ 	__s32 max = field->logical_maximum;
+-	__s32 *value;
++	__s32 *value = hid_extract_field(hid, field, data);
+ 
+-	value = kmalloc(sizeof(__s32) * count, GFP_ATOMIC);
+ 	if (!value)
+ 		return;
+ 
+ 	for (n = 0; n < count; n++) {
+ 
+-		value[n] = min < 0 ?
+-			snto32(extract(hid, data, offset + n * size, size),
+-			       size) :
+-			extract(hid, data, offset + n * size, size);
+-
+-		/* Ignore report if ErrorRollOver */
+-		if (!(field->flags & HID_MAIN_ITEM_VARIABLE) &&
+-		    value[n] >= min && value[n] <= max &&
+-		    field->usage[value[n] - min].hid == HID_UP_KEYBOARD + 1)
+-			goto exit;
+-	}
+-
+-	for (n = 0; n < count; n++) {
+-
+ 		if (HID_MAIN_ITEM_VARIABLE & field->flags) {
+ 			hid_process_event(hid, field, &field->usage[n], value[n], interrupt);
+ 			continue;
+@@ -1102,7 +1124,7 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
+ 	}
+ 
+ 	memcpy(field->value, value, count * sizeof(__s32));
+-exit:
++
+ 	kfree(value);
+ }
+ 
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 828726c..91bfee4 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -718,6 +718,7 @@ extern int hidinput_connect(struct hid_device *hid, unsigned int force);
+ extern void hidinput_disconnect(struct hid_device *);
+ 
+ int hid_set_field(struct hid_field *, unsigned, __s32);
++s32 *hid_extract_field(const struct hid_device *, struct hid_field *, __u8 *);
+ int hid_input_report(struct hid_device *, int type, u8 *, int, int);
+ int hidinput_find_field(struct hid_device *hid, unsigned int type, unsigned int code, struct hid_field **field);
+ struct hid_field *hidinput_get_led_field(struct hid_device *hid);
 -- 
 1.8.1
 

@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 22/25] HID: multitouch: optimize LG panels
-Date: Fri, 25 Jan 2013 14:23:07 +0100
-Message-ID: <1359120190-18281-23-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 19/25] HID: multitouch: optimize ActionStar panels
+Date: Fri, 25 Jan 2013 14:23:04 +0100
+Message-ID: <1359120190-18281-20-git-send-email-benjamin.tissoires@gmail.com>
 References: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
@@ -11,7 +11,7 @@ List-Id: linux-input@vger.kernel.org
 
 Relying on ALWAYS_VALID enhance a little the processing time of
 the events.
-Also, the slot can be extracted by using the contact ID.
+Also the slot can be extracted faster by using MINUS_ONE.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
@@ -19,17 +19,17 @@ Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index fe1aa3b..34153f9 100644
+index 0ea98ae..189a8fd 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -1113,7 +1113,7 @@ static const struct hid_device_id mt_devices[] = {
- 			USB_DEVICE_ID_IRTOUCH_INFRARED_USB) },
+@@ -955,7 +955,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_3M3266) },
  
- 	/* LG Display panels */
+ 	/* ActionStar panels */
 -	{ .driver_data = MT_CLS_DEFAULT,
-+	{ .driver_data = MT_CLS_CONTACT_ID,
- 		MT_USB_DEVICE(USB_VENDOR_ID_LG,
- 			USB_DEVICE_ID_LG_MULTITOUCH) },
++	{ .driver_data = MT_CLS_MINUS_ONE,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ACTIONSTAR,
+ 			USB_DEVICE_ID_ACTIONSTAR_1011) },
  
 -- 
 1.8.1

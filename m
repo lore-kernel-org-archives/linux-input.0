@@ -1,41 +1,53 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 08/25] HID: multitouch: optimize Cypress panels
-Date: Fri, 25 Jan 2013 14:22:53 +0100
-Message-ID: <1359120190-18281-9-git-send-email-benjamin.tissoires@gmail.com>
+Subject: [PATCH 11/25] HID: multitouch: optimize Quanta panels
+Date: Fri, 25 Jan 2013 14:22:56 +0100
+Message-ID: <1359120190-18281-12-git-send-email-benjamin.tissoires@gmail.com>
 References: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f48.google.com ([209.85.214.48]:63226 "EHLO
-	mail-bk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932315Ab3AYNXs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jan 2013 08:23:48 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Relying on ALWAYS_VALID enhance a little the processing time of
-the events.
+Not very different in terms of processing time. However, this
+uniformizes the handling of devices.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 ---
- drivers/hid/hid-multitouch.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-multitouch.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 199e320..c15b588 100644
+index 0c62f90..8b07b6b 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -195,7 +195,8 @@ static struct mt_class mt_classes[] = {
- 		.maxcontacts = 60,
- 	},
- 	{ .name = MT_CLS_CYPRESS,
--		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+@@ -119,6 +119,7 @@ struct mt_device {
+ #define MT_CLS_DUAL_NSMU_CONTACTID		0x0008
+ #define MT_CLS_INRANGE_CONTACTNUMBER		0x0009
+ #define MT_CLS_ALWAYS_TRUE			0x000a
++#define MT_CLS_CONTACT_ID			0x0011
+ 
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -181,6 +182,10 @@ static struct mt_class mt_classes[] = {
+ 	{ .name = MT_CLS_ALWAYS_TRUE,
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE },
++	{ .name = MT_CLS_CONTACT_ID,
 +		.quirks = MT_QUIRK_ALWAYS_VALID |
 +			MT_QUIRK_CONTACT_CNT_ACCURATE |
- 			MT_QUIRK_CYPRESS,
- 		.maxcontacts = 10 },
- 	{ .name = MT_CLS_EGALAX,
++			MT_QUIRK_SLOT_IS_CONTACTID },
+ 
+ 	/*
+ 	 * vendor specific classes
+@@ -1157,7 +1162,7 @@ static const struct hid_device_id mt_devices[] = {
+ 			USB_DEVICE_ID_CANDO_PIXCIR_MULTI_TOUCH) },
+ 
+ 	/* Quanta-based panels */
+-	{ .driver_data = MT_CLS_CONFIDENCE_CONTACT_ID,
++	{ .driver_data = MT_CLS_CONTACT_ID,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,
+ 			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+ 	{ .driver_data = MT_CLS_CONFIDENCE_CONTACT_ID,
 -- 
 1.8.1
-

@@ -1,71 +1,62 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH 1/4] USB: HID: SRW-S1 Gaming Wheel Driver
-Date: Mon, 28 Jan 2013 10:38:30 -0500
-Message-ID: <1b4d173a8f4cbb94f6d99ae5c75c10d5.squirrel@mungewell.org>
-References: <1359095687-13398-1-git-send-email-simon@mungewell.org>
-    <alpine.LNX.2.00.1301281557040.23853@pobox.suse.cz>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 00/25] Support of Nexio 42" and new default class for
+ hid-multitouch
+Date: Mon, 28 Jan 2013 16:23:24 +0100
+Message-ID: <20130128152324.GA3481@polaris.bitmath.org>
+References: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:43882 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751247Ab3A1Pib (ORCPT
+Received: from smtprelay-h31.telenor.se ([213.150.131.4]:40768 "EHLO
+	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750874Ab3A1Pm2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jan 2013 10:38:31 -0500
-In-Reply-To: <alpine.LNX.2.00.1301281557040.23853@pobox.suse.cz>
+	Mon, 28 Jan 2013 10:42:28 -0500
+Content-Disposition: inline
+In-Reply-To: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rosegardener@freeode.co.uk
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> On Thu, 24 Jan 2013, Simon Wood wrote:
->
->> From: simon <simon@simon-virtual-machine.(none)>
->>
->> Add support the SRW-S1 by patching HID descriptor to read axis
->> as Generic Desktop X, Y and Z (rather than Usage page being
->> 'Simulation').
->>
->> Signed-off-by: Simon Wood <simon@mungewell.org>
->> tested-by: John Murphy <rosegardener@freeode.co.uk>
->
-> Hi Simon,
->
-> thanks for the patch.
->
->>
->> ---
->>  drivers/hid/Kconfig     |    6 +++++
->>  drivers/hid/Makefile    |    1 +
->>  drivers/hid/hid-core.c  |    1 +
->>  drivers/hid/hid-ids.h   |    3 +++
->>  drivers/hid/hid-srws1.c |   58
->> +++++++++++++++++++++++++++++++++++++++++++++++
->
-> Is hid-srws1 really the best name? My understanding is that the vendor is
-> called Steelseries, and we mostly stick to calling the drivers according
-> to the device vendors (and grouping the quirks accordingly).
->
-> So how about hid-steelseries?
+Hi Benjamin,
 
-I'm happy to change it; However Steelseries' other devices are all
-keyboards/mice intended for/marketed at gamers. Since other Steelseries
-devices are unlikely to have the same structure (OK I'm just guessing on
-that) is it better to keep this driver somewhat 'seperated'?
+> finally, I managed to send a new bunch of patches. Sorry for the delay from the
+> previous version, but meanwhile, I implemented an automatic regressions tests
+> for hid device [1].
+> So this series seems pretty big, but it does not break any known devices (I ran
+> 40 successful tests for this series)[2].
 
-I mean, not make life difficult trying to merge keyboard code in with this
-wheel's code.... if that is required in future.
+Thanks for the patches.
 
-If you still would prefer a name change I can do that. In which case is
-the naming of the LED interfaces still OK?
+> To sum up:
+> - Nexio devices were problematic in the sense they use out of range values for
+> some of the fields, and consider that the driver won't treat the extra touches
+> based on the reported contact count.
 
-ie.
---
-echo 1 > /sys/class/leds/SRWS1\:\:69005002125011007452\:\:RPM3/brightness
---
+Problematic device, but I think we should add a new event function
+which gives all values at the same time, since those are already
+present in the core. It seems this will solve the current problem as
+well as many older workarounds.
+
+> - fortunately, this behavior (relying on contact count) is compatible with all
+> the devices I know, which leads to think that this is how the Windows 7/8 driver
+> manage to handle such a different bunch of devices.
+
+This is a nice observation. IIRC, we used to rely more on contact
+count in the old drivers.
+
+> - thanks to the automatic testing, I was able to fix broken devices
+> (Sharp LC-20FE1-W screen 04dd:9681, Sitronix 1403:5001 and Cando 2087:0a02)
+> and optimize many others. In order to allow a bisection to be done, I split
+> the patches in many different ones, one per device type.
+
+Great tool, thank you Benjamin.
+
+> - finally, I changed the default class in order to handle the new devices in a
+> better way.
+
+Old wisdom says differently. ;-)
 
 Thanks,
-Simon.
-
-
+Henrik

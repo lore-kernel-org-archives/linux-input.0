@@ -1,56 +1,59 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4/4] USB: HID: SRW-S1 Add support controlling all LEDs
- simultaneously
-Date: Mon, 28 Jan 2013 16:02:10 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1301281601370.23853@pobox.suse.cz>
-References: <1359095687-13398-1-git-send-email-simon@mungewell.org> <1359095687-13398-4-git-send-email-simon@mungewell.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 06/25] HID: multitouch: optimize FlatFrog panels
+Date: Mon, 28 Jan 2013 16:10:10 +0100
+Message-ID: <20130128151010.GA3470@polaris.bitmath.org>
+References: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1359120190-18281-7-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:39979 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750751Ab3A1PCR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jan 2013 10:02:17 -0500
-In-Reply-To: <1359095687-13398-4-git-send-email-simon@mungewell.org>
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:60230 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751681Ab3A1PE5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jan 2013 10:04:57 -0500
+Content-Disposition: inline
+In-Reply-To: <1359120190-18281-7-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rosegardener@freeode.co.uk
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2013, Simon Wood wrote:
+Hi Benjamin,
 
-> From: simon <simon@simon-virtual-machine.(none)>
+> Relying on ALWAYS_VALID enhance a little the processing time of
+> the events.
 > 
-> This patch to the SRW-S1 driver adds the ability to control all
-> LEDs simultaneously as testing showed that it was slow (noticably!!)
-> when seting or clearing all the LEDs in turn.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
+>  drivers/hid/hid-multitouch.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+
+Is there a measurement backing up this claim? I suspect
+micro-optimizations of this kind drowns completely along the rather
+long way from device, via malloc and loops, to the input core.
+Considering the must-be-tested-for-regression risk on top of that,
+this patch falls far below what is worth doing, IMHO.
+
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 5a886bd..7dfe891 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -229,8 +229,9 @@ static struct mt_class mt_classes[] = {
+>  	},
+>  
+>  	{ .name = MT_CLS_FLATFROG,
+> -		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+> -			MT_QUIRK_NO_AREA,
+> +		.quirks = MT_QUIRK_ALWAYS_VALID |
+> +			MT_QUIRK_NO_AREA |
+> +			MT_QUIRK_CONTACT_CNT_ACCURATE,
+>  		.sn_move = 2048,
+>  		.maxcontacts = 40,
+>  	},
+> -- 
+> 1.8.1
 > 
-> It adds a 'RPMALL' LED, whose behavoir is asserted to all the LEDs in
-> the bar graph, individual LEDs can subsequently be turned on/off
-> individually.
-> 
-> Signed-off-by: Simon Wood <simon@mungewell.org>
-> tested-by: John Murphy <rosegardener@freeode.co.uk>
-[ ... snip ... ]
 
-> @@ -219,13 +255,34 @@ static int srws1_probe(struct hid_device *hdev,
->  
->  	/* register led subsystem */
->  	drv_data->led_state = 0;
-> -	for (i = 0; i < SRWS1_NUMBER_LEDS; i++)
-> +	for (i = 0; i < SRWS1_NUMBER_LEDS + 1; i++)
->  		drv_data->led[i] = NULL;
->  
->  	srws1_set_leds(hdev, 0);
->  
-> -	name_sz = strlen(hdev->uniq) + 15;
-> +	name_sz = strlen(hdev->uniq) + 16;
-> +
-> +	/* 'ALL', for setting all LEDs simultaneously */
-> +	led = kzalloc(sizeof(struct led_classdev)+name_sz, GFP_KERNEL);
-
-Is this memory ever freed?
-
--- 
-Jiri Kosina
-SUSE Labs
+Thanks.
+Henrik

@@ -1,85 +1,76 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 00/25] Support of Nexio 42" and new default class for hid-multitouch
-Date: Mon, 28 Jan 2013 17:15:17 +0100
-Message-ID: <CAN+gG=Gv8CUF2zf2=7LgnnhMqzCfgiinJ5=FdkS1CPZQ1PF4Og@mail.gmail.com>
-References: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com>
-	<20130128152324.GA3481@polaris.bitmath.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/4] USB: HID: SRW-S1 Gaming Wheel Driver
+Date: Mon, 28 Jan 2013 17:56:26 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1301281750100.23853@pobox.suse.cz>
+References: <1359095687-13398-1-git-send-email-simon@mungewell.org>    <alpine.LNX.2.00.1301281557040.23853@pobox.suse.cz> <1b4d173a8f4cbb94f6d99ae5c75c10d5.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f182.google.com ([209.85.217.182]:62173 "EHLO
-	mail-lb0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751882Ab3A1QPT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jan 2013 11:15:19 -0500
-In-Reply-To: <20130128152324.GA3481@polaris.bitmath.org>
+Received: from cantor2.suse.de ([195.135.220.15]:45430 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754545Ab3A1Q4e (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jan 2013 11:56:34 -0500
+In-Reply-To: <1b4d173a8f4cbb94f6d99ae5c75c10d5.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rosegardener@freeode.co.uk
 
-Hi Henrik,
+On Mon, 28 Jan 2013, simon@mungewell.org wrote:
 
-On Mon, Jan 28, 2013 at 4:23 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> Hi Benjamin,
->
->> finally, I managed to send a new bunch of patches. Sorry for the delay from the
->> previous version, but meanwhile, I implemented an automatic regressions tests
->> for hid device [1].
->> So this series seems pretty big, but it does not break any known devices (I ran
->> 40 successful tests for this series)[2].
->
-> Thanks for the patches.
+> >> From: simon <simon@simon-virtual-machine.(none)>
+> >>
+> >> Add support the SRW-S1 by patching HID descriptor to read axis
+> >> as Generic Desktop X, Y and Z (rather than Usage page being
+> >> 'Simulation').
+> >>
+> >> Signed-off-by: Simon Wood <simon@mungewell.org>
+> >> tested-by: John Murphy <rosegardener@freeode.co.uk>
+> >
+> > Hi Simon,
+> >
+> > thanks for the patch.
+> >
+> >>
+> >> ---
+> >>  drivers/hid/Kconfig     |    6 +++++
+> >>  drivers/hid/Makefile    |    1 +
+> >>  drivers/hid/hid-core.c  |    1 +
+> >>  drivers/hid/hid-ids.h   |    3 +++
+> >>  drivers/hid/hid-srws1.c |   58
+> >> +++++++++++++++++++++++++++++++++++++++++++++++
+> >
+> > Is hid-srws1 really the best name? My understanding is that the vendor is
+> > called Steelseries, and we mostly stick to calling the drivers according
+> > to the device vendors (and grouping the quirks accordingly).
+> >
+> > So how about hid-steelseries?
+> 
+> I'm happy to change it; However Steelseries' other devices are all
+> keyboards/mice intended for/marketed at gamers. Since other Steelseries
+> devices are unlikely to have the same structure (OK I'm just guessing on
+> that) is it better to keep this driver somewhat 'seperated'?
+> 
+> I mean, not make life difficult trying to merge keyboard code in with this
+> wheel's code.... if that is required in future.
 
-And thanks for reviewing.
+I don't think it's strictly required, but it seems to work quite nicely 
+for other drivers as well.
 
->
->> To sum up:
->> - Nexio devices were problematic in the sense they use out of range values for
->> some of the fields, and consider that the driver won't treat the extra touches
->> based on the reported contact count.
->
-> Problematic device, but I think we should add a new event function
-> which gives all values at the same time, since those are already
-> present in the core. It seems this will solve the current problem as
-> well as many older workarounds.
+Of course, if in the future it turns out that we will need a completely 
+different driver for some other device produced by this vendor, we can 
+operatively decide on a different naming for the future.
 
-yeah, makes sense. I think it would also allows us to simplify the
-logic of hid-multitouch by removing some of the states we have in it.
+> If you still would prefer a name change I can do that. In which case is
+> the naming of the LED interfaces still OK?
+> 
+> ie.
+> --
+> echo 1 > /sys/class/leds/SRWS1\:\:69005002125011007452\:\:RPM3/brightness
+> --
 
->
->> - fortunately, this behavior (relying on contact count) is compatible with all
->> the devices I know, which leads to think that this is how the Windows 7/8 driver
->> manage to handle such a different bunch of devices.
->
-> This is a nice observation. IIRC, we used to rely more on contact
-> count in the old drivers.
->
->> - thanks to the automatic testing, I was able to fix broken devices
->> (Sharp LC-20FE1-W screen 04dd:9681, Sitronix 1403:5001 and Cando 2087:0a02)
->> and optimize many others. In order to allow a bisection to be done, I split
->> the patches in many different ones, one per device type.
->
-> Great tool, thank you Benjamin.
+Yes, that seems fine. Thanks,
 
-Once I will do the work on the suppression of usbhid direct use, we
-also could rely on that for every HID devices, not only
-hid-multitouch.
-
->
->> - finally, I changed the default class in order to handle the new devices in a
->> better way.
->
-> Old wisdom says differently. ;-)
-
-No: old wisdom says the exact same thing :) I did not break the
-current supported devices. I _kept_ the old default class for all the
-current supported devices, and I used the new default class only for
-the new devices, the  one that are not registered.
-
-Cheers,
-Benjamin
-
->
-> Thanks,
-> Henrik
+-- 
+Jiri Kosina
+SUSE Labs

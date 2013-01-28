@@ -1,74 +1,61 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH 1/4] USB: HID: SRW-S1 Gaming Wheel Driver
-Date: Mon, 28 Jan 2013 12:00:32 -0500
-Message-ID: <926ebbac6c9e2f8db795dd0ef1ba3647.squirrel@mungewell.org>
-References: <1359095687-13398-1-git-send-email-simon@mungewell.org>
-    <alpine.LNX.2.00.1301281557040.23853@pobox.suse.cz>
-    <1b4d173a8f4cbb94f6d99ae5c75c10d5.squirrel@mungewell.org>
-    <alpine.LNX.2.00.1301281750100.23853@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: =?iso-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH 02/25] HID: multitouch: add support for Nexio 42" panel
+Date: Mon, 28 Jan 2013 17:56:24 +0100
+Message-ID: <D19C60C9-2701-4229-845A-20E0312F842F@enac.fr>
+References: <1359120190-18281-1-git-send-email-benjamin.tissoires@gmail.com> <1359120190-18281-3-git-send-email-benjamin.tissoires@gmail.com> <20130128150129.GA3460@polaris.bitmath.org>
+Mime-Version: 1.0 (Apple Message framework v1084)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:37428 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756631Ab3A1RAd (ORCPT
+Received: from 88-230.252-81.static-ip.oleane.fr ([81.252.230.88]:39255 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755561Ab3A1RDn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jan 2013 12:00:33 -0500
-In-Reply-To: <alpine.LNX.2.00.1301281750100.23853@pobox.suse.cz>
+	Mon, 28 Jan 2013 12:03:43 -0500
+In-Reply-To: <20130128150129.GA3460@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rosegardener@freeode.co.uk
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> On Mon, 28 Jan 2013, simon@mungewell.org wrote:
->
->> >> From: simon <simon@simon-virtual-machine.(none)>
->> >>
->> >> Add support the SRW-S1 by patching HID descriptor to read axis
->> >> as Generic Desktop X, Y and Z (rather than Usage page being
->> >> 'Simulation').
->> >>
->> >> Signed-off-by: Simon Wood <simon@mungewell.org>
->> >> tested-by: John Murphy <rosegardener@freeode.co.uk>
->> >
->> > Hi Simon,
->> >
->> > thanks for the patch.
->> >
->> >>
->> >> ---
->> >>  drivers/hid/Kconfig     |    6 +++++
->> >>  drivers/hid/Makefile    |    1 +
->> >>  drivers/hid/hid-core.c  |    1 +
->> >>  drivers/hid/hid-ids.h   |    3 +++
->> >>  drivers/hid/hid-srws1.c |   58
->> >> +++++++++++++++++++++++++++++++++++++++++++++++
->> >
->> > Is hid-srws1 really the best name? My understanding is that the vendor
->> is
->> > called Steelseries, and we mostly stick to calling the drivers
->> according
->> > to the device vendors (and grouping the quirks accordingly).
->> >
->> > So how about hid-steelseries?
->>
->> I'm happy to change it; However Steelseries' other devices are all
->> keyboards/mice intended for/marketed at gamers. Since other Steelseries
->> devices are unlikely to have the same structure (OK I'm just guessing on
->> that) is it better to keep this driver somewhat 'seperated'?
->>
->> I mean, not make life difficult trying to merge keyboard code in with
->> this
->> wheel's code.... if that is required in future.
->
-> I don't think it's strictly required, but it seems to work quite nicely
-> for other drivers as well.
 
-OK I'll wait a couple of days in-case any more comments come in and re-do
-the patch with the file name 'hid-steelseries.c' towards the end of the
-week.
+Le 28 janv. 2013 =E0 16:01, Henrik Rydberg a =E9crit :
 
-Thanks,
-Simon
+> Hi Benjamin,
+>=20
+>> This device is the worst device I saw. It keeps TipSwitch and InRang=
+e
+>> at 1 for fingers that are not touching the panel.
+>> The solution is to rely on the field ContactCount, which is accurate
+>> as the correct information are packed at the begining of the frame.
+>>=20
+>> Unfortunately, CountactCount is most of the time at the end of the r=
+eport.
+>> The solution is to pick it when we have the whole report in raw_even=
+t.
+>>=20
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> ---
+>> drivers/hid/hid-ids.h        |  3 ++
+>> drivers/hid/hid-multitouch.c | 91 ++++++++++++++++++++++++++++++++++=
+++--------
+>> 2 files changed, 78 insertions(+), 16 deletions(-)
+>=20
+> I think it would make more sense to introduce a method where the
+> driver sees all report values at once. We have had reasonable cause t=
+o
+> add it in the past, but never did.
 
+
+I dreamed of this more than once in the early days of hid-multitouch, y=
+es. But then it requires quite a few changes in hid-core.c, doesn't it?
+
+Cheers,
+
+St.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

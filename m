@@ -1,154 +1,129 @@
 From: Simon Wood <simon@mungewell.org>
-Subject: [PATCH 1/5] USB: HID: SRW-S1 Gaming Wheel Driver
-Date: Thu, 31 Jan 2013 08:07:07 -0700
-Message-ID: <1359644830-3274-1-git-send-email-simon@mungewell.org>
+Subject: [PATCH 2/5] USB: HID: Steelseries SRW-S1 Add support for dials
+Date: Thu, 31 Jan 2013 08:07:08 -0700
+Message-ID: <1359644830-3274-2-git-send-email-simon@mungewell.org>
 References: <alpine.LNX.2.00.1301291057170.23853@pobox.suse.cz>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:33524 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752013Ab3AaPHU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jan 2013 10:07:20 -0500
-In-Reply-To: <alpine.LNX.2.00.1301291057170.23853@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+ <1359644830-3274-1-git-send-email-simon@mungewell.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1359644830-3274-1-git-send-email-simon@mungewell.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, simon@mungewell.org, rosegardener@freeode.co.uk
+List-Id: linux-input@vger.kernel.org
 
-Add support the SRW-S1 by patching HID descriptor to read axis
-as Generic Desktop X, Y and Z (rather than Usage page being
-'Simulation').
+This patch to the SRW-S1 driver re-writes the HID descriptor
+to insert a section for the 3 dials on the device, previously
+these were contained within a 'Manufacturer Specific' usage
+page.
 
 Signed-off-by: Simon Wood <simon@mungewell.org>
 Tested-by: John Murphy <rosegardener@freeode.co.uk>
 ---
- drivers/hid/Kconfig                 |    6 ++++
- drivers/hid/Makefile                |    1 +
- drivers/hid/hid-core.c              |    1 +
- drivers/hid/hid-ids.h               |    3 ++
- drivers/hid/hid-steelseries-srws1.c |   58 +++++++++++++++++++++++++++++++++++
- 5 files changed, 69 insertions(+)
- create mode 100644 drivers/hid/hid-steelseries-srws1.c
+ drivers/hid/hid-steelseries-srws1.c |   86 +++++++++++++++++++++++++++++++++--
+ 1 file changed, 82 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index e7d6a13..37df92f 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -596,6 +596,12 @@ config HID_SPEEDLINK
- 	---help---
- 	Support for Speedlink Vicious and Divine Cezanne mouse.
- 
-+config HID_STEELSERIES_SRWS1
-+	tristate "Steelseries SRW-S1 steering wheel support"
-+	depends on USB_HID
-+	---help---
-+	Support for Steelseries SRW-S1 steering wheel
-+
- config HID_SUNPLUS
- 	tristate "Sunplus wireless desktop"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index b622157..bbebe0a 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -101,6 +101,7 @@ obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
- obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
- obj-$(CONFIG_HID_SONY)		+= hid-sony.o
- obj-$(CONFIG_HID_SPEEDLINK)	+= hid-speedlink.o
-+obj-$(CONFIG_HID_STEELSERIES_SRWS1)    	+= hid-steelseries-srws1.o
- obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
- obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
- obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index eb2ee11..65cda7f 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1697,6 +1697,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4dfa605..f5976f3 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -723,6 +723,9 @@
- #define USB_VENDOR_ID_STANTUM_SITRONIX		0x1403
- #define USB_DEVICE_ID_MTP_SITRONIX		0x5001
- 
-+#define USB_VENDOR_ID_STEELSERIES	0x1038
-+#define USB_DEVICE_ID_STEELSERIES_SRWS1	0x1410
-+
- #define USB_VENDOR_ID_SUN		0x0430
- #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
- 
 diff --git a/drivers/hid/hid-steelseries-srws1.c b/drivers/hid/hid-steelseries-srws1.c
-new file mode 100644
-index 0000000..4a5386b
---- /dev/null
+index 4a5386b..38b0a24 100644
+--- a/drivers/hid/hid-steelseries-srws1.c
 +++ b/drivers/hid/hid-steelseries-srws1.c
-@@ -0,0 +1,58 @@
-+/*
-+ *  HID driver for Steelseries SRW-S1
+@@ -17,16 +17,94 @@
+ 
+ #include "hid-ids.h"
+ 
++/* Fixed report descriptor for Steelseries SRW-S1 wheel controller
 + *
-+ *  Copyright (c) 2013 Simon Wood
++ * The original descriptor hides the sensitivity and assists dials
++ * a custom vendor usage page. This inserts a patch to make them
++ * appear in the 'Generic Desktop' usage.
 + */
 +
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+static __u8 *steelseries_srws1_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	if (*rsize >= 115 && rdesc[11] == 0x02 && rdesc[13] == 0xc8
-+			&& rdesc[29] == 0xbb && rdesc[40] == 0xc5) {
-+		hid_info(hdev, "Fixing up Steelseries SRW-S1 report descriptor\n");
-+		rdesc[11] = 0x01;
-+		rdesc[13] = 0x30;
-+		rdesc[29] = 0x31;
-+		rdesc[40] = 0x32;
-+	}
-+	return rdesc;
-+}
-+
-+static const struct hid_device_id steelseries_srws1_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
-+	{ }
++static __u8 steelseries_srws1_rdesc_fixed[] = {
++0x05, 0x01,         /*  Usage Page (Desktop)                */
++0x09, 0x08,         /*  Usage (MultiAxis), Changed          */
++0xA1, 0x01,         /*  Collection (Application),           */
++0xA1, 0x02,         /*      Collection (Logical),           */
++0x95, 0x01,         /*          Report Count (1),           */
++0x05, 0x01,         /* Changed  Usage Page (Desktop),       */
++0x09, 0x30,         /* Changed  Usage (X),                  */
++0x16, 0xF8, 0xF8,   /*          Logical Minimum (-1800),    */
++0x26, 0x08, 0x07,   /*          Logical Maximum (1800),     */
++0x65, 0x14,         /*          Unit (Degrees),             */
++0x55, 0x0F,         /*          Unit Exponent (15),         */
++0x75, 0x10,         /*          Report Size (16),           */
++0x81, 0x02,         /*          Input (Variable),           */
++0x09, 0x31,         /* Changed  Usage (Y),                  */
++0x15, 0x00,         /*          Logical Minimum (0),        */
++0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
++0x75, 0x0C,         /*          Report Size (12),           */
++0x81, 0x02,         /*          Input (Variable),           */
++0x09, 0x32,         /* Changed  Usage (Z),                  */
++0x15, 0x00,         /*          Logical Minimum (0),        */
++0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
++0x75, 0x0C,         /*          Report Size (12),           */
++0x81, 0x02,         /*          Input (Variable),           */
++0x05, 0x01,         /*          Usage Page (Desktop),       */
++0x09, 0x39,         /*          Usage (Hat Switch),         */
++0x25, 0x07,         /*          Logical Maximum (7),        */
++0x35, 0x00,         /*          Physical Minimum (0),       */
++0x46, 0x3B, 0x01,   /*          Physical Maximum (315),     */
++0x65, 0x14,         /*          Unit (Degrees),             */
++0x75, 0x04,         /*          Report Size (4),            */
++0x95, 0x01,         /*          Report Count (1),           */
++0x81, 0x02,         /*          Input (Variable),           */
++0x25, 0x01,         /*          Logical Maximum (1),        */
++0x45, 0x01,         /*          Physical Maximum (1),       */
++0x65, 0x00,         /*          Unit,                       */
++0x75, 0x01,         /*          Report Size (1),            */
++0x95, 0x03,         /*          Report Count (3),           */
++0x81, 0x01,         /*          Input (Constant),           */
++0x05, 0x09,         /*          Usage Page (Button),        */
++0x19, 0x01,         /*          Usage Minimum (01h),        */
++0x29, 0x11,         /*          Usage Maximum (11h),        */
++0x95, 0x11,         /*          Report Count (17),          */
++0x81, 0x02,         /*          Input (Variable),           */
++                    /*   ---- Dial patch starts here ----   */
++0x05, 0x01,         /*          Usage Page (Desktop),       */
++0x09, 0x33,         /*          Usage (RX),                 */
++0x75, 0x04,         /*          Report Size (4),            */
++0x95, 0x02,         /*          Report Count (2),           */
++0x15, 0x00,         /*          Logical Minimum (0),        */
++0x25, 0x0b,         /*          Logical Maximum (b),        */
++0x81, 0x02,         /*          Input (Variable),           */
++0x09, 0x35,         /*          Usage (RZ),                 */
++0x75, 0x04,         /*          Report Size (4),            */
++0x95, 0x01,         /*          Report Count (1),           */
++0x25, 0x03,         /*          Logical Maximum (3),        */
++0x81, 0x02,         /*          Input (Variable),           */
++                    /*    ---- Dial patch ends here ----    */
++0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),         */
++0x09, 0x01,         /*          Usage (01h),                */
++0x75, 0x04,         /* Changed  Report Size (4),            */
++0x95, 0x0D,         /* Changed  Report Count (13),          */
++0x81, 0x02,         /*          Input (Variable),           */
++0xC0,               /*      End Collection,                 */
++0xA1, 0x02,         /*      Collection (Logical),           */
++0x09, 0x02,         /*          Usage (02h),                */
++0x75, 0x08,         /*          Report Size (8),            */
++0x95, 0x10,         /*          Report Count (16),          */
++0x91, 0x02,         /*          Output (Variable),          */
++0xC0,               /*      End Collection,                 */
++0xC0                /*  End Collection                      */
 +};
-+MODULE_DEVICE_TABLE(hid, steelseries_srws1_devices);
 +
-+static struct hid_driver steelseries_srws1_driver = {
-+	.name = "steelseries_srws1",
-+	.id_table = steelseries_srws1_devices,
-+	.report_fixup = steelseries_srws1_report_fixup
-+};
-+
-+static int __init steelseries_srws1_init(void)
-+{
-+	return hid_register_driver(&steelseries_srws1_driver);
-+}
-+
-+static void __exit steelseries_srws1_exit(void)
-+{
-+	hid_unregister_driver(&steelseries_srws1_driver);
-+}
-+
-+module_init(steelseries_srws1_init);
-+module_exit(steelseries_srws1_exit);
-+MODULE_LICENSE("GPL");
+ static __u8 *steelseries_srws1_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+ 	if (*rsize >= 115 && rdesc[11] == 0x02 && rdesc[13] == 0xc8
+ 			&& rdesc[29] == 0xbb && rdesc[40] == 0xc5) {
+ 		hid_info(hdev, "Fixing up Steelseries SRW-S1 report descriptor\n");
+-		rdesc[11] = 0x01;
+-		rdesc[13] = 0x30;
+-		rdesc[29] = 0x31;
+-		rdesc[40] = 0x32;
++		rdesc = steelseries_srws1_rdesc_fixed;
++		*rsize = sizeof(steelseries_srws1_rdesc_fixed);
+ 	}
+ 	return rdesc;
+ }
 -- 
 1.7.10.4
-

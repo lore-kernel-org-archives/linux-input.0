@@ -1,117 +1,154 @@
-From: Kyle Evans <kevans@android-x86.org>
-Subject: [PATCH --signoff] wacom: set physical limits for quirky tablet devices
-Date: Thu, 31 Jan 2013 09:34:17 -0500
-Message-ID: <1359642857-13729-1-git-send-email-kevans@android-x86.org>
-References: <1359560865-12410-1-git-send-email-kevans@android-x86.org>
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH 1/5] USB: HID: SRW-S1 Gaming Wheel Driver
+Date: Thu, 31 Jan 2013 08:07:07 -0700
+Message-ID: <1359644830-3274-1-git-send-email-simon@mungewell.org>
+References: <alpine.LNX.2.00.1301291057170.23853@pobox.suse.cz>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ia0-f176.google.com ([209.85.210.176]:38729 "EHLO
-	mail-ia0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753266Ab3AaOdU (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:33524 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752013Ab3AaPHU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jan 2013 09:33:20 -0500
-Received: by mail-ia0-f176.google.com with SMTP id i18so3936357iac.21
-        for <linux-input@vger.kernel.org>; Thu, 31 Jan 2013 06:33:20 -0800 (PST)
-In-Reply-To: <1359560865-12410-1-git-send-email-kevans@android-x86.org>
+	Thu, 31 Jan 2013 10:07:20 -0500
+In-Reply-To: <alpine.LNX.2.00.1301291057170.23853@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Kyle Evans <kevans@android-x86.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, simon@mungewell.org, rosegardener@freeode.co.uk
 
-TPC93 has two tools, finger and pen. Pen reports it's limits correctly,
-but finger reports limits a screen size too big. This patch will make
-the tool usable by the vast majority of users and does not interfere
-with users who may still wish to calibrate, or current calibration data.
+Add support the SRW-S1 by patching HID descriptor to read axis
+as Generic Desktop X, Y and Z (rather than Usage page being
+'Simulation').
 
-Sample values were taken from different devices and combined with the
-intent that the cursor can reach the edge of the screen for all devices.
-
-Signed-off-by: Kyle Evans <kevans@android-x86.org>
+Signed-off-by: Simon Wood <simon@mungewell.org>
+Tested-by: John Murphy <rosegardener@freeode.co.uk>
 ---
- drivers/input/tablet/wacom.h     |    2 +-
- drivers/input/tablet/wacom_sys.c |    2 +-
- drivers/input/tablet/wacom_wac.c |   14 +++++++++++---
- drivers/input/tablet/wacom_wac.h |    2 ++
- 4 files changed, 15 insertions(+), 5 deletions(-)
+ drivers/hid/Kconfig                 |    6 ++++
+ drivers/hid/Makefile                |    1 +
+ drivers/hid/hid-core.c              |    1 +
+ drivers/hid/hid-ids.h               |    3 ++
+ drivers/hid/hid-steelseries-srws1.c |   58 +++++++++++++++++++++++++++++++++++
+ 5 files changed, 69 insertions(+)
+ create mode 100644 drivers/hid/hid-steelseries-srws1.c
 
-diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
-index b79d451..2883c70 100644
---- a/drivers/input/tablet/wacom.h
-+++ b/drivers/input/tablet/wacom.h
-@@ -134,7 +134,7 @@ static inline void wacom_schedule_work(struct wacom_wac *wacom_wac)
- extern const struct usb_device_id wacom_ids[];
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index e7d6a13..37df92f 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -596,6 +596,12 @@ config HID_SPEEDLINK
+ 	---help---
+ 	Support for Speedlink Vicious and Divine Cezanne mouse.
  
- void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len);
--void wacom_setup_device_quirks(struct wacom_features *features);
-+void wacom_setup_device_quirks(struct wacom_features *features, int product_id);
- int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 				   struct wacom_wac *wacom_wac);
- #endif
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 858ad44..f52dbf4 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -1293,7 +1293,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 		}
- 	}
- 
--	wacom_setup_device_quirks(features);
-+	wacom_setup_device_quirks(features, id->idProduct);
- 
- 	strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
- 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index c2bfe92..b26f08c 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1397,7 +1397,7 @@ static void wacom_setup_intuos(struct wacom_wac *wacom_wac)
- 	input_set_abs_params(input_dev, ABS_THROTTLE, -1023, 1023, 0, 0);
- }
- 
--void wacom_setup_device_quirks(struct wacom_features *features)
-+void wacom_setup_device_quirks(struct wacom_features *features, int product_id)
- {
- 
- 	/* touch device found but size is not defined. use default */
-@@ -1422,6 +1422,14 @@ void wacom_setup_device_quirks(struct wacom_features *features)
- 		features->quirks |= WACOM_QUIRK_BBTOUCH_LOWRES;
- 	}
- 
-+	/* TPC93 is a 12" device, but the finger tool reports limits for a 13" screen */
-+	if ( product_id == 0x93 && features->device_type == BTN_TOOL_FINGER) {
-+		features->x_min = 176;
-+		features->x_max = 3960;
-+		features->y_min = 216;
-+		features->y_max = 3900;
-+	}
++config HID_STEELSERIES_SRWS1
++	tristate "Steelseries SRW-S1 steering wheel support"
++	depends on USB_HID
++	---help---
++	Support for Steelseries SRW-S1 steering wheel
 +
- 	if (features->type == WIRELESS) {
+ config HID_SUNPLUS
+ 	tristate "Sunplus wireless desktop"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index b622157..bbebe0a 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -101,6 +101,7 @@ obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
+ obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
+ obj-$(CONFIG_HID_SONY)		+= hid-sony.o
+ obj-$(CONFIG_HID_SPEEDLINK)	+= hid-speedlink.o
++obj-$(CONFIG_HID_STEELSERIES_SRWS1)    	+= hid-steelseries-srws1.o
+ obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
+ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
+ obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index eb2ee11..65cda7f 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1697,6 +1697,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 4dfa605..f5976f3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -723,6 +723,9 @@
+ #define USB_VENDOR_ID_STANTUM_SITRONIX		0x1403
+ #define USB_DEVICE_ID_MTP_SITRONIX		0x5001
  
- 		/* monitor never has input and pen/touch have delayed create */
-@@ -1450,9 +1458,9 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
++#define USB_VENDOR_ID_STEELSERIES	0x1038
++#define USB_DEVICE_ID_STEELSERIES_SRWS1	0x1410
++
+ #define USB_VENDOR_ID_SUN		0x0430
+ #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
  
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 
--	input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
-+	input_set_abs_params(input_dev, ABS_X, features->x_min, features->x_max,
- 			     features->x_fuzz, 0);
--	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
-+	input_set_abs_params(input_dev, ABS_Y, features->y_min, features->y_max,
- 			     features->y_fuzz, 0);
- 
- 	if (features->device_type == BTN_TOOL_PEN) {
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 345f1e7..77216e0 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -114,6 +114,8 @@ struct wacom_features {
- 	unsigned touch_max;
- 	int oVid;
- 	int oPid;
-+	int x_min;
-+	int y_min;
- };
- 
- struct wacom_shared {
+diff --git a/drivers/hid/hid-steelseries-srws1.c b/drivers/hid/hid-steelseries-srws1.c
+new file mode 100644
+index 0000000..4a5386b
+--- /dev/null
++++ b/drivers/hid/hid-steelseries-srws1.c
+@@ -0,0 +1,58 @@
++/*
++ *  HID driver for Steelseries SRW-S1
++ *
++ *  Copyright (c) 2013 Simon Wood
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++static __u8 *steelseries_srws1_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	if (*rsize >= 115 && rdesc[11] == 0x02 && rdesc[13] == 0xc8
++			&& rdesc[29] == 0xbb && rdesc[40] == 0xc5) {
++		hid_info(hdev, "Fixing up Steelseries SRW-S1 report descriptor\n");
++		rdesc[11] = 0x01;
++		rdesc[13] = 0x30;
++		rdesc[29] = 0x31;
++		rdesc[40] = 0x32;
++	}
++	return rdesc;
++}
++
++static const struct hid_device_id steelseries_srws1_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, steelseries_srws1_devices);
++
++static struct hid_driver steelseries_srws1_driver = {
++	.name = "steelseries_srws1",
++	.id_table = steelseries_srws1_devices,
++	.report_fixup = steelseries_srws1_report_fixup
++};
++
++static int __init steelseries_srws1_init(void)
++{
++	return hid_register_driver(&steelseries_srws1_driver);
++}
++
++static void __exit steelseries_srws1_exit(void)
++{
++	hid_unregister_driver(&steelseries_srws1_driver);
++}
++
++module_init(steelseries_srws1_init);
++module_exit(steelseries_srws1_exit);
++MODULE_LICENSE("GPL");
 -- 
-1.7.8.6
+1.7.10.4
 

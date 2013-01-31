@@ -1,61 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 04/05] input: RMI4 F01 device control
-Date: Thu, 31 Jan 2013 00:08:59 -0800
-Message-ID: <20130131080859.GA4356@core.coreip.homeip.net>
-References: <1358557965-29065-1-git-send-email-cheiny@synaptics.com>
- <1358557965-29065-5-git-send-email-cheiny@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1358557965-29065-5-git-send-email-cheiny@synaptics.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 2/3] Input: tegra-kbc- Convert to devm_ioremap_resource()
+Date: Thu, 31 Jan 2013 15:55:38 +0530
+Message-ID: <1359627939-2685-2-git-send-email-sachin.kamat@linaro.org>
+References: <1359627939-2685-1-git-send-email-sachin.kamat@linaro.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-da0-f54.google.com ([209.85.210.54]:57660 "EHLO
+	mail-da0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751769Ab3AaKe4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Jan 2013 05:34:56 -0500
+Received: by mail-da0-f54.google.com with SMTP id n2so1250134dad.41
+        for <linux-input@vger.kernel.org>; Thu, 31 Jan 2013 02:34:56 -0800 (PST)
+In-Reply-To: <1359627939-2685-1-git-send-email-sachin.kamat@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: thierry.reding@avionic-design.de, gregkh@linuxfoundation.org, sachin.kamat@linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Hi Chris,
+Use the newly introduced devm_ioremap_resource() instead of
+devm_request_and_ioremap() which provides more consistent error handling.
 
-On Fri, Jan 18, 2013 at 05:12:44PM -0800, Christopher Heiny wrote:
-> In addition to the changes described in 0/0 of this patchset, this patch
-> includes device serialization updated to conform to the latest RMI4
-> specification.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+---
+Compile tested with linux-next (20130128)
+---
+ drivers/input/keyboard/tegra-kbc.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-I was looking at the various aspects of the RMI4 patchset, trying to
-fix the issues that I see, but there is one big issue that I simply do
-not have time to tackle - the driver is completely broken on big endian
-architectures due to reliance on bitfileds when exchanging the data with
-the device.
-
-Consider the following structures:
-
->  struct f01_device_status {
-> -	u8 status_code:4;
-> +	enum rmi_device_status status_code:4;
->  	u8 reserved:2;
->  	u8 flash_prog:1;
->  	u8 unconfigured:1;
-> @@ -159,4 +136,113 @@ struct f01_device_control_0 {
->  	u8 configured:1;
->  } __attribute__((__packed__));
->  
-> +/**
-> + * @reset - set this bit to force a firmware reset of the sensor.
-> + */
-> +struct f01_device_commands {
-> +	u8 reset:1;
-> +	u8 reserved:7;
-> +};
-> +
-
-To make this work on BE boxes you either need to add #ifdefs to the
-structures reversing the order of fields or use bit shifts and masks to
-get/set specific bits in bytes.
-
-I tried converting F01 code (you can see the [likely broken as I can't
-test] result in my tree), but I really do not have time for F11.
-
-Thanks.
-
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 46e8ad2..016d931 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -31,6 +31,7 @@
+ #include <linux/slab.h>
+ #include <linux/input/tegra_kbc.h>
+ #include <linux/clk/tegra.h>
++#include <linux/err.h>
+ 
+ #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
+ 
+@@ -615,10 +616,10 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 	spin_lock_init(&kbc->lock);
+ 	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc);
+ 
+-	kbc->mmio = devm_request_and_ioremap(&pdev->dev, res);
+-	if (!kbc->mmio) {
++	kbc->mmio = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(kbc->mmio)) {
+ 		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
+-		return -EBUSY;
++		return PTR_ERR(kbc->mmio);
+ 	}
+ 
+ 	kbc->clk = devm_clk_get(&pdev->dev, NULL);
 -- 
-Dmitry
+1.7.4.1
+

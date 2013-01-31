@@ -1,128 +1,61 @@
-From: "Hiremath, Vaibhav" <hvaibhav-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH v4 5/8] MFD: ti_am335x_tscadc: Add DT support
-Date: Thu, 31 Jan 2013 05:02:04 +0000
-Message-ID: <79CD15C6BA57404B839C016229A409A83EBEFAE8@DBDE01.ent.ti.com>
-References: <1358999112-31192-1-git-send-email-rachna@ti.com>
- <1358999112-31192-6-git-send-email-rachna@ti.com>
- <A9839AA2-ABCD-4642-9766-D56824AC27AD@dominion.thruhere.net>
- <4CE347531D4CA947960AF71FF095B9323E9B1EE9@DBDE01.ent.ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 04/05] input: RMI4 F01 device control
+Date: Thu, 31 Jan 2013 00:08:59 -0800
+Message-ID: <20130131080859.GA4356@core.coreip.homeip.net>
+References: <1358557965-29065-1-git-send-email-cheiny@synaptics.com>
+ <1358557965-29065-5-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <4CE347531D4CA947960AF71FF095B9323E9B1EE9-Er742YJ7I/eIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>
-Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, "Hebbar,
- Gururaja" <gururaja.hebbar-l0cyMroinI0@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1358557965-29065-5-git-send-email-cheiny@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jan 31, 2013 at 09:41:11, Patil, Rachna wrote:
-> On Wed, Jan 30, 2013 at 16:10:09, Koen Kooi wrote:
-> > 
-> > Op 24 jan. 2013, om 04:45 heeft "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org> het volgende geschreven:
-> > 
-> > > From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
-> > > 
-> > > Make changes to add DT support in the MFD core driver.
-> > > 
-> > > Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
-> > > ---
-> > > Changes in v4:
-> > > 	Non-standard properties prefixed with vendor name.
-> > > 
-> > > drivers/mfd/ti_am335x_tscadc.c |   28 +++++++++++++++++++++++-----
-> > > 1 file changed, 23 insertions(+), 5 deletions(-)
-> > > 
-> > > diff --git a/drivers/mfd/ti_am335x_tscadc.c 
-> > > b/drivers/mfd/ti_am335x_tscadc.c index e9f3fb5..87b446b 100644
-> > > --- a/drivers/mfd/ti_am335x_tscadc.c
-> > > +++ b/drivers/mfd/ti_am335x_tscadc.c
-> > > @@ -22,6 +22,8 @@
-> > > #include <linux/regmap.h>
-> > > #include <linux/mfd/core.h>
-> > > #include <linux/pm_runtime.h>
-> > > +#include <linux/of.h>
-> > > +#include <linux/of_device.h>
-> > > 
-> > > #include <linux/mfd/ti_am335x_tscadc.h> #include 
-> > > <linux/input/ti_am335x_tsc.h>
-> > > @@ -64,20 +66,31 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
-> > > 	struct resource		*res;
-> > > 	struct clk		*clk;
-> > > 	struct mfd_tscadc_board	*pdata = pdev->dev.platform_data;
-> > > +	struct device_node	*node = pdev->dev.of_node;
-> > > 	struct mfd_cell		*cell;
-> > > 	int			err, ctrl;
-> > > 	int			clk_value, clock_rate;
-> > > -	int			tsc_wires, adc_channels = 0, total_channels;
-> > > +	int			tsc_wires = 0, adc_channels = 0, total_channels;
-> > > 
-> > > -	if (!pdata) {
-> > > +	if (!pdata && !pdev->dev.of_node) {
-> > > 		dev_err(&pdev->dev, "Could not find platform data\n");
-> > > 		return -EINVAL;
-> > > 	}
-> > > 
-> > > -	if (pdata->adc_init)
-> > > -		adc_channels = pdata->adc_init->adc_channels;
-> > > +	if (pdev->dev.platform_data) {
-> > > +		if (pdata->tsc_init)
-> > > +			tsc_wires = pdata->tsc_init->wires;
-> > > +
-> > > +		if (pdata->adc_init)
-> > > +			adc_channels = pdata->adc_init->adc_channels;
-> > > +	} else {
-> > > +		node = of_find_node_by_name(pdev->dev.of_node, "tsc");
-> > > +		of_property_read_u32(node, "ti,wires", &tsc_wires);
-> > > +
-> > > +		node = of_find_node_by_name(pdev->dev.of_node, "adc");
-> > > +		of_property_read_u32(node, "ti,adc-channels", &adc_channels);
-> > > +	}
-> > 
-> > Since AM335x is DT only, why is there a platform data codepath and why is it the first branch it tries? And I guess the next question is related to the first: why doesn't it work when used with DT? When I copy over the nodes from the evm.dts to my board I get "tsc tsc: Missing platform data" in dmesg.
-> 
-> This IP came up 1st on AM335x, but it is not platform dependent. The driver can be used on other platforms where-in DT is not supported.
-> According to the maintainers platform data takes precedence over DT. Hence the order.
-> 
+Hi Chris,
 
-Rachana,
+On Fri, Jan 18, 2013 at 05:12:44PM -0800, Christopher Heiny wrote:
+> In addition to the changes described in 0/0 of this patchset, this patch
+> includes device serialization updated to conform to the latest RMI4
+> specification.
 
-I see no point adding support for platform_data when you know that none of 
-older platforms are going to use this driver and all future platforms _must_ 
-follow device-tree model.
+I was looking at the various aspects of the RMI4 patchset, trying to
+fix the issues that I see, but there is one big issue that I simply do
+not have time to tackle - the driver is completely broken on big endian
+architectures due to reliance on bitfileds when exchanging the data with
+the device.
 
-So I agree that you should remove board file dependency from the driver.
+Consider the following structures:
 
+>  struct f01_device_status {
+> -	u8 status_code:4;
+> +	enum rmi_device_status status_code:4;
+>  	u8 reserved:2;
+>  	u8 flash_prog:1;
+>  	u8 unconfigured:1;
+> @@ -159,4 +136,113 @@ struct f01_device_control_0 {
+>  	u8 configured:1;
+>  } __attribute__((__packed__));
+>  
+> +/**
+> + * @reset - set this bit to force a firmware reset of the sensor.
+> + */
+> +struct f01_device_commands {
+> +	u8 reset:1;
+> +	u8 reserved:7;
+> +};
+> +
 
-> I do not see "Missing platform data" error msg in the latest driver. I am not able to trace from where this got populated.
-> 
+To make this work on BE boxes you either need to add #ifdefs to the
+structures reversing the order of fields or use bit shifts and masks to
+get/set specific bits in bytes.
 
-Can you share the branch which you have tested?
+I tried converting F01 code (you can see the [likely broken as I can't
+test] result in my tree), but I really do not have time for F11.
 
-Thanks,
-Vaibhav
+Thanks.
 
-> > 
-> > What are the chances this driver will work when applied on top of 3.8-rcX? Has it even been tested with that? Has it been tested at all?
-> 
-> This driver has been tested on top of v3.8-rc3 on a AM335x EVM.
-> 
-> Regards,
-> Rachna
-> 
-> _______________________________________________
-> devicetree-discuss mailing list
-> devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> https://lists.ozlabs.org/listinfo/devicetree-discuss
-> 
+-- 
+Dmitry

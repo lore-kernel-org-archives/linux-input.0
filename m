@@ -1,101 +1,64 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH] Input: synaptics - fix 1->3 contact transition reporting
-Date: Fri,  1 Feb 2013 16:29:00 +0800
-Message-ID: <1359707340-13033-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Seth Forshee <seth.forshee@canonical.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Chung-Yih Wang <cywang@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH v2 1/2] Input: tegra-kbc- Convert to devm_ioremap_resource()
+Date: Fri,  1 Feb 2013 15:37:56 +0530
+Message-ID: <1359713277-14228-1-git-send-email-sachin.kamat@linaro.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f49.google.com ([209.85.160.49]:35578 "EHLO
+	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753583Ab3BAKRM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Feb 2013 05:17:12 -0500
+Received: by mail-pb0-f49.google.com with SMTP id xa12so2087683pbc.22
+        for <linux-input@vger.kernel.org>; Fri, 01 Feb 2013 02:17:12 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, thierry.reding@avionic-design.de, sachin.kamat@linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Investigating the following gesture highlighted two slight implementation
-errors with choosing which slots to report in which slot when multiple
-contacts are present:
+Use the newly introduced devm_ioremap_resource() instead of
+devm_request_and_ioremap() which provides more consistent error handling.
 
-Action                 SGM  AGM (MTB slot:Contact)
-1. Touch contact 0    (0:0)
-2. Touch contact 1    (0:0, 1:1)
-3. Lift  contact 0    (1:1)
-4. Touch contacts 2,3 (0:2, 1:3)
+devm_ioremap_resource() provides its own error messages; so all explicit
+error messages can be removed from the failure code paths.
 
-In step 4, slot 1 was not being cleared first, which means the same
-tracking ID was being used for reporting both the old contact 1 and the
-new contact 3.  This could result in "drumroll", where the old contact 1
-would appear to suddenly jump to new finger 3 position.
-
-Similarly, if contacts 2 & 3 are not detected at the same sample, step 4
-is split into two:
-
-Action                SGM  AGM  (MTB slot:contact)
-1. Touch contact 0   (0:0)
-2. Touch contact 1   (0:0, 1:1)
-3. Lift  contact 0   (1:1)
-4. Touch contact 2   (0:2, 1:1)
-5. Touch contact 3   (0:2, 1:3)
-
-In this case, there was also a bug.  In step 4, when contact 1 moves from
-SGM to AGM and contact 2 is first reported in SGM, slot 0 was actually
-empty.  So slot 0 can be used to report the new SGM (contact 0),
-immediately.  Since it was empty, contact 2 in slot 0 will get a new
-tracking ID.
-
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 ---
- drivers/input/mouse/synaptics.c | 30 +++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+ Patch based & compile tested on linux-next tree (20130128).
+ Changes since v1:
+ * Dropped the error message as it is now handled by devm_ioremap_resource()
+ itself.
+---
+ drivers/input/keyboard/tegra-kbc.c |    9 ++++-----
+ 1 files changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index b6c6838..47159d8 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -722,11 +722,13 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
- 	default:
- 		/*
- 		 * If the finger slot contained in SGM is valid, and either
--		 * hasn't changed, or is new, then report SGM in MTB slot 0.
-+		 * hasn't changed, or is new, or the old SGM has now moved to
-+		 * AGM, then report SGM in MTB slot 0.
- 		 * Otherwise, empty MTB slot 0.
- 		 */
- 		if (mt_state->sgm != -1 &&
--		    (mt_state->sgm == old->sgm || old->sgm == -1))
-+		    (mt_state->sgm == old->sgm ||
-+		     old->sgm == -1 || mt_state->agm == old->sgm))
- 			synaptics_report_slot(dev, 0, sgm);
- 		else
- 			synaptics_report_slot(dev, 0, NULL);
-@@ -735,9 +737,31 @@ static void synaptics_report_mt_data(struct psmouse *psmouse,
- 		 * If the finger slot contained in AGM is valid, and either
- 		 * hasn't changed, or is new, then report AGM in MTB slot 1.
- 		 * Otherwise, empty MTB slot 1.
-+		 *
-+		 * However, in the case where the AGM is new, make sure that
-+		 * that it is either the same as the old SGM, or there was no
-+		 * SGM.
-+		 *
-+		 * Otherwise, if the SGM was just 1, and the new AGM is 2, then
-+		 * the new AGM will keep the old SGM's tracking ID, which can
-+		 * cause apparent drumroll.  This happens if in the following
-+		 * valid finger sequence:
-+		 *
-+		 *  Action                 SGM  AGM (MTB slot:Contact)
-+		 *  1. Touch contact 0    (0:0)
-+		 *  2. Touch contact 1    (0:0, 1:1)
-+		 *  3. Lift  contact 0    (1:1)
-+		 *  4. Touch contacts 2,3 (0:2, 1:3)
-+		 *
-+		 * In step 4, contact 3, in AGM must not be given the same
-+		 * tracking ID as contact 1 had in step 3.  To avoid this,
-+		 * the first agm with contact 3 is dropped and slot 1 is
-+		 * invalidated (tracking ID = -1).
- 		 */
- 		if (mt_state->agm != -1 &&
--		    (mt_state->agm == old->agm || old->agm == -1))
-+		    (mt_state->agm == old->agm ||
-+		     (old->agm == -1 &&
-+		      (old->sgm == -1 || mt_state->agm == old->sgm))))
- 			synaptics_report_slot(dev, 1, agm);
- 		else
- 			synaptics_report_slot(dev, 1, NULL);
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 46e8ad2..fc43806 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -31,6 +31,7 @@
+ #include <linux/slab.h>
+ #include <linux/input/tegra_kbc.h>
+ #include <linux/clk/tegra.h>
++#include <linux/err.h>
+ 
+ #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
+ 
+@@ -615,11 +616,9 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 	spin_lock_init(&kbc->lock);
+ 	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc);
+ 
+-	kbc->mmio = devm_request_and_ioremap(&pdev->dev, res);
+-	if (!kbc->mmio) {
+-		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
+-		return -EBUSY;
+-	}
++	kbc->mmio = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(kbc->mmio))
++		return PTR_ERR(kbc->mmio);
+ 
+ 	kbc->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(kbc->clk)) {
 -- 
-1.8.1
+1.7.4.1
+

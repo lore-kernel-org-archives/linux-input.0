@@ -1,163 +1,93 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 03/10] Input: atmel_mxt_ts - refactor input device creation
-Date: Fri,  1 Feb 2013 16:11:45 +0800
-Message-ID: <1359706312-24642-4-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 09/10] Input: atmel_mxt_ts - wait for CHG after bootloader resets
+Date: Fri,  1 Feb 2013 16:11:51 +0800
+Message-ID: <1359706312-24642-10-git-send-email-djkurtz@chromium.org>
 References: <1359706312-24642-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f41.google.com ([209.85.160.41]:52450 "EHLO
-	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755925Ab3BAIMM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Feb 2013 03:12:12 -0500
-Received: by mail-pb0-f41.google.com with SMTP id ro12so2062961pbb.0
-        for <linux-input@vger.kernel.org>; Fri, 01 Feb 2013 00:12:12 -0800 (PST)
+Received: from mail-da0-f53.google.com ([209.85.210.53]:33652 "EHLO
+	mail-da0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756145Ab3BAIMd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Feb 2013 03:12:33 -0500
+Received: by mail-da0-f53.google.com with SMTP id x6so1646977dac.40
+        for <linux-input@vger.kernel.org>; Fri, 01 Feb 2013 00:12:32 -0800 (PST)
 In-Reply-To: <1359706312-24642-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, Daniel Kurtz <djkurtz@chromium.org>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org
 
-Move input device initialization to its own helper function.
-This is in preparation of a future patch that makes input device
-conditional on the device not being in its bootloader.
+From: Benson Leung <bleung@chromium.org>
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+Rather than msleep for MXT_RESET_TIME and MXT_FWRESET_TIME
+during the transition to bootloader mode and the transition
+back from app, wait for the CHG assert to indicate that the
+transition is done.
+
+This change replaces the msleep with a wait for completion that
+the mxt_interrupt handler signals.
+
+This improves firmware update time by 300 ms as we no longer
+wait longer than necessary for each reset.
+
+Signed-off-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 91 ++++++++++++++++++--------------
- 1 file changed, 50 insertions(+), 41 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 84f0408..9afc26e 100644
+index d0f91ff..ef867d3 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1111,52 +1111,23 @@ static void mxt_input_close(struct input_dev *dev)
- 	mxt_stop(data);
- }
- 
--static int mxt_probe(struct i2c_client *client,
--		const struct i2c_device_id *id)
-+static int mxt_input_dev_create(struct mxt_data *data)
+@@ -634,6 +634,7 @@ static bool mxt_is_T9_message(struct mxt_data *data, struct mxt_message *msg)
+ static int mxt_enter_bl(struct mxt_data *data)
  {
--	const struct mxt_platform_data *pdata = client->dev.platform_data;
--	struct mxt_data *data;
- 	struct input_dev *input_dev;
- 	int error;
- 	unsigned int num_mt_slots;
+ 	struct i2c_client *client = data->client;
++	struct device *dev = &client->dev;
+ 	int ret;
  
--	if (!pdata)
--		return -EINVAL;
--
--	data = kzalloc(sizeof(struct mxt_data), GFP_KERNEL);
--	if (!data) {
--		dev_err(&client->dev, "Failed to allocate memory\n");
-+	data->input_dev = input_dev = input_allocate_device();
-+	if (!input_dev)
- 		return -ENOMEM;
--	}
--
--	input_dev = input_allocate_device();
--	if (!input_dev) {
--		dev_err(&client->dev, "Failed to allocate memory\n");
--		error = -ENOMEM;
--		goto err_free_mem;
--	}
- 
- 	input_dev->name = "Atmel maXTouch Touchscreen";
--	snprintf(data->phys, sizeof(data->phys), "i2c-%u-%04x/input0",
--		 client->adapter->nr, client->addr);
- 	input_dev->phys = data->phys;
--
- 	input_dev->id.bustype = BUS_I2C;
--	input_dev->dev.parent = &client->dev;
-+	input_dev->dev.parent = &data->client->dev;
- 	input_dev->open = mxt_input_open;
- 	input_dev->close = mxt_input_close;
- 
--	data->client = client;
--	data->input_dev = input_dev;
--	data->pdata = pdata;
--	data->irq = client->irq;
--
--	mxt_calc_resolution(data);
--
--	error = mxt_initialize(data);
--	if (error)
--		goto err_free_mem;
--
- 	__set_bit(EV_ABS, input_dev->evbit);
- 	__set_bit(EV_KEY, input_dev->evbit);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
-@@ -1172,10 +1143,8 @@ static int mxt_probe(struct i2c_client *client,
- 	/* For multi touch */
- 	num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
- 	error = input_mt_init_slots(input_dev, num_mt_slots, 0);
--	if (error) {
--		input_free_device(input_dev);
--		goto err_free_object;
--	}
-+	if (error)
-+		goto err_free_device;
- 
- 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
- 			     0, MXT_MAX_AREA, 0, 0);
-@@ -1187,14 +1156,54 @@ static int mxt_probe(struct i2c_client *client,
- 			     0, 255, 0, 0);
- 
- 	input_set_drvdata(input_dev, data);
--	i2c_set_clientdata(client, data);
- 
- 	error = input_register_device(input_dev);
--	if (error) {
--		input_free_device(input_dev);
--		goto err_free_object;
-+	if (error)
-+		goto err_free_device;
-+
-+	return 0;
-+
-+err_free_device:
-+	input_free_device(data->input_dev);
-+	data->input_dev = NULL;
-+	return error;
-+}
-+
-+static int __devinit mxt_probe(struct i2c_client *client,
-+		const struct i2c_device_id *id)
-+{
-+	const struct mxt_platform_data *pdata = client->dev.platform_data;
-+	struct mxt_data *data;
-+	int error;
-+
-+	if (!pdata)
-+		return -EINVAL;
-+
-+	data = kzalloc(sizeof(struct mxt_data), GFP_KERNEL);
-+	if (!data) {
-+		dev_err(&client->dev, "Failed to allocate memory\n");
-+		return -ENOMEM;
+ 	if (mxt_in_bootloader(data))
+@@ -662,8 +663,19 @@ static int mxt_enter_bl(struct mxt_data *data)
+ 		data->input_dev = NULL;
  	}
  
-+	snprintf(data->phys, sizeof(data->phys), "i2c-%u-%04x/input0",
-+		 client->adapter->nr, client->addr);
++	INIT_COMPLETION(data->bl_completion);
+ 	enable_irq(data->irq);
+-	msleep(MXT_RESET_TIME);
 +
-+	data->client = client;
-+	i2c_set_clientdata(client, data);
-+
-+	data->pdata = pdata;
-+	data->irq = client->irq;
-+
-+	mxt_calc_resolution(data);
-+
-+	error = mxt_initialize(data);
-+	if (error)
-+		goto err_free_mem;
-+
-+	error = mxt_input_dev_create(data);
-+	if (error)
-+		goto err_free_object;
-+
- 	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
- 				     pdata->irqflags | IRQF_ONESHOT,
- 				     client->name, data);
++	/* Wait for CHG assert to indicate successful reset into bootloader */
++	ret = mxt_wait_for_chg(data, MXT_RESET_TIME);
++	if (ret) {
++		dev_err(dev, "Failed waiting for reset to bootloader.\n");
++		if (client->addr == MXT_BOOT_LOW)
++			client->addr = MXT_APP_LOW;
++		else
++			client->addr = MXT_APP_HIGH;
++		return ret;
++	}
+ 	return 0;
+ }
+ 
+@@ -676,10 +688,10 @@ static void mxt_exit_bl(struct mxt_data *data)
+ 	if (!mxt_in_bootloader(data))
+ 		return;
+ 
+-	disable_irq(data->irq);
+ 	/* Wait for reset */
+-	msleep(MXT_FWRESET_TIME);
++	mxt_wait_for_chg(data, MXT_FWRESET_TIME);
+ 
++	disable_irq(data->irq);
+ 	if (client->addr == MXT_BOOT_LOW)
+ 		client->addr = MXT_APP_LOW;
+ 	else
+@@ -1122,7 +1134,6 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	if (ret)
+ 		goto out;
+ 
+-	INIT_COMPLETION(data->bl_completion);
+ 	/* Unlock bootloader */
+ 	ret = mxt_unlock_bootloader(client);
+ 	if (ret)
 -- 
 1.8.1
 

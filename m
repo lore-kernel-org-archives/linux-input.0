@@ -1,101 +1,33 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: Re: [PATCH v2 1/2] Input: tegra-kbc- Convert to
- devm_ioremap_resource()
-Date: Fri, 1 Feb 2013 12:24:13 +0100
-Message-ID: <20130201112412.GA29105@avionic-0098.mockup.avionic-design.de>
-References: <1359713277-14228-1-git-send-email-sachin.kamat@linaro.org>
+From: Chris Metcalf <cmetcalf@tilera.com>
+Subject: [PATCH] drivers/input/joystick/analog.c: enable precise timer
+Date: Fri, 1 Feb 2013 12:59:36 -0500
+Message-ID: <201302012043.r11KhGbQ024367@farm-0021.internal.tilera.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.9]:52294 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755530Ab3BALYU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Feb 2013 06:24:20 -0500
-Content-Disposition: inline
-In-Reply-To: <1359713277-14228-1-git-send-email-sachin.kamat@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
+Like nm10300, tile can just use get_cycles() for this.
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Chris Metcalf <cmetcalf@tilera.com>
+---
+ drivers/input/joystick/analog.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Fri, Feb 01, 2013 at 03:37:56PM +0530, Sachin Kamat wrote:
-> Use the newly introduced devm_ioremap_resource() instead of
-> devm_request_and_ioremap() which provides more consistent error handling.
->=20
-> devm_ioremap_resource() provides its own error messages; so all explicit
-> error messages can be removed from the failure code paths.
->=20
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> ---
->  Patch based & compile tested on linux-next tree (20130128).
->  Changes since v1:
->  * Dropped the error message as it is now handled by devm_ioremap_resourc=
-e()
->  itself.
-> ---
->  drivers/input/keyboard/tegra-kbc.c |    9 ++++-----
->  1 files changed, 4 insertions(+), 5 deletions(-)
->=20
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/=
-tegra-kbc.c
-> index 46e8ad2..fc43806 100644
-> --- a/drivers/input/keyboard/tegra-kbc.c
-> +++ b/drivers/input/keyboard/tegra-kbc.c
-> @@ -31,6 +31,7 @@
->  #include <linux/slab.h>
->  #include <linux/input/tegra_kbc.h>
->  #include <linux/clk/tegra.h>
-> +#include <linux/err.h>
-> =20
->  #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
-> =20
-> @@ -615,11 +616,9 @@ static int tegra_kbc_probe(struct platform_device *p=
-dev)
->  	spin_lock_init(&kbc->lock);
->  	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc);
-> =20
-> -	kbc->mmio =3D devm_request_and_ioremap(&pdev->dev, res);
-> -	if (!kbc->mmio) {
-> -		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
-> -		return -EBUSY;
-> -	}
-> +	kbc->mmio =3D devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(kbc->mmio))
-> +		return PTR_ERR(kbc->mmio);
-> =20
->  	kbc->clk =3D devm_clk_get(&pdev->dev, NULL);
->  	if (IS_ERR(kbc->clk)) {
-
-Reviewed-by: Thierry Reding <thierry.reding@avionic-design.de>
-
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRC6XcAAoJEN0jrNd/PrOh3ZkP/0b/VYGXrNAQkkVsMlBFtQg0
-MY8W8K0JFC7Nr26tiTQrVEiGvVoo1XtU3HzmeML+KXi8PKv8IqfPNmL88ng81UxF
-M5yBDAhpY+S5hqlMWk9RCdMjikun0tx+9GxwYFAolnMVLw1hn6r7ceBFQQH1djxu
-hWM0sU+r1DW6QmWh+pEPflZrWV+34nUULt9XaGYzc5zi/7zixZtWIrewvmP2yj36
-cIvkaDWkVfaZ/UA1K72GNr91QJ/c32qc7uYEJ5MQA1iZPmzw8UYqb0tiopQKPIsr
-LbZS3fgsy2vYYV8Dppvthf1UPjpc3o1H2p8Ujbt71x7ayngoPkCrj82wHVVW1QMA
-AiZhkXqlaaPZcbkK62TtWgwwb1mxWK2ODwAmgd/AcSmzrd0buO7t83oxzkwbcfmd
-dZgDb4fmWENWGR+BHiXPZzWBe9oZMalnJn9biWVgnGMG3N76A7Tmer9Vly55xZQ8
-s0U6f+jC53tXSHfm7vfZxkpeshvW+8u6stOwy1/aDRdTO1tbexAI5uic9huxfbct
-wUE2Ysx3Gxwx6z1pRfnRq/UTg2cLpYWrsBlvT8XK7xiUvdzsxF4bK2IyWXCPOsWa
-nTtpuHSsGij/Gk7DyuDzEvxYTnc30aumctDDGvQ5t0lDh6ELI0Uq9gGfl6QVsXIB
-CpnE1oAawjg2a0HgANMJ
-=gRtj
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--
+diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
+index 358cd7e..7cd74e2 100644
+--- a/drivers/input/joystick/analog.c
++++ b/drivers/input/joystick/analog.c
+@@ -162,7 +162,7 @@ static unsigned int get_time_pit(void)
+ #define GET_TIME(x)	do { x = get_cycles(); } while (0)
+ #define DELTA(x,y)	((y)-(x))
+ #define TIME_NAME	"PCC"
+-#elif defined(CONFIG_MN10300)
++#elif defined(CONFIG_MN10300) || defined(CONFIG_TILE)
+ #define GET_TIME(x)	do { x = get_cycles(); } while (0)
+ #define DELTA(x, y)	((x) - (y))
+ #define TIME_NAME	"TSC"
+-- 
+1.7.10.3

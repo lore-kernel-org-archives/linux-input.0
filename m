@@ -1,162 +1,46 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 04/10] Input: atmel_mxt_ts - handle bootloader mode at probe
-Date: Fri,  1 Feb 2013 16:11:46 +0800
-Message-ID: <1359706312-24642-5-git-send-email-djkurtz@chromium.org>
-References: <1359706312-24642-1-git-send-email-djkurtz@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f41.google.com ([209.85.160.41]:49031 "EHLO
-	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751601Ab3BAIMQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Feb 2013 03:12:16 -0500
-Received: by mail-pb0-f41.google.com with SMTP id ro12so2051026pbb.14
-        for <linux-input@vger.kernel.org>; Fri, 01 Feb 2013 00:12:15 -0800 (PST)
-In-Reply-To: <1359706312-24642-1-git-send-email-djkurtz@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
+Subject: [PATCH] Input: synaptics - disable fuzz when using mt slots
+Date: Fri,  1 Feb 2013 16:28:32 +0800
+Message-ID: <1359707312-12986-1-git-send-email-djkurtz@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Seth Forshee <seth.forshee@canonical.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Chung-Yih Wang <cywang@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, Daniel Kurtz <djkurtz@chromium.org>
 
-In some cases it is possible for a device to be in its bootloader at
-driver probe time.  This is detected by the driver when probe() is called
-with an i2c_client which has one of the Atmel Bootloader i2c addresses.
+The input fuzz algorithm does a pretty good job filtering out small
+jitter on input samples.
 
-In this case, we should load enough driver functionality to still loading
-new firmware using:
-  echo 1 > update_fw
+However, there is a subtle problem when fuzz is used with mt drivers that
+also use input_mt_report_pointer_emulation() to report legacy single
+touch coordinates.  The reported single touch coordinates are taken from
+the active MT slot with smallest tracking id.  However, since the MT data
+is sent first, it has already had FUZZ applied.  Thus, the ST coordinates
+actually get FUZZ applied a second time, with the just-fuzzed MT value as
+the 'old value'.
 
-However, we must be very careful not to follow any code paths that would try
-to access the as-yet uninitialized object table or input device.
-In particular:
- 1) mxt_remove calls input_unregister_device on input_dev.
- 2) mxt_suspend/resume reads and writes from the object table.
- 3) Spurious or bootloader induced interrupts
+It appears that it is non-trivial to fix this in the mt layer/input core,
+so, for now, just disable fuzz for the synaptics IMAGE_SENSOR path that
+uses input_mt_report_pointer_emulation().
 
-Signed-off-by: Benson Leung <bleung@chromium.org>
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 51 +++++++++++++++++++++++++-------
- 1 file changed, 40 insertions(+), 11 deletions(-)
+ drivers/input/mouse/synaptics.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 9afc26e..6c2c712 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -324,6 +324,12 @@ static void mxt_dump_message(struct device *dev,
- 		message->reportid, 7, message->message);
- }
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 12d12ca..b6c6838 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1211,7 +1211,8 @@ static void set_abs_position_params(struct input_dev *dev,
+ 	int x_max = priv->x_max ?: XMAX_NOMINAL;
+ 	int y_min = priv->y_min ?: YMIN_NOMINAL;
+ 	int y_max = priv->y_max ?: YMAX_NOMINAL;
+-	int fuzz = SYN_CAP_REDUCED_FILTERING(priv->ext_cap_0c) ?
++	int fuzz = (SYN_CAP_REDUCED_FILTERING(priv->ext_cap_0c) &&
++			!SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) ?
+ 			SYN_REDUCED_FILTER_FUZZ : 0;
  
-+static bool mxt_in_bootloader(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	return (client->addr == MXT_BOOT_LOW || client->addr == MXT_BOOT_HIGH);
-+}
-+
- static int mxt_i2c_recv(struct i2c_client *client, u8 *buf, size_t count)
- {
- 	int ret;
-@@ -584,6 +590,9 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 	u8 reportid;
- 	bool update_input = false;
- 
-+	if (mxt_in_bootloader(data))
-+		goto end;
-+
- 	do {
- 		if (mxt_read_message(data, &message)) {
- 			dev_err(dev, "Failed to read message\n");
-@@ -975,6 +984,9 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 		return ret;
- 	}
- 
-+	if (mxt_in_bootloader(data))
-+		goto bootloader_ready;
-+
- 	/* Change to the bootloader mode */
- 	mxt_write_object(data, MXT_GEN_COMMAND_T6,
- 			MXT_COMMAND_RESET, MXT_BOOT_VALUE);
-@@ -986,6 +998,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 	else
- 		client->addr = MXT_BOOT_HIGH;
- 
-+bootloader_ready:
- 	ret = mxt_check_bootloader(client, MXT_WAITING_BOOTLOAD_CMD);
- 	if (ret)
- 		goto out;
-@@ -1196,25 +1209,34 @@ static int __devinit mxt_probe(struct i2c_client *client,
- 
- 	mxt_calc_resolution(data);
- 
--	error = mxt_initialize(data);
--	if (error)
--		goto err_free_mem;
-+	if (mxt_in_bootloader(data)) {
-+		dev_info(&client->dev, "Device in bootloader at probe\n");
-+	} else {
-+		error = mxt_initialize(data);
-+		if (error)
-+			goto err_free_mem;
- 
--	error = mxt_input_dev_create(data);
--	if (error)
--		goto err_free_object;
-+		error = mxt_input_dev_create(data);
-+		if (error)
-+			goto err_free_object;
-+	}
- 
- 	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
- 				     pdata->irqflags | IRQF_ONESHOT,
- 				     client->name, data);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
--		goto err_unregister_device;
-+		if (mxt_in_bootloader(data))
-+			goto err_free_mem;
-+		else
-+			goto err_unregister_device;
- 	}
- 
--	error = mxt_make_highchg(data);
--	if (error)
--		goto err_free_irq;
-+	if (!mxt_in_bootloader(data)) {
-+		error = mxt_make_highchg(data);
-+		if (error)
-+			goto err_free_irq;
-+	}
- 
- 	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
- 	if (error)
-@@ -1239,7 +1261,8 @@ static int mxt_remove(struct i2c_client *client)
- 
- 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
- 	free_irq(data->irq, data);
--	input_unregister_device(data->input_dev);
-+	if (data->input_dev)
-+		input_unregister_device(data->input_dev);
- 	kfree(data->object_table);
- 	kfree(data);
- 
-@@ -1253,6 +1276,9 @@ static int mxt_suspend(struct device *dev)
- 	struct mxt_data *data = i2c_get_clientdata(client);
- 	struct input_dev *input_dev = data->input_dev;
- 
-+	if (mxt_in_bootloader(data))
-+		return 0;
-+
- 	mutex_lock(&input_dev->mutex);
- 
- 	if (input_dev->users)
-@@ -1269,6 +1295,9 @@ static int mxt_resume(struct device *dev)
- 	struct mxt_data *data = i2c_get_clientdata(client);
- 	struct input_dev *input_dev = data->input_dev;
- 
-+	if (mxt_in_bootloader(data))
-+		return 0;
-+
- 	/* Soft reset */
- 	mxt_write_object(data, MXT_GEN_COMMAND_T6,
- 			MXT_COMMAND_RESET, 1);
+ 	input_set_abs_params(dev, x_code, x_min, x_max, fuzz, 0);
 -- 
 1.8.1
-

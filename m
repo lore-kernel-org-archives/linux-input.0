@@ -1,64 +1,101 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH v2 1/2] Input: tegra-kbc- Convert to devm_ioremap_resource()
-Date: Fri,  1 Feb 2013 15:37:56 +0530
-Message-ID: <1359713277-14228-1-git-send-email-sachin.kamat@linaro.org>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [PATCH v2 1/2] Input: tegra-kbc- Convert to
+ devm_ioremap_resource()
+Date: Fri, 1 Feb 2013 12:24:13 +0100
+Message-ID: <20130201112412.GA29105@avionic-0098.mockup.avionic-design.de>
+References: <1359713277-14228-1-git-send-email-sachin.kamat@linaro.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f49.google.com ([209.85.160.49]:35578 "EHLO
-	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753583Ab3BAKRM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Feb 2013 05:17:12 -0500
-Received: by mail-pb0-f49.google.com with SMTP id xa12so2087683pbc.22
-        for <linux-input@vger.kernel.org>; Fri, 01 Feb 2013 02:17:12 -0800 (PST)
+Received: from moutng.kundenserver.de ([212.227.17.9]:52294 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755530Ab3BALYU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Feb 2013 06:24:20 -0500
+Content-Disposition: inline
+In-Reply-To: <1359713277-14228-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: gregkh@linuxfoundation.org, thierry.reding@avionic-design.de, sachin.kamat@linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Use the newly introduced devm_ioremap_resource() instead of
-devm_request_and_ioremap() which provides more consistent error handling.
 
-devm_ioremap_resource() provides its own error messages; so all explicit
-error messages can be removed from the failure code paths.
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
----
- Patch based & compile tested on linux-next tree (20130128).
- Changes since v1:
- * Dropped the error message as it is now handled by devm_ioremap_resource()
- itself.
----
- drivers/input/keyboard/tegra-kbc.c |    9 ++++-----
- 1 files changed, 4 insertions(+), 5 deletions(-)
+On Fri, Feb 01, 2013 at 03:37:56PM +0530, Sachin Kamat wrote:
+> Use the newly introduced devm_ioremap_resource() instead of
+> devm_request_and_ioremap() which provides more consistent error handling.
+>=20
+> devm_ioremap_resource() provides its own error messages; so all explicit
+> error messages can be removed from the failure code paths.
+>=20
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> ---
+>  Patch based & compile tested on linux-next tree (20130128).
+>  Changes since v1:
+>  * Dropped the error message as it is now handled by devm_ioremap_resourc=
+e()
+>  itself.
+> ---
+>  drivers/input/keyboard/tegra-kbc.c |    9 ++++-----
+>  1 files changed, 4 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/=
+tegra-kbc.c
+> index 46e8ad2..fc43806 100644
+> --- a/drivers/input/keyboard/tegra-kbc.c
+> +++ b/drivers/input/keyboard/tegra-kbc.c
+> @@ -31,6 +31,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/input/tegra_kbc.h>
+>  #include <linux/clk/tegra.h>
+> +#include <linux/err.h>
+> =20
+>  #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
+> =20
+> @@ -615,11 +616,9 @@ static int tegra_kbc_probe(struct platform_device *p=
+dev)
+>  	spin_lock_init(&kbc->lock);
+>  	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc);
+> =20
+> -	kbc->mmio =3D devm_request_and_ioremap(&pdev->dev, res);
+> -	if (!kbc->mmio) {
+> -		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
+> -		return -EBUSY;
+> -	}
+> +	kbc->mmio =3D devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(kbc->mmio))
+> +		return PTR_ERR(kbc->mmio);
+> =20
+>  	kbc->clk =3D devm_clk_get(&pdev->dev, NULL);
+>  	if (IS_ERR(kbc->clk)) {
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 46e8ad2..fc43806 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -31,6 +31,7 @@
- #include <linux/slab.h>
- #include <linux/input/tegra_kbc.h>
- #include <linux/clk/tegra.h>
-+#include <linux/err.h>
- 
- #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
- 
-@@ -615,11 +616,9 @@ static int tegra_kbc_probe(struct platform_device *pdev)
- 	spin_lock_init(&kbc->lock);
- 	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc);
- 
--	kbc->mmio = devm_request_and_ioremap(&pdev->dev, res);
--	if (!kbc->mmio) {
--		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
--		return -EBUSY;
--	}
-+	kbc->mmio = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(kbc->mmio))
-+		return PTR_ERR(kbc->mmio);
- 
- 	kbc->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(kbc->clk)) {
--- 
-1.7.4.1
+Reviewed-by: Thierry Reding <thierry.reding@avionic-design.de>
 
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRC6XcAAoJEN0jrNd/PrOh3ZkP/0b/VYGXrNAQkkVsMlBFtQg0
+MY8W8K0JFC7Nr26tiTQrVEiGvVoo1XtU3HzmeML+KXi8PKv8IqfPNmL88ng81UxF
+M5yBDAhpY+S5hqlMWk9RCdMjikun0tx+9GxwYFAolnMVLw1hn6r7ceBFQQH1djxu
+hWM0sU+r1DW6QmWh+pEPflZrWV+34nUULt9XaGYzc5zi/7zixZtWIrewvmP2yj36
+cIvkaDWkVfaZ/UA1K72GNr91QJ/c32qc7uYEJ5MQA1iZPmzw8UYqb0tiopQKPIsr
+LbZS3fgsy2vYYV8Dppvthf1UPjpc3o1H2p8Ujbt71x7ayngoPkCrj82wHVVW1QMA
+AiZhkXqlaaPZcbkK62TtWgwwb1mxWK2ODwAmgd/AcSmzrd0buO7t83oxzkwbcfmd
+dZgDb4fmWENWGR+BHiXPZzWBe9oZMalnJn9biWVgnGMG3N76A7Tmer9Vly55xZQ8
+s0U6f+jC53tXSHfm7vfZxkpeshvW+8u6stOwy1/aDRdTO1tbexAI5uic9huxfbct
+wUE2Ysx3Gxwx6z1pRfnRq/UTg2cLpYWrsBlvT8XK7xiUvdzsxF4bK2IyWXCPOsWa
+nTtpuHSsGij/Gk7DyuDzEvxYTnc30aumctDDGvQ5t0lDh6ELI0Uq9gGfl6QVsXIB
+CpnE1oAawjg2a0HgANMJ
+=gRtj
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--

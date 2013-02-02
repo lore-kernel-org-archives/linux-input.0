@@ -1,114 +1,140 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: joydev bug with playstation USB adapter
-Date: Sat, 2 Feb 2013 01:11:17 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1302020107580.26996@pobox.suse.cz>
-References: <20130202004320.408ac7c3@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Paul Sbarra <sbarra.paul@gmail.com>
+Subject: [PATCH 1/3] hid: Add report descriptor for Logitech Driving Force wheel
+Date: Sat,  2 Feb 2013 14:45:23 -0600
+Message-ID: <1359837925-6383-1-git-send-email-sbarra.paul@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50534 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755973Ab3BBALY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 1 Feb 2013 19:11:24 -0500
-In-Reply-To: <20130202004320.408ac7c3@gmail.com>
+Received: from mail-ia0-f181.google.com ([209.85.210.181]:45189 "EHLO
+	mail-ia0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750941Ab3BBUp5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Feb 2013 15:45:57 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: renato <rennabh@gmail.com>
-Cc: linux-input@vger.kernel.org, Anssi Hannula <anssi.hannula@gmail.com>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Sbarra <sbarra.paul@gmail.com>
 
-On Sat, 2 Feb 2013, renato wrote:
+This is the original report descriptor as reported by lsusb -vd 046d:c294.
 
-> Hi, I have two playstation USB adpters, one of them with this [1] "lsusb
-> -v" (the other I don't have access to ATM) and they both give me the
-> following buggy behaviour: the range of the sticks is limited - i.e.
-> value 32767 is reached when the stick is only about half-way through
-> its run, leaving a big dead zone after that. This happens on all axes
-> and recalibrating with "jscal -c" didn't help.
-> 
-> I'm on an up-to-date Archlinux, kernel 3.7.5, and have tried various
-> kernel versions down to 3.0.1 with same results.
-> 
-> Is there any other info I can provide?
+Signed-off-by: Paul Sbarra <sbarra.paul@gmail.com>
+---
+ drivers/hid/hid-lg.c | 84 ++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 79 insertions(+), 5 deletions(-)
 
-[ adding Anssi to CC ]
-
-Hi renato,
-
-there is a driver for this particular device (hid-pl), written by Anssi 
-Hannula.
-
-So before I'll be digging into this any further -- Anssi, does this 
-limited range sound familiar to you when it comes to 0x0810/0x001 device?
-
-Thanks.
-
-> 
-> thanks,
-> renato
-> 
-> 
-> [1]
-> Bus 002 Device 002: ID 0810:0001 Personal Communication Systems, Inc.
-> Dual PSX A daptor
-> Device Descriptor:
->   bLength                18
->   bDescriptorType         1
->   bcdUSB               1.00
->   bDeviceClass            0 (Defined at Interface level)
->   bDeviceSubClass         0
->   bDeviceProtocol         0
->   bMaxPacketSize0         8
->   idVendor           0x0810 Personal Communication Systems, Inc.
->   idProduct          0x0001 Dual PSX Adaptor
->   bcdDevice            1.06
->   iManufacturer           0
->   iProduct                2 Twin USB Joystick
->   iSerial                 0
->   bNumConfigurations      1
->   Configuration Descriptor:
->     bLength                 9
->     bDescriptorType         2
->     wTotalLength           34
->     bNumInterfaces          1
->     bConfigurationValue     1
->     iConfiguration          0
->     bmAttributes         0x80
->       (Bus Powered)
->     MaxPower              500mA
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        0
->       bAlternateSetting       0
->       bNumEndpoints           1
->       bInterfaceClass         3 Human Interface Device
->       bInterfaceSubClass      0 No Subclass
->       bInterfaceProtocol      0 None
->       iInterface              0
->         HID Device Descriptor:
->           bLength                 9
->           bDescriptorType        33
->           bcdHID               1.10
->           bCountryCode           33 US
->           bNumDescriptors         1
->           bDescriptorType        34 Report
->           wDescriptorLength     202
->          Report Descriptors:
->            ** UNAVAILABLE **
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x81  EP 1 IN
->         bmAttributes            3
->           Transfer Type            Interrupt
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0008  1x 8 bytes
->         bInterval              10
-> Device Status:     0x0000
->   (Bus Powered)
-> 
-
+diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+index a2f8e88..9312a62 100644
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -40,17 +40,83 @@
+ #define LG_FF3			0x1000
+ #define LG_FF4			0x2000
+ 
+-/* Size of the original descriptor of the Driving Force Pro wheel */
++/* Size of the original descriptors of the Driving Force (and Pro) wheels */
++#define DF_RDESC_ORIG_SIZE	130
+ #define DFP_RDESC_ORIG_SIZE	97
+ 
+-/* Fixed report descriptor for Logitech Driving Force Pro wheel controller
++/* Fixed report descriptors for Logitech Driving Force (and Pro)
++ * wheel controllers
+  *
+- * The original descriptor hides the separate throttle and brake axes in
++ * The original descriptors hide the separate throttle and brake axes in
+  * a custom vendor usage page, providing only a combined value as
+  * GenericDesktop.Y.
+- * This descriptor removes the combined Y axis and instead reports
++ * These descriptors remove the combined Y axis and instead report
+  * separate throttle (Y) and brake (RZ).
+  */
++static __u8 df_rdesc_fixed[] = {
++0x05, 0x01,         /*  Usage Page (Desktop),                   */
++0x09, 0x04,         /*  Usage (Joystik),                        */
++0xA1, 0x01,         /*  Collection (Application),               */
++0xA1, 0x02,         /*      Collection (Logical),               */
++0x95, 0x01,         /*          Report Count (1),               */
++0x75, 0x0A,         /*          Report Size (10),               */
++0x14,               /*          Logical Minimum (0),            */
++0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),         */
++0x34,               /*          Physical Minimum (0),           */
++0x46, 0xFF, 0x03,   /*          Physical Maximum (1023),        */
++0x09, 0x30,         /*          Usage (X),                      */
++0x81, 0x02,         /*          Input (Variable),               */
++0x95, 0x0C,         /*          Report Count (12),              */
++0x75, 0x01,         /*          Report Size (1),                */
++0x25, 0x01,         /*          Logical Maximum (1),            */
++0x45, 0x01,         /*          Physical Maximum (1),           */
++0x05, 0x09,         /*          Usage (Buttons),                */
++0x19, 0x01,         /*          Usage Minimum (1),              */
++0x29, 0x0c,         /*          Usage Maximum (12),             */
++0x81, 0x02,         /*          Input (Variable),               */
++0x95, 0x02,         /*          Report Count (2),               */
++0x06, 0x00, 0xFF,   /*          Usage Page (Vendor: 65280),     */
++0x09, 0x01,         /*          Usage (?: 1),                   */
++0x81, 0x02,         /*          Input (Variable),               */
++0x05, 0x01,         /*          Usage Page (Desktop),           */
++0x09, 0x31,         /*          Usage (Y),                      */
++0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
++0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
++0x95, 0x01,         /*          Report Count (1),               */
++0x75, 0x08,         /*          Report Size (8),                */
++0x81, 0x02,         /*          Input (Variable),               */
++0x25, 0x07,         /*          Logical Maximum (7),            */
++0x46, 0x3B, 0x01,   /*          Physical Maximum (315),         */
++0x75, 0x04,         /*          Report Size (4),                */
++0x65, 0x14,         /*          Unit (Degrees),                 */
++0x09, 0x39,         /*          Usage (Hat Switch),             */
++0x81, 0x42,         /*          Input (Variable, Null State),   */
++0x75, 0x01,         /*          Report Size (1),                */
++0x95, 0x04,         /*          Report Count (4),               */
++0x65, 0x00,         /*          Unit (none),                    */
++0x06, 0x00, 0xFF,   /*          Usage Page (Vendor: 65280),     */
++0x09, 0x01,         /*          Usage (?: 1),                   */
++0x25, 0x01,         /*          Logical Maximum (1),            */
++0x45, 0x01,         /*          Physical Maximum (1),           */
++0x81, 0x02,         /*          Input (Variable),               */
++0x95, 0x02,         /*          Report Count (2),               */
++0x75, 0x08,         /*          Report Size (8),                */
++0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
++0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
++0x09, 0x02,         /*          Usage (?: 2),                   */
++0x81, 0x02,         /*          Input (Variable),               */
++0xC0,               /*      End Collection,                     */
++0xA1, 0x02,         /*      Collection (Logical),               */
++0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
++0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
++0x95, 0x07,         /*          Report Count (7),               */
++0x75, 0x08,         /*          Report Size (8),                */
++0x09, 0x03,         /*          Usage (?: 3),                   */
++0x91, 0x02,         /*          Output (Variable),              */
++0xC0,               /*      End Collection,                     */
++0xC0                /*  End Collection                          */
++};
++
+ static __u8 dfp_rdesc_fixed[] = {
+ 0x05, 0x01,         /*  Usage Page (Desktop),                   */
+ 0x09, 0x04,         /*  Usage (Joystik),                        */
+@@ -99,7 +165,6 @@ static __u8 dfp_rdesc_fixed[] = {
+ 0xC0                /*  End Collection                          */
+ };
+ 
+-
+ /*
+  * Certain Logitech keyboards send in report #3 keys which are far
+  * above the logical maximum described in descriptor. This extends
+@@ -135,6 +200,15 @@ static __u8 *lg_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	}
+ 
+ 	switch (hdev->product) {
++	case USB_DEVICE_ID_LOGITECH_WHEEL:
++		if (*rsize == DF_RDESC_ORIG_SIZE) {
++			hid_info(hdev,
++				"fixing up Logitech Driving Force report descriptor\n");
++			rdesc = df_rdesc_fixed;
++			*rsize = sizeof(df_rdesc_fixed);
++		}
++		break;
++
+ 	case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
+ 		if (*rsize == DFP_RDESC_ORIG_SIZE) {
+ 			hid_info(hdev,
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.1.1
+

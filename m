@@ -1,20 +1,20 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 3/9] HID: multitouch: add support for Nexio 42" panel
-Date: Mon, 4 Feb 2013 12:42:26 +0100
-Message-ID: <20130204114226.GB4313@polaris.bitmath.org>
+Subject: Re: [PATCH v2 0/9] Support of Nexio 42" and new default class for
+ hid-multitouch
+Date: Mon, 4 Feb 2013 12:54:43 +0100
+Message-ID: <20130204115443.GA4405@polaris.bitmath.org>
 References: <1359649351-11092-1-git-send-email-benjamin.tissoires@gmail.com>
- <1359649351-11092-4-git-send-email-benjamin.tissoires@gmail.com>
- <20130203130013.GA2657@polaris.bitmath.org>
- <CAN+gG=FO7boJ7mQefL=JoggNiUS7ea6=W=+g=5fvMzpMB0x5+g@mail.gmail.com>
+ <20130203130731.GA2677@polaris.bitmath.org>
+ <CAN+gG=GRS+fx4c3Kdba-89+ba8soimMm_rv7HDuaZLZWseQGuQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b31.telenor.se ([213.150.131.20]:45600 "EHLO
+Received: from smtprelay-b31.telenor.se ([213.150.131.20]:46430 "EHLO
 	smtprelay-b31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754141Ab3BDLgZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Feb 2013 06:36:25 -0500
+	with ESMTP id S1754001Ab3BDLsl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Feb 2013 06:48:41 -0500
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=FO7boJ7mQefL=JoggNiUS7ea6=W=+g=5fvMzpMB0x5+g@mail.gmail.com>
+In-Reply-To: <CAN+gG=GRS+fx4c3Kdba-89+ba8soimMm_rv7HDuaZLZWseQGuQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
@@ -22,74 +22,13 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 
 Hi Benjamin,
 
-> > Why not an index here?
-> 
-> Just because an index is not sufficient. You need two things: an index
-> within the field, and the actual field (a pointer to a struct
-> hid_field). Each .value is local to a field, and even if in most of
-> the case, the contact count is alone in its field, it would mean to
-> take the risk that a new device does not follow this logic.
+> Thanks for the review. However, before sending a new patch series, I'd
+> like to have your answers to my comments as I mostly disagree on
+> everything :)
 
-The field value is passed to process_mt_event() in a fairly
-straight-forward fashion, I was imagining that behavior could be
-copied somehow.
-
-> So the actual pointer to the contact count value seemed to be the
-> shortest way to do it. But it can be easily changed.
-
-Keeping a pointer into the core structure creates unwanted
-dependencies to the scope of that value, making an eventual core
-refactoring even harder, not to mention trickier to debug. So even
-though it looks neat in the code, it pushes the problem forward.
-
-> >> @@ -251,6 +257,9 @@ static ssize_t mt_set_quirks(struct device *dev,
-> >>
-> >>       td->mtclass.quirks = val;
-> >>
-> >> +     if (!td->contactcount)
-> >> +             td->mtclass.quirks &= ~MT_QUIRK_CONTACT_CNT_ACCURATE;
-> >> +
-> >
-> > Why override the overrider here?
-> 
-> This callback is called from the user-space through the sysfs
-> attribute. So, it is not called in the same time that the
-> mt_post_parse function. This is just to avoid a user setting this
-> quirk once the device is up and running leading to a potential oops.
-
-Yes, but the quirk _is_ user modifiable. Hence, the problem lies in
-equating the user-modifiable quirk with the branch control of the
-program.
-
-> > An index into the the struct actually passed in mt_report() feels safer.
-> 
-> again, you need to store "field" and "usage->usage_index". Agree, it
-> would be safer but it will take more space... :)
-
-If you think the code change is not only correct, but also moves the
-whole code base in a good direction, by all means.
-
-> >> @@ -750,11 +765,15 @@ static void mt_post_parse_default_settings(struct mt_device *td)
-> >>  static void mt_post_parse(struct mt_device *td)
-> >>  {
-> >>       struct mt_fields *f = td->fields;
-> >> +     struct mt_class *cls = &td->mtclass;
-> >>
-> >>       if (td->touches_by_report > 0) {
-> >>               int field_count_per_touch = f->length / td->touches_by_report;
-> >>               td->last_slot_field = f->usages[field_count_per_touch - 1];
-> >>       }
-> >> +
-> >> +     if (!td->contactcount)
-> >> +             cls->quirks &= ~MT_QUIRK_CONTACT_CNT_ACCURATE;
-> >
-> > Since MT_QUIRK_CONTACT_CNT_ACCURATE is a quirk, modifiable by the
-> > user, it should probably not validate num_expected in the code. Better
-> > use the contact count index or something equivalent for that.
-> 
-> As when the user changes the quirk, we validate it, this is not required.
-
-True, barring the comments above.
+With good reason, apparently. :-) I see no major problem with your
+patches, although the discussed details show that there is room for
+some refactoring.
 
 Thanks,
 Henrik

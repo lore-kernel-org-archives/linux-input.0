@@ -1,106 +1,111 @@
-From: Daniel J Blueman <daniel@quora.org>
-Subject: BCM5974 touchpad issues...
-Date: Mon, 4 Feb 2013 11:19:31 +0800
-Message-ID: <CAMVG2sssfmUmEuf0=PNDchF-5Nu7-Kf3Gny_ki48DDohKXC5Ng@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 1/9] HID: core: add "report" hook, called once the
+ report has been parsed
+Date: Mon, 4 Feb 2013 10:24:48 +0100
+Message-ID: <CAN+gG=H8tTcQ9NNAk-EOxMJsqvrC6X1ZqmQB62eBHnXyG=RRng@mail.gmail.com>
+References: <1359649351-11092-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1359649351-11092-2-git-send-email-benjamin.tissoires@gmail.com>
+	<20130203122748.GA2513@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f181.google.com ([209.85.214.181]:42627 "EHLO
-	mail-ob0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753759Ab3BDDTc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Feb 2013 22:19:32 -0500
-Received: by mail-ob0-f181.google.com with SMTP id ni5so5868439obc.26
-        for <linux-input@vger.kernel.org>; Sun, 03 Feb 2013 19:19:32 -0800 (PST)
+Received: from mail-lb0-f177.google.com ([209.85.217.177]:53289 "EHLO
+	mail-lb0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751632Ab3BDJYu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Feb 2013 04:24:50 -0500
+In-Reply-To: <20130203122748.GA2513@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-I'm seeing erratic click events on Broadcom 5974 touchpads during
-two-finger scrolling.
+Hi Henrik,
 
-I was wondering where to start to see if this is a userspace or kernel
-HID issue.
+On Sun, Feb 3, 2013 at 1:27 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> Hi Benjamin,
+>
+>> This callback is called when the parsing of the report has been done
+>> by hid-core (so after the calls to .event). The hid drivers can now
+>> have access to the whole report by relying on the values stored in
+>> the different fields.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> ---
+>>  drivers/hid/hid-core.c | 4 ++++
+>>  include/linux/hid.h    | 2 ++
+>>  2 files changed, 6 insertions(+)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 5ae2cb1..b671e4e 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -1195,6 +1195,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+>>  {
+>>       struct hid_report_enum *report_enum = hid->report_enum + type;
+>>       struct hid_report *report;
+>> +     struct hid_driver *hdrv;
+>>       unsigned int a;
+>>       int rsize, csize = size;
+>>       u8 *cdata = data;
+>> @@ -1231,6 +1232,9 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+>>       if (hid->claimed != HID_CLAIMED_HIDRAW) {
+>>               for (a = 0; a < report->maxfield; a++)
+>>                       hid_input_field(hid, report->field[a], cdata, interrupt);
+>> +             hdrv = hid->driver;
+>> +             if (hdrv && hdrv->report)
+>> +                     hdrv->report(hid, report);
+>
+> I think this is more useful if called before the individual fields. In
+> fact, it seems raw_event() is already doing exactly that. No need for
+> a new callback, in other words.
 
-Thanks,
-  Daniel
+I'm afraid this does not work:
+- calling it before the individual fields is not possible unless more
+intrusive changes to hid-core:
+  * "hid_input_field" does the actual parsing of the input report, so
+without the call the .value field is still set to the previous one
+(not very useful then)
+  * the "hid_input_field" requires to know the previous report, due to
+Array type reports which send the current keys down, and not the
+release.
+- the raw_event() callback contains the report _unparsed_, which means
+that it's up to the hid specific driver to split the fields depending
+on the report descriptor (for instance, get the right bit for
+tipswitch in a byte containing tipswitch, inrange, confidence,
+contactId).
+- the raw_event() mechanism was the one in place in the v1 of the
+patch series, in which the new callback was asked.
 
-$ synclient
-Parameter settings:
-    LeftEdge                = -3898
-    RightEdge               = 4428
-    TopEdge                 = 434
-    BottomEdge              = 6146
-    FingerLow               = 70
-    FingerHigh              = 75
-    FingerPress             = 257
-    MaxTapTime              = 180
-    MaxTapMove              = 535
-    MaxDoubleTapTime        = 180
-    SingleTapTimeout        = 180
-    ClickTime               = 100
-    FastTaps                = 0
-    EmulateMidButtonTime    = 0
-    EmulateTwoFingerMinZ    = 283
-    EmulateTwoFingerMinW    = 7
-    VertScrollDelta         = -243
-    HorizScrollDelta        = -243
-    VertEdgeScroll          = 1
-    HorizEdgeScroll         = 0
-    CornerCoasting          = 1
-    VertTwoFingerScroll     = 1
-    HorizTwoFingerScroll    = 1
-    MinSpeed                = 1
-    MaxSpeed                = 1.75
-    AccelFactor             = 0.0164447
-    TrackstickSpeed         = 40
-    EdgeMotionMinZ          = 30
-    EdgeMotionMaxZ          = 160
-    EdgeMotionMinSpeed      = 1
-    EdgeMotionMaxSpeed      = 972
-    EdgeMotionUseAlways     = 0
-    TouchpadOff             = 0
-    LockedDrags             = 0
-    LockedDragTimeout       = 5000
-    RTCornerButton          = 2
-    RBCornerButton          = 3
-    LTCornerButton          = 0
-    LBCornerButton          = 0
-    TapButton1              = 1
-    TapButton2              = 3
-    TapButton3              = 2
-    ClickFinger1            = 1
-    ClickFinger2            = 3
-    ClickFinger3            = 0
-    CircularScrolling       = 0
-    CircScrollDelta         = 0.1
-    CircScrollTrigger       = 0
-    CircularPad             = 0
-    PalmDetect              = 0
-    PalmMinWidth            = 10
-    PalmMinZ                = 200
-    CoastingSpeed           = 20
-    CoastingFriction        = 50
-    PressureMotionMinZ      = 30
-    PressureMotionMaxZ      = 160
-    PressureMotionMinFactor = 1
-    PressureMotionMaxFactor = 1
-    ResolutionDetect        = 1
-    GrabEventDevice         = 1
-    TapAndDragGesture       = 1
-    AreaLeftEdge            = 0
-    AreaRightEdge           = 0
-    AreaTopEdge             = 0
-    AreaBottomEdge          = 0
-    HorizHysteresis         = 40
-    VertHysteresis          = 27
-    ClickPad                = 1
-    RightButtonAreaLeft     = 0
-    RightButtonAreaRight    = 0
-    RightButtonAreaTop      = 0
-    RightButtonAreaBottom   = 0
-    MiddleButtonAreaLeft    = 0
-    MiddleButtonAreaRight   = 0
-    MiddleButtonAreaTop     = 0
-    MiddleButtonAreaBottom  = 0
--- 
-Daniel J Blueman
+Cheers,
+Benjamin
+
+>
+>>       }
+>>
+>>       if (hid->claimed & HID_CLAIMED_INPUT)
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index 828726c..e14b465 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -589,6 +589,7 @@ struct hid_usage_id {
+>>   * @raw_event: if report in report_table, this hook is called (NULL means nop)
+>>   * @usage_table: on which events to call event (NULL means all)
+>>   * @event: if usage in usage_table, this hook is called (NULL means nop)
+>> + * @report: this hook is called after parsing a report (NULL means nop)
+>>   * @report_fixup: called before report descriptor parsing (NULL means nop)
+>>   * @input_mapping: invoked on input registering before mapping an usage
+>>   * @input_mapped: invoked on input registering after mapping an usage
+>> @@ -627,6 +628,7 @@ struct hid_driver {
+>>       const struct hid_usage_id *usage_table;
+>>       int (*event)(struct hid_device *hdev, struct hid_field *field,
+>>                       struct hid_usage *usage, __s32 value);
+>> +     void (*report)(struct hid_device *hdev, struct hid_report *report);
+>>
+>>       __u8 *(*report_fixup)(struct hid_device *hdev, __u8 *buf,
+>>                       unsigned int *size);
+>> --
+>> 1.8.1
+>>
+>
+> Thanks,
+> Henrik

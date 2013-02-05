@@ -1,84 +1,97 @@
-From: Nestor Lopez Casado <nlopezcasad@logitech.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
 Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two locks.
-Date: Tue, 5 Feb 2013 17:19:37 +0100
-Message-ID: <CAE7qMroHOK2TJnUK6wdf7YCK6FTQPmxTKJ=SM_gz0b3fuzf2TA@mail.gmail.com>
+Date: Tue, 5 Feb 2013 18:22:46 +0100
+Message-ID: <CANq1E4QGhN2+nB1MN=LO0yDAe1q6Khq6+PhWyB51K6PGg3Fgdw@mail.gmail.com>
 References: <CAG_cf+cXnNSyxcrsZncfr2KKFRhiCJ60vHrTt3_aB-Bc7m5eVw@mail.gmail.com>
- <20121126185627.7bff1f84@neptune.home> <CAN+gG=ENOU1oYRLd2ZMhPeCFPmTtiYRDZuuW3idvULShrnkPUg@mail.gmail.com>
- <alpine.LNX.2.00.1212031416010.27624@pobox.suse.cz> <CAE7qMrrpe+o3-DmRsgxEjc3e5kUUhNZ8ZkkrDrc4fzHJX2T53Q@mail.gmail.com>
- <alpine.LNX.2.00.1302051607130.2260@pobox.suse.cz>
+	<20121126185627.7bff1f84@neptune.home>
+	<CAN+gG=ENOU1oYRLd2ZMhPeCFPmTtiYRDZuuW3idvULShrnkPUg@mail.gmail.com>
+	<alpine.LNX.2.00.1212031416010.27624@pobox.suse.cz>
+	<CAE7qMrrpe+o3-DmRsgxEjc3e5kUUhNZ8ZkkrDrc4fzHJX2T53Q@mail.gmail.com>
+	<alpine.LNX.2.00.1302051607130.2260@pobox.suse.cz>
+	<CAE7qMroHOK2TJnUK6wdf7YCK6FTQPmxTKJ=SM_gz0b3fuzf2TA@mail.gmail.com>
+	<CAG_cf+ev2y1MHNJFYZycbjQfNgk4hYYRaEoFsKkZyhzAzMgc1A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog114.obsmtp.com ([74.125.149.211]:54694 "EHLO
-	na3sys009aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756381Ab3BEQVk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Feb 2013 11:21:40 -0500
-Received: by mail-oa0-f72.google.com with SMTP id j6so1553296oag.7
-        for <linux-input@vger.kernel.org>; Tue, 05 Feb 2013 08:20:07 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1302051607130.2260@pobox.suse.cz>
+Received: from mail-ee0-f48.google.com ([74.125.83.48]:39519 "EHLO
+	mail-ee0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752941Ab3BERWr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Feb 2013 12:22:47 -0500
+Received: by mail-ee0-f48.google.com with SMTP id t10so255086eei.21
+        for <linux-input@vger.kernel.org>; Tue, 05 Feb 2013 09:22:46 -0800 (PST)
+In-Reply-To: <CAG_cf+ev2y1MHNJFYZycbjQfNgk4hYYRaEoFsKkZyhzAzMgc1A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?ISO-8859-1?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, Andrew de los Reyes <andrew-vger@gizmolabs.org>, Linux Input <linux-input@vger.kernel.org>, David Herrmann <dh.herrmann@googlemail.com>
+To: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?ISO-8859-1?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, Linux Input <linux-input@vger.kernel.org>
 
-Hi Jiri,
+Hi Nestor
 
-Andrew has been progressing on a patchset that he will soon post.
-
-for info: https://github.com/adlr/linux/commits/logitech6
-
-I've been following his updates to hid-logitech-dj as well as
-hid-logitech-wtp. We will soon get back to you.
-
-Thanks for asking!
-
-Cheers,
-Nestor
-
-On Tue, Feb 5, 2013 at 4:07 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Mon, 3 Dec 2012, Nestor Lopez Casado wrote:
+On Tue, Feb 5, 2013 at 5:38 PM, Andrew de los Reyes
+<andrew-vger@gizmolabs.org> wrote:
+> Yes, I'm hoping to upstream soon as part of a patch series to get WTP
+> support in. The current version of the commit you are asking about is
+> specifically here:
+> https://github.com/adlr/linux/commit/2a4fae572bd88462c4a558a77dc53d9eb3f9e91c
 >
->> >> It is clear that the goal is to make commit
->> >> 4ea5454203d991ec85264f64f89ca8855fce69b0 less restrictive.
->> >> The problem is that this commit stops any communication with the
->> >> device, even configuration communication.
->> >>
->> >> Logitech devices use their own protocol on top of the HID standard
->> >> protocol. For touch devices, this proprietary protocol requires to ask
->> >> the device for axis ranges, etc...
->> >>
->> >> So here, the idea is not to open the can of worm for every hid devices
->> >> through hw_start() / hw_stop() calls, I think the idea of Andrew is
->> >> just to allow hid-logitech-dj to get rid of this restriction in some
->> >> particular circumstances.
->> >> Consider this as a controlled backdoor of the can of worms :)
->> >
->> > I have been thinking for this for a while, and I wasn't able to come up
->> > with anything I'd personally consider substantially better aproach than
->> > splitting the lock. So I don't have strong objections at the very moment.
->> >
->> > This will also allow us to get rid of what commit 596264082f introduced in
->> > unifying driver, right? (adding Nestor to CC).
->>
->> That is correct. Moreover, we are planning additional changes to
->> hid-logitech-dj that will somehow revert that commit. As Andrew
->> mentioned earlier, the drivers for Unifying devices need to query
->> several parameters during their probe() execution, and besides this
->> lock issue, there is still another problem with the current
->> hid-logitech-dj strategy.  Unifying devices can only be queried when
->> the radio link is active, and as such, we are planning to postpone
->> calling hid_add_device() until we are sure that the device has an
->> active radio link.
->>
->> With both issues resolved, the path will be clear to add native
->> multitouch support for several Unifying devices like t650, t620 and
->> t400.
->
-> Nestor,
->
-> is there anything happening in this area, please?
->
-> --
-> Jiri Kosina
-> SUSE Labs
+> The main difference from before is that there is a new return value (1)
+> which signifies that the event lock has been been up()ed, so the hid-core
+> doesn't need to call up() itself. This way during probe(), a driver can
+> allow incoming events continuously from midway through probe() indefinitely.
+
+The patch looks nice. Some comments:
+
+1) I would prefer constants HID_IS_LOCKED and HID_IS_UNLOCKED or
+similar instead of 1. This makes the code much more readable than
+returning 0 or 1. Maybe you can find better names than my suggestions?
+
+2) in hid_device_probe() you can use "ret = -EINTR; goto unlock;"
+instead of "up(input_lock); return -EINTR;". I think this is more
+consistent.
+
+3) in hid_device_probe() maybe check that hid_hw_start() doesn't
+return "1" accidentally? The current code deadlocks if hid_hw_start()
+would be changed to return 1 (which would be bad as is, but maybe be
+rather safe than sorry?).
+
+4) Maybe we can add a similar logic to hid_device_remove? That is,
+hid_device_remove() shouldn't lock input_lock if the driver wants to
+perform I/O during remove, too. Because this may cause the driver to
+drop input events while the lock is held.
+At least the hid-wiimote driver could make use of this feature during removal.
+
+5) In current code, if a driver unlocks input_lock but still fails, it
+needs to re-lock input_lock and then return the appropriate error
+code. Is that the intended behavior?
+
+6) Documentation! At least add some comments to
+hid_driver_probe/remove so others can make use of this feature without
+looking at other drivers.
+
+> If you are interested, I can send just that one commit to the linux-input
+> list now, instead of waiting on WTP to be ready for posting to linux-input
+> (which may be a couple weeks).
+
+I would prefer if you send an RFC patch to the list so we can all comment on it.
+
+btw. how about two helpers:
+
+static inline void hid_device_io_start(struct hid_device *d)
+{
+    up(&d->driver_input_lock);
+}
+
+static inline void hid_device_io_stop(struct hid_device *d)
+{
+    down(&d->driver_input_lock);
+}
+
+This would guarantee that drivers don't use down_interruptible()
+(which would be wrong in error-paths in ->probe()) and it would be
+more readable. The return-value could then be called something like
+HID_START_IO & HID_IO_RUNNING.. Or we can even set a flag on
+hid_device in io_start/io_stop so the return-value isn't needed at
+all.
+
+Thanks for the patch!
+David

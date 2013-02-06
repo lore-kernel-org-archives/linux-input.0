@@ -1,66 +1,50 @@
-From: Hans Petter Selasky <hselasky@c2i.net>
-Subject: [PATCH] Correctly set data for USB request in case of a previous failure.
-Date: Wed, 6 Feb 2013 08:12:38 +0100
-Message-ID: <201302060812.38289.hselasky@c2i.net>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 0/9] Support of Nexio 42" and new default class for hid-multitouch
+Date: Wed, 6 Feb 2013 12:04:34 +0100
+Message-ID: <CAN+gG=F5KHmq2F_op6RbvXiSp=T0oD_cTgPuBHptXVHyHZwpjA@mail.gmail.com>
+References: <1359649351-11092-1-git-send-email-benjamin.tissoires@gmail.com>
+	<20130203130731.GA2677@polaris.bitmath.org>
+	<CAN+gG=GRS+fx4c3Kdba-89+ba8soimMm_rv7HDuaZLZWseQGuQ@mail.gmail.com>
+	<20130204115443.GA4405@polaris.bitmath.org>
+	<alpine.LNX.2.00.1302051212550.2260@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailfe05.c2i.net ([212.247.154.130]:60812 "EHLO swip.net"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751051Ab3BFHQq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Feb 2013 02:16:46 -0500
-Received: from [176.74.213.204] (account mc467741@c2i.net HELO laptop015.hselasky.homeunix.org)
-  by mailfe05.swip.net (CommuniGate Pro SMTP 5.4.4)
-  with ESMTPA id 370655466 for linux-input@vger.kernel.org; Wed, 06 Feb 2013 08:11:26 +0100
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1302051212550.2260@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
->From a88d72d2108f92f004a3f050a708d9b7f661f924 Mon Sep 17 00:00:00 2001
-From: Hans Petter Selasky <hselasky@c2i.net>
-Date: Mon, 14 Jan 2013 13:53:21 +0100
-Subject: [PATCH] Correctly initialize data for USB request.
+On Tue, Feb 5, 2013 at 12:13 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Mon, 4 Feb 2013, Henrik Rydberg wrote:
+>
+>> > Thanks for the review. However, before sending a new patch series, I'd
+>> > like to have your answers to my comments as I mostly disagree on
+>> > everything :)
+>>
+>> With good reason, apparently. :-) I see no major problem with your
+>> patches, although the discussed details show that there is room for
+>> some refactoring.
+>
+> Thanks to both of you. As I don't object to the HID core change, I have
+> now applied the patchset, so please send any further additions on top of
+> for-3.9/multitouch branch of my tree.
 
-Found-by: Jan Beich
-Signed-off-by: Hans Petter Selasky <hselasky@c2i.net>
----
- drivers/input/tablet/wacom.h     | 1 +
- drivers/input/tablet/wacom_sys.c | 8 +++++---
- 2 files changed, 6 insertions(+), 3 deletions(-)
+Ok. Thanks Jiri. I will send the patch in a minute.
 
-diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
-index b79d451..d6fad87 100644
---- a/drivers/input/tablet/wacom.h
-+++ b/drivers/input/tablet/wacom.h
-@@ -89,6 +89,7 @@
- #include <linux/init.h>
- #include <linux/usb/input.h>
- #include <linux/power_supply.h>
-+#include <linux/string.h>
- #include <asm/unaligned.h>
- 
- /*
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index f92d34f..23bc71e 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -553,10 +553,12 @@ static int wacom_set_device_mode(struct usb_interface *intf, int report_id, int
- 	if (!rep_data)
- 		return error;
- 
--	rep_data[0] = report_id;
--	rep_data[1] = mode;
--
- 	do {
-+		memset(rep_data, 0, length);
-+
-+		rep_data[0] = report_id;
-+		rep_data[1] = mode;
-+
- 		error = wacom_set_report(intf, WAC_HID_FEATURE_REPORT,
- 		                         report_id, rep_data, length, 1);
- 		if (error >= 0)
--- 
-1.7.11.4
+>
+> Also, Benjamin, perhaps it'd make sense to put a link somewhere into
+> in-tree documentation, with pointer to your testing suite?
 
+Good idea. However, I prefer removing the dependencies between hid
+drivers and usbhid before including such reference to avoid testers
+getting kernel oops while trying to access the usb layer from the uhid
+device... So, yesterday and this morning, I rebased/updated Henrik's
+patches on this topic. They should be ready soon.
+
+Do you mind if I send the usbhid dependency and the pen+multitouch
+series this week, or we are too close to the 3.9 opening window?
+
+Cheers,
+Benjamin

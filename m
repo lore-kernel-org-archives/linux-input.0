@@ -1,185 +1,115 @@
-From: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two locks.
-Date: Tue, 5 Feb 2013 18:50:10 +0100
-Message-ID: <CAE7qMrosRbNg+LfVs53NNMx89BSivAxx4MFmQPYPs3o8vnyGew@mail.gmail.com>
-References: <CAG_cf+cXnNSyxcrsZncfr2KKFRhiCJ60vHrTt3_aB-Bc7m5eVw@mail.gmail.com>
- <20121126185627.7bff1f84@neptune.home> <CAN+gG=ENOU1oYRLd2ZMhPeCFPmTtiYRDZuuW3idvULShrnkPUg@mail.gmail.com>
- <alpine.LNX.2.00.1212031416010.27624@pobox.suse.cz> <CAE7qMrrpe+o3-DmRsgxEjc3e5kUUhNZ8ZkkrDrc4fzHJX2T53Q@mail.gmail.com>
- <alpine.LNX.2.00.1302051607130.2260@pobox.suse.cz> <CAE7qMroHOK2TJnUK6wdf7YCK6FTQPmxTKJ=SM_gz0b3fuzf2TA@mail.gmail.com>
- <CAG_cf+ev2y1MHNJFYZycbjQfNgk4hYYRaEoFsKkZyhzAzMgc1A@mail.gmail.com> <CANq1E4QGhN2+nB1MN=LO0yDAe1q6Khq6+PhWyB51K6PGg3Fgdw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] Input: wacom - add support for DTH-2242
+Date: Tue,  5 Feb 2013 18:10:24 -0800
+Message-ID: <1360116624-2457-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog101.obsmtp.com ([74.125.149.67]:54506 "EHLO
-	na3sys009aog101.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755023Ab3BERum (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Feb 2013 12:50:42 -0500
-Received: by mail-ie0-f199.google.com with SMTP id c13so1500153ieb.6
-        for <linux-input@vger.kernel.org>; Tue, 05 Feb 2013 09:50:42 -0800 (PST)
-In-Reply-To: <CANq1E4QGhN2+nB1MN=LO0yDAe1q6Khq6+PhWyB51K6PGg3Fgdw@mail.gmail.com>
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:52652 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754612Ab3BFCKm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Feb 2013 21:10:42 -0500
+Received: by mail-pa0-f44.google.com with SMTP id kp1so490347pab.31
+        for <linux-input@vger.kernel.org>; Tue, 05 Feb 2013 18:10:42 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>
-Cc: Andrew de los Reyes <andrew-vger@gizmolabs.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?ISO-8859-1?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, Linux Input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Ping Cheng <pingc@wacom.com>
 
-Hi David,
+It is a pen with 10 finger touch device.
 
-I agree with your suggestions.
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_wac.c |   25 ++++++++++++++++++++++++-
+ drivers/input/tablet/wacom_wac.h |    1 +
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
-Nestor
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 264138f..562ff03 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -359,6 +359,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		case 0x802: /* Intuos4 General Pen */
+ 		case 0x804: /* Intuos4 Marker Pen */
+ 		case 0x40802: /* Intuos4 Classic Pen */
++		case 0x18803: /* DTH2242 Grip Pen */
+ 		case 0x022:
+ 			wacom->tool[idx] = BTN_TOOL_PEN;
+ 			break;
+@@ -538,6 +539,13 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 				input_report_key(input, wacom->tool[1], 0);
+ 				input_report_abs(input, ABS_MISC, 0);
+ 			}
++		} else if (features->type == DTK) {
++			input_report_key(input, BTN_0, (data[6] & 0x01));
++			input_report_key(input, BTN_1, (data[6] & 0x02));
++			input_report_key(input, BTN_2, (data[6] & 0x04));
++			input_report_key(input, BTN_3, (data[6] & 0x08));
++			input_report_key(input, BTN_4, (data[6] & 0x10));
++			input_report_key(input, BTN_5, (data[6] & 0x20));
+ 		} else if (features->type == WACOM_24HD) {
+ 			input_report_key(input, BTN_0, (data[6] & 0x01));
+ 			input_report_key(input, BTN_1, (data[6] & 0x02));
+@@ -1319,6 +1327,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+ 	case WACOM_21UX2:
+ 	case WACOM_22HD:
+ 	case WACOM_24HD:
++	case DTK:
+ 		sync = wacom_intuos_irq(wacom_wac);
+ 		break;
+ 
+@@ -1513,12 +1522,17 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		__set_bit(BTN_Y, input_dev->keybit);
+ 		__set_bit(BTN_Z, input_dev->keybit);
+ 
+-		for (i = 0; i < 10; i++)
++		for (i = 6; i < 10; i++)
+ 			__set_bit(BTN_0 + i, input_dev->keybit);
+ 
+ 		__set_bit(KEY_PROG1, input_dev->keybit);
+ 		__set_bit(KEY_PROG2, input_dev->keybit);
+ 		__set_bit(KEY_PROG3, input_dev->keybit);
++		/* fall through */
++
++	case DTK:
++		for (i = 0; i < 6; i++)
++			__set_bit(BTN_0 + i, input_dev->keybit);
+ 
+ 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+ 		input_set_abs_params(input_dev, ABS_THROTTLE, 0, 71, 0, 0);
+@@ -1978,6 +1992,13 @@ static const struct wacom_features wacom_features_0xCE =
+ static const struct wacom_features wacom_features_0xF0 =
+ 	{ "Wacom DTU1631",        WACOM_PKGLEN_GRAPHIRE,  34623, 19553,  511,
+ 	  0, DTU, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0x59 = /* Pen */
++	{ "Wacom DTH2242",        WACOM_PKGLEN_INTUOS,    95840, 54260, 2047,
++	  63, DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5D };
++static const struct wacom_features wacom_features_0x5D = /* Touch */
++	{ "Wacom DTH2242",       .type = WACOM_24HDT,
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x59, .touch_max = 10 };
+ static const struct wacom_features wacom_features_0xCC =
+ 	{ "Wacom Cintiq 21UX2",   WACOM_PKGLEN_INTUOS,    87200, 65600, 2047,
+ 	  63, WACOM_21UX2, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
+@@ -2152,6 +2173,8 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0x43) },
+ 	{ USB_DEVICE_WACOM(0x44) },
+ 	{ USB_DEVICE_WACOM(0x45) },
++	{ USB_DEVICE_WACOM(0x59) },
++	{ USB_DEVICE_WACOM(0x5D) },
+ 	{ USB_DEVICE_WACOM(0xB0) },
+ 	{ USB_DEVICE_WACOM(0xB1) },
+ 	{ USB_DEVICE_WACOM(0xB2) },
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index 9396d77..cf2cd7b 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -78,6 +78,7 @@ enum {
+ 	INTUOS5L,
+ 	WACOM_21UX2,
+ 	WACOM_22HD,
++	DTK,
+ 	WACOM_24HD,
+ 	CINTIQ,
+ 	WACOM_BEE,
+-- 
+1.7.10.4
 
-On Tue, Feb 5, 2013 at 6:22 PM, David Herrmann
-<dh.herrmann@googlemail.com> wrote:
-> Hi Nestor
->
-> On Tue, Feb 5, 2013 at 5:38 PM, Andrew de los Reyes
-> <andrew-vger@gizmolabs.org> wrote:
->> Yes, I'm hoping to upstream soon as part of a patch series to get WTP
->> support in. The current version of the commit you are asking about is
->> specifically here:
->> https://github.com/adlr/linux/commit/2a4fae572bd88462c4a558a77dc53d9eb3f9e91c
->>
->> The main difference from before is that there is a new return value (1)
->> which signifies that the event lock has been been up()ed, so the hid-core
->> doesn't need to call up() itself. This way during probe(), a driver can
->> allow incoming events continuously from midway through probe() indefinitely.
->
-> The patch looks nice. Some comments:
->
-> 1) I would prefer constants HID_IS_LOCKED and HID_IS_UNLOCKED or
-> similar instead of 1. This makes the code much more readable than
-> returning 0 or 1. Maybe you can find better names than my suggestions?
->
-> 2) in hid_device_probe() you can use "ret = -EINTR; goto unlock;"
-> instead of "up(input_lock); return -EINTR;". I think this is more
-> consistent.
->
-> 3) in hid_device_probe() maybe check that hid_hw_start() doesn't
-> return "1" accidentally? The current code deadlocks if hid_hw_start()
-> would be changed to return 1 (which would be bad as is, but maybe be
-> rather safe than sorry?).
->
-> 4) Maybe we can add a similar logic to hid_device_remove? That is,
-> hid_device_remove() shouldn't lock input_lock if the driver wants to
-> perform I/O during remove, too. Because this may cause the driver to
-> drop input events while the lock is held.
-> At least the hid-wiimote driver could make use of this feature during removal.
->
-> 5) In current code, if a driver unlocks input_lock but still fails, it
-> needs to re-lock input_lock and then return the appropriate error
-> code. Is that the intended behavior?
->
-> 6) Documentation! At least add some comments to
-> hid_driver_probe/remove so others can make use of this feature without
-> looking at other drivers.
->
->> If you are interested, I can send just that one commit to the linux-input
->> list now, instead of waiting on WTP to be ready for posting to linux-input
->> (which may be a couple weeks).
->
-> I would prefer if you send an RFC patch to the list so we can all comment on it.
->
-> btw. how about two helpers:
->
-> static inline void hid_device_io_start(struct hid_device *d)
-> {
->     up(&d->driver_input_lock);
-> }
->
-> static inline void hid_device_io_stop(struct hid_device *d)
-> {
->     down(&d->driver_input_lock);
-> }
->
-> This would guarantee that drivers don't use down_interruptible()
-> (which would be wrong in error-paths in ->probe()) and it would be
-> more readable. The return-value could then be called something like
-> HID_START_IO & HID_IO_RUNNING.. Or we can even set a flag on
-> hid_device in io_start/io_stop so the return-value isn't needed at
-> all.
->
-> Thanks for the patch!
-> David
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
-On Tue, Feb 5, 2013 at 6:22 PM, David Herrmann
-<dh.herrmann@googlemail.com> wrote:
-> Hi Nestor
->
-> On Tue, Feb 5, 2013 at 5:38 PM, Andrew de los Reyes
-> <andrew-vger@gizmolabs.org> wrote:
->> Yes, I'm hoping to upstream soon as part of a patch series to get WTP
->> support in. The current version of the commit you are asking about is
->> specifically here:
->> https://github.com/adlr/linux/commit/2a4fae572bd88462c4a558a77dc53d9eb3f9e91c
->>
->> The main difference from before is that there is a new return value (1)
->> which signifies that the event lock has been been up()ed, so the hid-core
->> doesn't need to call up() itself. This way during probe(), a driver can
->> allow incoming events continuously from midway through probe() indefinitely.
->
-> The patch looks nice. Some comments:
->
-> 1) I would prefer constants HID_IS_LOCKED and HID_IS_UNLOCKED or
-> similar instead of 1. This makes the code much more readable than
-> returning 0 or 1. Maybe you can find better names than my suggestions?
->
-> 2) in hid_device_probe() you can use "ret = -EINTR; goto unlock;"
-> instead of "up(input_lock); return -EINTR;". I think this is more
-> consistent.
->
-> 3) in hid_device_probe() maybe check that hid_hw_start() doesn't
-> return "1" accidentally? The current code deadlocks if hid_hw_start()
-> would be changed to return 1 (which would be bad as is, but maybe be
-> rather safe than sorry?).
->
-> 4) Maybe we can add a similar logic to hid_device_remove? That is,
-> hid_device_remove() shouldn't lock input_lock if the driver wants to
-> perform I/O during remove, too. Because this may cause the driver to
-> drop input events while the lock is held.
-> At least the hid-wiimote driver could make use of this feature during removal.
->
-> 5) In current code, if a driver unlocks input_lock but still fails, it
-> needs to re-lock input_lock and then return the appropriate error
-> code. Is that the intended behavior?
->
-> 6) Documentation! At least add some comments to
-> hid_driver_probe/remove so others can make use of this feature without
-> looking at other drivers.
->
->> If you are interested, I can send just that one commit to the linux-input
->> list now, instead of waiting on WTP to be ready for posting to linux-input
->> (which may be a couple weeks).
->
-> I would prefer if you send an RFC patch to the list so we can all comment on it.
->
-> btw. how about two helpers:
->
-> static inline void hid_device_io_start(struct hid_device *d)
-> {
->     up(&d->driver_input_lock);
-> }
->
-> static inline void hid_device_io_stop(struct hid_device *d)
-> {
->     down(&d->driver_input_lock);
-> }
->
-> This would guarantee that drivers don't use down_interruptible()
-> (which would be wrong in error-paths in ->probe()) and it would be
-> more readable. The return-value could then be called something like
-> HID_START_IO & HID_IO_RUNNING.. Or we can even set a flag on
-> hid_device in io_start/io_stop so the return-value isn't needed at
-> all.
->
-> Thanks for the patch!
-> David
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

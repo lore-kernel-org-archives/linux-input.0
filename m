@@ -1,42 +1,62 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 0/9] Support of Nexio 42" and new default class for
- hid-multitouch
-Date: Wed, 6 Feb 2013 14:31:42 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1302061431231.16860@pobox.suse.cz>
-References: <1359649351-11092-1-git-send-email-benjamin.tissoires@gmail.com> <20130203130731.GA2677@polaris.bitmath.org> <CAN+gG=GRS+fx4c3Kdba-89+ba8soimMm_rv7HDuaZLZWseQGuQ@mail.gmail.com> <20130204115443.GA4405@polaris.bitmath.org>
- <alpine.LNX.2.00.1302051212550.2260@pobox.suse.cz> <CAN+gG=F5KHmq2F_op6RbvXiSp=T0oD_cTgPuBHptXVHyHZwpjA@mail.gmail.com> <alpine.LNX.2.00.1302061410230.16860@pobox.suse.cz> <CAN+gG=GReDsW_xKm9uLwfAkA6SPzUi9anaojESqSTx+nPKOdqQ@mail.gmail.com>
+Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two
+ locks.
+Date: Wed, 6 Feb 2013 16:10:03 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1302061608470.16860@pobox.suse.cz>
+References: <CAG_cf+cXnNSyxcrsZncfr2KKFRhiCJ60vHrTt3_aB-Bc7m5eVw@mail.gmail.com> <20121126185627.7bff1f84@neptune.home> <CAN+gG=ENOU1oYRLd2ZMhPeCFPmTtiYRDZuuW3idvULShrnkPUg@mail.gmail.com> <alpine.LNX.2.00.1212031416010.27624@pobox.suse.cz>
+ <CAE7qMrrpe+o3-DmRsgxEjc3e5kUUhNZ8ZkkrDrc4fzHJX2T53Q@mail.gmail.com> <alpine.LNX.2.00.1302051607130.2260@pobox.suse.cz> <CAE7qMroHOK2TJnUK6wdf7YCK6FTQPmxTKJ=SM_gz0b3fuzf2TA@mail.gmail.com> <CAG_cf+ev2y1MHNJFYZycbjQfNgk4hYYRaEoFsKkZyhzAzMgc1A@mail.gmail.com>
+ <CANq1E4QGhN2+nB1MN=LO0yDAe1q6Khq6+PhWyB51K6PGg3Fgdw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:39608 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:44619 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750878Ab3BFNbu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Feb 2013 08:31:50 -0500
-In-Reply-To: <CAN+gG=GReDsW_xKm9uLwfAkA6SPzUi9anaojESqSTx+nPKOdqQ@mail.gmail.com>
+	id S1755476Ab3BFPKN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Feb 2013 10:10:13 -0500
+In-Reply-To: <CANq1E4QGhN2+nB1MN=LO0yDAe1q6Khq6+PhWyB51K6PGg3Fgdw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: Andrew de los Reyes <andrew-vger@gizmolabs.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, Linux Input <linux-input@vger.kernel.org>
 
-On Wed, 6 Feb 2013, Benjamin Tissoires wrote:
+On Tue, 5 Feb 2013, David Herrmann wrote:
 
-> >> Do you mind if I send the usbhid dependency and the pen+multitouch
-> >> series this week, or we are too close to the 3.9 opening window?
+> > Yes, I'm hoping to upstream soon as part of a patch series to get WTP
+> > support in. The current version of the commit you are asking about is
+> > specifically here:
+> > https://github.com/adlr/linux/commit/2a4fae572bd88462c4a558a77dc53d9eb3f9e91c
 > >
-> > Please just send the patches, and let's see whether they will make it for
-> > 3.8 or I'll queue (some of) them for 3.9.
-> >
+> > The main difference from before is that there is a new return value (1)
+> > which signifies that the event lock has been been up()ed, so the hid-core
+> > doesn't need to call up() itself. This way during probe(), a driver can
+> > allow incoming events continuously from midway through probe() indefinitely.
 > 
-> Well, I didn't wanted to push them into 3.8 (the rc6 is already there,
-> and I doubt Linus would be happy to see a lot of patches now). I was
-> asking if it was not too late to schedule them for 3.9, or if you'd
-> rather wait for 3.10 :)
+> The patch looks nice. Some comments:
+> 
+> 1) I would prefer constants HID_IS_LOCKED and HID_IS_UNLOCKED or
+> similar instead of 1. This makes the code much more readable than
+> returning 0 or 1. Maybe you can find better names than my suggestions?
+> 
+> 2) in hid_device_probe() you can use "ret = -EINTR; goto unlock;"
+> instead of "up(input_lock); return -EINTR;". I think this is more
+> consistent.
+> 
+> 3) in hid_device_probe() maybe check that hid_hw_start() doesn't
+> return "1" accidentally? The current code deadlocks if hid_hw_start()
+> would be changed to return 1 (which would be bad as is, but maybe be
+> rather safe than sorry?).
+> 
+> 4) Maybe we can add a similar logic to hid_device_remove? That is,
+> hid_device_remove() shouldn't lock input_lock if the driver wants to
+> perform I/O during remove, too. Because this may cause the driver to
+> drop input events while the lock is held.
+> At least the hid-wiimote driver could make use of this feature during removal.
 
-Yeah, sorry, my sentence was off-by-one, but I guess you got me :)
+David,
 
-> Anyway, I'm doing my best to push them soon.
+what use-case exactly are you thinking of here, please?
 
-Thanks.
+Thanks,
 
 -- 
 Jiri Kosina

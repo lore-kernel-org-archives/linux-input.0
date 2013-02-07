@@ -1,32 +1,31 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: multitouch: do not use pointers towards hid-core
-Date: Thu, 7 Feb 2013 15:14:55 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1302071514340.16860@pobox.suse.cz>
-References: <1360149047-23061-1-git-send-email-benjamin.tissoires@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Peter Meerwald <pmeerw@pmeerw.net>
+Subject: atmel_mxt_ts and mxt224e
+Date: Thu,  7 Feb 2013 15:17:41 +0100
+Message-ID: <1360246668-2291-1-git-send-email-pmeerw@pmeerw.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60557 "EHLO mx2.suse.de"
+Received: from ns.pmeerw.net ([87.118.82.44]:47030 "EHLO pmeerw.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754000Ab3BGOPC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 Feb 2013 09:15:02 -0500
-In-Reply-To: <1360149047-23061-1-git-send-email-benjamin.tissoires@gmail.com>
+	id S1757499Ab3BGOR7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Feb 2013 09:17:59 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, djkurtz@chromium.org, y0922.shim@samsung.com
 
-On Wed, 6 Feb 2013, Benjamin Tissoires wrote:
+Hello,
 
-> The previous implementation registered a pointer towards hid-core
-> to the value of contact count. This is not safe and may be difficult
-> to debug if hid-core ever changes its implementation.
-> The use of regular indexes is a better choice.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+I had some issues in using the atmel_mxt_ts driver with different mxt224 parts 
+(different firmware version, mxt224 vs. mxt224); configuration of the chip
+via mxt_platform_data.config is super-fragile when device objects change
 
-Applied this one on top of the previous hid-multitouch patchset. Thanks,
+mxt_handle_pdata() assumes that certain object table entries are present and
+fails on the mxt224e
 
--- 
-Jiri Kosina
-SUSE Labs
+the patch series aims to support the mxt224e better and adds a message to detect
+inconsistencies between config data and the device object table
+
+if there is interest I can propose a more robust mechanism to set the config data;
+similar patches are floating around for Android in various trees
+
+thanks, regards, p.
+

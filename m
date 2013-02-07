@@ -1,51 +1,42 @@
 From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: [PATCH 1/2] Input: misc/bma150.c, fix checking pm_runtime_get_sync() return value
-Date: Fri,  8 Feb 2013 00:58:24 +0100
-Message-ID: <1360281506-13618-2-git-send-email-ospite@studenti.unina.it>
-References: <1360281506-13618-1-git-send-email-ospite@studenti.unina.it>
+Subject: [PATCH 0/2] Input misc/bma150.[ch] one fix and one improvement
+Date: Fri,  8 Feb 2013 00:58:23 +0100
+Message-ID: <1360281506-13618-1-git-send-email-ospite@studenti.unina.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp206.alice.it ([82.57.200.102]:57996 "EHLO smtp206.alice.it"
+Received: from smtp209.alice.it ([82.57.200.105]:50830 "EHLO smtp209.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751512Ab3BGX7S (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 Feb 2013 18:59:18 -0500
-In-Reply-To: <1360281506-13618-1-git-send-email-ospite@studenti.unina.it>
+	id S1751487Ab3BGX7b (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Feb 2013 18:59:31 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Albert Zhang <xu.zhang@bosch-sensortec.com>, Eric Andersson <eric.andersson@unixphere.com>, Jonathan Cameron <jic23@cam.ac.uk>, Michael Trimarchi <michael@amarulasolutions.com>, Antonio Ospite <ao2@amarulasolutions.com>
+Cc: Albert Zhang <xu.zhang@bosch-sensortec.com>, Eric Andersson <eric.andersson@unixphere.com>, Jonathan Cameron <jic23@cam.ac.uk>, Antonio Ospite <ao2@amarulasolutions.com>
 
-From: Michael Trimarchi <michael@amarulasolutions.com>
+From: Antonio Ospite <ao2@amarulasolutions.com>
 
-When PM_RUNTIME is not defined, pm_runtime_get_sync() returns 1, see
-include/linux/pm_runtime.c::__pm_runtime_resume(), and the check of the
-return value was overlooking this, in this case bma150_open() would
-return 1 which is not expected by upper layers.
+Hi,
 
-Maybe the check for != -ENOSYS (Function not implemented) was meant to
-cover this, but pm_runtime_get_sync() does not return this value.
+Patch 1 in the series fixes a panic Michael was experiencing.
 
-For now fix the issue locally by checking explicitly for negative return
-values.
+Patch 2 makes it easier to use the actual values the implementation
+expects in the platform data.
 
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Antonio Ospite <ao2@amarulasolutions.com>
----
- drivers/input/misc/bma150.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Regards,
+   Antonio
 
-diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-index 08ffcab..e5d1894 100644
---- a/drivers/input/misc/bma150.c
-+++ b/drivers/input/misc/bma150.c
-@@ -372,7 +372,7 @@ static int bma150_open(struct bma150_data *bma150)
- 	int error;
- 
- 	error = pm_runtime_get_sync(&bma150->client->dev);
--	if (error && error != -ENOSYS)
-+	if (error < 0 && error != -ENOSYS)
- 		return error;
- 
- 	/*
+Michael Trimarchi (2):
+  Input: misc/bma150.c, fix checking pm_runtime_get_sync() return value
+  Input: misc/bma150.[ch], make some defines public and fix some
+    comments
+
+ drivers/input/misc/bma150.c |   14 +-------------
+ include/linux/bma150.h      |   16 ++++++++++++++--
+ 2 files changed, 15 insertions(+), 15 deletions(-)
+
 -- 
-1.7.10.4
+Antonio Ospite
+http://ao2.it
 
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

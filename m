@@ -1,126 +1,120 @@
-From: Renato <rennabh@gmail.com>
-Subject: Re: joydev bug with playstation USB adapter
-Date: Fri, 8 Feb 2013 19:58:01 +0100
-Message-ID: <20130208195801.7b81c2a0@gmail.com>
-References: <20130202004320.408ac7c3@gmail.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH] mfd: stmpe: Pull IRQ GPIO number from DT during DT-based
+ probe
+Date: Fri, 08 Feb 2013 22:51:51 +0000
+Message-ID: <20130208225151.4BF8C3E2C27@localhost>
+References: <1357568989-16237-1-git-send-email-marex@denx.de>
+ <20130108094134.GA21994@gmail.com> <201301081044.14876.marex@denx.de>
+ <201301081048.38149.marex@denx.de>
+ <CAKohpo=YnLJN4_xA1WTiJaZeb-Oyc=RypYUyaSibmn6G4X9m4A@mail.gmail.com>
+ <20130108111104.GF21994@gmail.com>
+ <CAKohpomiS+UFzgiJaQbm8aZVPY0jeYhm1k7Yndk50z8=K4LvGQ@mail.gmail.com>
+ <CACRpkdZWi4M3HmO_rq1O9aGTKYR0iMLXJo+nos3hYu3C_DFRHQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f49.google.com ([74.125.83.49]:33904 "EHLO
-	mail-ee0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760223Ab3BHS6N (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Feb 2013 13:58:13 -0500
-Received: by mail-ee0-f49.google.com with SMTP id d4so2189178eek.8
-        for <linux-input@vger.kernel.org>; Fri, 08 Feb 2013 10:58:12 -0800 (PST)
-In-Reply-To: <20130202004320.408ac7c3@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CACRpkdZWi4M3HmO_rq1O9aGTKYR0iMLXJo+nos3hYu3C_DFRHQ@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Linus Walleij <linus.walleij@linaro.org>, Viresh Kumar <viresh.kumar@linaro.org>, Lee Jones <lee.jones@linaro.org>
+Cc: devicetree-discuss@lists.ozlabs.org, vipul kumar samar <vipulkumar.samar@st.com>, Samuel Ortiz <sameo@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz
 
-LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQ0KSGFzaDogU0hBMQ0KDQpPbiBTYXQs
-IDIgRmViIDIwMTMgMDA6NDM6MjAgKzAxMDANCnJlbmF0byA8cmVubmFiaEBnbWFpbC5jb20+IHdy
-b3RlOg0KDQo+IEJ1cyAwMDIgRGV2aWNlIDAwMjogSUQgMDgxMDowMDAxIFBlcnNvbmFsIENvbW11
-bmljYXRpb24gU3lzdGVtcywgSW5jLg0KPiBEdWFsIFBTWCBBIGRhcHRvcg0KPiBEZXZpY2UgRGVz
-Y3JpcHRvcjoNCj4gICBiTGVuZ3RoICAgICAgICAgICAgICAgIDE4DQo+ICAgYkRlc2NyaXB0b3JU
-eXBlICAgICAgICAgMQ0KPiAgIGJjZFVTQiAgICAgICAgICAgICAgIDEuMDANCj4gICBiRGV2aWNl
-Q2xhc3MgICAgICAgICAgICAwIChEZWZpbmVkIGF0IEludGVyZmFjZSBsZXZlbCkNCj4gICBiRGV2
-aWNlU3ViQ2xhc3MgICAgICAgICAwDQo+ICAgYkRldmljZVByb3RvY29sICAgICAgICAgMA0KPiAg
-IGJNYXhQYWNrZXRTaXplMCAgICAgICAgIDgNCj4gICBpZFZlbmRvciAgICAgICAgICAgMHgwODEw
-IFBlcnNvbmFsIENvbW11bmljYXRpb24gU3lzdGVtcywgSW5jLg0KPiAgIGlkUHJvZHVjdCAgICAg
-ICAgICAweDAwMDEgRHVhbCBQU1ggQWRhcHRvcg0KPiAgIGJjZERldmljZSAgICAgICAgICAgIDEu
-MDYNCj4gICBpTWFudWZhY3R1cmVyICAgICAgICAgICAwDQo+ICAgaVByb2R1Y3QgICAgICAgICAg
-ICAgICAgMiBUd2luIFVTQiBKb3lzdGljaw0KPiAgIGlTZXJpYWwgICAgICAgICAgICAgICAgIDAN
-Cj4gICBiTnVtQ29uZmlndXJhdGlvbnMgICAgICAxDQo+ICAgQ29uZmlndXJhdGlvbiBEZXNjcmlw
-dG9yOg0KPiAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KPiAgICAgYkRlc2NyaXB0b3JU
-eXBlICAgICAgICAgMg0KPiAgICAgd1RvdGFsTGVuZ3RoICAgICAgICAgICAzNA0KPiAgICAgYk51
-bUludGVyZmFjZXMgICAgICAgICAgMQ0KPiAgICAgYkNvbmZpZ3VyYXRpb25WYWx1ZSAgICAgMQ0K
-PiAgICAgaUNvbmZpZ3VyYXRpb24gICAgICAgICAgMA0KPiAgICAgYm1BdHRyaWJ1dGVzICAgICAg
-ICAgMHg4MA0KPiAgICAgICAoQnVzIFBvd2VyZWQpDQo+ICAgICBNYXhQb3dlciAgICAgICAgICAg
-ICAgNTAwbUENCj4gICAgIEludGVyZmFjZSBEZXNjcmlwdG9yOg0KPiAgICAgICBiTGVuZ3RoICAg
-ICAgICAgICAgICAgICA5DQo+ICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDQNCj4gICAg
-ICAgYkludGVyZmFjZU51bWJlciAgICAgICAgMA0KPiAgICAgICBiQWx0ZXJuYXRlU2V0dGluZyAg
-ICAgICAwDQo+ICAgICAgIGJOdW1FbmRwb2ludHMgICAgICAgICAgIDENCj4gICAgICAgYkludGVy
-ZmFjZUNsYXNzICAgICAgICAgMyBIdW1hbiBJbnRlcmZhY2UgRGV2aWNlDQo+ICAgICAgIGJJbnRl
-cmZhY2VTdWJDbGFzcyAgICAgIDAgTm8gU3ViY2xhc3MNCj4gICAgICAgYkludGVyZmFjZVByb3Rv
-Y29sICAgICAgMCBOb25lDQo+ICAgICAgIGlJbnRlcmZhY2UgICAgICAgICAgICAgIDANCj4gICAg
-ICAgICBISUQgRGV2aWNlIERlc2NyaXB0b3I6DQo+ICAgICAgICAgICBiTGVuZ3RoICAgICAgICAg
-ICAgICAgICA5DQo+ICAgICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDMzDQo+ICAgICAg
-ICAgICBiY2RISUQgICAgICAgICAgICAgICAxLjEwDQo+ICAgICAgICAgICBiQ291bnRyeUNvZGUg
-ICAgICAgICAgIDMzIFVTDQo+ICAgICAgICAgICBiTnVtRGVzY3JpcHRvcnMgICAgICAgICAxDQo+
-ICAgICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDM0IFJlcG9ydA0KPiAgICAgICAgICAg
-d0Rlc2NyaXB0b3JMZW5ndGggICAgIDIwMg0KPiAgICAgICAgICBSZXBvcnQgRGVzY3JpcHRvcnM6
-DQo+ICAgICAgICAgICAgKiogVU5BVkFJTEFCTEUgKioNCj4gICAgICAgRW5kcG9pbnQgRGVzY3Jp
-cHRvcjoNCj4gICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3DQo+ICAgICAgICAgYkRl
-c2NyaXB0b3JUeXBlICAgICAgICAgNQ0KPiAgICAgICAgIGJFbmRwb2ludEFkZHJlc3MgICAgIDB4
-ODEgIEVQIDEgSU4NCj4gICAgICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzDQo+ICAgICAg
-ICAgICBUcmFuc2ZlciBUeXBlICAgICAgICAgICAgSW50ZXJydXB0DQo+ICAgICAgICAgICBTeW5j
-aCBUeXBlICAgICAgICAgICAgICAgTm9uZQ0KPiAgICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAg
-ICAgICAgIERhdGENCj4gICAgICAgICB3TWF4UGFja2V0U2l6ZSAgICAgMHgwMDA4ICAxeCA4IGJ5
-dGVzDQo+ICAgICAgICAgYkludGVydmFsICAgICAgICAgICAgICAxMA0KPiBEZXZpY2UgU3RhdHVz
-OiAgICAgMHgwMDAwDQo+ICAgKEJ1cyBQb3dlcmVkKQ0KDQoNCmFuZCBoZXJlJ3MgWzFdIHRoZSBv
-dGhlciBkZXZpY2UgSSBvd24sIHdpdGggd2hpY2ggSSBoYXZlIHRoZSBzYW1lIGJ1Zy4gQWN0dWFs
-bHkgdGhleSBzZWVtIHRvIGJlIHNpbWlsYXINCmhhcmR3YXJlLCBzYW1lIGlkVmVuZG9yLi4uIHRo
-ZSBmaXJzdCBvbmUgaGFkIDIgaW5wdXRzIGZvciBwbGF5c3RhdGlvbg0Kam95cGFkcywgdGhpcyBv
-bmx5IG9uZSB3aGljaCBleHBsYWlucyBJIHRoaW5rIHNvbWUgb2YgdGhlIG90aGVyDQpkaWZmZXJl
-bmNlcyAoc2VlIG91dHB1dCBvZiAiZGlmZiBzaW5ndWxhcl9hZGFwdG9yIGR1YWxfYWRhcHRvciIg
-YXQgWzJdKQ0KDQphbnkgaWRlYXMgb24gdGhpcz8NCg0KY2hlZXJzDQpyZW5hdG8NCg0KWzFdDQoN
-CkJ1cyAwMDIgRGV2aWNlIDAwMzogSUQgMDgxMDowMDAzIFBlcnNvbmFsIENvbW11bmljYXRpb24g
-U3lzdGVtcywgSW5jLiBQbGF5U3RhdGlvbiBHYW1lcGFkDQpEZXZpY2UgRGVzY3JpcHRvcjoNCiAg
-Ykxlbmd0aCAgICAgICAgICAgICAgICAxOA0KICBiRGVzY3JpcHRvclR5cGUgICAgICAgICAxDQog
-IGJjZFVTQiAgICAgICAgICAgICAgIDEuMDANCiAgYkRldmljZUNsYXNzICAgICAgICAgICAgMCAo
-RGVmaW5lZCBhdCBJbnRlcmZhY2UgbGV2ZWwpDQogIGJEZXZpY2VTdWJDbGFzcyAgICAgICAgIDAN
-CiAgYkRldmljZVByb3RvY29sICAgICAgICAgMA0KICBiTWF4UGFja2V0U2l6ZTAgICAgICAgICA4
-DQogIGlkVmVuZG9yICAgICAgICAgICAweDA4MTAgUGVyc29uYWwgQ29tbXVuaWNhdGlvbiBTeXN0
-ZW1zLCBJbmMuDQogIGlkUHJvZHVjdCAgICAgICAgICAweDAwMDMgUGxheVN0YXRpb24gR2FtZXBh
-ZA0KICBiY2REZXZpY2UgICAgICAgICAgICAxLjA2DQogIGlNYW51ZmFjdHVyZXIgICAgICAgICAg
-IDANCiAgaVByb2R1Y3QgICAgICAgICAgICAgICAgMiBVU0IgR2FtZXBhZA0KICBpU2VyaWFsICAg
-ICAgICAgICAgICAgICAwDQogIGJOdW1Db25maWd1cmF0aW9ucyAgICAgIDENCiAgQ29uZmlndXJh
-dGlvbiBEZXNjcmlwdG9yOg0KICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDkNCiAgICBiRGVz
-Y3JpcHRvclR5cGUgICAgICAgICAyDQogICAgd1RvdGFsTGVuZ3RoICAgICAgICAgICAzNA0KICAg
-IGJOdW1JbnRlcmZhY2VzICAgICAgICAgIDENCiAgICBiQ29uZmlndXJhdGlvblZhbHVlICAgICAx
-DQogICAgaUNvbmZpZ3VyYXRpb24gICAgICAgICAgMA0KICAgIGJtQXR0cmlidXRlcyAgICAgICAg
-IDB4ODANCiAgICAgIChCdXMgUG93ZXJlZCkNCiAgICBNYXhQb3dlciAgICAgICAgICAgICAgMzUw
-bUENCiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoNCiAgICAgIGJMZW5ndGggICAgICAgICAgICAg
-ICAgIDkNCiAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDQNCiAgICAgIGJJbnRlcmZhY2VO
-dW1iZXIgICAgICAgIDANCiAgICAgIGJBbHRlcm5hdGVTZXR0aW5nICAgICAgIDANCiAgICAgIGJO
-dW1FbmRwb2ludHMgICAgICAgICAgIDENCiAgICAgIGJJbnRlcmZhY2VDbGFzcyAgICAgICAgIDMg
-SHVtYW4gSW50ZXJmYWNlIERldmljZQ0KICAgICAgYkludGVyZmFjZVN1YkNsYXNzICAgICAgMCBO
-byBTdWJjbGFzcw0KICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAgMCBOb25lDQogICAgICBp
-SW50ZXJmYWNlICAgICAgICAgICAgICAwDQogICAgICAgIEhJRCBEZXZpY2UgRGVzY3JpcHRvcjoN
-CiAgICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5DQogICAgICAgICAgYkRlc2NyaXB0
-b3JUeXBlICAgICAgICAzMw0KICAgICAgICAgIGJjZEhJRCAgICAgICAgICAgICAgIDEuMTANCiAg
-ICAgICAgICBiQ291bnRyeUNvZGUgICAgICAgICAgIDMzIFVTDQogICAgICAgICAgYk51bURlc2Ny
-aXB0b3JzICAgICAgICAgMQ0KICAgICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgMzQgUmVw
-b3J0DQogICAgICAgICAgd0Rlc2NyaXB0b3JMZW5ndGggICAgIDEwMQ0KICAgICAgICAgUmVwb3J0
-IERlc2NyaXB0b3JzOg0KICAgICAgICAgICAqKiBVTkFWQUlMQUJMRSAqKg0KICAgICAgRW5kcG9p
-bnQgRGVzY3JpcHRvcjoNCiAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgNw0KICAgICAg
-ICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA1DQogICAgICAgIGJFbmRwb2ludEFkZHJlc3MgICAg
-IDB4ODEgIEVQIDEgSU4NCiAgICAgICAgYm1BdHRyaWJ1dGVzICAgICAgICAgICAgMw0KICAgICAg
-ICAgIFRyYW5zZmVyIFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQNCiAgICAgICAgICBTeW5jaCBU
-eXBlICAgICAgICAgICAgICAgTm9uZQ0KICAgICAgICAgIFVzYWdlIFR5cGUgICAgICAgICAgICAg
-ICBEYXRhDQogICAgICAgIHdNYXhQYWNrZXRTaXplICAgICAweDAwMDggIDF4IDggYnl0ZXMNCiAg
-ICAgICAgYkludGVydmFsICAgICAgICAgICAgICAxNw0KRGV2aWNlIFN0YXR1czogICAgIDB4MDAw
-MA0KICAoQnVzIFBvd2VyZWQpDQoNCg0KWzJdDQoxLDJjMSwyDQo8IEJ1cyAwMDIgRGV2aWNlIDAw
-MzogSUQgMDgxMDowMDAzIFBlcnNvbmFsIENvbW11bmljYXRpb24gU3lzdGVtcywgSW5jLiBQbGF5
-U3RhdA0KaW8NCjwgbiBHYW1lcGFkDQotIC0tLQ0KPiBCdXMgMDAyIERldmljZSAwMDI6IElEIDA4
-MTA6MDAwMSBQZXJzb25hbCBDb21tdW5pY2F0aW9uIFN5c3RlbXMsIEluYy4NCj4gRHVhbCBQU1gg
-QSBkYXB0b3INCjEyYzEyDQo8ICAgaWRQcm9kdWN0ICAgICAgICAgIDB4MDAwMyBQbGF5U3RhdGlv
-biBHYW1lcGFkDQotIC0tLQ0KPiAgIGlkUHJvZHVjdCAgICAgICAgICAweDAwMDEgRHVhbCBQU1gg
-QWRhcHRvcg0KMTVjMTUNCjwgICBpUHJvZHVjdCAgICAgICAgICAgICAgICAyIFVTQiBHYW1lcGFk
-DQotIC0tLQ0KPiAgIGlQcm9kdWN0ICAgICAgICAgICAgICAgIDIgVHdpbiBVU0IgSm95c3RpY2sN
-CjI3YzI3DQo8ICAgICBNYXhQb3dlciAgICAgICAgICAgICAgMzUwbUENCi0gLS0tDQo+ICAgICBN
-YXhQb3dlciAgICAgICAgICAgICAgNTAwbUENCjQ1YzQ1DQo8ICAgICAgICAgICB3RGVzY3JpcHRv
-ckxlbmd0aCAgICAgMTAxDQotIC0tLQ0KPiAgICAgICAgICAgd0Rlc2NyaXB0b3JMZW5ndGggICAg
-IDIwMg0KNTdjNTcNCjwgICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgIDE3DQotIC0tLQ0K
-PiAgICAgICAgIGJJbnRlcnZhbCAgICAgICAgICAgICAgMTANCg0KDQotLS0tLUJFR0lOIFBHUCBT
-SUdOQVRVUkUtLS0tLQ0KVmVyc2lvbjogR251UEcgdjIuMC4xOSAoR05VL0xpbnV4KQ0KDQppUUVj
-QkFFQkFnQUdCUUpSRlVxK0FBb0pFQno2eEZkdHRqcmZMTjBILzNOQWYxZVdLdE42K1dGQnVWd0lG
-cnZzDQpWeDhKQUdqV1dqQnl4SXZCbWRFdmFwMHRkMGlzSmptTnA3Sm03TEJxQWJlVU1vVkdkSUlX
-OXhSNHFpZ2NoWDJwDQp3Ti9PWHBRMTE3SjQwWDM2VEVDNjZZL3lKNGowNGRkeG1pdE90T2phVktT
-MU9TZFdpdDVkTXZEd3NlNTVIUmJlDQpZSThIQmo3dnEvbFFpaU9XTk9PeEZJa1FFM1BkSExBVzAz
-ODJ6NUpyME1ZbGNFSDgwMVIzUjcvUXV5ajl3MGlaDQpwT09QM1BZOG0yTGhRWDNDcTg1QXdPWmdn
-b1VuVktQZkRyTzgxWW0zM0dIdE1ZQUJSQzdPcXovTDA5OUU0ZDBlDQpHWmYvRCtRK0lUTHNWTFUw
-V05iWkQ4MVhGTHdYOEgwL2luamVMeCtXOWx5am95K3EyUW1LdWc0T05jWm4vYjg9DQo9YlYzaA0K
-LS0tLS1FTkQgUEdQIFNJR05BVFVSRS0tLS0tDQo=
+On Thu, 10 Jan 2013 12:42:53 +0100, Linus Walleij <linus.walleij@linaro.org> wrote:
+> On Tue, Jan 8, 2013 at 12:14 PM, Viresh Kumar <viresh.kumar@linaro.org> wrote:
+> > On 8 January 2013 16:41, Lee Jones <lee.jones@linaro.org> wrote:
+> >>> Hmm.. I tried a bit, but couldn't find any such call :(
+> >>> Probably an assumption is taken here. GPIO pins which are going to be used as
+> >>> interrupt lines, wouldn't be getting set in output mode at all. So,
+> >>> once they are put
+> >>> in input mode in beginning, nobody would change it ever.
+> >>>
+> >>> Much of gpio controllers configure gpio pins in input mode in their probe().
+> >>>
+> >>> Maybe, there is something else :)
+> >>
+> >> Pinctrl?
+> >
+> > I don't think pinctrl is playing with it. I searched for
+> > "direction_input" string and
+> > pinctrl routine also had similar name. I couldn't fine use of
+> > direction_input anywhere
+> > in kernel, for setting them as irqs for OF cases.
+> 
+> pinctrl has pinctrl_gpio_direction_input() and
+> pinctrl_gpio_direction_output() which are supposed to
+> be called *only* by GPIOlib frontends using pinctrl
+> as backend to control the pins.
+> 
+> But if it's a pinctrl driver using standard pinconfig from
+> include/linux/pinctrl/pinconf-generic.h
+> I'm all for adding a PIN_CONFIG_INPUT_ENABLE
+> to these definintions so it can be set up as input
+> at boot from the device tree using hogs or something,
+> that make things easy when using GPIOs as IRQ
+> providers only.
+> 
+> So the alternative is to just set up the IRQ using the
+> gpiolib functions for this: of_get_gpio() if you need the
+> number from DT, then gpio_request() and
+> gpio_direction_input() as on any GPIO. This can be
+> done in the device driver or board code depending
+> on use case.
+> 
+> In the Nomadik I did this (maybe ugly) hack for a
+> similar case:
+> 
+> +/*
+> + * The SMSC911x IRQ is connected to a GPIO pin, but the driver expects
+> + * to simply request an IRQ passed as a resource. So the GPIO pin needs
+> + * to be requested by this hog and set as input.
+> + */
+> +static int __init cpu8815_eth_init(void)
+> +{
+> +       struct device_node *eth;
+> +       int gpio, irq, err;
+> +
+> +       eth = of_find_node_by_path("/external-bus@34000000/ethernet@300");
+> +       if (!eth) {
+> +               pr_info("could not find any ethernet controller\n");
+> +               return 0;
+> +       }
+> +       gpio = of_get_gpio(eth, 0);
+> +       err = gpio_request(gpio, "eth_irq");
+> +       if (err) {
+> +               pr_info("failed to request ethernet GPIO\n");
+> +               return -ENODEV;
+> +       }
+> +       err = gpio_direction_input(gpio);
+> +       if (err) {
+> +               pr_info("failed to set ehernet GPIO as input\n");
+> +               return -ENODEV;
+> +       }
+> +       irq = gpio_to_irq(gpio);
+> +       pr_info("enabled ethernet GPIO %d, IRQ %d\n", gpio, irq);
+> +       return 0;
+> +}
+> +device_initcall(cpu8815_eth_init);
+> 
+> I haven't read review comments on that patch.
+> 
+> Maybe it's not such a good idea to add the GPIO to the device itself
+> when it's being hogged by board code like this. It's a bit of a grey area
+> so I'm a bit confused here.
+> 
+> Maybe the GPIO lib actually needs a "hog" mechanism that can
+> request and set GPIO pins as input/output on boot and then
+> forget about them.
+
+That would be reasonable. Probably as properties in the gpio controller
+node that specify how to set the inital state.
+
+g.

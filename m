@@ -1,118 +1,126 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH] HID: ntrig: use input_configured() callback to set the name
-Date: Fri,  8 Feb 2013 15:51:30 +0100
-Message-ID: <1360335090-24024-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Renato <rennabh@gmail.com>
+Subject: Re: joydev bug with playstation USB adapter
+Date: Fri, 8 Feb 2013 19:58:01 +0100
+Message-ID: <20130208195801.7b81c2a0@gmail.com>
+References: <20130202004320.408ac7c3@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f49.google.com ([74.125.83.49]:33904 "EHLO
+	mail-ee0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760223Ab3BHS6N (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Feb 2013 13:58:13 -0500
+Received: by mail-ee0-f49.google.com with SMTP id d4so2189178eek.8
+        for <linux-input@vger.kernel.org>; Fri, 08 Feb 2013 10:58:12 -0800 (PST)
+In-Reply-To: <20130202004320.408ac7c3@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz
 
-The use of input_configured() allows the ntrig driver to actually
-change the name of the input and its bitmask before it is added to the
-input subsystem. Thus, the logs are coherents and udev catch the real
-bitmask when the device is added.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
----
- drivers/hid/hid-ntrig.c | 68 ++++++++++++++++++++++++-------------------------
- 1 file changed, 34 insertions(+), 34 deletions(-)
-
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 2ffc0e3..7757e82 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -858,12 +858,43 @@ not_claimed_input:
- 	return 1;
- }
- 
-+static void ntrig_input_configured(struct hid_device *hid,
-+		struct hid_input *hidinput)
-+
-+{
-+	struct input_dev *input = hidinput->input;
-+
-+	if (hidinput->report->maxfield < 1)
-+		return;
-+
-+	switch (hidinput->report->field[0]->application) {
-+	case HID_DG_PEN:
-+		input->name = "N-Trig Pen";
-+		break;
-+	case HID_DG_TOUCHSCREEN:
-+		/* These keys are redundant for fingers, clear them
-+		 * to prevent incorrect identification */
-+		__clear_bit(BTN_TOOL_PEN, input->keybit);
-+		__clear_bit(BTN_TOOL_FINGER, input->keybit);
-+		__clear_bit(BTN_0, input->keybit);
-+		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-+		/*
-+		 * The physical touchscreen (single touch)
-+		 * input has a value for physical, whereas
-+		 * the multitouch only has logical input
-+		 * fields.
-+		 */
-+		input->name = (hidinput->report->field[0]->physical) ?
-+							"N-Trig Touchscreen" :
-+							"N-Trig MultiTouch";
-+		break;
-+	}
-+}
-+
- static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret;
- 	struct ntrig_data *nd;
--	struct hid_input *hidinput;
--	struct input_dev *input;
- 	struct hid_report *report;
- 
- 	if (id->driver_data)
-@@ -901,38 +932,6 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto err_free;
- 	}
- 
--
--	list_for_each_entry(hidinput, &hdev->inputs, list) {
--		if (hidinput->report->maxfield < 1)
--			continue;
--
--		input = hidinput->input;
--		switch (hidinput->report->field[0]->application) {
--		case HID_DG_PEN:
--			input->name = "N-Trig Pen";
--			break;
--		case HID_DG_TOUCHSCREEN:
--			/* These keys are redundant for fingers, clear them
--			 * to prevent incorrect identification */
--			__clear_bit(BTN_TOOL_PEN, input->keybit);
--			__clear_bit(BTN_TOOL_FINGER, input->keybit);
--			__clear_bit(BTN_0, input->keybit);
--			__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
--			/*
--			 * The physical touchscreen (single touch)
--			 * input has a value for physical, whereas
--			 * the multitouch only has logical input
--			 * fields.
--			 */
--			input->name =
--				(hidinput->report->field[0]
--				 ->physical) ?
--				"N-Trig Touchscreen" :
--				"N-Trig MultiTouch";
--			break;
--		}
--	}
--
- 	/* This is needed for devices with more recent firmware versions */
- 	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0x0a];
- 	if (report) {
-@@ -1023,6 +1022,7 @@ static struct hid_driver ntrig_driver = {
- 	.remove = ntrig_remove,
- 	.input_mapping = ntrig_input_mapping,
- 	.input_mapped = ntrig_input_mapped,
-+	.input_configured = ntrig_input_configured,
- 	.usage_table = ntrig_grabbed_usages,
- 	.event = ntrig_event,
- };
--- 
-1.8.1
+LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQ0KSGFzaDogU0hBMQ0KDQpPbiBTYXQs
+IDIgRmViIDIwMTMgMDA6NDM6MjAgKzAxMDANCnJlbmF0byA8cmVubmFiaEBnbWFpbC5jb20+IHdy
+b3RlOg0KDQo+IEJ1cyAwMDIgRGV2aWNlIDAwMjogSUQgMDgxMDowMDAxIFBlcnNvbmFsIENvbW11
+bmljYXRpb24gU3lzdGVtcywgSW5jLg0KPiBEdWFsIFBTWCBBIGRhcHRvcg0KPiBEZXZpY2UgRGVz
+Y3JpcHRvcjoNCj4gICBiTGVuZ3RoICAgICAgICAgICAgICAgIDE4DQo+ICAgYkRlc2NyaXB0b3JU
+eXBlICAgICAgICAgMQ0KPiAgIGJjZFVTQiAgICAgICAgICAgICAgIDEuMDANCj4gICBiRGV2aWNl
+Q2xhc3MgICAgICAgICAgICAwIChEZWZpbmVkIGF0IEludGVyZmFjZSBsZXZlbCkNCj4gICBiRGV2
+aWNlU3ViQ2xhc3MgICAgICAgICAwDQo+ICAgYkRldmljZVByb3RvY29sICAgICAgICAgMA0KPiAg
+IGJNYXhQYWNrZXRTaXplMCAgICAgICAgIDgNCj4gICBpZFZlbmRvciAgICAgICAgICAgMHgwODEw
+IFBlcnNvbmFsIENvbW11bmljYXRpb24gU3lzdGVtcywgSW5jLg0KPiAgIGlkUHJvZHVjdCAgICAg
+ICAgICAweDAwMDEgRHVhbCBQU1ggQWRhcHRvcg0KPiAgIGJjZERldmljZSAgICAgICAgICAgIDEu
+MDYNCj4gICBpTWFudWZhY3R1cmVyICAgICAgICAgICAwDQo+ICAgaVByb2R1Y3QgICAgICAgICAg
+ICAgICAgMiBUd2luIFVTQiBKb3lzdGljaw0KPiAgIGlTZXJpYWwgICAgICAgICAgICAgICAgIDAN
+Cj4gICBiTnVtQ29uZmlndXJhdGlvbnMgICAgICAxDQo+ICAgQ29uZmlndXJhdGlvbiBEZXNjcmlw
+dG9yOg0KPiAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KPiAgICAgYkRlc2NyaXB0b3JU
+eXBlICAgICAgICAgMg0KPiAgICAgd1RvdGFsTGVuZ3RoICAgICAgICAgICAzNA0KPiAgICAgYk51
+bUludGVyZmFjZXMgICAgICAgICAgMQ0KPiAgICAgYkNvbmZpZ3VyYXRpb25WYWx1ZSAgICAgMQ0K
+PiAgICAgaUNvbmZpZ3VyYXRpb24gICAgICAgICAgMA0KPiAgICAgYm1BdHRyaWJ1dGVzICAgICAg
+ICAgMHg4MA0KPiAgICAgICAoQnVzIFBvd2VyZWQpDQo+ICAgICBNYXhQb3dlciAgICAgICAgICAg
+ICAgNTAwbUENCj4gICAgIEludGVyZmFjZSBEZXNjcmlwdG9yOg0KPiAgICAgICBiTGVuZ3RoICAg
+ICAgICAgICAgICAgICA5DQo+ICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDQNCj4gICAg
+ICAgYkludGVyZmFjZU51bWJlciAgICAgICAgMA0KPiAgICAgICBiQWx0ZXJuYXRlU2V0dGluZyAg
+ICAgICAwDQo+ICAgICAgIGJOdW1FbmRwb2ludHMgICAgICAgICAgIDENCj4gICAgICAgYkludGVy
+ZmFjZUNsYXNzICAgICAgICAgMyBIdW1hbiBJbnRlcmZhY2UgRGV2aWNlDQo+ICAgICAgIGJJbnRl
+cmZhY2VTdWJDbGFzcyAgICAgIDAgTm8gU3ViY2xhc3MNCj4gICAgICAgYkludGVyZmFjZVByb3Rv
+Y29sICAgICAgMCBOb25lDQo+ICAgICAgIGlJbnRlcmZhY2UgICAgICAgICAgICAgIDANCj4gICAg
+ICAgICBISUQgRGV2aWNlIERlc2NyaXB0b3I6DQo+ICAgICAgICAgICBiTGVuZ3RoICAgICAgICAg
+ICAgICAgICA5DQo+ICAgICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDMzDQo+ICAgICAg
+ICAgICBiY2RISUQgICAgICAgICAgICAgICAxLjEwDQo+ICAgICAgICAgICBiQ291bnRyeUNvZGUg
+ICAgICAgICAgIDMzIFVTDQo+ICAgICAgICAgICBiTnVtRGVzY3JpcHRvcnMgICAgICAgICAxDQo+
+ICAgICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDM0IFJlcG9ydA0KPiAgICAgICAgICAg
+d0Rlc2NyaXB0b3JMZW5ndGggICAgIDIwMg0KPiAgICAgICAgICBSZXBvcnQgRGVzY3JpcHRvcnM6
+DQo+ICAgICAgICAgICAgKiogVU5BVkFJTEFCTEUgKioNCj4gICAgICAgRW5kcG9pbnQgRGVzY3Jp
+cHRvcjoNCj4gICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3DQo+ICAgICAgICAgYkRl
+c2NyaXB0b3JUeXBlICAgICAgICAgNQ0KPiAgICAgICAgIGJFbmRwb2ludEFkZHJlc3MgICAgIDB4
+ODEgIEVQIDEgSU4NCj4gICAgICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzDQo+ICAgICAg
+ICAgICBUcmFuc2ZlciBUeXBlICAgICAgICAgICAgSW50ZXJydXB0DQo+ICAgICAgICAgICBTeW5j
+aCBUeXBlICAgICAgICAgICAgICAgTm9uZQ0KPiAgICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAg
+ICAgICAgIERhdGENCj4gICAgICAgICB3TWF4UGFja2V0U2l6ZSAgICAgMHgwMDA4ICAxeCA4IGJ5
+dGVzDQo+ICAgICAgICAgYkludGVydmFsICAgICAgICAgICAgICAxMA0KPiBEZXZpY2UgU3RhdHVz
+OiAgICAgMHgwMDAwDQo+ICAgKEJ1cyBQb3dlcmVkKQ0KDQoNCmFuZCBoZXJlJ3MgWzFdIHRoZSBv
+dGhlciBkZXZpY2UgSSBvd24sIHdpdGggd2hpY2ggSSBoYXZlIHRoZSBzYW1lIGJ1Zy4gQWN0dWFs
+bHkgdGhleSBzZWVtIHRvIGJlIHNpbWlsYXINCmhhcmR3YXJlLCBzYW1lIGlkVmVuZG9yLi4uIHRo
+ZSBmaXJzdCBvbmUgaGFkIDIgaW5wdXRzIGZvciBwbGF5c3RhdGlvbg0Kam95cGFkcywgdGhpcyBv
+bmx5IG9uZSB3aGljaCBleHBsYWlucyBJIHRoaW5rIHNvbWUgb2YgdGhlIG90aGVyDQpkaWZmZXJl
+bmNlcyAoc2VlIG91dHB1dCBvZiAiZGlmZiBzaW5ndWxhcl9hZGFwdG9yIGR1YWxfYWRhcHRvciIg
+YXQgWzJdKQ0KDQphbnkgaWRlYXMgb24gdGhpcz8NCg0KY2hlZXJzDQpyZW5hdG8NCg0KWzFdDQoN
+CkJ1cyAwMDIgRGV2aWNlIDAwMzogSUQgMDgxMDowMDAzIFBlcnNvbmFsIENvbW11bmljYXRpb24g
+U3lzdGVtcywgSW5jLiBQbGF5U3RhdGlvbiBHYW1lcGFkDQpEZXZpY2UgRGVzY3JpcHRvcjoNCiAg
+Ykxlbmd0aCAgICAgICAgICAgICAgICAxOA0KICBiRGVzY3JpcHRvclR5cGUgICAgICAgICAxDQog
+IGJjZFVTQiAgICAgICAgICAgICAgIDEuMDANCiAgYkRldmljZUNsYXNzICAgICAgICAgICAgMCAo
+RGVmaW5lZCBhdCBJbnRlcmZhY2UgbGV2ZWwpDQogIGJEZXZpY2VTdWJDbGFzcyAgICAgICAgIDAN
+CiAgYkRldmljZVByb3RvY29sICAgICAgICAgMA0KICBiTWF4UGFja2V0U2l6ZTAgICAgICAgICA4
+DQogIGlkVmVuZG9yICAgICAgICAgICAweDA4MTAgUGVyc29uYWwgQ29tbXVuaWNhdGlvbiBTeXN0
+ZW1zLCBJbmMuDQogIGlkUHJvZHVjdCAgICAgICAgICAweDAwMDMgUGxheVN0YXRpb24gR2FtZXBh
+ZA0KICBiY2REZXZpY2UgICAgICAgICAgICAxLjA2DQogIGlNYW51ZmFjdHVyZXIgICAgICAgICAg
+IDANCiAgaVByb2R1Y3QgICAgICAgICAgICAgICAgMiBVU0IgR2FtZXBhZA0KICBpU2VyaWFsICAg
+ICAgICAgICAgICAgICAwDQogIGJOdW1Db25maWd1cmF0aW9ucyAgICAgIDENCiAgQ29uZmlndXJh
+dGlvbiBEZXNjcmlwdG9yOg0KICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDkNCiAgICBiRGVz
+Y3JpcHRvclR5cGUgICAgICAgICAyDQogICAgd1RvdGFsTGVuZ3RoICAgICAgICAgICAzNA0KICAg
+IGJOdW1JbnRlcmZhY2VzICAgICAgICAgIDENCiAgICBiQ29uZmlndXJhdGlvblZhbHVlICAgICAx
+DQogICAgaUNvbmZpZ3VyYXRpb24gICAgICAgICAgMA0KICAgIGJtQXR0cmlidXRlcyAgICAgICAg
+IDB4ODANCiAgICAgIChCdXMgUG93ZXJlZCkNCiAgICBNYXhQb3dlciAgICAgICAgICAgICAgMzUw
+bUENCiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoNCiAgICAgIGJMZW5ndGggICAgICAgICAgICAg
+ICAgIDkNCiAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDQNCiAgICAgIGJJbnRlcmZhY2VO
+dW1iZXIgICAgICAgIDANCiAgICAgIGJBbHRlcm5hdGVTZXR0aW5nICAgICAgIDANCiAgICAgIGJO
+dW1FbmRwb2ludHMgICAgICAgICAgIDENCiAgICAgIGJJbnRlcmZhY2VDbGFzcyAgICAgICAgIDMg
+SHVtYW4gSW50ZXJmYWNlIERldmljZQ0KICAgICAgYkludGVyZmFjZVN1YkNsYXNzICAgICAgMCBO
+byBTdWJjbGFzcw0KICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAgMCBOb25lDQogICAgICBp
+SW50ZXJmYWNlICAgICAgICAgICAgICAwDQogICAgICAgIEhJRCBEZXZpY2UgRGVzY3JpcHRvcjoN
+CiAgICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5DQogICAgICAgICAgYkRlc2NyaXB0
+b3JUeXBlICAgICAgICAzMw0KICAgICAgICAgIGJjZEhJRCAgICAgICAgICAgICAgIDEuMTANCiAg
+ICAgICAgICBiQ291bnRyeUNvZGUgICAgICAgICAgIDMzIFVTDQogICAgICAgICAgYk51bURlc2Ny
+aXB0b3JzICAgICAgICAgMQ0KICAgICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgMzQgUmVw
+b3J0DQogICAgICAgICAgd0Rlc2NyaXB0b3JMZW5ndGggICAgIDEwMQ0KICAgICAgICAgUmVwb3J0
+IERlc2NyaXB0b3JzOg0KICAgICAgICAgICAqKiBVTkFWQUlMQUJMRSAqKg0KICAgICAgRW5kcG9p
+bnQgRGVzY3JpcHRvcjoNCiAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgNw0KICAgICAg
+ICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA1DQogICAgICAgIGJFbmRwb2ludEFkZHJlc3MgICAg
+IDB4ODEgIEVQIDEgSU4NCiAgICAgICAgYm1BdHRyaWJ1dGVzICAgICAgICAgICAgMw0KICAgICAg
+ICAgIFRyYW5zZmVyIFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQNCiAgICAgICAgICBTeW5jaCBU
+eXBlICAgICAgICAgICAgICAgTm9uZQ0KICAgICAgICAgIFVzYWdlIFR5cGUgICAgICAgICAgICAg
+ICBEYXRhDQogICAgICAgIHdNYXhQYWNrZXRTaXplICAgICAweDAwMDggIDF4IDggYnl0ZXMNCiAg
+ICAgICAgYkludGVydmFsICAgICAgICAgICAgICAxNw0KRGV2aWNlIFN0YXR1czogICAgIDB4MDAw
+MA0KICAoQnVzIFBvd2VyZWQpDQoNCg0KWzJdDQoxLDJjMSwyDQo8IEJ1cyAwMDIgRGV2aWNlIDAw
+MzogSUQgMDgxMDowMDAzIFBlcnNvbmFsIENvbW11bmljYXRpb24gU3lzdGVtcywgSW5jLiBQbGF5
+U3RhdA0KaW8NCjwgbiBHYW1lcGFkDQotIC0tLQ0KPiBCdXMgMDAyIERldmljZSAwMDI6IElEIDA4
+MTA6MDAwMSBQZXJzb25hbCBDb21tdW5pY2F0aW9uIFN5c3RlbXMsIEluYy4NCj4gRHVhbCBQU1gg
+QSBkYXB0b3INCjEyYzEyDQo8ICAgaWRQcm9kdWN0ICAgICAgICAgIDB4MDAwMyBQbGF5U3RhdGlv
+biBHYW1lcGFkDQotIC0tLQ0KPiAgIGlkUHJvZHVjdCAgICAgICAgICAweDAwMDEgRHVhbCBQU1gg
+QWRhcHRvcg0KMTVjMTUNCjwgICBpUHJvZHVjdCAgICAgICAgICAgICAgICAyIFVTQiBHYW1lcGFk
+DQotIC0tLQ0KPiAgIGlQcm9kdWN0ICAgICAgICAgICAgICAgIDIgVHdpbiBVU0IgSm95c3RpY2sN
+CjI3YzI3DQo8ICAgICBNYXhQb3dlciAgICAgICAgICAgICAgMzUwbUENCi0gLS0tDQo+ICAgICBN
+YXhQb3dlciAgICAgICAgICAgICAgNTAwbUENCjQ1YzQ1DQo8ICAgICAgICAgICB3RGVzY3JpcHRv
+ckxlbmd0aCAgICAgMTAxDQotIC0tLQ0KPiAgICAgICAgICAgd0Rlc2NyaXB0b3JMZW5ndGggICAg
+IDIwMg0KNTdjNTcNCjwgICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgIDE3DQotIC0tLQ0K
+PiAgICAgICAgIGJJbnRlcnZhbCAgICAgICAgICAgICAgMTANCg0KDQotLS0tLUJFR0lOIFBHUCBT
+SUdOQVRVUkUtLS0tLQ0KVmVyc2lvbjogR251UEcgdjIuMC4xOSAoR05VL0xpbnV4KQ0KDQppUUVj
+QkFFQkFnQUdCUUpSRlVxK0FBb0pFQno2eEZkdHRqcmZMTjBILzNOQWYxZVdLdE42K1dGQnVWd0lG
+cnZzDQpWeDhKQUdqV1dqQnl4SXZCbWRFdmFwMHRkMGlzSmptTnA3Sm03TEJxQWJlVU1vVkdkSUlX
+OXhSNHFpZ2NoWDJwDQp3Ti9PWHBRMTE3SjQwWDM2VEVDNjZZL3lKNGowNGRkeG1pdE90T2phVktT
+MU9TZFdpdDVkTXZEd3NlNTVIUmJlDQpZSThIQmo3dnEvbFFpaU9XTk9PeEZJa1FFM1BkSExBVzAz
+ODJ6NUpyME1ZbGNFSDgwMVIzUjcvUXV5ajl3MGlaDQpwT09QM1BZOG0yTGhRWDNDcTg1QXdPWmdn
+b1VuVktQZkRyTzgxWW0zM0dIdE1ZQUJSQzdPcXovTDA5OUU0ZDBlDQpHWmYvRCtRK0lUTHNWTFUw
+V05iWkQ4MVhGTHdYOEgwL2luamVMeCtXOWx5am95K3EyUW1LdWc0T05jWm4vYjg9DQo9YlYzaA0K
+LS0tLS1FTkQgUEdQIFNJR05BVFVSRS0tLS0tDQo=

@@ -1,41 +1,94 @@
-From: Peter Meerwald <pmeerw@pmeerw.net>
-Subject: Re: [PATCH 2/7] input: atmel_mxt_ts: allow to read/display
- MXT_GEN_MESSAGE_T5 object
-Date: Sat, 9 Feb 2013 01:01:48 +0100 (CET)
-Message-ID: <alpine.DEB.2.01.1302090058310.18077@pmeerw.net>
-References: <1360246668-2291-1-git-send-email-pmeerw@pmeerw.net> <1360246668-2291-3-git-send-email-pmeerw@pmeerw.net> <CAGS+omCPowRC0ut0vgzMZOwqjU3PmEkZznhUSdJE48bHq80b4w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v2 2/4] input: keyboard: tegra: use devm_* for resource allocation
+Date: Sat, 09 Feb 2013 09:04:46 +0000
+Message-ID: <20130209090446.C848F3E196E@localhost>
+References: <1357371910-3164-1-git-send-email-ldewangan@nvidia.com> <1357371910-3164-3-git-send-email-ldewangan@nvidia.com> <20130105080658.GA1315@core.coreip.homeip.net> <20130106192739.GA11566@avionic-0098.adnet.avionic-design.de> <20130106195748.GA28212@core.coreip.homeip.net> <20130109070745.GA12782@avionic-0098.adnet.avionic-design.de> <20130109091939.GA4369@core.coreip.homeip.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns.pmeerw.net ([87.118.82.44]:53983 "EHLO pmeerw.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947367Ab3BIABw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 8 Feb 2013 19:01:52 -0500
-In-Reply-To: <CAGS+omCPowRC0ut0vgzMZOwqjU3PmEkZznhUSdJE48bHq80b4w@mail.gmail.com>
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:65046 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752946Ab3BIKKL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Feb 2013 05:10:11 -0500
+Received: by mail-wi0-f174.google.com with SMTP id hi8so1702102wib.13
+        for <linux-input@vger.kernel.org>; Sat, 09 Feb 2013 02:10:10 -0800 (PST)
+In-Reply-To: <20130109091939.GA4369@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thierry Reding <thierry.reding@avionic-design.de>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, rob.herring@calxeda.com, swarren@nvidia.com, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>
 
-Hello Daniel,
+On Wed, 9 Jan 2013 01:19:39 -0800, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On Wed, Jan 09, 2013 at 08:07:45AM +0100, Thierry Reding wrote:
+> > On Sun, Jan 06, 2013 at 11:57:48AM -0800, Dmitry Torokhov wrote:
+> > > On Sun, Jan 06, 2013 at 08:27:39PM +0100, Thierry Reding wrote:
+> > > > On Sat, Jan 05, 2013 at 12:06:58AM -0800, Dmitry Torokhov wrote:
+> > > > > On Sat, Jan 05, 2013 at 01:15:08PM +0530, Laxman Dewangan wrote:
+> > > > [...]
+> > > > > > @@ -735,25 +738,16 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+> > > > > >  	spin_lock_init(&kbc->lock);
+> > > > > >  	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc);
+> > > > > >  
+> > > > > > -	res = request_mem_region(res->start, resource_size(res), pdev->name);
+> > > > > > -	if (!res) {
+> > > > > > -		dev_err(&pdev->dev, "failed to request I/O memory\n");
+> > > > > > -		err = -EBUSY;
+> > > > > > -		goto err_free_mem;
+> > > > > > -	}
+> > > > > > -
+> > > > > > -	kbc->mmio = ioremap(res->start, resource_size(res));
+> > > > > > +	kbc->mmio = devm_request_and_ioremap(&pdev->dev, res);
+> > > > > >  	if (!kbc->mmio) {
+> > > > > > -		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+> > > > > > -		err = -ENXIO;
+> > > > > > -		goto err_free_mem_region;
+> > > > > > +		dev_err(&pdev->dev, "Cannot request memregion/iomap address\n");
+> > > > > > +		return -EADDRNOTAVAIL;
+> > > > > 
+> > > > > Erm, no, -EBUSY please.
+> > > > 
+> > > > EADDRNOTAVAIL is the canonical error for devm_request_and_ioremap()
+> > > > failure. The kerneldoc comment in lib/devres.c even gives a short
+> > > > example that uses this error code.
+> > > 
+> > > I am sorry, but I do not consider a function that was added a little
+> > > over a year ago as a canon. If you look at the uses of EADDRNOTAVAIL it
+> > > is used predominantly in networking code to indicate that attempted
+> > > _network_ address is not available.
+> > 
+> > EBUSY might be misleading, though. devm_request_and_ioremap() can fail
+> > in both the request_mem_region() and ioremap() calls. Furthermore it'd
+> > be good to settle on a consistent error-code instead of doing it
+> > differently depending on subsystem and/or driver. Currently the various
+> > error codes used are:
+> > 
+> > 	EBUSY, EADDRNOTAVAIL, ENXIO, ENOMEM, ENODEV, ENOENT, EINVAL,
+> > 	EIO, EFAULT, EADDRINUSE
+> > 
+> > Also if we can settle on one error code we should follow up with a patch
+> > to make it consistent across the tree and also update that kerneldoc
+> > comment. I volunteer to do that if nobody else steps up. I'm also Cc'ing
+> > Wolfram (the original author), maybe he has some thoughts on this.
 
-> Hmm.  Why do you want to read T5?
-> We specifically removed T5 from the readble list in this patch:
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=55d6867fe659f4783e57db7b2ae0bb04e4ac816e
+This really doesn't matter. As far as the driver is concerned if the
+memory isn't available then it is a failure. Period. Who cares what
+the reason was.
 
-ah; haven't seen that patch
+> If you going to change all drivers make devm_request_and_ioremap()
+> return ERR_PTR()-encoded errors and then we can differentiate what
+> part of it failed.
 
-> T5 is the message processor object.  Reading it will only have two
-> outcomes, neither of which is particularly useful:
-> 1) the message count decrements, and a valid message will be lost
-> 2) an invalid message will be read (reportid == 0xff)
+The ERR_PTR() pattern is actually worse when it comes to reading and
+understanding code. Us C coders have had beaten into us that the correct
+test for an invalid pointer is "if (!ptr)". ERR_PTR() is actively
+dangerous in this regard because it breaks that pattern, but you cannot
+tell from looking at the API that it is wrong.
 
-I found it useful for debugging; but I agree that it interferes with 
-normal operation of the driver -- T5 should not be added
+There are places where it makes sense, but *please* don't use the
+ERR_PTR pattern unless absolutely necessary.
 
-regards, p.
+Rarely are the actual error codes important for kernel internal stuff.
+The error codes only really matter when passing them up to userspace
+where they have specific meanings. As far as in-kernel stuff goes, the
+policy for choosing error codes consists of "go look at the errno file
+and choose one that looks vaguely relevant".
 
--- 
-
-Peter Meerwald
-+43-664-2444418 (mobile)
+g.

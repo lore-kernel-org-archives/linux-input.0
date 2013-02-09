@@ -1,307 +1,197 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 1/1] Input: mouse: cyapa - Add support for cyapa smbus
- protocol
-Date: Sat, 9 Feb 2013 18:14:28 +0100
-Message-ID: <20130209171428.GA1435@polaris.bitmath.org>
-References: <1359673513-22328-1-git-send-email-bleung@chromium.org>
+Subject: Re: [PATCH 01/10] Input: atmel_mxt_ts - refactor i2c error handling
+Date: Sat, 9 Feb 2013 18:25:16 +0100
+Message-ID: <20130209172516.GA1550@polaris.bitmath.org>
+References: <1359706312-24642-1-git-send-email-djkurtz@chromium.org>
+ <1359706312-24642-2-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:58054 "EHLO
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:58993 "EHLO
 	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760757Ab3BIROW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Feb 2013 12:14:22 -0500
+	with ESMTP id S1758155Ab3BIRZJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 9 Feb 2013 12:25:09 -0500
 Content-Disposition: inline
-In-Reply-To: <1359673513-22328-1-git-send-email-bleung@chromium.org>
+In-Reply-To: <1359706312-24642-2-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, khali@linux-fr.org, olofj@chromium.org, djkurtz@chromium.org, dudl@cypress.com
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benson Leung <bleung@chromium.org>, Yufeng Shen <miletus@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>, Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org
 
-Hi Benson,
+Hi Daniel,
 
-> This patch adds support for the Cypress APA Smbus Trackpad type,
-> which uses a modified register map that fits within the
-> limitations of the smbus protocol.
+> A recent patch refactored i2c error handling in the register read/write
+> path.  This adds similar handling to the other i2c paths used in fw_update
+> and bootloader state detection.
 > 
-> Devices that use this protocol include:
-> CYTRA-116001-00 - Samsung Series 5 550 Chromebook trackpad
-> CYTRA-103002-00 - Acer C7 Chromebook trackpad
+> The generic i2c layer can return values indicating a partial transaction.
+> From the atmel_mxt driver's perspective, this is an IO error, so we use
+> some helper functions to convert these partial transfers to -EIO in a
+> uniform way.  Other error codes might still be useful, though, so we pass
+> them up unmodified.
 > 
-> Signed-off-by: Dudley Du <dudl@cypress.com>
-> Signed-off-by: Benson Leung <bleung@chromium.org>
-> Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 > ---
->  drivers/input/mouse/cyapa.c | 184 ++++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 179 insertions(+), 5 deletions(-)
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 92 +++++++++++++++++++-------------
+>  1 file changed, 54 insertions(+), 38 deletions(-)
 
-Looking good, thank you. Just a really tiny style comment inline.
+Nice cleanup, but some comments below.
 
-> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-> index 1a14688..4ce0cb4 100644
-> --- a/drivers/input/mouse/cyapa.c
-> +++ b/drivers/input/mouse/cyapa.c
-> @@ -208,6 +208,7 @@ struct cyapa {
->  	char phys[32];	/* device physical location */
->  	int irq;
->  	bool irq_wake;  /* irq wake is enabled */
-> +	bool smbus;
->  
->  	/* read from query data region. */
->  	char product_id[16];
-> @@ -229,6 +230,60 @@ struct cyapa_cmd_len {
->  	u8 len;
->  };
->  
-> +#define CYAPA_ADAPTER_FUNC_NONE   0
-> +#define CYAPA_ADAPTER_FUNC_I2C    1
-> +#define CYAPA_ADAPTER_FUNC_SMBUS  2
-> +#define CYAPA_ADAPTER_FUNC_BOTH   3
-> +
-> +/*
-> + * macros for SMBus communication
-> + */
-> +#define SMBUS_READ   0x01
-> +#define SMBUS_WRITE 0x00
-> +#define SMBUS_ENCODE_IDX(cmd, idx) ((cmd) | (((idx) & 0x03) << 1))
-> +#define SMBUS_ENCODE_RW(cmd, rw) ((cmd) | ((rw) & 0x01))
-> +#define SMBUS_BYTE_BLOCK_CMD_MASK 0x80
-> +#define SMBUS_GROUP_BLOCK_CMD_MASK 0x40
-> +
-> + /* for byte read/write command */
-> +#define CMD_RESET 0
-> +#define CMD_POWER_MODE 1
-> +#define CMD_DEV_STATUS 2
-> +#define SMBUS_BYTE_CMD(cmd) (((cmd) & 0x3f) << 1)
-> +#define CYAPA_SMBUS_RESET SMBUS_BYTE_CMD(CMD_RESET)
-> +#define CYAPA_SMBUS_POWER_MODE SMBUS_BYTE_CMD(CMD_POWER_MODE)
-> +#define CYAPA_SMBUS_DEV_STATUS SMBUS_BYTE_CMD(CMD_DEV_STATUS)
-> +
-> + /* for group registers read/write command */
-> +#define REG_GROUP_DATA 0
-> +#define REG_GROUP_CMD 2
-> +#define REG_GROUP_QUERY 3
-> +#define SMBUS_GROUP_CMD(grp) (0x80 | (((grp) & 0x07) << 3))
-> +#define CYAPA_SMBUS_GROUP_DATA SMBUS_GROUP_CMD(REG_GROUP_DATA)
-> +#define CYAPA_SMBUS_GROUP_CMD SMBUS_GROUP_CMD(REG_GROUP_CMD)
-> +#define CYAPA_SMBUS_GROUP_QUERY SMBUS_GROUP_CMD(REG_GROUP_QUERY)
-> +
-> + /* for register block read/write command */
-> +#define CMD_BL_STATUS 0
-> +#define CMD_BL_HEAD 1
-> +#define CMD_BL_CMD 2
-> +#define CMD_BL_DATA 3
-> +#define CMD_BL_ALL 4
-> +#define CMD_BLK_PRODUCT_ID 5
-> +#define CMD_BLK_HEAD 6
-> +#define SMBUS_BLOCK_CMD(cmd) (0xc0 | (((cmd) & 0x1f) << 1))
-> +
-> +/* register block read/write command in bootloader mode */
-> +#define CYAPA_SMBUS_BL_STATUS SMBUS_BLOCK_CMD(CMD_BL_STATUS)
-> +#define CYAPA_SMBUS_BL_HEAD SMBUS_BLOCK_CMD(CMD_BL_HEAD)
-> +#define CYAPA_SMBUS_BL_CMD SMBUS_BLOCK_CMD(CMD_BL_CMD)
-> +#define CYAPA_SMBUS_BL_DATA SMBUS_BLOCK_CMD(CMD_BL_DATA)
-> +#define CYAPA_SMBUS_BL_ALL SMBUS_BLOCK_CMD(CMD_BL_ALL)
-> +
-> +/* register block read/write command in operational mode */
-> +#define CYAPA_SMBUS_BLK_PRODUCT_ID SMBUS_BLOCK_CMD(CMD_BLK_PRODUCT_ID)
-> +#define CYAPA_SMBUS_BLK_HEAD SMBUS_BLOCK_CMD(CMD_BLK_HEAD)
-> +
->  static const struct cyapa_cmd_len cyapa_i2c_cmds[] = {
->  	{ CYAPA_OFFSET_SOFT_RESET, 1 },
->  	{ REG_OFFSET_COMMAND_BASE + 1, 1 },
-> @@ -245,6 +300,22 @@ static const struct cyapa_cmd_len cyapa_i2c_cmds[] = {
->  	{ REG_OFFSET_DATA_BASE, 32 }
->  };
->  
-> +static const struct cyapa_cmd_len cyapa_smbus_cmds[] = {
-> +	{ CYAPA_SMBUS_RESET, 1 },
-> +	{ CYAPA_SMBUS_POWER_MODE, 1 },
-> +	{ CYAPA_SMBUS_DEV_STATUS, 1 },
-> +	{ CYAPA_SMBUS_GROUP_DATA, sizeof(struct cyapa_reg_data) },
-> +	{ CYAPA_SMBUS_GROUP_CMD, 2 },
-> +	{ CYAPA_SMBUS_GROUP_QUERY, QUERY_DATA_SIZE },
-> +	{ CYAPA_SMBUS_BL_STATUS, 3 },
-> +	{ CYAPA_SMBUS_BL_HEAD, 16 },
-> +	{ CYAPA_SMBUS_BL_CMD, 16 },
-> +	{ CYAPA_SMBUS_BL_DATA, 16 },
-> +	{ CYAPA_SMBUS_BL_ALL, 32 },
-> +	{ CYAPA_SMBUS_BLK_PRODUCT_ID, PRODUCT_ID_SIZE },
-> +	{ CYAPA_SMBUS_BLK_HEAD, 16 },
-> +};
-> +
->  static ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
->  					u8 *values)
->  {
-> @@ -257,26 +328,96 @@ static ssize_t cyapa_i2c_reg_write_block(struct cyapa *cyapa, u8 reg,
->  	return i2c_smbus_write_i2c_block_data(cyapa->client, reg, len, values);
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index d04f810..a222bd8 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -324,16 +324,62 @@ static void mxt_dump_message(struct device *dev,
+>  		message->reportid, 7, message->message);
 >  }
 >  
-> +/*
-> + * cyapa_smbus_read_block - perform smbus block read command
-> + * @cyapa  - private data structure of the driver
-> + * @cmd    - the properly encoded smbus command
-> + * @len    - expected length of smbus command result
-> + * @values - buffer to store smbus command result
-> + *
-> + * Returns negative errno, else the number of bytes written.
-> + *
-> + * Note:
-> + * In trackpad device, the memory block allocated for I2C register map
-> + * is 256 bytes, so the max read block for I2C bus is 256 bytes.
-> + */
-> +static ssize_t cyapa_smbus_read_block(struct cyapa *cyapa, u8 cmd, size_t len,
-> +				      u8 *values)
+> +static int mxt_i2c_recv(struct i2c_client *client, u8 *buf, size_t count)
 > +{
-> +	ssize_t ret;
-> +	u8 index;
-> +	u8 smbus_cmd;
-> +	u8 *buf;
-> +	struct i2c_client *client = cyapa->client;
-> +	struct device *dev = &client->dev;
+> +	int ret;
 > +
-> +	if (!(SMBUS_BYTE_BLOCK_CMD_MASK & cmd))
-> +		return -EINVAL;
-> +
-> +	if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
-> +		/* read specific block registers command. */
-> +		smbus_cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
-> +		ret = i2c_smbus_read_block_data(client, smbus_cmd, values);
-> +		goto out;
-> +	}
-> +
-> +	ret = 0;
-> +	for (index = 0; index * I2C_SMBUS_BLOCK_MAX < len; index++) {
-> +		smbus_cmd = SMBUS_ENCODE_IDX(cmd, index);
-> +		smbus_cmd = SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
-> +		buf = values + I2C_SMBUS_BLOCK_MAX * index;
-> +		ret = i2c_smbus_read_block_data(client, smbus_cmd, buf);
-> +		if (ret < 0)
-> +			goto out;
-> +	}
-> +
-> +out:
-> +
-> +	return (ret > 0) ? len : ret;
-> +}
-> +
->  static s32 cyapa_read_byte(struct cyapa *cyapa, u8 cmd_idx)
->  {
-> -	u8 cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> +	struct device *dev = &cyapa->client->dev;
-> +	u8 cmd;
->  
-> +	if (cyapa->smbus) {
-> +		cmd = cyapa_smbus_cmds[cmd_idx].cmd;
-> +		cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
-> +	} else {
-> +		cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> +	}
->  	return i2c_smbus_read_byte_data(cyapa->client, cmd);
->  }
->  
->  static s32 cyapa_write_byte(struct cyapa *cyapa, u8 cmd_idx, u8 value)
->  {
-> -	u8 cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> +	struct device *dev = &cyapa->client->dev;
-> +	u8 cmd;
->  
-> +	if (cyapa->smbus) {
-> +		cmd = cyapa_smbus_cmds[cmd_idx].cmd;
-> +		cmd = SMBUS_ENCODE_RW(cmd, SMBUS_WRITE);
-> +	} else {
-> +		cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> +	}
->  	return i2c_smbus_write_byte_data(cyapa->client, cmd, value);
->  }
->  
->  static ssize_t cyapa_read_block(struct cyapa *cyapa, u8 cmd_idx, u8 *values)
->  {
-> -	u8 cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> -	size_t len = cyapa_i2c_cmds[cmd_idx].len;
-> +	u8 cmd;
-> +	size_t len;
->  
-> -	return cyapa_i2c_reg_read_block(cyapa, cmd, len, values);
-> +	if (cyapa->smbus) {
-> +		cmd = cyapa_smbus_cmds[cmd_idx].cmd;
-> +		len = cyapa_smbus_cmds[cmd_idx].len;
-> +		return cyapa_smbus_read_block(cyapa, cmd, len, values);
-> +	} else {
-> +		cmd = cyapa_i2c_cmds[cmd_idx].cmd;
-> +		len = cyapa_i2c_cmds[cmd_idx].len;
-> +		return cyapa_i2c_reg_read_block(cyapa, cmd, len, values);
-> +	}
->  }
->  
->  /*
-> @@ -298,6 +439,16 @@ static int cyapa_get_state(struct cyapa *cyapa)
->  	 */
->  	ret = cyapa_i2c_reg_read_block(cyapa, BL_HEAD_OFFSET, BL_STATUS_SIZE,
->  				       status);
-> +
-> +	/*
-> +	 * On smbus systems in OP mode, the i2c_reg_read will fail with
-> +	 * -ETIMEDOUT.  In this case, try again using the smbus equivalent
-> +	 * command.  This should return a BL_HEAD indicating CYAPA_STATE_OP.
-> +	 */
-> +	if (cyapa->smbus && (ret == -ETIMEDOUT || ret == -ENXIO)) {
-> +		ret = cyapa_read_block(cyapa, CYAPA_CMD_BL_STATUS, status);
-> +	}
+> +	ret = i2c_master_recv(client, buf, count);
+> +	if (ret == count) {
+> +		ret = 0;
+> +	} else if (ret != count) {
 
-It is customary to skip brackets for single expressions.
+Eh, implied logic. Also, no need for an else here, just return 0 above.
 
+> +		ret = (ret < 0) ? ret : -EIO;
+> +		dev_err(&client->dev, "i2c recv failed (%d)\n", ret);
+> +	}
 > +
->  	if (ret != BL_STATUS_SIZE)
->  		goto error;
->  
-> @@ -594,6 +745,19 @@ out:
->  	return IRQ_HANDLED;
->  }
->  
-> +static u8 cyapa_check_adapter_functionality(struct i2c_client *client)
-> +{
-> +	u8 ret = CYAPA_ADAPTER_FUNC_NONE;
-> +
-> +	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-> +		ret |= CYAPA_ADAPTER_FUNC_I2C;
-> +	if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA |
-> +				     I2C_FUNC_SMBUS_BLOCK_DATA |
-> +				     I2C_FUNC_SMBUS_I2C_BLOCK))
-> +		ret |= CYAPA_ADAPTER_FUNC_SMBUS;
 > +	return ret;
 > +}
 > +
->  static int cyapa_create_input_dev(struct cyapa *cyapa)
->  {
->  	struct device *dev = &cyapa->client->dev;
-> @@ -668,9 +832,16 @@ static int cyapa_probe(struct i2c_client *client,
->  		       const struct i2c_device_id *dev_id)
->  {
->  	int ret;
-> +	u8 adapter_func;
->  	struct cyapa *cyapa;
->  	struct device *dev = &client->dev;
->  
-> +	adapter_func = cyapa_check_adapter_functionality(client);
-> +	if (adapter_func == CYAPA_ADAPTER_FUNC_NONE) {
-> +		dev_err(dev, "not a supported I2C/SMBus adapter\n");
-> +		return -EIO;
+> +static int mxt_i2c_send(struct i2c_client *client, const u8 *buf, size_t count)
+> +{
+> +	int ret;
+> +
+> +	ret = i2c_master_send(client, buf, count);
+> +	if (ret == count) {
+> +		ret = 0;
+> +	} else if (ret != count) {
+
+Ditto...
+
+> +		ret = (ret < 0) ? ret : -EIO;
+> +		dev_err(&client->dev, "i2c send failed (%d)\n", ret);
 > +	}
 > +
->  	cyapa = kzalloc(sizeof(struct cyapa), GFP_KERNEL);
->  	if (!cyapa) {
->  		dev_err(dev, "allocate memory for cyapa failed\n");
-> @@ -683,6 +854,9 @@ static int cyapa_probe(struct i2c_client *client,
->  	sprintf(cyapa->phys, "i2c-%d-%04x/input0", client->adapter->nr,
->  		client->addr);
+> +	return ret;
+> +}
+> +
+> +static int mxt_i2c_transfer(struct i2c_client *client, struct i2c_msg *msgs,
+> +		size_t count)
+> +{
+> +	int ret;
+> +
+> +	ret = i2c_transfer(client->adapter, msgs, count);
+> +	if (ret == count) {
+> +		ret = 0;
+
+return 0;
+
+> +	} else {
+
+skip
+
+> +		ret = (ret < 0) ? ret : -EIO;
+> +		dev_err(&client->dev, "i2c transfer failed (%d)\n", ret);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+>  static int mxt_check_bootloader(struct i2c_client *client,
+>  				     unsigned int state)
+>  {
+>  	u8 val;
+> +	int ret;
 >  
-> +	/* i2c isn't supported, set smbus */
-> +	if (adapter_func == CYAPA_ADAPTER_FUNC_SMBUS)
-> +		cyapa->smbus = true;
->  	cyapa->state = CYAPA_STATE_NO_DEVICE;
->  	ret = cyapa_check_is_operational(cyapa);
->  	if (ret) {
+>  recheck:
+> -	if (i2c_master_recv(client, &val, 1) != 1) {
+> -		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
+> -		return -EIO;
+> -	}
+> +	ret = mxt_i2c_recv(client, &val, 1);
+> +	if (ret)
+> +		return ret;
+>  
+>  	switch (state) {
+>  	case MXT_WAITING_BOOTLOAD_CMD:
+> @@ -363,23 +409,13 @@ static int mxt_unlock_bootloader(struct i2c_client *client)
+>  	buf[0] = MXT_UNLOCK_CMD_LSB;
+>  	buf[1] = MXT_UNLOCK_CMD_MSB;
+>  
+> -	if (i2c_master_send(client, buf, 2) != 2) {
+> -		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+> -		return -EIO;
+> -	}
+> -
+> -	return 0;
+> +	return mxt_i2c_send(client, buf, 2);
+>  }
+>  
+>  static int mxt_fw_write(struct i2c_client *client,
+>  			     const u8 *data, unsigned int frame_size)
+>  {
+> -	if (i2c_master_send(client, data, frame_size) != frame_size) {
+> -		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+> -		return -EIO;
+> -	}
+> -
+> -	return 0;
+> +	return mxt_i2c_send(client, data, frame_size);
+>  }
+>  
+>  static int __mxt_read_reg(struct i2c_client *client,
+> @@ -387,7 +423,6 @@ static int __mxt_read_reg(struct i2c_client *client,
+>  {
+>  	struct i2c_msg xfer[2];
+>  	u8 buf[2];
+> -	int ret;
+>  
+>  	buf[0] = reg & 0xff;
+>  	buf[1] = (reg >> 8) & 0xff;
+> @@ -404,17 +439,7 @@ static int __mxt_read_reg(struct i2c_client *client,
+>  	xfer[1].len = len;
+>  	xfer[1].buf = val;
+>  
+> -	ret = i2c_transfer(client->adapter, xfer, 2);
+> -	if (ret == 2) {
+> -		ret = 0;
+> -	} else {
+> -		if (ret >= 0)
+> -			ret = -EIO;
+> -		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
+> -			__func__, ret);
+> -	}
+> -
+> -	return ret;
+> +	return mxt_i2c_transfer(client, xfer, 2);
+>  }
+>  
+>  static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+> @@ -438,16 +463,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+>  	buf[1] = (reg >> 8) & 0xff;
+>  	memcpy(&buf[2], val, len);
+>  
+> -	ret = i2c_master_send(client, buf, count);
+> -	if (ret == count) {
+> -		ret = 0;
+> -	} else {
+> -		if (ret >= 0)
+> -			ret = -EIO;
+> -		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
+> -			__func__, ret);
+> -	}
+> -
+> +	ret = mxt_i2c_send(client, buf, count);
+>  	kfree(buf);
+>  	return ret;
+>  }
 > -- 
 > 1.8.1
 > 

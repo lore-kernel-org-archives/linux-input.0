@@ -1,53 +1,70 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: RE: [PATCH 3/3] HID: sensor-hub: don't limit the driver only to USB
- bus
-Date: Mon, 11 Feb 2013 15:54:05 +0000
-Message-ID: <4FA419E87744DF4DAECD5BCE1214B7A91E00FB81@ORSMSX108.amr.corp.intel.com>
-References: <1360578679-7029-1-git-send-email-mika.westerberg@linux.intel.com>
- <1360578679-7029-3-git-send-email-mika.westerberg@linux.intel.com>
+From: David Herrmann <dh.herrmann@googlemail.com>
+Subject: Re: hidraw: Bug in select/poll for writing
+Date: Mon, 11 Feb 2013 17:01:27 +0100
+Message-ID: <CANq1E4RcU6ZL5AOUYe89kyJbv9qJDArzZq8q6hbvsCSws8QQHA@mail.gmail.com>
+References: <CA+hv5qkyis03CgYTWeWX9cr0my-d2Oe+aZo+mjmWRXgjrGqyrw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1360578679-7029-3-git-send-email-mika.westerberg@linux.intel.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f43.google.com ([74.125.83.43]:36442 "EHLO
+	mail-ee0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757632Ab3BKQB2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Feb 2013 11:01:28 -0500
+Received: by mail-ee0-f43.google.com with SMTP id c50so3358504eek.16
+        for <linux-input@vger.kernel.org>; Mon, 11 Feb 2013 08:01:27 -0800 (PST)
+In-Reply-To: <CA+hv5qkyis03CgYTWeWX9cr0my-d2Oe+aZo+mjmWRXgjrGqyrw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tim Peterson <tim@timpeterson.org>
+Cc: linux-input@vger.kernel.org, Alan Ott <alan@signal11.us>
 
-So finally we can use HID sensor hub over I2C.
-Did you try with any I2C sensor hub?
+Hi Tim
 
-Thanks,
-Srinivas
+On Tue, Feb 5, 2013 at 12:47 AM, Tim Peterson <tim@timpeterson.org> wrote:
+> Hi all,
+>
+> I have found that when one uses select() on /dev/hidraw0, it will
+> never report that it is writable, even though a write will succeed at
+> any time.
+>
+> As a demonstration, the command
+> socat -v - /dev/hidraw0 >/dev/null
+> will log every time data is read or written from the device. With any
+> other device, I can type at the keyboard and see that the data has
+> been written. With hidraw, reading works but writing never occurs,
+> because socat never finds out that the file is ready for writing.
+>
+> I believe this is a result of hidraw_poll() never returning POLLOUT:
+>
+> static unsigned int hidraw_poll(struct file *file, poll_table *wait)
+> {
+>     struct hidraw_list *list = file->private_data;
+>
+>     poll_wait(file, &list->hidraw->wait, wait);
+>     if (list->head != list->tail)
+>         return POLLIN | POLLRDNORM;
+>     if (!list->hidraw->exist)
+>         return POLLERR | POLLHUP;
+>     return 0;
+> }
+>
+> I am not familiar with how these drivers work, so I'm not sure how to
+> proceed. Is it safe to always add POLLOUT | POLLWRNORM to the return
+> value, or is there a case in which it would not be writable?
 
+Ah, yeah, that's a bit ugly. The problem is we don't support
+nonblocking writes there. Instead, the hidraw driver simply calls a
+blocking backend function. Therefore, POLLOUT hasn't been reported so
+far.
 
------Original Message-----
-From: Mika Westerberg [mailto:mika.westerberg@linux.intel.com] 
-Sent: Monday, February 11, 2013 2:31 AM
-To: linux-kernel@vger.kernel.org
-Cc: Jiri Kosina; Benjamin Tissoires; linux-input@vger.kernel.org; Pandruvada, Srinivas; Mika Westerberg
-Subject: [PATCH 3/3] HID: sensor-hub: don't limit the driver only to USB bus
+But POLLOUT might be useful even without O_NONBLOCK so I think it is
+safe to add POLLOUT to the flags unconditionally. If we want to
+support O_NONBLOCK we would have to change a lot more, anyway.
 
-We now have two transport mediums: USB and I2C, where sensor hubs can exists. So instead of constraining the driver to only these two we let it to match any HID bus as long as the group is HID_GROUP_SENSOR_HUB.
+But you might also simply write to the device without waiting for
+POLLOUT. This only breaks generic commands like socat, so a patch
+would be appreciated.
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/hid/hid-sensor-hub.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c index 2643bce9..c01f10d 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -603,7 +603,8 @@ static void sensor_hub_remove(struct hid_device *hdev)  }
- 
- static const struct hid_device_id sensor_hub_devices[] = {
--	{ HID_DEVICE(BUS_USB, HID_GROUP_SENSOR_HUB, HID_ANY_ID, HID_ANY_ID) },
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
-+		     HID_ANY_ID) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, sensor_hub_devices);
---
-1.7.10.4
+Regards
+David

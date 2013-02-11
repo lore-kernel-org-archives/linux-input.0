@@ -1,70 +1,43 @@
-From: David Herrmann <dh.herrmann@googlemail.com>
-Subject: Re: hidraw: Bug in select/poll for writing
-Date: Mon, 11 Feb 2013 17:01:27 +0100
-Message-ID: <CANq1E4RcU6ZL5AOUYe89kyJbv9qJDArzZq8q6hbvsCSws8QQHA@mail.gmail.com>
-References: <CA+hv5qkyis03CgYTWeWX9cr0my-d2Oe+aZo+mjmWRXgjrGqyrw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 2/3] HID: sensor-hub: get rid of unused
+ sensor_hub_grabbed_usages[] table
+Date: Mon, 11 Feb 2013 18:12:35 +0100
+Message-ID: <CAN+gG=GKzpWqAwJbFtMBt4DMG-4enXbwYPVF1VJG5Y=w9aQ0vw@mail.gmail.com>
+References: <1360578679-7029-1-git-send-email-mika.westerberg@linux.intel.com>
+	<1360578679-7029-2-git-send-email-mika.westerberg@linux.intel.com>
+	<4FA419E87744DF4DAECD5BCE1214B7A91E00EB72@ORSMSX108.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f43.google.com ([74.125.83.43]:36442 "EHLO
-	mail-ee0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757632Ab3BKQB2 (ORCPT
+Received: from mail-la0-f53.google.com ([209.85.215.53]:37544 "EHLO
+	mail-la0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757707Ab3BKRMh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Feb 2013 11:01:28 -0500
-Received: by mail-ee0-f43.google.com with SMTP id c50so3358504eek.16
-        for <linux-input@vger.kernel.org>; Mon, 11 Feb 2013 08:01:27 -0800 (PST)
-In-Reply-To: <CA+hv5qkyis03CgYTWeWX9cr0my-d2Oe+aZo+mjmWRXgjrGqyrw@mail.gmail.com>
+	Mon, 11 Feb 2013 12:12:37 -0500
+In-Reply-To: <4FA419E87744DF4DAECD5BCE1214B7A91E00EB72@ORSMSX108.amr.corp.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tim Peterson <tim@timpeterson.org>
-Cc: linux-input@vger.kernel.org, Alan Ott <alan@signal11.us>
+To: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Tim
+On Mon, Feb 11, 2013 at 4:53 PM, Pandruvada, Srinivas
+<srinivas.pandruvada@intel.com> wrote:
+> This was added to load sensor hub driver on USB plug in without explicit modprobe.
+> But with last few changes to remove vendor and product id, we need to do modprobe this driver.
+> So removal is OK.
 
-On Tue, Feb 5, 2013 at 12:47 AM, Tim Peterson <tim@timpeterson.org> wrote:
-> Hi all,
->
-> I have found that when one uses select() on /dev/hidraw0, it will
-> never report that it is writable, even though a write will succeed at
-> any time.
->
-> As a demonstration, the command
-> socat -v - /dev/hidraw0 >/dev/null
-> will log every time data is read or written from the device. With any
-> other device, I can type at the keyboard and see that the data has
-> been written. With hidraw, reading works but writing never occurs,
-> because socat never finds out that the file is ready for writing.
->
-> I believe this is a result of hidraw_poll() never returning POLLOUT:
->
-> static unsigned int hidraw_poll(struct file *file, poll_table *wait)
-> {
->     struct hidraw_list *list = file->private_data;
->
->     poll_wait(file, &list->hidraw->wait, wait);
->     if (list->head != list->tail)
->         return POLLIN | POLLRDNORM;
->     if (!list->hidraw->exist)
->         return POLLERR | POLLHUP;
->     return 0;
-> }
->
-> I am not familiar with how these drivers work, so I'm not sure how to
-> proceed. Is it safe to always add POLLOUT | POLLWRNORM to the return
-> value, or is there a case in which it would not be writable?
+I just figure your comment out: the change does not seem to have
+anything to do with hotplugging. .usage_table is used to decide which
+HID reports to forwards to the .event() callback, and NULL means all
+events. So even if it was in use, there are no functional changes.
 
-Ah, yeah, that's a bit ugly. The problem is we don't support
-nonblocking writes there. Instead, the hidraw driver simply calls a
-blocking backend function. Therefore, POLLOUT hasn't been reported so
-far.
+Thanks to the changes to remove the vendor id and product id, you
+shouldn't have to manually modprobe the driver as the hid-core
+subsystem will tag the hid device as a sensor one, meaning that udev
+will modprobe the driver if it's not already loaded.
+So if you still have to manually modprobe your driver (or maybe you
+are talking about the mfd driver), there is a bug in the detection of
+sensors devices. And this has to be fixed :)
 
-But POLLOUT might be useful even without O_NONBLOCK so I think it is
-safe to add POLLOUT to the flags unconditionally. If we want to
-support O_NONBLOCK we would have to change a lot more, anyway.
-
-But you might also simply write to the device without waiting for
-POLLOUT. This only breaks generic commands like socat, so a patch
-would be appreciated.
-
-Regards
-David
+Cheers,
+Benjamin

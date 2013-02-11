@@ -1,42 +1,56 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 2/3] HID: sensor-hub: get rid of unused sensor_hub_grabbed_usages[] table
-Date: Mon, 11 Feb 2013 12:31:18 +0200
-Message-ID: <1360578679-7029-2-git-send-email-mika.westerberg@linux.intel.com>
-References: <1360578679-7029-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 0/7] hid driver transport cleanup
+Date: Mon, 11 Feb 2013 12:19:13 +0100
+Message-ID: <CAN+gG=GJH-jTFE5OEsme57RzN_L1_gQMAD9Dy2=NXZdDOYCUxA@mail.gmail.com>
+References: <1360334256-22127-1-git-send-email-benjamin.tissoires@gmail.com>
+	<20130211101336.GA20771@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:32422 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755203Ab3BKKaB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Feb 2013 05:30:01 -0500
-In-Reply-To: <1360578679-7029-1-git-send-email-mika.westerberg@linux.intel.com>
+Received: from mail-lb0-f170.google.com ([209.85.217.170]:63993 "EHLO
+	mail-lb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755668Ab3BKLTP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Feb 2013 06:19:15 -0500
+In-Reply-To: <20130211101336.GA20771@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, srinivas.pandruvada@intel.com, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This table is not used anywhere in the driver so kill it.
+On Mon, Feb 11, 2013 at 11:13 AM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> On Fri, Feb 08, 2013 at 03:37:29PM +0100, Benjamin Tissoires wrote:
+>> so, here is the hid drivers cleanup. The aim is to remove as much as possible
+>> direct calls to usbhid for hid drivers. Thus, other transport layers can use
+>> the existing hid drivers (like I2C or uhid).
+>
+> We also found out that there is a dependency to usbhid in many of the
+> drivers, especially in sensor-hub which caused the system crash while the
+> driver tried to transmit over USB even though it was behind I2C.
+>
+> Your series fixes that nicely :)
+>
+> You can add,
+>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>
+> for the whole series and in addition,
+>
+> Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>
+> for the sensor-hub part (HID over I2C). I have few more patches to the
+> sensor-hub myself and I'm going to rebase them on top of this series.
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/hid/hid-sensor-hub.c |    5 -----
- 1 file changed, 5 deletions(-)
+Thanks Mika for reviewing.
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index c06e933..2643bce9 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -608,11 +608,6 @@ static const struct hid_device_id sensor_hub_devices[] = {
- };
- MODULE_DEVICE_TABLE(hid, sensor_hub_devices);
- 
--static const struct hid_usage_id sensor_hub_grabbed_usages[] = {
--	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
--	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1 }
--};
--
- static struct hid_driver sensor_hub_driver = {
- 	.name = "hid-sensor-hub",
- 	.id_table = sensor_hub_devices,
--- 
-1.7.10.4
+I just wanted to warn you that the HID over I2C part is still lacking
+the support of requests through hid_hw_request(). So the functions
+sensor_hub_set_feature(), sensor_hub_get_feature() and
+sensor_hub_input_attr_get_raw_value() won't work, in a silently way
+:(.
+I started writing the patch but stopped at some point due to lack of
+ways to test it.
 
+Cheers,
+Benjamin

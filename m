@@ -1,81 +1,64 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two
- locks.
-Date: Mon, 11 Feb 2013 22:05:26 +0100
-Message-ID: <20130211220526.6909cc0f@neptune.home>
-References: <CAG_cf+eZ2w4i=a_kMieb92Pa0Gf2aOB_2Bs39G=aB7ui-Y08Pw@mail.gmail.com>
-	<CANq1E4Q-dWrf4nwn+SZ4TdjBSZ5i6UEGgVxm=eboZ0i6Dk9ZqA@mail.gmail.com>
-	<20130211185527.63d1c1f9@neptune.home>
-	<CAG_cf+cNqrveHTR+JqYueTafH7Jtv+VDebU4QNicfWY3dhY+7w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH V4 3/4] input: keyboard: tegra: add support for rows/cols configuration from dt
+Date: Mon, 11 Feb 2013 21:36:16 +0000
+Message-ID: <20130211213616.862453E3530@localhost>
+References: <1357470900-12619-1-git-send-email-ldewangan@nvidia.com> <1357470900-12619-4-git-send-email-ldewangan@nvidia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:38873 "EHLO
-	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759563Ab3BKVFi (ORCPT
+Received: from mail-wi0-f178.google.com ([209.85.212.178]:57723 "EHLO
+	mail-wi0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759538Ab3BKVgW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Feb 2013 16:05:38 -0500
-In-Reply-To: <CAG_cf+cNqrveHTR+JqYueTafH7Jtv+VDebU4QNicfWY3dhY+7w@mail.gmail.com>
+	Mon, 11 Feb 2013 16:36:22 -0500
+Received: by mail-wi0-f178.google.com with SMTP id o1so3670376wic.5
+        for <linux-input@vger.kernel.org>; Mon, 11 Feb 2013 13:36:21 -0800 (PST)
+In-Reply-To: <1357470900-12619-4-git-send-email-ldewangan@nvidia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew de los Reyes <andrew-vger@gizmolabs.org>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, Linux Input <linux-input@vger.kernel.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: dmitry.torokhov@gmail.com
+Cc: rob.herring@calxeda.com, swarren@nvidia.com, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Laxman Dewangan <ldewangan@nvidia.com>
 
-On Mon, 11 February 2013 Andrew de los Reyes wrote:
-> > > > @@ -1734,9 +1742,15 @@ static int hid_device_remove(struct device *dev)
-> > > >  {
-> > > >         struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-> > > >         struct hid_driver *hdrv;
-> > > > +       int ret = 0;
-> > > >
-> > > >         if (down_interruptible(&hdev->driver_lock))
-> > > >                 return -EINTR;
-> > > > +       if (down_interruptible(&hdev->driver_input_lock)) {
-> > > > +               ret = -EINTR;
-> > > > +               goto unlock_driver_lock;
-> > > > +       }
-> > > > +       hdev->io_started = false;
-> > >
-> > > If we lock driver_input_lock during remove, we might lose important
-> > > packages here because the input handler drops them.
-> > >
-> > > Drivers that require this should deal with it properly, but you might
-> > > get annoying timeouts during remove if you do I/O and lose an
-> > > important packet here.
-> > >
-> > > But I think the proper way to fix this is to move I/O handling into
-> > > workqueues instead of interrupt-context so we can actually sleep in
-> > > handle_input. So I think this is fine.
-> >
-> > Though the driver would suffer the same timeout if it does not shortcut
-> > them when the device is being physically unplugged.
-> > So in both cases the driver does need to take explicit action in ->remove()
-> > probably even before reenabling I/O in order to "cancel" pending activity
-> > prior to doing the removal reconfiguration on logical unplug.
+On Sun, 6 Jan 2013 16:44:59 +0530, Laxman Dewangan <ldewangan@nvidia.com> wrote:
+> The NVIDIA's Tegra KBC has maximum 24 pins to make matrix keypad.
+> Any pin can be configured as row or column. The maximum column pin
+> can be 8 and maximum row pin can be 16.
 > 
-> The kernel already blocks input during remove(); this patch doesn't
-> change that behavior. We could have another API that allows drivers to
-> opt-out of this behavior, but maybe that should be another patch.
+> Remove the assumption that all first 16 pins will be used as row
+> and remaining as columns and Add the property for configuring pins
+> to either row or column from DT. Update the devicetree binding
+> document accordingly.
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> ---
+> Changes from V1:
+> - renames the rows and pins property array.
+> - nit cleanups.
+> Changes from V2/V3:
+>  None
+> 
+>  .../bindings/input/nvidia,tegra20-kbc.txt          |   22 ++++++
+>  drivers/input/keyboard/tegra-kbc.c                 |   74 +++++++++++++++-----
+>  2 files changed, 79 insertions(+), 17 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt b/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt
+> index 72683be..2995fae 100644
+> --- a/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt
+> +++ b/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt
+> @@ -1,7 +1,18 @@
+>  * Tegra keyboard controller
+> +The key controller has maximum 24 pins to make matrix keypad. Any pin
+> +can be configured as row or column. The maximum column pin can be 8
+> +and maximum row pins can be 16 for Tegra20/Tegra30.
+>  
+>  Required properties:
+>  - compatible: "nvidia,tegra20-kbc"
+> +- reg: Register base address of KBC.
+> +- interrupts: Interrupt number for the KBC.
+> +- nvidia,kbc-row-pins: The KBC pins which are configured as row. This is an
+> +  array of pin numbers which is used as rows.
+> +- nvidia,kbc-col-pins: The KBC pins which are configured as column. This is an
+> +  array of pin numbers which is used as column.
+> +- linux,keymap: The keymap for keys as described in the binding document
+> +  devicetree/bindings/input/matrix-keymap.txt.
 
-I was mostly replying to David on the timeout part.
-But sure it is for another patch.
-
-There are two case here anyhow:
-- physical unplug
-
-  Here it will never make sense to restart I/O as there device is gone
-
-- logical unplug
-
-  In this case, maybe driver could tell which variant it prefers, stopping
-  I/O itself during remove() or having I/O stopped by HID (with option to
-  temporarily restart it as needed)
-
-  In the case driver specifies "don't stop I/O on logical unplug" driver
-  needs to be able to check current state of I/O. Either using a
-  hid_device_io_can_start() or having hid_device_io_start() having a return
-  value of 0 for successful start (even if I/O had never been stopped) and
-  return -ENODEV if the device is gone.
-
-Bruno
+For the binding:
+Acked-by: Grant Likely <grant.likely@secretlab.ca>

@@ -1,40 +1,39 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 0/7] hid driver transport cleanup
-Date: Mon, 11 Feb 2013 12:13:36 +0200
-Message-ID: <20130211101336.GA20771@intel.com>
-References: <1360334256-22127-1-git-send-email-benjamin.tissoires@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 1/3] HID: extend autodetect to handle I2C sensors as well
+Date: Mon, 11 Feb 2013 12:31:17 +0200
+Message-ID: <1360578679-7029-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([143.182.124.21]:6025 "EHLO mga03.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:32422 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754907Ab3BKKJp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Feb 2013 05:09:45 -0500
-Content-Disposition: inline
-In-Reply-To: <1360334256-22127-1-git-send-email-benjamin.tissoires@gmail.com>
+	id S1754732Ab3BKKaA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Feb 2013 05:30:00 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, srinivas.pandruvada@intel.com, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Fri, Feb 08, 2013 at 03:37:29PM +0100, Benjamin Tissoires wrote:
-> so, here is the hid drivers cleanup. The aim is to remove as much as possible
-> direct calls to usbhid for hid drivers. Thus, other transport layers can use
-> the existing hid drivers (like I2C or uhid).
+Since the advent of HID over I2C protocol, it is possible to have sensor
+hubs behind I2C bus as well. We can autodetect this in a same way than USB
+sensor hubs.
 
-We also found out that there is a dependency to usbhid in many of the
-drivers, especially in sensor-hub which caused the system crash while the
-driver tried to transmit over USB even though it was behind I2C.
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/hid/hid-core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Your series fixes that nicely :)
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index eb2ee11..fe3a59e 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -729,7 +729,7 @@ static int hid_scan_report(struct hid_device *hid)
+ 			item.type == HID_ITEM_TYPE_MAIN &&
+ 			item.tag == HID_MAIN_ITEM_TAG_BEGIN_COLLECTION &&
+ 			(item_udata(&item) & 0xff) == HID_COLLECTION_PHYSICAL &&
+-			hid->bus == BUS_USB)
++			(hid->bus == BUS_USB || hid->bus == BUS_I2C))
+ 			hid->group = HID_GROUP_SENSOR_HUB;
+ 	}
+ 
+-- 
+1.7.10.4
 
-You can add,
-
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-
-for the whole series and in addition,
-
-Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-
-for the sensor-hub part (HID over I2C). I have few more patches to the
-sensor-hub myself and I'm going to rebase them on top of this series.

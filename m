@@ -1,81 +1,85 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH] HID: i2c-hid: implement request() callback
-Date: Tue, 12 Feb 2013 16:16:49 +0100
-Message-ID: <1360682209-31615-1-git-send-email-benjamin.tissoires@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Simon Glass <sjg@chromium.org>
+Subject: Re: [PATCH 0/5] Add ChromeOS Embedded Controller support
+Date: Tue, 12 Feb 2013 16:37:27 -0800
+Message-ID: <CAPnjgZ3OKUSxZLgu976RD3tRaMDzscL31TMx_tyzm22GmqnznQ@mail.gmail.com>
+References: <1355348028-19017-1-git-send-email-sjg@chromium.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1355348028-19017-1-git-send-email-sjg@chromium.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Simon Glass <sjg@chromium.org>, linux-input@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>, Roland Stigge <stigge@antcom.de>, Grant Likely <grant.likely@secretlab.ca>, Che-Liang Chiou <clchiou@chromium.org>, devicetree-discuss@lists.ozlabs.org, Jonathan Kliegman <kliegs@chromium.org>, linux-doc@vger.kernel.org, Rob Landley <rob@landley.net>, Wolfram Sang <w.sang@pengutronix.de>, Felipe Balbi <balbi@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sourav Poddar <sourav.poddar@ti.com>, Luigi Semenzato <semenzato@chromium.org>, Olof Johansson <olof@lixom.net>, Rob Herring <rob.herring@calxeda.com>
 List-Id: linux-input@vger.kernel.org
 
-This allows HID drivers to also get/set reports through hid_hw_request().
+Hi Samuel,
 
-Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
+On Wed, Dec 12, 2012 at 1:33 PM, Simon Glass <sjg@chromium.org> wrote:
+> (get_maintainer.pl has produced an enormous list - I hope you are all
+> interested.)
+>
+> The ChromeOS Embedded Controller (EC) is an Open Source EC implementation
+> used on ARM and Intel Chromebooks. Current implementations use a Cortex-M3
+> connected on a bus (such as I2C, SPI, LPC) to the AP. A separate interrupt
+> line is used to indicate when the EC needs service.
+>
+> Functions performed by the EC vary by platform, but typically include
+> battery charging, keyboard scanning and power sequencing.
+>
+> This series includes support for the EC message protocol, and implements
+> a matrix keyboard handler for Linux using the protocol. The EC performs
+> key scanning and passes scan data in response to AP requests. This is
+> used on the Samsung ARM Chromebook. No driver is available for LPC at
+> present.
+>
+> This series can in principle operate on any hardware, but for it to actually
+> work on the Samsung ARM Chromebook, it needs patches which are currently in
+> progress to mainline: Exynos FDT interrupt support and I2C bus arbitration.
+>
+> The driver is device-tree-enabled and a suitable binding is included in
+> this series. Example device tree nodes are included in the examples,
+> but no device tree patch for exynos5250-snow is provided at this stage, since
+> we must wait for the above-mentioned patches to land to avoid errors from
+> dtc. This can be added with a follow-on patch when that work is complete.
+>
+>
+> Simon Glass (5):
+>   mfd: Add ChromeOS EC messages header
+>   mfd: Add ChromeOS EC implementation
+>   mfd: Add ChromeOS EC I2C driver
+>   mfd: Add ChromeOS EC SPI driver
+>   Input: Add ChromeOS EC keyboard driver
 
-Hi guys,
+Are you planning to pick the mfd part of this series please? I am
+going to send a new version of the input patch on its own now that the
+DT binding is agreed.
 
-this one also goes on top of the cleanup of usbhid from hid drivers.
-The purpose is to make hid-sensor-hub independent from USB and usable
-with I2C.
+Regards,
+Simon
 
-Cheers,
-Benjamin
-
- drivers/hid/i2c-hid/i2c-hid.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index ec79302..935f387 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -563,6 +563,37 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
- 	return ret;
- }
- 
-+static void i2c_hid_request(struct hid_device *hid, struct hid_report *rep,
-+		int reqtype)
-+{
-+	struct i2c_client *client = hid->driver_data;
-+	struct i2c_hid *ihid = i2c_get_clientdata(client);
-+	char *buf;
-+	int ret;
-+
-+	buf = kzalloc(ihid->bufsize, GFP_KERNEL);
-+	if (!buf)
-+		return;
-+
-+	switch (reqtype) {
-+	case HID_REQ_GET_REPORT:
-+		ret = i2c_hid_get_raw_report(hid, rep->id, buf, ihid->bufsize,
-+					     rep->type);
-+		if (ret < 0)
-+			dev_err(&client->dev, "%s: unable to get report: %d\n",
-+				__func__, ret);
-+		else
-+			hid_input_report(hid, rep->type, buf, ret, 0);
-+		break;
-+	case HID_REQ_SET_REPORT:
-+		hid_output_report(rep, buf);
-+		i2c_hid_output_raw_report(hid, buf, ihid->bufsize, rep->type);
-+		break;
-+	}
-+
-+	kfree(buf);
-+}
-+
- static int i2c_hid_parse(struct hid_device *hid)
- {
- 	struct i2c_client *client = hid->driver_data;
-@@ -742,6 +773,7 @@ static struct hid_ll_driver i2c_hid_ll_driver = {
- 	.open = i2c_hid_open,
- 	.close = i2c_hid_close,
- 	.power = i2c_hid_power,
-+	.request = i2c_hid_request,
- 	.hidinput_input_event = i2c_hid_hidinput_input_event,
- };
- 
--- 
-1.8.1.2
+>
+>  .../devicetree/bindings/input/cros-ec-keyb.txt     |   77 ++
+>  Documentation/devicetree/bindings/mfd/cros-ec.txt  |   56 +
+>  drivers/input/keyboard/Kconfig                     |   10 +
+>  drivers/input/keyboard/Makefile                    |    1 +
+>  drivers/input/keyboard/cros_ec_keyb.c              |  413 ++++++
+>  drivers/mfd/Kconfig                                |   28 +
+>  drivers/mfd/Makefile                               |    3 +
+>  drivers/mfd/cros_ec.c                              |  219 ++++
+>  drivers/mfd/cros_ec_i2c.c                          |  262 ++++
+>  drivers/mfd/cros_ec_spi.c                          |  412 ++++++
+>  include/linux/mfd/cros_ec.h                        |  190 +++
+>  include/linux/mfd/cros_ec_commands.h               | 1369 ++++++++++++++++++++
+>  12 files changed, 3040 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/cros-ec-keyb.txt
+>  create mode 100644 Documentation/devicetree/bindings/mfd/cros-ec.txt
+>  create mode 100644 drivers/input/keyboard/cros_ec_keyb.c
+>  create mode 100644 drivers/mfd/cros_ec.c
+>  create mode 100644 drivers/mfd/cros_ec_i2c.c
+>  create mode 100644 drivers/mfd/cros_ec_spi.c
+>  create mode 100644 include/linux/mfd/cros_ec.h
+>  create mode 100644 include/linux/mfd/cros_ec_commands.h
+>
+> --
+> 1.7.7.3
+>

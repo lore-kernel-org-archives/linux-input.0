@@ -1,177 +1,85 @@
-From: Simon Glass <sjg@chromium.org>
-Subject: [PATCH v3 5/6] Input: matrix-keymap: Add function to read the new DT binding
-Date: Wed, 13 Feb 2013 22:50:14 -0800
-Message-ID: <1360824615-10962-6-git-send-email-sjg@chromium.org>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two
+ locks.
+Date: Thu, 14 Feb 2013 08:06:48 +0100
+Message-ID: <20130214080648.6f84682e@pluto.restena.lu>
+References: <CAG_cf+eZ2w4i=a_kMieb92Pa0Gf2aOB_2Bs39G=aB7ui-Y08Pw@mail.gmail.com>
+	<CANq1E4Q-dWrf4nwn+SZ4TdjBSZ5i6UEGgVxm=eboZ0i6Dk9ZqA@mail.gmail.com>
+	<20130211185527.63d1c1f9@neptune.home>
+	<CAG_cf+cm_q-0KJzZUaBsw=i5zqGp_Q+6Ga8=7mWVMXXidfEVpA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f201.google.com ([209.85.161.201]:32776 "EHLO
-	mail-gg0-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752001Ab3BNG6H (ORCPT
+Received: from smtprelay.restena.lu ([158.64.1.62]:45203 "EHLO
+	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755773Ab3BNHGw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Feb 2013 01:58:07 -0500
-Received: by mail-gg0-f201.google.com with SMTP id l2so146441ggn.0
-        for <linux-input@vger.kernel.org>; Wed, 13 Feb 2013 22:58:06 -0800 (PST)
+	Thu, 14 Feb 2013 02:06:52 -0500
+In-Reply-To: <CAG_cf+cm_q-0KJzZUaBsw=i5zqGp_Q+6Ga8=7mWVMXXidfEVpA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Simon Glass <sjg@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Javier Martinez Canillas <javier@dowhile0.org>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, Alban Bedel <alban.bedel@avionic-design.de>, linux-input@vger.kernel.org
+To: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Cc: David Herrmann <dh.herrmann@googlemail.com>, Linux Input <linux-input@vger.kernel.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-We now have a binding which adds two parameters to the matrix keypad DT
-node. This is separate from the GPIO-driven matrix keypad binding, and
-unfortunately incompatible, since that uses row-gpios/col-gpios for the
-row and column counts.
+On Wed, 13 Feb 2013 21:08:20 -0800 Andrew de los Reyes wrote:
+> > > >  /**
+> > > > + * hid_device_io_start - enable HID input during probe, remove
+> > > > + *
+> > > > + * @hid - the device
+> > > > + *
+> > > > + * This should only be called during probe or remove. It will allow
+> > > > + * incoming packets to be delivered to the driver.
+> > > > + */
+> > > > +static inline void hid_device_io_start(struct hid_device *hid) {
+> > > > +  up(&hid->driver_input_lock);
+> > > > +  hid->io_started = true;
+> > >
+> > > Shouldn't these lines be swapped? Doesn't matter but it looks weird to
+> > > me this way.
+> > >
+> > > But more importantly, we must go sure this is called from the same
+> > > thread that probe() is called on. Other use-cases are not supported by
+> > > semaphores and might break due to missing barriers. So maybe the
+> > > comment could include that?
+> >
+> > Maybe even check what value hid->io_started has and WARN() [+skip
+> > up()/down()]
+> > in case hid_device_io_start()/stop() was not called in a balanced way.
+> 
+> It is a goal to support hid_device_io_start()/stop() not being called
+> in a balanced way. This is specifically needed by a change I'm making
+> to hid-logitech-dj.c: During probe(), the driver will send out a
+> request to the USB dongle to list any attached mice/keyboards. The
+> reply packets aren't needed during probe(), so probe will return, but
+> the driver wants packets to flow in, and it doesn't mind if they come
+> in while probe() is still running or not. In this case, during
+> probe(), the driver will call hid_device_io_start() to allow incoming
+> packets, but then not call hid_device_io_stop().
 
-So the easiest option here is to provide a function for non-GPIO drivers
-to use to decode the binding.
+With unbalanced I meant calling hid_device_io_start()/stop() twice or
+more in a row in _probe() (or _remove()) without corresponding
+_stop()/_start() call.
+That kind of cases might happen (mostly) with error paths.
 
-Note: We could in fact create an entirely separate structure to hold
-these two fields, but it does not seem worth it, yet. If we have more
-parameters then we can add this, and then refactor each driver to hold
-such a structure.
+Like the following (simplified) example when both if() match:
 
-Signed-off-by: Simon Glass <sjg@chromium.org>
-Tested-by: Sourav Poddar <sourav.poddar@ti.com> (v2)
----
-Changes in v3:
-- Add stub for matrix_keypad_parse_of_params() when no CONFIG_OF
-- Put back full DT range checking in tca8418 driver
+int driver_probe(...)
+{
+   ...
+   if (...) {
+      ...
+      hid_device_io_start();
+      ...
+   }
+   ...
+   if (...) {
+      ...
+      hid_device_io_start();
+      ...
+   }
+   ...
+}
 
-Changes in v2:
-- Add new patch to decode matrix-keypad DT binding
 
- drivers/input/keyboard/lpc32xx-keys.c   | 11 ++++++-----
- drivers/input/keyboard/omap4-keypad.c   | 16 +++++-----------
- drivers/input/keyboard/tca8418_keypad.c |  7 +++++--
- drivers/input/matrix-keymap.c           | 19 +++++++++++++++++++
- include/linux/input/matrix_keypad.h     | 19 +++++++++++++++++++
- 5 files changed, 54 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
-index 1b8add6..4218143 100644
---- a/drivers/input/keyboard/lpc32xx-keys.c
-+++ b/drivers/input/keyboard/lpc32xx-keys.c
-@@ -144,12 +144,13 @@ static int lpc32xx_parse_dt(struct device *dev,
- {
- 	struct device_node *np = dev->of_node;
- 	u32 rows = 0, columns = 0;
-+	int err;
- 
--	of_property_read_u32(np, "keypad,num-rows", &rows);
--	of_property_read_u32(np, "keypad,num-columns", &columns);
--	if (!rows || rows != columns) {
--		dev_err(dev,
--			"rows and columns must be specified and be equal!\n");
-+	err = matrix_keypad_parse_of_params(dev, &rows, &columns);
-+	if (err)
-+		return err;
-+	if (rows != columns) {
-+		dev_err(dev, "rows and columns must be equal!\n");
- 		return -EINVAL;
- 	}
- 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index e25b022..1b28909 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -215,18 +215,12 @@ static int omap4_keypad_parse_dt(struct device *dev,
- 				 struct omap4_keypad *keypad_data)
- {
- 	struct device_node *np = dev->of_node;
-+	int err;
- 
--	if (!np) {
--		dev_err(dev, "missing DT data");
--		return -EINVAL;
--	}
--
--	of_property_read_u32(np, "keypad,num-rows", &keypad_data->rows);
--	of_property_read_u32(np, "keypad,num-columns", &keypad_data->cols);
--	if (!keypad_data->rows || !keypad_data->cols) {
--		dev_err(dev, "number of keypad rows/columns not specified\n");
--		return -EINVAL;
--	}
-+	err = matrix_keypad_parse_of_params(dev, &keypad_data->rows,
-+					    &keypad_data->cols);
-+	if (err)
-+		return err;
- 
- 	if (of_get_property(np, "linux,input-no-autorepeat", NULL))
- 		keypad_data->no_autorepeat = true;
-diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
-index a34cc67..55c1530 100644
---- a/drivers/input/keyboard/tca8418_keypad.c
-+++ b/drivers/input/keyboard/tca8418_keypad.c
-@@ -288,8 +288,11 @@ static int tca8418_keypad_probe(struct i2c_client *client,
- 		irq_is_gpio = pdata->irq_is_gpio;
- 	} else {
- 		struct device_node *np = dev->of_node;
--		of_property_read_u32(np, "keypad,num-rows", &rows);
--		of_property_read_u32(np, "keypad,num-columns", &cols);
-+		int err;
-+
-+		err = matrix_keypad_parse_of_params(dev, &rows, &cols);
-+		if (err)
-+			return err;
- 		rep = of_property_read_bool(np, "keypad,autorepeat");
- 	}
- 
-diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
-index 3ae496e..619b382 100644
---- a/drivers/input/matrix-keymap.c
-+++ b/drivers/input/matrix-keymap.c
-@@ -50,6 +50,25 @@ static bool matrix_keypad_map_key(struct input_dev *input_dev,
- }
- 
- #ifdef CONFIG_OF
-+int matrix_keypad_parse_of_params(struct device *dev,
-+				  unsigned int *rows, unsigned int *cols)
-+{
-+	struct device_node *np = dev->of_node;
-+
-+	if (!np) {
-+		dev_err(dev, "missing DT data");
-+		return -EINVAL;
-+	}
-+	of_property_read_u32(np, "keypad,num-rows", rows);
-+	of_property_read_u32(np, "keypad,num-columns", cols);
-+	if (!*rows || !*cols) {
-+		dev_err(dev, "number of keypad rows/columns not specified\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- static int matrix_keypad_parse_of_keymap(const char *propname,
- 					 unsigned int rows, unsigned int cols,
- 					 struct input_dev *input_dev)
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index 5f3aa6b..27e06ac 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -81,4 +81,23 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- 			       unsigned short *keymap,
- 			       struct input_dev *input_dev);
- 
-+#ifdef CONFIG_OF
-+/**
-+ * matrix_keypad_parse_of_params() - Read parameters from matrix-keypad node
-+ *
-+ * @dev: Device containing of_node
-+ * @rows: Returns number of matrix rows
-+ * @cols: Returns number of matrix columns
-+ * @return 0 if OK, <0 on error
-+ */
-+int matrix_keypad_parse_of_params(struct device *dev,
-+				  unsigned int *rows, unsigned int *cols);
-+#else
-+static inline int matrix_keypad_parse_of_params(struct device *dev,
-+				  unsigned int *rows, unsigned int *cols)
-+{
-+	return -ENOSYS;
-+}
-+#endif /* CONFIG_OF */
-+
- #endif /* _MATRIX_KEYPAD_H */
--- 
-1.8.1
-
+Bruno

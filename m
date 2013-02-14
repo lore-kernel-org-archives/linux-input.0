@@ -1,97 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 6/6] Input: Add ChromeOS EC keyboard driver
-Date: Thu, 14 Feb 2013 09:31:28 -0800
-Message-ID: <20130214173127.GC4007@core.coreip.homeip.net>
-References: <1360723347-28701-1-git-send-email-sjg@chromium.org>
- <1360723347-28701-7-git-send-email-sjg@chromium.org>
- <20130213200232.GB22031@core.coreip.homeip.net>
- <CAPnjgZ2-QV36Ro_G32kcHStpj0SCC_gDoeCPqjN-h6bsBTSGvQ@mail.gmail.com>
+From: Benson Leung <bleung@chromium.org>
+Subject: Re: [PATCH v2 1/1] Input: mouse: cyapa - Add support for cyapa smbus protocol
+Date: Thu, 14 Feb 2013 09:56:45 -0800
+Message-ID: <CANLzEkvEwqtOYhx7WPoWiq9qm-z9n9dcejp97+PgpPMWs0DKhw@mail.gmail.com>
+References: <1359673513-22328-1-git-send-email-bleung@chromium.org>
+	<1360527340-25936-1-git-send-email-bleung@chromium.org>
+	<20130214042635.GC2472@core.coreip.homeip.net>
+	<20130214171927.GA538@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAPnjgZ2-QV36Ro_G32kcHStpj0SCC_gDoeCPqjN-h6bsBTSGvQ@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Simon Glass <sjg@chromium.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Luigi Semenzato <semenzato@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, Felipe Balbi <balbi@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, Tony Lindgren <tony@atomide.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Mike A. Chan" <mikechan@google.com>, Jun Nakajima <jun.nakajima@intel.com>, Tom Keel <thomas.keel@intel.com>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130214171927.GA538@polaris.bitmath.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, khali@linux-fr.org, Olof Johansson <olofj@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Dudley Du <dudl@cypress.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 13, 2013 at 10:45:07PM -0800, Simon Glass wrote:
-> >>
-> >> +config KEYBOARD_CROS_EC
-> >> +     tristate "ChromeOS EC keyboard"
-> >> +     select INPUT_MATRIXKMAP
-> >> +     select MFD_CROS_EC
-> >
-> > Is this select safe? I.e. does MFD_CROS_EC depend on anything else?
-> 
-> I'll remove it, since it isn't required, and it's true that it does
-> need other things.
+Thanks again, Dmitry and Henrik!
 
-Instead of droppign the dependency completely I think it should "depens
-on MFD_CROS_EC"
 
-> >> +
-> >> +static void cros_ec_keyb_close(struct input_dev *dev)
-> >> +{
-> >> +     struct cros_ec_keyb *ckdev = input_get_drvdata(dev);
-> >> +
-> >> +     blocking_notifier_chain_unregister(&ckdev->ec->event_notifier,
-> >> +                                        &ckdev->notifier);
-> >> +     blocking_notifier_chain_unregister(&ckdev->ec->wake_notifier,
-> >> +                                        &ckdev->wake_notifier);
-> >
-> > Why is this done via a notifier instead of regular resume method?
-> 
-> Because we only call the notifer in resume when we were not waking on
-> a keyboard event. We use it to flush the keyboard. It was a late
-> change so there might be a better way, but this driver does not have a
-> resume handler.
+On Thu, Feb 14, 2013 at 9:19 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> On Wed, Feb 13, 2013 at 08:26:35PM -0800, Dmitry Torokhov wrote:
+>> On Sun, Feb 10, 2013 at 12:15:40PM -0800, Benson Leung wrote:
+>> > This patch adds support for the Cypress APA Smbus Trackpad type,
+>> > which uses a modified register map that fits within the
+>> > limitations of the smbus protocol.
+>> >
+>> > Devices that use this protocol include:
+>> > CYTRA-116001-00 - Samsung Series 5 550 Chromebook trackpad
+>> > CYTRA-103002-00 - Acer C7 Chromebook trackpad
+>> > CYTRA-101003-00 - HP Pavilion 14 Chromebook trackpad
+>> >
+>> > Signed-off-by: Dudley Du <dudl@cypress.com>
+>> > Signed-off-by: Benson Leung <bleung@chromium.org>
+>> > Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
+>> > ---
+>> > v2 : Minor style cleanup. Removed unused struct device *dev declarations.
+>> > ---
+>>
+>> Applied, thank you Benson.
+>>
+>> Henrik, I put you down as "reviewed-by".
+>
+> Perfect, thank you.
+>
+> Henrik
 
-Right and the question is why does not it have resume handler and why
-you inventing your own resume infrastructure instead of using the
-standard one.
 
-> >> +
-> >> +static int cros_ec_keyb_probe(struct platform_device *pdev)
-> >> +{
-> >> +     struct cros_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
-> >> +     struct device *dev = ec->dev;
-> >> +     struct cros_ec_keyb *ckdev = NULL;
-> >> +     struct input_dev *idev = NULL;
-> >> +     struct device_node *np;
-> >> +     int err;
-> >> +
-> >> +     np = of_find_matching_node(NULL, cros_ec_kbc_of_match);
-> >
-> > And if we don't find it?
-> 
-> Added error checking.
-> 
-> >
-> >> +
-> >> +     ckdev = kzalloc(sizeof(*ckdev), GFP_KERNEL);
-> >> +     if (!ckdev) {
-> >> +             dev_err(dev, "cannot allocate memory for ckdev\n");
-> >> +             return -ENOMEM;
-> >> +     }
-> >> +     pdev->dev.of_node = np;
-> >
-> > Huh? I'd expect the platform device be fully set up (including DT data)
-> > before the driver is called.
-> 
-> This is a child of the mfd driver cros_ec, so I don't think that
-> works. Or maybe I'm just not sure how to plumb it in so it is
-> automatic. Or maybe I just need to add the id to the device info
-> below?
-
-Who creates this device? Whoever does this should set up the
-pdev->dev.of_node. This is not this driver's responsibility.
-
-And then you add the id to the table below and matching is done
-automatically.
-
-Thanks.
 
 -- 
-Dmitry
+Benson Leung
+Software Engineer, Chrom* OS
+bleung@chromium.org

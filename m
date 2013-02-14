@@ -1,72 +1,78 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: Re: [PATCH] Input: synaptics - disable fuzz when using mt slots
-Date: Thu, 14 Feb 2013 09:15:09 -0800
-Message-ID: <CAGS+omDJi6EecXHdtYEGg0iXNqTLSnhHPE7ieHQ=ZNXkowJqKQ@mail.gmail.com>
-References: <1359707312-12986-1-git-send-email-djkurtz@chromium.org> <20130213215250.GE23390@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH V2 00/14] Input: ALPS - Clean up and rework driver to
+ support newer touchpads
+Date: Thu, 14 Feb 2013 09:17:19 -0800
+Message-ID: <20130214171719.GA4007@core.coreip.homeip.net>
+References: <1359935815-13507-1-git-send-email-cernekee@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f42.google.com ([209.85.216.42]:36467 "EHLO
-	mail-qa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755903Ab3BNRPa (ORCPT
+Received: from mail-pb0-f45.google.com ([209.85.160.45]:55110 "EHLO
+	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755903Ab3BNRRY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Feb 2013 12:15:30 -0500
-Received: by mail-qa0-f42.google.com with SMTP id cr7so55104qab.15
-        for <linux-input@vger.kernel.org>; Thu, 14 Feb 2013 09:15:29 -0800 (PST)
-In-Reply-To: <20130213215250.GE23390@core.coreip.homeip.net>
+	Thu, 14 Feb 2013 12:17:24 -0500
+Received: by mail-pb0-f45.google.com with SMTP id ro8so239637pbb.4
+        for <linux-input@vger.kernel.org>; Thu, 14 Feb 2013 09:17:23 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1359935815-13507-1-git-send-email-cernekee@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Seth Forshee <seth.forshee@canonical.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Chung-Yih Wang <cywang@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kevin Cernekee <cernekee@gmail.com>
+Cc: seth.forshee@canonical.com, emmanuel.thome@inria.fr, dturvene@dahetral.com, vincent.vanackere@gmail.com, bgamari@gmail.com, linux-input@vger.kernel.org
 
-On Wed, Feb 13, 2013 at 1:52 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Fri, Feb 01, 2013 at 04:28:32PM +0800, Daniel Kurtz wrote:
->> The input fuzz algorithm does a pretty good job filtering out small
->> jitter on input samples.
->>
->> However, there is a subtle problem when fuzz is used with mt drivers that
->> also use input_mt_report_pointer_emulation() to report legacy single
->> touch coordinates.  The reported single touch coordinates are taken from
->> the active MT slot with smallest tracking id.  However, since the MT data
->> is sent first, it has already had FUZZ applied.  Thus, the ST coordinates
->> actually get FUZZ applied a second time, with the just-fuzzed MT value as
->> the 'old value'.
->>
->> It appears that it is non-trivial to fix this in the mt layer/input core,
->> so, for now, just disable fuzz for the synaptics IMAGE_SENSOR path that
->> uses input_mt_report_pointer_emulation().
->>
->> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
->> ---
->>  drivers/input/mouse/synaptics.c | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->> index 12d12ca..b6c6838 100644
->> --- a/drivers/input/mouse/synaptics.c
->> +++ b/drivers/input/mouse/synaptics.c
->> @@ -1211,7 +1211,8 @@ static void set_abs_position_params(struct input_dev *dev,
->>       int x_max = priv->x_max ?: XMAX_NOMINAL;
->>       int y_min = priv->y_min ?: YMIN_NOMINAL;
->>       int y_max = priv->y_max ?: YMAX_NOMINAL;
->> -     int fuzz = SYN_CAP_REDUCED_FILTERING(priv->ext_cap_0c) ?
->> +     int fuzz = (SYN_CAP_REDUCED_FILTERING(priv->ext_cap_0c) &&
->> +                     !SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) ?
->>                       SYN_REDUCED_FILTER_FUZZ : 0;
->
-> Hmm, instead of disabling fuzz completely maybe we should disable it
-> only on the derived axes (ABS_X/ABS_Y) for multitouch devices?
+Hi Kevin,
 
-Yes, that should work...  both would end up fuzzed to the same value,
-for a not-so-obvious reason, IMHO :).
-It's a bit tricky, and I like it, but is that what you intended by the
-suggestion?
+On Sun, Feb 03, 2013 at 03:56:40PM -0800, Kevin Cernekee wrote:
+> Several modern ALPS devices require slight variations on existing driver
+> functions.  This patchset provides a way to "mix and match" various
+> components, to avoid excessive code duplication and clutter:
+> 
+>  - Separating the report format decoding from processing, so that
+>    Pinnacle AGx, Rushmore, and Dolphin touchpads can use a common
+>    processing function.
+> 
+>  - Allowing devices with different register layouts to use the same
+>    processing functions but disparate init functions.
+> 
+>  - Providing a way to discover touchpads like Pinnacle AGx and Rushmore,
+>    which are identified by a range of EC report values rather than an
+>    exact match to a specific E7 report sequence.
+> 
+>  - Storing the bitmap and pixel constants in the alps_data struct, so
+>    they can be updated if the device uses different values (ala Dolphin).
+> 
+> 
+> V1->V2 changes with respect to Rushmore support:
+> 
+>  - Fix MT and trackstick report decoding (credit to Emmanual Thome)
+> 
+> 
+> Baseline:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+> 
+> git pull from:
+> 
+> https://github.com/cernekee/linux alps-v2
+> 
+> 
+> Tested on:
+> 
+> Dell E6410 (Pinnacle AGx) - E7/EC: 73 02 64 / 88 07 9d
+> Dell E6230 (Rushmore without trackstick) - E7/EC: 73 03 0a / 88 08 1d
+> Dell E6430 (Rushmore with trackstick) - E7/EC: 73 03 0a / 88 08 1d
+> 
+> Dolphin support is new and completely untested; if nobody reports success
+> we should drop that patch.  Also, there are at least two known Dolphin
+> versions, which use different init sequences (at least in the Windows
+> driver).
 
--Daniel
 
->
-> Thanks.
->
-> --
-> Dmitry
+Thank you very much, nice work! I applied the first 13 patches; waiting
+for acknowledgements that Dolphin works before I apply it.
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,85 +1,35 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two
- locks.
-Date: Thu, 14 Feb 2013 08:06:48 +0100
-Message-ID: <20130214080648.6f84682e@pluto.restena.lu>
-References: <CAG_cf+eZ2w4i=a_kMieb92Pa0Gf2aOB_2Bs39G=aB7ui-Y08Pw@mail.gmail.com>
-	<CANq1E4Q-dWrf4nwn+SZ4TdjBSZ5i6UEGgVxm=eboZ0i6Dk9ZqA@mail.gmail.com>
-	<20130211185527.63d1c1f9@neptune.home>
-	<CAG_cf+cm_q-0KJzZUaBsw=i5zqGp_Q+6Ga8=7mWVMXXidfEVpA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:45203 "EHLO
-	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755773Ab3BNHGw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Feb 2013 02:06:52 -0500
-In-Reply-To: <CAG_cf+cm_q-0KJzZUaBsw=i5zqGp_Q+6Ga8=7mWVMXXidfEVpA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Bastian Hecht <hechtb@gmail.com>
+Subject: [PATCH] input: st1232: Add IRQF_NO_SUSPEND flag
+Date: Thu, 14 Feb 2013 11:32:12 -0600
+Message-ID: <1360863132-11227-1-git-send-email-hechtb+renesas@gmail.com>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-sh@vger.kernel.org
+Cc: Magnus Damm <magnus.damm@gmail.com>, Tony SIM <chinyeow.sim.xt@renesas.com>, Bastian Hecht <hechtb+renesas@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Andrew de los Reyes <andrew-vger@gizmolabs.org>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, Linux Input <linux-input@vger.kernel.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, 13 Feb 2013 21:08:20 -0800 Andrew de los Reyes wrote:
-> > > >  /**
-> > > > + * hid_device_io_start - enable HID input during probe, remove
-> > > > + *
-> > > > + * @hid - the device
-> > > > + *
-> > > > + * This should only be called during probe or remove. It will allow
-> > > > + * incoming packets to be delivered to the driver.
-> > > > + */
-> > > > +static inline void hid_device_io_start(struct hid_device *hid) {
-> > > > +  up(&hid->driver_input_lock);
-> > > > +  hid->io_started = true;
-> > >
-> > > Shouldn't these lines be swapped? Doesn't matter but it looks weird to
-> > > me this way.
-> > >
-> > > But more importantly, we must go sure this is called from the same
-> > > thread that probe() is called on. Other use-cases are not supported by
-> > > semaphores and might break due to missing barriers. So maybe the
-> > > comment could include that?
-> >
-> > Maybe even check what value hid->io_started has and WARN() [+skip
-> > up()/down()]
-> > in case hid_device_io_start()/stop() was not called in a balanced way.
-> 
-> It is a goal to support hid_device_io_start()/stop() not being called
-> in a balanced way. This is specifically needed by a change I'm making
-> to hid-logitech-dj.c: During probe(), the driver will send out a
-> request to the USB dongle to list any attached mice/keyboards. The
-> reply packets aren't needed during probe(), so probe will return, but
-> the driver wants packets to flow in, and it doesn't mind if they come
-> in while probe() is still running or not. In this case, during
-> probe(), the driver will call hid_device_io_start() to allow incoming
-> packets, but then not call hid_device_io_stop().
+When registering the interrupt handler we add the IRQF_NO_SUSPEND flag
+to save the IRQ line from being disabled during suspension. This way we
+keep the ability to use the device as a wakeup source.
 
-With unbalanced I meant calling hid_device_io_start()/stop() twice or
-more in a row in _probe() (or _remove()) without corresponding
-_stop()/_start() call.
-That kind of cases might happen (mostly) with error paths.
+Signed-off-by: Bastian Hecht <hechtb+renesas@gmail.com>
+---
+ drivers/input/touchscreen/st1232.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Like the following (simplified) example when both if() match:
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+index d9d05e2..4f37199 100644
+--- a/drivers/input/touchscreen/st1232.c
++++ b/drivers/input/touchscreen/st1232.c
+@@ -180,7 +180,7 @@ static int st1232_ts_probe(struct i2c_client *client,
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, MIN_Y, MAX_Y, 0, 0);
+ 
+ 	error = request_threaded_irq(client->irq, NULL, st1232_ts_irq_handler,
+-				     IRQF_ONESHOT, client->name, ts);
++			IRQF_ONESHOT | IRQF_NO_SUSPEND, client->name, ts);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to register interrupt\n");
+ 		goto err_free_mem;
+-- 
+1.7.9.5
 
-int driver_probe(...)
-{
-   ...
-   if (...) {
-      ...
-      hid_device_io_start();
-      ...
-   }
-   ...
-   if (...) {
-      ...
-      hid_device_io_start();
-      ...
-   }
-   ...
-}
-
-
-Bruno

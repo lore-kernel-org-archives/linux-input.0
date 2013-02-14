@@ -1,68 +1,123 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2 00/14] Input: ALPS - Clean up and rework driver to
- support newer touchpads
-Date: Thu, 14 Feb 2013 10:08:46 -0800
-Message-ID: <20130214180846.GD4007@core.coreip.homeip.net>
-References: <1359935815-13507-1-git-send-email-cernekee@gmail.com>
- <20130214171719.GA4007@core.coreip.homeip.net>
- <CAJiQ=7A+STkdy5QAxr8QSh4ONjeD+jQA65BRTKNuZj7HxO+TSg@mail.gmail.com>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH] mfd: stmpe: Pull IRQ GPIO number from DT during DT-based probe
+Date: Thu, 14 Feb 2013 17:26:15 +0100
+Message-ID: <201302141726.16044.marex@denx.de>
+References: <1357568989-16237-1-git-send-email-marex@denx.de> <CACRpkdZWi4M3HmO_rq1O9aGTKYR0iMLXJo+nos3hYu3C_DFRHQ@mail.gmail.com> <20130208225151.4BF8C3E2C27@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:43706 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758313Ab3BNSIu (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.10]:47875 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758431Ab3BNSVH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Feb 2013 13:08:50 -0500
-Received: by mail-pb0-f47.google.com with SMTP id rp2so257953pbb.6
-        for <linux-input@vger.kernel.org>; Thu, 14 Feb 2013 10:08:50 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAJiQ=7A+STkdy5QAxr8QSh4ONjeD+jQA65BRTKNuZj7HxO+TSg@mail.gmail.com>
+	Thu, 14 Feb 2013 13:21:07 -0500
+In-Reply-To: <20130208225151.4BF8C3E2C27@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Cernekee <cernekee@gmail.com>
-Cc: seth.forshee@canonical.com, emmanuel.thome@inria.fr, dturvene@dahetral.com, vincent.vanackere@gmail.com, bgamari@gmail.com, linux-input@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Viresh Kumar <viresh.kumar@linaro.org>, Lee Jones <lee.jones@linaro.org>, devicetree-discuss@lists.ozlabs.org, vipul kumar samar <vipulkumar.samar@st.com>, Samuel Ortiz <sameo@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, Feb 14, 2013 at 10:02:52AM -0800, Kevin Cernekee wrote:
-> On Thu, Feb 14, 2013 at 9:17 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Thank you very much, nice work! I applied the first 13 patches; waiting
-> > for acknowledgements that Dolphin works before I apply it.
-> 
-> Dmitry,
-> 
-> A couple of us were working behind the scenes on a third spin of the
-> patchset.  There was one change that affected patches #07-13:
-> 
->  - Remove unused "resp" parameter from alps_enter_command_mode() (minor cleanup)
-> 
-> And several more improvements/fixes to the Dolphin patch #14:
-> 
->  - Distinguish between Dolphin V1 and V2 in alps_identify() and use
-> different init sequences
->  - Take Dolphin out of the alps_model_data table, so that we can check
-> the second byte of the EC report
->  - Use the Dave T / Florin V1 init sequence verbatim if it's V1
->  - Update the V2 init sequence to more closely match the binary
-> driver, and fix some bugs
-> 
-> #14 should definitely not be applied as-is.  #01-13 should be safe to
-> apply, or if you want, I'll post the new versions instead.
-> 
-> I believe the new version of the Dolphin patch is working correctly
-> for Dolphin V1.  Basic Dolphin V2 functionality is "OK" but there
-> still seems to be an issue properly sensing pressure values at the
-> edges of the touchpad, which might mean that the reports aren't being
-> decoded correctly.  As a result, users have reported that edge
-> scrolling is not working very well.
+Dear Grant Likely,
 
-OK, so maybe we should merge the latest version of the patch but
-temporarily disable the V2 support until you work out the kinks?
+> On Thu, 10 Jan 2013 12:42:53 +0100, Linus Walleij <linus.walleij@linaro.org> 
+wrote:
+> > On Tue, Jan 8, 2013 at 12:14 PM, Viresh Kumar <viresh.kumar@linaro.org> 
+wrote:
+> > > On 8 January 2013 16:41, Lee Jones <lee.jones@linaro.org> wrote:
+> > >>> Hmm.. I tried a bit, but couldn't find any such call :(
+> > >>> Probably an assumption is taken here. GPIO pins which are going to be
+> > >>> used as interrupt lines, wouldn't be getting set in output mode at
+> > >>> all. So, once they are put
+> > >>> in input mode in beginning, nobody would change it ever.
+> > >>> 
+> > >>> Much of gpio controllers configure gpio pins in input mode in their
+> > >>> probe().
+> > >>> 
+> > >>> Maybe, there is something else :)
+> > >> 
+> > >> Pinctrl?
+> > > 
+> > > I don't think pinctrl is playing with it. I searched for
+> > > "direction_input" string and
+> > > pinctrl routine also had similar name. I couldn't fine use of
+> > > direction_input anywhere
+> > > in kernel, for setting them as irqs for OF cases.
+> > 
+> > pinctrl has pinctrl_gpio_direction_input() and
+> > pinctrl_gpio_direction_output() which are supposed to
+> > be called *only* by GPIOlib frontends using pinctrl
+> > as backend to control the pins.
+> > 
+> > But if it's a pinctrl driver using standard pinconfig from
+> > include/linux/pinctrl/pinconf-generic.h
+> > I'm all for adding a PIN_CONFIG_INPUT_ENABLE
+> > to these definintions so it can be set up as input
+> > at boot from the device tree using hogs or something,
+> > that make things easy when using GPIOs as IRQ
+> > providers only.
+> > 
+> > So the alternative is to just set up the IRQ using the
+> > gpiolib functions for this: of_get_gpio() if you need the
+> > number from DT, then gpio_request() and
+> > gpio_direction_input() as on any GPIO. This can be
+> > done in the device driver or board code depending
+> > on use case.
+> > 
+> > In the Nomadik I did this (maybe ugly) hack for a
+> > similar case:
+> > 
+> > +/*
+> > + * The SMSC911x IRQ is connected to a GPIO pin, but the driver expects
+> > + * to simply request an IRQ passed as a resource. So the GPIO pin needs
+> > + * to be requested by this hog and set as input.
+> > + */
+> > +static int __init cpu8815_eth_init(void)
+> > +{
+> > +       struct device_node *eth;
+> > +       int gpio, irq, err;
+> > +
+> > +       eth =
+> > of_find_node_by_path("/external-bus@34000000/ethernet@300"); +       if
+> > (!eth) {
+> > +               pr_info("could not find any ethernet controller\n");
+> > +               return 0;
+> > +       }
+> > +       gpio = of_get_gpio(eth, 0);
+> > +       err = gpio_request(gpio, "eth_irq");
+> > +       if (err) {
+> > +               pr_info("failed to request ethernet GPIO\n");
+> > +               return -ENODEV;
+> > +       }
+> > +       err = gpio_direction_input(gpio);
+> > +       if (err) {
+> > +               pr_info("failed to set ehernet GPIO as input\n");
+> > +               return -ENODEV;
+> > +       }
+> > +       irq = gpio_to_irq(gpio);
+> > +       pr_info("enabled ethernet GPIO %d, IRQ %d\n", gpio, irq);
+> > +       return 0;
+> > +}
+> > +device_initcall(cpu8815_eth_init);
+> > 
+> > I haven't read review comments on that patch.
+> > 
+> > Maybe it's not such a good idea to add the GPIO to the device itself
+> > when it's being hogged by board code like this. It's a bit of a grey area
+> > so I'm a bit confused here.
+> > 
+> > Maybe the GPIO lib actually needs a "hog" mechanism that can
+> > request and set GPIO pins as input/output on boot and then
+> > forget about them.
+> 
+> That would be reasonable. Probably as properties in the gpio controller
+> node that specify how to set the inital state.
 
-Anyway, please send the new patches relative to what is my 'next'
-branch.
+Looks good.
 
-Thanks!
+btw. I have a feeling this stmpe touchscreen driver has a few more issues, but 
+I'll need to investigate before I jump to any conclusion.
 
--- 
-Dmitry
+Best regards,
+Marek Vasut

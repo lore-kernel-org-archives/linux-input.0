@@ -1,387 +1,225 @@
-From: Andrew de los Reyes <andrew-vger@gizmolabs.org>
-Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two locks.
-Date: Wed, 13 Feb 2013 21:08:20 -0800
-Message-ID: <CAG_cf+cm_q-0KJzZUaBsw=i5zqGp_Q+6Ga8=7mWVMXXidfEVpA@mail.gmail.com>
-References: <CAG_cf+eZ2w4i=a_kMieb92Pa0Gf2aOB_2Bs39G=aB7ui-Y08Pw@mail.gmail.com>
- <CANq1E4Q-dWrf4nwn+SZ4TdjBSZ5i6UEGgVxm=eboZ0i6Dk9ZqA@mail.gmail.com> <20130211185527.63d1c1f9@neptune.home>
+From: Simon Glass <sjg@chromium.org>
+Subject: Re: [PATCH v2 5/6] Input: matrix-keymap: Add function to read the new
+ DT binding
+Date: Wed, 13 Feb 2013 21:40:21 -0800
+Message-ID: <CAPnjgZ0YQG4eW5Hd4eZtU8my=pDEZH7ACw5nE15H-yQ1ucwr_g@mail.gmail.com>
+References: <1360723347-28701-1-git-send-email-sjg@chromium.org>
+	<1360723347-28701-6-git-send-email-sjg@chromium.org>
+	<20130213194307.GA22031@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:46480 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750990Ab3BNFIl convert rfc822-to-8bit (ORCPT
+Received: from mail-oa0-f53.google.com ([209.85.219.53]:55701 "EHLO
+	mail-oa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750736Ab3BNFkW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Feb 2013 00:08:41 -0500
-Received: by mail-ie0-f182.google.com with SMTP id k14so2748777iea.41
-        for <linux-input@vger.kernel.org>; Wed, 13 Feb 2013 21:08:41 -0800 (PST)
-In-Reply-To: <20130211185527.63d1c1f9@neptune.home>
+	Thu, 14 Feb 2013 00:40:22 -0500
+Received: by mail-oa0-f53.google.com with SMTP id m1so2113481oag.40
+        for <linux-input@vger.kernel.org>; Wed, 13 Feb 2013 21:40:22 -0800 (PST)
+In-Reply-To: <20130213194307.GA22031@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: David Herrmann <dh.herrmann@googlemail.com>, Linux Input <linux-input@vger.kernel.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Javier Martinez Canillas <javier@dowhile0.org>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, Alban Bedel <alban.bedel@avionic-design.de>, linux-input@vger.kernel.org
 
-I'm sending another version of this patch now, but I wanted to give a
-couple quick comments:
+Hi Dmitry,
 
-On Mon, Feb 11, 2013 at 9:55 AM, Bruno Pr=E9mont
-<bonbons@linux-vserver.org> wrote:
+On Wed, Feb 13, 2013 at 11:43 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Simon,
 >
-> Hi Andrew, David,
+> On Tue, Feb 12, 2013 at 06:42:25PM -0800, Simon Glass wrote:
+>> We now have a binding which adds two parameters to the matrix keypad DT
+>> node. This is separate from the GPIO-driven matrix keypad binding, and
+>> unfortunately incompatible, since that uses row-gpios/col-gpios for the
+>> row and column counts.
+>>
+>> So the easiest option here is to provide a function for non-GPIO drivers
+>> to use to decode the binding.
+>>
+>> Note: We could in fact create an entirely separate structure to hold
+>> these two fields, but it does not seem worth it, yet. If we have more
+>> parameters then we can add this, and then refactor each driver to hold
+>> such a structure.
+>>
+>> Signed-off-by: Simon Glass <sjg@chromium.org>
+>> ---
+>> Changes in v2:
+>> - Add new patch to decode matrix-keypad DT binding
+>>
+>>  drivers/input/keyboard/lpc32xx-keys.c   | 11 ++++++-----
+>>  drivers/input/keyboard/omap4-keypad.c   | 16 +++++-----------
+>>  drivers/input/keyboard/tca8418_keypad.c | 11 +++++++----
+>>  drivers/input/matrix-keymap.c           | 20 ++++++++++++++++++++
+>>  include/linux/input/matrix_keypad.h     | 11 +++++++++++
+>>  5 files changed, 49 insertions(+), 20 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
+>> index 1b8add6..4218143 100644
+>> --- a/drivers/input/keyboard/lpc32xx-keys.c
+>> +++ b/drivers/input/keyboard/lpc32xx-keys.c
+>> @@ -144,12 +144,13 @@ static int lpc32xx_parse_dt(struct device *dev,
+>>  {
+>>       struct device_node *np = dev->of_node;
+>>       u32 rows = 0, columns = 0;
+>> +     int err;
+>>
+>> -     of_property_read_u32(np, "keypad,num-rows", &rows);
+>> -     of_property_read_u32(np, "keypad,num-columns", &columns);
+>> -     if (!rows || rows != columns) {
+>> -             dev_err(dev,
+>> -                     "rows and columns must be specified and be equal!\n");
+>> +     err = matrix_keypad_parse_of_params(dev, &rows, &columns);
+>> +     if (err)
+>> +             return err;
+>> +     if (rows != columns) {
+>> +             dev_err(dev, "rows and columns must be equal!\n");
+>>               return -EINVAL;
+>>       }
+>>
+>> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+>> index e25b022..1b28909 100644
+>> --- a/drivers/input/keyboard/omap4-keypad.c
+>> +++ b/drivers/input/keyboard/omap4-keypad.c
+>> @@ -215,18 +215,12 @@ static int omap4_keypad_parse_dt(struct device *dev,
+>>                                struct omap4_keypad *keypad_data)
+>>  {
+>>       struct device_node *np = dev->of_node;
+>> +     int err;
+>>
+>> -     if (!np) {
+>> -             dev_err(dev, "missing DT data");
+>> -             return -EINVAL;
+>> -     }
+>> -
+>> -     of_property_read_u32(np, "keypad,num-rows", &keypad_data->rows);
+>> -     of_property_read_u32(np, "keypad,num-columns", &keypad_data->cols);
+>> -     if (!keypad_data->rows || !keypad_data->cols) {
+>> -             dev_err(dev, "number of keypad rows/columns not specified\n");
+>> -             return -EINVAL;
+>> -     }
+>> +     err = matrix_keypad_parse_of_params(dev, &keypad_data->rows,
+>> +                                         &keypad_data->cols);
+>> +     if (err)
+>> +             return err;
+>>
+>>       if (of_get_property(np, "linux,input-no-autorepeat", NULL))
+>>               keypad_data->no_autorepeat = true;
+>> diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+>> index a34cc67..4d5a6d5 100644
+>> --- a/drivers/input/keyboard/tca8418_keypad.c
+>> +++ b/drivers/input/keyboard/tca8418_keypad.c
+>> @@ -288,17 +288,20 @@ static int tca8418_keypad_probe(struct i2c_client *client,
+>>               irq_is_gpio = pdata->irq_is_gpio;
+>>       } else {
+>>               struct device_node *np = dev->of_node;
+>> -             of_property_read_u32(np, "keypad,num-rows", &rows);
+>> -             of_property_read_u32(np, "keypad,num-columns", &cols);
+>> +             int err;
+>> +
+>> +             err = matrix_keypad_parse_of_params(dev, &rows, &cols);
+>> +             if (err)
+>> +                     return err;
+>>               rep = of_property_read_bool(np, "keypad,autorepeat");
+>>       }
+>>
+>> -     if (!rows || rows > TCA8418_MAX_ROWS) {
+>> +     if (rows > TCA8418_MAX_ROWS) {
 >
-> On Mon, 11 February 2013 David Herrmann wrote:
-> > Thanks a lot for the patch. I think it's fine and I would like to s=
-ee
-> > it applied upstream:
-> >   Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
->
-> Reviewed-by: Bruno Pr=E9mont <bonbons@linux-vserver.org>
->
-> > Some small things below. They're just my personal opinion so I am a=
-lso
-> > ok with this being applied right away.
->
-> Same from me, with the idea of making possible driver-bugs more visib=
-le.
->
-> Thanks,
-> Bruno
->
->
-> > On Sun, Feb 10, 2013 at 6:47 PM, Andrew de los Reyes
-> > <andrew-vger@gizmolabs.org> wrote:
-> > > Hi Linux-Input and others,
-> > >
-> > > This is the latest version of the patch to allow device drivers t=
-o
-> > > communicate with the corresponding device during probe(). I've
-> > > incorporated many of David Herrmann's suggestions into this revis=
-ion.
-> > > The most notable change is that by using helper functions, we no
-> > > longer need to have a special magic number return value from prob=
-e().
-> > >
-> > > This patch is part of a patch series to support Logitech touch de=
-vices
-> > > (e.g., Wireless Touchpad). The rest of the series is not yet read=
-y for
-> > > discussion here, but those curious can see it here:
-> > > https://github.com/adlr/linux/commits/logitech7
-> > >
-> > > Thanks for your comments,
-> > > -andrew
-> > >
-> > > This patch separates struct hid_device's driver_lock into two. Th=
-e
-> > > goal is to allow hid device drivers to receive input during their
-> > > probe() or remove() function calls. This is necessary because som=
-e
-> > > drivers need to communicate with the device to determine paramete=
-rs
-> > > needed during probe (e.g., size of a multi-touch surface), and if
-> > > possible, may perfer to communicate with a device on host-initiat=
-ed
-> > > disconnect (e.g., to put it into a low-power state).
-> > >
-> > > Historically, three functions used driver_lock:
-> > >
-> > > - hid_device_probe: blocks to acquire lock
-> > > - hid_device_remove: blocks to acquire lock
-> > > - hid_input_report: if locked returns -EBUSY, else acquires lock
-> > >
-> > > This patch adds another lock (driver_input_lock) which is used to
-> > > block input from occurring. The lock behavior is now:
-> > >
-> > > - hid_device_probe: blocks to acq. driver_lock, then driver_input=
-_lock
-> > > - hid_device_remove: blocks to acq. driver_lock, then
-> > > driver_input_lock
-> > > - hid_input_report: if driver_input_lock locked returns -EBUSY, e=
-lse
-> > >   acquires driver_input_lock
-> > >
-> > > This patch also adds two helper functions to be called during pro=
-be()
-> > > or remove(): hid_device_io_start() and hid_device_io_stop(). Thes=
-e
-> > > functions lock and unlock, respectively, driver_input_lock; they =
-also
-> > > make a note of whether they did so that hid-core knows if a drive=
-r has
-> > > changed the lock state.
-> > >
-> > > This patch results in no behavior change for existing devices and
-> > > drivers. However, during a probe() or remove() function call in a
-> > > driver, that driver may now selectively call hid_device_io_start(=
-) to
-> > > let input events come through, then optionally call
-> > > hid_device_io_stop() to stop them.
-> > >
-> > > Change-Id: I737f6fc15911134b51273acf8d3de92fa5cc0f85
-> > > ---
-> > >  drivers/hid/hid-core.c | 24 +++++++++++++++++++++---
-> > >  include/linux/hid.h    | 36 +++++++++++++++++++++++++++++++++++-
-> > >  2 files changed, 56 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > > index 4da66b4..6a04b72 100644
-> > > --- a/drivers/hid/hid-core.c
-> > > +++ b/drivers/hid/hid-core.c
-> > > @@ -1097,7 +1097,7 @@ int hid_input_report(struct hid_device *hid=
-, int
-> > > type, u8 *data, int size, int i
-> > >         if (!hid)
-> > >                 return -ENODEV;
-> > >
-> > > -       if (down_trylock(&hid->driver_lock))
-> > > +       if (down_trylock(&hid->driver_input_lock))
-> > >                 return -EBUSY;
-> > >
-> > >         if (!hid->driver) {
-> > > @@ -1150,7 +1150,7 @@ nomem:
-> > >         hid_report_raw_event(hid, type, data, size, interrupt);
-> > >
-> > >  unlock:
-> > > -       up(&hid->driver_lock);
-> > > +       up(&hid->driver_input_lock);
-> > >         return ret;
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(hid_input_report);
-> > > @@ -1703,6 +1703,11 @@ static int hid_device_probe(struct device =
-*dev)
-> > >
-> > >         if (down_interruptible(&hdev->driver_lock))
-> > >                 return -EINTR;
-> > > +       if (down_interruptible(&hdev->driver_input_lock)) {
-> > > +               ret =3D -EINTR;
-> > > +               goto unlock_driver_lock;
-> > > +       }
-> > > +       hdev->io_started =3D false;
-> > >
-> > >         if (!hdev->driver) {
-> > >                 id =3D hid_match_device(hdev, hdrv);
-> > > @@ -1726,6 +1731,9 @@ static int hid_device_probe(struct device *=
-dev)
-> > >                         hdev->driver =3D NULL;
-> > >         }
-> > >  unlock:
-> > > +       if (!hdev->io_started)
-> > > +               hid_device_io_start(hdev);
-> >
-> > For symmetry you might use up() here and use the wrapper-functions
-> > only in drivers? I don't know. Jiri should say what he prefers.
->
-> Then same for the _remove() case, see below
->
-> > > +unlock_driver_lock:
-> > >         up(&hdev->driver_lock);
-> > >         return ret;
-> > >  }
-> > > @@ -1734,9 +1742,15 @@ static int hid_device_remove(struct device
-> > > *dev)
-> > >  {
-> > >         struct hid_device *hdev =3D container_of(dev, struct hid_=
-device,
-> > > dev);
-> > >         struct hid_driver *hdrv;
-> > > +       int ret =3D 0;
-> > >
-> > >         if (down_interruptible(&hdev->driver_lock))
-> > >                 return -EINTR;
-> > > +       if (down_interruptible(&hdev->driver_input_lock)) {
-> > > +               ret =3D -EINTR;
-> > > +               goto unlock_driver_lock;
-> > > +       }
-> > > +       hdev->io_started =3D false;
-> >
-> > If we lock driver_input_lock during remove, we might lose important
-> > packages here because the input handler drops them.
-> >
-> > Drivers that require this should deal with it properly, but you mig=
-ht
-> > get annoying timeouts during remove if you do I/O and lose an
-> > important packet here.
-> >
-> > But I think the proper way to fix this is to move I/O handling into
-> > workqueues instead of interrupt-context so we can actually sleep in
-> > handle_input. So I think this is fine.
->
-> Though the driver would suffer the same timeout if it does not shortc=
-ut
-> them when the device is being physically unplugged.
-> So in both cases the driver does need to take explicit action in
-> ->remove()
-> probably even before reenabling I/O in order to "cancel" pending acti=
-vity
-> prior to doing the removal reconfiguration on logical unplug.
->
-> > >         hdrv =3D hdev->driver;
-> > >         if (hdrv) {
-> > > @@ -1747,8 +1761,11 @@ static int hid_device_remove(struct device
-> > > *dev)
-> > >                 hdev->driver =3D NULL;
-> > >         }
-> > >
-> > > +       if (!hdev->io_started)
-> > > +               hid_device_io_start(hdev);
->
-> If withing probe we switch to up() we should go for down() here
+> Why? Your new function only checks rows != 0 for the DT case, but we
+> also need to validate platform data supplied values.
 
-It's up(), not down(), here.
+Thanks for reviewing.
+
+OK - will fix. It seems odd that that driver calls device tree code
+even when CONFIG_OF is not defined.
 
 >
-> > > +unlock_driver_lock:
-> > >         up(&hdev->driver_lock);
-> > > -       return 0;
-> > > +       return ret;
-> > >  }
-> > >
-> > >  static int hid_uevent(struct device *dev, struct kobj_uevent_env
-> > > *env)
-> > > @@ -2126,6 +2143,7 @@ struct hid_device *hid_allocate_device(void=
-)
-> > >         init_waitqueue_head(&hdev->debug_wait);
-> > >         INIT_LIST_HEAD(&hdev->debug_list);
-> > >         sema_init(&hdev->driver_lock, 1);
-> > > +       sema_init(&hdev->driver_input_lock, 1);
-> > >
-> > >         return hdev;
-> > >  err:
-> > > diff --git a/include/linux/hid.h b/include/linux/hid.h
-> > > index 3a95da6..ae7d32d 100644
-> > > --- a/include/linux/hid.h
-> > > +++ b/include/linux/hid.h
-> > > @@ -481,7 +481,8 @@ struct hid_device {
-> > > /* device report descriptor */
-> > >         unsigned country;
-> > > /* HID country */
-> > >         struct hid_report_enum report_enum[HID_REPORT_TYPES];
-> > >
-> > > -       struct semaphore driver_lock;
-> > > /* protects the current driver */
-> > > +       struct semaphore driver_lock;
-> > > /* protects the current driver,
-> > > except during input */
-> > > +       struct semaphore driver_input_lock;
-> > > /* protects the current driver */
-> > >         struct device dev;
-> > > /* device */
-> > >         struct hid_driver *driver;
-> > >         struct hid_ll_driver *ll_driver;
-> > > @@ -502,6 +503,7 @@ struct hid_device {
-> > > /* device report descriptor */
-> > >         unsigned int status;
-> > > /* see STAT flags above */
-> > >         unsigned claimed;
-> > > /* Claimed by hidinput, hiddev? */
-> > >         unsigned quirks;
-> > > /* Various quirks the device can pull on us */
-> > > +       bool io_started;
-> > > /* Protected by driver_lock. If IO has started */
-> > >
-> > >         struct list_head inputs;
-> > > /* The list of inputs */
-> > >         void *hiddev;
-> > > /* The hiddev structure */
-> > > @@ -622,6 +624,10 @@ struct hid_usage_id {
-> > >   * @resume: invoked on resume if device was not reset (NULL mean=
-s
-> > > nop)
-> > >   * @reset_resume: invoked on resume if device was reset (NULL me=
-ans
-> > > nop)
-> > >   *
-> > > + * probe should return -errno on error, or 0 on success. During
-> > > probe,
-> > > + * input will not be passed to raw_event unless hid_device_io_st=
-art
-> > > is
-> > > + * called.
-> > > + *
-> > >   * raw_event and event should return 0 on no action performed, 1=
- when
-> > > no
-> > >   * further processing should be done and negative on error
-> > >   *
-> > > @@ -742,6 +748,34 @@ const struct hid_device_id *hid_match_id(str=
-uct
-> > > hid_device *hdev,
-> > >                                          const struct hid_device_=
-id
-> > > *id);
-> > >
-> > >  /**
-> > > + * hid_device_io_start - enable HID input during probe, remove
-> > > + *
-> > > + * @hid - the device
-> > > + *
-> > > + * This should only be called during probe or remove. It will al=
-low
-> > > + * incoming packets to be delivered to the driver.
-> > > + */
-> > > +static inline void hid_device_io_start(struct hid_device *hid) {
-> > > +  up(&hid->driver_input_lock);
-> > > +  hid->io_started =3D true;
-> >
-> > Shouldn't these lines be swapped? Doesn't matter but it looks weird=
- to
-> > me this way.
-> >
-> > But more importantly, we must go sure this is called from the same
-> > thread that probe() is called on. Other use-cases are not supported=
- by
-> > semaphores and might break due to missing barriers. So maybe the
-> > comment could include that?
+>>               dev_err(dev, "invalid rows\n");
+>>               return -EINVAL;
+>>       }
+>>
+>> -     if (!cols || cols > TCA8418_MAX_COLS) {
+>> +     if (cols > TCA8418_MAX_COLS) {
+>>               dev_err(dev, "invalid columns\n");
+>>               return -EINVAL;
+>>       }
+>> diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
+>> index 3ae496e..64bad81 100644
+>> --- a/drivers/input/matrix-keymap.c
+>> +++ b/drivers/input/matrix-keymap.c
+>> @@ -50,6 +50,25 @@ static bool matrix_keypad_map_key(struct input_dev *input_dev,
+>>  }
+>>
+>>  #ifdef CONFIG_OF
+>> +int matrix_keypad_parse_of_params(struct device *dev,
+>> +                               unsigned int *rows, unsigned int *cols)
+>> +{
+>> +     struct device_node *np = dev->of_node;
+>> +
+>> +     if (!np) {
+>> +             dev_err(dev, "missing DT data");
+>> +             return -EINVAL;
+>> +     }
+>> +     of_property_read_u32(np, "keypad,num-rows", rows);
+>> +     of_property_read_u32(np, "keypad,num-columns", cols);
+>> +     if (!*rows || !*cols) {
+>> +             dev_err(dev, "number of keypad rows/columns not specified\n");
+>> +             return -EINVAL;
+>> +     }
+>> +
+>> +     return 0;
+>> +}
+>> +
+>>  static int matrix_keypad_parse_of_keymap(const char *propname,
+>>                                        unsigned int rows, unsigned int cols,
+>>                                        struct input_dev *input_dev)
+>> @@ -112,6 +131,7 @@ static int matrix_keypad_parse_of_keymap(const char *propname,
+>>   *   tree support is enabled).
+>>   * @rows: number of rows in target keymap array
+>>   * @cols: number of cols in target keymap array
+>> + *   (if either/both is 0 then they will be read from the FDT if available)
 >
-> Maybe even check what value hid->io_started has and WARN() [+skip
-> up()/down()]
-> in case hid_device_io_start()/stop() was not called in a balanced way=
-=2E
+> Huh?
 
-It is a goal to support hid_device_io_start()/stop() not being called
-in a balanced way. This is specifically needed by a change I'm making
-to hid-logitech-dj.c: During probe(), the driver will send out a
-request to the USB dongle to list any attached mice/keyboards. The
-reply packets aren't needed during probe(), so probe will return, but
-the driver wants packets to flow in, and it doesn't mind if they come
-in while probe() is still running or not. In this case, during
-probe(), the driver will call hid_device_io_start() to allow incoming
-packets, but then not call hid_device_io_stop().
+Not sure what happened there, some sort of stuff-up, but that code
+isn't there now.
 
 >
-> > > +}
-> > > +
-> > > +/**
-> > > + * hid_device_io_stop - disable HID input during probe, remove
-> > > + *
-> > > + * @hid - the device
-> > > + *
-> > > + * Should only be called after hid_device_io_start. It will prev=
-ent
-> > > + * incoming packets from going to the driver for the duration of
-> > > + * probe, remove. If called during probe, packets will still go =
-to
-> > > the
-> > > + * driver after probe is complete.
-> > > + */
-> > > +static inline void hid_device_io_stop(struct hid_device *hid) {
-> > > +  hid->io_started =3D false;
-> > > +  down(&hid->driver_input_lock);
-> >
-> > Same.
+>>   * @keymap: expanded version of keymap that is suitable for use by
+>>   * matrix keyboard driver
+>>   * @input_dev: input devices for which we are setting up the keymap
+>> diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
+>> index 5f3aa6b..01a30cf 100644
+>> --- a/include/linux/input/matrix_keypad.h
+>> +++ b/include/linux/input/matrix_keypad.h
+>> @@ -81,4 +81,15 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
+>>                              unsigned short *keymap,
+>>                              struct input_dev *input_dev);
+>>
+>> +/**
+>> + * matrix_keypad_parse_of_params() - Read parameters from matrix-keypad node
+>> + *
+>> + * @dev: Device containing of_node
+>> + * @rows: Returns number of matrix rows
+>> + * @cols: Returns number of matrix columns
+>> + * @return 0 if OK, <0 on error
+>> + */
+>> +int matrix_keypad_parse_of_params(struct device *dev,
+>> +                               unsigned int *rows, unsigned int *cols);
+>> +
 >
-> Same as _start() here
+> The new function needs a non-CONFIG_OF stub as some drivers
+> (tca8418-keypad for example) use it in common code.
+
+OK, not sure whether I am permitted to put a static inline in the
+header, but will go with that for now.
+
 >
-> > > +}
-> > > +
-> > > +/**
-> > >   * hid_map_usage - map usage input bits
-> > >   *
-> > >   * @hidinput: hidinput which we are interested in
-> > > --
-> > > 1.8.1
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Thanks.
+>
+> --
+> Dmitry
+
+Regards,
+Simon

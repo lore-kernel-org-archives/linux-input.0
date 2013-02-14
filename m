@@ -1,35 +1,72 @@
-From: Bastian Hecht <hechtb@gmail.com>
-Subject: [PATCH] input: st1232: Add IRQF_NO_SUSPEND flag
-Date: Thu, 14 Feb 2013 11:32:12 -0600
-Message-ID: <1360863132-11227-1-git-send-email-hechtb+renesas@gmail.com>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-sh@vger.kernel.org
-Cc: Magnus Damm <magnus.damm@gmail.com>, Tony SIM <chinyeow.sim.xt@renesas.com>, Bastian Hecht <hechtb+renesas@gmail.com>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH] Input: synaptics - disable fuzz when using mt slots
+Date: Thu, 14 Feb 2013 09:15:09 -0800
+Message-ID: <CAGS+omDJi6EecXHdtYEGg0iXNqTLSnhHPE7ieHQ=ZNXkowJqKQ@mail.gmail.com>
+References: <1359707312-12986-1-git-send-email-djkurtz@chromium.org> <20130213215250.GE23390@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qa0-f42.google.com ([209.85.216.42]:36467 "EHLO
+	mail-qa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755903Ab3BNRPa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Feb 2013 12:15:30 -0500
+Received: by mail-qa0-f42.google.com with SMTP id cr7so55104qab.15
+        for <linux-input@vger.kernel.org>; Thu, 14 Feb 2013 09:15:29 -0800 (PST)
+In-Reply-To: <20130213215250.GE23390@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Seth Forshee <seth.forshee@canonical.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Chung-Yih Wang <cywang@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-When registering the interrupt handler we add the IRQF_NO_SUSPEND flag
-to save the IRQ line from being disabled during suspension. This way we
-keep the ability to use the device as a wakeup source.
+On Wed, Feb 13, 2013 at 1:52 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, Feb 01, 2013 at 04:28:32PM +0800, Daniel Kurtz wrote:
+>> The input fuzz algorithm does a pretty good job filtering out small
+>> jitter on input samples.
+>>
+>> However, there is a subtle problem when fuzz is used with mt drivers that
+>> also use input_mt_report_pointer_emulation() to report legacy single
+>> touch coordinates.  The reported single touch coordinates are taken from
+>> the active MT slot with smallest tracking id.  However, since the MT data
+>> is sent first, it has already had FUZZ applied.  Thus, the ST coordinates
+>> actually get FUZZ applied a second time, with the just-fuzzed MT value as
+>> the 'old value'.
+>>
+>> It appears that it is non-trivial to fix this in the mt layer/input core,
+>> so, for now, just disable fuzz for the synaptics IMAGE_SENSOR path that
+>> uses input_mt_report_pointer_emulation().
+>>
+>> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+>> ---
+>>  drivers/input/mouse/synaptics.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+>> index 12d12ca..b6c6838 100644
+>> --- a/drivers/input/mouse/synaptics.c
+>> +++ b/drivers/input/mouse/synaptics.c
+>> @@ -1211,7 +1211,8 @@ static void set_abs_position_params(struct input_dev *dev,
+>>       int x_max = priv->x_max ?: XMAX_NOMINAL;
+>>       int y_min = priv->y_min ?: YMIN_NOMINAL;
+>>       int y_max = priv->y_max ?: YMAX_NOMINAL;
+>> -     int fuzz = SYN_CAP_REDUCED_FILTERING(priv->ext_cap_0c) ?
+>> +     int fuzz = (SYN_CAP_REDUCED_FILTERING(priv->ext_cap_0c) &&
+>> +                     !SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) ?
+>>                       SYN_REDUCED_FILTER_FUZZ : 0;
+>
+> Hmm, instead of disabling fuzz completely maybe we should disable it
+> only on the derived axes (ABS_X/ABS_Y) for multitouch devices?
 
-Signed-off-by: Bastian Hecht <hechtb+renesas@gmail.com>
----
- drivers/input/touchscreen/st1232.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yes, that should work...  both would end up fuzzed to the same value,
+for a not-so-obvious reason, IMHO :).
+It's a bit tricky, and I like it, but is that what you intended by the
+suggestion?
 
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index d9d05e2..4f37199 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -180,7 +180,7 @@ static int st1232_ts_probe(struct i2c_client *client,
- 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, MIN_Y, MAX_Y, 0, 0);
- 
- 	error = request_threaded_irq(client->irq, NULL, st1232_ts_irq_handler,
--				     IRQF_ONESHOT, client->name, ts);
-+			IRQF_ONESHOT | IRQF_NO_SUSPEND, client->name, ts);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
- 		goto err_free_mem;
--- 
-1.7.9.5
+-Daniel
 
+>
+> Thanks.
+>
+> --
+> Dmitry

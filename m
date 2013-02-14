@@ -1,43 +1,37 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH v2 1/1] Input: mouse: cyapa - Add support for cyapa smbus
- protocol
-Date: Thu, 14 Feb 2013 18:19:27 +0100
-Message-ID: <20130214171927.GA538@polaris.bitmath.org>
-References: <1359673513-22328-1-git-send-email-bleung@chromium.org>
- <1360527340-25936-1-git-send-email-bleung@chromium.org>
- <20130214042635.GC2472@core.coreip.homeip.net>
+Subject: Re: [PATCH] Input: synaptics - disable fuzz when using mt slots
+Date: Thu, 14 Feb 2013 18:22:43 +0100
+Message-ID: <20130214172243.GB538@polaris.bitmath.org>
+References: <1359707312-12986-1-git-send-email-djkurtz@chromium.org>
+ <20130213215250.GE23390@core.coreip.homeip.net>
+ <CAGS+omDJi6EecXHdtYEGg0iXNqTLSnhHPE7ieHQ=ZNXkowJqKQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:37591 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758331Ab3BNRWD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Feb 2013 12:22:03 -0500
 Content-Disposition: inline
-In-Reply-To: <20130214042635.GC2472@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, khali@linux-fr.org, olofj@chromium.org, djkurtz@chromium.org, dudl@cypress.com
+In-Reply-To: <CAGS+omDJi6EecXHdtYEGg0iXNqTLSnhHPE7ieHQ=ZNXkowJqKQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Seth Forshee <seth.forshee@canonical.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Chung-Yih Wang <cywang@chromium.org>, Chase Douglas <chase.douglas@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2013 at 08:26:35PM -0800, Dmitry Torokhov wrote:
-> On Sun, Feb 10, 2013 at 12:15:40PM -0800, Benson Leung wrote:
-> > This patch adds support for the Cypress APA Smbus Trackpad type,
-> > which uses a modified register map that fits within the
-> > limitations of the smbus protocol.
-> > 
-> > Devices that use this protocol include:
-> > CYTRA-116001-00 - Samsung Series 5 550 Chromebook trackpad
-> > CYTRA-103002-00 - Acer C7 Chromebook trackpad
-> > CYTRA-101003-00 - HP Pavilion 14 Chromebook trackpad
-> > 
-> > Signed-off-by: Dudley Du <dudl@cypress.com>
-> > Signed-off-by: Benson Leung <bleung@chromium.org>
-> > Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
-> > ---
-> > v2 : Minor style cleanup. Removed unused struct device *dev declarations.
-> > ---
+> > Hmm, instead of disabling fuzz completely maybe we should disable it
+> > only on the derived axes (ABS_X/ABS_Y) for multitouch devices?
 > 
-> Applied, thank you Benson.
-> 
-> Henrik, I put you down as "reviewed-by".
+> Yes, that should work...  both would end up fuzzed to the same value,
+> for a not-so-obvious reason, IMHO :).
+> It's a bit tricky, and I like it, but is that what you intended by the
+> suggestion?
 
-Perfect, thank you.
+Since this is inherently a problem when using the mt helper functions,
+turning fuzz off there ought to solve this problem transparently, and
+for all users.
+
+Thanks, Daniel, for reminding me of this year-old glitch. :-)
 
 Henrik

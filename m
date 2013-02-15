@@ -1,173 +1,53 @@
-From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH v2] Input: atmel_mxt_ts - refactor i2c error handling
-Date: Fri, 15 Feb 2013 06:55:55 -0800
-Message-ID: <1360940155-17619-1-git-send-email-djkurtz@chromium.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: uhid: broken interface: 32/64-bit compatibility
+Date: Fri, 15 Feb 2013 18:40:27 +0200
+Message-ID: <CAHp75VdC7JnoYwnKRsyr7v3or167OdX8mrv00VK-0YuPhpSFaw@mail.gmail.com>
+References: <20130215112911.68A98E0085@blue.fi.intel.com>
+	<CANq1E4T1QzOUOwWPpV6_55hVTXzXF4baShxpYaM0HNAgF0ffAg@mail.gmail.com>
+	<20130215120022.GA23694@x220>
+	<20130215135141.1EFCEE0085@blue.fi.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f53.google.com ([209.85.210.53]:60376 "EHLO
-	mail-da0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161288Ab3BOO4H (ORCPT
+Received: from mail-la0-f53.google.com ([209.85.215.53]:57134 "EHLO
+	mail-la0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751569Ab3BOQk3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Feb 2013 09:56:07 -0500
-Received: by mail-da0-f53.google.com with SMTP id w3so1463959dad.26
-        for <linux-input@vger.kernel.org>; Fri, 15 Feb 2013 06:56:06 -0800 (PST)
+	Fri, 15 Feb 2013 11:40:29 -0500
+In-Reply-To: <20130215135141.1EFCEE0085@blue.fi.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Bill Pemberton <wfp5p@virginia.edu>, Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
+To: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Johan Hedberg <johan.hedberg@gmail.com>, David Herrmann <dh.herrmann@googlemail.com>, linux-api@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, RavindranathX Doddi <ravindranathx.doddi@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>
 
-A recent patch refactored i2c error handling in the register read/write
-path.  This adds similar handling to the other i2c paths used in fw_update
-and bootloader state detection.
+> Any comments?
 
-The generic i2c layer can return values indicating a partial transaction.
->From the atmel_mxt driver's perspective, this is an IO error, so we use
-some helper functions to convert these partial transfers to -EIO in a
-uniform way.  Other error codes might still be useful, though, so we pass
-them up unmodified.  Note that in the partial transfer case, we log the
-number of bytes partially transferred, and not -EIO.
+Generic comments.  Could you use *_compat instead of  *_old_*?
+Another idea is do not touch current interface, just append new
+function and associated structure to make a smooth transition of the
+userspace stuff.
 
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
----
-Changes from V1:
-- simplified implied logic (thanks Henrik!)
-- error print the partial number of bytes received, not -EIO
+What about documentation (Documentation/hid/uhid.txt)? Could you
+update it acordingly?
 
- drivers/input/touchscreen/atmel_mxt_ts.c | 83 +++++++++++++++++---------------
- 1 file changed, 45 insertions(+), 38 deletions(-)
+> Subject: [PATCH] uhid: introduce new create event to fix 32/64-bit
+>  compatibility issue
+>
+> Current create event has pointer in payload. It causes problem with
+> 32/64-bit compatibility. In particular it's not possible to use 32-bit
+> userspace driver with 64-bit kernel.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index d04f810..3d56d5f 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -324,16 +324,53 @@ static void mxt_dump_message(struct device *dev,
- 		message->reportid, 7, message->message);
- }
- 
-+static int mxt_i2c_recv(struct i2c_client *client, u8 *buf, size_t count)
-+{
-+	int ret;
-+
-+	ret = i2c_master_recv(client, buf, count);
-+	if (ret == count)
-+		return 0;
-+
-+	dev_err(&client->dev, "i2c recv failed (%d)\n", ret);
-+	return (ret < 0) ? ret : -EIO;
-+}
-+
-+static int mxt_i2c_send(struct i2c_client *client, const u8 *buf, size_t count)
-+{
-+	int ret;
-+
-+	ret = i2c_master_send(client, buf, count);
-+	if (ret == count)
-+		return 0;
-+
-+	dev_err(&client->dev, "i2c send failed (%d)\n", ret);
-+	return (ret < 0) ? ret : -EIO;
-+}
-+
-+static int mxt_i2c_transfer(struct i2c_client *client, struct i2c_msg *msgs,
-+		size_t count)
-+{
-+	int ret;
-+
-+	ret = i2c_transfer(client->adapter, msgs, count);
-+	if (ret == count)
-+		return 0;
-+
-+	dev_err(&client->dev, "i2c transfer failed (%d)\n", ret);
-+	return (ret < 0) ? ret : -EIO;
-+}
-+
- static int mxt_check_bootloader(struct i2c_client *client,
- 				     unsigned int state)
- {
- 	u8 val;
-+	int ret;
- 
- recheck:
--	if (i2c_master_recv(client, &val, 1) != 1) {
--		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
--		return -EIO;
--	}
-+	ret = mxt_i2c_recv(client, &val, 1);
-+	if (ret)
-+		return ret;
- 
- 	switch (state) {
- 	case MXT_WAITING_BOOTLOAD_CMD:
-@@ -363,23 +400,13 @@ static int mxt_unlock_bootloader(struct i2c_client *client)
- 	buf[0] = MXT_UNLOCK_CMD_LSB;
- 	buf[1] = MXT_UNLOCK_CMD_MSB;
- 
--	if (i2c_master_send(client, buf, 2) != 2) {
--		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
--		return -EIO;
--	}
--
--	return 0;
-+	return mxt_i2c_send(client, buf, 2);
- }
- 
- static int mxt_fw_write(struct i2c_client *client,
- 			     const u8 *data, unsigned int frame_size)
- {
--	if (i2c_master_send(client, data, frame_size) != frame_size) {
--		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
--		return -EIO;
--	}
--
--	return 0;
-+	return mxt_i2c_send(client, data, frame_size);
- }
- 
- static int __mxt_read_reg(struct i2c_client *client,
-@@ -387,7 +414,6 @@ static int __mxt_read_reg(struct i2c_client *client,
- {
- 	struct i2c_msg xfer[2];
- 	u8 buf[2];
--	int ret;
- 
- 	buf[0] = reg & 0xff;
- 	buf[1] = (reg >> 8) & 0xff;
-@@ -404,17 +430,7 @@ static int __mxt_read_reg(struct i2c_client *client,
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
- 
--	ret = i2c_transfer(client->adapter, xfer, 2);
--	if (ret == 2) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
--			ret = -EIO;
--		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
--			__func__, ret);
--	}
--
--	return ret;
-+	return mxt_i2c_transfer(client, xfer, 2);
- }
- 
- static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
-@@ -438,16 +454,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
- 	buf[1] = (reg >> 8) & 0xff;
- 	memcpy(&buf[2], val, len);
- 
--	ret = i2c_master_send(client, buf, count);
--	if (ret == count) {
--		ret = 0;
--	} else {
--		if (ret >= 0)
--			ret = -EIO;
--		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
--			__func__, ret);
--	}
--
-+	ret = mxt_i2c_send(client, buf, count);
- 	kfree(buf);
- 	return ret;
- }
+
+> This patch deprecates old create event and introduce a new one. The new
+> create event has padding for pointer on 32-bit system to extend pointer
+> correctly.
+>
+> Old userspace driver binaries will use old create event. It requires
+> simple recompile to switch to new one.
+
+That's what I afraid of. Better to try to avoid any excessive
+requirement to the existing userspace.
+
 -- 
-1.8.1
-
+With Best Regards,
+Andy Shevchenko

@@ -1,48 +1,46 @@
-From: simon@mungewell.org
-Subject: Consistant naming for LED class USB devices?
-Date: Thu, 14 Feb 2013 17:52:49 -0500
-Message-ID: <9ccaf54a3643a617acf32f90e2cc3c4b.squirrel@mungewell.org>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: Re: [PATCH] input: st1232: Add IRQF_NO_SUSPEND flag
+Date: Fri, 15 Feb 2013 10:46:09 +0900
+Message-ID: <CANqRtoQzhfxaHJp+vj=GnAaR4NyD9U1F1B7EnRckdLqvJE=XEw@mail.gmail.com>
+References: <1360863132-11227-1-git-send-email-hechtb+renesas@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:52875 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759548Ab3BNWwu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Feb 2013 17:52:50 -0500
-Received: from localhost ([127.0.0.1] helo=mungewell.org)
-	by host171.canaca.com with esmtpa (Exim 4.69)
-	(envelope-from <simon@mungewell.org>)
-	id 1U67fd-0003go-Bq
-	for linux-input@vger.kernel.org; Thu, 14 Feb 2013 17:52:49 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1360863132-11227-1-git-send-email-hechtb+renesas@gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Bastian Hecht <hechtb@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-sh@vger.kernel.org, Tony SIM <chinyeow.sim.xt@renesas.com>, Bastian Hecht <hechtb+renesas@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi,
-I'm after naming suggestions for USB devices which use the LED class.
+Hi Bastian,
 
-On one gaming wheel (Steelseries SWR-S1) I was able to use the serial
-number, however my other wheel (Logitech G27) does not have a unique
-serial (it reports '0').
+On Fri, Feb 15, 2013 at 2:32 AM, Bastian Hecht <hechtb@gmail.com> wrote:
+> When registering the interrupt handler we add the IRQF_NO_SUSPEND flag
+> to save the IRQ line from being disabled during suspension. This way we
+> keep the ability to use the device as a wakeup source.
+>
+> Signed-off-by: Bastian Hecht <hechtb+renesas@gmail.com>
+> ---
+>  drivers/input/touchscreen/st1232.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+> index d9d05e2..4f37199 100644
+> --- a/drivers/input/touchscreen/st1232.c
+> +++ b/drivers/input/touchscreen/st1232.c
+> @@ -180,7 +180,7 @@ static int st1232_ts_probe(struct i2c_client *client,
+>         input_set_abs_params(input_dev, ABS_MT_POSITION_Y, MIN_Y, MAX_Y, 0, 0);
+>
+>         error = request_threaded_irq(client->irq, NULL, st1232_ts_irq_handler,
+> -                                    IRQF_ONESHOT, client->name, ts);
+> +                       IRQF_ONESHOT | IRQF_NO_SUSPEND, client->name, ts);
 
-The G27 (hid-lg4ff) driver's naming changes each time the wheel is
-unplugged/plugged.
+Are you sure this is the correct way to handle this? Which platform
+have you tested this on? How about other boards?
 
-It currently uses
---
-snprintf(name, name_sz, "%s::RPM%d", dev_name(&hid->dev), j+1);
---
-ie. "0003:046D:C294.0009::RPM1",  the '0009' will change each time.
+Usually wake up handling is dealt with separately from interrupts.
+Looks like something is missing in your interrupt controller code.
 
+Thanks,
 
-In the absence of a serial number, is there another method I could use
-which would allow multiple G27's to be connected to a system and still
-allow unique (but consistant) naming?
-
-Cheers,
-Simon
-
-
-
+/ magnus

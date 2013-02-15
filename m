@@ -1,193 +1,173 @@
-From: "Kirill A. Shutemov" <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: uhid: broken interface: 32/64-bit compatibility
-Date: Fri, 15 Feb 2013 15:51:41 +0200 (EET)
-Message-ID: <20130215135141.1EFCEE0085@blue.fi.intel.com>
-References: <20130215112911.68A98E0085@blue.fi.intel.com> <CANq1E4T1QzOUOwWPpV6_55hVTXzXF4baShxpYaM0HNAgF0ffAg@mail.gmail.com> <20130215120022.GA23694@x220>
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130215120022.GA23694@x220>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Johan Hedberg <johan.hedberg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, "Kirill A. Shutemov" <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, RavindranathX Doddi <ravindranathx.doddi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: [PATCH v2] Input: atmel_mxt_ts - refactor i2c error handling
+Date: Fri, 15 Feb 2013 06:55:55 -0800
+Message-ID: <1360940155-17619-1-git-send-email-djkurtz@chromium.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-da0-f53.google.com ([209.85.210.53]:60376 "EHLO
+	mail-da0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161288Ab3BOO4H (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Feb 2013 09:56:07 -0500
+Received: by mail-da0-f53.google.com with SMTP id w3so1463959dad.26
+        for <linux-input@vger.kernel.org>; Fri, 15 Feb 2013 06:56:06 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Bill Pemberton <wfp5p@virginia.edu>, Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yufeng Shen <miletus@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
 
-Johan Hedberg wrote:
-> Hi David,
-> 
-> On Fri, Feb 15, 2013, David Herrmann wrote:
-> > On Fri, Feb 15, 2013 at 12:29 PM, Kirill A. Shutemov
-> > <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> > > Hi David and all,
-> > >
-> > > There's claim in uhid.h that the interface is "compatible even between
-> > > architectures". But it obviously is not true: struct uhid_create_req
-> > > contains pointer which breaks everything.
-> > >
-> > > The easy way to demonstrate the issue is compile uhid-example.c with -m32
-> > > and try to run it on 64 bit kernel. Creating of the device will fail.
-> > 
-> > Indeed, we missed that. We should probably also notify the HIDP
-> > developers as "struct hidp_connadd_req" suffers from the same
-> > problems. (CC'ed)
-> > 
-> > > I don't see an easy way to fix this. Few options:
-> > >
-> > > 1. Replace the pointer with u64. It will fix the issue, but it breaks ABI
-> > >    which is never a good idea. Not sure how many users interface already
-> > >    has.
-> > 
-> > The only users I am aware of is an HID debugging tool and experimental
-> > HoG Bluetooth support (bluez). Maybe Marcel or Johan can comment
-> > whether this is already used by bluez-5? If it is, then we shouldn't
-> > break ABI and go with #2+#3. Otherwise, I think changing to u64 should
-> > be ok.
-> > On the other hand, it would break any future build for older stable
-> > kernels so not breaking ABI is probably the best idea. Any comments? I
-> > can add a COMPAT fix and a comment to fix this in the next version of
-> > UHID_CREATE.
-> 
-> The HoG code in BlueZ 5 does indeed use this API and it's also not
-> anymore behind any kind of experimental flag (i.e. it is an officially
-> supported feature).
-> 
-> Johan
+A recent patch refactored i2c error handling in the register read/write
+path.  This adds similar handling to the other i2c paths used in fw_update
+and bootloader state detection.
 
-Here's my attempt to fix the issue.
+The generic i2c layer can return values indicating a partial transaction.
+>From the atmel_mxt driver's perspective, this is an IO error, so we use
+some helper functions to convert these partial transfers to -EIO in a
+uniform way.  Other error codes might still be useful, though, so we pass
+them up unmodified.  Note that in the partial transfer case, we log the
+number of bytes partially transferred, and not -EIO.
 
-Not sure if tricks with padding in a good idea. We can  just use __u64
-instead of pointer, but it will require update of userspace to silence
-cast warning and will cause warning if you will try to use updated
-userspace with old kernel headers.
-
-Any comments?
-
->From 0a0989cf08952464f8cab73d066beb876ff42949 Mon Sep 17 00:00:00 2001
-From: "Kirill A. Shutemov" <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Date: Fri, 15 Feb 2013 15:33:59 +0200
-Subject: [PATCH] uhid: introduce new create event to fix 32/64-bit
- compatibility issue
-
-Current create event has pointer in payload. It causes problem with
-32/64-bit compatibility. In particular it's not possible to use 32-bit
-userspace driver with 64-bit kernel.
-
-This patch deprecates old create event and introduce a new one. The new
-create event has padding for pointer on 32-bit system to extend pointer
-correctly.
-
-Old userspace driver binaries will use old create event. It requires
-simple recompile to switch to new one.
-
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/hid/uhid.c        |   31 +++++++++++++++++++++++++++++++
- include/uapi/linux/uhid.h |   24 +++++++++++++++++++++++-
- 2 files changed, 54 insertions(+), 1 deletion(-)
+Changes from V1:
+- simplified implied logic (thanks Henrik!)
+- error print the partial number of bytes received, not -EIO
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 714cd8c..2f0b0e4 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -343,6 +343,34 @@ err_free:
- 	return ret;
+ drivers/input/touchscreen/atmel_mxt_ts.c | 83 +++++++++++++++++---------------
+ 1 file changed, 45 insertions(+), 38 deletions(-)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index d04f810..3d56d5f 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -324,16 +324,53 @@ static void mxt_dump_message(struct device *dev,
+ 		message->reportid, 7, message->message);
  }
  
-+static int uhid_dev_old_create(struct uhid_device *uhid,
-+		struct uhid_event *ev)
++static int mxt_i2c_recv(struct i2c_client *client, u8 *buf, size_t count)
 +{
-+	struct uhid_event *new;
++	int ret;
 +
-+	new = kzalloc(sizeof(new), GFP_KERNEL);
-+	if (!new)
-+		return -ENOMEM;
++	ret = i2c_master_recv(client, buf, count);
++	if (ret == count)
++		return 0;
 +
-+	new->type = UHID_CREATE;
-+	memcpy(new->u.create.name, ev->u.old_create.name, 128);
-+	memcpy(new->u.create.phys, ev->u.old_create.phys, 64);
-+	memcpy(new->u.create.uniq, ev->u.old_create.uniq, 64);
-+
-+	/* Assume kernel and userspace bitness are the same */
-+	new->u.create.rd_data = ev->u.old_create.rd_data;
-+
-+	new->u.create.rd_size = ev->u.old_create.rd_size;
-+	new->u.create.bus = ev->u.old_create.bus;
-+	new->u.create.vendor = ev->u.old_create.vendor;
-+	new->u.create.product = ev->u.old_create.product;
-+	new->u.create.version = ev->u.old_create.version;
-+	new->u.create.country = ev->u.old_create.country;
-+	memcpy(ev, new, sizeof(new));
-+	kfree(new);
-+	return uhid_dev_create(uhid, ev);
++	dev_err(&client->dev, "i2c recv failed (%d)\n", ret);
++	return (ret < 0) ? ret : -EIO;
 +}
 +
- static int uhid_dev_destroy(struct uhid_device *uhid)
++static int mxt_i2c_send(struct i2c_client *client, const u8 *buf, size_t count)
++{
++	int ret;
++
++	ret = i2c_master_send(client, buf, count);
++	if (ret == count)
++		return 0;
++
++	dev_err(&client->dev, "i2c send failed (%d)\n", ret);
++	return (ret < 0) ? ret : -EIO;
++}
++
++static int mxt_i2c_transfer(struct i2c_client *client, struct i2c_msg *msgs,
++		size_t count)
++{
++	int ret;
++
++	ret = i2c_transfer(client->adapter, msgs, count);
++	if (ret == count)
++		return 0;
++
++	dev_err(&client->dev, "i2c transfer failed (%d)\n", ret);
++	return (ret < 0) ? ret : -EIO;
++}
++
+ static int mxt_check_bootloader(struct i2c_client *client,
+ 				     unsigned int state)
  {
- 	if (!uhid->running)
-@@ -507,6 +535,9 @@ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
- 	case UHID_CREATE:
- 		ret = uhid_dev_create(uhid, &uhid->input_buf);
- 		break;
-+	case UHID_OLD_CREATE:
-+		ret = uhid_dev_old_create(uhid, &uhid->input_buf);
-+		break;
- 	case UHID_DESTROY:
- 		ret = uhid_dev_destroy(uhid);
- 		break;
-diff --git a/include/uapi/linux/uhid.h b/include/uapi/linux/uhid.h
-index 9c6974f..bb18be8 100644
---- a/include/uapi/linux/uhid.h
-+++ b/include/uapi/linux/uhid.h
-@@ -23,7 +23,7 @@
- #include <linux/types.h>
+ 	u8 val;
++	int ret;
  
- enum uhid_event_type {
--	UHID_CREATE,
-+	UHID_OLD_CREATE,
- 	UHID_DESTROY,
- 	UHID_START,
- 	UHID_STOP,
-@@ -34,13 +34,34 @@ enum uhid_event_type {
- 	UHID_INPUT,
- 	UHID_FEATURE,
- 	UHID_FEATURE_ANSWER,
-+	UHID_CREATE,
- };
+ recheck:
+-	if (i2c_master_recv(client, &val, 1) != 1) {
+-		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
+-		return -EIO;
+-	}
++	ret = mxt_i2c_recv(client, &val, 1);
++	if (ret)
++		return ret;
  
-+struct uhid_old_create_req {
-+	__u8 name[128];
-+	__u8 phys[64];
-+	__u8 uniq[64];
-+	__u8 __user *rd_data;
-+	__u16 rd_size;
-+
-+	__u16 bus;
-+	__u32 vendor;
-+	__u32 product;
-+	__u32 version;
-+	__u32 country;
-+} __attribute__((__packed__));
-+
- struct uhid_create_req {
- 	__u8 name[128];
- 	__u8 phys[64];
- 	__u8 uniq[64];
-+#if __BITS_PER_LONG != 64 && __BYTE_ORDER == __BIG_ENDIAN
-+	__u32 __pad;
-+#endif
- 	__u8 __user *rd_data;
-+#if __BITS_PER_LONG != 64 && __BYTE_ORDER == __LITTLE_ENDIAN
-+	__u32 __pad;
-+#endif
- 	__u16 rd_size;
+ 	switch (state) {
+ 	case MXT_WAITING_BOOTLOAD_CMD:
+@@ -363,23 +400,13 @@ static int mxt_unlock_bootloader(struct i2c_client *client)
+ 	buf[0] = MXT_UNLOCK_CMD_LSB;
+ 	buf[1] = MXT_UNLOCK_CMD_MSB;
  
- 	__u16 bus;
-@@ -92,6 +113,7 @@ struct uhid_event {
- 	__u32 type;
+-	if (i2c_master_send(client, buf, 2) != 2) {
+-		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+-		return -EIO;
+-	}
+-
+-	return 0;
++	return mxt_i2c_send(client, buf, 2);
+ }
  
- 	union {
-+		struct uhid_old_create_req old_create;
- 		struct uhid_create_req create;
- 		struct uhid_input_req input;
- 		struct uhid_output_req output;
+ static int mxt_fw_write(struct i2c_client *client,
+ 			     const u8 *data, unsigned int frame_size)
+ {
+-	if (i2c_master_send(client, data, frame_size) != frame_size) {
+-		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+-		return -EIO;
+-	}
+-
+-	return 0;
++	return mxt_i2c_send(client, data, frame_size);
+ }
+ 
+ static int __mxt_read_reg(struct i2c_client *client,
+@@ -387,7 +414,6 @@ static int __mxt_read_reg(struct i2c_client *client,
+ {
+ 	struct i2c_msg xfer[2];
+ 	u8 buf[2];
+-	int ret;
+ 
+ 	buf[0] = reg & 0xff;
+ 	buf[1] = (reg >> 8) & 0xff;
+@@ -404,17 +430,7 @@ static int __mxt_read_reg(struct i2c_client *client,
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
+ 
+-	ret = i2c_transfer(client->adapter, xfer, 2);
+-	if (ret == 2) {
+-		ret = 0;
+-	} else {
+-		if (ret >= 0)
+-			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
+-			__func__, ret);
+-	}
+-
+-	return ret;
++	return mxt_i2c_transfer(client, xfer, 2);
+ }
+ 
+ static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+@@ -438,16 +454,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+ 	buf[1] = (reg >> 8) & 0xff;
+ 	memcpy(&buf[2], val, len);
+ 
+-	ret = i2c_master_send(client, buf, count);
+-	if (ret == count) {
+-		ret = 0;
+-	} else {
+-		if (ret >= 0)
+-			ret = -EIO;
+-		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
+-			__func__, ret);
+-	}
+-
++	ret = mxt_i2c_send(client, buf, count);
+ 	kfree(buf);
+ 	return ret;
+ }
 -- 
- Kirill A. Shutemov
+1.8.1
+

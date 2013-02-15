@@ -1,44 +1,37 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] Input: synaptics - initialize pointer emulation usage
-Date: Fri, 15 Feb 2013 21:11:01 +0100
-Message-ID: <20130215201101.GA24602@polaris.bitmath.org>
-References: <1360956981-1112-1-git-send-email-rydberg@euromail.se>
- <1360956981-1112-2-git-send-email-rydberg@euromail.se>
- <CAGS+omC2Yemvo-kE9tYOmE4rou4fi2iNOXw3v3c+A91_kiUzfQ@mail.gmail.com>
+Subject: Re: [PATCH 2/7] HID: Extend the interface with wait io request
+Date: Fri, 15 Feb 2013 21:47:42 +0100
+Message-ID: <20130215204742.GA25671@polaris.bitmath.org>
+References: <1360334256-22127-1-git-send-email-benjamin.tissoires@gmail.com>
+ <1360334256-22127-3-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h31.telenor.se ([213.150.131.4]:44894 "EHLO
-	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750779Ab3BOUKP (ORCPT
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:34380 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750755Ab3BOUrA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Feb 2013 15:10:15 -0500
+	Fri, 15 Feb 2013 15:47:00 -0500
 Content-Disposition: inline
-In-Reply-To: <CAGS+omC2Yemvo-kE9tYOmE4rou4fi2iNOXw3v3c+A91_kiUzfQ@mail.gmail.com>
+In-Reply-To: <1360334256-22127-3-git-send-email-benjamin.tissoires@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> > @@ -1247,11 +1247,11 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
-> >         input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
-> >
-> >         if (SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)) {
-> > -               input_mt_init_slots(dev, 2, 0);
-> >                 set_abs_position_params(dev, priv, ABS_MT_POSITION_X,
-> >                                         ABS_MT_POSITION_Y);
-> >                 /* Image sensors can report per-contact pressure */
-> >                 input_set_abs_params(dev, ABS_MT_PRESSURE, 0, 255, 0, 0);
-> > +               input_mt_init_slots(dev, 2, INPUT_MT_POINTER);
+On Fri, Feb 08, 2013 at 03:37:31PM +0100, Benjamin Tissoires wrote:
+> Some drivers need to wait for an io from the underlying device, creating
+> an unwanted dependency on the underlying transport layer. This patch adds
+> wait() to the interface, thereby removing usbhid from the lion share of
+> the drivers.
 > 
-> ABS_X/Y/PRESSURE are already init'ed in the common code a few lines
-> above the if ().
-> Perhaps you could refactor things a bit to only define them once?
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> ---
+>  drivers/hid/usbhid/hid-core.c |  1 +
+>  include/linux/hid.h           | 14 ++++++++++++++
+>  2 files changed, 15 insertions(+)
 
-I looked into it, of course, but there are many other values (event
-bits, event properties) that also get duplicated. Treating them the
-same way leads to a fairly large patch, for a small change in
-truth. The present patch is the balanced optimum, IMHO. It is also
-easy to prove.
+    Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 
+Thank you, Benjamin,
 Henrik

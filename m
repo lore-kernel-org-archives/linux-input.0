@@ -1,53 +1,39 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: uhid: broken interface: 32/64-bit compatibility
-Date: Fri, 15 Feb 2013 18:40:27 +0200
-Message-ID: <CAHp75VdC7JnoYwnKRsyr7v3or167OdX8mrv00VK-0YuPhpSFaw@mail.gmail.com>
-References: <20130215112911.68A98E0085@blue.fi.intel.com>
-	<CANq1E4T1QzOUOwWPpV6_55hVTXzXF4baShxpYaM0HNAgF0ffAg@mail.gmail.com>
-	<20130215120022.GA23694@x220>
-	<20130215135141.1EFCEE0085@blue.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 1/2] Input: MT - do not apply filtering on emulated events
+Date: Fri, 15 Feb 2013 20:36:20 +0100
+Message-ID: <1360956981-1112-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f53.google.com ([209.85.215.53]:57134 "EHLO
-	mail-la0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751569Ab3BOQk3 (ORCPT
+Received: from smtprelay-b31.telenor.se ([213.150.131.20]:48558 "EHLO
+	smtprelay-b31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751706Ab3BOTfp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Feb 2013 11:40:29 -0500
-In-Reply-To: <20130215135141.1EFCEE0085@blue.fi.intel.com>
+	Fri, 15 Feb 2013 14:35:45 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Johan Hedberg <johan.hedberg@gmail.com>, David Herrmann <dh.herrmann@googlemail.com>, linux-api@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, RavindranathX Doddi <ravindranathx.doddi@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-> Any comments?
+The pointer emulation events are derived from contact values that
+have already been filtered, so send the emulated events as is.
 
-Generic comments.  Could you use *_compat instead of  *_old_*?
-Another idea is do not touch current interface, just append new
-function and associated structure to make a smooth transition of the
-userspace stuff.
+Reported-by: Daniel Kurtz <djkurtz@chromium.org>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/input-mt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-What about documentation (Documentation/hid/uhid.txt)? Could you
-update it acordingly?
-
-> Subject: [PATCH] uhid: introduce new create event to fix 32/64-bit
->  compatibility issue
->
-> Current create event has pointer in payload. It causes problem with
-> 32/64-bit compatibility. In particular it's not possible to use 32-bit
-> userspace driver with 64-bit kernel.
-
-
-> This patch deprecates old create event and introduce a new one. The new
-> create event has padding for pointer on 32-bit system to extend pointer
-> correctly.
->
-> Old userspace driver binaries will use old create event. It requires
-> simple recompile to switch to new one.
-
-That's what I afraid of. Better to try to avoid any excessive
-requirement to the existing userspace.
-
+diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+index 1abbc17..1b7f4d4 100644
+--- a/drivers/input/input-mt.c
++++ b/drivers/input/input-mt.c
+@@ -18,6 +18,7 @@ static void copy_abs(struct input_dev *dev, unsigned int dst, unsigned int src)
+ {
+ 	if (dev->absinfo && test_bit(src, dev->absbit)) {
+ 		dev->absinfo[dst] = dev->absinfo[src];
++		dev->absinfo[dst].fuzz = 0;
+ 		dev->absbit[BIT_WORD(dst)] |= BIT_MASK(dst);
+ 	}
+ }
 -- 
-With Best Regards,
-Andy Shevchenko
+1.8.1.2
+

@@ -1,46 +1,55 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH] input: st1232: Add IRQF_NO_SUSPEND flag
-Date: Fri, 15 Feb 2013 10:46:09 +0900
-Message-ID: <CANqRtoQzhfxaHJp+vj=GnAaR4NyD9U1F1B7EnRckdLqvJE=XEw@mail.gmail.com>
-References: <1360863132-11227-1-git-send-email-hechtb+renesas@gmail.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH 0/2] Input misc/bma150.[ch] one fix and one improvement
+Date: Fri, 15 Feb 2013 12:09:11 +0100
+Message-ID: <20130215120911.f9b723973b8e7b97462241a6@studenti.unina.it>
+References: <1360281506-13618-1-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1360863132-11227-1-git-send-email-hechtb+renesas@gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Bastian Hecht <hechtb@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-sh@vger.kernel.org, Tony SIM <chinyeow.sim.xt@renesas.com>, Bastian Hecht <hechtb+renesas@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp208.alice.it ([82.57.200.104]:52785 "EHLO smtp208.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752687Ab3BOLJO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Feb 2013 06:09:14 -0500
+In-Reply-To: <1360281506-13618-1-git-send-email-ospite@studenti.unina.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Michael Trimarchi <michael@amarulasolutions.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Albert Zhang <xu.zhang@bosch-sensortec.com>, Eric Andersson <eric.andersson@unixphere.com>, Jonathan Cameron <jic23@cam.ac.uk>, Antonio Ospite <ao2@amarulasolutions.com>
 
-Hi Bastian,
+On Fri,  8 Feb 2013 00:58:23 +0100
+Antonio Ospite <ospite@studenti.unina.it> wrote:
 
-On Fri, Feb 15, 2013 at 2:32 AM, Bastian Hecht <hechtb@gmail.com> wrote:
-> When registering the interrupt handler we add the IRQF_NO_SUSPEND flag
-> to save the IRQ line from being disabled during suspension. This way we
-> keep the ability to use the device as a wakeup source.
+> From: Antonio Ospite <ao2@amarulasolutions.com>
+> 
+> Hi,
+> 
+> Patch 1 in the series fixes a panic Michael was experiencing.
+> 
+> Patch 2 makes it easier to use the actual values the implementation
+> expects in the platform data.
 >
-> Signed-off-by: Bastian Hecht <hechtb+renesas@gmail.com>
-> ---
->  drivers/input/touchscreen/st1232.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-> index d9d05e2..4f37199 100644
-> --- a/drivers/input/touchscreen/st1232.c
-> +++ b/drivers/input/touchscreen/st1232.c
-> @@ -180,7 +180,7 @@ static int st1232_ts_probe(struct i2c_client *client,
->         input_set_abs_params(input_dev, ABS_MT_POSITION_Y, MIN_Y, MAX_Y, 0, 0);
->
->         error = request_threaded_irq(client->irq, NULL, st1232_ts_irq_handler,
-> -                                    IRQF_ONESHOT, client->name, ts);
-> +                       IRQF_ONESHOT | IRQF_NO_SUSPEND, client->name, ts);
 
-Are you sure this is the correct way to handle this? Which platform
-have you tested this on? How about other boards?
+Ping on this series, I forgot to Cc Dmitry in the original submission.
+Dmitry, should I resend?
 
-Usually wake up handling is dealt with separately from interrupts.
-Looks like something is missing in your interrupt controller code.
+> Regards,
+>    Antonio
+> 
+> Michael Trimarchi (2):
+>   Input: misc/bma150.c, fix checking pm_runtime_get_sync() return value
+>   Input: misc/bma150.[ch], make some defines public and fix some
+>     comments
+> 
+>  drivers/input/misc/bma150.c |   14 +-------------
+>  include/linux/bma150.h      |   16 ++++++++++++++--
+>  2 files changed, 15 insertions(+), 15 deletions(-)
+> 
 
-Thanks,
+-- 
+Antonio Ospite
+http://ao2.it
 
-/ magnus
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

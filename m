@@ -1,172 +1,54 @@
-From: Simon Glass <sjg@chromium.org>
-Subject: [PATCH v4 5/6] Input: matrix-keymap: Add function to read the new DT binding
-Date: Fri, 15 Feb 2013 20:16:11 -0800
-Message-ID: <1360988172-15380-6-git-send-email-sjg@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 6/6] Input: Add ChromeOS EC keyboard driver
+Date: Sat, 16 Feb 2013 12:49:54 -0800
+Message-ID: <20130216204954.GA22044@core.coreip.homeip.net>
 References: <1360988172-15380-1-git-send-email-sjg@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1360988172-15380-1-git-send-email-sjg@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Simon Glass <sjg@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Javier Martinez Canillas <javier@dowhile0.org>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, Alban Bedel <alban.bedel@avionic-design.de>, linux-input@vger.kernel.org
+ <1360988172-15380-7-git-send-email-sjg@chromium.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1360988172-15380-7-git-send-email-sjg@chromium.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Simon Glass <sjg@chromium.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Luigi Semenzato <semenzato@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, Felipe Balbi <balbi@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, Tony Lindgren <tony@atomide.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Mike A. Chan" <mikechan@google.com>, Jun Nakajima <jun.nakajima@intel.com>, Tom Keel <thomas.keel@intel.com>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-We now have a binding which adds two parameters to the matrix keypad DT
-node. This is separate from the GPIO-driven matrix keypad binding, and
-unfortunately incompatible, since that uses row-gpios/col-gpios for the
-row and column counts.
+Hi Simon,
 
-So the easiest option here is to provide a function for non-GPIO drivers
-to use to decode the binding.
+On Fri, Feb 15, 2013 at 08:16:12PM -0800, Simon Glass wrote:
+> +	for (row = 0; row < ckdev->rows; row++) {
+> +		if (cros_ec_keyb_row_has_ghosting(ckdev, buf, row))
+> +			return true;
+> +	}
 
-Note: We could in fact create an entirely separate structure to hold
-these two fields, but it does not seem worth it, yet. If we have more
-parameters then we can add this, and then refactor each driver to hold
-such a structure.
+No need for curly braces here. I would not care if not for below.
 
-Signed-off-by: Simon Glass <sjg@chromium.org>
-Tested-by: Sourav Poddar <sourav.poddar@ti.com> (v2)
----
-Changes in v4: None
-Changes in v3:
-- Add stub for matrix_keypad_parse_of_params() when no CONFIG_OF
-- Put back full DT range checking in tca8418 driver
+> +
+> +	return 0;
+> +
+> +fail_register:
+> +	kfree(idev->keycode);
 
-Changes in v2:
-- Add new patch to decode matrix-keypad DT binding
+Sorry I did not notice this before, but idev->keycode is devm-managed,
+so you either need to use devm_kfree() or just remove call to kfree()
+and let it clean up automatically (which will happen if binding fails or
+upon removal).
 
- drivers/input/keyboard/lpc32xx-keys.c   | 11 ++++++-----
- drivers/input/keyboard/omap4-keypad.c   | 16 +++++-----------
- drivers/input/keyboard/tca8418_keypad.c |  7 +++++--
- drivers/input/matrix-keymap.c           | 19 +++++++++++++++++++
- include/linux/input/matrix_keypad.h     | 19 +++++++++++++++++++
- 5 files changed, 54 insertions(+), 18 deletions(-)
+BTW, maybe you should move the whole driver to devm_*? We have
+devm_kzalloc() for ckdev and you can use devm_input_allocate_device().
+Then you can get rid of entire erro handling path and completely remove
+the remove() method as well.
+ 
+> +fail_matrix:
+> +	input_free_device(idev);
+> +fail_alloc_dev:
+> +	kfree(ckdev);
+> +	return err;
+> +}
+> +
 
-diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
-index 1b8add6..4218143 100644
---- a/drivers/input/keyboard/lpc32xx-keys.c
-+++ b/drivers/input/keyboard/lpc32xx-keys.c
-@@ -144,12 +144,13 @@ static int lpc32xx_parse_dt(struct device *dev,
- {
- 	struct device_node *np = dev->of_node;
- 	u32 rows = 0, columns = 0;
-+	int err;
- 
--	of_property_read_u32(np, "keypad,num-rows", &rows);
--	of_property_read_u32(np, "keypad,num-columns", &columns);
--	if (!rows || rows != columns) {
--		dev_err(dev,
--			"rows and columns must be specified and be equal!\n");
-+	err = matrix_keypad_parse_of_params(dev, &rows, &columns);
-+	if (err)
-+		return err;
-+	if (rows != columns) {
-+		dev_err(dev, "rows and columns must be equal!\n");
- 		return -EINVAL;
- 	}
- 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index e25b022..1b28909 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -215,18 +215,12 @@ static int omap4_keypad_parse_dt(struct device *dev,
- 				 struct omap4_keypad *keypad_data)
- {
- 	struct device_node *np = dev->of_node;
-+	int err;
- 
--	if (!np) {
--		dev_err(dev, "missing DT data");
--		return -EINVAL;
--	}
--
--	of_property_read_u32(np, "keypad,num-rows", &keypad_data->rows);
--	of_property_read_u32(np, "keypad,num-columns", &keypad_data->cols);
--	if (!keypad_data->rows || !keypad_data->cols) {
--		dev_err(dev, "number of keypad rows/columns not specified\n");
--		return -EINVAL;
--	}
-+	err = matrix_keypad_parse_of_params(dev, &keypad_data->rows,
-+					    &keypad_data->cols);
-+	if (err)
-+		return err;
- 
- 	if (of_get_property(np, "linux,input-no-autorepeat", NULL))
- 		keypad_data->no_autorepeat = true;
-diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
-index a34cc67..55c1530 100644
---- a/drivers/input/keyboard/tca8418_keypad.c
-+++ b/drivers/input/keyboard/tca8418_keypad.c
-@@ -288,8 +288,11 @@ static int tca8418_keypad_probe(struct i2c_client *client,
- 		irq_is_gpio = pdata->irq_is_gpio;
- 	} else {
- 		struct device_node *np = dev->of_node;
--		of_property_read_u32(np, "keypad,num-rows", &rows);
--		of_property_read_u32(np, "keypad,num-columns", &cols);
-+		int err;
-+
-+		err = matrix_keypad_parse_of_params(dev, &rows, &cols);
-+		if (err)
-+			return err;
- 		rep = of_property_read_bool(np, "keypad,autorepeat");
- 	}
- 
-diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
-index 3ae496e..619b382 100644
---- a/drivers/input/matrix-keymap.c
-+++ b/drivers/input/matrix-keymap.c
-@@ -50,6 +50,25 @@ static bool matrix_keypad_map_key(struct input_dev *input_dev,
- }
- 
- #ifdef CONFIG_OF
-+int matrix_keypad_parse_of_params(struct device *dev,
-+				  unsigned int *rows, unsigned int *cols)
-+{
-+	struct device_node *np = dev->of_node;
-+
-+	if (!np) {
-+		dev_err(dev, "missing DT data");
-+		return -EINVAL;
-+	}
-+	of_property_read_u32(np, "keypad,num-rows", rows);
-+	of_property_read_u32(np, "keypad,num-columns", cols);
-+	if (!*rows || !*cols) {
-+		dev_err(dev, "number of keypad rows/columns not specified\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- static int matrix_keypad_parse_of_keymap(const char *propname,
- 					 unsigned int rows, unsigned int cols,
- 					 struct input_dev *input_dev)
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index 5f3aa6b..27e06ac 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -81,4 +81,23 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- 			       unsigned short *keymap,
- 			       struct input_dev *input_dev);
- 
-+#ifdef CONFIG_OF
-+/**
-+ * matrix_keypad_parse_of_params() - Read parameters from matrix-keypad node
-+ *
-+ * @dev: Device containing of_node
-+ * @rows: Returns number of matrix rows
-+ * @cols: Returns number of matrix columns
-+ * @return 0 if OK, <0 on error
-+ */
-+int matrix_keypad_parse_of_params(struct device *dev,
-+				  unsigned int *rows, unsigned int *cols);
-+#else
-+static inline int matrix_keypad_parse_of_params(struct device *dev,
-+				  unsigned int *rows, unsigned int *cols)
-+{
-+	return -ENOSYS;
-+}
-+#endif /* CONFIG_OF */
-+
- #endif /* _MATRIX_KEYPAD_H */
+Thanks.
+
 -- 
-1.8.1.3
+Dmitry

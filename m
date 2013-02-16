@@ -1,40 +1,36 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2] Input: tegra-kbc - assume CONFIG_OF, remove platform
- data
-Date: Fri, 15 Feb 2013 18:53:49 -0800
-Message-ID: <20130216025349.GB25913@core.coreip.homeip.net>
-References: <1360968585-25674-1-git-send-email-swarren@wwwdotorg.org>
+Subject: Re: [PATCH 2/2] Input: synaptics - initialize pointer emulation usage
+Date: Fri, 15 Feb 2013 18:54:22 -0800
+Message-ID: <20130216025422.GC25913@core.coreip.homeip.net>
+References: <1360956981-1112-1-git-send-email-rydberg@euromail.se>
+ <1360956981-1112-2-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f51.google.com ([209.85.210.51]:38352 "EHLO
-	mail-da0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750827Ab3BPCxw (ORCPT
+Received: from mail-pb0-f48.google.com ([209.85.160.48]:57414 "EHLO
+	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750780Ab3BPCyY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Feb 2013 21:53:52 -0500
+	Fri, 15 Feb 2013 21:54:24 -0500
 Content-Disposition: inline
-In-Reply-To: <1360968585-25674-1-git-send-email-swarren@wwwdotorg.org>
+In-Reply-To: <1360956981-1112-2-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Stephen Warren <swarren@nvidia.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2013 at 03:49:45PM -0700, Stephen Warren wrote:
-> From: Stephen Warren <swarren@nvidia.com>
+On Fri, Feb 15, 2013 at 08:36:21PM +0100, Henrik Rydberg wrote:
+> To properly setup event parameters for emulated events, pass
+> the appropriate flag to the slot initialization function. Also,
+> all MT-related events should be setup before initialization.
 > 
-> Tegra only supports, and always enables, device tree. Remove all ifdefs
-> and runtime checks for DT support from the driver. Platform data is
-> therefore no longer required. Delete the header that defines it, and
-> rework the driver to parse the device tree directly into struct
-> tegra_kbc.
+> Incidentally, this solves the issue of doubly filtered pointer
+> events.
 > 
-> Signed-off-by: Stephen Warren <swarren@nvidia.com>
-> ---
-> v2:
-> * Change struct tegra_kbc.irq to signed int so error-checking works.
-> * Rebased directly onto input's next branch.
+> Reported-by: Daniel Kurtz <djkurtz@chromium.org>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 
-Applied, thank you Stephen.
+Applied both, thank you Henrik.
 
 -- 
 Dmitry

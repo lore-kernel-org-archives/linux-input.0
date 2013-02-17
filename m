@@ -1,44 +1,237 @@
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: [PATCH] input: tsc2005: Add MODULE_ALIAS
-Date: Sun, 17 Feb 2013 01:27:52 +0100
-Message-ID: <1361060872-11818-1-git-send-email-pali.rohar@gmail.com>
+From: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Subject: [PATCH] HID: Separate struct hid_device's driver_lock into two locks.
+Date: Sat, 16 Feb 2013 17:43:31 -0800
+Message-ID: <CAG_cf+cRqspL3ytwg61BPdsBio1oQj3ArQD8c=Lw8007CJsEtw@mail.gmail.com>
+References: <CAG_cf+eZ2w4i=a_kMieb92Pa0Gf2aOB_2Bs39G=aB7ui-Y08Pw@mail.gmail.com>
+ <CANq1E4Q-dWrf4nwn+SZ4TdjBSZ5i6UEGgVxm=eboZ0i6Dk9ZqA@mail.gmail.com>
+ <20130211185527.63d1c1f9@neptune.home> <CAG_cf+cm_q-0KJzZUaBsw=i5zqGp_Q+6Ga8=7mWVMXXidfEVpA@mail.gmail.com>
+ <20130214080648.6f84682e@pluto.restena.lu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f41.google.com ([74.125.83.41]:57692 "EHLO
-	mail-ee0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754490Ab3BQA2Q (ORCPT
+Received: from mail-ia0-f179.google.com ([209.85.210.179]:62932 "EHLO
+	mail-ia0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754353Ab3BQBnw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Feb 2013 19:28:16 -0500
+	Sat, 16 Feb 2013 20:43:52 -0500
+Received: by mail-ia0-f179.google.com with SMTP id x24so4294986iak.24
+        for <linux-input@vger.kernel.org>; Sat, 16 Feb 2013 17:43:51 -0800 (PST)
+In-Reply-To: <20130214080648.6f84682e@pluto.restena.lu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+To: =?ISO-8859-1?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: David Herrmann <dh.herrmann@googlemail.com>, Linux Input <linux-input@vger.kernel.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-* This patch enable autoloading tsc2005 driver when is compiled as modu=
-le
+This version incorporates the warning for drivers that use
+io_start()/stop() in an unbalanced way. It is otherwise unchanged from
+the previous version.
 
-Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+Let me know if there are any other comments/issues.
+
+Thanks,
+-andrew
+
+This patch separates struct hid_device's driver_lock into two. The
+goal is to allow hid device drivers to receive input during their
+probe() or remove() function calls. This is necessary because some
+drivers need to communicate with the device to determine parameters
+needed during probe (e.g., size of a multi-touch surface), and if
+possible, may perfer to communicate with a device on host-initiated
+disconnect (e.g., to put it into a low-power state).
+
+Historically, three functions used driver_lock:
+
+- hid_device_probe: blocks to acquire lock
+- hid_device_remove: blocks to acquire lock
+- hid_input_report: if locked returns -EBUSY, else acquires lock
+
+This patch adds another lock (driver_input_lock) which is used to
+block input from occurring. The lock behavior is now:
+
+- hid_device_probe: blocks to acq. driver_lock, then driver_input_lock
+- hid_device_remove: blocks to acq. driver_lock, then driver_input_lock
+- hid_input_report: if driver_input_lock locked returns -EBUSY, else
+  acquires driver_input_lock
+
+This patch also adds two helper functions to be called during probe()
+or remove(): hid_device_io_start() and hid_device_io_stop(). These
+functions lock and unlock, respectively, driver_input_lock; they also
+make a note of whether they did so that hid-core knows if a driver has
+changed the lock state.
+
+This patch results in no behavior change for existing devices and
+drivers. However, during a probe() or remove() function call in a
+driver, that driver may now selectively call hid_device_io_start() to
+let input events come through, then optionally call
+hid_device_io_stop() to stop them.
+
+Change-Id: I737f6fc15911134b51273acf8d3de92fa5cc0f85
 ---
- drivers/input/touchscreen/tsc2005.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-core.c | 24 +++++++++++++++++++++---
+ include/linux/hid.h    | 46 +++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 66 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchs=
-creen/tsc2005.c
-index 9c0cdc7..7213e8b 100644
---- a/drivers/input/touchscreen/tsc2005.c
-+++ b/drivers/input/touchscreen/tsc2005.c
-@@ -753,3 +753,4 @@ module_spi_driver(tsc2005_driver);
- MODULE_AUTHOR("Lauri Leukkunen <lauri.leukkunen@nokia.com>");
- MODULE_DESCRIPTION("TSC2005 Touchscreen Driver");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS("spi:tsc2005");
---=20
-1.7.10.4
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 4da66b4..714d8b7 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1097,7 +1097,7 @@ int hid_input_report(struct hid_device *hid, int
+type, u8 *data, int size, int i
+ 	if (!hid)
+ 		return -ENODEV;
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-	if (down_trylock(&hid->driver_lock))
++	if (down_trylock(&hid->driver_input_lock))
+ 		return -EBUSY;
+
+ 	if (!hid->driver) {
+@@ -1150,7 +1150,7 @@ nomem:
+ 	hid_report_raw_event(hid, type, data, size, interrupt);
+
+ unlock:
+-	up(&hid->driver_lock);
++	up(&hid->driver_input_lock);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(hid_input_report);
+@@ -1703,6 +1703,11 @@ static int hid_device_probe(struct device *dev)
+
+ 	if (down_interruptible(&hdev->driver_lock))
+ 		return -EINTR;
++	if (down_interruptible(&hdev->driver_input_lock)) {
++		ret = -EINTR;
++		goto unlock_driver_lock;
++	}
++	hdev->io_started = false;
+
+ 	if (!hdev->driver) {
+ 		id = hid_match_device(hdev, hdrv);
+@@ -1726,6 +1731,9 @@ static int hid_device_probe(struct device *dev)
+ 			hdev->driver = NULL;
+ 	}
+ unlock:
++	if (!hdev->io_started)
++		up(&hdev->driver_input_lock);
++unlock_driver_lock:
+ 	up(&hdev->driver_lock);
+ 	return ret;
+ }
+@@ -1734,9 +1742,15 @@ static int hid_device_remove(struct device *dev)
+ {
+ 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+ 	struct hid_driver *hdrv;
++	int ret = 0;
+
+ 	if (down_interruptible(&hdev->driver_lock))
+ 		return -EINTR;
++	if (down_interruptible(&hdev->driver_input_lock)) {
++		ret = -EINTR;
++		goto unlock_driver_lock;
++	}
++	hdev->io_started = false;
+
+ 	hdrv = hdev->driver;
+ 	if (hdrv) {
+@@ -1747,8 +1761,11 @@ static int hid_device_remove(struct device *dev)
+ 		hdev->driver = NULL;
+ 	}
+
++	if (!hdev->io_started)
++		up(&hdev->driver_input_lock);
++unlock_driver_lock:
+ 	up(&hdev->driver_lock);
+-	return 0;
++	return ret;
+ }
+
+ static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
+@@ -2126,6 +2143,7 @@ struct hid_device *hid_allocate_device(void)
+ 	init_waitqueue_head(&hdev->debug_wait);
+ 	INIT_LIST_HEAD(&hdev->debug_list);
+ 	sema_init(&hdev->driver_lock, 1);
++	sema_init(&hdev->driver_input_lock, 1);
+
+ 	return hdev;
+ err:
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 3a95da6..41e0e7b 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -481,7 +481,8 @@ struct hid_device {							/* device report descriptor */
+ 	unsigned country;						/* HID country */
+ 	struct hid_report_enum report_enum[HID_REPORT_TYPES];
+
+-	struct semaphore driver_lock;					/* protects the current driver */
++	struct semaphore driver_lock;					/* protects the current driver,
+except during input */
++	struct semaphore driver_input_lock;				/* protects the current driver */
+ 	struct device dev;						/* device */
+ 	struct hid_driver *driver;
+ 	struct hid_ll_driver *ll_driver;
+@@ -502,6 +503,7 @@ struct hid_device {							/* device report descriptor */
+ 	unsigned int status;						/* see STAT flags above */
+ 	unsigned claimed;						/* Claimed by hidinput, hiddev? */
+ 	unsigned quirks;						/* Various quirks the device can pull on us */
++	bool io_started;						/* Protected by driver_lock. If IO has started */
+
+ 	struct list_head inputs;					/* The list of inputs */
+ 	void *hiddev;							/* The hiddev structure */
+@@ -622,6 +624,10 @@ struct hid_usage_id {
+  * @resume: invoked on resume if device was not reset (NULL means nop)
+  * @reset_resume: invoked on resume if device was reset (NULL means nop)
+  *
++ * probe should return -errno on error, or 0 on success. During probe,
++ * input will not be passed to raw_event unless hid_device_io_start is
++ * called.
++ *
+  * raw_event and event should return 0 on no action performed, 1 when no
+  * further processing should be done and negative on error
+  *
+@@ -742,6 +748,44 @@ const struct hid_device_id *hid_match_id(struct
+hid_device *hdev,
+ 					 const struct hid_device_id *id);
+
+ /**
++ * hid_device_io_start - enable HID input during probe, remove
++ *
++ * @hid - the device
++ *
++ * This should only be called during probe or remove and only be
++ * called by the thread calling probe or remove. It will allow
++ * incoming packets to be delivered to the driver.
++ */
++static inline void hid_device_io_start(struct hid_device *hid) {
++  if (hid->io_started) {
++    dev_warn(&hid->dev, "io already started");
++    return;
++  }
++  hid->io_started = true;
++  up(&hid->driver_input_lock);
++}
++
++/**
++ * hid_device_io_stop - disable HID input during probe, remove
++ *
++ * @hid - the device
++ *
++ * Should only be called after hid_device_io_start. It will prevent
++ * incoming packets from going to the driver for the duration of
++ * probe, remove. If called during probe, packets will still go to the
++ * driver after probe is complete. This function should only be called
++ * by the thread calling probe or remove.
++ */
++static inline void hid_device_io_stop(struct hid_device *hid) {
++  if (!hid->io_started) {
++    dev_warn(&hid->dev, "io already stopped");
++    return;
++  }
++  hid->io_started = false;
++  down(&hid->driver_input_lock);
++}
++
++/**
+  * hid_map_usage - map usage input bits
+  *
+  * @hidinput: hidinput which we are interested in
+-- 
+1.8.1.3

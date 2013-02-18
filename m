@@ -1,44 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: uhid: broken interface: 32/64-bit compatibility
-Date: Mon, 18 Feb 2013 11:28:40 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1302181121460.17024@pobox.suse.cz>
-References: <20130215112911.68A98E0085@blue.fi.intel.com> <CANq1E4T1QzOUOwWPpV6_55hVTXzXF4baShxpYaM0HNAgF0ffAg@mail.gmail.com> <20130215120022.GA23694@x220> <20130215135141.1EFCEE0085@blue.fi.intel.com> <20130215200526.GA15811@core.coreip.homeip.net>
+From: Alexander Holler <holler@ahsoftware.de>
+Subject: Re: [PATCH 3/3] HID: sensor-hub: don't limit the driver only to USB
+ bus
+Date: Mon, 18 Feb 2013 12:03:04 +0100
+Message-ID: <51220A68.9030608@ahsoftware.de>
+References: <1360578679-7029-1-git-send-email-mika.westerberg@linux.intel.com> <1360578679-7029-3-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48716 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757302Ab3BRK2u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Feb 2013 05:28:50 -0500
-In-Reply-To: <20130215200526.GA15811@core.coreip.homeip.net>
+Received: from h1446028.stratoserver.net ([85.214.92.142]:35400 "EHLO
+	mail.ahsoftware.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750840Ab3BRLDV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Feb 2013 06:03:21 -0500
+In-Reply-To: <1360578679-7029-3-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Johan Hedberg <johan.hedberg@gmail.com>, David Herrmann <dh.herrmann@googlemail.com>, linux-api@vger.kernel.org, linux-input@vger.kernel.org, RavindranathX Doddi <ravindranathx.doddi@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, srinivas.pandruvada@intel.com
 
-On Fri, 15 Feb 2013, Dmitry Torokhov wrote:
+Am 11.02.2013 11:31, schrieb Mika Westerberg:
+> We now have two transport mediums: USB and I2C, where sensor hubs can
+> exists. So instead of constraining the driver to only these two we let it
+> to match any HID bus as long as the group is HID_GROUP_SENSOR_HUB.
+>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
+>   drivers/hid/hid-sensor-hub.c |    3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 2643bce9..c01f10d 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -603,7 +603,8 @@ static void sensor_hub_remove(struct hid_device *hdev)
+>   }
+>
+>   static const struct hid_device_id sensor_hub_devices[] = {
+> -	{ HID_DEVICE(BUS_USB, HID_GROUP_SENSOR_HUB, HID_ANY_ID, HID_ANY_ID) },
+> +	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
+> +		     HID_ANY_ID) },
+>   	{ }
+>   };
+>   MODULE_DEVICE_TABLE(hid, sensor_hub_devices);
+>
 
-> > Here's my attempt to fix the issue.
-> > 
-> > Not sure if tricks with padding in a good idea. We can  just use __u64
-> > instead of pointer, but it will require update of userspace to silence
-> > cast warning and will cause warning if you will try to use updated
-> > userspace with old kernel headers.
-> > 
-> > Any comments?
-> 
-> This does not fix anything really, we simply have to deal with compat
-> interface.
-> 
-> Compiled but not tested.
-> 
-> Thanks.
+Hmm, what happens with Bluetooth sensor-hubs? Is the driver now able to 
+handle them too?
 
-Sorry for late response, I have been extremely busy doing some skiing :-)
+Regards,
 
-Thanks a lot for fixing this embarassing bug, Dmitry. I have now applied 
-the patch.
-
--- 
-Jiri Kosina
-SUSE Labs
+Alexander

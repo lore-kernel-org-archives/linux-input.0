@@ -1,17 +1,17 @@
 From: Andrew de los Reyes <andrew-vger@gizmolabs.org>
-Subject: [PATCH 2/3] HID: Fix logitech-dj: Allow incoming packets during probe().
-Date: Mon, 18 Feb 2013 09:20:22 -0800
-Message-ID: <1361208023-11500-3-git-send-email-andrew-vger@gizmolabs.org>
+Subject: [PATCH 1/3] HID: Separate struct hid_device's driver_lock into two locks.
+Date: Mon, 18 Feb 2013 09:20:21 -0800
+Message-ID: <1361208023-11500-2-git-send-email-andrew-vger@gizmolabs.org>
 References: <alpine.LNX.2.00.1302181405240.17024@pobox.suse.cz>
  <1361208023-11500-1-git-send-email-andrew-vger@gizmolabs.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:65434 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751937Ab3BRRUg (ORCPT
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:36974 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756033Ab3BRRUe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Feb 2013 12:20:36 -0500
-Received: by mail-pb0-f50.google.com with SMTP id up1so1769447pbc.9
-        for <linux-input@vger.kernel.org>; Mon, 18 Feb 2013 09:20:35 -0800 (PST)
+	Mon, 18 Feb 2013 12:20:34 -0500
+Received: by mail-pa0-f50.google.com with SMTP id fa11so2958367pad.9
+        for <linux-input@vger.kernel.org>; Mon, 18 Feb 2013 09:20:34 -0800 (PST)
 In-Reply-To: <1361208023-11500-1-git-send-email-andrew-vger@gizmolabs.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -20,39 +20,207 @@ Cc: Andrew de los Reyes <adlr@chromium.org>
 
 From: Andrew de los Reyes <adlr@chromium.org>
 
-Historically, logitech-dj communicated with the device during probe()
-to query the list of devices attached. Later, a change was introduced
-to hid-core that prevented incoming packets for a device during
-probe(), as many drivers are unable to handle such input. That change
-broke the device enumeration in logitech-dj, so commit
-596264082f10dd4a56 was introduced to workaround that by waiting for
-normal input before enumerating devices.
+This patch separates struct hid_device's driver_lock into two. The
+goal is to allow hid device drivers to receive input during their
+probe() or remove() function calls. This is necessary because some
+drivers need to communicate with the device to determine parameters
+needed during probe (e.g., size of a multi-touch surface), and if
+possible, may perfer to communicate with a device on host-initiated
+disconnect (e.g., to put it into a low-power state).
 
-Now that drivers can opt-in to receive input during probe, this patch
-changes logitech-dj to do that, so that it can successfully complete
-enumeration of devices during probe().
+Historically, three functions used driver_lock:
+
+- hid_device_probe: blocks to acquire lock
+- hid_device_remove: blocks to acquire lock
+- hid_input_report: if locked returns -EBUSY, else acquires lock
+
+This patch adds another lock (driver_input_lock) which is used to
+block input from occurring. The lock behavior is now:
+
+- hid_device_probe: blocks to acq. driver_lock, then driver_input_lock
+- hid_device_remove: blocks to acq. driver_lock, then driver_input_lock
+- hid_input_report: if driver_input_lock locked returns -EBUSY, else
+  acquires driver_input_lock
+
+This patch also adds two helper functions to be called during probe()
+or remove(): hid_device_io_start() and hid_device_io_stop(). These
+functions lock and unlock, respectively, driver_input_lock; they also
+make a note of whether they did so that hid-core knows if a driver has
+changed the lock state.
+
+This patch results in no behavior change for existing devices and
+drivers. However, during a probe() or remove() function call in a
+driver, that driver may now selectively call hid_device_io_start() to
+let input events come through, then optionally call
+hid_device_io_stop() to stop them.
 
 Signed-off-by: Andrew de los Reyes <adlr@chromium.org>
 
-Change-Id: I2dca10a5c64f6c3e90ffb00547b47eaf94546eb6
+Change-Id: I737f6fc15911134b51273acf8d3de92fa5cc0f85
 ---
- drivers/hid/hid-logitech-dj.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-core.c | 24 +++++++++++++++++++++---
+ include/linux/hid.h    | 46 +++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 66 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 9500f2f..bf647ef 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -803,6 +803,9 @@ static int logi_dj_probe(struct hid_device *hdev,
- 		goto llopen_failed;
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 4da66b4..714d8b7 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1097,7 +1097,7 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+ 	if (!hid)
+ 		return -ENODEV;
+ 
+-	if (down_trylock(&hid->driver_lock))
++	if (down_trylock(&hid->driver_input_lock))
+ 		return -EBUSY;
+ 
+ 	if (!hid->driver) {
+@@ -1150,7 +1150,7 @@ nomem:
+ 	hid_report_raw_event(hid, type, data, size, interrupt);
+ 
+ unlock:
+-	up(&hid->driver_lock);
++	up(&hid->driver_input_lock);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(hid_input_report);
+@@ -1703,6 +1703,11 @@ static int hid_device_probe(struct device *dev)
+ 
+ 	if (down_interruptible(&hdev->driver_lock))
+ 		return -EINTR;
++	if (down_interruptible(&hdev->driver_input_lock)) {
++		ret = -EINTR;
++		goto unlock_driver_lock;
++	}
++	hdev->io_started = false;
+ 
+ 	if (!hdev->driver) {
+ 		id = hid_match_device(hdev, hdrv);
+@@ -1726,6 +1731,9 @@ static int hid_device_probe(struct device *dev)
+ 			hdev->driver = NULL;
+ 	}
+ unlock:
++	if (!hdev->io_started)
++		up(&hdev->driver_input_lock);
++unlock_driver_lock:
+ 	up(&hdev->driver_lock);
+ 	return ret;
+ }
+@@ -1734,9 +1742,15 @@ static int hid_device_remove(struct device *dev)
+ {
+ 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+ 	struct hid_driver *hdrv;
++	int ret = 0;
+ 
+ 	if (down_interruptible(&hdev->driver_lock))
+ 		return -EINTR;
++	if (down_interruptible(&hdev->driver_input_lock)) {
++		ret = -EINTR;
++		goto unlock_driver_lock;
++	}
++	hdev->io_started = false;
+ 
+ 	hdrv = hdev->driver;
+ 	if (hdrv) {
+@@ -1747,8 +1761,11 @@ static int hid_device_remove(struct device *dev)
+ 		hdev->driver = NULL;
  	}
  
-+	/* Allow incoming packets to arrive: */
-+	hid_device_io_start(hdev);
++	if (!hdev->io_started)
++		up(&hdev->driver_input_lock);
++unlock_driver_lock:
+ 	up(&hdev->driver_lock);
+-	return 0;
++	return ret;
+ }
+ 
+ static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
+@@ -2126,6 +2143,7 @@ struct hid_device *hid_allocate_device(void)
+ 	init_waitqueue_head(&hdev->debug_wait);
+ 	INIT_LIST_HEAD(&hdev->debug_list);
+ 	sema_init(&hdev->driver_lock, 1);
++	sema_init(&hdev->driver_input_lock, 1);
+ 
+ 	return hdev;
+ err:
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 3a95da6..1e88371 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -481,7 +481,8 @@ struct hid_device {							/* device report descriptor */
+ 	unsigned country;						/* HID country */
+ 	struct hid_report_enum report_enum[HID_REPORT_TYPES];
+ 
+-	struct semaphore driver_lock;					/* protects the current driver */
++	struct semaphore driver_lock;					/* protects the current driver, except during input */
++	struct semaphore driver_input_lock;				/* protects the current driver */
+ 	struct device dev;						/* device */
+ 	struct hid_driver *driver;
+ 	struct hid_ll_driver *ll_driver;
+@@ -502,6 +503,7 @@ struct hid_device {							/* device report descriptor */
+ 	unsigned int status;						/* see STAT flags above */
+ 	unsigned claimed;						/* Claimed by hidinput, hiddev? */
+ 	unsigned quirks;						/* Various quirks the device can pull on us */
++	bool io_started;						/* Protected by driver_lock. If IO has started */
+ 
+ 	struct list_head inputs;					/* The list of inputs */
+ 	void *hiddev;							/* The hiddev structure */
+@@ -622,6 +624,10 @@ struct hid_usage_id {
+  * @resume: invoked on resume if device was not reset (NULL means nop)
+  * @reset_resume: invoked on resume if device was reset (NULL means nop)
+  *
++ * probe should return -errno on error, or 0 on success. During probe,
++ * input will not be passed to raw_event unless hid_device_io_start is
++ * called.
++ *
+  * raw_event and event should return 0 on no action performed, 1 when no
+  * further processing should be done and negative on error
+  *
+@@ -742,6 +748,44 @@ const struct hid_device_id *hid_match_id(struct hid_device *hdev,
+ 					 const struct hid_device_id *id);
+ 
+ /**
++ * hid_device_io_start - enable HID input during probe, remove
++ *
++ * @hid - the device
++ *
++ * This should only be called during probe or remove and only be
++ * called by the thread calling probe or remove. It will allow
++ * incoming packets to be delivered to the driver.
++ */
++static inline void hid_device_io_start(struct hid_device *hid) {
++	if (hid->io_started) {
++		dev_warn(&hid->dev, "io already started");
++		return;
++	}
++	hid->io_started = true;
++	up(&hid->driver_input_lock);
++}
 +
- 	retval = logi_dj_recv_query_paired_devices(djrcv_dev);
- 	if (retval < 0) {
- 		dev_err(&hdev->dev, "%s:logi_dj_recv_query_paired_devices "
++/**
++ * hid_device_io_stop - disable HID input during probe, remove
++ *
++ * @hid - the device
++ *
++ * Should only be called after hid_device_io_start. It will prevent
++ * incoming packets from going to the driver for the duration of
++ * probe, remove. If called during probe, packets will still go to the
++ * driver after probe is complete. This function should only be called
++ * by the thread calling probe or remove.
++ */
++static inline void hid_device_io_stop(struct hid_device *hid) {
++	if (!hid->io_started) {
++		dev_warn(&hid->dev, "io already stopped");
++		return;
++	}
++	hid->io_started = false;
++	down(&hid->driver_input_lock);
++}
++
++/**
+  * hid_map_usage - map usage input bits
+  *
+  * @hidinput: hidinput which we are interested in
 -- 
 1.8.1.3
 

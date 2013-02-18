@@ -1,30 +1,43 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH 2/2] hid: Split accel, brake for Logitech Driving Force
- wheel
-Date: Mon, 18 Feb 2013 14:24:09 -0500
-Message-ID: <3d48bf954106b4c823d2fa71afccd68b.squirrel@mungewell.org>
-References: <1361123594-2813-1-git-send-email-sbarra.paul@gmail.com>
-    <1361123594-2813-2-git-send-email-sbarra.paul@gmail.com>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH 0/7] hid driver transport cleanup
+Date: Mon, 18 Feb 2013 21:49:41 +0100
+Message-ID: <20130218204941.GA12214@polaris.bitmath.org>
+References: <1360334256-22127-1-git-send-email-benjamin.tissoires@gmail.com>
+ <alpine.LNX.2.00.1302181012320.17024@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:53006 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755310Ab3BRTYK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Feb 2013 14:24:10 -0500
-In-Reply-To: <1361123594-2813-2-git-send-email-sbarra.paul@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1302181012320.17024@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, simon@mungewell.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Sbarra <sbarra.paul@gmail.com>
 
->
-> Signed-off-by: Paul Sbarra <sbarra.paul@gmail.com>
+Hi Jiri,
 
-Looks good to me.
+> > so, here is the hid drivers cleanup. The aim is to remove as much as possible
+> > direct calls to usbhid for hid drivers. Thus, other transport layers can use
+> > the existing hid drivers (like I2C or uhid).
+> > 
+> > Henrik, patches 1 to 5 are yours. I just rebased and double-checked them. Please
+> > add you Signed-off-by if you are happy with the rebase.
+> 
+> Henrik,
+> 
+> I can see your signoff in my inbox only for patches 1 and 2. Are you still 
+> reviewing patches 3-5?
 
-Signed-off-by: Simon Wood <simon@mungewell.org>
+Yes, unfortunately the pipe is pretty full.
 
+> Also, I'd like to make sure that we don't mess up the authorship, so 
+> patches 1-5 should be applied with Henrik's authorship, right? (I can do 
+> it after I receive signoffs from Henrik for those).
 
+Benjamin has gone through the effort of keeping the patches
+up-to-date, so I don't mind him being the author on most of
+them. Maybe the first patch is actually identical to my earlier
+submission, at least I seem to have it in my computer. :-)
 
+Thanks,
+Henrik

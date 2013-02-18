@@ -1,47 +1,110 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH] HID: wiimote: fix nunchuck button parser
-Date: Mon, 18 Feb 2013 01:47:15 +0100
-Message-ID: <1361148435-25567-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Victor Quicksilver <victor.quicksilver@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, stable@vger.kernel.org
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] HID: ntrig: use input_configured() callback to set the
+ name
+Date: Sun, 17 Feb 2013 21:38:42 -0500
+Message-ID: <51219432.8020902@seas.upenn.edu>
+References: <1360335090-24024-1-git-send-email-benjamin.tissoires@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fox.seas.upenn.edu ([158.130.68.12]:34613 "EHLO
+	fox.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755344Ab3BRCow (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 17 Feb 2013 21:44:52 -0500
+In-Reply-To: <1360335090-24024-1-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The buttons of the Wii Remote Nunchuck extension are actually active low.
-Fix the parser to forward the inverted values. The comment in the function
-always said "0 == pressed" but the implementation was wrong from the
-beginning.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Cc: stable@vger.kernel.org
-Reported-by: Victor Quicksilver <victor.quicksilver@gmail.com>
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
- drivers/hid/hid-wiimote-ext.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Looks good, and I can confirm it works fine.
 
-diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
-index 38ae877..0472191 100644
---- a/drivers/hid/hid-wiimote-ext.c
-+++ b/drivers/hid/hid-wiimote-ext.c
-@@ -403,14 +403,14 @@ static void handler_nunchuck(struct wiimote_ext *ext, const __u8 *payload)
- 
- 	if (ext->motionp) {
- 		input_report_key(ext->input,
--			wiiext_keymap[WIIEXT_KEY_Z], !!(payload[5] & 0x04));
-+			wiiext_keymap[WIIEXT_KEY_Z], !(payload[5] & 0x04));
- 		input_report_key(ext->input,
--			wiiext_keymap[WIIEXT_KEY_C], !!(payload[5] & 0x08));
-+			wiiext_keymap[WIIEXT_KEY_C], !(payload[5] & 0x08));
- 	} else {
- 		input_report_key(ext->input,
--			wiiext_keymap[WIIEXT_KEY_Z], !!(payload[5] & 0x01));
-+			wiiext_keymap[WIIEXT_KEY_Z], !(payload[5] & 0x01));
- 		input_report_key(ext->input,
--			wiiext_keymap[WIIEXT_KEY_C], !!(payload[5] & 0x02));
-+			wiiext_keymap[WIIEXT_KEY_C], !(payload[5] & 0x02));
- 	}
- 
- 	input_sync(ext->input);
--- 
-1.8.1.3
+Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+
+On 02/08/13 09:51, Benjamin Tissoires wrote:
+> The use of input_configured() allows the ntrig driver to actually 
+> change the name of the input and its bitmask before it is added to
+> the input subsystem. Thus, the logs are coherents and udev catch
+> the real bitmask when the device is added.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com> 
+> --- drivers/hid/hid-ntrig.c | 68
+> ++++++++++++++++++++++++------------------------- 1 file changed,
+> 34 insertions(+), 34 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c 
+> index 2ffc0e3..7757e82 100644 --- a/drivers/hid/hid-ntrig.c +++
+> b/drivers/hid/hid-ntrig.c @@ -858,12 +858,43 @@ not_claimed_input: 
+> return 1; }
+> 
+> +static void ntrig_input_configured(struct hid_device *hid, +
+> struct hid_input *hidinput) + +{ +	struct input_dev *input =
+> hidinput->input; + +	if (hidinput->report->maxfield < 1) +
+> return; + +	switch (hidinput->report->field[0]->application) { +
+> case HID_DG_PEN: +		input->name = "N-Trig Pen"; +		break; +	case
+> HID_DG_TOUCHSCREEN: +		/* These keys are redundant for fingers,
+> clear them +		 * to prevent incorrect identification */ +
+> __clear_bit(BTN_TOOL_PEN, input->keybit); +
+> __clear_bit(BTN_TOOL_FINGER, input->keybit); +		__clear_bit(BTN_0,
+> input->keybit); +		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit); +
+> /* +		 * The physical touchscreen (single touch) +		 * input has a
+> value for physical, whereas +		 * the multitouch only has logical
+> input +		 * fields. +		 */ +		input->name =
+> (hidinput->report->field[0]->physical) ? +							"N-Trig
+> Touchscreen" : +							"N-Trig MultiTouch"; +		break; +	} +} + 
+> static int ntrig_probe(struct hid_device *hdev, const struct
+> hid_device_id *id) { int ret; struct ntrig_data *nd; -	struct
+> hid_input *hidinput; -	struct input_dev *input; struct hid_report
+> *report;
+> 
+> if (id->driver_data) @@ -901,38 +932,6 @@ static int
+> ntrig_probe(struct hid_device *hdev, const struct hid_device_id
+> *id) goto err_free; }
+> 
+> - -	list_for_each_entry(hidinput, &hdev->inputs, list) { -		if
+> (hidinput->report->maxfield < 1) -			continue; - -		input =
+> hidinput->input; -		switch
+> (hidinput->report->field[0]->application) { -		case HID_DG_PEN: -
+> input->name = "N-Trig Pen"; -			break; -		case HID_DG_TOUCHSCREEN: 
+> -			/* These keys are redundant for fingers, clear them -			 * to
+> prevent incorrect identification */ -			__clear_bit(BTN_TOOL_PEN,
+> input->keybit); -			__clear_bit(BTN_TOOL_FINGER, input->keybit); -
+> __clear_bit(BTN_0, input->keybit); -
+> __set_bit(BTN_TOOL_DOUBLETAP, input->keybit); -			/* -			 * The
+> physical touchscreen (single touch) -			 * input has a value for
+> physical, whereas -			 * the multitouch only has logical input -
+> * fields. -			 */ -			input->name = -
+> (hidinput->report->field[0] -				 ->physical) ? -				"N-Trig
+> Touchscreen" : -				"N-Trig MultiTouch"; -			break; -		} -	} - /*
+> This is needed for devices with more recent firmware versions */ 
+> report =
+> hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0x0a]; if
+> (report) { @@ -1023,6 +1022,7 @@ static struct hid_driver
+> ntrig_driver = { .remove = ntrig_remove, .input_mapping =
+> ntrig_input_mapping, .input_mapped = ntrig_input_mapped, +
+> .input_configured = ntrig_input_configured, .usage_table =
+> ntrig_grabbed_usages, .event = ntrig_event, };
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iQIcBAEBAgAGBQJRIZQxAAoJEPILXytRLnK26REP+weeAIqA4kfDn+tWqFOXIbcL
+u65bkvNQmlEqx/mUeO7i7+tOsgTJnKpMy3ec5zsfyZd5DKs2yc3DTvrNXZbnqumZ
+NkUYe7+aob1ge4+edJKw9nWDHp2E1sCm7VDNXVcEUTQN1ntMp/BjMenhDjgWhXVw
+/3meslXrD3TOvXx/FzDLzJdV1WdBPeOHTHZq/yxsI3Z5jWCFba/Xz1CHc62sd2Og
+hRTe9CthK3Hq9EQJXOc8qSBgNkhQ6XtBZb7KTw7FXAyKH3htus6t3c57ZPqGUUER
+i6rasUYs3QGQQDG3tEU4wnWEtkS0i+9SO9L8tkUJwTKmdn7rDd5oAwovwMghkEkb
+L1+tKL8EamC1oD8CMfHa7zCOTlkfTT0eRJiyHIErWpxn+VQxx2fpR7/MS2fF9n60
+ecNGCRGrQo1UvIpYHmmGfigptcp6kyDgl8H9KBjafbQI5OWrJanwPi3aIXYhZmo8
+XLjqCRJfgeJKFZD3mTdgqKL0hpNldskNUUauFD5GJblAB3UQ/MZ5Nmm+hWi3Y7y2
+e0zxkPzw1puBFNNA06KLUNJ1DyibBZTPua1h36bD+OtqcRXIi8cdMHVf7bZhWSUK
+ePVxgYjbgybAh4gMTgRQP/ucEuc6eDHGQ6MRe16ezwk3+fvUiLPntAtTXro1e3ck
+nN0+r/NQSn7PKOdCqgeF
+=ltkV
+-----END PGP SIGNATURE-----

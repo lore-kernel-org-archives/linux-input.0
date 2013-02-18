@@ -1,100 +1,172 @@
-From: =?UTF-8?B?Q2h1bmctWWloIFdhbmcgKOeOi+W0h+aHvyk=?=
-	<cywang@google.com>
-Subject: Re: [PATCH] Input: psmouse - retry getid command in psmouse_probe()
-Date: Mon, 18 Feb 2013 16:21:34 +0800
-Message-ID: <CAM2ehZYL+JwLu-1f3aR-2SDoyfLhv7Grw14PWzUWLLQLtxfwzw@mail.gmail.com>
-References: <1351678279-32615-1-git-send-email-cywang@chromium.org> <CAM2ehZbMyNP_AhP-9TmCC5-bw9mqd7yunTy3NETEqRX1bX5oYg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Chung-yih Wang <cywang@chromium.org>
+Subject: [PATCH] Input: synaptics - add retry mechanism for reconnect
+Date: Mon, 18 Feb 2013 16:40:21 +0800
+Message-ID: <1361176821-31372-1-git-send-email-cywang@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f44.google.com ([74.125.83.44]:34317 "EHLO
-	mail-ee0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753978Ab3BRIVz convert rfc822-to-8bit (ORCPT
+Received: from mail-qa0-f73.google.com ([209.85.216.73]:51762 "EHLO
+	mail-qa0-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754099Ab3BRIqe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Feb 2013 03:21:55 -0500
-Received: by mail-ee0-f44.google.com with SMTP id l10so2761682eei.31
-        for <linux-input@vger.kernel.org>; Mon, 18 Feb 2013 00:21:54 -0800 (PST)
-In-Reply-To: <CAM2ehZbMyNP_AhP-9TmCC5-bw9mqd7yunTy3NETEqRX1bX5oYg@mail.gmail.com>
+	Mon, 18 Feb 2013 03:46:34 -0500
+Received: by mail-qa0-f73.google.com with SMTP id g10so281382qah.0
+        for <linux-input@vger.kernel.org>; Mon, 18 Feb 2013 00:46:33 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tai-hwa Liang <avatar@sentelic.com>, Rusty Russell <rusty@rustcorp.com.au>, Paul Fox <pgf@laptop.org>, Chung-yih Wang <cywang@chromium.org>, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Seth Forshee <seth.forshee@canonical.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Chung-yih Wang <cywang@chromium.org>
 
-Hi Dmitry and other maintainers,
+On the Samsung Series 5 Chromebook, the Synaptics ClickPad will sometimes not
+send an "0xFA" PS/2 ACK in response to a command byte during the reconnect
+sequence following a resume from suspend. From our experiments, the failure can
+happen during any byte of any of the commands in the reconnect batch.
 
-  Not sure if you have any comment on the patch? As this patch tries
-to help some platforms (especially for lenovo's machines) to rescan
-the touchpad device after resuming from suspend if the first probe
-fails.
+This failure results in a timeout in the psmouse driver. In addition, the
+ClickPad will often also respond to the next PS/2 command byte with an "0xFE"
+PS/2 RESEND response.
 
-Thanks,
-Chung-yih
+This patch makes the synaptics reconnect-at-resume more tolerant to such
+failures.
 
-On Mon, Feb 18, 2013 at 4:17 PM, Chung-Yih Wang (=E7=8E=8B=E5=B4=87=E6=87=
-=BF)
-<cywang@chromium.org> wrote:
-> Hi Dmitry and other maintainers,
->
->   Not sure if you have any comment on the patch? As this patch tries =
-to help
-> some platforms (especially for lenovo's machines) to rescan the touch=
-pad
-> device after resuming from suspend if the first probe fails.
->
-> Thanks,
-> Chung-yih
->
->
-> On Wed, Oct 31, 2012 at 6:11 PM, Chung-yih Wang <cywang@chromium.org>=
- wrote:
->>
->> As the synaptics device may not respond to the first command in
->> psmouse_probe
->> when a machine is booting up, the patch gives a second probe if the =
-first
->> one fails.
->>
->> Signed-off-by: Chung-yih Wang <cywang@chromium.org>
->> ---
->>  drivers/input/mouse/psmouse-base.c |   13 +++++++++++--
->>  1 files changed, 11 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/mouse/psmouse-base.c
->> b/drivers/input/mouse/psmouse-base.c
->> index 22fe254..c4fc5ad 100644
->> --- a/drivers/input/mouse/psmouse-base.c
->> +++ b/drivers/input/mouse/psmouse-base.c
->> @@ -1053,8 +1053,17 @@ static int psmouse_probe(struct psmouse *psmo=
-use)
->>   */
->>
->>         param[0] =3D 0xa5;
->> -       if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETID))
->> -               return -1;
->> +       if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETID)) {
->> +               /*
->> +                * Reprobe the device if it did not respond to the G=
-ETID
->> +                * command. Before retry, additional dummy command i=
-s sent
->> +                * to clear the 'RESEND' response if exists.
->> +                */
->> +               psmouse_warn(psmouse, "GETID probe failed,
->> retrying...\n");
->> +               ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
->> +               if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETID))
->> +                       return -1;
->> +       }
->>
->>         if (param[0] !=3D 0x00 && param[0] !=3D 0x03 &&
->>             param[0] !=3D 0x04 && param[0] !=3D 0xff)
->> --
->> 1.7.7.3
->>
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Chung-yih Wang <cywang@chromium.org>
+---
+ drivers/input/mouse/synaptics.c |   79 ++++++++++++++++++++++++++-------------
+ 1 files changed, 53 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 2f78538..2ee19a5 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -72,33 +72,65 @@
+  ****************************************************************************/
+ 
+ /*
++ * Send a "synaptics" command to the device and retry on PS/2 communication
++ * error
++ */
++static int synaptics_send_cmd_retry(struct psmouse *psmouse, unsigned char cmd,
++				    unsigned char *param, int param_c)
++{
++	int tries = 2;
++	do {
++		if (!psmouse_sliced_command(psmouse, cmd) &&
++		    !ps2_command(&psmouse->ps2dev, param, param_c)) {
++			return 0;
++		}
++		/*
++		 * If the touchpad did not ACK a previous command byte,
++		 * it may also respond to the next command byte with 'FE'.
++		 * Send a dummy command to clear this possible 'FE'.
++		 */
++		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
++	} while (--tries > 0);
++	psmouse_err(psmouse, "synaptics_retry failed cmd:0x%02x param_c 0x%x",
++		    cmd, param_c);
++	return -1;
++}
++
++/*
+  * Set the synaptics touchpad mode byte by special commands
+  */
+ static int synaptics_mode_cmd(struct psmouse *psmouse, unsigned char mode)
+ {
+ 	unsigned char param[1];
+ 
+-	if (psmouse_sliced_command(psmouse, mode))
+-		return -1;
+ 	param[0] = SYN_PS_SET_MODE2;
+-	if (ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_SETRATE))
+-		return -1;
+-	return 0;
++	return synaptics_send_cmd_retry(psmouse, mode,
++					param, PSMOUSE_CMD_SETRATE);
+ }
+ 
+ int synaptics_detect(struct psmouse *psmouse, bool set_properties)
+ {
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 	unsigned char param[4];
++	int tries = 2;
+ 
+-	param[0] = 0;
++	do {
++		param[0] = 0;
++		if (!ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) &&
++		    !ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) &&
++		    !ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) &&
++		    !ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES) &&
++		    !ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO)) {
++			goto ps2_command_success;
++		}
++		/* dummy command to reset the communication channel */
++		ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11);
++	} while (--tries > 0);
+ 
+-	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+-	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+-	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+-	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+-	ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO);
++	psmouse_err(psmouse, "synaptics_retry failed in detect()");
++	return -1;
+ 
++ps2_command_success:
+ 	if (param[1] != 0x47)
+ 		return -ENODEV;
+ 
+@@ -137,11 +169,7 @@ static int synaptics_invert_y(int y)
+  */
+ static int synaptics_send_cmd(struct psmouse *psmouse, unsigned char c, unsigned char *param)
+ {
+-	if (psmouse_sliced_command(psmouse, c))
+-		return -1;
+-	if (ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_GETINFO))
+-		return -1;
+-	return 0;
++	return synaptics_send_cmd_retry(psmouse, c, param, PSMOUSE_CMD_GETINFO);
+ }
+ 
+ /*
+@@ -332,11 +360,10 @@ static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
+ 	      SYN_CAP_IMAGE_SENSOR(priv->ext_cap_0c)))
+ 		return 0;
+ 
+-	if (psmouse_sliced_command(psmouse, SYN_QUE_MODEL))
+-		return -1;
+-
+-	if (ps2_command(&psmouse->ps2dev, &param, PSMOUSE_CMD_SETRATE))
++	if (synaptics_send_cmd_retry(psmouse, SYN_QUE_MODEL,
++				     &param, PSMOUSE_CMD_SETRATE)) {
+ 		return -1;
++	}
+ 
+ 	/* Advanced gesture mode also sends multi finger data */
+ 	priv->capabilities |= BIT(1);
+@@ -393,11 +420,8 @@ static int synaptics_pt_write(struct serio *serio, unsigned char c)
+ 	struct psmouse *parent = serio_get_drvdata(serio->parent);
+ 	char rate_param = SYN_PS_CLIENT_CMD; /* indicates that we want pass-through port */
+ 
+-	if (psmouse_sliced_command(parent, c))
+-		return -1;
+-	if (ps2_command(&parent->ps2dev, &rate_param, PSMOUSE_CMD_SETRATE))
+-		return -1;
+-	return 0;
++	return synaptics_send_cmd_retry(parent, c,
++					&rate_param, PSMOUSE_CMD_SETRATE);
+ }
+ 
+ static int synaptics_pt_start(struct serio *serio)
+@@ -1383,7 +1407,10 @@ static int synaptics_reconnect(struct psmouse *psmouse)
+ 	int error;
+ 
+ 	do {
+-		psmouse_reset(psmouse);
++		if (psmouse_reset(psmouse))
++			psmouse_err(psmouse, "psmouse_reset() failed.\n");
++
++
+ 		if (retry) {
+ 			/*
+ 			 * On some boxes, right after resuming, the touchpad
+-- 
+1.7.8.6
+

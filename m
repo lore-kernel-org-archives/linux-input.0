@@ -1,100 +1,47 @@
-From: Simon Glass <sjg@chromium.org>
-Subject: Re: [PATCH v4 6/6] Input: Add ChromeOS EC keyboard driver
-Date: Tue, 19 Feb 2013 08:58:00 -0800
-Message-ID: <CAPnjgZ1rHy5Mz_RQC7v5omwSiKPSzzA6dXcqTcfYh8PD1MshUg@mail.gmail.com>
-References: <1360988172-15380-1-git-send-email-sjg@chromium.org>
-	<1360988172-15380-7-git-send-email-sjg@chromium.org>
-	<1361263001.7859.11.camel@liguang.fnst.cn.fujitsu.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: psmouse - retry getid command in psmouse_probe()
+Date: Tue, 19 Feb 2013 10:44:22 -0800
+Message-ID: <20130219184422.GA21103@core.coreip.homeip.net>
+References: <1351678279-32615-1-git-send-email-cywang@chromium.org>
+ <1361179560.7859.5.camel@liguang.fnst.cn.fujitsu.com>
+ <CAM2ehZZ9LyTkG+qi_ihGzYJn2fB=s9RCLT67ThZUB9mmyQSzhw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1361263001.7859.11.camel@liguang.fnst.cn.fujitsu.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: li guang <lig.fnst@cn.fujitsu.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Luigi Semenzato <semenzato@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, Sourav Poddar <sourav.poddar@ti.com>, Tony Lindgren <tony@atomide.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Mike A. Chan" <mikechan@google.com>, Jun Nakajima <jun.nakajima@intel.com>, Tom Keel <thomas.keel@intel.com>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:58707 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932823Ab3BSSo0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Feb 2013 13:44:26 -0500
+Content-Disposition: inline
+In-Reply-To: <CAM2ehZZ9LyTkG+qi_ihGzYJn2fB=s9RCLT67ThZUB9mmyQSzhw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chung-Yih Wang =?utf-8?B?KOeOi+W0h+aHvyk=?= <cywang@google.com>
+Cc: li guang <lig.fnst@cn.fujitsu.com>, linux-input@vger.kernel.org, Tai-hwa Liang <avatar@sentelic.com>, Rusty Russell <rusty@rustcorp.com.au>, Paul Fox <pgf@laptop.org>, linux-kernel@vger.kernel.org
 
-Hi,
+Hi Chung-yih,
 
-On Tue, Feb 19, 2013 at 12:36 AM, li guang <lig.fnst@cn.fujitsu.com> wr=
-ote:
-> =E5=9C=A8 2013-02-15=E4=BA=94=E7=9A=84 20:16 -0800=EF=BC=8CSimon Glas=
-s=E5=86=99=E9=81=93=EF=BC=9A
->> Use the key-matrix layer to interpret key scan information from the =
-EC
->> and inject input based on the FDT-supplied key map. This driver regi=
-sters
->> itself with the ChromeOS EC driver to perform communications.
->
-> [snip ...]
->> +/*
->> + * Returns true when there is at least one combination of pressed k=
-eys that
->> + * results in ghosting.
->> + */
->> +static bool cros_ec_keyb_has_ghosting(struct cros_ec_keyb *ckdev, u=
-int8_t *buf)
->> +{
->> +     int row;
->> +
->> +     /*
->> +      * Ghosting happens if for any pressed key X there are other k=
-eys
->> +      * pressed both in the same row and column of X as, for instan=
-ce,
->> +      * in the following diagram:
->> +      *
->> +      * . . Y . g .
->> +      * . . . . . .
->> +      * . . . . . .
->> +      * . . X . Z .
->> +      *
->> +      * In this case only X, Y, and Z are pressed, but g appears to=
- be
->> +      * pressed too (see Wikipedia).
->> +      *
->> +      * We can detect ghosting in a single pass (*) over the keyboa=
-rd state
->> +      * by maintaining two arrays.  pressed_in_row counts how many =
-pressed
->> +      * keys we have found in a row.  row_has_teeth is true if any =
-of the
->> +      * pressed keys for this row has other pressed keys in its col=
-umn.  If
->> +      * at any point of the scan we find that a row has multiple pr=
-essed
->> +      * keys, and at least one of them is at the intersection with =
-a column
->> +      * with multiple pressed keys, we're sure there is ghosting.
->> +      * Conversely, if there is ghosting, we will detect such situa=
-tion for
->> +      * at least one key during the pass.
->> +      *
->> +      * (*) This looks linear in the number of keys, but it's not. =
- We can
->> +      * cheat because the number of rows is small.
->> +      */
->> +     for (row =3D 0; row < ckdev->rows; row++) {
->> +             if (cros_ec_keyb_row_has_ghosting(ckdev, buf, row))
->> +                     return true;
->> +     }
->> +
->> +     return false;
->> +}
->
-> are you sure your EC's firmware did not do ghost-key detection?
-> or, did you test ghost-key with/without your own ghost-key detection?
-> as far as I know, ghost-key should be take care either by keyboard
-> designer or firmware.
->
+On Mon, Feb 18, 2013 at 05:45:07PM +0800, Chung-Yih Wang (=E7=8E=8B=E5=B4=
+=87=E6=87=BF) wrote:
+> Yes, I could add CONFIG_MOUSE_PS2_SYNAPTICS for the change as we only
+> need it for synaptics touchpad/touchpoint on lenovo's machines.
+>=20
 
-Yes, the matrix scans are sent from the EC in a raw form - in fact the
-EC on snow does not even know the keycode map. The EC does handle
-debouncing though. The idea is to reduce code/complexity in the EC
-where we are space-constrained.
+I do not think it will solve anything as all distributions have
+CONFIG_MOUSE_PS2_SYNAPTICS enabled.
 
-[snip]
+Could you tell me what the response is to the initial GETID command tha=
+t
+you see on these laptops?
 
-Regards,
-Simon
+Thanks.
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

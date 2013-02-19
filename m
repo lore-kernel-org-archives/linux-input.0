@@ -1,44 +1,66 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH] HID: make sensor autodetection independent of underlying bus
-Date: Tue, 19 Feb 2013 11:22:33 +0200
-Message-ID: <1361265753-17541-1-git-send-email-mika.westerberg@linux.intel.com>
-References: <51221AFD.1090108@ahsoftware.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:24617 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754892Ab3BSJVJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Feb 2013 04:21:09 -0500
-In-Reply-To: <51221AFD.1090108@ahsoftware.de>
-Sender: linux-input-owner@vger.kernel.org
+From: Priyaranjan Das <priyaranjan456789@gmail.com>
+Subject: Re: Query related to MSR(Magnetic Stripe Reader) Device Driver
+Date: Tue, 19 Feb 2013 18:13:37 +0530
+Message-ID: <CAMNxYszHu7SDSGk_FJ6A=VPEGu46NCRpgqFX3vcGS+=2fXEyqw@mail.gmail.com>
+References: <CAMNxYswRsYtRF3kXKR676TZMCUsZPvk0auYTxpGVS2mRLmS8xw@mail.gmail.com>
+	<20130122163655.GA21090@kroah.com>
+	<CAMNxYswbiH-fW6YVvtWEr1W+SWRBU6ELv1bVRfNawpwcy+PZsA@mail.gmail.com>
+	<20130129133346.GA1505@kroah.com>
+	<CAMNxYszZNTh69-y+5RFVC9c5kgcyPaVET7784OPsTarB0fWm5w@mail.gmail.com>
+	<CAMNxYszE+qQv2vVw6DqNGuow+30K-=+S8TfgyNJwFeEN=EfEsA@mail.gmail.com>
+	<511E7038.9010205@metafoo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <511E7038.9010205@metafoo.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lars-Peter Clausen <lars@metafoo.de>, Jonathan Cameron <jic23@kernel.org>
+Cc: Greg KH <gregkh@linuxfoundation.org>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, mankad.maulik@gmail.com, linux-input@vger.kernel.org, sameo@linux.intel.com
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Alexander Holler <holler@ahsoftware.de>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, srinivas.pandruvada@intel.com, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Instead of limiting HID sensors to USB and I2C busses we can just make
-everything that has usage page of HID_UP_SENSOR to be included in
-HID_GROUP_SENSOR_HUB group. This allows the sensor-hub to work over
-bluetooth (and other transports) as well.
+Hi Jonathan,Lars,
 
-Reported-by: Alexander Holler <holler@ahsoftware.de>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/hid/hid-core.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+>>>
+>>
+>> The MSR IP can be also be used either as a general purpose ADC or in
+>> Magnetic stripe card reader mode.The IP supports both the modes and
+>> provides FIFO for storing ADC data.
+>>
+>> I also got to know about IIO subsystem where  ADC drivers are
+>> implemented. Our use-case will be to use either Magnetic Stripe reader
+>> mode or general purpose ADC mode in a given configuration. Can I use
+>> IIO subsystem for the Magnetic Stripe driver?
+>
+> Hi,
+>
+> Well for the ADC functionality it certainly makes sense to use the IIO
+> framework. The magnetic stripe reader functionality should probably go into
+> drivers/input. How to do this exactly depends a bit on how exactly the
+> hardware works. A good idea is probably to use a mfd driver which
+> instantiates both the input and the IIO driver and does some arbitration
+> between them. If the magnetic stripe reader is a feature that's build on top
+> of the ADC functionality you could use the IIO in-kernel API to do ADC
+> conversions from your input driver. If the ADC and magnetic stripe reader
+> mode are exclusive-or it probably makes sense to only instantiate one of
+> them at a time from the MFD driver.
+>
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index fe3a59e..f89e902 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -728,8 +728,7 @@ static int hid_scan_report(struct hid_device *hid)
- 		} else if (page == HID_UP_SENSOR &&
- 			item.type == HID_ITEM_TYPE_MAIN &&
- 			item.tag == HID_MAIN_ITEM_TAG_BEGIN_COLLECTION &&
--			(item_udata(&item) & 0xff) == HID_COLLECTION_PHYSICAL &&
--			(hid->bus == BUS_USB || hid->bus == BUS_I2C))
-+			(item_udata(&item) & 0xff) == HID_COLLECTION_PHYSICAL)
- 			hid->group = HID_GROUP_SENSOR_HUB;
- 	}
- 
--- 
-1.7.10.4
+The Hardware consists of an ADC and an in-built FIFO in it. The Device
+can either be configured  as a Magnetic stripe reader or a GPADC.
+After the ADC conversion,the data will be saved in the FIFO and the
+driver has to read it and send it to the upper layers.Here the ADC and
+Magnetic Stripe reader functionality are exclusively-or. In MSR mode,
+the FIFO shall contain the track data for magnetic stripe card. This
+data will be given to input subsystem.
 
+To summarize below is my understanding:
+1) drivers/input/misc: shall have the MSR driver.
+2) drivers/iio/adc:   shall have the GPADC driver.
+3) drivers/mfd:     shall support both above drivers and does arbitration.
+
+Regards,
+Priyaranjan
+
+PS: Complete discussion can be found at [1]
+
+[1] http://marc.info/?t=135884722400002&r=1&w=2

@@ -1,181 +1,89 @@
-From: Simon Glass <sjg@chromium.org>
-Subject: [PATCH v5 5/6] Input: matrix-keymap: Add function to read the new DT binding
-Date: Wed, 20 Feb 2013 09:24:38 -0800
-Message-ID: <1361381079-26747-6-git-send-email-sjg@chromium.org>
-References: <1361381079-26747-1-git-send-email-sjg@chromium.org>
+From: Benson Leung <bleung@chromium.org>
+Subject: Re: [PATCH 3/7] input: atmel_mxt_ts: check mxt224 family before
+ writing touchscreen voltage
+Date: Wed, 20 Feb 2013 09:52:13 -0800
+Message-ID: <CANLzEktvtNQZvfeJ19U4=ah4tN5EigQvs-e+bNF_24NJrhxsSw@mail.gmail.com>
+References: <1360246668-2291-1-git-send-email-pmeerw@pmeerw.net>
+	<1360246668-2291-4-git-send-email-pmeerw@pmeerw.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f202.google.com ([209.85.161.202]:34577 "EHLO
-	mail-gg0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933938Ab3BTRZy (ORCPT
+Received: from mail-ob0-f172.google.com ([209.85.214.172]:63516 "EHLO
+	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751462Ab3BTRwO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Feb 2013 12:25:54 -0500
-Received: by mail-gg0-f202.google.com with SMTP id l4so529934ggi.1
-        for <linux-input@vger.kernel.org>; Wed, 20 Feb 2013 09:25:54 -0800 (PST)
-In-Reply-To: <1361381079-26747-1-git-send-email-sjg@chromium.org>
+	Wed, 20 Feb 2013 12:52:14 -0500
+Received: by mail-ob0-f172.google.com with SMTP id tb18so8019147obb.3
+        for <linux-input@vger.kernel.org>; Wed, 20 Feb 2013 09:52:14 -0800 (PST)
+In-Reply-To: <1360246668-2291-4-git-send-email-pmeerw@pmeerw.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Simon Glass <sjg@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Javier Martinez Canillas <javier@dowhile0.org>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, Alban Bedel <alban.bedel@avionic-design.de>, linux-input@vger.kernel.org
+To: Peter Meerwald <pmeerw@pmeerw.net>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, y0922.shim@samsung.com, Peter Meerwald <p.meerwald@bct-electronic.com>, Yufeng Shen <miletus@chromium.org>
 
-We now have a binding which adds two parameters to the matrix keypad DT
-node. This is separate from the GPIO-driven matrix keypad binding, and
-unfortunately incompatible, since that uses row-gpios/col-gpios for the
-row and column counts.
+Hi Peter,
 
-So the easiest option here is to provide a function for non-GPIO drivers
-to use to decode the binding.
+Is the problem that the 224e is missing T28 object?
 
-Note: We could in fact create an entirely separate structure to hold
-these two fields, but it does not seem worth it, yet. If we have more
-parameters then we can add this, and then refactor each driver to hold
-such a structure.
+This change seems extremely 224/224e specific. This driver, however,
+supports Atmel touch devices that are neither 224 or 224e, many have
+the  SPT_CTECONFIG_T28 object.
 
-Signed-off-by: Simon Glass <sjg@chromium.org>
-Tested-by: Sourav Poddar <sourav.poddar@ti.com> (v2)
----
-Changes in v5: None
-Changes in v4: None
-Changes in v3:
-- Add stub for matrix_keypad_parse_of_params() when no CONFIG_OF
-- Put back full DT range checking in tca8418 driver
+The driver does read out a supported object table from the device
+during initialize before handle_pdata. What sort of problem is there
+in trying to write the voltage to a non existent T28 object?  If the
+object is missing, then mxt_write_object for voltage should simply
+return -EINVAL, and no harm should be done.
 
-Changes in v2:
-- Add new patch to decode matrix-keypad DT binding
 
- drivers/input/keyboard/lpc32xx-keys.c   | 11 ++++++-----
- drivers/input/keyboard/omap4-keypad.c   | 16 +++++-----------
- drivers/input/keyboard/tca8418_keypad.c |  7 +++++--
- drivers/input/matrix-keymap.c           | 19 +++++++++++++++++++
- include/linux/input/matrix_keypad.h     | 19 +++++++++++++++++++
- 5 files changed, 54 insertions(+), 18 deletions(-)
+On Thu, Feb 7, 2013 at 6:17 AM, Peter Meerwald <pmeerw@pmeerw.net> wrote:
+> From: Peter Meerwald <p.meerwald@bct-electronic.com>
+>
+> only the mxt224 has a SPT_CTECONFIG_T28 object, the mxt224e doesn't
+>
+> Signed-off-by: Peter Meerwald <p.meerwald@bct-electronic.com>
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c |    6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 63a82bb..17cc15a 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -41,6 +41,10 @@
+>  #define MXT_OBJECT_NUM         0x06
+>  #define MXT_OBJECT_START       0x07
+>
+> +/* Family IDs */
+> +#define MXT224_ID      0x80
+> +#define MXT224E_ID     0x81
+> +
+>  #define MXT_OBJECT_SIZE                6
+>
+>  /* Object types */
+> @@ -687,7 +691,7 @@ static void mxt_handle_pdata(struct mxt_data *data)
+>                         MXT_TOUCH_YRANGE_MSB, (pdata->y_size - 1) >> 8);
+>
+>         /* Set touchscreen voltage */
+> -       if (pdata->voltage) {
+> +       if (pdata->voltage && data->info.family_id == MXT224_ID) {
+As an alternative, could you not check for the existence of the
+voltage object in the table here using mxt_get_object rather than
+specifically switching on family ID number?
+>                 if (pdata->voltage < MXT_VOLTAGE_DEFAULT) {
+>                         voltage = (MXT_VOLTAGE_DEFAULT - pdata->voltage) /
+>                                 MXT_VOLTAGE_STEP;
+> --
+> 1.7.9.5
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
-index 1b8add6..4218143 100644
---- a/drivers/input/keyboard/lpc32xx-keys.c
-+++ b/drivers/input/keyboard/lpc32xx-keys.c
-@@ -144,12 +144,13 @@ static int lpc32xx_parse_dt(struct device *dev,
- {
- 	struct device_node *np = dev->of_node;
- 	u32 rows = 0, columns = 0;
-+	int err;
- 
--	of_property_read_u32(np, "keypad,num-rows", &rows);
--	of_property_read_u32(np, "keypad,num-columns", &columns);
--	if (!rows || rows != columns) {
--		dev_err(dev,
--			"rows and columns must be specified and be equal!\n");
-+	err = matrix_keypad_parse_of_params(dev, &rows, &columns);
-+	if (err)
-+		return err;
-+	if (rows != columns) {
-+		dev_err(dev, "rows and columns must be equal!\n");
- 		return -EINVAL;
- 	}
- 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index e25b022..1b28909 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -215,18 +215,12 @@ static int omap4_keypad_parse_dt(struct device *dev,
- 				 struct omap4_keypad *keypad_data)
- {
- 	struct device_node *np = dev->of_node;
-+	int err;
- 
--	if (!np) {
--		dev_err(dev, "missing DT data");
--		return -EINVAL;
--	}
--
--	of_property_read_u32(np, "keypad,num-rows", &keypad_data->rows);
--	of_property_read_u32(np, "keypad,num-columns", &keypad_data->cols);
--	if (!keypad_data->rows || !keypad_data->cols) {
--		dev_err(dev, "number of keypad rows/columns not specified\n");
--		return -EINVAL;
--	}
-+	err = matrix_keypad_parse_of_params(dev, &keypad_data->rows,
-+					    &keypad_data->cols);
-+	if (err)
-+		return err;
- 
- 	if (of_get_property(np, "linux,input-no-autorepeat", NULL))
- 		keypad_data->no_autorepeat = true;
-diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
-index a34cc67..55c1530 100644
---- a/drivers/input/keyboard/tca8418_keypad.c
-+++ b/drivers/input/keyboard/tca8418_keypad.c
-@@ -288,8 +288,11 @@ static int tca8418_keypad_probe(struct i2c_client *client,
- 		irq_is_gpio = pdata->irq_is_gpio;
- 	} else {
- 		struct device_node *np = dev->of_node;
--		of_property_read_u32(np, "keypad,num-rows", &rows);
--		of_property_read_u32(np, "keypad,num-columns", &cols);
-+		int err;
-+
-+		err = matrix_keypad_parse_of_params(dev, &rows, &cols);
-+		if (err)
-+			return err;
- 		rep = of_property_read_bool(np, "keypad,autorepeat");
- 	}
- 
-diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
-index 3ae496e..619b382 100644
---- a/drivers/input/matrix-keymap.c
-+++ b/drivers/input/matrix-keymap.c
-@@ -50,6 +50,25 @@ static bool matrix_keypad_map_key(struct input_dev *input_dev,
- }
- 
- #ifdef CONFIG_OF
-+int matrix_keypad_parse_of_params(struct device *dev,
-+				  unsigned int *rows, unsigned int *cols)
-+{
-+	struct device_node *np = dev->of_node;
-+
-+	if (!np) {
-+		dev_err(dev, "missing DT data");
-+		return -EINVAL;
-+	}
-+	of_property_read_u32(np, "keypad,num-rows", rows);
-+	of_property_read_u32(np, "keypad,num-columns", cols);
-+	if (!*rows || !*cols) {
-+		dev_err(dev, "number of keypad rows/columns not specified\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- static int matrix_keypad_parse_of_keymap(const char *propname,
- 					 unsigned int rows, unsigned int cols,
- 					 struct input_dev *input_dev)
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index 5f3aa6b..27e06ac 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -81,4 +81,23 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- 			       unsigned short *keymap,
- 			       struct input_dev *input_dev);
- 
-+#ifdef CONFIG_OF
-+/**
-+ * matrix_keypad_parse_of_params() - Read parameters from matrix-keypad node
-+ *
-+ * @dev: Device containing of_node
-+ * @rows: Returns number of matrix rows
-+ * @cols: Returns number of matrix columns
-+ * @return 0 if OK, <0 on error
-+ */
-+int matrix_keypad_parse_of_params(struct device *dev,
-+				  unsigned int *rows, unsigned int *cols);
-+#else
-+static inline int matrix_keypad_parse_of_params(struct device *dev,
-+				  unsigned int *rows, unsigned int *cols)
-+{
-+	return -ENOSYS;
-+}
-+#endif /* CONFIG_OF */
-+
- #endif /* _MATRIX_KEYPAD_H */
--- 
-1.8.1.3
+Thanks.
 
+--
+Benson Leung
+Software Engineer, Chrom* OS
+bleung@chromium.org

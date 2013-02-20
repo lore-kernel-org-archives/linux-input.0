@@ -1,67 +1,33 @@
-From: Peter Meerwald <pmeerw@pmeerw.net>
-Subject: Re: atmel_mxt_ts and mxt224e
-Date: Wed, 20 Feb 2013 11:50:03 +0100 (CET)
-Message-ID: <alpine.DEB.2.01.1302201129400.3667@pmeerw.net>
-References: <1360246668-2291-1-git-send-email-pmeerw@pmeerw.net> <CAPDwgkPBmH3wTDs=t5uaj6jpK6hYD0mxJJ3-5d=Fv2W9aZ3dPQ@mail.gmail.com> <CAPDwgkPjhTMjS=V33u_JLx5H4sFEOUif_xgu-fz9BHYmPdO11g@mail.gmail.com>
+From: Daniel Hellstrom <daniel@gaisler.com>
+Subject: Submitting patch shortly
+Date: Wed, 20 Feb 2013 15:34:28 +0100
+Message-ID: <5124DEF4.4050009@gaisler.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns.pmeerw.net ([87.118.82.44]:57560 "EHLO pmeerw.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933883Ab3BTKuF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Feb 2013 05:50:05 -0500
-In-Reply-To: <CAPDwgkPjhTMjS=V33u_JLx5H4sFEOUif_xgu-fz9BHYmPdO11g@mail.gmail.com>
+Received: from vsp-authed02.binero.net ([195.74.38.226]:14294 "HELO
+	vsp-authed-02-02.binero.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S933182Ab3BTOfQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Feb 2013 09:35:16 -0500
+Received: from smtp01.binero.se (unknown [195.74.38.28])
+	by vsp-authed-02-02.binero.net (Halon Mail Gateway) with ESMTP
+	for <linux-input@vger.kernel.org>; Wed, 20 Feb 2013 15:35:07 +0100 (CET)
+Received: from [192.168.0.47] (static-92-33-28-242.sme.bredbandsbolaget.se [92.33.28.242])
+	(Authenticated sender: daniel@gaisler.com)
+	by smtp-01-01.atm.binero.net (Postfix) with ESMTPSA id B40AF3A1D3
+	for <linux-input@vger.kernel.org>; Wed, 20 Feb 2013 15:35:07 +0100 (CET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yufeng Shen <miletus@google.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, y0922.shim@samsung.com, Benson Leung <bleung@chromium.org>
+To: linux-input@vger.kernel.org
 
 Hello,
 
-> > The Chromium team has been recently working on the atmel_mxt_ts driver extensively
-> > (see patches history here
-> > http://git.chromium.org/gitweb/?p=chromiumos/third_party/kernel.git;a=history;f=drivers/input/touchscreen/atmel_mxt_ts.c;h=5e40f6d75e7f7e24370e3a7d266c6ebcc06b46a6;hb=refs/heads/chromeos-3.4)
+I'm about to send a patch that adds support for the GRLIB APBPS2 device which is a input/serio PS/2 controller for keyboard and mouse. The APBPS2 PS/2 controller is found in the open source hardware 
+architecture of SPARC/LEON.
 
-thank you for the pointer; I was aware of Chromiumos working on this but 
-not the official place to look :)
+I didn't find which repository/branch to base my work against, so I have used Linus current mainline. I hope it doesn't impose any problems.
 
-> > As you pointed out, the chip configuration process and mxt_handle_pdata() is very fragile regarding
-> > different chip sets with different object layouts. So we have taken the approach to move to file based
-> > configuration (see patch
-> > http://git.chromium.org/gitweb/?p=chromiumos/third_party/kernel.git;a=commit;h=95a1d96b785af4e16138e6cc7b4d01fed5b9dccb)
-
-I think that's a good idea to support robust configuration loading
-
-> > So the platform data are moved to a config file with predefined format. Userspace can interact with the driver
-> > through sysfs to initiate loading a particular config file for the device. When configuration happens, config file chip ID & chip info
-> > block CRC are compared against the device chip ID & device chip info block to make sure the consistence between
-> > the config and the chip set. Then the configuration is written to the device dynamically which does not require the device reboot.
-
-but what to do with the initial configuration at _probe() time?
-
-mxt_handle_pdata() is still there
-I'm pretty sure setting of the threshold, burst length, orientation do not 
-work as intended; voltage setting is still broken for mxt224e
-
-is the plan to remove pdata support altogether? this then requires 
-userspace interaction to get the device working
-
-> > We have been using and testing this approach for a long time and now 
-> > in the process of upstreaming our patch set, so to avoid duplicate 
-> > effort, it would be great if you can give some thoughts (or try out the 
-> > patch set if you are interested and we would give you all the help as
-> > we can) on our patch set and let us iterate on it.
-
-I have no need for flexible post-probe device configuration
-
-my patches 1,3,4,5,7 are mostly complementary to your patch series
-
-can the proposed file format replace the pdata config data? 
-mxt_apply_pdata_config() would need to be adapted then...
-
-regards, p.
-
--- 
-
-Peter Meerwald
-+43-664-2444418 (mobile)
+Thanks,
+Daniel Hellstrom

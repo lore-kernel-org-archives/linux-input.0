@@ -1,137 +1,183 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] HID: ntrig: use input_configured() callback to set the
- name
-Date: Wed, 20 Feb 2013 21:33:35 +0100
-Message-ID: <20130220203335.GA1430@polaris.bitmath.org>
-References: <1360335090-24024-1-git-send-email-benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2] Input: atmel_mxt_ts - refactor i2c error handling
+Date: Wed, 20 Feb 2013 21:37:35 +0100
+Message-ID: <20130220203735.GA1435@polaris.bitmath.org>
+References: <1360940155-17619-1-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:45712 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934126Ab3BTUcM (ORCPT
+Received: from smtprelay-b22.telenor.se ([195.54.99.213]:43846 "EHLO
+	smtprelay-b22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934126Ab3BTUgN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Feb 2013 15:32:12 -0500
+	Wed, 20 Feb 2013 15:36:13 -0500
 Content-Disposition: inline
-In-Reply-To: <1360335090-24024-1-git-send-email-benjamin.tissoires@gmail.com>
+In-Reply-To: <1360940155-17619-1-git-send-email-djkurtz@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Rafi Rubin <rafi@seas.upenn.edu>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bill Pemberton <wfp5p@virginia.edu>, Nick Dyer <nick.dyer@itdev.co.uk>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yufeng Shen <miletus@chromium.org>
 
-On Fri, Feb 08, 2013 at 03:51:30PM +0100, Benjamin Tissoires wrote:
-> The use of input_configured() allows the ntrig driver to actually
-> change the name of the input and its bitmask before it is added to the
-> input subsystem. Thus, the logs are coherents and udev catch the real
-> bitmask when the device is added.
+Hi Daniel,
+
+> A recent patch refactored i2c error handling in the register read/write
+> path.  This adds similar handling to the other i2c paths used in fw_update
+> and bootloader state detection.
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> The generic i2c layer can return values indicating a partial transaction.
+> From the atmel_mxt driver's perspective, this is an IO error, so we use
+> some helper functions to convert these partial transfers to -EIO in a
+> uniform way.  Other error codes might still be useful, though, so we pass
+> them up unmodified.  Note that in the partial transfer case, we log the
+> number of bytes partially transferred, and not -EIO.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 > ---
->  drivers/hid/hid-ntrig.c | 68 ++++++++++++++++++++++++-------------------------
->  1 file changed, 34 insertions(+), 34 deletions(-)
+> Changes from V1:
+> - simplified implied logic (thanks Henrik!)
+> - error print the partial number of bytes received, not -EIO
 > 
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index 2ffc0e3..7757e82 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -858,12 +858,43 @@ not_claimed_input:
->  	return 1;
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 83 +++++++++++++++++---------------
+>  1 file changed, 45 insertions(+), 38 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index d04f810..3d56d5f 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -324,16 +324,53 @@ static void mxt_dump_message(struct device *dev,
+>  		message->reportid, 7, message->message);
 >  }
 >  
-> +static void ntrig_input_configured(struct hid_device *hid,
-> +		struct hid_input *hidinput)
-> +
+> +static int mxt_i2c_recv(struct i2c_client *client, u8 *buf, size_t count)
 > +{
-> +	struct input_dev *input = hidinput->input;
+> +	int ret;
 > +
-> +	if (hidinput->report->maxfield < 1)
-> +		return;
+> +	ret = i2c_master_recv(client, buf, count);
+> +	if (ret == count)
+> +		return 0;
 > +
-> +	switch (hidinput->report->field[0]->application) {
-> +	case HID_DG_PEN:
-> +		input->name = "N-Trig Pen";
-> +		break;
-> +	case HID_DG_TOUCHSCREEN:
-> +		/* These keys are redundant for fingers, clear them
-> +		 * to prevent incorrect identification */
-> +		__clear_bit(BTN_TOOL_PEN, input->keybit);
-> +		__clear_bit(BTN_TOOL_FINGER, input->keybit);
-> +		__clear_bit(BTN_0, input->keybit);
-> +		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-> +		/*
-> +		 * The physical touchscreen (single touch)
-> +		 * input has a value for physical, whereas
-> +		 * the multitouch only has logical input
-> +		 * fields.
-> +		 */
-> +		input->name = (hidinput->report->field[0]->physical) ?
-> +							"N-Trig Touchscreen" :
-> +							"N-Trig MultiTouch";
-> +		break;
-> +	}
+> +	dev_err(&client->dev, "i2c recv failed (%d)\n", ret);
+> +	return (ret < 0) ? ret : -EIO;
 > +}
 > +
->  static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> +static int mxt_i2c_send(struct i2c_client *client, const u8 *buf, size_t count)
+> +{
+> +	int ret;
+> +
+> +	ret = i2c_master_send(client, buf, count);
+> +	if (ret == count)
+> +		return 0;
+> +
+> +	dev_err(&client->dev, "i2c send failed (%d)\n", ret);
+> +	return (ret < 0) ? ret : -EIO;
+> +}
+> +
+> +static int mxt_i2c_transfer(struct i2c_client *client, struct i2c_msg *msgs,
+> +		size_t count)
+> +{
+> +	int ret;
+> +
+> +	ret = i2c_transfer(client->adapter, msgs, count);
+> +	if (ret == count)
+> +		return 0;
+> +
+> +	dev_err(&client->dev, "i2c transfer failed (%d)\n", ret);
+> +	return (ret < 0) ? ret : -EIO;
+> +}
+> +
+>  static int mxt_check_bootloader(struct i2c_client *client,
+>  				     unsigned int state)
 >  {
->  	int ret;
->  	struct ntrig_data *nd;
-> -	struct hid_input *hidinput;
-> -	struct input_dev *input;
->  	struct hid_report *report;
+>  	u8 val;
+> +	int ret;
 >  
->  	if (id->driver_data)
-> @@ -901,38 +932,6 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		goto err_free;
->  	}
+>  recheck:
+> -	if (i2c_master_recv(client, &val, 1) != 1) {
+> -		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
+> -		return -EIO;
+> -	}
+> +	ret = mxt_i2c_recv(client, &val, 1);
+> +	if (ret)
+> +		return ret;
 >  
-> -
-> -	list_for_each_entry(hidinput, &hdev->inputs, list) {
-> -		if (hidinput->report->maxfield < 1)
-> -			continue;
-> -
-> -		input = hidinput->input;
-> -		switch (hidinput->report->field[0]->application) {
-> -		case HID_DG_PEN:
-> -			input->name = "N-Trig Pen";
-> -			break;
-> -		case HID_DG_TOUCHSCREEN:
-> -			/* These keys are redundant for fingers, clear them
-> -			 * to prevent incorrect identification */
-> -			__clear_bit(BTN_TOOL_PEN, input->keybit);
-> -			__clear_bit(BTN_TOOL_FINGER, input->keybit);
-> -			__clear_bit(BTN_0, input->keybit);
-> -			__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-> -			/*
-> -			 * The physical touchscreen (single touch)
-> -			 * input has a value for physical, whereas
-> -			 * the multitouch only has logical input
-> -			 * fields.
-> -			 */
-> -			input->name =
-> -				(hidinput->report->field[0]
-> -				 ->physical) ?
-> -				"N-Trig Touchscreen" :
-> -				"N-Trig MultiTouch";
-> -			break;
-> -		}
+>  	switch (state) {
+>  	case MXT_WAITING_BOOTLOAD_CMD:
+> @@ -363,23 +400,13 @@ static int mxt_unlock_bootloader(struct i2c_client *client)
+>  	buf[0] = MXT_UNLOCK_CMD_LSB;
+>  	buf[1] = MXT_UNLOCK_CMD_MSB;
+>  
+> -	if (i2c_master_send(client, buf, 2) != 2) {
+> -		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+> -		return -EIO;
 > -	}
 > -
->  	/* This is needed for devices with more recent firmware versions */
->  	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0x0a];
->  	if (report) {
-> @@ -1023,6 +1022,7 @@ static struct hid_driver ntrig_driver = {
->  	.remove = ntrig_remove,
->  	.input_mapping = ntrig_input_mapping,
->  	.input_mapped = ntrig_input_mapped,
-> +	.input_configured = ntrig_input_configured,
->  	.usage_table = ntrig_grabbed_usages,
->  	.event = ntrig_event,
->  };
+> -	return 0;
+> +	return mxt_i2c_send(client, buf, 2);
+>  }
+>  
+>  static int mxt_fw_write(struct i2c_client *client,
+>  			     const u8 *data, unsigned int frame_size)
+>  {
+> -	if (i2c_master_send(client, data, frame_size) != frame_size) {
+> -		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+> -		return -EIO;
+> -	}
+> -
+> -	return 0;
+> +	return mxt_i2c_send(client, data, frame_size);
+>  }
+>  
+>  static int __mxt_read_reg(struct i2c_client *client,
+> @@ -387,7 +414,6 @@ static int __mxt_read_reg(struct i2c_client *client,
+>  {
+>  	struct i2c_msg xfer[2];
+>  	u8 buf[2];
+> -	int ret;
+>  
+>  	buf[0] = reg & 0xff;
+>  	buf[1] = (reg >> 8) & 0xff;
+> @@ -404,17 +430,7 @@ static int __mxt_read_reg(struct i2c_client *client,
+>  	xfer[1].len = len;
+>  	xfer[1].buf = val;
+>  
+> -	ret = i2c_transfer(client->adapter, xfer, 2);
+> -	if (ret == 2) {
+> -		ret = 0;
+> -	} else {
+> -		if (ret >= 0)
+> -			ret = -EIO;
+> -		dev_err(&client->dev, "%s: i2c transfer failed (%d)\n",
+> -			__func__, ret);
+> -	}
+> -
+> -	return ret;
+> +	return mxt_i2c_transfer(client, xfer, 2);
+>  }
+>  
+>  static int mxt_read_reg(struct i2c_client *client, u16 reg, u8 *val)
+> @@ -438,16 +454,7 @@ static int __mxt_write_reg(struct i2c_client *client, u16 reg, u16 len,
+>  	buf[1] = (reg >> 8) & 0xff;
+>  	memcpy(&buf[2], val, len);
+>  
+> -	ret = i2c_master_send(client, buf, count);
+> -	if (ret == count) {
+> -		ret = 0;
+> -	} else {
+> -		if (ret >= 0)
+> -			ret = -EIO;
+> -		dev_err(&client->dev, "%s: i2c send failed (%d)\n",
+> -			__func__, ret);
+> -	}
+> -
+> +	ret = mxt_i2c_send(client, buf, count);
+>  	kfree(buf);
+>  	return ret;
+>  }
 > -- 
 > 1.8.1
 > 
 
-    Acked-by: Henrik Rydberg <rydberg@euromail.se>
+    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
 Thanks,
 Henrik

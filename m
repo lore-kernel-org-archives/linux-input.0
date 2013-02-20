@@ -1,364 +1,123 @@
-From: Daniel Hellstrom <daniel@gaisler.com>
-Subject: [PATCH 1/1] input,serio: support for GRLIB APBPS2 PS/2 Keyboard/Mouse
-Date: Wed, 20 Feb 2013 15:41:33 +0100
-Message-ID: <1361371293-14059-1-git-send-email-daniel@gaisler.com>
+From: Simon Glass <sjg@chromium.org>
+Subject: [PATCH v5 0/6] Add ChromeOS Embedded Controller support
+Date: Wed, 20 Feb 2013 09:24:33 -0800
+Message-ID: <1361381079-26747-1-git-send-email-sjg@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vsp-authed02.binero.net ([195.74.38.226]:49039 "HELO
-	vsp-authed-01-02.binero.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S933257Ab3BTOmy (ORCPT
+Received: from mail-qa0-f73.google.com ([209.85.216.73]:37057 "EHLO
+	mail-qa0-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758076Ab3BTRYv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Feb 2013 09:42:54 -0500
+	Wed, 20 Feb 2013 12:24:51 -0500
+Received: by mail-qa0-f73.google.com with SMTP id g10so552722qah.2
+        for <linux-input@vger.kernel.org>; Wed, 20 Feb 2013 09:24:50 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: software@gaisler.com
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Simon Glass <sjg@chromium.org>, Rob Landley <rob@landley.net>, Felipe Balbi <balbi@ti.com>, Grant Likely <grant.likely@secretlab.ca>, Wolfram Sang <w.sang@pengutronix.de>, Luigi Semenzato <semenzato@chromium.org>, Rob Herring <rob.herring@calxeda.com>, Che-Liang Chiou <clchiou@chromium.org>, Jonathan Kliegman <kliegs@chromium.org>, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, devicetree-discuss@lists.ozlabs.org, Alban Bedel <alban.bedel@avionic-design.de>, Roland Stigge <stigge@antcom.de>, Vincent Palatin <vpalatin@chromium.org>, Javier Martinez Canillas <javier@dowhile0.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-doc@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Bill Pemberton <wfp5p@virginia.edu>
 
-APBPS2 is a PS/2 core part of GRLIB found in SPARC32/LEON
-products.
+The ChromeOS Embedded Controller (EC) is an Open Source EC implementation
+used on ARM and Intel Chromebooks. Current implementations use a Cortex-M3
+connected on a bus (such as I2C, SPI, LPC) to the AP. A separate interrupt
+line is used to indicate when the EC needs service.
 
-Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
----
- .../bindings/input/ps2keyb-mouse-apbps2.txt        |   20 ++
- drivers/input/serio/Kconfig                        |   10 +
- drivers/input/serio/Makefile                       |    1 +
- drivers/input/serio/apbps2.c                       |  266 ++++++++++++++++++++
- 4 files changed, 297 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/ps2keyb-mouse-apbps2.txt
- create mode 100644 drivers/input/serio/apbps2.c
+Functions performed by the EC vary by platform, but typically include
+battery charging, keyboard scanning and power sequencing.
 
-diff --git a/Documentation/devicetree/bindings/input/ps2keyb-mouse-apbps2.txt b/Documentation/devicetree/bindings/input/ps2keyb-mouse-apbps2.txt
-new file mode 100644
-index 0000000..1553d28
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/ps2keyb-mouse-apbps2.txt
-@@ -0,0 +1,20 @@
-+Aeroflex Gaisler APBPS2 PS/2 Core, supporting Keyboard or Mouse.
-+
-+The APBPS2 PS/2 core is available in the GRLIB VHDL IP core library.
-+
-+Note: In the ordinary environment for the APBPS2 core, a LEON SPARC system,
-+these properties are built from information in the AMBA plug&play and from
-+bootloader settings.
-+
-+Required properties:
-+
-+- name : Should be "GAISLER_APBPS2" or "01_060"
-+- reg : Address and length of the register set for the device
-+- interrupts : Interrupt numbers for this device
-+
-+Optional properties:
-+- keyboard : if present it indicates that a keyboard is connected, if not
-+             present the driver will assume that a mouse is connected instead
-+
-+For further information look in the documentation for the GLIB IP core library:
-+http://www.gaisler.com/products/grlib/grip.pdf
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index 4a4e182..d0304c3 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -236,6 +236,7 @@ config SERIO_PS2MULT
- 
- config SERIO_ARC_PS2
- 	tristate "ARC PS/2 support"
-+	depends on OF
- 	help
- 	  Say Y here if you have an ARC FPGA platform with a PS/2
- 	  controller in it.
-@@ -243,4 +244,13 @@ config SERIO_ARC_PS2
- 	  To compile this driver as a module, choose M here; the module
- 	  will be called arc_ps2.
- 
-+config SERIO_APBPS2
-+        tristate "GRLIB APBPS2 PS/2 keyboard/mouse controller"
-+        help
-+          Say Y here if you want support for GRLIB APBPS2 peripherals used
-+          to connect to PS/2 keyboard and/or mouse.
-+
-+          To compile this driver as a module, choose M here: the module will
-+          be called apbps2.
-+
- endif
-diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
-index 4b0c8f8..8edb36c 100644
---- a/drivers/input/serio/Makefile
-+++ b/drivers/input/serio/Makefile
-@@ -26,3 +26,4 @@ obj-$(CONFIG_SERIO_AMS_DELTA)	+= ams_delta_serio.o
- obj-$(CONFIG_SERIO_XILINX_XPS_PS2)	+= xilinx_ps2.o
- obj-$(CONFIG_SERIO_ALTERA_PS2)	+= altera_ps2.o
- obj-$(CONFIG_SERIO_ARC_PS2)	+= arc_ps2.o
-+obj-$(CONFIG_SERIO_APBPS2)	+= apbps2.o
-diff --git a/drivers/input/serio/apbps2.c b/drivers/input/serio/apbps2.c
-new file mode 100644
-index 0000000..78b28e1
---- /dev/null
-+++ b/drivers/input/serio/apbps2.c
-@@ -0,0 +1,266 @@
-+/*
-+ *  linux/drivers/input/serio/apbps2.c
-+ *
-+ *  Copyright (C) 2013 Aeroflex Gaisler
-+ *
-+ * This driver supports the APBPS2 PS/2 core available in the GRLIB
-+ * VHDL IP core library.
-+ *
-+ * Full documentation of the APBPS2 core can be found here:
-+ * http://www.gaisler.com/products/grlib/grip.pdf
-+ *
-+ * See "Documentation/devicetree/bindings/input/ps2keyb-mouse-apbps2.txt" for
-+ * information on open firmware properties.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * Contributors: Daniel Hellstrom <daniel@gaisler.com>
-+ */
-+#include <linux/platform_device.h>
-+#include <linux/of_device.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/serio.h>
-+#include <linux/errno.h>
-+#include <linux/interrupt.h>
-+#include <linux/device.h>
-+#include <linux/delay.h>
-+#include <linux/slab.h>
-+#include <linux/err.h>
-+#include <linux/string.h>
-+#include <linux/kernel.h>
-+#include <linux/io.h>
-+
-+struct apbps2_regs {
-+	u32 data;	/* 0x00 */
-+	u32 status;	/* 0x04 */
-+	u32 ctrl;	/* 0x08 */
-+	u32 reload;	/* 0x0c */
-+};
-+
-+#define APBPS2_STATUS_DR	(1<<0)
-+#define APBPS2_STATUS_PE	(1<<1)
-+#define APBPS2_STATUS_FE	(1<<2)
-+#define APBPS2_STATUS_KI	(1<<3)
-+#define APBPS2_STATUS_RF	(1<<4)
-+#define APBPS2_STATUS_TF	(1<<5)
-+#define APBPS2_STATUS_TCNT	(0x1f<<22)
-+#define APBPS2_STATUS_RCNT	(0x1f<<27)
-+
-+#define APBPS2_CTRL_RE		(1<<0)
-+#define APBPS2_CTRL_TE		(1<<1)
-+#define APBPS2_CTRL_RI		(1<<2)
-+#define APBPS2_CTRL_TI		(1<<3)
-+
-+/* Register read/write functions */
-+#define APBPS2_READ(reg) apbps2_read_reg(reg)
-+#define APBPS2_WRITE(reg, data) apbps2_write_reg(reg, data)
-+
-+struct apbps2_priv {
-+	struct serio		io;
-+	struct apbps2_regs	*regs;
-+	int			irq;
-+};
-+
-+static inline unsigned long apbps2_read_reg(void __iomem *reg)
-+{
-+	return ioread32be(reg);
-+}
-+
-+static inline void apbps2_write_reg(void __iomem *reg, unsigned long data)
-+{
-+	iowrite32be(data, reg);
-+}
-+
-+static irqreturn_t apbps2_isr(int irq, void *dev_id)
-+{
-+	struct apbps2_priv *priv = dev_id;
-+	unsigned long status, data, rxflags;
-+	irqreturn_t ret = IRQ_NONE;
-+
-+	while ((status = APBPS2_READ(&priv->regs->status)) & APBPS2_STATUS_DR) {
-+		data = APBPS2_READ(&priv->regs->data);
-+		rxflags = (status & APBPS2_STATUS_PE) ? SERIO_PARITY : 0;
-+		rxflags |= (status & APBPS2_STATUS_PE) ? SERIO_FRAME : 0;
-+
-+		/* clear error bits? */
-+		if (rxflags)
-+			APBPS2_WRITE(&priv->regs->status, status);
-+
-+		serio_interrupt(&priv->io, data, rxflags);
-+
-+		ret = IRQ_HANDLED;
-+	}
-+
-+	return ret;
-+}
-+
-+static int apbps2_write(struct serio *io, unsigned char val)
-+{
-+	struct apbps2_priv *priv = io->port_data;
-+	unsigned int tleft = 10000; /* timeout in 100ms */
-+
-+	/* delay until PS/2 controller has room for more chars */
-+	while ((APBPS2_READ(&priv->regs->status) & APBPS2_STATUS_TF) && tleft--)
-+		udelay(10);
-+
-+	if ((APBPS2_READ(&priv->regs->status) & APBPS2_STATUS_TF) == 0) {
-+		APBPS2_WRITE(&priv->regs->data, val);
-+
-+		APBPS2_WRITE(&priv->regs->ctrl, APBPS2_CTRL_RE |
-+						APBPS2_CTRL_RI |
-+						APBPS2_CTRL_TE);
-+		return 0;
-+	}
-+
-+	return SERIO_TIMEOUT;
-+}
-+
-+static int apbps2_open(struct serio *io)
-+{
-+	struct apbps2_priv *priv = io->port_data;
-+	int err, limit;
-+	unsigned long tmp;
-+
-+	err = devm_request_irq(&io->dev, priv->irq, apbps2_isr, IRQF_SHARED,
-+								"apbps2", priv);
-+	if (err) {
-+		dev_err(&io->dev, "request IRQ%d failed\n", priv->irq);
-+		return err;
-+	}
-+
-+	/* clear error flags */
-+	APBPS2_WRITE(&priv->regs->status, 0);
-+
-+	/* Clear old data if available (unlikely) */
-+	limit = 1024;
-+	while ((APBPS2_READ(&priv->regs->status) & APBPS2_STATUS_DR) && --limit)
-+		tmp = APBPS2_READ(&priv->regs->data);
-+
-+	/* Enable reciever and it's interrupt */
-+	APBPS2_WRITE(&priv->regs->ctrl, APBPS2_CTRL_RE | APBPS2_CTRL_RI);
-+
-+	return 0;
-+}
-+
-+static void apbps2_close(struct serio *io)
-+{
-+	struct apbps2_priv *priv = io->port_data;
-+
-+	/* stop interrupts at PS/2 HW level */
-+	APBPS2_WRITE(&priv->regs->ctrl, 0);
-+
-+	/* unregister PS/2 interrupt handler */
-+	devm_free_irq(&io->dev, priv->irq, priv);
-+}
-+
-+/* Initialize one APBPS2 PS/2 core */
-+static int apbps2_of_probe(struct platform_device *ofdev)
-+{
-+	struct apbps2_priv *priv;
-+	int len;
-+	u32 *addr, *freq_hz;
-+	char *typestr;
-+	struct resource *res;
-+
-+	priv = devm_kzalloc(&ofdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv) {
-+		dev_err(&ofdev->dev, "memory allocation failed\n");
-+		return -ENOMEM;
-+	}
-+	platform_set_drvdata(ofdev, priv);
-+
-+	/* Find Device Address */
-+	res = platform_get_resource(ofdev, IORESOURCE_MEM, 0);
-+	priv->regs = devm_request_and_ioremap(&ofdev->dev, res);
-+	if (!priv->regs) {
-+		dev_err(&ofdev->dev, "io-regs mapping failed\n");
-+		return -EADDRNOTAVAIL;
-+	}
-+
-+	/* IRQ */
-+	priv->irq = ofdev->archdata.irqs[0];
-+
-+	/* Get core frequency */
-+	freq_hz = (u32 *)of_get_property(ofdev->dev.of_node, "freq", &len);
-+	if (!freq_hz) {
-+		dev_err(&ofdev->dev, "unable to get core frequency\n");
-+		return -EINVAL;
-+	}
-+
-+	priv->io.open	= apbps2_open;
-+	priv->io.close	= apbps2_close;
-+	priv->io.port_data = priv;
-+
-+	/* Get keyboard property. If no such property we know it is a mouse */
-+	addr = (u32 *)of_get_property(ofdev->dev.of_node, "keyboard", &len);
-+	if (!addr) {
-+		priv->io.id.type = SERIO_PS_PSTHRU;
-+		priv->io.write = apbps2_write;
-+		strlcpy(priv->io.name, "APBPS2 PS/2 Mouse",
-+						sizeof(priv->io.name));
-+		strlcpy(priv->io.phys, "APBPS2 PS/2 Mouse",
-+						sizeof(priv->io.phys));
-+		typestr = "Mouse";
-+	} else {
-+		priv->io.id.type = SERIO_8042;
-+		priv->io.write = apbps2_write;
-+		strlcpy(priv->io.name, "APBPS2 PS/2 Keyboard",
-+						sizeof(priv->io.name));
-+		strlcpy(priv->io.phys, "APBPS2 PS/2 Keyboard",
-+						sizeof(priv->io.phys));
-+		typestr = "Keyboard";
-+	}
-+
-+	dev_info(&ofdev->dev, "%s, irq = %d, base = 0x%p\n",
-+			typestr, priv->irq, priv->regs);
-+
-+	/* Set reload register to system freq in kHz/10 */
-+	APBPS2_WRITE(&priv->regs->reload, *freq_hz / 10000);
-+
-+	serio_register_port(&priv->io);
-+
-+	return 0;
-+}
-+
-+static int apbps2_of_remove(struct platform_device *of_dev)
-+{
-+	struct apbps2_priv *priv = platform_get_drvdata(of_dev);
-+
-+	of_iounmap(&of_dev->resource[0], priv->regs,
-+					resource_size(&of_dev->resource[0]));
-+	kfree(priv);
-+
-+	return 0;
-+}
-+
-+static struct of_device_id apbps2_of_match[] = {
-+	{
-+	 .name = "GAISLER_APBPS2",
-+	 },
-+	{
-+	 .name = "01_060",
-+	 },
-+	{},
-+};
-+
-+MODULE_DEVICE_TABLE(of, apbps2_of_match);
-+
-+static struct platform_driver apbps2_of_driver = {
-+	.driver = {
-+		.name = "grlib-apbps2",
-+		.owner = THIS_MODULE,
-+		.of_match_table = apbps2_of_match,
-+	},
-+	.probe = apbps2_of_probe,
-+	.remove = apbps2_of_remove,
-+};
-+
-+module_platform_driver(apbps2_of_driver);
-+
-+MODULE_AUTHOR("Aeroflex Gaisler AB.");
-+MODULE_DESCRIPTION("GRLIB APBPS2 PS/2 serial I/O");
-+MODULE_LICENSE("GPL");
+This series includes support for the EC message protocol, and implements
+a matrix keyboard handler for Linux using the protocol. The EC performs
+key scanning and passes scan data in response to AP requests. This is
+used on the Samsung ARM Chromebook. No driver is available for LPC at
+present.
+
+This series can in principle operate on any hardware, but for it to actually
+work on the Samsung ARM Chromebook, it needs patches which are currently in
+progress to mainline: Exynos FDT interrupt support and I2C bus arbitration.
+
+The driver is device-tree-enabled and a suitable binding is included in
+this series. Example device tree nodes are included in the examples,
+but no device tree patch for exynos5250-snow is provided at this stage, since
+we must wait for the above-mentioned patches to land to avoid errors from
+dtc. This can be added with a follow-on patch when that work is complete.
+
+Changes in v5:
+- Remove cros_ec allocation functions
+- Remove name access functions in cros_ec, using strings instead
+- Fix Kconfig help message for MFD_CROS_EC_I2C
+- Remove I2C retry logic
+- Switch cros_ec_i2c driver to use devm
+- Update cros_ec_i2c to work with new cros_ec interface
+- Switch cros_ec_spi driver to use devm
+- Update cros_ec_spi to work with new cros_ec interface
+- Fix {} style nit in cros_ec_keyb_has_ghosting
+- Correct key lookup logic which was broken in previous version
+- Switch cros_ec_keyb driver to use devm
+
+Changes in v4:
+- Fix up trvial logging comments
+- Remove messages reporting out of memory
+- Add compatible string for cros-ec-keyb
+- Remove wake notifier and let drivers use their own handlers instead
+- Add 'depends on MFD_CROS_EC' to Kconfig
+- Remove use of wake_notifier
+- Remove manual code to locate device tree node
+- Add resume handler to clear keyboard scan buffer if required
+
+Changes in v3:
+- Add stub for matrix_keypad_parse_of_params() when no CONFIG_OF
+- Put back full DT range checking in tca8418 driver
+- Remove 'select MFD_CROS_EC' from Kconfig as it isn't necessary
+- Remove old_state by using input layer's idev->key
+- Move inner loop of cros_ec_keyb_has_ghosting() into its own function and simplify
+- Add check for not finding the device tree node
+- Remove comment about leaking matrix_keypad_build_keymap()
+- Use platform_get_drvdata() where possible
+- Remove call to input_free_device() after input_unregister_device()
+
+Changes in v2:
+- Remove use of __devinit/__devexit
+- Remove use of __devinit/__devexit
+- Remove use of __devinit/__devexit
+- Add new patch to decode matrix-keypad DT binding
+- Remove use of __devinit/__devexit
+- Use function to read matrix-keypad parameters from DT
+- Remove key autorepeat parameters from DT binding and driver
+- Use unsigned int for rows/cols
+
+Simon Glass (6):
+  mfd: Add ChromeOS EC messages header
+  mfd: Add ChromeOS EC implementation
+  mfd: Add ChromeOS EC I2C driver
+  mfd: Add ChromeOS EC SPI driver
+  Input: matrix-keymap: Add function to read the new DT binding
+  Input: Add ChromeOS EC keyboard driver
+
+ .../devicetree/bindings/input/cros-ec-keyb.txt     |   72 +
+ Documentation/devicetree/bindings/mfd/cros-ec.txt  |   56 +
+ drivers/input/keyboard/Kconfig                     |   12 +
+ drivers/input/keyboard/Makefile                    |    1 +
+ drivers/input/keyboard/cros_ec_keyb.c              |  334 +++++
+ drivers/input/keyboard/lpc32xx-keys.c              |   11 +-
+ drivers/input/keyboard/omap4-keypad.c              |   16 +-
+ drivers/input/keyboard/tca8418_keypad.c            |    7 +-
+ drivers/input/matrix-keymap.c                      |   19 +
+ drivers/mfd/Kconfig                                |   28 +
+ drivers/mfd/Makefile                               |    3 +
+ drivers/mfd/cros_ec.c                              |  189 +++
+ drivers/mfd/cros_ec_i2c.c                          |  210 +++
+ drivers/mfd/cros_ec_spi.c                          |  375 ++++++
+ include/linux/input/matrix_keypad.h                |   19 +
+ include/linux/mfd/cros_ec.h                        |  172 +++
+ include/linux/mfd/cros_ec_commands.h               | 1369 ++++++++++++++++++++
+ 17 files changed, 2875 insertions(+), 18 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/cros-ec-keyb.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/cros-ec.txt
+ create mode 100644 drivers/input/keyboard/cros_ec_keyb.c
+ create mode 100644 drivers/mfd/cros_ec.c
+ create mode 100644 drivers/mfd/cros_ec_i2c.c
+ create mode 100644 drivers/mfd/cros_ec_spi.c
+ create mode 100644 include/linux/mfd/cros_ec.h
+ create mode 100644 include/linux/mfd/cros_ec_commands.h
+
 -- 
-1.7.0.4
+1.8.1.3
 

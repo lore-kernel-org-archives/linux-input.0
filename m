@@ -1,60 +1,68 @@
-From: Peter Meerwald <pmeerw@pmeerw.net>
-Subject: Re: [PATCH 5/7] input: atmel_mxt_ts: only apply mxt_platform_data
- blen and threshold on mxt224, not mxt224e
-Date: Wed, 20 Feb 2013 23:33:58 +0100 (CET)
-Message-ID: <alpine.DEB.2.01.1302202323380.18013@pmeerw.net>
-References: <1360246668-2291-1-git-send-email-pmeerw@pmeerw.net> <1360246668-2291-6-git-send-email-pmeerw@pmeerw.net> <CAPDwgkPK2Eb_7Sc_MJggkhEXJV-7+H992NO-Vo8FPC=-h5Y_5w@mail.gmail.com> <CANLzEksqdtsqLM-pNa=EeaSS0jp7nJ7LJcgGSd_d1aXVsmOPyA@mail.gmail.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v2] Input: matrix-keypad - support binary column select gpios
+Date: Thu, 21 Feb 2013 07:41:51 +0000
+Message-ID: <CACxGe6s8DfU7ahE2nOK+UxqDq06vogADZgoqXPUKBoBaxwoigQ@mail.gmail.com>
+References: <1359462324-7233-1-git-send-email-agust@denx.de> <1361388475-23705-1-git-send-email-agust@denx.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns.pmeerw.net ([87.118.82.44]:56721 "EHLO pmeerw.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752249Ab3BTWeC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Feb 2013 17:34:02 -0500
-In-Reply-To: <CANLzEksqdtsqLM-pNa=EeaSS0jp7nJ7LJcgGSd_d1aXVsmOPyA@mail.gmail.com>
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:37737 "EHLO
+	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751803Ab3BUHmO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Feb 2013 02:42:14 -0500
+Received: by mail-ie0-f173.google.com with SMTP id 9so11037844iec.18
+        for <linux-input@vger.kernel.org>; Wed, 20 Feb 2013 23:42:13 -0800 (PST)
+In-Reply-To: <1361388475-23705-1-git-send-email-agust@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: Yufeng Shen <miletus@google.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, y0922.shim@samsung.com
+To: Anatolij Gustschin <agust@denx.de>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, devicetree-discuss <devicetree-discuss@lists.ozlabs.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hello,
+On Wed, Feb 20, 2013 at 7:27 PM, Anatolij Gustschin <agust@denx.de> wrote:
+> On hardware with limited gpios one column select gpio can select
+> two different rows when using some additional hardware logic:
+> high value selects one row, low value selects another row. Add
+> support for such matrix keyboards and document device tree
+> bindings used to describe them.
+>
+> Since half of the columns is always not selected, interrupts won't be
+> generated for press events on these columns. To generate interrupts
+> for not selected columns we need to periodicaly switch to these columns
+> in order to catch the potential press events. This is done by additional
+> work function.
+>
+> Signed-off-by: Anatolij Gustschin <agust@denx.de>
+> ---
+> v2:
+>  - do not use inline attribute for matrix_keyboard_row_events(),
+>    it causes reporting wrong events for some keys if the kernel
+>    was built using gcc 4.7.2.
+>
+>  .../bindings/input/gpio-matrix-keypad.txt          |    7 ++
+>  drivers/input/keyboard/matrix_keypad.c             |  112 ++++++++++++++++----
+>  include/linux/input/matrix_keypad.h                |    6 +
+>  3 files changed, 106 insertions(+), 19 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
+> index ead641c..57f4be3 100644
+> --- a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
+> +++ b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
+> @@ -23,6 +23,13 @@ Optional Properties:
+>  - debounce-delay-ms:   debounce interval in milliseconds
+>  - col-scan-delay-us:   delay, measured in microseconds, that is needed
+>                         before we can scan keypad after activating column gpio
+> +- col-gpios-binary:    specify that high and low states of a column gpio
+> +                       select two different rows (boards with limited gpios
+> +                       could support this by additional hardware logic)
+> +- col-switch-delay-ms: column gpio switch interval for selecting alternative
+> +                       rows when using 'col-gpios-binary'. This is needed for
+> +                       periodical selecting of the alternative rows to be able
+> +                       to generate keypad interrupts for them
 
-> Furthermore, this patch has the effect of only applying blen and
-> tchthr when voltage is present.
- 
-> If this is a 224 device, but the platform data does not specify
-> voltage (say, we are ok with the existing value loaded from NVRAM),
-> then we won't apply blen and tchthr either.
+This seems pretty loosely defined. Which rows are affected by this
+binary property? How common are matrix keypads wired this way, and do
+a lot of them use the same method? It seems to me that the device
+needs to be a lot more specific.
 
-I think all those specific settings in handle_pdata() should be removed 
-altogether:
-
-burst length is only the upper 4 bits actually;
-for the touchscreen threshold I think there are additional registers 
-elsewhere which should be kept in sync
-
-expect not using pdata at all, there is no way to NOT make these settings
-
-I think there are other places (on the mxt224e) as well where the 
-orientation has to be set, so pdata->orient setting 
-MXT_TOUCH_MULTI_T9@MXT_TOUCH_ORIENT is only half of the story, you still 
-need correct pdata->config and pdata->orient is basically useless
-
-the idea of the patch was to preserve the behaviour on the mxt224 but 
-disable at least those two dubious settings; clearly not perfect
-
-> On Wed, Feb 20, 2013 at 10:29 AM, Yufeng Shen <miletus@google.com> wrote:
-> > On Thu, Feb 7, 2013 at 9:17 AM, Peter Meerwald <pmeerw@pmeerw.net> wrote:
-> >>         /* Set touchscreen voltage */
-> >>         if (pdata->voltage && data->info.family_id == MXT224_ID) {
-> >
-> > As Benson noted in patch 5, what about the device that is neither 224
-> > nor 224E ? burst length
-> > and  threshold will no longer be applied.
-
-regards, p.
-
--- 
-
-Peter Meerwald
-+43-664-2444418 (mobile)
+g.

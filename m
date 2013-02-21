@@ -1,56 +1,52 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: make sensor autodetection independent of underlying bus
-Date: Thu, 21 Feb 2013 11:42:59 +0100
-Message-ID: <CAN+gG=GqPzvD89rno1btJKACDo6E0KTJR3_JW9dOMFqR8DaoYg@mail.gmail.com>
-References: <51221AFD.1090108@ahsoftware.de>
-	<1361265753-17541-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Alexander Holler <holler@ahsoftware.de>
+Subject: Re: [PATCH 3/3] HID: sensor-hub: don't limit the driver only to USB
+ bus
+Date: Thu, 21 Feb 2013 11:52:37 +0100
+Message-ID: <5125FC75.3000301@ahsoftware.de>
+References: <1360578679-7029-1-git-send-email-mika.westerberg@linux.intel.com> <1360578679-7029-3-git-send-email-mika.westerberg@linux.intel.com> <51220A68.9030608@ahsoftware.de> <20130218111217.GL20771@intel.com> <51220F12.2060908@ahsoftware.de> <20130218113320.GA2338@intel.com> <51221290.1040005@ahsoftware.de> <20130218115429.GB2338@intel.com> <51221AFD.1090108@ahsoftware.de> <CAN+gG=EfFBhpvs1zHMtkwiGu0J4kEzSTJBnyqmc=9Eq+kqqkLQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f41.google.com ([209.85.215.41]:51117 "EHLO
-	mail-la0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753647Ab3BUKnD (ORCPT
+Received: from h1446028.stratoserver.net ([85.214.92.142]:54858 "EHLO
+	mail.ahsoftware.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753372Ab3BUKwu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Feb 2013 05:43:03 -0500
-In-Reply-To: <1361265753-17541-1-git-send-email-mika.westerberg@linux.intel.com>
+	Thu, 21 Feb 2013 05:52:50 -0500
+In-Reply-To: <CAN+gG=EfFBhpvs1zHMtkwiGu0J4kEzSTJBnyqmc=9Eq+kqqkLQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, Alexander Holler <holler@ahsoftware.de>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, srinivas.pandruvada@intel.com
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, srinivas.pandruvada@intel.com
 
-On Tue, Feb 19, 2013 at 10:22 AM, Mika Westerberg
-<mika.westerberg@linux.intel.com> wrote:
-> Instead of limiting HID sensors to USB and I2C busses we can just make
-> everything that has usage page of HID_UP_SENSOR to be included in
-> HID_GROUP_SENSOR_HUB group. This allows the sensor-hub to work over
-> bluetooth (and other transports) as well.
+Am 21.02.2013 11:34, schrieb Benjamin Tissoires:
+> Hi,
 >
-> Reported-by: Alexander Holler <holler@ahsoftware.de>
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Sorry for coming this late in the discussion (I was sick at the
+> beginning of the week, preventing me to answer mails).
+>
+> On Mon, Feb 18, 2013 at 1:13 PM, Alexander Holler <holler@ahsoftware.de> wrote:
+>>>>>>>> Hmm, what happens with Bluetooth sensor-hubs? Is the driver now able
+>>>>>>>> to handle them too?
+>>>>>>>
+>>>>>>>
+>>>>>>> It should, yes.
+>>>>>>
+>
+> It should, but the full features are not enabled. We also need to
+> patch hidp so that it can handle .request() too. Otherwise, when the
+> sensor hub will request a "get feature" or a "set feature", then
+> nothing will be triggered.
+>
+> However, I don't think it will prevent us from removing the test
+> against USB/I2C. It's just something we need to work on too.
 
-Reviewed-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Thanks. I've just ordered me one of those bt-sensors from TI, maybe I 
+will be able to make it HID over GATT aware to play a bit with it. The 
+BT spec for HID over GATT doesn't talk about sensors, but if I will find 
+a way to program the device without buying more hw, I will have a look 
+if it is possible. ;)
 
-Cheers,
-Benjamin
+Regards,
 
-> ---
->  drivers/hid/hid-core.c |    3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index fe3a59e..f89e902 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -728,8 +728,7 @@ static int hid_scan_report(struct hid_device *hid)
->                 } else if (page == HID_UP_SENSOR &&
->                         item.type == HID_ITEM_TYPE_MAIN &&
->                         item.tag == HID_MAIN_ITEM_TAG_BEGIN_COLLECTION &&
-> -                       (item_udata(&item) & 0xff) == HID_COLLECTION_PHYSICAL &&
-> -                       (hid->bus == BUS_USB || hid->bus == BUS_I2C))
-> +                       (item_udata(&item) & 0xff) == HID_COLLECTION_PHYSICAL)
->                         hid->group = HID_GROUP_SENSOR_HUB;
->         }
->
-> --
-> 1.7.10.4
->
+Alexander

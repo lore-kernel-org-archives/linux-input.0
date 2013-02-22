@@ -1,113 +1,132 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: Re: [PATCH 28/40] Input: atmel_mxt_ts - Add CHG line handling in
- bootloader code
-Date: Fri, 22 Feb 2013 14:35:03 -0800
-Message-ID: <CANLzEktc+YnwtabBZ8zX=OeQD_1GctUu0GaB2uugcWAUmGf=sw@mail.gmail.com>
-References: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
-	<1361555907-19840-29-git-send-email-nick.dyer@itdev.co.uk>
+From: dave turvene <dturvene@dahetral.com>
+Subject: [PATCH] Input: ALPS - Update documentation for recent touchpad driver mods
+Date: Fri, 22 Feb 2013 17:37:11 -0500
+Message-ID: <87hal4vuug.fsf@dahetral.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1361555907-19840-29-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>, Yufeng Shen <miletus@chromium.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from dahetral.com ([128.177.27.153]:52420 "EHLO dahetral.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757642Ab3BVWhg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Feb 2013 17:37:36 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: seth.forshee@canonical.com, emmanuel.thome@inria.fr, vincent.vanackere@gmail.com, bgamari@gmail.com, jacmet@sunsite.dk, cernekee@gmail.com, jwboyer@redhat.com, linux-input@vger.kernel.org
 
-This is very similar to a patch that Daniel and I sent earlier this month.
+Updated documentation for the new ALPS touchpad support submitted in two
+patchsets by Kevin Cernekee.  My understanding is the most recent
+patchset '"Dolphin V2" touchpad support' may still need some work but 
+Future work on the ALPS driver should not impact these documentation changes.
 
-http://www.spinics.net/lists/linux-input/msg24666.html
+See https://bugs.launchpad.net/ubuntu/+source/linux/+bug/606238
 
-The major difference is that your wait_for_chg does a polling read of
-chg, while the one we worked on leaves the irq enabled and waits on
-completion.
+Signed-off-by: David Turvene <dturvene@dahetral.com>
 
-On Fri, Feb 22, 2013 at 9:58 AM, Nick Dyer <nick.dyer@itdev.co.uk> wrote:
-> The bootloader state machine toggles the CHG/Interrupt line to indicate when
-> it has transitioned between states. Waiting for this event improves bootloader
-> reliability.
->
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c |   29 +++++++++++++++++++++++++++--
->  1 file changed, 27 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index a1f196b..f182228 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -430,6 +430,27 @@ static int mxt_probe_bootloader(struct mxt_data *data)
->         return 0;
->  }
->
-> +static int mxt_wait_for_chg(struct mxt_data *data)
-> +{
-> +       int timeout_counter = 0;
-> +       int count = 1E6;
-> +
-> +       if (data->pdata->read_chg == NULL) {
-> +               msleep(20);
-> +               return 0;
-> +       }
-> +
-> +       while ((timeout_counter++ <= count) && data->pdata->read_chg())
-> +               udelay(20);
-> +
-> +       if (timeout_counter > count) {
-> +               dev_err(&data->client->dev, "mxt_wait_for_chg() timeout!\n");
-> +               return -EIO;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
->  static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
->  {
->         struct device *dev = &data->client->dev;
-> @@ -478,9 +499,10 @@ recheck:
->                 val &= ~MXT_BOOT_STATUS_MASK;
->                 break;
->         case MXT_FRAME_CRC_PASS:
-> -               if (val == MXT_FRAME_CRC_CHECK)
-> +               if (val == MXT_FRAME_CRC_CHECK) {
-> +                       mxt_wait_for_chg(data);
->                         goto recheck;
-> -               if (val == MXT_FRAME_CRC_FAIL) {
-> +               } else if (val == MXT_FRAME_CRC_FAIL) {
->                         dev_err(dev, "Bootloader CRC fail\n");
->                         return -EINVAL;
->                 }
-> @@ -1781,6 +1803,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
->
->         ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD);
->         if (ret) {
-> +               mxt_wait_for_chg(data);
->                 /* Bootloader may still be unlocked from previous update
->                  * attempt */
->                 ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA);
-> @@ -1800,6 +1823,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
->         }
->
->         while (pos < fw->size) {
-> +               mxt_wait_for_chg(data);
->                 ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA);
->                 if (ret) {
->                         data->state = FAILED;
-> @@ -1818,6 +1842,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
->                         goto release_firmware;
->                 }
->
-> +               mxt_wait_for_chg(data);
->                 ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS);
->                 if (ret) {
->                         retry++;
-> --
-> 1.7.10.4
->
+---
+ Documentation/input/alps.txt |   68 +++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 61 insertions(+), 7 deletions(-)
+
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+index f274c28..24592bd 100644
+--- a/Documentation/input/alps.txt
++++ b/Documentation/input/alps.txt
+@@ -3,10 +3,26 @@ ALPS Touchpad Protocol
+ 
+ Introduction
+ ------------
+-
+-Currently the ALPS touchpad driver supports four protocol versions in use by
+-ALPS touchpads, called versions 1, 2, 3, and 4. Information about the various
+-protocol versions is contained in the following sections.
++Currently the ALPS touchpad driver supports five protocol versions in use by
++ALPS touchpads, called versions 1, 2, 3, 4 and 5.  
++
++Since roughly mid-2010 several new ALPS touchpads have been released and
++integrated into a variety of laptops and netbooks.  These new touchpads
++have enough behavior differences that the alps_model_data definition
++table, describing the properties of the different versions, is no longer
++adequate.  The design choices were to re-define the alps_model_data
++table, with the risk of regression testing existing devices, or isolate
++the new devices outside of the alps_model_data table.  The latter design
++choice was made.  The new touchpad signatures are named: "Rushmore",
++"Pinnacle", and "Dolphin", which you will see in the alps.c code.  
++For the purposes of this document, this group of ALPS touchpads will
++generically be called "new ALPS touchpads".
++
++We experimented with probing the ACPI interface _HID (Hardware ID)/_CID
++(Compatibility ID) definition as a way to uniquely identify the
++different ALPS variants but there did not appear to be a 1:1 mapping.
++In fact, it appeared to be an m:n mapping between the _HID and actual
++hardware type.
+ 
+ Detection
+ ---------
+@@ -19,9 +35,13 @@ If the E6 report is successful, the touchpad model is identified using the "E7
+ report" sequence: E8-E7-E7-E7-E9. The response is the model signature and is
+ matched against known models in the alps_model_data_array.
+ 
+-With protocol versions 3 and 4, the E7 report model signature is always
+-73-02-64. To differentiate between these versions, the response from the
+-"Enter Command Mode" sequence must be inspected as described below.
++For older touchpads supporting protocol versions 3 and 4, the E7 report
++model signature is always 73-02-64. To differentiate between these
++versions, the response from the "Enter Command Mode" sequence must be
++inspected as described below.
++
++The new ALPS touchpads have an E7 signature of 73-03-50 or 73-03-0A but
++seem to be better differentiated by the EC Command Mode response.
+ 
+ Command Mode
+ ------------
+@@ -46,6 +66,14 @@ address of the register being read, and the third contains the value of the
+ register. Registers are written by writing the value one nibble at a time
+ using the same encoding used for addresses.
+ 
++For the new ALPS touchpads, the EC command is used to enter command
++mode. The response in the new ALPS touchpads is significantly different,
++and more important in determining the behavior.  This code has been
++separated from the original alps_model_data table and put in the
++alps_identify function.  For example, there seem to be two hardware init
++sequences for the "Dolphin" touchpads as determined by the second byte
++of the EC response.
++
+ Packet Format
+ -------------
+ 
+@@ -186,3 +214,29 @@ There are several things worth noting here.
+     well.
+ 
+ So far no v4 devices with tracksticks have been encountered.
++
++ALPS Absolute Mode - Protocol Version 5
++---------------------------------------
++This is basically Protocol Version 3 but with different logic for packet
++decode.  It uses the same alps_process_touchpad_packet_v3 call with a
++specialized decode_fields function pointer to correctly interpret the
++packets.  This appears to only be used by the Dolphin devices.
++
++For single-touch, the 6-byte packet format is:
++
++ byte 0:    1    1    0    0    1    0    0    0
++ byte 1:    0   x6   x5   x4   x3   x2   x1   x0
++ byte 2:    0   y6   y5   y4   y3   y2   y1   y0
++ byte 3:    0    M    R    L    1    m    r    l
++ byte 4:   y10  y9   y8   y7  x10   x9   x8   x7
++ byte 5:    0   z6   z5   z4   z3   z2   z1   z0
++
++For mt, the format is:
++
++ byte 0:    1    1    1    n3   1   n2   n1   x24
++ byte 1:    1   y7   y6    y5  y4   y3   y2    y1
++ byte 2:    ?   x2   x1   y12 y11  y10   y9    y8
++ byte 3:    0  x23  x22   x21 x20  x19  x18   x17
++ byte 4:    0   x9   x8    x7  x6   x5   x4    x3
++ byte 5:    0  x16  x15   x14 x13  x12  x11   x10
++
+-- 
+1.7.9.5
 
 
 
---
-Benson Leung
-Software Engineer, Chrom* OS
-bleung@chromium.org
+

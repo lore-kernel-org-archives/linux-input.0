@@ -1,35 +1,39 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 11/40] Input: atmel_mxt_ts - Bootloader addresses for
- mXT1664/mXT1188S
-Date: Fri, 22 Feb 2013 19:51:28 +0000
-Message-ID: <5127CC40.6070507@itdev.co.uk>
-References: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk> <1361555907-19840-12-git-send-email-nick.dyer@itdev.co.uk> <CANLzEkusmqAFSybWd+xbLYbUu+5rcih7AW024eCpZ7AFb-+UCw@mail.gmail.com>
+From: Peter Meerwald <pmeerw@pmeerw.net>
+Subject: Re: Atmel updates to atmel_mxt_ts touch controller driver
+Date: Fri, 22 Feb 2013 21:19:24 +0100 (CET)
+Message-ID: <alpine.DEB.2.01.1302222111420.1668@pmeerw.net>
+References: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [89.21.227.133] ([89.21.227.133]:32241 "EHLO
-	mail.kdh.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1756892Ab3BVTva (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Feb 2013 14:51:30 -0500
-In-Reply-To: <CANLzEkusmqAFSybWd+xbLYbUu+5rcih7AW024eCpZ7AFb-+UCw@mail.gmail.com>
+Received: from ns.pmeerw.net ([87.118.82.44]:60509 "EHLO pmeerw.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754423Ab3BVUTZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Feb 2013 15:19:25 -0500
+In-Reply-To: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, "Bowens, Alan" <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Meerwald <pmeerw@pmeerw.net>, Olof Johansson <olofj@chromium.org>, Yufeng Shen <miletus@chromium.org>
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bleung@chromium.org, olofj@chromium.org
 
-Benson Leung wrote:
-> This is disappointing that Atmel decided to change the bootloader 
-> address scheme for the 1664S family. Unfortunately, this ifdef won't 
-> work for situations where there are more than one Atmel device of a 
-> different kind on a system using this same driver.
-> 
-> For the Chromebook Pixel, we use the same atmel_mxt_ts driver for a 
-> 1664S device and a 224SL.
-> 
-> The 1664S has the pair 0x26 and 0x4a, while the 224SL has 0x25 and
-> 0x4b.
+Hello Nick,
 
-If I put a bootloader address override in the platform data will that meet
-your requirements?
+> These changes address some of the same issues that appear in the patchsets
+> submitted by Daniel Kurtz and Peter Meerwald. However, they go much further in
+> adding support for new objects, improving performance, and increasing
+> reliability. They have been regularly regression tested against old and new
+> chips which use the same protocol.
+
+the series gets rid of the fragile binary config data and 
+handle_pdata() - I like it, but haven't tested yet
+
+is there a reference to the specification of the new config format?
+the format of the old pdata->config was immediately obvious from reading 
+the source, the new way not so much...
+
+regards, p.
+
+-- 
+
+Peter Meerwald
++43-664-2444418 (mobile)

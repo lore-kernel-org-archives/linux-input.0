@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 32/40] Input: atmel_mxt_ts - remove unused defines
-Date: Fri, 22 Feb 2013 17:58:19 +0000
-Message-ID: <1361555907-19840-33-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 05/40] Input: atmel_mxt_ts - Improve error reporting and debug
+Date: Fri, 22 Feb 2013 17:57:52 +0000
+Message-ID: <1361555907-19840-6-git-send-email-nick.dyer@itdev.co.uk>
 References: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,124 +10,105 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
+Add error messages for probe errors
+Report type in invalid object type
+Tweak some other debug output messages
+
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   67 +-----------------------------
- 1 file changed, 1 insertion(+), 66 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   35 ++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 8794353..2f3793a 100644
+index dad0be9..9e734dc 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -22,29 +22,14 @@
- #include <linux/interrupt.h>
- #include <linux/slab.h>
+@@ -364,7 +364,7 @@ recheck:
+ 	}
  
--/* Version */
--#define MXT_VER_20		20
--#define MXT_VER_21		21
--#define MXT_VER_22		22
--
- /* Firmware files */
- #define MXT_FW_NAME		"maxtouch.fw"
- #define MXT_CFG_NAME		"maxtouch.cfg"
- #define MXT_CFG_MAGIC		"OBP_RAW V1"
+ 	if (val != state) {
+-		dev_err(&client->dev, "Unvalid bootloader mode state\n");
++		dev_err(&client->dev, "Invalid bootloader mode state\n");
+ 		return -EINVAL;
+ 	}
  
- /* Registers */
--#define MXT_INFO		0x00
--#define MXT_FAMILY_ID		0x00
--#define MXT_VARIANT_ID		0x01
--#define MXT_VERSION		0x02
--#define MXT_BUILD		0x03
--#define MXT_MATRIX_X_SIZE	0x04
--#define MXT_MATRIX_Y_SIZE	0x05
--#define MXT_OBJECT_NUM		0x06
- #define MXT_OBJECT_START	0x07
--
- #define MXT_OBJECT_SIZE		6
--
- #define MXT_MAX_BLOCK_WRITE	256
+@@ -484,7 +484,7 @@ mxt_get_object(struct mxt_data *data, u8 type)
+ 			return object;
+ 	}
  
- /* Object types */
-@@ -105,15 +90,6 @@ struct t7_config {
- #define MXT_POWER_CFG_RUN		0
- #define MXT_POWER_CFG_DEEPSLEEP		1
+-	dev_err(&data->client->dev, "Invalid object type\n");
++	dev_err(&data->client->dev, "Invalid object type T%u\n", type);
+ 	return NULL;
+ }
  
--/* MXT_GEN_ACQUIRE_T8 field */
--#define MXT_ACQUIRE_CHRGTIME	0
--#define MXT_ACQUIRE_TCHDRIFT	2
--#define MXT_ACQUIRE_DRIFTST	3
--#define MXT_ACQUIRE_TCHAUTOCAL	4
--#define MXT_ACQUIRE_SYNC	5
--#define MXT_ACQUIRE_ATCHCALST	6
--#define MXT_ACQUIRE_ATCHCALSTHR	7
--
- /* MXT_TOUCH_MULTI_T9 field */
- #define MXT_T9_ORIENT		9
- #define MXT_T9_RANGE		18
-@@ -136,36 +112,6 @@ struct t9_range {
- /* MXT_TOUCH_MULTI_T9 orient */
- #define MXT_T9_ORIENT_SWITCH	(1 << 0)
+@@ -834,7 +834,7 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 		}
  
--/* MXT_PROCI_GRIPFACE_T20 field */
--#define MXT_GRIPFACE_CTRL	0
--#define MXT_GRIPFACE_XLOGRIP	1
--#define MXT_GRIPFACE_XHIGRIP	2
--#define MXT_GRIPFACE_YLOGRIP	3
--#define MXT_GRIPFACE_YHIGRIP	4
--#define MXT_GRIPFACE_MAXTCHS	5
--#define MXT_GRIPFACE_SZTHR1	7
--#define MXT_GRIPFACE_SZTHR2	8
--#define MXT_GRIPFACE_SHPTHR1	9
--#define MXT_GRIPFACE_SHPTHR2	10
--#define MXT_GRIPFACE_SUPEXTTO	11
--
--/* MXT_PROCI_NOISE field */
--#define MXT_NOISE_CTRL		0
--#define MXT_NOISE_OUTFLEN	1
--#define MXT_NOISE_GCAFUL_LSB	3
--#define MXT_NOISE_GCAFUL_MSB	4
--#define MXT_NOISE_GCAFLL_LSB	5
--#define MXT_NOISE_GCAFLL_MSB	6
--#define MXT_NOISE_ACTVGCAFVALID	7
--#define MXT_NOISE_NOISETHR	8
--#define MXT_NOISE_FREQHOPSCALE	10
--#define MXT_NOISE_FREQ0		11
--#define MXT_NOISE_FREQ1		12
--#define MXT_NOISE_FREQ2		13
--#define MXT_NOISE_FREQ3		14
--#define MXT_NOISE_FREQ4		15
--#define MXT_NOISE_IDLEGCAFVALID	16
--
- /* T15 Key array */
- int mxt_t15_keys[] = { };
+ 		dev_dbg(&data->client->dev,
+-			"Type %2d Start %3d Size %3d Instances %2d ReportIDs %3u : %3u\n",
++			"T%u Start:%u Size:%u Instances:%u Report IDs:%u-%u\n",
+ 			object->type, object->start_address, OBP_SIZE(object),
+ 			OBP_INSTANCES(object), min_id, max_id);
  
-@@ -175,17 +121,6 @@ static unsigned long mxt_t15_keystatus;
- #define MXT_COMMS_CTRL		0
- #define MXT_COMMS_CMD		1
+@@ -890,13 +890,18 @@ static int mxt_initialize(struct mxt_data *data)
  
--/* MXT_SPT_CTECONFIG_T28 field */
--#define MXT_CTE_CTRL		0
--#define MXT_CTE_CMD		1
--#define MXT_CTE_MODE		2
--#define MXT_CTE_IDLEGCAFDEPTH	3
--#define MXT_CTE_ACTVGCAFDEPTH	4
--#define MXT_CTE_VOLTAGE		5
--
--#define MXT_VOLTAGE_DEFAULT	2700000
--#define MXT_VOLTAGE_STEP	10000
--
- /* Define for MXT_GEN_COMMAND_T6 */
- #define MXT_BOOT_VALUE		0xa5
- #define MXT_RESET_VALUE		0x01
-@@ -1453,7 +1388,7 @@ static int mxt_get_info(struct mxt_data *data)
- 	int error;
+ 	/* Get object table information */
+ 	error = mxt_get_object_table(data);
+-	if (error)
+-		goto err_free_object_table;
++	if (error) {
++		dev_err(&client->dev, "Error %d reading object table\n", error);
++		return error;
++	}
  
- 	/* Read 7-byte info block starting at address 0 */
--	error = __mxt_read_reg(client, MXT_INFO, sizeof(*info), info);
-+	error = __mxt_read_reg(client, 0, sizeof(*info), info);
- 	if (error)
- 		return error;
+ 	/* Check register init values */
+ 	error = mxt_check_reg_init(data);
+-	if (error)
+-		goto err_free_object_table;
++	if (error) {
++		dev_err(&client->dev, "Error %d initialising configuration\n",
++			error);
++		return error;
++	}
  
+ 	mxt_handle_pdata(data);
+ 
+@@ -916,7 +921,7 @@ static int mxt_initialize(struct mxt_data *data)
+ 	info->matrix_ysize = val;
+ 
+ 	dev_info(&client->dev,
+-			"Family ID: %u Variant ID: %u Major.Minor.Build: %u.%u.%02X\n",
++			"Family ID: %u Variant ID: %u Firmware V%u.%u.%02X\n",
+ 			info->family_id, info->variant_id, info->version >> 4,
+ 			info->version & 0xf, info->build);
+ 
+@@ -1339,16 +1344,24 @@ static int mxt_probe(struct i2c_client *client,
+ 	}
+ 
+ 	error = mxt_make_highchg(data);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Error %d clearing messages\n", error);
+ 		goto err_free_irq;
++	}
+ 
+ 	error = input_register_device(input_dev);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Error %d registering input device\n",
++			error);
+ 		goto err_free_irq;
++	}
+ 
+ 	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Failure %d creating sysfs group\n",
++			error);
+ 		goto err_unregister_device;
++	}
+ 
+ 	sysfs_bin_attr_init(&data->mem_access_attr);
+ 	data->mem_access_attr.attr.name = "mem_access";
 -- 
 1.7.10.4

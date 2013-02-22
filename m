@@ -1,186 +1,92 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 15/40] Input: atmel_mxt_ts - Improve touch reporting for T9
-Date: Fri, 22 Feb 2013 17:58:02 +0000
-Message-ID: <1361555907-19840-16-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 28/40] Input: atmel_mxt_ts - Add CHG line handling in bootloader code
+Date: Fri, 22 Feb 2013 17:58:15 +0000
+Message-ID: <1361555907-19840-29-git-send-email-nick.dyer@itdev.co.uk>
 References: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [89.21.227.133] ([89.21.227.133]:12194 "EHLO
-	mail.kdh.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1759069Ab3BVSIg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Feb 2013 13:08:36 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-Handle multiple touch statuses in one report
-Rename defines to add T9
-Rename pressure to amplitude to match device spec
+The bootloader state machine toggles the CHG/Interrupt line to indicate when
+it has transitioned between states. Waiting for this event improves bootloader
+reliability.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   85 ++++++++++++++++++------------
- 1 file changed, 51 insertions(+), 34 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 3994564..335fa1b 100644
+index a1f196b..f182228 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -108,13 +108,23 @@ struct t7_config {
- #define MXT_T9_ORIENT		9
- #define MXT_T9_RANGE		18
- 
-+/* MXT_TOUCH_MULTI_T9 status */
-+#define MXT_T9_UNGRIP		(1 << 0)
-+#define MXT_T9_SUPPRESS		(1 << 1)
-+#define MXT_T9_AMP		(1 << 2)
-+#define MXT_T9_VECTOR		(1 << 3)
-+#define MXT_T9_MOVE		(1 << 4)
-+#define MXT_T9_RELEASE		(1 << 5)
-+#define MXT_T9_PRESS		(1 << 6)
-+#define MXT_T9_DETECT		(1 << 7)
-+
- struct t9_range {
- 	u16 x;
- 	u16 y;
- } __packed;
- 
--/* Touch orient bits */
--#define MXT_XY_SWITCH		(1 << 0)
-+/* MXT_TOUCH_MULTI_T9 orient */
-+#define MXT_T9_ORIENT_SWITCH	(1 << 0)
- 
- /* MXT_PROCI_GRIPFACE_T20 field */
- #define MXT_GRIPFACE_CTRL	0
-@@ -187,16 +197,6 @@ struct t9_range {
- #define MXT_BOOT_EXTENDED_ID	(1 << 5)
- #define MXT_BOOT_ID_MASK	0x1f
- 
--/* Touch status */
--#define MXT_UNGRIP		(1 << 0)
--#define MXT_SUPPRESS		(1 << 1)
--#define MXT_AMP			(1 << 2)
--#define MXT_VECTOR		(1 << 3)
--#define MXT_MOVE		(1 << 4)
--#define MXT_RELEASE		(1 << 5)
--#define MXT_PRESS		(1 << 6)
--#define MXT_DETECT		(1 << 7)
--
- /* Touchscreen absolute values */
- #define MXT_MAX_AREA		0xff
- 
-@@ -580,6 +580,12 @@ static int mxt_read_message(struct mxt_data *data,
- 			sizeof(struct mxt_message), message);
+@@ -430,6 +430,27 @@ static int mxt_probe_bootloader(struct mxt_data *data)
+ 	return 0;
  }
  
-+static void mxt_input_sync(struct input_dev *input_dev)
++static int mxt_wait_for_chg(struct mxt_data *data)
 +{
-+	input_mt_report_pointer_emulation(input_dev, false);
-+	input_sync(input_dev);
++	int timeout_counter = 0;
++	int count = 1E6;
++
++	if (data->pdata->read_chg == NULL) {
++		msleep(20);
++		return 0;
++	}
++
++	while ((timeout_counter++ <= count) && data->pdata->read_chg())
++		udelay(20);
++
++	if (timeout_counter > count) {
++		dev_err(&data->client->dev, "mxt_wait_for_chg() timeout!\n");
++		return -EIO;
++	}
++
++	return 0;
 +}
 +
- static void mxt_input_touchevent(struct mxt_data *data,
- 				      struct mxt_message *message, int id)
+ static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
  {
-@@ -589,7 +595,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 	int x;
- 	int y;
- 	int area;
--	int pressure;
-+	int amplitude;
+ 	struct device *dev = &data->client->dev;
+@@ -478,9 +499,10 @@ recheck:
+ 		val &= ~MXT_BOOT_STATUS_MASK;
+ 		break;
+ 	case MXT_FRAME_CRC_PASS:
+-		if (val == MXT_FRAME_CRC_CHECK)
++		if (val == MXT_FRAME_CRC_CHECK) {
++			mxt_wait_for_chg(data);
+ 			goto recheck;
+-		if (val == MXT_FRAME_CRC_FAIL) {
++		} else if (val == MXT_FRAME_CRC_FAIL) {
+ 			dev_err(dev, "Bootloader CRC fail\n");
+ 			return -EINVAL;
+ 		}
+@@ -1781,6 +1803,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
  
- 	/* do not report events if input device not yet registered */
- 	if (!input_dev)
-@@ -597,36 +603,49 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 
- 	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
- 	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
-+
- 	if (data->max_x < 1024)
--		x = x >> 2;
-+		x >>= 2;
- 	if (data->max_y < 1024)
--		y = y >> 2;
-+		y >>= 2;
- 
- 	area = message->message[4];
--	pressure = message->message[5];
-+	amplitude = message->message[5];
- 
- 	dev_dbg(dev,
- 		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u\n",
- 		id,
--		(status & MXT_DETECT) ? 'D' : '.',
--		(status & MXT_PRESS) ? 'P' : '.',
--		(status & MXT_RELEASE) ? 'R' : '.',
--		(status & MXT_MOVE) ? 'M' : '.',
--		(status & MXT_VECTOR) ? 'V' : '.',
--		(status & MXT_AMP) ? 'A' : '.',
--		(status & MXT_SUPPRESS) ? 'S' : '.',
--		(status & MXT_UNGRIP) ? 'U' : '.',
--		x, y, area, pressure);
-+		(status & MXT_T9_DETECT) ? 'D' : '.',
-+		(status & MXT_T9_PRESS) ? 'P' : '.',
-+		(status & MXT_T9_RELEASE) ? 'R' : '.',
-+		(status & MXT_T9_MOVE) ? 'M' : '.',
-+		(status & MXT_T9_VECTOR) ? 'V' : '.',
-+		(status & MXT_T9_AMP) ? 'A' : '.',
-+		(status & MXT_T9_SUPPRESS) ? 'S' : '.',
-+		(status & MXT_T9_UNGRIP) ? 'U' : '.',
-+		x, y, area, amplitude);
- 
- 	input_mt_slot(input_dev, id);
--	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
--				   status & MXT_DETECT);
- 
--	if (status & MXT_DETECT) {
-+	if (status & MXT_T9_DETECT) {
-+		/* Multiple bits may be set if the host is slow to read the
-+		 * status messages, indicating all the events that have
-+		 * happened */
-+		if (status & MXT_T9_RELEASE) {
-+			input_mt_report_slot_state(input_dev,
-+						   MT_TOOL_FINGER, 0);
-+			mxt_input_sync(input_dev);
-+		}
-+
-+		/* Touch active */
-+		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 1);
- 		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
- 		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
--		input_report_abs(input_dev, ABS_MT_PRESSURE, pressure);
-+		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
- 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
-+	} else {
-+		/* Touch no longer active, close out slot */
-+		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
+ 	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD);
+ 	if (ret) {
++		mxt_wait_for_chg(data);
+ 		/* Bootloader may still be unlocked from previous update
+ 		 * attempt */
+ 		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA);
+@@ -1800,6 +1823,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
  	}
- }
  
-@@ -676,10 +695,8 @@ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
- 			mxt_dump_message(dev, &message);
- 	} while (reportid != MXT_RPTID_NOMSG);
+ 	while (pos < fw->size) {
++		mxt_wait_for_chg(data);
+ 		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA);
+ 		if (ret) {
+ 			data->state = FAILED;
+@@ -1818,6 +1842,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 			goto release_firmware;
+ 		}
  
--	if (update_input) {
--		input_mt_report_pointer_emulation(data->input_dev, false);
--		input_sync(data->input_dev);
--	}
-+	if (update_input)
-+		mxt_input_sync(data->input_dev);
- 
- 	return IRQ_HANDLED;
- }
-@@ -1238,7 +1255,7 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
- 	if (range.y == 0)
- 		range.y = 1023;
- 
--	if (orient & MXT_XY_SWITCH) {
-+	if (orient & MXT_T9_ORIENT_SWITCH) {
- 		data->max_x = range.y;
- 		data->max_y = range.x;
- 	} else {
++		mxt_wait_for_chg(data);
+ 		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS);
+ 		if (ret) {
+ 			retry++;
 -- 
 1.7.10.4
-

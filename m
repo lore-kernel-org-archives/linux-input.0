@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 13/40] Input: atmel_mxt_ts - Use deep sleep mode when stopped
-Date: Fri, 22 Feb 2013 17:58:00 +0000
-Message-ID: <1361555907-19840-14-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 03/40] Input: atmel_mxt_ts - Add memory access interface via sysfs
+Date: Fri, 22 Feb 2013 17:57:50 +0000
+Message-ID: <1361555907-19840-4-git-send-email-nick.dyer@itdev.co.uk>
 References: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,192 +10,160 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-By writing zero to both the active and idle cycle times the maXTouch device is
-put into a deep sleep mode when it consumes no power.
-
-It is counterproductive to reset the chip on resume, it will result in a long
-delay. The power consumption in deep sleep mode is minimal.  However it is
-necessary to issue a calibrate command after the chip has spent any time in
-deep sleep.
-
-This patch also deals with the situation where the power configuration is zero
-on probe, which would mean that the device never wakes up to execute commands.
+Atmel maXTouch chips can be addressed via an "Object Based Protocol" which
+defines how i2c registers are mapped to different functions within the
+chips. This interface exposes the register map and allows user-space
+utilities to inspect and alter object configuration, and to view diagnostic
+data, while the device is running.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |  107 +++++++++++++++++++++---------
- 1 file changed, 77 insertions(+), 30 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   78 ++++++++++++++++++++++++++++++
+ 1 file changed, 78 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index e1f2bd3..bbe9aff 100644
+index 1de1d24..9cfb124 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -87,9 +87,13 @@
- #define MXT_COMMAND_DIAGNOSTIC	5
+@@ -49,6 +49,8 @@
  
- /* MXT_GEN_POWER_T7 field */
--#define MXT_POWER_IDLEACQINT	0
--#define MXT_POWER_ACTVACQINT	1
--#define MXT_POWER_ACTV2IDLETO	2
-+struct t7_config {
-+	u8 idle;
-+	u8 active;
-+} __packed;
+ #define MXT_OBJECT_SIZE		6
+ 
++#define MXT_MAX_BLOCK_WRITE	256
 +
-+#define MXT_POWER_CFG_RUN		0
-+#define MXT_POWER_CFG_DEEPSLEEP		1
- 
- /* MXT_GEN_ACQUIRE_T8 field */
- #define MXT_ACQUIRE_CHRGTIME	0
-@@ -101,7 +105,6 @@
- #define MXT_ACQUIRE_ATCHCALSTHR	7
- 
- /* MXT_TOUCH_MULTI_T9 field */
--#define MXT_TOUCH_CTRL		0
- #define MXT_T9_ORIENT		9
- #define MXT_T9_RANGE		18
- 
-@@ -243,6 +246,7 @@ struct mxt_data {
- 	u32 config_crc;
- 	u32 info_crc;
- 	u8 bootloader_addr;
-+	struct t7_config t7_cfg;
+ /* Object types */
+ #define MXT_DEBUG_DIAGNOSTIC_T37	37
+ #define MXT_GEN_MESSAGE_T5		5
+@@ -249,10 +251,12 @@ struct mxt_data {
+ 	char phys[64];		/* device physical location */
+ 	const struct mxt_platform_data *pdata;
+ 	struct mxt_object *object_table;
++	u16 mem_size;
+ 	struct mxt_info info;
+ 	unsigned int irq;
+ 	unsigned int max_x;
+ 	unsigned int max_y;
++	struct bin_attribute mem_access_attr;
  
  	/* Cached parameters from object table */
  	u8 T6_reportid;
-@@ -576,20 +580,6 @@ static int mxt_read_message(struct mxt_data *data,
- 			sizeof(struct mxt_message), message);
+@@ -794,6 +798,7 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 	int error;
+ 	int i;
+ 	u8 reportid;
++	u16 end_address;
+ 
+ 	table_size = data->info.object_num * sizeof(struct mxt_object);
+ 	error = __mxt_read_reg(client, MXT_OBJECT_START, table_size,
+@@ -803,6 +808,7 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 
+ 	/* Valid Report IDs start counting from 1 */
+ 	reportid = 1;
++	data->mem_size = 0;
+ 	for (i = 0; i < data->info.object_num; i++) {
+ 		struct mxt_object *object = data->object_table + i;
+ 		u8 min_id, max_id;
+@@ -834,6 +840,12 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 			data->T9_reportid_max = max_id;
+ 			break;
+ 		}
++
++		end_address = object->start_address
++			+ OBP_SIZE(object) * OBP_INSTANCES(object) - 1;
++
++		if (end_address >= data->mem_size)
++			data->mem_size = end_address + 1;
+ 	}
+ 
+ 	return 0;
+@@ -1110,6 +1122,56 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	return count;
  }
  
--static int mxt_write_object(struct mxt_data *data,
--				 u8 type, u8 offset, u8 val)
--{
--	struct mxt_object *object;
--	u16 reg;
--
--	object = mxt_get_object(data, type);
--	if (!object || offset >= OBP_SIZE(object))
--		return -EINVAL;
--
--	reg = object->start_address;
--	return mxt_write_reg(data->client, reg + offset, val);
--}
--
- static void mxt_input_touchevent(struct mxt_data *data,
- 				      struct mxt_message *message, int id)
- {
-@@ -1042,6 +1032,64 @@ release:
- 	return ret;
- }
- 
-+static int mxt_set_t7_power_cfg(struct mxt_data *data, u8 sleep)
++static int mxt_check_mem_access_params(struct mxt_data *data, loff_t off,
++				       size_t *count)
 +{
-+	struct device *dev = &data->client->dev;
-+	int error;
-+	struct t7_config *new_config;
-+	struct t7_config deepsleep = { .active = 0, .idle = 0 };
++	if (off >= data->mem_size)
++		return -EIO;
 +
-+	if (sleep == MXT_POWER_CFG_DEEPSLEEP)
-+		new_config = &deepsleep;
-+	else
-+		new_config = &data->t7_cfg;
++	if (off + *count > data->mem_size)
++		*count = data->mem_size - off;
 +
-+	error = __mxt_write_reg(data->client, data->T7_address,
-+			sizeof(data->t7_cfg),
-+			new_config);
-+	if (error)
-+		return error;
-+
-+	dev_dbg(dev, "Set T7 ACTV:%d IDLE:%d\n",
-+		new_config->active, new_config->idle);
++	if (*count > MXT_MAX_BLOCK_WRITE)
++		*count = MXT_MAX_BLOCK_WRITE;
 +
 +	return 0;
 +}
 +
-+static int mxt_init_t7_power_cfg(struct mxt_data *data)
++static ssize_t mxt_mem_access_read(struct file *filp, struct kobject *kobj,
++	struct bin_attribute *bin_attr, char *buf, loff_t off, size_t count)
 +{
-+	struct device *dev = &data->client->dev;
-+	int error;
-+	bool retry = false;
++	struct device *dev = container_of(kobj, struct device, kobj);
++	struct mxt_data *data = dev_get_drvdata(dev);
++	int ret = 0;
 +
-+recheck:
-+	error = __mxt_read_reg(data->client, data->T7_address,
-+				sizeof(data->t7_cfg), &data->t7_cfg);
-+	if (error)
-+		return error;
++	ret = mxt_check_mem_access_params(data, off, &count);
++	if (ret < 0)
++		return ret;
 +
-+	if (data->t7_cfg.active == 0 || data->t7_cfg.idle == 0) {
-+		if (!retry) {
-+			dev_info(dev, "T7 cfg zero, resetting\n");
-+			error = mxt_soft_reset(data, MXT_RESET_VALUE);
-+			if (error)
-+				return error;
++	if (count > 0)
++		ret = __mxt_read_reg(data->client, off, count, buf);
 +
-+			retry = true;
-+			goto recheck;
-+		} else {
-+		    dev_dbg(dev, "T7 cfg zero after reset, overriding\n");
-+		    data->t7_cfg.active = 20;
-+		    data->t7_cfg.idle = 100;
-+		    return mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
-+		}
-+	} else {
-+		dev_info(dev, "Initialised power cfg: ACTV %d, IDLE %d\n",
-+				data->t7_cfg.active, data->t7_cfg.idle);
-+		return 0;
-+	}
++	return ret == 0 ? count : ret;
 +}
 +
- static int mxt_make_highchg(struct mxt_data *data)
- {
- 	struct device *dev = &data->client->dev;
-@@ -1249,6 +1297,12 @@ static int mxt_initialize(struct mxt_data *data)
- 		return error;
- 	}
- 
-+	error = mxt_init_t7_power_cfg(data);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to initialize power cfg\n");
-+		return error;
-+	}
++static ssize_t mxt_mem_access_write(struct file *filp, struct kobject *kobj,
++	struct bin_attribute *bin_attr, char *buf, loff_t off,
++	size_t count)
++{
++	struct device *dev = container_of(kobj, struct device, kobj);
++	struct mxt_data *data = dev_get_drvdata(dev);
++	int ret = 0;
 +
- 	error = mxt_read_t9_resolution(data);
++	ret = mxt_check_mem_access_params(data, off, &count);
++	if (ret < 0)
++		return ret;
++
++	if (count > 0)
++		ret = __mxt_write_reg(data->client, off, count, buf);
++
++	return ret == 0 ? count : 0;
++}
++
+ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+@@ -1247,8 +1309,23 @@ static int mxt_probe(struct i2c_client *client,
  	if (error)
- 		dev_warn(&client->dev, "Failed to initialize T9 resolution\n");
-@@ -1583,16 +1637,15 @@ static const struct attribute_group mxt_attr_group = {
+ 		goto err_unregister_device;
  
- static void mxt_start(struct mxt_data *data)
- {
--	/* Touch enable */
--	mxt_write_object(data,
--			MXT_TOUCH_MULTI_T9, MXT_TOUCH_CTRL, 0x83);
-+	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++	sysfs_bin_attr_init(&data->mem_access_attr);
++	data->mem_access_attr.attr.name = "mem_access";
++	data->mem_access_attr.attr.mode = S_IRUGO | S_IWUSR;
++	data->mem_access_attr.read = mxt_mem_access_read;
++	data->mem_access_attr.write = mxt_mem_access_write;
++	data->mem_access_attr.size = data->mem_size;
 +
-+	/* Recalibrate since chip has been in deep sleep */
-+	mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
- }
++	if (sysfs_create_bin_file(&client->dev.kobj,
++				  &data->mem_access_attr) < 0) {
++		dev_err(&client->dev, "Failed to create %s\n",
++			data->mem_access_attr.attr.name);
++		goto err_remove_sysfs_group;
++	}
+ 	return 0;
  
- static void mxt_stop(struct mxt_data *data)
++err_remove_sysfs_group:
++	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
+ err_unregister_device:
+ 	input_unregister_device(input_dev);
+ 	input_dev = NULL;
+@@ -1266,6 +1343,7 @@ static int mxt_remove(struct i2c_client *client)
  {
--	/* Touch disable */
--	mxt_write_object(data,
--			MXT_TOUCH_MULTI_T9, MXT_TOUCH_CTRL, 0);
-+	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
- }
- 
- static int mxt_input_open(struct input_dev *dev)
-@@ -1776,12 +1829,6 @@ static int mxt_resume(struct device *dev)
  	struct mxt_data *data = i2c_get_clientdata(client);
- 	struct input_dev *input_dev = data->input_dev;
  
--	/* Soft reset */
--	mxt_write_object(data, MXT_GEN_COMMAND_T6,
--			MXT_COMMAND_RESET, 1);
--
--	msleep(MXT_RESET_TIME);
--
- 	mutex_lock(&input_dev->mutex);
- 
- 	if (input_dev->users)
++	sysfs_remove_bin_file(&client->dev.kobj, &data->mem_access_attr);
+ 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
+ 	free_irq(data->irq, data);
+ 	input_unregister_device(data->input_dev);
 -- 
 1.7.10.4

@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 02/40] Input: atmel_mxt_ts - add macros for object instances and size
-Date: Fri, 22 Feb 2013 17:57:49 +0000
-Message-ID: <1361555907-19840-3-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 19/40] Input: atmel_mxt_ts - Decode T6 status messages
+Date: Fri, 22 Feb 2013 17:58:06 +0000
+Message-ID: <1361555907-19840-20-git-send-email-nick.dyer@itdev.co.uk>
 References: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,102 +10,90 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-The raw Atmel Object Based Protocol stores the instances and size minus one as
-an efficiency measure. This can easily lead to bugs. Rename the variables to
-make it clear what they are and implement macros for the conversion.
-
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   41 ++++++++++++++++++++++--------
+ 1 file changed, 31 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index b4bf946..1de1d24 100644
+index c879778..bdf7555 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -216,6 +216,9 @@
- /* Touchscreen absolute values */
- #define MXT_MAX_AREA		0xff
+@@ -86,6 +86,14 @@
+ #define MXT_COMMAND_REPORTALL	3
+ #define MXT_COMMAND_DIAGNOSTIC	5
  
-+#define OBP_INSTANCES(o) ((u16)((o)->instances_minus_one) + 1)
-+#define OBP_SIZE(o) ((u16)((o)->size_minus_one) + 1)
++/* Define for T6 status byte */
++#define MXT_T6_STATUS_RESET	(1 << 7)
++#define MXT_T6_STATUS_OFL	(1 << 6)
++#define MXT_T6_STATUS_SIGERR	(1 << 5)
++#define MXT_T6_STATUS_CAL	(1 << 4)
++#define MXT_T6_STATUS_CFGERR	(1 << 3)
++#define MXT_T6_STATUS_COMSERR	(1 << 2)
 +
- struct mxt_info {
- 	u8 family_id;
- 	u8 variant_id;
-@@ -229,8 +232,8 @@ struct mxt_info {
- struct mxt_object {
- 	u8 type;
- 	u16 start_address;
--	u8 size;		/* Size of each instance - 1 */
--	u8 instances;		/* Number of instances - 1 */
-+	u8 size_minus_one;
-+	u8 instances_minus_one;
- 	u8 num_report_ids;
- } __packed;
+ /* MXT_GEN_POWER_T7 field */
+ struct t7_config {
+ 	u8 idle;
+@@ -562,6 +570,28 @@ mxt_get_object(struct mxt_data *data, u8 type)
+ 	return NULL;
+ }
  
-@@ -500,7 +503,7 @@ static int mxt_write_object(struct mxt_data *data,
- 	u16 reg;
- 
- 	object = mxt_get_object(data, type);
--	if (!object || offset >= object->size + 1)
-+	if (!object || offset >= OBP_SIZE(object))
- 		return -EINVAL;
- 
- 	reg = object->start_address;
-@@ -684,7 +687,7 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 		if (!mxt_object_writable(object->type))
- 			continue;
- 
--		size = (object->size + 1) * (object->instances + 1);
-+		size = OBP_SIZE(object) * OBP_INSTANCES(object);
- 		if (index + size > pdata->config_length) {
- 			dev_err(dev, "Not enough config data!\n");
- 			return -EINVAL;
-@@ -809,7 +812,7 @@ static int mxt_get_object_table(struct mxt_data *data)
- 		if (object->num_report_ids) {
- 			min_id = reportid;
- 			reportid += object->num_report_ids *
--					(object->instances + 1);
-+					OBP_INSTANCES(object);
- 			max_id = reportid - 1;
- 		} else {
- 			min_id = 0;
-@@ -818,8 +821,8 @@ static int mxt_get_object_table(struct mxt_data *data)
- 
- 		dev_dbg(&data->client->dev,
- 			"Type %2d Start %3d Size %3d Instances %2d ReportIDs %3u : %3u\n",
--			object->type, object->start_address, object->size + 1,
--			object->instances + 1, min_id, max_id);
-+			object->type, object->start_address, OBP_SIZE(object),
-+			OBP_INSTANCES(object), min_id, max_id);
- 
- 		switch (object->type) {
- 		case MXT_GEN_COMMAND_T6:
-@@ -949,11 +952,11 @@ static ssize_t mxt_show_instance(char *buf, int count,
++static void mxt_proc_t6_messages(struct mxt_data *data, u8 *msg)
++{
++	struct device *dev = &data->client->dev;
++	u8 status = msg[1];
++	u32 crc = msg[2] | (msg[3] << 8) | (msg[4] << 16);
++
++	if (crc != data->config_crc) {
++		data->config_crc = crc;
++		dev_dbg(dev, "T6 Config Checksum: 0x%06X\n", crc);
++	}
++
++	if (status)
++		dev_dbg(dev, "T6 Status 0x%02X%s%s%s%s%s%s\n",
++				status,
++				(status & MXT_T6_STATUS_RESET) ? " RESET" : "",
++				(status & MXT_T6_STATUS_OFL) ? " OFL" : "",
++				(status & MXT_T6_STATUS_SIGERR) ? " SIGERR" : "",
++				(status & MXT_T6_STATUS_CAL) ? " CAL" : "",
++				(status & MXT_T6_STATUS_CFGERR) ? " CFGERR" : "",
++				(status & MXT_T6_STATUS_COMSERR) ? " COMSERR" : "");
++}
++
+ static int mxt_read_message(struct mxt_data *data, u8 *message)
  {
- 	int i;
+ 	struct mxt_object *object;
+@@ -647,11 +677,6 @@ static void mxt_input_touchevent(struct mxt_data *data, u8 *message)
+ 	}
+ }
  
--	if (object->instances > 0)
-+	if (OBP_INSTANCES(object) > 1)
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
- 				   "Instance %u\n", instance);
+-static u16 mxt_extract_T6_csum(const u8 *csum)
+-{
+-	return csum[0] | (csum[1] << 8) | (csum[2] << 16);
+-}
+-
+ static bool mxt_is_T9_message(struct mxt_data *data, u8 *msg)
+ {
+ 	u8 id = msg[0];
+@@ -661,7 +686,6 @@ static bool mxt_is_T9_message(struct mxt_data *data, u8 *msg)
+ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ {
+ 	u8 *message = &data->msg_buf[0];
+-	const u8 *payload = &data->msg_buf[1];
+ 	struct device *dev = &data->client->dev;
+ 	u8 reportid;
+ 	bool update_input = false;
+@@ -677,10 +701,7 @@ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ 		handled = false;
  
--	for (i = 0; i < object->size + 1; i++)
-+	for (i = 0; i < OBP_SIZE(object); i++)
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
- 				"\t[%2u]: %02x (%d)\n", i, val[i], val[i]);
- 	count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
-@@ -986,8 +989,8 @@ static ssize_t mxt_object_show(struct device *dev,
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
- 				"T%u:\n", object->type);
- 
--		for (j = 0; j < object->instances + 1; j++) {
--			u16 size = object->size + 1;
-+		for (j = 0; j < OBP_INSTANCES(object); j++) {
-+			u16 size = OBP_SIZE(object);
- 			u16 addr = object->start_address + j * size;
- 
- 			error = __mxt_read_reg(data->client, addr, size, obuf);
+ 		if (reportid == data->T6_reportid) {
+-			u8 status = payload[0];
+-			data->config_crc = mxt_extract_T6_csum(&payload[1]);
+-			dev_dbg(dev, "Status: %02x Config Checksum: %06x\n",
+-				status, data->config_crc);
++			mxt_proc_t6_messages(data, message);
+ 			handled = true;
+ 		} else if (mxt_is_T9_message(data, message)) {
+ 			mxt_input_touchevent(data, message);
 -- 
 1.7.10.4

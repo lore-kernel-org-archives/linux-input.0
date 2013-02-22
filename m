@@ -1,71 +1,41 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: fix Cypress PS/2 Trackpad in Dell XPS12
-Date: Thu, 21 Feb 2013 13:09:40 -0800
-Message-ID: <20130221210939.GB20344@core.coreip.homeip.net>
-References: <1361472955-16759-1-git-send-email-kamal@canonical.com>
- <20130221195630.GA20344@core.coreip.homeip.net>
- <1361476966.3827.44.camel@fourier>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Atmel updates to atmel_mxt_ts touch controller driver
+Date: Fri, 22 Feb 2013 17:57:47 +0000
+Message-ID: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:58158 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753154Ab3BUVJn (ORCPT
+Received: from [89.21.227.133] ([89.21.227.133]:5600 "EHLO
+	mail.kdh.itdev.co.uk" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755192Ab3BVSIa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Feb 2013 16:09:43 -0500
-Content-Disposition: inline
-In-Reply-To: <1361476966.3827.44.camel@fourier>
+	Fri, 22 Feb 2013 13:08:30 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kamal Mostafa <kamal@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Dudley Du <dudl@cypress.com>, Kyle Fazzari <git@status.e4ward.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 
-On Thu, Feb 21, 2013 at 12:02:46PM -0800, Kamal Mostafa wrote:
-> On Thu, 2013-02-21 at 11:56 -0800, Dmitry Torokhov wrote:
-> > On Thu, Feb 21, 2013 at 10:55:55AM -0800, Kamal Mostafa wrote:
-> > > Avoid firmware glitch in Cypress PS/2 Trackpad firmware version 11
-> > > (as observed in Dell XPS12) which prevents driver from recognizing
-> > > the trackpad.
-> > > 
-> > > BugLink: http://launchpad.net/bugs/1103594
-> > > 
-> > > Signed-off-by: Kamal Mostafa <kamal@canonical.com>
-> > > Cc: Dudley Du <dudl@cypress.com>
-> > > ---
-> > >  drivers/input/mouse/cypress_ps2.c |   19 +++++++++++++------
-> > >  1 file changed, 13 insertions(+), 6 deletions(-)
-> > > 
-> > > diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-> > > index 1673dc6..f51765f 100644
-> > > --- a/drivers/input/mouse/cypress_ps2.c
-> > > +++ b/drivers/input/mouse/cypress_ps2.c
-> > > @@ -236,6 +236,13 @@ static int cypress_read_fw_version(struct psmouse *psmouse)
-> > >  	cytp->fw_version = param[2] & FW_VERSION_MASX;
-> > >  	cytp->tp_metrics_supported = (param[2] & TP_METRICS_MASK) ? 1 : 0;
-> > >  
-> > > +	/*
-> > > +	 * Trackpad fw_version 11 (in Dell XPS12) yields a bogus response to
-> > > +	 * CYTP_CMD_READ_TP_METRICS so do not try to use it. LP: #1103594.
-> > > +	 */
-> > > +	if (cytp->fw_version >= 11)
-> > > +		cytp->tp_metrics_supported = 0;
-> > > +
-> > 
-> > Isn't this the only chunk that is actually needed to fix the issue?
-> 
-> No, the other parts are needed also:  The handling of
-> tp_metrics_supported gets moved so that the default values now get set
-> first, then overridden only if tp_metrics_supported is true.
-> Previously, the defaults wouldn't get set if it wasn't true (which was a
-> bug that never manifested).
+The following patches are a large series of updates in functionality to the
+atmel_mxt_ts touch driver. They apply cleanly to input/next.
 
-OK, fair enough.
+These changes address some of the same issues that appear in the patchsets
+submitted by Daniel Kurtz and Peter Meerwald. However, they go much further in
+adding support for new objects, improving performance, and increasing
+reliability. They have been regularly regression tested against old and new
+chips which use the same protocol.
 
-BTW, can you tell me what server you published your PGP key to? It does
-not seem to be present on the usual ones...
+We also provide a set of user-space utilities as open source which are 
+available from github and work well with this driver:
+  https://github.com/atmel-maxtouch/obp-utils
 
-Thanks,
-Dmitry
+Most of my focus in working on these changes has been to support Atmel's
+customers, who tend not to be using the mainline kernel. Unfortunately this 
+has generated somewhat of a backlog in getting these improvements into
+mainline. My current focus is to get these improvements upstream and I have
+time allocated to make any alterations as necessary. Since the scope of this
+patchset is so large any upstream delta tends to cause a big rebasing effort.
+I would suggest that I merge any useful improvements from the other patchsets
+to make a combined patchset.
 
--- 
-Dmitry
+regards
+--
+Nick Dyer Senior Software Engineer
+ITDev Hardware and Software Development Consultancy http://www.itdev.co.uk
+

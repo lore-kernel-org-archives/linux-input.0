@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 05/40] Input: atmel_mxt_ts - Improve error reporting and debug
-Date: Fri, 22 Feb 2013 17:57:52 +0000
-Message-ID: <1361555907-19840-6-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 20/40] Input: atmel_mxt_ts - Split interrupt handler into separate functions
+Date: Fri, 22 Feb 2013 17:58:07 +0000
+Message-ID: <1361555907-19840-21-git-send-email-nick.dyer@itdev.co.uk>
 References: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,105 +10,194 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-Add error messages for probe errors
-Report type in invalid object type
-Tweak some other debug output messages
+This is in preparation for support of the T44 message count object.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   35 ++++++++++++++++++++----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |  112 ++++++++++++++++--------------
+ 1 file changed, 58 insertions(+), 54 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index dad0be9..9e734dc 100644
+index bdf7555..51901b7 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -364,7 +364,7 @@ recheck:
- 	}
+@@ -251,8 +251,10 @@ struct mxt_data {
+ 	u8 bootloader_addr;
+ 	struct t7_config t7_cfg;
+ 	u8 *msg_buf;
++	bool update_input;
  
- 	if (val != state) {
--		dev_err(&client->dev, "Unvalid bootloader mode state\n");
-+		dev_err(&client->dev, "Invalid bootloader mode state\n");
- 		return -EINVAL;
- 	}
- 
-@@ -484,7 +484,7 @@ mxt_get_object(struct mxt_data *data, u8 type)
- 			return object;
- 	}
- 
--	dev_err(&data->client->dev, "Invalid object type\n");
-+	dev_err(&data->client->dev, "Invalid object type T%u\n", type);
- 	return NULL;
+ 	/* Cached parameters from object table */
++	u16 T5_address;
+ 	u8 T5_msg_size;
+ 	u8 T6_reportid;
+ 	u16 T6_address;
+@@ -592,27 +594,13 @@ static void mxt_proc_t6_messages(struct mxt_data *data, u8 *msg)
+ 				(status & MXT_T6_STATUS_COMSERR) ? " COMSERR" : "");
  }
  
-@@ -834,7 +834,7 @@ static int mxt_get_object_table(struct mxt_data *data)
- 		}
+-static int mxt_read_message(struct mxt_data *data, u8 *message)
+-{
+-	struct mxt_object *object;
+-	u16 reg;
+-
+-	object = mxt_get_object(data, MXT_GEN_MESSAGE_T5);
+-	if (!object)
+-		return -EINVAL;
+-
+-	reg = object->start_address;
+-	return __mxt_read_reg(data->client, reg,
+-			data->T5_msg_size, message);
+-}
+-
+ static void mxt_input_sync(struct input_dev *input_dev)
+ {
+ 	input_mt_report_pointer_emulation(input_dev, false);
+ 	input_sync(input_dev);
+ }
  
- 		dev_dbg(&data->client->dev,
--			"Type %2d Start %3d Size %3d Instances %2d ReportIDs %3u : %3u\n",
-+			"T%u Start:%u Size:%u Instances:%u Report IDs:%u-%u\n",
- 			object->type, object->start_address, OBP_SIZE(object),
- 			OBP_INSTANCES(object), min_id, max_id);
- 
-@@ -890,13 +890,18 @@ static int mxt_initialize(struct mxt_data *data)
- 
- 	/* Get object table information */
- 	error = mxt_get_object_table(data);
--	if (error)
--		goto err_free_object_table;
-+	if (error) {
-+		dev_err(&client->dev, "Error %d reading object table\n", error);
-+		return error;
-+	}
- 
- 	/* Check register init values */
- 	error = mxt_check_reg_init(data);
--	if (error)
--		goto err_free_object_table;
-+	if (error) {
-+		dev_err(&client->dev, "Error %d initialising configuration\n",
-+			error);
-+		return error;
-+	}
- 
- 	mxt_handle_pdata(data);
- 
-@@ -916,7 +921,7 @@ static int mxt_initialize(struct mxt_data *data)
- 	info->matrix_ysize = val;
- 
- 	dev_info(&client->dev,
--			"Family ID: %u Variant ID: %u Major.Minor.Build: %u.%u.%02X\n",
-+			"Family ID: %u Variant ID: %u Firmware V%u.%u.%02X\n",
- 			info->family_id, info->variant_id, info->version >> 4,
- 			info->version & 0xf, info->build);
- 
-@@ -1339,16 +1344,24 @@ static int mxt_probe(struct i2c_client *client,
+-static void mxt_input_touchevent(struct mxt_data *data, u8 *message)
++static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ {
+ 	struct device *dev = &data->client->dev;
+ 	struct input_dev *input_dev = data->input_dev;
+@@ -675,46 +663,62 @@ static void mxt_input_touchevent(struct mxt_data *data, u8 *message)
+ 		/* Touch no longer active, close out slot */
+ 		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
  	}
++
++	data->update_input = true;
+ }
  
- 	error = mxt_make_highchg(data);
--	if (error)
-+	if (error) {
-+		dev_err(&client->dev, "Error %d clearing messages\n", error);
- 		goto err_free_irq;
+-static bool mxt_is_T9_message(struct mxt_data *data, u8 *msg)
++static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ {
+-	u8 id = msg[0];
+-	return (id >= data->T9_reportid_min && id <= data->T9_reportid_max);
++	u8 report_id = message[0];
++	bool handled = false;
++
++	if (report_id == MXT_RPTID_NOMSG)
++		return 0;
++
++	if (report_id == data->T6_reportid) {
++		mxt_proc_t6_messages(data, message);
++		handled = true;
++	} else if (report_id >= data->T9_reportid_min
++	    && report_id <= data->T9_reportid_max) {
++		mxt_proc_t9_message(data, message);
++		handled = true;
++	}
++
++	if (!handled || data->debug_enabled)
++		mxt_dump_message(data, message);
++
++	return 1;
+ }
+ 
+-static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
++static int mxt_read_and_process_message(struct mxt_data *data)
+ {
+-	u8 *message = &data->msg_buf[0];
+ 	struct device *dev = &data->client->dev;
+-	u8 reportid;
+-	bool update_input = false;
+-	bool handled;
++	int ret;
+ 
+-	do {
+-		if (mxt_read_message(data, message)) {
+-			dev_err(dev, "Failed to read message\n");
+-			return IRQ_NONE;
+-		}
++	ret = __mxt_read_reg(data->client, data->T5_address,
++				data->T5_msg_size, data->msg_buf);
++	if (ret) {
++		dev_err(dev, "Error %d reading message\n", ret);
++		return ret;
 +	}
  
- 	error = input_register_device(input_dev);
--	if (error)
-+	if (error) {
-+		dev_err(&client->dev, "Error %d registering input device\n",
-+			error);
- 		goto err_free_irq;
+-		reportid = message[0];
+-		handled = false;
++	return mxt_proc_message(data, data->msg_buf);
++}
+ 
+-		if (reportid == data->T6_reportid) {
+-			mxt_proc_t6_messages(data, message);
+-			handled = true;
+-		} else if (mxt_is_T9_message(data, message)) {
+-			mxt_input_touchevent(data, message);
+-			update_input = true;
+-			handled = true;
+-		}
++static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
++{
++	int ret;
+ 
+-		if (!handled || data->debug_enabled)
+-			mxt_dump_message(data, message);
+-	} while (reportid != MXT_RPTID_NOMSG);
++	do {
++		ret = mxt_read_and_process_message(data);
++		if (ret < 0)
++			return IRQ_NONE;
++	} while (ret > 0);
+ 
+-	if (update_input)
++	if (data->update_input) {
+ 		mxt_input_sync(data->input_dev);
++		data->update_input = false;
 +	}
  
- 	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
--	if (error)
-+	if (error) {
-+		dev_err(&client->dev, "Failure %d creating sysfs group\n",
-+			error);
- 		goto err_unregister_device;
-+	}
+ 	return IRQ_HANDLED;
+ }
+@@ -1129,21 +1133,19 @@ static int mxt_make_highchg(struct mxt_data *data)
+ {
+ 	struct device *dev = &data->client->dev;
+ 	int count = 10;
+-	int error;
++	int ret;
  
- 	sysfs_bin_attr_init(&data->mem_access_attr);
- 	data->mem_access_attr.attr.name = "mem_access";
+-	/* Read dummy message to make high CHG pin */
++	/* Read messages until we force an invalid */
+ 	do {
+-		error = mxt_read_message(data, data->msg_buf);
+-		if (error)
+-			return error;
+-	} while (data->msg_buf[0] != MXT_RPTID_NOMSG && --count);
+-
+-	if (!count) {
+-		dev_err(dev, "CHG pin isn't cleared\n");
+-		return -EBUSY;
+-	}
++		ret = mxt_read_and_process_message(data);
++		if (ret == 0)
++			return 0;
++		else if (ret < 0)
++			return ret;
++	} while (--count);
+ 
+-	return 0;
++	dev_err(dev, "CHG pin isn't cleared\n");
++	return -EBUSY;
+ }
+ 
+ static int mxt_get_info(struct mxt_data *data)
+@@ -1166,6 +1168,7 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	data->object_table = NULL;
+ 	kfree(data->msg_buf);
+ 	data->msg_buf = NULL;
++	data->T5_address = 0;
+ 	data->T5_msg_size = 0;
+ 	data->T6_reportid = 0;
+ 	data->T7_address = 0;
+@@ -1216,6 +1219,7 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 		case MXT_GEN_MESSAGE_T5:
+ 			/* CRC not enabled, therefore don't read last byte */
+ 			data->T5_msg_size = OBP_SIZE(object) - 1;
++			data->T5_address = object->start_address;
+ 		case MXT_GEN_COMMAND_T6:
+ 			data->T6_reportid = min_id;
+ 			data->T6_address = object->start_address;
 -- 
 1.7.10.4

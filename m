@@ -1,70 +1,84 @@
-From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH 4/4] Input: auo_pixcir_ts - add devicetree support
-Date: Sun, 24 Feb 2013 10:58:00 +0100
-Message-ID: <201302241058.01412.heiko@sntech.de>
-References: <201302231255.23772.heiko@sntech.de>
- <201302231258.16498.heiko@sntech.de>
- <20130224080015.GA20590@core.coreip.homeip.net>
+From: Jean-Michel Bruenn <jean.bruenn@ip-minds.de>
+Subject: Solution to get Gigabyte K8100 Aivia USB Gaming Keyboard working in
+ Linux
+Date: Sun, 24 Feb 2013 17:19:37 +0100
+Message-ID: <20130224171937.1bf957f01fb482186cbb134d@ip-minds.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20130224080015.GA20590-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from alia.ip-minds.de ([84.201.38.2]:59765 "EHLO alia.ip-minds.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757309Ab3BXQ2P (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 24 Feb 2013 11:28:15 -0500
+Received: from vulkan (p5B10BB7E.dip.t-dialin.net [91.16.187.126])
+	by alia.ip-minds.de (Postfix) with ESMTPA id 324D4C32092
+	for <linux-input@vger.kernel.org>; Sun, 24 Feb 2013 17:20:19 +0100 (CET)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hello,
 
-Am Sonntag, 24. Februar 2013, 09:00:15 schrieb Dmitry Torokhov:
-> Hi Heiko,
-> =
+in short:
+this mail is about the "Gigabyte K8100 Aivia USB Gaming Keyboard" which
+is not working in Linux (xev, usbmon, showkey gives no output except
+for backspace+multimedia keys, keyboard works in BIOS and at the
+bootloader, dmesg reports: "usage index exceeded"). The solution to
+make it working is to higher the value of HID_MAX_USAGES from 12K to
+64K.
 
-> On Sat, Feb 23, 2013 at 12:58:16PM +0100, Heiko St=FCbner wrote:
-> > +static struct auo_pixcir_ts_platdata *auo_pixcir_parse_dt(struct device
-> > *dev) +{
-> > +	struct auo_pixcir_ts_platdata *pdata =3D NULL;
-> > +
-> > +#ifdef CONFIG_OF
-> > +	struct device_node *np =3D dev->of_node;
-> > +
-> > +	if (!np)
-> > +		return NULL;
-> > +
-> > +	pdata =3D devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-> > +	if (!pdata) {
-> > +		dev_err(dev, "failed to allocate platform data\n");
-> > +		return NULL;
-> > +	}
-> =
+in long:
+in January 2012 a user started a thread about this device on the usb
+maillinglist: http://www.spinics.net/lists/linux-usb/msg57559.html
+in April 2012 I joined that and added information plus the solution:
+http://www.spinics.net/lists/linux-usb/msg60822.html (Solution:
+http://www.spinics.net/lists/linux-usb/msg60859.html)
 
-> I disike #ifdefs in the middle of the code, also it would be nice if we
-> signal the proper error instead of always using -EINVAL when there are
-> issues with platform/DT data.
-> =
+Unfortunately nobody fixed this issue in the past months (probably
+I've been on the wrong maillinglist. Hopefully this one is the correct
+one). I'm not very familiar with kernel-/driver development and I'm not
+sure what side-effects the change might introduce (I couldn't find any,
+tested my fix up to kernel 3.3.1), hence I didn't submit a patch. I
+wrote to the developer listed in the file but got no response (which is
+okay to me, no worries). Now that I've shown the solution in a German
+board I'm getting PMs of users with the same or similar keyboard asking
+me how they can compile the kernel themselves to make their keyboard
+working (so I assume this is not just some rare-used device).
 
-> How about the version of the patch below?
+Current state is, that the keyboard is still not working (last tested
+kernel: 3.5.0). The keyboard works fine in BIOS and at the bootloader.
+Within Linux no keys except for Backslash and the multimedia keys work.
+xev shows output for backspace + the 5 multimedia keys. showkey on
+the console works only for backspace. the approach using usbmon with
+"7u" produces output for backspace and the multimedia keys. just to
+verify I tried 0u with the same result: backspace + multimedia keys
+work. All other keys aren't working.
 
-I tested it and everything of course still works :-) .
+dmesg/syslog reports: usage index exceeded
 
-I have no real preference for one way or the other. I had seen both types i=
-n =
+Hence I played around with HID_MAX_USAGES in include/linux/hid.h on
+line 346 and I found out that a setting of 32K won't help. A setting
+HIGHER than 32K (I would need to test again to give the exact value)
+made the keyboard working - I've just changed it to 64K and all was
+working as expected:
 
-different drivers and could not really decide which I like better, so I'm f=
-ine =
+#define HID_MAX_USAGES 65534
 
-with using your variant instead.
+If I plug the usb keyboard in, the following three devices are added in
+"lsusb":
 
+Bus 007 Device 006: ID 05e3:0608 Genesys Logic, Inc. USB-2.0 4-Port
+HUB Bus 007 Device 007: ID 1044:7a02 Chu Yuen Enterprise Co., Ltd 
+Bus 007 Device 008: ID 060b:2270 Solid Year
 
-Thanks
-Heiko
+Thanks for your attention, I hope someone on this list is able to help
+and make a fix so that this keyboard will work in newer kernels without
+the requirement to manually higher the HID_MAX_USAGES and
+recompile of the kernel.
+
+If I can provide any further information, please let me know. I can
+send debug output (just tell me the commands you're interested in) and
+I can test fixes (just send me a patch).
+
+Jean

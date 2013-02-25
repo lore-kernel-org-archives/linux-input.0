@@ -1,19 +1,19 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 3/7] HID: Kconfig: Remove explicit transport layer dependencies
-Date: Mon, 25 Feb 2013 11:15:47 +0100
-Message-ID: <CAN+gG=Fy9Be2ebVEB6rGUp8mUsd4ZpRbz6FeAenDh=O+KXEtpA@mail.gmail.com>
+Subject: Re: [PATCH 6/7] HID: multitouch: remove usbhid dependency
+Date: Mon, 25 Feb 2013 11:18:58 +0100
+Message-ID: <CAN+gG=G5QpJxiVRBaU1Z9UeSAoTiezcPyCrvC2jyzopzhFnXqA@mail.gmail.com>
 References: <1360334256-22127-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1360334256-22127-4-git-send-email-benjamin.tissoires@gmail.com>
-	<20130220200625.GA1321@polaris.bitmath.org>
+	<1360334256-22127-7-git-send-email-benjamin.tissoires@gmail.com>
+	<20130220202531.GA1413@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f41.google.com ([209.85.215.41]:50663 "EHLO
-	mail-la0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754977Ab3BYKPt (ORCPT
+Received: from mail-la0-f53.google.com ([209.85.215.53]:65337 "EHLO
+	mail-la0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753830Ab3BYKTA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Feb 2013 05:15:49 -0500
-In-Reply-To: <20130220200625.GA1321@polaris.bitmath.org>
+	Mon, 25 Feb 2013 05:19:00 -0500
+In-Reply-To: <20130220202531.GA1413@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
@@ -21,21 +21,56 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, 
 
 Hi Henrik,
 
-On Wed, Feb 20, 2013 at 9:06 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+On Wed, Feb 20, 2013 at 9:25 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
 > Hi Benjamin,
 >
->> Most HID drivers (rightfully) only depend on the HID bus, not the
->> specific transport layer. Remove such dependencies where applicable.
->>
 >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 >> ---
+>>  drivers/hid/hid-multitouch.c | 3 +--
+>>  1 file changed, 1 insertion(+), 2 deletions(-)
 >
-> I suppose you checked this list against newcomers as well, so:
->
->     Acked-by: Henrik Rydberg <rydberg@euromail.se>
+> Since removing the transport layer dependency has a rationale, it
+> might be good to mention that here.
 
-I checked, but a newcomer came since: thingM... I'll update the patch
-accordingly in the v2.
+Ok, will do.
+
+>
+> Also, what about the explicit usb dependency, was that going to be
+> moved to a usbhid quirk?
+
+Currently, the USB dependency is protected by a check on the BUS.
+The problem is that the BUS can be faked (by uhid). So yes, I'll add a
+quirk under usbhid for those devices.
 
 Cheers,
 Benjamin
+
+>
+>>
+>> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+>> index 32258ba..184ac0a 100644
+>> --- a/drivers/hid/hid-multitouch.c
+>> +++ b/drivers/hid/hid-multitouch.c
+>> @@ -32,7 +32,6 @@
+>>  #include <linux/slab.h>
+>>  #include <linux/usb.h>
+>>  #include <linux/input/mt.h>
+>> -#include "usbhid/usbhid.h"
+>>
+>>
+>>  MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
+>> @@ -907,7 +906,7 @@ static int mt_resume(struct hid_device *hdev)
+>>
+>>       intf = to_usb_interface(hdev->dev.parent);
+>>       interface = intf->cur_altsetting;
+>> -     dev = hid_to_usb_dev(hdev);
+>> +     dev = interface_to_usbdev(intf);
+>>
+>>       /* Some Elan legacy devices require SET_IDLE to be set on resume.
+>>        * It should be safe to send it to other devices too.
+>> --
+>> 1.8.1
+>>
+>
+> Thanks,
+> Henrik

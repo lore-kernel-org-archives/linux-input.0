@@ -1,41 +1,81 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two
- locks.
-Date: Mon, 25 Feb 2013 14:15:20 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1302251414130.2128@pobox.suse.cz>
-References: <CAG_cf+dOuB-Xi9zDdXguj9S_-PpB98wi2v1LqbR7msPD+DSwgA@mail.gmail.com> <alpine.LNX.2.00.1302181405240.17024@pobox.suse.cz> <alpine.LNX.2.00.1302251403250.2128@pobox.suse.cz> <CANq1E4QR42NyPe=SZGCpHL7Mzcic9YYxXG3v=G+WV9oNq+34oQ@mail.gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v2 0/8] hid driver transport cleanup
+Date: Mon, 25 Feb 2013 14:41:51 +0100
+Message-ID: <CANq1E4Sa2NhCaqbx+Spd49ffsLqbMM-pRraJVxAoXAaBg7CH8w@mail.gmail.com>
+References: <1361788310-6048-1-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1302251328070.2128@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47416 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757517Ab3BYNPW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Feb 2013 08:15:22 -0500
-In-Reply-To: <CANq1E4QR42NyPe=SZGCpHL7Mzcic9YYxXG3v=G+WV9oNq+34oQ@mail.gmail.com>
+Received: from mail-ea0-f177.google.com ([209.85.215.177]:51383 "EHLO
+	mail-ea0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756399Ab3BYNlw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Feb 2013 08:41:52 -0500
+In-Reply-To: <alpine.LNX.2.00.1302251328070.2128@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Andrew de los Reyes <andrew-vger@gizmolabs.org>, David Herrmann <dh.herrmann@googlemail.com>, Linux Input <linux-input@vger.kernel.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephane Chatty <chatty@enac.fr>, Mika Westerberg <mika.westerberg@linux.intel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 25 Feb 2013, David Herrmann wrote:
+Hi guys
 
-> >> Please provide your Signed-off-by line; without that, the patch can't be
-> >> accepted.
-> >
-> > Andrew, please ... ?
-> 
-> I got the new PATCH with the sign-off. Maybe you missed it?
-> 
-> Subject: [PATCH 1/3] HID: Separate struct hid_device's driver_lock
-> into two locks.
-> Date:	Mon, 18 Feb 2013 09:20:21 -0800
-> Message-Id: <1361208023-11500-2-git-send-email-andrew-vger@gizmolabs.org>
+On Mon, Feb 25, 2013 at 1:29 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Mon, 25 Feb 2013, Benjamin Tissoires wrote:
+>
+>> Hi guys,
+>>
+>> this is the v2 of the hid transport cleanup.
+>>
+>> Changes since v1:
+>> - gathered reviewed/acked/etc..
+>> - changed commit messages of patches 4-6
+>> - add newcomer into account (thingm)
+>> - incorporated the i2c-hid driver change into the series
+>>
+>> I still did not implemented the final usb cleanup for hid-multitouch as it may
+>> required few comments.
+>
+> I have now taken the series. Thanks Benjamin, thanks Henrik.
 
-Ah, thanks for the pointer, apparently I wasn't CCed, which increases the 
-likelyhood of patches getting lost significantly.
+I rewrote the Bluetooth HID session-management last week (patches
+pending on linux-bluetooth@vger) as it was horribly broken. This week
+I will try to fix the get_report/set_report mess with Bluetooth-HID,
+so I was wondering whether you could clear some things up.
 
-I'll take them from linux-input@ and add to my TODO.
+(I did read the Bluetooth HID Profile specification but I have no idea
+how USB does it, so please bear with me if I mix things up. Maybe some
+day I will have the time to read the USB specs, too)
 
--- 
-Jiri Kosina
-SUSE Labs
+* There are several drivers using "dev->hid_get_raw_report()" and
+"dev->hid_output_raw_report()". Any objections to moving these to
+"hid_ll_driver" and adding wrapper functions
+hid_hw_get/output_raw_report()?
+
+* What should the ll->report() callback exactly do? Should it simply
+send a GET_REPORT or SET_REPORT request depending on the direction
+(nonblocking)?
+
+* Why don't we do the hid_output_report() call in the hid_hw_report()
+helper and pass the raw buffers down? It would allow GFP_KERNEL and
+avoid duplicating code in all four backends.
+
+* What should ll->wait() exactly do? Block until the last
+SET/GET_REPORT call has been ack'ed by the device?
+
+* Bluetooth-HID might return errors on GET/SET_REPORT. Why don't we
+return these in hid_hw_wait() for the last report? It would allow
+synchronous calls like:
+hid_hw_report();
+ret = hid_hw_wait();
+
+* Should hid_hw_report() allow multiple pending requests? Or should it
+return an error if there is another pending report that hasn't been
+ack'ed, yet?
+
+I will try to implement it for Bluetooth-HID and UHID if no-one else
+wants to do it. Doing it for UHID would make debugging/emulating
+devices a lot easier.
+
+Thanks
+David

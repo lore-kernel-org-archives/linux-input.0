@@ -1,35 +1,34 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: make sensor autodetection independent of underlying
- bus
-Date: Mon, 25 Feb 2013 13:43:05 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1302251342570.2128@pobox.suse.cz>
-References: <51221AFD.1090108@ahsoftware.de> <1361265753-17541-1-git-send-email-mika.westerberg@linux.intel.com> <CAN+gG=GqPzvD89rno1btJKACDo6E0KTJR3_JW9dOMFqR8DaoYg@mail.gmail.com>
+Subject: Re: [PATCH] HID: Separate struct hid_device's driver_lock into two
+ locks.
+Date: Mon, 25 Feb 2013 14:03:38 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1302251403250.2128@pobox.suse.cz>
+References: <CAG_cf+dOuB-Xi9zDdXguj9S_-PpB98wi2v1LqbR7msPD+DSwgA@mail.gmail.com> <alpine.LNX.2.00.1302181405240.17024@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46253 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:46985 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756622Ab3BYMnJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Feb 2013 07:43:09 -0500
-In-Reply-To: <CAN+gG=GqPzvD89rno1btJKACDo6E0KTJR3_JW9dOMFqR8DaoYg@mail.gmail.com>
+	id S1752497Ab3BYNDo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Feb 2013 08:03:44 -0500
+In-Reply-To: <alpine.LNX.2.00.1302181405240.17024@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org, Alexander Holler <holler@ahsoftware.de>, linux-input@vger.kernel.org, srinivas.pandruvada@intel.com
+To: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Cc: David Herrmann <dh.herrmann@googlemail.com>, Linux Input <linux-input@vger.kernel.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
 
-On Thu, 21 Feb 2013, Benjamin Tissoires wrote:
+On Mon, 18 Feb 2013, Jiri Kosina wrote:
 
-> > Instead of limiting HID sensors to USB and I2C busses we can just make
-> > everything that has usage page of HID_UP_SENSOR to be included in
-> > HID_GROUP_SENSOR_HUB group. This allows the sensor-hub to work over
-> > bluetooth (and other transports) as well.
-> >
-> > Reported-by: Alexander Holler <holler@ahsoftware.de>
-> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Change-Id: I737f6fc15911134b51273acf8d3de92fa5cc0f85
 > 
-> Reviewed-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Hi,
+> 
+> thanks for finally proceeding on this front.
+> 
+> Please provide your Signed-off-by line; without that, the patch can't be 
+> accepted.
 
-Applied.
+Andrew, please ... ?
 
 -- 
 Jiri Kosina

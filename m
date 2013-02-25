@@ -1,50 +1,123 @@
 From: Simon Glass <sjg@chromium.org>
-Subject: Re: [PATCH v5 5/6] Input: matrix-keymap: Add function to read the new
- DT binding
-Date: Mon, 25 Feb 2013 13:53:43 -0800
-Message-ID: <CAPnjgZ0r93Pzrj5bHFmM1BjkNzKLRVJoW=TGdvOHOwpgLbjv=Q@mail.gmail.com>
-References: <1361381079-26747-1-git-send-email-sjg@chromium.org>
-	<1361381079-26747-6-git-send-email-sjg@chromium.org>
-	<20130220181815.GB15152@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130220181815.GB15152@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Javier Martinez Canillas <javier@dowhile0.org>, Sourav Poddar <sourav.poddar@ti.com>, Felipe Balbi <balbi@ti.com>, Alban Bedel <alban.bedel@avionic-design.de>, linux-input@vger.kernel.org
+Subject: [PATCH v6 0/6] Add ChromeOS Embedded Controller support
+Date: Mon, 25 Feb 2013 14:08:35 -0800
+Message-ID: <1361830121-32284-1-git-send-email-sjg@chromium.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Simon Glass <sjg@chromium.org>, Rob Landley <rob@landley.net>, Felipe Balbi <balbi@ti.com>, Grant Likely <grant.likely@secretlab.ca>, Wolfram Sang <w.sang@pengutronix.de>, Luigi Semenzato <semenzato@chromium.org>, Rob Herring <rob.herring@calxeda.com>, Che-Liang Chiou <clchiou@chromium.org>, Jonathan Kliegman <kliegs@chromium.org>, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, devicetree-discuss@lists.ozlabs.org, Alban Bedel <alban.bedel@avionic-design.de>, Roland Stigge <stigge@antcom.de>, Vincent Palatin <vpalatin@chromium.org>, Javier Martinez Canillas <javier@dowhile0.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-doc@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Bill Pemberton <wfp5p@virginia.edu>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+The ChromeOS Embedded Controller (EC) is an Open Source EC implementation
+used on ARM and Intel Chromebooks. Current implementations use a Cortex-M3
+connected on a bus (such as I2C, SPI, LPC) to the AP. A separate interrupt
+line is used to indicate when the EC needs service.
 
-On Wed, Feb 20, 2013 at 10:18 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Feb 20, 2013 at 09:24:38AM -0800, Simon Glass wrote:
->> We now have a binding which adds two parameters to the matrix keypad DT
->> node. This is separate from the GPIO-driven matrix keypad binding, and
->> unfortunately incompatible, since that uses row-gpios/col-gpios for the
->> row and column counts.
->>
->> So the easiest option here is to provide a function for non-GPIO drivers
->> to use to decode the binding.
->>
->> Note: We could in fact create an entirely separate structure to hold
->> these two fields, but it does not seem worth it, yet. If we have more
->> parameters then we can add this, and then refactor each driver to hold
->> such a structure.
->>
->> Signed-off-by: Simon Glass <sjg@chromium.org>
->> Tested-by: Sourav Poddar <sourav.poddar@ti.com> (v2)
->
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> I suppose the EC driver will go through MFD tree, right?
+Functions performed by the EC vary by platform, but typically include
+battery charging, keyboard scanning and power sequencing.
 
-Yes I expect so.
+This series includes support for the EC message protocol, and implements
+a matrix keyboard handler for Linux using the protocol. The EC performs
+key scanning and passes scan data in response to AP requests. This is
+used on the Samsung ARM Chromebook. No driver is available for LPC at
+present.
 
-Regards,
-Simon
+This series can in principle operate on any hardware, but for it to actually
+work on the Samsung ARM Chromebook, it needs patches which are currently in
+progress to mainline: Exynos FDT interrupt support and I2C bus arbitration.
 
->
-> --
-> Dmitry
+The driver is device-tree-enabled and a suitable binding is included in
+this series. Example device tree nodes are included in the examples,
+but no device tree patch for exynos5250-snow is provided at this stage, since
+we must wait for the above-mentioned patches to land to avoid errors from
+dtc. This can be added with a follow-on patch when that work is complete.
+
+Changes in v6:
+- Allow cros_ec to be a module
+- Remove 'struct i2c_msg' definition
+- Use %ph instead of for loop to output packet trace
+- Fix incorrect indentation in cros_ec_keyb_process()
+- Remove unnecessary assignment to NULL in probe function
+
+Changes in v5:
+- Remove cros_ec allocation functions
+- Remove name access functions in cros_ec, using strings instead
+- Fix Kconfig help message for MFD_CROS_EC_I2C
+- Remove I2C retry logic
+- Switch cros_ec_i2c driver to use devm
+- Update cros_ec_i2c to work with new cros_ec interface
+- Switch cros_ec_spi driver to use devm
+- Update cros_ec_spi to work with new cros_ec interface
+- Fix {} style nit in cros_ec_keyb_has_ghosting
+- Correct key lookup logic which was broken in previous version
+- Switch cros_ec_keyb driver to use devm
+
+Changes in v4:
+- Fix up trvial logging comments
+- Remove messages reporting out of memory
+- Add compatible string for cros-ec-keyb
+- Remove wake notifier and let drivers use their own handlers instead
+- Add 'depends on MFD_CROS_EC' to Kconfig
+- Remove use of wake_notifier
+- Remove manual code to locate device tree node
+- Add resume handler to clear keyboard scan buffer if required
+
+Changes in v3:
+- Add stub for matrix_keypad_parse_of_params() when no CONFIG_OF
+- Put back full DT range checking in tca8418 driver
+- Remove 'select MFD_CROS_EC' from Kconfig as it isn't necessary
+- Remove old_state by using input layer's idev->key
+- Move inner loop of cros_ec_keyb_has_ghosting() into its own function and simplify
+- Add check for not finding the device tree node
+- Remove comment about leaking matrix_keypad_build_keymap()
+- Use platform_get_drvdata() where possible
+- Remove call to input_free_device() after input_unregister_device()
+
+Changes in v2:
+- Remove use of __devinit/__devexit
+- Remove use of __devinit/__devexit
+- Remove use of __devinit/__devexit
+- Add new patch to decode matrix-keypad DT binding
+- Remove use of __devinit/__devexit
+- Use function to read matrix-keypad parameters from DT
+- Remove key autorepeat parameters from DT binding and driver
+- Use unsigned int for rows/cols
+
+Simon Glass (6):
+  mfd: Add ChromeOS EC messages header
+  mfd: Add ChromeOS EC implementation
+  mfd: Add ChromeOS EC I2C driver
+  mfd: Add ChromeOS EC SPI driver
+  Input: matrix-keymap: Add function to read the new DT binding
+  Input: Add ChromeOS EC keyboard driver
+
+ .../devicetree/bindings/input/cros-ec-keyb.txt     |   72 +
+ Documentation/devicetree/bindings/mfd/cros-ec.txt  |   56 +
+ drivers/input/keyboard/Kconfig                     |   12 +
+ drivers/input/keyboard/Makefile                    |    1 +
+ drivers/input/keyboard/cros_ec_keyb.c              |  334 +++++
+ drivers/input/keyboard/lpc32xx-keys.c              |   11 +-
+ drivers/input/keyboard/omap4-keypad.c              |   16 +-
+ drivers/input/keyboard/tca8418_keypad.c            |    7 +-
+ drivers/input/matrix-keymap.c                      |   19 +
+ drivers/mfd/Kconfig                                |   28 +
+ drivers/mfd/Makefile                               |    3 +
+ drivers/mfd/cros_ec.c                              |  189 +++
+ drivers/mfd/cros_ec_i2c.c                          |  206 +++
+ drivers/mfd/cros_ec_spi.c                          |  375 ++++++
+ include/linux/input/matrix_keypad.h                |   19 +
+ include/linux/mfd/cros_ec.h                        |  170 +++
+ include/linux/mfd/cros_ec_commands.h               | 1369 ++++++++++++++++++++
+ 17 files changed, 2869 insertions(+), 18 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/cros-ec-keyb.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/cros-ec.txt
+ create mode 100644 drivers/input/keyboard/cros_ec_keyb.c
+ create mode 100644 drivers/mfd/cros_ec.c
+ create mode 100644 drivers/mfd/cros_ec_i2c.c
+ create mode 100644 drivers/mfd/cros_ec_spi.c
+ create mode 100644 include/linux/mfd/cros_ec.h
+ create mode 100644 include/linux/mfd/cros_ec_commands.h
+
+-- 
+1.8.1.3
+

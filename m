@@ -1,126 +1,158 @@
-From: Nuno Santos <nsantos@displax.com>
-Subject: Question regarding multitouch input on Linux kernel
-Date: Mon, 25 Feb 2013 15:00:32 +0000
-Message-ID: <512B7C90.4010704@displax.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Question regarding multitouch input on Linux kernel
+Date: Mon, 25 Feb 2013 16:31:25 +0100
+Message-ID: <CAN+gG=HUhwX6EpMrO9itWJ2pC6Zc6e17aZBp4jG1PO017ew8xA@mail.gmail.com>
+References: <512B7C90.4010704@displax.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx02.edigma.com ([195.22.18.196]:33413 "EHLO mx02.edigma.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757958Ab3BYPHI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Feb 2013 10:07:08 -0500
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mx02.edigma.com (Postfix) with ESMTP id 139792E8F02
-	for <linux-input@vger.kernel.org>; Mon, 25 Feb 2013 15:00:34 +0000 (WET)
-Received: from mx02.edigma.com ([127.0.0.1])
-	by localhost (mx02.edigma.com [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IrQNAoH3Vrr7 for <linux-input@vger.kernel.org>;
-	Mon, 25 Feb 2013 15:00:33 +0000 (WET)
-Received: from [192.168.3.103] (bl17-89-18.dsl.telepac.pt [188.82.89.18])
-	by mx02.edigma.com (Postfix) with ESMTPSA id 6D2E02E8D7A
-	for <linux-input@vger.kernel.org>; Mon, 25 Feb 2013 15:00:33 +0000 (WET)
+Received: from mail-la0-f43.google.com ([209.85.215.43]:62666 "EHLO
+	mail-la0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759552Ab3BYPb1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Feb 2013 10:31:27 -0500
+Received: by mail-la0-f43.google.com with SMTP id ek20so2767467lab.2
+        for <linux-input@vger.kernel.org>; Mon, 25 Feb 2013 07:31:25 -0800 (PST)
+In-Reply-To: <512B7C90.4010704@displax.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Nuno Santos <nsantos@displax.com>
+Cc: linux-input@vger.kernel.org
 
-Hi,
+Hi Nuno,
 
-I have been experiencing an issue with a Linux driver for multitouch 
-input that i'm responsible for maintaining.
+On Mon, Feb 25, 2013 at 4:00 PM, Nuno Santos <nsantos@displax.com> wrote:
+> Hi,
+>
+> I have been experiencing an issue with a Linux driver for multitouch input
+> that i'm responsible for maintaining.
 
-The issue is basically the following:
+Side note. Your driver does not seems to be upstreamed (or I missed
+it). You should really consider put it upstream. If we make changes in
+the multitouch API, we can change your driver too, whereas here, you
+will have to maintain several releases of your driver, one per kernel
+version.
 
-- I load the driver and the mouse works just fine
-- I touch the screen and the first touch input is delivered to the system
-- On that very same moment I can't use mouse left button down to click 
-on folders on nautilus. I can only selected them using drag select. I 
-also can't get a folder to get selected with a single touch input.
-- The user experience with the mouse gets inconsistent.
-- Unloading the module doesn't return the good experience
-- Restarting X fixes the problem until I report a touch input again with 
-this driver
-- If I only use common pointer input, the issue doesn't occur.
+>
+> The issue is basically the following:
+>
+> - I load the driver and the mouse works just fine
+> - I touch the screen and the first touch input is delivered to the system
+> - On that very same moment I can't use mouse left button down to click on
+> folders on nautilus. I can only selected them using drag select. I also
+> can't get a folder to get selected with a single touch input.
+> - The user experience with the mouse gets inconsistent.
+> - Unloading the module doesn't return the good experience
+> - Restarting X fixes the problem until I report a touch input again with
+> this driver
+> - If I only use common pointer input, the issue doesn't occur.
+>
+> My questions resides in if the problem is due to bad touch reporting, or due
+> to a bug in X/nautilus.
 
-My questions resides in if the problem is due to bad touch reporting, or 
-due to a bug in X/nautilus.
+Definitively X and nautilus problems. The very same kind of problems
+were observed in Fedora 17 and fixed in the X.org shipped in Fedora
+18.
 
-I have been analyzing a lot of examples under kernel tree for multitouch 
-input under Linux an it seems I'm doing what is necessary.
+Ubuntu is relying on an older X.org release, which contains several
+bugs related to multitouch.
 
-I'm using Ubuntu 12.04 but this happened with Ubuntu 11.XX already
+>
+> I have been analyzing a lot of examples under kernel tree for multitouch
+> input under Linux an it seems I'm doing what is necessary.
+>
+> I'm using Ubuntu 12.04 but this happened with Ubuntu 11.XX already
 
-This what I do in order to declare device capabilities:
+And in 12.10 also IIRC. I really hope that they will rebase X.org in 13.04.
 
-input_set_abs_params(input_dev, ABS_X, 0, 6300, 0, 0);
-input_set_abs_params(input_dev, ABS_Y, 0, 6300, 0, 0);
+>
+> This what I do in order to declare device capabilities:
+>
+> input_set_abs_params(input_dev, ABS_X, 0, 6300, 0, 0);
+> input_set_abs_params(input_dev, ABS_Y, 0, 6300, 0, 0);
+>
+> input_mt_init_slots(input_dev, DPX_TOUCH_MAX_COUNT);
 
-input_mt_init_slots(input_dev, DPX_TOUCH_MAX_COUNT);
-input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, 6300, 0, 0);
-input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, 6300, 0, 0);
+input_mt_init_slots has been changed recently, it takes an extra arg: 'flags'.
 
-This is what I do in order to report touches:
+> input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, 6300, 0, 0);
+> input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, 6300, 0, 0);
 
-for (currentTouch=0;currentTouch<DPX_TOUCH_MAX_COUNT && 
-touchCount<priv->context->State.Acquisition.TouchPoints;++currentTouch)
-     {
-         Touch = priv->context->State.Touches + currentTouch;
+Not required IIRC. The params are copied from their single-touch equivalent.
 
-         x = Touch->CalibratedPoint.Position.X;
-         y = Touch->CalibratedPoint.Position.Y;
+>
+> This is what I do in order to report touches:
+>
+> for (currentTouch=0;currentTouch<DPX_TOUCH_MAX_COUNT &&
+> touchCount<priv->context->State.Acquisition.TouchPoints;++currentTouch)
+>     {
+>         Touch = priv->context->State.Touches + currentTouch;
+>
+>         x = Touch->CalibratedPoint.Position.X;
+>         y = Touch->CalibratedPoint.Position.Y;
+>
+>         input_mt_slot(usbtouch->input, currentTouch);
+>
+>         // touch down
+>         if(Touch->CurrentState==DPX_TOUCH_STATE_ACTIVE &&
+> Touch->ReportedState==DPX_TOUCH_STATE_INACTIVE)
+>         {
+>             Touch->ReportedState = DPX_TOUCH_STATE_ACTIVE;
+>
+>             input_mt_report_slot_state(usbtouch->input, MT_TOOL_FINGER, 1);
+>
+>             input_report_abs(usbtouch->input, ABS_MT_POSITION_X, x);
+>             input_report_abs(usbtouch->input, ABS_MT_POSITION_Y, y);
+>
+>             touchCount++;
+>         }
+>         // touch move
+>         else if (Touch->CurrentState==DPX_TOUCH_STATE_ACTIVE &&
+> Touch->ReportedState==DPX_TOUCH_STATE_ACTIVE)
+>         {
+>             Touch->ReportedState = DPX_TOUCH_STATE_ACTIVE;
+>
+>             input_mt_report_slot_state(usbtouch->input, MT_TOOL_FINGER, 1);
+>
+>             input_report_abs(usbtouch->input, ABS_MT_POSITION_X, x);
+>             input_report_abs(usbtouch->input, ABS_MT_POSITION_Y, y);
+>
+>             touchCount++;
+>         }
+>         // touch up
+>         else
+>         {
+>             Touch->ReportedState = DPX_TOUCH_STATE_INACTIVE;
+>
+>             input_mt_report_slot_state(usbtouch->input, MT_TOOL_FINGER, 0);
+>
+>             input_report_abs(usbtouch->input, ABS_MT_POSITION_X, x);
+>             input_report_abs(usbtouch->input, ABS_MT_POSITION_Y, y);
 
-         input_mt_slot(usbtouch->input, currentTouch);
+No need to update ABS_MT_POSITION_X/Y in this case: they should not be
+sent to the user space according to the multitouch protocol.
 
-         // touch down
-         if(Touch->CurrentState==DPX_TOUCH_STATE_ACTIVE && 
-Touch->ReportedState==DPX_TOUCH_STATE_INACTIVE)
-         {
-             Touch->ReportedState = DPX_TOUCH_STATE_ACTIVE;
+>
+>             touchCount++;
+>         }
+>     }
+>
+>     if (touchCount>0)
 
-             input_mt_report_slot_state(usbtouch->input, MT_TOOL_FINGER, 1);
+Looks like this test is always true.
 
-             input_report_abs(usbtouch->input, ABS_MT_POSITION_X, x);
-             input_report_abs(usbtouch->input, ABS_MT_POSITION_Y, y);
+>     {
+>         input_mt_report_pointer_emulation(usbtouch->input, true);
 
-             touchCount++;
-         }
-         // touch move
-         else if (Touch->CurrentState==DPX_TOUCH_STATE_ACTIVE && 
-Touch->ReportedState==DPX_TOUCH_STATE_ACTIVE)
-         {
-             Touch->ReportedState = DPX_TOUCH_STATE_ACTIVE;
+In the latest version of the kernel tree, you should rely on the
+input_mt_sync_frame() now. It will call
+input_mt_report_pointer_emulation() plus other things depending of the
+flags you passed to input_mt_init_slots().
 
-             input_mt_report_slot_state(usbtouch->input, MT_TOOL_FINGER, 1);
+>         input_sync(usbtouch->input);
+>     }
+>
+>
 
-             input_report_abs(usbtouch->input, ABS_MT_POSITION_X, x);
-             input_report_abs(usbtouch->input, ABS_MT_POSITION_Y, y);
-
-             touchCount++;
-         }
-         // touch up
-         else
-         {
-             Touch->ReportedState = DPX_TOUCH_STATE_INACTIVE;
-
-             input_mt_report_slot_state(usbtouch->input, MT_TOOL_FINGER, 0);
-
-             input_report_abs(usbtouch->input, ABS_MT_POSITION_X, x);
-             input_report_abs(usbtouch->input, ABS_MT_POSITION_Y, y);
-
-             touchCount++;
-         }
-     }
-
-     if (touchCount>0)
-     {
-         input_mt_report_pointer_emulation(usbtouch->input, true);
-         input_sync(usbtouch->input);
-     }
-
-
-Thanks for your attention,
-
-With my best regards,
-
-Nuno Santos
-
+Cheers,
+Benjamin

@@ -1,166 +1,126 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 0/8] hid driver transport cleanup
-Date: Mon, 25 Feb 2013 16:06:01 +0100
-Message-ID: <CAN+gG=GmK4eHizLG6pE0gxSNBsQMg8R+KcUZk8P8-G84t1XUJQ@mail.gmail.com>
-References: <1361788310-6048-1-git-send-email-benjamin.tissoires@gmail.com>
-	<alpine.LNX.2.00.1302251328070.2128@pobox.suse.cz>
-	<CANq1E4Sa2NhCaqbx+Spd49ffsLqbMM-pRraJVxAoXAaBg7CH8w@mail.gmail.com>
+From: Nuno Santos <nsantos@displax.com>
+Subject: Question regarding multitouch input on Linux kernel
+Date: Mon, 25 Feb 2013 15:00:32 +0000
+Message-ID: <512B7C90.4010704@displax.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f44.google.com ([209.85.215.44]:49042 "EHLO
-	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754290Ab3BYPGE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Feb 2013 10:06:04 -0500
-In-Reply-To: <CANq1E4Sa2NhCaqbx+Spd49ffsLqbMM-pRraJVxAoXAaBg7CH8w@mail.gmail.com>
+Received: from mx02.edigma.com ([195.22.18.196]:33413 "EHLO mx02.edigma.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757958Ab3BYPHI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Feb 2013 10:07:08 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mx02.edigma.com (Postfix) with ESMTP id 139792E8F02
+	for <linux-input@vger.kernel.org>; Mon, 25 Feb 2013 15:00:34 +0000 (WET)
+Received: from mx02.edigma.com ([127.0.0.1])
+	by localhost (mx02.edigma.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IrQNAoH3Vrr7 for <linux-input@vger.kernel.org>;
+	Mon, 25 Feb 2013 15:00:33 +0000 (WET)
+Received: from [192.168.3.103] (bl17-89-18.dsl.telepac.pt [188.82.89.18])
+	by mx02.edigma.com (Postfix) with ESMTPSA id 6D2E02E8D7A
+	for <linux-input@vger.kernel.org>; Mon, 25 Feb 2013 15:00:33 +0000 (WET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Mika Westerberg <mika.westerberg@linux.intel.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi David,
+Hi,
 
-On Mon, Feb 25, 2013 at 2:41 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi guys
->
-> On Mon, Feb 25, 2013 at 1:29 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->> On Mon, 25 Feb 2013, Benjamin Tissoires wrote:
->>
->>> Hi guys,
->>>
->>> this is the v2 of the hid transport cleanup.
->>>
->>> Changes since v1:
->>> - gathered reviewed/acked/etc..
->>> - changed commit messages of patches 4-6
->>> - add newcomer into account (thingm)
->>> - incorporated the i2c-hid driver change into the series
->>>
->>> I still did not implemented the final usb cleanup for hid-multitouch as it may
->>> required few comments.
->>
->> I have now taken the series. Thanks Benjamin, thanks Henrik.
->
-> I rewrote the Bluetooth HID session-management last week (patches
-> pending on linux-bluetooth@vger) as it was horribly broken. This week
-> I will try to fix the get_report/set_report mess with Bluetooth-HID,
-> so I was wondering whether you could clear some things up.
+I have been experiencing an issue with a Linux driver for multitouch 
+input that i'm responsible for maintaining.
 
-Sure, I'll do my best. I'm not sure that you will have a better idea
-after my answers because the use cases are very different and there is
-not a good rational for each use.
+The issue is basically the following:
 
->
-> (I did read the Bluetooth HID Profile specification but I have no idea
-> how USB does it, so please bear with me if I mix things up. Maybe some
-> day I will have the time to read the USB specs, too)
->
-> * There are several drivers using "dev->hid_get_raw_report()" and
-> "dev->hid_output_raw_report()". Any objections to moving these to
-> "hid_ll_driver" and adding wrapper functions
-> hid_hw_get/output_raw_report()?
+- I load the driver and the mouse works just fine
+- I touch the screen and the first touch input is delivered to the system
+- On that very same moment I can't use mouse left button down to click 
+on folders on nautilus. I can only selected them using drag select. I 
+also can't get a folder to get selected with a single touch input.
+- The user experience with the mouse gets inconsistent.
+- Unloading the module doesn't return the good experience
+- Restarting X fixes the problem until I report a touch input again with 
+this driver
+- If I only use common pointer input, the issue doesn't occur.
 
-I can't see any. Those two callbacks are transport dependent, so I
-also think it makes sense to put them into hid_ll_driver.
+My questions resides in if the problem is due to bad touch reporting, or 
+due to a bug in X/nautilus.
 
-I also wish we have the set/get hid idle callback (it would remove the
-last usb dependency in hid-multitouch).
+I have been analyzing a lot of examples under kernel tree for multitouch 
+input under Linux an it seems I'm doing what is necessary.
 
->
-> * What should the ll->report() callback exactly do? Should it simply
-> send a GET_REPORT or SET_REPORT request depending on the direction
-> (nonblocking)?
+I'm using Ubuntu 12.04 but this happened with Ubuntu 11.XX already
 
-Well, given the way it's used in hid drivers and usbhid/i2c-hid:
-- SET_REPORT takes an already parsed report and send it to the device
--> the usbhid part is nonblocking, i2c-hid is blocking.
-- GET_REPORT asks for the HID command GET_REPORT and once it's done,
-the incoming report is parsed as if it was spontaneously generated
-(meaning that there are no guarantees that the report the caller reads
-after report() is the requested one).
+This what I do in order to declare device capabilities:
 
-The patch for implementing those functions in i2c-hid is IMHO simpler
-to understand than the usb one as i2c-hid makes no use of dma or async
-calls.
+input_set_abs_params(input_dev, ABS_X, 0, 6300, 0, 0);
+input_set_abs_params(input_dev, ABS_Y, 0, 6300, 0, 0);
 
-For the nonblocking part, the usb pendant is asynchronous, thus the
-need of the .wait().
-The i2c-hid driver is synchronous, meaning that the call is blocking
-(sorry). But .wait() is not required to be called, and then, we don't
-need to set it.
+input_mt_init_slots(input_dev, DPX_TOUCH_MAX_COUNT);
+input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, 6300, 0, 0);
+input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, 6300, 0, 0);
 
->
-> * Why don't we do the hid_output_report() call in the hid_hw_report()
-> helper and pass the raw buffers down? It would allow GFP_KERNEL and
-> avoid duplicating code in all four backends.
+This is what I do in order to report touches:
 
-Well. I continued Henrik's work on that, and the idea was to not break
-any existing device. So, the code path should be the nearest possible
-to the existing one. Now that this part is done, we can look at
-something more efficient in terms of duplication.
+for (currentTouch=0;currentTouch<DPX_TOUCH_MAX_COUNT && 
+touchCount<priv->context->State.Acquisition.TouchPoints;++currentTouch)
+     {
+         Touch = priv->context->State.Touches + currentTouch;
 
-Actually, the implementation of i2c-hid .request() already uses the
-raw buffers commands, meaning that it's nearly what we need (except
-that we need  to get the size of the buffer in some other way).
+         x = Touch->CalibratedPoint.Position.X;
+         y = Touch->CalibratedPoint.Position.Y;
 
-However, in usbhid and i2c-hid, .hid_get_raw_report() and
-.hid_output_raw_report() are blocking, meaning that it will change the
-current behavior for drivers.
+         input_mt_slot(usbtouch->input, currentTouch);
 
->
-> * What should ll->wait() exactly do? Block until the last
-> SET/GET_REPORT call has been ack'ed by the device?
->
+         // touch down
+         if(Touch->CurrentState==DPX_TOUCH_STATE_ACTIVE && 
+Touch->ReportedState==DPX_TOUCH_STATE_INACTIVE)
+         {
+             Touch->ReportedState = DPX_TOUCH_STATE_ACTIVE;
 
-It waits for at most 10*HZ until both the CTRL (command queue for
-set_report/get_report and 90% of the hid communication) and the OUTPUT
-queues are empty.
-Honestly, I don't like the way the wait is done: nobody cares about
-the return value, meaning that nobody know why we have finished to
-wait. In 90% of the cases, it's used in conjunction with a .request()
-call.
+             input_mt_report_slot_state(usbtouch->input, MT_TOOL_FINGER, 1);
 
-So to sum up, given its current use, I would say that .wait() "blocks
-until all queues are flushed or for an amount of time that gives the
-caller good chances that his/her previous call has been transferred to
-the device".
+             input_report_abs(usbtouch->input, ABS_MT_POSITION_X, x);
+             input_report_abs(usbtouch->input, ABS_MT_POSITION_Y, y);
 
-> * Bluetooth-HID might return errors on GET/SET_REPORT. Why don't we
-> return these in hid_hw_wait() for the last report? It would allow
-> synchronous calls like:
-> hid_hw_report();
-> ret = hid_hw_wait();
+             touchCount++;
+         }
+         // touch move
+         else if (Touch->CurrentState==DPX_TOUCH_STATE_ACTIVE && 
+Touch->ReportedState==DPX_TOUCH_STATE_ACTIVE)
+         {
+             Touch->ReportedState = DPX_TOUCH_STATE_ACTIVE;
 
-As there are several uses of .wait(), it seems difficult.
-Some are using it to make 'sure' that their previous command has been
-sent -> in this case, I would say, yes, go for it.
-Some others are using it for it's real purpose: flush the queues
-before/after sending new commands -> it's difficult to put the last
-command result as a return value in this case (the latest result does
-not mean anything to the caller).
+             input_mt_report_slot_state(usbtouch->input, MT_TOOL_FINGER, 1);
 
-Maybe turning the hid_hw_report() for these cases into a blocking one
-would solve the problem.
+             input_report_abs(usbtouch->input, ABS_MT_POSITION_X, x);
+             input_report_abs(usbtouch->input, ABS_MT_POSITION_Y, y);
 
->
-> * Should hid_hw_report() allow multiple pending requests? Or should it
-> return an error if there is another pending report that hasn't been
-> ack'ed, yet?
+             touchCount++;
+         }
+         // touch up
+         else
+         {
+             Touch->ReportedState = DPX_TOUCH_STATE_INACTIVE;
 
-I would say that it should.
-If you ask for a report, it's then parsed through hid_input_report,
-meaning that you can ask for several reports at the same time. Each of
-them will be parsed in it's own buffer.
+             input_mt_report_slot_state(usbtouch->input, MT_TOOL_FINGER, 0);
 
->
-> I will try to implement it for Bluetooth-HID and UHID if no-one else
-> wants to do it. Doing it for UHID would make debugging/emulating
-> devices a lot easier.
+             input_report_abs(usbtouch->input, ABS_MT_POSITION_X, x);
+             input_report_abs(usbtouch->input, ABS_MT_POSITION_Y, y);
 
-That would be great. I can't do the bluetooth part (I'm lacking of
-hardware), and for the UHID part... I don't really care about it in my
-tests for now :)
+             touchCount++;
+         }
+     }
 
-Cheers,
-Benjamin
+     if (touchCount>0)
+     {
+         input_mt_report_pointer_emulation(usbtouch->input, true);
+         input_sync(usbtouch->input);
+     }
+
+
+Thanks for your attention,
+
+With my best regards,
+
+Nuno Santos
+

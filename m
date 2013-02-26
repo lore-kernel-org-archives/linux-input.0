@@ -1,38 +1,31 @@
-From: Jean-Michel Bruenn <jean.bruenn@ip-minds.de>
-Subject: Re: Solution to get Gigabyte K8100 Aivia USB Gaming Keyboard
- working in Linux
-Date: Tue, 26 Feb 2013 09:38:17 +0100
-Message-ID: <20130226093817.47cb864c4616d1856ed98ca5@ip-minds.de>
-References: <20130224171937.1bf957f01fb482186cbb134d@ip-minds.de>
-	<20130224180432.ad426fe776ea113f2ec65d37@ip-minds.de>
+From: Daniel Hellstrom <daniel@gaisler.com>
+Subject: Re: [PATCH v3] input,serio: support for GRLIB APBPS2 PS/2 Keyboard/Mouse
+Date: Tue, 26 Feb 2013 15:30:50 +0100
+Message-ID: <512CC71A.20508@gaisler.com>
+References: <1361787146-21527-1-git-send-email-daniel@gaisler.com> <20130226070447.GB18407@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from alia.ip-minds.de ([84.201.38.2]:48334 "EHLO alia.ip-minds.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759635Ab3BZIiU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Feb 2013 03:38:20 -0500
-Received: from vulkan (p5B10A914.dip.t-dialin.net [91.16.169.20])
-	by alia.ip-minds.de (Postfix) with ESMTPA id D37D2C32092
-	for <linux-input@vger.kernel.org>; Tue, 26 Feb 2013 09:39:00 +0100 (CET)
-In-Reply-To: <20130224180432.ad426fe776ea113f2ec65d37@ip-minds.de>
+Received: from vsp-authed02.binero.net ([195.74.38.226]:19379 "HELO
+	vsp-authed-03-02.binero.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1758242Ab3BZOcO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Feb 2013 09:32:14 -0500
+In-Reply-To: <20130226070447.GB18407@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, software@gaisler.com
 
-Hey,
+On 02/26/2013 08:04 AM, Dmitry Torokhov wrote:
+> On Mon, Feb 25, 2013 at 11:12:26AM +0100, Daniel Hellstrom wrote:
+>> APBPS2 is a PS/2 core part of GRLIB found in SPARC32/LEON
+>> products.
+>>
+>> Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+> Applied to 3.10 queue, thank you.
+Thank you very much! Hope you have a nice day.
 
-so the fix using shift+ctrl+alt+n works; However, I have to do that on
-every boot. Is there some way to debug what happens if I press shift
-+ctrl+alt+n / +g so that one could add a patch which allows the use of
-this keyboard in linux without pressing shift+ctrl+alt+n? And should
-the "gaming"-mode be fixed as well (would require to higher the
-HID_MAX_USAGES value) would it be possible to add an if or something
-(I'm not a kernel-/driver developer, so I really don't know if that's
-bad practise or something) like "if keyboard == .. HID_MAX_USAGES.."
-That'd solve the gaming-mode of the keyboard and it wouldn't require
-the key-combo to make it work in Linux.
-
-Thanks in advance,
-jean
+Regards,
+Daniel

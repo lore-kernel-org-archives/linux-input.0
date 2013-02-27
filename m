@@ -1,56 +1,93 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 0/7] HID: multitouch: support of hybrid finger/pen devices
-Date: Wed, 27 Feb 2013 17:55:20 +0100
-Message-ID: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:20886 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756742Ab3B0Q4W (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Feb 2013 11:56:22 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 6/7] HID: multitouch: append " Pen" to the name of the stylus input
+Date: Wed, 27 Feb 2013 17:55:26 +0100
+Message-ID: <1361984127-912-7-git-send-email-benjamin.tissoires@redhat.com>
+References: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi guys,
+This is not just cosmetics, it can help to write udev and X.org
+rules.
 
-Here is the support of hybrid devices presenting pen and touch at the same time.
-I don't think it's possible to split the handling of the different reports by
-several hid drivers unless deepest changes in the HID core subsystem.
-The main problem is the control of the underlaying transport layer of the hid
-device. For instance, if two drivers (let's say hid-multitouch and hid-generic)
-handle the same device, and one of them is removed, then we should not call
-hid_hw_stop at this point, but only when the second is also removed.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-multitouch.c | 24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
-The other big problem lies with hid drivers that fix the hid report descriptors.
-We can not split the hid device before we get the fix, so those drivers should
-have a special behavior.
-
-To sum up, I think does not make sense to do such deep changes, and to take such
-a risk of breaking existing devices.
-
-So the solution consists in relying inconditionaly to the quirk MULTI_INPUT for
-hid-multitouch. Before registering the input device in hid-input, we can test if
-it has been populated, and if not, then we simply don't register it. In order to
-prevent a regression for drivers that do not fill the input device, we need to
-add an other quirk.
-
-Cheers,
-Benjamin
-
-Benjamin Tissoires (7):
-  HID: input: don't register unmapped input devices
-  HID: multitouch: breaks out touch handling in specific functions
-  HID: multitouch: do not map usage from non used reports
-  HID: multitouch: add handling for pen in dual-sensors device
-  HID: multitouch: manually send sync event for pen input report
-  HID: multitouch: append " Pen" to the name of the stylus input
-  HID: multitouch: force BTN_STYLUS for pen devices
-
- drivers/hid/hid-input.c      |  77 ++++++++++++++++++++++
- drivers/hid/hid-multitouch.c | 151 ++++++++++++++++++++++++++++++++++++-------
- include/linux/hid.h          |   1 +
- 3 files changed, 207 insertions(+), 22 deletions(-)
-
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index d89f0eb..faeec95 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -44,6 +44,7 @@
+ #include <linux/slab.h>
+ #include <linux/usb.h>
+ #include <linux/input/mt.h>
++#include <linux/string.h>
+ 
+ 
+ MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
+@@ -371,6 +372,15 @@ static int mt_pen_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		unsigned long **bit, int *max)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
++	char *name;
++
++	if (hi->input->name == hdev->name) {
++		name = kzalloc(sizeof(hdev->name) + 5, GFP_KERNEL);
++		if (name) {
++			sprintf(name, "%s Pen", hdev->name);
++			hi->input->name = name;
++		}
++	}
+ 
+ 	td->pen_report_id = field->report->id;
+ 
+@@ -914,6 +924,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	int ret, i;
+ 	struct mt_device *td;
+ 	struct mt_class *mtclass = mt_classes; /* MT_CLS_DEFAULT */
++	struct hid_input *hi;
+ 
+ 	for (i = 0; mt_classes[i].name ; i++) {
+ 		if (id->driver_data == mt_classes[i].name) {
+@@ -964,7 +975,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	if (ret)
+-		goto fail;
++		goto hid_fail;
+ 
+ 	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
+ 
+@@ -976,6 +987,10 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	return 0;
+ 
++hid_fail:
++	list_for_each_entry(hi, &hdev->inputs, list)
++		if (hi->input->name != hdev->name)
++			kfree(hi->input->name);
+ fail:
+ 	kfree(td->fields);
+ 	kfree(td);
+@@ -1020,8 +1035,15 @@ static int mt_resume(struct hid_device *hdev)
+ static void mt_remove(struct hid_device *hdev)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
++	struct hid_input *hi;
++
+ 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+ 	hid_hw_stop(hdev);
++
++	list_for_each_entry(hi, &hdev->inputs, list)
++		if (hi->input->name != hdev->name)
++			kfree(hi->input->name);
++
+ 	kfree(td);
+ 	hid_set_drvdata(hdev, NULL);
+ }
 -- 
 1.8.1.2
-

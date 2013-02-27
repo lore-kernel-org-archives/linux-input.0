@@ -1,137 +1,604 @@
-From: Simon Glass <sjg@chromium.org>
-Subject: Re: [PATCH v6 0/6] Add ChromeOS Embedded Controller support
-Date: Tue, 26 Feb 2013 21:13:06 -0800
-Message-ID: <CAPnjgZ3enERPu1uK5GW9+_ZinhiDmDuoNn2FGhgVNOZbFVQ0tQ@mail.gmail.com>
-References: <1361830121-32284-1-git-send-email-sjg@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: wacom serial tablet support
+Date: Tue, 26 Feb 2013 21:23:35 -0800
+Message-ID: <20130227052335.GA24420@core.coreip.homeip.net>
+References: <878v6axv7t.fsf@sliver.cipht.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1361830121-32284-1-git-send-email-sjg@chromium.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>
-Cc: Simon Glass <sjg@chromium.org>, Rob Landley <rob@landley.net>, Felipe Balbi <balbi@ti.com>, Grant Likely <grant.likely@secretlab.ca>, Wolfram Sang <w.sang@pengutronix.de>, Luigi Semenzato <semenzato@chromium.org>, Rob Herring <rob.herring@calxeda.com>, Che-Liang Chiou <clchiou@chromium.org>, Jonathan Kliegman <kliegs@chromium.org>, linux-input@vger.kernel.org, Sourav Poddar <sourav.poddar@ti.com>, devicetree-discuss@lists.ozlabs.org, Alban Bedel <alban.bedel@avionic-design.de>, Roland Stigge <stigge@antcom.de>, Vincent Palatin <vpalatin@chromium.org>, Javier Martinez Canillas <javier@dowhile0.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-doc@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Bill Pemberton <wfp5p@virginia.edu>, Doug Anderson <dianders@chromium.org>, Olof Johansson <olofj@chromium.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-da0-f43.google.com ([209.85.210.43]:59340 "EHLO
+	mail-da0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750713Ab3B0FXj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Feb 2013 00:23:39 -0500
+Received: by mail-da0-f43.google.com with SMTP id u36so109960dak.30
+        for <linux-input@vger.kernel.org>; Tue, 26 Feb 2013 21:23:38 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <878v6axv7t.fsf@sliver.cipht.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Julian Squires <julian@cipht.net>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Linux Input <linux-input@vger.kernel.org>
 
-Hi Samuel,
+Hi Julian,
 
-On Mon, Feb 25, 2013 at 2:08 PM, Simon Glass <sjg@chromium.org> wrote:
-> The ChromeOS Embedded Controller (EC) is an Open Source EC implementation
-> used on ARM and Intel Chromebooks. Current implementations use a Cortex-M3
-> connected on a bus (such as I2C, SPI, LPC) to the AP. A separate interrupt
-> line is used to indicate when the EC needs service.
->
-> Functions performed by the EC vary by platform, but typically include
-> battery charging, keyboard scanning and power sequencing.
->
-> This series includes support for the EC message protocol, and implements
-> a matrix keyboard handler for Linux using the protocol. The EC performs
-> key scanning and passes scan data in response to AP requests. This is
-> used on the Samsung ARM Chromebook. No driver is available for LPC at
-> present.
->
-> This series can in principle operate on any hardware, but for it to actually
-> work on the Samsung ARM Chromebook, it needs patches which are currently in
-> progress to mainline: Exynos FDT interrupt support and I2C bus arbitration.
->
-> The driver is device-tree-enabled and a suitable binding is included in
-> this series. Example device tree nodes are included in the examples,
-> but no device tree patch for exynos5250-snow is provided at this stage, since
-> we must wait for the above-mentioned patches to land to avoid errors from
-> dtc. This can be added with a follow-on patch when that work is complete.
->
+On Tue, Feb 26, 2013 at 10:07:20PM -0500, Julian Squires wrote:
+> 
+> Hi,
+> 
+> Closing in on two years ago I wrote a kernel driver for Wacom protocol
+> IV serial tablet support.  It's been used successfully by at least a
+> dozen users over that time, and I would like to take steps to get it
+> into the mainline kernel.  After the magic scissors is my first attempt
+> at a patch for your approval.  Please let me know what I can do to
+> improve this and get it merged.
+> 
+> Thanks.
 
-Are you happy with this series? Do you think it is ready to be picked
-up for mfd?
+The driver looks quite reasonable, however that would be the 4th Wacom
+driver in the tree... I wonder if it is time to split out transport
+parts from core wacom functionality so that it can be shared by USB, I2C
+and serio devices.
 
-Regards,
-Simon
+Thanks.
 
-> Changes in v6:
-> - Allow cros_ec to be a module
-> - Remove 'struct i2c_msg' definition
-> - Use %ph instead of for loop to output packet trace
-> - Fix incorrect indentation in cros_ec_keyb_process()
-> - Remove unnecessary assignment to NULL in probe function
->
-> Changes in v5:
-> - Remove cros_ec allocation functions
-> - Remove name access functions in cros_ec, using strings instead
-> - Fix Kconfig help message for MFD_CROS_EC_I2C
-> - Remove I2C retry logic
-> - Switch cros_ec_i2c driver to use devm
-> - Update cros_ec_i2c to work with new cros_ec interface
-> - Switch cros_ec_spi driver to use devm
-> - Update cros_ec_spi to work with new cros_ec interface
-> - Fix {} style nit in cros_ec_keyb_has_ghosting
-> - Correct key lookup logic which was broken in previous version
-> - Switch cros_ec_keyb driver to use devm
->
-> Changes in v4:
-> - Fix up trvial logging comments
-> - Remove messages reporting out of memory
-> - Add compatible string for cros-ec-keyb
-> - Remove wake notifier and let drivers use their own handlers instead
-> - Add 'depends on MFD_CROS_EC' to Kconfig
-> - Remove use of wake_notifier
-> - Remove manual code to locate device tree node
-> - Add resume handler to clear keyboard scan buffer if required
->
-> Changes in v3:
-> - Add stub for matrix_keypad_parse_of_params() when no CONFIG_OF
-> - Put back full DT range checking in tca8418 driver
-> - Remove 'select MFD_CROS_EC' from Kconfig as it isn't necessary
-> - Remove old_state by using input layer's idev->key
-> - Move inner loop of cros_ec_keyb_has_ghosting() into its own function and simplify
-> - Add check for not finding the device tree node
-> - Remove comment about leaking matrix_keypad_build_keymap()
-> - Use platform_get_drvdata() where possible
-> - Remove call to input_free_device() after input_unregister_device()
->
-> Changes in v2:
-> - Remove use of __devinit/__devexit
-> - Remove use of __devinit/__devexit
-> - Remove use of __devinit/__devexit
-> - Add new patch to decode matrix-keypad DT binding
-> - Remove use of __devinit/__devexit
-> - Use function to read matrix-keypad parameters from DT
-> - Remove key autorepeat parameters from DT binding and driver
-> - Use unsigned int for rows/cols
->
-> Simon Glass (6):
->   mfd: Add ChromeOS EC messages header
->   mfd: Add ChromeOS EC implementation
->   mfd: Add ChromeOS EC I2C driver
->   mfd: Add ChromeOS EC SPI driver
->   Input: matrix-keymap: Add function to read the new DT binding
->   Input: Add ChromeOS EC keyboard driver
->
->  .../devicetree/bindings/input/cros-ec-keyb.txt     |   72 +
->  Documentation/devicetree/bindings/mfd/cros-ec.txt  |   56 +
->  drivers/input/keyboard/Kconfig                     |   12 +
->  drivers/input/keyboard/Makefile                    |    1 +
->  drivers/input/keyboard/cros_ec_keyb.c              |  334 +++++
->  drivers/input/keyboard/lpc32xx-keys.c              |   11 +-
->  drivers/input/keyboard/omap4-keypad.c              |   16 +-
->  drivers/input/keyboard/tca8418_keypad.c            |    7 +-
->  drivers/input/matrix-keymap.c                      |   19 +
->  drivers/mfd/Kconfig                                |   28 +
->  drivers/mfd/Makefile                               |    3 +
->  drivers/mfd/cros_ec.c                              |  189 +++
->  drivers/mfd/cros_ec_i2c.c                          |  206 +++
->  drivers/mfd/cros_ec_spi.c                          |  375 ++++++
->  include/linux/input/matrix_keypad.h                |   19 +
->  include/linux/mfd/cros_ec.h                        |  170 +++
->  include/linux/mfd/cros_ec_commands.h               | 1369 ++++++++++++++++++++
->  17 files changed, 2869 insertions(+), 18 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/cros-ec-keyb.txt
->  create mode 100644 Documentation/devicetree/bindings/mfd/cros-ec.txt
->  create mode 100644 drivers/input/keyboard/cros_ec_keyb.c
->  create mode 100644 drivers/mfd/cros_ec.c
->  create mode 100644 drivers/mfd/cros_ec_i2c.c
->  create mode 100644 drivers/mfd/cros_ec_spi.c
->  create mode 100644 include/linux/mfd/cros_ec.h
->  create mode 100644 include/linux/mfd/cros_ec_commands.h
->
-> --
-> 1.8.1.3
->
+> 
+> -- >8 --
+> 
+> Subject: [PATCH] Add Wacom serial tablet (protocol IV) support
+> 
+> Signed-off-by: Julian Squires <julian@cipht.net>
+> ---
+>  drivers/input/tablet/Kconfig    |   12 +
+>  drivers/input/tablet/Makefile   |    1 +
+>  drivers/input/tablet/wacom_iv.c |  494 +++++++++++++++++++++++++++++++++++++++
+>  include/uapi/linux/serio.h      |    1 +
+>  4 files changed, 508 insertions(+)
+>  create mode 100644 drivers/input/tablet/wacom_iv.c
+> 
+> diff --git a/drivers/input/tablet/Kconfig b/drivers/input/tablet/Kconfig
+> index bed7cbf..8ea7ef5 100644
+> --- a/drivers/input/tablet/Kconfig
+> +++ b/drivers/input/tablet/Kconfig
+> @@ -89,4 +89,16 @@ config TABLET_USB_WACOM
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called wacom.
+>  
+> +config TABLET_SERIAL_WACOM_IV
+> +	tristate "Wacom protocol IV tablet support (serial)"
+> +	depends on SERIO
+> +	help
+> +	  Say Y here if you have a serial Wacom Digitizer II,
+> +	  PenPartner, or Graphire tablet.  Make sure to say Y to
+> +	  "Mouse support" (CONFIG_INPUT_MOUSEDEV) and/or "Event
+> +	  interface support" (CONFIG_INPUT_EVDEV) as well.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called wacom_iv.
+> +
+>  endif
+> diff --git a/drivers/input/tablet/Makefile b/drivers/input/tablet/Makefile
+> index 3f6c252..b10e29f 100644
+> --- a/drivers/input/tablet/Makefile
+> +++ b/drivers/input/tablet/Makefile
+> @@ -11,3 +11,4 @@ obj-$(CONFIG_TABLET_USB_GTCO)	+= gtco.o
+>  obj-$(CONFIG_TABLET_USB_HANWANG) += hanwang.o
+>  obj-$(CONFIG_TABLET_USB_KBTAB)	+= kbtab.o
+>  obj-$(CONFIG_TABLET_USB_WACOM)	+= wacom.o
+> +obj-$(CONFIG_TABLET_SERIAL_WACOM_IV) += wacom_iv.o
+> diff --git a/drivers/input/tablet/wacom_iv.c b/drivers/input/tablet/wacom_iv.c
+> new file mode 100644
+> index 0000000..897ce83
+> --- /dev/null
+> +++ b/drivers/input/tablet/wacom_iv.c
+> @@ -0,0 +1,494 @@
+> +/*
+> + * Wacom protocol 4 serial tablet driver
+> + *
+> + * Many thanks to Bill Seremetis, without whom PenPartner support
+> + * would not have been possible.
+> + *
+> + * Thanks to Patrick Mahoney.
+> + *
+> + * Sections I have been unable to test personally due to lack of
+> + * available hardware are marked UNTESTED.  Much of what is marked
+> + * UNTESTED comes from reading the wcmSerial code in linuxwacom 0.9.0.
+> + * If you have a tablet that corresponds to an UNTESTED section,
+> + * please email me your results.
+> + *
+> + * To do:
+> + *  - support pad buttons;
+> + *  - support (protocol 4-style) tilt;
+> + *  - support suppress;
+> + *  - support Graphire relative wheel.
+> + *
+> + * This driver was developed with reference to much code written by others,
+> + * particularly:
+> + *  - elo, gunze drivers by Vojtech Pavlik <vojtech@ucw.cz>;
+> + *  - wacom_w8001 driver by Jaya Kumar <jayakumar.lkml@gmail.com>;
+> + *  - the USB wacom input driver, credited to many people
+> + *    (see drivers/input/tablet/wacom.h);
+> + *  - new and old versions of linuxwacom / xf86-input-wacom credited to
+> + *    Frederic Lepied, France. <Lepied@XFree86.org> and
+> + *    Ping Cheng, Wacom. <pingc@wacom.com>;
+> + *  - and xf86wacom.c (a presumably ancient version of the linuxwacom code), by
+> + *    Frederic Lepied and Raph Levien <raph@gtk.org>.
+> + */
+> +
+> +#include <linux/string.h>
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/input.h>
+> +#include <linux/serio.h>
+> +#include <linux/slab.h>
+> +#include <linux/completion.h>
+> +
+> +#define DRIVER_AUTHOR	"Julian Squires <julian@cipht.net>"
+> +#define DEVICE_NAME	"Wacom protocol 4 serial tablet"
+> +#define DRIVER_DESC	DEVICE_NAME " driver"
+> +
+> +MODULE_AUTHOR(DRIVER_AUTHOR);
+> +MODULE_DESCRIPTION(DRIVER_DESC);
+> +MODULE_LICENSE("GPL");
+> +
+> +#define REQUEST_MODEL_AND_ROM_VERSION	"~#"
+> +#define REQUEST_MAX_COORDINATES		"~C\r"
+> +#define REQUEST_CONFIGURATION_STRING	"~R\r"
+> +#define REQUEST_RESET_TO_PROTOCOL_IV	"\r#"
+> +/* Note: sending "\r$\r" causes at least the Digitizer II to send
+> + * packets in ASCII instead of binary.  "\r#" seems to undo that. */
+> +
+> +#define COMMAND_START_SENDING_PACKETS		"ST\r"
+> +#define COMMAND_STOP_SENDING_PACKETS		"SP\r"
+> +#define COMMAND_MULTI_MODE_INPUT		"MU1\r"
+> +#define COMMAND_ORIGIN_IN_UPPER_LEFT		"OC1\r"
+> +#define COMMAND_ENABLE_ALL_MACRO_BUTTONS	"~M0\r"
+> +#define COMMAND_DISABLE_GROUP_1_MACRO_BUTTONS	"~M1\r"
+> +#define COMMAND_TRANSMIT_AT_MAX_RATE		"IT0\r"
+> +#define COMMAND_DISABLE_INCREMENTAL_MODE	"IN0\r"
+> +#define COMMAND_ENABLE_CONTINUOUS_MODE		"SR\r"
+> +#define COMMAND_ENABLE_PRESSURE_MODE		"PH1\r"
+> +#define COMMAND_Z_FILTER			"ZF1\r"
+> +
+> +/* Note that this is a protocol 4 packet without tilt information. */
+> +#define PACKET_LENGTH 7
+> +
+> +/* device IDs from wacom_wac.h */
+> +#define STYLUS_DEVICE_ID	0x02
+> +#define TOUCH_DEVICE_ID         0x03
+> +#define CURSOR_DEVICE_ID        0x06
+> +#define ERASER_DEVICE_ID        0x0A
+> +#define PAD_DEVICE_ID           0x0F
+> +
+> +#define PAD_SERIAL 0xF0
+> +
+> +enum { STYLUS = 1, ERASER, PAD, CURSOR, TOUCH };
+> +struct { int device_id; int input_id; } tools[] = {
+> +	{ 0, 0 },
+> +	{ STYLUS_DEVICE_ID, BTN_TOOL_PEN },
+> +	{ ERASER_DEVICE_ID, BTN_TOOL_RUBBER },
+> +	{ PAD_DEVICE_ID, 0 },
+> +	{ CURSOR_DEVICE_ID, BTN_TOOL_MOUSE },
+> +	{ TOUCH_DEVICE_ID, BTN_TOOL_FINGER }
+> +};
+> +
+> +struct wacom {
+> +	struct input_dev *dev;
+> +	struct completion cmd_done;
+> +	int extra_z_bits, tool;
+> +	int idx;
+> +	unsigned char data[32];
+> +	char phys[32];
+> +};
+> +
+> +
+> +enum {
+> +	MODEL_CINTIQ		= 0x504C, /* PL */
+> +	MODEL_CINTIQ2		= 0x4454, /* DT */
+> +	MODEL_DIGITIZER_II	= 0x5544, /* UD */
+> +	MODEL_GRAPHIRE		= 0x4554, /* ET */
+> +	MODEL_INTUOS		= 0x4744, /* GD */
+> +	MODEL_INTUOS2		= 0x5844, /* XD */
+> +	MODEL_PENPARTNER	= 0x4354, /* CT */
+> +	MODEL_UNKNOWN		= 0
+> +};
+> +
+> +static void handle_model_response(struct wacom *wacom)
+> +{
+> +	int major_v, minor_v, max_z;
+> +	char *p;
+> +
+> +	major_v = minor_v = 0;
+> +	p = strrchr(wacom->data, 'V');
+> +	if (p)
+> +		sscanf(p+1, "%u.%u", &major_v, &minor_v);
+> +
+> +	switch (wacom->data[2] << 8 | wacom->data[3]) {
+> +	case MODEL_INTUOS:	/* UNTESTED */
+> +	case MODEL_INTUOS2:
+> +		dev_info(&wacom->dev->dev,
+> +			 "Intuos tablets are not supported by this driver.\n");
+> +		p = "Intuos";
+> +		wacom->dev->id.version = MODEL_INTUOS;
+> +		break;
+> +	case MODEL_CINTIQ:	/* UNTESTED */
+> +	case MODEL_CINTIQ2:
+> +		p = "Cintiq";
+> +		wacom->dev->id.version = MODEL_CINTIQ;
+> +		switch (wacom->data[5]<<8 | wacom->data[6]) {
+> +		case 0x3731: /* PL-710 */
+> +			/* wcmSerial sets res to 2540x2540 in this case. */
+> +			/* fall through */
+> +		case 0x3535: /* PL-550 */
+> +		case 0x3830: /* PL-800 */
+> +			wacom->extra_z_bits = 2;
+> +		}
+> +		break;
+> +	case MODEL_PENPARTNER:
+> +		p = "Penpartner";
+> +		wacom->dev->id.version = MODEL_PENPARTNER;
+> +		/* wcmSerial sets res 1000x1000 in this case. */
+> +		break;
+> +	case MODEL_GRAPHIRE:
+> +		p = "Graphire";
+> +		wacom->dev->id.version = MODEL_GRAPHIRE;
+> +		/* Apparently Graphire models do not answer coordinate
+> +		   requests; see also wacom_setup(). */
+> +		input_set_abs_params(wacom->dev, ABS_X, 0, 5103, 0, 0);
+> +		input_set_abs_params(wacom->dev, ABS_Y, 0, 3711, 0, 0);
+> +		input_abs_set_res(wacom->dev, ABS_X, 1016);
+> +		input_abs_set_res(wacom->dev, ABS_Y, 1016);
+> +		wacom->extra_z_bits = 2;
+> +		break;
+> +	case MODEL_DIGITIZER_II:
+> +		p = "Digitizer II";
+> +		wacom->dev->id.version = MODEL_DIGITIZER_II;
+> +		if (major_v == 1 && minor_v <= 2)
+> +			wacom->extra_z_bits = 0; /* UNTESTED */
+> +		break;
+> +	default:		/* UNTESTED */
+> +		dev_dbg(&wacom->dev->dev,
+> +			"Didn't understand Wacom model string: %s\n",
+> +			wacom->data);
+> +		p = "Unknown Protocol IV";
+> +		wacom->dev->id.version = MODEL_UNKNOWN;
+> +		break;
+> +	}
+> +	max_z = (1<<(7+wacom->extra_z_bits))-1;
+> +	dev_info(&wacom->dev->dev, "Wacom tablet: %s, version %u.%u\n", p,
+> +		 major_v, minor_v);
+> +	dev_dbg(&wacom->dev->dev, "Max pressure: %d.\n", max_z);
+> +	input_set_abs_params(wacom->dev, ABS_PRESSURE, 0, max_z, 0, 0);
+> +}
+> +
+> +
+> +static void handle_configuration_response(struct wacom *wacom)
+> +{
+> +	int x, y, skip;
+> +
+> +	dev_dbg(&wacom->dev->dev, "Configuration string: %s\n", wacom->data);
+> +	sscanf(wacom->data, "~R%x,%u,%u,%u,%u", &skip, &skip, &skip, &x, &y);
+> +	input_abs_set_res(wacom->dev, ABS_X, x);
+> +	input_abs_set_res(wacom->dev, ABS_Y, y);
+> +}
+> +
+> +static void handle_coordinates_response(struct wacom *wacom)
+> +{
+> +	int x, y;
+> +
+> +	dev_dbg(&wacom->dev->dev, "Coordinates string: %s\n", wacom->data);
+> +	sscanf(wacom->data, "~C%u,%u", &x, &y);
+> +	input_set_abs_params(wacom->dev, ABS_X, 0, x, 0, 0);
+> +	input_set_abs_params(wacom->dev, ABS_Y, 0, y, 0, 0);
+> +}
+> +
+> +static void handle_response(struct wacom *wacom)
+> +{
+> +	if (wacom->data[0] != '~' || wacom->idx < 2) {
+> +		dev_dbg(&wacom->dev->dev,
+> +			"got a garbled response of length %d.\n",
+> +			wacom->idx);
+> +		wacom->idx = 0;
+> +		return;
+> +	}
+> +
+> +	wacom->data[wacom->idx-1] = 0;
+> +	wacom->idx = 0;
+> +
+> +	switch (wacom->data[1]) {
+> +	case '#':
+> +		handle_model_response(wacom);
+> +		break;
+> +	case 'R':
+> +		handle_configuration_response(wacom);
+> +		break;
+> +	case 'C':
+> +		handle_coordinates_response(wacom);
+> +		break;
+> +	default:
+> +		dev_dbg(&wacom->dev->dev, "got an unexpected response: %s\n",
+> +			wacom->data);
+> +		break;
+> +	}
+> +
+> +	complete(&wacom->cmd_done);
+> +}
+> +
+> +static void handle_packet(struct wacom *wacom)
+> +{
+> +	int in_proximity_p, stylus_p, button, x, y, z;
+> +	int tool;
+> +
+> +	in_proximity_p = wacom->data[0] & 0x40;
+> +	stylus_p = wacom->data[0] & 0x20;
+> +	button = (wacom->data[3] & 0x78) >> 3;
+> +	x = (wacom->data[0] & 3) << 14 | wacom->data[1]<<7 | wacom->data[2];
+> +	y = (wacom->data[3] & 3) << 14 | wacom->data[4]<<7 | wacom->data[5];
+> +	z = wacom->data[6] & 0x7f;
+> +	if (wacom->extra_z_bits >= 1)
+> +		z = z << 1 | (wacom->data[3] & 0x4) >> 2;
+> +	if (wacom->extra_z_bits > 1)
+> +		z = z << 1 | (wacom->data[0] & 0x4);
+> +	z = z ^ (0x40 << wacom->extra_z_bits);
+> +
+> +	/* NOTE: According to old wcmSerial code, button&8 is the
+> +	 * eraser on Graphire tablets.  I have removed this until
+> +	 * someone can verify it. */
+> +	tool = stylus_p ? ((button & 4) ? ERASER : STYLUS) : CURSOR;
+> +
+> +	if (tool != wacom->tool && wacom->tool != 0) {
+> +		input_report_key(wacom->dev, tools[wacom->tool].input_id, 0);
+> +		input_sync(wacom->dev);
+> +	}
+> +	wacom->tool = tool;
+> +
+> +	input_report_key(wacom->dev, tools[tool].input_id, in_proximity_p);
+> +	input_report_key(wacom->dev, MSC_SERIAL, 1);
+> +	input_report_key(wacom->dev, ABS_MISC,
+> +			 in_proximity_p ? tools[tool].device_id : 0);
+> +	input_report_abs(wacom->dev, ABS_X, x);
+> +	input_report_abs(wacom->dev, ABS_Y, y);
+> +	input_report_abs(wacom->dev, ABS_PRESSURE, z);
+> +	input_report_key(wacom->dev, BTN_TOUCH, button & 1);
+> +	input_report_key(wacom->dev, BTN_STYLUS, button & 2);
+> +	input_sync(wacom->dev);
+> +}
+> +
+> +
+> +static irqreturn_t wacom_interrupt(struct serio *serio, unsigned char data,
+> +				   unsigned int flags)
+> +{
+> +	struct wacom *wacom = serio_get_drvdata(serio);
+> +
+> +	if (data & 0x80)
+> +		wacom->idx = 0;
+> +	if (wacom->idx >= sizeof(wacom->data)) {
+> +		dev_dbg(&wacom->dev->dev,
+> +			"throwing away %d bytes of garbage\n",
+> +			wacom->idx);
+> +		wacom->idx = 0;
+> +	}
+> +
+> +	wacom->data[wacom->idx++] = data;
+> +
+> +	/* We're either expecting a carriage return-terminated ASCII
+> +	 * response string, or a seven-byte packet with the MSB set on
+> +	 * the first byte.
+> +	 *
+> +	 * Note however that some tablets (the PenPartner, for
+> +	 * example) don't send a carriage return at the end of a
+> +	 * command.  We handle these by waiting for timeout. */
+> +	if (wacom->idx == PACKET_LENGTH && (wacom->data[0] & 0x80)) {
+> +		handle_packet(wacom);
+> +		wacom->idx = 0;
+> +	} else if (data == '\r' && !(wacom->data[0] & 0x80)) {
+> +		handle_response(wacom);
+> +	}
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static void wacom_disconnect(struct serio *serio)
+> +{
+> +	struct wacom *wacom = serio_get_drvdata(serio);
+> +
+> +	serio_close(serio);
+> +	serio_set_drvdata(serio, NULL);
+> +	input_unregister_device(wacom->dev);
+> +	kfree(wacom);
+> +}
+> +
+> +static int wacom_send(struct serio *serio, const char *command)
+> +{
+> +	int err = 0;
+> +	for (; !err && *command; command++)
+> +		err = serio_write(serio, *command);
+> +	return err;
+> +}
+> +
+> +static int send_setup_string(struct wacom *wacom, struct serio *serio)
+> +{
+> +	const char *s;
+> +	switch (wacom->dev->id.version) {
+> +	case MODEL_CINTIQ:	/* UNTESTED */
+> +		s = COMMAND_ORIGIN_IN_UPPER_LEFT
+> +			COMMAND_TRANSMIT_AT_MAX_RATE
+> +			COMMAND_ENABLE_CONTINUOUS_MODE
+> +			COMMAND_START_SENDING_PACKETS;
+> +		break;
+> +	case MODEL_PENPARTNER:
+> +		s = COMMAND_ENABLE_PRESSURE_MODE
+> +			COMMAND_START_SENDING_PACKETS;
+> +		break;
+> +	default:
+> +		s = COMMAND_MULTI_MODE_INPUT
+> +			COMMAND_ORIGIN_IN_UPPER_LEFT
+> +			COMMAND_ENABLE_ALL_MACRO_BUTTONS
+> +			COMMAND_DISABLE_GROUP_1_MACRO_BUTTONS
+> +			COMMAND_TRANSMIT_AT_MAX_RATE
+> +			COMMAND_DISABLE_INCREMENTAL_MODE
+> +			COMMAND_ENABLE_CONTINUOUS_MODE
+> +			COMMAND_Z_FILTER
+> +			COMMAND_START_SENDING_PACKETS;
+> +		break;
+> +	}
+> +	return wacom_send(serio, s);
+> +}
+> +
+> +static int wacom_setup(struct wacom *wacom, struct serio *serio)
+> +{
+> +	int err;
+> +	unsigned long u;
+> +
+> +	/* Note that setting the link speed is the job of inputattach.
+> +	 * We assume that reset negotiation has already happened,
+> +	 * here. */
+> +	init_completion(&wacom->cmd_done);
+> +	err = wacom_send(serio, REQUEST_MODEL_AND_ROM_VERSION);
+> +	if (err)
+> +		return err;
+> +	u = wait_for_completion_timeout(&wacom->cmd_done, HZ);
+> +	if (u == 0) {
+> +		if (wacom->idx == 0) {
+> +			dev_info(&wacom->dev->dev,
+> +				 "Timed out waiting for tablet to respond with model and version.\n");
+> +			return -EIO;
+> +		}
+> +		handle_response(wacom);
+> +	}
+> +
+> +	init_completion(&wacom->cmd_done);
+> +	err = wacom_send(serio, REQUEST_CONFIGURATION_STRING);
+> +	if (err)
+> +		return err;
+> +	u = wait_for_completion_timeout(&wacom->cmd_done, HZ);
+> +	if (u == 0) {
+> +		if (wacom->idx == 0)
+> +			dev_info(&wacom->dev->dev,
+> +				 "Timed out waiting for tablet to respond with configuration string.  Continuing anyway.\n");
+> +		else
+> +			handle_response(wacom);
+> +	}
+> +
+> +	init_completion(&wacom->cmd_done);
+> +	err = wacom_send(serio, REQUEST_MAX_COORDINATES);
+> +	if (err)
+> +		return err;
+> +	u = wait_for_completion_timeout(&wacom->cmd_done, HZ);
+> +	if (u == 0) {
+> +		if (wacom->idx == 0)
+> +			dev_info(&wacom->dev->dev,
+> +				 "Timed out waiting for tablet to respond with coordinates string.  Continuing anyway.\n");
+> +		else
+> +			handle_response(wacom);
+> +	}
+> +
+> +	return send_setup_string(wacom, serio);
+> +}
+> +
+> +static int wacom_connect(struct serio *serio, struct serio_driver *drv)
+> +{
+> +	struct wacom *wacom;
+> +	struct input_dev *input_dev;
+> +	int err = -ENOMEM;
+> +
+> +	wacom = kzalloc(sizeof(struct wacom), GFP_KERNEL);
+> +	input_dev = input_allocate_device();
+> +	if (!wacom || !input_dev)
+> +		goto fail0;
+> +
+> +	wacom->dev = input_dev;
+> +	wacom->extra_z_bits = 1;
+> +	wacom->tool = wacom->idx = 0;
+> +	snprintf(wacom->phys, sizeof(wacom->phys), "%s/input0", serio->phys);
+> +
+> +	input_dev->name = DEVICE_NAME;
+> +	input_dev->phys = wacom->phys;
+> +	input_dev->id.bustype = BUS_RS232;
+> +	input_dev->id.vendor  = SERIO_WACOM_IV;
+> +	input_dev->id.product = serio->id.extra;
+> +	input_dev->id.version = 0x0100;
+> +	input_dev->dev.parent = &serio->dev;
+> +
+> +	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> +	__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+> +	__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+> +	__set_bit(BTN_TOOL_MOUSE, input_dev->keybit);
+> +	__set_bit(BTN_TOUCH, input_dev->keybit);
+> +	__set_bit(BTN_STYLUS, input_dev->keybit);
+> +
+> +	serio_set_drvdata(serio, wacom);
+> +
+> +	err = serio_open(serio, drv);
+> +	if (err)
+> +		goto fail1;
+> +
+> +	err = wacom_setup(wacom, serio);
+> +	if (err)
+> +		goto fail2;
+> +
+> +	err = input_register_device(wacom->dev);
+> +	if (err)
+> +		goto fail2;
+> +
+> +	return 0;
+> +
+> + fail2:	serio_close(serio);
+> + fail1:	serio_set_drvdata(serio, NULL);
+> + fail0:	input_free_device(input_dev);
+> +	kfree(wacom);
+> +	return err;
+> +}
+> +
+> +static struct serio_device_id wacom_serio_ids[] = {
+> +	{
+> +		.type	= SERIO_RS232,
+> +		.proto	= SERIO_WACOM_IV,
+> +		.id	= SERIO_ANY,
+> +		.extra	= SERIO_ANY,
+> +	},
+> +	{ 0 }
+> +};
+> +
+> +MODULE_DEVICE_TABLE(serio, wacom_serio_ids);
+> +
+> +static struct serio_driver wacom_drv = {
+> +	.driver		= {
+> +		.name	= "wacom_iv",
+> +	},
+> +	.description	= DRIVER_DESC,
+> +	.id_table	= wacom_serio_ids,
+> +	.interrupt	= wacom_interrupt,
+> +	.connect	= wacom_connect,
+> +	.disconnect	= wacom_disconnect,
+> +};
+> +
+> +static int __init wacom_init(void)
+> +{
+> +	return serio_register_driver(&wacom_drv);
+> +}
+> +
+> +static void __exit wacom_exit(void)
+> +{
+> +	serio_unregister_driver(&wacom_drv);
+> +}
+> +
+> +module_init(wacom_init);
+> +module_exit(wacom_exit);
+> diff --git a/include/uapi/linux/serio.h b/include/uapi/linux/serio.h
+> index 9f53fa7..becdd78 100644
+> --- a/include/uapi/linux/serio.h
+> +++ b/include/uapi/linux/serio.h
+> @@ -76,5 +76,6 @@
+>  #define SERIO_HAMPSHIRE	0x3b
+>  #define SERIO_PS2MULT	0x3c
+>  #define SERIO_TSC40	0x3d
+> +#define SERIO_WACOM_IV	0x3e
+>  
+>  #endif /* _UAPI_SERIO_H */
+> -- 
+> 1.7.10.4
+
+-- 
+Dmitry

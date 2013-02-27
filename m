@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 3/7] HID: multitouch: do not map usage from non used reports
-Date: Wed, 27 Feb 2013 17:55:23 +0100
-Message-ID: <1361984127-912-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 4/7] HID: multitouch: add handling for pen in dual-sensors device
+Date: Wed, 27 Feb 2013 17:55:24 +0100
+Message-ID: <1361984127-912-5-git-send-email-benjamin.tissoires@redhat.com>
 References: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -9,26 +9,136 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-hid-multitouch only handles touch events, so there is no point in
-mapping other kind of events.
+Dual sensors devices reports pen and touch on two different reports.
+Using the quirk HID_QUIRK_MULTI_INPUT allows us to create a new input
+device to forward pen events.
+
+The quirk HID_QUIRK_NO_EMPTY_INPUT avoids the creation of input devices
+for the not used mouse emulation present on Win7 certified devices.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-multitouch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-multitouch.c | 55 ++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 6314473..315500c 100644
+index 315500c..77ba751 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -726,7 +726,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+@@ -100,6 +100,7 @@ struct mt_device {
+ 	unsigned last_field_index;	/* last field index of the report */
+ 	unsigned last_slot_field;	/* the last field of a slot */
+ 	unsigned mt_report_id;	/* the report ID of the multitouch device */
++	unsigned pen_report_id;	/* the report ID of the pen device */
+ 	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
+ 	__s8 inputmode_index;	/* InputMode HID feature index in the report */
+ 	__s8 maxcontact_report_id;	/* Maximum Contact Number HID feature,
+@@ -365,6 +366,35 @@ static void mt_store_field(struct hid_usage *usage, struct mt_device *td,
+ 	f->usages[f->length++] = usage->hid;
+ }
+ 
++static int mt_pen_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	struct mt_device *td = hid_get_drvdata(hdev);
++
++	td->pen_report_id = field->report->id;
++
++	return 0;
++}
++
++static int mt_pen_input_mapped(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	return 0;
++}
++
++static int mt_pen_event(struct hid_device *hid, struct hid_field *field,
++				struct hid_usage *usage, __s32 value)
++{
++	/* let hid-input handle it */
++	return 0;
++}
++
++static void mt_pen_report(struct hid_device *hid, struct hid_report *report)
++{
++}
++
+ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -725,14 +755,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	* We need to ignore fields that belong to other collections
  	* such as Mouse that might have the same GenericDesktop usages. */
  	if (field->application != HID_DG_TOUCHSCREEN &&
++	    field->application != HID_DG_PEN &&
  	    field->application != HID_DG_TOUCHPAD)
--		return 0;
-+		return -1;
+ 		return -1;
  
- 	/* eGalax devices provide a Digitizer.Stylus input which overrides
- 	 * the correct Digitizers.Finger X/Y ranges.
+-	/* eGalax devices provide a Digitizer.Stylus input which overrides
+-	 * the correct Digitizers.Finger X/Y ranges.
+-	 * Let's just ignore this input. */
+ 	if (field->physical == HID_DG_STYLUS)
+-		return -1;
++		return mt_pen_input_mapping(hdev, hi, field, usage, bit, max);
+ 
+ 	return mt_touch_input_mapping(hdev, hi, field, usage, bit, max);
+ }
+@@ -741,6 +769,9 @@ static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
++	if (field->physical == HID_DG_STYLUS)
++		return mt_pen_input_mapped(hdev, hi, field, usage, bit, max);
++
+ 	return mt_touch_input_mapped(hdev, hi, field, usage, bit, max);
+ }
+ 
+@@ -752,6 +783,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 	if (field->report->id == td->mt_report_id)
+ 		return mt_touch_event(hid, field, usage, value);
+ 
++	if (field->report->id == td->pen_report_id)
++		return mt_pen_event(hid, field, usage, value);
++
+ 	/* ignore other reports */
+ 	return 1;
+ }
+@@ -765,6 +799,9 @@ static void mt_report(struct hid_device *hid, struct hid_report *report)
+ 
+ 	if (report->id == td->mt_report_id)
+ 		mt_touch_report(hid, report);
++
++	if (report->id == td->pen_report_id)
++		mt_pen_report(hid, report);
+ }
+ 
+ static void mt_set_input_mode(struct hid_device *hdev)
+@@ -887,6 +924,14 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	 */
+ 	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
+ 
++	/*
++	 * This allows the driver to handle different input sensors
++	 * that emits events through different reports on the same HID
++	 * device.
++	 */
++	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
++
+ 	td = kzalloc(sizeof(struct mt_device), GFP_KERNEL);
+ 	if (!td) {
+ 		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
+@@ -896,6 +941,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	td->inputmode = -1;
+ 	td->maxcontact_report_id = -1;
+ 	td->cc_index = -1;
++	td->mt_report_id = -1;
++	td->pen_report_id = -1;
+ 	hid_set_drvdata(hdev, td);
+ 
+ 	td->fields = kzalloc(sizeof(struct mt_fields), GFP_KERNEL);
 -- 
 1.8.1.2

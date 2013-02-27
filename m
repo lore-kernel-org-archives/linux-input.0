@@ -1,134 +1,106 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: multitouch: remove useless last_field_index field
-Date: Wed, 27 Feb 2013 16:23:15 +0100
-Message-ID: <1361978595-24225-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [RFC 1/2] HID: Extend the interface with idle requests
+Date: Wed, 27 Feb 2013 16:38:17 +0100
+Message-ID: <1361979498-24446-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1361979498-24446-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41259 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:56743 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758160Ab3B0PYI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Feb 2013 10:24:08 -0500
+	id S1759943Ab3B0PjP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Feb 2013 10:39:15 -0500
+In-Reply-To: <1361979498-24446-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The aim of last_field_index was to detect the end of the report.
-With the introduction of .report(), it is not required anymore to
-detect it on the fly as we can put it in the right place during the
-.report().
-
-The resulting code path is simpler to read because the terminating
-condition is not evaluated after each field.
+Some drivers send the idle command directly to underlying device,
+creating an unwanted dependency on the underlying transport layer.
+This patch adds hid_hw_idle() to the interface, thereby removing
+usbhid from the lion share of the drivers.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-multitouch.c | 19 +++----------------
- 1 file changed, 3 insertions(+), 16 deletions(-)
+ drivers/hid/usbhid/hid-core.c | 15 +++++++++++++++
+ include/linux/hid.h           | 19 +++++++++++++++++++
+ 2 files changed, 34 insertions(+)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 3af9efdd..51d8938 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -97,7 +97,6 @@ struct mt_device {
- 					   multitouch fields */
- 	int cc_index;	/* contact count field index in the report */
- 	int cc_value_index;	/* contact count value index in the field */
--	unsigned last_field_index;	/* last field index of the report */
- 	unsigned last_slot_field;	/* the last field of a slot */
- 	unsigned mt_report_id;	/* the report ID of the multitouch device */
- 	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
-@@ -416,7 +415,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			}
- 
- 			mt_store_field(usage, td, hi);
--			td->last_field_index = field->index;
- 			return 1;
- 		case HID_GD_Y:
- 			if (prev_usage && (prev_usage->hid == usage->hid)) {
-@@ -432,7 +430,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			}
- 
- 			mt_store_field(usage, td, hi);
--			td->last_field_index = field->index;
- 			return 1;
- 		}
- 		return 0;
-@@ -447,21 +444,17 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 					ABS_MT_DISTANCE, 0, 1, 0, 0);
- 			}
- 			mt_store_field(usage, td, hi);
--			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONFIDENCE:
- 			mt_store_field(usage, td, hi);
--			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_TIPSWITCH:
- 			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
- 			input_set_capability(hi->input, EV_KEY, BTN_TOUCH);
- 			mt_store_field(usage, td, hi);
--			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONTACTID:
- 			mt_store_field(usage, td, hi);
--			td->last_field_index = field->index;
- 			td->touches_by_report++;
- 			td->mt_report_id = field->report->id;
- 			return 1;
-@@ -472,7 +465,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 				set_abs(hi->input, ABS_MT_TOUCH_MAJOR, field,
- 					cls->sn_width);
- 			mt_store_field(usage, td, hi);
--			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_HEIGHT:
- 			hid_map_usage(hi, usage, bit, max,
-@@ -484,7 +476,6 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 					ABS_MT_ORIENTATION, 0, 1, 0, 0);
- 			}
- 			mt_store_field(usage, td, hi);
--			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_TIPPRESSURE:
- 			hid_map_usage(hi, usage, bit, max,
-@@ -492,17 +483,14 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			set_abs(hi->input, ABS_MT_PRESSURE, field,
- 				cls->sn_pressure);
- 			mt_store_field(usage, td, hi);
--			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONTACTCOUNT:
- 			td->cc_index = field->index;
- 			td->cc_value_index = usage->usage_index;
--			td->last_field_index = field->index;
- 			return 1;
- 		case HID_DG_CONTACTMAX:
- 			/* we don't set td->last_slot_field as contactcount and
- 			 * contact max are global to the report */
--			td->last_field_index = field->index;
- 			return -1;
- 		case HID_DG_TOUCH:
- 			/* Legacy devices use TIPSWITCH and not TOUCH.
-@@ -688,10 +676,6 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- 			/* we only take into account the last report. */
- 			if (usage->hid == td->last_slot_field)
- 				mt_complete_slot(td, field->hidinput->input);
--
--			if (field->index == td->last_field_index
--				&& td->num_received >= td->num_expected)
--				mt_sync_frame(td, field->hidinput->input);
- 		}
- 
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 420466b..effcd3d 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1253,6 +1253,20 @@ static void usbhid_request(struct hid_device *hid, struct hid_report *rep, int r
  	}
-@@ -732,6 +716,9 @@ static void mt_report(struct hid_device *hid, struct hid_report *report)
- 			mt_process_mt_event(hid, field, &field->usage[n],
- 					field->value[n]);
- 	}
-+
-+	if (td->num_received >= td->num_expected)
-+		mt_sync_frame(td, report->field[0]->hidinput->input);
  }
  
- static void mt_set_input_mode(struct hid_device *hdev)
++static int usbhid_idle(struct hid_device *hid, int report, int idle,
++		int reqtype)
++{
++	struct usb_device *dev = hid_to_usb_dev(hid);
++	struct usb_interface *intf = to_usb_interface(hid->dev.parent);
++	struct usb_host_interface *interface = intf->cur_altsetting;
++	int ifnum = interface->desc.bInterfaceNumber;
++
++	if (reqtype != HID_REQ_SET_IDLE)
++		return -EINVAL;
++
++	return hid_set_idle(dev, ifnum, report, idle);
++}
++
+ static struct hid_ll_driver usb_hid_driver = {
+ 	.parse = usbhid_parse,
+ 	.start = usbhid_start,
+@@ -1263,6 +1277,7 @@ static struct hid_ll_driver usb_hid_driver = {
+ 	.hidinput_input_event = usb_hidinput_input_event,
+ 	.request = usbhid_request,
+ 	.wait = usbhid_wait_io,
++	.idle = usbhid_idle,
+ };
+ 
+ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *id)
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 7071eb3..863744c 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -664,6 +664,7 @@ struct hid_driver {
+  *	   shouldn't allocate anything to not leak memory
+  * @request: send report request to device (e.g. feature report)
+  * @wait: wait for buffered io to complete (send/recv reports)
++ * @idle: send idle request to device
+  */
+ struct hid_ll_driver {
+ 	int (*start)(struct hid_device *hdev);
+@@ -683,6 +684,7 @@ struct hid_ll_driver {
+ 			struct hid_report *report, int reqtype);
+ 
+ 	int (*wait)(struct hid_device *hdev);
++	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
+ 
+ };
+ 
+@@ -907,6 +909,23 @@ static inline void hid_hw_request(struct hid_device *hdev,
+ }
+ 
+ /**
++ * hid_hw_idle - send idle request to device
++ *
++ * @hdev: hid device
++ * @report: report to control
++ * @idle: idle state
++ * @reqtype: hid request type
++ */
++static inline int hid_hw_idle(struct hid_device *hdev, int report, int idle,
++		int reqtype)
++{
++	if (hdev->ll_driver->idle)
++		return hdev->ll_driver->idle(hdev, report, idle, reqtype);
++
++	return 0;
++}
++
++/**
+  * hid_hw_wait - wait for buffered io to complete
+  *
+  * @hdev: hid device
 -- 
 1.8.1.2
 

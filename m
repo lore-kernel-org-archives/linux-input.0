@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 6/7] HID: multitouch: append " Pen" to the name of the stylus input
-Date: Wed, 27 Feb 2013 17:55:26 +0100
-Message-ID: <1361984127-912-7-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/7] HID: input: don't register unmapped input devices
+Date: Wed, 27 Feb 2013 17:55:21 +0100
+Message-ID: <1361984127-912-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -9,85 +9,132 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is not just cosmetics, it can help to write udev and X.org
-rules.
+There is no need to register an input device containing no events.
+This allows drivers using the quirk MULTI_INPUT to register one input
+per report effectively used.
+
+For backward compatibility, we need to add a quirk to request
+this behavior.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-multitouch.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ drivers/hid/hid-input.c | 77 +++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/hid.h     |  1 +
+ 2 files changed, 78 insertions(+)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index d89f0eb..faeec95 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -44,6 +44,7 @@
- #include <linux/slab.h>
- #include <linux/usb.h>
- #include <linux/input/mt.h>
-+#include <linux/string.h>
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 21b196c..7aaf7d3 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1198,6 +1198,67 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
+ 	return hidinput;
+ }
  
- 
- MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
-@@ -371,6 +372,15 @@ static int mt_pen_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		unsigned long **bit, int *max)
- {
- 	struct mt_device *td = hid_get_drvdata(hdev);
-+	char *name;
++static bool hidinput_has_been_populated(struct hid_input *hidinput)
++{
++	int i;
++	bool r = 0;
 +
-+	if (hi->input->name == hdev->name) {
-+		name = kzalloc(sizeof(hdev->name) + 5, GFP_KERNEL);
-+		if (name) {
-+			sprintf(name, "%s Pen", hdev->name);
-+			hi->input->name = name;
++	for (i = 0; i < BITS_TO_LONGS(EV_CNT); i++)
++		r = r || hidinput->input->evbit[i];
++
++	for (i = 0; i < BITS_TO_LONGS(KEY_CNT); i++)
++		r = r || hidinput->input->keybit[i];
++
++	for (i = 0; i < BITS_TO_LONGS(REL_CNT); i++)
++		r = r || hidinput->input->relbit[i];
++
++	for (i = 0; i < BITS_TO_LONGS(ABS_CNT); i++)
++		r = r || hidinput->input->absbit[i];
++
++	for (i = 0; i < BITS_TO_LONGS(MSC_CNT); i++)
++		r = r || hidinput->input->mscbit[i];
++
++	for (i = 0; i < BITS_TO_LONGS(LED_CNT); i++)
++		r = r || hidinput->input->ledbit[i];
++
++	for (i = 0; i < BITS_TO_LONGS(SND_CNT); i++)
++		r = r || hidinput->input->sndbit[i];
++
++	for (i = 0; i < BITS_TO_LONGS(FF_CNT); i++)
++		r = r || hidinput->input->ffbit[i];
++
++	for (i = 0; i < BITS_TO_LONGS(SW_CNT); i++)
++		r = r || hidinput->input->swbit[i];
++
++	return !!r;
++}
++
++static void hidinput_cleanup_hidinput(struct hid_device *hid,
++		struct hid_input *hidinput)
++{
++	struct hid_report *report;
++	int i, k;
++
++	list_del(&hidinput->list);
++	input_free_device(hidinput->input);
++
++	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++) {
++		if (k == HID_OUTPUT_REPORT &&
++			hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
++			continue;
++
++		list_for_each_entry(report, &hid->report_enum[k].report_list,
++				    list) {
++
++			for (i = 0; i < report->maxfield; i++)
++				if (report->field[i]->hidinput == hidinput)
++					report->field[i]->hidinput = NULL;
 +		}
 +	}
- 
- 	td->pen_report_id = field->report->id;
- 
-@@ -914,6 +924,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	int ret, i;
- 	struct mt_device *td;
- 	struct mt_class *mtclass = mt_classes; /* MT_CLS_DEFAULT */
-+	struct hid_input *hi;
- 
- 	for (i = 0; mt_classes[i].name ; i++) {
- 		if (id->driver_data == mt_classes[i].name) {
-@@ -964,7 +975,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (ret)
--		goto fail;
-+		goto hid_fail;
- 
- 	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
- 
-@@ -976,6 +987,10 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	return 0;
- 
-+hid_fail:
-+	list_for_each_entry(hi, &hdev->inputs, list)
-+		if (hi->input->name != hdev->name)
-+			kfree(hi->input->name);
- fail:
- 	kfree(td->fields);
- 	kfree(td);
-@@ -1020,8 +1035,15 @@ static int mt_resume(struct hid_device *hdev)
- static void mt_remove(struct hid_device *hdev)
- {
- 	struct mt_device *td = hid_get_drvdata(hdev);
-+	struct hid_input *hi;
 +
- 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
- 	hid_hw_stop(hdev);
++	kfree(hidinput);
++}
 +
-+	list_for_each_entry(hi, &hdev->inputs, list)
-+		if (hi->input->name != hdev->name)
-+			kfree(hi->input->name);
+ /*
+  * Register the input device; print a message.
+  * Configure the input layer interface
+@@ -1249,6 +1310,10 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 					hidinput_configure_usage(hidinput, report->field[i],
+ 								 report->field[i]->usage + j);
+ 
++			if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
++			    !hidinput_has_been_populated(hidinput))
++				continue;
 +
- 	kfree(td);
- 	hid_set_drvdata(hdev, NULL);
- }
+ 			if (hid->quirks & HID_QUIRK_MULTI_INPUT) {
+ 				/* This will leave hidinput NULL, so that it
+ 				 * allocates another one if we have more inputs on
+@@ -1265,6 +1330,18 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 		}
+ 	}
+ 
++	if (hidinput && (hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
++	    !hidinput_has_been_populated(hidinput)) {
++		/* no need to register an input device not populated */
++		hidinput_cleanup_hidinput(hid, hidinput);
++		hidinput = NULL;
++	}
++
++	if (list_empty(&hid->inputs)) {
++		hid_err(hid, "No inputs registered, leaving\n");
++		goto out_unwind;
++	}
++
+ 	if (hidinput) {
+ 		if (drv->input_configured)
+ 			drv->input_configured(hid, hidinput);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 7071eb3..15b98a6 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -282,6 +282,7 @@ struct hid_item {
+ #define HID_QUIRK_BADPAD			0x00000020
+ #define HID_QUIRK_MULTI_INPUT			0x00000040
+ #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
++#define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+ #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+ #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
 -- 
 1.8.1.2

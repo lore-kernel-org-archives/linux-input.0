@@ -1,106 +1,54 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [RFC 1/2] HID: Extend the interface with idle requests
-Date: Wed, 27 Feb 2013 16:38:17 +0100
-Message-ID: <1361979498-24446-2-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [RFC 2/2] HID: multitouch: remove last usb dependency
+Date: Wed, 27 Feb 2013 16:38:18 +0100
+Message-ID: <1361979498-24446-3-git-send-email-benjamin.tissoires@redhat.com>
 References: <1361979498-24446-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56743 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759943Ab3B0PjP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Feb 2013 10:39:15 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1361979498-24446-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Some drivers send the idle command directly to underlying device,
-creating an unwanted dependency on the underlying transport layer.
-This patch adds hid_hw_idle() to the interface, thereby removing
-usbhid from the lion share of the drivers.
+hid-multitouch used to direclty call for a set_idle in the .resume()
+callback. With the new hid_hw_idle(), this can be dropped and
+hid-multitouch is now freed from its transport layer.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/usbhid/hid-core.c | 15 +++++++++++++++
- include/linux/hid.h           | 19 +++++++++++++++++++
- 2 files changed, 34 insertions(+)
+ drivers/hid/hid-multitouch.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 420466b..effcd3d 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -1253,6 +1253,20 @@ static void usbhid_request(struct hid_device *hid, struct hid_report *rep, int r
- 	}
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 51d8938..1f544a4 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -896,26 +896,11 @@ static int mt_reset_resume(struct hid_device *hdev)
+ 
+ static int mt_resume(struct hid_device *hdev)
+ {
+-	struct usb_interface *intf;
+-	struct usb_host_interface *interface;
+-	struct usb_device *dev;
+-
+-	if (hdev->bus != BUS_USB)
+-		return 0;
+-
+-	intf = to_usb_interface(hdev->dev.parent);
+-	interface = intf->cur_altsetting;
+-	dev = interface_to_usbdev(intf);
+-
+ 	/* Some Elan legacy devices require SET_IDLE to be set on resume.
+ 	 * It should be safe to send it to other devices too.
+ 	 * Tested on 3M, Stantum, Cypress, Zytronic, eGalax, and Elan panels. */
+ 
+-	usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+-			HID_REQ_SET_IDLE,
+-			USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+-			0, interface->desc.bInterfaceNumber,
+-			NULL, 0, USB_CTRL_SET_TIMEOUT);
++	hid_hw_idle(hdev, 0, 0, HID_REQ_SET_IDLE);
+ 
+ 	return 0;
  }
- 
-+static int usbhid_idle(struct hid_device *hid, int report, int idle,
-+		int reqtype)
-+{
-+	struct usb_device *dev = hid_to_usb_dev(hid);
-+	struct usb_interface *intf = to_usb_interface(hid->dev.parent);
-+	struct usb_host_interface *interface = intf->cur_altsetting;
-+	int ifnum = interface->desc.bInterfaceNumber;
-+
-+	if (reqtype != HID_REQ_SET_IDLE)
-+		return -EINVAL;
-+
-+	return hid_set_idle(dev, ifnum, report, idle);
-+}
-+
- static struct hid_ll_driver usb_hid_driver = {
- 	.parse = usbhid_parse,
- 	.start = usbhid_start,
-@@ -1263,6 +1277,7 @@ static struct hid_ll_driver usb_hid_driver = {
- 	.hidinput_input_event = usb_hidinput_input_event,
- 	.request = usbhid_request,
- 	.wait = usbhid_wait_io,
-+	.idle = usbhid_idle,
- };
- 
- static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *id)
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 7071eb3..863744c 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -664,6 +664,7 @@ struct hid_driver {
-  *	   shouldn't allocate anything to not leak memory
-  * @request: send report request to device (e.g. feature report)
-  * @wait: wait for buffered io to complete (send/recv reports)
-+ * @idle: send idle request to device
-  */
- struct hid_ll_driver {
- 	int (*start)(struct hid_device *hdev);
-@@ -683,6 +684,7 @@ struct hid_ll_driver {
- 			struct hid_report *report, int reqtype);
- 
- 	int (*wait)(struct hid_device *hdev);
-+	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
- 
- };
- 
-@@ -907,6 +909,23 @@ static inline void hid_hw_request(struct hid_device *hdev,
- }
- 
- /**
-+ * hid_hw_idle - send idle request to device
-+ *
-+ * @hdev: hid device
-+ * @report: report to control
-+ * @idle: idle state
-+ * @reqtype: hid request type
-+ */
-+static inline int hid_hw_idle(struct hid_device *hdev, int report, int idle,
-+		int reqtype)
-+{
-+	if (hdev->ll_driver->idle)
-+		return hdev->ll_driver->idle(hdev, report, idle, reqtype);
-+
-+	return 0;
-+}
-+
-+/**
-  * hid_hw_wait - wait for buffered io to complete
-  *
-  * @hdev: hid device
 -- 
 1.8.1.2
-

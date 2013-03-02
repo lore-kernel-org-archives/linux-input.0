@@ -1,86 +1,60 @@
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH] Input: mms114 - Fix regulator enable and disable paths
-Date: Sat,  2 Mar 2013 15:00:40 +0800
-Message-ID: <1362207641-25152-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] Input: mms114 - Fix regulator enable and disable paths
+Date: Sat, 2 Mar 2013 16:18:48 +0800
+Message-ID: <20130302081846.GA12379@opensource.wolfsonmicro.com>
+References: <1362207641-25152-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <5131B414.1080204@samsung.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:42108 "EHLO
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:35067 "EHLO
 	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750819Ab3CBHqN (ORCPT
+	by vger.kernel.org with ESMTP id S1750756Ab3CBIT0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 2 Mar 2013 02:46:13 -0500
+	Sat, 2 Mar 2013 03:19:26 -0500
+Content-Disposition: inline
+In-Reply-To: <5131B414.1080204@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-When it uses regulators the mms114 driver checks to see if it managed to
-acquire regulators and ignores errors. This is not the intended usage and
-not great style in general.
 
-Since the driver already refuses to probe if it fails to allocate the
-regulators simply make the enable and disable calls unconditional and
-add appropriate error handling.
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/touchscreen/mms114.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+On Sat, Mar 02, 2013 at 05:11:00PM +0900, Joonyoung Shim wrote:
+> On 03/02/2013 04:00 PM, Mark Brown wrote:
 
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 4a29ddf..bb95c89 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -314,10 +314,21 @@ static int mms114_start(struct mms114_data *data)
- 	struct i2c_client *client = data->client;
- 	int error;
- 
--	if (data->core_reg)
--		regulator_enable(data->core_reg);
--	if (data->io_reg)
--		regulator_enable(data->io_reg);
-+	error = regulator_enable(data->core_reg);
-+	if (error != 0) {
-+		dev_err(&client->dev, "Failed to enable avdd: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	error = regulator_enable(data->io_reg);
-+	if (error != 0) {
-+		dev_err(&client->dev, "Failed to enable vdd: %d\n",
-+			error);
-+		regulator_disable(data->core_reg);
-+		return error;
-+	}
-+
- 	mdelay(MMS114_POWERON_DELAY);
- 
- 	error = mms114_setup_regs(data);
-@@ -335,16 +346,20 @@ static int mms114_start(struct mms114_data *data)
- static void mms114_stop(struct mms114_data *data)
- {
- 	struct i2c_client *client = data->client;
-+	int error;
- 
- 	disable_irq(client->irq);
- 
- 	if (data->pdata->cfg_pin)
- 		data->pdata->cfg_pin(false);
- 
--	if (data->io_reg)
--		regulator_disable(data->io_reg);
--	if (data->core_reg)
--		regulator_disable(data->core_reg);
-+	error = regulator_disable(data->io_reg);
-+	if (error != 0)
-+		dev_warn(&client->dev, "Failed to disable vdd: %d\n", error);
-+
-+	error = regulator_disable(data->core_reg);
-+	if (error != 0)
-+		dev_warn(&client->dev, "Failed to disable avdd: %d\n", error);
- }
- 
- static int mms114_input_open(struct input_dev *dev)
--- 
-1.7.10.4
+> >  	mdelay(MMS114_POWERON_DELAY);
+> >  	error = mms114_setup_regs(data);
 
+> If error, we will have to disable regulators here.
+
+That's a preexisting error, of course...
+
+--8t9RHnE3ZwKMSgU+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRMbW0AAoJELSic+t+oim9IgcP/RAnkudCry39QbWnS9+61p9W
+ehHCbie5VI3g2DP9UDJkgxR/2et+5VO2dxy4ZRCRu6Oz2SBJJonRK0c9wkFtoriB
+VdQMHoSbBY8ibuiEtQnk0RcSW16Jk2fLuJDPSZ5VZyWJw8202bSQtQEhT/8ht56L
+Ec/NmkAediNHq3YEkDu0FWuQAg/ieLfh9EfCwGma3162HT87W2hxXMMisvFCi42l
+/H3F3aJwc089qUfe8x3sJawY5LcjXRMU8hWlb7eQSLM+EEk7cTc6wPCGHF/GYhss
+yR7i0MNRQ4gmripgOUU28VeHCSHDL7yiBq3Ob8jFKiloIHLYzeJyksaTxiJTFxKd
+PHGihvzKq93XE3iYCZn3ZGSE1HoAWtepTJtvttPIAdpvWtaoVOdTzw1TiYljq7KV
+icXckgQR9CuV3i8/l3OVmWCuNC4D2QO9zlpPd4FA6FEpcJc2csyRcllDzxNhNnuo
+X4tuGj2EdojOxzPgGyAdERj8F9oC+LpHUhklLz6HC3logNMtmX9HkO/+neow2NJl
+RRE3BQPszzFzyffMvUMDj7hTPQNWpKKuQ6bOZkZlp93VY+Xb7J7w8sMLDdrWlqmq
+EM0Y3jTP4rPs0ODJEEFsHhauhLKpIsR4i3dJdHYHk2Cn0jHBgo3UIyiN/iR3GqtX
+3A7xTVFHuaJJ6aGonE5Y
+=7T6z
+-----END PGP SIGNATURE-----
+
+--8t9RHnE3ZwKMSgU+--

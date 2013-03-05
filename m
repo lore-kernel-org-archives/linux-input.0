@@ -1,79 +1,79 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH 0/7] USB: don't recover device if suspend fails in system sleep
-Date: Tue, 5 Mar 2013 22:03:06 +0800
-Message-ID: <CACVXFVMVqvye1edVmLECdrjip06Xd6YYJTPOU-nYut5qNGybwg@mail.gmail.com>
-References: <1362456103-24956-1-git-send-email-ming.lei@canonical.com>
-	<3703451.5FViJ58GpZ@linux-5eaq.site>
-	<CACVXFVMkztqc_K+8gvPJhU-rC+c_STDyZLDmJZ2p1hLnADDXvg@mail.gmail.com>
-	<2867446.m8zodPstBd@linux-5eaq.site>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [patch] HID: hid-logitech-dj: add some range checks
+Date: Tue, 5 Mar 2013 15:47:48 +0100
+Message-ID: <CAN+gG=E_b3ydgPpt1c0-5Z6Ktkzw1bN7Kro=WUC7UmJenPAfMg@mail.gmail.com>
+References: <20130305130626.GA17801@longonot.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <2867446.m8zodPstBd@linux-5eaq.site>
-Sender: netdev-owner@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: =?ISO-8859-1?Q?Bj=F8rn_Mork?= <bjorn@mork.no>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:58504 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752677Ab3CEOru (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 09:47:50 -0500
+In-Reply-To: <20130305130626.GA17801@longonot.mountain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Tue, Mar 5, 2013 at 9:28 PM, Oliver Neukum <oneukum@suse.de> wrote:
-> On Tuesday 05 March 2013 21:08:09 Ming Lei wrote:
->> On Tue, Mar 5, 2013 at 8:50 PM, Oliver Neukum <oneukum@suse.de> wrote:
+Hi Dan,
+
+On Tue, Mar 5, 2013 at 2:06 PM, Dan Carpenter <dan.carpenter@oracle.com> wrote:
+> We can't trust dj_report->device_index because it comes from the
+> user and hasn't been range checked.  It is used as an offset into
+> the djrcv_dev->paired_dj_devices[] array which has 7 elements.
+> There is one range check already in logi_dj_recv_add_djhid_device()
+> and I have copy and pasted that here.
 >
->> > In other words, if we don't handle errors, there must be no errors,
->> > otherwise it doesn't matter what we do in the error case. We'd leave
->> > the problem to generic layers.
->>
->> Generic layers can't handle the driver's specific failure.
+> DJ_DEVICE_INDEX_MIN is 1.
+> DJ_DEVICE_INDEX_MAX is 6.
 >
-> We depend on stopping the HC forcing all devices into suspend.
-> We know this is problematic. For example some disk enclosures
-> need to flush cache. Fortunately for us this is done in the SCSI
-> layer.
-
-I mean only the driver can know its specific suspend failure
-in its suspend callback, so it is reasonable to deal with it in its
-resume() callback, suppose the policy to ignore suspend failure
-isn't changed.
-
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> ---
+> This is a static checker fix and I'm not certain it's correct,
+> please look it over carefully.
 >
->> If driver records its suspend failure state in suspend(), resume()
->> should and can deal with it without much difficulty.
+> I do not know this code well, so I don't know why a zero index is
+> invalid.
 >
-> Yes, but why bother? Either we can safely suspend in any state or
-> we must not ignore errors.
-
-In fact, for many drivers, its suspend() in system sleep just return 0,
-for example, cdc_wcm/cdc_acm/hub, etc, so these drivers simply
-ignore any failures from suspend() during system sleep.
-
-For other drivers, if suspend() don't return success in system sleep,
-it shouldn't try to recover the device, and its resume has to handle
-the failure. Or do you have better approach? Suppose we keep
-ignoring the suspend failure.
-
-At least, I think URBs can't be submitted to device in its system
-suspend failure path, which is generally one part of suspend
-recovery for many usb drivers. Doing such recovery may confuse
-resume() very much, and it is really wrong.
-
-That is the inconsistency of handling system suspend between
-usb drivers and usb core.
-
+> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+> index 9500f2f..c01cd25 100644
+> --- a/drivers/hid/hid-logitech-dj.c
+> +++ b/drivers/hid/hid-logitech-dj.c
+> @@ -701,6 +701,13 @@ static int logi_dj_raw_event(struct hid_device *hdev,
+>          * anything else with it.
+>          */
 >
->> > Furthermore there is a small chance that although the device tree
->> > is walked, teh system suspend fails for another later reason that
->> > is not ignored. In that case the drivers need to do error recovery,
->> > albeit in resume().
->>
->> Yes,  resume() need to handle the USB system suspend failure
->> either in normal resume or error recovery, both are basically same.
->
-> In theory yes, in practice usually power is cut.
+> +       if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
+> +           (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
+> +               dev_err(&hdev->dev, "%s: invalid device index:%d\n", __func__,
+> +                       dj_report->device_index);
+> +               return true;
+> +       }
+> +
 
-reset_resume() or rebind() can handle the power cut case, for example,
-the suspend failure state can be ignored in reset_resume(), or rebind()
-just forget previous suspend failure.  Correct me if it is wrong.
+Sorry, but it's a NACK in its current form:
+- device_index == 0 is the receiver. IIRC, the receiver sends the
+different REPORT_TYPE_NOTIF_*. So I would say that this patch blocks
+events from the receiver.
+- the DJ protocol specifies that the device index is between 1 and 6
+and that 0 means the receiver. So unless there is a problem in the USB
+line from the receiver to the driver, device index will be between 1
+and 6 for input events. This is only true as long as with stay with
+real firmware from Logitech, not from events from uhid.
 
-Thanks,
---
-Ming Lei
+If you want to add a check, it need to be in logi_dj_recv_forward_report().
+The current access to djrcv_dev->paired_dj_devices[] in
+delayedwork_callback() has been removed in latest HID tree:
+https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/log/?h=for-3.10/logitech
+
+Cheers,
+Benjamin
+
+>         spin_lock_irqsave(&djrcv_dev->lock, flags);
+>         if (dj_report->report_id == REPORT_ID_DJ_SHORT) {
+>                 switch (dj_report->report_type) {
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

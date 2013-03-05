@@ -1,20 +1,20 @@
 From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH 4/7] usbnet: cdc_mbim: don't recover device if suspend
+Subject: Re: [PATCH 7/7] usbnet: qmi_wwan: don't recover device if suspend
  fails in system sleep
-Date: Tue, 5 Mar 2013 19:07:57 +0800
-Message-ID: <CACVXFVMRpf0REYxfi1wtzUpXn2PTCeS6qNfYQP12tW8ca3Sp=g@mail.gmail.com>
+Date: Tue, 5 Mar 2013 20:27:17 +0800
+Message-ID: <CACVXFVMTers3amn8Jj4N+FU0bbs3DVOuF4Zq9X0+JijL=rcHYA@mail.gmail.com>
 References: <1362456103-24956-1-git-send-email-ming.lei@canonical.com>
-	<1362456103-24956-5-git-send-email-ming.lei@canonical.com>
-	<87boayqq5c.fsf@nemi.mork.no>
+	<1362456103-24956-8-git-send-email-ming.lei@canonical.com>
+	<877glmqq4w.fsf@nemi.mork.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:35018 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:35387 "EHLO
 	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752083Ab3CELH7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 06:07:59 -0500
-In-Reply-To: <87boayqq5c.fsf@nemi.mork.no>
+	with ESMTP id S1752367Ab3CEM1V convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 07:27:21 -0500
+In-Reply-To: <877glmqq4w.fsf@nemi.mork.no>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: =?ISO-8859-1?Q?Bj=F8rn_Mork?= <bjorn@mork.no>
@@ -30,39 +30,32 @@ On Tue, Mar 5, 2013 at 3:09 PM, Bj=F8rn Mork <bjorn@mork.no> wrote:
 >> Cc: Bj=F8rn Mork <bjorn@mork.no>
 >> Signed-off-by: Ming Lei <ming.lei@canonical.com>
 >> ---
->>  drivers/net/usb/cdc_mbim.c |    2 +-
+>>  drivers/net/usb/qmi_wwan.c |    2 +-
 >>  1 file changed, 1 insertion(+), 1 deletion(-)
 >>
->> diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
->> index 248d2dc..da83546 100644
->> --- a/drivers/net/usb/cdc_mbim.c
->> +++ b/drivers/net/usb/cdc_mbim.c
->> @@ -338,7 +338,7 @@ static int cdc_mbim_suspend(struct usb_interface=
+>> diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+>> index efb5c7c..fce18be 100644
+>> --- a/drivers/net/usb/qmi_wwan.c
+>> +++ b/drivers/net/usb/qmi_wwan.c
+>> @@ -294,7 +294,7 @@ static int qmi_wwan_suspend(struct usb_interface=
  *intf, pm_message_t message)
 >>
->>       if (intf =3D=3D ctx->control && info->subdriver && info->subdr=
-iver->suspend)
+>>       if (intf =3D=3D info->control && info->subdriver && info->subd=
+river->suspend)
 >>               ret =3D info->subdriver->suspend(intf, message);
 >> -     if (ret < 0)
->> +     if (ret < 0 && PMSG_IS_AUTO(msg))
+>> +     if (ret < 0  && PMSG_IS_AUTO(msg))
 >>               usbnet_resume(intf);
->>
->>  error:
+>>  err:
+>>       return ret;
+>
 >
 > NAK. We if the device cannot suspend, then it cannot do suspend halfw=
 ays
-
-Sorry, what do you mean that the device cannot suspend?  If you mean
-usb_suspend_device(), its failure is still ignored, and generally it is=
- OK
-since the suspend action is driven by upstream port.
-
 > either. Whether the caller will ignore the error or not, is irrelevan=
 t.
 
-Anyway, usbnet_resume() can't be called to submit new URBs in
-the failure path of system suspend, so the patch should be correct.
-
+See my same comments on 4/7.
 
 Thanks,
 --

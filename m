@@ -1,13 +1,13 @@
 From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH 5/7] usbnet: smsc95xx: don't recover device if suspend fails in system sleep
-Date: Tue,  5 Mar 2013 12:01:41 +0800
-Message-ID: <1362456103-24956-6-git-send-email-ming.lei@canonical.com>
+Subject: [PATCH 6/7] usbnet: smsc75xx: don't recover device if suspend fails in system sleep
+Date: Tue,  5 Mar 2013 12:01:42 +0800
+Message-ID: <1362456103-24956-7-git-send-email-ming.lei@canonical.com>
 References: <1362456103-24956-1-git-send-email-ming.lei@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:39774 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759367Ab3CEEC4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Mar 2013 23:02:56 -0500
+Received: from mail-pb0-f43.google.com ([209.85.160.43]:46050 "EHLO
+	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759367Ab3CEEDI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Mar 2013 23:03:08 -0500
 In-Reply-To: <1362456103-24956-1-git-send-email-ming.lei@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -21,15 +21,15 @@ this patch doesn't recover device under this situation.
 Cc: Steve Glendinning <steve.glendinning@shawell.net>
 Signed-off-by: Ming Lei <ming.lei@canonical.com>
 ---
- drivers/net/usb/smsc95xx.c |    2 +-
+ drivers/net/usb/smsc75xx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index e6d2dea..a0c5478 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1660,7 +1660,7 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
- 	ret = smsc95xx_enter_suspend0(dev);
+diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
+index 9abe517..f65c506 100644
+--- a/drivers/net/usb/smsc75xx.c
++++ b/drivers/net/usb/smsc75xx.c
+@@ -2011,7 +2011,7 @@ static int smsc75xx_suspend(struct usb_interface *intf, pm_message_t message)
+ 	ret = smsc75xx_enter_suspend0(dev);
  
  done:
 -	if (ret)

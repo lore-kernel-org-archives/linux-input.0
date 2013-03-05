@@ -1,67 +1,46 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH 7/7] usbnet: qmi_wwan: don't recover device if suspend
- fails in system sleep
-Date: Tue, 5 Mar 2013 20:27:17 +0800
-Message-ID: <CACVXFVMTers3amn8Jj4N+FU0bbs3DVOuF4Zq9X0+JijL=rcHYA@mail.gmail.com>
-References: <1362456103-24956-1-git-send-email-ming.lei@canonical.com>
-	<1362456103-24956-8-git-send-email-ming.lei@canonical.com>
-	<877glmqq4w.fsf@nemi.mork.no>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: [PATCH 0/7] USB: don't recover device if suspend fails in system sleep
+Date: Tue, 05 Mar 2013 13:50:35 +0100
+Message-ID: <3703451.5FViJ58GpZ@linux-5eaq.site>
+References: <1362456103-24956-1-git-send-email-ming.lei@canonical.com> <87fw0aqqel.fsf@nemi.mork.no> <CACVXFVM=PcxTLb1-Bo-11Lz0FzthQJTRKt5=sn6W85K9p8xE4A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:35387 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752367Ab3CEM1V convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 07:27:21 -0500
-In-Reply-To: <877glmqq4w.fsf@nemi.mork.no>
+Received: from cantor2.suse.de ([195.135.220.15]:37389 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752239Ab3CEMuV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Mar 2013 07:50:21 -0500
+In-Reply-To: <CACVXFVM=PcxTLb1-Bo-11Lz0FzthQJTRKt5=sn6W85K9p8xE4A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?Bj=F8rn_Mork?= <bjorn@mork.no>
-Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Ming Lei <ming.lei@canonical.com>
+Cc: =?ISO-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Mar 5, 2013 at 3:09 PM, Bj=F8rn Mork <bjorn@mork.no> wrote:
-> Ming Lei <ming.lei@canonical.com> writes:
->
->> If suspend callback fails in system sleep context, usb core will
->> ignore the failure and let system sleep go ahead further, so
->> this patch doesn't recover device under this situation.
->>
->> Cc: Bj=F8rn Mork <bjorn@mork.no>
->> Signed-off-by: Ming Lei <ming.lei@canonical.com>
->> ---
->>  drivers/net/usb/qmi_wwan.c |    2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
->> index efb5c7c..fce18be 100644
->> --- a/drivers/net/usb/qmi_wwan.c
->> +++ b/drivers/net/usb/qmi_wwan.c
->> @@ -294,7 +294,7 @@ static int qmi_wwan_suspend(struct usb_interface=
- *intf, pm_message_t message)
->>
->>       if (intf =3D=3D info->control && info->subdriver && info->subd=
-river->suspend)
->>               ret =3D info->subdriver->suspend(intf, message);
->> -     if (ret < 0)
->> +     if (ret < 0  && PMSG_IS_AUTO(msg))
->>               usbnet_resume(intf);
->>  err:
->>       return ret;
->
->
-> NAK. We if the device cannot suspend, then it cannot do suspend halfw=
-ays
-> either. Whether the caller will ignore the error or not, is irrelevan=
-t.
+On Tuesday 05 March 2013 18:55:42 Ming Lei wrote:
+> > All these drivers suspend in multiple steps, where each step can
+> > fail. If a later step fails then they revert any previously successful
+> > step before returning the failure, thereby ensuring that the
+> > device/driver state when suspend returns is consistently either
+> > suspended or resumed.
+> 
+> IMO, for autosuspend, that is right, but it is not for system suspend,
+> and the driver's suspend callback can't return in resumed state
+> because the USB core will ignore the failure return value and force
+> to suspend the device.
 
-See my same comments on 4/7.
+It seems to me that in this case you just need to make sure that
+suspend() not fail for system suspend. Or revisit the decision to
+ignore failures.
+In other words, if we don't handle errors, there must be no errors,
+otherwise it doesn't matter what we do in the error case. We'd leave
+the problem to generic layers.
 
-Thanks,
---
-Ming Lei
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Furthermore there is a small chance that although the device tree
+is walked, teh system suspend fails for another later reason that
+is not ignored. In that case the drivers need to do error recovery,
+albeit in resume().
+
+	Regards
+		Oliver
+

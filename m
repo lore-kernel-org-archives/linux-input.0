@@ -1,53 +1,59 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH 8/8] Input: atmel-wm97xx: Use module_platform_driver_probe macro
-Date: Tue,  5 Mar 2013 08:53:47 +0530
-Message-ID: <1362453827-18129-8-git-send-email-sachin.kamat@linaro.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 8/8] Input: atmel-wm97xx: Use
+ module_platform_driver_probe macro
+Date: Tue, 5 Mar 2013 11:36:10 +0800
+Message-ID: <20130305033606.GC9391@opensource.wolfsonmicro.com>
 References: <1362453827-18129-1-git-send-email-sachin.kamat@linaro.org>
+ <1362453827-18129-8-git-send-email-sachin.kamat@linaro.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="p2kqVDKq5asng8Dg"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:46105 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932472Ab3CEDeg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Mar 2013 22:34:36 -0500
-Received: by mail-pb0-f43.google.com with SMTP id md12so3805346pbc.2
-        for <linux-input@vger.kernel.org>; Mon, 04 Mar 2013 19:34:35 -0800 (PST)
-In-Reply-To: <1362453827-18129-1-git-send-email-sachin.kamat@linaro.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:40603 "EHLO
+	opensource.wolfsonmicro.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932472Ab3CEDgv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Mar 2013 22:36:51 -0500
+Content-Disposition: inline
+In-Reply-To: <1362453827-18129-8-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-module_platform_driver_probe() eliminates the boilerplate and simplifies
-the code.
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/touchscreen/atmel-wm97xx.c |   12 +-----------
- 1 files changed, 1 insertions(+), 11 deletions(-)
+--p2kqVDKq5asng8Dg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/input/touchscreen/atmel-wm97xx.c b/drivers/input/touchscreen/atmel-wm97xx.c
-index c5c2dbb..2c1e46b 100644
---- a/drivers/input/touchscreen/atmel-wm97xx.c
-+++ b/drivers/input/touchscreen/atmel-wm97xx.c
-@@ -432,17 +432,7 @@ static struct platform_driver atmel_wm97xx_driver = {
- 	},
- };
- 
--static int __init atmel_wm97xx_init(void)
--{
--	return platform_driver_probe(&atmel_wm97xx_driver, atmel_wm97xx_probe);
--}
--module_init(atmel_wm97xx_init);
--
--static void __exit atmel_wm97xx_exit(void)
--{
--	platform_driver_unregister(&atmel_wm97xx_driver);
--}
--module_exit(atmel_wm97xx_exit);
-+module_platform_driver_probe(atmel_wm97xx_driver, atmel_wm97xx_probe);
- 
- MODULE_AUTHOR("Hans-Christian Egtvedt <egtvedt@samfundet.no>");
- MODULE_DESCRIPTION("wm97xx continuous touch driver for Atmel AT91 and AVR32");
--- 
-1.7.4.1
+On Tue, Mar 05, 2013 at 08:53:47AM +0530, Sachin Kamat wrote:
+> module_platform_driver_probe() eliminates the boilerplate and simplifies
+> the code.
 
+Is there really any great reason to use this as opposed to
+module_platform_driver()?  I know the existing code does this, it's not
+clear to me that that's a good idea either.
+
+--p2kqVDKq5asng8Dg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRNWgKAAoJELSic+t+oim94k4P/3UC/dOY6fr7+Q25A27x2QNl
+Bo+b9jSRRFoSVzBwaF1vVIJa/YOaGab0GfYv/CBAntuIYQcJKt2snQGRAjQUomQX
+M1USMkNAIUQdqbLO8AQbZ5X0INYuHCh791AO6s/hKGtC2o4wj8KT/wCQVEbG2H8w
+nZivIcpJx+gtxid7dvSpJs4Ru8tHFCopqo6G7uwndC27u2YmJrDWrdK0zqzizxlT
+nc8F5M0muY1hFaqkYTBxf9O9iRCVZ1cXuCKkKkeVAlqz5532iKy8746WhVX9rwYn
+uYxVk1091glKBIiSJuTIA6GkGtvcsnMdBXsCQxDQFp1+ELQIIYBMTswARJ6+FRvy
+KUyYbRG+RV9W29twCDpiqbu9oUmJxGBJB7vR51HcDKsEf68GPHZYQc3Wo0qzQcM4
+SCc+Ip1/oiSB18WdLq6jbxfXqtwafUow0lR/XGK2S60RZW1Q8D/7+7CUTfH6gl7H
+vueKOBipwEs0MF1dyATRFc443Zg2KHtr0kHkcbl6RkDTTkIh9Tiro2Ojj3GDGBRz
+sY/dvoIdjuvSWf5/Q03pMoPuZVROSbzpwQYUCfVndxylCvzH7gR9ALhE6sQc6r69
+GHy5+xZETK2VYDZvFrvX3xcGU964J1yznMqZCE1S9cM2db5DGK27BwMxP7suKFHL
+YHf+n0MkMsH9Nd07h+El
+=fm5V
+-----END PGP SIGNATURE-----
+
+--p2kqVDKq5asng8Dg--

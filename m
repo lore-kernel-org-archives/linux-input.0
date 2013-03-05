@@ -1,55 +1,52 @@
-From: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
-Subject: Re: [PATCH 0/7] USB: don't recover device if suspend fails in system sleep
-Date: Tue, 5 Mar 2013 21:08:09 +0800
-Message-ID: <CACVXFVMkztqc_K+8gvPJhU-rC+c_STDyZLDmJZ2p1hLnADDXvg@mail.gmail.com>
-References: <1362456103-24956-1-git-send-email-ming.lei@canonical.com>
-	<87fw0aqqel.fsf@nemi.mork.no>
-	<CACVXFVM=PcxTLb1-Bo-11Lz0FzthQJTRKt5=sn6W85K9p8xE4A@mail.gmail.com>
-	<3703451.5FViJ58GpZ@linux-5eaq.site>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] HID: hid-logitech-dj: add some range checks
+Date: Tue, 5 Mar 2013 16:06:26 +0300
+Message-ID: <20130305130626.GA17801@longonot.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <3703451.5FViJ58GpZ-7ztolUikljGernLeA6q8OA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-Cc: =?ISO-8859-1?Q?Bj=F8rn_Mork?= <bjorn-yOkvZcmFvRU@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from userp1040.oracle.com ([156.151.31.81]:46668 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755343Ab3CENIe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 08:08:34 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Tue, Mar 5, 2013 at 8:50 PM, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org> wrote:
->>
->> IMO, for autosuspend, that is right, but it is not for system suspend,
->> and the driver's suspend callback can't return in resumed state
->> because the USB core will ignore the failure return value and force
->> to suspend the device.
->
-> It seems to me that in this case you just need to make sure that
-> suspend() not fail for system suspend. Or revisit the decision to
-> ignore failures.
+We can't trust dj_report->device_index because it comes from the
+user and hasn't been range checked.  It is used as an offset into
+the djrcv_dev->paired_dj_devices[] array which has 7 elements.
+There is one range check already in logi_dj_recv_add_djhid_device()
+and I have copy and pasted that here.
 
-IMO, the current policy is correct.
+DJ_DEVICE_INDEX_MIN is 1.
+DJ_DEVICE_INDEX_MAX is 6.
 
-> In other words, if we don't handle errors, there must be no errors,
-> otherwise it doesn't matter what we do in the error case. We'd leave
-> the problem to generic layers.
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+This is a static checker fix and I'm not certain it's correct,
+please look it over carefully.
 
-Generic layers can't handle the driver's specific failure.
+I do not know this code well, so I don't know why a zero index is
+invalid.
 
-If driver records its suspend failure state in suspend(), resume()
-should and can deal with it without much difficulty.
-
->
-> Furthermore there is a small chance that although the device tree
-> is walked, teh system suspend fails for another later reason that
-> is not ignored. In that case the drivers need to do error recovery,
-> albeit in resume().
-
-Yes,  resume() need to handle the USB system suspend failure
-either in normal resume or error recovery, both are basically same.
-
-Thanks,
---
-Ming Lei
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 9500f2f..c01cd25 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -701,6 +701,13 @@ static int logi_dj_raw_event(struct hid_device *hdev,
+ 	 * anything else with it.
+ 	 */
+ 
++	if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
++	    (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
++		dev_err(&hdev->dev, "%s: invalid device index:%d\n", __func__,
++			dj_report->device_index);
++		return true;
++	}
++
+ 	spin_lock_irqsave(&djrcv_dev->lock, flags);
+ 	if (dj_report->report_id == REPORT_ID_DJ_SHORT) {
+ 		switch (dj_report->report_type) {

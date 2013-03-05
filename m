@@ -1,52 +1,54 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] HID: hid-logitech-dj: add some range checks
-Date: Tue, 5 Mar 2013 16:06:26 +0300
-Message-ID: <20130305130626.GA17801@longonot.mountain>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: Re: [PATCH 1/7] USB: adds comment on suspend callback
+Date: Tue, 5 Mar 2013 21:16:35 +0800
+Message-ID: <CACVXFVNOkXgg5nOkU4GiSqqOsEm4_+2FH+W=V8t6j_Cu8g3hPw@mail.gmail.com>
+References: <1362456103-24956-1-git-send-email-ming.lei@canonical.com>
+	<1362456103-24956-2-git-send-email-ming.lei@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from userp1040.oracle.com ([156.151.31.81]:46668 "EHLO
-	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755343Ab3CENIe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 08:08:34 -0500
-Content-Disposition: inline
+Received: from youngberry.canonical.com ([91.189.89.112]:35598 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750780Ab3CENQh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 08:16:37 -0500
+In-Reply-To: <1362456103-24956-2-git-send-email-ming.lei@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Ming Lei <ming.lei@canonical.com>
 
-We can't trust dj_report->device_index because it comes from the
-user and hasn't been range checked.  It is used as an offset into
-the djrcv_dev->paired_dj_devices[] array which has 7 elements.
-There is one range check already in logi_dj_recv_add_djhid_device()
-and I have copy and pasted that here.
+On Tue, Mar 5, 2013 at 12:01 PM, Ming Lei <ming.lei@canonical.com> wrote:
+> This patch adds comments on interface driver suspend callback
+> to emphasize that the failure return value is ignored by
+> USB core in system sleep context, so do not try to recover
+> device for this case.
+>
+> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+> ---
+>  include/linux/usb.h |    5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+>
+> diff --git a/include/linux/usb.h b/include/linux/usb.h
+> index 4d22d0f..ea9d7cb 100644
+> --- a/include/linux/usb.h
+> +++ b/include/linux/usb.h
+> @@ -978,7 +978,10 @@ struct usbdrv_wrap {
+>   *     the "usbfs" filesystem.  This lets devices provide ways to
+>   *     expose information to user space regardless of where they
+>   *     do (or don't) show up otherwise in the filesystem.
+> - * @suspend: Called when the device is going to be suspended by the system.
+> + * @suspend: Called when the device is going to be suspended by the
+> + *     system either from system sleep or runtime suspend context, and
+> + *     its failed return value will be ignored in system sleep context,
+> + *     so do NOT try to recover device for this case.
+>   * @resume: Called when the device is being resumed by the system.
+>   * @reset_resume: Called when the suspended device has been reset instead
+>   *     of being resumed.
 
-DJ_DEVICE_INDEX_MIN is 1.
-DJ_DEVICE_INDEX_MAX is 6.
+On the other hand, resume()/reset_resume() should deal with the previous
+suspend failure if the policy to ignore suspend failure is kept.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
----
-This is a static checker fix and I'm not certain it's correct,
-please look it over carefully.
 
-I do not know this code well, so I don't know why a zero index is
-invalid.
-
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 9500f2f..c01cd25 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -701,6 +701,13 @@ static int logi_dj_raw_event(struct hid_device *hdev,
- 	 * anything else with it.
- 	 */
- 
-+	if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
-+	    (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
-+		dev_err(&hdev->dev, "%s: invalid device index:%d\n", __func__,
-+			dj_report->device_index);
-+		return true;
-+	}
-+
- 	spin_lock_irqsave(&djrcv_dev->lock, flags);
- 	if (dj_report->report_id == REPORT_ID_DJ_SHORT) {
- 		switch (dj_report->report_type) {
+Thanks,
+--
+Ming Lei

@@ -1,79 +1,156 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [patch] HID: hid-logitech-dj: add some range checks
-Date: Tue, 5 Mar 2013 15:47:48 +0100
-Message-ID: <CAN+gG=E_b3ydgPpt1c0-5Z6Ktkzw1bN7Kro=WUC7UmJenPAfMg@mail.gmail.com>
-References: <20130305130626.GA17801@longonot.mountain>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: Re: [PATCH 4/7] usbnet: cdc_mbim: don't recover device if suspend
+ fails in system sleep
+Date: Tue, 5 Mar 2013 22:50:43 +0800
+Message-ID: <CACVXFVOg9cVNYsRuAVkexwy4hvD_iJm_vARRksBAeiWppWnoXA@mail.gmail.com>
+References: <1362456103-24956-1-git-send-email-ming.lei@canonical.com>
+	<1362456103-24956-5-git-send-email-ming.lei@canonical.com>
+	<87boayqq5c.fsf@nemi.mork.no>
+	<CACVXFVMRpf0REYxfi1wtzUpXn2PTCeS6qNfYQP12tW8ca3Sp=g@mail.gmail.com>
+	<87d2veot6t.fsf@nemi.mork.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:58504 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752677Ab3CEOru (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 09:47:50 -0500
-In-Reply-To: <20130305130626.GA17801@longonot.mountain>
+Received: from youngberry.canonical.com ([91.189.89.112]:36159 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752677Ab3CEOuq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 09:50:46 -0500
+In-Reply-To: <87d2veot6t.fsf@nemi.mork.no>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: =?ISO-8859-1?Q?Bj=F8rn_Mork?= <bjorn@mork.no>
+Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Dan,
-
-On Tue, Mar 5, 2013 at 2:06 PM, Dan Carpenter <dan.carpenter@oracle.com> wrote:
-> We can't trust dj_report->device_index because it comes from the
-> user and hasn't been range checked.  It is used as an offset into
-> the djrcv_dev->paired_dj_devices[] array which has 7 elements.
-> There is one range check already in logi_dj_recv_add_djhid_device()
-> and I have copy and pasted that here.
+On Tue, Mar 5, 2013 at 9:46 PM, Bj=F8rn Mork <bjorn@mork.no> wrote:
+> Ming Lei <ming.lei@canonical.com> writes:
 >
-> DJ_DEVICE_INDEX_MIN is 1.
-> DJ_DEVICE_INDEX_MAX is 6.
+>> On Tue, Mar 5, 2013 at 3:09 PM, Bj=F8rn Mork <bjorn@mork.no> wrote:
+>>> Ming Lei <ming.lei@canonical.com> writes:
+>>>
+>>>> If suspend callback fails in system sleep context, usb core will
+>>>> ignore the failure and let system sleep go ahead further, so
+>>>> this patch doesn't recover device under this situation.
+>>>>
+>>>> Cc: Bj=F8rn Mork <bjorn@mork.no>
+>>>> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+>>>> ---
+>>>>  drivers/net/usb/cdc_mbim.c |    2 +-
+>>>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim=
+=2Ec
+>>>> index 248d2dc..da83546 100644
+>>>> --- a/drivers/net/usb/cdc_mbim.c
+>>>> +++ b/drivers/net/usb/cdc_mbim.c
+>>>> @@ -338,7 +338,7 @@ static int cdc_mbim_suspend(struct usb_interfa=
+ce *intf, pm_message_t message)
+>>>>
+>>>>       if (intf =3D=3D ctx->control && info->subdriver && info->sub=
+driver->suspend)
+>>>>               ret =3D info->subdriver->suspend(intf, message);
+>>>> -     if (ret < 0)
+>>>> +     if (ret < 0 && PMSG_IS_AUTO(msg))
+>>>>               usbnet_resume(intf);
+>>>>
+>>>>  error:
+>>>
+>>> NAK. We if the device cannot suspend, then it cannot do suspend hal=
+fways
+>>
+>> Sorry, what do you mean that the device cannot suspend?
 >
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> ---
-> This is a static checker fix and I'm not certain it's correct,
-> please look it over carefully.
 >
-> I do not know this code well, so I don't know why a zero index is
-> invalid.
+> Now, after inspecting wdm_suspend() which hides behind
+> info->subdriver->suspend(), I see that this is a completely theoretic=
+al
+> discussion as it always will return 0 if PMSG_IS_AUTO(msg) is true...
 >
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> index 9500f2f..c01cd25 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -701,6 +701,13 @@ static int logi_dj_raw_event(struct hid_device *hdev,
->          * anything else with it.
->          */
+> Which means that your change really is a noop().  I still don't like =
+it,
+> because it gives the impression that errors from info->subdriver->sus=
+pend()
+> isn't dealt with.
+
+Yes, it needn't dealt with in system sleep, so it has the document bene=
+fit.
+
 >
-> +       if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
-> +           (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
-> +               dev_err(&hdev->dev, "%s: invalid device index:%d\n", __func__,
-> +                       dj_report->device_index);
-> +               return true;
-> +       }
-> +
+>>  If you mean
+>> usb_suspend_device(), its failure is still ignored, and generally it=
+ is OK
+>> since the suspend action is driven by upstream port.
+>
+>
+> I mean that we do two operations here: first we suspend usbnet, then =
+we
+> suspend wdm:
+>
+>         ret =3D usbnet_suspend(intf, message);
+>         if (ret < 0)
+>                 goto error;
+>         if (intf =3D=3D ctx->control && info->subdriver && info->subd=
+river->suspend)
+>                 ret =3D info->subdriver->suspend(intf, message);
+>         if (ret < 0)
+>                 usbnet_resume(intf);
+> error:
+>         return ret;
+>
+>
+> The case you are trying to modify is when the second fails after the
+> first succeeded. You know suspend has already failed at this point.  =
+It
+> is the implication of the error.  Your only task is to decide what to=
+ do
+> about that failure.  You seem to think that you can fix it.  You
+> cannot.  It already has failed.  If you are going to fix that, then y=
+ou
+> have to go back to where it failed.
+>
+> So your next step if going down this route will naturally be looking
+> into how you can prevent info->subdriver->suspend() from ever failing=
+=2E
+> Which will be easy as it won't.  But assuming for this argument that =
+it
+> can fail, which I guess can be true for some of the serial driver
+> callback errors etc you also fixed this way.  I am pretty sure that w=
+hen
+> you look into those to make sure they never can fail, you will find
+> another function you have to ensure never can fail.
+>
+> Forget it.  suspend can and will fail.   Deal with it in the upper
+> layers.  In fact, the USB core already does.  If you think it doesn't
+> then that's where you fix it.
 
-Sorry, but it's a NACK in its current form:
-- device_index == 0 is the receiver. IIRC, the receiver sends the
-different REPORT_TYPE_NOTIF_*. So I would say that this patch blocks
-events from the receiver.
-- the DJ protocol specifies that the device index is between 1 and 6
-and that 0 means the receiver. So unless there is a problem in the USB
-line from the receiver to the driver, device index will be between 1
-and 6 for input events. This is only true as long as with stay with
-real firmware from Logitech, not from events from uhid.
+No, USB core does not handle it, and will always ignore the return
+failure from driver's suspend, see usb_suspend_both() for non-autosuspe=
+nd
+case.
 
-If you want to add a check, it need to be in logi_dj_recv_forward_report().
-The current access to djrcv_dev->paired_dj_devices[] in
-delayedwork_callback() has been removed in latest HID tree:
-https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/log/?h=for-3.10/logitech
+>
+>>> either. Whether the caller will ignore the error or not, is irrelev=
+ant.
+>>
+>> Anyway, usbnet_resume() can't be called to submit new URBs in
+>> the failure path of system suspend, so the patch should be correct.
+>
+> I fail to see how this is any different from a composite device with
+> e.g. a usbnet function and a serial function where suspending the ser=
+ial
+> function fails after successfully suspending the usbnet function.
+> usb_suspend_both() will then resume the usbnet function and return th=
+e
+> error.
 
-Cheers,
-Benjamin
+No, usb_suspend_both() always ignores the suspend failure from drivers
+and does not resume a non-root-hub device during system sleep.
 
->         spin_lock_irqsave(&djrcv_dev->lock, flags);
->         if (dj_report->report_id == REPORT_ID_DJ_SHORT) {
->                 switch (dj_report->report_type) {
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+--
+Ming Lei
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

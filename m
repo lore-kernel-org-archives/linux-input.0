@@ -1,79 +1,39 @@
-From: =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
-Subject: Re: [PATCH 4/7] usbnet: cdc_mbim: don't recover device if suspend fails in system sleep
-Date: Tue, 05 Mar 2013 18:35:31 +0100
-Message-ID: <87sj49oil8.fsf@nemi.mork.no>
-References: <Pine.LNX.4.44L0.1303051147300.1308-100000@iolanthe.rowland.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [patch] HID: hid-logitech-dj: add some range checks
+Date: Tue, 5 Mar 2013 20:45:35 +0300
+Message-ID: <20130305174535.GD9189@mwanda>
+References: <20130305130626.GA17801@longonot.mountain>
+ <CAN+gG=E_b3ydgPpt1c0-5Z6Ktkzw1bN7Kro=WUC7UmJenPAfMg@mail.gmail.com>
+ <CAE7qMrouxdpjtBRpTUjKBdiAr-wwhy8x3M23Q_twP+kkTFFALA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.1303051147300.1308-100000@iolanthe.rowland.org>
-	(Alan Stern's message of "Tue, 5 Mar 2013 11:54:21 -0500 (EST)")
-Sender: netdev-owner@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Ming Lei <ming.lei@canonical.com>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from userp1040.oracle.com ([156.151.31.81]:30650 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753401Ab3CERqj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 12:46:39 -0500
+Content-Disposition: inline
+In-Reply-To: <CAE7qMrouxdpjtBRpTUjKBdiAr-wwhy8x3M23Q_twP+kkTFFALA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-Alan Stern <stern@rowland.harvard.edu> writes:
-> On Tue, 5 Mar 2013, Bj=C3=B8rn Mork wrote:
->> Ming Lei <ming.lei@canonical.com> writes:
->>=20
->> > Yes, USB core will flush any outstanding URBs, but the driver stil=
-l need
->> > to deal with suspend failure carefully, for example, suppose usb_r=
-esume()
->> > is called in suspend failure path, and the submitted URBs are kill=
-ed
->> > by USB core later. But after the device is wakeup, and the resume(=
-) will
->> > do nothing since the suspend count is leaked. So it is what the pa=
-tches
->> > are fixing, and it is better to not depend on the default flushing=
- URBs of
->> > USB core.
->>=20
->> I am starting to wonder why the USB core has combined system suspend=
- and
->> runtime suspend if we are going to end up with every driver testing
->> PMSG_IS_AUTO(message) and selecting a completely different code path=
-=2E
->
-> Mainly for historical reasons.  System suspend existed long before=20
-> runtime suspend did.  When runtime suspend was added, it piggybacked=20
-> off the existing code.  Furthermore, originally there was no=20
-> requirement that system suspend always succeed; that was added later.
->
-> Also, the code paths are not completely different.  They differ mainl=
-y=20
-> in their error handling.  But when you think about it, how serious an=
-=20
-> error can you encounter when you try to _stop_ using a device?
-
-Thanks for explaining.
-
->> You are right that we will end up with problems if usbnet_resume is
->> called for a device usbnet hasn't suspended.  But I'd still claim th=
-at
->> is a bug in the USB core, which is the one that decided to ignore th=
-e
->> suspend error and still call resume.
->>=20
->> I guess proper error handling here require the USB core to see the
->> interface driver as dead if it fails to suspend on system suspend, a=
-nd
->> do forced rebinding on resume.
->
-> You are welcome to submit a patch to do this.  It shouldn't be hard; =
-we
-> already have a flag indicating that an interface needs to be unbound =
-at
-> reprobed at resume time.  You can update the kerneldoc in addition; a=
-s
-> you noticed, it currently does not describe the actual code completel=
-y
-> accurately.
-
-I guess I saw that coming :)  Will take a shot at it when time permits.
+On Tue, Mar 05, 2013 at 05:34:08PM +0100, Nestor Lopez Casado wrote:
+> > If you want to add a check, it need to be in logi_dj_recv_forward_report().
+> > The current access to djrcv_dev->paired_dj_devices[] in
+> > delayedwork_callback() has been removed in latest HID tree:
+> > https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/log/?h=for-3.10/logitech
+> The test could be added there. It would be quite defensive though, as
+> we should always get the right device indexes.
 
 
-Bj=C3=B8rn
+Ah...  I appologize for the noise.  I misunderstood how
+hid_input_report() works.  I thought it could be called with user
+supplied parameters.
+
+Never mind.
+
+regards,
+dan carpenter
+

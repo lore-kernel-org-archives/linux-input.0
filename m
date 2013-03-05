@@ -1,93 +1,71 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: logitech-dj: do not directly call hid_output_raw_report() during probe
-Date: Tue,  5 Mar 2013 17:09:00 +0100
-Message-ID: <1362499740-32459-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Bob Bowles <bobjohnbowles@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [PATCH 4/7] usbnet: cdc_mbim: don't recover device if suspend
+ fails in system sleep
+Date: Tue, 5 Mar 2013 11:54:21 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1303051147300.1308-100000@iolanthe.rowland.org>
+References: <87wqtlommw.fsf@nemi.mork.no>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <87wqtlommw.fsf-lbf33ChDnrE/G1V5fR+Y7Q@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn-yOkvZcmFvRU@public.gmane.org>
+Cc: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-hid_output_raw_report() makes a direct call to usb_control_msg(). However,
-some USB3 boards have shown that the usb device is not ready during the
-.probe(). This blocks the entire usb device, and the paired mice, keyboards
-are not functional. The dmesg output is the following:
+On Tue, 5 Mar 2013, Bj=C3=B8rn Mork wrote:
 
-[   11.912287] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:14.0-2/input2
-[   11.912537] logitech-djreceiver 0003:046D:C52B.0003: logi_dj_probe:logi_dj_recv_query_paired_devices error:-32
-[   11.912636] logitech-djreceiver: probe of 0003:046D:C52B.0003 failed with error -32
+> Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org> writes:
+>=20
+> > Yes, USB core will flush any outstanding URBs, but the driver still=
+ need
+> > to deal with suspend failure carefully, for example, suppose usb_re=
+sume()
+> > is called in suspend failure path, and the submitted URBs are kille=
+d
+> > by USB core later. But after the device is wakeup, and the resume()=
+ will
+> > do nothing since the suspend count is leaked. So it is what the pat=
+ches
+> > are fixing, and it is better to not depend on the default flushing =
+URBs of
+> > USB core.
+>=20
+> I am starting to wonder why the USB core has combined system suspend =
+and
+> runtime suspend if we are going to end up with every driver testing
+> PMSG_IS_AUTO(message) and selecting a completely different code path.
 
-Relying on the scheduled call to .hid_hw_request() fixes the problem.
+Mainly for historical reasons.  System suspend existed long before=20
+runtime suspend did.  When runtime suspend was added, it piggybacked=20
+off the existing code.  Furthermore, originally there was no=20
+requirement that system suspend always succeed; that was added later.
 
-related bugs:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1072082
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1039143
-https://bugzilla.redhat.com/show_bug.cgi?id=840391
-https://bugzilla.kernel.org/show_bug.cgi?id=49781
+Also, the code paths are not completely different.  They differ mainly=20
+in their error handling.  But when you think about it, how serious an=20
+error can you encounter when you try to _stop_ using a device?
 
-Reported-and-tested-by: Bob Bowles <bobjohnbowles@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+> You are right that we will end up with problems if usbnet_resume is
+> called for a device usbnet hasn't suspended.  But I'd still claim tha=
+t
+> is a bug in the USB core, which is the one that decided to ignore the
+> suspend error and still call resume.
+>=20
+> I guess proper error handling here require the USB core to see the
+> interface driver as dead if it fails to suspend on system suspend, an=
+d
+> do forced rebinding on resume.
 
-Hi guys,
+You are welcome to submit a patch to do this.  It shouldn't be hard; we
+already have a flag indicating that an interface needs to be unbound at
+reprobed at resume time.  You can update the kerneldoc in addition; as
+you noticed, it currently does not describe the actual code completely
+accurately.
 
-this bug has taken too long to be solved. I managed to figure out the root cause
-recently thanks to the work of Jelle Foks in lp#1039143.
+Alan Stern
 
-Jiri, I based this fix on top of your for-3.10/logitech branch.
-It *will* failed to build when you will merge it with the branch
-for-3.10/hid-driver-transport-cleanups. This is due to the use of
-usbhid_submit_report() instead of hid_hw_request(). The 
-
-However, I prefer do it that way so that I can send it to "stable" to fix all
-the current releases since 3.2 (I guess only the LTS v3.4 will pick it and the
-current 3.8, but distros can then cherry-pick it easily).
-
-Is that ok for you?
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-logitech-dj.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 199b78c..147b59c 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -419,19 +419,25 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
- 				    struct dj_report *dj_report)
- {
- 	struct hid_device *hdev = djrcv_dev->hdev;
--	int sent_bytes;
-+	struct hid_report *report;
-+	struct hid_report_enum *output_report_enum;
-+	u8 *data = (u8 *)(&dj_report->device_index);
-+	int i;
- 
--	if (!hdev->hid_output_raw_report) {
--		dev_err(&hdev->dev, "%s:"
--			"hid_output_raw_report is null\n", __func__);
-+	output_report_enum = &hdev->report_enum[HID_OUTPUT_REPORT];
-+	report = output_report_enum->report_id_hash[REPORT_ID_DJ_SHORT];
-+
-+	if (!report) {
-+		dev_err(&hdev->dev, "%s: unable to find dj report\n", __func__);
- 		return -ENODEV;
- 	}
- 
--	sent_bytes = hdev->hid_output_raw_report(hdev, (u8 *) dj_report,
--						 sizeof(struct dj_report),
--						 HID_OUTPUT_REPORT);
-+	for (i = 0; i < report->field[0]->report_count; i++)
-+		report->field[0]->value[i] = data[i];
-+
-+	usbhid_submit_report(hdev, report, USB_DIR_OUT);
- 
--	return (sent_bytes < 0) ? sent_bytes : 0;
-+	return 0;
- }
- 
- static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
--- 
-1.8.1.4
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,53 +1,73 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] Input : wacom - add support for 0x10d
-Date: Tue,  5 Mar 2013 17:51:18 -0800
-Message-ID: <1362534678-30181-1-git-send-email-pingc@wacom.com>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: Re: [PATCH 4/7] usbnet: cdc_mbim: don't recover device if suspend
+ fails in system sleep
+Date: Wed, 6 Mar 2013 10:51:50 +0800
+Message-ID: <CACVXFVMMtjfea2N7ZMp1j0q_kcg95_RVx6COQ3hGSaxxwftEaw@mail.gmail.com>
+References: <1362456103-24956-1-git-send-email-ming.lei@canonical.com>
+	<1362456103-24956-5-git-send-email-ming.lei@canonical.com>
+	<87boayqq5c.fsf@nemi.mork.no>
+	<CACVXFVMRpf0REYxfi1wtzUpXn2PTCeS6qNfYQP12tW8ca3Sp=g@mail.gmail.com>
+	<87d2veot6t.fsf@nemi.mork.no>
+	<CACVXFVOg9cVNYsRuAVkexwy4hvD_iJm_vARRksBAeiWppWnoXA@mail.gmail.com>
+	<871ubtq47a.fsf@nemi.mork.no>
+	<CACVXFVMDNtJOp+8jMOuhCBjrqq-L=jicEJBr_=ErG19Vr+7OGw@mail.gmail.com>
+	<87wqtlommw.fsf@nemi.mork.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f170.google.com ([209.85.223.170]:36019 "EHLO
-	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752478Ab3CFBv1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 20:51:27 -0500
-Received: by mail-ie0-f170.google.com with SMTP id c11so8782146ieb.1
-        for <linux-input@vger.kernel.org>; Tue, 05 Mar 2013 17:51:27 -0800 (PST)
+Received: from youngberry.canonical.com ([91.189.89.112]:39076 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751176Ab3CFCvx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Mar 2013 21:51:53 -0500
+In-Reply-To: <87wqtlommw.fsf@nemi.mork.no>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Stephan Frank <sfrank@cs.tu-berlin.de>
+To: =?ISO-8859-1?Q?Bj=F8rn_Mork?= <bjorn@mork.no>
+Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-From: Stephan Frank <sfrank@cs.tu-berlin.de
+On Wed, Mar 6, 2013 at 12:08 AM, Bj=F8rn Mork <bjorn@mork.no> wrote:
+> Ming Lei <ming.lei@canonical.com> writes:
+>
+> I am starting to wonder why the USB core has combined system suspend =
+and
+> runtime suspend if we are going to end up with every driver testing
+> PMSG_IS_AUTO(message) and selecting a completely different code path.
+>
+> You are right that we will end up with problems if usbnet_resume is
+> called for a device usbnet hasn't suspended.  But I'd still claim tha=
+t
+> is a bug in the USB core, which is the one that decided to ignore the
+> suspend error and still call resume.
+>
+> I guess proper error handling here require the USB core to see the
+> interface driver as dead if it fails to suspend on system suspend, an=
+d
+> do forced rebinding on resume.
 
-It is a Wacom device found in Fujitsu Lifebook T902.
+The idea should be fine, but may cause regression of user space, suppos=
+e
+one device with suspend failure can be across suspend-resume cycle and
+work well before, but it is no longer with your forced rebinding.
 
-Signed-off-by: Stephan Frank <sfrank@cs.tu-berlin.de>
-Acked-by: Ping Cheng <pingc@wacom.com>
----
-note: patch is based on next branch
----
- drivers/input/tablet/wacom_wac.c |    4 ++++
- 1 file changed, 4 insertions(+)
+>
+> I am not going to fight this any longer.  The per-driver
+> PMSG_IS_AUTO(message) testing is an ugly workround for a core problem=
+,
+> but they are already all over the place...  Still, please make sure t=
+he
+> drivers all return 0 if they are pretending to suspend. No error code
+> return if the driver ignores the error.
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index ad11ec5..74800e2 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -2017,6 +2017,9 @@ static const struct wacom_features wacom_features_0x100 =
- static const struct wacom_features wacom_features_0x101 =
- 	{ "Wacom ISDv4 101",      WACOM_PKGLEN_MTTPC,     26202, 16325,  255,
- 	  0, MTTPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x10D =
-+	{ "Wacom ISDv4 10D",      WACOM_PKGLEN_MTTPC,     26202, 16325,  255,
-+	  0, MTTPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x4001 =
- 	{ "Wacom ISDv4 4001",      WACOM_PKGLEN_MTTPC,     26202, 16325,  255,
- 	  0, MTTPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -2200,6 +2203,7 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0xEF) },
- 	{ USB_DEVICE_WACOM(0x100) },
- 	{ USB_DEVICE_WACOM(0x101) },
-+	{ USB_DEVICE_WACOM(0x10D) },
- 	{ USB_DEVICE_WACOM(0x4001) },
- 	{ USB_DEVICE_WACOM(0x47) },
- 	{ USB_DEVICE_WACOM(0xF4) },
--- 
-1.7.10.4
+I agree, resume() of driver has to handle the suspend failure if there =
+is
+the failure returned from suspend().
 
+Thanks,
+--
+Ming Lei
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

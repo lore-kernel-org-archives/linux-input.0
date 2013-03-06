@@ -1,160 +1,72 @@
-From: Thomas Abraham <thomas.abraham@linaro.org>
-Subject: [PATCH] input: samsung-keypad: let device core setup the default pin
- configuration
-Date: Wed, 06 Mar 2013 17:19:17 +0530
-Message-ID: <1362570557-14274-1-git-send-email-thomas.abraham@linaro.org>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linus.walleij@linaro.org, linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com, t.figa@samsung.com, heiko@sntech.de, jy0922.shim@samsung.com, dh09.lee@samsung.com, patches@linaro.org
+From: =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
+Subject: Re: [PATCH v1 4/7] usbnet: cdc_mbim: don't recover device if suspend fails in system sleep
+Date: Wed, 06 Mar 2013 13:04:05 +0100
+Message-ID: <877glkohu2.fsf@nemi.mork.no>
+References: <1362565557-15884-1-git-send-email-ming.lei@canonical.com>
+	<1362565557-15884-5-git-send-email-ming.lei@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from canardo.mork.no ([148.122.252.1]:46540 "EHLO canardo.mork.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753626Ab3CFMGD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Mar 2013 07:06:03 -0500
+In-Reply-To: <1362565557-15884-5-git-send-email-ming.lei@canonical.com> (Ming
+	Lei's message of "Wed, 6 Mar 2013 18:25:53 +0800")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ming Lei <ming.lei@canonical.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-With device core now able to setup the default pin configuration,
-the pin configuration code based on the deprecated Samsung specific
-gpio bindings is removed.
+Ming Lei <ming.lei@canonical.com> writes:
 
-Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
----
- .../devicetree/bindings/input/samsung-keypad.txt   |   25 ++--------
- drivers/input/keyboard/samsung-keypad.c            |   52 +-------------------
- 2 files changed, 7 insertions(+), 70 deletions(-)
+> If suspend callback fails in system sleep context, usb core will
+> ignore the failure and let system sleep go ahead further, so
+> this patch doesn't recover device under this situation.
+>
+> Cc: Bj=C3=B8rn Mork <bjorn@mork.no>
+> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+> ---
+>  drivers/net/usb/cdc_mbim.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
+> index 248d2dc..ec58c2c 100644
+> --- a/drivers/net/usb/cdc_mbim.c
+> +++ b/drivers/net/usb/cdc_mbim.c
+> @@ -338,7 +338,7 @@ static int cdc_mbim_suspend(struct usb_interface =
+*intf, pm_message_t message)
+> =20
+>  	if (intf =3D=3D ctx->control && info->subdriver && info->subdriver-=
+>suspend)
+>  		ret =3D info->subdriver->suspend(intf, message);
+> -	if (ret < 0)
+> +	if (ret < 0 && PMSG_IS_AUTO(message))
+>  		usbnet_resume(intf);
+> =20
+>  error:
 
-diff --git a/Documentation/devicetree/bindings/input/samsung-keypad.txt b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-index ce3e394..73ad847 100644
---- a/Documentation/devicetree/bindings/input/samsung-keypad.txt
-+++ b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-@@ -25,14 +25,6 @@ Required Board Specific Properties:
- - samsung,keypad-num-columns: Number of column lines connected to the
-   keypad controller.
- 
--- row-gpios: List of gpios used as row lines. The gpio specifier for
--  this property depends on the gpio controller to which these row lines
--  are connected.
--
--- col-gpios: List of gpios used as column lines. The gpio specifier for
--  this property depends on the gpio controller to which these column
--  lines are connected.
--
- - Keys represented as child nodes: Each key connected to the keypad
-   controller is represented as a child node to the keypad controller
-   device node and should include the following properties.
-@@ -41,6 +33,9 @@ Required Board Specific Properties:
-   - linux,code: the key-code to be reported when the key is pressed
-     and released.
- 
-+- pinctrl-0: Should specify pin control groups used for this controller.
-+- pinctrl-names: Should contain only one value - "default".
-+
- Optional Properties specific to linux:
- - linux,keypad-no-autorepeat: do no enable autorepeat feature.
- - linux,keypad-wakeup: use any event on keypad as wakeup event.
-@@ -55,18 +50,8 @@ Example:
- 		samsung,keypad-num-columns = <8>;
- 		linux,input-no-autorepeat;
- 		linux,input-wakeup;
--
--		row-gpios = <&gpx2 0 3 3 0
--			     &gpx2 1 3 3 0>;
--
--		col-gpios = <&gpx1 0 3 0 0
--			     &gpx1 1 3 0 0
--			     &gpx1 2 3 0 0
--			     &gpx1 3 3 0 0
--			     &gpx1 4 3 0 0
--			     &gpx1 5 3 0 0
--			     &gpx1 6 3 0 0
--			     &gpx1 7 3 0 0>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&keypad_rows &keypad_columns>;
- 
- 		key_1 {
- 			keypad,row = <0>;
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index 22e357b..03bdad7 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -24,7 +24,6 @@
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <linux/of.h>
--#include <linux/of_gpio.h>
- #include <linux/sched.h>
- #include <linux/input/samsung-keypad.h>
- 
-@@ -79,10 +78,6 @@ struct samsung_keypad {
- 	unsigned int rows;
- 	unsigned int cols;
- 	unsigned int row_state[SAMSUNG_MAX_COLS];
--#ifdef CONFIG_OF
--	int row_gpios[SAMSUNG_MAX_ROWS];
--	int col_gpios[SAMSUNG_MAX_COLS];
--#endif
- 	unsigned short keycodes[];
- };
- 
-@@ -304,45 +299,6 @@ static struct samsung_keypad_platdata *samsung_keypad_parse_dt(
- 
- 	return pdata;
- }
--
--static void samsung_keypad_parse_dt_gpio(struct device *dev,
--				struct samsung_keypad *keypad)
--{
--	struct device_node *np = dev->of_node;
--	int gpio, error, row, col;
--
--	for (row = 0; row < keypad->rows; row++) {
--		gpio = of_get_named_gpio(np, "row-gpios", row);
--		keypad->row_gpios[row] = gpio;
--		if (!gpio_is_valid(gpio)) {
--			dev_err(dev, "keypad row[%d]: invalid gpio %d\n",
--					row, gpio);
--			continue;
--		}
--
--		error = devm_gpio_request(dev, gpio, "keypad-row");
--		if (error)
--			dev_err(dev,
--				"keypad row[%d] gpio request failed: %d\n",
--				row, error);
--	}
--
--	for (col = 0; col < keypad->cols; col++) {
--		gpio = of_get_named_gpio(np, "col-gpios", col);
--		keypad->col_gpios[col] = gpio;
--		if (!gpio_is_valid(gpio)) {
--			dev_err(dev, "keypad column[%d]: invalid gpio %d\n",
--					col, gpio);
--			continue;
--		}
--
--		error = devm_gpio_request(dev, gpio, "keypad-col");
--		if (error)
--			dev_err(dev,
--				"keypad column[%d] gpio request failed: %d\n",
--				col, error);
--	}
--}
- #else
- static
- struct samsung_keypad_platdata *samsung_keypad_parse_dt(struct device *dev)
-@@ -424,15 +380,11 @@ static int samsung_keypad_probe(struct platform_device *pdev)
- 	keypad->stopped = true;
- 	init_waitqueue_head(&keypad->wait);
- 
--	if (pdev->dev.of_node) {
--#ifdef CONFIG_OF
--		samsung_keypad_parse_dt_gpio(&pdev->dev, keypad);
-+	if (pdev->dev.of_node)
- 		keypad->type = of_device_is_compatible(pdev->dev.of_node,
- 					"samsung,s5pv210-keypad");
--#endif
--	} else {
-+	else
- 		keypad->type = platform_get_device_id(pdev)->driver_data;
--	}
- 
- 	input_dev->name = pdev->name;
- 	input_dev->id.bustype = BUS_HOST;
--- 
-1.6.6.rc2
+This condition will never happen because the subdriver callback always
+return 0 if !PMSG_IS_AUTO(message), so adding anything here is purely
+for documentation purposes.  That is OK for me.  But I do not see any
+point adding incomplete or wrong documentation.=20
+
+The above is incomplete because it ignores the failure and still return
+an error. And it is wrong because we ignore an error we cannot possibly
+handle in resume.  Only the subdriver can do that, which is why we must
+delegate this to the subdriver.
+
+I believe the correct here is to document the fact that we require the
+subdriver->suspend() callback to always return 0 if !PMSG_IS_AUTO(messa=
+ge).
+That is best done with a comment. No need to add any redundant code.
+
+
+Bj=C3=B8rn
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

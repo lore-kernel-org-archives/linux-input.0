@@ -1,40 +1,72 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [RFC 1/2] HID: Extend the interface with idle requests
-Date: Thu, 7 Mar 2013 15:53:50 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1303071552280.28677@pobox.suse.cz>
-References: <1361979498-24446-1-git-send-email-benjamin.tissoires@redhat.com> <1361979498-24446-2-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1303071526040.28677@pobox.suse.cz>
- <CAN+gG=EzYiUujj6XB96KF4c1OEQE65KeNeaufGOzykVgvG4Qjg@mail.gmail.com>
+Subject: Re: [PATCH] HID: logitech-dj: do not directly call hid_output_raw_report()
+ during probe
+Date: Thu, 7 Mar 2013 16:07:40 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1303071600480.28677@pobox.suse.cz>
+References: <1362499740-32459-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:39658 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:40395 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755200Ab3CGOxv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 Mar 2013 09:53:51 -0500
-In-Reply-To: <CAN+gG=EzYiUujj6XB96KF4c1OEQE65KeNeaufGOzykVgvG4Qjg@mail.gmail.com>
+	id S1752543Ab3CGPHm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Mar 2013 10:07:42 -0500
+In-Reply-To: <1362499740-32459-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Bob Bowles <bobjohnbowles@gmail.com>
 
-On Thu, 7 Mar 2013, Benjamin Tissoires wrote:
+On Tue, 5 Mar 2013, Benjamin Tissoires wrote:
 
-> >> +static int usbhid_idle(struct hid_device *hid, int report, int idle,
-> >> +             int reqtype)
-> >
-> > Where does the need for passing the report argument come from please?
+> hid_output_raw_report() makes a direct call to usb_control_msg(). However,
+> some USB3 boards have shown that the usb device is not ready during the
+> .probe(). This blocks the entire usb device, and the paired mice, keyboards
+> are not functional. The dmesg output is the following:
 > 
-> Well, I haven't checked in the USB spec, but hid_set_idle() in
-> usbhid/hid-core.c does require the reportID, so I add it to the
-> request.
-> I just gave a quick look at the HID/I2C spec, and it also requires the
-> report ID. The set_idle request is report specific.
+> [   11.912287] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:14.0-2/input2
+> [   11.912537] logitech-djreceiver 0003:046D:C52B.0003: logi_dj_probe:logi_dj_recv_query_paired_devices error:-32
+> [   11.912636] logitech-djreceiver: probe of 0003:046D:C52B.0003 failed with error -32
+> 
+> Relying on the scheduled call to .hid_hw_request() fixes the problem.
+> 
+> related bugs:
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1072082
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1039143
+> https://bugzilla.redhat.com/show_bug.cgi?id=840391
+> https://bugzilla.kernel.org/show_bug.cgi?id=49781
+> 
+> Reported-and-tested-by: Bob Bowles <bobjohnbowles@gmail.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+> 
+> Hi guys,
+> 
+> this bug has taken too long to be solved. I managed to figure out the root cause
+> recently thanks to the work of Jelle Foks in lp#1039143.
+> 
+> Jiri, I based this fix on top of your for-3.10/logitech branch.
+> It *will* failed to build when you will merge it with the branch
+> for-3.10/hid-driver-transport-cleanups. This is due to the use of
+> usbhid_submit_report() instead of hid_hw_request(). The 
+> 
+> However, I prefer do it that way so that I can send it to "stable" to fix all
+> the current releases since 3.2 (I guess only the LTS v3.4 will pick it and the
+> current 3.8, but distros can then cherry-pick it easily).
 
-You are right, I have missed the special meaning of lower byte of wValue.
+Benjamin, Bob,
 
-Okay, I think it makes sense. I will be taking the patches.
+excellent work, thanks for figuring it out.
 
-Thanks Benjamin.
+Given the nature of the bug, I'd prefer to push it to Linus for 3.9 still, 
+and have it backported to -stable as well.
+
+Once it's in Linus' tree, I will handle the fallout in 
+for-3.10/hid-driver-transport-cleanups and fix the build.
+
+Ok?
+
+Now queued for 3.9.
 
 -- 
 Jiri Kosina

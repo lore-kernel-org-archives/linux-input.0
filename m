@@ -1,7 +1,7 @@
 From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH v2 6/7] usbnet: smsc95xx: don't recover device if suspend fails in system sleep
-Date: Fri,  8 Mar 2013 00:15:23 +0800
-Message-ID: <1362672924-22975-7-git-send-email-ming.lei@canonical.com>
+Subject: [PATCH v2 7/7] usbnet: smsc75xx: don't recover device if suspend fails in system sleep
+Date: Fri,  8 Mar 2013 00:15:24 +0800
+Message-ID: <1362672924-22975-8-git-send-email-ming.lei@canonical.com>
 References: <1362672924-22975-1-git-send-email-ming.lei@canonical.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1362672924-22975-1-git-send-email-ming.lei@canonical.com>
@@ -14,20 +14,20 @@ If suspend callback fails in system sleep context, usb core will
 ignore the failure and let system sleep go ahead further, so
 this patch doesn't recover device under this situation.
 
-Also add comments on the case.
+Also add comments on this case.
 
 Cc: Steve Glendinning <steve.glendinning@shawell.net>
 Signed-off-by: Ming Lei <ming.lei@canonical.com>
 ---
- drivers/net/usb/smsc95xx.c |    6 +++++-
+ drivers/net/usb/smsc75xx.c |    6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index e6d2dea..3f38ba8 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1660,7 +1660,11 @@ static int smsc95xx_suspend(struct usb_interface *intf, pm_message_t message)
- 	ret = smsc95xx_enter_suspend0(dev);
+diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
+index 9abe517..21b607a 100644
+--- a/drivers/net/usb/smsc75xx.c
++++ b/drivers/net/usb/smsc75xx.c
+@@ -2011,7 +2011,11 @@ static int smsc75xx_suspend(struct usb_interface *intf, pm_message_t message)
+ 	ret = smsc75xx_enter_suspend0(dev);
  
  done:
 -	if (ret)

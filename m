@@ -1,28 +1,62 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] input: samsung-keypad: let device core setup the default
- pin configuration
-Date: Thu, 7 Mar 2013 09:13:01 +0100
-Message-ID: <CACRpkdb973-SeWy5=j73Gc8zUZcF=WKY4-jQDrGjPbxwTbdQ6w@mail.gmail.com>
-References: <1362570557-14274-1-git-send-email-thomas.abraham@linaro.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: linux-next: Tree for Mar 6 (hid)
+Date: Thu, 7 Mar 2013 09:13:32 +0100
+Message-ID: <CAN+gG=H4_1nUhhsUe031Q1QrnVna+F7hmAepe6kbNm=8z_gOjw@mail.gmail.com>
+References: <20130306115052.2b1969acb7b7a0fa35975984@canb.auug.org.au>
+	<51379849.6040903@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1362570557-14274-1-git-send-email-thomas.abraham@linaro.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Thomas Abraham <thomas.abraham@linaro.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com, t.figa@samsung.com, heiko@sntech.de, jy0922.shim@samsung.com, dh09.lee@samsung.com, patches@linaro.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f181.google.com ([209.85.217.181]:54700 "EHLO
+	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752138Ab3CGINe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Mar 2013 03:13:34 -0500
+In-Reply-To: <51379849.6040903@infradead.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Wed, Mar 6, 2013 at 12:49 PM, Thomas Abraham
-<thomas.abraham@linaro.org> wrote:
+Hi Randy,
 
-> With device core now able to setup the default pin configuration,
-> the pin configuration code based on the deprecated Samsung specific
-> gpio bindings is removed.
+On Wed, Mar 6, 2013 at 8:26 PM, Randy Dunlap <rdunlap@infradead.org> wrote:
+> On 03/05/13 16:50, Stephen Rothwell wrote:
+>> Hi all,
+>>
+>> Changes since 20130305:
+>>
 >
-> Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
+> on i386 and x86_64:
+>
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Sorry, it looks like my patches went not very smoothly.
 
-Yours,
-Linus Walleij
+> ERROR: "usb_control_msg" [drivers/hid/hid-multitouch.ko] undefined!
+
+I've submitted a new patch removing this direct call. Maybe we should
+change the Kconfig while these patches are not applied. Jiri?
+
+> ERROR: "usb_ifnum_to_if" [drivers/hid/hid-holtek-kbd.ko] undefined!
+
+oops, I'll have to double check this one.
+
+>
+> when CONFIG_USB_SUPPORT is not enabled.
+>
+> Should these drivers depend on USB_HID?
+
+The goal of the patch series that breaks this was to make the hid
+drivers independent of their transport layers, thus most of them
+should not depend on usbhid anymore.
+
+Cheers,
+Benjamin
+
+>
+>
+> --
+> ~Randy
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

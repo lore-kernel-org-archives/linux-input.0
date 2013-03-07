@@ -1,80 +1,61 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: logitech-dj: do not directly call
- hid_output_raw_report() during probe
-Date: Thu, 7 Mar 2013 16:12:12 +0100
-Message-ID: <CAN+gG=HBocC6oR6qyyu1xyYaOp8eBakSh2G-5pdr6zxjXQYqxA@mail.gmail.com>
-References: <1362499740-32459-1-git-send-email-benjamin.tissoires@redhat.com>
-	<alpine.LNX.2.00.1303071600480.28677@pobox.suse.cz>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: (unknown)
+Date: Fri,  8 Mar 2013 00:07:45 +0800
+Message-ID: <1362672472-22680-1-git-send-email-ming.lei@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:34072 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758777Ab3CGPMO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Mar 2013 10:12:14 -0500
-In-Reply-To: <alpine.LNX.2.00.1303071600480.28677@pobox.suse.cz>
+Received: from mail-pb0-f43.google.com ([209.85.160.43]:35413 "EHLO
+	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755872Ab3CGQL2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Mar 2013 11:11:28 -0500
+Subject: 
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Bob Bowles <bobjohnbowles@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Mar 7, 2013 at 4:07 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 5 Mar 2013, Benjamin Tissoires wrote:
->
->> hid_output_raw_report() makes a direct call to usb_control_msg(). However,
->> some USB3 boards have shown that the usb device is not ready during the
->> .probe(). This blocks the entire usb device, and the paired mice, keyboards
->> are not functional. The dmesg output is the following:
->>
->> [   11.912287] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:14.0-2/input2
->> [   11.912537] logitech-djreceiver 0003:046D:C52B.0003: logi_dj_probe:logi_dj_recv_query_paired_devices error:-32
->> [   11.912636] logitech-djreceiver: probe of 0003:046D:C52B.0003 failed with error -32
->>
->> Relying on the scheduled call to .hid_hw_request() fixes the problem.
->>
->> related bugs:
->> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1072082
->> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1039143
->> https://bugzilla.redhat.com/show_bug.cgi?id=840391
->> https://bugzilla.kernel.org/show_bug.cgi?id=49781
->>
->> Reported-and-tested-by: Bob Bowles <bobjohnbowles@gmail.com>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>
->> Hi guys,
->>
->> this bug has taken too long to be solved. I managed to figure out the root cause
->> recently thanks to the work of Jelle Foks in lp#1039143.
->>
->> Jiri, I based this fix on top of your for-3.10/logitech branch.
->> It *will* failed to build when you will merge it with the branch
->> for-3.10/hid-driver-transport-cleanups. This is due to the use of
->> usbhid_submit_report() instead of hid_hw_request(). The
->>
->> However, I prefer do it that way so that I can send it to "stable" to fix all
->> the current releases since 3.2 (I guess only the LTS v3.4 will pick it and the
->> current 3.8, but distros can then cherry-pick it easily).
->
-> Benjamin, Bob,
->
-> excellent work, thanks for figuring it out.
->
-> Given the nature of the bug, I'd prefer to push it to Linus for 3.9 still,
-> and have it backported to -stable as well.
->
-> Once it's in Linus' tree, I will handle the fallout in
-> for-3.10/hid-driver-transport-cleanups and fix the build.
->
-> Ok?
+Hi,
 
-That seems perfect to me.
+This patch adds comments on interface driver suspend callback
+to emphasize that the failure return value is ignored by
+USB core in system sleep context, so do not try to recover
+device for this case, otherwise the recovery things may confuse
+resume().
 
->
-> Now queued for 3.9.
->
+Also fixes the USB serial, HID and several usbnet drivers
+which may recover device in suspend failure path of system sleep.
 
-Thanks. And thanks also for applying the other patches Jiri.
+v2:
+	- improve comments on suspend callback as suggested by Alan
+	- update kerneldoc for usb_suspend_both as suggested by Alan
+	- remove previous check of PMSG_IS_AUTO(message) in cdc_mbim/
+	qmi_wwan and add comments on suspend failure case, since Bj=C3=B8rn
+	doesn't like the check.
+	- add comments on smsc95xx/smsc75xx
+v1:
+        - fix compile failure
+        - add comments about handling suspend failure in resume()
 
-Cheers,
-Benjamin
+ drivers/hid/usbhid/hid-core.c   |   14 +++++---------
+ drivers/net/usb/cdc_mbim.c      |    5 +++++
+ drivers/net/usb/qmi_wwan.c      |    5 +++++
+ drivers/net/usb/smsc75xx.c      |    6 +++++-
+ drivers/net/usb/smsc95xx.c      |    6 +++++-
+ drivers/usb/core/driver.c       |   11 ++++++++---
+ drivers/usb/serial/usb-serial.c |    3 ++-
+ include/linux/usb.h             |    7 ++++++-
+ 8 files changed, 41 insertions(+), 16 deletions(-)
+
+
+Thanks,
+--
+Ming Lei
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

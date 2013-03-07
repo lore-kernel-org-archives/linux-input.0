@@ -1,41 +1,44 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: holtek: Holtek devices depends on USB_HID
-Date: Thu,  7 Mar 2013 10:48:29 +0100
-Message-ID: <1362649709-9608-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: linux-next: Tree for Mar 6 (hid)
+Date: Thu, 7 Mar 2013 11:09:50 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1303071108150.28677@pobox.suse.cz>
+References: <20130306115052.2b1969acb7b7a0fa35975984@canb.auug.org.au> <51379849.6040903@infradead.org> <CAN+gG=H4_1nUhhsUe031Q1QrnVna+F7hmAepe6kbNm=8z_gOjw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58770 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:53613 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753109Ab3CGJtS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 Mar 2013 04:49:18 -0500
+	id S1752531Ab3CGKJw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Mar 2013 05:09:52 -0500
+In-Reply-To: <CAN+gG=H4_1nUhhsUe031Q1QrnVna+F7hmAepe6kbNm=8z_gOjw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-In the HID drivers tranport cleanup series, I removed the dependency
-between hid-holtek and usbhid. This was wrong as hid-holtek.c relies
-extensively on usb calls.
+On Thu, 7 Mar 2013, Benjamin Tissoires wrote:
 
-This fixes compilation error when CONFIG_USB_SUPPORT is not enabled.
+> > on i386 and x86_64:
+> >
+> 
+> Sorry, it looks like my patches went not very smoothly.
+> 
+> > ERROR: "usb_control_msg" [drivers/hid/hid-multitouch.ko] undefined!
+> 
+> I've submitted a new patch removing this direct call. Maybe we should
+> change the Kconfig while these patches are not applied. Jiri?
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Benjamin,
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 3abb11f..613083a 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -215,7 +215,7 @@ config HID_EZKEY
- 
- config HID_HOLTEK
- 	tristate "Holtek HID devices"
--	depends on HID
-+	depends on USB_HID
- 	---help---
- 	Support for Holtek based devices:
- 	  - Holtek On Line Grip based game controller
+which patch is that? The only hid-multitouch I still have in my queue is 
+the hybrid finger/pen devices support, and I don't think it's fixing this 
+problem.
+
+Then I have one for logitech-dj which I still need to review, but I don't 
+see anything else ... ?
+
+Thanks,
+
 -- 
-1.8.1.4
-
+Jiri Kosina
+SUSE Labs

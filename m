@@ -1,61 +1,73 @@
-From: =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
-Subject: Re: [PATCH v2 4/7] usbnet: cdc_mbim: comments on suspend failure
-Date: Thu, 07 Mar 2013 19:08:39 +0100
-Message-ID: <876213jd5k.fsf@nemi.mork.no>
-References: <1362672924-22975-1-git-send-email-ming.lei@canonical.com>
-	<1362672924-22975-5-git-send-email-ming.lei@canonical.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH v2 1/7] USB: adds comment on suspend callback
+Date: Thu, 7 Mar 2013 15:26:02 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1303071524420.1646-100000@iolanthe.rowland.org>
+References: <1362672924-22975-2-git-send-email-ming.lei@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from canardo.mork.no ([148.122.252.1]:36986 "EHLO canardo.mork.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759336Ab3CGSKV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Mar 2013 13:10:21 -0500
-In-Reply-To: <1362672924-22975-5-git-send-email-ming.lei@canonical.com> (Ming
-	Lei's message of "Fri, 8 Mar 2013 00:15:21 +0800")
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1362672924-22975-2-git-send-email-ming.lei@canonical.com>
+Sender: netdev-owner@vger.kernel.org
 To: Ming Lei <ming.lei@canonical.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Ming Lei <ming.lei@canonical.com> writes:
+On Fri, 8 Mar 2013, Ming Lei wrote:
 
-> If suspend callback fails in system sleep context, usb core will
-> ignore the failure and let system sleep go ahead further, so
-> this patch comments on the case and requires that both
-> usbnet_suspend() and subdriver->suspend() MUST return 0 in
-> system sleep context.
->
-> Cc: Bj=C3=B8rn Mork <bjorn@mork.no>
+> This patch adds comments on interface driver suspend callback
+> to emphasize that the failure return value is ignored by
+> USB core in system sleep context, so do not try to recover
+> device for this case and let resume/reset_resume callback
+> handle the suspend failure if needed.
+> 
+> Also kerneldoc for usb_suspend_both() is updated with the
+> fact.
+> 
 > Signed-off-by: Ming Lei <ming.lei@canonical.com>
 > ---
->  drivers/net/usb/cdc_mbim.c |    5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
-> index 248d2dc..406a34d 100644
-> --- a/drivers/net/usb/cdc_mbim.c
-> +++ b/drivers/net/usb/cdc_mbim.c
-> @@ -332,6 +332,11 @@ static int cdc_mbim_suspend(struct usb_interface=
- *intf, pm_message_t message)
->  		goto error;
->  	}
-> =20
-> +	/*
-> +	 * Both usbnet_suspend() and subdriver->suspend() MUST return 0
-> +	 * in system sleep context, otherwise, the resume callback has
-> +	 * to recover device from previous suspend failure.
-> +	 */
->  	ret =3D usbnet_suspend(intf, message);
->  	if (ret < 0)
->  		goto error;
+>  drivers/usb/core/driver.c |   11 ++++++++---
+>  include/linux/usb.h       |    7 ++++++-
+>  2 files changed, 14 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+> index d938b2b..eb1d00a 100644
+> --- a/drivers/usb/core/driver.c
+> +++ b/drivers/usb/core/driver.c
+> @@ -1196,9 +1196,14 @@ done:
+>   *
+>   * This is the central routine for suspending USB devices.  It calls the
+>   * suspend methods for all the interface drivers in @udev and then calls
+> - * the suspend method for @udev itself.  If an error occurs at any stage,
+> - * all the interfaces which were suspended are resumed so that they remain
+> - * in the same state as the device.
+> + * the suspend method for @udev itself.  When the routine is called in
+> + * autosuspend, if an error occurs at any stage, all the interfaces
+> + * which were suspended are resumed so that they remain in the same
+> + * state as the device, but when called from system sleep, all error
+> + * from suspend methods of interfaces and the non-root-hub device itself
+> + * are simply ignored, so all suspended interfaces are only resumed
+> + * to the device's state when @udev is root-hub and its suspend method
+> + * returns failure.
+>   *
+>   * Autosuspend requests originating from a child device or an interface
+>   * driver may be made without the protection of @udev's device lock, but
+> diff --git a/include/linux/usb.h b/include/linux/usb.h
+> index 4d22d0f..f82ce57 100644
+> --- a/include/linux/usb.h
+> +++ b/include/linux/usb.h
+> @@ -978,7 +978,12 @@ struct usbdrv_wrap {
+>   *	the "usbfs" filesystem.  This lets devices provide ways to
+>   *	expose information to user space regardless of where they
+>   *	do (or don't) show up otherwise in the filesystem.
+> - * @suspend: Called when the device is going to be suspended by the system.
+> + * @suspend: Called when the device is going to be suspended by the
+> + *	system either from system sleep or runtime suspend context. The
+> + *	return value will be ignored in system sleep context, so do NOT
+> + *	try to continue using the device if suspend fails in this case.
+> + *	Instead, let the resume or reset-resume routine recover from
+> + *	the failure.
+>   * @resume: Called when the device is being resumed by the system.
+>   * @reset_resume: Called when the suspended device has been reset instead
+>   *	of being resumed.
 
-Looks fine.  Thanks
-
-Acked-by: Bj=C3=B8rn Mork <bjorn@mork.no>
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Acked-by: Alan Stern <stern@rowland.harvard.edu>

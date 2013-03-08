@@ -1,49 +1,58 @@
-From: Markus Pargmann <mpa@pengutronix.de>
-Subject: Re: [PATCH 1/4] Input: wm97xx: Drop out of range inputs
-Date: Fri, 8 Mar 2013 19:11:41 +0100
-Message-ID: <20130308181141.GE11656@pengutronix.de>
-References: <1362759309-18782-1-git-send-email-mpa@pengutronix.de>
- <1362759309-18782-2-git-send-email-mpa@pengutronix.de>
- <20130308171538.GA26088@opensource.wolfsonmicro.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH] HID: holtek: Holtek devices depends on USB_HID
+Date: Fri, 08 Mar 2013 12:52:50 -0800
+Message-ID: <513A4FA2.6070309@infradead.org>
+References: <1362649709-9608-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130308171538.GA26088@opensource.wolfsonmicro.com>
-Sender: stable-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Liam Girdwood <lrg@slimlogic.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, patches@opensource.wolfsonmicro.com, linux-input@vger.kernel.org, kernel@pengutronix.de, stable@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:36597 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755742Ab3CHUwZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Mar 2013 15:52:25 -0500
+In-Reply-To: <1362649709-9608-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Mar 09, 2013 at 01:15:49AM +0800, Mark Brown wrote:
-> On Fri, Mar 08, 2013 at 05:15:06PM +0100, Markus Pargmann wrote:
+On 03/07/13 01:48, Benjamin Tissoires wrote:
+> In the HID drivers tranport cleanup series, I removed the dependency
+> between hid-holtek and usbhid. This was wrong as hid-holtek.c relies
+> extensively on usb calls.
 > 
-> > +		if (
-> > +				abs_x[0] > (data.x & 0xfff)
-> > +				|| abs_x[1] < (data.x & 0xfff)
-> > +				|| abs_y[0] > (data.y & 0xfff)
-> > +				|| abs_y[1] < (data.y & 0xfff)) {
-> > +			dev_dbg(wm->dev, "Measurement out of range, dropping it\n");
-> > +			rc = RC_AGAIN;
-> > +			goto out;
+> This fixes compilation error when CONFIG_USB_SUPPORT is not enabled.
 > 
-> The change is good but not a fan of the coding style here.  Otherwise
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+
+
+but hid-multitouch build still fails (on 3.9-rc1) when USB_SUPPORT is not enabled:
+
+ERROR: "usb_control_msg" [drivers/hid/hid-multitouch.ko] undefined!
+
+
+> ---
+>  drivers/hid/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 3abb11f..613083a 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -215,7 +215,7 @@ config HID_EZKEY
+>  
+>  config HID_HOLTEK
+>  	tristate "Holtek HID devices"
+> -	depends on HID
+> +	depends on USB_HID
+>  	---help---
+>  	Support for Holtek based devices:
+>  	  - Holtek On Line Grip based game controller
+> 
 
-Thanks. I would change the style to this:
-
-		if (abs_x[0] > (data.x & 0xfff) ||
-				abs_x[1] < (data.x & 0xfff) ||
-				abs_y[0] > (data.y & 0xfff) ||
-				abs_y[1] < (data.y & 0xfff)) {
-
-Regards
-
-Markus
 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+~Randy

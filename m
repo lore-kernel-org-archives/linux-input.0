@@ -1,58 +1,43 @@
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH] HID: holtek: Holtek devices depends on USB_HID
-Date: Fri, 08 Mar 2013 12:52:50 -0800
-Message-ID: <513A4FA2.6070309@infradead.org>
-References: <1362649709-9608-1-git-send-email-benjamin.tissoires@redhat.com>
+Date: Fri, 8 Mar 2013 22:00:44 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1303082159140.19460@pobox.suse.cz>
+References: <1362649709-9608-1-git-send-email-benjamin.tissoires@redhat.com> <513A4FA2.6070309@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:36597 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755742Ab3CHUwZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Mar 2013 15:52:25 -0500
-In-Reply-To: <1362649709-9608-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from cantor2.suse.de ([195.135.220.15]:41615 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755096Ab3CHVAq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 8 Mar 2013 16:00:46 -0500
+In-Reply-To: <513A4FA2.6070309@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 03/07/13 01:48, Benjamin Tissoires wrote:
-> In the HID drivers tranport cleanup series, I removed the dependency
-> between hid-holtek and usbhid. This was wrong as hid-holtek.c relies
-> extensively on usb calls.
+On Fri, 8 Mar 2013, Randy Dunlap wrote:
+
+> > In the HID drivers tranport cleanup series, I removed the dependency
+> > between hid-holtek and usbhid. This was wrong as hid-holtek.c relies
+> > extensively on usb calls.
+> > 
+> > This fixes compilation error when CONFIG_USB_SUPPORT is not enabled.
+> > 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > 
-> This fixes compilation error when CONFIG_USB_SUPPORT is not enabled.
+> Acked-by: Randy Dunlap <rdunlap@infradead.org>
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-
-
-but hid-multitouch build still fails (on 3.9-rc1) when USB_SUPPORT is not enabled:
-
-ERROR: "usb_control_msg" [drivers/hid/hid-multitouch.ko] undefined!
-
-
-> ---
->  drivers/hid/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 3abb11f..613083a 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -215,7 +215,7 @@ config HID_EZKEY
->  
->  config HID_HOLTEK
->  	tristate "Holtek HID devices"
-> -	depends on HID
-> +	depends on USB_HID
->  	---help---
->  	Support for Holtek based devices:
->  	  - Holtek On Line Grip based game controller
-> 
+> but hid-multitouch build still fails (on 3.9-rc1) when USB_SUPPORT is not enabled:
 
+Are you sure about 3.9-rc1? It has USB_HID dependency for HID_MUTLTIOUCH, 
+hence that shouldn't be a problem.
+
+There used to be a problem in linux-next, but that should be fixed by 
+4ba25d3f87 ("HID: multitouch: remove last usb dependency"), which I have 
+pushed out yesterday.
 
 -- 
-~Randy
+Jiri Kosina
+SUSE Labs

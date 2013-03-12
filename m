@@ -1,110 +1,218 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [RFC] input: mt: Support for touch cancel
-Date: Tue, 12 Mar 2013 09:59:44 +0100
-Message-ID: <CAN+gG=F280vzLM_43zU1biJf+p+Jq+=z5egFc+KOYAvth3+BZQ@mail.gmail.com>
-References: <CAPDwgkMbwTtf2a5Xuvb3_B18FBJ7w6VJx1CJN=gGwaaRSKzDbA@mail.gmail.com>
-	<20130312013605.GA31587@yabbi.redhat.com>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] input: keyboard: tegra: support for defining row/columns based on SoC
+Date: Tue, 12 Mar 2013 17:06:29 +0530
+Message-ID: <1363088189-14654-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f41.google.com ([209.85.215.41]:37397 "EHLO
-	mail-la0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755176Ab3CLI7q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Mar 2013 04:59:46 -0400
-Received: by mail-la0-f41.google.com with SMTP id fo12so4914232lab.28
-        for <linux-input@vger.kernel.org>; Tue, 12 Mar 2013 01:59:44 -0700 (PDT)
-In-Reply-To: <20130312013605.GA31587@yabbi.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Yufeng Shen <miletus@chromium.org>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Daniel Kurtz <djkurtz@chromium.org>, rbyers@chromium.org
 
-On Tue, Mar 12, 2013 at 2:36 AM, Peter Hutterer
-<peter.hutterer@who-t.net> wrote:
-> On Mon, Mar 11, 2013 at 04:34:27PM -0400, Yufeng Shen wrote:
->> I have ran into cases where I want to make a touch end event to have a
->> touch cancel indication.
->>
->> This comes from trying to solve the problem of :
->>
->> If the touch sequence happens before the system suspends, and the touch
->> release event is
->> never received after the system resumes, userspace MT state tracking could
->> be in a bad state.
->>
->> ( see #5 from
->> https://bugs.launchpad.net/ubuntu/+source/xserver-xorg-input-synaptics/+bug/968845
->> for an example of how this could happen from lid close/open on MBA)
->
-> ftr, this a bug in the driver and should be fixed now.
->
->> One possible workaround is to let the touch device driver to release all
->> existing touches on
->> resume, which has the effect of clearing all the MT states in userspace
->> touch stacks.
->> But the touch release/end event often will result in some gesture being
->> recognized and performed,
->> like a tap-to-click being generated.
->>
->> So I am wondering what's the best way to solve the problem of clearing the
->> touch states with
->> minimal side effect. One way I can think of is to have MTB protocol add
->> support of
->> a touch cancel indication on touch release, e.g. making TRACKING_ID = -2
->> meaning that
->> the touch release is synthesized from the system and really has the meaning
->> of releasing and canceling the current touch, while TRACKING_ID = -1
->> meaning that the touch release is reported back from the device.
->>
->> And from Xf86-input driver level, we can add a corresponding TouchCancel
->> for this.
->
-> I can handle touch-cancel events in the synaptics driver to avoid
-> tap-to-click but further details get a bit nasty.
->
-> To actually add TouchCancel to the client-protocol means a new XI protocol
-> revision, plus the stuff in the server _and_ the stuff in the client. that
-> is quite some lag time here, and if a client cannot handle TouchCancel all
-> we can do is do a TouchEnd - which will still trigger the gesture.
->
-> even if you update the touch clients you're still lacking any solution for
-> pointer-emulated clients. again, here we can only do a ButtonRelease event
-> which again will trigger whatever it did.
->
-> All the above can be implemented though. In fact, I suspect the protocol
-> part is the easy bit (just a flag on TouchEnd) but the server part is
-> reasonably nasty.
->
-> the real counter-argument is that I think it is a partial solution only.
-> From an X perspective touches also end when you vt-switch away from the
-> server (device is disabled). but the kernel won't cancel the touch event for
-> that. Or when the device is disabled by the client ("disable touchpad while
-> typing" feature), So we'd have to maintain both implicit cancel and explicit
-> cancel in the driver anyway.
->
-> so yeah, I don't think adding this to the kernel would provide any
-> significant benefit since we still need to handle all the other cases
-> anyway.
+NVIDIA's Tegra20 and Tegra30 supports the 16x8 keyboard matrix and T114
+support the 11x8 Key matrix.
 
-If the same effect is seen when VT-switching, it's definitively a user
-space synchronization problem, not a kernel problem.
+Add support for defining the maximum row/columns based on SoC through
+proper compatibity.
 
-I think we have all the pieces in term of protocol in the kernel for
-this use case:
-When coming back from resume, the kernel should guarantee that the
-current input state is correct. If fingers are still present, then
-their slots are still assigned, if they are missing, their slots
-should be silently released (as if the released occurs while
-sleeping). This is something the kernel can work on.
-As for the user-space, when coming back from a situation where
-inconsistency may have occurred (VT-switching, sleep/resume, events
-dropped due to a SYN_DROPPED event, or device disabled by the client),
-the user-space driver has to retrieve the current state of the kernel
-driver through the correct ioctls. If it doesn't do it, then that
-means that he is not following the evdev protocol. It's up to it to
-notify or not the toolkit/gesture recognizer that events have been
-dropped.
+Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/input/keyboard/tegra-kbc.c |   81 +++++++++++++++++++++++++++--------
+ 1 files changed, 62 insertions(+), 19 deletions(-)
 
-Cheers,
-Benjamin
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 0e138eb..ccb9298 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -27,17 +27,18 @@
+ #include <linux/io.h>
+ #include <linux/interrupt.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/clk.h>
+ #include <linux/slab.h>
+ #include <linux/input/matrix_keypad.h>
+ #include <linux/clk/tegra.h>
+ 
+-#define KBC_MAX_GPIO	24
+ #define KBC_MAX_KPENT	8
+ 
+-#define KBC_MAX_ROW	16
+-#define KBC_MAX_COL	8
+-#define KBC_MAX_KEY	(KBC_MAX_ROW * KBC_MAX_COL)
++/* Maximum row/column supported by Tegra KBC yet  is 16x8 */
++#define KBC_MAX_GPIO	24
++/* Maximum keys supported by Tegra KBC yet is 16 x 8*/
++#define KBC_MAX_KEY	(16 * 8)
+ 
+ #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
+ 
+@@ -80,6 +81,12 @@ enum tegra_pin_type {
+ 	PIN_CFG_ROW,
+ };
+ 
++/* Tegra KBC hw support */
++struct tegra_kbc_hw_support {
++	int max_rows;
++	int max_columns;
++};
++
+ struct tegra_kbc_pin_cfg {
+ 	enum tegra_pin_type type;
+ 	unsigned char num;
+@@ -108,6 +115,9 @@ struct tegra_kbc {
+ 	u32 wakeup_key;
+ 	struct timer_list timer;
+ 	struct clk *clk;
++	const struct tegra_kbc_hw_support *hw_support;
++	int max_keys;
++	int max_row_columns;
+ };
+ 
+ static void tegra_kbc_report_released_keys(struct input_dev *input,
+@@ -204,11 +214,11 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+ 
+ 	/*
+ 	 * If the platform uses Fn keymaps, translate keys on a Fn keypress.
+-	 * Function keycodes are KBC_MAX_KEY apart from the plain keycodes.
++	 * Function keycodes are max_keys apart from the plain keycodes.
+ 	 */
+ 	if (fn_keypress) {
+ 		for (i = 0; i < num_down; i++) {
+-			scancodes[i] += KBC_MAX_KEY;
++			scancodes[i] += kbc->max_keys;
+ 			keycodes[i] = kbc->keycode[scancodes[i]];
+ 		}
+ 	}
+@@ -315,7 +325,7 @@ static void tegra_kbc_setup_wakekeys(struct tegra_kbc *kbc, bool filter)
+ 	/* Either mask all keys or none. */
+ 	rst_val = (filter && !kbc->wakeup) ? ~0 : 0;
+ 
+-	for (i = 0; i < KBC_MAX_ROW; i++)
++	for (i = 0; i < kbc->hw_support->max_rows; i++)
+ 		writel(rst_val, kbc->mmio + KBC_ROW0_MASK_0 + i * 4);
+ }
+ 
+@@ -452,7 +462,7 @@ static bool tegra_kbc_check_pin_cfg(const struct tegra_kbc *kbc,
+ 
+ 		switch (pin_cfg->type) {
+ 		case PIN_CFG_ROW:
+-			if (pin_cfg->num >= KBC_MAX_ROW) {
++			if (pin_cfg->num >= kbc->hw_support->max_rows) {
+ 				dev_err(kbc->dev,
+ 					"pin_cfg[%d]: invalid row number %d\n",
+ 					i, pin_cfg->num);
+@@ -462,7 +472,7 @@ static bool tegra_kbc_check_pin_cfg(const struct tegra_kbc *kbc,
+ 			break;
+ 
+ 		case PIN_CFG_COL:
+-			if (pin_cfg->num >= KBC_MAX_COL) {
++			if (pin_cfg->num >= kbc->hw_support->max_columns) {
+ 				dev_err(kbc->dev,
+ 					"pin_cfg[%d]: invalid column number %d\n",
+ 					i, pin_cfg->num);
+@@ -520,6 +530,18 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
+ 	}
+ 	num_cols = proplen / sizeof(u32);
+ 
++	if (num_rows > kbc->hw_support->max_rows) {
++		dev_err(kbc->dev,
++			"Number of row is more than supported on SoCs\n");
++		return -EINVAL;
++	}
++
++	if (num_cols > kbc->hw_support->max_columns) {
++		dev_err(kbc->dev,
++			"Number of column is more than supported on SoCs\n");
++		return -EINVAL;
++	}
++
+ 	if (!of_get_property(np, "linux,keymap", &proplen)) {
+ 		dev_err(kbc->dev, "property linux,keymap not found\n");
+ 		return -ENOENT;
+@@ -532,7 +554,7 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
+ 	}
+ 
+ 	/* Set all pins as non-configured */
+-	for (i = 0; i < KBC_MAX_GPIO; i++)
++	for (i = 0; i < kbc->max_row_columns; ++i)
+ 		kbc->pin_cfg[i].type = PIN_CFG_IGNORE;
+ 
+ 	ret = of_property_read_u32_array(np, "nvidia,kbc-row-pins",
+@@ -562,6 +584,24 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
+ 	return 0;
+ }
+ 
++static const struct tegra_kbc_hw_support tegra20_kbc_hw_support = {
++	.max_rows	= 16,
++	.max_columns	= 8,
++};
++
++static const struct tegra_kbc_hw_support tegra11_kbc_hw_support = {
++	.max_rows	= 11,
++	.max_columns	= 8,
++};
++
++static const struct of_device_id tegra_kbc_of_match[] = {
++	{ .compatible = "nvidia,tegra114-kbc", .data = &tegra11_kbc_hw_support},
++	{ .compatible = "nvidia,tegra30-kbc", .data = &tegra20_kbc_hw_support},
++	{ .compatible = "nvidia,tegra20-kbc", .data = &tegra20_kbc_hw_support},
++	{ },
++};
++MODULE_DEVICE_TABLE(of, tegra_kbc_of_match);
++
+ static int tegra_kbc_probe(struct platform_device *pdev)
+ {
+ 	struct tegra_kbc *kbc;
+@@ -570,7 +610,10 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 	int num_rows = 0;
+ 	unsigned int debounce_cnt;
+ 	unsigned int scan_time_rows;
+-	unsigned int keymap_rows = KBC_MAX_KEY;
++	unsigned int keymap_rows;
++	const struct of_device_id *match;
++
++	match = of_match_device(of_match_ptr(tegra_kbc_of_match), &pdev->dev);
+ 
+ 	kbc = devm_kzalloc(&pdev->dev, sizeof(*kbc), GFP_KERNEL);
+ 	if (!kbc) {
+@@ -579,6 +622,12 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	kbc->dev = &pdev->dev;
++	kbc->hw_support = match->data;
++	kbc->max_keys = (kbc->hw_support->max_rows *
++				kbc->hw_support->max_columns);
++	kbc->max_row_columns = (kbc->hw_support->max_rows +
++					kbc->hw_support->max_columns);
++	keymap_rows = kbc->max_keys;
+ 	spin_lock_init(&kbc->lock);
+ 
+ 	err = tegra_kbc_parse_dt(kbc);
+@@ -641,8 +690,8 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 		keymap_rows *= 2;
+ 
+ 	err = matrix_keypad_build_keymap(kbc->keymap_data, NULL,
+-					 keymap_rows, KBC_MAX_COL,
+-					 kbc->keycode, kbc->idev);
++				 keymap_rows, kbc->hw_support->max_columns,
++				 kbc->keycode, kbc->idev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to setup keymap\n");
+ 		return err;
+@@ -767,12 +816,6 @@ static int tegra_kbc_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(tegra_kbc_pm_ops, tegra_kbc_suspend, tegra_kbc_resume);
+ 
+-static const struct of_device_id tegra_kbc_of_match[] = {
+-	{ .compatible = "nvidia,tegra20-kbc", },
+-	{ },
+-};
+-MODULE_DEVICE_TABLE(of, tegra_kbc_of_match);
+-
+ static struct platform_driver tegra_kbc_driver = {
+ 	.probe		= tegra_kbc_probe,
+ 	.driver	= {
+-- 
+1.7.1.1

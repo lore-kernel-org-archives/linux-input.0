@@ -1,153 +1,160 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [RFC] input: mt: Support for touch cancel
-Date: Wed, 13 Mar 2013 10:54:32 +1000
-Message-ID: <20130313005432.GA15794@yabbi.bne.redhat.com>
-References: <CAPDwgkMbwTtf2a5Xuvb3_B18FBJ7w6VJx1CJN=gGwaaRSKzDbA@mail.gmail.com>
- <20130312013605.GA31587@yabbi.redhat.com>
- <CAPDwgkOOVfZ+E0bLJ-Uqq-CgAapYvd9oPg1H1B2MH8gsf62GpQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH] Input: imx_keypad - use devm_ functions
+Date: Wed, 13 Mar 2013 01:21:24 -0300
+Message-ID: <1363148484-5920-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:42540 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932439Ab3CMAyj (ORCPT
+Received: from mail-ea0-f177.google.com ([209.85.215.177]:63970 "EHLO
+	mail-ea0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750932Ab3CMEVg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Mar 2013 20:54:39 -0400
-Content-Disposition: inline
-In-Reply-To: <CAPDwgkOOVfZ+E0bLJ-Uqq-CgAapYvd9oPg1H1B2MH8gsf62GpQ@mail.gmail.com>
+	Wed, 13 Mar 2013 00:21:36 -0400
+Received: by mail-ea0-f177.google.com with SMTP id r16so193798ead.8
+        for <linux-input@vger.kernel.org>; Tue, 12 Mar 2013 21:21:35 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yufeng Shen <miletus@google.com>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Daniel Kurtz <djkurtz@chromium.org>, rbyers@chromium.org, sadrul@chromium.org
+To: dmitry.torokhov@gmail.com
+Cc: s.hauer@pengutronix.de, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-On Tue, Mar 12, 2013 at 02:10:26PM -0400, Yufeng Shen wrote:
-> On Mon, Mar 11, 2013 at 9:36 PM, Peter Hutterer
-> <peter.hutterer@who-t.net> wrote:
-> >
-> > On Mon, Mar 11, 2013 at 04:34:27PM -0400, Yufeng Shen wrote:
-> > > I have ran into cases where I want to make a touch end event to have a
-> > > touch cancel indication.
-> > >
-> > > This comes from trying to solve the problem of :
-> > >
-> > > If the touch sequence happens before the system suspends, and the touch
-> > > release event is
-> > > never received after the system resumes, userspace MT state tracking could
-> > > be in a bad state.
-> > >
-> > > ( see #5 from
-> > > https://bugs.launchpad.net/ubuntu/+source/xserver-xorg-input-synaptics/+bug/968845
-> > > for an example of how this could happen from lid close/open on MBA)
-> >
-> > ftr, this a bug in the driver and should be fixed now.
-> 
-> By driver do you mean the trackpad driver or the xf86-input driver ?
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-xf86-input-synaptics
+Using devm_ functions can make the code cleaner and simpler. 
 
-> From the thread
-> I can only see the fix in xf85-input-synaptics to clear the touch
-> device HW state on
-> resume, which I would expect to have the same side effect of triggering unwanted
-> gesture that I want address in this post, right ?
-> 
-> If there is a fix in trackpad kernel driver, can you point me to that ?
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/input/keyboard/imx_keypad.c |   63 ++++++++---------------------------
+ 1 file changed, 14 insertions(+), 49 deletions(-)
 
-there are two issues: one was that the driver never cleared the state
-correctly and thus was left with inconsistent state. this caused a lot of
-stuck button bugs, etc. that part was buggy and got fixed in
-xf86-input-synaptics.
-
-the server also releases all buttons/touches on a device when it gets
-disabled to avoid stuck buttons. this should release any touch sequences
-from a client's POV.
-
-the issue you want to fix is that you don't want to send those events but
-something else to avoid the clients interpreting this as a release. correct?
-what's the exact use-case here, what's your client stack, how often does
-this happen?
-
-> > > One possible workaround is to let the touch device driver to release all
-> > > existing touches on
-> > > resume, which has the effect of clearing all the MT states in userspace
-> > > touch stacks.
-> > > But the touch release/end event often will result in some gesture being
-> > > recognized and performed,
-> > > like a tap-to-click being generated.
-> > >
-> > > So I am wondering what's the best way to solve the problem of clearing the
-> > > touch states with
-> > > minimal side effect. One way I can think of is to have MTB protocol add
-> > > support of
-> > > a touch cancel indication on touch release, e.g. making TRACKING_ID = -2
-> > > meaning that
-> > > the touch release is synthesized from the system and really has the meaning
-> > > of releasing and canceling the current touch, while TRACKING_ID = -1
-> > > meaning that the touch release is reported back from the device.
-> > >
-> > > And from Xf86-input driver level, we can add a corresponding TouchCancel
-> > > for this.
-> >
-> > I can handle touch-cancel events in the synaptics driver to avoid
-> > tap-to-click but further details get a bit nasty.
-> >
-> > To actually add TouchCancel to the client-protocol means a new XI protocol
-> > revision, plus the stuff in the server _and_ the stuff in the client. that
-> > is quite some lag time here, and if a client cannot handle TouchCancel all
-> > we can do is do a TouchEnd - which will still trigger the gesture.
-> >
-> > even if you update the touch clients you're still lacking any solution for
-> > pointer-emulated clients. again, here we can only do a ButtonRelease event
-> > which again will trigger whatever it did.
-> >
-> > All the above can be implemented though. In fact, I suspect the protocol
-> > part is the easy bit (just a flag on TouchEnd) but the server part is
-> > reasonably nasty.
-> >
-> > the real counter-argument is that I think it is a partial solution only.
-> > From an X perspective touches also end when you vt-switch away from the
-> > server (device is disabled). but the kernel won't cancel the touch event for
-> > that. Or when the device is disabled by the client ("disable touchpad while
-> > typing" feature), So we'd have to maintain both implicit cancel and explicit
-> > cancel in the driver anyway.
-> >
-> > so yeah, I don't think adding this to the kernel would provide any
-> > significant benefit since we still need to handle all the other cases
-> > anyway.
-> >
-> 
-> What's your suggestion on how to handle all the other cases ?
-> 
-> 
-> If you feel it is too much effort to take in X server/client code just for
-> fixing this particular case, how about a more light weighted solution:
-> we still need kernel to mark some touch end event as synthesized, and
-> in xf86-input driver (e.g. evdev),  we attach the XI_TouchEnd event with
-> a special valuator to indicate it has meaning of touch cancel. Then for
-> X clients who wants to handle this case, they can check this particular
-> valuator.
-
-no, i'm not putting hacks like this into the protocol. first, whether the
-kernel does this or not is largely irrelevant to the X driver since the
-kernel suspend is only one case of disabling the device. VT-switch and
-disabling the device manually are the other two and the kernel won't (and
-can't) give us events for this. 
-
-second, the only way you can handle such events in the client is to add it
-to XI 2.4, i.e.  a proper protocol extension with the spec to describe how
-and when it is generated, what the effects on grabs and pointer emulation
-is, etc. the easiest solution is to add a TouchCancelled flag to the
-TouchEnd event, since that flag must be ignored by clients < XI 2.4 and
-we don't need to introduce a new event type. so it's largely
-backwards-compatible, but clients not supporting 2.4 will still release the
-gesture. That doesn't cover the various details though.
-
-you need to also integrate that into the server and I can warn you ahead of
-time, touch grab ownership handling is pretty insane. Either way, that part
-is a topic for xorg-devel@lists.x.org.
-
-Cheers,
-   Peter
-
-
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index 98f9113..09a7a04 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -448,24 +448,17 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	res = request_mem_region(res->start, resource_size(res), pdev->name);
+-	if (res == NULL) {
+-		dev_err(&pdev->dev, "failed to request I/O memory\n");
+-		return -EBUSY;
+-	}
+-
+-	input_dev = input_allocate_device();
++	input_dev = devm_input_allocate_device(&pdev->dev);
+ 	if (!input_dev) {
+ 		dev_err(&pdev->dev, "failed to allocate the input device\n");
+-		error = -ENOMEM;
+-		goto failed_rel_mem;
++		return -ENOMEM;
+ 	}
+ 
+-	keypad = kzalloc(sizeof(struct imx_keypad), GFP_KERNEL);
++	keypad = devm_kzalloc(&pdev->dev, sizeof(struct imx_keypad),
++			     GFP_KERNEL);
+ 	if (!keypad) {
+ 		dev_err(&pdev->dev, "not enough memory for driver data\n");
+-		error = -ENOMEM;
+-		goto failed_free_input;
++		return -ENOMEM;
+ 	}
+ 
+ 	keypad->input_dev = input_dev;
+@@ -475,18 +468,14 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 	setup_timer(&keypad->check_matrix_timer,
+ 		    imx_keypad_check_for_events, (unsigned long) keypad);
+ 
+-	keypad->mmio_base = ioremap(res->start, resource_size(res));
+-	if (keypad->mmio_base == NULL) {
+-		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+-		error = -ENOMEM;
+-		goto failed_free_priv;
+-	}
++	keypad->mmio_base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(keypad->mmio_base))
++		return PTR_ERR(keypad->mmio_base);
+ 
+-	keypad->clk = clk_get(&pdev->dev, NULL);
++	keypad->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(keypad->clk)) {
+ 		dev_err(&pdev->dev, "failed to get keypad clock\n");
+-		error = PTR_ERR(keypad->clk);
+-		goto failed_unmap;
++		return PTR_ERR(keypad->clk);
+ 	}
+ 
+ 	/* Init the Input device */
+@@ -502,7 +491,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 					   keypad->keycodes, input_dev);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to build keymap\n");
+-		goto failed_clock_put;
++		return error;
+ 	}
+ 
+ 	/* Search for rows and cols enabled */
+@@ -527,44 +516,29 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 	imx_keypad_inhibit(keypad);
+ 	clk_disable_unprepare(keypad->clk);
+ 
+-	error = request_irq(irq, imx_keypad_irq_handler, 0,
++	error = devm_request_irq(&pdev->dev, irq, imx_keypad_irq_handler, 0,
+ 			    pdev->name, keypad);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to request IRQ\n");
+-		goto failed_clock_put;
++		return error;
+ 	}
+ 
+ 	/* Register the input device */
+ 	error = input_register_device(input_dev);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to register input device\n");
+-		goto failed_free_irq;
++		return error;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, keypad);
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+ 	return 0;
+-
+-failed_free_irq:
+-	free_irq(irq, pdev);
+-failed_clock_put:
+-	clk_put(keypad->clk);
+-failed_unmap:
+-	iounmap(keypad->mmio_base);
+-failed_free_priv:
+-	kfree(keypad);
+-failed_free_input:
+-	input_free_device(input_dev);
+-failed_rel_mem:
+-	release_mem_region(res->start, resource_size(res));
+-	return error;
+ }
+ 
+ static int imx_keypad_remove(struct platform_device *pdev)
+ {
+ 	struct imx_keypad *keypad = platform_get_drvdata(pdev);
+-	struct resource *res;
+ 
+ 	dev_dbg(&pdev->dev, ">%s\n", __func__);
+ 
+@@ -572,15 +546,6 @@ static int imx_keypad_remove(struct platform_device *pdev)
+ 
+ 	input_unregister_device(keypad->input_dev);
+ 
+-	free_irq(keypad->irq, keypad);
+-	clk_put(keypad->clk);
+-
+-	iounmap(keypad->mmio_base);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	release_mem_region(res->start, resource_size(res));
+-
+-	kfree(keypad);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.7.9.5
 

@@ -1,90 +1,45 @@
 From: Benson Leung <bleung@chromium.org>
-Subject: [PATCH 4/4] Input: cyapa - Add sysfs attrs for product_id and fw version
-Date: Wed, 13 Mar 2013 16:50:51 -0700
-Message-ID: <1363218651-22457-5-git-send-email-bleung@chromium.org>
+Subject: [PATCH 3/4] Input: cyapa - Allow filename to be changed in update_fw
+Date: Wed, 13 Mar 2013 16:50:50 -0700
+Message-ID: <1363218651-22457-4-git-send-email-bleung@chromium.org>
 References: <1363218651-22457-1-git-send-email-bleung@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:63136 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934461Ab3CMXvQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Mar 2013 19:51:16 -0400
-Received: by mail-pb0-f52.google.com with SMTP id ma3so1509637pbc.25
-        for <linux-input@vger.kernel.org>; Wed, 13 Mar 2013 16:51:15 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1363218651-22457-1-git-send-email-bleung@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
 Cc: bleung@chromium.org, olofj@chromium.org, djkurtz@chromium.org, dudl@cypress.com
+List-Id: linux-input@vger.kernel.org
 
-Add attributes to expose the product_id and firmware_version read
-from the device firmware.
+Allow the name of the designated firmware to be passed as the
+argument to update_fw from user space. This will allow user space
+to specify which firmware to load.
 
-Signed-off-by: Dudley Du <dudl@cypress.com>
 Signed-off-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/mouse/cyapa.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/input/mouse/cyapa.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index 51e9d44..97828f6 100644
+index e622c25..51e9d44 100644
 --- a/drivers/input/mouse/cyapa.c
 +++ b/drivers/input/mouse/cyapa.c
-@@ -216,6 +216,8 @@ struct cyapa {
- 
- 	/* read from query data region. */
- 	char product_id[16];
-+	u8 fw_maj_ver;  /* firmware major version. */
-+	u8 fw_min_ver;  /* firmware minor version. */
- 	u8 btn_capability;
- 	u8 gen;
- 	int max_abs_x;
-@@ -714,6 +716,9 @@ static int cyapa_get_query_data(struct cyapa *cyapa)
- 	memcpy(&cyapa->product_id[13], &query_data[11], 2);
- 	cyapa->product_id[15] = '\0';
- 
-+	cyapa->fw_maj_ver = query_data[15];
-+	cyapa->fw_min_ver = query_data[16];
-+
- 	cyapa->btn_capability = query_data[19] & CAPABILITY_BTN_MASK;
- 
- 	cyapa->gen = query_data[20] & 0x0f;
-@@ -1175,6 +1180,21 @@ done:
- /*
-  * Sysfs Interface.
-  */
-+static ssize_t cyapa_show_fm_ver(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	return scnprintf(buf, PAGE_SIZE, "%d.%d\n", cyapa->fw_maj_ver,
-+			 cyapa->fw_min_ver);
-+}
-+
-+static ssize_t cyapa_show_product_id(struct device *dev,
-+				     struct device_attribute *attr, char *buf)
-+{
-+	struct cyapa *cyapa = dev_get_drvdata(dev);
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", cyapa->product_id);
-+}
-+
- static ssize_t cyapa_update_fw_store(struct device *dev,
- 				     struct device_attribute *attr,
+@@ -1180,9 +1180,16 @@ static ssize_t cyapa_update_fw_store(struct device *dev,
  				     const char *buf, size_t count)
-@@ -1199,9 +1219,13 @@ static ssize_t cyapa_update_fw_store(struct device *dev,
- 	return ret ? ret : count;
- }
+ {
+ 	struct cyapa *cyapa = dev_get_drvdata(dev);
+-	const char *fw_name = CYAPA_FW_NAME;
++	const char *fw_name;
+ 	int ret;
  
-+static DEVICE_ATTR(firmware_version, S_IRUGO, cyapa_show_fm_ver, NULL);
-+static DEVICE_ATTR(product_id, S_IRUGO, cyapa_show_product_id, NULL);
- static DEVICE_ATTR(update_fw, S_IWUSR, NULL, cyapa_update_fw_store);
- 
- static struct attribute *cyapa_sysfs_entries[] = {
-+	&dev_attr_firmware_version.attr,
-+	&dev_attr_product_id.attr,
- 	&dev_attr_update_fw.attr,
- 	NULL,
- };
++	/* Do not allow paths that step out of /lib/firmware  */
++	if (strstr(buf, "../") != NULL)
++		return -EINVAL;
++
++	fw_name = !strncmp(buf, "1", count) ||
++		  !strncmp(buf, "1\n", count) ? CYAPA_FW_NAME : buf;
++
+ 	ret = cyapa_firmware(cyapa, fw_name);
+ 	if (ret)
+ 		dev_err(dev, "firmware update failed, %d\n", ret);
 -- 
 1.8.1.3
-

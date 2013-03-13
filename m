@@ -1,172 +1,225 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH v2] Input: imx_keypad - use devm_ functions
-Date: Wed, 13 Mar 2013 13:51:06 -0300
-Message-ID: <1363193466-10737-1-git-send-email-festevam@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gh0-f178.google.com ([209.85.160.178]:52703 "EHLO
-	mail-gh0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933907Ab3CMQ7M (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Mar 2013 12:59:12 -0400
-Received: by mail-gh0-f178.google.com with SMTP id g24so214058ghb.23
-        for <linux-input@vger.kernel.org>; Wed, 13 Mar 2013 09:59:12 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH V2] input: keyboard: tegra: support for defining row/columns based on SoC
+Date: Wed, 13 Mar 2013 22:44:33 +0530
+Message-ID: <1363194873-13723-1-git-send-email-ldewangan@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: s.hauer@pengutronix.de, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-From: Fabio Estevam <fabio.estevam@freescale.com>
+NVIDIA's Tegra20 and Tegra30 supports the 16x8 keyboard matrix and T114
+support the 11x8 Key matrix.
 
-Using devm_ functions can make the code cleaner and simpler. 
+Add support for defining the maximum row/columns based on SoC through
+proper compatibity.
 
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Reviewed-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
-Changes since v1:
-- Remove imx_keypad_remove()
+Changes from V1:
+- cleanup changes as suggested by Stephen
+- rename variable "max_row_colums" to num_rows_and_columns.
+- Better write error message.
+- Remove non-require () in expression.
 
- drivers/input/keyboard/imx_keypad.c |   77 +++++++----------------------------
- 1 file changed, 14 insertions(+), 63 deletions(-)
+ drivers/input/keyboard/tegra-kbc.c |   81 +++++++++++++++++++++++++++--------
+ 1 files changed, 62 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 98f9113..03c8cc5 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -448,24 +448,17 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 		return -EINVAL;
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 0e138eb..72b06ad 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -27,17 +27,18 @@
+ #include <linux/io.h>
+ #include <linux/interrupt.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/clk.h>
+ #include <linux/slab.h>
+ #include <linux/input/matrix_keypad.h>
+ #include <linux/clk/tegra.h>
+ 
+-#define KBC_MAX_GPIO	24
+ #define KBC_MAX_KPENT	8
+ 
+-#define KBC_MAX_ROW	16
+-#define KBC_MAX_COL	8
+-#define KBC_MAX_KEY	(KBC_MAX_ROW * KBC_MAX_COL)
++/* Maximum row/column supported by Tegra KBC yet  is 16x8 */
++#define KBC_MAX_GPIO	24
++/* Maximum keys supported by Tegra KBC yet is 16 x 8*/
++#define KBC_MAX_KEY	(16 * 8)
+ 
+ #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
+ 
+@@ -80,6 +81,12 @@ enum tegra_pin_type {
+ 	PIN_CFG_ROW,
+ };
+ 
++/* Tegra KBC hw support */
++struct tegra_kbc_hw_support {
++	int max_rows;
++	int max_columns;
++};
++
+ struct tegra_kbc_pin_cfg {
+ 	enum tegra_pin_type type;
+ 	unsigned char num;
+@@ -108,6 +115,9 @@ struct tegra_kbc {
+ 	u32 wakeup_key;
+ 	struct timer_list timer;
+ 	struct clk *clk;
++	const struct tegra_kbc_hw_support *hw_support;
++	int max_keys;
++	int num_rows_and_columns;
+ };
+ 
+ static void tegra_kbc_report_released_keys(struct input_dev *input,
+@@ -204,11 +214,11 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
+ 
+ 	/*
+ 	 * If the platform uses Fn keymaps, translate keys on a Fn keypress.
+-	 * Function keycodes are KBC_MAX_KEY apart from the plain keycodes.
++	 * Function keycodes are max_keys apart from the plain keycodes.
+ 	 */
+ 	if (fn_keypress) {
+ 		for (i = 0; i < num_down; i++) {
+-			scancodes[i] += KBC_MAX_KEY;
++			scancodes[i] += kbc->max_keys;
+ 			keycodes[i] = kbc->keycode[scancodes[i]];
+ 		}
  	}
+@@ -315,7 +325,7 @@ static void tegra_kbc_setup_wakekeys(struct tegra_kbc *kbc, bool filter)
+ 	/* Either mask all keys or none. */
+ 	rst_val = (filter && !kbc->wakeup) ? ~0 : 0;
  
--	res = request_mem_region(res->start, resource_size(res), pdev->name);
--	if (res == NULL) {
--		dev_err(&pdev->dev, "failed to request I/O memory\n");
--		return -EBUSY;
--	}
--
--	input_dev = input_allocate_device();
-+	input_dev = devm_input_allocate_device(&pdev->dev);
- 	if (!input_dev) {
- 		dev_err(&pdev->dev, "failed to allocate the input device\n");
--		error = -ENOMEM;
--		goto failed_rel_mem;
-+		return -ENOMEM;
- 	}
- 
--	keypad = kzalloc(sizeof(struct imx_keypad), GFP_KERNEL);
-+	keypad = devm_kzalloc(&pdev->dev, sizeof(struct imx_keypad),
-+			     GFP_KERNEL);
- 	if (!keypad) {
- 		dev_err(&pdev->dev, "not enough memory for driver data\n");
--		error = -ENOMEM;
--		goto failed_free_input;
-+		return -ENOMEM;
- 	}
- 
- 	keypad->input_dev = input_dev;
-@@ -475,18 +468,14 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 	setup_timer(&keypad->check_matrix_timer,
- 		    imx_keypad_check_for_events, (unsigned long) keypad);
- 
--	keypad->mmio_base = ioremap(res->start, resource_size(res));
--	if (keypad->mmio_base == NULL) {
--		dev_err(&pdev->dev, "failed to remap I/O memory\n");
--		error = -ENOMEM;
--		goto failed_free_priv;
--	}
-+	keypad->mmio_base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(keypad->mmio_base))
-+		return PTR_ERR(keypad->mmio_base);
- 
--	keypad->clk = clk_get(&pdev->dev, NULL);
-+	keypad->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(keypad->clk)) {
- 		dev_err(&pdev->dev, "failed to get keypad clock\n");
--		error = PTR_ERR(keypad->clk);
--		goto failed_unmap;
-+		return PTR_ERR(keypad->clk);
- 	}
- 
- 	/* Init the Input device */
-@@ -502,7 +491,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 					   keypad->keycodes, input_dev);
- 	if (error) {
- 		dev_err(&pdev->dev, "failed to build keymap\n");
--		goto failed_clock_put;
-+		return error;
- 	}
- 
- 	/* Search for rows and cols enabled */
-@@ -527,61 +516,24 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 	imx_keypad_inhibit(keypad);
- 	clk_disable_unprepare(keypad->clk);
- 
--	error = request_irq(irq, imx_keypad_irq_handler, 0,
-+	error = devm_request_irq(&pdev->dev, irq, imx_keypad_irq_handler, 0,
- 			    pdev->name, keypad);
- 	if (error) {
- 		dev_err(&pdev->dev, "failed to request IRQ\n");
--		goto failed_clock_put;
-+		return error;
- 	}
- 
- 	/* Register the input device */
- 	error = input_register_device(input_dev);
- 	if (error) {
- 		dev_err(&pdev->dev, "failed to register input device\n");
--		goto failed_free_irq;
-+		return error;
- 	}
- 
- 	platform_set_drvdata(pdev, keypad);
- 	device_init_wakeup(&pdev->dev, 1);
- 
- 	return 0;
--
--failed_free_irq:
--	free_irq(irq, pdev);
--failed_clock_put:
--	clk_put(keypad->clk);
--failed_unmap:
--	iounmap(keypad->mmio_base);
--failed_free_priv:
--	kfree(keypad);
--failed_free_input:
--	input_free_device(input_dev);
--failed_rel_mem:
--	release_mem_region(res->start, resource_size(res));
--	return error;
--}
--
--static int imx_keypad_remove(struct platform_device *pdev)
--{
--	struct imx_keypad *keypad = platform_get_drvdata(pdev);
--	struct resource *res;
--
--	dev_dbg(&pdev->dev, ">%s\n", __func__);
--
--	platform_set_drvdata(pdev, NULL);
--
--	input_unregister_device(keypad->input_dev);
--
--	free_irq(keypad->irq, keypad);
--	clk_put(keypad->clk);
--
--	iounmap(keypad->mmio_base);
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	release_mem_region(res->start, resource_size(res));
--
--	kfree(keypad);
--
--	return 0;
+-	for (i = 0; i < KBC_MAX_ROW; i++)
++	for (i = 0; i < kbc->hw_support->max_rows; i++)
+ 		writel(rst_val, kbc->mmio + KBC_ROW0_MASK_0 + i * 4);
  }
  
- #ifdef CONFIG_PM_SLEEP
-@@ -640,7 +592,6 @@ static struct platform_driver imx_keypad_driver = {
- 		.of_match_table = of_match_ptr(imx_keypad_of_match),
- 	},
- 	.probe		= imx_keypad_probe,
--	.remove		= imx_keypad_remove,
- };
- module_platform_driver(imx_keypad_driver);
+@@ -452,7 +462,7 @@ static bool tegra_kbc_check_pin_cfg(const struct tegra_kbc *kbc,
  
+ 		switch (pin_cfg->type) {
+ 		case PIN_CFG_ROW:
+-			if (pin_cfg->num >= KBC_MAX_ROW) {
++			if (pin_cfg->num >= kbc->hw_support->max_rows) {
+ 				dev_err(kbc->dev,
+ 					"pin_cfg[%d]: invalid row number %d\n",
+ 					i, pin_cfg->num);
+@@ -462,7 +472,7 @@ static bool tegra_kbc_check_pin_cfg(const struct tegra_kbc *kbc,
+ 			break;
+ 
+ 		case PIN_CFG_COL:
+-			if (pin_cfg->num >= KBC_MAX_COL) {
++			if (pin_cfg->num >= kbc->hw_support->max_columns) {
+ 				dev_err(kbc->dev,
+ 					"pin_cfg[%d]: invalid column number %d\n",
+ 					i, pin_cfg->num);
+@@ -520,6 +530,18 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
+ 	}
+ 	num_cols = proplen / sizeof(u32);
+ 
++	if (num_rows > kbc->hw_support->max_rows) {
++		dev_err(kbc->dev,
++			"Number of rows is more than supported by hardware\n");
++		return -EINVAL;
++	}
++
++	if (num_cols > kbc->hw_support->max_columns) {
++		dev_err(kbc->dev,
++			"Number of cols is more than supported by hardware\n");
++		return -EINVAL;
++	}
++
+ 	if (!of_get_property(np, "linux,keymap", &proplen)) {
+ 		dev_err(kbc->dev, "property linux,keymap not found\n");
+ 		return -ENOENT;
+@@ -532,7 +554,7 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
+ 	}
+ 
+ 	/* Set all pins as non-configured */
+-	for (i = 0; i < KBC_MAX_GPIO; i++)
++	for (i = 0; i < kbc->num_rows_and_columns; ++i)
+ 		kbc->pin_cfg[i].type = PIN_CFG_IGNORE;
+ 
+ 	ret = of_property_read_u32_array(np, "nvidia,kbc-row-pins",
+@@ -562,6 +584,24 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
+ 	return 0;
+ }
+ 
++static const struct tegra_kbc_hw_support tegra20_kbc_hw_support = {
++	.max_rows	= 16,
++	.max_columns	= 8,
++};
++
++static const struct tegra_kbc_hw_support tegra11_kbc_hw_support = {
++	.max_rows	= 11,
++	.max_columns	= 8,
++};
++
++static const struct of_device_id tegra_kbc_of_match[] = {
++	{ .compatible = "nvidia,tegra114-kbc", .data = &tegra11_kbc_hw_support},
++	{ .compatible = "nvidia,tegra30-kbc", .data = &tegra20_kbc_hw_support},
++	{ .compatible = "nvidia,tegra20-kbc", .data = &tegra20_kbc_hw_support},
++	{ },
++};
++MODULE_DEVICE_TABLE(of, tegra_kbc_of_match);
++
+ static int tegra_kbc_probe(struct platform_device *pdev)
+ {
+ 	struct tegra_kbc *kbc;
+@@ -570,7 +610,10 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 	int num_rows = 0;
+ 	unsigned int debounce_cnt;
+ 	unsigned int scan_time_rows;
+-	unsigned int keymap_rows = KBC_MAX_KEY;
++	unsigned int keymap_rows;
++	const struct of_device_id *match;
++
++	match = of_match_device(of_match_ptr(tegra_kbc_of_match), &pdev->dev);
+ 
+ 	kbc = devm_kzalloc(&pdev->dev, sizeof(*kbc), GFP_KERNEL);
+ 	if (!kbc) {
+@@ -579,6 +622,12 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	kbc->dev = &pdev->dev;
++	kbc->hw_support = match->data;
++	kbc->max_keys = kbc->hw_support->max_rows *
++				kbc->hw_support->max_columns;
++	kbc->num_rows_and_columns = kbc->hw_support->max_rows +
++					kbc->hw_support->max_columns;
++	keymap_rows = kbc->max_keys;
+ 	spin_lock_init(&kbc->lock);
+ 
+ 	err = tegra_kbc_parse_dt(kbc);
+@@ -641,8 +690,8 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 		keymap_rows *= 2;
+ 
+ 	err = matrix_keypad_build_keymap(kbc->keymap_data, NULL,
+-					 keymap_rows, KBC_MAX_COL,
+-					 kbc->keycode, kbc->idev);
++				 keymap_rows, kbc->hw_support->max_columns,
++				 kbc->keycode, kbc->idev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to setup keymap\n");
+ 		return err;
+@@ -767,12 +816,6 @@ static int tegra_kbc_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(tegra_kbc_pm_ops, tegra_kbc_suspend, tegra_kbc_resume);
+ 
+-static const struct of_device_id tegra_kbc_of_match[] = {
+-	{ .compatible = "nvidia,tegra20-kbc", },
+-	{ },
+-};
+-MODULE_DEVICE_TABLE(of, tegra_kbc_of_match);
+-
+ static struct platform_driver tegra_kbc_driver = {
+ 	.probe		= tegra_kbc_probe,
+ 	.driver	= {
 -- 
-1.7.9.5
-
+1.7.1.1

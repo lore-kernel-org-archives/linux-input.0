@@ -1,225 +1,236 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH V2] input: keyboard: tegra: support for defining row/columns based on SoC
-Date: Wed, 13 Mar 2013 22:44:33 +0530
-Message-ID: <1363194873-13723-1-git-send-email-ldewangan@nvidia.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [RFC] input: mt: Support for touch cancel
+Date: Thu, 14 Mar 2013 09:43:27 +1000
+Message-ID: <20130313234327.GA5162@yabbi.redhat.com>
+References: <CAPDwgkMbwTtf2a5Xuvb3_B18FBJ7w6VJx1CJN=gGwaaRSKzDbA@mail.gmail.com>
+ <20130312013605.GA31587@yabbi.redhat.com>
+ <CAPDwgkOOVfZ+E0bLJ-Uqq-CgAapYvd9oPg1H1B2MH8gsf62GpQ@mail.gmail.com>
+ <20130313005432.GA15794@yabbi.bne.redhat.com>
+ <CAPDwgkO5LUUkVQiUWyoC+mSeN+fXDPV2yV-2Qt6aqQ=eh-bwpg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from leo.clearchain.com ([199.73.29.74]:56282 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932359Ab3CMXnd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Mar 2013 19:43:33 -0400
+Content-Disposition: inline
+In-Reply-To: <CAPDwgkO5LUUkVQiUWyoC+mSeN+fXDPV2yV-2Qt6aqQ=eh-bwpg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yufeng Shen <miletus@chromium.org>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Daniel Kurtz <djkurtz@chromium.org>, rbyers@chromium.org, sadrul@chromium.org
 
-NVIDIA's Tegra20 and Tegra30 supports the 16x8 keyboard matrix and T114
-support the 11x8 Key matrix.
+On Wed, Mar 13, 2013 at 06:44:24PM -0400, Yufeng Shen wrote:
+> On Tue, Mar 12, 2013 at 8:54 PM, Peter Hutterer <peter.hutterer@who-t.net>wrote:
+> 
+> > On Tue, Mar 12, 2013 at 02:10:26PM -0400, Yufeng Shen wrote:
+> > > On Mon, Mar 11, 2013 at 9:36 PM, Peter Hutterer
+> > > <peter.hutterer@who-t.net> wrote:
+> > > >
+> > > > On Mon, Mar 11, 2013 at 04:34:27PM -0400, Yufeng Shen wrote:
+> > > > > I have ran into cases where I want to make a touch end event to have
+> > a
+> > > > > touch cancel indication.
+> > > > >
+> > > > > This comes from trying to solve the problem of :
+> > > > >
+> > > > > If the touch sequence happens before the system suspends, and the
+> > touch
+> > > > > release event is
+> > > > > never received after the system resumes, userspace MT state tracking
+> > could
+> > > > > be in a bad state.
+> > > > >
+> > > > > ( see #5 from
+> > > > >
+> > https://bugs.launchpad.net/ubuntu/+source/xserver-xorg-input-synaptics/+bug/968845
+> > > > > for an example of how this could happen from lid close/open on MBA)
+> > > >
+> > > > ftr, this a bug in the driver and should be fixed now.
+> > >
+> > > By driver do you mean the trackpad driver or the xf86-input driver ?
+> >
+> > xf86-input-synaptics
+> >
+> > > From the thread
+> > > I can only see the fix in xf85-input-synaptics to clear the touch
+> > > device HW state on
+> > > resume, which I would expect to have the same side effect of triggering
+> > unwanted
+> > > gesture that I want address in this post, right ?
+> > >
+> > > If there is a fix in trackpad kernel driver, can you point me to that ?
+> >
+> > there are two issues: one was that the driver never cleared the state
+> > correctly and thus was left with inconsistent state. this caused a lot of
+> > stuck button bugs, etc. that part was buggy and got fixed in
+> > xf86-input-synaptics.
+> >
+> > the server also releases all buttons/touches on a device when it gets
+> > disabled to avoid stuck buttons. this should release any touch sequences
+> > from a client's POV.
+> >
+> > the issue you want to fix is that you don't want to send those events but
+> > something else to avoid the clients interpreting this as a release.
+> > correct?
+> > what's the exact use-case here, what's your client stack, how often does
+> > this happen?
+> >
+> >
+> Right. The problem we are facing is that we have seen noise touch events
+> generated around suspend/resume (caused by the magnet from the lid
+> affecting the touch sensor during the lid close/open on our testing
+> devices).
+> This can cause stuck finger problem, as you have pointed out above, if the
+> touch release events get lost during system sleep. This does happen from
+> time to time depending on how user closes the lid and the environment
+> condition.
+> 
 
-Add support for defining the maximum row/columns based on SoC through
-proper compatibity.
+is there anything special about these fake touches that they can be
+identified? location, timing, pressure, size of contact, etc?
+because if so, we can look at ignoring those in the synaptics driver for
+apple touchpads.
 
-Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Reviewed-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-Changes from V1:
-- cleanup changes as suggested by Stephen
-- rename variable "max_row_colums" to num_rows_and_columns.
-- Better write error message.
-- Remove non-require () in expression.
+> The stacks here are
+> device driver  --> xf86-input-evdev  --> X server --> custom gesture
+> recognizer
+> 
+> We did a local patch in device driver that upon resume, releases all
+> fingers/slots. This will clear all the MT states in higher stacks, but would
+> cause the gesture recognizer to generate some unwanted gestures
+> (like clicks, particularly bad if the objects underneath happen to be
+> clickable).
+> So we put another hack in the device driver that when releasing
+> touches on resume, we assign these fake touches end events with a max
+> touch pressure & touch_major, so the gesture recognizer knows how to
+> filter out these touch end events to not cause any gesture.
 
- drivers/input/keyboard/tegra-kbc.c |   81 +++++++++++++++++++++++++++--------
- 1 files changed, 62 insertions(+), 19 deletions(-)
+for your hack, if there is a suspend/resume between touch begin/end then you
+should get hierarchy events in the recogniser and you can then discard all
+touch events from a device that just got enabled but still has touches
+ongoing.
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 0e138eb..72b06ad 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -27,17 +27,18 @@
- #include <linux/io.h>
- #include <linux/interrupt.h>
- #include <linux/of.h>
-+#include <linux/of_device.h>
- #include <linux/clk.h>
- #include <linux/slab.h>
- #include <linux/input/matrix_keypad.h>
- #include <linux/clk/tegra.h>
+fwiw, with the current driver touches are released on _suspend_, not resume.
+which only makes the problem more difficult of course. 
  
--#define KBC_MAX_GPIO	24
- #define KBC_MAX_KPENT	8
- 
--#define KBC_MAX_ROW	16
--#define KBC_MAX_COL	8
--#define KBC_MAX_KEY	(KBC_MAX_ROW * KBC_MAX_COL)
-+/* Maximum row/column supported by Tegra KBC yet  is 16x8 */
-+#define KBC_MAX_GPIO	24
-+/* Maximum keys supported by Tegra KBC yet is 16 x 8*/
-+#define KBC_MAX_KEY	(16 * 8)
- 
- #define KBC_MAX_DEBOUNCE_CNT	0x3ffu
- 
-@@ -80,6 +81,12 @@ enum tegra_pin_type {
- 	PIN_CFG_ROW,
- };
- 
-+/* Tegra KBC hw support */
-+struct tegra_kbc_hw_support {
-+	int max_rows;
-+	int max_columns;
-+};
-+
- struct tegra_kbc_pin_cfg {
- 	enum tegra_pin_type type;
- 	unsigned char num;
-@@ -108,6 +115,9 @@ struct tegra_kbc {
- 	u32 wakeup_key;
- 	struct timer_list timer;
- 	struct clk *clk;
-+	const struct tegra_kbc_hw_support *hw_support;
-+	int max_keys;
-+	int num_rows_and_columns;
- };
- 
- static void tegra_kbc_report_released_keys(struct input_dev *input,
-@@ -204,11 +214,11 @@ static void tegra_kbc_report_keys(struct tegra_kbc *kbc)
- 
- 	/*
- 	 * If the platform uses Fn keymaps, translate keys on a Fn keypress.
--	 * Function keycodes are KBC_MAX_KEY apart from the plain keycodes.
-+	 * Function keycodes are max_keys apart from the plain keycodes.
- 	 */
- 	if (fn_keypress) {
- 		for (i = 0; i < num_down; i++) {
--			scancodes[i] += KBC_MAX_KEY;
-+			scancodes[i] += kbc->max_keys;
- 			keycodes[i] = kbc->keycode[scancodes[i]];
- 		}
- 	}
-@@ -315,7 +325,7 @@ static void tegra_kbc_setup_wakekeys(struct tegra_kbc *kbc, bool filter)
- 	/* Either mask all keys or none. */
- 	rst_val = (filter && !kbc->wakeup) ? ~0 : 0;
- 
--	for (i = 0; i < KBC_MAX_ROW; i++)
-+	for (i = 0; i < kbc->hw_support->max_rows; i++)
- 		writel(rst_val, kbc->mmio + KBC_ROW0_MASK_0 + i * 4);
- }
- 
-@@ -452,7 +462,7 @@ static bool tegra_kbc_check_pin_cfg(const struct tegra_kbc *kbc,
- 
- 		switch (pin_cfg->type) {
- 		case PIN_CFG_ROW:
--			if (pin_cfg->num >= KBC_MAX_ROW) {
-+			if (pin_cfg->num >= kbc->hw_support->max_rows) {
- 				dev_err(kbc->dev,
- 					"pin_cfg[%d]: invalid row number %d\n",
- 					i, pin_cfg->num);
-@@ -462,7 +472,7 @@ static bool tegra_kbc_check_pin_cfg(const struct tegra_kbc *kbc,
- 			break;
- 
- 		case PIN_CFG_COL:
--			if (pin_cfg->num >= KBC_MAX_COL) {
-+			if (pin_cfg->num >= kbc->hw_support->max_columns) {
- 				dev_err(kbc->dev,
- 					"pin_cfg[%d]: invalid column number %d\n",
- 					i, pin_cfg->num);
-@@ -520,6 +530,18 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
- 	}
- 	num_cols = proplen / sizeof(u32);
- 
-+	if (num_rows > kbc->hw_support->max_rows) {
-+		dev_err(kbc->dev,
-+			"Number of rows is more than supported by hardware\n");
-+		return -EINVAL;
-+	}
-+
-+	if (num_cols > kbc->hw_support->max_columns) {
-+		dev_err(kbc->dev,
-+			"Number of cols is more than supported by hardware\n");
-+		return -EINVAL;
-+	}
-+
- 	if (!of_get_property(np, "linux,keymap", &proplen)) {
- 		dev_err(kbc->dev, "property linux,keymap not found\n");
- 		return -ENOENT;
-@@ -532,7 +554,7 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
- 	}
- 
- 	/* Set all pins as non-configured */
--	for (i = 0; i < KBC_MAX_GPIO; i++)
-+	for (i = 0; i < kbc->num_rows_and_columns; ++i)
- 		kbc->pin_cfg[i].type = PIN_CFG_IGNORE;
- 
- 	ret = of_property_read_u32_array(np, "nvidia,kbc-row-pins",
-@@ -562,6 +584,24 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
- 	return 0;
- }
- 
-+static const struct tegra_kbc_hw_support tegra20_kbc_hw_support = {
-+	.max_rows	= 16,
-+	.max_columns	= 8,
-+};
-+
-+static const struct tegra_kbc_hw_support tegra11_kbc_hw_support = {
-+	.max_rows	= 11,
-+	.max_columns	= 8,
-+};
-+
-+static const struct of_device_id tegra_kbc_of_match[] = {
-+	{ .compatible = "nvidia,tegra114-kbc", .data = &tegra11_kbc_hw_support},
-+	{ .compatible = "nvidia,tegra30-kbc", .data = &tegra20_kbc_hw_support},
-+	{ .compatible = "nvidia,tegra20-kbc", .data = &tegra20_kbc_hw_support},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, tegra_kbc_of_match);
-+
- static int tegra_kbc_probe(struct platform_device *pdev)
- {
- 	struct tegra_kbc *kbc;
-@@ -570,7 +610,10 @@ static int tegra_kbc_probe(struct platform_device *pdev)
- 	int num_rows = 0;
- 	unsigned int debounce_cnt;
- 	unsigned int scan_time_rows;
--	unsigned int keymap_rows = KBC_MAX_KEY;
-+	unsigned int keymap_rows;
-+	const struct of_device_id *match;
-+
-+	match = of_match_device(of_match_ptr(tegra_kbc_of_match), &pdev->dev);
- 
- 	kbc = devm_kzalloc(&pdev->dev, sizeof(*kbc), GFP_KERNEL);
- 	if (!kbc) {
-@@ -579,6 +622,12 @@ static int tegra_kbc_probe(struct platform_device *pdev)
- 	}
- 
- 	kbc->dev = &pdev->dev;
-+	kbc->hw_support = match->data;
-+	kbc->max_keys = kbc->hw_support->max_rows *
-+				kbc->hw_support->max_columns;
-+	kbc->num_rows_and_columns = kbc->hw_support->max_rows +
-+					kbc->hw_support->max_columns;
-+	keymap_rows = kbc->max_keys;
- 	spin_lock_init(&kbc->lock);
- 
- 	err = tegra_kbc_parse_dt(kbc);
-@@ -641,8 +690,8 @@ static int tegra_kbc_probe(struct platform_device *pdev)
- 		keymap_rows *= 2;
- 
- 	err = matrix_keypad_build_keymap(kbc->keymap_data, NULL,
--					 keymap_rows, KBC_MAX_COL,
--					 kbc->keycode, kbc->idev);
-+				 keymap_rows, kbc->hw_support->max_columns,
-+				 kbc->keycode, kbc->idev);
- 	if (err) {
- 		dev_err(&pdev->dev, "failed to setup keymap\n");
- 		return err;
-@@ -767,12 +816,6 @@ static int tegra_kbc_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(tegra_kbc_pm_ops, tegra_kbc_suspend, tegra_kbc_resume);
- 
--static const struct of_device_id tegra_kbc_of_match[] = {
--	{ .compatible = "nvidia,tegra20-kbc", },
--	{ },
--};
--MODULE_DEVICE_TABLE(of, tegra_kbc_of_match);
--
- static struct platform_driver tegra_kbc_driver = {
- 	.probe		= tegra_kbc_probe,
- 	.driver	= {
--- 
-1.7.1.1
+> But we want to know if there is a more formal way of addressing this
+> problem. That's how I started this thread about wanting a support of
+> "touch cancel" events.
+> 
+> With the original problem being described, do you have suggestion on
+> on how to better solve this problem ?
+
+tbh, putting in a new protocol revision for buggy hardware is not on top of
+my wishlist.
+
+Cheers,
+   Peter
+
+> 
+> > > > > One possible workaround is to let the touch device driver to release
+> > all
+> > > > > existing touches on
+> > > > > resume, which has the effect of clearing all the MT states in
+> > userspace
+> > > > > touch stacks.
+> > > > > But the touch release/end event often will result in some gesture
+> > being
+> > > > > recognized and performed,
+> > > > > like a tap-to-click being generated.
+> > > > >
+> > > > > So I am wondering what's the best way to solve the problem of
+> > clearing the
+> > > > > touch states with
+> > > > > minimal side effect. One way I can think of is to have MTB protocol
+> > add
+> > > > > support of
+> > > > > a touch cancel indication on touch release, e.g. making TRACKING_ID
+> > = -2
+> > > > > meaning that
+> > > > > the touch release is synthesized from the system and really has the
+> > meaning
+> > > > > of releasing and canceling the current touch, while TRACKING_ID = -1
+> > > > > meaning that the touch release is reported back from the device.
+> > > > >
+> > > > > And from Xf86-input driver level, we can add a corresponding
+> > TouchCancel
+> > > > > for this.
+> > > >
+> > > > I can handle touch-cancel events in the synaptics driver to avoid
+> > > > tap-to-click but further details get a bit nasty.
+> > > >
+> > > > To actually add TouchCancel to the client-protocol means a new XI
+> > protocol
+> > > > revision, plus the stuff in the server _and_ the stuff in the client.
+> > that
+> > > > is quite some lag time here, and if a client cannot handle TouchCancel
+> > all
+> > > > we can do is do a TouchEnd - which will still trigger the gesture.
+> > > >
+> > > > even if you update the touch clients you're still lacking any solution
+> > for
+> > > > pointer-emulated clients. again, here we can only do a ButtonRelease
+> > event
+> > > > which again will trigger whatever it did.
+> > > >
+> > > > All the above can be implemented though. In fact, I suspect the
+> > protocol
+> > > > part is the easy bit (just a flag on TouchEnd) but the server part is
+> > > > reasonably nasty.
+> > > >
+> > > > the real counter-argument is that I think it is a partial solution
+> > only.
+> > > > From an X perspective touches also end when you vt-switch away from the
+> > > > server (device is disabled). but the kernel won't cancel the touch
+> > event for
+> > > > that. Or when the device is disabled by the client ("disable touchpad
+> > while
+> > > > typing" feature), So we'd have to maintain both implicit cancel and
+> > explicit
+> > > > cancel in the driver anyway.
+> > > >
+> > > > so yeah, I don't think adding this to the kernel would provide any
+> > > > significant benefit since we still need to handle all the other cases
+> > > > anyway.
+> > > >
+> > >
+> > > What's your suggestion on how to handle all the other cases ?
+> > >
+> > >
+> > > If you feel it is too much effort to take in X server/client code just
+> > for
+> > > fixing this particular case, how about a more light weighted solution:
+> > > we still need kernel to mark some touch end event as synthesized, and
+> > > in xf86-input driver (e.g. evdev),  we attach the XI_TouchEnd event with
+> > > a special valuator to indicate it has meaning of touch cancel. Then for
+> > > X clients who wants to handle this case, they can check this particular
+> > > valuator.
+> >
+> > no, i'm not putting hacks like this into the protocol. first, whether the
+> > kernel does this or not is largely irrelevant to the X driver since the
+> > kernel suspend is only one case of disabling the device. VT-switch and
+> > disabling the device manually are the other two and the kernel won't (and
+> > can't) give us events for this.
+> >
+> > second, the only way you can handle such events in the client is to add it
+> > to XI 2.4, i.e.  a proper protocol extension with the spec to describe how
+> > and when it is generated, what the effects on grabs and pointer emulation
+> > is, etc. the easiest solution is to add a TouchCancelled flag to the
+> > TouchEnd event, since that flag must be ignored by clients < XI 2.4 and
+> > we don't need to introduce a new event type. so it's largely
+> > backwards-compatible, but clients not supporting 2.4 will still release the
+> > gesture. That doesn't cover the various details though.
+> >
+> > you need to also integrate that into the server and I can warn you ahead of
+> > time, touch grab ownership handling is pretty insane. Either way, that part
+> > is a topic for xorg-devel@lists.x.org.
+> >
+> > Cheers,
+> >    Peter
+> >
+> >
+> >
+> >

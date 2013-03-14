@@ -1,50 +1,50 @@
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Subject: [PATCH v2 0/8] Use module_platform_driver_probe() part 2
-Date: Thu, 14 Mar 2013 18:09:30 +0100
-Message-ID: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
+Subject: [PATCH v2 2/8] drivers: ata: use module_platform_driver_probe()
+Date: Thu, 14 Mar 2013 18:09:32 +0100
+Message-ID: <1363280978-24051-3-git-send-email-fabio.porcedda@gmail.com>
+References: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jeff Garzik <jgarzik@pobox.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi all,
-this patch set is the second part for the conversion to use
-new module_platform_driver_probe() macro.
+This patch converts the drivers to use the
+module_platform_driver_probe() macro which makes the code smaller and
+a bit simpler.
 
-v2:
-  - rebased againg next and so dropped the already converted drivers.
+Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org
+---
+ drivers/ata/pata_at32.c | 13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
 
-Fabio Porcedda (8):
-  drivers: media: use module_platform_driver_probe()
-  drivers: ata: use module_platform_driver_probe()
-  drivers: char: use module_platform_driver_probe()
-  drivers: input: use module_platform_driver_probe()
-  drivers: memory: use module_platform_driver_probe()
-  drivers: mfd: use module_platform_driver_probe()
-  drivers: video: use module_platform_driver_probe()
-  drivers: misc: use module_platform_driver_probe()
-
- drivers/ata/pata_at32.c                       | 13 +------------
- drivers/char/hw_random/mxc-rnga.c             | 13 +------------
- drivers/char/hw_random/tx4939-rng.c           | 13 +------------
- drivers/input/keyboard/amikbd.c               | 14 +-------------
- drivers/input/keyboard/davinci_keyscan.c      | 12 +-----------
- drivers/input/keyboard/nomadik-ske-keypad.c   | 12 +-----------
- drivers/input/misc/twl4030-pwrbutton.c        | 13 +------------
- drivers/input/mouse/amimouse.c                | 14 +-------------
- drivers/input/serio/at32psif.c                | 13 +------------
- drivers/input/serio/q40kbd.c                  | 13 +------------
- drivers/input/touchscreen/atmel-wm97xx.c      | 12 +-----------
- drivers/input/touchscreen/mc13783_ts.c        | 12 +-----------
- drivers/media/platform/soc_camera/atmel-isi.c | 12 +-----------
- drivers/memory/emif.c                         | 12 +-----------
- drivers/mfd/davinci_voicecodec.c              | 12 +-----------
- drivers/mfd/htc-pasic3.c                      | 13 +------------
- drivers/misc/atmel_pwm.c                      | 12 +-----------
- drivers/misc/ep93xx_pwm.c                     | 13 +------------
- drivers/video/sh_mipi_dsi.c                   | 12 +-----------
- drivers/video/sh_mobile_hdmi.c                | 12 +-----------
- 20 files changed, 20 insertions(+), 232 deletions(-)
-
+diff --git a/drivers/ata/pata_at32.c b/drivers/ata/pata_at32.c
+index 36f189c..8d493b4 100644
+--- a/drivers/ata/pata_at32.c
++++ b/drivers/ata/pata_at32.c
+@@ -393,18 +393,7 @@ static struct platform_driver pata_at32_driver = {
+ 	},
+ };
+ 
+-static int __init pata_at32_init(void)
+-{
+-	return platform_driver_probe(&pata_at32_driver, pata_at32_probe);
+-}
+-
+-static void __exit pata_at32_exit(void)
+-{
+-	platform_driver_unregister(&pata_at32_driver);
+-}
+-
+-module_init(pata_at32_init);
+-module_exit(pata_at32_exit);
++module_platform_driver_probe(pata_at32_driver, pata_at32_probe);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("AVR32 SMC/CFC PATA Driver");
 -- 
 1.8.1.5

@@ -1,49 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] Input: cyapa - Firmware update via request firmware
-Date: Wed, 13 Mar 2013 17:38:37 -0700
-Message-ID: <20130314003837.GA11886@core.coreip.homeip.net>
-References: <1363218651-22457-1-git-send-email-bleung@chromium.org>
- <1363218651-22457-3-git-send-email-bleung@chromium.org>
+From: Johan Hovold <jhovold@gmail.com>
+Subject: Re: [PATCH v2 2/7] USB: serial: handle suspend failure path correctly
+Date: Thu, 14 Mar 2013 12:10:10 +0100
+Message-ID: <20130314111010.GA15776@localhost>
+References: <1362672924-22975-1-git-send-email-ming.lei@canonical.com>
+ <1362672924-22975-3-git-send-email-ming.lei@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:59158 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755697Ab3CNAjH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Mar 2013 20:39:07 -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1363218651-22457-3-git-send-email-bleung@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1362672924-22975-3-git-send-email-ming.lei@canonical.com>
+Sender: netdev-owner@vger.kernel.org
+To: Ming Lei <ming.lei@canonical.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Johan Hovold <jhovold@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, djkurtz@chromium.org, dudl@cypress.com
 
-On Wed, Mar 13, 2013 at 04:50:49PM -0700, Benson Leung wrote:
-> +
-> +#define BYTE_PER_LINE  8
-> +void cyapa_dump_data(struct cyapa *cyapa, size_t length, const u8 *data)
-> +{
-> +#ifdef DEBUG
-> +	struct device *dev = &cyapa->client->dev;
-> +	int i;
-> +	char buf[BYTE_PER_LINE * 3 + 1];
-> +	char *s = buf;
-> +
-> +	for (i = 0; i < length; i++) {
-> +		s += sprintf(s, " %02x", data[i]);
-> +		if ((i + 1) == length || ((i + 1) % BYTE_PER_LINE) == 0) {
-> +			dev_dbg(dev, "%s\n", buf);
-> +			s = buf;
-> +		}
-> +	}
-> +#endif
-> +}
-> +#undef BYTE_PER_LINE
+On Fri, Mar 08, 2013 at 12:15:19AM +0800, Ming Lei wrote:
+> This patch kills traffic even though type->suspend returns
+> failure inside usb_serial_suspend from system sleep context
+> because USB core ignores the failiure and lets system sleep
+> go ahread, so the serial URB traffic need to be killed
+> in this case.
+>=20
+> Cc: Johan Hovold <jhovold@gmail.com>
+> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+> ---
+>  drivers/usb/serial/usb-serial.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb=
+-serial.c
+> index a19ed74..9d0b9c8 100644
+> --- a/drivers/usb/serial/usb-serial.c
+> +++ b/drivers/usb/serial/usb-serial.c
+> @@ -1142,10 +1142,11 @@ int usb_serial_suspend(struct usb_interface *=
+intf, pm_message_t message)
+> =20
+>  	if (serial->type->suspend) {
+>  		r =3D serial->type->suspend(serial, message);
+> -		if (r < 0) {
+> +		if (r < 0 && PMSG_IS_AUTO(message)) {
+>  			serial->suspending =3D 0;
+>  			goto err_out;
+>  		}
+> +		/* TODO: resume() might need to handle suspend failure */
+>  	}
+> =20
+>  	for (i =3D 0; i < serial->num_ports; ++i) {
 
-We have dev_dbg("%*ph\n", BYTES_PER_LINE, data[...]); for this.
+Sorry for the late reply.
 
-Thanks.
+The usb-serial subdriver suspend callbacks do not and must not return
+non-zero if !PMSG_IS_AUTO(message) so adding code to handle that case
+merely obfuscates this fact.
 
--- 
-Dmitry
+I'd rather see this documented with a comment just as Bj=F8rn suggested
+for cdc_mbim and qmi_wwan.
+
+Thanks,
+Johan

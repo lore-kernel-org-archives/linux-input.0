@@ -1,74 +1,38 @@
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: Re: [PATCH v2 1/8] drivers: media: use module_platform_driver_probe()
-Date: Thu, 14 Mar 2013 18:14:54 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.1303141814290.22728@axis700.grange>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 4/8] drivers: input: use module_platform_driver_probe()
+Date: Thu, 14 Mar 2013 10:30:18 -0700 (PDT)
+Message-ID: <3681471.ufqahH3gTF@dtor-d630.eng.vmware.com>
 References: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
- <1363280978-24051-2-git-send-email-fabio.porcedda@gmail.com>
+ <1363280978-24051-5-git-send-email-fabio.porcedda@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.8]:60165 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755874Ab3CNRPD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Mar 2013 13:15:03 -0400
-In-Reply-To: <1363280978-24051-2-git-send-email-fabio.porcedda@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1363280978-24051-5-git-send-email-fabio.porcedda@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Fabio Porcedda <fabio.porcedda@gmail.com>, Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-fbdev@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>, linux-ide@vger.kernel.org, Bill Pemberton <wfp5p@virginia.edu>, linux-input@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@redhat.com>, Josh Wu <josh.wu@atmel.com>, Hans Verkuil <hans.verkuil@cisco.com>
 
-On Thu, 14 Mar 2013, Fabio Porcedda wrote:
+Hi Fabio,
 
+On Thursday, March 14, 2013 06:09:34 PM Fabio Porcedda wrote:
 > This patch converts the drivers to use the
 > module_platform_driver_probe() macro which makes the code smaller and
 > a bit simpler.
-> 
-> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 
-Thanks, will queue for 3.10.
+I already have patches from Sachin Kamat for this, I am waiting for -rc3
+to sync up with mainline and pick up the macro before applying them.
 
-Regards
-Guennadi
+Thanks.
 
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
-> Cc: Josh Wu <josh.wu@atmel.com>
-> Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-> Cc: Hans Verkuil <hans.verkuil@cisco.com>
-> Cc: linux-media@vger.kernel.org
-> ---
->  drivers/media/platform/soc_camera/atmel-isi.c | 12 +-----------
->  1 file changed, 1 insertion(+), 11 deletions(-)
-> 
-> diff --git a/drivers/media/platform/soc_camera/atmel-isi.c b/drivers/media/platform/soc_camera/atmel-isi.c
-> index 82dbf99..12ba31d 100644
-> --- a/drivers/media/platform/soc_camera/atmel-isi.c
-> +++ b/drivers/media/platform/soc_camera/atmel-isi.c
-> @@ -1081,17 +1081,7 @@ static struct platform_driver atmel_isi_driver = {
->  	},
->  };
->  
-> -static int __init atmel_isi_init_module(void)
-> -{
-> -	return  platform_driver_probe(&atmel_isi_driver, &atmel_isi_probe);
-> -}
-> -
-> -static void __exit atmel_isi_exit(void)
-> -{
-> -	platform_driver_unregister(&atmel_isi_driver);
-> -}
-> -module_init(atmel_isi_init_module);
-> -module_exit(atmel_isi_exit);
-> +module_platform_driver_probe(atmel_isi_driver, atmel_isi_probe);
->  
->  MODULE_AUTHOR("Josh Wu <josh.wu@atmel.com>");
->  MODULE_DESCRIPTION("The V4L2 driver for Atmel Linux");
-> -- 
-> 1.8.1.5
-> 
-
----
-Guennadi Liakhovetski, Ph.D.
-Freelance Open-Source Software Developer
-http://www.open-technology.de/
+-- 
+Dmitry

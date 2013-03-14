@@ -1,13 +1,24 @@
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Subject: [PATCH v2 6/8] drivers: mfd: use module_platform_driver_probe()
-Date: Thu, 14 Mar 2013 18:09:36 +0100
-Message-ID: <1363280978-24051-7-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH v2 3/8] drivers: char: use module_platform_driver_probe()
+Date: Thu, 14 Mar 2013 18:09:33 +0100
+Message-ID: <1363280978-24051-4-git-send-email-fabio.porcedda@gmail.com>
 References: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
-Return-path: <linux-ide-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
-Sender: linux-ide-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sascha Hauer <s.hauer@pengutronix.de>, Herbert Xu <herbert@gondor.apana.org.au>, Matt Mackall <mpm@selenic.com>
 List-Id: linux-input@vger.kernel.org
 
 This patch converts the drivers to use the
@@ -16,61 +27,62 @@ a bit simpler.
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-arm-kernel@lists.infradead.org
+Cc: Matt Mackall <mpm@selenic.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
 ---
- drivers/mfd/davinci_voicecodec.c | 12 +-----------
- drivers/mfd/htc-pasic3.c         | 13 +------------
- 2 files changed, 2 insertions(+), 23 deletions(-)
+ drivers/char/hw_random/mxc-rnga.c   | 13 +------------
+ drivers/char/hw_random/tx4939-rng.c | 13 +------------
+ 2 files changed, 2 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/mfd/davinci_voicecodec.c b/drivers/mfd/davinci_voicecodec.c
-index c0bcc87..c60ab0c 100644
---- a/drivers/mfd/davinci_voicecodec.c
-+++ b/drivers/mfd/davinci_voicecodec.c
-@@ -177,17 +177,7 @@ static struct platform_driver davinci_vc_driver = {
- 	.remove	= davinci_vc_remove,
+diff --git a/drivers/char/hw_random/mxc-rnga.c b/drivers/char/hw_random/mxc-rnga.c
+index f05d857..895d0b8 100644
+--- a/drivers/char/hw_random/mxc-rnga.c
++++ b/drivers/char/hw_random/mxc-rnga.c
+@@ -228,18 +228,7 @@ static struct platform_driver mxc_rnga_driver = {
+ 	.remove = __exit_p(mxc_rnga_remove),
  };
  
--static int __init davinci_vc_init(void)
+-static int __init mod_init(void)
 -{
--	return platform_driver_probe(&davinci_vc_driver, davinci_vc_probe);
+-	return platform_driver_probe(&mxc_rnga_driver, mxc_rnga_probe);
 -}
--module_init(davinci_vc_init);
 -
--static void __exit davinci_vc_exit(void)
+-static void __exit mod_exit(void)
 -{
--	platform_driver_unregister(&davinci_vc_driver);
+-	platform_driver_unregister(&mxc_rnga_driver);
 -}
--module_exit(davinci_vc_exit);
-+module_platform_driver_probe(davinci_vc_driver, davinci_vc_probe);
+-
+-module_init(mod_init);
+-module_exit(mod_exit);
++module_platform_driver_probe(mxc_rnga_driver, mxc_rnga_probe);
  
- MODULE_AUTHOR("Miguel Aguilar");
- MODULE_DESCRIPTION("Texas Instruments DaVinci Voice Codec Core Interface");
-diff --git a/drivers/mfd/htc-pasic3.c b/drivers/mfd/htc-pasic3.c
-index 9e5453d..0285fce 100644
---- a/drivers/mfd/htc-pasic3.c
-+++ b/drivers/mfd/htc-pasic3.c
-@@ -208,18 +208,7 @@ static struct platform_driver pasic3_driver = {
- 	.remove		= pasic3_remove,
+ MODULE_AUTHOR("Freescale Semiconductor, Inc.");
+ MODULE_DESCRIPTION("H/W RNGA driver for i.MX");
+diff --git a/drivers/char/hw_random/tx4939-rng.c b/drivers/char/hw_random/tx4939-rng.c
+index 3099198..d34a24a 100644
+--- a/drivers/char/hw_random/tx4939-rng.c
++++ b/drivers/char/hw_random/tx4939-rng.c
+@@ -166,18 +166,7 @@ static struct platform_driver tx4939_rng_driver = {
+ 	.remove = tx4939_rng_remove,
  };
  
--static int __init pasic3_base_init(void)
+-static int __init tx4939rng_init(void)
 -{
--	return platform_driver_probe(&pasic3_driver, pasic3_probe);
+-	return platform_driver_probe(&tx4939_rng_driver, tx4939_rng_probe);
 -}
 -
--static void __exit pasic3_base_exit(void)
+-static void __exit tx4939rng_exit(void)
 -{
--	platform_driver_unregister(&pasic3_driver);
+-	platform_driver_unregister(&tx4939_rng_driver);
 -}
 -
--module_init(pasic3_base_init);
--module_exit(pasic3_base_exit);
-+module_platform_driver_probe(pasic3_driver, pasic3_probe);
+-module_init(tx4939rng_init);
+-module_exit(tx4939rng_exit);
++module_platform_driver_probe(tx4939_rng_driver, tx4939_rng_probe);
  
- MODULE_AUTHOR("Philipp Zabel <philipp.zabel@gmail.com>");
- MODULE_DESCRIPTION("Core driver for HTC PASIC3");
+ MODULE_DESCRIPTION("H/W Random Number Generator (RNG) driver for TX4939");
+ MODULE_LICENSE("GPL");
 -- 
 1.8.1.5
-

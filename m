@@ -1,44 +1,50 @@
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Subject: Re: [PATCH 04/10] drivers: hwmon: use module_platform_driver_probe()
-Date: Thu, 14 Mar 2013 17:42:34 +0100
-Message-ID: <CAHkwnC8nn1SFv-wzf18jATGM+gfmR+sf+nrjATMNYkyWgR9bNw@mail.gmail.com>
-References: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
- <1363266691-15757-6-git-send-email-fabio.porcedda@gmail.com> <20130314140130.GB16825@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f53.google.com ([209.85.219.53]:48092 "EHLO
-	mail-oa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932487Ab3CNQnF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Mar 2013 12:43:05 -0400
-In-Reply-To: <20130314140130.GB16825@roeck-us.net>
-Sender: linux-input-owner@vger.kernel.org
+Subject: [PATCH v2 0/8] Use module_platform_driver_probe() part 2
+Date: Thu, 14 Mar 2013 18:09:30 +0100
+Message-ID: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media <linux-media@vger.kernel.org>, linux-ide <linux-ide@vger.kernel.org>, lm-sensors <lm-sensors@lm-sensors.org>, linux-input <linux-input@vger.kernel.org>, linux-fbdev <linux-fbdev@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jean Delvare <khali@linux-fr.org>
 
-On Thu, Mar 14, 2013 at 3:01 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Thu, Mar 14, 2013 at 02:11:25PM +0100, Fabio Porcedda wrote:
->> This patch converts the drivers to use the
->> module_platform_driver_probe() macro which makes the code smaller and
->> a bit simpler.
->>
->> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: Jean Delvare <khali@linux-fr.org>
->> Cc: Guenter Roeck <linux@roeck-us.net>
->> Cc: lm-sensors@lm-sensors.org
->> ---
->>  drivers/hwmon/mc13783-adc.c | 13 +------------
->>  1 file changed, 1 insertion(+), 12 deletions(-)
->>
-> I have that one already queued for -next, submitted by Jingoo Han.
+Hi all,
+this patch set is the second part for the conversion to use
+new module_platform_driver_probe() macro.
 
-Ok i will drop this patch.
+v2:
+  - rebased againg next and so dropped the already converted drivers.
 
-Best regards
-Fabio Porcedda
+Fabio Porcedda (8):
+  drivers: media: use module_platform_driver_probe()
+  drivers: ata: use module_platform_driver_probe()
+  drivers: char: use module_platform_driver_probe()
+  drivers: input: use module_platform_driver_probe()
+  drivers: memory: use module_platform_driver_probe()
+  drivers: mfd: use module_platform_driver_probe()
+  drivers: video: use module_platform_driver_probe()
+  drivers: misc: use module_platform_driver_probe()
 
-> Thanks,
-> Guenter
+ drivers/ata/pata_at32.c                       | 13 +------------
+ drivers/char/hw_random/mxc-rnga.c             | 13 +------------
+ drivers/char/hw_random/tx4939-rng.c           | 13 +------------
+ drivers/input/keyboard/amikbd.c               | 14 +-------------
+ drivers/input/keyboard/davinci_keyscan.c      | 12 +-----------
+ drivers/input/keyboard/nomadik-ske-keypad.c   | 12 +-----------
+ drivers/input/misc/twl4030-pwrbutton.c        | 13 +------------
+ drivers/input/mouse/amimouse.c                | 14 +-------------
+ drivers/input/serio/at32psif.c                | 13 +------------
+ drivers/input/serio/q40kbd.c                  | 13 +------------
+ drivers/input/touchscreen/atmel-wm97xx.c      | 12 +-----------
+ drivers/input/touchscreen/mc13783_ts.c        | 12 +-----------
+ drivers/media/platform/soc_camera/atmel-isi.c | 12 +-----------
+ drivers/memory/emif.c                         | 12 +-----------
+ drivers/mfd/davinci_voicecodec.c              | 12 +-----------
+ drivers/mfd/htc-pasic3.c                      | 13 +------------
+ drivers/misc/atmel_pwm.c                      | 12 +-----------
+ drivers/misc/ep93xx_pwm.c                     | 13 +------------
+ drivers/video/sh_mipi_dsi.c                   | 12 +-----------
+ drivers/video/sh_mobile_hdmi.c                | 12 +-----------
+ 20 files changed, 20 insertions(+), 232 deletions(-)
+
+-- 
+1.8.1.5

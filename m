@@ -1,19 +1,25 @@
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Subject: [PATCH 09/10] drivers: video: use module_platform_driver_probe()
-Date: Thu, 14 Mar 2013 14:11:30 +0100
-Message-ID: <1363266691-15757-11-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH] drivers: misc: use module_platform_driver_probe()
+Date: Thu, 14 Mar 2013 14:11:22 +0100
+Message-ID: <1363266691-15757-3-git-send-email-fabio.porcedda@gmail.com>
 References: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f44.google.com ([74.125.83.44]:44853 "EHLO
-	mail-ee0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757869Ab3CNNMP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Mar 2013 09:12:15 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Richard Purdie <rpurdie@rpsys.net>, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+List-Id: linux-input@vger.kernel.org
 
 This patch converts the drivers to use the
 module_platform_driver_probe() macro which makes the code smaller and
@@ -21,84 +27,83 @@ a bit simpler.
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Richard Purdie <rpurdie@rpsys.net>
-Cc: Florian Tobias Schandinat <FlorianSchandinat@gmx.de>
-Cc: linux-fbdev@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/video/backlight/atmel-pwm-bl.c | 12 +-----------
- drivers/video/sh_mipi_dsi.c            | 12 +-----------
- drivers/video/sh_mobile_hdmi.c         | 12 +-----------
- 3 files changed, 3 insertions(+), 33 deletions(-)
+ drivers/misc/arm-charlcd.c | 13 +------------
+ drivers/misc/atmel_pwm.c   | 12 +-----------
+ drivers/misc/ep93xx_pwm.c  | 13 +------------
+ 3 files changed, 3 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/video/backlight/atmel-pwm-bl.c b/drivers/video/backlight/atmel-pwm-bl.c
-index de5e5e7..20b330d 100644
---- a/drivers/video/backlight/atmel-pwm-bl.c
-+++ b/drivers/video/backlight/atmel-pwm-bl.c
-@@ -225,17 +225,7 @@ static struct platform_driver atmel_pwm_bl_driver = {
- 	.remove = __exit_p(atmel_pwm_bl_remove),
+diff --git a/drivers/misc/arm-charlcd.c b/drivers/misc/arm-charlcd.c
+index fe8616a..48651ef 100644
+--- a/drivers/misc/arm-charlcd.c
++++ b/drivers/misc/arm-charlcd.c
+@@ -378,18 +378,7 @@ static struct platform_driver charlcd_driver = {
+ 	.remove = __exit_p(charlcd_remove),
  };
  
--static int __init atmel_pwm_bl_init(void)
+-static int __init charlcd_init(void)
 -{
--	return platform_driver_probe(&atmel_pwm_bl_driver, atmel_pwm_bl_probe);
+-	return platform_driver_probe(&charlcd_driver, charlcd_probe);
 -}
--module_init(atmel_pwm_bl_init);
 -
--static void __exit atmel_pwm_bl_exit(void)
+-static void __exit charlcd_exit(void)
 -{
--	platform_driver_unregister(&atmel_pwm_bl_driver);
+-	platform_driver_unregister(&charlcd_driver);
 -}
--module_exit(atmel_pwm_bl_exit);
-+module_platform_driver_probe(atmel_pwm_bl_driver, atmel_pwm_bl_probe);
+-
+-module_init(charlcd_init);
+-module_exit(charlcd_exit);
++module_platform_driver_probe(charlcd_driver, charlcd_probe);
  
- MODULE_AUTHOR("Hans-Christian egtvedt <hans-christian.egtvedt@atmel.com>");
- MODULE_DESCRIPTION("Atmel PWM backlight driver");
-diff --git a/drivers/video/sh_mipi_dsi.c b/drivers/video/sh_mipi_dsi.c
-index 701b461..6cad530 100644
---- a/drivers/video/sh_mipi_dsi.c
-+++ b/drivers/video/sh_mipi_dsi.c
-@@ -581,17 +581,7 @@ static struct platform_driver sh_mipi_driver = {
- 	},
+ MODULE_AUTHOR("Linus Walleij <triad@df.lth.se>");
+ MODULE_DESCRIPTION("ARM Character LCD Driver");
+diff --git a/drivers/misc/atmel_pwm.c b/drivers/misc/atmel_pwm.c
+index 28f5aaa..494d050 100644
+--- a/drivers/misc/atmel_pwm.c
++++ b/drivers/misc/atmel_pwm.c
+@@ -393,17 +393,7 @@ static struct platform_driver atmel_pwm_driver = {
+ 	 */
  };
  
--static int __init sh_mipi_init(void)
+-static int __init pwm_init(void)
 -{
--	return platform_driver_probe(&sh_mipi_driver, sh_mipi_probe);
+-	return platform_driver_probe(&atmel_pwm_driver, pwm_probe);
 -}
--module_init(sh_mipi_init);
+-module_init(pwm_init);
 -
--static void __exit sh_mipi_exit(void)
+-static void __exit pwm_exit(void)
 -{
--	platform_driver_unregister(&sh_mipi_driver);
+-	platform_driver_unregister(&atmel_pwm_driver);
 -}
--module_exit(sh_mipi_exit);
-+module_platform_driver_probe(sh_mipi_driver, sh_mipi_probe);
+-module_exit(pwm_exit);
++module_platform_driver_probe(atmel_pwm_driver, pwm_probe);
  
- MODULE_AUTHOR("Guennadi Liakhovetski <g.liakhovetski@gmx.de>");
- MODULE_DESCRIPTION("SuperH / ARM-shmobile MIPI DSI driver");
-diff --git a/drivers/video/sh_mobile_hdmi.c b/drivers/video/sh_mobile_hdmi.c
-index 930e550..bfe4728 100644
---- a/drivers/video/sh_mobile_hdmi.c
-+++ b/drivers/video/sh_mobile_hdmi.c
-@@ -1445,17 +1445,7 @@ static struct platform_driver sh_hdmi_driver = {
- 	},
+ MODULE_DESCRIPTION("Driver for AT32/AT91 PWM module");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/misc/ep93xx_pwm.c b/drivers/misc/ep93xx_pwm.c
+index 16d7179..96787ec 100644
+--- a/drivers/misc/ep93xx_pwm.c
++++ b/drivers/misc/ep93xx_pwm.c
+@@ -365,18 +365,7 @@ static struct platform_driver ep93xx_pwm_driver = {
+ 	.remove		= __exit_p(ep93xx_pwm_remove),
  };
  
--static int __init sh_hdmi_init(void)
+-static int __init ep93xx_pwm_init(void)
 -{
--	return platform_driver_probe(&sh_hdmi_driver, sh_hdmi_probe);
+-	return platform_driver_probe(&ep93xx_pwm_driver, ep93xx_pwm_probe);
 -}
--module_init(sh_hdmi_init);
 -
--static void __exit sh_hdmi_exit(void)
+-static void __exit ep93xx_pwm_exit(void)
 -{
--	platform_driver_unregister(&sh_hdmi_driver);
+-	platform_driver_unregister(&ep93xx_pwm_driver);
 -}
--module_exit(sh_hdmi_exit);
-+module_platform_driver_probe(sh_hdmi_driver, sh_hdmi_probe);
+-
+-module_init(ep93xx_pwm_init);
+-module_exit(ep93xx_pwm_exit);
++module_platform_driver_probe(ep93xx_pwm_driver, ep93xx_pwm_probe);
  
- MODULE_AUTHOR("Guennadi Liakhovetski <g.liakhovetski@gmx.de>");
- MODULE_DESCRIPTION("SuperH / ARM-shmobile HDMI driver");
+ MODULE_AUTHOR("Matthieu Crapet <mcrapet@gmail.com>, "
+ 	      "H Hartley Sweeten <hsweeten@visionengravers.com>");
 -- 
 1.8.1.5
-

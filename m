@@ -1,61 +1,60 @@
-From: Johan Hovold <jhovold@gmail.com>
-Subject: Re: [PATCH v2 2/7] USB: serial: handle suspend failure path correctly
-Date: Thu, 14 Mar 2013 12:10:10 +0100
-Message-ID: <20130314111010.GA15776@localhost>
-References: <1362672924-22975-1-git-send-email-ming.lei@canonical.com>
- <1362672924-22975-3-git-send-email-ming.lei@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1362672924-22975-3-git-send-email-ming.lei@canonical.com>
-Sender: netdev-owner@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Johan Hovold <jhovold@gmail.com>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: [PATCH 00/10] Use module_platform_driver_probe() part 2
+Date: Thu, 14 Mar 2013 14:11:20 +0100
+Message-ID: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
+Return-path: <linux-ide-owner@vger.kernel.org>
+Sender: linux-ide-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 08, 2013 at 12:15:19AM +0800, Ming Lei wrote:
-> This patch kills traffic even though type->suspend returns
-> failure inside usb_serial_suspend from system sleep context
-> because USB core ignores the failiure and lets system sleep
-> go ahread, so the serial URB traffic need to be killed
-> in this case.
->=20
-> Cc: Johan Hovold <jhovold@gmail.com>
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
-> ---
->  drivers/usb/serial/usb-serial.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb=
--serial.c
-> index a19ed74..9d0b9c8 100644
-> --- a/drivers/usb/serial/usb-serial.c
-> +++ b/drivers/usb/serial/usb-serial.c
-> @@ -1142,10 +1142,11 @@ int usb_serial_suspend(struct usb_interface *=
-intf, pm_message_t message)
-> =20
->  	if (serial->type->suspend) {
->  		r =3D serial->type->suspend(serial, message);
-> -		if (r < 0) {
-> +		if (r < 0 && PMSG_IS_AUTO(message)) {
->  			serial->suspending =3D 0;
->  			goto err_out;
->  		}
-> +		/* TODO: resume() might need to handle suspend failure */
->  	}
-> =20
->  	for (i =3D 0; i < serial->num_ports; ++i) {
+Hi all,
+this patch set is the second part for the conversion to use
+new module_platform_driver_probe() macro.
 
-Sorry for the late reply.
+I will send a part 3 for the remaining drivers.
 
-The usb-serial subdriver suspend callbacks do not and must not return
-non-zero if !PMSG_IS_AUTO(message) so adding code to handle that case
-merely obfuscates this fact.
+Fabio Porcedda (10):
+  drivers: media: use module_platform_driver_probe()
+  drivers: ata: use module_platform_driver_probe()
+  drivers: char: use module_platform_driver_probe()
+  drivers: hwmon: use module_platform_driver_probe()
+  drivers: ide: use module_platform_driver_probe()
+  drivers: input: use module_platform_driver_probe()
+  drivers: memory: use module_platform_driver_probe()
+  drivers: mfd: use module_platform_driver_probe()
+  drivers: video: use module_platform_driver_probe()
+  drivers: misc: use module_platform_driver_probe()
 
-I'd rather see this documented with a comment just as Bj=F8rn suggested
-for cdc_mbim and qmi_wwan.
+ drivers/ata/pata_at32.c                        | 13 +------------
+ drivers/ata/pata_samsung_cf.c                  | 13 +------------
+ drivers/char/hw_random/mxc-rnga.c              | 13 +------------
+ drivers/char/hw_random/tx4939-rng.c            | 13 +------------
+ drivers/hwmon/mc13783-adc.c                    | 13 +------------
+ drivers/ide/gayle.c                            | 15 +--------------
+ drivers/ide/tx4938ide.c                        | 13 +------------
+ drivers/ide/tx4939ide.c                        | 13 +------------
+ drivers/input/keyboard/amikbd.c                | 14 +-------------
+ drivers/input/keyboard/davinci_keyscan.c       | 12 +-----------
+ drivers/input/keyboard/nomadik-ske-keypad.c    | 12 +-----------
+ drivers/input/misc/twl4030-pwrbutton.c         | 13 +------------
+ drivers/input/mouse/amimouse.c                 | 14 +-------------
+ drivers/input/serio/at32psif.c                 | 13 +------------
+ drivers/input/serio/q40kbd.c                   | 13 +------------
+ drivers/input/touchscreen/atmel-wm97xx.c       | 12 +-----------
+ drivers/input/touchscreen/mc13783_ts.c         | 12 +-----------
+ drivers/media/platform/sh_vou.c                | 13 +------------
+ drivers/media/platform/soc_camera/atmel-isi.c  | 12 +-----------
+ drivers/media/platform/soc_camera/mx1_camera.c | 13 +------------
+ drivers/memory/emif.c                          | 12 +-----------
+ drivers/mfd/davinci_voicecodec.c               | 12 +-----------
+ drivers/mfd/htc-pasic3.c                       | 13 +------------
+ drivers/misc/atmel_pwm.c                       | 12 +-----------
+ drivers/misc/ep93xx_pwm.c                      | 13 +------------
+ drivers/video/backlight/atmel-pwm-bl.c         | 12 +-----------
+ drivers/video/sh_mipi_dsi.c                    | 12 +-----------
+ drivers/video/sh_mobile_hdmi.c                 | 12 +-----------
+ 28 files changed, 28 insertions(+), 329 deletions(-)
 
-Thanks,
-Johan
+-- 
+1.8.1.5
+

@@ -1,45 +1,49 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: [PATCH 3/4] Input: cyapa - Allow filename to be changed in update_fw
-Date: Wed, 13 Mar 2013 16:50:50 -0700
-Message-ID: <1363218651-22457-4-git-send-email-bleung@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/4] Input: cyapa - Firmware update via request firmware
+Date: Wed, 13 Mar 2013 17:38:37 -0700
+Message-ID: <20130314003837.GA11886@core.coreip.homeip.net>
 References: <1363218651-22457-1-git-send-email-bleung@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1363218651-22457-1-git-send-email-bleung@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: bleung@chromium.org, olofj@chromium.org, djkurtz@chromium.org, dudl@cypress.com
+ <1363218651-22457-3-git-send-email-bleung@chromium.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f43.google.com ([209.85.160.43]:59158 "EHLO
+	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755697Ab3CNAjH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Mar 2013 20:39:07 -0400
+Content-Disposition: inline
+In-Reply-To: <1363218651-22457-3-git-send-email-bleung@chromium.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benson Leung <bleung@chromium.org>
+Cc: rydberg@euromail.se, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, djkurtz@chromium.org, dudl@cypress.com
 
-Allow the name of the designated firmware to be passed as the
-argument to update_fw from user space. This will allow user space
-to specify which firmware to load.
+On Wed, Mar 13, 2013 at 04:50:49PM -0700, Benson Leung wrote:
+> +
+> +#define BYTE_PER_LINE  8
+> +void cyapa_dump_data(struct cyapa *cyapa, size_t length, const u8 *data)
+> +{
+> +#ifdef DEBUG
+> +	struct device *dev = &cyapa->client->dev;
+> +	int i;
+> +	char buf[BYTE_PER_LINE * 3 + 1];
+> +	char *s = buf;
+> +
+> +	for (i = 0; i < length; i++) {
+> +		s += sprintf(s, " %02x", data[i]);
+> +		if ((i + 1) == length || ((i + 1) % BYTE_PER_LINE) == 0) {
+> +			dev_dbg(dev, "%s\n", buf);
+> +			s = buf;
+> +		}
+> +	}
+> +#endif
+> +}
+> +#undef BYTE_PER_LINE
 
-Signed-off-by: Benson Leung <bleung@chromium.org>
----
- drivers/input/mouse/cyapa.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+We have dev_dbg("%*ph\n", BYTES_PER_LINE, data[...]); for this.
 
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index e622c25..51e9d44 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -1180,9 +1180,16 @@ static ssize_t cyapa_update_fw_store(struct device *dev,
- 				     const char *buf, size_t count)
- {
- 	struct cyapa *cyapa = dev_get_drvdata(dev);
--	const char *fw_name = CYAPA_FW_NAME;
-+	const char *fw_name;
- 	int ret;
- 
-+	/* Do not allow paths that step out of /lib/firmware  */
-+	if (strstr(buf, "../") != NULL)
-+		return -EINVAL;
-+
-+	fw_name = !strncmp(buf, "1", count) ||
-+		  !strncmp(buf, "1\n", count) ? CYAPA_FW_NAME : buf;
-+
- 	ret = cyapa_firmware(cyapa, fw_name);
- 	if (ret)
- 		dev_err(dev, "firmware update failed, %d\n", ret);
+Thanks.
+
 -- 
-1.8.1.3
+Dmitry

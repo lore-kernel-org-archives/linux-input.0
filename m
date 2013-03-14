@@ -1,39 +1,59 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 04/10] drivers: hwmon: use module_platform_driver_probe()
-Date: Thu, 14 Mar 2013 07:01:30 -0700
-Message-ID: <20130314140130.GB16825@roeck-us.net>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH 10/10] drivers: misc: use module_platform_driver_probe()
+Date: Thu, 14 Mar 2013 15:06:31 +0100
+Message-ID: <20130314140631.GM1906@pengutronix.de>
 References: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
- <1363266691-15757-6-git-send-email-fabio.porcedda@gmail.com>
+ <1363266691-15757-12-git-send-email-fabio.porcedda@gmail.com>
+ <201303141358.05616.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:57733 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755776Ab3CNOBa (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:42490 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757230Ab3CNOGw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Mar 2013 10:01:30 -0400
+	Thu, 14 Mar 2013 10:06:52 -0400
 Content-Disposition: inline
-In-Reply-To: <1363266691-15757-6-git-send-email-fabio.porcedda@gmail.com>
+In-Reply-To: <201303141358.05616.arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jean Delvare <khali@linux-fr.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Fabio Porcedda <fabio.porcedda@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, H Hartley Sweeten <hsweeten@visionengravers.com>, Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>, Grant Likely <grant.likely@secretlab.ca>
 
-On Thu, Mar 14, 2013 at 02:11:25PM +0100, Fabio Porcedda wrote:
-> This patch converts the drivers to use the
-> module_platform_driver_probe() macro which makes the code smaller and
-> a bit simpler.
+On Thu, Mar 14, 2013 at 01:58:05PM +0000, Arnd Bergmann wrote:
+> On Thursday 14 March 2013, Fabio Porcedda wrote:
+> > This patch converts the drivers to use the
+> > module_platform_driver_probe() macro which makes the code smaller and
+> > a bit simpler.
+> > 
+> > Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: Arnd Bergmann <arnd@arndb.de>
+> > ---
+> >  drivers/misc/atmel_pwm.c  | 12 +-----------
+> >  drivers/misc/ep93xx_pwm.c | 13 +------------
+> >  2 files changed, 2 insertions(+), 23 deletions(-)
 > 
-> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Jean Delvare <khali@linux-fr.org>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: lm-sensors@lm-sensors.org
-> ---
->  drivers/hwmon/mc13783-adc.c | 13 +------------
->  1 file changed, 1 insertion(+), 12 deletions(-)
+> The patch itself seems fine, but there are two issues around it:
 > 
-I have that one already queued for -next, submitted by Jingoo Han.
+> * The PWM drivers should really get moved to drivers/pwm and converted to the new
+>   PWM subsystem. I don't know if Hartley or Hans-Christian have plans to do
+>   that already.
+> 
+> * Regarding the use of module_platform_driver_probe, I'm a little worried about
+>   the interactions with deferred probing. I don't think there are any regressions,
+>   but we should probably make people aware that one cannot return -EPROBE_DEFER
+>   from a platform_driver_probe function.
 
-Thanks,
-Guenter
+I'm worried about this aswell. I think platform_driver_probe shouldn't
+be used anymore. Even if a driver does not explicitly make use of
+-EPROBE_DEFER, it leaks in very quickly if a driver for example uses a
+regulator and just returns the error value from regulator_get.
+
+Sascha
+
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

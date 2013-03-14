@@ -1,19 +1,14 @@
 From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Subject: [PATCH v2 4/8] drivers: input: use module_platform_driver_probe()
-Date: Thu, 14 Mar 2013 18:09:34 +0100
-Message-ID: <1363280978-24051-5-git-send-email-fabio.porcedda@gmail.com>
+Subject: [PATCH v2 5/8] drivers: memory: use module_platform_driver_probe()
+Date: Thu, 14 Mar 2013 18:09:35 +0100
+Message-ID: <1363280978-24051-6-git-send-email-fabio.porcedda@gmail.com>
 References: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f44.google.com ([74.125.83.44]:45852 "EHLO
-	mail-ee0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964926Ab3CNRJw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Mar 2013 13:09:52 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <lrg@slimlogic.co.uk>, Bill Pemberton <wfp5p@virginia.edu>, Linus Walleij <linus.walleij@linaro.org>, David Howells <dhowells@redhat.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Benoit Cousson <b-cousson@ti.com>, Aneesh V <aneesh@ti.com>
+List-Id: linux-input@vger.kernel.org
 
 This patch converts the drivers to use the
 module_platform_driver_probe() macro which makes the code smaller and
@@ -21,234 +16,35 @@ a bit simpler.
 
 Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Liam Girdwood <lrg@slimlogic.co.uk>
-Cc: Bill Pemberton <wfp5p@virginia.edu>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: linux-input@vger.kernel.org
+Cc: Benoit Cousson <b-cousson@ti.com>
+Cc: Aneesh V <aneesh@ti.com>
 ---
- drivers/input/keyboard/amikbd.c             | 14 +-------------
- drivers/input/keyboard/davinci_keyscan.c    | 12 +-----------
- drivers/input/keyboard/nomadik-ske-keypad.c | 12 +-----------
- drivers/input/misc/twl4030-pwrbutton.c      | 13 +------------
- drivers/input/mouse/amimouse.c              | 14 +-------------
- drivers/input/serio/at32psif.c              | 13 +------------
- drivers/input/serio/q40kbd.c                | 13 +------------
- drivers/input/touchscreen/atmel-wm97xx.c    | 12 +-----------
- drivers/input/touchscreen/mc13783_ts.c      | 12 +-----------
- 9 files changed, 9 insertions(+), 106 deletions(-)
+ drivers/memory/emif.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/input/keyboard/amikbd.c b/drivers/input/keyboard/amikbd.c
-index 79172af..ba0b36f 100644
---- a/drivers/input/keyboard/amikbd.c
-+++ b/drivers/input/keyboard/amikbd.c
-@@ -260,18 +260,6 @@ static struct platform_driver amikbd_driver = {
+diff --git a/drivers/memory/emif.c b/drivers/memory/emif.c
+index df08736..ecbc1a9 100644
+--- a/drivers/memory/emif.c
++++ b/drivers/memory/emif.c
+@@ -1841,18 +1841,8 @@ static struct platform_driver emif_driver = {
  	},
  };
  
--static int __init amikbd_init(void)
+-static int __init_or_module emif_register(void)
 -{
--	return platform_driver_probe(&amikbd_driver, amikbd_probe);
+-	return platform_driver_probe(&emif_driver, emif_probe);
 -}
 -
--module_init(amikbd_init);
--
--static void __exit amikbd_exit(void)
+-static void __exit emif_unregister(void)
 -{
--	platform_driver_unregister(&amikbd_driver);
+-	platform_driver_unregister(&emif_driver);
 -}
--
--module_exit(amikbd_exit);
-+module_platform_driver_probe(amikbd_driver, amikbd_probe);
++module_platform_driver_probe(emif_driver, emif_probe);
  
- MODULE_ALIAS("platform:amiga-keyboard");
-diff --git a/drivers/input/keyboard/davinci_keyscan.c b/drivers/input/keyboard/davinci_keyscan.c
-index 4e4e453..8297537 100644
---- a/drivers/input/keyboard/davinci_keyscan.c
-+++ b/drivers/input/keyboard/davinci_keyscan.c
-@@ -329,17 +329,7 @@ static struct platform_driver davinci_ks_driver = {
- 	.remove	= davinci_ks_remove,
- };
- 
--static int __init davinci_ks_init(void)
--{
--	return platform_driver_probe(&davinci_ks_driver, davinci_ks_probe);
--}
--module_init(davinci_ks_init);
--
--static void __exit davinci_ks_exit(void)
--{
--	platform_driver_unregister(&davinci_ks_driver);
--}
--module_exit(davinci_ks_exit);
-+module_platform_driver_probe(davinci_ks_driver, davinci_ks_probe);
- 
- MODULE_AUTHOR("Miguel Aguilar");
- MODULE_DESCRIPTION("Texas Instruments DaVinci Key Scan Driver");
-diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
-index 0e6a815..c7d505c 100644
---- a/drivers/input/keyboard/nomadik-ske-keypad.c
-+++ b/drivers/input/keyboard/nomadik-ske-keypad.c
-@@ -430,17 +430,7 @@ static struct platform_driver ske_keypad_driver = {
- 	.remove = ske_keypad_remove,
- };
- 
--static int __init ske_keypad_init(void)
--{
--	return platform_driver_probe(&ske_keypad_driver, ske_keypad_probe);
--}
--module_init(ske_keypad_init);
--
--static void __exit ske_keypad_exit(void)
--{
--	platform_driver_unregister(&ske_keypad_driver);
--}
--module_exit(ske_keypad_exit);
-+module_platform_driver_probe(ske_keypad_driver, ske_keypad_probe);
- 
- MODULE_LICENSE("GPL v2");
- MODULE_AUTHOR("Naveen Kumar <naveen.gaddipati@stericsson.com> / Sundar Iyer <sundar.iyer@stericsson.com>");
-diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-index 27c2bc8..1700947 100644
---- a/drivers/input/misc/twl4030-pwrbutton.c
-+++ b/drivers/input/misc/twl4030-pwrbutton.c
-@@ -114,18 +114,7 @@ static struct platform_driver twl4030_pwrbutton_driver = {
- 	},
- };
- 
--static int __init twl4030_pwrbutton_init(void)
--{
--	return platform_driver_probe(&twl4030_pwrbutton_driver,
--			twl4030_pwrbutton_probe);
--}
--module_init(twl4030_pwrbutton_init);
--
--static void __exit twl4030_pwrbutton_exit(void)
--{
--	platform_driver_unregister(&twl4030_pwrbutton_driver);
--}
--module_exit(twl4030_pwrbutton_exit);
-+module_platform_driver_probe(twl4030_pwrbutton_driver, twl4030_pwrbutton_probe);
- 
- MODULE_ALIAS("platform:twl4030_pwrbutton");
- MODULE_DESCRIPTION("Triton2 Power Button");
-diff --git a/drivers/input/mouse/amimouse.c b/drivers/input/mouse/amimouse.c
-index 5fa9934..b55d5af 100644
---- a/drivers/input/mouse/amimouse.c
-+++ b/drivers/input/mouse/amimouse.c
-@@ -146,18 +146,6 @@ static struct platform_driver amimouse_driver = {
- 	},
- };
- 
--static int __init amimouse_init(void)
--{
--	return platform_driver_probe(&amimouse_driver, amimouse_probe);
--}
--
--module_init(amimouse_init);
--
--static void __exit amimouse_exit(void)
--{
--	platform_driver_unregister(&amimouse_driver);
--}
--
--module_exit(amimouse_exit);
-+module_platform_driver_probe(amimouse_driver, amimouse_probe);
- 
- MODULE_ALIAS("platform:amiga-mouse");
-diff --git a/drivers/input/serio/at32psif.c b/drivers/input/serio/at32psif.c
-index 36e799c..190ce35 100644
---- a/drivers/input/serio/at32psif.c
-+++ b/drivers/input/serio/at32psif.c
-@@ -359,18 +359,7 @@ static struct platform_driver psif_driver = {
- 	},
- };
- 
--static int __init psif_init(void)
--{
--	return platform_driver_probe(&psif_driver, psif_probe);
--}
--
--static void __exit psif_exit(void)
--{
--	platform_driver_unregister(&psif_driver);
--}
--
--module_init(psif_init);
--module_exit(psif_exit);
-+module_platform_driver_probe(psif_driver, psif_probe);
- 
- MODULE_AUTHOR("Hans-Christian Egtvedt <egtvedt@samfundet.no>");
- MODULE_DESCRIPTION("Atmel AVR32 PSIF PS/2 driver");
-diff --git a/drivers/input/serio/q40kbd.c b/drivers/input/serio/q40kbd.c
-index 70fe542..436a343 100644
---- a/drivers/input/serio/q40kbd.c
-+++ b/drivers/input/serio/q40kbd.c
-@@ -193,15 +193,4 @@ static struct platform_driver q40kbd_driver = {
- 	.remove		= q40kbd_remove,
- };
- 
--static int __init q40kbd_init(void)
--{
--	return platform_driver_probe(&q40kbd_driver, q40kbd_probe);
--}
--
--static void __exit q40kbd_exit(void)
--{
--	platform_driver_unregister(&q40kbd_driver);
--}
--
--module_init(q40kbd_init);
--module_exit(q40kbd_exit);
-+module_platform_driver_probe(q40kbd_driver, q40kbd_probe);
-diff --git a/drivers/input/touchscreen/atmel-wm97xx.c b/drivers/input/touchscreen/atmel-wm97xx.c
-index c5c2dbb..2c1e46b 100644
---- a/drivers/input/touchscreen/atmel-wm97xx.c
-+++ b/drivers/input/touchscreen/atmel-wm97xx.c
-@@ -432,17 +432,7 @@ static struct platform_driver atmel_wm97xx_driver = {
- 	},
- };
- 
--static int __init atmel_wm97xx_init(void)
--{
--	return platform_driver_probe(&atmel_wm97xx_driver, atmel_wm97xx_probe);
--}
--module_init(atmel_wm97xx_init);
--
--static void __exit atmel_wm97xx_exit(void)
--{
--	platform_driver_unregister(&atmel_wm97xx_driver);
--}
--module_exit(atmel_wm97xx_exit);
-+module_platform_driver_probe(atmel_wm97xx_driver, atmel_wm97xx_probe);
- 
- MODULE_AUTHOR("Hans-Christian Egtvedt <egtvedt@samfundet.no>");
- MODULE_DESCRIPTION("wm97xx continuous touch driver for Atmel AT91 and AVR32");
-diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
-index 02103b6..89308fe 100644
---- a/drivers/input/touchscreen/mc13783_ts.c
-+++ b/drivers/input/touchscreen/mc13783_ts.c
-@@ -250,17 +250,7 @@ static struct platform_driver mc13783_ts_driver = {
- 	},
- };
- 
--static int __init mc13783_ts_init(void)
--{
--	return platform_driver_probe(&mc13783_ts_driver, &mc13783_ts_probe);
--}
--module_init(mc13783_ts_init);
--
--static void __exit mc13783_ts_exit(void)
--{
--	platform_driver_unregister(&mc13783_ts_driver);
--}
--module_exit(mc13783_ts_exit);
-+module_platform_driver_probe(mc13783_ts_driver, mc13783_ts_probe);
- 
- MODULE_DESCRIPTION("MC13783 input touchscreen driver");
- MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
+-module_init(emif_register);
+-module_exit(emif_unregister);
+ MODULE_DESCRIPTION("TI EMIF SDRAM Controller Driver");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:emif");
 -- 
 1.8.1.5
-

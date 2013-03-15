@@ -1,78 +1,47 @@
 From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH v2 2/7] USB: serial: handle suspend failure path correctly
-Date: Fri, 15 Mar 2013 11:04:14 +0800
-Message-ID: <CACVXFVO5RioYUQf7aA2_M=yNcBf=aVM2zLZAqu+dU9okUSmXHw@mail.gmail.com>
-References: <1362672924-22975-1-git-send-email-ming.lei@canonical.com>
-	<1362672924-22975-3-git-send-email-ming.lei@canonical.com>
-	<20130314111010.GA15776@localhost>
+Subject: [PATCH v3 4/7] usbnet: cdc_mbim: comments on suspend failure
+Date: Fri, 15 Mar 2013 12:08:56 +0800
+Message-ID: <1363320539-23012-5-git-send-email-ming.lei@canonical.com>
+References: <1363320539-23012-1-git-send-email-ming.lei@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:56254 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752196Ab3CODEQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Mar 2013 23:04:16 -0400
-In-Reply-To: <20130314111010.GA15776@localhost>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1363320539-23012-1-git-send-email-ming.lei@canonical.com>
+Sender: netdev-owner@vger.kernel.org
+To: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Ming Lei <ming.lei@canonical.com>
 List-Id: linux-input@vger.kernel.org
-To: Johan Hovold <jhovold@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Mar 14, 2013 at 7:10 PM, Johan Hovold <jhovold@gmail.com> wrote=
-:
-> On Fri, Mar 08, 2013 at 12:15:19AM +0800, Ming Lei wrote:
->> This patch kills traffic even though type->suspend returns
->> failure inside usb_serial_suspend from system sleep context
->> because USB core ignores the failiure and lets system sleep
->> go ahread, so the serial URB traffic need to be killed
->> in this case.
->>
->> Cc: Johan Hovold <jhovold@gmail.com>
->> Signed-off-by: Ming Lei <ming.lei@canonical.com>
->> ---
->>  drivers/usb/serial/usb-serial.c |    3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/us=
-b-serial.c
->> index a19ed74..9d0b9c8 100644
->> --- a/drivers/usb/serial/usb-serial.c
->> +++ b/drivers/usb/serial/usb-serial.c
->> @@ -1142,10 +1142,11 @@ int usb_serial_suspend(struct usb_interface =
-*intf, pm_message_t message)
->>
->>       if (serial->type->suspend) {
->>               r =3D serial->type->suspend(serial, message);
->> -             if (r < 0) {
->> +             if (r < 0 && PMSG_IS_AUTO(message)) {
->>                       serial->suspending =3D 0;
->>                       goto err_out;
->>               }
->> +             /* TODO: resume() might need to handle suspend failure=
- */
->>       }
->>
->>       for (i =3D 0; i < serial->num_ports; ++i) {
->
-> Sorry for the late reply.
->
-> The usb-serial subdriver suspend callbacks do not and must not return
-> non-zero if !PMSG_IS_AUTO(message) so adding code to handle that case
-> merely obfuscates this fact.
->
-> I'd rather see this documented with a comment just as Bj=F8rn suggest=
-ed
-> for cdc_mbim and qmi_wwan.
+If suspend callback fails in system sleep context, usb core will
+ignore the failure and let system sleep go ahead further, so
+this patch comments on the case and requires that both
+usbnet_suspend() and subdriver->suspend() MUST return 0 in
+system sleep context.
 
-No problem, will do it in v3.
+Acked-by: David S. Miller <davem@davemloft.net>
+Acked-by: Bj=C3=B8rn Mork <bjorn@mork.no>
+Signed-off-by: Ming Lei <ming.lei@canonical.com>
+---
+ drivers/net/usb/cdc_mbim.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-Thanks,
---
-Ming Lei
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
+index 248d2dc..406a34d 100644
+--- a/drivers/net/usb/cdc_mbim.c
++++ b/drivers/net/usb/cdc_mbim.c
+@@ -332,6 +332,11 @@ static int cdc_mbim_suspend(struct usb_interface *=
+intf, pm_message_t message)
+ 		goto error;
+ 	}
+=20
++	/*
++	 * Both usbnet_suspend() and subdriver->suspend() MUST return 0
++	 * in system sleep context, otherwise, the resume callback has
++	 * to recover device from previous suspend failure.
++	 */
+ 	ret =3D usbnet_suspend(intf, message);
+ 	if (ret < 0)
+ 		goto error;
+--=20
+1.7.9.5

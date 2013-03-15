@@ -1,54 +1,63 @@
-From: Johan Hovold <jhovold@gmail.com>
-Subject: Re: [PATCH v3 2/7] USB: serial: comments on suspend failure
-Date: Fri, 15 Mar 2013 10:02:06 +0100
-Message-ID: <20130315090206.GA28843@localhost>
-References: <1363320539-23012-1-git-send-email-ming.lei@canonical.com>
- <1363320539-23012-3-git-send-email-ming.lei@canonical.com>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: Re: [PATCH 10/10] drivers: misc: use module_platform_driver_probe()
+Date: Fri, 15 Mar 2013 12:18:53 +0100
+Message-ID: <CAHkwnC9nGsdgOTQZ6VpeDyPWXw7tpP+2oHvnLv6LEr1cNdnrsg@mail.gmail.com>
+References: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
+ <1363266691-15757-12-git-send-email-fabio.porcedda@gmail.com>
+ <201303141358.05616.arnd@arndb.de> <20130314140631.GM1906@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f43.google.com ([209.85.215.43]:41503 "EHLO
-	mail-la0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752256Ab3COJDB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Mar 2013 05:03:01 -0400
-Content-Disposition: inline
-In-Reply-To: <1363320539-23012-3-git-send-email-ming.lei@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-ide-owner@vger.kernel.org>
+In-Reply-To: <20130314140631.GM1906@pengutronix.de>
+Sender: linux-ide-owner@vger.kernel.org
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media <linux-media@vger.kernel.org>, linux-ide <linux-ide@vger.kernel.org>, lm-sensors <lm-sensors@lm-sensors.org>, linux-input <linux-input@vger.kernel.org>, linux-fbdev <linux-fbdev@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, H Hartley Sweeten <hsweeten@visionengravers.com>, Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>, Grant Likely <grant.likely@secretlab.ca>
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Johan Hovold <jhovold@gmail.com>
 
-On Fri, Mar 15, 2013 at 12:08:54PM +0800, Ming Lei wrote:
-> If suspend callback fails in system sleep context, usb core will
-> ignore the failure and let system sleep go ahead further, so
-> this patch comments on the case and requires that serial->type->suspend()
-> MUST return 0 in system sleep context.
-> 
-> Cc: Johan Hovold <jhovold@gmail.com>
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
-> ---
->  drivers/usb/serial/usb-serial.c |    5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
-> index a19ed74..16eb02b 100644
-> --- a/drivers/usb/serial/usb-serial.c
-> +++ b/drivers/usb/serial/usb-serial.c
-> @@ -1140,6 +1140,11 @@ int usb_serial_suspend(struct usb_interface *intf, pm_message_t message)
->  
->  	serial->suspending = 1;
->  
-> +	/*
-> +	 * serial->type->suspend() MUST return 0 in system sleep context,
-> +	 * otherwise, the resume callback has to recover device from
-> +	 * previous suspend failure.
-> +	 */
->  	if (serial->type->suspend) {
->  		r = serial->type->suspend(serial, message);
->  		if (r < 0) {
+On Thu, Mar 14, 2013 at 3:06 PM, Sascha Hauer <s.hauer@pengutronix.de> wrote:
+> On Thu, Mar 14, 2013 at 01:58:05PM +0000, Arnd Bergmann wrote:
+>> On Thursday 14 March 2013, Fabio Porcedda wrote:
+>> > This patch converts the drivers to use the
+>> > module_platform_driver_probe() macro which makes the code smaller and
+>> > a bit simpler.
+>> >
+>> > Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
+>> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> > Cc: Arnd Bergmann <arnd@arndb.de>
+>> > ---
+>> >  drivers/misc/atmel_pwm.c  | 12 +-----------
+>> >  drivers/misc/ep93xx_pwm.c | 13 +------------
+>> >  2 files changed, 2 insertions(+), 23 deletions(-)
+>>
+>> The patch itself seems fine, but there are two issues around it:
+>>
+>> * The PWM drivers should really get moved to drivers/pwm and converted to the new
+>>   PWM subsystem. I don't know if Hartley or Hans-Christian have plans to do
+>>   that already.
+>>
+>> * Regarding the use of module_platform_driver_probe, I'm a little worried about
+>>   the interactions with deferred probing. I don't think there are any regressions,
+>>   but we should probably make people aware that one cannot return -EPROBE_DEFER
+>>   from a platform_driver_probe function.
 
-Acked-by: Johan Hovold <jhovold@gmail.com>
+The use of module_platform_driver_probe() doesn't change anything about that,
+it's exactly the same thing as using "return platform_driver_probe()".
+I'm right or I'm missing something? Maybe are you just speaking about
+the misuse of "platform_driver_probe"?
 
-Thanks,
-Johan
+Best regards
+Fabio Porcedda
+
+>
+> I'm worried about this aswell. I think platform_driver_probe shouldn't
+> be used anymore. Even if a driver does not explicitly make use of
+> -EPROBE_DEFER, it leaks in very quickly if a driver for example uses a
+> regulator and just returns the error value from regulator_get.
+
+> Sascha
+>
+> --
+> Pengutronix e.K.                           |                             |
+> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

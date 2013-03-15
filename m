@@ -1,50 +1,54 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH v3 7/7] usbnet: smsc75xx: don't recover device if suspend fails in system sleep
-Date: Fri, 15 Mar 2013 12:08:59 +0800
-Message-ID: <1363320539-23012-8-git-send-email-ming.lei@canonical.com>
+From: Johan Hovold <jhovold@gmail.com>
+Subject: Re: [PATCH v3 2/7] USB: serial: comments on suspend failure
+Date: Fri, 15 Mar 2013 10:02:06 +0100
+Message-ID: <20130315090206.GA28843@localhost>
 References: <1363320539-23012-1-git-send-email-ming.lei@canonical.com>
+ <1363320539-23012-3-git-send-email-ming.lei@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:52016 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751296Ab3COEK3 (ORCPT
+Received: from mail-la0-f43.google.com ([209.85.215.43]:41503 "EHLO
+	mail-la0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752256Ab3COJDB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Mar 2013 00:10:29 -0400
-In-Reply-To: <1363320539-23012-1-git-send-email-ming.lei@canonical.com>
+	Fri, 15 Mar 2013 05:03:01 -0400
+Content-Disposition: inline
+In-Reply-To: <1363320539-23012-3-git-send-email-ming.lei@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Ming Lei <ming.lei@canonical.com>, Steve Glendinning <steve.glendinning@shawell.net>
+To: Ming Lei <ming.lei@canonical.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Johan Hovold <jhovold@gmail.com>
 
-If suspend callback fails in system sleep context, usb core will
-ignore the failure and let system sleep go ahead further, so
-this patch doesn't recover device under this situation.
+On Fri, Mar 15, 2013 at 12:08:54PM +0800, Ming Lei wrote:
+> If suspend callback fails in system sleep context, usb core will
+> ignore the failure and let system sleep go ahead further, so
+> this patch comments on the case and requires that serial->type->suspend()
+> MUST return 0 in system sleep context.
+> 
+> Cc: Johan Hovold <jhovold@gmail.com>
+> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+> ---
+>  drivers/usb/serial/usb-serial.c |    5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
+> index a19ed74..16eb02b 100644
+> --- a/drivers/usb/serial/usb-serial.c
+> +++ b/drivers/usb/serial/usb-serial.c
+> @@ -1140,6 +1140,11 @@ int usb_serial_suspend(struct usb_interface *intf, pm_message_t message)
+>  
+>  	serial->suspending = 1;
+>  
+> +	/*
+> +	 * serial->type->suspend() MUST return 0 in system sleep context,
+> +	 * otherwise, the resume callback has to recover device from
+> +	 * previous suspend failure.
+> +	 */
+>  	if (serial->type->suspend) {
+>  		r = serial->type->suspend(serial, message);
+>  		if (r < 0) {
 
-Also add comments on this case.
+Acked-by: Johan Hovold <jhovold@gmail.com>
 
-Acked-by: David S. Miller <davem@davemloft.net>
-Cc: Steve Glendinning <steve.glendinning@shawell.net>
-Signed-off-by: Ming Lei <ming.lei@canonical.com>
----
- drivers/net/usb/smsc75xx.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/usb/smsc75xx.c b/drivers/net/usb/smsc75xx.c
-index 9abe517..21b607a 100644
---- a/drivers/net/usb/smsc75xx.c
-+++ b/drivers/net/usb/smsc75xx.c
-@@ -2011,7 +2011,11 @@ static int smsc75xx_suspend(struct usb_interface *intf, pm_message_t message)
- 	ret = smsc75xx_enter_suspend0(dev);
- 
- done:
--	if (ret)
-+	/*
-+	 * TODO: resume() might need to handle the suspend failure
-+	 * in system sleep
-+	 */
-+	if (ret && PMSG_IS_AUTO(message))
- 		usbnet_resume(intf);
- 	return ret;
- }
--- 
-1.7.9.5
-
+Thanks,
+Johan

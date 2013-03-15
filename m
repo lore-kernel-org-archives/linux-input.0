@@ -1,56 +1,78 @@
-From: Fabio Porcedda <fabio.porcedda@gmail.com>
-Subject: [PATCH] drivers: input: use module_platform_driver_probe()
-Date: Thu, 14 Mar 2013 18:49:09 +0100
-Message-ID: <1363283349-26058-1-git-send-email-fabio.porcedda@gmail.com>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: Re: [PATCH v2 2/7] USB: serial: handle suspend failure path correctly
+Date: Fri, 15 Mar 2013 11:04:14 +0800
+Message-ID: <CACVXFVO5RioYUQf7aA2_M=yNcBf=aVM2zLZAqu+dU9okUSmXHw@mail.gmail.com>
+References: <1362672924-22975-1-git-send-email-ming.lei@canonical.com>
+	<1362672924-22975-3-git-send-email-ming.lei@canonical.com>
+	<20130314111010.GA15776@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f46.google.com ([74.125.83.46]:39946 "EHLO
-	mail-ee0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758195Ab3CNRtO (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:56254 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752196Ab3CODEQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Mar 2013 13:49:14 -0400
-Received: by mail-ee0-f46.google.com with SMTP id e49so1218065eek.33
-        for <linux-input@vger.kernel.org>; Thu, 14 Mar 2013 10:49:12 -0700 (PDT)
+	Thu, 14 Mar 2013 23:04:16 -0400
+In-Reply-To: <20130314111010.GA15776@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Johan Hovold <jhovold@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oneukum@suse.de>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-This patch converts the drivers to use the
-module_platform_driver_probe() macro which makes the code smaller and
-a bit simpler.
+On Thu, Mar 14, 2013 at 7:10 PM, Johan Hovold <jhovold@gmail.com> wrote=
+:
+> On Fri, Mar 08, 2013 at 12:15:19AM +0800, Ming Lei wrote:
+>> This patch kills traffic even though type->suspend returns
+>> failure inside usb_serial_suspend from system sleep context
+>> because USB core ignores the failiure and lets system sleep
+>> go ahread, so the serial URB traffic need to be killed
+>> in this case.
+>>
+>> Cc: Johan Hovold <jhovold@gmail.com>
+>> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+>> ---
+>>  drivers/usb/serial/usb-serial.c |    3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/us=
+b-serial.c
+>> index a19ed74..9d0b9c8 100644
+>> --- a/drivers/usb/serial/usb-serial.c
+>> +++ b/drivers/usb/serial/usb-serial.c
+>> @@ -1142,10 +1142,11 @@ int usb_serial_suspend(struct usb_interface =
+*intf, pm_message_t message)
+>>
+>>       if (serial->type->suspend) {
+>>               r =3D serial->type->suspend(serial, message);
+>> -             if (r < 0) {
+>> +             if (r < 0 && PMSG_IS_AUTO(message)) {
+>>                       serial->suspending =3D 0;
+>>                       goto err_out;
+>>               }
+>> +             /* TODO: resume() might need to handle suspend failure=
+ */
+>>       }
+>>
+>>       for (i =3D 0; i < serial->num_ports; ++i) {
+>
+> Sorry for the late reply.
+>
+> The usb-serial subdriver suspend callbacks do not and must not return
+> non-zero if !PMSG_IS_AUTO(message) so adding code to handle that case
+> merely obfuscates this fact.
+>
+> I'd rather see this documented with a comment just as Bj=F8rn suggest=
+ed
+> for cdc_mbim and qmi_wwan.
 
-Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
-v3:
-  - removed already converted drivers
+No problem, will do it in v3.
 
- drivers/input/touchscreen/mc13783_ts.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
-
-diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
-index 02103b6..89308fe 100644
---- a/drivers/input/touchscreen/mc13783_ts.c
-+++ b/drivers/input/touchscreen/mc13783_ts.c
-@@ -250,17 +250,7 @@ static struct platform_driver mc13783_ts_driver = {
- 	},
- };
- 
--static int __init mc13783_ts_init(void)
--{
--	return platform_driver_probe(&mc13783_ts_driver, &mc13783_ts_probe);
--}
--module_init(mc13783_ts_init);
--
--static void __exit mc13783_ts_exit(void)
--{
--	platform_driver_unregister(&mc13783_ts_driver);
--}
--module_exit(mc13783_ts_exit);
-+module_platform_driver_probe(mc13783_ts_driver, mc13783_ts_probe);
- 
- MODULE_DESCRIPTION("MC13783 input touchscreen driver");
- MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
--- 
-1.8.1.5
-
+Thanks,
+--
+Ming Lei
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

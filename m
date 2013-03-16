@@ -1,162 +1,123 @@
-From: mathieu.poirier@linaro.org
-Subject: [PATCH v2] sysrq: supplementing reset sequence with timeout functionality
-Date: Sat, 16 Mar 2013 11:14:17 -0600
-Message-ID: <1363454057-7409-1-git-send-email-mathieu.poirier@linaro.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [RFC/RFT] Reset bcm5974 into wellspring mode when it forgets
+Date: Sat, 16 Mar 2013 20:31:43 +0100
+Message-ID: <20130316193143.GA6050@polaris.bitmath.org>
+References: <1363271407.4853.52.camel@i7.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f41.google.com ([209.85.160.41]:33370 "EHLO
-	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751313Ab3CPRN3 (ORCPT
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:48062 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751027Ab3CPT1f (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Mar 2013 13:13:29 -0400
-Received: by mail-pb0-f41.google.com with SMTP id um15so5159781pbc.14
-        for <linux-input@vger.kernel.org>; Sat, 16 Mar 2013 10:13:29 -0700 (PDT)
+	Sat, 16 Mar 2013 15:27:35 -0400
+Received: from ipb5.telenor.se (ipb5.telenor.se [195.54.127.168])
+	by smtprelay-h21.telenor.se (Postfix) with ESMTP id 4BFB0EA9C0
+	for <linux-input@vger.kernel.org>; Sat, 16 Mar 2013 20:27:33 +0100 (CET)
+Content-Disposition: inline
+In-Reply-To: <1363271407.4853.52.camel@i7.infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, arve@android.com, kernel-team@android.com, john.stultz@linaro.org, mathieu.poirier@linaro.org
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-input@vger.kernel.org
 
-From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
+Hi David,
 
-Some devices have too few buttons, which it makes it hard to have
-a reset combo that won't trigger automatically.  As such a
-timeout functionality that requires the combination to be held for
-a given amount of time before triggering is introduced.
+> Occasionally the trackpad in my MacBookPro 8,3 stops working, spewing
+>  'bcm5974: bad trackpad package, length: 8'
 
-If a key combo is recognized and held for a 'timeout' amount of time,
-the system triggers a reset.  If the timeout value is omitted the
-driver simply ignores the functionality.
+We have seen this on a few exemplars over the years. It could be a
+hardware problem.
 
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
----
-Changes for v2:
-   - Replaced delayed_work with timer.
-   - Made timer on per-device basis.
-   - Removed unecessary parameter check macro.
+> I haven't been able to reproduce this on demand, but it's annoying when
+> it does happen. I'm *assuming* that it's somehow forgotten what mode
+> it's supposed to be in. The fix for this on suspend/resume was to switch
+> it back to Wellspring mode again, so let's try that...
 
- drivers/tty/sysrq.c |   40 +++++++++++++++++++++++++++++-----------
- 1 file changed, 29 insertions(+), 11 deletions(-)
+What do you mean by "fix for this on suspend/resume"? The driver
+always returns to normal mode at suspend, and sets wellspring mode at
+resume.
 
-diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-index 7953dfa..8e62062 100644
---- a/drivers/tty/sysrq.c
-+++ b/drivers/tty/sysrq.c
-@@ -42,6 +42,7 @@
- #include <linux/input.h>
- #include <linux/uaccess.h>
- #include <linux/moduleparam.h>
-+#include <linux/jiffies.h>
- 
- #include <asm/ptrace.h>
- #include <asm/irq_regs.h>
-@@ -50,6 +51,9 @@
- static int __read_mostly sysrq_enabled = SYSRQ_DEFAULT_ENABLE;
- static bool __read_mostly sysrq_always_enabled;
- 
-+unsigned short platform_sysrq_reset_seq[] __weak = { KEY_RESERVED };
-+int sysrq_downtime_ms __weak;
-+
- static bool sysrq_on(void)
- {
- 	return sysrq_enabled || sysrq_always_enabled;
-@@ -584,6 +588,7 @@ struct sysrq_state {
- 	int reset_seq_len;
- 	int reset_seq_cnt;
- 	int reset_seq_version;
-+	struct timer_list keyreset_timeout;
- };
- 
- #define SYSRQ_KEY_RESET_MAX	20 /* Should be plenty */
-@@ -617,7 +622,14 @@ static void sysrq_parse_reset_sequence(struct sysrq_state *state)
- 	state->reset_seq_version = sysrq_reset_seq_version;
- }
- 
--static bool sysrq_detect_reset_sequence(struct sysrq_state *state,
-+static void sysrq_handle_reset_request(struct sysrq_state *state)
-+{
-+	unsigned long expires = jiffies + msecs_to_jiffies(sysrq_downtime_ms);
-+	state->keyreset_timeout.expires = expires;
-+	add_timer(&state->keyreset_timeout);
-+}
-+
-+static void sysrq_detect_reset_sequence(struct sysrq_state *state,
- 					unsigned int code, int value)
- {
- 	if (!test_bit(code, state->reset_keybit)) {
-@@ -629,17 +641,22 @@ static bool sysrq_detect_reset_sequence(struct sysrq_state *state,
- 			state->reset_canceled = true;
- 	} else if (value == 0) {
- 		/* key release */
--		if (--state->reset_seq_cnt == 0)
-+		if (--state->reset_seq_cnt == 0) {
- 			state->reset_canceled = false;
-+			del_timer(&state->keyreset_timeout);
-+		}
- 	} else if (value == 1) {
- 		/* key press, not autorepeat */
- 		if (++state->reset_seq_cnt == state->reset_seq_len &&
--		    !state->reset_canceled) {
--			return true;
-+						!state->reset_canceled) {
-+			sysrq_handle_reset_request(state);
- 		}
- 	}
-+}
- 
--	return false;
-+static void sysrq_handle_reset_timeout(unsigned long data)
-+{
-+	__handle_sysrq(sysrq_xlate[KEY_B], false);
- }
- 
- static void sysrq_reinject_alt_sysrq(struct work_struct *work)
-@@ -746,10 +763,8 @@ static bool sysrq_handle_keypress(struct sysrq_state *sysrq,
- 		if (was_active)
- 			schedule_work(&sysrq->reinject_work);
- 
--		if (sysrq_detect_reset_sequence(sysrq, code, value)) {
--			/* Force emergency reboot */
--			__handle_sysrq(sysrq_xlate[KEY_B], false);
--		}
-+		/* Check for reset sequence */
-+		sysrq_detect_reset_sequence(sysrq, code, value);
- 
- 	} else if (value == 0 && test_and_clear_bit(code, sysrq->key_down)) {
- 		/*
-@@ -810,6 +825,8 @@ static int sysrq_connect(struct input_handler *handler,
- 	sysrq->handle.handler = handler;
- 	sysrq->handle.name = "sysrq";
- 	sysrq->handle.private = sysrq;
-+	init_timer(&sysrq->keyreset_timeout);
-+	sysrq->keyreset_timeout.function = sysrq_handle_reset_timeout;
- 
- 	error = input_register_handle(&sysrq->handle);
- 	if (error) {
-@@ -839,6 +856,7 @@ static void sysrq_disconnect(struct input_handle *handle)
- 
- 	input_close_device(handle);
- 	cancel_work_sync(&sysrq->reinject_work);
-+	del_timer(&sysrq->keyreset_timeout);
- 	input_unregister_handle(handle);
- 	kfree(sysrq);
- }
-@@ -868,8 +886,6 @@ static struct input_handler sysrq_handler = {
- 
- static bool sysrq_handler_registered;
- 
--unsigned short platform_sysrq_reset_seq[] __weak = { KEY_RESERVED };
--
- static inline void sysrq_register_handler(void)
- {
- 	unsigned short key;
-@@ -929,6 +945,8 @@ static struct kernel_param_ops param_ops_sysrq_reset_seq = {
- module_param_array_named(reset_seq, sysrq_reset_seq, sysrq_reset_seq,
- 			 &sysrq_reset_seq_len, 0644);
- 
-+module_param(sysrq_downtime_ms, int, 0644);
-+
- #else
- 
- static inline void sysrq_register_handler(void)
--- 
-1.7.9.5
+> Untested, because my trackpad seems to *know* when I'm actually running
+> a kernel with this patch, and doesn't ever misbehave. I've played with
+> removing the *normal* mode switch in bcm5974_start_traffic() but can't
+> get it to produce the 'bad trackpad package' message at all in that
+> case, so the rest function doesn't get invoked.
+
+Being random, it really sounds like faulty hardware. As such, perhaps
+the problem can be detected in the usb layer?
+
+> 
+> Signed-off-by: David Woodhouse <David.Woodhouse@intel.com>
+> 
+> diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+> index 2baff1b..db0b3ab 100644
+> --- a/drivers/input/mouse/bcm5974.c
+> +++ b/drivers/input/mouse/bcm5974.c
+> @@ -244,6 +244,7 @@ struct bcm5974 {
+>  	struct bt_data *bt_data;	/* button transferred data */
+>  	struct urb *tp_urb;		/* trackpad usb request block */
+>  	u8 *tp_data;			/* trackpad transferred data */
+> +	struct work_struct reset_work;	/* reset to wellspring mode */
+>  	const struct tp_finger *index[MAX_FINGERS];	/* finger index data */
+>  	struct input_mt_pos pos[MAX_FINGERS];		/* position array */
+>  	int slots[MAX_FINGERS];				/* slot assignments */
+> @@ -676,9 +677,14 @@ static void bcm5974_irq_trackpad(struct urb *urb)
+>  	if (dev->tp_urb->actual_length == 2)
+>  		goto exit;
+>  
+> -	if (report_tp_state(dev, dev->tp_urb->actual_length))
+> +	if (report_tp_state(dev, dev->tp_urb->actual_length)) {
+>  		dprintk(1, "bcm5974: bad trackpad package, length: %d\n",
+>  			dev->tp_urb->actual_length);
+> +		if (dev->tp_urb->actual_length == 8) {
+> +			/* Hm. Make sure it's in wellspring mode... */
+> +			schedule_work(&dev->reset_work);
+> +		}
+> +	}
+>  
+>  exit:
+>  	error = usb_submit_urb(dev->tp_urb, GFP_ATOMIC);
+> @@ -815,6 +821,14 @@ static int bcm5974_resume(struct usb_interface *iface)
+>  	return error;
+>  }
+>  
+> +static void bcm5974_mode_workfn(struct work_struct *work)
+> +{
+> +	struct bcm5974 *dev = container_of(work, struct bcm5974, reset_work);
+> +
+> +	dev_info(&dev->intf->dev, "Reset into wellspring mode...\n");
+> +	bcm5974_wellspring_mode(dev, true);
+> +}
+> +
+
+This looks racy.
+
+>  static int bcm5974_probe(struct usb_interface *iface,
+>  			 const struct usb_device_id *id)
+>  {
+> @@ -840,6 +854,7 @@ static int bcm5974_probe(struct usb_interface *iface,
+>  	dev->input = input_dev;
+>  	dev->cfg = *cfg;
+>  	mutex_init(&dev->pm_mutex);
+> +	INIT_WORK(&dev->reset_work, bcm5974_mode_workfn);
+>  
+>  	/* setup urbs */
+>  	if (cfg->tp_type == TYPE1) {
+> @@ -936,6 +951,7 @@ static void bcm5974_disconnect(struct usb_interface *iface)
+>  				  dev->bt_data, dev->bt_urb->transfer_dma);
+>  	usb_free_urb(dev->tp_urb);
+>  	usb_free_urb(dev->bt_urb);
+> +	cancel_work_sync(&dev->reset_work);
+>  	kfree(dev);
+>  }
+>  
+
+In general, It does not really make sense for the transaction mode to
+change under our feet without anything in the usb layer knowing about
+it. Maybe there is a reset state cycle which does not get handle
+properly in the driver?
+
+Thanks,
+Henrik
 

@@ -1,50 +1,162 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 10/10] drivers: misc: use module_platform_driver_probe()
-Date: Fri, 15 Mar 2013 20:18:08 +0000
-Message-ID: <201303152018.09094.arnd@arndb.de>
-References: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
- <201303141358.05616.arnd@arndb.de>
- <ADE657CA350FB648AAC2C43247A983F0020980106B9E@AUSP01VMBX24.collaborationhost.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <ADE657CA350FB648AAC2C43247A983F0020980106B9E@AUSP01VMBX24.collaborationhost.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>, Grant Likely <grant.likely@secretlab.ca>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, Fabio Porcedda <fabio.porcedda@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
+From: mathieu.poirier@linaro.org
+Subject: [PATCH v2] sysrq: supplementing reset sequence with timeout functionality
+Date: Sat, 16 Mar 2013 11:14:17 -0600
+Message-ID: <1363454057-7409-1-git-send-email-mathieu.poirier@linaro.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:33370 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751313Ab3CPRN3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 16 Mar 2013 13:13:29 -0400
+Received: by mail-pb0-f41.google.com with SMTP id um15so5159781pbc.14
+        for <linux-input@vger.kernel.org>; Sat, 16 Mar 2013 10:13:29 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, arve@android.com, kernel-team@android.com, john.stultz@linaro.org, mathieu.poirier@linaro.org
 
-On Friday 15 March 2013, H Hartley Sweeten wrote:
-> Arnd,
-> 
-> Ill look at converting the ep93xx pwm driver to the PWM subsystem. The only issue is
-> the current driver exposes a sysfs interface that I think is not available in that subsystem.
+From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
 
-You can probably keep providing that interface if you have active users.
+Some devices have too few buttons, which it makes it hard to have
+a reset combo that won't trigger automatically.  As such a
+timeout functionality that requires the combination to be held for
+a given amount of time before triggering is introduced.
 
-> >* Regarding the use of module_platform_driver_probe, I'm a little worried about
-> >  the interactions with deferred probing. I don't think there are any regressions,
-> >  but we should probably make people aware that one cannot return -EPROBE_DEFER
-> >  from a platform_driver_probe function.
-> 
-> The ep93xx pwm driver does not need to use platform_driver_probe(). It can be changed
-> to use module_platform_driver() by just moving the .probe to the platform_driver. This
-> driver was added before module_platform_driver() was available and I used the
-> platform_driver_probe() thinking it would save a couple lines of code.
-> 
-> I'll change this in a bit. Right now I'm trying to work out why kernel 3.8 is not booting
-> on the ep93xx. I had 3.6.6 on my development board and 3.7 works fine but 3.8 hangs
-> without uncompressing the kernel.
+If a key combo is recognized and held for a 'timeout' amount of time,
+the system triggers a reset.  If the timeout value is omitted the
+driver simply ignores the functionality.
 
-Ok, thanks!
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+---
+Changes for v2:
+   - Replaced delayed_work with timer.
+   - Made timer on per-device basis.
+   - Removed unecessary parameter check macro.
 
-	Arnd
+ drivers/tty/sysrq.c |   40 +++++++++++++++++++++++++++++-----------
+ 1 file changed, 29 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+index 7953dfa..8e62062 100644
+--- a/drivers/tty/sysrq.c
++++ b/drivers/tty/sysrq.c
+@@ -42,6 +42,7 @@
+ #include <linux/input.h>
+ #include <linux/uaccess.h>
+ #include <linux/moduleparam.h>
++#include <linux/jiffies.h>
+ 
+ #include <asm/ptrace.h>
+ #include <asm/irq_regs.h>
+@@ -50,6 +51,9 @@
+ static int __read_mostly sysrq_enabled = SYSRQ_DEFAULT_ENABLE;
+ static bool __read_mostly sysrq_always_enabled;
+ 
++unsigned short platform_sysrq_reset_seq[] __weak = { KEY_RESERVED };
++int sysrq_downtime_ms __weak;
++
+ static bool sysrq_on(void)
+ {
+ 	return sysrq_enabled || sysrq_always_enabled;
+@@ -584,6 +588,7 @@ struct sysrq_state {
+ 	int reset_seq_len;
+ 	int reset_seq_cnt;
+ 	int reset_seq_version;
++	struct timer_list keyreset_timeout;
+ };
+ 
+ #define SYSRQ_KEY_RESET_MAX	20 /* Should be plenty */
+@@ -617,7 +622,14 @@ static void sysrq_parse_reset_sequence(struct sysrq_state *state)
+ 	state->reset_seq_version = sysrq_reset_seq_version;
+ }
+ 
+-static bool sysrq_detect_reset_sequence(struct sysrq_state *state,
++static void sysrq_handle_reset_request(struct sysrq_state *state)
++{
++	unsigned long expires = jiffies + msecs_to_jiffies(sysrq_downtime_ms);
++	state->keyreset_timeout.expires = expires;
++	add_timer(&state->keyreset_timeout);
++}
++
++static void sysrq_detect_reset_sequence(struct sysrq_state *state,
+ 					unsigned int code, int value)
+ {
+ 	if (!test_bit(code, state->reset_keybit)) {
+@@ -629,17 +641,22 @@ static bool sysrq_detect_reset_sequence(struct sysrq_state *state,
+ 			state->reset_canceled = true;
+ 	} else if (value == 0) {
+ 		/* key release */
+-		if (--state->reset_seq_cnt == 0)
++		if (--state->reset_seq_cnt == 0) {
+ 			state->reset_canceled = false;
++			del_timer(&state->keyreset_timeout);
++		}
+ 	} else if (value == 1) {
+ 		/* key press, not autorepeat */
+ 		if (++state->reset_seq_cnt == state->reset_seq_len &&
+-		    !state->reset_canceled) {
+-			return true;
++						!state->reset_canceled) {
++			sysrq_handle_reset_request(state);
+ 		}
+ 	}
++}
+ 
+-	return false;
++static void sysrq_handle_reset_timeout(unsigned long data)
++{
++	__handle_sysrq(sysrq_xlate[KEY_B], false);
+ }
+ 
+ static void sysrq_reinject_alt_sysrq(struct work_struct *work)
+@@ -746,10 +763,8 @@ static bool sysrq_handle_keypress(struct sysrq_state *sysrq,
+ 		if (was_active)
+ 			schedule_work(&sysrq->reinject_work);
+ 
+-		if (sysrq_detect_reset_sequence(sysrq, code, value)) {
+-			/* Force emergency reboot */
+-			__handle_sysrq(sysrq_xlate[KEY_B], false);
+-		}
++		/* Check for reset sequence */
++		sysrq_detect_reset_sequence(sysrq, code, value);
+ 
+ 	} else if (value == 0 && test_and_clear_bit(code, sysrq->key_down)) {
+ 		/*
+@@ -810,6 +825,8 @@ static int sysrq_connect(struct input_handler *handler,
+ 	sysrq->handle.handler = handler;
+ 	sysrq->handle.name = "sysrq";
+ 	sysrq->handle.private = sysrq;
++	init_timer(&sysrq->keyreset_timeout);
++	sysrq->keyreset_timeout.function = sysrq_handle_reset_timeout;
+ 
+ 	error = input_register_handle(&sysrq->handle);
+ 	if (error) {
+@@ -839,6 +856,7 @@ static void sysrq_disconnect(struct input_handle *handle)
+ 
+ 	input_close_device(handle);
+ 	cancel_work_sync(&sysrq->reinject_work);
++	del_timer(&sysrq->keyreset_timeout);
+ 	input_unregister_handle(handle);
+ 	kfree(sysrq);
+ }
+@@ -868,8 +886,6 @@ static struct input_handler sysrq_handler = {
+ 
+ static bool sysrq_handler_registered;
+ 
+-unsigned short platform_sysrq_reset_seq[] __weak = { KEY_RESERVED };
+-
+ static inline void sysrq_register_handler(void)
+ {
+ 	unsigned short key;
+@@ -929,6 +945,8 @@ static struct kernel_param_ops param_ops_sysrq_reset_seq = {
+ module_param_array_named(reset_seq, sysrq_reset_seq, sysrq_reset_seq,
+ 			 &sysrq_reset_seq_len, 0644);
+ 
++module_param(sysrq_downtime_ms, int, 0644);
++
+ #else
+ 
+ static inline void sysrq_register_handler(void)
+-- 
+1.7.9.5
+

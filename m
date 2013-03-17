@@ -1,478 +1,191 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 2/4] Input: cyapa - Firmware update via request firmware
-Date: Sat, 16 Mar 2013 21:00:47 +0100
-Message-ID: <20130316200047.GA6155@polaris.bitmath.org>
-References: <1363218651-22457-1-git-send-email-bleung@chromium.org>
- <1363218651-22457-3-git-send-email-bleung@chromium.org>
+From: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [RFC/RFT] Reset bcm5974 into wellspring mode when it forgets
+Date: Sun, 17 Mar 2013 14:50:02 +0000
+Message-ID: <1363531802.26810.13.camel@shinybook.infradead.org>
+References: <1363271407.4853.52.camel@i7.infradead.org>
+	 <20130316193143.GA6050@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg="sha1"; protocol="application/x-pkcs7-signature";
+	boundary="=-pRzttDe3BEHJ3qlV5JaK"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:53072 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751133Ab3CPT4i (ORCPT
+Received: from 173-166-109-252-newengland.hfc.comcastbusiness.net ([173.166.109.252]:43369
+	"EHLO bombadil.infradead.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932587Ab3CQOuH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Mar 2013 15:56:38 -0400
-Content-Disposition: inline
-In-Reply-To: <1363218651-22457-3-git-send-email-bleung@chromium.org>
+	Sun, 17 Mar 2013 10:50:07 -0400
+In-Reply-To: <20130316193143.GA6050@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, olofj@chromium.org, djkurtz@chromium.org, dudl@cypress.com
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org
 
-Hi Benson,
 
-> From: Daniel Kurtz <djkurtz@chromium.org>
-> 
-> Use the kernel request_firmware API to allow a hotplug script to load new
-> firmware into CYAPA device.  When request_firmware is called by a driver,
-> the kernel creates 'loading' and 'data' sysfs entries, and generates a
-> firmware udev event containing the name of a file ("cyapa.bin").
-> 
-> A udev rule can detect this event and use the sysfs entries to provide the
-> driver with the contents of a binary image firmware image. For instance,
-> the gentoo distribution includes /lib/udev/rules.d/50-firmware.rules,
-> which looks in /lib/firmware/ for a file matching the requested filename,
-> and sends the file to the driver using its sysfs entries.
-> 
-> Userspace can initiate the firmware update procedure by copying cyapa.bin
-> to /lib/firmware, and then writing anything to the device sysfs attribute:
->   /sys/bus/i2c/devices/7-0067/update_fw
+--=-pRzttDe3BEHJ3qlV5JaK
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Why do you need to trigger this from userland via sysfs?
+On Sat, 2013-03-16 at 20:31 +0100, Henrik Rydberg wrote:
+> What do you mean by "fix for this on suspend/resume"? The driver
+> always returns to normal mode at suspend, and sets wellspring mode at
+> resume.
 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> Signed-off-by: Benson Leung <bleung@chromium.org>
-> ---
->  drivers/input/mouse/cyapa.c | 351 ++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 351 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-> index a631aca..e622c25 100644
-> --- a/drivers/input/mouse/cyapa.c
-> +++ b/drivers/input/mouse/cyapa.c
-> @@ -15,6 +15,7 @@
->   */
->  
->  #include <linux/delay.h>
-> +#include <linux/firmware.h>
->  #include <linux/i2c.h>
->  #include <linux/input.h>
->  #include <linux/input/mt.h>
-> @@ -116,6 +117,9 @@
->  #define BL_STATUS_SIZE  3  /* length of bootloader status registers */
->  #define BLK_HEAD_BYTES 32
->  
-> +/* Macro for register map group offset. */
-> +#define CYAPA_REG_MAP_SIZE  256
-> +
->  #define PRODUCT_ID_SIZE  16
->  #define QUERY_DATA_SIZE  27
->  #define REG_PROTOCOL_GEN_QUERY_OFFSET  20
-> @@ -220,6 +224,8 @@ struct cyapa {
->  	int physical_size_y;
->  };
->  
-> +static const u8 bl_activate[] = { 0x00, 0xff, 0x38, 0x00, 0x01, 0x02, 0x03,
-> +		0x04, 0x05, 0x06, 0x07 };
->  static const u8 bl_deactivate[] = { 0x00, 0xff, 0x3b, 0x00, 0x01, 0x02, 0x03,
->  		0x04, 0x05, 0x06, 0x07 };
->  static const u8 bl_exit[] = { 0x00, 0xff, 0xa5, 0x00, 0x01, 0x02, 0x03, 0x04,
-> @@ -316,6 +322,41 @@ static const struct cyapa_cmd_len cyapa_smbus_cmds[] = {
->  	{ CYAPA_SMBUS_BLK_HEAD, 16 },
->  };
->  
-> +#define CYAPA_FW_NAME		"cyapa.bin"
-> +#define CYAPA_FW_BLOCK_SIZE	64
-> +#define CYAPA_FW_HDR_START	0x0780
-> +#define CYAPA_FW_HDR_BLOCK_COUNT  2
-> +#define CYAPA_FW_HDR_BLOCK_START  (CYAPA_FW_HDR_START / CYAPA_FW_BLOCK_SIZE)
-> +#define CYAPA_FW_HDR_SIZE	(CYAPA_FW_HDR_BLOCK_COUNT * \
-> +				 CYAPA_FW_BLOCK_SIZE)
-> +#define CYAPA_FW_DATA_START	0x0800
-> +#define CYAPA_FW_DATA_BLOCK_COUNT  480
-> +#define CYAPA_FW_DATA_BLOCK_START  (CYAPA_FW_DATA_START / CYAPA_FW_BLOCK_SIZE)
-> +#define CYAPA_FW_DATA_SIZE	(CYAPA_FW_DATA_BLOCK_COUNT * \
-> +				 CYAPA_FW_BLOCK_SIZE)
-> +#define CYAPA_FW_SIZE		(CYAPA_FW_HDR_SIZE + CYAPA_FW_DATA_SIZE)
-> +#define CYAPA_CMD_LEN		16
-> +
-> +#define BYTE_PER_LINE  8
-> +void cyapa_dump_data(struct cyapa *cyapa, size_t length, const u8 *data)
-> +{
-> +#ifdef DEBUG
-> +	struct device *dev = &cyapa->client->dev;
-> +	int i;
-> +	char buf[BYTE_PER_LINE * 3 + 1];
-> +	char *s = buf;
-> +
-> +	for (i = 0; i < length; i++) {
-> +		s += sprintf(s, " %02x", data[i]);
-> +		if ((i + 1) == length || ((i + 1) % BYTE_PER_LINE) == 0) {
-> +			dev_dbg(dev, "%s\n", buf);
-> +			s = buf;
-> +		}
-> +	}
-> +#endif
-> +}
-> +#undef BYTE_PER_LINE
-> +
->  static ssize_t cyapa_i2c_reg_read_block(struct cyapa *cyapa, u8 reg, size_t len,
->  					u8 *values)
->  {
-> @@ -498,6 +539,75 @@ static int cyapa_poll_state(struct cyapa *cyapa, unsigned int timeout)
->  	return (ret == -EAGAIN || ret == -ETIMEDOUT) ? -ETIMEDOUT : ret;
->  }
->  
-> +/*
-> + * Enter bootloader by soft resetting the device.
-> + *
-> + * If device is already in the bootloader, the function just returns.
-> + * Otherwise, reset the device; after reset, device enters bootloader idle
-> + * state immediately.
-> + *
-> + * Also, if device was unregister device from input core.  Device will
-> + * re-register after it is detected following resumption of operational mode.
-> + *
-> + * Returns:
-> + *   0 on success
-> + *   -EAGAIN  device was reset, but is not now in bootloader idle state
-> + *   < 0 if the device never responds within the timeout
-> + */
-> +static int cyapa_bl_enter(struct cyapa *cyapa)
-> +{
-> +	int ret;
-> +
-> +	if (cyapa->input) {
-> +		disable_irq(cyapa->irq);
-> +		input_unregister_device(cyapa->input);
-> +		cyapa->input = NULL;
-> +	}
-> +
-> +	ret = cyapa_get_state(cyapa);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (cyapa->state == CYAPA_STATE_BL_IDLE)
-> +		return 0;
-> +
-> +	if (cyapa->state != CYAPA_STATE_OP)
-> +		return -EAGAIN;
-> +
-> +	cyapa->state = CYAPA_STATE_NO_DEVICE;
-> +	ret = cyapa_write_byte(cyapa, CYAPA_CMD_SOFT_RESET, 0x01);
-> +	if (ret < 0)
-> +		return -EIO;
-> +
-> +	usleep_range(25000, 50000);
-> +	ret = cyapa_get_state(cyapa);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (cyapa->state != CYAPA_STATE_BL_IDLE)
-> +		return -EAGAIN;
-> +
-> +	return 0;
-> +}
-> +
-> +static int cyapa_bl_activate(struct cyapa *cyapa)
-> +{
-> +	int ret;
-> +
-> +	ret = cyapa_i2c_reg_write_block(cyapa, 0, sizeof(bl_activate),
-> +					bl_activate);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	/* Wait for bootloader to activate; takes between 2 and 12 seconds */
-> +	msleep(2000);
-> +	ret = cyapa_poll_state(cyapa, 10000);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (cyapa->state != CYAPA_STATE_BL_ACTIVE)
-> +		return -EAGAIN;
-> +
-> +	return 0;
-> +}
-> +
->  static int cyapa_bl_deactivate(struct cyapa *cyapa)
->  {
->  	int ret;
-> @@ -682,6 +792,154 @@ static int cyapa_check_is_operational(struct cyapa *cyapa)
->  	return 0;
->  }
->  
-> +static u16 cyapa_csum(const u8 *buf, size_t count)
-> +{
-> +	int i;
-> +	u16 csum = 0;
-> +
-> +	for (i = 0; i < count; i++)
-> +		csum += buf[i];
-> +
-> +	return csum;
-> +}
-> +
-> +/*
-> + * Write a |len| byte long buffer |buf| to the device, by chopping it up into a
-> + * sequence of smaller |CYAPA_CMD_LEN|-length write commands.
-> + *
-> + * The data bytes for a write command are prepended with the 1-byte offset
-> + * of the data relative to the start of |buf|.
-> + */
-> +static int cyapa_write_buffer(struct cyapa *cyapa, const u8 *buf, size_t len)
-> +{
-> +	int ret;
-> +	size_t i;
-> +	unsigned char cmd[CYAPA_CMD_LEN + 1];
-> +	size_t cmd_len;
-> +
-> +	for (i = 0; i < len; i += CYAPA_CMD_LEN) {
-> +		const u8 *payload = &buf[i];
-> +		cmd_len = (len - i >= CYAPA_CMD_LEN) ? CYAPA_CMD_LEN : len - i;
-> +		cmd[0] = i;
-> +		memcpy(&cmd[1], payload, cmd_len);
-> +
-> +		ret = cyapa_i2c_reg_write_block(cyapa, 0, cmd_len + 1, cmd);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
-> +	return 0;
-> +}
-> +
-> +/*
-> + * A firmware block write command writes 64 bytes of data to a single flash
-> + * page in the device.  The 78-byte block write command has the format:
-> + *   <0xff> <CMD> <Key> <Start> <Data> <Data-Checksum> <CMD Checksum>
-> + *
-> + *  <0xff>  - every command starts with 0xff
-> + *  <CMD>   - the write command value is 0x39
-> + *  <Key>   - write commands include an 8-byte key: { 00 01 02 03 04 05 06 07 }
-> + *  <Block> - Memory Block number (address / 64) (16-bit, big-endian)
-> + *  <Data>  - 64 bytes of firmware image data
-> + *  <Data Checksum> - sum of 64 <Data> bytes, modulo 0xff
-> + *  <CMD Checksum> - sum of 77 bytes, from 0xff to <Data Checksum>
-> + *
-> + * Each write command is split into 5 i2c write transactions of up to 16 bytes.
-> + * Each transaction starts with an i2c register offset: (00, 10, 20, 30, 40).
-> + */
-> +static int cyapa_write_fw_block(struct cyapa *cyapa, u16 block, const u8 *data)
-> +{
-> +	int ret;
-> +	u8 cmd[78];
-> +	u8 status[BL_STATUS_SIZE];
-> +	int tries = 3;
-> +
-> +	/* set write command and security key bytes. */
-> +	cmd[0] = 0xff;
-> +	cmd[1] = 0x39;
-> +	cmd[2] = 0x00;
-> +	cmd[3] = 0x01;
-> +	cmd[4] = 0x02;
-> +	cmd[5] = 0x03;
-> +	cmd[6] = 0x04;
-> +	cmd[7] = 0x05;
-> +	cmd[8] = 0x06;
-> +	cmd[9] = 0x07;
+Yes, that's exactly what I mean. And in the early days when the driver
+didn't have a resume method, users were seeing exactly this 'bad
+trackpad package, length: 8' message on resume. Adding the
+suspend/resume methods fixed that =E2=80=94 and that's why I'm assuming tha=
+t a
+switch back into wellspring mode is going to be sufficient to fix what
+I'm seeing too. Unloading and reloading the module certainly is.
 
-Can't this be a command string somewhere as well?
+> > +static void bcm5974_mode_workfn(struct work_struct *work)
+> > +{
+> > +	struct bcm5974 *dev =3D container_of(work, struct bcm5974, reset_work=
+);
+> > +
+> > +	dev_info(&dev->intf->dev, "Reset into wellspring mode...\n");
+> > +	bcm5974_wellspring_mode(dev, true);
+> > +}
+> > +
+>=20
+> This looks racy.
 
-> +	cmd[10] = block >> 8;
-> +	cmd[11] = block;
-> +	memcpy(&cmd[12], data, CYAPA_FW_BLOCK_SIZE);
-> +	cmd[76] = cyapa_csum(data, CYAPA_FW_BLOCK_SIZE);
-> +	cmd[77] = cyapa_csum(cmd, sizeof(cmd) - 1);
-> +
-> +	ret = cyapa_write_buffer(cyapa, cmd, sizeof(cmd));
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* wait for write to finish */
-> +	do {
-> +		usleep_range(10000, 20000);
-> +
-> +		/* check block write command result status. */
-> +		ret = cyapa_i2c_reg_read_block(cyapa, BL_HEAD_OFFSET,
-> +					       BL_STATUS_SIZE, status);
-> +		if (ret != BL_STATUS_SIZE)
-> +			return (ret < 0) ? ret : -EIO;
-> +		ret = (status[1] == 0x10 && status[2] == 0x20) ? 0 : -EIO;
-> +	} while (--tries && ret);
-> +
-> +	return ret;
-> +}
-> +
-> +/*
-> + * Verify the integrity of a CYAPA firmware image file.
-> + *
-> + * The firmware image file is 30848 bytes, composed of 482 64-byte blocks.
-> + *
-> + * The first 2 blocks are the firmware header.
-> + * The next 480 blocks are the firmware image.
-> + *
-> + * The first two bytes of the header hold the header checksum, computed by
-> + * summing the other 126 bytes of the header.
-> + * The last two bytes of the header hold the firmware image checksum, computed
-> + * by summing the 30720 bytes of the image modulo 0xffff.
-> + *
-> + * Both checksums are stored little-endian.
-> + */
-> +static int cyapa_check_fw(struct cyapa *cyapa, const struct firmware *fw)
-> +{
-> +	struct device *dev = &cyapa->client->dev;
-> +	u16 csum;
-> +	u16 csum_expected;
-> +
-> +	/* Firmware must match exact 30848 bytes = 482 64-byte blocks. */
-> +	if (fw->size != CYAPA_FW_SIZE) {
-> +		dev_err(dev, "invalid firmware size = %zu, expected %u.\n",
-> +			fw->size, CYAPA_FW_SIZE);
-> +		return -EINVAL;
-> +	}
-> +
-> +	/* Verify header block */
-> +	csum_expected = (fw->data[0] << 8) | fw->data[1];
-> +	csum = cyapa_csum(&fw->data[2], CYAPA_FW_HDR_SIZE - 2);
-> +	if (csum != csum_expected) {
-> +		dev_err(dev,
-> +			"invalid fw header checksum = %04x, expected: %04x\n",
-> +			csum, csum_expected);
-> +		return -EINVAL;
-> +	}
-> +
-> +	/* Verify firmware image */
-> +	csum_expected = (fw->data[CYAPA_FW_HDR_SIZE - 2] << 8) |
-> +			 fw->data[CYAPA_FW_HDR_SIZE - 1];
-> +	csum = cyapa_csum(&fw->data[CYAPA_FW_HDR_SIZE], CYAPA_FW_DATA_SIZE);
-> +	if (csum != csum_expected) {
-> +		dev_err(dev,
-> +			"invalid fw header checksum = %04x, expected: %04x\n",
-> +			csum, csum_expected);
-> +		return -EINVAL;
-> +	}
-> +	return 0;
-> +}
-> +
->  static irqreturn_t cyapa_irq(int irq, void *dev_id)
->  {
->  	struct cyapa *cyapa = dev_id;
-> @@ -857,6 +1115,94 @@ static void cyapa_detect(struct cyapa *cyapa)
->  	}
->  }
->  
-> +static int cyapa_firmware(struct cyapa *cyapa, const char *fw_name)
-> +{
-> +	struct device *dev = &cyapa->client->dev;
-> +	int ret;
-> +	const struct firmware *fw;
-> +	int i;
-> +
-> +	ret = request_firmware(&fw, fw_name, dev);
-> +	if (ret) {
-> +		dev_err(dev, "Could not load firmware from %s, %d\n",
-> +			fw_name, ret);
-> +		return ret;
-> +	}
-> +
-> +	ret = cyapa_check_fw(cyapa, fw);
-> +	if (ret) {
-> +		dev_err(dev, "Invalid CYAPA firmware image: %s\n", fw_name);
-> +		goto done;
-> +	}
-> +
-> +	ret = cyapa_bl_enter(cyapa);
-> +	if (ret)
-> +		goto err_detect;
-> +
-> +	ret = cyapa_bl_activate(cyapa);
-> +	if (ret)
-> +		goto err_detect;
-> +
-> +	/* First write data, starting at byte 128  of fw->data */
-> +	for (i = 0; i < CYAPA_FW_DATA_BLOCK_COUNT; i++) {
-> +		size_t block = CYAPA_FW_DATA_BLOCK_START + i;
-> +		size_t addr = (i + CYAPA_FW_HDR_BLOCK_COUNT) *
-> +				CYAPA_FW_BLOCK_SIZE;
-> +		const u8 *data = &fw->data[addr];
-> +		ret = cyapa_write_fw_block(cyapa, block, data);
-> +		if (ret)
-> +			goto err_detect;
-> +	}
-> +
-> +	/* Then write checksum */
-> +	for (i = 0; i < CYAPA_FW_HDR_BLOCK_COUNT; i++) {
-> +		size_t block = CYAPA_FW_HDR_BLOCK_START + i;
-> +		size_t addr = i * CYAPA_FW_BLOCK_SIZE;
-> +		const u8 *data = &fw->data[addr];
-> +		ret = cyapa_write_fw_block(cyapa, block, data);
-> +		if (ret)
-> +			goto err_detect;
-> +	}
-> +
-> +err_detect:
-> +	cyapa_detect(cyapa);
-> +
-> +done:
-> +	release_firmware(fw);
-> +	return ret;
-> +}
-> +
-> +/*
-> + * Sysfs Interface.
-> + */
-> +static ssize_t cyapa_update_fw_store(struct device *dev,
-> +				     struct device_attribute *attr,
-> +				     const char *buf, size_t count)
-> +{
-> +	struct cyapa *cyapa = dev_get_drvdata(dev);
-> +	const char *fw_name = CYAPA_FW_NAME;
-> +	int ret;
-> +
-> +	ret = cyapa_firmware(cyapa, fw_name);
-> +	if (ret)
-> +		dev_err(dev, "firmware update failed, %d\n", ret);
-> +	else
-> +		dev_dbg(dev, "firmware update succeeded\n");
-> +
-> +	return ret ? ret : count;
-> +}
-> +
-> +static DEVICE_ATTR(update_fw, S_IWUSR, NULL, cyapa_update_fw_store);
-> +
-> +static struct attribute *cyapa_sysfs_entries[] = {
-> +	&dev_attr_update_fw.attr,
-> +	NULL,
-> +};
-> +
-> +static const struct attribute_group cyapa_sysfs_group = {
-> +	.attrs = cyapa_sysfs_entries,
-> +};
-> +
->  static int cyapa_probe(struct i2c_client *client,
->  		       const struct i2c_device_id *dev_id)
->  {
-> @@ -902,6 +1248,9 @@ static int cyapa_probe(struct i2c_client *client,
->  		goto err_unregister_device;
->  	}
->  
-> +	if (sysfs_create_group(&client->dev.kobj, &cyapa_sysfs_group))
-> +		dev_warn(dev, "error creating sysfs entries.\n");
-> +
+Racy with what? Oh, I see... we should probably move the
+cancel_work_sync() from bcm5974_disconnect() to bcm5974_pause_traffic()?
 
-Would it not be neat to invoke the firmware update automatically instead?
+> In general, It does not really make sense for the transaction mode to
+> change under our feet without anything in the usb layer knowing about
+> it.
 
->  	return 0;
->  
->  err_unregister_device:
-> @@ -916,6 +1265,8 @@ static int cyapa_remove(struct i2c_client *client)
->  {
->  	struct cyapa *cyapa = i2c_get_clientdata(client);
->  
-> +	sysfs_remove_group(&client->dev.kobj, &cyapa_sysfs_group);
-> +
->  	free_irq(cyapa->irq, cyapa);
->  	input_unregister_device(cyapa->input);
->  	cyapa_set_power_mode(cyapa, PWR_MODE_OFF);
-> -- 
-> 1.8.1.3
-> 
+If hardware always made sense, the world would be a much better place :)
 
-Thanks,
-Henrik
+>  Maybe there is a reset state cycle which does not get handle
+> properly in the driver?
+
+I don't believe so. A USB reset would end up with the bcm5974_probe()
+method being called again, and everything would work fine. The device
+may have reset its mode, but the USB bus doesn't seem to notice
+anything. When it happens, there are no USB messages; it just starts
+spewing the 'bad trackpad package' messages.
+
+--=20
+dwmw2
+
+
+--=-pRzttDe3BEHJ3qlV5JaK
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIUbjCCBjQw
+ggQcoAMCAQICAR4wDQYJKoZIhvcNAQEFBQAwfTELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0
+Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxKTAn
+BgNVBAMTIFN0YXJ0Q29tIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA3MTAyNDIxMDE1NVoX
+DTE3MTAyNDIxMDE1NVowgYwxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSsw
+KQYDVQQLEyJTZWN1cmUgRGlnaXRhbCBDZXJ0aWZpY2F0ZSBTaWduaW5nMTgwNgYDVQQDEy9TdGFy
+dENvbSBDbGFzcyAxIFByaW1hcnkgSW50ZXJtZWRpYXRlIENsaWVudCBDQTCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAMcJg8zOLdgasSmkLhOrlr6KMoOMpohBllVHrdRvEg/q6r8jR+EK
+75xCGhR8ToREoqe7zM9/UnC6TS2y9UKTpT1v7RSMzR0t6ndl0TWBuUr/UXBhPk+Kmy7bI4yW4urC
++y7P3/1/X7U8ocb8VpH/Clt+4iq7nirMcNh6qJR+xjOhV+VHzQMALuGYn5KZmc1NbJQYclsGkDxD
+z2UbFqE2+6vIZoL+jb9x4Pa5gNf1TwSDkOkikZB1xtB4ZqtXThaABSONdfmv/Z1pua3FYxnCFmdr
+/+N2JLKutIxMYqQOJebr/f/h5t95m4JgrM3Y/w7YX9d7YAL9jvN4SydHsU6n65cCAwEAAaOCAa0w
+ggGpMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBRTcu2SnODaywFc
+fH6WNU7y1LhRgjAfBgNVHSMEGDAWgBROC+8apEBbpRdphzDKNGhD0EGu8jBmBggrBgEFBQcBAQRa
+MFgwJwYIKwYBBQUHMAGGG2h0dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9jYTAtBggrBgEFBQcwAoYh
+aHR0cDovL3d3dy5zdGFydHNzbC5jb20vc2ZzY2EuY3J0MFsGA1UdHwRUMFIwJ6AloCOGIWh0dHA6
+Ly93d3cuc3RhcnRzc2wuY29tL3Nmc2NhLmNybDAnoCWgI4YhaHR0cDovL2NybC5zdGFydHNzbC5j
+b20vc2ZzY2EuY3JsMIGABgNVHSAEeTB3MHUGCysGAQQBgbU3AQIBMGYwLgYIKwYBBQUHAgEWImh0
+dHA6Ly93d3cuc3RhcnRzc2wuY29tL3BvbGljeS5wZGYwNAYIKwYBBQUHAgEWKGh0dHA6Ly93d3cu
+c3RhcnRzc2wuY29tL2ludGVybWVkaWF0ZS5wZGYwDQYJKoZIhvcNAQEFBQADggIBAAqDCH14qywG
+XLhjjF6uHLkjd02hcdh9hrw+VUsv+q1eeQWB21jWj3kJ96AUlPCoEGZ/ynJNScWy6QMVQjbbMXlt
+UfO4n4bGGdKo3awPWp61tjAFgraLJgDk+DsSvUD6EowjMTNx25GQgyYJ5RPIzKKR9tQW8gGK+2+R
+HxkUCTbYFnL6kl8Ch507rUdPPipJ9CgJFws3kDS3gOS5WFMxcjO5DwKfKSETEPrHh7p5shuuNktv
+sv6hxHTLhiMKX893gxdT3XLS9OKmCv87vkINQcNEcIIoFWbP9HORz9v3vQwR4e3ksLc2JZOAFK+s
+sS5XMEoznzpihEP0PLc4dCBYjbvSD7kxgDwZ+Aj8Q9PkbvE9sIPP7ON0fz095HdThKjiVJe6vofq
++n6b1NBc8XdrQvBmunwxD5nvtTW4vtN6VY7mUCmxsCieuoBJ9OlqmsVWQvifIYf40dJPZkk9YgGT
+zWLpXDSfLSplbY2LL9C9U0ptvjcDjefLTvqSFc7tw1sEhF0n/qpA2r0GpvkLRDmcSwVyPvmjFBGq
+Up/pNy8ZuPGQmHwFi2/14+xeSUDG2bwnsYJQG2EdJCB6luQ57GEnTA/yKZSTKI8dDQa8Sd3zfXb1
+9mOgSF0bBdXbuKhEpuP9wirslFe6fQ1t5j5R0xi72MZ8ikMu1RQZKCyDbMwazlHiMIIHFzCCBf+g
+AwIBAgIDBCZ6MA0GCSqGSIb3DQEBBQUAMIGMMQswCQYDVQQGEwJJTDEWMBQGA1UEChMNU3RhcnRD
+b20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlmaWNhdGUgU2lnbmluZzE4MDYG
+A1UEAxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVkaWF0ZSBDbGllbnQgQ0EwHhcN
+MTIwNTAxMTI1ODI3WhcNMTMwNTAzMTEzNzIwWjBdMRkwFwYDVQQNExA4Y1VOSzUzMTc0ODRYRjk3
+MRwwGgYDVQQDDBNkd213MkBpbmZyYWRlYWQub3JnMSIwIAYJKoZIhvcNAQkBFhNkd213MkBpbmZy
+YWRlYWQub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyYe7wo6MrtrB4uIGGbrY
+4IifY/Xsq22pSv605yganL0+uyUdd8rCjrYlH6Q/ra5TVJCQFTgzaepkuqPQc79DC/Cxmzm6Qo+s
+wLZy868oFsccsVokL2bPAWIPaRXfNPJKkYR1FTWQfZpWJVQmT+sPf1XFUullVBAK+d9RztopyacI
+xWoZ/W/Cmv7mseQbttYTtGKJa0btX73nsQRWl6SgErWXo59zg9friCLTy1GXMXJYB8H+PtnuwX0w
+MrAvWDdX1ABgIlA17W3FraCn0eW15ZM46eyu0/amGzJZNtemCWF73P7BAijzeV1jNmiJFXdZ0DT0
+w+hmtMO9PxdDUyt78QIDAQABo4IDrjCCA6owCQYDVR0TBAIwADALBgNVHQ8EBAMCBLAwHQYDVR0l
+BBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMB0GA1UdDgQWBBTkfe5UOr3PcirsjApibyyUEfsyRzAf
+BgNVHSMEGDAWgBRTcu2SnODaywFcfH6WNU7y1LhRgjAeBgNVHREEFzAVgRNkd213MkBpbmZyYWRl
+YWQub3JnMIICIQYDVR0gBIICGDCCAhQwggIQBgsrBgEEAYG1NwECAjCCAf8wLgYIKwYBBQUHAgEW
+Imh0dHA6Ly93d3cuc3RhcnRzc2wuY29tL3BvbGljeS5wZGYwNAYIKwYBBQUHAgEWKGh0dHA6Ly93
+d3cuc3RhcnRzc2wuY29tL2ludGVybWVkaWF0ZS5wZGYwgfcGCCsGAQUFBwICMIHqMCcWIFN0YXJ0
+Q29tIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MAMCAQEagb5UaGlzIGNlcnRpZmljYXRlIHdhcyBp
+c3N1ZWQgYWNjb3JkaW5nIHRvIHRoZSBDbGFzcyAxIFZhbGlkYXRpb24gcmVxdWlyZW1lbnRzIG9m
+IHRoZSBTdGFydENvbSBDQSBwb2xpY3ksIHJlbGlhbmNlIG9ubHkgZm9yIHRoZSBpbnRlbmRlZCBw
+dXJwb3NlIGluIGNvbXBsaWFuY2Ugb2YgdGhlIHJlbHlpbmcgcGFydHkgb2JsaWdhdGlvbnMuMIGc
+BggrBgEFBQcCAjCBjzAnFiBTdGFydENvbSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTADAgECGmRM
+aWFiaWxpdHkgYW5kIHdhcnJhbnRpZXMgYXJlIGxpbWl0ZWQhIFNlZSBzZWN0aW9uICJMZWdhbCBh
+bmQgTGltaXRhdGlvbnMiIG9mIHRoZSBTdGFydENvbSBDQSBwb2xpY3kuMDYGA1UdHwQvMC0wK6Ap
+oCeGJWh0dHA6Ly9jcmwuc3RhcnRzc2wuY29tL2NydHUxLWNybC5jcmwwgY4GCCsGAQUFBwEBBIGB
+MH8wOQYIKwYBBQUHMAGGLWh0dHA6Ly9vY3NwLnN0YXJ0c3NsLmNvbS9zdWIvY2xhc3MxL2NsaWVu
+dC9jYTBCBggrBgEFBQcwAoY2aHR0cDovL2FpYS5zdGFydHNzbC5jb20vY2VydHMvc3ViLmNsYXNz
+MS5jbGllbnQuY2EuY3J0MCMGA1UdEgQcMBqGGGh0dHA6Ly93d3cuc3RhcnRzc2wuY29tLzANBgkq
+hkiG9w0BAQUFAAOCAQEAqDU1FKifNtCFJbLnvOi1BLRfk7mut55PMtPSZLJ4/AnG7AjmJnbBI4U5
+DELwvVq3mIpwUpGqZUkqkZMEfBPIbfq517UZB3h4iANtqif+ULfTLhg5XgcK5eF8/T6EtX2c3epq
+ylARdleCbj/0FwiUDvPlTsA6PIN4SCekjRLgjKERrL3heFz+Hteq1rtMAvMkNuyL0/0ijyyg2y45
+NASAl2Afl9SLes/fnoh9nBwzfNQfb6qDYUFpnglfpGrq/0b1NtaOUb2z1SR+H1tKlb8bVJJIdvpu
+mEi27kSRIhzk3h30uTfKkKetgy++ouyldxZ7KZ0PuoLQrBy465EoQLosETCCBxcwggX/oAMCAQIC
+AwQmejANBgkqhkiG9w0BAQUFADCBjDELMAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0
+ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2BgNVBAMT
+L1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBMB4XDTEyMDUw
+MTEyNTgyN1oXDTEzMDUwMzExMzcyMFowXTEZMBcGA1UEDRMQOGNVTks1MzE3NDg0WEY5NzEcMBoG
+A1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFk
+Lm9yZzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMmHu8KOjK7aweLiBhm62OCIn2P1
+7KttqUr+tOcoGpy9PrslHXfKwo62JR+kP62uU1SQkBU4M2nqZLqj0HO/QwvwsZs5ukKPrMC2cvOv
+KBbHHLFaJC9mzwFiD2kV3zTySpGEdRU1kH2aViVUJk/rD39VxVLpZVQQCvnfUc7aKcmnCMVqGf1v
+wpr+5rHkG7bWE7RiiWtG7V+957EEVpekoBK1l6Ofc4PX64gi08tRlzFyWAfB/j7Z7sF9MDKwL1g3
+V9QAYCJQNe1txa2gp9HlteWTOOnsrtP2phsyWTbXpglhe9z+wQIo83ldYzZoiRV3WdA09MPoZrTD
+vT8XQ1Mre/ECAwEAAaOCA64wggOqMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgSwMB0GA1UdJQQWMBQG
+CCsGAQUFBwMCBggrBgEFBQcDBDAdBgNVHQ4EFgQU5H3uVDq9z3Iq7IwKYm8slBH7MkcwHwYDVR0j
+BBgwFoAUU3Ltkpzg2ssBXHx+ljVO8tS4UYIwHgYDVR0RBBcwFYETZHdtdzJAaW5mcmFkZWFkLm9y
+ZzCCAiEGA1UdIASCAhgwggIUMIICEAYLKwYBBAGBtTcBAgIwggH/MC4GCCsGAQUFBwIBFiJodHRw
+Oi8vd3d3LnN0YXJ0c3NsLmNvbS9wb2xpY3kucGRmMDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnN0
+YXJ0c3NsLmNvbS9pbnRlcm1lZGlhdGUucGRmMIH3BggrBgEFBQcCAjCB6jAnFiBTdGFydENvbSBD
+ZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTADAgEBGoG+VGhpcyBjZXJ0aWZpY2F0ZSB3YXMgaXNzdWVk
+IGFjY29yZGluZyB0byB0aGUgQ2xhc3MgMSBWYWxpZGF0aW9uIHJlcXVpcmVtZW50cyBvZiB0aGUg
+U3RhcnRDb20gQ0EgcG9saWN5LCByZWxpYW5jZSBvbmx5IGZvciB0aGUgaW50ZW5kZWQgcHVycG9z
+ZSBpbiBjb21wbGlhbmNlIG9mIHRoZSByZWx5aW5nIHBhcnR5IG9ibGlnYXRpb25zLjCBnAYIKwYB
+BQUHAgIwgY8wJxYgU3RhcnRDb20gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwAwIBAhpkTGlhYmls
+aXR5IGFuZCB3YXJyYW50aWVzIGFyZSBsaW1pdGVkISBTZWUgc2VjdGlvbiAiTGVnYWwgYW5kIExp
+bWl0YXRpb25zIiBvZiB0aGUgU3RhcnRDb20gQ0EgcG9saWN5LjA2BgNVHR8ELzAtMCugKaAnhiVo
+dHRwOi8vY3JsLnN0YXJ0c3NsLmNvbS9jcnR1MS1jcmwuY3JsMIGOBggrBgEFBQcBAQSBgTB/MDkG
+CCsGAQUFBzABhi1odHRwOi8vb2NzcC5zdGFydHNzbC5jb20vc3ViL2NsYXNzMS9jbGllbnQvY2Ew
+QgYIKwYBBQUHMAKGNmh0dHA6Ly9haWEuc3RhcnRzc2wuY29tL2NlcnRzL3N1Yi5jbGFzczEuY2xp
+ZW50LmNhLmNydDAjBgNVHRIEHDAahhhodHRwOi8vd3d3LnN0YXJ0c3NsLmNvbS8wDQYJKoZIhvcN
+AQEFBQADggEBAKg1NRSonzbQhSWy57zotQS0X5O5rreeTzLT0mSyePwJxuwI5iZ2wSOFOQxC8L1a
+t5iKcFKRqmVJKpGTBHwTyG36ude1GQd4eIgDbaon/lC30y4YOV4HCuXhfP0+hLV9nN3qaspQEXZX
+gm4/9BcIlA7z5U7AOjyDeEgnpI0S4IyhEay94Xhc/h7Xqta7TALzJDbsi9P9Io8soNsuOTQEgJdg
+H5fUi3rP356IfZwcM3zUH2+qg2FBaZ4JX6Rq6v9G9TbWjlG9s9Ukfh9bSpW/G1SSSHb6bphItu5E
+kSIc5N4d9Lk3ypCnrYMvvqLspXcWeymdD7qC0KwcuOuRKEC6LBExggNvMIIDawIBATCBlDCBjDEL
+MAkGA1UEBhMCSUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdp
+dGFsIENlcnRpZmljYXRlIFNpZ25pbmcxODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFy
+eSBJbnRlcm1lZGlhdGUgQ2xpZW50IENBAgMEJnowCQYFKw4DAhoFAKCCAa8wGAYJKoZIhvcNAQkD
+MQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMTMwMzE3MTQ1MDAyWjAjBgkqhkiG9w0BCQQx
+FgQUAWzEdzg12hc7jADhnQMHMpBmtCkwgaUGCSsGAQQBgjcQBDGBlzCBlDCBjDELMAkGA1UEBhMC
+SUwxFjAUBgNVBAoTDVN0YXJ0Q29tIEx0ZC4xKzApBgNVBAsTIlNlY3VyZSBEaWdpdGFsIENlcnRp
+ZmljYXRlIFNpZ25pbmcxODA2BgNVBAMTL1N0YXJ0Q29tIENsYXNzIDEgUHJpbWFyeSBJbnRlcm1l
+ZGlhdGUgQ2xpZW50IENBAgMEJnowgacGCyqGSIb3DQEJEAILMYGXoIGUMIGMMQswCQYDVQQGEwJJ
+TDEWMBQGA1UEChMNU3RhcnRDb20gTHRkLjErMCkGA1UECxMiU2VjdXJlIERpZ2l0YWwgQ2VydGlm
+aWNhdGUgU2lnbmluZzE4MDYGA1UEAxMvU3RhcnRDb20gQ2xhc3MgMSBQcmltYXJ5IEludGVybWVk
+aWF0ZSBDbGllbnQgQ0ECAwQmejANBgkqhkiG9w0BAQEFAASCAQB/3eQR/aaxyNkINFQm0Fr8o/YB
+b5CiyKq/aO+bZSipL+o3e5AoYXRMxXPp8dR74Pa8ri3ouHoKUVIL7lCfQ9u9cizCOBbhzTfRfev7
+p3spHd3gxEPzyTslpKadtmzqRXvjRcsG4ffrE20UCoefGtKCfkGO1aTTlLRikLWINvxzsbZah7aW
+cuzKLpi62f94FukoDUpDM62aC9SRWPcN+rbTAE+t8hXznv8H08fPZ4h1GkvOlp/unRoPp3PLS3gU
+lr6bZ+pMU9kKu9Tjce+pMzQJTgJs6GAg21vxNy2m1lWxk8DOuX+qmIeJP9WtIO4b+4OizH5Jc3cH
+Q3f4LQw9QxHsAAAAAAAA
+
+
+--=-pRzttDe3BEHJ3qlV5JaK--
+

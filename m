@@ -1,59 +1,56 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH -next] HID: steelseries: use module_hid_driver() to
- simplify the code
-Date: Mon, 18 Mar 2013 10:53:03 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1303181052560.9529@pobox.suse.cz>
-References: <CAPgLHd_6y1mr1moejftWGgrpO=vGxQUZ5Dz2v022kaFHdF-pVg@mail.gmail.com>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: Re: [PATCH 10/10] drivers: misc: use module_platform_driver_probe()
+Date: Mon, 18 Mar 2013 11:03:18 +0100
+Message-ID: <CAHkwnC9YFTw8gVzyZB3_gZCgM5zMA6tLch15EDqcA2F4CAOpAQ@mail.gmail.com>
+References: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
+ <201303141358.05616.arnd@arndb.de> <ADE657CA350FB648AAC2C43247A983F0020980106B9E@AUSP01VMBX24.collaborationhost.net>
+ <201303152018.09094.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59518 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753327Ab3CRJxM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Mar 2013 05:53:12 -0400
-In-Reply-To: <CAPgLHd_6y1mr1moejftWGgrpO=vGxQUZ5Dz2v022kaFHdF-pVg@mail.gmail.com>
+Received: from mail-ob0-f174.google.com ([209.85.214.174]:35020 "EHLO
+	mail-ob0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753144Ab3CRKDj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Mar 2013 06:03:39 -0400
+In-Reply-To: <201303152018.09094.arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: H Hartley Sweeten <hartleys@visionengravers.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>, Grant Likely <grant.likely@secretlab.ca>
 
-On Fri, 15 Mar 2013, Wei Yongjun wrote:
+On Fri, Mar 15, 2013 at 9:18 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Friday 15 March 2013, H Hartley Sweeten wrote:
+>> Arnd,
+>>
+>> Ill look at converting the ep93xx pwm driver to the PWM subsystem. The only issue is
+>> the current driver exposes a sysfs interface that I think is not available in that subsystem.
+>
+> You can probably keep providing that interface if you have active users.
+>
+>> >* Regarding the use of module_platform_driver_probe, I'm a little worried about
+>> >  the interactions with deferred probing. I don't think there are any regressions,
+>> >  but we should probably make people aware that one cannot return -EPROBE_DEFER
+>> >  from a platform_driver_probe function.
+>>
+>> The ep93xx pwm driver does not need to use platform_driver_probe(). It can be changed
+>> to use module_platform_driver() by just moving the .probe to the platform_driver. This
+>> driver was added before module_platform_driver() was available and I used the
+>> platform_driver_probe() thinking it would save a couple lines of code.
 
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> 
-> module_hid_driver() makes the code simpler by eliminating
-> boilerplate code..
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> ---
->  drivers/hid/hid-steelseries.c | 13 +------------
->  1 file changed, 1 insertion(+), 12 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-> index 98e66ac..9b0efb0 100644
-> --- a/drivers/hid/hid-steelseries.c
-> +++ b/drivers/hid/hid-steelseries.c
-> @@ -377,16 +377,5 @@ static struct hid_driver steelseries_srws1_driver = {
->  	.report_fixup = steelseries_srws1_report_fixup
->  };
->  
-> -static int __init steelseries_srws1_init(void)
-> -{
-> -	return hid_register_driver(&steelseries_srws1_driver);
-> -}
-> -
-> -static void __exit steelseries_srws1_exit(void)
-> -{
-> -	hid_unregister_driver(&steelseries_srws1_driver);
-> -}
-> -
-> -module_init(steelseries_srws1_init);
-> -module_exit(steelseries_srws1_exit);
-> +module_hid_driver(steelseries_srws1_driver);
->  MODULE_LICENSE("GPL");
+Since by using platform_driver_probe() the  function
+ep93xx_pwm_probe() is freed after initialization,
+is better to use module_platform_drive_probe().
+IMHO i don't see any good reason to use module_platform_driver() for
+this driver.
 
-Applied, thanks.
+Best regards
+Fabio Porcedda
 
--- 
-Jiri Kosina
-SUSE Labs
+>> I'll change this in a bit. Right now I'm trying to work out why kernel 3.8 is not booting
+>> on the ep93xx. I had 3.6.6 on my development board and 3.7 works fine but 3.8 hangs
+>> without uncompressing the kernel.
+>
+> Ok, thanks!
+>
+>         Arnd

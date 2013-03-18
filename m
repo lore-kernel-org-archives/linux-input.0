@@ -1,58 +1,33 @@
-From: Josh Boyer <jwboyer@redhat.com>
-Subject: [PATCH v2] HID: usbhid: quirk for MSI GX680R led panel
-Date: Mon, 18 Mar 2013 11:43:29 -0400
-Message-ID: <20130318154328.GF11243@hansolo.jdub.homelinux.org>
-References: <20130318134702.GB11243@hansolo.jdub.homelinux.org>
- <alpine.LNX.2.00.1303181454500.9529@pobox.suse.cz>
- <20130318154143.GE11243@hansolo.jdub.homelinux.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: usbhid: quirk for MSI GX680R led panel
+Date: Mon, 18 Mar 2013 16:56:36 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1303181656250.9529@pobox.suse.cz>
+References: <20130318134702.GB11243@hansolo.jdub.homelinux.org> <alpine.LNX.2.00.1303181454500.9529@pobox.suse.cz> <20130318154143.GE11243@hansolo.jdub.homelinux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:51219 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753356Ab3CRP4j (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Mar 2013 11:56:39 -0400
 In-Reply-To: <20130318154143.GE11243@hansolo.jdub.homelinux.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hdegoede@redhat.com
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Josh Boyer <jwboyer@redhat.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hdegoede@redhat.com
 
-This keyboard backlight device causes a 10 second delay to boot.  Add it
-to the quirk list with HID_QUIRK_NO_INIT_REPORTS.
+On Mon, 18 Mar 2013, Josh Boyer wrote:
 
-This fixes Red Hat bugzilla https://bugzilla.redhat.com/show_bug.cgi?id=907221
+> > > This keyboard backlight device causes a 10 second delay to boot.  Add it
+> > > to the quirk list with HID_QUIRK_NO_INIT_REPORTS.
+> > 
+> > Applied, thanks.
+> 
+> Ugh.  Typo in this patch that prevents it from building.  I shall hang
+> my head in shame and send a fixed v2.  My apologies.
 
-Signed-off-by: Josh Boyer <jwboyer@redhat.com>
----
- v2: Fix typo in vendor define
+I have already fixed that in my tree, no need to resend.
 
- drivers/hid/hid-ids.h           | 3 +++
- drivers/hid/usbhid/hid-quirks.c | 1 +
- 2 files changed, 4 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index d1063e9..c438877 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -590,6 +590,9 @@
- #define USB_VENDOR_ID_MONTEREY		0x0566
- #define USB_DEVICE_ID_GENIUS_KB29E	0x3004
- 
-+#define USB_VENDOR_ID_MSI		0x1770
-+#define USB_DEVICE_ID_MSI_GX680R_LED_PANEL	0xff00
-+
- #define USB_VENDOR_ID_NATIONAL_SEMICONDUCTOR 0x0400
- #define USB_DEVICE_ID_N_S_HARMONY	0xc359
- 
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index e991d81..476c984 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -73,6 +73,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
-+	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GX680R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
 -- 
-1.8.1.2
+Jiri Kosina
+SUSE Labs

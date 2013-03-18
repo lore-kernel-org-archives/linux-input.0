@@ -1,40 +1,32 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] Input: tc3589x-keypad - fix row shift
-Date: Mon, 18 Mar 2013 16:32:52 +0100
-Message-ID: <CACRpkdb=48VT=RNK7rzeM+eJ3YzDsPAek0oK0ZPk2ACXkXaiCQ@mail.gmail.com>
-References: <1363017202-4556-1-git-send-email-rabin.vincent@stericsson.com>
+From: Josh Boyer <jwboyer@redhat.com>
+Subject: Re: [PATCH] HID: usbhid: quirk for MSI GX680R led panel
+Date: Mon, 18 Mar 2013 11:41:43 -0400
+Message-ID: <20130318154143.GE11243@hansolo.jdub.homelinux.org>
+References: <20130318134702.GB11243@hansolo.jdub.homelinux.org>
+ <alpine.LNX.2.00.1303181454500.9529@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ia0-f174.google.com ([209.85.210.174]:39836 "EHLO
-	mail-ia0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752220Ab3CRPcx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Mar 2013 11:32:53 -0400
-Received: by mail-ia0-f174.google.com with SMTP id b35so1298188iac.19
-        for <linux-input@vger.kernel.org>; Mon, 18 Mar 2013 08:32:52 -0700 (PDT)
-In-Reply-To: <1363017202-4556-1-git-send-email-rabin.vincent@stericsson.com>
+Received: from mx1.redhat.com ([209.132.183.28]:9528 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753868Ab3CRPm2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Mar 2013 11:42:28 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1303181454500.9529@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rabin Vincent <rabin.vincent@stericsson.com>
-Cc: linux-input@vger.kernel.org, rabin@rab.in
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hdegoede@redhat.com
 
-On Mon, Mar 11, 2013 at 4:53 PM, Rabin Vincent
-<rabin.vincent@stericsson.com> wrote:
+On Mon, Mar 18, 2013 at 02:54:58PM +0100, Jiri Kosina wrote:
+> On Mon, 18 Mar 2013, Josh Boyer wrote:
+> 
+> > This keyboard backlight device causes a 10 second delay to boot.  Add it
+> > to the quirk list with HID_QUIRK_NO_INIT_REPORTS.
+> 
+> Applied, thanks.
 
-> Since 1932811f426fee ("Input: matrix-keymap - uninline and prepare for
-> device tree support"), the row_shift used by the driver does not match
-> the one used by matrix_keypad_build_keymap(), leading to misdetection of
-> keys.  Fix it.
->
-> Cc: <stable@vger.kernel.org> # 3.8
-> Signed-off-by: Rabin Vincent <rabin.vincent@stericsson.com>
+Ugh.  Typo in this patch that prevents it from building.  I shall hang
+my head in shame and send a fixed v2.  My apologies.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Given that the other patch sent a week ago already made it into the
-fixes, was this one missed for some reason? It looks like another
-clear regression...
-
-Yours,
-Linus Walleij
+josh

@@ -1,59 +1,38 @@
-From: Simon Glass <sjg@chromium.org>
-Subject: Re: [PATCH v6 0/6] Add ChromeOS Embedded Controller support
-Date: Mon, 18 Mar 2013 11:41:44 -0700
-Message-ID: <CAPnjgZ3ZUvJUaoy5Uzkb6Hdd_0kourXym-JjPR3Fcnp2ndUugA@mail.gmail.com>
-References: <1361830121-32284-1-git-send-email-sjg@chromium.org>
-	<CAPnjgZ3enERPu1uK5GW9+_ZinhiDmDuoNn2FGhgVNOZbFVQ0tQ@mail.gmail.com>
-	<20130227084034.GE16414@sortiz-mobl>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/7] HID: multitouch: support of hybrid finger/pen
+ devices
+Date: Mon, 18 Mar 2013 23:14:36 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1303182313080.9529@pobox.suse.cz>
+References: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20130227084034.GE16414@sortiz-mobl>
-Sender: linux-doc-owner@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Rob Landley <rob@landley.net>, Felipe Balbi <balbi@ti.com>, Grant Likely <grant.likely@secretlab.ca>, Wolfram Sang <w.sang@pengutronix.de>, Luigi Semenzato <semenzato@chromium.org>, Rob Herring <rob.herring@calxeda.com>, Che-Liang Chiou <clchiou@chromium.org>, Jonathan Kliegman <kliegs@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Sourav Poddar <sourav.poddar@ti.com>, Devicetree Discuss <devicetree-discuss@lists.ozlabs.org>, Alban Bedel <alban.bedel@avionic-design.de>, Roland Stigge <stigge@antcom.de>, Vincent Palatin <vpalatin@chromium.org>, Javier Martinez Canillas <javier@dowhile0.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Bill Pemberton <wfp5p@virgi>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Samuel,
+On Wed, 27 Feb 2013, Benjamin Tissoires wrote:
 
-On Wed, Feb 27, 2013 at 12:40 AM, Samuel Ortiz <sameo@linux.intel.com> wrote:
-> Hi Simon,
->
-> On Tue, Feb 26, 2013 at 09:13:06PM -0800, Simon Glass wrote:
->> Hi Samuel,
->>
->> On Mon, Feb 25, 2013 at 2:08 PM, Simon Glass <sjg@chromium.org> wrote:
->> > The ChromeOS Embedded Controller (EC) is an Open Source EC implementation
->> > used on ARM and Intel Chromebooks. Current implementations use a Cortex-M3
->> > connected on a bus (such as I2C, SPI, LPC) to the AP. A separate interrupt
->> > line is used to indicate when the EC needs service.
->> >
->> > Functions performed by the EC vary by platform, but typically include
->> > battery charging, keyboard scanning and power sequencing.
->> >
->> > This series includes support for the EC message protocol, and implements
->> > a matrix keyboard handler for Linux using the protocol. The EC performs
->> > key scanning and passes scan data in response to AP requests. This is
->> > used on the Samsung ARM Chromebook. No driver is available for LPC at
->> > present.
->> >
->> > This series can in principle operate on any hardware, but for it to actually
->> > work on the Samsung ARM Chromebook, it needs patches which are currently in
->> > progress to mainline: Exynos FDT interrupt support and I2C bus arbitration.
->> >
->> > The driver is device-tree-enabled and a suitable binding is included in
->> > this series. Example device tree nodes are included in the examples,
->> > but no device tree patch for exynos5250-snow is provided at this stage, since
->> > we must wait for the above-mentioned patches to land to avoid errors from
->> > dtc. This can be added with a follow-on patch when that work is complete.
->> >
->>
->> Are you happy with this series? Do you think it is ready to be picked
->> up for mfd?
-> It probably is, and it will be part of the next merge window. I'll apply the
-> after the merge window closes.
+> So the solution consists in relying inconditionaly to the quirk MULTI_INPUT for
+> hid-multitouch. Before registering the input device in hid-input, we can test if
+> it has been populated, and if not, then we simply don't register it. In order to
+> prevent a regression for drivers that do not fill the input device, we need to
+> add an other quirk.
 
-I'm just checking that we are still good to do this?
+Hi everybody,
 
-Regards,
-Simon
+I am in progress of reviewing this patchset, and so far don't have any 
+major obejctions; I expect to have the review finished this week, so 3.10 
+is definitely a realistic target.
+
+Just to set my own expectations correctly -- Henrik, are you going to 
+review this patchset as well, or there is no need for me to wait for your 
+feedback?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

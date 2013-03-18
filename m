@@ -1,35 +1,40 @@
-From: Josh Boyer <jwboyer@redhat.com>
-Subject: Re: [PATCH] HID: usbhid: quirk for Realtek Multi-card reader
-Date: Mon, 18 Mar 2013 09:55:48 -0400
-Message-ID: <20130318135548.GC11243@hansolo.jdub.homelinux.org>
-References: <20130318134542.GA11243@hansolo.jdub.homelinux.org>
- <alpine.LNX.2.00.1303181451550.9529@pobox.suse.cz>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] Input: tc3589x-keypad - fix row shift
+Date: Mon, 18 Mar 2013 16:32:52 +0100
+Message-ID: <CACRpkdb=48VT=RNK7rzeM+eJ3YzDsPAek0oK0ZPk2ACXkXaiCQ@mail.gmail.com>
+References: <1363017202-4556-1-git-send-email-rabin.vincent@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57996 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751866Ab3CROYj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Mar 2013 10:24:39 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1303181451550.9529@pobox.suse.cz>
+Received: from mail-ia0-f174.google.com ([209.85.210.174]:39836 "EHLO
+	mail-ia0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752220Ab3CRPcx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Mar 2013 11:32:53 -0400
+Received: by mail-ia0-f174.google.com with SMTP id b35so1298188iac.19
+        for <linux-input@vger.kernel.org>; Mon, 18 Mar 2013 08:32:52 -0700 (PDT)
+In-Reply-To: <1363017202-4556-1-git-send-email-rabin.vincent@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rabin Vincent <rabin.vincent@stericsson.com>
+Cc: linux-input@vger.kernel.org, rabin@rab.in
 
-On Mon, Mar 18, 2013 at 02:52:32PM +0100, Jiri Kosina wrote:
-> On Mon, 18 Mar 2013, Josh Boyer wrote:
-> 
-> > This device has an odd HID entry 
-> 
-> I can't really say I understand this portion of the changelog.
+On Mon, Mar 11, 2013 at 4:53 PM, Rabin Vincent
+<rabin.vincent@stericsson.com> wrote:
 
-I just took it from what Hans said in the bug.  I believe I might have
-misunderstood.
+> Since 1932811f426fee ("Input: matrix-keymap - uninline and prepare for
+> device tree support"), the row_shift used by the driver does not match
+> the one used by matrix_keypad_build_keymap(), leading to misdetection of
+> keys.  Fix it.
+>
+> Cc: <stable@vger.kernel.org> # 3.8
+> Signed-off-by: Rabin Vincent <rabin.vincent@stericsson.com>
 
-> I will rephrase it a little bit and apply, thanks.
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Sounds good.  Thank you.
+Given that the other patch sent a week ago already made it into the
+fixes, was this one missed for some reason? It looks like another
+clear regression...
 
-josh
+Yours,
+Linus Walleij

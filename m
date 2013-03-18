@@ -1,19 +1,24 @@
 From: Jingoo Han <jg1.han@samsung.com>
-Subject: Re: [PATCH v2 6/8] drivers: mfd: use module_platform_driver_probe()
-Date: Mon, 18 Mar 2013 12:10:10 +0900
-Message-ID: <018b01ce2386$19ba9090$4d2fb1b0$%han@samsung.com>
+Subject: Re: [PATCH v2 2/8] drivers: ata: use module_platform_driver_probe()
+Date: Mon, 18 Mar 2013 12:13:13 +0900
+Message-ID: <018c01ce2386$86c8f5f0$945ae1d0$%han@samsung.com>
 References: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
- <1363280978-24051-7-git-send-email-fabio.porcedda@gmail.com>
+ <1363280978-24051-3-git-send-email-fabio.porcedda@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ide-owner@vger.kernel.org>
-In-reply-to: <1363280978-24051-7-git-send-email-fabio.porcedda@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout3.samsung.com ([203.254.224.33]:65527 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750913Ab3CRDNP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 17 Mar 2013 23:13:15 -0400
+In-reply-to: <1363280978-24051-3-git-send-email-fabio.porcedda@gmail.com>
 Content-language: ko
-Sender: linux-ide-owner@vger.kernel.org
-To: 'Fabio Porcedda' <fabio.porcedda@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
-Cc: 'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>, 'Linus Walleij' <linus.walleij@linaro.org>, 'Samuel Ortiz' <sameo@linux.intel.com>, 'Jingoo Han' <jg1.han@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: 'Fabio Porcedda' <fabio.porcedda@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
+Cc: 'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>, 'Jeff Garzik' <jgarzik@pobox.com>, 'Jingoo Han' <jg1.han@samsung.com>
 
 On Friday, March 15, 2013 2:10 AM, Fabio Porcedda wrote:
 > 
@@ -23,71 +28,44 @@ On Friday, March 15, 2013 2:10 AM, Fabio Porcedda wrote:
 > 
 > Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
 > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Samuel Ortiz <sameo@linux.intel.com>
-> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Jeff Garzik <jgarzik@pobox.com>
+> Cc: linux-ide@vger.kernel.org
 > ---
->  drivers/mfd/davinci_voicecodec.c | 12 +-----------
->  drivers/mfd/htc-pasic3.c         | 13 +------------
->  2 files changed, 2 insertions(+), 23 deletions(-)
+>  drivers/ata/pata_at32.c | 13 +------------
+>  1 file changed, 1 insertion(+), 12 deletions(-)
 
 I already submitted the patch 2 weeks ago.
 
-https://patchwork.kernel.org/patch/2217301/
-https://patchwork.kernel.org/patch/2217291/
-
+http://www.spinics.net/lists/linux-ide/msg45141.html
 
 Best regards,
 Jingoo Han
 
 > 
-> diff --git a/drivers/mfd/davinci_voicecodec.c b/drivers/mfd/davinci_voicecodec.c
-> index c0bcc87..c60ab0c 100644
-> --- a/drivers/mfd/davinci_voicecodec.c
-> +++ b/drivers/mfd/davinci_voicecodec.c
-> @@ -177,17 +177,7 @@ static struct platform_driver davinci_vc_driver = {
->  	.remove	= davinci_vc_remove,
+> diff --git a/drivers/ata/pata_at32.c b/drivers/ata/pata_at32.c
+> index 36f189c..8d493b4 100644
+> --- a/drivers/ata/pata_at32.c
+> +++ b/drivers/ata/pata_at32.c
+> @@ -393,18 +393,7 @@ static struct platform_driver pata_at32_driver = {
+>  	},
 >  };
 > 
-> -static int __init davinci_vc_init(void)
+> -static int __init pata_at32_init(void)
 > -{
-> -	return platform_driver_probe(&davinci_vc_driver, davinci_vc_probe);
-> -}
-> -module_init(davinci_vc_init);
-> -
-> -static void __exit davinci_vc_exit(void)
-> -{
-> -	platform_driver_unregister(&davinci_vc_driver);
-> -}
-> -module_exit(davinci_vc_exit);
-> +module_platform_driver_probe(davinci_vc_driver, davinci_vc_probe);
-> 
->  MODULE_AUTHOR("Miguel Aguilar");
->  MODULE_DESCRIPTION("Texas Instruments DaVinci Voice Codec Core Interface");
-> diff --git a/drivers/mfd/htc-pasic3.c b/drivers/mfd/htc-pasic3.c
-> index 9e5453d..0285fce 100644
-> --- a/drivers/mfd/htc-pasic3.c
-> +++ b/drivers/mfd/htc-pasic3.c
-> @@ -208,18 +208,7 @@ static struct platform_driver pasic3_driver = {
->  	.remove		= pasic3_remove,
->  };
-> 
-> -static int __init pasic3_base_init(void)
-> -{
-> -	return platform_driver_probe(&pasic3_driver, pasic3_probe);
+> -	return platform_driver_probe(&pata_at32_driver, pata_at32_probe);
 > -}
 > -
-> -static void __exit pasic3_base_exit(void)
+> -static void __exit pata_at32_exit(void)
 > -{
-> -	platform_driver_unregister(&pasic3_driver);
+> -	platform_driver_unregister(&pata_at32_driver);
 > -}
 > -
-> -module_init(pasic3_base_init);
-> -module_exit(pasic3_base_exit);
-> +module_platform_driver_probe(pasic3_driver, pasic3_probe);
+> -module_init(pata_at32_init);
+> -module_exit(pata_at32_exit);
+> +module_platform_driver_probe(pata_at32_driver, pata_at32_probe);
 > 
->  MODULE_AUTHOR("Philipp Zabel <philipp.zabel@gmail.com>");
->  MODULE_DESCRIPTION("Core driver for HTC PASIC3");
+>  MODULE_LICENSE("GPL");
+>  MODULE_DESCRIPTION("AVR32 SMC/CFC PATA Driver");
 > --
 > 1.8.1.5
 > 

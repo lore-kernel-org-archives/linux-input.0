@@ -1,76 +1,59 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: Re: [PATCH v2 2/8] drivers: ata: use module_platform_driver_probe()
-Date: Mon, 18 Mar 2013 12:13:13 +0900
-Message-ID: <018c01ce2386$86c8f5f0$945ae1d0$%han@samsung.com>
-References: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
- <1363280978-24051-3-git-send-email-fabio.porcedda@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH -next] HID: steelseries: use module_hid_driver() to
+ simplify the code
+Date: Mon, 18 Mar 2013 10:53:03 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1303181052560.9529@pobox.suse.cz>
+References: <CAPgLHd_6y1mr1moejftWGgrpO=vGxQUZ5Dz2v022kaFHdF-pVg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:65527 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750913Ab3CRDNP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Mar 2013 23:13:15 -0400
-In-reply-to: <1363280978-24051-3-git-send-email-fabio.porcedda@gmail.com>
-Content-language: ko
+Received: from cantor2.suse.de ([195.135.220.15]:59518 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753327Ab3CRJxM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Mar 2013 05:53:12 -0400
+In-Reply-To: <CAPgLHd_6y1mr1moejftWGgrpO=vGxQUZ5Dz2v022kaFHdF-pVg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Fabio Porcedda' <fabio.porcedda@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, linux-ide@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
-Cc: 'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>, 'Jeff Garzik' <jgarzik@pobox.com>, 'Jingoo Han' <jg1.han@samsung.com>
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
 
-On Friday, March 15, 2013 2:10 AM, Fabio Porcedda wrote:
+On Fri, 15 Mar 2013, Wei Yongjun wrote:
+
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 > 
-> This patch converts the drivers to use the
-> module_platform_driver_probe() macro which makes the code smaller and
-> a bit simpler.
+> module_hid_driver() makes the code simpler by eliminating
+> boilerplate code..
 > 
-> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Jeff Garzik <jgarzik@pobox.com>
-> Cc: linux-ide@vger.kernel.org
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 > ---
->  drivers/ata/pata_at32.c | 13 +------------
+>  drivers/hid/hid-steelseries.c | 13 +------------
 >  1 file changed, 1 insertion(+), 12 deletions(-)
-
-I already submitted the patch 2 weeks ago.
-
-http://www.spinics.net/lists/linux-ide/msg45141.html
-
-Best regards,
-Jingoo Han
-
 > 
-> diff --git a/drivers/ata/pata_at32.c b/drivers/ata/pata_at32.c
-> index 36f189c..8d493b4 100644
-> --- a/drivers/ata/pata_at32.c
-> +++ b/drivers/ata/pata_at32.c
-> @@ -393,18 +393,7 @@ static struct platform_driver pata_at32_driver = {
->  	},
+> diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
+> index 98e66ac..9b0efb0 100644
+> --- a/drivers/hid/hid-steelseries.c
+> +++ b/drivers/hid/hid-steelseries.c
+> @@ -377,16 +377,5 @@ static struct hid_driver steelseries_srws1_driver = {
+>  	.report_fixup = steelseries_srws1_report_fixup
 >  };
-> 
-> -static int __init pata_at32_init(void)
+>  
+> -static int __init steelseries_srws1_init(void)
 > -{
-> -	return platform_driver_probe(&pata_at32_driver, pata_at32_probe);
+> -	return hid_register_driver(&steelseries_srws1_driver);
 > -}
 > -
-> -static void __exit pata_at32_exit(void)
+> -static void __exit steelseries_srws1_exit(void)
 > -{
-> -	platform_driver_unregister(&pata_at32_driver);
+> -	hid_unregister_driver(&steelseries_srws1_driver);
 > -}
 > -
-> -module_init(pata_at32_init);
-> -module_exit(pata_at32_exit);
-> +module_platform_driver_probe(pata_at32_driver, pata_at32_probe);
-> 
+> -module_init(steelseries_srws1_init);
+> -module_exit(steelseries_srws1_exit);
+> +module_hid_driver(steelseries_srws1_driver);
 >  MODULE_LICENSE("GPL");
->  MODULE_DESCRIPTION("AVR32 SMC/CFC PATA Driver");
-> --
-> 1.8.1.5
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-fbdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
+Applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

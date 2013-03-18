@@ -1,57 +1,57 @@
-From: Josh Boyer <jwboyer@redhat.com>
-Subject: [PATCH] HID: usbhid: quirk for Realtek Multi-card reader
-Date: Mon, 18 Mar 2013 09:45:42 -0400
-Message-ID: <20130318134542.GA11243@hansolo.jdub.homelinux.org>
+From: Josh Boyer <jwboyer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] HID: usbhid: quirk for MSI GX680R led panel
+Date: Mon, 18 Mar 2013 09:47:02 -0400
+Message-ID: <20130318134702.GB11243@hansolo.jdub.homelinux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:63665 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752624Ab3CRNqa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Mar 2013 09:46:30 -0400
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-This device has an odd HID entry and causes a 10 second delay in boot.
-Add this device to the quirks list with HID_QUIRK_NO_INIT_REPORTS.
+This keyboard backlight device causes a 10 second delay to boot.  Add it
+to the quirk list with HID_QUIRK_NO_INIT_REPORTS.
 
-This fixes Red Hat bugzilla https://bugzilla.redhat.com/show_bug.cgi?id=806587
+This fixes Red Hat bugzilla https://bugzilla.redhat.com/show_bug.cgi?id=907221
 
-Signed-off-by: Josh Boyer <jwboyer@redhat.com>
+Signed-off-by: Josh Boyer <jwboyer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
  drivers/hid/hid-ids.h           | 3 +++
  drivers/hid/usbhid/hid-quirks.c | 1 +
  2 files changed, 4 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 92e47e5..d1063e9 100644
+index d1063e9..c438877 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -684,6 +684,9 @@
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001		0x3001
- #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008		0x3008
+@@ -590,6 +590,9 @@
+ #define USB_VENDOR_ID_MONTEREY		0x0566
+ #define USB_DEVICE_ID_GENIUS_KB29E	0x3004
  
-+#define USB_VENDOR_ID_REALTEK		0x0bda
-+#define USB_DEVICE_ID_REALTEK_READER	0x0152
++#define USB_VENDOR_ID_MSI		0x1770
++#define USB_DEVICE_ID_MSI_GX680R_LED_PANEL	0xff00
 +
- #define USB_VENDOR_ID_ROCCAT		0x1e7d
- #define USB_DEVICE_ID_ROCCAT_ARVO	0x30d4
- #define USB_DEVICE_ID_ROCCAT_ISKU	0x319c
+ #define USB_VENDOR_ID_NATIONAL_SEMICONDUCTOR 0x0400
+ #define USB_DEVICE_ID_N_S_HARMONY	0xc359
+ 
 diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index e0e6abf..e991d81 100644
+index e991d81..476c984 100644
 --- a/drivers/hid/usbhid/hid-quirks.c
 +++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -80,6 +80,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008, HID_QUIRK_NOGET },
-+	{ USB_VENDOR_ID_REALTEK, USB_DEVICE_ID_REALTEK_READER, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_SIGMATEL, USB_DEVICE_ID_SIGMATEL_STMP3780, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+@@ -73,6 +73,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_FORMOSA, USB_DEVICE_ID_FORMOSA_IR_RECEIVER, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
++	{ USB_VENDIR_ID_MSI, USB_DEVICE_ID_MSI_GX680R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
 -- 
 1.8.1.2
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

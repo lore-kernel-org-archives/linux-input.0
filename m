@@ -1,40 +1,57 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 10/10] drivers: misc: use module_platform_driver_probe()
-Date: Mon, 18 Mar 2013 11:28:45 +0000
-Message-ID: <201303181128.45215.arnd@arndb.de>
-References: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com> <201303181058.51641.arnd@arndb.de> <CAHkwnC-aHwd24S5MyLhnVzTqqQj2L7MMuVX9dirhS-G830jZcw@mail.gmail.com>
+From: Josh Boyer <jwboyer@redhat.com>
+Subject: [PATCH] HID: usbhid: quirk for Realtek Multi-card reader
+Date: Mon, 18 Mar 2013 09:45:42 -0400
+Message-ID: <20130318134542.GA11243@hansolo.jdub.homelinux.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-ide-owner@vger.kernel.org>
-In-Reply-To: <CAHkwnC-aHwd24S5MyLhnVzTqqQj2L7MMuVX9dirhS-G830jZcw@mail.gmail.com>
-Sender: linux-ide-owner@vger.kernel.org
-To: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: H Hartley Sweeten <hartleys@visionengravers.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>, Grant Likely <grant.likely@secretlab.ca>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:63665 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752624Ab3CRNqa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Mar 2013 09:46:30 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Monday 18 March 2013, Fabio Porcedda wrote:
-> 
-> On Mon, Mar 18, 2013 at 11:58 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Monday 18 March 2013, Fabio Porcedda wrote:
-> >> Since by using platform_driver_probe() the  function
-> >> ep93xx_pwm_probe() is freed after initialization,
-> >> is better to use module_platform_drive_probe().
-> >> IMHO i don't see any good reason to use module_platform_driver() for
-> >> this driver.
-> >
-> > As I commented earlier, the platform_driver_probe() and
-> > module_platform_drive_probe() interfaces are rather dangerous in combination
-> > with deferred probing, I would much prefer Harley's patch.
-> 
-> Since those drivers don't use -EPROBE_DEFER i was thinking that they don't use
-> deferred probing.
-> I'm missing something?
+This device has an odd HID entry and causes a 10 second delay in boot.
+Add this device to the quirks list with HID_QUIRK_NO_INIT_REPORTS.
 
-clk_get() may return -EPROBE_DEFER after ep93xx is converted to use the
-common clk API. We currently return the value of clk_get from the probe()
-function, which will automatically do the right thing as long as the probe
-function remains reachable.
+This fixes Red Hat bugzilla https://bugzilla.redhat.com/show_bug.cgi?id=806587
 
-	Arnd
+Signed-off-by: Josh Boyer <jwboyer@redhat.com>
+---
+ drivers/hid/hid-ids.h           | 3 +++
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 92e47e5..d1063e9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -684,6 +684,9 @@
+ #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001		0x3001
+ #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008		0x3008
+ 
++#define USB_VENDOR_ID_REALTEK		0x0bda
++#define USB_DEVICE_ID_REALTEK_READER	0x0152
++
+ #define USB_VENDOR_ID_ROCCAT		0x1e7d
+ #define USB_DEVICE_ID_ROCCAT_ARVO	0x30d4
+ #define USB_DEVICE_ID_ROCCAT_ISKU	0x319c
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index e0e6abf..e991d81 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -80,6 +80,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_REALTEK, USB_DEVICE_ID_REALTEK_READER, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SIGMATEL, USB_DEVICE_ID_SIGMATEL_STMP3780, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+-- 
+1.8.1.2
+

@@ -1,45 +1,77 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 0/7] HID: multitouch: support of hybrid finger/pen devices
-Date: Tue, 19 Mar 2013 22:40:57 +0100
-Message-ID: <20130319214057.GA7902@polaris.bitmath.org>
-References: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
- <alpine.LNX.2.00.1303182313080.9529@pobox.suse.cz>
+Subject: Re: [PATCH 2/4] Input: cyapa - Firmware update via request firmware
+Date: Tue, 19 Mar 2013 22:52:32 +0100
+Message-ID: <20130319215232.GA7907@polaris.bitmath.org>
+References: <1363218651-22457-1-git-send-email-bleung@chromium.org>
+ <1363218651-22457-3-git-send-email-bleung@chromium.org>
+ <20130316200047.GA6155@polaris.bitmath.org>
+ <CANLzEku6s-831vfrP56eS2ZCGT==8i8JqjGNs++ujAvr8enxQg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b31.telenor.se ([213.150.131.20]:59970 "EHLO
-	smtprelay-b31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932663Ab3CSVg0 (ORCPT
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:35334 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753351Ab3CSVsD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Mar 2013 17:36:26 -0400
+	Tue, 19 Mar 2013 17:48:03 -0400
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1303182313080.9529@pobox.suse.cz>
+In-Reply-To: <CANLzEku6s-831vfrP56eS2ZCGT==8i8JqjGNs++ujAvr8enxQg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benson Leung <bleung@chromium.org>
+Cc: linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Olof Johansson <olofj@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, Dudley Du <dudl@cypress.com>
 
-Hi Jiri, Benjamin,
+Hi Benson,
 
-> > So the solution consists in relying inconditionaly to the quirk MULTI_INPUT for
-> > hid-multitouch. Before registering the input device in hid-input, we can test if
-> > it has been populated, and if not, then we simply don't register it. In order to
-> > prevent a regression for drivers that do not fill the input device, we need to
-> > add an other quirk.
+> On Sat, Mar 16, 2013 at 1:00 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> >> Userspace can initiate the firmware update procedure by copying cyapa.bin
+> >> to /lib/firmware, and then writing anything to the device sysfs attribute:
+> >>   /sys/bus/i2c/devices/7-0067/update_fw
+> >
+> > Why do you need to trigger this from userland via sysfs?
+> >
 > 
-> Hi everybody,
+> It's a confluence of factors that drives the decision trigger from userland.
+> - As a part of the cold-boot probe steps, the trackpad's bootloader
+> will load an operational firmware from its flash memory. In the
+> average case, the trackpad driver does not need to update the firmware
+> because it's current. (the non-average cases are cases where on device
+> firmware is corrupted or out of date)
+> - The cypress firmware payloads we are working with here do not
+> contain an indication of firmware version in the payload itself, so
+> the driver can't tell at probe time whether what it would get if it
+> request_firmware is newer, older, or the same version as what's
+> already loaded on the trackpad.
+> - On a 400kHz i2c bus, it takes 13 seconds to send the 31K payload to
+> the device and to wait for it to jump into the operational mode
+> firmware. This is too long to block probe every time.
+> - Because it takes so long to do a firmware update, our user space
+> would like to put up a warning message anyhow to tell the user that
+> the touchpad is being updated, and not to disturb the system.
 > 
-> I am in progress of reviewing this patchset, and so far don't have any 
-> major obejctions; I expect to have the review finished this week, so 3.10 
-> is definitely a realistic target.
+> >> +     if (sysfs_create_group(&client->dev.kobj, &cyapa_sysfs_group))
+> >> +             dev_warn(dev, "error creating sysfs entries.\n");
+> >> +
+> >
+> > Would it not be neat to invoke the firmware update automatically instead?
+> 
+> The one situation where I could see an automatic firmware update being
+> useful would be cases where the driver, during probe, discovered that
+> the trackpad is in Bootloader mode because no valid firmware was found
+> (a case of corruption of some kind due to the system powering down
+> during a previous fw update, or example). In that case, the driver can
+> request firmware and update it without user space having to trigger it
+> later.
+> 
+> Another driver in input does it the same way. atmel_mxt_ts.c, which
+> our team is actively working on as well, also has an update_fw sysfs
+> for a lot of the same reasons.
 
-I agree, I think it looks sound in general.
+Thanks for the rationale, it looks compelling enough for me.
 
-> Just to set my own expectations correctly -- Henrik, are you going to 
-> review this patchset as well, or there is no need for me to wait for your 
-> feedback?
+The cyapa_firmware() function has loops that looks like they could be
+simplified. With that and the previous comments said,
 
-No need to wait any longer ;-)
+    Acked-by: Henrik Rydberg <rydberg@euromail.se>
 
-Cheers,
 Henrik

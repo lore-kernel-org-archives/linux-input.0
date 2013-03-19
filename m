@@ -1,51 +1,46 @@
-From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Subject: Re: [PATCH v2] sysrq: supplementing reset sequence with timeout functionality
-Date: Mon, 18 Mar 2013 17:44:33 -0700
-Message-ID: <CAMP5XgfSHcnarDmju-oEJwPbAzeOOOhfq7C1bvrQ5Zt7Wbid2A@mail.gmail.com>
-References: <1363454057-7409-1-git-send-email-mathieu.poirier@linaro.org>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: Re: [PATCH 10/10] drivers: misc: use module_platform_driver_probe()
+Date: Tue, 19 Mar 2013 09:55:11 +0100
+Message-ID: <CAHkwnC9fg7_uhLM2KD3vvj_oFx3EBoQfw8mCN=V9pyV5=k37aA@mail.gmail.com>
+References: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
+ <201303181058.51641.arnd@arndb.de> <CAHkwnC-aHwd24S5MyLhnVzTqqQj2L7MMuVX9dirhS-G830jZcw@mail.gmail.com>
+ <201303181128.45215.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f52.google.com ([209.85.215.52]:44767 "EHLO
-	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756413Ab3CSAoe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Mar 2013 20:44:34 -0400
-Received: by mail-la0-f52.google.com with SMTP id fs12so6911264lab.25
-        for <linux-input@vger.kernel.org>; Mon, 18 Mar 2013 17:44:33 -0700 (PDT)
-In-Reply-To: <1363454057-7409-1-git-send-email-mathieu.poirier@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <201303181128.45215.arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: H Hartley Sweeten <hartleys@visionengravers.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>, Grant Likely <grant.likely@secretlab.ca>
 List-Id: linux-input@vger.kernel.org
-To: mathieu.poirier@linaro.org
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kernel-team@android.com, john.stultz@linaro.org
 
-On Sat, Mar 16, 2013 at 10:14 AM,  <mathieu.poirier@linaro.org> wrote:
-> From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
+On Mon, Mar 18, 2013 at 12:28 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Monday 18 March 2013, Fabio Porcedda wrote:
+>>
+>> On Mon, Mar 18, 2013 at 11:58 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+>> > On Monday 18 March 2013, Fabio Porcedda wrote:
+>> >> Since by using platform_driver_probe() the  function
+>> >> ep93xx_pwm_probe() is freed after initialization,
+>> >> is better to use module_platform_drive_probe().
+>> >> IMHO i don't see any good reason to use module_platform_driver() for
+>> >> this driver.
+>> >
+>> > As I commented earlier, the platform_driver_probe() and
+>> > module_platform_drive_probe() interfaces are rather dangerous in combination
+>> > with deferred probing, I would much prefer Harley's patch.
+>>
+>> Since those drivers don't use -EPROBE_DEFER i was thinking that they don't use
+>> deferred probing.
+>> I'm missing something?
 >
-> Some devices have too few buttons, which it makes it hard to have
-> a reset combo that won't trigger automatically.  As such a
-> timeout functionality that requires the combination to be held for
-> a given amount of time before triggering is introduced.
->
-> If a key combo is recognized and held for a 'timeout' amount of time,
-> the system triggers a reset.
+> clk_get() may return -EPROBE_DEFER after ep93xx is converted to use the
+> common clk API. We currently return the value of clk_get from the probe()
+> function, which will automatically do the right thing as long as the probe
+> function remains reachable.
 
-The code seems to only require one of the keys in the combo to be held
-for the full 'timeout' amount of time:
+Thanks for the explanation.
 
-=2E..
->                 /* key release */
-> -               if (--state->reset_seq_cnt =3D=3D 0)
-> +               if (--state->reset_seq_cnt =3D=3D 0) {
->                         state->reset_canceled =3D false;
-> +                       del_timer(&state->keyreset_timeout);
-> +               }
+Regards
+Fabio Porcedda
 
---=20
-Arve Hj=F8nnev=E5g
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>         Arnd

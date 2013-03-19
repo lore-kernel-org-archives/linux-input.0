@@ -1,20 +1,20 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH 4/7] HID: multitouch: add handling for pen in
- dual-sensors device
-Date: Tue, 19 Mar 2013 22:32:45 +0100
-Message-ID: <20130319213245.GA7877@polaris.bitmath.org>
+Subject: Re: [PATCH 6/7] HID: multitouch: append " Pen" to the name of the
+ stylus input
+Date: Tue, 19 Mar 2013 22:38:06 +0100
+Message-ID: <20130319213806.GB7877@polaris.bitmath.org>
 References: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com>
- <1361984127-912-5-git-send-email-benjamin.tissoires@redhat.com>
+ <1361984127-912-7-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:49875 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934350Ab3CSV2O (ORCPT
+Received: from smtprelay-h31.telenor.se ([213.150.131.4]:46526 "EHLO
+	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933832Ab3CSVdh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Mar 2013 17:28:14 -0400
+	Tue, 19 Mar 2013 17:33:37 -0400
 Content-Disposition: inline
-In-Reply-To: <1361984127-912-5-git-send-email-benjamin.tissoires@redhat.com>
+In-Reply-To: <1361984127-912-7-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -22,147 +22,92 @@ Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse
 
 Hi Benjamin,
 
-> Dual sensors devices reports pen and touch on two different reports.
-> Using the quirk HID_QUIRK_MULTI_INPUT allows us to create a new input
-> device to forward pen events.
-> 
-> The quirk HID_QUIRK_NO_EMPTY_INPUT avoids the creation of input devices
-> for the not used mouse emulation present on Win7 certified devices.
+> This is not just cosmetics, it can help to write udev and X.org
+> rules.
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
->  drivers/hid/hid-multitouch.c | 55 ++++++++++++++++++++++++++++++++++++++++----
->  1 file changed, 51 insertions(+), 4 deletions(-)
-
-I like the approach, it is indeed quite simple. Some comment below, though.
-
+>  drivers/hid/hid-multitouch.c | 24 +++++++++++++++++++++++-
+>  1 file changed, 23 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 315500c..77ba751 100644
+> index d89f0eb..faeec95 100644
 > --- a/drivers/hid/hid-multitouch.c
 > +++ b/drivers/hid/hid-multitouch.c
-> @@ -100,6 +100,7 @@ struct mt_device {
->  	unsigned last_field_index;	/* last field index of the report */
->  	unsigned last_slot_field;	/* the last field of a slot */
->  	unsigned mt_report_id;	/* the report ID of the multitouch device */
-> +	unsigned pen_report_id;	/* the report ID of the pen device */
->  	__s8 inputmode;		/* InputMode HID feature, -1 if non-existent */
->  	__s8 inputmode_index;	/* InputMode HID feature index in the report */
->  	__s8 maxcontact_report_id;	/* Maximum Contact Number HID feature,
-> @@ -365,6 +366,35 @@ static void mt_store_field(struct hid_usage *usage, struct mt_device *td,
->  	f->usages[f->length++] = usage->hid;
->  }
+> @@ -44,6 +44,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/usb.h>
+>  #include <linux/input/mt.h>
+> +#include <linux/string.h>
 >  
-> +static int mt_pen_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-> +		struct hid_field *field, struct hid_usage *usage,
-> +		unsigned long **bit, int *max)
-> +{
-> +	struct mt_device *td = hid_get_drvdata(hdev);
-> +
-> +	td->pen_report_id = field->report->id;
-> +
-> +	return 0;
-> +}
-> +
-> +static int mt_pen_input_mapped(struct hid_device *hdev, struct hid_input *hi,
-> +		struct hid_field *field, struct hid_usage *usage,
-> +		unsigned long **bit, int *max)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int mt_pen_event(struct hid_device *hid, struct hid_field *field,
-> +				struct hid_usage *usage, __s32 value)
-> +{
-> +	/* let hid-input handle it */
-> +	return 0;
-> +}
-> +
-> +static void mt_pen_report(struct hid_device *hid, struct hid_report *report)
-> +{
-> +}
-
-Should the next patch not go in here directly?
-
-> +
->  static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  		struct hid_field *field, struct hid_usage *usage,
->  		unsigned long **bit, int *max)
-> @@ -725,14 +755,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  	* We need to ignore fields that belong to other collections
->  	* such as Mouse that might have the same GenericDesktop usages. */
->  	if (field->application != HID_DG_TOUCHSCREEN &&
-> +	    field->application != HID_DG_PEN &&
->  	    field->application != HID_DG_TOUCHPAD)
->  		return -1;
 >  
-> -	/* eGalax devices provide a Digitizer.Stylus input which overrides
-> -	 * the correct Digitizers.Finger X/Y ranges.
-> -	 * Let's just ignore this input. */
->  	if (field->physical == HID_DG_STYLUS)
-> -		return -1;
-> +		return mt_pen_input_mapping(hdev, hi, field, usage, bit, max);
->  
->  	return mt_touch_input_mapping(hdev, hi, field, usage, bit, max);
->  }
-> @@ -741,6 +769,9 @@ static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
->  		struct hid_field *field, struct hid_usage *usage,
+>  MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
+> @@ -371,6 +372,15 @@ static int mt_pen_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 >  		unsigned long **bit, int *max)
 >  {
-> +	if (field->physical == HID_DG_STYLUS)
-> +		return mt_pen_input_mapped(hdev, hi, field, usage, bit, max);
+>  	struct mt_device *td = hid_get_drvdata(hdev);
+> +	char *name;
 > +
->  	return mt_touch_input_mapped(hdev, hi, field, usage, bit, max);
->  }
->  
-> @@ -752,6 +783,9 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
->  	if (field->report->id == td->mt_report_id)
->  		return mt_touch_event(hid, field, usage, value);
->  
-> +	if (field->report->id == td->pen_report_id)
-> +		return mt_pen_event(hid, field, usage, value);
-> +
->  	/* ignore other reports */
->  	return 1;
->  }
-> @@ -765,6 +799,9 @@ static void mt_report(struct hid_device *hid, struct hid_report *report)
->  
->  	if (report->id == td->mt_report_id)
->  		mt_touch_report(hid, report);
-> +
-> +	if (report->id == td->pen_report_id)
-> +		mt_pen_report(hid, report);
->  }
->  
->  static void mt_set_input_mode(struct hid_device *hdev)
-> @@ -887,6 +924,14 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	 */
->  	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
->  
-> +	/*
-> +	 * This allows the driver to handle different input sensors
-> +	 * that emits events through different reports on the same HID
-> +	 * device.
-> +	 */
-> +	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-> +	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
+> +	if (hi->input->name == hdev->name) {
+> +		name = kzalloc(sizeof(hdev->name) + 5, GFP_KERNEL);
+> +		if (name) {
+> +			sprintf(name, "%s Pen", hdev->name);
+> +			hi->input->name = name;
+> +		}
+> +	}
 
-I seem to recall problem with MULTI_INPUT on some devices. Should
-these not be turned on based on the device type?
+Why not simply duplicate the the string? This kind of magic sharing is
+not really helping.  Also, for multi input devices, the assumptions in
+hidinput_allocate() seem to be the culprit. Perhaps the fix should be
+there instead.
 
-> +
->  	td = kzalloc(sizeof(struct mt_device), GFP_KERNEL);
->  	if (!td) {
->  		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
-> @@ -896,6 +941,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	td->inputmode = -1;
->  	td->maxcontact_report_id = -1;
->  	td->cc_index = -1;
-> +	td->mt_report_id = -1;
-> +	td->pen_report_id = -1;
->  	hid_set_drvdata(hdev, td);
 >  
->  	td->fields = kzalloc(sizeof(struct mt_fields), GFP_KERNEL);
+>  	td->pen_report_id = field->report->id;
+>  
+> @@ -914,6 +924,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	int ret, i;
+>  	struct mt_device *td;
+>  	struct mt_class *mtclass = mt_classes; /* MT_CLS_DEFAULT */
+> +	struct hid_input *hi;
+>  
+>  	for (i = 0; mt_classes[i].name ; i++) {
+>  		if (id->driver_data == mt_classes[i].name) {
+> @@ -964,7 +975,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  
+>  	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+>  	if (ret)
+> -		goto fail;
+> +		goto hid_fail;
+>  
+>  	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
+>  
+> @@ -976,6 +987,10 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  
+>  	return 0;
+>  
+> +hid_fail:
+> +	list_for_each_entry(hi, &hdev->inputs, list)
+> +		if (hi->input->name != hdev->name)
+> +			kfree(hi->input->name);
+>  fail:
+>  	kfree(td->fields);
+>  	kfree(td);
+> @@ -1020,8 +1035,15 @@ static int mt_resume(struct hid_device *hdev)
+>  static void mt_remove(struct hid_device *hdev)
+>  {
+>  	struct mt_device *td = hid_get_drvdata(hdev);
+> +	struct hid_input *hi;
+> +
+>  	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+>  	hid_hw_stop(hdev);
+> +
+> +	list_for_each_entry(hi, &hdev->inputs, list)
+> +		if (hi->input->name != hdev->name)
+> +			kfree(hi->input->name);
+> +
+>  	kfree(td);
+>  	hid_set_drvdata(hdev, NULL);
+>  }
 > -- 
 > 1.8.1.2
 > 

@@ -1,132 +1,71 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 6/7] HID: multitouch: append " Pen" to the name of the
- stylus input
-Date: Wed, 20 Mar 2013 15:42:27 +0100
-Message-ID: <5149CAD3.30603@redhat.com>
-References: <1361984127-912-1-git-send-email-benjamin.tissoires@redhat.com> <1361984127-912-7-git-send-email-benjamin.tissoires@redhat.com> <20130319213806.GB7877@polaris.bitmath.org>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: Re: [PATCH v2] sysrq: supplementing reset sequence with timeout functionality
+Date: Wed, 20 Mar 2013 09:11:23 -0600
+Message-ID: <5149D19B.7090503@linaro.org>
+References: <1363454057-7409-1-git-send-email-mathieu.poirier@linaro.org> <CAMP5XgfSHcnarDmju-oEJwPbAzeOOOhfq7C1bvrQ5Zt7Wbid2A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49177 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756125Ab3CTOnU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Mar 2013 10:43:20 -0400
-In-Reply-To: <20130319213806.GB7877@polaris.bitmath.org>
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:64340 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751239Ab3CTPS4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Mar 2013 11:18:56 -0400
+Received: by mail-pb0-f41.google.com with SMTP id um15so1447824pbc.0
+        for <linux-input@vger.kernel.org>; Wed, 20 Mar 2013 08:18:55 -0700 (PDT)
+In-Reply-To: <CAMP5XgfSHcnarDmju-oEJwPbAzeOOOhfq7C1bvrQ5Zt7Wbid2A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kernel-team@android.com, john.stultz@linaro.org
 
-On 03/19/2013 10:38 PM, Henrik Rydberg wrote:
-> Hi Benjamin,
-> 
->> This is not just cosmetics, it can help to write udev and X.org
->> rules.
+On 13-03-18 06:44 PM, Arve Hj=C3=B8nnev=C3=A5g wrote:
+> On Sat, Mar 16, 2013 at 10:14 AM,  <mathieu.poirier@linaro.org> wrote=
+:
+>> From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
 >>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>  drivers/hid/hid-multitouch.c | 24 +++++++++++++++++++++++-
->>  1 file changed, 23 insertions(+), 1 deletion(-)
+>> Some devices have too few buttons, which it makes it hard to have
+>> a reset combo that won't trigger automatically.  As such a
+>> timeout functionality that requires the combination to be held for
+>> a given amount of time before triggering is introduced.
 >>
->> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
->> index d89f0eb..faeec95 100644
->> --- a/drivers/hid/hid-multitouch.c
->> +++ b/drivers/hid/hid-multitouch.c
->> @@ -44,6 +44,7 @@
->>  #include <linux/slab.h>
->>  #include <linux/usb.h>
->>  #include <linux/input/mt.h>
->> +#include <linux/string.h>
->>  
->>  
->>  MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
->> @@ -371,6 +372,15 @@ static int mt_pen_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->>  		unsigned long **bit, int *max)
->>  {
->>  	struct mt_device *td = hid_get_drvdata(hdev);
->> +	char *name;
->> +
->> +	if (hi->input->name == hdev->name) {
->> +		name = kzalloc(sizeof(hdev->name) + 5, GFP_KERNEL);
->> +		if (name) {
->> +			sprintf(name, "%s Pen", hdev->name);
->> +			hi->input->name = name;
->> +		}
->> +	}
-> 
-> Why not simply duplicate the the string? This kind of magic sharing is
-> not really helping.  Also, for multi input devices, the assumptions in
-> hidinput_allocate() seem to be the culprit. Perhaps the fix should be
-> there instead.
+>> If a key combo is recognized and held for a 'timeout' amount of time=
+,
+>> the system triggers a reset.
+>=20
+> The code seems to only require one of the keys in the combo to be hel=
+d
+> for the full 'timeout' amount of time:
+>=20
+> ...
+>>                 /* key release */
+>> -               if (--state->reset_seq_cnt =3D=3D 0)
+>> +               if (--state->reset_seq_cnt =3D=3D 0) {
+>>                         state->reset_canceled =3D false;
+>> +                       del_timer(&state->keyreset_timeout);
+>> +               }
+>=20
 
-Yes, hidinput_allocate() clearly steals the reference here. However,
-fixing this in hid-core would not be simpler: some drivers (ntrig does
-at least) assume that there is no need to free input->name, which means
-that:
-- either we need to fix each individual driver
-- either we introduce some kind of mechanism in order not to free "const
-char *" declarations like it happens in ntrig.
+I think the case you are referring to is when keys are released - pleas=
+e
+correct me if I'm wrong.
 
-In v2, I'll just realloc for each input the input->name, and then if the
-pen is here, then it will realloc the new name.
+You are correct, after the timer has been initialised (meaning that
+_all_ the keys have been pressed) only a single key need to be held dow=
+n
+to carry out the reset order.
 
-Cheers,
-Benjamin
+The current keyreset driver works exactly the same way - I just tried i=
+t
+on my board.
 
-> 
->>  
->>  	td->pen_report_id = field->report->id;
->>  
->> @@ -914,6 +924,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>  	int ret, i;
->>  	struct mt_device *td;
->>  	struct mt_class *mtclass = mt_classes; /* MT_CLS_DEFAULT */
->> +	struct hid_input *hi;
->>  
->>  	for (i = 0; mt_classes[i].name ; i++) {
->>  		if (id->driver_data == mt_classes[i].name) {
->> @@ -964,7 +975,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>  
->>  	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
->>  	if (ret)
->> -		goto fail;
->> +		goto hid_fail;
->>  
->>  	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
->>  
->> @@ -976,6 +987,10 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>  
->>  	return 0;
->>  
->> +hid_fail:
->> +	list_for_each_entry(hi, &hdev->inputs, list)
->> +		if (hi->input->name != hdev->name)
->> +			kfree(hi->input->name);
->>  fail:
->>  	kfree(td->fields);
->>  	kfree(td);
->> @@ -1020,8 +1035,15 @@ static int mt_resume(struct hid_device *hdev)
->>  static void mt_remove(struct hid_device *hdev)
->>  {
->>  	struct mt_device *td = hid_get_drvdata(hdev);
->> +	struct hid_input *hi;
->> +
->>  	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
->>  	hid_hw_stop(hdev);
->> +
->> +	list_for_each_entry(hi, &hdev->inputs, list)
->> +		if (hi->input->name != hdev->name)
->> +			kfree(hi->input->name);
->> +
->>  	kfree(td);
->>  	hid_set_drvdata(hdev, NULL);
->>  }
->> -- 
->> 1.8.1.2
->>
-> 
-> Thanks,
-> Henrik
-> 
+Get back to me if you want to see this corrected.
 
+Thanks,
+Mathieu.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

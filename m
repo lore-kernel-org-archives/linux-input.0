@@ -1,52 +1,66 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH v2 3/8] drivers: char: use
- module_platform_driver_probe()
-Date: Thu, 21 Mar 2013 18:19:13 +0800
-Message-ID: <20130321101912.GA27199@gondor.apana.org.au>
-References: <1363280978-24051-1-git-send-email-fabio.porcedda@gmail.com>
- <1363280978-24051-4-git-send-email-fabio.porcedda@gmail.com>
- <20130321095542.GH26931@gondor.apana.org.au>
- <CAHkwnC_AJpeVw2o8oJn+zMvSg1Lbmm1aXRYxCmtDYhkJG9nvig@mail.gmail.com>
+From: Fabio Porcedda <fabio.porcedda@gmail.com>
+Subject: Re: [PATCH 10/10] drivers: misc: use module_platform_driver_probe()
+Date: Thu, 21 Mar 2013 14:10:17 +0100
+Message-ID: <CAHkwnC-u=34CnHR5dH3qu6YeYyNcsmPfVORZFwtS4RYSjrVJ2g@mail.gmail.com>
+References: <1363266691-15757-1-git-send-email-fabio.porcedda@gmail.com>
+ <201303201020.14654.arnd@arndb.de> <CAHkwnC-8FH0nyJ+eT=+7doP+fSdZjNYUW4zzs_r6e9wt3Yt4Fg@mail.gmail.com>
+ <201303201146.07987.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ringil.hengli.com.au ([178.18.16.133]:59685 "EHLO
-	fornost.hengli.com.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752870Ab3CUKTU (ORCPT
+Received: from mail-ob0-f175.google.com ([209.85.214.175]:43300 "EHLO
+	mail-ob0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756333Ab3CUNKh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Mar 2013 06:19:20 -0400
-Content-Disposition: inline
-In-Reply-To: <CAHkwnC_AJpeVw2o8oJn+zMvSg1Lbmm1aXRYxCmtDYhkJG9nvig@mail.gmail.com>
+	Thu, 21 Mar 2013 09:10:37 -0400
+In-Reply-To: <201303201146.07987.arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Porcedda <fabio.porcedda@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-media <linux-media@vger.kernel.org>, linux-ide <linux-ide@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, linux-fbdev <linux-fbdev@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Matt Mackall <mpm@selenic.com>, Fabio Estevam <fabio.estevam@freescale.com>, Sascha Hauer <s.hauer@pengutronix.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, H Hartley Sweeten <hartleys@visionengravers.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Grant Likely <grant.likely@secretlab.ca>
 
-On Thu, Mar 21, 2013 at 11:15:26AM +0100, Fabio Porcedda wrote:
-> On Thu, Mar 21, 2013 at 10:55 AM, Herbert Xu
-> <herbert@gondor.apana.org.au> wrote:
-> > On Thu, Mar 14, 2013 at 06:09:33PM +0100, Fabio Porcedda wrote:
-> >> This patch converts the drivers to use the
-> >> module_platform_driver_probe() macro which makes the code smaller and
-> >> a bit simpler.
-> >>
-> >> Signed-off-by: Fabio Porcedda <fabio.porcedda@gmail.com>
-> >> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >> Cc: Matt Mackall <mpm@selenic.com>
-> >> Cc: Herbert Xu <herbert@gondor.apana.org.au>
-> >> Cc: Fabio Estevam <fabio.estevam@freescale.com>
-> >> Cc: Sascha Hauer <s.hauer@pengutronix.de>
-> >
-> > Patch applied.
-> 
-> The patch is already in
-> git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git.
-> Are you speaking about that?
+On Wed, Mar 20, 2013 at 12:46 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Wednesday 20 March 2013, Fabio Porcedda wrote:
+>>
+>> On Wed, Mar 20, 2013 at 11:20 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+>> > On Wednesday 20 March 2013, Fabio Porcedda wrote:
+>> >> I think we can check inside the  deferred_probe_work_func()
+>> >> if the dev->probe function pointer is equal to platform_drv_probe_fail().
+>> >
+>> > I think it's too late by then, because that would only warn if we try to probe
+>> > it again, but when platform_driver_probe() does not succeed immediately, it
+>>
+>> Maybe you mean "does succeed immediately" ?
+>
+> I mean in this code (simplified for the sake of discussion)
+>
+> int __init_or_module platform_driver_probe(struct platform_driver *drv,
+>                 int (*probe)(struct platform_device *))
+> {
+>         int retval, code;
+>
+>         drv->probe = probe;
+>         retval = code = platform_driver_register(drv);
+>
+>         drv->probe = NULL;
+>         if (code == 0 && list_empty(&drv->driver.p->klist_devices.k_list))
+>                 retval = -ENODEV;
+>         drv->driver.probe = platform_drv_probe_fail;
+>
+>         if (code != retval)
+>                 platform_driver_unregister(drv);
+>         return retval;
+> }
+>
+> we assume that all devices are bound to drivers during the call to
+> platform_driver_register, and if the device list is empty afterwards,
+> we unregister the driver and will never get to the deferred probing
+> stage.
 
-OK, I'll remove it from my tree.
+Thanks for the explanation, I understand now that is not that simple.
 
-Thanks,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+I was hoping it was easier.
+
+Regards
+--
+Fabio Porcedda

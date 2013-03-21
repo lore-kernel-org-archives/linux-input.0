@@ -1,81 +1,76 @@
-From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Subject: Re: [PATCH v2] sysrq: supplementing reset sequence with timeout functionality
-Date: Wed, 20 Mar 2013 14:56:23 -0700
-Message-ID: <CAMP5XgfwMjTjiCar2W-o0xt7dr2dQNkO+HnDNZOmrXZORcvq+A@mail.gmail.com>
-References: <1363454057-7409-1-git-send-email-mathieu.poirier@linaro.org>
-	<CAMP5XgfSHcnarDmju-oEJwPbAzeOOOhfq7C1bvrQ5Zt7Wbid2A@mail.gmail.com>
-	<5149D19B.7090503@linaro.org>
+From: Simon Glass <sjg@chromium.org>
+Subject: Re: [PATCH v6 0/6] Add ChromeOS Embedded Controller support
+Date: Wed, 20 Mar 2013 18:40:53 -0700
+Message-ID: <CAPnjgZ29ZWrMU53sur1uOxrLZTWNiBNX7uHnbL5Xyd8QzGDzXg@mail.gmail.com>
+References: <1361830121-32284-1-git-send-email-sjg@chromium.org>
+	<20130320005652.GC26903@zurbaran>
+	<20130320011211.GA5905@zurbaran>
+	<CAPnjgZ1=w5GyfGrSFG63SFTErTQQUQQiBmgC8BVMzy4kLVkPDg@mail.gmail.com>
+	<20130320081456.GA5939@zurbaran>
+	<20130320085241.GA10570@zurbaran>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f49.google.com ([209.85.160.49]:46246 "EHLO
-	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751659Ab3CTWB1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Mar 2013 18:01:27 -0400
-Received: by mail-pb0-f49.google.com with SMTP id xa12so1670129pbc.8
-        for <linux-input@vger.kernel.org>; Wed, 20 Mar 2013 15:01:27 -0700 (PDT)
-In-Reply-To: <5149D19B.7090503@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20130320085241.GA10570@zurbaran>
+Sender: linux-doc-owner@vger.kernel.org
+To: Samuel Ortiz <sameo@linux.intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Rob Landley <rob@landley.net>, Felipe Balbi <balbi@ti.com>, Grant Likely <grant.likely@secretlab.ca>, Wolfram Sang <w.sang@pengutronix.de>, Luigi Semenzato <semenzato@chromium.org>, Rob Herring <rob.herring@calxeda.com>, Che-Liang Chiou <clchiou@chromium.org>, Jonathan Kliegman <kliegs@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Sourav Poddar <sourav.poddar@ti.com>, Devicetree Discuss <devicetree-discuss@lists.ozlabs.org>, Alban Bedel <alban.bedel@avionic-design.de>, Roland Stigge <stigge@antcom.de>, Vincent Palatin <vpalatin@chromium.org>, Javier Martinez Canillas <javier@dowhile0.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Bill Pemberton <wfp5p@virgi>
 List-Id: linux-input@vger.kernel.org
-To: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kernel-team@android.com, john.stultz@linaro.org
 
-On Wed, Mar 20, 2013 at 8:11 AM, Mathieu Poirier
-<mathieu.poirier@linaro.org> wrote:
-> On 13-03-18 06:44 PM, Arve Hj=F8nnev=E5g wrote:
->> On Sat, Mar 16, 2013 at 10:14 AM,  <mathieu.poirier@linaro.org> wrot=
-e:
->>> From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
->>>
->>> Some devices have too few buttons, which it makes it hard to have
->>> a reset combo that won't trigger automatically.  As such a
->>> timeout functionality that requires the combination to be held for
->>> a given amount of time before triggering is introduced.
->>>
->>> If a key combo is recognized and held for a 'timeout' amount of tim=
-e,
->>> the system triggers a reset.
->>
->> The code seems to only require one of the keys in the combo to be he=
-ld
->> for the full 'timeout' amount of time:
->>
->> ...
->>>                 /* key release */
->>> -               if (--state->reset_seq_cnt =3D=3D 0)
->>> +               if (--state->reset_seq_cnt =3D=3D 0) {
->>>                         state->reset_canceled =3D false;
->>> +                       del_timer(&state->keyreset_timeout);
->>> +               }
->>
->
-> I think the case you are referring to is when keys are released - ple=
-ase
-> correct me if I'm wrong.
->
-> You are correct, after the timer has been initialised (meaning that
-> _all_ the keys have been pressed) only a single key need to be held d=
-own
-> to carry out the reset order.
->
-> The current keyreset driver works exactly the same way - I just tried=
- it
-> on my board.
->
-> Get back to me if you want to see this corrected.
->
+Hi Samuel,
 
-Since this feature so far has only been used with a single key, fixing
-the code is not a high priority. However, I don't think the current
-description matches the implementation you have, so one of them should
-change.
+On Wed, Mar 20, 2013 at 1:52 AM, Samuel Ortiz <sameo@linux.intel.com> w=
+rote:
+> Hi Simon,
+>
+> On Wed, Mar 20, 2013 at 09:14:56AM +0100, Samuel Ortiz wrote:
+>> On Tue, Mar 19, 2013 at 07:01:42PM -0700, Simon Glass wrote:
+>> > Hi Samuel,
+>> >
+>> > On Tue, Mar 19, 2013 at 6:12 PM, Samuel Ortiz <sameo@linux.intel.c=
+om> wrote:
+>> > > On Wed, Mar 20, 2013 at 01:56:52AM +0100, Samuel Ortiz wrote:
+>> > >> Hi Simon,
+>> > >>
+>> > >> On Mon, Feb 25, 2013 at 02:08:35PM -0800, Simon Glass wrote:
+>> > >> > The ChromeOS Embedded Controller (EC) is an Open Source EC im=
+plementation
+>> > >> > used on ARM and Intel Chromebooks. Current implementations us=
+e a Cortex-M3
+>> > >> > connected on a bus (such as I2C, SPI, LPC) to the AP. A separ=
+ate interrupt
+>> > >> > line is used to indicate when the EC needs service.
+>> > >> All 6 patches applied to my mfd-next tree, thanks a lot.
+>> > > Actually, this one fails to build when CONFIG_OF is not set:
+>> > >
+>> > > drivers/mfd/cros_ec_i2c.c:130:2: error: implicit declaration of =
+function
+>> > > =91of_device_is_available=92 [-Werror=3Dimplicit-function-declar=
+ation]
+>> > >
+>> > > If the check in cros_ec_probe_i2c() is really needed then you'll=
+ need to inline
+>> > > of_device_is_available() into a NOP in include/linux/of.h.
+>> >
+>> > Actually I suppose that call is not really needed. Would you like =
+to
+>> > remove it, or shall I send a new patch?
+>> I will remove it.
+> This is fixed and pushed. I also fixed some warnings and another buil=
+d failure
+> for the case when all of your code is modular.
 
---=20
-Arve Hj=F8nnev=E5g
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thank you for that. I don't think I quite understood the different
+build tests that I needed to do.
+
+Regards,
+Simon
+
+>
+> Cheers,
+> Samuel.
+>
+> --
+> Intel Open Source Technology Centre
+> http://oss.intel.com/

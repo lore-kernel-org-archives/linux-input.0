@@ -1,48 +1,166 @@
-From: daniel.leung@linux.intel.com
-Subject: [PATCH] HID: hid-sensor-hub: do not process feature reports in raw_event
-Date: Thu, 21 Mar 2013 10:22:26 -0700
-Message-ID: <1363886546-6517-1-git-send-email-daniel.leung@linux.intel.com>
+From: mathieu.poirier@linaro.org
+Subject: [PATCH v3] sysrq: supplementing reset sequence with timeout functionality
+Date: Fri, 22 Mar 2013 08:36:42 -0600
+Message-ID: <1363963003-18796-1-git-send-email-mathieu.poirier@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:50566 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750916Ab3CURW3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Mar 2013 13:22:29 -0400
+Received: from mail-pb0-f54.google.com ([209.85.160.54]:61356 "EHLO
+	mail-pb0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933436Ab3CVOgr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 22 Mar 2013 10:36:47 -0400
+Received: by mail-pb0-f54.google.com with SMTP id jt11so448949pbb.27
+        for <linux-input@vger.kernel.org>; Fri, 22 Mar 2013 07:36:46 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, srinivas.pandruvada@intel.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Leung <daniel.leung@linux.intel.com>
+To: dmitry.torokhov@gmail.com
+Cc: arve@android.com, linux-input@vger.kernel.org, kernel-team@android.com, john.stultz@linaro.org, mathieu.poirier@linaro.org
 
-From: Daniel Leung <daniel.leung@linux.intel.com>
+From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
 
-In sensor_hub_raw_event(), HID feature reports are ignored but are
-still marked as processed. This causes the in-kernel struct not to be
-updated. Any non-updated fields in the feature reports are zero, and
-they are being sent to the device. This causes confusion in the
-sensor hub firmware, and some sensors are not powered up as a result.
+Some devices have too few buttons, which it makes it hard to have
+a reset combo that won't trigger automatically.  As such a
+timeout functionality that requires the combination to be held for
+a given amount of time before triggering is introduced.
 
-This changes the raw_event rountine to only process input reports,
-and let the hid core handle the incoming feature reports.
+If a key combo is recognized and held for a 'timeout' amount of time,
+the system triggers a reset.  If the timeout value is omitted the
+driver simply ignores the functionality.
 
-The issue has been observed on Acer Iconia W700.
-
-Signed-off-by: Daniel Leung <daniel.leung@linux.intel.com>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- drivers/hid/hid-sensor-hub.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changes for v3:
+   - Cancel timer if any of the key in the combo is released before
+     the timeout period expires.
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index ca749810..3f7df68 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -413,7 +413,7 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 			 report->id, size, report->type);
- 	hid_dbg(hdev, "maxfield:%d\n", report->maxfield);
- 	if (report->type != HID_INPUT_REPORT)
--		return 1;
-+		return 0;
+ drivers/tty/sysrq.c |   44 +++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 33 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+index 7953dfa..2255965 100644
+--- a/drivers/tty/sysrq.c
++++ b/drivers/tty/sysrq.c
+@@ -42,6 +42,7 @@
+ #include <linux/input.h>
+ #include <linux/uaccess.h>
+ #include <linux/moduleparam.h>
++#include <linux/jiffies.h>
  
- 	ptr = raw_data;
- 	ptr++; /*Skip report id*/
+ #include <asm/ptrace.h>
+ #include <asm/irq_regs.h>
+@@ -50,6 +51,9 @@
+ static int __read_mostly sysrq_enabled = SYSRQ_DEFAULT_ENABLE;
+ static bool __read_mostly sysrq_always_enabled;
+ 
++unsigned short platform_sysrq_reset_seq[] __weak = { KEY_RESERVED };
++int sysrq_downtime_ms __weak;
++
+ static bool sysrq_on(void)
+ {
+ 	return sysrq_enabled || sysrq_always_enabled;
+@@ -584,6 +588,7 @@ struct sysrq_state {
+ 	int reset_seq_len;
+ 	int reset_seq_cnt;
+ 	int reset_seq_version;
++	struct timer_list keyreset_timeout;
+ };
+ 
+ #define SYSRQ_KEY_RESET_MAX	20 /* Should be plenty */
+@@ -617,7 +622,14 @@ static void sysrq_parse_reset_sequence(struct sysrq_state *state)
+ 	state->reset_seq_version = sysrq_reset_seq_version;
+ }
+ 
+-static bool sysrq_detect_reset_sequence(struct sysrq_state *state,
++static void sysrq_handle_reset_request(struct sysrq_state *state)
++{
++	unsigned long expires = jiffies + msecs_to_jiffies(sysrq_downtime_ms);
++	state->keyreset_timeout.expires = expires;
++	add_timer(&state->keyreset_timeout);
++}
++
++static void sysrq_detect_reset_sequence(struct sysrq_state *state,
+ 					unsigned int code, int value)
+ {
+ 	if (!test_bit(code, state->reset_keybit)) {
+@@ -628,18 +640,27 @@ static bool sysrq_detect_reset_sequence(struct sysrq_state *state,
+ 		if (value && state->reset_seq_cnt)
+ 			state->reset_canceled = true;
+ 	} else if (value == 0) {
+-		/* key release */
++		/*
++		 * Key release - all keys in the reset sequence need
++		 * to be pressed and held for the reset timeout
++		 * to hold.
++		 */
++		del_timer(&state->keyreset_timeout);
++
+ 		if (--state->reset_seq_cnt == 0)
+ 			state->reset_canceled = false;
+ 	} else if (value == 1) {
+ 		/* key press, not autorepeat */
+ 		if (++state->reset_seq_cnt == state->reset_seq_len &&
+-		    !state->reset_canceled) {
+-			return true;
++						!state->reset_canceled) {
++			sysrq_handle_reset_request(state);
+ 		}
+ 	}
++}
+ 
+-	return false;
++static void sysrq_handle_reset_timeout(unsigned long data)
++{
++	__handle_sysrq(sysrq_xlate[KEY_B], false);
+ }
+ 
+ static void sysrq_reinject_alt_sysrq(struct work_struct *work)
+@@ -746,10 +767,8 @@ static bool sysrq_handle_keypress(struct sysrq_state *sysrq,
+ 		if (was_active)
+ 			schedule_work(&sysrq->reinject_work);
+ 
+-		if (sysrq_detect_reset_sequence(sysrq, code, value)) {
+-			/* Force emergency reboot */
+-			__handle_sysrq(sysrq_xlate[KEY_B], false);
+-		}
++		/* Check for reset sequence */
++		sysrq_detect_reset_sequence(sysrq, code, value);
+ 
+ 	} else if (value == 0 && test_and_clear_bit(code, sysrq->key_down)) {
+ 		/*
+@@ -810,6 +829,8 @@ static int sysrq_connect(struct input_handler *handler,
+ 	sysrq->handle.handler = handler;
+ 	sysrq->handle.name = "sysrq";
+ 	sysrq->handle.private = sysrq;
++	init_timer(&sysrq->keyreset_timeout);
++	sysrq->keyreset_timeout.function = sysrq_handle_reset_timeout;
+ 
+ 	error = input_register_handle(&sysrq->handle);
+ 	if (error) {
+@@ -839,6 +860,7 @@ static void sysrq_disconnect(struct input_handle *handle)
+ 
+ 	input_close_device(handle);
+ 	cancel_work_sync(&sysrq->reinject_work);
++	del_timer(&sysrq->keyreset_timeout);
+ 	input_unregister_handle(handle);
+ 	kfree(sysrq);
+ }
+@@ -868,8 +890,6 @@ static struct input_handler sysrq_handler = {
+ 
+ static bool sysrq_handler_registered;
+ 
+-unsigned short platform_sysrq_reset_seq[] __weak = { KEY_RESERVED };
+-
+ static inline void sysrq_register_handler(void)
+ {
+ 	unsigned short key;
+@@ -929,6 +949,8 @@ static struct kernel_param_ops param_ops_sysrq_reset_seq = {
+ module_param_array_named(reset_seq, sysrq_reset_seq, sysrq_reset_seq,
+ 			 &sysrq_reset_seq_len, 0644);
+ 
++module_param(sysrq_downtime_ms, int, 0644);
++
+ #else
+ 
+ static inline void sysrq_register_handler(void)
 -- 
-1.8.1.5
+1.7.9.5
 

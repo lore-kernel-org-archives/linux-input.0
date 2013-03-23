@@ -1,73 +1,62 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3.9+] HID: multitouch: fix touchpad buttons
-Date: Fri, 22 Mar 2013 18:53:57 +0100
-Message-ID: <1363974837-8958-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53712 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1422726Ab3CVRys (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Mar 2013 13:54:48 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] tps6507x-ts: update to devm_* API
+Date: Sat, 23 Mar 2013 16:30:23 +0530
+Message-ID: <1364036423-2057-1-git-send-email-manishv.b@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: manishv.b-l0cyMroinI0@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Commit "HID: multitouch: use the callback "report" instead..." breaks the
-buttons of touchpads following the HID multitouch specification.
-The buttons were emmitted through hid-input, but as now the events
-are generated only in hid-multitouch, the buttons are not emmitted anymore.
+Update the code to use devm_* API so that driver
+core will manage resources.
 
-The input_event() call is far much simpler than the hid-input one as
-many of the different tests do not apply to multitouch touchpads.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
 ---
+:100644 100644 820a066... 65e0f9a... M	drivers/input/touchscreen/tps6507x-ts.c
+ drivers/input/touchscreen/tps6507x-ts.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
-Hi guys,
-
-really sorry for that. I forgot that I had in one of my drawer of my desk one
-prototype of a touchpad following the multitouch specification, but with
-two physical buttons. And of course, I did not put it in my database, meaning
-that the support has been broken in the patches already in 3.9.
-
-I don't think it's a big deal (to my knowledge, no retail product uses this
-feature), but it's still a regression in 3.9.
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-multitouch.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 1f544a4..7d72379 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -620,6 +620,7 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- {
- 	struct mt_device *td = hid_get_drvdata(hid);
- 	__s32 quirks = td->mtclass.quirks;
-+	struct input_dev *input = field->hidinput->input;
+diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+index 820a066..65e0f9a 100644
+--- a/drivers/input/touchscreen/tps6507x-ts.c
++++ b/drivers/input/touchscreen/tps6507x-ts.c
+@@ -261,7 +261,7 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
  
- 	if (hid->claimed & HID_CLAIMED_INPUT) {
- 		switch (usage->hid) {
-@@ -669,13 +670,16 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- 			break;
+ 	init_data = tps_board->tps6507x_ts_init_data;
  
- 		default:
-+			if (usage->type)
-+				input_event(input, usage->type, usage->code,
-+					    value);
- 			return;
- 		}
+-	tsc = kzalloc(sizeof(struct tps6507x_ts), GFP_KERNEL);
++	tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
+ 	if (!tsc) {
+ 		dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
+ 		error = -ENOMEM;
+@@ -339,7 +339,6 @@ err2:
+ 	cancel_delayed_work_sync(&tsc->work);
+ 	input_free_device(input_dev);
+ err1:
+-	kfree(tsc);
+ 	tps6507x_dev->ts = NULL;
+ err0:
+ 	return error;
+@@ -356,7 +355,6 @@ static int tps6507x_ts_remove(struct platform_device *pdev)
+ 	input_unregister_device(input_dev);
  
- 		if (usage->usage_index + 1 == field->report_count) {
- 			/* we only take into account the last report. */
- 			if (usage->hid == td->last_slot_field)
--				mt_complete_slot(td, field->hidinput->input);
-+				mt_complete_slot(td, input);
- 		}
+ 	tps6507x_dev->ts = NULL;
+-	kfree(tsc);
  
- 	}
+ 	return 0;
+ }
 -- 
-1.8.1.4
-
+1.7.4.1

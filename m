@@ -1,52 +1,43 @@
-From: Pavel Machek <pavel@ucw.cz>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 Subject: Re: Caps lock XOR on multiple keyboards?
-Date: Sun, 24 Mar 2013 11:41:53 +0100
-Message-ID: <20130324104153.GA4586@amd.pavel.ucw.cz>
+Date: Sun, 24 Mar 2013 23:39:24 +0100
+Message-ID: <20130324223924.GI6234@type.youpi.perso.aquilenet.fr>
 References: <20121203211911.20156.qmail@science.horizon.com>
  <20121203235848.04228689@bob.linux.org.uk>
  <20130324103018.GA4156@amd.pavel.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:43009 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752896Ab3CXKlz (ORCPT
+Received: from toccata.ens-lyon.org ([140.77.166.68]:36053 "EHLO
+	toccata.ens-lyon.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754912Ab3CXWpy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 24 Mar 2013 06:41:55 -0400
+	Sun, 24 Mar 2013 18:45:54 -0400
 Content-Disposition: inline
 In-Reply-To: <20130324103018.GA4156@amd.pavel.ucw.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, jkosina@suse.cz
-Cc: George Spelvin <linux@horizon.com>, chris@the-brannons.com, gregkh@linuxfoundation.org, jslaby@suse.cz, linux-kernel@vger.kernel.org, samuel.thibault@ens-lyon.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, jkosina@suse.cz, George Spelvin <linux@horizon.com>, chris@the-brannons.com, gregkh@linuxfoundation.org, jslaby@suse.cz, linux-kernel@vger.kernel.org
 
-On Sun 2013-03-24 11:30:18, Pavel Machek wrote:
-> Hi!
-> On Mon 2012-12-03 23:58:48, Alan Cox wrote:
-> > On 3 Dec 2012 16:19:11 -0500
-> > "George Spelvin" <linux@horizon.com> wrote:
-> > 
-> > > (Not sure who owns this; Cc: to the last few people to touch
-> > > drivers/tty/vt/keyboard.c.)
-> > 
-> > linux-input is probably the best place to discuss this
-> 
-> Added few more ccs. Yes, I see that too, in kernels such as debian
-> 2.6.32. It may be even older than that, but I was not using docking
-> heavily in the old days.
-> 
-> Symptoms for me are that pretty often capslock LED will start show
-> opposite of true capslock state. I normally use X these days.
+Hello,
 
-Ok... so it is:
+I can confirm that things go fine on the Linux console.  There is just
+one state, which is shown on all keyboards.  This is really a bug in
+Xorg, please report the issue there.
 
-Each capslock key only controls the local LED, but affects global
-state.
+Pavel Machek, le Sun 24 Mar 2013 11:30:18 +0100, a =E9crit :
+> There is patch to drive keyboard LEDs through LED subsystem, perhaps
+> that would be good idea?
 
-So I turn on capslock on PS/2 keyboard its led is on. But I type on
-USB keyboard, its capslock led is off, but I type in all caps. Oops.
+My patch won't fix the issue for Xorg, but it'd still be a good thing t=
+o
+at last apply it :)
 
-								Pavel 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Samuel
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

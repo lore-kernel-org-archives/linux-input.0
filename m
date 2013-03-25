@@ -1,43 +1,62 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: Caps lock XOR on multiple keyboards?
-Date: Sun, 24 Mar 2013 23:39:24 +0100
-Message-ID: <20130324223924.GI6234@type.youpi.perso.aquilenet.fr>
-References: <20121203211911.20156.qmail@science.horizon.com>
- <20121203235848.04228689@bob.linux.org.uk>
- <20130324103018.GA4156@amd.pavel.ucw.cz>
+From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH 0/2] Add dT support for tps6507x touchscreen.
+Date: Mon, 25 Mar 2013 05:06:03 +0000
+Message-ID: <A4887BF146CD57468F700B415D2F4701585C7C@DBDE01.ent.ti.com>
+References: <1364043571-9210-1-git-send-email-manishv.b@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from toccata.ens-lyon.org ([140.77.166.68]:36053 "EHLO
-	toccata.ens-lyon.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754912Ab3CXWpy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 24 Mar 2013 18:45:54 -0400
-Content-Disposition: inline
-In-Reply-To: <20130324103018.GA4156@amd.pavel.ucw.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <1364043571-9210-1-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org" <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org, jkosina@suse.cz, George Spelvin <linux@horizon.com>, chris@the-brannons.com, gregkh@linuxfoundation.org, jslaby@suse.cz, linux-kernel@vger.kernel.org
 
-Hello,
+Hi all
+I am sending next version for this, as need to update commit message for 
+some patches.
 
-I can confirm that things go fine on the Linux console.  There is just
-one state, which is shown on all keyboards.  This is really a bug in
-Xorg, please report the issue there.
+Thanks
+Manish Badarkhe
 
-Pavel Machek, le Sun 24 Mar 2013 11:30:18 +0100, a =E9crit :
-> There is patch to drive keyboard LEDs through LED subsystem, perhaps
-> that would be good idea?
+-----Original Message-----
+From: Vishwanathrao Badarkhe, Manish 
+Sent: Saturday, March 23, 2013 6:29 PM
+To: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org; rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org; grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org; Vishwanathrao Badarkhe, Manish
+Subject: [PATCH 0/2] Add dT support for tps6507x touchscreen.
 
-My patch won't fix the issue for Xorg, but it'd still be a good thing t=
-o
-at last apply it :)
+Patch set adds DT support for tps6507x based touchscreen
+Also, add DT data for tps6507x touchscreen in da850-evm by 
+providing touchscreen node inside tps6507x mfd device.
 
-Samuel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This patch series applies on top of v3.9-rc2 of linus tree and
+depends on [1].  
+
+[1]davinci: Add device tree data for tps6507x
+   http://www.spinics.net/lists/linux-doc/msg09473.html
+ 
+Tested on da850-evm board.
+
+Vishwanathrao Badarkhe, Manish (2):
+  tps6507x-ts: Add DT support
+  ARM: davinci: da850: add tps6507x touchscreen DT data
+
+ Documentation/devicetree/bindings/mfd/tps6507x.txt |   22 ++++
+ arch/arm/boot/dts/da850-evm.dts                    |    9 ++
+ drivers/input/touchscreen/tps6507x-ts.c            |  104 ++++++++++++++------
+ 3 files changed, 105 insertions(+), 30 deletions(-)
+
+-- 
+1.7.4.1

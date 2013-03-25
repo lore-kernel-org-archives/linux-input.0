@@ -1,62 +1,72 @@
-From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH 0/2] Add dT support for tps6507x touchscreen.
-Date: Mon, 25 Mar 2013 05:06:03 +0000
-Message-ID: <A4887BF146CD57468F700B415D2F4701585C7C@DBDE01.ent.ti.com>
-References: <1364043571-9210-1-git-send-email-manishv.b@ti.com>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH 1/2] Input: adxl34x - add CONFIG_PM_SLEEP to suspend/resume
+ functions
+Date: Mon, 25 Mar 2013 19:01:53 +0900
+Message-ID: <003a01ce293f$c70c3eb0$5524bc10$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <1364043571-9210-1-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: "dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org" <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout1.samsung.com ([203.254.224.24]:62328 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750760Ab3CYKBz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Mar 2013 06:01:55 -0400
+Received: from epcpsbgr2.samsung.com
+ (u142.gpu120.samsung.co.kr [203.254.230.142])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MK700HFUNUMRR21@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 25 Mar 2013 19:01:54 +0900 (KST)
+Content-language: ko
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Dmitry Torokhov' <dtor@mail.ru>, linux-input@vger.kernel.org, 'Michael Hennerich' <michael.hennerich@analog.com>, 'Jingoo Han' <jg1.han@samsung.com>
 
-Hi all
-I am sending next version for this, as need to update commit message for 
-some patches.
+Add CONFIG_PM_SLEEP to suspend/resume functions to fix the following
+build warning when CONFIG_PM_SLEEP is not selected. This is because
+sleep PM callbacks defined by SIMPLE_DEV_PM_OPS are only used when
+the CONFIG_PM_SLEEP is enabled.
 
-Thanks
-Manish Badarkhe
+drivers/input/misc/adxl34x-spi.c:98:12: warning: 'adxl34x_spi_suspend' defined but not used [-Wunused-function]
+drivers/input/misc/adxl34x-spi.c:108:12: warning: 'adxl34x_spi_resume' defined but not used [-Wunused-function]
+drivers/input/misc/adxl34x-i2c.c:109:12: warning: 'adxl34x_i2c_suspend' defined but not used [-Wunused-function]
+drivers/input/misc/adxl34x-i2c.c:119:12: warning: 'adxl34x_i2c_resume' defined but not used [-Wunused-function]
 
------Original Message-----
-From: Vishwanathrao Badarkhe, Manish 
-Sent: Saturday, March 23, 2013 6:29 PM
-To: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org; linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org; rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org; grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org; Vishwanathrao Badarkhe, Manish
-Subject: [PATCH 0/2] Add dT support for tps6507x touchscreen.
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/input/misc/adxl34x-i2c.c |    2 +-
+ drivers/input/misc/adxl34x-spi.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Patch set adds DT support for tps6507x based touchscreen
-Also, add DT data for tps6507x touchscreen in da850-evm by 
-providing touchscreen node inside tps6507x mfd device.
-
-This patch series applies on top of v3.9-rc2 of linus tree and
-depends on [1].  
-
-[1]davinci: Add device tree data for tps6507x
-   http://www.spinics.net/lists/linux-doc/msg09473.html
+diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
+index 535dda4..416f47d 100644
+--- a/drivers/input/misc/adxl34x-i2c.c
++++ b/drivers/input/misc/adxl34x-i2c.c
+@@ -105,7 +105,7 @@ static int adxl34x_i2c_remove(struct i2c_client *client)
+ 	return adxl34x_remove(ac);
+ }
  
-Tested on da850-evm board.
-
-Vishwanathrao Badarkhe, Manish (2):
-  tps6507x-ts: Add DT support
-  ARM: davinci: da850: add tps6507x touchscreen DT data
-
- Documentation/devicetree/bindings/mfd/tps6507x.txt |   22 ++++
- arch/arm/boot/dts/da850-evm.dts                    |    9 ++
- drivers/input/touchscreen/tps6507x-ts.c            |  104 ++++++++++++++------
- 3 files changed, 105 insertions(+), 30 deletions(-)
-
+-#ifdef CONFIG_PM
++#ifdef CONFIG_PM_SLEEP
+ static int adxl34x_i2c_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+diff --git a/drivers/input/misc/adxl34x-spi.c b/drivers/input/misc/adxl34x-spi.c
+index ad5f40d..990b49e 100644
+--- a/drivers/input/misc/adxl34x-spi.c
++++ b/drivers/input/misc/adxl34x-spi.c
+@@ -94,7 +94,7 @@ static int adxl34x_spi_remove(struct spi_device *spi)
+ 	return adxl34x_remove(ac);
+ }
+ 
+-#ifdef CONFIG_PM
++#ifdef CONFIG_PM_SLEEP
+ static int adxl34x_spi_suspend(struct device *dev)
+ {
+ 	struct spi_device *spi = to_spi_device(dev);
 -- 
-1.7.4.1
+1.7.2.5
+
+

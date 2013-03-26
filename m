@@ -1,68 +1,62 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] HID: hid-sensor-hub: do not process feature reports in
- raw_event
-Date: Mon, 25 Mar 2013 08:45:58 -0700
-Message-ID: <51507136.4020308@linux.intel.com>
-References: <1363886546-6517-1-git-send-email-daniel.leung@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:30765 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758422Ab3CYPlr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Mar 2013 11:41:47 -0400
-In-Reply-To: <1363886546-6517-1-git-send-email-daniel.leung@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Luis Henriques <luis.henriques@canonical.com>
+Subject: [PATCH 054/150] HID: clean up quirk for Sony RF receivers
+Date: Tue, 26 Mar 2013 15:19:13 +0000
+Message-ID: <1364311249-14454-55-git-send-email-luis.henriques@canonical.com>
+References: <1364311249-14454-1-git-send-email-luis.henriques@canonical.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1364311249-14454-1-git-send-email-luis.henriques@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org, kernel-team@lists.ubuntu.com
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Fernando Luis Vazquez Cao <fernando@oss.ntt.co.jp>, Jiri Kosina <jkosina@suse.cz>, Luis Henriques <luis.henriques@canonical.com>
 List-Id: linux-input@vger.kernel.org
-To: daniel.leung@linux.intel.com
-Cc: jkosina@suse.cz, srinivas.pandruvada@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Daniel,
+3.5.7.9 -stable review patch.  If anyone has any objections, please let me know.
 
-I am looking at 3.9.rc1.
-The only place I see the raw_event callback is called from 
-hid/hid_input_report(). hid_input_report is called with type 
-HID_INPUT_REPORT in all cases, except hid_ctrl(), where it can be 
-different depending on xx.report->type. But here, the return value is 
-not checked.
+------------------
 
-Do you know the call chain for HID_FETURE_REPORT, where this is creating 
-problem?
+From: =?UTF-8?q?Fernando=20Luis=20V=C3=A1zquez=20Cao?=
 
-Thanks,
-Srinivas
+commit 99d249021abd4341771523ed8dd7946276103432 upstream.
 
-On 03/21/2013 10:22 AM, daniel.leung@linux.intel.com wrote:
-> From: Daniel Leung <daniel.leung@linux.intel.com>
->
-> In sensor_hub_raw_event(), HID feature reports are ignored but are
-> still marked as processed. This causes the in-kernel struct not to be
-> updated. Any non-updated fields in the feature reports are zero, and
-> they are being sent to the device. This causes confusion in the
-> sensor hub firmware, and some sensors are not powered up as a result.
->
-> This changes the raw_event rountine to only process input reports,
-> and let the hid core handle the incoming feature reports.
->
-> The issue has been observed on Acer Iconia W700.
->
-> Signed-off-by: Daniel Leung <daniel.leung@linux.intel.com>
-> ---
->   drivers/hid/hid-sensor-hub.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index ca749810..3f7df68 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -413,7 +413,7 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
->   			 report->id, size, report->type);
->   	hid_dbg(hdev, "maxfield:%d\n", report->maxfield);
->   	if (report->type != HID_INPUT_REPORT)
-> -		return 1;
-> +		return 0;
->   
->   	ptr = raw_data;
->   	ptr++; /*Skip report id*/
+Document what the fix-up is does and make it more robust by ensuring
+that it is only applied to the USB interface that corresponds to the
+mouse (sony_report_fixup() is called once per interface during probing).
 
+Cc: linux-input@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Fernando Luis Vazquez Cao <fernando@oss.ntt.co.jp>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
+---
+ drivers/hid/hid-sony.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 963bda1..4142c21 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -44,9 +44,19 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ {
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
+ 
+-	if ((sc->quirks & VAIO_RDESC_CONSTANT) &&
+-			*rsize >= 56 && rdesc[54] == 0x81 && rdesc[55] == 0x07) {
++	/*
++	 * Some Sony RF receivers wrongly declare the mouse pointer as a
++	 * a constant non-data variable.
++	 */
++	if ((sc->quirks & VAIO_RDESC_CONSTANT) && *rsize >= 56 &&
++	    /* usage page: generic desktop controls */
++	    /* rdesc[0] == 0x05 && rdesc[1] == 0x01 && */
++	    /* usage: mouse */
++	    rdesc[2] == 0x09 && rdesc[3] == 0x02 &&
++	    /* input (usage page for x,y axes): constant, variable, relative */
++	    rdesc[54] == 0x81 && rdesc[55] == 0x07) {
+ 		hid_info(hdev, "Fixing up Sony RF Receiver report descriptor\n");
++		/* input: data, variable, relative */
+ 		rdesc[55] = 0x06;
+ 	}
+ 
+-- 
+1.8.1.2

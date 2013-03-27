@@ -1,82 +1,46 @@
 From: Alexey Klimov <klimov.linux@gmail.com>
-Subject: [patch 1/2] hid: fix Masterkit MA901 hid quirks
-Date: Thu, 28 Mar 2013 00:07:29 +0400
-Message-ID: <1364414849.3909.24.camel@samsungRC530>
+Subject: [patch 2/2] media: radio-ma901: return ENODEV in probe if
+ usb_device doesn't match
+Date: Thu, 28 Mar 2013 00:08:19 +0400
+Message-ID: <1364414899.3909.25.camel@samsungRC530>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f178.google.com ([209.85.192.178]:39140 "EHLO
-	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754203Ab3C0UHk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Mar 2013 16:07:40 -0400
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: mchehab@redhat.com
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux@wagner-budenheim.de, klimov.linux@gmail.com, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux@wagner-budenheim.de, klimov.linux@gmail.com
 
-This patch reverts commit 0322bd3980b3ebf7dde8474e22614cb443d6479a and
-adds checks in hid_ignore() for Masterkit MA901 usb radio device. This
-usb radio device shares USB ID with many Atmel V-USB (and probably
-other) devices so patch sorts things out by checking name, vendor,
-product of hid device.
+Masterkit MA901 usb radio device shares USB ID with Atmel V-USB devices.
+This patch adds additional checks in usb_ma901radio_probe() and if
+product or manufacturer doesn't match we return -ENODEV and don't
+continue. This allows hid drivers to handle not MA901 device.
 
 Signed-off-by: Alexey Klimov <klimov.linux@gmail.com>
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 512b01c..aa341d1 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2077,7 +2077,6 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HYBRID) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HEATCONTROL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_BEATPAD) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MASTERKIT, USB_DEVICE_ID_MASTERKIT_MA901RADIO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1024LS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1208LS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICKIT1) },
-@@ -2244,6 +2243,18 @@ bool hid_ignore(struct hid_device *hdev)
- 		     hdev->product <= USB_DEVICE_ID_VELLEMAN_K8061_LAST))
- 			return true;
- 		break;
-+	case USB_VENDOR_ID_ATMEL_V_USB:
-+		/* Masterkit MA901 usb radio based on Atmel tiny85 chip and
-+		 * it has the same USB ID as many Atmel V-USB devices. This
-+		 * usb radio is handled by radio-ma901.c driver so we want
-+		 * ignore the hid. Check the name, bus, product and ignore
-+		 * if we have MA901 usb radio.
-+		 */
-+		if (hdev->product == USB_DEVICE_ID_ATMEL_V_USB &&
-+			hdev->bus == BUS_USB &&
-+			strncmp(hdev->name, "www.masterkit.ru MA901", 22) == 0)
-+			return true;
-+		break;
- 	}
+diff --git a/drivers/media/radio/radio-ma901.c b/drivers/media/radio/radio-ma901.c
+index c61f590..348dafc 100644
+--- a/drivers/media/radio/radio-ma901.c
++++ b/drivers/media/radio/radio-ma901.c
+@@ -347,9 +347,20 @@ static void usb_ma901radio_release(struct v4l2_device *v4l2_dev)
+ static int usb_ma901radio_probe(struct usb_interface *intf,
+ 				const struct usb_device_id *id)
+ {
++	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct ma901radio_device *radio;
+ 	int retval = 0;
  
- 	if (hdev->type == HID_TYPE_USBMOUSE &&
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 92e47e5..57d9f3a 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -158,6 +158,8 @@
- #define USB_VENDOR_ID_ATMEL		0x03eb
- #define USB_DEVICE_ID_ATMEL_MULTITOUCH	0x211c
- #define USB_DEVICE_ID_ATMEL_MXT_DIGITIZER	0x2118
-+#define USB_VENDOR_ID_ATMEL_V_USB	0x16c0
-+#define USB_DEVICE_ID_ATMEL_V_USB	0x05df
- 
- #define USB_VENDOR_ID_AUREAL		0x0755
- #define USB_DEVICE_ID_AUREAL_W01RN	0x2626
-@@ -557,9 +559,6 @@
- #define USB_VENDOR_ID_MADCATZ		0x0738
- #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
- 
--#define USB_VENDOR_ID_MASTERKIT			0x16c0
--#define USB_DEVICE_ID_MASTERKIT_MA901RADIO	0x05df
--
- #define USB_VENDOR_ID_MCC		0x09db
- #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
- #define USB_DEVICE_ID_MCC_PMD1208LS	0x007a
-
-
++	/* Masterkit MA901 usb radio has the same USB ID as many others
++	 * Atmel V-USB devices. Let's make additional checks to be sure
++	 * that this is our device.
++	 */
++
++	if (dev->product && dev->manufacturer &&
++		(strncmp(dev->product, "MA901", 5) != 0
++		|| strncmp(dev->manufacturer, "www.masterkit.ru", 16) != 0))
++		return -ENODEV;
++
+ 	radio = kzalloc(sizeof(struct ma901radio_device), GFP_KERNEL);
+ 	if (!radio) {
+ 		dev_err(&intf->dev, "kzalloc for ma901radio_device failed\n");

@@ -1,43 +1,82 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hid-sensor-hub: do not process feature reports in
- raw_event
-Date: Wed, 27 Mar 2013 16:09:38 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1303271608500.23442@pobox.suse.cz>
-References: <1363886546-6517-1-git-send-email-daniel.leung@linux.intel.com> <51507136.4020308@linux.intel.com>
+From: Alexey Klimov <klimov.linux@gmail.com>
+Subject: [patch 1/2] hid: fix Masterkit MA901 hid quirks
+Date: Thu, 28 Mar 2013 00:07:29 +0400
+Message-ID: <1364414849.3909.24.camel@samsungRC530>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:54230 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751552Ab3C0PJl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Mar 2013 11:09:41 -0400
-In-Reply-To: <51507136.4020308@linux.intel.com>
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:39140 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754203Ab3C0UHk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Mar 2013 16:07:40 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: daniel.leung@linux.intel.com, srinivas.pandruvada@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux@wagner-budenheim.de, klimov.linux@gmail.com
 
-On Mon, 25 Mar 2013, Srinivas Pandruvada wrote:
+This patch reverts commit 0322bd3980b3ebf7dde8474e22614cb443d6479a and
+adds checks in hid_ignore() for Masterkit MA901 usb radio device. This
+usb radio device shares USB ID with many Atmel V-USB (and probably
+other) devices so patch sorts things out by checking name, vendor,
+product of hid device.
 
-> Daniel,
-> 
-> I am looking at 3.9.rc1.
-> The only place I see the raw_event callback is called from
-> hid/hid_input_report(). hid_input_report is called with type HID_INPUT_REPORT
-> in all cases, except hid_ctrl(), where it can be different depending on
-> xx.report->type. But here, the return value is not checked.
-> 
-> Do you know the call chain for HID_FETURE_REPORT, where this is creating
-> problem?
+Signed-off-by: Alexey Klimov <klimov.linux@gmail.com>
 
-This was exactly what I was wondering about when I have seen the initial 
-patch a few weeks ago.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 512b01c..aa341d1 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2077,7 +2077,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HYBRID) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_HEATCONTROL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_BEATPAD) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MASTERKIT, USB_DEVICE_ID_MASTERKIT_MA901RADIO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1024LS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1208LS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICKIT1) },
+@@ -2244,6 +2243,18 @@ bool hid_ignore(struct hid_device *hdev)
+ 		     hdev->product <= USB_DEVICE_ID_VELLEMAN_K8061_LAST))
+ 			return true;
+ 		break;
++	case USB_VENDOR_ID_ATMEL_V_USB:
++		/* Masterkit MA901 usb radio based on Atmel tiny85 chip and
++		 * it has the same USB ID as many Atmel V-USB devices. This
++		 * usb radio is handled by radio-ma901.c driver so we want
++		 * ignore the hid. Check the name, bus, product and ignore
++		 * if we have MA901 usb radio.
++		 */
++		if (hdev->product == USB_DEVICE_ID_ATMEL_V_USB &&
++			hdev->bus == BUS_USB &&
++			strncmp(hdev->name, "www.masterkit.ru MA901", 22) == 0)
++			return true;
++		break;
+ 	}
+ 
+ 	if (hdev->type == HID_TYPE_USBMOUSE &&
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 92e47e5..57d9f3a 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -158,6 +158,8 @@
+ #define USB_VENDOR_ID_ATMEL		0x03eb
+ #define USB_DEVICE_ID_ATMEL_MULTITOUCH	0x211c
+ #define USB_DEVICE_ID_ATMEL_MXT_DIGITIZER	0x2118
++#define USB_VENDOR_ID_ATMEL_V_USB	0x16c0
++#define USB_DEVICE_ID_ATMEL_V_USB	0x05df
+ 
+ #define USB_VENDOR_ID_AUREAL		0x0755
+ #define USB_DEVICE_ID_AUREAL_W01RN	0x2626
+@@ -557,9 +559,6 @@
+ #define USB_VENDOR_ID_MADCATZ		0x0738
+ #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
+ 
+-#define USB_VENDOR_ID_MASTERKIT			0x16c0
+-#define USB_DEVICE_ID_MASTERKIT_MA901RADIO	0x05df
+-
+ #define USB_VENDOR_ID_MCC		0x09db
+ #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
+ #define USB_DEVICE_ID_MCC_PMD1208LS	0x007a
 
-Daniel, could you please elaborate? Is there a out-of-tree driver for Acer 
-Iconia W700?
 
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs

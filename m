@@ -1,55 +1,83 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH v2] Input: evdev - Flush queues during EVIOCGKEY-like ioctls
-Date: Thu, 28 Mar 2013 10:52:49 +0100
-Message-ID: <CANq1E4Q1MmwrqrHsrL_pZOjU3LWQgh1k8Kma7KDYSJqF+CAuuA@mail.gmail.com>
-References: <1364431764-31378-1-git-send-email-dh.herrmann@gmail.com>
-	<20130328050635.GA2812@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Mischa Jonker <Mischa.Jonker@synopsys.com>
+Subject: [PATCH] Input: arc_ps2 - add support for device tree
+Date: Thu, 28 Mar 2013 10:46:26 +0100
+Message-ID: <1364463986-23012-1-git-send-email-mjonker@synopsys.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f52.google.com ([209.85.215.52]:37849 "EHLO
-	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756149Ab3C1Jwu (ORCPT
+Received: from us01smtp3.synopsys.com ([198.182.44.81]:57706 "EHLO
+	hermes.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755139Ab3C1Jxy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Mar 2013 05:52:50 -0400
-Received: by mail-la0-f52.google.com with SMTP id fs12so17226104lab.39
-        for <linux-input@vger.kernel.org>; Thu, 28 Mar 2013 02:52:49 -0700 (PDT)
-In-Reply-To: <20130328050635.GA2812@core.coreip.homeip.net>
+	Thu, 28 Mar 2013 05:53:54 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arc-linux-dev@synopsys.com, Vineet.Gupta1@synopsys.com
+Cc: Mischa Jonker <Mischa.Jonker@synopsys.com>
 
-Hi Dmitry
+Add match table for device tree binding and dts binding doc.
 
-On Thu, Mar 28, 2013 at 6:06 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Mar 28, 2013 at 01:49:24AM +0100, David Herrmann wrote:
->> +     spin_lock_irq(&dev->event_lock);
->> +     spin_lock(&client->buffer_lock);
->> +
->> +     ret = bits_to_user(bits, max, size, p, compat);
->
-> This copies data to userspace and thus may sleep. You can not hold spinlocks
-> here.
->
-> I think you need to collect the data, flush the events and then try
-> copying the data out. If we fail on copying data out - too bad. Maybe we
-> can stuff SYN_DROPPED in the queue, but it is not really necessary.
+Signed-off-by: Mischa Jonker <mjonker@synopsys.com>
+---
+ .../devicetree/bindings/serio/snps-arc_ps2.txt     |   16 ++++++++++++++++
+ drivers/input/serio/arc_ps2.c                      |   14 ++++++++++++--
+ 2 files changed, 28 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/serio/snps-arc_ps2.txt
 
-Ugh, I need to turn on CONFIG_DEBUG_ATOMIC_SLEEP again. Thanks for
-catching it. I will allocate a temporary buffer and queue SYN_DROPPED
-if the copy to userspace fails after that.
+diff --git a/Documentation/devicetree/bindings/serio/snps-arc_ps2.txt b/Documentation/devicetree/bindings/serio/snps-arc_ps2.txt
+new file mode 100644
+index 0000000..38c2f21
+--- /dev/null
++++ b/Documentation/devicetree/bindings/serio/snps-arc_ps2.txt
+@@ -0,0 +1,16 @@
++* ARC PS/2 driver: PS/2 block used in some ARC FPGA's & nSIM OSCI model
++
++Required properties:
++- compatible		: "snps,arc_ps2"
++- reg			: offset and length (always 0x14) of registers
++- interrupts		: interrupt
++- interrupt-names	: name of interrupt, must be "arc_ps2_irq"
++
++Example:
++
++serio@c9000400 {
++	compatible = "snps,arc_ps2";
++	reg = <0xc9000400 0x14>;
++	interrupts = <13>;
++	interrupt-names = "arc_ps2_irq";
++}
+diff --git a/drivers/input/serio/arc_ps2.c b/drivers/input/serio/arc_ps2.c
+index c52e3e5..76a685d 100644
+--- a/drivers/input/serio/arc_ps2.c
++++ b/drivers/input/serio/arc_ps2.c
+@@ -14,6 +14,7 @@
+ #include <linux/input.h>
+ #include <linux/serio.h>
+ #include <linux/platform_device.h>
++#include <linux/of.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+@@ -259,10 +260,19 @@ static int arc_ps2_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id arc_ps2_match[] = {
++	{ .compatible = "snps,arc_ps2" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, arc_ps2_match);
++#endif
++
+ static struct platform_driver arc_ps2_driver = {
+ 	.driver	= {
+-		.name	= "arc_ps2",
+-		.owner	= THIS_MODULE,
++		.name		= "arc_ps2",
++		.owner		= THIS_MODULE,
++		.of_match_table	= of_match_ptr(arc_ps2_match),
+ 	},
+ 	.probe	= arc_ps2_probe,
+ 	.remove	= arc_ps2_remove,
+-- 
+1.7.0.4
 
-While we are at it, I stumbled across
-bits_to_user()+CONFIG_COMPAT+LITTLE_ENDIAN. How is that supposed to
-work? If sizeof(compat_long_t) == 4 and sizeof(long) == 8, we end up
-splitting each key-state across two compat_long_t entries of the user.
-Maybe I'm just missing something, but I think we cannot special-case
-little-endian here. Could you have a look?
-
-And I have a small helper to test EVIOCGKEY+flush. Should I add it to
-the new kernel test-suite?
-
-Thanks
-David

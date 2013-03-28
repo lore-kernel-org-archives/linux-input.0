@@ -1,85 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: trackpoint - Optimize trackpoint init to use
- power-on reset
-Date: Wed, 27 Mar 2013 22:32:18 -0700
-Message-ID: <20130328053218.GB2812@core.coreip.homeip.net>
-References: <1364326601-16571-1-git-send-email-shawnn@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/2] Input: edt-ft5x06 - Remove redundant null check before kfree
+Date: Thu, 28 Mar 2013 13:23:41 +0530
+Message-ID: <1364457222-4381-1-git-send-email-sachin.kamat@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:34521 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751191Ab3C1FcV (ORCPT
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:51399 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751095Ab3C1IFI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Mar 2013 01:32:21 -0400
-Content-Disposition: inline
-In-Reply-To: <1364326601-16571-1-git-send-email-shawnn@chromium.org>
+	Thu, 28 Mar 2013 04:05:08 -0400
+Received: by mail-pa0-f48.google.com with SMTP id lj1so1390670pab.21
+        for <linux-input@vger.kernel.org>; Thu, 28 Mar 2013 01:05:07 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shawn Nematbakhsh <shawnn@chromium.org>
-Cc: JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chung-yih Wang <cywang@chromium.org>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org
 
-Hi Shawn,
+kfree on a null pointer is a no-op. Hence null check is not
+necessary.
 
-On Tue, Mar 26, 2013 at 12:36:41PM -0700, Shawn Nematbakhsh wrote:
-> The trackpoint driver sets various parameter default values, all of
-> which happen to be power-on defaults (Source: IBM TrackPoint Engineering
-> Specification, Version 4.0. Also confirmed by empirical data).
-> 
-> By sending the power-on reset command to reset all parameters to
-> power-on state, we can skip the lengthy process of programming all
-> parameters. In testing, ~2.5 secs of time writing parameters was reduced
-> to .35 seconds waiting for power-on reset to complete.
-> 
-> Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
-> ---
->  drivers/input/mouse/trackpoint.c | 223 +++++++++++++++++++++++++--------------
->  drivers/input/mouse/trackpoint.h |   7 +-
->  2 files changed, 149 insertions(+), 81 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-> index f310249..17e9b36 100644
-> --- a/drivers/input/mouse/trackpoint.c
-> +++ b/drivers/input/mouse/trackpoint.c
-> @@ -20,6 +20,26 @@
->  #include "trackpoint.h"
->  
->  /*
-> + * Power-on Reset: Resets all trackpoint parameters, including RAM values,
-> + * to defaults.
-> + * Returns zero on success, non-zero on failure.
-> + */
-> +static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
-> +{
-> +	unsigned char results[2];
-> +
-> +	if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
-> +	    ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 2, TP_POR))) {
-> +		return -1;
-> +	}
-> +
-> +	/* POR response should be 0xAA00 or 0xFC00 */
-> +	if ((results[0] != 0xAA && results[0] != 0xFC) || results[1] != 0x00)
-> +		return -1;
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+---
+ drivers/input/touchscreen/edt-ft5x06.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-I am a bit concerned about this. 0xfc00 indicates POR failure. In this
-case shouldn't we try to reset the device, issue another POR and bail if
-it fails again?
-
->  
->  static struct attribute *trackpoint_attrs[] = {
->  	&psmouse_attr_sensitivity.dattr.attr,
-> @@ -179,6 +241,9 @@ static struct attribute *trackpoint_attrs[] = {
->  	&psmouse_attr_press_to_select.dattr.attr,
->  	&psmouse_attr_skipback.dattr.attr,
->  	&psmouse_attr_ext_dev.dattr.attr,
-> +	&psmouse_attr_twohand.dattr.attr,
-> +	&psmouse_attr_source_tag.dattr.attr,
-> +	&psmouse_attr_mb.dattr.attr,
-
-What is the benefit of adding these 3 new attributes?
-
-Thanks.
-
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index a917015..83fa1b1 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -440,8 +440,7 @@ static int edt_ft5x06_work_mode(struct edt_ft5x06_ts_data *tsdata)
+ 		return -EIO;
+ 	}
+ 
+-	if (tsdata->raw_buffer)
+-		kfree(tsdata->raw_buffer);
++	kfree(tsdata->raw_buffer);
+ 	tsdata->raw_buffer = NULL;
+ 
+ 	/* restore parameters */
 -- 
-Dmitry
+1.7.4.1
+

@@ -1,36 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: imx_keypad - use devm_ functions
-Date: Sun, 31 Mar 2013 00:39:26 -0700
-Message-ID: <20130331073926.GF7919@core.coreip.homeip.net>
-References: <1363193466-10737-1-git-send-email-festevam@gmail.com>
+Subject: Re: [PATCH V2] input: keyboard: tegra: support for defining
+ row/columns based on SoC
+Date: Sun, 31 Mar 2013 00:46:09 -0700
+Message-ID: <20130331074609.GG7919@core.coreip.homeip.net>
+References: <1363194873-13723-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f43.google.com ([209.85.210.43]:55383 "EHLO
-	mail-da0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756353Ab3CaHj3 (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:39476 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750720Ab3CaHqN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 31 Mar 2013 03:39:29 -0400
-Received: by mail-da0-f43.google.com with SMTP id u36so697821dak.30
-        for <linux-input@vger.kernel.org>; Sun, 31 Mar 2013 00:39:28 -0700 (PDT)
+	Sun, 31 Mar 2013 03:46:13 -0400
 Content-Disposition: inline
-In-Reply-To: <1363193466-10737-1-git-send-email-festevam@gmail.com>
+In-Reply-To: <1363194873-13723-1-git-send-email-ldewangan@nvidia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: s.hauer@pengutronix.de, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: swarren@wwwdotorg.org, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2013 at 01:51:06PM -0300, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@freescale.com>
+On Wed, Mar 13, 2013 at 10:44:33PM +0530, Laxman Dewangan wrote:
+> NVIDIA's Tegra20 and Tegra30 supports the 16x8 keyboard matrix and T114
+> support the 11x8 Key matrix.
 > 
-> Using devm_ functions can make the code cleaner and simpler. 
+> Add support for defining the maximum row/columns based on SoC through
+> proper compatibity.
 > 
-> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
-> ---
-> Changes since v1:
-> - Remove imx_keypad_remove()
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> Reviewed-by: Stephen Warren <swarren@nvidia.com>
 
-Applied, thank you Fabio.
+Applied, thank you Laxman.
 
 -- 
 Dmitry

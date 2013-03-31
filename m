@@ -1,51 +1,54 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: Atmel updates to atmel_mxt_ts touch controller driver
-Date: Fri, 29 Mar 2013 17:48:41 +0100
-Message-ID: <20130329164841.GA2230@polaris.bitmath.org>
-References: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] Input: eeti_ts - Remove redundant null check
+Date: Sun, 31 Mar 2013 00:26:03 -0700
+Message-ID: <20130331072603.GB7919@core.coreip.homeip.net>
+References: <1364457222-4381-1-git-send-email-sachin.kamat@linaro.org>
+ <1364457222-4381-2-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:59469 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754909Ab3C2Qrx (ORCPT
+Received: from mail-da0-f54.google.com ([209.85.210.54]:32979 "EHLO
+	mail-da0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755294Ab3CaH0H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Mar 2013 12:47:53 -0400
+	Sun, 31 Mar 2013 03:26:07 -0400
+Received: by mail-da0-f54.google.com with SMTP id p1so690024dad.27
+        for <linux-input@vger.kernel.org>; Sun, 31 Mar 2013 00:26:05 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1361555907-19840-1-git-send-email-nick.dyer@itdev.co.uk>
+In-Reply-To: <1364457222-4381-2-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org
 
-Hi Nick,
-
-> The following patches are a large series of updates in functionality to the
-> atmel_mxt_ts touch driver. They apply cleanly to input/next.
-
-I guess this is no longer true.
-
-> These changes address some of the same issues that appear in the patchsets
-> submitted by Daniel Kurtz and Peter Meerwald. However, they go much further in
-> adding support for new objects, improving performance, and increasing
-> reliability. They have been regularly regression tested against old and new
-> chips which use the same protocol.
+On Thu, Mar 28, 2013 at 01:23:42PM +0530, Sachin Kamat wrote:
+> 'pdata' is already dereferenced earlier. Hence this check is
+> meaningless.
 > 
-> We also provide a set of user-space utilities as open source which are 
-> available from github and work well with this driver:
->   https://github.com/atmel-maxtouch/obp-utils
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> ---
+>  drivers/input/touchscreen/eeti_ts.c |    3 +--
+>  1 files changed, 1 insertions(+), 2 deletions(-)
 > 
-> Most of my focus in working on these changes has been to support Atmel's
-> customers, who tend not to be using the mainline kernel. Unfortunately this 
-> has generated somewhat of a backlog in getting these improvements into
-> mainline. My current focus is to get these improvements upstream and I have
-> time allocated to make any alterations as necessary. Since the scope of this
-> patchset is so large any upstream delta tends to cause a big rebasing effort.
-> I would suggest that I merge any useful improvements from the other patchsets
-> to make a combined patchset.
+> diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+> index 55255a9..8fe5086 100644
+> --- a/drivers/input/touchscreen/eeti_ts.c
+> +++ b/drivers/input/touchscreen/eeti_ts.c
+> @@ -206,8 +206,7 @@ static int eeti_ts_probe(struct i2c_client *client,
+>  	if (err < 0)
+>  		goto err1;
+>  
+> -	if (pdata)
+> -		priv->irq_active_high = pdata->irq_active_high;
+> +	priv->irq_active_high = pdata->irq_active_high;
+>  
+>  	irq_flags = priv->irq_active_high ?
+>  		IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
+> -- 
+> 1.7.4.1
+> 
 
-Are you planning to submit a version for 3.9? If you do, please
-consider sending a smaller set.
+Applied both, thank you Sachin.
 
-Thanks,
-Henrik
+-- 
+Dmitry

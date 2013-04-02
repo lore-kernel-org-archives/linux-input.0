@@ -1,47 +1,40 @@
-From: Ben Jencks <ben-7SEEZ0YnYvvR7s880joybQ@public.gmane.org>
-Subject: [PATCH 2/2] HID: ignore appledisplay devices
-Date: Tue, 02 Apr 2013 00:42:17 -0400
-Message-ID: <515A61A9.3010008@bjencks.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4] sysrq: supplementing reset sequence with timeout
+ functionality
+Date: Mon, 1 Apr 2013 22:16:38 -0700
+Message-ID: <20130402051638.GA21123@core.coreip.homeip.net>
+References: <1364844711-32302-1-git-send-email-mathieu.poirier@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-da0-f49.google.com ([209.85.210.49]:44731 "EHLO
+	mail-da0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754107Ab3DBFQm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Apr 2013 01:16:42 -0400
+Received: by mail-da0-f49.google.com with SMTP id t11so25660daj.36
+        for <linux-input@vger.kernel.org>; Mon, 01 Apr 2013 22:16:41 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1364844711-32302-1-git-send-email-mathieu.poirier@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: mathieu.poirier@linaro.org
+Cc: arve@android.com, linux-input@vger.kernel.org, kernel-team@android.com, john.stultz@linaro.org
 
-The usb/misc/appledisplay driver doesn't use the HID layer, so its devices
-should be blacklisted in HID. With this patch, supported Apple displays are
-automatically recognized as backlight devices.
+On Mon, Apr 01, 2013 at 01:31:51PM -0600, mathieu.poirier@linaro.org wrote:
+> From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
+> 
+> Some devices have too few buttons, which it makes it hard to have
+> a reset combo that won't trigger automatically.  As such a
+> timeout functionality that requires the combination to be held for
+> a given amount of time before triggering is introduced.
+> 
+> If a key combo is recognized and held for a 'timeout' amount of time,
+> the system triggers a reset.  If the timeout value is omitted the
+> driver simply ignores the functionality.
+> 
+> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 
-Signed-off-by: Ben Jencks <ben-7SEEZ0YnYvvR7s880joybQ@public.gmane.org>
----
-Sorry for the resend to linux-usb; this should have gone to linux-input in
-the first place.
+Applied, thank you Mathieu.
 
- drivers/hid/hid-core.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index ceb3040..26b6158 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1951,6 +1951,11 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_24) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIRCABLE, USB_DEVICE_ID_AIRCABLE1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ALCOR, USB_DEVICE_ID_ALCOR_USBRS232) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 0x9218) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 0x9219) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 0x921c) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 0x921d) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 0x9236) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM)},
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM2)},
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_AVERMEDIA, USB_DEVICE_ID_AVER_FM_MR800) },
 -- 
-1.7.9.5
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dmitry

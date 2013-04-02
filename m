@@ -1,93 +1,70 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3.7+] HID: magicmouse: fix race between input_register() and probe()
-Date: Tue,  2 Apr 2013 11:11:52 +0200
-Message-ID: <1364893912-29578-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH 2/3] HID: wiimote: add 2nd generation Wii Remote IDs
+Date: Tue,  2 Apr 2013 19:58:35 +0200
+Message-ID: <1364925516-5724-2-git-send-email-dh.herrmann@gmail.com>
+References: <1364925516-5724-1-git-send-email-dh.herrmann@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bk0-f41.google.com ([209.85.214.41]:59099 "EHLO
+	mail-bk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757797Ab3DBR7K (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Apr 2013 13:59:10 -0400
+Received: by mail-bk0-f41.google.com with SMTP id i18so355747bkv.28
+        for <linux-input@vger.kernel.org>; Tue, 02 Apr 2013 10:59:08 -0700 (PDT)
+In-Reply-To: <1364925516-5724-1-git-send-email-dh.herrmann@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-Since kernel 3.7, it appears that the input registration occured before
-the end of magicmouse_setup_input(). This is shown by receiving a lot of
-"EV_SYN SYN_REPORT 1" instead of normal "EV_SYN SYN_REPORT 0".
-This value means that the output buffer is full, and the user space
-is loosing events.
+This adds the 2nd generation Wii Remote IDs. They have a different
+Bluetooth chipset (CSR instead of Broadcom) and are more restrictive in
+what they accept as input. Hence, you need up-to-date BlueZ and
+Bluetooth HIDP modules to use these devices.
 
-Using .input_configured guarantees that the race is not occuring, and that
-the call of "input_set_events_per_packet(input, 60)" is taken into account
-by input_register().
-
-Fixes:
-https://bugzilla.redhat.com/show_bug.cgi?id=908604
-
-Reported-and-Tested-By: Clarke Wixon <cwixon@usa.net>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
+ drivers/hid/hid-core.c         | 1 +
+ drivers/hid/hid-ids.h          | 1 +
+ drivers/hid/hid-wiimote-core.c | 2 ++
+ 3 files changed, 4 insertions(+)
 
-Hi Jiri,
-
-this one can goes to stable (so 3.8) as well.
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-magicmouse.c | 29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index ef89573..5bc3734 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -461,6 +461,21 @@ static int magicmouse_input_mapping(struct hid_device *hdev,
- 	return 0;
- }
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index ceb3040..b0ad27a 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1741,6 +1741,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
  
-+static void magicmouse_input_configured(struct hid_device *hdev,
-+		struct hid_input *hi)
-+
-+{
-+	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
-+
-+	int ret = magicmouse_setup_input(msc->input, hdev);
-+	if (ret) {
-+		hid_err(hdev, "magicmouse setup input failed (%d)\n", ret);
-+		/* clean msc->input to notify probe() of the failure */
-+		msc->input = NULL;
-+	}
-+}
-+
-+
- static int magicmouse_probe(struct hid_device *hdev,
- 	const struct hid_device_id *id)
- {
-@@ -492,15 +507,10 @@ static int magicmouse_probe(struct hid_device *hdev,
- 		goto err_free;
- 	}
- 
--	/* We do this after hid-input is done parsing reports so that
--	 * hid-input uses the most natural button and axis IDs.
--	 */
--	if (msc->input) {
--		ret = magicmouse_setup_input(msc->input, hdev);
--		if (ret) {
--			hid_err(hdev, "magicmouse setup input failed (%d)\n", ret);
--			goto err_stop_hw;
--		}
-+	if (!msc->input) {
-+		hid_err(hdev, "magicmouse input not registered\n");
-+		ret = -ENOMEM;
-+		goto err_stop_hw;
- 	}
- 
- 	if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
-@@ -567,6 +577,7 @@ static struct hid_driver magicmouse_driver = {
- 	.remove = magicmouse_remove,
- 	.raw_event = magicmouse_raw_event,
- 	.input_mapping = magicmouse_input_mapping,
-+	.input_configured = magicmouse_input_configured,
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
+ 	{ }
  };
- module_hid_driver(magicmouse_driver);
  
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 266e2ae..a775b1c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -605,6 +605,7 @@
+ 
+ #define USB_VENDOR_ID_NINTENDO		0x057e
+ #define USB_DEVICE_ID_NINTENDO_WIIMOTE	0x0306
++#define USB_DEVICE_ID_NINTENDO_WIIMOTE2	0x0330
+ 
+ #define USB_VENDOR_ID_NOVATEK		0x0603
+ #define USB_DEVICE_ID_NOVATEK_PCT	0x0600
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index c73bc80..d2c69b9 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -1291,6 +1291,8 @@ static void wiimote_hid_remove(struct hid_device *hdev)
+ static const struct hid_device_id wiimote_hid_devices[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO,
+ 				USB_DEVICE_ID_NINTENDO_WIIMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO,
++				USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, wiimote_hid_devices);
 -- 
-1.8.1.4
+1.8.2
+

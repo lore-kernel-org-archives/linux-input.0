@@ -1,40 +1,93 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] sysrq: supplementing reset sequence with timeout
- functionality
-Date: Mon, 1 Apr 2013 22:16:38 -0700
-Message-ID: <20130402051638.GA21123@core.coreip.homeip.net>
-References: <1364844711-32302-1-git-send-email-mathieu.poirier@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f49.google.com ([209.85.210.49]:44731 "EHLO
-	mail-da0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754107Ab3DBFQm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Apr 2013 01:16:42 -0400
-Received: by mail-da0-f49.google.com with SMTP id t11so25660daj.36
-        for <linux-input@vger.kernel.org>; Mon, 01 Apr 2013 22:16:41 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1364844711-32302-1-git-send-email-mathieu.poirier@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v3.7+] HID: magicmouse: fix race between input_register() and probe()
+Date: Tue,  2 Apr 2013 11:11:52 +0200
+Message-ID: <1364893912-29578-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: mathieu.poirier@linaro.org
-Cc: arve@android.com, linux-input@vger.kernel.org, kernel-team@android.com, john.stultz@linaro.org
 
-On Mon, Apr 01, 2013 at 01:31:51PM -0600, mathieu.poirier@linaro.org wrote:
-> From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
-> 
-> Some devices have too few buttons, which it makes it hard to have
-> a reset combo that won't trigger automatically.  As such a
-> timeout functionality that requires the combination to be held for
-> a given amount of time before triggering is introduced.
-> 
-> If a key combo is recognized and held for a 'timeout' amount of time,
-> the system triggers a reset.  If the timeout value is omitted the
-> driver simply ignores the functionality.
-> 
-> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Since kernel 3.7, it appears that the input registration occured before
+the end of magicmouse_setup_input(). This is shown by receiving a lot of
+"EV_SYN SYN_REPORT 1" instead of normal "EV_SYN SYN_REPORT 0".
+This value means that the output buffer is full, and the user space
+is loosing events.
 
-Applied, thank you Mathieu.
+Using .input_configured guarantees that the race is not occuring, and that
+the call of "input_set_events_per_packet(input, 60)" is taken into account
+by input_register().
 
+Fixes:
+https://bugzilla.redhat.com/show_bug.cgi?id=908604
+
+Reported-and-Tested-By: Clarke Wixon <cwixon@usa.net>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+
+Hi Jiri,
+
+this one can goes to stable (so 3.8) as well.
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-magicmouse.c | 29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index ef89573..5bc3734 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -461,6 +461,21 @@ static int magicmouse_input_mapping(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++static void magicmouse_input_configured(struct hid_device *hdev,
++		struct hid_input *hi)
++
++{
++	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
++
++	int ret = magicmouse_setup_input(msc->input, hdev);
++	if (ret) {
++		hid_err(hdev, "magicmouse setup input failed (%d)\n", ret);
++		/* clean msc->input to notify probe() of the failure */
++		msc->input = NULL;
++	}
++}
++
++
+ static int magicmouse_probe(struct hid_device *hdev,
+ 	const struct hid_device_id *id)
+ {
+@@ -492,15 +507,10 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 		goto err_free;
+ 	}
+ 
+-	/* We do this after hid-input is done parsing reports so that
+-	 * hid-input uses the most natural button and axis IDs.
+-	 */
+-	if (msc->input) {
+-		ret = magicmouse_setup_input(msc->input, hdev);
+-		if (ret) {
+-			hid_err(hdev, "magicmouse setup input failed (%d)\n", ret);
+-			goto err_stop_hw;
+-		}
++	if (!msc->input) {
++		hid_err(hdev, "magicmouse input not registered\n");
++		ret = -ENOMEM;
++		goto err_stop_hw;
+ 	}
+ 
+ 	if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
+@@ -567,6 +577,7 @@ static struct hid_driver magicmouse_driver = {
+ 	.remove = magicmouse_remove,
+ 	.raw_event = magicmouse_raw_event,
+ 	.input_mapping = magicmouse_input_mapping,
++	.input_configured = magicmouse_input_configured,
+ };
+ module_hid_driver(magicmouse_driver);
+ 
 -- 
-Dmitry
+1.8.1.4

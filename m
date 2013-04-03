@@ -1,15 +1,15 @@
 From: Randy Dunlap <rdunlap@infradead.org>
 Subject: Re: linux-next: Tree for Apr 3 (input/keyboard)
-Date: Wed, 3 Apr 2013 18:09:17 +0000 (UTC)
-Message-ID: <515F132D.5020500__1762.44828985563$1365012585$gmane$org@infradead.org>
+Date: Wed, 3 Apr 2013 18:09:39 +0000 (UTC)
+Message-ID: <515F132D.5020500__28188.0517527044$1365012607$gmane$org@infradead.org>
 References: <20130403175213.bacabe35b751ddb6b34651e6@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: multipart/mixed;
  boundary="------------050804050206050202090107"
-Return-path: <linux-next-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Date: Fri, 05 Apr 2013 11:08:45 -0700
 In-Reply-To: <20130403175213.bacabe35b751ddb6b34651e6@canb.auug.org.au>
-Sender: linux-next-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Stephen Rothwell <sfr@canb.auug.org.au>
 Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org

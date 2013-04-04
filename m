@@ -1,36 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: don't call input_dev_release_keys() in resume
-Date: Thu, 4 Apr 2013 09:33:13 -0700
-Message-ID: <20130404163313.GA12302@core.coreip.homeip.net>
-References: <1362664882-16194-1-git-send-email-oskar.andero@sonymobile.com>
+Subject: Re: [PATCH 0/2] input: touchscreen: atmel_mxt_ts: Add Device Tree
+ support
+Date: Thu, 4 Apr 2013 10:30:40 -0700
+Message-ID: <20130404173040.GB12302@core.coreip.homeip.net>
+References: <1365092066-31753-1-git-send-email-t.figa@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1362664882-16194-1-git-send-email-oskar.andero@sonymobile.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: oskar.andero@sonymobile.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Aleksej Makarov <aleksej.makarov@sonymobile.com>
+In-Reply-To: <1365092066-31753-1-git-send-email-t.figa@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Tomasz Figa <t.figa@samsung.com>
+Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, kyungmin.park@samsung.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Oskar,
+Hi Tomasz,
 
-On Thu, Mar 07, 2013 at 03:01:22PM +0100, oskar.andero@sonymobile.com wrote:
-> From: Aleksej Makarov <aleksej.makarov@sonymobile.com>
+On Thu, Apr 04, 2013 at 06:14:24PM +0200, Tomasz Figa wrote:
+> This series is an attempt to add Device Tree support to Atmel maXtouch
+> touchscreen driver.
 > 
-> When waking up the platform by pressing a specific key, sending a
-> release on that key makes it impossible to react on the event in
-> user-space.
+> First patch adds support for VDD voltage regulator to get operating voltage
+> using regulator API instead of a driver specific field in platform data.
 > 
+> Second patch implements Device Tree bindings for the driver and adds
+> respective documentation.
+> 
+> Tested on Universal C210 board.
 
-No, we can not simply not release keys after resume from suspend, as
-this leads to keys being stuck. Consider you are holding an 'I' key on
-your external USB keyboard and close your laptop's lid. Then you release
-the key and leave. Later you come back, open the lid waking the laptop
-and observe endless stream of 'I' in your open terminal.
-
-Maybe we should release the keys during suspend time? I am not sure how
-Android infrastructure will react to this though...
+Please coordinate this effort with Nick Dyer <nick.dyer@itdev.co.uk>,
+Daniel Kurtz <djkurtz@chromium.org> and Benson Leung <bleung@chromium.org>
+as there is a big update to the atmel_mxt_ts in works and I would prefer
+not to disturb it.
 
 Thanks.
 

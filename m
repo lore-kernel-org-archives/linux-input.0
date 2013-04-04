@@ -1,55 +1,58 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3.7+] HID: magicmouse: fix race between input_register()
- and probe()
-Date: Thu, 04 Apr 2013 09:52:10 +0200
-Message-ID: <515D312A.8000909@redhat.com>
-References: <1364893912-29578-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1304040951020.30938@pobox.suse.cz>
+From: Oskar Andero <oskar.andero@sonymobile.com>
+Subject: Re: [PATCH] input: don't call input_dev_release_keys() in resume
+Date: Thu, 4 Apr 2013 16:57:02 +0200
+Message-ID: <20130404145702.GE2481@caracas.corpusers.net>
+References: <1362664882-16194-1-git-send-email-oskar.andero@sonymobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:62123 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1763871Ab3DDHw5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Apr 2013 03:52:57 -0400
-In-Reply-To: <alpine.LNX.2.00.1304040951020.30938@pobox.suse.cz>
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:13370 "EHLO
+	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1762538Ab3DDO5F (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Apr 2013 10:57:05 -0400
+Content-Disposition: inline
+In-Reply-To: <1362664882-16194-1-git-send-email-oskar.andero@sonymobile.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "Makarov, Aleksej" <Aleksej.Makarov@sonymobile.com>, Radovan Lekanovic <radovan.lekanovic@sonymobile.com>
 
-On 04/04/2013 09:51 AM, Jiri Kosina wrote:
-> On Tue, 2 Apr 2013, Benjamin Tissoires wrote:
+On 15:01 Thu 07 Mar     , oskar.andero@sonymobile.com wrote:
+> From: Aleksej Makarov <aleksej.makarov@sonymobile.com>
 > 
->> Since kernel 3.7, it appears that the input registration occured before
->> the end of magicmouse_setup_input(). This is shown by receiving a lot of
->> "EV_SYN SYN_REPORT 1" instead of normal "EV_SYN SYN_REPORT 0".
->> This value means that the output buffer is full, and the user space
->> is loosing events.
->>
->> Using .input_configured guarantees that the race is not occuring, and that
->> the call of "input_set_events_per_packet(input, 60)" is taken into account
->> by input_register().
->>
->> Fixes:
->> https://bugzilla.redhat.com/show_bug.cgi?id=908604
->>
->> Reported-and-Tested-By: Clarke Wixon <cwixon@usa.net>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>
->> Hi Jiri,
->>
->> this one can goes to stable (so 3.8) as well.
+> When waking up the platform by pressing a specific key, sending a
+> release on that key makes it impossible to react on the event in
+> user-space.
 > 
-> Applied, and will push for 3.9 still.
-
-Ok, thanks Jiri.
-
-Cheers,
-Benjamin
-
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Reviewed-by: Radovan Lekanovic <radovan.lekanovic@sonymobile.com>
+> Signed-off-by: Aleksej Makarov <aleksej.makarov@sonymobile.com>
+> Signed-off-by: Oskar Andero <oskar.andero@sonymobile.com>
+> ---
+>  drivers/input/input.c |    5 ++++-
+>  1 files changed, 4 insertions(+), 1 deletions(-)
 > 
-> Thanks.
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index c044699..61ce19f 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -1690,7 +1690,10 @@ static int input_dev_resume(struct device *dev)
+>  {
+>  	struct input_dev *input_dev = to_input_dev(dev);
+>  
+> -	input_reset_device(input_dev);
+> +	mutex_lock(&input_dev->mutex);
+> +	if (input_dev->users)
+> +		input_dev_toggle(input_dev, true);
+> +	mutex_unlock(&input_dev->mutex);
+>  
+>  	return 0;
+>  }
+> -- 
+> 1.7.8.6
 > 
 
+Ping. Any input on the patch above?
+
+-Oskar

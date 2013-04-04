@@ -1,39 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] input: touchscreen: atmel_mxt_ts: Add Device Tree
- support
-Date: Thu, 4 Apr 2013 10:30:40 -0700
-Message-ID: <20130404173040.GB12302@core.coreip.homeip.net>
-References: <1365092066-31753-1-git-send-email-t.figa@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1365092066-31753-1-git-send-email-t.figa@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Tomasz Figa <t.figa@samsung.com>
-Cc: linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, kyungmin.park@samsung.com
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5/5] HID: hid-lenovo-tpkbd, remove doubled hid_get_drvdata
+Date: Thu,  4 Apr 2013 22:32:12 +0200
+Message-ID: <1365107532-32721-5-git-send-email-jslaby@suse.cz>
+References: <1365107532-32721-1-git-send-email-jslaby@suse.cz>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1365107532-32721-1-git-send-email-jslaby@suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jirislaby@gmail.com
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Tomasz,
+In pointer_press_speed_show, we do
+    data_pointer = hid_get_drvdata(hdev);
+twice in a row. Remove one of those.
 
-On Thu, Apr 04, 2013 at 06:14:24PM +0200, Tomasz Figa wrote:
-> This series is an attempt to add Device Tree support to Atmel maXtouch
-> touchscreen driver.
-> 
-> First patch adds support for VDD voltage regulator to get operating voltage
-> using regulator API instead of a driver specific field in platform data.
-> 
-> Second patch implements Device Tree bindings for the driver and adds
-> respective documentation.
-> 
-> Tested on Universal C210 board.
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
+---
+ drivers/hid/hid-lenovo-tpkbd.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-Please coordinate this effort with Nick Dyer <nick.dyer@itdev.co.uk>,
-Daniel Kurtz <djkurtz@chromium.org> and Benson Leung <bleung@chromium.org>
-as there is a big update to the atmel_mxt_ts in works and I would prefer
-not to disturb it.
-
-Thanks.
-
+diff --git a/drivers/hid/hid-lenovo-tpkbd.c b/drivers/hid/hid-lenovo-tpkbd.c
+index a0535fd..07837f5 100644
+--- a/drivers/hid/hid-lenovo-tpkbd.c
++++ b/drivers/hid/hid-lenovo-tpkbd.c
+@@ -228,8 +228,6 @@ static ssize_t pointer_press_speed_show(struct device *dev,
+ 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+ 	struct tpkbd_data_pointer *data_pointer = hid_get_drvdata(hdev);
+ 
+-	data_pointer = hid_get_drvdata(hdev);
+-
+ 	return snprintf(buf, PAGE_SIZE, "%u\n",
+ 		data_pointer->press_speed);
+ }
 -- 
-Dmitry
+1.8.2

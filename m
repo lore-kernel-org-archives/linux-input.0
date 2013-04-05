@@ -1,37 +1,48 @@
-From: Nikola Pajkovsky <npajkovs@redhat.com>
-Subject: Re: [PATCH 5/5] HID: hid-lenovo-tpkbd, remove doubled hid_get_drvdata
-Date: Fri, 05 Apr 2013 01:05:35 +0200
-Message-ID: <m36201vqv4.fsf@redhat.com>
-References: <1365107532-32721-1-git-send-email-jslaby@suse.cz>
-	<1365107532-32721-5-git-send-email-jslaby@suse.cz>
+From: Oskar Andero <oskar.andero@sonymobile.com>
+Subject: Re: [PATCH] input: don't call input_dev_release_keys() in resume
+Date: Fri, 5 Apr 2013 10:57:00 +0200
+Message-ID: <20130405085700.GH2481@caracas.corpusers.net>
+References: <1362664882-16194-1-git-send-email-oskar.andero@sonymobile.com>
+ <20130404163313.GA12302@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:31158 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1764464Ab3DDXGW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Apr 2013 19:06:22 -0400
-In-Reply-To: <1365107532-32721-5-git-send-email-jslaby@suse.cz> (Jiri Slaby's
-	message of "Thu, 4 Apr 2013 22:32:12 +0200")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20130404163313.GA12302@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Makarov, Aleksej" <Aleksej.Makarov@sonymobile.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: jirislaby@gmail.com, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-Jiri Slaby <jslaby@suse.cz> writes:
+On 18:33 Thu 04 Apr     , Dmitry Torokhov wrote:
+> Hi Oskar,
+> 
+> On Thu, Mar 07, 2013 at 03:01:22PM +0100, oskar.andero@sonymobile.com wrote:
+> > From: Aleksej Makarov <aleksej.makarov@sonymobile.com>
+> > 
+> > When waking up the platform by pressing a specific key, sending a
+> > release on that key makes it impossible to react on the event in
+> > user-space.
+> > 
+> 
+> No, we can not simply not release keys after resume from suspend, as
+> this leads to keys being stuck. Consider you are holding an 'I' key on
+> your external USB keyboard and close your laptop's lid. Then you release
+> the key and leave. Later you come back, open the lid waking the laptop
+> and observe endless stream of 'I' in your open terminal.
 
-> In pointer_press_speed_show, we do
->     data_pointer = hid_get_drvdata(hdev);
-> twice in a row. Remove one of those.
->
-> Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> Cc: linux-input@vger.kernel.org
-> ---
->  drivers/hid/hid-lenovo-tpkbd.c | 2 --
->  1 file changed, 2 deletions(-)
+You're absolutely right. But I guess you also see the case that the
+patch is trying to fix, right?
 
-Acked-by: Nikola Pajkovsky <npajkovs@redhat.com>
+To explain our use-case: We have a physical camera button on some devices.
+When the user long-presses the button, the system will wake up and jump
+directly in to the camera application.
 
--- 
-Nikola
+> Maybe we should release the keys during suspend time? I am not sure how
+> Android infrastructure will react to this though...
+
+That sounds like a good idea! Let me do some testing on that.
+
+Thanks!
+
+-Oskar

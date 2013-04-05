@@ -1,48 +1,69 @@
-From: Oskar Andero <oskar.andero@sonymobile.com>
-Subject: Re: [PATCH] input: don't call input_dev_release_keys() in resume
-Date: Fri, 5 Apr 2013 10:57:00 +0200
-Message-ID: <20130405085700.GH2481@caracas.corpusers.net>
-References: <1362664882-16194-1-git-send-email-oskar.andero@sonymobile.com>
- <20130404163313.GA12302@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130404163313.GA12302@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Makarov, Aleksej" <Aleksej.Makarov@sonymobile.com>
+From: mathieu.poirier@linaro.org
+Subject: [PATCH] Input: Adding graceful shutdown to sysrq key reset
+Date: Fri,  5 Apr 2013 07:38:32 -0600
+Message-ID: <1365169112-7999-1-git-send-email-mathieu.poirier@linaro.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f52.google.com ([209.85.220.52]:50776 "EHLO
+	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1161548Ab3DENih (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Apr 2013 09:38:37 -0400
+Received: by mail-pa0-f52.google.com with SMTP id fb10so2055259pad.39
+        for <linux-input@vger.kernel.org>; Fri, 05 Apr 2013 06:38:37 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, arve@android.com, kernel-team@android.com, john.stultz@linaro.org, mathieu.poirier@linaro.org
 
-On 18:33 Thu 04 Apr     , Dmitry Torokhov wrote:
-> Hi Oskar,
-> 
-> On Thu, Mar 07, 2013 at 03:01:22PM +0100, oskar.andero@sonymobile.com wrote:
-> > From: Aleksej Makarov <aleksej.makarov@sonymobile.com>
-> > 
-> > When waking up the platform by pressing a specific key, sending a
-> > release on that key makes it impossible to react on the event in
-> > user-space.
-> > 
-> 
-> No, we can not simply not release keys after resume from suspend, as
-> this leads to keys being stuck. Consider you are holding an 'I' key on
-> your external USB keyboard and close your laptop's lid. Then you release
-> the key and leave. Later you come back, open the lid waking the laptop
-> and observe endless stream of 'I' in your open terminal.
+From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
 
-You're absolutely right. But I guess you also see the case that the
-patch is trying to fix, right?
+Attempt to reboot the system gracefully when a key combo
+is detected.  The system is force to go down if the first
+attempt failed and the key combo is pressed a second time.
 
-To explain our use-case: We have a physical camera button on some devices.
-When the user long-presses the button, the system will wake up and jump
-directly in to the camera application.
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+---
+ drivers/tty/sysrq.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-> Maybe we should release the keys during suspend time? I am not sure how
-> Android infrastructure will react to this though...
+diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+index 766878a..bd852fc 100644
+--- a/drivers/tty/sysrq.c
++++ b/drivers/tty/sysrq.c
+@@ -43,6 +43,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/moduleparam.h>
+ #include <linux/jiffies.h>
++#include <linux/syscalls.h>
+ 
+ #include <asm/ptrace.h>
+ #include <asm/irq_regs.h>
+@@ -584,6 +585,7 @@ struct sysrq_state {
+ 
+ 	/* reset sequence handling */
+ 	bool reset_canceled;
++	bool reset_requested;
+ 	unsigned long reset_keybit[BITS_TO_LONGS(KEY_CNT)];
+ 	int reset_seq_len;
+ 	int reset_seq_cnt;
+@@ -624,11 +626,17 @@ static void sysrq_parse_reset_sequence(struct sysrq_state *state)
+ 
+ static void sysrq_do_reset(unsigned long dummy)
+ {
+-	__handle_sysrq(sysrq_xlate[KEY_B], false);
++	sys_sync();
++	kernel_restart(NULL);
+ }
+ 
+ static void sysrq_handle_reset_request(struct sysrq_state *state)
+ {
++	if (state->reset_requested)
++		__handle_sysrq(sysrq_xlate[KEY_B], false);
++
++	state->reset_requested = true;
++
+ 	if (sysrq_reset_downtime_ms)
+ 		mod_timer(&state->keyreset_timer,
+ 			jiffies + msecs_to_jiffies(sysrq_reset_downtime_ms));
+-- 
+1.7.9.5
 
-That sounds like a good idea! Let me do some testing on that.
-
-Thanks!
-
--Oskar

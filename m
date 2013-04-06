@@ -1,69 +1,60 @@
-From: mathieu.poirier@linaro.org
-Subject: [PATCH] Input: Adding graceful shutdown to sysrq key reset
-Date: Fri,  5 Apr 2013 07:38:32 -0600
-Message-ID: <1365169112-7999-1-git-send-email-mathieu.poirier@linaro.org>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH 1/3] Input: ads7846 - use spi_get_drvdata() and
+ spi_set_drvdata()
+Date: Sat, 06 Apr 2013 15:46:23 +0900
+Message-ID: <001d01ce3292$746da5c0$5d48f140$%han@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:50776 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1161548Ab3DENih (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Apr 2013 09:38:37 -0400
-Received: by mail-pa0-f52.google.com with SMTP id fb10so2055259pad.39
-        for <linux-input@vger.kernel.org>; Fri, 05 Apr 2013 06:38:37 -0700 (PDT)
+Received: from mailout3.samsung.com ([203.254.224.33]:51926 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753436Ab3DFGqZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Apr 2013 02:46:25 -0400
+Received: from epcpsbgr5.samsung.com
+ (u145.gpu120.samsung.co.kr [203.254.230.145])
+ by mailout3.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MKT00DW4MT2J6E0@mailout3.samsung.com> for
+ linux-input@vger.kernel.org; Sat, 06 Apr 2013 15:46:24 +0900 (KST)
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, arve@android.com, kernel-team@android.com, john.stultz@linaro.org, mathieu.poirier@linaro.org
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Dmitry Torokhov' <dtor@mail.ru>, linux-input@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
 
-From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
+Use the wrapper functions for getting and setting the driver data using
+spi_device instead of using dev_{get|set}_drvdata with &spi->dev, so we
+can directly pass a struct spi_device.
 
-Attempt to reboot the system gracefully when a key combo
-is detected.  The system is force to go down if the first
-attempt failed and the key combo is pressed a second time.
-
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
- drivers/tty/sysrq.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/ads7846.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-index 766878a..bd852fc 100644
---- a/drivers/tty/sysrq.c
-+++ b/drivers/tty/sysrq.c
-@@ -43,6 +43,7 @@
- #include <linux/uaccess.h>
- #include <linux/moduleparam.h>
- #include <linux/jiffies.h>
-+#include <linux/syscalls.h>
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 434c3df..84ccf14 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -1245,7 +1245,7 @@ static int ads7846_probe(struct spi_device *spi)
+ 		goto err_free_mem;
+ 	}
  
- #include <asm/ptrace.h>
- #include <asm/irq_regs.h>
-@@ -584,6 +585,7 @@ struct sysrq_state {
+-	dev_set_drvdata(&spi->dev, ts);
++	spi_set_drvdata(spi, ts);
  
- 	/* reset sequence handling */
- 	bool reset_canceled;
-+	bool reset_requested;
- 	unsigned long reset_keybit[BITS_TO_LONGS(KEY_CNT)];
- 	int reset_seq_len;
- 	int reset_seq_cnt;
-@@ -624,11 +626,17 @@ static void sysrq_parse_reset_sequence(struct sysrq_state *state)
+ 	ts->packet = packet;
+ 	ts->spi = spi;
+@@ -1397,7 +1397,7 @@ static int ads7846_probe(struct spi_device *spi)
  
- static void sysrq_do_reset(unsigned long dummy)
+ static int ads7846_remove(struct spi_device *spi)
  {
--	__handle_sysrq(sysrq_xlate[KEY_B], false);
-+	sys_sync();
-+	kernel_restart(NULL);
- }
+-	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
++	struct ads7846 *ts = spi_get_drvdata(spi);
  
- static void sysrq_handle_reset_request(struct sysrq_state *state)
- {
-+	if (state->reset_requested)
-+		__handle_sysrq(sysrq_xlate[KEY_B], false);
-+
-+	state->reset_requested = true;
-+
- 	if (sysrq_reset_downtime_ms)
- 		mod_timer(&state->keyreset_timer,
- 			jiffies + msecs_to_jiffies(sysrq_reset_downtime_ms));
+ 	device_init_wakeup(&spi->dev, false);
+ 
 -- 
-1.7.9.5
+1.7.2.5
+
 

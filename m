@@ -1,50 +1,63 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH 1/1] Input: apbps2 - Convert to devm_ioremap_resource()
-Date: Mon,  8 Apr 2013 14:33:51 +0530
-Message-ID: <1365411831-8021-1-git-send-email-sachin.kamat@linaro.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:50900 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934798Ab3DHJPq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Apr 2013 05:15:46 -0400
-Received: by mail-pa0-f43.google.com with SMTP id hz11so3164442pad.2
-        for <linux-input@vger.kernel.org>; Mon, 08 Apr 2013 02:15:45 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Bastian Hecht <hechtb@gmail.com>
+Subject: [PATCH v2 2/2] ARM: shmobile: Armadillo800EVA: Move st1232 reset pin handling
+Date: Mon,  8 Apr 2013 14:52:27 +0200
+Message-ID: <1365425547-10391-2-git-send-email-hechtb+renesas@gmail.com>
+References: <1365425547-10391-1-git-send-email-hechtb+renesas@gmail.com>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1365425547-10391-1-git-send-email-hechtb+renesas@gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-sh@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Tony SIM <chinyeow.sim.xt@renesas.com>, Laurent Pichart <laurent.pinchart@ideasonboard.com>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, Daniel Hellstrom <daniel@gaisler.com>
 
-Use the newly introduced devm_ioremap_resource() instead of
-devm_request_and_ioremap() which provides more consistent error handling.
+We no longer need to set up the reset pin for the st1232 in the board
+code, but can pass the GPIO number via the platform data to the driver.
+This results in a cleaner grouping of the device setup.
 
-devm_ioremap_resource() provides its own error messages; so all explicit
-error messages can be removed from the failure code paths.
-
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: Daniel Hellstrom <daniel@gaisler.com>
+Signed-off-by: Bastian Hecht <hechtb+renesas@gmail.com>
 ---
- drivers/input/serio/apbps2.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+v2:
+reset_pin changed to reset_gpio
 
-diff --git a/drivers/input/serio/apbps2.c b/drivers/input/serio/apbps2.c
-index 2c14e6f..17e01a8 100644
---- a/drivers/input/serio/apbps2.c
-+++ b/drivers/input/serio/apbps2.c
-@@ -147,11 +147,9 @@ static int apbps2_of_probe(struct platform_device *ofdev)
+ arch/arm/mach-shmobile/board-armadillo800eva.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-shmobile/board-armadillo800eva.c b/arch/arm/mach-shmobile/board-armadillo800eva.c
+index bf4c3d2..d1c1ff4 100644
+--- a/arch/arm/mach-shmobile/board-armadillo800eva.c
++++ b/arch/arm/mach-shmobile/board-armadillo800eva.c
+@@ -24,6 +24,7 @@
+ #include <linux/err.h>
+ #include <linux/kernel.h>
+ #include <linux/input.h>
++#include <linux/input/st1232_pdata.h>
+ #include <linux/irq.h>
+ #include <linux/platform_device.h>
+ #include <linux/gpio.h>
+@@ -997,10 +998,15 @@ static struct platform_device i2c_gpio_device = {
+ };
  
- 	/* Find Device Address */
- 	res = platform_get_resource(ofdev, IORESOURCE_MEM, 0);
--	priv->regs = devm_request_and_ioremap(&ofdev->dev, res);
--	if (!priv->regs) {
--		dev_err(&ofdev->dev, "io-regs mapping failed\n");
--		return -EBUSY;
--	}
-+	priv->regs = devm_ioremap_resource(&ofdev->dev, res);
-+	if (IS_ERR(priv->regs))
-+		return PTR_ERR(priv->regs);
+ /* I2C */
++static struct st1232_pdata st1232_i2c0_pdata = {
++	.reset_gpio = 166,
++};
++
+ static struct i2c_board_info i2c0_devices[] = {
+ 	{
+ 		I2C_BOARD_INFO("st1232-ts", 0x55),
+ 		.irq = irq_pin(10),
++		.platform_data = &st1232_i2c0_pdata,
+ 	},
+ 	{
+ 		I2C_BOARD_INFO("wm8978", 0x1a),
+@@ -1120,7 +1126,6 @@ static void __init eva_init(void)
  
- 	/* Reset hardware, disable interrupt */
- 	iowrite32be(0, &priv->regs->ctrl);
+ 	/* Touchscreen */
+ 	gpio_request(GPIO_FN_IRQ10,	NULL); /* TP_INT */
+-	gpio_request_one(166, GPIOF_OUT_INIT_HIGH, NULL); /* TP_RST_B */
+ 
+ 	/* GETHER */
+ 	gpio_request(GPIO_FN_ET_CRS,		NULL);
 -- 
 1.7.9.5
 

@@ -1,81 +1,24 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] Input: MT - handle semi-mt devices in core
-Date: Sun,  7 Apr 2013 21:41:32 +0200
-Message-ID: <1365363692-986-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h12.telenor.se ([62.127.194.5]:41119 "EHLO
-	smtprelay-h12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934228Ab3DGUm7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Apr 2013 16:42:59 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 1/2] input: st1232: Add reset pin handling
+Date: Mon, 8 Apr 2013 10:39:02 +0900
+Message-ID: <20130408013902.GC13103@verge.net.au>
+References: <1365254327-10408-1-git-send-email-hechtb+renesas@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1365254327-10408-1-git-send-email-hechtb+renesas@gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Bastian Hecht <hechtb@gmail.com>
+Cc: linux-sh@vger.kernel.org, linux-input@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pichart <laurent.pinchart@ideasonboard.com>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Most semi-mt drivers use the slots in a manual way, but really only
-need to treat the finger count manually. With this patch, a semi-mt
-driver may use the input-mt core for everything else.
+On Sat, Apr 06, 2013 at 03:18:45PM +0200, Bastian Hecht wrote:
+> We add the possiblity to hand over a GPIO number for the reset pin.
+> This way we can remove existing board code that takes care of it and
+> group this information properly in the platform data or in the device
+> tree confguration.
+> 
+> The implementation is analogous to the cy8ctmg110 driver, thanks.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-Hi Dmitry,
-
-an earlier version of this patch came about as a test to handle the
-synaptics profile sensor without too much extra work. I do not know
-how that test panned out (no response), but this patch will likely be
-useful regardless.
-
-Henrik
-
- drivers/input/input-mt.c | 8 +++++++-
- include/linux/input/mt.h | 1 +
- 2 files changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
-index 71db193..d398f13 100644
---- a/drivers/input/input-mt.c
-+++ b/drivers/input/input-mt.c
-@@ -79,6 +79,8 @@ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
- 	}
- 	if (flags & INPUT_MT_DIRECT)
- 		__set_bit(INPUT_PROP_DIRECT, dev->propbit);
-+	if (flags & INPUT_MT_SEMI_MT)
-+		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
- 	if (flags & INPUT_MT_TRACK) {
- 		unsigned int n2 = num_slots * num_slots;
- 		mt->red = kcalloc(n2, sizeof(*mt->red), GFP_KERNEL);
-@@ -246,6 +248,7 @@ void input_mt_sync_frame(struct input_dev *dev)
- {
- 	struct input_mt *mt = dev->mt;
- 	struct input_mt_slot *s;
-+	bool use_count = false;
- 
- 	if (!mt)
- 		return;
-@@ -259,7 +262,10 @@ void input_mt_sync_frame(struct input_dev *dev)
- 		}
- 	}
- 
--	input_mt_report_pointer_emulation(dev, (mt->flags & INPUT_MT_POINTER));
-+	if ((mt->flags & INPUT_MT_POINTER) && !(mt->flags & INPUT_MT_SEMI_MT))
-+		use_count = true;
-+
-+	input_mt_report_pointer_emulation(dev, use_count);
- 
- 	mt->frame++;
- }
-diff --git a/include/linux/input/mt.h b/include/linux/input/mt.h
-index 2e86bd0..1b1dfa8 100644
---- a/include/linux/input/mt.h
-+++ b/include/linux/input/mt.h
-@@ -19,6 +19,7 @@
- #define INPUT_MT_DIRECT		0x0002	/* direct device, e.g. touchscreen */
- #define INPUT_MT_DROP_UNUSED	0x0004	/* drop contacts not seen in frame */
- #define INPUT_MT_TRACK		0x0008	/* use in-kernel tracking */
-+#define INPUT_MT_SEMI_MT	0x0010	/* semi-mt device, finger count handled manually */
- 
- /**
-  * struct input_mt_slot - represents the state of an input MT slot
--- 
-1.8.2
-
+Laurent, could I get a review from you of this and the following patch?

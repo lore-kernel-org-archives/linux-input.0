@@ -1,549 +1,116 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: appleir: add support for Apple ir devices
-Date: Mon,  8 Apr 2013 18:30:51 +0200
-Message-ID: <1365438651-32623-1-git-send-email-benjamin.tissoires@redhat.com>
+From: "Daniel Leung" <daniel.leung@linux.intel.com>
+Subject: Re: [PATCH] HID: hid-sensor-hub: do not process feature reports in
+     raw_event
+Date: Mon, 8 Apr 2013 09:54:52 -0700 (PDT)
+Message-ID: <38514.10.7.197.74.1365440092.squirrel@linux.intel.com>
+References: <1363886546-6517-1-git-send-email-daniel.leung@linux.intel.com>
+    <51507136.4020308@linux.intel.com>
+    <alpine.LNX.2.00.1303271608500.23442@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Bastien Nocera <hadess@hadess.net>, Fabien <fabien.andre@gmail.com>, Jarod Wilson <jarod@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga03.intel.com ([143.182.124.21]:46628 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760109Ab3DHQz3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Apr 2013 12:55:29 -0400
+In-Reply-To: <alpine.LNX.2.00.1303271608500.23442@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, daniel.leung@linux.intel.com, srinivas.pandruvada@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This driver was originally written by James McKenzie, updated by
-Greg Kroah-Hartman, further updated by Bastien Nocera, with suspend
-support added.
-I ported it to the HID subsystem, in order to simplify it a litle
-and allow lirc to use it through hiddev.
-
-More recent versions of the IR receiver are also supported through
-a patch by Alex Karpenko. The patch also adds support for the 2nd
-and 5th generation of the controller, and the menu key on newer
-brushed metal remotes.
-
-Tested-by: Fabien Andr=C3=A9 <fabien.andre@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-Hi guys,
-
-this is the re-spin of Bastien's patch submitted last november.
-I ported it to use the hid subsystem, reducing the size of the driver
-to 355 lines instead of 527.
-
-any comments are welcome!
-
-Cheers,
-Benjamin
-
- drivers/hid/Kconfig       |  11 ++
- drivers/hid/Makefile      |   1 +
- drivers/hid/hid-apple.c   |   4 -
- drivers/hid/hid-appleir.c | 355 ++++++++++++++++++++++++++++++++++++++=
-++++++++
- drivers/hid/hid-core.c    |   7 +-
- drivers/hid/hid-ids.h     |   5 +-
- 6 files changed, 376 insertions(+), 7 deletions(-)
- create mode 100644 drivers/hid/hid-appleir.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 613083a..034b0c9 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -122,6 +122,17 @@ config HID_APPLE
- 	Say Y here if you want support for keyboards of	Apple iBooks, PowerBo=
-oks,
- 	MacBooks, MacBook Pros and Apple Aluminum.
-=20
-+config HID_APPLEIR
-+	tristate "Apple infrared receiver"
-+	depends on (USB_HID)
-+	---help---
-+	Support for Apple infrared remote control. All the Apple computers fr=
-om
-+	  2005 onwards include such a port, except the unibody Macbook (2009)=
-,
-+	  and Mac Pros. This receiver is also used in the Apple TV set-top bo=
-x
-+	  prior to the 2010 model.
-+
-+	Say Y here if you want support for Apple infrared remote control.
-+
- config HID_AUREAL
- 	tristate "Aureal"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 2735151..2065694 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -39,6 +39,7 @@ endif
- obj-$(CONFIG_HID_A4TECH)	+=3D hid-a4tech.o
- obj-$(CONFIG_HID_ACRUX)		+=3D hid-axff.o
- obj-$(CONFIG_HID_APPLE)		+=3D hid-apple.o
-+obj-$(CONFIG_HID_APPLEIR)	+=3D hid-appleir.o
- obj-$(CONFIG_HID_AUREAL)        +=3D hid-aureal.o
- obj-$(CONFIG_HID_BELKIN)	+=3D hid-belkin.o
- obj-$(CONFIG_HID_CHERRY)	+=3D hid-cherry.o
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 9e0c4fbb..feae88b 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -389,10 +389,6 @@ static void apple_remove(struct hid_device *hdev)
- }
-=20
- static const struct hid_device_id apple_devices[] =3D {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTR=
-OL),
--		.driver_data =3D APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
-,
--		.driver_data =3D APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE=
-),
- 		.driver_data =3D APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
-=20
-diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
-new file mode 100644
-index 0000000..2aff98f
---- /dev/null
-+++ b/drivers/hid/hid-appleir.c
-@@ -0,0 +1,355 @@
-+/*
-+ * HID driver for the apple ir device
-+ *
-+ * Original driver written by James McKenzie
-+ * Ported to recent 2.6 kernel versions by Greg Kroah-Hartman <gregkh@=
-suse.de>
-+ * Updated to support newer remotes by Bastien Nocera <hadess@hadess.n=
-et>
-+ * Ported to HID subsystem by Benjamin Tissoires <benjamin.tissoires@g=
-mail.com>
-+ *
-+ * Copyright (C) 2006 James McKenzie
-+ * Copyright (C) 2008 Greg Kroah-Hartman <greg@kroah.com>
-+ * Copyright (C) 2008 Novell Inc.
-+ * Copyright (C) 2010, 2012 Bastien Nocera <hadess@hadess.net>
-+ * Copyright (C) 2013 Benjamin Tissoires <benjamin.tissoires@gmail.com=
+> On Mon, 25 Mar 2013, Srinivas Pandruvada wrote:
 >
-+ * Copyright (C) 2013 Red Hat Inc. All Rights Reserved
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, an=
-d
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+
-+MODULE_AUTHOR("James McKenzie");
-+MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@redhat.com>");
-+MODULE_DESCRIPTION("HID Apple IR remote controls");
-+MODULE_LICENSE("GPL");
-+
-+#define KEY_MASK		0x0F
-+#define TWO_PACKETS_MASK	0x40
-+
-+#define appleir_dbg(hid, fmt, arg...)					  \
-+do {									  \
-+	if (debug)							  \
-+		dev_dbg(&(hid)->dev, fmt, ##arg); \
-+} while (0)
-+
-+static int debug;
-+module_param(debug, int, 0644);
-+MODULE_PARM_DESC(debug, "Enable extra debug messages and information")=
-;
-+
-+/* James McKenzie has two devices both of which report the following *=
-/
-+/* 25 87 ee 83 0a	+  */
-+/* 25 87 ee 83 0c	-  */
-+/* 25 87 ee 83 09	<< */
-+/* 25 87 ee 83 06	>> */
-+/* 25 87 ee 83 05	>" */
-+/* 25 87 ee 83 03	menu */
-+/* 26 00 00 00 00	for key repeat*/
-+
-+/* Thomas Glanzmann reports the following responses */
-+/* 25 87 ee ca 0b	+  */
-+/* 25 87 ee ca 0d	-  */
-+/* 25 87 ee ca 08	<< */
-+/* 25 87 ee ca 07	>> */
-+/* 25 87 ee ca 04	>" */
-+/* 25 87 ee ca 02	menu */
-+/* 26 00 00 00 00       for key repeat*/
-+/* He also observes the following event sometimes */
-+/* sent after a key is release, which I interpret */
-+/* as a flat battery message */
-+/* 25 87 e0 ca 06	flat battery */
-+
-+/* Alexandre Karpenko reports the following responses for Device ID 0x=
-8242 */
-+/* 25 87 ee 47 0b	+  */
-+/* 25 87 ee 47 0d	-  */
-+/* 25 87 ee 47 08	<< */
-+/* 25 87 ee 47 07	>> */
-+/* 25 87 ee 47 04	>" */
-+/* 25 87 ee 47 02	menu */
-+/* 26 87 ee 47 **	for key repeat (** is the code of the key being held=
-) */
-+
-+/* Bastien Nocera's remote */
-+/* 25 87 ee 91 5f	followed by
-+ * 25 87 ee 91 05	gives you >"
-+ *
-+ * 25 87 ee 91 5c	followed by
-+ * 25 87 ee 91 05	gives you the middle button */
-+
-+/* Fabien Andre's remote */
-+/* 25 87 ee a3 5e	followed by
-+ * 25 87 ee a3 04	gives you >"
-+ *
-+ * 25 87 ee a3 5d	followed by
-+ * 25 87 ee a3 04	gives you the middle button */
-+
-+static const unsigned short appleir_key_table[] =3D {
-+	KEY_RESERVED,
-+	KEY_MENU,
-+	KEY_PLAYPAUSE,
-+	KEY_FORWARD,
-+	KEY_BACK,
-+	KEY_VOLUMEUP,
-+	KEY_VOLUMEDOWN,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_ENTER,
-+	KEY_PLAYPAUSE,
-+	KEY_RESERVED,
-+};
-+
-+struct appleir {
-+	struct input_dev *input_dev;
-+	struct hid_device *hid;
-+	unsigned short keymap[ARRAY_SIZE(appleir_key_table)];
-+	struct timer_list key_up_timer;	/* timer for key up */
-+	spinlock_t lock;		/* protects .current_key */
-+	int current_key;		/* the currently pressed key */
-+	int prev_key_idx;		/* key index in a 2 packets message */
-+};
-+
-+static void dump_packet(struct appleir *appleir, char *msg, u8 *data, =
-int len)
-+{
-+	appleir_dbg(appleir->hid,
-+		    "appleir: %s (%d bytes) %*ph (should be command %d)\n",
-+		    msg, len, len, data, (data[4] >> 1) & KEY_MASK);
-+}
-+
-+static int get_key(int data)
-+{
-+	/*
-+	 * The indexes of the keys are computed like this:
-+	 * 0x00 or 0x01 (        )	key:   0	-> KEY_RESERVED
-+	 * 0x02 or 0x03 (  menu  )	key:   1	-> KEY_MENU
-+	 * 0x04 or 0x05 (   >"   )	key:   2	-> KEY_PLAYPAUSE
-+	 * 0x06 or 0x07 (   >>   )	key:   3	-> KEY_FORWARD
-+	 * 0x08 or 0x09 (   <<   )	key:   4	-> KEY_BACK
-+	 * 0x0a or 0x0b (    +   )	key:   5	-> KEY_VOLUMEUP
-+	 * 0x0c or 0x0d (    -   )	key:   6	-> KEY_VOLUMEDOWN
-+	 * 0x0e or 0x0f (        )	key:   7	-> KEY_RESERVED
-+	 * 0x50 or 0x51 (        )	key:  -8	-> KEY_RESERVED
-+	 * 0x52 or 0x53 (        )	key:  -9	-> KEY_RESERVED
-+	 * 0x54 or 0x55 (        )	key: -10	-> KEY_RESERVED
-+	 * 0x56 or 0x57 (        )	key: -11	-> KEY_RESERVED
-+	 * 0x58 or 0x59 (        )	key: -12	-> KEY_RESERVED
-+	 * 0x5a or 0x5b (        )	key: -13	-> KEY_RESERVED
-+	 * 0x5c or 0x5d ( middle )	key: -14	-> KEY_ENTER
-+	 * 0x5e or 0x5f (   >"   )	key: -15	-> KEY_PLAYPAUSE
-+	 */
-+	int key =3D (data >> 1) & KEY_MASK;
-+
-+	if ((data & TWO_PACKETS_MASK))
-+		/* Part of a 2 packet-command */
-+		key =3D -key;
-+
-+	return key;
-+}
-+
-+static void key_up(struct hid_device *hid, struct appleir *appleir, in=
-t key)
-+{
-+	appleir_dbg(hid, "key %d up\n", key);
-+	input_report_key(appleir->input_dev, key, 0);
-+	input_sync(appleir->input_dev);
-+}
-+
-+static void key_down(struct hid_device *hid, struct appleir *appleir, =
-int key)
-+{
-+	appleir_dbg(hid, "key %d down\n", key);
-+	input_report_key(appleir->input_dev, key, 1);
-+	input_sync(appleir->input_dev);
-+}
-+
-+static void battery_flat(struct appleir *appleir)
-+{
-+	dev_err(&appleir->input_dev->dev, "possible flat battery?\n");
-+}
-+
-+static void key_up_tick(unsigned long data)
-+{
-+	struct appleir *appleir =3D (struct appleir *)data;
-+	struct hid_device *hid =3D appleir->hid;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&appleir->lock, flags);
-+	if (appleir->current_key) {
-+		key_up(hid, appleir, appleir->current_key);
-+		appleir->current_key =3D 0;
-+	}
-+	spin_unlock_irqrestore(&appleir->lock, flags);
-+}
-+
-+static int appleir_raw_event(struct hid_device *hid, struct hid_report=
- *report,
-+	 u8 *data, int len)
-+{
-+	struct appleir *appleir =3D hid_get_drvdata(hid);
-+	static const u8 keydown[] =3D { 0x25, 0x87, 0xee };
-+	static const u8 keyrepeat[] =3D { 0x26, };
-+	static const u8 flatbattery[] =3D { 0x25, 0x87, 0xe0 };
-+	unsigned long flags;
-+
-+	if (debug)
-+		dump_packet(appleir, "received", data, len);
-+
-+	if (len !=3D 5)
-+		goto out;
-+
-+	if (!memcmp(data, keydown, sizeof(keydown))) {
-+		int index;
-+
-+		spin_lock_irqsave(&appleir->lock, flags);
-+		/* If we already have a key down, take it up before marking
-+		   this one down */
-+		if (appleir->current_key)
-+			key_up(hid, appleir, appleir->current_key);
-+
-+		/* Handle dual packet commands */
-+		if (appleir->prev_key_idx > 0)
-+			index =3D appleir->prev_key_idx;
-+		else
-+			index =3D get_key(data[4]);
-+
-+		if (index >=3D 0) {
-+			appleir->current_key =3D appleir->keymap[index];
-+
-+			key_down(hid, appleir, appleir->current_key);
-+			/* Remote doesn't do key up, either pull them up, in
-+			 * the test above, or here set a timer which pulls
-+			 * them up after 1/8 s */
-+			mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
-+			appleir->prev_key_idx =3D 0;
-+		} else
-+			/* Remember key for next packet */
-+			appleir->prev_key_idx =3D -index;
-+		spin_unlock_irqrestore(&appleir->lock, flags);
-+		goto out;
-+	}
-+
-+	appleir->prev_key_idx =3D 0;
-+
-+	if (!memcmp(data, keyrepeat, sizeof(keyrepeat))) {
-+		key_down(hid, appleir, appleir->current_key);
-+		/* Remote doesn't do key up, either pull them up, in the test
-+		   above, or here set a timer which pulls them up after 1/8 s */
-+		mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
-+		goto out;
-+	}
-+
-+	if (!memcmp(data, flatbattery, sizeof(flatbattery))) {
-+		battery_flat(appleir);
-+		/* Fall through */
-+	}
-+
-+	dump_packet(appleir, "unknown packet", data, len);
-+
-+out:
-+	/* let hidraw and hiddev handle the report */
-+	return 0;
-+}
-+
-+static void appleir_input_configured(struct hid_device *hid,
-+		struct hid_input *hidinput)
-+{
-+	struct input_dev *input_dev =3D hidinput->input;
-+	struct appleir *appleir =3D hid_get_drvdata(hid);
-+	int i;
-+
-+	appleir->input_dev =3D input_dev;
-+
-+	input_dev->keycode =3D appleir->keymap;
-+	input_dev->keycodesize =3D sizeof(unsigned short);
-+	input_dev->keycodemax =3D ARRAY_SIZE(appleir->keymap);
-+
-+	input_dev->evbit[0] =3D BIT(EV_KEY) | BIT(EV_REP);
-+
-+	memcpy(appleir->keymap, appleir_key_table, sizeof(appleir->keymap));
-+	for (i =3D 0; i < ARRAY_SIZE(appleir_key_table); i++)
-+		set_bit(appleir->keymap[i], input_dev->keybit);
-+	clear_bit(KEY_RESERVED, input_dev->keybit);
-+}
-+
-+static int appleir_input_mapping(struct hid_device *hid,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
-+{
-+	return -1;
-+}
-+
-+static int appleir_probe(struct hid_device *hid, const struct hid_devi=
-ce_id *id)
-+{
-+	int ret;
-+	struct appleir *appleir;
-+
-+	appleir =3D kzalloc(sizeof(struct appleir), GFP_KERNEL);
-+	if (!appleir) {
-+		ret =3D -ENOMEM;
-+		goto allocfail;
-+	}
-+
-+	appleir->hid =3D hid;
-+
-+	spin_lock_init(&appleir->lock);
-+	setup_timer(&appleir->key_up_timer,
-+		    key_up_tick, (unsigned long) appleir);
-+
-+	hid_set_drvdata(hid, appleir);
-+
-+	ret =3D hid_parse(hid);
-+	if (ret) {
-+		hid_err(hid, "parse failed\n");
-+		goto fail;
-+	}
-+
-+	ret =3D hid_hw_start(hid, HID_CONNECT_DEFAULT | HID_CONNECT_HIDDEV_FO=
-RCE);
-+	if (ret) {
-+		hid_err(hid, "hw start failed\n");
-+		goto fail;
-+	}
-+
-+	return 0;
-+fail:
-+	kfree(appleir);
-+allocfail:
-+	return ret;
-+}
-+
-+static void appleir_remove(struct hid_device *hid)
-+{
-+	struct appleir *appleir =3D hid_get_drvdata(hid);
-+	del_timer_sync(&appleir->key_up_timer);
-+	hid_hw_stop(hid);
-+	kfree(appleir);
-+}
-+
-+static const struct hid_device_id appleir_devices[] =3D {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) =
-},
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL2)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL3)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL5)=
- },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, appleir_devices);
-+
-+static struct hid_driver appleir_driver =3D {
-+	.name =3D "appleir",
-+	.id_table =3D appleir_devices,
-+	.raw_event =3D appleir_raw_event,
-+	.input_configured =3D appleir_input_configured,
-+	.probe =3D appleir_probe,
-+	.remove =3D appleir_remove,
-+	.input_mapping =3D appleir_input_mapping,
-+};
-+module_hid_driver(appleir_driver);
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 1129f49..ceb419d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1501,8 +1501,6 @@ static const struct hid_device_id hid_have_specia=
-l_driver[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) =
-},
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) }=
-,
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTR=
-OL) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
- },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE=
-) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC=
-MOUSE) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC=
-TRACKPAD) },
-@@ -1526,6 +1524,11 @@ static const struct hid_device_id hid_have_speci=
-al_driver[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_=
-ANSI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_=
-ISO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_=
-JIS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) =
-},
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL2)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL3)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL5)=
- },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
-IRELESS_ANSI) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
-IRELESS_ISO) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
-IRELESS_JIS) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b622aec..8dd7295 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -137,8 +137,11 @@
- #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO   0x0256
- #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
- #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
--#define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
-+#define USB_DEVICE_ID_APPLE_IRCONTROL	0x8240
-+#define USB_DEVICE_ID_APPLE_IRCONTROL2	0x1440
-+#define USB_DEVICE_ID_APPLE_IRCONTROL3	0x8241
- #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
-+#define USB_DEVICE_ID_APPLE_IRCONTROL5	0x8243
-=20
- #define USB_VENDOR_ID_ASUS		0x0486
- #define USB_DEVICE_ID_ASUS_T91MT	0x0185
---=20
-1.8.1.4
+>> Daniel,
+>>
+>> I am looking at 3.9.rc1.
+>> The only place I see the raw_event callback is called from
+>> hid/hid_input_report(). hid_input_report is called with type
+>> HID_INPUT_REPORT
+>> in all cases, except hid_ctrl(), where it can be different depending on
+>> xx.report->type. But here, the return value is not checked.
+>>
+>> Do you know the call chain for HID_FETURE_REPORT, where this is creating
+>> problem?
+>
+> This was exactly what I was wondering about when I have seen the initial
+> patch a few weeks ago.
+>
+> Daniel, could you please elaborate? Is there a out-of-tree driver for Acer
+> Iconia W700?
+
+Sorry for the late reply. I was out of town and was having difficulties
+accessing the mail server.
+
+For the call path, here is what I got (using WARN_ON()):
+
+<4>[  150.943775] ------------[ cut here ]------------
+<4>[  150.943861] WARNING: at
+../../../../../../../../../../home/dleung/android/ia/private/jb-mr1-internal/kernel/intel/drivers/hid/hid-sensor-hub.c:418
+sensor_hub_raw_event+0x2d0/0x3b0 [hid_sensor_hub]()
+<4>[  150.944028] Hardware name: ICONIA W700
+<7>[  150.944071] Modules linked in: hid_sensor_als hid_sensor_gyro_3d
+hid_sensor_accel_3d uvcvideo videobuf2_vmalloc videobuf2_memops
+videobuf2_core btusb bluetooth hid_multitouch ath9k ath9k_common ath9k_hw
+ath snd_hda_codec_hdmi snd_hda_codec_realtek ip6table_raw snd_hda_intel
+iptable_raw snd_hda_codec snd_hwdep snd_pcm snd_page_alloc snd_timer snd
+soundcore hid_sensor_trigger hid_sensor_iio_common hid_sensor_hub
+industrialio_triggered_buffer kfifo_buf industrialio coretemp
+<7>[  150.944132] Pid: 0, comm: swapper/1 Not tainted
+3.8.0-aia1-00043-gd7fd780-dirty #2
+<7>[  150.944136] Call Trace:
+<7>[  150.944141]  <IRQ>  [<ffffffff8105b5bf>] warn_slowpath_common+0x7f/0xc0
+<7>[  150.944163]  [<ffffffff8105b61a>] warn_slowpath_null+0x1a/0x20
+<7>[  150.944173]  [<ffffffffa00315e0>] sensor_hub_raw_event+0x2d0/0x3b0
+[hid_sensor_hub]
+<7>[  150.944184]  [<ffffffff819021e7>] ?
+_raw_spin_unlock_irqrestore+0x57/0x70
+<7>[  150.944195]  [<ffffffff816ccce3>] hid_input_report+0x283/0x2d0
+<7>[  150.944203]  [<ffffffff816d9faf>] hid_ctrl+0x9f/0x180
+<7>[  150.944212]  [<ffffffff815b2087>] usb_hcd_giveback_urb+0x77/0x110
+<7>[  150.944222]  [<ffffffff8160073f>] xhci_irq+0x60f/0x1530
+<7>[  150.944230]  [<ffffffff810df0fe>] ? handle_edge_irq+0x1e/0x130
+<7>[  150.944239]  [<ffffffff810af04f>] ? __lock_acquire.isra.31+0x28f/0xa70
+<7>[  150.944247]  [<ffffffff81601671>] xhci_msi_irq+0x11/0x20
+<7>[  150.944258]  [<ffffffff810dc395>] handle_irq_event_percpu+0x55/0x210
+<7>[  150.944267]  [<ffffffff810dc598>] handle_irq_event+0x48/0x70
+<7>[  150.944273]  [<ffffffff810df157>] handle_edge_irq+0x77/0x130
+<7>[  150.944283]  [<ffffffff81004180>] handle_irq+0x60/0x150
+<7>[  150.944293]  [<ffffffff81906406>] ?
+atomic_notifier_call_chain+0x16/0x20
+<7>[  150.944302]  [<ffffffff8190c38a>] do_IRQ+0x5a/0xe0
+<7>[  150.944309]  [<ffffffff8190266f>] common_interrupt+0x6f/0x6f
+<7>[  150.944313]  <EOI>  [<ffffffff816a97f5>] ? cpuidle_wrap_enter+0x55/0xa0
+<7>[  150.944327]  [<ffffffff816a97f1>] ? cpuidle_wrap_enter+0x51/0xa0
+<7>[  150.944334]  [<ffffffff816a9850>] cpuidle_enter_tk+0x10/0x20
+<7>[  150.944341]  [<ffffffff816a940f>] cpuidle_idle_call+0xaf/0x2b0
+<7>[  150.944350]  [<ffffffff8100b3aa>] cpu_idle+0xda/0x130
+<7>[  150.944360]  [<ffffffff818f081d>] start_secondary+0x266/0x268
+<4>[  150.944365] ---[ end trace 32319d39ebee5616 ]---
+
+
+You can see that it went through hid_ctrl().
+
+>From what I can gather using usbmon, the sensor hub sends the feature
+report correctly. However, the in-kernel struct is not updated when the
+report comes in. Therefore, the report from sensor_hub_report() is always
+zero-filled. When calling sensor_hub_set_feature(), those zeros are being
+sent back to the device. The feature report contains fields for power
+state and reporting state. If they are set to zero, the firmware does not
+know what to do as zero means undefined state. Both power and reporting
+states have to be set for sensor to report values. Given the zero-filled
+report, and we can only deal with one field in sensor_hub_set_feature(),
+setting power state to non-zero also sends zero (i.e. undefined state) to
+the reporting state field, and vice versa.
+
+The sensor hub on Acer Iconia W700 is using drivers/hid/hid-sensor-hub.c.
+I also played with Sony Vaio Duo 11 a while back (before having this
+patch), and was having trouble turning on gyroscope. I suspect it is
+caused by the same issue. The sensor hub on Acer is from STMicro, while
+the one in Vaio Duo is from Freescale.
+
+
+
+Thanks,
+Daniel

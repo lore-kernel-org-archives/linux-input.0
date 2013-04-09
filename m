@@ -1,125 +1,365 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: appleir: add support for Apple ir devices
-Date: Tue, 9 Apr 2013 22:10:34 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1304092155330.17280@pobox.suse.cz>
-References: <1365438651-32623-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46126 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S935712Ab3DIUKh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Apr 2013 16:10:37 -0400
-In-Reply-To: <1365438651-32623-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Shawn Nematbakhsh <shawnn@google.com>
+Subject: [PATCH v2] Input: trackpoint - Optimize trackpoint init to use power-on reset
+Date: Tue,  9 Apr 2013 14:52:42 -0700
+Message-ID: <1365544362-13923-1-git-send-email-shawnn@google.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: shawnn@chromium.org, dgdunix@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, cywang@chromium.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Bastien Nocera <hadess@hadess.net>, Fabien <fabien.andre@gmail.com>, Jarod Wilson <jarod@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 8 Apr 2013, Benjamin Tissoires wrote:
+From: Shawn Nematbakhsh <shawnn@chromium.org>
 
-> This driver was originally written by James McKenzie, updated by
-> Greg Kroah-Hartman, further updated by Bastien Nocera, with suspend
-> support added.
-> I ported it to the HID subsystem, in order to simplify it a litle
-> and allow lirc to use it through hiddev.
->=20
-> More recent versions of the IR receiver are also supported through
-> a patch by Alex Karpenko. The patch also adds support for the 2nd
-> and 5th generation of the controller, and the menu key on newer
-> brushed metal remotes.
->=20
-> Tested-by: Fabien Andr=E9 <fabien.andre@gmail.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> Hi guys,
->=20
-> this is the re-spin of Bastien's patch submitted last november.
-> I ported it to use the hid subsystem, reducing the size of the driver
-> to 355 lines instead of 527.
+The trackpoint driver sets various parameter default values, all of
+which happen to be power-on defaults (Source: IBM TrackPoint Engineering
+Specification, Version 4.0. Also confirmed by empirical data).
 
-Thanks. Generally, I like the idea of appleir being on the hid bus.
+By sending the power-on reset command to reset all parameters to
+power-on state, we can skip the lengthy process of programming all
+parameters. In testing, ~2.5 secs of time writing parameters was reduced
+to .35 seconds waiting for power-on reset to complete.
 
-Bastien, could you please provide your Ack (and most importantly also=20
-Tested-by?).
+Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
+---
+Changes since v1:
+- Changed handling of 0xfc00 reply to POR.
+---
+ drivers/input/mouse/trackpoint.c | 224 +++++++++++++++++++++++++--------------
+ drivers/input/mouse/trackpoint.h |   7 +-
+ 2 files changed, 150 insertions(+), 81 deletions(-)
 
-[ ... snip ... ]
-> +static void dump_packet(struct appleir *appleir, char *msg, u8 *data=
-, int len)
-> +{
-> +	appleir_dbg(appleir->hid,
-> +		    "appleir: %s (%d bytes) %*ph (should be command %d)\n",
-> +		    msg, len, len, data, (data[4] >> 1) & KEY_MASK);
-> +}
-
-Can't we just use HID debugfs interface for this kind of debugging outp=
-ut?
-
-> +static int get_key(int data)
-> +{
-> +	/*
-> +	 * The indexes of the keys are computed like this:
-> +	 * 0x00 or 0x01 (        )	key:   0	-> KEY_RESERVED
-> +	 * 0x02 or 0x03 (  menu  )	key:   1	-> KEY_MENU
-> +	 * 0x04 or 0x05 (   >"   )	key:   2	-> KEY_PLAYPAUSE
-> +	 * 0x06 or 0x07 (   >>   )	key:   3	-> KEY_FORWARD
-> +	 * 0x08 or 0x09 (   <<   )	key:   4	-> KEY_BACK
-> +	 * 0x0a or 0x0b (    +   )	key:   5	-> KEY_VOLUMEUP
-> +	 * 0x0c or 0x0d (    -   )	key:   6	-> KEY_VOLUMEDOWN
-> +	 * 0x0e or 0x0f (        )	key:   7	-> KEY_RESERVED
-> +	 * 0x50 or 0x51 (        )	key:  -8	-> KEY_RESERVED
-> +	 * 0x52 or 0x53 (        )	key:  -9	-> KEY_RESERVED
-> +	 * 0x54 or 0x55 (        )	key: -10	-> KEY_RESERVED
-> +	 * 0x56 or 0x57 (        )	key: -11	-> KEY_RESERVED
-> +	 * 0x58 or 0x59 (        )	key: -12	-> KEY_RESERVED
-> +	 * 0x5a or 0x5b (        )	key: -13	-> KEY_RESERVED
-> +	 * 0x5c or 0x5d ( middle )	key: -14	-> KEY_ENTER
-> +	 * 0x5e or 0x5f (   >"   )	key: -15	-> KEY_PLAYPAUSE
-> +	 */
-> +	int key =3D (data >> 1) & KEY_MASK;
-> +
-> +	if ((data & TWO_PACKETS_MASK))
-> +		/* Part of a 2 packet-command */
-> +		key =3D -key;
-
-I think all the shuffling with negative indices would justify an=20
-explanatory comment; it's quite confusing on a first sight.
-
-[ ... snip ... ]
-> +static int appleir_raw_event(struct hid_device *hid, struct hid_repo=
-rt *report,
-> +	 u8 *data, int len)
-> +{
-> +	struct appleir *appleir =3D hid_get_drvdata(hid);
-> +	static const u8 keydown[] =3D { 0x25, 0x87, 0xee };
-> +	static const u8 keyrepeat[] =3D { 0x26, };
-> +	static const u8 flatbattery[] =3D { 0x25, 0x87, 0xe0 };
-> +	unsigned long flags;
-> +
-> +	if (debug)
-> +		dump_packet(appleir, "received", data, len);
-> +
-> +	if (len !=3D 5)
-> +		goto out;
-> +
-> +	if (!memcmp(data, keydown, sizeof(keydown))) {
-> +		int index;
-> +
-> +		spin_lock_irqsave(&appleir->lock, flags);
-> +		/* If we already have a key down, take it up before marking
-> +		   this one down */
-
-Could you please make this comment in-line with kernel comments coding=20
-style?
-
-Thanks, Benjamin.
-
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+index f310249..42964d4 100644
+--- a/drivers/input/mouse/trackpoint.c
++++ b/drivers/input/mouse/trackpoint.c
+@@ -20,6 +20,30 @@
+ #include "trackpoint.h"
+ 
+ /*
++ * Power-on Reset: Resets all trackpoint parameters, including RAM values,
++ * to defaults.
++ * Returns zero on success, non-zero on failure.
++ */
++static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
++{
++	unsigned char results[2];
++	int tries = 0;
++
++	/* Issue POR command, and repeat up to once if 0xFC00 received */
++	do {
++		if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
++		    ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 2, TP_POR)))
++			return -1;
++	} while (results[0] == 0xFC && results[1] == 0x00 && ++tries < 2);
++
++	/* Check for success response -- 0xAA00 */
++	if (results[0] != 0xAA || results[1] != 0x00)
++		return -1;
++
++	return 0;
++}
++
++/*
+  * Device IO: read, write and toggle bit
+  */
+ static int trackpoint_read(struct ps2dev *ps2dev, unsigned char loc, unsigned char *results)
+@@ -69,6 +93,7 @@ struct trackpoint_attr_data {
+ 	unsigned char command;
+ 	unsigned char mask;
+ 	unsigned char inverted;
++	unsigned char power_on_default;
+ };
+ 
+ static ssize_t trackpoint_show_int_attr(struct psmouse *psmouse, void *data, char *buf)
+@@ -102,10 +127,11 @@ static ssize_t trackpoint_set_int_attr(struct psmouse *psmouse, void *data,
+ 	return count;
+ }
+ 
+-#define TRACKPOINT_INT_ATTR(_name, _command)					\
++#define TRACKPOINT_INT_ATTR(_name, _command, _default)				\
+ 	static struct trackpoint_attr_data trackpoint_attr_##_name = {		\
+ 		.field_offset = offsetof(struct trackpoint_data, _name),	\
+ 		.command = _command,						\
++		.power_on_default = _default,					\
+ 	};									\
+ 	PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO,				\
+ 			    &trackpoint_attr_##_name,				\
+@@ -139,31 +165,68 @@ static ssize_t trackpoint_set_bit_attr(struct psmouse *psmouse, void *data,
+ }
+ 
+ 
+-#define TRACKPOINT_BIT_ATTR(_name, _command, _mask, _inv)				\
++#define TRACKPOINT_BIT_ATTR(_name, _command, _mask, _inv, _default)		\
+ 	static struct trackpoint_attr_data trackpoint_attr_##_name = {		\
+-		.field_offset	= offsetof(struct trackpoint_data, _name),	\
+-		.command	= _command,					\
+-		.mask		= _mask,					\
+-		.inverted	= _inv,						\
++		.field_offset		= offsetof(struct trackpoint_data,	\
++						   _name),			\
++		.command		= _command,				\
++		.mask			= _mask,				\
++		.inverted		= _inv,					\
++		.power_on_default	= _default,				\
+ 	};									\
+ 	PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO,				\
+ 			    &trackpoint_attr_##_name,				\
+ 			    trackpoint_show_int_attr, trackpoint_set_bit_attr)
+ 
+-TRACKPOINT_INT_ATTR(sensitivity, TP_SENS);
+-TRACKPOINT_INT_ATTR(speed, TP_SPEED);
+-TRACKPOINT_INT_ATTR(inertia, TP_INERTIA);
+-TRACKPOINT_INT_ATTR(reach, TP_REACH);
+-TRACKPOINT_INT_ATTR(draghys, TP_DRAGHYS);
+-TRACKPOINT_INT_ATTR(mindrag, TP_MINDRAG);
+-TRACKPOINT_INT_ATTR(thresh, TP_THRESH);
+-TRACKPOINT_INT_ATTR(upthresh, TP_UP_THRESH);
+-TRACKPOINT_INT_ATTR(ztime, TP_Z_TIME);
+-TRACKPOINT_INT_ATTR(jenks, TP_JENKS_CURV);
+-
+-TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, 0);
+-TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, 0);
+-TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, 1);
++#define TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name)				\
++	{									\
++		unsigned char _toggle;						\
++		struct trackpoint_attr_data *_attr = &trackpoint_attr_##_name;	\
++		trackpoint_read(&_psmouse->ps2dev, _attr->command, &_toggle);	\
++		if (((_toggle & _attr->mask) == _attr->mask) !=			\
++		      _tp->_name)						\
++			trackpoint_toggle_bit(&_psmouse->ps2dev,		\
++					      _attr->command,			\
++					      _attr->mask);			\
++	}
++
++#define TRACKPOINT_UPDATE(_power_on, _psmouse, _tp, _name)			\
++	if (!_power_on ||							\
++	    _tp->_name != trackpoint_attr_##_name.power_on_default) {		\
++		if (!trackpoint_attr_##_name.mask)				\
++			trackpoint_write(&_psmouse->ps2dev,			\
++					 trackpoint_attr_##_name.command,	\
++					 _tp->_name);				\
++		else								\
++			TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name);		\
++	}
++
++#define TRACKPOINT_SET_POWER_ON_DEFAULT(_tp, _name)				\
++	(_tp->_name = trackpoint_attr_##_name.power_on_default)
++
++TRACKPOINT_INT_ATTR(sensitivity, TP_SENS, TP_DEF_SENS);
++TRACKPOINT_INT_ATTR(speed, TP_SPEED, TP_DEF_SPEED);
++TRACKPOINT_INT_ATTR(inertia, TP_INERTIA, TP_DEF_INERTIA);
++TRACKPOINT_INT_ATTR(reach, TP_REACH, TP_DEF_REACH);
++TRACKPOINT_INT_ATTR(draghys, TP_DRAGHYS, TP_DEF_DRAGHYS);
++TRACKPOINT_INT_ATTR(mindrag, TP_MINDRAG, TP_DEF_MINDRAG);
++TRACKPOINT_INT_ATTR(thresh, TP_THRESH, TP_DEF_THRESH);
++TRACKPOINT_INT_ATTR(upthresh, TP_UP_THRESH, TP_DEF_UP_THRESH);
++TRACKPOINT_INT_ATTR(ztime, TP_Z_TIME, TP_DEF_Z_TIME);
++TRACKPOINT_INT_ATTR(jenks, TP_JENKS_CURV, TP_DEF_JENKS_CURV);
++
++TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, 0,
++		    TP_DEF_PTSON);
++TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, 0,
++		    TP_DEF_SKIPBACK);
++TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, 1,
++		    TP_DEF_EXT_DEV);
++TRACKPOINT_BIT_ATTR(twohand, TP_TOGGLE_TWOHAND, TP_MASK_TWOHAND, 0,
++		    TP_DEF_TWOHAND);
++TRACKPOINT_BIT_ATTR(source_tag, TP_TOGGLE_SOURCE_TAG, TP_MASK_SOURCE_TAG, 0,
++		    TP_DEF_SOURCE_TAG);
++TRACKPOINT_BIT_ATTR(mb, TP_TOGGLE_MB, TP_MASK_MB, 0,
++		    TP_DEF_MB);
+ 
+ static struct attribute *trackpoint_attrs[] = {
+ 	&psmouse_attr_sensitivity.dattr.attr,
+@@ -179,6 +242,9 @@ static struct attribute *trackpoint_attrs[] = {
+ 	&psmouse_attr_press_to_select.dattr.attr,
+ 	&psmouse_attr_skipback.dattr.attr,
+ 	&psmouse_attr_ext_dev.dattr.attr,
++	&psmouse_attr_twohand.dattr.attr,
++	&psmouse_attr_source_tag.dattr.attr,
++	&psmouse_attr_mb.dattr.attr,
+ 	NULL
+ };
+ 
+@@ -202,73 +268,63 @@ static int trackpoint_start_protocol(struct psmouse *psmouse, unsigned char *fir
+ 	return 0;
+ }
+ 
+-static int trackpoint_sync(struct psmouse *psmouse)
++/*
++ * Write parameters to trackpad.
++ * in_power_on_state: Set to true if TP is in default / power-on state (ex. if
++ *		      power-on reset was run). If so, values will only be
++ *		      written to TP if they differ from power-on default.
++ */
++static int trackpoint_sync(struct psmouse *psmouse, bool in_power_on_state)
+ {
+ 	struct trackpoint_data *tp = psmouse->private;
+-	unsigned char toggle;
+-
+-	/* Disable features that may make device unusable with this driver */
+-	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_TWOHAND, &toggle);
+-	if (toggle & TP_MASK_TWOHAND)
+-		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_TWOHAND, TP_MASK_TWOHAND);
+ 
+-	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG, &toggle);
+-	if (toggle & TP_MASK_SOURCE_TAG)
+-		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG, TP_MASK_SOURCE_TAG);
+-
+-	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_MB, &toggle);
+-	if (toggle & TP_MASK_MB)
+-		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_MB, TP_MASK_MB);
+-
+-	/* Push the config to the device */
+-	trackpoint_write(&psmouse->ps2dev, TP_SENS, tp->sensitivity);
+-	trackpoint_write(&psmouse->ps2dev, TP_INERTIA, tp->inertia);
+-	trackpoint_write(&psmouse->ps2dev, TP_SPEED, tp->speed);
+-
+-	trackpoint_write(&psmouse->ps2dev, TP_REACH, tp->reach);
+-	trackpoint_write(&psmouse->ps2dev, TP_DRAGHYS, tp->draghys);
+-	trackpoint_write(&psmouse->ps2dev, TP_MINDRAG, tp->mindrag);
+-
+-	trackpoint_write(&psmouse->ps2dev, TP_THRESH, tp->thresh);
+-	trackpoint_write(&psmouse->ps2dev, TP_UP_THRESH, tp->upthresh);
+-
+-	trackpoint_write(&psmouse->ps2dev, TP_Z_TIME, tp->ztime);
+-	trackpoint_write(&psmouse->ps2dev, TP_JENKS_CURV, tp->jenks);
+-
+-	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_PTSON, &toggle);
+-	if (((toggle & TP_MASK_PTSON) == TP_MASK_PTSON) != tp->press_to_select)
+-		 trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_PTSON, TP_MASK_PTSON);
+-
+-	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_SKIPBACK, &toggle);
+-	if (((toggle & TP_MASK_SKIPBACK) == TP_MASK_SKIPBACK) != tp->skipback)
+-		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK);
+-
+-	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_EXT_DEV, &toggle);
+-	if (((toggle & TP_MASK_EXT_DEV) == TP_MASK_EXT_DEV) != tp->ext_dev)
+-		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV);
++	/*
++	* These properties can be changed in this driver. Only
++	* configure them if the values are non-default or if the TP is in
++	* an unknown state.
++	*/
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, sensitivity);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, inertia);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, speed);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, reach);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, draghys);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, mindrag);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, thresh);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, upthresh);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, ztime);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, jenks);
++
++	/* toggles */
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, press_to_select);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, skipback);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, ext_dev);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, twohand);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, source_tag);
++	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, mb);
+ 
+ 	return 0;
+ }
+ 
+ static void trackpoint_defaults(struct trackpoint_data *tp)
+ {
+-	tp->press_to_select = TP_DEF_PTSON;
+-	tp->sensitivity = TP_DEF_SENS;
+-	tp->speed = TP_DEF_SPEED;
+-	tp->reach = TP_DEF_REACH;
+-
+-	tp->draghys = TP_DEF_DRAGHYS;
+-	tp->mindrag = TP_DEF_MINDRAG;
+-
+-	tp->thresh = TP_DEF_THRESH;
+-	tp->upthresh = TP_DEF_UP_THRESH;
+-
+-	tp->ztime = TP_DEF_Z_TIME;
+-	tp->jenks = TP_DEF_JENKS_CURV;
+-
+-	tp->inertia = TP_DEF_INERTIA;
+-	tp->skipback = TP_DEF_SKIPBACK;
+-	tp->ext_dev = TP_DEF_EXT_DEV;
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, sensitivity);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, speed);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, reach);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, draghys);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, mindrag);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, thresh);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, upthresh);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, ztime);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, jenks);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, inertia);
++
++	/* toggles */
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, press_to_select);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, skipback);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, ext_dev);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, twohand);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, source_tag);
++	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, mb);
+ }
+ 
+ static void trackpoint_disconnect(struct psmouse *psmouse)
+@@ -281,10 +337,13 @@ static void trackpoint_disconnect(struct psmouse *psmouse)
+ 
+ static int trackpoint_reconnect(struct psmouse *psmouse)
+ {
++	int reset_fail;
++
+ 	if (trackpoint_start_protocol(psmouse, NULL))
+ 		return -1;
+ 
+-	if (trackpoint_sync(psmouse))
++	reset_fail = trackpoint_power_on_reset(&psmouse->ps2dev);
++	if (trackpoint_sync(psmouse, !reset_fail))
+ 		return -1;
+ 
+ 	return 0;
+@@ -322,7 +381,12 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+ 		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+ 
+ 	trackpoint_defaults(psmouse->private);
+-	trackpoint_sync(psmouse);
++
++	error = trackpoint_power_on_reset(&psmouse->ps2dev);
++
++	/* Write defaults to TP only if reset fails. */
++	if (error)
++		trackpoint_sync(psmouse, false);
+ 
+ 	error = sysfs_create_group(&ps2dev->serio->dev.kobj, &trackpoint_attr_group);
+ 	if (error) {
+diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
+index e558a70..e0bc03b 100644
+--- a/drivers/input/mouse/trackpoint.h
++++ b/drivers/input/mouse/trackpoint.h
+@@ -126,6 +126,8 @@
+ #define TP_DEF_PTSON		0x00
+ #define TP_DEF_SKIPBACK		0x00
+ #define TP_DEF_EXT_DEV		0x00	/* 0 means enabled */
++#define TP_DEF_TWOHAND		0x00
++#define TP_DEF_SOURCE_TAG	0x00
+ 
+ #define MAKE_PS2_CMD(params, results, cmd) ((params<<12) | (results<<8) | (cmd))
+ 
+@@ -136,10 +138,13 @@ struct trackpoint_data
+ 	unsigned char thresh, upthresh;
+ 	unsigned char ztime, jenks;
+ 
++	/* toggles */
+ 	unsigned char press_to_select;
+ 	unsigned char skipback;
+-
+ 	unsigned char ext_dev;
++	unsigned char twohand;
++	unsigned char source_tag;
++	unsigned char mb;
+ };
+ 
+ #ifdef CONFIG_MOUSE_PS2_TRACKPOINT
+-- 
+1.7.12.4

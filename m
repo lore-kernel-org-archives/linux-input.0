@@ -1,110 +1,123 @@
-From: Shawn Nematbakhsh <shawnn@chromium.org>
-Subject: Re: [PATCH] Input: trackpoint - Optimize trackpoint init to use
- power-on reset
-Date: Tue, 9 Apr 2013 14:53:44 -0700
-Message-ID: <CALaWCOOBnsn-mcyp3V1hiP4CwBze9mzEoTV_jeM6gm6kKBZ60Q@mail.gmail.com>
-References: <1364326601-16571-1-git-send-email-shawnn@chromium.org>
-	<20130328053218.GB2812@core.coreip.homeip.net>
+From: "Daniel Leung" <daniel.leung@linux.intel.com>
+Subject: Re: [PATCH] HID: hid-sensor-hub: do not process feature reports in
+          raw_event
+Date: Tue, 9 Apr 2013 16:55:36 -0700 (PDT)
+Message-ID: <33544.10.7.197.74.1365551736.squirrel@linux.intel.com>
+References: <1363886546-6517-1-git-send-email-daniel.leung@linux.intel.com>
+    <51507136.4020308@linux.intel.com>
+    <alpine.LNX.2.00.1303271608500.23442@pobox.suse.cz>
+    <38514.10.7.197.74.1365440092.squirrel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ve0-f169.google.com ([209.85.128.169]:41722 "EHLO
-	mail-ve0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936356Ab3DIVxp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Apr 2013 17:53:45 -0400
-Received: by mail-ve0-f169.google.com with SMTP id d10so7026466vea.28
-        for <linux-input@vger.kernel.org>; Tue, 09 Apr 2013 14:53:45 -0700 (PDT)
-In-Reply-To: <20130328053218.GB2812@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <38514.10.7.197.74.1365440092.squirrel@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, daniel.leung@linux.intel.com, srinivas.pandruvada@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chung-yih Wang <cywang@chromium.org>
 
-Hi Dmitry,
-
-Thanks for the review. Comments in-line.
-
-On Wed, Mar 27, 2013 at 10:32 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Shawn,
->
-> On Tue, Mar 26, 2013 at 12:36:41PM -0700, Shawn Nematbakhsh wrote:
->> The trackpoint driver sets various parameter default values, all of
->> which happen to be power-on defaults (Source: IBM TrackPoint Engineering
->> Specification, Version 4.0. Also confirmed by empirical data).
+>> On Mon, 25 Mar 2013, Srinivas Pandruvada wrote:
 >>
->> By sending the power-on reset command to reset all parameters to
->> power-on state, we can skip the lengthy process of programming all
->> parameters. In testing, ~2.5 secs of time writing parameters was reduced
->> to .35 seconds waiting for power-on reset to complete.
+>>> Daniel,
+>>>
+>>> I am looking at 3.9.rc1.
+>>> The only place I see the raw_event callback is called from
+>>> hid/hid_input_report(). hid_input_report is called with type
+>>> HID_INPUT_REPORT
+>>> in all cases, except hid_ctrl(), where it can be different depending on
+>>> xx.report->type. But here, the return value is not checked.
+>>>
+>>> Do you know the call chain for HID_FETURE_REPORT, where this is
+>>> creating
+>>> problem?
 >>
->> Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
->> ---
->>  drivers/input/mouse/trackpoint.c | 223 +++++++++++++++++++++++++--------------
->>  drivers/input/mouse/trackpoint.h |   7 +-
->>  2 files changed, 149 insertions(+), 81 deletions(-)
+>> This was exactly what I was wondering about when I have seen the initial
+>> patch a few weeks ago.
 >>
->> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
->> index f310249..17e9b36 100644
->> --- a/drivers/input/mouse/trackpoint.c
->> +++ b/drivers/input/mouse/trackpoint.c
->> @@ -20,6 +20,26 @@
->>  #include "trackpoint.h"
->>
->>  /*
->> + * Power-on Reset: Resets all trackpoint parameters, including RAM values,
->> + * to defaults.
->> + * Returns zero on success, non-zero on failure.
->> + */
->> +static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
->> +{
->> +     unsigned char results[2];
->> +
->> +     if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
->> +         ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 2, TP_POR))) {
->> +             return -1;
->> +     }
->> +
->> +     /* POR response should be 0xAA00 or 0xFC00 */
->> +     if ((results[0] != 0xAA && results[0] != 0xFC) || results[1] != 0x00)
->> +             return -1;
+>> Daniel, could you please elaborate? Is there a out-of-tree driver for
+>> Acer
+>> Iconia W700?
 >
-> I am a bit concerned about this. 0xfc00 indicates POR failure. In this
-> case shouldn't we try to reset the device, issue another POR and bail if
-> it fails again?
+> Sorry for the late reply. I was out of town and was having difficulties
+> accessing the mail server.
 >
-
-Yes, you are correct. I just now posted v2 to fix this. Now, on
-0xfc00, we attempt one retry. On subsequent 0xfc00, we fail POR and
-attempt to set parameters manually.
-
->>
->>  static struct attribute *trackpoint_attrs[] = {
->>       &psmouse_attr_sensitivity.dattr.attr,
->> @@ -179,6 +241,9 @@ static struct attribute *trackpoint_attrs[] = {
->>       &psmouse_attr_press_to_select.dattr.attr,
->>       &psmouse_attr_skipback.dattr.attr,
->>       &psmouse_attr_ext_dev.dattr.attr,
->> +     &psmouse_attr_twohand.dattr.attr,
->> +     &psmouse_attr_source_tag.dattr.attr,
->> +     &psmouse_attr_mb.dattr.attr,
+> For the call path, here is what I got (using WARN_ON()):
 >
-> What is the benefit of adding these 3 new attributes?
+> <4>[  150.943775] ------------[ cut here ]------------
+> <4>[  150.943861] WARNING: at
+> ../../../../../../../../../../home/dleung/android/ia/private/jb-mr1-internal/kernel/intel/drivers/hid/hid-sensor-hub.c:418
+> sensor_hub_raw_event+0x2d0/0x3b0 [hid_sensor_hub]()
+> <4>[  150.944028] Hardware name: ICONIA W700
+> <7>[  150.944071] Modules linked in: hid_sensor_als hid_sensor_gyro_3d
+> hid_sensor_accel_3d uvcvideo videobuf2_vmalloc videobuf2_memops
+> videobuf2_core btusb bluetooth hid_multitouch ath9k ath9k_common ath9k_hw
+> ath snd_hda_codec_hdmi snd_hda_codec_realtek ip6table_raw snd_hda_intel
+> iptable_raw snd_hda_codec snd_hwdep snd_pcm snd_page_alloc snd_timer snd
+> soundcore hid_sensor_trigger hid_sensor_iio_common hid_sensor_hub
+> industrialio_triggered_buffer kfifo_buf industrialio coretemp
+> <7>[  150.944132] Pid: 0, comm: swapper/1 Not tainted
+> 3.8.0-aia1-00043-gd7fd780-dirty #2
+> <7>[  150.944136] Call Trace:
+> <7>[  150.944141]  <IRQ>  [<ffffffff8105b5bf>]
+> warn_slowpath_common+0x7f/0xc0
+> <7>[  150.944163]  [<ffffffff8105b61a>] warn_slowpath_null+0x1a/0x20
+> <7>[  150.944173]  [<ffffffffa00315e0>] sensor_hub_raw_event+0x2d0/0x3b0
+> [hid_sensor_hub]
+> <7>[  150.944184]  [<ffffffff819021e7>] ?
+> _raw_spin_unlock_irqrestore+0x57/0x70
+> <7>[  150.944195]  [<ffffffff816ccce3>] hid_input_report+0x283/0x2d0
+> <7>[  150.944203]  [<ffffffff816d9faf>] hid_ctrl+0x9f/0x180
+> <7>[  150.944212]  [<ffffffff815b2087>] usb_hcd_giveback_urb+0x77/0x110
+> <7>[  150.944222]  [<ffffffff8160073f>] xhci_irq+0x60f/0x1530
+> <7>[  150.944230]  [<ffffffff810df0fe>] ? handle_edge_irq+0x1e/0x130
+> <7>[  150.944239]  [<ffffffff810af04f>] ?
+> __lock_acquire.isra.31+0x28f/0xa70
+> <7>[  150.944247]  [<ffffffff81601671>] xhci_msi_irq+0x11/0x20
+> <7>[  150.944258]  [<ffffffff810dc395>] handle_irq_event_percpu+0x55/0x210
+> <7>[  150.944267]  [<ffffffff810dc598>] handle_irq_event+0x48/0x70
+> <7>[  150.944273]  [<ffffffff810df157>] handle_edge_irq+0x77/0x130
+> <7>[  150.944283]  [<ffffffff81004180>] handle_irq+0x60/0x150
+> <7>[  150.944293]  [<ffffffff81906406>] ?
+> atomic_notifier_call_chain+0x16/0x20
+> <7>[  150.944302]  [<ffffffff8190c38a>] do_IRQ+0x5a/0xe0
+> <7>[  150.944309]  [<ffffffff8190266f>] common_interrupt+0x6f/0x6f
+> <7>[  150.944313]  <EOI>  [<ffffffff816a97f5>] ?
+> cpuidle_wrap_enter+0x55/0xa0
+> <7>[  150.944327]  [<ffffffff816a97f1>] ? cpuidle_wrap_enter+0x51/0xa0
+> <7>[  150.944334]  [<ffffffff816a9850>] cpuidle_enter_tk+0x10/0x20
+> <7>[  150.944341]  [<ffffffff816a940f>] cpuidle_idle_call+0xaf/0x2b0
+> <7>[  150.944350]  [<ffffffff8100b3aa>] cpu_idle+0xda/0x130
+> <7>[  150.944360]  [<ffffffff818f081d>] start_secondary+0x266/0x268
+> <4>[  150.944365] ---[ end trace 32319d39ebee5616 ]---
 >
-
-Previously, these attributes were handled in a special way -- the
-corresponding TP values were set to default, but the attributes were
-not exported. Now, they are set to default and exported. It makes for
-cleaner code.
-
-I see no good use for these attributes other than driver hacking. I
-can remove them if you think it's best.
-
-> Thanks.
 >
-> --
-> Dmitry
+> You can see that it went through hid_ctrl().
+>
+> From what I can gather using usbmon, the sensor hub sends the feature
+> report correctly. However, the in-kernel struct is not updated when the
+> report comes in. Therefore, the report from sensor_hub_report() is always
+> zero-filled. When calling sensor_hub_set_feature(), those zeros are being
+> sent back to the device. The feature report contains fields for power
+> state and reporting state. If they are set to zero, the firmware does not
+> know what to do as zero means undefined state. Both power and reporting
+> states have to be set for sensor to report values. Given the zero-filled
+> report, and we can only deal with one field in sensor_hub_set_feature(),
+> setting power state to non-zero also sends zero (i.e. undefined state) to
+> the reporting state field, and vice versa.
+>
+> The sensor hub on Acer Iconia W700 is using drivers/hid/hid-sensor-hub.c.
+> I also played with Sony Vaio Duo 11 a while back (before having this
+> patch), and was having trouble turning on gyroscope. I suspect it is
+> caused by the same issue. The sensor hub on Acer is from STMicro, while
+> the one in Vaio Duo is from Freescale.
 
-Thanks,
+Just to clarify a little bit on the issue.
 
-Shawn
+Although hid_ctrl() does not care the return value of hid_input_report(),
+the issue is within hid_input_report(). In drivers/hid/hid-core.c:1317
+where raw_event() is called, if return is non-zero, the following call of
+hid_report_raw_event() is skipped. This call is needed to have the
+in-kernel struct updated with the actual feature report from device.
+
+
+Daniel

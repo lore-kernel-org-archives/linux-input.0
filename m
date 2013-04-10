@@ -1,158 +1,145 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] HID: hid-sensor-hub: do not process feature reports in
- raw_event
-Date: Wed, 10 Apr 2013 08:44:34 -0700
-Message-ID: <516588E2.4030901@linux.intel.com>
-References: <1363886546-6517-1-git-send-email-daniel.leung@linux.intel.com>    <51507136.4020308@linux.intel.com>    <alpine.LNX.2.00.1303271608500.23442@pobox.suse.cz>    <38514.10.7.197.74.1365440092.squirrel@linux.intel.com> <33544.10.7.197.74.1365551736.squirrel@linux.intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: appleir: add support for Apple ir devices
+Date: Wed, 10 Apr 2013 18:35:08 +0200
+Message-ID: <516594BC.30405@redhat.com>
+References: <1365438651-32623-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1304092155330.17280@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:61551 "EHLO mga09.intel.com"
+Received: from mx1.redhat.com ([209.132.183.28]:32524 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932747Ab3DJPlJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Apr 2013 11:41:09 -0400
-In-Reply-To: <33544.10.7.197.74.1365551736.squirrel@linux.intel.com>
+	id S1763998Ab3DJQf7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Apr 2013 12:35:59 -0400
+In-Reply-To: <alpine.LNX.2.00.1304092155330.17280@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Leung <daniel.leung@linux.intel.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, srinivas.pandruvada@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Bastien Nocera <hadess@hadess.net>, Fabien <fabien.andre@gmail.com>, Jarod Wilson <jarod@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Thanks Daniel.
+Hi Jiri,
 
-I don't know if this should be fixed in client drivers since other 
-drivers may have this issue.
-
-I interpret the return value of hdrv->raw_event as :
-"<0"     : Error. The driver has parsed the message and found issue
-"==0"  :    No error and driver has consumed report
-">0" : Not an error and driver has not parsed or consumed the event
-
-In this case hid-sensor-hub didn't parse message to return any error or 
-to say consumed.
-
-May be hid-core.c
-
-        if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
-                 ret = hdrv->raw_event(hid, report, data, size);
-                 if (ret < 0) {
-                         goto unlock;
-                 }
-         }
-
-
-I think Jiri can have better idea.
-
-Thanks,
-Srinivas
-
-
-On 04/09/2013 04:55 PM, Daniel Leung wrote:
->>> On Mon, 25 Mar 2013, Srinivas Pandruvada wrote:
->>>
->>>> Daniel,
->>>>
->>>> I am looking at 3.9.rc1.
->>>> The only place I see the raw_event callback is called from
->>>> hid/hid_input_report(). hid_input_report is called with type
->>>> HID_INPUT_REPORT
->>>> in all cases, except hid_ctrl(), where it can be different depending on
->>>> xx.report->type. But here, the return value is not checked.
->>>>
->>>> Do you know the call chain for HID_FETURE_REPORT, where this is
->>>> creating
->>>> problem?
->>> This was exactly what I was wondering about when I have seen the initial
->>> patch a few weeks ago.
->>>
->>> Daniel, could you please elaborate? Is there a out-of-tree driver for
->>> Acer
->>> Iconia W700?
->> Sorry for the late reply. I was out of town and was having difficulties
->> accessing the mail server.
+On 04/09/2013 10:10 PM, Jiri Kosina wrote:
+> On Mon, 8 Apr 2013, Benjamin Tissoires wrote:
+>=20
+>> This driver was originally written by James McKenzie, updated by
+>> Greg Kroah-Hartman, further updated by Bastien Nocera, with suspend
+>> support added.
+>> I ported it to the HID subsystem, in order to simplify it a litle
+>> and allow lirc to use it through hiddev.
 >>
->> For the call path, here is what I got (using WARN_ON()):
+>> More recent versions of the IR receiver are also supported through
+>> a patch by Alex Karpenko. The patch also adds support for the 2nd
+>> and 5th generation of the controller, and the menu key on newer
+>> brushed metal remotes.
 >>
->> <4>[  150.943775] ------------[ cut here ]------------
->> <4>[  150.943861] WARNING: at
->> ../../../../../../../../../../home/dleung/android/ia/private/jb-mr1-internal/kernel/intel/drivers/hid/hid-sensor-hub.c:418
->> sensor_hub_raw_event+0x2d0/0x3b0 [hid_sensor_hub]()
->> <4>[  150.944028] Hardware name: ICONIA W700
->> <7>[  150.944071] Modules linked in: hid_sensor_als hid_sensor_gyro_3d
->> hid_sensor_accel_3d uvcvideo videobuf2_vmalloc videobuf2_memops
->> videobuf2_core btusb bluetooth hid_multitouch ath9k ath9k_common ath9k_hw
->> ath snd_hda_codec_hdmi snd_hda_codec_realtek ip6table_raw snd_hda_intel
->> iptable_raw snd_hda_codec snd_hwdep snd_pcm snd_page_alloc snd_timer snd
->> soundcore hid_sensor_trigger hid_sensor_iio_common hid_sensor_hub
->> industrialio_triggered_buffer kfifo_buf industrialio coretemp
->> <7>[  150.944132] Pid: 0, comm: swapper/1 Not tainted
->> 3.8.0-aia1-00043-gd7fd780-dirty #2
->> <7>[  150.944136] Call Trace:
->> <7>[  150.944141]  <IRQ>  [<ffffffff8105b5bf>]
->> warn_slowpath_common+0x7f/0xc0
->> <7>[  150.944163]  [<ffffffff8105b61a>] warn_slowpath_null+0x1a/0x20
->> <7>[  150.944173]  [<ffffffffa00315e0>] sensor_hub_raw_event+0x2d0/0x3b0
->> [hid_sensor_hub]
->> <7>[  150.944184]  [<ffffffff819021e7>] ?
->> _raw_spin_unlock_irqrestore+0x57/0x70
->> <7>[  150.944195]  [<ffffffff816ccce3>] hid_input_report+0x283/0x2d0
->> <7>[  150.944203]  [<ffffffff816d9faf>] hid_ctrl+0x9f/0x180
->> <7>[  150.944212]  [<ffffffff815b2087>] usb_hcd_giveback_urb+0x77/0x110
->> <7>[  150.944222]  [<ffffffff8160073f>] xhci_irq+0x60f/0x1530
->> <7>[  150.944230]  [<ffffffff810df0fe>] ? handle_edge_irq+0x1e/0x130
->> <7>[  150.944239]  [<ffffffff810af04f>] ?
->> __lock_acquire.isra.31+0x28f/0xa70
->> <7>[  150.944247]  [<ffffffff81601671>] xhci_msi_irq+0x11/0x20
->> <7>[  150.944258]  [<ffffffff810dc395>] handle_irq_event_percpu+0x55/0x210
->> <7>[  150.944267]  [<ffffffff810dc598>] handle_irq_event+0x48/0x70
->> <7>[  150.944273]  [<ffffffff810df157>] handle_edge_irq+0x77/0x130
->> <7>[  150.944283]  [<ffffffff81004180>] handle_irq+0x60/0x150
->> <7>[  150.944293]  [<ffffffff81906406>] ?
->> atomic_notifier_call_chain+0x16/0x20
->> <7>[  150.944302]  [<ffffffff8190c38a>] do_IRQ+0x5a/0xe0
->> <7>[  150.944309]  [<ffffffff8190266f>] common_interrupt+0x6f/0x6f
->> <7>[  150.944313]  <EOI>  [<ffffffff816a97f5>] ?
->> cpuidle_wrap_enter+0x55/0xa0
->> <7>[  150.944327]  [<ffffffff816a97f1>] ? cpuidle_wrap_enter+0x51/0xa0
->> <7>[  150.944334]  [<ffffffff816a9850>] cpuidle_enter_tk+0x10/0x20
->> <7>[  150.944341]  [<ffffffff816a940f>] cpuidle_idle_call+0xaf/0x2b0
->> <7>[  150.944350]  [<ffffffff8100b3aa>] cpu_idle+0xda/0x130
->> <7>[  150.944360]  [<ffffffff818f081d>] start_secondary+0x266/0x268
->> <4>[  150.944365] ---[ end trace 32319d39ebee5616 ]---
+>> Tested-by: Fabien Andr=E9 <fabien.andre@gmail.com>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
+>> Hi guys,
 >>
->>
->> You can see that it went through hid_ctrl().
->>
->>  From what I can gather using usbmon, the sensor hub sends the feature
->> report correctly. However, the in-kernel struct is not updated when the
->> report comes in. Therefore, the report from sensor_hub_report() is always
->> zero-filled. When calling sensor_hub_set_feature(), those zeros are being
->> sent back to the device. The feature report contains fields for power
->> state and reporting state. If they are set to zero, the firmware does not
->> know what to do as zero means undefined state. Both power and reporting
->> states have to be set for sensor to report values. Given the zero-filled
->> report, and we can only deal with one field in sensor_hub_set_feature(),
->> setting power state to non-zero also sends zero (i.e. undefined state) to
->> the reporting state field, and vice versa.
->>
->> The sensor hub on Acer Iconia W700 is using drivers/hid/hid-sensor-hub.c.
->> I also played with Sony Vaio Duo 11 a while back (before having this
->> patch), and was having trouble turning on gyroscope. I suspect it is
->> caused by the same issue. The sensor hub on Acer is from STMicro, while
->> the one in Vaio Duo is from Freescale.
-> Just to clarify a little bit on the issue.
->
-> Although hid_ctrl() does not care the return value of hid_input_report(),
-> the issue is within hid_input_report(). In drivers/hid/hid-core.c:1317
-> where raw_event() is called, if return is non-zero, the following call of
-> hid_report_raw_event() is skipped. This call is needed to have the
-> in-kernel struct updated with the actual feature report from device.
->
->
-> Daniel
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+>> this is the re-spin of Bastien's patch submitted last november.
+>> I ported it to use the hid subsystem, reducing the size of the drive=
+r
+>> to 355 lines instead of 527.
+>=20
+> Thanks. Generally, I like the idea of appleir being on the hid bus.
 
+Thanks for the review.
+
+>=20
+> Bastien, could you please provide your Ack (and most importantly also=
+=20
+> Tested-by?).
+>=20
+> [ ... snip ... ]
+>> +static void dump_packet(struct appleir *appleir, char *msg, u8 *dat=
+a, int len)
+>> +{
+>> +	appleir_dbg(appleir->hid,
+>> +		    "appleir: %s (%d bytes) %*ph (should be command %d)\n",
+>> +		    msg, len, len, data, (data[4] >> 1) & KEY_MASK);
+>> +}
+>=20
+> Can't we just use HID debugfs interface for this kind of debugging ou=
+tput?
+
+sure. I'll change this in v2.
+
+>=20
+>> +static int get_key(int data)
+>> +{
+>> +	/*
+>> +	 * The indexes of the keys are computed like this:
+>> +	 * 0x00 or 0x01 (        )	key:   0	-> KEY_RESERVED
+>> +	 * 0x02 or 0x03 (  menu  )	key:   1	-> KEY_MENU
+>> +	 * 0x04 or 0x05 (   >"   )	key:   2	-> KEY_PLAYPAUSE
+>> +	 * 0x06 or 0x07 (   >>   )	key:   3	-> KEY_FORWARD
+>> +	 * 0x08 or 0x09 (   <<   )	key:   4	-> KEY_BACK
+>> +	 * 0x0a or 0x0b (    +   )	key:   5	-> KEY_VOLUMEUP
+>> +	 * 0x0c or 0x0d (    -   )	key:   6	-> KEY_VOLUMEDOWN
+>> +	 * 0x0e or 0x0f (        )	key:   7	-> KEY_RESERVED
+>> +	 * 0x50 or 0x51 (        )	key:  -8	-> KEY_RESERVED
+>> +	 * 0x52 or 0x53 (        )	key:  -9	-> KEY_RESERVED
+>> +	 * 0x54 or 0x55 (        )	key: -10	-> KEY_RESERVED
+>> +	 * 0x56 or 0x57 (        )	key: -11	-> KEY_RESERVED
+>> +	 * 0x58 or 0x59 (        )	key: -12	-> KEY_RESERVED
+>> +	 * 0x5a or 0x5b (        )	key: -13	-> KEY_RESERVED
+>> +	 * 0x5c or 0x5d ( middle )	key: -14	-> KEY_ENTER
+>> +	 * 0x5e or 0x5f (   >"   )	key: -15	-> KEY_PLAYPAUSE
+>> +	 */
+>> +	int key =3D (data >> 1) & KEY_MASK;
+>> +
+>> +	if ((data & TWO_PACKETS_MASK))
+>> +		/* Part of a 2 packet-command */
+>> +		key =3D -key;
+>=20
+> I think all the shuffling with negative indices would justify an=20
+> explanatory comment; it's quite confusing on a first sight.
+
+Agree :)
+I think I'll drop the '-' (minus) in this table, and add a comment
+telling that those starting with 0x5 are part of a two packets report,
+and we tag it by adding a minus in front of them.
+
+>=20
+> [ ... snip ... ]
+>> +static int appleir_raw_event(struct hid_device *hid, struct hid_rep=
+ort *report,
+>> +	 u8 *data, int len)
+>> +{
+>> +	struct appleir *appleir =3D hid_get_drvdata(hid);
+>> +	static const u8 keydown[] =3D { 0x25, 0x87, 0xee };
+>> +	static const u8 keyrepeat[] =3D { 0x26, };
+>> +	static const u8 flatbattery[] =3D { 0x25, 0x87, 0xe0 };
+>> +	unsigned long flags;
+>> +
+>> +	if (debug)
+>> +		dump_packet(appleir, "received", data, len);
+>> +
+>> +	if (len !=3D 5)
+>> +		goto out;
+>> +
+>> +	if (!memcmp(data, keydown, sizeof(keydown))) {
+>> +		int index;
+>> +
+>> +		spin_lock_irqsave(&appleir->lock, flags);
+>> +		/* If we already have a key down, take it up before marking
+>> +		   this one down */
+>=20
+> Could you please make this comment in-line with kernel comments codin=
+g=20
+> style?
+
+Sure. I missed this one.
+
+Thanks again for the review.
+
+Cheers,
+Benjamin
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

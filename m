@@ -1,149 +1,63 @@
 From: Bastian Hecht <hechtb@gmail.com>
-Subject: [PATCH v3 1/2] input: st1232: Add reset pin handling
-Date: Wed, 10 Apr 2013 23:41:22 +0200
-Message-ID: <1365630083-9758-1-git-send-email-hechtb+renesas@gmail.com>
+Subject: [PATCH v3 2/2] ARM: shmobile: Armadillo800EVA: Move st1232 reset pin handling
+Date: Wed, 10 Apr 2013 23:41:23 +0200
+Message-ID: <1365630083-9758-2-git-send-email-hechtb+renesas@gmail.com>
+References: <1365630083-9758-1-git-send-email-hechtb+renesas@gmail.com>
 Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1365630083-9758-1-git-send-email-hechtb+renesas@gmail.com>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-sh@vger.kernel.org, linux-input@vger.kernel.org
 Cc: Laurent Pichart <laurent.pinchart@ideasonboard.com>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-We add the possiblity to hand over a GPIO number for the reset pin.
-This way we can remove existing board code that takes care of it and
-group this information properly in the platform data or in the device
-tree confguration.
-
-The implementation is analogous to the cy8ctmg110 driver, thanks.
+We no longer need to set up the reset pin for the st1232 in the board
+code, but can pass the GPIO number via the platform data to the driver.
+This results in a cleaner grouping of the device setup.
 
 Signed-off-by: Bastian Hecht <hechtb+renesas@gmail.com>
 ---
 v3:
-- Based on Laurent Pinchart's patch:
-  input: st1232: Convert to devm_* infrastructure
+same
 
-- use gpio_valid()
+ arch/arm/mach-shmobile/board-armadillo800eva.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-- reorder probing for reset_gpio data
-
- drivers/input/touchscreen/st1232.c |   43 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 41 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index f091451..874e0ff 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -19,13 +19,16 @@
-  */
- 
- #include <linux/delay.h>
-+#include <linux/gpio.h>
- #include <linux/i2c.h>
+diff --git a/arch/arm/mach-shmobile/board-armadillo800eva.c b/arch/arm/mach-shmobile/board-armadillo800eva.c
+index 81db74a..885c6a9 100644
+--- a/arch/arm/mach-shmobile/board-armadillo800eva.c
++++ b/arch/arm/mach-shmobile/board-armadillo800eva.c
+@@ -24,6 +24,7 @@
+ #include <linux/err.h>
+ #include <linux/kernel.h>
  #include <linux/input.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
-+#include <linux/of_gpio.h>
- #include <linux/pm_qos.h>
- #include <linux/slab.h>
- #include <linux/types.h>
 +#include <linux/input/st1232_pdata.h>
- 
- #define ST1232_TS_NAME	"st1232-ts"
- 
-@@ -48,6 +51,7 @@ struct st1232_ts_data {
- 	struct input_dev *input_dev;
- 	struct st1232_ts_finger finger[MAX_FINGERS];
- 	struct dev_pm_qos_request low_latency_req;
-+	int reset_gpio;
+ #include <linux/irq.h>
+ #include <linux/platform_device.h>
+ #include <linux/gpio.h>
+@@ -997,10 +998,15 @@ static struct platform_device i2c_gpio_device = {
  };
  
- static int st1232_ts_read_data(struct st1232_ts_data *ts)
-@@ -139,10 +143,17 @@ end:
- 	return IRQ_HANDLED;
- }
- 
-+static void st1232_ts_power(struct st1232_ts_data *ts, bool poweron)
-+{
-+	if (gpio_is_valid(ts->reset_gpio))
-+		gpio_direction_output(ts->reset_gpio, poweron);
-+}
+ /* I2C */
++static struct st1232_pdata st1232_i2c0_pdata = {
++	.reset_gpio = 166,
++};
 +
- static int st1232_ts_probe(struct i2c_client *client,
- 					const struct i2c_device_id *id)
- {
- 	struct st1232_ts_data *ts;
-+	struct st1232_pdata *pdata = client->dev.platform_data;
- 	struct input_dev *input_dev;
- 	int error;
+ static struct i2c_board_info i2c0_devices[] = {
+ 	{
+ 		I2C_BOARD_INFO("st1232-ts", 0x55),
+ 		.irq = irq_pin(10),
++		.platform_data = &st1232_i2c0_pdata,
+ 	},
+ 	{
+ 		I2C_BOARD_INFO("wm8978", 0x1a),
+@@ -1121,7 +1127,6 @@ static void __init eva_init(void)
  
-@@ -165,6 +176,25 @@ static int st1232_ts_probe(struct i2c_client *client,
- 	ts->client = client;
- 	ts->input_dev = input_dev;
+ 	/* Touchscreen */
+ 	gpio_request(GPIO_FN_IRQ10,	NULL); /* TP_INT */
+-	gpio_request_one(166, GPIOF_OUT_INIT_HIGH, NULL); /* TP_RST_B */
  
-+	if (pdata)
-+		ts->reset_gpio = pdata->reset_gpio;
-+	else if (client->dev.of_node)
-+		ts->reset_gpio = of_get_gpio(client->dev.of_node, 0);
-+	else
-+		ts->reset_gpio = -ENODEV;
-+
-+	if (gpio_is_valid(ts->reset_gpio)) {
-+		error = devm_gpio_request(&client->dev, ts->reset_gpio, NULL);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"Unable to request GPIO pin %d.\n",
-+				ts->reset_gpio);
-+				return error;
-+		}
-+	}
-+
-+	st1232_ts_power(ts, true);
-+
- 	input_dev->name = "st1232-touchscreen";
- 	input_dev->id.bustype = BUS_I2C;
- 	input_dev->dev.parent = &client->dev;
-@@ -200,7 +230,10 @@ static int st1232_ts_probe(struct i2c_client *client,
- 
- static int st1232_ts_remove(struct i2c_client *client)
- {
-+	struct st1232_ts_data *ts = i2c_get_clientdata(client);
-+
- 	device_init_wakeup(&client->dev, 0);
-+	st1232_ts_power(ts, false);
- 
- 	return 0;
- }
-@@ -209,11 +242,14 @@ static int st1232_ts_remove(struct i2c_client *client)
- static int st1232_ts_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct st1232_ts_data *ts = i2c_get_clientdata(client);
- 
- 	if (device_may_wakeup(&client->dev))
- 		enable_irq_wake(client->irq);
--	else
-+	else {
- 		disable_irq(client->irq);
-+		st1232_ts_power(ts, false);
-+	}
- 
- 	return 0;
- }
-@@ -221,11 +257,14 @@ static int st1232_ts_suspend(struct device *dev)
- static int st1232_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct st1232_ts_data *ts = i2c_get_clientdata(client);
- 
- 	if (device_may_wakeup(&client->dev))
- 		disable_irq_wake(client->irq);
--	else
-+	else {
-+		st1232_ts_power(ts, true);
- 		enable_irq(client->irq);
-+	}
- 
- 	return 0;
- }
+ 	/* GETHER */
+ 	gpio_request(GPIO_FN_ET_CRS,		NULL);
 -- 
 1.7.9.5
 

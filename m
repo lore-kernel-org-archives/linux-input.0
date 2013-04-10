@@ -1,61 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH v2 1/2] input: st1232: Add reset pin handling
-Date: Tue, 9 Apr 2013 23:51:14 -0700
-Message-ID: <20130410065114.GA21515@core.coreip.homeip.net>
+Date: Tue, 9 Apr 2013 23:51:57 -0700
+Message-ID: <20130410065157.GB21515@core.coreip.homeip.net>
 References: <1365425547-10391-1-git-send-email-hechtb+renesas@gmail.com>
+ <2096590.pSU6Gke5Ke@avalon>
+ <20130409082833.GE18478@verge.net.au>
+ <CABYn4sxYo6h5ZLQRPJcQ1iGhgGFLTaK9y=vNfcHa_4ED1FuKYA@mail.gmail.com>
+ <20130409150103.GA27787@verge.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1365425547-10391-1-git-send-email-hechtb+renesas@gmail.com>
+In-Reply-To: <20130409150103.GA27787@verge.net.au>
 Sender: linux-sh-owner@vger.kernel.org
-To: Bastian Hecht <hechtb@gmail.com>
-Cc: linux-sh@vger.kernel.org, linux-input@vger.kernel.org, Tony SIM <chinyeow.sim.xt@renesas.com>, Laurent Pichart <laurent.pinchart@ideasonboard.com>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+To: Simon Horman <horms@verge.net.au>
+Cc: Bastian Hecht <hechtb@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Linux-SH <linux-sh@vger.kernel.org>, linux-input@vger.kernel.org, Tony SIM <chinyeow.sim.xt@renesas.com>, Magnus Damm <magnus.damm@gmail.com>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Bastian,
+On Wed, Apr 10, 2013 at 12:01:06AM +0900, Simon Horman wrote:
+> [ Cc Dimitry Torokhov ]
+> 
+> On Tue, Apr 09, 2013 at 11:23:51AM +0200, Bastian Hecht wrote:
+> > Hi Simon,
+> > 
+> > 2013/4/9 Simon Horman <horms@verge.net.au>:
+> > > On Mon, Apr 08, 2013 at 04:17:20PM +0200, Laurent Pinchart wrote:
+> > >> Hi Bastian,
+> > >>
+> > >> Thanks for the patch.
+> > >>
+> > >> On Monday 08 April 2013 14:52:26 Bastian Hecht wrote:
+> > >> > We add the possiblity to hand over a GPIO number for the reset pin.
+> > >> > This way we can remove existing board code that takes care of it and
+> > >> > group this information properly in the platform data or in the device
+> > >> > tree confguration.
+> > >> >
+> > >> > The implementation is analogous to the cy8ctmg110 driver, thanks.
+> > >> >
+> > >> > Signed-off-by: Bastian Hecht <hechtb+renesas@gmail.com>
+> > >>
+> > >> Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> > >
+> > > Bastian, I'm unclear on which tree this will go through.
+> > > Please let me know if it is mine.
+> > 
+> > To be honest, no idea. If it doesn't have to be a maintainer of
+> > linux-input, I would be glad if you could take up that patch in your
+> > tree, yes. And for your information, I don't rely on it until the pfc
+> > DT version is merged. Then it would be nice to have it for the
+> > touchscreen in the arma reference implementation.
+> 
+> Dimitry,
+> 
+> you seem to have signed-off on most of the st1232 I see in the git history.
+> Could you take this patch?
 
-On Mon, Apr 08, 2013 at 02:52:26PM +0200, Bastian Hecht wrote:
-> +static void st1232_ts_power(struct st1232_ts_data *ts, bool poweron)
-> +{
-> +	if (ts->reset_gpio >= 0)
-
-This should be gpio_is_valid() I think.
-
-> +		gpio_direction_output(ts->reset_gpio, poweron);
-> +}
-> +
->  static int st1232_ts_probe(struct i2c_client *client,
->  					const struct i2c_device_id *id)
->  {
->  	struct st1232_ts_data *ts;
-> +	struct st1232_pdata *pdata = client->dev.platform_data;
->  	struct input_dev *input_dev;
->  	int error;
->  
-> @@ -167,6 +178,25 @@ static int st1232_ts_probe(struct i2c_client *client,
->  	ts->client = client;
->  	ts->input_dev = input_dev;
->  
-> +	if (client->dev.of_node)
-> +		ts->reset_gpio = of_get_gpio(client->dev.of_node, 0);
-> +	else if (pdata)
-> +		ts->reset_gpio = pdata->reset_gpio;
-
-I believe we should favor platform data, then firmware, so that you can
-override if necessary.
-
-> +	else
-> +		ts->reset_gpio = -ENODEV;
-> +
-> +	if (ts->reset_gpio >= 0) {
-
-gpio_is_valid() again?
-
-> +		error = devm_gpio_request(&client->dev, ts->reset_gpio, NULL);
-
-Frankly I do not like mixing managed and noon-managed resources. Maybe
-the entire driver needs to be converted to managed resources?
+Yes, I will, once feedback is addressed.
 
 Thanks.
 

@@ -1,92 +1,63 @@
-From: James M Leddy <james.leddy@canonical.com>
-Subject: [PATCH 1/1][RESUBMIT] input: fix weird issue of synaptics psmouse
- sync lost after resume
-Date: Tue, 09 Apr 2013 21:18:33 -0400
-Message-ID: <5164BDE9.3010706@canonical.com>
-References: <1365553843-11951-1-git-send-email-james.leddy@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] input: st1232: Add reset pin handling
+Date: Tue, 9 Apr 2013 23:51:14 -0700
+Message-ID: <20130410065114.GA21515@core.coreip.homeip.net>
+References: <1365425547-10391-1-git-send-email-hechtb+renesas@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------000803050402050403040205"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:58315 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756358Ab3DJBSf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Apr 2013 21:18:35 -0400
-In-Reply-To: <1365553843-11951-1-git-send-email-james.leddy@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1365425547-10391-1-git-send-email-hechtb+renesas@gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Bastian Hecht <hechtb@gmail.com>
+Cc: linux-sh@vger.kernel.org, linux-input@vger.kernel.org, Tony SIM <chinyeow.sim.xt@renesas.com>, Laurent Pichart <laurent.pinchart@ideasonboard.com>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000803050402050403040205
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Hi Bastian,
 
-From: Eric Miao <eric.miao@canonical.com>
+On Mon, Apr 08, 2013 at 02:52:26PM +0200, Bastian Hecht wrote:
+> +static void st1232_ts_power(struct st1232_ts_data *ts, bool poweron)
+> +{
+> +	if (ts->reset_gpio >= 0)
 
-In summary, the symptom is intermittent key events lost after resume
-on some machines with synaptics touchpad (seems this is synaptics _only_),
-and key events loss is due to serio port reconnect after psmouse sync lost.
-Removing psmouse and inserting it back during the suspend/resume process
-is able to work around the issue, so the difference between
-psmouse_connect()
-and psmouse_reconnect() is the key to the root cause of this problem.
+This should be gpio_is_valid() I think.
 
-After comparing the two different paths, synaptics driver has its own
-implementation of synaptics_reconnect(), and the missing psmouse_probe()
-seems significant, the patch below added psmouse_probe() to the reconnect
-process, and has been verified many times that the issue could not be
-reliably
-reproduced.
+> +		gpio_direction_output(ts->reset_gpio, poweron);
+> +}
+> +
+>  static int st1232_ts_probe(struct i2c_client *client,
+>  					const struct i2c_device_id *id)
+>  {
+>  	struct st1232_ts_data *ts;
+> +	struct st1232_pdata *pdata = client->dev.platform_data;
+>  	struct input_dev *input_dev;
+>  	int error;
+>  
+> @@ -167,6 +178,25 @@ static int st1232_ts_probe(struct i2c_client *client,
+>  	ts->client = client;
+>  	ts->input_dev = input_dev;
+>  
+> +	if (client->dev.of_node)
+> +		ts->reset_gpio = of_get_gpio(client->dev.of_node, 0);
+> +	else if (pdata)
+> +		ts->reset_gpio = pdata->reset_gpio;
 
-There are two PS/2 commands in psmouse_probe():
+I believe we should favor platform data, then firmware, so that you can
+override if necessary.
 
-  1. PSMOUSE_CMD_GETID
-  2. PSMOUSE_CMD_RESET_DIS
+> +	else
+> +		ts->reset_gpio = -ENODEV;
+> +
+> +	if (ts->reset_gpio >= 0) {
 
-Only the PSMOUSE_CMD_GETID seems to be significant. The
-PSMOUSE_CMD_RESET_DIS is irrelevant to this issue after trying
-several times.  So we have only implemented this patch to issue
-the PSMOUSE_CMD_GETID so far.
+gpio_is_valid() again?
 
-Tested-by: Daniel Manrique <daniel.manrique@canonical.com>
-Signed-off-by: James M Leddy <james.leddy@canonical.com>
----
- drivers/input/mouse/synaptics.c |    2 ++
- 1 file changed, 2 insertions(+)
+> +		error = devm_gpio_request(&client->dev, ts->reset_gpio, NULL);
 
-diff --git a/drivers/input/mouse/synaptics.c
-b/drivers/input/mouse/synaptics.c
-index 12d12ca..3438a9d 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1355,6 +1355,7 @@ static int synaptics_reconnect(struct psmouse
-*psmouse)
- {
- 	struct synaptics_data *priv = psmouse->private;
- 	struct synaptics_data old_priv = *priv;
-+	unsigned char param[2];
- 	int retry = 0;
- 	int error;
- @@ -1370,6 +1371,7 @@ static int synaptics_reconnect(struct psmouse
-*psmouse)
- 			 */
- 			ssleep(1);
- 		}
-+		ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_GETID);
- 		error = synaptics_detect(psmouse, 0);
- 	} while (error && ++retry < 3);
- -- 1.7.9.5
+Frankly I do not like mixing managed and noon-managed resources. Maybe
+the entire driver needs to be converted to managed resources?
 
+Thanks.
 
-
-
---------------000803050402050403040205
-Content-Type: text/plain; charset=UTF-8;
- name="Attached Message Part"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="Attached Message Part"
-
-
---------------000803050402050403040205--
+-- 
+Dmitry

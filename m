@@ -1,60 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: imx_keypad - Place SIMPLE_DEV_PM_OPS inside CONFIG_PM_SLEEP if block
-Date: Thu, 11 Apr 2013 07:45:06 -0700
-Message-ID: <15d0acb8-e4f3-410f-8507-273d31ff3854@email.android.com>
-References: <1365657360-877-1-git-send-email-festevam@gmail.com> <a9c28a66-b5e7-4e83-9d6a-d2c680d0ca1a@email.android.com> <CAOMZO5C_QW_BWCqNufs7BT5Cx4OZMULp0vvqOUfL3Y5nME14GQ@mail.gmail.com>
+From: Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 0/2] input: touchscreen: atmel_mxt_ts: Add Device Tree
+ support
+Date: Thu, 11 Apr 2013 22:32:55 +0200
+Message-ID: <3024802.3b8y84VJNf@flatron>
+References: <1365092066-31753-1-git-send-email-t.figa@samsung.com>
+ <20130404173040.GB12302@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:53484 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932712Ab3DKOpK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Apr 2013 10:45:10 -0400
-Received: by mail-pd0-f174.google.com with SMTP id p12so887809pdj.5
-        for <linux-input@vger.kernel.org>; Thu, 11 Apr 2013 07:45:09 -0700 (PDT)
-In-Reply-To: <CAOMZO5C_QW_BWCqNufs7BT5Cx4OZMULp0vvqOUfL3Y5nME14GQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <20130404173040.GB12302-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: kernel@pengutronix.de, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-Fabio Estevam <festevam@gmail.com> wrote:
+Hi Dmitry,
 
->Hi Dmitry,
->
->On Thu, Apr 11, 2013 at 2:28 AM, Dmitry Torokhov
-><dmitry.torokhov@gmail.com> wrote:
->> Fabio Estevam <festevam@gmail.com> wrote:
->>
->>>From: Fabio Estevam <fabio.estevam@freescale.com>
->>>
->>>SIMPLE_DEV_PM_OPS should be inside the CONFIG_PM_SLEEP 'if' block
->>>because
->>>imx_kbd_suspend and imx_kbd_resume definitions are inside this block.
->>
->> No, it does not. It compiles just fine if CONFIG_PM_SLEEP is not
->defined.
->
->I am not sure how to disable CONFIG_PM_SLEEP properly in the
->defconfig, but I did this quick test to simulate it:
->
->--- a/drivers/input/keyboard/imx_keypad.c
->+++ b/drivers/input/keyboard/imx_keypad.c
->@@ -536,7 +536,7 @@ static int imx_keypad_probe(struct platform_device
->*pdev)
->        return 0;
-> }
->
->-#ifdef CONFIG_PM_SLEEP
->+#if 0
+On Thursday 04 of April 2013 10:30:40 Dmitry Torokhov wrote:
+> Hi Tomasz,
+> 
+> On Thu, Apr 04, 2013 at 06:14:24PM +0200, Tomasz Figa wrote:
+> > This series is an attempt to add Device Tree support to Atmel maXtouch
+> > touchscreen driver.
+> > 
+> > First patch adds support for VDD voltage regulator to get operating
+> > voltage using regulator API instead of a driver specific field in
+> > platform data.
+> > 
+> > Second patch implements Device Tree bindings for the driver and adds
+> > respective documentation.
+> > 
+> > Tested on Universal C210 board.
+> 
+> Please coordinate this effort with Nick Dyer <nick.dyer-8YpZQSjhsQH10XsdtD+oqA@public.gmane.org>,
+> Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> and Benson Leung
+> <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> as there is a big update to the atmel_mxt_ts in
+> works and I would prefer not to disturb it.
 
-This is not the same thing as SIMPLE_DEV_PM_OPS change their definition depending on CONFIG_PM_SLEEP.
+OK. Let's hold with my patches until the big update gets merged then.
 
-
-Thanks.
-
--- 
-Dmitry
+Best regards,
+Tomasz

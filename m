@@ -1,55 +1,124 @@
-From: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
-Subject: Re: [PATCH] Input: wacom: Correct reported
- resolution for Intuos4 Wireless
-Date: Fri, 12 Apr 2013 21:00:38 +0100
-Message-ID: <1365796838.12600.0.camel@localhost>
-References: <1365780680.4605.9.camel@localhost>
-	<1365784982-10721-1-git-send-email-killertofu@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [NEW DRIVER V4 3/7] DA9058 ONKEY driver
+Date: Fri, 12 Apr 2013 13:01:30 -0700
+Message-ID: <5168681A.20405@infradead.org>
+References: <201304121318.r3CDILZS013210@latitude>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <1365784982-10721-1-git-send-email-killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxwacom-devel>
-List-Post: <mailto:linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:39347 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753296Ab3DLUBz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Apr 2013 16:01:55 -0400
+In-Reply-To: <201304121318.r3CDILZS013210@latitude>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Anthony Olech <anthony.olech.opensource@diasemi.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Eric Andersson <eric.andersson@unixphere.com>, Andrew Jones <drjones@redhat.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>
 
-RG5pYSAyMDEzLTA0LTEyLCBwacSFIG8gZ29kemluaWUgMDk6NDMgLTA3MDAsIEphc29uIEdlcmVj
-a2UgcGlzemU6Cj4gUmVwb3J0ZWQtYnk6IFByemVtbyBGaXJzenQgPHByemVtb0BmaXJzenQuZXU+
-Cj4gU2lnbmVkLW9mZi1ieTogSmFzb24gR2VyZWNrZSA8a2lsbGVydG9mdUBnbWFpbC5jb20+Cj4g
-LS0tCj4gIGRyaXZlcnMvaW5wdXQvdGFibGV0L3dhY29tX3dhYy5jIHwgMiArLQo+ICAxIGZpbGUg
-Y2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPiAKPiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9pbnB1dC90YWJsZXQvd2Fjb21fd2FjLmMgYi9kcml2ZXJzL2lucHV0L3RhYmxldC93
-YWNvbV93YWMuYwo+IGluZGV4IDFkYWE5NzkuLjFlMDAzMWQgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVy
-cy9pbnB1dC90YWJsZXQvd2Fjb21fd2FjLmMKPiArKysgYi9kcml2ZXJzL2lucHV0L3RhYmxldC93
-YWNvbV93YWMuYwo+IEBAIC0xOTEyLDcgKzE5MTIsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IHdh
-Y29tX2ZlYXR1cmVzIHdhY29tX2ZlYXR1cmVzXzB4QkIgPQo+ICAJeyAiV2Fjb20gSW50dW9zNCAx
-MngxOSIsICBXQUNPTV9QS0dMRU5fSU5UVU9TLCAgICA5NzUzNiwgNjA5NjAsIDIwNDcsCj4gIAkg
-IDYzLCBJTlRVT1M0TCwgV0FDT01fSU5UVU9TM19SRVMsIFdBQ09NX0lOVFVPUzNfUkVTIH07Cj4g
-IHN0YXRpYyBjb25zdCBzdHJ1Y3Qgd2Fjb21fZmVhdHVyZXMgd2Fjb21fZmVhdHVyZXNfMHhCQyA9
-Cj4gLQl7ICJXYWNvbSBJbnR1b3M0IFdMIiwgICAgIFdBQ09NX1BLR0xFTl9JTlRVT1MsICAgIDQw
-ODQwLCAyNTQwMCwgMjA0NywKPiArCXsgIldhY29tIEludHVvczQgV0wiLCAgICAgV0FDT01fUEtH
-TEVOX0lOVFVPUywgICAgNDA2NDAsIDI1NDAwLCAyMDQ3LAo+ICAJICA2MywgSU5UVU9TNCwgV0FD
-T01fSU5UVU9TM19SRVMsIFdBQ09NX0lOVFVPUzNfUkVTIH07Cj4gIHN0YXRpYyBjb25zdCBzdHJ1
-Y3Qgd2Fjb21fZmVhdHVyZXMgd2Fjb21fZmVhdHVyZXNfMHgyNiA9Cj4gIAl7ICJXYWNvbSBJbnR1
-b3M1IHRvdWNoIFMiLCBXQUNPTV9QS0dMRU5fSU5UVU9TLCAgMzE0OTYsIDE5Njg1LCAyMDQ3LAoK
-VGVzdGVkLWJ5OiBQcnplbW8gRmlyc3p0IDxwcnplbW9AZmlyc3p0LmV1PgotLSAKS2luZCByZWdh
-cmRzLApQcnplbW8gRmlyc3p0CgoKCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpQcmVjb2cgaXMgYSBu
-ZXh0LWdlbmVyYXRpb24gYW5hbHl0aWNzIHBsYXRmb3JtIGNhcGFibGUgb2YgYWR2YW5jZWQKYW5h
-bHl0aWNzIG9uIHNlbWktc3RydWN0dXJlZCBkYXRhLiBUaGUgcGxhdGZvcm0gaW5jbHVkZXMgQVBJ
-cyBmb3IgYnVpbGRpbmcKYXBwcyBhbmQgYSBwaGVub21lbmFsIHRvb2xzZXQgZm9yIGRhdGEgc2Np
-ZW5jZS4gRGV2ZWxvcGVycyBjYW4gdXNlCm91ciB0b29sc2V0IGZvciBlYXN5IGRhdGEgYW5hbHlz
-aXMgJiB2aXN1YWxpemF0aW9uLiBHZXQgYSBmcmVlIGFjY291bnQhCmh0dHA6Ly93d3cyLnByZWNv
-Zy5jb20vcHJlY29ncGxhdGZvcm0vc2xhc2hkb3RuZXdzbGV0dGVyCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkxpbnV4d2Fjb20tZGV2ZWwgbWFpbGluZyBs
-aXN0CkxpbnV4d2Fjb20tZGV2ZWxAbGlzdHMuc291cmNlZm9yZ2UubmV0Cmh0dHBzOi8vbGlzdHMu
-c291cmNlZm9yZ2UubmV0L2xpc3RzL2xpc3RpbmZvL2xpbnV4d2Fjb20tZGV2ZWwK
+On 04/12/13 06:05, Anthony Olech wrote:
+> This is the ONKEY component driver of the Dialog DA9058 PMIC.
+> This driver is just one component of the whole DA9058 PMIC driver.
+> It depends on the CORE component driver of the DA9058 MFD.
+> 
+> Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
+> Signed-off-by: David Dajun Chen <david.chen@diasemi.com>
+> ---
+>  drivers/input/misc/Kconfig        |   10 +++
+>  drivers/input/misc/Makefile       |    1 +
+>  drivers/input/misc/da9058_onkey.c |  177 +++++++++++++++++++++++++++++++++++++
+>  3 files changed, 188 insertions(+)
+>  create mode 100644 drivers/input/misc/da9058_onkey.c
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 259ef31..bd07b38 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -93,6 +93,16 @@ config INPUT_BMA150
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called bma150.
+>  
+> +config INPUT_DA9058_ONKEY
+> +	tristate "DA9058 ONKEY support"
+> +	depends on MFD_DA9058
+> +	help
+> +	  Support the ONKEY of DA9058 PMICs as an input device
+> +	  reporting power button status.
+
+What possible values can a power button status have?
+Must be more than my KISS guess:
+	this software is running => ON
+	software not running     => OFF
+eh?
+
+> +
+> +	  To compile this driver as a module, choose M here: the module
+> +	  will be called da9058_onkey.
+> +
+>  config INPUT_PCSPKR
+>  	tristate "PC Speaker support"
+>  	depends on PCSPKR_PLATFORM
+> diff --git a/drivers/input/misc/da9058_onkey.c b/drivers/input/misc/da9058_onkey.c
+> new file mode 100644
+> index 0000000..969ad70
+> --- /dev/null
+> +++ b/drivers/input/misc/da9058_onkey.c
+> @@ -0,0 +1,177 @@
+> +/*
+> + *  Copyright (C) 2012 Dialog Semiconductor Ltd.
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License as published by
+> + *  the Free Software Foundation; either version 2 of the License, or
+> + *  (at your option) any later version.
+> + *
+> + */
+> +
+> +
+> +static int da9058_onkey_probe(struct platform_device *pdev)
+> +{
+> +	struct da9058 *da9058 = dev_get_drvdata(pdev->dev.parent);
+> +	const struct mfd_cell *cell = mfd_get_cell(pdev);
+> +	struct da9058_onkey_pdata *onkey_pdata;
+> +	struct da9058_onkey *onkey;
+> +	int ret;
+> +
+> +	if (cell == NULL) {
+> +		ret = -ENODEV;
+> +		goto exit;
+> +	}
+> +
+> +	onkey_pdata = cell->platform_data;
+> +
+> +	if (onkey_pdata == NULL) {
+> +		ret = -EINVAL;
+> +		goto exit;
+> +	}
+> +
+> +	dev_info(&pdev->dev, "Starting ONKEY\n");
+> +
+> +	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9058_onkey),
+> +				GFP_KERNEL);
+> +	if (!onkey) {
+> +		ret = -ENOMEM;
+> +		goto exit;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, onkey);
+> +
+> +	onkey->da9058 = da9058;
+> +	onkey->pdev = pdev;
+> +
+> +	onkey->irq = platform_get_irq(pdev, 0);
+> +	if (onkey->irq < 0) {
+> +		dev_err(&pdev->dev, "can not get ONKEY IRQ error=%d\n",
+
+		                     cannot
+
+> +				onkey->irq);
+
+
+-- 
+~Randy

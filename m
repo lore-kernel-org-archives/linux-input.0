@@ -1,41 +1,55 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] Input: wacom: Correct reported resolution for Intuos4 Wireless
-Date: Fri, 12 Apr 2013 09:43:02 -0700
-Message-ID: <1365784982-10721-1-git-send-email-killertofu@gmail.com>
+From: Przemo Firszt <przemo-q9SP4D9nreWHXe+LvDLADg@public.gmane.org>
+Subject: Re: [PATCH] Input: wacom: Correct reported
+ resolution for Intuos4 Wireless
+Date: Fri, 12 Apr 2013 21:00:38 +0100
+Message-ID: <1365796838.12600.0.camel@localhost>
 References: <1365780680.4605.9.camel@localhost>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:42106 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753594Ab3DLQne (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Apr 2013 12:43:34 -0400
-Received: by mail-pd0-f172.google.com with SMTP id 5so1506939pdd.17
-        for <linux-input@vger.kernel.org>; Fri, 12 Apr 2013 09:43:33 -0700 (PDT)
-In-Reply-To: <1365780680.4605.9.camel@localhost>
-Sender: linux-input-owner@vger.kernel.org
+	<1365784982-10721-1-git-send-email-killertofu@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <1365784982-10721-1-git-send-email-killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
+	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxwacom-devel>
+List-Post: <mailto:linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
+	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
-Cc: pinglinux@gmail.com, dmitry.torokhov@gmail.com, przemo@firszt.eu, Jason Gerecke <killertofu@gmail.com>
 
-Reported-by: Przemo Firszt <przemo@firszt.eu>
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
----
- drivers/input/tablet/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 1daa979..1e0031d 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1912,7 +1912,7 @@ static const struct wacom_features wacom_features_0xBB =
- 	{ "Wacom Intuos4 12x19",  WACOM_PKGLEN_INTUOS,    97536, 60960, 2047,
- 	  63, INTUOS4L, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0xBC =
--	{ "Wacom Intuos4 WL",     WACOM_PKGLEN_INTUOS,    40840, 25400, 2047,
-+	{ "Wacom Intuos4 WL",     WACOM_PKGLEN_INTUOS,    40640, 25400, 2047,
- 	  63, INTUOS4, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0x26 =
- 	{ "Wacom Intuos5 touch S", WACOM_PKGLEN_INTUOS,  31496, 19685, 2047,
--- 
-1.8.2
-
+RG5pYSAyMDEzLTA0LTEyLCBwacSFIG8gZ29kemluaWUgMDk6NDMgLTA3MDAsIEphc29uIEdlcmVj
+a2UgcGlzemU6Cj4gUmVwb3J0ZWQtYnk6IFByemVtbyBGaXJzenQgPHByemVtb0BmaXJzenQuZXU+
+Cj4gU2lnbmVkLW9mZi1ieTogSmFzb24gR2VyZWNrZSA8a2lsbGVydG9mdUBnbWFpbC5jb20+Cj4g
+LS0tCj4gIGRyaXZlcnMvaW5wdXQvdGFibGV0L3dhY29tX3dhYy5jIHwgMiArLQo+ICAxIGZpbGUg
+Y2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPiAKPiBkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy9pbnB1dC90YWJsZXQvd2Fjb21fd2FjLmMgYi9kcml2ZXJzL2lucHV0L3RhYmxldC93
+YWNvbV93YWMuYwo+IGluZGV4IDFkYWE5NzkuLjFlMDAzMWQgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVy
+cy9pbnB1dC90YWJsZXQvd2Fjb21fd2FjLmMKPiArKysgYi9kcml2ZXJzL2lucHV0L3RhYmxldC93
+YWNvbV93YWMuYwo+IEBAIC0xOTEyLDcgKzE5MTIsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IHdh
+Y29tX2ZlYXR1cmVzIHdhY29tX2ZlYXR1cmVzXzB4QkIgPQo+ICAJeyAiV2Fjb20gSW50dW9zNCAx
+MngxOSIsICBXQUNPTV9QS0dMRU5fSU5UVU9TLCAgICA5NzUzNiwgNjA5NjAsIDIwNDcsCj4gIAkg
+IDYzLCBJTlRVT1M0TCwgV0FDT01fSU5UVU9TM19SRVMsIFdBQ09NX0lOVFVPUzNfUkVTIH07Cj4g
+IHN0YXRpYyBjb25zdCBzdHJ1Y3Qgd2Fjb21fZmVhdHVyZXMgd2Fjb21fZmVhdHVyZXNfMHhCQyA9
+Cj4gLQl7ICJXYWNvbSBJbnR1b3M0IFdMIiwgICAgIFdBQ09NX1BLR0xFTl9JTlRVT1MsICAgIDQw
+ODQwLCAyNTQwMCwgMjA0NywKPiArCXsgIldhY29tIEludHVvczQgV0wiLCAgICAgV0FDT01fUEtH
+TEVOX0lOVFVPUywgICAgNDA2NDAsIDI1NDAwLCAyMDQ3LAo+ICAJICA2MywgSU5UVU9TNCwgV0FD
+T01fSU5UVU9TM19SRVMsIFdBQ09NX0lOVFVPUzNfUkVTIH07Cj4gIHN0YXRpYyBjb25zdCBzdHJ1
+Y3Qgd2Fjb21fZmVhdHVyZXMgd2Fjb21fZmVhdHVyZXNfMHgyNiA9Cj4gIAl7ICJXYWNvbSBJbnR1
+b3M1IHRvdWNoIFMiLCBXQUNPTV9QS0dMRU5fSU5UVU9TLCAgMzE0OTYsIDE5Njg1LCAyMDQ3LAoK
+VGVzdGVkLWJ5OiBQcnplbW8gRmlyc3p0IDxwcnplbW9AZmlyc3p0LmV1PgotLSAKS2luZCByZWdh
+cmRzLApQcnplbW8gRmlyc3p0CgoKCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpQcmVjb2cgaXMgYSBu
+ZXh0LWdlbmVyYXRpb24gYW5hbHl0aWNzIHBsYXRmb3JtIGNhcGFibGUgb2YgYWR2YW5jZWQKYW5h
+bHl0aWNzIG9uIHNlbWktc3RydWN0dXJlZCBkYXRhLiBUaGUgcGxhdGZvcm0gaW5jbHVkZXMgQVBJ
+cyBmb3IgYnVpbGRpbmcKYXBwcyBhbmQgYSBwaGVub21lbmFsIHRvb2xzZXQgZm9yIGRhdGEgc2Np
+ZW5jZS4gRGV2ZWxvcGVycyBjYW4gdXNlCm91ciB0b29sc2V0IGZvciBlYXN5IGRhdGEgYW5hbHlz
+aXMgJiB2aXN1YWxpemF0aW9uLiBHZXQgYSBmcmVlIGFjY291bnQhCmh0dHA6Ly93d3cyLnByZWNv
+Zy5jb20vcHJlY29ncGxhdGZvcm0vc2xhc2hkb3RuZXdzbGV0dGVyCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkxpbnV4d2Fjb20tZGV2ZWwgbWFpbGluZyBs
+aXN0CkxpbnV4d2Fjb20tZGV2ZWxAbGlzdHMuc291cmNlZm9yZ2UubmV0Cmh0dHBzOi8vbGlzdHMu
+c291cmNlZm9yZ2UubmV0L2xpc3RzL2xpc3RpbmZvL2xpbnV4d2Fjb20tZGV2ZWwK

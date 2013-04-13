@@ -1,115 +1,135 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [RFC 00/21] Nintendo Wii Remote Extension Hotplugging
-Date: Sat, 13 Apr 2013 12:47:41 +0200
-Message-ID: <1365850082-3585-1-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 01/21] HID: wiimote: extend driver description
+Date: Sat, 13 Apr 2013 12:47:42 +0200
+Message-ID: <1365850082-3585-2-git-send-email-dh.herrmann@gmail.com>
+References: <1365850082-3585-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f176.google.com ([209.85.215.176]:47343 "EHLO
-	mail-ea0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752703Ab3DMKsZ (ORCPT
+Received: from mail-ea0-f182.google.com ([209.85.215.182]:64694 "EHLO
+	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752866Ab3DMKs1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Apr 2013 06:48:25 -0400
-Received: by mail-ea0-f176.google.com with SMTP id h10so1526461eaj.7
-        for <linux-input@vger.kernel.org>; Sat, 13 Apr 2013 03:48:24 -0700 (PDT)
+	Sat, 13 Apr 2013 06:48:27 -0400
+Received: by mail-ea0-f182.google.com with SMTP id q15so1596437ead.13
+        for <linux-input@vger.kernel.org>; Sat, 13 Apr 2013 03:48:25 -0700 (PDT)
+In-Reply-To: <1365850082-3585-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-Hi
+The hid-wiimote driver supports more than the Wii Remote. Nintendo
+produced many devices based on the Wii Remote, which have extension
+devices built-in. It is not clear to many users, that these devices have
+anything in common with the Wii Remote, so fix the driver description.
 
-Last two month I sat down and started reverse-engineering the wiimote protocol
-again. My goal was to finally get reliable extension hotplugging. What I then
-ended up with was a huge Bluetooth-HID rewrite, a major hid-wiimote
-modularization and finally working extension hotplug support.
+This also updates the copyright information for the coming hotplugging
+rework.
 
-The patches in Detail:
- - #1 to #6 are small fixes and initial device-detection logic. They are fairly
-   simple and fix small issues I encountered.
- - #7 to #12 move all the sub-device drivers into modules. This allows us to
-   extend device detection and load only the sub-devices that are actually
-   present. For instance, the Balance Board does only provide one LED so we
-   should not register led #2-#4. Note that the balance board still emulates the
-   other LEDs in the protocol so we wouldn't notice that they are not present if
-   we didn't know.
- - #13 to #17 implement extension hotplugging. Patch #13 extends the core to
-   handle hotplugging and #14 to #17 implement the protocol parsers as modules
-   so we can dynamically load different modules.
- - #18 to #21 add sysfs attributes and contain small fixes
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ drivers/hid/Kconfig             | 20 ++++++++++++++++++--
+ drivers/hid/hid-wiimote-core.c  |  6 +++---
+ drivers/hid/hid-wiimote-debug.c |  4 ++--
+ drivers/hid/hid-wiimote-ext.c   |  4 ++--
+ drivers/hid/hid-wiimote.h       |  4 ++--
+ 5 files changed, 27 insertions(+), 11 deletions(-)
 
-I know that the driver became pretty huge, but it currently contains an
-IR-camera driver, 4 accelerometer/gyro drivers, force-feedback driver, LED
-driver, weight-sensor driver and like 5 different button/joystick drivers. So
-considering that I think it's actually pretty small.
-
-Another point is that I tried to be as conservative as possible. I tested this
-code with several 3rd-party devices and all of them ended up breaking at some
-point because they expect the exact Wii-Console behavior. I fixed everything I
-found but I need more input from users here. At least I don't break any devices
-that worked with the driver so far (as far as I know).
-
-Also please don't merge it, yet. I still have to remove hid-wiimote-ext.c as it
-is no longer needed, but I haven't tested how this affects
-backwards-compatibility. I did my best to not break existing user-space, but I
-want to do some more tests. So if there are no comments on this series, I will
-resend in about 1 week with a ready-to-merge series. But I wanted to see whether
-anyone has issues with the patches, first.
-
-
-Some sidenotes:
- - Marcel already ACK'ed my Bluetooth HIDP rewrite which finally gives us
-   working Bluetooth HID without any kernel oops. Gustavo is currently applying
-   the patches. This series doesn't exactly depend on it, but you cannot test
-   Bluetooth device hotplugging without it, because the kernel just breaks.
- - I currently work on the "Wii U Pro Controller". It's similar to the Classic
-   Controller and I hope I can include patches for it in the next revision.
- - I also work on reverse-engineering the Wii U GamePad. It uses 5Ghz 802.11n
-   instead of Bluetooth, but the Miracast (Wifi Display) protocol allows a
-   separate HID stream side-by-side with the MPEG-4 video stream. So there might
-   be a new hid_ll_driver in the future. However, I guess UHID will serve well
-   for the beginning.
-
-Last but not least I noticed that we duplicate the HID Boot Protocol in usbhid
-and Bluetooth HID. The Wifi-Display HID also provides some similar protocol. So
-I currently look into creating a hid-boot.c so we have a central place that
-implements it.
-
-
-Cheers
-David
-
-David Herrmann (21):
-  HID: wiimote: extend driver description
-  HID: wiimote: move queue handling into separate struct
-  HID: wiimote: keep HID device open
-  HID: wiimote: add device detection
-  HID: wiimote: use cached battery values on I/O failure
-  HID: wiimote: wake up if output queue failed
-  HID: wiimote: add sub-device module infrastructure
-  HID: wiimote: convert KEYS and RUMBLE to modules
-  HID: wiimote: convert BATTERY to module
-  HID: wiimote: convert LEDS to modules
-  HID: wiimote: convert ACCEL to module
-  HID: wiimote: convert IR to module
-  HID: wiimote: add extension hotplug support
-  HID: wiimote: add Balance Board support
-  HID: wiimote: add Nunchuk support
-  HID: wiimote: add Classic Controller extension
-  HID: wiimote: add Motion Plus extension module
-  HID: wiimote: fix ctx pointer in debugfs DRM-write
-  HID: wiimote: lock DRM mode during debugfs overwrite
-  HID: wiimote: add sysfs extension/device-type attrs
-  HID: wiimote: add "bboard_calib" attribute
-
- drivers/hid/Kconfig               |   20 +-
- drivers/hid/Makefile              |    2 +-
- drivers/hid/hid-wiimote-core.c    | 1571 +++++++++++++++++++++------------
- drivers/hid/hid-wiimote-debug.c   |   10 +-
- drivers/hid/hid-wiimote-ext.c     |   16 +-
- drivers/hid/hid-wiimote-modules.c | 1717 +++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-wiimote.h         |  168 +++-
- 7 files changed, 2925 insertions(+), 579 deletions(-)
- create mode 100644 drivers/hid/hid-wiimote-modules.c
-
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 613083a..e05dda3 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -696,13 +696,29 @@ config HID_WACOM
+ 	Support for Wacom Graphire Bluetooth and Intuos4 WL tablets.
+ 
+ config HID_WIIMOTE
+-	tristate "Nintendo Wii Remote support"
++	tristate "Nintendo Wii / Wii U peripherals"
+ 	depends on HID
+ 	depends on LEDS_CLASS
+ 	select POWER_SUPPLY
+ 	select INPUT_FF_MEMLESS
+ 	---help---
+-	Support for the Nintendo Wii Remote bluetooth device.
++	Support for Nintendo Wii and Wii U Bluetooth peripherals. Supported
++	devices are the Wii Remote and its extension devices, but also devices
++	based on the Wii Remote like the Wii U Pro Controller or the
++	Wii Balance Board.
++
++	Support for all official Nintendo extensions is available, however, 3rd
++	party extensions might not be supported. Please report these devices to:
++	  http://github.com/dvdhrm/xwiimote/issues
++
++	Other Nintendo Wii U peripherals that are IEEE 802.11 based (including
++	the Wii U Gamepad) might be supported in the future. But currently
++	support is limited to Bluetooth based devices.
++
++	If unsure, say N.
++
++	To compile this driver as a module, choose M here: the
++	module will be called hid-wiimote.
+ 
+ config HID_WIIMOTE_EXT
+ 	bool "Nintendo Wii Remote Extension support"
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index e5ee1f2..119dc56 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -1,6 +1,6 @@
+ /*
+- * HID driver for Nintendo Wiimote devices
+- * Copyright (c) 2011 David Herrmann
++ * HID driver for Nintendo Wii / Wii U peripherals
++ * Copyright (c) 2011-2013 David Herrmann <dh.herrmann@gmail.com>
+  */
+ 
+ /*
+@@ -1331,4 +1331,4 @@ module_hid_driver(wiimote_hid_driver);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
+-MODULE_DESCRIPTION(WIIMOTE_NAME " Device Driver");
++MODULE_DESCRIPTION("Driver for Nintendo Wii / Wii U peripherals");
+diff --git a/drivers/hid/hid-wiimote-debug.c b/drivers/hid/hid-wiimote-debug.c
+index 90124ff..fdd30dd 100644
+--- a/drivers/hid/hid-wiimote-debug.c
++++ b/drivers/hid/hid-wiimote-debug.c
+@@ -1,6 +1,6 @@
+ /*
+- * Debug support for HID Nintendo Wiimote devices
+- * Copyright (c) 2011 David Herrmann
++ * Debug support for HID Nintendo Wii / Wii U peripherals
++ * Copyright (c) 2011-2013 David Herrmann <dh.herrmann@gmail.com>
+  */
+ 
+ /*
+diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
+index 0472191..1c104fc 100644
+--- a/drivers/hid/hid-wiimote-ext.c
++++ b/drivers/hid/hid-wiimote-ext.c
+@@ -1,6 +1,6 @@
+ /*
+- * HID driver for Nintendo Wiimote extension devices
+- * Copyright (c) 2011 David Herrmann
++ * HID driver for Nintendo Wii / Wii U peripheral extensions
++ * Copyright (c) 2011-2013 David Herrmann <dh.herrmann@gmail.com>
+  */
+ 
+ /*
+diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
+index c81dbeb..a2629ed 100644
+--- a/drivers/hid/hid-wiimote.h
++++ b/drivers/hid/hid-wiimote.h
+@@ -2,8 +2,8 @@
+ #define __HID_WIIMOTE_H
+ 
+ /*
+- * HID driver for Nintendo Wiimote devices
+- * Copyright (c) 2011 David Herrmann
++ * HID driver for Nintendo Wii / Wii U peripherals
++ * Copyright (c) 2011-2013 David Herrmann <dh.herrmann@gmail.com>
+  */
+ 
+ /*
 -- 
 1.8.2.1
 

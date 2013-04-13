@@ -1,303 +1,461 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 07/21] HID: wiimote: add sub-device module infrastructure
-Date: Sat, 13 Apr 2013 12:47:48 +0200
-Message-ID: <1365850082-3585-8-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 08/21] HID: wiimote: convert KEYS and RUMBLE to modules
+Date: Sat, 13 Apr 2013 12:47:49 +0200
+Message-ID: <1365850082-3585-9-git-send-email-dh.herrmann@gmail.com>
 References: <1365850082-3585-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f181.google.com ([209.85.215.181]:38167 "EHLO
-	mail-ea0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753371Ab3DMKsi (ORCPT
+Received: from mail-ee0-f41.google.com ([74.125.83.41]:47715 "EHLO
+	mail-ee0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753371Ab3DMKsk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Apr 2013 06:48:38 -0400
-Received: by mail-ea0-f181.google.com with SMTP id z10so1528786ead.12
-        for <linux-input@vger.kernel.org>; Sat, 13 Apr 2013 03:48:37 -0700 (PDT)
+	Sat, 13 Apr 2013 06:48:40 -0400
+Received: by mail-ee0-f41.google.com with SMTP id c1so1558764eek.14
+        for <linux-input@vger.kernel.org>; Sat, 13 Apr 2013 03:48:39 -0700 (PDT)
 In-Reply-To: <1365850082-3585-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-To avoid loading all sub-device drivers for every Wii Remote, even though
-the required hardware might not be available, we introduce a module layer.
+This introduces the first sub-device modules by converting the KEYS and
+RUMBLE sub-devices into wiimote modules. Both must be converted at once
+because they depend on the built-in shared input device.
 
-The module layer specifies which sub-devices are available on each
-device-type. After device detection, we only load the modules for the
-detected device. If module loading fails, we unload everything and mark
-the device as WIIMOTE_DEV_UNKNOWN. As long as a device is marked as
-"unknown", no sub-devices will be used and the device is considered
-unsupported.
-
-All the different sub-devices, including KEYS, RUMBLE, BATTERY, LEDS,
-ACCELEROMETER, IR and more will be ported in follow-up patches to the new
-module layer.
+This mostly moves code from wiimote-core to wiimote-modules and doesn't
+change any semantics or ABI.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/hid/Makefile              |   2 +-
- drivers/hid/hid-wiimote-core.c    | 124 +++++++++++++++++++++++++++++++++++++-
- drivers/hid/hid-wiimote-modules.c |  45 ++++++++++++++
- drivers/hid/hid-wiimote.h         |  27 +++++++++
- 4 files changed, 194 insertions(+), 4 deletions(-)
- create mode 100644 drivers/hid/hid-wiimote-modules.c
+ drivers/hid/hid-wiimote-core.c    | 134 ++++++--------------------------------
+ drivers/hid/hid-wiimote-modules.c | 134 ++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-wiimote.h         |  18 +++++
+ 3 files changed, 172 insertions(+), 114 deletions(-)
 
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 2735151..6015af5 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -28,7 +28,7 @@ ifdef CONFIG_LOGIWHEELS_FF
- 	hid-logitech-y	+= hid-lg4ff.o
- endif
- 
--hid-wiimote-y		:= hid-wiimote-core.o
-+hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
- ifdef CONFIG_HID_WIIMOTE_EXT
- 	hid-wiimote-y	+= hid-wiimote-ext.o
- endif
 diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index 73969d4..5401c11 100644
+index 5401c11..9f0be90 100644
 --- a/drivers/hid/hid-wiimote-core.c
 +++ b/drivers/hid/hid-wiimote-core.c
-@@ -715,6 +715,124 @@ static void wiimote_ir_close(struct input_dev *dev)
- 	wiimote_init_ir(wdata, 0);
+@@ -22,35 +22,6 @@
+ #include "hid-ids.h"
+ #include "hid-wiimote.h"
+ 
+-enum wiiproto_keys {
+-	WIIPROTO_KEY_LEFT,
+-	WIIPROTO_KEY_RIGHT,
+-	WIIPROTO_KEY_UP,
+-	WIIPROTO_KEY_DOWN,
+-	WIIPROTO_KEY_PLUS,
+-	WIIPROTO_KEY_MINUS,
+-	WIIPROTO_KEY_ONE,
+-	WIIPROTO_KEY_TWO,
+-	WIIPROTO_KEY_A,
+-	WIIPROTO_KEY_B,
+-	WIIPROTO_KEY_HOME,
+-	WIIPROTO_KEY_COUNT
+-};
+-
+-static __u16 wiiproto_keymap[] = {
+-	KEY_LEFT,	/* WIIPROTO_KEY_LEFT */
+-	KEY_RIGHT,	/* WIIPROTO_KEY_RIGHT */
+-	KEY_UP,		/* WIIPROTO_KEY_UP */
+-	KEY_DOWN,	/* WIIPROTO_KEY_DOWN */
+-	KEY_NEXT,	/* WIIPROTO_KEY_PLUS */
+-	KEY_PREVIOUS,	/* WIIPROTO_KEY_MINUS */
+-	BTN_1,		/* WIIPROTO_KEY_ONE */
+-	BTN_2,		/* WIIPROTO_KEY_TWO */
+-	BTN_A,		/* WIIPROTO_KEY_A */
+-	BTN_B,		/* WIIPROTO_KEY_B */
+-	BTN_MODE,	/* WIIPROTO_KEY_HOME */
+-};
+-
+ static enum power_supply_property wiimote_battery_props[] = {
+ 	POWER_SUPPLY_PROP_CAPACITY,
+ 	POWER_SUPPLY_PROP_SCOPE,
+@@ -166,7 +137,7 @@ static inline void wiiproto_keep_rumble(struct wiimote_data *wdata, __u8 *cmd1)
+ 		*cmd1 |= 0x01;
  }
  
-+/* device module handling */
-+
-+static const __u8 * const wiimote_devtype_mods[WIIMOTE_DEV_NUM] = {
-+	[WIIMOTE_DEV_PENDING] = (const __u8[]){
-+		WIIMOD_NULL,
-+	},
-+	[WIIMOTE_DEV_UNKNOWN] = (const __u8[]){
-+		WIIMOD_NULL,
-+	},
-+	[WIIMOTE_DEV_GENERIC] = (const __u8[]){
-+		WIIMOD_NULL,
-+	},
-+	[WIIMOTE_DEV_GEN10] = (const __u8[]){
-+		WIIMOD_NULL,
-+	},
-+	[WIIMOTE_DEV_GEN20] = (const __u8[]){
-+		WIIMOD_NULL,
-+	},
-+};
-+
-+static void wiimote_modules_load(struct wiimote_data *wdata,
-+				 unsigned int devtype)
-+{
-+	bool need_input = false;
-+	const __u8 *mods, *iter;
+-static void wiiproto_req_rumble(struct wiimote_data *wdata, __u8 rumble)
++void wiiproto_req_rumble(struct wiimote_data *wdata, __u8 rumble)
+ {
+ 	__u8 cmd[2];
+ 
+@@ -654,31 +625,6 @@ static void wiimote_leds_set(struct led_classdev *led_dev,
+ 	}
+ }
+ 
+-static int wiimote_ff_play(struct input_dev *dev, void *data,
+-							struct ff_effect *eff)
+-{
+-	struct wiimote_data *wdata = input_get_drvdata(dev);
+-	__u8 value;
+-	unsigned long flags;
+-
+-	/*
+-	 * The wiimote supports only a single rumble motor so if any magnitude
+-	 * is set to non-zero then we start the rumble motor. If both are set to
+-	 * zero, we stop the rumble motor.
+-	 */
+-
+-	if (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude)
+-		value = 1;
+-	else
+-		value = 0;
+-
+-	spin_lock_irqsave(&wdata->state.lock, flags);
+-	wiiproto_req_rumble(wdata, value);
+-	spin_unlock_irqrestore(&wdata->state.lock, flags);
+-
+-	return 0;
+-}
+-
+ static int wiimote_accel_open(struct input_dev *dev)
+ {
+ 	struct wiimote_data *wdata = input_get_drvdata(dev);
+@@ -725,12 +671,18 @@ static const __u8 * const wiimote_devtype_mods[WIIMOTE_DEV_NUM] = {
+ 		WIIMOD_NULL,
+ 	},
+ 	[WIIMOTE_DEV_GENERIC] = (const __u8[]){
++		WIIMOD_KEYS,
++		WIIMOD_RUMBLE,
+ 		WIIMOD_NULL,
+ 	},
+ 	[WIIMOTE_DEV_GEN10] = (const __u8[]){
++		WIIMOD_KEYS,
++		WIIMOD_RUMBLE,
+ 		WIIMOD_NULL,
+ 	},
+ 	[WIIMOTE_DEV_GEN20] = (const __u8[]){
++		WIIMOD_KEYS,
++		WIIMOD_RUMBLE,
+ 		WIIMOD_NULL,
+ 	},
+ };
+@@ -933,29 +885,17 @@ static void wiimote_init_worker(struct work_struct *work)
+ 
+ static void handler_keys(struct wiimote_data *wdata, const __u8 *payload)
+ {
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_LEFT],
+-							!!(payload[0] & 0x01));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_RIGHT],
+-							!!(payload[0] & 0x02));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_DOWN],
+-							!!(payload[0] & 0x04));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_UP],
+-							!!(payload[0] & 0x08));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_PLUS],
+-							!!(payload[0] & 0x10));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_TWO],
+-							!!(payload[1] & 0x01));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_ONE],
+-							!!(payload[1] & 0x02));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_B],
+-							!!(payload[1] & 0x04));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_A],
+-							!!(payload[1] & 0x08));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_MINUS],
+-							!!(payload[1] & 0x10));
+-	input_report_key(wdata->input, wiiproto_keymap[WIIPROTO_KEY_HOME],
+-							!!(payload[1] & 0x80));
+-	input_sync(wdata->input);
++	const __u8 *iter, *mods;
 +	const struct wiimod_ops *ops;
-+	int ret;
 +
-+	mods = wiimote_devtype_mods[devtype];
-+
++	mods = wiimote_devtype_mods[wdata->state.devtype];
 +	for (iter = mods; *iter != WIIMOD_NULL; ++iter) {
-+		if (wiimod_table[*iter]->flags & WIIMOD_FLAG_INPUT) {
-+			need_input = true;
++		ops = wiimod_table[*iter];
++		if (ops->in_keys) {
++			ops->in_keys(wdata, payload);
 +			break;
 +		}
 +	}
-+
-+	if (need_input) {
-+		wdata->input = input_allocate_device();
-+		if (!wdata->input)
-+			return;
-+
-+		input_set_drvdata(wdata->input, wdata);
-+		wdata->input->dev.parent = &wdata->hdev->dev;
-+		wdata->input->id.bustype = wdata->hdev->bus;
-+		wdata->input->id.vendor = wdata->hdev->vendor;
-+		wdata->input->id.product = wdata->hdev->product;
-+		wdata->input->id.version = wdata->hdev->version;
-+		wdata->input->name = WIIMOTE_NAME;
-+	}
-+
-+	for (iter = mods; *iter != WIIMOD_NULL; ++iter) {
-+		ops = wiimod_table[*iter];
-+		if (!ops->probe)
-+			continue;
-+
-+		ret = ops->probe(ops, wdata);
-+		if (ret)
-+			goto error;
-+	}
-+
-+	if (wdata->input) {
-+		ret = input_register_device(wdata->input);
-+		if (ret)
-+			goto error;
-+	}
-+
-+	spin_lock_irq(&wdata->state.lock);
-+	wdata->state.devtype = devtype;
-+	spin_unlock_irq(&wdata->state.lock);
-+	return;
-+
-+error:
-+	for ( ; iter-- != mods; ) {
-+		ops = wiimod_table[*iter];
-+		if (ops->remove)
-+			ops->remove(ops, wdata);
-+	}
-+
-+	if (wdata->input) {
-+		input_free_device(wdata->input);
-+		wdata->input = NULL;
-+	}
-+}
-+
-+static void wiimote_modules_unload(struct wiimote_data *wdata)
-+{
-+	const __u8 *mods, *iter;
-+	const struct wiimod_ops *ops;
-+	unsigned long flags;
-+
-+	mods = wiimote_devtype_mods[wdata->state.devtype];
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->state.devtype = WIIMOTE_DEV_UNKNOWN;
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	/* find end of list */
-+	for (iter = mods; *iter != WIIMOD_NULL; ++iter)
-+		/* empty */ ;
-+
-+	if (wdata->input) {
-+		input_get_device(wdata->input);
-+		input_unregister_device(wdata->input);
-+	}
-+
-+	for ( ; iter-- != mods; ) {
-+		ops = wiimod_table[*iter];
-+		if (ops->remove)
-+			ops->remove(ops, wdata);
-+	}
-+
-+	if (wdata->input) {
-+		input_put_device(wdata->input);
-+		wdata->input = NULL;
-+	}
-+}
-+
- /* device (re-)initialization and detection */
- 
- static const char *wiimote_devtype_names[WIIMOTE_DEV_NUM] = {
-@@ -766,9 +884,7 @@ done:
- 		hid_info(wdata->hdev, "detected device: %s\n",
- 			 wiimote_devtype_names[devtype]);
- 
--	spin_lock_irq(&wdata->state.lock);
--	wdata->state.devtype = devtype;
--	spin_unlock_irq(&wdata->state.lock);
-+	wiimote_modules_load(wdata, devtype);
  }
  
- static void wiimote_init_detect(struct wiimote_data *wdata)
-@@ -780,6 +896,7 @@ static void wiimote_init_detect(struct wiimote_data *wdata)
- 	wiimote_cmd_acquire_noint(wdata);
+ static void handler_accel(struct wiimote_data *wdata, const __u8 *payload)
+@@ -1319,38 +1259,17 @@ err:
+ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ {
+ 	struct wiimote_data *wdata;
+-	int i;
  
- 	spin_lock_irq(&wdata->state.lock);
-+	wdata->state.devtype = WIIMOTE_DEV_UNKNOWN;
- 	wiimote_cmd_set(wdata, WIIPROTO_REQ_SREQ, 0);
- 	wiiproto_req_status(wdata);
- 	spin_unlock_irq(&wdata->state.lock);
-@@ -1313,6 +1430,7 @@ static void wiimote_destroy(struct wiimote_data *wdata)
+ 	wdata = kzalloc(sizeof(*wdata), GFP_KERNEL);
+ 	if (!wdata)
+ 		return NULL;
+ 
+-	wdata->input = input_allocate_device();
+-	if (!wdata->input)
+-		goto err;
+-
+ 	wdata->hdev = hdev;
+ 	hid_set_drvdata(hdev, wdata);
+ 
+-	input_set_drvdata(wdata->input, wdata);
+-	wdata->input->dev.parent = &wdata->hdev->dev;
+-	wdata->input->id.bustype = wdata->hdev->bus;
+-	wdata->input->id.vendor = wdata->hdev->vendor;
+-	wdata->input->id.product = wdata->hdev->product;
+-	wdata->input->id.version = wdata->hdev->version;
+-	wdata->input->name = WIIMOTE_NAME;
+-
+-	set_bit(EV_KEY, wdata->input->evbit);
+-	for (i = 0; i < WIIPROTO_KEY_COUNT; ++i)
+-		set_bit(wiiproto_keymap[i], wdata->input->keybit);
+-
+-	set_bit(FF_RUMBLE, wdata->input->ffbit);
+-	if (input_ff_create_memless(wdata->input, NULL, wiimote_ff_play))
+-		goto err_input;
+-
+ 	wdata->accel = input_allocate_device();
+ 	if (!wdata->accel)
+-		goto err_input;
++		goto err;
+ 
+ 	input_set_drvdata(wdata->accel, wdata);
+ 	wdata->accel->open = wiimote_accel_open;
+@@ -1417,8 +1336,6 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ 
+ err_ir:
+ 	input_free_device(wdata->accel);
+-err_input:
+-	input_free_device(wdata->input);
+ err:
+ 	kfree(wdata);
+ 	return NULL;
+@@ -1430,13 +1347,12 @@ static void wiimote_destroy(struct wiimote_data *wdata)
  	wiiext_deinit(wdata);
  	wiimote_leds_destroy(wdata);
  
-+	wiimote_modules_unload(wdata);
++	cancel_work_sync(&wdata->init_worker);
+ 	wiimote_modules_unload(wdata);
  	power_supply_unregister(&wdata->battery);
  	kfree(wdata->battery.name);
  	input_unregister_device(wdata->accel);
+ 	input_unregister_device(wdata->ir);
+-	input_unregister_device(wdata->input);
+-	cancel_work_sync(&wdata->init_worker);
+ 	cancel_work_sync(&wdata->queue.worker);
+ 	hid_hw_close(wdata->hdev);
+ 	hid_hw_stop(wdata->hdev);
+@@ -1488,12 +1404,6 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+ 		goto err_ir;
+ 	}
+ 
+-	ret = input_register_device(wdata->input);
+-	if (ret) {
+-		hid_err(hdev, "Cannot register input device\n");
+-		goto err_input;
+-	}
+-
+ 	wdata->battery.properties = wiimote_battery_props;
+ 	wdata->battery.num_properties = ARRAY_SIZE(wiimote_battery_props);
+ 	wdata->battery.get_property = wiimote_battery_get_property;
+@@ -1545,9 +1455,6 @@ err_free:
+ err_battery:
+ 	kfree(wdata->battery.name);
+ err_battery_name:
+-	input_unregister_device(wdata->input);
+-	wdata->input = NULL;
+-err_input:
+ 	input_unregister_device(wdata->ir);
+ 	wdata->ir = NULL;
+ err_ir:
+@@ -1560,7 +1467,6 @@ err_stop:
+ err:
+ 	input_free_device(wdata->ir);
+ 	input_free_device(wdata->accel);
+-	input_free_device(wdata->input);
+ 	kfree(wdata);
+ 	return ret;
+ }
 diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
-new file mode 100644
-index 0000000..5dcdd23
---- /dev/null
+index 5dcdd23..616f240 100644
+--- a/drivers/hid/hid-wiimote-modules.c
 +++ b/drivers/hid/hid-wiimote-modules.c
-@@ -0,0 +1,45 @@
+@@ -39,7 +39,141 @@
+ #include <linux/spinlock.h>
+ #include "hid-wiimote.h"
+ 
 +/*
-+ * Device Modules for Nintendo Wii / Wii U HID Driver
-+ * Copyright (c) 2011-2013 David Herrmann <dh.herrmann@gmail.com>
++ * Keys
++ * The initial Wii Remote provided a bunch of buttons that are reported as
++ * part of the core protocol. Many later devices dropped these and report
++ * invalid data in the core button reports. Load this only on devices which
++ * correctly send button reports.
++ * It uses the shared input device.
 + */
 +
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+/*
-+ * Wiimote Modules
-+ * Nintendo devices provide different peripherals and many new devices lack
-+ * initial features like the IR camera. Therefore, each peripheral device is
-+ * implemented as an independent module and we probe on each device only the
-+ * modules for the hardware that really is available.
-+ *
-+ * Module registration is sequential. Unregistration is done in reverse order.
-+ * After device detection, the needed modules are loaded. Users can trigger
-+ * re-detection which causes all modules to be unloaded and then reload the
-+ * modules for the new detected device.
-+ *
-+ * wdata->input is a shared input device. It is always initialized prior to
-+ * module registration. If at least one registered module is marked as
-+ * WIIMOD_FLAG_INPUT, then the input device will get registered after all
-+ * modules were registered.
-+ * Please note that it is unregistered _before_ the "remove" callbacks are
-+ * called. This guarantees that no input interaction is done, anymore. However,
-+ * the wiimote core keeps a reference to the input device so it is freed only
-+ * after all modules were removed. It is safe to send events to unregistered
-+ * input devices.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/input.h>
-+#include <linux/spinlock.h>
-+#include "hid-wiimote.h"
-+
-+/* module table */
-+
-+const struct wiimod_ops *wiimod_table[WIIMOD_NUM] = {
++static const __u16 wiimod_keys_map[] = {
++	KEY_LEFT,	/* WIIPROTO_KEY_LEFT */
++	KEY_RIGHT,	/* WIIPROTO_KEY_RIGHT */
++	KEY_UP,		/* WIIPROTO_KEY_UP */
++	KEY_DOWN,	/* WIIPROTO_KEY_DOWN */
++	KEY_NEXT,	/* WIIPROTO_KEY_PLUS */
++	KEY_PREVIOUS,	/* WIIPROTO_KEY_MINUS */
++	BTN_1,		/* WIIPROTO_KEY_ONE */
++	BTN_2,		/* WIIPROTO_KEY_TWO */
++	BTN_A,		/* WIIPROTO_KEY_A */
++	BTN_B,		/* WIIPROTO_KEY_B */
++	BTN_MODE,	/* WIIPROTO_KEY_HOME */
 +};
++
++static void wiimod_keys_in_keys(struct wiimote_data *wdata, const __u8 *keys)
++{
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_LEFT],
++							!!(keys[0] & 0x01));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_RIGHT],
++							!!(keys[0] & 0x02));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_DOWN],
++							!!(keys[0] & 0x04));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_UP],
++							!!(keys[0] & 0x08));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_PLUS],
++							!!(keys[0] & 0x10));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_TWO],
++							!!(keys[1] & 0x01));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_ONE],
++							!!(keys[1] & 0x02));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_B],
++							!!(keys[1] & 0x04));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_A],
++							!!(keys[1] & 0x08));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_MINUS],
++							!!(keys[1] & 0x10));
++	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_HOME],
++							!!(keys[1] & 0x80));
++	input_sync(wdata->input);
++}
++
++static int wiimod_keys_probe(const struct wiimod_ops *ops,
++			     struct wiimote_data *wdata)
++{
++	unsigned int i;
++
++	set_bit(EV_KEY, wdata->input->evbit);
++	for (i = 0; i < WIIPROTO_KEY_COUNT; ++i)
++		set_bit(wiimod_keys_map[i], wdata->input->keybit);
++
++	return 0;
++}
++
++static const struct wiimod_ops wiimod_keys = {
++	.flags = WIIMOD_FLAG_INPUT,
++	.arg = 0,
++	.probe = wiimod_keys_probe,
++	.remove = NULL,
++	.in_keys = wiimod_keys_in_keys,
++};
++
++/*
++ * Rumble
++ * Nearly all devices provide a rumble feature. A small motor for
++ * force-feedback effects. We provide an FF_RUMBLE memless ff device on the
++ * shared input device if this module is loaded.
++ * The rumble motor is controlled via a flag on almost every output report so
++ * the wiimote core handles the rumble flag. But if a device doesn't provide
++ * the rumble motor, this flag shouldn't be set.
++ */
++
++static int wiimod_rumble_play(struct input_dev *dev, void *data,
++			      struct ff_effect *eff)
++{
++	struct wiimote_data *wdata = input_get_drvdata(dev);
++	__u8 value;
++	unsigned long flags;
++
++	/*
++	 * The wiimote supports only a single rumble motor so if any magnitude
++	 * is set to non-zero then we start the rumble motor. If both are set to
++	 * zero, we stop the rumble motor.
++	 */
++
++	if (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude)
++		value = 1;
++	else
++		value = 0;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wiiproto_req_rumble(wdata, value);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
++	return 0;
++}
++
++static int wiimod_rumble_probe(const struct wiimod_ops *ops,
++			       struct wiimote_data *wdata)
++{
++	set_bit(FF_RUMBLE, wdata->input->ffbit);
++	if (input_ff_create_memless(wdata->input, NULL, wiimod_rumble_play))
++		return -ENOMEM;
++
++	return 0;
++}
++
++static void wiimod_rumble_remove(const struct wiimod_ops *ops,
++				 struct wiimote_data *wdata)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wiiproto_req_rumble(wdata, 0);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++}
++
++static const struct wiimod_ops wiimod_rumble = {
++	.flags = WIIMOD_FLAG_INPUT,
++	.arg = 0,
++	.probe = wiimod_rumble_probe,
++	.remove = wiimod_rumble_remove,
++};
++
+ /* module table */
+ 
+ const struct wiimod_ops *wiimod_table[WIIMOD_NUM] = {
++	[WIIMOD_KEYS] = &wiimod_keys,
++	[WIIMOD_RUMBLE] = &wiimod_rumble,
+ };
 diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index 74b7a47..d0df93b 100644
+index d0df93b..ecec497 100644
 --- a/drivers/hid/hid-wiimote.h
 +++ b/drivers/hid/hid-wiimote.h
-@@ -108,6 +108,33 @@ struct wiimote_data {
- 	struct work_struct init_worker;
- };
+@@ -45,6 +45,21 @@
+ /* return flag for led \num */
+ #define WIIPROTO_FLAG_LED(num) (WIIPROTO_FLAG_LED1 << (num - 1))
  
-+/* wiimote modules */
-+
-+enum wiimod_module {
-+	WIIMOD_NUM,
-+	WIIMOD_NULL = WIIMOD_NUM,
++enum wiiproto_keys {
++	WIIPROTO_KEY_LEFT,
++	WIIPROTO_KEY_RIGHT,
++	WIIPROTO_KEY_UP,
++	WIIPROTO_KEY_DOWN,
++	WIIPROTO_KEY_PLUS,
++	WIIPROTO_KEY_MINUS,
++	WIIPROTO_KEY_ONE,
++	WIIPROTO_KEY_TWO,
++	WIIPROTO_KEY_A,
++	WIIPROTO_KEY_B,
++	WIIPROTO_KEY_HOME,
++	WIIPROTO_KEY_COUNT
 +};
 +
-+#define WIIMOD_FLAG_INPUT		0x0001
-+
-+struct wiimod_ops {
-+	__u16 flags;
-+	unsigned long arg;
-+	int (*probe) (const struct wiimod_ops *ops,
-+		      struct wiimote_data *wdata);
-+	void (*remove) (const struct wiimod_ops *ops,
-+			struct wiimote_data *wdata);
-+
-+	void (*in_keys) (struct wiimote_data *wdata, const __u8 *keys);
-+	void (*in_accel) (struct wiimote_data *wdata, const __u8 *accel);
-+	void (*in_ir) (struct wiimote_data *wdata, const __u8 *ir, bool packed,
-+		       unsigned int id);
-+};
-+
-+extern const struct wiimod_ops *wiimod_table[WIIMOD_NUM];
-+
-+/* wiimote requests */
-+
- enum wiiproto_reqs {
- 	WIIPROTO_REQ_NULL = 0x0,
- 	WIIPROTO_REQ_RUMBLE = 0x10,
+ enum wiimote_devtype {
+ 	WIIMOTE_DEV_PENDING,
+ 	WIIMOTE_DEV_UNKNOWN,
+@@ -111,6 +126,8 @@ struct wiimote_data {
+ /* wiimote modules */
+ 
+ enum wiimod_module {
++	WIIMOD_KEYS,
++	WIIMOD_RUMBLE,
+ 	WIIMOD_NUM,
+ 	WIIMOD_NULL = WIIMOD_NUM,
+ };
+@@ -166,6 +183,7 @@ enum wiiproto_reqs {
+ 									dev))
+ 
+ extern void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm);
++extern void wiiproto_req_rumble(struct wiimote_data *wdata, __u8 rumble);
+ extern int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
+ 						const __u8 *wmem, __u8 size);
+ extern ssize_t wiimote_cmd_read(struct wiimote_data *wdata, __u32 offset,
 -- 
 1.8.2.1
 

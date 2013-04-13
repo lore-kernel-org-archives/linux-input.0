@@ -1,375 +1,285 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 10/21] HID: wiimote: convert LEDS to modules
-Date: Sat, 13 Apr 2013 12:47:51 +0200
-Message-ID: <1365850082-3585-11-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 09/21] HID: wiimote: convert BATTERY to module
+Date: Sat, 13 Apr 2013 12:47:50 +0200
+Message-ID: <1365850082-3585-10-git-send-email-dh.herrmann@gmail.com>
 References: <1365850082-3585-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f45.google.com ([74.125.83.45]:36679 "EHLO
-	mail-ee0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753371Ab3DMKso (ORCPT
+Received: from mail-ee0-f51.google.com ([74.125.83.51]:56690 "EHLO
+	mail-ee0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753371Ab3DMKsm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Apr 2013 06:48:44 -0400
-Received: by mail-ee0-f45.google.com with SMTP id c50so1553771eek.4
-        for <linux-input@vger.kernel.org>; Sat, 13 Apr 2013 03:48:43 -0700 (PDT)
+	Sat, 13 Apr 2013 06:48:42 -0400
+Received: by mail-ee0-f51.google.com with SMTP id c4so1557959eek.10
+        for <linux-input@vger.kernel.org>; Sat, 13 Apr 2013 03:48:41 -0700 (PDT)
 In-Reply-To: <1365850082-3585-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-Each of the 4 LEDs may be supported individually by devices. Therefore,
-we need one module for each device. To avoid code-duplication, we simply
-pass the LED ID as "arg" argument to the module loading code.
+This introduces a new sub-device module for the BATTERY handlers. It
+moves the whole power_supply battery handling over to wiimote-modules.
 
-This just moves the coder over to wiimote-module. The semantics stay the
-same as before.
+This doesn't change any semantics or ABI but only converts the battery
+handling into a sub-device module.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/hid/hid-wiimote-core.c    | 125 ++++------------------------------
- drivers/hid/hid-wiimote-modules.c | 140 ++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-wiimote.h         |   5 ++
- 3 files changed, 158 insertions(+), 112 deletions(-)
+ drivers/hid/hid-wiimote-core.c    | 80 ++------------------------------
+ drivers/hid/hid-wiimote-modules.c | 98 +++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-wiimote.h         |  2 +
+ 3 files changed, 104 insertions(+), 76 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index a0e9398..f0a1d32 100644
+index 9f0be90..a0e9398 100644
 --- a/drivers/hid/hid-wiimote-core.c
 +++ b/drivers/hid/hid-wiimote-core.c
-@@ -14,7 +14,6 @@
- #include <linux/device.h>
- #include <linux/hid.h>
- #include <linux/input.h>
--#include <linux/leds.h>
+@@ -17,16 +17,10 @@
+ #include <linux/leds.h>
  #include <linux/module.h>
  #include <linux/mutex.h>
+-#include <linux/power_supply.h>
  #include <linux/spinlock.h>
-@@ -151,7 +150,7 @@ void wiiproto_req_rumble(struct wiimote_data *wdata, __u8 rumble)
+ #include "hid-ids.h"
+ #include "hid-wiimote.h"
+ 
+-static enum power_supply_property wiimote_battery_props[] = {
+-	POWER_SUPPLY_PROP_CAPACITY,
+-	POWER_SUPPLY_PROP_SCOPE,
+-};
+-
+ /* output queue handling */
+ 
+ static int wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
+@@ -232,7 +226,7 @@ void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm)
  	wiimote_queue(wdata, cmd, sizeof(cmd));
  }
  
--static void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
-+void wiiproto_req_leds(struct wiimote_data *wdata, int leds)
+-static void wiiproto_req_status(struct wiimote_data *wdata)
++void wiiproto_req_status(struct wiimote_data *wdata)
  {
  	__u8 cmd[2];
  
-@@ -529,54 +528,6 @@ unlock:
- 	return ret;
+@@ -423,48 +417,6 @@ static __u8 wiimote_cmd_read_ext(struct wiimote_data *wdata)
+ 	return WIIMOTE_EXT_UNKNOWN;
  }
  
--static enum led_brightness wiimote_leds_get(struct led_classdev *led_dev)
+-static int wiimote_battery_get_property(struct power_supply *psy,
+-						enum power_supply_property psp,
+-						union power_supply_propval *val)
 -{
--	struct wiimote_data *wdata;
--	struct device *dev = led_dev->dev->parent;
--	int i;
+-	struct wiimote_data *wdata = container_of(psy,
+-						struct wiimote_data, battery);
+-	int ret = 0, state;
 -	unsigned long flags;
--	bool value = false;
 -
--	wdata = hid_get_drvdata(container_of(dev, struct hid_device, dev));
--
--	for (i = 0; i < 4; ++i) {
--		if (wdata->leds[i] == led_dev) {
--			spin_lock_irqsave(&wdata->state.lock, flags);
--			value = wdata->state.flags & WIIPROTO_FLAG_LED(i + 1);
--			spin_unlock_irqrestore(&wdata->state.lock, flags);
--			break;
--		}
+-	if (psp == POWER_SUPPLY_PROP_SCOPE) {
+-		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
+-		return 0;
 -	}
 -
--	return value ? LED_FULL : LED_OFF;
--}
+-	ret = wiimote_cmd_acquire(wdata);
+-	if (ret)
+-		return ret;
 -
--static void wiimote_leds_set(struct led_classdev *led_dev,
--						enum led_brightness value)
--{
--	struct wiimote_data *wdata;
--	struct device *dev = led_dev->dev->parent;
--	int i;
--	unsigned long flags;
--	__u8 state, flag;
+-	spin_lock_irqsave(&wdata->state.lock, flags);
+-	wiimote_cmd_set(wdata, WIIPROTO_REQ_SREQ, 0);
+-	wiiproto_req_status(wdata);
+-	spin_unlock_irqrestore(&wdata->state.lock, flags);
 -
--	wdata = hid_get_drvdata(container_of(dev, struct hid_device, dev));
+-	wiimote_cmd_wait(wdata);
+-	wiimote_cmd_release(wdata);
 -
--	for (i = 0; i < 4; ++i) {
--		if (wdata->leds[i] == led_dev) {
--			flag = WIIPROTO_FLAG_LED(i + 1);
--			spin_lock_irqsave(&wdata->state.lock, flags);
--			state = wdata->state.flags;
--			if (value == LED_OFF)
--				wiiproto_req_leds(wdata, state & ~flag);
--			else
--				wiiproto_req_leds(wdata, state | flag);
--			spin_unlock_irqrestore(&wdata->state.lock, flags);
+-	spin_lock_irqsave(&wdata->state.lock, flags);
+-	state = wdata->state.cmd_battery;
+-	spin_unlock_irqrestore(&wdata->state.lock, flags);
+-
+-	switch (psp) {
+-		case POWER_SUPPLY_PROP_CAPACITY:
+-			val->intval = state * 100 / 255;
 -			break;
--		}
+-		default:
+-			ret = -EINVAL;
+-			break;
 -	}
+-
+-	return ret;
 -}
 -
- static int wiimote_accel_open(struct input_dev *dev)
+ static int wiimote_init_ir(struct wiimote_data *wdata, __u16 mode)
  {
- 	struct wiimote_data *wdata = input_get_drvdata(dev);
-@@ -626,18 +577,30 @@ static const __u8 * const wiimote_devtype_mods[WIIMOTE_DEV_NUM] = {
+ 	int ret;
+@@ -673,16 +625,19 @@ static const __u8 * const wiimote_devtype_mods[WIIMOTE_DEV_NUM] = {
+ 	[WIIMOTE_DEV_GENERIC] = (const __u8[]){
  		WIIMOD_KEYS,
  		WIIMOD_RUMBLE,
- 		WIIMOD_BATTERY,
-+		WIIMOD_LED1,
-+		WIIMOD_LED2,
-+		WIIMOD_LED3,
-+		WIIMOD_LED4,
++		WIIMOD_BATTERY,
  		WIIMOD_NULL,
  	},
  	[WIIMOTE_DEV_GEN10] = (const __u8[]){
  		WIIMOD_KEYS,
  		WIIMOD_RUMBLE,
- 		WIIMOD_BATTERY,
-+		WIIMOD_LED1,
-+		WIIMOD_LED2,
-+		WIIMOD_LED3,
-+		WIIMOD_LED4,
++		WIIMOD_BATTERY,
  		WIIMOD_NULL,
  	},
  	[WIIMOTE_DEV_GEN20] = (const __u8[]){
  		WIIMOD_KEYS,
  		WIIMOD_RUMBLE,
- 		WIIMOD_BATTERY,
-+		WIIMOD_LED1,
-+		WIIMOD_LED2,
-+		WIIMOD_LED3,
-+		WIIMOD_LED4,
++		WIIMOD_BATTERY,
  		WIIMOD_NULL,
  	},
  };
-@@ -1159,58 +1122,6 @@ static int wiimote_hid_event(struct hid_device *hdev, struct hid_report *report,
- 	return 0;
- }
- 
--static void wiimote_leds_destroy(struct wiimote_data *wdata)
--{
--	int i;
--	struct led_classdev *led;
--
--	for (i = 0; i < 4; ++i) {
--		if (wdata->leds[i]) {
--			led = wdata->leds[i];
--			wdata->leds[i] = NULL;
--			led_classdev_unregister(led);
--			kfree(led);
--		}
--	}
--}
--
--static int wiimote_leds_create(struct wiimote_data *wdata)
--{
--	int i, ret;
--	struct device *dev = &wdata->hdev->dev;
--	size_t namesz = strlen(dev_name(dev)) + 9;
--	struct led_classdev *led;
--	char *name;
--
--	for (i = 0; i < 4; ++i) {
--		led = kzalloc(sizeof(struct led_classdev) + namesz, GFP_KERNEL);
--		if (!led) {
--			ret = -ENOMEM;
--			goto err;
--		}
--		name = (void*)&led[1];
--		snprintf(name, namesz, "%s:blue:p%d", dev_name(dev), i);
--		led->name = name;
--		led->brightness = 0;
--		led->max_brightness = 1;
--		led->brightness_get = wiimote_leds_get;
--		led->brightness_set = wiimote_leds_set;
--
--		ret = led_classdev_register(dev, led);
--		if (ret) {
--			kfree(led);
--			goto err;
--		}
--		wdata->leds[i] = led;
--	}
--
--	return 0;
--
--err:
--	wiimote_leds_destroy(wdata);
--	return ret;
--}
--
- static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- {
- 	struct wiimote_data *wdata;
-@@ -1300,7 +1211,6 @@ static void wiimote_destroy(struct wiimote_data *wdata)
- {
- 	wiidebug_deinit(wdata);
- 	wiiext_deinit(wdata);
--	wiimote_leds_destroy(wdata);
+@@ -1349,8 +1304,6 @@ static void wiimote_destroy(struct wiimote_data *wdata)
  
  	cancel_work_sync(&wdata->init_worker);
  	wiimote_modules_unload(wdata);
-@@ -1357,10 +1267,6 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+-	power_supply_unregister(&wdata->battery);
+-	kfree(wdata->battery.name);
+ 	input_unregister_device(wdata->accel);
+ 	input_unregister_device(wdata->ir);
+ 	cancel_work_sync(&wdata->queue.worker);
+@@ -1404,26 +1357,6 @@ static int wiimote_hid_probe(struct hid_device *hdev,
  		goto err_ir;
  	}
  
--	ret = wiimote_leds_create(wdata);
--	if (ret)
--		goto err_free;
+-	wdata->battery.properties = wiimote_battery_props;
+-	wdata->battery.num_properties = ARRAY_SIZE(wiimote_battery_props);
+-	wdata->battery.get_property = wiimote_battery_get_property;
+-	wdata->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+-	wdata->battery.use_for_apm = 0;
+-	wdata->battery.name = kasprintf(GFP_KERNEL, "wiimote_battery_%s",
+-					wdata->hdev->uniq);
+-	if (!wdata->battery.name) {
+-		ret = -ENOMEM;
+-		goto err_battery_name;
+-	}
 -
- 	ret = wiiext_init(wdata);
+-	ret = power_supply_register(&wdata->hdev->dev, &wdata->battery);
+-	if (ret) {
+-		hid_err(hdev, "Cannot register battery device\n");
+-		goto err_battery;
+-	}
+-
+-	power_supply_powers(&wdata->battery, &hdev->dev);
+-
+ 	ret = wiimote_leds_create(wdata);
  	if (ret)
  		goto err_free;
-@@ -1371,11 +1277,6 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+@@ -1452,11 +1385,6 @@ err_free:
+ 	wiimote_destroy(wdata);
+ 	return ret;
  
- 	hid_info(hdev, "New device registered\n");
- 
--	/* by default set led1 after device initialization */
--	spin_lock_irq(&wdata->state.lock);
--	wiiproto_req_leds(wdata, WIIPROTO_FLAG_LED1);
--	spin_unlock_irq(&wdata->state.lock);
--
- 	/* schedule device detection */
- 	schedule_work(&wdata->init_worker);
- 
+-err_battery:
+-	kfree(wdata->battery.name);
+-err_battery_name:
+-	input_unregister_device(wdata->ir);
+-	wdata->ir = NULL;
+ err_ir:
+ 	input_unregister_device(wdata->accel);
+ 	wdata->accel = NULL;
 diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
-index 4cbbbe6..f96de15 100644
+index 616f240..4cbbbe6 100644
 --- a/drivers/hid/hid-wiimote-modules.c
 +++ b/drivers/hid/hid-wiimote-modules.c
-@@ -268,10 +268,150 @@ static const struct wiimod_ops wiimod_battery = {
- 	.remove = wiimod_battery_remove,
+@@ -171,9 +171,107 @@ static const struct wiimod_ops wiimod_rumble = {
+ 	.remove = wiimod_rumble_remove,
  };
  
 +/*
-+ * LED
-+ * 0 to 4 player LEDs are supported by devices. The "arg" field of the
-+ * wiimod_ops structure specifies which LED this module controls. This allows
-+ * to register a limited number of LEDs.
-+ * State is managed by wiimote core.
++ * Battery
++ * 1 byte of battery capacity information is sent along every protocol status
++ * report. The wiimote core caches it but we try to update it on every
++ * user-space request.
++ * This is supported by nearly every device so it's almost always enabled.
 + */
 +
-+static enum led_brightness wiimod_led_get(struct led_classdev *led_dev)
++static enum power_supply_property wiimod_battery_props[] = {
++	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_SCOPE,
++};
++
++static int wiimod_battery_get_property(struct power_supply *psy,
++				       enum power_supply_property psp,
++				       union power_supply_propval *val)
 +{
-+	struct wiimote_data *wdata;
-+	struct device *dev = led_dev->dev->parent;
-+	int i;
++	struct wiimote_data *wdata = container_of(psy, struct wiimote_data,
++						  battery);
++	int ret = 0, state;
 +	unsigned long flags;
-+	bool value = false;
 +
-+	wdata = hid_get_drvdata(container_of(dev, struct hid_device, dev));
-+
-+	for (i = 0; i < 4; ++i) {
-+		if (wdata->leds[i] == led_dev) {
-+			spin_lock_irqsave(&wdata->state.lock, flags);
-+			value = wdata->state.flags & WIIPROTO_FLAG_LED(i + 1);
-+			spin_unlock_irqrestore(&wdata->state.lock, flags);
-+			break;
-+		}
++	if (psp == POWER_SUPPLY_PROP_SCOPE) {
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		return 0;
++	} else if (psp != POWER_SUPPLY_PROP_CAPACITY) {
++		return -EINVAL;
 +	}
 +
-+	return value ? LED_FULL : LED_OFF;
-+}
-+
-+static void wiimod_led_set(struct led_classdev *led_dev,
-+			   enum led_brightness value)
-+{
-+	struct wiimote_data *wdata;
-+	struct device *dev = led_dev->dev->parent;
-+	int i;
-+	unsigned long flags;
-+	__u8 state, flag;
-+
-+	wdata = hid_get_drvdata(container_of(dev, struct hid_device, dev));
-+
-+	for (i = 0; i < 4; ++i) {
-+		if (wdata->leds[i] == led_dev) {
-+			flag = WIIPROTO_FLAG_LED(i + 1);
-+			spin_lock_irqsave(&wdata->state.lock, flags);
-+			state = wdata->state.flags;
-+			if (value == LED_OFF)
-+				wiiproto_req_leds(wdata, state & ~flag);
-+			else
-+				wiiproto_req_leds(wdata, state | flag);
-+			spin_unlock_irqrestore(&wdata->state.lock, flags);
-+			break;
-+		}
-+	}
-+}
-+
-+static int wiimod_led_probe(const struct wiimod_ops *ops,
-+			    struct wiimote_data *wdata)
-+{
-+	struct device *dev = &wdata->hdev->dev;
-+	size_t namesz = strlen(dev_name(dev)) + 9;
-+	struct led_classdev *led;
-+	unsigned long flags;
-+	char *name;
-+	int ret;
-+
-+	led = kzalloc(sizeof(struct led_classdev) + namesz, GFP_KERNEL);
-+	if (!led)
-+		return -ENOMEM;
-+
-+	name = (void*)&led[1];
-+	snprintf(name, namesz, "%s:blue:p%lu", dev_name(dev), ops->arg);
-+	led->name = name;
-+	led->brightness = 0;
-+	led->max_brightness = 1;
-+	led->brightness_get = wiimod_led_get;
-+	led->brightness_set = wiimod_led_set;
-+
-+	wdata->leds[ops->arg] = led;
-+	ret = led_classdev_register(dev, led);
++	ret = wiimote_cmd_acquire(wdata);
 +	if (ret)
-+		goto err_free;
++		return ret;
 +
-+	/* enable LED1 to stop initial LED-blinking */
-+	if (ops->arg == 0) {
-+		spin_lock_irqsave(&wdata->state.lock, flags);
-+		wiiproto_req_leds(wdata, WIIPROTO_FLAG_LED1);
-+		spin_unlock_irqrestore(&wdata->state.lock, flags);
-+	}
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wiimote_cmd_set(wdata, WIIPROTO_REQ_SREQ, 0);
++	wiiproto_req_status(wdata);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
 +
-+	return 0;
++	wiimote_cmd_wait(wdata);
++	wiimote_cmd_release(wdata);
 +
-+err_free:
-+	wdata->leds[ops->arg] = NULL;
-+	kfree(led);
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	state = wdata->state.cmd_battery;
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
++	val->intval = state * 100 / 255;
 +	return ret;
 +}
 +
-+static void wiimod_led_remove(const struct wiimod_ops *ops,
-+			      struct wiimote_data *wdata)
++static int wiimod_battery_probe(const struct wiimod_ops *ops,
++				struct wiimote_data *wdata)
 +{
-+	if (!wdata->leds[ops->arg])
-+		return;
++	int ret;
 +
-+	led_classdev_unregister(wdata->leds[ops->arg]);
-+	kfree(wdata->leds[ops->arg]);
-+	wdata->leds[ops->arg] = NULL;
++	wdata->battery.properties = wiimod_battery_props;
++	wdata->battery.num_properties = ARRAY_SIZE(wiimod_battery_props);
++	wdata->battery.get_property = wiimod_battery_get_property;
++	wdata->battery.type = POWER_SUPPLY_TYPE_BATTERY;
++	wdata->battery.use_for_apm = 0;
++	wdata->battery.name = kasprintf(GFP_KERNEL, "wiimote_battery_%s",
++					wdata->hdev->uniq);
++	if (!wdata->battery.name)
++		return -ENOMEM;
++
++	ret = power_supply_register(&wdata->hdev->dev, &wdata->battery);
++	if (ret) {
++		hid_err(wdata->hdev, "cannot register battery device\n");
++		goto err_free;
++	}
++
++	power_supply_powers(&wdata->battery, &wdata->hdev->dev);
++	return 0;
++
++err_free:
++	kfree(wdata->battery.name);
++	wdata->battery.name = NULL;
++	return ret;
 +}
 +
-+static const struct wiimod_ops wiimod_leds[4] = {
-+	{
-+		.flags = 0,
-+		.arg = 0,
-+		.probe = wiimod_led_probe,
-+		.remove = wiimod_led_remove,
-+	},
-+	{
-+		.flags = 0,
-+		.arg = 1,
-+		.probe = wiimod_led_probe,
-+		.remove = wiimod_led_remove,
-+	},
-+	{
-+		.flags = 0,
-+		.arg = 2,
-+		.probe = wiimod_led_probe,
-+		.remove = wiimod_led_remove,
-+	},
-+	{
-+		.flags = 0,
-+		.arg = 3,
-+		.probe = wiimod_led_probe,
-+		.remove = wiimod_led_remove,
-+	},
++static void wiimod_battery_remove(const struct wiimod_ops *ops,
++				  struct wiimote_data *wdata)
++{
++	if (!wdata->battery.name)
++		return;
++
++	power_supply_unregister(&wdata->battery);
++	kfree(wdata->battery.name);
++	wdata->battery.name = NULL;
++}
++
++static const struct wiimod_ops wiimod_battery = {
++	.flags = 0,
++	.arg = 0,
++	.probe = wiimod_battery_probe,
++	.remove = wiimod_battery_remove,
 +};
 +
  /* module table */
@@ -377,35 +287,28 @@ index 4cbbbe6..f96de15 100644
  const struct wiimod_ops *wiimod_table[WIIMOD_NUM] = {
  	[WIIMOD_KEYS] = &wiimod_keys,
  	[WIIMOD_RUMBLE] = &wiimod_rumble,
- 	[WIIMOD_BATTERY] = &wiimod_battery,
-+	[WIIMOD_LED1] = &wiimod_leds[0],
-+	[WIIMOD_LED2] = &wiimod_leds[1],
-+	[WIIMOD_LED3] = &wiimod_leds[2],
-+	[WIIMOD_LED4] = &wiimod_leds[3],
++	[WIIMOD_BATTERY] = &wiimod_battery,
  };
 diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index 5029a5e..aef78cb 100644
+index ecec497..5029a5e 100644
 --- a/drivers/hid/hid-wiimote.h
 +++ b/drivers/hid/hid-wiimote.h
-@@ -129,6 +129,10 @@ enum wiimod_module {
+@@ -128,6 +128,7 @@ struct wiimote_data {
+ enum wiimod_module {
  	WIIMOD_KEYS,
  	WIIMOD_RUMBLE,
- 	WIIMOD_BATTERY,
-+	WIIMOD_LED1,
-+	WIIMOD_LED2,
-+	WIIMOD_LED3,
-+	WIIMOD_LED4,
++	WIIMOD_BATTERY,
  	WIIMOD_NUM,
  	WIIMOD_NULL = WIIMOD_NUM,
  };
-@@ -185,6 +189,7 @@ enum wiiproto_reqs {
+@@ -184,6 +185,7 @@ enum wiiproto_reqs {
  
  extern void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm);
  extern void wiiproto_req_rumble(struct wiimote_data *wdata, __u8 rumble);
-+extern void wiiproto_req_leds(struct wiimote_data *wdata, int leds);
- extern void wiiproto_req_status(struct wiimote_data *wdata);
++extern void wiiproto_req_status(struct wiimote_data *wdata);
  extern int wiimote_cmd_write(struct wiimote_data *wdata, __u32 offset,
  						const __u8 *wmem, __u8 size);
+ extern ssize_t wiimote_cmd_read(struct wiimote_data *wdata, __u32 offset,
 -- 
 1.8.2.1
 

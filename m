@@ -1,75 +1,66 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.9-rc7
-Date: Mon, 15 Apr 2013 09:15:40 -0700
-Message-ID: <20130415161540.GB19223@core.coreip.homeip.net>
+Subject: Re: [PATCH] Input: wacom: Correct reported resolution for Intuos4
+ Wireless
+Date: Mon, 15 Apr 2013 09:20:42 -0700
+Message-ID: <20130415162042.GA27693@core.coreip.homeip.net>
+References: <1365780680.4605.9.camel@localhost>
+ <1365784982-10721-1-git-send-email-killertofu@gmail.com>
+ <1365796838.12600.0.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f47.google.com ([209.85.210.47]:59328 "EHLO
-	mail-da0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753134Ab3DOQPx (ORCPT
+Received: from mail-pd0-f178.google.com ([209.85.192.178]:35341 "EHLO
+	mail-pd0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753573Ab3DOQUq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Apr 2013 12:15:53 -0400
+	Mon, 15 Apr 2013 12:20:46 -0400
+Received: by mail-pd0-f178.google.com with SMTP id w11so2598364pde.37
+        for <linux-input@vger.kernel.org>; Mon, 15 Apr 2013 09:20:45 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <1365796838.12600.0.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Przemo Firszt <przemo@firszt.eu>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net, pinglinux@gmail.com
 
+On Fri, Apr 12, 2013 at 09:00:38PM +0100, Przemo Firszt wrote:
+> Dnia 2013-04-12, pi=C4=85 o godzinie 09:43 -0700, Jason Gerecke pisze=
+:
+> > Reported-by: Przemo Firszt <przemo@firszt.eu>
+> > Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+> > ---
+> >  drivers/input/tablet/wacom_wac.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >=20
+> > diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/table=
+t/wacom_wac.c
+> > index 1daa979..1e0031d 100644
+> > --- a/drivers/input/tablet/wacom_wac.c
+> > +++ b/drivers/input/tablet/wacom_wac.c
+> > @@ -1912,7 +1912,7 @@ static const struct wacom_features wacom_feat=
+ures_0xBB =3D
+> >  	{ "Wacom Intuos4 12x19",  WACOM_PKGLEN_INTUOS,    97536, 60960, 2=
+047,
+> >  	  63, INTUOS4L, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
+> >  static const struct wacom_features wacom_features_0xBC =3D
+> > -	{ "Wacom Intuos4 WL",     WACOM_PKGLEN_INTUOS,    40840, 25400, 2=
+047,
+> > +	{ "Wacom Intuos4 WL",     WACOM_PKGLEN_INTUOS,    40640, 25400, 2=
+047,
+> >  	  63, INTUOS4, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
+> >  static const struct wacom_features wacom_features_0x26 =3D
+> >  	{ "Wacom Intuos5 touch S", WACOM_PKGLEN_INTUOS,  31496, 19685, 20=
+47,
+>=20
+> Tested-by: Przemo Firszt <przemo@firszt.eu>
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive 2 small fixups to the Wacom driver.
-
-Changelog:
----------
-
-Jason Gerecke (2):
-      Input: wacom - fix "can not retrieve extra class descriptor" for 24HDT
-      Input: wacom - correct reported resolution for Intuos4 Wireless
-
-
-Diffstat:
---------
-
- drivers/input/tablet/wacom_wac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Applied, thank you.
 
 --=20
 Dmitry
-
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.13 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRbCerAAoJEH70+W8r6ZYqveEQAJu/vhhKUiM5k70Q6wORprY6
-9ci6aBx3laV4tXItSaCwCDh6OC9O4pdHk2baUyMFwx2Bgd0jPYsmPQ5ihGZNBD2F
-qtNsZIezyklegM1aPvQoS+cd6PKmyqaPW2emA+XvPmhnaH/MZiGPR41ZIyT+uotI
-07uxzJFWiCdGHftwiJJ0KiFXp2+aWyOhw3EE/Np3IHCnzAXZRGOKnGu4jjjQH/m8
-UEQznKwwRjQPbyiqzpPJfwbGjMho4NMIrjCx5XuGtrWL76ODrFBk9taMx1cFh0CO
-YMkk5DTQ+xxP0hXtvLqRZymnFFbE5fVZV42p5cxfLAchjZssCcTCrPX/gOEyT29g
-NakIrhBc9Bu4joTLWqAfNqyCdSXkfD3NMfUMYhTFXa1p4NXDhIcevWxVEV0jUKqY
-6j5mdXoMTRB8576C3tk60esmHJSDipws8/gcULT4qG3G66yv++DGaAiG0+USJHVR
-a0lDKlffbYKJpfgqqE98GKDRsY8IR1a256assPB01Bb7PeIHbK2MbfvbotJfmT8/
-gulfHQ3lnA7s6HR3udJqDemNhjM48+XrhUi6BIamq11XRo3ipZON116Mck5DrhCl
-qkIJM3pYoV6VxiflNYVydh4prZyMdiBl6eDESnLnk3/xPhFxg++zD72QWWRrFPLW
-cg10iNrMS3fXB1P/pNvr
-=I/f6
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

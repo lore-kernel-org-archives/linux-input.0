@@ -1,60 +1,75 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: Export matrix_keypad_parse_of_params()
-Date: Mon, 15 Apr 2013 09:07:47 -0700
-Message-ID: <20130415160747.GA19223@core.coreip.homeip.net>
-References: <1366027608-17395-1-git-send-email-mmarek@suse.cz>
+Subject: [git pull] Input updates for 3.9-rc7
+Date: Mon, 15 Apr 2013 09:15:40 -0700
+Message-ID: <20130415161540.GB19223@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:64229 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754688Ab3DOQH4 (ORCPT
+Received: from mail-da0-f47.google.com ([209.85.210.47]:59328 "EHLO
+	mail-da0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753134Ab3DOQPx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Apr 2013 12:07:56 -0400
+	Mon, 15 Apr 2013 12:15:53 -0400
 Content-Disposition: inline
-In-Reply-To: <1366027608-17395-1-git-send-email-mmarek@suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michal Marek <mmarek@suse.cz>
-Cc: linux-input@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, Simon Glass <sjg@chromium.org>, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Michal,
 
-On Mon, Apr 15, 2013 at 02:06:48PM +0200, Michal Marek wrote:
-> Couple of input drivers depend on this symbol:
-> 
-> ERROR: "matrix_keypad_parse_of_params" [drivers/input/keyboard/tca8418_keypad.ko] undefined!
-> ERROR: "matrix_keypad_parse_of_params" [drivers/input/keyboard/cros_ec_keyb.ko] undefined!
-> 
-> Reported-by: Randy Dunlap <rdunlap@infradead.org>
-> Signed-off-by: Michal Marek <mmarek@suse.cz>
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Hi Linus,
 
-This is coming through some other tree though so you 'll have to track
-it down.
+Please pull from:
 
-Thanks.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> ---
->  drivers/input/matrix-keymap.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
-> index 619b382..08b61f5 100644
-> --- a/drivers/input/matrix-keymap.c
-> +++ b/drivers/input/matrix-keymap.c
-> @@ -68,6 +68,7 @@ int matrix_keypad_parse_of_params(struct device *dev,
->  
->  	return 0;
->  }
-> +EXPORT_SYMBOL_GPL(matrix_keypad_parse_of_params);
->  
->  static int matrix_keypad_parse_of_keymap(const char *propname,
->  					 unsigned int rows, unsigned int cols,
-> -- 
-> 1.8.2.1
-> 
+to receive 2 small fixups to the Wacom driver.
 
--- 
+Changelog:
+---------
+
+Jason Gerecke (2):
+      Input: wacom - fix "can not retrieve extra class descriptor" for 24HDT
+      Input: wacom - correct reported resolution for Intuos4 Wireless
+
+
+Diffstat:
+--------
+
+ drivers/input/tablet/wacom_wac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--=20
 Dmitry
+
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.13 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRbCerAAoJEH70+W8r6ZYqveEQAJu/vhhKUiM5k70Q6wORprY6
+9ci6aBx3laV4tXItSaCwCDh6OC9O4pdHk2baUyMFwx2Bgd0jPYsmPQ5ihGZNBD2F
+qtNsZIezyklegM1aPvQoS+cd6PKmyqaPW2emA+XvPmhnaH/MZiGPR41ZIyT+uotI
+07uxzJFWiCdGHftwiJJ0KiFXp2+aWyOhw3EE/Np3IHCnzAXZRGOKnGu4jjjQH/m8
+UEQznKwwRjQPbyiqzpPJfwbGjMho4NMIrjCx5XuGtrWL76ODrFBk9taMx1cFh0CO
+YMkk5DTQ+xxP0hXtvLqRZymnFFbE5fVZV42p5cxfLAchjZssCcTCrPX/gOEyT29g
+NakIrhBc9Bu4joTLWqAfNqyCdSXkfD3NMfUMYhTFXa1p4NXDhIcevWxVEV0jUKqY
+6j5mdXoMTRB8576C3tk60esmHJSDipws8/gcULT4qG3G66yv++DGaAiG0+USJHVR
+a0lDKlffbYKJpfgqqE98GKDRsY8IR1a256assPB01Bb7PeIHbK2MbfvbotJfmT8/
+gulfHQ3lnA7s6HR3udJqDemNhjM48+XrhUi6BIamq11XRo3ipZON116Mck5DrhCl
+qkIJM3pYoV6VxiflNYVydh4prZyMdiBl6eDESnLnk3/xPhFxg++zD72QWWRrFPLW
+cg10iNrMS3fXB1P/pNvr
+=I/f6
+-----END PGP SIGNATURE-----
+
+--Q68bSM7Ycu6FN28Q--

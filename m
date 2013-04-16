@@ -1,90 +1,164 @@
-From: "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
-Subject: RE: [NEW DRIVER V4 3/7] DA9058 ONKEY driver
-Date: Tue, 16 Apr 2013 10:33:02 +0000
-Message-ID: <24DF37198A1E704D9811D8F72B87EB514191E38B@NB-EX-MBX02.diasemi.com>
-References: <201304121318.r3CDILZS013210@latitude>
- <5168681A.20405@infradead.org>
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Subject: [PATCH RFC] input: Add evdev mute ioctl
+Date: Tue, 16 Apr 2013 09:58:17 -0400
+Message-ID: <1366120697-25841-1-git-send-email-krh@bitplanet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailrelay1.diasemi.com ([82.210.246.133]:14235 "EHLO
-	mailrelay1.diasemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756005Ab3DPKdH convert rfc822-to-8bit (ORCPT
+Received: from mail-ve0-f181.google.com ([209.85.128.181]:44738 "EHLO
+	mail-ve0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964878Ab3DPN6Y (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Apr 2013 06:33:07 -0400
-In-Reply-To: <5168681A.20405@infradead.org>
-Content-Language: en-US
+	Tue, 16 Apr 2013 09:58:24 -0400
+Received: by mail-ve0-f181.google.com with SMTP id pa12so425542veb.26
+        for <linux-input@vger.kernel.org>; Tue, 16 Apr 2013 06:58:23 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>, "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: robert@sixbynine.org, =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 
-> -----Original Message-----
-> From: Randy Dunlap [mailto:rdunlap@infradead.org]
-> Sent: 12 April 2013 21:02
-> To: Opensource [Anthony Olech]
-> Cc: Dmitry Torokhov; Mark Brown; Samuel Ortiz; Ashish Jangam; Eric
-> Andersson; Andrew Jones; linux-input@vger.kernel.org; LKML; David Dajun Chen
-> Subject: Re: [NEW DRIVER V4 3/7] DA9058 ONKEY driver
-> 
-> On 04/12/13 06:05, Anthony Olech wrote:
-> > This is the ONKEY component driver of the Dialog DA9058 PMIC.
-> > This driver is just one component of the whole DA9058 PMIC driver.
-> > It depends on the CORE component driver of the DA9058 MFD.
-> >
-> > Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
-> > Signed-off-by: David Dajun Chen <david.chen@diasemi.com>
-> > ---
-> >  drivers/input/misc/Kconfig        |   10 +++
-> >  drivers/input/misc/Makefile       |    1 +
-> >  drivers/input/misc/da9058_onkey.c |  177
-> > +++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 188 insertions(+)
-> >  create mode 100644 drivers/input/misc/da9058_onkey.c
-> >
-> > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> > index 259ef31..bd07b38 100644
-> > --- a/drivers/input/misc/Kconfig
-> > +++ b/drivers/input/misc/Kconfig
-> > @@ -93,6 +93,16 @@ config INPUT_BMA150
-> >  	  To compile this driver as a module, choose M here: the
-> >  	  module will be called bma150.
-> >
-> > +config INPUT_DA9058_ONKEY
-> > +	tristate "DA9058 ONKEY support"
-> > +	depends on MFD_DA9058
-> > +	help
-> > +	  Support the ONKEY of DA9058 PMICs as an input device
-> > +	  reporting power button status.
-> 
-> What possible values can a power button status have?
-> Must be more than my KISS guess:
-> 	this software is running => ON
-> 	software not running     => OFF
-> eh?
+This commit adds a new ioctl to the evdev device: EVIOCMUTE.  The
+purpose of this ioctl it to temporarily block event delivery to a
+specific evdev client and prevent access to most of the ioctls.
 
-Pressing the button briefly and pressing and holding the button will have
-different effects in a mobile device. The press and hold on phones normally
-switches them into a sleep state. So the "power button status" is the fact
-that the ONKEY is still being held down.
+The use case is a setuid helper process for a display server, which
+opens input devices and passes the fds to the display server.  On VT
+switch away from the server, it should stop reading events from its
+evdev input devices.  However, if the display server runs as the user
+it can be ptraced or if the server loads user defined modules, the
+display server can no longer be trusted to not snoop on the evdev
+devices.
 
-Does that answer your question? or have I missed your point??
+The mute ioctl allows the setuid helper to mute evdev devices when
+switching away from the VT the server is running on.  The idea is that
+the helper listens for the VT switching signals and when VT switch happ=
+ens
+it notifies the display server, waits for the server to clean up and th=
+en
+the helper drops drm master (which also requires root), mutes evdev
+devices and the acks the VT switch.
 
-[...]
-> > +	onkey->irq = platform_get_irq(pdev, 0);
-> > +	if (onkey->irq < 0) {
-> > +		dev_err(&pdev->dev, "can not get ONKEY IRQ error=%d\n",
-> 
-> 		                     cannot
+Why don't we just use revoke?  The revoke syscall (when it's done) will
+work on filenames and shut down all fds open to the device.  This will
+break all other processes that listen on evdev devices for legitimate
+reasons.  It's the same reason we don't use the EVIOCGRAB ioctl for inp=
+ut
+devices.  EVIOCMUTE lets the helper mute just the fd it gave to the
+display server without affecting anything else potentially using the de=
+vice.
 
-The Washington State University language site says:
+Signed-off-by: Kristian H=C3=B8gsberg <krh@bitplanet.net>
+---
+ drivers/input/evdev.c      | 37 ++++++++++++++++++++++++++++++++++---
+ include/uapi/linux/input.h |  1 +
+ 2 files changed, 35 insertions(+), 3 deletions(-)
 
-"These two spellings [cannot/can not] are largely interchangeable, but by far
-the most common is 'cannot' and you should probably use it except when you
-want to be emphatic: 'No, you can not wash the dog in the Maytag.'"
+This idea comes from work on Wayland and Weston [1], but the setuid hel=
+per
+should work and is required for a non-root X server to function correct=
+ly
+as well (ie, do proper vt switching).
 
-Since I was not trying to be particularly emphatic, I will change to using 'cannot'
-as per your suggestion.
+Kristian
 
-Tony Olech
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index f0f8928..cea6c35 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -48,6 +48,7 @@ struct evdev_client {
+ 	struct evdev *evdev;
+ 	struct list_head node;
+ 	int clkid;
++	int muted;
+ 	unsigned int bufsize;
+ 	struct input_event buffer[];
+ };
+@@ -130,8 +131,9 @@ static void evdev_events(struct input_handle *handl=
+e,
+ 		evdev_pass_values(client, vals, count, time_mono, time_real);
+ 	else
+ 		list_for_each_entry_rcu(client, &evdev->client_list, node)
+-			evdev_pass_values(client, vals, count,
+-					  time_mono, time_real);
++			if (!client->muted)
++				evdev_pass_values(client, vals, count,
++						  time_mono, time_real);
+=20
+ 	rcu_read_unlock();
+ }
+@@ -674,6 +676,20 @@ static int evdev_handle_mt_request(struct input_de=
+v *dev,
+ 	return 0;
+ }
+=20
++static int evdev_mute(struct evdev *evdev, struct evdev_client *client=
+)
++{
++	client->muted =3D 1;
++
++	return 0;
++}
++
++static int evdev_unmute(struct evdev *evdev, struct evdev_client *clie=
+nt)
++{
++	client->muted =3D 0;
++
++	return 0;
++}
++
+ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 			   void __user *p, int compat_mode)
+ {
+@@ -687,12 +703,27 @@ static long evdev_do_ioctl(struct file *file, uns=
+igned int cmd,
+ 	unsigned int size;
+ 	int error;
+=20
+-	/* First we check for fixed-length commands */
++	/* Handle ioctls allowed in muted mode first */
+ 	switch (cmd) {
++	case EVIOCMUTE:
++		if (!capable(CAP_SYS_ADMIN))
++		    return -EACCES;
++
++		if (p)
++			return evdev_mute(evdev, client);
++		else
++			return evdev_unmute(evdev, client);
+=20
+ 	case EVIOCGVERSION:
+ 		return put_user(EV_VERSION, ip);
+=20
++	default:
++		if (client->muted)
++			return -EACCES;
++	}
++
++	/* Now check for fixed-length commands */
++	switch (cmd) {
+ 	case EVIOCGID:
+ 		if (copy_to_user(p, &dev->id, sizeof(struct input_id)))
+ 			return -EFAULT;
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 935119c..75eda72 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -154,6 +154,7 @@ struct input_keymap_entry {
+ #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
+=20
+ #define EVIOCSCLOCKID		_IOW('E', 0xa0, int)			/* Set clockid to be use=
+d for timestamps */
++#define EVIOCMUTE		_IOW('E', 0xb0, int)			/* Mute event delivery */
+=20
+ /*
+  * Device properties and quirks
+--=20
+1.8.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

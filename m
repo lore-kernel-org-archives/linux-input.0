@@ -1,41 +1,90 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/2] input: wacom: Fix "can not retrieve extra class descriptor" for DTH2242
-Date: Mon, 15 Apr 2013 19:55:21 -0700
-Message-ID: <1366080921-26459-1-git-send-email-pingc@wacom.com>
+From: "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
+Subject: RE: [NEW DRIVER V4 3/7] DA9058 ONKEY driver
+Date: Tue, 16 Apr 2013 10:33:02 +0000
+Message-ID: <24DF37198A1E704D9811D8F72B87EB514191E38B@NB-EX-MBX02.diasemi.com>
+References: <201304121318.r3CDILZS013210@latitude>
+ <5168681A.20405@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:46622 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935212Ab3DPCzW (ORCPT
+Received: from mailrelay1.diasemi.com ([82.210.246.133]:14235 "EHLO
+	mailrelay1.diasemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756005Ab3DPKdH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Apr 2013 22:55:22 -0400
-Received: by mail-pa0-f46.google.com with SMTP id lb1so80088pab.5
-        for <linux-input@vger.kernel.org>; Mon, 15 Apr 2013 19:55:21 -0700 (PDT)
+	Tue, 16 Apr 2013 06:33:07 -0400
+In-Reply-To: <5168681A.20405@infradead.org>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
+To: Randy Dunlap <rdunlap@infradead.org>, "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>
 
-Same as Cintiq 24HDT, DTH2242 has two interfaces sharing one configuration.
-This patch ignores the second interface.
+> -----Original Message-----
+> From: Randy Dunlap [mailto:rdunlap@infradead.org]
+> Sent: 12 April 2013 21:02
+> To: Opensource [Anthony Olech]
+> Cc: Dmitry Torokhov; Mark Brown; Samuel Ortiz; Ashish Jangam; Eric
+> Andersson; Andrew Jones; linux-input@vger.kernel.org; LKML; David Dajun Chen
+> Subject: Re: [NEW DRIVER V4 3/7] DA9058 ONKEY driver
+> 
+> On 04/12/13 06:05, Anthony Olech wrote:
+> > This is the ONKEY component driver of the Dialog DA9058 PMIC.
+> > This driver is just one component of the whole DA9058 PMIC driver.
+> > It depends on the CORE component driver of the DA9058 MFD.
+> >
+> > Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
+> > Signed-off-by: David Dajun Chen <david.chen@diasemi.com>
+> > ---
+> >  drivers/input/misc/Kconfig        |   10 +++
+> >  drivers/input/misc/Makefile       |    1 +
+> >  drivers/input/misc/da9058_onkey.c |  177
+> > +++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 188 insertions(+)
+> >  create mode 100644 drivers/input/misc/da9058_onkey.c
+> >
+> > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> > index 259ef31..bd07b38 100644
+> > --- a/drivers/input/misc/Kconfig
+> > +++ b/drivers/input/misc/Kconfig
+> > @@ -93,6 +93,16 @@ config INPUT_BMA150
+> >  	  To compile this driver as a module, choose M here: the
+> >  	  module will be called bma150.
+> >
+> > +config INPUT_DA9058_ONKEY
+> > +	tristate "DA9058 ONKEY support"
+> > +	depends on MFD_DA9058
+> > +	help
+> > +	  Support the ONKEY of DA9058 PMICs as an input device
+> > +	  reporting power button status.
+> 
+> What possible values can a power button status have?
+> Must be more than my KISS guess:
+> 	this software is running => ON
+> 	software not running     => OFF
+> eh?
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/input/tablet/wacom_wac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Pressing the button briefly and pressing and holding the button will have
+different effects in a mobile device. The press and hold on phones normally
+switches them into a sleep state. So the "power button status" is the fact
+that the ONKEY is still being held down.
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 9ec24df..0bfd8cf 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -2144,7 +2144,7 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x44) },
- 	{ USB_DEVICE_WACOM(0x45) },
- 	{ USB_DEVICE_WACOM(0x59) },
--	{ USB_DEVICE_WACOM(0x5D) },
-+	{ USB_DEVICE_DETAILED(0x5D, USB_CLASS_HID, 0, 0) },
- 	{ USB_DEVICE_WACOM(0xB0) },
- 	{ USB_DEVICE_WACOM(0xB1) },
- 	{ USB_DEVICE_WACOM(0xB2) },
--- 
-1.7.10.4
+Does that answer your question? or have I missed your point??
 
+[...]
+> > +	onkey->irq = platform_get_irq(pdev, 0);
+> > +	if (onkey->irq < 0) {
+> > +		dev_err(&pdev->dev, "can not get ONKEY IRQ error=%d\n",
+> 
+> 		                     cannot
+
+The Washington State University language site says:
+
+"These two spellings [cannot/can not] are largely interchangeable, but by far
+the most common is 'cannot' and you should probably use it except when you
+want to be emphatic: 'No, you can not wash the dog in the Maytag.'"
+
+Since I was not trying to be particularly emphatic, I will change to using 'cannot'
+as per your suggestion.
+
+Tony Olech

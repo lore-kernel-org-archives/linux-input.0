@@ -1,45 +1,96 @@
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: Re: [PATCH] Input: Adding graceful shutdown to sysrq key reset
-Date: Tue, 16 Apr 2013 08:45:52 -0600
-Message-ID: <516D6420.4070406@linaro.org>
-References: <1365169112-7999-1-git-send-email-mathieu.poirier@linaro.org> <20130415204535.GB4374@core.coreip.homeip.net>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [NEW DRIVER V4 3/7] DA9058 ONKEY driver
+Date: Tue, 16 Apr 2013 08:15:17 -0700
+Message-ID: <516D6B05.50202@infradead.org>
+References: <201304121318.r3CDILZS013210@latitude> <5168681A.20405@infradead.org> <24DF37198A1E704D9811D8F72B87EB514191E38B@NB-EX-MBX02.diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:32810 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935614Ab3DPOpn (ORCPT
+Received: from casper.infradead.org ([85.118.1.10]:57034 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755131Ab3DPPQB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Apr 2013 10:45:43 -0400
-Received: by mail-pd0-f173.google.com with SMTP id v14so330216pde.32
-        for <linux-input@vger.kernel.org>; Tue, 16 Apr 2013 07:45:42 -0700 (PDT)
-In-Reply-To: <20130415204535.GB4374@core.coreip.homeip.net>
+	Tue, 16 Apr 2013 11:16:01 -0400
+In-Reply-To: <24DF37198A1E704D9811D8F72B87EB514191E38B@NB-EX-MBX02.diasemi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, arve@android.com, kernel-team@android.com, john.stultz@linaro.org
+To: "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>
 
-On 13-04-15 02:45 PM, Dmitry Torokhov wrote:
-> Hi Mathieu,
-> 
-> On Fri, Apr 05, 2013 at 07:38:32AM -0600, mathieu.poirier@linaro.org wrote:
->> From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
+On 04/16/13 03:33, Opensource [Anthony Olech] wrote:
+>> -----Original Message-----
+>> From: Randy Dunlap [mailto:rdunlap@infradead.org]
+>> Sent: 12 April 2013 21:02
+>> To: Opensource [Anthony Olech]
+>> Cc: Dmitry Torokhov; Mark Brown; Samuel Ortiz; Ashish Jangam; Eric
+>> Andersson; Andrew Jones; linux-input@vger.kernel.org; LKML; David Dajun Chen
+>> Subject: Re: [NEW DRIVER V4 3/7] DA9058 ONKEY driver
 >>
->> Attempt to reboot the system gracefully when a key combo
->> is detected.  The system is force to go down if the first
->> attempt failed and the key combo is pressed a second time.
+>> On 04/12/13 06:05, Anthony Olech wrote:
+>>> This is the ONKEY component driver of the Dialog DA9058 PMIC.
+>>> This driver is just one component of the whole DA9058 PMIC driver.
+>>> It depends on the CORE component driver of the DA9058 MFD.
+>>>
+>>> Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
+>>> Signed-off-by: David Dajun Chen <david.chen@diasemi.com>
+>>> ---
+>>>  drivers/input/misc/Kconfig        |   10 +++
+>>>  drivers/input/misc/Makefile       |    1 +
+>>>  drivers/input/misc/da9058_onkey.c |  177
+>>> +++++++++++++++++++++++++++++++++++++
+>>>  3 files changed, 188 insertions(+)
+>>>  create mode 100644 drivers/input/misc/da9058_onkey.c
+>>>
+>>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+>>> index 259ef31..bd07b38 100644
+>>> --- a/drivers/input/misc/Kconfig
+>>> +++ b/drivers/input/misc/Kconfig
+>>> @@ -93,6 +93,16 @@ config INPUT_BMA150
+>>>  	  To compile this driver as a module, choose M here: the
+>>>  	  module will be called bma150.
+>>>
+>>> +config INPUT_DA9058_ONKEY
+>>> +	tristate "DA9058 ONKEY support"
+>>> +	depends on MFD_DA9058
+>>> +	help
+>>> +	  Support the ONKEY of DA9058 PMICs as an input device
+>>> +	  reporting power button status.
 >>
+>> What possible values can a power button status have?
+>> Must be more than my KISS guess:
+>> 	this software is running => ON
+>> 	software not running     => OFF
+>> eh?
 > 
-> If system can gracefully shutdown can;t we request it through normal
-> means?
+> Pressing the button briefly and pressing and holding the button will have
+> different effects in a mobile device. The press and hold on phones normally
+> switches them into a sleep state. So the "power button status" is the fact
+> that the ONKEY is still being held down.
 > 
-> Thanks.
-> 
+> Does that answer your question? or have I missed your point??
 
-Can you provide more details on how you'd like to see this done please ?
- Since 'kernel_restart' is found in 'linux/reboot.h' I was under the
-impression that it is fairly mainstream.
+Yes, that answers my question.  I get it.
 
-Thanks,
-Mathieu.
+> 
+> [...]
+>>> +	onkey->irq = platform_get_irq(pdev, 0);
+>>> +	if (onkey->irq < 0) {
+>>> +		dev_err(&pdev->dev, "can not get ONKEY IRQ error=%d\n",
+>>
+>> 		                     cannot
+> 
+> The Washington State University language site says:
+> 
+> "These two spellings [cannot/can not] are largely interchangeable, but by far
+> the most common is 'cannot' and you should probably use it except when you
+> want to be emphatic: 'No, you can not wash the dog in the Maytag.'"
+> 
+> Since I was not trying to be particularly emphatic, I will change to using 'cannot'
+> as per your suggestion.
+
+thanks.
+
+
+-- 
+~Randy

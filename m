@@ -1,246 +1,536 @@
-From: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Subject: [NEW DRIVER V5 3/7] drivers/input/misc: DA9058 ONKEY driver
-Date: Wed, 17 Apr 2013 17:33:34 +0100
-Message-ID: <201304171646.r3HGk4lF023883@latitude>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Eric Andersson <eric.andersson@unixphere.com>, Andrew Jones <drjones@redhat.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>
+From: Shawn Nematbakhsh <shawnn@chromium.org>
+Subject: Re: [PATCH] Input: trackpoint - Optimize trackpoint init to use
+ power-on reset
+Date: Wed, 17 Apr 2013 09:57:40 -0700
+Message-ID: <CALaWCONzTu4rFBap=r0f=Lzr-fhcYUkuRSU+SG1M772PL+nqYQ@mail.gmail.com>
+References: <1364326601-16571-1-git-send-email-shawnn@chromium.org>
+	<20130328053218.GB2812@core.coreip.homeip.net>
+	<CALaWCOOBnsn-mcyp3V1hiP4CwBze9mzEoTV_jeM6gm6kKBZ60Q@mail.gmail.com>
+	<20130416230907.GA8380@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ve0-f169.google.com ([209.85.128.169]:54515 "EHLO
+	mail-ve0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755917Ab3DQQ5l (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Apr 2013 12:57:41 -0400
+Received: by mail-ve0-f169.google.com with SMTP id d10so1679317vea.0
+        for <linux-input@vger.kernel.org>; Wed, 17 Apr 2013 09:57:40 -0700 (PDT)
+In-Reply-To: <20130416230907.GA8380@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chung-yih Wang <cywang@chromium.org>
 
-This patch is relative to linux next-20130417
+Hi Dmitry,
 
-This is the ONKEY component driver of the Dialog DA9058 PMIC.
-This driver is just one component of the whole DA9058 PMIC driver.
-It depends on the CORE component driver of the DA9058 MFD.
+On Tue, Apr 16, 2013 at 4:09 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Shawn,
+>
+> On Tue, Apr 09, 2013 at 02:53:44PM -0700, Shawn Nematbakhsh wrote:
+>> Hi Dmitry,
+>>
+>> Thanks for the review. Comments in-line.
+>>
+>> On Wed, Mar 27, 2013 at 10:32 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > Hi Shawn,
+>> >
+>> > On Tue, Mar 26, 2013 at 12:36:41PM -0700, Shawn Nematbakhsh wrote:
+>> >> The trackpoint driver sets various parameter default values, all of
+>> >> which happen to be power-on defaults (Source: IBM TrackPoint Engineering
+>> >> Specification, Version 4.0. Also confirmed by empirical data).
+>> >>
+>> >> By sending the power-on reset command to reset all parameters to
+>> >> power-on state, we can skip the lengthy process of programming all
+>> >> parameters. In testing, ~2.5 secs of time writing parameters was reduced
+>> >> to .35 seconds waiting for power-on reset to complete.
+>> >>
+>> >> Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
+>> >> ---
+>> >>  drivers/input/mouse/trackpoint.c | 223 +++++++++++++++++++++++++--------------
+>> >>  drivers/input/mouse/trackpoint.h |   7 +-
+>> >>  2 files changed, 149 insertions(+), 81 deletions(-)
+>> >>
+>> >> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+>> >> index f310249..17e9b36 100644
+>> >> --- a/drivers/input/mouse/trackpoint.c
+>> >> +++ b/drivers/input/mouse/trackpoint.c
+>> >> @@ -20,6 +20,26 @@
+>> >>  #include "trackpoint.h"
+>> >>
+>> >>  /*
+>> >> + * Power-on Reset: Resets all trackpoint parameters, including RAM values,
+>> >> + * to defaults.
+>> >> + * Returns zero on success, non-zero on failure.
+>> >> + */
+>> >> +static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
+>> >> +{
+>> >> +     unsigned char results[2];
+>> >> +
+>> >> +     if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
+>> >> +         ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 2, TP_POR))) {
+>> >> +             return -1;
+>> >> +     }
+>> >> +
+>> >> +     /* POR response should be 0xAA00 or 0xFC00 */
+>> >> +     if ((results[0] != 0xAA && results[0] != 0xFC) || results[1] != 0x00)
+>> >> +             return -1;
+>> >
+>> > I am a bit concerned about this. 0xfc00 indicates POR failure. In this
+>> > case shouldn't we try to reset the device, issue another POR and bail if
+>> > it fails again?
+>> >
+>>
+>> Yes, you are correct. I just now posted v2 to fix this. Now, on
+>> 0xfc00, we attempt one retry. On subsequent 0xfc00, we fail POR and
+>> attempt to set parameters manually.
+>>
+>> >>
+>> >>  static struct attribute *trackpoint_attrs[] = {
+>> >>       &psmouse_attr_sensitivity.dattr.attr,
+>> >> @@ -179,6 +241,9 @@ static struct attribute *trackpoint_attrs[] = {
+>> >>       &psmouse_attr_press_to_select.dattr.attr,
+>> >>       &psmouse_attr_skipback.dattr.attr,
+>> >>       &psmouse_attr_ext_dev.dattr.attr,
+>> >> +     &psmouse_attr_twohand.dattr.attr,
+>> >> +     &psmouse_attr_source_tag.dattr.attr,
+>> >> +     &psmouse_attr_mb.dattr.attr,
+>> >
+>> > What is the benefit of adding these 3 new attributes?
+>> >
+>>
+>> Previously, these attributes were handled in a special way -- the
+>> corresponding TP values were set to default, but the attributes were
+>> not exported. Now, they are set to default and exported. It makes for
+>> cleaner code.
+>>
+>> I see no good use for these attributes other than driver hacking. I
+>> can remove them if you think it's best.
+>
+>
+> Yes, I think that even though having them as attributes makes the code
+> look nice we should not be exposing them as they do break driver
+> behavior.
+>
+> Does the version of the patch below work for you?
+>
 
-Changes relative to V4 of this patch:
-- rebased to latest tagged linux-next - previously relative to mainline
+This version looks + tests good, with one small change: Since we no
+longer export the three extra parameters, I removed the corresponding
+trackpoint_data struct members. Ex.
 
-Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Signed-off-by: David Dajun Chen <david.chen@diasemi.com>
+< @@ -136,10 +138,13 @@ struct trackpoint_data
 ---
- drivers/input/misc/Kconfig        |   10 +++
- drivers/input/misc/Makefile       |    1 +
- drivers/input/misc/da9058_onkey.c |  177 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 188 insertions(+)
- create mode 100644 drivers/input/misc/da9058_onkey.c
+> @@ -136,9 +138,9 @@ struct trackpoint_data
+386,388d385
+< + unsigned char twohand;
+< + unsigned char source_tag;
+< + unsigned char mb;
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index bb698e1..39c5ab1 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -93,6 +93,16 @@ config INPUT_BMA150
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called bma150.
- 
-+config INPUT_DA9058_ONKEY
-+	tristate "DA9058 ONKEY support"
-+	depends on MFD_DA9058
-+	help
-+	  Support the ONKEY of DA9058 PMICs as an input device
-+	  reporting power button status.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called da9058_onkey.
-+
- config INPUT_PCSPKR
- 	tristate "PC Speaker support"
- 	depends on PCSPKR_PLATFORM
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index d7fc17f..060597a 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -45,6 +45,7 @@ obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
- obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
- obj-$(CONFIG_INPUT_PM8XXX_VIBRATOR)	+= pm8xxx-vibrator.o
- obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
-+obj-$(CONFIG_INPUT_DA9058_ONKEY)		+= da9058_onkey.o
- obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
- obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
-diff --git a/drivers/input/misc/da9058_onkey.c b/drivers/input/misc/da9058_onkey.c
-new file mode 100644
-index 0000000..ef1d391
---- /dev/null
-+++ b/drivers/input/misc/da9058_onkey.c
-@@ -0,0 +1,177 @@
-+/*
-+ *  Copyright (C) 2012 Dialog Semiconductor Ltd.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
+See complete revised patch below.
+
+
+Input: trackpoint - Optimize trackpoint init to use power-on reset
+
+From: Shawn Nematbakhsh <shawnn@chromium.org>
+
+The trackpoint driver sets various parameter default values, all of
+which happen to be power-on defaults (Source: IBM TrackPoint Engineering
+Specification, Version 4.0. Also confirmed by empirical data).
+
+By sending the power-on reset command to reset all parameters to
+power-on state, we can skip the lengthy process of programming all
+parameters. In testing, ~2.5 secs of time writing parameters was reduced
+to .35 seconds waiting for power-on reset to complete.
+
+Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mouse/trackpoint.c | 249 +++++++++++++++++++++++++--------------
+ drivers/input/mouse/trackpoint.h |   4 +-
+ 2 files changed, 166 insertions(+), 87 deletions(-)
+
+diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+index f310249..ca843b6 100644
+--- a/drivers/input/mouse/trackpoint.c
++++ b/drivers/input/mouse/trackpoint.c
+@@ -20,9 +20,34 @@
+ #include "trackpoint.h"
+
+ /*
++ * Power-on Reset: Resets all trackpoint parameters, including RAM values,
++ * to defaults.
++ * Returns zero on success, non-zero on failure.
 + */
-+
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/mfd/core.h>
-+#include <linux/regmap.h>
-+
-+#include <linux/mfd/da9058/version.h>
-+#include <linux/mfd/da9058/registers.h>
-+#include <linux/mfd/da9058/core.h>
-+#include <linux/mfd/da9058/irq.h>
-+#include <linux/mfd/da9058/onkey.h>
-+
-+struct da9058_onkey {
-+	struct da9058 *da9058;
-+	struct platform_device *pdev;
-+	struct input_dev *input;
-+	struct delayed_work work;
-+	int irq;
-+};
-+
-+static void da9058_onkey_poll(struct work_struct *work)
++static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
 +{
-+	struct da9058_onkey *onkey = container_of(work, struct da9058_onkey,
-+							work.work);
-+	struct da9058 *da9058 = onkey->da9058;
-+	int poll, ret;
-+	unsigned int sa;
++ unsigned char results[2];
++ int tries = 0;
 +
-+	ret = da9058_reg_read(da9058, DA9058_STATUSA_REG, &sa);
-+	if (ret) {
-+		dev_dbg(&onkey->pdev->dev, "Failed to read ONKEY: %d\n", ret);
-+		poll = 1;
-+	} else if (sa & DA9058_STATUSA_NONKEY) {
-+		poll = 0;
-+	} else {
-+		poll = 1;
-+	}
++ /* Issue POR command, and repeat up to once if 0xFC00 received */
++ do {
++ if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
++    ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 2, TP_POR)))
++ return -1;
++ } while (results[0] == 0xFC && results[1] == 0x00 && ++tries < 2);
 +
-+	input_report_key(onkey->input, KEY_POWER, poll);
-+	input_sync(onkey->input);
++ /* Check for success response -- 0xAA00 */
++ if (results[0] != 0xAA || results[1] != 0x00)
++ return -1;
 +
-+	if (poll)
-+		schedule_delayed_work(&onkey->work, msecs_to_jiffies(50));
++ return 0;
 +}
 +
-+static irqreturn_t da9058_onkey_event_handler(int irq, void *data)
++/*
+  * Device IO: read, write and toggle bit
+  */
+-static int trackpoint_read(struct ps2dev *ps2dev, unsigned char loc,
+unsigned char *results)
++static int trackpoint_read(struct ps2dev *ps2dev,
++   unsigned char loc, unsigned char *results)
+ {
+  if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
+     ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 1, loc))) {
+@@ -32,7 +57,8 @@ static int trackpoint_read(struct ps2dev *ps2dev,
+unsigned char loc, unsigned ch
+  return 0;
+ }
+
+-static int trackpoint_write(struct ps2dev *ps2dev, unsigned char loc,
+unsigned char val)
++static int trackpoint_write(struct ps2dev *ps2dev,
++    unsigned char loc, unsigned char val)
+ {
+  if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
+     ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_WRITE_MEM)) ||
+@@ -44,7 +70,8 @@ static int trackpoint_write(struct ps2dev *ps2dev,
+unsigned char loc, unsigned c
+  return 0;
+ }
+
+-static int trackpoint_toggle_bit(struct ps2dev *ps2dev, unsigned char
+loc, unsigned char mask)
++static int trackpoint_toggle_bit(struct ps2dev *ps2dev,
++ unsigned char loc, unsigned char mask)
+ {
+  /* Bad things will happen if the loc param isn't in this range */
+  if (loc < 0x20 || loc >= 0x2F)
+@@ -60,6 +87,18 @@ static int trackpoint_toggle_bit(struct ps2dev
+*ps2dev, unsigned char loc, unsig
+  return 0;
+ }
+
++static int trackpoint_update_bit(struct ps2dev *ps2dev, unsigned char loc,
++ unsigned char mask, unsigned char value)
 +{
-+	struct da9058_onkey *onkey = data;
++ int retval = 0;
++ unsigned char data;
 +
-+	schedule_delayed_work(&onkey->work, 0);
++ trackpoint_read(ps2dev, loc, &data);
++ if (((data & mask) == mask) != !!value)
++ retval = trackpoint_toggle_bit(ps2dev, loc, mask);
 +
-+	return IRQ_HANDLED;
++ return retval;
 +}
+
+ /*
+  * Trackpoint-specific attributes
+@@ -69,6 +108,7 @@ struct trackpoint_attr_data {
+  unsigned char command;
+  unsigned char mask;
+  unsigned char inverted;
++ unsigned char power_on_default;
+ };
+
+ static ssize_t trackpoint_show_int_attr(struct psmouse *psmouse, void
+*data, char *buf)
+@@ -102,10 +142,11 @@ static ssize_t trackpoint_set_int_attr(struct
+psmouse *psmouse, void *data,
+  return count;
+ }
+
+-#define TRACKPOINT_INT_ATTR(_name, _command) \
++#define TRACKPOINT_INT_ATTR(_name, _command, _default) \
+  static struct trackpoint_attr_data trackpoint_attr_##_name = { \
+  .field_offset = offsetof(struct trackpoint_data, _name), \
+  .command = _command, \
++ .power_on_default = _default, \
+  }; \
+  PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO, \
+     &trackpoint_attr_##_name, \
+@@ -139,31 +180,60 @@ static ssize_t trackpoint_set_bit_attr(struct
+psmouse *psmouse, void *data,
+ }
+
+
+-#define TRACKPOINT_BIT_ATTR(_name, _command, _mask, _inv) \
+- static struct trackpoint_attr_data trackpoint_attr_##_name = { \
+- .field_offset = offsetof(struct trackpoint_data, _name), \
+- .command = _command, \
+- .mask = _mask, \
+- .inverted = _inv, \
+- }; \
+- PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO, \
+-    &trackpoint_attr_##_name, \
+-    trackpoint_show_int_attr, trackpoint_set_bit_attr)
+-
+-TRACKPOINT_INT_ATTR(sensitivity, TP_SENS);
+-TRACKPOINT_INT_ATTR(speed, TP_SPEED);
+-TRACKPOINT_INT_ATTR(inertia, TP_INERTIA);
+-TRACKPOINT_INT_ATTR(reach, TP_REACH);
+-TRACKPOINT_INT_ATTR(draghys, TP_DRAGHYS);
+-TRACKPOINT_INT_ATTR(mindrag, TP_MINDRAG);
+-TRACKPOINT_INT_ATTR(thresh, TP_THRESH);
+-TRACKPOINT_INT_ATTR(upthresh, TP_UP_THRESH);
+-TRACKPOINT_INT_ATTR(ztime, TP_Z_TIME);
+-TRACKPOINT_INT_ATTR(jenks, TP_JENKS_CURV);
+-
+-TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, 0);
+-TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, 0);
+-TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, 1);
++#define TRACKPOINT_BIT_ATTR(_name, _command, _mask, _inv, _default) \
++static struct trackpoint_attr_data trackpoint_attr_##_name = { \
++ .field_offset = offsetof(struct trackpoint_data, \
++   _name), \
++ .command = _command, \
++ .mask = _mask, \
++ .inverted = _inv, \
++ .power_on_default = _default, \
++ }; \
++PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO, \
++    &trackpoint_attr_##_name, \
++    trackpoint_show_int_attr, trackpoint_set_bit_attr)
 +
-+static int da9058_onkey_probe(struct platform_device *pdev)
-+{
-+	struct da9058 *da9058 = dev_get_drvdata(pdev->dev.parent);
-+	const struct mfd_cell *cell = mfd_get_cell(pdev);
-+	struct da9058_onkey_pdata *onkey_pdata;
-+	struct da9058_onkey *onkey;
-+	int ret;
++#define TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name) \
++do { \
++ struct trackpoint_attr_data *_attr = &trackpoint_attr_##_name; \
++ \
++ trackpoint_update_bit(&_psmouse->ps2dev, \
++ _attr->command, _attr->mask, _tp->_name); \
++} while (0)
 +
-+	if (cell == NULL) {
-+		ret = -ENODEV;
-+		goto exit;
-+	}
++#define TRACKPOINT_UPDATE(_power_on, _psmouse, _tp, _name) \
++do { \
++ if (!_power_on || \
++    _tp->_name != trackpoint_attr_##_name.power_on_default) { \
++ if (!trackpoint_attr_##_name.mask) \
++ trackpoint_write(&_psmouse->ps2dev, \
++ trackpoint_attr_##_name.command, \
++ _tp->_name); \
++ else \
++ TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name); \
++ } \
++} while (0)
 +
-+	onkey_pdata = cell->platform_data;
++#define TRACKPOINT_SET_POWER_ON_DEFAULT(_tp, _name) \
++ (_tp->_name = trackpoint_attr_##_name.power_on_default)
 +
-+	if (onkey_pdata == NULL) {
-+		ret = -EINVAL;
-+		goto exit;
-+	}
++TRACKPOINT_INT_ATTR(sensitivity, TP_SENS, TP_DEF_SENS);
++TRACKPOINT_INT_ATTR(speed, TP_SPEED, TP_DEF_SPEED);
++TRACKPOINT_INT_ATTR(inertia, TP_INERTIA, TP_DEF_INERTIA);
++TRACKPOINT_INT_ATTR(reach, TP_REACH, TP_DEF_REACH);
++TRACKPOINT_INT_ATTR(draghys, TP_DRAGHYS, TP_DEF_DRAGHYS);
++TRACKPOINT_INT_ATTR(mindrag, TP_MINDRAG, TP_DEF_MINDRAG);
++TRACKPOINT_INT_ATTR(thresh, TP_THRESH, TP_DEF_THRESH);
++TRACKPOINT_INT_ATTR(upthresh, TP_UP_THRESH, TP_DEF_UP_THRESH);
++TRACKPOINT_INT_ATTR(ztime, TP_Z_TIME, TP_DEF_Z_TIME);
++TRACKPOINT_INT_ATTR(jenks, TP_JENKS_CURV, TP_DEF_JENKS_CURV);
 +
-+	dev_info(&pdev->dev, "Starting ONKEY\n");
++TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, 0,
++    TP_DEF_PTSON);
++TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, 0,
++    TP_DEF_SKIPBACK);
++TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, 1,
++    TP_DEF_EXT_DEV);
+
+ static struct attribute *trackpoint_attrs[] = {
+  &psmouse_attr_sensitivity.dattr.attr,
+@@ -202,73 +272,72 @@ static int trackpoint_start_protocol(struct
+psmouse *psmouse, unsigned char *fir
+  return 0;
+ }
+
+-static int trackpoint_sync(struct psmouse *psmouse)
++/*
++ * Write parameters to trackpad.
++ * in_power_on_state: Set to true if TP is in default / power-on state (ex. if
++ *      power-on reset was run). If so, values will only be
++ *      written to TP if they differ from power-on default.
++ */
++static int trackpoint_sync(struct psmouse *psmouse, bool in_power_on_state)
+ {
+  struct trackpoint_data *tp = psmouse->private;
+- unsigned char toggle;
+-
+- /* Disable features that may make device unusable with this driver */
+- trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_TWOHAND, &toggle);
+- if (toggle & TP_MASK_TWOHAND)
+- trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_TWOHAND, TP_MASK_TWOHAND);
+-
+- trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG, &toggle);
+- if (toggle & TP_MASK_SOURCE_TAG)
+- trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG,
+TP_MASK_SOURCE_TAG);
+-
+- trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_MB, &toggle);
+- if (toggle & TP_MASK_MB)
+- trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_MB, TP_MASK_MB);
+-
+- /* Push the config to the device */
+- trackpoint_write(&psmouse->ps2dev, TP_SENS, tp->sensitivity);
+- trackpoint_write(&psmouse->ps2dev, TP_INERTIA, tp->inertia);
+- trackpoint_write(&psmouse->ps2dev, TP_SPEED, tp->speed);
+-
+- trackpoint_write(&psmouse->ps2dev, TP_REACH, tp->reach);
+- trackpoint_write(&psmouse->ps2dev, TP_DRAGHYS, tp->draghys);
+- trackpoint_write(&psmouse->ps2dev, TP_MINDRAG, tp->mindrag);
+-
+- trackpoint_write(&psmouse->ps2dev, TP_THRESH, tp->thresh);
+- trackpoint_write(&psmouse->ps2dev, TP_UP_THRESH, tp->upthresh);
+
+- trackpoint_write(&psmouse->ps2dev, TP_Z_TIME, tp->ztime);
+- trackpoint_write(&psmouse->ps2dev, TP_JENKS_CURV, tp->jenks);
++ if (!in_power_on_state) {
++ /*
++ * Disable features that may make device unusable
++ * with this driver.
++ */
++ trackpoint_update_bit(&psmouse->ps2dev, TP_TOGGLE_TWOHAND,
++      TP_MASK_TWOHAND, TP_DEF_TWOHAND);
+
+- trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_PTSON, &toggle);
+- if (((toggle & TP_MASK_PTSON) == TP_MASK_PTSON) != tp->press_to_select)
+- trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_PTSON, TP_MASK_PTSON);
++ trackpoint_update_bit(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG,
++      TP_MASK_SOURCE_TAG, TP_DEF_SOURCE_TAG);
+
+- trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_SKIPBACK, &toggle);
+- if (((toggle & TP_MASK_SKIPBACK) == TP_MASK_SKIPBACK) != tp->skipback)
+- trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK);
++ trackpoint_update_bit(&psmouse->ps2dev, TP_TOGGLE_MB,
++      TP_MASK_MB, TP_DEF_MB);
++ }
+
+- trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_EXT_DEV, &toggle);
+- if (((toggle & TP_MASK_EXT_DEV) == TP_MASK_EXT_DEV) != tp->ext_dev)
+- trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV);
++ /*
++ * These properties can be changed in this driver. Only
++ * configure them if the values are non-default or if the TP is in
++ * an unknown state.
++ */
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, sensitivity);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, inertia);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, speed);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, reach);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, draghys);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, mindrag);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, thresh);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, upthresh);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, ztime);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, jenks);
 +
-+	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9058_onkey),
-+				GFP_KERNEL);
-+	if (!onkey) {
-+		ret = -ENOMEM;
-+		goto exit;
-+	}
++ /* toggles */
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, press_to_select);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, skipback);
++ TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, ext_dev);
+
+  return 0;
+ }
+
+ static void trackpoint_defaults(struct trackpoint_data *tp)
+ {
+- tp->press_to_select = TP_DEF_PTSON;
+- tp->sensitivity = TP_DEF_SENS;
+- tp->speed = TP_DEF_SPEED;
+- tp->reach = TP_DEF_REACH;
+-
+- tp->draghys = TP_DEF_DRAGHYS;
+- tp->mindrag = TP_DEF_MINDRAG;
+-
+- tp->thresh = TP_DEF_THRESH;
+- tp->upthresh = TP_DEF_UP_THRESH;
+-
+- tp->ztime = TP_DEF_Z_TIME;
+- tp->jenks = TP_DEF_JENKS_CURV;
+-
+- tp->inertia = TP_DEF_INERTIA;
+- tp->skipback = TP_DEF_SKIPBACK;
+- tp->ext_dev = TP_DEF_EXT_DEV;
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, sensitivity);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, speed);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, reach);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, draghys);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, mindrag);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, thresh);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, upthresh);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, ztime);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, jenks);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, inertia);
 +
-+	platform_set_drvdata(pdev, onkey);
++ /* toggles */
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, press_to_select);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, skipback);
++ TRACKPOINT_SET_POWER_ON_DEFAULT(tp, ext_dev);
+ }
+
+ static void trackpoint_disconnect(struct psmouse *psmouse)
+@@ -281,10 +350,13 @@ static void trackpoint_disconnect(struct psmouse *psmouse)
+
+ static int trackpoint_reconnect(struct psmouse *psmouse)
+ {
++ int reset_fail;
 +
-+	onkey->da9058 = da9058;
-+	onkey->pdev = pdev;
+  if (trackpoint_start_protocol(psmouse, NULL))
+  return -1;
+
+- if (trackpoint_sync(psmouse))
++ reset_fail = trackpoint_power_on_reset(&psmouse->ps2dev);
++ if (trackpoint_sync(psmouse, !reset_fail))
+  return -1;
+
+  return 0;
+@@ -322,7 +394,12 @@ int trackpoint_detect(struct psmouse *psmouse,
+bool set_properties)
+  __set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+
+  trackpoint_defaults(psmouse->private);
+- trackpoint_sync(psmouse);
 +
-+	onkey->irq = platform_get_irq(pdev, 0);
-+	if (onkey->irq < 0) {
-+		dev_err(&pdev->dev, "cannot get ONKEY IRQ error=%d\n",
-+				onkey->irq);
-+		ret = -ENODEV;
-+		goto failed_to_get_irq;
-+	}
++ error = trackpoint_power_on_reset(&psmouse->ps2dev);
 +
-+	INIT_DELAYED_WORK(&onkey->work, da9058_onkey_poll);
-+
-+	onkey->input = input_allocate_device();
-+	if (!onkey->input) {
-+		dev_err(&pdev->dev, "failed to allocate data device\n");
-+		ret = -ENOMEM;
-+		goto failed_to_allocate_device;
-+	}
-+
-+	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
-+	onkey->input->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
-+	onkey->input->name = "da9058-onkey";
-+	onkey->input->phys = "da9058-onkey/input0";
-+	onkey->input->dev.parent = &pdev->dev;
-+
-+	ret = input_register_device(onkey->input);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Unable to register input ONKEY device: %d\n", ret);
-+		goto failed_to_register_device;
-+	}
-+
-+	ret = request_threaded_irq(da9058_to_virt_irq_num(da9058, onkey->irq),
-+				NULL, da9058_onkey_event_handler,
-+				IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-+				"DA9058 keydown", onkey);
-+
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to get ONKEY keydown IRQ %d: %d\n",
-+			onkey->irq, ret);
-+		goto failed_to_get_onkey_irq;
-+	}
-+	goto exit;
-+
-+failed_to_get_onkey_irq:
-+failed_to_register_device:
-+	input_free_device(onkey->input);
-+failed_to_get_irq:
-+failed_to_allocate_device:
-+	platform_set_drvdata(pdev, NULL);
-+exit:
-+	return ret;
-+}
-+
-+static int da9058_onkey_remove(struct platform_device *pdev)
-+{
-+	struct da9058_onkey *onkey = platform_get_drvdata(pdev);
-+	struct da9058 *da9058 = onkey->da9058;
-+
-+	free_irq(da9058_to_virt_irq_num(da9058, onkey->irq), onkey);
-+	cancel_delayed_work_sync(&onkey->work);
-+	input_unregister_device(onkey->input);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver da9058_onkey_driver = {
-+	.probe = da9058_onkey_probe,
-+	.remove = da9058_onkey_remove,
-+	.driver = {
-+		.name = "da9058-onkey",
-+		.owner = THIS_MODULE,
-+	}
-+};
-+
-+module_platform_driver(da9058_onkey_driver);
-+
-+MODULE_AUTHOR("Anthony Olech <Anthony.Olech@diasemi.com>");
-+MODULE_DESCRIPTION("Dialog DA9058 PMIC Onkey Driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:da9058-onkey");
--- 
-end-of-patch for NEW DRIVER V5
++ /* Write defaults to TP only if reset fails. */
++ if (error)
++ trackpoint_sync(psmouse, false);
+
+  error = sysfs_create_group(&ps2dev->serio->dev.kobj, &trackpoint_attr_group);
+  if (error) {
+diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
+index e558a70..ecd0547 100644
+--- a/drivers/input/mouse/trackpoint.h
++++ b/drivers/input/mouse/trackpoint.h
+@@ -126,6 +126,8 @@
+ #define TP_DEF_PTSON 0x00
+ #define TP_DEF_SKIPBACK 0x00
+ #define TP_DEF_EXT_DEV 0x00 /* 0 means enabled */
++#define TP_DEF_TWOHAND 0x00
++#define TP_DEF_SOURCE_TAG 0x00
+
+ #define MAKE_PS2_CMD(params, results, cmd) ((params<<12) |
+(results<<8) | (cmd))
+
+@@ -136,9 +138,9 @@ struct trackpoint_data
+  unsigned char thresh, upthresh;
+  unsigned char ztime, jenks;
+
++ /* toggles */
+  unsigned char press_to_select;
+  unsigned char skipback;
+-
+  unsigned char ext_dev;
+ };
+
+ #ifdef CONFIG_MOUSE_PS2_TRACKPOINT

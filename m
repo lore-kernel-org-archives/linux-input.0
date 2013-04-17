@@ -1,509 +1,549 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: trackpoint - Optimize trackpoint init to use
- power-on reset
-Date: Tue, 16 Apr 2013 16:09:07 -0700
-Message-ID: <20130416230907.GA8380@core.coreip.homeip.net>
-References: <1364326601-16571-1-git-send-email-shawnn@chromium.org>
- <20130328053218.GB2812@core.coreip.homeip.net>
- <CALaWCOOBnsn-mcyp3V1hiP4CwBze9mzEoTV_jeM6gm6kKBZ60Q@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2] HID: appleir: add support for Apple ir devices
+Date: Wed, 17 Apr 2013 11:03:09 +0200
+Message-ID: <1366189389-6572-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:45861 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965585Ab3DPXJN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Apr 2013 19:09:13 -0400
-Content-Disposition: inline
-In-Reply-To: <CALaWCOOBnsn-mcyp3V1hiP4CwBze9mzEoTV_jeM6gm6kKBZ60Q@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:45464 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751908Ab3DQJEF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Apr 2013 05:04:05 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shawn Nematbakhsh <shawnn@chromium.org>
-Cc: JJ Ding <dgdunix@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Chung-yih Wang <cywang@chromium.org>
+To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Bastien Nocera <hadess@hadess.net>, Fabien <fabien.andre@gmail.com>, Jarod Wilson <jarod@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Hi Shawn,
+This driver was originally written by James McKenzie, updated by
+Greg Kroah-Hartman, further updated by Bastien Nocera, with suspend
+support added.
+I ported it to the HID subsystem, in order to simplify it a litle
+and allow lirc to use it through hiddev.
 
-On Tue, Apr 09, 2013 at 02:53:44PM -0700, Shawn Nematbakhsh wrote:
-> Hi Dmitry,
-> 
-> Thanks for the review. Comments in-line.
-> 
-> On Wed, Mar 27, 2013 at 10:32 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Shawn,
-> >
-> > On Tue, Mar 26, 2013 at 12:36:41PM -0700, Shawn Nematbakhsh wrote:
-> >> The trackpoint driver sets various parameter default values, all of
-> >> which happen to be power-on defaults (Source: IBM TrackPoint Engineering
-> >> Specification, Version 4.0. Also confirmed by empirical data).
-> >>
-> >> By sending the power-on reset command to reset all parameters to
-> >> power-on state, we can skip the lengthy process of programming all
-> >> parameters. In testing, ~2.5 secs of time writing parameters was reduced
-> >> to .35 seconds waiting for power-on reset to complete.
-> >>
-> >> Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
-> >> ---
-> >>  drivers/input/mouse/trackpoint.c | 223 +++++++++++++++++++++++++--------------
-> >>  drivers/input/mouse/trackpoint.h |   7 +-
-> >>  2 files changed, 149 insertions(+), 81 deletions(-)
-> >>
-> >> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-> >> index f310249..17e9b36 100644
-> >> --- a/drivers/input/mouse/trackpoint.c
-> >> +++ b/drivers/input/mouse/trackpoint.c
-> >> @@ -20,6 +20,26 @@
-> >>  #include "trackpoint.h"
-> >>
-> >>  /*
-> >> + * Power-on Reset: Resets all trackpoint parameters, including RAM values,
-> >> + * to defaults.
-> >> + * Returns zero on success, non-zero on failure.
-> >> + */
-> >> +static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
-> >> +{
-> >> +     unsigned char results[2];
-> >> +
-> >> +     if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
-> >> +         ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 2, TP_POR))) {
-> >> +             return -1;
-> >> +     }
-> >> +
-> >> +     /* POR response should be 0xAA00 or 0xFC00 */
-> >> +     if ((results[0] != 0xAA && results[0] != 0xFC) || results[1] != 0x00)
-> >> +             return -1;
-> >
-> > I am a bit concerned about this. 0xfc00 indicates POR failure. In this
-> > case shouldn't we try to reset the device, issue another POR and bail if
-> > it fails again?
-> >
-> 
-> Yes, you are correct. I just now posted v2 to fix this. Now, on
-> 0xfc00, we attempt one retry. On subsequent 0xfc00, we fail POR and
-> attempt to set parameters manually.
-> 
-> >>
-> >>  static struct attribute *trackpoint_attrs[] = {
-> >>       &psmouse_attr_sensitivity.dattr.attr,
-> >> @@ -179,6 +241,9 @@ static struct attribute *trackpoint_attrs[] = {
-> >>       &psmouse_attr_press_to_select.dattr.attr,
-> >>       &psmouse_attr_skipback.dattr.attr,
-> >>       &psmouse_attr_ext_dev.dattr.attr,
-> >> +     &psmouse_attr_twohand.dattr.attr,
-> >> +     &psmouse_attr_source_tag.dattr.attr,
-> >> +     &psmouse_attr_mb.dattr.attr,
-> >
-> > What is the benefit of adding these 3 new attributes?
-> >
-> 
-> Previously, these attributes were handled in a special way -- the
-> corresponding TP values were set to default, but the attributes were
-> not exported. Now, they are set to default and exported. It makes for
-> cleaner code.
-> 
-> I see no good use for these attributes other than driver hacking. I
-> can remove them if you think it's best.
+More recent versions of the IR receiver are also supported through
+a patch by Alex Karpenko. The patch also adds support for the 2nd
+and 5th generation of the controller, and the menu key on newer
+brushed metal remotes.
 
-
-Yes, I think that even though having them as attributes makes the code
-look nice we should not be exposing them as they do break driver
-behavior.
-
-Does the version of the patch below work for you?
-
-Thanks.
-
--- 
-Dmitry
-
-Input: trackpoint - Optimize trackpoint init to use power-on reset
-
-From: Shawn Nematbakhsh <shawnn@chromium.org>
-
-The trackpoint driver sets various parameter default values, all of
-which happen to be power-on defaults (Source: IBM TrackPoint Engineering
-Specification, Version 4.0. Also confirmed by empirical data).
-
-By sending the power-on reset command to reset all parameters to
-power-on state, we can skip the lengthy process of programming all
-parameters. In testing, ~2.5 secs of time writing parameters was reduced
-to .35 seconds waiting for power-on reset to complete.
-
-Signed-off-by: Shawn Nematbakhsh <shawnn@chromium.org>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Tested-by: Fabien Andr=C3=A9 <fabien.andre@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/trackpoint.c |  249 +++++++++++++++++++++++++-------------
- drivers/input/mouse/trackpoint.h |    7 +
- 2 files changed, 169 insertions(+), 87 deletions(-)
 
-diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-index f310249..ca843b6 100644
---- a/drivers/input/mouse/trackpoint.c
-+++ b/drivers/input/mouse/trackpoint.c
-@@ -20,9 +20,34 @@
- #include "trackpoint.h"
- 
- /*
-+ * Power-on Reset: Resets all trackpoint parameters, including RAM values,
-+ * to defaults.
-+ * Returns zero on success, non-zero on failure.
+Changes in v2:
+* removed the debug parameter and all debug outputs as they can be repl=
+aced
+  by standard hid debugfs
+* review formatting of comments to match kernel coding style.
+
+ drivers/hid/Kconfig       |  11 ++
+ drivers/hid/Makefile      |   1 +
+ drivers/hid/hid-apple.c   |   4 -
+ drivers/hid/hid-appleir.c | 352 ++++++++++++++++++++++++++++++++++++++=
+++++++++
+ drivers/hid/hid-core.c    |   7 +-
+ drivers/hid/hid-ids.h     |   5 +-
+ 6 files changed, 373 insertions(+), 7 deletions(-)
+ create mode 100644 drivers/hid/hid-appleir.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 613083a..034b0c9 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -122,6 +122,17 @@ config HID_APPLE
+ 	Say Y here if you want support for keyboards of	Apple iBooks, PowerBo=
+oks,
+ 	MacBooks, MacBook Pros and Apple Aluminum.
+=20
++config HID_APPLEIR
++	tristate "Apple infrared receiver"
++	depends on (USB_HID)
++	---help---
++	Support for Apple infrared remote control. All the Apple computers fr=
+om
++	  2005 onwards include such a port, except the unibody Macbook (2009)=
+,
++	  and Mac Pros. This receiver is also used in the Apple TV set-top bo=
+x
++	  prior to the 2010 model.
++
++	Say Y here if you want support for Apple infrared remote control.
++
+ config HID_AUREAL
+ 	tristate "Aureal"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 2735151..2065694 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -39,6 +39,7 @@ endif
+ obj-$(CONFIG_HID_A4TECH)	+=3D hid-a4tech.o
+ obj-$(CONFIG_HID_ACRUX)		+=3D hid-axff.o
+ obj-$(CONFIG_HID_APPLE)		+=3D hid-apple.o
++obj-$(CONFIG_HID_APPLEIR)	+=3D hid-appleir.o
+ obj-$(CONFIG_HID_AUREAL)        +=3D hid-aureal.o
+ obj-$(CONFIG_HID_BELKIN)	+=3D hid-belkin.o
+ obj-$(CONFIG_HID_CHERRY)	+=3D hid-cherry.o
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 9e0c4fbb..feae88b 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -389,10 +389,6 @@ static void apple_remove(struct hid_device *hdev)
+ }
+=20
+ static const struct hid_device_id apple_devices[] =3D {
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTR=
+OL),
+-		.driver_data =3D APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
+,
+-		.driver_data =3D APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE=
+),
+ 		.driver_data =3D APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
+=20
+diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
+new file mode 100644
+index 0000000..11d9407
+--- /dev/null
++++ b/drivers/hid/hid-appleir.c
+@@ -0,0 +1,352 @@
++/*
++ * HID driver for the apple ir device
++ *
++ * Original driver written by James McKenzie
++ * Ported to recent 2.6 kernel versions by Greg Kroah-Hartman <gregkh@=
+suse.de>
++ * Updated to support newer remotes by Bastien Nocera <hadess@hadess.n=
+et>
++ * Ported to HID subsystem by Benjamin Tissoires <benjamin.tissoires@g=
+mail.com>
++ *
++ * Copyright (C) 2006 James McKenzie
++ * Copyright (C) 2008 Greg Kroah-Hartman <greg@kroah.com>
++ * Copyright (C) 2008 Novell Inc.
++ * Copyright (C) 2010, 2012 Bastien Nocera <hadess@hadess.net>
++ * Copyright (C) 2013 Benjamin Tissoires <benjamin.tissoires@gmail.com=
+>
++ * Copyright (C) 2013 Red Hat Inc. All Rights Reserved
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, an=
+d
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
 + */
-+static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include "hid-ids.h"
++
++MODULE_AUTHOR("James McKenzie");
++MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@redhat.com>");
++MODULE_DESCRIPTION("HID Apple IR remote controls");
++MODULE_LICENSE("GPL");
++
++#define KEY_MASK		0x0F
++#define TWO_PACKETS_MASK	0x40
++
++/*
++ * James McKenzie has two devices both of which report the following
++ * 25 87 ee 83 0a	+
++ * 25 87 ee 83 0c	-
++ * 25 87 ee 83 09	<<
++ * 25 87 ee 83 06	>>
++ * 25 87 ee 83 05	>"
++ * 25 87 ee 83 03	menu
++ * 26 00 00 00 00	for key repeat
++ */
++
++/*
++ * Thomas Glanzmann reports the following responses
++ * 25 87 ee ca 0b	+
++ * 25 87 ee ca 0d	-
++ * 25 87 ee ca 08	<<
++ * 25 87 ee ca 07	>>
++ * 25 87 ee ca 04	>"
++ * 25 87 ee ca 02	menu
++ * 26 00 00 00 00       for key repeat
++ *
++ * He also observes the following event sometimes
++ * sent after a key is release, which I interpret
++ * as a flat battery message
++ * 25 87 e0 ca 06	flat battery
++ */
++
++/*
++ * Alexandre Karpenko reports the following responses for Device ID 0x=
+8242
++ * 25 87 ee 47 0b	+
++ * 25 87 ee 47 0d	-
++ * 25 87 ee 47 08	<<
++ * 25 87 ee 47 07	>>
++ * 25 87 ee 47 04	>"
++ * 25 87 ee 47 02	menu
++ * 26 87 ee 47 **	for key repeat (** is the code of the key being held=
+)
++ */
++
++/*
++ * Bastien Nocera's remote
++ * 25 87 ee 91 5f	followed by
++ * 25 87 ee 91 05	gives you >"
++ *
++ * 25 87 ee 91 5c	followed by
++ * 25 87 ee 91 05	gives you the middle button
++ */
++
++/*
++ * Fabien Andre's remote
++ * 25 87 ee a3 5e	followed by
++ * 25 87 ee a3 04	gives you >"
++ *
++ * 25 87 ee a3 5d	followed by
++ * 25 87 ee a3 04	gives you the middle button
++ */
++
++static const unsigned short appleir_key_table[] =3D {
++	KEY_RESERVED,
++	KEY_MENU,
++	KEY_PLAYPAUSE,
++	KEY_FORWARD,
++	KEY_BACK,
++	KEY_VOLUMEUP,
++	KEY_VOLUMEDOWN,
++	KEY_RESERVED,
++	KEY_RESERVED,
++	KEY_RESERVED,
++	KEY_RESERVED,
++	KEY_RESERVED,
++	KEY_RESERVED,
++	KEY_RESERVED,
++	KEY_ENTER,
++	KEY_PLAYPAUSE,
++	KEY_RESERVED,
++};
++
++struct appleir {
++	struct input_dev *input_dev;
++	struct hid_device *hid;
++	unsigned short keymap[ARRAY_SIZE(appleir_key_table)];
++	struct timer_list key_up_timer;	/* timer for key up */
++	spinlock_t lock;		/* protects .current_key */
++	int current_key;		/* the currently pressed key */
++	int prev_key_idx;		/* key index in a 2 packets message */
++};
++
++static int get_key(int data)
 +{
-+	unsigned char results[2];
-+	int tries = 0;
++	/*
++	 * The key is coded accross bits 2..9:
++	 *
++	 * 0x00 or 0x01 (        )	key:  0		-> KEY_RESERVED
++	 * 0x02 or 0x03 (  menu  )	key:  1		-> KEY_MENU
++	 * 0x04 or 0x05 (   >"   )	key:  2		-> KEY_PLAYPAUSE
++	 * 0x06 or 0x07 (   >>   )	key:  3		-> KEY_FORWARD
++	 * 0x08 or 0x09 (   <<   )	key:  4		-> KEY_BACK
++	 * 0x0a or 0x0b (    +   )	key:  5		-> KEY_VOLUMEUP
++	 * 0x0c or 0x0d (    -   )	key:  6		-> KEY_VOLUMEDOWN
++	 * 0x0e or 0x0f (        )	key:  7		-> KEY_RESERVED
++	 * 0x50 or 0x51 (        )	key:  8		-> KEY_RESERVED
++	 * 0x52 or 0x53 (        )	key:  9		-> KEY_RESERVED
++	 * 0x54 or 0x55 (        )	key: 10		-> KEY_RESERVED
++	 * 0x56 or 0x57 (        )	key: 11		-> KEY_RESERVED
++	 * 0x58 or 0x59 (        )	key: 12		-> KEY_RESERVED
++	 * 0x5a or 0x5b (        )	key: 13		-> KEY_RESERVED
++	 * 0x5c or 0x5d ( middle )	key: 14		-> KEY_ENTER
++	 * 0x5e or 0x5f (   >"   )	key: 15		-> KEY_PLAYPAUSE
++	 *
++	 * Packets starting with 0x5 are part of a two-packets message,
++	 * we notify the caller by sending a negative value.
++	 */
++	int key =3D (data >> 1) & KEY_MASK;
 +
-+	/* Issue POR command, and repeat up to once if 0xFC00 received */
-+	do {
-+		if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
-+		    ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 2, TP_POR)))
-+			return -1;
-+	} while (results[0] == 0xFC && results[1] == 0x00 && ++tries < 2);
++	if ((data & TWO_PACKETS_MASK))
++		/* Part of a 2 packets-command */
++		key =3D -key;
 +
-+	/* Check for success response -- 0xAA00 */
-+	if (results[0] != 0xAA || results[1] != 0x00)
-+		return -1;
++	return key;
++}
 +
++static void key_up(struct hid_device *hid, struct appleir *appleir, in=
+t key)
++{
++	input_report_key(appleir->input_dev, key, 0);
++	input_sync(appleir->input_dev);
++}
++
++static void key_down(struct hid_device *hid, struct appleir *appleir, =
+int key)
++{
++	input_report_key(appleir->input_dev, key, 1);
++	input_sync(appleir->input_dev);
++}
++
++static void battery_flat(struct appleir *appleir)
++{
++	dev_err(&appleir->input_dev->dev, "possible flat battery?\n");
++}
++
++static void key_up_tick(unsigned long data)
++{
++	struct appleir *appleir =3D (struct appleir *)data;
++	struct hid_device *hid =3D appleir->hid;
++	unsigned long flags;
++
++	spin_lock_irqsave(&appleir->lock, flags);
++	if (appleir->current_key) {
++		key_up(hid, appleir, appleir->current_key);
++		appleir->current_key =3D 0;
++	}
++	spin_unlock_irqrestore(&appleir->lock, flags);
++}
++
++static int appleir_raw_event(struct hid_device *hid, struct hid_report=
+ *report,
++	 u8 *data, int len)
++{
++	struct appleir *appleir =3D hid_get_drvdata(hid);
++	static const u8 keydown[] =3D { 0x25, 0x87, 0xee };
++	static const u8 keyrepeat[] =3D { 0x26, };
++	static const u8 flatbattery[] =3D { 0x25, 0x87, 0xe0 };
++	unsigned long flags;
++
++	if (len !=3D 5)
++		goto out;
++
++	if (!memcmp(data, keydown, sizeof(keydown))) {
++		int index;
++
++		spin_lock_irqsave(&appleir->lock, flags);
++		/*
++		 * If we already have a key down, take it up before marking
++		 * this one down
++		 */
++		if (appleir->current_key)
++			key_up(hid, appleir, appleir->current_key);
++
++		/* Handle dual packet commands */
++		if (appleir->prev_key_idx > 0)
++			index =3D appleir->prev_key_idx;
++		else
++			index =3D get_key(data[4]);
++
++		if (index >=3D 0) {
++			appleir->current_key =3D appleir->keymap[index];
++
++			key_down(hid, appleir, appleir->current_key);
++			/*
++			 * Remote doesn't do key up, either pull them up, in
++			 * the test above, or here set a timer which pulls
++			 * them up after 1/8 s
++			 */
++			mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
++			appleir->prev_key_idx =3D 0;
++		} else
++			/* Remember key for next packet */
++			appleir->prev_key_idx =3D -index;
++		spin_unlock_irqrestore(&appleir->lock, flags);
++		goto out;
++	}
++
++	appleir->prev_key_idx =3D 0;
++
++	if (!memcmp(data, keyrepeat, sizeof(keyrepeat))) {
++		key_down(hid, appleir, appleir->current_key);
++		/*
++		 * Remote doesn't do key up, either pull them up, in the test
++		 * above, or here set a timer which pulls them up after 1/8 s
++		 */
++		mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
++		goto out;
++	}
++
++	if (!memcmp(data, flatbattery, sizeof(flatbattery))) {
++		battery_flat(appleir);
++		/* Fall through */
++	}
++
++out:
++	/* let hidraw and hiddev handle the report */
 +	return 0;
 +}
 +
-+/*
-  * Device IO: read, write and toggle bit
-  */
--static int trackpoint_read(struct ps2dev *ps2dev, unsigned char loc, unsigned char *results)
-+static int trackpoint_read(struct ps2dev *ps2dev,
-+			   unsigned char loc, unsigned char *results)
- {
- 	if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
- 	    ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 1, loc))) {
-@@ -32,7 +57,8 @@ static int trackpoint_read(struct ps2dev *ps2dev, unsigned char loc, unsigned ch
- 	return 0;
- }
- 
--static int trackpoint_write(struct ps2dev *ps2dev, unsigned char loc, unsigned char val)
-+static int trackpoint_write(struct ps2dev *ps2dev,
-+			    unsigned char loc, unsigned char val)
- {
- 	if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
- 	    ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_WRITE_MEM)) ||
-@@ -44,7 +70,8 @@ static int trackpoint_write(struct ps2dev *ps2dev, unsigned char loc, unsigned c
- 	return 0;
- }
- 
--static int trackpoint_toggle_bit(struct ps2dev *ps2dev, unsigned char loc, unsigned char mask)
-+static int trackpoint_toggle_bit(struct ps2dev *ps2dev,
-+				 unsigned char loc, unsigned char mask)
- {
- 	/* Bad things will happen if the loc param isn't in this range */
- 	if (loc < 0x20 || loc >= 0x2F)
-@@ -60,6 +87,18 @@ static int trackpoint_toggle_bit(struct ps2dev *ps2dev, unsigned char loc, unsig
- 	return 0;
- }
- 
-+static int trackpoint_update_bit(struct ps2dev *ps2dev, unsigned char loc,
-+				 unsigned char mask, unsigned char value)
++static void appleir_input_configured(struct hid_device *hid,
++		struct hid_input *hidinput)
 +{
-+	int retval = 0;
-+	unsigned char data;
++	struct input_dev *input_dev =3D hidinput->input;
++	struct appleir *appleir =3D hid_get_drvdata(hid);
++	int i;
 +
-+	trackpoint_read(ps2dev, loc, &data);
-+	if (((data & mask) == mask) != !!value)
-+		retval = trackpoint_toggle_bit(ps2dev, loc, mask);
++	appleir->input_dev =3D input_dev;
 +
-+	return retval;
++	input_dev->keycode =3D appleir->keymap;
++	input_dev->keycodesize =3D sizeof(unsigned short);
++	input_dev->keycodemax =3D ARRAY_SIZE(appleir->keymap);
++
++	input_dev->evbit[0] =3D BIT(EV_KEY) | BIT(EV_REP);
++
++	memcpy(appleir->keymap, appleir_key_table, sizeof(appleir->keymap));
++	for (i =3D 0; i < ARRAY_SIZE(appleir_key_table); i++)
++		set_bit(appleir->keymap[i], input_dev->keybit);
++	clear_bit(KEY_RESERVED, input_dev->keybit);
 +}
- 
- /*
-  * Trackpoint-specific attributes
-@@ -69,6 +108,7 @@ struct trackpoint_attr_data {
- 	unsigned char command;
- 	unsigned char mask;
- 	unsigned char inverted;
-+	unsigned char power_on_default;
- };
- 
- static ssize_t trackpoint_show_int_attr(struct psmouse *psmouse, void *data, char *buf)
-@@ -102,10 +142,11 @@ static ssize_t trackpoint_set_int_attr(struct psmouse *psmouse, void *data,
- 	return count;
- }
- 
--#define TRACKPOINT_INT_ATTR(_name, _command)					\
-+#define TRACKPOINT_INT_ATTR(_name, _command, _default)				\
- 	static struct trackpoint_attr_data trackpoint_attr_##_name = {		\
- 		.field_offset = offsetof(struct trackpoint_data, _name),	\
- 		.command = _command,						\
-+		.power_on_default = _default,					\
- 	};									\
- 	PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO,				\
- 			    &trackpoint_attr_##_name,				\
-@@ -139,31 +180,60 @@ static ssize_t trackpoint_set_bit_attr(struct psmouse *psmouse, void *data,
- }
- 
- 
--#define TRACKPOINT_BIT_ATTR(_name, _command, _mask, _inv)				\
--	static struct trackpoint_attr_data trackpoint_attr_##_name = {		\
--		.field_offset	= offsetof(struct trackpoint_data, _name),	\
--		.command	= _command,					\
--		.mask		= _mask,					\
--		.inverted	= _inv,						\
--	};									\
--	PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO,				\
--			    &trackpoint_attr_##_name,				\
--			    trackpoint_show_int_attr, trackpoint_set_bit_attr)
--
--TRACKPOINT_INT_ATTR(sensitivity, TP_SENS);
--TRACKPOINT_INT_ATTR(speed, TP_SPEED);
--TRACKPOINT_INT_ATTR(inertia, TP_INERTIA);
--TRACKPOINT_INT_ATTR(reach, TP_REACH);
--TRACKPOINT_INT_ATTR(draghys, TP_DRAGHYS);
--TRACKPOINT_INT_ATTR(mindrag, TP_MINDRAG);
--TRACKPOINT_INT_ATTR(thresh, TP_THRESH);
--TRACKPOINT_INT_ATTR(upthresh, TP_UP_THRESH);
--TRACKPOINT_INT_ATTR(ztime, TP_Z_TIME);
--TRACKPOINT_INT_ATTR(jenks, TP_JENKS_CURV);
--
--TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, 0);
--TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, 0);
--TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, 1);
-+#define TRACKPOINT_BIT_ATTR(_name, _command, _mask, _inv, _default)	\
-+static struct trackpoint_attr_data trackpoint_attr_##_name = {		\
-+	.field_offset		= offsetof(struct trackpoint_data,	\
-+					   _name),			\
-+	.command		= _command,				\
-+	.mask			= _mask,				\
-+	.inverted		= _inv,					\
-+	.power_on_default	= _default,				\
-+	};								\
-+PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO,				\
-+		    &trackpoint_attr_##_name,				\
-+		    trackpoint_show_int_attr, trackpoint_set_bit_attr)
 +
-+#define TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name)			\
-+do {									\
-+	struct trackpoint_attr_data *_attr = &trackpoint_attr_##_name;	\
-+									\
-+	trackpoint_update_bit(&_psmouse->ps2dev,			\
-+			_attr->command, _attr->mask, _tp->_name);	\
-+} while (0)
++static int appleir_input_mapping(struct hid_device *hid,
++		struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	return -1;
++}
 +
-+#define TRACKPOINT_UPDATE(_power_on, _psmouse, _tp, _name)		\
-+do {									\
-+	if (!_power_on ||						\
-+	    _tp->_name != trackpoint_attr_##_name.power_on_default) {	\
-+		if (!trackpoint_attr_##_name.mask)			\
-+			trackpoint_write(&_psmouse->ps2dev,		\
-+				 trackpoint_attr_##_name.command,	\
-+				 _tp->_name);				\
-+		else							\
-+			TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name);	\
-+	}								\
-+} while (0)
++static int appleir_probe(struct hid_device *hid, const struct hid_devi=
+ce_id *id)
++{
++	int ret;
++	struct appleir *appleir;
 +
-+#define TRACKPOINT_SET_POWER_ON_DEFAULT(_tp, _name)				\
-+	(_tp->_name = trackpoint_attr_##_name.power_on_default)
-+
-+TRACKPOINT_INT_ATTR(sensitivity, TP_SENS, TP_DEF_SENS);
-+TRACKPOINT_INT_ATTR(speed, TP_SPEED, TP_DEF_SPEED);
-+TRACKPOINT_INT_ATTR(inertia, TP_INERTIA, TP_DEF_INERTIA);
-+TRACKPOINT_INT_ATTR(reach, TP_REACH, TP_DEF_REACH);
-+TRACKPOINT_INT_ATTR(draghys, TP_DRAGHYS, TP_DEF_DRAGHYS);
-+TRACKPOINT_INT_ATTR(mindrag, TP_MINDRAG, TP_DEF_MINDRAG);
-+TRACKPOINT_INT_ATTR(thresh, TP_THRESH, TP_DEF_THRESH);
-+TRACKPOINT_INT_ATTR(upthresh, TP_UP_THRESH, TP_DEF_UP_THRESH);
-+TRACKPOINT_INT_ATTR(ztime, TP_Z_TIME, TP_DEF_Z_TIME);
-+TRACKPOINT_INT_ATTR(jenks, TP_JENKS_CURV, TP_DEF_JENKS_CURV);
-+
-+TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, 0,
-+		    TP_DEF_PTSON);
-+TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, 0,
-+		    TP_DEF_SKIPBACK);
-+TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, 1,
-+		    TP_DEF_EXT_DEV);
- 
- static struct attribute *trackpoint_attrs[] = {
- 	&psmouse_attr_sensitivity.dattr.attr,
-@@ -202,73 +272,72 @@ static int trackpoint_start_protocol(struct psmouse *psmouse, unsigned char *fir
- 	return 0;
- }
- 
--static int trackpoint_sync(struct psmouse *psmouse)
-+/*
-+ * Write parameters to trackpad.
-+ * in_power_on_state: Set to true if TP is in default / power-on state (ex. if
-+ *		      power-on reset was run). If so, values will only be
-+ *		      written to TP if they differ from power-on default.
-+ */
-+static int trackpoint_sync(struct psmouse *psmouse, bool in_power_on_state)
- {
- 	struct trackpoint_data *tp = psmouse->private;
--	unsigned char toggle;
--
--	/* Disable features that may make device unusable with this driver */
--	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_TWOHAND, &toggle);
--	if (toggle & TP_MASK_TWOHAND)
--		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_TWOHAND, TP_MASK_TWOHAND);
--
--	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG, &toggle);
--	if (toggle & TP_MASK_SOURCE_TAG)
--		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG, TP_MASK_SOURCE_TAG);
--
--	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_MB, &toggle);
--	if (toggle & TP_MASK_MB)
--		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_MB, TP_MASK_MB);
--
--	/* Push the config to the device */
--	trackpoint_write(&psmouse->ps2dev, TP_SENS, tp->sensitivity);
--	trackpoint_write(&psmouse->ps2dev, TP_INERTIA, tp->inertia);
--	trackpoint_write(&psmouse->ps2dev, TP_SPEED, tp->speed);
--
--	trackpoint_write(&psmouse->ps2dev, TP_REACH, tp->reach);
--	trackpoint_write(&psmouse->ps2dev, TP_DRAGHYS, tp->draghys);
--	trackpoint_write(&psmouse->ps2dev, TP_MINDRAG, tp->mindrag);
--
--	trackpoint_write(&psmouse->ps2dev, TP_THRESH, tp->thresh);
--	trackpoint_write(&psmouse->ps2dev, TP_UP_THRESH, tp->upthresh);
- 
--	trackpoint_write(&psmouse->ps2dev, TP_Z_TIME, tp->ztime);
--	trackpoint_write(&psmouse->ps2dev, TP_JENKS_CURV, tp->jenks);
-+	if (!in_power_on_state) {
-+		/*
-+		 * Disable features that may make device unusable
-+		 * with this driver.
-+		 */
-+		trackpoint_update_bit(&psmouse->ps2dev, TP_TOGGLE_TWOHAND,
-+				      TP_MASK_TWOHAND, TP_DEF_TWOHAND);
- 
--	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_PTSON, &toggle);
--	if (((toggle & TP_MASK_PTSON) == TP_MASK_PTSON) != tp->press_to_select)
--		 trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_PTSON, TP_MASK_PTSON);
-+		trackpoint_update_bit(&psmouse->ps2dev, TP_TOGGLE_SOURCE_TAG,
-+				      TP_MASK_SOURCE_TAG, TP_DEF_SOURCE_TAG);
- 
--	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_SKIPBACK, &toggle);
--	if (((toggle & TP_MASK_SKIPBACK) == TP_MASK_SKIPBACK) != tp->skipback)
--		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK);
-+		trackpoint_update_bit(&psmouse->ps2dev, TP_TOGGLE_MB,
-+				      TP_MASK_MB, TP_DEF_MB);
++	appleir =3D kzalloc(sizeof(struct appleir), GFP_KERNEL);
++	if (!appleir) {
++		ret =3D -ENOMEM;
++		goto allocfail;
 +	}
- 
--	trackpoint_read(&psmouse->ps2dev, TP_TOGGLE_EXT_DEV, &toggle);
--	if (((toggle & TP_MASK_EXT_DEV) == TP_MASK_EXT_DEV) != tp->ext_dev)
--		trackpoint_toggle_bit(&psmouse->ps2dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV);
-+	/*
-+	 * These properties can be changed in this driver. Only
-+	 * configure them if the values are non-default or if the TP is in
-+	 * an unknown state.
-+	 */
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, sensitivity);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, inertia);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, speed);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, reach);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, draghys);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, mindrag);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, thresh);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, upthresh);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, ztime);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, jenks);
 +
-+	/* toggles */
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, press_to_select);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, skipback);
-+	TRACKPOINT_UPDATE(in_power_on_state, psmouse, tp, ext_dev);
- 
- 	return 0;
- }
- 
- static void trackpoint_defaults(struct trackpoint_data *tp)
- {
--	tp->press_to_select = TP_DEF_PTSON;
--	tp->sensitivity = TP_DEF_SENS;
--	tp->speed = TP_DEF_SPEED;
--	tp->reach = TP_DEF_REACH;
--
--	tp->draghys = TP_DEF_DRAGHYS;
--	tp->mindrag = TP_DEF_MINDRAG;
--
--	tp->thresh = TP_DEF_THRESH;
--	tp->upthresh = TP_DEF_UP_THRESH;
--
--	tp->ztime = TP_DEF_Z_TIME;
--	tp->jenks = TP_DEF_JENKS_CURV;
--
--	tp->inertia = TP_DEF_INERTIA;
--	tp->skipback = TP_DEF_SKIPBACK;
--	tp->ext_dev = TP_DEF_EXT_DEV;
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, sensitivity);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, speed);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, reach);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, draghys);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, mindrag);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, thresh);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, upthresh);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, ztime);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, jenks);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, inertia);
++	appleir->hid =3D hid;
 +
-+	/* toggles */
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, press_to_select);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, skipback);
-+	TRACKPOINT_SET_POWER_ON_DEFAULT(tp, ext_dev);
- }
- 
- static void trackpoint_disconnect(struct psmouse *psmouse)
-@@ -281,10 +350,13 @@ static void trackpoint_disconnect(struct psmouse *psmouse)
- 
- static int trackpoint_reconnect(struct psmouse *psmouse)
- {
-+	int reset_fail;
++	spin_lock_init(&appleir->lock);
++	setup_timer(&appleir->key_up_timer,
++		    key_up_tick, (unsigned long) appleir);
 +
- 	if (trackpoint_start_protocol(psmouse, NULL))
- 		return -1;
- 
--	if (trackpoint_sync(psmouse))
-+	reset_fail = trackpoint_power_on_reset(&psmouse->ps2dev);
-+	if (trackpoint_sync(psmouse, !reset_fail))
- 		return -1;
- 
- 	return 0;
-@@ -322,7 +394,12 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
- 		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
- 
- 	trackpoint_defaults(psmouse->private);
--	trackpoint_sync(psmouse);
++	hid_set_drvdata(hid, appleir);
 +
-+	error = trackpoint_power_on_reset(&psmouse->ps2dev);
++	ret =3D hid_parse(hid);
++	if (ret) {
++		hid_err(hid, "parse failed\n");
++		goto fail;
++	}
 +
-+	/* Write defaults to TP only if reset fails. */
-+	if (error)
-+		trackpoint_sync(psmouse, false);
- 
- 	error = sysfs_create_group(&ps2dev->serio->dev.kobj, &trackpoint_attr_group);
- 	if (error) {
-diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
-index e558a70..e0bc03b 100644
---- a/drivers/input/mouse/trackpoint.h
-+++ b/drivers/input/mouse/trackpoint.h
-@@ -126,6 +126,8 @@
- #define TP_DEF_PTSON		0x00
- #define TP_DEF_SKIPBACK		0x00
- #define TP_DEF_EXT_DEV		0x00	/* 0 means enabled */
-+#define TP_DEF_TWOHAND		0x00
-+#define TP_DEF_SOURCE_TAG	0x00
- 
- #define MAKE_PS2_CMD(params, results, cmd) ((params<<12) | (results<<8) | (cmd))
- 
-@@ -136,10 +138,13 @@ struct trackpoint_data
- 	unsigned char thresh, upthresh;
- 	unsigned char ztime, jenks;
- 
-+	/* toggles */
- 	unsigned char press_to_select;
- 	unsigned char skipback;
--
- 	unsigned char ext_dev;
-+	unsigned char twohand;
-+	unsigned char source_tag;
-+	unsigned char mb;
- };
- 
- #ifdef CONFIG_MOUSE_PS2_TRACKPOINT
++	ret =3D hid_hw_start(hid, HID_CONNECT_DEFAULT | HID_CONNECT_HIDDEV_FO=
+RCE);
++	if (ret) {
++		hid_err(hid, "hw start failed\n");
++		goto fail;
++	}
++
++	return 0;
++fail:
++	kfree(appleir);
++allocfail:
++	return ret;
++}
++
++static void appleir_remove(struct hid_device *hid)
++{
++	struct appleir *appleir =3D hid_get_drvdata(hid);
++	del_timer_sync(&appleir->key_up_timer);
++	hid_hw_stop(hid);
++	kfree(appleir);
++}
++
++static const struct hid_device_id appleir_devices[] =3D {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) =
+},
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL2)=
+ },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL3)=
+ },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
+ },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL5)=
+ },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, appleir_devices);
++
++static struct hid_driver appleir_driver =3D {
++	.name =3D "appleir",
++	.id_table =3D appleir_devices,
++	.raw_event =3D appleir_raw_event,
++	.input_configured =3D appleir_input_configured,
++	.probe =3D appleir_probe,
++	.remove =3D appleir_remove,
++	.input_mapping =3D appleir_input_mapping,
++};
++module_hid_driver(appleir_driver);
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 1129f49..ceb419d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1501,8 +1501,6 @@ static const struct hid_device_id hid_have_specia=
+l_driver[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) =
+},
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) }=
+,
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTR=
+OL) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
+ },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE=
+) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC=
+MOUSE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC=
+TRACKPAD) },
+@@ -1526,6 +1524,11 @@ static const struct hid_device_id hid_have_speci=
+al_driver[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_=
+ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_=
+ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_=
+JIS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) =
+},
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL2)=
+ },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL3)=
+ },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
+ },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL5)=
+ },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
+IRELESS_ANSI) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
+IRELESS_ISO) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
+IRELESS_JIS) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b622aec..8dd7295 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -137,8 +137,11 @@
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO   0x0256
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+ #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+-#define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
++#define USB_DEVICE_ID_APPLE_IRCONTROL	0x8240
++#define USB_DEVICE_ID_APPLE_IRCONTROL2	0x1440
++#define USB_DEVICE_ID_APPLE_IRCONTROL3	0x8241
+ #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
++#define USB_DEVICE_ID_APPLE_IRCONTROL5	0x8243
+=20
+ #define USB_VENDOR_ID_ASUS		0x0486
+ #define USB_DEVICE_ID_ASUS_T91MT	0x0185
+--=20
+1.8.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

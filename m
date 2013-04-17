@@ -1,123 +1,216 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/4] HID: debugfs rework
-Date: Wed, 17 Apr 2013 10:44:25 -0700 (PDT)
-Message-ID: <alpine.LNX.2.00.1304171041070.31201@pobox.suse.cz>
-References: <1366220296-14346-1-git-send-email-benjamin.tissoires@redhat.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH RFC] input: Add evdev mute ioctl
+Date: Wed, 17 Apr 2013 19:55:44 +0200
+Message-ID: <CANq1E4SUg+oaoWhBNE2+HrrF0FLHbf+gc2CvD7KZWQWybeaiag@mail.gmail.com>
+References: <1366120697-25841-1-git-send-email-krh@bitplanet.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40721 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965225Ab3DQRo1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Apr 2013 13:44:27 -0400
-In-Reply-To: <1366220296-14346-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-ia0-f180.google.com ([209.85.210.180]:35483 "EHLO
+	mail-ia0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754726Ab3DQRzp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Apr 2013 13:55:45 -0400
+Received: by mail-ia0-f180.google.com with SMTP id p22so615684iad.25
+        for <linux-input@vger.kernel.org>; Wed, 17 Apr 2013 10:55:44 -0700 (PDT)
+In-Reply-To: <1366120697-25841-1-git-send-email-krh@bitplanet.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@bitplanet.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, robert@sixbynine.org
 
-On Wed, 17 Apr 2013, Benjamin Tissoires wrote:
+Hi Kristian
 
-> Hi Jiri,
-> 
-> This is a small rework of the HID debugfs.
-> I encountered a problem with multitouch devices: they have too much usages to
-> fit into the fixed size output buffer of 512.
-> So I digg a little, and end up with those 4 patches.
+On Tue, Apr 16, 2013 at 3:58 PM, Kristian H=F8gsberg <krh@bitplanet.net=
+> wrote:
+> This commit adds a new ioctl to the evdev device: EVIOCMUTE.  The
+> purpose of this ioctl it to temporarily block event delivery to a
+> specific evdev client and prevent access to most of the ioctls.
+>
+> The use case is a setuid helper process for a display server, which
+> opens input devices and passes the fds to the display server.  On VT
+> switch away from the server, it should stop reading events from its
+> evdev input devices.  However, if the display server runs as the user
+> it can be ptraced or if the server loads user defined modules, the
+> display server can no longer be trusted to not snoop on the evdev
+> devices.
+>
+> The mute ioctl allows the setuid helper to mute evdev devices when
+> switching away from the VT the server is running on.  The idea is tha=
+t
+> the helper listens for the VT switching signals and when VT switch ha=
+ppens
+> it notifies the display server, waits for the server to clean up and =
+then
+> the helper drops drm master (which also requires root), mutes evdev
+> devices and the acks the VT switch.
+>
+> Why don't we just use revoke?  The revoke syscall (when it's done) wi=
+ll
+> work on filenames and shut down all fds open to the device.  This wil=
+l
+> break all other processes that listen on evdev devices for legitimate
+> reasons.  It's the same reason we don't use the EVIOCGRAB ioctl for i=
+nput
+> devices.  EVIOCMUTE lets the helper mute just the fd it gave to the
+> display server without affecting anything else potentially using the =
+device.
 
-Hi Benjamin,
+Other use-cases include SAK, forced VT switches and
+system-compositors. I'd really like seeing this feature.
 
-thanks, I will look into it and see whether I would be able to apply it 
-still for 3.10 merge window.
+> Signed-off-by: Kristian H=F8gsberg <krh@bitplanet.net>
+> ---
+>  drivers/input/evdev.c      | 37 ++++++++++++++++++++++++++++++++++--=
+-
+>  include/uapi/linux/input.h |  1 +
+>  2 files changed, 35 insertions(+), 3 deletions(-)
+>
+> This idea comes from work on Wayland and Weston [1], but the setuid h=
+elper
+> should work and is required for a non-root X server to function corre=
+ctly
+> as well (ie, do proper vt switching).
+>
+> Kristian
+>
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index f0f8928..cea6c35 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -48,6 +48,7 @@ struct evdev_client {
+>         struct evdev *evdev;
+>         struct list_head node;
+>         int clkid;
+> +       int muted;
 
-I also have a locking fix for HID-debugfs which I am going to apply 
-shortly, but I am travelling this week, so I am in a bit degraded mode.
+Use "bool" instead.
 
-For reference, locking fix below.
+>         unsigned int bufsize;
+>         struct input_event buffer[];
+>  };
+> @@ -130,8 +131,9 @@ static void evdev_events(struct input_handle *han=
+dle,
+>                 evdev_pass_values(client, vals, count, time_mono, tim=
+e_real);
+>         else
+>                 list_for_each_entry_rcu(client, &evdev->client_list, =
+node)
+> -                       evdev_pass_values(client, vals, count,
+> -                                         time_mono, time_real);
+> +                       if (!client->muted)
+> +                               evdev_pass_values(client, vals, count=
+,
+> +                                                 time_mono, time_rea=
+l);
 
+Personally, I'd do this in evdev_pass_values(), but that's a matter of
+taste.. And this would also allow muting grabbed devices. Because
+currently input-grabs overwrite the mute flag which I think is odd. At
+least mention this in the commit message so people know how it works
+regarding input grabs.
 
+>
+>         rcu_read_unlock();
+>  }
+> @@ -674,6 +676,20 @@ static int evdev_handle_mt_request(struct input_=
+dev *dev,
+>         return 0;
+>  }
+>
+> +static int evdev_mute(struct evdev *evdev, struct evdev_client *clie=
+nt)
+> +{
+> +       client->muted =3D 1;
+> +
+> +       return 0;
+> +}
+> +
+> +static int evdev_unmute(struct evdev *evdev, struct evdev_client *cl=
+ient)
+> +{
+> +       client->muted =3D 0;
+> +
+> +       return 0;
+> +}
+> +
 
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] HID: protect hid_debug_list
+As I guess we want this feature to be atomic, we definitely need a
+lock here. We also want, after EVIOCMUTE returns, that no other ioctl
+will be allowed. Hence, we need a mutex that protects
+evdev_do_ioctl(). A spinlock around "muted" won't help..
+As we currently have no suitable lock in evdev_client I guess we need
+to add one. In this case you can also remove these helpers and do:
+  client->muted =3D !!p;
+in evdev_do_ioctl().
 
-Accesses to hid_device->hid_debug_list are not serialized properly, which
-could result in SMP concurrency issues when HID debugfs events are accessesed
-by multiple userspace processess.
+Note that a reader-writer lock would allow parallel ioctl execution if
+only the EVIOCMUTE command takes the write-lock and the other ioctls
+take a read lock.
 
-Serialize all the list operations by a mutex.
+Regards
+David
 
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/hid-core.c  | 1 +
- drivers/hid/hid-debug.c | 6 ++++++
- include/linux/hid.h     | 1 +
- 3 files changed, 8 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 1129f49..e3b7123 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2347,6 +2347,7 @@ struct hid_device *hid_allocate_device(void)
- 
- 	init_waitqueue_head(&hdev->debug_wait);
- 	INIT_LIST_HEAD(&hdev->debug_list);
-+	mutex_init(&hdev->debug_list_lock);
- 	sema_init(&hdev->driver_lock, 1);
- 	sema_init(&hdev->driver_input_lock, 1);
- 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 933fff0..3337261 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -580,12 +580,14 @@ void hid_debug_event(struct hid_device *hdev, char *buf)
- 	int i;
- 	struct hid_debug_list *list;
- 
-+	mutex_lock(&hdev->debug_list_lock);
- 	list_for_each_entry(list, &hdev->debug_list, node) {
- 		for (i = 0; i < strlen(buf); i++)
- 			list->hid_debug_buf[(list->tail + i) % HID_DEBUG_BUFSIZE] =
- 				buf[i];
- 		list->tail = (list->tail + i) % HID_DEBUG_BUFSIZE;
-         }
-+	mutex_unlock(&hdev->debug_list_lock);
- 
- 	wake_up_interruptible(&hdev->debug_wait);
- }
-@@ -960,7 +962,9 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
- 	file->private_data = list;
- 	mutex_init(&list->read_mutex);
- 
-+	mutex_lock(&list->hdev->debug_list_lock);
- 	list_add_tail(&list->node, &list->hdev->debug_list);
-+	mutex_unlock(&list->hdev->debug_list_lock);
- 
- out:
- 	return err;
-@@ -1055,7 +1059,9 @@ static int hid_debug_events_release(struct inode *inode, struct file *file)
- {
- 	struct hid_debug_list *list = file->private_data;
- 
-+	mutex_lock(&list->hdev->debug_list_lock);
- 	list_del(&list->node);
-+	mutex_unlock(&list->hdev->debug_list_lock);
- 	kfree(list->hid_debug_buf);
- 	kfree(list);
- 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index b7b5ff2..af1b86d 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -515,6 +515,7 @@ struct hid_device {							/* device report descriptor */
- 	struct dentry *debug_rdesc;
- 	struct dentry *debug_events;
- 	struct list_head debug_list;
-+	struct mutex debug_list_lock;
- 	wait_queue_head_t debug_wait;
- };
- 
-
--- 
-Jiri Kosina
-SUSE Labs
+>  static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+>                            void __user *p, int compat_mode)
+>  {
+> @@ -687,12 +703,27 @@ static long evdev_do_ioctl(struct file *file, u=
+nsigned int cmd,
+>         unsigned int size;
+>         int error;
+>
+> -       /* First we check for fixed-length commands */
+> +       /* Handle ioctls allowed in muted mode first */
+>         switch (cmd) {
+> +       case EVIOCMUTE:
+> +               if (!capable(CAP_SYS_ADMIN))
+> +                   return -EACCES;
+> +
+> +               if (p)
+> +                       return evdev_mute(evdev, client);
+> +               else
+> +                       return evdev_unmute(evdev, client);
+>
+>         case EVIOCGVERSION:
+>                 return put_user(EV_VERSION, ip);
+>
+> +       default:
+> +               if (client->muted)
+> +                       return -EACCES;
+> +       }
+> +
+> +       /* Now check for fixed-length commands */
+> +       switch (cmd) {
+>         case EVIOCGID:
+>                 if (copy_to_user(p, &dev->id, sizeof(struct input_id)=
+))
+>                         return -EFAULT;
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index 935119c..75eda72 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -154,6 +154,7 @@ struct input_keymap_entry {
+>  #define EVIOCGRAB              _IOW('E', 0x90, int)                 =
+   /* Grab/Release device */
+>
+>  #define EVIOCSCLOCKID          _IOW('E', 0xa0, int)                 =
+   /* Set clockid to be used for timestamps */
+> +#define EVIOCMUTE              _IOW('E', 0xb0, int)                 =
+   /* Mute event delivery */
+>
+>  /*
+>   * Device properties and quirks
+> --
+> 1.8.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

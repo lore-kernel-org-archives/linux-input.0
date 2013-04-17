@@ -1,138 +1,123 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/4] HID: core: break out hid_find_max_report() in hid-core
-Date: Wed, 17 Apr 2013 19:38:14 +0200
-Message-ID: <1366220296-14346-3-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/4] HID: debugfs rework
+Date: Wed, 17 Apr 2013 10:44:25 -0700 (PDT)
+Message-ID: <alpine.LNX.2.00.1304171041070.31201@pobox.suse.cz>
 References: <1366220296-14346-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:40721 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965225Ab3DQRo1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Apr 2013 13:44:27 -0400
 In-Reply-To: <1366220296-14346-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-hid_find_max_report() was used both in usbhid and i2c-hid.
-Put it in core to avoid code duplication.
+On Wed, 17 Apr 2013, Benjamin Tissoires wrote:
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Hi Jiri,
+> 
+> This is a small rework of the HID debugfs.
+> I encountered a problem with multitouch devices: they have too much usages to
+> fit into the fixed size output buffer of 512.
+> So I digg a little, and end up with those 4 patches.
+
+Hi Benjamin,
+
+thanks, I will look into it and see whether I would be able to apply it 
+still for 3.10 merge window.
+
+I also have a locking fix for HID-debugfs which I am going to apply 
+shortly, but I am travelling this week, so I am in a bit degraded mode.
+
+For reference, locking fix below.
+
+
+
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] HID: protect hid_debug_list
+
+Accesses to hid_device->hid_debug_list are not serialized properly, which
+could result in SMP concurrency issues when HID debugfs events are accessesed
+by multiple userspace processess.
+
+Serialize all the list operations by a mutex.
+
+Reported-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 ---
- drivers/hid/hid-core.c        | 29 +++++++++++++++++++++++++++++
- drivers/hid/i2c-hid/i2c-hid.c | 15 +++------------
- drivers/hid/usbhid/hid-core.c | 16 ----------------
- include/linux/hid.h           |  2 ++
- 4 files changed, 34 insertions(+), 28 deletions(-)
+ drivers/hid/hid-core.c  | 1 +
+ drivers/hid/hid-debug.c | 6 ++++++
+ include/linux/hid.h     | 1 +
+ 3 files changed, 8 insertions(+)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 34c53fc..25d7903 100644
+index 1129f49..e3b7123 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1145,6 +1145,35 @@ void hid_output_report(struct hid_report *report, __u8 *data)
- EXPORT_SYMBOL_GPL(hid_output_report);
+@@ -2347,6 +2347,7 @@ struct hid_device *hid_allocate_device(void)
  
- /*
-+ * Return the length (in bytes) of a report
-+ */
-+int hid_get_report_length(struct hid_report *report)
-+{
-+	return report->size ? ((report->size - 1) >> 3) + 1 +
-+		report->device->report_enum[report->type].numbered : 0;
-+}
-+EXPORT_SYMBOL_GPL(hid_get_report_length);
-+
-+/*
-+ * Traverse the supplied list of reports and find the longest
-+ */
-+void hid_find_max_report(struct hid_device *hid, unsigned int type,
-+		unsigned int *max)
-+{
-+	struct hid_report *report;
-+	unsigned int size;
-+
-+	/* We should not rely on wMaxInputLength, as some devices may set it to
-+	 * a wrong length. */
-+	list_for_each_entry(report, &hid->report_enum[type].report_list, list) {
-+		size = hid_get_report_length(report);
-+		if (*max < size)
-+			*max = size;
-+	}
-+}
-+EXPORT_SYMBOL_GPL(hid_find_max_report);
-+
-+/*
-  * Set a field value. The report this field belongs to has to be
-  * created and transferred to the device, to set this value in the
-  * device.
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 2b1799a..5aa1dc0 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -390,8 +390,7 @@ static irqreturn_t i2c_hid_irq(int irq, void *dev_id)
+ 	init_waitqueue_head(&hdev->debug_wait);
+ 	INIT_LIST_HEAD(&hdev->debug_list);
++	mutex_init(&hdev->debug_list_lock);
+ 	sema_init(&hdev->driver_lock, 1);
+ 	sema_init(&hdev->driver_input_lock, 1);
  
- static int i2c_hid_get_report_length(struct hid_report *report)
- {
--	return ((report->size - 1) >> 3) + 1 +
--		report->device->report_enum[report->type].numbered + 2;
-+	return hid_get_report_length(report) + 2;
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index 933fff0..3337261 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -580,12 +580,14 @@ void hid_debug_event(struct hid_device *hdev, char *buf)
+ 	int i;
+ 	struct hid_debug_list *list;
+ 
++	mutex_lock(&hdev->debug_list_lock);
+ 	list_for_each_entry(list, &hdev->debug_list, node) {
+ 		for (i = 0; i < strlen(buf); i++)
+ 			list->hid_debug_buf[(list->tail + i) % HID_DEBUG_BUFSIZE] =
+ 				buf[i];
+ 		list->tail = (list->tail + i) % HID_DEBUG_BUFSIZE;
+         }
++	mutex_unlock(&hdev->debug_list_lock);
+ 
+ 	wake_up_interruptible(&hdev->debug_wait);
  }
+@@ -960,7 +962,9 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
+ 	file->private_data = list;
+ 	mutex_init(&list->read_mutex);
  
- static void i2c_hid_init_report(struct hid_report *report, u8 *buffer,
-@@ -456,16 +455,8 @@ static void i2c_hid_init_reports(struct hid_device *hid)
- static void i2c_hid_find_max_report(struct hid_device *hid, unsigned int type,
- 		unsigned int *max)
++	mutex_lock(&list->hdev->debug_list_lock);
+ 	list_add_tail(&list->node, &list->hdev->debug_list);
++	mutex_unlock(&list->hdev->debug_list_lock);
+ 
+ out:
+ 	return err;
+@@ -1055,7 +1059,9 @@ static int hid_debug_events_release(struct inode *inode, struct file *file)
  {
--	struct hid_report *report;
--	unsigned int size;
--
--	/* We should not rely on wMaxInputLength, as some devices may set it to
--	 * a wrong length. */
--	list_for_each_entry(report, &hid->report_enum[type].report_list, list) {
--		size = i2c_hid_get_report_length(report);
--		if (*max < size)
--			*max = size;
--	}
-+	hid_find_max_report(hid, type, max);
-+	*max += 2;
- }
+ 	struct hid_debug_list *list = file->private_data;
  
- static void i2c_hid_free_buffers(struct i2c_hid *ihid)
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index effcd3d..5cf7ddb 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -869,22 +869,6 @@ void usbhid_set_leds(struct hid_device *hid)
- }
- EXPORT_SYMBOL_GPL(usbhid_set_leds);
++	mutex_lock(&list->hdev->debug_list_lock);
+ 	list_del(&list->node);
++	mutex_unlock(&list->hdev->debug_list_lock);
+ 	kfree(list->hid_debug_buf);
+ 	kfree(list);
  
--/*
-- * Traverse the supplied list of reports and find the longest
-- */
--static void hid_find_max_report(struct hid_device *hid, unsigned int type,
--		unsigned int *max)
--{
--	struct hid_report *report;
--	unsigned int size;
--
--	list_for_each_entry(report, &hid->report_enum[type].report_list, list) {
--		size = ((report->size - 1) >> 3) + 1 + hid->report_enum[type].numbered;
--		if (*max < size)
--			*max = size;
--	}
--}
--
- static int hid_alloc_buffers(struct usb_device *dev, struct hid_device *hid)
- {
- 	struct usbhid_device *usbhid = hid->driver_data;
 diff --git a/include/linux/hid.h b/include/linux/hid.h
-index b7b5ff2..9b6c71c 100644
+index b7b5ff2..af1b86d 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
-@@ -736,6 +736,8 @@ extern void hidinput_report_event(struct hid_device *hid, struct hid_report *rep
- extern int hidinput_connect(struct hid_device *hid, unsigned int force);
- extern void hidinput_disconnect(struct hid_device *);
+@@ -515,6 +515,7 @@ struct hid_device {							/* device report descriptor */
+ 	struct dentry *debug_rdesc;
+ 	struct dentry *debug_events;
+ 	struct list_head debug_list;
++	struct mutex debug_list_lock;
+ 	wait_queue_head_t debug_wait;
+ };
  
-+int hid_get_report_length(struct hid_report *);
-+void hid_find_max_report(struct hid_device *, unsigned int, unsigned int *);
- int hid_set_field(struct hid_field *, unsigned, __s32);
- int hid_input_report(struct hid_device *, int type, u8 *, int, int);
- int hidinput_find_field(struct hid_device *hid, unsigned int type, unsigned int code, struct hid_field **field);
+
 -- 
-1.8.1.4
+Jiri Kosina
+SUSE Labs

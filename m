@@ -1,556 +1,121 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3] HID: appleir: add support for Apple ir devices
-Date: Wed, 17 Apr 2013 18:15:15 +0200
-Message-ID: <1366215315-9787-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46317 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753279Ab3DQQQR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Apr 2013 12:16:17 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Anthony Olech <anthony.olech.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Subject: [NEW DRIVER V5 0/7] DA9058 PMIC - please comment on this new driver
+Date: Wed, 17 Apr 2013 17:33:37 +0100
+Message-ID: <201304171635.r3HGZp3D023837@latitude>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Andrew Jones <drjones-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Ashish Jangam <ashish.jangam-edWfh0lVHvKWbvRemg0rlA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eric Andersson <eric.andersson-TStm8jYLEPpl57MIdRCFDg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Liam Girdwood <lrg-l0cyMroinI0@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Michael Krufky <mkrufky-eb9eJ82Ua7k9XoPSrs7Ehg@public.gmane.org>, Paul Gortmaker <p_gortmaker-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Steven Toth <stoth-eb9eJ82Ua7k9XoPSrs7Ehg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oneukum@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Bastien Nocera <hadess@hadess.net>, Fabien <fabien.andre@gmail.com>, Jarod Wilson <jarod@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-This driver was originally written by James McKenzie, updated by
-Greg Kroah-Hartman, further updated by Bastien Nocera, with suspend
-support added.
-I ported it to the HID subsystem, in order to simplify it a litle
-and allow lirc to use it through hiddev.
+This is submission attempt number 5 to have this driver included in
+the linux kernel source tree. This is the driver for the Dialog DA9058.
 
-More recent versions of the IR receiver are also supported through
-a patch by Alex Karpenko. The patch also adds support for the 2nd
-and 5th generation of the controller, and the menu key on newer
-brushed metal remotes.
+The DA9058 is a low power Power Management Integrated Circuit with extra
+functionality. It is a Multi Function Device controlled only from an I2C
+bus whose components can raise an interrupt request on a single IRQ line.
 
-Tested-by: Fabien Andr=C3=A9 <fabien.andre@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+The driver for the DA9058 consists of a core (i2c) device driver that
+instantiates the individual component device drivers for:
 
-Changes in v2:
-* removed the debug parameter and all debug outputs as they can be repl=
-aced
-  by standard hid debugfs
-* review formatting of comments to match kernel coding style.
+adc - 5 ADC channels
+gpio - 2 available pins
+onkey - 1 device
+regulator - 4 BUCKS, 19 LDO and 3 fixed
+rtc - low power clock
+hwmon - 5 monitored voltages/temperatures
 
-Changes in v3:
-* fix race in appleir_remove() between hid_hw_stop() and del_timer_sync=
-()
+All the above six component device drivers depend on the 'core'
+component driver, which is number one in the patch series.
 
-Cheers,
-Benjamin
+Each component driver for the Dialog DA9058 will follow as an e-mail
+patch relative to linux next-20130417
 
- drivers/hid/Kconfig       |  11 ++
- drivers/hid/Makefile      |   1 +
- drivers/hid/hid-apple.c   |   4 -
- drivers/hid/hid-appleir.c | 352 ++++++++++++++++++++++++++++++++++++++=
-++++++++
- drivers/hid/hid-core.c    |   7 +-
- drivers/hid/hid-ids.h     |   5 +-
- 6 files changed, 373 insertions(+), 7 deletions(-)
- create mode 100644 drivers/hid/hid-appleir.c
+This driver has been tested on a Samsung SMDK6410 connected to a Dialog
+DA9058 Evaluation Board via one GPIO and a 3-wire I2C connection.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 613083a..034b0c9 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -122,6 +122,17 @@ config HID_APPLE
- 	Say Y here if you want support for keyboards of	Apple iBooks, PowerBo=
-oks,
- 	MacBooks, MacBook Pros and Apple Aluminum.
-=20
-+config HID_APPLEIR
-+	tristate "Apple infrared receiver"
-+	depends on (USB_HID)
-+	---help---
-+	Support for Apple infrared remote control. All the Apple computers fr=
-om
-+	  2005 onwards include such a port, except the unibody Macbook (2009)=
-,
-+	  and Mac Pros. This receiver is also used in the Apple TV set-top bo=
-x
-+	  prior to the 2010 model.
-+
-+	Say Y here if you want support for Apple infrared remote control.
-+
- config HID_AUREAL
- 	tristate "Aureal"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 2735151..2065694 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -39,6 +39,7 @@ endif
- obj-$(CONFIG_HID_A4TECH)	+=3D hid-a4tech.o
- obj-$(CONFIG_HID_ACRUX)		+=3D hid-axff.o
- obj-$(CONFIG_HID_APPLE)		+=3D hid-apple.o
-+obj-$(CONFIG_HID_APPLEIR)	+=3D hid-appleir.o
- obj-$(CONFIG_HID_AUREAL)        +=3D hid-aureal.o
- obj-$(CONFIG_HID_BELKIN)	+=3D hid-belkin.o
- obj-$(CONFIG_HID_CHERRY)	+=3D hid-cherry.o
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 9e0c4fbb..feae88b 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -389,10 +389,6 @@ static void apple_remove(struct hid_device *hdev)
- }
-=20
- static const struct hid_device_id apple_devices[] =3D {
--	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTR=
-OL),
--		.driver_data =3D APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
-,
--		.driver_data =3D APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE=
-),
- 		.driver_data =3D APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
-=20
-diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
-new file mode 100644
-index 0000000..a42e6a3
---- /dev/null
-+++ b/drivers/hid/hid-appleir.c
-@@ -0,0 +1,352 @@
-+/*
-+ * HID driver for the apple ir device
-+ *
-+ * Original driver written by James McKenzie
-+ * Ported to recent 2.6 kernel versions by Greg Kroah-Hartman <gregkh@=
-suse.de>
-+ * Updated to support newer remotes by Bastien Nocera <hadess@hadess.n=
-et>
-+ * Ported to HID subsystem by Benjamin Tissoires <benjamin.tissoires@g=
-mail.com>
-+ *
-+ * Copyright (C) 2006 James McKenzie
-+ * Copyright (C) 2008 Greg Kroah-Hartman <greg@kroah.com>
-+ * Copyright (C) 2008 Novell Inc.
-+ * Copyright (C) 2010, 2012 Bastien Nocera <hadess@hadess.net>
-+ * Copyright (C) 2013 Benjamin Tissoires <benjamin.tissoires@gmail.com=
->
-+ * Copyright (C) 2013 Red Hat Inc. All Rights Reserved
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, an=
-d
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+
-+MODULE_AUTHOR("James McKenzie");
-+MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@redhat.com>");
-+MODULE_DESCRIPTION("HID Apple IR remote controls");
-+MODULE_LICENSE("GPL");
-+
-+#define KEY_MASK		0x0F
-+#define TWO_PACKETS_MASK	0x40
-+
-+/*
-+ * James McKenzie has two devices both of which report the following
-+ * 25 87 ee 83 0a	+
-+ * 25 87 ee 83 0c	-
-+ * 25 87 ee 83 09	<<
-+ * 25 87 ee 83 06	>>
-+ * 25 87 ee 83 05	>"
-+ * 25 87 ee 83 03	menu
-+ * 26 00 00 00 00	for key repeat
-+ */
-+
-+/*
-+ * Thomas Glanzmann reports the following responses
-+ * 25 87 ee ca 0b	+
-+ * 25 87 ee ca 0d	-
-+ * 25 87 ee ca 08	<<
-+ * 25 87 ee ca 07	>>
-+ * 25 87 ee ca 04	>"
-+ * 25 87 ee ca 02	menu
-+ * 26 00 00 00 00       for key repeat
-+ *
-+ * He also observes the following event sometimes
-+ * sent after a key is release, which I interpret
-+ * as a flat battery message
-+ * 25 87 e0 ca 06	flat battery
-+ */
-+
-+/*
-+ * Alexandre Karpenko reports the following responses for Device ID 0x=
-8242
-+ * 25 87 ee 47 0b	+
-+ * 25 87 ee 47 0d	-
-+ * 25 87 ee 47 08	<<
-+ * 25 87 ee 47 07	>>
-+ * 25 87 ee 47 04	>"
-+ * 25 87 ee 47 02	menu
-+ * 26 87 ee 47 **	for key repeat (** is the code of the key being held=
-)
-+ */
-+
-+/*
-+ * Bastien Nocera's remote
-+ * 25 87 ee 91 5f	followed by
-+ * 25 87 ee 91 05	gives you >"
-+ *
-+ * 25 87 ee 91 5c	followed by
-+ * 25 87 ee 91 05	gives you the middle button
-+ */
-+
-+/*
-+ * Fabien Andre's remote
-+ * 25 87 ee a3 5e	followed by
-+ * 25 87 ee a3 04	gives you >"
-+ *
-+ * 25 87 ee a3 5d	followed by
-+ * 25 87 ee a3 04	gives you the middle button
-+ */
-+
-+static const unsigned short appleir_key_table[] =3D {
-+	KEY_RESERVED,
-+	KEY_MENU,
-+	KEY_PLAYPAUSE,
-+	KEY_FORWARD,
-+	KEY_BACK,
-+	KEY_VOLUMEUP,
-+	KEY_VOLUMEDOWN,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_RESERVED,
-+	KEY_ENTER,
-+	KEY_PLAYPAUSE,
-+	KEY_RESERVED,
-+};
-+
-+struct appleir {
-+	struct input_dev *input_dev;
-+	struct hid_device *hid;
-+	unsigned short keymap[ARRAY_SIZE(appleir_key_table)];
-+	struct timer_list key_up_timer;	/* timer for key up */
-+	spinlock_t lock;		/* protects .current_key */
-+	int current_key;		/* the currently pressed key */
-+	int prev_key_idx;		/* key index in a 2 packets message */
-+};
-+
-+static int get_key(int data)
-+{
-+	/*
-+	 * The key is coded accross bits 2..9:
-+	 *
-+	 * 0x00 or 0x01 (        )	key:  0		-> KEY_RESERVED
-+	 * 0x02 or 0x03 (  menu  )	key:  1		-> KEY_MENU
-+	 * 0x04 or 0x05 (   >"   )	key:  2		-> KEY_PLAYPAUSE
-+	 * 0x06 or 0x07 (   >>   )	key:  3		-> KEY_FORWARD
-+	 * 0x08 or 0x09 (   <<   )	key:  4		-> KEY_BACK
-+	 * 0x0a or 0x0b (    +   )	key:  5		-> KEY_VOLUMEUP
-+	 * 0x0c or 0x0d (    -   )	key:  6		-> KEY_VOLUMEDOWN
-+	 * 0x0e or 0x0f (        )	key:  7		-> KEY_RESERVED
-+	 * 0x50 or 0x51 (        )	key:  8		-> KEY_RESERVED
-+	 * 0x52 or 0x53 (        )	key:  9		-> KEY_RESERVED
-+	 * 0x54 or 0x55 (        )	key: 10		-> KEY_RESERVED
-+	 * 0x56 or 0x57 (        )	key: 11		-> KEY_RESERVED
-+	 * 0x58 or 0x59 (        )	key: 12		-> KEY_RESERVED
-+	 * 0x5a or 0x5b (        )	key: 13		-> KEY_RESERVED
-+	 * 0x5c or 0x5d ( middle )	key: 14		-> KEY_ENTER
-+	 * 0x5e or 0x5f (   >"   )	key: 15		-> KEY_PLAYPAUSE
-+	 *
-+	 * Packets starting with 0x5 are part of a two-packets message,
-+	 * we notify the caller by sending a negative value.
-+	 */
-+	int key =3D (data >> 1) & KEY_MASK;
-+
-+	if ((data & TWO_PACKETS_MASK))
-+		/* Part of a 2 packets-command */
-+		key =3D -key;
-+
-+	return key;
-+}
-+
-+static void key_up(struct hid_device *hid, struct appleir *appleir, in=
-t key)
-+{
-+	input_report_key(appleir->input_dev, key, 0);
-+	input_sync(appleir->input_dev);
-+}
-+
-+static void key_down(struct hid_device *hid, struct appleir *appleir, =
-int key)
-+{
-+	input_report_key(appleir->input_dev, key, 1);
-+	input_sync(appleir->input_dev);
-+}
-+
-+static void battery_flat(struct appleir *appleir)
-+{
-+	dev_err(&appleir->input_dev->dev, "possible flat battery?\n");
-+}
-+
-+static void key_up_tick(unsigned long data)
-+{
-+	struct appleir *appleir =3D (struct appleir *)data;
-+	struct hid_device *hid =3D appleir->hid;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&appleir->lock, flags);
-+	if (appleir->current_key) {
-+		key_up(hid, appleir, appleir->current_key);
-+		appleir->current_key =3D 0;
-+	}
-+	spin_unlock_irqrestore(&appleir->lock, flags);
-+}
-+
-+static int appleir_raw_event(struct hid_device *hid, struct hid_report=
- *report,
-+	 u8 *data, int len)
-+{
-+	struct appleir *appleir =3D hid_get_drvdata(hid);
-+	static const u8 keydown[] =3D { 0x25, 0x87, 0xee };
-+	static const u8 keyrepeat[] =3D { 0x26, };
-+	static const u8 flatbattery[] =3D { 0x25, 0x87, 0xe0 };
-+	unsigned long flags;
-+
-+	if (len !=3D 5)
-+		goto out;
-+
-+	if (!memcmp(data, keydown, sizeof(keydown))) {
-+		int index;
-+
-+		spin_lock_irqsave(&appleir->lock, flags);
-+		/*
-+		 * If we already have a key down, take it up before marking
-+		 * this one down
-+		 */
-+		if (appleir->current_key)
-+			key_up(hid, appleir, appleir->current_key);
-+
-+		/* Handle dual packet commands */
-+		if (appleir->prev_key_idx > 0)
-+			index =3D appleir->prev_key_idx;
-+		else
-+			index =3D get_key(data[4]);
-+
-+		if (index >=3D 0) {
-+			appleir->current_key =3D appleir->keymap[index];
-+
-+			key_down(hid, appleir, appleir->current_key);
-+			/*
-+			 * Remote doesn't do key up, either pull them up, in
-+			 * the test above, or here set a timer which pulls
-+			 * them up after 1/8 s
-+			 */
-+			mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
-+			appleir->prev_key_idx =3D 0;
-+		} else
-+			/* Remember key for next packet */
-+			appleir->prev_key_idx =3D -index;
-+		spin_unlock_irqrestore(&appleir->lock, flags);
-+		goto out;
-+	}
-+
-+	appleir->prev_key_idx =3D 0;
-+
-+	if (!memcmp(data, keyrepeat, sizeof(keyrepeat))) {
-+		key_down(hid, appleir, appleir->current_key);
-+		/*
-+		 * Remote doesn't do key up, either pull them up, in the test
-+		 * above, or here set a timer which pulls them up after 1/8 s
-+		 */
-+		mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
-+		goto out;
-+	}
-+
-+	if (!memcmp(data, flatbattery, sizeof(flatbattery))) {
-+		battery_flat(appleir);
-+		/* Fall through */
-+	}
-+
-+out:
-+	/* let hidraw and hiddev handle the report */
-+	return 0;
-+}
-+
-+static void appleir_input_configured(struct hid_device *hid,
-+		struct hid_input *hidinput)
-+{
-+	struct input_dev *input_dev =3D hidinput->input;
-+	struct appleir *appleir =3D hid_get_drvdata(hid);
-+	int i;
-+
-+	appleir->input_dev =3D input_dev;
-+
-+	input_dev->keycode =3D appleir->keymap;
-+	input_dev->keycodesize =3D sizeof(unsigned short);
-+	input_dev->keycodemax =3D ARRAY_SIZE(appleir->keymap);
-+
-+	input_dev->evbit[0] =3D BIT(EV_KEY) | BIT(EV_REP);
-+
-+	memcpy(appleir->keymap, appleir_key_table, sizeof(appleir->keymap));
-+	for (i =3D 0; i < ARRAY_SIZE(appleir_key_table); i++)
-+		set_bit(appleir->keymap[i], input_dev->keybit);
-+	clear_bit(KEY_RESERVED, input_dev->keybit);
-+}
-+
-+static int appleir_input_mapping(struct hid_device *hid,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
-+{
-+	return -1;
-+}
-+
-+static int appleir_probe(struct hid_device *hid, const struct hid_devi=
-ce_id *id)
-+{
-+	int ret;
-+	struct appleir *appleir;
-+
-+	appleir =3D kzalloc(sizeof(struct appleir), GFP_KERNEL);
-+	if (!appleir) {
-+		ret =3D -ENOMEM;
-+		goto allocfail;
-+	}
-+
-+	appleir->hid =3D hid;
-+
-+	spin_lock_init(&appleir->lock);
-+	setup_timer(&appleir->key_up_timer,
-+		    key_up_tick, (unsigned long) appleir);
-+
-+	hid_set_drvdata(hid, appleir);
-+
-+	ret =3D hid_parse(hid);
-+	if (ret) {
-+		hid_err(hid, "parse failed\n");
-+		goto fail;
-+	}
-+
-+	ret =3D hid_hw_start(hid, HID_CONNECT_DEFAULT | HID_CONNECT_HIDDEV_FO=
-RCE);
-+	if (ret) {
-+		hid_err(hid, "hw start failed\n");
-+		goto fail;
-+	}
-+
-+	return 0;
-+fail:
-+	kfree(appleir);
-+allocfail:
-+	return ret;
-+}
-+
-+static void appleir_remove(struct hid_device *hid)
-+{
-+	struct appleir *appleir =3D hid_get_drvdata(hid);
-+	hid_hw_stop(hid);
-+	del_timer_sync(&appleir->key_up_timer);
-+	kfree(appleir);
-+}
-+
-+static const struct hid_device_id appleir_devices[] =3D {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) =
-},
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL2)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL3)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL5)=
- },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, appleir_devices);
-+
-+static struct hid_driver appleir_driver =3D {
-+	.name =3D "appleir",
-+	.id_table =3D appleir_devices,
-+	.raw_event =3D appleir_raw_event,
-+	.input_configured =3D appleir_input_configured,
-+	.probe =3D appleir_probe,
-+	.remove =3D appleir_remove,
-+	.input_mapping =3D appleir_input_mapping,
-+};
-+module_hid_driver(appleir_driver);
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 1129f49..ceb419d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1501,8 +1501,6 @@ static const struct hid_device_id hid_have_specia=
-l_driver[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) =
-},
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) }=
-,
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTR=
-OL) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
- },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE=
-) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC=
-MOUSE) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC=
-TRACKPAD) },
-@@ -1526,6 +1524,11 @@ static const struct hid_device_id hid_have_speci=
-al_driver[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_=
-ANSI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_=
-ISO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_=
-JIS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) =
-},
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL2)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL3)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4)=
- },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL5)=
- },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
-IRELESS_ANSI) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
-IRELESS_ISO) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_W=
-IRELESS_JIS) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b622aec..8dd7295 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -137,8 +137,11 @@
- #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO   0x0256
- #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
- #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
--#define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
-+#define USB_DEVICE_ID_APPLE_IRCONTROL	0x8240
-+#define USB_DEVICE_ID_APPLE_IRCONTROL2	0x1440
-+#define USB_DEVICE_ID_APPLE_IRCONTROL3	0x8241
- #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
-+#define USB_DEVICE_ID_APPLE_IRCONTROL5	0x8243
-=20
- #define USB_VENDOR_ID_ASUS		0x0486
- #define USB_DEVICE_ID_ASUS_T91MT	0x0185
---=20
-1.8.1.4
+All the components can be builtin to the kernel or compiled as modules.
+As far as I can tell, all the latest APIs both for the core driver and
+all the component drivers have been adhered to, but if I have missed
+something please let me know.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Many thanks,
+Anthony Olech, Dialog Semiconductor Ltd.
+
+Tony Olech (at Home) (7):
+  drivers/mfd: DA9058 MFD core driver
+  drivers/iio/adc: DA9058 ADC driver
+  drivers/input/misc: DA9058 ONKEY driver
+  drivers/rtc: DA9058 RTC driver
+  drivers/gpio: DA9058 GPIO driver
+  drivers/hwmon: DA9058 HWMON driver
+  drivers/regulator: DA9058 REGULATOR driver
+
+ Documentation/hwmon/da9058           |   39 ++
+ drivers/gpio/Kconfig                 |   12 +
+ drivers/gpio/Makefile                |    1 +
+ drivers/gpio/gpio-da9058.c           |  377 ++++++++++++++
+ drivers/hwmon/Kconfig                |   10 +
+ drivers/hwmon/Makefile               |    3 +-
+ drivers/hwmon/da9058-hwmon.c         |  349 +++++++++++++
+ drivers/iio/adc/Kconfig              |   12 +
+ drivers/iio/adc/Makefile             |    1 +
+ drivers/iio/adc/da9058-adc.c         |  397 +++++++++++++++
+ drivers/input/misc/Kconfig           |   10 +
+ drivers/input/misc/Makefile          |    1 +
+ drivers/input/misc/da9058_onkey.c    |  177 +++++++
+ drivers/mfd/Kconfig                  |   17 +
+ drivers/mfd/Makefile                 |    3 +
+ drivers/mfd/da9058-core.c            |   74 +++
+ drivers/mfd/da9058-i2c.c             |   97 ++++
+ drivers/mfd/da9058-info.c            |  929 ++++++++++++++++++++++++++++++++++
+ drivers/mfd/da9058-irq.c             |   57 +++
+ drivers/regulator/Kconfig            |   11 +
+ drivers/regulator/Makefile           |    1 +
+ drivers/regulator/da9058-regulator.c |  210 ++++++++
+ drivers/rtc/Kconfig                  |   10 +
+ drivers/rtc/Makefile                 |    1 +
+ drivers/rtc/rtc-da9058.c             |  458 +++++++++++++++++
+ include/linux/mfd/da9058/adc.h       |   18 +
+ include/linux/mfd/da9058/bat.h       |   33 ++
+ include/linux/mfd/da9058/codec.h     |   22 +
+ include/linux/mfd/da9058/conf.h      |   22 +
+ include/linux/mfd/da9058/core.h      |   66 +++
+ include/linux/mfd/da9058/gpio.h      |   19 +
+ include/linux/mfd/da9058/hwmon.h     |   33 ++
+ include/linux/mfd/da9058/i2c.h       |   22 +
+ include/linux/mfd/da9058/irq.h       |   50 ++
+ include/linux/mfd/da9058/onkey.h     |   17 +
+ include/linux/mfd/da9058/pdata.h     |   30 ++
+ include/linux/mfd/da9058/registers.h |  480 ++++++++++++++++++
+ include/linux/mfd/da9058/regulator.h |   33 ++
+ include/linux/mfd/da9058/rtc.h       |   17 +
+ 39 files changed, 4118 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/hwmon/da9058
+ create mode 100644 drivers/gpio/gpio-da9058.c
+ create mode 100644 drivers/hwmon/da9058-hwmon.c
+ create mode 100644 drivers/iio/adc/da9058-adc.c
+ create mode 100644 drivers/input/misc/da9058_onkey.c
+ create mode 100644 drivers/mfd/da9058-core.c
+ create mode 100644 drivers/mfd/da9058-i2c.c
+ create mode 100644 drivers/mfd/da9058-info.c
+ create mode 100644 drivers/mfd/da9058-irq.c
+ create mode 100644 drivers/regulator/da9058-regulator.c
+ create mode 100644 drivers/rtc/rtc-da9058.c
+ create mode 100644 include/linux/mfd/da9058/adc.h
+ create mode 100644 include/linux/mfd/da9058/bat.h
+ create mode 100644 include/linux/mfd/da9058/codec.h
+ create mode 100644 include/linux/mfd/da9058/conf.h
+ create mode 100644 include/linux/mfd/da9058/core.h
+ create mode 100644 include/linux/mfd/da9058/gpio.h
+ create mode 100644 include/linux/mfd/da9058/hwmon.h
+ create mode 100644 include/linux/mfd/da9058/i2c.h
+ create mode 100644 include/linux/mfd/da9058/irq.h
+ create mode 100644 include/linux/mfd/da9058/onkey.h
+ create mode 100644 include/linux/mfd/da9058/pdata.h
+ create mode 100644 include/linux/mfd/da9058/registers.h
+ create mode 100644 include/linux/mfd/da9058/regulator.h
+ create mode 100644 include/linux/mfd/da9058/rtc.h
+
+-- 
+end-of-patch for NEW DRIVER V5

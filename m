@@ -1,83 +1,141 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 3/4] HID: debug: empty output queue on read
-Date: Wed, 17 Apr 2013 19:38:15 +0200
-Message-ID: <1366220296-14346-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/4] HID: debug: break out hid_dump_report() into hid-debug
+Date: Wed, 17 Apr 2013 19:38:13 +0200
+Message-ID: <1366220296-14346-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1366220296-14346-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:7906 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36900 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752272Ab3DQRik (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Apr 2013 13:38:40 -0400
+	id S936238Ab3DQRjQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Apr 2013 13:39:16 -0400
 In-Reply-To: <1366220296-14346-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-If an event occurs while the hid debugfs is forwarding events, list->tail
-is updated during copy_to_user().
-
-Remove the gotos and use a regular while-loop to empty the queue.
-
-Second benefit, it checks that we are not writing more than count bytes
-to the user-space output buffer.
+No semantic changes, but hid_dump_report should be in hid-debug.c, not
+in hid-core.c
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-debug.c | 27 +++++++++++----------------
- 1 file changed, 11 insertions(+), 16 deletions(-)
+ drivers/hid/hid-core.c    | 25 ++-----------------------
+ drivers/hid/hid-debug.c   | 30 ++++++++++++++++++++++++++++++
+ include/linux/hid-debug.h |  6 ++++--
+ 3 files changed, 36 insertions(+), 25 deletions(-)
 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 1129f49..34c53fc 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1259,8 +1259,6 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+ 	struct hid_report_enum *report_enum;
+ 	struct hid_driver *hdrv;
+ 	struct hid_report *report;
+-	char *buf;
+-	unsigned int i;
+ 	int ret = 0;
+ 
+ 	if (!hid)
+@@ -1283,28 +1281,9 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+ 	}
+ 
+ 	/* Avoid unnecessary overhead if debugfs is disabled */
+-	if (list_empty(&hid->debug_list))
+-		goto nomem;
+-
+-	buf = kmalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_ATOMIC);
+-
+-	if (!buf)
+-		goto nomem;
+-
+-	/* dump the report */
+-	snprintf(buf, HID_DEBUG_BUFSIZE - 1,
+-			"\nreport (size %u) (%snumbered) = ", size, report_enum->numbered ? "" : "un");
+-	hid_debug_event(hid, buf);
+-
+-	for (i = 0; i < size; i++) {
+-		snprintf(buf, HID_DEBUG_BUFSIZE - 1,
+-				" %02x", data[i]);
+-		hid_debug_event(hid, buf);
+-	}
+-	hid_debug_event(hid, "\n");
+-	kfree(buf);
++	if (!list_empty(&hid->debug_list))
++		hid_dump_report(hid, type, data, size);
+ 
+-nomem:
+ 	report = hid_get_report(report_enum, data);
+ 
+ 	if (!report) {
 diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 094cbcf..1dc8104 100644
+index 933fff0..094cbcf 100644
 --- a/drivers/hid/hid-debug.c
 +++ b/drivers/hid/hid-debug.c
-@@ -1000,6 +1000,7 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
- 		size_t count, loff_t *ppos)
- {
- 	struct hid_debug_list *list = file->private_data;
-+	char *buf_head;
- 	int ret = 0, len;
- 	DECLARE_WAITQUEUE(wait, current);
+@@ -591,6 +591,36 @@ void hid_debug_event(struct hid_device *hdev, char *buf)
+ }
+ EXPORT_SYMBOL_GPL(hid_debug_event);
  
-@@ -1039,28 +1040,22 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
- 			goto out;
- 
- 		/* pass the ringbuffer contents to userspace */
--copy_rest:
--		if (list->tail == list->head)
--			goto out;
--		if (list->tail > list->head) {
--			len = list->tail - list->head;
-+		while (list->tail != list->head && ret < count) {
-+			buf_head = &list->hid_debug_buf[list->head];
- 
--			if (copy_to_user(buffer + ret, &list->hid_debug_buf[list->head], len)) {
--				ret = -EFAULT;
--				goto out;
--			}
--			ret += len;
--			list->head += len;
--		} else {
--			len = HID_DEBUG_BUFSIZE - list->head;
-+			if (list->tail > list->head)
-+				len = list->tail - list->head;
-+			else
-+				len = HID_DEBUG_BUFSIZE - list->head;
++void hid_dump_report(struct hid_device *hid, int type, u8 *data,
++		int size)
++{
++	struct hid_report_enum *report_enum;
++	char *buf;
++	unsigned int i;
 +
-+			len = min(count - ret, len);
++	buf = kmalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_ATOMIC);
++
++	if (!buf)
++		return;
++
++	report_enum = hid->report_enum + type;
++
++	/* dump the report */
++	snprintf(buf, HID_DEBUG_BUFSIZE - 1,
++			"\nreport (size %u) (%snumbered) = ", size,
++			report_enum->numbered ? "" : "un");
++	hid_debug_event(hid, buf);
++
++	for (i = 0; i < size; i++) {
++		snprintf(buf, HID_DEBUG_BUFSIZE - 1,
++				" %02x", data[i]);
++		hid_debug_event(hid, buf);
++	}
++	hid_debug_event(hid, "\n");
++	kfree(buf);
++}
++EXPORT_SYMBOL_GPL(hid_dump_report);
++
+ void hid_dump_input(struct hid_device *hdev, struct hid_usage *usage, __s32 value)
+ {
+ 	char *buf;
+diff --git a/include/linux/hid-debug.h b/include/linux/hid-debug.h
+index 53744fa..8663f21 100644
+--- a/include/linux/hid-debug.h
++++ b/include/linux/hid-debug.h
+@@ -22,11 +22,12 @@
+  *
+  */
  
--			if (copy_to_user(buffer, &list->hid_debug_buf[list->head], len)) {
-+			if (copy_to_user(buffer + ret, buf_head, len)) {
- 				ret = -EFAULT;
- 				goto out;
- 			}
--			list->head = 0;
- 			ret += len;
--			goto copy_rest;
-+			list->head = (list->head + len) % HID_DEBUG_BUFSIZE;
- 		}
+-#define HID_DEBUG_BUFSIZE 512
+-
+ #ifdef CONFIG_DEBUG_FS
  
- 	}
++#define HID_DEBUG_BUFSIZE 512
++
+ void hid_dump_input(struct hid_device *, struct hid_usage *, __s32);
++void hid_dump_report(struct hid_device *, int , u8 *, int);
+ void hid_dump_device(struct hid_device *, struct seq_file *);
+ void hid_dump_field(struct hid_field *, int, struct seq_file *);
+ char *hid_resolv_usage(unsigned, struct seq_file *);
+@@ -50,6 +51,7 @@ struct hid_debug_list {
+ #else
+ 
+ #define hid_dump_input(a,b,c)		do { } while (0)
++#define hid_dump_report(a,b,c,d)	do { } while (0)
+ #define hid_dump_device(a,b)		do { } while (0)
+ #define hid_dump_field(a,b,c)		do { } while (0)
+ #define hid_resolv_usage(a,b)		do { } while (0)
 -- 
 1.8.1.4
 

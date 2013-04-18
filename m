@@ -1,78 +1,64 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/4] HID: debugfs rework
-Date: Thu, 18 Apr 2013 09:52:40 +0200
-Message-ID: <516FA648.20207@redhat.com>
-References: <1366220296-14346-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1304171041070.31201@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] HID: core: dump events in hidraw even if raw_event() returns > 0
+Date: Thu, 18 Apr 2013 18:55:06 +0200
+Message-ID: <1366304106-32243-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57702 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:10545 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S965398Ab3DRHx0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Apr 2013 03:53:26 -0400
-In-Reply-To: <alpine.LNX.2.00.1304171041070.31201@pobox.suse.cz>
+	id S1753776Ab3DRQzz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Apr 2013 12:55:55 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On 04/17/2013 07:44 PM, Jiri Kosina wrote:
-> On Wed, 17 Apr 2013, Benjamin Tissoires wrote:
-> 
->> Hi Jiri,
->>
->> This is a small rework of the HID debugfs.
->> I encountered a problem with multitouch devices: they have too much usages to
->> fit into the fixed size output buffer of 512.
->> So I digg a little, and end up with those 4 patches.
-> 
-> Hi Benjamin,
-> 
-> thanks, I will look into it and see whether I would be able to apply it 
-> still for 3.10 merge window.
+If raw_events() returns a value not equal to 0, the processing stops.
+However, I think we should still forward the events to the hidraw node,
+unless there is an error in raw_event() marked by a negative value.
 
-Thanks. I think patches 1 and 2 of this series are pretty straightforward.
-Patches 3 and 4 will maybe require a little bit more attention.
+For instance, hid-magicmouse stops the processing because the device
+use a hidden collection (not declared in hid reports descriptor), making
+hid-core lost when dealing with it. However, forwarding it to the
+user-space through hidraw is harmless and can help debugging the driver.
 
-I don't mind if it's postponed to 3.11 (given the long time this has
-been broken for devices with big reports).
-I just need to access HID debugfs for hid-replay when hidraw does not
-send anything. But as I'm also willing to use hid-replay with current
-kernels, I still need a way to use the best option (hidraw or hid
-debugfs) for current kernels.
+Of course, hid debugfs can be used, but there is currently a problem with
+the output beeing too small for some devices and it adds processing in the
+kernel because debugfs returns human readable strings outputs.
 
-> 
-> I also have a locking fix for HID-debugfs which I am going to apply 
-> shortly, but I am travelling this week, so I am in a bit degraded mode.
-> 
-> For reference, locking fix below.
-> 
-> 
-> 
-> From: Jiri Kosina <jkosina@suse.cz>
-> Subject: [PATCH] HID: protect hid_debug_list
-> 
-> Accesses to hid_device->hid_debug_list are not serialized properly, which
-> could result in SMP concurrency issues when HID debugfs events are accessesed
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-s/accessesed/accessed ?
+Hi Jiri,
 
-> by multiple userspace processess.
+well, this is the patch I mentioned earlier.
+I don't think it will break anything, but I don't know how many applications
+use hidraw and will be hurt by receiving more events. I did a quick review
+of all hid drivers, and some of them are returning 1 in their raw_event().
+The only problematic one is hid-primax, which manually calls
+hid_report_raw_event() before returning 1... which is... weird.
 
-s/processess/processes ?
-
-> 
-> Serialize all the list operations by a mutex.
-> 
-> Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-I also have a patch regarding forcing hidraw output even if raw_event
-returns > 0, but I'll send it over a new thread. This thread will start
-to be quite complicate to follow otherwise... :)
+Anyway, I would like your advice on this, if you think it's valuable or if
+we should drop it and continue with the current implementation.
 
 Cheers,
 Benjamin
+
+ drivers/hid/hid-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 1129f49..e0b8175 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1315,6 +1315,8 @@ nomem:
+ 	if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
+ 		ret = hdrv->raw_event(hid, report, data, size);
+ 		if (ret != 0) {
++			if (ret > 0 && (hid->claimed & HID_CLAIMED_HIDRAW))
++				ret = hidraw_report_event(hid, data, size);
+ 			ret = ret < 0 ? ret : 0;
+ 			goto unlock;
+ 		}
+-- 
+1.8.1.4
+

@@ -1,17 +1,12 @@
 From: Anthony Olech <anthony.olech.opensource@diasemi.com>
 Subject: [NEW DRIVER V6 0/7] DA9058 PMIC - please comment on this new driver
 Date: Fri, 19 Apr 2013 17:56:29 +0100
-Message-ID: <201304191703.r3JH3du0017574@latitude>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailrelay1.diasemi.com ([82.210.246.133]:62282 "EHLO
-	mailrelay1.diasemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751032Ab3DSRFO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Apr 2013 13:05:14 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Message-ID: <201304191708.r3JH8BEu017809@latitude>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Jones <drjones@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Andersson <eric.andersson@unixphere.com>, Grant Likely <grant.likely@secretlab.ca>, Guenter Roeck <linux@roeck-us.net>, Jean Delvare <khali@linux-fr.org>, Jonathan Cameron <jic23@cam.ac.uk>, Lars-Peter Clausen <lars@metafoo.de>, Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Michael Krufky <mkrufky@kernellabs.com>, Paul Gortmaker <p_gortmaker@yahoo.com>, Randy Dunlap <rdunlap@xenotime.net>, rtc-linux@googlegroups.com, Samuel Ortiz <sameo@linux.intel.com>, Steven Toth <stoth@kernellabs.com>
+List-Id: linux-input@vger.kernel.org
 
 This is submission attempt number 6 to have this driver included in
 the linux kernel source tree. This is the driver for the Dialog DA9058.
@@ -127,4 +122,3 @@ Tony Olech (at Home) (7):
 
 -- 
 end-of-patch for NEW DRIVER V6
-

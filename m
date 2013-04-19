@@ -1,58 +1,64 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: I want to add support for the Logitech G710+ keyboard
-Date: Fri, 19 Apr 2013 09:51:04 +0200
-Message-ID: <CAN+gG=H9iTckyWGqiAheTObWfSbuK3QJ-VXHajzwR8cTva3_qA@mail.gmail.com>
-References: <CAK0ehjG+Lkp__cw-251Hk-1sa_ZLFa9DD93Rmp0NJE-bzUsrVg@mail.gmail.com>
+From: Ray Dillinger <bear@sonic.net>
+Subject: Corsair k90 keyboard
+Date: Fri, 19 Apr 2013 01:13:35 -0700
+Message-ID: <5170FCAF.9030506@sonic.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f53.google.com ([209.85.215.53]:56035 "EHLO
-	mail-la0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754984Ab3DSHvH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Apr 2013 03:51:07 -0400
-Received: by mail-la0-f53.google.com with SMTP id fp13so3250262lab.26
-        for <linux-input@vger.kernel.org>; Fri, 19 Apr 2013 00:51:04 -0700 (PDT)
-In-Reply-To: <CAK0ehjG+Lkp__cw-251Hk-1sa_ZLFa9DD93Rmp0NJE-bzUsrVg@mail.gmail.com>
+Received: from a.mail.sonic.net ([64.142.16.245]:49257 "EHLO a.mail.sonic.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757667Ab3DSIlq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Apr 2013 04:41:46 -0400
+Received: from [192.168.1.2] (173-228-13-4.dsl.static.sonic.net [173.228.13.4])
+	(authenticated bits=0)
+	by a.mail.sonic.net (8.13.8.Beta0-Sonic/8.13.7) with ESMTP id r3J8DZjQ015852
+	(version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=NO)
+	for <linux-input@vger.kernel.org>; Fri, 19 Apr 2013 01:13:36 -0700
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: K900 <k0009000@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-On Fri, Apr 19, 2013 at 6:34 AM, K900 <k0009000@gmail.com> wrote:
-> Hi,
-> So I have this keyboard, and it mostly works, but some Logitech
-> specific features (programmable keys, etc) don't. I've been playing
-> around with it, and I've figured out pretty much everything
-> (interrupts and some GetFeature/SetFeature requests for things like
-> backlight levels). I have some proof of concept Python+PyUSB code at
-> https://github.com/K900/g710 , but I'm getting confused when it comes
-> to implementing that in the kernel. Is there something like a 'HID
-> drivers for dummies' guide? Sorry for the noobish questions.
+Does Corsair cooperate with us when we need technical specs?
 
-Hi Ilya,
+I have a Corsair K90 gaming keyboard.  The "standard" keys work,
+but the macro keys (there are twelve), the macro record button,
+the mode switch button, and the winkey lockout button do not
+work.  The LED status light for caps lock works, but the numlock,
+scroll lock, macro recording, and mode lock lights do not work.
 
-I had a very quick look at your code, but I'm missing one important
-part to fully understand your device:
-you don't give the report descriptors of your device [1].
-If you give them, then it will be easier to know which part are
-required to be handled in a special way, and which won't.
-#> cat /sys/kernel/debug/hid/0003\:046D\:C24D.*/rdesc
+The keyboard backlighting works, but I can't set the backlighting
+light level to either of the other two brightness levels.  As a result
+I'm not entirely sure which brightness level it's on now.
 
-Anyway, I don't think there is a 'HID drivers for dummies'. There are
-few books on kernel hacking, but not for HID to my knowledge.
+Most of the multimedia keys work, but the volume adjustment wheel
+doesn't work.
 
-The easier way is to have a look at some simple HID drivers and use
-them as a skeleton:
-- hid-icade -> general handling of a hid device with .event() remapping
-- hid-zydacron -> simple + report fixup
-- hid-appleir (sunmitted recently) -> simple when using .raw_event()
+It has two USB connectors and appears to register itself as three
+USB devices.  One of these devices is recognized as a keyboard by
+the current linux driver.
 
-Also, you may need to integrate your driver in hid-lg.c (which is a
-little bigger than the previous three).
+Three of the macro keys appear to report using the same USB ID as
+the (recognized) keyboard, albeit with scan codes not known to the
+driver.  They can be I/O mapped using codes from showkey. All
+twelve, as well as the winkey lockout and macro-record button,
+appear to send signals on the second of the three USB channels.
 
-Cheers,
-Benjamin
+The third channel is probably supposed to appear as a USB-drive
+interface, but it's unrecognized by anything on my system at this
+time. I'm betting it appears as a memory device under some
+circumstance because the keyboard has 360k of flash memory
+for macro storage and the windows driver Corsair provides claims
+to be able to load and unload macro profiles to the hard drive.
+
+I want to write a driver (or tweek the driver) to handle this keyboard;
+mechanically it's an excellent keyboard to type on, and the macro
+keys they intended for gaming would be very handy in many
+applications, not least of which would be in an IDE.
+
+Can we get real technical specs from Corsair, or do I need to experiment
+with this thing and risk bricking it?
+
+             Ray Dillinger
 
 
-[1] http://www.usb.org/developers/devclass_docs/HID1_11.pdf

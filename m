@@ -1,64 +1,80 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: core: dump events in hidraw even if raw_event() returns > 0
-Date: Thu, 18 Apr 2013 18:55:06 +0200
-Message-ID: <1366304106-32243-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 3/4] HID: debug: empty output queue on read
+Date: Thu, 18 Apr 2013 18:55:47 -0700 (PDT)
+Message-ID: <alpine.LNX.2.00.1304181854470.31201@pobox.suse.cz>
+References: <1366220296-14346-1-git-send-email-benjamin.tissoires@redhat.com> <1366220296-14346-4-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:10545 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:46026 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753776Ab3DRQzz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Apr 2013 12:55:55 -0400
+	id S967641Ab3DSBzt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Apr 2013 21:55:49 -0400
+In-Reply-To: <1366220296-14346-4-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-If raw_events() returns a value not equal to 0, the processing stops.
-However, I think we should still forward the events to the hidraw node,
-unless there is an error in raw_event() marked by a negative value.
+On Wed, 17 Apr 2013, Benjamin Tissoires wrote:
 
-For instance, hid-magicmouse stops the processing because the device
-use a hidden collection (not declared in hid reports descriptor), making
-hid-core lost when dealing with it. However, forwarding it to the
-user-space through hidraw is harmless and can help debugging the driver.
+> If an event occurs while the hid debugfs is forwarding events, list->tail
+> is updated during copy_to_user().
+> 
+> Remove the gotos and use a regular while-loop to empty the queue.
+> 
+> Second benefit, it checks that we are not writing more than count bytes
+> to the user-space output buffer.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/hid/hid-debug.c | 27 +++++++++++----------------
+>  1 file changed, 11 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+> index 094cbcf..1dc8104 100644
+> --- a/drivers/hid/hid-debug.c
+> +++ b/drivers/hid/hid-debug.c
+> @@ -1000,6 +1000,7 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
+>  		size_t count, loff_t *ppos)
+>  {
+>  	struct hid_debug_list *list = file->private_data;
+> +	char *buf_head;
+>  	int ret = 0, len;
+>  	DECLARE_WAITQUEUE(wait, current);
+>  
+> @@ -1039,28 +1040,22 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
+>  			goto out;
+>  
+>  		/* pass the ringbuffer contents to userspace */
+> -copy_rest:
+> -		if (list->tail == list->head)
+> -			goto out;
+> -		if (list->tail > list->head) {
+> -			len = list->tail - list->head;
+> +		while (list->tail != list->head && ret < count) {
+> +			buf_head = &list->hid_debug_buf[list->head];
+>  
+> -			if (copy_to_user(buffer + ret, &list->hid_debug_buf[list->head], len)) {
+> -				ret = -EFAULT;
+> -				goto out;
+> -			}
+> -			ret += len;
+> -			list->head += len;
+> -		} else {
+> -			len = HID_DEBUG_BUFSIZE - list->head;
+> +			if (list->tail > list->head)
+> +				len = list->tail - list->head;
+> +			else
+> +				len = HID_DEBUG_BUFSIZE - list->head;
+> +
+> +			len = min(count - ret, len);
 
-Of course, hid debugfs can be used, but there is currently a problem with
-the output beeing too small for some devices and it adds processing in the
-kernel because debugfs returns human readable strings outputs.
+This triggers a type checking warning in min(), and it seems to be correct 
+on this one (mixing size_t with signed int).
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+drivers/hid/hid-debug.c:1079: warning: comparison of distinct pointer types lacks a cast
 
-Hi Jiri,
-
-well, this is the patch I mentioned earlier.
-I don't think it will break anything, but I don't know how many applications
-use hidraw and will be hurt by receiving more events. I did a quick review
-of all hid drivers, and some of them are returning 1 in their raw_event().
-The only problematic one is hid-primax, which manually calls
-hid_report_raw_event() before returning 1... which is... weird.
-
-Anyway, I would like your advice on this, if you think it's valuable or if
-we should drop it and continue with the current implementation.
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-core.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 1129f49..e0b8175 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1315,6 +1315,8 @@ nomem:
- 	if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
- 		ret = hdrv->raw_event(hid, report, data, size);
- 		if (ret != 0) {
-+			if (ret > 0 && (hid->claimed & HID_CLAIMED_HIDRAW))
-+				ret = hidraw_report_event(hid, data, size);
- 			ret = ret < 0 ? ret : 0;
- 			goto unlock;
- 		}
 -- 
-1.8.1.4
-
+Jiri Kosina
+SUSE Labs

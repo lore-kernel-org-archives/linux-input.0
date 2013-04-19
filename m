@@ -1,124 +1,252 @@
 From: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Subject: [NEW DRIVER V6 0/7] DA9058 PMIC - please comment on this new driver
-Date: Fri, 19 Apr 2013 17:56:29 +0100
-Message-ID: <201304191708.r3JH8BEu017809@latitude>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Jones <drjones@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Andersson <eric.andersson@unixphere.com>, Grant Likely <grant.likely@secretlab.ca>, Guenter Roeck <linux@roeck-us.net>, Jean Delvare <khali@linux-fr.org>, Jonathan Cameron <jic23@cam.ac.uk>, Lars-Peter Clausen <lars@metafoo.de>, Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Michael Krufky <mkrufky@kernellabs.com>, Paul Gortmaker <p_gortmaker@yahoo.com>, Randy Dunlap <rdunlap@xenotime.net>, rtc-linux@googlegroups.com, Samuel Ortiz <sameo@linux.intel.com>, Steven Toth <stoth@kernellabs.com>
+Subject: [NEW DRIVER V6 3/7] drivers/input/misc: DA9058 ONKEY driver
+Date: Fri, 19 Apr 2013 17:56:26 +0100
+Message-ID: <201304191713.r3JHDx5f017835@latitude>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailrelay1.diasemi.com ([82.210.246.133]:4343 "EHLO
+	mailrelay1.diasemi.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751211Ab3DSRPD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Apr 2013 13:15:03 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Eric Andersson <eric.andersson@unixphere.com>, Andrew Jones <drjones@redhat.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>
 
-This is submission attempt number 6 to have this driver included in
-the linux kernel source tree. This is the driver for the Dialog DA9058.
+This patch is relative to next-20130419 of linux-next
 
-The DA9058 is a low power Power Management Integrated Circuit with extra
-functionality. It is a Multi Function Device controlled only from an I2C
-bus whose components can raise an interrupt request on a single IRQ line.
+This is the ONKEY component driver of the Dialog DA9058 PMIC.
+This driver is just one component of the whole DA9058 PMIC driver.
+It depends on the CORE component driver of the DA9058 MFD.
 
-The driver for the DA9058 consists of a core (i2c) device driver that
-instantiates the individual component device drivers for:
+Changes relative to V5 of this patch:
+- rebased to next-20130419 in git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+- removed redundant #include <linux/mfd/da9058/version.h>
+- changed to using devm_request_threaded_irq()
+- replaced the very descriptive error exit labels by err1 and err1
+- corrected dates on copyright statements
 
-adc - 5 ADC channels
-gpio - 2 available pins
-onkey - 1 device
-regulator - 4 BUCKS, 19 LDO and 3 fixed
-rtc - low power clock
-hwmon - 5 monitored voltages/temperatures
-
-All the above six component device drivers depend on the 'core'
-component driver, which is number one in the patch series.
-
-Each component driver for the Dialog DA9058 will follow as an e-mail
-patch relative to 
-
-This driver has been tested on a Samsung SMDK6410 connected to a Dialog
-DA9058 Evaluation Board via one GPIO and a 3-wire I2C connection.
-
-All the components can be builtin to the kernel or compiled as modules.
-As far as I can tell, all the latest APIs both for the core driver and
-all the component drivers have been adhered to, but if I have missed
-something please let me know.
-
-In a clean check out of next-20130419 in linux-next, each patch has been
-applied individually and the final result has been built successfully.
-
-Many thanks,
-Anthony Olech, Dialog Semiconductor Ltd.
-
-Tony Olech (at Home) (7):
-  drivers/mfd: DA9058 MFD core driver
-  drivers/iio/adc: DA9058 ADC driver
-  drivers/input/misc: DA9058 ONKEY driver
-  drivers/rtc: DA9058 RTC driver
-  drivers/gpio: DA9058 GPIO driver
-  drivers/hwmon: DA9058 HWMON driver
-  drivers/regulator: DA9058 REGULATOR driver
-
- Documentation/hwmon/da9058           |   38 ++
- drivers/gpio/Kconfig                 |   12 +
- drivers/gpio/Makefile                |    1 +
- drivers/gpio/gpio-da9058.c           |  376 ++++++++++++++
- drivers/hwmon/Kconfig                |   10 +
- drivers/hwmon/Makefile               |    3 +-
- drivers/hwmon/da9058-hwmon.c         |  330 ++++++++++++
- drivers/iio/adc/Kconfig              |   12 +
- drivers/iio/adc/Makefile             |    1 +
- drivers/iio/adc/da9058-adc.c         |  396 ++++++++++++++
- drivers/input/misc/Kconfig           |   10 +
- drivers/input/misc/Makefile          |    1 +
- drivers/input/misc/da9058_onkey.c    |  173 +++++++
- drivers/mfd/Kconfig                  |   17 +
- drivers/mfd/Makefile                 |    3 +
- drivers/mfd/da9058-core.c            |   73 +++
- drivers/mfd/da9058-i2c.c             |   96 ++++
- drivers/mfd/da9058-info.c            |  939 ++++++++++++++++++++++++++++++++++
- drivers/mfd/da9058-irq.c             |   56 ++
- drivers/regulator/Kconfig            |   11 +
- drivers/regulator/Makefile           |    1 +
- drivers/regulator/da9058-regulator.c |  199 +++++++
- drivers/rtc/Kconfig                  |   10 +
- drivers/rtc/Makefile                 |    1 +
- drivers/rtc/rtc-da9058.c             |  448 ++++++++++++++++
- include/linux/mfd/da9058/adc.h       |   18 +
- include/linux/mfd/da9058/bat.h       |   33 ++
- include/linux/mfd/da9058/codec.h     |   22 +
- include/linux/mfd/da9058/conf.h      |   22 +
- include/linux/mfd/da9058/core.h      |   66 +++
- include/linux/mfd/da9058/gpio.h      |   19 +
- include/linux/mfd/da9058/hwmon.h     |   32 ++
- include/linux/mfd/da9058/i2c.h       |   22 +
- include/linux/mfd/da9058/irq.h       |   50 ++
- include/linux/mfd/da9058/onkey.h     |   17 +
- include/linux/mfd/da9058/pdata.h     |   30 ++
- include/linux/mfd/da9058/registers.h |  480 +++++++++++++++++
- include/linux/mfd/da9058/regulator.h |   26 +
- include/linux/mfd/da9058/rtc.h       |   17 +
- 39 files changed, 4070 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/hwmon/da9058
- create mode 100644 drivers/gpio/gpio-da9058.c
- create mode 100644 drivers/hwmon/da9058-hwmon.c
- create mode 100644 drivers/iio/adc/da9058-adc.c
+Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
+Signed-off-by: David Dajun Chen <david.chen@diasemi.com>
+---
+ drivers/input/misc/Kconfig        |   10 +++
+ drivers/input/misc/Makefile       |    1 +
+ drivers/input/misc/da9058_onkey.c |  173 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 184 insertions(+)
  create mode 100644 drivers/input/misc/da9058_onkey.c
- create mode 100644 drivers/mfd/da9058-core.c
- create mode 100644 drivers/mfd/da9058-i2c.c
- create mode 100644 drivers/mfd/da9058-info.c
- create mode 100644 drivers/mfd/da9058-irq.c
- create mode 100644 drivers/regulator/da9058-regulator.c
- create mode 100644 drivers/rtc/rtc-da9058.c
- create mode 100644 include/linux/mfd/da9058/adc.h
- create mode 100644 include/linux/mfd/da9058/bat.h
- create mode 100644 include/linux/mfd/da9058/codec.h
- create mode 100644 include/linux/mfd/da9058/conf.h
- create mode 100644 include/linux/mfd/da9058/core.h
- create mode 100644 include/linux/mfd/da9058/gpio.h
- create mode 100644 include/linux/mfd/da9058/hwmon.h
- create mode 100644 include/linux/mfd/da9058/i2c.h
- create mode 100644 include/linux/mfd/da9058/irq.h
- create mode 100644 include/linux/mfd/da9058/onkey.h
- create mode 100644 include/linux/mfd/da9058/pdata.h
- create mode 100644 include/linux/mfd/da9058/registers.h
- create mode 100644 include/linux/mfd/da9058/regulator.h
- create mode 100644 include/linux/mfd/da9058/rtc.h
 
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index bb698e1..39c5ab1 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -93,6 +93,16 @@ config INPUT_BMA150
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called bma150.
+ 
++config INPUT_DA9058_ONKEY
++	tristate "DA9058 ONKEY support"
++	depends on MFD_DA9058
++	help
++	  Support the ONKEY of DA9058 PMICs as an input device
++	  reporting power button status.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called da9058_onkey.
++
+ config INPUT_PCSPKR
+ 	tristate "PC Speaker support"
+ 	depends on PCSPKR_PLATFORM
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index d7fc17f..060597a 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -45,6 +45,7 @@ obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
+ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
+ obj-$(CONFIG_INPUT_PM8XXX_VIBRATOR)	+= pm8xxx-vibrator.o
+ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
++obj-$(CONFIG_INPUT_DA9058_ONKEY)		+= da9058_onkey.o
+ obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+ obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
+ obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+diff --git a/drivers/input/misc/da9058_onkey.c b/drivers/input/misc/da9058_onkey.c
+new file mode 100644
+index 0000000..c8c459a
+--- /dev/null
++++ b/drivers/input/misc/da9058_onkey.c
+@@ -0,0 +1,173 @@
++/*
++ *  Copyright (C) 2012, 2013 Dialog Semiconductor Ltd.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/mfd/core.h>
++#include <linux/regmap.h>
++
++#include <linux/mfd/da9058/registers.h>
++#include <linux/mfd/da9058/core.h>
++#include <linux/mfd/da9058/irq.h>
++#include <linux/mfd/da9058/onkey.h>
++
++struct da9058_onkey {
++	struct da9058 *da9058;
++	struct platform_device *pdev;
++	struct input_dev *input;
++	struct delayed_work work;
++	int irq;
++};
++
++static void da9058_onkey_poll(struct work_struct *work)
++{
++	struct da9058_onkey *onkey = container_of(work, struct da9058_onkey,
++							work.work);
++	struct da9058 *da9058 = onkey->da9058;
++	int poll, ret;
++	unsigned int sa;
++
++	ret = da9058_reg_read(da9058, DA9058_STATUSA_REG, &sa);
++	if (ret) {
++		dev_dbg(&onkey->pdev->dev, "Failed to read ONKEY: %d\n", ret);
++		poll = 1;
++	} else if (sa & DA9058_STATUSA_NONKEY) {
++		poll = 0;
++	} else {
++		poll = 1;
++	}
++
++	input_report_key(onkey->input, KEY_POWER, poll);
++	input_sync(onkey->input);
++
++	if (poll)
++		schedule_delayed_work(&onkey->work, msecs_to_jiffies(50));
++}
++
++static irqreturn_t da9058_onkey_event_handler(int irq, void *data)
++{
++	struct da9058_onkey *onkey = data;
++
++	schedule_delayed_work(&onkey->work, 0);
++
++	return IRQ_HANDLED;
++}
++
++static int da9058_onkey_probe(struct platform_device *pdev)
++{
++	struct da9058 *da9058 = dev_get_drvdata(pdev->dev.parent);
++	const struct mfd_cell *cell = mfd_get_cell(pdev);
++	struct da9058_onkey_pdata *onkey_pdata;
++	struct da9058_onkey *onkey;
++	int ret;
++
++	if (cell == NULL) {
++		ret = -ENODEV;
++		goto exit;
++	}
++
++	onkey_pdata = cell->platform_data;
++
++	if (onkey_pdata == NULL) {
++		ret = -EINVAL;
++		goto exit;
++	}
++
++	dev_info(&pdev->dev, "Starting ONKEY\n");
++
++	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9058_onkey),
++				GFP_KERNEL);
++	if (!onkey) {
++		ret = -ENOMEM;
++		goto exit;
++	}
++
++	platform_set_drvdata(pdev, onkey);
++
++	onkey->da9058 = da9058;
++	onkey->pdev = pdev;
++
++	onkey->irq = platform_get_irq(pdev, 0);
++	if (onkey->irq < 0) {
++		dev_err(&pdev->dev, "cannot get ONKEY IRQ error=%d\n",
++				onkey->irq);
++		ret = -ENODEV;
++		goto err2;
++	}
++
++	INIT_DELAYED_WORK(&onkey->work, da9058_onkey_poll);
++
++	onkey->input = input_allocate_device();
++	if (!onkey->input) {
++		dev_err(&pdev->dev, "failed to allocate data device\n");
++		ret = -ENOMEM;
++		goto err2;
++	}
++
++	onkey->input->evbit[0] = BIT_MASK(EV_KEY);
++	onkey->input->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
++	onkey->input->name = "da9058-onkey";
++	onkey->input->phys = "da9058-onkey/input0";
++	onkey->input->dev.parent = &pdev->dev;
++
++	ret = input_register_device(onkey->input);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"Unable to register input ONKEY device: %d\n", ret);
++		goto err1;
++	}
++
++	ret = devm_request_threaded_irq(&pdev->dev,
++				da9058_to_virt_irq_num(da9058, onkey->irq),
++				NULL, da9058_onkey_event_handler,
++				IRQF_TRIGGER_RISING | IRQF_ONESHOT,
++				"DA9058 keydown", onkey);
++
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to get ONKEY keydown IRQ %d: %d\n",
++			onkey->irq, ret);
++		goto err1;
++	}
++	goto exit;
++
++err1:
++	input_free_device(onkey->input);
++err2:
++	platform_set_drvdata(pdev, NULL);
++exit:
++	return ret;
++}
++
++static int da9058_onkey_remove(struct platform_device *pdev)
++{
++	struct da9058_onkey *onkey = platform_get_drvdata(pdev);
++
++	cancel_delayed_work_sync(&onkey->work);
++	input_unregister_device(onkey->input);
++
++	return 0;
++}
++
++static struct platform_driver da9058_onkey_driver = {
++	.probe = da9058_onkey_probe,
++	.remove = da9058_onkey_remove,
++	.driver = {
++		.name = "da9058-onkey",
++		.owner = THIS_MODULE,
++	}
++};
++
++module_platform_driver(da9058_onkey_driver);
++
++MODULE_AUTHOR("Anthony Olech <Anthony.Olech@diasemi.com>");
++MODULE_DESCRIPTION("Dialog DA9058 PMIC Onkey Driver");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:da9058-onkey");
 -- 
 end-of-patch for NEW DRIVER V6
+

@@ -1,73 +1,263 @@
-From: "Mrs Linette Edward" <linetteresources@foundation.net>
-Subject: En mycket bra dag att =?iso-8859-1?Q?tr=E4ffa_dig?=
-Date: Sat, 20 Apr 2013 09:31:42 +0900 (TLT)
-Message-ID: <55956.41.206.15.31.1366417902.squirrel@mail.balikpapan.go.id>
-Reply-To: linetteedward@gmail.com
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v4] input: Add LED support to Synaptics device
+Date: Sat, 20 Apr 2013 20:51:13 +0200
+Message-ID: <201304202051.13656@pali>
+References: <s5hy6ggxb91.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed;
+  boundary="nextPart19535702.NOMkG85XGJ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [203.130.240.36] ([203.130.240.36]:38587 "EHLO
-	bpp.balikpapan.go.id" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S965144Ab3DTApX (ORCPT
+Received: from mail-wi0-f172.google.com ([209.85.212.172]:44725 "EHLO
+	mail-wi0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751220Ab3DTSvT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Apr 2013 20:45:23 -0400
+	Sat, 20 Apr 2013 14:51:19 -0400
+In-Reply-To: <s5hy6ggxb91.wl%tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, Richard Purdie <rpurdie@rpsys.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+--nextPart19535702.NOMkG85XGJ
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Thursday 22 April 2010 08:16:42 Takashi Iwai wrote:
+> diff --git a/drivers/input/mouse/Kconfig
+> b/drivers/input/mouse/Kconfig index c714ca2..91d3517 100644
+> --- a/drivers/input/mouse/Kconfig
+> +++ b/drivers/input/mouse/Kconfig
+> @@ -19,6 +19,7 @@ config MOUSE_PS2
+>  	select SERIO_LIBPS2
+>  	select SERIO_I8042 if X86
+>  	select SERIO_GSCPS2 if GSC
+> +	select LEDS_CLASS if MOUSE_PS2_SYNAPICS_LED
+>  	help
+>  	  Say Y here if you have a PS/2 mouse connected to your
+> system. This includes the standard 2 or 3-button PS/2 mouse,
+> as well as PS/2 @@ -67,6 +68,14 @@ config MOUSE_PS2_SYNAPTICS
+>=20
+>  	  If unsure, say Y.
+>=20
+> +config MOUSE_PS2_SYNAPTICS_LED
+> +	bool "Support embedded LED on Synaptics devices"
+> +	depends on MOUSE_PS2_SYNAPTICS
+> +	select NEW_LEDS
+> +	help
+> +	  Say Y here if you have a Synaptics device with an embedded
+> LED. +	  This will enable LED class driver to control the LED
+> device. +
+>  config MOUSE_PS2_LIFEBOOK
+>  	bool "Fujitsu Lifebook PS/2 mouse protocol extension" if
+> EMBEDDED default y
+> diff --git a/drivers/input/mouse/synaptics.c
+> b/drivers/input/mouse/synaptics.c index c7b5285..8dc1fb5
+> 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -28,6 +28,7 @@
+>  #include <linux/input.h>
+>  #include <linux/serio.h>
+>  #include <linux/libps2.h>
+> +#include <linux/leds.h>
+>  #include <linux/slab.h>
+>  #include "psmouse.h"
+>  #include "synaptics.h"
+> @@ -335,6 +336,110 @@ static void synaptics_pt_create(struct
+> psmouse *psmouse) serio_register_port(serio);
+>  }
+>=20
+> +#ifdef CONFIG_MOUSE_PS2_SYNAPTICS_LED
+> +/*
+> + * LED handling:
+> + * Some Synaptics devices have an embeded LED at the top-left
+> corner. + */
+> +
+> +struct synaptics_led {
+> +	struct psmouse *psmouse;
+> +	struct work_struct work;
+> +	struct led_classdev cdev;
+> +};
+> +
+> +static void synaptics_set_led(struct psmouse *psmouse, int
+> on) +{
+> +	int i;
+> +	unsigned char cmd =3D on ? 0x88 : 0x10;
+> +
+> +	ps2_begin_command(&psmouse->ps2dev);
+> +	if (__ps2_command(&psmouse->ps2dev, NULL,
+> PSMOUSE_CMD_SETSCALE11)) +		goto out;
+> +	for (i =3D 6; i >=3D 0; i -=3D 2) {
+> +		unsigned char d =3D (cmd >> i) & 3;
+> +		if (__ps2_command(&psmouse->ps2dev, &d,
+> PSMOUSE_CMD_SETRES)) +			goto out;
+> +	}
+> +	cmd =3D 0x0a;
+> +	__ps2_command(&psmouse->ps2dev, &cmd, PSMOUSE_CMD_SETRATE);
+> + out:
+> +	ps2_end_command(&psmouse->ps2dev);
+> +}
+> +
+> +static void synaptics_led_work(struct work_struct *work)
+> +{
+> +	struct synaptics_led *led;
+> +
+> +	led =3D container_of(work, struct synaptics_led, work);
+> +	synaptics_set_led(led->psmouse, led->cdev.brightness);
+> +}
+> +
+> +static void synaptics_led_cdev_brightness_set(struct
+> led_classdev *cdev, +					      enum led_brightness=20
+value)
+> +{
+> +	struct synaptics_led *led;
+> +
+> +	led =3D container_of(cdev, struct synaptics_led, cdev);
+> +	schedule_work(&led->work);
+> +}
+> +
+> +static void synaptics_sync_led(struct psmouse *psmouse)
+> +{
+> +	struct synaptics_data *priv =3D psmouse->private;
+> +
+> +	if (priv->led)
+> +		synaptics_set_led(psmouse, priv->led->cdev.brightness);
+> +}
+> +
+> +static int synaptics_init_led(struct psmouse *psmouse)
+> +{
+> +	struct synaptics_data *priv =3D psmouse->private;
+> +	struct synaptics_led *led;
+> +	int err;
+> +
+> +	/* FIXME: LED is supposedly detectable in cap0c[1] 0x20, but
+> it seems +	 * not working on real machines.
+> +	 * So we check the product id to be sure.
+> +	 */
+> +	if (!priv->ext_cap_0c || SYN_CAP_PRODUCT_ID(priv->ext_cap)
+> !=3D 0xe4) +		return 0;
+> +
+> +	printk(KERN_INFO "synaptics: support LED control\n");
+> +	led =3D kzalloc(sizeof(struct synaptics_led), GFP_KERNEL);
+> +	if (!led)
+> +		return -ENOMEM;
+> +	led->psmouse =3D psmouse;
+> +	INIT_WORK(&led->work, synaptics_led_work);
+> +	led->cdev.name =3D "psmouse::synaptics";
+> +	led->cdev.brightness_set =3D
+> synaptics_led_cdev_brightness_set; +	led->cdev.flags =3D
+> LED_CORE_SUSPENDRESUME;
+> +	err =3D led_classdev_register(NULL, &led->cdev);
+> +	if (err < 0) {
+> +		kfree(led);
+> +		return err;
+> +	}
+> +	priv->led =3D led;
+> +	return 0;
+> +}
+> +
+> +static void synaptics_free_led(struct psmouse *psmouse)
+> +{
+> +	struct synaptics_data *priv =3D psmouse->private;
+> +
+> +	if (!priv->led)
+> +		return;
+> +	cancel_work_sync(&priv->led->work);
+> +	synaptics_set_led(psmouse, 0);
+> +	led_classdev_unregister(&priv->led->cdev);
+> +	kfree(priv->led);
+> +}
+> +#else
+> +#define synaptics_init_led(ps)	0
+> +#define synaptics_free_led(ps)	do {} while (0)
+> +#define synaptics_sync_led(ps)	do {} while (0)
+> +#endif
+> +
+>  /************************************************************
+> ***************** *	Functions to interpret the absolute mode
+> packets
+> =20
+> *************************************************************
+> ***************/ @@ -622,6 +727,7 @@ static void
+> set_input_params(struct input_dev *dev, struct synaptics_data
+> *priv)
+>=20
+>  static void synaptics_disconnect(struct psmouse *psmouse)
+>  {
+> +	synaptics_free_led(psmouse);
+>  	synaptics_reset(psmouse);
+>  	kfree(psmouse->private);
+>  	psmouse->private =3D NULL;
+> @@ -653,6 +759,8 @@ static int synaptics_reconnect(struct
+> psmouse *psmouse) return -1;
+>  	}
+>=20
+> +	synaptics_sync_led(psmouse);
+> +
+>  	return 0;
+>  }
+>=20
+> @@ -727,6 +835,9 @@ int synaptics_init(struct psmouse
+> *psmouse) SYN_ID_MAJOR(priv->identity),
+> SYN_ID_MINOR(priv->identity), priv->model_id,
+> priv->capabilities, priv->ext_cap, priv->ext_cap_0c);
+>=20
+> +	if (synaptics_init_led(psmouse) < 0)
+> +		goto init_fail;
+> +
+>  	set_input_params(psmouse->dev, priv);
+>=20
+>  	/*
+> diff --git a/drivers/input/mouse/synaptics.h
+> b/drivers/input/mouse/synaptics.h index ae37c5d..d5bb8f4
+> 100644
+> --- a/drivers/input/mouse/synaptics.h
+> +++ b/drivers/input/mouse/synaptics.h
+> @@ -94,6 +94,8 @@ struct synaptics_hw_state {
+>  	signed char scroll;
+>  };
+>=20
+> +struct synaptics_led;
+> +
+>  struct synaptics_data {
+>  	/* Data read from the touchpad */
+>  	unsigned long int model_id;		/* Model-ID */
+> @@ -107,6 +109,7 @@ struct synaptics_data {
+>  	unsigned char pkt_type;			/* packet type - old, new, etc=20
+*/
+>  	unsigned char mode;			/* current mode byte */
+>  	int scroll;
+> +	struct synaptics_led *led;
+>  };
+>=20
+>  void synaptics_module_init(void);
 
+Hello,
 
-En mycket bra dag att tr=E4ffa dig,
+what happened with this patch? There is no discussion about v4:
+https://patchwork.kernel.org/patch/94026/
+https://lkml.org/lkml/2010/4/22/35
 
-Jag fick din kontakt via Googles s=F6kmotor. Mitt namn =E4r Mrs Linette
-Edward. Jag =E4r 64 =E5r gammal och jag fick diagnosen f=F6r cancer f=F6=
-r ca 2 =E5r
-sedan. Jag kommer att g=E5 in f=F6r en operation senare idag. Jag best=E4=
-mde mig
-f=F6r att vilja / donera summan av (fjorton miljoner =C5tta hundra tuse=
-n pund)
-till dig f=F6r det goda arbete av Herren. Kontakta min advokat med denn=
-a
-e-post: barrister.wayne.graham @ gmail.com
+Are there any problems with this patch?
 
-Namn: barrister Wayne Graham
-E-post: barrister.wayne.graham @ gmail.com
-Telefonnummer: +447024074523
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-S=E4g till honom att jag har velat kr 14,8 till dig genom att citera mi=
-na
-personliga JJ/MMS/953/5015/GwrI/316us/US referensnummer.
-S=E5 fort du kontakta honom med denna information citerade ovan, b=F6r =
-han
-kunna k=E4nna igen dig och hj=E4lpa att h=E4vda detta belopp fr=E5n min=
- bank, h=E4r
-=E4r min n=E4tbank a / c l=E4nk: http://hendersonglobal.vnkli.com/sc / =
-se /
-login.php n=E4r du har kunnat kontakta min advokat f=F6r de dokument so=
-m
-kommer att s=E4tta dig i st=E4llet f=F6r anh=F6riga, sedan efter jag ko=
-mmer
-m=F6blerad dig med mina n=E4tet a / c inloggningsuppgifter f=F6r att =E5=
-stadkomma
-=F6verf=F6ring.
+--nextPart19535702.NOMkG85XGJ
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-Informeras ocks=E5 om att jag har betalat f=F6r statlig skatt p=E5 dess=
-a pengar
-ska =F6verf=F6ras till dig.
-Samtidigt r=E5der vi dig att h=E5lla denna post och det inneh=E5ll
-konfidentiella som jag verkligen vill min =F6nskan =E5stadkomma i slute=
-t av
-dagen. V=E4nligen be till Gud f=F6r mina recovery.My v=E4n Skicka inte =
-mig n=E5gon
-e-post som du ska skicka min advokat ett mail direkt.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-God Bless
-H=E4lsningar,
-Mrs Linette Edward
+iEYEABECAAYFAlFy46EACgkQi/DJPQPkQ1KiuQCgzKycHIK/9SLuZJl3Lj0gGFZS
+NxIAoKDgdQd5uNCHxfNPu0erKmIhU8kS
+=IWgo
+-----END PGP SIGNATURE-----
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--nextPart19535702.NOMkG85XGJ--

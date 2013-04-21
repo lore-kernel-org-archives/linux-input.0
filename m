@@ -1,195 +1,237 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH RFC] input: Add evdev mute ioctl
-Date: Sun, 21 Apr 2013 15:04:20 +0200
-Message-ID: <CANq1E4T_HCg11n4GOOT9jiv2ppfM3c2xVX1zvm-AeG=GJRotpQ@mail.gmail.com>
-References: <1366120697-25841-1-git-send-email-krh@bitplanet.net>
-	<CANq1E4SUg+oaoWhBNE2+HrrF0FLHbf+gc2CvD7KZWQWybeaiag@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Marek Vasut <marex@denx.de>
+Subject: [PATCH] input: stmpe: Fix the touchscreen interrupt handling
+Date: Mon, 22 Apr 2013 01:06:05 +0200
+Message-ID: <1366585565-13046-1-git-send-email-marex@denx.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ia0-f172.google.com ([209.85.210.172]:37227 "EHLO
-	mail-ia0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753155Ab3DUNEV convert rfc822-to-8bit (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.9]:54643 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751960Ab3DUXGT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 21 Apr 2013 09:04:21 -0400
-Received: by mail-ia0-f172.google.com with SMTP id i20so514607ian.17
-        for <linux-input@vger.kernel.org>; Sun, 21 Apr 2013 06:04:21 -0700 (PDT)
-In-Reply-To: <CANq1E4SUg+oaoWhBNE2+HrrF0FLHbf+gc2CvD7KZWQWybeaiag@mail.gmail.com>
+	Sun, 21 Apr 2013 19:06:19 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@bitplanet.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, robert@sixbynine.org
+To: linux-input@vger.kernel.org
+Cc: Marek Vasut <marex@denx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Vipul Kumar Samar <vipulkumar.samar@st.com>, Viresh Kumar <viresh.kumar@linaro.org>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-Hi Kristian
+The touchscreen interrupt handling in the STMPE touchscreen driver
+doesn't seem to work correctly. It relies on FIFO_TH to be asserted
+instead of TOUCH_DET interrupt for touchscreen detection.
 
-On Wed, Apr 17, 2013 at 7:55 PM, David Herrmann <dh.herrmann@gmail.com>=
- wrote:
-> Hi Kristian
->
-> On Tue, Apr 16, 2013 at 3:58 PM, Kristian H=F8gsberg <krh@bitplanet.n=
-et> wrote:
->> This commit adds a new ioctl to the evdev device: EVIOCMUTE.  The
->> purpose of this ioctl it to temporarily block event delivery to a
->> specific evdev client and prevent access to most of the ioctls.
->>
->> The use case is a setuid helper process for a display server, which
->> opens input devices and passes the fds to the display server.  On VT
->> switch away from the server, it should stop reading events from its
->> evdev input devices.  However, if the display server runs as the use=
-r
->> it can be ptraced or if the server loads user defined modules, the
->> display server can no longer be trusted to not snoop on the evdev
->> devices.
->>
->> The mute ioctl allows the setuid helper to mute evdev devices when
->> switching away from the VT the server is running on.  The idea is th=
-at
->> the helper listens for the VT switching signals and when VT switch h=
-appens
->> it notifies the display server, waits for the server to clean up and=
- then
->> the helper drops drm master (which also requires root), mutes evdev
->> devices and the acks the VT switch.
->>
->> Why don't we just use revoke?  The revoke syscall (when it's done) w=
-ill
->> work on filenames and shut down all fds open to the device.  This wi=
-ll
->> break all other processes that listen on evdev devices for legitimat=
-e
->> reasons.  It's the same reason we don't use the EVIOCGRAB ioctl for =
-input
->> devices.  EVIOCMUTE lets the helper mute just the fd it gave to the
->> display server without affecting anything else potentially using the=
- device.
->
-> Other use-cases include SAK, forced VT switches and
-> system-compositors. I'd really like seeing this feature.
->
->> Signed-off-by: Kristian H=F8gsberg <krh@bitplanet.net>
->> ---
->>  drivers/input/evdev.c      | 37 ++++++++++++++++++++++++++++++++++-=
---
->>  include/uapi/linux/input.h |  1 +
->>  2 files changed, 35 insertions(+), 3 deletions(-)
->>
->> This idea comes from work on Wayland and Weston [1], but the setuid =
-helper
->> should work and is required for a non-root X server to function corr=
-ectly
->> as well (ie, do proper vt switching).
->>
->> Kristian
->>
->> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
->> index f0f8928..cea6c35 100644
->> --- a/drivers/input/evdev.c
->> +++ b/drivers/input/evdev.c
->> @@ -48,6 +48,7 @@ struct evdev_client {
->>         struct evdev *evdev;
->>         struct list_head node;
->>         int clkid;
->> +       int muted;
->
-> Use "bool" instead.
->
->>         unsigned int bufsize;
->>         struct input_event buffer[];
->>  };
->> @@ -130,8 +131,9 @@ static void evdev_events(struct input_handle *ha=
-ndle,
->>                 evdev_pass_values(client, vals, count, time_mono, ti=
-me_real);
->>         else
->>                 list_for_each_entry_rcu(client, &evdev->client_list,=
- node)
->> -                       evdev_pass_values(client, vals, count,
->> -                                         time_mono, time_real);
->> +                       if (!client->muted)
->> +                               evdev_pass_values(client, vals, coun=
-t,
->> +                                                 time_mono, time_re=
-al);
->
-> Personally, I'd do this in evdev_pass_values(), but that's a matter o=
-f
-> taste.. And this would also allow muting grabbed devices. Because
-> currently input-grabs overwrite the mute flag which I think is odd. A=
-t
-> least mention this in the commit message so people know how it works
-> regarding input grabs.
->
->>
->>         rcu_read_unlock();
->>  }
->> @@ -674,6 +676,20 @@ static int evdev_handle_mt_request(struct input=
-_dev *dev,
->>         return 0;
->>  }
->>
->> +static int evdev_mute(struct evdev *evdev, struct evdev_client *cli=
-ent)
->> +{
->> +       client->muted =3D 1;
->> +
->> +       return 0;
->> +}
->> +
->> +static int evdev_unmute(struct evdev *evdev, struct evdev_client *c=
-lient)
->> +{
->> +       client->muted =3D 0;
->> +
->> +       return 0;
->> +}
->> +
->
-> As I guess we want this feature to be atomic, we definitely need a
-> lock here. We also want, after EVIOCMUTE returns, that no other ioctl
-> will be allowed. Hence, we need a mutex that protects
-> evdev_do_ioctl(). A spinlock around "muted" won't help..
-> As we currently have no suitable lock in evdev_client I guess we need
-> to add one. In this case you can also remove these helpers and do:
->   client->muted =3D !!p;
-> in evdev_do_ioctl().
->
-> Note that a reader-writer lock would allow parallel ioctl execution i=
-f
-> only the EVIOCMUTE command takes the write-lock and the other ioctls
-> take a read lock.
+The FIFO_TH is usually asserted but is asserted independently of the
+touchscreen controller operation. Because the bits in the interrupt
+status register are not entirely cleaned, the interrupt handler is
+triggered even if FIFO_TH is not yet set. Make sure that all bits in
+the interrupt status register are cleared early.
 
-As discussed on IRC, the evdev-mutex is definitely enough. I missed
-that.. sorry.
+Rework the touchscreen interrupt handling so it waits for TOUCH_DET
+interrupt to happen. Upon first TOUCH_DET interrupt, worker thread
+is started which polls the touchscreen controller for location data
+until no touch is detected. Touch is determined by checking the X
+and Y coordinates, if they are zero, no touch happens.
 
-Apart from that, I found another thing that we need to discuss:
-Stopping force-feedback effects. If we mute a client, we should stop
-all FF effects of that client that are currently ongoing. The kernel
-already tracks them so this is quite easy to achieve.
-On the other hand, clients need write access for FF. With write access
-they can do all other kinds of stuff like grabbing the device or
-calling EVIOCMUTE(0). Hence, it seems a bit stupid to allow clients
-write access in scenarios where EVIOCMUTE is used. Same is true for
-write()ing input_events to the device..
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>
+Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Bill Pemberton <wfp5p@virginia.edu>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/stmpe-ts.c |  111 ++++++++++++++--------------------
+ drivers/mfd/stmpe.c                  |   10 +--
+ 2 files changed, 50 insertions(+), 71 deletions(-)
 
-So is EVIOCMUTE intended for read-access only? Apart from FF it is
-probably fine to tunnel all write-access through the compositor as
-they are pretty rare. But for FF effects, clients need write access.
-Of course, we can tunnel these through the compositor, too, but how
-does that affect performance?
-I think we should at least discuss this so we don't end up with
-EVIOCMUTE but grant write access for gamepad/joystick devices and
-basically render EVIOCMUTE uneffective..
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+index 59e81b0..5332a37 100644
+--- a/drivers/input/touchscreen/stmpe-ts.c
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -67,7 +67,7 @@
+ struct stmpe_touch {
+ 	struct stmpe *stmpe;
+ 	struct input_dev *idev;
+-	struct delayed_work work;
++	struct work_struct work;
+ 	struct device *dev;
+ 	u8 sample_time;
+ 	u8 mod_12b;
+@@ -95,77 +95,60 @@ static int __stmpe_reset_fifo(struct stmpe *stmpe)
+ 
+ static void stmpe_work(struct work_struct *work)
+ {
+-	int int_sta;
+-	u32 timeout = 40;
+-
++	u8 data[4];
++	int x, y, z, touch = 1;
+ 	struct stmpe_touch *ts =
+-	    container_of(work, struct stmpe_touch, work.work);
+-
+-	int_sta = stmpe_reg_read(ts->stmpe, STMPE_REG_INT_STA);
+-
+-	/*
+-	 * touch_det sometimes get desasserted or just get stuck. This appears
+-	 * to be a silicon bug, We still have to clearify this with the
+-	 * manufacture. As a workaround We release the key anyway if the
+-	 * touch_det keeps coming in after 4ms, while the FIFO contains no value
+-	 * during the whole time.
+-	 */
+-	while ((int_sta & (1 << STMPE_IRQ_TOUCH_DET)) && (timeout > 0)) {
+-		timeout--;
+-		int_sta = stmpe_reg_read(ts->stmpe, STMPE_REG_INT_STA);
+-		udelay(100);
+-	}
++	    container_of(work, struct stmpe_touch, work);
+ 
+-	/* reset the FIFO before we report release event */
+-	__stmpe_reset_fifo(ts->stmpe);
++	while (touch) {
++		stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
++				STMPE_TSC_CTRL_TSC_EN, 0);
+ 
+-	input_report_abs(ts->idev, ABS_PRESSURE, 0);
+-	input_report_key(ts->idev, BTN_TOUCH, 0);
+-	input_sync(ts->idev);
+-}
++		stmpe_block_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ, 4, data);
+ 
+-static irqreturn_t stmpe_ts_handler(int irq, void *data)
+-{
+-	u8 data_set[4];
+-	int x, y, z;
+-	struct stmpe_touch *ts = data;
++		x = (data[0] << 4) | (data[1] >> 4);
++		y = ((data[1] & 0xf) << 8) | data[2];
++		z = data[3];
+ 
+-	/*
+-	 * Cancel scheduled polling for release if we have new value
+-	 * available. Wait if the polling is already running.
+-	 */
+-	cancel_delayed_work_sync(&ts->work);
+-
+-	/*
+-	 * The FIFO sometimes just crashes and stops generating interrupts. This
+-	 * appears to be a silicon bug. We still have to clearify this with
+-	 * the manufacture. As a workaround we disable the TSC while we are
+-	 * collecting data and flush the FIFO after reading
+-	 */
+-	stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
+-				STMPE_TSC_CTRL_TSC_EN, 0);
++		touch = x && y;
+ 
+-	stmpe_block_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ, 4, data_set);
++		if (touch) {
++			input_report_abs(ts->idev, ABS_X, x);
++			input_report_abs(ts->idev, ABS_Y, y);
++			/*
++			 * The z-axis (pressure) can be zero if you press too
++			 * hard (do not try this at home, kids!), thus adjust
++			 * it to fit the bill here.
++			 */
++			if (!z)
++				z = 1;
++		} else {
++			z = 0;
++		}
+ 
+-	x = (data_set[0] << 4) | (data_set[1] >> 4);
+-	y = ((data_set[1] & 0xf) << 8) | data_set[2];
+-	z = data_set[3];
++		input_report_abs(ts->idev, ABS_PRESSURE, z);
++		input_report_key(ts->idev, BTN_TOUCH, touch);
++		input_sync(ts->idev);
+ 
+-	input_report_abs(ts->idev, ABS_X, x);
+-	input_report_abs(ts->idev, ABS_Y, y);
+-	input_report_abs(ts->idev, ABS_PRESSURE, z);
+-	input_report_key(ts->idev, BTN_TOUCH, 1);
+-	input_sync(ts->idev);
++		/* Flush the FIFO after we have read out our values. */
++		__stmpe_reset_fifo(ts->stmpe);
+ 
+-       /* flush the FIFO after we have read out our values. */
+-	__stmpe_reset_fifo(ts->stmpe);
++		/* Re-enable the TSC so it reads another sample. */
++		stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
++				STMPE_TSC_CTRL_TSC_EN, STMPE_TSC_CTRL_TSC_EN);
+ 
+-	/* reenable the tsc */
+-	stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
+-			STMPE_TSC_CTRL_TSC_EN, STMPE_TSC_CTRL_TSC_EN);
++		if (!touch)
++			break;
++
++		msleep(10);
++	}
++}
++
++static irqreturn_t stmpe_ts_handler(int irq, void *data)
++{
++	struct stmpe_touch *ts = data;
+ 
+-	/* start polling for touch_det to detect release */
+-	schedule_delayed_work(&ts->work, HZ / 50);
++	schedule_work(&ts->work);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -259,7 +242,7 @@ static void stmpe_ts_close(struct input_dev *dev)
+ {
+ 	struct stmpe_touch *ts = input_get_drvdata(dev);
+ 
+-	cancel_delayed_work_sync(&ts->work);
++	cancel_work_sync(&ts->work);
+ 
+ 	stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
+ 			STMPE_TSC_CTRL_TSC_EN, 0);
+@@ -317,7 +300,7 @@ static int stmpe_input_probe(struct platform_device *pdev)
+ 	int error;
+ 	int ts_irq;
+ 
+-	ts_irq = platform_get_irq_byname(pdev, "FIFO_TH");
++	ts_irq = platform_get_irq_byname(pdev, "TOUCH_DET");
+ 	if (ts_irq < 0)
+ 		return ts_irq;
+ 
+@@ -335,7 +318,7 @@ static int stmpe_input_probe(struct platform_device *pdev)
+ 
+ 	stmpe_ts_get_platform_info(pdev, ts);
+ 
+-	INIT_DELAYED_WORK(&ts->work, stmpe_work);
++	INIT_WORK(&ts->work, stmpe_work);
+ 
+ 	error = devm_request_threaded_irq(&pdev->dev, ts_irq,
+ 					  NULL, stmpe_ts_handler,
+diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
+index bbccd51..5a9ed4c 100644
+--- a/drivers/mfd/stmpe.c
++++ b/drivers/mfd/stmpe.c
+@@ -867,13 +867,11 @@ static irqreturn_t stmpe_irq(int irq, void *data)
+ 	for (i = 0; i < num; i++) {
+ 		int bank = num - i - 1;
+ 		u8 status = isr[i];
+-		u8 clear;
++		u8 clear = status;
+ 
+-		status &= stmpe->ier[bank];
+-		if (!status)
+-			continue;
++		stmpe_reg_write(stmpe, israddr + i, clear);
+ 
+-		clear = status;
++		status &= stmpe->ier[bank];
+ 		while (status) {
+ 			int bit = __ffs(status);
+ 			int line = bank * 8 + bit;
+@@ -882,8 +880,6 @@ static irqreturn_t stmpe_irq(int irq, void *data)
+ 			handle_nested_irq(nestedirq);
+ 			status &= ~(1 << bit);
+ 		}
+-
+-		stmpe_reg_write(stmpe, israddr + i, clear);
+ 	}
+ 
+ 	return IRQ_HANDLED;
+-- 
+1.7.10.4
 
-I'm currently looking into a wl_keyboard/wl_mouse extension that
-passes FDs optionally to clients so they can use this while being
-fullscreen. I will post this here so we have a good example for this
-feature.
-
-Regards
-David
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

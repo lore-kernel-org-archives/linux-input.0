@@ -1,53 +1,60 @@
 From: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
-Subject: eGalax touchscreen regression
-Date: Tue, 23 Apr 2013 12:08:08 +0300
-Message-ID: <1366708088.9823.16.camel@sauron.fi.intel.com>
-Reply-To: artem.bityutskiy@linux.intel.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] input: egalax_ts: remove bogus OF dependency
+Date: Tue, 23 Apr 2013 14:09:17 +0300
+Message-ID: <1366715357-9392-1-git-send-email-artem.bityutskiy@linux.intel.com>
+References: <1366708088.9823.16.camel@sauron.fi.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:8616 "EHLO mga09.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:11691 "EHLO mga11.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754859Ab3DWJGE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Apr 2013 05:06:04 -0400
+	id S1755348Ab3DWLJV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Apr 2013 07:09:21 -0400
+In-Reply-To: <1366708088.9823.16.camel@sauron.fi.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Zhang Jiejing <jiejing.zhang@freescale.com>, Hui Wang <jason77.wang@gmail.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Hofemeier, Ulf" <ulf.hofemeier@intel.com>
+Cc: Linux Kernel Maling List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Ulf Hofemeier <ulf.hofemeier@intel.com>, Hui Wang <jason77.wang@gmail.com>
 
-Hi Dmitry,
+There are platforms using this driver which do not have OF. However, commit
+ae495e844a77344fdaedbb2ad97d925d096e9f0d added a Kconfig dependency on OF and
+broke OF-less setups.
 
-in the below commit
+Signed-off-by: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+Cc: stable@vger.kernel.org [v3.7+]
+---
+ drivers/input/touchscreen/Kconfig     |    2 +-
+ drivers/input/touchscreen/egalax_ts.c |    2 ++
+ 2 files changed, 3 insertions(+), 1 deletions(-)
 
-commit ae495e844a77344fdaedbb2ad97d925d096e9f0d
-Author: Hui Wang <jason77.wang@gmail.com>
-Date:   Thu Oct 25 00:38:01 2012 -0700
-
-    Input: egalax_ts - get gpio from devicetree
-    
-    The irq_to_gpio() is old, most platforms use GENERIC_GPIO framework
-    and don't support this API anymore.
-    
-    The i.MX6q sabrelite platform equips an egalax touchscreen controller,
-    and this platform already transfered to GENERIC_GPIO framework, to
-    support this driver, we use a more generic way to get gpio.
-    
-    Add a return value checking for waking up the controller in the probe
-    function, this guarantee only a workable device can pass init.
-    
-    [dmitry.torokhov@gmail.com: Make driver depend on CONFIG_OF as it is
-     now required.]
-    
-    Acked-by Zhang Jiejing <jiejing.zhang@freescale.com>
-    Reviewed-by: Shawn Guo <shawn.guo@linaro.org>
-    Signed-off-by: Hui Wang <jason77.wang@gmail.com>
-    Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-the eGalax driver now requires OF. For us this is a regression because
-we do not have OF: https://bugs.tizen.org/jira/browse/TIVI-740
-
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 515cfe7..d53b0d6 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -227,7 +227,7 @@ config TOUCHSCREEN_EETI
+ 
+ config TOUCHSCREEN_EGALAX
+ 	tristate "EETI eGalax multi-touch panel support"
+-	depends on I2C && OF
++	depends on I2C
+ 	help
+ 	  Say Y here to enable support for I2C connected EETI
+ 	  eGalax multi-touch panels.
+diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+index 17c9097..b984cfc 100644
+--- a/drivers/input/touchscreen/egalax_ts.c
++++ b/drivers/input/touchscreen/egalax_ts.c
+@@ -287,10 +287,12 @@ static int egalax_ts_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(egalax_ts_pm_ops, egalax_ts_suspend, egalax_ts_resume);
+ 
++#ifdef CONFIG_OF
+ static struct of_device_id egalax_ts_dt_ids[] = {
+ 	{ .compatible = "eeti,egalax_ts" },
+ 	{ /* sentinel */ }
+ };
++#endif
+ 
+ static struct i2c_driver egalax_ts_driver = {
+ 	.driver = {
 -- 
-Best Regards,
-Artem Bityutskiy
+1.7.7
 

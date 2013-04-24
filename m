@@ -1,123 +1,69 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH] input: egalax_ts: move to devm_* functions
-Date: Wed, 24 Apr 2013 15:28:07 +0300
-Message-ID: <1366806487-19075-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Linux 3.9 input documentation patch
+Date: Wed, 24 Apr 2013 15:46:41 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1304241545091.29143@pobox.suse.cz>
+References: <CALRtADNMPv4MkJQAxF1y+iK9F2tGAiXsRrveazho5C6KSb4gcQ@mail.gmail.com> <CALRtADMNGcJaArziv6be3tDZsi9uyWA=3OD+Vi4mpzY99TMJ-A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:54105 "EHLO mga09.intel.com"
+Received: from cantor2.suse.de ([195.135.220.15]:42968 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758400Ab3DXM2N (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Apr 2013 08:28:13 -0400
+	id S1754377Ab3DXNqp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Apr 2013 09:46:45 -0400
+In-Reply-To: <CALRtADMNGcJaArziv6be3tDZsi9uyWA=3OD+Vi4mpzY99TMJ-A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: "Florin9(doi)" <florin9doi@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-The usage of devm_* functions makes code cleaner and tidier.
+On Mon, 8 Apr 2013, Florin9(doi) wrote:
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/input/touchscreen/egalax_ts.c | 46 +++++++++++------------------------
- 1 file changed, 14 insertions(+), 32 deletions(-)
+> I have a patch for linux 3.9.
+> 
+> --- a/Documentation/input/alps.txt 2013-04-01 18:02:56.230177850 +0000
+> +++ b/Documentation/input/alps.txt 2013-04-01 18:03:15.010177850 +0000
+> @@ -225,18 +225,18 @@ packets.  This appears to only be used b
+> 
+>  For single-touch, the 6-byte packet format is:
+> 
+> - byte 0:    1    1    0    0    1    0    0    0
+> + byte 0:    1    1    0    0    1    p   mt    0
+>   byte 1:    0   x6   x5   x4   x3   x2   x1   x0
+>   byte 2:    0   y6   y5   y4   y3   y2   y1   y0
+>   byte 3:    0    M    R    L    1    m    r    l
+> - byte 4:   y10  y9   y8   y7  x10   x9   x8   x7
+> + byte 4:  y10   y9   y8   y7  x10   x9   x8   x7
+>   byte 5:    0   z6   z5   z4   z3   z2   z1   z0
+> 
+>  For mt, the format is:
+> 
+> - byte 0:    1    1    1    n3   1   n2   n1   x24
+> - byte 1:    1   y7   y6    y5  y4   y3   y2    y1
+> - byte 2:    ?   x2   x1   y12 y11  y10   y9    y8
+> - byte 3:    0  x23  x22   x21 x20  x19  x18   x17
+> - byte 4:    0   x9   x8    x7  x6   x5   x4    x3
+> - byte 5:    0  x16  x15   x14 x13  x12  x11   x10
+> \ No newline at end of file
+> + byte 0:    1    1    1   f2    1   f1   f0  x22
+> + byte 1:   ox   y6   y5   y4   y3   y2   y1   y0
+> + byte 2:   oy   x1   x0  y11  y10   y9   y8   y7
+> + byte 3:    0  x21  x20  x19    1  x18  x17  x16
+> + byte 4:    0   x8   x7   x6   x5   x4   x3   x2
+> + byte 5:    0  x15  x14  x13  x12  x11  x10   x9
+> \ No newline at end of file
 
-diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
-index 21584bf..bd6e9d7 100644
---- a/drivers/input/touchscreen/egalax_ts.c
-+++ b/drivers/input/touchscreen/egalax_ts.c
-@@ -167,24 +167,22 @@ static int egalax_firmware_version(struct i2c_client *client)
- }
- 
- static int egalax_ts_probe(struct i2c_client *client,
--				       const struct i2c_device_id *id)
-+			   const struct i2c_device_id *id)
- {
- 	struct egalax_ts *ts;
- 	struct input_dev *input_dev;
--	int ret;
- 	int error;
- 
--	ts = kzalloc(sizeof(struct egalax_ts), GFP_KERNEL);
-+	ts = devm_kzalloc(&client->dev, sizeof(struct egalax_ts), GFP_KERNEL);
- 	if (!ts) {
- 		dev_err(&client->dev, "Failed to allocate memory\n");
- 		return -ENOMEM;
- 	}
- 
--	input_dev = input_allocate_device();
-+	input_dev = devm_input_allocate_device(&client->dev);
- 	if (!input_dev) {
- 		dev_err(&client->dev, "Failed to allocate memory\n");
--		error = -ENOMEM;
--		goto err_free_ts;
-+		return -ENOMEM;
- 	}
- 
- 	ts->client = client;
-@@ -194,14 +192,13 @@ static int egalax_ts_probe(struct i2c_client *client,
- 	error = egalax_wake_up_device(client);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to wake up the controller\n");
--		goto err_free_dev;
-+		return error;
- 	}
- 
--	ret = egalax_firmware_version(client);
--	if (ret < 0) {
-+	error = egalax_firmware_version(client);
-+	if (error < 0) {
- 		dev_err(&client->dev, "Failed to read firmware version\n");
--		error = -EIO;
--		goto err_free_dev;
-+		return error;
- 	}
- 
- 	input_dev->name = "EETI eGalax Touch Screen";
-@@ -222,40 +219,25 @@ static int egalax_ts_probe(struct i2c_client *client,
- 
- 	input_set_drvdata(input_dev, ts);
- 
--	error = request_threaded_irq(client->irq, NULL, egalax_ts_interrupt,
--				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
--				     "egalax_ts", ts);
-+	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+					  egalax_ts_interrupt,
-+					  IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+					  "egalax_ts", ts);
- 	if (error < 0) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
--		goto err_free_dev;
-+		return error;
- 	}
- 
- 	error = input_register_device(ts->input_dev);
- 	if (error)
--		goto err_free_irq;
-+		return error;
- 
- 	i2c_set_clientdata(client, ts);
- 	return 0;
--
--err_free_irq:
--	free_irq(client->irq, ts);
--err_free_dev:
--	input_free_device(input_dev);
--err_free_ts:
--	kfree(ts);
--
--	return error;
- }
- 
- static int egalax_ts_remove(struct i2c_client *client)
- {
--	struct egalax_ts *ts = i2c_get_clientdata(client);
--
--	free_irq(client->irq, ts);
--
--	input_unregister_device(ts->input_dev);
--	kfree(ts);
--
- 	return 0;
- }
- 
+Hi,
+
+thanks for the patch.
+
+Please resubmit it with proper changelog (describing why the old values 
+are wrong and the new ones are correct), your Signed-off-by: line (as 
+described in Documentation/SubmittingPatches) and to proper maintainers 
+ideally.
+linux-input@ and Dmitry added to CC.
+
+Thanks,
+
 -- 
-1.8.2.rc0.22.gb3600c3
-
+Jiri Kosina
+SUSE Labs

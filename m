@@ -1,68 +1,47 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Linux 3.9 input documentation patch
-Date: Wed, 24 Apr 2013 15:46:41 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1304241545091.29143@pobox.suse.cz>
-References: <CALRtADNMPv4MkJQAxF1y+iK9F2tGAiXsRrveazho5C6KSb4gcQ@mail.gmail.com> <CALRtADMNGcJaArziv6be3tDZsi9uyWA=3OD+Vi4mpzY99TMJ-A@mail.gmail.com>
+Subject: Re: [PATCH] Drivers: HID: fix warnings: from is u16 which never <
+ 0
+Date: Wed, 24 Apr 2013 16:33:03 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1304241632560.29143@pobox.suse.cz>
+References: <5160FC50.6080503@asianux.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42968 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:45713 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754377Ab3DXNqp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Apr 2013 09:46:45 -0400
-In-Reply-To: <CALRtADMNGcJaArziv6be3tDZsi9uyWA=3OD+Vi4mpzY99TMJ-A@mail.gmail.com>
+	id S1755467Ab3DXOdJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Apr 2013 10:33:09 -0400
+In-Reply-To: <5160FC50.6080503@asianux.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Florin9(doi)" <florin9doi@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Chen Gang <gang.chen@asianux.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 8 Apr 2013, Florin9(doi) wrote:
+On Sun, 7 Apr 2013, Chen Gang wrote:
 
-> I have a patch for linux 3.9.
 > 
-> --- a/Documentation/input/alps.txt 2013-04-01 18:02:56.230177850 +0000
-> +++ b/Documentation/input/alps.txt 2013-04-01 18:03:15.010177850 +0000
-> @@ -225,18 +225,18 @@ packets.  This appears to only be used b
+>   from is u16 which never < 0.
 > 
->  For single-touch, the 6-byte packet format is:
+> Signed-off-by: Chen Gang <gang.chen@asianux.com>
+> ---
+>  drivers/hid/hid-icade.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> - byte 0:    1    1    0    0    1    0    0    0
-> + byte 0:    1    1    0    0    1    p   mt    0
->   byte 1:    0   x6   x5   x4   x3   x2   x1   x0
->   byte 2:    0   y6   y5   y4   y3   y2   y1   y0
->   byte 3:    0    M    R    L    1    m    r    l
-> - byte 4:   y10  y9   y8   y7  x10   x9   x8   x7
-> + byte 4:  y10   y9   y8   y7  x10   x9   x8   x7
->   byte 5:    0   z6   z5   z4   z3   z2   z1   z0
-> 
->  For mt, the format is:
-> 
-> - byte 0:    1    1    1    n3   1   n2   n1   x24
-> - byte 1:    1   y7   y6    y5  y4   y3   y2    y1
-> - byte 2:    ?   x2   x1   y12 y11  y10   y9    y8
-> - byte 3:    0  x23  x22   x21 x20  x19  x18   x17
-> - byte 4:    0   x9   x8    x7  x6   x5   x4    x3
-> - byte 5:    0  x16  x15   x14 x13  x12  x11   x10
-> \ No newline at end of file
-> + byte 0:    1    1    1   f2    1   f1   f0  x22
-> + byte 1:   ox   y6   y5   y4   y3   y2   y1   y0
-> + byte 2:   oy   x1   x0  y11  y10   y9   y8   y7
-> + byte 3:    0  x21  x20  x19    1  x18  x17  x16
-> + byte 4:    0   x8   x7   x6   x5   x4   x3   x2
-> + byte 5:    0  x15  x14  x13  x12  x11  x10   x9
-> \ No newline at end of file
+> diff --git a/drivers/hid/hid-icade.c b/drivers/hid/hid-icade.c
+> index 09dcc04..76b5a75 100644
+> --- a/drivers/hid/hid-icade.c
+> +++ b/drivers/hid/hid-icade.c
+> @@ -159,7 +159,7 @@ static const struct icade_key icade_usage_table[30] = {
+>  
+>  static const struct icade_key *icade_find_translation(u16 from)
+>  {
+> -	if (from < 0 || from > ICADE_MAX_USAGE)
+> +	if (from > ICADE_MAX_USAGE)
+>  		return NULL;
+>  	return &icade_usage_table[from];
+>  }
 
-Hi,
-
-thanks for the patch.
-
-Please resubmit it with proper changelog (describing why the old values 
-are wrong and the new ones are correct), your Signed-off-by: line (as 
-described in Documentation/SubmittingPatches) and to proper maintainers 
-ideally.
-linux-input@ and Dmitry added to CC.
-
-Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina

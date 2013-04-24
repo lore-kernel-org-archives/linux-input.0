@@ -1,57 +1,36 @@
 From: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
-Subject: Re: [PATCH] input: egalax_ts: remove bogus OF dependency
-Date: Wed, 24 Apr 2013 08:58:27 +0300
-Message-ID: <1366783107.21369.0.camel@sauron.fi.intel.com>
+Subject: Re: eGalax touchscreen regression
+Date: Wed, 24 Apr 2013 09:06:52 +0300
+Message-ID: <1366783612.21369.5.camel@sauron.fi.intel.com>
 References: <1366708088.9823.16.camel@sauron.fi.intel.com>
-	 <1366715357-9392-1-git-send-email-artem.bityutskiy@linux.intel.com>
-	 <20130423153754.GA4104@core.coreip.homeip.net>
+	 <20130423154007.GB4104@core.coreip.homeip.net>
 Reply-To: artem.bityutskiy@linux.intel.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:20297 "EHLO mga09.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:62110 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752010Ab3DXF4a (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Apr 2013 01:56:30 -0400
-In-Reply-To: <20130423153754.GA4104@core.coreip.homeip.net>
+	id S1751924Ab3DXGEo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Apr 2013 02:04:44 -0400
+In-Reply-To: <20130423154007.GB4104@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Kernel Maling List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Ulf Hofemeier <ulf.hofemeier@intel.com>, Hui Wang <jason77.wang@gmail.com>
+Cc: Hui Wang <jason77.wang@gmail.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Hofemeier, Ulf" <ulf.hofemeier@intel.com>
 
-On Tue, 2013-04-23 at 08:37 -0700, Dmitry Torokhov wrote:
-> On Tue, Apr 23, 2013 at 02:09:17PM +0300, Artem Bityutskiy wrote:
-> > There are platforms using this driver which do not have OF. However, commit
-> > ae495e844a77344fdaedbb2ad97d925d096e9f0d added a Kconfig dependency on OF and
-> > broke OF-less setups.
-> > 
-> > Signed-off-by: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
-> > Cc: stable@vger.kernel.org [v3.7+]
-> > ---
-> >  drivers/input/touchscreen/Kconfig     |    2 +-
-> >  drivers/input/touchscreen/egalax_ts.c |    2 ++
-> >  2 files changed, 3 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> > index 515cfe7..d53b0d6 100644
-> > --- a/drivers/input/touchscreen/Kconfig
-> > +++ b/drivers/input/touchscreen/Kconfig
-> > @@ -227,7 +227,7 @@ config TOUCHSCREEN_EETI
-> >  
-> >  config TOUCHSCREEN_EGALAX
-> >  	tristate "EETI eGalax multi-touch panel support"
-> > -	depends on I2C && OF
-> > +	depends on I2C
+On Tue, 2013-04-23 at 08:40 -0700, Dmitry Torokhov wrote:
+> > the eGalax driver now requires OF. For us this is a regression because
+> > we do not have OF: https://bugs.tizen.org/jira/browse/TIVI-740
 > 
-> No, because egalax_wake_up_device() needs OF data and with !CONFIG_OF
-> you'll end up using stubs, the wakeup will fail and the touchscreen will
-> fail probe.
+> I see. In this case we need to come up with a platform data to pass
+> wakeup gpio in case platform does not support OF. irq_to_gpio() is not
+> supported on many platforms, causing compilation errors.
 > 
-> It wasn't tested, was it?
+> Is the platform that you are trying to use the touchscreen upstream?
 
-Not tested. But Ulf (the reporter of the issue) confirms it does not
-solve the issue.
+Unfortunately I do not really know about it, but once I learn, I'll come
+back. Thanks!
 
 -- 
 Best Regards,

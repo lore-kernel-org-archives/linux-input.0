@@ -1,59 +1,76 @@
-From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [PATCH] Drivers: HID: fix warnings: from is u16 which never <
- 0
-Date: Thu, 25 Apr 2013 09:21:02 +0800
-Message-ID: <517884FE.407@asianux.com>
-References: <5160FC50.6080503@asianux.com> <alpine.LNX.2.00.1304241632560.29143@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from intranet.asianux.com ([58.214.24.6]:60418 "EHLO
-	intranet.asianux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758669Ab3DYBVt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Apr 2013 21:21:49 -0400
-In-Reply-To: <alpine.LNX.2.00.1304241632560.29143@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2] input: egalax_ts: remove bogus OF dependency
+Date: Thu, 25 Apr 2013 12:15:30 +0300
+Message-ID: <1366881330-8788-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
 
-On 2013=E5=B9=B404=E6=9C=8824=E6=97=A5 22:33, Jiri Kosina wrote:
-> On Sun, 7 Apr 2013, Chen Gang wrote:
->=20
->> >=20
->> >   from is u16 which never < 0.
->> >=20
->> > Signed-off-by: Chen Gang <gang.chen@asianux.com>
->> > ---
->> >  drivers/hid/hid-icade.c |    2 +-
->> >  1 files changed, 1 insertions(+), 1 deletions(-)
->> >=20
->> > diff --git a/drivers/hid/hid-icade.c b/drivers/hid/hid-icade.c
->> > index 09dcc04..76b5a75 100644
->> > --- a/drivers/hid/hid-icade.c
->> > +++ b/drivers/hid/hid-icade.c
->> > @@ -159,7 +159,7 @@ static const struct icade_key icade_usage_tabl=
-e[30] =3D {
->> > =20
->> >  static const struct icade_key *icade_find_translation(u16 from)
->> >  {
->> > -	if (from < 0 || from > ICADE_MAX_USAGE)
->> > +	if (from > ICADE_MAX_USAGE)
->> >  		return NULL;
->> >  	return &icade_usage_table[from];
->> >  }
-> Applied, thanks.
+From: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
 
-Thanks, too.
+There are platforms using this driver which do not have OF. However, commit
+ae495e84 ("Input: egalax_ts - get gpio from devicetree") added a Kconfig
+dependency on OF and broke OF-less setups.
 
---=20
-Chen Gang
+The mentioned commit does actually two things. It makes device tree mandatory
+which is quite wrong approach, and it appends check for wake up function, which
+is correct. The wake up function uses dedicated gpio lines to prepare
+touchscreen device. However this is not the case when touchscreen is connected
+via USB, there is no gpio lines for that.
 
-Asianux Corporation
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This patch allows to use the device in non-DT environment properly.
+
+Signed-off-by: Artem Bityutskiy <artem.bityutskiy@linux.intel.com>
+Cc: stable@vger.kernel.org # v3.7+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/input/touchscreen/Kconfig     | 2 +-
+ drivers/input/touchscreen/egalax_ts.c | 8 +++++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index f9a5fd8..006111b 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -227,7 +227,7 @@ config TOUCHSCREEN_EETI
+ 
+ config TOUCHSCREEN_EGALAX
+ 	tristate "EETI eGalax multi-touch panel support"
+-	depends on I2C && OF
++	depends on I2C
+ 	help
+ 	  Say Y here to enable support for I2C connected EETI
+ 	  eGalax multi-touch panels.
+diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+index 17c9097..f85c074 100644
+--- a/drivers/input/touchscreen/egalax_ts.c
++++ b/drivers/input/touchscreen/egalax_ts.c
+@@ -128,7 +128,11 @@ static int egalax_wake_up_device(struct i2c_client *client)
+ 	int ret;
+ 
+ 	if (!np)
+-		return -ENODEV;
++		/*
++		 * Do not try to wake up device on non-DT compatible platforms.
++		 * For example this is the case for USB connected touchscreen.
++		 */
++		return 0;
+ 
+ 	gpio = of_get_named_gpio(np, "wakeup-gpios", 0);
+ 	if (!gpio_is_valid(gpio))
+@@ -287,10 +291,12 @@ static int egalax_ts_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(egalax_ts_pm_ops, egalax_ts_suspend, egalax_ts_resume);
+ 
++#ifdef CONFIG_OF
+ static struct of_device_id egalax_ts_dt_ids[] = {
+ 	{ .compatible = "eeti,egalax_ts" },
+ 	{ /* sentinel */ }
+ };
++#endif
+ 
+ static struct i2c_driver egalax_ts_driver = {
+ 	.driver = {
+-- 
+1.8.2.rc0.22.gb3600c3

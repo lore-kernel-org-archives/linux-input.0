@@ -1,39 +1,56 @@
-From: "Shevchenko, Andriy" <andriy.shevchenko@intel.com>
-Subject: Re: [v2] input: egalax_ts: remove bogus OF dependency
-Date: Fri, 26 Apr 2013 09:05:00 +0000
-Message-ID: <1366967097.31721.47.camel@smile>
-References: <1366881330-8788-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: eGalax touchscreen regression
+Date: Fri, 26 Apr 2013 16:59:09 +0200
+Message-ID: <3076410.nE1Nu6ITeM@wuerfel>
+References: <1366708088.9823.16.camel@sauron.fi.intel.com> <20130423154007.GB4104@core.coreip.homeip.net> <1366794193.21369.11.camel@sauron.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([143.182.124.37]:53099 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750979Ab3DZJFU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Apr 2013 05:05:20 -0400
-In-Reply-To: <1366881330-8788-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Content-Language: en-US
-Content-ID: <C50BC2A403112B4CABF905B0854F4CBD@intel.com>
+Received: from moutng.kundenserver.de ([212.227.17.8]:53652 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750839Ab3DZO7K convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Apr 2013 10:59:10 -0400
+In-Reply-To: <1366794193.21369.11.camel@sauron.fi.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
+To: artem.bityutskiy@linux.intel.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hui Wang <jason77.wang@gmail.com>, Zhang Jiejing <jiejing.zhang@freescale.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Hofemeier, Ulf" <ulf.hofemeier@intel.com>
 
-T24gVGh1LCAyMDEzLTA0LTI1IGF0IDA5OjE1ICswMDAwLCBBbmR5IFNoZXZjaGVua28gd3JvdGU6
-IA0KPiBGcm9tOiBBcnRlbSBCaXR5dXRza2l5IDxhcnRlbS5iaXR5dXRza2l5QGxpbnV4LmludGVs
-LmNvbT4NCj4gDQo+IFRoZXJlIGFyZSBwbGF0Zm9ybXMgdXNpbmcgdGhpcyBkcml2ZXIgd2hpY2gg
-ZG8gbm90IGhhdmUgT0YuIEhvd2V2ZXIsIGNvbW1pdA0KPiBhZTQ5NWU4NCAoIklucHV0OiBlZ2Fs
-YXhfdHMgLSBnZXQgZ3BpbyBmcm9tIGRldmljZXRyZWUiKSBhZGRlZCBhIEtjb25maWcNCj4gZGVw
-ZW5kZW5jeSBvbiBPRiBhbmQgYnJva2UgT0YtbGVzcyBzZXR1cHMuDQoNClNoYW1lIG9uIG1lLCBJ
-IHRvdGFsbHkgbWVzc2VkIHVwIHdpdGggdGhpcyENClBsZWFzZSwgZGlzY2FyZCB0aGlzIHBhdGNo
-Lg0KDQoNCi0tIA0KQW5keSBTaGV2Y2hlbmtvIDxhbmRyaXkuc2hldmNoZW5rb0BpbnRlbC5jb20+
-DQpJbnRlbCBGaW5sYW5kIE95DQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KSW50ZWwgRmlubGFuZCBPeQpSZWdpc3Rl
-cmVkIEFkZHJlc3M6IFBMIDI4MSwgMDAxODEgSGVsc2lua2kgCkJ1c2luZXNzIElkZW50aXR5IENv
-ZGU6IDAzNTc2MDYgLSA0IApEb21pY2lsZWQgaW4gSGVsc2lua2kgCgpUaGlzIGUtbWFpbCBhbmQg
-YW55IGF0dGFjaG1lbnRzIG1heSBjb250YWluIGNvbmZpZGVudGlhbCBtYXRlcmlhbCBmb3IKdGhl
-IHNvbGUgdXNlIG9mIHRoZSBpbnRlbmRlZCByZWNpcGllbnQocykuIEFueSByZXZpZXcgb3IgZGlz
-dHJpYnV0aW9uCmJ5IG90aGVycyBpcyBzdHJpY3RseSBwcm9oaWJpdGVkLiBJZiB5b3UgYXJlIG5v
-dCB0aGUgaW50ZW5kZWQKcmVjaXBpZW50LCBwbGVhc2UgY29udGFjdCB0aGUgc2VuZGVyIGFuZCBk
-ZWxldGUgYWxsIGNvcGllcy4K
+On Wednesday 24 April 2013 12:03:13 Artem Bityutskiy wrote:
+> On Tue, 2013-04-23 at 08:40 -0700, Dmitry Torokhov wrote:
+> > > the eGalax driver now requires OF. For us this is a regression be=
+cause
+> > > we do not have OF: https://bugs.tizen.org/jira/browse/TIVI-740
+> >=20
+> > I see. In this case we need to come up with a platform data to pass
+> > wakeup gpio in case platform does not support OF. irq_to_gpio() is =
+not
+> > supported on many platforms, causing compilation errors.
+> >=20
+> > Is the platform that you are trying to use the touchscreen upstream=
+?
+>=20
+> OK, so this is about just a monitor with a touchscreen (Giantec high-=
+res
+> capacitive 11.6=E2=80=9D LCD monitor). The touchscreen is connected t=
+o a
+> commodity hardware via USB.
+>=20
+> So yes, the platform _is_ upstream  Namely, we use just a SandyBridge
+> PC.
 
+So you use a usb-to-i2c interface?
+
+You have to figure out how the wakeup line is connected to the eGalax
+device and provide an alternative implementation for egalax_wake_up_dev=
+ice
+that can be used in your case then.
+
+	Arnd
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

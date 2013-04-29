@@ -1,74 +1,41 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Add PID for Japanese version of NE4K keyboard
-Date: Mon, 29 Apr 2013 10:17:54 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1304291017470.17743@pobox.suse.cz>
-References: <1367209651-14405-1-git-send-email-jiang.adam@gmail.com>
+From: Jan =?ISO-8859-1?Q?L=FCbbe?= <jlu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v4 5/8] MFD: ti_am335x_tscadc: Add DT support
+Date: Mon, 29 Apr 2013 12:13:26 +0200
+Message-ID: <1367230406.4148.9.camel@coredoba.hi.pengutronix.de>
+References: <1358999112-31192-1-git-send-email-rachna@ti.com>
+	 <1358999112-31192-6-git-send-email-rachna@ti.com>
+	 <A9839AA2-ABCD-4642-9766-D56824AC27AD@dominion.thruhere.net>
+	 <4CE347531D4CA947960AF71FF095B9323E9B1EE9@DBDE01.ent.ti.com>
+	 <79CD15C6BA57404B839C016229A409A83EBEFAE8@DBDE01.ent.ti.com>
+	 <4CE347531D4CA947960AF71FF095B9323E9B44E9@DBDE01.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59122 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756737Ab3D2IRz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Apr 2013 04:17:55 -0400
-In-Reply-To: <1367209651-14405-1-git-send-email-jiang.adam@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4CE347531D4CA947960AF71FF095B9323E9B44E9-Er742YJ7I/eIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+Cc: Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Adam Jiang <jiang.adam@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, 29 Apr 2013, Adam Jiang wrote:
-
-> This patche adds PID of Japanese Natual Ergonomic Keyboard 4000. HID
-> NE4K driver depends on this PID for determining its quirks. F14-F18 keys
-> would not work without the patch.
+On Wed, 2013-02-06 at 11:17 +0000, Patil, Rachna wrote:
+> > > Can you share the branch which you have tested?
+> > 
+> > https://github.com/patilrachna/linux/tree/v3.8_rc3_MFD_TSCADC_DT-v2
 > 
-> Signed-off-by: Adam Jiang <jiang.adam@gmail.com>
-> ---
->  drivers/hid/hid-core.c      | 1 +
->  drivers/hid/hid-ids.h       | 1 +
->  drivers/hid/hid-microsoft.c | 2 ++
->  3 files changed, 4 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index aa341d1..b587b42 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1654,6 +1654,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K_JP) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 5309fd5..f909603 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -577,6 +577,7 @@
->  #define USB_DEVICE_ID_SIDEWINDER_GV	0x003b
->  #define USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0 0x009d
->  #define USB_DEVICE_ID_MS_NE4K		0x00db
-> +#define USB_DEVICE_ID_MS_NE4K_JP	0x00dc
->  #define USB_DEVICE_ID_MS_LK6K		0x00f9
->  #define USB_DEVICE_ID_MS_PRESENTER_8K_BT	0x0701
->  #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
-> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-> index 29d27f6..551795b 100644
-> --- a/drivers/hid/hid-microsoft.c
-> +++ b/drivers/hid/hid-microsoft.c
-> @@ -195,6 +195,8 @@ static const struct hid_device_id ms_devices[] = {
->  		.driver_data = MS_HIDINPUT },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K),
->  		.driver_data = MS_ERGONOMY },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K_JP),
-> +		.driver_data = MS_ERGONOMY },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K),
->  		.driver_data = MS_ERGONOMY | MS_RDESC },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB),
+> Did you get a chance to test this branch?
+> And can you also share your branch, on which you observed the issue.
 
-Applied, thanks.
+Rachana,
+
+I have not seen a new version of this patch since January. Are you still
+working on the TSCADC? If not, where can I find the most recent version?
+
+Regards,
+Jan
 
 -- 
-Jiri Kosina
-SUSE Labs
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

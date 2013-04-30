@@ -1,138 +1,136 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 1/2] input: wacom - add three new display tablets
-Date: Tue, 30 Apr 2013 15:14:44 -0700
-Message-ID: <1367360084-30172-1-git-send-email-pingc@wacom.com>
+Subject: [PATCH 2/2] input : wacom - add a few new styli for Cintiq series
+Date: Tue, 30 Apr 2013 15:22:17 -0700
+Message-ID: <1367360537-30215-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f50.google.com ([209.85.210.50]:48734 "EHLO
-	mail-da0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760674Ab3D3WPB (ORCPT
+Received: from mail-da0-f44.google.com ([209.85.210.44]:60610 "EHLO
+	mail-da0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933606Ab3D3WWe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Apr 2013 18:15:01 -0400
-Received: by mail-da0-f50.google.com with SMTP id a4so432050dad.9
-        for <linux-input@vger.kernel.org>; Tue, 30 Apr 2013 15:15:00 -0700 (PDT)
+	Tue, 30 Apr 2013 18:22:34 -0400
+Received: by mail-da0-f44.google.com with SMTP id z20so436233dae.17
+        for <linux-input@vger.kernel.org>; Tue, 30 Apr 2013 15:22:33 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-Cintiq 13HD, DTK 2241, and Cintiq 22HDT are supported.
+Add new styli for Cintiq 13HD and 22HD. Update comments for
+for tools. Check whole 10 nibbles of tool ID for tool
+types. Remove unuecessary tool type for Intuos series PAD.
 
 Signed-off-by: Ping Cheng <pingc@wacom.com>
 ---
- 3.7/wacom_wac.c |   36 ++++++++++++++++++++++++++++++++++++
- 3.7/wacom_wac.h |    1 +
- 2 files changed, 37 insertions(+)
+ 3.7/wacom_wac.c |   36 +++++++++++++++++-------------------
+ 1 file changed, 17 insertions(+), 19 deletions(-)
 
 diff --git a/3.7/wacom_wac.c b/3.7/wacom_wac.c
-index 0bfd8cf..afe4fe0 100644
+index afe4fe0..3b6998a 100644
 --- a/3.7/wacom_wac.c
 +++ b/3.7/wacom_wac.c
-@@ -546,6 +546,16 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 			input_report_key(input, BTN_3, (data[6] & 0x08));
- 			input_report_key(input, BTN_4, (data[6] & 0x10));
- 			input_report_key(input, BTN_5, (data[6] & 0x20));
-+		} else if (features->type == WACOM_13HD) {
-+			input_report_key(input, BTN_0, (data[3] & 0x01));
-+			input_report_key(input, BTN_1, (data[4] & 0x01));
-+			input_report_key(input, BTN_2, (data[4] & 0x02));
-+			input_report_key(input, BTN_3, (data[4] & 0x04));
-+			input_report_key(input, BTN_4, (data[4] & 0x08));
-+			input_report_key(input, BTN_5, (data[4] & 0x10));
-+			input_report_key(input, BTN_6, (data[4] & 0x20));
-+			input_report_key(input, BTN_7, (data[4] & 0x40));
-+			input_report_key(input, BTN_8, (data[4] & 0x80));
- 		} else if (features->type == WACOM_24HD) {
- 			input_report_key(input, BTN_0, (data[6] & 0x01));
- 			input_report_key(input, BTN_1, (data[6] & 0x02));
-@@ -1301,6 +1311,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case INTUOS4L:
- 	case CINTIQ:
- 	case WACOM_BEE:
-+	case WACOM_13HD:
- 	case WACOM_21UX2:
- 	case WACOM_22HD:
- 	case WACOM_24HD:
-@@ -1579,6 +1590,15 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 		wacom_setup_cintiq(wacom_wac);
- 		break;
+@@ -342,10 +342,10 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		wacom->id[idx] = (data[2] << 4) | (data[3] >> 4) |
+ 			((data[7] & 0x0f) << 20) | ((data[8] & 0xf0) << 12);
  
-+	case WACOM_13HD:
-+		for (i = 0; i < 9; i++)
-+			__set_bit(BTN_0 + i, input_dev->keybit);
-+
-+		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
-+		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-+		wacom_setup_cintiq(wacom_wac);
-+		break;
-+
- 	case INTUOS3:
- 	case INTUOS3L:
- 		__set_bit(BTN_4, input_dev->keybit);
-@@ -1950,6 +1970,9 @@ static const struct wacom_features wacom_features_0xC5 =
- static const struct wacom_features wacom_features_0xC6 =
- 	{ "Wacom Cintiq 12WX",    WACOM_PKGLEN_INTUOS,    53020, 33440, 1023,
- 	  63, WACOM_BEE, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
-+static const struct wacom_features wacom_features_0x304 =
-+	{ "Wacom Cintiq 13HD",    WACOM_PKGLEN_INTUOS,    59552, 33848, 1023,
-+	  63, WACOM_13HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0xC7 =
- 	{ "Wacom DTU1931",        WACOM_PKGLEN_GRAPHIRE,  37832, 30305,  511,
- 	  0, PL, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -1959,6 +1982,9 @@ static const struct wacom_features wacom_features_0xCE =
- static const struct wacom_features wacom_features_0xF0 =
- 	{ "Wacom DTU1631",        WACOM_PKGLEN_GRAPHIRE,  34623, 19553,  511,
- 	  0, DTU, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x57 =
-+	{ "Wacom DTK2241",        WACOM_PKGLEN_INTUOS,    95840, 54260, 2047,
-+	  63, DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES};
- static const struct wacom_features wacom_features_0x59 = /* Pen */
- 	{ "Wacom DTH2242",        WACOM_PKGLEN_INTUOS,    95840, 54260, 2047,
- 	  63, DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
-@@ -1972,6 +1998,12 @@ static const struct wacom_features wacom_features_0xCC =
- static const struct wacom_features wacom_features_0xFA =
- 	{ "Wacom Cintiq 22HD",    WACOM_PKGLEN_INTUOS,    95840, 54260, 2047,
- 	  63, WACOM_22HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
-+static const struct wacom_features wacom_features_0x5B =
-+	{ "Wacom Cintiq 22HDT", WACOM_PKGLEN_INTUOS,      95840, 54260, 2047,
-+	  63, WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5e };
-+static const struct wacom_features wacom_features_0x5E =
-+	{ "Wacom Cintiq 22HDT", .type = WACOM_24HDT,
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5b, .touch_max = 10 };
- static const struct wacom_features wacom_features_0x90 =
- 	{ "Wacom ISDv4 90",       WACOM_PKGLEN_GRAPHIRE,  26202, 16325,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -2143,8 +2175,11 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x43) },
- 	{ USB_DEVICE_WACOM(0x44) },
- 	{ USB_DEVICE_WACOM(0x45) },
-+	{ USB_DEVICE_WACOM(0x57) },
- 	{ USB_DEVICE_WACOM(0x59) },
- 	{ USB_DEVICE_DETAILED(0x5D, USB_CLASS_HID, 0, 0) },
-+	{ USB_DEVICE_WACOM(0x5B) },
-+	{ USB_DEVICE_DETAILED(0x5E, USB_CLASS_HID, 0, 0) },
- 	{ USB_DEVICE_WACOM(0xB0) },
- 	{ USB_DEVICE_WACOM(0xB1) },
- 	{ USB_DEVICE_WACOM(0xB2) },
-@@ -2205,6 +2240,7 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x100) },
- 	{ USB_DEVICE_WACOM(0x101) },
- 	{ USB_DEVICE_WACOM(0x10D) },
-+	{ USB_DEVICE_WACOM(0x304) },
- 	{ USB_DEVICE_WACOM(0x4001) },
- 	{ USB_DEVICE_WACOM(0x47) },
- 	{ USB_DEVICE_WACOM(0xF4) },
-diff --git a/3.7/wacom_wac.h b/3.7/wacom_wac.h
-index 5f9a772..dfc9e08 100644
---- a/3.7/wacom_wac.h
-+++ b/3.7/wacom_wac.h
-@@ -82,6 +82,7 @@ enum {
- 	WACOM_24HD,
- 	CINTIQ,
- 	WACOM_BEE,
-+	WACOM_13HD,
- 	WACOM_MO,
- 	WIRELESS,
- 	BAMBOO_PT,
+-		switch (wacom->id[idx] & 0xfffff) {
++		switch (wacom->id[idx]) {
+ 		case 0x812: /* Inking pen */
+ 		case 0x801: /* Intuos3 Inking pen */
+-		case 0x20802: /* Intuos4 Inking Pen */
++		case 0x120802: /* Intuos4/5 Inking Pen */
+ 		case 0x012:
+ 			wacom->tool[idx] = BTN_TOOL_PENCIL;
+ 			break;
+@@ -356,11 +356,13 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		case 0x823: /* Intuos3 Grip Pen */
+ 		case 0x813: /* Intuos3 Classic Pen */
+ 		case 0x885: /* Intuos3 Marker Pen */
+-		case 0x802: /* Intuos4 General Pen */
+-		case 0x804: /* Intuos4 Marker Pen */
+-		case 0x40802: /* Intuos4 Classic Pen */
+-		case 0x18802: /* DTH2242 Grip Pen */
++		case 0x802: /* Intuos4/5 13HD/24HD General Pen */
++		case 0x804: /* Intuos4/5 13HD/24HD Marker Pen */
+ 		case 0x022:
++		case 0x100804: /* Intuos4/5 13HD/24HD Art Pen */
++		case 0x140802: /* Intuos4/5 13HD/24HD Classic Pen */
++		case 0x160802: /* Cintiq 13HD Pro Pen */
++		case 0x180802: /* DTH2242 Grip Pen */
+ 			wacom->tool[idx] = BTN_TOOL_PEN;
+ 			break;
+ 
+@@ -391,10 +393,13 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		case 0x82b: /* Intuos3 Grip Pen Eraser */
+ 		case 0x81b: /* Intuos3 Classic Pen Eraser */
+ 		case 0x91b: /* Intuos3 Airbrush Eraser */
+-		case 0x80c: /* Intuos4 Marker Pen Eraser */
+-		case 0x80a: /* Intuos4 General Pen Eraser */
+-		case 0x4080a: /* Intuos4 Classic Pen Eraser */
+-		case 0x90a: /* Intuos4 Airbrush Eraser */
++		case 0x80c: /* Intuos4/5 13HD/24HD Marker Pen Eraser */
++		case 0x80a: /* Intuos4/5 13HD/24HD General Pen Eraser */
++		case 0x90a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
++		case 0x14080a: /* Intuos4/5 13HD/24HD Classic Pen Eraser */
++		case 0x10090a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
++		case 0x10080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
++		case 0x16080a: /* Cintiq 13HD Pro Pen Eraser */
+ 			wacom->tool[idx] = BTN_TOOL_RUBBER;
+ 			break;
+ 
+@@ -402,7 +407,8 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		case 0x912:
+ 		case 0x112:
+ 		case 0x913: /* Intuos3 Airbrush */
+-		case 0x902: /* Intuos4 Airbrush */
++		case 0x902: /* Intuos4/5 13HD/24HD Airbrush */
++		case 0x100902: /* Intuos4/5 13HD/24HD Airbrush */
+ 			wacom->tool[idx] = BTN_TOOL_AIRBRUSH;
+ 			break;
+ 
+@@ -533,10 +539,8 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 				input_report_key(input, BTN_8, (data[3] & 0x80));
+ 			}
+ 			if (data[1] | (data[2] & 0x01) | data[3]) {
+-				input_report_key(input, wacom->tool[1], 1);
+ 				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
+ 			} else {
+-				input_report_key(input, wacom->tool[1], 0);
+ 				input_report_abs(input, ABS_MISC, 0);
+ 			}
+ 		} else if (features->type == DTK) {
+@@ -600,10 +604,8 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 			}
+ 
+ 			if (data[1] | data[2] | (data[3] & 0x1f) | data[4] | data[6] | data[8]) {
+-				input_report_key(input, wacom->tool[1], 1);
+ 				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
+ 			} else {
+-				input_report_key(input, wacom->tool[1], 0);
+ 				input_report_abs(input, ABS_MISC, 0);
+ 			}
+ 		} else if (features->type >= INTUOS5S && features->type <= INTUOS5L) {
+@@ -628,10 +630,8 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 			}
+ 
+ 			if (data[2] | (data[3] & 0x01) | data[4] | data[5]) {
+-				input_report_key(input, wacom->tool[1], 1);
+ 				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
+ 			} else {
+-				input_report_key(input, wacom->tool[1], 0);
+ 				input_report_abs(input, ABS_MISC, 0);
+ 			}
+ 		} else {
+@@ -678,10 +678,8 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 			if ((data[5] & 0x1f) | data[6] | (data[1] & 0x1f) |
+ 				data[2] | (data[3] & 0x1f) | data[4] | data[8] |
+ 				(data[7] & 0x01)) {
+-				input_report_key(input, wacom->tool[1], 1);
+ 				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
+ 			} else {
+-				input_report_key(input, wacom->tool[1], 0);
+ 				input_report_abs(input, ABS_MISC, 0);
+ 			}
+ 		}
 -- 
 1.7.10.4
 

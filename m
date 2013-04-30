@@ -1,118 +1,80 @@
-From: Todd Showalter <todd@electronjump.com>
-Subject: Re: Game Controllers
-Date: Mon, 29 Apr 2013 20:46:47 -0400
-Message-ID: <CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
-References: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com>
-	<2483279.JlnWrOX8Uv@dtor-d630.eng.vmware.com>
+From: Yufeng Shen <miletus@chromium.org>
+Subject: [RFC] Should make Elo TouchSystems 2216 to use hid-multitouch ?
+Date: Mon, 29 Apr 2013 21:10:24 -0400
+Message-ID: <CAPDwgkMeUZWKq2ciOeCVzNvxOW6ER55cdU+khDWzxPgcuvgFoQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f169.google.com ([209.85.216.169]:35240 "EHLO
-	mail-qc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759379Ab3D3Aqt (ORCPT
+Received: from mail-vb0-f50.google.com ([209.85.212.50]:50447 "EHLO
+	mail-vb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758753Ab3D3BKZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Apr 2013 20:46:49 -0400
-Received: by mail-qc0-f169.google.com with SMTP id t2so3472795qcq.0
-        for <linux-input@vger.kernel.org>; Mon, 29 Apr 2013 17:46:48 -0700 (PDT)
-In-Reply-To: <2483279.JlnWrOX8Uv@dtor-d630.eng.vmware.com>
+	Mon, 29 Apr 2013 21:10:25 -0400
+Received: by mail-vb0-f50.google.com with SMTP id w15so895704vbb.37
+        for <linux-input@vger.kernel.org>; Mon, 29 Apr 2013 18:10:25 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Mon, Apr 29, 2013 at 5:04 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+So I have got an Elo 7"  USB Touchscreen. With default generic-usb
+driver, the touchscreen
+reports both BTN event & ABS event.
 
->>     I'm a game developer, and I'm interested in discussing changes in
->> the way gamepad input is handled at the evdev and device level; is
->> this the correct place to do that?
->
-> It might or it might not. It would be great if you could tell a bit about
-> your issues.
+evtest shows something like:
 
-    My primary concern is game controllers (specifically gamepads).
-I'd like to see a standard game controller (something akin to the
-input functionality of the xbox 360 controller) become a first-class
-input citizen alongside the keyboard and mouse.  My argument is
-essentially that amongst the major gamepads (the ps3 6axis controller,
-the xbox 360 controller, the xbox controller, the wii classic
-controller, the ouya controller, and various OEM versions and
-imitations of the same) there is a lot of common functionality that is
-worth exposing as a standard gamepad the same way systems now expose a
-standard mouse.
+Input device ID: bus 0x3 vendor 0x4e7 product 0x50 version 0x100
+Input device name: "EloTouchSystems,Inc Elo TouchSystems 2216 AccuTouch=
+=AE
+USB Touchmonitor Interface"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 272 (BTN_LEFT)
+  Event type 3 (EV_ABS)
+    Event code 0 (ABS_X)
+      Value   1831
+      Min      184
+      Max     3932
+    Event code 1 (ABS_Y)
+      Value   1898
+      Min      184
+      Max     3932
+    Event code 40 (ABS_MISC)
+      Value      0
+      Min        0
+      Max      256
+  Event type 4 (EV_MSC)
+    Event code 4 (MSC_SCAN)
 
-    My proposed standard gamepad is:
+When one touches the screen, BTN press event is sent, then ABS_X/Y even=
+ts
+are sent for finger move, and last BTN release event is sent for finger=
+ lift.
 
-- left stick (2d vector, each component [-1.0f .. 1.0f])
-- right stick (2d vector, each component [-1.0f .. 1.0f])
-- left trigger (1d vector, [-1.0f .. 1.0f])
-- right trigger (1d vector, [-1.0f .. 1.0f])
-- dpad
-- start button
-- system button (home on wii, ps on ps3, glowy x on xbox 360)
-- four face buttons (north, south, east, west)
-- two shoulder buttons
-- two stick click buttons
+The way the device uses BTN/ABS events make the device functionality qu=
+ite
+confusing and limited -- It can only be used for point-to-click without=
+ special
+handling in userspace.
 
-    What I'd like to request at the evdev level is that things which
-are gamepads export these values in standard offsets, so that:
+So I am wondering if it is better to make this device to use
+hid-multitouch driver
+and add quirks for :
+1) set maxcontact =3D 1 (the device can only track 1 finger)
+2) convert ABS_X/ABS_Y to MT_ABS_X/Y
+3) use BTN press/release to indicate touch down/release
 
-EV_ABS 0 == left stick x
-EV_ABS 1 == left stick y
-EV_ABS 2 == right stick x
-EV_ABS 3 == right stick y
-EV_ABS 4 == dpad x
-EV_ABS 5 == dpad y
-EV_ABS 6 == left trigger
-EV_ABS 7 == right trigger
-
-    Or some similar defined order.  I'd like buttons to be similarly mapped:
-
-BTN_START == start button
-BTN_WEST == xbox x, ps square
-BTN_NORTH == xbox y, ps triangle
-BTN_EAST == xbox b, ps circle
-BTN_SOUTH == xbox a, ps x
-BTN_TL == xbox tl, ps l1
-BTN_TR == xbox tr, ps r1
-BTN_MODE == xbox glowy x, ps ps
-BTN_THUMBL == stick click l
-BTN_THUMBR == stick click r
-
-    I'm aware that the xbox and xbox 360 controllers are already
-largely mapped this way, but the ps3 controller is not, at least from
-what I can tell, and I have no other gamepad hardware to test.  My
-goal here is to make it so that something reading an evdev gamepad
-stream doesn't need to know what kind of hardware device is backing it
-*if* all the reader cares about is the standard gamepad functionality.
-
-    The analogy here is mice; while you can get mice with variable DPI
-settings, macro engines and loads of buttons or scroll wheels, normal
-applications don't have to query the mouse type to know how the core
-functionality is mapped.  If all I want in a game is the left stick
-for movement, the bottom face button for jump and the right face
-button for shoot, I shouldn't have to be querying the controller to
-figure out how those are mapped.  I should be able to take ABS_X and
-ABS_Y for the left stick, BTN_SOUTH for jump and BTN_EAST for shoot,
-and it should map to the proper buttons and stick regardless of
-whether the player has an xbox controller, a logitech controller, a
-ps3 controller or a wiimote with a classic controller plugged in.
-
-    There are several advantages of doing this remapping at the driver
-level, but the most important ones from my point of view are that it
-is simplest to do near the source, and it makes supporting a standard
-gamepad as part of (for instance) Wayland a much simpler and thinner
-translation layer.  I want to do this through a Wayland (or X11) event
-protocol because I want my game (which may be running mods or scripts
-downloaded from forums) to be as isolated as possible from the
-elevated privileges that opening evdev streams requires.
-
-    So, that's my issue, really; I'd like a standardized core gamepad
-protocol in Linux, and I'm talking to people at every level of the
-stack to see if I can make it happen.
-
-                                       Todd.
-
+The benefit for doing this in my opinion is more clear and multi-touch =
+standard
+complying events for userspace. And userspace multitouch library can na=
+turally
+use the multi-touch data to do like software based multi finger
+tracking, tap-to-click,
+scrolling and other gestures.
 --
- Todd Showalter, President,
- Electron Jump Games, Inc.
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

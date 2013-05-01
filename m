@@ -1,136 +1,69 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/2] input : wacom - add a few new styli for Cintiq series
-Date: Tue, 30 Apr 2013 15:22:17 -0700
-Message-ID: <1367360537-30215-1-git-send-email-pingc@wacom.com>
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao
+	<fernando_b1@lab.ntt.co.jp>
+Subject: Re: [PATCH v2] HID: add support for Sony RF receiver with USB
+ product id 0x0374
+Date: Wed, 01 May 2013 09:25:06 +0900
+Message-ID: <1367367906.4712.4.camel@nexus>
+References: <1358221428.9926.1.camel@nexus.lab.ntt.co.jp>
+	  <20130115103638.be566e39f0f5ad7186362dd8@studenti.unina.it>
+	  <50F52986.2080002@lab.ntt.co.jp>
+	 <1358246448.4897.3.camel@nexus.lab.ntt.co.jp>
+	 <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f44.google.com ([209.85.210.44]:60610 "EHLO
-	mail-da0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933606Ab3D3WWe (ORCPT
+Received: from tama50.ecl.ntt.co.jp ([129.60.39.147]:46002 "EHLO
+	tama50.ecl.ntt.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933881Ab3EAAZU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Apr 2013 18:22:34 -0400
-Received: by mail-da0-f44.google.com with SMTP id z20so436233dae.17
-        for <linux-input@vger.kernel.org>; Tue, 30 Apr 2013 15:22:33 -0700 (PDT)
+	Tue, 30 Apr 2013 20:25:20 -0400
+In-Reply-To: <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
 
-Add new styli for Cintiq 13HD and 22HD. Update comments for
-for tools. Check whole 10 nibbles of tool ID for tool
-types. Remove unuecessary tool type for Intuos series PAD.
+Hi Jiri,
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- 3.7/wacom_wac.c |   36 +++++++++++++++++-------------------
- 1 file changed, 17 insertions(+), 19 deletions(-)
+On Tue, 2013-01-15 at 17:02 +0100, Jiri Kosina wrote:
+> On Tue, 15 Jan 2013, Fernando Luis V=C3=A1zquez Cao wrote:
+>=20
+> > Some Vaio desktop computers, among them the VGC-LN51JGB multimedia =
+PC, have
+> > a RF receiver, multi-interface USB device 054c:0374, that is used t=
+o connect
+> > a wireless keyboard and a wireless mouse.
+> >=20
+> > The keyboard works flawlessly, but the mouse (VGP-WMS3 in my case) =
+does not
+> > seem to be generating any pointer events. The problem is that the m=
+ouse pointer
+> > is wrongly declared as a constant non-data variable in the report d=
+escriptor
+> > (see lsusb and usbhid-dump output below), with the consequence that=
+ it is
+> > ignored by the HID code.
+> >=20
+> > Add this device to the have-special-driver list and fix up the repo=
+rt
+> > descriptor in the Sony-specific driver which happens to already hav=
+e a fixup
+> > for a similar firmware bug.
+>=20
+> Applied, thanks.
 
-diff --git a/3.7/wacom_wac.c b/3.7/wacom_wac.c
-index afe4fe0..3b6998a 100644
---- a/3.7/wacom_wac.c
-+++ b/3.7/wacom_wac.c
-@@ -342,10 +342,10 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 		wacom->id[idx] = (data[2] << 4) | (data[3] >> 4) |
- 			((data[7] & 0x0f) << 20) | ((data[8] & 0xf0) << 12);
- 
--		switch (wacom->id[idx] & 0xfffff) {
-+		switch (wacom->id[idx]) {
- 		case 0x812: /* Inking pen */
- 		case 0x801: /* Intuos3 Inking pen */
--		case 0x20802: /* Intuos4 Inking Pen */
-+		case 0x120802: /* Intuos4/5 Inking Pen */
- 		case 0x012:
- 			wacom->tool[idx] = BTN_TOOL_PENCIL;
- 			break;
-@@ -356,11 +356,13 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 		case 0x823: /* Intuos3 Grip Pen */
- 		case 0x813: /* Intuos3 Classic Pen */
- 		case 0x885: /* Intuos3 Marker Pen */
--		case 0x802: /* Intuos4 General Pen */
--		case 0x804: /* Intuos4 Marker Pen */
--		case 0x40802: /* Intuos4 Classic Pen */
--		case 0x18802: /* DTH2242 Grip Pen */
-+		case 0x802: /* Intuos4/5 13HD/24HD General Pen */
-+		case 0x804: /* Intuos4/5 13HD/24HD Marker Pen */
- 		case 0x022:
-+		case 0x100804: /* Intuos4/5 13HD/24HD Art Pen */
-+		case 0x140802: /* Intuos4/5 13HD/24HD Classic Pen */
-+		case 0x160802: /* Cintiq 13HD Pro Pen */
-+		case 0x180802: /* DTH2242 Grip Pen */
- 			wacom->tool[idx] = BTN_TOOL_PEN;
- 			break;
- 
-@@ -391,10 +393,13 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 		case 0x82b: /* Intuos3 Grip Pen Eraser */
- 		case 0x81b: /* Intuos3 Classic Pen Eraser */
- 		case 0x91b: /* Intuos3 Airbrush Eraser */
--		case 0x80c: /* Intuos4 Marker Pen Eraser */
--		case 0x80a: /* Intuos4 General Pen Eraser */
--		case 0x4080a: /* Intuos4 Classic Pen Eraser */
--		case 0x90a: /* Intuos4 Airbrush Eraser */
-+		case 0x80c: /* Intuos4/5 13HD/24HD Marker Pen Eraser */
-+		case 0x80a: /* Intuos4/5 13HD/24HD General Pen Eraser */
-+		case 0x90a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
-+		case 0x14080a: /* Intuos4/5 13HD/24HD Classic Pen Eraser */
-+		case 0x10090a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
-+		case 0x10080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
-+		case 0x16080a: /* Cintiq 13HD Pro Pen Eraser */
- 			wacom->tool[idx] = BTN_TOOL_RUBBER;
- 			break;
- 
-@@ -402,7 +407,8 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 		case 0x912:
- 		case 0x112:
- 		case 0x913: /* Intuos3 Airbrush */
--		case 0x902: /* Intuos4 Airbrush */
-+		case 0x902: /* Intuos4/5 13HD/24HD Airbrush */
-+		case 0x100902: /* Intuos4/5 13HD/24HD Airbrush */
- 			wacom->tool[idx] = BTN_TOOL_AIRBRUSH;
- 			break;
- 
-@@ -533,10 +539,8 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 				input_report_key(input, BTN_8, (data[3] & 0x80));
- 			}
- 			if (data[1] | (data[2] & 0x01) | data[3]) {
--				input_report_key(input, wacom->tool[1], 1);
- 				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
- 			} else {
--				input_report_key(input, wacom->tool[1], 0);
- 				input_report_abs(input, ABS_MISC, 0);
- 			}
- 		} else if (features->type == DTK) {
-@@ -600,10 +604,8 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 			}
- 
- 			if (data[1] | data[2] | (data[3] & 0x1f) | data[4] | data[6] | data[8]) {
--				input_report_key(input, wacom->tool[1], 1);
- 				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
- 			} else {
--				input_report_key(input, wacom->tool[1], 0);
- 				input_report_abs(input, ABS_MISC, 0);
- 			}
- 		} else if (features->type >= INTUOS5S && features->type <= INTUOS5L) {
-@@ -628,10 +630,8 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 			}
- 
- 			if (data[2] | (data[3] & 0x01) | data[4] | data[5]) {
--				input_report_key(input, wacom->tool[1], 1);
- 				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
- 			} else {
--				input_report_key(input, wacom->tool[1], 0);
- 				input_report_abs(input, ABS_MISC, 0);
- 			}
- 		} else {
-@@ -678,10 +678,8 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 			if ((data[5] & 0x1f) | data[6] | (data[1] & 0x1f) |
- 				data[2] | (data[3] & 0x1f) | data[4] | data[8] |
- 				(data[7] & 0x01)) {
--				input_report_key(input, wacom->tool[1], 1);
- 				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
- 			} else {
--				input_report_key(input, wacom->tool[1], 0);
- 				input_report_abs(input, ABS_MISC, 0);
- 			}
- 		}
--- 
-1.7.10.4
+It looks like after the merge of the the sony and steelseries
+branches the hid core hunk was left out, which means that
+this fix-up is never applied.
 
+I will be replying to this email with a fix.
+
+Thanks,
+=46ernando
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

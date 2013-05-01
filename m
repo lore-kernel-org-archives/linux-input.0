@@ -1,175 +1,46 @@
-From: Daniel Leung <daniel.leung@linux.intel.com>
-Subject: Re: [PATCH] HID: hid-sensor-hub: do not process feature reports in
- raw_event
-Date: Wed, 1 May 2013 10:13:03 -0700
-Message-ID: <20130501101303.59b6a135fedf51b4743938e2@linux.intel.com>
-References: <1363886546-6517-1-git-send-email-daniel.leung@linux.intel.com>
-	<51507136.4020308@linux.intel.com>
-	<alpine.LNX.2.00.1303271608500.23442@pobox.suse.cz>
-	<38514.10.7.197.74.1365440092.squirrel@linux.intel.com>
-	<33544.10.7.197.74.1365551736.squirrel@linux.intel.com>
-	<516588E2.4030901@linux.intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH -next] hid: fix hid-steelseries kconfig/build
+Date: Wed, 01 May 2013 11:44:01 -0700
+Message-ID: <51816271.3040400@infradead.org>
+References: <20130501183734.7ad1efca2d06e75432edabbd@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:55212 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751342Ab3EARNQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 May 2013 13:13:16 -0400
-In-Reply-To: <516588E2.4030901@linux.intel.com>
+Received: from casper.infradead.org ([85.118.1.10]:40372 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756600Ab3EASob (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 May 2013 14:44:31 -0400
+In-Reply-To: <20130501183734.7ad1efca2d06e75432edabbd@canb.auug.org.au>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Jiri, ping?
+From: Randy Dunlap <rdunlap@infradead.org>
 
+Fix hid-steelseries build by making it depends on LEDS_CLASS.
+Build errors happen when LEDS_CLASS=m  and HID_STEELSERIES=y.
 
-Daniel
+drivers/built-in.o: In function `steelseries_srws1_remove':
+hid-steelseries.c:(.text+0x3b97a1): undefined reference to `led_classdev_unregister'
+drivers/built-in.o: In function `steelseries_srws1_probe':
+hid-steelseries.c:(.text+0x3b9c51): undefined reference to `led_classdev_register'
+hid-steelseries.c:(.text+0x3b9ce5): undefined reference to `led_classdev_register'
+hid-steelseries.c:(.text+0x3b9d4b): undefined reference to `led_classdev_unregister'
 
-> On Wed, 10 Apr 2013 08:44:34 -0700
-> Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
->
-> Thanks Daniel.
-> 
-> I don't know if this should be fixed in client drivers since other 
-> drivers may have this issue.
-> 
-> I interpret the return value of hdrv->raw_event as :
-> "<0"     : Error. The driver has parsed the message and found issue
-> "==0"  :    No error and driver has consumed report
-> ">0" : Not an error and driver has not parsed or consumed the event
-> 
-> In this case hid-sensor-hub didn't parse message to return any error or 
-> to say consumed.
-> 
-> May be hid-core.c
-> 
->         if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
->                  ret = hdrv->raw_event(hid, report, data, size);
->                  if (ret < 0) {
->                          goto unlock;
->                  }
->          }
-> 
-> 
-> I think Jiri can have better idea.
-> 
-> Thanks,
-> Srinivas
-> 
-> 
-> On 04/09/2013 04:55 PM, Daniel Leung wrote:
-> >>> On Mon, 25 Mar 2013, Srinivas Pandruvada wrote:
-> >>>
-> >>>> Daniel,
-> >>>>
-> >>>> I am looking at 3.9.rc1.
-> >>>> The only place I see the raw_event callback is called from
-> >>>> hid/hid_input_report(). hid_input_report is called with type
-> >>>> HID_INPUT_REPORT
-> >>>> in all cases, except hid_ctrl(), where it can be different depending on
-> >>>> xx.report->type. But here, the return value is not checked.
-> >>>>
-> >>>> Do you know the call chain for HID_FETURE_REPORT, where this is
-> >>>> creating
-> >>>> problem?
-> >>> This was exactly what I was wondering about when I have seen the initial
-> >>> patch a few weeks ago.
-> >>>
-> >>> Daniel, could you please elaborate? Is there a out-of-tree driver for
-> >>> Acer
-> >>> Iconia W700?
-> >> Sorry for the late reply. I was out of town and was having difficulties
-> >> accessing the mail server.
-> >>
-> >> For the call path, here is what I got (using WARN_ON()):
-> >>
-> >> <4>[  150.943775] ------------[ cut here ]------------
-> >> <4>[  150.943861] WARNING: at
-> >> ../../../../../../../../../../home/dleung/android/ia/private/jb-mr1-internal/kernel/intel/drivers/hid/hid-sensor-hub.c:418
-> >> sensor_hub_raw_event+0x2d0/0x3b0 [hid_sensor_hub]()
-> >> <4>[  150.944028] Hardware name: ICONIA W700
-> >> <7>[  150.944071] Modules linked in: hid_sensor_als hid_sensor_gyro_3d
-> >> hid_sensor_accel_3d uvcvideo videobuf2_vmalloc videobuf2_memops
-> >> videobuf2_core btusb bluetooth hid_multitouch ath9k ath9k_common ath9k_hw
-> >> ath snd_hda_codec_hdmi snd_hda_codec_realtek ip6table_raw snd_hda_intel
-> >> iptable_raw snd_hda_codec snd_hwdep snd_pcm snd_page_alloc snd_timer snd
-> >> soundcore hid_sensor_trigger hid_sensor_iio_common hid_sensor_hub
-> >> industrialio_triggered_buffer kfifo_buf industrialio coretemp
-> >> <7>[  150.944132] Pid: 0, comm: swapper/1 Not tainted
-> >> 3.8.0-aia1-00043-gd7fd780-dirty #2
-> >> <7>[  150.944136] Call Trace:
-> >> <7>[  150.944141]  <IRQ>  [<ffffffff8105b5bf>]
-> >> warn_slowpath_common+0x7f/0xc0
-> >> <7>[  150.944163]  [<ffffffff8105b61a>] warn_slowpath_null+0x1a/0x20
-> >> <7>[  150.944173]  [<ffffffffa00315e0>] sensor_hub_raw_event+0x2d0/0x3b0
-> >> [hid_sensor_hub]
-> >> <7>[  150.944184]  [<ffffffff819021e7>] ?
-> >> _raw_spin_unlock_irqrestore+0x57/0x70
-> >> <7>[  150.944195]  [<ffffffff816ccce3>] hid_input_report+0x283/0x2d0
-> >> <7>[  150.944203]  [<ffffffff816d9faf>] hid_ctrl+0x9f/0x180
-> >> <7>[  150.944212]  [<ffffffff815b2087>] usb_hcd_giveback_urb+0x77/0x110
-> >> <7>[  150.944222]  [<ffffffff8160073f>] xhci_irq+0x60f/0x1530
-> >> <7>[  150.944230]  [<ffffffff810df0fe>] ? handle_edge_irq+0x1e/0x130
-> >> <7>[  150.944239]  [<ffffffff810af04f>] ?
-> >> __lock_acquire.isra.31+0x28f/0xa70
-> >> <7>[  150.944247]  [<ffffffff81601671>] xhci_msi_irq+0x11/0x20
-> >> <7>[  150.944258]  [<ffffffff810dc395>] handle_irq_event_percpu+0x55/0x210
-> >> <7>[  150.944267]  [<ffffffff810dc598>] handle_irq_event+0x48/0x70
-> >> <7>[  150.944273]  [<ffffffff810df157>] handle_edge_irq+0x77/0x130
-> >> <7>[  150.944283]  [<ffffffff81004180>] handle_irq+0x60/0x150
-> >> <7>[  150.944293]  [<ffffffff81906406>] ?
-> >> atomic_notifier_call_chain+0x16/0x20
-> >> <7>[  150.944302]  [<ffffffff8190c38a>] do_IRQ+0x5a/0xe0
-> >> <7>[  150.944309]  [<ffffffff8190266f>] common_interrupt+0x6f/0x6f
-> >> <7>[  150.944313]  <EOI>  [<ffffffff816a97f5>] ?
-> >> cpuidle_wrap_enter+0x55/0xa0
-> >> <7>[  150.944327]  [<ffffffff816a97f1>] ? cpuidle_wrap_enter+0x51/0xa0
-> >> <7>[  150.944334]  [<ffffffff816a9850>] cpuidle_enter_tk+0x10/0x20
-> >> <7>[  150.944341]  [<ffffffff816a940f>] cpuidle_idle_call+0xaf/0x2b0
-> >> <7>[  150.944350]  [<ffffffff8100b3aa>] cpu_idle+0xda/0x130
-> >> <7>[  150.944360]  [<ffffffff818f081d>] start_secondary+0x266/0x268
-> >> <4>[  150.944365] ---[ end trace 32319d39ebee5616 ]---
-> >>
-> >>
-> >> You can see that it went through hid_ctrl().
-> >>
-> >>  From what I can gather using usbmon, the sensor hub sends the feature
-> >> report correctly. However, the in-kernel struct is not updated when the
-> >> report comes in. Therefore, the report from sensor_hub_report() is always
-> >> zero-filled. When calling sensor_hub_set_feature(), those zeros are being
-> >> sent back to the device. The feature report contains fields for power
-> >> state and reporting state. If they are set to zero, the firmware does not
-> >> know what to do as zero means undefined state. Both power and reporting
-> >> states have to be set for sensor to report values. Given the zero-filled
-> >> report, and we can only deal with one field in sensor_hub_set_feature(),
-> >> setting power state to non-zero also sends zero (i.e. undefined state) to
-> >> the reporting state field, and vice versa.
-> >>
-> >> The sensor hub on Acer Iconia W700 is using drivers/hid/hid-sensor-hub.c.
-> >> I also played with Sony Vaio Duo 11 a while back (before having this
-> >> patch), and was having trouble turning on gyroscope. I suspect it is
-> >> caused by the same issue. The sensor hub on Acer is from STMicro, while
-> >> the one in Vaio Duo is from Freescale.
-> > Just to clarify a little bit on the issue.
-> >
-> > Although hid_ctrl() does not care the return value of hid_input_report(),
-> > the issue is within hid_input_report(). In drivers/hid/hid-core.c:1317
-> > where raw_event() is called, if return is non-zero, the following call of
-> > hid_report_raw_event() is skipped. This call is needed to have the
-> > in-kernel struct updated with the actual feature report from device.
-> >
-> >
-> > Daniel
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >
-> 
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+---
+ drivers/hid/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-
--- 
-Daniel Leung <daniel.leung@linux.intel.com>
+--- linux-next-20130501.orig/drivers/hid/Kconfig
++++ linux-next-20130501/drivers/hid/Kconfig
+@@ -610,6 +610,7 @@ config HID_SPEEDLINK
+ config HID_STEELSERIES
+ 	tristate "Steelseries SRW-S1 steering wheel support"
+ 	depends on HID
++	depends on LEDS_CLASS
+ 	---help---
+ 	Support for Steelseries SRW-S1 steering wheel
+ 

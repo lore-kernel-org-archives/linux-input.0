@@ -1,70 +1,175 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: fix botched tree merge that disabled fix-up for
- certain Sony RF receivers
-Date: Wed, 1 May 2013 14:59:29 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1305011458440.20139@pobox.suse.cz>
-References: <1358221428.9926.1.camel@nexus.lab.ntt.co.jp>  <20130115103638.be566e39f0f5ad7186362dd8@studenti.unina.it>  <50F52986.2080002@lab.ntt.co.jp>  <1358246448.4897.3.camel@nexus.lab.ntt.co.jp>  <alpine.LNX.2.00.1301151702150.7734@pobox.suse.cz>
- <1367367906.4712.4.camel@nexus> <1367367983.4712.5.camel@nexus>
+From: Daniel Leung <daniel.leung@linux.intel.com>
+Subject: Re: [PATCH] HID: hid-sensor-hub: do not process feature reports in
+ raw_event
+Date: Wed, 1 May 2013 10:13:03 -0700
+Message-ID: <20130501101303.59b6a135fedf51b4743938e2@linux.intel.com>
+References: <1363886546-6517-1-git-send-email-daniel.leung@linux.intel.com>
+	<51507136.4020308@linux.intel.com>
+	<alpine.LNX.2.00.1303271608500.23442@pobox.suse.cz>
+	<38514.10.7.197.74.1365440092.squirrel@linux.intel.com>
+	<33544.10.7.197.74.1365551736.squirrel@linux.intel.com>
+	<516588E2.4030901@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55101 "EHLO mx2.suse.de"
+Received: from mga09.intel.com ([134.134.136.24]:55212 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755152Ab3EAM7d (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 1 May 2013 08:59:33 -0400
-In-Reply-To: <1367367983.4712.5.camel@nexus>
+	id S1751342Ab3EARNQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 May 2013 13:13:16 -0400
+In-Reply-To: <516588E2.4030901@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Fernando_Luis_V=E1zquez_Cao?= <fernando_b1@lab.ntt.co.jp>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org
 
-On Wed, 1 May 2013, Fernando Luis V=C3=A1zquez Cao wrote:
+Jiri, ping?
 
-> It looks like the manual merge 0d69a3c731e120b05b7da9fb976830475a3fbc=
-01 ("Merge
-> branches 'for-3.9/sony' and 'for-3.9/steelseries' into for-linus") ac=
-cidentally
-> removed Sony RF receiver with USB product id 0x0374 from the "have sp=
-ecial
-> driver" list, effectively nullifying a464918419f94a0043d2f549d6defb4c=
-3f69f68a
-> ("HID: add support for Sony RF receiver with USB product id 0x0374").=
- Add the
-> device back to the list.
->=20
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Fernando Luis Vazquez Cao <fernando@oss.ntt.co.jp>
-> ---
->=20
-> diff -urNp linux-3.9/drivers/hid/hid-core.c linux-3.9-fix/drivers/hid=
-/hid-core.c
-> --- linux-3.9/drivers/hid/hid-core.c	2013-04-29 09:36:01.000000000 +0=
-900
-> +++ linux-3.9-fix/drivers/hid/hid-core.c	2013-04-30 21:53:57.59626969=
-2 +0900
-> @@ -1702,6 +1702,7 @@ static const struct hid_device_id hid_ha
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_=
-CONTROLLER) },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_C=
-ONTROLLER) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MO=
-USE) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MO=
-USE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERI=
-ES_SRWS1) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESK=
-TOP) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_THINGM, USB_DEVICE_ID_BLINK1) },
 
-Thanks a lot for noticing. Applied.
+Daniel
 
---=20
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> On Wed, 10 Apr 2013 08:44:34 -0700
+> Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
+>
+> Thanks Daniel.
+> 
+> I don't know if this should be fixed in client drivers since other 
+> drivers may have this issue.
+> 
+> I interpret the return value of hdrv->raw_event as :
+> "<0"     : Error. The driver has parsed the message and found issue
+> "==0"  :    No error and driver has consumed report
+> ">0" : Not an error and driver has not parsed or consumed the event
+> 
+> In this case hid-sensor-hub didn't parse message to return any error or 
+> to say consumed.
+> 
+> May be hid-core.c
+> 
+>         if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
+>                  ret = hdrv->raw_event(hid, report, data, size);
+>                  if (ret < 0) {
+>                          goto unlock;
+>                  }
+>          }
+> 
+> 
+> I think Jiri can have better idea.
+> 
+> Thanks,
+> Srinivas
+> 
+> 
+> On 04/09/2013 04:55 PM, Daniel Leung wrote:
+> >>> On Mon, 25 Mar 2013, Srinivas Pandruvada wrote:
+> >>>
+> >>>> Daniel,
+> >>>>
+> >>>> I am looking at 3.9.rc1.
+> >>>> The only place I see the raw_event callback is called from
+> >>>> hid/hid_input_report(). hid_input_report is called with type
+> >>>> HID_INPUT_REPORT
+> >>>> in all cases, except hid_ctrl(), where it can be different depending on
+> >>>> xx.report->type. But here, the return value is not checked.
+> >>>>
+> >>>> Do you know the call chain for HID_FETURE_REPORT, where this is
+> >>>> creating
+> >>>> problem?
+> >>> This was exactly what I was wondering about when I have seen the initial
+> >>> patch a few weeks ago.
+> >>>
+> >>> Daniel, could you please elaborate? Is there a out-of-tree driver for
+> >>> Acer
+> >>> Iconia W700?
+> >> Sorry for the late reply. I was out of town and was having difficulties
+> >> accessing the mail server.
+> >>
+> >> For the call path, here is what I got (using WARN_ON()):
+> >>
+> >> <4>[  150.943775] ------------[ cut here ]------------
+> >> <4>[  150.943861] WARNING: at
+> >> ../../../../../../../../../../home/dleung/android/ia/private/jb-mr1-internal/kernel/intel/drivers/hid/hid-sensor-hub.c:418
+> >> sensor_hub_raw_event+0x2d0/0x3b0 [hid_sensor_hub]()
+> >> <4>[  150.944028] Hardware name: ICONIA W700
+> >> <7>[  150.944071] Modules linked in: hid_sensor_als hid_sensor_gyro_3d
+> >> hid_sensor_accel_3d uvcvideo videobuf2_vmalloc videobuf2_memops
+> >> videobuf2_core btusb bluetooth hid_multitouch ath9k ath9k_common ath9k_hw
+> >> ath snd_hda_codec_hdmi snd_hda_codec_realtek ip6table_raw snd_hda_intel
+> >> iptable_raw snd_hda_codec snd_hwdep snd_pcm snd_page_alloc snd_timer snd
+> >> soundcore hid_sensor_trigger hid_sensor_iio_common hid_sensor_hub
+> >> industrialio_triggered_buffer kfifo_buf industrialio coretemp
+> >> <7>[  150.944132] Pid: 0, comm: swapper/1 Not tainted
+> >> 3.8.0-aia1-00043-gd7fd780-dirty #2
+> >> <7>[  150.944136] Call Trace:
+> >> <7>[  150.944141]  <IRQ>  [<ffffffff8105b5bf>]
+> >> warn_slowpath_common+0x7f/0xc0
+> >> <7>[  150.944163]  [<ffffffff8105b61a>] warn_slowpath_null+0x1a/0x20
+> >> <7>[  150.944173]  [<ffffffffa00315e0>] sensor_hub_raw_event+0x2d0/0x3b0
+> >> [hid_sensor_hub]
+> >> <7>[  150.944184]  [<ffffffff819021e7>] ?
+> >> _raw_spin_unlock_irqrestore+0x57/0x70
+> >> <7>[  150.944195]  [<ffffffff816ccce3>] hid_input_report+0x283/0x2d0
+> >> <7>[  150.944203]  [<ffffffff816d9faf>] hid_ctrl+0x9f/0x180
+> >> <7>[  150.944212]  [<ffffffff815b2087>] usb_hcd_giveback_urb+0x77/0x110
+> >> <7>[  150.944222]  [<ffffffff8160073f>] xhci_irq+0x60f/0x1530
+> >> <7>[  150.944230]  [<ffffffff810df0fe>] ? handle_edge_irq+0x1e/0x130
+> >> <7>[  150.944239]  [<ffffffff810af04f>] ?
+> >> __lock_acquire.isra.31+0x28f/0xa70
+> >> <7>[  150.944247]  [<ffffffff81601671>] xhci_msi_irq+0x11/0x20
+> >> <7>[  150.944258]  [<ffffffff810dc395>] handle_irq_event_percpu+0x55/0x210
+> >> <7>[  150.944267]  [<ffffffff810dc598>] handle_irq_event+0x48/0x70
+> >> <7>[  150.944273]  [<ffffffff810df157>] handle_edge_irq+0x77/0x130
+> >> <7>[  150.944283]  [<ffffffff81004180>] handle_irq+0x60/0x150
+> >> <7>[  150.944293]  [<ffffffff81906406>] ?
+> >> atomic_notifier_call_chain+0x16/0x20
+> >> <7>[  150.944302]  [<ffffffff8190c38a>] do_IRQ+0x5a/0xe0
+> >> <7>[  150.944309]  [<ffffffff8190266f>] common_interrupt+0x6f/0x6f
+> >> <7>[  150.944313]  <EOI>  [<ffffffff816a97f5>] ?
+> >> cpuidle_wrap_enter+0x55/0xa0
+> >> <7>[  150.944327]  [<ffffffff816a97f1>] ? cpuidle_wrap_enter+0x51/0xa0
+> >> <7>[  150.944334]  [<ffffffff816a9850>] cpuidle_enter_tk+0x10/0x20
+> >> <7>[  150.944341]  [<ffffffff816a940f>] cpuidle_idle_call+0xaf/0x2b0
+> >> <7>[  150.944350]  [<ffffffff8100b3aa>] cpu_idle+0xda/0x130
+> >> <7>[  150.944360]  [<ffffffff818f081d>] start_secondary+0x266/0x268
+> >> <4>[  150.944365] ---[ end trace 32319d39ebee5616 ]---
+> >>
+> >>
+> >> You can see that it went through hid_ctrl().
+> >>
+> >>  From what I can gather using usbmon, the sensor hub sends the feature
+> >> report correctly. However, the in-kernel struct is not updated when the
+> >> report comes in. Therefore, the report from sensor_hub_report() is always
+> >> zero-filled. When calling sensor_hub_set_feature(), those zeros are being
+> >> sent back to the device. The feature report contains fields for power
+> >> state and reporting state. If they are set to zero, the firmware does not
+> >> know what to do as zero means undefined state. Both power and reporting
+> >> states have to be set for sensor to report values. Given the zero-filled
+> >> report, and we can only deal with one field in sensor_hub_set_feature(),
+> >> setting power state to non-zero also sends zero (i.e. undefined state) to
+> >> the reporting state field, and vice versa.
+> >>
+> >> The sensor hub on Acer Iconia W700 is using drivers/hid/hid-sensor-hub.c.
+> >> I also played with Sony Vaio Duo 11 a while back (before having this
+> >> patch), and was having trouble turning on gyroscope. I suspect it is
+> >> caused by the same issue. The sensor hub on Acer is from STMicro, while
+> >> the one in Vaio Duo is from Freescale.
+> > Just to clarify a little bit on the issue.
+> >
+> > Although hid_ctrl() does not care the return value of hid_input_report(),
+> > the issue is within hid_input_report(). In drivers/hid/hid-core.c:1317
+> > where raw_event() is called, if return is non-zero, the following call of
+> > hid_report_raw_event() is skipped. This call is needed to have the
+> > in-kernel struct updated with the actual feature report from device.
+> >
+> >
+> > Daniel
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
+> 
+
+
+-- 
+Daniel Leung <daniel.leung@linux.intel.com>

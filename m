@@ -1,43 +1,70 @@
-From: Ray Dillinger <bear@sonic.net>
-Subject: Re: Game Controllers
-Date: Wed, 01 May 2013 20:25:23 -0700
-Message-ID: <5181DCA3.8040202@sonic.net>
-References: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCH] HID: hid-steelseries fix led class build issue
+Date: Thu,  2 May 2013 00:27:21 -0600
+Message-ID: <1367476041-25760-1-git-send-email-simon@mungewell.org>
+References: <51816271.3040400@infradead.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from b.mail.sonic.net ([64.142.19.5]:47197 "EHLO b.mail.sonic.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750732Ab3EBEGg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 May 2013 00:06:36 -0400
-In-Reply-To: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com>
+Received: from host171.canaca.com ([67.55.55.225]:49828 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752029Ab3EBG1t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 May 2013 02:27:49 -0400
+In-Reply-To: <51816271.3040400@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Todd Showalter <todd@electronjump.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, simon@mungewell.org, Randy Dunlap <rdunlap@infradead.org>
 
-On 04/26/2013 05:13 PM, Todd Showalter wrote:
->      I'm a game developer, and I'm interested in discussing changes in
-> the way gamepad input is handled at the evdev and device level; is
-> this the correct place to do that?
->
->                                         Todd.
->
-> --
->   Todd Showalter, President,
->   Electron Jump Games, Inc.
-> --
+Fixes 'undefined reference' issue when hid-steelseries is built in,
+but led-class is a module.
+--
+drivers/built-in.o: In function `steelseries_srws1_remove':
+hid-steelseries.c:(.text+0x3b97a1): undefined reference to `led_classdev_unregister'
+drivers/built-in.o: In function `steelseries_srws1_probe':
+hid-steelseries.c:(.text+0x3b9c51): undefined reference to `led_classdev_register'
+hid-steelseries.c:(.text+0x3b9ce5): undefined reference to `led_classdev_register'
+hid-steelseries.c:(.text+0x3b9d4b): undefined reference to `led_classdev_unregister'
+--
 
-I sure hope so.  That's why I'm here too, but I still haven't seen any
-detailed discussion of it yet.  I have a keyboard with builtin gamepad
-that registers as a different USB device, and I'm trying to figure out
-how to write a driver that treats the gamepad as being logically a part
-of the keyboard so I can use Autokey to record and play back macros.
+Patch allows LED control when led-class is built in, or both hid-steelseries
+_and_ led-class are both modules.
+---
+ drivers/hid/hid-steelseries.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-Autokey does everything that gamepad software usually does, so it's 
-ideal for the purpose -- but as far as I can tell, it cannot be made
-to "see" something that isn't the same USB device as the keyboard.
-
-				Ray
+diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
+index 2ed995c..dbd5e2e 100644
+--- a/drivers/hid/hid-steelseries.c
++++ b/drivers/hid/hid-steelseries.c
+@@ -19,7 +19,8 @@
+ #include "usbhid/usbhid.h"
+ #include "hid-ids.h"
+ 
+-#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
++#if defined(CONFIG_LEDS_CLASS) || \
++    (defined(CONFIG_LEDS_CLASS_MODULE) && defined(CONFIG_HID_STEELSERIES_MODULE))
+ #define SRWS1_NUMBER_LEDS 15
+ struct steelseries_srws1_data {
+ 	__u16 led_state;
+@@ -108,7 +109,8 @@ static __u8 steelseries_srws1_rdesc_fixed[] = {
+ 0xC0                /*  End Collection                      */
+ };
+ 
+-#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
++#if defined(CONFIG_LEDS_CLASS) || \
++    (defined(CONFIG_LEDS_CLASS_MODULE) && defined(CONFIG_HID_STEELSERIES_MODULE))
+ static void steelseries_srws1_set_leds(struct hid_device *hdev, __u16 leds)
+ {
+ 	struct list_head *report_list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
+@@ -371,7 +373,8 @@ MODULE_DEVICE_TABLE(hid, steelseries_srws1_devices);
+ static struct hid_driver steelseries_srws1_driver = {
+ 	.name = "steelseries_srws1",
+ 	.id_table = steelseries_srws1_devices,
+-#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
++#if defined(CONFIG_LEDS_CLASS) || \
++    (defined(CONFIG_LEDS_CLASS_MODULE) && defined(CONFIG_HID_STEELSERIES_MODULE))
+ 	.probe = steelseries_srws1_probe,
+ 	.remove = steelseries_srws1_remove,
+ #endif
+-- 
+1.8.1.2
 

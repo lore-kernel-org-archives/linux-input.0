@@ -1,121 +1,162 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Todd Showalter <todd@electronjump.com>
 Subject: Re: Game Controllers
-Date: Thu, 2 May 2013 11:29:36 -0700
-Message-ID: <20130502182935.GD28625@core.coreip.homeip.net>
+Date: Thu, 2 May 2013 15:10:55 -0400
+Message-ID: <CAFmpkygadXbwtyD0Pcc_K4EPqsqRq0EudX=ge6KFoaykR4CHVA@mail.gmail.com>
 References: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com>
- <2483279.JlnWrOX8Uv@dtor-d630.eng.vmware.com>
- <CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
- <20130502083547.279d08a3cbd7a115489de4b7@studenti.unina.it>
- <CAFmpkygZ+xvpwp9KQr6O4emk2f1Bn0EBS0WeN1ji0qVUJz2rwA@mail.gmail.com>
- <CANq1E4QstEwpxEReYOsmJhPMED+eWv3SBSEMzYMNVq5Ywme38g@mail.gmail.com>
- <CAFmpkyj+MV0+v8zKiKVAYX4uQHLv3jdCo=VR4nb=-M9NOUGYWg@mail.gmail.com>
- <20130502163824.GA28625@core.coreip.homeip.net>
- <CAFmpkyjO8WwUxOJ2BtULwOTcfYs7sjdWMS_=Fcho996VijEFHg@mail.gmail.com>
+	<2483279.JlnWrOX8Uv@dtor-d630.eng.vmware.com>
+	<CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
+	<20130502083547.279d08a3cbd7a115489de4b7@studenti.unina.it>
+	<CAFmpkygZ+xvpwp9KQr6O4emk2f1Bn0EBS0WeN1ji0qVUJz2rwA@mail.gmail.com>
+	<20130502170103.GC28625@core.coreip.homeip.net>
+	<CAFmpkygr5c-munK9ix=exq4KRgDEUbP+OP_AABuuTR1P_2V1-g@mail.gmail.com>
+	<CANq1E4RRFNPZ-z86yny89hViMWREpG1f1in5O3kT8usHO57YAQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f50.google.com ([209.85.210.50]:62959 "EHLO
-	mail-da0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761663Ab3EBS3k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 May 2013 14:29:40 -0400
-Received: by mail-da0-f50.google.com with SMTP id i23so426937dad.23
-        for <linux-input@vger.kernel.org>; Thu, 02 May 2013 11:29:39 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAFmpkyjO8WwUxOJ2BtULwOTcfYs7sjdWMS_=Fcho996VijEFHg@mail.gmail.com>
+Received: from mail-qe0-f41.google.com ([209.85.128.41]:32974 "EHLO
+	mail-qe0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760945Ab3EBTLB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 May 2013 15:11:01 -0400
+Received: by mail-qe0-f41.google.com with SMTP id b10so498183qen.0
+        for <linux-input@vger.kernel.org>; Thu, 02 May 2013 12:10:56 -0700 (PDT)
+In-Reply-To: <CANq1E4RRFNPZ-z86yny89hViMWREpG1f1in5O3kT8usHO57YAQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Todd Showalter <todd@electronjump.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, Antonio Ospite <ospite@studenti.unina.it>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On Thu, May 02, 2013 at 01:06:59PM -0400, Todd Showalter wrote:
-> On Thu, May 2, 2013 at 12:38 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> 
-> > I wish we have gotten all the mappings correct from the get go, but that
-> > did not happen, so now we need to move forward. That means that we can
-> > establish the canonical mapping and try to follow it for the new
-> > devices, but you still need to support older devices and for that you
-> > will still need mapping.
-> 
->     That's why I'm suggesting having /dev/input/gamepad* devices
-> alongside the equivalent /dev/input/event* devices.  All current users
-> are either looking at js* or event* device nodes, so as long as those
-> are left unchanged, nothing breaks.  New users can open gamepad* and
-> know that they'll get consistent results.
-> 
->     New devices can support the gamepad mapping so that what gets
-> exported in event* and js* is in canonical order, and older devices
-> will just work as they always did.  I strongly suspect once that's in
-> place you'll find that most users go straight to the new interface.
-> 
->     I'm also talking to the Wayland folks and offering to do the
-> gamepad event protocol code, and if /dev/input/gamepad* is available
-> that's definitely what I plan to feed into the Wayland event system.
-> 
-> >>     Really, what I want is roughly what /dev/input/js* has, but as
-> >> /dev/input/gamepad* with standardized mapping.
-> >
-> > This is understandable but I do not believe this should be done in
-> > kernel, but rather in userspace.
-> 
->     I can see why you believe that, but personally I think the kernel
-> is exactly where it belongs:
-> 
-> - it's a useful abstraction, as useful for games as the standard mouse
-> and standard keyboard are for other programs -- programs don't have to
-> call a translation library to remap mouse input
+On Thu, May 2, 2013 at 1:54 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
 
-That is because all mice generate standard events. Note that mice users
-do not have a dedicated interface (mousedev is legacy and nothing
-remotely modern is using it).
+> How about a new input property that marks devices that follow general
+> rules as such? So for instance:
+>   INPUT_PROP_DEV_MOUSE
+>   INPUT_PROP_DEV_KEYBOARD
+>   INPUT_PROP_DEV_GAMEPAD
+>   INPUT_PROP_DEV_JOYSTICK
+> And so on. And then we can decide on a generic mapping for each. We
+> only set these properties on devices that follow the generic mapping.
+> Devices that don't have these flags set are non-generic or have weird
+> keymaps. This would also solve problems were the xserver thinks some
+> gamepads or accelerometers are a mouse (or similar).
 
-You only need to translate for devices that do not generate the events
-you are expecting.
+    That could work.  As long as I can programatically filter devices
+to get the ones with sane behaviour, I don't really have strong
+opinions about the specific method.  The /dev/input/gamepad* method
+solves the problem, but if I can march /dev/input/event* looking for
+events that advertise INPUT_PROP_DEV_GAMEPAD I think it gets me what I
+need.
 
-> 
-> - the current game controller semi-standard, the js* interface, was
-> really designed for 90s era flight simulator joysticks, and while
-> gamepads have been wedged into it they aren't a great match
+> This allows user-space to detect generic devices. For all other device
+> types, they need special support, anyway. They can still use the same
+> heuristics that they use now, but we can try to provide a generic flag
+> to avoid these often wrong heuristics.
 
-Completely agree. The js interface was here way before we had the
-current input subsystem with evdev interface that is proved to be
-flexible enough. So when evdev was created joydev was implemented to
-keep compatibility with older software. Newer software again is expected
-to use evdev exclusively (from kernel POV, there can/should be userspace
-layers on top).
+    That's the thing; while the ps3 controller has (for example) 12
+pressure sensitive buttons and a suite of accelerometers, most games
+don't care.  Even on the ps3, most games don't care.  A few do, and
+they do the extra work they need to in order to use those controls,
+but the vast majority of games want one or two analog sticks and a
+handful of buttons with known mappings.
 
-> 
-> - any mapping library is going to have to be a mirror of the kernel
-> code, which means it's basically just a lot of duplicated effort with
-> the added penalty of update lag
+    I'd far rather the games with special needs had to do heavy
+lifting than have the common case be complicated just because someone
+might want to use a wiimote with a balance board plugged in though a
+motion plus.
 
-The library can do much more than that. You also need to calibrate the
-device (per user), adjust it to user's tastes and so on. Maybe you have
-a user that is left-handed and you'd like to remap some keys? It is
-certainly not kernel's job.
+    If there was good support for racing wheels, kinect-like
+controllers and so forth, that would be nice too.  But 99% of games
+will have their input needs met just fine by the standard controller
+I'm proposing, the standard keyboard and standard mouse.
 
-There also should not be lag if new devices follow the agreed upon
-mapping.
+> I talked with Kay (udev maintainer) and he was really opposed to huge
+> udev black/white-lists that mark devices as generic MOUSE, KEYBOARD,
+> TOUCHPAD, ... These kernel properties would really help, but require
+> agreement on a generic mapping.
 
-> 
->     Why not fix the problem at the source?  Creating a
-> /dev/input/gamepad* device node for each gamepad in addition to the
-> event* device node solves the whole problem.  It leaves the old
-> interface intact, it only brings the new interface online for devices
-> that support it (and have had the appropriate support code added), and
-> it means that the problem can be tackled piecewise.  At the same time,
-> it gives us standard behaviour that a game can rely on.
+    What about a /dev/input/by-type directory?
+/dev/input/by-type/gamepad could have symlinks to all the
+gamepad-supporting devices, /dev/input/by-type/mouse could symlink the
+mice, and so forth.  Or is that udev's territory?
 
-The same thing can be done in a library. Libraries are easier then
-kernels, you do not need to consume memory until needed and you do not
-need to do the conversion if it is not needed. And it should be possible
-to update the library whereas with kernel you mist likely need to reboot
-the box.
+> And as Dmitry noted, we cannot change legacy drivers due to backwards
+> compatibility. A separate /dev/input/gamepad* interface just wastes
+> resources when all you want is just a different and consistent
+> mapping.
 
-Why do people believe that patching the kernel is easier than updating
-userspace?
+    Could we consider a build switch?  Something where people could
+choose to build (for example) the ps3 support either in "legacy" or
+"new" form?  I'd be a little surprised to hear anyone is actually
+relying on the current ps3 mapping, and if it can't be changed and we
+can't offer alternate mappings at runtime, we could let people choose
+which mapping they want.
 
-Thanks.
+    Or could we have an ioctl() to flip it from legacy mode to
+canonical mode?  Or an ioctl() to query the driver for a mapping table
+that would at least tell us how to map from the legacy mapping to a
+canonical mapping?  We're talking about 8 axis index values and 12ish
+button index values, so it could fit in 20 bytes or less per supported
+legacy device.
 
--- 
-Dmitry
+> Why not try to create a /usr/share/gamepad/*.map filetype and let
+> distros ship these files. Your game can then parse these into a table
+> and use the mappings for all legacy gamepads.
+
+    That's an option, but what it mostly means is angry customers
+wanting to know why their handrolled fork of TinyCore Linux doesn't
+see their PowerA Batarang XBox 360 controller.  If I can't force the
+distros to ship the updates in a timely fashion (and I'm pretty sure I
+can't...), what the customer sees is they plug their perfectly good
+controller in, /dev/input/event16 shows up, and my game just ignores
+it.  And I'm stuck responding with email and faq entries saying "step
+1: install git...".
+
+> Or provide a "enable_legacy_mapping=true" module option for legacy
+> gamepad-drivers which allows to switch between different mappings
+> (even though that would be a global flag).
+
+    I'd prefer something like this if we can't just fix things, or an
+ioctl() to toggle behaviour.
+
+> I still think the problems with user-space mappings can be solved. And
+> we should avoid wasting kernel memory for an interface that does
+> nothing more than change button-mappings.
+
+    I'd really like to see Linux be a good option for living room PCs;
+something you can plug into your TV, maybe install Steam or the Ouya
+store or Desura or whatever (or just use your distro's package manager
+as long as I'm dreaming), and be able to run games on it.  You can do
+that now, but there are places (gamepad input is one, sound is
+another) where the user experience and the developer experience are
+less than optimal.
+
+    Users want to plug in a gamepad and have it just work, regardless
+of who made it.  Developers occasionally want access to he more
+esoteric parts of the gamepad hardware, but 99% of the time they just
+want standard sticks-and-buttons functionality mapped in a predictable
+way.
+
+    As a developer, if I had to choose between the current situation
+or having all game hardware map down to a standard one-stick, two
+button controller with no access to anything else, I'd jump on the
+standard controller in a heartbeat.  A standard controller means
+there's a gigantic pile of crap I don't have to deal with every time I
+write a game.  It means once a player knows what the NORTH button is,
+it's the same in every game and on every controller, regardless of
+developer or hardware maker.
+
+    The further away from the data source the translation to a
+standard controller is when it happens, the more likely it is to
+break.  Right now, we're fixing it at the app level, which sucks for
+everyone.  Pushing it up to a library or a set of data tables is
+better than what we have now, but only slightly.  I'm trying to get it
+pushed at least to the point where it's between Wayland/X11 and evdev,
+but even at that point it means there are inevitably going to be
+version mismatches or missing translation tables.  We can't fix the
+hardware, so the closest to the data source we can theoretically get
+to is the drivers.
+
+                                       Todd.
+
+--
+ Todd Showalter, President,
+ Electron Jump Games, Inc.

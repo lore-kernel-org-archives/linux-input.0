@@ -1,45 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: Game Controllers
-Date: Thu, 2 May 2013 09:55:57 -0700
-Message-ID: <20130502165556.GB28625@core.coreip.homeip.net>
+Date: Thu, 2 May 2013 10:01:03 -0700
+Message-ID: <20130502170103.GC28625@core.coreip.homeip.net>
 References: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com>
  <2483279.JlnWrOX8Uv@dtor-d630.eng.vmware.com>
  <CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
  <20130502083547.279d08a3cbd7a115489de4b7@studenti.unina.it>
  <CAFmpkygZ+xvpwp9KQr6O4emk2f1Bn0EBS0WeN1ji0qVUJz2rwA@mail.gmail.com>
- <CANq1E4QstEwpxEReYOsmJhPMED+eWv3SBSEMzYMNVq5Ywme38g@mail.gmail.com>
- <CAFmpkyhtrby3OR7zFq3af6SKEBu24AD47bF2y9gdqMWnwgbG9Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:60191 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760964Ab3EBQ4B (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 May 2013 12:56:01 -0400
-Received: by mail-pd0-f179.google.com with SMTP id q10so453366pdj.24
-        for <linux-input@vger.kernel.org>; Thu, 02 May 2013 09:56:00 -0700 (PDT)
+Received: from mail-da0-f50.google.com ([209.85.210.50]:38433 "EHLO
+	mail-da0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757211Ab3EBRBH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 May 2013 13:01:07 -0400
+Received: by mail-da0-f50.google.com with SMTP id i23so393989dad.23
+        for <linux-input@vger.kernel.org>; Thu, 02 May 2013 10:01:06 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAFmpkyhtrby3OR7zFq3af6SKEBu24AD47bF2y9gdqMWnwgbG9Q@mail.gmail.com>
+In-Reply-To: <CAFmpkygZ+xvpwp9KQr6O4emk2f1Bn0EBS0WeN1ji0qVUJz2rwA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Todd Showalter <todd@electronjump.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, Antonio Ospite <ospite@studenti.unina.it>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Cc: Antonio Ospite <ospite@studenti.unina.it>, linux-input@vger.kernel.org
 
-On Thu, May 02, 2013 at 11:37:48AM -0400, Todd Showalter wrote:
->     Ok, here's a question: could gamepad-like devices have two dev
-> entries?  One that exported the full raw device, and one that
-> responded to EVIOCGNAME with "Standard Gamepad"?  That way, the raw
-> device in all its glory would be available for anything that wanted to
-> understand the device, and games that just wanted bog standard console
-> gamepad controls could have it without having to jump through hoops.
+On Thu, May 02, 2013 at 09:46:44AM -0400, Todd Showalter wrote:
+> 
+> left stick: ABS_X, ABS_Y
+> right stick: ABS_RX, ABS_RY
 
-No, not in the kernel please. Create a library that implements the
-"standard gamepad", like we have tslib for "standard touchscreen" and
-have it do the transformations.
+Not sure about this one. Originally RX, RY and RZ were introduces for
+device having more than 3 degress of freedom; and RX is used by many
+joystick devices. We'd ether need a property bit to distinguish gamepad
+from a joystick or simply ass ABS_X2, ABS_Y2 etc for the second stick.
 
-Kernel can try doing proper mapping but userspace should examine device
-and try to make most out of what it offers even if it is not exactly PS3
-controller.
+> dpad: ABS_HAT0X, ABS_HAT0Y
+> left trigger: ABS_Z
+
+Huh?
+
+> right trigger: ABS_RZ
+
+Not at all. These are not absolute events but rather buttons, so let's
+define them as such.
+
+> start button: BTN_START
+> system button: BTN_SYSTEM
+> four face buttons: BTN_NORTH, BTN_EAST, BTN_SOUTH, BTN_WEST
+> two shoulder buttons: BTN_TL, BTN_TR
+> two stick click buttons: BTN_THUMBL, BTN_THUMBR
 
 Thanks.
 

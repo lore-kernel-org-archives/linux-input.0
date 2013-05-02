@@ -1,13 +1,13 @@
 From: Simon Wood <simon@mungewell.org>
 Subject: [PATCH] HID: hid-steelseries fix led class build issue
-Date: Thu,  2 May 2013 00:27:21 -0600
-Message-ID: <1367476041-25760-1-git-send-email-simon@mungewell.org>
+Date: Thu,  2 May 2013 00:30:38 -0600
+Message-ID: <1367476238-25828-1-git-send-email-simon@mungewell.org>
 References: <51816271.3040400@infradead.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:49828 "EHLO
+Received: from host171.canaca.com ([67.55.55.225]:35349 "EHLO
 	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752029Ab3EBG1t (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 May 2013 02:27:49 -0400
+	with ESMTP id S1751834Ab3EBGaq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 May 2013 02:30:46 -0400
 In-Reply-To: <51816271.3040400@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -27,6 +27,8 @@ hid-steelseries.c:(.text+0x3b9d4b): undefined reference to `led_classdev_unregis
 
 Patch allows LED control when led-class is built in, or both hid-steelseries
 _and_ led-class are both modules.
+
+Signed-off-by: Simon Wood <simon@mungewell.org>
 ---
  drivers/hid/hid-steelseries.c | 9 ++++++---
  1 file changed, 6 insertions(+), 3 deletions(-)

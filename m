@@ -1,146 +1,251 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: Game Controllers
-Date: Thu, 2 May 2013 08:35:47 +0200
-Message-ID: <20130502083547.279d08a3cbd7a115489de4b7@studenti.unina.it>
-References: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com>
-	<2483279.JlnWrOX8Uv@dtor-d630.eng.vmware.com>
-	<CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v3] Input: evdev - Flush queues during EVIOCGKEY-like ioctls
+Date: Thu, 2 May 2013 14:22:20 +0200
+Message-ID: <CANq1E4TH0EnVn1rscdPbFL9Vpv-hvC3j-8SCq=ubAuLM53P_jw@mail.gmail.com>
+References: <1364471980-2426-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp209.alice.it ([82.57.200.105]:39718 "EHLO smtp209.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751656Ab3EBGlM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 2 May 2013 02:41:12 -0400
-In-Reply-To: <CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:61949 "EHLO
+	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754086Ab3EBMWV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 May 2013 08:22:21 -0400
+Received: by mail-ie0-f173.google.com with SMTP id k5so557598iea.18
+        for <linux-input@vger.kernel.org>; Thu, 02 May 2013 05:22:20 -0700 (PDT)
+In-Reply-To: <1364471980-2426-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Todd Showalter <todd@electronjump.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-On Mon, 29 Apr 2013 20:46:47 -0400
-Todd Showalter <todd@electronjump.com> wrote:
+Hi Dmitry
 
-> On Mon, Apr 29, 2013 at 5:04 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> 
-> >>     I'm a game developer, and I'm interested in discussing changes in
-> >> the way gamepad input is handled at the evdev and device level; is
-> >> this the correct place to do that?
-> >
-> > It might or it might not. It would be great if you could tell a bit about
-> > your issues.
-> 
->     My primary concern is game controllers (specifically gamepads).
-> I'd like to see a standard game controller (something akin to the
-> input functionality of the xbox 360 controller) become a first-class
-> input citizen alongside the keyboard and mouse.  My argument is
-> essentially that amongst the major gamepads (the ps3 6axis controller,
-> the xbox 360 controller, the xbox controller, the wii classic
-> controller, the ouya controller, and various OEM versions and
-> imitations of the same) there is a lot of common functionality that is
-> worth exposing as a standard gamepad the same way systems now expose a
-> standard mouse.
-> 
->     My proposed standard gamepad is:
-> 
-> - left stick (2d vector, each component [-1.0f .. 1.0f])
-> - right stick (2d vector, each component [-1.0f .. 1.0f])
-> - left trigger (1d vector, [-1.0f .. 1.0f])
-> - right trigger (1d vector, [-1.0f .. 1.0f])
-> - dpad
-> - start button
-> - system button (home on wii, ps on ps3, glowy x on xbox 360)
+Any update on this?
 
-The "Share" button on DualShock4? 
+Regards
+David
 
-> - four face buttons (north, south, east, west)
-> - two shoulder buttons
-> - two stick click buttons
-> 
->     What I'd like to request at the evdev level is that things which
-> are gamepads export these values in standard offsets, so that:
-> 
-> EV_ABS 0 == left stick x
-> EV_ABS 1 == left stick y
-> EV_ABS 2 == right stick x
-> EV_ABS 3 == right stick y
-> EV_ABS 4 == dpad x
-> EV_ABS 5 == dpad y
-> EV_ABS 6 == left trigger
-> EV_ABS 7 == right trigger
-> 
->     Or some similar defined order.  I'd like buttons to be similarly mapped:
-> 
-> BTN_START == start button
-> BTN_WEST == xbox x, ps square
-> BTN_NORTH == xbox y, ps triangle
-> BTN_EAST == xbox b, ps circle
-> BTN_SOUTH == xbox a, ps x
-> BTN_TL == xbox tl, ps l1
-> BTN_TR == xbox tr, ps r1
-> BTN_MODE == xbox glowy x, ps ps
-> BTN_THUMBL == stick click l
-> BTN_THUMBR == stick click r
-> 
->     I'm aware that the xbox and xbox 360 controllers are already
-> largely mapped this way, but the ps3 controller is not, at least from
-> what I can tell, and I have no other gamepad hardware to test.  My
-> goal here is to make it so that something reading an evdev gamepad
-> stream doesn't need to know what kind of hardware device is backing it
-> *if* all the reader cares about is the standard gamepad functionality.
+On Thu, Mar 28, 2013 at 12:59 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> If userspace requests current KEY-state, they very likely assume that no
+> such events are pending in the output queue of the evdev device.
+> Otherwise, they will parse events which they already handled via
+> EVIOCGKEY(). For XKB applications this can cause irreversible keyboard
+> states if a modifier is locked multiple times because a CTRL-DOWN event is
+> handled once via EVIOCGKEY() and once from the queue via read(), even
+> though it should handle it only once.
 >
-
-WRT the PS3 controllers the problem is the HID descriptor, it should be
-rewritten to expose saner event codes, and/or a .input_mapping callback
-should be added. I can give some hints about how to proceed if anyone is
-up to it; it would something along the line of
-drivers/hid/hid-ps3remote.c
-
->     The analogy here is mice; while you can get mice with variable DPI
-> settings, macro engines and loads of buttons or scroll wheels, normal
-> applications don't have to query the mouse type to know how the core
-> functionality is mapped.  If all I want in a game is the left stick
-> for movement, the bottom face button for jump and the right face
-> button for shoot, I shouldn't have to be querying the controller to
-> figure out how those are mapped.  I should be able to take ABS_X and
-> ABS_Y for the left stick, BTN_SOUTH for jump and BTN_EAST for shoot,
-> and it should map to the proper buttons and stick regardless of
-> whether the player has an xbox controller, a logitech controller, a
-> ps3 controller or a wiimote with a classic controller plugged in.
+> Therefore, lets do the only logical thing and flush the evdev queue
+> atomically during this ioctl. We only flush events that are affected by
+> the given ioctl.
 >
-
-BTW have you looked at the joystick driver/API?
-(Documentation/input/joystick.txt), it allows some form of remapping
-and calibration to have normalized axis values across different
-controllers but I don't know it that suits what you have in mind.
-
->     There are several advantages of doing this remapping at the driver
-> level, but the most important ones from my point of view are that it
-> is simplest to do near the source, and it makes supporting a standard
-> gamepad as part of (for instance) Wayland a much simpler and thinner
-> translation layer.  I want to do this through a Wayland (or X11) event
-> protocol because I want my game (which may be running mods or scripts
-> downloaded from forums) to be as isolated as possible from the
-> elevated privileges that opening evdev streams requires.
-> 
->     So, that's my issue, really; I'd like a standardized core gamepad
-> protocol in Linux, and I'm talking to people at every level of the
-> stack to see if I can make it happen.
-> 
->                                        Todd.
-
-Conventions are good, having drivers following them would be even
-better ;)
-
-Ciao,
-   Antonio
-
--- 
-Antonio Ospite
-http://ao2.it
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+> This only affects boolean events like KEY, SND, SW and LED. ABS, REL and
+> others are not affected as duplicate events can be handled gracefully by
+> user-space.
+>
+> Note: This actually breaks semantics of the evdev ABI. However,
+> investigations showed that userspace already expects the new semantics and
+> we end up fixing at least all XKB applications.
+> All applications that are aware of this race-condition mirror the KEY
+> state for each open-file and detect/drop duplicate events. Hence, they do
+> not care whether duplicates are posted or not and work fine with this fix.
+>
+> Also note that we need proper locking to guarantee atomicity and avoid
+> dead-locks. event_lock must be locked before queue_lock (see input-core).
+> However, we can safely release event_lock while flushing the queue. This
+> allows the input-core to proceed with pending events and only stop if it
+> needs our queue_lock to post new events.
+> This should guarantee that we don't block event-dispatching for too long
+> while flushing a single event queue.
+>
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+> Hi Dmitry
+>
+> I hope this time everything is right. I tested this on my local machine with
+> uinput. You can find the selftests here:
+>   https://gist.github.com/dvdhrm/5262589/raw/a3802ebfea0c319e42842664b0d7d1e7580197f1/inputtest.c
+> With syntax-highlighting:
+>   https://gist.github.com/dvdhrm/5262589
+>
+> I'm currently not entirely sure how the kernel selftests in
+> tools/testing/selftests/ work so I haven't added it. However, feel free to add
+> this. It's public domain.
+>
+> The script tests normal input-queue operation, SYN_DROPPED, SYN_REPORT,
+> EVIOCGKEY+FLUSH, EVIOCKGEY+FLUSH+SYN_DROPPED.
+> Everything worked as expected and the EVIOCGKEY tests fail without this patch
+> applied (as expected).
+>
+> Thanks
+> David
+>
+>  drivers/input/evdev.c | 133 ++++++++++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 129 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index f0f8928..e5ceebc 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -52,6 +52,82 @@ struct evdev_client {
+>         struct input_event buffer[];
+>  };
+>
+> +/* flush queued events of type @type, caller must hold client->buffer_lock */
+> +static void __flush_queue(struct evdev_client *client, unsigned int type)
+> +{
+> +       unsigned int i, head, num;
+> +       unsigned int mask = client->bufsize - 1;
+> +       bool is_report;
+> +       struct input_event *ev;
+> +
+> +       BUG_ON(type == EV_SYN);
+> +
+> +       head = client->tail;
+> +       client->packet_head = client->tail;
+> +
+> +       /* init to 1 so a leading SYN_REPORT will not be dropped */
+> +       num = 1;
+> +
+> +       for (i = client->tail; i != client->head; i = (i + 1) & mask) {
+> +               ev = &client->buffer[i];
+> +               is_report = ev->type == EV_SYN && ev->code == SYN_REPORT;
+> +
+> +               if (ev->type == type) {
+> +                       /* drop matched entry */
+> +                       continue;
+> +               } else if (is_report && !num) {
+> +                       /* drop empty SYN_REPORT groups */
+> +                       continue;
+> +               } else if (head != i) {
+> +                       /* move entry to fill the gap */
+> +                       client->buffer[head].time = ev->time;
+> +                       client->buffer[head].type = ev->type;
+> +                       client->buffer[head].code = ev->code;
+> +                       client->buffer[head].value = ev->value;
+> +               }
+> +
+> +               num++;
+> +               head = (head + 1) & mask;
+> +
+> +               if (is_report) {
+> +                       num = 0;
+> +                       client->packet_head = head;
+> +               }
+> +       }
+> +
+> +       client->head = head;
+> +}
+> +
+> +/* queue SYN_DROPPED event */
+> +static void queue_syn_dropped(struct evdev_client *client)
+> +{
+> +       unsigned long flags;
+> +       struct input_event ev;
+> +       ktime_t time;
+> +
+> +       time = ktime_get();
+> +       if (client->clkid != CLOCK_MONOTONIC)
+> +               time = ktime_sub(time, ktime_get_monotonic_offset());
+> +
+> +       ev.time = ktime_to_timeval(time);
+> +       ev.type = EV_SYN;
+> +       ev.code = SYN_DROPPED;
+> +       ev.value = 0;
+> +
+> +       spin_lock_irqsave(&client->buffer_lock, flags);
+> +
+> +       client->buffer[client->head++] = ev;
+> +       client->head &= client->bufsize - 1;
+> +
+> +       if (unlikely(client->head == client->tail)) {
+> +               /* drop queue but keep our SYN_DROPPED event */
+> +               client->tail = (client->head - 1) & (client->bufsize - 1);
+> +               client->packet_head = client->tail;
+> +       }
+> +
+> +       spin_unlock_irqrestore(&client->buffer_lock, flags);
+> +}
+> +
+>  static void __pass_event(struct evdev_client *client,
+>                          const struct input_event *event)
+>  {
+> @@ -650,6 +726,51 @@ static int evdev_handle_set_keycode_v2(struct input_dev *dev, void __user *p)
+>         return input_set_keycode(dev, &ke);
+>  }
+>
+> +/*
+> + * If we transfer state to the user, we should flush all pending events
+> + * from the client's queue. Otherwise, they might end up with duplicate
+> + * events, which can screw up client's state tracking.
+> + * If bits_to_user fails after flushing the queue, we queue a SYN_DROPPED event
+> + * so user-space will notice missing events.
+> + *
+> + * LOCKING:
+> + * We need to take event_lock before buffer_lock to avoid dead-locks. But we
+> + * need the even_lock only to guarantee consistent state. We can safely release
+> + * it while flushing the queue. This allows input-core to handle filters while
+> + * we flush the queue.
+> + */
+> +static int evdev_handle_get_val(struct evdev_client *client,
+> +                               struct input_dev *dev, unsigned int type,
+> +                               unsigned long *bits, unsigned int max,
+> +                               unsigned int size, void __user *p, int compat)
+> +{
+> +       int ret;
+> +       unsigned long *mem;
+> +
+> +       mem = kmalloc(sizeof(unsigned long) * max, GFP_KERNEL);
+> +       if (!mem)
+> +               return -ENOMEM;
+> +
+> +       spin_lock_irq(&dev->event_lock);
+> +       spin_lock(&client->buffer_lock);
+> +
+> +       memcpy(mem, bits, sizeof(unsigned long) * max);
+> +
+> +       spin_unlock(&dev->event_lock);
+> +
+> +       __flush_queue(client, type);
+> +
+> +       spin_unlock_irq(&client->buffer_lock);
+> +
+> +       ret = bits_to_user(mem, max, size, p, compat);
+> +       if (ret < 0)
+> +               queue_syn_dropped(client);
+> +
+> +       kfree(mem);
+> +
+> +       return ret;
+> +}
+> +
+>  static int evdev_handle_mt_request(struct input_dev *dev,
+>                                    unsigned int size,
+>                                    int __user *ip)
+> @@ -771,16 +892,20 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+>                 return evdev_handle_mt_request(dev, size, ip);
+>
+>         case EVIOCGKEY(0):
+> -               return bits_to_user(dev->key, KEY_MAX, size, p, compat_mode);
+> +               return evdev_handle_get_val(client, dev, EV_KEY, dev->key,
+> +                                           KEY_MAX, size, p, compat_mode);
+>
+>         case EVIOCGLED(0):
+> -               return bits_to_user(dev->led, LED_MAX, size, p, compat_mode);
+> +               return evdev_handle_get_val(client, dev, EV_LED, dev->led,
+> +                                           LED_MAX, size, p, compat_mode);
+>
+>         case EVIOCGSND(0):
+> -               return bits_to_user(dev->snd, SND_MAX, size, p, compat_mode);
+> +               return evdev_handle_get_val(client, dev, EV_SND, dev->snd,
+> +                                           SND_MAX, size, p, compat_mode);
+>
+>         case EVIOCGSW(0):
+> -               return bits_to_user(dev->sw, SW_MAX, size, p, compat_mode);
+> +               return evdev_handle_get_val(client, dev, EV_SW, dev->sw,
+> +                                           SW_MAX, size, p, compat_mode);
+>
+>         case EVIOCGNAME(0):
+>                 return str_to_user(dev->name, size, p);
+> --
+> 1.8.2
+>

@@ -1,72 +1,146 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCH] HID: hid-steelseries fix led class build issue
-Date: Thu,  2 May 2013 00:30:38 -0600
-Message-ID: <1367476238-25828-1-git-send-email-simon@mungewell.org>
-References: <51816271.3040400@infradead.org>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: Game Controllers
+Date: Thu, 2 May 2013 08:35:47 +0200
+Message-ID: <20130502083547.279d08a3cbd7a115489de4b7@studenti.unina.it>
+References: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com>
+	<2483279.JlnWrOX8Uv@dtor-d630.eng.vmware.com>
+	<CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:35349 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751834Ab3EBGaq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 2 May 2013 02:30:46 -0400
-In-Reply-To: <51816271.3040400@infradead.org>
+Received: from smtp209.alice.it ([82.57.200.105]:39718 "EHLO smtp209.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751656Ab3EBGlM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 May 2013 02:41:12 -0400
+In-Reply-To: <CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, simon@mungewell.org, Randy Dunlap <rdunlap@infradead.org>
+To: Todd Showalter <todd@electronjump.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Fixes 'undefined reference' issue when hid-steelseries is built in,
-but led-class is a module.
---
-drivers/built-in.o: In function `steelseries_srws1_remove':
-hid-steelseries.c:(.text+0x3b97a1): undefined reference to `led_classdev_unregister'
-drivers/built-in.o: In function `steelseries_srws1_probe':
-hid-steelseries.c:(.text+0x3b9c51): undefined reference to `led_classdev_register'
-hid-steelseries.c:(.text+0x3b9ce5): undefined reference to `led_classdev_register'
-hid-steelseries.c:(.text+0x3b9d4b): undefined reference to `led_classdev_unregister'
---
+On Mon, 29 Apr 2013 20:46:47 -0400
+Todd Showalter <todd@electronjump.com> wrote:
 
-Patch allows LED control when led-class is built in, or both hid-steelseries
-_and_ led-class are both modules.
+> On Mon, Apr 29, 2013 at 5:04 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> 
+> >>     I'm a game developer, and I'm interested in discussing changes in
+> >> the way gamepad input is handled at the evdev and device level; is
+> >> this the correct place to do that?
+> >
+> > It might or it might not. It would be great if you could tell a bit about
+> > your issues.
+> 
+>     My primary concern is game controllers (specifically gamepads).
+> I'd like to see a standard game controller (something akin to the
+> input functionality of the xbox 360 controller) become a first-class
+> input citizen alongside the keyboard and mouse.  My argument is
+> essentially that amongst the major gamepads (the ps3 6axis controller,
+> the xbox 360 controller, the xbox controller, the wii classic
+> controller, the ouya controller, and various OEM versions and
+> imitations of the same) there is a lot of common functionality that is
+> worth exposing as a standard gamepad the same way systems now expose a
+> standard mouse.
+> 
+>     My proposed standard gamepad is:
+> 
+> - left stick (2d vector, each component [-1.0f .. 1.0f])
+> - right stick (2d vector, each component [-1.0f .. 1.0f])
+> - left trigger (1d vector, [-1.0f .. 1.0f])
+> - right trigger (1d vector, [-1.0f .. 1.0f])
+> - dpad
+> - start button
+> - system button (home on wii, ps on ps3, glowy x on xbox 360)
 
-Signed-off-by: Simon Wood <simon@mungewell.org>
----
- drivers/hid/hid-steelseries.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+The "Share" button on DualShock4? 
 
-diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-index 2ed995c..dbd5e2e 100644
---- a/drivers/hid/hid-steelseries.c
-+++ b/drivers/hid/hid-steelseries.c
-@@ -19,7 +19,8 @@
- #include "usbhid/usbhid.h"
- #include "hid-ids.h"
- 
--#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
-+#if defined(CONFIG_LEDS_CLASS) || \
-+    (defined(CONFIG_LEDS_CLASS_MODULE) && defined(CONFIG_HID_STEELSERIES_MODULE))
- #define SRWS1_NUMBER_LEDS 15
- struct steelseries_srws1_data {
- 	__u16 led_state;
-@@ -108,7 +109,8 @@ static __u8 steelseries_srws1_rdesc_fixed[] = {
- 0xC0                /*  End Collection                      */
- };
- 
--#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
-+#if defined(CONFIG_LEDS_CLASS) || \
-+    (defined(CONFIG_LEDS_CLASS_MODULE) && defined(CONFIG_HID_STEELSERIES_MODULE))
- static void steelseries_srws1_set_leds(struct hid_device *hdev, __u16 leds)
- {
- 	struct list_head *report_list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
-@@ -371,7 +373,8 @@ MODULE_DEVICE_TABLE(hid, steelseries_srws1_devices);
- static struct hid_driver steelseries_srws1_driver = {
- 	.name = "steelseries_srws1",
- 	.id_table = steelseries_srws1_devices,
--#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
-+#if defined(CONFIG_LEDS_CLASS) || \
-+    (defined(CONFIG_LEDS_CLASS_MODULE) && defined(CONFIG_HID_STEELSERIES_MODULE))
- 	.probe = steelseries_srws1_probe,
- 	.remove = steelseries_srws1_remove,
- #endif
+> - four face buttons (north, south, east, west)
+> - two shoulder buttons
+> - two stick click buttons
+> 
+>     What I'd like to request at the evdev level is that things which
+> are gamepads export these values in standard offsets, so that:
+> 
+> EV_ABS 0 == left stick x
+> EV_ABS 1 == left stick y
+> EV_ABS 2 == right stick x
+> EV_ABS 3 == right stick y
+> EV_ABS 4 == dpad x
+> EV_ABS 5 == dpad y
+> EV_ABS 6 == left trigger
+> EV_ABS 7 == right trigger
+> 
+>     Or some similar defined order.  I'd like buttons to be similarly mapped:
+> 
+> BTN_START == start button
+> BTN_WEST == xbox x, ps square
+> BTN_NORTH == xbox y, ps triangle
+> BTN_EAST == xbox b, ps circle
+> BTN_SOUTH == xbox a, ps x
+> BTN_TL == xbox tl, ps l1
+> BTN_TR == xbox tr, ps r1
+> BTN_MODE == xbox glowy x, ps ps
+> BTN_THUMBL == stick click l
+> BTN_THUMBR == stick click r
+> 
+>     I'm aware that the xbox and xbox 360 controllers are already
+> largely mapped this way, but the ps3 controller is not, at least from
+> what I can tell, and I have no other gamepad hardware to test.  My
+> goal here is to make it so that something reading an evdev gamepad
+> stream doesn't need to know what kind of hardware device is backing it
+> *if* all the reader cares about is the standard gamepad functionality.
+>
+
+WRT the PS3 controllers the problem is the HID descriptor, it should be
+rewritten to expose saner event codes, and/or a .input_mapping callback
+should be added. I can give some hints about how to proceed if anyone is
+up to it; it would something along the line of
+drivers/hid/hid-ps3remote.c
+
+>     The analogy here is mice; while you can get mice with variable DPI
+> settings, macro engines and loads of buttons or scroll wheels, normal
+> applications don't have to query the mouse type to know how the core
+> functionality is mapped.  If all I want in a game is the left stick
+> for movement, the bottom face button for jump and the right face
+> button for shoot, I shouldn't have to be querying the controller to
+> figure out how those are mapped.  I should be able to take ABS_X and
+> ABS_Y for the left stick, BTN_SOUTH for jump and BTN_EAST for shoot,
+> and it should map to the proper buttons and stick regardless of
+> whether the player has an xbox controller, a logitech controller, a
+> ps3 controller or a wiimote with a classic controller plugged in.
+>
+
+BTW have you looked at the joystick driver/API?
+(Documentation/input/joystick.txt), it allows some form of remapping
+and calibration to have normalized axis values across different
+controllers but I don't know it that suits what you have in mind.
+
+>     There are several advantages of doing this remapping at the driver
+> level, but the most important ones from my point of view are that it
+> is simplest to do near the source, and it makes supporting a standard
+> gamepad as part of (for instance) Wayland a much simpler and thinner
+> translation layer.  I want to do this through a Wayland (or X11) event
+> protocol because I want my game (which may be running mods or scripts
+> downloaded from forums) to be as isolated as possible from the
+> elevated privileges that opening evdev streams requires.
+> 
+>     So, that's my issue, really; I'd like a standardized core gamepad
+> protocol in Linux, and I'm talking to people at every level of the
+> stack to see if I can make it happen.
+> 
+>                                        Todd.
+
+Conventions are good, having drivers following them would be even
+better ;)
+
+Ciao,
+   Antonio
+
 -- 
-1.8.1.2
+Antonio Ospite
+http://ao2.it
 
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

@@ -1,62 +1,75 @@
-From: Todd Showalter <todd@electronjump.com>
+From: Ignaz Forster <ignaz.forster@gmx.de>
 Subject: Re: Game Controllers
-Date: Fri, 3 May 2013 13:12:12 -0400
-Message-ID: <CAFmpkygph_YtrPCVEvYZVdPztXOVDv=_pRNs3PUqBWjRbtRYaA@mail.gmail.com>
-References: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com>
-	<CANq1E4RRFNPZ-z86yny89hViMWREpG1f1in5O3kT8usHO57YAQ@mail.gmail.com>
-	<CAFmpkygadXbwtyD0Pcc_K4EPqsqRq0EudX=ge6KFoaykR4CHVA@mail.gmail.com>
-	<3024546.hGDLPfhqRN@f17simon>
-	<CAFmpkyhiDp6ji=9P6XtCwvNWFvw+DNAc3p+sJ06QOPAL_ewQhQ@mail.gmail.com>
-	<20130503160142.GC5567@core.coreip.homeip.net>
+Date: Sat, 04 May 2013 00:03:22 +0200
+Message-ID: <5184342A.10706@gmx.de>
+References: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com> <2483279.JlnWrOX8Uv@dtor-d630.eng.vmware.com> <CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f175.google.com ([209.85.216.175]:48524 "EHLO
-	mail-qc0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934345Ab3ECRMQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 May 2013 13:12:16 -0400
-Received: by mail-qc0-f175.google.com with SMTP id u28so332589qcs.34
-        for <linux-input@vger.kernel.org>; Fri, 03 May 2013 10:12:15 -0700 (PDT)
-In-Reply-To: <20130503160142.GC5567@core.coreip.homeip.net>
+Received: from mout.gmx.net ([212.227.15.15]:52935 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752034Ab3ECWFM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 May 2013 18:05:12 -0400
+Received: from mailout-de.gmx.net ([10.1.76.10]) by mrigmx.server.lan
+ (mrigmx002) with ESMTP (Nemesis) id 0MYIQh-1V3TmR3G1B-00V9y4 for
+ <linux-input@vger.kernel.org>; Sat, 04 May 2013 00:05:10 +0200
+In-Reply-To: <CAFmpkyiS+L6OsGmobjHqqJ8AFNNiDk4DYYFo_1GQx2kV_dam1Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Simon Farnsworth <simon.farnsworth@onelan.com>, David Herrmann <dh.herrmann@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: todd@electronjump.com
+Cc: linux-input@vger.kernel.org
 
-On Fri, May 3, 2013 at 12:01 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Actually not all input devices have to be accessible to root only. We
-> definitely need this for now for keyboards (since we do not have
-> revoke() yet) so that one user would not snoop another users keystrokes,
-> but I think we could relax the restriction for certain devices such as:
->
-> "A device that emits ABS_X and ABS_Y events and button events in
-> BTN_JOYSTICK - BTN_GAMEPAD ranges and no other key events can be considered
-> a gamepad or joystick device and should be available for read/write by
-> the current console owner".
+Todd Showalter schrieb am 30.04.2013 02:46 Uhr:
+>     What I'd like to request at the evdev level is that things which
+> are gamepads export these values in standard offsets, so that:
+> 
+> EV_ABS 0 == left stick x
+> EV_ABS 1 == left stick y
+> EV_ABS 2 == right stick x
+> EV_ABS 3 == right stick y
+> EV_ABS 4 == dpad x
+> EV_ABS 5 == dpad y
+> EV_ABS 6 == left trigger
+> EV_ABS 7 == right trigger
+> 
+>     Or some similar defined order.  I'd like buttons to be similarly mapped:
+> 
+> BTN_START == start button
+> BTN_WEST == xbox x, ps square
+> BTN_NORTH == xbox y, ps triangle
+> BTN_EAST == xbox b, ps circle
+> BTN_SOUTH == xbox a, ps x
 
-    I don't have the device to actually test this, but:
+I don't think this will work as you expect it.
 
-http://www.slipperybrick.com/2007/04/xbox-360-keyboard-controller/
-http://www.itechnews.net/wp-content/uploads/2008/08/sony-ps3-wireless-keypad-1.jpg
+Let's take my own gamepad adapter for example: You can connect PlayStation, Dreamcast and GameCube controllers to it. The Dreamcast controller has the A button on the bottom and the B button on the right side, the GameCube controller has the A button in the middle and the B button on the lower left side:
 
-    Depending on whether that gets exposed as a separate device or
-part of the xbox gamepad, you may have cases where plugging the
-keyboard in means you need root access to read the gamepad, unplugging
-it means you don't, which is a little counterintuitive for users.
+          | A      | B          | X     | Y
+- ----------+--------+------------+-------+-----
+Dreamcast | bottom | right      | left  | top
+- ----------+--------+------------+-------+-----
+GameCube  | middle | lower left | right | top
 
-    I would hope the keyboard would just turn up as a separate device,
-since IIRC the pad is actually a hub, but it's a potential
-complication if that isn't the case.
+In any case the A button is reported as the first button, the B button as the second one etc.
+Now the question is: Which button is BTN_WEST? You cannot tell, as it depends on what controller is connected.
 
-    Single-seat is really the norm for people playing games, and I
-thought ConsoleKit was fading and systemd still controversial, so I
-think I'll put that on my list of future mountains to move rather than
-current mountains.  :)
+This may be a special case, but there are probably other controllers with "weird" button layouts out there (e.g. 6 button pads, the SNES pad, ...); moreover you don't have the guaranty that every gamepad has all the buttons you expect.
+To make it usable "out of the box" you would have to limit the interface to gamepads with a certain layout, but this will probably break if any of the major manufacturers decides to develop a new gamepad layout. Those "features specific to a gamepad" you are mentioning in another mail are probably everything that a gamepad has, as you can never be sure about it's layout ;-)
 
-                                      Todd.
 
---
- Todd Showalter, President,
- Electron Jump Games, Inc.
+While I totally agree that the situation is not ideal there is probably nothing to do about it. Using a default layout which fits for most controllers (these days probably the Xbox 360 controller layout) and offering some kind of ingame mapping to adjust it for non-standard controllers should be the way to go. You will have to offer an ingame remapping option anyway if you don't want to force your users to use your button mapping even if they may prefer another one.
+
+
+Ignaz
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with SeaMonkey - http://www.enigmail.net/
+
+iEYEARECAAYFAlGENCoACgkQ/2+SjQTlQJnbVwCfVVGZcuESUNv9V+UDcLikGJtC
+RUYAmwcYvb7Ngjo0fSNkrhXoeA4hXKWj
+=dH7P
+-----END PGP SIGNATURE-----

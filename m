@@ -1,126 +1,38 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [BUG] suspicious RCU usage
-Date: Fri, 3 May 2013 10:23:26 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1305031022260.11002@pobox.suse.cz>
-References: <51835EFD.2070403@gmail.com> <CAN+gG=F5O_EAr8P2Zgy7w39JcBJwWVzUSUaj0s6U0C6SRP6tYA@mail.gmail.com>
+Subject: Re: [PATCH-V2] HID: hid-steelseries fix led class build issue
+Date: Fri, 3 May 2013 10:27:27 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1305031027190.11002@pobox.suse.cz>
+References: <alpine.DEB.2.02.1305021455260.941@chino.kir.corp.google.com> <1367545394-3741-1-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49806 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751784Ab3ECIXb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 May 2013 04:23:31 -0400
-In-Reply-To: <CAN+gG=F5O_EAr8P2Zgy7w39JcBJwWVzUSUaj0s6U0C6SRP6tYA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1367545394-3741-1-git-send-email-simon@mungewell.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, David Rientjes <rientjes@google.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: majianpeng <majianpeng@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-On Fri, 3 May 2013, Benjamin Tissoires wrote:
+On Thu, 2 May 2013, Simon Wood wrote:
 
-> Thanks for reporting it.
+> Fixes 'undefined reference' issue when hid-steelseries is built in,
+> but led-class is a module.
+> --
+> drivers/built-in.o: In function `steelseries_srws1_remove':
+> hid-steelseries.c:(.text+0x3b97a1): undefined reference to `led_classdev_unregister'
+> drivers/built-in.o: In function `steelseries_srws1_probe':
+> hid-steelseries.c:(.text+0x3b9c51): undefined reference to `led_classdev_register'
+> hid-steelseries.c:(.text+0x3b9ce5): undefined reference to `led_classdev_register'
+> hid-steelseries.c:(.text+0x3b9d4b): undefined reference to `led_classdev_unregister'
+> --
 > 
-> Jiri, we had a similar bug in the RH bugzilla:
-> https://bugzilla.redhat.com/show_bug.cgi?id=958935
+> Patch allows LED control when led-class is built in, or both hid-steelseries
+> _and_ led-class are both modules.
 > 
-> Are these two reports potentially fixed by your patch "HID: protect
-> hid_debug_list" (https://patchwork.kernel.org/patch/2453931/)
-> If so, maybe we should send it to stable as well...
+> Reported-by: Randy Dunlap <rdunlap@infradead.org>
+> Signed-off-by: Simon Wood <simon@mungewell.org>
 
-I actually believe this bug is *introduced* by that patch :) All the 
-reports were with the kernel containing it, right?
+Applied, thanks.
 
-Does the patch below fix it, please?
-
-
-
-
- drivers/hid/hid-core.c  |    2 +-
- drivers/hid/hid-debug.c |   14 ++++++++------
- include/linux/hid.h     |    2 +-
- 3 files changed, 10 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 1e51159..264f550 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2342,7 +2342,7 @@ struct hid_device *hid_allocate_device(void)
- 
- 	init_waitqueue_head(&hdev->debug_wait);
- 	INIT_LIST_HEAD(&hdev->debug_list);
--	mutex_init(&hdev->debug_list_lock);
-+	spin_lock_init(&hdev->debug_list_lock);
- 	sema_init(&hdev->driver_lock, 1);
- 	sema_init(&hdev->driver_input_lock, 1);
- 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 7e56cb3..572572c 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -580,14 +580,14 @@ void hid_debug_event(struct hid_device *hdev, char *buf)
- 	int i;
- 	struct hid_debug_list *list;
- 
--	mutex_lock(&hdev->debug_list_lock);
-+	spin_lock(&hdev->debug_list_lock);
- 	list_for_each_entry(list, &hdev->debug_list, node) {
- 		for (i = 0; i < strlen(buf); i++)
- 			list->hid_debug_buf[(list->tail + i) % HID_DEBUG_BUFSIZE] =
- 				buf[i];
- 		list->tail = (list->tail + i) % HID_DEBUG_BUFSIZE;
-         }
--	mutex_unlock(&hdev->debug_list_lock);
-+	spin_unlock(&hdev->debug_list_lock);
- 
- 	wake_up_interruptible(&hdev->debug_wait);
- }
-@@ -977,6 +977,7 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
- {
- 	int err = 0;
- 	struct hid_debug_list *list;
-+	unsigned long flags;
- 
- 	if (!(list = kzalloc(sizeof(struct hid_debug_list), GFP_KERNEL))) {
- 		err = -ENOMEM;
-@@ -992,9 +993,9 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
- 	file->private_data = list;
- 	mutex_init(&list->read_mutex);
- 
--	mutex_lock(&list->hdev->debug_list_lock);
-+	spin_lock_irqsave(&list->hdev->debug_list_lock, flags);
- 	list_add_tail(&list->node, &list->hdev->debug_list);
--	mutex_unlock(&list->hdev->debug_list_lock);
-+	spin_unlock_irqrestore(&list->hdev->debug_list_lock, flags);
- 
- out:
- 	return err;
-@@ -1088,10 +1089,11 @@ static unsigned int hid_debug_events_poll(struct file *file, poll_table *wait)
- static int hid_debug_events_release(struct inode *inode, struct file *file)
- {
- 	struct hid_debug_list *list = file->private_data;
-+	unsigned long flags;
- 
--	mutex_lock(&list->hdev->debug_list_lock);
-+	spin_lock_irqsave(&list->hdev->debug_list_lock, flags);
- 	list_del(&list->node);
--	mutex_unlock(&list->hdev->debug_list_lock);
-+	spin_unlock_irqrestore(&list->hdev->debug_list_lock, flags);
- 	kfree(list->hid_debug_buf);
- 	kfree(list);
- 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index af1b86d..0c48991 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -515,7 +515,7 @@ struct hid_device {							/* device report descriptor */
- 	struct dentry *debug_rdesc;
- 	struct dentry *debug_events;
- 	struct list_head debug_list;
--	struct mutex debug_list_lock;
-+	spinlock_t  debug_list_lock;
- 	wait_queue_head_t debug_wait;
- };
- 
 -- 
 Jiri Kosina
 SUSE Labs

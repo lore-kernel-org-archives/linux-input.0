@@ -1,149 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [BUG] suspicious RCU usage
-Date: Fri, 3 May 2013 08:51:13 -0700
-Message-ID: <20130503155113.GB5567@core.coreip.homeip.net>
-References: <51835EFD.2070403@gmail.com>
- <CAN+gG=F5O_EAr8P2Zgy7w39JcBJwWVzUSUaj0s6U0C6SRP6tYA@mail.gmail.com>
- <alpine.LNX.2.00.1305031022260.11002@pobox.suse.cz>
- <518392FE.4000302@gmail.com>
- <alpine.LNX.2.00.1305031324590.11002@pobox.suse.cz>
+Subject: Re: Game Controllers
+Date: Fri, 3 May 2013 09:01:43 -0700
+Message-ID: <20130503160142.GC5567@core.coreip.homeip.net>
+References: <CAFmpkyiqcwhbJc2A+Ntyisc_CD2z9ssBUQDv6TKvQCX4ES8DOQ@mail.gmail.com>
+ <CANq1E4RRFNPZ-z86yny89hViMWREpG1f1in5O3kT8usHO57YAQ@mail.gmail.com>
+ <CAFmpkygadXbwtyD0Pcc_K4EPqsqRq0EudX=ge6KFoaykR4CHVA@mail.gmail.com>
+ <3024546.hGDLPfhqRN@f17simon>
+ <CAFmpkyhiDp6ji=9P6XtCwvNWFvw+DNAc3p+sJ06QOPAL_ewQhQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:41278 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932459Ab3ECPvS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 May 2013 11:51:18 -0400
-Received: by mail-pd0-f179.google.com with SMTP id q10so979856pdj.10
-        for <linux-input@vger.kernel.org>; Fri, 03 May 2013 08:51:18 -0700 (PDT)
+Received: from mail-da0-f43.google.com ([209.85.210.43]:59800 "EHLO
+	mail-da0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933207Ab3ECQBr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 May 2013 12:01:47 -0400
+Received: by mail-da0-f43.google.com with SMTP id u7so869127dae.2
+        for <linux-input@vger.kernel.org>; Fri, 03 May 2013 09:01:47 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1305031324590.11002@pobox.suse.cz>
+In-Reply-To: <CAFmpkyhiDp6ji=9P6XtCwvNWFvw+DNAc3p+sJ06QOPAL_ewQhQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: majianpeng <majianpeng@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Todd Showalter <todd@electronjump.com>
+Cc: Simon Farnsworth <simon.farnsworth@onelan.com>, David Herrmann <dh.herrmann@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On Fri, May 03, 2013 at 01:28:25PM +0200, Jiri Kosina wrote:
-> On Fri, 3 May 2013, majianpeng wrote:
+On Fri, May 03, 2013 at 08:57:12AM -0400, Todd Showalter wrote:
+> On Fri, May 3, 2013 at 6:29 AM, Simon Farnsworth
+> <simon.farnsworth@onelan.com> wrote:
 > 
-> > >> Jiri, we had a similar bug in the RH bugzilla:
-> > >> https://bugzilla.redhat.com/show_bug.cgi?id=958935
-> > >>
-> > >> Are these two reports potentially fixed by your patch "HID: protect
-> > >> hid_debug_list" (https://patchwork.kernel.org/patch/2453931/)
-> > >> If so, maybe we should send it to stable as well...
-> > > I actually believe this bug is *introduced* by that patch :) All the 
-> > > reports were with the kernel containing it, right?
-> > >
-> > > Does the patch below fix it, please?
-> [ ... snip ... ]
-> > Add your patch.Found the following message:
-> > [  150.908051] ======================================================
-> > [  150.908053] [ INFO: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected ]
-> > [  150.908056] 3.9.0+ #102 Not tainted
+> > Could you consider a gamepad equivalent of libv4l2 (source found in
+> > http://git.linuxtv.org/v4l-utils.git/tree/HEAD:/lib )?
 > 
-> Right, oh well, I missed that scenario.
+> [8<]
+> 
+> > A gamepad version would intercept opens of /dev/input/event* nodes, and if
+> > that node was a gamepad, do the remapping from gamepad-specific events to the
+> > standard gamepad events. You can then use this with unmodified apps as an
+> > LD_PRELOAD, or with modified apps as a shared library that only gets in the way
+> > if the app is accessing a gamepad.
+> 
+>     The problem here is that this really shouldn't be a shared library
+> if it's going to be accessed directly by (say) games.  Unless there's
+> something I'm missing, accessing /dev/input/event* requires elevated
+> privileges, and the idea that all games will run as root kind of
+> terrifies me.
 
-This looks good to me.
+Actually not all input devices have to be accessible to root only. We
+definitely need this for now for keyboards (since we do not have
+revoke() yet) so that one user would not snoop another users keystrokes,
+but I think we could relax the restriction for certain devices such as:
 
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+"A device that emits ABS_X and ABS_Y events and button events in
+BTN_JOYSTICK - BTN_GAMEPAD ranges and no other key events can be considered
+a gamepad or joystick device and should be available for read/write by
+the current console owner".
 
-> 
-> The patch below should cover that, please let me know. Thanks a lot for 
-> your testing.
-> 
->  drivers/hid/hid-core.c  |    2 +-
->  drivers/hid/hid-debug.c |   15 +++++++++------
->  include/linux/hid.h     |    2 +-
->  3 files changed, 11 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 6961bbe..a506421 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2341,7 +2341,7 @@ struct hid_device *hid_allocate_device(void)
->  
->  	init_waitqueue_head(&hdev->debug_wait);
->  	INIT_LIST_HEAD(&hdev->debug_list);
-> -	mutex_init(&hdev->debug_list_lock);
-> +	spin_lock_init(&hdev->debug_list_lock);
->  	sema_init(&hdev->driver_lock, 1);
->  	sema_init(&hdev->driver_input_lock, 1);
->  
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-> index 7e56cb3..8453214 100644
-> --- a/drivers/hid/hid-debug.c
-> +++ b/drivers/hid/hid-debug.c
-> @@ -579,15 +579,16 @@ void hid_debug_event(struct hid_device *hdev, char *buf)
->  {
->  	int i;
->  	struct hid_debug_list *list;
-> +	unsigned long flags;
->  
-> -	mutex_lock(&hdev->debug_list_lock);
-> +	spin_lock_irqsave(&hdev->debug_list_lock, flags);
->  	list_for_each_entry(list, &hdev->debug_list, node) {
->  		for (i = 0; i < strlen(buf); i++)
->  			list->hid_debug_buf[(list->tail + i) % HID_DEBUG_BUFSIZE] =
->  				buf[i];
->  		list->tail = (list->tail + i) % HID_DEBUG_BUFSIZE;
->          }
-> -	mutex_unlock(&hdev->debug_list_lock);
-> +	spin_unlock_irqrestore(&hdev->debug_list_lock, flags);
->  
->  	wake_up_interruptible(&hdev->debug_wait);
->  }
-> @@ -977,6 +978,7 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
->  {
->  	int err = 0;
->  	struct hid_debug_list *list;
-> +	unsigned long flags;
->  
->  	if (!(list = kzalloc(sizeof(struct hid_debug_list), GFP_KERNEL))) {
->  		err = -ENOMEM;
-> @@ -992,9 +994,9 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
->  	file->private_data = list;
->  	mutex_init(&list->read_mutex);
->  
-> -	mutex_lock(&list->hdev->debug_list_lock);
-> +	spin_lock_irqsave(&list->hdev->debug_list_lock, flags);
->  	list_add_tail(&list->node, &list->hdev->debug_list);
-> -	mutex_unlock(&list->hdev->debug_list_lock);
-> +	spin_unlock_irqrestore(&list->hdev->debug_list_lock, flags);
->  
->  out:
->  	return err;
-> @@ -1088,10 +1090,11 @@ static unsigned int hid_debug_events_poll(struct file *file, poll_table *wait)
->  static int hid_debug_events_release(struct inode *inode, struct file *file)
->  {
->  	struct hid_debug_list *list = file->private_data;
-> +	unsigned long flags;
->  
-> -	mutex_lock(&list->hdev->debug_list_lock);
-> +	spin_lock_irqsave(&list->hdev->debug_list_lock, flags);
->  	list_del(&list->node);
-> -	mutex_unlock(&list->hdev->debug_list_lock);
-> +	spin_unlock_irqrestore(&list->hdev->debug_list_lock, flags);
->  	kfree(list->hid_debug_buf);
->  	kfree(list);
->  
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index af1b86d..0c48991 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -515,7 +515,7 @@ struct hid_device {							/* device report descriptor */
->  	struct dentry *debug_rdesc;
->  	struct dentry *debug_events;
->  	struct list_head debug_list;
-> -	struct mutex debug_list_lock;
-> +	spinlock_t  debug_list_lock;
->  	wait_queue_head_t debug_wait;
->  };
->  
-> 
-> -- 
-> Jiri Kosina
-> SUSE Labs
+You may want to talk to ConsoleKit/systemd folks and see if they are
+willing to consider this.
+
+Thanks.
 
 -- 
 Dmitry

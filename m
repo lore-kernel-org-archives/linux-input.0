@@ -1,44 +1,49 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH 9/9] Input: rotary_encoder - Remove redundant platform_set_drvdata()
-Date: Sat,  4 May 2013 20:21:58 +0530
-Message-ID: <1367679118-2980-9-git-send-email-sachin.kamat@linaro.org>
-References: <1367679118-2980-1-git-send-email-sachin.kamat@linaro.org>
+From: Heiko =?iso-8859-15?q?St=FCbner?= <heiko@sntech.de>
+Subject: Re: [PATCH 3/9] Input: gpio_tilt_polled - Remove redundant platform_set_drvdata()
+Date: Sat, 4 May 2013 21:44:48 +0200
+Message-ID: <201305042144.50286.heiko@sntech.de>
+References: <1367679118-2980-1-git-send-email-sachin.kamat@linaro.org> <1367679118-2980-3-git-send-email-sachin.kamat@linaro.org>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f53.google.com ([209.85.210.53]:61977 "EHLO
-	mail-da0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760417Ab3EDOwd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 May 2013 10:52:33 -0400
-Received: by mail-da0-f53.google.com with SMTP id o9so1195246dan.26
-        for <linux-input@vger.kernel.org>; Sat, 04 May 2013 07:52:32 -0700 (PDT)
-In-Reply-To: <1367679118-2980-1-git-send-email-sachin.kamat@linaro.org>
+Received: from gloria.sntech.de ([95.129.55.99]:34453 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751700Ab3EDToy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 4 May 2013 15:44:54 -0400
+In-Reply-To: <1367679118-2980-3-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org, Daniel Mack <daniel@caiaq.de>
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
-driver is bound) removes the need to set driver data field to
-NULL.
+Am Samstag, 4. Mai 2013, 16:51:52 schrieb Sachin Kamat:
+> Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
+> driver is bound) removes the need to set driver data field to
+> NULL.
+> 
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Cc: Heiko Stuebner <heiko@sntech.de>
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: Daniel Mack <daniel@caiaq.de>
----
- drivers/input/misc/rotary_encoder.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+not sure, if it's needed for such a small change, but nevertheless
+Acked-by: Heiko Stuebner <heiko@sntech.de>
 
-diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index aff47b2..5b1aff8 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -317,8 +317,6 @@ static int rotary_encoder_remove(struct platform_device *pdev)
- 	if (!dev_get_platdata(&pdev->dev))
- 		kfree(pdata);
- 
--	platform_set_drvdata(pdev, NULL);
--
- 	return 0;
- }
- 
--- 
-1.7.4.1
+> ---
+>  drivers/input/misc/gpio_tilt_polled.c |    2 --
+>  1 files changed, 0 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/misc/gpio_tilt_polled.c
+> b/drivers/input/misc/gpio_tilt_polled.c index da05cca..714c683 100644
+> --- a/drivers/input/misc/gpio_tilt_polled.c
+> +++ b/drivers/input/misc/gpio_tilt_polled.c
+> @@ -184,8 +184,6 @@ static int gpio_tilt_polled_remove(struct
+> platform_device *pdev) struct gpio_tilt_polled_dev *tdev =
+> platform_get_drvdata(pdev);
+>  	const struct gpio_tilt_platform_data *pdata = tdev->pdata;
+> 
+> -	platform_set_drvdata(pdev, NULL);
+> -
+>  	input_unregister_polled_device(tdev->poll_dev);
+>  	input_free_polled_device(tdev->poll_dev);
 

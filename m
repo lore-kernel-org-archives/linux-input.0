@@ -1,79 +1,156 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 05/26] HID: wiimote: use cached battery values on I/O failure
-Date: Sun,  5 May 2013 23:12:49 +0200
-Message-ID: <1367788390-29835-6-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 06/26] HID: wiimote: wake up if output queue failed
+Date: Sun,  5 May 2013 23:12:50 +0200
+Message-ID: <1367788390-29835-7-git-send-email-dh.herrmann@gmail.com>
 References: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f43.google.com ([209.85.214.43]:63484 "EHLO
-	mail-bk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752117Ab3EEVNu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 17:13:50 -0400
-Received: by mail-bk0-f43.google.com with SMTP id jm19so1355419bkc.30
-        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 14:13:49 -0700 (PDT)
+Received: from mail-bk0-f49.google.com ([209.85.214.49]:40085 "EHLO
+	mail-bk0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752127Ab3EEVNw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 17:13:52 -0400
+Received: by mail-bk0-f49.google.com with SMTP id e19so1338886bku.8
+        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 14:13:51 -0700 (PDT)
 In-Reply-To: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-Battery reports are sent along every status report of the Wii Remote.
-So chances are pretty high that we have an up-to-date battery
-cache at any time. Therefore, initialize the battery-cache to 100% and
-then return battery values from the cache if the query fails.
+Our output queue is asynchronous but synchronous reports may wait for a
+response to their request. Therefore, wake them up unconditionally if an
+output report couldn't be sent. But keep the report ID intact so we don't
+incorrectly assume our request succeeded.
 
-This works around a power_supply limitation in that it requires us to be
-able to query the device during power_supply registration and
-removal. Otherwise, "add" or "remove" udev events are not sent. If
-we answer these requests from our cache instead, we avoid dropping these
-events and no longer cause warnings printed.
+Note that the underlying connection is required to be reliable and does
+retransmission itself. So it is safe to assume that if the transmission
+fails, the device is in inconsistent state. Hence, we abort every request
+if any output report fails. No need to verify which report failed.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/hid/hid-wiimote-core.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/hid/hid-wiimote-core.c | 24 +++++++++++++++++++-----
+ drivers/hid/hid-wiimote.h      | 19 +++++++++++++++++++
+ 2 files changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index 76d2c73..00a9b6f 100644
+index 00a9b6f..a025d21 100644
 --- a/drivers/hid/hid-wiimote-core.c
 +++ b/drivers/hid/hid-wiimote-core.c
-@@ -461,12 +461,12 @@ static int wiimote_battery_get_property(struct power_supply *psy,
- 	wiiproto_req_status(wdata);
- 	spin_unlock_irqrestore(&wdata->state.lock, flags);
+@@ -58,11 +58,11 @@ static enum power_supply_property wiimote_battery_props[] = {
  
--	ret = wiimote_cmd_wait(wdata);
--	state = wdata->state.cmd_battery;
-+	wiimote_cmd_wait(wdata);
- 	wiimote_cmd_release(wdata);
+ /* output queue handling */
  
--	if (ret)
--		return ret;
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	state = wdata->state.cmd_battery;
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
+-static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
+-								size_t count)
++static int wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
++			    size_t count)
+ {
+ 	__u8 *buf;
+-	ssize_t ret;
++	int ret;
  
- 	switch (psp) {
- 		case POWER_SUPPLY_PROP_CAPACITY:
-@@ -923,10 +923,9 @@ static void handler_status(struct wiimote_data *wdata, const __u8 *payload)
- 		wiiext_event(wdata, false);
+ 	if (!hdev->hid_output_raw_report)
+ 		return -ENODEV;
+@@ -84,14 +84,20 @@ static void wiimote_queue_worker(struct work_struct *work)
+ 	struct wiimote_data *wdata = container_of(queue, struct wiimote_data,
+ 						  queue);
+ 	unsigned long flags;
++	int ret;
+ 
+ 	spin_lock_irqsave(&wdata->queue.lock, flags);
+ 
+ 	while (wdata->queue.head != wdata->queue.tail) {
+ 		spin_unlock_irqrestore(&wdata->queue.lock, flags);
+-		wiimote_hid_send(wdata->hdev,
++		ret = wiimote_hid_send(wdata->hdev,
+ 				 wdata->queue.outq[wdata->queue.tail].data,
+ 				 wdata->queue.outq[wdata->queue.tail].size);
++		if (ret < 0) {
++			spin_lock_irqsave(&wdata->state.lock, flags);
++			wiimote_cmd_abort(wdata);
++			spin_unlock_irqrestore(&wdata->state.lock, flags);
++		}
+ 		spin_lock_irqsave(&wdata->queue.lock, flags);
+ 
+ 		wdata->queue.tail = (wdata->queue.tail + 1) % WIIMOTE_BUFSIZE;
+@@ -108,7 +114,9 @@ static void wiimote_queue(struct wiimote_data *wdata, const __u8 *buffer,
+ 
+ 	if (count > HID_MAX_BUFFER_SIZE) {
+ 		hid_warn(wdata->hdev, "Sending too large output report\n");
+-		return;
++
++		spin_lock_irqsave(&wdata->queue.lock, flags);
++		goto out_error;
  	}
  
--	if (wiimote_cmd_pending(wdata, WIIPROTO_REQ_SREQ, 0)) {
--		wdata->state.cmd_battery = payload[5];
-+	wdata->state.cmd_battery = payload[5];
-+	if (wiimote_cmd_pending(wdata, WIIPROTO_REQ_SREQ, 0))
- 		wiimote_cmd_complete(wdata);
--	}
+ 	/*
+@@ -134,8 +142,14 @@ static void wiimote_queue(struct wiimote_data *wdata, const __u8 *buffer,
+ 		wdata->queue.head = newhead;
+ 	} else {
+ 		hid_warn(wdata->hdev, "Output queue is full");
++		goto out_error;
+ 	}
+ 
++	goto out_unlock;
++
++out_error:
++	wiimote_cmd_abort(wdata);
++out_unlock:
+ 	spin_unlock_irqrestore(&wdata->queue.lock, flags);
  }
  
- /* reduced generic report with "BB BB" key data only */
-@@ -1279,6 +1278,7 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	init_completion(&wdata->state.ready);
- 	mutex_init(&wdata->state.sync);
- 	wdata->state.drm = WIIPROTO_REQ_DRM_K;
-+	wdata->state.cmd_battery = 0xff;
+diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
+index 301607d..3441702 100644
+--- a/drivers/hid/hid-wiimote.h
++++ b/drivers/hid/hid-wiimote.h
+@@ -195,6 +195,16 @@ static inline void wiimote_cmd_complete(struct wiimote_data *wdata)
+ 	complete(&wdata->state.ready);
+ }
  
- 	INIT_WORK(&wdata->init_worker, wiimote_init_worker);
++/* requires the state.lock spinlock to be held */
++static inline void wiimote_cmd_abort(struct wiimote_data *wdata)
++{
++	/* Abort synchronous request by waking up the sleeping caller. But
++	 * reset the state.cmd field to an invalid value so no further event
++	 * handlers will work with it. */
++	wdata->state.cmd = WIIPROTO_REQ_MAX;
++	complete(&wdata->state.ready);
++}
++
+ static inline int wiimote_cmd_acquire(struct wiimote_data *wdata)
+ {
+ 	return mutex_lock_interruptible(&wdata->state.sync) ? -ERESTARTSYS : 0;
+@@ -223,11 +233,17 @@ static inline int wiimote_cmd_wait(struct wiimote_data *wdata)
+ {
+ 	int ret;
  
++	/* The completion acts as implicit memory barrier so we can safely
++	 * assume that state.cmd is set on success/failure and isn't accessed
++	 * by any other thread, anymore. */
++
+ 	ret = wait_for_completion_interruptible_timeout(&wdata->state.ready, HZ);
+ 	if (ret < 0)
+ 		return -ERESTARTSYS;
+ 	else if (ret == 0)
+ 		return -EIO;
++	else if (wdata->state.cmd != WIIPROTO_REQ_NULL)
++		return -EIO;
+ 	else
+ 		return 0;
+ }
+@@ -236,9 +252,12 @@ static inline int wiimote_cmd_wait_noint(struct wiimote_data *wdata)
+ {
+ 	unsigned long ret;
+ 
++	/* no locking needed; see wiimote_cmd_wait() */
+ 	ret = wait_for_completion_timeout(&wdata->state.ready, HZ);
+ 	if (!ret)
+ 		return -EIO;
++	else if (wdata->state.cmd != WIIPROTO_REQ_NULL)
++		return -EIO;
+ 	else
+ 		return 0;
+ }
 -- 
 1.8.2.2
 

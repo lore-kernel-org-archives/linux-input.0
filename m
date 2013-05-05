@@ -1,203 +1,167 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 17/26] HID: wiimote: add Motion Plus extension module
-Date: Sun,  5 May 2013 23:13:01 +0200
-Message-ID: <1367788390-29835-18-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 21/26] HID: wiimote: add "bboard_calib" attribute
+Date: Sun,  5 May 2013 23:13:05 +0200
+Message-ID: <1367788390-29835-22-git-send-email-dh.herrmann@gmail.com>
 References: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f52.google.com ([209.85.214.52]:55353 "EHLO
-	mail-bk0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752266Ab3EEVOM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 17:14:12 -0400
-Received: by mail-bk0-f52.google.com with SMTP id q16so1329692bkw.11
-        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 14:14:10 -0700 (PDT)
+Received: from mail-bk0-f43.google.com ([209.85.214.43]:51340 "EHLO
+	mail-bk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752266Ab3EEVOS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 17:14:18 -0400
+Received: by mail-bk0-f43.google.com with SMTP id jm19so1355488bkc.30
+        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 14:14:17 -0700 (PDT)
 In-Reply-To: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-Add parsers for motion plus data so we can hotplug motion plus extensions
-and make use of them. This is mostly the same as the old static motion
-plus parser.
+Balance-Boards provide 3 16bit calibration values for each of the 4
+sensors. We provide these now as 192bit value via a new "bboard_calib"
+sysfs attribute.
+We also re-read the calibration data from the device whenever user-space
+attempts to read this file. On normal Nintendo boards, this always
+produces the same results, however, on some 3rd party devices these values
+change until the device is fully initialized. As I have currently no idea
+how long to wait until it's ready (sometimes takes up to 10s?) we provide
+a simple workaround for users by reading this file.
+
+If we, at some point, figure out how it works, we can implement it in the
+kernel and provide offline data via "bboard_calib". This won't break
+user-space then.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/hid/hid-wiimote-modules.c | 144 ++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-wiimote.h         |   1 +
- 2 files changed, 145 insertions(+)
+ Documentation/ABI/testing/sysfs-driver-hid-wiimote | 15 +++++
+ drivers/hid/hid-wiimote-modules.c                  | 68 +++++++++++++++++++++-
+ 2 files changed, 82 insertions(+), 1 deletion(-)
 
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-wiimote b/Documentation/ABI/testing/sysfs-driver-hid-wiimote
+index e8f6b16..ed5dd56 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-wiimote
++++ b/Documentation/ABI/testing/sysfs-driver-hid-wiimote
+@@ -42,3 +42,18 @@ Description:	While a device is initialized by the wiimote driver, we perform
+ 			gen10: First Wii Remote generation
+ 			gen20: Second Wii Remote Plus generation (builtin MP)
+ 			balanceboard: Wii Balance Board
++
++What:		/sys/bus/hid/drivers/wiimote/<dev>/bboard_calib
++Date:		May 2013
++KernelVersion:	3.11
++Contact:	David Herrmann <dh.herrmann@gmail.com>
++Description:	This attribute is only provided if the device was detected as a
++		balance board. It provides a single line with 3 calibration
++		values for all 4 sensors. The values are separated by colons and
++		are each 2 bytes long (encoded as 4 digit hexadecimal value).
++		First, 0kg values for all 4 sensors are written, followed by the
++		17kg values for all 4 sensors and last the 34kg values for all 4
++		sensors.
++		Calibration data is already applied by the kernel to all input
++		values but may be used by user-space to perform other
++		transformations.
 diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
-index daeb679..aee1b2c 100644
+index aee1b2c..19b8b1c 100644
 --- a/drivers/hid/hid-wiimote-modules.c
 +++ b/drivers/hid/hid-wiimote-modules.c
-@@ -1475,11 +1475,155 @@ static const struct wiimod_ops wiimod_bboard = {
+@@ -1380,6 +1380,60 @@ static void wiimod_bboard_close(struct input_dev *dev)
+ 	spin_unlock_irqrestore(&wdata->state.lock, flags);
+ }
  
- /*
-  * Motion Plus
-+ * The Motion Plus extension provides rotation sensors (gyro) as a small
-+ * extension device for Wii Remotes. Many devices have them built-in so
-+ * you cannot see them from the outside.
-+ * Motion Plus extensions are special because they are on a separate extension
-+ * port and allow other extensions to be used simultaneously. This is all
-+ * handled by the Wiimote Core so we don't have to deal with it.
-  */
- 
-+static void wiimod_mp_in_mp(struct wiimote_data *wdata, const __u8 *ext)
++static ssize_t wiimod_bboard_calib_show(struct device *dev,
++					struct device_attribute *attr,
++					char *out)
 +{
-+	__s32 x, y, z;
++	struct wiimote_data *wdata = dev_to_wii(dev);
++	int i, j, ret;
++	__u16 val;
++	__u8 buf[24], offs;
 +
-+	/*        |   8    7    6    5    4    3 |  2  |  1  |
-+	 *   -----+------------------------------+-----+-----+
-+	 *    1   |               Yaw Speed <7:0>            |
-+	 *    2   |              Roll Speed <7:0>            |
-+	 *    3   |             Pitch Speed <7:0>            |
-+	 *   -----+------------------------------+-----+-----+
-+	 *    4   |       Yaw Speed <13:8>       | Yaw |Pitch|
-+	 *   -----+------------------------------+-----+-----+
-+	 *    5   |      Roll Speed <13:8>       |Roll | Ext |
-+	 *   -----+------------------------------+-----+-----+
-+	 *    6   |     Pitch Speed <13:8>       |  1  |  0  |
-+	 *   -----+------------------------------+-----+-----+
-+	 * The single bits Yaw, Roll, Pitch in the lower right corner specify
-+	 * whether the wiimote is rotating fast (0) or slow (1). Speed for slow
-+	 * roation is 440 deg/s and for fast rotation 2000 deg/s. To get a
-+	 * linear scale we multiply by 2000/440 = ~4.5454 which is 18 for fast
-+	 * and 9 for slow.
-+	 * If the wiimote is not rotating the sensor reports 2^13 = 8192.
-+	 * Ext specifies whether an extension is connected to the motionp.
-+	 * which is parsed by wiimote-core.
-+	 */
-+
-+	x = ext[0];
-+	y = ext[1];
-+	z = ext[2];
-+
-+	x |= (((__u16)ext[3]) << 6) & 0xff00;
-+	y |= (((__u16)ext[4]) << 6) & 0xff00;
-+	z |= (((__u16)ext[5]) << 6) & 0xff00;
-+
-+	x -= 8192;
-+	y -= 8192;
-+	z -= 8192;
-+
-+	if (!(ext[3] & 0x02))
-+		x *= 18;
-+	else
-+		x *= 9;
-+	if (!(ext[4] & 0x02))
-+		y *= 18;
-+	else
-+		y *= 9;
-+	if (!(ext[3] & 0x01))
-+		z *= 18;
-+	else
-+		z *= 9;
-+
-+	input_report_abs(wdata->mp, ABS_RX, x);
-+	input_report_abs(wdata->mp, ABS_RY, y);
-+	input_report_abs(wdata->mp, ABS_RZ, z);
-+	input_sync(wdata->mp);
-+}
-+
-+static int wiimod_mp_open(struct input_dev *dev)
-+{
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->state.flags |= WIIPROTO_FLAG_MP_USED;
-+	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
-+	__wiimote_schedule(wdata);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	return 0;
-+}
-+
-+static void wiimod_mp_close(struct input_dev *dev)
-+{
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->state.flags &= ~WIIPROTO_FLAG_MP_USED;
-+	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
-+	__wiimote_schedule(wdata);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+}
-+
-+static int wiimod_mp_probe(const struct wiimod_ops *ops,
-+			   struct wiimote_data *wdata)
-+{
-+	int ret;
-+
-+	wdata->mp = input_allocate_device();
-+	if (!wdata->mp)
-+		return -ENOMEM;
-+
-+	input_set_drvdata(wdata->mp, wdata);
-+	wdata->mp->open = wiimod_mp_open;
-+	wdata->mp->close = wiimod_mp_close;
-+	wdata->mp->dev.parent = &wdata->hdev->dev;
-+	wdata->mp->id.bustype = wdata->hdev->bus;
-+	wdata->mp->id.vendor = wdata->hdev->vendor;
-+	wdata->mp->id.product = wdata->hdev->product;
-+	wdata->mp->id.version = wdata->hdev->version;
-+	wdata->mp->name = WIIMOTE_NAME " Motion Plus";
-+
-+	set_bit(EV_ABS, wdata->mp->evbit);
-+	set_bit(ABS_RX, wdata->mp->absbit);
-+	set_bit(ABS_RY, wdata->mp->absbit);
-+	set_bit(ABS_RZ, wdata->mp->absbit);
-+	input_set_abs_params(wdata->mp,
-+			     ABS_RX, -16000, 16000, 4, 8);
-+	input_set_abs_params(wdata->mp,
-+			     ABS_RY, -16000, 16000, 4, 8);
-+	input_set_abs_params(wdata->mp,
-+			     ABS_RZ, -16000, 16000, 4, 8);
-+
-+	ret = input_register_device(wdata->mp);
++	ret = wiimote_cmd_acquire(wdata);
 +	if (ret)
-+		goto err_free;
++		return ret;
 +
-+	return 0;
++	ret = wiimote_cmd_read(wdata, 0xa40024, buf, 12);
++	if (ret != 12) {
++		wiimote_cmd_release(wdata);
++		return ret < 0 ? ret : -EIO;
++	}
++	ret = wiimote_cmd_read(wdata, 0xa40024 + 12, buf + 12, 12);
++	if (ret != 12) {
++		wiimote_cmd_release(wdata);
++		return ret < 0 ? ret : -EIO;
++	}
 +
-+err_free:
-+	input_free_device(wdata->mp);
-+	wdata->mp = NULL;
++	wiimote_cmd_release(wdata);
++
++	spin_lock_irq(&wdata->state.lock);
++	offs = 0;
++	for (i = 0; i < 3; ++i) {
++		for (j = 0; j < 4; ++j) {
++			wdata->state.calib_bboard[j][i] = buf[offs];
++			wdata->state.calib_bboard[j][i] <<= 8;
++			wdata->state.calib_bboard[j][i] |= buf[offs + 1];
++			offs += 2;
++		}
++	}
++	spin_unlock_irq(&wdata->state.lock);
++
++	ret = 0;
++	for (i = 0; i < 3; ++i) {
++		for (j = 0; j < 4; ++j) {
++			val = wdata->state.calib_bboard[j][i];
++			if (i == 2 && j == 3)
++				ret += sprintf(&out[ret], "%04x\n", val);
++			else
++				ret += sprintf(&out[ret], "%04x:", val);
++		}
++	}
++
 +	return ret;
 +}
 +
-+static void wiimod_mp_remove(const struct wiimod_ops *ops,
-+			     struct wiimote_data *wdata)
-+{
-+	if (!wdata->mp)
-+		return;
++static DEVICE_ATTR(bboard_calib, S_IRUGO, wiimod_bboard_calib_show, NULL);
 +
-+	input_unregister_device(wdata->mp);
-+	wdata->mp = NULL;
-+}
-+
- const struct wiimod_ops wiimod_mp = {
- 	.flags = 0,
- 	.arg = 0,
-+	.probe = wiimod_mp_probe,
-+	.remove = wiimod_mp_remove,
-+	.in_mp = wiimod_mp_in_mp,
- };
+ static int wiimod_bboard_probe(const struct wiimod_ops *ops,
+ 			       struct wiimote_data *wdata)
+ {
+@@ -1415,6 +1469,13 @@ static int wiimod_bboard_probe(const struct wiimod_ops *ops,
+ 	if (!wdata->extension.input)
+ 		return -ENOMEM;
  
- /* module table */
-diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index 118520a..3a8bdb9 100644
---- a/drivers/hid/hid-wiimote.h
-+++ b/drivers/hid/hid-wiimote.h
-@@ -139,6 +139,7 @@ struct wiimote_data {
- 	struct input_dev *accel;
- 	struct input_dev *ir;
- 	struct power_supply battery;
-+	struct input_dev *mp;
- 	struct timer_list timer;
- 	struct wiimote_ext *ext;
- 	struct wiimote_debug *debug;
++	ret = device_create_file(&wdata->hdev->dev,
++				 &dev_attr_bboard_calib);
++	if (ret) {
++		hid_err(wdata->hdev, "cannot create sysfs attribute\n");
++		goto err_free;
++	}
++
+ 	input_set_drvdata(wdata->extension.input, wdata);
+ 	wdata->extension.input->open = wiimod_bboard_open;
+ 	wdata->extension.input->close = wiimod_bboard_close;
+@@ -1444,10 +1505,13 @@ static int wiimod_bboard_probe(const struct wiimod_ops *ops,
+ 
+ 	ret = input_register_device(wdata->extension.input);
+ 	if (ret)
+-		goto err_free;
++		goto err_file;
+ 
+ 	return 0;
+ 
++err_file:
++	device_remove_file(&wdata->hdev->dev,
++			   &dev_attr_bboard_calib);
+ err_free:
+ 	input_free_device(wdata->extension.input);
+ 	wdata->extension.input = NULL;
+@@ -1462,6 +1526,8 @@ static void wiimod_bboard_remove(const struct wiimod_ops *ops,
+ 
+ 	input_unregister_device(wdata->extension.input);
+ 	wdata->extension.input = NULL;
++	device_remove_file(&wdata->hdev->dev,
++			   &dev_attr_bboard_calib);
+ }
+ 
+ static const struct wiimod_ops wiimod_bboard = {
 -- 
 1.8.2.2
 

@@ -1,381 +1,77 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 14/26] HID: wiimote: add Balance Board support
-Date: Sun,  5 May 2013 23:12:58 +0200
-Message-ID: <1367788390-29835-15-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 19/26] HID: wiimote: lock DRM mode during debugfs overwrite
+Date: Sun,  5 May 2013 23:13:03 +0200
+Message-ID: <1367788390-29835-20-git-send-email-dh.herrmann@gmail.com>
 References: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f44.google.com ([209.85.214.44]:61863 "EHLO
+Received: from mail-bk0-f44.google.com ([209.85.214.44]:43832 "EHLO
 	mail-bk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752152Ab3EEVOG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 17:14:06 -0400
-Received: by mail-bk0-f44.google.com with SMTP id jk13so1328952bkc.17
-        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 14:14:05 -0700 (PDT)
+	with ESMTP id S1752266Ab3EEVOP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 17:14:15 -0400
+Received: by mail-bk0-f44.google.com with SMTP id jk13so1357515bkc.31
+        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 14:14:13 -0700 (PDT)
 In-Reply-To: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-This adds Nintendo Wii Balance Board support to the new HOTPLUG capable
-wiimote core. It is mostly copied from the old extension.
+If we write a DRM mode via debugfs, we shouldn't allow normal operations
+to overwrite this DRM mode. This is important if we want to debug
+3rd-party devices and we want to see what data is sent on each mode.
 
-This also adds Balance Board device detection. Whenever we find a device
-that supports the balance-board extension, we assume that it is a real
-balance board and disable unsupported hardward like accelerometer, IR,
-rumble and more.
+If we write NULL/0 as DRM, the lock is removed again so the best matching
+DRM is chosen by wiimote core.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/hid/hid-wiimote-core.c    |  26 +++++
- drivers/hid/hid-wiimote-modules.c | 211 ++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-wiimote.h         |   9 ++
- 3 files changed, 246 insertions(+)
+ drivers/hid/hid-wiimote-core.c  | 4 +++-
+ drivers/hid/hid-wiimote-debug.c | 3 +++
+ drivers/hid/hid-wiimote.h       | 1 +
+ 3 files changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index 836611e..90ea5a2 100644
+index f6c4773..13963b4 100644
 --- a/drivers/hid/hid-wiimote-core.c
 +++ b/drivers/hid/hid-wiimote-core.c
-@@ -202,6 +202,14 @@ static __u8 select_drm(struct wiimote_data *wdata)
- 	ext = (wdata->state.flags & WIIPROTO_FLAG_EXT_USED) ||
- 	      (wdata->state.flags & WIIPROTO_FLAG_MP_USED);
+@@ -242,7 +242,9 @@ void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm)
+ {
+ 	__u8 cmd[3];
  
-+	/* some 3rd-party balance-boards are hard-coded to KEE, *sigh* */
-+	if (wdata->state.devtype == WIIMOTE_DEV_BALANCE_BOARD) {
-+		if (ext)
-+			return WIIPROTO_REQ_DRM_KEE;
-+		else
-+			return WIIPROTO_REQ_DRM_K;
-+	}
-+
- 	if (ir == WIIPROTO_FLAG_IR_BASIC) {
- 		if (wdata->state.flags & WIIPROTO_FLAG_ACCEL) {
- 			if (ext)
-@@ -436,6 +444,9 @@ static __u8 wiimote_cmd_read_ext(struct wiimote_data *wdata, __u8 *rmem)
- 	    rmem[3] == 0xff && rmem[4] == 0xff && rmem[5] == 0xff)
- 		return WIIMOTE_EXT_NONE;
+-	if (drm == WIIPROTO_REQ_NULL)
++	if (wdata->state.flags & WIIPROTO_FLAG_DRM_LOCKED)
++		drm = wdata->state.drm;
++	else if (drm == WIIPROTO_REQ_NULL)
+ 		drm = select_drm(wdata);
  
-+	if (rmem[4] == 0x04 && rmem[5] == 0x02)
-+		return WIIMOTE_EXT_BALANCE_BOARD;
-+
- 	return WIIMOTE_EXT_UNKNOWN;
- }
+ 	cmd[0] = WIIPROTO_REQ_DRM;
+diff --git a/drivers/hid/hid-wiimote-debug.c b/drivers/hid/hid-wiimote-debug.c
+index 0c0deaa..6e76a2c 100644
+--- a/drivers/hid/hid-wiimote-debug.c
++++ b/drivers/hid/hid-wiimote-debug.c
+@@ -154,7 +154,10 @@ static ssize_t wiidebug_drm_write(struct file *f, const char __user *u,
+ 		i = simple_strtoul(buf, NULL, 10);
  
-@@ -570,6 +581,11 @@ static const __u8 * const wiimote_devtype_mods[WIIMOTE_DEV_NUM] = {
- 		WIIMOD_IR,
- 		WIIMOD_NULL,
- 	},
-+	[WIIMOTE_DEV_BALANCE_BOARD] = (const __u8[]) {
-+		WIIMOD_BATTERY,
-+		WIIMOD_LED1,
-+		WIIMOD_NULL,
-+	},
- };
+ 	spin_lock_irqsave(&dbg->wdata->state.lock, flags);
++	dbg->wdata->state.flags &= ~WIIPROTO_FLAG_DRM_LOCKED;
+ 	wiiproto_req_drm(dbg->wdata, (__u8) i);
++	if (i != WIIPROTO_REQ_NULL)
++		dbg->wdata->state.flags |= WIIPROTO_FLAG_DRM_LOCKED;
+ 	spin_unlock_irqrestore(&dbg->wdata->state.lock, flags);
  
- static void wiimote_modules_load(struct wiimote_data *wdata,
-@@ -753,6 +769,7 @@ static const char *wiimote_devtype_names[WIIMOTE_DEV_NUM] = {
- 	[WIIMOTE_DEV_GENERIC] = "Generic",
- 	[WIIMOTE_DEV_GEN10] = "Nintendo Wii Remote (Gen 1)",
- 	[WIIMOTE_DEV_GEN20] = "Nintendo Wii Remote Plus (Gen 2)",
-+	[WIIMOTE_DEV_BALANCE_BOARD] = "Nintendo Wii Balance Board",
- };
- 
- /* Try to guess the device type based on all collected information. We
-@@ -770,12 +787,20 @@ static void wiimote_init_set_type(struct wiimote_data *wdata,
- 	product = wdata->hdev->product;
- 	name = wdata->hdev->name;
- 
-+	if (exttype == WIIMOTE_EXT_BALANCE_BOARD) {
-+		devtype = WIIMOTE_DEV_BALANCE_BOARD;
-+		goto done;
-+	}
-+
- 	if (!strcmp(name, "Nintendo RVL-CNT-01")) {
- 		devtype = WIIMOTE_DEV_GEN10;
- 		goto done;
- 	} else if (!strcmp(name, "Nintendo RVL-CNT-01-TR")) {
- 		devtype = WIIMOTE_DEV_GEN20;
- 		goto done;
-+	} else if (!strcmp(name, "Nintendo RVL-WBC-01")) {
-+		devtype = WIIMOTE_DEV_BALANCE_BOARD;
-+		goto done;
- 	}
- 
- 	if (vendor == USB_VENDOR_ID_NINTENDO) {
-@@ -1009,6 +1034,7 @@ out_release:
- static const char *wiimote_exttype_names[WIIMOTE_EXT_NUM] = {
- 	[WIIMOTE_EXT_NONE] = "None",
- 	[WIIMOTE_EXT_UNKNOWN] = "Unknown",
-+	[WIIMOTE_EXT_BALANCE_BOARD] = "Nintendo Wii Balance Board",
- };
- 
- /*
-diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
-index d3eef77..6239cd8 100644
---- a/drivers/hid/hid-wiimote-modules.c
-+++ b/drivers/hid/hid-wiimote-modules.c
-@@ -789,6 +789,216 @@ static const struct wiimod_ops wiimod_ir = {
- };
- 
- /*
-+ * Balance Board Extension
-+ * The Nintendo Wii Balance Board provides four hardware weight sensor plus a
-+ * single push button. No other peripherals are available. However, the
-+ * balance-board data is sent via a standard Wii Remote extension. All other
-+ * data for non-present hardware is zeroed out.
-+ * Some 3rd party devices react allergic if we try to access normal Wii Remote
-+ * hardware, so this extension module should be the only module that is loaded
-+ * on balance boards.
-+ * The balance board needs 8 bytes extension data instead of basic 6 bytes so
-+ * it needs the WIIMOD_FLAG_EXT8 flag.
-+ */
-+
-+static void wiimod_bboard_in_keys(struct wiimote_data *wdata, const __u8 *keys)
-+{
-+	input_report_key(wdata->extension.input, BTN_A,
-+			 !!(keys[1] & 0x08));
-+	input_sync(wdata->extension.input);
-+}
-+
-+static void wiimod_bboard_in_ext(struct wiimote_data *wdata,
-+				 const __u8 *ext)
-+{
-+	__s32 val[4], tmp, div;
-+	unsigned int i;
-+	struct wiimote_state *s = &wdata->state;
-+
-+	/*
-+	 * Balance board data layout:
-+	 *
-+	 *   Byte |  8  7  6  5  4  3  2  1  |
-+	 *   -----+--------------------------+
-+	 *    1   |    Top Right <15:8>      |
-+	 *    2   |    Top Right  <7:0>      |
-+	 *   -----+--------------------------+
-+	 *    3   | Bottom Right <15:8>      |
-+	 *    4   | Bottom Right  <7:0>      |
-+	 *   -----+--------------------------+
-+	 *    5   |     Top Left <15:8>      |
-+	 *    6   |     Top Left  <7:0>      |
-+	 *   -----+--------------------------+
-+	 *    7   |  Bottom Left <15:8>      |
-+	 *    8   |  Bottom Left  <7:0>      |
-+	 *   -----+--------------------------+
-+	 *
-+	 * These values represent the weight-measurements of the Wii-balance
-+	 * board with 16bit precision.
-+	 *
-+	 * The balance-board is never reported interleaved with motionp.
-+	 */
-+
-+	val[0] = ext[0];
-+	val[0] <<= 8;
-+	val[0] |= ext[1];
-+
-+	val[1] = ext[2];
-+	val[1] <<= 8;
-+	val[1] |= ext[3];
-+
-+	val[2] = ext[4];
-+	val[2] <<= 8;
-+	val[2] |= ext[5];
-+
-+	val[3] = ext[6];
-+	val[3] <<= 8;
-+	val[3] |= ext[7];
-+
-+	/* apply calibration data */
-+	for (i = 0; i < 4; i++) {
-+		if (val[i] <= s->calib_bboard[i][0]) {
-+			tmp = 0;
-+		} else if (val[i] < s->calib_bboard[i][1]) {
-+			tmp = val[i] - s->calib_bboard[i][0];
-+			tmp *= 1700;
-+			div = s->calib_bboard[i][1] - s->calib_bboard[i][0];
-+			tmp /= div ? div : 1;
-+		} else {
-+			tmp = val[i] - s->calib_bboard[i][1];
-+			tmp *= 1700;
-+			div = s->calib_bboard[i][2] - s->calib_bboard[i][1];
-+			tmp /= div ? div : 1;
-+			tmp += 1700;
-+		}
-+		val[i] = tmp;
-+	}
-+
-+	input_report_abs(wdata->extension.input, ABS_HAT0X, val[0]);
-+	input_report_abs(wdata->extension.input, ABS_HAT0Y, val[1]);
-+	input_report_abs(wdata->extension.input, ABS_HAT1X, val[2]);
-+	input_report_abs(wdata->extension.input, ABS_HAT1Y, val[3]);
-+	input_sync(wdata->extension.input);
-+}
-+
-+static int wiimod_bboard_open(struct input_dev *dev)
-+{
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->state.flags |= WIIPROTO_FLAG_EXT_USED;
-+	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	return 0;
-+}
-+
-+static void wiimod_bboard_close(struct input_dev *dev)
-+{
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->state.flags &= ~WIIPROTO_FLAG_EXT_USED;
-+	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+}
-+
-+static int wiimod_bboard_probe(const struct wiimod_ops *ops,
-+			       struct wiimote_data *wdata)
-+{
-+	int ret, i, j;
-+	__u8 buf[24], offs;
-+
-+	wiimote_cmd_acquire_noint(wdata);
-+
-+	ret = wiimote_cmd_read(wdata, 0xa40024, buf, 12);
-+	if (ret != 12) {
-+		wiimote_cmd_release(wdata);
-+		return ret < 0 ? ret : -EIO;
-+	}
-+	ret = wiimote_cmd_read(wdata, 0xa40024 + 12, buf + 12, 12);
-+	if (ret != 12) {
-+		wiimote_cmd_release(wdata);
-+		return ret < 0 ? ret : -EIO;
-+	}
-+
-+	wiimote_cmd_release(wdata);
-+
-+	offs = 0;
-+	for (i = 0; i < 3; ++i) {
-+		for (j = 0; j < 4; ++j) {
-+			wdata->state.calib_bboard[j][i] = buf[offs];
-+			wdata->state.calib_bboard[j][i] <<= 8;
-+			wdata->state.calib_bboard[j][i] |= buf[offs + 1];
-+			offs += 2;
-+		}
-+	}
-+
-+	wdata->extension.input = input_allocate_device();
-+	if (!wdata->extension.input)
-+		return -ENOMEM;
-+
-+	input_set_drvdata(wdata->extension.input, wdata);
-+	wdata->extension.input->open = wiimod_bboard_open;
-+	wdata->extension.input->close = wiimod_bboard_close;
-+	wdata->extension.input->dev.parent = &wdata->hdev->dev;
-+	wdata->extension.input->id.bustype = wdata->hdev->bus;
-+	wdata->extension.input->id.vendor = wdata->hdev->vendor;
-+	wdata->extension.input->id.product = wdata->hdev->product;
-+	wdata->extension.input->id.version = wdata->hdev->version;
-+	wdata->extension.input->name = WIIMOTE_NAME " Balance Board";
-+
-+	set_bit(EV_KEY, wdata->extension.input->evbit);
-+	set_bit(BTN_A, wdata->extension.input->keybit);
-+
-+	set_bit(EV_ABS, wdata->extension.input->evbit);
-+	set_bit(ABS_HAT0X, wdata->extension.input->absbit);
-+	set_bit(ABS_HAT0Y, wdata->extension.input->absbit);
-+	set_bit(ABS_HAT1X, wdata->extension.input->absbit);
-+	set_bit(ABS_HAT1Y, wdata->extension.input->absbit);
-+	input_set_abs_params(wdata->extension.input,
-+			     ABS_HAT0X, 0, 65535, 2, 4);
-+	input_set_abs_params(wdata->extension.input,
-+			     ABS_HAT0Y, 0, 65535, 2, 4);
-+	input_set_abs_params(wdata->extension.input,
-+			     ABS_HAT1X, 0, 65535, 2, 4);
-+	input_set_abs_params(wdata->extension.input,
-+			     ABS_HAT1Y, 0, 65535, 2, 4);
-+
-+	ret = input_register_device(wdata->extension.input);
-+	if (ret)
-+		goto err_free;
-+
-+	return 0;
-+
-+err_free:
-+	input_free_device(wdata->extension.input);
-+	wdata->extension.input = NULL;
-+	return ret;
-+}
-+
-+static void wiimod_bboard_remove(const struct wiimod_ops *ops,
-+				 struct wiimote_data *wdata)
-+{
-+	if (!wdata->extension.input)
-+		return;
-+
-+	input_unregister_device(wdata->extension.input);
-+	wdata->extension.input = NULL;
-+}
-+
-+static const struct wiimod_ops wiimod_bboard = {
-+	.flags = WIIMOD_FLAG_EXT8,
-+	.arg = 0,
-+	.probe = wiimod_bboard_probe,
-+	.remove = wiimod_bboard_remove,
-+	.in_keys = wiimod_bboard_in_keys,
-+	.in_ext = wiimod_bboard_in_ext,
-+};
-+
-+/*
-  * Motion Plus
-  */
- 
-@@ -816,4 +1026,5 @@ const struct wiimod_ops *wiimod_table[WIIMOD_NUM] = {
- const struct wiimod_ops *wiimod_ext_table[WIIMOTE_EXT_NUM] = {
- 	[WIIMOTE_EXT_NONE] = &wiimod_dummy,
- 	[WIIMOTE_EXT_UNKNOWN] = &wiimod_dummy,
-+	[WIIMOTE_EXT_BALANCE_BOARD] = &wiimod_bboard,
- };
+ 	return len;
 diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index 0afc9f9..8d314ae 100644
+index 3a8bdb9..9f857c1 100644
 --- a/drivers/hid/hid-wiimote.h
 +++ b/drivers/hid/hid-wiimote.h
-@@ -73,12 +73,14 @@ enum wiimote_devtype {
- 	WIIMOTE_DEV_GENERIC,
- 	WIIMOTE_DEV_GEN10,
- 	WIIMOTE_DEV_GEN20,
-+	WIIMOTE_DEV_BALANCE_BOARD,
- 	WIIMOTE_DEV_NUM,
- };
+@@ -43,6 +43,7 @@
+ #define WIIPROTO_FLAG_MP_USED		0x1000
+ #define WIIPROTO_FLAG_MP_ACTIVE		0x2000
+ #define WIIPROTO_FLAG_EXITING		0x4000
++#define WIIPROTO_FLAG_DRM_LOCKED	0x8000
  
- enum wiimote_exttype {
- 	WIIMOTE_EXT_NONE,
- 	WIIMOTE_EXT_UNKNOWN,
-+	WIIMOTE_EXT_BALANCE_BOARD,
- 	WIIMOTE_EXT_NUM,
- };
- 
-@@ -123,6 +125,9 @@ struct wiimote_state {
- 	__u8 cmd_err;
- 	__u8 *cmd_read_buf;
- 	__u8 cmd_read_size;
-+
-+	/* calibration data */
-+	__u16 calib_bboard[4][3];
- };
- 
- struct wiimote_data {
-@@ -136,6 +141,10 @@ struct wiimote_data {
- 	struct wiimote_ext *ext;
- 	struct wiimote_debug *debug;
- 
-+	union {
-+		struct input_dev *input;
-+	} extension;
-+
- 	struct wiimote_queue queue;
- 	struct wiimote_state state;
- 	struct work_struct init_worker;
+ #define WIIPROTO_FLAGS_LEDS (WIIPROTO_FLAG_LED1 | WIIPROTO_FLAG_LED2 | \
+ 					WIIPROTO_FLAG_LED3 | WIIPROTO_FLAG_LED4)
 -- 
 1.8.2.2
 

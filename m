@@ -1,171 +1,134 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 02/26] HID: wiimote: move queue handling into separate struct
-Date: Sun,  5 May 2013 23:12:46 +0200
-Message-ID: <1367788390-29835-3-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 01/26] HID: wiimote: extend driver description
+Date: Sun,  5 May 2013 23:12:45 +0200
+Message-ID: <1367788390-29835-2-git-send-email-dh.herrmann@gmail.com>
 References: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f53.google.com ([209.85.214.53]:50817 "EHLO
-	mail-bk0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751946Ab3EEVNp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 17:13:45 -0400
-Received: by mail-bk0-f53.google.com with SMTP id i18so1327225bkv.26
-        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 14:13:44 -0700 (PDT)
+Received: from mail-bk0-f43.google.com ([209.85.214.43]:65224 "EHLO
+	mail-bk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752015Ab3EEVNo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 17:13:44 -0400
+Received: by mail-bk0-f43.google.com with SMTP id jm19so1355404bkc.30
+        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 14:13:42 -0700 (PDT)
 In-Reply-To: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-The output queue is independent of the other wiimote modules and can run
-on its own. Therefore, move its members into a separate struct so we don't
-run into name collisions with other modules.
+The hid-wiimote driver supports more than the Wii Remote. Nintendo
+produced many devices based on the Wii Remote, which have extension
+devices built-in. It is not clear to many users, that these devices have
+anything in common with the Wii Remote, so fix the driver description.
 
-This is only a syntactic change that renames all queue members to queue.*.
+This also updates the copyright information for the coming hotplugging
+rework.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/hid/hid-wiimote-core.c | 53 +++++++++++++++++++++++-------------------
- drivers/hid/hid-wiimote.h      | 15 +++++++-----
- 2 files changed, 38 insertions(+), 30 deletions(-)
+ drivers/hid/Kconfig             | 20 ++++++++++++++++++--
+ drivers/hid/hid-wiimote-core.c  |  6 +++---
+ drivers/hid/hid-wiimote-debug.c |  4 ++--
+ drivers/hid/hid-wiimote-ext.c   |  4 ++--
+ drivers/hid/hid-wiimote.h       |  4 ++--
+ 5 files changed, 27 insertions(+), 11 deletions(-)
 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 613083a..e05dda3 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -696,13 +696,29 @@ config HID_WACOM
+ 	Support for Wacom Graphire Bluetooth and Intuos4 WL tablets.
+ 
+ config HID_WIIMOTE
+-	tristate "Nintendo Wii Remote support"
++	tristate "Nintendo Wii / Wii U peripherals"
+ 	depends on HID
+ 	depends on LEDS_CLASS
+ 	select POWER_SUPPLY
+ 	select INPUT_FF_MEMLESS
+ 	---help---
+-	Support for the Nintendo Wii Remote bluetooth device.
++	Support for Nintendo Wii and Wii U Bluetooth peripherals. Supported
++	devices are the Wii Remote and its extension devices, but also devices
++	based on the Wii Remote like the Wii U Pro Controller or the
++	Wii Balance Board.
++
++	Support for all official Nintendo extensions is available, however, 3rd
++	party extensions might not be supported. Please report these devices to:
++	  http://github.com/dvdhrm/xwiimote/issues
++
++	Other Nintendo Wii U peripherals that are IEEE 802.11 based (including
++	the Wii U Gamepad) might be supported in the future. But currently
++	support is limited to Bluetooth based devices.
++
++	If unsure, say N.
++
++	To compile this driver as a module, choose M here: the
++	module will be called hid-wiimote.
+ 
+ config HID_WIIMOTE_EXT
+ 	bool "Nintendo Wii Remote Extension support"
 diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index 119dc56..2d85d3a 100644
+index e5ee1f2..119dc56 100644
 --- a/drivers/hid/hid-wiimote-core.c
 +++ b/drivers/hid/hid-wiimote-core.c
-@@ -56,6 +56,8 @@ static enum power_supply_property wiimote_battery_props[] = {
- 	POWER_SUPPLY_PROP_SCOPE,
- };
- 
-+/* output queue handling */
-+
- static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
- 								size_t count)
- {
-@@ -75,24 +77,27 @@ static ssize_t wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
- 	return ret;
- }
- 
--static void wiimote_worker(struct work_struct *work)
-+static void wiimote_queue_worker(struct work_struct *work)
- {
--	struct wiimote_data *wdata = container_of(work, struct wiimote_data,
--									worker);
-+	struct wiimote_queue *queue = container_of(work, struct wiimote_queue,
-+						   worker);
-+	struct wiimote_data *wdata = container_of(queue, struct wiimote_data,
-+						  queue);
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&wdata->qlock, flags);
-+	spin_lock_irqsave(&wdata->queue.lock, flags);
- 
--	while (wdata->head != wdata->tail) {
--		spin_unlock_irqrestore(&wdata->qlock, flags);
--		wiimote_hid_send(wdata->hdev, wdata->outq[wdata->tail].data,
--						wdata->outq[wdata->tail].size);
--		spin_lock_irqsave(&wdata->qlock, flags);
-+	while (wdata->queue.head != wdata->queue.tail) {
-+		spin_unlock_irqrestore(&wdata->queue.lock, flags);
-+		wiimote_hid_send(wdata->hdev,
-+				 wdata->queue.outq[wdata->queue.tail].data,
-+				 wdata->queue.outq[wdata->queue.tail].size);
-+		spin_lock_irqsave(&wdata->queue.lock, flags);
- 
--		wdata->tail = (wdata->tail + 1) % WIIMOTE_BUFSIZE;
-+		wdata->queue.tail = (wdata->queue.tail + 1) % WIIMOTE_BUFSIZE;
- 	}
- 
--	spin_unlock_irqrestore(&wdata->qlock, flags);
-+	spin_unlock_irqrestore(&wdata->queue.lock, flags);
- }
- 
- static void wiimote_queue(struct wiimote_data *wdata, const __u8 *buffer,
-@@ -116,22 +121,22 @@ static void wiimote_queue(struct wiimote_data *wdata, const __u8 *buffer,
- 	 * will reschedule itself until the queue is empty.
- 	 */
- 
--	spin_lock_irqsave(&wdata->qlock, flags);
-+	spin_lock_irqsave(&wdata->queue.lock, flags);
- 
--	memcpy(wdata->outq[wdata->head].data, buffer, count);
--	wdata->outq[wdata->head].size = count;
--	newhead = (wdata->head + 1) % WIIMOTE_BUFSIZE;
-+	memcpy(wdata->queue.outq[wdata->queue.head].data, buffer, count);
-+	wdata->queue.outq[wdata->queue.head].size = count;
-+	newhead = (wdata->queue.head + 1) % WIIMOTE_BUFSIZE;
- 
--	if (wdata->head == wdata->tail) {
--		wdata->head = newhead;
--		schedule_work(&wdata->worker);
--	} else if (newhead != wdata->tail) {
--		wdata->head = newhead;
-+	if (wdata->queue.head == wdata->queue.tail) {
-+		wdata->queue.head = newhead;
-+		schedule_work(&wdata->queue.worker);
-+	} else if (newhead != wdata->queue.tail) {
-+		wdata->queue.head = newhead;
- 	} else {
- 		hid_warn(wdata->hdev, "Output queue is full");
- 	}
- 
--	spin_unlock_irqrestore(&wdata->qlock, flags);
-+	spin_unlock_irqrestore(&wdata->queue.lock, flags);
- }
+@@ -1,6 +1,6 @@
+ /*
+- * HID driver for Nintendo Wiimote devices
+- * Copyright (c) 2011 David Herrmann
++ * HID driver for Nintendo Wii / Wii U peripherals
++ * Copyright (c) 2011-2013 David Herrmann <dh.herrmann@gmail.com>
+  */
  
  /*
-@@ -1157,8 +1162,8 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
- 	input_set_abs_params(wdata->ir, ABS_HAT3X, 0, 1023, 2, 4);
- 	input_set_abs_params(wdata->ir, ABS_HAT3Y, 0, 767, 2, 4);
+@@ -1331,4 +1331,4 @@ module_hid_driver(wiimote_hid_driver);
  
--	spin_lock_init(&wdata->qlock);
--	INIT_WORK(&wdata->worker, wiimote_worker);
-+	spin_lock_init(&wdata->queue.lock);
-+	INIT_WORK(&wdata->queue.worker, wiimote_queue_worker);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
+-MODULE_DESCRIPTION(WIIMOTE_NAME " Device Driver");
++MODULE_DESCRIPTION("Driver for Nintendo Wii / Wii U peripherals");
+diff --git a/drivers/hid/hid-wiimote-debug.c b/drivers/hid/hid-wiimote-debug.c
+index 90124ff..fdd30dd 100644
+--- a/drivers/hid/hid-wiimote-debug.c
++++ b/drivers/hid/hid-wiimote-debug.c
+@@ -1,6 +1,6 @@
+ /*
+- * Debug support for HID Nintendo Wiimote devices
+- * Copyright (c) 2011 David Herrmann
++ * Debug support for HID Nintendo Wii / Wii U peripherals
++ * Copyright (c) 2011-2013 David Herrmann <dh.herrmann@gmail.com>
+  */
  
- 	spin_lock_init(&wdata->state.lock);
- 	init_completion(&wdata->state.ready);
-@@ -1187,7 +1192,7 @@ static void wiimote_destroy(struct wiimote_data *wdata)
- 	input_unregister_device(wdata->accel);
- 	input_unregister_device(wdata->ir);
- 	input_unregister_device(wdata->input);
--	cancel_work_sync(&wdata->worker);
-+	cancel_work_sync(&wdata->queue.worker);
- 	hid_hw_stop(wdata->hdev);
+ /*
+diff --git a/drivers/hid/hid-wiimote-ext.c b/drivers/hid/hid-wiimote-ext.c
+index 0472191..1c104fc 100644
+--- a/drivers/hid/hid-wiimote-ext.c
++++ b/drivers/hid/hid-wiimote-ext.c
+@@ -1,6 +1,6 @@
+ /*
+- * HID driver for Nintendo Wiimote extension devices
+- * Copyright (c) 2011 David Herrmann
++ * HID driver for Nintendo Wii / Wii U peripheral extensions
++ * Copyright (c) 2011-2013 David Herrmann <dh.herrmann@gmail.com>
+  */
  
- 	kfree(wdata);
+ /*
 diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index a2629ed..2700d47 100644
+index c81dbeb..a2629ed 100644
 --- a/drivers/hid/hid-wiimote.h
 +++ b/drivers/hid/hid-wiimote.h
-@@ -48,6 +48,14 @@ struct wiimote_buf {
- 	size_t size;
- };
+@@ -2,8 +2,8 @@
+ #define __HID_WIIMOTE_H
  
-+struct wiimote_queue {
-+	spinlock_t lock;
-+	struct work_struct worker;
-+	__u8 head;
-+	__u8 tail;
-+	struct wiimote_buf outq[WIIMOTE_BUFSIZE];
-+};
-+
- struct wiimote_state {
- 	spinlock_t lock;
- 	__u8 flags;
-@@ -77,12 +85,7 @@ struct wiimote_data {
- 	struct wiimote_ext *ext;
- 	struct wiimote_debug *debug;
+ /*
+- * HID driver for Nintendo Wiimote devices
+- * Copyright (c) 2011 David Herrmann
++ * HID driver for Nintendo Wii / Wii U peripherals
++ * Copyright (c) 2011-2013 David Herrmann <dh.herrmann@gmail.com>
+  */
  
--	spinlock_t qlock;
--	__u8 head;
--	__u8 tail;
--	struct wiimote_buf outq[WIIMOTE_BUFSIZE];
--	struct work_struct worker;
--
-+	struct wiimote_queue queue;
- 	struct wiimote_state state;
- };
- 
+ /*
 -- 
 1.8.2.2
 

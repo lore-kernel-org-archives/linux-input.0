@@ -1,369 +1,53 @@
-From: Chao Xie <chao.xie@marvell.com>
-Subject: [PATCH V2 5/5] input: pxa27x-keypad: add device tree support
-Date: Sun, 5 May 2013 23:04:08 -0400
-Message-ID: <1367809448-9437-6-git-send-email-chao.xie@marvell.com>
-References: <1367809448-9437-1-git-send-email-chao.xie@marvell.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Input: egalax_ts - ABS_MT_POSITION_Y not reported
+ well
+Date: Sun, 5 May 2013 20:21:19 -0700
+Message-ID: <20130506032119.GB25084@core.coreip.homeip.net>
+References: <1367437517-14193-1-git-send-email-abrahamh@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1367809448-9437-1-git-send-email-chao.xie@marvell.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, haojian.zhuang@gmail.com, xiechao.mail@gmail.com
-Cc: Chao Xie <chao.xie@marvell.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:43132 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752527Ab3EFDVW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 23:21:22 -0400
+Received: by mail-pa0-f46.google.com with SMTP id fa10so1803097pad.19
+        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 20:21:22 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1367437517-14193-1-git-send-email-abrahamh@web.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heiko Abraham <abrahamh@web.de>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-Signed-off-by: Chao Xie <chao.xie@marvell.com>
----
- .../devicetree/bindings/input/pxa27x-keypad.txt    |   60 +++++
- drivers/input/keyboard/pxa27x_keypad.c             |  232 +++++++++++++++++++-
- 2 files changed, 288 insertions(+), 4 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/pxa27x-keypad.txt
+On Wed, May 01, 2013 at 12:45:17PM -0700, Heiko Abraham wrote:
+> The egalax_ts touchscreen modul not report ABS_MT_POSITION_Y proper.
+> As result it may be, that upper software levels only receive x coordinates well.
+> 
+> Signed-off-by: Heiko Abraham <abrahamh@web.de>
 
-diff --git a/Documentation/devicetree/bindings/input/pxa27x-keypad.txt b/Documentation/devicetree/bindings/input/pxa27x-keypad.txt
-new file mode 100644
-index 0000000..f8674f7
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/pxa27x-keypad.txt
-@@ -0,0 +1,60 @@
-+* Marvell PXA Keypad controller
-+
-+Required Properties
-+- compatible : should be "marvell,pxa27x-keypad"
-+- reg : Address and length of the register set for the device
-+- interrupts : The interrupt for the keypad controller
-+- marvell,debounce-interval : How long time the key will be
-+  recognized when it is pressed. It is a u32 value, and bit[31:16]
-+  is debounce interval for direct key and bit[15:0] is debounce
-+  interval for matrix key. The value is in binary number of 2ms
-+
-+Optional Properties For Matrix Keyes
-+Please refer to matrix-keymap.txt
-+
-+Optional Properties for Direct Keyes
-+- marvell,direct-key-count : How many direct keyes are used.
-+- marvell,direct-key-mask : The mask indicates which keyes
-+  are used. If bit[X] of the mask is set, the direct key X
-+  is used.
-+- marvell,direct-key-low-active : Direct key status register
-+  tells the level of pins that connects to the direct keyes.
-+  When this property is set, it means that when the pin level
-+  is low, the key is pressed(active).
-+- marvell,direct-key-map : It is a u16 array. Each item indicates
-+  the linux key-code for the direct key.
-+
-+Optional Properties For Rotary
-+- marvell,rotary0 : It is a u32 value. Bit[31:16] is the
-+  linux key-code for rotary up. Bit[15:0] is the linux key-code
-+  for rotary down. It is for rotary 0.
-+- marvell,rotary1 : Same as marvell,rotary0. It is for rotary 1.
-+- marvell,rotary-rel-key : When rotary is used for relative axes
-+  in the device, the value indicates the key-code for relative
-+  axes measurement in the device. It is a u32 value. Bit[31:16]
-+  is for rotary 1, and Bit[15:0] is for rotary 0.
-+
-+Examples:
-+	keypad: keypad@d4012000 {
-+		keypad,num-rows = <3>;
-+		keypad,num-columns = <5>;
-+		linux,keymap = <0x0000000e	/* KEY_BACKSPACE */
-+				0x0001006b	/* KEY_END */
-+				0x00020061	/* KEY_RIGHTCTRL */
-+				0x0003000b	/* KEY_0 */
-+				0x00040002	/* KEY_1 */
-+				0x0100008b	/* KEY_MENU */
-+				0x01010066	/* KEY_HOME */
-+				0x010200e7	/* KEY_SEND */
-+				0x01030009	/* KEY_8 */
-+				0x0104000a	/* KEY_9 */
-+				0x02000160	/* KEY_OK */
-+				0x02010003	/* KEY_2 */
-+				0x02020004	/* KEY_3 */
-+				0x02030005	/* KEY_4 */
-+				0x02040006>;	/* KEY_5 */
-+		marvell,rotary0 = <0x006c0067>;	/* KEY_UP & KEY_DOWN */
-+		marvell,direct-key-count = <1>;
-+		marvell,direct-key-map = <0x001c>;
-+		marvell,debounce-interval = <0x001e001e>;
-+	};
-diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-index c9f212a..3b63a12 100644
---- a/drivers/input/keyboard/pxa27x_keypad.c
-+++ b/drivers/input/keyboard/pxa27x_keypad.c
-@@ -118,6 +118,217 @@ struct pxa27x_keypad {
- 	unsigned int direct_key_mask;
- };
- 
-+static int pxa27x_keypad_matrix_key_parse_dt(struct pxa27x_keypad *keypad)
-+{
-+	int ret;
-+	u32 rows, cols;
-+	struct input_dev *input_dev = keypad->input_dev;
-+	struct device *dev = input_dev->dev.parent;
-+	struct pxa27x_keypad_platform_data *pdata = keypad->pdata;
-+
-+	ret = matrix_keypad_parse_of_params(dev, &rows, &cols);
-+	if (ret)
-+		return ret;
-+
-+	if (rows > MAX_MATRIX_KEY_ROWS || cols > MAX_MATRIX_KEY_COLS) {
-+		dev_err(dev, "rows or cols exceeds maximum value\n");
-+		return -EINVAL;
-+	}
-+
-+	pdata->matrix_key_rows = rows;
-+	pdata->matrix_key_cols = cols;
-+
-+	ret = matrix_keypad_build_keymap(NULL, NULL,
-+					 pdata->matrix_key_rows,
-+					 pdata->matrix_key_cols,
-+					 keypad->keycodes, input_dev);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int pxa27x_keypad_direct_key_parse_dt(struct pxa27x_keypad *keypad)
-+{
-+	const __be16 *prop;
-+	unsigned short code;
-+	int i, ret;
-+	unsigned int proplen, size;
-+	struct input_dev *input_dev = keypad->input_dev;
-+	struct device *dev = input_dev->dev.parent;
-+	struct pxa27x_keypad_platform_data *pdata = keypad->pdata;
-+	struct device_node *np = dev->of_node;
-+
-+	ret = of_property_read_u32(np, "marvell,direct-key-count",
-+				   &pdata->direct_key_num);
-+	if (ret) {
-+		/*
-+		 * If do not have marvel,direct-key-count defined,
-+		 * it means direct key is not supported.
-+		 */
-+		if (ret == -EINVAL)
-+			return 0;
-+		return ret;
-+	}
-+	ret = of_property_read_u32(np, "marvell,direct-key-mask",
-+				   &pdata->direct_key_mask);
-+	if (ret && ret != -EINVAL)
-+		return ret;
-+	/*
-+	 * If marvell,direct-key-mask is not defined, driver will use
-+	 * default value. Default value is set when configure the keypad.
-+	 */
-+	else if (ret == -EINVAL)
-+		pdata->direct_key_mask = 0;
-+
-+	pdata->direct_key_low_active = of_property_read_bool(np,
-+					"marvell,direct-key-low-active");
-+
-+	prop = of_get_property(np, "marvell,direct-key-map", &proplen);
-+	if (!prop)
-+		return -EINVAL;
-+
-+	if (proplen % sizeof(u16))
-+		return -EINVAL;
-+
-+	size = proplen / sizeof(u16);
-+
-+	/* Only MAX_DIRECT_KEY_NUM is accepted.*/
-+	if (size > MAX_DIRECT_KEY_NUM)
-+		return -EINVAL;
-+
-+	for (i = 0; i < size; i++) {
-+		code = be16_to_cpup(prop + i);
-+		keypad->keycodes[MAX_MATRIX_KEY_NUM + i] = code;
-+		__set_bit(code, input_dev->keybit);
-+	}
-+
-+	return 0;
-+}
-+
-+static int pxa27x_keypad_rotary_parse_dt(struct pxa27x_keypad *keypad)
-+{
-+	const __be32 *prop;
-+	int i, relkey_ret;
-+	unsigned int code, proplen;
-+	const char *rotaryname[2] = {
-+			"marvell,rotary0", "marvell,rotary1"};
-+	const char relkeyname[] = {"marvell,rotary-rel-key"};
-+	struct input_dev *input_dev = keypad->input_dev;
-+	struct device *dev = input_dev->dev.parent;
-+	struct pxa27x_keypad_platform_data *pdata = keypad->pdata;
-+	struct device_node *np = dev->of_node;
-+
-+	relkey_ret = of_property_read_u32(np, relkeyname, &code);
-+	/* if can read correct rotary key-code, we do not need this. */
-+	if (relkey_ret == 0) {
-+		unsigned short relcode;
-+
-+		/* rotary0 taks lower half, rotary1 taks upper half. */
-+		relcode = code & 0xffff;
-+		pdata->rotary0_rel_code = (code & 0xffff);
-+		__set_bit(relcode, input_dev->relbit);
-+
-+		relcode = code >> 16;
-+		pdata->rotary1_rel_code = relcode;
-+		__set_bit(relcode, input_dev->relbit);
-+	}
-+
-+	for (i = 0; i < 2; i++) {
-+		prop = of_get_property(np, rotaryname[i], &proplen);
-+		/*
-+		 * If the prop is not set, it means keypad does not need
-+		 * initialize the rotaryX.
-+		 */
-+		if (!prop)
-+			continue;
-+
-+		code = be32_to_cpup(prop);
-+		/*
-+		 * Not all up/down key code are valid.
-+		 * Now we depends on direct-rel-code.
-+		 */
-+		if ((!(code & 0xffff) || !(code >> 16)) && relkey_ret) {
-+			return relkey_ret;
-+		} else {
-+			unsigned int n = MAX_MATRIX_KEY_NUM + (i << 1);
-+			unsigned short keycode;
-+
-+			keycode = code & 0xffff;
-+			keypad->keycodes[n] = keycode;
-+			__set_bit(keycode, input_dev->keybit);
-+
-+			keycode = code >> 16;
-+			keypad->keycodes[n + 1] = keycode;
-+			__set_bit(keycode, input_dev->keybit);
-+
-+			if (i == 0)
-+				pdata->rotary0_rel_code = -1;
-+			else
-+				pdata->rotary1_rel_code = -1;
-+		}
-+		if (i == 0)
-+			pdata->enable_rotary0 = 1;
-+		else
-+			pdata->enable_rotary1 = 1;
-+	}
-+
-+	keypad->rotary_rel_code[0] = pdata->rotary0_rel_code;
-+	keypad->rotary_rel_code[1] = pdata->rotary1_rel_code;
-+
-+	return 0;
-+}
-+
-+static int pxa27x_keypad_build_keycode_from_dt(struct pxa27x_keypad *keypad)
-+{
-+	int ret;
-+	struct input_dev *input_dev = keypad->input_dev;
-+	struct device *dev = input_dev->dev.parent;
-+	struct device_node *np = dev->of_node;
-+
-+	if (!keypad->pdata) {
-+		keypad->pdata = devm_kzalloc(dev, sizeof(*keypad->pdata),
-+					     GFP_KERNEL);
-+		if (!keypad->pdata) {
-+			dev_err(dev, "failed to allocate memory for pdata\n");
-+			return -ENOMEM;
-+		}
-+	}
-+
-+	ret = pxa27x_keypad_matrix_key_parse_dt(keypad);
-+	if (ret) {
-+		dev_err(dev, "failed to parse matrix key\n");
-+		return ret;
-+	}
-+
-+	ret = pxa27x_keypad_direct_key_parse_dt(keypad);
-+	if (ret) {
-+		dev_err(dev, "failed to parse direct key\n");
-+		return ret;
-+	}
-+
-+	ret = pxa27x_keypad_rotary_parse_dt(keypad);
-+	if (ret) {
-+		dev_err(dev, "failed to parse rotary key\n");
-+		return ret;
-+	}
-+
-+	ret = of_property_read_u32(np, "marvell,debounce-interval",
-+				   &keypad->pdata->debounce_interval);
-+	if (ret) {
-+		dev_err(dev, "failed to parse debpunce-interval\n");
-+		return ret;
-+	}
-+
-+	/*
-+	 * The keycodes may not only includes matrix key but also the direct
-+	 * key or rotary key.
-+	 */
-+	input_dev->keycodemax = ARRAY_SIZE(keypad->keycodes);
-+
-+	return 0;
-+}
-+
- static int pxa27x_keypad_build_keycode(struct pxa27x_keypad *keypad)
- {
- 	struct pxa27x_keypad_platform_data *pdata = keypad->pdata;
-@@ -491,15 +702,15 @@ static const struct dev_pm_ops pxa27x_keypad_pm_ops = {
- static int pxa27x_keypad_probe(struct platform_device *pdev)
- {
- 	struct pxa27x_keypad_platform_data *pdata = pdev->dev.platform_data;
-+	struct device_node *np = pdev->dev.of_node;
- 	struct pxa27x_keypad *keypad;
- 	struct input_dev *input_dev;
- 	struct resource *res;
- 	int irq, error;
- 
--	if (pdata == NULL) {
--		dev_err(&pdev->dev, "no platform data defined\n");
-+	/* Driver need build keycode from device tree or pdata */
-+	if (!np && !pdata)
- 		return -EINVAL;
--	}
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
-@@ -561,12 +772,18 @@ static int pxa27x_keypad_probe(struct platform_device *pdev)
- 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
- 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
- 
--	error  = pxa27x_keypad_build_keycode(keypad);
-+	if (np)
-+		error = pxa27x_keypad_build_keycode_from_dt(keypad);
-+	else
-+		error  = pxa27x_keypad_build_keycode(keypad);
- 	if (error) {
- 		dev_err(&pdev->dev, "failed to build keycode\n");
- 		goto failed_put_clk;
- 	}
- 
-+	/* If device tree is supported, pdata will be allocated. */
-+	pdata = keypad->pdata;
-+
- 	if ((pdata->enable_rotary0 && keypad->rotary_rel_code[0] != -1) ||
- 	    (pdata->enable_rotary1 && keypad->rotary_rel_code[1] != -1)) {
- 		input_dev->evbit[0] |= BIT_MASK(EV_REL);
-@@ -628,11 +845,18 @@ static int pxa27x_keypad_remove(struct platform_device *pdev)
- /* work with hotplug and coldplug */
- MODULE_ALIAS("platform:pxa27x-keypad");
- 
-+static const struct of_device_id pxa27x_keypad_dt_match[] = {
-+	{ .compatible = "marvell,pxa27x-keypad" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, pxa27x_keypad_dt_match);
-+
- static struct platform_driver pxa27x_keypad_driver = {
- 	.probe		= pxa27x_keypad_probe,
- 	.remove		= pxa27x_keypad_remove,
- 	.driver		= {
- 		.name	= "pxa27x-keypad",
-+		.of_match_table = of_match_ptr(pxa27x_keypad_dt_match),
- 		.owner	= THIS_MODULE,
- #ifdef CONFIG_PM
- 		.pm	= &pxa27x_keypad_pm_ops,
+Applied, thank you.
+
+> ---
+>  drivers/input/touchscreen/egalax_ts.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+> index 17c9097..39f3df8 100644
+> --- a/drivers/input/touchscreen/egalax_ts.c
+> +++ b/drivers/input/touchscreen/egalax_ts.c
+> @@ -216,7 +216,7 @@ static int egalax_ts_probe(struct i2c_client *client,
+>  	input_set_abs_params(input_dev,
+>  			     ABS_MT_POSITION_X, 0, EGALAX_MAX_X, 0, 0);
+>  	input_set_abs_params(input_dev,
+> -			     ABS_MT_POSITION_X, 0, EGALAX_MAX_Y, 0, 0);
+> +			     ABS_MT_POSITION_Y, 0, EGALAX_MAX_Y, 0, 0);
+>  	input_mt_init_slots(input_dev, MAX_SUPPORT_POINTS, 0);
+>  
+>  	input_set_drvdata(input_dev, ts);
+> -- 
+> 1.7.0.4
+> 
+
 -- 
-1.7.4.1
+Dmitry

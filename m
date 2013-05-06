@@ -1,61 +1,60 @@
-From: Daniel Mack <zonque@gmail.com>
-Subject: Re: [PATCH 1/2] Input: touchscreen: ads7846: copy info from pdata
- to private struct
-Date: Mon, 06 May 2013 12:34:23 +0200
-Message-ID: <5187872F.3040301@gmail.com>
-References: <1366889633-12577-1-git-send-email-zonque@gmail.com> <20130506032444.GD25084@core.coreip.homeip.net> <20130506102502.GX4945@sirena.org.uk>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 1/2] Input: touchscreen: ads7846: copy info from pdata to
+ private struct
+Date: Mon, 6 May 2013 11:47:42 +0100
+Message-ID: <20130506104742.GZ4945@sirena.org.uk>
+References: <1366889633-12577-1-git-send-email-zonque@gmail.com>
+ <20130506032444.GD25084@core.coreip.homeip.net>
+ <20130506102502.GX4945@sirena.org.uk>
+ <5187872F.3040301@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="E0GpUEom8qu4+vDz"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f53.google.com ([209.85.214.53]:55343 "EHLO
-	mail-bk0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753767Ab3EFKeL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 May 2013 06:34:11 -0400
-Received: by mail-bk0-f53.google.com with SMTP id i18so1509031bkv.26
-        for <linux-input@vger.kernel.org>; Mon, 06 May 2013 03:34:10 -0700 (PDT)
-In-Reply-To: <20130506102502.GX4945@sirena.org.uk>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:57770 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752939Ab3EFKsQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 May 2013 06:48:16 -0400
+Content-Disposition: inline
+In-Reply-To: <5187872F.3040301@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
+To: Daniel Mack <zonque@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, grant.likely@linaro.org, agust@denx.de, imre.deak@nokia.com, chf@fritzc.com
 
-On 06.05.2013 12:25, Mark Brown wrote:
-> On Sun, May 05, 2013 at 08:24:44PM -0700, Dmitry Torokhov wrote:
->> On Thu, Apr 25, 2013 at 01:33:52PM +0200, Daniel Mack wrote:
-> 
->>> In preparation for DT bindings, we have to store all runtime information
->>> inside struct ads7846. Add more variable to struct ads7846 and refactor
->>> some code so the probe-time supplied pdata is not used from any other
->>> function than the probe() callback.
-> 
->> I think more common pattern is to allocate platform data structure when
->> parsing device tree, often with devm_kzalloc() so it is cleaned up after
->> driver is unbound.
-> 
-> Both are used fairly widely.  It's very common to do the separate
-> allocation when converting an existing driver to device tree as the code
-> using the platform data is frequently written with lots of pdata-> in it
-> and may potentially have some different behaviour if there's no platform
-> data at all (though that's a bit questionable) so allocating a new
-> struct is pretty natural and makes for a much less invasive patch.  When
-> there's no existing platform data code it's probably more common to
-> embed the structure as this saves an allocation and means that the users
-> can assume that there's a platform data struct there which makes them a
-> little simpler.
 
-The driver as stands right now uses a balanced mix of the two, as some
-variables are stored in pdata, some are copied over to the private
-struct. So I had to opt for one of the two approaches, and the one I
-submitted seemed saner to me, as pdata is eventually only accessed from
-the probe() function.
+--E0GpUEom8qu4+vDz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-But I can browse my reflog and switch back to the other approach if
-that's preferred. The only concern I have is what I already mentioned:
-the allocation of function pointers which are definitely unused for DT.
+On Mon, May 06, 2013 at 12:34:23PM +0200, Daniel Mack wrote:
 
+> But I can browse my reflog and switch back to the other approach if
+> that's preferred. The only concern I have is what I already mentioned:
+> the allocation of function pointers which are definitely unused for DT.
 
-Thanks,
-Daniel
+I don't particularly care either way; what you say sounds sensible.
 
+--E0GpUEom8qu4+vDz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRh4pLAAoJELSic+t+oim996UP/RZTgTmkdx9XoTSyN5PsZ51H
+6oFbw+Enmn5I4wZ3ZH8kRy/StQCIt9FL04KO/vY7wCAjnG2DRpbXvC/ruKIpkjrk
+9Dit8vWci+3LW6HTbQeWCcvIqrAn6vSUGFNDmc3u2M0vU8FM4Q2H2fhLlMmI4t4w
+hQAHnWgjtYaWARcCM71BSl7fiLnhqiw8/nN65c0G8KRhez3r2N0j70MjqV6hrgX5
+MfEgxKgyS7iz51vgPPMz9E4hKDdFldNgjywGgdiZkY3wvy3pcRv7OQi3qTjuUtC1
+wpHpzqXFAhZNP1VGN61ioPzRmFiDYh2We4DpMS0NDezMJvIW/yzLjzQtu7TSX48N
+BL1zDnGyvM3LJyWKVOzfHlcSAXQgy7Ytw5InbYYbnypm4v6CJpp2PiuMnUxRT/hX
+nmDP8GGhbPpF8lmLZO3WEmLKFGcqz3boVEbry0TILk/D6iSHz3H7YQoSzEZ1WziL
+XJnmNazI+xV6snTijQ5GfGyJx59Pp4JkMf5bF4NvriT8CAU7/nzThDRzfcvjGXpl
+AP9h0PwUlN9vP5g19w1z2sn1R/RrCt6abPmRpfNVPcF4vRIKca/KCwgMSOkf2ab8
+b6DxINuVbu8z3V68JJIAVRMQ0IkQDSrw+3OdLz83pyg5zjqHKdZsCcwNDV3JzVEh
+EYEI/IHc3hEtba0Ah03p
+=pcCI
+-----END PGP SIGNATURE-----
+
+--E0GpUEom8qu4+vDz--

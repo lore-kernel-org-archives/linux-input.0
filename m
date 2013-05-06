@@ -1,45 +1,50 @@
 From: Daniel Mack <zonque@gmail.com>
-Subject: Re: [PATCH 1/2] Input: touchscreen: ads7846: copy info from pdata
- to private struct
-Date: Mon, 06 May 2013 11:31:43 +0200
-Message-ID: <5187787F.70206@gmail.com>
-References: <1366889633-12577-1-git-send-email-zonque@gmail.com> <20130506032444.GD25084@core.coreip.homeip.net>
+Subject: Re: [PATCH 9/9] Input: rotary_encoder - Remove redundant platform_set_drvdata()
+Date: Mon, 06 May 2013 12:12:45 +0200
+Message-ID: <5187821D.8020909@gmail.com>
+References: <1367679118-2980-1-git-send-email-sachin.kamat@linaro.org> <1367679118-2980-9-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f45.google.com ([209.85.214.45]:51881 "EHLO
-	mail-bk0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752910Ab3EFJbb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 May 2013 05:31:31 -0400
-Received: by mail-bk0-f45.google.com with SMTP id je9so1496125bkc.18
-        for <linux-input@vger.kernel.org>; Mon, 06 May 2013 02:31:30 -0700 (PDT)
-In-Reply-To: <20130506032444.GD25084@core.coreip.homeip.net>
+Received: from mail-bk0-f50.google.com ([209.85.214.50]:55825 "EHLO
+	mail-bk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752016Ab3EFKMd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 May 2013 06:12:33 -0400
+Received: by mail-bk0-f50.google.com with SMTP id ik5so1521839bkc.37
+        for <linux-input@vger.kernel.org>; Mon, 06 May 2013 03:12:31 -0700 (PDT)
+In-Reply-To: <1367679118-2980-9-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, broonie@kernel.org, grant.likely@linaro.org, agust@denx.de, imre.deak@nokia.com, chf@fritzc.com
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Daniel Mack <daniel@caiaq.de>
 
-Hi Dmitry,
-
-On 06.05.2013 05:24, Dmitry Torokhov wrote:
-> On Thu, Apr 25, 2013 at 01:33:52PM +0200, Daniel Mack wrote:
->> In preparation for DT bindings, we have to store all runtime information
->> inside struct ads7846. Add more variable to struct ads7846 and refactor
->> some code so the probe-time supplied pdata is not used from any other
->> function than the probe() callback.
->>
+On 04.05.2013 16:51, Sachin Kamat wrote:
+> Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
+> driver is bound) removes the need to set driver data field to
+> NULL.
 > 
-> I think more common pattern is to allocate platform data structure when
-> parsing device tree, often with devm_kzalloc() so it is cleaned up after
-> driver is unbound.
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Cc: Daniel Mack <daniel@caiaq.de>
 
-That was exactly my first approach as well, but I refrained from it due
-to the function pointers in the struct, which I didn't want to carry
-around for the DT case as they will always be unused. So I don't know -
-I can switch back to that if you still want me to.
+Acked-by: Daniel Mack <zonque@gmail.com>
 
-
-Thanks,
-Daniel
+> ---
+>  drivers/input/misc/rotary_encoder.c |    2 --
+>  1 files changed, 0 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+> index aff47b2..5b1aff8 100644
+> --- a/drivers/input/misc/rotary_encoder.c
+> +++ b/drivers/input/misc/rotary_encoder.c
+> @@ -317,8 +317,6 @@ static int rotary_encoder_remove(struct platform_device *pdev)
+>  	if (!dev_get_platdata(&pdev->dev))
+>  		kfree(pdata);
+>  
+> -	platform_set_drvdata(pdev, NULL);
+> -
+>  	return 0;
+>  }
+>  
+> 
 

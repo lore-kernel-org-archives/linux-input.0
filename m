@@ -1,20 +1,20 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 16/26] HID: wiimote: add Classic Controller extension
-Date: Mon, 6 May 2013 07:40:35 +0200
-Message-ID: <CANq1E4TR5UXMWEMt3U1w=F7gUh=y0ed9JOqoNbHYf2dNfa8zRg@mail.gmail.com>
+Subject: Re: [RFC 24/26] HID: wiimote: support Nintendo Wii U Pro Controller
+Date: Mon, 6 May 2013 07:49:49 +0200
+Message-ID: <CANq1E4Q9X7+e_HSbB2Y0GykgJAuF9ui1x1GtssiwOXWKhVUfvQ@mail.gmail.com>
 References: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
-	<1367788390-29835-17-git-send-email-dh.herrmann@gmail.com>
-	<CAFmpkyhX4vmavY8ZHh-ssLFbKrB_AhUa-kL+euuu+X+Yv2k6UA@mail.gmail.com>
+	<1367788390-29835-25-git-send-email-dh.herrmann@gmail.com>
+	<CAFmpkyhFHS1CHDLTRbGdYe5B5XkW-JyavZotvffZT3BnkQSdOA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:44191 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752438Ab3EFFkg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 May 2013 01:40:36 -0400
-Received: by mail-ie0-f182.google.com with SMTP id a14so3684975iee.27
-        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 22:40:36 -0700 (PDT)
-In-Reply-To: <CAFmpkyhX4vmavY8ZHh-ssLFbKrB_AhUa-kL+euuu+X+Yv2k6UA@mail.gmail.com>
+Received: from mail-ia0-f171.google.com ([209.85.210.171]:37853 "EHLO
+	mail-ia0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752443Ab3EFFtt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 May 2013 01:49:49 -0400
+Received: by mail-ia0-f171.google.com with SMTP id r13so2909735iar.2
+        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 22:49:49 -0700 (PDT)
+In-Reply-To: <CAFmpkyhFHS1CHDLTRbGdYe5B5XkW-JyavZotvffZT3BnkQSdOA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Todd Showalter <todd@electronjump.com>
@@ -22,36 +22,55 @@ Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosi
 
 Hi Todd
 
-On Mon, May 6, 2013 at 2:39 AM, Todd Showalter <todd@electronjump.com> wrote:
+On Mon, May 6, 2013 at 2:43 AM, Todd Showalter <todd@electronjump.com> wrote:
 > On Sun, May 5, 2013 at 5:13 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
 >
->> Add a new extension module for the classic controller so we get hotplug
->> support for this device. It is mostly the same as the old static classic
->> controller parser.
+>> The Wii U Pro Controller is a new Nintendo remote device that looks very
+>> similar to the XBox controller. It has nearly the same features and uses
+>> the same protocol as the Wii Remote.
 >
->     Could the buttons/axis values on this please be mapped as
-> appropriate for the standard gamepad?  What I'd like, ideally, with
-> new #defines in input.h as needed:
->
+>     As with the classic controller, could this please be mapped to the
+> standard gamepad where possible?
+
 > - left stick to ABS_LX, ABS_LY
 > - right stick to ABS_RX, ABS_RY
+
+These make sense to me, indeed.
+
 > - dpad to ABS_DX, ABS_DY
+
+These are digital buttons on this gamepad. What's wrong with
+KEY_{left, right, up, down}? Or I would prefer BTN_{left, right, up,
+down} instead.
+
 > - left trigger to ABS_LTRIG
 > - right trigger to ABS_RTRIG
+
+These are also digital buttons, so what's wrong with BTN_TL/TR?
+
 > - x to BTN_NORTH
 > - a to BTN_EAST
 > - b to BTN_SOUTH
 > - y to BTN_WEST
+
+These make sense to me. At least keyboards also return the American
+keycodes instead of trying to guess the label. However, if you want
+"help texts" in your applications, like "press A to continue", you
+need a user-space helper library, anyway. Otherwise, you cannot be
+sure this key is labeled "A" on the current device.
+That's also the reason why I don't think these mappings really help.
+
 > - zl to BTN_LSHOULDER
 > - zr to BTN_RSHOULDER
+
+Again, why not reuse BTN_ZL/ZR?
+
 > - plus to BTN_START
 > - minus to BTN_SELECT
 > - home to BTN_SYSTEM
 
-I cannot change the mapping here, because it has to be
-backwards-compatible with the old classic-controller mapping.
-Libraries like "xwiimote" depend on it.
-This patch only converts the code into a "wiimod" extension module.
+The other Nintendo drivers return BTN_MODE for "home". Could you
+explain what's wrong with that?
 
-Regards
+Thanks!
 David

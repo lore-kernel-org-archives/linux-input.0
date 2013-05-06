@@ -1,49 +1,55 @@
-From: majianpeng <majianpeng@gmail.com>
-Subject: Re: [BUG] suspicious RCU usage
-Date: Mon, 06 May 2013 09:10:31 +0800
-Message-ID: <51870307.2020107@gmail.com>
-References: <51835EFD.2070403@gmail.com> <CAN+gG=F5O_EAr8P2Zgy7w39JcBJwWVzUSUaj0s6U0C6SRP6tYA@mail.gmail.com> <alpine.LNX.2.00.1305031022260.11002@pobox.suse.cz> <518392FE.4000302@gmail.com> <alpine.LNX.2.00.1305031324590.11002@pobox.suse.cz> <20130503155113.GB5567@core.coreip.homeip.net>
+From: Thomas Chou <thomas@wytron.com.tw>
+Subject: Re: [PATCH 1/3] Input: altera_ps2 - Remove redundant platform_set_drvdata()
+Date: Mon, 06 May 2013 09:38:55 +0800
+Message-ID: <518709AF.3040302@wytron.com.tw>
+References: <1367577400-9527-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:44372 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751778Ab3EFBKk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 21:10:40 -0400
-Received: by mail-pd0-f176.google.com with SMTP id x10so1723310pdj.7
-        for <linux-input@vger.kernel.org>; Sun, 05 May 2013 18:10:39 -0700 (PDT)
-In-Reply-To: <20130503155113.GB5567@core.coreip.homeip.net>
+Received: from www.wytron.com.tw ([211.75.82.101]:47460 "EHLO
+	www.wytron.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752394Ab3EFBsU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 May 2013 21:48:20 -0400
+Received: from localhost (localhost [127.0.0.1])
+	by www.wytron.com.tw (Postfix) with SMTP id 536DAB00EB4
+	for <linux-input@vger.kernel.org>; Mon,  6 May 2013 09:38:57 +0800 (CST)
+In-Reply-To: <1367577400-9527-1-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On 05/03/2013 11:51 PM, Dmitry Torokhov wrote:
-> On Fri, May 03, 2013 at 01:28:25PM +0200, Jiri Kosina wrote:
->> On Fri, 3 May 2013, majianpeng wrote:
->>
->>>>> Jiri, we had a similar bug in the RH bugzilla:
->>>>> https://bugzilla.redhat.com/show_bug.cgi?id=958935
->>>>>
->>>>> Are these two reports potentially fixed by your patch "HID: protect
->>>>> hid_debug_list" (https://patchwork.kernel.org/patch/2453931/)
->>>>> If so, maybe we should send it to stable as well...
->>>> I actually believe this bug is *introduced* by that patch :) All the 
->>>> reports were with the kernel containing it, right?
->>>>
->>>> Does the patch below fix it, please?
->> [ ... snip ... ]
->>> Add your patch.Found the following message:
->>> [  150.908051] ======================================================
->>> [  150.908053] [ INFO: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected ]
->>> [  150.908056] 3.9.0+ #102 Not tainted
->> Right, oh well, I missed that scenario.
-> This looks good to me.
->
-> Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-It's  all good for me.
+Hi Sachin,
 
-Thanks!
-Jianpeng Ma
+On 05/03/2013 06:36 PM, Sachin Kamat wrote:
+> Commit 0998d06310 (device-core: Ensure drvdata = NULL when no
+> driver is bound) removes the need to set driver data field to
+> NULL.
+>
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Cc: Thomas Chou <thomas@wytron.com.tw>
+> ---
+>   drivers/input/serio/altera_ps2.c |    1 -
+>   1 file changed, 1 deletion(-)
+>
+> diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
+> index 479ce5f..a0a2657 100644
+> --- a/drivers/input/serio/altera_ps2.c
+> +++ b/drivers/input/serio/altera_ps2.c
+> @@ -163,7 +163,6 @@ static int altera_ps2_remove(struct platform_device *pdev)
+>   {
+>   	struct ps2if *ps2if = platform_get_drvdata(pdev);
+>
+> -	platform_set_drvdata(pdev, NULL);
+>   	serio_unregister_port(ps2if->io);
+>   	free_irq(ps2if->irq, ps2if);
+>   	iounmap(ps2if->base);
+>
+
+Acked-by: Thomas Chou <thomas@wytron.com.tw>
+
+Thanks.
+- Thomas
+
+

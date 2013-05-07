@@ -1,22 +1,22 @@
-From: Kevin Cernekee <cernekee@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Subject: Re: Lenovo Yoga 13 touchpad regression
-Date: Mon, 6 May 2013 23:05:08 -0700
-Message-ID: <CAJiQ=7DDpCUTXasoo8qbrv-g87Ak7NFvKXSn6+cfhKai06yG_A@mail.gmail.com>
+Date: Tue, 7 May 2013 10:10:36 +0200
+Message-ID: <CAN+gG=F3ZpTFj99azqrw0Sq4WNhP3HkKptDEc82myqCq-9Z6JA@mail.gmail.com>
 References: <5188905A.4020703@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:58191 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753445Ab3EGGFJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 May 2013 02:05:09 -0400
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:36256 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754765Ab3EGKIe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 May 2013 06:08:34 -0400
 In-Reply-To: <5188905A.4020703@zytor.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linux-input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On Mon, May 6, 2013 at 10:25 PM, H. Peter Anvin <hpa@zytor.com> wrote:
+On Tue, May 7, 2013 at 7:25 AM, H. Peter Anvin <hpa@zytor.com> wrote:
 > Hello,
 >
 > The touchpad on Lenovo Yoga 13 seems to have broken some time between 3.4
@@ -29,12 +29,27 @@ On Mon, May 6, 2013 at 10:25 PM, H. Peter Anvin <hpa@zytor.com> wrote:
 >
 > ... about once per second; I am wondering if the touchpad is spewing output
 > onto the keyboard channel or if there is something else wrong.
+>
+> I have tried i8042.nomux and i8042.noloop to no effect.
+>
+> Unless someone has a better idea I'll try to do a bisect.
 
->From googling around this looks like a Synaptics unit.
+On top of Kevin's answer:
 
-Is it being detected by the ALPS driver?  If so, did it use the ALPS
-driver in 3.4?
+I already saw that with Yoga 13 laptops.
+The touchpad went into this mode, and Linux was not able to recognize
+it anymore.
+What "solves" the pb was to stop the machine, then go to the bios (or
+UEFI), then the touchpad was back alive when the guy rebooted under
+Linux. I bet the bios managed to set the touchpad in the right mode
+where Linux can then handle it correctly.
 
-alps.c was changed to identify several new models, but PS/2 touchpad
-identification uses "magic knock sequences" which may be prone to
-false positives.  This is something we should watch for.
+This is not an ideal solution, but at least this may help restoring
+your touchpad to a functional state while the correct driver is being
+developed.
+
+Anyway, if you are able to do a real bisect (instead of my dirty
+trick), that would be great because it would help fixing the problem.
+
+Cheers,
+Benjamin

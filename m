@@ -1,52 +1,60 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCHv2] hid: remove duplicate ID for D-WAV eGalax 0x7224
-Date: Tue, 07 May 2013 16:48:05 +0200
-Message-ID: <51891425.5070300@redhat.com>
-References: =?ISO-8859-1?Q?=20<1367936944-1624?= =?ISO-8859-1?Q?9-2-git-send-ema?=
-	=?ISO-8859-1?Q?il-andriy.shevch?= =?ISO-8859-1?Q?enko@linux.intel?=
-	=?ISO-8859-1?Q?.com=1B[B=1B[B=1B[B>?= <1367937493-16844-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Lenovo Yoga 13 touchpad regression
+Date: Tue, 07 May 2013 11:43:59 -0700
+Message-ID: <51894B6F.9040108@zytor.com>
+References: <5188905A.4020703@zytor.com> <CAJiQ=7DDpCUTXasoo8qbrv-g87Ak7NFvKXSn6+cfhKai06yG_A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:17401 "EHLO mx1.redhat.com"
+Received: from terminus.zytor.com ([198.137.202.10]:58652 "EHLO mail.zytor.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754031Ab3EGOsK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 May 2013 10:48:10 -0400
-In-Reply-To: <1367937493-16844-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	id S1760082Ab3EGSoD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 May 2013 14:44:03 -0400
+In-Reply-To: <CAJiQ=7DDpCUTXasoo8qbrv-g87Ak7NFvKXSn6+cfhKai06yG_A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Kevin Cernekee <cernekee@gmail.com>
+Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On 05/07/2013 04:38 PM, Andy Shevchenko wrote:
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
+On 05/06/2013 11:05 PM, Kevin Cernekee wrote:
+> On Mon, May 6, 2013 at 10:25 PM, H. Peter Anvin <hpa@zytor.com> wrote:
+>> Hello,
+>>
+>> The touchpad on Lenovo Yoga 13 seems to have broken some time between 3.4
+>> and the current kernel.  The dmesg is full of spewage:
+>>
+>> [  256.246481] atkbd serio0: Use 'setkeycodes e03e <keycode>' to make it
+>> known.
+>> [  256.251473] atkbd serio0: Unknown key released (translated set 2, code
+>> 0xbe on isa0060/serio0
+>>
+>> ... about once per second; I am wondering if the touchpad is spewing output
+>> onto the keyboard channel or if there is something else wrong.
+>
+>  From googling around this looks like a Synaptics unit.
+>
+> Is it being detected by the ALPS driver?  If so, did it use the ALPS
+> driver in 3.4?
+>
+> alps.c was changed to identify several new models, but PS/2 touchpad
+> identification uses "magic knock sequences" which may be prone to
+> false positives.  This is something we should watch for.
+>
 
-I bet it will be easier to track for Jiri if you resend the full series:
-- the egalax reordering
-- the remove of the duplicate ID
+This is how it is detected:
 
-As mentioned previously, also remove the entry in hid-multitouch (the
-one containing MT_CLS_EGALAX, not the _SERIAL one).
+[    1.843709] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, 
+id: 0x1e2b1, caps: 0xd00223/0x840300/0x123c00, board id: 1800, fw id: 
+1148377
+[    1.902569] input: SynPS/2 Synaptics TouchPad as 
+/devices/platform/i8042/serio1/input/input3
 
-Cheers,
-Benjamin
+I think this is the Synaptics driver as opposed to ALPS.
 
->  drivers/hid/hid-ids.h | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 2378a0b..a5520ba 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -268,7 +268,6 @@
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7207	0x7207
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C	0x720c
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224	0x7224
-> -#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224	0x7224
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_722A	0x722A
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_725E	0x725e
->  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7262	0x7262
-> 
+What is really bizarre is that some time today the touchpad 
+spontaneously started to work.  However, after a reboot it no longer 
+worked again.  This is on 3.8.11.  The keycode spewage continued, however.
+
+	-hpa
 

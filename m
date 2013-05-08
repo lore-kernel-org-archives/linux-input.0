@@ -1,93 +1,114 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC 24/26] HID: wiimote: support Nintendo Wii U Pro Controller
-Date: Wed, 8 May 2013 10:26:04 -0700
-Message-ID: <20130508172604.GB30057@core.coreip.homeip.net>
-References: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
- <1367788390-29835-25-git-send-email-dh.herrmann@gmail.com>
- <CAFmpkyhFHS1CHDLTRbGdYe5B5XkW-JyavZotvffZT3BnkQSdOA@mail.gmail.com>
- <CANq1E4Q9X7+e_HSbB2Y0GykgJAuF9ui1x1GtssiwOXWKhVUfvQ@mail.gmail.com>
- <CAFmpkyiSw3_mXG-bokbcu-wTUAQmMDBYvqpKQg5eT8Ke+vAPrA@mail.gmail.com>
- <CANq1E4T9eoBVvbq8J+2ps5CJ-9G1782j7TjanqWLJVUCQ1k60g@mail.gmail.com>
- <CAFmpkyigapfb52ke-8vvKcwqmF8EVsUF8md-0kFTHHDxDzKxRA@mail.gmail.com>
- <20130508170536.GA30057@core.coreip.homeip.net>
- <CAFmpkyj90KoGgLeOqb3x00qBQ7Hmj3Fd_tXuWujx08QueV_9uQ@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] input: cros_ec_keyb_clear_keyboard() depends on CONFIG_PM_SLEEP
+Date: Wed,  8 May 2013 23:45:29 +0200
+Message-ID: <1368049529-8168-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:43047 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756583Ab3EHR0I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 May 2013 13:26:08 -0400
-Received: by mail-pb0-f53.google.com with SMTP id un1so1365827pbc.12
-        for <linux-input@vger.kernel.org>; Wed, 08 May 2013 10:26:08 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAFmpkyj90KoGgLeOqb3x00qBQ7Hmj3Fd_tXuWujx08QueV_9uQ@mail.gmail.com>
+Received: from jacques.telenet-ops.be ([195.130.132.50]:44740 "EHLO
+	jacques.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753119Ab3EHVpl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 May 2013 17:45:41 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Todd Showalter <todd@electronjump.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Simon Glass <sjg@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 
-On Wed, May 08, 2013 at 01:20:58PM -0400, Todd Showalter wrote:
-> On Wed, May 8, 2013 at 1:05 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> 
-> > Or you have your library that provides ABS->BTN translation.
-> >
-> > You can even have your API structured such that consumer provides list
-> > of events it is interested in and the library tries to synthesize
-> > missing events if it can.
-> 
->     That's in the plans.
-> 
-> > So we already have:
-> >
-> > #define BTN_A                   0x130
-> > #define BTN_B                   0x131
-> > #define BTN_C                   0x132
-> > #define BTN_X                   0x133
-> > #define BTN_Y                   0x134
-> > #define BTN_Z                   0x135
-> > #define BTN_TL                  0x136
-> > #define BTN_TR                  0x137
-> > #define BTN_TL2                 0x138
-> > #define BTN_TR2                 0x139
-> > #define BTN_SELECT              0x13a
-> > #define BTN_START               0x13b
-> > #define BTN_MODE                0x13c
-> > #define BTN_THUMBL              0x13d
-> > #define BTN_THUMBR              0x13e
-> >
-> > So if we really want to have BTN_NORTH, etc, we want to alias existing
-> > ones.
-> 
->     The problem is that the alias differs with hardware.  BTN_A would be:
-> 
-> - BTN_SOUTH on xbox gamepads
-> - BTN_EAST on nintendo gamepads and ouya
-> 
->     Nintendo is:
-> 
-> A -> WEST
-> B -> SOUTH
-> X -> NORTH
-> Y -> EAST
-> 
->    While Microsoft is:
-> 
-> A -> SOUTH
-> B -> EAST
-> X -> WEST
-> Y -> NORTH
-> 
->     They're mirror images of each other. So just aliasing is going to
-> break something.
+If CONFIG_PM_SLEEP is not set:
 
-We should take existing in-kernel mapping (that would be XBOX and other
-less advanced gamepads in drivers/input/joystick), alias
-NORTH/SOUTH/EAST/WEST accordingly, have new users use NSEW button
-definitions.
+drivers/input/keyboard/cros_ec_keyb.c:211: warning: =E2=80=98cros_ec_ke=
+yb_clear_keyboard=E2=80=99 defined but not used
 
-Thanks.
+Move the definition of cros_ec_keyb_clear_keyboard() inside the section
+protected by #ifdef CONFIG_PM_SLEEP to fix this.
 
--- 
-Dmitry
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ drivers/input/keyboard/cros_ec_keyb.c |   54 ++++++++++++++++---------=
+-------
+ 1 files changed, 27 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyb=
+oard/cros_ec_keyb.c
+index 49557f2..7e8b0a5 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -206,33 +206,6 @@ static int cros_ec_keyb_work(struct notifier_block=
+ *nb,
+ 	return NOTIFY_DONE;
+ }
+=20
+-/* Clear any keys in the buffer */
+-static void cros_ec_keyb_clear_keyboard(struct cros_ec_keyb *ckdev)
+-{
+-	uint8_t old_state[ckdev->cols];
+-	uint8_t new_state[ckdev->cols];
+-	unsigned long duration;
+-	int i, ret;
+-
+-	/*
+-	 * Keep reading until we see that the scan state does not change.
+-	 * That indicates that we are done.
+-	 *
+-	 * Assume that the EC keyscan buffer is at most 32 deep.
+-	 */
+-	duration =3D jiffies;
+-	ret =3D cros_ec_keyb_get_state(ckdev, new_state);
+-	for (i =3D 1; !ret && i < 32; i++) {
+-		memcpy(old_state, new_state, sizeof(old_state));
+-		ret =3D cros_ec_keyb_get_state(ckdev, new_state);
+-		if (0 =3D=3D memcmp(old_state, new_state, sizeof(old_state)))
+-			break;
+-	}
+-	duration =3D jiffies - duration;
+-	dev_info(ckdev->dev, "Discarded %d keyscan(s) in %dus\n", i,
+-		jiffies_to_usecs(duration));
+-}
+-
+ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ {
+ 	struct cros_ec_device *ec =3D dev_get_drvdata(pdev->dev.parent);
+@@ -299,6 +272,33 @@ static int cros_ec_keyb_probe(struct platform_devi=
+ce *pdev)
+ }
+=20
+ #ifdef CONFIG_PM_SLEEP
++/* Clear any keys in the buffer */
++static void cros_ec_keyb_clear_keyboard(struct cros_ec_keyb *ckdev)
++{
++	uint8_t old_state[ckdev->cols];
++	uint8_t new_state[ckdev->cols];
++	unsigned long duration;
++	int i, ret;
++
++	/*
++	 * Keep reading until we see that the scan state does not change.
++	 * That indicates that we are done.
++	 *
++	 * Assume that the EC keyscan buffer is at most 32 deep.
++	 */
++	duration =3D jiffies;
++	ret =3D cros_ec_keyb_get_state(ckdev, new_state);
++	for (i =3D 1; !ret && i < 32; i++) {
++		memcpy(old_state, new_state, sizeof(old_state));
++		ret =3D cros_ec_keyb_get_state(ckdev, new_state);
++		if (0 =3D=3D memcmp(old_state, new_state, sizeof(old_state)))
++			break;
++	}
++	duration =3D jiffies - duration;
++	dev_info(ckdev->dev, "Discarded %d keyscan(s) in %dus\n", i,
++		jiffies_to_usecs(duration));
++}
++
+ static int cros_ec_keyb_resume(struct device *dev)
+ {
+ 	struct cros_ec_keyb *ckdev =3D dev_get_drvdata(dev);
+--=20
+1.7.0.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

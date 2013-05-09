@@ -1,59 +1,66 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] input: wacom - fix a typo for Cintiq 22HDT
-Date: Thu,  9 May 2013 12:40:22 -0700
-Message-ID: <1368128422-12127-1-git-send-email-pingc@wacom.com>
+From: "Tibor Billes" <tbilles@gmx.com>
+Subject: Possible regression 3.8.7 -> 3.9 with Dell touchpad
+Date: Thu, 09 May 2013 22:59:58 +0200
+Message-ID: <20130509205958.89890@gmx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f48.google.com ([209.85.210.48]:62774 "EHLO
-	mail-da0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750925Ab3EITke (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 May 2013 15:40:34 -0400
-Received: by mail-da0-f48.google.com with SMTP id h32so494886dak.7
-        for <linux-input@vger.kernel.org>; Thu, 09 May 2013 12:40:34 -0700 (PDT)
+Received: from mout.gmx.net ([212.227.17.20]:51375 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752590Ab3EIVAB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 May 2013 17:00:01 -0400
+Received: from mailout-eu.gmx.com ([10.1.101.216]) by mrigmx.server.lan
+ (mrigmx001) with ESMTP (Nemesis) id 0Ld2ys-1UAJwd3JMO-00iBvV for
+ <linux-input@vger.kernel.org>; Thu, 09 May 2013 22:59:59 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-And make the lines easier to read.
+Hi,
 
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/input/tablet/wacom_wac.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+I found that after upgrading my kernel from 3.8.7 to 3.9 my touchpad on=
+ly
+works partly. By that I mean I can use the touchpad to move the cursor
+around, but I cannot click with it by tapping. My machine is a Dell
+Latitude E5530. Since it is 100% reproducible on my machine, I bisected=
+ it,
+and found this commit:
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 3b6998a..2bc7839 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1955,7 +1955,8 @@ static const struct wacom_features wacom_features_0xF4 =
- 	  63, WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0xF8 =
- 	{ "Wacom Cintiq 24HD touch", WACOM_PKGLEN_INTUOS,   104480, 65600, 2047, /* Pen */
--	  63, WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, .oVid = USB_VENDOR_ID_WACOM, .oPid = 0xf6 };
-+	  63, WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0xf6 };
- static const struct wacom_features wacom_features_0xF6 =
- 	{ "Wacom Cintiq 24HD touch", .type = WACOM_24HDT, /* Touch */
- 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0xf8, .touch_max = 10 };
-@@ -1998,7 +1999,8 @@ static const struct wacom_features wacom_features_0xFA =
- 	  63, WACOM_22HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES };
- static const struct wacom_features wacom_features_0x5B =
- 	{ "Wacom Cintiq 22HDT", WACOM_PKGLEN_INTUOS,      95840, 54260, 2047,
--	  63, WACOM_24HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5e };
-+	  63, WACOM_22HD, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5e };
- static const struct wacom_features wacom_features_0x5E =
- 	{ "Wacom Cintiq 22HDT", .type = WACOM_24HDT,
- 	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x5b, .touch_max = 10 };
-@@ -2031,7 +2033,7 @@ static const struct wacom_features wacom_features_0xE5 =
- static const struct wacom_features wacom_features_0xE6 =
- 	{ "Wacom ISDv4 E6",       WACOM_PKGLEN_TPC2FG,    27760, 15694,  255,
- 	  0, TABLETPC2FG, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
--	.touch_max = 2 };
-+	  .touch_max = 2 };
- static const struct wacom_features wacom_features_0xEC =
- 	{ "Wacom ISDv4 EC",       WACOM_PKGLEN_GRAPHIRE,  25710, 14500,  255,
- 	  0, TABLETPC,    WACOM_INTUOS_RES, WACOM_INTUOS_RES };
--- 
-1.8.1.2
+commit 1302bac33d9e88cd43e482191a806998f3ed43cc
+Author: Kevin Cernekee <cernekee@gmail.com>
+Date: =C2=A0 Wed Feb 13 22:27:08 2013 -0800
 
+ =C2=A0 =C2=A0Input: ALPS - add support for "Rushmore" touchpads
+ =C2=A0 =C2=A0
+ =C2=A0 =C2=A0Rushmore touchpads are found on Dell E6230/E6430/E6530. =C2=
+=A0They use the V3
+ =C2=A0 =C2=A0protocol with slightly tweaked init sequences and report =
+formats.
+ =C2=A0 =C2=A0
+ =C2=A0 =C2=A0The E7 report is 73 03 0a, and the EC report is 88 08 1d
+ =C2=A0 =C2=A0
+ =C2=A0 =C2=A0Credits: Emmanuel Thome reported the MT bitmap changes.
+ =C2=A0 =C2=A0
+ =C2=A0 =C2=A0Signed-off-by: Kevin Cernekee <cernekee@gmail.com>
+ =C2=A0 =C2=A0Tested-by: Dave Turvene <dturvene@dahetral.com>
+ =C2=A0 =C2=A0Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com=
+>
+
+I did the bisection between 3.8.7 and 3.9, but also tried 3.9.1, it is =
+bad
+too. I also tried reverting that commit to make sure that it really is
+what made my touchpad not working. The revert did fix my problem.
+
+That's all I gathered so far, but I'd be happy to help further in any w=
+ay
+I can, just let me know.
+
+Thanks,
+Tibor
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

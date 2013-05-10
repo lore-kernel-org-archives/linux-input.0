@@ -1,94 +1,106 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [PATCH 2/2] Input: cyttsp - add missing handshake
-Date: Fri, 10 May 2013 16:01:11 +0200
-Message-ID: <CABxcv==KdTbXsiUtkws-CJp9qtnJx4D_ruLCrHn_ZLi4XawitQ@mail.gmail.com>
-References: <1368192769-24067-1-git-send-email-fery@cypress.com>
-	<1368192769-24067-2-git-send-email-fery@cypress.com>
+From: "Tibor Billes" <tbilles@gmx.com>
+Subject: Re: Possible regression 3.8.7 -> 3.9 with Dell touchpad
+Date: Fri, 10 May 2013 21:39:57 +0200
+Message-ID: <20130510193957.89870@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f181.google.com ([74.125.82.181]:56887 "EHLO
-	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753114Ab3EJOBN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 May 2013 10:01:13 -0400
-Received: by mail-we0-f181.google.com with SMTP id q55so4042474wes.40
-        for <linux-input@vger.kernel.org>; Fri, 10 May 2013 07:01:12 -0700 (PDT)
-In-Reply-To: <1368192769-24067-2-git-send-email-fery@cypress.com>
+Received: from mout.gmx.net ([212.227.15.19]:52626 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753679Ab3EJTkE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 May 2013 15:40:04 -0400
+Received: from mailout-eu.gmx.com ([10.1.101.216]) by mrigmx.server.lan
+ (mrigmx001) with ESMTP (Nemesis) id 0MfTEr-1Uuu5p3ZBz-00P6Wc for
+ <linux-input@vger.kernel.org>; Fri, 10 May 2013 21:40:02 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ferruh Yigit <fery@cypress.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, ttdrivers@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Dave Turvene <dturvene@dahetral.com>, Kevin Cernekee <cernekee@gmail.com>
 
-On Fri, May 10, 2013 at 3:32 PM, Ferruh Yigit <fery@cypress.com> wrote:
-> For the devices that has blocking with timeout communication, these
-> extra handshakes will prevent one timeout delay in startup sequence
->
-> Tested-by: Ferruh Yigit <fery@cypress.com> on TMA300-DVK
-> Signed-off-by: Ferruh Yigit <fery@cypress.com>
-> ---
->  drivers/input/touchscreen/cyttsp_core.c |   24 ++++++++++++++++++------
->  1 file changed, 18 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
-> index 97ba891..7007f58 100644
-> --- a/drivers/input/touchscreen/cyttsp_core.c
-> +++ b/drivers/input/touchscreen/cyttsp_core.c
-> @@ -116,6 +116,13 @@ static int ttsp_send_command(struct cyttsp *ts, u8 cmd)
->         return ttsp_write_block_data(ts, CY_REG_BASE, sizeof(cmd), &cmd);
->  }
->
-> +static int _cyttsp_hndshk(struct cyttsp *ts, u8 hst_mode)
-> +{
-> +       if (ts->pdata->use_hndshk)
-> +               return ttsp_send_command(ts, hst_mode ^ CY_HNDSHK_BIT);
-> +       return 0;
-> +}
-> +
->  static int cyttsp_load_bl_regs(struct cyttsp *ts)
->  {
->         memset(&ts->bl_data, 0, sizeof(ts->bl_data));
-> @@ -167,6 +174,10 @@ static int cyttsp_set_operational_mode(struct cyttsp *ts)
->         if (error)
->                 return error;
->
-> +       error = _cyttsp_hndshk(ts, ts->xy_data.hst_mode);
-> +       if (error)
-> +               return error;
-> +
->         return ts->xy_data.act_dist == CY_ACT_DIST_DFLT ? -EIO : 0;
->  }
->
-> @@ -188,6 +199,10 @@ static int cyttsp_set_sysinfo_mode(struct cyttsp *ts)
->         if (error)
->                 return error;
->
-> +       error = _cyttsp_hndshk(ts, ts->sysinfo_data.hst_mode);
-> +       if (error)
-> +               return error;
-> +
->         if (!ts->sysinfo_data.tts_verh && !ts->sysinfo_data.tts_verl)
->                 return -EIO;
->
-> @@ -344,12 +359,9 @@ static irqreturn_t cyttsp_irq(int irq, void *handle)
->                 goto out;
->
->         /* provide flow control handshake */
-> -       if (ts->pdata->use_hndshk) {
-> -               error = ttsp_send_command(ts,
-> -                               ts->xy_data.hst_mode ^ CY_HNDSHK_BIT);
-> -               if (error)
-> -                       goto out;
-> -       }
-> +       error = _cyttsp_hndshk(ts, ts->xy_data.hst_mode);
-> +       if (error)
-> +               goto out;
->
->         if (unlikely(ts->state == CY_IDLE_STATE))
->                 goto out;
-> --
-> 1.7.9.5
->
-> This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+=46rom: Dmitry Torokhov Sent: 05/10/13 12:54 AM
+>=20
+> On Thu, May 09, 2013 at 10:59:58PM +0200, Tibor Billes wrote:
+> > Hi,
+> >=20
+> > I found that after upgrading my kernel from 3.8.7 to 3.9 my touchpa=
+d only
+> > works partly. By that I mean I can use the touchpad to move the cur=
+sor
+> > around, but I cannot click with it by tapping.
+>=20
+> Is the touchpad recognized as ALPS or PS/2 mouse in 3.8.7? Also, can =
+you
+> check that touchpad tapping is enabled in your desktop environment?
 
-Acked-by: Javier Martinez Canillas <javier@dowhile0.org>
+In 3.8.7 it is recognized as PS/2 mouse and the desktop environment doe=
+sn't even offer any touchpad settings. In 3.9.1 the touchpad is recogni=
+zed as 'AlpsPS/2 ALPS DualPoint TouchPad' and yes, the touchpad setting=
+s appeared, and yes, clicking was disabled. Enabled it, works like a ch=
+arm :)
+
+So what happened is that the 3.8.7 kernel did not recognize my touchpad=
+, so it fell back to PS/2 which worked well for me. The 3.9 kernel reco=
+ngizes my touchpad correctly because Kevin updated the driver, and my s=
+ystem started using a different configuration as it knew it was a touch=
+pad and not some PS/2 device. Am I right? I recall looking for touchpad=
+ settings in one of the 3.8.x kernels and I didn't find any so I didn't=
+ bother looking for it again in 3.9...
+
+In this case I'm sorry for the false report, and thank you guys for the=
+ driver update :)
+
+> Thanks.
+>=20
+> > My machine is a Dell
+> > Latitude E5530. Since it is 100% reproducible on my machine, I bise=
+cted it,
+> > and found this commit:
+> >=20
+> > commit 1302bac33d9e88cd43e482191a806998f3ed43cc
+> > Author: Kevin Cernekee <cernekee@gmail.com>
+> > Date: =C2=A0 Wed Feb 13 22:27:08 2013 -0800
+> >=20
+> > =C2=A0 =C2=A0Input: ALPS - add support for "Rushmore" touchpads
+> > =C2=A0 =C2=A0
+> > =C2=A0 =C2=A0Rushmore touchpads are found on Dell E6230/E6430/E6530=
+=2E =C2=A0They use the V3
+> > =C2=A0 =C2=A0protocol with slightly tweaked init sequences and repo=
+rt formats.
+> > =C2=A0 =C2=A0
+> > =C2=A0 =C2=A0The E7 report is 73 03 0a, and the EC report is 88 08 =
+1d
+> > =C2=A0 =C2=A0
+> > =C2=A0 =C2=A0Credits: Emmanuel Thome reported the MT bitmap changes=
+=2E
+> > =C2=A0 =C2=A0
+> > =C2=A0 =C2=A0Signed-off-by: Kevin Cernekee <cernekee@gmail.com>
+> > =C2=A0 =C2=A0Tested-by: Dave Turvene <dturvene@dahetral.com>
+> > =C2=A0 =C2=A0Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.=
+com>
+> >=20
+> > I did the bisection between 3.8.7 and 3.9, but also tried 3.9.1, it=
+ is bad
+> > too. I also tried reverting that commit to make sure that it really=
+ is
+> > what made my touchpad not working. The revert did fix my problem.
+> >=20
+> > That's all I gathered so far, but I'd be happy to help further in a=
+ny way
+> > I can, just let me know.
+> >=20
+> > Thanks,
+> > Tibor
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-inp=
+ut" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at http://vger.kernel.org/majordomo-info.html
+>=20
+> --=20
+> Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

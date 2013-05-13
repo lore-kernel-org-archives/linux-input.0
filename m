@@ -1,102 +1,92 @@
-From: Todd Showalter <todd@electronjump.com>
-Subject: Re: [RFC 24/26] HID: wiimote: support Nintendo Wii U Pro Controller
-Date: Mon, 13 May 2013 13:40:27 -0400
-Message-ID: <CAFmpkyhz_G_qRtx46ZXZLs+zG2WFhmv-=gQCv=tOK6ukQ3DZyw@mail.gmail.com>
-References: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
-	<1367788390-29835-25-git-send-email-dh.herrmann@gmail.com>
-	<CAFmpkyhFHS1CHDLTRbGdYe5B5XkW-JyavZotvffZT3BnkQSdOA@mail.gmail.com>
-	<CANq1E4Q9X7+e_HSbB2Y0GykgJAuF9ui1x1GtssiwOXWKhVUfvQ@mail.gmail.com>
-	<CAFmpkyiSw3_mXG-bokbcu-wTUAQmMDBYvqpKQg5eT8Ke+vAPrA@mail.gmail.com>
-	<CANq1E4T9eoBVvbq8J+2ps5CJ-9G1782j7TjanqWLJVUCQ1k60g@mail.gmail.com>
-	<CAFmpkyigapfb52ke-8vvKcwqmF8EVsUF8md-0kFTHHDxDzKxRA@mail.gmail.com>
-	<20130508170536.GA30057@core.coreip.homeip.net>
-	<CAFmpkyj90KoGgLeOqb3x00qBQ7Hmj3Fd_tXuWujx08QueV_9uQ@mail.gmail.com>
-	<20130508172604.GB30057@core.coreip.homeip.net>
-	<CANq1E4S7F9tZJxXX2i+1h1hkPfiCNhSTkqLw14NhPQ-vJjBtFg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] input : wacom - add an eraser to DTH2242/DTK2241
+Date: Mon, 13 May 2013 10:44:00 -0700
+Message-ID: <1368467040-23216-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qe0-f45.google.com ([209.85.128.45]:34293 "EHLO
-	mail-qe0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753230Ab3EMRk2 (ORCPT
+Received: from mail-da0-f41.google.com ([209.85.210.41]:65346 "EHLO
+	mail-da0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751391Ab3EMRoB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 May 2013 13:40:28 -0400
-Received: by mail-qe0-f45.google.com with SMTP id a11so3726520qen.4
-        for <linux-input@vger.kernel.org>; Mon, 13 May 2013 10:40:27 -0700 (PDT)
-In-Reply-To: <CANq1E4S7F9tZJxXX2i+1h1hkPfiCNhSTkqLw14NhPQ-vJjBtFg@mail.gmail.com>
+	Mon, 13 May 2013 13:44:01 -0400
+Received: by mail-da0-f41.google.com with SMTP id y19so3757729dan.28
+        for <linux-input@vger.kernel.org>; Mon, 13 May 2013 10:44:01 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On Mon, May 13, 2013 at 1:03 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+plus send begin and end of express keys events for
+Cintiq 13HD and DTH2242/DTK2241
 
-> I tried to put up some documentation. Comments welcome. If no problems
-> arise with it, I will send a proper series later.
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_wac.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-    I'd be inclined to add something about the mode button; it's
-somewhat special.  Not special in the sense of anything magical
-happening in the hardware, just special in the sense that it's the
-control that isn't game related.  The hardware that has something that
-maps to MODE generally intends the button to mean "pause the game and
-let me interact with the OS.".  That's certainly the case for the PS
-button on the sixaxis, the backlit X button on the 360 controller and
-the home button on the Wii controllers.
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 2bc7839..518282d 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -362,7 +362,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		case 0x100804: /* Intuos4/5 13HD/24HD Art Pen */
+ 		case 0x140802: /* Intuos4/5 13HD/24HD Classic Pen */
+ 		case 0x160802: /* Cintiq 13HD Pro Pen */
+-		case 0x180802: /* DTH2242 Grip Pen */
++		case 0x180802: /* DTH2242 Pen */
+ 			wacom->tool[idx] = BTN_TOOL_PEN;
+ 			break;
+ 
+@@ -400,6 +400,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		case 0x10090a: /* Intuos4/5 13HD/24HD Airbrush Eraser */
+ 		case 0x10080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
+ 		case 0x16080a: /* Cintiq 13HD Pro Pen Eraser */
++		case 0x18080a: /* DTH2242 Eraser */
+ 			wacom->tool[idx] = BTN_TOOL_RUBBER;
+ 			break;
+ 
+@@ -550,6 +551,11 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 			input_report_key(input, BTN_3, (data[6] & 0x08));
+ 			input_report_key(input, BTN_4, (data[6] & 0x10));
+ 			input_report_key(input, BTN_5, (data[6] & 0x20));
++			if (data[6] & 0x3f) {
++				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
++			} else {
++				input_report_abs(input, ABS_MISC, 0);
++			}
+ 		} else if (features->type == WACOM_13HD) {
+ 			input_report_key(input, BTN_0, (data[3] & 0x01));
+ 			input_report_key(input, BTN_1, (data[4] & 0x01));
+@@ -560,6 +566,11 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 			input_report_key(input, BTN_6, (data[4] & 0x20));
+ 			input_report_key(input, BTN_7, (data[4] & 0x40));
+ 			input_report_key(input, BTN_8, (data[4] & 0x80));
++			if ((data[3] & 0x01) | data[4]) {
++				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
++			} else {
++				input_report_abs(input, ABS_MISC, 0);
++			}
+ 		} else if (features->type == WACOM_24HD) {
+ 			input_report_key(input, BTN_0, (data[6] & 0x01));
+ 			input_report_key(input, BTN_1, (data[6] & 0x02));
+@@ -1539,15 +1550,15 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		__set_bit(KEY_PROG1, input_dev->keybit);
+ 		__set_bit(KEY_PROG2, input_dev->keybit);
+ 		__set_bit(KEY_PROG3, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
++		input_set_abs_params(input_dev, ABS_THROTTLE, 0, 71, 0, 0);
+ 		/* fall through */
+ 
+ 	case DTK:
+ 		for (i = 0; i < 6; i++)
+ 			__set_bit(BTN_0 + i, input_dev->keybit);
+ 
+-		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+-		input_set_abs_params(input_dev, ABS_THROTTLE, 0, 71, 0, 0);
+-
+ 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 
+ 		wacom_setup_cintiq(wacom_wac);
+-- 
+1.8.1.2
 
-    Force feedback is a land of crawling madness and chaos; I'm not
-sure there's much right now that can be done to unify it.  You've got
-devices with linear motors, rotary motors, speakers, resistance
-systems, and combinations of those.  The motor systems are mounted at
-different angles in different hardware.  You've potentially got
-strange power limitations; there's hardware out there where the
-combined draw of all the feedback motors is more than the cable
-supplies to the gamepad, so you can't run them all at the same time.
-You've got sound feedback vs. rumble feedback vs. active feedback (ie:
-the joystick or wheel is actively pushing back against you or trying
-to pull you around).  I'd love a unified force feedback system, but
-there's so little commonality between devices that I'm not sure
-there's any useful set to abstract over.
-
-    I'd be inclined to make two button systems map to BTN_SOUTH and
-BTN_EAST; those are the two button that fall most easily under your
-thumb with a 4 button gamepad.  BTN_NORTH and BTN_WEST require you to
-reach over the other two buttons, which is fine for most people but
-less ideal for people with smaller hands.  Even people with large
-hands usually find SOUTH and EAST the easiest to reach, so for most
-games (at least in my experience) those two buttons wind up being
-mapped to the actions we expect people to do the most.  A game might
-still have to remap (or throw its hands up and tell you that a two
-button controller means you need to keep the keyboard nearby), but I
-think making BTN_SOUTH and BTN_EAST the defaults on a 2 button
-controller (and adding NORTH or WEST for 3) will be most likely to
-work out of the box with most games.
-
-    For the cases where you have buttons in a square pattern rather
-than a diamond, yes, I guess we just have to pick a 45 degree rotation
-of the compass and live with that.  Having SOUTH and EAST along the
-right side makes as much sense as the alternative, so I'm good with
-this.
-
-    Could we do explicit BTN_DPAD_UP/DOWN/LEFT/RIGHT?  It feels like
-the HAPPY buttons are placeholder defines.
-
-    On the menu pad, I think in practice there's quite often a button
-labelled "start".  Granted, it's usually on the right, but see (for
-example) the original xbox S controller, where "start" is indeed the
-button on the right hand side (and "back" is the one on the left), but
-the actual "menu pad" is to the left of the dpad.
-
-    I'd prefer if things were mapped to a pair of digital buttons and
-a pair of analog linear pot triggers for the shoulders; that covers a
-lot of existing hardware (the xbox series gamepads, wii classic
-gamepad, and playstation series gamepad can all be made to fit this
-model without undue violence).
-
-    Overall: My complaints are largely minor; there are some tweaks
-I'd appreciate, but there's nothing fundamentally wrong here.
-
-                                            Todd.
-
---
- Todd Showalter, President,
- Electron Jump Games, Inc.

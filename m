@@ -1,45 +1,38 @@
 From: Daniel Nicoletti <dantti12@gmail.com>
-Subject: Re: [PATCH] HID: input: return ENODATA if reading battery attrs fails
-Date: Mon, 13 May 2013 18:17:06 -0300
-Message-ID: <CACo8zOceMMJQPXNLM3JL_GMQh8wNVNDkSC5eBaZf3a=--9JGqA@mail.gmail.com>
-References: <1368457290-1734-1-git-send-email-dh.herrmann@gmail.com>
+Subject: PATCH change for HID_BATTERY_STRENGTH kconfig
+Date: Mon, 13 May 2013 18:43:46 -0300
+Message-ID: <CACo8zOfAf3cUNh4MZcQvYByiu=D5S1aA4qiH_HFuvz5GYMJF7g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f181.google.com ([74.125.82.181]:39775 "EHLO
-	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753546Ab3EMVRH (ORCPT
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:33929 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753966Ab3EMVnr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 May 2013 17:17:07 -0400
-In-Reply-To: <1368457290-1734-1-git-send-email-dh.herrmann@gmail.com>
+	Mon, 13 May 2013 17:43:47 -0400
+Received: by mail-wi0-f169.google.com with SMTP id hn14so1128799wib.0
+        for <linux-input@vger.kernel.org>; Mon, 13 May 2013 14:43:46 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anton Vorontsov <cbou@mail.ru>, David Woodhouse <dwmw2@infradead.org>
+To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-2013/5/13 David Herrmann <dh.herrmann@gmail.com>:
-> Anyway, I'd still like to see this patch applied so we have this annoying
-> bug fixed. I'd be willing to change the power_supply core, too, if one of the
-> maintainers agrees on the design (David? Anton?).
->
-> And, @Daniel, can you check whether this actually fixes the bug? I don't own
-> a device that reports battery-information, but it at least fixes the same bug
-> for the hid-wiimote driver (tested by me).
+Hi,
+I'd like to propose this patch while removes the need for
+hid to be compiled build-in, as this is the same behavior
+that WiiMote and Wacom have.
+Is this ok?
 
-Yes, it does fixes the bug. Now udevadm properly show add and remove events
-and upower happily get's them.
-But there is around  15 seconds block on the bluetooth stack, in other words
-when connecting a device it seems to probe the device which blocks till
-a timeout, and while that timeout doesn't finish other bluetooth
-devices are also
-blocked. It seems the devices aren't able to be probed so soon, possibly
-because bluetooth didn't finished setting them up. Looking at udevadm output
-I clearly see that it locks for around 3 times.
-My kernel knowledge is rather limited but if you can give me tips or patches to
-test I really want to see this code finally working properly, and sorry for
-not realizing when I sent it that it had this issue...
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index fb52f3f..d6d85ad 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -27,7 +27,8 @@ if HID
 
---
-Daniel Nicoletti
-
-KDE Developer - http://dantti.wordpress.com
+ config HID_BATTERY_STRENGTH
+        bool "Battery level reporting for HID devices"
+-       depends on HID && POWER_SUPPLY && HID = POWER_SUPPLY
++       depends on HID
++       select POWER_SUPPLY
+        default n
+        ---help---
+        This option adds support of reporting battery strength (for HID devices

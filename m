@@ -1,59 +1,89 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Support of Genius mouse with huge max_usage
-Date: Tue, 14 May 2013 16:21:55 +0200
-Message-ID: <CAN+gG=FAPziNr7g54MUbw-yFm299Myi3Jnz_0HQRxTAjNB4XLA@mail.gmail.com>
+From: James M Leddy <james.leddy@canonical.com>
+Subject: Re: Possible regression 3.8.7 -> 3.9 with Dell touchpad
+Date: Tue, 14 May 2013 14:50:18 -0400
+Message-ID: <5192876A.4060407@canonical.com>
+References: <20130510193957.89870@gmx.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f178.google.com ([209.85.217.178]:65412 "EHLO
-	mail-lb0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754772Ab3ENOV4 (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:41414 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754057Ab3ENSuX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 May 2013 10:21:56 -0400
-Received: by mail-lb0-f178.google.com with SMTP id p10so692337lbv.9
-        for <linux-input@vger.kernel.org>; Tue, 14 May 2013 07:21:55 -0700 (PDT)
+	Tue, 14 May 2013 14:50:23 -0400
+In-Reply-To: <20130510193957.89870@gmx.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Tibor Billes <tbilles@gmx.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Dave Turvene <dturvene@dahetral.com>, Kevin Cernekee <cernekee@gmail.com>
 
-Hi Jiri,
+On 05/10/2013 03:39 PM, Tibor Billes wrote:
+> From: Dmitry Torokhov Sent: 05/10/13 12:54 AM
+>>
+>> On Thu, May 09, 2013 at 10:59:58PM +0200, Tibor Billes wrote:
+>>> Hi,
+>>>
+>>> I found that after upgrading my kernel from 3.8.7 to 3.9 my touchpad only
+>>> works partly. By that I mean I can use the touchpad to move the cursor
+>>> around, but I cannot click with it by tapping.
+>>
+>> Is the touchpad recognized as ALPS or PS/2 mouse in 3.8.7? Also, can you
+>> check that touchpad tapping is enabled in your desktop environment?
+> 
+> In 3.8.7 it is recognized as PS/2 mouse and the desktop environment doesn't even offer any touchpad settings. In 3.9.1 the touchpad is recognized as 'AlpsPS/2 ALPS DualPoint TouchPad' and yes, the touchpad settings appeared, and yes, clicking was disabled. Enabled it, works like a charm :)
+> 
+> So what happened is that the 3.8.7 kernel did not recognize my touchpad, so it fell back to PS/2 which worked well for me. The 3.9 kernel recongizes my touchpad correctly because Kevin updated the driver, and my system started using a different configuration as it knew it was a touchpad and not some PS/2 device. Am I right? I recall looking for touchpad settings in one of the 3.8.x kernels and I didn't find any so I didn't bother looking for it again in 3.9...
+> 
+> In this case I'm sorry for the false report, and thank you guys for the driver update :)
 
-I have a bug from an owner of a Gila mouse from Genius which I'm not
-sure how to handle it:
-https://bugzilla.redhat.com/show_bug.cgi?id=959721
+This sounds about right. I expect that if you enable tap to click in
+your settings (should be under "Mouse and Touchpad" if you're using
+gnome-control-center) you should be good.
 
-The user gave me the hid-replay traces and within the first trace (the
-one from hidraw0), I can extract the culprit collection:
+> 
+>> Thanks.
+>>
+>>> My machine is a Dell
+>>> Latitude E5530. Since it is 100% reproducible on my machine, I bisected it,
+>>> and found this commit:
+>>>
+>>> commit 1302bac33d9e88cd43e482191a806998f3ed43cc
+>>> Author: Kevin Cernekee <cernekee@gmail.com>
+>>> Date:   Wed Feb 13 22:27:08 2013 -0800
+>>>
+>>>    Input: ALPS - add support for "Rushmore" touchpads
+>>>    
+>>>    Rushmore touchpads are found on Dell E6230/E6430/E6530.  They use the V3
+>>>    protocol with slightly tweaked init sequences and report formats.
+>>>    
+>>>    The E7 report is 73 03 0a, and the EC report is 88 08 1d
+>>>    
+>>>    Credits: Emmanuel Thome reported the MT bitmap changes.
+>>>    
+>>>    Signed-off-by: Kevin Cernekee <cernekee@gmail.com>
+>>>    Tested-by: Dave Turvene <dturvene@dahetral.com>
+>>>    Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>>>
+>>> I did the bisection between 3.8.7 and 3.9, but also tried 3.9.1, it is bad
+>>> too. I also tried reverting that commit to make sure that it really is
+>>> what made my touchpad not working. The revert did fix my problem.
+>>>
+>>> That's all I gathered so far, but I'd be happy to help further in any way
+>>> I can, just let me know.
+>>>
+>>> Thanks,
+>>> Tibor
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at http://vger.kernel.org/majordomo-info.html
+>>
+>> -- 
+>> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-0x05, 0x0c,                    // Usage Page (Consumer Devices)       104
-0x09, 0x01,                    // Usage (Consumer Control)            106
-0xa1, 0x01,                    // Collection (Application)            108
-0x85, 0x03,                    //   Report ID (3)                     110
-0x19, 0x00,                    //   Usage Minimum (0)                 112
-0x2a, 0xff, 0x7f,              //   Usage Maximum (32767)             114
-0x15, 0x00,                    //   Logical Minimum (0)               117
-0x26, 0xff, 0x7f,              //   Logical Maximum (32767)           119
-0x75, 0x10,                    //   Report Size (16)                  122
-0x95, 0x03,                    //   Report Count (3)                  124
-0x81, 0x00,                    //   Input (Data,Arr,Abs)              126
-0x75, 0x08,                    //   Report Size (8)                   128
-0x95, 0x01,                    //   Report Count (1)                  130
-0x81, 0x01,                    //   Input (Cnst,Arr,Abs)              132
-0xc0,                          // End Collection                      134
-
-This hid device declares an array of 32767 usages, but HID_MAX_USAGES
-is set to 12288 as mentioned in the bug.
-One solution (given in the bug) consists in setting HID_MAX_USAGES to
-32767, but I'm not very comfortable with this large value which will
-impact all the existing hid devices.
-
-So what approach do you prefer:
-- setting HID_MAX_USAGES to 32767
-- writing a specific driver which fixes this unused collection through
-a report fixup?
-- a generic fix (to be written) within hid-core which detects and
-prevents these huge max usage.
-
-Cheers,
-Benjamin

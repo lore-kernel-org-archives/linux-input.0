@@ -1,64 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2 0/5] input: pxa27x-keypad: enhancement and device tree
- support
-Date: Tue, 14 May 2013 23:40:39 -0700
-Message-ID: <20130515064039.GA24297@core.coreip.homeip.net>
-References: <1367809448-9437-1-git-send-email-chao.xie@marvell.com>
- <CADApbegCt=uGcQxdukq-svi201J+YeAX1M1vs-dKAD_AD9HFPw@mail.gmail.com>
+Subject: Re: [PATCH] input: cros_ec_keyb_clear_keyboard() depends on
+ CONFIG_PM_SLEEP
+Date: Tue, 14 May 2013 23:42:48 -0700
+Message-ID: <20130515064248.GB24297@core.coreip.homeip.net>
+References: <1368049529-8168-1-git-send-email-geert@linux-m68k.org>
+ <CAPnjgZ3Akf0+LKBt4c5HQX5c8PhL+zuvvHWrDpVj0W++GiOanA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-da0-f51.google.com ([209.85.210.51]:33377 "EHLO
-	mail-da0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753646Ab3EOGkn (ORCPT
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:63004 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754581Ab3EOGmv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 May 2013 02:40:43 -0400
+	Wed, 15 May 2013 02:42:51 -0400
 Content-Disposition: inline
-In-Reply-To: <CADApbegCt=uGcQxdukq-svi201J+YeAX1M1vs-dKAD_AD9HFPw@mail.gmail.com>
+In-Reply-To: <CAPnjgZ3Akf0+LKBt4c5HQX5c8PhL+zuvvHWrDpVj0W++GiOanA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chao Xie <xiechao.mail@gmail.com>
-Cc: Chao Xie <chao.xie@marvell.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>
+To: Simon Glass <sjg@chromium.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Samuel Ortiz <sameo@linux.intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>
 
-Hi Chao,
+On Wed, May 08, 2013 at 09:25:56PM -0600, Simon Glass wrote:
+> On Wed, May 8, 2013 at 3:45 PM, Geert Uytterhoeven <geert@linux-m68k.=
+org> wrote:
+> > If CONFIG_PM_SLEEP is not set:
+> >
+> > drivers/input/keyboard/cros_ec_keyb.c:211: warning: =E2=80=98cros_e=
+c_keyb_clear_keyboard=E2=80=99 defined but not used
+> >
+> > Move the definition of cros_ec_keyb_clear_keyboard() inside the sec=
+tion
+> > protected by #ifdef CONFIG_PM_SLEEP to fix this.
+> >
+> > Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>=20
+> Acked-by: Simon Glass <sjg@chromium.org>
 
-On Mon, May 13, 2013 at 04:02:07PM +0800, Chao Xie wrote:
-> hi, dmitry
-> What is your idea about these patches?
-> Do i need add someone else to review them?
-> 
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-No, they look good, give me a couple more days but I should apply them.
-I am going to fold the first 4 into one patch though.
+Could you please forward this to Linus as I do not have this driver in
+my branch yet.
 
-> On Mon, May 6, 2013 at 11:04 AM, Chao Xie <chao.xie@marvell.com> wrote:
-> > The patches include 2 parts
-> > 1. use matrix_keypad for matrix keyes support
-> > 2. add device tree support for pxa27x-keypad
-> >
-> > V2->V1:
-> > Do not copy the members from pdata. For device tree support,
-> > directly allocate the pdata structure.
-> >
-> > Chao Xie (5):
-> >   input: pxa27x-keypad: use matrix_keymap for matrix keyes
-> >   arm: mmp: use matrix_keymap for aspenite
-> >   arm: mmp: use matrix_keymap for teton_bga
-> >   input: pxa27x-keypad: remove the unused members at platform data
-> >   input: pxa27x-keypad: add device tree support
-> >
-> >  .../devicetree/bindings/input/pxa27x-keypad.txt    |   60 +++++
-> >  arch/arm/mach-mmp/aspenite.c                       |   10 +-
-> >  arch/arm/mach-mmp/teton_bga.c                      |    8 +-
-> >  drivers/input/keyboard/Kconfig                     |    1 +
-> >  drivers/input/keyboard/pxa27x_keypad.c             |  266 ++++++++++++++++++--
-> >  include/linux/platform_data/keypad-pxa27x.h        |    3 +-
-> >  6 files changed, 325 insertions(+), 23 deletions(-)
-> >  create mode 100644 Documentation/devicetree/bindings/input/pxa27x-keypad.txt
-> >
-> > --
-> > 1.7.4.1
-> >
+Thanks.
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

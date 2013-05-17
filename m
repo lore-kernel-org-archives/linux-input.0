@@ -1,66 +1,54 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH] input: stmpe: Fix the touchscreen interrupt handling
-Date: Fri, 17 May 2013 01:25:11 +0200
-Message-ID: <201305170125.11552.marex@denx.de>
-References: <1366585565-13046-1-git-send-email-marex@denx.de> <20130516221745.GW22822@zurbaran>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 2/2] hid: remove duplicate ID for D-WAV eGalax 0x7224
+Date: Fri, 17 May 2013 14:34:49 +0300
+Message-ID: <1368790489-21792-3-git-send-email-andriy.shevchenko@linux.intel.com>
+References: <1368790489-21792-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:56074 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754887Ab3EPXZR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 May 2013 19:25:17 -0400
-In-Reply-To: <20130516221745.GW22822@zurbaran>
+Received: from mga11.intel.com ([192.55.52.93]:42441 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750742Ab3EQLe6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 May 2013 07:34:58 -0400
+In-Reply-To: <1368790489-21792-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vipul Kumar Samar <vipulkumar.samar@st.com>, Viresh Kumar <viresh.kumar@linaro.org>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Dear Samuel Ortiz,
+This patch also removes the duplicate entry in the hid-multitouch.c as
+suggested by Benjamin Tissoires.
 
-> Hi Marek,
-> 
-> On Mon, Apr 22, 2013 at 01:06:05AM +0200, Marek Vasut wrote:
-> > The touchscreen interrupt handling in the STMPE touchscreen driver
-> > doesn't seem to work correctly. It relies on FIFO_TH to be asserted
-> > instead of TOUCH_DET interrupt for touchscreen detection.
-> > 
-> > The FIFO_TH is usually asserted but is asserted independently of the
-> > touchscreen controller operation. Because the bits in the interrupt
-> > status register are not entirely cleaned, the interrupt handler is
-> > triggered even if FIFO_TH is not yet set. Make sure that all bits in
-> > the interrupt status register are cleared early.
-> > 
-> > Rework the touchscreen interrupt handling so it waits for TOUCH_DET
-> > interrupt to happen. Upon first TOUCH_DET interrupt, worker thread
-> > is started which polls the touchscreen controller for location data
-> > until no touch is detected. Touch is determined by checking the X
-> > and Y coordinates, if they are zero, no touch happens.
-> > 
-> > Signed-off-by: Marek Vasut <marex@denx.de>
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Cc: Samuel Ortiz <sameo@linux.intel.com>
-> > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
-> > Cc: Viresh Kumar <viresh.kumar@linaro.org>
-> > Cc: Bill Pemberton <wfp5p@virginia.edu>
-> > Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
-> > ---
-> > 
-> >  drivers/input/touchscreen/stmpe-ts.c |  111
-> >  ++++++++++++++-------------------- drivers/mfd/stmpe.c                 
-> >  |   10 +--
-> >  2 files changed, 50 insertions(+), 71 deletions(-)
-> 
-> Could you please split this patch in 2, the MFD part is independent from
-> the input one and could be applied separately.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/hid/hid-ids.h        | 1 -
+ drivers/hid/hid-multitouch.c | 3 ---
+ 2 files changed, 4 deletions(-)
 
-I'd vote for applying this as one single patch, since this fixes one single 
-problem (touchscreen not working properly). Or is that a big issue for you?
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 5b7e148..8add4ae 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -271,7 +271,6 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7207	0x7207
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_720C	0x720c
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224	0x7224
+-#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224	0x7224
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_722A	0x722A
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_725E	0x725e
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7262	0x7262
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 590aa37..d99b959 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1131,9 +1131,6 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224) },
+-	{ .driver_data = MT_CLS_EGALAX,
+-		HID_USB_DEVICE(USB_VENDOR_ID_DWAV,
+-			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7224) },
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_722A) },
+-- 
+1.8.2.rc0.22.gb3600c3
 
-btw. can I get some review from the ST guys please ?
-
-Best regards,
-Marek Vasut

@@ -1,13 +1,13 @@
 From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 6/7] input: pmic8xxx-pwrkey: Pass correct pointer to free_irq()
-Date: Mon, 20 May 2013 16:51:25 +0200
-Message-ID: <1369061486-28226-6-git-send-email-lars@metafoo.de>
+Subject: [PATCH 4/7] input: w90p910_keypad: Pass correct pointer to free_irq()
+Date: Mon, 20 May 2013 16:51:23 +0200
+Message-ID: <1369061486-28226-4-git-send-email-lars@metafoo.de>
 References: <1369061486-28226-1-git-send-email-lars@metafoo.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1369061486-28226-1-git-send-email-lars@metafoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Trilok Soni <tsoni@codeaurora.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Wan ZongShun <mcuos.com@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
 free_irq() expects the same pointer that was passed to request_irq(), otherwise
@@ -35,24 +35,33 @@ position p != r2.p;
 *free_irq@p(...)
 </smpl>
 
-Cc: Trilok Soni <tsoni@codeaurora.org>
+Cc: Wan ZongShun <mcuos.com@gmail.com>
 Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
 ---
- drivers/input/misc/pmic8xxx-pwrkey.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/keyboard/w90p910_keypad.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
-index afd0af9..b49b738 100644
---- a/drivers/input/misc/pmic8xxx-pwrkey.c
-+++ b/drivers/input/misc/pmic8xxx-pwrkey.c
-@@ -175,7 +175,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+diff --git a/drivers/input/keyboard/w90p910_keypad.c b/drivers/input/keyboard/w90p910_keypad.c
+index 72e6a56..7b03916 100644
+--- a/drivers/input/keyboard/w90p910_keypad.c
++++ b/drivers/input/keyboard/w90p910_keypad.c
+@@ -221,7 +221,7 @@ static int w90p910_keypad_probe(struct platform_device *pdev)
  	return 0;
  
- free_press_irq:
--	free_irq(key_press_irq, NULL);
-+	free_irq(key_press_irq, pwrkey);
- unreg_input_dev:
- 	input_unregister_device(pwr);
- 	pwr = NULL;
+ failed_free_irq:
+-	free_irq(irq, pdev);
++	free_irq(irq, keypad);
+ failed_put_clk:
+ 	clk_put(keypad->clk);
+ failed_free_io:
+@@ -239,7 +239,7 @@ static int w90p910_keypad_remove(struct platform_device *pdev)
+ 	struct w90p910_keypad *keypad = platform_get_drvdata(pdev);
+ 	struct resource *res;
+ 
+-	free_irq(keypad->irq, pdev);
++	free_irq(keypad->irq, keypad);
+ 
+ 	clk_put(keypad->clk);
+ 
 -- 
 1.8.0

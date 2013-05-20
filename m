@@ -1,37 +1,66 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3 0/2] hid: sort id list for eGalax and remove dups
-Date: Mon, 20 May 2013 14:50:46 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1305201450410.1716@pobox.suse.cz>
-References: <1368790489-21792-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45691 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755331Ab3ETMuv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 May 2013 08:50:51 -0400
-In-Reply-To: <1368790489-21792-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: [PATCH 2/7] input: pxa27x_keypad: Pass correct pointer to free_irq()
+Date: Mon, 20 May 2013 16:51:21 +0200
+Message-ID: <1369061486-28226-2-git-send-email-lars@metafoo.de>
+References: <1369061486-28226-1-git-send-email-lars@metafoo.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1369061486-28226-1-git-send-email-lars@metafoo.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Fri, 17 May 2013, Andy Shevchenko wrote:
+free_irq() expects the same pointer that was passed to request_irq(), otherwise
+the IRQ is not freed.
 
-> Third version of the patches addresses comments I got from Benjamin and Jiri.
-> The actual change is the commit message for patch 2/2. Patch itself is remained
-> as in the first version.
-> 
-> Andy Shevchenko (2):
->   hid: sort IDs for D-WAV eGalax multitouch devices
->   hid: remove duplicate ID for D-WAV eGalax 0x7224
-> 
->  drivers/hid/hid-ids.h        |  7 +++----
->  drivers/hid/hid-multitouch.c | 29 +++++++++++++----------------
->  2 files changed, 16 insertions(+), 20 deletions(-)
+The issue was found using the following coccinelle script:
 
-Applied, thanks.
+<smpl>
+@r1@
+type T;
+T devid;
+@@
+request_irq(..., devid)
 
+@r2@
+type r1.T;
+T devid;
+position p;
+@@
+free_irq@p(..., devid)
+
+@@
+position p != r2.p;
+@@
+*free_irq@p(...)
+</smpl>
+
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+---
+ drivers/input/keyboard/pxa27x_keypad.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index 74e30cc..b674e7a 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -582,7 +582,7 @@ static int pxa27x_keypad_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ failed_free_irq:
+-	free_irq(irq, pdev);
++	free_irq(irq, keypad);
+ failed_put_clk:
+ 	clk_put(keypad->clk);
+ failed_free_io:
+@@ -600,7 +600,7 @@ static int pxa27x_keypad_remove(struct platform_device *pdev)
+ 	struct pxa27x_keypad *keypad = platform_get_drvdata(pdev);
+ 	struct resource *res;
+ 
+-	free_irq(keypad->irq, pdev);
++	free_irq(keypad->irq, keypad);
+ 	clk_put(keypad->clk);
+ 
+ 	input_unregister_device(keypad->input_dev);
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.0

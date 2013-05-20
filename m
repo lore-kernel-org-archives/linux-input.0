@@ -1,57 +1,32 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 3/7] input: twl4030_keypad: Pass correct pointer to free_irq()
-Date: Mon, 20 May 2013 16:51:22 +0200
-Message-ID: <1369061486-28226-3-git-send-email-lars@metafoo.de>
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+Subject: RE: [PATCH 1/7] input: ep93xx_keypad: Pass correct pointer to
+ free_irq()
+Date: Mon, 20 May 2013 10:49:00 -0500
+Message-ID: <ADE657CA350FB648AAC2C43247A983F0021DA656F56D@AUSP01VMBX24.collaborationhost.net>
 References: <1369061486-28226-1-git-send-email-lars@metafoo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1369061486-28226-1-git-send-email-lars@metafoo.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
+To: Lars-Peter Clausen <lars@metafoo.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-free_irq() expects the same pointer that was passed to request_threaded_irq(),
-otherwise the IRQ is not freed.
+On Monday, May 20, 2013 7:51 AM, Lars-Peter Clausen wrote:
+> free_irq() expects the same pointer that was passed to request_irq(), otherwise
+> the IRQ is not freed.
 
-The issue was found using the following coccinelle script:
+<snip>
 
-<smpl>
-@r1@
-type T;
-T devid;
-@@
-request_threaded_irq(..., devid)
+> Cc: H Hartley Sweeten <hartleys@visionengravers.com>
+> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+> ---
+>  drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-@r2@
-type r1.T;
-T devid;
-position p;
-@@
-free_irq@p(..., devid)
+Thanks,
 
-@@
-position p != r2.p;
-@@
-*free_irq@p(...)
-</smpl>
-
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
----
- drivers/input/keyboard/twl4030_keypad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-index f05ee1db..d2d178c 100644
---- a/drivers/input/keyboard/twl4030_keypad.c
-+++ b/drivers/input/keyboard/twl4030_keypad.c
-@@ -422,7 +422,7 @@ static int twl4030_kp_probe(struct platform_device *pdev)
- err3:
- 	/* mask all events - we don't care about the result */
- 	(void) twl4030_kpwrite_u8(kp, 0xff, KEYP_IMR1);
--	free_irq(kp->irq, NULL);
-+	free_irq(kp->irq, kp);
- err2:
- 	input_unregister_device(input);
- 	input = NULL;
--- 
-1.8.0
+Acked-by: H Hartley Sweeten <hsweeten@visionengravers.com>

@@ -1,33 +1,45 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: rotary_encoder
-Date: Tue, 21 May 2013 10:38:44 +0200
-Message-ID: <CAH9NwWdZ0uj7pCtB6TOtTbGP7iU4HBYd2nBWajvARO6haOn1iw@mail.gmail.com>
+From: "Vishwanathrao Badarkhe, Manish" <manishv.b@ti.com>
+Subject: [PATCH V3 0/2] Add DT support for tps6507x touchscreen
+Date: Tue, 21 May 2013 14:24:16 +0530
+Message-ID: <1369126458-24872-1-git-send-email-manishv.b@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f170.google.com ([209.85.216.170]:46799 "EHLO
-	mail-qc0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752719Ab3EUIjF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 May 2013 04:39:05 -0400
-Received: by mail-qc0-f170.google.com with SMTP id s11so184876qcw.29
-        for <linux-input@vger.kernel.org>; Tue, 21 May 2013 01:39:05 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com
+Cc: grant.likely@secretlab.ca, dmitry.torokhov@gmail.com, rob.herring@calxeda.com, rob@landley.net, manishv.b@ti.com
 List-Id: linux-input@vger.kernel.org
-To: jhovold@gmail.com, linux-input@vger.kernel.org
 
-Hi
+Patch set adds DT support for tps6507x based touchscreen.
+Also, add DT data for tps6507x touchscreen in da850-evm by
+providing touchscreen node inside tps6507x mfd device.
 
-I have a device with a rotary encoder and I got the device working with
-the generic driver for rotary encoders connected to GPIO lines. Now my
-goal is to send two different key codes - depending on the rotation direction.
+This patch series applies on top of linux-next tree and depends on [1].
 
-left ->ALT + tab
-right -> tab
+[1]tps6507x-ts: update to devm_* API
+   https://patchwork.kernel.org/patch/2324441/
 
-Is there a way to extend the current encoder, which is accepted for mainline
-inclusion or should I do this step in user space?
+Tested on da850-evm board.
 
-thanks
---
-Christian Gmeiner, MSc
+Changes since V2:
+ - Updated tps6507x documentation.
+ - Removed unnecessary code.
+
+Changes since V1:
+ - Updated tps6507x documentation.
+ - Updated commit message.
+ - return proper error value in absence platform and DT data
+   for touchscreen.
+
+Vishwanathrao Badarkhe, Manish (2):
+  tps6507x-ts: Add DT support
+  ARM: davinci: da850: add tps6507x touchscreen DT data
+
+ Documentation/devicetree/bindings/mfd/tps6507x.txt |   28 ++++++-
+ arch/arm/boot/dts/da850-evm.dts                    |    9 ++
+ drivers/input/touchscreen/tps6507x-ts.c            |   98 ++++++++++++++------
+ 3 files changed, 104 insertions(+), 31 deletions(-)
+
+-- 
+1.7.4.1
+

@@ -1,75 +1,75 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: gpio_keys_polled and MSC_SCAN
-Date: Tue, 21 May 2013 11:13:20 +0200
-Message-ID: <CAH9NwWdSogEFjfk6NMrZHNcFO5KL9PZ_AxH_=VdrSqLanD4iAg@mail.gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: HID vendor access from user space
+Date: Tue, 21 May 2013 15:12:38 +0200
+Message-ID: <CANq1E4Sn4QZN4vPzBkv8zxuGD+xcdgHeMS9sTB45ACknmwaxEA@mail.gmail.com>
+References: <CAE7qMrrtyzUy0h-jeC8b6vLRq10w165=JgEJsj6CKyviFZDaSQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f174.google.com ([209.85.216.174]:45755 "EHLO
-	mail-qc0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751737Ab3EUJNk (ORCPT
+Received: from mail-ie0-f177.google.com ([209.85.223.177]:43698 "EHLO
+	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754232Ab3EUNMj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 May 2013 05:13:40 -0400
-Received: by mail-qc0-f174.google.com with SMTP id m16so194504qcq.5
-        for <linux-input@vger.kernel.org>; Tue, 21 May 2013 02:13:40 -0700 (PDT)
+	Tue, 21 May 2013 09:12:39 -0400
+Received: by mail-ie0-f177.google.com with SMTP id 9so1461841iec.36
+        for <linux-input@vger.kernel.org>; Tue, 21 May 2013 06:12:39 -0700 (PDT)
+In-Reply-To: <CAE7qMrrtyzUy0h-jeC8b6vLRq10w165=JgEJsj6CKyviFZDaSQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <btissoires@logitech.com>, Andrew de los Reyes <adlr@chromium.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Olivier Gay <ogay@logitech.com>
 
-Hi all.
+Hi
 
-I am using the gpio_keys_polled driver to simulate a F20 key press. My
-target application
-a HTML5 application running in the browser on the target device will
-read the keycode
-via java script. The problem is that no MSC_SCAN is send from the driver.
+On Fri, May 17, 2013 at 1:47 PM, Nestor Lopez Casado
+<nlopezcasad@logitech.com> wrote:
+> Hi,
+>
+> In today's linux HID subsystem, a HID device can be accessed for
+> control and configuration via dev/hidraw, via a hid-specific driver,
+> as well as /dev/input (setting leds on a kbd for instance)
+>
+> Some HID devices share multiple functionality in the same HID
+> interface, think of a keyboard with a touchpad and a vendor specific
+> collection for configuration, special status, etc.
+>
+> For such device, there will be one hidraw node, and hid-input will
+> take care of parsing the keyboard/mouse collections into the proper
+> input objects.
+>
+> The vendor collection will be ignored.
+>
+> If a user wants to configure/control the device there are two choices,
+> either write a hid-specific driver to deal with the vendor specific
+> collection, or open the corresponding /hidraw node from userspace.
+>
+> But a hidraw node that carries system input data requires root priviledges.
+>
+> I'm interested in hearing your opinions on how to add the capability
+> for a normal user process to control/configure a HID device via
+> reports exchanged with a vendor collection.
+>
+> I have one proposal, which is to create, say  "/dev/hidvendorX", nodes
+> for all top level HID collections which are today ignored by hid-input
+> and/or other subsystems.
+>
+> These nodes would not require root priviledge by default and thus,
+> users could control/reconfigure their devices from a standard
+> application while keeping the "standard" input functionality intact.
 
-# evtest /dev/input/event4
-Input driver version is 1.0.1
-Input device ID: bus 0x19 vendor 0x1 product 0x1 version 0x100
-Input device name: "gpio-keys-polled"
-Supported events:
-  Event type 0 (EV_SYN)
-  Event type 1 (EV_KEY)
-    Event code 190 (KEY_F20)
-Testing ... (interrupt to exit)
-Event: time 1369127353.064272, type 1 (EV_KEY), code 190 (KEY_F20), value 1
-Event: time 1369127353.064298, -------------- SYN_REPORT ------------
-Event: time 1369127353.314149, type 1 (EV_KEY), code 190 (KEY_F20), value 0
-Event: time 1369127353.314152, -------------- SYN_REPORT ------------
+Why not write a kernel driver? We have a pretty nice infrastructure
+for all this.
 
+If it's a license-issue, I recommend using udev rules to change
+permissions on the requested devices directly during setup. You can
+then use hidraw.
+It would also help if you could describe the driver design. Do you run
+it as daemon and feed data back into the kernel? Or do you forward it
+to the xserver? Or what kind of setup do you have? For instance, a
+library design would require dynamic permission setup, while a
+daemon-design would allow static file-system permissions.
+Furthermore, is it still an input driver? Or do you tunnel non-input
+data via HID?
 
-vs. USB keyboard
-
-Testing ... (interrupt to exit)
-Event: time 1369127339.805042, type 4 (EV_MSC), code 4 (MSC_SCAN), value 70045
-Event: time 1369127339.805061, type 1 (EV_KEY), code 88 (KEY_F12), value 1
-Event: time 1369127339.805069, -------------- SYN_REPORT ------------
-Event: time 1369127340.053526, type 1 (EV_KEY), code 88 (KEY_F12), value 2
-Event: time 1369127340.053531, -------------- SYN_REPORT ------------
-Event: time 1369127340.093528, type 1 (EV_KEY), code 88 (KEY_F12), value 2
-Event: time 1369127340.093532, -------------- SYN_REPORT ------------
-Event: time 1369127340.133526, type 1 (EV_KEY), code 88 (KEY_F12), value 2
-Event: time 1369127340.133531, -------------- SYN_REPORT ------------
-Event: time 1369127340.173524, type 1 (EV_KEY), code 88 (KEY_F12), value 2
-
-
-This is how i setup my button:
-
-static struct gpio_keys_button device_gpio_keys[] = {
-        {
-                .code = KEY_F20, /* See include/linux/input.h */
-                .type = EV_KEY,
-                .gpio = 235,
-                .active_low = 1,
-                .desc = "F20",
-                .wakeup = 0,
-        },
-};
-
-
-Is there a way to also get the scan code?
-
-thanks
---
-Christian Gmeiner, MSc
+Regards
+David

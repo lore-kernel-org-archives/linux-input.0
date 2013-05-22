@@ -1,7 +1,7 @@
 From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: [PATCH 6/7] mfd/ti_am335x_tscadc: remove platform_data support
-Date: Wed, 22 May 2013 23:08:16 +0200
-Message-ID: <1369256897-25984-6-git-send-email-bigeasy@linutronix.de>
+Subject: [PATCH 2/7] input/ti_am33x_tsc: remove platform_data support
+Date: Wed, 22 May 2013 23:08:12 +0200
+Message-ID: <1369256897-25984-2-git-send-email-bigeasy@linutronix.de>
 References: <1369256897-25984-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1369256897-25984-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
@@ -15,59 +15,61 @@ platform is DT only.
 
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 ---
- drivers/mfd/ti_am335x_tscadc.c |   23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ drivers/input/touchscreen/ti_am335x_tsc.c |   27 ++-------------------------
+ 1 file changed, 2 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index e28a31d..c27b147 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -26,8 +26,6 @@
- #include <linux/of_device.h>
- 
- #include <linux/mfd/ti_am335x_tscadc.h>
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index 20f4505..e778ffd 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -24,7 +24,6 @@
+ #include <linux/clk.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
 -#include <linux/input/ti_am335x_tsc.h>
--#include <linux/platform_data/ti_am335x_adc.h>
+ #include <linux/delay.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+@@ -430,24 +429,6 @@ static int titsc_parse_dt(struct ti_tscadc_dev *tscadc_dev,
+ 	return err;
+ }
  
- static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
- {
-@@ -66,31 +64,22 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	struct ti_tscadc_dev	*tscadc;
- 	struct resource		*res;
- 	struct clk		*clk;
--	struct mfd_tscadc_board	*pdata = pdev->dev.platform_data;
- 	struct device_node	*node = pdev->dev.of_node;
- 	struct mfd_cell		*cell;
- 	int			err, ctrl;
- 	int			clk_value, clock_rate;
- 	int			tsc_wires = 0, adc_channels = 0, total_channels;
- 
--	if (!pdata && !pdev->dev.of_node) {
--		dev_err(&pdev->dev, "Could not find platform data\n");
-+	if (!pdev->dev.of_node) {
-+		dev_err(&pdev->dev, "Could not find valid DT data.\n");
- 		return -EINVAL;
- 	}
- 
--	if (pdev->dev.platform_data) {
--		if (pdata->tsc_init)
--			tsc_wires = pdata->tsc_init->wires;
-+	node = of_get_child_by_name(pdev->dev.of_node, "tsc");
-+	of_property_read_u32(node, "ti,wires", &tsc_wires);
- 
--		if (pdata->adc_init)
--			adc_channels = pdata->adc_init->adc_channels;
--	} else {
--		node = of_get_child_by_name(pdev->dev.of_node, "tsc");
--		of_property_read_u32(node, "ti,wires", &tsc_wires);
+-static int titsc_parse_pdata(struct ti_tscadc_dev *tscadc_dev,
+-					struct titsc *ts_dev)
+-{
+-	struct mfd_tscadc_board	*pdata = tscadc_dev->dev->platform_data;
 -
--		node = of_get_child_by_name(pdev->dev.of_node, "adc");
--		of_property_read_u32(node, "ti,adc-channels", &adc_channels);
--	}
-+	node = of_get_child_by_name(pdev->dev.of_node, "adc");
-+	of_property_read_u32(node, "ti,adc-channels", &adc_channels);
+-	if (!pdata)
+-		return -EINVAL;
+-
+-	ts_dev->wires = pdata->tsc_init->wires;
+-	ts_dev->x_plate_resistance =
+-		pdata->tsc_init->x_plate_resistance;
+-	ts_dev->steps_to_configure =
+-		pdata->tsc_init->steps_to_configure;
+-	memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
+-		sizeof(pdata->tsc_init->wire_config));
+-	return 0;
+-}
+-
+ /*
+  * The functions for inserting/removing driver as a module.
+  */
+@@ -473,13 +454,9 @@ static int titsc_probe(struct platform_device *pdev)
+ 	ts_dev->input = input_dev;
+ 	ts_dev->irq = tscadc_dev->irq;
  
- 	total_channels = tsc_wires + adc_channels;
- 
+-	if (tscadc_dev->dev->platform_data)
+-		err = titsc_parse_pdata(tscadc_dev, ts_dev);
+-	else
+-		err = titsc_parse_dt(tscadc_dev, ts_dev);
+-
++	err = titsc_parse_dt(tscadc_dev, ts_dev);
+ 	if (err) {
+-		dev_err(&pdev->dev, "Could not find platform data\n");
++		dev_err(&pdev->dev, "Could not find valid DT data.\n");
+ 		err = -EINVAL;
+ 		goto err_free_mem;
+ 	}
 -- 
 1.7.10.4

@@ -1,247 +1,116 @@
-From: Barry Song <21cnbao@gmail.com>
-Subject: [PATCH] input: sirfsoc_pwrc: add onkey input driver for CSR SiRFprimaII PWRC
-Date: Thu, 23 May 2013 00:13:18 +0800
-Message-ID: <1369239198-11059-1-git-send-email-Baohua.Song@csr.com>
+From: Todd Showalter <todd@electronjump.com>
+Subject: Re: [RFC 24/26] HID: wiimote: support Nintendo Wii U Pro Controller
+Date: Wed, 22 May 2013 12:18:23 -0400
+Message-ID: <CAFmpkyi935z7tkaYB99HtpsU8wRNA=eu3HeLF6OZ2vW0iVX5EQ@mail.gmail.com>
+References: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
+	<1367788390-29835-25-git-send-email-dh.herrmann@gmail.com>
+	<CAFmpkyhFHS1CHDLTRbGdYe5B5XkW-JyavZotvffZT3BnkQSdOA@mail.gmail.com>
+	<CANq1E4Q9X7+e_HSbB2Y0GykgJAuF9ui1x1GtssiwOXWKhVUfvQ@mail.gmail.com>
+	<CAFmpkyiSw3_mXG-bokbcu-wTUAQmMDBYvqpKQg5eT8Ke+vAPrA@mail.gmail.com>
+	<CANq1E4T9eoBVvbq8J+2ps5CJ-9G1782j7TjanqWLJVUCQ1k60g@mail.gmail.com>
+	<CAFmpkyigapfb52ke-8vvKcwqmF8EVsUF8md-0kFTHHDxDzKxRA@mail.gmail.com>
+	<20130508170536.GA30057@core.coreip.homeip.net>
+	<CAFmpkyj90KoGgLeOqb3x00qBQ7Hmj3Fd_tXuWujx08QueV_9uQ@mail.gmail.com>
+	<20130508172604.GB30057@core.coreip.homeip.net>
+	<CANq1E4S7F9tZJxXX2i+1h1hkPfiCNhSTkqLw14NhPQ-vJjBtFg@mail.gmail.com>
+	<CAFmpkyhz_G_qRtx46ZXZLs+zG2WFhmv-=gQCv=tOK6ukQ3DZyw@mail.gmail.com>
+	<CANq1E4RH2VpR9KwpykGCZxEH97xHeSKgMA=5h97HUc6TKhJS1w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:54954 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751543Ab3EVQN2 (ORCPT
+Received: from mail-qe0-f46.google.com ([209.85.128.46]:39706 "EHLO
+	mail-qe0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751543Ab3EVQSY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 May 2013 12:13:28 -0400
-Received: by mail-pb0-f43.google.com with SMTP id ma3so1878596pbc.16
-        for <linux-input@vger.kernel.org>; Wed, 22 May 2013 09:13:27 -0700 (PDT)
+	Wed, 22 May 2013 12:18:24 -0400
+Received: by mail-qe0-f46.google.com with SMTP id 1so1117414qee.19
+        for <linux-input@vger.kernel.org>; Wed, 22 May 2013 09:18:23 -0700 (PDT)
+In-Reply-To: <CANq1E4RH2VpR9KwpykGCZxEH97xHeSKgMA=5h97HUc6TKhJS1w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dtor@mail.ru, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, workgroup.linux@csr.com, linux-arm-kernel@lists.infradead.org, Binghua Duan <Binghua.Duan@csr.com>, Xianglong Du <Xianglong.Du@csr.com>, Barry Song <Baohua.Song@csr.com>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-From: Binghua Duan <Binghua.Duan@csr.com>
+On Wed, May 22, 2013 at 8:10 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
 
-there is an embedded PWRC(power controller) in SiRFprimaII and SiRFatlasVI,
-we have an ONKEY button which can generate interrupt to IRQ controller.
-in a typical user scenarios, at the runtime, if users touch the key, we put
-system to s2ram status.
+> I think the kernel provides a pretty nice FF interface. It even
+> provides emulations for the different kinds of FF if not all are
+> supported by hardware. Anyway, that's beyond the scope of this
+> definition and mostly belongs to joysticks. Gamepads normally only
+> have rumble-motors, don't they?
 
-Signed-off-by: Binghua Duan <Binghua.Duan@csr.com>
-Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
-Signed-off-by: Barry Song <Baohua.Song@csr.com>
----
- drivers/input/misc/Kconfig         |  10 +++
- drivers/input/misc/Makefile        |   1 +
- drivers/input/misc/sirfsoc_onkey.c | 176 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 187 insertions(+)
- create mode 100644 drivers/input/misc/sirfsoc_onkey.c
+    From an end-use point of view, (at least on casual reading, which
+is as much as I can claim to have done at this point), the problem
+with the force feedback API is that you find out what something is by
+enumerating its capabilities, but the capabilities aren't specific
+enough.
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index bb698e1..1d91d1b 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -637,4 +637,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called xen-kbdfront.
- 
-+config INPUT_SIRFSOC_ONKEY
-+	bool "CSR SiRFSoC power on/off/suspend key support"
-+	depends on ARCH_SIRF
-+	default y
-+	help
-+	  Say Y here if you want to support for the SiRFSoC power on/off/suspend key
-+	  in Linux, after you press the onkey, system will suspend.
-+
-+	  If unsure, say N.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index d7fc17f..1d66f03 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -60,3 +60,4 @@ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
- obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
- obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
- obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
-+obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc_onkey.o
-diff --git a/drivers/input/misc/sirfsoc_onkey.c b/drivers/input/misc/sirfsoc_onkey.c
-new file mode 100644
-index 0000000..3e48db9
---- /dev/null
-+++ b/drivers/input/misc/sirfsoc_onkey.c
-@@ -0,0 +1,176 @@
-+/*
-+ * Power key driver for SiRF PrimaII
-+ *
-+ * Copyright (c) 2013 Cambridge Silicon Radio Limited, a CSR plc group company.
-+ *
-+ * Licensed under GPLv2 or later.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/delay.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/rtc/sirfsoc_rtciobrg.h>
-+#include <linux/of.h>
-+
-+struct sirfsoc_pwrc_drvdata {
-+	u32			pwrc_base;
-+	int			irq;
-+	struct input_dev	*input;
-+};
-+
-+#define PWRC_ON_KEY_BIT			(1 << 0)
-+
-+#define PWRC_INT_STATUS			0xc
-+#define PWRC_INT_MASK			0x10
-+
-+static irqreturn_t sirfsoc_pwrc_isr(int irq, void *dev_id)
-+{
-+	struct sirfsoc_pwrc_drvdata *pwrcdrv =
-+			(struct sirfsoc_pwrc_drvdata *)dev_id;
-+	u32 int_status;
-+	int_status = sirfsoc_rtc_iobrg_readl(
-+			pwrcdrv->pwrc_base + PWRC_INT_STATUS);
-+	sirfsoc_rtc_iobrg_writel(int_status & (~PWRC_ON_KEY_BIT),
-+			pwrcdrv->pwrc_base + PWRC_INT_STATUS);
-+
-+	/*
-+	 * For a typical Linux system, we report KEY_SUSPEND to trigger apm-power.c
-+	 * to queue a SUSPEND APM event
-+	 */
-+	input_event(pwrcdrv->input, EV_PWR, KEY_SUSPEND, 1);
-+	input_sync(pwrcdrv->input);
-+
-+	/*
-+	 * Todo: report KEY_POWER event for Android platforms, Android PowerManager
-+	 * will handle the suspend and powerdown/hibernation
-+	 */
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static const struct of_device_id sirfsoc_pwrc_of_match[] = {
-+	{ .compatible = "sirf,prima2-pwrc" },
-+	{},
-+}
-+MODULE_DEVICE_TABLE(of, sirfsoc_pwrc_of_match);
-+
-+static int sirfsoc_pwrc_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct sirfsoc_pwrc_drvdata *pwrcdrv = NULL;
-+	struct device_node *np = pdev->dev.of_node;
-+
-+	pwrcdrv = devm_kzalloc(&pdev->dev,
-+		sizeof(struct sirfsoc_pwrc_drvdata), GFP_KERNEL);
-+	if (!pwrcdrv) {
-+		dev_info(&pdev->dev, "kzalloc fail!\n");
-+		return -ENOMEM;
-+	}
-+
-+	/*
-+	 * we can't use of_iomap because pwrc is not mapped in memory, the so-called base
-+	 * address is only offset in rtciobrg
-+	 */
-+	ret = of_property_read_u32(np, "reg", &pwrcdrv->pwrc_base);
-+	if (ret) {
-+		dev_err(&pdev->dev, "unable to find base address of pwrc node in dtb\n");
-+		return ret;
-+	}
-+
-+	pwrcdrv->input = devm_input_allocate_device(&pdev->dev);
-+	if (!pwrcdrv->input)
-+		return -ENOMEM;
-+
-+	pwrcdrv->input->name = "sirfsoc pwrckey";
-+	pwrcdrv->input->phys = "pwrc/input0";
-+
-+	platform_set_drvdata(pdev, pwrcdrv);
-+
-+	pwrcdrv->irq = platform_get_irq(pdev, 0);
-+	ret = devm_request_irq(&pdev->dev, pwrcdrv->irq,
-+			sirfsoc_pwrc_isr, IRQF_SHARED,
-+			"sirfsoc_pwrc_int", pwrcdrv);
-+
-+	sirfsoc_rtc_iobrg_writel(
-+		sirfsoc_rtc_iobrg_readl(pwrcdrv->pwrc_base + PWRC_INT_MASK)
-+		| PWRC_ON_KEY_BIT, pwrcdrv->pwrc_base + PWRC_INT_MASK);
-+	if (ret) {
-+		dev_err(&pdev->dev, "pwrc: Unable to claim irq %d; error %d\n",
-+			pwrcdrv->irq, ret);
-+		return ret;
-+	}
-+
-+	pwrcdrv->input->evbit[0] = BIT_MASK(EV_PWR) | BIT_MASK(EV_KEY);
-+	set_bit(KEY_POWER, pwrcdrv->input->keybit);
-+
-+	ret = input_register_device(pwrcdrv->input);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"pwrc: Unable to register input device,error: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	device_init_wakeup(&pdev->dev, 1);
-+
-+	return 0;
-+}
-+
-+static int sirfsoc_pwrc_remove(struct platform_device *pdev)
-+{
-+	device_init_wakeup(&pdev->dev, 0);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int pwrc_suspend(struct device *dev)
-+{
-+	return 0;
-+}
-+
-+static int pwrc_resume(struct device *dev)
-+{
-+	struct sirfsoc_pwrc_drvdata *pwrcdrv = dev_get_drvdata(dev);
-+
-+	/* 
-+	 * Do not mask pwrc interrupt as we want pwrc work as a wakeup source
-+	 * if users touch X_ONKEY_B, see arch/arm/mach-prima2/pm.c
-+	 */
-+	sirfsoc_rtc_iobrg_writel(
-+		sirfsoc_rtc_iobrg_readl(
-+		pwrcdrv->pwrc_base + PWRC_INT_MASK) | PWRC_ON_KEY_BIT,
-+		pwrcdrv->pwrc_base + PWRC_INT_MASK);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops sirfsoc_pwrc_pm_ops = {
-+	.suspend = pwrc_suspend,
-+	.resume	= pwrc_resume,
-+};
-+#endif
-+
-+static struct platform_driver sirfsoc_pwrc_driver = {
-+	.probe		= sirfsoc_pwrc_probe,
-+	.remove		= sirfsoc_pwrc_remove,
-+	.driver		= {
-+		.name	= "sirfsoc-pwrc",
-+		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &sirfsoc_pwrc_pm_ops,
-+#endif
-+		.of_match_table = of_match_ptr(sirfsoc_pwrc_of_match),
-+	}
-+};
-+
-+module_platform_driver(sirfsoc_pwrc_driver);
-+
-+MODULE_LICENSE("GPLv2");
-+MODULE_AUTHOR("Binghua Duan <Binghua.Duan@csr.com>, "
-+		"Xianglong Du <Xianglong.Du@csr.com>");
-+MODULE_DESCRIPTION("CSR Prima2 PWRC Driver");
-+MODULE_ALIAS("platform:sirfsoc-pwrc");
--- 
-1.8.2.3
+    Let's say I have a controller with two rotary motors.  I can
+examine the FF caps and see that there are two motors, and possibly
+even infer a little about them, but I don't think I can tell what
+direction they are mounted in and how strong they are.
 
+    There were some games on the PS2/PS3 that did some clever tricks
+with force feedback; subtle stuff like making the controller fake a
+gentle heartbeat that got faster and more uneven the more hurt your
+character got, or gave feedback in time to the soundtrack.  To do that
+really effectively, you need to understand the power, positioning,
+response speed and orientation of the force feedback device.  Without
+that complex understanding all you can really do is buzz or thump in a
+fairly generic way.
+
+> I wanted to have BTN_NORTH/A/GAMEPAD mapped for all gamepads, but
+> you're right, the commercial systems use SOUTH/EAST for all trivial
+> operations. I will change this and see whether we can get another key
+> that is always mapped (probably BTN_SOUTH? and make this an alias for
+> BTN_GAMEPAD).
+
+    Sounds good.
+
+> I changed the menu-pad definition a little bit. 1-button PADs map to
+> BTN_START, 2-button pads to START and SELECT. BTN_MODE is no longer
+> mapped as 3rd button but instead is a special button to acknowledge
+> the fact that it is mostly some fancy branded button that isn't mapped
+> by applications.
+> So the menu-pad no longer _has_ to be in the middle, but I still map
+> the right button to START and the left to SELECT to keep the "map by
+> position, not by label" definition.
+
+    Ok.
+
+>>     I'd prefer if things were mapped to a pair of digital buttons and
+>> a pair of analog linear pot triggers for the shoulders; that covers a
+>> lot of existing hardware (the xbox series gamepads, wii classic
+>> gamepad, and playstation series gamepad can all be made to fit this
+>> model without undue violence).
+>
+> Ugh? I don't understand what you mean here.
+
+    If you look at (for example) the XBox 360 controller, it has two
+digital shoulder buttons (LB and RB, IIRC) and two analog shoulder
+triggers (LT and RT).  The Wii Classic controller has the same; L and
+R are analog, ZL and ZR are digital.  The PS series controllers have
+four pressure sensitive buttons (L1, L2, R1, R2) which can be digital
+or analog depending on whether you read the button bit or the pressure
+sensor byte.  Other controllers all map onto this model reasonably
+well.
+
+    It's not ideal, but it's a fairly close.
+
+> Thanks a lot! Unfortunately, I don't have all hardware at home so I
+> can only test the Nintendo devices. However, I am trying to assemble a
+> list of supported gamepads and how they are mapped. This will give us
+> a better overview and we can see whether this definition actually
+> makes sense.
+
+    I've an original XBox S controller (with a Lik Sang USB adapter),
+an XBox 360 wired controller (Microsoft-branded), a PS3 controller
+(Sony-branded, but has to be plugged in since I don't have bluetooth),
+and can probably dig up my gamecube/ps2/dreamcast USB adapter if given
+time.
+
+                                           Todd.
+
+--
+ Todd Showalter, President,
+ Electron Jump Games, Inc.

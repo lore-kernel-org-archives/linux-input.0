@@ -1,264 +1,299 @@
 From: Daniel Mack <zonque@gmail.com>
-Subject: [PATCH RESEND v2 2/2] Input: touchscreen: ads7846: add device tree bindings
-Date: Wed, 22 May 2013 19:58:00 +0200
-Message-ID: <1369245480-18595-2-git-send-email-zonque@gmail.com>
-References: <1369245480-18595-1-git-send-email-zonque@gmail.com>
+Subject: [PATCH RESEND v2 1/2] Input: touchscreen: ads7846: keep copy of pdata in private struct
+Date: Wed, 22 May 2013 19:57:59 +0200
+Message-ID: <1369245480-18595-1-git-send-email-zonque@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from svenfoo.org ([82.94.215.22]:47892 "EHLO mail.zonque.de"
+Received: from svenfoo.org ([82.94.215.22]:47882 "EHLO mail.zonque.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755303Ab3EVR5p (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S1755287Ab3EVR5p (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Wed, 22 May 2013 13:57:45 -0400
-In-Reply-To: <1369245480-18595-1-git-send-email-zonque@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: broonie@kernel.org, grant.likely@linaro.org, dmitry.torokhov@gmail.com, agust@denx.de, chf@fritzc.com, Daniel Mack <zonque@gmail.com>
 
+Allocate a copy of the pdata, and keep a pointer to it in the private
+struct ads7846. Also, kill some members that used to be in both structs.
+
+This is needed for the upcoming DT support.
+
 Signed-off-by: Daniel Mack <zonque@gmail.com>
 ---
- .../devicetree/bindings/input/ads7846.txt          |  86 ++++++++++++++++
- drivers/input/touchscreen/ads7846.c                | 109 ++++++++++++++++++++-
- 2 files changed, 194 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/input/ads7846.txt
 
-diff --git a/Documentation/devicetree/bindings/input/ads7846.txt b/Documentation/devicetree/bindings/input/ads7846.txt
-new file mode 100644
-index 0000000..ac564a1
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/ads7846.txt
-@@ -0,0 +1,86 @@
-+Device tree bindings for TI's ADS7843, ADS7845, ADS7846, ADS7873, TSC2046
-+SPI driven touch screen controllers.
-+
-+The node for this driver must be a child node of a SPI controller, hence
-+all mandatory properties described in
-+
-+	Documentation/devicetree/bindings/spi/spi-bus.txt
-+
-+must be specified..
-+
-+Additional required properties:
-+
-+	compatible		Must be one of the following, depending on the
-+				model:
-+					"ti,tsc2046"
-+					"ti,ads7843"
-+					"ti,ads7845"
-+					"ti,ads7846"
-+					"ti,ads7873"
-+
-+	interrupt-parent
-+	interrupts		An interrupt node describing the IRQ line the chip's
-+				!PENIRQ pin is connected to.
-+	vcc-supply		A regulator node for the supply voltage.
-+
-+
-+Optional properties:
-+
-+	ti,vref-delay-usecs		vref supply delay in usecs, 0 for
-+					external vref
-+	ti,vref-mv			The VREF voltage, in millivolts.
-+	ti,keep-vref-on			set to keep vref on for differential
-+					measurements as well.
-+	ti,swap-xy			swap x and y axis
-+	ti,settle-delay-usec		Settling time of the analog signals;
-+					a function of Vcc and the capacitance
-+					on the X/Y drivers.  If set to non-zero,
-+					two samples are taken with settle_delay
-+					us apart, and the second one is used.
-+					~150 uSec with 0.01uF caps.
-+	ti,penirq-recheck-delay-usecs	If set to non-zero, after samples are
-+					taken this delay is applied and penirq
-+					is rechecked, to help avoid false
-+					events.  This value is affected by the
-+					material used to build the touch layer.
-+	ti,x-plate-ohms			Resistance of the X-plate, in Ohms.
-+	ti,y-plate-ohms			Resistance of the Y-plate, in Ohms.
-+	ti,x-min			Minimum value on the X axis.
-+	ti,y-min			Minimum value on the Y axis.
-+	ti,x-max			Maximum value on the X axis.
-+	ti,y-max			Minimum value on the Y axis.
-+	ti,pressure-min			Minimum reported pressure value (threshold).
-+	ti,pressure-max			Maximum reported pressure value.
-+	ti,debounce-max			Max number of additional readings per sample.
-+	ti,debounce-tol			Tolerance used for filtering.
-+	ti,debounce-rep			Additional consecutive good readings
-+					required after the first two.
-+	ti,pendown-gpio-debounce	Platform specific debounce time for the
-+					pendown-gpio.
-+	pendown-gpio			GPIO handle describing the pin the !PENIRQ
-+					line is connected to.
-+	linux,wakeup			use any event on touchscreen as wakeup event.
-+
-+
-+Example for a TSC2046 chip connected to an McSPI controller of an OMAP SoC::
-+
-+	spi_controller {
-+		tsc2046@0 {
-+			reg = <0>;	/* CS0 */
-+			compatible = "ti,tsc2046";
-+			interrupt-parent = <&gpio1>;
-+			interrupts = <8 0>;	/* BOOT6 / GPIO 8 */
-+			spi-max-frequency = <1000000>;
-+			pendown-gpio = <&gpio1 8 0>;
-+			vcc-supply = <&reg_vcc3>;
-+
-+			ti,x-min = <0>;
-+			ti,x-max = <8000>;
-+			ti,y-min = <0>;
-+			ti,y-max = <4800>;
-+			ti,x-plate-ohms = <40>;
-+			ti,pressure-max = <255>;
-+
-+			linux,wakeup;
-+		};
-+	};
+Hi Dmitry,
+
+this is the alternative approach, as described eariler in our email
+thread. It works equally well.
+
+Thanks for having another look.
+
+I'm resending this after 10 days of silence, to make sure it isn't
+lost :)
+
+
+Daniel
+
+
+ drivers/input/touchscreen/ads7846.c | 78 ++++++++++++++++++++-----------------
+ 1 file changed, 43 insertions(+), 35 deletions(-)
+
 diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 198677d..b78354b 100644
+index 84ccf14..198677d 100644
 --- a/drivers/input/touchscreen/ads7846.c
 +++ b/drivers/input/touchscreen/ads7846.c
-@@ -27,6 +27,9 @@
- #include <linux/interrupt.h>
- #include <linux/slab.h>
- #include <linux/pm.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
-+#include <linux/of_device.h>
- #include <linux/gpio.h>
- #include <linux/spi/spi.h>
- #include <linux/spi/ads7846.h>
-@@ -1201,12 +1204,110 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
- 	spi_message_add_tail(x, m);
- }
+@@ -104,12 +104,8 @@ struct ads7846 {
+ #endif
  
-+#ifdef CONFIG_OF
-+static const struct of_device_id ads7846_dt_ids[] = {
-+	{ .compatible = "ti,tsc2046",	.data = (void *) 7846 },
-+	{ .compatible = "ti,ads7843",	.data = (void *) 7843 },
-+	{ .compatible = "ti,ads7845",	.data = (void *) 7845 },
-+	{ .compatible = "ti,ads7846",	.data = (void *) 7846 },
-+	{ .compatible = "ti,ads7873",	.data = (void *) 7873 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, ads7846_dt_ids);
-+
-+static struct ads7846_platform_data *ads7846_probe_dt(struct device *dev)
-+{
-+	struct ads7846_platform_data *pdata = NULL;
-+	const struct of_device_id *match;
-+	u32 val;
-+
-+	match = of_match_device(ads7846_dt_ids, dev);
-+	if (!match)
-+		return NULL;
-+
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return NULL;
-+
-+	pdata->model = (unsigned int) match->data;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,vref-delay-usecs", &val) == 0)
-+		pdata->vref_delay_usecs = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,vref-mv", &val) == 0)
-+		pdata->vref_mv = val;
-+
-+	if (of_get_property(dev->of_node, "ti,keep-vref-on", NULL))
-+		pdata->keep_vref_on = true;
-+
-+	if (of_get_property(dev->of_node, "ti,swap-xy", NULL))
-+		pdata->swap_xy = true;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,settle-delay-usec",
-+				 &val) == 0)
-+		pdata->settle_delay_usecs = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,penirq-recheck-delay-usecs",
-+				 &val) == 0)
-+		pdata->penirq_recheck_delay_usecs = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,x-plate-ohms", &val) == 0)
-+		pdata->x_plate_ohms = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,y-plate-ohms", &val) == 0)
-+		pdata->y_plate_ohms = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,x-min", &val) == 0)
-+		pdata->x_min = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,y-min", &val) == 0)
-+		pdata->y_min = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,x-max", &val) == 0)
-+		pdata->x_max = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,y-max", &val) == 0)
-+		pdata->y_max = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,pressure-min", &val) == 0)
-+		pdata->pressure_min = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,pressure-max", &val) == 0)
-+		pdata->pressure_max = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,debounce-max", &val) == 0)
-+		pdata->debounce_max = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,debounce-tol", &val) == 0)
-+		pdata->debounce_tol = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,debounce-rep", &val) == 0)
-+		pdata->debounce_rep = val;
-+
-+	if (of_property_read_u32(dev->of_node, "ti,pendown-gpio-debounce",
-+				 &val) == 0)
-+		pdata->gpio_pendown_debounce = val;
-+
-+	pdata->gpio_pendown = of_get_named_gpio(dev->of_node, "pendown-gpio", 0);
-+
-+	if (of_get_property(dev->of_node, "linux,wakeup", NULL))
-+		pdata->wakeup = true;
-+
-+	return pdata;
-+}
-+#else
-+static inline struct ads7846_platform_data ads7846_probe_dt(struct device *dev)
-+{
-+	return NULL;
-+}
-+#endif
-+
- static int ads7846_probe(struct spi_device *spi)
- {
- 	struct ads7846 *ts;
- 	struct ads7846_packet *packet;
- 	struct input_dev *input_dev;
--	struct ads7846_platform_data *pdata = spi->dev.platform_data;
-+	struct ads7846_platform_data *pdata = NULL;
- 	unsigned long irq_flags;
- 	int err;
+ 	u16			model;
+-	u16			vref_mv;
+ 	u16			vref_delay_usecs;
+-	u16			x_plate_ohms;
+-	u16			pressure_max;
  
-@@ -1215,6 +1316,11 @@ static int ads7846_probe(struct spi_device *spi)
- 		return -ENODEV;
+-	bool			swap_xy;
+ 	bool			use_internal;
+ 
+ 	struct ads7846_packet	*packet;
+@@ -143,6 +139,9 @@ struct ads7846 {
+ 	int			gpio_pendown;
+ 
+ 	void			(*wait_for_sync)(void);
++
++	/* platform data from board file or DT */
++	struct ads7846_platform_data *pdata;
+ };
+ 
+ /* leave chip selected when we're done, for quicker re-select? */
+@@ -456,7 +455,7 @@ static inline unsigned vaux_adjust(struct ads7846 *ts, ssize_t v)
+ 	unsigned retval = v;
+ 
+ 	/* external resistors may scale vAUX into 0..vREF */
+-	retval *= ts->vref_mv;
++	retval *= ts->pdata->vref_mv;
+ 	retval = retval >> 12;
+ 
+ 	return retval;
+@@ -515,25 +514,25 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+ 	/* hwmon sensors need a reference voltage */
+ 	switch (ts->model) {
+ 	case 7846:
+-		if (!ts->vref_mv) {
++		if (!ts->pdata->vref_mv) {
+ 			dev_dbg(&spi->dev, "assuming 2.5V internal vREF\n");
+-			ts->vref_mv = 2500;
++			ts->pdata->vref_mv = 2500;
+ 			ts->use_internal = true;
+ 		}
+ 		break;
+ 	case 7845:
+ 	case 7843:
+-		if (!ts->vref_mv) {
++		if (!ts->pdata->vref_mv) {
+ 			dev_warn(&spi->dev,
+ 				"external vREF for ADS%d not specified\n",
+-				ts->model);
++				ts->pdata->model);
+ 			return 0;
+ 		}
+ 		break;
  	}
  
-+	if (spi->dev.platform_data)
-+		pdata = spi->dev.platform_data;
-+	else
-+		pdata = ads7846_probe_dt(&spi->dev);
+ 	/* different chips have different sensor groups */
+-	switch (ts->model) {
++	switch (ts->pdata->model) {
+ 	case 7846:
+ 		ts->attr_group = &ads7846_attr_group;
+ 		break;
+@@ -544,7 +543,7 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+ 		ts->attr_group = &ads7843_attr_group;
+ 		break;
+ 	default:
+-		dev_dbg(&spi->dev, "ADS%d not recognized\n", ts->model);
++		dev_dbg(&spi->dev, "ADS%d not recognized\n", ts->pdata->model);
+ 		return 0;
+ 	}
+ 
+@@ -700,7 +699,7 @@ static int ads7846_get_value(struct ads7846 *ts, struct spi_message *m)
+ 	struct spi_transfer *t =
+ 		list_entry(m->transfers.prev, struct spi_transfer, transfer_list);
+ 
+-	if (ts->model == 7845) {
++	if (ts->pdata->model == 7845) {
+ 		return be16_to_cpup((__be16 *)&(((char*)t->rx_buf)[1])) >> 3;
+ 	} else {
+ 		/*
+@@ -776,6 +775,7 @@ static void ads7846_read_state(struct ads7846 *ts)
+ static void ads7846_report_state(struct ads7846 *ts)
+ {
+ 	struct ads7846_packet *packet = ts->packet;
++	struct ads7846_platform_data *pdata = ts->pdata;
+ 	unsigned int Rt;
+ 	u16 x, y, z1, z2;
+ 
+@@ -784,7 +784,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 	 * from on-the-wire format as part of debouncing to get stable
+ 	 * readings.
+ 	 */
+-	if (ts->model == 7845) {
++	if (pdata->model == 7845) {
+ 		x = *(u16 *)packet->tc.x_buf;
+ 		y = *(u16 *)packet->tc.y_buf;
+ 		z1 = 0;
+@@ -800,11 +800,11 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 	if (x == MAX_12BIT)
+ 		x = 0;
+ 
+-	if (ts->model == 7843) {
+-		Rt = ts->pressure_max / 2;
+-	} else if (ts->model == 7845) {
++	if (pdata->model == 7843) {
++		Rt = pdata->pressure_max / 2;
++	} else if (pdata->model == 7845) {
+ 		if (get_pendown_state(ts))
+-			Rt = ts->pressure_max / 2;
++			Rt = pdata->pressure_max / 2;
+ 		else
+ 			Rt = 0;
+ 		dev_vdbg(&ts->spi->dev, "x/y: %d/%d, PD %d\n", x, y, Rt);
+@@ -813,7 +813,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 		Rt = z2;
+ 		Rt -= z1;
+ 		Rt *= x;
+-		Rt *= ts->x_plate_ohms;
++		Rt *= pdata->x_plate_ohms;
+ 		Rt /= z1;
+ 		Rt = (Rt + 2047) >> 12;
+ 	} else {
+@@ -825,7 +825,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 	 * the maximum. Don't report it to user space, repeat at least
+ 	 * once more the measurement
+ 	 */
+-	if (packet->tc.ignore || Rt > ts->pressure_max) {
++	if (packet->tc.ignore || Rt > pdata->pressure_max) {
+ 		dev_vdbg(&ts->spi->dev, "ignored %d pressure %d\n",
+ 			 packet->tc.ignore, Rt);
+ 		return;
+@@ -853,7 +853,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 	if (Rt) {
+ 		struct input_dev *input = ts->input;
+ 
+-		if (ts->swap_xy)
++		if (pdata->swap_xy)
+ 			swap(x, y);
+ 
+ 		if (!ts->pendown) {
+@@ -864,7 +864,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 
+ 		input_report_abs(input, ABS_X, x);
+ 		input_report_abs(input, ABS_Y, y);
+-		input_report_abs(input, ABS_PRESSURE, ts->pressure_max - Rt);
++		input_report_abs(input, ABS_PRESSURE, pdata->pressure_max - Rt);
+ 
+ 		input_sync(input);
+ 		dev_vdbg(&ts->spi->dev, "%4d/%4d/%4d\n", x, y, Rt);
+@@ -963,7 +963,7 @@ static SIMPLE_DEV_PM_OPS(ads7846_pm, ads7846_suspend, ads7846_resume);
+ static int ads7846_setup_pendown(struct spi_device *spi,
+ 					   struct ads7846 *ts)
+ {
+-	struct ads7846_platform_data *pdata = spi->dev.platform_data;
++	struct ads7846_platform_data *pdata = ts->pdata;
+ 	int err;
+ 
+ 	/*
+@@ -1003,20 +1003,20 @@ static int ads7846_setup_pendown(struct spi_device *spi,
+  * use formula #2 for pressure, not #3.
+  */
+ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+-				const struct ads7846_platform_data *pdata)
++				  struct ads7846_platform_data *pdata)
+ {
+ 	struct spi_message *m = &ts->msg[0];
+ 	struct spi_transfer *x = ts->xfer;
+ 	struct ads7846_packet *packet = ts->packet;
+ 	int vref = pdata->keep_vref_on;
+ 
+-	if (ts->model == 7873) {
++	if (pdata->model == 7873) {
+ 		/*
+ 		 * The AD7873 is almost identical to the ADS7846
+ 		 * keep VREF off during differential/ratiometric
+ 		 * conversion modes.
+ 		 */
+-		ts->model = 7846;
++		pdata->model = 7846;
+ 		vref = 0;
+ 	}
+ 
+@@ -1024,7 +1024,7 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+ 	spi_message_init(m);
+ 	m->context = ts;
+ 
+-	if (ts->model == 7845) {
++	if (pdata->model == 7845) {
+ 		packet->read_y_cmd[0] = READ_Y(vref);
+ 		packet->read_y_cmd[1] = 0;
+ 		packet->read_y_cmd[2] = 0;
+@@ -1069,7 +1069,7 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+ 	spi_message_init(m);
+ 	m->context = ts;
+ 
+-	if (ts->model == 7845) {
++	if (pdata->model == 7845) {
+ 		x++;
+ 		packet->read_x_cmd[0] = READ_X(vref);
+ 		packet->read_x_cmd[1] = 0;
+@@ -1108,7 +1108,7 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+ 	}
+ 
+ 	/* turn y+ off, x- on; we'll use formula #2 */
+-	if (ts->model == 7846) {
++	if (pdata->model == 7846) {
+ 		ts->msg_count++;
+ 		m++;
+ 		spi_message_init(m);
+@@ -1178,7 +1178,7 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+ 	spi_message_init(m);
+ 	m->context = ts;
+ 
+-	if (ts->model == 7845) {
++	if (pdata->model == 7845) {
+ 		x++;
+ 		packet->pwrdown_cmd[0] = PWRDOWN;
+ 		packet->pwrdown_cmd[1] = 0;
+@@ -1247,19 +1247,27 @@ static int ads7846_probe(struct spi_device *spi)
+ 
+ 	spi_set_drvdata(spi, ts);
+ 
++	ts->pdata = pdata;
+ 	ts->packet = packet;
+ 	ts->spi = spi;
+ 	ts->input = input_dev;
+-	ts->vref_mv = pdata->vref_mv;
+-	ts->swap_xy = pdata->swap_xy;
+ 
+ 	mutex_init(&ts->lock);
+ 	init_waitqueue_head(&ts->wait);
+ 
+-	ts->model = pdata->model ? : 7846;
+-	ts->vref_delay_usecs = pdata->vref_delay_usecs ? : 100;
+-	ts->x_plate_ohms = pdata->x_plate_ohms ? : 400;
+-	ts->pressure_max = pdata->pressure_max ? : ~0;
++	/* pdata fallback defaults */
 +
- 	if (!pdata) {
- 		dev_dbg(&spi->dev, "no platform data?\n");
- 		return -ENODEV;
-@@ -1445,6 +1551,7 @@ static struct spi_driver ads7846_driver = {
- 		.name	= "ads7846",
- 		.owner	= THIS_MODULE,
- 		.pm	= &ads7846_pm,
-+		.of_match_table = of_match_ptr(ads7846_dt_ids),
- 	},
- 	.probe		= ads7846_probe,
- 	.remove		= ads7846_remove,
++	if (!pdata->model)
++		pdata->model = 7846;
++
++	if (!pdata->vref_delay_usecs)
++		pdata->vref_delay_usecs = 100;
++
++	if (!pdata->x_plate_ohms)
++		pdata->x_plate_ohms = 400;
++
++	if (!pdata->pressure_max)
++		pdata->pressure_max = ~0;
+ 
+ 	if (pdata->filter != NULL) {
+ 		if (pdata->filter_init != NULL) {
 -- 
 1.8.1.4
 

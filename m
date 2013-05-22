@@ -1,66 +1,41 @@
-From: Vincent Palatin <vpalatin@chromium.org>
-Subject: [PATCH] HID: usbhid: ignore Jabra speakerphones HID interface
-Date: Wed, 22 May 2013 14:39:50 -0700
-Message-ID: <1369258790-30629-1-git-send-email-vpalatin@chromium.org>
-References: <CAP_ceTxhMut6Gewj=WxqAREusK4ZpwOyptAOAm9YT=LvEJcXCQ@mail.gmail.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 3/7] input/i_am335x_tsc: removed unused variable in titsc_irq()
+Date: Wed, 22 May 2013 22:44:40 +0100
+Message-ID: <519D3C48.1060609@kernel.org>
+References: <1369256897-25984-1-git-send-email-bigeasy@linutronix.de> <1369256897-25984-3-git-send-email-bigeasy@linutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f202.google.com ([209.85.161.202]:62054 "EHLO
-	mail-gg0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755970Ab3EVVkH (ORCPT
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:39308 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757268Ab3EVVon (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 May 2013 17:40:07 -0400
-Received: by mail-gg0-f202.google.com with SMTP id o1so275038ggn.5
-        for <linux-input@vger.kernel.org>; Wed, 22 May 2013 14:40:05 -0700 (PDT)
-In-Reply-To: <CAP_ceTxhMut6Gewj=WxqAREusK4ZpwOyptAOAm9YT=LvEJcXCQ@mail.gmail.com>
+	Wed, 22 May 2013 17:44:43 -0400
+In-Reply-To: <1369256897-25984-3-git-send-email-bigeasy@linutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Olof Johansson <olofj@chromium.org>, Vincent Palatin <vpalatin@chromium.org>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Patil Rachna <rachna@ti.com>
 
-Add a quirk to ignore Jabra speakerphone 410 and 510 devices HID
-interface.
-On those devices, the USB audio interface is working nicely,
-but the HID interface is not working with the kernel usbhid driver,
-and it requires a specific userspace program.
-We could unbind it from userspace but just attaching the usbhid driver has
-sometimes nasty effects:
-either confusing the device state machine or triggering a storm of volume key
-events making eventual sound UI blinking like crazy.
+ Check the patch title for the missing letter t.  It jumped out at me.
 
-Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
----
- drivers/hid/hid-core.c | 2 ++
- drivers/hid/hid-ids.h  | 4 ++++
- 2 files changed, 6 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 264f550..5d2ef66 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2042,6 +2042,8 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_1006) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_1007) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IMATION, USB_DEVICE_ID_DISC_STAKKA) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_410) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_510) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KBGEAR, USB_DEVICE_ID_KBGEAR_JAMSTUDIO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KWORLD, USB_DEVICE_ID_KWORLD_RADIO_FM700) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_GPEN_560) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 38535c9..533815b 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -447,6 +447,10 @@
- #define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
- #define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
- 
-+#define USB_VENDOR_ID_JABRA		0x0b0e
-+#define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
-+#define USB_DEVICE_ID_JABRA_SPEAK_510	0x0420
-+
- #define USB_VENDOR_ID_JESS		0x0c45
- #define USB_DEVICE_ID_JESS_YUREX	0x1010
- 
--- 
-1.8.2.1
-
+On 05/22/2013 10:08 PM, Sebastian Andrzej Siewior wrote:
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> ---
+>  drivers/input/touchscreen/ti_am335x_tsc.c |    1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index e778ffd..a85818b 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -319,7 +319,6 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+>  	unsigned int z1, z2, z;
+>  	unsigned int fsm;
+>  	unsigned int diffx = 0, diffy = 0;
+> -	int i;
+>  
+>  	status = titsc_readl(ts_dev, REG_IRQSTATUS);
+>  	if (status & IRQENB_FIFO0THRES) {
+> 

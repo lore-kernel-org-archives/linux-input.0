@@ -1,42 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: sirfsoc_pwrc: add onkey input driver for CSR
- SiRFprimaII PWRC
-Date: Thu, 23 May 2013 09:29:16 -0700
-Message-ID: <20130523162916.GB15494@core.coreip.homeip.net>
-References: <1369239198-11059-1-git-send-email-Baohua.Song@csr.com>
- <AAD401B65941D44692B7183E6577180803A11B7C@banasiexm01.ASIA.ROOT.PRI>
+Subject: Re: [PATCH 1/7] input: ep93xx_keypad: Pass correct pointer to
+ free_irq()
+Date: Thu, 23 May 2013 09:31:45 -0700
+Message-ID: <20130523163145.GC15494@core.coreip.homeip.net>
+References: <1369061486-28226-1-git-send-email-lars@metafoo.de>
+ <ADE657CA350FB648AAC2C43247A983F0021DA656F56D@AUSP01VMBX24.collaborationhost.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f45.google.com ([209.85.160.45]:34684 "EHLO
-	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752403Ab3EWQ3T (ORCPT
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:37534 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752403Ab3EWQbs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 May 2013 12:29:19 -0400
-Received: by mail-pb0-f45.google.com with SMTP id mc17so3115477pbc.4
-        for <linux-input@vger.kernel.org>; Thu, 23 May 2013 09:29:19 -0700 (PDT)
+	Thu, 23 May 2013 12:31:48 -0400
 Content-Disposition: inline
-In-Reply-To: <AAD401B65941D44692B7183E6577180803A11B7C@banasiexm01.ASIA.ROOT.PRI>
+In-Reply-To: <ADE657CA350FB648AAC2C43247A983F0021DA656F56D@AUSP01VMBX24.collaborationhost.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Madhvapathi Sriram <Madhvapathi.Sriram@csr.com>
-Cc: Barry Song <21cnbao@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-WorkGroupLinux <Workgroup.Linux@csr.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Binghua Duan <Binghua.Duan@csr.com>, Xianglong Du <Xianglong.Du@csr.com>, Barry Song <Barry.Song@csr.com>
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: Lars-Peter Clausen <lars@metafoo.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Madhvapathi,
+On Mon, May 20, 2013 at 10:49:00AM -0500, H Hartley Sweeten wrote:
+> On Monday, May 20, 2013 7:51 AM, Lars-Peter Clausen wrote:
+> > free_irq() expects the same pointer that was passed to request_irq(), otherwise
+> > the IRQ is not freed.
+> 
+> <snip>
+> 
+> > Cc: H Hartley Sweeten <hartleys@visionengravers.com>
+> > Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+> > ---
+> >  drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> Thanks,
+> 
+> Acked-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+> 
 
-On Thu, May 23, 2013 at 01:49:10PM +0000, Madhvapathi Sriram wrote:
-> Possible mem leak here not freeing any allocated devices/memory/irq.
-> I suggest all the error handling be collated at the end of this
-> function for various stages and error handling be done there.
-> Please have a look at
-> https://www.kernel.org/doc/Documentation/input/input-programming.txt
-
-Please note that the driver uses managed resources which get cleaned
-automatically.
-
-Also, could you please use a sane mailer that wraps long lines properly.
-
-Thanks.
+Applied all, thank you.
 
 -- 
 Dmitry

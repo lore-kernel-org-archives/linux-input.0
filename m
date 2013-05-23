@@ -1,65 +1,157 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 4/7] iio/ti_am335x_adc: remove the else case
-Date: Wed, 22 May 2013 22:55:41 +0100
-Message-ID: <519D3EDD.2000104@kernel.org>
-References: <1369256897-25984-1-git-send-email-bigeasy@linutronix.de> <1369256897-25984-4-git-send-email-bigeasy@linutronix.de>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH] input: misc: use platform_{get,set}_drvdata()
+Date: Thu, 23 May 2013 19:24:18 +0900
+Message-ID: <002601ce579f$af006ba0$0d0142e0$@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:39478 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756513Ab3EVVzr (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:51788 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757918Ab3EWKYU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 May 2013 17:55:47 -0400
-In-Reply-To: <1369256897-25984-4-git-send-email-bigeasy@linutronix.de>
+	Thu, 23 May 2013 06:24:20 -0400
+Received: from epcpsbgr1.samsung.com
+ (u141.gpu120.samsung.co.kr [203.254.230.141])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MN800CEKY8AIWZ0@mailout2.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 23 May 2013 19:24:19 +0900 (KST)
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Patil Rachna <rachna@ti.com>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Dmitry Torokhov' <dtor@mail.ru>, linux-input@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
 
-On 05/22/2013 10:08 PM, Sebastian Andrzej Siewior wrote:
-> The DT support added in ("iio: adc: am335x: Add DT support")
-> added an else case which shifts the code to the righ for no reaseon.
-> This patch simply removes the pointless else case and shifts the code
-> back to the left.
-> 
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Use the wrapper functions for getting and setting the driver data using
+platform_device instead of using dev_{get,set}_drvdata() with &pdev->dev,
+so we can directly pass a struct platform_device.
 
-Either I am going completely mad or I never took the original patch.
-I'm not entirely sure I can remember why though.  I think there were
-issues with another patch in the series and so I was waiting for
-a reposting that never happened.  Looking back I think the debate
-was curriously enough whether it made sense ot have the platform_data
-support in there or not.
+Also, unnecessary dev_set_drvdata() is removed, because the driver core
+clears the driver data to NULL after device_release or on probe failure.
 
-Did anyone every take any of that series?  Which tree did you base these on?
-> ---
->  drivers/iio/adc/ti_am335x_adc.c |   13 +++++--------
->  1 file changed, 5 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-> index f258eb0..ac78672 100644
-> --- a/drivers/iio/adc/ti_am335x_adc.c
-> +++ b/drivers/iio/adc/ti_am335x_adc.c
-> @@ -214,14 +214,11 @@ static int tiadc_probe(struct platform_device *pdev)
->  		node = of_get_child_by_name(node, "adc");
->  		if (!node)
->  			return  -EINVAL;
-> -		else {
-> -			err = of_property_read_u32(node,
-> -					"ti,adc-channels", &val32);
-> -			if (err < 0)
-> -				goto err_free_device;
-> -			else
-> -				adc_dev->channels = val32;
-> -		}
-> +		err = of_property_read_u32(node,
-> +				"ti,adc-channels", &val32);
-> +		if (err < 0)
-> +			goto err_free_device;
-> +		adc_dev->channels = val32;
->  	}
->  
->  	indio_dev->dev.parent = &pdev->dev;
-> 
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/input/misc/sgi_btns.c  |    7 ++-----
+ drivers/input/misc/sparcspkr.c |   14 +++++---------
+ 2 files changed, 7 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/input/misc/sgi_btns.c b/drivers/input/misc/sgi_btns.c
+index ad6415c..95cf299 100644
+--- a/drivers/input/misc/sgi_btns.c
++++ b/drivers/input/misc/sgi_btns.c
+@@ -128,7 +128,7 @@ static int sgi_buttons_probe(struct platform_device *pdev)
+ 	__clear_bit(KEY_RESERVED, input->keybit);
+ 
+ 	bdev->poll_dev = poll_dev;
+-	dev_set_drvdata(&pdev->dev, bdev);
++	platform_set_drvdata(pdev, bdev);
+ 
+ 	error = input_register_polled_device(poll_dev);
+ 	if (error)
+@@ -139,19 +139,16 @@ static int sgi_buttons_probe(struct platform_device *pdev)
+  err_free_mem:
+ 	input_free_polled_device(poll_dev);
+ 	kfree(bdev);
+-	dev_set_drvdata(&pdev->dev, NULL);
+ 	return error;
+ }
+ 
+ static int sgi_buttons_remove(struct platform_device *pdev)
+ {
+-	struct device *dev = &pdev->dev;
+-	struct buttons_dev *bdev = dev_get_drvdata(dev);
++	struct buttons_dev *bdev = platform_get_drvdata(pdev);
+ 
+ 	input_unregister_polled_device(bdev->poll_dev);
+ 	input_free_polled_device(bdev->poll_dev);
+ 	kfree(bdev);
+-	dev_set_drvdata(dev, NULL);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/input/misc/sparcspkr.c b/drivers/input/misc/sparcspkr.c
+index a53586a..65fd315 100644
+--- a/drivers/input/misc/sparcspkr.c
++++ b/drivers/input/misc/sparcspkr.c
+@@ -175,7 +175,7 @@ static int sparcspkr_probe(struct device *dev)
+ 
+ static void sparcspkr_shutdown(struct platform_device *dev)
+ {
+-	struct sparcspkr_state *state = dev_get_drvdata(&dev->dev);
++	struct sparcspkr_state *state = platform_get_drvdata(dev);
+ 	struct input_dev *input_dev = state->input_dev;
+ 
+ 	/* turn off the speaker */
+@@ -211,7 +211,7 @@ static int bbc_beep_probe(struct platform_device *op)
+ 	if (!info->regs)
+ 		goto out_free;
+ 
+-	dev_set_drvdata(&op->dev, state);
++	platform_set_drvdata(op, state);
+ 
+ 	err = sparcspkr_probe(&op->dev);
+ 	if (err)
+@@ -220,7 +220,6 @@ static int bbc_beep_probe(struct platform_device *op)
+ 	return 0;
+ 
+ out_clear_drvdata:
+-	dev_set_drvdata(&op->dev, NULL);
+ 	of_iounmap(&op->resource[0], info->regs, 6);
+ 
+ out_free:
+@@ -231,7 +230,7 @@ out_err:
+ 
+ static int bbc_remove(struct platform_device *op)
+ {
+-	struct sparcspkr_state *state = dev_get_drvdata(&op->dev);
++	struct sparcspkr_state *state = platform_get_drvdata(op);
+ 	struct input_dev *input_dev = state->input_dev;
+ 	struct bbc_beep_info *info = &state->u.bbc;
+ 
+@@ -242,7 +241,6 @@ static int bbc_remove(struct platform_device *op)
+ 
+ 	of_iounmap(&op->resource[0], info->regs, 6);
+ 
+-	dev_set_drvdata(&op->dev, NULL);
+ 	kfree(state);
+ 
+ 	return 0;
+@@ -290,7 +288,7 @@ static int grover_beep_probe(struct platform_device *op)
+ 	if (!info->enable_reg)
+ 		goto out_unmap_freq_regs;
+ 
+-	dev_set_drvdata(&op->dev, state);
++	platform_set_drvdata(op, state);
+ 
+ 	err = sparcspkr_probe(&op->dev);
+ 	if (err)
+@@ -299,7 +297,6 @@ static int grover_beep_probe(struct platform_device *op)
+ 	return 0;
+ 
+ out_clear_drvdata:
+-	dev_set_drvdata(&op->dev, NULL);
+ 	of_iounmap(&op->resource[3], info->enable_reg, 1);
+ 
+ out_unmap_freq_regs:
+@@ -312,7 +309,7 @@ out_err:
+ 
+ static int grover_remove(struct platform_device *op)
+ {
+-	struct sparcspkr_state *state = dev_get_drvdata(&op->dev);
++	struct sparcspkr_state *state = platform_get_drvdata(op);
+ 	struct grover_beep_info *info = &state->u.grover;
+ 	struct input_dev *input_dev = state->input_dev;
+ 
+@@ -324,7 +321,6 @@ static int grover_remove(struct platform_device *op)
+ 	of_iounmap(&op->resource[3], info->enable_reg, 1);
+ 	of_iounmap(&op->resource[2], info->freq_regs, 2);
+ 
+-	dev_set_drvdata(&op->dev, NULL);
+ 	kfree(state);
+ 
+ 	return 0;
+-- 
+1.7.10.4
+
+

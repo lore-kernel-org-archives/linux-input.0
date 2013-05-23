@@ -1,312 +1,227 @@
-From: Madhvapathi Sriram <Madhvapathi.Sriram@csr.com>
-Subject: RE: [PATCH] input: sirfsoc_pwrc: add onkey input driver for CSR
- SiRFprimaII PWRC
-Date: Thu, 23 May 2013 16:53:38 +0000
-Message-ID: <AAD401B65941D44692B7183E6577180803A11BF4@banasiexm01.ASIA.ROOT.PRI>
-References: <1369239198-11059-1-git-send-email-Baohua.Song@csr.com>
- <AAD401B65941D44692B7183E6577180803A11B7C@banasiexm01.ASIA.ROOT.PRI>,<CAGsJ_4y6BwTpZpwYv0njvqYtp9Y0UU5qhVJhqG5X+8+Hy_LW8Q@mail.gmail.com>
+From: Daniel Nicoletti <dantti12-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] Bluetooth: hidp: register HID devices async
+Date: Thu, 23 May 2013 18:20:18 -0300
+Message-ID: <CACo8zOfsNP+1Tx_3KcUtVwXKfJ-DEb+4G638q0g_wVGPFs3rNA@mail.gmail.com>
+References: <1369307425-5993-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cluster-g.mailcontrol.com ([208.87.233.190]:38784 "EHLO
-	cluster-g.mailcontrol.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757048Ab3EWQyR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 May 2013 12:54:17 -0400
-In-Reply-To: <CAGsJ_4y6BwTpZpwYv0njvqYtp9Y0UU5qhVJhqG5X+8+Hy_LW8Q@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1369307425-5993-1-git-send-email-dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Barry Song <21cnbao@gmail.com>
-Cc: "dtor@mail.ru" <dtor@mail.ru>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-WorkGroupLinux <Workgroup.Linux@csr.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Binghua Duan <Binghua.Duan@csr.com>, Xianglong Du <Xianglong.Du@csr.com>, Barry Song <Barry.Song@csr.com>
 
-Agreed Barry. Please ignore my comments on resources management below.
+This patch alone didn't work: http://privatepaste.com/a3fe0dff0a
+Should I also apply the one that returns ENODATA?
+>From what I can tell it wouldn't be needed as this power_supply
+registration would be delayed tho I see nothing in this patch that
+does that. What am I missing?
 
-Best Regards,
-Madhvapathi Sriram
+Thanks,
 
-________________________________________
-From: Barry Song [21cnbao@gmail.com]
-Sent: Thursday, May 23, 2013 9:47 PM
-To: Madhvapathi Sriram
-Cc: dtor@mail.ru; dmitry.torokhov@gmail.com; linux-input@vger.kernel.org; DL-SHA-WorkGroupLinux; linux-arm-kernel@lists.infradead.org; Binghua Duan; Xianglong Du; Barry Song
-Subject: Re: [PATCH] input: sirfsoc_pwrc: add onkey input driver for CSR SiRFprimaII PWRC
-
-hi madhvapathi,
-thanks for comments.
-
-2013/5/23 Madhvapathi Sriram <Madhvapathi.Sriram@csr.com>:
-> Comments inline.
-> ________________________________________
-> From: Barry Song [21cnbao@gmail.com]
-> Sent: Wednesday, May 22, 2013 9:43 PM
-> To: dtor@mail.ru; dmitry.torokhov@gmail.com
-> Cc: linux-input@vger.kernel.org; DL-SHA-WorkGroupLinux; linux-arm-kernel@lists.infradead.org; Binghua Duan; Xianglong Du; Barry Song
-> Subject: [PATCH] input: sirfsoc_pwrc: add onkey input driver for CSR SiRFprimaII PWRC
+2013/5/23 David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> While l2cap_user callbacks are running, the whole hci_dev is locked. Even
+> if we would add more fine-grained locking to HCI core, it would still be
+> called from the non-reentrant rx work-queue and thus block the event
+> processing.
 >
-> From: Binghua Duan <Binghua.Duan@csr.com>
+> However, if we want to perform synchronous I/O during HID device
+> registration (eg., to perform device-detection), we need the HCI core
+> to be able to dispatch incoming data.
 >
-> there is an embedded PWRC(power controller) in SiRFprimaII and SiRFatlasVI,
-> we have an ONKEY button which can generate interrupt to IRQ controller.
-> in a typical user scenarios, at the runtime, if users touch the key, we put
-> system to s2ram status.
+> Therefore, we now move device-registration to a separate worker. The HCI
+> core can continue running and we add devices asynchronously in another
+> kernel thread. Device removal is synchronized and waits for the worker
+> to exit before calling the usual device removal functions.
 >
-> Signed-off-by: Binghua Duan <Binghua.Duan@csr.com>
-> Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
-> Signed-off-by: Barry Song <Baohua.Song@csr.com>
+> If l2cap_user->remove is called before the thread registered the devices,
+> we set "terminate" to true and the thread will skip it. If
+> l2cap_user->remove is called after it, we notice this as the device
+> is no longer in HIDP_SESSION_PREPARING state and simply unregister the
+> device as we did before.
+> There is no new deadlock as we now call hidp_session_add_dev() with
+> one lock less held (the HCI lock) and it cannot itself call back into
+> HCI as it was called with the HCI-lock held before.
+>
+> One might wonder whether this can block during device unregistration.
+> But we set "terminate" to true and wake the HIDP thread up _before_
+> unregistering the HID/input devices. Therefore, all pending HID I/O
+> operations are canceled. All further I/O attempts will fail with ENODEV
+> or EIO. So all latency we can get are few context-switches, but no
+> timeouts or blocking I/O waits!
+>
+> This change also prepares for a long standing HID bug. All HID devices
+> that register power_supply devices need to be able to handle callbacks
+> during registration (a power_supply oddity that cannot easily be fixed).
+> So with this patch available, we can allow HID I/O during registration
+> by calling the recently introduced hid_device_io_start/stop helpers,
+> which currently are a no-op for bluetooth due to this locking.
+>
+> Note that we cannot do the same for input devices. input-core doesn't
+> allow us to call input_event() asynchronously to input_register_device(),
+> which HID-core kindly allows (for good reasons).
+> Fixing input-core to allow this isn't as easy as it sounds and is,
+> beside simplifying HIDP, not really an improvement. Hence, we still
+> register input devices synchronously as we did before. Only HID devices
+> are registered asynchronously.
+>
+> Signed-off-by: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  drivers/input/misc/Kconfig         |  10 +++
->  drivers/input/misc/Makefile        |   1 +
->  drivers/input/misc/sirfsoc_onkey.c | 176 +++++++++++++++++++++++++++++++++++++
->  3 files changed, 187 insertions(+)
->  create mode 100644 drivers/input/misc/sirfsoc_onkey.c
+> Hi
 >
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index bb698e1..1d91d1b 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -637,4 +637,14 @@ config INPUT_XEN_KBDDEV_FRONTEND
->           To compile this driver as a module, choose M here: the
->           module will be called xen-kbdfront.
+>  @Daniel, this should fix the battery issues for Bluetooth devices. As far
+> as I can see, it should have always worked for USB devices already as it uses
+> the synchronous HID data-callbacks.
 >
-> +config INPUT_SIRFSOC_ONKEY
-> +       bool "CSR SiRFSoC power on/off/suspend key support"
-> +       depends on ARCH_SIRF
-> +       default y
-> +       help
-> +         Say Y here if you want to support for the SiRFSoC power on/off/suspend key
-> +         in Linux, after you press the onkey, system will suspend.
-> +
-> +         If unsure, say N.
-> +
->  endif
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index d7fc17f..1d66f03 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -60,3 +60,4 @@ obj-$(CONFIG_INPUT_WISTRON_BTNS)      += wistron_btns.o
->  obj-$(CONFIG_INPUT_WM831X_ON)          += wm831x-on.o
->  obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)        += xen-kbdfront.o
->  obj-$(CONFIG_INPUT_YEALINK)            += yealink.o
-> +obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)      += sirfsoc_onkey.o
-> diff --git a/drivers/input/misc/sirfsoc_onkey.c b/drivers/input/misc/sirfsoc_onkey.c
-> new file mode 100644
-> index 0000000..3e48db9
-> --- /dev/null
-> +++ b/drivers/input/misc/sirfsoc_onkey.c
-> @@ -0,0 +1,176 @@
-> +/*
-> + * Power key driver for SiRF PrimaII
-> + *
-> + * Copyright (c) 2013 Cambridge Silicon Radio Limited, a CSR plc group company.
-> + *
-> + * Licensed under GPLv2 or later.
+> I tested this on my machine and it works quite well. However, I cannot tell
+> whether it fixes the battery issues as I have no device to test. It would be
+> nice to get a "tested-by" if it works for you.
+>
+> If it doesn't fix the issues, I will have to look closer again, but I didn't
+> find any other issues.
+>
+> Please note that this _must_ be applied on linux-next or linux-3.10-rc1 or
+> later. It does not work with linux-3.9 or older.
+>
+> Cheers
+> David
+>
+>  net/bluetooth/hidp/core.c | 56 +++++++++++++++++++++++++++++++++++++++--------
+>  net/bluetooth/hidp/hidp.h |  2 ++
+>  2 files changed, 49 insertions(+), 9 deletions(-)
+>
+> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+> index c756b06..e3c14de 100644
+> --- a/net/bluetooth/hidp/core.c
+> +++ b/net/bluetooth/hidp/core.c
+> @@ -848,6 +848,29 @@ static void hidp_session_dev_del(struct hidp_session *session)
+>  }
+>
+>  /*
+> + * Asynchronous device registration
+> + * HID device drivers might want to perform I/O during initialization to
+> + * detect device types. Therefore, call device registration in a separate
+> + * worker so the HIDP thread can schedule I/O operations.
+> + * Note that this must be called after the worker thread was initialized
+> + * successfully. This will then add the devices and increase session state
+> + * on success, otherwise it will terminate the session thread.
 > + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/delay.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/input.h>
-> +#include <linux/rtc/sirfsoc_rtciobrg.h>
-> +#include <linux/of.h>
-> +
-> +struct sirfsoc_pwrc_drvdata {
-> +       u32                     pwrc_base;
-> +       int                     irq;
-> +       struct input_dev        *input;
-> +};
-> +
-> +#define PWRC_ON_KEY_BIT                        (1 << 0)
-> +
-> +#define PWRC_INT_STATUS                        0xc
-> +#define PWRC_INT_MASK                  0x10
-> +
-> +static irqreturn_t sirfsoc_pwrc_isr(int irq, void *dev_id)
+> +static void hidp_session_dev_work(struct work_struct *work)
 > +{
-> +       struct sirfsoc_pwrc_drvdata *pwrcdrv =
-> +                       (struct sirfsoc_pwrc_drvdata *)dev_id;
-> +       u32 int_status;
-> +       int_status = sirfsoc_rtc_iobrg_readl(
-> +                       pwrcdrv->pwrc_base + PWRC_INT_STATUS);
-> +       sirfsoc_rtc_iobrg_writel(int_status & (~PWRC_ON_KEY_BIT),
-> +                       pwrcdrv->pwrc_base + PWRC_INT_STATUS);
-> +
-> +       /*
-> +        * For a typical Linux system, we report KEY_SUSPEND to trigger apm-power.c
-> +        * to queue a SUSPEND APM event
-> +        */
-> +       input_event(pwrcdrv->input, EV_PWR, KEY_SUSPEND, 1);
-> +       input_sync(pwrcdrv->input);
-> +
-> +       /*
-> +        * Todo: report KEY_POWER event for Android platforms, Android PowerManager
-> +        * will handle the suspend and powerdown/hibernation
-> +        */
-> +
-> +       return IRQ_HANDLED;
-> +}
-> +
-> +static const struct of_device_id sirfsoc_pwrc_of_match[] = {
-> +       { .compatible = "sirf,prima2-pwrc" },
-> +       {},
-> +}
-> +MODULE_DEVICE_TABLE(of, sirfsoc_pwrc_of_match);
-> +
-> +static int sirfsoc_pwrc_probe(struct platform_device *pdev)
-> +{
+> +       struct hidp_session *session = container_of(work,
+> +                                                   struct hidp_session,
+> +                                                   dev_init);
 > +       int ret;
-> +       struct sirfsoc_pwrc_drvdata *pwrcdrv = NULL;
-> +       struct device_node *np = pdev->dev.of_node;
 > +
-> +       pwrcdrv = devm_kzalloc(&pdev->dev,
-> +               sizeof(struct sirfsoc_pwrc_drvdata), GFP_KERNEL);
-> +       if (!pwrcdrv) {
-> +               dev_info(&pdev->dev, "kzalloc fail!\n");
-> +               return -ENOMEM;
-> +       }
-> +
-> +       /*
-> +        * we can't use of_iomap because pwrc is not mapped in memory, the so-called base
-> +        * address is only offset in rtciobrg
-> +        */
-> +       ret = of_property_read_u32(np, "reg", &pwrcdrv->pwrc_base);
->
-> Possible mem leak here  - not freeing pwrcdrv
-
-no. there is no mem leak here. devm_ means device management resources.
-
->
-> +       if (ret) {
-> +               dev_err(&pdev->dev, "unable to find base address of pwrc node in dtb\n");
-> +               return ret;
-> +       }
-> +
-> +       pwrcdrv->input = devm_input_allocate_device(&pdev->dev);
-> +       if (!pwrcdrv->input)
-> +               return -ENOMEM;
-> +
-> +       pwrcdrv->input->name = "sirfsoc pwrckey";
-> +       pwrcdrv->input->phys = "pwrc/input0";
-> +
-> +       platform_set_drvdata(pdev, pwrcdrv);
-> +
-> +       pwrcdrv->irq = platform_get_irq(pdev, 0);
-> +       ret = devm_request_irq(&pdev->dev, pwrcdrv->irq,
-> +                       sirfsoc_pwrc_isr, IRQF_SHARED,
-> +                       "sirfsoc_pwrc_int", pwrcdrv);
-> +
-> +       sirfsoc_rtc_iobrg_writel(
-> +               sirfsoc_rtc_iobrg_readl(pwrcdrv->pwrc_base + PWRC_INT_MASK)
-> +               | PWRC_ON_KEY_BIT, pwrcdrv->pwrc_base + PWRC_INT_MASK);
->
-> Enabling the MASK for an interrupt should only come after it has been successfully claimed? Else we might be leaving and interrupt enabled without being able to handle it?
-
-here moving ahead of request_irq and placing here both work. as there
-is another gate in irq controller.
-
->
-> Possible mem leak here not freeing any allocated devices/memory/irq.
-> I suggest all the error handling be collated at the end of this function for various stages and error handling be done there.
-
-and we don't need to free devm_irq and devm_mem as well.
-
-> Please have a look at https://www.kernel.org/doc/Documentation/input/input-programming.txt
->
-> +       if (ret) {
-> +               dev_err(&pdev->dev, "pwrc: Unable to claim irq %d; error %d\n",
-> +                       pwrcdrv->irq, ret);
-> +               return ret;
-> +       }
-> +
-> +       pwrcdrv->input->evbit[0] = BIT_MASK(EV_PWR) | BIT_MASK(EV_KEY);
-> +       set_bit(KEY_POWER, pwrcdrv->input->keybit);
-> +
-> +       ret = input_register_device(pwrcdrv->input);
-> +       if (ret) {
-> +               dev_err(&pdev->dev,
-> +                       "pwrc: Unable to register input device,error: %d\n",
-> +                       ret);
-> +               return ret;
-> +       }
-> +
-> +       device_init_wakeup(&pdev->dev, 1);
-> +
-> +       return 0;
+> +       ret = hidp_session_dev_add(session);
+> +       if (!ret)
+> +               atomic_inc(&session->state);
+> +       else
+> +               hidp_session_terminate(session);
 > +}
 > +
-> +static int sirfsoc_pwrc_remove(struct platform_device *pdev)
-> +{
-> +       device_init_wakeup(&pdev->dev, 0);
-> +
-> +       return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +static int pwrc_suspend(struct device *dev)
-> +{
-> +       return 0;
-> +}
-> +
-> +static int pwrc_resume(struct device *dev)
-> +{
-> +       struct sirfsoc_pwrc_drvdata *pwrcdrv = dev_get_drvdata(dev);
-> +
+> +/*
+>   * Create new session object
+>   * Allocate session object, initialize static fields, copy input data into the
+>   * object and take a reference to all sub-objects.
+> @@ -894,6 +917,7 @@ static int hidp_session_new(struct hidp_session **out, const bdaddr_t *bdaddr,
+>         session->idle_to = req->idle_to;
 >
-> Typically, the wake up interrupts would be ensured to be active while going to sleep/suspend.
-> However, here at resume the interrupt mask is being set. Is it because, there are some caveats here?
-
-xianglong, pls explain.
-
+>         /* device management */
+> +       INIT_WORK(&session->dev_init, hidp_session_dev_work);
+>         setup_timer(&session->timer, hidp_idle_timeout,
+>                     (unsigned long)session);
 >
-> +       /*
-> +        * Do not mask pwrc interrupt as we want pwrc work as a wakeup source
-> +        * if users touch X_ONKEY_B, see arch/arm/mach-prima2/pm.c
-> +        */
-> +       sirfsoc_rtc_iobrg_writel(
-> +               sirfsoc_rtc_iobrg_readl(
-> +               pwrcdrv->pwrc_base + PWRC_INT_MASK) | PWRC_ON_KEY_BIT,
-> +               pwrcdrv->pwrc_base + PWRC_INT_MASK);
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct dev_pm_ops sirfsoc_pwrc_pm_ops = {
-> +       .suspend = pwrc_suspend,
-> +       .resume = pwrc_resume,
-> +};
-> +#endif
-> +
-> +static struct platform_driver sirfsoc_pwrc_driver = {
-> +       .probe          = sirfsoc_pwrc_probe,
-> +       .remove         = sirfsoc_pwrc_remove,
-> +       .driver         = {
-> +               .name   = "sirfsoc-pwrc",
-> +               .owner  = THIS_MODULE,
-> +#ifdef CONFIG_PM
-> +               .pm     = &sirfsoc_pwrc_pm_ops,
-> +#endif
-> +               .of_match_table = of_match_ptr(sirfsoc_pwrc_of_match),
+> @@ -1032,8 +1056,8 @@ static void hidp_session_terminate(struct hidp_session *session)
+>   * Probe HIDP session
+>   * This is called from the l2cap_conn core when our l2cap_user object is bound
+>   * to the hci-connection. We get the session via the \user object and can now
+> - * start the session thread, register the HID/input devices and link it into
+> - * the global session list.
+> + * start the session thread, link it into the global session list and
+> + * schedule HID/input device registration.
+>   * The global session-list owns its own reference to the session object so you
+>   * can drop your own reference after registering the l2cap_user object.
+>   */
+> @@ -1055,21 +1079,30 @@ static int hidp_session_probe(struct l2cap_conn *conn,
+>                 goto out_unlock;
+>         }
+>
+> +       if (session->input) {
+> +               ret = hidp_session_dev_add(session);
+> +               if (ret)
+> +                       goto out_unlock;
 > +       }
-> +};
 > +
-> +module_platform_driver(sirfsoc_pwrc_driver);
+>         ret = hidp_session_start_sync(session);
+>         if (ret)
+> -               goto out_unlock;
+> +               goto out_del;
+>
+> -       ret = hidp_session_dev_add(session);
+> -       if (ret)
+> -               goto out_stop;
+> +       /* HID device registration is async to allow I/O during probe */
+> +       if (session->input)
+> +               atomic_inc(&session->state);
+> +       else
+> +               schedule_work(&session->dev_init);
+>
+>         hidp_session_get(session);
+>         list_add(&session->list, &hidp_session_list);
+>         ret = 0;
+>         goto out_unlock;
+>
+> -out_stop:
+> -       hidp_session_terminate(session);
+> +out_del:
+> +       if (session->input)
+> +               hidp_session_dev_del(session);
+>  out_unlock:
+>         up_write(&hidp_session_sem);
+>         return ret;
+> @@ -1099,7 +1132,12 @@ static void hidp_session_remove(struct l2cap_conn *conn,
+>         down_write(&hidp_session_sem);
+>
+>         hidp_session_terminate(session);
+> -       hidp_session_dev_del(session);
 > +
-> +MODULE_LICENSE("GPLv2");
-> +MODULE_AUTHOR("Binghua Duan <Binghua.Duan@csr.com>, "
-> +               "Xianglong Du <Xianglong.Du@csr.com>");
-> +MODULE_DESCRIPTION("CSR Prima2 PWRC Driver");
-> +MODULE_ALIAS("platform:sirfsoc-pwrc");
+> +       cancel_work_sync(&session->dev_init);
+> +       if (session->input ||
+> +           atomic_read(&session->state) > HIDP_SESSION_PREPARING)
+> +               hidp_session_dev_del(session);
+> +
+>         list_del(&session->list);
+>
+>         up_write(&hidp_session_sem);
+> diff --git a/net/bluetooth/hidp/hidp.h b/net/bluetooth/hidp/hidp.h
+> index 6162ce8..9e6cc35 100644
+> --- a/net/bluetooth/hidp/hidp.h
+> +++ b/net/bluetooth/hidp/hidp.h
+> @@ -128,6 +128,7 @@ int hidp_get_conninfo(struct hidp_conninfo *ci);
+>
+>  enum hidp_session_state {
+>         HIDP_SESSION_IDLING,
+> +       HIDP_SESSION_PREPARING,
+>         HIDP_SESSION_RUNNING,
+>  };
+>
+> @@ -156,6 +157,7 @@ struct hidp_session {
+>         unsigned long idle_to;
+>
+>         /* device management */
+> +       struct work_struct dev_init;
+>         struct input_dev *input;
+>         struct hid_device *hid;
+>         struct timer_list timer;
 > --
 > 1.8.2.3
-
--barry
-
-
- To report this email as spam click https://www.mailcontrol.com/sr/MZbqvYs5QwJvpeaetUwhCQ== .
+>
 
 
-Member of the CSR plc group of companies. CSR plc registered in England and Wales, registered number 4187346, registered office Churchill House, Cambridge Business Park, Cowley Road, Cambridge, CB4 0WZ, United Kingdom
-More information can be found at www.csr.com. Follow CSR on Twitter at http://twitter.com/CSR_PLC and read our blog at www.csr.com/blog
+
+-- 
+Daniel Nicoletti
+
+KDE Developer - http://dantti.wordpress.com

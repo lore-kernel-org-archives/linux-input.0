@@ -1,55 +1,35 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Colin Leitner <colin.leitner@googlemail.com>
 Subject: Re: [PATCH] hid: driver for PS2/3 Buzz controllers
-Date: Mon, 27 May 2013 16:31:07 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1305271628540.3914@pobox.suse.cz>
+Date: Mon, 27 May 2013 19:15:58 +0200
+Message-ID: <1369674958.30083.0.camel@roadrunner.fritz.box>
 References: <1369587150.4240.4.camel@roadrunner.fritz.box>
+	 <alpine.LNX.2.00.1305271628540.3914@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33228 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758054Ab3E0ObJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 May 2013 10:31:09 -0400
-In-Reply-To: <1369587150.4240.4.camel@roadrunner.fritz.box>
+Received: from mail-qa0-f52.google.com ([209.85.216.52]:52862 "EHLO
+	mail-qa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753834Ab3E0RQE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 May 2013 13:16:04 -0400
+In-Reply-To: <alpine.LNX.2.00.1305271628540.3914@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Colin Leitner <colin.leitner@googlemail.com>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, 26 May 2013, Colin Leitner wrote:
+Hi Jiri,
 
-> Added a driver for PlayStation 2/3 Buzz controllers, which exposes the LEDs and
-> maps all buttons to BTN_TRIGGER_HAPPY1 to 20.
+> I this it'd actually make more sense to add this support to one of the two 
+> existing drivers (*) we already have for Sony remote controllers -- either 
+> hid-sony or hid-ps3remote both seem appropriate.
 > 
-> Applies to kernel version 3.10.0-rc2. Tested with Debian 7 and with a minor
-> change on kernel 3.8.5 on Fedora 18. Couldn't test the wireless version, but
-> what can be gathered on information from the net, both should be identical in
-> their report structure.
-> 
-> Signed-off-by: Colin Leitner <colin.leitner@gmail.com>
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> ---
->  drivers/hid/Kconfig    |  10 ++
->  drivers/hid/Makefile   |   1 +
->  drivers/hid/hid-buzz.c | 309 +++++++++++++++++++++++++++++++++++++++++++++++++
->  drivers/hid/hid-core.c |   4 +
->  drivers/hid/hid-ids.h  |   2 +
->  5 files changed, 326 insertions(+)
 
-Hi Colin,
+I'll integrate the buzz code to hid-sony. Unfortunatly I can't test against
+the six-axis controller as I don't own a Playstation.
 
-thanks a lot for the support.
+Greetings,
+	Colin
 
-I this it'd actually make more sense to add this support to one of the two 
-existing drivers (*) we already have for Sony remote controllers -- either 
-hid-sony or hid-ps3remote both seem appropriate.
 
-(*) I think we should even merge hid-ps3remote into hid-sony.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs

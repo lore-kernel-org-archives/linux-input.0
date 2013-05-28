@@ -1,35 +1,36 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: add support for Huion 580 tablet
-Date: Tue, 28 May 2013 14:31:09 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1305281430240.3914@pobox.suse.cz>
-References: <alpine.LNX.2.00.1305281019530.3914@pobox.suse.cz> <1369743915-19954-1-git-send-email-martin.rusko@gmail.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] hid: driver for PS2/3 Buzz controllers
+Date: Tue, 28 May 2013 14:53:15 +0200
+Message-ID: <1369745595.12005.11.camel@novo>
+References: <1369587150.4240.4.camel@roadrunner.fritz.box>
+	  <alpine.LNX.2.00.1305271628540.3914@pobox.suse.cz>
+	 <1369690865.2369.5.camel@roadrunner.fritz.box>
+	 <alpine.LNX.2.00.1305281018250.3914@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38786 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933827Ab3E1MbL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 May 2013 08:31:11 -0400
-In-Reply-To: <1369743915-19954-1-git-send-email-martin.rusko@gmail.com>
+Received: from slow1-d.mail.gandi.net ([217.70.178.86]:56175 "EHLO
+	slow1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933890Ab3E1M56 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 May 2013 08:57:58 -0400
+In-Reply-To: <alpine.LNX.2.00.1305281018250.3914@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Martin Rusko <martin.rusko@gmail.com>
-Cc: linux-input@vger.kernel.org, Nikolai Kondrashov <spbnick@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Colin Leitner <colin.leitner@googlemail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 28 May 2013, Martin Rusko wrote:
-
-> Add hid-huion.c with support for Huion 580 tablet, which is simple
-> 8x5" tablet with 4000LPI resolution and 2048 levels pressure-sensitive
-> pen manufactured by the Chinese company Huion.
+On Tue, 2013-05-28 at 10:19 +0200, Jiri Kosina wrote:
+> On Mon, 27 May 2013, Colin Leitner wrote:
 > 
-> The driver fixes incorrect report descriptor sent by the device,
-> performs custom initialization required to switch the tablet into
-> its native resolution mode and inverts the in-range bit.
+> > This patch adds support for PS2/3 Buzz controllers into hid-sony
 > 
-> Signed-off-by: Martin Rusko <martin.rusko@gmail.com>
+> Thanks, now applied.
 
-Applied, thanks.
+I would have preferred it if the single device (the USB adapter) showed
+4 input devices each with 5 buttons and a LED, rather than a single
+device with 4 LEDs and 20 buttons.
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers
+

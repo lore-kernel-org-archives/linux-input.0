@@ -1,56 +1,50 @@
-From: Wei Yongjun <weiyj.lk@gmail.com>
-Subject: [PATCH -next] Input: fix error return code in atmel_tsadcc_probe()
-Date: Tue, 28 May 2013 13:19:57 +0800
-Message-ID: <CAPgLHd_WUdJe+4mEDxXOoqZzGyQBb49wO=OQ+kz_3_nNLV26xA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] input: sirfsoc_pwrc: add onkey input driver for CSR
+ SiRFprimaII PWRC
+Date: Tue, 28 May 2013 00:58:09 -0700
+Message-ID: <20130528075808.GA19496@core.coreip.homeip.net>
+References: <1369709258-14529-1-git-send-email-Baohua.Song@csr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f50.google.com ([209.85.214.50]:48551 "EHLO
-	mail-bk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932458Ab3E1FT7 (ORCPT
+Received: from mail-pb0-f44.google.com ([209.85.160.44]:64223 "EHLO
+	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933246Ab3E1H6O (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 May 2013 01:19:59 -0400
-Received: by mail-bk0-f50.google.com with SMTP id ik8so2955771bkc.23
-        for <linux-input@vger.kernel.org>; Mon, 27 May 2013 22:19:57 -0700 (PDT)
+	Tue, 28 May 2013 03:58:14 -0400
+Received: by mail-pb0-f44.google.com with SMTP id wz12so7575554pbc.31
+        for <linux-input@vger.kernel.org>; Tue, 28 May 2013 00:58:13 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1369709258-14529-1-git-send-email-Baohua.Song@csr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: josh.wu@atmel.com, dmitry.torokhov@gmail.com
-Cc: yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
+To: Barry Song <21cnbao@gmail.com>
+Cc: linux-input@vger.kernel.org, Workgroup.Linux@csr.com, linux-arm-kernel@lists.infradead.org, Binghua Duan <Binghua.Duan@csr.com>, Xianglong Du <Xianglong.Du@csr.com>, Barry Song <Baohua.Song@csr.com>
 
-From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+Hi Barry,
 
-If pdata is NULL, atmel_tsadcc_probe() will release all the resources
-and return 0, but we need a error code is returned in this case.
-Fix to return -EINVAL and move the check for pdata to the begin
-of this function.
+On Tue, May 28, 2013 at 10:47:38AM +0800, Barry Song wrote:
+> +	/*
+> +	 * For a typical Linux system, we report KEY_SUSPEND to trigger apm-power.c
+> +	 * to queue a SUSPEND APM event
+> +	 */
+> +	input_event(pwrcdrv->input, EV_PWR, KEY_SUSPEND, 1);
+> +	input_sync(pwrcdrv->input);
+> +
+> +	/*
+> +	 * Todo: report KEY_POWER event for Android platforms, Android PowerManager
+> +	 * will handle the suspend and powerdown/hibernation
+> +	 */
+> +
+...
 
-Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
----
- drivers/input/touchscreen/atmel_tsadcc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> +
+> +	pwrcdrv->input->evbit[0] = BIT_MASK(EV_PWR) | BIT_MASK(EV_KEY);
+> +	set_bit(KEY_POWER, pwrcdrv->input->keybit);
 
-diff --git a/drivers/input/touchscreen/atmel_tsadcc.c b/drivers/input/touchscreen/atmel_tsadcc.c
-index 75a0693..fbc72dd 100644
---- a/drivers/input/touchscreen/atmel_tsadcc.c
-+++ b/drivers/input/touchscreen/atmel_tsadcc.c
-@@ -187,6 +187,9 @@ static int atmel_tsadcc_probe(struct platform_device *pdev)
- 	unsigned int	prsc;
- 	unsigned int	reg;
- 
-+	if (!pdata)
-+		return -EINVAL;
-+
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!res) {
- 		dev_err(&pdev->dev, "no mmio resource defined.\n");
-@@ -265,9 +268,6 @@ static int atmel_tsadcc_probe(struct platform_device *pdev)
- 	prsc = clk_get_rate(ts_dev->clk);
- 	dev_info(&pdev->dev, "Master clock is set at: %d Hz\n", prsc);
- 
--	if (!pdata)
--		goto err_fail;
--
- 	if (!pdata->adc_clock)
- 		pdata->adc_clock = ADC_DEFAULT_CLOCK;
- 
+Why are we setting up KEY_POWER if we do not send this event?
 
+Thanks.
+
+-- 
+Dmitry

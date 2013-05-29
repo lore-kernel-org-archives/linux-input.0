@@ -1,55 +1,37 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Dependencies in the HID subsystem
-Date: Wed, 29 May 2013 21:19:34 +0200
-Message-ID: <1369855174.4306.198.camel@chaos.site>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: prevent memleak with the allocated name
+Date: Wed, 29 May 2013 23:12:54 +0300
+Message-ID: <CAHp75VcpdQqd+evBNhwMGHvXwCoVdaXYdBqQeSDGwt25dLkpGQ@mail.gmail.com>
+References: <1369817109-4277-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kbuild-owner@vger.kernel.org>
-Sender: linux-kbuild-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Michal Marek <mmarek@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kbuild <linux-kbuild@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1369817109-4277-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi all,
+On Wed, May 29, 2013 at 11:45 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> mt_free_input_name() was never called during .remove():
+> hid_hw_stop() removes the hid_input items in hdev->inputs, and so the
+> list is therefore empty after the call. In the end, we never free the
+> special names that has been allocated during .probe().
+>
+> Restore the original name before freeing it to avoid acessing already
+> freed pointer.
+>
 
-I am worried and confused by some Kconfig dependencies in the HID
-subsystem.
+> I just spotted this one yesterday... My guess is that this way is safe (without
+> a locking mechanism to prevent accessing hi->input->name), but I'm not 100% sure.
 
-There are 11 HID device drivers which are defined in drivers/hid/Kconfig
-with:
+Hi Jiri, Benjamin.
 
-	tristate "..." if EXPERT
-	default !EXPERT
+What do you think about patch I just sent?
 
-Unless EXPERT is enabled (and that's not the default), these driver
-entries are hidden and automatically selected. If CONFIG_HID=m, they are
-selected as modules. If CONFIG_HID=y, they are built into the kernel. So
-it is impossible to have CONFIG_HID=y and build these device drivers as
-modules - as device drivers typically are.
+P.S. Benjamin, I re-used your commit message, I think you have no objections.
 
-I would like to understand the reasoning behind this complexity. What is
-so special about these 11 drivers, that we can't just let the (kernel
-configuring) user chose if he/she wants them and in what form?
-
-Wouldn't "default !EXPERT" and a good old "If unsure, say Y" in the help
-text be enough?
-
-I would be fine with "tristate ... if EXPERT" if I still had the choice
-between built-in or modular when both are possible. Is there any chance
-to change the meaning of this construct to that?
-
-Also I find it unpleasant that this construct completely hides the
-option from the user, as if it did not exist, except if other options
-depend on it. This is inconsistent and makes it difficult for the user
-to know whether a specific kernel version includes a given driver or not
-(one has to check .config afterward to know the answer.)
-
-Put in short, I don't like the way things are today and would welcome
-changes in this area.
-
-Thanks,
--- 
-Jean Delvare
-Suse L3
-
+--
+With Best Regards,
+Andy Shevchenko

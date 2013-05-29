@@ -1,31 +1,167 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCH 19/19 v2] mfd/ti_am335x_tscadc: add private lock/unlock
- function for regmap read/write
-Date: Wed, 29 May 2013 16:31:19 +0200
-Message-ID: <51A61137.7060408@linutronix.de>
-References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de> <1369681926-22185-20-git-send-email-bigeasy@linutronix.de> <20130529084642.GA18273@linutronix.de> <20130529111253.GR3660@sirena.org.uk> <51A5E5B3.80201@metafoo.de>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 3/5] input/ti_am335x_tsc: fold regbit_map() and simplfy
+Date: Wed, 29 May 2013 19:09:54 +0200
+Message-ID: <1369847397-27451-4-git-send-email-bigeasy@linutronix.de>
+References: <1369847397-27451-1-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <51A5E5B3.80201-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from www.linutronix.de ([62.245.132.108]:57936 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759706Ab3E2RKF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 May 2013 13:10:05 -0400
+In-Reply-To: <1369847397-27451-1-git-send-email-bigeasy@linutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-iio@vger.kernel.org
+Cc: sameo@linux.intel.com, jic23@cam.ac.uk, dmitry.torokhov@gmail.com, balbi@ti.com, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-On 05/29/2013 01:25 PM, Lars-Peter Clausen wrote:
->> This is not a good place to make this change, there's nothing specific
->> to the device here and in actual fact there's already a change in the
->> works from Lars-Peter Clausen converting the spinlock to always use
->> spin_lock_irqsave() so it should be resolved soon.  The thread was on
->> lkml in the past few days.
-> 
-> Yes, this patch shouldn't be necessary in next/master anymore. For the
-> record the patch can be found here: https://patchwork.kernel.org/patch/2609721/
+If we put the values which are looked up by regbit_map() directly in th=
+e
+config array then we can remove the function.
+And now when I look at it I don't understand why the array has to have
+two dimensions. One does it, too. And while at it, the description says
+that AIN0 =E2=80=A6 AIN7 can be used so allow this.
 
-Ah good good good. So this one can dropped. Thank you.
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/input/touchscreen/ti_am335x_tsc.c |   76 ++++++++-------------=
+--------
+ 1 file changed, 19 insertions(+), 57 deletions(-)
 
-> - Lars
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/=
+touchscreen/ti_am335x_tsc.c
+index 7c97fc7..63cee57 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -37,15 +37,11 @@
+ #define TSCADC_DELTA_X		15
+ #define TSCADC_DELTA_Y		15
+=20
+-/*
+- * Refer to function regbit_map() to
+- * map the values in the matrix.
+- */
+-static int config[4][4] =3D {
+-		{1,	0,	1,	0},
+-		{2,	3,	2,	3},
+-		{4,	5,	4,	5},
+-		{0,	6,	0,	6}
++static const int config_pins[] =3D {
++		XPP,
++		XNN,
++		YPP,
++		YNN,
+ };
+=20
+ struct titsc {
+@@ -79,45 +75,11 @@ static void titsc_writel(struct titsc *tsc, unsigne=
+d int reg,
+ 	regmap_write(tsc->mfd_tscadc->regmap_tscadc, reg, val);
+ }
+=20
+-/*
+- * Each of the analog lines are mapped
+- * with one or two register bits,
+- * which can be either pulled high/low
+- * depending on the value to be read.
+- */
+-static int regbit_map(int val)
+-{
+-	int map_bits =3D 0;
+-
+-	switch (val) {
+-	case 1:
+-		map_bits =3D XPP;
+-		break;
+-	case 2:
+-		map_bits =3D XNP;
+-		break;
+-	case 3:
+-		map_bits =3D XNN;
+-		break;
+-	case 4:
+-		map_bits =3D YPP;
+-		break;
+-	case 5:
+-		map_bits =3D YPN;
+-		break;
+-	case 6:
+-		map_bits =3D YNN;
+-		break;
+-	}
+-
+-	return map_bits;
+-}
+-
+ static int titsc_config_wires(struct titsc *ts_dev)
+ {
+ 	u32 analog_line[4];
+ 	u32 wire_order[4];
+-	int i, temp_bits;
++	int i, bit_cfg;
+=20
+ 	for (i =3D 0; i < 4; i++) {
+ 		/*
+@@ -126,9 +88,9 @@ static int titsc_config_wires(struct titsc *ts_dev)
+ 		 */
+ 		analog_line[i] =3D (ts_dev->config_inp[i] & 0xF0) >> 4;
+ 		wire_order[i] =3D ts_dev->config_inp[i] & 0x0F;
+-		if (WARN_ON(analog_line[i] > 4))
++		if (WARN_ON(analog_line[i] > 7))
+ 				return -EINVAL;
+-		if (WARN_ON(wire_order[i] > 4))
++		if (WARN_ON(wire_order[i] > ARRAY_SIZE(config_pins)))
+ 				return -EINVAL;
+ 	}
+=20
+@@ -138,27 +100,27 @@ static int titsc_config_wires(struct titsc *ts_de=
+v)
+=20
+ 		an_line =3D analog_line[i];
+ 		wi_order =3D wire_order[i];
+-		temp_bits =3D config[an_line][wi_order];
+-		if (temp_bits =3D=3D 0)
++		bit_cfg =3D config_pins[wi_order];
++		if (bit_cfg =3D=3D 0)
+ 			return -EINVAL;
+-		switch (wire_order[i]) {
++		switch (wi_order) {
+ 		case 0:
+-			ts_dev->bit_xp =3D regbit_map(temp_bits);
+-			ts_dev->inp_xp =3D analog_line[i];
++			ts_dev->bit_xp =3D bit_cfg;
++			ts_dev->inp_xp =3D an_line;
+ 			break;
+=20
+ 		case 1:
+-			ts_dev->bit_xn =3D regbit_map(temp_bits);
+-			ts_dev->inp_xn =3D analog_line[i];
++			ts_dev->bit_xn =3D bit_cfg;
++			ts_dev->inp_xn =3D an_line;
+ 			break;
+=20
+ 		case 2:
+-			ts_dev->bit_yp =3D regbit_map(temp_bits);
+-			ts_dev->inp_yp =3D analog_line[i];
++			ts_dev->bit_yp =3D bit_cfg;
++			ts_dev->inp_yp =3D an_line;
+ 			break;
+ 		case 3:
+-			ts_dev->bit_yn =3D regbit_map(temp_bits);
+-			ts_dev->inp_yn =3D analog_line[i];
++			ts_dev->bit_yn =3D bit_cfg;
++			ts_dev->inp_yn =3D an_line;
+ 			break;
+ 		}
+ 	}
+--=20
+1.7.10.4
 
-Sebastian
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

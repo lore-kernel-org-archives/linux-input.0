@@ -1,55 +1,71 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 1/2] HID: Add driver for Holtek gaming mouse 04d9:a067
-Date: Tue, 28 May 2013 19:06:47 +0300
-Message-ID: <CAHp75Ve6KQXiuD_XRr2+CUVZNHdjCniJdxDGParpOTopmWxMaw@mail.gmail.com>
-References: <cover.1369083628.git.chr.ohm@gmx.net>
-	<39428ed7f69bd06e3d93f730ba8f7b7b0a3f6c26.1369083628.git.chr.ohm@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: multitouch: prevent memleak with the allocated name
+Date: Wed, 29 May 2013 10:45:09 +0200
+Message-ID: <1369817109-4277-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f44.google.com ([209.85.215.44]:57523 "EHLO
-	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934630Ab3E1QGv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 May 2013 12:06:51 -0400
-In-Reply-To: <39428ed7f69bd06e3d93f730ba8f7b7b0a3f6c26.1369083628.git.chr.ohm@gmx.net>
+Received: from mx1.redhat.com ([209.132.183.28]:16305 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S965080Ab3E2Ip0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 May 2013 04:45:26 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christian Ohm <chr.ohm@gmx.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2013 at 2:31 AM, Christian Ohm <chr.ohm@gmx.net> wrote:
-> This mouse is sold as Sharkoon Drakonia and Perixx MX-2000 and reports a
-> too high usage maximum and logical maximum. This driver fixes the report
-> descriptor so those values don't exceed HID_MAX_USAGES.
+mt_free_input_name() was never called during .remove():
+hid_hw_stop() removes the hid_input items in hdev->inputs, and so the
+list is therefore empty after the call. In the end, we never free the
+special names that has been allocated during .probe().
 
-Patch is already applied, but I think it worth to go through my
-nitpicks as well.
+Restore the original name before freeing it to avoid acessing already
+freed pointer.
 
-> +++ b/drivers/hid/hid-holtek-mouse.c
-> @@ -0,0 +1,72 @@
-> +/*
-> + * HID driver for Holtek gaming mice
-> + * Copyright (c) 2013 Christian Ohm
-> + * Heavily inspired by various other HID drivers that adjust the report
-> + * descriptor.
-> +*/
-> +
-> +/*
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-There is no need to break comments here.
+Hi Jiri,
 
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
+I just spotted this one yesterday... My guess is that this way is safe (without
+a locking mechanism to prevent accessing hi->input->name), but I'm not 100% sure.
 
-> +module_exit(holtek_mouse_exit);
-> +module_init(holtek_mouse_init);
+Cheers,
+Benjamin
 
-module_hid_driver() instead.
+ drivers/hid/hid-multitouch.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---
-With Best Regards,
-Andy Shevchenko
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index d99b959..cb0e361 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -264,9 +264,12 @@ static struct mt_class mt_classes[] = {
+ static void mt_free_input_name(struct hid_input *hi)
+ {
+ 	struct hid_device *hdev = hi->report->device;
++	const char *name = hi->input->name;
+ 
+-	if (hi->input->name != hdev->name)
+-		kfree(hi->input->name);
++	if (name != hdev->name) {
++		hi->input->name = hdev->name;
++		kfree(name);
++	}
+ }
+ 
+ static ssize_t mt_show_quirks(struct device *dev,
+@@ -1040,11 +1043,11 @@ static void mt_remove(struct hid_device *hdev)
+ 	struct hid_input *hi;
+ 
+ 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+-	hid_hw_stop(hdev);
+-
+ 	list_for_each_entry(hi, &hdev->inputs, list)
+ 		mt_free_input_name(hi);
+ 
++	hid_hw_stop(hdev);
++
+ 	kfree(td);
+ 	hid_set_drvdata(hdev, NULL);
+ }
+-- 
+1.8.2.1
+

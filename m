@@ -1,62 +1,34 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH -next] HID: holtek-mouse: use module_hid_driver() to
- simplify the code
-Date: Wed, 29 May 2013 15:05:19 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1305291504520.30576@pobox.suse.cz>
-References: <CAPgLHd-B1fsT0fAbJZq2KZEZW4wOogC=_cBKiS67Mp4PXtkDbw@mail.gmail.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH] Bluetooth: hidp: register HID devices async
+Date: Wed, 29 May 2013 15:20:44 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1305291519550.30576@pobox.suse.cz>
+References: <1369307425-5993-1-git-send-email-dh.herrmann@gmail.com> <alpine.LNX.2.00.1305281044210.3914@pobox.suse.cz> <20130528155241.GB3697@joana>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:54145 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934624Ab3E2NFe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 May 2013 09:05:34 -0400
-In-Reply-To: <CAPgLHd-B1fsT0fAbJZq2KZEZW4wOogC=_cBKiS67Mp4PXtkDbw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130528155241.GB3697@joana>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>
+Cc: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Nicoletti <dantti12-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: chr.ohm@gmx.net, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>
 
-On Wed, 29 May 2013, Wei Yongjun wrote:
+On Tue, 28 May 2013, Gustavo Padovan wrote:
 
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> > > Signed-off-by: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > 
+> > Acked-by: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+> > 
+> > Gustavo, I think I'd like to take this patch together with the ENODATA 
+> > change for hid-input, as they, in some sense, stick together.
+> > 
+> > If you are OK with that, could you please provide me with your Acked-by, 
+> > and I'll take it through my tree?
 > 
-> module_hid_driver() makes the code simpler by eliminating
-> boilerplate code.
+> This looks good to me.
 > 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> ---
->  drivers/hid/hid-holtek-mouse.c | 13 +------------
->  1 file changed, 1 insertion(+), 12 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mouse.c
-> index 6a23ee6..7e6db3c 100644
-> --- a/drivers/hid/hid-holtek-mouse.c
-> +++ b/drivers/hid/hid-holtek-mouse.c
-> @@ -73,16 +73,5 @@ static struct hid_driver holtek_mouse_driver = {
->  	.report_fixup = holtek_mouse_report_fixup,
->  };
->  
-> -static int __init holtek_mouse_init(void)
-> -{
-> -	return hid_register_driver(&holtek_mouse_driver);
-> -}
-> -
-> -static void __exit holtek_mouse_exit(void)
-> -{
-> -	hid_unregister_driver(&holtek_mouse_driver);
-> -}
-> -
-> -module_exit(holtek_mouse_exit);
-> -module_init(holtek_mouse_init);
-> +module_hid_driver(holtek_mouse_driver);
->  MODULE_LICENSE("GPL");
+> Acked-by: Gustavo Padovan <gustavo.padovan-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 
-Added
-
-	Reported-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
-and applied, thanks.
+Perfect, I am taking it through my tree. Thanks,
 
 -- 
 Jiri Kosina

@@ -1,35 +1,63 @@
-From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Subject: Re: [PATCH 19/19 v2] mfd/ti_am335x_tscadc: add private lock/unlock
- function for regmap read/write
-Date: Wed, 29 May 2013 13:25:39 +0200
-Message-ID: <51A5E5B3.80201@metafoo.de>
-References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de> <1369681926-22185-20-git-send-email-bigeasy@linutronix.de> <20130529084642.GA18273@linutronix.de> <20130529111253.GR3660@sirena.org.uk>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH -next] HID: holtek-mouse: use module_hid_driver() to
+ simplify the code
+Date: Wed, 29 May 2013 15:05:19 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1305291504520.30576@pobox.suse.cz>
+References: <CAPgLHd-B1fsT0fAbJZq2KZEZW4wOogC=_cBKiS67Mp4PXtkDbw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130529111253.GR3660-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:54145 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934624Ab3E2NFe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 May 2013 09:05:34 -0400
+In-Reply-To: <CAPgLHd-B1fsT0fAbJZq2KZEZW4wOogC=_cBKiS67Mp4PXtkDbw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: chr.ohm@gmx.net, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>
 
-On 05/29/2013 01:12 PM, Mark Brown wrote:
-> On Wed, May 29, 2013 at 10:46:42AM +0200, Sebastian Andrzej Siewior wrote:
->> Without this, devm_regmap_init_mmio() creates & uses a simple
->> spin_lock() and this should be enough. Within the probe function the
->> registers are read and written in process context. Later they are
->> accessed from the ISR and lockdep complains because now the lock is
->> taken suddenly with IRQs enabled. Currently I don't see any other way to
->> keep lockdep quiet than doing this.
+On Wed, 29 May 2013, Wei Yongjun wrote:
+
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 > 
-> This is not a good place to make this change, there's nothing specific
-> to the device here and in actual fact there's already a change in the
-> works from Lars-Peter Clausen converting the spinlock to always use
-> spin_lock_irqsave() so it should be resolved soon.  The thread was on
-> lkml in the past few days.
+> module_hid_driver() makes the code simpler by eliminating
+> boilerplate code.
+> 
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> ---
+>  drivers/hid/hid-holtek-mouse.c | 13 +------------
+>  1 file changed, 1 insertion(+), 12 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mouse.c
+> index 6a23ee6..7e6db3c 100644
+> --- a/drivers/hid/hid-holtek-mouse.c
+> +++ b/drivers/hid/hid-holtek-mouse.c
+> @@ -73,16 +73,5 @@ static struct hid_driver holtek_mouse_driver = {
+>  	.report_fixup = holtek_mouse_report_fixup,
+>  };
+>  
+> -static int __init holtek_mouse_init(void)
+> -{
+> -	return hid_register_driver(&holtek_mouse_driver);
+> -}
+> -
+> -static void __exit holtek_mouse_exit(void)
+> -{
+> -	hid_unregister_driver(&holtek_mouse_driver);
+> -}
+> -
+> -module_exit(holtek_mouse_exit);
+> -module_init(holtek_mouse_init);
+> +module_hid_driver(holtek_mouse_driver);
+>  MODULE_LICENSE("GPL");
 
-Yes, this patch shouldn't be necessary in next/master anymore. For the
-record the patch can be found here: https://patchwork.kernel.org/patch/2609721/
+Added
 
-- Lars
+	Reported-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+
+and applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

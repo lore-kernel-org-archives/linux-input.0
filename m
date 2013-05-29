@@ -1,99 +1,53 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] HID: hid-sensor-hub: do not process feature reports in
- raw_even
-Date: Wed, 29 May 2013 14:48:10 -0700
-Message-ID: <51A6779A.6050709@linux.intel.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: Dependencies in the HID subsystem
+Date: Thu, 30 May 2013 00:23:38 +0200
+Message-ID: <CANq1E4SPsF1SXC1Buh+VgK1MJ+LPKwQOqVk+xfA0oYqw7ptdqw@mail.gmail.com>
+References: <1369855174.4306.198.camel@chaos.site>
+	<alpine.LNX.2.00.1305292245090.30576@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:21615 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S935180Ab3E2VnX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 May 2013 17:43:23 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kbuild-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1305292245090.30576@pobox.suse.cz>
+Sender: linux-kbuild-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Jean Delvare <jdelvare@suse.de>, Michal Marek <mmarek@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kbuild <linux-kbuild@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi Jiri,
+Hi
 
-Daniel has tested and confirmed that this patch fixes issue.
+On Wed, May 29, 2013 at 10:52 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 29 May 2013, Jean Delvare wrote:
+>
+>> I am worried and confused by some Kconfig dependencies in the HID
+>> subsystem.
+>>
+>> There are 11 HID device drivers which are defined in drivers/hid/Kconfig
+>> with:
+>>
+>>       tristate "..." if EXPERT
+>>       default !EXPERT
+>>
+>> Unless EXPERT is enabled (and that's not the default), these driver
+>> entries are hidden and automatically selected. If CONFIG_HID=m, they are
+>> selected as modules. If CONFIG_HID=y, they are built into the kernel. So
+>> it is impossible to have CONFIG_HID=y and build these device drivers as
+>> modules - as device drivers typically are.
+>>
+>> I would like to understand the reasoning behind this complexity. What is
+>> so special about these 11 drivers, that we can't just let the (kernel
+>> configuring) user chose if he/she wants them and in what form?
 
-Thanks,
-Srinivas
+For several reason I recommend CONFIG_EXPERT for all users, anyway.
+But apart from that, what's wrong with "default y" and dropping any
+CONFIG_EXPERT dependency? We can still keep the "tristate '..' if
+EXPERT".
 
--------- Original Message --------
-Subject:     Re: Fwd: Re: [PATCH] HID: hid-sensor-hub: do not process 
-feature reports in raw_event
-Date:     Wed, 29 May 2013 12:49:42 -0700
-From:     Daniel Leung <daniel.leung@linux.intel.com>
-To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+The CONFIG_EXPERT descriptions says "this option allows certain base
+kernel options and settings to be disabled or tweaked". This really
+doesn't say anything about "disable any non-standard options if this
+is selected". So why do we default to "n" if CONFIG_EXPERT is
+selected? This always bothered me because I don't expect the config to
+change if I select it.
 
-
-
-With this patch, the sensor hub works on the Acer Iconia W700.
-The accelerometer and gyroscope are both powered on and are sending
-readings.
-
-
-Daniel
-
-
-On Wed, 29 May 2013 07:55:44 -0700
-Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
-
- >
- > Hi Daniel,
- >
- > Can you test this? I will test on the hub I have also.
- >
- > Thanks,
- > Srinivas
- >
- > -------- Original Message --------
- > Subject:     Re: [PATCH] HID: hid-sensor-hub: do not process feature
- > reports in raw_event
- > Date:     Wed, 29 May 2013 16:19:49 +0200 (CEST)
- > From:     Jiri Kosina <jkosina@suse.cz>
- > To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
- > CC:     Daniel Leung <daniel.leung@linux.intel.com>,
- > srinivas.pandruvada@intel.com, linux-input@vger.kernel.org,
- > linux-kernel@vger.kernel.org
- >
- >
- >
- > On Wed, 10 Apr 2013, Srinivas Pandruvada wrote:
- >
- > > I don't know if this should be fixed in client drivers since other 
-drivers may
- > > have this issue.
- >
- > Agreed.
- >
- > Srinivas, how about the patch below, could you please test it in your
- > scenario to see whether it actually fixes the issue?
- >
- > Thanks.
- >
- >
- > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
- > index 264f550..65879b9 100644
- > --- a/drivers/hid/hid-core.c
- > +++ b/drivers/hid/hid-core.c
- > @@ -1293,7 +1293,7 @@ int hid_input_report(struct hid_device *hid, 
-int type, u8 *data, int size, int i
- >
- >       if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
- >           ret = hdrv->raw_event(hid, report, data, size);
- > -        if (ret != 0) {
- > +        if (ret < 0) {
- >               ret = ret < 0 ? ret : 0;
- >               goto unlock;
- >           }
- > --
- > Jiri Kosina
- > SUSE Labs
- > --
- > To unsubscribe from this list: send the line "unsubscribe linux-input" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at http://vger.kernel.org/majordomo-info.html
+Cheers
+David

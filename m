@@ -1,49 +1,30 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH] doc: specify that ABS_MT_SLOT must have a minimum of 0
-Date: Fri, 31 May 2013 16:29:44 +1000
-Message-ID: <20130531062944.GA915@yabbi.redhat.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH 4/7] iio/ti_am335x_adc: remove the else case
+Date: Fri, 31 May 2013 09:43:36 +0200
+Message-ID: <51A854A8.5060800@linutronix.de>
+References: <1369256897-25984-1-git-send-email-bigeasy@linutronix.de> <1369256897-25984-4-git-send-email-bigeasy@linutronix.de> <519D3EDD.2000104@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:60540 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751161Ab3EaG7s (ORCPT
+Received: from www.linutronix.de ([62.245.132.108]:36451 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753717Ab3EaHno (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 May 2013 02:59:48 -0400
-Content-Disposition: inline
+	Fri, 31 May 2013 03:43:44 -0400
+In-Reply-To: <519D3EDD.2000104@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>, Patil Rachna <rachna@ti.com>
 
-This is effectively already in force through input_mt_init_slots, and uinput
-too ignores the actual minimum.
+On 05/22/2013 11:55 PM, Jonathan Cameron wrote:
+> Did anyone every take any of that series?  Which tree did you base these on?
 
-Since slots are a kernel-genenerated axis only, non-zero minimums make
-little sense and are likely to cause errors. Better to treat a non-zero
-minimum as kernel bug if it ever happens.
+I am very sorry for not replying earlier, I somehow overlooked your
+email until now. Saying that I assumed that the series I relied on was
+merged. Later I've been told that this is not the case and I rebased
+everything on top of v3.10-rc3. So please ignore this series, there are
+two new :)
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
----
-I admit that sentence looks a bit lost there, if you want to move this
-elsewhere to have more exposure I'm happy to do so once I figure out where.
-
- Documentation/input/multi-touch-protocol.txt | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
-index 2c17961..de139b1 100644
---- a/Documentation/input/multi-touch-protocol.txt
-+++ b/Documentation/input/multi-touch-protocol.txt
-@@ -80,6 +80,8 @@ Userspace can detect that a driver can report more total contacts than slots
- by noting that the largest supported BTN_TOOL_*TAP event is larger than the
- total number of type B slots reported in the absinfo for the ABS_MT_SLOT axis.
- 
-+The minimum value of the ABS_MT_SLOT axis must be 0.
-+
- Protocol Example A
- ------------------
- 
--- 
-1.8.2.1
-
+Sebastian

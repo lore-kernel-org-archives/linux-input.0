@@ -1,143 +1,61 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] HID: multitouch: prevent memleak with the allocated name
-Date: Thu, 30 May 2013 15:28:17 +0200
-Message-ID: <CAN+gG=G6yXwrPONwO9C04ZB6d4peW=0O7XbgMC3+qwjqPU-R2Q@mail.gmail.com>
-References: <1369817109-4277-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1369858343-681-1-git-send-email-andy.shevchenko@gmail.com>
+From: "Vishwanathrao Badarkhe, Manish" <manishv.b@ti.com>
+Subject: RE: [PATCH V3 0/2] Add DT support for tps6507x touchscreen
+Date: Fri, 31 May 2013 06:04:32 +0000
+Message-ID: <A4887BF146CD57468F700B415D2F470159C239@DBDE04.ent.ti.com>
+References: <1369126458-24872-1-git-send-email-manishv.b@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1369858343-681-1-git-send-email-andy.shevchenko@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1369126458-24872-1-git-send-email-manishv.b@ti.com>
+Content-Language: en-US
+Sender: linux-doc-owner@vger.kernel.org
+To: "Vishwanathrao Badarkhe, Manish" <manishv.b@ti.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>
+Cc: "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "rob@landley.net" <rob@landley.net>
 List-Id: linux-input@vger.kernel.org
 
-Hi Andy,
+Hi Dmitry
+Please let me know, are there any review comments on this patch series?
 
-On Wed, May 29, 2013 at 10:12 PM, Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
-> mt_free_input_name() was never called during .remove(): hid_hw_stop()
-> removes the hid_input items in hdev->inputs, and so the list is
-> therefore empty after the call. In the end, we never free the special
-> names that has been allocated during .probe().
->
-> We switch to devm_kzalloc that manages resources when driver is removed.
->
-> Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/hid/hid-multitouch.c |   37 +++++++++++++------------------------
->  1 files changed, 13 insertions(+), 24 deletions(-)
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index d99b959..1f5876e 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -261,14 +261,6 @@ static struct mt_class mt_classes[] = {
->         { }
->  };
->
-> -static void mt_free_input_name(struct hid_input *hi)
-> -{
-> -       struct hid_device *hdev = hi->report->device;
-> -
-> -       if (hi->input->name != hdev->name)
-> -               kfree(hi->input->name);
-> -}
-> -
->  static ssize_t mt_show_quirks(struct device *dev,
->                            struct device_attribute *attr,
->                            char *buf)
-> @@ -412,10 +404,12 @@ static void mt_pen_report(struct hid_device *hid, struct hid_report *report)
->  static void mt_pen_input_configured(struct hid_device *hdev,
->                                         struct hid_input *hi)
->  {
-> -       char *name = kzalloc(strlen(hi->input->name) + 5, GFP_KERNEL);
-> -       if (name) {
-> -               sprintf(name, "%s Pen", hi->input->name);
-> -               mt_free_input_name(hi);
-> +       char *name;
-> +
-> +       if (hdev->name) {
+Thanks
+Manish Badarkhe
 
-hdev->name is always not null, so no need to check this (hint: it
-contains hid->name when allocated).
+On Tue, May 21, 2013 at 14:24:16, Vishwanathrao Badarkhe, Manish wrote:
+> Patch set adds DT support for tps6507x based touchscreen.
+> Also, add DT data for tps6507x touchscreen in da850-evm by
+> providing touchscreen node inside tps6507x mfd device.
+> 
+> This patch series applies on top of linux-next tree and depends on [1].
+> 
+> [1]tps6507x-ts: update to devm_* API
+>    https://patchwork.kernel.org/patch/2324441/
+> 
+> Tested on da850-evm board.
+> 
+> Changes since V2:
+>  - Updated tps6507x documentation.
+>  - Removed unnecessary code.
+> 
+> Changes since V1:
+>  - Updated tps6507x documentation.
+>  - Updated commit message.
+>  - return proper error value in absence platform and DT data
+>    for touchscreen.
+> 
+> Vishwanathrao Badarkhe, Manish (2):
+>   tps6507x-ts: Add DT support
+>   ARM: davinci: da850: add tps6507x touchscreen DT data
+> 
+>  Documentation/devicetree/bindings/mfd/tps6507x.txt |   28 ++++++-
+>  arch/arm/boot/dts/da850-evm.dts                    |    9 ++
+>  drivers/input/touchscreen/tps6507x-ts.c            |   98 ++++++++++++++------
+>  3 files changed, 104 insertions(+), 31 deletions(-)
+> 
+> -- 
+> 1.7.4.1
+> 
+> 
 
-> +               name = devm_kzalloc(&hdev->dev, strlen(hdev->name) + 5,
-> +                                                       GFP_KERNEL);
 
-Does devm_kzalloc always return a valid pointer? If not, you should
-just use devm_kzalloc instead of kzalloc and keep the old ordering of
-allocation, test, and snprintf.
-
-> +               sprintf(name, "%s Pen", hdev->name);
->                 hi->input->name = name;
->         }
->
-> @@ -925,16 +919,18 @@ static void mt_post_parse(struct mt_device *td)
->  static void mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
->  {
->         struct mt_device *td = hid_get_drvdata(hdev);
-> -       char *name = kstrdup(hdev->name, GFP_KERNEL);
-> -
-> -       if (name)
-> -               hi->input->name = name;
->
->         if (hi->report->id == td->mt_report_id)
->                 mt_touch_input_configured(hdev, hi);
->
->         if (hi->report->id == td->pen_report_id)
->                 mt_pen_input_configured(hdev, hi);
-> +
-> +       if (!hi->input->name) {
-
-will never happen, so can be dropped.
-
-> +               hi->input->name = devm_kzalloc(&hdev->dev,
-> +                                       strlen(hdev->name) + 1, GFP_KERNEL);
-> +               strcpy(hi->input->name, hdev->name);
-> +       }
->  }
->
->  static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> @@ -993,7 +989,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->
->         ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
->         if (ret)
-> -               goto hid_fail;
-> +               goto fail;
->
->         ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
->
-> @@ -1005,9 +1001,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->
->         return 0;
->
-> -hid_fail:
-> -       list_for_each_entry(hi, &hdev->inputs, list)
-> -               mt_free_input_name(hi);
->  fail:
->         kfree(td->fields);
->         kfree(td);
-> @@ -1037,14 +1030,10 @@ static int mt_resume(struct hid_device *hdev)
->  static void mt_remove(struct hid_device *hdev)
->  {
->         struct mt_device *td = hid_get_drvdata(hdev);
-> -       struct hid_input *hi;
->
->         sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
->         hid_hw_stop(hdev);
->
-> -       list_for_each_entry(hi, &hdev->inputs, list)
-> -               mt_free_input_name(hi);
-> -
->         kfree(td);
->         hid_set_drvdata(hdev, NULL);
->  }
-> --
-> 1.7.7.6
->
-
-Cheers,
-Benjamin
+Regards, 
+Manish

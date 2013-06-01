@@ -1,34 +1,86 @@
-From: Thomas Meyer <thomas@m3y3r.de>
-Subject: [PATCH] HID: hyperv: Cocci spatch "memdup.spatch"
-Date: Sat, 01 Jun 2013 11:40:31 +0200
-Message-ID: <1370079631.29224.9.camel@localhost.localdomain>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: prevent memleak with the allocated name
+Date: Sat, 1 Jun 2013 14:33:59 +0300
+Message-ID: <CAHp75VeR3m=QJnJW3K=K_R5WQ+dKchJJsNAVB929a0KKUnVdGw@mail.gmail.com>
+References: <1369817109-4277-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1369858343-681-1-git-send-email-andy.shevchenko@gmail.com>
+	<CAN+gG=G6yXwrPONwO9C04ZB6d4peW=0O7XbgMC3+qwjqPU-R2Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAN+gG=G6yXwrPONwO9C04ZB6d4peW=0O7XbgMC3+qwjqPU-R2Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kys@microsoft.com, haiyangz@microsoft.com, jkosina@suse.cz, devel@linuxdriverproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+On Thu, May 30, 2013 at 4:28 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Wed, May 29, 2013 at 10:12 PM, Andy Shevchenko
+> <andy.shevchenko@gmail.com> wrote:
+>> mt_free_input_name() was never called during .remove(): hid_hw_stop()
+>> removes the hid_input items in hdev->inputs, and so the list is
+>> therefore empty after the call. In the end, we never free the special
+>> names that has been allocated during .probe().
+>>
+>> We switch to devm_kzalloc that manages resources when driver is removed.
 
-Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
----
+Thanks for review. See my answers below.
 
-diff -u -p a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -199,13 +199,11 @@ static void mousevsc_on_receive_device_i
- 	if (desc->bLength == 0)
- 		goto cleanup;
- 
--	input_device->hid_desc = kzalloc(desc->bLength, GFP_ATOMIC);
-+	input_device->hid_desc = kmemdup(desc, desc->bLength, GFP_ATOMIC);
- 
- 	if (!input_device->hid_desc)
- 		goto cleanup;
- 
--	memcpy(input_device->hid_desc, desc, desc->bLength);
--
- 	input_device->report_desc_size = desc->desc[0].wDescriptorLength;
- 	if (input_device->report_desc_size == 0) {
- 		input_device->dev_info_status = -EINVAL;
+>> --- a/drivers/hid/hid-multitouch.c
+>> +++ b/drivers/hid/hid-multitouch.c
+
+>> @@ -412,10 +404,12 @@ static void mt_pen_report(struct hid_device *hid, struct hid_report *report)
+>>  static void mt_pen_input_configured(struct hid_device *hdev,
+>>                                         struct hid_input *hi)
+>>  {
+>> -       char *name = kzalloc(strlen(hi->input->name) + 5, GFP_KERNEL);
+>> -       if (name) {
+>> -               sprintf(name, "%s Pen", hi->input->name);
+>> -               mt_free_input_name(hi);
+>> +       char *name;
+>> +
+>> +       if (hdev->name) {
+>
+> hdev->name is always not null, so no need to check this (hint: it
+> contains hid->name when allocated).
+
+Okay, I'll fix it.
+
+>> +               name = devm_kzalloc(&hdev->dev, strlen(hdev->name) + 5,
+>> +                                                       GFP_KERNEL);
+>
+> Does devm_kzalloc always return a valid pointer? If not, you should
+> just use devm_kzalloc instead of kzalloc and keep the old ordering of
+> allocation, test, and snprintf.
+
+Good point, will fix.
+
+>> @@ -925,16 +919,18 @@ static void mt_post_parse(struct mt_device *td)
+>>  static void mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>>  {
+>>         struct mt_device *td = hid_get_drvdata(hdev);
+>> -       char *name = kstrdup(hdev->name, GFP_KERNEL);
+>> -
+>> -       if (name)
+>> -               hi->input->name = name;
+>>
+>>         if (hi->report->id == td->mt_report_id)
+>>                 mt_touch_input_configured(hdev, hi);
+>>
+>>         if (hi->report->id == td->pen_report_id)
+>>                 mt_pen_input_configured(hdev, hi);
+>> +
+>> +       if (!hi->input->name) {
+>
+> will never happen, so can be dropped.
+
+Why not? As far as I understood this logic the input->name is assigned
+accordingly to what device is configured. Like input->name =
+hdev->name, except for pen it equals to hdev->name + " Pen". The last
+one is assigned in the mt_pen_input_configure. Otherwise input->name
+is NULL. Am I correct?
+
+--
+With Best Regards,
+Andy Shevchenko

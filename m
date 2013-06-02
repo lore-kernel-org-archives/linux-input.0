@@ -1,188 +1,156 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 12/19] iio & mfd & input: ti_tscadc: Match mfd sub devices
- to regmap interface
-Date: Sun, 02 Jun 2013 18:46:29 +0100
-Message-ID: <51AB84F5.2030405@kernel.org>
-References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de> <1369681926-22185-13-git-send-email-bigeasy@linutronix.de>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 14/19] Documentation/DT bindings: add info for TI TSC
+ ADC
+Date: Sun, 02 Jun 2013 18:48:24 +0100
+Message-ID: <51AB8568.9050104@kernel.org>
+References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de> <1369681926-22185-15-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:52745 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754709Ab3FBRqb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Jun 2013 13:46:31 -0400
-In-Reply-To: <1369681926-22185-13-git-send-email-bigeasy@linutronix.de>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1369681926-22185-15-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, Pantelis Antoniou <panto@antoniou-consulting.com>
 
-On 05/27/2013 08:11 PM, Sebastian Andrzej Siewior wrote:
-> From: Pantelis Antoniou <panto@antoniou-consulting.com>
+On 05/27/2013 08:12 PM, Sebastian Andrzej Siewior wrote:
+> The platform data structs are killed here because there are no users in
+> tree (nobody sets the structs up, the RO usage is beeing removed) and the
+> documentation about the parameters is saved here.
+The platform data removal has nothing to do with the rest of the patch.
+Please review the whole series to cleanup the patch divisions.
 > 
-Some confusing splitting between this and the previous patch that definitely wants
-to be cleaned up.
-
-> Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
-> Signed-off-by: Felipe Balbi <balbi@ti.com>
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 > ---
->  drivers/iio/adc/ti_am335x_adc.c           |   26 +++++++++++++++++---------
->  drivers/input/touchscreen/ti_am335x_tsc.c |   13 ++++++++++---
->  drivers/mfd/ti_am335x_tscadc.c            |    1 +
->  3 files changed, 28 insertions(+), 12 deletions(-)
+>  .../bindings/input/touchscreen/ti-tsc-adc.txt      |   38 ++++++++++++++++++++
+>  include/linux/input/ti_am335x_tsc.h                |   35 ------------------
+>  include/linux/mfd/ti_am335x_tscadc.h               |    5 ---
+>  include/linux/platform_data/ti_am335x_adc.h        |   14 --------
+>  4 files changed, 38 insertions(+), 54 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+>  delete mode 100644 include/linux/input/ti_am335x_tsc.h
+>  delete mode 100644 include/linux/platform_data/ti_am335x_adc.h
 > 
-> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-> index cceff09..72ffe89 100644
-> --- a/drivers/iio/adc/ti_am335x_adc.c
-> +++ b/drivers/iio/adc/ti_am335x_adc.c
-> @@ -25,7 +25,9 @@
->  #include <linux/of_device.h>
->  #include <linux/iio/machine.h>
->  #include <linux/iio/driver.h>
-> +#include <linux/regmap.h>
->  
-> +#include <linux/io.h>
-That only went away in the previous patch...
-
->  #include <linux/mfd/ti_am335x_tscadc.h>
->  
->  struct tiadc_device {
-> @@ -37,13 +39,17 @@ struct tiadc_device {
->  
->  static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
->  {
-> -	return readl(adc->mfd_tscadc->tscadc_base + reg);
-> +	unsigned int val;
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> new file mode 100644
+> index 0000000..e533e9d
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> @@ -0,0 +1,38 @@
+> +* TI - TSC ADC (Touschscreen and analog digital converter)
+> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 > +
-> +	val = (unsigned int)-1;
-> +	regmap_read(adc->mfd_tscadc->regmap_tscadc, reg, &val);
-> +	return val;
->  }
->  
->  static void tiadc_writel(struct tiadc_device *adc, unsigned int reg,
->  					unsigned int val)
->  {
-> -	writel(val, adc->mfd_tscadc->tscadc_base + reg);
-> +	regmap_write(adc->mfd_tscadc->regmap_tscadc, reg, val);
->  }
->  
->  static void tiadc_step_config(struct tiadc_device *adc_dev)
-> @@ -76,22 +82,24 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
->  	tiadc_writel(adc_dev, REG_SE, STPENB_STEPENB);
->  }
->  
-> -static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
-> +static int tiadc_channel_init(struct iio_dev *indio_dev,
-> +		struct tiadc_device *adc_dev)
->  {
->  	struct iio_chan_spec *chan_array;
->  	struct iio_chan_spec *chan;
->  	char *s;
->  	int i, len, size, ret;
-> +	int channels = adc_dev->channels;
-This is an unconnected bit of cleanup.  If you want it put it in the previous patch
-which only just introduced what you are changing.
->  
-> -	size = indio_dev->num_channels * (sizeof(struct iio_chan_spec) + 6);
-> +	size = channels * (sizeof(struct iio_chan_spec) + 6);
->  	chan_array = kzalloc(size, GFP_KERNEL);
->  	if (chan_array == NULL)
->  		return -ENOMEM;
->  
->  	/* buffer space is after the array */
-> -	s = (char *)(chan_array + indio_dev->num_channels);
-> +	s = (char *)(chan_array + channels);
->  	chan = chan_array;
-> -	for (i = 0; i < indio_dev->num_channels; i++, chan++, s += len + 1) {
-> +	for (i = 0; i < channels; i++, chan++, s += len + 1) {
->  
->  		len = sprintf(s, "AIN%d", i);
->  
-> @@ -107,8 +115,9 @@ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
->  	}
->  
->  	indio_dev->channels = chan_array;
-> +	indio_dev->num_channels = channels;
->  
-> -	size = (indio_dev->num_channels + 1) * sizeof(struct iio_map);
-> +	size = (channels + 1) * sizeof(struct iio_map);
->  	adc_dev->map = kzalloc(size, GFP_KERNEL);
->  	if (adc_dev->map == NULL) {
->  		kfree(chan_array);
-> @@ -214,7 +223,7 @@ static int tiadc_probe(struct platform_device *pdev)
->  
->  	tiadc_step_config(adc_dev);
->  
-> -	err = tiadc_channel_init(indio_dev, adc_dev->channels);
-> +	err = tiadc_channel_init(indio_dev, adc_dev);
->  	if (err < 0)
->  		goto err_free_device;
->  
-> @@ -223,7 +232,6 @@ static int tiadc_probe(struct platform_device *pdev)
->  		goto err_free_channels;
->  
->  	platform_set_drvdata(pdev, indio_dev);
-> -
->  	return 0;
->  
->  err_free_channels:
-> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> index b467196..0dbf3df 100644
-> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> @@ -27,6 +27,7 @@
->  #include <linux/delay.h>
->  #include <linux/of.h>
->  #include <linux/of_device.h>
-> +#include <linux/regmap.h>
->  
->  #include <linux/mfd/ti_am335x_tscadc.h>
->  
-> @@ -65,13 +66,17 @@ struct titsc {
->  
->  static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
->  {
-> -	return readl(ts->mfd_tscadc->tscadc_base + reg);
-> +	unsigned int val;
+> +Required properties:
+> +- child "tsc"
+> +	ti,wires: Wires refer to application modes i.e. 4/5/8 wire touchscreen
+> +		  support on the platform.
+> +	ti,x-plate-resistance: X plate resistance
+> +	ti,steps-to-configure: The sequencer supports a total of 16
+> +			       programmable steps. A step configured to read a
+> +			       single co-ordinate value. Can be applied more
+> +			       number of times for better results.
+> +	ti,wire-config: Different boards could have a different order for
+> +			connecting wires on touchscreen. We need to provide an
+> +			8 bit number where in the 1st four bits represent the
+> +			analog lines and the next 4 bits represent positive/
+> +			negative terminal on that input line. Notations to
+> +			represent the input lines and terminals resoectively
+> +			is as follows:
+> +			AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+> +			XP  = 0, XN = 1, YP = 2, YN = 3.
+> +- child "adc"
+> +	ti,adc-channels: Number of analog inputs available for ADC
 > +
-> +	val = (unsigned int)-1;
-> +	regmap_read(ts->mfd_tscadc->regmap_tscadc, reg, &val);
-> +	return val;
->  }
->  
->  static void titsc_writel(struct titsc *tsc, unsigned int reg,
->  					unsigned int val)
->  {
-> -	writel(val, tsc->mfd_tscadc->tscadc_base + reg);
-> +	regmap_write(tsc->mfd_tscadc->regmap_tscadc, reg, val);
->  }
->  
->  /*
-> @@ -484,8 +489,10 @@ static int titsc_probe(struct platform_device *pdev)
->  
->  	/* register to the input system */
->  	err = input_register_device(input_dev);
-> -	if (err)
-> +	if (err) {
-> +		dev_err(&pdev->dev, "Failed to register input device\n");
->  		goto err_free_irq;
+> +Example:
+> +	tscadc: tscadc@44e0d000 {
+> +		compatible = "ti,ti-tscadc";
+> +		tsc {
+> +			ti,wires = <4>;
+> +			ti,x-plate-resistance = <200>;
+> +			ti,steps-to-configure = <5>;
+> +			ti,wire-config = <0x00 0x11 0x22 0x33>;
+> +		};
+> +
+> +		adc {
+> +			ti,adc-channels = <4>;
+> +		};
 > +	}
+> diff --git a/include/linux/input/ti_am335x_tsc.h b/include/linux/input/ti_am335x_tsc.h
+> deleted file mode 100644
+> index 6a66b4d..0000000
+> --- a/include/linux/input/ti_am335x_tsc.h
+> +++ /dev/null
+> @@ -1,35 +0,0 @@
+> -#ifndef __LINUX_TI_AM335X_TSC_H
+> -#define __LINUX_TI_AM335X_TSC_H
+> -
+> -/**
+> - * struct tsc_data	Touchscreen wire configuration
+> - * @wires:		Wires refer to application modes
+> - *			i.e. 4/5/8 wire touchscreen support
+> - *			on the platform.
+> - * @x_plate_resistance:	X plate resistance.
+> - * @steps_to_configure:	The sequencer supports a total of
+> - *			16 programmable steps.
+> - *			A step configured to read a single
+> - *			co-ordinate value, can be applied
+> - *			more number of times for better results.
+> - * @wire_config:	Different EVM's could have a different order
+> - *			for connecting wires on touchscreen.
+> - *			We need to provide an 8 bit number where in
+> - *			the 1st four bits represent the analog lines
+> - *			and the next 4 bits represent positive/
+> - *			negative terminal on that input line.
+> - *			Notations to represent the input lines and
+> - *			terminals resoectively is as follows:
+> - *			AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+> - *			XP  = 0, XN = 1, YP = 2, YN = 3.
+> - *
+> - */
+> -
+> -struct tsc_data {
+> -	int wires;
+> -	int x_plate_resistance;
+> -	int steps_to_configure;
+> -	int wire_config[10];
+> -};
+> -
+> -#endif
+> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
+> index 50a245f..c985262 100644
+> --- a/include/linux/mfd/ti_am335x_tscadc.h
+> +++ b/include/linux/mfd/ti_am335x_tscadc.h
+> @@ -128,11 +128,6 @@
 >  
->  	platform_set_drvdata(pdev, ts_dev);
->  	return 0;
-> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-> index bd127bd..a27401a 100644
-> --- a/drivers/mfd/ti_am335x_tscadc.c
-> +++ b/drivers/mfd/ti_am335x_tscadc.c
-> @@ -31,6 +31,7 @@ static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
->  {
->  	unsigned int val;
->
-????  What is this doing here? It's not doing the move to regmap but rather setting a default value.
-> +	val = (unsigned int)-1;
->  	regmap_read(tsadc->regmap_tscadc, reg, &val);
->  	return val;
->  }
+>  #define TSCADC_CELLS		2
+>  
+> -struct mfd_tscadc_board {
+> -	struct tsc_data *tsc_init;
+> -	struct adc_data *adc_init;
+> -};
+> -
+>  struct ti_tscadc_dev {
+>  	struct device *dev;
+>  	struct regmap *regmap_tscadc;
+> diff --git a/include/linux/platform_data/ti_am335x_adc.h b/include/linux/platform_data/ti_am335x_adc.h
+> deleted file mode 100644
+> index e41d583..0000000
+> --- a/include/linux/platform_data/ti_am335x_adc.h
+> +++ /dev/null
+> @@ -1,14 +0,0 @@
+> -#ifndef __LINUX_TI_AM335X_ADC_H
+> -#define __LINUX_TI_AM335X_ADC_H
+> -
+> -/**
+> - * struct adc_data	ADC Input information
+> - * @adc_channels:	Number of analog inputs
+> - *			available for ADC.
+> - */
+> -
+> -struct adc_data {
+> -	unsigned int adc_channels;
+> -};
+> -
+> -#endif
 > 

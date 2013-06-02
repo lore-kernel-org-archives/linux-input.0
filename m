@@ -1,64 +1,44 @@
 From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 17/19] mfd / iio: ti_am335x_adc: rename device from tiadc
- to TI-adc
-Date: Sun, 02 Jun 2013 18:50:19 +0100
-Message-ID: <51AB85DB.2000305@kernel.org>
-References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de> <1369681926-22185-18-git-send-email-bigeasy@linutronix.de>
+Subject: Re: [PATCH 1/5] drivers/iio: am335x_adc: cleanup on missing DT nodes
+Date: Sun, 02 Jun 2013 18:56:40 +0100
+Message-ID: <51AB8758.5010705@kernel.org>
+References: <1369847397-27451-1-git-send-email-bigeasy@linutronix.de> <1369847397-27451-2-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1369681926-22185-18-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+In-Reply-To: <1369847397-27451-2-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 05/27/2013 08:12 PM, Sebastian Andrzej Siewior wrote:
-> TI-adc reads a little better compared to tiadc.
-> While here add an alias so the driver is loaded on demand.
+On 05/29/2013 06:09 PM, Sebastian Andrzej Siewior wrote:
+> Currently we leak indio_dev() if the DT has no "adc" node in it.
 > 
 > Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-
-but you'll be wanting a few more acks on a name change...
+Given you are going to end up rerolling the original series
+(and it hasn't been taken by anyone yet) this wants to go
+in a new version of that not as a separate patch.
 > ---
->  drivers/iio/adc/ti_am335x_adc.c |    4 ++--
->  drivers/mfd/ti_am335x_tscadc.c  |    2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
+>  drivers/iio/adc/ti_am335x_adc.c |    6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-> index 72ffe89..d0317fc 100644
+> index d0317fc..b2f27de 100644
 > --- a/drivers/iio/adc/ti_am335x_adc.c
 > +++ b/drivers/iio/adc/ti_am335x_adc.c
-> @@ -299,14 +299,14 @@ static const struct dev_pm_ops tiadc_pm_ops = {
+> @@ -208,8 +208,10 @@ static int tiadc_probe(struct platform_device *pdev)
+>  	adc_dev->mfd_tscadc = tscadc_dev;
 >  
->  static struct platform_driver tiadc_driver = {
->  	.driver = {
-> -		.name   = "tiadc",
-> +		.name   = "TI-adc",
->  		.owner	= THIS_MODULE,
->  		.pm	= TIADC_PM_OPS,
->  	},
->  	.probe	= tiadc_probe,
->  	.remove	= tiadc_remove,
->  };
-> -
-> +MODULE_ALIAS("platform:TI-adc");
->  module_platform_driver(tiadc_driver);
->  
->  MODULE_DESCRIPTION("TI ADC controller driver");
-> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-> index c25fe00..014df14 100644
-> --- a/drivers/mfd/ti_am335x_tscadc.c
-> +++ b/drivers/mfd/ti_am335x_tscadc.c
-> @@ -193,7 +193,7 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
->  	if (adc_channels > 0) {
->  		tscadc->adc_cell = tscadc->used_cells;
->  		cell = &tscadc->cells[tscadc->used_cells++];
-> -		cell->name = "tiadc";
-> +		cell->name = "TI-adc";
->  		cell->platform_data = tscadc;
->  		cell->pdata_size = sizeof(*tscadc);
->  	}
+>  	node = of_get_child_by_name(node, "adc");
+> -	if (!node)
+> -		return  -EINVAL;
+> +	if (!node) {
+> +		err = -EINVAL;
+> +		goto err_free_device;
+> +	}
+>  	err = of_property_read_u32(node,
+>  			"ti,adc-channels", &val32);
+>  	if (err < 0)
 > 

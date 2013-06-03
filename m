@@ -1,74 +1,59 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH] HID: hyperv: Cocci spatch "memdup.spatch"
-Date: Mon, 3 Jun 2013 14:14:09 +0000
-Message-ID: <e91f5ef1d111418e8383867c3d0c81eb@SN2PR03MB061.namprd03.prod.outlook.com>
-References: <1370079631.29224.9.camel@localhost.localdomain>
- <alpine.LNX.2.00.1306031334040.6750@pobox.suse.cz>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 01/26] HID: wiimote: extend driver description
+Date: Mon, 3 Jun 2013 22:28:31 +0200
+Message-ID: <CANq1E4QSa3SaQMNAkaC50cfA+77t+d9h1tDDyk5XqWmqfV2__A@mail.gmail.com>
+References: <1367788390-29835-1-git-send-email-dh.herrmann@gmail.com>
+	<1367788390-29835-2-git-send-email-dh.herrmann@gmail.com>
+	<alpine.LNX.2.00.1306031117561.6750@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <alpine.LNX.2.00.1306031334040.6750@pobox.suse.cz>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel/>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: "devel" <devel-bounces@linuxdriverproject.org>
-To: Jiri Kosina <jkosina@suse.cz>, Thomas Meyer <thomas@m3y3r.de>
-Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Haiyang Zhang <haiyangz@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f181.google.com ([209.85.223.181]:51056 "EHLO
+	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754544Ab3FCU2c (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Jun 2013 16:28:32 -0400
+Received: by mail-ie0-f181.google.com with SMTP id x14so11689855ief.40
+        for <linux-input@vger.kernel.org>; Mon, 03 Jun 2013 13:28:31 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1306031117561.6750@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
+Hi Jiri
 
+On Mon, Jun 3, 2013 at 11:19 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Sun, 5 May 2013, David Herrmann wrote:
+>
+>> The hid-wiimote driver supports more than the Wii Remote. Nintendo
+>> produced many devices based on the Wii Remote, which have extension
+>> devices built-in. It is not clear to many users, that these devices have
+>> anything in common with the Wii Remote, so fix the driver description.
+>>
+>> This also updates the copyright information for the coming hotplugging
+>> rework.
+>
+> I have now applied the whole patchset, with these two exceptions:
+>
+> 1) [RFC 24/26] HID: wiimote: support Nintendo Wii U Pro Controller
+>
+>    - It's not completely clear to me whether you have reached conclusion
+>      with Todd on this one or not
 
-> -----Original Message-----
-> From: Jiri Kosina [mailto:jkosina@suse.cz]
-> Sent: Monday, June 03, 2013 7:35 AM
-> To: Thomas Meyer
-> Cc: KY Srinivasan; Haiyang Zhang; devel@linuxdriverproject.org; linux-
-> input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] HID: hyperv: Cocci spatch "memdup.spatch"
-> 
-> On Sat, 1 Jun 2013, Thomas Meyer wrote:
-> 
-> > Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
-> > ---
-> >
-> > diff -u -p a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-> > --- a/drivers/hid/hid-hyperv.c
-> > +++ b/drivers/hid/hid-hyperv.c
-> > @@ -199,13 +199,11 @@ static void mousevsc_on_receive_device_i
-> >  	if (desc->bLength == 0)
-> >  		goto cleanup;
-> >
-> > -	input_device->hid_desc = kzalloc(desc->bLength, GFP_ATOMIC);
-> > +	input_device->hid_desc = kmemdup(desc, desc->bLength,
-> GFP_ATOMIC);
-> >
-> >  	if (!input_device->hid_desc)
-> >  		goto cleanup;
-> >
-> > -	memcpy(input_device->hid_desc, desc, desc->bLength);
-> > -
-> >  	input_device->report_desc_size = desc->desc[0].wDescriptorLength;
-> >  	if (input_device->report_desc_size == 0) {
-> >  		input_device->dev_info_status = -EINVAL;
-> >
-> 
-> I guess you are going to get some pushback from some maintainers due to
-> non-descriptive subject and missing changelog :)
-> 
-> I have fixed this for the hyperv patch and applied it, thanks.
+No, I am still working on this. I will resend the patch plus some
+Documentation when I'm done.
 
-Thanks Jiri!
+> 2) [RFC 26/26] HID/ALSA: wiimote: add speaker support
+>
+>    - It'd be nice to get Ack from sound people on this one.
 
-K. Y
-> 
-> --
-> Jiri Kosina
-> SUSE Labs
-> 
+Yeah, sure. That one is still under construction. I got ADPCM working
+now and will try to get some review from alsa-devel.
+
+> Thanks a lot, David. Good work.
+
+Thanks for reviewing! I checked your tree and all patches (including
+the fixups) are applied as required. Thanks!
+
+Cheers
+David

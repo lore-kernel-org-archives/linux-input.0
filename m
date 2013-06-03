@@ -1,27 +1,50 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Fwd: Re: Fwd: Re: [PATCH] HID: hid-sensor-hub: do not process
- feature reports in raw_event
-Date: Mon, 3 Jun 2013 11:28:22 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1306031128110.6750@pobox.suse.cz>
-References: <20130529124942.5ebc199d7e8ee978c3207a3e@linux.intel.com> <51A67706.8010301@linux.intel.com>
+Subject: Re: [PATCH] HID: hyperv: Cocci spatch "memdup.spatch"
+Date: Mon, 3 Jun 2013 13:34:38 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1306031334040.6750@pobox.suse.cz>
+References: <1370079631.29224.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49964 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:55363 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751179Ab3FCJ2Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Jun 2013 05:28:24 -0400
-In-Reply-To: <51A67706.8010301@linux.intel.com>
+	id S1753436Ab3FCLek (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Jun 2013 07:34:40 -0400
+In-Reply-To: <1370079631.29224.9.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: linux-input@vger.kernel.org
+To: Thomas Meyer <thomas@m3y3r.de>
+Cc: kys@microsoft.com, haiyangz@microsoft.com, devel@linuxdriverproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 29 May 2013, Srinivas Pandruvada wrote:
+On Sat, 1 Jun 2013, Thomas Meyer wrote:
 
-> Daniel has tested and confirmed that this patch fixes issue.
+> Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+> ---
+> 
+> diff -u -p a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+> --- a/drivers/hid/hid-hyperv.c
+> +++ b/drivers/hid/hid-hyperv.c
+> @@ -199,13 +199,11 @@ static void mousevsc_on_receive_device_i
+>  	if (desc->bLength == 0)
+>  		goto cleanup;
+>  
+> -	input_device->hid_desc = kzalloc(desc->bLength, GFP_ATOMIC);
+> +	input_device->hid_desc = kmemdup(desc, desc->bLength, GFP_ATOMIC);
+>  
+>  	if (!input_device->hid_desc)
+>  		goto cleanup;
+>  
+> -	memcpy(input_device->hid_desc, desc, desc->bLength);
+> -
+>  	input_device->report_desc_size = desc->desc[0].wDescriptorLength;
+>  	if (input_device->report_desc_size == 0) {
+>  		input_device->dev_info_status = -EINVAL;
+> 
 
-Thanks for confirmation. I have now applied the patch.
+I guess you are going to get some pushback from some maintainers due to 
+non-descriptive subject and missing changelog :)
+
+I have fixed this for the hyperv patch and applied it, thanks.
 
 -- 
 Jiri Kosina

@@ -1,35 +1,43 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCH 16/19] mfd / input: ti_am335x_tsc: rename device from
- tsc to TI-tsc
-Date: Tue, 4 Jun 2013 19:29:20 +0200
-Message-ID: <20130604172920.GA15142@linutronix.de>
-References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de>
- <1369681926-22185-17-git-send-email-bigeasy@linutronix.de>
- <20130604165035.GE26400@core.coreip.homeip.net>
+From: Matthias Kaehlcke <matthias.list@kaehlcke.net>
+Subject: [PATCH] cyttsp: Fix swap of mfg_stat and mfg_cmd registers
+Date: Tue, 4 Jun 2013 23:19:30 +0200
+Message-ID: <20130604211930.GF3618@raspi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:58676 "EHLO
+	relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751272Ab3FDVTf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Jun 2013 17:19:35 -0400
 Content-Disposition: inline
-In-Reply-To: <20130604165035.GE26400-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Javier Martinez Canillas <javier@dowhile0.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-* Dmitry Torokhov | 2013-06-04 09:50:35 [-0700]:
+The command and status register in the driver were swapped with
+respect to the order specified in the datasheet (CY8CTMA140).
+Confirmed with Cypress that the order in the datasheet is correct.
 
->> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
->> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
->> @@ -543,11 +543,12 @@ static struct platform_driver ti_tsc_driver = {
->>  	.probe	= titsc_probe,
->>  	.remove	= titsc_remove,
->>  	.driver	= {
->> -		.name   = "tsc",
->> +		.name   = "TI-tsc",
->
->Still quite generic... Why not call it "TI-am335x-tsc"?
-TI-am335x-tsc it is. In that case I make a similar change to adc node.
+Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+---
+ drivers/input/touchscreen/cyttsp_core.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->Thanks.
+diff --git a/drivers/input/touchscreen/cyttsp_core.h b/drivers/input/touchscreen/cyttsp_core.h
+index 1aa3c69..f1ebde3 100644
+--- a/drivers/input/touchscreen/cyttsp_core.h
++++ b/drivers/input/touchscreen/cyttsp_core.h
+@@ -67,8 +67,8 @@ struct cyttsp_xydata {
+ /* TTSP System Information interface definition */
+ struct cyttsp_sysinfo_data {
+ 	u8 hst_mode;
+-	u8 mfg_cmd;
+ 	u8 mfg_stat;
++	u8 mfg_cmd;
+ 	u8 cid[3];
+ 	u8 tt_undef1;
+ 	u8 uid[8];
+-- 
+1.7.10.4
 
-Sebastian

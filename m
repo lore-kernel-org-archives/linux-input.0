@@ -1,48 +1,78 @@
-From: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
-Subject: Re: [PATCH 12/19] iio & mfd & input: ti_tscadc: Match mfd sub devices to regmap interface
-Date: Tue, 4 Jun 2013 14:10:20 +0300
-Message-ID: <FBB90884-C774-4981-A5BA-26B498B19D76@antoniou-consulting.com>
-References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de> <1369681926-22185-13-git-send-email-bigeasy@linutronix.de> <51AB84F5.2030405@kernel.org> <20130604102318.GC1151@linutronix.de> <F58DCC19-20B7-4385-B323-C1A2E5F22641@antoniou-consulting.com> <20130604105210.GI1151@linutronix.de> <4AA621AD-5273-444C-875C-05486CC810A8@antoniou-consulting.com> <20130604110532.GJ1151@linutronix.de>
-Mime-Version: 1.0 (Apple Message framework v1085)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130604110532.GJ1151-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.10-rc4
+Date: Tue, 4 Jun 2013 09:41:48 -0700
+Message-ID: <20130604164148.GA26400@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:64857 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755373Ab3FDQlw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Jun 2013 12:41:52 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 
-On Jun 4, 2013, at 2:05 PM, Sebastian Andrzej Siewior wrote:
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> * Pantelis Antoniou | 2013-06-04 13:54:48 [+0300]:
-> 
->> What make you think I am the original author?
-> Nothing, you just made _this_ patch.
-> 
+Hi Linus,
 
-I'm the author of that patch that fixes it, I'm not the author of the original driver.
+Please pull from:
 
->> I just fixed whatever I had to fix to get it working.
-> Fair enough.
-> 
->> Namely that the multi function device was using regmap in one place and
->> not in another, which had the nice effect of the regmap cache getting out of sync.
-> 
-> Yeah, that is a pain. Currently I think why we do need regmap at all
-> here and I think about getting rid of it. Most of the values read here
-> need no caching at all.
-> 
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-You need to talk to the original driver author then.
+to receive updates for the input subsystem: just a 2 small driver
+fixups here.
 
->> Regards
->> 
->> -- Pantelis
-> 
-> Sebastian
+Changelog:
+---------
 
-Regards
+Eric Miao (1):
+      Input: synaptics - fix sync lost after resume on some laptops
 
--- Pantelis
+Ping Cheng (1):
+      Input: wacom - fix a typo for Cintiq 22HDT
+
+
+Diffstat:
+--------
+
+ drivers/input/mouse/synaptics.c  | 2 ++
+ drivers/input/tablet/wacom_wac.c | 8 +++++---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
+
+--=20
+Dmitry
+
+
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.13 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRrhjMAAoJEH70+W8r6ZYqGcYQAKyHvdGxaOEXojTDxus49blq
+4+ntd8OBxYt/tDG1AMFIj4mkPsg7gFj+66kQCzWxL9bTHKbCpxMlOYachZ+EPYD7
+hObidSPnA7DFuBiqmEYWMpoqTzC1Bs7DTyEIzq6NcCQngcw9xXczRdl3hTvD89e7
+fnrqwqU2jIc/udrH3VX0CwQhPJ7cDgxsxHKL/1gZwtCKWcaQdYZp6zgmaXBPwu+5
+oNCpupe0EA+bataJ27jNU2V59OE1u2dxGKk4MYzLE46L+gLmsH0fnxvS7vlMwdD8
+alGN5fJ51Zb5lrKEYJGYAgPKvOfJlUTAt3ue6wMFpntQFJ+gDvPtG2M9cs/s9GiI
+wlDVbX+fhYrbptr2dDFBNmvRNIFcYYDrwAA6KMGCm/bhuAvHI6P4scpJ+Z1+HuwS
+HIsIXCBg+0J7eF6P056v7M+J1r1Msy4rvRR7qk9ys3/siLVCYxxC+lZiF2JnPGqo
+r2QpqljdzYl9pETb67lx80/iH+Dsn6aVvIoIj/Z06yYPc8ePqXxmOtddWEsb3pLP
+E5rtZP2qhZzMWXVVxYAnyBVAOMqt6gIx5sMW77SRpXW5cmdBZPWPgl+kGI635V6/
+TxEj2u+IgSC/f994ixlmhMxrjr7mUzAsIRJ3J3eRfkKx5d1VUEcdIG9YOyDbFe0P
+yvcmRJNGmDlaPq0kUkxK
+=JWT9
+-----END PGP SIGNATURE-----
+
+--FCuugMFkClbJLl1L--

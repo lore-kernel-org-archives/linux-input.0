@@ -1,33 +1,36 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: Re: [PATCH 15/19] input/ti_am335x_tsc: tiny cleanup
-Date: Tue, 4 Jun 2013 12:27:14 +0200
-Message-ID: <20130604102714.GE1151@linutronix.de>
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: Re: [PATCH 17/19] mfd / iio: ti_am335x_adc: rename device from
+ tiadc to TI-adc
+Date: Tue, 4 Jun 2013 12:28:44 +0200
+Message-ID: <20130604102844.GF1151@linutronix.de>
 References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de>
- <1369681926-22185-16-git-send-email-bigeasy@linutronix.de>
- <51AB85A0.4040004@kernel.org>
+ <1369681926-22185-18-git-send-email-bigeasy@linutronix.de>
+ <51AB85DB.2000305@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:54933 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751210Ab3FDK1P (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Jun 2013 06:27:15 -0400
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <51AB85A0.4040004@kernel.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <51AB85DB.2000305-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>
 
-* Jonathan Cameron | 2013-06-02 18:49:20 [+0100]:
+* Jonathan Cameron | 2013-06-02 18:50:19 [+0100]:
 
 >On 05/27/2013 08:12 PM, Sebastian Andrzej Siewior wrote:
->> Things that can be done to done without using make up:
->That causes some amusing images of code with lipstick ;)  'wake up' perhaps?
+>> TI-adc reads a little better compared to tiadc.
+>> While here add an alias so the driver is loaded on demand.
+>> 
+>> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+>Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>
+>but you'll be wanting a few more acks on a name change...
 
-Well, make up is usually used to cover up for the bad looks. In that
-case, the code passed checkpatch but looks ugly as hell so it had to use
-some kind of make to get through the review process :) This patch tries
-to clean that code so the make up is not required any more.
+It is a name change of a driver in tree (two to be exact) which can not
+be used as of now and has no users. I can't imagine why someone should
+complain.
 
-Sebastian
+Thanks for the review.
+
+Sebatian

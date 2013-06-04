@@ -1,85 +1,33 @@
-From: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
-Subject: Re: [PATCH 12/19] iio & mfd & input: ti_tscadc: Match mfd sub devices to regmap interface
-Date: Tue, 4 Jun 2013 13:25:28 +0300
-Message-ID: <F58DCC19-20B7-4385-B323-C1A2E5F22641@antoniou-consulting.com>
-References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de> <1369681926-22185-13-git-send-email-bigeasy@linutronix.de> <51AB84F5.2030405@kernel.org> <20130604102318.GC1151@linutronix.de>
-Mime-Version: 1.0 (Apple Message framework v1085)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130604102318.GC1151-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH 15/19] input/ti_am335x_tsc: tiny cleanup
+Date: Tue, 4 Jun 2013 12:27:14 +0200
+Message-ID: <20130604102714.GE1151@linutronix.de>
+References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de>
+ <1369681926-22185-16-git-send-email-bigeasy@linutronix.de>
+ <51AB85A0.4040004@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from www.linutronix.de ([62.245.132.108]:54933 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751210Ab3FDK1P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Jun 2013 06:27:15 -0400
+Content-Disposition: inline
+In-Reply-To: <51AB85A0.4040004@kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>
 
-Hi there,
+* Jonathan Cameron | 2013-06-02 18:49:20 [+0100]:
 
-On Jun 4, 2013, at 1:23 PM, Sebastian Andrzej Siewior wrote:
+>On 05/27/2013 08:12 PM, Sebastian Andrzej Siewior wrote:
+>> Things that can be done to done without using make up:
+>That causes some amusing images of code with lipstick ;)  'wake up' perhaps?
 
-> * Jonathan Cameron | 2013-06-02 18:46:29 [+0100]:
->=20
->> On 05/27/2013 08:11 PM, Sebastian Andrzej Siewior wrote:
->>> From: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
->>>=20
->> Some confusing splitting between this and the previous patch that de=
-finitely wants
->> to be cleaned up.
->>=20
->>> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_a=
-m335x_adc.c
->>> index cceff09..72ffe89 100644
->>> --- a/drivers/iio/adc/ti_am335x_adc.c
->>> +++ b/drivers/iio/adc/ti_am335x_adc.c
->>> @@ -76,22 +82,24 @@ static void tiadc_step_config(struct tiadc_devi=
-ce *adc_dev)
->>> 	tiadc_writel(adc_dev, REG_SE, STPENB_STEPENB);
->>> }
->>>=20
->>> -static int tiadc_channel_init(struct iio_dev *indio_dev, int chann=
-els)
->>> +static int tiadc_channel_init(struct iio_dev *indio_dev,
->>> +		struct tiadc_device *adc_dev)
->>> {
->>> 	struct iio_chan_spec *chan_array;
->>> 	struct iio_chan_spec *chan;
->>> 	char *s;
->>> 	int i, len, size, ret;
->>> +	int channels =3D adc_dev->channels;
->> This is an unconnected bit of cleanup.  If you want it put it in the=
- previous patch
->> which only just introduced what you are changing.
->=20
-> It will be probably best.
->=20
->>> diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x=
-_tscadc.c
->>> index bd127bd..a27401a 100644
->>> --- a/drivers/mfd/ti_am335x_tscadc.c
->>> +++ b/drivers/mfd/ti_am335x_tscadc.c
->>> @@ -31,6 +31,7 @@ static unsigned int tscadc_readl(struct ti_tscadc=
-_dev *tsadc, unsigned int reg)
->>> {
->>> 	unsigned int val;
->>>=20
->> ????  What is this doing here? It's not doing the move to regmap but=
- rather setting a default value.
->=20
-> No lo s=E9 :) I saw that and was wondering myself a little and planne=
-d the
-> romval of this default for later. Now I think I do this earlier.
->=20
+Well, make up is usually used to cover up for the bad looks. In that
+case, the code passed checkpatch but looks ugly as hell so it had to use
+some kind of make to get through the review process :) This patch tries
+to clean that code so the make up is not required any more.
 
-The tscadc_read function doesn't have a failure mode; doesn't return an=
- error in case of a regmap_read
-fail. Rather that change all the callers, we make sure we don't ever re=
-turn an uninitialized value=20
-in case of an error (when val should be unchanged).
-
-
->>> +	val =3D (unsigned int)-1;
->>> 	regmap_read(tsadc->regmap_tscadc, reg, &val);
->>> 	return val;
->>> }
->=20
-> Sebastian
+Sebastian

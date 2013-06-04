@@ -1,69 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 15/19] input/ti_am335x_tsc: tiny cleanup
-Date: Tue, 4 Jun 2013 09:49:19 -0700
-Message-ID: <20130604164919.GD26400@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 16/19] mfd / input: ti_am335x_tsc: rename device from tsc
+ to TI-tsc
+Date: Tue, 4 Jun 2013 09:50:35 -0700
+Message-ID: <20130604165035.GE26400@core.coreip.homeip.net>
 References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de>
- <1369681926-22185-16-git-send-email-bigeasy@linutronix.de>
+ <1369681926-22185-17-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f48.google.com ([209.85.160.48]:42976 "EHLO
-	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752966Ab3FDQtW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Jun 2013 12:49:22 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1369681926-22185-16-git-send-email-bigeasy@linutronix.de>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1369681926-22185-17-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>, Felipe Balbi <balbi@ti.com>
 
-On Mon, May 27, 2013 at 09:12:02PM +0200, Sebastian Andrzej Siewior wro=
-te:
-> Things that can be done to done without using make up:
-> - reduce config_inp from 20 elements to 4
->   The loop goes 0=E2=80=A63 so elements 4=E2=80=A619 remain unused.
-> - put the shift for analog_line into one line, since config_inp is u3=
-2 we
->   don't need to worry about sign extension,
-> - check if he DT values are 0=E2=80=A63 as expected
-> - replace "err =3D -EINVAL; goto err" with "return -EINVAL;" as there=
- is no
->   cleanup and this is less code
-> - pull out "config[analog_line[i]][0=E2=80=A63];" from the switch cas=
-e and use
->   magic to the 0=E2=80=A63 correct.
-> - since we removed so much lines, spent a few to get
->   "config[an_line][wi_order];" done.
-> - get rid of "val32, wires_conf" and assign the values directly. This=
- is
->   just init code but we can still save a few cycles.
-> - remove titsc_config_wires() from resume path. ->bit_yn & friends ar=
-e only
->   written once and not changed so as long as we assume that our DDR w=
-ill
->   have no biflips we can skip that.
->=20
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+On Mon, May 27, 2013 at 09:12:03PM +0200, Sebastian Andrzej Siewior wrote:
+> tsc is a very generic name. This patch adds a TI prefix to make it a
+> little less generic.
+> While here add an alias so the driver is loaded on demand.
+> 
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+> ---
+>  drivers/input/touchscreen/ti_am335x_tsc.c |    3 ++-
+>  drivers/mfd/ti_am335x_tscadc.c            |    2 +-
+>  2 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index 96accaa..2921163 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -543,11 +543,12 @@ static struct platform_driver ti_tsc_driver = {
+>  	.probe	= titsc_probe,
+>  	.remove	= titsc_remove,
+>  	.driver	= {
+> -		.name   = "tsc",
+> +		.name   = "TI-tsc",
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Still quite generic... Why not call it "TI-am335x-tsc"?
 
-> +		analog_line[i] =3D (ts_dev->config_inp[i] & 0xF0) >> 4;
->  		wire_order[i] =3D ts_dev->config_inp[i] & 0x0F;
-> +		if (WARN_ON(analog_line[i] > 4))
-> +				return -EINVAL;
-> +		if (WARN_ON(wire_order[i] > 4))
-> +				return -EINVAL;
+Thanks.
 
-=46ormatting is still a bit off here...
-
-Thanks,
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

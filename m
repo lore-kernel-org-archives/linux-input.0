@@ -1,51 +1,49 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: Re: [PATCH 05/19] input: ti_am335x_tsc: Add variance filters
-Date: Tue, 4 Jun 2013 18:54:17 +0200
-Message-ID: <20130604165417.GK1151@linutronix.de>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 07/19] iio: adc: am335x: Add DT support
+Date: Tue, 4 Jun 2013 09:57:07 -0700
+Message-ID: <20130604165705.GH26400@core.coreip.homeip.net>
 References: <1369681926-22185-1-git-send-email-bigeasy@linutronix.de>
- <1369681926-22185-6-git-send-email-bigeasy@linutronix.de>
- <20130604164345.GB26400@core.coreip.homeip.net>
+ <1369681926-22185-8-git-send-email-bigeasy@linutronix.de>
+ <51AB79CE.2000001@kernel.org>
+ <20130604101202.GA1151@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:56866 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756055Ab3FDQyS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Jun 2013 12:54:18 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130604164345.GB26400@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20130604101202.GA1151-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Jonathan Cameron <jic23@cam.ac.uk>, Felipe Balbi <balbi@ti.com>, "Patil, Rachna" <rachna@ti.com>
 
-* Dmitry Torokhov | 2013-06-04 09:43:49 [-0700]:
+On Tue, Jun 04, 2013 at 12:12:02PM +0200, Sebastian Andrzej Siewior wrote:
+> * Jonathan Cameron | 2013-06-02 17:58:54 [+0100]:
+> 
+> >On 05/27/2013 08:11 PM, Sebastian Andrzej Siewior wrote:
+> >> From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+> >> 
+> >> Add DT support for client ADC driver.
+> >> 
+> >> [ panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org : use of_get_child_by_name
+> >> 	instead of of_find_node_by_name ]
+> >> 
+> >> Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+> >> Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+> >> Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> >> [bigeasy: shift the code to the left]
+> >> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+> >Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> >
+> >I would take this directly but then I'd imagine that will cause havoc
+> >when the later patches are applied and touch both iio and mfd.
+> 
+> Yeah, I have no idea what to do here since it would be best to grab the
+> series in one go. The fact that I hear nothing from input/mfd does not
+> make it easier :)
 
->Hi,
-Hi Dmitry,
+It looks like it will have to go through MFD tree.
 
->On Mon, May 27, 2013 at 09:11:52PM +0200, Sebastian Andrzej Siewior wrote:
->> From: "Patil, Rachna" <rachna@ti.com>
->> 
->> Only fine tuning variance present in tslib utility
->> does not help in removing all the wanted ADC noise.
->> 
->> This logic of filtering is necessary to get this
->> touchscreen to work finely.
->
->So why do not we enhancing tslib so that it is useful for more
->touchscreen?
+Thanks.
 
-I am reworking the series and dropped this patch. I think it got added
-because the driver currently mixes up sometimes some of the Y & Z
-coordinates. So I check how it behaves and if required I try to push to
-tslib if still required. I doubt someone is using this directly on the
-eventX node.
-
->FWIW I have been asking this question from the very beginning of this
->driver being submitted.
-
-I'm sorry. I'm currently trying to get the three pieces of the driver
-(mfd, touch, iio) into shape. If there is anything please let me know.
-
-Sebastian
+-- 
+Dmitry

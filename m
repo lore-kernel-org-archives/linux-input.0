@@ -1,153 +1,127 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 45/53] Input: atmel_mxt_ts - Use T18 RETRIGEN to handle IRQF_TRIGGER_LOW
-Date: Wed,  5 Jun 2013 18:37:38 +0100
-Message-ID: <1370453866-16534-46-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 12/53] Input: atmel_mxt_ts - Improve error reporting and debug
+Date: Wed,  5 Jun 2013 18:37:05 +0100
+Message-ID: <1370453866-16534-13-git-send-email-nick.dyer@itdev.co.uk>
 References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:21426 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756983Ab3FERsI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jun 2013 13:48:08 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-The workaround of reading all messages until an invalid is received is a way
-of forcing the CHG line high, which means that when using edge-triggered
-interrupts the interrupt can be acquired.
-
-With level-triggered interrupts this is unnecessary.
-
-Also, most recent maXTouch chips have a feature called RETRIGEN which, when
-enabled, reasserts the interrupt line every cycle if there are messages
-waiting. This also makes the workaround unnecessary.
-
-Note: the RETRIGEN feature is only in some firmware versions/chips, it's not
-valid simply to enable the bit.
+Add error messages for probe errors
+Report type in invalid object type
+Tweak some other debug output messages
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   48 ++++++++++++++++++++++++++++--
- 1 file changed, 45 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   33 +++++++++++++++++++++---------
+ 1 file changed, 23 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index e0ff017..6631ef1 100644
+index 08cd7ff..82b001d 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -118,6 +118,7 @@ struct t9_range {
- /* MXT_SPT_COMMSCONFIG_T18 */
- #define MXT_COMMS_CTRL		0
- #define MXT_COMMS_CMD		1
-+#define MXT_COMMS_RETRIGEN      (1 << 6)
- 
- /* Define for MXT_GEN_COMMAND_T6 */
- #define MXT_BOOT_VALUE		0xa5
-@@ -215,6 +216,7 @@ struct mxt_data {
- 	u8 num_touchids;
- 	u8 num_stylusids;
- 	unsigned long t15_keystatus;
-+	bool use_retrigen_workaround;
- 
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -226,6 +228,7 @@ struct mxt_data {
- 	u8 T9_reportid_max;
- 	u8 T15_reportid_min;
- 	u8 T15_reportid_max;
-+	u16 T18_address;
- 	u8 T19_reportid;
- 	u8 T42_reportid_min;
- 	u8 T42_reportid_max;
-@@ -1185,6 +1188,31 @@ static u32 mxt_calculate_crc(u8 *base, off_t start_off, off_t end_off)
- 	return crc;
- }
- 
-+static int mxt_check_retrigen(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	int error;
-+	int val;
-+
-+	if (data->pdata->irqflags & IRQF_TRIGGER_LOW)
-+		return 0;
-+
-+	if (data->T18_address) {
-+		error = __mxt_read_reg(client,
-+				       data->T18_address + MXT_COMMS_CTRL,
-+				       1, &val);
-+		if (error)
-+			return error;
-+
-+		if (val & MXT_COMMS_RETRIGEN)
-+			return 0;
-+	}
-+
-+	dev_warn(&client->dev, "Enabling RETRIGEN workaround\n");
-+	data->use_retrigen_workaround = true;
-+	return 0;
-+}
-+
- /*
-  * mxt_check_reg_init - download configuration to chip
-  *
-@@ -1434,6 +1462,10 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 
- 	mxt_update_crc(data, MXT_COMMAND_BACKUPNV, MXT_BACKUP_VALUE);
- 
-+	ret = mxt_check_retrigen(data);
-+	if (ret)
-+		goto release_mem;
-+
- 	ret = mxt_soft_reset(data);
- 	if (ret)
- 		goto release_mem;
-@@ -1508,9 +1540,11 @@ static int mxt_acquire_irq(struct mxt_data *data)
- 
- 	enable_irq(data->irq);
- 
--	error = mxt_process_messages_until_invalid(data);
--	if (error)
--		return error;
-+	if (data->use_retrigen_workaround) {
-+		error = mxt_process_messages_until_invalid(data);
-+		if (error)
-+			return error;
-+	}
- 
- 	return 0;
- }
-@@ -1532,6 +1566,7 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T9_reportid_max = 0;
- 	data->T15_reportid_min = 0;
- 	data->T15_reportid_max = 0;
-+	data->T18_address = 0;
- 	data->T19_reportid = 0;
- 	data->T42_reportid_min = 0;
- 	data->T42_reportid_max = 0;
-@@ -1602,6 +1637,9 @@ static int mxt_parse_object_table(struct mxt_data *data)
- 			data->T15_reportid_min = min_id;
- 			data->T15_reportid_max = max_id;
- 			break;
-+		case MXT_SPT_COMMSCONFIG_T18:
-+			data->T18_address = object->start_address;
-+			break;
- 		case MXT_PROCI_TOUCHSUPPRESSION_T42:
- 			data->T42_reportid_min = min_id;
- 			data->T42_reportid_max = max_id;
-@@ -1823,6 +1861,10 @@ retry_bootloader:
- 		}
+@@ -431,7 +431,8 @@ recheck:
  	}
  
-+	error = mxt_check_retrigen(data);
-+	if (error)
-+		goto err_free_object_table;
-+
+ 	if (val != state) {
+-		dev_err(&client->dev, "Unvalid bootloader mode state\n");
++		dev_err(&client->dev, "Invalid bootloader state %02X != %02X\n",
++			val, state);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -551,7 +552,7 @@ mxt_get_object(struct mxt_data *data, u8 type)
+ 			return object;
+ 	}
+ 
+-	dev_err(&data->client->dev, "Invalid object type\n");
++	dev_err(&data->client->dev, "Invalid object type T%u\n", type);
+ 	return NULL;
+ }
+ 
+@@ -903,7 +904,7 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 		}
+ 
+ 		dev_dbg(&data->client->dev,
+-			"Type %2d Start %3d Size %3d Instances %2d ReportIDs %3u : %3u\n",
++			"T%u Start:%u Size:%u Instances:%u Report IDs:%u-%u\n",
+ 			object->type, object->start_address,
+ 			mxt_obj_size(object), mxt_obj_instances(object),
+ 			min_id, max_id);
+@@ -964,8 +965,10 @@ static int mxt_initialize(struct mxt_data *data)
+ 
+ 	/* Get object table information */
+ 	error = mxt_get_object_table(data);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Error %d reading object table\n", error);
+ 		goto err_free_object_table;
++	}
+ 
  	error = mxt_acquire_irq(data);
  	if (error)
+@@ -973,8 +976,11 @@ static int mxt_initialize(struct mxt_data *data)
+ 
+ 	/* Check register init values */
+ 	error = mxt_check_reg_init(data);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Error %d initialising configuration\n",
++			error);
  		goto err_free_object_table;
++	}
+ 
+ 	error = mxt_t6_command(data, MXT_COMMAND_BACKUPNV,
+ 			       MXT_BACKUP_VALUE, false);
+@@ -993,12 +999,12 @@ static int mxt_initialize(struct mxt_data *data)
+ 	info->matrix_ysize = val;
+ 
+ 	dev_info(&client->dev,
+-			"Family ID: %u Variant ID: %u Major.Minor.Build: %u.%u.%02X\n",
++			"Family: %u Variant: %u Firmware V%u.%u.%02X\n",
+ 			info->family_id, info->variant_id, info->version >> 4,
+ 			info->version & 0xf, info->build);
+ 
+ 	dev_info(&client->dev,
+-			"Matrix X Size: %u Matrix Y Size: %u Object Num: %u\n",
++			"Matrix X Size: %u Matrix Y Size: %u Objects: %u\n",
+ 			info->matrix_xsize, info->matrix_ysize,
+ 			info->object_num);
+ 
+@@ -1207,7 +1213,8 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 		dev_err(dev, "The firmware update failed(%d)\n", error);
+ 		count = error;
+ 	} else {
+-		dev_dbg(dev, "The firmware update succeeded\n");
++		dev_info(dev, "The firmware update succeeded\n");
++
+ 		mxt_free_object_table(data);
+ 
+ 		error = mxt_initialize(data);
+@@ -1452,12 +1459,18 @@ static int mxt_probe(struct i2c_client *client,
+ 	i2c_set_clientdata(client, data);
+ 
+ 	error = input_register_device(input_dev);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Error %d registering input device\n",
++			error);
+ 		goto err_free_object;
++	}
+ 
+ 	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Failure %d creating sysfs group\n",
++			error);
+ 		goto err_unregister_device;
++	}
+ 
+ 	sysfs_bin_attr_init(&data->mem_access_attr);
+ 	data->mem_access_attr.attr.name = "mem_access";
 -- 
 1.7.10.4
-

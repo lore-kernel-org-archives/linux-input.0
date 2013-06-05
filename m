@@ -1,7 +1,7 @@
 From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: [PATCH 19/22] input/ti_am335x_tsc: ACK the HW_PEN irq in ISR
-Date: Wed,  5 Jun 2013 18:24:52 +0200
-Message-ID: <1370449495-29981-20-git-send-email-bigeasy@linutronix.de>
+Subject: [PATCH 17/22] mfd & iio/ti_am335x_adc: rename device from tiadc to TI-am335x-adc
+Date: Wed,  5 Jun 2013 18:24:50 +0200
+Message-ID: <1370449495-29981-18-git-send-email-bigeasy@linutronix.de>
 References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
@@ -10,33 +10,49 @@ To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-The interrupt source IRQENB_HW_PEN is enabled in suspend and suposed to
-be used as a wake up source. Once this interrupt source is unmaksed, the
-devices ends up in ISR and never continues.
-This change ACKs the interrupt and disables it so the system does not
-freeze.
+TI-adc reads a little better compared to tiadc. And if we add am335x to
+it then we have the same naming scheme as the tsc side.
+While here add an alias so the driver is loaded on demand.
 
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 ---
- drivers/input/touchscreen/ti_am335x_tsc.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/iio/adc/ti_am335x_adc.c |    4 ++--
+ drivers/mfd/ti_am335x_tscadc.c  |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index fa9692c..82d4a39 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -308,6 +308,12 @@ static irqreturn_t titsc_irq(int irq, void *dev)
- 		irqclr |= IRQENB_PENUP;
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+index c6695a8..38f2415 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -318,14 +318,14 @@ static const struct dev_pm_ops tiadc_pm_ops = {
+ 
+ static struct platform_driver tiadc_driver = {
+ 	.driver = {
+-		.name   = "tiadc",
++		.name   = "TI-am335x-adc",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= TIADC_PM_OPS,
+ 	},
+ 	.probe	= tiadc_probe,
+ 	.remove	= tiadc_remove,
+ };
+-
++MODULE_ALIAS("platform:TI-am335x-adc");
+ module_platform_driver(tiadc_driver);
+ 
+ MODULE_DESCRIPTION("TI ADC controller driver");
+diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+index ba9235a..8bdab8d 100644
+--- a/drivers/mfd/ti_am335x_tscadc.c
++++ b/drivers/mfd/ti_am335x_tscadc.c
+@@ -203,7 +203,7 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
+ 	if (adc_channels > 0) {
+ 		tscadc->adc_cell = tscadc->used_cells;
+ 		cell = &tscadc->cells[tscadc->used_cells++];
+-		cell->name = "tiadc";
++		cell->name = "TI-am335x-adc";
+ 		cell->platform_data = &tscadc;
+ 		cell->pdata_size = sizeof(tscadc);
  	}
- 
-+	if (status & IRQENB_HW_PEN) {
-+
-+		titsc_writel(ts_dev, REG_IRQWAKEUP, 0x00);
-+		titsc_writel(ts_dev, REG_IRQCLR, IRQENB_HW_PEN);
-+	}
-+
- 	titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
- 
- 	am335x_tsc_se_update(ts_dev->mfd_tscadc);
 -- 
 1.7.10.4

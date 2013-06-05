@@ -1,125 +1,290 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 13/22] mfd/ti_tscadc: deal with partial activation
-Date: Wed,  5 Jun 2013 18:24:46 +0200
-Message-ID: <1370449495-29981-14-git-send-email-bigeasy@linutronix.de>
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: =?UTF-8?q?=5BPATCH=2018/22=5D=20input/ti=5Fam335x=5Fadc=3A=20use=20only=20FIFO0=20and=20clean=20up=20a=20little?=
+Date: Wed,  5 Jun 2013 18:24:51 +0200
+Message-ID: <1370449495-29981-19-git-send-email-bigeasy@linutronix.de>
 References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:35280 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755901Ab3FEQ16 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jun 2013 12:27:58 -0400
-In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
-Sender: linux-input-owner@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@cam.ac.uk>, Pantelis Antoniou <panto@antoniou-consulting.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-From: Pantelis Antoniou <panto@antoniou-consulting.com>
+The driver programs a threshold of "coordiante_readouts" say 5. The
+REG_FIFO0THR registers says it should it be programmed to "threshold
+minus one". The driver does not expect just 5 coordinates but 5 * 2 + 2=
+=2E
+Multiplied by two because 5 for X and 5 for Y and plus 2 because we hav=
+e
+two Z.
+The whole thing kind of works because It reads the 5 coordinates for X
+and Y from FIFO0 and FIFO1 and the last element in each FIFO is ignored
+within the loop and read later.
+Nothing guaranties that FIFO1 is ready by the time it is read. In fact =
+I
+could see that that FIFO1 reaturns for Y channels 8,9, 10, 12, 6 and fo=
+r
+Y channel 7 for Z. The problem is that channel 7 and channel 12 got
+somehow mixed up.
+The other Problem is that FIFO1 is also used by the IIO part leading to
+wrong results if both (tsc & adc) are used.
 
-Fix the mfd device in the case where a subdevice might not be activated.
+The patch tries to clean up the whole thing a little:
+- Remove the +1 and -1 in REG_STEPCONFIG, REG_STEPDELAY and its counter
+  part in the for loop. This is just confusing.
 
-Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
-Signed-off-by: Felipe Balbi <balbi@ti.com>
-[bigeasy: split out this chunk from the orignal patch, check for neither
-          ADC nor TSC channels]
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+- Use only FIFO0 in TSC. The fifo has space for 64 entries so should be
+  fine.
+
+- Read the whole FIFO in one function and check the channel.
+
+- in case we dawdle around, make sure we only read a multiple of our
+  coordinate set. On the second interrupt we will cleanup the remaining
+  enties.
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 ---
- drivers/mfd/ti_am335x_tscadc.c       |   34 +++++++++++++++++++++++-----------
- include/linux/mfd/ti_am335x_tscadc.h |    8 +++-----
- 2 files changed, 26 insertions(+), 16 deletions(-)
+ drivers/iio/adc/ti_am335x_adc.c           |    2 +-
+ drivers/input/touchscreen/ti_am335x_tsc.c |   78 +++++++++++++++------=
+--------
+ include/linux/mfd/ti_am335x_tscadc.h      |    4 +-
+ 3 files changed, 44 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index 6b85459..857b6e8 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -96,11 +96,14 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	of_property_read_u32(node, "ti,adc-channels", &adc_channels);
- 
- 	total_channels = tsc_wires + adc_channels;
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335=
+x_adc.c
+index 38f2415..031f8e5 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -76,7 +76,7 @@ static void tiadc_step_config(struct tiadc_device *ad=
+c_dev)
+=20
+ 	stepconfig =3D STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1;
+=20
+-	for (i =3D (steps + 1); i <=3D TOTAL_STEPS; i++) {
++	for (i =3D steps; i < TOTAL_STEPS; i++) {
+ 		tiadc_writel(adc_dev, REG_STEPCONFIG(i),
+ 				stepconfig | STEPCONFIG_INP(channels));
+ 		tiadc_writel(adc_dev, REG_STEPDELAY(i),
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/=
+touchscreen/ti_am335x_tsc.c
+index 7a76b14..fa9692c 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -120,11 +120,9 @@ static int titsc_config_wires(struct titsc *ts_dev=
+)
+ static void titsc_step_config(struct titsc *ts_dev)
+ {
+ 	unsigned int	config;
+-	unsigned int	stepenable =3D 0;
+-	int i, total_steps;
 -
- 	if (total_channels > 8) {
- 		dev_err(&pdev->dev, "Number of i/p channels more than 8\n");
- 		return -EINVAL;
+-	/* Configure the Step registers */
+-	total_steps =3D 2 * ts_dev->coordiante_readouts;
++	int i;
++	int end_step;
++	u32 stepenable;
+=20
+ 	config =3D STEPCONFIG_MODE_HWSYNC |
+ 			STEPCONFIG_AVG_16 | ts_dev->bit_xp;
+@@ -142,7 +140,9 @@ static void titsc_step_config(struct titsc *ts_dev)
+ 		break;
  	}
-+	if (total_channels == 0) {
-+		dev_err(&pdev->dev, "Need atleast one channel.\n");
-+		return -EINVAL;
-+	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!res) {
-@@ -183,26 +186,35 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	ctrl |= CNTRLREG_TSCSSENB;
- 	tscadc_writel(tscadc, REG_CTRL, ctrl);
- 
-+	tscadc->used_cells = 0;
-+	tscadc->tsc_cell = -1;
-+	tscadc->adc_cell = -1;
+=20
+-	for (i =3D 1; i <=3D ts_dev->coordiante_readouts; i++) {
++	/* 1 =E2=80=A6 coordiante_readouts is for X */
++	end_step =3D ts_dev->coordiante_readouts;
++	for (i =3D 0; i < end_step; i++) {
+ 		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+ 		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+ 	}
+@@ -150,7 +150,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+ 	config =3D 0;
+ 	config =3D STEPCONFIG_MODE_HWSYNC |
+ 			STEPCONFIG_AVG_16 | ts_dev->bit_yn |
+-			STEPCONFIG_INM_ADCREFM | STEPCONFIG_FIFO1;
++			STEPCONFIG_INM_ADCREFM;
+ 	switch (ts_dev->wires) {
+ 	case 4:
+ 		config |=3D ts_dev->bit_yp | STEPCONFIG_INP(ts_dev->inp_xp);
+@@ -164,12 +164,13 @@ static void titsc_step_config(struct titsc *ts_de=
+v)
+ 		break;
+ 	}
+=20
+-	for (i =3D (ts_dev->coordiante_readouts + 1); i <=3D total_steps; i++=
+) {
++	/* coordiante_readouts =E2=80=A6 coordiante_readouts * 2 is for Y */
++	end_step =3D ts_dev->coordiante_readouts * 2;
++	for (i =3D ts_dev->coordiante_readouts; i < end_step; i++) {
+ 		titsc_writel(ts_dev, REG_STEPCONFIG(i), config);
+ 		titsc_writel(ts_dev, REG_STEPDELAY(i), STEPCONFIG_OPENDLY);
+ 	}
+=20
+-	config =3D 0;
+ 	/* Charge step configuration */
+ 	config =3D ts_dev->bit_xp | ts_dev->bit_yn |
+ 			STEPCHARGE_RFP_XPUL | STEPCHARGE_RFM_XNUR |
+@@ -178,35 +179,39 @@ static void titsc_step_config(struct titsc *ts_de=
+v)
+ 	titsc_writel(ts_dev, REG_CHARGECONFIG, config);
+ 	titsc_writel(ts_dev, REG_CHARGEDELAY, CHARGEDLY_OPENDLY);
+=20
+-	config =3D 0;
+-	/* Configure to calculate pressure */
++	/* coordiante_readouts * 2 =E2=80=A6 coordiante_readouts * 2 + 2 is f=
+or Z */
+ 	config =3D STEPCONFIG_MODE_HWSYNC |
+ 			STEPCONFIG_AVG_16 | ts_dev->bit_yp |
+ 			ts_dev->bit_xn | STEPCONFIG_INM_ADCREFM |
+ 			STEPCONFIG_INP(ts_dev->inp_xp);
+-	titsc_writel(ts_dev, REG_STEPCONFIG(total_steps + 1), config);
+-	titsc_writel(ts_dev, REG_STEPDELAY(total_steps + 1),
++	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
++	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+ 			STEPCONFIG_OPENDLY);
+=20
+-	config |=3D STEPCONFIG_INP(ts_dev->inp_yn) | STEPCONFIG_FIFO1;
+-	titsc_writel(ts_dev, REG_STEPCONFIG(total_steps + 2), config);
+-	titsc_writel(ts_dev, REG_STEPDELAY(total_steps + 2),
++	end_step++;
++	config |=3D STEPCONFIG_INP(ts_dev->inp_yn);
++	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
++	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
+ 			STEPCONFIG_OPENDLY);
+=20
+ 	/* The steps1 =E2=80=A6 end and bit 0 for TS_Charge */
+-	stepenable =3D (1 << (total_steps + 2)) - 1;
++	stepenable =3D (1 << (end_step + 2)) - 1;
+ 	am335x_tsc_se_set(ts_dev->mfd_tscadc, stepenable);
+ }
+=20
+ static void titsc_read_coordinates(struct titsc *ts_dev,
+-				    unsigned int *x, unsigned int *y)
++		u32 *x, u32 *y, u32 *z1, u32 *z2)
+ {
+ 	unsigned int fifocount =3D titsc_readl(ts_dev, REG_FIFO0CNT);
+ 	unsigned int prev_val_x =3D ~0, prev_val_y =3D ~0;
+ 	unsigned int prev_diff_x =3D ~0, prev_diff_y =3D ~0;
+ 	unsigned int read, diff;
+ 	unsigned int i, channel;
++	unsigned int creads =3D ts_dev->coordiante_readouts;
+=20
++	*z1 =3D *z2 =3D 0;
++	if (fifocount % (creads * 2 + 2))
++		fifocount -=3D fifocount % (creads * 2 + 2);
+ 	/*
+ 	 * Delta filter is used to remove large variations in sampled
+ 	 * values from ADC. The filter tries to predict where the next
+@@ -215,32 +220,32 @@ static void titsc_read_coordinates(struct titsc *=
+ts_dev,
+ 	 * algorithm compares the difference with that of a present value,
+ 	 * if true the value is reported to the sub system.
+ 	 */
+-	for (i =3D 0; i < fifocount - 1; i++) {
++	for (i =3D 0; i < fifocount; i++) {
+ 		read =3D titsc_readl(ts_dev, REG_FIFO0);
+-		channel =3D read & 0xf0000;
+-		channel =3D channel >> 0x10;
+-		if ((channel >=3D 0) && (channel < ts_dev->coordiante_readouts)) {
+-			read &=3D 0xfff;
 +
- 	/* TSC Cell */
--	cell = &tscadc->cells[TSC_CELL];
--	cell->name = "tsc";
--	cell->platform_data = &tscadc;
--	cell->pdata_size = sizeof(tscadc);
-+	if (tsc_wires > 0) {
-+		tscadc->tsc_cell = tscadc->used_cells;
-+		cell = &tscadc->cells[tscadc->used_cells++];
-+		cell->name = "tsc";
-+		cell->platform_data = &tscadc;
-+		cell->pdata_size = sizeof(tscadc);
-+	}
- 
- 	/* ADC Cell */
--	cell = &tscadc->cells[ADC_CELL];
--	cell->name = "tiadc";
--	cell->platform_data = &tscadc;
--	cell->pdata_size = sizeof(tscadc);
-+	if (adc_channels > 0) {
-+		tscadc->adc_cell = tscadc->used_cells;
-+		cell = &tscadc->cells[tscadc->used_cells++];
-+		cell->name = "tiadc";
-+		cell->platform_data = &tscadc;
-+		cell->pdata_size = sizeof(tscadc);
-+	}
- 
- 	err = mfd_add_devices(&pdev->dev, pdev->id, tscadc->cells,
--			TSCADC_CELLS, NULL, 0, NULL);
-+			tscadc->used_cells, NULL, 0, NULL);
- 	if (err < 0)
- 		goto err_disable_clk;
- 
- 	device_init_wakeup(&pdev->dev, true);
- 	platform_set_drvdata(pdev, tscadc);
--
++		channel =3D (read & 0xf0000) >> 16;
++		read &=3D 0xfff;
++		if (channel < creads) {
+ 			diff =3D abs(read - prev_val_x);
+ 			if (diff < prev_diff_x) {
+ 				prev_diff_x =3D diff;
+ 				*x =3D read;
+ 			}
+ 			prev_val_x =3D read;
+-		}
+=20
+-		read =3D titsc_readl(ts_dev, REG_FIFO1);
+-		channel =3D read & 0xf0000;
+-		channel =3D channel >> 0x10;
+-		if ((channel >=3D ts_dev->coordiante_readouts) &&
+-			(channel < (2 * ts_dev->coordiante_readouts - 1))) {
+-			read &=3D 0xfff;
++		} else if (channel < creads * 2) {
+ 			diff =3D abs(read - prev_val_y);
+ 			if (diff < prev_diff_y) {
+ 				prev_diff_y =3D diff;
+ 				*y =3D read;
+ 			}
+ 			prev_val_y =3D read;
++
++		} else if (channel < creads * 2 + 1) {
++			*z1 =3D read;
++
++		} else if (channel < creads * 2 + 2) {
++			*z2 =3D read;
+ 		}
+ 	}
+ }
+@@ -256,10 +261,8 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+=20
+ 	status =3D titsc_readl(ts_dev, REG_IRQSTATUS);
+ 	if (status & IRQENB_FIFO0THRES) {
+-		titsc_read_coordinates(ts_dev, &x, &y);
+=20
+-		z1 =3D titsc_readl(ts_dev, REG_FIFO0) & 0xfff;
+-		z2 =3D titsc_readl(ts_dev, REG_FIFO1) & 0xfff;
++		titsc_read_coordinates(ts_dev, &x, &y, &z1, &z2);
+=20
+ 		if (ts_dev->pen_down && z1 !=3D 0 && z2 !=3D 0) {
+ 			/*
+@@ -267,10 +270,10 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+ 			 * Resistance(touch) =3D x plate resistance *
+ 			 * x postion/4096 * ((z2 / z1) - 1)
+ 			 */
+-			z =3D z2 - z1;
++			z =3D z1 - z2;
+ 			z *=3D x;
+ 			z *=3D ts_dev->x_plate_resistance;
+-			z /=3D z1;
++			z /=3D z2;
+ 			z =3D (z + 2047) >> 12;
+=20
+ 			if (z <=3D MAX_12BIT) {
+@@ -395,7 +398,8 @@ static int titsc_probe(struct platform_device *pdev=
+)
+ 		goto err_free_irq;
+ 	}
+ 	titsc_step_config(ts_dev);
+-	titsc_writel(ts_dev, REG_FIFO0THR, ts_dev->coordiante_readouts);
++	titsc_writel(ts_dev, REG_FIFO0THR,
++			ts_dev->coordiante_readouts * 2 + 2 - 1);
+=20
+ 	input_dev->name =3D "ti-tsc";
+ 	input_dev->dev.parent =3D &pdev->dev;
+@@ -472,7 +476,7 @@ static int titsc_resume(struct device *dev)
+ 	}
+ 	titsc_step_config(ts_dev);
+ 	titsc_writel(ts_dev, REG_FIFO0THR,
+-			ts_dev->coordiante_readouts);
++			ts_dev->coordiante_readouts * 2 + 2 - 1);
  	return 0;
- 
- err_disable_clk:
-diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index 2d78af8..b6e7ac6 100644
+ }
+=20
+diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/t=
+i_am335x_tscadc.h
+index cd8686b..fe6223c 100644
 --- a/include/linux/mfd/ti_am335x_tscadc.h
 +++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -127,11 +127,6 @@
- 
- #define TSCADC_CELLS		2
- 
--enum tscadc_cells {
--	TSC_CELL,
--	ADC_CELL,
--};
--
- struct mfd_tscadc_board {
- 	struct tsc_data *tsc_init;
- 	struct adc_data *adc_init;
-@@ -141,6 +136,9 @@ struct ti_tscadc_dev {
- 	struct device *dev;
- 	void __iomem *tscadc_base;
- 	int irq;
-+	int used_cells;	/* 1-2 */
-+	int tsc_cell;	/* -1 if not used */
-+	int adc_cell;	/* -1 if not used */
- 	struct mfd_cell cells[TSCADC_CELLS];
- 	u32 reg_se_cache;
- 	spinlock_t reg_lock;
--- 
+@@ -30,8 +30,8 @@
+ #define REG_IDLECONFIG		0x058
+ #define REG_CHARGECONFIG	0x05C
+ #define REG_CHARGEDELAY		0x060
+-#define REG_STEPCONFIG(n)	(0x64 + ((n - 1) * 8))
+-#define REG_STEPDELAY(n)	(0x68 + ((n - 1) * 8))
++#define REG_STEPCONFIG(n)	(0x64 + ((n) * 8))
++#define REG_STEPDELAY(n)	(0x68 + ((n) * 8))
+ #define REG_FIFO0CNT		0xE4
+ #define REG_FIFO0THR		0xE8
+ #define REG_FIFO1CNT		0xF0
+--=20
 1.7.10.4
-

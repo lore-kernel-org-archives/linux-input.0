@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 47/53] Input: atmel_mxt_ts - Release touch state during suspend
-Date: Wed,  5 Jun 2013 18:37:40 +0100
-Message-ID: <1370453866-16534-48-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 33/53] Input: atmel_mxt_ts - Add support for dynamic message size
+Date: Wed,  5 Jun 2013 18:37:26 +0100
+Message-ID: <1370453866-16534-34-git-send-email-nick.dyer@itdev.co.uk>
 References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,110 +10,287 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-If fingers are down as the MXT chip goes into suspend it does not send a lift
-message. In addition, it may not complete its final measurement cycle
-immediately, which means touch messages may be received by the interrupt
-handler after mxt_stop() has completed.
-
-So:
-- disable irq during suspend
-- flush any messages created after suspend
-- tell app layer that slots were released at suspend
+The T5 object may have various sizes depending on the objects used on the
+particular maXTouch chip and firmware version, therefore it can't be hardcoded
+in the driver. Allocate a buffer on probe instead.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   46 ++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c |  108 +++++++++++++++++-------------
+ 1 file changed, 61 insertions(+), 47 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index cd8f3e0..724a95d 100644
+index ae9ea93..76ad308 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -251,6 +251,9 @@ struct mxt_data {
+@@ -228,11 +228,6 @@ struct mxt_object {
+ 	u8 num_report_ids;
+ } __packed;
  
- 	/* Enable reporting of input events */
- 	bool enable_reporting;
-+
-+	/* Indicates whether device is in suspend */
-+	bool suspended;
- };
+-struct mxt_message {
+-	u8 reportid;
+-	u8 message[7];
+-};
+-
+ /* Each client has this additional data */
+ struct mxt_data {
+ 	struct i2c_client *client;
+@@ -252,8 +247,10 @@ struct mxt_data {
+ 	u32 info_crc;
+ 	u8 bootloader_addr;
+ 	struct t7_config t7_cfg;
++	u8 *msg_buf;
  
- static inline size_t mxt_obj_size(const struct mxt_object *obj)
-@@ -2028,6 +2031,11 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 	if (ret)
- 		goto release_firmware;
+ 	/* Cached parameters from object table */
++	u8 T5_msg_size;
+ 	u8 T6_reportid;
+ 	u16 T6_address;
+ 	u16 T7_address;
+@@ -317,10 +314,10 @@ static bool mxt_object_readable(unsigned int type)
+ 	}
+ }
  
-+	if (data->suspended) {
-+		enable_irq(data->irq);
-+		data->suspended = false;
-+	}
-+
- 	if (!data->in_bootloader) {
- 		/* Change to the bootloader mode */
- 		data->in_bootloader = true;
-@@ -2140,6 +2148,8 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 	} else {
- 		dev_info(dev, "The firmware update succeeded\n");
+-static void mxt_dump_message(struct device *dev, struct mxt_message *message)
++static void mxt_dump_message(struct mxt_data *data, u8 *message)
+ {
+-	dev_dbg(dev, "MXT MSG: %*ph\n",
+-		       sizeof(struct mxt_message), message);
++	dev_dbg(&data->client->dev, "MXT MSG: %*ph\n",
++		       data->T5_msg_size, message);
+ }
  
-+		data->suspended = false;
-+
- 		error = mxt_initialize(data);
+ static int mxt_wait_for_completion(struct mxt_data *data,
+@@ -634,8 +631,7 @@ mxt_get_object(struct mxt_data *data, u8 type)
+ 	return NULL;
+ }
+ 
+-static int mxt_read_message(struct mxt_data *data,
+-				 struct mxt_message *message)
++static int mxt_read_message(struct mxt_data *data, u8 *message)
+ {
+ 	struct mxt_object *object;
+ 	u16 reg;
+@@ -646,10 +642,10 @@ static int mxt_read_message(struct mxt_data *data,
+ 
+ 	reg = object->start_address;
+ 	return __mxt_read_reg(data->client, reg,
+-			sizeof(struct mxt_message), message);
++			data->T5_msg_size, message);
+ }
+ 
+-static void mxt_input_button(struct mxt_data *data, struct mxt_message *message)
++static void mxt_input_button(struct mxt_data *data, u8 *message)
+ {
+ 	struct input_dev *input = data->input_dev;
+ 	const struct mxt_platform_data *pdata = data->pdata;
+@@ -664,7 +660,7 @@ static void mxt_input_button(struct mxt_data *data, struct mxt_message *message)
+ 	for (i = 0; i < pdata->t19_num_keys; i++) {
+ 		if (pdata->t19_keymap[i] == KEY_RESERVED)
+ 			continue;
+-		button = !(message->message[0] & (1 << i));
++		button = !(message[1] & (1 << i));
+ 		input_report_key(input, pdata->t19_keymap[i], button);
+ 	}
+ }
+@@ -675,12 +671,12 @@ static void mxt_input_sync(struct input_dev *input_dev)
+ 	input_sync(input_dev);
+ }
+ 
+-static void mxt_input_touchevent(struct mxt_data *data,
+-				      struct mxt_message *message, int id)
++static void mxt_input_touchevent(struct mxt_data *data, u8 *message)
+ {
+ 	struct device *dev = &data->client->dev;
+-	u8 status = message->message[0];
+ 	struct input_dev *input_dev = data->input_dev;
++	int id;
++	u8 status;
+ 	int x;
+ 	int y;
+ 	int area;
+@@ -690,8 +686,10 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	if (!data->enable_reporting)
+ 		return;
+ 
+-	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
+-	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
++	id = message[0] - data->T9_reportid_min;
++	status = message[1];
++	x = (message[2] << 4) | ((message[4] >> 4) & 0xf);
++	y = (message[3] << 4) | ((message[4] & 0xf));
+ 
+ 	/* Handle 10/12 bit switching */
+ 	if (data->max_x < 1024)
+@@ -699,8 +697,8 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	if (data->max_y < 1024)
+ 		y >>= 2;
+ 
+-	area = message->message[4];
+-	amplitude = message->message[5];
++	area = message[5];
++	amplitude = message[6];
+ 
+ 	dev_dbg(dev,
+ 		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u\n",
+@@ -744,16 +742,16 @@ static u16 mxt_extract_T6_csum(const u8 *csum)
+ 	return csum[0] | (csum[1] << 8) | (csum[2] << 16);
+ }
+ 
+-static bool mxt_is_T9_message(struct mxt_data *data, struct mxt_message *msg)
++static bool mxt_is_T9_message(struct mxt_data *data, u8 *msg)
+ {
+-	u8 id = msg->reportid;
++	u8 id = msg[0];
+ 	return (id >= data->T9_reportid_min && id <= data->T9_reportid_max);
+ }
+ 
+ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ {
+-	struct mxt_message message;
+-	const u8 *payload = &message.message[0];
++	u8 *message = &data->msg_buf[0];
++	const u8 *payload = &data->msg_buf[1];
+ 	struct device *dev = &data->client->dev;
+ 	u8 reportid;
+ 	bool update_input = false;
+@@ -761,12 +759,12 @@ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ 	u32 crc;
+ 
+ 	do {
+-		if (mxt_read_message(data, &message)) {
++		if (mxt_read_message(data, message)) {
+ 			dev_err(dev, "Failed to read message\n");
+ 			return IRQ_NONE;
+ 		}
+ 
+-		reportid = message.reportid;
++		reportid = message[0];
+ 		dump = data->debug_enabled;
+ 
+ 		if (reportid == data->T6_reportid) {
+@@ -783,19 +781,18 @@ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ 
+ 			if (status & MXT_T6_STATUS_RESET)
+ 				complete(&data->reset_completion);
+-		} else if (mxt_is_T9_message(data, &message)) {
+-			int id = reportid - data->T9_reportid_min;
+-			mxt_input_touchevent(data, &message, id);
++		} else if (mxt_is_T9_message(data, message)) {
++			mxt_input_touchevent(data, message);
+ 			update_input = true;
+-		} else if (message.reportid == data->T19_reportid) {
+-			mxt_input_button(data, &message);
++		} else if (reportid == data->T19_reportid) {
++			mxt_input_button(data, message);
+ 			update_input = true;
+ 		} else {
+ 			dump = true;
+ 		}
+ 
+ 		if (dump)
+-			mxt_dump_message(dev, &message);
++			mxt_dump_message(data, message);
+ 	} while (reportid != MXT_RPTID_NOMSG);
+ 
+ 	if (data->enable_reporting && update_input)
+@@ -1245,16 +1242,15 @@ recheck:
+ static int mxt_make_highchg(struct mxt_data *data)
+ {
+ 	struct device *dev = &data->client->dev;
+-	struct mxt_message message;
+ 	int count = 10;
+ 	int error;
+ 
+ 	/* Read dummy message to make high CHG pin */
+ 	do {
+-		error = mxt_read_message(data, &message);
++		error = mxt_read_message(data, data->msg_buf);
  		if (error)
  			return error;
-@@ -2245,17 +2255,53 @@ static const struct attribute_group mxt_attr_group = {
- 	.attrs = mxt_attrs,
- };
+-	} while (message.reportid != MXT_RPTID_NOMSG && --count);
++	} while (data->msg_buf[0] != MXT_RPTID_NOMSG && --count);
  
-+static void mxt_reset_slots(struct mxt_data *data)
+ 	if (!count) {
+ 		dev_err(dev, "CHG pin isn't cleared\n");
+@@ -1291,6 +1287,21 @@ static int mxt_get_info(struct mxt_data *data)
+ 	return 0;
+ }
+ 
++static void mxt_free_object_table(struct mxt_data *data)
 +{
-+	struct input_dev *input_dev = data->input_dev;
-+	unsigned int num_mt_slots;
-+	int id;
-+
-+	num_mt_slots = data->num_touchids + data->num_stylusids;
-+
-+	for (id = 0; id < num_mt_slots; id++) {
-+		input_mt_slot(input_dev, id);
-+		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
-+	}
-+
-+	mxt_input_sync(input_dev);
++	kfree(data->object_table);
++	data->object_table = NULL;
++	kfree(data->msg_buf);
++	data->msg_buf = NULL;
++	data->enable_reporting = false;
++	data->T5_msg_size = 0;
++	data->T6_reportid = 0;
++	data->T7_address = 0;
++	data->T9_reportid_min = 0;
++	data->T9_reportid_max = 0;
++	data->T19_reportid = 0;
 +}
 +
- static void mxt_start(struct mxt_data *data)
+ static int mxt_get_object_table(struct mxt_data *data)
  {
-+	if (!data->suspended || data->in_bootloader)
-+		return;
-+
-+	/* Discard any touch messages still in message buffer from before chip
-+	 * went to sleep */
-+	mxt_process_messages_until_invalid(data);
-+
- 	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
+ 	struct i2c_client *client = data->client;
+@@ -1332,6 +1343,9 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 			min_id, max_id);
  
- 	/* Recalibrate since chip has been in deep sleep */
- 	mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
+ 		switch (object->type) {
++		case MXT_GEN_MESSAGE_T5:
++			/* CRC not enabled, therefore don't read last byte */
++			data->T5_msg_size = mxt_obj_size(object) - 1;
+ 		case MXT_GEN_COMMAND_T6:
+ 			data->T6_reportid = min_id;
+ 			data->T6_address = object->start_address;
+@@ -1355,18 +1369,18 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 			data->mem_size = end_address + 1;
+ 	}
+ 
++	data->msg_buf = kzalloc(data->T5_msg_size, GFP_KERNEL);
++	if (!data->msg_buf) {
++		dev_err(&client->dev, "Failed to allocate message buffer\n");
++		error = -ENOMEM;
++		goto free_object_table;
++	}
 +
-+	mxt_acquire_irq(data);
-+	data->enable_reporting = true;
-+	data->suspended = false;
+ 	return 0;
+-}
+ 
+-static void mxt_free_object_table(struct mxt_data *data)
+-{
+-	kfree(data->object_table);
+-	data->object_table = NULL;
+-	data->enable_reporting = false;
+-	data->T6_reportid = 0;
+-	data->T9_reportid_min = 0;
+-	data->T9_reportid_max = 0;
+-	data->T19_reportid = 0;
++free_object_table:
++	mxt_free_object_table(data);
++	return error;
  }
  
- static void mxt_stop(struct mxt_data *data)
- {
-+	if (data->suspended || data->in_bootloader)
-+		return;
-+
-+	data->enable_reporting = false;
-+	disable_irq(data->irq);
-+
- 	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
-+
-+	mxt_reset_slots(data);
-+	data->suspended = true;
- }
- 
- static int mxt_input_open(struct input_dev *dev)
+ static int mxt_read_t9_resolution(struct mxt_data *data)
+@@ -2064,7 +2078,7 @@ err_unregister_device:
+ 	input_unregister_device(data->input_dev);
+ 	data->input_dev = NULL;
+ err_free_object:
+-	kfree(data->object_table);
++	mxt_free_object_table(data);
+ err_free_irq:
+ 	free_irq(data->irq, data);
+ err_free_pdata:
+@@ -2086,7 +2100,7 @@ static int mxt_remove(struct i2c_client *client)
+ 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
+ 	free_irq(data->irq, data);
+ 	input_unregister_device(data->input_dev);
+-	kfree(data->object_table);
++	mxt_free_object_table(data);
+ 	if (!dev_get_platdata(&data->client->dev))
+ 		kfree(data->pdata);
+ 	kfree(data);
 -- 
 1.7.10.4

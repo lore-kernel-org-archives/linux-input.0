@@ -1,74 +1,78 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: [PATCH 14/22] arm/am33xx: add TSC/ADC mfd device support
-Date: Wed,  5 Jun 2013 18:24:47 +0200
-Message-ID: <1370449495-29981-15-git-send-email-bigeasy@linutronix.de>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 11/22] mfd/ti_am335x_tscadc: remove platform_data support
+Date: Wed,  5 Jun 2013 18:24:44 +0200
+Message-ID: <1370449495-29981-12-git-send-email-bigeasy@linutronix.de>
 References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>, Sebastian Andrzej Siewior <sebastian-E0PNVn5OA6ohrxcnuTQ+TQ@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from www.linutronix.de ([62.245.132.108]:35314 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756398Ab3FEQ33 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jun 2013 12:29:29 -0400
+In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Samuel Ortiz <sameo@linux.intel.com>
+Cc: Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@cam.ac.uk>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+This patch removes access to platform data mfd_tscadc_board because the
+platform is DT only.
 
-Add support for core multifunctional device along
-with its clients touchscreen and ADC.
-
-[ panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org : make sure status is
-	set to 'disabled' in dtsi file. ]
-
-Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
-Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-[bigeasy: add 'status = "okay"']
-Signed-off-by: Sebastian Andrzej Siewior <sebastian-E0PNVn5OA6ohrxcnuTQ+TQ@public.gmane.org>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- arch/arm/boot/dts/am335x-evm.dts |   14 ++++++++++++++
- arch/arm/boot/dts/am33xx.dtsi    |    9 +++++++++
- 2 files changed, 23 insertions(+)
+ drivers/mfd/ti_am335x_tscadc.c |   23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
-index 0423298..26fea97 100644
---- a/arch/arm/boot/dts/am335x-evm.dts
-+++ b/arch/arm/boot/dts/am335x-evm.dts
-@@ -244,3 +244,17 @@
- &cpsw_emac1 {
- 	phy_id = <&davinci_mdio>, <1>;
- };
-+
-+&tscadc {
-+	status = "okay";
-+	tsc {
-+		ti,wires = <4>;
-+		ti,x-plate-resistance = <200>;
-+		ti,coordiante-readouts = <5>;
-+		ti,wire-config = <0x00 0x11 0x22 0x33>;
-+	};
-+
-+	adc {
-+		ti,adc-channels = <4>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 1460d9b..cc0656a 100644
---- a/arch/arm/boot/dts/am33xx.dtsi
-+++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -404,6 +404,15 @@
- 			ti,hwmods = "wkup_m3";
- 		};
+diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+index e74e7e0..6b85459 100644
+--- a/drivers/mfd/ti_am335x_tscadc.c
++++ b/drivers/mfd/ti_am335x_tscadc.c
+@@ -25,8 +25,6 @@
+ #include <linux/of_device.h>
  
-+		tscadc: tscadc@44e0d000 {
-+			compatible = "ti,am3359-tscadc";
-+			reg = <0x44e0d000 0x1000>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <16>;
-+			ti,hwmods = "adc_tsc";
-+			status = "disabled";
-+		};
-+
- 		gpmc: gpmc@50000000 {
- 			compatible = "ti,am3352-gpmc";
- 			ti,hwmods = "gpmc";
+ #include <linux/mfd/ti_am335x_tscadc.h>
+-#include <linux/input/ti_am335x_tsc.h>
+-#include <linux/platform_data/ti_am335x_adc.h>
+ 
+ static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
+ {
+@@ -80,31 +78,22 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
+ 	struct ti_tscadc_dev	*tscadc;
+ 	struct resource		*res;
+ 	struct clk		*clk;
+-	struct mfd_tscadc_board	*pdata = pdev->dev.platform_data;
+ 	struct device_node	*node = pdev->dev.of_node;
+ 	struct mfd_cell		*cell;
+ 	int			err, ctrl;
+ 	int			clk_value, clock_rate;
+ 	int			tsc_wires = 0, adc_channels = 0, total_channels;
+ 
+-	if (!pdata && !pdev->dev.of_node) {
+-		dev_err(&pdev->dev, "Could not find platform data\n");
++	if (!pdev->dev.of_node) {
++		dev_err(&pdev->dev, "Could not find valid DT data.\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	if (pdev->dev.platform_data) {
+-		if (pdata->tsc_init)
+-			tsc_wires = pdata->tsc_init->wires;
++	node = of_get_child_by_name(pdev->dev.of_node, "tsc");
++	of_property_read_u32(node, "ti,wires", &tsc_wires);
+ 
+-		if (pdata->adc_init)
+-			adc_channels = pdata->adc_init->adc_channels;
+-	} else {
+-		node = of_get_child_by_name(pdev->dev.of_node, "tsc");
+-		of_property_read_u32(node, "ti,wires", &tsc_wires);
+-
+-		node = of_get_child_by_name(pdev->dev.of_node, "adc");
+-		of_property_read_u32(node, "ti,adc-channels", &adc_channels);
+-	}
++	node = of_get_child_by_name(pdev->dev.of_node, "adc");
++	of_property_read_u32(node, "ti,adc-channels", &adc_channels);
+ 
+ 	total_channels = tsc_wires + adc_channels;
+ 
 -- 
 1.7.10.4
+

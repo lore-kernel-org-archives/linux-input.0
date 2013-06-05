@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 08/53] Input: atmel_mxt_ts - Initialise IRQ before probing
-Date: Wed,  5 Jun 2013 18:37:01 +0100
-Message-ID: <1370453866-16534-9-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 49/53] Input: atmel_mxt_ts - Add regulator control support
+Date: Wed,  5 Jun 2013 18:37:42 +0100
+Message-ID: <1370453866-16534-50-git-send-email-nick.dyer@itdev.co.uk>
 References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,200 +10,195 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-This allows the interrupt handler to be used to detect CHG line during config
-download. We need to make sure we do not report events if input device not yet
-registered.
+Allow the driver to optionally manage enabling/disable power to the touch
+controller itself. If the regulators are not present then use the deep sleep
+power mode instead.
 
-data->enable_reporting is checked in each of the possible message handling
-function paths rather than higher up (such as at mxt_proc_message) because
-some objects may be used for completions (T6).
+For a correct power on sequence, it is required that we have control over the
+RESET line.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   73 +++++++++++++++++++++---------
- 1 file changed, 51 insertions(+), 22 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   95 +++++++++++++++++++++++++++---
+ include/linux/i2c/atmel_mxt_ts.h         |    1 +
+ 2 files changed, 89 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 55d7667..1e24e54 100644
+index 8e19ab1..ce676a1 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2,6 +2,7 @@
-  * Atmel maXTouch Touchscreen driver
-  *
-  * Copyright (C) 2010 Samsung Electronics Co.Ltd
-+ * Copyright (C) 2011-2012 Atmel Corporation
-  * Copyright (C) 2012 Google, Inc.
-  *
-  * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-@@ -261,6 +262,9 @@ struct mxt_data {
+@@ -24,6 +24,8 @@
+ #include <linux/input/mt.h>
+ #include <linux/interrupt.h>
+ #include <linux/slab.h>
++#include <linux/regulator/consumer.h>
++#include <linux/gpio.h>
  
- 	/* for fw update in bootloader */
- 	struct completion bl_completion;
-+
-+	/* Enable reporting of input events */
-+	bool enable_reporting;
- };
+ /* Firmware files */
+ #define MXT_FW_NAME		"maxtouch.fw"
+@@ -152,6 +154,8 @@ struct t9_range {
+ #define MXT_FW_RESET_TIME	3000	/* msec */
+ #define MXT_FW_CHG_TIMEOUT	300	/* msec */
+ #define MXT_WAKEUP_TIME		25	/* msec */
++#define MXT_REGULATOR_DELAY	150	/* msec */
++#define MXT_POWERON_DELAY	150	/* msec */
  
- static inline size_t mxt_obj_size(const struct mxt_object *obj)
-@@ -568,6 +572,10 @@ static void mxt_input_button(struct mxt_data *data, struct mxt_message *message)
- 	bool button;
- 	int i;
+ /* Command to unlock bootloader */
+ #define MXT_UNLOCK_CMD_MSB	0xaa
+@@ -220,6 +224,9 @@ struct mxt_data {
+ 	u8 num_stylusids;
+ 	unsigned long t15_keystatus;
+ 	bool use_retrigen_workaround;
++	bool use_regulator;
++	struct regulator *reg_vdd;
++	struct regulator *reg_avdd;
  
-+	/* do not report events if input device not yet registered */
-+	if (!data->enable_reporting)
-+		return;
-+
- 	/* Active-low switch */
- 	for (i = 0; i < pdata->t19_num_keys; i++) {
- 		if (pdata->t19_keymap[i] == KEY_RESERVED)
-@@ -588,6 +596,10 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 	int area;
- 	int pressure;
- 
-+	/* do not report events if input device not yet registered */
-+	if (!data->enable_reporting)
-+		return;
-+
- 	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
- 	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
- 	if (data->max_x < 1024)
-@@ -667,7 +679,7 @@ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
- 		}
- 	} while (reportid != 0xff);
- 
--	if (update_input) {
-+	if (data->enable_reporting && update_input) {
- 		input_mt_report_pointer_emulation(data->input_dev, false);
- 		input_sync(data->input_dev);
- 	}
-@@ -685,6 +697,9 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
- 		return IRQ_HANDLED;
- 	}
- 
-+	if (!data->object_table)
-+		return IRQ_NONE;
-+
- 	return mxt_process_messages_until_invalid(data);
- }
- 
-@@ -746,6 +761,19 @@ static int mxt_make_highchg(struct mxt_data *data)
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -1843,6 +1850,66 @@ static int mxt_read_t9_resolution(struct mxt_data *data)
  	return 0;
  }
  
-+static int mxt_acquire_irq(struct mxt_data *data)
++static void mxt_regulator_enable(struct mxt_data *data)
 +{
-+	int error;
++	gpio_set_value(data->pdata->gpio_reset, 0);
 +
-+	enable_irq(data->irq);
++	regulator_enable(data->reg_vdd);
++	regulator_enable(data->reg_avdd);
++	msleep(MXT_REGULATOR_DELAY);
 +
-+	error = mxt_make_highchg(data);
-+	if (error)
-+		return error;
-+
-+	return 0;
++	INIT_COMPLETION(data->bl_completion);
++	gpio_set_value(data->pdata->gpio_reset, 1);
++	mxt_wait_for_completion(data, &data->bl_completion, MXT_POWERON_DELAY);
 +}
 +
- static int mxt_get_info(struct mxt_data *data)
- {
- 	struct i2c_client *client = data->client;
-@@ -819,6 +847,7 @@ static void mxt_free_object_table(struct mxt_data *data)
- {
- 	kfree(data->object_table);
- 	data->object_table = NULL;
-+	data->enable_reporting = false;
- 	data->T6_reportid = 0;
- 	data->T9_reportid_min = 0;
- 	data->T9_reportid_max = 0;
-@@ -849,6 +878,10 @@ static int mxt_initialize(struct mxt_data *data)
- 	if (error)
- 		goto err_free_object_table;
- 
-+	error = mxt_acquire_irq(data);
-+	if (error)
-+		goto err_free_object_table;
++static void mxt_regulator_disable(struct mxt_data *data)
++{
++	regulator_disable(data->reg_vdd);
++	regulator_disable(data->reg_avdd);
++}
 +
- 	/* Check register init values */
- 	error = mxt_check_reg_init(data);
- 	if (error)
-@@ -886,6 +919,8 @@ static int mxt_initialize(struct mxt_data *data)
- 			info->matrix_xsize, info->matrix_ysize,
- 			info->object_num);
- 
-+	data->enable_reporting = true;
++static void mxt_probe_regulators(struct mxt_data *data)
++{
++	struct device *dev = &data->client->dev;
++	int error;
 +
- 	return 0;
- 
- err_free_object_table:
-@@ -1087,11 +1122,7 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 		dev_dbg(dev, "The firmware update succeeded\n");
- 		mxt_free_object_table(data);
- 
--		mxt_initialize(data);
--
--		enable_irq(data->irq);
--
--		error = mxt_make_highchg(data);
-+		error = mxt_initialize(data);
- 		if (error)
- 			return error;
- 	}
-@@ -1188,9 +1219,19 @@ static int mxt_probe(struct i2c_client *client,
- 
- 	mxt_calc_resolution(data);
- 
-+	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
-+				     pdata->irqflags | IRQF_ONESHOT,
-+				     client->name, data);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to register interrupt\n");
-+		goto err_free_mem;
++	/* According to maXTouch power sequencing specification, RESET line
++	 * must be kept low until some time after regulators come up to
++	 * voltage */
++	if (!data->pdata->gpio_reset) {
++		dev_warn(dev, "Must have reset GPIO to use regulator support\n");
++		goto fail;
 +	}
 +
-+	disable_irq(client->irq);
++	data->reg_vdd = regulator_get(dev, "vdd");
++	if (IS_ERR(data->reg_vdd)) {
++		error = PTR_ERR(data->reg_vdd);
++		dev_err(dev, "Error %d getting vdd regulator\n", error);
++		goto fail;
++	}
 +
++	data->reg_avdd = regulator_get(dev, "avdd");
++	if (IS_ERR(data->reg_vdd)) {
++		error = PTR_ERR(data->reg_vdd);
++		dev_err(dev, "Error %d getting avdd regulator\n", error);
++		goto fail_release;
++	}
++
++	data->use_regulator = true;
++	mxt_regulator_enable(data);
++
++	dev_dbg(dev, "Initialised regulators\n");
++	return;
++
++fail_release:
++	regulator_put(data->reg_vdd);
++fail:
++	data->reg_vdd = NULL;
++	data->reg_avdd = NULL;
++	data->use_regulator = false;
++}
++
+ static int mxt_initialize(struct mxt_data *data)
+ {
+ 	struct i2c_client *client = data->client;
+@@ -2037,6 +2104,9 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 		goto release_firmware;
+ 
+ 	if (data->suspended) {
++		if (data->use_regulator)
++			mxt_regulator_enable(data);
++
+ 		enable_irq(data->irq);
+ 		data->suspended = false;
+ 	}
+@@ -2281,14 +2351,18 @@ static void mxt_start(struct mxt_data *data)
+ 	if (!data->suspended || data->in_bootloader)
+ 		return;
+ 
+-	/* Discard any touch messages still in message buffer from before chip
+-	 * went to sleep */
+-	mxt_process_messages_until_invalid(data);
++	if (data->use_regulator) {
++		mxt_regulator_enable(data);
++	} else {
++		/* Discard any messages still in message buffer from before
++		 * chip went to sleep */
++		mxt_process_messages_until_invalid(data);
+ 
+-	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
+ 
+-	/* Recalibrate since chip has been in deep sleep */
+-	mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
++		/* Recalibrate since chip has been in deep sleep */
++		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
++	}
+ 
+ 	mxt_acquire_irq(data);
+ 	data->enable_reporting = true;
+@@ -2303,7 +2377,10 @@ static void mxt_stop(struct mxt_data *data)
+ 	data->enable_reporting = false;
+ 	disable_irq(data->irq);
+ 
+-	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
++	if (data->use_regulator)
++		mxt_regulator_disable(data);
++	else
++		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
+ 
+ 	mxt_reset_slots(data);
+ 	data->suspended = true;
+@@ -2491,6 +2568,8 @@ static int mxt_probe(struct i2c_client *client,
+ 		goto err_free_pdata;
+ 	}
+ 
++	mxt_probe_regulators(data);
++
+ 	disable_irq(data->irq);
+ 
  	error = mxt_initialize(data);
- 	if (error)
--		goto err_free_mem;
-+		goto err_free_irq;
+@@ -2554,6 +2633,8 @@ static int mxt_remove(struct i2c_client *client)
+ 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
+ 	free_irq(data->irq, data);
+ 	input_unregister_device(data->input_dev);
++	regulator_put(data->reg_avdd);
++	regulator_put(data->reg_vdd);
+ 	mxt_free_object_table(data);
+ 	if (!dev_get_platdata(&data->client->dev))
+ 		kfree(data->pdata);
+diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
+index b7d2092..a01f2e8 100644
+--- a/include/linux/i2c/atmel_mxt_ts.h
++++ b/include/linux/i2c/atmel_mxt_ts.h
+@@ -22,6 +22,7 @@ struct mxt_platform_data {
+ 	const unsigned int *t19_keymap;
+ 	int t15_num_keys;
+ 	const unsigned int *t15_keymap;
++	unsigned long gpio_reset;
+ };
  
- 	__set_bit(EV_ABS, input_dev->evbit);
- 	__set_bit(EV_KEY, input_dev->evbit);
-@@ -1241,21 +1282,9 @@ static int mxt_probe(struct i2c_client *client,
- 	input_set_drvdata(input_dev, data);
- 	i2c_set_clientdata(client, data);
- 
--	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
--				     pdata->irqflags | IRQF_ONESHOT,
--				     client->name, data);
--	if (error) {
--		dev_err(&client->dev, "Failed to register interrupt\n");
--		goto err_free_object;
--	}
--
--	error = mxt_make_highchg(data);
--	if (error)
--		goto err_free_irq;
--
- 	error = input_register_device(input_dev);
- 	if (error)
--		goto err_free_irq;
-+		goto err_free_object;
- 
- 	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
- 	if (error)
-@@ -1266,10 +1295,10 @@ static int mxt_probe(struct i2c_client *client,
- err_unregister_device:
- 	input_unregister_device(input_dev);
- 	input_dev = NULL;
--err_free_irq:
--	free_irq(client->irq, data);
- err_free_object:
- 	kfree(data->object_table);
-+err_free_irq:
-+	free_irq(client->irq, data);
- err_free_mem:
- 	input_free_device(input_dev);
- 	kfree(data);
+ #endif /* __LINUX_ATMEL_MXT_TS_H */
 -- 
 1.7.10.4

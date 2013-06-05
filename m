@@ -1,284 +1,145 @@
 From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: [PATCH 04/22] input/ti_am33x_tsc: Order of TSC wires, made configurable
-Date: Wed,  5 Jun 2013 18:24:37 +0200
-Message-ID: <1370449495-29981-5-git-send-email-bigeasy@linutronix.de>
+Subject: [PATCH 02/22] mfd & input & iio/ti_am335x_adc: use one structure for ti_tscadc_dev
+Date: Wed,  5 Jun 2013 18:24:35 +0200
+Message-ID: <1370449495-29981-3-git-send-email-bigeasy@linutronix.de>
 References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+The mfd driver creates platform data for the child devices and it is the
+ti_tscadc_dev struct. This struct is copied for the two devices.
+The copy of the structure makes a common lock in this structure a little
+less usefull. Therefore the platform data is not a pointer to the
+structure and the same structure is used.
+While doing the change I noticed that the suspend/resume code assumes
+the wrong pointer for ti_tscadc_dev and this has been fixed as well.
 
-The current driver expected touchscreen input
-wires(XP,XN,YP,YN) to be connected in a particular order.
-Making changes to accept this as platform data.
-
-Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-[bigeasy: larger rework of the patch, no config[4][4] array, smaller
-          sized config_inp, no regbit_map(), shrinked
-	  titsc_config_wires(), no config redo on resume, config_inp and
-	  friends are now u32]
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 ---
- drivers/input/touchscreen/ti_am335x_tsc.c |  102 ++++++++++++++++++++++++-----
- include/linux/input/ti_am335x_tsc.h       |   12 ++++
- include/linux/mfd/ti_am335x_tscadc.h      |   10 ++-
- 3 files changed, 105 insertions(+), 19 deletions(-)
+ drivers/iio/adc/ti_am335x_adc.c           |    5 +++--
+ drivers/input/touchscreen/ti_am335x_tsc.c |   16 +++++++++-------
+ drivers/mfd/ti_am335x_tscadc.c            |    8 ++++----
+ include/linux/mfd/ti_am335x_tscadc.h      |    7 +++++++
+ 4 files changed, 23 insertions(+), 13 deletions(-)
 
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+index 5f9a7e7..9db352e 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -140,7 +140,7 @@ static int tiadc_probe(struct platform_device *pdev)
+ {
+ 	struct iio_dev		*indio_dev;
+ 	struct tiadc_device	*adc_dev;
+-	struct ti_tscadc_dev	*tscadc_dev = pdev->dev.platform_data;
++	struct ti_tscadc_dev	*tscadc_dev = ti_tscadc_dev_get(pdev);
+ 	struct mfd_tscadc_board	*pdata;
+ 	int			err;
+ 
+@@ -205,9 +205,10 @@ static int tiadc_suspend(struct device *dev)
+ {
+ 	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+ 	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+-	struct ti_tscadc_dev *tscadc_dev = dev->platform_data;
++	struct ti_tscadc_dev *tscadc_dev;
+ 	unsigned int idle;
+ 
++	tscadc_dev = ti_tscadc_dev_get(to_platform_device(dev));
+ 	if (!device_may_wakeup(tscadc_dev->dev)) {
+ 		idle = tiadc_readl(adc_dev, REG_CTRL);
+ 		idle &= ~(CNTRLREG_TSCSSENB);
 diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 23d6a4d..56c6220 100644
+index 51e7b87..16077d3 100644
 --- a/drivers/input/touchscreen/ti_am335x_tsc.c
 +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -33,6 +33,13 @@
- #define SEQ_SETTLE		275
- #define MAX_12BIT		((1 << 12) - 1)
- 
-+static const int config_pins[] = {
-+	XPP,
-+	XNN,
-+	YPP,
-+	YNN,
-+};
-+
- struct titsc {
- 	struct input_dev	*input;
- 	struct ti_tscadc_dev	*mfd_tscadc;
-@@ -41,6 +48,9 @@ struct titsc {
- 	unsigned int		x_plate_resistance;
- 	bool			pen_down;
- 	int			steps_to_configure;
-+	u32			config_inp[4];
-+	u32			bit_xp, bit_xn, bit_yp, bit_yn;
-+	u32			inp_xp, inp_xn, inp_yp, inp_yn;
- };
- 
- static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
-@@ -54,6 +64,58 @@ static void titsc_writel(struct titsc *tsc, unsigned int reg,
- 	writel(val, tsc->mfd_tscadc->tscadc_base + reg);
- }
- 
-+static int titsc_config_wires(struct titsc *ts_dev)
-+{
-+	u32 analog_line[4];
-+	u32 wire_order[4];
-+	int i, bit_cfg;
-+
-+	for (i = 0; i < 4; i++) {
-+		/*
-+		 * Get the order in which TSC wires are attached
-+		 * w.r.t. each of the analog input lines on the EVM.
-+		 */
-+		analog_line[i] = (ts_dev->config_inp[i] & 0xF0) >> 4;
-+		wire_order[i] = ts_dev->config_inp[i] & 0x0F;
-+		if (WARN_ON(analog_line[i] > 7))
-+			return -EINVAL;
-+		if (WARN_ON(wire_order[i] > ARRAY_SIZE(config_pins)))
-+			return -EINVAL;
-+	}
-+
-+	for (i = 0; i < 4; i++) {
-+		int an_line;
-+		int wi_order;
-+
-+		an_line = analog_line[i];
-+		wi_order = wire_order[i];
-+		bit_cfg = config_pins[wi_order];
-+		if (bit_cfg == 0)
-+			return -EINVAL;
-+		switch (wi_order) {
-+		case 0:
-+			ts_dev->bit_xp = bit_cfg;
-+			ts_dev->inp_xp = an_line;
-+			break;
-+
-+		case 1:
-+			ts_dev->bit_xn = bit_cfg;
-+			ts_dev->inp_xn = an_line;
-+			break;
-+
-+		case 2:
-+			ts_dev->bit_yp = bit_cfg;
-+			ts_dev->inp_yp = an_line;
-+			break;
-+		case 3:
-+			ts_dev->bit_yn = bit_cfg;
-+			ts_dev->inp_yn = an_line;
-+			break;
-+		}
-+	}
-+	return 0;
-+}
-+
- static void titsc_step_config(struct titsc *ts_dev)
+@@ -262,7 +262,7 @@ static int titsc_probe(struct platform_device *pdev)
  {
- 	unsigned int	config;
-@@ -64,18 +126,18 @@ static void titsc_step_config(struct titsc *ts_dev)
- 	total_steps = 2 * ts_dev->steps_to_configure;
+ 	struct titsc *ts_dev;
+ 	struct input_dev *input_dev;
+-	struct ti_tscadc_dev *tscadc_dev = pdev->dev.platform_data;
++	struct ti_tscadc_dev *tscadc_dev = ti_tscadc_dev_get(pdev);
+ 	struct mfd_tscadc_board	*pdata;
+ 	int err;
  
- 	config = STEPCONFIG_MODE_HWSYNC |
--			STEPCONFIG_AVG_16 | STEPCONFIG_XPP;
-+			STEPCONFIG_AVG_16 | ts_dev->bit_xp;
- 	switch (ts_dev->wires) {
- 	case 4:
--		config |= STEPCONFIG_INP_AN2 | STEPCONFIG_XNN;
-+		config |= STEPCONFIG_INP(ts_dev->inp_yp) | ts_dev->bit_xn;
- 		break;
- 	case 5:
--		config |= STEPCONFIG_YNN |
--				STEPCONFIG_INP_AN4 | STEPCONFIG_XNN |
--				STEPCONFIG_YPP;
-+		config |= ts_dev->bit_yn |
-+				STEPCONFIG_INP_AN4 | ts_dev->bit_xn |
-+				ts_dev->bit_yp;
- 		break;
- 	case 8:
--		config |= STEPCONFIG_INP_AN2 | STEPCONFIG_XNN;
-+		config |= STEPCONFIG_INP(ts_dev->inp_yp) | ts_dev->bit_xn;
- 		break;
- 	}
+@@ -329,8 +329,8 @@ static int titsc_probe(struct platform_device *pdev)
  
-@@ -86,18 +148,18 @@ static void titsc_step_config(struct titsc *ts_dev)
+ static int titsc_remove(struct platform_device *pdev)
+ {
+-	struct ti_tscadc_dev *tscadc_dev = pdev->dev.platform_data;
+-	struct titsc *ts_dev = tscadc_dev->tsc;
++	struct titsc *ts_dev = platform_get_drvdata(pdev);
++	u32 steps;
  
- 	config = 0;
- 	config = STEPCONFIG_MODE_HWSYNC |
--			STEPCONFIG_AVG_16 | STEPCONFIG_YNN |
-+			STEPCONFIG_AVG_16 | ts_dev->bit_yn |
- 			STEPCONFIG_INM_ADCREFM | STEPCONFIG_FIFO1;
- 	switch (ts_dev->wires) {
- 	case 4:
--		config |= STEPCONFIG_YPP;
-+		config |= ts_dev->bit_yp | STEPCONFIG_INP(ts_dev->inp_xp);
- 		break;
- 	case 5:
--		config |= STEPCONFIG_XPP | STEPCONFIG_INP_AN4 |
--				STEPCONFIG_XNP | STEPCONFIG_YPN;
-+		config |= ts_dev->bit_xp | STEPCONFIG_INP_AN4 |
-+				ts_dev->bit_xn | ts_dev->bit_yp;
- 		break;
- 	case 8:
--		config |= STEPCONFIG_YPP;
-+		config |= ts_dev->bit_yp | STEPCONFIG_INP(ts_dev->inp_xp);
- 		break;
- 	}
+ 	free_irq(ts_dev->irq, ts_dev);
  
-@@ -108,9 +170,9 @@ static void titsc_step_config(struct titsc *ts_dev)
+@@ -344,10 +344,11 @@ static int titsc_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+ static int titsc_suspend(struct device *dev)
+ {
+-	struct ti_tscadc_dev *tscadc_dev = dev->platform_data;
+-	struct titsc *ts_dev = tscadc_dev->tsc;
++	struct titsc *ts_dev = dev_get_drvdata(dev);
++	struct ti_tscadc_dev *tscadc_dev;
+ 	unsigned int idle;
  
- 	config = 0;
- 	/* Charge step configuration */
--	config = STEPCONFIG_XPP | STEPCONFIG_YNN |
-+	config = ts_dev->bit_xp | ts_dev->bit_yn |
- 			STEPCHARGE_RFP_XPUL | STEPCHARGE_RFM_XNUR |
--			STEPCHARGE_INM_AN1 | STEPCHARGE_INP_AN1;
-+			STEPCHARGE_INM_AN1 | STEPCHARGE_INP(ts_dev->inp_yp);
++	tscadc_dev = ti_tscadc_dev_get(to_platform_device(dev));
+ 	if (device_may_wakeup(tscadc_dev->dev)) {
+ 		idle = titsc_readl(ts_dev, REG_IRQENABLE);
+ 		titsc_writel(ts_dev, REG_IRQENABLE,
+@@ -359,9 +360,10 @@ static int titsc_suspend(struct device *dev)
  
- 	titsc_writel(ts_dev, REG_CHARGECONFIG, config);
- 	titsc_writel(ts_dev, REG_CHARGEDELAY, CHARGEDLY_OPENDLY);
-@@ -118,13 +180,14 @@ static void titsc_step_config(struct titsc *ts_dev)
- 	config = 0;
- 	/* Configure to calculate pressure */
- 	config = STEPCONFIG_MODE_HWSYNC |
--			STEPCONFIG_AVG_16 | STEPCONFIG_YPP |
--			STEPCONFIG_XNN | STEPCONFIG_INM_ADCREFM;
-+			STEPCONFIG_AVG_16 | ts_dev->bit_yp |
-+			ts_dev->bit_xn | STEPCONFIG_INM_ADCREFM |
-+			STEPCONFIG_INP(ts_dev->inp_xp);
- 	titsc_writel(ts_dev, REG_STEPCONFIG(total_steps + 1), config);
- 	titsc_writel(ts_dev, REG_STEPDELAY(total_steps + 1),
- 			STEPCONFIG_OPENDLY);
+ static int titsc_resume(struct device *dev)
+ {
+-	struct ti_tscadc_dev *tscadc_dev = dev->platform_data;
+-	struct titsc *ts_dev = tscadc_dev->tsc;
++	struct titsc *ts_dev = dev_get_drvdata(dev);
++	struct ti_tscadc_dev *tscadc_dev;
  
--	config |= STEPCONFIG_INP_AN3 | STEPCONFIG_FIFO1;
-+	config |= STEPCONFIG_INP(ts_dev->inp_yn) | STEPCONFIG_FIFO1;
- 	titsc_writel(ts_dev, REG_STEPCONFIG(total_steps + 2), config);
- 	titsc_writel(ts_dev, REG_STEPDELAY(total_steps + 2),
- 			STEPCONFIG_OPENDLY);
-@@ -292,6 +355,8 @@ static int titsc_probe(struct platform_device *pdev)
- 	ts_dev->wires = pdata->tsc_init->wires;
- 	ts_dev->x_plate_resistance = pdata->tsc_init->x_plate_resistance;
- 	ts_dev->steps_to_configure = pdata->tsc_init->steps_to_configure;
-+	memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
-+			sizeof(pdata->tsc_init->wire_config));
++	tscadc_dev = ti_tscadc_dev_get(to_platform_device(dev));
+ 	if (device_may_wakeup(tscadc_dev->dev)) {
+ 		titsc_writel(ts_dev, REG_IRQWAKEUP,
+ 				0x00);
+diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+index 804e61e..490b2bd 100644
+--- a/drivers/mfd/ti_am335x_tscadc.c
++++ b/drivers/mfd/ti_am335x_tscadc.c
+@@ -157,14 +157,14 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
+ 	/* TSC Cell */
+ 	cell = &tscadc->cells[TSC_CELL];
+ 	cell->name = "tsc";
+-	cell->platform_data = tscadc;
+-	cell->pdata_size = sizeof(*tscadc);
++	cell->platform_data = &tscadc;
++	cell->pdata_size = sizeof(tscadc);
  
- 	err = request_irq(ts_dev->irq, titsc_irq,
- 			  0, pdev->dev.driver->name, ts_dev);
-@@ -301,6 +366,11 @@ static int titsc_probe(struct platform_device *pdev)
- 	}
+ 	/* ADC Cell */
+ 	cell = &tscadc->cells[ADC_CELL];
+ 	cell->name = "tiadc";
+-	cell->platform_data = tscadc;
+-	cell->pdata_size = sizeof(*tscadc);
++	cell->platform_data = &tscadc;
++	cell->pdata_size = sizeof(tscadc);
  
- 	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
-+	err = titsc_config_wires(ts_dev);
-+	if (err) {
-+		dev_err(&pdev->dev, "wrong i/p wire configuration\n");
-+		goto err_free_irq;
-+	}
- 	titsc_step_config(ts_dev);
- 	titsc_writel(ts_dev, REG_FIFO0THR, ts_dev->steps_to_configure);
- 
-diff --git a/include/linux/input/ti_am335x_tsc.h b/include/linux/input/ti_am335x_tsc.h
-index 49269a2..6a66b4d 100644
---- a/include/linux/input/ti_am335x_tsc.h
-+++ b/include/linux/input/ti_am335x_tsc.h
-@@ -12,12 +12,24 @@
-  *			A step configured to read a single
-  *			co-ordinate value, can be applied
-  *			more number of times for better results.
-+ * @wire_config:	Different EVM's could have a different order
-+ *			for connecting wires on touchscreen.
-+ *			We need to provide an 8 bit number where in
-+ *			the 1st four bits represent the analog lines
-+ *			and the next 4 bits represent positive/
-+ *			negative terminal on that input line.
-+ *			Notations to represent the input lines and
-+ *			terminals resoectively is as follows:
-+ *			AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
-+ *			XP  = 0, XN = 1, YP = 2, YN = 3.
-+ *
-  */
- 
- struct tsc_data {
- 	int wires;
- 	int x_plate_resistance;
- 	int steps_to_configure;
-+	int wire_config[10];
- };
- 
- #endif
+ 	err = mfd_add_devices(&pdev->dev, pdev->id, tscadc->cells,
+ 			TSCADC_CELLS, NULL, 0, NULL);
 diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index eeead15..2d78af8 100644
+index dc75c34..5e430fe 100644
 --- a/include/linux/mfd/ti_am335x_tscadc.h
 +++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -71,8 +71,6 @@
- #define STEPCONFIG_INM_ADCREFM	STEPCONFIG_INM(8)
- #define STEPCONFIG_INP_MASK	(0xF << 19)
- #define STEPCONFIG_INP(val)	((val) << 19)
--#define STEPCONFIG_INP_AN2	STEPCONFIG_INP(2)
--#define STEPCONFIG_INP_AN3	STEPCONFIG_INP(3)
- #define STEPCONFIG_INP_AN4	STEPCONFIG_INP(4)
- #define STEPCONFIG_INP_ADCREFM	STEPCONFIG_INP(8)
- #define STEPCONFIG_FIFO1	BIT(26)
-@@ -94,7 +92,6 @@
- #define STEPCHARGE_INM_AN1	STEPCHARGE_INM(1)
- #define STEPCHARGE_INP_MASK	(0xF << 19)
- #define STEPCHARGE_INP(val)	((val) << 19)
--#define STEPCHARGE_INP_AN1	STEPCHARGE_INP(1)
- #define STEPCHARGE_RFM_MASK	(3 << 23)
- #define STEPCHARGE_RFM(val)	((val) << 23)
- #define STEPCHARGE_RFM_XNUR	STEPCHARGE_RFM(1)
-@@ -116,6 +113,13 @@
- #define CNTRLREG_8WIRE		CNTRLREG_AFE_CTRL(3)
- #define CNTRLREG_TSCENB		BIT(7)
+@@ -148,4 +148,11 @@ struct ti_tscadc_dev {
+ 	struct adc_device *adc;
+ };
  
-+#define XPP			STEPCONFIG_XPP
-+#define XNP			STEPCONFIG_XNP
-+#define XNN			STEPCONFIG_XNN
-+#define YPP			STEPCONFIG_YPP
-+#define YPN			STEPCONFIG_YPN
-+#define YNN			STEPCONFIG_YNN
++static inline struct ti_tscadc_dev *ti_tscadc_dev_get(struct platform_device *p)
++{
++	struct ti_tscadc_dev **tscadc_dev = p->dev.platform_data;
 +
- #define ADC_CLK			3000000
- #define	MAX_CLK_DIV		7
- #define TOTAL_STEPS		16
++	return *tscadc_dev;
++}
++
+ #endif
 -- 
 1.7.10.4

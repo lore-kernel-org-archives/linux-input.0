@@ -1,76 +1,84 @@
 From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: [PATCH 07/22] input/ti_am33x_tsc: remove platform_data support
-Date: Wed,  5 Jun 2013 18:24:40 +0200
-Message-ID: <1370449495-29981-8-git-send-email-bigeasy@linutronix.de>
+Subject: [PATCH 08/22] iio/ti_am335x_adc: Add DT support
+Date: Wed,  5 Jun 2013 18:24:41 +0200
+Message-ID: <1370449495-29981-9-git-send-email-bigeasy@linutronix.de>
 References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch removes access to platform data mfd_tscadc_board because the
-platform is DT only.
+From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Add DT support for client ADC driver.
+
+[ panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org : use of_get_child_by_name
+	instead of of_find_node_by_name ]
+
+Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+[bigeasy: shift the code to the left, fix clean up on
+          of_get_child_by_name() failer]
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 ---
- drivers/input/touchscreen/ti_am335x_tsc.c |   27 ++-------------------------
- 1 file changed, 2 insertions(+), 25 deletions(-)
+ drivers/iio/adc/ti_am335x_adc.c |   25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index c876385..d247842 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -24,7 +24,6 @@
- #include <linux/clk.h>
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+index 543b9c4..95bcd56 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -22,6 +22,8 @@
  #include <linux/platform_device.h>
  #include <linux/io.h>
--#include <linux/input/ti_am335x_tsc.h>
- #include <linux/delay.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-@@ -350,24 +349,6 @@ static int titsc_parse_dt(struct ti_tscadc_dev *tscadc_dev,
- 			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
- }
+ #include <linux/iio/iio.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
  
--static int titsc_parse_pdata(struct ti_tscadc_dev *tscadc_dev,
--					struct titsc *ts_dev)
--{
--	struct mfd_tscadc_board	*pdata = tscadc_dev->dev->platform_data;
--
--	if (!pdata)
--		return -EINVAL;
--
--	ts_dev->wires = pdata->tsc_init->wires;
--	ts_dev->x_plate_resistance =
--		pdata->tsc_init->x_plate_resistance;
--	ts_dev->steps_to_configure =
--		pdata->tsc_init->steps_to_configure;
--	memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
--		sizeof(pdata->tsc_init->wire_config));
--	return 0;
--}
--
- /*
-  * The functions for inserting/removing driver as a module.
-  */
-@@ -393,13 +374,9 @@ static int titsc_probe(struct platform_device *pdev)
- 	ts_dev->input = input_dev;
- 	ts_dev->irq = tscadc_dev->irq;
+ #include <linux/mfd/ti_am335x_tscadc.h>
+ #include <linux/platform_data/ti_am335x_adc.h>
+@@ -152,11 +154,12 @@ static int tiadc_probe(struct platform_device *pdev)
+ 	struct iio_dev		*indio_dev;
+ 	struct tiadc_device	*adc_dev;
+ 	struct ti_tscadc_dev	*tscadc_dev = ti_tscadc_dev_get(pdev);
+-	struct mfd_tscadc_board	*pdata;
++	struct mfd_tscadc_board	*pdata = tscadc_dev->dev->platform_data;
++	struct device_node	*node = tscadc_dev->dev->of_node;
+ 	int			err;
++	u32			val32;
  
--	if (tscadc_dev->dev->platform_data)
--		err = titsc_parse_pdata(tscadc_dev, ts_dev);
--	else
--		err = titsc_parse_dt(tscadc_dev, ts_dev);
--
-+	err = titsc_parse_dt(tscadc_dev, ts_dev);
- 	if (err) {
--		dev_err(&pdev->dev, "Could not find platform data\n");
-+		dev_err(&pdev->dev, "Could not find valid DT data.\n");
- 		err = -EINVAL;
- 		goto err_free_mem;
+-	pdata = tscadc_dev->dev->platform_data;
+-	if (!pdata || !pdata->adc_init) {
++	if (!pdata && !node) {
+ 		dev_err(&pdev->dev, "Could not find platform data\n");
+ 		return -EINVAL;
  	}
+@@ -170,7 +173,21 @@ static int tiadc_probe(struct platform_device *pdev)
+ 	adc_dev = iio_priv(indio_dev);
+ 
+ 	adc_dev->mfd_tscadc = tscadc_dev;
+-	adc_dev->channels = pdata->adc_init->adc_channels;
++
++	if (pdata)
++		adc_dev->channels = pdata->adc_init->adc_channels;
++	else {
++		node = of_get_child_by_name(node, "adc");
++		if (!node) {
++			err = -EINVAL;
++			goto err_free_device;
++		}
++		err = of_property_read_u32(node,
++				"ti,adc-channels", &val32);
++		if (err < 0)
++			goto err_free_device;
++		adc_dev->channels = val32;
++	}
+ 
+ 	indio_dev->dev.parent = &pdev->dev;
+ 	indio_dev->name = dev_name(&pdev->dev);
 -- 
 1.7.10.4

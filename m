@@ -1,77 +1,86 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 11/22] mfd/ti_am335x_tscadc: remove platform_data support
-Date: Wed,  5 Jun 2013 18:24:44 +0200
-Message-ID: <1370449495-29981-12-git-send-email-bigeasy@linutronix.de>
-References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: [PATCH 30/53] Input: atmel_mxt_ts - Handle bootloader previously unlocked
+Date: Wed,  5 Jun 2013 18:37:23 +0100
+Message-ID: <1370453866-16534-31-git-send-email-nick.dyer@itdev.co.uk>
+References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:35314 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756398Ab3FEQ33 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jun 2013 12:29:29 -0400
-In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:15426 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1756982Ab3FERsH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jun 2013 13:48:07 -0400
+In-Reply-To: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@cam.ac.uk>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>
 
-This patch removes access to platform data mfd_tscadc_board because the
-platform is DT only.
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/mfd/ti_am335x_tscadc.c |   23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index e74e7e0..6b85459 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -25,8 +25,6 @@
- #include <linux/of_device.h>
- 
- #include <linux/mfd/ti_am335x_tscadc.h>
--#include <linux/input/ti_am335x_tsc.h>
--#include <linux/platform_data/ti_am335x_adc.h>
- 
- static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
- {
-@@ -80,31 +78,22 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 	struct ti_tscadc_dev	*tscadc;
- 	struct resource		*res;
- 	struct clk		*clk;
--	struct mfd_tscadc_board	*pdata = pdev->dev.platform_data;
- 	struct device_node	*node = pdev->dev.of_node;
- 	struct mfd_cell		*cell;
- 	int			err, ctrl;
- 	int			clk_value, clock_rate;
- 	int			tsc_wires = 0, adc_channels = 0, total_channels;
- 
--	if (!pdata && !pdev->dev.of_node) {
--		dev_err(&pdev->dev, "Could not find platform data\n");
-+	if (!pdev->dev.of_node) {
-+		dev_err(&pdev->dev, "Could not find valid DT data.\n");
- 		return -EINVAL;
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index c18803a..125fe2f 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -459,14 +459,15 @@ static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
  	}
+ }
  
--	if (pdev->dev.platform_data) {
--		if (pdata->tsc_init)
--			tsc_wires = pdata->tsc_init->wires;
-+	node = of_get_child_by_name(pdev->dev.of_node, "tsc");
-+	of_property_read_u32(node, "ti,wires", &tsc_wires);
+-static int mxt_check_bootloader(struct mxt_data *data, unsigned int state)
++static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
++				bool wait)
+ {
+ 	struct device *dev = &data->client->dev;
+ 	u8 val;
+ 	int ret;
  
--		if (pdata->adc_init)
--			adc_channels = pdata->adc_init->adc_channels;
--	} else {
--		node = of_get_child_by_name(pdev->dev.of_node, "tsc");
--		of_property_read_u32(node, "ti,wires", &tsc_wires);
--
--		node = of_get_child_by_name(pdev->dev.of_node, "adc");
--		of_property_read_u32(node, "ti,adc-channels", &adc_channels);
--	}
-+	node = of_get_child_by_name(pdev->dev.of_node, "adc");
-+	of_property_read_u32(node, "ti,adc-channels", &adc_channels);
+ recheck:
+-	if (state != MXT_WAITING_BOOTLOAD_CMD) {
++	if (wait) {
+ 		/*
+ 		 * In application update mode, the interrupt
+ 		 * line signals state transitions. We must wait for the
+@@ -1616,15 +1617,24 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	mxt_free_object_table(data);
+ 	INIT_COMPLETION(data->bl_completion);
  
- 	total_channels = tsc_wires + adc_channels;
+-	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD);
+-	if (ret)
+-		goto disable_irq;
++	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD, false);
++	if (ret) {
++		/* Bootloader may still be unlocked from previous update
++		 * attempt */
++		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, false);
++		if (ret)
++			goto disable_irq;
++	} else {
++		dev_info(dev, "Unlocking bootloader\n");
+ 
+-	/* Unlock bootloader */
+-	mxt_unlock_bootloader(data);
++		/* Unlock bootloader */
++		ret = mxt_unlock_bootloader(data);
++		if (ret)
++			goto disable_irq;
++	}
+ 
+ 	while (pos < fw->size) {
+-		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA);
++		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, true);
+ 		if (ret)
+ 			goto disable_irq;
+ 
+@@ -1638,7 +1648,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 		if (ret)
+ 			goto disable_irq;
+ 
+-		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS);
++		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS, true);
+ 		if (ret) {
+ 			retry++;
  
 -- 
 1.7.10.4

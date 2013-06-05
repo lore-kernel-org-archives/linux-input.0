@@ -1,97 +1,252 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: [PATCH 01/22] mfd/ti_am335x_tscadc: remove regmap
-Date: Wed,  5 Jun 2013 18:24:34 +0200
-Message-ID: <1370449495-29981-2-git-send-email-bigeasy@linutronix.de>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: =?UTF-8?q?=5BPATCH=2003/22=5D=20input/ti=5Fam33x=5Ftsc=3A=20Step=20enable=20bits=20made=20configurable?=
+Date: Wed,  5 Jun 2013 18:24:36 +0200
+Message-ID: <1370449495-29981-4-git-send-email-bigeasy@linutronix.de>
 References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from www.linutronix.de ([62.245.132.108]:35134 "EHLO
+	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755387Ab3FEQZJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jun 2013 12:25:09 -0400
+In-Reply-To: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Samuel Ortiz <sameo@linux.intel.com>
+Cc: Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@cam.ac.uk>, "Patil, Rachna" <rachna@ti.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-The MFD part uses regmap without caching and is the only user of the
-regmap. The child drivers, that is input(touch) and iio(adc), use direct
-reg access.
-There is a patch which converts them to use regmap as well but I see no
-benefit at all doing this. There is a direct MMIO bus access with no
-need to cache values like for I2C or SPI devices. Furthermore, most (if
-not all) of the access done by the touch & ADC driver read volatile
-register.
-Therefore this patch removes regmap part of the driver.
+=46rom: "Patil, Rachna" <rachna@ti.com>
 
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Current code has hard coded value written to
+step enable bits. Now the bits are updated based
+on how many steps are needed to be configured got
+from platform data.
+
+The user needs to take care not to exceed
+the count more than 16. While using ADC and TSC
+one should take care to set this parameter correctly.
+
+Signed-off-by: Patil, Rachna <rachna@ti.com>
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+[bigeasy: add lock, move to MFD, use in TSC & ADC]
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- drivers/mfd/ti_am335x_tscadc.c       |   23 ++---------------------
- include/linux/mfd/ti_am335x_tscadc.h |    1 -
- 2 files changed, 2 insertions(+), 22 deletions(-)
+ drivers/iio/adc/ti_am335x_adc.c           |   20 ++++++++++++++++++--
+ drivers/input/touchscreen/ti_am335x_tsc.c |   12 ++++++++++--
+ drivers/mfd/ti_am335x_tscadc.c            |   29 +++++++++++++++++++++=
++++++++-
+ include/linux/mfd/ti_am335x_tscadc.h      |    8 ++++++--
+ 4 files changed, 62 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index e9f3fb5..804e61e 100644
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335=
+x_adc.c
+index 9db352e..543b9c4 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -42,10 +42,20 @@ static void tiadc_writel(struct tiadc_device *adc, =
+unsigned int reg,
+ 	writel(val, adc->mfd_tscadc->tscadc_base + reg);
+ }
+=20
++static u32 get_adc_step_mask(struct tiadc_device *adc_dev)
++{
++	u32 step_en;
++
++	step_en =3D ((1 << adc_dev->channels) - 1);
++	step_en <<=3D TOTAL_STEPS - adc_dev->channels + 1;
++	return step_en;
++}
++
+ static void tiadc_step_config(struct tiadc_device *adc_dev)
+ {
+ 	unsigned int stepconfig;
+ 	int i, channels =3D 0, steps;
++	u32 step_en;
+=20
+ 	/*
+ 	 * There are 16 configurable steps and 8 analog input
+@@ -69,7 +79,8 @@ static void tiadc_step_config(struct tiadc_device *ad=
+c_dev)
+ 				STEPCONFIG_OPENDLY);
+ 		channels++;
+ 	}
+-	tiadc_writel(adc_dev, REG_SE, STPENB_STEPENB);
++	step_en =3D get_adc_step_mask(adc_dev);
++	am335x_tsc_se_set(adc_dev->mfd_tscadc, step_en);
+ }
+=20
+ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
+@@ -127,7 +138,7 @@ static int tiadc_read_raw(struct iio_dev *indio_dev=
+,
+ 		if (i =3D=3D chan->channel)
+ 			*val =3D readx1 & 0xfff;
+ 	}
+-	tiadc_writel(adc_dev, REG_SE, STPENB_STEPENB);
++	am335x_tsc_se_update(adc_dev->mfd_tscadc);
+=20
+ 	return IIO_VAL_INT;
+ }
+@@ -191,10 +202,15 @@ static int tiadc_probe(struct platform_device *pd=
+ev)
+ static int tiadc_remove(struct platform_device *pdev)
+ {
+ 	struct iio_dev *indio_dev =3D platform_get_drvdata(pdev);
++	struct tiadc_device *adc_dev =3D iio_priv(indio_dev);
++	u32 step_en;
+=20
+ 	iio_device_unregister(indio_dev);
+ 	tiadc_channels_remove(indio_dev);
+=20
++	step_en =3D get_adc_step_mask(adc_dev);
++	am335x_tsc_se_clr(adc_dev->mfd_tscadc, step_en);
++
+ 	iio_device_free(indio_dev);
+=20
+ 	return 0;
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/=
+touchscreen/ti_am335x_tsc.c
+index 16077d3..23d6a4d 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -57,6 +57,7 @@ static void titsc_writel(struct titsc *tsc, unsigned =
+int reg,
+ static void titsc_step_config(struct titsc *ts_dev)
+ {
+ 	unsigned int	config;
++	unsigned int	stepenable =3D 0;
+ 	int i, total_steps;
+=20
+ 	/* Configure the Step registers */
+@@ -128,7 +129,9 @@ static void titsc_step_config(struct titsc *ts_dev)
+ 	titsc_writel(ts_dev, REG_STEPDELAY(total_steps + 2),
+ 			STEPCONFIG_OPENDLY);
+=20
+-	titsc_writel(ts_dev, REG_SE, STPENB_STEPENB_TC);
++	/* The steps1 =E2=80=A6 end and bit 0 for TS_Charge */
++	stepenable =3D (1 << (total_steps + 2)) - 1;
++	am335x_tsc_se_set(ts_dev->mfd_tscadc, stepenable);
+ }
+=20
+ static void titsc_read_coordinates(struct titsc *ts_dev,
+@@ -250,7 +253,7 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+=20
+ 	titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
+=20
+-	titsc_writel(ts_dev, REG_SE, STPENB_STEPENB_TC);
++	am335x_tsc_se_update(ts_dev->mfd_tscadc);
+ 	return IRQ_HANDLED;
+ }
+=20
+@@ -334,6 +337,11 @@ static int titsc_remove(struct platform_device *pd=
+ev)
+=20
+ 	free_irq(ts_dev->irq, ts_dev);
+=20
++	/* total steps followed by the enable mask */
++	steps =3D 2 * ts_dev->steps_to_configure + 2;
++	steps =3D (1 << steps) - 1;
++	am335x_tsc_se_clr(ts_dev->mfd_tscadc, steps);
++
+ 	input_unregister_device(ts_dev->input);
+=20
+ 	platform_set_drvdata(pdev, NULL);
+diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tsc=
+adc.c
+index 490b2bd..7b091c4 100644
 --- a/drivers/mfd/ti_am335x_tscadc.c
 +++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -19,7 +19,6 @@
- #include <linux/err.h>
- #include <linux/io.h>
- #include <linux/clk.h>
--#include <linux/regmap.h>
- #include <linux/mfd/core.h>
- #include <linux/pm_runtime.h>
- 
-@@ -29,25 +28,15 @@
- 
- static unsigned int tscadc_readl(struct ti_tscadc_dev *tsadc, unsigned int reg)
- {
--	unsigned int val;
--
--	regmap_read(tsadc->regmap_tscadc, reg, &val);
--	return val;
-+	return readl(tsadc->tscadc_base + reg);
+@@ -37,6 +37,32 @@ static void tscadc_writel(struct ti_tscadc_dev *tsad=
+c, unsigned int reg,
+ 	writel(val, tsadc->tscadc_base + reg);
  }
- 
- static void tscadc_writel(struct ti_tscadc_dev *tsadc, unsigned int reg,
- 					unsigned int val)
- {
--	regmap_write(tsadc->regmap_tscadc, reg, val);
-+	writel(val, tsadc->tscadc_base + reg);
- }
- 
--static const struct regmap_config tscadc_regmap_config = {
--	.name = "ti_tscadc",
--	.reg_bits = 32,
--	.reg_stride = 4,
--	.val_bits = 32,
--};
--
+=20
++void am335x_tsc_se_update(struct ti_tscadc_dev *tsadc)
++{
++	tscadc_writel(tsadc, REG_SE, tsadc->reg_se_cache);
++}
++EXPORT_SYMBOL_GPL(am335x_tsc_se_update);
++
++void am335x_tsc_se_set(struct ti_tscadc_dev *tsadc, u32 val)
++{
++	spin_lock(&tsadc->reg_lock);
++	tsadc->reg_se_cache |=3D val;
++	spin_unlock(&tsadc->reg_lock);
++
++	am335x_tsc_se_update(tsadc);
++}
++EXPORT_SYMBOL_GPL(am335x_tsc_se_set);
++
++void am335x_tsc_se_clr(struct ti_tscadc_dev *tsadc, u32 val)
++{
++	spin_lock(&tsadc->reg_lock);
++	tsadc->reg_se_cache &=3D ~val;
++	spin_unlock(&tsadc->reg_lock);
++
++	am335x_tsc_se_update(tsadc);
++}
++EXPORT_SYMBOL_GPL(am335x_tsc_se_clr);
++
  static void tscadc_idle_config(struct ti_tscadc_dev *config)
  {
  	unsigned int idleconfig;
-@@ -121,14 +110,6 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
+@@ -110,6 +136,7 @@ static	int ti_tscadc_probe(struct platform_device *=
+pdev)
  		return -ENOMEM;
  	}
- 
--	tscadc->regmap_tscadc = devm_regmap_init_mmio(&pdev->dev,
--			tscadc->tscadc_base, &tscadc_regmap_config);
--	if (IS_ERR(tscadc->regmap_tscadc)) {
--		dev_err(&pdev->dev, "regmap init failed\n");
--		err = PTR_ERR(tscadc->regmap_tscadc);
--		goto ret;
--	}
--
+=20
++	spin_lock_init(&tscadc->reg_lock);
  	pm_runtime_enable(&pdev->dev);
  	pm_runtime_get_sync(&pdev->dev);
- 
-diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index c79ad5d..dc75c34 100644
+=20
+@@ -220,7 +247,7 @@ static int tscadc_resume(struct device *dev)
+ 			CNTRLREG_STEPID | CNTRLREG_4WIRE;
+ 	tscadc_writel(tscadc_dev, REG_CTRL, ctrl);
+ 	tscadc_idle_config(tscadc_dev);
+-	tscadc_writel(tscadc_dev, REG_SE, STPENB_STEPENB);
++	am335x_tsc_se_update(tscadc_dev);
+ 	restore =3D tscadc_readl(tscadc_dev, REG_CTRL);
+ 	tscadc_writel(tscadc_dev, REG_CTRL,
+ 			(restore | CNTRLREG_TSCSSENB));
+diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/t=
+i_am335x_tscadc.h
+index 5e430fe..eeead15 100644
 --- a/include/linux/mfd/ti_am335x_tscadc.h
 +++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -137,7 +137,6 @@ struct mfd_tscadc_board {
- 
- struct ti_tscadc_dev {
- 	struct device *dev;
--	struct regmap *regmap_tscadc;
+@@ -46,8 +46,6 @@
+ /* Step Enable */
+ #define STEPENB_MASK		(0x1FFFF << 0)
+ #define STEPENB(val)		((val) << 0)
+-#define STPENB_STEPENB		STEPENB(0x1FFFF)
+-#define STPENB_STEPENB_TC	STEPENB(0x1FFF)
+=20
+ /* IRQ enable */
+ #define IRQENB_HW_PEN		BIT(0)
+@@ -140,6 +138,8 @@ struct ti_tscadc_dev {
  	void __iomem *tscadc_base;
  	int irq;
  	struct mfd_cell cells[TSCADC_CELLS];
--- 
++	u32 reg_se_cache;
++	spinlock_t reg_lock;
+=20
+ 	/* tsc device */
+ 	struct titsc *tsc;
+@@ -155,4 +155,8 @@ static inline struct ti_tscadc_dev *ti_tscadc_dev_g=
+et(struct platform_device *p)
+ 	return *tscadc_dev;
+ }
+=20
++void am335x_tsc_se_update(struct ti_tscadc_dev *tsadc);
++void am335x_tsc_se_set(struct ti_tscadc_dev *tsadc, u32 val);
++void am335x_tsc_se_clr(struct ti_tscadc_dev *tsadc, u32 val);
++
+ #endif
+--=20
 1.7.10.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

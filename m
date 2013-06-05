@@ -1,267 +1,119 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 16/53] Input: atmel_mxt_ts - Add additional bootloader addresses
-Date: Wed,  5 Jun 2013 18:37:09 +0100
-Message-ID: <1370453866-16534-17-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 47/53] Input: atmel_mxt_ts - Release touch state during suspend
+Date: Wed,  5 Jun 2013 18:37:40 +0100
+Message-ID: <1370453866-16534-48-git-send-email-nick.dyer@itdev.co.uk>
 References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:2754 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1757128Ab3FERsP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jun 2013 13:48:15 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-Move bootloaders reads/writes into separate functions. Instead of switching
-client->addr, define new field bootloader_addr in mxt_data. Implement lookup
-calculation for bootloader addresses.
+If fingers are down as the MXT chip goes into suspend it does not send a lift
+message. In addition, it may not complete its final measurement cycle
+immediately, which means touch messages may be received by the interrupt
+handler after mxt_stop() has completed.
+
+So:
+- disable irq during suspend
+- flush any messages created after suspend
+- tell app layer that slots were released at suspend
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |  138 ++++++++++++++++++++----------
- 1 file changed, 93 insertions(+), 45 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   46 ++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index d620a4a..842312e 100644
+index cd8f3e0..724a95d 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -30,12 +30,6 @@
- #define MXT_VER_21		21
- #define MXT_VER_22		22
+@@ -251,6 +251,9 @@ struct mxt_data {
  
--/* Slave addresses */
--#define MXT_APP_LOW		0x4a
--#define MXT_APP_HIGH		0x4b
--#define MXT_BOOT_LOW		0x24
--#define MXT_BOOT_HIGH		0x25
--
- /* Firmware files */
- #define MXT_FW_NAME		"maxtouch.fw"
- #define MXT_CFG_NAME		"maxtouch.cfg"
-@@ -273,6 +267,7 @@ struct mxt_data {
- 	bool debug_enabled;
- 	u32 config_crc;
- 	u32 info_crc;
-+	u8 bootloader_addr;
+ 	/* Enable reporting of input events */
+ 	bool enable_reporting;
++
++	/* Indicates whether device is in suspend */
++	bool suspended;
+ };
  
- 	/* Cached parameters from object table */
- 	u8 T6_reportid;
-@@ -362,9 +357,82 @@ static int mxt_wait_for_completion(struct mxt_data *data,
- 	return 0;
- }
+ static inline size_t mxt_obj_size(const struct mxt_object *obj)
+@@ -2028,6 +2031,11 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	if (ret)
+ 		goto release_firmware;
  
-+static int mxt_bootloader_read(struct mxt_data *data,
-+			       u8 *val, unsigned int count)
-+{
-+	int ret;
-+	struct i2c_msg msg;
-+
-+	msg.addr = data->bootloader_addr;
-+	msg.flags = data->client->flags & I2C_M_TEN;
-+	msg.flags |= I2C_M_RD;
-+	msg.len = count;
-+	msg.buf = val;
-+
-+	ret = i2c_transfer(data->client->adapter, &msg, 1);
-+
-+	if (ret == 1) {
-+		ret = 0;
-+	} else {
-+		ret = (ret < 0) ? ret : -EIO;
-+		dev_err(&data->client->dev, "%s: i2c recv failed (%d)\n",
-+			__func__, ret);
++	if (data->suspended) {
++		enable_irq(data->irq);
++		data->suspended = false;
 +	}
 +
-+	return ret;
-+}
+ 	if (!data->in_bootloader) {
+ 		/* Change to the bootloader mode */
+ 		data->in_bootloader = true;
+@@ -2140,6 +2148,8 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	} else {
+ 		dev_info(dev, "The firmware update succeeded\n");
+ 
++		data->suspended = false;
 +
-+static int mxt_bootloader_write(struct mxt_data *data,
-+				const u8 * const val, unsigned int count)
+ 		error = mxt_initialize(data);
+ 		if (error)
+ 			return error;
+@@ -2245,17 +2255,53 @@ static const struct attribute_group mxt_attr_group = {
+ 	.attrs = mxt_attrs,
+ };
+ 
++static void mxt_reset_slots(struct mxt_data *data)
 +{
-+	int ret;
-+	struct i2c_msg msg;
++	struct input_dev *input_dev = data->input_dev;
++	unsigned int num_mt_slots;
++	int id;
 +
-+	msg.addr = data->bootloader_addr;
-+	msg.flags = data->client->flags & I2C_M_TEN;
-+	msg.len = count;
-+	msg.buf = (u8 *)val;
++	num_mt_slots = data->num_touchids + data->num_stylusids;
 +
-+	ret = i2c_transfer(data->client->adapter, &msg, 1);
-+	if (ret == 1) {
-+		ret = 0;
-+	} else {
-+		ret = (ret < 0) ? ret : -EIO;
-+		dev_err(&data->client->dev, "%s: i2c send failed (%d)\n",
-+			__func__, ret);
++	for (id = 0; id < num_mt_slots; id++) {
++		input_mt_slot(input_dev, id);
++		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
 +	}
 +
-+	return ret;
++	mxt_input_sync(input_dev);
 +}
 +
-+static int mxt_lookup_bootloader_address(struct mxt_data *data)
-+{
-+	u8 appmode = data->client->addr;
-+	u8 bootloader;
-+
-+	switch (appmode) {
-+	case 0x4a:
-+	case 0x4b:
-+	case 0x4c:
-+	case 0x4d:
-+	case 0x5a:
-+	case 0x5b:
-+		bootloader = appmode - 0x26;
-+		break;
-+	default:
-+		dev_err(&data->client->dev,
-+			"Appmode i2c address 0x%02x not found\n",
-+			appmode);
-+		return -EINVAL;
-+	}
-+
-+	data->bootloader_addr = bootloader;
-+	return 0;
-+}
-+
- static int mxt_check_bootloader(struct mxt_data *data, unsigned int state)
+ static void mxt_start(struct mxt_data *data)
  {
--	struct i2c_client *client = data->client;
-+	struct device *dev = &data->client->dev;
- 	u8 val;
- 	int ret;
++	if (!data->suspended || data->in_bootloader)
++		return;
++
++	/* Discard any touch messages still in message buffer from before chip
++	 * went to sleep */
++	mxt_process_messages_until_invalid(data);
++
+ 	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
  
-@@ -385,15 +453,14 @@ recheck:
- 			 * length 0x000 to device (iff we are in
- 			 * WAITING_FRAME_DATA state).
- 			 */
--			dev_err(&client->dev, "Update wait error %d\n", ret);
-+			dev_err(dev, "Update wait error %d\n", ret);
- 			return ret;
- 		}
- 	}
- 
--	if (i2c_master_recv(client, &val, 1) != 1) {
--		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
--		return -EIO;
--	}
-+	ret = mxt_bootloader_read(data, &val, 1);
-+	if (ret)
-+		return ret;
- 
- 	switch (state) {
- 	case MXT_WAITING_BOOTLOAD_CMD:
-@@ -409,7 +476,7 @@ recheck:
- 	}
- 
- 	if (val != state) {
--		dev_err(&client->dev, "Invalid bootloader state %02X != %02X\n",
-+		dev_err(dev, "Invalid bootloader state %02X != %02X\n",
- 			val, state);
- 		return -EINVAL;
- 	}
-@@ -417,28 +484,17 @@ recheck:
- 	return 0;
+ 	/* Recalibrate since chip has been in deep sleep */
+ 	mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
++
++	mxt_acquire_irq(data);
++	data->enable_reporting = true;
++	data->suspended = false;
  }
  
--static int mxt_unlock_bootloader(struct i2c_client *client)
-+static int mxt_unlock_bootloader(struct mxt_data *data)
+ static void mxt_stop(struct mxt_data *data)
  {
-+	int ret;
- 	u8 buf[2];
- 
- 	buf[0] = MXT_UNLOCK_CMD_LSB;
- 	buf[1] = MXT_UNLOCK_CMD_MSB;
- 
--	if (i2c_master_send(client, buf, 2) != 2) {
--		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
--		return -EIO;
--	}
--
--	return 0;
--}
--
--static int mxt_fw_write(struct i2c_client *client,
--			     const u8 *data, unsigned int frame_size)
--{
--	if (i2c_master_send(client, data, frame_size) != frame_size) {
--		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
--		return -EIO;
--	}
-+	ret = mxt_bootloader_write(data, buf, 2);
-+	if (ret)
-+		return ret;
- 
- 	return 0;
- }
-@@ -1375,7 +1431,6 @@ done:
- static int mxt_load_fw(struct device *dev, const char *fn)
- {
- 	struct mxt_data *data = dev_get_drvdata(dev);
--	struct i2c_client *client = data->client;
- 	const struct firmware *fw = NULL;
- 	unsigned int frame_size;
- 	unsigned int pos = 0;
-@@ -1387,6 +1442,10 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 		return ret;
- 	}
- 
-+	ret = mxt_lookup_bootloader_address(data);
-+	if (ret)
-+		goto release_firmware;
++	if (data->suspended || data->in_bootloader)
++		return;
 +
- 	/* Change to the bootloader mode */
- 	data->in_bootloader = true;
- 
-@@ -1396,12 +1455,6 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 
- 	msleep(MXT_RESET_TIME);
- 
--	/* Change to slave address of bootloader */
--	if (client->addr == MXT_APP_LOW)
--		client->addr = MXT_BOOT_LOW;
--	else
--		client->addr = MXT_BOOT_HIGH;
--
- 	INIT_COMPLETION(data->bl_completion);
- 
- 	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD);
-@@ -1409,7 +1462,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 		goto disable_irq;
- 
- 	/* Unlock bootloader */
--	mxt_unlock_bootloader(client);
-+	mxt_unlock_bootloader(data);
- 
- 	while (pos < fw->size) {
- 		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA);
-@@ -1424,7 +1477,9 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 		frame_size += 2;
- 
- 		/* Write one frame to device */
--		mxt_fw_write(client, fw->data + pos, frame_size);
-+		ret = mxt_bootloader_write(data, fw->data + pos, frame_size);
-+		if (ret)
-+			goto disable_irq;
- 
- 		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS);
- 		if (ret)
-@@ -1452,13 +1507,6 @@ disable_irq:
- 	disable_irq(data->irq);
- release_firmware:
- 	release_firmware(fw);
--
--	/* Change to slave address of application */
--	if (client->addr == MXT_BOOT_LOW)
--		client->addr = MXT_APP_LOW;
--	else
--		client->addr = MXT_APP_HIGH;
--
- 	return ret;
++	data->enable_reporting = false;
++	disable_irq(data->irq);
++
+ 	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
++
++	mxt_reset_slots(data);
++	data->suspended = true;
  }
  
+ static int mxt_input_open(struct input_dev *dev)
 -- 
 1.7.10.4
-

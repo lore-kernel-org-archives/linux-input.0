@@ -1,257 +1,267 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 52/53] Input: atmel_mxt_ts - Handle cfg filename via pdata/sysfs
-Date: Wed,  5 Jun 2013 18:37:45 +0100
-Message-ID: <1370453866-16534-53-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 16/53] Input: atmel_mxt_ts - Add additional bootloader addresses
+Date: Wed,  5 Jun 2013 18:37:09 +0100
+Message-ID: <1370453866-16534-17-git-send-email-nick.dyer@itdev.co.uk>
 References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:2754 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757128Ab3FERsP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Jun 2013 13:48:15 -0400
 In-Reply-To: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
-List-Id: linux-input@vger.kernel.org
 
-There may be multiple maXTouch chips on a single device which will require
-different configuration files. Add a platform data value for the configuration
-filename.
-
-Add sysfs entry to write configuration file if the platform data is not set.
-
-Split out the object initialisation code from mxt_initialize() into
-mxt_configure_objects() to allow this.
+Move bootloaders reads/writes into separate functions. Instead of switching
+client->addr, define new field bootloader_addr in mxt_data. Implement lookup
+calculation for bootloader addresses.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |  104 ++++++++++++++++++++++++------
- include/linux/i2c/atmel_mxt_ts.h         |    1 +
- 2 files changed, 86 insertions(+), 19 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |  138 ++++++++++++++++++++----------
+ 1 file changed, 93 insertions(+), 45 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 3a74371..0474cb9 100644
+index d620a4a..842312e 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -28,7 +28,6 @@
- #include <linux/gpio.h>
+@@ -30,12 +30,6 @@
+ #define MXT_VER_21		21
+ #define MXT_VER_22		22
  
- /* Configuration file */
--#define MXT_CFG_NAME		"maxtouch.cfg"
- #define MXT_CFG_MAGIC		"OBP_RAW V1"
- 
- /* Registers */
-@@ -248,6 +247,7 @@ struct mxt_data {
- 	struct regulator *reg_vdd;
- 	struct regulator *reg_avdd;
- 	char *fw_name;
-+	char *cfg_name;
+-/* Slave addresses */
+-#define MXT_APP_LOW		0x4a
+-#define MXT_APP_HIGH		0x4b
+-#define MXT_BOOT_LOW		0x24
+-#define MXT_BOOT_HIGH		0x25
+-
+ /* Firmware files */
+ #define MXT_FW_NAME		"maxtouch.fw"
+ #define MXT_CFG_NAME		"maxtouch.cfg"
+@@ -273,6 +267,7 @@ struct mxt_data {
+ 	bool debug_enabled;
+ 	u32 config_crc;
+ 	u32 info_crc;
++	u8 bootloader_addr;
  
  	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -1376,10 +1376,15 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 	u8 val;
- 	u16 reg;
- 
--	ret = request_firmware(&cfg, MXT_CFG_NAME, dev);
-+	if (!data->cfg_name) {
-+		dev_dbg(dev, "Skipping cfg download\n");
-+		return 0;
-+	}
-+
-+	ret = request_firmware(&cfg, data->cfg_name, dev);
- 	if (ret < 0) {
- 		dev_err(dev, "Failure to request config file %s\n",
--			MXT_CFG_NAME);
-+			data->cfg_name);
- 		return 0;
- 	}
- 
-@@ -1677,6 +1682,14 @@ static int mxt_acquire_irq(struct mxt_data *data)
+ 	u8 T6_reportid;
+@@ -362,9 +357,82 @@ static int mxt_wait_for_completion(struct mxt_data *data,
  	return 0;
  }
  
-+static void mxt_free_input_device(struct mxt_data *data)
++static int mxt_bootloader_read(struct mxt_data *data,
++			       u8 *val, unsigned int count)
 +{
-+	if (data->input_dev) {
-+		input_unregister_device(data->input_dev);
-+		data->input_dev = NULL;
-+	}
-+}
-+
- static void mxt_free_object_table(struct mxt_data *data)
- {
- 	kfree(data->raw_info_block);
-@@ -1686,10 +1699,7 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	kfree(data->msg_buf);
- 	data->msg_buf = NULL;
- 
--	if (data->input_dev) {
--		input_unregister_device(data->input_dev);
--		data->input_dev = NULL;
--	}
-+	mxt_free_input_device(data);
- 
- 	data->enable_reporting = false;
- 	data->T5_address = 0;
-@@ -2184,6 +2194,7 @@ err_free_mem:
- }
- 
- static int mxt_initialize_t9_input_device(struct mxt_data *data);
-+static int mxt_configure_objects(struct mxt_data *data);
- 
- static int mxt_initialize(struct mxt_data *data)
- {
-@@ -2227,16 +2238,28 @@ retry_bootloader:
- 
- 	error = mxt_check_retrigen(data);
- 	if (error)
--		goto err_free_object_table;
-+		return error;
- 
- 	error = mxt_acquire_irq(data);
- 	if (error)
--		goto err_free_object_table;
-+		return error;
-+
-+	error = mxt_configure_objects(data);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static int mxt_configure_objects(struct mxt_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	int error;
- 
- 	error = mxt_init_t7_power_cfg(data);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to initialize power cfg\n");
--		goto err_free_object_table;
-+		return error;
- 	}
- 
- 	/* Check register init values */
-@@ -2244,28 +2267,23 @@ retry_bootloader:
- 	if (error) {
- 		dev_err(&client->dev, "Error %d initialising configuration\n",
- 			error);
--		goto err_free_object_table;
-+		return error;
- 	}
- 
- 	if (data->T9_reportid_min) {
- 		error = mxt_initialize_t9_input_device(data);
- 		if (error)
--			goto err_free_object_table;
-+			return error;
- 	} else if (data->T100_reportid_min) {
- 		error = mxt_initialize_t100_input_device(data);
- 		if (error)
--			goto err_free_object_table;
-+			return error;
- 	} else {
- 		dev_warn(&client->dev, "No touch object detected\n");
- 	}
- 
- 	data->enable_reporting = true;
--
- 	return 0;
--
--err_free_object_table:
--	mxt_free_object_table(data);
--	return error;
- }
- 
- /* Firmware Version is returned as Major.Minor.Build */
-@@ -2553,6 +2571,45 @@ static ssize_t mxt_update_fw_store(struct device *dev,
- 	return count;
- }
- 
-+static ssize_t mxt_update_cfg_store(struct device *dev,
-+		struct device_attribute *attr,
-+		const char *buf, size_t count)
-+{
-+	struct mxt_data *data = dev_get_drvdata(dev);
 +	int ret;
++	struct i2c_msg msg;
 +
-+	if (data->in_bootloader) {
-+		dev_err(dev, "Not in appmode\n");
-+		return -EINVAL;
++	msg.addr = data->bootloader_addr;
++	msg.flags = data->client->flags & I2C_M_TEN;
++	msg.flags |= I2C_M_RD;
++	msg.len = count;
++	msg.buf = val;
++
++	ret = i2c_transfer(data->client->adapter, &msg, 1);
++
++	if (ret == 1) {
++		ret = 0;
++	} else {
++		ret = (ret < 0) ? ret : -EIO;
++		dev_err(&data->client->dev, "%s: i2c recv failed (%d)\n",
++			__func__, ret);
 +	}
 +
-+	ret = mxt_update_file_name(dev, &data->cfg_name, buf, count);
-+	if (ret)
-+		return ret;
-+
-+	data->enable_reporting = false;
-+	mxt_free_input_device(data);
-+
-+	if (data->suspended) {
-+		if (data->use_regulator)
-+			mxt_regulator_enable(data);
-+		else
-+			mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
-+
-+		mxt_acquire_irq(data);
-+
-+		data->suspended = false;
-+	}
-+
-+	ret = mxt_configure_objects(data);
-+	if (ret)
-+		goto out;
-+
-+	ret = count;
-+out:
 +	return ret;
 +}
 +
- static ssize_t mxt_debug_enable_show(struct device *dev,
- 	struct device_attribute *attr, char *buf)
- {
-@@ -2634,6 +2691,7 @@ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
- static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
- static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
- static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
-+static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
- static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
- 		   mxt_debug_enable_store);
- 
-@@ -2642,6 +2700,7 @@ static struct attribute *mxt_attrs[] = {
- 	&dev_attr_hw_version.attr,
- 	&dev_attr_object.attr,
- 	&dev_attr_update_fw.attr,
-+	&dev_attr_update_cfg.attr,
- 	&dev_attr_debug_enable.attr,
- 	NULL
- };
-@@ -2727,8 +2786,15 @@ static int mxt_handle_pdata(struct mxt_data *data)
- 	data->pdata = dev_get_platdata(&data->client->dev);
- 
- 	/* Use provided platform data if present */
--	if (data->pdata)
-+	if (data->pdata) {
-+		if (data->pdata->cfg_name)
-+			mxt_update_file_name(&data->client->dev,
-+					     &data->cfg_name,
-+					     data->pdata->cfg_name,
-+					     strlen(data->pdata->cfg_name));
++static int mxt_bootloader_write(struct mxt_data *data,
++				const u8 * const val, unsigned int count)
++{
++	int ret;
++	struct i2c_msg msg;
 +
- 		return 0;
++	msg.addr = data->bootloader_addr;
++	msg.flags = data->client->flags & I2C_M_TEN;
++	msg.len = count;
++	msg.buf = (u8 *)val;
++
++	ret = i2c_transfer(data->client->adapter, &msg, 1);
++	if (ret == 1) {
++		ret = 0;
++	} else {
++		ret = (ret < 0) ? ret : -EIO;
++		dev_err(&data->client->dev, "%s: i2c send failed (%d)\n",
++			__func__, ret);
 +	}
++
++	return ret;
++}
++
++static int mxt_lookup_bootloader_address(struct mxt_data *data)
++{
++	u8 appmode = data->client->addr;
++	u8 bootloader;
++
++	switch (appmode) {
++	case 0x4a:
++	case 0x4b:
++	case 0x4c:
++	case 0x4d:
++	case 0x5a:
++	case 0x5b:
++		bootloader = appmode - 0x26;
++		break;
++	default:
++		dev_err(&data->client->dev,
++			"Appmode i2c address 0x%02x not found\n",
++			appmode);
++		return -EINVAL;
++	}
++
++	data->bootloader_addr = bootloader;
++	return 0;
++}
++
+ static int mxt_check_bootloader(struct mxt_data *data, unsigned int state)
+ {
+-	struct i2c_client *client = data->client;
++	struct device *dev = &data->client->dev;
+ 	u8 val;
+ 	int ret;
  
- 	data->pdata = kzalloc(sizeof(*data->pdata), GFP_KERNEL);
- 	if (!data->pdata) {
-diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
-index a01f2e8..3422bd0 100644
---- a/include/linux/i2c/atmel_mxt_ts.h
-+++ b/include/linux/i2c/atmel_mxt_ts.h
-@@ -23,6 +23,7 @@ struct mxt_platform_data {
- 	int t15_num_keys;
- 	const unsigned int *t15_keymap;
- 	unsigned long gpio_reset;
-+	const char *cfg_name;
- };
+@@ -385,15 +453,14 @@ recheck:
+ 			 * length 0x000 to device (iff we are in
+ 			 * WAITING_FRAME_DATA state).
+ 			 */
+-			dev_err(&client->dev, "Update wait error %d\n", ret);
++			dev_err(dev, "Update wait error %d\n", ret);
+ 			return ret;
+ 		}
+ 	}
  
- #endif /* __LINUX_ATMEL_MXT_TS_H */
+-	if (i2c_master_recv(client, &val, 1) != 1) {
+-		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
+-		return -EIO;
+-	}
++	ret = mxt_bootloader_read(data, &val, 1);
++	if (ret)
++		return ret;
+ 
+ 	switch (state) {
+ 	case MXT_WAITING_BOOTLOAD_CMD:
+@@ -409,7 +476,7 @@ recheck:
+ 	}
+ 
+ 	if (val != state) {
+-		dev_err(&client->dev, "Invalid bootloader state %02X != %02X\n",
++		dev_err(dev, "Invalid bootloader state %02X != %02X\n",
+ 			val, state);
+ 		return -EINVAL;
+ 	}
+@@ -417,28 +484,17 @@ recheck:
+ 	return 0;
+ }
+ 
+-static int mxt_unlock_bootloader(struct i2c_client *client)
++static int mxt_unlock_bootloader(struct mxt_data *data)
+ {
++	int ret;
+ 	u8 buf[2];
+ 
+ 	buf[0] = MXT_UNLOCK_CMD_LSB;
+ 	buf[1] = MXT_UNLOCK_CMD_MSB;
+ 
+-	if (i2c_master_send(client, buf, 2) != 2) {
+-		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+-		return -EIO;
+-	}
+-
+-	return 0;
+-}
+-
+-static int mxt_fw_write(struct i2c_client *client,
+-			     const u8 *data, unsigned int frame_size)
+-{
+-	if (i2c_master_send(client, data, frame_size) != frame_size) {
+-		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
+-		return -EIO;
+-	}
++	ret = mxt_bootloader_write(data, buf, 2);
++	if (ret)
++		return ret;
+ 
+ 	return 0;
+ }
+@@ -1375,7 +1431,6 @@ done:
+ static int mxt_load_fw(struct device *dev, const char *fn)
+ {
+ 	struct mxt_data *data = dev_get_drvdata(dev);
+-	struct i2c_client *client = data->client;
+ 	const struct firmware *fw = NULL;
+ 	unsigned int frame_size;
+ 	unsigned int pos = 0;
+@@ -1387,6 +1442,10 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 		return ret;
+ 	}
+ 
++	ret = mxt_lookup_bootloader_address(data);
++	if (ret)
++		goto release_firmware;
++
+ 	/* Change to the bootloader mode */
+ 	data->in_bootloader = true;
+ 
+@@ -1396,12 +1455,6 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 
+ 	msleep(MXT_RESET_TIME);
+ 
+-	/* Change to slave address of bootloader */
+-	if (client->addr == MXT_APP_LOW)
+-		client->addr = MXT_BOOT_LOW;
+-	else
+-		client->addr = MXT_BOOT_HIGH;
+-
+ 	INIT_COMPLETION(data->bl_completion);
+ 
+ 	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD);
+@@ -1409,7 +1462,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 		goto disable_irq;
+ 
+ 	/* Unlock bootloader */
+-	mxt_unlock_bootloader(client);
++	mxt_unlock_bootloader(data);
+ 
+ 	while (pos < fw->size) {
+ 		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA);
+@@ -1424,7 +1477,9 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 		frame_size += 2;
+ 
+ 		/* Write one frame to device */
+-		mxt_fw_write(client, fw->data + pos, frame_size);
++		ret = mxt_bootloader_write(data, fw->data + pos, frame_size);
++		if (ret)
++			goto disable_irq;
+ 
+ 		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS);
+ 		if (ret)
+@@ -1452,13 +1507,6 @@ disable_irq:
+ 	disable_irq(data->irq);
+ release_firmware:
+ 	release_firmware(fw);
+-
+-	/* Change to slave address of application */
+-	if (client->addr == MXT_BOOT_LOW)
+-		client->addr = MXT_APP_LOW;
+-	else
+-		client->addr = MXT_APP_HIGH;
+-
+ 	return ret;
+ }
+ 
 -- 
 1.7.10.4
+

@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 15/53] Input: atmel_mxt_ts - Calculate and check CRC in config file
-Date: Wed,  5 Jun 2013 18:37:08 +0100
-Message-ID: <1370453866-16534-16-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 52/53] Input: atmel_mxt_ts - Handle cfg filename via pdata/sysfs
+Date: Wed,  5 Jun 2013 18:37:45 +0100
+Message-ID: <1370453866-16534-53-git-send-email-nick.dyer@itdev.co.uk>
 References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,367 +10,248 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.
 Cc: Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-By validating the checksum, we can identify if the configuration is corrupt.
-In addition, this patch writes the configuration in a short series of block
-writes rather than as many individual values.
+There may be multiple maXTouch chips on a single device which will require
+different configuration files. Add a platform data value for the configuration
+filename.
+
+Add sysfs entry to write configuration file if the platform data is not set.
+
+Split out the object initialisation code from mxt_initialize() into
+mxt_configure_objects() to allow this.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |  215 ++++++++++++++++++++++--------
- 1 file changed, 161 insertions(+), 54 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |  104 ++++++++++++++++++++++++------
+ include/linux/i2c/atmel_mxt_ts.h         |    1 +
+ 2 files changed, 86 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 7ce8ab4..d620a4a 100644
+index 3a74371..0474cb9 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -53,7 +53,7 @@
- #define MXT_OBJECT_START	0x07
+@@ -28,7 +28,6 @@
+ #include <linux/gpio.h>
  
- #define MXT_OBJECT_SIZE		6
--
-+#define MXT_INFO_CHECKSUM_SIZE	3
- #define MXT_MAX_BLOCK_WRITE	256
+ /* Configuration file */
+-#define MXT_CFG_NAME		"maxtouch.cfg"
+ #define MXT_CFG_MAGIC		"OBP_RAW V1"
  
- /* Object types */
-@@ -272,10 +272,12 @@ struct mxt_data {
- 	struct bin_attribute mem_access_attr;
- 	bool debug_enabled;
- 	u32 config_crc;
-+	u32 info_crc;
+ /* Registers */
+@@ -248,6 +247,7 @@ struct mxt_data {
+ 	struct regulator *reg_vdd;
+ 	struct regulator *reg_avdd;
+ 	char *fw_name;
++	char *cfg_name;
  
  	/* Cached parameters from object table */
- 	u8 T6_reportid;
- 	u16 T6_address;
-+	u16 T7_address;
- 	u8 T9_reportid_min;
- 	u8 T9_reportid_max;
- 	u8 T19_reportid;
-@@ -780,6 +782,45 @@ static void mxt_update_crc(struct mxt_data *data, u8 cmd, u8 value)
- 	mxt_wait_for_completion(data, &data->crc_completion, MXT_CRC_TIMEOUT);
- }
- 
-+static void mxt_calc_crc24(u32 *crc, u8 firstbyte, u8 secondbyte)
-+{
-+	static const unsigned int crcpoly = 0x80001B;
-+	u32 result;
-+	u32 data_word;
-+
-+	data_word = (secondbyte << 8) | firstbyte;
-+	result = ((*crc << 1) ^ data_word);
-+
-+	if (result & 0x1000000)
-+		result ^= crcpoly;
-+
-+	*crc = result;
-+}
-+
-+static u32 mxt_calculate_crc(u8 *base, off_t start_off, off_t end_off)
-+{
-+	u32 crc = 0;
-+	u8 *ptr = base + start_off;
-+	u8 *last_val = base + end_off - 1;
-+
-+	if (end_off < start_off)
-+		return -EINVAL;
-+
-+	while (ptr < last_val) {
-+		mxt_calc_crc24(&crc, *ptr, *(ptr + 1));
-+		ptr += 2;
-+	}
-+
-+	/* if len is odd, fill the last byte with 0 */
-+	if (ptr == last_val)
-+		mxt_calc_crc24(&crc, *ptr, 0);
-+
-+	/* Mask to 24-bit */
-+	crc &= 0x00FFFFFF;
-+
-+	return crc;
-+}
-+
- /*
-  * mxt_check_reg_init - download configuration to chip
-  *
-@@ -807,9 +848,13 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 	const struct firmware *cfg = NULL;
- 	int ret;
- 	int offset;
--	int pos;
-+	int data_pos;
-+	int byte_offset;
- 	int i;
--	u32 info_crc, config_crc;
-+	int cfg_start_ofs;
-+	u32 info_crc, config_crc, calculated_crc;
-+	u8 *config_mem;
-+	size_t config_mem_size;
- 	unsigned int type, instance, size;
+ 	u16 T5_address;
+@@ -1376,10 +1376,15 @@ static int mxt_check_reg_init(struct mxt_data *data)
  	u8 val;
  	u16 reg;
-@@ -829,11 +874,11 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 		goto release;
+ 
+-	ret = request_firmware(&cfg, MXT_CFG_NAME, dev);
++	if (!data->cfg_name) {
++		dev_dbg(dev, "Skipping cfg download\n");
++		return 0;
++	}
++
++	ret = request_firmware(&cfg, data->cfg_name, dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failure to request config file %s\n",
+-			MXT_CFG_NAME);
++			data->cfg_name);
+ 		return 0;
  	}
  
--	pos = strlen(MXT_CFG_MAGIC);
-+	data_pos = strlen(MXT_CFG_MAGIC);
+@@ -1677,6 +1682,14 @@ static int mxt_acquire_irq(struct mxt_data *data)
+ 	return 0;
+ }
  
- 	/* Load information block and check */
- 	for (i = 0; i < sizeof(struct mxt_info); i++) {
--		ret = sscanf(cfg->data + pos, "%hhx%n",
-+		ret = sscanf(cfg->data + data_pos, "%hhx%n",
- 			     (unsigned char *)&cfg_info + i,
- 			     &offset);
- 		if (ret != 1) {
-@@ -842,7 +887,7 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 			goto release;
- 		}
++static void mxt_free_input_device(struct mxt_data *data)
++{
++	if (data->input_dev) {
++		input_unregister_device(data->input_dev);
++		data->input_dev = NULL;
++	}
++}
++
+ static void mxt_free_object_table(struct mxt_data *data)
+ {
+ 	kfree(data->raw_info_block);
+@@ -1686,10 +1699,7 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	kfree(data->msg_buf);
+ 	data->msg_buf = NULL;
  
--		pos += offset;
-+		data_pos += offset;
+-	if (data->input_dev) {
+-		input_unregister_device(data->input_dev);
+-		data->input_dev = NULL;
+-	}
++	mxt_free_input_device(data);
+ 
+ 	data->enable_reporting = false;
+ 	data->T5_address = 0;
+@@ -2184,6 +2194,7 @@ err_free_mem:
+ }
+ 
+ static int mxt_initialize_t9_input_device(struct mxt_data *data);
++static int mxt_configure_objects(struct mxt_data *data);
+ 
+ static int mxt_initialize(struct mxt_data *data)
+ {
+@@ -2227,16 +2238,28 @@ retry_bootloader:
+ 
+ 	error = mxt_check_retrigen(data);
+ 	if (error)
+-		goto err_free_object_table;
++		return error;
+ 
+ 	error = mxt_acquire_irq(data);
+ 	if (error)
+-		goto err_free_object_table;
++		return error;
++
++	error = mxt_configure_objects(data);
++	if (error)
++		return error;
++
++	return 0;
++}
++
++static int mxt_configure_objects(struct mxt_data *data)
++{
++	struct i2c_client *client = data->client;
++	int error;
+ 
+ 	error = mxt_init_t7_power_cfg(data);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to initialize power cfg\n");
+-		goto err_free_object_table;
++		return error;
  	}
  
- 	if (cfg_info.family_id != data->info.family_id) {
-@@ -857,123 +902,182 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 		goto release;
+ 	/* Check register init values */
+@@ -2244,28 +2267,23 @@ retry_bootloader:
+ 	if (error) {
+ 		dev_err(&client->dev, "Error %d initialising configuration\n",
+ 			error);
+-		goto err_free_object_table;
++		return error;
  	}
  
--	if (cfg_info.version != data->info.version)
--		dev_err(dev, "Warning: version mismatch!\n");
+ 	if (data->T9_reportid_min) {
+ 		error = mxt_initialize_t9_input_device(data);
+ 		if (error)
+-			goto err_free_object_table;
++			return error;
+ 	} else if (data->T100_reportid_min) {
+ 		error = mxt_initialize_t100_input_device(data);
+ 		if (error)
+-			goto err_free_object_table;
++			return error;
+ 	} else {
+ 		dev_warn(&client->dev, "No touch object detected\n");
+ 	}
+ 
+ 	data->enable_reporting = true;
 -
--	if (cfg_info.build != data->info.build)
--		dev_err(dev, "Warning: build num mismatch!\n");
+ 	return 0;
 -
--	ret = sscanf(cfg->data + pos, "%x%n", &info_crc, &offset);
-+	/* Read CRCs */
-+	ret = sscanf(cfg->data + data_pos, "%x%n", &info_crc, &offset);
- 	if (ret != 1) {
- 		dev_err(dev, "Bad format: failed to parse Info CRC\n");
- 		ret = -EINVAL;
- 		goto release;
- 	}
--	pos += offset;
-+	data_pos += offset;
+-err_free_object_table:
+-	mxt_free_object_table(data);
+-	return error;
+ }
  
--	/* Check config CRC */
--	ret = sscanf(cfg->data + pos, "%x%n", &config_crc, &offset);
-+	ret = sscanf(cfg->data + data_pos, "%x%n", &config_crc, &offset);
- 	if (ret != 1) {
- 		dev_err(dev, "Bad format: failed to parse Config CRC\n");
- 		ret = -EINVAL;
- 		goto release;
- 	}
--	pos += offset;
-+	data_pos += offset;
+ /* Firmware Version is returned as Major.Minor.Build */
+@@ -2553,6 +2571,45 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	return count;
+ }
+ 
++static ssize_t mxt_update_cfg_store(struct device *dev,
++		struct device_attribute *attr,
++		const char *buf, size_t count)
++{
++	struct mxt_data *data = dev_get_drvdata(dev);
++	int ret;
 +
-+	/* The Info Block CRC is calculated over mxt_info and the object table
-+	 * If it does not match then we are trying to load the configuration
-+	 * from a different chip or firmware version, so the configuration CRC
-+	 * is invalid anyway. */
-+	if (info_crc == data->info_crc) {
-+		if (config_crc == 0 || data->config_crc == 0) {
-+			dev_info(dev, "CRC zero, attempting to apply config\n");
-+		} else if (config_crc == data->config_crc) {
-+			dev_info(dev, "Config CRC 0x%06X: OK\n",
-+				 data->config_crc);
-+			ret = 0;
-+			goto release;
-+		} else {
-+			dev_info(dev, "Config CRC 0x%06X: does not match file 0x%06X\n",
-+				 data->config_crc, config_crc);
-+		}
-+	} else {
-+		dev_warn(dev,
-+			 "Warning: Info CRC error - device=0x%06X file=0x%06X\n",
-+			data->info_crc, info_crc);
++	if (data->in_bootloader) {
++		dev_err(dev, "Not in appmode\n");
++		return -EINVAL;
++	}
++
++	ret = mxt_update_file_name(dev, &data->cfg_name, buf, count);
++	if (ret)
++		return ret;
++
++	data->enable_reporting = false;
++	mxt_free_input_device(data);
++
++	if (data->suspended) {
++		if (data->use_regulator)
++			mxt_regulator_enable(data);
++		else
++			mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++
++		mxt_acquire_irq(data);
++
++		data->suspended = false;
++	}
++
++	ret = mxt_configure_objects(data);
++	if (ret)
++		goto out;
++
++	ret = count;
++out:
++	return ret;
++}
++
+ static ssize_t mxt_debug_enable_show(struct device *dev,
+ 	struct device_attribute *attr, char *buf)
+ {
+@@ -2634,6 +2691,7 @@ static DEVICE_ATTR(fw_version, S_IRUGO, mxt_fw_version_show, NULL);
+ static DEVICE_ATTR(hw_version, S_IRUGO, mxt_hw_version_show, NULL);
+ static DEVICE_ATTR(object, S_IRUGO, mxt_object_show, NULL);
+ static DEVICE_ATTR(update_fw, S_IWUSR, NULL, mxt_update_fw_store);
++static DEVICE_ATTR(update_cfg, S_IWUSR, NULL, mxt_update_cfg_store);
+ static DEVICE_ATTR(debug_enable, S_IWUSR | S_IRUSR, mxt_debug_enable_show,
+ 		   mxt_debug_enable_store);
+ 
+@@ -2642,6 +2700,7 @@ static struct attribute *mxt_attrs[] = {
+ 	&dev_attr_hw_version.attr,
+ 	&dev_attr_object.attr,
+ 	&dev_attr_update_fw.attr,
++	&dev_attr_update_cfg.attr,
+ 	&dev_attr_debug_enable.attr,
+ 	NULL
+ };
+@@ -2727,8 +2786,15 @@ static int mxt_handle_pdata(struct mxt_data *data)
+ 	data->pdata = dev_get_platdata(&data->client->dev);
+ 
+ 	/* Use provided platform data if present */
+-	if (data->pdata)
++	if (data->pdata) {
++		if (data->pdata->cfg_name)
++			mxt_update_file_name(&data->client->dev,
++					     &data->cfg_name,
++					     data->pdata->cfg_name,
++					     strlen(data->pdata->cfg_name));
++
+ 		return 0;
 +	}
  
--	if (data->config_crc == config_crc) {
--		dev_info(dev, "Config CRC 0x%06X: OK\n", config_crc);
--		ret = 0;
-+	/* Malloc memory to store configuration */
-+	cfg_start_ofs = MXT_OBJECT_START
-+		+ data->info.object_num * sizeof(struct mxt_object)
-+		+ MXT_INFO_CHECKSUM_SIZE;
-+	config_mem_size = data->mem_size - cfg_start_ofs;
-+	config_mem = kzalloc(config_mem_size, GFP_KERNEL);
-+	if (!config_mem) {
-+		dev_err(dev, "Failed to allocate memory\n");
-+		ret = -ENOMEM;
- 		goto release;
--	} else {
--		dev_info(dev, "Config CRC 0x%06X: does not match file 0x%06X\n",
--			 data->config_crc, config_crc);
- 	}
+ 	data->pdata = kzalloc(sizeof(*data->pdata), GFP_KERNEL);
+ 	if (!data->pdata) {
+diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
+index a01f2e8..3422bd0 100644
+--- a/include/linux/i2c/atmel_mxt_ts.h
++++ b/include/linux/i2c/atmel_mxt_ts.h
+@@ -23,6 +23,7 @@ struct mxt_platform_data {
+ 	int t15_num_keys;
+ 	const unsigned int *t15_keymap;
+ 	unsigned long gpio_reset;
++	const char *cfg_name;
+ };
  
--	while (pos < cfg->size) {
-+	while (data_pos < cfg->size) {
- 		/* Read type, instance, length */
--		ret = sscanf(cfg->data + pos, "%x %x %x%n",
-+		ret = sscanf(cfg->data + data_pos, "%x %x %x%n",
- 			     &type, &instance, &size, &offset);
- 		if (ret == 0) {
- 			/* EOF */
--			ret = 1;
--			goto release;
-+			break;
- 		} else if (ret != 3) {
- 			dev_err(dev, "Bad format: failed to parse object\n");
- 			ret = -EINVAL;
--			goto release;
-+			goto release_mem;
- 		}
--		pos += offset;
-+		data_pos += offset;
- 
- 		object = mxt_get_object(data, type);
- 		if (!object) {
- 			/* Skip object */
- 			for (i = 0; i < size; i++) {
--				ret = sscanf(cfg->data + pos, "%hhx%n",
-+				ret = sscanf(cfg->data + data_pos, "%hhx%n",
- 					     &val,
- 					     &offset);
--				pos += offset;
-+				data_pos += offset;
- 			}
- 			continue;
- 		}
- 
- 		if (size > mxt_obj_size(object)) {
--			dev_err(dev, "Discarding %u byte(s) in T%u\n",
--				size - mxt_obj_size(object), type);
-+			/* Either we are in fallback mode due to wrong
-+			 * config or config from a later fw version,
-+			 * or the file is corrupt or hand-edited */
-+			dev_warn(dev, "Discarding %u byte(s) in T%u\n",
-+				 size - mxt_obj_size(object), type);
-+		} else if (mxt_obj_size(object) > size) {
-+			/* If firmware is upgraded, new bytes may be added to
-+			 * end of objects. It is generally forward compatible
-+			 * to zero these bytes - previous behaviour will be
-+			 * retained. However this does invalidate the CRC and
-+			 * will force fallback mode until the configuration is
-+			 * updated. We warn here but do nothing else - the
-+			 * malloc has zeroed the entire configuration. */
-+			dev_warn(dev, "Zeroing %u byte(s) in T%d\n",
-+				 mxt_obj_size(object) - size, type);
- 		}
- 
- 		if (instance >= mxt_obj_instances(object)) {
- 			dev_err(dev, "Object instances exceeded!\n");
- 			ret = -EINVAL;
--			goto release;
-+			goto release_mem;
- 		}
- 
- 		reg = object->start_address + mxt_obj_size(object) * instance;
- 
- 		for (i = 0; i < size; i++) {
--			ret = sscanf(cfg->data + pos, "%hhx%n",
-+			ret = sscanf(cfg->data + data_pos, "%hhx%n",
- 				     &val,
- 				     &offset);
- 			if (ret != 1) {
- 				dev_err(dev, "Bad format in T%d\n", type);
- 				ret = -EINVAL;
--				goto release;
-+				goto release_mem;
- 			}
--			pos += offset;
-+			data_pos += offset;
- 
- 			if (i > mxt_obj_size(object))
- 				continue;
- 
--			ret = mxt_write_reg(data->client, reg + i, val);
--			if (ret)
--				goto release;
-+			byte_offset = reg + i - cfg_start_ofs;
- 
-+			if ((byte_offset >= 0)
-+			    && (byte_offset <= config_mem_size)) {
-+				*(config_mem + byte_offset) = val;
-+			} else {
-+				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
-+					reg, object->type, byte_offset);
-+				ret = -EINVAL;
-+				goto release_mem;
-+			}
- 		}
-+	}
- 
--		/* If firmware is upgraded, new bytes may be added to end of
--		 * objects. It is generally forward compatible to zero these
--		 * bytes - previous behaviour will be retained. However
--		 * this does invalidate the CRC and will force a config
--		 * download every time until the configuration is updated */
--		if (size < mxt_obj_size(object)) {
--			dev_info(dev, "Zeroing %u byte(s) in T%d\n",
--				 mxt_obj_size(object) - size, type);
-+	/* calculate crc of the received configs (not the raw config file) */
-+	if (data->T7_address < cfg_start_ofs) {
-+		dev_err(dev, "Bad T7 address, T7addr = %x, config offset %x\n",
-+			data->T7_address, cfg_start_ofs);
-+		ret = 0;
-+		goto release_mem;
-+	}
- 
--			for (i = size + 1; i < mxt_obj_size(object); i++) {
--				ret = mxt_write_reg(data->client, reg + i, 0);
--				if (ret)
--					goto release;
--			}
-+	calculated_crc = mxt_calculate_crc(config_mem,
-+					   data->T7_address - cfg_start_ofs,
-+					   config_mem_size);
-+
-+	if (config_crc > 0 && (config_crc != calculated_crc))
-+		dev_warn(dev, "Config CRC error, calculated=%06X, file=%06X\n",
-+			 calculated_crc, config_crc);
-+
-+	/* Write configuration as blocks */
-+	byte_offset = 0;
-+	while (byte_offset < config_mem_size) {
-+		size = config_mem_size - byte_offset;
-+
-+		if (size > MXT_MAX_BLOCK_WRITE)
-+			size = MXT_MAX_BLOCK_WRITE;
-+
-+		ret = __mxt_write_reg(data->client,
-+				      cfg_start_ofs + byte_offset,
-+				      size, config_mem + byte_offset);
-+		if (ret != 0) {
-+			dev_err(dev, "Config write error, ret=%d\n", ret);
-+			goto release_mem;
- 		}
-+
-+		byte_offset += size;
- 	}
- 
- 	mxt_update_crc(data, MXT_COMMAND_BACKUPNV, MXT_BACKUP_VALUE);
- 
- 	ret = mxt_soft_reset(data);
- 	if (ret)
--		goto release;
-+		goto release_mem;
- 
- 	dev_info(dev, "Config written\n");
- 
-+release_mem:
-+	kfree(config_mem);
- release:
- 	release_firmware(cfg);
- 	return ret;
-@@ -1073,6 +1177,9 @@ static int mxt_get_object_table(struct mxt_data *data)
- 			data->T6_reportid = min_id;
- 			data->T6_address = object->start_address;
- 			break;
-+		case MXT_GEN_POWER_T7:
-+			data->T7_address = object->start_address;
-+			break;
- 		case MXT_TOUCH_MULTI_T9:
- 			data->T9_reportid_min = min_id;
- 			data->T9_reportid_max = max_id;
+ #endif /* __LINUX_ATMEL_MXT_TS_H */
 -- 
 1.7.10.4

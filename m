@@ -1,70 +1,69 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
+From: Mark Brown <broonie@kernel.org>
 Subject: Re: [PATCH 10/53] Input: atmel_mxt_ts - Add memory access interface
  via sysfs
-Date: Wed, 05 Jun 2013 22:36:45 +0100
-Message-ID: <51AFAF6D.7050204@itdev.co.uk>
-References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk> <7380889.l4hHqCT0mm@dtor-d630.eng.vmware.com> <51AF8730.4010507@itdev.co.uk> <1717403.GgHsbyUkDZ@dtor-d630.eng.vmware.com> <51AFA02B.3000604@itdev.co.uk> <20130605210715.GA16013@core.coreip.homeip.net>
+Date: Thu, 6 Jun 2013 10:48:22 +0100
+Message-ID: <20130606094822.GB1883@sirena.org.uk>
+References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
+ <7380889.l4hHqCT0mm@dtor-d630.eng.vmware.com>
+ <51AF8730.4010507@itdev.co.uk>
+ <1717403.GgHsbyUkDZ@dtor-d630.eng.vmware.com>
+ <51AFA02B.3000604@itdev.co.uk>
+ <20130605210715.GA16013@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZoaI/ZTpAVc4A5k6"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:38120 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751882Ab3FFJtA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jun 2013 05:49:00 -0400
+Content-Disposition: inline
 In-Reply-To: <20130605210715.GA16013@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 
-Dmitry Torokhov wrote:
->> debugfs is a debug filesystem. This interface is useful for purposes which
->> are not debug.
-> 
-> What other purposes does it serve? I'd expect you need it during new
-> board bringup.
 
-Yes, during board bringup it's extremely useful. We have implemented
-numerous open and closed source utilities that can use this interface.
+--ZoaI/ZTpAVc4A5k6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Run-time examples would be adjusting noise suppression or touch suppression
-parameters based on something going on in the app layer (eg having
-different parameters during unlock screen), or tuning report rates based on
-application requirements, ot to inspect debug data if the touch sensor is
-faulty. You might say, well we should implement an kernel driver interface
-for these requirements, but they will vary hugely between different
-products. We are trying to keep the driver as generic as possible and push
-product-specific complexity to user space. Hence exposing the register map
-and implementing user-space libraries to deal with this kind of customisation.
+On Wed, Jun 05, 2013 at 02:07:15PM -0700, Dmitry Torokhov wrote:
+> On Wed, Jun 05, 2013 at 09:31:39PM +0100, Nick Dyer wrote:
 
->> I have to be pragmatic: I don't see debugfs enabled on most
->> shipping Android devices, and however much I tell them to enable debugfs
->> doesn't seem to hold much weight.
-> 
-> You do not need to have debugfs enabled on shipping kernels, just the
-> ones you use for integration work.
+> > It's partly path dependence - it was implemented like this because regmap
+> > wasn't in mainline at the point when I wrote it. Having a dependency on
+> > regmap would now be a API break complicating support of customers using
+> > older kernels than mainline. I would also have to update a bunch of
 
-I disagree. See above.
-
->> It's partly path dependence - it was implemented like this because regmap
->> wasn't in mainline at the point when I wrote it. Having a dependency on
->> regmap would now be a API break complicating support of customers using
->> older kernels than mainline. I would also have to update a bunch of
->> software and documentation and people to know about the two different APIs.
->> The existing implementation already appears in shipping devices, so it is
->> well tested.
-> 
 > This was never a good argument for introducing an interface into the
 > kernel.
 
-Yes, I know. Just pointing out that making changes to this does result in a
-significant cost.
+Indeed, and regmap is very easy to backport - it demands little from the
+rest of the kernel and most of that is bus specific so you can pretty
+much just copy it into an older kernel.
 
->> I can look into porting on top of regmap. But it seems a pity to pepper
->> regmap with atmel_mxt_ts quirks just to save on three small functions in
->> the driver.
-> 
-> This is not about saving 3 functions but rather the fact that individual
-> register access is desired by many parties and instead of each driver
-> implementing it's own solution (via a char device, sysfs, debugfs, etc)
-> we should try to standardize on common userspace interface.
+--ZoaI/ZTpAVc4A5k6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-I agree that a common interface is desirable. If regmap met the
-requirements I would certainly use it instead.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.20 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRsFrjAAoJELSic+t+oim9F9oP/jAxnQX8zJvdJ+YOTClPv+WM
+rBgjKPogtuTTHvil5j8HB3adoHG3XhXLteredrZl3FxhyxFaoHwUxN7OPSW1ZOsc
+MMzTUgQHJEjnioWWGuvlZ3v9+Jei5f2wnUg0K8tYb5TbM5nsrrFRH0GajK1pH3NZ
+Gc52aHlshB6L3j57z/dQsBHJdqyHKkYsrmu/2YoSZeXXE2P0hQjOl9oaEb3b00+E
+3zYnA1dhD29+C8pbisfEzZcaQSMDAK5aGfN01+/PyyGmTDHH6B6s99YeojLaYMoi
+xcFMACUjhC8bxo4j6fcsPy+Da5oUw6acm+eI8+t6w0TSDXDWJ66GHi8y7VDzD7dE
+JN28xPBDW9rngTNXDaxgiH4EnWH1JDEnPZXAy2PS6z/tER75qo9aTX604XGk0EPc
+z8q3gaa6XCHrnXa1GjBfeHpX3I4Yq21WT0hE7NXxyw7ju2OsbdwFgJmXSggM/jpL
+2FzQj4tL7WoKppLsCsLnYE1B7XukJ7YtvLFHF1WFtmZlWsCVm2mbwt7jRNYpBOAS
+rBjhgoO7IaBUNoUgwzP9edVYTphlUC+HvcDjpdFUGAoiFrsfsfR+x/iBHXdtUzgw
+msPAjXn0HLpsv3zICIMwxjhEOsvpt7lDs2UxDPHIEBVQCualSKi6VWAf4UGh9ca/
+dmc/TFt3ZzXjnfv8gl9P
+=HIyt
+-----END PGP SIGNATURE-----
+
+--ZoaI/ZTpAVc4A5k6--

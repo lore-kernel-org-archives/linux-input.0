@@ -1,67 +1,89 @@
 From: Mark Brown <broonie@kernel.org>
 Subject: Re: [PATCH 10/53] Input: atmel_mxt_ts - Add memory access interface
  via sysfs
-Date: Thu, 6 Jun 2013 11:46:51 +0100
-Message-ID: <20130606104651.GS31367@sirena.org.uk>
+Date: Thu, 6 Jun 2013 11:55:30 +0100
+Message-ID: <20130606105530.GT31367@sirena.org.uk>
 References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
  <7380889.l4hHqCT0mm@dtor-d630.eng.vmware.com>
  <51AF8730.4010507@itdev.co.uk>
  <1717403.GgHsbyUkDZ@dtor-d630.eng.vmware.com>
  <51AFA02B.3000604@itdev.co.uk>
  <20130605210715.GA16013@core.coreip.homeip.net>
- <20130606094822.GB1883@sirena.org.uk>
- <51B06732.2050701@itdev.co.uk>
+ <51AFAF6D.7050204@itdev.co.uk>
+ <20130606100346.GC1883@sirena.org.uk>
+ <51B0651D.3090902@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jobRqqe4Hp8P9iE7"
+	protocol="application/pgp-signature"; boundary="dZflLWwKqQHwno8z"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:50814 "EHLO
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:52329 "EHLO
 	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932141Ab3FFKrO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jun 2013 06:47:14 -0400
+	with ESMTP id S932391Ab3FFKzk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jun 2013 06:55:40 -0400
 Content-Disposition: inline
-In-Reply-To: <51B06732.2050701@itdev.co.uk>
+In-Reply-To: <51B0651D.3090902@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Nick Dyer <nick.dyer@itdev.co.uk>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 
 
---jobRqqe4Hp8P9iE7
+--dZflLWwKqQHwno8z
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, Jun 06, 2013 at 11:40:50AM +0100, Nick Dyer wrote:
+On Thu, Jun 06, 2013 at 11:31:57AM +0100, Nick Dyer wrote:
 
-> I am more worried about the address pointer handling and the I2C retries.
+> Having to define every parameter in each object (there are thousands) in
+> the kernel driver would be impractically technically, since it would result
+> in a huge, and constantly updating API, which would be always out-of-date,
+> and impossible to support.
 
-The retries can just be done further up the stack?  All regmap is doing
-with I/O errors is punting them straight back up to the caller so the
-caller can retry just as well using regmap as it can using the raw I/O
-protocol.
+> Also, I'm afraid it would also be impractical legally, since it would
+> breach the NDA terms that Atmel require on these parameter definitions.
 
-Without seeing the address thing it's hard to comment.
+If that's a big problem just put the data table in a section of the
+firmware (or a separate file that gets requested as a firmware).  Or
+have the firmware be able to enumerate itself when asked.
 
---jobRqqe4Hp8P9iE7
+> >> product-specific complexity to user space. Hence exposing the register map
+> >> and implementing user-space libraries to deal with this kind of customisation.
+
+> > This sounds like a bad design decision for Linux, it's just asking for
+> > fragility if userspace can go randomly poking round the entire register
+> > map of the device with nothing coordinating with the driver code.
+
+> It works very well in practice. This same abstraction is used across
+> maXTouch products on many platforms to provide tool support. I agree that
+> its use should be restricted to system programs.
+
+It works well so long as people use the supplied binaries in the way
+that's been proscribed.  As soon as people start upgrading kernels,
+customising things out of your expected flow (because they can or
+they're on a tight deadline) things will get more fragile.  This sort of
+stuff is really common, the approaches I'm describing are fairly
+standard solutions.
+
+--dZflLWwKqQHwno8z
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.20 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRsGiYAAoJELSic+t+oim9xsoP/jcQvo/QMsM9846ltzkPoNLz
-xcRCeEF+gYgR9ubx1mLeLTyyPnZttUbWJ/WMnVihaghjQ6kezanUXNWj2WhXXaLI
-GnOBLSqOR20IoaK9yEq5pAH9YdCpR7PyanOur+L82U6flrIFB8AJycxq8nHWXgAZ
-0AIlOo4ua7OCXFC2H4TIgpGdY0akQwyw3NYIbjU2d9vGAS+oMa9LJrEcltbdhWbw
-uYCtQuL+rTEAXQS6nQeHqJT+Ou6Es2S0z3DkIihou8YmsCP+9kHG7sEFwEKC6mai
-5ICZMlWrimjnsPej1/ASrUTRdzzUeAVzOIQ47MiF2TsJpYJrXj+rqYLYepduA+Qf
-whzTTGgzgYFBp3VOoQ5XZJZL6mHNNot06gr9I9Po5jB35KrGuza2zHdfAFSW+elX
-OA4WrrA/HJ9CXqNNiTT27ZEF6g1wJkqrXzBjZAXpgK1DpaTiQTszqYMWV7ihUsho
-OEbL47damSWp3eOW/kC9JmCsbmqy4gyLnMQ38ls3jq8THYLqGXZX1EtEBMROFS9/
-WSG/roJAW+4btBsNqMs6/fnMIOq1qxl3d29LgrKaY/Dy0ojR3WfUwZlsZbEGNjjz
-C6imF73xC2i/O4qL4LZDtyY3No5Zo0uLLfAPfAZaveFC57kNIGwWguMBqXgbZ+Zd
-FzudAS7vo/wMFjfYCOdt
-=w3YI
+iQIcBAEBAgAGBQJRsGqfAAoJELSic+t+oim90hMP+gLkNCyFRPU/h3qBc7ev5JNC
+nHq3U+v/v6/V0XB7EbGH2Wn2jpuWCaZ50yaIt9UAznp1XugtgaHXdrupZn61PXSV
+B13zFCtCyZ7y2hKXg5RqHECSedxjxE0/87jwqNduamGqb/fhgD2WXAPmqB86j4kt
+Fn68FFhrN56R7iFaLPoDnqGD64/fULma6GcEl7lxXFvqRutUyeyHG9i5vt+k5plb
+VmuNzSVUR2kzoGWMHo39qhshoN8/F7OFsGYE0OHxuJsnsSV0RisH+bjM1KnfCJvH
+4Zod23ZY0sxiZMPFXYqj0/VguZ0ixklKK5BP6zZmv+EPmLHGdWcdQVgyN+ZmzUuX
+6jUUWJqTxj6nmcoswiM3qTV3uf5JZso/z0tmVQrSsyEKBcXMDSXHfVatbljqgGu+
+veu/l+8oHaWESIK9mo9xXz6A5Xd/bsPdEplKX9z+iZqyjO1oadEYNnEad5M3oc2w
+kknDuVugx90YFUkNmvHdwQYIPF0oO3PZAoOOiPuVVk9nTgkrWKKHD1iYtP+Lsb8w
+N9xUNvqtIZUlzb/3ltjtOCT6ndpH8g1Zlos0519SMXNZJPo2ZWNxv5yXE/qSlr1E
+hoyUcNq1V/9JNPjIWANfsZTHnZV+AWnC/r1ylK2Nw6NkPvrvHG8zNu98gUFoc808
+X01UNGBp7nzhnNipRVcd
+=f89C
 -----END PGP SIGNATURE-----
 
---jobRqqe4Hp8P9iE7--
+--dZflLWwKqQHwno8z--

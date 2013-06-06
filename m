@@ -1,67 +1,40 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 Subject: Re: [PATCH 10/53] Input: atmel_mxt_ts - Add memory access interface
  via sysfs
-Date: Thu, 06 Jun 2013 11:31:57 +0100
-Message-ID: <51B0651D.3090902@itdev.co.uk>
-References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk> <7380889.l4hHqCT0mm@dtor-d630.eng.vmware.com> <51AF8730.4010507@itdev.co.uk> <1717403.GgHsbyUkDZ@dtor-d630.eng.vmware.com> <51AFA02B.3000604@itdev.co.uk> <20130605210715.GA16013@core.coreip.homeip.net> <51AFAF6D.7050204@itdev.co.uk> <20130606100346.GC1883@sirena.org.uk>
+Date: Thu, 06 Jun 2013 11:40:50 +0100
+Message-ID: <51B06732.2050701@itdev.co.uk>
+References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk> <7380889.l4hHqCT0mm@dtor-d630.eng.vmware.com> <51AF8730.4010507@itdev.co.uk> <1717403.GgHsbyUkDZ@dtor-d630.eng.vmware.com> <51AFA02B.3000604@itdev.co.uk> <20130605210715.GA16013@core.coreip.homeip.net> <20130606094822.GB1883@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:60280 "EHLO
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:3475 "EHLO
 	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S932163Ab3FFKb7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jun 2013 06:31:59 -0400
-In-Reply-To: <20130606100346.GC1883@sirena.org.uk>
+	with ESMTP id S932141Ab3FFKkw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jun 2013 06:40:52 -0400
+In-Reply-To: <20130606094822.GB1883@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mark Brown <broonie@kernel.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 
 Mark Brown wrote:
-> On Wed, Jun 05, 2013 at 10:36:45PM +0100, Nick Dyer wrote:
->> Run-time examples would be adjusting noise suppression or touch suppression
->> parameters based on something going on in the app layer (eg having
->> different parameters during unlock screen), or tuning report rates based on
->> application requirements, ot to inspect debug data if the touch sensor is
->> faulty. You might say, well we should implement an kernel driver interface
->> for these requirements, but they will vary hugely between different
->> products. We are trying to keep the driver as generic as possible and push
+> On Wed, Jun 05, 2013 at 02:07:15PM -0700, Dmitry Torokhov wrote:
+>> On Wed, Jun 05, 2013 at 09:31:39PM +0100, Nick Dyer wrote:
 > 
-> If this interface varies dramatically between products then that sounds
-> like a badly designed interface.  Obviously the way the interface is
-> being used would be likely to vary between products but what you're
-> talking about sounds like parameter get/set stuff which sounds pretty
-> generic to me.  What userspace chooses to do with the parameters is of
-> course another story.
-
-The underlying design is called Object Protocol by Atmel, and defines a
-method where the the i2c address space starts with a table defining the
-types and locations of various objects. Each object contains many
-parameters, most of them are simple get/set as you describe, but many
-objects have considerably more dynamic behaviours and interactions.
-
-The Object Protocol itself is generic, but the objects themselves are
-different on different maXTouch chips and firmware versions. The objects
-may change in size, or be added/removed. The protocol is designed to be
-flexible and allow rapid firmware development without having to
-continuously update tools.
-
-Having to define every parameter in each object (there are thousands) in
-the kernel driver would be impractically technically, since it would result
-in a huge, and constantly updating API, which would be always out-of-date,
-and impossible to support.
-
-Also, I'm afraid it would also be impractical legally, since it would
-breach the NDA terms that Atmel require on these parameter definitions.
-
->> product-specific complexity to user space. Hence exposing the register map
->> and implementing user-space libraries to deal with this kind of customisation.
+>>> It's partly path dependence - it was implemented like this because regmap
+>>> wasn't in mainline at the point when I wrote it. Having a dependency on
+>>> regmap would now be a API break complicating support of customers using
+>>> older kernels than mainline. I would also have to update a bunch of
 > 
-> This sounds like a bad design decision for Linux, it's just asking for
-> fragility if userspace can go randomly poking round the entire register
-> map of the device with nothing coordinating with the driver code.
+>> This was never a good argument for introducing an interface into the
+>> kernel.
+> 
+> Indeed, and regmap is very easy to backport - it demands little from the
+> rest of the kernel and most of that is bus specific so you can pretty
+> much just copy it into an older kernel.
 
-It works very well in practice. This same abstraction is used across
-maXTouch products on many platforms to provide tool support. I agree that
-its use should be restricted to system programs.
+That is good news. It would still be an extra thing to add to the docs, but
+not a blocking point.
+
+I am more worried about the address pointer handling and the I2C retries.

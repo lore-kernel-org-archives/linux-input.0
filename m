@@ -1,75 +1,79 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH v3] Input: evdev - Flush queues during EVIOCGKEY-like ioctls
-Date: Thu, 6 Jun 2013 23:10:58 +0200
-Message-ID: <CANq1E4QZ_qyZjHSb23_0f6Kh+XPuPfiCRf6O=0MoOQanASFjZA@mail.gmail.com>
-References: <1364471980-2426-1-git-send-email-dh.herrmann@gmail.com>
-	<20130606191514.GA4542@core.coreip.homeip.net>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [PATCH v3 0/4] Input: cyttsp4 - driver for Cypress TMA4XX
+ touchscreen devices
+Date: Fri, 7 Jun 2013 09:49:34 +0200
+Message-ID: <CABxcv=nmosEz-qixtOKLc_kbRp0GpcEtHxnfswacGSLJb+aMFw@mail.gmail.com>
+References: <1370338484-26573-1-git-send-email-fery@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f182.google.com ([209.85.223.182]:38335 "EHLO
-	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753720Ab3FFVK7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Jun 2013 17:10:59 -0400
-Received: by mail-ie0-f182.google.com with SMTP id 9so8568635iec.13
-        for <linux-input@vger.kernel.org>; Thu, 06 Jun 2013 14:10:58 -0700 (PDT)
-In-Reply-To: <20130606191514.GA4542@core.coreip.homeip.net>
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:53115 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751108Ab3FGHtg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jun 2013 03:49:36 -0400
+Received: by mail-wg0-f47.google.com with SMTP id e11so2778240wgh.26
+        for <linux-input@vger.kernel.org>; Fri, 07 Jun 2013 00:49:34 -0700 (PDT)
+In-Reply-To: <1370338484-26573-1-git-send-email-fery@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Ferruh Yigit <fery@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, ttdrivers@cypress.com, Henrik Rydberg <rydberg@euromail.se>, Simon Budig <simon.budig@kernelconcepts.de>, Alexander Shiyan <shc_work@mail.ru>, Samuel Ortiz <sameo@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Shawn Landden <shawnlandden@gmail.com>, Ashish Jangam <ashish.jangam@kpitcummins.com>, Olivier Sobrie <olivier@sobrie.be>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Dmitry
+Hi Ferruh,
 
-On Thu, Jun 6, 2013 at 9:15 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi David,
+On Tue, Jun 4, 2013 at 11:34 AM, Ferruh Yigit <fery@cypress.com> wrote:
+> This driver is for Cypress TrueTouch(tm) Standard Product controllers,
+> Generation4 devices.
 >
-> On Thu, Mar 28, 2013 at 12:59:40PM +0100, David Herrmann wrote:
->> If userspace requests current KEY-state, they very likely assume that no
->> such events are pending in the output queue of the evdev device.
->> Otherwise, they will parse events which they already handled via
->> EVIOCGKEY(). For XKB applications this can cause irreversible keyboard
->> states if a modifier is locked multiple times because a CTRL-DOWN event is
->> handled once via EVIOCGKEY() and once from the queue via read(), even
->> though it should handle it only once.
->>
->> Therefore, lets do the only logical thing and flush the evdev queue
->> atomically during this ioctl. We only flush events that are affected by
->> the given ioctl.
->>
->> This only affects boolean events like KEY, SND, SW and LED. ABS, REL and
->> others are not affected as duplicate events can be handled gracefully by
->> user-space.
->>
->> Note: This actually breaks semantics of the evdev ABI. However,
->> investigations showed that userspace already expects the new semantics and
->> we end up fixing at least all XKB applications.
->> All applications that are aware of this race-condition mirror the KEY
->> state for each open-file and detect/drop duplicate events. Hence, they do
->> not care whether duplicates are posted or not and work fine with this fix.
->>
->> Also note that we need proper locking to guarantee atomicity and avoid
->> dead-locks. event_lock must be locked before queue_lock (see input-core).
->> However, we can safely release event_lock while flushing the queue. This
->> allows the input-core to proceed with pending events and only stop if it
->> needs our queue_lock to post new events.
->> This should guarantee that we don't block event-dispatching for too long
->> while flushing a single event queue.
+> This is third version of submission code, modifications:
+> - code re-structured to match with existing Generation3 driver code.
+> - common I2C code for Gen3 and Gen4 devices split and shared.
 >
-> Could you please tell me again why we need to take event_lock in
-> addition to buffer_lock? We only affect the state of one client's buffer
-> and it seems to be that event_lock alone should be enough. At least it
-> is enough in read() when we fetching events form the client's queue.
 
-We need the buffer_lock to protect against evdev_fetch_next_event() as
-we might modify any part of the buffer in __flush_queue(). We don't
-want userspace to get inconsistent data. And we need event_lock to
-protect:
-  memcpy(mem, bits, sizeof(unsigned long) * max);
-Otherwise, input-core might modify the event-bits while we copy them
-to our buffer. But we want the function to be atomic, so we cannot
-allow modifications during the function-call.
+Thanks a lot for reusing as much as possible from the existing Gen3
+driver. This is exactly what I meant in my feedback on your second
+version of the driver.
 
-Regards
-David
+> Driver consist of three modules:
+> - Core module: Main module, gets data from TTSP controller,
+>   sent MT events to Linux
+> - I2C module: Underlying communication with I2C bus
+> - SPI module: Underlying communication with SPI bus
+>
+> Ferruh Yigit (4):
+>   Input: cyttsp - I2C driver split into two modules
+>   Input: cyttsp4 - Core driver for Cypress TMA4XX touchscreen devices
+>   Input: cyttsp4 - I2C driver for Cypress TMA4XX touchscreen devices
+>   Input: cyttsp4 - SPI driver for Cypress TMA4XX touchscreen devices
+>
+
+For the whole series:
+
+Acked-by: Javier Martinez Canillas <javier@dowhile0.org>
+
+>  drivers/input/touchscreen/Kconfig             |   30 +
+>  drivers/input/touchscreen/Makefile            |    5 +-
+>  drivers/input/touchscreen/cyttsp4_core.c      | 2173 +++++++++++++++++++++++++
+>  drivers/input/touchscreen/cyttsp4_core.h      |  472 ++++++
+>  drivers/input/touchscreen/cyttsp4_i2c.c       |   90 +
+>  drivers/input/touchscreen/cyttsp4_spi.c       |  205 +++
+>  drivers/input/touchscreen/cyttsp_core.c       |    6 +-
+>  drivers/input/touchscreen/cyttsp_core.h       |   11 +-
+>  drivers/input/touchscreen/cyttsp_i2c.c        |   50 +-
+>  drivers/input/touchscreen/cyttsp_i2c_common.c |   79 +
+>  drivers/input/touchscreen/cyttsp_spi.c        |   38 +-
+>  include/linux/platform_data/cyttsp4.h         |   76 +
+>  12 files changed, 3161 insertions(+), 74 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/cyttsp4_core.c
+>  create mode 100644 drivers/input/touchscreen/cyttsp4_core.h
+>  create mode 100644 drivers/input/touchscreen/cyttsp4_i2c.c
+>  create mode 100644 drivers/input/touchscreen/cyttsp4_spi.c
+>  create mode 100644 drivers/input/touchscreen/cyttsp_i2c_common.c
+>  create mode 100644 include/linux/platform_data/cyttsp4.h
+>
+> --
+> 1.7.9.5
+>
+
+Best regards,
+Javier

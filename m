@@ -1,76 +1,135 @@
-From: Yufeng Shen <miletus@chromium.org>
-Subject: Re: Atmel updates to atmel_mxt_ts touch controller driver - v5 Daniel
- Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung
- Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
-Date: Fri, 7 Jun 2013 16:21:05 -0400
-Message-ID: <CAPDwgkN1+y+eWnaPY599T+5RVLq7QjvOBOMdNYFrbwt6NFpDqQ@mail.gmail.com>
-References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk>
-	<20130606191847.GB4542@core.coreip.homeip.net>
-	<CAPDwgkPdtj0Th8P+y9e5O7swARfzS40sG1A3Ba=pAmeXfMx0Dw@mail.gmail.com>
-	<20130606194616.GA4928@core.coreip.homeip.net>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 12/22] iio/ti_tscadc: Update with IIO map interface
+Date: Sat, 08 Jun 2013 10:18:37 +0100
+Message-ID: <51B2F6ED.6030702@kernel.org>
+References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de> <1370449495-29981-13-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f181.google.com ([209.85.216.181]:64875 "EHLO
-	mail-qc0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752105Ab3FGUVH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Jun 2013 16:21:07 -0400
-Received: by mail-qc0-f181.google.com with SMTP id u11so2661165qcx.26
-        for <linux-input@vger.kernel.org>; Fri, 07 Jun 2013 13:21:05 -0700 (PDT)
-In-Reply-To: <20130606194616.GA4928@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1370449495-29981-13-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
 
-Acked-by: Yufeng Shen <miletus@chromium.org>
+On 06/05/2013 05:24 PM, Sebastian Andrzej Siewior wrote:
+> From: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+>
+> Add an IIO map interface that consumers can use.
+>
+Nicely done and much cleaner.  Thanks,
 
-Test the patch series on Chromebook Pixel with kernel 3.8.
-Touchscreen & trackpad work, FW/Config update work.
-
-On Thu, Jun 6, 2013 at 3:46 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Jun 06, 2013 at 03:40:47PM -0400, Yufeng Shen wrote:
->> On Thu, Jun 6, 2013 at 3:18 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com>wrote:
->>
->> > On Wed, Jun 05, 2013 at 06:36:53PM +0100, Nick Dyer wrote:
->> > > The following patches are an updated series of patches to the
->> > atmel_mxt_ts
->> > > touch driver. They should apply cleanly to input/next.
->> > >
->> > > This is a combined patchset, I've been working to merge my changes with
->> > the
->> > > changes from the Chromium team. It's undergone a lot of testing and
->> > review
->> > > over the last few months and I believe it is now ready to go upstream.
->> > >
->> > > Most of these changes have been maintained and tested out-of-tree in
->> > some form
->> > > for a long time. I apologise for the backlog.
->> > >
->> > > We also provide a set of user-space utilities as open source which are
->> > > available from github and work well with this driver:
->> > >   https://github.com/atmel-maxtouch/obp-utils
->> > >
->> > > You can see the in-between versions at
->> > >   https://github.com/ndyer/linux/
->> > >
->> >
->> > Daniel, Henrik,
->> >
->> > Any comments befroe I start pulling parts of this in?
->> >
->>
->>
->> Can you hold this on for a few days ?  I would like to verify this patch
->> series from chromium side.
->> I probably would do it tomorrow and next monday and send back ack asap.
+> Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+> Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> [bigeasy: use static AIN[0-8] names, plugged a mem leak, use kcalloc()]
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> ---
+>  drivers/iio/adc/ti_am335x_adc.c |   57 ++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 51 insertions(+), 6 deletions(-)
 >
-> Sure, holding on is what I do best ;)
+> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+> index 502e929..c6695a8 100644
+> --- a/drivers/iio/adc/ti_am335x_adc.c
+> +++ b/drivers/iio/adc/ti_am335x_adc.c
+> @@ -24,12 +24,15 @@
+>  #include <linux/iio/iio.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> +#include <linux/iio/machine.h>
+> +#include <linux/iio/driver.h>
 >
-> Thanks.
+>  #include <linux/mfd/ti_am335x_tscadc.h>
 >
-> --
-> Dmitry
+>  struct tiadc_device {
+>  	struct ti_tscadc_dev *mfd_tscadc;
+>  	int channels;
+> +	struct iio_map *map;
+>  };
+>
+>  static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
+> @@ -84,34 +87,76 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
+>  	am335x_tsc_se_set(adc_dev->mfd_tscadc, step_en);
+>  }
+>
+> +static const char * const chan_name_ain[] = {
+> +	"AIN0",
+> +	"AIN1",
+> +	"AIN2",
+> +	"AIN3",
+> +	"AIN4",
+> +	"AIN5",
+> +	"AIN6",
+> +	"AIN7",
+> +};
+> +
+>  static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
+>  {
+> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+>  	struct iio_chan_spec *chan_array;
+> -	int i;
+> +	struct iio_chan_spec *chan;
+> +	int i, ret;
+>
+>  	indio_dev->num_channels = channels;
+> -	chan_array = kcalloc(indio_dev->num_channels,
+> +	chan_array = kcalloc(channels,
+>  			sizeof(struct iio_chan_spec), GFP_KERNEL);
+> -
+>  	if (chan_array == NULL)
+>  		return -ENOMEM;
+>
+> -	for (i = 0; i < (indio_dev->num_channels); i++) {
+> -		struct iio_chan_spec *chan = chan_array + i;
+> +	chan = chan_array;
+> +	for (i = 0; i < channels; i++, chan++) {
+> +
+>  		chan->type = IIO_VOLTAGE;
+>  		chan->indexed = 1;
+>  		chan->channel = i;
+>  		chan->info_mask_separate = BIT(IIO_CHAN_INFO_RAW);
+> +		chan->datasheet_name = chan_name_ain[i];
+> +		chan->scan_type.sign = 'u';
+> +		chan->scan_type.realbits = 12;
+> +		chan->scan_type.storagebits = 32;
+> +		chan->scan_type.shift = 0;
+>  	}
+>
+>  	indio_dev->channels = chan_array;
+>
+> -	return indio_dev->num_channels;
+> +	adc_dev->map = kcalloc(channels + 1, sizeof(struct iio_map),
+> +			GFP_KERNEL);
+> +	if (adc_dev->map == NULL)
+> +		goto err_free_chan;
+> +
+> +	for (i = 0; i < channels; i++) {
+> +		adc_dev->map[i].adc_channel_label =
+> +			chan_array[i].datasheet_name;
+> +		adc_dev->map[i].consumer_dev_name = "any";
+> +		adc_dev->map[i].consumer_channel = chan_array[i].datasheet_name;
+> +	}
+> +
+> +	ret = iio_map_array_register(indio_dev, adc_dev->map);
+> +	if (ret)
+> +		goto err_map;
+> +
+> +	return 0;
+> +err_map:
+> +	kfree(adc_dev->map);
+> +err_free_chan:
+> +	kfree(chan_array);
+> +	return -ENOMEM;
+>  }
+>
+>  static void tiadc_channels_remove(struct iio_dev *indio_dev)
+>  {
+> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+> +
+>  	kfree(indio_dev->channels);
+> +	kfree(adc_dev->map);
+>  }
+>
+>  static int tiadc_read_raw(struct iio_dev *indio_dev,
+>

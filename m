@@ -1,56 +1,72 @@
-From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Subject: Re: [PATCH 21/22] iio/ti_am335x_adc: Allow to specify input line
-Date: Sun, 09 Jun 2013 18:52:30 +0200
-Message-ID: <51B4B2CE.3020300@metafoo.de>
-References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de> <1370449495-29981-22-git-send-email-bigeasy@linutronix.de>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: Input: Add missing dependencies on CONFIG_HAS_IOMEM
+Date: Sun, 09 Jun 2013 21:02:52 +0100
+Message-ID: <1370808172.5614.8.camel@deadeye.wl.decadent.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1370449495-29981-22-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-tr08wpWxUK2G1XLzI4FH"
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Debian kernel maintainers <debian-kernel@lists.debian.org>, linux-input@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-> @@ -199,8 +213,11 @@ static int tiadc_probe(struct platform_device *pdev)
->  	struct tiadc_device	*adc_dev;
->  	struct ti_tscadc_dev	*tscadc_dev = ti_tscadc_dev_get(pdev);
->  	struct device_node	*node = tscadc_dev->dev->of_node;
-> +	struct property		*prop;
-> +	const __be32		*cur;
->  	int			err;
-> -	u32			val32;
-> +	u32			val;
-> +	int channels		= 0;
 
-The indention here looks a bit strange.
+--=-tr08wpWxUK2G1XLzI4FH
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
->  
->  	if (!node) {
->  		dev_err(&pdev->dev, "Could not find valid DT data.\n");
-> @@ -222,11 +239,13 @@ static int tiadc_probe(struct platform_device *pdev)
->  		err = -EINVAL;
->  		goto err_free_device;
->  	}
-> -	err = of_property_read_u32(node,
-> -			"ti,adc-channels", &val32);
-> -	if (err < 0)
-> -		goto err_free_device;
-> -	adc_dev->channels = val32;
-> +
-> +	of_property_for_each_u32(node, "ti,adc-channels", prop, cur, val) {
-> +
+Several drivers don't build on s390 with CONFIG_PCI disabled as
+they require MMIO functions.
 
-No need for the extra new line
+Marking this for 3.9-stable only, as CONFIG_INPUT was previously
+disabled on s390.
 
-> +		adc_dev->channel_line[channels] = val;
-> +		channels++;
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: stable@vger.kernel.org # 3.9
+---
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -431,6 +431,7 @@ config KEYBOARD_TEGRA
+=20
+ config KEYBOARD_OPENCORES
+ 	tristate "OpenCores Keyboard Controller"
++	depends on HAS_IOMEM
+ 	help
+ 	  Say Y here if you want to use the OpenCores Keyboard Controller
+ 	  http://www.opencores.org/project,keyboardcontroller
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -205,6 +205,7 @@ config SERIO_XILINX_XPS_PS2
+=20
+ config SERIO_ALTERA_PS2
+ 	tristate "Altera UP PS/2 controller"
++	depends on HAS_IOMEM
+ 	help
+ 	  Say Y here if you have Altera University Program PS/2 ports.
+=20
 
-You should make sure that channels is never >= 8
 
-> +	}
-> +	adc_dev->channels = channels;
->  
->  	indio_dev->dev.parent = &pdev->dev;
->  	indio_dev->name = dev_name(&pdev->dev);
+--=-tr08wpWxUK2G1XLzI4FH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIVAwUAUbTfbOe/yOyVhhEJAQpZ8RAA0J6BzdAyYNxI61/7NMoe8/O7Q2Bo6kYx
+wQAur0RO+wF+OfR4vms6JO88taJw4gPeDwwO+H6qdJvB7dLXomynwoYUEj1SCaKB
+sFilrotYBSmITi350dWYsHOk0sKQ44ixZjG7XtEnDZ3WNBQdzDMYVuq9Za0uZxji
+kpX8esuMVyiA/Nr974UoxOOy6KJsL5ze77qxrodNdilVNtQE3nJWIUi9rrGE5il8
+YOACGvpR/443RB/hSL1N3f28IETLz1o1vZBESCZR5rJ9qhJHHM/8oFbIuwhZGu0f
+Bw17qhjHpyFcRqu0STiN5Iz73GlfiPSpo/TyRlFMcpmxWD/IKzzhxpWLOmjSQbcD
++5/7xuYDh9/Awb0QdFMY/wke/eS1peIbUgGvJ/3QBrDd9LBg8w8/h3gJchyCq68D
+MoKsfOrx3/uKtYWIQekDNqV615dCzryoEqT8MyTHsKwoI9GOGEnVJVEpIHRHjVfZ
+ZJxOvaKaogm8ZXp8N8NYq9fdfQdP1zPv8nPGTFOCXkWcX6f91dy1xfKpyHUqrlAm
+EN9+pDCdLG6FayDW+EZPpe5+DMgQ7uWMG1O8wr2C07lFUlok1waFqrL9J2CVKFEN
+d6eQ7OYSApwoG9o8pr/wV4AB6PnkNSfF8PCyjAAjlpcANa1AwwXt+dw4QeR/4Rtc
+sH3t+O/n2AE=
+=cQVT
+-----END PGP SIGNATURE-----
+
+--=-tr08wpWxUK2G1XLzI4FH--

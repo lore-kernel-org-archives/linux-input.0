@@ -1,72 +1,82 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-Subject: Input: Add missing dependencies on CONFIG_HAS_IOMEM
-Date: Sun, 09 Jun 2013 21:02:52 +0100
-Message-ID: <1370808172.5614.8.camel@deadeye.wl.decadent.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-tr08wpWxUK2G1XLzI4FH"
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Debian kernel maintainers <debian-kernel@lists.debian.org>, linux-input@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/3] Input: tps6507x-ts - use bool for booleans
+Date: Sun,  9 Jun 2013 22:53:45 -0700
+Message-ID: <1370843627-30823-1-git-send-email-dmitry.torokhov@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:61051 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751723Ab3FJFxu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Jun 2013 01:53:50 -0400
+Received: by mail-pd0-f177.google.com with SMTP id p10so1498227pdj.22
+        for <linux-input@vger.kernel.org>; Sun, 09 Jun 2013 22:53:49 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: manishv.b@ti.com, davinci-linux-open-source@linux.davincidsp.com
 
-
---=-tr08wpWxUK2G1XLzI4FH
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-Several drivers don't build on s390 with CONFIG_PCI disabled as
-they require MMIO functions.
-
-Marking this for 3.9-stable only, as CONFIG_INPUT was previously
-disabled on s390.
-
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Cc: stable@vger.kernel.org # 3.9
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -431,6 +431,7 @@ config KEYBOARD_TEGRA
-=20
- config KEYBOARD_OPENCORES
- 	tristate "OpenCores Keyboard Controller"
-+	depends on HAS_IOMEM
- 	help
- 	  Say Y here if you want to use the OpenCores Keyboard Controller
- 	  http://www.opencores.org/project,keyboardcontroller
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -205,6 +205,7 @@ config SERIO_XILINX_XPS_PS2
-=20
- config SERIO_ALTERA_PS2
- 	tristate "Altera UP PS/2 controller"
-+	depends on HAS_IOMEM
- 	help
- 	  Say Y here if you have Altera University Program PS/2 ports.
-=20
 
+Note that neither of these 3 patches has been tested on the real hardware as
+I don't have it so if someone could give them a spin that would be great.
 
---=-tr08wpWxUK2G1XLzI4FH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+ drivers/input/touchscreen/tps6507x-ts.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+index 1fb397c..c981ccf 100644
+--- a/drivers/input/touchscreen/tps6507x-ts.c
++++ b/drivers/input/touchscreen/tps6507x-ts.c
+@@ -45,12 +45,12 @@ struct tps6507x_ts {
+ 	struct ts_event		tc;
+ 	struct tps6507x_dev	*mfd;
+ 	u16			model;
+-	unsigned		pendown;
++	u16			min_pressure;
+ 	int			irq;
+ 	void			(*clear_penirq)(void);
+ 	unsigned long		poll_period;	/* ms */
+-	u16			min_pressure;
+ 	int			vref;		/* non-zero to leave vref on */
++	bool			pendown;
+ };
+ 
+ static int tps6507x_read_u8(struct tps6507x_ts *tsc, u8 reg, u8 *data)
+@@ -165,12 +165,12 @@ static void tps6507x_ts_handler(struct work_struct *work)
+ 	struct tps6507x_ts *tsc =  container_of(work,
+ 				struct tps6507x_ts, work.work);
+ 	struct input_dev *input_dev = tsc->input_dev;
+-	int pendown;
++	bool pendown;
+ 	int schd;
+ 	s32 ret;
+ 
+-	ret =  tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_PRESSURE,
+-				       &tsc->tc.pressure);
++	ret = tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_PRESSURE,
++				      &tsc->tc.pressure);
+ 	if (ret)
+ 		goto done;
+ 
+@@ -181,7 +181,7 @@ static void tps6507x_ts_handler(struct work_struct *work)
+ 		input_report_key(input_dev, BTN_TOUCH, 0);
+ 		input_report_abs(input_dev, ABS_PRESSURE, 0);
+ 		input_sync(input_dev);
+-		tsc->pendown = 0;
++		tsc->pendown = false;
+ 	}
+ 
+ 	if (pendown) {
+@@ -206,7 +206,7 @@ static void tps6507x_ts_handler(struct work_struct *work)
+ 		input_report_abs(input_dev, ABS_Y, tsc->tc.y);
+ 		input_report_abs(input_dev, ABS_PRESSURE, tsc->tc.pressure);
+ 		input_sync(input_dev);
+-		tsc->pendown = 1;
++		tsc->pendown = true;
+ 	}
+ 
+ done:
+-- 
+1.8.1.4
 
-iQIVAwUAUbTfbOe/yOyVhhEJAQpZ8RAA0J6BzdAyYNxI61/7NMoe8/O7Q2Bo6kYx
-wQAur0RO+wF+OfR4vms6JO88taJw4gPeDwwO+H6qdJvB7dLXomynwoYUEj1SCaKB
-sFilrotYBSmITi350dWYsHOk0sKQ44ixZjG7XtEnDZ3WNBQdzDMYVuq9Za0uZxji
-kpX8esuMVyiA/Nr974UoxOOy6KJsL5ze77qxrodNdilVNtQE3nJWIUi9rrGE5il8
-YOACGvpR/443RB/hSL1N3f28IETLz1o1vZBESCZR5rJ9qhJHHM/8oFbIuwhZGu0f
-Bw17qhjHpyFcRqu0STiN5Iz73GlfiPSpo/TyRlFMcpmxWD/IKzzhxpWLOmjSQbcD
-+5/7xuYDh9/Awb0QdFMY/wke/eS1peIbUgGvJ/3QBrDd9LBg8w8/h3gJchyCq68D
-MoKsfOrx3/uKtYWIQekDNqV615dCzryoEqT8MyTHsKwoI9GOGEnVJVEpIHRHjVfZ
-ZJxOvaKaogm8ZXp8N8NYq9fdfQdP1zPv8nPGTFOCXkWcX6f91dy1xfKpyHUqrlAm
-EN9+pDCdLG6FayDW+EZPpe5+DMgQ7uWMG1O8wr2C07lFUlok1waFqrL9J2CVKFEN
-d6eQ7OYSApwoG9o8pr/wV4AB6PnkNSfF8PCyjAAjlpcANa1AwwXt+dw4QeR/4Rtc
-sH3t+O/n2AE=
-=cQVT
------END PGP SIGNATURE-----
-
---=-tr08wpWxUK2G1XLzI4FH--

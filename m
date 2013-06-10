@@ -1,267 +1,269 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 3/3] Input: tps6507x-ts - convert to polled input device infrastructure
-Date: Sun,  9 Jun 2013 22:53:47 -0700
-Message-ID: <1370843627-30823-3-git-send-email-dmitry.torokhov@gmail.com>
-References: <1370843627-30823-1-git-send-email-dmitry.torokhov@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:50761 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751804Ab3FJFxw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Jun 2013 01:53:52 -0400
-Received: by mail-pd0-f169.google.com with SMTP id y10so7060754pdj.28
-        for <linux-input@vger.kernel.org>; Sun, 09 Jun 2013 22:53:51 -0700 (PDT)
-In-Reply-To: <1370843627-30823-1-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V3 1/2] tps6507x-ts: Add DT support
+Date: Sun, 9 Jun 2013 23:04:42 -0700
+Message-ID: <20130610060442.GA30158@core.coreip.homeip.net>
+References: <1369126458-24872-1-git-send-email-manishv.b@ti.com>
+	<1369126458-24872-2-git-send-email-manishv.b@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1369126458-24872-2-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: manishv.b@ti.com, davinci-linux-open-source@linux.davincidsp.com
 
-There is no need to roll our own polling scheme when we already have
-one implemented by the core.
+Hi Manish,
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/tps6507x-ts.c | 126 ++++++++++++--------------------
- include/linux/mfd/tps6507x.h            |   1 -
- 2 files changed, 48 insertions(+), 79 deletions(-)
+On Tue, May 21, 2013 at 02:24:17PM +0530, Vishwanathrao Badarkhe, Manish wrote:
+> Add device tree based support for TI's tps6507x touchscreen.
+> 
+> Tested on da850-evm.
+> 
+> Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
+> ---
+> Changes since V2:
+>  - Removed unnecessary code.
+>  - Updated Documentation to provide proper names of
+>    devicetree properties.
+> 
+> Changes since V1:
+>  - Updated documentation to specify tps6507x as multifunctional
+>    device.
+>  - return proper error value in absence of platform and DT
+>    data for touchscreen.
+>  - Updated commit message.
+> 
+> :100755 100755 8fffa3c... 65ee2cd... M	Documentation/devicetree/bindings/mfd/tps6507x.txt
+> :100644 100644 65e0f9a... 89232ee... M	drivers/input/touchscreen/tps6507x-ts.c
+>  Documentation/devicetree/bindings/mfd/tps6507x.txt |   28 ++++++-
+>  drivers/input/touchscreen/tps6507x-ts.c            |   98 ++++++++++++++------
+>  2 files changed, 95 insertions(+), 31 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/tps6507x.txt b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+> index 8fffa3c..65ee2cd 100755
+> --- a/Documentation/devicetree/bindings/mfd/tps6507x.txt
+> +++ b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+> @@ -1,4 +1,8 @@
+> -TPS6507x Power Management Integrated Circuit
+> +TPS6507x Multifunctional Device.
+> +
+> +Features provided by TPS6507x:
+> +        1.Power Management Integrated Circuit.
+> +        2.Touch-Screen.
+>  
+>  Required properties:
+>  - compatible: "ti,tps6507x"
+> @@ -23,6 +27,12 @@ Required properties:
+>         vindcdc1_2-supply: VDCDC1 and VDCDC2 input.
+>         vindcdc3-supply  : VDCDC3 input.
+>         vldo1_2-supply   : VLDO1 and VLDO2 input.
+> +- tsc: This node specifies touch screen data.
+> +	ti,poll-period : Time at which touch input is getting sampled in ms.
+> +	ti,min-pressure: Minimum pressure value to trigger touch.
+> +	ti,vref	       : voltage reference for ADC.
+> +		      0: Reference voltage for ADC is disabled.
+> +		      1: Reference voltage for ADC is enabled.
+>  
+>  Regulator Optional properties:
+>  - defdcdc_default: It's property of DCDC2 and DCDC3 regulators.
+> @@ -30,6 +40,14 @@ Regulator Optional properties:
+>  			1: If defdcdc pin of DCDC2/DCDC3 is driven HIGH.
+>    If this property is not defined, it defaults to 0 (not enabled).
+>  
+> +Touchscreen Optional properties:
+> +- ti,vendor : Touchscreen vendor id to populate
+> +	      in sysclass interface.
+> +- ti,product: Touchscreen product id to populate
+> +	      in sysclass interface.
+> +- ti,version: Touchscreen version id to populate
+> +	      in sysclass interface.
+> +
+>  Example:
+>  
+>  	pmu: tps6507x@48 {
+> @@ -88,4 +106,12 @@ Example:
+>  			};
+>  		};
+>  
+> +		tsc {
+> +			ti,poll-period = <30>;
+> +			ti,min-pressure = <0x30>;
+> +			ti,vref = <0>;
+> +			ti,vendor = <0>;
+> +			ti,product = <65070>;
+> +			ti,version = <0x100>;
+> +		};
+>  	};
+> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+> index 65e0f9a..89232ee 100644
+> --- a/drivers/input/touchscreen/tps6507x-ts.c
+> +++ b/drivers/input/touchscreen/tps6507x-ts.c
+> @@ -21,6 +21,8 @@
+>  #include <linux/mfd/tps6507x.h>
+>  #include <linux/input/tps6507x-ts.h>
+>  #include <linux/delay.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+>  
+>  #define TSC_DEFAULT_POLL_PERIOD 30 /* ms */
+>  #define TPS_DEFAULT_MIN_PRESSURE 0x30
+> @@ -231,36 +233,76 @@ done:
+>  	ret = tps6507x_adc_standby(tsc);
+>  }
+>  
+> +static int tsc_init_data(struct tps6507x_dev *tps6507x_dev,
+> +		struct input_dev *input_dev)
+> +{
+> +	struct device_node *node = tps6507x_dev->dev->of_node;
+> +	struct tps6507x_board *tps_board =
+> +		(struct tps6507x_board *)tps6507x_dev->dev->platform_data;
 
-diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-index d3c2967..94cde2c 100644
---- a/drivers/input/touchscreen/tps6507x-ts.c
-+++ b/drivers/input/touchscreen/tps6507x-ts.c
-@@ -17,6 +17,7 @@
- #include <linux/workqueue.h>
- #include <linux/slab.h>
- #include <linux/input.h>
-+#include <linux/input-polldev.h>
- #include <linux/platform_device.h>
- #include <linux/mfd/tps6507x.h>
- #include <linux/input/tps6507x-ts.h>
-@@ -38,14 +39,12 @@ struct ts_event {
- };
- 
- struct tps6507x_ts {
--	struct input_dev	*input_dev;
- 	struct device		*dev;
-+	struct input_polled_dev	*poll_dev;
-+	struct tps6507x_dev	*mfd;
- 	char			phys[32];
--	struct delayed_work	work;
- 	struct ts_event		tc;
--	struct tps6507x_dev	*mfd;
- 	u16			min_pressure;
--	unsigned long		poll_period;	/* ms */
- 	bool			pendown;
- };
- 
-@@ -156,13 +155,11 @@ static s32 tps6507x_adc_standby(struct tps6507x_ts *tsc)
- 	return ret;
- }
- 
--static void tps6507x_ts_handler(struct work_struct *work)
-+static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
- {
--	struct tps6507x_ts *tsc =  container_of(work,
--				struct tps6507x_ts, work.work);
--	struct input_dev *input_dev = tsc->input_dev;
-+	struct tps6507x_ts *tsc = poll_dev->private;
-+	struct input_dev *input_dev = poll_dev->input;
- 	bool pendown;
--	int schd;
- 	s32 ret;
- 
- 	ret = tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_PRESSURE,
-@@ -206,62 +203,65 @@ static void tps6507x_ts_handler(struct work_struct *work)
- 	}
- 
- done:
--	/* always poll if not using interrupts */
--	schd = schedule_delayed_work(&tsc->work,
--				msecs_to_jiffies(tsc->poll_period));
--	if (!schd)
--		dev_err(tsc->dev, "re-schedule failed");
--
--	ret = tps6507x_adc_standby(tsc);
-+	tps6507x_adc_standby(tsc);
- }
- 
- static int tps6507x_ts_probe(struct platform_device *pdev)
- {
--	int error;
--	struct tps6507x_ts *tsc;
- 	struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
--	struct touchscreen_init_data *init_data;
-+	const struct tps6507x_board *tps_board;
-+	const struct touchscreen_init_data *init_data;
-+	struct tps6507x_ts *tsc;
-+	struct input_polled_dev *poll_dev;
- 	struct input_dev *input_dev;
--	struct tps6507x_board *tps_board;
--	int schd;
-+	int error;
- 
--	/**
-+	/*
- 	 * tps_board points to pmic related constants
- 	 * coming from the board-evm file.
- 	 */
--
--	tps_board = (struct tps6507x_board *)tps6507x_dev->dev->platform_data;
--
-+	tps_board = dev_get_platdata(tps6507x_dev->dev);
- 	if (!tps_board) {
- 		dev_err(tps6507x_dev->dev,
- 			"Could not find tps6507x platform data\n");
--		return -EIO;
-+		return -ENODEV;
- 	}
- 
--	/**
-+	/*
- 	 * init_data points to array of regulator_init structures
- 	 * coming from the board-evm file.
- 	 */
--
- 	init_data = tps_board->tps6507x_ts_init_data;
- 
- 	tsc = kzalloc(sizeof(struct tps6507x_ts), GFP_KERNEL);
- 	if (!tsc) {
- 		dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
--		error = -ENOMEM;
--		goto err0;
-+		return -ENOMEM;
- 	}
- 
--	tps6507x_dev->ts = tsc;
- 	tsc->mfd = tps6507x_dev;
- 	tsc->dev = tps6507x_dev->dev;
--	input_dev = input_allocate_device();
--	if (!input_dev) {
--		dev_err(tsc->dev, "Failed to allocate input device.\n");
-+	tsc->min_pressure = init_data ?
-+			init_data->min_pressure : TPS_DEFAULT_MIN_PRESSURE;
-+
-+	snprintf(tsc->phys, sizeof(tsc->phys),
-+		 "%s/input0", dev_name(tsc->dev));
-+
-+	poll_dev = input_allocate_polled_device();
-+	if (!poll_dev) {
-+		dev_err(tsc->dev, "Failed to allocate polled input device.\n");
- 		error = -ENOMEM;
--		goto err1;
-+		goto err_free_mem;
- 	}
- 
-+	tsc->poll_dev = poll_dev;
-+
-+	poll_dev->private = tsc;
-+	poll_dev->poll = tps6507x_ts_poll;
-+	poll_dev->poll_interval = init_data ?
-+			init_data->poll_period : TSC_DEFAULT_POLL_PERIOD;
-+
-+	input_dev = poll_dev->input;
- 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
- 
-@@ -270,72 +270,42 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_10BIT, 0, 0);
- 
- 	input_dev->name = "TPS6507x Touchscreen";
--	input_dev->id.bustype = BUS_I2C;
--	input_dev->dev.parent = tsc->dev;
--
--	snprintf(tsc->phys, sizeof(tsc->phys),
--		 "%s/input0", dev_name(tsc->dev));
- 	input_dev->phys = tsc->phys;
--
--	dev_dbg(tsc->dev, "device: %s\n", input_dev->phys);
--
--	input_set_drvdata(input_dev, tsc);
--
--	tsc->input_dev = input_dev;
--
--	INIT_DELAYED_WORK(&tsc->work, tps6507x_ts_handler);
--
-+	input_dev->dev.parent = tsc->dev;
-+	input_dev->id.bustype = BUS_I2C;
- 	if (init_data) {
--		tsc->poll_period = init_data->poll_period;
--		tsc->min_pressure = init_data->min_pressure;
- 		input_dev->id.vendor = init_data->vendor;
- 		input_dev->id.product = init_data->product;
- 		input_dev->id.version = init_data->version;
--	} else {
--		tsc->poll_period = TSC_DEFAULT_POLL_PERIOD;
--		tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
- 	}
- 
- 	error = tps6507x_adc_standby(tsc);
- 	if (error)
--		goto err2;
-+		goto err_free_polled_dev;
- 
--	error = input_register_device(input_dev);
-+	error = input_register_polled_device(poll_dev);
- 	if (error)
--		goto err2;
--
--	schd = schedule_delayed_work(&tsc->work,
--				     msecs_to_jiffies(tsc->poll_period));
-+		goto err_free_polled_dev;
- 
--	if (!schd) {
--		dev_err(tsc->dev, "schedule failed");
--		goto err2;
--	 }
--	platform_set_drvdata(pdev, tps6507x_dev);
-+	platform_set_drvdata(pdev, tsc);
- 
- 	return 0;
- 
--err2:
--	cancel_delayed_work_sync(&tsc->work);
--	input_free_device(input_dev);
--err1:
-+err_free_polled_dev:
-+	input_free_polled_device(poll_dev);
-+err_free_mem:
- 	kfree(tsc);
--	tps6507x_dev->ts = NULL;
--err0:
- 	return error;
- }
- 
- static int tps6507x_ts_remove(struct platform_device *pdev)
- {
--	struct tps6507x_dev *tps6507x_dev = platform_get_drvdata(pdev);
--	struct tps6507x_ts *tsc = tps6507x_dev->ts;
--	struct input_dev *input_dev = tsc->input_dev;
--
--	cancel_delayed_work_sync(&tsc->work);
-+	struct tps6507x_ts *tsc = platform_get_drvdata(pdev);
-+	struct input_polled_dev *poll_dev = tsc->poll_dev;
- 
--	input_unregister_device(input_dev);
-+	input_unregister_polled_device(poll_dev);
-+	input_free_polled_device(poll_dev);
- 
--	tps6507x_dev->ts = NULL;
- 	kfree(tsc);
- 
- 	return 0;
-diff --git a/include/linux/mfd/tps6507x.h b/include/linux/mfd/tps6507x.h
-index c923e48..c2ae569 100644
---- a/include/linux/mfd/tps6507x.h
-+++ b/include/linux/mfd/tps6507x.h
-@@ -163,7 +163,6 @@ struct tps6507x_dev {
- 
- 	/* Client devices */
- 	struct tps6507x_pmic *pmic;
--	struct tps6507x_ts *ts;
- };
- 
- #endif /*  __LINUX_MFD_TPS6507X_H */
+
+Please make tps_board const pointer and use dev_get_platdata() to fetch
+it.
+
+> +	struct touchscreen_init_data *init_data = NULL;
+> +	int err;
+> +
+> +	if (node)
+> +		node = of_find_node_by_name(node, "tsc");
+
+Why do you have to locate OF node manually instead of already having it
+attached to the device stucture?
+
+> +	if (tps_board)
+> +		init_data = tps_board->tps6507x_ts_init_data;
+> +
+> +	if (node == NULL || init_data == NULL) {
+> +		err = -EINVAL;
+> +		goto error_ret;
+> +	} else if (init_data) {
+> +		tps6507x_dev->ts->poll_period = init_data->poll_period;
+> +		tps6507x_dev->ts->min_pressure = init_data->min_pressure;
+> +		tps6507x_dev->ts->vref = init_data->vref;
+> +		input_dev->id.vendor = init_data->vendor;
+> +		input_dev->id.product = init_data->product;
+> +		input_dev->id.version = init_data->version;
+> +	} else if (node) {
+> +		err = of_property_read_u32(node, "ti,poll-period",
+> +					(u32 *)&tps6507x_dev->ts->poll_period);
+> +		if (err < 0)
+> +			goto error_ret;
+> +
+> +		err = of_property_read_u16(node, "ti,min-pressure",
+> +					&tps6507x_dev->ts->min_pressure);
+> +		if (err < 0)
+> +			goto error_ret;
+> +
+> +		err = of_property_read_u32(node, "ti,vref",
+> +					&tps6507x_dev->ts->vref);
+
+I do not think it is used anywhere, see a patch I just sent out.
+
+> +		if (err < 0)
+> +			goto error_ret;
+> +
+> +		err = of_property_read_u16(node, "ti,vendor",
+> +					&input_dev->id.vendor);
+> +		if (err < 0)
+> +			goto error_ret;
+> +
+> +		err = of_property_read_u16(node, "ti,product",
+> +					&input_dev->id.product);
+> +		if (err < 0)
+> +			goto error_ret;
+> +
+> +		err = of_property_read_u16(node, "ti,version",
+> +					&input_dev->id.version);
+
+You say these 3 properties are optional, so why do you err out if you
+fail to read them?
+
+> +		if (err < 0)
+> +			goto error_ret;
+> +	}
+> +
+> +	return 0;
+> +
+> +error_ret:
+> +	return err;
+> +}
+> +
+>  static int tps6507x_ts_probe(struct platform_device *pdev)
+>  {
+>  	int error;
+>  	struct tps6507x_ts *tsc;
+>  	struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
+> -	struct touchscreen_init_data *init_data;
+>  	struct input_dev *input_dev;
+> -	struct tps6507x_board *tps_board;
+>  	int schd;
+>  
+> -	/**
+> -	 * tps_board points to pmic related constants
+> -	 * coming from the board-evm file.
+> -	 */
+> -
+> -	tps_board = (struct tps6507x_board *)tps6507x_dev->dev->platform_data;
+> -
+> -	if (!tps_board) {
+> -		dev_err(tps6507x_dev->dev,
+> -			"Could not find tps6507x platform data\n");
+> -		return -EIO;
+> -	}
+> -
+> -	/**
+> -	 * init_data points to array of regulator_init structures
+> -	 * coming from the board-evm file.
+> -	 */
+> -
+> -	init_data = tps_board->tps6507x_ts_init_data;
+> -
+>  	tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
+>  	if (!tsc) {
+>  		dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
+> @@ -301,14 +343,10 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>  
+>  	INIT_DELAYED_WORK(&tsc->work, tps6507x_ts_handler);
+>  
+> -	if (init_data) {
+> -		tsc->poll_period = init_data->poll_period;
+> -		tsc->vref = init_data->vref;
+> -		tsc->min_pressure = init_data->min_pressure;
+> -		input_dev->id.vendor = init_data->vendor;
+> -		input_dev->id.product = init_data->product;
+> -		input_dev->id.version = init_data->version;
+> -	} else {
+> +	error = tsc_init_data(tps6507x_dev, input_dev);
+> +
+> +	if (error) {
+> +		dev_warn(&pdev->dev, "Use default platform data\n");
+
+Why do we have to warn here?
+
+Also, this is not reqlly equivalent transformation of the old code,
+which allowed to partially specify init data and would substitute some
+of it with defaults.
+
+>  		tsc->poll_period = TSC_DEFAULT_POLL_PERIOD;
+>  		tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
+>  	}
+> -- 
+> 1.7.4.1
+> 
+
+Thanks.
+
 -- 
-1.8.1.4
-
+Dmitry

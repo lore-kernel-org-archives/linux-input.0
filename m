@@ -1,51 +1,37 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCH 12/22] iio/ti_tscadc: Update with IIO map interface
-Date: Mon, 10 Jun 2013 11:15:33 +0200
-Message-ID: <51B59935.3010506@linutronix.de>
-References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de> <1370449495-29981-13-git-send-email-bigeasy@linutronix.de> <51B4B024.8070102@metafoo.de> <51B582D3.1050501@linutronix.de> <51B59071.9090908@metafoo.de>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 44/53] Input: atmel_mxt_ts - Verify Information Block
+ checksum on probe
+Date: Mon, 10 Jun 2013 10:35:31 +0100
+Message-ID: <51B59DE3.2000907@itdev.co.uk>
+References: <1370453866-16534-1-git-send-email-nick.dyer@itdev.co.uk> <1370453866-16534-45-git-send-email-nick.dyer@itdev.co.uk> <CAPDwgkO09rBmtgWCYOkoSsQXPK2_sND_QH==SEiyyT2PuoEOpg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <51B59071.9090908-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:19557 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752485Ab3FJJfe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Jun 2013 05:35:34 -0400
+In-Reply-To: <CAPDwgkO09rBmtgWCYOkoSsQXPK2_sND_QH==SEiyyT2PuoEOpg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yufeng Shen <miletus@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
 
-On 06/10/2013 10:38 AM, Lars-Peter Clausen wrote:
+Yufeng Shen wrote:
+>> +       dev_info(&client->dev,
+>> +                "Family: %u Variant: %u Firmware V%u.%u.%02X Objects: %u\n",
+>> +                info->family_id, info->variant_id, info->version >> 4,
+>> +                info->version & 0xf, info->build, info->object_num);
+>> +
 > 
-> You don't need to describe the channels in devicetree, except setting the
-> "#io-channel-cells" property of your ADC node to 1. You also need to initialize
-> the of_node property of your iio_device's struct's 'dev' field to the your adc
-> node.
+> Use data->info->XXX here,  info was pointing to buf which could have
+> changed after krealloc.
 
-Aha. So right now I do have in my device tree:
+Thank you, that's a really good spot. Caused when I merged the dev_info
+line into that function. It actually explains a report I had about getting
+junk in this output but the info_crc check succeeding, hadn't had time to
+investigate yet.
 
-       adc {
-               ti,adc-channels = <4>;
-       };
-
-for the producer ADC node. But this seems wrong. Correct would be
-
-
-       adctsc: adc {
-               ti,adc-channels = <4>;
-               #io-channel-cells = <1>;
-       };
-
-And the consumer can then specify everything. This seems to be looking
-good. And with this the map piece can die.
-Thanks.
-
-> 
-> After that it's just a matter of using, e.g.
-> 
-> 	io-channels = <&adc 1>;
-> 	io-channel-names = "voltage";
-> 
-> in your consumer.
-> 
-> - Lars
-
-Sebastian
+I will fix.

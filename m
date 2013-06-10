@@ -1,292 +1,36 @@
-From: "Vishwanathrao Badarkhe, Manish" <manishv.b@ti.com>
-Subject: RE: [PATCH V3 1/2] tps6507x-ts: Add DT support
-Date: Mon, 10 Jun 2013 10:23:16 +0000
-Message-ID: <A4887BF146CD57468F700B415D2F47015A0DFD@DBDE04.ent.ti.com>
-References: <1369126458-24872-1-git-send-email-manishv.b@ti.com>
- <1369126458-24872-2-git-send-email-manishv.b@ti.com>
- <20130610060442.GA30158@core.coreip.homeip.net>
+From: Ferruh Yigit <fery@cypress.com>
+Subject: Re: [PATCH] cyttsp: Fix swap of mfg_stat and mfg_cmd registers
+Date: Mon, 10 Jun 2013 14:02:58 +0300
+Message-ID: <51B5B262.6000705@cypress.com>
+References: <20130604211930.GF3618@raspi> <CABxcv=m91Q51vYQ-EMCfjTrvinOij_=bTg_vjXrYf7=nYhUbdA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20130610060442.GA30158@core.coreip.homeip.net>
-Content-Language: en-US
-Sender: linux-doc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "rob@landley.net" <rob@landley.net>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay-s04-hub004.domainlocalhost.com ([74.115.207.103]:4130
+	"EHLO relay-S04-HUB004.domainlocalhost.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752347Ab3FJLDD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Jun 2013 07:03:03 -0400
+In-Reply-To: <CABxcv=m91Q51vYQ-EMCfjTrvinOij_=bTg_vjXrYf7=nYhUbdA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Matthias Kaehlcke <matthias.list@kaehlcke.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+On 06/05/2013 12:21 PM, Javier Martinez Canillas wrote:
+> On Tue, Jun 4, 2013 at 11:19 PM, Matthias Kaehlcke
+> <matthias.list@kaehlcke.net> wrote:
+>> The command and status register in the driver were swapped with
+>> respect to the order specified in the datasheet (CY8CTMA140).
+>> Confirmed with Cypress that the order in the datasheet is correct.
+>>
+>> Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+>> ---
+>
+> Acked-by: Javier Martinez Canillas <javier@dowhile0.org>
 
-On Mon, Jun 10, 2013 at 11:34:42, Dmitry Torokhov wrote:
-> Hi Manish,
-> 
-> On Tue, May 21, 2013 at 02:24:17PM +0530, Vishwanathrao Badarkhe, Manish wrote:
-> > Add device tree based support for TI's tps6507x touchscreen.
-> > 
-> > Tested on da850-evm.
-> > 
-> > Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b@ti.com>
-> > ---
-> > Changes since V2:
-> >  - Removed unnecessary code.
-> >  - Updated Documentation to provide proper names of
-> >    devicetree properties.
-> > 
-> > Changes since V1:
-> >  - Updated documentation to specify tps6507x as multifunctional
-> >    device.
-> >  - return proper error value in absence of platform and DT
-> >    data for touchscreen.
-> >  - Updated commit message.
-> > 
-> > :100755 100755 8fffa3c... 65ee2cd... M	Documentation/devicetree/bindings/mfd/tps6507x.txt
-> > :100644 100644 65e0f9a... 89232ee... M	drivers/input/touchscreen/tps6507x-ts.c
-> >  Documentation/devicetree/bindings/mfd/tps6507x.txt |   28 ++++++-
-> >  drivers/input/touchscreen/tps6507x-ts.c            |   98 ++++++++++++++------
-> >  2 files changed, 95 insertions(+), 31 deletions(-)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/mfd/tps6507x.txt 
-> > b/Documentation/devicetree/bindings/mfd/tps6507x.txt
-> > index 8fffa3c..65ee2cd 100755
-> > --- a/Documentation/devicetree/bindings/mfd/tps6507x.txt
-> > +++ b/Documentation/devicetree/bindings/mfd/tps6507x.txt
-> > @@ -1,4 +1,8 @@
-> > -TPS6507x Power Management Integrated Circuit
-> > +TPS6507x Multifunctional Device.
-> > +
-> > +Features provided by TPS6507x:
-> > +        1.Power Management Integrated Circuit.
-> > +        2.Touch-Screen.
-> >  
-> >  Required properties:
-> >  - compatible: "ti,tps6507x"
-> > @@ -23,6 +27,12 @@ Required properties:
-> >         vindcdc1_2-supply: VDCDC1 and VDCDC2 input.
-> >         vindcdc3-supply  : VDCDC3 input.
-> >         vldo1_2-supply   : VLDO1 and VLDO2 input.
-> > +- tsc: This node specifies touch screen data.
-> > +	ti,poll-period : Time at which touch input is getting sampled in ms.
-> > +	ti,min-pressure: Minimum pressure value to trigger touch.
-> > +	ti,vref	       : voltage reference for ADC.
-> > +		      0: Reference voltage for ADC is disabled.
-> > +		      1: Reference voltage for ADC is enabled.
-> >  
-> >  Regulator Optional properties:
-> >  - defdcdc_default: It's property of DCDC2 and DCDC3 regulators.
-> > @@ -30,6 +40,14 @@ Regulator Optional properties:
-> >  			1: If defdcdc pin of DCDC2/DCDC3 is driven HIGH.
-> >    If this property is not defined, it defaults to 0 (not enabled).
-> >  
-> > +Touchscreen Optional properties:
-> > +- ti,vendor : Touchscreen vendor id to populate
-> > +	      in sysclass interface.
-> > +- ti,product: Touchscreen product id to populate
-> > +	      in sysclass interface.
-> > +- ti,version: Touchscreen version id to populate
-> > +	      in sysclass interface.
-> > +
-> >  Example:
-> >  
-> >  	pmu: tps6507x@48 {
-> > @@ -88,4 +106,12 @@ Example:
-> >  			};
-> >  		};
-> >  
-> > +		tsc {
-> > +			ti,poll-period = <30>;
-> > +			ti,min-pressure = <0x30>;
-> > +			ti,vref = <0>;
-> > +			ti,vendor = <0>;
-> > +			ti,product = <65070>;
-> > +			ti,version = <0x100>;
-> > +		};
-> >  	};
-> > diff --git a/drivers/input/touchscreen/tps6507x-ts.c 
-> > b/drivers/input/touchscreen/tps6507x-ts.c
-> > index 65e0f9a..89232ee 100644
-> > --- a/drivers/input/touchscreen/tps6507x-ts.c
-> > +++ b/drivers/input/touchscreen/tps6507x-ts.c
-> > @@ -21,6 +21,8 @@
-> >  #include <linux/mfd/tps6507x.h>
-> >  #include <linux/input/tps6507x-ts.h>
-> >  #include <linux/delay.h>
-> > +#include <linux/of.h>
-> > +#include <linux/of_device.h>
-> >  
-> >  #define TSC_DEFAULT_POLL_PERIOD 30 /* ms */  #define 
-> > TPS_DEFAULT_MIN_PRESSURE 0x30 @@ -231,36 +233,76 @@ done:
-> >  	ret = tps6507x_adc_standby(tsc);
-> >  }
-> >  
-> > +static int tsc_init_data(struct tps6507x_dev *tps6507x_dev,
-> > +		struct input_dev *input_dev)
-> > +{
-> > +	struct device_node *node = tps6507x_dev->dev->of_node;
-> > +	struct tps6507x_board *tps_board =
-> > +		(struct tps6507x_board *)tps6507x_dev->dev->platform_data;
-> 
-> 
-> Please make tps_board const pointer and use dev_get_platdata() to fetch it.
-
-Ok, I will make "tps_board" as a const pointer and fetch it using dev_get_platdata().
-
-> 
-> > +	struct touchscreen_init_data *init_data = NULL;
-> > +	int err;
-> > +
-> > +	if (node)
-> > +		node = of_find_node_by_name(node, "tsc");
-> 
-> Why do you have to locate OF node manually instead of already having it attached to the device stucture?
-
-As TPS6507x is mfd device containing two nodes, regulator and touchscreen.
-It is necessary to use "of_find_node_by_name" to find child "tsc" node of 
-TPS6507x MFD device.
-
-> 
-> > +	if (tps_board)
-> > +		init_data = tps_board->tps6507x_ts_init_data;
-> > +
-> > +	if (node == NULL || init_data == NULL) {
-> > +		err = -EINVAL;
-> > +		goto error_ret;
-> > +	} else if (init_data) {
-> > +		tps6507x_dev->ts->poll_period = init_data->poll_period;
-> > +		tps6507x_dev->ts->min_pressure = init_data->min_pressure;
-> > +		tps6507x_dev->ts->vref = init_data->vref;
-> > +		input_dev->id.vendor = init_data->vendor;
-> > +		input_dev->id.product = init_data->product;
-> > +		input_dev->id.version = init_data->version;
-> > +	} else if (node) {
-> > +		err = of_property_read_u32(node, "ti,poll-period",
-> > +					(u32 *)&tps6507x_dev->ts->poll_period);
-> > +		if (err < 0)
-> > +			goto error_ret;
-> > +
-> > +		err = of_property_read_u16(node, "ti,min-pressure",
-> > +					&tps6507x_dev->ts->min_pressure);
-> > +		if (err < 0)
-> > +			goto error_ret;
-> > +
-> > +		err = of_property_read_u32(node, "ti,vref",
-> > +					&tps6507x_dev->ts->vref);
-> 
-> I do not think it is used anywhere, see a patch I just sent out.
-
-I have seen your patch. I will remove this.
-
-> 
-> > +		if (err < 0)
-> > +			goto error_ret;
-> > +
-> > +		err = of_property_read_u16(node, "ti,vendor",
-> > +					&input_dev->id.vendor);
-> > +		if (err < 0)
-> > +			goto error_ret;
-> > +
-> > +		err = of_property_read_u16(node, "ti,product",
-> > +					&input_dev->id.product);
-> > +		if (err < 0)
-> > +			goto error_ret;
-> > +
-> > +		err = of_property_read_u16(node, "ti,version",
-> > +					&input_dev->id.version);
-> 
-> You say these 3 properties are optional, so why do you err out if you fail to read them?
-
-Correct, there is no need to return error in case of these optional 
-Properties. I will return success even read fails in case of these optional
-properties.
-
-> 
-> > +		if (err < 0)
-> > +			goto error_ret;
-> > +	}
-> > +
-> > +	return 0;
-> > +
-> > +error_ret:
-> > +	return err;
-> > +}
-> > +
-> >  static int tps6507x_ts_probe(struct platform_device *pdev)  {
-> >  	int error;
-> >  	struct tps6507x_ts *tsc;
-> >  	struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
-> > -	struct touchscreen_init_data *init_data;
-> >  	struct input_dev *input_dev;
-> > -	struct tps6507x_board *tps_board;
-> >  	int schd;
-> >  
-> > -	/**
-> > -	 * tps_board points to pmic related constants
-> > -	 * coming from the board-evm file.
-> > -	 */
-> > -
-> > -	tps_board = (struct tps6507x_board *)tps6507x_dev->dev->platform_data;
-> > -
-> > -	if (!tps_board) {
-> > -		dev_err(tps6507x_dev->dev,
-> > -			"Could not find tps6507x platform data\n");
-> > -		return -EIO;
-> > -	}
-> > -
-> > -	/**
-> > -	 * init_data points to array of regulator_init structures
-> > -	 * coming from the board-evm file.
-> > -	 */
-> > -
-> > -	init_data = tps_board->tps6507x_ts_init_data;
-> > -
-> >  	tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
-> >  	if (!tsc) {
-> >  		dev_err(tps6507x_dev->dev, "failed to allocate driver data\n"); @@ 
-> > -301,14 +343,10 @@ static int tps6507x_ts_probe(struct platform_device 
-> > *pdev)
-> >  
-> >  	INIT_DELAYED_WORK(&tsc->work, tps6507x_ts_handler);
-> >  
-> > -	if (init_data) {
-> > -		tsc->poll_period = init_data->poll_period;
-> > -		tsc->vref = init_data->vref;
-> > -		tsc->min_pressure = init_data->min_pressure;
-> > -		input_dev->id.vendor = init_data->vendor;
-> > -		input_dev->id.product = init_data->product;
-> > -		input_dev->id.version = init_data->version;
-> > -	} else {
-> > +	error = tsc_init_data(tps6507x_dev, input_dev);
-> > +
-> > +	if (error) {
-> > +		dev_warn(&pdev->dev, "Use default platform data\n");
-> 
-> Why do we have to warn here?
-> 
-> Also, this is not reqlly equivalent transformation of the old code, which allowed to partially specify init data and would substitute some of it with defaults.
-
-As per your current patch submission "[PATCH3/3] Input: tps6507x-ts - convert to polled 
-input device infrastructure"
-Now, we can partially specify init data and substitute some of it with defaults.
-Hence, I will remove warning as well as error handling over here.
-
-It's better for me to test your patch series, and then apply my patches on top of it. 
-I will test your series and then will send next version of my patches incorporating 
-your review comments.
-
-> 
-> >  		tsc->poll_period = TSC_DEFAULT_POLL_PERIOD;
-> >  		tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
-> >  	}
-> > --
-> > 1.7.4.1
-> > 
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry
-> 
+Acked-by: Ferruh Yigit <fery@cypress.com>
 
 
-Regards, 
-Manish
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

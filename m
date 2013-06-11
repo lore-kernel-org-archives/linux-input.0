@@ -1,53 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V3 1/2] tps6507x-ts: Add DT support
-Date: Mon, 10 Jun 2013 11:03:11 -0700
-Message-ID: <20130610180311.GA4649@core.coreip.homeip.net>
-References: <1369126458-24872-1-git-send-email-manishv.b@ti.com>
- <1369126458-24872-2-git-send-email-manishv.b@ti.com>
- <20130610060442.GA30158@core.coreip.homeip.net>
- <A4887BF146CD57468F700B415D2F47015A0DFD@DBDE04.ent.ti.com>
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: Re: [PATCH 21/22] iio/ti_am335x_adc: Allow to specify input line
+Date: Tue, 11 Jun 2013 09:55:28 +0200
+Message-ID: <51B6D7F0.8020906@linutronix.de>
+References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de> <1370449495-29981-22-git-send-email-bigeasy@linutronix.de> <51B4B2CE.3020300@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:53272 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752230Ab3FJSDP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Jun 2013 14:03:15 -0400
-Content-Disposition: inline
-In-Reply-To: <A4887BF146CD57468F700B415D2F47015A0DFD@DBDE04.ent.ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <51B4B2CE.3020300-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "Vishwanathrao Badarkhe, Manish" <manishv.b@ti.com>
-Cc: "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, "rob@landley.net" <rob@landley.net>
 
-Manish,
-
-On Mon, Jun 10, 2013 at 10:23:16AM +0000, Vishwanathrao Badarkhe, Manish wrote:
-> Hi Dmitry,
+On 06/09/2013 06:52 PM, Lars-Peter Clausen wrote:
+>> @@ -199,8 +213,11 @@ static int tiadc_probe(struct platform_device *pdev)
+>>  	struct tiadc_device	*adc_dev;
+>>  	struct ti_tscadc_dev	*tscadc_dev = ti_tscadc_dev_get(pdev);
+>>  	struct device_node	*node = tscadc_dev->dev->of_node;
+>> +	struct property		*prop;
+>> +	const __be32		*cur;
+>>  	int			err;
+>> -	u32			val32;
+>> +	u32			val;
+>> +	int channels		= 0;
 > 
-> On Mon, Jun 10, 2013 at 11:34:42, Dmitry Torokhov wrote:
-> > Hi Manish,
-> > 
-> > On Tue, May 21, 2013 at 02:24:17PM +0530, Vishwanathrao Badarkhe, Manish wrote:
-> > 
-> > > +	struct touchscreen_init_data *init_data = NULL;
-> > > +	int err;
-> > > +
-> > > +	if (node)
-> > > +		node = of_find_node_by_name(node, "tsc");
-> > 
-> > Why do you have to locate OF node manually instead of already having it attached to the device stucture?
+> The indention here looks a bit strange.
+fixed
+
+>>  
+>>  	if (!node) {
+>>  		dev_err(&pdev->dev, "Could not find valid DT data.\n");
+>> @@ -222,11 +239,13 @@ static int tiadc_probe(struct platform_device *pdev)
+>>  		err = -EINVAL;
+>>  		goto err_free_device;
+>>  	}
+>> -	err = of_property_read_u32(node,
+>> -			"ti,adc-channels", &val32);
+>> -	if (err < 0)
+>> -		goto err_free_device;
+>> -	adc_dev->channels = val32;
+>> +
+>> +	of_property_for_each_u32(node, "ti,adc-channels", prop, cur, val) {
+>> +
 > 
-> As TPS6507x is mfd device containing two nodes, regulator and touchscreen.
-> It is necessary to use "of_find_node_by_name" to find child "tsc" node of 
-> TPS6507x MFD device.
+> No need for the extra new line
+fixed
 
-I understand that TPS6507x is a MFD device, However, I still do not
-understand why you do not attach OF data to the child platform device
-representing touchscreen when you create it.
+>> +		adc_dev->channel_line[channels] = val;
+>> +		channels++;
+> 
+> You should make sure that channels is never >= 8
 
-Thanks.
+This is done in the mfd part where it is also checked for adc channels
++ touch channles not > 8.
 
--- 
-Dmitry
+Sebastian

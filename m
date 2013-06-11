@@ -1,70 +1,45 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 10/22] mfd/ti_am335x_tscadc: Add DT support
-Date: Tue, 11 Jun 2013 19:42:14 +0100
-Message-ID: <20130611184214.GB4320@laptop>
-References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de>
- <1370950268-7224-11-git-send-email-bigeasy@linutronix.de>
- <20130611142347.GF29135@zurbaran>
- <51B73756.5010004@linutronix.de>
- <20130611150505.GI29135@zurbaran>
- <51B74540.2020608@linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] Add a new stylus (0x100802) for Intuos5 and Cintiqs
+Date: Tue, 11 Jun 2013 15:02:25 -0700
+Message-ID: <1370988145-12850-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f43.google.com ([74.125.82.43]:59881 "EHLO
-	mail-wg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754716Ab3FKSmU (ORCPT
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:53840 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753253Ab3FKWCg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Jun 2013 14:42:20 -0400
-Received: by mail-wg0-f43.google.com with SMTP id x12so6099401wgg.34
-        for <linux-input@vger.kernel.org>; Tue, 11 Jun 2013 11:42:19 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <51B74540.2020608@linutronix.de>
+	Tue, 11 Jun 2013 18:02:36 -0400
+Received: by mail-pd0-f179.google.com with SMTP id q10so3223312pdj.38
+        for <linux-input@vger.kernel.org>; Tue, 11 Jun 2013 15:02:35 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, =?iso-8859-1?Q?Beno=EEt?= Cousson <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, "Patil, Rachna" <rachna@ti.com>, Pantelis Antoniou <panto@antoniou-consulting.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On Tue, 11 Jun 2013, Sebastian Andrzej Siewior wrote:
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_wac.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> On 06/11/2013 05:05 PM, Samuel Ortiz wrote:
-> > Hi Sebastian,
->=20
-> Hi Samuel,
->=20
-> > On Tue, Jun 11, 2013 at 04:42:30PM +0200, Sebastian Andrzej Siewior=
- wrote:
-> >> In the end I would like not to post a patch with "From: !=3D me" a=
-nd
-> >> don't make change which the original author did not do. Also dropp=
-ing
-> >> their authorship isn't nice. What could we agree on?
-> > You probably don't want to change authorship unless the final patch=
- is
-> > really far from the original one. In which case you can change it a=
-nd
-> > mention the original author name in the commit log.
-> > If you have only made a few changes on top of the original patch, p=
-lease
-> > say so explicitely in the commit log. Don't bother if we're talking
-> > about small changes or cosmetic ones. But your commit log has to be
-> > readable and clear.
->=20
-> Commit 06c9494 on of many examples where cosmetic are recorded. But t=
-o
-> make some progress I rewrite the commit log to resolve this and don't
-> add anything to the sign-off area.
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 518282d..384fbcd 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -363,6 +363,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		case 0x140802: /* Intuos4/5 13HD/24HD Classic Pen */
+ 		case 0x160802: /* Cintiq 13HD Pro Pen */
+ 		case 0x180802: /* DTH2242 Pen */
++		case 0x100802: /* Intuos4/5 13HD/24HD General Pen */
+ 			wacom->tool[idx] = BTN_TOOL_PEN;
+ 			break;
+ 
+@@ -401,6 +402,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 		case 0x10080c: /* Intuos4/5 13HD/24HD Art Pen Eraser */
+ 		case 0x16080a: /* Cintiq 13HD Pro Pen Eraser */
+ 		case 0x18080a: /* DTH2242 Eraser */
++		case 0x10080a: /* Intuos4/5 13HD/24HD General Pen Eraser */
+ 			wacom->tool[idx] = BTN_TOOL_RUBBER;
+ 			break;
+ 
+-- 
+1.8.1.2
 
-If you are submitting the patch, you still have to add your own SOB.
-
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

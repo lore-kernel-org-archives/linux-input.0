@@ -1,53 +1,95 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 22/22] iio/ti_am335x_adc: check if we found the value
-Date: Tue, 11 Jun 2013 13:31:08 +0200
-Message-ID: <1370950268-7224-23-git-send-email-bigeasy@linutronix.de>
+Subject: [PATCH 12/22] iio/ti_tscadc: provide datasheet_name and scan_type
+Date: Tue, 11 Jun 2013 13:30:58 +0200
+Message-ID: <1370950268-7224-13-git-send-email-bigeasy@linutronix.de>
 References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>
-Cc: =?UTF-8?q?Beno=C3=AEt=20Cousson?= <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: =?UTF-8?q?Beno=C3=AEt=20Cousson?= <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Pantelis Antoniou <panto@antoniou-consulting.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-Usually we get all the values we wanted but it is possible, that te ADC
-unit is busy performing the conversation for the HW events. In that case
--EBUSY is returned and the user may re-call the function.
+From: Pantelis Antoniou <panto@antoniou-consulting.com>
+
+This patch provides the members "datasheet_name" and scan_type. This is
+the remaining part of the earlier patch where I (bigeasy) removed iio_map
+because it is now supplied by the device tree.
 
 Acked-by: Jonathan Cameron <jic23@kernel.org>
+Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+[bigeasy: use static AIN[0-8] names, use kcalloc(), removed iio_map,
+	patch description]
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- drivers/iio/adc/ti_am335x_adc.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/iio/adc/ti_am335x_adc.c |   29 ++++++++++++++++++++++++-----
+ 1 file changed, 24 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-index 8ffe52d..4427e8e 100644
+index 2868c0c..9939810 100644
 --- a/drivers/iio/adc/ti_am335x_adc.c
 +++ b/drivers/iio/adc/ti_am335x_adc.c
-@@ -145,6 +145,7 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
- 	int i;
- 	unsigned int fifo1count, read;
- 	u32 step = UINT_MAX;
-+	bool found = false;
+@@ -24,6 +24,8 @@
+ #include <linux/iio/iio.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#include <linux/iio/machine.h>
++#include <linux/iio/driver.h>
  
- 	/*
- 	 * When the sub-system is first enabled,
-@@ -169,11 +170,14 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
- 	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
- 	for (i = 0; i < fifo1count; i++) {
- 		read = tiadc_readl(adc_dev, REG_FIFO1);
--		if (read >> 16 == step)
-+		if (read >> 16 == step) {
- 			*val = read & 0xfff;
-+			found = true;
-+		}
- 	}
- 	am335x_tsc_se_update(adc_dev->mfd_tscadc);
--
-+	if (found == false)
-+		return -EBUSY;
- 	return IIO_VAL_INT;
+ #include <linux/mfd/ti_am335x_tscadc.h>
+ 
+@@ -84,29 +86,46 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
+ 	am335x_tsc_se_set(adc_dev->mfd_tscadc, step_en);
  }
  
++static const char * const chan_name_ain[] = {
++	"AIN0",
++	"AIN1",
++	"AIN2",
++	"AIN3",
++	"AIN4",
++	"AIN5",
++	"AIN6",
++	"AIN7",
++};
++
+ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
+ {
++	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+ 	struct iio_chan_spec *chan_array;
++	struct iio_chan_spec *chan;
+ 	int i;
+ 
+ 	indio_dev->num_channels = channels;
+-	chan_array = kcalloc(indio_dev->num_channels,
++	chan_array = kcalloc(channels,
+ 			sizeof(struct iio_chan_spec), GFP_KERNEL);
+-
+ 	if (chan_array == NULL)
+ 		return -ENOMEM;
+ 
+-	for (i = 0; i < (indio_dev->num_channels); i++) {
+-		struct iio_chan_spec *chan = chan_array + i;
++	chan = chan_array;
++	for (i = 0; i < channels; i++, chan++) {
++
+ 		chan->type = IIO_VOLTAGE;
+ 		chan->indexed = 1;
+ 		chan->channel = i;
+ 		chan->info_mask_separate = BIT(IIO_CHAN_INFO_RAW);
++		chan->datasheet_name = chan_name_ain[i];
++		chan->scan_type.sign = 'u';
++		chan->scan_type.realbits = 12;
++		chan->scan_type.storagebits = 32;
+ 	}
+ 
+ 	indio_dev->channels = chan_array;
+ 
+-	return indio_dev->num_channels;
++	return 0;
+ }
+ 
+ static void tiadc_channels_remove(struct iio_dev *indio_dev)
 -- 
 1.7.10.4

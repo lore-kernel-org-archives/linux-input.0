@@ -1,66 +1,58 @@
-From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Subject: Re: am335x: TSC & ADC reworking including DT pieces, take 4
-Date: Tue, 11 Jun 2013 19:01:21 +0200
-Message-ID: <51B757E1.2080205@metafoo.de>
-References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de> <20130611142358.GG29135@zurbaran> <20130611160415.GA379@core.coreip.homeip.net> <20130611161506.GK29135@zurbaran> <1565f2fb-7f16-4910-8fa2-cd5700e8986d@email.android.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 10/22] mfd/ti_am335x_tscadc: Add DT support
+Date: Tue, 11 Jun 2013 18:10:51 +0100
+Message-ID: <20130611171051.GA4320@laptop>
+References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de>
+ <1370950268-7224-11-git-send-email-bigeasy@linutronix.de>
+ <20130611142347.GF29135@zurbaran>
+ <51B73756.5010004@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1565f2fb-7f16-4910-8fa2-cd5700e8986d-2ueSQiBKiTY7tOexoI0I+QC/G2K4zDHf@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <51B73756.5010004-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, =?UTF-8?B?QmVub8OudCBDb3Vzc29u?= <b-cousson-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, =?iso-8859-1?Q?Beno=EEt?= Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 06/11/2013 06:27 PM, Jonathan Cameron wrote:
-> 
-> 
-> Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> 
->> Hi Dmitry,
->>
->> On Tue, Jun 11, 2013 at 09:04:16AM -0700, Dmitry Torokhov wrote:
->>> On Tue, Jun 11, 2013 at 04:23:58PM +0200, Samuel Ortiz wrote:
->>>> Hi Sebastian,
->>>>
->>>> On Tue, Jun 11, 2013 at 01:30:46PM +0200, Sebastian Andrzej Siewior
->> wrote:
->>>>> I believe the whole thing should go via the MFD tree. It touches
->> also
->>>>> input & iio subsystem. I collected ACKs where I got some in the
->> meantime.
->>>> Please fix your commit logs, and your subject lines. It should be
->> e.g.
->>>> mfd: input: ti_am335x_adc: Blablabla
->>>>
->>>> if it's mostly an mfd patch that also touches an input driver.
->>>>
->>>> Then, this is a pretty big patchset, with iio, input and mfd all
->> mixed
->>>> together and it is likely to create merge conflicts.
->>>> From what I can see from it, and please correct me if I'm
->>>> wrong, the iio and input changes depend on the mfd ones, and not
->> the
->>>> other way around. If that's so, I'm going to ask you to reshuffle
->> your
->>>> patch set and separate the MFD changes from the iio and input ones.
->> I'll
->>>> take the MFD ones and will create an immutable branch for Jonathan
->> and
->>>> Dmitry to pull from and apply the iio and input changes on top of
->> it.
->>>> Merge conflicts should be mostly avoided that way.
->>>
->>> I purposely left this driver alone as I expected it would be merged
->>> through MFD tree, so there should not be any merging issues on my
->> side.
->> Thanks for the notice.
->> Jonathan, can you guarantee the same for the iio parts ?
-> I have also been avoiding taking any of these and there are unlikely to be any iio wide changes merging at this stage in cycle.  Hence these going through MFD is best plan.
-> 
-> Lars raised a couple of issues so would be best to wait for his ack if he hasn't already looked at this revision.
+> >> Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+> >> Signed-off-by: Patil, Rachna <rachna-l0cyMroinI0@public.gmane.org>
+> >> Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> >> [bigeasy: module alias, rename to ti,am3359-tscadc as it was teste=
+d on
+> >>           AM3359]
+> > I honestly can't tell if this is a change from the last version of =
+your
+> > patchset or a description of this patch changes in general.
+> > This is cluttering your commit logs, please remove this as well.
+>=20
+> I took the original patch. Every change I made to it because people
+> asked to merge changes into the patch where the problem occurred I
+> added it here before my sign-off.
+>=20
+> In the end I would like not to post a patch with "From: !=3D me" and
+> don't make change which the original author did not do. Also dropping
+> their authorship isn't nice. What could we agree on?
 
-The IIO bits look fine to me in this version.
+Generally speaking, if it is necessary to merge various author's
+patches into one, then you can the merger will tend to take authorship
+of the commit. Note that just because you are the author of the
+commit, it doesn't mean you authored the patch.
 
-- Lars
+I also use the rule of thumb that if you make significant changes to a
+patch, then you can also assume authorship too. I'll leave the 'how
+much is significant' to your own good judgement.
+
+If you're just making a few fixups, then just add your SOB in the
+normal way. That should be enough reward for a mere few patch fixes.
+
+Adding little 'I-did-this' notes to the commit log should mostly be
+avoided IMO.
+
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

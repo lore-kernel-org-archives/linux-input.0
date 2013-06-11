@@ -1,58 +1,91 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCH 21/22] iio/ti_am335x_adc: Allow to specify input line
-Date: Tue, 11 Jun 2013 09:55:28 +0200
-Message-ID: <51B6D7F0.8020906@linutronix.de>
-References: <1370449495-29981-1-git-send-email-bigeasy@linutronix.de> <1370449495-29981-22-git-send-email-bigeasy@linutronix.de> <51B4B2CE.3020300@metafoo.de>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 10/53] Input: atmel_mxt_ts - Add memory access interface
+ via sysfs
+Date: Tue, 11 Jun 2013 11:39:37 +0100
+Message-ID: <51B6FE69.6060505@itdev.co.uk>
+References: <20130606100346.GC1883@sirena.org.uk> <51B0651D.3090902@itdev.co.uk> <20130606105530.GT31367@sirena.org.uk> <51B06FE4.7040805@itdev.co.uk> <20130606131638.GX31367@sirena.org.uk> <51B0B52C.1090807@itdev.co.uk> <20130606164629.GG31367@sirena.org.uk> <51B1F859.1010504@itdev.co.uk> <20130607154134.GU31367@sirena.org.uk> <51B20630.7000304@itdev.co.uk> <20130607164700.GW31367@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <51B4B2CE.3020300-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:8735 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754065Ab3FKKjk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Jun 2013 06:39:40 -0400
+In-Reply-To: <20130607164700.GW31367@sirena.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 
-On 06/09/2013 06:52 PM, Lars-Peter Clausen wrote:
->> @@ -199,8 +213,11 @@ static int tiadc_probe(struct platform_device *pdev)
->>  	struct tiadc_device	*adc_dev;
->>  	struct ti_tscadc_dev	*tscadc_dev = ti_tscadc_dev_get(pdev);
->>  	struct device_node	*node = tscadc_dev->dev->of_node;
->> +	struct property		*prop;
->> +	const __be32		*cur;
->>  	int			err;
->> -	u32			val32;
->> +	u32			val;
->> +	int channels		= 0;
+Mark Brown wrote:
+> I don't think you're using the usual definition of "register map" here.
+> You seem to be switching between talking about this object model the
+> device has and device registers - perhaps the objects are also registers
+> sometimes?
+
+Yes, in Atmel Object Protocol "instances" of "objects" do each have an
+assigned register range (they do also correspond to modules of code in the
+firmware).
+
+This document is a better description of it than I can give:
+http://www.atmel.com/Images/Atmel-9626-AT42-QTouch-BSW-AT421085-Object-Protocol-Guide_Datasheet.pdf
+
+That's a rather old chip now, but the same system is used throughout
+maXTouch series chips, and also on some non-touch chips now.
+
+> You appear to be assuming a great deal of familiarity with the specifics
+> of this device here.  Where does all thi stuff about reinitialsing the
+> device come from?  What are these dependencies and what does all this
+> have to do with setting parameters?
+
+I think you're uncomfortable with the idea of giving full access by
+default. I'm not sure how I can convince you that that is OK by design, I
+can only assert it.
+
+Essentially, the device is designed (and tested) on the assumption that
+touch processing can be going on whilst various parameters are changed in a
+live fashion. If poking around in the register map caused it to lock up or
+behave oddly then that would be considered a firmware bug. In general it
+will fail gracefully - for example if you write a configuration that is
+invalid it will just stop and emit a CFGERR message.
+
+In my previous messages in this thread, I tried to answer some of the
+particular cases in which you might expect the driver to have to cope with
+the configuration changing "under it". It's difficult to be exhaustive
+without having to impart a huge amount of domain knowledge first.
+
+In the patch under discussion, the driver would have to trap writes to
+particular registers and take appropriate action, or provide a mechanism to
+be told that it needs to reinitialise itself. In practice (it's been widely
+tested outside of mainline) I haven't found a case where doing this has
+been essential, although there's nothing about this patch that stops us
+adding them.
+
+The absolute worst thing that I can think of is that you can try to beat
+the interrupt handler to reading the "message processor" registers, which
+would possibly leave touches stuck on screen. But even that operation is
+useful in debugging interrupt line issues.
+
+>> OK. I think that the ABI offered to the application layer should also be
+>> object protocol, implemented over a binary attribute, which is what the
+>> patch under discussion does. Is the problem that I need to provide better
+>> documentation of object protocol?
 > 
-> The indention here looks a bit strange.
-fixed
+> As Greg says you do need to document any new sysfs ABIs you're adding
+> anyway.  However if this is some stateful protocol you're implementing
+> then does it really map onto sysfs well, sysfs attributes are normally
+> more just data values?
 
->>  
->>  	if (!node) {
->>  		dev_err(&pdev->dev, "Could not find valid DT data.\n");
->> @@ -222,11 +239,13 @@ static int tiadc_probe(struct platform_device *pdev)
->>  		err = -EINVAL;
->>  		goto err_free_device;
->>  	}
->> -	err = of_property_read_u32(node,
->> -			"ti,adc-channels", &val32);
->> -	if (err < 0)
->> -		goto err_free_device;
->> -	adc_dev->channels = val32;
->> +
->> +	of_property_for_each_u32(node, "ti,adc-channels", prop, cur, val) {
->> +
-> 
-> No need for the extra new line
-fixed
+Perhaps it is a little unusual. There was an older ioctl-based
+implementation, but I think that would be rejected for different reasons.
 
->> +		adc_dev->channel_line[channels] = val;
->> +		channels++;
-> 
-> You should make sure that channels is never >= 8
+> Won't the driver end up getting into a fight with the magic userspace
+> stuff if the driver has no idea what the magic userspace is doing?  How
+> would suspend and resume work?
 
-This is done in the mfd part where it is also checked for adc channels
-+ touch channles not > 8.
-
-Sebastian
+On suspend the driver puts chip into "deep sleep" where touch acquisition
+is halted and minimal power consumed. But it will still come out of its
+sleep state temporarily to service I2C comms if necessary (although one
+particular family requires that I2C retry for this case).

@@ -1,68 +1,42 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Samuel Ortiz <sameo@linux.intel.com>
 Subject: Re: [PATCH 10/22] mfd/ti_am335x_tscadc: Add DT support
-Date: Tue, 11 Jun 2013 16:42:30 +0200
-Message-ID: <51B73756.5010004@linutronix.de>
-References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de> <1370950268-7224-11-git-send-email-bigeasy@linutronix.de> <20130611142347.GF29135@zurbaran>
+Date: Tue, 11 Jun 2013 17:05:05 +0200
+Message-ID: <20130611150505.GI29135@zurbaran>
+References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de>
+ <1370950268-7224-11-git-send-email-bigeasy@linutronix.de>
+ <20130611142347.GF29135@zurbaran>
+ <51B73756.5010004@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:34774 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752057Ab3FKOmh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Jun 2013 10:42:37 -0400
-In-Reply-To: <20130611142347.GF29135@zurbaran>
+Received: from mga03.intel.com ([143.182.124.21]:3836 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751549Ab3FKPFc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Jun 2013 11:05:32 -0400
+Content-Disposition: inline
+In-Reply-To: <51B73756.5010004@linutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: Lee Jones <lee.jones@linaro.org>, =?windows-1252?Q?Beno=EEt_Cousson?= <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, "Patil, Rachna" <rachna@ti.com>, Pantelis Antoniou <panto@antoniou-consulting.com>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Lee Jones <lee.jones@linaro.org>, =?iso-8859-1?Q?Beno=EEt?= Cousson <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, "Patil, Rachna" <rachna@ti.com>, Pantelis Antoniou <panto@antoniou-consulting.com>
 
-On 06/11/2013 04:23 PM, Samuel Ortiz wrote:
-> Hi Sebastian,
+Hi Sebastian,
 
-Hi Samuel,
+On Tue, Jun 11, 2013 at 04:42:30PM +0200, Sebastian Andrzej Siewior wrote:
+> In the end I would like not to post a patch with "From: != me" and
+> don't make change which the original author did not do. Also dropping
+> their authorship isn't nice. What could we agree on?
+You probably don't want to change authorship unless the final patch is
+really far from the original one. In which case you can change it and
+mention the original author name in the commit log.
+If you have only made a few changes on top of the original patch, please
+say so explicitely in the commit log. Don't bother if we're talking
+about small changes or cosmetic ones. But your commit log has to be
+readable and clear.
 
-> On Tue, Jun 11, 2013 at 01:30:56PM +0200, Sebastian Andrzej Siewior w=
-rote:
->> From: "Patil, Rachna" <rachna@ti.com>
->>
->> Make changes to add DT support in the MFD core driver.
-> Which changes ?
+Cheers,
+Samuel.
 
-So rewrite the commit log=85
-
->> [ panto@antoniou-consulting.com : use of_get_child_by_name
->> 	instead of of_find_node_by_name ]
-> I have no idea where that is coming from. Please remove this kind of
-> stuff and build a proper commit log instead.
->=20
->=20
->> Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
->> Signed-off-by: Patil, Rachna <rachna@ti.com>
->> Signed-off-by: Felipe Balbi <balbi@ti.com>
->> [bigeasy: module alias, rename to ti,am3359-tscadc as it was tested =
-on
->>           AM3359]
-> I honestly can't tell if this is a change from the last version of yo=
-ur
-> patchset or a description of this patch changes in general.
-> This is cluttering your commit logs, please remove this as well.
-
-I took the original patch. Every change I made to it because people
-asked to merge changes into the patch where the problem occurred I
-added it here before my sign-off.
-
-In the end I would like not to post a patch with "From: !=3D me" and
-don't make change which the original author did not do. Also dropping
-their authorship isn't nice. What could we agree on?
-
-> Cheers,
-> Samuel.
-
-Sebastian
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/

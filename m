@@ -1,36 +1,51 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+From: Samuel Ortiz <sameo@linux.intel.com>
 Subject: Re: am335x: TSC & ADC reworking including DT pieces, take 4
-Date: Wed, 12 Jun 2013 16:02:00 +0200
-Message-ID: <51B87F58.9070000@linutronix.de>
-References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de> <20130611142358.GG29135@zurbaran> <20130611160415.GA379@core.coreip.homeip.net> <20130611161506.GK29135@zurbaran> <1565f2fb-7f16-4910-8fa2-cd5700e8986d@email.android.com> <20130611175519.GL29135@zurbaran> <51B877C7.8080001@linutronix.de> <20130612135042.GO29135@zurbaran>
+Date: Wed, 12 Jun 2013 16:41:33 +0200
+Message-ID: <20130612144133.GP29135@zurbaran>
+References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de>
+ <20130611142358.GG29135@zurbaran>
+ <20130611160415.GA379@core.coreip.homeip.net>
+ <20130611161506.GK29135@zurbaran>
+ <1565f2fb-7f16-4910-8fa2-cd5700e8986d@email.android.com>
+ <20130611175519.GL29135@zurbaran>
+ <51B877C7.8080001@linutronix.de>
+ <20130612135042.GO29135@zurbaran>
+ <51B87F58.9070000@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130612135042.GO29135@zurbaran>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, =?ISO-8859-1?Q?Beno=EEt_Cousson?= <b-cousson-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga03.intel.com ([143.182.124.21]:25655 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753035Ab3FLOli (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 Jun 2013 10:41:38 -0400
+Content-Disposition: inline
+In-Reply-To: <51B87F58.9070000@linutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@cam.ac.uk>, Lee Jones <lee.jones@linaro.org>, =?iso-8859-1?Q?Beno=EEt?= Cousson <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
 
-On 06/12/2013 03:50 PM, Samuel Ortiz wrote:
-> Hi Sebastian,
+On Wed, Jun 12, 2013 at 04:02:00PM +0200, Sebastian Andrzej Siewior wrote:
+> >> By keep the regmap code you mean I am allowed to remove the regmap
+> >> usage in mfd (keep patch #1) or do you insist on adding its usage in
+> >> iio and input?
+> > I insist on keeping it on the MFD driver, i.e. _not_ keeping patch #1.
+> 
+> This forces me redo a few things and most likely adding it to the
+> iio and input driver to be consistent here.
+I'm not asking for that. The current MFD code uses regmap fine without
+the iio and input using it, I don't see why you would have to add regmap
+support there.
 
-Hi Samuel,
+> Could you please give a reason why using the regmap here is a good
+> thing? I mentioned a few why it is not and why is better to leave it
+> out.
+Yes, and I'm not convinced obviously. regmap prevents you from open
+coding your MMIO access, and this is the right approach.
 
->> By keep the regmap code you mean I am allowed to remove the regmap
->> usage in mfd (keep patch #1) or do you insist on adding its usage in
->> iio and input?
-> I insist on keeping it on the MFD driver, i.e. _not_ keeping patch #1.
+Cheers,
+Samuel.
 
-This forces me redo a few things and most likely adding it to the
-iio and input driver to be consistent here.
-
-Could you please give a reason why using the regmap here is a good
-thing? I mentioned a few why it is not and why is better to leave it
-out.
-
-> Cheers,
-> Samuel.
-
-Sebastian
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/

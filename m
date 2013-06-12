@@ -1,85 +1,122 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 13/21] arm: am33xx: add TSC/ADC mfd device support
-Date: Wed, 12 Jun 2013 18:58:14 +0200
-Message-ID: <1371056302-12714-14-git-send-email-bigeasy@linutronix.de>
+Subject: [PATCH 12/21] mfd: ti_tscadc: deal with partial activation
+Date: Wed, 12 Jun 2013 18:58:13 +0200
+Message-ID: <1371056302-12714-13-git-send-email-bigeasy@linutronix.de>
 References: <1371056302-12714-1-git-send-email-bigeasy@linutronix.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:44696 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757244Ab3FLRLv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Jun 2013 13:11:51 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1371056302-12714-1-git-send-email-bigeasy@linutronix.de>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: =?UTF-8?q?Beno=C3=AEt=20Cousson?= <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, "Patil, Rachna" <rachna@ti.com>, Pantelis Antoniou <panto@antoniou-consulting.com>, Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
+Cc: =?UTF-8?q?Beno=C3=AEt=20Cousson?= <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Pantelis Antoniou <panto@antoniou-consulting.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+List-Id: linux-input@vger.kernel.org
 
-From: "Patil, Rachna" <rachna@ti.com>
+From: Pantelis Antoniou <panto@antoniou-consulting.com>
 
-Add support for core multifunctional device along
-with its clients touchscreen and ADC.
+Fix the mfd device in the case where a subdevice might not be activated.
 
 Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
-Signed-off-by: Patil, Rachna <rachna@ti.com>
 Signed-off-by: Felipe Balbi <balbi@ti.com>
-Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- arch/arm/boot/dts/am335x-evm.dts |   14 ++++++++++++++
- arch/arm/boot/dts/am33xx.dtsi    |   18 ++++++++++++++++++
- 2 files changed, 32 insertions(+)
+ drivers/mfd/ti_am335x_tscadc.c       |   38 ++++++++++++++++++++++------------
+ include/linux/mfd/ti_am335x_tscadc.h |    8 +++----
+ 2 files changed, 28 insertions(+), 18 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
-index 0423298..26fea97 100644
---- a/arch/arm/boot/dts/am335x-evm.dts
-+++ b/arch/arm/boot/dts/am335x-evm.dts
-@@ -244,3 +244,17 @@
- &cpsw_emac1 {
- 	phy_id = <&davinci_mdio>, <1>;
- };
-+
-+&tscadc {
-+	status = "okay";
-+	tsc {
-+		ti,wires = <4>;
-+		ti,x-plate-resistance = <200>;
-+		ti,coordiante-readouts = <5>;
-+		ti,wire-config = <0x00 0x11 0x22 0x33>;
-+	};
-+
-+	adc {
-+		ti,adc-channels = <4>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index 1460d9b..4ad7797 100644
---- a/arch/arm/boot/dts/am33xx.dtsi
-+++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -404,6 +404,24 @@
- 			ti,hwmods = "wkup_m3";
- 		};
+diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+index e78b9df..d05fcba 100644
+--- a/drivers/mfd/ti_am335x_tscadc.c
++++ b/drivers/mfd/ti_am335x_tscadc.c
+@@ -107,11 +107,14 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
+ 	of_property_read_u32(node, "ti,adc-channels", &adc_channels);
  
-+		tscadc: tscadc@44e0d000 {
-+			compatible = "ti,am3359-tscadc";
-+			reg = <0x44e0d000 0x1000>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <16>;
-+			ti,hwmods = "adc_tsc";
-+			status = "disabled";
+ 	total_channels = tsc_wires + adc_channels;
+-
+ 	if (total_channels > 8) {
+ 		dev_err(&pdev->dev, "Number of i/p channels more than 8\n");
+ 		return -EINVAL;
+ 	}
++	if (total_channels == 0) {
++		dev_err(&pdev->dev, "Need atleast one channel.\n");
++		return -EINVAL;
++	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!res) {
+@@ -202,28 +205,37 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
+ 	ctrl |= CNTRLREG_TSCSSENB;
+ 	tscadc_writel(tscadc, REG_CTRL, ctrl);
+ 
++	tscadc->used_cells = 0;
++	tscadc->tsc_cell = -1;
++	tscadc->adc_cell = -1;
 +
-+			tsc {
-+				compatible = "ti,am3359-tsc";
-+			};
-+			am335x_adc: adc {
-+				#io-channel-cells = <1>;
-+				compatible = "ti,am3359-adc";
-+			};
-+
-+		};
-+
- 		gpmc: gpmc@50000000 {
- 			compatible = "ti,am3352-gpmc";
- 			ti,hwmods = "gpmc";
+ 	/* TSC Cell */
+-	cell = &tscadc->cells[TSC_CELL];
+-	cell->name = "tsc";
+-	cell->of_compatible = "ti,am3359-tsc";
+-	cell->platform_data = &tscadc;
+-	cell->pdata_size = sizeof(tscadc);
++	if (tsc_wires > 0) {
++		tscadc->tsc_cell = tscadc->used_cells;
++		cell = &tscadc->cells[tscadc->used_cells++];
++		cell->name = "tsc";
++		cell->of_compatible = "ti,am3359-tsc";
++		cell->platform_data = &tscadc;
++		cell->pdata_size = sizeof(tscadc);
++	}
+ 
+ 	/* ADC Cell */
+-	cell = &tscadc->cells[ADC_CELL];
+-	cell->name = "tiadc";
+-	cell->of_compatible = "ti,am3359-adc";
+-	cell->platform_data = &tscadc;
+-	cell->pdata_size = sizeof(tscadc);
++	if (adc_channels > 0) {
++		tscadc->adc_cell = tscadc->used_cells;
++		cell = &tscadc->cells[tscadc->used_cells++];
++		cell->name = "tiadc";
++		cell->of_compatible = "ti,am3359-adc";
++		cell->platform_data = &tscadc;
++		cell->pdata_size = sizeof(tscadc);
++	}
+ 
+ 	err = mfd_add_devices(&pdev->dev, pdev->id, tscadc->cells,
+-			TSCADC_CELLS, NULL, 0, NULL);
++			tscadc->used_cells, NULL, 0, NULL);
+ 	if (err < 0)
+ 		goto err_disable_clk;
+ 
+ 	device_init_wakeup(&pdev->dev, true);
+ 	platform_set_drvdata(pdev, tscadc);
+-
+ 	return 0;
+ 
+ err_disable_clk:
+diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
+index e36ae41..fe54ba4 100644
+--- a/include/linux/mfd/ti_am335x_tscadc.h
++++ b/include/linux/mfd/ti_am335x_tscadc.h
+@@ -120,11 +120,6 @@
+ 
+ #define TSCADC_CELLS		2
+ 
+-enum tscadc_cells {
+-	TSC_CELL,
+-	ADC_CELL,
+-};
+-
+ struct mfd_tscadc_board {
+ 	struct tsc_data *tsc_init;
+ 	struct adc_data *adc_init;
+@@ -135,6 +130,9 @@ struct ti_tscadc_dev {
+ 	struct regmap *regmap_tscadc;
+ 	void __iomem *tscadc_base;
+ 	int irq;
++	int used_cells;	/* 1-2 */
++	int tsc_cell;	/* -1 if not used */
++	int adc_cell;	/* -1 if not used */
+ 	struct mfd_cell cells[TSCADC_CELLS];
+ 	u32 reg_se_cache;
+ 	spinlock_t reg_lock;
 -- 
 1.7.10.4
-

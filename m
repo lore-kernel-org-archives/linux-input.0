@@ -1,44 +1,73 @@
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: Re: am335x: TSC & ADC reworking including DT pieces, take 4
-Date: Wed, 12 Jun 2013 17:00:01 +0200
-Message-ID: <51B88CF1.4060708@linutronix.de>
-References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de> <20130611142358.GG29135@zurbaran> <20130611160415.GA379@core.coreip.homeip.net> <20130611161506.GK29135@zurbaran> <1565f2fb-7f16-4910-8fa2-cd5700e8986d@email.android.com> <20130611175519.GL29135@zurbaran> <51B877C7.8080001@linutronix.de> <20130612135042.GO29135@zurbaran> <51B87F58.9070000@linutronix.de> <20130612144133.GP29135@zurbaran>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 06/21] input: ti_am33x_tsc: remove platform_data support
+Date: Wed, 12 Jun 2013 18:58:07 +0200
+Message-ID: <1371056302-12714-7-git-send-email-bigeasy@linutronix.de>
+References: <1371056302-12714-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130612144133.GP29135@zurbaran>
+In-Reply-To: <1371056302-12714-1-git-send-email-bigeasy@linutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@cam.ac.uk>, Lee Jones <lee.jones@linaro.org>, =?ISO-8859-1?Q?Beno=EEt_Cousson?= <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
+Cc: =?UTF-8?q?Beno=C3=AEt=20Cousson?= <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-On 06/12/2013 04:41 PM, Samuel Ortiz wrote:
->> This forces me redo a few things and most likely adding it to the
->> iio and input driver to be consistent here.
-> I'm not asking for that. The current MFD code uses regmap fine without
-> the iio and input using it, I don't see why you would have to add regmap
-> support there.
+This patch removes access to platform data mfd_tscadc_board because the
+platform is DT only.
 
-Right. Since no reg-cache is used then this should be fine then.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/input/touchscreen/ti_am335x_tsc.c |   25 +------------------------
+ 1 file changed, 1 insertion(+), 24 deletions(-)
 
->> Could you please give a reason why using the regmap here is a good
->> thing? I mentioned a few why it is not and why is better to leave it
->> out.
-> Yes, and I'm not convinced obviously. regmap prevents you from open
-> coding your MMIO access, and this is the right approach.
-
-I am not convinced that adding another layer of indirection for doing
-the same thing is a good approach. Pointer chasing _is_ expensive.
-_None_ of the regmap features are used here.
-I would understand if I would re-implement register caching or a
-wrapper across multiple buses but nothing of this is the case.
-The current code even ignores the return value.
-
-So, are we going to convert all drivers to use regmap now?
-
-> Cheers,
-> Samuel.
-> 
-
-Sebastian
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index 449c0fb..a1db55d 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -24,7 +24,6 @@
+ #include <linux/clk.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+-#include <linux/input/ti_am335x_tsc.h>
+ #include <linux/delay.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+@@ -347,24 +346,6 @@ static int titsc_parse_dt(struct platform_device *pdev,
+ 			ts_dev->config_inp, ARRAY_SIZE(ts_dev->config_inp));
+ }
+ 
+-static int titsc_parse_pdata(struct ti_tscadc_dev *tscadc_dev,
+-					struct titsc *ts_dev)
+-{
+-	struct mfd_tscadc_board	*pdata = tscadc_dev->dev->platform_data;
+-
+-	if (!pdata)
+-		return -EINVAL;
+-
+-	ts_dev->wires = pdata->tsc_init->wires;
+-	ts_dev->x_plate_resistance =
+-		pdata->tsc_init->x_plate_resistance;
+-	ts_dev->steps_to_configure =
+-		pdata->tsc_init->steps_to_configure;
+-	memcpy(ts_dev->config_inp, pdata->tsc_init->wire_config,
+-		sizeof(pdata->tsc_init->wire_config));
+-	return 0;
+-}
+-
+ /*
+  * The functions for inserting/removing driver as a module.
+  */
+@@ -390,11 +371,7 @@ static int titsc_probe(struct platform_device *pdev)
+ 	ts_dev->input = input_dev;
+ 	ts_dev->irq = tscadc_dev->irq;
+ 
+-	if (tscadc_dev->dev->platform_data)
+-		err = titsc_parse_pdata(tscadc_dev, ts_dev);
+-	else
+-		err = titsc_parse_dt(pdev, ts_dev);
+-
++	err = titsc_parse_dt(pdev, ts_dev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "Could not find valid DT data.\n");
+ 		goto err_free_mem;
+-- 
+1.7.10.4

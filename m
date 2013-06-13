@@ -1,41 +1,82 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: Re: [PATCH] doc: specify that ABS_MT_SLOT must have a minimum of 0
-Date: Thu, 13 Jun 2013 21:30:50 +0200
-Message-ID: <20130613193050.GA2844@polaris.bitmath.org>
-References: <20130531062944.GA915@yabbi.redhat.com>
- <CAN+gG=FpioeuX_VJauhHAyB_rHdMbh_Zic7H-M8Pz-k6xV=O0w@mail.gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: i2c-hid: support sending HID output reports using the output register
+Date: Thu, 13 Jun 2013 15:54:14 -0700
+Message-ID: <1371164054-15953-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:46936 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752081Ab3FMTsE (ORCPT
+Received: from us-mx2.synaptics.com ([12.239.216.76]:26469 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750994Ab3FMXGA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Jun 2013 15:48:04 -0400
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-b21.telenor.se (Postfix) with ESMTP id 809AAC443
-	for <linux-input@vger.kernel.org>; Thu, 13 Jun 2013 21:24:10 +0200 (CEST)
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=FpioeuX_VJauhHAyB_rHdMbh_Zic7H-M8Pz-k6xV=O0w@mail.gmail.com>
+	Thu, 13 Jun 2013 19:06:00 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>
 
-On Wed, Jun 12, 2013 at 10:51:56AM +0200, Benjamin Tissoires wrote:
-> On Fri, May 31, 2013 at 8:29 AM, Peter Hutterer
-> <peter.hutterer@who-t.net> wrote:
-> > This is effectively already in force through input_mt_init_slots, and uinput
-> > too ignores the actual minimum.
-> >
-> > Since slots are a kernel-genenerated axis only, non-zero minimums make
-> > little sense and are likely to cause errors. Better to treat a non-zero
-> > minimum as kernel bug if it ever happens.
-> >
-> > Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-> 
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+The current i2c hid driver does not support sending HID output reports using
+the output register for devices which support receiving reports through this
+method. This patch determines which method to use to send output reports based
+ on the value of wMaxOutputLength in the device's HID descriptor.
 
-Applied, thanks Peter and Benjamin.
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+ drivers/hid/i2c-hid/i2c-hid.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-Henrik
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 2b1799a..a71c9a7 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -108,6 +108,7 @@ static const struct i2c_hid_cmd hid_reset_cmd =		{ I2C_HID_CMD(0x01),
+ static const struct i2c_hid_cmd hid_get_report_cmd =	{ I2C_HID_CMD(0x02) };
+ static const struct i2c_hid_cmd hid_set_report_cmd =	{ I2C_HID_CMD(0x03) };
+ static const struct i2c_hid_cmd hid_set_power_cmd =	{ I2C_HID_CMD(0x08) };
++static const struct i2c_hid_cmd hid_no_cmd =		{ .length = 0 };
+ 
+ /*
+  * These definitions are not used here, but are defined by the spec.
+@@ -259,8 +260,11 @@ static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
+ {
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
+ 	u8 *args = ihid->argsbuf;
++	struct i2c_hid_cmd hidcmd = hid_set_report_cmd;
+ 	int ret;
+ 	u16 dataRegister = le16_to_cpu(ihid->hdesc.wDataRegister);
++	u16 outputRegister = le16_to_cpu(ihid->hdesc.wOutputRegister);
++	u16 maxOutputLength = le16_to_cpu(ihid->hdesc.wMaxOutputLength);
+ 
+ 	/* hidraw already checked that data_len < HID_MAX_BUFFER_SIZE */
+ 	u16 size =	2			/* size */ +
+@@ -278,8 +282,16 @@ static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
+ 		reportID = 0x0F;
+ 	}
+ 
+-	args[index++] = dataRegister & 0xFF;
+-	args[index++] = dataRegister >> 8;
++	/* use the data register for feature reports or if the device does not
++	 * support the output register */
++	if (reportType == 0x03 || maxOutputLength == 0) {
++		args[index++] = dataRegister & 0xFF;
++		args[index++] = dataRegister >> 8;
++	} else {
++		args[index++] = outputRegister & 0xFF;
++		args[index++] = outputRegister >> 8;
++		hidcmd = hid_no_cmd;
++	}
+ 
+ 	args[index++] = size & 0xFF;
+ 	args[index++] = size >> 8;
+@@ -289,7 +301,7 @@ static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
+ 
+ 	memcpy(&args[index], buf, data_len);
+ 
+-	ret = __i2c_hid_command(client, &hid_set_report_cmd, reportID,
++	ret = __i2c_hid_command(client, &hidcmd, reportID,
+ 		reportType, args, args_len, NULL, 0);
+ 	if (ret) {
+ 		dev_err(&client->dev, "failed to set a report to device.\n");
+-- 
+1.7.10.4
+

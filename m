@@ -1,38 +1,41 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: fold ps3remote driver into generic Sony driver
-Date: Thu, 13 Jun 2013 12:05:14 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1306131205010.6750@pobox.suse.cz>
-References: <alpine.LNX.2.00.1305281035370.3914@pobox.suse.cz>  <1369747847.3675.3.camel@obelisk.thedillows.org>  <alpine.LNX.2.00.1305281538360.3914@pobox.suse.cz>  <1370062502.2606.5.camel@obelisk.thedillows.org>
- <1371090818.28385.0.camel@obelisk.thedillows.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: Re: [PATCH] doc: specify that ABS_MT_SLOT must have a minimum of 0
+Date: Thu, 13 Jun 2013 21:30:50 +0200
+Message-ID: <20130613193050.GA2844@polaris.bitmath.org>
+References: <20130531062944.GA915@yabbi.redhat.com>
+ <CAN+gG=FpioeuX_VJauhHAyB_rHdMbh_Zic7H-M8Pz-k6xV=O0w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48860 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758325Ab3FMKFR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Jun 2013 06:05:17 -0400
-In-Reply-To: <1371090818.28385.0.camel@obelisk.thedillows.org>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:46936 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752081Ab3FMTsE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Jun 2013 15:48:04 -0400
+Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
+	by smtprelay-b21.telenor.se (Postfix) with ESMTP id 809AAC443
+	for <linux-input@vger.kernel.org>; Thu, 13 Jun 2013 21:24:10 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <CAN+gG=FpioeuX_VJauhHAyB_rHdMbh_Zic7H-M8Pz-k6xV=O0w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Dillow <dave@thedillows.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, 12 Jun 2013, David Dillow wrote:
-
-> > I tried to test this tonight, but was thwarted by Fedora 16 on the only
-> > readily available test platform -- old bluetoothd w/ the internal
-> > driver. I'll need to upgrade that box, recreate the updated bluetooth
-> > environment I had from some time ago, or try it on my myth frontend
-> > (Ubuntu 13.04). I'll get another chance on the 9th; I won't have access
-> > to the HW again until then. :/
+On Wed, Jun 12, 2013 at 10:51:56AM +0200, Benjamin Tissoires wrote:
+> On Fri, May 31, 2013 at 8:29 AM, Peter Hutterer
+> <peter.hutterer@who-t.net> wrote:
+> > This is effectively already in force through input_mt_init_slots, and uinput
+> > too ignores the actual minimum.
+> >
+> > Since slots are a kernel-genenerated axis only, non-zero minimums make
+> > little sense and are likely to cause errors. Better to treat a non-zero
+> > minimum as kernel bug if it ever happens.
+> >
+> > Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 > 
-> Ok, finally wrestled Myth away from family long enough to test. All
-> looks good, sorry about the delay.
-> 
-> Tested-by: David Dillow <dave@thedillows.org>
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-Perfect, thanks, queued for 3.11.
+Applied, thanks Peter and Benjamin.
 
--- 
-Jiri Kosina
-SUSE Labs
+Henrik

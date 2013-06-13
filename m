@@ -1,31 +1,38 @@
-From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: am335x: TSC & ADC reworking including DT pieces, take 5
-Date: Thu, 13 Jun 2013 11:37:58 +0200
-Message-ID: <20130613093758.GC7998@zurbaran>
-References: <1371056302-12714-1-git-send-email-bigeasy@linutronix.de>
- <20130613090719.GB7998@zurbaran>
- <51B99006.2060103@linutronix.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: fold ps3remote driver into generic Sony driver
+Date: Thu, 13 Jun 2013 12:05:14 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1306131205010.6750@pobox.suse.cz>
+References: <alpine.LNX.2.00.1305281035370.3914@pobox.suse.cz>  <1369747847.3675.3.camel@obelisk.thedillows.org>  <alpine.LNX.2.00.1305281538360.3914@pobox.suse.cz>  <1370062502.2606.5.camel@obelisk.thedillows.org>
+ <1371090818.28385.0.camel@obelisk.thedillows.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <51B99006.2060103-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: =?iso-8859-1?Q?Beno=EEt?= Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:48860 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758325Ab3FMKFR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Jun 2013 06:05:17 -0400
+In-Reply-To: <1371090818.28385.0.camel@obelisk.thedillows.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Dillow <dave@thedillows.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Sebastian,
+On Wed, 12 Jun 2013, David Dillow wrote:
 
-On Thu, Jun 13, 2013 at 11:25:26AM +0200, Sebastian Andrzej Siewior wrote:
-> > I fixed a couple of unused variable warnings on top of it.
+> > I tried to test this tonight, but was thwarted by Fedora 16 on the only
+> > readily available test platform -- old bluetoothd w/ the internal
+> > driver. I'll need to upgrade that box, recreate the updated bluetooth
+> > environment I had from some time ago, or try it on my myth frontend
+> > (Ubuntu 13.04). I'll get another chance on the 9th; I won't have access
+> > to the HW again until then. :/
 > 
-> I saw your patch at git.k.o and I am asking you not to taking it :)
-I understand why now, I'll remove it. Sorry about that.
+> Ok, finally wrestled Myth away from family long enough to test. All
+> looks good, sorry about the delay.
+> 
+> Tested-by: David Dillow <dave@thedillows.org>
 
-Cheers,
-Samuel.
+Perfect, thanks, queued for 3.11.
 
 -- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+Jiri Kosina
+SUSE Labs

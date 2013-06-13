@@ -1,103 +1,41 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 14/21] input: mfd: ti_am335x_tsc remove remaining platform data pieces
-Date: Wed, 12 Jun 2013 18:58:15 +0200
-Message-ID: <1371056302-12714-15-git-send-email-bigeasy@linutronix.de>
-References: <1371056302-12714-1-git-send-email-bigeasy@linutronix.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1371056302-12714-1-git-send-email-bigeasy@linutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: =?UTF-8?q?Beno=C3=AEt=20Cousson?= <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: David Dillow <dave@thedillows.org>
+Subject: Re: [PATCH] HID: fold ps3remote driver into generic Sony driver
+Date: Wed, 12 Jun 2013 22:33:38 -0400
+Message-ID: <1371090818.28385.0.camel@obelisk.thedillows.org>
+References: <alpine.LNX.2.00.1305281035370.3914@pobox.suse.cz>
+	 <1369747847.3675.3.camel@obelisk.thedillows.org>
+	 <alpine.LNX.2.00.1305281538360.3914@pobox.suse.cz>
+	 <1370062502.2606.5.camel@obelisk.thedillows.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from matrix.voodoobox.net ([75.127.97.206]:57298 "EHLO
+	matrix.voodoobox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757040Ab3FMCdp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 Jun 2013 22:33:45 -0400
+In-Reply-To: <1370062502.2606.5.camel@obelisk.thedillows.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The two header files removed here are unused and have no users as this
-platform was never used with platform devices.
+On Sat, 2013-06-01 at 00:55 -0400, David Dillow wrote:
+> On Tue, 2013-05-28 at 15:45 +0200, Jiri Kosina wrote:
+> > I'd be glad if you could provide your Tested-by: for the patch below. 
+> > Thanks a lot.
+> 
+> I tried to test this tonight, but was thwarted by Fedora 16 on the only
+> readily available test platform -- old bluetoothd w/ the internal
+> driver. I'll need to upgrade that box, recreate the updated bluetooth
+> environment I had from some time ago, or try it on my myth frontend
+> (Ubuntu 13.04). I'll get another chance on the 9th; I won't have access
+> to the HW again until then. :/
 
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- include/linux/input/ti_am335x_tsc.h         |   35 ---------------------------
- include/linux/mfd/ti_am335x_tscadc.h        |    5 ----
- include/linux/platform_data/ti_am335x_adc.h |   14 -----------
- 3 files changed, 54 deletions(-)
- delete mode 100644 include/linux/input/ti_am335x_tsc.h
- delete mode 100644 include/linux/platform_data/ti_am335x_adc.h
+Ok, finally wrestled Myth away from family long enough to test. All
+looks good, sorry about the delay.
 
-diff --git a/include/linux/input/ti_am335x_tsc.h b/include/linux/input/ti_am335x_tsc.h
-deleted file mode 100644
-index 6a66b4d..0000000
---- a/include/linux/input/ti_am335x_tsc.h
-+++ /dev/null
-@@ -1,35 +0,0 @@
--#ifndef __LINUX_TI_AM335X_TSC_H
--#define __LINUX_TI_AM335X_TSC_H
--
--/**
-- * struct tsc_data	Touchscreen wire configuration
-- * @wires:		Wires refer to application modes
-- *			i.e. 4/5/8 wire touchscreen support
-- *			on the platform.
-- * @x_plate_resistance:	X plate resistance.
-- * @steps_to_configure:	The sequencer supports a total of
-- *			16 programmable steps.
-- *			A step configured to read a single
-- *			co-ordinate value, can be applied
-- *			more number of times for better results.
-- * @wire_config:	Different EVM's could have a different order
-- *			for connecting wires on touchscreen.
-- *			We need to provide an 8 bit number where in
-- *			the 1st four bits represent the analog lines
-- *			and the next 4 bits represent positive/
-- *			negative terminal on that input line.
-- *			Notations to represent the input lines and
-- *			terminals resoectively is as follows:
-- *			AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
-- *			XP  = 0, XN = 1, YP = 2, YN = 3.
-- *
-- */
--
--struct tsc_data {
--	int wires;
--	int x_plate_resistance;
--	int steps_to_configure;
--	int wire_config[10];
--};
--
--#endif
-diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index fe54ba4..533f200 100644
---- a/include/linux/mfd/ti_am335x_tscadc.h
-+++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -120,11 +120,6 @@
- 
- #define TSCADC_CELLS		2
- 
--struct mfd_tscadc_board {
--	struct tsc_data *tsc_init;
--	struct adc_data *adc_init;
--};
--
- struct ti_tscadc_dev {
- 	struct device *dev;
- 	struct regmap *regmap_tscadc;
-diff --git a/include/linux/platform_data/ti_am335x_adc.h b/include/linux/platform_data/ti_am335x_adc.h
-deleted file mode 100644
-index e41d583..0000000
---- a/include/linux/platform_data/ti_am335x_adc.h
-+++ /dev/null
-@@ -1,14 +0,0 @@
--#ifndef __LINUX_TI_AM335X_ADC_H
--#define __LINUX_TI_AM335X_ADC_H
--
--/**
-- * struct adc_data	ADC Input information
-- * @adc_channels:	Number of analog inputs
-- *			available for ADC.
-- */
--
--struct adc_data {
--	unsigned int adc_channels;
--};
--
--#endif
--- 
-1.7.10.4
+Tested-by: David Dillow <dave@thedillows.org>
+
+

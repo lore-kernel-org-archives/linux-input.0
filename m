@@ -1,78 +1,64 @@
-From: Tatsunosuke Tobita <junkpainting@gmail.com>
-Subject: [PATCH] Input: Added hovering capability
-Date: Fri, 14 Jun 2013 17:56:39 +0900
-Message-ID: <1371200199-17718-1-git-send-email-tobita.tatsunosuke@wacom.co.jp>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:39274 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751211Ab3FNI4t (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Jun 2013 04:56:49 -0400
-Received: by mail-pd0-f173.google.com with SMTP id v14so376525pde.18
-        for <linux-input@vger.kernel.org>; Fri, 14 Jun 2013 01:56:49 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 01/22] mfd/ti_am335x_tscadc: remove regmap
+Date: Fri, 14 Jun 2013 14:53:58 +0100
+Message-ID: <20130614135358.GR1403@sirena.org.uk>
+References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de>
+ <1370950268-7224-2-git-send-email-bigeasy@linutronix.de>
+ <20130611142336.GE29135@zurbaran>
+ <51B7358D.7000605@linutronix.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5mu1Tvth33Vj8K2q"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <51B7358D.7000605-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, =?iso-8859-1?Q?Beno=EEt?= Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
 
-From: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
 
-Although BTN_TOOL_PEN and BTN_TOOL_RUBBER function properly, the driver didn't
-have hover functionality, so it's been added.
-Also, I noticed that "WACOM_RETRY_CNT" was not used, so it was removed.
+--5mu1Tvth33Vj8K2q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Tatsunosuke Tobita <tobita.tatsunosuke@wacom.co.jp>
----
- drivers/input/touchscreen/wacom_i2c.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+On Tue, Jun 11, 2013 at 04:34:53PM +0200, Sebastian Andrzej Siewior wrote:
 
-diff --git a/drivers/input/touchscreen/wacom_i2c.c b/drivers/input/touchscreen/wacom_i2c.c
-index bf0d076..7ccaa1b 100644
---- a/drivers/input/touchscreen/wacom_i2c.c
-+++ b/drivers/input/touchscreen/wacom_i2c.c
-@@ -1,7 +1,7 @@
- /*
-  * Wacom Penabled Driver for I2C
-  *
-- * Copyright (c) 2011 Tatsunosuke Tobita, Wacom.
-+ * Copyright (c) 2011 - 2013 Tatsunosuke Tobita, Wacom.
-  * <tobita.tatsunosuke@wacom.co.jp>
-  *
-  * This program is free software; you can redistribute it
-@@ -27,7 +27,6 @@
- #define WACOM_CMD_THROW0	0x05
- #define WACOM_CMD_THROW1	0x00
- #define WACOM_QUERY_SIZE	19
--#define WACOM_RETRY_CNT		100
- 
- struct wacom_features {
- 	int x_max;
-@@ -40,6 +39,8 @@ struct wacom_i2c {
- 	struct i2c_client *client;
- 	struct input_dev *input;
- 	u8 data[WACOM_QUERY_SIZE];
-+	bool prox;
-+	int tool;
- };
- 
- static int wacom_query_device(struct i2c_client *client,
-@@ -112,9 +113,14 @@ static irqreturn_t wacom_i2c_irq(int irq, void *dev_id)
- 	y = le16_to_cpup((__le16 *)&data[6]);
- 	pressure = le16_to_cpup((__le16 *)&data[8]);
- 
-+	if (!wac_i2c->prox)
-+		wac_i2c->tool = (data[3] & 0x0c) ?
-+			BTN_TOOL_RUBBER : BTN_TOOL_PEN;
-+
-+	wac_i2c->prox = data[3] & 0x20;
-+
- 	input_report_key(input, BTN_TOUCH, tsw || ers);
--	input_report_key(input, BTN_TOOL_PEN, tsw);
--	input_report_key(input, BTN_TOOL_RUBBER, ers);
-+	input_report_key(input, wac_i2c->tool, wac_i2c->prox);
- 	input_report_key(input, BTN_STYLUS, f1);
- 	input_report_key(input, BTN_STYLUS2, f2);
- 	input_report_abs(input, ABS_X, x);
--- 
-1.7.9.5
+> >> Therefore this patch removes regmap part of the driver.
 
+> > NAK. Using regmap is better than open coding your register accesses, and
+> > the children not using this API is not a reason for the MFD driver to do
+> > the same.
+
+> There is no advantage over using regmap in the first place. It goes
+> through a few layers, uses no caching because almost all registers are
+> volatile and this is a direct bus. In the end it complicates more than
+> it helps.
+
+It does give you tracepoints and debugfs.  If it's making things at all
+complicated we need to look at why that is and figure out how to fix
+that since it's probably an issue for other users.
+
+--5mu1Tvth33Vj8K2q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.20 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRuyBtAAoJELSic+t+oim9BbYP/1+zKwt1iB3j76z88fQnyubj
+KOiwAO9mDpaTdX69TCrRyhSfL/soylTxHBvHpHv7WNhWGF/MAaz7ivhOJ7ENBojg
+fX8LAMSFhWRq5KpCOKKWQGcdiyaQhqBknfHMAIoahBC+1Y9v/k2sNnuHogOLzybp
+rb+bewLZIcoo6eSMeuxauwvXukkQNWJTL8NB92LME2toFntazY0uPshwDVbbZjCs
+bFAyv0RXkljqlfUGwYe6rubfaGYR+6GNCIWMl1A1aiWhKW4tspktsk0aI+uEVznk
+5YCtpfAm4dsQecaoQtsgIRmK0978Zrm0R5buj8pkbiv6kYBmpGQ8BMV+CXRqOXjp
+4CGKn2mHOnvHJdQ518xmnvxUhYP0j9bh+GzvMLM5Mbuou/P9vf3SSMFTO+FKvGJ7
+Ee51mW0d5u/NBUKtcTyjp4zytuvh0yHteX/L3f+XONT6izUCg9z/LnmuaTrv9x7A
+dQ8LLORyqGtgL/rUGZ6cb8fSRfPKa82noi8dXm5TSp5eQbDlPLsRg48XDPqCkOYl
+W8ns1GUVu0+xIEjHET8w+Ff/LttXYG9if8Y6S6tKziohfizX46X9PIabiFpeKO3u
+x66j6t9ui+HEtklLKgRYtbOzAIvExgmNMnx81fA3HpmduSoarhtOJzECkdFZt6od
+QdyKhuqOeBEmM4YA/3lK
+=mCoi
+-----END PGP SIGNATURE-----
+
+--5mu1Tvth33Vj8K2q--

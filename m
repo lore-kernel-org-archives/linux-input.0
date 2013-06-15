@@ -1,453 +1,235 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH v2 2/2] HID: wiimote: support Nintendo Wii U Pro Controller
-Date: Sat, 15 Jun 2013 15:32:45 +0200
-Message-ID: <1371303165-1802-3-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH v2 1/2] input: document gamepad API and add extra keycodes
+Date: Sat, 15 Jun 2013 15:32:44 +0200
+Message-ID: <1371303165-1802-2-git-send-email-dh.herrmann@gmail.com>
 References: <1371303165-1802-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bk0-f50.google.com ([209.85.214.50]:34392 "EHLO
+	mail-bk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752833Ab3FONdI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 15 Jun 2013 09:33:08 -0400
 In-Reply-To: <1371303165-1802-1-git-send-email-dh.herrmann@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, dmitry.torokhov@gmail.com, Todd Showalter <todd@electronjump.com>, linux-kernel@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-The Wii U Pro Controller is a new Nintendo remote device that looks very
-similar to the XBox controller. It has nearly the same features and uses
-the same protocol as the Wii Remote.
+Until today all gamepad input drivers report their data differently. It is
+nearly impossible to write applications for more than one device in a
+generic way. Therefore, this patch introduces a uniform gamepad API which
+will be used for all new drivers.
 
-We add a new wiimote extension device so the Pro Controller is properly
-detected and supported.
+Instead of mapping buttons by their labels, we now map them by position.
+This allows applications to work with any gamepad regardless of the labels
+on the buttons. Furthermore, we standardize the ABS_* codes for analog
+triggers and sticks.
 
-The device reports MP support, which is odd and I couldn't get it working,
-yet. Hence, we disable MP registers for now. Further investigation is
-needed to see what extra capabilities are provided.
+For D-Pads the long overdue BTN_DPAD_* codes are introduced. They should
+be fairly obvious how to use. To avoid confusion, the action buttons now
+have BTN_EAST/SOUTH/WEST/NORTH aliases.
 
-There are some other unknown bits in the extension reports that I couldn't
-figure out what they do. You can use hidraw to access these if you're
-interested.
-
-We might want to hook up the "charging" and "USB" bits to the battery
-device so user-space can query whether it is currently charged via USB.
-
+Reported-by: Todd Showalter <todd@electronjump.com>
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/hid/hid-wiimote-core.c    |  23 +++
- drivers/hid/hid-wiimote-modules.c | 295 ++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-wiimote.h         |   2 +
- 3 files changed, 320 insertions(+)
+ Documentation/input/gamepad.txt | 156 ++++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/input.h      |   9 +++
+ 2 files changed, 165 insertions(+)
+ create mode 100644 Documentation/input/gamepad.txt
 
-diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index 3aa413f..40fdc62 100644
---- a/drivers/hid/hid-wiimote-core.c
-+++ b/drivers/hid/hid-wiimote-core.c
-@@ -489,6 +489,8 @@ static __u8 wiimote_cmd_read_ext(struct wiimote_data *wdata, __u8 *rmem)
- 		return WIIMOTE_EXT_CLASSIC_CONTROLLER;
- 	if (rmem[4] == 0x04 && rmem[5] == 0x02)
- 		return WIIMOTE_EXT_BALANCE_BOARD;
-+	if (rmem[4] == 0x01 && rmem[5] == 0x20)
-+		return WIIMOTE_EXT_PRO_CONTROLLER;
+diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
+new file mode 100644
+index 0000000..8002c89
+--- /dev/null
++++ b/Documentation/input/gamepad.txt
+@@ -0,0 +1,156 @@
++                            Linux Gamepad API
++----------------------------------------------------------------------------
++
++1. Intro
++~~~~~~~~
++Linux provides many different input drivers for gamepad hardware. To avoid
++having user-space deal with different button-mappings for each gamepad, this
++document defines how gamepads are supposed to report their data.
++
++2. Geometry
++~~~~~~~~~~~
++As "gamepad" we define devices which roughly look like this:
++
++            ____________________________              __
++           / [__ZL__]          [__ZR__] \               |
++          / [__ TL __]        [__ TR __] \              | Front Triggers
++       __/________________________________\__         __|
++      /                                  _   \          |
++     /      /\           __             (N)   \         |
++    /       ||      __  |MO|  __     _       _ \        | Main Pad
++   |    <===DP===> |SE|      |ST|   (W) -|- (E) |       |
++    \       ||    ___          ___       _     /        |
++    /\      \/   /   \        /   \     (S)   /\      __|
++   /  \________ | LS  | ____ |  RS | ________/  \       |
++  |         /  \ \___/ /    \ \___/ /  \         |      | Control Sticks
++  |        /    \_____/      \_____/    \        |    __|
++  |       /                              \       |
++   \_____/                                \_____/
++
++       |________|______|    |______|___________|
++         D-Pad    Left       Right   Action Pad
++                 Stick       Stick
++
++                   |_____________|
++                      Menu Pad
++
++Most gamepads have the following features:
++  - Action-Pad
++    4 buttons in diamonds-shape (on the right side). The buttons are
++    differently labeled on most devices so we define them as NORTH,
++    SOUTH, WEST and EAST.
++  - D-Pad (Direction-pad)
++    4 buttons (on the left side) that point up, down, left and right.
++  - Menu-Pad
++    Different constellations, but most-times 2 buttons: SELECT - START
++    Furthermore, many gamepads have a fancy branded button that is used as
++    special system-button. It often looks different to the other buttons and
++    is used to pop up system-menus or system-settings.
++  - Analog-Sticks
++    Analog-sticks provide freely moveable sticks to control directions. Not
++    all devices have both or any, but they are present at most times.
++    Analog-sticks may also provide a digital button if you press them.
++  - Triggers
++    Triggers are located on the upper-side of the pad in vertical direction.
++    Not all devices provide them, but the upper buttons are normally named
++    Left- and Right-Triggers, the lower buttons Z-Left and Z-Right.
++  - Rumble
++    Many devices provide force-feedback features. But are mostly just
++    simple rumble motors.
++
++3. Detection
++~~~~~~~~~~~~
++All gamepads that follow the protocol described here map BTN_GAMEPAD. This is
++an alias for BTN_SOUTH/BTN_A. It can be used to identify a gamepad as such.
++However, not all gamepads provide all features, so you need to test for all
++features that you need, first. How each feature is mapped is described below.
++
++Legacy drivers often don't comply to these rules. As we cannot change them
++for backwards-compatibility reasons, you need to provide fixup mappings in
++user-space yourself. Some of them might also provide module-options that
++change the mappings so you can adivce users to set these.
++
++All new gamepads are supposed to comply with this mapping. Please report any
++bugs, if they don't.
++
++There are a lot of less-featured/less-powerful devices out there, which re-use
++the buttons from this protocol. However, they try to do this in a compatible
++fashion. For example, the "Nintendo Wii Nunchuk" provides two trigger buttons
++and one analog stick. It reports them as if it were a gamepad with only one
++analog stick and two trigger buttons on the right side.
++But that means, that if you only support "real" gamepads, you must test
++devices for _all_ reported events that you need. Otherwise, you will also get
++devices that report a small subset of the events.
++
++No other devices, that do not look/feel like a gamepad, shall report these
++events.
++
++4. Events
++~~~~~~~~~
++Gamepads report the following events:
++
++Action-Pad:
++  Every gamepad device has at least 2 action buttons. This means, that every
++  device reports BTN_SOUTH (which BTN_GAMEPAD is an alias for). Regardless
++  of the labels on the buttons, the codes are sent according to the
++  physical position of the buttons.
++  Please note that 2- and 3-button pads are fairly rare and old. You might
++  want to filter gamepads that do not report all four.
++    2-Button Pad:
++      If only 2 action-buttons are present, they are reported as BTN_SOUTH and
++      BTN_EAST. For vertical layouts, the upper button is BTN_EAST. For
++      horizontal layouts, the button more on the right is BTN_EAST.
++    3-Button Pad:
++      If only 3 action-buttons are present, they are reported as (from left
++      to right): BTN_WEST, BTN_SOUTH, BTN_EAST
++      If the buttons are aligned perfectly vertically, they are reported as
++      (from top down): BTN_WEST, BTN_SOUTH, BTN_EAST
++    4-Button Pad:
++      If all 4 action-buttons are present, they can be aligned in two
++      different formations. If diamond-shaped, they are reported as BTN_NORTH,
++      BTN_WEST, BTN_SOUTH, BTN_EAST according to their physical location.
++      If rectangular-shaped, the upper-left button is BTN_NORTH, lower-left
++      is BTN_WEST, lower-right is BTN_SOUTH and upper-right is BTN_EAST.
++
++D-Pad:
++  Every gamepad provides a D-Pad with four directions: Up, Down, Left, Right
++  Some of these are available as digital buttons, some as analog buttons. Some
++  may even report both. The kernel does not convert between these so
++  applications should support both and choose what is more appropriate if
++  both are reported.
++    Digital buttons are reported as:
++      BTN_DPAD_*
++    Analog buttons are reported as:
++      ABS_HAT0X and ABS_HAT0Y
++
++Analog-Sticks:
++  The left analog-stick is reported as ABS_X, ABS_Y. The right analog stick is
++  reported as ABS_RX, ABS_RY. Zero, one or two sticks may be present.
++  If analog-sticks provide digital buttons, they are mapped accordingly as
++  BTN_THUMBL (first/left) and BTN_THUMBR (second/right).
++
++Triggers:
++  Trigger buttons can be available as digital or analog buttons or both. User-
++  space must correctly deal with any situation and choose the most appropriate
++  mode.
++  Upper trigger buttons are reported as BTN_TR or ABS_HAT1X (right) and BTN_TL
++  or ABS_HAT1Y (left). Lower trigger buttons are reported as BTN_TR2 or
++  ABS_HAT2X (right/ZR) and BTN_TL2 or ABS_HAT2Y (left/ZL).
++  If only one trigger-button combination is present (upper+lower), they are
++  reported as "right" triggers (BTN_TR/ABS_HAT1X).
++
++Menu-Pad:
++  Menu buttons are always digital and are mapped according to their location
++  instead of their labels. That is:
++    1-button Pad: Mapped as BTN_START
++    2-button Pad: Left button mapped as BTN_SELECT, right button mapped as
++                  BTN_START
++  Many pads also have a third button which is branded or has a special symbol
++  and meaning. Such buttons are mapped as BTN_MODE. Examples are the Nintendo
++  "HOME" button, the XBox "X"-button or Sony "P" button.
++
++Rumble:
++  Rumble is adverticed as FF_RUMBLE.
++
++----------------------------------------------------------------------------
++  Written 2013 by David Herrmann <dh.herrmann@gmail.com>
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 935119c..7e15565 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -507,10 +507,14 @@ struct input_keymap_entry {
  
- 	return WIIMOTE_EXT_UNKNOWN;
- }
-@@ -641,6 +643,15 @@ static const __u8 * const wiimote_devtype_mods[WIIMOTE_DEV_NUM] = {
- 		WIIMOD_NO_MP,
- 		WIIMOD_NULL,
- 	},
-+	[WIIMOTE_DEV_PRO_CONTROLLER] = (const __u8[]) {
-+		WIIMOD_BATTERY,
-+		WIIMOD_LED1,
-+		WIIMOD_LED2,
-+		WIIMOD_LED3,
-+		WIIMOD_LED4,
-+		WIIMOD_NO_MP,
-+		WIIMOD_NULL,
-+	},
- };
+ #define BTN_GAMEPAD		0x130
+ #define BTN_A			0x130
++#define BTN_SOUTH		0x130
+ #define BTN_B			0x131
++#define BTN_EAST		0x131
+ #define BTN_C			0x132
+ #define BTN_X			0x133
++#define BTN_NORTH		0x133
+ #define BTN_Y			0x134
++#define BTN_WEST		0x134
+ #define BTN_Z			0x135
+ #define BTN_TL			0x136
+ #define BTN_TR			0x137
+@@ -702,6 +706,11 @@ struct input_keymap_entry {
+ #define KEY_CAMERA_LEFT		0x219
+ #define KEY_CAMERA_RIGHT	0x21a
  
- static void wiimote_modules_load(struct wiimote_data *wdata,
-@@ -825,6 +836,7 @@ static const char *wiimote_devtype_names[WIIMOTE_DEV_NUM] = {
- 	[WIIMOTE_DEV_GEN10] = "Nintendo Wii Remote (Gen 1)",
- 	[WIIMOTE_DEV_GEN20] = "Nintendo Wii Remote Plus (Gen 2)",
- 	[WIIMOTE_DEV_BALANCE_BOARD] = "Nintendo Wii Balance Board",
-+	[WIIMOTE_DEV_PRO_CONTROLLER] = "Nintendo Wii U Pro Controller",
- };
- 
- /* Try to guess the device type based on all collected information. We
-@@ -845,6 +857,9 @@ static void wiimote_init_set_type(struct wiimote_data *wdata,
- 	if (exttype == WIIMOTE_EXT_BALANCE_BOARD) {
- 		devtype = WIIMOTE_DEV_BALANCE_BOARD;
- 		goto done;
-+	} else if (exttype == WIIMOTE_EXT_PRO_CONTROLLER) {
-+		devtype = WIIMOTE_DEV_PRO_CONTROLLER;
-+		goto done;
- 	}
- 
- 	if (!strcmp(name, "Nintendo RVL-CNT-01")) {
-@@ -856,6 +871,9 @@ static void wiimote_init_set_type(struct wiimote_data *wdata,
- 	} else if (!strcmp(name, "Nintendo RVL-WBC-01")) {
- 		devtype = WIIMOTE_DEV_BALANCE_BOARD;
- 		goto done;
-+	} else if (!strcmp(name, "Nintendo RVL-CNT-01-UC")) {
-+		devtype = WIIMOTE_DEV_PRO_CONTROLLER;
-+		goto done;
- 	}
- 
- 	if (vendor == USB_VENDOR_ID_NINTENDO) {
-@@ -1098,6 +1116,7 @@ static const char *wiimote_exttype_names[WIIMOTE_EXT_NUM] = {
- 	[WIIMOTE_EXT_NUNCHUK] = "Nintendo Wii Nunchuk",
- 	[WIIMOTE_EXT_CLASSIC_CONTROLLER] = "Nintendo Wii Classic Controller",
- 	[WIIMOTE_EXT_BALANCE_BOARD] = "Nintendo Wii Balance Board",
-+	[WIIMOTE_EXT_PRO_CONTROLLER] = "Nintendo Wii U Pro Controller",
- };
- 
- /*
-@@ -1689,6 +1708,8 @@ static ssize_t wiimote_ext_show(struct device *dev,
- 		return sprintf(buf, "classic\n");
- 	case WIIMOTE_EXT_BALANCE_BOARD:
- 		return sprintf(buf, "balanceboard\n");
-+	case WIIMOTE_EXT_PRO_CONTROLLER:
-+		return sprintf(buf, "procontroller\n");
- 	case WIIMOTE_EXT_UNKNOWN:
- 		/* fallthrough */
- 	default:
-@@ -1735,6 +1756,8 @@ static ssize_t wiimote_dev_show(struct device *dev,
- 		return sprintf(buf, "gen20\n");
- 	case WIIMOTE_DEV_BALANCE_BOARD:
- 		return sprintf(buf, "balanceboard\n");
-+	case WIIMOTE_DEV_PRO_CONTROLLER:
-+		return sprintf(buf, "procontroller\n");
- 	case WIIMOTE_DEV_PENDING:
- 		return sprintf(buf, "pending\n");
- 	case WIIMOTE_DEV_UNKNOWN:
-diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
-index 1e9a7c0..5748f07 100644
---- a/drivers/hid/hid-wiimote-modules.c
-+++ b/drivers/hid/hid-wiimote-modules.c
-@@ -1540,6 +1540,300 @@ static const struct wiimod_ops wiimod_bboard = {
- };
- 
- /*
-+ * Pro Controller
-+ * Released with the Wii U was the Nintendo Wii U Pro Controller. It does not
-+ * work together with the classic Wii, but only with the new Wii U. However, it
-+ * uses the same protocol and provides a builtin "classic controller pro"
-+ * extension, few standard buttons, a rumble motor, 4 LEDs and a battery.
-+ * We provide all these via a standard extension device as the device doesn't
-+ * feature an extension port.
-+ */
++#define BTN_DPAD_UP		0x220
++#define BTN_DPAD_DOWN		0x221
++#define BTN_DPAD_LEFT		0x222
++#define BTN_DPAD_RIGHT		0x223
 +
-+enum wiimod_pro_keys {
-+	WIIMOD_PRO_KEY_A,
-+	WIIMOD_PRO_KEY_B,
-+	WIIMOD_PRO_KEY_X,
-+	WIIMOD_PRO_KEY_Y,
-+	WIIMOD_PRO_KEY_PLUS,
-+	WIIMOD_PRO_KEY_MINUS,
-+	WIIMOD_PRO_KEY_HOME,
-+	WIIMOD_PRO_KEY_LEFT,
-+	WIIMOD_PRO_KEY_RIGHT,
-+	WIIMOD_PRO_KEY_UP,
-+	WIIMOD_PRO_KEY_DOWN,
-+	WIIMOD_PRO_KEY_TL,
-+	WIIMOD_PRO_KEY_TR,
-+	WIIMOD_PRO_KEY_ZL,
-+	WIIMOD_PRO_KEY_ZR,
-+	WIIMOD_PRO_KEY_THUMBL,
-+	WIIMOD_PRO_KEY_THUMBR,
-+	WIIMOD_PRO_KEY_NUM,
-+};
-+
-+static const __u16 wiimod_pro_map[] = {
-+	BTN_EAST,	/* WIIMOD_PRO_KEY_A */
-+	BTN_SOUTH,	/* WIIMOD_PRO_KEY_B */
-+	BTN_NORTH,	/* WIIMOD_PRO_KEY_X */
-+	BTN_WEST,	/* WIIMOD_PRO_KEY_Y */
-+	BTN_START,	/* WIIMOD_PRO_KEY_PLUS */
-+	BTN_SELECT,	/* WIIMOD_PRO_KEY_MINUS */
-+	BTN_MODE,	/* WIIMOD_PRO_KEY_HOME */
-+	BTN_DPAD_LEFT,	/* WIIMOD_PRO_KEY_LEFT */
-+	BTN_DPAD_RIGHT,	/* WIIMOD_PRO_KEY_RIGHT */
-+	BTN_DPAD_UP,	/* WIIMOD_PRO_KEY_UP */
-+	BTN_DPAD_DOWN,	/* WIIMOD_PRO_KEY_DOWN */
-+	BTN_TL,		/* WIIMOD_PRO_KEY_TL */
-+	BTN_TR,		/* WIIMOD_PRO_KEY_TR */
-+	BTN_TL2,	/* WIIMOD_PRO_KEY_ZL */
-+	BTN_TR2,	/* WIIMOD_PRO_KEY_ZR */
-+	BTN_THUMBL,	/* WIIMOD_PRO_KEY_THUMBL */
-+	BTN_THUMBR,	/* WIIMOD_PRO_KEY_THUMBR */
-+};
-+
-+static void wiimod_pro_in_ext(struct wiimote_data *wdata, const __u8 *ext)
-+{
-+	__s16 rx, ry, lx, ly;
-+
-+	/*   Byte |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |
-+	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
-+	 *    1   |                   LX <7:0>                    |
-+	 *   -----+-----------------------+-----------------------+
-+	 *    2   |  0     0     0     0  |       LX <11:8>       |
-+	 *   -----+-----------------------+-----------------------+
-+	 *    3   |                   RX <7:0>                    |
-+	 *   -----+-----------------------+-----------------------+
-+	 *    4   |  0     0     0     0  |       RX <11:8>       |
-+	 *   -----+-----------------------+-----------------------+
-+	 *    5   |                   LY <7:0>                    |
-+	 *   -----+-----------------------+-----------------------+
-+	 *    6   |  0     0     0     0  |       LY <11:8>       |
-+	 *   -----+-----------------------+-----------------------+
-+	 *    7   |                   RY <7:0>                    |
-+	 *   -----+-----------------------+-----------------------+
-+	 *    8   |  0     0     0     0  |       RY <11:8>       |
-+	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
-+	 *    9   | BDR | BDD | BLT | B-  | BH  | B+  | BRT |  1  |
-+	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
-+	 *   10   | BZL | BB  | BY  | BA  | BX  | BZR | BDL | BDU |
-+	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
-+	 *   11   |  1  |     BATTERY     | USB |CHARG|LTHUM|RTHUM|
-+	 *   -----+-----+-----------------+-----------+-----+-----+
-+	 * All buttons are low-active (0 if pressed)
-+	 * RX and RY are right analog stick
-+	 * LX and LY are left analog stick
-+	 * BLT is left trigger, BRT is right trigger.
-+	 * BDR, BDD, BDL, BDU form the D-Pad with right, down, left, up buttons
-+	 * BZL is left Z button and BZR is right Z button
-+	 * B-, BH, B+ are +, HOME and - buttons
-+	 * BB, BY, BA, BX are A, B, X, Y buttons
-+	 *
-+	 * Bits marked as 0/1 are unknown and never changed during tests.
-+	 *
-+	 * Not entirely verified:
-+	 *   CHARG: 1 if uncharging, 0 if charging
-+	 *   USB: 1 if not connected, 0 if connected
-+	 *   BATTERY: battery capacity from 000 (empty) to 100 (full)
-+	 */
-+
-+	lx = (ext[0] & 0xff) | ((ext[1] & 0x0f) << 8);
-+	rx = (ext[2] & 0xff) | ((ext[3] & 0x0f) << 8);
-+	ly = (ext[4] & 0xff) | ((ext[5] & 0x0f) << 8);
-+	ry = (ext[6] & 0xff) | ((ext[7] & 0x0f) << 8);
-+
-+	input_report_abs(wdata->extension.input, ABS_X, lx - 0x800);
-+	input_report_abs(wdata->extension.input, ABS_Y, ly - 0x800);
-+	input_report_abs(wdata->extension.input, ABS_RX, rx - 0x800);
-+	input_report_abs(wdata->extension.input, ABS_RY, ry - 0x800);
-+
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_RIGHT],
-+			 !(ext[8] & 0x80));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_DOWN],
-+			 !(ext[8] & 0x40));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_TL],
-+			 !(ext[8] & 0x20));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_MINUS],
-+			 !(ext[8] & 0x10));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_HOME],
-+			 !(ext[8] & 0x08));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_PLUS],
-+			 !(ext[8] & 0x04));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_TR],
-+			 !(ext[8] & 0x02));
-+
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_ZL],
-+			 !(ext[9] & 0x80));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_B],
-+			 !(ext[9] & 0x40));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_Y],
-+			 !(ext[9] & 0x20));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_A],
-+			 !(ext[9] & 0x10));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_X],
-+			 !(ext[9] & 0x08));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_ZR],
-+			 !(ext[9] & 0x04));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_LEFT],
-+			 !(ext[9] & 0x02));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_UP],
-+			 !(ext[9] & 0x01));
-+
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_THUMBL],
-+			 !(ext[10] & 0x02));
-+	input_report_key(wdata->extension.input,
-+			 wiimod_pro_map[WIIMOD_PRO_KEY_THUMBR],
-+			 !(ext[10] & 0x01));
-+
-+	input_sync(wdata->extension.input);
-+}
-+
-+static int wiimod_pro_open(struct input_dev *dev)
-+{
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->state.flags |= WIIPROTO_FLAG_EXT_USED;
-+	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	return 0;
-+}
-+
-+static void wiimod_pro_close(struct input_dev *dev)
-+{
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wdata->state.flags &= ~WIIPROTO_FLAG_EXT_USED;
-+	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+}
-+
-+static int wiimod_pro_play(struct input_dev *dev, void *data,
-+			   struct ff_effect *eff)
-+{
-+	struct wiimote_data *wdata = input_get_drvdata(dev);
-+	__u8 value;
-+	unsigned long flags;
-+
-+	/*
-+	 * The wiimote supports only a single rumble motor so if any magnitude
-+	 * is set to non-zero then we start the rumble motor. If both are set to
-+	 * zero, we stop the rumble motor.
-+	 */
-+
-+	if (eff->u.rumble.strong_magnitude || eff->u.rumble.weak_magnitude)
-+		value = 1;
-+	else
-+		value = 0;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wiiproto_req_rumble(wdata, value);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	return 0;
-+}
-+
-+static int wiimod_pro_probe(const struct wiimod_ops *ops,
-+			    struct wiimote_data *wdata)
-+{
-+	int ret, i;
-+
-+	wdata->extension.input = input_allocate_device();
-+	if (!wdata->extension.input)
-+		return -ENOMEM;
-+
-+	set_bit(FF_RUMBLE, wdata->extension.input->ffbit);
-+	input_set_drvdata(wdata->extension.input, wdata);
-+
-+	if (input_ff_create_memless(wdata->extension.input, NULL,
-+				    wiimod_pro_play)) {
-+		ret = -ENOMEM;
-+		goto err_free;
-+	}
-+
-+	wdata->extension.input->open = wiimod_pro_open;
-+	wdata->extension.input->close = wiimod_pro_close;
-+	wdata->extension.input->dev.parent = &wdata->hdev->dev;
-+	wdata->extension.input->id.bustype = wdata->hdev->bus;
-+	wdata->extension.input->id.vendor = wdata->hdev->vendor;
-+	wdata->extension.input->id.product = wdata->hdev->product;
-+	wdata->extension.input->id.version = wdata->hdev->version;
-+	wdata->extension.input->name = WIIMOTE_NAME " Pro Controller";
-+
-+	set_bit(EV_KEY, wdata->extension.input->evbit);
-+	for (i = 0; i < WIIMOD_PRO_KEY_NUM; ++i)
-+		set_bit(wiimod_pro_map[i],
-+			wdata->extension.input->keybit);
-+
-+	set_bit(EV_ABS, wdata->extension.input->evbit);
-+	set_bit(ABS_X, wdata->extension.input->absbit);
-+	set_bit(ABS_Y, wdata->extension.input->absbit);
-+	set_bit(ABS_RX, wdata->extension.input->absbit);
-+	set_bit(ABS_RY, wdata->extension.input->absbit);
-+	input_set_abs_params(wdata->extension.input,
-+			     ABS_X, -0x800, 0x800, 2, 4);
-+	input_set_abs_params(wdata->extension.input,
-+			     ABS_Y, -0x800, 0x800, 2, 4);
-+	input_set_abs_params(wdata->extension.input,
-+			     ABS_RX, -0x800, 0x800, 2, 4);
-+	input_set_abs_params(wdata->extension.input,
-+			     ABS_RY, -0x800, 0x800, 2, 4);
-+
-+	ret = input_register_device(wdata->extension.input);
-+	if (ret)
-+		goto err_free;
-+
-+	return 0;
-+
-+err_free:
-+	input_free_device(wdata->extension.input);
-+	wdata->extension.input = NULL;
-+	return ret;
-+}
-+
-+static void wiimod_pro_remove(const struct wiimod_ops *ops,
-+			      struct wiimote_data *wdata)
-+{
-+	unsigned long flags;
-+
-+	if (!wdata->extension.input)
-+		return;
-+
-+	spin_lock_irqsave(&wdata->state.lock, flags);
-+	wiiproto_req_rumble(wdata, 0);
-+	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+
-+	input_unregister_device(wdata->extension.input);
-+	wdata->extension.input = NULL;
-+}
-+
-+static const struct wiimod_ops wiimod_pro = {
-+	.flags = WIIMOD_FLAG_EXT16,
-+	.arg = 0,
-+	.probe = wiimod_pro_probe,
-+	.remove = wiimod_pro_remove,
-+	.in_ext = wiimod_pro_in_ext,
-+};
-+
-+/*
-  * Builtin Motion Plus
-  * This module simply sets the WIIPROTO_FLAG_BUILTIN_MP protocol flag which
-  * disables polling for Motion-Plus. This should be set only for devices which
-@@ -1793,4 +2087,5 @@ const struct wiimod_ops *wiimod_ext_table[WIIMOTE_EXT_NUM] = {
- 	[WIIMOTE_EXT_NUNCHUK] = &wiimod_nunchuk,
- 	[WIIMOTE_EXT_CLASSIC_CONTROLLER] = &wiimod_classic,
- 	[WIIMOTE_EXT_BALANCE_BOARD] = &wiimod_bboard,
-+	[WIIMOTE_EXT_PRO_CONTROLLER] = &wiimod_pro,
- };
-diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index 8371058..f38412b 100644
---- a/drivers/hid/hid-wiimote.h
-+++ b/drivers/hid/hid-wiimote.h
-@@ -77,6 +77,7 @@ enum wiimote_devtype {
- 	WIIMOTE_DEV_GEN10,
- 	WIIMOTE_DEV_GEN20,
- 	WIIMOTE_DEV_BALANCE_BOARD,
-+	WIIMOTE_DEV_PRO_CONTROLLER,
- 	WIIMOTE_DEV_NUM,
- };
- 
-@@ -86,6 +87,7 @@ enum wiimote_exttype {
- 	WIIMOTE_EXT_NUNCHUK,
- 	WIIMOTE_EXT_CLASSIC_CONTROLLER,
- 	WIIMOTE_EXT_BALANCE_BOARD,
-+	WIIMOTE_EXT_PRO_CONTROLLER,
- 	WIIMOTE_EXT_NUM,
- };
- 
+ #define BTN_TRIGGER_HAPPY		0x2c0
+ #define BTN_TRIGGER_HAPPY1		0x2c0
+ #define BTN_TRIGGER_HAPPY2		0x2c1
 -- 
 1.8.3.1
+

@@ -1,81 +1,60 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH v2] HID: i2c-hid: support sending HID output reports using the output register
-Date: Mon, 17 Jun 2013 16:15:06 -0700
-Message-ID: <1371510906-16859-1-git-send-email-aduggan@synaptics.com>
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH] input: cros_ec_keyb_clear_keyboard() depends on
+ CONFIG_PM_SLEEP
+Date: Tue, 18 Jun 2013 01:16:38 +0200
+Message-ID: <20130617231638.GV7998@zurbaran>
+References: <1368049529-8168-1-git-send-email-geert@linux-m68k.org>
+ <CAPnjgZ3Akf0+LKBt4c5HQX5c8PhL+zuvvHWrDpVj0W++GiOanA@mail.gmail.com>
+ <20130515064248.GB24297@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jkosina@suse.cz, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:58661 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751389Ab3FQXQm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Jun 2013 19:16:42 -0400
+Content-Disposition: inline
+In-Reply-To: <20130515064248.GB24297@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Simon Glass <sjg@chromium.org>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>
 
-The current i2c hid driver does not support sending HID output reports using
-the output register for devices which support receiving reports through this
-method. This patch determines which method to use to send output reports based
- on the value of wMaxOutputLength in the device's HID descriptor.
+Hi Dmitry,
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
-This is the second version of the patch which includes Benjamin's suggestions. The comment
-now follows the multi line guidelines and in the i2c_hid_set_report function, hidcmd is now
-a pointer.
- drivers/hid/i2c-hid/i2c-hid.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+On Tue, May 14, 2013 at 11:42:48PM -0700, Dmitry Torokhov wrote:
+> On Wed, May 08, 2013 at 09:25:56PM -0600, Simon Glass wrote:
+> > On Wed, May 8, 2013 at 3:45 PM, Geert Uytterhoeven <geert@linux-m68=
+k.org> wrote:
+> > > If CONFIG_PM_SLEEP is not set:
+> > >
+> > > drivers/input/keyboard/cros_ec_keyb.c:211: warning: =E2=80=98cros=
+_ec_keyb_clear_keyboard=E2=80=99 defined but not used
+> > >
+> > > Move the definition of cros_ec_keyb_clear_keyboard() inside the s=
+ection
+> > > protected by #ifdef CONFIG_PM_SLEEP to fix this.
+> > >
+> > > Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> >=20
+> > Acked-by: Simon Glass <sjg@chromium.org>
+>=20
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>=20
+> Could you please forward this to Linus as I do not have this driver i=
+n
+> my branch yet.
+I guess you took that one now ? Or are you expecting me to merge it ?
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 2b1799a..879b0ed 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -108,6 +108,7 @@ static const struct i2c_hid_cmd hid_reset_cmd =		{ I2C_HID_CMD(0x01),
- static const struct i2c_hid_cmd hid_get_report_cmd =	{ I2C_HID_CMD(0x02) };
- static const struct i2c_hid_cmd hid_set_report_cmd =	{ I2C_HID_CMD(0x03) };
- static const struct i2c_hid_cmd hid_set_power_cmd =	{ I2C_HID_CMD(0x08) };
-+static const struct i2c_hid_cmd hid_no_cmd =		{ .length = 0 };
- 
- /*
-  * These definitions are not used here, but are defined by the spec.
-@@ -259,8 +260,11 @@ static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
- {
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	u8 *args = ihid->argsbuf;
-+	const struct i2c_hid_cmd * hidcmd = &hid_set_report_cmd;
- 	int ret;
- 	u16 dataRegister = le16_to_cpu(ihid->hdesc.wDataRegister);
-+	u16 outputRegister = le16_to_cpu(ihid->hdesc.wOutputRegister);
-+	u16 maxOutputLength = le16_to_cpu(ihid->hdesc.wMaxOutputLength);
- 
- 	/* hidraw already checked that data_len < HID_MAX_BUFFER_SIZE */
- 	u16 size =	2			/* size */ +
-@@ -278,8 +282,18 @@ static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
- 		reportID = 0x0F;
- 	}
- 
--	args[index++] = dataRegister & 0xFF;
--	args[index++] = dataRegister >> 8;
-+	/*
-+	 * use the data register for feature reports or if the device does not
-+	 * support the output register
-+	 */
-+	if (reportType == 0x03 || maxOutputLength == 0) {
-+		args[index++] = dataRegister & 0xFF;
-+		args[index++] = dataRegister >> 8;
-+	} else {
-+		args[index++] = outputRegister & 0xFF;
-+		args[index++] = outputRegister >> 8;
-+		hidcmd = &hid_no_cmd;
-+	}
- 
- 	args[index++] = size & 0xFF;
- 	args[index++] = size >> 8;
-@@ -289,7 +303,7 @@ static int i2c_hid_set_report(struct i2c_client *client, u8 reportType,
- 
- 	memcpy(&args[index], buf, data_len);
- 
--	ret = __i2c_hid_command(client, &hid_set_report_cmd, reportID,
-+	ret = __i2c_hid_command(client, hidcmd, reportID,
- 		reportType, args, args_len, NULL, 0);
- 	if (ret) {
- 		dev_err(&client->dev, "failed to set a report to device.\n");
--- 
-1.7.10.4
+Cheers,
+Samuel.
+
+--=20
+Intel Open Source Technology Centre
+http://oss.intel.com/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

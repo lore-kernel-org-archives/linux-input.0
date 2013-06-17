@@ -1,74 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2 4/5] input: pxa27x-keypad: remove the unused members at platform data
-Date: Mon, 17 Jun 2013 10:07:55 -0700
-Message-ID: <3957298.MQ5NXOY1oH@dtor-d630.eng.vmware.com>
-References: <1367809448-9437-1-git-send-email-chao.xie@marvell.com> <1367809448-9437-5-git-send-email-chao.xie@marvell.com> <5701258.F0sLjHKir2@wuerfel>
+From: Djalal Harouni <tixxdz@opendz.org>
+Subject: Re: [PATCH 1/2] Input: cyttsp - fix memcpy size param
+Date: Mon, 17 Jun 2013 22:38:59 +0100
+Message-ID: <20130617213858.GA2805@dztty>
+References: <1368192769-24067-1-git-send-email-fery@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5701258.F0sLjHKir2@wuerfel>
+Content-Disposition: inline
+In-Reply-To: <1368192769-24067-1-git-send-email-fery@cypress.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Chao Xie <chao.xie@marvell.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, haojian.zhuang@gmail.com, xiechao.mail@gmail.com
+To: Ferruh Yigit <fery@cypress.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, ttdrivers@cypress.com, Javier Martinez Canillas <javier@dowhile0.org>, Kees Cook <keescook@chromium.org>, Greg KH <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Monday, June 17, 2013 03:10:27 PM Arnd Bergmann wrote:
-> On Sunday 05 May 2013 23:04:07 Chao Xie wrote:
-> > Now pxa27x-keypad make use matrix_keymap for matrix keyes, so
-> > remove the unused members in platform data.
-> > 
-> > Signed-off-by: Chao Xie <chao.xie@marvell.com>
-> > ---
-> > 
-> >  include/linux/platform_data/keypad-pxa27x.h |    2 --
-> >  1 files changed, 0 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/include/linux/platform_data/keypad-pxa27x.h
-> > b/include/linux/platform_data/keypad-pxa27x.h index 0db423b..2462556
-> > 100644
-> > --- a/include/linux/platform_data/keypad-pxa27x.h
-> > +++ b/include/linux/platform_data/keypad-pxa27x.h
-> > @@ -39,8 +39,6 @@ struct pxa27x_keypad_platform_data {
-> > 
-> >         const struct matrix_keymap_data *matrix_keymap_data;
-> >         unsigned int    matrix_key_rows;
-> >         unsigned int    matrix_key_cols;
-> > 
-> > -       unsigned int    *matrix_key_map;
-> > -       int             matrix_key_map_size;
-> > 
-> >         /* direct keys */
-> >         int             direct_key_num;
-> 
-> This just broke a number of configurations:
-> 
-> em_x270_defconfig
-> ezx_defconfig
-> palmz72_defconfig
-> pxa3xx_defconfig
-> 
-> You have to make sure that all these board files get converted:
-> 
-> arch/arm/mach-pxa/em-x270.c
-> arch/arm/mach-pxa/ezx.c
-> arch/arm/mach-pxa/littleton.c
-> arch/arm/mach-pxa/mainstone.c
-> arch/arm/mach-pxa/mioa701.c
-> arch/arm/mach-pxa/palmld.c
-> arch/arm/mach-pxa/palmt5.c
-> arch/arm/mach-pxa/palmtreo.c
-> arch/arm/mach-pxa/palmtx.c
-> arch/arm/mach-pxa/palmz72.c
-> arch/arm/mach-pxa/tavorevb.c
-> arch/arm/mach-pxa/z2.c
-> arch/arm/mach-pxa/zylonite.c
-> 
-> or leave the code to interpret that platform data in place.
+(Cc'ed Kees and Greg)
 
-Sorry about this, I'll drop the patch until it gets sorted out.
+Hi Dmitry,
 
-Thanks.
+On Fri, May 10, 2013 at 04:32:48PM +0300, Ferruh Yigit wrote:
+> memcpy param is wrong because of offset in bl_cmd, this may corrupt the
+> stack which may cause a crash.
+> 
+> Tested-by: Ferruh Yigit <fery@cypress.com> on TMA300-DVK
+> Signed-off-by: Ferruh Yigit <fery@cypress.com>
+> ---
+>  drivers/input/touchscreen/cyttsp_core.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
+> index 8e60437..97ba891 100644
+> --- a/drivers/input/touchscreen/cyttsp_core.c
+> +++ b/drivers/input/touchscreen/cyttsp_core.c
+> @@ -133,7 +133,7 @@ static int cyttsp_exit_bl_mode(struct cyttsp *ts)
+>         memcpy(bl_cmd, bl_command, sizeof(bl_command));
+>         if (ts->pdata->bl_keys)
+>                 memcpy(&bl_cmd[sizeof(bl_command) - CY_NUM_BL_KEYS],
+> -                       ts->pdata->bl_keys, sizeof(bl_command));
+> +                       ts->pdata->bl_keys, CY_NUM_BL_KEYS);
+> 
+>         error = ttsp_write_block_data(ts, CY_REG_BASE,
+>                                       sizeof(bl_cmd), bl_cmd);
+> --
+> 1.7.9.5
+I was going to send a patch and found that it was just fixed in todays
+next-20130617
+
+Anyway, will this overflow fix go for the next -rc?
+
+Thanks in advance Dmitry!
 
 -- 
-Dmitry
+Djalal Harouni
+http://opendz.org

@@ -1,31 +1,28 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: i2c-hid: support sending HID output reports
- using the output register
-Date: Tue, 18 Jun 2013 10:58:13 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1306181057580.6750@pobox.suse.cz>
-References: <1371510906-16859-1-git-send-email-aduggan@synaptics.com> <51C019DB.5070106@redhat.com>
+Subject: Re: [PATCH] HID: roccat: check cdev_add return values
+Date: Tue, 18 Jun 2013 11:01:38 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1306181101150.6750@pobox.suse.cz>
+References: <1371222997-4933-1-git-send-email-michael.rissi@dectris.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <51C019DB.5070106@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:54364 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754325Ab3FRJBj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Jun 2013 05:01:39 -0400
+In-Reply-To: <1371222997-4933-1-git-send-email-michael.rissi@dectris.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Michael Rissi <michael.rissi@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Rissi <michael.rissi@dectris.com>
 
-On Tue, 18 Jun 2013, Benjamin Tissoires wrote:
+On Fri, 14 Jun 2013, Michael Rissi wrote:
 
-> On 06/18/2013 01:15 AM, Andrew Duggan wrote:
-> > The current i2c hid driver does not support sending HID output reports using
-> > the output register for devices which support receiving reports through this
-> > method. This patch determines which method to use to send output reports based
-> >  on the value of wMaxOutputLength in the device's HID descriptor.
-> > 
-> > Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Return value of cdev_add in hid_roccat.c init was not checked.
 > 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Michael Rissi <michael.rissi@dectris.com>
 
-Applied, thanks guys.
+Applied, thanks.
 
 -- 
 Jiri Kosina

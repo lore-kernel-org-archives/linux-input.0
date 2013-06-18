@@ -1,70 +1,73 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] input: cros_ec_keyb_clear_keyboard() depends on CONFIG_PM_SLEEP
-Date: Tue, 18 Jun 2013 10:39:10 +0200
-Message-ID: <CAMuHMdVL=9m6zB_Jc+hE=iZr7LBT+vb9ckc2c-yxPJOvM-wrPQ@mail.gmail.com>
-References: <1368049529-8168-1-git-send-email-geert@linux-m68k.org>
-	<CAPnjgZ3Akf0+LKBt4c5HQX5c8PhL+zuvvHWrDpVj0W++GiOanA@mail.gmail.com>
-	<20130515064248.GB24297@core.coreip.homeip.net>
-	<20130617231638.GV7998@zurbaran>
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH] input: stmpe: Fix the touchscreen interrupt handling
+Date: Tue, 18 Jun 2013 10:50:36 +0200
+Message-ID: <20130618085035.GD7161@zurbaran>
+References: <1366585565-13046-1-git-send-email-marex@denx.de>
+ <20130516221745.GW22822@zurbaran>
+ <201305170125.11552.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:51039 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754646Ab3FRIjL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Jun 2013 04:39:11 -0400
-In-Reply-To: <20130617231638.GV7998@zurbaran>
+Received: from mga02.intel.com ([134.134.136.20]:37098 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754759Ab3FRIvX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Jun 2013 04:51:23 -0400
+Content-Disposition: inline
+In-Reply-To: <201305170125.11552.marex@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Glass <sjg@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>
+To: Marek Vasut <marex@denx.de>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vipul Kumar Samar <vipulkumar.samar@st.com>, Viresh Kumar <viresh.kumar@linaro.org>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Tue, Jun 18, 2013 at 1:16 AM, Samuel Ortiz <sameo@linux.intel.com> w=
-rote:
-> On Tue, May 14, 2013 at 11:42:48PM -0700, Dmitry Torokhov wrote:
->> On Wed, May 08, 2013 at 09:25:56PM -0600, Simon Glass wrote:
->> > On Wed, May 8, 2013 at 3:45 PM, Geert Uytterhoeven <geert@linux-m6=
-8k.org> wrote:
->> > > If CONFIG_PM_SLEEP is not set:
->> > >
->> > > drivers/input/keyboard/cros_ec_keyb.c:211: warning: =E2=80=98cro=
-s_ec_keyb_clear_keyboard=E2=80=99 defined but not used
->> > >
->> > > Move the definition of cros_ec_keyb_clear_keyboard() inside the =
-section
->> > > protected by #ifdef CONFIG_PM_SLEEP to fix this.
->> > >
->> > > Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
->> >
->> > Acked-by: Simon Glass <sjg@chromium.org>
->>
->> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>
->> Could you please forward this to Linus as I do not have this driver =
-in
->> my branch yet.
-> I guess you took that one now ? Or are you expecting me to merge it ?
+Hi Marek,
 
-=46WIW, I also have it in my exotic-arch-fixes branch, now destined for=
- 3.11.
+On Fri, May 17, 2013 at 01:25:11AM +0200, Marek Vasut wrote:
+> Dear Samuel Ortiz,
+> 
+> > Hi Marek,
+> > 
+> > On Mon, Apr 22, 2013 at 01:06:05AM +0200, Marek Vasut wrote:
+> > > The touchscreen interrupt handling in the STMPE touchscreen driver
+> > > doesn't seem to work correctly. It relies on FIFO_TH to be asserted
+> > > instead of TOUCH_DET interrupt for touchscreen detection.
+> > > 
+> > > The FIFO_TH is usually asserted but is asserted independently of the
+> > > touchscreen controller operation. Because the bits in the interrupt
+> > > status register are not entirely cleaned, the interrupt handler is
+> > > triggered even if FIFO_TH is not yet set. Make sure that all bits in
+> > > the interrupt status register are cleared early.
+> > > 
+> > > Rework the touchscreen interrupt handling so it waits for TOUCH_DET
+> > > interrupt to happen. Upon first TOUCH_DET interrupt, worker thread
+> > > is started which polls the touchscreen controller for location data
+> > > until no touch is detected. Touch is determined by checking the X
+> > > and Y coordinates, if they are zero, no touch happens.
+> > > 
+> > > Signed-off-by: Marek Vasut <marex@denx.de>
+> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > Cc: Samuel Ortiz <sameo@linux.intel.com>
+> > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
+> > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
+> > > Cc: Bill Pemberton <wfp5p@virginia.edu>
+> > > Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> > > ---
+> > > 
+> > >  drivers/input/touchscreen/stmpe-ts.c |  111
+> > >  ++++++++++++++-------------------- drivers/mfd/stmpe.c                 
+> > >  |   10 +--
+> > >  2 files changed, 50 insertions(+), 71 deletions(-)
+> > 
+> > Could you please split this patch in 2, the MFD part is independent from
+> > the input one and could be applied separately.
+> 
+> I'd vote for applying this as one single patch, since this fixes one single 
+> problem (touchscreen not working properly). Or is that a big issue for you?
+I am fine as long as we get feedback from Dmitry and the ST folks about
+it.
 
-Gr{oetje,eeting}s,
+Cheers,
+Samuel.
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
-m68k.org
-
-In personal conversations with technical people, I call myself a hacker=
-=2E But
-when I'm talking to journalists I just say "programmer" or something li=
-ke that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/

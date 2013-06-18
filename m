@@ -1,65 +1,94 @@
 From: Chao Xie <chao.xie@marvell.com>
-Subject: [PATCH V3 0/5] input: pxa27x-keypad: enhancement and device tree support
-Date: Mon, 17 Jun 2013 23:56:13 -0400
-Message-ID: <1371527778-5236-1-git-send-email-chao.xie@marvell.com>
+Subject: [PATCH V3 2/5] arm: mmp: use matrix_keymap for all boards
+Date: Mon, 17 Jun 2013 23:56:15 -0400
+Message-ID: <1371527778-5236-3-git-send-email-chao.xie@marvell.com>
+References: <1371527778-5236-1-git-send-email-chao.xie@marvell.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog130.obsmtp.com ([74.125.149.143]:36609 "EHLO
+Received: from na3sys009aog130.obsmtp.com ([74.125.149.143]:37481 "EHLO
 	na3sys009aog130.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750704Ab3FREDk (ORCPT
+	by vger.kernel.org with ESMTP id S1750823Ab3FREEU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Jun 2013 00:03:40 -0400
+	Tue, 18 Jun 2013 00:04:20 -0400
+In-Reply-To: <1371527778-5236-1-git-send-email-chao.xie@marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, arnd@arndb.de, eric.y.miao@gmail.com, haojian.zhuang@gmail.com, drwyrm@gmail.com, stefan@openezx.org, laforge@openezx.org, robert.jarzmik@free.fr, marek.vasut@gmail.com, sleep_walker@suse.cz, slapin@ossfans.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xiechao.mail@gmail.com
 Cc: Chao Xie <chao.xie@marvell.com>
 
-The patches include 2 parts
-1. use matrix_keypad for matrix keyes support
-2. add device tree support for pxa27x-keypad
+Compile passed for the configuration
 
-V2->V1:
-Do not copy the members from pdata. For device tree support,
-directly allocate the pdata structure.
+pxa168_defconfig
+  aspenite.c(MACH_ASPENITE), teton_bgs.c(MACH_TENTON_BGA)
 
-V3->V2
-add matrix_keypad changes for all boards using pxa27x-keypad
-under mach-pxa.
-The patch "arm: pxa: use matrix_keymap for all boards" is new.
-The patch "arm: mmp: use matrix_keymap for all boards" merges
-previous changes for aspenite and teton_bga.
-All other patches are not modified.
+Signed-off-by: Chao Xie <chao.xie@marvell.com>
+---
+ arch/arm/mach-mmp/aspenite.c  |   10 +++++++---
+ arch/arm/mach-mmp/teton_bga.c |   10 +++++++---
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-Chao Xie (5):
-  input: pxa27x-keypad: use matrix_keymap for matrix keyes
-  arm: mmp: use matrix_keymap for all boards
-  arm: pxa: use matrix_keymap for all boards
-  input: pxa27x-keypad: remove the unused members at platform data
-  input: pxa27x-keypad: add device tree support
-
- .../devicetree/bindings/input/pxa27x-keypad.txt    |   60 +++++
- arch/arm/mach-mmp/aspenite.c                       |   10 +-
- arch/arm/mach-mmp/teton_bga.c                      |   10 +-
- arch/arm/mach-pxa/em-x270.c                        |   20 +-
- arch/arm/mach-pxa/ezx.c                            |   60 +++--
- arch/arm/mach-pxa/littleton.c                      |   10 +-
- arch/arm/mach-pxa/mainstone.c                      |   10 +-
- arch/arm/mach-pxa/mioa701.c                        |   11 +-
- arch/arm/mach-pxa/palmld.c                         |   10 +-
- arch/arm/mach-pxa/palmt5.c                         |   10 +-
- arch/arm/mach-pxa/palmtreo.c                       |   23 ++-
- arch/arm/mach-pxa/palmtx.c                         |   10 +-
- arch/arm/mach-pxa/palmz72.c                        |   10 +-
- arch/arm/mach-pxa/tavorevb.c                       |   10 +-
- arch/arm/mach-pxa/z2.c                             |   10 +-
- arch/arm/mach-pxa/zylonite.c                       |   10 +-
- drivers/input/keyboard/Kconfig                     |    1 +
- drivers/input/keyboard/pxa27x_keypad.c             |  266 ++++++++++++++++++--
- include/linux/platform_data/keypad-pxa27x.h        |    3 +-
- 19 files changed, 468 insertions(+), 86 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/pxa27x-keypad.txt
-
+diff --git a/arch/arm/mach-mmp/aspenite.c b/arch/arm/mach-mmp/aspenite.c
+index 9f64d56..1e23346 100644
+--- a/arch/arm/mach-mmp/aspenite.c
++++ b/arch/arm/mach-mmp/aspenite.c
+@@ -205,7 +205,7 @@ struct pxa168fb_mach_info aspenite_lcd_info = {
+ 	.invert_pixclock	= 0,
+ };
+ 
+-static unsigned int aspenite_matrix_key_map[] = {
++static const unsigned int aspenite_matrix_key_map[] = {
+ 	KEY(0, 6, KEY_UP),	/* SW 4 */
+ 	KEY(0, 7, KEY_DOWN),	/* SW 5 */
+ 	KEY(1, 6, KEY_LEFT),	/* SW 6 */
+@@ -214,11 +214,15 @@ static unsigned int aspenite_matrix_key_map[] = {
+ 	KEY(4, 7, KEY_ESC),	/* SW 9 */
+ };
+ 
++static struct matrix_keymap_data aspenite_matrix_keymap_data = {
++	.keymap			= aspenite_matrix_key_map,
++	.keymap_size		= ARRAY_SIZE(aspenite_matrix_key_map),
++};
++
+ static struct pxa27x_keypad_platform_data aspenite_keypad_info __initdata = {
+ 	.matrix_key_rows	= 5,
+ 	.matrix_key_cols	= 8,
+-	.matrix_key_map		= aspenite_matrix_key_map,
+-	.matrix_key_map_size	= ARRAY_SIZE(aspenite_matrix_key_map),
++	.matrix_keymap_data	= &aspenite_matrix_keymap_data,
+ 	.debounce_interval	= 30,
+ };
+ 
+diff --git a/arch/arm/mach-mmp/teton_bga.c b/arch/arm/mach-mmp/teton_bga.c
+index 8609967..2021769 100644
+--- a/arch/arm/mach-mmp/teton_bga.c
++++ b/arch/arm/mach-mmp/teton_bga.c
+@@ -49,18 +49,22 @@ static unsigned long teton_bga_pin_config[] __initdata = {
+ 	GPIO78_GPIO,
+ };
+ 
+-static unsigned int teton_bga_matrix_key_map[] = {
++static const unsigned int teton_bga_matrix_key_map[] = {
+ 	KEY(0, 6, KEY_ESC),
+ 	KEY(0, 7, KEY_ENTER),
+ 	KEY(1, 6, KEY_LEFT),
+ 	KEY(1, 7, KEY_RIGHT),
+ };
+ 
++static struct matrix_keymap_data teton_bga_matrix_keymap_data = {
++	.keymap			= teton_bga_matrix_key_map,
++	.keymap_size		= ARRAY_SIZE(teton_bga_matrix_key_map),
++};
++
+ static struct pxa27x_keypad_platform_data teton_bga_keypad_info __initdata = {
+ 	.matrix_key_rows        = 2,
+ 	.matrix_key_cols        = 8,
+-	.matrix_key_map         = teton_bga_matrix_key_map,
+-	.matrix_key_map_size    = ARRAY_SIZE(teton_bga_matrix_key_map),
++	.matrix_keymap_data	= &teton_bga_matrix_keymap_data,
+ 	.debounce_interval      = 30,
+ };
+ 
 -- 
 1.7.4.1
 

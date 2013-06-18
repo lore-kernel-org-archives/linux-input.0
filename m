@@ -1,60 +1,87 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: [PATCH] input: cros_ec_keyb_clear_keyboard() depends on
- CONFIG_PM_SLEEP
-Date: Tue, 18 Jun 2013 01:16:38 +0200
-Message-ID: <20130617231638.GV7998@zurbaran>
-References: <1368049529-8168-1-git-send-email-geert@linux-m68k.org>
- <CAPnjgZ3Akf0+LKBt4c5HQX5c8PhL+zuvvHWrDpVj0W++GiOanA@mail.gmail.com>
- <20130515064248.GB24297@core.coreip.homeip.net>
+From: Chao Xie <xiechao.mail@gmail.com>
+Subject: Re: [PATCH V2 4/5] input: pxa27x-keypad: remove the unused members at
+ platform data
+Date: Tue, 18 Jun 2013 09:10:00 +0800
+Message-ID: <CADApbeiiTU3gMUhS_U=o0q0S_iA50ab7GX0B1JS+6dp5reUtkw@mail.gmail.com>
+References: <1367809448-9437-1-git-send-email-chao.xie@marvell.com>
+	<1367809448-9437-5-git-send-email-chao.xie@marvell.com>
+	<5701258.F0sLjHKir2@wuerfel>
+	<3957298.MQ5NXOY1oH@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:58661 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751389Ab3FQXQm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Jun 2013 19:16:42 -0400
-Content-Disposition: inline
-In-Reply-To: <20130515064248.GB24297@core.coreip.homeip.net>
+Received: from mail-oa0-f44.google.com ([209.85.219.44]:33165 "EHLO
+	mail-oa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751784Ab3FRBKB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Jun 2013 21:10:01 -0400
+In-Reply-To: <3957298.MQ5NXOY1oH@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Simon Glass <sjg@chromium.org>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Chao Xie <chao.xie@marvell.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>
 
-Hi Dmitry,
+On Tue, Jun 18, 2013 at 1:07 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Monday, June 17, 2013 03:10:27 PM Arnd Bergmann wrote:
+>> On Sunday 05 May 2013 23:04:07 Chao Xie wrote:
+>> > Now pxa27x-keypad make use matrix_keymap for matrix keyes, so
+>> > remove the unused members in platform data.
+>> >
+>> > Signed-off-by: Chao Xie <chao.xie@marvell.com>
+>> > ---
+>> >
+>> >  include/linux/platform_data/keypad-pxa27x.h |    2 --
+>> >  1 files changed, 0 insertions(+), 2 deletions(-)
+>> >
+>> > diff --git a/include/linux/platform_data/keypad-pxa27x.h
+>> > b/include/linux/platform_data/keypad-pxa27x.h index 0db423b..2462556
+>> > 100644
+>> > --- a/include/linux/platform_data/keypad-pxa27x.h
+>> > +++ b/include/linux/platform_data/keypad-pxa27x.h
+>> > @@ -39,8 +39,6 @@ struct pxa27x_keypad_platform_data {
+>> >
+>> >         const struct matrix_keymap_data *matrix_keymap_data;
+>> >         unsigned int    matrix_key_rows;
+>> >         unsigned int    matrix_key_cols;
+>> >
+>> > -       unsigned int    *matrix_key_map;
+>> > -       int             matrix_key_map_size;
+>> >
+>> >         /* direct keys */
+>> >         int             direct_key_num;
+>>
+>> This just broke a number of configurations:
+>>
+>> em_x270_defconfig
+>> ezx_defconfig
+>> palmz72_defconfig
+>> pxa3xx_defconfig
+>>
+>> You have to make sure that all these board files get converted:
+>>
+>> arch/arm/mach-pxa/em-x270.c
+>> arch/arm/mach-pxa/ezx.c
+>> arch/arm/mach-pxa/littleton.c
+>> arch/arm/mach-pxa/mainstone.c
+>> arch/arm/mach-pxa/mioa701.c
+>> arch/arm/mach-pxa/palmld.c
+>> arch/arm/mach-pxa/palmt5.c
+>> arch/arm/mach-pxa/palmtreo.c
+>> arch/arm/mach-pxa/palmtx.c
+>> arch/arm/mach-pxa/palmz72.c
+>> arch/arm/mach-pxa/tavorevb.c
+>> arch/arm/mach-pxa/z2.c
+>> arch/arm/mach-pxa/zylonite.c
+>>
+>> or leave the code to interpret that platform data in place.
+>
+> Sorry about this, I'll drop the patch until it gets sorted out.
+>
+> Thanks.
+>
+I am sorry that i forget mach-pxa, i only changes mach-mmp.
+I will do the samething for mach-pxa, and reset the patch.
 
-On Tue, May 14, 2013 at 11:42:48PM -0700, Dmitry Torokhov wrote:
-> On Wed, May 08, 2013 at 09:25:56PM -0600, Simon Glass wrote:
-> > On Wed, May 8, 2013 at 3:45 PM, Geert Uytterhoeven <geert@linux-m68=
-k.org> wrote:
-> > > If CONFIG_PM_SLEEP is not set:
-> > >
-> > > drivers/input/keyboard/cros_ec_keyb.c:211: warning: =E2=80=98cros=
-_ec_keyb_clear_keyboard=E2=80=99 defined but not used
-> > >
-> > > Move the definition of cros_ec_keyb_clear_keyboard() inside the s=
-ection
-> > > protected by #ifdef CONFIG_PM_SLEEP to fix this.
-> > >
-> > > Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> >=20
-> > Acked-by: Simon Glass <sjg@chromium.org>
->=20
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->=20
-> Could you please forward this to Linus as I do not have this driver i=
-n
-> my branch yet.
-I guess you took that one now ? Or are you expecting me to merge it ?
-
-Cheers,
-Samuel.
-
---=20
-Intel Open Source Technology Centre
-http://oss.intel.com/
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> Dmitry

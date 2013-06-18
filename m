@@ -1,59 +1,79 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: i2c-hid: add DT bindings
-Date: Tue, 18 Jun 2013 11:51:38 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1306181151030.6750@pobox.suse.cz>
-References: <1371109835-30796-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH] input: stmpe: Fix the touchscreen interrupt handling
+Date: Tue, 18 Jun 2013 14:01:13 +0200
+Message-ID: <201306181401.13755.marex@denx.de>
+References: <1366585565-13046-1-git-send-email-marex@denx.de> <201305170125.11552.marex@denx.de> <20130618085035.GD7161@zurbaran>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56905 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754717Ab3FRJvk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Jun 2013 05:51:40 -0400
-In-Reply-To: <1371109835-30796-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-out.m-online.net ([212.18.0.10]:34789 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932080Ab3FRMBY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Jun 2013 08:01:24 -0400
+In-Reply-To: <20130618085035.GD7161@zurbaran>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, devicetree-discuss@lists.ozlabs.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Samuel Ortiz <sameo@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vipul Kumar Samar <vipulkumar.samar@st.com>, Viresh Kumar <viresh.kumar@linaro.org>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Thu, 13 Jun 2013, Benjamin Tissoires wrote:
+Hi,
 
-> Add device tree based support for HID over I2C devices.
+> Hi Marek,
 > 
-> Tested on an Odroid-X board with a Synaptics touchpad.
+> On Fri, May 17, 2013 at 01:25:11AM +0200, Marek Vasut wrote:
+> > Dear Samuel Ortiz,
+> > 
+> > > Hi Marek,
+> > > 
+> > > On Mon, Apr 22, 2013 at 01:06:05AM +0200, Marek Vasut wrote:
+> > > > The touchscreen interrupt handling in the STMPE touchscreen driver
+> > > > doesn't seem to work correctly. It relies on FIFO_TH to be asserted
+> > > > instead of TOUCH_DET interrupt for touchscreen detection.
+> > > > 
+> > > > The FIFO_TH is usually asserted but is asserted independently of the
+> > > > touchscreen controller operation. Because the bits in the interrupt
+> > > > status register are not entirely cleaned, the interrupt handler is
+> > > > triggered even if FIFO_TH is not yet set. Make sure that all bits in
+> > > > the interrupt status register are cleared early.
+> > > > 
+> > > > Rework the touchscreen interrupt handling so it waits for TOUCH_DET
+> > > > interrupt to happen. Upon first TOUCH_DET interrupt, worker thread
+> > > > is started which polls the touchscreen controller for location data
+> > > > until no touch is detected. Touch is determined by checking the X
+> > > > and Y coordinates, if they are zero, no touch happens.
+> > > > 
+> > > > Signed-off-by: Marek Vasut <marex@denx.de>
+> > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > > Cc: Samuel Ortiz <sameo@linux.intel.com>
+> > > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
+> > > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
+> > > > Cc: Bill Pemberton <wfp5p@virginia.edu>
+> > > > Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> > > > ---
+> > > > 
+> > > >  drivers/input/touchscreen/stmpe-ts.c |  111
+> > > >  ++++++++++++++-------------------- drivers/mfd/stmpe.c
+> > > >  
+> > > >  |   10 +--
+> > > >  
+> > > >  2 files changed, 50 insertions(+), 71 deletions(-)
+> > > 
+> > > Could you please split this patch in 2, the MFD part is independent
+> > > from the input one and could be applied separately.
+> > 
+> > I'd vote for applying this as one single patch, since this fixes one
+> > single problem (touchscreen not working properly). Or is that a big
+> > issue for you?
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> Hi guys,
-> 
-> well, as the commit message says, this is the DT binding for HID over I2C.
-> I honestly don't know if it will be used besides me, but it may help others
-> with a DT based board.
-> As the spec is for ACPI only, I had no specifications regarding the DT names. So
-> these names can be changed if you think they are bad.
-> 
-> I also created a new bindings directory in the devicetree doc to reflect the
-> split we have between input and hid. However, if the DT experts prefer having
-> it under input, I'm fine with that.
-> 
-> Cheers,
-> Benjamin
-> 
->  .../devicetree/bindings/hid/hid-over-i2c.txt       | 28 ++++++++++++++
->  drivers/hid/i2c-hid/i2c-hid.c                      | 44 +++++++++++++++++++++-
->  include/linux/i2c/i2c-hid.h                        |  3 +-
->  3 files changed, 73 insertions(+), 2 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/hid/hid-over-i2c.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/hid/hid-over-i2c.txt b/Documentation/devicetree/bindings/hid/hid-over-i2c.txt
+> I am fine as long as we get feedback from Dmitry and the ST folks about
+> it.
 
-DT folks, any objections to this, please?
+Absoluty, the feedback from the ST guys is completely imperative in this case.
 
-If not, I'd like to apply this for 3.11 into my tree.
+Thank you!
 
-Thanks.
-
--- 
-Jiri Kosina
-SUSE Labs
+Best regards,
+Marek Vasut

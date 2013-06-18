@@ -1,79 +1,49 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH] input: stmpe: Fix the touchscreen interrupt handling
-Date: Tue, 18 Jun 2013 14:01:13 +0200
-Message-ID: <201306181401.13755.marex@denx.de>
-References: <1366585565-13046-1-git-send-email-marex@denx.de> <201305170125.11552.marex@denx.de> <20130618085035.GD7161@zurbaran>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH V3 3/5] arm: pxa: use matrix_keymap for all boards
+Date: Tue, 18 Jun 2013 16:02:16 +0200
+Message-ID: <201306181602.16261.arnd@arndb.de>
+References: <1371527778-5236-1-git-send-email-chao.xie@marvell.com> <1371527778-5236-4-git-send-email-chao.xie@marvell.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
-  charset="us-ascii"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:34789 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932080Ab3FRMBY (ORCPT
+Received: from moutng.kundenserver.de ([212.227.126.187]:57187 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932824Ab3FROCe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Jun 2013 08:01:24 -0400
-In-Reply-To: <20130618085035.GD7161@zurbaran>
+	Tue, 18 Jun 2013 10:02:34 -0400
+In-Reply-To: <1371527778-5236-4-git-send-email-chao.xie@marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vipul Kumar Samar <vipulkumar.samar@st.com>, Viresh Kumar <viresh.kumar@linaro.org>, Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Chao Xie <chao.xie@marvell.com>
+Cc: dmitry.torokhov@gmail.com, eric.y.miao@gmail.com, haojian.zhuang@gmail.com, drwyrm@gmail.com, stefan@openezx.org, laforge@openezx.org, robert.jarzmik@free.fr, marek.vasut@gmail.com, sleep_walker@suse.cz, slapin@ossfans.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xiechao.mail@gmail.com
 
-Hi,
-
-> Hi Marek,
+On Tuesday 18 June 2013, Chao Xie wrote:
+> Compile passed for configurations
 > 
-> On Fri, May 17, 2013 at 01:25:11AM +0200, Marek Vasut wrote:
-> > Dear Samuel Ortiz,
-> > 
-> > > Hi Marek,
-> > > 
-> > > On Mon, Apr 22, 2013 at 01:06:05AM +0200, Marek Vasut wrote:
-> > > > The touchscreen interrupt handling in the STMPE touchscreen driver
-> > > > doesn't seem to work correctly. It relies on FIFO_TH to be asserted
-> > > > instead of TOUCH_DET interrupt for touchscreen detection.
-> > > > 
-> > > > The FIFO_TH is usually asserted but is asserted independently of the
-> > > > touchscreen controller operation. Because the bits in the interrupt
-> > > > status register are not entirely cleaned, the interrupt handler is
-> > > > triggered even if FIFO_TH is not yet set. Make sure that all bits in
-> > > > the interrupt status register are cleared early.
-> > > > 
-> > > > Rework the touchscreen interrupt handling so it waits for TOUCH_DET
-> > > > interrupt to happen. Upon first TOUCH_DET interrupt, worker thread
-> > > > is started which polls the touchscreen controller for location data
-> > > > until no touch is detected. Touch is determined by checking the X
-> > > > and Y coordinates, if they are zero, no touch happens.
-> > > > 
-> > > > Signed-off-by: Marek Vasut <marex@denx.de>
-> > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > > Cc: Samuel Ortiz <sameo@linux.intel.com>
-> > > > Cc: Vipul Kumar Samar <vipulkumar.samar@st.com>
-> > > > Cc: Viresh Kumar <viresh.kumar@linaro.org>
-> > > > Cc: Bill Pemberton <wfp5p@virginia.edu>
-> > > > Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
-> > > > ---
-> > > > 
-> > > >  drivers/input/touchscreen/stmpe-ts.c |  111
-> > > >  ++++++++++++++-------------------- drivers/mfd/stmpe.c
-> > > >  
-> > > >  |   10 +--
-> > > >  
-> > > >  2 files changed, 50 insertions(+), 71 deletions(-)
-> > > 
-> > > Could you please split this patch in 2, the MFD part is independent
-> > > from the input one and could be applied separately.
-> > 
-> > I'd vote for applying this as one single patch, since this fixes one
-> > single problem (touchscreen not working properly). Or is that a big
-> > issue for you?
+> em_x270_defconfig
+>   em_x270x.c(MACH_EM_X270, MACH_EXEDA)
 > 
-> I am fine as long as we get feedback from Dmitry and the ST folks about
-> it.
+> ezx_defconfig
+>   ezx.c(MACH_EZX_A780, MACH_EZX_E680, MACH_EZX_A1200,
+>         MACH_EZX_A910, MACH_EZX_E6, MACH_EZX_E2)
+> 
+> palmz72_defconfig
+>   palmld.c(MACH_PALMLD), palmtreo.c(PALM_TREO),
+>   palmtx.c(MACH_PALMTX), palmz72.c(MACH_PALMZ72),
+>   palmt5.c(MACH_PALMT5)
+> 
+> pxa3xx_defconfig
+>   littleton.c(MACH_LITTLETON), tarvorevb.c(MACH_TAVOREVB),
+>   zylonite.c(MACH_ZYLONITE320), mioa701.c(MACH_MIOA701),
+>   z2.c(MACH_ZIPIT2)
+> 
+> mainstone_defconfig
+>   maintone.c(MACH_MAINSTONE)
+> 
+> Signed-off-by: Chao Xie <chao.xie@marvell.com>
 
-Absoluty, the feedback from the ST guys is completely imperative in this case.
+Acked-by: Arnd Bergmann <arnd@arndb.de>
 
-Thank you!
-
-Best regards,
-Marek Vasut
+Thanks for the quick update.

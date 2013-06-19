@@ -1,90 +1,50 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Posiflex 0d3a:a000 touchscreen press not recognized in kernel 3.9.4
-Date: Wed, 19 Jun 2013 09:50:19 +0200
-Message-ID: <CAN+gG=HCREVXCsQjGjyJApR=U=TO4Kvaa1s+X-UEVe6akyj-7Q@mail.gmail.com>
-References: <51C159C5.7070702@gmx.de>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH V3 5/5] input: pxa27x-keypad: add device tree support
+Date: Wed, 19 Jun 2013 10:22:51 +0200
+Message-ID: <201306191022.51630.marex@denx.de>
+References: <1371527778-5236-1-git-send-email-chao.xie@marvell.com> <1371527778-5236-6-git-send-email-chao.xie@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f173.google.com ([209.85.217.173]:37596 "EHLO
-	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756422Ab3FSHuV (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.9]:36789 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756551Ab3FSIWz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Jun 2013 03:50:21 -0400
-Received: by mail-lb0-f173.google.com with SMTP id v1so4462912lbd.32
-        for <linux-input@vger.kernel.org>; Wed, 19 Jun 2013 00:50:19 -0700 (PDT)
-In-Reply-To: <51C159C5.7070702@gmx.de>
+	Wed, 19 Jun 2013 04:22:55 -0400
+In-Reply-To: <1371527778-5236-6-git-send-email-chao.xie@marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jan Kandziora <jjj@gmx.de>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Chao Xie <chao.xie@marvell.com>
+Cc: dmitry.torokhov@gmail.com, arnd@arndb.de, eric.y.miao@gmail.com, haojian.zhuang@gmail.com, drwyrm@gmail.com, stefan@openezx.org, laforge@openezx.org, robert.jarzmik@free.fr, sleep_walker@suse.cz, slapin@ossfans.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xiechao.mail@gmail.com
 
-Hi Jan,
+Dear Chao Xie,
 
-On Wed, Jun 19, 2013 at 9:12 AM, Jan Kandziora <jjj@gmx.de> wrote:
-> Hello,
->
-> I have a Posiflex 7215 POS system which has a USB touchscreen controller
-> onboard. I've done a kernel update from 2.6.35.4 to 3.9.4 and the touch
-> stopped working correctly. I tried with the generic usb hid driver, the
-> usbtouchscreen driver doesn't support this usb id. Evtest says:
->
+> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+> ---
+>  .../devicetree/bindings/input/pxa27x-keypad.txt    |   60 +++++
+>  drivers/input/keyboard/pxa27x_keypad.c             |  232
+> +++++++++++++++++++- 2 files changed, 288 insertions(+), 4 deletions(-)
+>  create mode 100644
+> Documentation/devicetree/bindings/input/pxa27x-keypad.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/pxa27x-keypad.txt
+> b/Documentation/devicetree/bindings/input/pxa27x-keypad.txt new file mode
+> 100644
+> index 0000000..f8674f7
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/pxa27x-keypad.txt
+> @@ -0,0 +1,60 @@
+> +* Marvell PXA Keypad controller
+> +
+> +Required Properties
+> +- compatible : should be "marvell,pxa27x-keypad"
+> +- reg : Address and length of the register set for the device
+> +- interrupts : The interrupt for the keypad controller
+> +- marvell,debounce-interval : How long time the key will be
 
-If your device is handled through hid-generic, it should be easy to
-debug it remotely.
+Is there no generic prop name for this debounce interval?
 
->
-> # evtest /dev/input/event4
-> Input driver version is 1.0.1
-> Input device ID: bus 0x3 vendor 0xd3a product 0xa000 version 0x110
-> Input device name: "Posiflex Inc. USB TOUCH V390"
-> Supported events:
->   Event type 0 (Sync)
->   Event type 1 (Key)
->     Event code 272 (LeftBtn)
->     Event code 273 (RightBtn)
->     Event code 274 (MiddleBtn)
->   Event type 3 (Absolute)
->     Event code 0 (X)
->       Value   2184
->       Min        0
->       Max     4095
->     Event code 1 (Y)
->       Value   3801
->       Min        0
->       Max     4095
->   Event type 4 (Misc)
->     Event code 4 (ScanCode)
-> Testing ... (interrupt to exit)
->
-> Event: time 1371798299.337455, type 3 (Absolute), code 0 (X), value 1596
-> Event: time 1371798299.337455, type 3 (Absolute), code 1 (Y), value 1969
-> Event: time 1371798299.337455, -------------- Report Sync ------------
->
->
-> There is no indication of pressure, so X is moving the cursor, but not
-> reporting anything pressed. With 2.6.35.4, there was a LeftBtn event
-> sent with each report block. Now it's gone.
->
-
-Ok, I will need at least the dmesg log and the output of hid-recorder
-[1] if your device is handled through hid-generic.
-Hid-replay will then allow me to virtually plug your device on my
-laptop so that I can replay and find out why the btn_left events are
-not emitted anymore.
-
-Cheers,
-Benjamin
-
-[1] http://bentiss.github.io/hid-replay-docs/
-
-> What to do to make it work again?
->
->
-> Kind regards
->
->         Jan
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Best regards,
+Marek Vasut

@@ -1,42 +1,65 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] Input: tps6507x-ts - convert to polled input device
- infrastructure
-Date: Tue, 18 Jun 2013 23:17:32 -0700
-Message-ID: <20130619061732.GC26181@core.coreip.homeip.net>
-References: <1370843627-30823-1-git-send-email-dmitry.torokhov@gmail.com>
- <1370843627-30823-3-git-send-email-dmitry.torokhov@gmail.com>
- <A4887BF146CD57468F700B415D2F47015A132E@DBDE04.ent.ti.com>
+From: Jan Kandziora <jjj@gmx.de>
+Subject: Posiflex 0d3a:a000 touchscreen press not recognized in kernel 3.9.4
+Date: Wed, 19 Jun 2013 09:12:05 +0200
+Message-ID: <51C159C5.7070702@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:54221 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756353Ab3FSGRf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Jun 2013 02:17:35 -0400
-Received: by mail-pd0-f177.google.com with SMTP id p10so4653947pdj.8
-        for <linux-input@vger.kernel.org>; Tue, 18 Jun 2013 23:17:34 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <A4887BF146CD57468F700B415D2F47015A132E@DBDE04.ent.ti.com>
+Received: from mout.gmx.net ([212.227.17.22]:53608 "EHLO mout.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756336Ab3FSHMH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Jun 2013 03:12:07 -0400
+Received: from mailout-de.gmx.net ([10.1.76.33]) by mrigmx.server.lan
+ (mrigmx001) with ESMTP (Nemesis) id 0MVGca-1Uob840vN8-00YjhQ for
+ <linux-input@vger.kernel.org>; Wed, 19 Jun 2013 09:12:06 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Vishwanathrao Badarkhe, Manish" <manishv.b@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>
+To: linux-input@vger.kernel.org
 
-On Wed, Jun 12, 2013 at 07:12:31AM +0000, Vishwanathrao Badarkhe, Manish wrote:
-> Hi Dmitry,
-> 
-> On Mon, Jun 10, 2013 at 11:23:47, Dmitry Torokhov wrote:
-> > There is no need to roll our own polling scheme when we already have
-> > one implemented by the core.
-> 
-> Please let me know, on which branch this patch series is based on? 
-> I failed to apply these patches on master branch of "linux-next". 
+Hello,
 
-Linux-next should work, I do not have anything else for this driver
-pending in my queue.
+I have a Posiflex 7215 POS system which has a USB touchscreen controller
+onboard. I've done a kernel update from 2.6.35.4 to 3.9.4 and the touch
+stopped working correctly. I tried with the generic usb hid driver, the
+usbtouchscreen driver doesn't support this usb id. Evtest says:
 
-Thanks.
 
--- 
-Dmitry
+# evtest /dev/input/event4
+Input driver version is 1.0.1
+Input device ID: bus 0x3 vendor 0xd3a product 0xa000 version 0x110
+Input device name: "Posiflex Inc. USB TOUCH V390"
+Supported events:
+  Event type 0 (Sync)
+  Event type 1 (Key)
+    Event code 272 (LeftBtn)
+    Event code 273 (RightBtn)
+    Event code 274 (MiddleBtn)
+  Event type 3 (Absolute)
+    Event code 0 (X)
+      Value   2184
+      Min        0
+      Max     4095
+    Event code 1 (Y)
+      Value   3801
+      Min        0
+      Max     4095
+  Event type 4 (Misc)
+    Event code 4 (ScanCode)
+Testing ... (interrupt to exit)
+
+Event: time 1371798299.337455, type 3 (Absolute), code 0 (X), value 1596
+Event: time 1371798299.337455, type 3 (Absolute), code 1 (Y), value 1969
+Event: time 1371798299.337455, -------------- Report Sync ------------
+
+
+There is no indication of pressure, so X is moving the cursor, but not
+reporting anything pressed. With 2.6.35.4, there was a LeftBtn event
+sent with each report block. Now it's gone.
+
+What to do to make it work again?
+
+
+Kind regards
+
+	Jan

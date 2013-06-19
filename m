@@ -1,84 +1,80 @@
-From: Gerhard Sittig <gsi@denx.de>
-Subject: Re: [PATCH V3 5/5] input: pxa27x-keypad: add device tree support
-Date: Wed, 19 Jun 2013 13:13:41 +0200
-Message-ID: <20130619111341.GH2426@book.gsilab.sittig.org>
-References: <1371527778-5236-1-git-send-email-chao.xie@marvell.com>
- <1371527778-5236-6-git-send-email-chao.xie@marvell.com>
- <201306191022.51630.marex@denx.de>
- <CADApbeiQWOi8SYEFf0bOsf1yn+TgXhwgDWaWFpGk7+nbC9bNDg@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Posiflex 0d3a:a000 touchscreen press not recognized in kernel
+ 3.9.4
+Date: Wed, 19 Jun 2013 17:56:56 +0200
+Message-ID: <51C1D4C8.5040201@gmail.com>
+References: <51C159C5.7070702@gmx.de> <CAN+gG=HCREVXCsQjGjyJApR=U=TO4Kvaa1s+X-UEVe6akyj-7Q@mail.gmail.com> <51C17882.4050206@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:35412 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933666Ab3FSLNw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Jun 2013 07:13:52 -0400
-Content-Disposition: inline
-In-Reply-To: <CADApbeiQWOi8SYEFf0bOsf1yn+TgXhwgDWaWFpGk7+nbC9bNDg@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:3568 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756651Ab3FSP5E (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Jun 2013 11:57:04 -0400
+In-Reply-To: <51C17882.4050206@gmx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chao Xie <xiechao.mail@gmail.com>
-Cc: Marek Vasut <marex@denx.de>, stefan@openezx.org, Eric Miao <eric.y.miao@gmail.com>, Arnd Bergmann <arnd@arndb.de>, slapin@ossfans.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Chao Xie <chao.xie@marvell.com>, laforge@openezx.org, linux-input@vger.kernel.org, sleep_walker@suse.cz, Robert Jarzmik <robert.jarzmik@free.fr>, drwyrm@gmail.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Jan Kandziora <jjj@gmx.de>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Jun 19, 2013 at 16:38 +0800, Chao Xie wrote:
+Hi Jan,
+
+On 06/19/2013 11:23 AM, Jan Kandziora wrote:
+> Am 19.06.2013 09:50, schrieb Benjamin Tissoires:
+>>
+>> Ok, I will need at least the dmesg log and the output of hid-recorder
+>> [1] if your device is handled through hid-generic.
+>> Hid-replay will then allow me to virtually plug your device on my
+>> laptop so that I can replay and find out why the btn_left events are
+>> not emitted anymore.
+>>
+> Logs are attached. I've first pressed onto the center of the touch, then
+> onto the lower right corner, then drawn a wave line from upper left to
+> lower left, then from lower left to upper right.
 > 
-> On Wed, Jun 19, 2013 at 4:22 PM, Marek Vasut <marex@denx.de> wrote:
-> >
-> >> Signed-off-by: Chao Xie <chao.xie@marvell.com>
-> >> [ ... ]
-> >> +++ b/Documentation/devicetree/bindings/input/pxa27x-keypad.txt
-> >> @@ -0,0 +1,60 @@
-> >> +* Marvell PXA Keypad controller
-> >> +
-> >> +Required Properties
-> >> +- compatible : should be "marvell,pxa27x-keypad"
-> >> +- reg : Address and length of the register set for the device
-> >> +- interrupts : The interrupt for the keypad controller
-> >> +- marvell,debounce-interval : How long time the key will be
-> >
-> > Is there no generic prop name for this debounce interval?
-> >
-> I searched at drivers/input and Documents.
-> Two drivers use "debounce-interval", gpio-keys.c and stmpe-keypad.c.
-> They describe the meanings of "debounce-interval" at its own document file.
-> Some other drivers uses "xxx,debounce-delay-ms" or "debounce-delay-ms"
-> So it seems that there is no generic prop name for this debounce interval.
+> Thanks for your help.
+> 
+> 	Jan
+> 
 
-Actually there is, but under a different (more user friendly)
-name:  See the 'debounce-delay-ms' property in
-Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
-which gets referenced in the matrix_keypad_parse_dt() routine in
-the drivers/input/keyboard/matrix_keypad.c source file.  Ah, your
-last sentence mentions that fact.
+Thanks for the logs. The problem comes from a commit introduced in 3.3 which discards the BTN_LEFT information.
 
-But when you introduce DT support into an existing driver which
-previously used platform data, then there is no problem with
-backwards compatibility in .dts files.  So I suggest to go with
-the "debounce-delay-ms" name since it better reflects to the .dts
-author (hardware engineer) which unit the number is supposed to
-be specified in.
+If possible, can you apply and test the following patch?
 
+Cheers,
+Benjamin
 
-Note that I've recently worked on extending the matrix keypad
-input driver (doc improvements, software polling, binary encoded
-column selection), but haven't submitted the patch series yet
-since it's perfectly operational on the target which motivated
-the extension but wasn't tested yet on any other platform or
-matrix setup -- I currently lack access to an ARM based board
-with either lots of accessible GPIOs to connect a matrix to, or
-some matrix already built into the board, but more importantly
-lack free resources for this very driver extension.
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date: Wed, 19 Jun 2013 17:49:05 +0200
+Subject: [PATCH] HID: input: fix false positive out of range values
 
-Alternatively I might send an RFC series since the current state
-isn't good enough for v1.  Just ask if you'd like to test or
-review what I have come up with so far (it builds but wasn't
-run-tested).
+Commit 6da7066906e977d42104a859c490f5f9a300488c introduced in 3.3
+"HID: ignore absolute values which don't fit between logical min and max"
+prevents some Posiflex touch screen to work because they do not provide
+logical min and max for their buttons.
+Thus, logical min and max are at 0, discarding the buttons events, and
+preventing the device to report appropriate X Y.
 
+Adding a check on "min < max" solves the problem.
 
-virtually yours
-Gerhard Sittig
+Reported-by: Jan Kandziora <jjj@gmx.de>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-input.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index c526a3c..930f1bb 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1045,6 +1045,7 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+ 	 * section 5.10 and 6.2.25
+ 	 */
+ 	if ((field->flags & HID_MAIN_ITEM_VARIABLE) &&
++	    (field->logical_minimum < field->logical_maximum) &&
+ 	    (value < field->logical_minimum ||
+ 	     value > field->logical_maximum)) {
+ 		dbg_hid("Ignoring out-of-range value %x\n", value);
 -- 
-DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
-HRB 165235 Munich, Office: Kirchenstr. 5, D-82194 Groebenzell, Germany
-Phone: +49-8142-66989-0 Fax: +49-8142-66989-80  Email: office@denx.de
+1.8.2.1
+

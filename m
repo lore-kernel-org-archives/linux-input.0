@@ -1,26 +1,32 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: Gerhard Sittig <gsi@denx.de>
 Subject: Re: [PATCH V3 5/5] input: pxa27x-keypad: add device tree support
-Date: Wed, 19 Jun 2013 11:25:26 +0200
-Message-ID: <5961561.7UgodVjTLY@wuerfel>
-References: <1371527778-5236-1-git-send-email-chao.xie@marvell.com> <201306191022.51630.marex@denx.de> <CADApbeiQWOi8SYEFf0bOsf1yn+TgXhwgDWaWFpGk7+nbC9bNDg@mail.gmail.com>
+Date: Wed, 19 Jun 2013 13:13:41 +0200
+Message-ID: <20130619111341.GH2426@book.gsilab.sittig.org>
+References: <1371527778-5236-1-git-send-email-chao.xie@marvell.com>
+ <1371527778-5236-6-git-send-email-chao.xie@marvell.com>
+ <201306191022.51630.marex@denx.de>
+ <CADApbeiQWOi8SYEFf0bOsf1yn+TgXhwgDWaWFpGk7+nbC9bNDg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.171]:52893 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933755Ab3FSJYy (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.10]:35412 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933666Ab3FSLNw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Jun 2013 05:24:54 -0400
+	Wed, 19 Jun 2013 07:13:52 -0400
+Content-Disposition: inline
 In-Reply-To: <CADApbeiQWOi8SYEFf0bOsf1yn+TgXhwgDWaWFpGk7+nbC9bNDg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Chao Xie <xiechao.mail@gmail.com>
-Cc: Marek Vasut <marex@denx.de>, Chao Xie <chao.xie@marvell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, drwyrm@gmail.com, stefan@openezx.org, laforge@openezx.org, Robert Jarzmik <robert.jarzmik@free.fr>, sleep_walker@suse.cz, slapin@ossfans.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Cc: Marek Vasut <marex@denx.de>, stefan@openezx.org, Eric Miao <eric.y.miao@gmail.com>, Arnd Bergmann <arnd@arndb.de>, slapin@ossfans.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Chao Xie <chao.xie@marvell.com>, laforge@openezx.org, linux-input@vger.kernel.org, sleep_walker@suse.cz, Robert Jarzmik <robert.jarzmik@free.fr>, drwyrm@gmail.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-On Wednesday 19 June 2013 16:38:38 Chao Xie wrote:
-> >> index 0000000..f8674f7
-> >> --- /dev/null
+On Wed, Jun 19, 2013 at 16:38 +0800, Chao Xie wrote:
+> 
+> On Wed, Jun 19, 2013 at 4:22 PM, Marek Vasut <marex@denx.de> wrote:
+> >
+> >> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+> >> [ ... ]
 > >> +++ b/Documentation/devicetree/bindings/input/pxa27x-keypad.txt
 > >> @@ -0,0 +1,60 @@
 > >> +* Marvell PXA Keypad controller
@@ -39,7 +45,40 @@ On Wednesday 19 June 2013 16:38:38 Chao Xie wrote:
 > Some other drivers uses "xxx,debounce-delay-ms" or "debounce-delay-ms"
 > So it seems that there is no generic prop name for this debounce interval.
 
-I'd suggest using "debounce-interval" as in gpio-keys then, since that
-is the most generic driver.
+Actually there is, but under a different (more user friendly)
+name:  See the 'debounce-delay-ms' property in
+Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
+which gets referenced in the matrix_keypad_parse_dt() routine in
+the drivers/input/keyboard/matrix_keypad.c source file.  Ah, your
+last sentence mentions that fact.
 
-	Arnd
+But when you introduce DT support into an existing driver which
+previously used platform data, then there is no problem with
+backwards compatibility in .dts files.  So I suggest to go with
+the "debounce-delay-ms" name since it better reflects to the .dts
+author (hardware engineer) which unit the number is supposed to
+be specified in.
+
+
+Note that I've recently worked on extending the matrix keypad
+input driver (doc improvements, software polling, binary encoded
+column selection), but haven't submitted the patch series yet
+since it's perfectly operational on the target which motivated
+the extension but wasn't tested yet on any other platform or
+matrix setup -- I currently lack access to an ARM based board
+with either lots of accessible GPIOs to connect a matrix to, or
+some matrix already built into the board, but more importantly
+lack free resources for this very driver extension.
+
+Alternatively I might send an RFC series since the current state
+isn't good enough for v1.  Just ask if you'd like to test or
+review what I have come up with so far (it builds but wasn't
+run-tested).
+
+
+virtually yours
+Gerhard Sittig
+-- 
+DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
+HRB 165235 Munich, Office: Kirchenstr. 5, D-82194 Groebenzell, Germany
+Phone: +49-8142-66989-0 Fax: +49-8142-66989-80  Email: office@denx.de

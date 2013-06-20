@@ -1,263 +1,301 @@
-From: "Zach C." <fxchip@gmail.com>
-Subject: [PATCH] Preliminary support for Razer Blade multitouch touchpads
-Date: Wed, 19 Jun 2013 23:09:15 -0700
-Message-ID: <CAG5DJwddL1cTZbA6ofyH5ZPmkLxUCkCMEHAp8Lb8g9+JWLP0JA@mail.gmail.com>
+From: Jason Flatt <jflatt@cox.net>
+Subject: [PATCH] Support for Sony NSG-MR5U
+Date: Wed, 19 Jun 2013 23:43:38 -0700
+Message-ID: <1497744.kpqTRKsYBt@desktop>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a11c2ccca33e85504df8fc90a
+Content-Type: multipart/mixed; boundary="nextPart2470611.mTFXmZN5oo"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f169.google.com ([209.85.220.169]:38937 "EHLO
-	mail-vc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752163Ab3FTGJV (ORCPT
+Received: from eastrmfepi202.cox.net ([68.230.241.206]:45055 "EHLO
+	eastrmfepi202.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751921Ab3FTGyg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Jun 2013 02:09:21 -0400
-Received: by mail-vc0-f169.google.com with SMTP id ia10so4498872vcb.28
-        for <linux-input@vger.kernel.org>; Wed, 19 Jun 2013 23:09:20 -0700 (PDT)
+	Thu, 20 Jun 2013 02:54:36 -0400
+Received: from eastrmimpo305 ([68.230.241.237]) by eastrmfepo201.cox.net
+          (InterMail vM.8.01.05.09 201-2260-151-124-20120717) with ESMTP
+          id <20130620064342.MLSJ3846.eastrmfepo201.cox.net@eastrmimpo305>
+          for <linux-input@vger.kernel.org>;
+          Thu, 20 Jun 2013 02:43:42 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jan Steinhoff <cpad@jan-steinhoff.de>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
---001a11c2ccca33e85504df8fc90a
-Content-Type: text/plain; charset=UTF-8
+This is a multi-part message in MIME format.
 
-Hey guys,
+--nextPart2470611.mTFXmZN5oo
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 
-Attached is a patch for synaptics-usb made against commit
-8177a9d79c0e942dcac3312f15585d0344d505a5 of Linus's git tree (the one
-commit *right after* 3.10-rc6). It's *extremely* preliminary and there
-are still a few glitches -- namely, the touchpad sends input samples
-*a lot* and X and Y are never the same value twice, even when the
-finger for that packet hasn't moved. I'm also not entirely sure that
-the field I'm calling "pressure" is actually pressure -- it might
-actually be orientation or something similar, because the values I
-manage to get out of it don't seem to be related at all to the
-pressure applied to the touchpad. I'm not exactly sure how to tease
-that out.
+Hello,
+This is a patch for Sony's GoogleTV multitouch bluetooth remotes, it adds into 
+the shared hid-sony module, and is based on the methods used in the apple 
+magicmouse module.  It builds against the 3.9.0 git tree at:
+git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+Please let me know how it looks, this is my first patch.
+Thank you
 
-Really, the purpose of sending this incomplete patch in is to request
-comments and feedback about how to proceed. I could probably set a
-threshold for position changes, but that doesn't seem to be the right
-course of action at this level. (Further fixes would be nice, too!)
+--nextPart2470611.mTFXmZN5oo
+Content-Disposition: attachment; filename="nsgmr5u.patch"
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/x-patch; charset="UTF-8"; name="nsgmr5u.patch"
 
-Please let me know what you think. Thank you!
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 512b01c..a61d9dc 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1701,6 +1701,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY_TOUCH_REMOTE, USB_DEVICE_ID_SONY_TOUCH_REMOTE_LYRA) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY_TOUCH_REMOTE, USB_DEVICE_ID_SONY_TOUCH_REMOTE_LEO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 92e47e5..fd85e26 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -723,6 +723,10 @@
+ #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
+ #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
+ 
++#define USB_VENDOR_ID_SONY_TOUCH_REMOTE		0x0609
++#define USB_DEVICE_ID_SONY_TOUCH_REMOTE_LYRA	0x0368
++#define USB_DEVICE_ID_SONY_TOUCH_REMOTE_LEO	0x0369
++
+ #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
+ #define USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST	0x0034
+ #define USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST	0x0046
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 7a1ebb8..53b3eb9 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1180,6 +1180,14 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,
+ 			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008) },
+ 
++	/* Sony CE Remote */
++	{ .driver_data = MT_CLS_DEFAULT,
++		MT_BT_DEVICE(USB_VENDOR_ID_SONY_TOUCH_REMOTE,
++			USB_DEVICE_ID_SONY_TOUCH_REMOTE_LYRA) },
++	{ .driver_data = MT_CLS_DEFAULT,
++		MT_BT_DEVICE(USB_VENDOR_ID_SONY_TOUCH_REMOTE,
++			USB_DEVICE_ID_SONY_TOUCH_REMOTE_LEO) },
++
+ 	/* Stantum panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_STANTUM,
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 312098e..44e81f8 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -6,6 +6,7 @@
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2008 Jiri Slaby
+  *  Copyright (c) 2006-2008 Jiri Kosina
++ *  Copyright (c) 2013 Jason Flatt <jflatt@cox.net>
+  */
+ 
+ /*
+@@ -17,6 +18,7 @@
+ 
+ #include <linux/device.h>
+ #include <linux/hid.h>
++#include <linux/input/mt.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/usb.h>
+@@ -26,6 +28,17 @@
+ #define VAIO_RDESC_CONSTANT     (1 << 0)
+ #define SIXAXIS_CONTROLLER_USB  (1 << 1)
+ #define SIXAXIS_CONTROLLER_BT   (1 << 2)
++#define CE_REMOTE_BT            (1 << 4)
++
++/* measured on real hardware */
++#define CE_REMOTE_MIN_X 0
++#define CE_REMOTE_MAX_X 1667
++#define CE_REMOTE_SIZE_X (float)48 /* size in mm */
++#define CE_REMOTE_MIN_Y 0
++#define CE_REMOTE_MAX_Y 1868
++#define CE_REMOTE_SIZE_Y (float)51
++#define CE_REMOTE_RES_X ((CE_REMOTE_MAX_X - CE_REMOTE_MIN_X) / CE_REMOTE_SIZE_X)
++#define CE_REMOTE_RES_Y ((CE_REMOTE_MAX_Y - CE_REMOTE_MIN_Y) / CE_REMOTE_SIZE_Y)
+ 
+ static const u8 sixaxis_rdesc_fixup[] = {
+ 	0x95, 0x13, 0x09, 0x01, 0x81, 0x02, 0x95, 0x0C,
+@@ -57,6 +70,7 @@ static const u8 sixaxis_rdesc_fixup2[] = {
+ 
+ struct sony_sc {
+ 	unsigned long quirks;
++	struct input_dev *input;
+ };
+ 
+ /* Sony Vaio VGX has wrongly mouse pointer declared as constant */
+@@ -94,10 +108,27 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 			 *rsize, (int)sizeof(sixaxis_rdesc_fixup2));
+ 		*rsize = sizeof(sixaxis_rdesc_fixup2);
+ 		memcpy(rdesc, &sixaxis_rdesc_fixup2, *rsize);
++	} else if ((sc->quirks & CE_REMOTE_BT) && *rsize == 359 &&
++			rdesc[358] == 0x0) {
++		hid_info(hdev, "Fixing up Sony CE Remote report descriptor\n");
++		*rsize = 358;
+ 	}
+ 	return rdesc;
+ }
+ 
++static int sony_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++	struct hid_field *field, struct hid_usage *usage,
++	unsigned long **bit, int *max)
++{
++	struct sony_sc *sc = hid_get_drvdata(hdev);
++	if (sc->quirks & CE_REMOTE_BT) {
++		if (!sc->input)
++			sc->input = hi->input;
++	}
++
++	return 0;
++}
++
+ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		__u8 *rd, int size)
+ {
+@@ -112,8 +143,55 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		swap(rd[43], rd[44]);
+ 		swap(rd[45], rd[46]);
+ 		swap(rd[47], rd[48]);
++	} else if (sc->quirks & CE_REMOTE_BT) {
++		struct input_dev *input = sc->input;
++		if (!input) {
++			hid_err(hdev, "Sony CE Remote no input data structure");
++			return 0;
++		}
++		if (rd[0] == 0x2) { /* report id = trackpad */
++			__u8 button0 = rd[1] & 0x1;
++			__u8 button2 = (rd[1] & 0x4) >> 2;
++			__u8 contact0 = (rd[1] & 0x30) >> 4;
++			__u8 contact1 = (rd[1] & 0xc0) >> 6;
++			__u16 touch0x = rd[2] | (rd[3] & 0xf) << 8;
++			__u16 touch0y = (rd[3] & 0xf0) >> 4 | rd[4] << 4;
++			__u8 touch0w = rd[5] & 0xf;
++			__u8 touch0h = (rd[5] & 0xf0) >> 4;
++			int8_t xrel = rd[6];
++			__u16 touch1x = rd[7] | (rd[8] & 0xf) << 8;
++			__u16 touch1y = (rd[8] & 0xf0) >> 4 | rd[9] << 4;
++			__u8 touch1w = rd[10] & 0xf;
++			__u8 touch1h = (rd[10] & 0xf0) >> 4;
++			int8_t yrel = rd[11];
++
++			input_mt_slot(input, 0);
++			input_mt_report_slot_state(input, MT_TOOL_FINGER, contact0);
++			/* flip Y-axis */
++			if (contact0) {
++				input_report_abs(input, ABS_MT_TOUCH_MAJOR, max(touch0w, touch0h));
++				input_report_abs(input, ABS_MT_TOUCH_MINOR, min(touch0w, touch0h));
++				input_report_abs(input, ABS_MT_ORIENTATION, (bool)(touch0w > touch0h));
++				input_report_abs(input, ABS_MT_POSITION_X, touch0x);
++				input_report_abs(input, ABS_MT_POSITION_Y, CE_REMOTE_MAX_Y - touch0y);
++			}
++			input_mt_slot(input, 1);
++			input_mt_report_slot_state(input, MT_TOOL_FINGER, contact1);
++			if (contact1) {
++				input_report_abs(input, ABS_MT_TOUCH_MAJOR, max(touch1w, touch1h));
++				input_report_abs(input, ABS_MT_TOUCH_MINOR, min(touch1w, touch1h));
++				input_report_abs(input, ABS_MT_ORIENTATION, (bool)(touch1w > touch1h));
++				input_report_abs(input, ABS_MT_POSITION_X, touch1x);
++				input_report_abs(input, ABS_MT_POSITION_Y, CE_REMOTE_MAX_Y - touch1y);
++			}
++			input_report_rel(input, REL_X, xrel);
++			input_report_rel(input, REL_Y, yrel);
++
++			input_report_key(input, BTN_MOUSE, button0 | button2);
++			input_mt_report_pointer_emulation(input, true);
++		}
++		input_sync(input);
+ 	}
+-
+ 	return 0;
+ }
+ 
+@@ -192,6 +270,43 @@ static int sixaxis_set_operational_bt(struct hid_device *hdev)
+ 	return hdev->hid_output_raw_report(hdev, buf, sizeof(buf), HID_FEATURE_REPORT);
+ }
+ 
++static int ce_remote_setup_input(struct input_dev *input, struct hid_device *hdev)
++{
++	const int FUZZ = 4;
++	int error;
++	__set_bit(EV_KEY, input->evbit);
++	__set_bit(EV_REL, input->evbit);
++	__set_bit(EV_ABS, input->evbit);
++	__clear_bit(BTN_RIGHT, input->keybit);
++	__clear_bit(BTN_MIDDLE, input->keybit);
++	__set_bit(BTN_MOUSE, input->keybit);
++	__set_bit(BTN_TOOL_FINGER, input->keybit);
++	__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
++	__set_bit(BTN_TOUCH, input->keybit);
++	__set_bit(INPUT_PROP_POINTER, input->propbit);
++	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
++
++	error = input_mt_init_slots(input, 2, 0);
++	if (error)
++		return error;
++
++	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 15, FUZZ, 0);
++	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 15, FUZZ, 0);
++	input_set_abs_params(input, ABS_MT_ORIENTATION, 0, 1, 0, 0);
++
++	input_set_abs_params(input, ABS_X, CE_REMOTE_MIN_X, CE_REMOTE_MAX_X, FUZZ, 0);
++	input_set_abs_params(input, ABS_Y, CE_REMOTE_MIN_Y, CE_REMOTE_MAX_Y, FUZZ, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_X, CE_REMOTE_MIN_X, CE_REMOTE_MAX_X, FUZZ, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_Y, CE_REMOTE_MIN_Y, CE_REMOTE_MAX_Y, FUZZ, 0);
++
++	input_abs_set_res(input, ABS_X, CE_REMOTE_RES_X);
++	input_abs_set_res(input, ABS_Y, CE_REMOTE_RES_Y);
++	input_abs_set_res(input, ABS_MT_POSITION_X, CE_REMOTE_RES_X);
++	input_abs_set_res(input, ABS_MT_POSITION_Y, CE_REMOTE_RES_Y);
++
++	return 0;
++}
++
+ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	int ret;
+@@ -226,6 +341,15 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
+ 		ret = sixaxis_set_operational_bt(hdev);
++	else if (sc->quirks & CE_REMOTE_BT) {
++		if (sc->input) {
++			ret = ce_remote_setup_input(sc->input, hdev);
++			if (ret) {
++				hid_err(hdev, "Sony Touch Remote setup input failed (%d)\n", ret);
++				goto err_stop;
++			}
++		}
++	}
+ 	else
+ 		ret = 0;
+ 
+@@ -257,6 +381,10 @@ static const struct hid_device_id sony_devices[] = {
+ 		.driver_data = VAIO_RDESC_CONSTANT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE),
+ 		.driver_data = VAIO_RDESC_CONSTANT },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY_TOUCH_REMOTE, USB_DEVICE_ID_SONY_TOUCH_REMOTE_LYRA),
++		.driver_data = CE_REMOTE_BT },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY_TOUCH_REMOTE, USB_DEVICE_ID_SONY_TOUCH_REMOTE_LEO),
++		.driver_data = CE_REMOTE_BT },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, sony_devices);
+@@ -266,6 +394,7 @@ static struct hid_driver sony_driver = {
+ 	.id_table = sony_devices,
+ 	.probe = sony_probe,
+ 	.remove = sony_remove,
++	.input_mapping = sony_input_mapping,
+ 	.report_fixup = sony_report_fixup,
+ 	.raw_event = sony_raw_event
+ };
 
-Thanks,
+--nextPart2470611.mTFXmZN5oo--
 
-Zach
-
---001a11c2ccca33e85504df8fc90a
-Content-Type: application/octet-stream;
-	name="01-synaptics-usb-razer-touchpad-support.patch"
-Content-Disposition: attachment;
-	filename="01-synaptics-usb-razer-touchpad-support.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hi5jucgi0
-
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvbW91c2Uvc3luYXB0aWNzX3VzYi5jIGIvZHJpdmVy
-cy9pbnB1dC9tb3VzZS9zeW5hcHRpY3NfdXNiLmMKaW5kZXggNjRjZjM0ZS4uZDhkNzlkMyAxMDA2
-NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9tb3VzZS9zeW5hcHRpY3NfdXNiLmMKKysrIGIvZHJpdmVy
-cy9pbnB1dC9tb3VzZS9zeW5hcHRpY3NfdXNiLmMKQEAgLTgsNiArOCw4IEBACiAgKiAgQ29weXJp
-Z2h0IChjKSAyMDA0IEphbiBTdGVpbmhvZmYgKGNwYWRAamFuLXN0ZWluaG9mZiAuIGRlKQogICog
-IENvcHlyaWdodCAoYykgMjAwNCBSb24gTGVlIChyb25AZGViaWFuLm9yZykKICAqCXJld3JpdHRl
-biBmb3Iga2VybmVsIDIuNgorICogIENvcHlyaWdodCAoYykgMjAxMyBaYWNoIENhcmxzb24gKEZ4
-Q2hpUEBHbWFpbC5jb20pCisgKiAgICAgIFJhemVyIEJsYWRlIC8gbXVsdGktZmluZ2VyLXN0cnVj
-dCBzeW5hcHRpY3MgdG91Y2hwYWQgc3VwcG9ydAogICoKICAqICBjUGFkIGRpc3BsYXkgY2hhcmFj
-dGVyIGRldmljZSBwYXJ0IGlzIG5vdCBpbmNsdWRlZC4gSXQgY2FuIGJlIGZvdW5kIGF0CiAgKiAg
-aHR0cDovL2phbi1zdGVpbmhvZmYuZGUvbGludXgvc3luYXB0aWNzLXVzYi5odG1sCkBAIC00NCwx
-OSArNDYsMjMgQEAKICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KICNpbmNsdWRlIDxsaW51eC9t
-b2R1bGVwYXJhbS5oPgogI2luY2x1ZGUgPGxpbnV4L3VzYi5oPgorI2luY2x1ZGUgPGxpbnV4L2lu
-cHV0L210Lmg+CiAjaW5jbHVkZSA8bGludXgvaW5wdXQuaD4KICNpbmNsdWRlIDxsaW51eC91c2Iv
-aW5wdXQuaD4KIAotI2RlZmluZSBVU0JfVkVORE9SX0lEX1NZTkFQVElDUwkweDA2Y2IKLSNkZWZp
-bmUgVVNCX0RFVklDRV9JRF9TWU5BUFRJQ1NfVFAJMHgwMDAxCS8qIFN5bmFwdGljcyBVU0IgVG91
-Y2hQYWQgKi8KLSNkZWZpbmUgVVNCX0RFVklDRV9JRF9TWU5BUFRJQ1NfSU5UX1RQCTB4MDAwMgkv
-KiBJbnRlZ3JhdGVkIFVTQiBUb3VjaFBhZCAqLwotI2RlZmluZSBVU0JfREVWSUNFX0lEX1NZTkFQ
-VElDU19DUEFECTB4MDAwMwkvKiBTeW5hcHRpY3MgY1BhZCAqLwotI2RlZmluZSBVU0JfREVWSUNF
-X0lEX1NZTkFQVElDU19UUwkweDAwMDYJLyogU3luYXB0aWNzIFRvdWNoU2NyZWVuICovCi0jZGVm
-aW5lIFVTQl9ERVZJQ0VfSURfU1lOQVBUSUNTX1NUSUNLCTB4MDAwNwkvKiBTeW5hcHRpY3MgVVNC
-IFN0eWsgKi8KLSNkZWZpbmUgVVNCX0RFVklDRV9JRF9TWU5BUFRJQ1NfV1AJMHgwMDA4CS8qIFN5
-bmFwdGljcyBVU0IgV2hlZWxQYWQgKi8KLSNkZWZpbmUgVVNCX0RFVklDRV9JRF9TWU5BUFRJQ1Nf
-Q09NUF9UUAkweDAwMDkJLyogQ29tcG9zaXRlIFVTQiBUb3VjaFBhZCAqLwotI2RlZmluZSBVU0Jf
-REVWSUNFX0lEX1NZTkFQVElDU19XVFAJMHgwMDEwCS8qIFdpcmVsZXNzIFRvdWNoUGFkICovCi0j
-ZGVmaW5lIFVTQl9ERVZJQ0VfSURfU1lOQVBUSUNTX0RQQUQJMHgwMDEzCS8qIERpc3BsYXlQYWQg
-Ki8KKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9TWU5BUFRJQ1MJICAgICAgICAweDA2Y2IKKyNkZWZp
-bmUgVVNCX1ZFTkRPUl9JRF9TWU5VU0JfUkFaRVIgICAgICAweDE1MzIKKworI2RlZmluZSBVU0Jf
-REVWSUNFX0lEX1NZTkFQVElDU19UUAkgICAgICAgMHgwMDAxCS8qIFN5bmFwdGljcyBVU0IgVG91
-Y2hQYWQgKi8KKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9TWU5BUFRJQ1NfSU5UX1RQCSAgICAgICAw
-eDAwMDIJLyogSW50ZWdyYXRlZCBVU0IgVG91Y2hQYWQgKi8KKyNkZWZpbmUgVVNCX0RFVklDRV9J
-RF9TWU5BUFRJQ1NfQ1BBRAkgICAgICAgMHgwMDAzCS8qIFN5bmFwdGljcyBjUGFkICovCisjZGVm
-aW5lIFVTQl9ERVZJQ0VfSURfU1lOQVBUSUNTX1RTCSAgICAgICAweDAwMDYJLyogU3luYXB0aWNz
-IFRvdWNoU2NyZWVuICovCisjZGVmaW5lIFVTQl9ERVZJQ0VfSURfU1lOQVBUSUNTX1NUSUNLCSAg
-ICAgICAweDAwMDcJLyogU3luYXB0aWNzIFVTQiBTdHlrICovCisjZGVmaW5lIFVTQl9ERVZJQ0Vf
-SURfU1lOQVBUSUNTX1dQCSAgICAgICAweDAwMDgJLyogU3luYXB0aWNzIFVTQiBXaGVlbFBhZCAq
-LworI2RlZmluZSBVU0JfREVWSUNFX0lEX1NZTkFQVElDU19DT01QX1RQCSAgICAgICAweDAwMDkJ
-LyogQ29tcG9zaXRlIFVTQiBUb3VjaFBhZCAqLworI2RlZmluZSBVU0JfREVWSUNFX0lEX1NZTkFQ
-VElDU19XVFAJICAgICAgIDB4MDAxMAkvKiBXaXJlbGVzcyBUb3VjaFBhZCAqLworI2RlZmluZSBV
-U0JfREVWSUNFX0lEX1NZTkFQVElDU19EUEFECSAgICAgICAweDAwMTMJLyogRGlzcGxheVBhZCAq
-LworI2RlZmluZSBVU0JfREVWSUNFX0lEX1NZTlVTQl9SQVpFUl9CTEFERV9UUCAgICAweDAxMTYg
-IAkvKiBSYXplciBCbGFkZSBUb3VjaHBhZCAqLwogCiAjZGVmaW5lIFNZTlVTQl9UT1VDSFBBRAkJ
-CSgxIDw8IDApCiAjZGVmaW5lIFNZTlVTQl9TVElDSwkJCSgxIDw8IDEpCkBAIC02NCwxOSArNzAs
-MzIgQEAKICNkZWZpbmUgU1lOVVNCX0FVWERJU1BMQVkJCSgxIDw8IDMpIC8qIEZvciBjUGFkICov
-CiAjZGVmaW5lIFNZTlVTQl9DT01CTwkJCSgxIDw8IDQpIC8qIENvbXBvc2l0ZSBkZXZpY2UgKFRQ
-ICsgc3RpY2spICovCiAjZGVmaW5lIFNZTlVTQl9JT19BTFdBWVMJCSgxIDw8IDUpCisjZGVmaW5l
-IFNZTlVTQl9NRl9QQUNLRVRTICAgICAgICAgICAgICAgKDEgPDwgNikgLyogTXVsdGktZmluZ2Vy
-IHBhY2tldHMgKi8KKyNkZWZpbmUgU1lOVVNCX1NIQVJFU19ERVZJQ0UgICAgICAgICAgICAoMSA8
-PCA3KSAvKiBTaGFyZXMgZGV2aWNlIHdpdGggb3RoZXIgaW5wdXRzICovCiAKICNkZWZpbmUgVVNC
-X0RFVklDRV9TWU5BUFRJQ1MocHJvZCwga2luZCkJCVwKIAlVU0JfREVWSUNFKFVTQl9WRU5ET1Jf
-SURfU1lOQVBUSUNTLAkJXAogCQkgICBVU0JfREVWSUNFX0lEX1NZTkFQVElDU18jI3Byb2QpLAlc
-CiAJLmRyaXZlcl9pbmZvID0gKGtpbmQpLAogCisjZGVmaW5lIFVTQl9ERVZJQ0VfU1lOVVNCX1JB
-WkVSKHByb2QsIGtpbmQpCSAgICAgICAgXAorCVVTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9TWU5V
-U0JfUkFaRVIsCQlcCisJCSAgIFVTQl9ERVZJQ0VfSURfU1lOVVNCX1JBWkVSXyMjcHJvZCksCSAg
-ICAgICAgXAorCS5kcml2ZXJfaW5mbyA9IChraW5kKSwKKwogI2RlZmluZSBTWU5VU0JfUkVDVl9T
-SVpFCTgKKyNkZWZpbmUgU1lOVVNCX01GX1JFQ1ZfU0laRSAgICAgNjQKIAogI2RlZmluZSBYTUlO
-X05PTUlOQUwJCTE0NzIKICNkZWZpbmUgWE1BWF9OT01JTkFMCQk1NDcyCiAjZGVmaW5lIFlNSU5f
-Tk9NSU5BTAkJMTQwOAogI2RlZmluZSBZTUFYX05PTUlOQUwJCTQ0NDgKIAorI2RlZmluZSBYTUlO
-X05PTUlOQUxfUlpSICAgICAgICAxMTgxCisjZGVmaW5lIFhNQVhfTk9NSU5BTF9SWlIgICAgICAg
-IDU4ODgKKyNkZWZpbmUgWU1JTl9OT01JTkFMX1JaUiAgICAgICAgMTA1NgorI2RlZmluZSBZTUFY
-X05PTUlOQUxfUlpSICAgICAgICA0Njg2CisKIHN0cnVjdCBzeW51c2IgewogCXN0cnVjdCB1c2Jf
-ZGV2aWNlICp1ZGV2OwogCXN0cnVjdCB1c2JfaW50ZXJmYWNlICppbnRmOwpAQCAtMTI5LDMxICsx
-NDgsNDAgQEAgc3RhdGljIHZvaWQgc3ludXNiX3JlcG9ydF90b3VjaHBhZChzdHJ1Y3Qgc3ludXNi
-ICpzeW51c2IpCiAJdW5zaWduZWQgaW50IG51bV9maW5nZXJzLCB0b29sX3dpZHRoOwogCXVuc2ln
-bmVkIGludCB4LCB5OwogCXVuc2lnbmVkIGludCBwcmVzc3VyZSwgdzsKLQotCXByZXNzdXJlID0g
-c3ludXNiLT5kYXRhWzZdOwotCXggPSBiZTE2X3RvX2NwdXAoKF9fYmUxNiAqKSZzeW51c2ItPmRh
-dGFbMl0pOwotCXkgPSBiZTE2X3RvX2NwdXAoKF9fYmUxNiAqKSZzeW51c2ItPmRhdGFbNF0pOwot
-CXcgPSBzeW51c2ItPmRhdGFbMF0gJiAweDBmOwotCi0JaWYgKHByZXNzdXJlID4gMCkgewotCQlu
-dW1fZmluZ2VycyA9IDE7Ci0JCXRvb2xfd2lkdGggPSA1OwotCQlzd2l0Y2ggKHcpIHsKLQkJY2Fz
-ZSAwIC4uLiAxOgotCQkJbnVtX2ZpbmdlcnMgPSAyICsgdzsKLQkJCWJyZWFrOwotCi0JCWNhc2Ug
-MjoJICAgICAgICAgICAgICAgIC8qIHBlbiwgcHJldGVuZCBpdHMgYSBmaW5nZXIgKi8KLQkJCWJy
-ZWFrOwotCi0JCWNhc2UgNCAuLi4gMTU6Ci0JCQl0b29sX3dpZHRoID0gdzsKLQkJCWJyZWFrOwor
-CXVuc2lnbmVkIGludCBmaW5nZXJfaW5kZXgsIHBhY2tldF9vZmZzZXQ7CisJdW5zaWduZWQgc2hv
-cnQgYWxyZWFkeV9zdWJtaXR0ZWQgPSAwOworCisJZm9yIChmaW5nZXJfaW5kZXggPSAwOworCSAg
-ICAgZmluZ2VyX2luZGV4IDwgKHN5bnVzYi0+ZmxhZ3MgJiBTWU5VU0JfTUZfUEFDS0VUUyA/IDUg
-OiAgMSk7CisJICAgICBmaW5nZXJfaW5kZXgrKykgeworCQlwYWNrZXRfb2Zmc2V0ID0gZmluZ2Vy
-X2luZGV4ICogODsgCisKKwkJcHJlc3N1cmUgPSBzeW51c2ItPmRhdGFbcGFja2V0X29mZnNldCs2
-XTsKKwkJeCA9IGJlMTZfdG9fY3B1cCgoX19iZTE2ICopJnN5bnVzYi0+ZGF0YVtwYWNrZXRfb2Zm
-c2V0KzJdKTsKKwkJeSA9IGJlMTZfdG9fY3B1cCgoX19iZTE2ICopJnN5bnVzYi0+ZGF0YVtwYWNr
-ZXRfb2Zmc2V0KzRdKTsKKwkJdyA9IHN5bnVzYi0+ZGF0YVtwYWNrZXRfb2Zmc2V0XSAmIDB4MGY7
-CisKKwkJaWYgKHByZXNzdXJlID4gMCkgeworCQkJbnVtX2ZpbmdlcnMgPSAoc3ludXNiLT5mbGFn
-cyAmIFNZTlVTQl9NRl9QQUNLRVRTID8gc3ludXNiLT5kYXRhW3BhY2tldF9vZmZzZXQrN10gPj4g
-NCA6IDEpOworCQkJdG9vbF93aWR0aCA9IDU7CisJCQlzd2l0Y2ggKHcpIHsKKwkJCWNhc2UgMCAu
-Li4gMToKKwkJCQkvKiBUaGUgZmluZ2VyLWNvdW50IGRlbGltaXRlciBpcyBhbHdheXMgY29ycmVj
-dCAqLworCQkJCWlmICghKHN5bnVzYi0+ZmxhZ3MgJiBTWU5VU0JfTUZfUEFDS0VUUykpCisJCQkJ
-CW51bV9maW5nZXJzID0gMiArIHc7CisJCQkJYnJlYWs7CisKKwkJCWNhc2UgMjoJICAgICAgICAg
-ICAgICAgIC8qIHBlbiwgcHJldGVuZCBpdHMgYSBmaW5nZXIgKi8KKwkJCQlicmVhazsKKworCQkJ
-Y2FzZSAzIC4uLiAxNToKKwkJCQl0b29sX3dpZHRoID0gdzsKKwkJCQlicmVhazsKKwkJCX0KKwkJ
-fSBlbHNlIHsKKwkJCW51bV9maW5nZXJzID0gKHN5bnVzYi0+ZmxhZ3MgJiBTWU5VU0JfTUZfUEFD
-S0VUUykgPyBzeW51c2ItPmRhdGFbcGFja2V0X29mZnNldCs3XSA+PiA0IDogMDsKKwkJCXRvb2xf
-d2lkdGggPSAwOwogCQl9Ci0JfSBlbHNlIHsKLQkJbnVtX2ZpbmdlcnMgPSAwOwotCQl0b29sX3dp
-ZHRoID0gMDsKLQl9CiAKIAkvKgogCSAqIFBvc3QgZXZlbnRzCkBAIC0xNjEsMjcgKzE4OSw1NiBA
-QCBzdGF0aWMgdm9pZCBzeW51c2JfcmVwb3J0X3RvdWNocGFkKHN0cnVjdCBzeW51c2IgKnN5bnVz
-YikKIAkgKiBhYnNvbHV0ZSAtPiByZWxhdGl2ZSBjb252ZXJzaW9uCiAJICovCiAKLQlpZiAocHJl
-c3N1cmUgPiAzMCkKLQkJaW5wdXRfcmVwb3J0X2tleShpbnB1dF9kZXYsIEJUTl9UT1VDSCwgMSk7
-Ci0JaWYgKHByZXNzdXJlIDwgMjUpCi0JCWlucHV0X3JlcG9ydF9rZXkoaW5wdXRfZGV2LCBCVE5f
-VE9VQ0gsIDApOwotCi0JaWYgKG51bV9maW5nZXJzID4gMCkgewotCQlpbnB1dF9yZXBvcnRfYWJz
-KGlucHV0X2RldiwgQUJTX1gsIHgpOwotCQlpbnB1dF9yZXBvcnRfYWJzKGlucHV0X2RldiwgQUJT
-X1ksCi0JCQkJIFlNQVhfTk9NSU5BTCArIFlNSU5fTk9NSU5BTCAtIHkpOworCQlpZiAoc3ludXNi
-LT5mbGFncyAmIFNZTlVTQl9NRl9QQUNLRVRTKSB7CisJCQlpbnB1dF9tdF9zbG90KGlucHV0X2Rl
-diwgc3ludXNiLT5kYXRhW3BhY2tldF9vZmZzZXQrN10gJiAweDBGKTsKKwkJCWlucHV0X210X3Jl
-cG9ydF9zbG90X3N0YXRlKGlucHV0X2RldiwgTVRfVE9PTF9GSU5HRVIsIChwcmVzc3VyZSA+IDMw
-KSk7CisJCQlpZiAocHJlc3N1cmUgPiAzMCkgeworCQkJCWlmIChhbHJlYWR5X3N1Ym1pdHRlZCA9
-PSAwKSB7CisJCQkJCS8qIEZpcnN0IGZpbmdlciB3aXRoIHByZXNzdXJlIHNob3VsZCBlbXVsYXRl
-IG1vdXNlLi4uCisJCQkJCSAqIGJ1dCBPTkxZIGlmIGl0IGlzIHRoZSBPTkxZIGZpbmdlci4gKE90
-aGVyd2lzZSwgZ2VzdHVyZXMKKwkJCQkJICogc2hvdWxkIGJlIHByb2Nlc3NlZCkgKi8KKwkJCQkJ
-aW5wdXRfbXRfcmVwb3J0X3BvaW50ZXJfZW11bGF0aW9uKGlucHV0X2RldiwgCisJCQkJCSAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAocHJlc3N1cmUgPiAzMCAmJiBudW1fZmluZ2Vy
-cyA9PSAxKQorCQkJCQkJCQkJICk7CisJCQkJCWFscmVhZHlfc3VibWl0dGVkID0gMTsKKwkJCQl9
-CisJCQkJaW5wdXRfcmVwb3J0X2FicyhpbnB1dF9kZXYsIEFCU19NVF9QT1NJVElPTl9YLCB4KTsK
-KwkJCQlpbnB1dF9yZXBvcnRfYWJzKGlucHV0X2RldiwgQUJTX01UX1BPU0lUSU9OX1ksIAorCQkJ
-CSAgICAgICAgICAgICAgICAgWU1BWF9OT01JTkFMX1JaUiArIFlNSU5fTk9NSU5BTF9SWlIgLSB5
-KTsKKwkJCQlpbnB1dF9yZXBvcnRfYWJzKGlucHV0X2RldiwgQUJTX01UX1BSRVNTVVJFLCBwcmVz
-c3VyZSk7CisJCQkJaW5wdXRfcmVwb3J0X2FicyhpbnB1dF9kZXYsIEFCU19NVF9UT1VDSF9NQUpP
-UiwgdG9vbF93aWR0aCk7CisJCQl9CisKKwkJCWlmIChmaW5nZXJfaW5kZXggPT0gNCkgeworCQkJ
-CS8vIEZpbmFsIGZpbmdlciBjb3VudCA9IHJlcG9ydAorCQkJCWlucHV0X210X3JlcG9ydF9maW5n
-ZXJfY291bnQoaW5wdXRfZGV2LCBudW1fZmluZ2Vycyk7CisJCQl9CisKKworCQl9IGVsc2Ugewor
-CQkJaWYgKHByZXNzdXJlID4gMzApCisJCQkJaW5wdXRfcmVwb3J0X2tleShpbnB1dF9kZXYsIEJU
-Tl9UT1VDSCwgMSk7CisJCQlpZiAocHJlc3N1cmUgPCAyNSkKKwkJCQlpbnB1dF9yZXBvcnRfa2V5
-KGlucHV0X2RldiwgQlROX1RPVUNILCAwKTsKKworCQkJaWYgKG51bV9maW5nZXJzID4gMCkgewor
-CQkJCWlucHV0X3JlcG9ydF9hYnMoaW5wdXRfZGV2LCBBQlNfWCwgeCk7CisJCQkJaW5wdXRfcmVw
-b3J0X2FicyhpbnB1dF9kZXYsIEFCU19ZLAorCQkJCQkJIFlNQVhfTk9NSU5BTCArIFlNSU5fTk9N
-SU5BTCAtIHkpOworCQkJfQorCisJCQlpbnB1dF9yZXBvcnRfYWJzKGlucHV0X2RldiwgQUJTX1BS
-RVNTVVJFLCBwcmVzc3VyZSk7CisJCQlpbnB1dF9yZXBvcnRfYWJzKGlucHV0X2RldiwgQUJTX1RP
-T0xfV0lEVEgsIHRvb2xfd2lkdGgpOworCisJCQlpbnB1dF9yZXBvcnRfa2V5KGlucHV0X2Rldiwg
-QlROX1RPT0xfRklOR0VSLCBudW1fZmluZ2VycyA9PSAxKTsKKwkJCWlucHV0X3JlcG9ydF9rZXko
-aW5wdXRfZGV2LCBCVE5fVE9PTF9ET1VCTEVUQVAsIG51bV9maW5nZXJzID09IDIpOworCQkJaW5w
-dXRfcmVwb3J0X2tleShpbnB1dF9kZXYsIEJUTl9UT09MX1RSSVBMRVRBUCwgbnVtX2ZpbmdlcnMg
-PT0gMyk7CisKKwkJCWlmIChzeW51c2ItPmZsYWdzICYgU1lOVVNCX0FVWERJU1BMQVkpCisJCQkJ
-aW5wdXRfcmVwb3J0X2tleShpbnB1dF9kZXYsIEJUTl9NSURETEUsIHN5bnVzYi0+ZGF0YVsxXSAm
-IDB4MDgpOworCQl9CiAJfQotCi0JaW5wdXRfcmVwb3J0X2FicyhpbnB1dF9kZXYsIEFCU19QUkVT
-U1VSRSwgcHJlc3N1cmUpOwotCWlucHV0X3JlcG9ydF9hYnMoaW5wdXRfZGV2LCBBQlNfVE9PTF9X
-SURUSCwgdG9vbF93aWR0aCk7Ci0KLQlpbnB1dF9yZXBvcnRfa2V5KGlucHV0X2RldiwgQlROX1RP
-T0xfRklOR0VSLCBudW1fZmluZ2VycyA9PSAxKTsKLQlpbnB1dF9yZXBvcnRfa2V5KGlucHV0X2Rl
-diwgQlROX1RPT0xfRE9VQkxFVEFQLCBudW1fZmluZ2VycyA9PSAyKTsKLQlpbnB1dF9yZXBvcnRf
-a2V5KGlucHV0X2RldiwgQlROX1RPT0xfVFJJUExFVEFQLCBudW1fZmluZ2VycyA9PSAzKTsKLQog
-CXN5bnVzYl9yZXBvcnRfYnV0dG9ucyhzeW51c2IpOwotCWlmIChzeW51c2ItPmZsYWdzICYgU1lO
-VVNCX0FVWERJU1BMQVkpCi0JCWlucHV0X3JlcG9ydF9rZXkoaW5wdXRfZGV2LCBCVE5fTUlERExF
-LCBzeW51c2ItPmRhdGFbMV0gJiAweDA4KTsKIAogCWlucHV0X3N5bmMoaW5wdXRfZGV2KTsKIH0K
-QEAgLTI5Myw2ICszNTAsMTQgQEAgc3RhdGljIGludCBzeW51c2JfcHJvYmUoc3RydWN0IHVzYl9p
-bnRlcmZhY2UgKmludGYsCiAJdW5zaWduZWQgaW50IGludGZfbnVtID0gaW50Zi0+Y3VyX2FsdHNl
-dHRpbmctPmRlc2MuYkludGVyZmFjZU51bWJlcjsKIAl1bnNpZ25lZCBpbnQgYWx0c2V0dGluZyA9
-IG1pbihpbnRmLT5udW1fYWx0c2V0dGluZywgMVUpOwogCWludCBlcnJvcjsKKwlzaXplX3QgcmVj
-dl9zaXplID0gU1lOVVNCX1JFQ1ZfU0laRTsKKworCWlmIChpZC0+ZHJpdmVyX2luZm8gJiBTWU5V
-U0JfU0hBUkVTX0RFVklDRSkgeworCQkvKiBYWFg6IFRyYWNrcGFkIG9uIGludGVyZmFjZSAwLiBI
-YWNrIHRvIGlnbm9yZSBvdGhlciBpbnRlcmZhY2VzIHVudGlsIGJldHRlciBtZXRob2QgZm91bmQu
-ICovCisJCS8qIE11c3QgTk9UIGJpbmQgdG8ga2V5Ym9hcmRzLCBldGMuICovCisJCWlmIChpbnRm
-X251bSA+IDApCisJCQlyZXR1cm4gLUVOT0RFVjsKKwl9CiAKIAllcnJvciA9IHVzYl9zZXRfaW50
-ZXJmYWNlKHVkZXYsIGludGZfbnVtLCBhbHRzZXR0aW5nKTsKIAlpZiAoZXJyb3IpIHsKQEAgLTMy
-NywxMyArMzkyLDE2IEBAIHN0YXRpYyBpbnQgc3ludXNiX3Byb2JlKHN0cnVjdCB1c2JfaW50ZXJm
-YWNlICppbnRmLAogCQkJCQlTWU5VU0JfU1RJQ0sgOiBTWU5VU0JfVE9VQ0hQQUQ7CiAJfQogCisJ
-aWYgKHN5bnVzYi0+ZmxhZ3MgJiBTWU5VU0JfTUZfUEFDS0VUUykKKwkJcmVjdl9zaXplID0gU1lO
-VVNCX01GX1JFQ1ZfU0laRTsKKwogCXN5bnVzYi0+dXJiID0gdXNiX2FsbG9jX3VyYigwLCBHRlBf
-S0VSTkVMKTsKIAlpZiAoIXN5bnVzYi0+dXJiKSB7CiAJCWVycm9yID0gLUVOT01FTTsKIAkJZ290
-byBlcnJfZnJlZV9tZW07CiAJfQogCi0Jc3ludXNiLT5kYXRhID0gdXNiX2FsbG9jX2NvaGVyZW50
-KHVkZXYsIFNZTlVTQl9SRUNWX1NJWkUsIEdGUF9LRVJORUwsCisJc3ludXNiLT5kYXRhID0gdXNi
-X2FsbG9jX2NvaGVyZW50KHVkZXYsIHJlY3Zfc2l6ZSwgR0ZQX0tFUk5FTCwKIAkJCQkJICAmc3lu
-dXNiLT51cmItPnRyYW5zZmVyX2RtYSk7CiAJaWYgKCFzeW51c2ItPmRhdGEpIHsKIAkJZXJyb3Ig
-PSAtRU5PTUVNOwpAQCAtMzQyLDcgKzQxMCw3IEBAIHN0YXRpYyBpbnQgc3ludXNiX3Byb2JlKHN0
-cnVjdCB1c2JfaW50ZXJmYWNlICppbnRmLAogCiAJdXNiX2ZpbGxfaW50X3VyYihzeW51c2ItPnVy
-YiwgdWRldiwKIAkJCSB1c2JfcmN2aW50cGlwZSh1ZGV2LCBlcC0+YkVuZHBvaW50QWRkcmVzcyks
-Ci0JCQkgc3ludXNiLT5kYXRhLCBTWU5VU0JfUkVDVl9TSVpFLAorCQkJIHN5bnVzYi0+ZGF0YSwg
-cmVjdl9zaXplLAogCQkJIHN5bnVzYl9pcnEsIHN5bnVzYiwKIAkJCSBlcC0+YkludGVydmFsKTsK
-IAlzeW51c2ItPnVyYi0+dHJhbnNmZXJfZmxhZ3MgfD0gVVJCX05PX1RSQU5TRkVSX0RNQV9NQVA7
-CkBAIC0zNjYsNiArNDM0LDEzIEBAIHN0YXRpYyBpbnQgc3ludXNiX3Byb2JlKHN0cnVjdCB1c2Jf
-aW50ZXJmYWNlICppbnRmLAogCWlmIChzeW51c2ItPmZsYWdzICYgU1lOVVNCX1NUSUNLKQogCQlz
-dHJsY2F0KHN5bnVzYi0+bmFtZSwgIiAoU3RpY2spIiwgc2l6ZW9mKHN5bnVzYi0+bmFtZSkpOwog
-CisJaWYgKHN5bnVzYi0+ZmxhZ3MgJiBTWU5VU0JfTUZfUEFDS0VUUykKKwkJc3RybGNhdChzeW51
-c2ItPm5hbWUsICIgKE1UKSIsIHNpemVvZihzeW51c2ItPm5hbWUpKTsKKwkKKwlpZiAoc3ludXNi
-LT5mbGFncyAmIFNZTlVTQl9TSEFSRVNfREVWSUNFKSAKKwkJc3RybGNhdChzeW51c2ItPm5hbWUs
-ICIgKHNoYXJlZCkiLCBzaXplb2Yoc3ludXNiLT5uYW1lKSk7CisKKwogCXVzYl9tYWtlX3BhdGgo
-dWRldiwgc3ludXNiLT5waHlzLCBzaXplb2Yoc3ludXNiLT5waHlzKSk7CiAJc3RybGNhdChzeW51
-c2ItPnBoeXMsICIvaW5wdXQwIiwgc2l6ZW9mKHN5bnVzYi0+cGh5cykpOwogCkBAIC0zODQsNiAr
-NDU5LDE1IEBAIHN0YXRpYyBpbnQgc3ludXNiX3Byb2JlKHN0cnVjdCB1c2JfaW50ZXJmYWNlICpp
-bnRmLAogCV9fc2V0X2JpdChFVl9BQlMsIGlucHV0X2Rldi0+ZXZiaXQpOwogCV9fc2V0X2JpdChF
-Vl9LRVksIGlucHV0X2Rldi0+ZXZiaXQpOwogCisJaWYgKHN5bnVzYi0+ZmxhZ3MgJiBTWU5VU0Jf
-TUZfUEFDS0VUUykgeworCQlpbnB1dF9tdF9pbml0X3Nsb3RzKGlucHV0X2RldiwgNSwgSU5QVVRf
-TVRfUE9JTlRFUik7CisJCWlucHV0X3NldF9hYnNfcGFyYW1zKGlucHV0X2RldiwgQUJTX01UX1BP
-U0lUSU9OX1gsIAorCQkgICAgICAgICAgICAgICAgICAgICBYTUlOX05PTUlOQUxfUlpSLCBYTUFY
-X05PTUlOQUxfUlpSLCAwLCAwKTsKKwkJaW5wdXRfc2V0X2Fic19wYXJhbXMoaW5wdXRfZGV2LCBB
-QlNfTVRfUE9TSVRJT05fWSwKKwkJICAgICAgICAgICAgICAgICAgICAgWU1JTl9OT01JTkFMX1Ja
-UiwgWU1BWF9OT01JTkFMX1JaUiwgMCwgMCk7CisJCWlucHV0X3NldF9hYnNfcGFyYW1zKGlucHV0
-X2RldiwgQUJTX01UX1RPVUNIX01BSk9SLCAwLCAxNSwgMCwgMCk7CisJfQorCiAJaWYgKHN5bnVz
-Yi0+ZmxhZ3MgJiBTWU5VU0JfU1RJQ0spIHsKIAkJX19zZXRfYml0KEVWX1JFTCwgaW5wdXRfZGV2
-LT5ldmJpdCk7CiAJCV9fc2V0X2JpdChSRUxfWCwgaW5wdXRfZGV2LT5yZWxiaXQpOwpAQCAtNDI4
-LDcgKzUxMiw3IEBAIGVycl9zdG9wX2lvOgogCWlmIChzeW51c2ItPmZsYWdzICYgU1lOVVNCX0lP
-X0FMV0FZUykKIAkJc3ludXNiX2Nsb3NlKHN5bnVzYi0+aW5wdXQpOwogZXJyX2ZyZWVfZG1hOgot
-CXVzYl9mcmVlX2NvaGVyZW50KHVkZXYsIFNZTlVTQl9SRUNWX1NJWkUsIHN5bnVzYi0+ZGF0YSwK
-Kwl1c2JfZnJlZV9jb2hlcmVudCh1ZGV2LCByZWN2X3NpemUsIHN5bnVzYi0+ZGF0YSwKIAkJCSAg
-c3ludXNiLT51cmItPnRyYW5zZmVyX2RtYSk7CiBlcnJfZnJlZV91cmI6CiAJdXNiX2ZyZWVfdXJi
-KHN5bnVzYi0+dXJiKTsKQEAgLTQ0NCwxMyArNTI4LDE3IEBAIHN0YXRpYyB2b2lkIHN5bnVzYl9k
-aXNjb25uZWN0KHN0cnVjdCB1c2JfaW50ZXJmYWNlICppbnRmKQogewogCXN0cnVjdCBzeW51c2Ig
-KnN5bnVzYiA9IHVzYl9nZXRfaW50ZmRhdGEoaW50Zik7CiAJc3RydWN0IHVzYl9kZXZpY2UgKnVk
-ZXYgPSBpbnRlcmZhY2VfdG9fdXNiZGV2KGludGYpOworCXNpemVfdCByZWN2X3NpemUgPSBTWU5V
-U0JfUkVDVl9TSVpFOwogCiAJaWYgKHN5bnVzYi0+ZmxhZ3MgJiBTWU5VU0JfSU9fQUxXQVlTKQog
-CQlzeW51c2JfY2xvc2Uoc3ludXNiLT5pbnB1dCk7CiAKKwlpZiAoc3ludXNiLT5mbGFncyAmIFNZ
-TlVTQl9NRl9QQUNLRVRTKQorCQlyZWN2X3NpemUgPSBTWU5VU0JfTUZfUkVDVl9TSVpFOworCiAJ
-aW5wdXRfdW5yZWdpc3Rlcl9kZXZpY2Uoc3ludXNiLT5pbnB1dCk7CiAKLQl1c2JfZnJlZV9jb2hl
-cmVudCh1ZGV2LCBTWU5VU0JfUkVDVl9TSVpFLCBzeW51c2ItPmRhdGEsCisJdXNiX2ZyZWVfY29o
-ZXJlbnQodWRldiwgcmVjdl9zaXplLCBzeW51c2ItPmRhdGEsCiAJCQkgIHN5bnVzYi0+dXJiLT50
-cmFuc2Zlcl9kbWEpOwogCXVzYl9mcmVlX3VyYihzeW51c2ItPnVyYik7CiAJa2ZyZWUoc3ludXNi
-KTsKQEAgLTUzMSw2ICs2MTksNyBAQCBzdGF0aWMgc3RydWN0IHVzYl9kZXZpY2VfaWQgc3ludXNi
-X2lkdGFibGVbXSA9IHsKIAl7IFVTQl9ERVZJQ0VfU1lOQVBUSUNTKENPTVBfVFAsIFNZTlVTQl9D
-T01CTykgfSwKIAl7IFVTQl9ERVZJQ0VfU1lOQVBUSUNTKFdUUCwgU1lOVVNCX1RPVUNIUEFEKSB9
-LAogCXsgVVNCX0RFVklDRV9TWU5BUFRJQ1MoRFBBRCwgU1lOVVNCX1RPVUNIUEFEKSB9LAorCXsg
-VVNCX0RFVklDRV9TWU5VU0JfUkFaRVIoQkxBREVfVFAsIFNZTlVTQl9UT1VDSFBBRCB8IFNZTlVT
-Ql9NRl9QQUNLRVRTIHwgU1lOVVNCX1NIQVJFU19ERVZJQ0UpIH0sCiAJeyB9CiB9OwogTU9EVUxF
-X0RFVklDRV9UQUJMRSh1c2IsIHN5bnVzYl9pZHRhYmxlKTsK
---001a11c2ccca33e85504df8fc90a--

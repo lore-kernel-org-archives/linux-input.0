@@ -1,12 +1,12 @@
 From: Gerhard Sittig <gsi@denx.de>
-Subject: [PATCH v1 02/12] input: matrix-keymap: func call coding style nit
-Date: Fri, 21 Jun 2013 20:09:48 +0200
-Message-ID: <1371838198-7327-3-git-send-email-gsi@denx.de>
+Subject: [PATCH v1 01/12] input: matrix-keypad: update devicetree binding doc
+Date: Fri, 21 Jun 2013 20:09:47 +0200
+Message-ID: <1371838198-7327-2-git-send-email-gsi@denx.de>
 References: <1371838198-7327-1-git-send-email-gsi@denx.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:44953 "EHLO
+Received: from mail-out.m-online.net ([212.18.0.9]:59247 "EHLO
 	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423562Ab3FUSKQ (ORCPT
+	with ESMTP id S1423552Ab3FUSKQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Fri, 21 Jun 2013 14:10:16 -0400
 In-Reply-To: <1371838198-7327-1-git-send-email-gsi@denx.de>
@@ -15,70 +15,75 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Chao Xie <xiechao.mail@gmail.com>
 Cc: Arnd Bergmann <arnd@arndb.de>, Sekhar Nori <nsekhar@ti.com>, Tony Lindgren <tony@atomide.com>, Marek Vasut <marek.vasut@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Anatolij Gustschin <agust@denx.de>, Detlev Zundel <dzu@denx.de>, Gerhard Sittig <gsi@denx.de>
 
-make the matrix_keypad_map_key() routine return an error code
-instead of boolean, as its name suggests an action and not a query
+update the device tree binding documentation for the GPIO matrix keypad
+driver: mention the driver's selecting all columns at once, reword the
+delay descriptions, add the missing active low GPIO pin level property
 
 Signed-off-by: Gerhard Sittig <gsi@denx.de>
 ---
- drivers/input/matrix-keymap.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ .../bindings/input/gpio-matrix-keypad.txt          |   42 +++++++++++++++++---
+ 1 file changed, 36 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
-index 08b61f5..b7091f2 100644
---- a/drivers/input/matrix-keymap.c
-+++ b/drivers/input/matrix-keymap.c
-@@ -27,9 +27,10 @@
- #include <linux/module.h>
- #include <linux/input/matrix_keypad.h>
+diff --git a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
+index ead641c..11d030e 100644
+--- a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
++++ b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
+@@ -2,9 +2,30 @@
  
--static bool matrix_keypad_map_key(struct input_dev *input_dev,
--				  unsigned int rows, unsigned int cols,
--				  unsigned int row_shift, unsigned int key)
-+/* translates packed row/col/code specs to the corresponding keycode[] item */
-+static int matrix_keypad_map_key(struct input_dev *input_dev,
-+				 unsigned int rows, unsigned int cols,
-+				 unsigned int row_shift, unsigned int key)
- {
- 	unsigned short *keymap = input_dev->keycode;
- 	unsigned int row = KEY_ROW(key);
-@@ -40,13 +41,13 @@ static bool matrix_keypad_map_key(struct input_dev *input_dev,
- 		dev_err(input_dev->dev.parent,
- 			"%s: invalid keymap entry 0x%x (row: %d, col: %d, rows: %d, cols: %d)\n",
- 			__func__, key, row, col, rows, cols);
--		return false;
-+		return -ERANGE;
- 	}
+ GPIO driven matrix keypad is used to interface a SoC with a matrix keypad.
+ The matrix keypad supports multiple row and column lines, a key can be
+-placed at each intersection of a unique row and a unique column. The matrix
+-keypad can sense a key-press and key-release by means of GPIO lines and
+-report the event using GPIO interrupts to the cpu.
++placed at each intersection of a unique row and a unique column.
++
++Sampling the keypad status is done by individually activating column
++lines (which thus are outputs) and reading back row lines (which are
++inputs).  Each combination of row and column is checked separately to
++determine the status of a single key.
++
++To reduce load on the CPU, changes in the keys' status can get detected
++by means of GPIO interrupts, which get generated upon changes in the pin
++levels.  This approach assumes that any change in the key press status
++will result in a GPIO pin level change interrupt when all columns are
++selected (active) at the same time.  Which in turn assumes that all
++column lines can get activated at the same time, and no harm is done to
++the hardware when multiple keys are pressed simultaneously.
++
++Simple keypad matrix layouts just connect GPIO lines to mechanical
++switches, with no other active components involved.  Although due to the
++driver's operation of activating all columns at the same time for most
++of the time, the use of current limiting resistors may be desirable, or
++column GPIO lines shall operate in open collector mode.
++
++More involved matrix layouts may include externally connected line
++drivers and might influence signal polarity.  The driver supports low
++active signals, while high active line levels are assumed by default.
  
- 	keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
- 	__set_bit(code, input_dev->keybit);
+ Required Properties:
+ - compatible:		Should be "gpio-matrix-keypad"
+@@ -20,9 +41,18 @@ Required Properties:
+ Optional Properties:
+ - linux,no-autorepeat:	do no enable autorepeat feature.
+ - linux,wakeup:		use any event on keypad as wakeup event.
+-- debounce-delay-ms:	debounce interval in milliseconds
+-- col-scan-delay-us:	delay, measured in microseconds, that is needed
+-			before we can scan keypad after activating column gpio
++- debounce-delay-ms:	debounce interval in milliseconds, which needs
++			to pass between detecting a change in the key
++			press status and sampling the new status, e.g.
++			to support multi key presses without spurious
++			single key events, or to cope with bouncing
++			mechanical key switches
++- col-scan-delay-us:	delay interval in microseconds between selecting
++			a column line and reading back its row status,
++			such that pin levels can settle after
++			propagating through the matrix and its
++			associated hardware components
++- gpio-activelow:	row pins as well as column pins are active low
  
--	return true;
-+	return 0;
- }
- 
- #ifdef CONFIG_OF
-@@ -109,8 +110,8 @@ static int matrix_keypad_parse_of_keymap(const char *propname,
- 	for (i = 0; i < size; i++) {
- 		unsigned int key = be32_to_cpup(prop + i);
- 
--		if (!matrix_keypad_map_key(input_dev, rows, cols,
--					   row_shift, key))
-+		if (matrix_keypad_map_key(input_dev, rows, cols,
-+					  row_shift, key) != 0)
- 			return -EINVAL;
- 	}
- 
-@@ -187,8 +188,8 @@ int matrix_keypad_build_keymap(const struct matrix_keymap_data *keymap_data,
- 		for (i = 0; i < keymap_data->keymap_size; i++) {
- 			unsigned int key = keymap_data->keymap[i];
- 
--			if (!matrix_keypad_map_key(input_dev, rows, cols,
--						   row_shift, key))
-+			if (matrix_keypad_map_key(input_dev, rows, cols,
-+						  row_shift, key) != 0)
- 				return -EINVAL;
- 		}
- 	} else {
+ Example:
+ 	matrix-keypad {
 -- 
 1.7.10.4
 

@@ -1,168 +1,90 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH Resend] Input: samsung-keypad - let device core setup the default pin configuration
-Date: Thu, 20 Jun 2013 16:53:29 +0530
-Message-ID: <1371727409-27167-1-git-send-email-sachin.kamat@linaro.org>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, dmitry.torokhov@gmail.com, thomas.abraham@linaro.org, linus.walleij@linaro.org, sachin.kamat@linaro.org
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 10/53] Input: atmel_mxt_ts - Add memory access interface
+ via sysfs
+Date: Fri, 21 Jun 2013 09:16:16 -0700
+Message-ID: <51C47C50.8000606@itdev.co.uk>
+References: <20130606131638.GX31367@sirena.org.uk> <51B0B52C.1090807@itdev.co.uk> <20130606164629.GG31367@sirena.org.uk> <51B1F859.1010504@itdev.co.uk> <20130607154134.GU31367@sirena.org.uk> <51B20630.7000304@itdev.co.uk> <20130607164700.GW31367@sirena.org.uk> <51B6FE69.6060505@itdev.co.uk> <20130611114727.GY1403@sirena.org.uk> <51B7151F.5070307@itdev.co.uk> <20130619185909.GG1403@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:34431 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1423018Ab3FUQQW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Jun 2013 12:16:22 -0400
+In-Reply-To: <20130619185909.GG1403@sirena.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 
-From: Thomas Abraham <thomas.abraham@linaro.org>
+Mark Brown wrote:
+>> Is that a nicer design from your point of view? I don't personally think
+>> that is really gains anything functional other than making the API more
+>> complex and increasing the number of read/write operations. I guess you
+> 
+> Yes, to be honest.  I'd hope it wouldn't be increasing the number of
+> read/write operations...
 
-With device core now able to setup the default pin configuration,
-the pin configuration code based on the deprecated Samsung specific
-gpio bindings is removed.
+For some operations it does. For example updating the whole chip config
+(which is a common thing to want to do), it would turn a couple of write
+operations into ~20 on recent chips.
 
-Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
----
-Hi Dmitry,
+>> would stop bugs in user space code from accidentally writing into the wrong
+>> object.
+> 
+> That seems like a useful thing, and it does allow the driver to
+> relatively easily understand what any of the attributes is doing and
+> take it over if it needs to.
 
-Looks like the earlier submission of this patch got lost.
-This patch is rebased onto the latest linux-next (next-20130620).
-Please consider applying.
----
- .../devicetree/bindings/input/samsung-keypad.txt   |   24 ++-------
- drivers/input/keyboard/samsung-keypad.c            |   52 +-------------------
- 2 files changed, 7 insertions(+), 69 deletions(-)
+I guess you might save a tiny amount of lookup code.
 
-diff --git a/Documentation/devicetree/bindings/input/samsung-keypad.txt b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-index ce3e394..942d071 100644
---- a/Documentation/devicetree/bindings/input/samsung-keypad.txt
-+++ b/Documentation/devicetree/bindings/input/samsung-keypad.txt
-@@ -25,14 +25,6 @@ Required Board Specific Properties:
- - samsung,keypad-num-columns: Number of column lines connected to the
-   keypad controller.
- 
--- row-gpios: List of gpios used as row lines. The gpio specifier for
--  this property depends on the gpio controller to which these row lines
--  are connected.
--
--- col-gpios: List of gpios used as column lines. The gpio specifier for
--  this property depends on the gpio controller to which these column
--  lines are connected.
--
- - Keys represented as child nodes: Each key connected to the keypad
-   controller is represented as a child node to the keypad controller
-   device node and should include the following properties.
-@@ -41,6 +33,9 @@ Required Board Specific Properties:
-   - linux,code: the key-code to be reported when the key is pressed
-     and released.
- 
-+- pinctrl-0: Should specify pin control groups used for this controller.
-+- pinctrl-names: Should contain only one value - "default".
-+
- Optional Properties specific to linux:
- - linux,keypad-no-autorepeat: do no enable autorepeat feature.
- - linux,keypad-wakeup: use any event on keypad as wakeup event.
-@@ -56,17 +51,8 @@ Example:
- 		linux,input-no-autorepeat;
- 		linux,input-wakeup;
- 
--		row-gpios = <&gpx2 0 3 3 0
--			     &gpx2 1 3 3 0>;
--
--		col-gpios = <&gpx1 0 3 0 0
--			     &gpx1 1 3 0 0
--			     &gpx1 2 3 0 0
--			     &gpx1 3 3 0 0
--			     &gpx1 4 3 0 0
--			     &gpx1 5 3 0 0
--			     &gpx1 6 3 0 0
--			     &gpx1 7 3 0 0>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&keypad_rows &keypad_columns>;
- 
- 		key_1 {
- 			keypad,row = <0>;
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index 7b938b4..ac43a48 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -24,7 +24,6 @@
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <linux/of.h>
--#include <linux/of_gpio.h>
- #include <linux/sched.h>
- #include <linux/input/samsung-keypad.h>
- 
-@@ -79,10 +78,6 @@ struct samsung_keypad {
- 	unsigned int rows;
- 	unsigned int cols;
- 	unsigned int row_state[SAMSUNG_MAX_COLS];
--#ifdef CONFIG_OF
--	int row_gpios[SAMSUNG_MAX_ROWS];
--	int col_gpios[SAMSUNG_MAX_COLS];
--#endif
- 	unsigned short keycodes[];
- };
- 
-@@ -304,45 +299,6 @@ static struct samsung_keypad_platdata *samsung_keypad_parse_dt(
- 
- 	return pdata;
- }
--
--static void samsung_keypad_parse_dt_gpio(struct device *dev,
--				struct samsung_keypad *keypad)
--{
--	struct device_node *np = dev->of_node;
--	int gpio, error, row, col;
--
--	for (row = 0; row < keypad->rows; row++) {
--		gpio = of_get_named_gpio(np, "row-gpios", row);
--		keypad->row_gpios[row] = gpio;
--		if (!gpio_is_valid(gpio)) {
--			dev_err(dev, "keypad row[%d]: invalid gpio %d\n",
--					row, gpio);
--			continue;
--		}
--
--		error = devm_gpio_request(dev, gpio, "keypad-row");
--		if (error)
--			dev_err(dev,
--				"keypad row[%d] gpio request failed: %d\n",
--				row, error);
--	}
--
--	for (col = 0; col < keypad->cols; col++) {
--		gpio = of_get_named_gpio(np, "col-gpios", col);
--		keypad->col_gpios[col] = gpio;
--		if (!gpio_is_valid(gpio)) {
--			dev_err(dev, "keypad column[%d]: invalid gpio %d\n",
--					col, gpio);
--			continue;
--		}
--
--		error = devm_gpio_request(dev, gpio, "keypad-col");
--		if (error)
--			dev_err(dev,
--				"keypad column[%d] gpio request failed: %d\n",
--				col, error);
--	}
--}
- #else
- static
- struct samsung_keypad_platdata *samsung_keypad_parse_dt(struct device *dev)
-@@ -424,15 +380,11 @@ static int samsung_keypad_probe(struct platform_device *pdev)
- 	keypad->stopped = true;
- 	init_waitqueue_head(&keypad->wait);
- 
--	if (pdev->dev.of_node) {
--#ifdef CONFIG_OF
--		samsung_keypad_parse_dt_gpio(&pdev->dev, keypad);
-+	if (pdev->dev.of_node)
- 		keypad->type = of_device_is_compatible(pdev->dev.of_node,
- 					"samsung,s5pv210-keypad");
--#endif
--	} else {
-+	else
- 		keypad->type = platform_get_device_id(pdev)->driver_data;
--	}
- 
- 	input_dev->name = pdev->name;
- 	input_dev->id.bustype = BUS_HOST;
--- 
-1.7.9.5
+>>> Well, there's also the potential issues with standard application layer
+>>> code either not being able to do things that the hardware supports or
+>>> getting into a fight with the magic custom stuff.
+> 
+>> I think it's better to present a clean API cut at the right level. If you
+>> look at the drivers in various Android trees for these maXTouch chips,
+>> there's an awful lot of phone specific code which is not very general and
+>> it would be impossible to mainline without having a 20,000 line driver full
+>> of #ifdefs. Surely it's better for that to go into a userspace daemon if
+>> possible?
+> 
+> Yes, having some of the stuff that understands the contents of the
+> controls in userspace is sensible.  However the kernel does offer an API
+> for controlling devices it supports and it seems reasonable to expect
+> that to work too - callibration and whatnot is a bit different but core
+> functionality should just work from the kernel.
+
+I completely agree - I just don't think that the API under discussion
+really forces a choice over any of this.
+
+Anyway, I will pull this patch (and the other sysfs interface one) from the
+series, and try to come up with something along the lines that we have
+discussed.
+
+>> In the reference design for that particular model of chip (mXT1386), there
+>> is a WAKEUP pin cross-wired to an I2C line. The only way of getting it to
+>> wake up when it is asleep is by trying to perform an I2C operation, which
+>> will fail, and then retrying before it times out and goes back to sleep
+>> again. There isn't any other way of waking it up.
+> 
+> That still sounds like something the driver can handle (for example, by
+> eating the first error silently if it knows the chip is powered down)
+
+We've tried to implement this idea of tracking the chip power state in
+the driver and only eating the first error silently when necessary. But
+there are various entertaining corner cases (for example, it may or may
+not be in sleep on probe, how do you deal with intermittent i2c glitch). It
+would end up either being very brittle or an extremely complex mechanism
+involving tracking state and timers, the result of which is only to
+suppress a dmesg debug output saying "i2c retry", and to fail very slightly
+earlier in the normal i2c failure case. The normal fast path through
+this code is exactly the same.
+
+> and of course a system integrator may choose not to copy the reference
+> design in this respect, it does seem a bit odd after all.
+
+You're being a bit optimistic there. Examples of devices that require
+this are Samsung Galaxy Tab 10.1, Asus Transformer TF101.

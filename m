@@ -1,58 +1,70 @@
-From: Gerhard Sittig <gsi@denx.de>
-Subject: [PATCH v1 12/12] input: matrix-keypad: add diagnostics in probe()
-Date: Fri, 21 Jun 2013 20:09:58 +0200
-Message-ID: <1371838198-7327-13-git-send-email-gsi@denx.de>
-References: <1371838198-7327-1-git-send-email-gsi@denx.de>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH v1 01/12] input: matrix-keypad: update devicetree binding
+ doc
+Date: Fri, 21 Jun 2013 15:31:39 -0600
+Message-ID: <51C4C63B.3030300@wwwdotorg.org>
+References: <1371838198-7327-1-git-send-email-gsi@denx.de> <1371838198-7327-2-git-send-email-gsi@denx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:34678 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1423568Ab3FUSKg (ORCPT
+Received: from avon.wwwdotorg.org ([70.85.31.133]:59041 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1945979Ab3FUVbn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Jun 2013 14:10:36 -0400
-In-Reply-To: <1371838198-7327-1-git-send-email-gsi@denx.de>
+	Fri, 21 Jun 2013 17:31:43 -0400
+In-Reply-To: <1371838198-7327-2-git-send-email-gsi@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Chao Xie <xiechao.mail@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Sekhar Nori <nsekhar@ti.com>, Tony Lindgren <tony@atomide.com>, Marek Vasut <marek.vasut@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Anatolij Gustschin <agust@denx.de>, Detlev Zundel <dzu@denx.de>, Gerhard Sittig <gsi@denx.de>
+To: Gerhard Sittig <gsi@denx.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Chao Xie <xiechao.mail@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Detlev Zundel <dzu@denx.de>, Sekhar Nori <nsekhar@ti.com>, Marek Vasut <marek.vasut@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
 
-optionally dump relevant configuration of pins, matrix lines,
-and delay/interval times at the very end of the probe routine
-(development feature, silent by default)
+On 06/21/2013 12:09 PM, Gerhard Sittig wrote:
+> update the device tree binding documentation for the GPIO matrix keypad
+> driver: mention the driver's selecting all columns at once, reword the
+> delay descriptions, add the missing active low GPIO pin level property
 
-Signed-off-by: Gerhard Sittig <gsi@denx.de>
----
- drivers/input/keyboard/matrix_keypad.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+> diff --git a/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt b/Documentation/devicetree/bindings/input/gpio-matrix-keypad.txt
 
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 275b157..69b15720 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -800,6 +800,24 @@ static int matrix_keypad_probe(struct platform_device *pdev)
- 	device_init_wakeup(&pdev->dev, pdata->wakeup);
- 	platform_set_drvdata(pdev, keypad);
- 
-+	dev_dbg(&pdev->dev, "gpios col num[%u] lvl[%s] drv[%s] enc[%s]\n",
-+		pdata->num_col_gpios,
-+		pdata->col_gpios_active_low ? "low" : "high",
-+		pdata->col_gpios_push_pull ? "pp" : "od",
-+		pdata->col_gpios_binary_encoded ? "bin" : "1-1");
-+	dev_dbg(&pdev->dev, "gpios row num[%u] lvl[%s]\n",
-+		pdata->num_row_gpios,
-+		pdata->row_gpios_active_low ? "low" : "high");
-+	dev_dbg(&pdev->dev, "matrix cols[%u] rows[%u] code shift[%u]\n",
-+		pdata->num_matrix_cols,
-+		pdata->num_matrix_rows,
-+		keypad->row_shift);
-+	dev_dbg(&pdev->dev, "times scan[%u-%u] bounce[%u] switch[%u]\n",
-+		pdata->col_scan_delay_us,
-+		pdata->col_scan_delay_us_max,
-+		pdata->debounce_ms,
-+		pdata->col_switch_delay_ms);
-+
- 	return 0;
- 
- err_free_gpio:
--- 
-1.7.10.4
+Presumably the changes to this file simply seek to precisely document
+the HW that this binding supports, and do not intend to change the
+semantics of the binding at all. If that's the case, then they seem fine
+to me.
 
+Have you checked that all users of this binding do assume that the
+column GPIOs are output, and rows inputs, rather than the other way
+around for example? I suppose if the Linux driver is already implemented
+to assume that, then nobody can be successfully using this binding for
+HW where that isn't the case, so this change is fine.
+
+This change assumes it's OK to activate all columns at once, and
+presumably that drivers can request the GPIOs as IRQs. This need not be
+true on all HW. Should an additional property be added to describe
+whether it's legal to activate all columns at once? For the IRQ case,
+presumably the driver can simply try to request an IRQ for each GPIO,
+and fall back to not doing so if that doesn't work.
+
+> +Simple keypad matrix layouts just connect GPIO lines to mechanical
+> +switches, with no other active components involved.  Although due to the
+
+I don't think that's always true. On some Tegra boards for example,
+multiple processes can "press" certain switches, so we actually have a
+wired-OR feed into a transistor which then connects a particular
+(column, row) combination. We do this e.g. for remote-control USB over
+the power button for example. I believe the effect is the same, but it
+does mean that statement above isn't quite true.
+
+> +driver's operation of activating all columns at the same time for most
+
+Saying "driver" in a DT binding is a slight red flag. The binding should
+really purely describe HW, rather than SW's use of it. Here, the use is
+probably generic enough not to be an issue, although it there's some way
+to reword it to avoid that word it might be good.
+
+> +- gpio-activelow:	row pins as well as column pins are active low
+
+That one change is definitely wrong. Each entry in row-gpios and
+col-gpios should include GPIO flags (in a format defined by the binding
+for the DT node providing the GPIO). Those flags include an active-high
+vs. active-low bit. In Linux, you can use of_get_gpio_flags() to
+retrieve a standardized representation of the flags.

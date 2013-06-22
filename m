@@ -1,38 +1,35 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH v1 02/12] input: matrix-keymap: func call coding style nit
-Date: Sat, 22 Jun 2013 15:23:15 +0200
-Message-ID: <201306221523.15431.marex@denx.de>
-References: <1371838198-7327-1-git-send-email-gsi@denx.de> <201306220418.59722.marex@denx.de> <20130622082207.GC24305@book.gsilab.sittig.org>
+From: Mike Dunn <mikedunn@newsguy.com>
+Subject: Re: [PATCH V3 1/5] input: pxa27x-keypad: use matrix_keymap for matrix
+ keyes
+Date: Sat, 22 Jun 2013 08:24:21 -0700
+Message-ID: <51C5C1A5.5040803@newsguy.com>
+References: <1371527778-5236-1-git-send-email-chao.xie@marvell.com>
+ <1371527778-5236-2-git-send-email-chao.xie@marvell.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:50107 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756024Ab3FVNXY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Jun 2013 09:23:24 -0400
-In-Reply-To: <20130622082207.GC24305@book.gsilab.sittig.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1371527778-5236-2-git-send-email-chao.xie@marvell.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Chao Xie <chao.xie@marvell.com>
+Cc: stefan@openezx.org, xiechao.mail@gmail.com, eric.y.miao@gmail.com, arnd@arndb.de, slapin@ossfans.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, haojian.zhuang@gmail.com, marek.vasut@gmail.com, laforge@openezx.org, linux-input@vger.kernel.org, sleep_walker@suse.cz, robert.jarzmik@free.fr, drwyrm@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Gerhard Sittig <gsi@denx.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Chao Xie <xiechao.mail@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Sekhar Nori <nsekhar@ti.com>, Tony Lindgren <tony@atomide.com>, Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Anatolij Gustschin <agust@denx.de>, Detlev Zundel <dzu@denx.de>
 
-Dear Gerhard Sittig,
-
-> On Sat, Jun 22, 2013 at 04:18 +0200, Marek Vasut wrote:
-> > ret = matrix_keypad_map_key(input_dev, rows, cols, row_shift, key);
-> > if (ret)
-> > 
-> > 	return ret;
-> > 
-> > Now that you return correct error codes from above, you should propagate
-> > them through.
+On 06/17/2013 08:56 PM, Chao Xie wrote:
+> pxa27x-keypad includes matrix keyes. Make use of matrix_keymap
+> for the matrix keyes.
 > 
-> Will do, queued for v2.  Thank you for reviewing this.
+> Signed-off-by: Chao Xie <chao.xie@marvell.com>
 
-Wait a little bit for some more feedback, esp. from the marvell guys ;-)
 
-Best regards,
-Marek Vasut
+Tested-by: Mike Dunn <mikedunn@newsguy.com>
+
+On a palm treo 680

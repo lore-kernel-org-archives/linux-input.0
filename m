@@ -1,53 +1,319 @@
-From: Mike Dunn <mikedunn@newsguy.com>
-Subject: Re: [PATCH V3 3/5] arm: pxa: use matrix_keymap for all boards
-Date: Sat, 22 Jun 2013 08:26:54 -0700
-Message-ID: <51C5C23E.8070408@newsguy.com>
-References: <1371527778-5236-1-git-send-email-chao.xie@marvell.com>
- <1371527778-5236-4-git-send-email-chao.xie@marvell.com>
+From: Daniel Mack <zonque@gmail.com>
+Subject: Re: [PATCH RESEND v2 1/2] Input: touchscreen: ads7846: keep copy
+ of pdata in private struct
+Date: Sun, 23 Jun 2013 15:01:02 +0200
+Message-ID: <51C6F18E.1010405@gmail.com>
+References: <1369245480-18595-1-git-send-email-zonque@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1371527778-5236-4-git-send-email-chao.xie@marvell.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Chao Xie <chao.xie@marvell.com>
-Cc: stefan@openezx.org, xiechao.mail@gmail.com, eric.y.miao@gmail.com, arnd@arndb.de, slapin@ossfans.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, haojian.zhuang@gmail.com, marek.vasut@gmail.com, laforge@openezx.org, linux-input@vger.kernel.org, sleep_walker@suse.cz, robert.jarzmik@free.fr, drwyrm@gmail.com, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f45.google.com ([74.125.83.45]:56816 "EHLO
+	mail-ee0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751687Ab3FWNAc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 Jun 2013 09:00:32 -0400
+Received: by mail-ee0-f45.google.com with SMTP id c1so5487945eek.4
+        for <linux-input@vger.kernel.org>; Sun, 23 Jun 2013 06:00:31 -0700 (PDT)
+In-Reply-To: <1369245480-18595-1-git-send-email-zonque@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Mack <zonque@gmail.com>
+Cc: linux-input@vger.kernel.org, broonie@kernel.org, grant.likely@linaro.org, dmitry.torokhov@gmail.com, agust@denx.de, chf@fritzc.com
 
-On 06/17/2013 08:56 PM, Chao Xie wrote:
-> Compile passed for configurations
-> 
-> em_x270_defconfig
->   em_x270x.c(MACH_EM_X270, MACH_EXEDA)
-> 
-> ezx_defconfig
->   ezx.c(MACH_EZX_A780, MACH_EZX_E680, MACH_EZX_A1200,
->         MACH_EZX_A910, MACH_EZX_E6, MACH_EZX_E2)
-> 
-> palmz72_defconfig
->   palmld.c(MACH_PALMLD), palmtreo.c(PALM_TREO),
->   palmtx.c(MACH_PALMTX), palmz72.c(MACH_PALMZ72),
->   palmt5.c(MACH_PALMT5)
-> 
-> pxa3xx_defconfig
->   littleton.c(MACH_LITTLETON), tarvorevb.c(MACH_TAVOREVB),
->   zylonite.c(MACH_ZYLONITE320), mioa701.c(MACH_MIOA701),
->   z2.c(MACH_ZIPIT2)
-> 
-> mainstone_defconfig
->   maintone.c(MACH_MAINSTONE)
-> 
-> Signed-off-by: Chao Xie <chao.xie@marvell.com>
+Hi Dmitry,
+
+I believe these two patches were simply forgotten. Could you review them
+again please? I don't have access to the hardware any more, but I'd
+still like to have the patches mainline.
 
 
-Tested-by: Mike Dunn <mikedunn@newsguy.com>
+Thanks,
+Daniel
 
-On a palm treo 680
+
+On 22.05.2013 19:57, Daniel Mack wrote:
+> Allocate a copy of the pdata, and keep a pointer to it in the private
+> struct ads7846. Also, kill some members that used to be in both structs.
+> 
+> This is needed for the upcoming DT support.
+> 
+> Signed-off-by: Daniel Mack <zonque@gmail.com>
+> ---
+> 
+> Hi Dmitry,
+> 
+> this is the alternative approach, as described eariler in our email
+> thread. It works equally well.
+> 
+> Thanks for having another look.
+> 
+> I'm resending this after 10 days of silence, to make sure it isn't
+> lost :)
+> 
+> 
+> Daniel
+> 
+> 
+>  drivers/input/touchscreen/ads7846.c | 78 ++++++++++++++++++++-----------------
+>  1 file changed, 43 insertions(+), 35 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+> index 84ccf14..198677d 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -104,12 +104,8 @@ struct ads7846 {
+>  #endif
+>  
+>  	u16			model;
+> -	u16			vref_mv;
+>  	u16			vref_delay_usecs;
+> -	u16			x_plate_ohms;
+> -	u16			pressure_max;
+>  
+> -	bool			swap_xy;
+>  	bool			use_internal;
+>  
+>  	struct ads7846_packet	*packet;
+> @@ -143,6 +139,9 @@ struct ads7846 {
+>  	int			gpio_pendown;
+>  
+>  	void			(*wait_for_sync)(void);
+> +
+> +	/* platform data from board file or DT */
+> +	struct ads7846_platform_data *pdata;
+>  };
+>  
+>  /* leave chip selected when we're done, for quicker re-select? */
+> @@ -456,7 +455,7 @@ static inline unsigned vaux_adjust(struct ads7846 *ts, ssize_t v)
+>  	unsigned retval = v;
+>  
+>  	/* external resistors may scale vAUX into 0..vREF */
+> -	retval *= ts->vref_mv;
+> +	retval *= ts->pdata->vref_mv;
+>  	retval = retval >> 12;
+>  
+>  	return retval;
+> @@ -515,25 +514,25 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+>  	/* hwmon sensors need a reference voltage */
+>  	switch (ts->model) {
+>  	case 7846:
+> -		if (!ts->vref_mv) {
+> +		if (!ts->pdata->vref_mv) {
+>  			dev_dbg(&spi->dev, "assuming 2.5V internal vREF\n");
+> -			ts->vref_mv = 2500;
+> +			ts->pdata->vref_mv = 2500;
+>  			ts->use_internal = true;
+>  		}
+>  		break;
+>  	case 7845:
+>  	case 7843:
+> -		if (!ts->vref_mv) {
+> +		if (!ts->pdata->vref_mv) {
+>  			dev_warn(&spi->dev,
+>  				"external vREF for ADS%d not specified\n",
+> -				ts->model);
+> +				ts->pdata->model);
+>  			return 0;
+>  		}
+>  		break;
+>  	}
+>  
+>  	/* different chips have different sensor groups */
+> -	switch (ts->model) {
+> +	switch (ts->pdata->model) {
+>  	case 7846:
+>  		ts->attr_group = &ads7846_attr_group;
+>  		break;
+> @@ -544,7 +543,7 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+>  		ts->attr_group = &ads7843_attr_group;
+>  		break;
+>  	default:
+> -		dev_dbg(&spi->dev, "ADS%d not recognized\n", ts->model);
+> +		dev_dbg(&spi->dev, "ADS%d not recognized\n", ts->pdata->model);
+>  		return 0;
+>  	}
+>  
+> @@ -700,7 +699,7 @@ static int ads7846_get_value(struct ads7846 *ts, struct spi_message *m)
+>  	struct spi_transfer *t =
+>  		list_entry(m->transfers.prev, struct spi_transfer, transfer_list);
+>  
+> -	if (ts->model == 7845) {
+> +	if (ts->pdata->model == 7845) {
+>  		return be16_to_cpup((__be16 *)&(((char*)t->rx_buf)[1])) >> 3;
+>  	} else {
+>  		/*
+> @@ -776,6 +775,7 @@ static void ads7846_read_state(struct ads7846 *ts)
+>  static void ads7846_report_state(struct ads7846 *ts)
+>  {
+>  	struct ads7846_packet *packet = ts->packet;
+> +	struct ads7846_platform_data *pdata = ts->pdata;
+>  	unsigned int Rt;
+>  	u16 x, y, z1, z2;
+>  
+> @@ -784,7 +784,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+>  	 * from on-the-wire format as part of debouncing to get stable
+>  	 * readings.
+>  	 */
+> -	if (ts->model == 7845) {
+> +	if (pdata->model == 7845) {
+>  		x = *(u16 *)packet->tc.x_buf;
+>  		y = *(u16 *)packet->tc.y_buf;
+>  		z1 = 0;
+> @@ -800,11 +800,11 @@ static void ads7846_report_state(struct ads7846 *ts)
+>  	if (x == MAX_12BIT)
+>  		x = 0;
+>  
+> -	if (ts->model == 7843) {
+> -		Rt = ts->pressure_max / 2;
+> -	} else if (ts->model == 7845) {
+> +	if (pdata->model == 7843) {
+> +		Rt = pdata->pressure_max / 2;
+> +	} else if (pdata->model == 7845) {
+>  		if (get_pendown_state(ts))
+> -			Rt = ts->pressure_max / 2;
+> +			Rt = pdata->pressure_max / 2;
+>  		else
+>  			Rt = 0;
+>  		dev_vdbg(&ts->spi->dev, "x/y: %d/%d, PD %d\n", x, y, Rt);
+> @@ -813,7 +813,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+>  		Rt = z2;
+>  		Rt -= z1;
+>  		Rt *= x;
+> -		Rt *= ts->x_plate_ohms;
+> +		Rt *= pdata->x_plate_ohms;
+>  		Rt /= z1;
+>  		Rt = (Rt + 2047) >> 12;
+>  	} else {
+> @@ -825,7 +825,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+>  	 * the maximum. Don't report it to user space, repeat at least
+>  	 * once more the measurement
+>  	 */
+> -	if (packet->tc.ignore || Rt > ts->pressure_max) {
+> +	if (packet->tc.ignore || Rt > pdata->pressure_max) {
+>  		dev_vdbg(&ts->spi->dev, "ignored %d pressure %d\n",
+>  			 packet->tc.ignore, Rt);
+>  		return;
+> @@ -853,7 +853,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+>  	if (Rt) {
+>  		struct input_dev *input = ts->input;
+>  
+> -		if (ts->swap_xy)
+> +		if (pdata->swap_xy)
+>  			swap(x, y);
+>  
+>  		if (!ts->pendown) {
+> @@ -864,7 +864,7 @@ static void ads7846_report_state(struct ads7846 *ts)
+>  
+>  		input_report_abs(input, ABS_X, x);
+>  		input_report_abs(input, ABS_Y, y);
+> -		input_report_abs(input, ABS_PRESSURE, ts->pressure_max - Rt);
+> +		input_report_abs(input, ABS_PRESSURE, pdata->pressure_max - Rt);
+>  
+>  		input_sync(input);
+>  		dev_vdbg(&ts->spi->dev, "%4d/%4d/%4d\n", x, y, Rt);
+> @@ -963,7 +963,7 @@ static SIMPLE_DEV_PM_OPS(ads7846_pm, ads7846_suspend, ads7846_resume);
+>  static int ads7846_setup_pendown(struct spi_device *spi,
+>  					   struct ads7846 *ts)
+>  {
+> -	struct ads7846_platform_data *pdata = spi->dev.platform_data;
+> +	struct ads7846_platform_data *pdata = ts->pdata;
+>  	int err;
+>  
+>  	/*
+> @@ -1003,20 +1003,20 @@ static int ads7846_setup_pendown(struct spi_device *spi,
+>   * use formula #2 for pressure, not #3.
+>   */
+>  static void ads7846_setup_spi_msg(struct ads7846 *ts,
+> -				const struct ads7846_platform_data *pdata)
+> +				  struct ads7846_platform_data *pdata)
+>  {
+>  	struct spi_message *m = &ts->msg[0];
+>  	struct spi_transfer *x = ts->xfer;
+>  	struct ads7846_packet *packet = ts->packet;
+>  	int vref = pdata->keep_vref_on;
+>  
+> -	if (ts->model == 7873) {
+> +	if (pdata->model == 7873) {
+>  		/*
+>  		 * The AD7873 is almost identical to the ADS7846
+>  		 * keep VREF off during differential/ratiometric
+>  		 * conversion modes.
+>  		 */
+> -		ts->model = 7846;
+> +		pdata->model = 7846;
+>  		vref = 0;
+>  	}
+>  
+> @@ -1024,7 +1024,7 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+>  	spi_message_init(m);
+>  	m->context = ts;
+>  
+> -	if (ts->model == 7845) {
+> +	if (pdata->model == 7845) {
+>  		packet->read_y_cmd[0] = READ_Y(vref);
+>  		packet->read_y_cmd[1] = 0;
+>  		packet->read_y_cmd[2] = 0;
+> @@ -1069,7 +1069,7 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+>  	spi_message_init(m);
+>  	m->context = ts;
+>  
+> -	if (ts->model == 7845) {
+> +	if (pdata->model == 7845) {
+>  		x++;
+>  		packet->read_x_cmd[0] = READ_X(vref);
+>  		packet->read_x_cmd[1] = 0;
+> @@ -1108,7 +1108,7 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+>  	}
+>  
+>  	/* turn y+ off, x- on; we'll use formula #2 */
+> -	if (ts->model == 7846) {
+> +	if (pdata->model == 7846) {
+>  		ts->msg_count++;
+>  		m++;
+>  		spi_message_init(m);
+> @@ -1178,7 +1178,7 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+>  	spi_message_init(m);
+>  	m->context = ts;
+>  
+> -	if (ts->model == 7845) {
+> +	if (pdata->model == 7845) {
+>  		x++;
+>  		packet->pwrdown_cmd[0] = PWRDOWN;
+>  		packet->pwrdown_cmd[1] = 0;
+> @@ -1247,19 +1247,27 @@ static int ads7846_probe(struct spi_device *spi)
+>  
+>  	spi_set_drvdata(spi, ts);
+>  
+> +	ts->pdata = pdata;
+>  	ts->packet = packet;
+>  	ts->spi = spi;
+>  	ts->input = input_dev;
+> -	ts->vref_mv = pdata->vref_mv;
+> -	ts->swap_xy = pdata->swap_xy;
+>  
+>  	mutex_init(&ts->lock);
+>  	init_waitqueue_head(&ts->wait);
+>  
+> -	ts->model = pdata->model ? : 7846;
+> -	ts->vref_delay_usecs = pdata->vref_delay_usecs ? : 100;
+> -	ts->x_plate_ohms = pdata->x_plate_ohms ? : 400;
+> -	ts->pressure_max = pdata->pressure_max ? : ~0;
+> +	/* pdata fallback defaults */
+> +
+> +	if (!pdata->model)
+> +		pdata->model = 7846;
+> +
+> +	if (!pdata->vref_delay_usecs)
+> +		pdata->vref_delay_usecs = 100;
+> +
+> +	if (!pdata->x_plate_ohms)
+> +		pdata->x_plate_ohms = 400;
+> +
+> +	if (!pdata->pressure_max)
+> +		pdata->pressure_max = ~0;
+>  
+>  	if (pdata->filter != NULL) {
+>  		if (pdata->filter_init != NULL) {
+> 
+

@@ -1,136 +1,74 @@
-From: michael.banken@mathe.stud.uni-erlangen.de
-Subject: Re: [PATCH] Added a check for NULL pointer in hid_add_device
-Date: Wed, 26 Jun 2013 17:45:14 +0200
-Message-ID: <3109bea2ac0947fd544042e51bcb75ad.squirrel@faumail.uni-erlangen.de>
-References: <1372182701-12256-1-git-send-email-michael.banken@mathe.stud.uni-erlangen.de>
-    <51CAF4C9.20407@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] input: document gamepad API and add extra keycodes
+Date: Wed, 26 Jun 2013 09:07:27 -0700
+Message-ID: <20130626160727.GA32420@core.coreip.homeip.net>
+References: <1371303165-1802-1-git-send-email-dh.herrmann@gmail.com>
+ <1371303165-1802-2-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-rz-3.rrze.uni-erlangen.de ([131.188.11.22]:33291 "EHLO
-	mx-rz-3.rrze.uni-erlangen.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751591Ab3FZPz5 (ORCPT
+Received: from mail-pb0-f44.google.com ([209.85.160.44]:62632 "EHLO
+	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751645Ab3FZQHc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Jun 2013 11:55:57 -0400
-In-Reply-To: <51CAF4C9.20407@redhat.com>
+	Wed, 26 Jun 2013 12:07:32 -0400
+Content-Disposition: inline
+In-Reply-To: <1371303165-1802-2-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Michael Banken <michael.banken@mathe.stud.uni-erlangen.de>, linux-kernel@vger.kernel.org, rydberg@euromail.se, srinivas.pandruvada@intel.com, erazor_de@users.sourceforge.net, jkosina@suse.cz, lorenz@badgers.com, linux-kernel@i4.informatik.uni-erlangen.de, linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, Todd Showalter <todd@electronjump.com>, linux-kernel@vger.kernel.org
 
-Hi,
+Hi David, Jiri,
 
-The idea was to make the creation of an empty hid device while inside the
-kernel easier. This problem came up, when I was writing a kernel module
-driver for a usb temperature sensor. The sensors were supposed to be
-recognized in lm-sensors, which does not recognize usb devices. The
-solution in this case was to create an empty hid device to hook it up to
-sysfs.
-In some older implementations of this driver the solution to this problem
-was creating an empty hid device to hook it up to sysfs.
-These older implementations of the driver are not working anymore, unless
-built with the change I am suggesting, because in the current version
-their method of creating the hid device causes a NULL pointer dereference
-at the point where I added the check.
+On Sat, Jun 15, 2013 at 03:32:44PM +0200, David Herrmann wrote:
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -507,10 +507,14 @@ struct input_keymap_entry {
+>  
+>  #define BTN_GAMEPAD		0x130
+>  #define BTN_A			0x130
+> +#define BTN_SOUTH		0x130
 
-The reason, why I believe this change to be completely harmless is that in
-the case where there actually is a NULL pointer the function would
-dereference it anyway immediately after the line where I added the check.
-The only problem that to my understanding could possibly arise is delaying
-the inevitable oops for a little while.
+Could we do:
 
-best regards,
-Michael
+#define BTN_SOUTH		0x130
+#define BTN_A			BTN_SOUTH
 
-On 06/25/2013 4:03 PM, Benjamin Tissoires wrote:
-> Hi Michael,
->
-> On 06/25/2013 07:51 PM, Michael Banken wrote:
->> This check greatly simplifies creating a dummy hid device.
->
-> Could you elaborate a little here? If you want to create a hid device
-> from the user space, I encourage you to use uhid, which is available
-> since v3.6.
->
->> With this check in place a hid dummy can be created simply by allocating
->> and adding the device.
->> This used to be possible in earlier Kernel versions.
->>
->> Signed-off-by: Michael Banken
->> <michael.banken@mathe.stud.uni-erlangen.de>
->> Signed-off-by: Lorenz Haspel <lorenz@badgers.com>
->> ---
->>  drivers/hid/hid-core.c |   37 ++++++++++++++++++++-----------------
->>  1 file changed, 20 insertions(+), 17 deletions(-)
->>
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index 0951a9a..88c573e 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -2289,24 +2289,27 @@ int hid_add_device(struct hid_device *hdev)
->>  	if (hid_ignore(hdev))
->>  		return -ENODEV;
->>
->> -	/*
->> -	 * Read the device report descriptor once and use as template
->> -	 * for the driver-specific modifications.
->> -	 */
->> -	ret = hdev->ll_driver->parse(hdev);
->> -	if (ret)
->> -		return ret;
->> -	if (!hdev->dev_rdesc)
->> -		return -ENODEV;
->> -
->> -	/*
->> -	 * Scan generic devices for group information
->> -	 */
->> -	if (hid_ignore_special_drivers ||
->> -	    !hid_match_id(hdev, hid_have_special_driver)) {
->> -		ret = hid_scan_report(hdev);
->> +	if (hdev->ll_driver != NULL) {
->
-> I am concerned by the fact that *every* hid specific driver will have to
-> call hid_hw_start and hid_hw_stop at some point. These 2 functions  are
-> not protected against a null pointer in hdev->ll_driver, so allowing
-> here a null pointer will introduce a kernel oops later.
->
-> I think it would be safer to have:
-> if (!hdev->ll_driver)
-> 	return -ENODEV;
->
-> But if I understood correctly, this is not your point.
-> So definitively, I need your usage scenarios of such hid "dummy" device.
->
-> Cheers,
-> Benjamin
->
->> +		/*
->> +		 * Read the device report descriptor once and use as template
->> +			 * for the driver-specific modifications.
->> +		 */
->> +		ret = hdev->ll_driver->parse(hdev);
->>  		if (ret)
->> -			hid_warn(hdev, "bad device descriptor (%d)\n", ret);
->> +			return ret;
->> +		if (!hdev->dev_rdesc)
->> +			return -ENODEV;
->> +
->> +		/*
->> +		 * Scan generic devices for group information
->> +		 */
->> +		if (hid_ignore_special_drivers ||
->> +		    !hid_match_id(hdev, hid_have_special_driver)) {
->> +			ret = hid_scan_report(hdev);
->> +			if (ret)
->> +				hid_warn(hdev,
->> +					"bad device descriptor (%d)\n", ret);
->> +		}
->>  	}
->>
->>  	/* XXX hack, any other cleaner solution after the driver core
->>
->
->
+so that it is clear that BTN_A, BTN_B, etc are legacy definitions and
+not an accidental typos that need their own key codes.
 
+Otherwise:
 
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+>  #define BTN_B			0x131
+> +#define BTN_EAST		0x131
+>  #define BTN_C			0x132
+>  #define BTN_X			0x133
+> +#define BTN_NORTH		0x133
+>  #define BTN_Y			0x134
+> +#define BTN_WEST		0x134
+>  #define BTN_Z			0x135
+>  #define BTN_TL			0x136
+>  #define BTN_TR			0x137
+> @@ -702,6 +706,11 @@ struct input_keymap_entry {
+>  #define KEY_CAMERA_LEFT		0x219
+>  #define KEY_CAMERA_RIGHT	0x21a
+>  
+> +#define BTN_DPAD_UP		0x220
+> +#define BTN_DPAD_DOWN		0x221
+> +#define BTN_DPAD_LEFT		0x222
+> +#define BTN_DPAD_RIGHT		0x223
+> +
+>  #define BTN_TRIGGER_HAPPY		0x2c0
+>  #define BTN_TRIGGER_HAPPY1		0x2c0
+>  #define BTN_TRIGGER_HAPPY2		0x2c1
+> -- 
+> 1.8.3.1
+> 
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,72 +1,47 @@
-From: Stefan =?ISO-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
-Subject: RFC: making the aiptek.c tablet driver xf86-input-wacom compatible
-Date: Wed, 26 Jun 2013 00:02:36 +0200
-Message-ID: <1448859.K0oxtlBRpL@pebbles>
+From: Wei Yongjun <weiyj.lk@gmail.com>
+Subject: [PATCH -next] Input: nspire-keypad - remove redundant dev_err call in nspire_keypad_probe()
+Date: Wed, 26 Jun 2013 09:56:54 +0800
+Message-ID: <CAPgLHd9GvrnP5-039TRMcmqHTZmezGGpgDwGmiNurB9G7PEZew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx-out-1.rwth-aachen.de ([134.130.5.186]:54284 "EHLO
-	mx-out-1.rwth-aachen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751267Ab3FYWM0 convert rfc822-to-8bit (ORCPT
+Received: from mail-bk0-f54.google.com ([209.85.214.54]:38589 "EHLO
+	mail-bk0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751195Ab3FZB4z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Jun 2013 18:12:26 -0400
-Received: from pebbles.localnet ([unknown] [78.49.40.240])
- by relay-auth-2.ms.rz.rwth-aachen.de
- (Sun Java(tm) System Messaging Server 7.0-3.01 64bit (built Dec  9 2008))
- with ESMTPA id <0MOY002M5YKDSP90@relay-auth-2.ms.rz.rwth-aachen.de> for
- linux-input@vger.kernel.org; Wed, 26 Jun 2013 00:02:37 +0200 (CEST)
+	Tue, 25 Jun 2013 21:56:55 -0400
+Received: by mail-bk0-f54.google.com with SMTP id it16so4567442bkc.41
+        for <linux-input@vger.kernel.org>; Tue, 25 Jun 2013 18:56:54 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, grant.likely@linaro.org, rob.herring@calxeda.com, dt.tangr@gmail.com
+Cc: yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
 
-Hi everyone,
+From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
-I have started to modify the aiptek tablet driver to be compatible with=
- the=20
-xf86-input-wacom driver.
+There is a error message within devm_ioremap_resource
+already, so remove the dev_err call to avoid redundant
+error message.
 
-Motivation:
-=46irst, as wacom dominates the market, most configuration frontends ar=
-e for=20
-wacom, desktop integration only exists for wacom, and most application=20
-developers only test with wacom tablets.
-Second, the xf86-input-aiptek driver seems to be unmaintained, at least=
-=20
-opensuse has dropped it from distribution, and xf86-input-evdev is no=20
-sufficient replacement.
+Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+---
+ drivers/input/keyboard/nspire-keypad.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-So for me there are two possibilities, either replicating all the work =
-done=20
-for the wacom driver in the xorg stack and above, or just making the th=
-e=20
-aiptek driver mimic the output of the wacom kernel driver - I have take=
-n the=20
-second option.
+diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
+index 1b0d04c..e0a1339 100644
+--- a/drivers/input/keyboard/nspire-keypad.c
++++ b/drivers/input/keyboard/nspire-keypad.c
+@@ -209,10 +209,8 @@ static int nspire_keypad_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	keypad->reg_base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(keypad->reg_base)) {
+-		dev_err(&pdev->dev, "failed to remap I/O memory\n");
++	if (IS_ERR(keypad->reg_base))
+ 		return PTR_ERR(keypad->reg_base);
+-	}
+ 
+ 	keypad->input = input = devm_input_allocate_device(&pdev->dev);
+ 	if (!input) {
 
-Currently, I am cleaning up my changes, and I am investigating some bug=
-s in=20
-the original driver parsing the reports from the device.
-
-I have tested my Aiptek 6000U with the xf86-input-wacom driver, and it =
-is=20
-working fine in Krita, Inkscape and The Gimp, configuring the tablet vi=
-a
-kcm_wacomtablet (KDE configuration module).
-
-If anyone is interested, I will send my patches to this list after the=20
-cleanup.
-
-Regards,
-
-Stefan
-
-
---=20
-Stefan Br=FCns  /  Bergstra=DFe 21  /  52062 Aachen
-phone: +49 241 53809034     mobile: +49 151 50412019
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

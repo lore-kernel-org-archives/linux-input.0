@@ -1,46 +1,33 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 1/2] input: document gamepad API and add extra
- keycodes
-Date: Thu, 27 Jun 2013 11:47:39 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1306271147150.3538@pobox.suse.cz>
-References: <1371303165-1802-1-git-send-email-dh.herrmann@gmail.com> <1371303165-1802-2-git-send-email-dh.herrmann@gmail.com> <20130626160727.GA32420@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130626160727.GA32420@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, Todd Showalter <todd@electronjump.com>, linux-kernel@vger.kernel.org
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Atmel updates to atmel_mxt_ts touch controller driver - v6
+Date: Thu, 27 Jun 2013 13:48:35 +0100
+Message-ID: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:17233 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752264Ab3F0Mue (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Jun 2013 08:50:34 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
 
-On Wed, 26 Jun 2013, Dmitry Torokhov wrote:
+Some minor updates to these patches to address review comments. I've rebased
+them on the latest dtor/next tree.
 
-> On Sat, Jun 15, 2013 at 03:32:44PM +0200, David Herrmann wrote:
-> > --- a/include/uapi/linux/input.h
-> > +++ b/include/uapi/linux/input.h
-> > @@ -507,10 +507,14 @@ struct input_keymap_entry {
-> >  
-> >  #define BTN_GAMEPAD		0x130
-> >  #define BTN_A			0x130
-> > +#define BTN_SOUTH		0x130
-> 
-> Could we do:
-> 
-> #define BTN_SOUTH		0x130
-> #define BTN_A			BTN_SOUTH
-> 
-> so that it is clear that BTN_A, BTN_B, etc are legacy definitions and
-> not an accidental typos that need their own key codes.
+Input: atmel_mxt_ts - Verify Information Block checksum on probe
+- Fix bug which might cause erroneous debug output due to use of krealloc (thanks to
+  Yufeng Shen for spotting this)
 
-Makes sense, will do that modification.
+Input: atmel_mxt_ts - Implement T63 Active Stylus support
+- Add T63 to #defines since there will be other active stylus objects
 
-> Otherwise:
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Thanks Dmitry. Will be taking it (with the above modification) through my 
-tree.
+Input: atmel_mxt_ts - Implement debug output for messages
+Input: atmel_mxt_ts - Add memory access interface via sysfs
+- remove from series (move mem_size calculation)
 
 -- 
-Jiri Kosina
-SUSE Labs
+Nick Dyer Senior Software Engineer
+ITDev Hardware and Software Development Consultancy http://www.itdev.co.uk
+

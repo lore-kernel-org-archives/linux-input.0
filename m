@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 23/51] Input: atmel_mxt_ts - Rename pressure to amplitude to match spec
-Date: Thu, 27 Jun 2013 13:48:58 +0100
-Message-ID: <1372337366-9286-24-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 32/51] Input: atmel_mxt_ts - Decode T6 status messages
+Date: Thu, 27 Jun 2013 13:49:07 +0100
+Message-ID: <1372337366-9286-33-git-send-email-nick.dyer@itdev.co.uk>
 References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,51 +10,124 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
+By storing the previous T6 status byte we can detect reset completion more
+correctly, and multiple debug output of the same status can be suppressed (for
+example CFGERR).
+
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   60 ++++++++++++++++++++----------
+ 1 file changed, 40 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 76f1c20..8ccc809de 100644
+index 688eab3..3890ed5 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -637,7 +637,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 	int x;
- 	int y;
- 	int area;
--	int pressure;
-+	int amplitude;
+@@ -91,6 +91,11 @@
  
- 	/* do not report events if input device not yet registered */
- 	if (!data->enable_reporting)
-@@ -651,7 +651,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 		y = y >> 2;
+ /* Define for T6 status byte */
+ #define MXT_T6_STATUS_RESET	(1 << 7)
++#define MXT_T6_STATUS_OFL	(1 << 6)
++#define MXT_T6_STATUS_SIGERR	(1 << 5)
++#define MXT_T6_STATUS_CAL	(1 << 4)
++#define MXT_T6_STATUS_CFGERR	(1 << 3)
++#define MXT_T6_STATUS_COMSERR	(1 << 2)
  
- 	area = message->message[4];
--	pressure = message->message[5];
-+	amplitude = message->message[5];
+ /* MXT_GEN_POWER_T7 field */
+ struct t7_config {
+@@ -246,6 +251,7 @@ struct mxt_data {
+ 	u8 bootloader_addr;
+ 	struct t7_config t7_cfg;
+ 	u8 *msg_buf;
++	u8 t6_status;
  
- 	dev_dbg(dev,
- 		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u\n",
-@@ -664,7 +664,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 		(status & MXT_AMP) ? 'A' : '.',
- 		(status & MXT_SUPPRESS) ? 'S' : '.',
- 		(status & MXT_UNGRIP) ? 'U' : '.',
--		x, y, area, pressure);
-+		x, y, area, amplitude);
+ 	/* Cached parameters from object table */
+ 	u8 T5_msg_size;
+@@ -629,6 +635,39 @@ mxt_get_object(struct mxt_data *data, u8 type)
+ 	return NULL;
+ }
  
- 	input_mt_slot(input_dev, id);
- 	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
-@@ -673,7 +673,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
- 	if (status & MXT_DETECT) {
- 		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
- 		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
--		input_report_abs(input_dev, ABS_MT_PRESSURE, pressure);
-+		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
- 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
++static void mxt_proc_t6_messages(struct mxt_data *data, u8 *msg)
++{
++	struct device *dev = &data->client->dev;
++	u8 status = msg[1];
++	u32 crc = msg[2] | (msg[3] << 8) | (msg[4] << 16);
++
++	if (crc != data->config_crc) {
++		data->config_crc = crc;
++		dev_dbg(dev, "T6 Config Checksum: 0x%06X\n", crc);
++		complete(&data->crc_completion);
++	}
++
++	/* Detect transition out of reset */
++	if ((data->t6_status & MXT_T6_STATUS_RESET) &&
++	    !(status & MXT_T6_STATUS_RESET))
++		complete(&data->reset_completion);
++
++	/* Output debug if status has changed */
++	if (status != data->t6_status)
++		dev_dbg(dev, "T6 Status 0x%02X%s%s%s%s%s%s%s\n",
++			status,
++			(status == 0) ? " OK" : "",
++			(status & MXT_T6_STATUS_RESET) ? " RESET" : "",
++			(status & MXT_T6_STATUS_OFL) ? " OFL" : "",
++			(status & MXT_T6_STATUS_SIGERR) ? " SIGERR" : "",
++			(status & MXT_T6_STATUS_CAL) ? " CAL" : "",
++			(status & MXT_T6_STATUS_CFGERR) ? " CFGERR" : "",
++			(status & MXT_T6_STATUS_COMSERR) ? " COMSERR" : "");
++
++	/* Save current status */
++	data->t6_status = status;
++}
++
+ static int mxt_read_message(struct mxt_data *data, u8 *message)
+ {
+ 	struct mxt_object *object;
+@@ -735,11 +774,6 @@ static void mxt_input_touchevent(struct mxt_data *data, u8 *message)
  	}
  }
+ 
+-static u16 mxt_extract_T6_csum(const u8 *csum)
+-{
+-	return csum[0] | (csum[1] << 8) | (csum[2] << 16);
+-}
+-
+ static bool mxt_is_T9_message(struct mxt_data *data, u8 *msg)
+ {
+ 	u8 id = msg[0];
+@@ -749,11 +783,9 @@ static bool mxt_is_T9_message(struct mxt_data *data, u8 *msg)
+ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ {
+ 	u8 *message = &data->msg_buf[0];
+-	const u8 *payload = &data->msg_buf[1];
+ 	struct device *dev = &data->client->dev;
+ 	u8 reportid;
+ 	bool update_input = false;
+-	u32 crc;
+ 
+ 	do {
+ 		if (mxt_read_message(data, message)) {
+@@ -764,19 +796,7 @@ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+ 		reportid = message[0];
+ 
+ 		if (reportid == data->T6_reportid) {
+-			u8 status = payload[0];
+-
+-			crc = mxt_extract_T6_csum(&payload[1]);
+-			if (crc != data->config_crc) {
+-				data->config_crc = crc;
+-				complete(&data->crc_completion);
+-			}
+-
+-			dev_dbg(dev, "Status: %02x Config Checksum: %06x\n",
+-				status, data->config_crc);
+-
+-			if (status & MXT_T6_STATUS_RESET)
+-				complete(&data->reset_completion);
++			mxt_proc_t6_messages(data, message);
+ 		} else if (mxt_is_T9_message(data, message)) {
+ 			mxt_input_touchevent(data, message);
+ 			update_input = true;
 -- 
 1.7.10.4

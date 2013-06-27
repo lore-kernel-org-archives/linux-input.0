@@ -1,176 +1,196 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 30/51] Input: atmel_mxt_ts - Recover from bootloader on probe
-Date: Thu, 27 Jun 2013 13:49:05 +0100
-Message-ID: <1372337366-9286-31-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 21/51] Input: atmel_mxt_ts - Use deep sleep mode when stopped
+Date: Thu, 27 Jun 2013 13:48:56 +0100
+Message-ID: <1372337366-9286-22-git-send-email-nick.dyer@itdev.co.uk>
 References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:12379 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753569Ab3F0Muq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Jun 2013 08:50:46 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-The MXT device may be in bootloader mode on probe, due to:
-1) APP CRC failure, either:
-  a) flash corruption
-  b) bad power or other intermittent problem while checking CRC
-2) If the device has been reset 10 or more times without accessing comms
-3) Warm probe, device was in bootloader mode already
+By writing zero to both the active and idle cycle times the maXTouch device is
+put into a deep sleep mode when it consumes minimal power. It is unnecessary
+to change the configuration of any other objects (for example to disable T9
+touchscreen).
 
-This code attempts to recover from 1(b) and 3.
+It is counterproductive to reset the chip on resume, it will result in a long
+delay. However it is necessary to issue a calibrate command after the chip
+has spent any time in deep sleep.
+
+This patch also deals with the situation where the power configuration is zero
+on probe, which would mean that the device never wakes up to execute commands.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   68 ++++++++++++++++++++++--------
- 1 file changed, 51 insertions(+), 17 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |  100 ++++++++++++++++++++++--------
+ 1 file changed, 74 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 780952a..b8e2b04 100644
+index 2645d36..ee1e866 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -385,7 +385,7 @@ static int mxt_bootloader_write(struct mxt_data *data,
+@@ -90,9 +90,13 @@
+ #define MXT_T6_STATUS_RESET	(1 << 7)
+ 
+ /* MXT_GEN_POWER_T7 field */
+-#define MXT_POWER_IDLEACQINT	0
+-#define MXT_POWER_ACTVACQINT	1
+-#define MXT_POWER_ACTV2IDLETO	2
++struct t7_config {
++	u8 idle;
++	u8 active;
++} __packed;
++
++#define MXT_POWER_CFG_RUN		0
++#define MXT_POWER_CFG_DEEPSLEEP		1
+ 
+ /* MXT_GEN_ACQUIRE_T8 field */
+ #define MXT_ACQUIRE_CHRGTIME	0
+@@ -104,7 +108,6 @@
+ #define MXT_ACQUIRE_ATCHCALSTHR	7
+ 
+ /* MXT_TOUCH_MULTI_T9 field */
+-#define MXT_TOUCH_CTRL		0
+ #define MXT_T9_ORIENT		9
+ #define MXT_T9_RANGE		18
+ 
+@@ -243,6 +246,7 @@ struct mxt_data {
+ 	u32 config_crc;
+ 	u32 info_crc;
+ 	u8 bootloader_addr;
++	struct t7_config t7_cfg;
+ 
+ 	/* Cached parameters from object table */
+ 	u8 T6_reportid;
+@@ -604,20 +608,6 @@ static int mxt_read_message(struct mxt_data *data,
+ 			sizeof(struct mxt_message), message);
+ }
+ 
+-static int mxt_write_object(struct mxt_data *data,
+-				 u8 type, u8 offset, u8 val)
+-{
+-	struct mxt_object *object;
+-	u16 reg;
+-
+-	object = mxt_get_object(data, type);
+-	if (!object || offset >= mxt_obj_size(object))
+-		return -EINVAL;
+-
+-	reg = object->start_address;
+-	return mxt_write_reg(data->client, reg + offset, val);
+-}
+-
+ static void mxt_input_button(struct mxt_data *data, struct mxt_message *message)
+ {
+ 	struct input_dev *input = data->input_dev;
+@@ -1133,6 +1123,61 @@ release:
  	return ret;
  }
  
--static int mxt_lookup_bootloader_address(struct mxt_data *data)
-+static int mxt_lookup_bootloader_address(struct mxt_data *data, bool retry)
- {
- 	u8 appmode = data->client->addr;
- 	u8 bootloader;
-@@ -394,7 +394,7 @@ static int mxt_lookup_bootloader_address(struct mxt_data *data)
- 	case 0x4a:
- 	case 0x4b:
- 		/* Chips after 1664S use different scheme */
--		if (data->info.family_id >= 0xa2) {
-+		if (retry || data->info.family_id >= 0xa2) {
- 			bootloader = appmode - 0x24;
- 			break;
- 		}
-@@ -416,14 +416,14 @@ static int mxt_lookup_bootloader_address(struct mxt_data *data)
- 	return 0;
- }
- 
--static int mxt_probe_bootloader(struct mxt_data *data)
-+static int mxt_probe_bootloader(struct mxt_data *data, bool retry)
++static int mxt_set_t7_power_cfg(struct mxt_data *data, u8 sleep)
++{
++	struct device *dev = &data->client->dev;
++	int error;
++	struct t7_config *new_config;
++	struct t7_config deepsleep = { .active = 0, .idle = 0 };
++
++	if (sleep == MXT_POWER_CFG_DEEPSLEEP)
++		new_config = &deepsleep;
++	else
++		new_config = &data->t7_cfg;
++
++	error = __mxt_write_reg(data->client, data->T7_address,
++			sizeof(data->t7_cfg),
++			new_config);
++	if (error)
++		return error;
++
++	dev_dbg(dev, "Set T7 ACTV:%d IDLE:%d\n",
++		new_config->active, new_config->idle);
++
++	return 0;
++}
++
++static int mxt_init_t7_power_cfg(struct mxt_data *data)
++{
++	struct device *dev = &data->client->dev;
++	int error;
++	bool retry = false;
++
++recheck:
++	error = __mxt_read_reg(data->client, data->T7_address,
++				sizeof(data->t7_cfg), &data->t7_cfg);
++	if (error)
++		return error;
++
++	if (data->t7_cfg.active == 0 || data->t7_cfg.idle == 0) {
++		if (!retry) {
++			dev_info(dev, "T7 cfg zero, resetting\n");
++			mxt_soft_reset(data);
++			retry = true;
++			goto recheck;
++		} else {
++		    dev_dbg(dev, "T7 cfg zero after reset, overriding\n");
++		    data->t7_cfg.active = 20;
++		    data->t7_cfg.idle = 100;
++		    return mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++		}
++	} else {
++		dev_info(dev, "Initialised power cfg: ACTV %d, IDLE %d\n",
++				data->t7_cfg.active, data->t7_cfg.idle);
++		return 0;
++	}
++}
++
+ static int mxt_make_highchg(struct mxt_data *data)
  {
  	struct device *dev = &data->client->dev;
- 	int ret;
- 	u8 val;
- 	bool crc_failure;
+@@ -1345,6 +1390,12 @@ static int mxt_initialize(struct mxt_data *data)
+ 		goto err_free_object_table;
+ 	}
  
--	ret = mxt_lookup_bootloader_address(data);
-+	ret = mxt_lookup_bootloader_address(data, retry);
- 	if (ret)
- 		return ret;
++	error = mxt_init_t7_power_cfg(data);
++	if (error) {
++		dev_err(&client->dev, "Failed to initialize power cfg\n");
++		goto err_free_object_table;
++	}
++
+ 	error = mxt_read_t9_resolution(data);
+ 	if (error) {
+ 		dev_err(&client->dev, "Failed to initialize T9 resolution\n");
+@@ -1612,16 +1663,15 @@ static const struct attribute_group mxt_attr_group = {
  
-@@ -524,13 +524,18 @@ recheck:
- 	return 0;
+ static void mxt_start(struct mxt_data *data)
+ {
+-	/* Touch enable */
+-	mxt_write_object(data,
+-			MXT_TOUCH_MULTI_T9, MXT_TOUCH_CTRL, 0x83);
++	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
++
++	/* Recalibrate since chip has been in deep sleep */
++	mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
  }
  
--static int mxt_unlock_bootloader(struct mxt_data *data)
-+static int mxt_send_bootloader_cmd(struct mxt_data *data, bool unlock)
+ static void mxt_stop(struct mxt_data *data)
  {
- 	int ret;
- 	u8 buf[2];
+-	/* Touch disable */
+-	mxt_write_object(data,
+-			MXT_TOUCH_MULTI_T9, MXT_TOUCH_CTRL, 0);
++	mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
+ }
  
--	buf[0] = MXT_UNLOCK_CMD_LSB;
--	buf[1] = MXT_UNLOCK_CMD_MSB;
-+	if (unlock) {
-+		buf[0] = MXT_UNLOCK_CMD_LSB;
-+		buf[1] = MXT_UNLOCK_CMD_MSB;
-+	} else {
-+		buf[0] = 0x01;
-+		buf[1] = 0x01;
-+	}
+ static int mxt_input_open(struct input_dev *dev)
+@@ -1834,8 +1884,6 @@ static int mxt_resume(struct device *dev)
+ 	struct mxt_data *data = i2c_get_clientdata(client);
+ 	struct input_dev *input_dev = data->input_dev;
  
- 	ret = mxt_bootloader_write(data, buf, 2);
- 	if (ret)
-@@ -1408,15 +1413,40 @@ static int mxt_initialize(struct mxt_data *data)
- 	struct i2c_client *client = data->client;
- 	struct mxt_info *info = &data->info;
- 	int error;
-+	bool alt_bootloader_addr = false;
-+	bool retry = false;
- 
-+retry_info:
- 	error = mxt_get_info(data);
- 	if (error) {
--		error = mxt_probe_bootloader(data);
--		if (error)
--			return error;
-+retry_bootloader:
-+		error = mxt_probe_bootloader(data, alt_bootloader_addr);
-+		if (error) {
-+			if (alt_bootloader_addr) {
-+				/* Chip is not in appmode or bootloader mode */
-+				return error;
-+			}
- 
--		data->in_bootloader = true;
--		return 0;
-+			dev_info(&client->dev, "Trying alternate bootloader address\n");
-+			alt_bootloader_addr = true;
-+			goto retry_bootloader;
-+		} else {
-+			if (retry) {
-+				dev_err(&client->dev,
-+						"Could not recover device from "
-+						"bootloader mode\n");
-+				/* this is not an error state, we can reflash
-+				 * from here */
-+				data->in_bootloader = true;
-+				return 0;
-+			}
-+
-+			/* Attempt to exit bootloader into app mode */
-+			mxt_send_bootloader_cmd(data, false);
-+			msleep(MXT_FW_RESET_TIME);
-+			retry = true;
-+			goto retry_info;
-+		}
- 	}
- 
- 	data->object_table = kcalloc(info->object_num,
-@@ -1595,10 +1625,6 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 	if (ret)
- 		goto release_firmware;
- 
--	ret = mxt_lookup_bootloader_address(data);
--	if (ret)
--		goto release_firmware;
+-	mxt_soft_reset(data);
 -
- 	if (!data->in_bootloader) {
- 		/* Change to the bootloader mode */
- 		data->in_bootloader = true;
-@@ -1609,6 +1635,14 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 			goto release_firmware;
+ 	mutex_lock(&input_dev->mutex);
  
- 		msleep(MXT_RESET_TIME);
-+
-+		/* At this stage, do not need to scan since we know
-+		 * family ID */
-+		ret = mxt_lookup_bootloader_address(data, 0);
-+		if (ret)
-+			goto release_firmware;
-+	} else {
-+		enable_irq(data->irq);
- 	}
- 
- 	mxt_free_object_table(data);
-@@ -1625,7 +1659,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 		dev_info(dev, "Unlocking bootloader\n");
- 
- 		/* Unlock bootloader */
--		ret = mxt_unlock_bootloader(data);
-+		ret = mxt_send_bootloader_cmd(data, true);
- 		if (ret)
- 			goto disable_irq;
- 	}
+ 	if (input_dev->users)
 -- 
 1.7.10.4
-

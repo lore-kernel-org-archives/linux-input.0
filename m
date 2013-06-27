@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 41/51] Input: atmel_mxt_ts - Remove unused defines
-Date: Thu, 27 Jun 2013 13:49:16 +0100
-Message-ID: <1372337366-9286-42-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 40/51] Input: atmel_mxt_ts - Implement support for T15 Key Array
+Date: Thu, 27 Jun 2013 13:49:15 +0100
+Message-ID: <1372337366-9286-41-git-send-email-nick.dyer@itdev.co.uk>
 References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -10,123 +10,139 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-Many of these values are out of date and they aren't used in the driver - all
-they do is increase the size of the kernel source.
+There is a key array object in many maXTouch chips which allows some X/Y lines
+to be used as a key array. This patch maps them to a series of keys which may
+be configured in a platform data array.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   66 +-----------------------------
- 1 file changed, 1 insertion(+), 65 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   57 ++++++++++++++++++++++++++++++
+ include/linux/i2c/atmel_mxt_ts.h         |    2 ++
+ 2 files changed, 59 insertions(+)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 2eaa9d3..c01a457 100644
+index 2e6118a..2eaa9d3 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -25,27 +25,13 @@
- #include <linux/interrupt.h>
- #include <linux/slab.h>
+@@ -275,6 +275,7 @@ struct mxt_data {
+ 	u8 last_message_count;
+ 	u8 num_touchids;
+ 	u8 num_stylusids;
++	unsigned long t15_keystatus;
  
--/* Version */
--#define MXT_VER_20		20
--#define MXT_VER_21		21
--#define MXT_VER_22		22
--
- /* Firmware files */
- #define MXT_FW_NAME		"maxtouch.fw"
- #define MXT_CFG_NAME		"maxtouch.cfg"
- #define MXT_CFG_MAGIC		"OBP_RAW V1"
+ 	/* Cached parameters from object table */
+ 	u16 T5_address;
+@@ -284,6 +285,8 @@ struct mxt_data {
+ 	u16 T7_address;
+ 	u8 T9_reportid_min;
+ 	u8 T9_reportid_max;
++	u8 T15_reportid_min;
++	u8 T15_reportid_max;
+ 	u8 T19_reportid;
+ 	u8 T42_reportid_min;
+ 	u8 T42_reportid_max;
+@@ -809,6 +812,42 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 	data->update_input = true;
+ }
  
- /* Registers */
--#define MXT_INFO		0x00
--#define MXT_FAMILY_ID		0x00
--#define MXT_VARIANT_ID		0x01
--#define MXT_VERSION		0x02
--#define MXT_BUILD		0x03
--#define MXT_MATRIX_X_SIZE	0x04
--#define MXT_MATRIX_Y_SIZE	0x05
--#define MXT_OBJECT_NUM		0x06
- #define MXT_OBJECT_START	0x07
--
- #define MXT_OBJECT_SIZE		6
- #define MXT_INFO_CHECKSUM_SIZE	3
- #define MXT_MAX_BLOCK_WRITE	256
-@@ -107,15 +93,6 @@ struct t7_config {
- #define MXT_POWER_CFG_RUN		0
- #define MXT_POWER_CFG_DEEPSLEEP		1
++static void mxt_proc_t15_messages(struct mxt_data *data, u8 *msg)
++{
++	struct input_dev *input_dev = data->input_dev;
++	struct device *dev = &data->client->dev;
++	int key;
++	bool curr_state, new_state;
++	bool sync = false;
++	unsigned long keystates = le32_to_cpu(msg[2]);
++
++	/* do not report events if input device not yet registered */
++	if (!data->enable_reporting)
++		return;
++
++	for (key = 0; key < data->pdata->t15_num_keys; key++) {
++		curr_state = test_bit(key, &data->t15_keystatus);
++		new_state = test_bit(key, &keystates);
++
++		if (!curr_state && new_state) {
++			dev_dbg(dev, "T15 key press: %u\n", key);
++			__set_bit(key, &data->t15_keystatus);
++			input_event(input_dev, EV_KEY,
++				    data->pdata->t15_keymap[key], 1);
++			sync = true;
++		} else if (curr_state && !new_state) {
++			dev_dbg(dev, "T15 key release: %u\n", key);
++			__clear_bit(key, &data->t15_keystatus);
++			input_event(input_dev, EV_KEY,
++				    data->pdata->t15_keymap[key], 0);
++			sync = true;
++		}
++	}
++
++	if (sync)
++		input_sync(input_dev);
++}
++
+ static void mxt_proc_t42_messages(struct mxt_data *data, u8 *msg)
+ {
+ 	struct device *dev = &data->client->dev;
+@@ -920,6 +959,9 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 		mxt_proc_t42_messages(data, message);
+ 	} else if (report_id == data->T48_reportid) {
+ 		mxt_proc_t48_messages(data, message);
++	} else if (report_id >= data->T15_reportid_min
++		   && report_id <= data->T15_reportid_max) {
++		mxt_proc_t15_messages(data, message);
+ 	} else {
+ 		mxt_dump_message(data, message);
+ 	}
+@@ -1555,6 +1597,8 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	data->T7_address = 0;
+ 	data->T9_reportid_min = 0;
+ 	data->T9_reportid_max = 0;
++	data->T15_reportid_min = 0;
++	data->T15_reportid_max = 0;
+ 	data->T19_reportid = 0;
+ 	data->T42_reportid_min = 0;
+ 	data->T42_reportid_max = 0;
+@@ -1629,6 +1673,10 @@ static int mxt_get_object_table(struct mxt_data *data)
+ 			data->num_touchids = object->num_report_ids
+ 						* mxt_obj_instances(object);
+ 			break;
++		case MXT_TOUCH_KEYARRAY_T15:
++			data->T15_reportid_min = min_id;
++			data->T15_reportid_max = max_id;
++			break;
+ 		case MXT_PROCI_TOUCHSUPPRESSION_T42:
+ 			data->T42_reportid_min = min_id;
+ 			data->T42_reportid_max = max_id;
+@@ -2214,6 +2262,15 @@ static int mxt_initialize_t9_input_device(struct mxt_data *data)
+ 			0, MT_TOOL_MAX, 0, 0);
+ 	}
  
--/* MXT_GEN_ACQUIRE_T8 field */
--#define MXT_ACQUIRE_CHRGTIME	0
--#define MXT_ACQUIRE_TCHDRIFT	2
--#define MXT_ACQUIRE_DRIFTST	3
--#define MXT_ACQUIRE_TCHAUTOCAL	4
--#define MXT_ACQUIRE_SYNC	5
--#define MXT_ACQUIRE_ATCHCALST	6
--#define MXT_ACQUIRE_ATCHCALSTHR	7
--
- /* MXT_TOUCH_MULTI_T9 field */
- #define MXT_T9_ORIENT		9
- #define MXT_T9_RANGE		18
-@@ -138,51 +115,10 @@ struct t9_range {
- /* MXT_TOUCH_MULTI_T9 orient */
- #define MXT_T9_ORIENT_SWITCH	(1 << 0)
++	/* For T15 key array */
++	if (data->T15_reportid_min) {
++		data->t15_keystatus = 0;
++
++		for (i = 0; i < data->pdata->t15_num_keys; i++)
++			input_set_capability(input_dev, EV_KEY,
++					     data->pdata->t15_keymap[i]);
++	}
++
+ 	input_set_drvdata(input_dev, data);
  
--/* MXT_PROCI_GRIPFACE_T20 field */
--#define MXT_GRIPFACE_CTRL	0
--#define MXT_GRIPFACE_XLOGRIP	1
--#define MXT_GRIPFACE_XHIGRIP	2
--#define MXT_GRIPFACE_YLOGRIP	3
--#define MXT_GRIPFACE_YHIGRIP	4
--#define MXT_GRIPFACE_MAXTCHS	5
--#define MXT_GRIPFACE_SZTHR1	7
--#define MXT_GRIPFACE_SZTHR2	8
--#define MXT_GRIPFACE_SHPTHR1	9
--#define MXT_GRIPFACE_SHPTHR2	10
--#define MXT_GRIPFACE_SUPEXTTO	11
--
--/* MXT_PROCI_NOISE field */
--#define MXT_NOISE_CTRL		0
--#define MXT_NOISE_OUTFLEN	1
--#define MXT_NOISE_GCAFUL_LSB	3
--#define MXT_NOISE_GCAFUL_MSB	4
--#define MXT_NOISE_GCAFLL_LSB	5
--#define MXT_NOISE_GCAFLL_MSB	6
--#define MXT_NOISE_ACTVGCAFVALID	7
--#define MXT_NOISE_NOISETHR	8
--#define MXT_NOISE_FREQHOPSCALE	10
--#define MXT_NOISE_FREQ0		11
--#define MXT_NOISE_FREQ1		12
--#define MXT_NOISE_FREQ2		13
--#define MXT_NOISE_FREQ3		14
--#define MXT_NOISE_FREQ4		15
--#define MXT_NOISE_IDLEGCAFVALID	16
--
- /* MXT_SPT_COMMSCONFIG_T18 */
- #define MXT_COMMS_CTRL		0
- #define MXT_COMMS_CMD		1
+ 	error = input_register_device(input_dev);
+diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
+index 02bf6ea..b7d2092 100644
+--- a/include/linux/i2c/atmel_mxt_ts.h
++++ b/include/linux/i2c/atmel_mxt_ts.h
+@@ -20,6 +20,8 @@ struct mxt_platform_data {
+ 	unsigned long irqflags;
+ 	u8 t19_num_keys;
+ 	const unsigned int *t19_keymap;
++	int t15_num_keys;
++	const unsigned int *t15_keymap;
+ };
  
--/* MXT_SPT_CTECONFIG_T28 field */
--#define MXT_CTE_CTRL		0
--#define MXT_CTE_CMD		1
--#define MXT_CTE_MODE		2
--#define MXT_CTE_IDLEGCAFDEPTH	3
--#define MXT_CTE_ACTVGCAFDEPTH	4
--#define MXT_CTE_VOLTAGE		5
--
--#define MXT_VOLTAGE_DEFAULT	2700000
--#define MXT_VOLTAGE_STEP	10000
--
- /* Define for MXT_GEN_COMMAND_T6 */
- #define MXT_BOOT_VALUE		0xa5
- #define MXT_RESET_VALUE		0x01
-@@ -1577,7 +1513,7 @@ static int mxt_get_info(struct mxt_data *data)
- 	int error;
- 
- 	/* Read 7-byte info block starting at address 0 */
--	error = __mxt_read_reg(client, MXT_INFO, sizeof(*info), info);
-+	error = __mxt_read_reg(client, 0, sizeof(*info), info);
- 	if (error)
- 		return error;
- 
+ #endif /* __LINUX_ATMEL_MXT_TS_H */
 -- 
 1.7.10.4

@@ -1,212 +1,59 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 01/51] Input: atmel_mxt_ts - Remove unnecessary platform data
-Date: Thu, 27 Jun 2013 13:48:36 +0100
-Message-ID: <1372337366-9286-2-git-send-email-nick.dyer@itdev.co.uk>
-References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Logitech M705: Thumb button (was Re: [PATCH v4] HID: Add full support
+ for Logitech Unifying receivers)
+Date: Thu, 27 Jun 2013 15:16:48 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1306271513180.3538@pobox.suse.cz>
+References: <1315638713-3731-1-git-send-email-benjamin.tissoires@gmail.com> <20110910072826.GA1611@x4.trippels.de> <CAN+gG=H2jfT2zdn5H19hyn9JtDU7U1ensX_aUDgv0jk4d81jXg@mail.gmail.com> <CAN+gG=E90-y--6C-Ok8TibcFZGAaL2X-KxnchquDLCUUniip1Q@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:41909 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751566Ab3F0NQu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Jun 2013 09:16:50 -0400
+In-Reply-To: <CAN+gG=E90-y--6C-Ok8TibcFZGAaL2X-KxnchquDLCUUniip1Q@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Markus Trippelsdorf <markus@trippelsdorf.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, rtitmuss@logitech.com, ogay@logitech.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, Jean-Daniel Zanone <jzanone@logitech.com>, =?ISO-8859-15?Q?Franti=A8ek_Fuka?= <fuka@fuxoft.cz>
 
-It is not necessary to download these values to the maXTouch chip on every
-probe, since they are stored in NVRAM. It makes life difficult when tuning the
-device to keep them in sync with the config array/file, and requires a new
-kernel build for minor tweaks.
 
-These parameters only represent a tiny subset of the available configuration
-options, tracking all of these options in platform data would be a endless
-task. In addition, different versions of maXTouch chips may have these values
-in different places or may not even have them at all.
+[ Frantisek Fuka added to CC ]
 
-Having these values also makes life more complex for device tree and other
-platforms where having to define a static configuration isn't helpful.
+On Wed, 14 Sep 2011, Benjamin Tissoires wrote:
 
-Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Benson Leung <bleung@chromium.org>
----
- arch/arm/mach-exynos/mach-nuri.c           |    5 ---
- arch/arm/mach-exynos/mach-universal_c210.c |    5 ---
- arch/arm/mach-s5pv210/mach-goni.c          |    5 ---
- drivers/input/touchscreen/atmel_mxt_ts.c   |   50 ----------------------------
- drivers/platform/x86/chromeos_laptop.c     |   10 ------
- include/linux/i2c/atmel_mxt_ts.h           |    6 +---
- 6 files changed, 1 insertion(+), 80 deletions(-)
+> >> Nice. Does this mean I will be able to use the thumb-button of my M705
+> >> mouse in the near future?
+> >>
+> >> (Someone asked the same question 1.5 years ago, but nothing happened 
+> >> till then: http://thread.gmane.org/gmane.linux.kernel.input/11791 )
+> >
+> > This is quite weird. I was going to say that it will work, but with
+> > the M705 I've got at home,this thumb button doesn't work at all
+> > (anything is emitted from the usb, even with this driver).
+> > But I'm pretty sure I made it work with the one I got at work.
+> >
+> > I'll give a try on Monday unless people at Logitech gave us the solution.
 
-diff --git a/arch/arm/mach-exynos/mach-nuri.c b/arch/arm/mach-exynos/mach-nuri.c
-index 1ea7973..4516d26 100644
---- a/arch/arm/mach-exynos/mach-nuri.c
-+++ b/arch/arm/mach-exynos/mach-nuri.c
-@@ -333,13 +333,8 @@ static struct i2c_board_info i2c1_devs[] __initdata = {
- 
- /* TSP */
- static struct mxt_platform_data mxt_platform_data = {
--	.x_line			= 18,
--	.y_line			= 11,
- 	.x_size			= 1024,
- 	.y_size			= 600,
--	.blen			= 0x1,
--	.threshold		= 0x28,
--	.voltage		= 2800000,		/* 2.8V */
- 	.orient			= MXT_DIAGONAL_COUNTER,
- 	.irqflags		= IRQF_TRIGGER_FALLING,
- };
-diff --git a/arch/arm/mach-exynos/mach-universal_c210.c b/arch/arm/mach-exynos/mach-universal_c210.c
-index 497fcb7..2461e60 100644
---- a/arch/arm/mach-exynos/mach-universal_c210.c
-+++ b/arch/arm/mach-exynos/mach-universal_c210.c
-@@ -604,13 +604,8 @@ static struct i2c_board_info i2c5_devs[] __initdata = {
- 
- /* I2C3 (TSP) */
- static struct mxt_platform_data qt602240_platform_data = {
--	.x_line		= 19,
--	.y_line		= 11,
- 	.x_size		= 800,
- 	.y_size		= 480,
--	.blen		= 0x11,
--	.threshold	= 0x28,
--	.voltage	= 2800000,		/* 2.8V */
- 	.orient		= MXT_DIAGONAL,
- 	.irqflags	= IRQF_TRIGGER_FALLING,
- };
-diff --git a/arch/arm/mach-s5pv210/mach-goni.c b/arch/arm/mach-s5pv210/mach-goni.c
-index 3a38f7b..eca73af 100644
---- a/arch/arm/mach-s5pv210/mach-goni.c
-+++ b/arch/arm/mach-s5pv210/mach-goni.c
-@@ -239,13 +239,8 @@ static void __init goni_radio_init(void)
- 
- /* TSP */
- static struct mxt_platform_data qt602240_platform_data = {
--	.x_line		= 17,
--	.y_line		= 11,
- 	.x_size		= 800,
- 	.y_size		= 480,
--	.blen		= 0x21,
--	.threshold	= 0x28,
--	.voltage	= 2800000,              /* 2.8V */
- 	.orient		= MXT_DIAGONAL,
- 	.irqflags	= IRQF_TRIGGER_FALLING,
- };
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 59aa240..e01a9ed 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -686,54 +686,6 @@ static int mxt_make_highchg(struct mxt_data *data)
- 	return 0;
- }
- 
--static void mxt_handle_pdata(struct mxt_data *data)
--{
--	const struct mxt_platform_data *pdata = data->pdata;
--	u8 voltage;
--
--	/* Set touchscreen lines */
--	mxt_write_object(data, MXT_TOUCH_MULTI_T9, MXT_TOUCH_XSIZE,
--			pdata->x_line);
--	mxt_write_object(data, MXT_TOUCH_MULTI_T9, MXT_TOUCH_YSIZE,
--			pdata->y_line);
--
--	/* Set touchscreen orient */
--	mxt_write_object(data, MXT_TOUCH_MULTI_T9, MXT_TOUCH_ORIENT,
--			pdata->orient);
--
--	/* Set touchscreen burst length */
--	mxt_write_object(data, MXT_TOUCH_MULTI_T9,
--			MXT_TOUCH_BLEN, pdata->blen);
--
--	/* Set touchscreen threshold */
--	mxt_write_object(data, MXT_TOUCH_MULTI_T9,
--			MXT_TOUCH_TCHTHR, pdata->threshold);
--
--	/* Set touchscreen resolution */
--	mxt_write_object(data, MXT_TOUCH_MULTI_T9,
--			MXT_TOUCH_XRANGE_LSB, (pdata->x_size - 1) & 0xff);
--	mxt_write_object(data, MXT_TOUCH_MULTI_T9,
--			MXT_TOUCH_XRANGE_MSB, (pdata->x_size - 1) >> 8);
--	mxt_write_object(data, MXT_TOUCH_MULTI_T9,
--			MXT_TOUCH_YRANGE_LSB, (pdata->y_size - 1) & 0xff);
--	mxt_write_object(data, MXT_TOUCH_MULTI_T9,
--			MXT_TOUCH_YRANGE_MSB, (pdata->y_size - 1) >> 8);
--
--	/* Set touchscreen voltage */
--	if (pdata->voltage) {
--		if (pdata->voltage < MXT_VOLTAGE_DEFAULT) {
--			voltage = (MXT_VOLTAGE_DEFAULT - pdata->voltage) /
--				MXT_VOLTAGE_STEP;
--			voltage = 0xff - voltage + 1;
--		} else
--			voltage = (pdata->voltage - MXT_VOLTAGE_DEFAULT) /
--				MXT_VOLTAGE_STEP;
--
--		mxt_write_object(data, MXT_SPT_CTECONFIG_T28,
--				MXT_CTE_VOLTAGE, voltage);
--	}
--}
--
- static int mxt_get_info(struct mxt_data *data)
- {
- 	struct i2c_client *client = data->client;
-@@ -841,8 +793,6 @@ static int mxt_initialize(struct mxt_data *data)
- 	if (error)
- 		goto err_free_object_table;
- 
--	mxt_handle_pdata(data);
--
- 	/* Backup to memory */
- 	mxt_write_object(data, MXT_GEN_COMMAND_T6,
- 			MXT_COMMAND_BACKUPNV,
-diff --git a/drivers/platform/x86/chromeos_laptop.c b/drivers/platform/x86/chromeos_laptop.c
-index 3e5b4497..78ed277 100644
---- a/drivers/platform/x86/chromeos_laptop.c
-+++ b/drivers/platform/x86/chromeos_laptop.c
-@@ -71,13 +71,8 @@ static struct i2c_board_info __initdata tsl2563_als_device = {
- };
- 
- static struct mxt_platform_data atmel_224s_tp_platform_data = {
--	.x_line			= 18,
--	.y_line			= 12,
- 	.x_size			= 102*20,
- 	.y_size			= 68*20,
--	.blen			= 0x80,	/* Gain setting is in upper 4 bits */
--	.threshold		= 0x32,
--	.voltage		= 0,	/* 3.3V */
- 	.orient			= MXT_VERTICAL_FLIP,
- 	.irqflags		= IRQF_TRIGGER_FALLING,
- 	.is_tp			= true,
-@@ -96,13 +91,8 @@ static struct i2c_board_info __initdata atmel_224s_tp_device = {
- };
- 
- static struct mxt_platform_data atmel_1664s_platform_data = {
--	.x_line			= 32,
--	.y_line			= 50,
- 	.x_size			= 1700,
- 	.y_size			= 2560,
--	.blen			= 0x89,	/* Gain setting is in upper 4 bits */
--	.threshold		= 0x28,
--	.voltage		= 0,	/* 3.3V */
- 	.orient			= MXT_ROTATED_90_COUNTER,
- 	.irqflags		= IRQF_TRIGGER_FALLING,
- 	.is_tp			= false,
-diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
-index 99e379b..eff0cdc 100644
---- a/include/linux/i2c/atmel_mxt_ts.h
-+++ b/include/linux/i2c/atmel_mxt_ts.h
-@@ -33,14 +33,10 @@ struct mxt_platform_data {
- 	const u8 *config;
- 	size_t config_length;
- 
--	unsigned int x_line;
--	unsigned int y_line;
- 	unsigned int x_size;
- 	unsigned int y_size;
--	unsigned int blen;
--	unsigned int threshold;
--	unsigned int voltage;
- 	unsigned char orient;
-+
- 	unsigned long irqflags;
- 	bool is_tp;
- 	const unsigned int key_map[MXT_NUM_GPIO];
+> I got some information for you. Apparently, it won't be possible to
+> enable this thumb button right now.
+> To enable it, the Windows driver put the mouse in a kind of debug mode
+> that need to be handled properly, which is not the case as of today.
+> 
+> I was able to make it work at home because there were different series
+> of M705, the latest sending the thumb button by default.
+
+Let me resurrect this 2 years old thread, as I have received multiple 
+reports since then, stating that some revisions of M705 don't have working 
+thumb button.
+
+Question mostly to the Logitech guys: Nestor, Olivier, could you please 
+provide us with the sequence that needs to be sent to (certain revisisons 
+of) M705 to let enter the debug mode, making the thumb button actually 
+emit a USB message?
+
+Thanks,
+
 -- 
-1.7.10.4
+Jiri Kosina
+SUSE Labs

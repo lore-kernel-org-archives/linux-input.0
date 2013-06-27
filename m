@@ -1,82 +1,140 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 28/51] Input: atmel_mxt_ts - Handle bootloader previously unlocked
-Date: Thu, 27 Jun 2013 13:49:03 +0100
-Message-ID: <1372337366-9286-29-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 27/51] Input: atmel_mxt_ts - Handle APP_CRC_FAIL on startup
+Date: Thu, 27 Jun 2013 13:49:02 +0100
+Message-ID: <1372337366-9286-28-git-send-email-nick.dyer@itdev.co.uk>
 References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:40495 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753457Ab3F0Mup (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Jun 2013 08:50:45 -0400
 In-Reply-To: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
-List-Id: linux-input@vger.kernel.org
+
+If the bootloader fails to start the appmode image on the touch controller, it
+stays in bootloader mode. It is possible to reflash a working firmware image
+from this state.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   61 +++++++++++++++++++++++-------
+ 1 file changed, 48 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 0c0df6c..4385653 100644
+index 030ebc5..0c0df6c 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -455,14 +455,15 @@ static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
- 	}
+@@ -410,6 +410,30 @@ static int mxt_lookup_bootloader_address(struct mxt_data *data)
+ 	return 0;
  }
  
--static int mxt_check_bootloader(struct mxt_data *data, unsigned int state)
-+static int mxt_check_bootloader(struct mxt_data *data, unsigned int state,
-+				bool wait)
++static int mxt_probe_bootloader(struct mxt_data *data)
++{
++	struct device *dev = &data->client->dev;
++	int ret;
++	u8 val;
++	bool crc_failure;
++
++	ret = mxt_lookup_bootloader_address(data);
++	if (ret)
++		return ret;
++
++	ret = mxt_bootloader_read(data, &val, 1);
++	if (ret)
++		return ret;
++
++	/* Check app crc fail mode */
++	crc_failure = (val & ~MXT_BOOT_STATUS_MASK) == MXT_APP_CRC_FAIL;
++
++	dev_err(dev, "Detected bootloader, status:%02X%s\n",
++			val, crc_failure ? ", APP_CRC_FAIL" : "");
++
++	return 0;
++}
++
+ static u8 mxt_get_bootloader_version(struct mxt_data *data, u8 val)
  {
  	struct device *dev = &data->client->dev;
- 	u8 val;
- 	int ret;
+@@ -469,6 +493,7 @@ recheck:
+ 	switch (state) {
+ 	case MXT_WAITING_BOOTLOAD_CMD:
+ 	case MXT_WAITING_FRAME_DATA:
++	case MXT_APP_CRC_FAIL:
+ 		val &= ~MXT_BOOT_STATUS_MASK;
+ 		break;
+ 	case MXT_FRAME_CRC_PASS:
+@@ -1378,8 +1403,14 @@ static int mxt_initialize(struct mxt_data *data)
+ 	int error;
  
- recheck:
--	if (state != MXT_WAITING_BOOTLOAD_CMD) {
-+	if (wait) {
- 		/*
- 		 * In application update mode, the interrupt
- 		 * line signals state transitions. We must wait for the
-@@ -1607,15 +1608,24 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 	mxt_free_object_table(data);
- 	INIT_COMPLETION(data->bl_completion);
- 
--	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD);
--	if (ret)
--		goto disable_irq;
-+	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD, false);
-+	if (ret) {
-+		/* Bootloader may still be unlocked from previous update
-+		 * attempt */
-+		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, false);
-+		if (ret)
-+			goto disable_irq;
-+	} else {
-+		dev_info(dev, "Unlocking bootloader\n");
- 
--	/* Unlock bootloader */
--	mxt_unlock_bootloader(data);
-+		/* Unlock bootloader */
-+		ret = mxt_unlock_bootloader(data);
-+		if (ret)
-+			goto disable_irq;
+ 	error = mxt_get_info(data);
+-	if (error)
+-		return error;
++	if (error) {
++		error = mxt_probe_bootloader(data);
++		if (error)
++			return error;
++
++		data->in_bootloader = true;
++		return 0;
 +	}
  
- 	while (pos < fw->size) {
--		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA);
-+		ret = mxt_check_bootloader(data, MXT_WAITING_FRAME_DATA, true);
- 		if (ret)
- 			goto disable_irq;
+ 	data->object_table = kcalloc(info->object_num,
+ 				     sizeof(struct mxt_object),
+@@ -1561,15 +1592,19 @@ static int mxt_load_fw(struct device *dev, const char *fn)
+ 	if (ret)
+ 		goto release_firmware;
  
-@@ -1629,7 +1639,7 @@ static int mxt_load_fw(struct device *dev, const char *fn)
- 		if (ret)
- 			goto disable_irq;
+-	/* Change to the bootloader mode */
+-	data->in_bootloader = true;
++	if (!data->in_bootloader) {
++		/* Change to the bootloader mode */
++		data->in_bootloader = true;
  
--		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS);
-+		ret = mxt_check_bootloader(data, MXT_FRAME_CRC_PASS, true);
- 		if (ret) {
- 			retry++;
+-	ret = mxt_t6_command(data, MXT_COMMAND_RESET, MXT_BOOT_VALUE, false);
+-	if (ret)
+-		goto release_firmware;
++		ret = mxt_t6_command(data, MXT_COMMAND_RESET,
++				     MXT_BOOT_VALUE, false);
++		if (ret)
++			goto release_firmware;
  
+-	msleep(MXT_RESET_TIME);
++		msleep(MXT_RESET_TIME);
++	}
+ 
++	mxt_free_object_table(data);
+ 	INIT_COMPLETION(data->bl_completion);
+ 
+ 	ret = mxt_check_bootloader(data, MXT_WAITING_BOOTLOAD_CMD);
+@@ -1652,8 +1687,6 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+ 	} else {
+ 		dev_info(dev, "The firmware update succeeded\n");
+ 
+-		mxt_free_object_table(data);
+-
+ 		error = mxt_initialize(data);
+ 		if (error)
+ 			return error;
+@@ -1857,9 +1890,11 @@ static int mxt_probe(struct i2c_client *client,
+ 	if (error)
+ 		goto err_free_irq;
+ 
+-	error = mxt_initialize_t9_input_device(data);
+-	if (error)
+-		goto err_free_object;
++	if (!data->in_bootloader) {
++		error = mxt_initialize_t9_input_device(data);
++		if (error)
++			goto err_free_object;
++	}
+ 
+ 	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
+ 	if (error) {
 -- 
 1.7.10.4
+

@@ -1,12 +1,12 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 04/51] Input: atmel_mxt_ts - define helper functions for size and instances
-Date: Thu, 27 Jun 2013 13:48:39 +0100
-Message-ID: <1372337366-9286-5-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 02/51] Input: atmel_mxt_ts - Improve T19 GPIO keys handling
+Date: Thu, 27 Jun 2013 13:48:37 +0100
+Message-ID: <1372337366-9286-3-git-send-email-nick.dyer@itdev.co.uk>
 References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:48951 "EHLO
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:5610 "EHLO
 	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752708Ab3F0Mue (ORCPT
+	with ESMTP id S1752609Ab3F0Mue (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Thu, 27 Jun 2013 08:50:34 -0400
 In-Reply-To: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -15,127 +15,201 @@ List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Nick Dyer <nick.dyer@itdev.co.uk>
 
-From: Daniel Kurtz <djkurtz@chromium.org>
+ * The mapping of the GPIO numbers into the T19 status byte varies between
+   different maXTouch chips. Some have up to 7 GPIOs. Allowing a keycode array
+   of up to 8 items is simpler and more generic. So replace #define with
+   configurable number of keys which also allows the removal of is_tp.
+ * Rename platform data parameters to include "t19" to prevent confusion with
+   T15 key array.
+ * Probe aborts early on when pdata is NULL, so no need to check.
+ * Move "int i" to beginning of function (mixed declarations and code)
+ * Use API calls rather than __set_bit()
+ * Remove unused dev variable.
 
-These two object table entry fields are reported 1 less than their value.
-When used, however, we always want the actual size and instances.
-
-To keep the object size and instances 1-byte fields, and thus preserve
-the object-table struct's 6-byte packed alignment, add some convenient
-accessor functions that do the +1 every time these fields are accessed.
-
-Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   35 ++++++++++++++++++++----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c |   44 ++++++++++++------------------
+ drivers/platform/x86/chromeos_laptop.c   |   17 ++++++++----
+ include/linux/i2c/atmel_mxt_ts.h         |    7 ++---
+ 3 files changed, 30 insertions(+), 38 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 2a06657..7de3b47 100644
+index e01a9ed..6702175 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2,6 +2,8 @@
-  * Atmel maXTouch Touchscreen driver
-  *
-  * Copyright (C) 2010 Samsung Electronics Co.Ltd
-+ * Copyright (C) 2012 Google, Inc.
-+ *
-  * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-  *
-  * This program is free software; you can redistribute  it and/or modify it
-@@ -227,8 +229,8 @@ struct mxt_info {
- struct mxt_object {
- 	u8 type;
- 	u16 start_address;
--	u8 size;		/* Size of each instance - 1 */
--	u8 instances;		/* Number of instances - 1 */
-+	u8 size_minus_one;
-+	u8 instances_minus_one;
- 	u8 num_report_ids;
- } __packed;
+@@ -181,12 +181,6 @@
  
-@@ -257,6 +259,16 @@ struct mxt_data {
- 	u8 T19_reportid;
- };
+ #define MXT_FWRESET_TIME	175	/* msec */
  
-+static inline size_t mxt_obj_size(const struct mxt_object *obj)
-+{
-+	return obj->size_minus_one + 1;
-+}
-+
-+static inline size_t mxt_obj_instances(const struct mxt_object *obj)
-+{
-+	return obj->instances_minus_one + 1;
-+}
-+
- static bool mxt_object_readable(unsigned int type)
+-/* MXT_SPT_GPIOPWM_T19 field */
+-#define MXT_GPIO0_MASK		0x04
+-#define MXT_GPIO1_MASK		0x08
+-#define MXT_GPIO2_MASK		0x10
+-#define MXT_GPIO3_MASK		0x20
+-
+ /* Command to unlock bootloader */
+ #define MXT_UNLOCK_CMD_MSB	0xaa
+ #define MXT_UNLOCK_CMD_LSB	0xdc
+@@ -251,7 +245,6 @@ struct mxt_data {
+ 	const struct mxt_platform_data *pdata;
+ 	struct mxt_object *object_table;
+ 	struct mxt_info info;
+-	bool is_tp;
+ 
+ 	unsigned int irq;
+ 	unsigned int max_x;
+@@ -516,15 +509,16 @@ static int mxt_write_object(struct mxt_data *data,
+ static void mxt_input_button(struct mxt_data *data, struct mxt_message *message)
  {
- 	switch (type) {
-@@ -499,7 +511,7 @@ static int mxt_write_object(struct mxt_data *data,
- 	u16 reg;
- 
- 	object = mxt_get_object(data, type);
--	if (!object || offset >= object->size + 1)
-+	if (!object || offset >= mxt_obj_size(object))
- 		return -EINVAL;
- 
- 	reg = object->start_address;
-@@ -641,7 +653,7 @@ static int mxt_check_reg_init(struct mxt_data *data)
- 		if (!mxt_object_writable(object->type))
- 			continue;
- 
--		size = (object->size + 1) * (object->instances + 1);
-+		size = mxt_obj_size(object) * mxt_obj_instances(object);
- 		if (index + size > pdata->config_length) {
- 			dev_err(dev, "Not enough config data!\n");
- 			return -EINVAL;
-@@ -718,7 +730,7 @@ static int mxt_get_object_table(struct mxt_data *data)
- 		if (object->num_report_ids) {
- 			min_id = reportid;
- 			reportid += object->num_report_ids *
--					(object->instances + 1);
-+					mxt_obj_instances(object);
- 			max_id = reportid - 1;
- 		} else {
- 			min_id = 0;
-@@ -727,8 +739,9 @@ static int mxt_get_object_table(struct mxt_data *data)
- 
- 		dev_dbg(&data->client->dev,
- 			"Type %2d Start %3d Size %3d Instances %2d ReportIDs %3u : %3u\n",
--			object->type, object->start_address, object->size + 1,
--			object->instances + 1, min_id, max_id);
-+			object->type, object->start_address,
-+			mxt_obj_size(object), mxt_obj_instances(object),
-+			min_id, max_id);
- 
- 		switch (object->type) {
- 		case MXT_GEN_COMMAND_T6:
-@@ -865,11 +878,11 @@ static ssize_t mxt_show_instance(char *buf, int count,
- {
+ 	struct input_dev *input = data->input_dev;
++	const struct mxt_platform_data *pdata = data->pdata;
+ 	bool button;
  	int i;
  
--	if (object->instances > 0)
-+	if (mxt_obj_instances(object) > 1)
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
- 				   "Instance %u\n", instance);
+ 	/* Active-low switch */
+-	for (i = 0; i < MXT_NUM_GPIO; i++) {
+-		if (data->pdata->key_map[i] == KEY_RESERVED)
++	for (i = 0; i < pdata->t19_num_keys; i++) {
++		if (pdata->t19_keymap[i] == KEY_RESERVED)
+ 			continue;
+-		button = !(message->message[0] & MXT_GPIO0_MASK << i);
+-		input_report_key(input, data->pdata->key_map[i], button);
++		button = !(message->message[0] & (1 << i));
++		input_report_key(input, pdata->t19_keymap[i], button);
+ 	}
+ }
  
--	for (i = 0; i < object->size + 1; i++)
-+	for (i = 0; i < mxt_obj_size(object); i++)
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
- 				"\t[%2u]: %02x (%d)\n", i, val[i], val[i]);
- 	count += scnprintf(buf + count, PAGE_SIZE - count, "\n");
-@@ -902,8 +915,8 @@ static ssize_t mxt_object_show(struct device *dev,
- 		count += scnprintf(buf + count, PAGE_SIZE - count,
- 				"T%u:\n", object->type);
+@@ -1085,6 +1079,8 @@ static int mxt_probe(struct i2c_client *client,
+ 	struct input_dev *input_dev;
+ 	int error;
+ 	unsigned int num_mt_slots;
++	unsigned int mt_flags = 0;
++	int i;
  
--		for (j = 0; j < object->instances + 1; j++) {
--			u16 size = object->size + 1;
-+		for (j = 0; j < mxt_obj_instances(object); j++) {
-+			u16 size = mxt_obj_size(object);
- 			u16 addr = object->start_address + j * size;
+ 	if (!pdata)
+ 		return -EINVAL;
+@@ -1097,10 +1093,7 @@ static int mxt_probe(struct i2c_client *client,
+ 		goto err_free_mem;
+ 	}
  
- 			error = __mxt_read_reg(data->client, addr, size, obuf);
+-	data->is_tp = pdata && pdata->is_tp;
+-
+-	input_dev->name = (data->is_tp) ? "Atmel maXTouch Touchpad" :
+-					  "Atmel maXTouch Touchscreen";
++	input_dev->name = "Atmel maXTouch Touchscreen";
+ 	snprintf(data->phys, sizeof(data->phys), "i2c-%u-%04x/input0",
+ 		 client->adapter->nr, client->addr);
+ 
+@@ -1126,20 +1119,15 @@ static int mxt_probe(struct i2c_client *client,
+ 	__set_bit(EV_KEY, input_dev->evbit);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 
+-	if (data->is_tp) {
+-		int i;
+-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
++	if (pdata->t19_num_keys) {
+ 		__set_bit(INPUT_PROP_BUTTONPAD, input_dev->propbit);
+ 
+-		for (i = 0; i < MXT_NUM_GPIO; i++)
+-			if (pdata->key_map[i] != KEY_RESERVED)
+-				__set_bit(pdata->key_map[i], input_dev->keybit);
++		for (i = 0; i < pdata->t19_num_keys; i++)
++			if (pdata->t19_keymap[i] != KEY_RESERVED)
++				input_set_capability(input_dev, EV_KEY,
++						     pdata->t19_keymap[i]);
+ 
+-		__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+-		__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+-		__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
+-		__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
+-		__set_bit(BTN_TOOL_QUINTTAP, input_dev->keybit);
++		mt_flags |= INPUT_MT_POINTER;
+ 
+ 		input_abs_set_res(input_dev, ABS_X, MXT_PIXELS_PER_MM);
+ 		input_abs_set_res(input_dev, ABS_Y, MXT_PIXELS_PER_MM);
+@@ -1147,6 +1135,8 @@ static int mxt_probe(struct i2c_client *client,
+ 				  MXT_PIXELS_PER_MM);
+ 		input_abs_set_res(input_dev, ABS_MT_POSITION_Y,
+ 				  MXT_PIXELS_PER_MM);
++
++		input_dev->name = "Atmel maXTouch Touchpad";
+ 	}
+ 
+ 	/* For single touch */
+@@ -1159,7 +1149,7 @@ static int mxt_probe(struct i2c_client *client,
+ 
+ 	/* For multi touch */
+ 	num_mt_slots = data->T9_reportid_max - data->T9_reportid_min + 1;
+-	error = input_mt_init_slots(input_dev, num_mt_slots, 0);
++	error = input_mt_init_slots(input_dev, num_mt_slots, mt_flags);
+ 	if (error)
+ 		goto err_free_object;
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
+diff --git a/drivers/platform/x86/chromeos_laptop.c b/drivers/platform/x86/chromeos_laptop.c
+index 78ed277..8026554 100644
+--- a/drivers/platform/x86/chromeos_laptop.c
++++ b/drivers/platform/x86/chromeos_laptop.c
+@@ -70,16 +70,22 @@ static struct i2c_board_info __initdata tsl2563_als_device = {
+ 	I2C_BOARD_INFO("tsl2563", TAOS_ALS_I2C_ADDR),
+ };
+ 
++static int mxt_t19_keys[] = {
++	KEY_RESERVED,
++	KEY_RESERVED,
++	KEY_RESERVED,
++	KEY_RESERVED,
++	KEY_RESERVED,
++	BTN_LEFT
++};
++
+ static struct mxt_platform_data atmel_224s_tp_platform_data = {
+ 	.x_size			= 102*20,
+ 	.y_size			= 68*20,
+ 	.orient			= MXT_VERTICAL_FLIP,
+ 	.irqflags		= IRQF_TRIGGER_FALLING,
+-	.is_tp			= true,
+-	.key_map		= { KEY_RESERVED,
+-				    KEY_RESERVED,
+-				    KEY_RESERVED,
+-				    BTN_LEFT },
++	.t19_num_keys		= ARRAY_SIZE(mxt_t19_keys),
++	.t19_keymap		= mxt_t19_keys,
+ 	.config			= NULL,
+ 	.config_length		= 0,
+ };
+@@ -95,7 +101,6 @@ static struct mxt_platform_data atmel_1664s_platform_data = {
+ 	.y_size			= 2560,
+ 	.orient			= MXT_ROTATED_90_COUNTER,
+ 	.irqflags		= IRQF_TRIGGER_FALLING,
+-	.is_tp			= false,
+ 	.config			= NULL,
+ 	.config_length		= 0,
+ };
+diff --git a/include/linux/i2c/atmel_mxt_ts.h b/include/linux/i2c/atmel_mxt_ts.h
+index eff0cdc..d26080d 100644
+--- a/include/linux/i2c/atmel_mxt_ts.h
++++ b/include/linux/i2c/atmel_mxt_ts.h
+@@ -15,9 +15,6 @@
+ 
+ #include <linux/types.h>
+ 
+-/* For key_map array */
+-#define MXT_NUM_GPIO		4
+-
+ /* Orient */
+ #define MXT_NORMAL		0x0
+ #define MXT_DIAGONAL		0x1
+@@ -38,8 +35,8 @@ struct mxt_platform_data {
+ 	unsigned char orient;
+ 
+ 	unsigned long irqflags;
+-	bool is_tp;
+-	const unsigned int key_map[MXT_NUM_GPIO];
++	u8 t19_num_keys;
++	const unsigned int *t19_keymap;
+ };
+ 
+ #endif /* __LINUX_ATMEL_MXT_TS_H */
 -- 
 1.7.10.4
 

@@ -1,7 +1,7 @@
 From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: [PATCH 35/51] Input: atmel_mxt_ts - Output status from T48 Noise Supression
-Date: Thu, 27 Jun 2013 13:49:10 +0100
-Message-ID: <1372337366-9286-36-git-send-email-nick.dyer@itdev.co.uk>
+Subject: [PATCH 23/51] Input: atmel_mxt_ts - Rename pressure to amplitude to match spec
+Date: Thu, 27 Jun 2013 13:48:58 +0100
+Message-ID: <1372337366-9286-24-git-send-email-nick.dyer@itdev.co.uk>
 References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
@@ -13,74 +13,48 @@ List-Id: linux-input@vger.kernel.org
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 Acked-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 5d51133..d7ce38d 100644
+index 76f1c20..8ccc809de 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -267,6 +267,7 @@ struct mxt_data {
- 	u8 T9_reportid_max;
- 	u8 T19_reportid;
- 	u16 T44_address;
-+	u8 T48_reportid;
+@@ -637,7 +637,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	int x;
+ 	int y;
+ 	int area;
+-	int pressure;
++	int amplitude;
  
- 	/* for fw update in bootloader */
- 	struct completion bl_completion;
-@@ -768,6 +769,26 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
- 	data->update_input = true;
- }
+ 	/* do not report events if input device not yet registered */
+ 	if (!data->enable_reporting)
+@@ -651,7 +651,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		y = y >> 2;
  
-+static int mxt_proc_t48_messages(struct mxt_data *data, u8 *msg)
-+{
-+	struct device *dev = &data->client->dev;
-+	u8 status, state;
-+
-+	status = msg[1];
-+	state  = msg[4];
-+
-+	dev_dbg(dev, "T48 state %d status %02X %s%s%s%s%s\n",
-+			state,
-+			status,
-+			(status & 0x01) ? "FREQCHG " : "",
-+			(status & 0x02) ? "APXCHG " : "",
-+			(status & 0x04) ? "ALGOERR " : "",
-+			(status & 0x10) ? "STATCHG " : "",
-+			(status & 0x20) ? "NLVLCHG " : "");
-+
-+	return 0;
-+}
-+
- static int mxt_proc_message(struct mxt_data *data, u8 *message)
- {
- 	u8 report_id = message[0];
-@@ -783,6 +804,8 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
- 	} else if (report_id == data->T19_reportid) {
- 		mxt_input_button(data, message);
- 		data->update_input = true;
-+	} else if (report_id == data->T48_reportid) {
-+		mxt_proc_t48_messages(data, message);
- 	} else {
- 		mxt_dump_message(data, message);
+ 	area = message->message[4];
+-	pressure = message->message[5];
++	amplitude = message->message[5];
+ 
+ 	dev_dbg(dev,
+ 		"[%u] %c%c%c%c%c%c%c%c x: %5u y: %5u area: %3u amp: %3u\n",
+@@ -664,7 +664,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 		(status & MXT_AMP) ? 'A' : '.',
+ 		(status & MXT_SUPPRESS) ? 'S' : '.',
+ 		(status & MXT_UNGRIP) ? 'U' : '.',
+-		x, y, area, pressure);
++		x, y, area, amplitude);
+ 
+ 	input_mt_slot(input_dev, id);
+ 	input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
+@@ -673,7 +673,7 @@ static void mxt_input_touchevent(struct mxt_data *data,
+ 	if (status & MXT_DETECT) {
+ 		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
+ 		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
+-		input_report_abs(input_dev, ABS_MT_PRESSURE, pressure);
++		input_report_abs(input_dev, ABS_MT_PRESSURE, amplitude);
+ 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
  	}
-@@ -1420,6 +1443,7 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T9_reportid_max = 0;
- 	data->T19_reportid = 0;
- 	data->T44_address = 0;
-+	data->T48_reportid = 0;
- 	data->max_reportid = 0;
  }
- 
-@@ -1493,6 +1517,9 @@ static int mxt_get_object_table(struct mxt_data *data)
- 		case MXT_SPT_GPIOPWM_T19:
- 			data->T19_reportid = min_id;
- 			break;
-+		case MXT_PROCG_NOISESUPPRESSION_T48:
-+			data->T48_reportid = min_id;
-+			break;
- 		}
- 
- 		end_address = object->start_address
 -- 
 1.7.10.4

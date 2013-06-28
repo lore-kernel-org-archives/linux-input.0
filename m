@@ -1,123 +1,73 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: RFC: making the aiptek.c tablet driver xf86-input-wacom
- compatible
-Date: Fri, 28 Jun 2013 07:01:32 +1000
-Message-ID: <20130627210132.GA12372@yabbi.redhat.com>
-References: <1448859.K0oxtlBRpL@pebbles>
- <CAN+gG=FxW40WxY1eSi=UzCKnmPipZ3HZw8sjNPbAgfi0P+D1bw@mail.gmail.com>
+From: David Dillow <dave@thedillows.org>
+Subject: [RFC] hid/sony: add autorepeat for PS3 remotes
+Date: Thu, 27 Jun 2013 22:28:43 -0400
+Message-ID: <1372386523.28740.8.camel@haswell.thedillows.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:19049 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753554Ab3F0VBW (ORCPT
+Received: from matrix.voodoobox.net ([75.127.97.206]:41039 "EHLO
+	matrix.voodoobox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753652Ab3F1C2t (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Jun 2013 17:01:22 -0400
-Content-Disposition: inline
-In-Reply-To: <CAN+gG=FxW40WxY1eSi=UzCKnmPipZ3HZw8sjNPbAgfi0P+D1bw@mail.gmail.com>
+	Thu, 27 Jun 2013 22:28:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Stefan =?iso-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>, linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Stephan Raue <stephan@openelec.tv>
 
-On Wed, Jun 26, 2013 at 10:17:30AM +0200, Benjamin Tissoires wrote:
-> Hi Stephan,
->=20
-> On Wed, Jun 26, 2013 at 12:02 AM, Stefan Br=FCns
-> <stefan.bruens@rwth-aachen.de> wrote:
-> > Hi everyone,
-> >
-> > I have started to modify the aiptek tablet driver to be compatible =
-with the
-> > xf86-input-wacom driver.
-> >
-> > Motivation:
-> > First, as wacom dominates the market, most configuration frontends =
-are for
-> > wacom, desktop integration only exists for wacom, and most applicat=
-ion
-> > developers only test with wacom tablets.
-> > Second, the xf86-input-aiptek driver seems to be unmaintained, at l=
-east
-> > opensuse has dropped it from distribution, and xf86-input-evdev is =
-no
-> > sufficient replacement.
->=20
-> Yes the fact is that xf86-input-aiptek is unmaintained due to lack of
-> testers with the device. xf86-input-evdev is not a sufficient
-> replacement because it aims at forwarding the raw events from the
-> kernel without any processing. For tablets, the de facto natural way
-> is to use the wacom driver, which should be called now "tablet" but i=
-s
-> still called "wacom" for historical reasons.
+Some applications using the PS3 remote would like to have autorepeat
+from the device. Use the input subsystem's software emulation to provide
+this capability, and enable those that don't need it to turn it off.
+---
+I'm not sure this is the correct approach, or if it is even appropriate
+for a remote to do autorepeat. However, the media/rc subsystem does do
+it by default, and it's been requested by users, so there is at least
+some demand.
 
-fwiw, wacom is still very much centered around wacom devices. it will w=
-ork
-from a technical perspective with any tablet but there may be the odd t=
-hing
-here and there that may look different. we'll have to fix that up as we=
- go
-in the X driver, but there are already non-wacom tablets that work fine=
-=2E
+This compiled against the hid-sony driver with the PS3 remote changes
+merged, but I have done no testing of it. If the approach seems
+reasonable, I'll try to test it when the MythTV is idle.
 
-specifically, test your tablet with libwacom as well (or the GNOME stac=
-k) as
-this covers parts of the device-specific client stack for tablets.
-=20
-> > So for me there are two possibilities, either replicating all the w=
-ork done
-> > for the wacom driver in the xorg stack and above, or just making th=
-e the
-> > aiptek driver mimic the output of the wacom kernel driver - I have =
-taken the
-> > second option.
->=20
-> thanks for choosing the second solution :) I think Peter will join me
-> on this thank you.
+ drivers/hid/hid-sony.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index ecbc749..0bbcd07 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -274,6 +274,24 @@ static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	return 1;
+ }
+ 
++static int ps3remote_setup_repeat(struct hid_device *hdev)
++{
++	struct hid_input *hidinput = list_first_entry(&hdev->inputs,
++						      struct hid_input, list);
++	struct input_dev *input = hidinput->input;
++
++	/*
++	 * Set up autorepeat defaults per the remote control subsystem;
++	 * this must be done after hid_hw_start(), as having these non-zero
++	 * at the time of input_register_device() tells the input system that
++	 * the hardware does the autorepeat, and the PS3 remote does not.
++	 */
++	set_bit(EV_REP, input->evbit);
++	input->rep[REP_DELAY]  = 500;
++	input->rep[REP_PERIOD] = 125;
++
++	return 0;
++}
+ 
+ /* Sony Vaio VGX has wrongly mouse pointer declared as constant */
+ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+@@ -659,6 +677,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		ret = sixaxis_set_operational_bt(hdev);
+ 	else if (sc->quirks & BUZZ_CONTROLLER)
+ 		ret = buzz_init(hdev);
++	else if (sc->quirks & PS3REMOTE)
++		ret = ps3remote_setup_repeat(hdev);
+ 	else
+ 		ret = 0;
+ 
 
-yes, indeed. less xorg drivers is the future :)
 
-Cheers,
-   Peter
-
-> I just gave a quick look at the xf86-input-aiptek sources, and there
-> is nothing which prevents you to port this device to the wacom driver=
-=2E
->=20
-> >
-> > Currently, I am cleaning up my changes, and I am investigating some=
- bugs in
-> > the original driver parsing the reports from the device.
->=20
-> The device seems to be a HID declared one. I'd be curious to have a
-> look at the report descriptors to know if the parsing is really
-> necessary. The reports descriptor can be retrieved by calling "lsusb
-> -v" when the device is not bound to its usb driver.
->=20
-> >
-> > I have tested my Aiptek 6000U with the xf86-input-wacom driver, and=
- it is
-> > working fine in Krita, Inkscape and The Gimp, configuring the table=
-t via
-> > kcm_wacomtablet (KDE configuration module).
->=20
-> great!
->=20
-> >
-> > If anyone is interested, I will send my patches to this list after =
-the
-> > cleanup.
->=20
-> I think we are. And I think you will also get some advantages in
-> pushing those patches upstream so you will not have to manually
-> maintain your own branch :)
->=20
-> Cheers,
-> Benjamin
->=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,80 +1,100 @@
 From: Gerhard Sittig <gsi@denx.de>
-Subject: Re: [PATCH v1 08/12] input: keypad-matrix: tell GPIO pins from
- matrix lines
-Date: Fri, 28 Jun 2013 09:52:40 +0200
-Message-ID: <20130628075240.GU24305@book.gsilab.sittig.org>
+Subject: Re: [PATCH v1 01/12] input: matrix-keypad: update devicetree binding
+ doc
+Date: Fri, 28 Jun 2013 10:24:22 +0200
+Message-ID: <20130628082422.GV24305@book.gsilab.sittig.org>
 References: <1371838198-7327-1-git-send-email-gsi@denx.de>
- <1371838198-7327-9-git-send-email-gsi@denx.de>
- <51C4C87B.3050300@wwwdotorg.org>
- <20130622100052.GH24305@book.gsilab.sittig.org>
- <51C8D599.2010706@wwwdotorg.org>
+ <1371838198-7327-2-git-send-email-gsi@denx.de>
+ <51C4C63B.3030300@wwwdotorg.org>
+ <20130622092319.GE24305@book.gsilab.sittig.org>
+ <51C8C17A.1050700@wwwdotorg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:40850 "EHLO
+Received: from mail-out.m-online.net ([212.18.0.9]:42717 "EHLO
 	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754619Ab3F1Hwp (ORCPT
+	with ESMTP id S1750922Ab3F1IY0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jun 2013 03:52:45 -0400
+	Fri, 28 Jun 2013 04:24:26 -0400
 Content-Disposition: inline
-In-Reply-To: <51C8D599.2010706@wwwdotorg.org>
+In-Reply-To: <51C8C17A.1050700@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Stephen Warren <swarren@wwwdotorg.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Chao Xie <xiechao.mail@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Detlev Zundel <dzu@denx.de>, Sekhar Nori <nsekhar@ti.com>, Marek Vasut <marek.vasut@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
 
-
-[ late reply, just catching up with the backlog ]
-
-On Mon, Jun 24, 2013 at 17:26 -0600, Stephen Warren wrote:
+On Mon, Jun 24, 2013 at 16:00 -0600, Stephen Warren wrote:
 > 
-> [ ... sparse matrices, not all columns/rows populated ... ]
+> On 06/22/2013 03:23 AM, Gerhard Sittig wrote:
+> ...
 > 
-> Looking at this from the approach of the keymap data: Why does the DT
-> need to say "these columns are used" or "these rows are used"? That data
-> is already available from a simple search of the keymap for the various
-> row-/column-IDs. Let the driver or keymap parser calculate the set of
-> valid rows/columns when the keymap is installed. With this approach, you
-> could even get far more optimal.
-
-I agree that this reduces pain for .dts authors, which is a very
-good thing.  They need to provide the key map anyway, and the set
-of interconnections in the matrix can thus get determined
-programmatically.  Data overhead should be acceptable given the
-maximum matrix dimensions of 32x32.  I'll look into this ...
-
-> On some Tegra boards, there end up
-> being rather tri-angular keymaps, where key positions (0, 0), (0, 1),
-> (0, 2), (1, 1), (1, 2), (2, 2) end up being used. In this scenario,
-> detailed investigation of the keymap would reveal:
+> [ device tree binding doc, discussing matrix hardware layouts ]
 > 
-> * Only scan columns 0..2
-> * For column 0, scan rows 0..2
-> * For column 1, scan rows 1..2
-> * For columm 2, scan row 2.
+> I think both "simple" and "mechanical" should be removed. My reasoning:
+> 
+> At the level of connection between rows/columns, aren't all matrix
+> keypads set up such that something connects a row to a column to signify
+> a keypress, not just "simple layouts".
+> 
+> Similarly, "mechanical" should be removed since it's not always true,
+> and even if it were, it would be irrelevant to anything outside the
+> keyboard, perhaps aside from the need to debounce.
+> 
+> In fact, thinking about this more, I think all four paragraphs of text
+> that this patch adds would be better in Documentation/input/, as you
+> mentioned elsewhere. When introducing any extra properties, you could
+> mention their potential use by a driver, as explanation for why they're
+> useful, but there's probably no need to describe the complete operation
+> of the driver in the DT binding.
 
-That's another question I had.  So far I was concerned with just
-polling or scanning the relevant columns, while all the rows for
-a given column were queried (as the driver always used to do).
+So the direction to go is
+- move the Linux driver specific discussion to
+  Documentation/input/ including potential hardware setups and
+  the background on the driver's theory of operation
+- just concentrate on "adjustables" in the binding document,
+  merely listing the set and their units, while the motivation or
+  background either "is obvious" or can get looked up in the
+  driver's discussion
 
-Now you raise the question of whether rows should get queried as
-well depending on whether "a key may sit there".  It wasn't the
-exact question I raised, but I added a comment to the spot where
-input subsystem events get generated:  Is the driver expected to
-emit events for matrix positions where no key map entry exists?
-OTOH was my further reasoning that in theory the keymap shall
-reflect the hardware implementation, so users should not be able
-to press keys which don't have a corresponding key map entry.
-And switching or modifying key maps from software shall cope with
-the fact when "raw keys" get reported which don't carry a code.
+Reducing the set of options is orthogonal to that.  Breaking
+backwards compatibility by changing the default behaviour after
+introducing more generic approaches to the specific issue is an
+option that remains for future changes.
 
-Enter the above row/column filter based on the keymap:  Only
-controlling those pins where interconnections have a keymap entry
-(an operation that's cheap) reduces access to GPIOs (which may or
-may not be expensive in "abolute" terms, but certainly is more
-expensive than a keymap check), and eliminiates the issue of
-emitting events which lack codes.  Sounds like the appropriate
-solution to the problem.
+> >>> +- gpio-activelow:	row pins as well as column pins are active low
+> >>
+> >> That one change is definitely wrong. Each entry in row-gpios and
+> >> col-gpios should include GPIO flags (in a format defined by the binding
+> >> for the DT node providing the GPIO). Those flags include an active-high
+> >> vs. active-low bit. In Linux, you can use of_get_gpio_flags() to
+> >> retrieve a standardized representation of the flags.
+> > 
+> > See my introduction above.  This isn't a "change", it's just
+> > catching up in the documentation and adding what was omitted
+> > before.
+> 
+> Oh dear, that's quite unfortunate. I see that even though that property
+> wasn't documented in the binding doc, arch/powerpc/boot/dts/ac14xx.dts
+> has still already used it, so we probably can't fix it. I suppose we
+> must simply document it, and ignore the shortcomings of that binding:-(
+
+Don't worry about the 'AC14xx' board too long, its using the
+keypad matrix driver is new in mainline, and still can get
+adjusted without too much problems before more wide spread use.
+"Getting it right" is what I'm currently heading for, while
+nothing is set in stone yet.
+
+The actual issue I see is that
+- the device tree binding specs get mapped to platform data
+- the platform data is shared among the (device tree capable but
+  as well used without a device tree) keypad matrix driver _and_
+  the other platform data providing machines (mostly ARM based)
+
+So the drivers' logic referenced the 'active low' flag which the
+platform data already carried, which the device tree parse
+routines happen to setup.  So when you see a reference to the
+property in a .dts, it's just "the tip of the ice berg" since
+there are other ways to communicate or setup that property.
 
 
 virtually yours

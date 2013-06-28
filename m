@@ -1,57 +1,64 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH v2 1/2] input: document gamepad API and add extra keycodes
-Date: Fri, 28 Jun 2013 12:45:27 +0200
-Message-ID: <CANq1E4ROdBwtjKOwid=zOTvTDcLaM7wn1a2ck251vEBcFAEDSw@mail.gmail.com>
-References: <1371303165-1802-1-git-send-email-dh.herrmann@gmail.com>
-	<1371303165-1802-2-git-send-email-dh.herrmann@gmail.com>
-	<20130626160727.GA32420@core.coreip.homeip.net>
-	<alpine.LNX.2.00.1306271147150.3538@pobox.suse.cz>
+Subject: Re: [PATCH] Added a check for NULL pointer in hid_add_device
+Date: Fri, 28 Jun 2013 12:52:00 +0200
+Message-ID: <CANq1E4QpZ773Kz=vgAYLV+dkbFG6XgFzGLteCzoQSDcL7c3+Lg@mail.gmail.com>
+References: <1372182701-12256-1-git-send-email-michael.banken@mathe.stud.uni-erlangen.de>
+	<51CAF4C9.20407@redhat.com>
+	<3109bea2ac0947fd544042e51bcb75ad.squirrel@faumail.uni-erlangen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f176.google.com ([209.85.217.176]:51507 "EHLO
-	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755402Ab3F1Kp3 (ORCPT
+Received: from mail-la0-f48.google.com ([209.85.215.48]:46540 "EHLO
+	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755582Ab3F1KwC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jun 2013 06:45:29 -0400
-In-Reply-To: <alpine.LNX.2.00.1306271147150.3538@pobox.suse.cz>
+	Fri, 28 Jun 2013 06:52:02 -0400
+In-Reply-To: <3109bea2ac0947fd544042e51bcb75ad.squirrel@faumail.uni-erlangen.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Todd Showalter <todd@electronjump.com>, linux-kernel <linux-kernel@vger.kernel.org>
+To: michael.banken@mathe.stud.uni-erlangen.de
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, srinivas pandruvada <srinivas.pandruvada@intel.com>, erazor_de@users.sourceforge.net, Jiri Kosina <jkosina@suse.cz>, lorenz@badgers.com, linux-kernel@i4.informatik.uni-erlangen.de, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
 Hi
 
-On Thu, Jun 27, 2013 at 11:47 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 26 Jun 2013, Dmitry Torokhov wrote:
+On Wed, Jun 26, 2013 at 5:45 PM,
+<michael.banken@mathe.stud.uni-erlangen.de> wrote:
+> Hi,
 >
->> On Sat, Jun 15, 2013 at 03:32:44PM +0200, David Herrmann wrote:
->> > --- a/include/uapi/linux/input.h
->> > +++ b/include/uapi/linux/input.h
->> > @@ -507,10 +507,14 @@ struct input_keymap_entry {
->> >
->> >  #define BTN_GAMEPAD                0x130
->> >  #define BTN_A                      0x130
->> > +#define BTN_SOUTH          0x130
->>
->> Could we do:
->>
->> #define BTN_SOUTH             0x130
->> #define BTN_A                 BTN_SOUTH
->>
->> so that it is clear that BTN_A, BTN_B, etc are legacy definitions and
->> not an accidental typos that need their own key codes.
->
-> Makes sense, will do that modification.
->
->> Otherwise:
->>
->> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> Thanks Dmitry. Will be taking it (with the above modification) through my
-> tree.
+> The idea was to make the creation of an empty hid device while inside the
+> kernel easier. This problem came up, when I was writing a kernel module
+> driver for a usb temperature sensor. The sensors were supposed to be
+> recognized in lm-sensors, which does not recognize usb devices. The
+> solution in this case was to create an empty hid device to hook it up to
+> sysfs.
+> In some older implementations of this driver the solution to this problem
+> was creating an empty hid device to hook it up to sysfs.
+> These older implementations of the driver are not working anymore, unless
+> built with the change I am suggesting, because in the current version
+> their method of creating the hid device causes a NULL pointer dereference
+> at the point where I added the check.
 
-Thanks to both of you! Looks good.
+So you create an empty HID device to achieve what? I really cannot
+follow, sorry. If you want lm_sensors to pick up your sensors, why not
+patch lm_sensors to do so?
+
+> The reason, why I believe this change to be completely harmless is that in
+> the case where there actually is a NULL pointer the function would
+> dereference it anyway immediately after the line where I added the check.
+> The only problem that to my understanding could possibly arise is delaying
+> the inevitable oops for a little while.
+
+All other parts of the HID layer assume ll_driver to be NULL. It works
+for you, because you avoid any ll_driver interaction so these parts of
+the HID core that work with it will never get called. However, that's
+not how it is supposed to work.
+
+Could you describe why you cannot hook up your device as USB device
+directly? Does lm_sensors only scan HID bus devices, not USB bus
+devices or what is the exact reason?
+
+> best regards,
+> Michael
 
 Cheers
 David

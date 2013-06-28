@@ -1,64 +1,155 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Added a check for NULL pointer in hid_add_device
-Date: Fri, 28 Jun 2013 12:52:00 +0200
-Message-ID: <CANq1E4QpZ773Kz=vgAYLV+dkbFG6XgFzGLteCzoQSDcL7c3+Lg@mail.gmail.com>
-References: <1372182701-12256-1-git-send-email-michael.banken@mathe.stud.uni-erlangen.de>
-	<51CAF4C9.20407@redhat.com>
-	<3109bea2ac0947fd544042e51bcb75ad.squirrel@faumail.uni-erlangen.de>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: Re: [PATCH 2/2] Input: Adding DT support for keyreset tuneables
+Date: Fri, 28 Jun 2013 07:19:06 -0600
+Message-ID: <51CD8D4A.10207@linaro.org>
+References: <1372349605-4500-1-git-send-email-mathieu.poirier@linaro.org> <1372349605-4500-2-git-send-email-mathieu.poirier@linaro.org> <20130627162820.GA12070@core.coreip.homeip.net> <51CC7CD5.5090508@linaro.org> <20130627182500.GB12961@core.coreip.homeip.net> <51CC8786.1070200@linaro.org> <20130628060945.GA17523@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f48.google.com ([209.85.215.48]:46540 "EHLO
-	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755582Ab3F1KwC (ORCPT
+Received: from mail-pb0-f43.google.com ([209.85.160.43]:52557 "EHLO
+	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750776Ab3F1NS5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jun 2013 06:52:02 -0400
-In-Reply-To: <3109bea2ac0947fd544042e51bcb75ad.squirrel@faumail.uni-erlangen.de>
+	Fri, 28 Jun 2013 09:18:57 -0400
+Received: by mail-pb0-f43.google.com with SMTP id md12so2245702pbc.30
+        for <linux-input@vger.kernel.org>; Fri, 28 Jun 2013 06:18:57 -0700 (PDT)
+In-Reply-To: <20130628060945.GA17523@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: michael.banken@mathe.stud.uni-erlangen.de
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, srinivas pandruvada <srinivas.pandruvada@intel.com>, erazor_de@users.sourceforge.net, Jiri Kosina <jkosina@suse.cz>, lorenz@badgers.com, linux-kernel@i4.informatik.uni-erlangen.de, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: grant.likely@linaro.org, devicetree-discuss@lists.ozlabs.org, john.stultz@linaro.org, kernel-team@android.com, linux-input@vger.kernel.org
 
-Hi
+On 13-06-28 12:09 AM, Dmitry Torokhov wrote:
+> On Thu, Jun 27, 2013 at 12:42:14PM -0600, Mathieu Poirier wrote:
+>> On 13-06-27 12:25 PM, Dmitry Torokhov wrote:
+>>> On Thu, Jun 27, 2013 at 11:56:37AM -0600, Mathieu Poirier wrote:
+>>>> On 13-06-27 10:28 AM, Dmitry Torokhov wrote:
+>>>>> Hi Mathieu,
+>>>>>
+>>>>> On Thu, Jun 27, 2013 at 10:13:25AM -0600, mathieu.poirier@linaro.org wrote:
+>>>>>> From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
+>>>>>>
+>>>>>> This patch adds the possibility to get the keyreset and timeout
+>>>>>> values from the device tree.
+>>>>>>
+>>>>>> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+>>>>>> ---
+>>>>>>  drivers/tty/sysrq.c |   54 +++++++++++++++++++++++++++++++++++++++++++++++++++
+>>>>>>  1 file changed, 54 insertions(+)
+>>>>>>
+>>>>>> diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+>>>>>> index b51c154..91d081c 100644
+>>>>>> --- a/drivers/tty/sysrq.c
+>>>>>> +++ b/drivers/tty/sysrq.c
+>>>>>> @@ -44,6 +44,7 @@
+>>>>>>  #include <linux/uaccess.h>
+>>>>>>  #include <linux/moduleparam.h>
+>>>>>>  #include <linux/jiffies.h>
+>>>>>> +#include <linux/of.h>
+>>>>>>  
+>>>>>>  #include <asm/ptrace.h>
+>>>>>>  #include <asm/irq_regs.h>
+>>>>>> @@ -671,6 +672,50 @@ static void sysrq_detect_reset_sequence(struct sysrq_state *state,
+>>>>>>  	}
+>>>>>>  }
+>>>>>>  
+>>>>>> +static void sysrq_of_get_keyreset_config(void)
+>>>>>> +{
+>>>>>> +	unsigned short key;
+>>>>>> +	struct device_node *np;
+>>>>>> +	const struct property *prop;
+>>>>>> +	const __be32 *val;
+>>>>>> +	int count, i;
+>>>>>> +
+>>>>>> +	np = of_find_node_by_path("/sysrq");
+>>>>>> +	if (!np) {
+>>>>>> +		pr_info("No sysrq node found");
+>>>>>
+>>>>> I do not think this should be an info as majority would not have it
+>>>>> defined I think.
+>>>>
+>>>> I fail to understand your point - could you please be more specific ?
+>>>
+>>> pr_info() will clutter everyone's dmesg because I expect majority of
+>>> installs will not have this enabled. Please change to pr_debug or just
+>>> drop it.
+>>
+>> Ah! Yes certainly.
+>>
+>>>
+>>>>
+>>>>>
+>>>>>> +		goto out;
+>>>>>> +	}
+>>>>>> +
+>>>>>> +	prop = of_find_property(np, "linux,input-keyset", NULL);
+>>>>>
+>>>>> Maybe "linux,input-key*re*set"?
+>>>>
+>>>> I do not agree.  We want the binding to be generic and not tied
+>>>> specifically to the keyreset functionality.  As such 'input-keyset' or
+>>>> 'input-keychord' are more appropriate.
+>>>
+>>> The binding is defined specifically for sysrq and specifically to
+>>> perform reset action.
+>>
+>> Yes for now but as the examples in the binding show, it is easy to
+>> envision how other drivers could use it.
+> 
+> I think you over-complicate things here. Unlike matrix-keypad binding,
+> where you have a common parsing code, here we have an individual driver.
+> I really do not see anyone else using such sequences or chords as such
+> processing should be done in userspace. Sysrq is quite an exception.
 
-On Wed, Jun 26, 2013 at 5:45 PM,
-<michael.banken@mathe.stud.uni-erlangen.de> wrote:
-> Hi,
->
-> The idea was to make the creation of an empty hid device while inside the
-> kernel easier. This problem came up, when I was writing a kernel module
-> driver for a usb temperature sensor. The sensors were supposed to be
-> recognized in lm-sensors, which does not recognize usb devices. The
-> solution in this case was to create an empty hid device to hook it up to
-> sysfs.
-> In some older implementations of this driver the solution to this problem
-> was creating an empty hid device to hook it up to sysfs.
-> These older implementations of the driver are not working anymore, unless
-> built with the change I am suggesting, because in the current version
-> their method of creating the hid device causes a NULL pointer dereference
-> at the point where I added the check.
+To be honest I don't have a very strong opinion on the binding.  I made
+it as generic as possible on the guidance of the DT people.  Let's see
+what they think of it.
 
-So you create an empty HID device to achieve what? I really cannot
-follow, sorry. If you want lm_sensors to pick up your sensors, why not
-patch lm_sensors to do so?
+> 
+>>
+>>>
+>>>>
+>>>>>
+>>>>>> +	if (!prop || !prop->value) {
+>>>>>> +		pr_err("Invalid input-keyset");
+>>>>>> +		goto out;
+>>>>>> +	}
+>>>>>> +
+>>>>>> +	count = prop->length / sizeof(u32);
+>>>>>> +	val = prop->value;
+>>>>>> +
+>>>>>> +	if (count > SYSRQ_KEY_RESET_MAX)
+>>>>>> +		count = SYSRQ_KEY_RESET_MAX;
+>>>>>> +
+>>>>>> +	/* reset in case a __weak definition was present */
+>>>>>> +	sysrq_reset_seq_len = 0;
+>>>>>
+>>>>> Hmm, my preference for ordering would be software over firmware, so that
+>>>>> user could override firmware data, if needed.
+>>>>
+>>>> The idea is to offer flexibility.  The same kernel can be used on
+>>>> multiple device.  As such DT information should be prioritised over a
+>>>> __weak symbol, otherwise it defeats the purpose.
+>>>
+>>> The weak symbol should defined in board data, so it won't get picked up
+>>> on multiple boards. But I guess I do not care that much as indeed we can
+>>> change the sequence from userspace so we won't be stuck with firmware
+>>> choices.
+>>
+>> Humm... My reply wasn't clear enough.  I was thinking about the same
+>> board with different input device, i.e keypad or touchscreen.  In that
+>> case the board file would have been the same but not the keyreset
+>> sequence, which is exactly what the above ordering allows to do.
+> 
+> That does not quite make sense as the only sequence we are parsing is
+> the one in "sysrq" node, which is global.
 
-> The reason, why I believe this change to be completely harmless is that in
-> the case where there actually is a NULL pointer the function would
-> dereference it anyway immediately after the line where I added the check.
-> The only problem that to my understanding could possibly arise is delaying
-> the inevitable oops for a little while.
+Once again our opinion diverge.  It is entirely possible to use the same
+kernel on different device (stemming from the same board file) with a
+device tree to guide the configuration.
 
-All other parts of the HID layer assume ll_driver to be NULL. It works
-for you, because you avoid any ll_driver interaction so these parts of
-the HID core that work with it will never get called. However, that's
-not how it is supposed to work.
+> 
+> Thanks.
+> 
 
-Could you describe why you cannot hook up your device as USB device
-directly? Does lm_sensors only scan HID bus devices, not USB bus
-devices or what is the exact reason?
-
-> best regards,
-> Michael
-
-Cheers
-David

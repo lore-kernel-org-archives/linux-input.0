@@ -1,47 +1,81 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Add OLPC AP-SP input driver
-Date: Fri, 28 Jun 2013 13:32:43 -0700
-Message-ID: <20130628203242.GA22495@core.coreip.homeip.net>
-References: <20130628171958.CC031FAAD5@dev.laptop.org>
- <20130628182000.GA21589@core.coreip.homeip.net>
- <CAMLZHHSVghT1t1v4RWzYVQ3hv4oLDvvkfVZMnQ5aARDZot13fA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: [PATCH] hid: wacom: Intuos4 battery charging changes
+Date: Sat, 29 Jun 2013 10:57:13 +0100
+Message-ID: <1372499833-7814-1-git-send-email-przemo@firszt.eu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f41.google.com ([209.85.160.41]:40790 "EHLO
-	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751975Ab3F1Ucs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Jun 2013 16:32:48 -0400
-Received: by mail-pb0-f41.google.com with SMTP id rp16so2698245pbb.14
-        for <linux-input@vger.kernel.org>; Fri, 28 Jun 2013 13:32:47 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAMLZHHSVghT1t1v4RWzYVQ3hv4oLDvvkfVZMnQ5aARDZot13fA@mail.gmail.com>
+Received: from wren.arvixe.com ([50.97.138.117]:34950 "EHLO wren.arvixe.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751940Ab3F2KRf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 29 Jun 2013 06:17:35 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Drake <dsd@laptop.org>
-Cc: linux-input@vger.kernel.org, paul fox <pgf@laptop.org>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>
+To: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: pinglinux@gmail.com, Przemo Firszt <przemo@firszt.eu>
 
-On Fri, Jun 28, 2013 at 01:15:35PM -0600, Daniel Drake wrote:
-> On Fri, Jun 28, 2013 at 12:20 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >> +static void olpc_apsp_close(struct serio *port)
-> >> +{
-> >> +     struct olpc_apsp *priv = port->port_data;
-> >> +     unsigned int tmp;
-> >> +
-> >> +     if (--priv->open_count == 0) {
-> >
-> > Both need locking. It looks like you need the song and dance similar to
-> > what i8042 has to do with it's multiplexed ports. Or ps2mult.c...
-> 
-> I thought they would both be locked already, due to this comment in serio.c:
-> 
-> /* called from serio_driver->connect/disconnect methods under serio_mutex */
-> 
-> Or am I missing something there?
+Intuos4 WL is separately reporting power supply and battery
+charging status - now hid-wacom is using that information.
+Previously hid-wacom was wrongly treating "battery charging" bit
+as "power supply connected". Now it should report battery charging,
+battery discharging, battery full and power supply status.
 
-Hmm, you are right... I'll add a comment there to remind myself.
+Intuos4 WL sends reports when is in use (obvious) and when unplugging
+power supply. If means that if the device is being charged, but it's not
+being used it will never report "battery full". The same problem happens
+after the device has been connected, but it's not in use - the
+battery/ac status will be incorrect. Currently there is no mechanism to
+ask the device to send a report containing battery/ac status.
 
+Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+---
+ drivers/hid/hid-wacom.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index a4a8bb0..60c75dc 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -46,6 +46,7 @@ struct wacom_data {
+ 	__u8 battery_capacity;
+ 	__u8 power_raw;
+ 	__u8 ps_connected;
++	__u8 bat_charging;
+ 	struct power_supply battery;
+ 	struct power_supply ac;
+ 	__u8 led_selector;
+@@ -62,6 +63,7 @@ static enum power_supply_property wacom_battery_props[] = {
+ 	POWER_SUPPLY_PROP_PRESENT,
+ 	POWER_SUPPLY_PROP_CAPACITY,
+ 	POWER_SUPPLY_PROP_SCOPE,
++	POWER_SUPPLY_PROP_STATUS,
+ };
+ 
+ static enum power_supply_property wacom_ac_props[] = {
+@@ -287,6 +289,15 @@ static int wacom_battery_get_property(struct power_supply *psy,
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+ 		val->intval = wdata->battery_capacity;
+ 		break;
++	case POWER_SUPPLY_PROP_STATUS:
++		if (wdata->bat_charging)
++			val->intval = POWER_SUPPLY_STATUS_CHARGING;
++		else
++			if (wdata->battery_capacity == 100 && wdata->ps_connected)
++				val->intval = POWER_SUPPLY_STATUS_FULL;
++			else
++				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
++		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		break;
+@@ -727,7 +738,8 @@ static int wacom_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 			if (power_raw != wdata->power_raw) {
+ 				wdata->power_raw = power_raw;
+ 				wdata->battery_capacity = batcap_i4[power_raw & 0x07];
+-				wdata->ps_connected = power_raw & 0x08;
++				wdata->bat_charging = (power_raw & 0x08) ? 1 : 0;
++				wdata->ps_connected = (power_raw & 0x10) ? 1 : 0;
+ 			}
+ 
+ 			break;
 -- 
-Dmitry
+1.8.1.4
+

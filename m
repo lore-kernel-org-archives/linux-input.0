@@ -1,139 +1,120 @@
 From: Gerhard Sittig <gsi@denx.de>
-Subject: Re: [PATCH v1 04/12] input: matrix-keypad: push/pull, separate
- polarity
-Date: Sun, 30 Jun 2013 13:43:24 +0200
-Message-ID: <20130630114324.GA24305@book.gsilab.sittig.org>
+Subject: Re: [PATCH v1 08/12] input: keypad-matrix: tell GPIO pins from
+ matrix lines
+Date: Sun, 30 Jun 2013 14:03:07 +0200
+Message-ID: <20130630120307.GB24305@book.gsilab.sittig.org>
 References: <1371838198-7327-1-git-send-email-gsi@denx.de>
- <1371838198-7327-5-git-send-email-gsi@denx.de>
- <51C4C6C9.6030000@wwwdotorg.org>
- <20130622093649.GF24305@book.gsilab.sittig.org>
- <51C8D2BC.9010507@wwwdotorg.org>
- <20130628083354.GW24305@book.gsilab.sittig.org>
- <51CDA539.1020405@wwwdotorg.org>
+ <1371838198-7327-9-git-send-email-gsi@denx.de>
+ <51C4C87B.3050300@wwwdotorg.org>
+ <20130622100052.GH24305@book.gsilab.sittig.org>
+ <51C8D599.2010706@wwwdotorg.org>
+ <20130628075240.GU24305@book.gsilab.sittig.org>
+ <51CD9F3E.9060003@wwwdotorg.org>
+ <20130628182556.GB21589@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:36360 "EHLO
+Received: from mail-out.m-online.net ([212.18.0.9]:59822 "EHLO
 	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750945Ab3F3Ln2 (ORCPT
+	with ESMTP id S1750945Ab3F3MDR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Jun 2013 07:43:28 -0400
+	Sun, 30 Jun 2013 08:03:17 -0400
 Content-Disposition: inline
-In-Reply-To: <51CDA539.1020405@wwwdotorg.org>
+In-Reply-To: <20130628182556.GB21589@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Chao Xie <xiechao.mail@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Detlev Zundel <dzu@denx.de>, Sekhar Nori <nsekhar@ti.com>, Marek Vasut <marek.vasut@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Eric Miao <eric.y.miao@gmail.com>, Detlev Zundel <dzu@denx.de>, devicetree-discuss@lists.ozlabs.org, Chao Xie <xiechao.mail@gmail.com>, Sekhar Nori <nsekhar@ti.com>, Ralf Baechle <ralf@linux-mips.org>, Marek Vasut <marek.vasut@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Fri, Jun 28, 2013 at 09:01 -0600, Stephen Warren wrote:
+On Fri, Jun 28, 2013 at 11:25 -0700, Dmitry Torokhov wrote:
 > 
-> On 06/28/2013 02:33 AM, Gerhard Sittig wrote:
-> > On Mon, Jun 24, 2013 at 17:14 -0600, Stephen Warren wrote:
-> >>
-> >> [ active low pins, individually for sets or even single pins ]
-> >>
-> >> Can't you add this enhancement as follows:
-> >>
-> >> Update the driver to look at the per-pin GPIO flags in all cases.
-> >> Presumably in any existing cases, those flags all say "active high"
-> >> anyway, since specifying anything else was useless. In the very unlikely
-> >> case this isn't true, one could always add a quirk based on the
-> >> HW-specific compatible value.
+> On Fri, Jun 28, 2013 at 08:35:42AM -0600, Stephen Warren wrote:
+> > On 06/28/2013 01:52 AM, Gerhard Sittig wrote:
+> > > 
+> > > [ late reply, just catching up with the backlog ]
+> > > 
+> > > On Mon, Jun 24, 2013 at 17:26 -0600, Stephen Warren wrote:
+> > >>
+> > >> [ ... sparse matrices, not all columns/rows populated ... ]
 > > 
-> > Maybe I missed something, but
-> > - is "the 'active low' property of a GPIO pin" something platform
-> >   specific? (maybe ARM inspired, introduced with pinctrl features)
-> > - is it only available for specific GPIO controller drivers
-> >   ("chips" or "banks"), or is it in some layer on top of gpiolib?
-> 
-> The way this property is represented is technically defined by each
-> individual GPIO controller's DT binding. However, at least on ARM (and
-> in fact I'd guess everywhere), many/most controllers do this in the same
-> way; by adding an additional cell to #gpio-cells, which holds flags
-> data, with values in that cell containing:
-> 
-> include/linux/of_gpio.h:
-> 
-> > /*
-> >  * This is Linux-specific flags. By default controllers' and Linux' mapping
-> >  * match, but GPIO controllers are free to translate their own flags to
-> >  * Linux-specific in their .xlate callback. Though, 1:1 mapping is recommended.
-> >  */
-> > enum of_gpio_flags {
-> >         OF_GPIO_ACTIVE_LOW = 0x1,
-> > };
-> 
-> include/dt-bindings/gpio/gpio.h:
-> 
-> > #define GPIO_ACTIVE_HIGH 0
-> > #define GPIO_ACTIVE_LOW 1
-> 
-> I'm not sure how new this is; it's possible older bindings don't have
-> this extra cell. A quick grep of arch/*/boot/dts shows that almost all
-> values of #gpio-cells are 2, so likely this is almost everywhere though.
-
-Ah, so it's not a feature of gpiolib in itself, but in parallel
-to gpiolib.
-
-In addition to the "chip and pin" spec in device tree bindings,
-one may specify additional flags, of which currently only
-'active-low' exists.  Thank you for the pointer.  Yes I've seen
-"phandle plus two cell" specs everywhere, but haven't seen any
-non-zero value so far in the second cell.
-
-> > - is it in some other tree or branch than mainline?
-> 
-> It's been in mainline for quite a while now; a good number of kernel
-> releases.
-> 
-> > Documentation/gpio.txt suggests and eyeballing the gpiolib.c
-> > source supports (v3.10-rc7) that the in-kernel API doesn't have
-> > an 'active-low' for pins.  There is one for the sysfs API and
-> > pins that were exported to user space, but not for in-kernel use.
+> > >> On some Tegra boards, there end up
+> > >> being rather tri-angular keymaps, where key positions (0, 0), (0, 1),
+> > >> (0, 2), (1, 1), (1, 2), (2, 2) end up being used. In this scenario,
+> > >> detailed investigation of the keymap would reveal:
+> > >>
+> > >> * Only scan columns 0..2
+> > >> * For column 0, scan rows 0..2
+> > >> * For column 1, scan rows 1..2
+> > >> * For columm 2, scan row 2.
+> > > 
+> > > That's another question I had.  So far I was concerned with just
+> > > polling or scanning the relevant columns, while all the rows for
+> > > a given column were queried (as the driver always used to do).
+> > > 
+> > > Now you raise the question of whether rows should get queried as
+> > > well depending on whether "a key may sit there".  It wasn't the
+> > > exact question I raised, but I added a comment to the spot where
+> > > input subsystem events get generated:  Is the driver expected to
+> > > emit events for matrix positions where no key map entry exists?
 > > 
-> > This fits with my observation that application drivers on top of
-> > gpiolib often take care of such a property which actually looks
-> > like it would belong to the physical attachment.
-> > 
-> > I understand that a chip's driver will hide when a SoC's pin is
-> > inverted, but I cannot see where gpiolib provides a means to hide
-> > an externally connected inverting driver.
+> > I would assume there is no need to, but I don't know for sure. Perhaps
+> > Dmitry can answer that?
 > 
-> With the current gpiolib APIs, gpiolib only provides a way for GPIO
-> clients to retrieve the GPIO flags from DT. It's then up to the GPIO
-> client to actually make use of the flag, by inverting the value passed
-> to gpio_set(), or returned from gpio_get().
+> It really depends whether the driver can absolutely be sure that the key
+> is not there or if it might be. Because keymaps are configurable from
+> userspace the driver should not make this decision based on keymap
+> itself.
 > 
-> Flags are retrieved by calling of_get_named_gpio_flags() rather than
-> of_get_named_gpio().
+> When you scan a matrix and come upon the "pressed key" condition, you
+> supposed to emit EV_MSC/MSC_SCAN, followed by appropriate EV_KEY/KEY_*.
+> Normally the "keys that aren't there" generate KEY_RESERVED events that
+> are simply dropped by input core (cause it is easier to implement).
+> MSC_SCAN events, however, reach the userspace intact.
 
-Ah, so optionally inverting the level between the logical request
-in software and controlling the physical pin remains the job of
-the application driver (here: the input driver that manages the
-matrix which just happens to be attached to GPIOs), since it's
-not transparently done within gpiolib or the gpio chip driver.
+OK, so I understand that
+- filtering events based on the keymap entry being present would
+  be inappropriate, the driver MUST emit key press events even if
+  no key code is mapped to that position (especially since keymap
+  entries may get modified at runtime)
+- it's perfectly appropriate for a driver to assume that _any_
+  intersection in the matrix _may_ carry a key, and scan for
+  changes on that position, to derive input events (this is what
+  the current implementation of the matrix driver does)
+- it's an _option_ whether the theoretically possible set of key
+  positions further gets reduced to some "really physically
+  present" and thus "to get scanned only" set, which currently
+  isn't done and isn't mandatory, as in theory absent keys cannot
+  lead to changes and thus should never result in input events
 
-But what the matrix driver shall do is not apply one 'invert
-everything' flag, but instead apply a flag that's specific to an
-individual GPIO pin.  And this pin specific flag either gets
-setup from device tree information (from the flags cell of the
-GPIO spec), or gets derived from the platform data's 'invert
-everything' flag that applies to the non-DT case.  And thus the
-individual polarity of rows and columns is a mere "byproduct" of
-respecting the individual pins' polarity.  Nice. :)
-
-Thank you, this pointer is much appreciated.
+So optionally reducing the set of "to get scanned" positions is
+some kind of micro-optimization (depending on the cost of GPIO
+access, or in the polling scenario depending on how many columns
+are empty).
 
 
-> There is a new GPIO API under development which I /think/ will hide this
-> flag inside the GPIO core, so that GPIO clients don't have to care about
-> it, and it all works automatically. I'm not sure what the status of this
-> is though. Search Google for "gpio_get()".
+My patch did not introduce the filter with new keywords, it just
+made the existing driver use an existing DT parse routine which
+scans for already documented properties of the keymap helper.
+This simple approach assumes that the populated set always is in
+the range from 0 .. N-1, sparse layouts beyond that simple
+approach are possible and get processed correctly in the driver,
+but cannot get described in the device tree.  Which still results
+in non-optimized but correct behaviour.
 
-Oh, I understand that this involves a huge sweep over both layers
-of GPIO chip drivers as well as GPIO API using drivers.  And is
-completely orthogonal to whether and when more drivers are tought
-to respect the pin's active-low property.
+Finer grained control beyond what my patch addresses would be
+possible but remain an option for later improvement (if desire is
+big enough to describe non-square layouts or sparse layouts where
+the gaps are in any arbitrary position).
+
+> Hope this helps.
+
+Yes, your response answers a question that I raised elsewhere in
+the form of a TODO comment, that now has become obsolete.  I will
+reword it to not raise the question, but to mention that emitting
+input events for key positions even in the absence of a key code
+is not just desirable but actually required.
+
+Thank you!
 
 
 virtually yours

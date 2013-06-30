@@ -1,81 +1,60 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: [PATCH] hid: wacom: Intuos4 battery charging changes
-Date: Sat, 29 Jun 2013 10:57:13 +0100
-Message-ID: <1372499833-7814-1-git-send-email-przemo@firszt.eu>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [RESEND][PATCH] cyttsp: Fix swap of mfg_stat and mfg_cmd registers
+Date: Sun, 30 Jun 2013 02:32:10 +0200
+Message-ID: <CABxcv=kFK--BMVqn4W=AKDxKw=nvGzqH3VVBSC5qyu5=wjvSmg@mail.gmail.com>
+References: <20130629165304.GA26993@raspi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wren.arvixe.com ([50.97.138.117]:34950 "EHLO wren.arvixe.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751940Ab3F2KRf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 Jun 2013 06:17:35 -0400
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:33468 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751688Ab3F3AcM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 29 Jun 2013 20:32:12 -0400
+Received: by mail-wi0-f182.google.com with SMTP id m6so2017973wiv.3
+        for <linux-input@vger.kernel.org>; Sat, 29 Jun 2013 17:32:10 -0700 (PDT)
+In-Reply-To: <20130629165304.GA26993@raspi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: pinglinux@gmail.com, Przemo Firszt <przemo@firszt.eu>
+To: Matthias Kaehlcke <matthias.list@kaehlcke.net>, Javier Martinez Canillas <javier@dowhile0.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin McNeely <kev@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Intuos4 WL is separately reporting power supply and battery
-charging status - now hid-wacom is using that information.
-Previously hid-wacom was wrongly treating "battery charging" bit
-as "power supply connected". Now it should report battery charging,
-battery discharging, battery full and power supply status.
+On Sat, Jun 29, 2013 at 6:53 PM, Matthias Kaehlcke
+<matthias.list@kaehlcke.net> wrote:
+> The command and status register in the driver were swapped with
+> respect to the order specified in the datasheet (CY8CTMA140).
+> Confirmed with Cypress that the order in the datasheet is correct.
+>
+> Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+> Acked-by: Javier Martinez Canillas <javier@dowhile0.org>
+> Acked-by: Ferruh Yigit <fery@cypress.com>
+>
+> ---
+>  drivers/input/touchscreen/cyttsp_core.h |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/touchscreen/cyttsp_core.h b/drivers/input/touchscreen/cyttsp_core.h
+> index 1aa3c69..f1ebde3 100644
+> --- a/drivers/input/touchscreen/cyttsp_core.h
+> +++ b/drivers/input/touchscreen/cyttsp_core.h
+> @@ -67,8 +67,8 @@ struct cyttsp_xydata {
+>  /* TTSP System Information interface definition */
+>  struct cyttsp_sysinfo_data {
+>         u8 hst_mode;
+> -       u8 mfg_cmd;
+>         u8 mfg_stat;
+> +       u8 mfg_cmd;
+>         u8 cid[3];
+>         u8 tt_undef1;
+>         u8 uid[8];
+> --
+> 1.7.10.4
+>
+> --
 
-Intuos4 WL sends reports when is in use (obvious) and when unplugging
-power supply. If means that if the device is being charged, but it's not
-being used it will never report "battery full". The same problem happens
-after the device has been connected, but it's not in use - the
-battery/ac status will be incorrect. Currently there is no mechanism to
-ask the device to send a report containing battery/ac status.
+Hi Matthias,
 
-Signed-off-by: Przemo Firszt <przemo@firszt.eu>
----
- drivers/hid/hid-wacom.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+This patch has already been merged in Linus tree a few days ago with
+commit ID d3bf073aa.
 
-diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-index a4a8bb0..60c75dc 100644
---- a/drivers/hid/hid-wacom.c
-+++ b/drivers/hid/hid-wacom.c
-@@ -46,6 +46,7 @@ struct wacom_data {
- 	__u8 battery_capacity;
- 	__u8 power_raw;
- 	__u8 ps_connected;
-+	__u8 bat_charging;
- 	struct power_supply battery;
- 	struct power_supply ac;
- 	__u8 led_selector;
-@@ -62,6 +63,7 @@ static enum power_supply_property wacom_battery_props[] = {
- 	POWER_SUPPLY_PROP_PRESENT,
- 	POWER_SUPPLY_PROP_CAPACITY,
- 	POWER_SUPPLY_PROP_SCOPE,
-+	POWER_SUPPLY_PROP_STATUS,
- };
- 
- static enum power_supply_property wacom_ac_props[] = {
-@@ -287,6 +289,15 @@ static int wacom_battery_get_property(struct power_supply *psy,
- 	case POWER_SUPPLY_PROP_CAPACITY:
- 		val->intval = wdata->battery_capacity;
- 		break;
-+	case POWER_SUPPLY_PROP_STATUS:
-+		if (wdata->bat_charging)
-+			val->intval = POWER_SUPPLY_STATUS_CHARGING;
-+		else
-+			if (wdata->battery_capacity == 100 && wdata->ps_connected)
-+				val->intval = POWER_SUPPLY_STATUS_FULL;
-+			else
-+				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		break;
-@@ -727,7 +738,8 @@ static int wacom_raw_event(struct hid_device *hdev, struct hid_report *report,
- 			if (power_raw != wdata->power_raw) {
- 				wdata->power_raw = power_raw;
- 				wdata->battery_capacity = batcap_i4[power_raw & 0x07];
--				wdata->ps_connected = power_raw & 0x08;
-+				wdata->bat_charging = (power_raw & 0x08) ? 1 : 0;
-+				wdata->ps_connected = (power_raw & 0x10) ? 1 : 0;
- 			}
- 
- 			break;
--- 
-1.8.1.4
-
+Thanks a lot and best regards,
+Javier

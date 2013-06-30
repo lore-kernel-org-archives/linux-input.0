@@ -1,117 +1,264 @@
-From: rydberg@euromail.se
-Subject: [PATCH 2/2] Input: bcm5974 - Add support for the 2013 MacBook Air
-Date: Sun, 30 Jun 2013 21:04:46 +0200
-Message-ID: <1372619086-3532-3-git-send-email-rydberg@euromail.se>
-References: <1372619086-3532-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1372619086-3532-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, stable@vger.kernel.org
+From: Daniel Mack <zonque@gmail.com>
+Subject: [PATCH RESEND v2 2/2] Input: touchscreen: ads7846: add device tree bindings
+Date: Sun, 30 Jun 2013 23:09:15 +0200
+Message-ID: <1372626555-29479-2-git-send-email-zonque@gmail.com>
+References: <1372626555-29479-1-git-send-email-zonque@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from svenfoo.org ([82.94.215.22]:49070 "EHLO mail.zonque.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752406Ab3F3VRH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 30 Jun 2013 17:17:07 -0400
+In-Reply-To: <1372626555-29479-1-git-send-email-zonque@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: broonie@kernel.org, grant.likely@linaro.org, dmitry.torokhov@gmail.com, agust@denx.de, imre.deak@nokia.com, chf@fritzc.com, Daniel Mack <zonque@gmail.com>
 
-The June 2013 Macbook Air (13'') has a new trackpad protocol; four new
-values are inserted in the header, and the mode switch is no longer
-needed. This patch adds support for the new devices.
-
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: Brad Ford <plymouthffl@gmail.com>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Signed-off-by: Daniel Mack <zonque@gmail.com>
 ---
- drivers/input/mouse/bcm5974.c | 36 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 2 deletions(-)
+ .../devicetree/bindings/input/ads7846.txt          |  86 ++++++++++++++++
+ drivers/input/touchscreen/ads7846.c                | 109 ++++++++++++++++++++-
+ 2 files changed, 194 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/input/ads7846.txt
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 2baff1b..4ef4d5e 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -88,6 +88,10 @@
- #define USB_DEVICE_ID_APPLE_WELLSPRING7A_ANSI	0x0259
- #define USB_DEVICE_ID_APPLE_WELLSPRING7A_ISO	0x025a
- #define USB_DEVICE_ID_APPLE_WELLSPRING7A_JIS	0x025b
-+/* MacbookAir6,2 (unibody, June 2013) */
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI	0x0291
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO	0x0292
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS	0x0293
+diff --git a/Documentation/devicetree/bindings/input/ads7846.txt b/Documentation/devicetree/bindings/input/ads7846.txt
+new file mode 100644
+index 0000000..ac564a1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/ads7846.txt
+@@ -0,0 +1,86 @@
++Device tree bindings for TI's ADS7843, ADS7845, ADS7846, ADS7873, TSC2046
++SPI driven touch screen controllers.
++
++The node for this driver must be a child node of a SPI controller, hence
++all mandatory properties described in
++
++	Documentation/devicetree/bindings/spi/spi-bus.txt
++
++must be specified..
++
++Additional required properties:
++
++	compatible		Must be one of the following, depending on the
++				model:
++					"ti,tsc2046"
++					"ti,ads7843"
++					"ti,ads7845"
++					"ti,ads7846"
++					"ti,ads7873"
++
++	interrupt-parent
++	interrupts		An interrupt node describing the IRQ line the chip's
++				!PENIRQ pin is connected to.
++	vcc-supply		A regulator node for the supply voltage.
++
++
++Optional properties:
++
++	ti,vref-delay-usecs		vref supply delay in usecs, 0 for
++					external vref
++	ti,vref-mv			The VREF voltage, in millivolts.
++	ti,keep-vref-on			set to keep vref on for differential
++					measurements as well.
++	ti,swap-xy			swap x and y axis
++	ti,settle-delay-usec		Settling time of the analog signals;
++					a function of Vcc and the capacitance
++					on the X/Y drivers.  If set to non-zero,
++					two samples are taken with settle_delay
++					us apart, and the second one is used.
++					~150 uSec with 0.01uF caps.
++	ti,penirq-recheck-delay-usecs	If set to non-zero, after samples are
++					taken this delay is applied and penirq
++					is rechecked, to help avoid false
++					events.  This value is affected by the
++					material used to build the touch layer.
++	ti,x-plate-ohms			Resistance of the X-plate, in Ohms.
++	ti,y-plate-ohms			Resistance of the Y-plate, in Ohms.
++	ti,x-min			Minimum value on the X axis.
++	ti,y-min			Minimum value on the Y axis.
++	ti,x-max			Maximum value on the X axis.
++	ti,y-max			Minimum value on the Y axis.
++	ti,pressure-min			Minimum reported pressure value (threshold).
++	ti,pressure-max			Maximum reported pressure value.
++	ti,debounce-max			Max number of additional readings per sample.
++	ti,debounce-tol			Tolerance used for filtering.
++	ti,debounce-rep			Additional consecutive good readings
++					required after the first two.
++	ti,pendown-gpio-debounce	Platform specific debounce time for the
++					pendown-gpio.
++	pendown-gpio			GPIO handle describing the pin the !PENIRQ
++					line is connected to.
++	linux,wakeup			use any event on touchscreen as wakeup event.
++
++
++Example for a TSC2046 chip connected to an McSPI controller of an OMAP SoC::
++
++	spi_controller {
++		tsc2046@0 {
++			reg = <0>;	/* CS0 */
++			compatible = "ti,tsc2046";
++			interrupt-parent = <&gpio1>;
++			interrupts = <8 0>;	/* BOOT6 / GPIO 8 */
++			spi-max-frequency = <1000000>;
++			pendown-gpio = <&gpio1 8 0>;
++			vcc-supply = <&reg_vcc3>;
++
++			ti,x-min = <0>;
++			ti,x-max = <8000>;
++			ti,y-min = <0>;
++			ti,y-max = <4800>;
++			ti,x-plate-ohms = <40>;
++			ti,pressure-max = <255>;
++
++			linux,wakeup;
++		};
++	};
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 198677d..b78354b 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -27,6 +27,9 @@
+ #include <linux/interrupt.h>
+ #include <linux/slab.h>
+ #include <linux/pm.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
++#include <linux/of_device.h>
+ #include <linux/gpio.h>
+ #include <linux/spi/spi.h>
+ #include <linux/spi/ads7846.h>
+@@ -1201,12 +1204,110 @@ static void ads7846_setup_spi_msg(struct ads7846 *ts,
+ 	spi_message_add_tail(x, m);
+ }
  
- #define BCM5974_DEVICE(prod) {					\
- 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
-@@ -145,6 +149,10 @@ static const struct usb_device_id bcm5974_table[] = {
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING7A_ANSI),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING7A_ISO),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING7A_JIS),
-+	/* MacbookAir6,2 */
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING8_ISO),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING8_JIS),
- 	/* Terminating entry */
- 	{}
- };
-@@ -172,15 +180,18 @@ struct bt_data {
- /* trackpad header types */
- enum tp_type {
- 	TYPE1,			/* plain trackpad */
--	TYPE2			/* button integrated in trackpad */
-+	TYPE2,			/* button integrated in trackpad */
-+	TYPE3			/* additional header fields since June 2013 */
- };
++#ifdef CONFIG_OF
++static const struct of_device_id ads7846_dt_ids[] = {
++	{ .compatible = "ti,tsc2046",	.data = (void *) 7846 },
++	{ .compatible = "ti,ads7843",	.data = (void *) 7843 },
++	{ .compatible = "ti,ads7845",	.data = (void *) 7845 },
++	{ .compatible = "ti,ads7846",	.data = (void *) 7846 },
++	{ .compatible = "ti,ads7873",	.data = (void *) 7873 },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, ads7846_dt_ids);
++
++static struct ads7846_platform_data *ads7846_probe_dt(struct device *dev)
++{
++	struct ads7846_platform_data *pdata = NULL;
++	const struct of_device_id *match;
++	u32 val;
++
++	match = of_match_device(ads7846_dt_ids, dev);
++	if (!match)
++		return NULL;
++
++	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return NULL;
++
++	pdata->model = (unsigned int) match->data;
++
++	if (of_property_read_u32(dev->of_node, "ti,vref-delay-usecs", &val) == 0)
++		pdata->vref_delay_usecs = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,vref-mv", &val) == 0)
++		pdata->vref_mv = val;
++
++	if (of_get_property(dev->of_node, "ti,keep-vref-on", NULL))
++		pdata->keep_vref_on = true;
++
++	if (of_get_property(dev->of_node, "ti,swap-xy", NULL))
++		pdata->swap_xy = true;
++
++	if (of_property_read_u32(dev->of_node, "ti,settle-delay-usec",
++				 &val) == 0)
++		pdata->settle_delay_usecs = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,penirq-recheck-delay-usecs",
++				 &val) == 0)
++		pdata->penirq_recheck_delay_usecs = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,x-plate-ohms", &val) == 0)
++		pdata->x_plate_ohms = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,y-plate-ohms", &val) == 0)
++		pdata->y_plate_ohms = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,x-min", &val) == 0)
++		pdata->x_min = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,y-min", &val) == 0)
++		pdata->y_min = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,x-max", &val) == 0)
++		pdata->x_max = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,y-max", &val) == 0)
++		pdata->y_max = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,pressure-min", &val) == 0)
++		pdata->pressure_min = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,pressure-max", &val) == 0)
++		pdata->pressure_max = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,debounce-max", &val) == 0)
++		pdata->debounce_max = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,debounce-tol", &val) == 0)
++		pdata->debounce_tol = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,debounce-rep", &val) == 0)
++		pdata->debounce_rep = val;
++
++	if (of_property_read_u32(dev->of_node, "ti,pendown-gpio-debounce",
++				 &val) == 0)
++		pdata->gpio_pendown_debounce = val;
++
++	pdata->gpio_pendown = of_get_named_gpio(dev->of_node, "pendown-gpio", 0);
++
++	if (of_get_property(dev->of_node, "linux,wakeup", NULL))
++		pdata->wakeup = true;
++
++	return pdata;
++}
++#else
++static inline struct ads7846_platform_data ads7846_probe_dt(struct device *dev)
++{
++	return NULL;
++}
++#endif
++
+ static int ads7846_probe(struct spi_device *spi)
+ {
+ 	struct ads7846 *ts;
+ 	struct ads7846_packet *packet;
+ 	struct input_dev *input_dev;
+-	struct ads7846_platform_data *pdata = spi->dev.platform_data;
++	struct ads7846_platform_data *pdata = NULL;
+ 	unsigned long irq_flags;
+ 	int err;
  
- /* trackpad finger data offsets, le16-aligned */
- #define FINGER_TYPE1		(13 * sizeof(__le16))
- #define FINGER_TYPE2		(15 * sizeof(__le16))
-+#define FINGER_TYPE3		(19 * sizeof(__le16))
- 
- /* trackpad button data offsets */
- #define BUTTON_TYPE2		15
-+#define BUTTON_TYPE3		23
- 
- /* list of device capability bits */
- #define HAS_INTEGRATED_BUTTON	1
-@@ -400,6 +411,19 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		{ SN_COORD, -150, 6730 },
- 		{ SN_ORIENT, -MAX_FINGER_ORIENTATION, MAX_FINGER_ORIENTATION }
- 	},
-+	{
-+		USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI,
-+		USB_DEVICE_ID_APPLE_WELLSPRING8_ISO,
-+		USB_DEVICE_ID_APPLE_WELLSPRING8_JIS,
-+		HAS_INTEGRATED_BUTTON,
-+		0, sizeof(struct bt_data),
-+		0x83, TYPE3, FINGER_TYPE3, FINGER_TYPE3 + SIZEOF_ALL_FINGERS,
-+		{ SN_PRESSURE, 0, 300 },
-+		{ SN_WIDTH, 0, 2048 },
-+		{ SN_COORD, -4620, 5140 },
-+		{ SN_COORD, -150, 6600 },
-+		{ SN_ORIENT, -MAX_FINGER_ORIENTATION, MAX_FINGER_ORIENTATION }
-+	},
- 	{}
- };
- 
-@@ -557,6 +581,9 @@ static int report_tp_state(struct bcm5974 *dev, int size)
- 		input_report_key(input, BTN_LEFT, ibt);
+@@ -1215,6 +1316,11 @@ static int ads7846_probe(struct spi_device *spi)
+ 		return -ENODEV;
  	}
  
-+	if (c->tp_type == TYPE3)
-+		input_report_key(input, BTN_LEFT, dev->tp_data[BUTTON_TYPE3]);
++	if (spi->dev.platform_data)
++		pdata = spi->dev.platform_data;
++	else
++		pdata = ads7846_probe_dt(&spi->dev);
 +
- 	input_sync(input);
- 
- 	return 0;
-@@ -572,9 +599,14 @@ static int report_tp_state(struct bcm5974 *dev, int size)
- 
- static int bcm5974_wellspring_mode(struct bcm5974 *dev, bool on)
- {
--	char *data = kmalloc(8, GFP_KERNEL);
- 	int retval = 0, size;
-+	char *data;
-+
-+	/* Type 3 does not require a mode switch */
-+	if (dev->cfg.tp_type == TYPE3)
-+		return 0;
- 
-+	data = kmalloc(8, GFP_KERNEL);
- 	if (!data) {
- 		dev_err(&dev->intf->dev, "out of memory\n");
- 		retval = -ENOMEM;
+ 	if (!pdata) {
+ 		dev_dbg(&spi->dev, "no platform data?\n");
+ 		return -ENODEV;
+@@ -1445,6 +1551,7 @@ static struct spi_driver ads7846_driver = {
+ 		.name	= "ads7846",
+ 		.owner	= THIS_MODULE,
+ 		.pm	= &ads7846_pm,
++		.of_match_table = of_match_ptr(ads7846_dt_ids),
+ 	},
+ 	.probe		= ads7846_probe,
+ 	.remove		= ads7846_remove,
 -- 
-1.8.3.1
+1.8.1.4
+

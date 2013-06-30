@@ -1,85 +1,78 @@
-From: Stephan Raue <stephan@openelec.tv>
-Subject: Re: [RFC] hid/sony: add autorepeat for PS3 remotes
-Date: Sun, 30 Jun 2013 08:33:07 +0200
-Message-ID: <51CFD123.2000502@openelec.tv>
-References: <1372386523.28740.8.camel@haswell.thedillows.org>
+From: Gerhard Sittig <gsi@denx.de>
+Subject: Re: [PATCH v1 01/12] input: matrix-keypad: update devicetree binding
+ doc
+Date: Sun, 30 Jun 2013 13:04:38 +0200
+Message-ID: <20130630110438.GZ24305@book.gsilab.sittig.org>
+References: <1371838198-7327-1-git-send-email-gsi@denx.de>
+ <1371838198-7327-2-git-send-email-gsi@denx.de>
+ <51C4C63B.3030300@wwwdotorg.org>
+ <20130622092319.GE24305@book.gsilab.sittig.org>
+ <51C8C17A.1050700@wwwdotorg.org>
+ <20130628082422.GV24305@book.gsilab.sittig.org>
+ <51CDA2B2.7090304@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail05.solnet.ch ([212.101.4.139]:22776 "EHLO mail05.solnet.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750981Ab3F3GlF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Jun 2013 02:41:05 -0400
-In-Reply-To: <1372386523.28740.8.camel@haswell.thedillows.org>
+Received: from mail-out.m-online.net ([212.18.0.9]:40476 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751249Ab3F3LEt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 30 Jun 2013 07:04:49 -0400
+Content-Disposition: inline
+In-Reply-To: <51CDA2B2.7090304@wwwdotorg.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Dillow <dave@thedillows.org>
-Cc: linux-input@vger.kernel.org
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Chao Xie <xiechao.mail@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Detlev Zundel <dzu@denx.de>, Sekhar Nori <nsekhar@ti.com>, Marek Vasut <marek.vasut@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
 
-Hi David,
+On Fri, Jun 28, 2013 at 08:50 -0600, Stephen Warren wrote:
+> 
+> [ ... just one reference in arch/powerpc/boot/dts/ac14xx.dts ... ]
+> > 
+> > Don't worry about the 'AC14xx' board too long, its using the
+> > keypad matrix driver is new in mainline, and still can get
+> > adjusted without too much problems before more wide spread use.
+> > "Getting it right" is what I'm currently heading for, while
+> > nothing is set in stone yet.
+> 
+> Given the "ABI-ness" of DT, I'm not convinced we don't have to worry
+> about the AC14xx. I think we'll have to continue supporting that
+> property, even if there's a newer/better/more-flexible way of
+> representing the information too.
 
-many thanks for this fast and great patch, it works nice. Hope it will 
-be included in kernel very soon :-)
+Don't get me wrong, I wasn't putting this lightly.  From first
+hand experience I can tell that none of those boards in the field
+use current or even recent mainline kernels.  All of them are
+running an older version which predates the introduction of
+'AC14xx' support in kernel.org sources.  Extending official
+support and "doing it the right way" is what I'm currently
+working on, before those boards may switch to running mainline
+kernels and compatibility with the first version that was used
+will become an issue.  So to put it into other words:
 
-thanks much
+_If_ the 'AC14xx' board is the _only_ entity which references the
+property, then there's no problem at all.  Incompatible changes
+for _this_one_board_ are acceptable since at the moment the
+current implementation is not used in the field.
 
-Stephan
+Of course I agree that breaking any other board isn't acceptable,
+which is why I followed the approach of strictly keeping
+backwards compatible behaviour even in those spots where a
+different approach or a different default would have looked more
+desireable.
 
-Am 28.06.2013 04:28, schrieb David Dillow:
-> Some applications using the PS3 remote would like to have autorepeat
-> from the device. Use the input subsystem's software emulation to provide
-> this capability, and enable those that don't need it to turn it off.
-> ---
-> I'm not sure this is the correct approach, or if it is even appropriate
-> for a remote to do autorepeat. However, the media/rc subsystem does do
-> it by default, and it's been requested by users, so there is at least
-> some demand.
->
-> This compiled against the hid-sony driver with the PS3 remote changes
-> merged, but I have done no testing of it. If the approach seems
-> reasonable, I'll try to test it when the MythTV is idle.
->
->   drivers/hid/hid-sony.c | 20 ++++++++++++++++++++
->   1 file changed, 20 insertions(+)
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index ecbc749..0bbcd07 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -274,6 +274,24 @@ static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
->   	return 1;
->   }
->   
-> +static int ps3remote_setup_repeat(struct hid_device *hdev)
-> +{
-> +	struct hid_input *hidinput = list_first_entry(&hdev->inputs,
-> +						      struct hid_input, list);
-> +	struct input_dev *input = hidinput->input;
-> +
-> +	/*
-> +	 * Set up autorepeat defaults per the remote control subsystem;
-> +	 * this must be done after hid_hw_start(), as having these non-zero
-> +	 * at the time of input_register_device() tells the input system that
-> +	 * the hardware does the autorepeat, and the PS3 remote does not.
-> +	 */
-> +	set_bit(EV_REP, input->evbit);
-> +	input->rep[REP_DELAY]  = 500;
-> +	input->rep[REP_PERIOD] = 125;
-> +
-> +	return 0;
-> +}
->   
->   /* Sony Vaio VGX has wrongly mouse pointer declared as constant */
->   static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-> @@ -659,6 +677,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->   		ret = sixaxis_set_operational_bt(hdev);
->   	else if (sc->quirks & BUZZ_CONTROLLER)
->   		ret = buzz_init(hdev);
-> +	else if (sc->quirks & PS3REMOTE)
-> +		ret = ps3remote_setup_repeat(hdev);
->   	else
->   		ret = 0;
->   
->
->
+Which is why I'm still reluctant to more intrusively change the
+general working of the keypad matrix driver in contrast to
+introducing strictly local changes which only optionally add
+additional features which explicitly must get enabled before
+changed behaviour will occur.  So I need some more time to think
+of which parts to change in which ways and how to make sure that
+nothings breaks ...
 
+
+virtually yours
+Gerhard Sittig
+-- 
+DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
+HRB 165235 Munich, Office: Kirchenstr. 5, D-82194 Groebenzell, Germany
+Phone: +49-8142-66989-0 Fax: +49-8142-66989-80  Email: office@denx.de

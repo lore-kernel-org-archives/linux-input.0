@@ -1,40 +1,94 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: wacom: Intuos4 battery charging changes
-Date: Mon, 1 Jul 2013 14:51:24 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1307011451120.29977@pobox.suse.cz>
-References: <1372499833-7814-1-git-send-email-przemo@firszt.eu>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 10/53] Input: atmel_mxt_ts - Add memory access interface
+ via sysfs
+Date: Tue, 2 Jul 2013 11:11:25 +0100
+Message-ID: <20130702101125.GD27646@sirena.org.uk>
+References: <20130606164629.GG31367@sirena.org.uk>
+ <51B1F859.1010504@itdev.co.uk>
+ <20130607154134.GU31367@sirena.org.uk>
+ <51B20630.7000304@itdev.co.uk>
+ <20130607164700.GW31367@sirena.org.uk>
+ <51B6FE69.6060505@itdev.co.uk>
+ <20130611114727.GY1403@sirena.org.uk>
+ <51B7151F.5070307@itdev.co.uk>
+ <20130619185909.GG1403@sirena.org.uk>
+ <51C47C50.8000606@itdev.co.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56169 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752741Ab3GAMv3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Jul 2013 08:51:29 -0400
-In-Reply-To: <1372499833-7814-1-git-send-email-przemo@firszt.eu>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cClFwTGwHXbya3Sb"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <51C47C50.8000606@itdev.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 List-Id: linux-input@vger.kernel.org
-To: Przemo Firszt <przemo@firszt.eu>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pinglinux@gmail.com
 
-On Sat, 29 Jun 2013, Przemo Firszt wrote:
 
-> Intuos4 WL is separately reporting power supply and battery
-> charging status - now hid-wacom is using that information.
-> Previously hid-wacom was wrongly treating "battery charging" bit
-> as "power supply connected". Now it should report battery charging,
-> battery discharging, battery full and power supply status.
-> 
-> Intuos4 WL sends reports when is in use (obvious) and when unplugging
-> power supply. If means that if the device is being charged, but it's not
-> being used it will never report "battery full". The same problem happens
-> after the device has been connected, but it's not in use - the
-> battery/ac status will be incorrect. Currently there is no mechanism to
-> ask the device to send a report containing battery/ac status.
-> 
-> Signed-off-by: Przemo Firszt <przemo@firszt.eu>
+--cClFwTGwHXbya3Sb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Applied, thanks Przemo.
+On Fri, Jun 21, 2013 at 09:16:16AM -0700, Nick Dyer wrote:
+> Mark Brown wrote:
 
--- 
-Jiri Kosina
-SUSE Labs
+> > Yes, to be honest.  I'd hope it wouldn't be increasing the number of
+> > read/write operations...
+
+> For some operations it does. For example updating the whole chip config
+> (which is a common thing to want to do), it would turn a couple of write
+> operations into ~20 on recent chips.
+
+Is that really happening on peformance critical paths other than initial
+power up (which could be handled more neatly anyway).
+
+> > That still sounds like something the driver can handle (for example, by
+> > eating the first error silently if it knows the chip is powered down)
+
+> We've tried to implement this idea of tracking the chip power state in
+> the driver and only eating the first error silently when necessary. But
+> there are various entertaining corner cases (for example, it may or may
+> not be in sleep on probe, how do you deal with intermittent i2c glitch). It
+> would end up either being very brittle or an extremely complex mechanism
+> involving tracking state and timers, the result of which is only to
+> suppress a dmesg debug output saying "i2c retry", and to fail very slightly
+> earlier in the normal i2c failure case. The normal fast path through
+> this code is exactly the same.
+
+It seems very suspicous that this device has all these problems but
+others don't...
+
+> > and of course a system integrator may choose not to copy the reference
+> > design in this respect, it does seem a bit odd after all.
+
+> You're being a bit optimistic there. Examples of devices that require
+> this are Samsung Galaxy Tab 10.1, Asus Transformer TF101.
+
+If absoluely nobody has used the separate wakeup pin then the hardware
+designers are wasting a pin there...  my point isn't that nobody would
+use the reference design it's that some boards will have the separate
+signal.
+
+--cClFwTGwHXbya3Sb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.20 (GNU/Linux)
+
+iQIcBAEBAgAGBQJR0qdKAAoJELSic+t+oim9IXoQAIb9aOtqhJg0wJOy1hk0QdUx
+QmEkiwG+k1q2ACnsJF7SdSIgkKbGbdTu59roJXiKb/k8DIvka2qAqA5G8NEcdKCn
+CjfCztYbmSyERvs6ekcJRFdGau0LaB493tDFBUuvQKfAy0xuVOkV+zveVQvQZ+fl
+SUw982YGc3CBJWRU60YFtq+GVnBdNJxeP5EwK2FrN4agjhBDLd0SW5QGPPVl5vIt
+FqssJ+IHcSrbE6+d3lSEhxkV5NWKxYMMFKgvgmdRVlDfk6ke4QMV+9+QnIg9Jg4R
+Y1Aeau7hB/kGcRwOYAz7Axq5P1g2TtQDy3YwrDsBbhNF4ZQQNVFUlJ1raTa+x4DV
+o++a92RqhvKQHUEi1PQByOVOi8NCj8zX3emKcCcmEvdfEhe1ldeZCW/H/dh+XWjl
+NsYq8GSxx7z6PKHAmV2lb67pdk1Sewe/UOXs7bFMt2yv1YP+zEByt+x2FvgWT1O1
+OlXApmbPWRzghMnQqeUSQx//sg2A3l2blxiaJ5RDttQSDOEI4c9/tDQ1SLhOuL31
+mUBAdNe42abjnoL7XZxhnx/EEnJkFKeVIwsdaWQ6A1ba+SwDv4hvb0Ybpf9xFfPl
+ThU+EvLJnCFiN+2gLIN5z+Z0dOx+fgxJQ3cottX9K4VbYVu89lW8v3uC+uEvisbc
+ghFaOkp+BU159NO5m87f
+=1lSD
+-----END PGP SIGNATURE-----
+
+--cClFwTGwHXbya3Sb--

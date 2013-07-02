@@ -1,50 +1,130 @@
-From: Kevin Hilman <khilman@linaro.org>
-Subject: Re: [PATCH 2/3] Input: tps6507x-ts - remove vref from platform data
-Date: Tue, 2 Jul 2013 08:49:14 -0700
-Message-ID: <CAGa+x87xEO7AeDyQCp+T+Pkhne1SDWqqUuHQyqLVaYmBCYnP1w@mail.gmail.com>
-References: <1370843627-30823-1-git-send-email-dmitry.torokhov@gmail.com>
-	<1370843627-30823-2-git-send-email-dmitry.torokhov@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: kye: Add report fixup for Genius Gila Gaming mouse
+Date: Tue,  2 Jul 2013 18:10:09 +0200
+Message-ID: <1372781409-5356-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f180.google.com ([74.125.82.180]:37664 "EHLO
-	mail-we0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752056Ab3GBPtP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Jul 2013 11:49:15 -0400
-Received: by mail-we0-f180.google.com with SMTP id w56so4492623wes.11
-        for <linux-input@vger.kernel.org>; Tue, 02 Jul 2013 08:49:14 -0700 (PDT)
-In-Reply-To: <1370843627-30823-2-git-send-email-dmitry.torokhov@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:59128 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752985Ab3GBQKV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Jul 2013 12:10:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Jun 9, 2013 at 10:53 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Although defined in platform data, vref is not used anywhere.
->
-> Also remove model, irq, and clear_penirq as they are not used either.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Genius Gila Gaming Mouse presents an obviously wrong report descriptor.
+the Consumer control (report ID 3) is the following:
+0x05, 0x0c,                    // Usage Page (Consumer Devices)       105
+0x09, 0x01,                    // Usage (Consumer Control)            107
+0xa1, 0x01,                    // Collection (Application)            109
+0x85, 0x03,                    //   Report ID (3)                     111
+0x19, 0x00,                    //   Usage Minimum (0)                 113
+0x2a, 0xff, 0x7f,              //   Usage Maximum (32767)             115
+0x15, 0x00,                    //   Logical Minimum (0)               118
+0x26, 0xff, 0x7f,              //   Logical Maximum (32767)           120
+0x75, 0x10,                    //   Report Size (16)                  123
+0x95, 0x03,                    //   Report Count (3)                  125
+0x81, 0x00,                    //   Input (Data,Arr,Abs)              127
+0x75, 0x08,                    //   Report Size (8)                   129
+0x95, 0x01,                    //   Report Count (1)                  131
+0x81, 0x01,                    //   Input (Cnst,Arr,Abs)              133
+0xc0,                          // End Collection                      135
 
-Actually, it's used in arch/arm/mach-davinci/board-da850-evm.c.
+So the first input whithin this report has a count of 3 but a usage range
+of 32768. So this value is obviously wrong as it should not be greater than
+the report count.
 
-The following should be folded into this patch.  Found by build
-failure in linux-next building da8xx_omapl_defconfig for ARM.
+Fixes:
+https://bugzilla.redhat.com/show_bug.cgi?id=959721
 
-Kevin
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+Hi Jiri,
 
-diff --git a/arch/arm/mach-davinci/board-da850-evm.c
-b/arch/arm/mach-davinci/board-da850-evm.c
-index 8a24b6c..bea6793 100644
---- a/arch/arm/mach-davinci/board-da850-evm.c
-+++ b/arch/arm/mach-davinci/board-da850-evm.c
-@@ -985,7 +985,6 @@ static struct regulator_init_data
-tps65070_regulator_data[] = {
- static struct touchscreen_init_data tps6507x_touchscreen_data = {
-  .poll_period =  30, /* ms between touch samples */
-  .min_pressure = 0x30, /* minimum pressure to trigger touch */
-- .vref = 0, /* turn off vref when not using A/D */
-  .vendor = 0, /* /sys/class/input/input?/id/vendor */
-  .product = 65070, /* /sys/class/input/input?/id/product */
-  .version = 0x100, /* /sys/class/input/input?/id/version */
+I know the window just opened and you don't really like receiving patches at
+that time. Still, my patch queue is growing, and I would like you to consider
+this patch for 3.11.
+
+FYI, my patch queue is the following:
+- one hid-multitouch patch which set the quirk NO_INIT_REPORTS for mt devices
+- few hidp cleanup related to the wrong init_report called during start
+- re-implement the hidinput_input_event callback in hidp to allow LEDs to work with BT keyboards
+- some trivial devm conversions for some special HID drivers
+- add devm_hid_allocate_device which allow to devm-ize i2c-hid
+
+All of these are cleanups/enhancements, so I think we can postpone those patches
+to 3.12 to get a maximum testing time.
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-core.c |  1 +
+ drivers/hid/hid-ids.h  |  1 +
+ drivers/hid/hid-kye.c  | 21 +++++++++++++++++++++
+ 3 files changed, 23 insertions(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 0951a9a..e39dac6 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1593,6 +1593,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_GENIUS_GILA_GAMING_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_I405X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 2afa99a..c5aea29 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -478,6 +478,7 @@
+ 
+ #define USB_VENDOR_ID_KYE		0x0458
+ #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
++#define USB_DEVICE_ID_GENIUS_GILA_GAMING_MOUSE	0x0138
+ #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
+ #define USB_DEVICE_ID_KYE_EASYPEN_I405X	0x5010
+ #define USB_DEVICE_ID_KYE_MOUSEPEN_I608X	0x5011
+diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
+index 6af90db..1e2ee2aa 100644
+--- a/drivers/hid/hid-kye.c
++++ b/drivers/hid/hid-kye.c
+@@ -314,6 +314,25 @@ static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 			*rsize = sizeof(easypen_m610x_rdesc_fixed);
+ 		}
+ 		break;
++	case USB_DEVICE_ID_GENIUS_GILA_GAMING_MOUSE:
++		/*
++		 * the fixup that need to be done:
++		 *   - change Usage Maximum in the Comsumer Control
++		 *     (report ID 3) to a reasonable value
++		 */
++		if (*rsize >= 135 &&
++			/* Usage Page (Consumer Devices) */
++			rdesc[104] == 0x05 && rdesc[105] == 0x0c &&
++			/* Usage (Consumer Control) */
++			rdesc[106] == 0x09 && rdesc[107] == 0x01 &&
++			/*   Usage Maximum > 12287 */
++			rdesc[114] == 0x2a && rdesc[116] > 0x2f) {
++			hid_info(hdev,
++				 "fixing up Genius Gila Gaming Mouse "
++				 "report descriptor\n");
++			rdesc[116] = 0x2f;
++		}
++		break;
+ 	}
+ 	return rdesc;
+ }
+@@ -407,6 +426,8 @@ static const struct hid_device_id kye_devices[] = {
+ 				USB_DEVICE_ID_KYE_MOUSEPEN_I608X) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+ 				USB_DEVICE_ID_KYE_EASYPEN_M610X) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
++				USB_DEVICE_ID_GENIUS_GILA_GAMING_MOUSE) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, kye_devices);
+-- 
+1.8.3.1
+

@@ -1,61 +1,40 @@
-From: Ferruh Yigit <fery@cypress.com>
-Subject: Re: Input: cyttsp4 - SPI driver for Cypress TMA4XX touchscreen devices
-Date: Wed, 3 Jul 2013 16:24:18 +0300
-Message-ID: <51D42602.5030001@cypress.com>
-References: <20130702214731.GD1598@elgon.mountain>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [patch 3/3] Input: cyttsp4 - leak on error path in probe()
+Date: Wed, 3 Jul 2013 16:50:13 +0300
+Message-ID: <20130703135013.GU5714@mwanda>
+References: <20130702214455.GC1598@elgon.mountain>
+ <51D42350.10504@cypress.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay-s04-hub002.domainlocalhost.com ([74.115.207.101]:15413
-	"EHLO relay-S04-HUB002.domainlocalhost.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752301Ab3GCNYZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Jul 2013 09:24:25 -0400
-In-Reply-To: <20130702214731.GD1598@elgon.mountain>
+Received: from userp1040.oracle.com ([156.151.31.81]:24685 "EHLO
+	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752228Ab3GCNuQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Jul 2013 09:50:16 -0400
+Content-Disposition: inline
+In-Reply-To: <51D42350.10504@cypress.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: linux-input@vger.kernel.org
+To: Ferruh Yigit <fery@cypress.com>
+Cc: Javier Martinez Canillas <javier@dowhile0.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On 07/03/2013 12:47 AM, Dan Carpenter wrote:
-> Hello Ferruh Yigit,
->
-> The patch 67bf12ca50d5: "Input: cyttsp4 - SPI driver for Cypress
-> TMA4XX touchscreen devices" from Jun 30, 2013, leads to the following
-> Smatch warning:
-> "drivers/input/touchscreen/cyttsp4_spi.c:66 cyttsp_spi_xfer()
->        warn: impossible condition '(reg > 255) => (0-255 > 255)'"
->
-> drivers/input/touchscreen/cyttsp4_spi.c
->      66          if (reg > 255)
->                      ^^^^^^^^^
-> "reg" is unsigned char so 255 is the max it can be.
->      67                  wr_buf[0] = op + CY_SPI_A8_BIT;
->      68          else
->      69                  wr_buf[0] = op;
->
-> regards,
-> dan carpenter
->
-Hi Dan,
+On Wed, Jul 03, 2013 at 04:12:48PM +0300, Ferruh Yigit wrote:
+> On 07/03/2013 12:44 AM, Dan Carpenter wrote:
+> >We leak "cd" if the cd->xfer_buf allocation fails.  It was weird to
+> >"goto error_gpio_irq" so I changed the label name.  (Label names should
+> >reflect the label location not the goto location otherwise you get an
+> >"all roads lead to Rome problem").
+> >
+> >Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> >
+> xfer_buf still may not be freed, I propose following one instead:
+> 
 
-Shortly, check is correct and address should be 16 bit, parameter size
-is wrong.
+That's a good point.  I missed that leak.  The problem is that my
+patch was already applied so this patch would have to be re-written
+on top of that.  Also this patch is whitespace dammaged and won't
+apply.
 
-In TSG4, register map is 512bytes long and to access all of it, one bit
-from address byte is used (which bit to use differs for I2C and SPI),
-the code you marked is doing that check.
+regards,
+dan carpenter
 
-Since common code used TSG3 and TSG4 for I2C, this parameter wrongly
-used as u8. TSG3 does not access beyond 255 bytes but TSG4 may.
-
-I have a patch for this, but should I create it against previous patch I
-have sent or against latest next tree?
-
---
-
-Thanks,
-ferruh
-
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.

@@ -1,80 +1,44 @@
-From: Peter Chen <peter.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: One USB mouse problem with runtime power management enabled
-Date: Wed, 3 Jul 2013 10:43:25 +0800
-Message-ID: <20130703024324.GA17349@nchen-desktop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch 1/3] Input: cyttsp4 - silence shift wrap warning
+Date: Tue, 2 Jul 2013 20:37:54 -0700
+Message-ID: <20130703033754.GB13118@core.coreip.homeip.net>
+References: <20130702214019.GA1598@elgon.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:56856 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751767Ab3GCDh5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Jul 2013 23:37:57 -0400
 Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20130702214019.GA1598@elgon.mountain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Javier Martinez Canillas <javier@dowhile0.org>, Ferruh Yigit <fery@cypress.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Hi Jiri and Alan,
+On Wed, Jul 03, 2013 at 12:40:19AM +0300, Dan Carpenter wrote:
+> "*max" is a size_t (long) type but "1" is an int so static checkers
+> complain that the shift could wrap.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-I have run below below at 3.5.7 kernel, but after checking upstream
-kernel, it may also be existed.
+Applied all 3, thank you Dan.
 
-1. evtest /dev/input/event1 &
-2. Let mouse auto suspend, enable mouse as wakeup source, and let
-the system enters suspend.
-echo auto > /sys/bus/usb/devices/1-1/power/control
-
-echo enabled > /sys/bus/platform/devices/2184000.usb/power/wakeup
-echo enabled > /sys/bus/usb/devices/usb1/power/wakeup
-echo enabled > /sys/bus/usb/devices/1-1/power/wakeup
-echo enabled > /sys/bus/platform/devices/ci_hdrc.0/power/wakeup
-
-sleep 3
-echo mem > /sys/power/state
-
-3. Resume system with USB mouse button.
-
-4. Console output endless with below message
-hub 1-0:1.0: port 1 nyet suspended
-hub 1-0:1.0: usb_suspend_interface: status -16
-usb usb1: usb_suspend_both: status -16
-
-5. The reason for above message
-After system goes to suspend, the roothub is RPM_SUSPENDED
-At hub_events it will auto resume roothub, then auto suspend
-roothub after system resumes. When it tries to auto suspend roothub,
-it will print above message. But usbhid interface is resumed 
-by system resume, so its can_submit is 1.
-
-Unlike the USB Keyboard, the mouse doesn't have any event after system
-resume, so it will not restart OUT/CTRL queues. So the USB mouse will
-not do autoresume and autosuspend.
-
-For hid keyboard, it has below message at its usb_hidinput_input_event
-after system resume:
-hid-generic 0003:413C:2105.0002: type:17, code:0, value:0
-hid-generic 0003:413C:2105.0002: type:17, code:1, value:0
-hid-generic 0003:413C:2105.0002: type:17, code:2, value:0
-hid-generic 0003:413C:2105.0002: type:20, code:1, value:33
-hid-generic 0003:413C:2105.0002: type:20, code:0, value:250
-
-6. It will not affect evtest, but the USBHID mouse seems will not do
-auto-resume/auto-suspend again even the mouse's button is pressed.
-Then the USBHID has always been active (although it is RPM_SUSPENDED)
-
->From my point, this problem may need to be fixed:
-1. At usbhid/input layer:
-Since the usbhid device has auto suspended before system suspend, then,
-it should still auto suspended after system resume.
-2. At USB layer:
-It can do auto resume and auto suspend USB device
-after system resume to keep the usb device runtime pm status correct.
-
-Thanks.
+> 
+> diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
+> index 963da05..7aa4a34 100644
+> --- a/drivers/input/touchscreen/cyttsp4_core.c
+> +++ b/drivers/input/touchscreen/cyttsp4_core.c
+> @@ -153,7 +153,7 @@ static int cyttsp4_hw_reset(struct cyttsp4 *cd)
+>   */
+>  static int cyttsp4_bits_2_bytes(unsigned int nbits, size_t *max)
+>  {
+> -	*max = 1 << nbits;
+> +	*max = 1UL << nbits;
+>  	return (nbits + 7) / 8;
+>  }
+>  
 
 -- 
-
-Best Regards,
-Peter Chen
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dmitry

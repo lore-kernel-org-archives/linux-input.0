@@ -1,61 +1,49 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: kye: Add report fixup for Genius Gila Gaming
- mouse
-Date: Wed, 3 Jul 2013 18:16:40 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1307031815570.26857@pobox.suse.cz>
-References: <1372781409-5356-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: Patch -- HID definitions for MacBook Air 6,2 keyboard
+Date: Wed, 3 Jul 2013 18:19:51 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1307031819080.26857@pobox.suse.cz>
+References: <CAG4XgJSu53FKuYQG+H95wx0pM9UJr1h9SLqVrR3EE6cDhuu4qw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:40122 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:40210 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932915Ab3GCQQo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Jul 2013 12:16:44 -0400
-In-Reply-To: <1372781409-5356-1-git-send-email-benjamin.tissoires@redhat.com>
+	id S932425Ab3GCQT4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Jul 2013 12:19:56 -0400
+In-Reply-To: <CAG4XgJSu53FKuYQG+H95wx0pM9UJr1h9SLqVrR3EE6cDhuu4qw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus G Thiel <linus@hanssonlarsson.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 2 Jul 2013, Benjamin Tissoires wrote:
+On Wed, 3 Jul 2013, Linus G Thiel wrote:
 
-> Genius Gila Gaming Mouse presents an obviously wrong report descriptor.
-> the Consumer control (report ID 3) is the following:
-> 0x05, 0x0c,                    // Usage Page (Consumer Devices)       105
-> 0x09, 0x01,                    // Usage (Consumer Control)            107
-> 0xa1, 0x01,                    // Collection (Application)            109
-> 0x85, 0x03,                    //   Report ID (3)                     111
-> 0x19, 0x00,                    //   Usage Minimum (0)                 113
-> 0x2a, 0xff, 0x7f,              //   Usage Maximum (32767)             115
-> 0x15, 0x00,                    //   Logical Minimum (0)               118
-> 0x26, 0xff, 0x7f,              //   Logical Maximum (32767)           120
-> 0x75, 0x10,                    //   Report Size (16)                  123
-> 0x95, 0x03,                    //   Report Count (3)                  125
-> 0x81, 0x00,                    //   Input (Data,Arr,Abs)              127
-> 0x75, 0x08,                    //   Report Size (8)                   129
-> 0x95, 0x01,                    //   Report Count (1)                  131
-> 0x81, 0x01,                    //   Input (Cnst,Arr,Abs)              133
-> 0xc0,                          // End Collection                      135
+> Hi,
 > 
-> So the first input whithin this report has a count of 3 but a usage range
-> of 32768. So this value is obviously wrong as it should not be greater than
-> the report count.
+> Please see attached a patch for the MacBook Air 6,2 keyboard.
 > 
-> Fixes:
-> https://bugzilla.redhat.com/show_bug.cgi?id=959721
+> Changelog:
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> Hi Jiri,
+> * add definitions for new MacBook Air 6,2 keyboard with device id
+> 0x05ac:0x0291
 > 
-> I know the window just opened and you don't really like receiving patches at
-> that time. Still, my patch queue is growing, and I would like you to consider
-> this patch for 3.11.
+> I'm not sure about the name I chose for the keyboard -- I just made it the
+> "next" wellspring, whatever that means. If it's wrong, let me know and I
+> will make it right.
+> 
+> Signed-off-by: Linus G Thiel <linus@hanssonlarsson.se>
 
-This one is really easy enough to go into even post -rc1 :) Now applied 
-for the Linus merge I am going to do shortly.
+Hi Linus,
 
-Thanks a lot, Benjamin.
+thanks for the patch.
+
+Henrik Rydberg however beat you with it, it has been queued in 
+input.git#for-linus already.
+
+BTW, please make sure that your future patch submissions follow the rules 
+in Documentation/SubmittingPatches.
+
+Thanks,
 
 -- 
 Jiri Kosina

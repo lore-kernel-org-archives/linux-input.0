@@ -1,41 +1,62 @@
-From: Ferruh Yigit <fery@cypress.com>
-Subject: Re: [patch 3/3] Input: cyttsp4 - leak on error path in probe()
-Date: Wed, 3 Jul 2013 16:53:23 +0300
-Message-ID: <51D42CD3.2000705@cypress.com>
-References: <20130702214455.GC1598@elgon.mountain> <51D42350.10504@cypress.com> <20130703135013.GU5714@mwanda>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: kye: Add report fixup for Genius Gila Gaming
+ mouse
+Date: Wed, 3 Jul 2013 18:16:40 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1307031815570.26857@pobox.suse.cz>
+References: <1372781409-5356-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay-s04-hub002.domainlocalhost.com ([74.115.207.101]:12219
-	"EHLO relay-S04-HUB002.domainlocalhost.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751521Ab3GCNxb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Jul 2013 09:53:31 -0400
-In-Reply-To: <20130703135013.GU5714@mwanda>
+Received: from cantor2.suse.de ([195.135.220.15]:40122 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932915Ab3GCQQo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Jul 2013 12:16:44 -0400
+In-Reply-To: <1372781409-5356-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Javier Martinez Canillas <javier@dowhile0.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 07/03/2013 04:50 PM, Dan Carpenter wrote:
-> On Wed, Jul 03, 2013 at 04:12:48PM +0300, Ferruh Yigit wrote:
->> On 07/03/2013 12:44 AM, Dan Carpenter wrote:
->>> We leak "cd" if the cd->xfer_buf allocation fails.  It was weird to
->>> "goto error_gpio_irq" so I changed the label name.  (Label names should
->>> reflect the label location not the goto location otherwise you get an
->>> "all roads lead to Rome problem").
->>>
->>> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
->>>
->> xfer_buf still may not be freed, I propose following one instead:
->>
-> That's a good point.  I missed that leak.  The problem is that my
-> patch was already applied so this patch would have to be re-written
-> on top of that.  Also this patch is whitespace dammaged and won't
-> apply.
-OK, I am preparing the patch over previous one.
+On Tue, 2 Jul 2013, Benjamin Tissoires wrote:
 
-Thanks,
-ferruh
-This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
+> Genius Gila Gaming Mouse presents an obviously wrong report descriptor.
+> the Consumer control (report ID 3) is the following:
+> 0x05, 0x0c,                    // Usage Page (Consumer Devices)       105
+> 0x09, 0x01,                    // Usage (Consumer Control)            107
+> 0xa1, 0x01,                    // Collection (Application)            109
+> 0x85, 0x03,                    //   Report ID (3)                     111
+> 0x19, 0x00,                    //   Usage Minimum (0)                 113
+> 0x2a, 0xff, 0x7f,              //   Usage Maximum (32767)             115
+> 0x15, 0x00,                    //   Logical Minimum (0)               118
+> 0x26, 0xff, 0x7f,              //   Logical Maximum (32767)           120
+> 0x75, 0x10,                    //   Report Size (16)                  123
+> 0x95, 0x03,                    //   Report Count (3)                  125
+> 0x81, 0x00,                    //   Input (Data,Arr,Abs)              127
+> 0x75, 0x08,                    //   Report Size (8)                   129
+> 0x95, 0x01,                    //   Report Count (1)                  131
+> 0x81, 0x01,                    //   Input (Cnst,Arr,Abs)              133
+> 0xc0,                          // End Collection                      135
+> 
+> So the first input whithin this report has a count of 3 but a usage range
+> of 32768. So this value is obviously wrong as it should not be greater than
+> the report count.
+> 
+> Fixes:
+> https://bugzilla.redhat.com/show_bug.cgi?id=959721
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+> Hi Jiri,
+> 
+> I know the window just opened and you don't really like receiving patches at
+> that time. Still, my patch queue is growing, and I would like you to consider
+> this patch for 3.11.
+
+This one is really easy enough to go into even post -rc1 :) Now applied 
+for the Linus merge I am going to do shortly.
+
+Thanks a lot, Benjamin.
+
+-- 
+Jiri Kosina
+SUSE Labs

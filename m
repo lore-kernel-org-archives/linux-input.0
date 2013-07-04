@@ -1,70 +1,29 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 01/22] mfd/ti_am335x_tscadc: remove regmap
-Date: Thu, 4 Jul 2013 11:45:11 +0100
-Message-ID: <20130704104511.GU27646@sirena.org.uk>
-References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de>
- <1370950268-7224-2-git-send-email-bigeasy@linutronix.de>
- <20130611142336.GE29135@zurbaran>
- <51B7358D.7000605@linutronix.de>
- <20130614135358.GR1403@sirena.org.uk>
- <51BEF5F4.4090600@linutronix.de>
- <20130617160326.GE1403@sirena.org.uk>
- <51D53A31.3080704@linutronix.de>
+From: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH 04/22] input/ti_am33x_tsc: Order of TSC wires, made configurable
+Date: Thu, 4 Jul 2013 16:44:55 +0530
+Message-ID: <51D5592F.6050208@ti.com>
+References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de> <1370950268-7224-5-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="f8TtFscsztEXiewY"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:33200 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755186Ab3GDKpm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Jul 2013 06:45:42 -0400
-Content-Disposition: inline
-In-Reply-To: <51D53A31.3080704@linutronix.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1370950268-7224-5-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, =?UTF-8?B?QmVub8OudCBDb3Vzc29u?= <b-cousson-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, =?iso-8859-1?Q?Beno=EEt?= Cousson <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
 
 
---f8TtFscsztEXiewY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 6/11/2013 5:00 PM, Sebastian Andrzej Siewior wrote:
+> From: "Patil, Rachna" <rachna-l0cyMroinI0@public.gmane.org>
+> 
+> The current driver expected touchscreen input
+> wires(XP,XN,YP,YN) to be connected in a particular order.
+> Making changes to accept this as platform data
 
-On Thu, Jul 04, 2013 at 11:02:41AM +0200, Sebastian Andrzej Siewior wrote:
+The platform data part of this driver will never get used since it is
+used on DT-only platforms (and future platforms will all be DT-only).
+You should get rid of it as it will save you some code.
 
-> The driver here does not use atomic updates but read followed by write
-> so your locking here is futile. So the API/regmap alone does not make
-
-Doesn't that sound like the driver ought to be using a r/m/w primitive
-though?
-
-> it right. And look: the MFD part uses regmap. Its children (IIO &
-> input) do not use it. After I told this Samuel he said that it is okay.
-
-Again I think the point here was that they probably ought to do so.
-
-But I guess if you're saying there's no problem that's fine...
-
---f8TtFscsztEXiewY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.20 (GNU/Linux)
-
-iQIcBAEBAgAGBQJR1VI0AAoJELSic+t+oim9i3UP/2C4EKEaIPUsV24E4/cF+ZwI
-XeWYH6nVk9JBWSbTpXCtGTb51adOzeIp/ANLKs6dVXjL9EQlJZ5o4AK1nVvh2dbn
-tEnwhUepfWKx4yrRvkocYsBjg/79fVFY3pCN3O5Jl5TMME6VemHlGwXcxNAvz96H
-vQi2yyIAr+2iRWwDXpq4tnO9GniU/Oxs6jg7jKsif8Rwo/e3UJBuxgqANjgMgmAL
-fL/SDUquMb5MPaALN44OOI3ke2GtOYJKgkH7ESnowzK5V5JIlUBUHDjJ4PzBvhN5
-pliQEyfKZxrb73PawnU+AX+/npl1YPSfb19x+MnA6l9cmM3M93EE9d92O2x2wW6Q
-fy2WWmaId120B75HaPfknKr+LaXLE8coH9/L835dN3mP3xOddyQtz5QjJdQuABLZ
-VGL8UI8YfSRIGWwc9PAJIxXwezjoXYIIAcPW3CXryPfB15dgpJOeBS7g6EVwaTvM
-IcOVnw+Jgdi1S26BkyPMR/iWJ0wAQzy91xrkX21JDeZxno4zCmgk2yreK+orM9Vp
-Aa//qL6F41qhhHdmazFFBFl07lxUtj7oz36yha/K5C7AeD3gdvRhvlHwTLAq+CoF
-RqRcHy9ZpVs+T1CODCHo2fJ/XnNEOz5gDuKcn2KEYc03JiiEk0knQ2mZMFv5URMd
-x0T5doL6EW19k29hsJ7L
-=l7ao
------END PGP SIGNATURE-----
-
---f8TtFscsztEXiewY--
+Thanks,
+Sekhar

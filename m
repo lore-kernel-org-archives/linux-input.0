@@ -1,88 +1,141 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: Re: [PATCH 01/22] mfd/ti_am335x_tscadc: remove regmap
-Date: Thu, 04 Jul 2013 11:02:41 +0200
-Message-ID: <51D53A31.3080704@linutronix.de>
-References: <1370950268-7224-1-git-send-email-bigeasy@linutronix.de> <1370950268-7224-2-git-send-email-bigeasy@linutronix.de> <20130611142336.GE29135@zurbaran> <51B7358D.7000605@linutronix.de> <20130614135358.GR1403@sirena.org.uk> <51BEF5F4.4090600@linutronix.de> <20130617160326.GE1403@sirena.org.uk>
+From: Peter Chen <peter.chen@freescale.com>
+Subject: Re: One USB mouse problem with runtime power management enabled
+Date: Thu, 4 Jul 2013 18:22:25 +0800
+Message-ID: <20130704102224.GA32551@nchen-desktop>
+References: <20130703024324.GA17349@nchen-desktop>
+ <Pine.LNX.4.44L0.1307031117410.1241-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20130617160326.GE1403@sirena.org.uk>
-Sender: linux-omap-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, =?windows-1252?Q?Beno=EEt_Cousson?= <b-cousson@ti.com>, Tony Lindgren <tony@atomide.com>, Jonathan Cameron <jic23@cam.ac.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from va3ehsobe001.messaging.microsoft.com ([216.32.180.11]:58058
+	"EHLO va3outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751622Ab3GDKWl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Jul 2013 06:22:41 -0400
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.1307031117410.1241-100000@iolanthe.rowland.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Sorry for the long pause=85
+On Wed, Jul 03, 2013 at 12:29:08PM -0400, Alan Stern wrote:
+> On Wed, 3 Jul 2013, Peter Chen wrote:
+> 
+> > Hi Jiri and Alan,
+> > 
+> > I have run below below at 3.5.7 kernel, but after checking upstream
+> > kernel, it may also be existed.
+> > 
+> > 1. evtest /dev/input/event1 &
+> > 2. Let mouse auto suspend, enable mouse as wakeup source, and let
+> > the system enters suspend.
+> > echo auto > /sys/bus/usb/devices/1-1/power/control
+> > 
+> > echo enabled > /sys/bus/platform/devices/2184000.usb/power/wakeup
+> > echo enabled > /sys/bus/usb/devices/usb1/power/wakeup
+> 
+> You probably don't need this one.  The root hub ought to respond to the 
+> mouse's wakeup request, even if it isn't enabled for wakeup itself.
+> 
 
-On 06/17/2013 06:03 PM, Mark Brown wrote:
->> This is a lot of for a simple mmio access. In terms of
->> performance: If I add a trace point to my read and write I have
->> still less code which is called and it can be disabled. This
->> regmap overhead is always there chasing pointers.
->=20
-> Equally well what you're implementing here is support for
-> something that's typically implemented with an I2C or SPI control
-> interface so you're already going to be quite a way ahead of the
-> norm.  This is part of what's confusing me, usually for this
-> application things aren't that bad performance wise even on a
-> massively slower bus.
->=20
-> If all you're saying here is that there's some overhead that's fine
-> if a bit surprising, but the way you're talking made it sound like
-> there was some issue that made the API actually unusable.
+Yes, it doesn't need for remote wakeup, but it is needed for
+WKCN/WKDN(wakeup on connect/disconnect), my script need to take
+all usb wakeup into account.
 
-No, sorry for that confusion. I had a problem with the locking in irq
-context, changed the driver & pointed out the problem, been told that
-there is a fix, applied it, never complained again.
+> > echo enabled > /sys/bus/usb/devices/1-1/power/wakeup
+> > echo enabled > /sys/bus/platform/devices/ci_hdrc.0/power/wakeup
+> > 
+> > sleep 3
+> > echo mem > /sys/power/state
+> > 
+> > 3. Resume system with USB mouse button.
+> > 
+> > 4. Console output endless with below message
+> > hub 1-0:1.0: port 1 nyet suspended
+> > hub 1-0:1.0: usb_suspend_interface: status -16
+> > usb usb1: usb_suspend_both: status -16
+> 
+> This looks like the PM core thinks the mouse is runtime suspended when 
+> it really isn't.
+> 
+> I tried doing the same thing on a slightly modified 3.10 kernel.  It 
+> worked okay.  But my mouse was attached to a UHCI controller rather 
+> than EHCI, which may make a difference.
+> 
+> Have you tried running this test with 3.10?
+> 
 
-This is simply about I am forced to use regmap and I don't agree with
-it.
+Have you opened the mouse by apps (like evtest)?, for USB mouse, 
+the usbhid->intf->needs_remote_wakeup is only set at .open/.close
+API. That means if you have not opened mouse, the runtime pm status
+for mouse will changed to RPM_ACTIVE (choose_wakeup -> pm_runtime_resume)
+If you have opened the mouse, the runtime pm status is RPM_SUSPENDED.
 
->> As I said before: I doubt that you get this regmap access in an
->> one GiB network driver and in turn remove their trace points to
->> register access.
->=20
-> Well, of course for that sort of thing the general trick is not to
-> talk to the hardware at all and do as much as possible with memory
-> that the hardware can DMA - there's actually still non-trivial
-> costs in talking over the buses.
+> > 5. The reason for above message
+> > After system goes to suspend, the roothub is RPM_SUSPENDED
+> > At hub_events it will auto resume roothub, then auto suspend
+> > roothub after system resumes. When it tries to auto suspend roothub,
+> > it will print above message. But usbhid interface is resumed 
+> > by system resume, so its can_submit is 1.
+> 
+> That's right.  The PM core should realize that the usbhid interface 
+> is resumed, so it shouldn't try to suspend the root hub.
 
-That is true but even while doing DMA you have enough handshake with
-the HW to trigger the transfer and if you are lucky your DMA
-descriptors are in cached memory.
+You mean runtime pm core? I find the runtime pm core doesn't know
+the device has already resumed by system resume. For this case,
+the pm_runtime_set_active(dev) has returned -EBUSY at usb_resume,
+(I am still checking why, should be related to parent->power.disable_depth),
+so the usbhid is still RPM_SUSPENDED.
 
->> Please don't get me wrong: It is still nice for slow buses and
->> this ADC driver isn't anything close to high performance like a
->> 1GiB network driver but it adds a lot of unwanted overhead which
->> I prefer not to have.
->=20
-> OK, but equally well remember that from a subsystem maintainer
-> point of view having things factored out is a win in itself; for
-> example with the MFDs locking on the register I/O has been a
-> persistent issue in the past.
+> > 
+> > 6. It will not affect evtest, but the USBHID mouse seems will not do
+> > auto-resume/auto-suspend again even the mouse's button is pressed.
+> > Then the USBHID has always been active (although it is RPM_SUSPENDED)
+> 
+> It is supposed to be RPM_ACTIVE.  How did it become RPM_SUSPENDED?
 
-I agree with that. But:
+Yes, the same with above, it needs to check why 
+pm_runtime_set_active(dev) has returned -EBUSY.
 
-The driver here does not use atomic updates but read followed by write
-so your locking here is futile. So the API/regmap alone does not make
-it right. And look: the MFD part uses regmap. Its children (IIO &
-input) do not use it. After I told this Samuel he said that it is okay.
-So here I am. Using regmap in MFD which is only used once on init and
-never again. It has regmap.
+> 
+> > From my point, this problem may need to be fixed:
+> > 1. At usbhid/input layer:
+> > Since the usbhid device has auto suspended before system suspend, then,
+> > it should still auto suspended after system resume.
+> 
+> No; almost all devices get resumed during system resume, even if they
+> were runtime-suspended beforehand.  If they want to autosuspend later
+> on, they can.
+> 
+> You can see this in drivers/usb/core/driver.c:usb_resume():
+> 
+> 	status = usb_resume_both(udev, msg);
+> 	if (status == 0) {
+> 		pm_runtime_disable(dev);
+> 		pm_runtime_set_active(dev);
+> 		pm_runtime_enable(dev);
+> 		unbind_no_reset_resume_drivers_interfaces(udev);
+> 	}
+> 
+> The pm_runtime_set_active() call tells the PM core that the device is 
+> RPM_ACTIVE.
+> 
+> > 2. At USB layer:
+> > It can do auto resume and auto suspend USB device
+> > after system resume to keep the usb device runtime pm status correct.
+> 
+> The runtime PM status should be correct -- it should indicate that the 
+> device is active after a system resume.
 
-The register access in both child driver is split making sure they do
-not use the same ones. I added one function which writes a common
-register. That one is reset after an operation and needs to be written
-by the currently active child so the HW continues to work. Haven't seen
-anything close to it in regmap.
+Then, who should take the responsibility to put the device to autosuspend
+if the device has auto-suspended before the system suspend, we can
+see the ../power/control is still "auto".
 
-I ask, politely I hope, to get this patch in and remove regmap since
-none of its features are used in this driver.
+Thanks.
 
-Sebastian
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+
+Best Regards,
+Peter Chen
+

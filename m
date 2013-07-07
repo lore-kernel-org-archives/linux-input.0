@@ -1,61 +1,264 @@
-From: pchavent <Paul.Chavent@onera.fr>
-Subject: [PATCH] HID : core : fix hid delimiter local tag parsing.
-Date: Sun, 07 Jul 2013 18:35:39 +0200
-Message-ID: <4754ed7e96bbb6e75d5b61d3997ce8e5@sybille.onecert.fr>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] Input: cyttsp4 - Kill defined but not used compiler warnings
+Date: Sun,  7 Jul 2013 21:08:31 +0200
+Message-ID: <1373224111-16873-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="=_694de067527fd650d5bb64ef7a57558a"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from briaree.onecert.fr ([134.212.190.4]:49385 "EHLO
-	briaree.onecert.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752604Ab3GGQxb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Jul 2013 12:53:31 -0400
+Received: from jacques.telenet-ops.be ([195.130.132.50]:60855 "EHLO
+	jacques.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752999Ab3GGTJA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Jul 2013 15:09:00 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, linux-input@vger.kernel.org
-Cc: paul.chavent@fnac.net
+To: Ferruh Yigit <fery@cypress.com>, Javier Martinez Canillas <javier@dowhile0.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 
---=_694de067527fd650d5bb64ef7a57558a
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
+If both CONFIG_PM_SLEEP and CONFIG_PM_RUNTIME are unset:
 
-Hi.
+drivers/input/touchscreen/cyttsp4_core.c:1556: warning: =E2=80=98cyttsp=
+4_core_sleep=E2=80=99 defined but not used
+drivers/input/touchscreen/cyttsp4_core.c:1634: warning: =E2=80=98cyttsp=
+4_core_wake=E2=80=99 defined but not used
 
-When i plug an USB HID device with the DELIMITER tag in its report 
-descriptor, the device doesn't load.
+Move cyttsp4_core_sleep(), cyttsp4_core_wake(), and cyttsp4_core_wake_(=
+)
+(which is called from cyttsp4_core_wake() only) inside the existing sec=
+tion
+protected by #if defined(CONFIG_PM_SLEEP) || defined(CONFIG_PM_RUNTIME)
 
-The problem comes from the "return 1" in the DELIMITER switch of the 
-local tags parsing.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ drivers/input/touchscreen/cyttsp4_core.c |  200 +++++++++++++++-------=
+--------
+ 1 file changed, 100 insertions(+), 100 deletions(-)
 
-I join a trivial patch that return no error when encounter the 
-DELIMITER tag.
+diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/t=
+ouchscreen/cyttsp4_core.c
+index edcf799..c49161c2 100644
+--- a/drivers/input/touchscreen/cyttsp4_core.c
++++ b/drivers/input/touchscreen/cyttsp4_core.c
+@@ -1552,106 +1552,6 @@ exit:
+ 	return rc;
+ }
+=20
+-static int cyttsp4_core_sleep(struct cyttsp4 *cd)
+-{
+-	int rc;
+-
+-	rc =3D cyttsp4_request_exclusive(cd, cd->dev,
+-			CY_CORE_SLEEP_REQUEST_EXCLUSIVE_TIMEOUT);
+-	if (rc < 0) {
+-		dev_err(cd->dev, "%s: fail get exclusive ex=3D%p own=3D%p\n",
+-				__func__, cd->exclusive_dev, cd->dev);
+-		return 0;
+-	}
+-
+-	rc =3D cyttsp4_core_sleep_(cd);
+-
+-	if (cyttsp4_release_exclusive(cd, cd->dev) < 0)
+-		dev_err(cd->dev, "%s: fail to release exclusive\n", __func__);
+-	else
+-		dev_vdbg(cd->dev, "%s: pass release exclusive\n", __func__);
+-
+-	return rc;
+-}
+-
+-static int cyttsp4_core_wake_(struct cyttsp4 *cd)
+-{
+-	struct device *dev =3D cd->dev;
+-	int rc;
+-	u8 mode;
+-	int t;
+-
+-	/* Already woken? */
+-	mutex_lock(&cd->system_lock);
+-	if (cd->sleep_state =3D=3D SS_SLEEP_OFF) {
+-		mutex_unlock(&cd->system_lock);
+-		return 0;
+-	}
+-	cd->int_status &=3D ~CY_INT_IGNORE;
+-	cd->int_status |=3D CY_INT_AWAKE;
+-	cd->sleep_state =3D SS_WAKING;
+-
+-	if (cd->cpdata->power) {
+-		dev_dbg(dev, "%s: Power up HW\n", __func__);
+-		rc =3D cd->cpdata->power(cd->cpdata, 1, dev, &cd->ignore_irq);
+-	} else {
+-		dev_dbg(dev, "%s: No power function\n", __func__);
+-		rc =3D -ENOSYS;
+-	}
+-	if (rc < 0) {
+-		dev_err(dev, "%s: HW Power up fails r=3D%d\n",
+-				__func__, rc);
+-
+-		/* Initiate a read transaction to wake up */
+-		cyttsp4_adap_read(cd, CY_REG_BASE, sizeof(mode), &mode);
+-	} else
+-		dev_vdbg(cd->dev, "%s: HW power up succeeds\n",
+-			__func__);
+-	mutex_unlock(&cd->system_lock);
+-
+-	t =3D wait_event_timeout(cd->wait_q,
+-			(cd->int_status & CY_INT_AWAKE) =3D=3D 0,
+-			msecs_to_jiffies(CY_CORE_WAKEUP_TIMEOUT));
+-	if (IS_TMO(t)) {
+-		dev_err(dev, "%s: TMO waiting for wakeup\n", __func__);
+-		mutex_lock(&cd->system_lock);
+-		cd->int_status &=3D ~CY_INT_AWAKE;
+-		/* Try starting up */
+-		cyttsp4_queue_startup_(cd);
+-		mutex_unlock(&cd->system_lock);
+-	}
+-
+-	mutex_lock(&cd->system_lock);
+-	cd->sleep_state =3D SS_SLEEP_OFF;
+-	mutex_unlock(&cd->system_lock);
+-
+-	cyttsp4_start_wd_timer(cd);
+-
+-	return 0;
+-}
+-
+-static int cyttsp4_core_wake(struct cyttsp4 *cd)
+-{
+-	int rc;
+-
+-	rc =3D cyttsp4_request_exclusive(cd, cd->dev,
+-			CY_CORE_REQUEST_EXCLUSIVE_TIMEOUT);
+-	if (rc < 0) {
+-		dev_err(cd->dev, "%s: fail get exclusive ex=3D%p own=3D%p\n",
+-				__func__, cd->exclusive_dev, cd->dev);
+-		return 0;
+-	}
+-
+-	rc =3D cyttsp4_core_wake_(cd);
+-
+-	if (cyttsp4_release_exclusive(cd, cd->dev) < 0)
+-		dev_err(cd->dev, "%s: fail to release exclusive\n", __func__);
+-	else
+-		dev_vdbg(cd->dev, "%s: pass release exclusive\n", __func__);
+-
+-	return rc;
+-}
+-
+ static int cyttsp4_startup_(struct cyttsp4 *cd)
+ {
+ 	int retry =3D CY_CORE_STARTUP_RETRY_COUNT;
+@@ -1821,6 +1721,106 @@ static void cyttsp4_free_si_ptrs(struct cyttsp4=
+ *cd)
+ }
+=20
+ #if defined(CONFIG_PM_SLEEP) || defined(CONFIG_PM_RUNTIME)
++static int cyttsp4_core_sleep(struct cyttsp4 *cd)
++{
++	int rc;
++
++	rc =3D cyttsp4_request_exclusive(cd, cd->dev,
++			CY_CORE_SLEEP_REQUEST_EXCLUSIVE_TIMEOUT);
++	if (rc < 0) {
++		dev_err(cd->dev, "%s: fail get exclusive ex=3D%p own=3D%p\n",
++				__func__, cd->exclusive_dev, cd->dev);
++		return 0;
++	}
++
++	rc =3D cyttsp4_core_sleep_(cd);
++
++	if (cyttsp4_release_exclusive(cd, cd->dev) < 0)
++		dev_err(cd->dev, "%s: fail to release exclusive\n", __func__);
++	else
++		dev_vdbg(cd->dev, "%s: pass release exclusive\n", __func__);
++
++	return rc;
++}
++
++static int cyttsp4_core_wake_(struct cyttsp4 *cd)
++{
++	struct device *dev =3D cd->dev;
++	int rc;
++	u8 mode;
++	int t;
++
++	/* Already woken? */
++	mutex_lock(&cd->system_lock);
++	if (cd->sleep_state =3D=3D SS_SLEEP_OFF) {
++		mutex_unlock(&cd->system_lock);
++		return 0;
++	}
++	cd->int_status &=3D ~CY_INT_IGNORE;
++	cd->int_status |=3D CY_INT_AWAKE;
++	cd->sleep_state =3D SS_WAKING;
++
++	if (cd->cpdata->power) {
++		dev_dbg(dev, "%s: Power up HW\n", __func__);
++		rc =3D cd->cpdata->power(cd->cpdata, 1, dev, &cd->ignore_irq);
++	} else {
++		dev_dbg(dev, "%s: No power function\n", __func__);
++		rc =3D -ENOSYS;
++	}
++	if (rc < 0) {
++		dev_err(dev, "%s: HW Power up fails r=3D%d\n",
++				__func__, rc);
++
++		/* Initiate a read transaction to wake up */
++		cyttsp4_adap_read(cd, CY_REG_BASE, sizeof(mode), &mode);
++	} else
++		dev_vdbg(cd->dev, "%s: HW power up succeeds\n",
++			__func__);
++	mutex_unlock(&cd->system_lock);
++
++	t =3D wait_event_timeout(cd->wait_q,
++			(cd->int_status & CY_INT_AWAKE) =3D=3D 0,
++			msecs_to_jiffies(CY_CORE_WAKEUP_TIMEOUT));
++	if (IS_TMO(t)) {
++		dev_err(dev, "%s: TMO waiting for wakeup\n", __func__);
++		mutex_lock(&cd->system_lock);
++		cd->int_status &=3D ~CY_INT_AWAKE;
++		/* Try starting up */
++		cyttsp4_queue_startup_(cd);
++		mutex_unlock(&cd->system_lock);
++	}
++
++	mutex_lock(&cd->system_lock);
++	cd->sleep_state =3D SS_SLEEP_OFF;
++	mutex_unlock(&cd->system_lock);
++
++	cyttsp4_start_wd_timer(cd);
++
++	return 0;
++}
++
++static int cyttsp4_core_wake(struct cyttsp4 *cd)
++{
++	int rc;
++
++	rc =3D cyttsp4_request_exclusive(cd, cd->dev,
++			CY_CORE_REQUEST_EXCLUSIVE_TIMEOUT);
++	if (rc < 0) {
++		dev_err(cd->dev, "%s: fail get exclusive ex=3D%p own=3D%p\n",
++				__func__, cd->exclusive_dev, cd->dev);
++		return 0;
++	}
++
++	rc =3D cyttsp4_core_wake_(cd);
++
++	if (cyttsp4_release_exclusive(cd, cd->dev) < 0)
++		dev_err(cd->dev, "%s: fail to release exclusive\n", __func__);
++	else
++		dev_vdbg(cd->dev, "%s: pass release exclusive\n", __func__);
++
++	return rc;
++}
++
+ static int cyttsp4_core_suspend(struct device *dev)
+ {
+ 	struct cyttsp4 *cd =3D dev_get_drvdata(dev);
+--=20
+1.7.9.5
 
-Please review it.
-
-
-Regards.
-
-Paul.
-
---=_694de067527fd650d5bb64ef7a57558a
-Content-Transfer-Encoding: base64
-Content-Type: text/x-c;
- name=0001-HID-core-fix-hid-delimiter-local-tag-parsing.patch
-Content-Disposition: attachment;
- filename=0001-HID-core-fix-hid-delimiter-local-tag-parsing.patch
-
-RnJvbSBkMzRlN2JlMzZkNmMzOTI1NzhhYzljODE2MTQzMjVmOWJmZjlkZTkzIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBQYXVsIENoYXZlbnQgPHBhdWwuY2hhdmVudEBvbmVyYS5mcj4K
-RGF0ZTogU3VuLCA3IEp1bCAyMDEzIDE3OjQzOjU2ICswMjAwClN1YmplY3Q6IFtQQVRDSF0gSElE
-IDogY29yZSA6IGZpeCBoaWQgZGVsaW1pdGVyIGxvY2FsIHRhZyBwYXJzaW5nLgoKLS0tCiBkcml2
-ZXJzL2hpZC9oaWQtY29yZS5jIHwgMiArLQogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCsp
-LCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWNvcmUuYyBiL2Ry
-aXZlcnMvaGlkL2hpZC1jb3JlLmMKaW5kZXggMzY2NjhkMS4uMWUyM2FlOSAxMDA2NDQKLS0tIGEv
-ZHJpdmVycy9oaWQvaGlkLWNvcmUuYworKysgYi9kcml2ZXJzL2hpZC9oaWQtY29yZS5jCkBAIC00
-NTAsNyArNDUwLDcgQEAgc3RhdGljIGludCBoaWRfcGFyc2VyX2xvY2FsKHN0cnVjdCBoaWRfcGFy
-c2VyICpwYXJzZXIsIHN0cnVjdCBoaWRfaXRlbSAqaXRlbSkKIAkJCX0KIAkJCXBhcnNlci0+bG9j
-YWwuZGVsaW1pdGVyX2RlcHRoLS07CiAJCX0KLQkJcmV0dXJuIDE7CisJCXJldHVybiAwOwogCiAJ
-Y2FzZSBISURfTE9DQUxfSVRFTV9UQUdfVVNBR0U6CiAKLS0gCjEuNy4xMi4xCgo=
---=_694de067527fd650d5bb64ef7a57558a--
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

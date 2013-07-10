@@ -1,28 +1,25 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Subject: Re: [PATCH] HID: fix data access in implement()
-Date: Wed, 10 Jul 2013 14:11:07 +0200
-Message-ID: <20130710141107.14bb5fe1@neptune.home>
+Date: Wed, 10 Jul 2013 16:12:08 +0200
+Message-ID: <51DD6BB8.9050206@gmail.com>
 References: <alpine.LNX.2.00.1307092042190.26857@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:33072 "EHLO
-	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753981Ab3GJMTH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jul 2013 08:19:07 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:15241 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751434Ab3GJOMX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Jul 2013 10:12:23 -0400
 In-Reply-To: <alpine.LNX.2.00.1307092042190.26857@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Gustavo Padovan <gustavo@padovan.org>, Adam Kropelin <akropel1@rochester.rr.com>, Grant Grundler <grundler@parisc-linux.org>, linux-input@vger.kernel.org
+Cc: =?ISO-8859-1?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>, Gustavo Padovan <gustavo@padovan.org>, Adam Kropelin <akropel1@rochester.rr.com>, Grant Grundler <grundler@parisc-linux.org>, linux-input@vger.kernel.org
 
 Hi Jiri,
 
-Some notes regarding picoLCD part below.
-
-On Tue, 09 July 2013 Jiri Kosina <jkosina@suse.cz> wrote:
+On 07/09/2013 08:44 PM, Jiri Kosina wrote:
 > implement() is setting bytes in LE data stream. In case the data
 > is not aligned to 64bits, it reads past the allocated buffer. It
 > doesn't really change any value there (it's properly bitmasked), but
@@ -53,6 +50,15 @@ On Tue, 09 July 2013 Jiri Kosina <jkosina@suse.cz> wrote:
 > 
 > Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 > ---
+
+Thanks for that. It should (I hope) fix the bugs we are seeing from time
+to times under Fedora and that I was not able to answer:
+https://bugzilla.redhat.com/show_bug.cgi?id=965280
+https://bugzilla.redhat.com/show_bug.cgi?id=927488
+https://bugzilla.redhat.com/show_bug.cgi?id=881504
+
+I have a small remark for usbhid:
+
 >  drivers/hid/hid-core.c            |   19 ++++++++++++++++++-
 >  drivers/hid/hid-logitech-dj.c     |   12 ++++++++++--
 >  drivers/hid/hid-picolcd_debugfs.c |   10 +++++++++-
@@ -60,70 +66,35 @@ On Tue, 09 July 2013 Jiri Kosina <jkosina@suse.cz> wrote:
 >  include/linux/hid.h               |    1 +
 >  net/bluetooth/hidp/core.c         |   14 +++++++++-----
 >  6 files changed, 49 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolcd_debugfs.c
-> index 59ab8e1..784a17c 100644
-> --- a/drivers/hid/hid-picolcd_debugfs.c
-> +++ b/drivers/hid/hid-picolcd_debugfs.c
-> @@ -394,7 +394,7 @@ static void dump_buff_as_hex(char *dst, size_t dst_sz, const u8 *data,
->  void picolcd_debug_out_report(struct picolcd_data *data,
->  		struct hid_device *hdev, struct hid_report *report)
->  {
-> -	u8 raw_data[70];
-> +	u8 *raw_data;
->  	int raw_size = (report->size >> 3) + 1;
->  	char *buff;
->  #define BUFF_SZ 256
-> @@ -407,11 +407,18 @@ void picolcd_debug_out_report(struct picolcd_data *data,
->  	if (!buff)
->  		return;
+
+[snipped]
+
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 9941828..2b0b96daf 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -546,7 +546,7 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
+>  			return;
+>  		}
 >  
-> +	raw_data = hid_alloc_report_buf(report, GFP_ATOMIC);
-> +	if (!raw_data) {
-> +		kfree(buff);
-> +		return;
-> +	}
-> +
->  	snprintf(buff, BUFF_SZ, "\nout report %d (size %d) =  ",
->  			report->id, raw_size);
->  	hid_debug_event(hdev, buff);
->  	if (raw_size + 5 > sizeof(raw_data)) {
-
-As you change raw_data from u8[] to u8* the sizeof(raw_data)
-will not do the right thing.
-In addition the whole test (if it were correct) is not needed anymore as
-hid_alloc_report_buf() should always return a buffer of sufficient size.
-
-
-So just drop the test:
-
--	if (raw_size + 5 > sizeof(raw_data)) {
--		kfree(buff);
--		hid_debug_event(hdev, " TOO BIG\n");
--		return;
--	} else {
--		raw_data[0] = report->id;
--		hid_output_report(report, raw_data);
--		dump_buff_as_hex(buff, BUFF_SZ, raw_data, raw_size);
--		hid_debug_event(hdev, buff);
--        }
-+	raw_data[0] = report->id;
-+	hid_output_report(report, raw_data);
-+	dump_buff_as_hex(buff, BUFF_SZ, raw_data, raw_size);
-+	hid_debug_event(hdev, buff);
-
->  		kfree(buff);
-> +		kfree(raw_data);
->  		hid_debug_event(hdev, " TOO BIG\n");
->  		return;
->  	} else {
-> @@ -644,6 +651,7 @@ void picolcd_debug_out_report(struct picolcd_data *data,
->  		break;
+> -		usbhid->out[usbhid->outhead].raw_report = kmalloc(len, GFP_ATOMIC);
+> +		usbhid->out[usbhid->outhead].raw_report = hid_alloc_report_buf(report, GFP_ATOMIC);
+>  		if (!usbhid->out[usbhid->outhead].raw_report) {
+>  			hid_warn(hid, "output queueing failed\n");
+>  			return;
+> @@ -595,7 +595,7 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
 >  	}
->  	wake_up_interruptible(&hdev->debug_wait);
-> +	kfree(raw_data);
->  	kfree(buff);
->  }
 >  
+>  	if (dir == USB_DIR_OUT) {
+> -		usbhid->ctrl[usbhid->ctrlhead].raw_report = kmalloc(len, GFP_ATOMIC);
+> +		usbhid->ctrl[usbhid->ctrlhead].raw_report = hid_alloc_report_buf(report, GFP_ATOMIC);
 
-Bruno
+line 538: int len = ((report->size - 1) >> 3) + 1 + (report->id > 0);
+is not used anywhere after applying the patch. It can be dropped.
+
+Besides the picolcd problems spotted by Bruno:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+

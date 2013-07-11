@@ -1,90 +1,65 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH 45/50] sound: usb: usx2y: spin_lock in complete() cleanup
-Date: Thu, 11 Jul 2013 22:52:59 +0800
-Message-ID: <CACVXFVNsOAeLZ1zCHmBNsdAWRnqBrDYziK6XDh7G0QEFiw4G5Q@mail.gmail.com>
-References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
-	<1373533573-12272-46-git-send-email-ming.lei@canonical.com>
-	<51DEAE4E.90204@cogentembedded.com>
-	<s5hip0hb3y6.wl%tiwai@suse.de>
-	<CACVXFVPuv4VD_xCocP2QVOqUqAXm9gjwgwcRn6y=3qXPntOxCQ@mail.gmail.com>
-	<s5h7ggx413u.wl%tiwai@suse.de>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] usb: USB host support should depend on HAS_DMA
+Date: Thu, 11 Jul 2013 11:03:52 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1307111059220.1276-100000@iolanthe.rowland.org>
+References: <CAMuHMdWF8pHQ7RfojiJK7NxULZZjecvzSkP6R+Q-5ib4A516Bw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <s5h7ggx413u.wl%tiwai@suse.de>
-Sender: linux-media-owner@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Jaroslav Kysela <perex@perex.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from iolanthe.rowland.org ([192.131.102.54]:34141 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751075Ab3GKPDw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Jul 2013 11:03:52 -0400
+In-Reply-To: <CAMuHMdWF8pHQ7RfojiJK7NxULZZjecvzSkP6R+Q-5ib4A516Bw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, Jul 11, 2013 at 10:34 PM, Takashi Iwai <tiwai@suse.de> wrote:
-> At Thu, 11 Jul 2013 22:13:35 +0800,
-> Ming Lei wrote:
->>
->> On Thu, Jul 11, 2013 at 9:50 PM, Takashi Iwai <tiwai@suse.de> wrote:
->> > At Thu, 11 Jul 2013 17:08:30 +0400,
->> > Sergei Shtylyov wrote:
->> >>
->> >> On 11-07-2013 13:06, Ming Lei wrote:
->> >>
->> >> > Complete() will be run with interrupt enabled, so change to
->> >> > spin_lock_irqsave().
->> >>
->> >>     Changelog doesn't match the patch.
->> >
->> > Yep, but moreover...
->> >
->> >> > Cc: Jaroslav Kysela <perex@perex.cz>
->> >> > Cc: Takashi Iwai <tiwai@suse.de>
->> >> > Cc: alsa-devel@alsa-project.org
->> >> > Signed-off-by: Ming Lei <ming.lei@canonical.com>
->> >> > ---
->> >> >   sound/usb/usx2y/usbusx2yaudio.c |    4 ++++
->> >> >   1 file changed, 4 insertions(+)
->> >>
->> >> > diff --git a/sound/usb/usx2y/usbusx2yaudio.c b/sound/usb/usx2y/usbusx2yaudio.c
->> >> > index 4967fe9..e2ee893 100644
->> >> > --- a/sound/usb/usx2y/usbusx2yaudio.c
->> >> > +++ b/sound/usb/usx2y/usbusx2yaudio.c
->> >> > @@ -273,7 +273,11 @@ static void usX2Y_clients_stop(struct usX2Ydev *usX2Y)
->> >> >             struct snd_usX2Y_substream *subs = usX2Y->subs[s];
->> >> >             if (subs) {
->> >> >                     if (atomic_read(&subs->state) >= state_PRERUNNING) {
->> >> > +                           unsigned long flags;
->> >> > +
->> >> > +                           local_irq_save(flags);
->> >> >                             snd_pcm_stop(subs->pcm_substream, SNDRV_PCM_STATE_XRUN);
->> >> > +                           local_irq_restore(flags);
->> >> >                     }
->> >
->> > ... actually this snd_pcm_stop() call should have been covered by
->> > snd_pcm_stream_lock().  Maybe it'd be enough to have a single patch
->> > together with the change, i.e. wrapping with
->> > snd_pcm_stream_lock_irqsave().
->>
->> Please use snd_pcm_stream_lock_irqsave() so that I can avoid sending
->> out similar patch later, :-)
->>
->> >
->> > I'll prepare the patch for 3.11 independently from your patch series,
->> > so please drop this one.
->>
->> OK, thanks for dealing with that.
->>
->> >
->> >
->> > BTW, the word "cleanup" in the subject is inappropriate.  This is
->> > rather a fix together with the core change.
->>
->> It is a cleanup since the patchset only addresses lock problem which
->> is caused by the tasklet conversion.
->
-> Well, the conversion to irqsave() is needed for the future drop of
-> irq_save() in the caller, right?  Then this isn't a cleanup but a
-> preparation for movement ahead.
+On Thu, 11 Jul 2013, Geert Uytterhoeven wrote:
 
-Sounds more accurate, and I will change the title in next round, :-)
+> On Thu, Jul 11, 2013 at 3:01 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > On Thu, 11 Jul 2013, Arnd Bergmann wrote:
+> >
+> >> On Wednesday 10 July 2013, Alan Stern wrote:
+> >> > This isn't right.  There are USB host controllers that use PIO, not
+> >> > DMA.  The HAS_DMA dependency should go with the controller driver, not
+> >> > the USB core.
+> >> >
+> >> > On the other hand, the USB core does call various routines like
+> >> > dma_unmap_single.  It ought to be possible to compile these calls even
+> >> > when DMA isn't enabled.  That is, they should be defined as do-nothing
+> >> > stubs.
+> >>
+> >> The asm-generic/dma-mapping-broken.h file intentionally causes link
+> >> errors, but that could be changed.
+> >>
+> >> The better approach in my mind would be to replace code like
+> >>
+> >>
+> >>       if (hcd->self.uses_dma)
+> >>
+> >> with
+> >>
+> >>       if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
+> >>
+> >> which will reliably cause that reference to be omitted from object code,
+> >> but not stop giving link errors for drivers that actually require
+> >> DMA.
+> >
+> > How will it give link errors for drivers that require DMA?
+> 
+> It won't. Unless the host driver itself calls into the DMA API, too
+> (are there any that don't?).
 
-Thanks,
---
-Ming Lei
+To my knowledge, all the host controller drivers which use DMA _do_
+call functions in the DMA API.  So they would still get link errors,
+even though the USB core wouldn't.
+
+Therefore adding the appropriate HAS_DMA dependencies should be 
+straightforward: Try to build all the drivers and see which ones fail 
+to link.
+
+Alan Stern
+

@@ -1,81 +1,106 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] usb: USB host support should depend on HAS_DMA
-Date: Thu, 11 Jul 2013 09:49:23 +0200
-Message-ID: <CAMuHMdWF8pHQ7RfojiJK7NxULZZjecvzSkP6R+Q-5ib4A516Bw@mail.gmail.com>
-References: <201307110112.57398.arnd@arndb.de>
-	<Pine.LNX.4.44L0.1307102054340.11279-100000@netrider.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Ming Lei <ming.lei@canonical.com>
+Subject: [PATCH 00/50] USB: cleanup spin_lock in URB->complete()
+Date: Thu, 11 Jul 2013 17:05:23 +0800
+Message-ID: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:32992 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754162Ab3GKHtY (ORCPT
+Received: from mail-pb0-f49.google.com ([209.85.160.49]:65392 "EHLO
+	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755838Ab3GKJGh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 03:49:24 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1307102054340.11279-100000@netrider.rowland.org>
+	Thu, 11 Jul 2013 05:06:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org
 
-On Thu, Jul 11, 2013 at 3:01 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
-> On Thu, 11 Jul 2013, Arnd Bergmann wrote:
->
->> On Wednesday 10 July 2013, Alan Stern wrote:
->> > This isn't right.  There are USB host controllers that use PIO, not
->> > DMA.  The HAS_DMA dependency should go with the controller driver, not
->> > the USB core.
->> >
->> > On the other hand, the USB core does call various routines like
->> > dma_unmap_single.  It ought to be possible to compile these calls even
->> > when DMA isn't enabled.  That is, they should be defined as do-nothing
->> > stubs.
->>
->> The asm-generic/dma-mapping-broken.h file intentionally causes link
->> errors, but that could be changed.
->>
->> The better approach in my mind would be to replace code like
->>
->>
->>       if (hcd->self.uses_dma)
->>
->> with
->>
->>       if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
->>
->> which will reliably cause that reference to be omitted from object code,
->> but not stop giving link errors for drivers that actually require
->> DMA.
->
-> How will it give link errors for drivers that require DMA?
+Hi,
 
-It won't. Unless the host driver itself calls into the DMA API, too
-(are there any that don't?).
+As we are going to run URB->complete() in tasklet context[1][2], and
+hard interrupt may be enabled when running URB completion handler[3],
+so we might need to disable interrupt when acquiring one lock in
+the completion handler for the below reasons:
 
-> Besides, wouldn't it be better to get an error at config time rather
-> than at link time?  Or even better still, not to be allowed to
-> configure drivers that depend on DMA if DMA isn't available?
+- URB->complete() holds a subsystem wide lock which may be acquired
+in another hard irq context, and the subsystem wide lock is acquired
+by spin_lock()/read_lock()/write_lock() in complete()
 
-Indeed.
+- URB->complete() holds a private lock with spin_lock()/read_lock()/write_lock()
+but driver may export APIs to make other drivers acquire the same private
+lock in its interrupt handler.
 
-> If we add an explicit dependency for HAS_DMA to the Kconfig entries for
-> these drivers, then your suggestion would be a good way to allow
-> usbcore to be built independently of DMA support.
+For the sake of safety and making the change simple, this patch set
+converts all spin_lock()/read_lock()/write_lock() in completion handler
+path into their irqsave version mechanically.
 
-However, having the link errors helps when annotating the Kconfig files
-with HAS_DMA dependencies.
+But if you are sure the above two cases do not happen in your driver,
+please let me know and I can drop the unnecessary change.
 
-Unfortunately the check for "hcd->self.uses_dma" (which boils down to
-"dev->dma_mask != NULL") isn't sufficient to cause breakage at compilation
-time when a Kconfig entry incorrectly doesn't depend on HAS_DMA.
+Also if you find some conversions are missed, also please let me know so
+that I can add it in the next round.
 
-Gr{oetje,eeting}s,
 
-                        Geert
+[1], http://marc.info/?l=linux-usb&m=137286322526312&w=2
+[2], http://marc.info/?l=linux-usb&m=137286326726326&w=2
+[3], http://marc.info/?l=linux-usb&m=137286330626363&w=2
 
+ drivers/bluetooth/bfusb.c                     |   12 ++++----
+ drivers/bluetooth/btusb.c                     |    5 ++--
+ drivers/hid/usbhid/hid-core.c                 |    5 ++--
+ drivers/input/misc/cm109.c                    |   10 ++++---
+ drivers/isdn/hardware/mISDN/hfcsusb.c         |   36 ++++++++++++-----------
+ drivers/media/dvb-core/dvb_demux.c            |   17 +++++++----
+ drivers/media/usb/cx231xx/cx231xx-audio.c     |    6 ++++
+ drivers/media/usb/cx231xx/cx231xx-core.c      |   10 ++++---
+ drivers/media/usb/cx231xx/cx231xx-vbi.c       |    5 ++--
+ drivers/media/usb/em28xx/em28xx-audio.c       |    3 ++
+ drivers/media/usb/em28xx/em28xx-core.c        |    5 ++--
+ drivers/media/usb/sn9c102/sn9c102_core.c      |    7 +++--
+ drivers/media/usb/tlg2300/pd-alsa.c           |    3 ++
+ drivers/media/usb/tlg2300/pd-video.c          |    5 ++--
+ drivers/media/usb/tm6000/tm6000-video.c       |    5 ++--
+ drivers/net/usb/cdc-phonet.c                  |    5 ++--
+ drivers/net/usb/hso.c                         |   38 ++++++++++++++-----------
+ drivers/net/usb/kaweth.c                      |    7 +++--
+ drivers/net/usb/rtl8150.c                     |    5 ++--
+ drivers/net/wireless/ath/ath9k/hif_usb.c      |   29 ++++++++++---------
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c |    9 +++---
+ drivers/net/wireless/ath/ath9k/wmi.c          |   11 +++----
+ drivers/net/wireless/ath/carl9170/rx.c        |    5 ++--
+ drivers/net/wireless/libertas/if_usb.c        |    5 ++--
+ drivers/net/wireless/libertas_tf/if_usb.c     |    6 ++--
+ drivers/net/wireless/zd1211rw/zd_usb.c        |   21 ++++++++------
+ drivers/staging/bcm/InterfaceRx.c             |    5 ++--
+ drivers/staging/btmtk_usb/btmtk_usb.c         |    5 ++--
+ drivers/staging/ced1401/usb1401.c             |   35 ++++++++++++-----------
+ drivers/staging/vt6656/usbpipe.c              |    9 +++---
+ drivers/usb/class/cdc-wdm.c                   |   16 +++++++----
+ drivers/usb/class/usblp.c                     |   10 ++++---
+ drivers/usb/core/devio.c                      |    5 ++--
+ drivers/usb/misc/adutux.c                     |   10 ++++---
+ drivers/usb/misc/iowarrior.c                  |    5 ++--
+ drivers/usb/misc/ldusb.c                      |    7 +++--
+ drivers/usb/misc/legousbtower.c               |    5 ++--
+ drivers/usb/misc/usbtest.c                    |   10 ++++---
+ drivers/usb/misc/uss720.c                     |    6 +++-
+ drivers/usb/serial/cyberjack.c                |   15 ++++++----
+ drivers/usb/serial/digi_acceleport.c          |   23 ++++++++-------
+ drivers/usb/serial/io_edgeport.c              |   14 +++++----
+ drivers/usb/serial/io_ti.c                    |    5 ++--
+ drivers/usb/serial/mos7720.c                  |    5 ++--
+ drivers/usb/serial/mos7840.c                  |    5 ++--
+ drivers/usb/serial/quatech2.c                 |    5 ++--
+ drivers/usb/serial/sierra.c                   |    9 +++---
+ drivers/usb/serial/symbolserial.c             |    5 ++--
+ drivers/usb/serial/ti_usb_3410_5052.c         |    9 +++---
+ drivers/usb/serial/usb_wwan.c                 |    5 ++--
+ sound/usb/caiaq/audio.c                       |    5 ++--
+ sound/usb/midi.c                              |    5 ++--
+ sound/usb/misc/ua101.c                        |   14 +++++++--
+ sound/usb/usx2y/usbusx2yaudio.c               |    4 +++
+ 54 files changed, 322 insertions(+), 209 deletions(-)
+
+
+Thanks,
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Ming Lei
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds

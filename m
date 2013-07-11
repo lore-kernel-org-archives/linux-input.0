@@ -1,95 +1,110 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 1/2] Bluetooth: hidp: implement hidinput_input_event callback
-Date: Thu, 11 Jul 2013 16:10:46 +0200
-Message-ID: <CAN+gG=HsR3uQDF-U+jAd5Ap_+GQqLG2xOe-waLBNq3D6Righnw@mail.gmail.com>
-References: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1373550090-30379-2-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4Tx7cVkWmZHtLvtW4U78uedEUe4Qs40aeyzRORmEBTPBg@mail.gmail.com>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: Re: [PATCH 45/50] sound: usb: usx2y: spin_lock in complete() cleanup
+Date: Thu, 11 Jul 2013 22:13:35 +0800
+Message-ID: <CACVXFVPuv4VD_xCocP2QVOqUqAXm9gjwgwcRn6y=3qXPntOxCQ@mail.gmail.com>
+References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
+	<1373533573-12272-46-git-send-email-ming.lei@canonical.com>
+	<51DEAE4E.90204@cogentembedded.com>
+	<s5hip0hb3y6.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f180.google.com ([209.85.217.180]:59734 "EHLO
-	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756142Ab3GKOKs (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:42727 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755025Ab3GKONi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 10:10:48 -0400
-In-Reply-To: <CANq1E4Tx7cVkWmZHtLvtW4U78uedEUe4Qs40aeyzRORmEBTPBg@mail.gmail.com>
+	Thu, 11 Jul 2013 10:13:38 -0400
+In-Reply-To: <s5hip0hb3y6.wl%tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Marcel Holtmann <marcel@holtmann.org>, Gustavo Padovan <gustavo@padovan.org>, Jiri Kosina <jkosina@suse.cz>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Jaroslav Kysela <perex@perex.cz>
 
-Hi David,
-
-On Thu, Jul 11, 2013 at 4:02 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi
->
->> +static int hidp_hidinput_event(struct input_dev *dev, unsigned int type,
->> +                              unsigned int code, int value)
->> +{
->> +       struct hid_device *hid = input_get_drvdata(dev);
->
-> I dislike that we have to deal with input_get_drvdata() in a transport
-> driver. It is not obvious from the transport driver that this gives us
-> an hid_device. But ok, that's how we do it in usbhid and hid-input so
-> it's another issue..
-
-right. So we should definitively change the callback signature here.
-
->
->> +       struct hidp_session *session = hid->driver_data;
->> +       struct hid_field *field;
->> +       int offset;
->> +
->> +       BT_DBG("session %p type %d code %d value %d",
->> +              session, type, code, value);
->> +
->> +       if (type != EV_LED)
->> +               return -1;
->> +
->> +       offset = hidinput_find_field(hid, type, code, &field);
->> +       if (offset == -1) {
->> +               hid_warn(dev, "event field not found\n");
->> +               return -1;
->> +       }
->> +
->> +       hid_set_field(field, offset, value);
->> +
->> +       return hidp_send_report(session, field->report);
->> +}
->> +
->
-> We had this discussion before (regarding uhid and hidpinput_event), it
-> would be nice to have a helper in hid-input.c which does this. We copy
-> the code into every transport driver, which bugs me. But no-one
-> stepped up to do this, so I am fine.
-
-oh, yes, you are right. I'll add it to my todo list (now that I am
-responsible of 2/4 code duplication :-S )
-
->
-> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
-
-Thanks for the review!
-
-Cheers,
-Benjamin
-
->
-> Thanks!
-> David
->
->>  static int hidp_get_raw_report(struct hid_device *hid,
->>                 unsigned char report_number,
->>                 unsigned char *data, size_t count,
->> @@ -711,6 +736,7 @@ static struct hid_ll_driver hidp_hid_driver = {
->>         .stop = hidp_stop,
->>         .open  = hidp_open,
->>         .close = hidp_close,
->> +       .hidinput_input_event = hidp_hidinput_event,
->>  };
+On Thu, Jul 11, 2013 at 9:50 PM, Takashi Iwai <tiwai@suse.de> wrote:
+> At Thu, 11 Jul 2013 17:08:30 +0400,
+> Sergei Shtylyov wrote:
 >>
->>  /* This function sets up the hid device. It does not add it
->> --
->> 1.8.3.1
+>> On 11-07-2013 13:06, Ming Lei wrote:
 >>
+>> > Complete() will be run with interrupt enabled, so change to
+>> > spin_lock_irqsave().
+>>
+>>     Changelog doesn't match the patch.
+>
+> Yep, but moreover...
+>
+>> > Cc: Jaroslav Kysela <perex@perex.cz>
+>> > Cc: Takashi Iwai <tiwai@suse.de>
+>> > Cc: alsa-devel@alsa-project.org
+>> > Signed-off-by: Ming Lei <ming.lei@canonical.com>
+>> > ---
+>> >   sound/usb/usx2y/usbusx2yaudio.c |    4 ++++
+>> >   1 file changed, 4 insertions(+)
+>>
+>> > diff --git a/sound/usb/usx2y/usbusx2yaudio.c b/sound/usb/usx2y/usbusx2yaudio.c
+>> > index 4967fe9..e2ee893 100644
+>> > --- a/sound/usb/usx2y/usbusx2yaudio.c
+>> > +++ b/sound/usb/usx2y/usbusx2yaudio.c
+>> > @@ -273,7 +273,11 @@ static void usX2Y_clients_stop(struct usX2Ydev *usX2Y)
+>> >             struct snd_usX2Y_substream *subs = usX2Y->subs[s];
+>> >             if (subs) {
+>> >                     if (atomic_read(&subs->state) >= state_PRERUNNING) {
+>> > +                           unsigned long flags;
+>> > +
+>> > +                           local_irq_save(flags);
+>> >                             snd_pcm_stop(subs->pcm_substream, SNDRV_PCM_STATE_XRUN);
+>> > +                           local_irq_restore(flags);
+>> >                     }
+>
+> ... actually this snd_pcm_stop() call should have been covered by
+> snd_pcm_stream_lock().  Maybe it'd be enough to have a single patch
+> together with the change, i.e. wrapping with
+> snd_pcm_stream_lock_irqsave().
+
+Please use snd_pcm_stream_lock_irqsave() so that I can avoid sending
+out similar patch later, :-)
+
+>
+> I'll prepare the patch for 3.11 independently from your patch series,
+> so please drop this one.
+
+OK, thanks for dealing with that.
+
+>
+>
+> BTW, the word "cleanup" in the subject is inappropriate.  This is
+> rather a fix together with the core change.
+
+It is a cleanup since the patchset only addresses lock problem which
+is caused by the tasklet conversion.
+
+>
+> And, I wonder whether we can take a safer approach.  When the caller
+> condition changed, we often introduced either a different ops
+> (e.g. ioctl case) or a flag for the new condition, at least during the
+> transition period.
+
+Interrupt is't enabled until all current drivers are cleaned up, so it is really
+safe, please see patch [2].
+
+>
+> Last but not least, is a conversion to tasklet really preferred?
+> tasklet is rather an obsoleted infrastructure nowadays, and people
+> don't recommend to use it any longer, AFAIK.
+
+We discussed the problem in the below link previously[1], Steven
+and Thomas suggested to use threaded irq handler, but which
+may degrade USB mass storage performance, so we have to
+take tasklet now until we rewrite transport part of USB mass storage
+driver.
+
+Also the conversion[2] has avoided the tasklet spin lock problem
+already.
+
+
+[1], http://marc.info/?t=137079119200001&r=1&w=2
+[2], http://marc.info/?l=linux-usb&m=137286326726326&w=2
+
+Thanks,
+--
+Ming Lei

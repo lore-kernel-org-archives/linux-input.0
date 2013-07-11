@@ -1,51 +1,81 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 10/53] Input: atmel_mxt_ts - Add memory access interface
- via sysfs
-Date: Thu, 11 Jul 2013 08:41:41 +0100
-Message-ID: <51DE61B5.1000600@itdev.co.uk>
-References: <20130606164629.GG31367@sirena.org.uk> <51B1F859.1010504@itdev.co.uk> <20130607154134.GU31367@sirena.org.uk> <51B20630.7000304@itdev.co.uk> <20130607164700.GW31367@sirena.org.uk> <51B6FE69.6060505@itdev.co.uk> <20130611114727.GY1403@sirena.org.uk> <51B7151F.5070307@itdev.co.uk> <20130619185909.GG1403@sirena.org.uk> <51C47C50.8000606@itdev.co.uk> <20130702101125.GD27646@sirena.org.uk>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] usb: USB host support should depend on HAS_DMA
+Date: Thu, 11 Jul 2013 09:49:23 +0200
+Message-ID: <CAMuHMdWF8pHQ7RfojiJK7NxULZZjecvzSkP6R+Q-5ib4A516Bw@mail.gmail.com>
+References: <201307110112.57398.arnd@arndb.de>
+	<Pine.LNX.4.44L0.1307102054340.11279-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:15301 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755747Ab3GKHlo (ORCPT
+Received: from mail-pa0-f46.google.com ([209.85.220.46]:32992 "EHLO
+	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754162Ab3GKHtY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 03:41:44 -0400
-In-Reply-To: <20130702101125.GD27646@sirena.org.uk>
+	Thu, 11 Jul 2013 03:49:24 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1307102054340.11279-100000@netrider.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Mark Brown wrote:
-> On Fri, Jun 21, 2013 at 09:16:16AM -0700, Nick Dyer wrote:
->> Mark Brown wrote:
->>> Yes, to be honest.  I'd hope it wouldn't be increasing the number of
->>> read/write operations...
-> 
->> For some operations it does. For example updating the whole chip config
->> (which is a common thing to want to do), it would turn a couple of write
->> operations into ~20 on recent chips.
-> 
-> Is that really happening on peformance critical paths other than initial
-> power up (which could be handled more neatly anyway).
+On Thu, Jul 11, 2013 at 3:01 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> On Thu, 11 Jul 2013, Arnd Bergmann wrote:
+>
+>> On Wednesday 10 July 2013, Alan Stern wrote:
+>> > This isn't right.  There are USB host controllers that use PIO, not
+>> > DMA.  The HAS_DMA dependency should go with the controller driver, not
+>> > the USB core.
+>> >
+>> > On the other hand, the USB core does call various routines like
+>> > dma_unmap_single.  It ought to be possible to compile these calls even
+>> > when DMA isn't enabled.  That is, they should be defined as do-nothing
+>> > stubs.
+>>
+>> The asm-generic/dma-mapping-broken.h file intentionally causes link
+>> errors, but that could be changed.
+>>
+>> The better approach in my mind would be to replace code like
+>>
+>>
+>>       if (hcd->self.uses_dma)
+>>
+>> with
+>>
+>>       if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
+>>
+>> which will reliably cause that reference to be omitted from object code,
+>> but not stop giving link errors for drivers that actually require
+>> DMA.
+>
+> How will it give link errors for drivers that require DMA?
 
-Well, you're right that we could probably add more API for performance
-critical stuff. But that wasn't your original question.
+It won't. Unless the host driver itself calls into the DMA API, too
+(are there any that don't?).
 
->>> and of course a system integrator may choose not to copy the reference
->>> design in this respect, it does seem a bit odd after all.
-> 
->> You're being a bit optimistic there. Examples of devices that require
->> this are Samsung Galaxy Tab 10.1, Asus Transformer TF101.
-> 
-> If absoluely nobody has used the separate wakeup pin then the hardware
-> designers are wasting a pin there...  my point isn't that nobody would
-> use the reference design it's that some boards will have the separate
-> signal.
+> Besides, wouldn't it be better to get an error at config time rather
+> than at link time?  Or even better still, not to be allowed to
+> configure drivers that depend on DMA if DMA isn't available?
 
-That's entirely hypothetical, and you're wasting our time until you can
-actually point to such hardware, happy to write patches to support that
-mode of operation as well if you do.
+Indeed.
+
+> If we add an explicit dependency for HAS_DMA to the Kconfig entries for
+> these drivers, then your suggestion would be a good way to allow
+> usbcore to be built independently of DMA support.
+
+However, having the link errors helps when annotating the Kconfig files
+with HAS_DMA dependencies.
+
+Unfortunately the check for "hcd->self.uses_dma" (which boils down to
+"dev->dma_mask != NULL") isn't sufficient to cause breakage at compilation
+time when a Kconfig entry incorrectly doesn't depend on HAS_DMA.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

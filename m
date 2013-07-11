@@ -1,59 +1,49 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] usb: USB host support should depend on HAS_DMA
-Date: Wed, 10 Jul 2013 21:01:31 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1307102054340.11279-100000@netrider.rowland.org>
-References: <201307110112.57398.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH 2/2] Input: imx_keypad - Simplify devm_kzalloc
+Date: Thu, 11 Jul 2013 01:44:48 -0300
+Message-ID: <1373517888-15615-2-git-send-email-festevam@gmail.com>
+References: <1373517888-15615-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:54219 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754532Ab3GKBBc (ORCPT
+Received: from mail-yh0-f51.google.com ([209.85.213.51]:38950 "EHLO
+	mail-yh0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750913Ab3GKEpC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jul 2013 21:01:32 -0400
-In-Reply-To: <201307110112.57398.arnd@arndb.de>
+	Thu, 11 Jul 2013 00:45:02 -0400
+Received: by mail-yh0-f51.google.com with SMTP id l109so3093158yhq.24
+        for <linux-input@vger.kernel.org>; Wed, 10 Jul 2013 21:45:01 -0700 (PDT)
+In-Reply-To: <1373517888-15615-1-git-send-email-festevam@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-On Thu, 11 Jul 2013, Arnd Bergmann wrote:
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-> On Wednesday 10 July 2013, Alan Stern wrote:
-> > This isn't right.  There are USB host controllers that use PIO, not
-> > DMA.  The HAS_DMA dependency should go with the controller driver, not 
-> > the USB core.
-> > 
-> > On the other hand, the USB core does call various routines like 
-> > dma_unmap_single.  It ought to be possible to compile these calls even 
-> > when DMA isn't enabled.  That is, they should be defined as do-nothing 
-> > stubs.
-> 
-> The asm-generic/dma-mapping-broken.h file intentionally causes link
-> errors, but that could be changed.
-> 
-> The better approach in my mind would be to replace code like
-> 
-> 
-> 	if (hcd->self.uses_dma)
-> 
-> with
-> 
-> 	if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
-> 
-> which will reliably cause that reference to be omitted from object code,
-> but not stop giving link errors for drivers that actually require
-> DMA.
+According to Documentation/CodingStyle:
 
-How will it give link errors for drivers that require DMA?
+"The preferred form for passing a size of a struct is the following:
 
-Besides, wouldn't it be better to get an error at config time rather
-than at link time?  Or even better still, not to be allowed to
-configure drivers that depend on DMA if DMA isn't available?
+	p = kmalloc(sizeof(*p), ...);"
 
-If we add an explicit dependency for HAS_DMA to the Kconfig entries for 
-these drivers, then your suggestion would be a good way to allow 
-usbcore to be built independently of DMA support.
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/input/keyboard/imx_keypad.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Alan Stern
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index 99d3360..c944659 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -454,8 +454,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
+-	keypad = devm_kzalloc(&pdev->dev, sizeof(struct imx_keypad),
+-			     GFP_KERNEL);
++	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
+ 	if (!keypad) {
+ 		dev_err(&pdev->dev, "not enough memory for driver data\n");
+ 		return -ENOMEM;
+-- 
+1.8.1.2
 

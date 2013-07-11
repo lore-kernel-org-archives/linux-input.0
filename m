@@ -1,45 +1,51 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 1/2] Input: imx_keypad - check the return value from clk_prepare_enable()
-Date: Thu, 11 Jul 2013 01:44:47 -0300
-Message-ID: <1373517888-15615-1-git-send-email-festevam@gmail.com>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: [PATCH 10/53] Input: atmel_mxt_ts - Add memory access interface
+ via sysfs
+Date: Thu, 11 Jul 2013 08:41:41 +0100
+Message-ID: <51DE61B5.1000600@itdev.co.uk>
+References: <20130606164629.GG31367@sirena.org.uk> <51B1F859.1010504@itdev.co.uk> <20130607154134.GU31367@sirena.org.uk> <51B20630.7000304@itdev.co.uk> <20130607164700.GW31367@sirena.org.uk> <51B6FE69.6060505@itdev.co.uk> <20130611114727.GY1403@sirena.org.uk> <51B7151F.5070307@itdev.co.uk> <20130619185909.GG1403@sirena.org.uk> <51C47C50.8000606@itdev.co.uk> <20130702101125.GD27646@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f50.google.com ([209.85.213.50]:64486 "EHLO
-	mail-yh0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750801Ab3GKEuZ (ORCPT
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:15301 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755747Ab3GKHlo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 00:50:25 -0400
-Received: by mail-yh0-f50.google.com with SMTP id i72so3083961yha.37
-        for <linux-input@vger.kernel.org>; Wed, 10 Jul 2013 21:50:24 -0700 (PDT)
+	Thu, 11 Jul 2013 03:41:44 -0400
+In-Reply-To: <20130702101125.GD27646@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
 
-From: Fabio Estevam <fabio.estevam@freescale.com>
+Mark Brown wrote:
+> On Fri, Jun 21, 2013 at 09:16:16AM -0700, Nick Dyer wrote:
+>> Mark Brown wrote:
+>>> Yes, to be honest.  I'd hope it wouldn't be increasing the number of
+>>> read/write operations...
+> 
+>> For some operations it does. For example updating the whole chip config
+>> (which is a common thing to want to do), it would turn a couple of write
+>> operations into ~20 on recent chips.
+> 
+> Is that really happening on peformance critical paths other than initial
+> power up (which could be handled more neatly anyway).
 
-clk_prepare_enable() may fail, so let's check its return value and propagate it
-in the case of error.
+Well, you're right that we could probably add more API for performance
+critical stuff. But that wasn't your original question.
 
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
----
- drivers/input/keyboard/imx_keypad.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+>>> and of course a system integrator may choose not to copy the reference
+>>> design in this respect, it does seem a bit odd after all.
+> 
+>> You're being a bit optimistic there. Examples of devices that require
+>> this are Samsung Galaxy Tab 10.1, Asus Transformer TF101.
+> 
+> If absoluely nobody has used the separate wakeup pin then the hardware
+> designers are wasting a pin there...  my point isn't that nobody would
+> use the reference design it's that some boards will have the separate
+> signal.
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 03c8cc5..99d3360 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -512,7 +512,9 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 	input_set_drvdata(input_dev, keypad);
- 
- 	/* Ensure that the keypad will stay dormant until opened */
--	clk_prepare_enable(keypad->clk);
-+	error = clk_prepare_enable(keypad->clk);
-+	if (error)
-+		return error;
- 	imx_keypad_inhibit(keypad);
- 	clk_disable_unprepare(keypad->clk);
- 
--- 
-1.8.1.2
-
+That's entirely hypothetical, and you're wasting our time until you can
+actually point to such hardware, happy to write patches to support that
+mode of operation as well if you do.

@@ -1,17 +1,15 @@
 From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 2/2] Input: imx_keypad - Simplify devm_kzalloc
-Date: Thu, 11 Jul 2013 01:44:48 -0300
-Message-ID: <1373517888-15615-2-git-send-email-festevam@gmail.com>
-References: <1373517888-15615-1-git-send-email-festevam@gmail.com>
+Subject: [PATCH 1/2] Input: imx_keypad - check the return value from clk_prepare_enable()
+Date: Thu, 11 Jul 2013 01:44:47 -0300
+Message-ID: <1373517888-15615-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yh0-f51.google.com ([209.85.213.51]:38950 "EHLO
-	mail-yh0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750913Ab3GKEpC (ORCPT
+Received: from mail-yh0-f50.google.com ([209.85.213.50]:64486 "EHLO
+	mail-yh0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750801Ab3GKEuZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 00:45:02 -0400
-Received: by mail-yh0-f51.google.com with SMTP id l109so3093158yhq.24
-        for <linux-input@vger.kernel.org>; Wed, 10 Jul 2013 21:45:01 -0700 (PDT)
-In-Reply-To: <1373517888-15615-1-git-send-email-festevam@gmail.com>
+	Thu, 11 Jul 2013 00:50:25 -0400
+Received: by mail-yh0-f50.google.com with SMTP id i72so3083961yha.37
+        for <linux-input@vger.kernel.org>; Wed, 10 Jul 2013 21:50:24 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
@@ -19,31 +17,29 @@ Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
 From: Fabio Estevam <fabio.estevam@freescale.com>
 
-According to Documentation/CodingStyle:
-
-"The preferred form for passing a size of a struct is the following:
-
-	p = kmalloc(sizeof(*p), ...);"
+clk_prepare_enable() may fail, so let's check its return value and propagate it
+in the case of error.
 
 Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
 ---
- drivers/input/keyboard/imx_keypad.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/keyboard/imx_keypad.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 99d3360..c944659 100644
+index 03c8cc5..99d3360 100644
 --- a/drivers/input/keyboard/imx_keypad.c
 +++ b/drivers/input/keyboard/imx_keypad.c
-@@ -454,8 +454,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
+@@ -512,7 +512,9 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 	input_set_drvdata(input_dev, keypad);
  
--	keypad = devm_kzalloc(&pdev->dev, sizeof(struct imx_keypad),
--			     GFP_KERNEL);
-+	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
- 	if (!keypad) {
- 		dev_err(&pdev->dev, "not enough memory for driver data\n");
- 		return -ENOMEM;
+ 	/* Ensure that the keypad will stay dormant until opened */
+-	clk_prepare_enable(keypad->clk);
++	error = clk_prepare_enable(keypad->clk);
++	if (error)
++		return error;
+ 	imx_keypad_inhibit(keypad);
+ 	clk_disable_unprepare(keypad->clk);
+ 
 -- 
 1.8.1.2
 

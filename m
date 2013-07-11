@@ -1,7 +1,7 @@
 From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH 39/50] media: usb: tm6000: spin_lock in complete() cleanup
-Date: Thu, 11 Jul 2013 17:06:02 +0800
-Message-ID: <1373533573-12272-40-git-send-email-ming.lei@canonical.com>
+Subject: [PATCH 40/50] media: dvb-core: spin_lock in complete() cleanup
+Date: Thu, 11 Jul 2013 17:06:03 +0800
+Message-ID: <1373533573-12272-41-git-send-email-ming.lei@canonical.com>
 References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
@@ -13,36 +13,75 @@ List-Id: linux-input@vger.kernel.org
 Complete() will be run with interrupt enabled, so change to
 spin_lock_irqsave().
 
+These functions may be called inside URB->complete(), so use
+spin_lock_irqsave().
+
 Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
 Cc: linux-media@vger.kernel.org
 Signed-off-by: Ming Lei <ming.lei@canonical.com>
 ---
- drivers/media/usb/tm6000/tm6000-video.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/dvb-core/dvb_demux.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/usb/tm6000/tm6000-video.c b/drivers/media/usb/tm6000/tm6000-video.c
-index cc1aa14..8bb440f 100644
---- a/drivers/media/usb/tm6000/tm6000-video.c
-+++ b/drivers/media/usb/tm6000/tm6000-video.c
-@@ -434,6 +434,7 @@ static void tm6000_irq_callback(struct urb *urb)
- 	struct tm6000_dmaqueue  *dma_q = urb->context;
- 	struct tm6000_core *dev = container_of(dma_q, struct tm6000_core, vidq);
- 	int i;
+diff --git a/drivers/media/dvb-core/dvb_demux.c b/drivers/media/dvb-core/dvb_demux.c
+index 3485655..58de441 100644
+--- a/drivers/media/dvb-core/dvb_demux.c
++++ b/drivers/media/dvb-core/dvb_demux.c
+@@ -476,7 +476,9 @@ static void dvb_dmx_swfilter_packet(struct dvb_demux *demux, const u8 *buf)
+ void dvb_dmx_swfilter_packets(struct dvb_demux *demux, const u8 *buf,
+ 			      size_t count)
+ {
+-	spin_lock(&demux->lock);
 +	unsigned long flags;
++
++	spin_lock_irqsave(&demux->lock, flags);
  
- 	switch (urb->status) {
- 	case 0:
-@@ -450,9 +451,9 @@ static void tm6000_irq_callback(struct urb *urb)
- 		break;
+ 	while (count--) {
+ 		if (buf[0] == 0x47)
+@@ -484,7 +486,7 @@ void dvb_dmx_swfilter_packets(struct dvb_demux *demux, const u8 *buf,
+ 		buf += 188;
  	}
  
--	spin_lock(&dev->slock);
-+	spin_lock_irqsave(&dev->slock, flags);
- 	tm6000_isoc_copy(urb);
--	spin_unlock(&dev->slock);
-+	spin_unlock_irqrestore(&dev->slock, flags);
+-	spin_unlock(&demux->lock);
++	spin_unlock_irqrestore(&demux->lock, flags);
+ }
  
- 	/* Reset urb buffers */
- 	for (i = 0; i < urb->number_of_packets; i++) {
+ EXPORT_SYMBOL(dvb_dmx_swfilter_packets);
+@@ -519,8 +521,9 @@ static inline void _dvb_dmx_swfilter(struct dvb_demux *demux, const u8 *buf,
+ {
+ 	int p = 0, i, j;
+ 	const u8 *q;
++	unsigned long flags;
+ 
+-	spin_lock(&demux->lock);
++	spin_lock_irqsave(&demux->lock, flags);
+ 
+ 	if (demux->tsbufp) { /* tsbuf[0] is now 0x47. */
+ 		i = demux->tsbufp;
+@@ -564,7 +567,7 @@ static inline void _dvb_dmx_swfilter(struct dvb_demux *demux, const u8 *buf,
+ 	}
+ 
+ bailout:
+-	spin_unlock(&demux->lock);
++	spin_unlock_irqrestore(&demux->lock, flags);
+ }
+ 
+ void dvb_dmx_swfilter(struct dvb_demux *demux, const u8 *buf, size_t count)
+@@ -581,11 +584,13 @@ EXPORT_SYMBOL(dvb_dmx_swfilter_204);
+ 
+ void dvb_dmx_swfilter_raw(struct dvb_demux *demux, const u8 *buf, size_t count)
+ {
+-	spin_lock(&demux->lock);
++	unsigned long flags;
++
++	spin_lock_irqsave(&demux->lock, flags);
+ 
+ 	demux->feed->cb.ts(buf, count, NULL, 0, &demux->feed->feed.ts, DMX_OK);
+ 
+-	spin_unlock(&demux->lock);
++	spin_unlock_irqrestore(&demux->lock, flags);
+ }
+ EXPORT_SYMBOL(dvb_dmx_swfilter_raw);
+ 
 -- 
 1.7.9.5

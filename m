@@ -1,60 +1,67 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH 42/50] media: usb: tlg2300: spin_lock in complete() cleanup
-Date: Thu, 11 Jul 2013 17:13:33 +0400
-Message-ID: <51DEAF7D.4010609@cogentembedded.com>
-References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com> <1373533573-12272-43-git-send-email-ming.lei@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f169.google.com ([209.85.217.169]:39671 "EHLO
-	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932387Ab3GKNNh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 09:13:37 -0400
-Received: by mail-lb0-f169.google.com with SMTP id d10so6724023lbj.0
-        for <linux-input@vger.kernel.org>; Thu, 11 Jul 2013 06:13:36 -0700 (PDT)
-In-Reply-To: <1373533573-12272-43-git-send-email-ming.lei@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 1/2] Bluetooth: hidp: implement hidinput_input_event callback
+Date: Thu, 11 Jul 2013 15:41:29 +0200
+Message-ID: <1373550090-30379-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1373550090-30379-1-git-send-email-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Mauro Carvalho Chehab <mchehab@redhat.com>
 
-On 11-07-2013 13:06, Ming Lei wrote:
+We can re-enable hidinput_input_event to allow the leds of bluetooth
+keyboards to be set.
+Now the callbacks uses hid core to retrieve the right HID report to
+send, so this version is safer.
 
-     Subject doesn't match the patch.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+---
+ net/bluetooth/hidp/core.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-> Complete() will be run with interrupt enabled, so disable local
-> interrupt before holding a global lock which is held without
-> irqsave.
->
-> Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
-> Cc: linux-media@vger.kernel.org
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
-> ---
->   drivers/media/usb/tlg2300/pd-alsa.c |    3 +++
->   1 file changed, 3 insertions(+)
-
-> diff --git a/drivers/media/usb/tlg2300/pd-alsa.c b/drivers/media/usb/tlg2300/pd-alsa.c
-> index 3f3e141..cbccc96 100644
-> --- a/drivers/media/usb/tlg2300/pd-alsa.c
-> +++ b/drivers/media/usb/tlg2300/pd-alsa.c
-[...]
-> @@ -156,6 +157,7 @@ static inline void handle_audio_data(struct urb *urb, int *period_elapsed)
->   		memcpy(runtime->dma_area + oldptr * stride, cp, len * stride);
->
->   	/* update the statas */
-> +	local_irq_save(flags);
->   	snd_pcm_stream_lock(pa->capture_pcm_substream);
->   	pa->rcv_position	+= len;
->   	if (pa->rcv_position >= runtime->buffer_size)
-> @@ -167,6 +169,7 @@ static inline void handle_audio_data(struct urb *urb, int *period_elapsed)
->   		*period_elapsed = 1;
->   	}
->   	snd_pcm_stream_unlock(pa->capture_pcm_substream);
-> +	local_irq_restore(flags);
->   }
-
-WBR, Sergei
-
-
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index f13a8da..9c8b50d 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -238,6 +238,31 @@ static int hidp_send_report(struct hidp_session *session, struct hid_report *rep
+ 	return hidp_send_intr_message(session, hdr, buf, rsize);
+ }
+ 
++static int hidp_hidinput_event(struct input_dev *dev, unsigned int type,
++			       unsigned int code, int value)
++{
++	struct hid_device *hid = input_get_drvdata(dev);
++	struct hidp_session *session = hid->driver_data;
++	struct hid_field *field;
++	int offset;
++
++	BT_DBG("session %p type %d code %d value %d",
++	       session, type, code, value);
++
++	if (type != EV_LED)
++		return -1;
++
++	offset = hidinput_find_field(hid, type, code, &field);
++	if (offset == -1) {
++		hid_warn(dev, "event field not found\n");
++		return -1;
++	}
++
++	hid_set_field(field, offset, value);
++
++	return hidp_send_report(session, field->report);
++}
++
+ static int hidp_get_raw_report(struct hid_device *hid,
+ 		unsigned char report_number,
+ 		unsigned char *data, size_t count,
+@@ -711,6 +736,7 @@ static struct hid_ll_driver hidp_hid_driver = {
+ 	.stop = hidp_stop,
+ 	.open  = hidp_open,
+ 	.close = hidp_close,
++	.hidinput_input_event = hidp_hidinput_event,
+ };
+ 
+ /* This function sets up the hid device. It does not add it
+-- 
+1.8.3.1

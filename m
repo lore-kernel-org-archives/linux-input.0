@@ -1,60 +1,95 @@
-From: Daniel Mack <zonque@gmail.com>
-Subject: Re: [PATCH 44/50] sound: usb: caiaq: spin_lock in complete() cleanup
-Date: Thu, 11 Jul 2013 16:06:45 +0200
-Message-ID: <51DEBBF5.7090909@gmail.com>
-References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com> <1373533573-12272-45-git-send-email-ming.lei@canonical.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 1/2] Bluetooth: hidp: implement hidinput_input_event callback
+Date: Thu, 11 Jul 2013 16:10:46 +0200
+Message-ID: <CAN+gG=HsR3uQDF-U+jAd5Ap_+GQqLG2xOe-waLBNq3D6Righnw@mail.gmail.com>
+References: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1373550090-30379-2-git-send-email-benjamin.tissoires@redhat.com>
+	<CANq1E4Tx7cVkWmZHtLvtW4U78uedEUe4Qs40aeyzRORmEBTPBg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f52.google.com ([209.85.214.52]:44915 "EHLO
-	mail-bk0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755025Ab3GKOGS (ORCPT
+Received: from mail-lb0-f180.google.com ([209.85.217.180]:59734 "EHLO
+	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756142Ab3GKOKs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 10:06:18 -0400
-In-Reply-To: <1373533573-12272-45-git-send-email-ming.lei@canonical.com>
+	Thu, 11 Jul 2013 10:10:48 -0400
+In-Reply-To: <CANq1E4Tx7cVkWmZHtLvtW4U78uedEUe4Qs40aeyzRORmEBTPBg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Marcel Holtmann <marcel@holtmann.org>, Gustavo Padovan <gustavo@padovan.org>, Jiri Kosina <jkosina@suse.cz>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On 11.07.2013 11:06, Ming Lei wrote:
-> Complete() will be run with interrupt enabled, so change to
-> spin_lock_irqsave().
-> 
-> Cc: Daniel Mack <zonque@gmail.com>
-> Cc: Jaroslav Kysela <perex@perex.cz>
-> Cc: Takashi Iwai <tiwai@suse.de>
-> Cc: alsa-devel@alsa-project.org
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+Hi David,
 
-Sound right to me, thanks.
+On Thu, Jul 11, 2013 at 4:02 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
+>
+>> +static int hidp_hidinput_event(struct input_dev *dev, unsigned int type,
+>> +                              unsigned int code, int value)
+>> +{
+>> +       struct hid_device *hid = input_get_drvdata(dev);
+>
+> I dislike that we have to deal with input_get_drvdata() in a transport
+> driver. It is not obvious from the transport driver that this gives us
+> an hid_device. But ok, that's how we do it in usbhid and hid-input so
+> it's another issue..
 
-Acked-by: Daniel Mack <zonque@gmail.com>
+right. So we should definitively change the callback signature here.
 
+>
+>> +       struct hidp_session *session = hid->driver_data;
+>> +       struct hid_field *field;
+>> +       int offset;
+>> +
+>> +       BT_DBG("session %p type %d code %d value %d",
+>> +              session, type, code, value);
+>> +
+>> +       if (type != EV_LED)
+>> +               return -1;
+>> +
+>> +       offset = hidinput_find_field(hid, type, code, &field);
+>> +       if (offset == -1) {
+>> +               hid_warn(dev, "event field not found\n");
+>> +               return -1;
+>> +       }
+>> +
+>> +       hid_set_field(field, offset, value);
+>> +
+>> +       return hidp_send_report(session, field->report);
+>> +}
+>> +
+>
+> We had this discussion before (regarding uhid and hidpinput_event), it
+> would be nice to have a helper in hid-input.c which does this. We copy
+> the code into every transport driver, which bugs me. But no-one
+> stepped up to do this, so I am fine.
 
+oh, yes, you are right. I'll add it to my todo list (now that I am
+responsible of 2/4 code duplication :-S )
 
-> ---
->  sound/usb/caiaq/audio.c |    5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/sound/usb/caiaq/audio.c b/sound/usb/caiaq/audio.c
-> index 7103b09..e5675ab 100644
-> --- a/sound/usb/caiaq/audio.c
-> +++ b/sound/usb/caiaq/audio.c
-> @@ -672,10 +672,11 @@ static void read_completed(struct urb *urb)
->  		offset += len;
->  
->  		if (len > 0) {
-> -			spin_lock(&cdev->spinlock);
-> +			unsigned long flags;
-> +			spin_lock_irqsave(&cdev->spinlock, flags);
->  			fill_out_urb(cdev, out, &out->iso_frame_desc[outframe]);
->  			read_in_urb(cdev, urb, &urb->iso_frame_desc[frame]);
-> -			spin_unlock(&cdev->spinlock);
-> +			spin_unlock_irqrestore(&cdev->spinlock, flags);
->  			check_for_elapsed_periods(cdev, cdev->sub_playback);
->  			check_for_elapsed_periods(cdev, cdev->sub_capture);
->  			send_it = 1;
-> 
+>
+> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
+Thanks for the review!
+
+Cheers,
+Benjamin
+
+>
+> Thanks!
+> David
+>
+>>  static int hidp_get_raw_report(struct hid_device *hid,
+>>                 unsigned char report_number,
+>>                 unsigned char *data, size_t count,
+>> @@ -711,6 +736,7 @@ static struct hid_ll_driver hidp_hid_driver = {
+>>         .stop = hidp_stop,
+>>         .open  = hidp_open,
+>>         .close = hidp_close,
+>> +       .hidinput_input_event = hidp_hidinput_event,
+>>  };
+>>
+>>  /* This function sets up the hid device. It does not add it
+>> --
+>> 1.8.3.1
+>>

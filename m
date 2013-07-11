@@ -1,7 +1,7 @@
 From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH 38/50] media: usb: tlg2300: spin_lock in complete() cleanup
-Date: Thu, 11 Jul 2013 17:06:01 +0800
-Message-ID: <1373533573-12272-39-git-send-email-ming.lei@canonical.com>
+Subject: [PATCH 39/50] media: usb: tm6000: spin_lock in complete() cleanup
+Date: Thu, 11 Jul 2013 17:06:02 +0800
+Message-ID: <1373533573-12272-40-git-send-email-ming.lei@canonical.com>
 References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
@@ -17,35 +17,32 @@ Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
 Cc: linux-media@vger.kernel.org
 Signed-off-by: Ming Lei <ming.lei@canonical.com>
 ---
- drivers/media/usb/tlg2300/pd-video.c |    5 +++--
+ drivers/media/usb/tm6000/tm6000-video.c |    5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/tlg2300/pd-video.c b/drivers/media/usb/tlg2300/pd-video.c
-index 8df668d..4e5bd07 100644
---- a/drivers/media/usb/tlg2300/pd-video.c
-+++ b/drivers/media/usb/tlg2300/pd-video.c
-@@ -151,11 +151,12 @@ static void init_copy(struct video_data *video, bool index)
- static bool get_frame(struct front_face *front, int *need_init)
- {
- 	struct videobuf_buffer *vb = front->curr_frame;
+diff --git a/drivers/media/usb/tm6000/tm6000-video.c b/drivers/media/usb/tm6000/tm6000-video.c
+index cc1aa14..8bb440f 100644
+--- a/drivers/media/usb/tm6000/tm6000-video.c
++++ b/drivers/media/usb/tm6000/tm6000-video.c
+@@ -434,6 +434,7 @@ static void tm6000_irq_callback(struct urb *urb)
+ 	struct tm6000_dmaqueue  *dma_q = urb->context;
+ 	struct tm6000_core *dev = container_of(dma_q, struct tm6000_core, vidq);
+ 	int i;
 +	unsigned long flags;
  
- 	if (vb)
- 		return true;
- 
--	spin_lock(&front->queue_lock);
-+	spin_lock_irqsave(&front->queue_lock, flags);
- 	if (!list_empty(&front->active)) {
- 		vb = list_entry(front->active.next,
- 			       struct videobuf_buffer, queue);
-@@ -164,7 +165,7 @@ static bool get_frame(struct front_face *front, int *need_init)
- 		front->curr_frame = vb;
- 		list_del_init(&vb->queue);
+ 	switch (urb->status) {
+ 	case 0:
+@@ -450,9 +451,9 @@ static void tm6000_irq_callback(struct urb *urb)
+ 		break;
  	}
--	spin_unlock(&front->queue_lock);
-+	spin_unlock_irqrestore(&front->queue_lock, flags);
  
- 	return !!vb;
- }
+-	spin_lock(&dev->slock);
++	spin_lock_irqsave(&dev->slock, flags);
+ 	tm6000_isoc_copy(urb);
+-	spin_unlock(&dev->slock);
++	spin_unlock_irqrestore(&dev->slock, flags);
+ 
+ 	/* Reset urb buffers */
+ 	for (i = 0; i < urb->number_of_packets; i++) {
 -- 
 1.7.9.5

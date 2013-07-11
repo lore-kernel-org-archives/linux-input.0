@@ -1,92 +1,48 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 10/53] Input: atmel_mxt_ts - Add memory access interface
- via sysfs
-Date: Thu, 11 Jul 2013 11:30:07 +0100
-Message-ID: <20130711103007.GH24508@sirena.org.uk>
-References: <20130607154134.GU31367@sirena.org.uk>
- <51B20630.7000304@itdev.co.uk>
- <20130607164700.GW31367@sirena.org.uk>
- <51B6FE69.6060505@itdev.co.uk>
- <20130611114727.GY1403@sirena.org.uk>
- <51B7151F.5070307@itdev.co.uk>
- <20130619185909.GG1403@sirena.org.uk>
- <51C47C50.8000606@itdev.co.uk>
- <20130702101125.GD27646@sirena.org.uk>
- <51DE61B5.1000600@itdev.co.uk>
+From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 05/50] USB: misc: uss720: spin_lock in complete() cleanup
+Date: Thu, 11 Jul 2013 16:15:22 +0400
+Message-ID: <51DEA1DA.5060706@cogentembedded.com>
+References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com> <1373533573-12272-6-git-send-email-ming.lei@canonical.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZYOWEO2dMm2Af3e3"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:47183 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751868Ab3GKKbM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 06:31:12 -0400
-Content-Disposition: inline
-In-Reply-To: <51DE61B5.1000600@itdev.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1373533573-12272-6-git-send-email-ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan.Bowens@atmel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pmeerw@pmeerw.net, bleung@chromium.org, olofj@chromium.org
+
+Hello.
+
+On 11-07-2013 13:05, Ming Lei wrote:
+
+> Complete() will be run with interrupt enabled, so change to
+> spin_lock_irqsave().
+
+> Signed-off-by: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+> ---
+>   drivers/usb/misc/uss720.c |    6 +++++-
+>   1 file changed, 5 insertions(+), 1 deletion(-)
+
+> diff --git a/drivers/usb/misc/uss720.c b/drivers/usb/misc/uss720.c
+> index e129cf6..f7d15e8 100644
+> --- a/drivers/usb/misc/uss720.c
+> +++ b/drivers/usb/misc/uss720.c
+> @@ -121,6 +121,7 @@ static void async_complete(struct urb *urb)
+>   		dev_err(&urb->dev->dev, "async_complete: urb error %d\n",
+>   			status);
+>   	} else if (rq->dr.bRequest == 3) {
+> +		unsigned long flags;
+
+    Empty line wouldn't hurt here, after declaration.
+
+>   		memcpy(priv->reg, rq->reg, sizeof(priv->reg));
+
+WBR, Sergei
 
 
---ZYOWEO2dMm2Af3e3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Jul 11, 2013 at 08:41:41AM +0100, Nick Dyer wrote:
-> Mark Brown wrote:
-> > On Fri, Jun 21, 2013 at 09:16:16AM -0700, Nick Dyer wrote:
-
-> >> For some operations it does. For example updating the whole chip config
-> >> (which is a common thing to want to do), it would turn a couple of write
-> >> operations into ~20 on recent chips.
-
-> > Is that really happening on peformance critical paths other than initial
-> > power up (which could be handled more neatly anyway).
-
-> Well, you're right that we could probably add more API for performance
-> critical stuff. But that wasn't your original question.
-
-You probably don't need another API here - for example, if the driver
-understands that the device is powered off and knows enugh about what
-the device is doing to understand that it doesn't need to be running
-then it could for example cache what is being written then flush in a
-more optimal fashion.
-
-> > If absoluely nobody has used the separate wakeup pin then the hardware
-> > designers are wasting a pin there...  my point isn't that nobody would
-> > use the reference design it's that some boards will have the separate
-> > signal.
-
-> That's entirely hypothetical, and you're wasting our time until you can
-> actually point to such hardware, happy to write patches to support that
-> mode of operation as well if you do.
-
-See above - it's not just about the possibility that someone might have
-done a better job with the hardware design, better power management is
-just a good idea in general.
-
---ZYOWEO2dMm2Af3e3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.20 (GNU/Linux)
-
-iQIcBAEBAgAGBQJR3oknAAoJELSic+t+oim9/bsP/ilw0qFkGwIJfT5AI2kWcG+M
-SWtyqjuPjOZP2XsKCemiyi0/KeyAf2gHGP6hxkTDUZMKZKJ78DqQ/2T6FeixKdcP
-iBtVUEJam9vDDByWMe48L0WEjiVTase8PuFevshloj8xQ9GELTl2G7wCWO13m/pL
-prUcj339B+CXQKGyukZ2S04EP3Vvo20vSrkiOXdQOS3+i6vXRnke+ggadVWeTMTU
-R692ZIwW5ZrT0C/CT/5sVvUPNiLXT71esLqNMF/s1z6LrUxXAuPnjmb3BkFTpIf7
-ENUY1qDfcQibr3pF6JWVIZJ3EYkTczuxJRPQbnOsvAvTJBLA35uK1QUZB9ZDeGL5
-y5fOwiiY8/HRxcLqWMC/tHHLON6KC8SurwJNihPAh8SkrG85EYULosKpGUEXmYdJ
-6X9Kzatv59uxBmb3ktsQR1QQd7RKjBIQp5/oq+IbX0ixaQBCXGziqpvyFn4Q+Ftd
-RL/MyV2UnMqLL0jJC51VoTurm8SXdIpAV0mMXS/ctrIqY4GSJQBJ1eO3aLhUtnO3
-CQP5Mk7YF4NzcKrPKxuJiL2RzFoV2NjUbn7xzDitmU+jVNib8lSYvtFFfDqAdvKR
-+YNejmPeKN4SmSmy4cTbt5x80I4EenquSUWQNUo/OG6i3ltovpOkt2WQpjCI6/hd
-GkEE04O3oZy88DnlCRDi
-=YGIN
------END PGP SIGNATURE-----
-
---ZYOWEO2dMm2Af3e3--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

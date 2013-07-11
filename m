@@ -1,92 +1,66 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH 23/50] BT: bfusb: read_lock in complete() cleanup
-Date: Thu, 11 Jul 2013 17:05:46 +0800
-Message-ID: <1373533573-12272-24-git-send-email-ming.lei@canonical.com>
-References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Logitech M705: Thumb button (was Re: [PATCH v4] HID: Add full
+ support for Logitech Unifying receivers)
+Date: Thu, 11 Jul 2013 12:29:59 +0200
+Message-ID: <CAN+gG=G5CFQ+qxrPPBvQn7p+6ggOv_bOYXasFbYqDKXdJq7ifg@mail.gmail.com>
+References: <1315638713-3731-1-git-send-email-benjamin.tissoires@gmail.com>
+	<20110910072826.GA1611@x4.trippels.de>
+	<CAN+gG=H2jfT2zdn5H19hyn9JtDU7U1ensX_aUDgv0jk4d81jXg@mail.gmail.com>
+	<CAN+gG=E90-y--6C-Ok8TibcFZGAaL2X-KxnchquDLCUUniip1Q@mail.gmail.com>
+	<alpine.LNX.2.00.1306271513180.3538@pobox.suse.cz>
+	<CAE7qMrosUkhF3Yak11Mh81NcGhYduUKRoHiUwH4RbTN1KXqi8A@mail.gmail.com>
+	<CAN+gG=HNSzg_W-26vMb2seWNU+QcO3+wv4Z1AmZ36LqPhbzdEg@mail.gmail.com>
+	<alpine.LNX.2.00.1307092236140.26857@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:34957 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932245Ab3GKJJn (ORCPT
+Received: from mail-la0-f41.google.com ([209.85.215.41]:52169 "EHLO
+	mail-la0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751868Ab3GKKaA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 05:09:43 -0400
-In-Reply-To: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
+	Thu, 11 Jul 2013 06:30:00 -0400
+In-Reply-To: <alpine.LNX.2.00.1307092236140.26857@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Ming Lei <ming.lei@canonical.com>, Marcel Holtmann <marcel@holtmann.org>, Gustavo Padovan <gustavo@padovan.org>, Johan Hedberg <johan.hedberg@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Markus Trippelsdorf <markus@trippelsdorf.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Titmuss <rtitmuss@logitech.com>, Olivier Gay <ogay@logitech.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Franti=C5=A1ek_Fuka?= <fuka@fuxoft.cz>
 
-Complete() will be run with interrupt enabled, so change to
-read_lock_irqsave().
+On Tue, Jul 9, 2013 at 10:41 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Tue, 9 Jul 2013, Benjamin Tissoires wrote:
+>
+>> For those who wants to try, I have set up a project [1] to implement
+>> part of the spec Nestor released. I implemented various features: list
+>> devices paired to a receiver, pair/unpair a device, and toggle the
+>> button 6 on M705 mouse with the faulty firmware. When switching mode for
+>> the M705, as Nestor said, we lose the AC panning ability until the
+>> correct remapping is done in the kernel.
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> [1] https://github.com/bentiss/uLogitech
+>
+> Thanks for your work on this, Benjamin.
+>
+> I have a followup question -- why not do this in the kernel completely
+> though? I have actually been asked by Linus directly (so we'd rather do
+> that :) ) to include pairing trigger as a sysfs toggle instead of having
+> to use userspace utilitites, and it actually makes sense to me.
 
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: Gustavo Padovan <gustavo@padovan.org>
-Cc: Johan Hedberg <johan.hedberg@gmail.com>
-Cc: linux-bluetooth@vger.kernel.org
-Signed-off-by: Ming Lei <ming.lei@canonical.com>
----
- drivers/bluetooth/bfusb.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+yep, the sysfs toggle for the pairing makes sense. In the same way, we
+should retrieve the actual name of the device instead of building a
+complex string "Logitech Unifying Device. Wireless PID:XXXX"...
+And for the M705, it really should be implemented in the kernel (I
+guess it will not be a lot of effort).
 
-diff --git a/drivers/bluetooth/bfusb.c b/drivers/bluetooth/bfusb.c
-index 995aee9..2e93501 100644
---- a/drivers/bluetooth/bfusb.c
-+++ b/drivers/bluetooth/bfusb.c
-@@ -186,6 +186,7 @@ static void bfusb_tx_complete(struct urb *urb)
- {
- 	struct sk_buff *skb = (struct sk_buff *) urb->context;
- 	struct bfusb_data *data = (struct bfusb_data *) skb->dev;
-+	unsigned long flags;
- 
- 	BT_DBG("bfusb %p urb %p skb %p len %d", data, urb, skb, skb->len);
- 
-@@ -199,14 +200,14 @@ static void bfusb_tx_complete(struct urb *urb)
- 	else
- 		data->hdev->stat.err_tx++;
- 
--	read_lock(&data->lock);
-+	read_lock_irqsave(&data->lock, flags);
- 
- 	skb_unlink(skb, &data->pending_q);
- 	skb_queue_tail(&data->completed_q, skb);
- 
- 	bfusb_tx_wakeup(data);
- 
--	read_unlock(&data->lock);
-+	read_unlock_irqrestore(&data->lock, flags);
- }
- 
- 
-@@ -347,10 +348,11 @@ static void bfusb_rx_complete(struct urb *urb)
- 	unsigned char *buf = urb->transfer_buffer;
- 	int count = urb->actual_length;
- 	int err, hdr, len;
-+	unsigned long flags;
- 
- 	BT_DBG("bfusb %p urb %p skb %p len %d", data, urb, skb, skb->len);
- 
--	read_lock(&data->lock);
-+	read_lock_irqsave(&data->lock, flags);
- 
- 	if (!test_bit(HCI_RUNNING, &data->hdev->flags))
- 		goto unlock;
-@@ -392,7 +394,7 @@ static void bfusb_rx_complete(struct urb *urb)
- 
- 	bfusb_rx_submit(data, urb);
- 
--	read_unlock(&data->lock);
-+	read_unlock_irqrestore(&data->lock, flags);
- 
- 	return;
- 
-@@ -406,7 +408,7 @@ resubmit:
- 	}
- 
- unlock:
--	read_unlock(&data->lock);
-+	read_unlock_irqrestore(&data->lock, flags);
- }
- 
- static int bfusb_open(struct hci_dev *hdev)
--- 
-1.7.9.5
+>
+> Are you aware of any particular reason to not have all that's provided by
+> uLogitech in the kernel?
 
+I'm afraid the very first reason is that we (Nestor or myself) don't
+have much allowed time to implement it properly in the kernel... :(
+Nestor is working on other projects, and for me, I did not had any
+customer requests for it in RHEL nor Fedora.
+
+Cheers,
+Benjamin

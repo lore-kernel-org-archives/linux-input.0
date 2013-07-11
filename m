@@ -1,18 +1,18 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 2/2] Bluetooth: hidp: remove wrong send_report at init
-Date: Thu, 11 Jul 2013 15:51:30 +0200
-Message-ID: <CANq1E4T4oiHe-15u3bEBOZx27pE3tDMZQfSXHx4Q=J-h3644yg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] Bluetooth: hidp: implement hidinput_input_event callback
+Date: Thu, 11 Jul 2013 16:02:08 +0200
+Message-ID: <CANq1E4Tx7cVkWmZHtLvtW4U78uedEUe4Qs40aeyzRORmEBTPBg@mail.gmail.com>
 References: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1373550090-30379-3-git-send-email-benjamin.tissoires@redhat.com>
+	<1373550090-30379-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f172.google.com ([209.85.223.172]:58170 "EHLO
-	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755025Ab3GKNva (ORCPT
+Received: from mail-ie0-f176.google.com ([209.85.223.176]:38461 "EHLO
+	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755611Ab3GKOCI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 09:51:30 -0400
-In-Reply-To: <1373550090-30379-3-git-send-email-benjamin.tissoires@redhat.com>
+	Thu, 11 Jul 2013 10:02:08 -0400
+In-Reply-To: <1373550090-30379-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -22,59 +22,77 @@ Hi
 
 On Thu, Jul 11, 2013 at 3:41 PM, Benjamin Tissoires
 <benjamin.tissoires@redhat.com> wrote:
-> The USB hid implementation does retrieve the reports during the start.
-> However, this implementation does not call the HID command GET_REPORT
-> (which would fetch the current status of each report), but use the
-> DATA command, which is an Output Report (so transmitting data from the
-> host to the device).
-> The Wiimote controller is already guarded against this problem in the
-> protocol, but it is not conformant to the specification to set all the
-> reports to 0 on start.
+> We can re-enable hidinput_input_event to allow the leds of bluetooth
+> keyboards to be set.
+> Now the callbacks uses hid core to retrieve the right HID report to
+> send, so this version is safer.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  net/bluetooth/hidp/core.c | 26 ++++++++++++++++++++++++++
+>  1 file changed, 26 insertions(+)
+>
+> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+> index f13a8da..9c8b50d 100644
+> --- a/net/bluetooth/hidp/core.c
+> +++ b/net/bluetooth/hidp/core.c
+> @@ -238,6 +238,31 @@ static int hidp_send_report(struct hidp_session *session, struct hid_report *rep
+>         return hidp_send_intr_message(session, hdr, buf, rsize);
+>  }
+>
+> +static int hidp_hidinput_event(struct input_dev *dev, unsigned int type,
+> +                              unsigned int code, int value)
+> +{
+> +       struct hid_device *hid = input_get_drvdata(dev);
 
-I always wondered whether report-setup is really needed for BT-HIDP.
-The BT profile doesn't mention it but I thought it was part of the
-USBHID core specification.
-During hid-wiimote development I added support for
-HID_QUIRK_NO_INIT_REPORTS to HIDP to silence the wiimote errors. But
-if you say that it's specific to USBHID, I am fine with this. I never
-read the USBHID specs, though, I rely on your comment here.
+I dislike that we have to deal with input_get_drvdata() in a transport
+driver. It is not obvious from the transport driver that this gives us
+an hid_device. But ok, that's how we do it in usbhid and hid-input so
+it's another issue..
 
-Anyway, code looks good:
-  Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+> +       struct hidp_session *session = hid->driver_data;
+> +       struct hid_field *field;
+> +       int offset;
+> +
+> +       BT_DBG("session %p type %d code %d value %d",
+> +              session, type, code, value);
+> +
+> +       if (type != EV_LED)
+> +               return -1;
+> +
+> +       offset = hidinput_find_field(hid, type, code, &field);
+> +       if (offset == -1) {
+> +               hid_warn(dev, "event field not found\n");
+> +               return -1;
+> +       }
+> +
+> +       hid_set_field(field, offset, value);
+> +
+> +       return hidp_send_report(session, field->report);
+> +}
+> +
+
+We had this discussion before (regarding uhid and hidpinput_event), it
+would be nice to have a helper in hid-input.c which does this. We copy
+the code into every transport driver, which bugs me. But no-one
+stepped up to do this, so I am fine.
+
+Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
 Thanks!
 David
 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  net/bluetooth/hidp/core.c | 14 --------------
->  1 file changed, 14 deletions(-)
+>  static int hidp_get_raw_report(struct hid_device *hid,
+>                 unsigned char report_number,
+>                 unsigned char *data, size_t count,
+> @@ -711,6 +736,7 @@ static struct hid_ll_driver hidp_hid_driver = {
+>         .stop = hidp_stop,
+>         .open  = hidp_open,
+>         .close = hidp_close,
+> +       .hidinput_input_event = hidp_hidinput_event,
+>  };
 >
-> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> index 9c8b50d..59d132a 100644
-> --- a/net/bluetooth/hidp/core.c
-> +++ b/net/bluetooth/hidp/core.c
-> @@ -703,20 +703,6 @@ static int hidp_parse(struct hid_device *hid)
->
->  static int hidp_start(struct hid_device *hid)
->  {
-> -       struct hidp_session *session = hid->driver_data;
-> -       struct hid_report *report;
-> -
-> -       if (hid->quirks & HID_QUIRK_NO_INIT_REPORTS)
-> -               return 0;
-> -
-> -       list_for_each_entry(report, &hid->report_enum[HID_INPUT_REPORT].
-> -                       report_list, list)
-> -               hidp_send_report(session, report);
-> -
-> -       list_for_each_entry(report, &hid->report_enum[HID_FEATURE_REPORT].
-> -                       report_list, list)
-> -               hidp_send_report(session, report);
-> -
->         return 0;
->  }
->
+>  /* This function sets up the hid device. It does not add it
 > --
 > 1.8.3.1
 >

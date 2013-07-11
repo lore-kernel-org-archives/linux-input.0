@@ -1,7 +1,7 @@
 From: Ming Lei <ming.lei@canonical.com>
-Subject: [PATCH 17/50] USB: serial: sierra: spin_lock in complete() cleanup
-Date: Thu, 11 Jul 2013 17:05:40 +0800
-Message-ID: <1373533573-12272-18-git-send-email-ming.lei@canonical.com>
+Subject: [PATCH 18/50] USB: serial: symbolserial: spin_lock in complete() cleanup
+Date: Thu, 11 Jul 2013 17:05:41 +0800
+Message-ID: <1373533573-12272-19-git-send-email-ming.lei@canonical.com>
 References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
@@ -16,37 +16,38 @@ spin_lock_irqsave().
 Cc: Johan Hovold <jhovold@gmail.com>
 Signed-off-by: Ming Lei <ming.lei@canonical.com>
 ---
- drivers/usb/serial/sierra.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/usb/serial/symbolserial.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/serial/sierra.c b/drivers/usb/serial/sierra.c
-index de958c5..e79b6ad 100644
---- a/drivers/usb/serial/sierra.c
-+++ b/drivers/usb/serial/sierra.c
-@@ -433,6 +433,7 @@ static void sierra_outdat_callback(struct urb *urb)
- 	struct sierra_port_private *portdata = usb_get_serial_port_data(port);
- 	struct sierra_intf_private *intfdata;
+diff --git a/drivers/usb/serial/symbolserial.c b/drivers/usb/serial/symbolserial.c
+index 9b16489..b4f5cbe 100644
+--- a/drivers/usb/serial/symbolserial.c
++++ b/drivers/usb/serial/symbolserial.c
+@@ -41,6 +41,7 @@ static void symbol_int_callback(struct urb *urb)
  	int status = urb->status;
+ 	int result;
+ 	int data_length;
 +	unsigned long flags;
  
- 	intfdata = port->serial->private;
+ 	switch (status) {
+ 	case 0:
+@@ -81,7 +82,7 @@ static void symbol_int_callback(struct urb *urb)
+ 	}
  
-@@ -443,12 +444,12 @@ static void sierra_outdat_callback(struct urb *urb)
- 		dev_dbg(&port->dev, "%s - nonzero write bulk status "
- 		    "received: %d\n", __func__, status);
+ exit:
+-	spin_lock(&priv->lock);
++	spin_lock_irqsave(&priv->lock, flags);
  
--	spin_lock(&portdata->lock);
-+	spin_lock_irqsave(&portdata->lock, flags);
- 	--portdata->outstanding_urbs;
--	spin_unlock(&portdata->lock);
--	spin_lock(&intfdata->susp_lock);
-+	spin_unlock_irqrestore(&portdata->lock, flags);
-+	spin_lock_irqsave(&intfdata->susp_lock, flags);
- 	--intfdata->in_flight;
--	spin_unlock(&intfdata->susp_lock);
-+	spin_unlock_irqrestore(&intfdata->susp_lock, flags);
- 
- 	usb_serial_port_softint(port);
+ 	/* Continue trying to always read if we should */
+ 	if (!priv->throttled) {
+@@ -92,7 +93,7 @@ exit:
+ 							__func__, result);
+ 	} else
+ 		priv->actually_throttled = true;
+-	spin_unlock(&priv->lock);
++	spin_unlock_irqrestore(&priv->lock, flags);
  }
+ 
+ static int symbol_open(struct tty_struct *tty, struct usb_serial_port *port)
 -- 
 1.7.9.5

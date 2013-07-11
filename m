@@ -1,65 +1,108 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] usb: USB host support should depend on HAS_DMA
-Date: Thu, 11 Jul 2013 11:03:52 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1307111059220.1276-100000@iolanthe.rowland.org>
-References: <CAMuHMdWF8pHQ7RfojiJK7NxULZZjecvzSkP6R+Q-5ib4A516Bw@mail.gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 1/2] Bluetooth: hidp: implement hidinput_input_event callback
+Date: Thu, 11 Jul 2013 18:07:07 +0200
+Message-ID: <CANq1E4TmHzdh2cOUXzHCCUFpWsxaNjzyuU=puy1nYevDvHKvWQ@mail.gmail.com>
+References: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1373550090-30379-2-git-send-email-benjamin.tissoires@redhat.com>
+	<CANq1E4Tx7cVkWmZHtLvtW4U78uedEUe4Qs40aeyzRORmEBTPBg@mail.gmail.com>
+	<CAN+gG=HsR3uQDF-U+jAd5Ap_+GQqLG2xOe-waLBNq3D6Righnw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:34141 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751075Ab3GKPDw (ORCPT
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:58305 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932439Ab3GKQHI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 11:03:52 -0400
-In-Reply-To: <CAMuHMdWF8pHQ7RfojiJK7NxULZZjecvzSkP6R+Q-5ib4A516Bw@mail.gmail.com>
+	Thu, 11 Jul 2013 12:07:08 -0400
+In-Reply-To: <CAN+gG=HsR3uQDF-U+jAd5Ap_+GQqLG2xOe-waLBNq3D6Righnw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Marcel Holtmann <marcel@holtmann.org>, Gustavo Padovan <gustavo@padovan.org>, Jiri Kosina <jkosina@suse.cz>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Thu, 11 Jul 2013, Geert Uytterhoeven wrote:
+Hi
 
-> On Thu, Jul 11, 2013 at 3:01 AM, Alan Stern <stern@rowland.harvard.edu> wrote:
-> > On Thu, 11 Jul 2013, Arnd Bergmann wrote:
-> >
-> >> On Wednesday 10 July 2013, Alan Stern wrote:
-> >> > This isn't right.  There are USB host controllers that use PIO, not
-> >> > DMA.  The HAS_DMA dependency should go with the controller driver, not
-> >> > the USB core.
-> >> >
-> >> > On the other hand, the USB core does call various routines like
-> >> > dma_unmap_single.  It ought to be possible to compile these calls even
-> >> > when DMA isn't enabled.  That is, they should be defined as do-nothing
-> >> > stubs.
-> >>
-> >> The asm-generic/dma-mapping-broken.h file intentionally causes link
-> >> errors, but that could be changed.
-> >>
-> >> The better approach in my mind would be to replace code like
-> >>
-> >>
-> >>       if (hcd->self.uses_dma)
-> >>
-> >> with
-> >>
-> >>       if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
-> >>
-> >> which will reliably cause that reference to be omitted from object code,
-> >> but not stop giving link errors for drivers that actually require
-> >> DMA.
-> >
-> > How will it give link errors for drivers that require DMA?
-> 
-> It won't. Unless the host driver itself calls into the DMA API, too
-> (are there any that don't?).
+On Thu, Jul 11, 2013 at 4:10 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> Hi David,
+>
+> On Thu, Jul 11, 2013 at 4:02 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+>> Hi
+>>
+>>> +static int hidp_hidinput_event(struct input_dev *dev, unsigned int type,
+>>> +                              unsigned int code, int value)
+>>> +{
+>>> +       struct hid_device *hid = input_get_drvdata(dev);
+>>
+>> I dislike that we have to deal with input_get_drvdata() in a transport
+>> driver. It is not obvious from the transport driver that this gives us
+>> an hid_device. But ok, that's how we do it in usbhid and hid-input so
+>> it's another issue..
+>
+> right. So we should definitively change the callback signature here.
+>
+>>
+>>> +       struct hidp_session *session = hid->driver_data;
+>>> +       struct hid_field *field;
+>>> +       int offset;
+>>> +
+>>> +       BT_DBG("session %p type %d code %d value %d",
+>>> +              session, type, code, value);
+>>> +
+>>> +       if (type != EV_LED)
+>>> +               return -1;
+>>> +
+>>> +       offset = hidinput_find_field(hid, type, code, &field);
+>>> +       if (offset == -1) {
+>>> +               hid_warn(dev, "event field not found\n");
+>>> +               return -1;
+>>> +       }
+>>> +
+>>> +       hid_set_field(field, offset, value);
+>>> +
+>>> +       return hidp_send_report(session, field->report);
+>>> +}
+>>> +
+>>
+>> We had this discussion before (regarding uhid and hidpinput_event), it
+>> would be nice to have a helper in hid-input.c which does this. We copy
+>> the code into every transport driver, which bugs me. But no-one
+>> stepped up to do this, so I am fine.
+>
+> oh, yes, you are right. I'll add it to my todo list (now that I am
+> responsible of 2/4 code duplication :-S )
 
-To my knowledge, all the host controller drivers which use DMA _do_
-call functions in the DMA API.  So they would still get link errors,
-even though the USB core wouldn't.
+Feel free to push this series forward unchanged, if it is urgent. I
+have an experimental series here which implements a generic
+hidinput_input_event() handler (including the scheduled worker) that I
+will send later today or tomorrow.
 
-Therefore adding the appropriate HAS_DMA dependencies should be 
-straightforward: Try to build all the drivers and see which ones fail 
-to link.
+Cheers
+David
 
-Alan Stern
-
+>>
+>> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+>
+> Thanks for the review!
+>
+> Cheers,
+> Benjamin
+>
+>>
+>> Thanks!
+>> David
+>>
+>>>  static int hidp_get_raw_report(struct hid_device *hid,
+>>>                 unsigned char report_number,
+>>>                 unsigned char *data, size_t count,
+>>> @@ -711,6 +736,7 @@ static struct hid_ll_driver hidp_hid_driver = {
+>>>         .stop = hidp_stop,
+>>>         .open  = hidp_open,
+>>>         .close = hidp_close,
+>>> +       .hidinput_input_event = hidp_hidinput_event,
+>>>  };
+>>>
+>>>  /* This function sets up the hid device. It does not add it
+>>> --
+>>> 1.8.3.1
+>>>

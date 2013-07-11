@@ -1,83 +1,63 @@
-From: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
-Subject: Re: [PATCH 08/50] USB: legousbtower: spin_lock in complete() cleanup
-Date: Thu, 11 Jul 2013 20:42:49 +0800
-Message-ID: <CACVXFVOF4e=+GjXHTJ-suitQO3TsvCnUBCsfoXj+QahxRqVz7Q@mail.gmail.com>
-References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
-	<1373533573-12272-9-git-send-email-ming.lei@canonical.com>
-	<51DEA289.5050509@cogentembedded.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 17/50] USB: serial: sierra: spin_lock in complete() cleanup
+Date: Thu, 11 Jul 2013 17:02:03 +0400
+Message-ID: <51DEACCB.4000206@cogentembedded.com>
+References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com> <1373533573-12272-18-git-send-email-ming.lei@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <51DEA289.5050509-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, Juergen Stuber <starblue-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1373533573-12272-18-git-send-email-ming.lei@canonical.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Ming Lei <ming.lei@canonical.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Johan Hovold <jhovold@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 11, 2013 at 8:18 PM, Sergei Shtylyov
-<sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org> wrote:
-> Hello.
->
->
-> On 11-07-2013 13:05, Ming Lei wrote:
->
->> Complete() will be run with interrupt enabled, so change to
->> spin_lock_irqsave().
->
->
->> Cc: Juergen Stuber <starblue-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
->> Signed-off-by: Ming Lei <ming.lei-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
->> ---
->>   drivers/usb/misc/legousbtower.c |    5 +++--
->>   1 file changed, 3 insertions(+), 2 deletions(-)
->
->
->> diff --git a/drivers/usb/misc/legousbtower.c
->> b/drivers/usb/misc/legousbtower.c
->> index 8089479..4044989 100644
->> --- a/drivers/usb/misc/legousbtower.c
->> +++ b/drivers/usb/misc/legousbtower.c
->> @@ -771,6 +771,7 @@ static void tower_interrupt_in_callback (struct urb
->> *urb)
->>         struct lego_usb_tower *dev = urb->context;
->>         int status = urb->status;
->>         int retval;
->> +       unsigned long flags;
->>
->>         dbg(4, "%s: enter, status %d", __func__, status);
->>
->> @@ -788,7 +789,7 @@ static void tower_interrupt_in_callback (struct urb
->> *urb)
->>         }
->>
->>         if (urb->actual_length > 0) {
->> -               spin_lock (&dev->read_buffer_lock);
->> +               spin_lock_irqsave (&dev->read_buffer_lock, flags);
->>                 if (dev->read_buffer_length + urb->actual_length <
->> read_buffer_size) {
->>                         memcpy (dev->read_buffer +
->> dev->read_buffer_length,
->>                                 dev->interrupt_in_buffer,
->> @@ -799,7 +800,7 @@ static void tower_interrupt_in_callback (struct urb
->> *urb)
->>                 } else {
->>                         printk(KERN_WARNING "%s: read_buffer overflow, %d
->> bytes dropped", __func__, urb->actual_length);
->>                 }
->> -               spin_unlock (&dev->read_buffer_lock);
->> +               spin_unlock_irqrestore (&dev->read_buffer_lock, flags);
->>         }
->
->
->    I don't think this patch passes checkpatch.pl.
+Hello.
 
-No errors reported from checkpatch.pl, only warnings which isn't introduced
-by this patch.
+On 11-07-2013 13:05, Ming Lei wrote:
 
-Thanks,
---
-Ming Lei
---
-To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Complete() will be run with interrupt enabled, so change to
+> spin_lock_irqsave().
+
+> Cc: Johan Hovold <jhovold@gmail.com>
+> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+> ---
+>   drivers/usb/serial/sierra.c |    9 +++++----
+>   1 file changed, 5 insertions(+), 4 deletions(-)
+
+> diff --git a/drivers/usb/serial/sierra.c b/drivers/usb/serial/sierra.c
+> index de958c5..e79b6ad 100644
+> --- a/drivers/usb/serial/sierra.c
+> +++ b/drivers/usb/serial/sierra.c
+> @@ -433,6 +433,7 @@ static void sierra_outdat_callback(struct urb *urb)
+>   	struct sierra_port_private *portdata = usb_get_serial_port_data(port);
+>   	struct sierra_intf_private *intfdata;
+>   	int status = urb->status;
+> +	unsigned long flags;
+>
+>   	intfdata = port->serial->private;
+>
+> @@ -443,12 +444,12 @@ static void sierra_outdat_callback(struct urb *urb)
+>   		dev_dbg(&port->dev, "%s - nonzero write bulk status "
+>   		    "received: %d\n", __func__, status);
+>
+> -	spin_lock(&portdata->lock);
+> +	spin_lock_irqsave(&portdata->lock, flags);
+>   	--portdata->outstanding_urbs;
+> -	spin_unlock(&portdata->lock);
+> -	spin_lock(&intfdata->susp_lock);
+> +	spin_unlock_irqrestore(&portdata->lock, flags);
+> +	spin_lock_irqsave(&intfdata->susp_lock, flags);
+
+     You are allowing an interrupt enabled window where previously it 
+wasn't possible. Why notleave these 2 lines as is?
+
+>   	--intfdata->in_flight;
+> -	spin_unlock(&intfdata->susp_lock);
+> +	spin_unlock_irqrestore(&intfdata->susp_lock, flags);
+>
+>   	usb_serial_port_softint(port);
+>   }
+
+WBR, Sergei

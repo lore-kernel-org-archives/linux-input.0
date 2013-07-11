@@ -1,67 +1,30 @@
-From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 1/2] Bluetooth: hidp: implement hidinput_input_event callback
-Date: Thu, 11 Jul 2013 15:41:29 +0200
-Message-ID: <1373550090-30379-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1373550090-30379-1-git-send-email-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/2] Bluetooth:  hidp: cleanup HID init and re-enable hidinput_input_event callback
+Date: Thu, 11 Jul 2013 15:41:28 +0200
+Message-ID: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Marcel Holtmann <marcel@holtmann.org>, Gustavo Padovan <gustavo@padovan.org>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-bluetooth@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-We can re-enable hidinput_input_event to allow the leds of bluetooth
-keyboards to be set.
-Now the callbacks uses hid core to retrieve the right HID report to
-send, so this version is safer.
+Hi guys,
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- net/bluetooth/hidp/core.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+These two patches enhance a little bit the HIDp driver:
+- the first one re-implement in a safer way the callback hidinput_input_event,
+  allowing keyboards leds to be set over bluetooth
+- the second one disable the send_report commands called during init, which
+  are not part of the spec and may fail with some devices (the Wiimote is in
+  this case, but David guarded it against this problem).
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index f13a8da..9c8b50d 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -238,6 +238,31 @@ static int hidp_send_report(struct hidp_session *session, struct hid_report *rep
- 	return hidp_send_intr_message(session, hdr, buf, rsize);
- }
- 
-+static int hidp_hidinput_event(struct input_dev *dev, unsigned int type,
-+			       unsigned int code, int value)
-+{
-+	struct hid_device *hid = input_get_drvdata(dev);
-+	struct hidp_session *session = hid->driver_data;
-+	struct hid_field *field;
-+	int offset;
-+
-+	BT_DBG("session %p type %d code %d value %d",
-+	       session, type, code, value);
-+
-+	if (type != EV_LED)
-+		return -1;
-+
-+	offset = hidinput_find_field(hid, type, code, &field);
-+	if (offset == -1) {
-+		hid_warn(dev, "event field not found\n");
-+		return -1;
-+	}
-+
-+	hid_set_field(field, offset, value);
-+
-+	return hidp_send_report(session, field->report);
-+}
-+
- static int hidp_get_raw_report(struct hid_device *hid,
- 		unsigned char report_number,
- 		unsigned char *data, size_t count,
-@@ -711,6 +736,7 @@ static struct hid_ll_driver hidp_hid_driver = {
- 	.stop = hidp_stop,
- 	.open  = hidp_open,
- 	.close = hidp_close,
-+	.hidinput_input_event = hidp_hidinput_event,
- };
- 
- /* This function sets up the hid device. It does not add it
+Cheers,
+Benjamin
+
+Benjamin Tissoires (2):
+  Bluetooth: hidp: implement hidinput_input_event callback
+  Bluetooth: hidp: remove wrong send_report at init
+
+ net/bluetooth/hidp/core.c | 40 ++++++++++++++++++++++++++--------------
+ 1 file changed, 26 insertions(+), 14 deletions(-)
+
 -- 
 1.8.3.1

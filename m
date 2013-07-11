@@ -1,52 +1,43 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/2] Bluetooth: hidp: remove wrong send_report at init
-Date: Thu, 11 Jul 2013 15:41:30 +0200
-Message-ID: <1373550090-30379-3-git-send-email-benjamin.tissoires@redhat.com>
-References: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Marcel Holtmann <marcel@holtmann.org>, Gustavo Padovan <gustavo@padovan.org>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-bluetooth@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 08/50] USB: legousbtower: spin_lock in complete() cleanup
+Date: Thu, 11 Jul 2013 17:47:03 +0400
+Message-ID: <51DEB757.6070202@cogentembedded.com>
+References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com> <1373533573-12272-9-git-send-email-ming.lei@canonical.com> <51DEA289.5050509@cogentembedded.com> <3187374.nPY1jDDWKm@linux-5eaq.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f43.google.com ([209.85.215.43]:48328 "EHLO
+	mail-la0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932264Ab3GKNrI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Jul 2013 09:47:08 -0400
+Received: by mail-la0-f43.google.com with SMTP id gw10so6812909lab.16
+        for <linux-input@vger.kernel.org>; Thu, 11 Jul 2013 06:47:05 -0700 (PDT)
+In-Reply-To: <3187374.nPY1jDDWKm@linux-5eaq.site>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Ming Lei <ming.lei@canonical.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Juergen Stuber <starblue@users.sourceforge.net>
 
-The USB hid implementation does retrieve the reports during the start.
-However, this implementation does not call the HID command GET_REPORT
-(which would fetch the current status of each report), but use the
-DATA command, which is an Output Report (so transmitting data from the
-host to the device).
-The Wiimote controller is already guarded against this problem in the
-protocol, but it is not conformant to the specification to set all the
-reports to 0 on start.
+Hello.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- net/bluetooth/hidp/core.c | 14 --------------
- 1 file changed, 14 deletions(-)
+On 11-07-2013 16:36, Oliver Neukum wrote:
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index 9c8b50d..59d132a 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -703,20 +703,6 @@ static int hidp_parse(struct hid_device *hid)
- 
- static int hidp_start(struct hid_device *hid)
- {
--	struct hidp_session *session = hid->driver_data;
--	struct hid_report *report;
--
--	if (hid->quirks & HID_QUIRK_NO_INIT_REPORTS)
--		return 0;
--
--	list_for_each_entry(report, &hid->report_enum[HID_INPUT_REPORT].
--			report_list, list)
--		hidp_send_report(session, report);
--
--	list_for_each_entry(report, &hid->report_enum[HID_FEATURE_REPORT].
--			report_list, list)
--		hidp_send_report(session, report);
--
- 	return 0;
- }
- 
--- 
-1.8.3.1
+>>      I don't think this patch passes checkpatch.pl.
+
+> This series is a mechanical replacement in dozens of drivers.
+
+    That mechanicity shows too much in some patches.
+
+> We cannot demand nice formatting.  If you want to do something
+> productive, check the locking in the driver.
+
+    I'm not paid for it and don't have time to do it for free.
+
+> 	Regards
+> 		Oliver
+
+WBR, Sergei
+
+

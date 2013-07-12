@@ -1,50 +1,31 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: multitouch: do not init reports for multitouch devices
-Date: Fri, 12 Jul 2013 11:08:21 +0200
-Message-ID: <1373620101-16113-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: logitech-dj: use inlined helpers
+ hid_hw_open/close
+Date: Fri, 12 Jul 2013 11:42:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1307121142370.29788@pobox.suse.cz>
+References: <1373619662-15353-1-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52124 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:53084 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757310Ab3GLJIf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Jul 2013 05:08:35 -0400
+	id S1757350Ab3GLJmu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Jul 2013 05:42:50 -0400
+In-Reply-To: <1373619662-15353-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Some multitouch screens do not like to be polled for input reports.
-However, the Win8 spec says that all touches should be sent during
-each report, making the initialization of reports unnecessary.
-The Win7 spec is less precise, but we can safely assume that when
-the module is loaded (at boot), no one is touching the screen.
+On Fri, 12 Jul 2013, Benjamin Tissoires wrote:
 
-Add the quirk HID_QUIRK_NO_INIT_REPORTS so that we do not have to
-introduce a quirk for each problematic device.
+> Use the inlined helpers hid_hw_open/close instead of direct calls to
+> ->ll_driver->open() and ->ll_driver->close().
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-multitouch.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Applied, thanks.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index d99b959..197c2e6 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -957,6 +957,15 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
- 
- 	/*
-+	 * Some multitouch screens do not like to be polled for input reports.
-+	 * However, the Win8 spec says that all touches should be sent during
-+	 * each report, making the initialization of reports unnecessary.
-+	 * The Win7 spec is less precise, but we can safely assume that when
-+	 * the module is loaded (at boot), no one is touching the screen.
-+	 */
-+	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
-+
-+	/*
- 	 * This allows the driver to handle different input sensors
- 	 * that emits events through different reports on the same HID
- 	 * device.
 -- 
-1.8.3.1
-
+Jiri Kosina
+SUSE Labs

@@ -1,73 +1,83 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/2] Bluetooth: hidp: remove wrong send_report at init
-Date: Fri, 12 Jul 2013 00:51:12 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1307120050450.29788@pobox.suse.cz>
-References: <1373550090-30379-1-git-send-email-benjamin.tissoires@redhat.com> <1373550090-30379-3-git-send-email-benjamin.tissoires@redhat.com>
+From: Oskar Andero <oskar.andero@sonymobile.com>
+Subject: Re: [PATCH] input: don't call input_dev_release_keys() in resume
+Date: Fri, 12 Jul 2013 09:44:41 +0200
+Message-ID: <20130712074441.GC3778@caracas.corpusers.net>
+References: <1362664882-16194-1-git-send-email-oskar.andero@sonymobile.com>
+ <20130404163313.GA12302@core.coreip.homeip.net>
+ <20130705074632.GF11422@caracas.corpusers.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:36524 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756431Ab3GKWvN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jul 2013 18:51:13 -0400
-In-Reply-To: <1373550090-30379-3-git-send-email-benjamin.tissoires@redhat.com>
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:10634 "EHLO
+	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757213Ab3GLHop (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Jul 2013 03:44:45 -0400
+Content-Disposition: inline
+In-Reply-To: <20130705074632.GF11422@caracas.corpusers.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Marcel Holtmann <marcel@holtmann.org>, Gustavo Padovan <gustavo@padovan.org>, David Herrmann <dh.herrmann@gmail.com>, linux-bluetooth@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Makarov, Aleksej" <Aleksej.Makarov@sonymobile.com>
 
-On Thu, 11 Jul 2013, Benjamin Tissoires wrote:
-
-> The USB hid implementation does retrieve the reports during the start.
-> However, this implementation does not call the HID command GET_REPORT
-> (which would fetch the current status of each report), but use the
-> DATA command, which is an Output Report (so transmitting data from the
-> host to the device).
-> The Wiimote controller is already guarded against this problem in the
-> protocol, but it is not conformant to the specification to set all the
-> reports to 0 on start.
+On 09:46 Fri 05 Jul     , Oskar Andero wrote:
+> Hi Dmitry,
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-
-Gustavo, could you please take it through your tree?
-
-Thanks Benjamin, thanks David.
-
-> ---
->  net/bluetooth/hidp/core.c | 14 --------------
->  1 file changed, 14 deletions(-)
+> On 18:33 Thu 04 Apr     , Dmitry Torokhov wrote:
+> > Hi Oskar,
+> > 
+> > On Thu, Mar 07, 2013 at 03:01:22PM +0100, oskar.andero@sonymobile.com wrote:
+> > > From: Aleksej Makarov <aleksej.makarov@sonymobile.com>
+> > >
+> > > When waking up the platform by pressing a specific key, sending a
+> > > release on that key makes it impossible to react on the event in
+> > > user-space.
+> > >
+> > 
+> > No, we can not simply not release keys after resume from suspend, as
+> > this leads to keys being stuck. Consider you are holding an 'I' key on
+> > your external USB keyboard and close your laptop's lid. Then you release
+> > the key and leave. Later you come back, open the lid waking the laptop
+> > and observe endless stream of 'I' in your open terminal.
+> > 
+> > Maybe we should release the keys during suspend time? I am not sure how
+> > Android infrastructure will react to this though...
 > 
-> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> index 9c8b50d..59d132a 100644
-> --- a/net/bluetooth/hidp/core.c
-> +++ b/net/bluetooth/hidp/core.c
-> @@ -703,20 +703,6 @@ static int hidp_parse(struct hid_device *hid)
->  
->  static int hidp_start(struct hid_device *hid)
+> I finally got the time to try this out. Releasing the keys in suspend
+> also solves our problem. Would such patch work for the USB keyboard
+> case you described? Theoretically, I think it should, right?
+> 
+> So, basically:
+> 
+> static int input_dev_suspend(struct device *dev)
 >  {
-> -	struct hidp_session *session = hid->driver_data;
-> -	struct hid_report *report;
+>         struct input_dev *input_dev = to_input_dev(dev);
+>  
+> -       mutex_lock(&input_dev->mutex);
 > -
-> -	if (hid->quirks & HID_QUIRK_NO_INIT_REPORTS)
-> -		return 0;
+> -       if (input_dev->users)
+> -               input_dev_toggle(input_dev, false);
 > -
-> -	list_for_each_entry(report, &hid->report_enum[HID_INPUT_REPORT].
-> -			report_list, list)
-> -		hidp_send_report(session, report);
-> -
-> -	list_for_each_entry(report, &hid->report_enum[HID_FEATURE_REPORT].
-> -			report_list, list)
-> -		hidp_send_report(session, report);
-> -
->  	return 0;
+> -       mutex_unlock(&input_dev->mutex);
+> +       input_reset_device(input_dev);
+>  
+>         return 0;
 >  }
 >  
-> -- 
-> 1.8.3.1
+>  static int input_dev_resume(struct device *dev)
+>  {
+> -       struct input_dev *input_dev = to_input_dev(dev);
+> -
+> -       input_reset_device(input_dev);
+> -
+>         return 0;
+>  }
 > 
+> Should I send the patch?
 
--- 
-Jiri Kosina
-SUSE Labs
+Ping. Any thoughts on this?
+
+Thanks!
+
+-Oskar
+

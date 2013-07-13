@@ -1,160 +1,94 @@
 From: Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH v2 3/3] input: mc13783: Add DT probe support
-Date: Sat, 13 Jul 2013 08:25:51 +0400
-Message-ID: <1373689551-24375-3-git-send-email-shc_work@mail.ru>
+Subject: [PATCH v2 2/3] input: mc13783: Add MC13892 support
+Date: Sat, 13 Jul 2013 08:25:50 +0400
+Message-ID: <1373689551-24375-2-git-send-email-shc_work@mail.ru>
 References: <1373689551-24375-1-git-send-email-shc_work@mail.ru>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp2.mail.ru ([94.100.176.130]:44424 "EHLO smtp2.mail.ru"
+Received: from smtp2.mail.ru ([94.100.176.130]:44357 "EHLO smtp2.mail.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750820Ab3GME0W (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Jul 2013 00:26:22 -0400
+	id S1750771Ab3GME0U (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 13 Jul 2013 00:26:20 -0400
 In-Reply-To: <1373689551-24375-1-git-send-email-shc_work@mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org
 Cc: linux-input@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Sascha Hauer <kernel@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Shawn Guo <shawn.guo@linaro.org>, Alexander Shiyan <shc_work@mail.ru>
 
-Patch adds DT support for MC13783/MC13892 PMICs.
 
 Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 ---
- Documentation/devicetree/bindings/mfd/mc13xxx.txt | 13 +++++
- drivers/input/misc/mc13783-pwrbutton.c            | 59 ++++++++++++++++++-----
- 2 files changed, 59 insertions(+), 13 deletions(-)
+ drivers/input/misc/Kconfig             |  6 +++---
+ drivers/input/misc/mc13783-pwrbutton.c | 10 +++++++++-
+ include/linux/mfd/mc13892.h            |  4 ++++
+ 3 files changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/mc13xxx.txt b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-index abd9e3c..cf8b61c 100644
---- a/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-+++ b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-@@ -10,6 +10,12 @@ Optional properties:
- - fsl,mc13xxx-uses-touch : Indicate the touchscreen controller is being used
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 0b541cd..0d83653 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -167,10 +167,10 @@ config INPUT_MAX8997_HAPTIC
+ 	  module will be called max8997-haptic.
  
- Sub-nodes:
-+- buttons : Contain power button nodes. Each button should be declared as
-+  "button@<num>" and contain code in "linux,code" property.
-+  Optional properties:
-+    active-high : Change active button level from 0 to 1.
-+    enable-reset: Performs hadware reset through PMIC.
-+    debounce    : Debounce value which will be taken from PMIC datasheet.
- - regulators : Contain the regulator nodes. The regulators are bound using
-   their names as listed below with their registers and bits for enabling.
+ config INPUT_MC13783_PWRBUTTON
+-	tristate "MC13783 ON buttons"
+-	depends on MFD_MC13783
++	tristate "MC13783/MC13892 ON buttons"
++	depends on MFD_MC13XXX
+ 	help
+-	  Support the ON buttons of MC13783 PMIC as an input device
++	  Support the ON buttons of MC13783/MC13892 PMIC as an input device
+ 	  reporting power button status.
  
-@@ -89,6 +95,13 @@ ecspi@70010000 { /* ECSPI1 */
- 		interrupt-parent = <&gpio0>;
- 		interrupts = <8>;
- 
-+		buttons {
-+			button@1 {
-+				linux,code = <0x1f>;
-+				debounce = <1>;
-+			};
-+		};
-+
- 		regulators {
- 			sw1_reg: mc13892__sw1 {
- 				regulator-min-microvolt = <600000>;
+ 	  To compile this driver as a module, choose M here: the module
 diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
-index 855d576..2040eb2 100644
+index 33613ca..855d576 100644
 --- a/drivers/input/misc/mc13783-pwrbutton.c
 +++ b/drivers/input/misc/mc13783-pwrbutton.c
-@@ -24,6 +24,7 @@
- #include <linux/kernel.h>
- #include <linux/errno.h>
+@@ -26,6 +26,7 @@
  #include <linux/input.h>
-+#include <linux/of.h>
  #include <linux/platform_device.h>
  #include <linux/mfd/mc13783.h>
- #include <linux/mfd/mc13892.h>
-@@ -121,21 +122,28 @@ static int __init mc13xxx_pwrbutton_probe(struct platform_device *pdev)
- 	struct mc13xxx *mc13xxx = dev_get_drvdata(pdev->dev.parent);
- 	struct mc13xxx_pwrb_devtype *devtype =
- 		(struct mc13xxx_pwrb_devtype *)pdev->id_entry->driver_data;
-+	struct device_node *parent, *child;
- 	struct mc13xxx_pwrb *priv;
- 	int i, reg = 0, ret = -EINVAL;
++#include <linux/mfd/mc13892.h>
  
--	if (!pdata) {
-+	of_node_get(pdev->dev.parent->of_node);
-+	parent = of_find_node_by_name(pdev->dev.parent->of_node, "buttons");
-+	if (!pdata && !parent) {
- 		dev_err(&pdev->dev, "Missing platform data\n");
- 		return -ENODEV;
- 	}
+ struct mc13xxx_button_def {
+ 	unsigned int	irq;
+@@ -194,8 +195,15 @@ static const struct mc13xxx_pwrb_devtype mc13783_pwrb_devtype = {
+ 	.btn_def[2] = { MC13783_IRQ_ONOFD3, BIT(5) }
+ };
  
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
--	if (!priv)
--		return -ENOMEM;
-+	if (!priv) {
-+		ret = -ENOMEM;
-+		goto out_node_put;
-+	}
- 
- 	priv->input = devm_input_allocate_device(&pdev->dev);
--	if (!priv->input)
--		return -ENOMEM;
-+	if (!priv->input) {
-+		ret = -ENOMEM;
-+		goto out_node_put;
-+	}
- 
- 	priv->mc13xxx = mc13xxx;
- 	priv->devtype = devtype;
-@@ -143,15 +151,36 @@ static int __init mc13xxx_pwrbutton_probe(struct platform_device *pdev)
- 
- 	for (i = 0; i < MAX13XXX_NUM_BUTTONS; i++) {
- 		u16 code, invert, reset, debounce;
-+		const __be32 *prop;
-+		char childname[5];
- 
--		if (!(pdata->buttons[i].flags & MC13XXX_BUTTON_ENABLE))
--			continue;
--		code = pdata->buttons[i].keycode;
--		invert = !!(pdata->buttons[i].flags &
--			    MC13XXX_BUTTON_POL_INVERT);
--		reset = !!(pdata->buttons[i].flags &
--			   MC13XXX_BUTTON_RESET_EN);
--		debounce = pdata->buttons[i].flags;
-+		if (parent) {
-+			sprintf(childname, "button@%i", i + 1);
-+			child = of_get_child_by_name(parent, childname);
-+			if (!child)
-+				continue;
-+			prop = of_get_property(child, "linux,code", NULL);
-+			if (prop)
-+				code = be32_to_cpu(*prop) & 0xffff;
-+			else {
-+				dev_err(&pdev->dev,
-+					"Button %i: Missing key code\n", i + 1);
-+				continue;
-+			}
-+			invert = of_property_read_bool(child, "active-high");
-+			reset = of_property_read_bool(child, "enable-reset");
-+			prop = of_get_property(child, "debounce", NULL);
-+			debounce = prop ? be32_to_cpu(*prop) : 0;
-+		} else {
-+			if (!(pdata->buttons[i].flags & MC13XXX_BUTTON_ENABLE))
-+				continue;
-+			code = pdata->buttons[i].keycode;
-+			invert = !!(pdata->buttons[i].flags &
-+				    MC13XXX_BUTTON_POL_INVERT);
-+			reset = !!(pdata->buttons[i].flags &
-+				   MC13XXX_BUTTON_RESET_EN);
-+			debounce = pdata->buttons[i].flags;
-+		}
- 
- 		priv->btn_code[i] = code;
- 		if (code != KEY_RESERVED)
-@@ -186,6 +215,10 @@ static int __init mc13xxx_pwrbutton_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "Can't register input device: %i\n", ret);
- 
-+out_node_put:
-+	if (parent)
-+		of_node_put(parent);
++static const struct mc13xxx_pwrb_devtype mc13892_pwrb_devtype = {
++	.btn_def[0] = { MC13892_IRQ_ONOFD1, BIT(3) },
++	.btn_def[1] = { MC13892_IRQ_ONOFD2, BIT(4) },
++	.btn_def[2] = { MC13892_IRQ_ONOFD3, BIT(2) }
++};
 +
- 	return ret;
- }
+ static const struct platform_device_id mc13xxx_pwrbutton_id_table[] = {
+ 	{ "mc13783-pwrbutton", (kernel_ulong_t)&mc13783_pwrb_devtype },
++	{ "mc13892-pwrbutton", (kernel_ulong_t)&mc13892_pwrb_devtype },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(platform, mc13xxx_pwrbutton_id_table);
+@@ -209,6 +217,6 @@ static struct platform_driver mc13xxx_pwrbutton_driver = {
+ };
+ module_platform_driver_probe(mc13xxx_pwrbutton_driver, mc13xxx_pwrbutton_probe);
  
+-MODULE_DESCRIPTION("MC13783 Power Button");
++MODULE_DESCRIPTION("MC13XXX Power Button");
+ MODULE_LICENSE("GPL v2");
+ MODULE_AUTHOR("Philippe Retornaz");
+diff --git a/include/linux/mfd/mc13892.h b/include/linux/mfd/mc13892.h
+index a00f2be..bdc3baf 100644
+--- a/include/linux/mfd/mc13892.h
++++ b/include/linux/mfd/mc13892.h
+@@ -36,4 +36,8 @@
+ #define MC13892_PWGT2SPI	22
+ #define MC13892_VCOINCELL	23
+ 
++#define MC13892_IRQ_ONOFD3	26
++#define MC13892_IRQ_ONOFD1	27
++#define MC13892_IRQ_ONOFD2	28
++
+ #endif
 -- 
 1.8.1.5
 

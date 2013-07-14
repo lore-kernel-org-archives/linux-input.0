@@ -1,19 +1,14 @@
 From: Javier Martinez Canillas <javier@dowhile0.org>
 Subject: [PATCH 1/1] MAINTAINERS: Change maintainer for cyttsp driver
-Date: Sun, 14 Jul 2013 23:41:21 +0200
-Message-ID: <1373838082-12372-1-git-send-email-javier@dowhile0.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f181.google.com ([74.125.82.181]:51166 "EHLO
-	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752931Ab3GNVlm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Jul 2013 17:41:42 -0400
-Received: by mail-we0-f181.google.com with SMTP id p58so9394371wes.40
-        for <linux-input@vger.kernel.org>; Sun, 14 Jul 2013 14:41:41 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Date: Sun, 14 Jul 2013 23:41:22 +0200
+Message-ID: <1373838082-12372-2-git-send-email-javier@dowhile0.org>
+References: <1373838082-12372-1-git-send-email-javier@dowhile0.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1373838082-12372-1-git-send-email-javier@dowhile0.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Henrik Rydberg <rydberg@euromail.se>, Ferruh Yigit <fery@cypress.com>, ttdrivers@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@dowhile0.org>
+List-Id: linux-input@vger.kernel.org
 
 I haven't had time to work on this driver for a long time and
 Ferruh has been doing a great job making it more generic,
@@ -59,4 +54,3 @@ index 9d771d9..4ba996c 100644
  
 -- 
 1.7.7.6
-

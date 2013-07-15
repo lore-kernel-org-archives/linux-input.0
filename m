@@ -1,56 +1,43 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: [PATCH 1/1] MAINTAINERS: Change maintainer for cyttsp driver
-Date: Sun, 14 Jul 2013 23:41:22 +0200
-Message-ID: <1373838082-12372-2-git-send-email-javier@dowhile0.org>
-References: <1373838082-12372-1-git-send-email-javier@dowhile0.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1373838082-12372-1-git-send-email-javier@dowhile0.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Ferruh Yigit <fery@cypress.com>, ttdrivers@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@dowhile0.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: kye: Add report fixup for Genius Gx Imperator Keyboard
+Date: Mon, 15 Jul 2013 09:53:12 +0200
+Message-ID: <51E3AA68.2030504@redhat.com>
+References: <1373633613-4947-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1307142313220.29788@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:22919 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754188Ab3GOHxR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Jul 2013 03:53:17 -0400
+In-Reply-To: <alpine.LNX.2.00.1307142313220.29788@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Honza Brazdil <jbrazdil@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-I haven't had time to work on this driver for a long time and
-Ferruh has been doing a great job making it more generic,
-adding support for new hardware and providing bug fixes.
+On 07/14/2013 11:14 PM, Jiri Kosina wrote:
+> On Fri, 12 Jul 2013, Benjamin Tissoires wrote:
+> 
+>> Genius Gx Imperator Keyboard presents the same problem in its report
+>> descriptors than Genius Gila Gaming Mouse.
+>> Use the same fixup for both.
+>>
+>> Fixes:
+>> https://bugzilla.redhat.com/show_bug.cgi?id=928561
+>>
+>> Reported-and-tested-by: Honza Brazdil <jbrazdil@redhat.com>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
 
-So, let's make MAINTAINERS reflect reality and add him as the
-cyttsp maintainer instead of me.
+> 
+> Hi Benjamin,
+> 
+> I guess you are missing update of hid_have_special_driver[] list?
+> 
 
-Also, since Ferruh works for Cypress, we may change the driver
-status from Maintained to Supported.
+Oops, thanks for spotting this. I will send a v2 ASAP.
 
-Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
----
-
-Ferruh, please send your ack if you are willing to take over
-maintainance of this driver.
-
-Also, please confirm that you have been working on behalf of
-Cypress instead of doing it on your free time. Otherwise we
-should keep the driver status to maintained instead supported.
-
-Thanks a lot and best regards,
-Javier
-
- MAINTAINERS |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 9d771d9..4ba996c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2458,9 +2458,9 @@ S:	Maintained
- F:	drivers/media/common/cypress_firmware*
- 
- CYTTSP TOUCHSCREEN DRIVER
--M:	Javier Martinez Canillas <javier@dowhile0.org>
-+M:	Ferruh Yigit <fery@cypress.com>
- L:	linux-input@vger.kernel.org
--S:	Maintained
-+S:	Supported
- F:	drivers/input/touchscreen/cyttsp*
- F:	include/linux/input/cyttsp.h
- 
--- 
-1.7.7.6
+Cheers,
+Benjamin

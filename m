@@ -1,39 +1,92 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: kye: Add report fixup for Genius Gx Imperator
- Keyboard
-Date: Mon, 15 Jul 2013 10:27:34 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1307151027260.29788@pobox.suse.cz>
-References: <1373875938-10165-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Renato <rennabh@gmail.com>
+Subject: Re: joydev bug with playstation USB adapter
+Date: Mon, 15 Jul 2013 14:27:21 +0200
+Message-ID: <20130715142721.2babf320@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55677 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754350Ab3GOI1f (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Jul 2013 04:27:35 -0400
-In-Reply-To: <1373875938-10165-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-ea0-f182.google.com ([209.85.215.182]:44705 "EHLO
+	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756001Ab3GOM1a (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Jul 2013 08:27:30 -0400
+Received: by mail-ea0-f182.google.com with SMTP id d10so7768376eaj.13
+        for <linux-input@vger.kernel.org>; Mon, 15 Jul 2013 05:27:28 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Honza Brazdil <jbrazdil@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 15 Jul 2013, Benjamin Tissoires wrote:
-
-> Genius Gx Imperator Keyboard presents the same problem in its report
-> descriptors than Genius Gila Gaming Mouse.
-> Use the same fixup for both.
-> 
-> Fixes:
-> https://bugzilla.redhat.com/show_bug.cgi?id=928561
-> 
-> Reported-and-tested-by: Honza Brazdil <jbrazdil@redhat.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> with the proper blacklist in hid-core this time.
-
-Applied, thanks.
-
--- 
-Jiri Kosina
-SUSE Labs
+LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQ0KSGFzaDogU0hBMQ0KDQoNCk9uIFNh
+dCwgMiBGZWIgMjAxMyAwMToxMToxNyBKaXJpIEtvc2luYSB3cm90ZQ0KPk9uIFNhdCwgMiBGZWIg
+MjAxMywgcmVuYXRvIHdyb3RlOg0KPg0KPj4gSGksIEkgaGF2ZSB0d28gcGxheXN0YXRpb24gVVNC
+IGFkcHRlcnMsIG9uZSBvZiB0aGVtIHdpdGggdGhpcyBbMV0NCj4+ICJsc3VzYiAtdiIgKHRoZSBv
+dGhlciBJIGRvbid0IGhhdmUgYWNjZXNzIHRvIEFUTSkgYW5kIHRoZXkgYm90aCBnaXZlDQo+PiBt
+ZSB0aGUgZm9sbG93aW5nIGJ1Z2d5IGJlaGF2aW91cjogdGhlIHJhbmdlIG9mIHRoZSBzdGlja3Mg
+aXMgbGltaXRlZA0KPj4gLSBpLmUuIHZhbHVlIDMyNzY3IGlzIHJlYWNoZWQgd2hlbiB0aGUgc3Rp
+Y2sgaXMgb25seSBhYm91dCBoYWxmLXdheQ0KPj4gdGhyb3VnaCBpdHMgcnVuLCBsZWF2aW5nIGEg
+YmlnIGRlYWQgem9uZSBhZnRlciB0aGF0LiBUaGlzIGhhcHBlbnMgb24NCj4+IGFsbCBheGVzIGFu
+ZCByZWNhbGlicmF0aW5nIHdpdGggImpzY2FsIC1jIiBkaWRuJ3QgaGVscC4NCj4+IA0KPj4gSSdt
+IG9uIGFuIHVwLXRvLWRhdGUgQXJjaGxpbnV4LCBrZXJuZWwgMy43LjUsIGFuZCBoYXZlIHRyaWVk
+IHZhcmlvdXMNCj4+IGtlcm5lbCB2ZXJzaW9ucyBkb3duIHRvIDMuMC4xIHdpdGggc2FtZSByZXN1
+bHRzLg0KPj4gDQo+PiBJcyB0aGVyZSBhbnkgb3RoZXIgaW5mbyBJIGNhbiBwcm92aWRlPw0KPg0K
+PlsgYWRkaW5nIEFuc3NpIHRvIENDIF0NCj4NCj5IaSByZW5hdG8sDQo+DQo+dGhlcmUgaXMgYSBk
+cml2ZXIgZm9yIHRoaXMgcGFydGljdWxhciBkZXZpY2UgKGhpZC1wbCksIHdyaXR0ZW4gYnkNCj5B
+bnNzaSBIYW5udWxhLg0KPg0KPlNvIGJlZm9yZSBJJ2xsIGJlIGRpZ2dpbmcgaW50byB0aGlzIGFu
+eSBmdXJ0aGVyIC0tIEFuc3NpLCBkb2VzIHRoaXMgDQo+bGltaXRlZCByYW5nZSBzb3VuZCBmYW1p
+bGlhciB0byB5b3Ugd2hlbiBpdCBjb21lcyB0byAweDA4MTAvMHgwMDENCj5kZXZpY2U/DQo+DQo+
+VGhhbmtzLg0KPg0KPj4gDQo+PiB0aGFua3MsDQo+PiByZW5hdG8NCj4+IA0KPj4gDQo+PiBbMV0N
+Cj4+IEJ1cyAwMDIgRGV2aWNlIDAwMjogSUQgMDgxMDowMDAxIFBlcnNvbmFsIENvbW11bmljYXRp
+b24gU3lzdGVtcywgSW5jLg0KPj4gRHVhbCBQU1ggQSBkYXB0b3INCj4+IERldmljZSBEZXNjcmlw
+dG9yOg0KPj4gICBiTGVuZ3RoICAgICAgICAgICAgICAgIDE4DQo+PiAgIGJEZXNjcmlwdG9yVHlw
+ZSAgICAgICAgIDENCj4+ICAgYmNkVVNCICAgICAgICAgICAgICAgMS4wMA0KPj4gICBiRGV2aWNl
+Q2xhc3MgICAgICAgICAgICAwIChEZWZpbmVkIGF0IEludGVyZmFjZSBsZXZlbCkNCj4+ICAgYkRl
+dmljZVN1YkNsYXNzICAgICAgICAgMA0KPj4gICBiRGV2aWNlUHJvdG9jb2wgICAgICAgICAwDQo+
+PiAgIGJNYXhQYWNrZXRTaXplMCAgICAgICAgIDgNCj4+ICAgaWRWZW5kb3IgICAgICAgICAgIDB4
+MDgxMCBQZXJzb25hbCBDb21tdW5pY2F0aW9uIFN5c3RlbXMsIEluYy4NCj4+ICAgaWRQcm9kdWN0
+ICAgICAgICAgIDB4MDAwMSBEdWFsIFBTWCBBZGFwdG9yDQo+PiAgIGJjZERldmljZSAgICAgICAg
+ICAgIDEuMDYNCj4+ICAgaU1hbnVmYWN0dXJlciAgICAgICAgICAgMA0KPj4gICBpUHJvZHVjdCAg
+ICAgICAgICAgICAgICAyIFR3aW4gVVNCIEpveXN0aWNrDQo+PiAgIGlTZXJpYWwgICAgICAgICAg
+ICAgICAgIDANCj4+ICAgYk51bUNvbmZpZ3VyYXRpb25zICAgICAgMQ0KPj4gICBDb25maWd1cmF0
+aW9uIERlc2NyaXB0b3I6DQo+PiAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KPj4gICAg
+IGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDINCj4+ICAgICB3VG90YWxMZW5ndGggICAgICAgICAg
+IDM0DQo+PiAgICAgYk51bUludGVyZmFjZXMgICAgICAgICAgMQ0KPj4gICAgIGJDb25maWd1cmF0
+aW9uVmFsdWUgICAgIDENCj4+ICAgICBpQ29uZmlndXJhdGlvbiAgICAgICAgICAwDQo+PiAgICAg
+Ym1BdHRyaWJ1dGVzICAgICAgICAgMHg4MA0KPj4gICAgICAgKEJ1cyBQb3dlcmVkKQ0KPj4gICAg
+IE1heFBvd2VyICAgICAgICAgICAgICA1MDBtQQ0KPj4gICAgIEludGVyZmFjZSBEZXNjcmlwdG9y
+Og0KPj4gICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KPj4gICAgICAgYkRlc2NyaXB0
+b3JUeXBlICAgICAgICAgNA0KPj4gICAgICAgYkludGVyZmFjZU51bWJlciAgICAgICAgMA0KPj4g
+ICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMA0KPj4gICAgICAgYk51bUVuZHBvaW50cyAg
+ICAgICAgICAgMQ0KPj4gICAgICAgYkludGVyZmFjZUNsYXNzICAgICAgICAgMyBIdW1hbiBJbnRl
+cmZhY2UgRGV2aWNlDQo+PiAgICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAwIE5vIFN1YmNs
+YXNzDQo+PiAgICAgICBiSW50ZXJmYWNlUHJvdG9jb2wgICAgICAwIE5vbmUNCj4+ICAgICAgIGlJ
+bnRlcmZhY2UgICAgICAgICAgICAgIDANCj4+ICAgICAgICAgSElEIERldmljZSBEZXNjcmlwdG9y
+Og0KPj4gICAgICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDkNCj4+ICAgICAgICAgICBi
+RGVzY3JpcHRvclR5cGUgICAgICAgIDMzDQo+PiAgICAgICAgICAgYmNkSElEICAgICAgICAgICAg
+ICAgMS4xMA0KPj4gICAgICAgICAgIGJDb3VudHJ5Q29kZSAgICAgICAgICAgMzMgVVMNCj4+ICAg
+ICAgICAgICBiTnVtRGVzY3JpcHRvcnMgICAgICAgICAxDQo+PiAgICAgICAgICAgYkRlc2NyaXB0
+b3JUeXBlICAgICAgICAzNCBSZXBvcnQNCj4+ICAgICAgICAgICB3RGVzY3JpcHRvckxlbmd0aCAg
+ICAgMjAyDQo+PiAgICAgICAgICBSZXBvcnQgRGVzY3JpcHRvcnM6DQo+PiAgICAgICAgICAgICoq
+IFVOQVZBSUxBQkxFICoqDQo+PiAgICAgICBFbmRwb2ludCBEZXNjcmlwdG9yOg0KPj4gICAgICAg
+ICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3DQo+PiAgICAgICAgIGJEZXNjcmlwdG9yVHlwZSAg
+ICAgICAgIDUNCj4+ICAgICAgICAgYkVuZHBvaW50QWRkcmVzcyAgICAgMHg4MSAgRVAgMSBJTg0K
+Pj4gICAgICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzDQo+PiAgICAgICAgICAgVHJhbnNm
+ZXIgVHlwZSAgICAgICAgICAgIEludGVycnVwdA0KPj4gICAgICAgICAgIFN5bmNoIFR5cGUgICAg
+ICAgICAgICAgICBOb25lDQo+PiAgICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAgICAgICAgIERh
+dGENCj4+ICAgICAgICAgd01heFBhY2tldFNpemUgICAgIDB4MDAwOCAgMXggOCBieXRlcw0KPj4g
+ICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgIDEwDQo+PiBEZXZpY2UgU3RhdHVzOiAgICAg
+MHgwMDAwDQo+PiAgIChCdXMgUG93ZXJlZCkNCj4+IA0KPg0KPi0tIA0KPkppcmkgS29zaW5hDQo+
+U1VTRSBMYWJzDQo+LS0NCg0KSGksIHNvIGFueSBuZXdzIG9uIHRoaXM/IEkgc3RpbGwgaGF2ZSBh
+IGxpbWl0ZWQgcmFuZ2Ugb24gbXkgZ2FtZXBhZHMnDQphbmFsb2cgc3RpY2tzLCB3aXRoIGtlcm5l
+bCAzLjkuOS4NCg0KSSB3b3VsJ3ZlIENDZWQgQW5zc2kgSGFubnVsYSBhcyB3YXMgc3VnZ2VzdGVk
+IGJ5IHlvdSBidXQgSSBjb3Vsbid0IGZpbmQNCmhpcyBtYWlsLg0KDQpjaGVlcnMsDQpyZW5hdG8N
+Ci0tLS0tQkVHSU4gUEdQIFNJR05BVFVSRS0tLS0tDQpWZXJzaW9uOiBHbnVQRyB2Mi4wLjIwIChH
+TlUvTGludXgpDQoNCmlRRWNCQUVCQWdBR0JRSlI0K3FzQUFvSkVCejZ4RmR0dGpyZkJtd0gvMmlo
+VCtuS2RrbUZ1S25UNUpSMFo5VWUNCmYyVWRUb1V3eThWOTQwQ2czOXYzSGdWTDlaWk8rdnZ1eksx
+UWcvbVlndnRqZDFVcW1PS0NPSkZFZFpkaUxsejcNCktlMUZIUCs3ZEJZL2M1dEVLOTZwc01pd1hK
+SnBKVFpKdmZ5blR2MGpHZ0x0SjJFSCsxeGoyUVk5bjlIV1lMZ3cNCmluTnhXd3ExdUt4YVh0NkxE
+K1pXd2FWZEtUSjhPcyt4K09tbERoU0lhUGhXMzFtQnFKbWdDb1ZJNkZDeXVweFQNCm4wMjFac2Uz
+K3l0ajAzb2RRNjhPY2d5bDN3a21qUi9MeEZZWEpkd2tCMW1Ta2lZZzVuc2VKOFVXcXYyQXlYQ0YN
+CkpmaUtEaWd6bkRVS0x5TVZSZm9wbGdsMzNxSWEySzRpSHQ3WDFXM0VyZVFudWdNUlF5dzl1bDNZ
+V3dZSDRjdz0NCj1JNEoyDQotLS0tLUVORCBQR1AgU0lHTkFUVVJFLS0tLS0NCg==

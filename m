@@ -1,348 +1,332 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [RFC 7/8] HID: add transport driver documentation
-Date: Mon, 15 Jul 2013 19:10:16 +0200
-Message-ID: <1373908217-16748-8-git-send-email-dh.herrmann@gmail.com>
+Subject: [RFC 8/8] HID: implement new transport-driver callbacks
+Date: Mon, 15 Jul 2013 19:10:17 +0200
+Message-ID: <1373908217-16748-9-git-send-email-dh.herrmann@gmail.com>
 References: <1373908217-16748-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f177.google.com ([209.85.215.177]:48032 "EHLO
-	mail-ea0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751585Ab3GORKt (ORCPT
+Received: from mail-ea0-f173.google.com ([209.85.215.173]:64367 "EHLO
+	mail-ea0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751585Ab3GORKx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Jul 2013 13:10:49 -0400
-Received: by mail-ea0-f177.google.com with SMTP id j14so7877031eak.22
-        for <linux-input@vger.kernel.org>; Mon, 15 Jul 2013 10:10:48 -0700 (PDT)
+	Mon, 15 Jul 2013 13:10:53 -0400
+Received: by mail-ea0-f173.google.com with SMTP id g15so7933852eak.18
+        for <linux-input@vger.kernel.org>; Mon, 15 Jul 2013 10:10:52 -0700 (PDT)
 In-Reply-To: <1373908217-16748-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Oliver Neukum <oliver@neukum.org>, David Herrmann <dh.herrmann@gmail.com>
 
-hid-transport.txt describes the transport driver layout which is required
-by HID-core to work correctly. HID-core supports many different transport
-drivers and new drivers can be added for any kind of I/O system.
+->raw_request() and ->output_report() implement the SET/GET_REPORT and raw
+intr OUTPUT requests for all transport drivers. Once these are
+implemented, we can remove the old get_raw_report() and
+output_raw_report() per-device callbacks.
 
-The current layout doesn't really differentiate between intr and ctrl
-channels, which confuses some hid-drivers and may break devices. HIDP,
-USBHID and I2DHID all implement different semantics for each callback, so
-our device drivers aren't really transport-driver-agnostic.
+Note that the different device drivers expect different semantics for each
+call. The new helpers are properly documented and the semantics are known.
+We now need to carefully convert each driver to use the correct callback
+and then remove the old helpers.
 
-To solve that, hid-transport.txt describes the layout of transport drivers
-that is required by HID core. Furthermore, it introduces some new
-callbacks which replace the current hid_get_raw_report() and
-hid_output_raw_report() hooks. These will be implemented in follow-up
-patches.
+UHID isn't converted, yet. I need to invest how user-space currently
+handles UHID_OUTPUT to see whether it's a SET_REPORT or intr-OUTPUT
+report.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- Documentation/hid/hid-transport.txt | 299 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 299 insertions(+)
- create mode 100644 Documentation/hid/hid-transport.txt
+ drivers/hid/uhid.c            | 27 +++++++++++++
+ drivers/hid/usbhid/hid-core.c | 77 ++++++++++++++++++++++++++++++++++++
+ include/linux/hid.h           |  8 +++-
+ net/bluetooth/hidp/core.c     | 90 +++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 201 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/hid/hid-transport.txt b/Documentation/hid/hid-transport.txt
-new file mode 100644
-index 0000000..034f11d
---- /dev/null
-+++ b/Documentation/hid/hid-transport.txt
-@@ -0,0 +1,299 @@
-+                          HID I/O Transport Drivers
-+                         ===========================
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index f53f2d5..a344172 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -244,12 +244,39 @@ static int uhid_hid_output_raw(struct hid_device *hid, __u8 *buf, size_t count,
+ 	return count;
+ }
+ 
++static int uhid_hid_output_report(struct hid_device *hid, __u8 *buf,
++				  size_t count)
++{
++	struct uhid_device *uhid = hid->driver_data;
++	unsigned long flags;
++	struct uhid_event *ev;
 +
-+The HID subsystem is independent of the underlying transport driver. Initially,
-+only USB was supported, but other specifications adopted the HID design and
-+provided new transport drivers. The kernel includes at least support for USB,
-+Bluetooth, i2c and user-space I/O drivers.
++	if (count < 1 || count > UHID_DATA_MAX)
++		return -EINVAL;
 +
-+1) HID Bus
-+==========
++	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
++	if (!ev)
++		return -ENOMEM;
 +
-+The HID subsystem is designed as a bus. Any I/O subsystem may provide HID
-+devices and register them with the HID bus. HID core then loads generic device
-+drivers on top of it. The transport drivers are responsible of raw data
-+transport and device setup/management. HID core is responsible of
-+report-parsing, report interpretation and the user-space API. Device specifics
-+and quirks are also handled by HID core and the HID device drivers.
++	ev->type = UHID_OUTPUT;
++	ev->u.output.size = count;
++	ev->u.output.rtype = UHID_OUTPUT_REPORT;
++	memcpy(ev->u.output.data, buf, count);
 +
-+ +-----------+  +-----------+            +-----------+  +-----------+
-+ | Device #1 |  | Device #i |            | Device #j |  | Device #k |
-+ +-----------+  +-----------+            +-----------+  +-----------+
-+          \\      //                              \\      //
-+        +------------+                          +------------+
-+        | I/O Driver |                          | I/O Driver |
-+        +------------+                          +------------+
-+              ||                                      ||
-+     +------------------+                    +------------------+
-+     | Transport Driver |                    | Transport Driver |
-+     +------------------+                    +------------------+
-+                       \___                ___/
-+                           \              /
-+                          +----------------+
-+                          |    HID Core    |
-+                          +----------------+
-+                           /  |        |  \
-+                          /   |        |   \
-+             ____________/    |        |    \_________________
-+            /                 |        |                      \
-+           /                  |        |                       \
-+ +----------------+  +-----------+  +------------------+  +------------------+
-+ | Generic Driver |  | MT Driver |  | Custom Driver #1 |  | Custom Driver #2 |
-+ +----------------+  +-----------+  +------------------+  +------------------+
++	spin_lock_irqsave(&uhid->qlock, flags);
++	uhid_queue(uhid, ev);
++	spin_unlock_irqrestore(&uhid->qlock, flags);
 +
-+Example Drivers:
-+  I/O: USB, I2C, Bluetooth-l2cap
-+  Transport: USB-HID, I2C-HID, BT-HIDP
++	return count;
++}
 +
-+Normally, a transport driver is specific for a given I/O driver. But the HID
-+design also allows transport drivers to work with different I/O systems at the
-+same time.
+ static struct hid_ll_driver uhid_hid_driver = {
+ 	.start = uhid_hid_start,
+ 	.stop = uhid_hid_stop,
+ 	.open = uhid_hid_open,
+ 	.close = uhid_hid_close,
+ 	.parse = uhid_hid_parse,
++	.output_report = uhid_hid_output_report,
+ };
+ 
+ #ifdef CONFIG_COMPAT
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 8c32357..6666345 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -880,6 +880,37 @@ static int usbhid_get_raw_report(struct hid_device *hid,
+ 	return ret;
+ }
+ 
++static int usbhid_set_raw_report(struct hid_device *hid, unsigned int reportnum,
++				 __u8 *buf, size_t count, unsigned char rtype)
++{
++	struct usbhid_device *usbhid = hid->driver_data;
++	struct usb_device *dev = hid_to_usb_dev(hid);
++	struct usb_interface *intf = usbhid->intf;
++	struct usb_host_interface *interface = intf->cur_altsetting;
++	int ret, skipped_report_id = 0;
 +
-+Everything below "HID Core" is simplified in this graph as it is only of
-+interest to HID device drivers. Transport drivers do not need to know the
-+specifics.
-+
-+1.1) Device Setup
-+-----------------
-+
-+I/O drivers normally provide hotplug detection or device enumeration APIs to the
-+transport drivers. Transport drivers use this to find any suitable HID device.
-+They allocate HID device objects and register them with HID core. Transport
-+drivers are not required to register themselves with HID core. HID core is never
-+aware of which transport drivers are available and is not interested in it. It
-+is only interested in devices.
-+
-+Transport drivers attach a constant "struct hid_ll_driver" object with each
-+device. Once a device is registered with HID core, the callbacks provided via
-+this struct are used by HID core to communicate with the device.
-+
-+Transport drivers are responsible of detecting device failures and unplugging.
-+HID core will operate an device as long as it is registered regardless of any
-+device failures. Once transport drivers detect unplug or failure events, they
-+must unregister the device from HID core and HID core will stop using the
-+provided callbacks.
-+
-+1.2) Transport Driver Requirements
-+----------------------------------
-+
-+HID core requires transport drivers to follow a given design. A Transport
-+drivers must provide two bi-directional I/O channels to each HID device. These
-+channels might be multiplexed on a single physical channel, though.
-+
-+ - Interrupt Channel (intr): The intr channel is used for asynchronous data
-+   reports. No management commands or data acknowledgements are sent on this
-+   channel. Any unrequested incoming or outgoing data report must be sent on
-+   this channel and is never acknowledged by the remote side. Devices usually
-+   send their input events on this channel. Outgoing events are normally
-+   not send via intr, except if high throughput is required.
-+ - Control Channel (ctrl): The ctrl channel is used for synchronous requests and
-+   device management. Unrequested data input events must not be sent on this
-+   channel and are normally ignored. Instead, devices only send management
-+   events or answers to host requests on this channel.
-+   Outgoing reports are usually sent on the ctrl channel via synchronous
-+   SET_REPORT requests.
-+
-+Communication between devices and HID core is mostly done via HID reports. A
-+report can be of one of three types:
-+
-+ - INPUT Report: Input reports provide data from device to host. This
-+   data may include button events, axis events, battery status or more. This
-+   data is generated by the device and sent to the host without requiring
-+   explicit requests. Devices can choose to send data continously or only on
-+   change.
-+ - OUTPUT Report: Output reports change device states. They are sent from host
-+   to device and may include LED requests, rumble requests or more. Output
-+   reports are never sent from device to host, except if explicitly requested.
-+   Hosts may choose to send output reports either continously or only on change.
-+ - FEATURE Report: Feature reports can be anything that doesn't belong into the
-+   other two categories. Some of them are generic and defined by the HID spec,
-+   but most of them are used as custom device extensions. For instance, they may
-+   provide battery status information.
-+   Feature reports are never sent without requests. A host must explicitly
-+   request a device to set or send a feature report. This also means, feature
-+   reports are never sent on the intr channel as this channel is asynchronous.
-+
-+INPUT and OUTPUT reports can be sent as pure data reports on the intr channel.
-+For INPUT reports this is the usual operational mode. But for OUTPUT reports,
-+this is rarely done as OUTPUT reports are normally quite rare. But devices are
-+free to make excessive use of asynchronous OUTPUT reports (for instance, custom
-+HID audio speakers make great use of it).
-+
-+Raw reports must not be sent on the ctrl channel, though. Instead, the ctrl
-+channel provides synchronous GET/SET_REPORT requests.
-+
-+ - GET_REPORT: A GET_REPORT request has a report ID as payload and is sent
-+   from host to device. The device must answer with a data report for the
-+   requested report ID on the ctrl channel as a synchronous acknowledgement.
-+   Only one GET_REPORT request can be pending for each device. This restriction
-+   is enforced by HID core as several transport drivers don't allow multiple
-+   simultaneous GET_REPORT requests.
-+   Note that data reports which are sent as answer to a GET_REPORT request are
-+   not handled as generic device events. That is, if a device does not operate
-+   in continuous data reporting mode, an answer to GET_REPORT does not replace
-+   the raw data report on the intr channel on state change.
-+   GET_REPORT is only used by custom HID device drivers to query device state.
-+   Normally, HID core caches any device state so this request is not necessary
-+   on devices that follow the HID specs.
-+   GET_REPORT requests can be sent for any of the 3 report types and shall
-+   return the current report state of the device.
-+ - SET_REPORT: A SET_REPORT request has a report ID plus data as payload. It is
-+   sent from host to device and a device must update it's current report state
-+   according to the given data. Any of the 3 report types can be used.
-+   A device must answer with a synchronous acknowledgement. However, HID core
-+   does not require transport drivers to forward this acknowledgement to HID
-+   core.
-+   Same as for GET_REPORT, only one SET_REPORT can be pending at a time. This
-+   restriction is enforced by HID core as some transport drivers do not support
-+   multiple synchronous SET_REPORT requests.
-+
-+Other ctrl-channel requests are supported by USB-HID but are not available
-+(or deprecated) in most other transport level specifications:
-+
-+ - GET/SET_IDLE: Only used by USB-HID. Do not implement!
-+ - GET/SET_PROTOCOL: Not used by HID core. Do not implement!
-+
-+2) HID API
-+==========
-+
-+2.1) Initialization
-+-------------------
-+
-+Transport drivers normally use the following procedure to register a new device
-+with HID core:
-+
-+	struct hid_device *hid;
-+	int ret;
-+
-+	hid = hid_allocate_device();
-+	if (IS_ERR(hid)) {
-+		ret = PTR_ERR(hid);
-+		goto err_<...>;
++	/* Byte 0 is the report number. Report data starts at byte 1.*/
++	buf[0] = reportnum;
++	if (buf[0] == 0x0) {
++		/* Don't send the Report ID */
++		buf++;
++		count--;
++		skipped_report_id = 1;
 +	}
 +
-+	strlcpy(hid->name, <device-name-src>, 127);
-+	strlcpy(hid->phys, <device-phys-src>, 63);
-+	strlcpy(hid->uniq, <device-uniq-src>, 63);
++	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
++			HID_REQ_SET_REPORT,
++			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
++			((rtype + 1) << 8) | reportnum,
++			interface->desc.bInterfaceNumber, buf, count,
++			USB_CTRL_SET_TIMEOUT);
++	/* count also the report id, if this was a numbered report. */
++	if (ret > 0 && skipped_report_id)
++		ret++;
 +
-+	hid->ll_driver = &custom_ll_driver;
-+	hid->bus = <device-bus>;
-+	hid->vendor = <device-vendor>;
-+	hid->product = <device-product>;
-+	hid->version = <device-version>;
-+	hid->country = <device-country>;
-+	hid->dev.parent = <pointer-to-parent-device>;
-+	hid->driver_data = <transport-driver-data-field>;
++	return ret;
++}
 +
-+	ret = hid_add_device(hid);
+ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t count,
+ 		unsigned char report_type)
+ {
+@@ -932,6 +963,36 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
+ 	return ret;
+ }
+ 
++static int usbhid_output_report(struct hid_device *hid, __u8 *buf, size_t count)
++{
++	struct usbhid_device *usbhid = hid->driver_data;
++	struct usb_device *dev = hid_to_usb_dev(hid);
++	int actual_length, skipped_report_id = 0, ret;
++
++	if (!usbhid->urbout)
++		return -EIO;
++
++	if (buf[0] == 0x0) {
++		/* Don't send the Report ID */
++		buf++;
++		count--;
++		skipped_report_id = 1;
++	}
++
++	ret = usb_interrupt_msg(dev, usbhid->urbout->pipe,
++				buf, count, &actual_length,
++				USB_CTRL_SET_TIMEOUT);
++	/* return the number of bytes transferred */
++	if (ret == 0) {
++		ret = actual_length;
++		/* count also the report id */
++		if (skipped_report_id)
++			ret++;
++	}
++
++	return ret;
++}
++
+ static void usbhid_restart_queues(struct usbhid_device *usbhid)
+ {
+ 	if (usbhid->urbout && !test_bit(HID_OUT_RUNNING, &usbhid->iofl))
+@@ -1196,6 +1257,20 @@ static void usbhid_request(struct hid_device *hid, struct hid_report *rep, int r
+ 	}
+ }
+ 
++static int usbhid_raw_request(struct hid_device *hid, unsigned char reportnum,
++			      __u8 *buf, size_t len, unsigned char rtype,
++			      int reqtype)
++{
++	switch (reqtype) {
++	case HID_REQ_GET_REPORT:
++		return usbhid_get_raw_report(hid, reportnum, buf, len, rtype);
++	case HID_REQ_SET_REPORT:
++		return usbhid_set_raw_report(hid, reportnum, buf, len, rtype);
++	default:
++		return -EIO;
++	}
++}
++
+ static int usbhid_idle(struct hid_device *hid, int report, int idle,
+ 		int reqtype)
+ {
+@@ -1219,6 +1294,8 @@ static struct hid_ll_driver usb_hid_driver = {
+ 	.power = usbhid_power,
+ 	.request = usbhid_request,
+ 	.wait = usbhid_wait_io,
++	.raw_request = usbhid_raw_request,
++	.output_report = usbhid_output_report,
+ 	.idle = usbhid_idle,
+ };
+ 
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index ea4b828..c0bf05f 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -693,8 +693,14 @@ struct hid_ll_driver {
+ 			struct hid_report *report, int reqtype);
+ 
+ 	int (*wait)(struct hid_device *hdev);
+-	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
+ 
++	int (*raw_request) (struct hid_device *hdev, unsigned char reportnum,
++			    __u8 *buf, size_t len, unsigned char rtype,
++			    int reqtype);
++
++	int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len);
++
++	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
+ };
+ 
+ #define	PM_HINT_FULLON	1<<5
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 46c6a14..754d797 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -329,6 +329,71 @@ err:
+ 	return ret;
+ }
+ 
++static int hidp_set_raw_report(struct hid_device *hid, unsigned char reportnum,
++			       unsigned char *data, size_t count,
++			       unsigned char report_type)
++{
++	struct hidp_session *session = hid->driver_data;
++	int ret;
++
++	switch (report_type) {
++	case HID_FEATURE_REPORT:
++		report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE;
++		break;
++	case HID_INPUT_REPORT:
++		report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_INPUT;
++		break;
++	case HID_OUTPUT_REPORT:
++		report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_OUPUT;
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	if (mutex_lock_interruptible(&session->report_mutex))
++		return -ERESTARTSYS;
++
++	/* Set up our wait, and send the report request to the device. */
++	data[0] = reportnum;
++	set_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
++	ret = hidp_send_ctrl_message(session, report_type, data, count);
 +	if (ret)
-+		goto err_<...>;
++		goto err;
 +
-+Once hid_add_device() is entered, HID core might use the callbacks provided in
-+"custom_ll_driver". To unregister a device, use:
++	/* Wait for the ACK from the device. */
++	while (test_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags) &&
++	       !atomic_read(&session->terminate)) {
++		int res;
 +
-+	hid_destroy_device(hid);
++		res = wait_event_interruptible_timeout(session->report_queue,
++			!test_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags)
++				|| atomic_read(&session->terminate),
++			10*HZ);
++		if (res == 0) {
++			/* timeout */
++			ret = -EIO;
++			goto err;
++		}
++		if (res < 0) {
++			/* signal */
++			ret = -ERESTARTSYS;
++			goto err;
++		}
++	}
 +
-+Once hid_destroy_device() returns, HID core will no longer make use of any
-+driver callbacks.
++	if (!session->output_report_success) {
++		ret = -EIO;
++		goto err;
++	}
 +
-+2.2) hid_ll_driver operations
-+-----------------------------
++	ret = count;
 +
-+The available HID callbacks are:
-+ - int (*start) (struct hid_device *hdev)
-+   Called from HID device drivers once they want to use the device. Transport
-+   drivers can choose to setup their device in this callback. However, normally
-+   devices are already set up before transport drivers register them to HID core
-+   so this is mostly only used by USB-HID.
++err:
++	clear_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
++	mutex_unlock(&session->report_mutex);
++	return ret;
++}
 +
-+ - void (*stop) (struct hid_device *hdev)
-+   Called from HID device drivers once they are done with a device. Transport
-+   drivers can free any buffers and deinitialize the device. But note that
-+   ->start() might be called again if another HID device driver is loaded on the
-+   device.
-+   Transport drivers are free to ignore it and deinitialize devices after they
-+   destroyed them via hid_destroy_device().
+ static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data, size_t count,
+ 		unsigned char report_type)
+ {
+@@ -387,6 +452,29 @@ err:
+ 	return ret;
+ }
+ 
++static int hidp_raw_request(struct hid_device *hid, unsigned char reportnum,
++			    __u8 *buf, size_t len, unsigned char rtype,
++			    int reqtype)
++{
++	switch (reqtype) {
++	case HID_REQ_GET_REPORT:
++		return hidp_get_raw_report(hid, reportnum, buf, len, rtype);
++	case HID_REQ_SET_REPORT:
++		return hidp_set_raw_report(hid, reportnum, buf, len, rtype);
++	default:
++		return -EIO;
++	}
++}
 +
-+ - int (*open) (struct hid_device *hdev)
-+   Called from HID device drivers once they are interested in data reports.
-+   Usually, while user-space didn't open any input API/etc., device drivers are
-+   not interested in device data and transport drivers can put devices asleep.
-+   However, once ->open() is called, transport drivers must be ready for I/O.
-+   ->open() calls are never nested. So in between two ->open() calls there must
-+   be a call to ->close().
++static int hidp_output_report(struct hid_device *hid, __u8 *data, size_t count)
++{
++	struct hidp_session *session = hid->driver_data;
 +
-+ - void (*close) (struct hid_device *hdev)
-+   Called from HID device drivers after ->open() was called but they are no
-+   longer interested in device reports. (Usually if user-space closed any input
-+   devices of the driver).
-+   Transport drivers can put devices asleep and terminate any I/O. However,
-+   ->start() may be called again if the device driver is interested in input
-+   reports again.
++	return hidp_send_intr_message(session,
++				      HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT,
++				      data, count);
++}
 +
-+ - int (*parse) (struct hid_device *hdev)
-+   Called once during device setup after ->start() has been called. Transport
-+   drivers must read the HID report-descriptor from the device and tell HID core
-+   about it via hid_parse_report().
-+
-+ - int (*power) (struct hid_device *hdev, int level)
-+   Called by HID core to give PM hints to transport drivers. Usually this is
-+   analogical to the ->open() and ->close() hints and redundant.
-+
-+ - void (*request) (struct hid_device *hdev, struct hid_report *report,
-+                    int reqtype)
-+   Send an HID request on the ctrl channel. "report" contains the report that
-+   should be sent and "reqtype" the request type. Request-type can be
-+   HID_REQ_SET_REPORT or HID_REQ_GET_REPORT.
-+   This callback is optional. If not provided, HID core will assemble a raw
-+   report following the HID specs and send it via the ->raw_request() callback.
-+   The transport driver is free to implement this asynchronously.
-+
-+ - int (*wait) (struct hid_device *hdev)
-+   Used by HID core before calling ->request() again. A transport driver can use
-+   it to wait for any pending requests to complete if only one request is
-+   allowed at a time.
-+
-+ - int (*raw_request) (struct hid_device *hdev, unsigned char reportnum,
-+                       __u8 *buf, size_t count, unsigned char rtype,
-+                       int reqtype)
-+   Same as ->request() but provides the report as raw buffer. This request shall
-+   be synchronous. A transport driver must not use ->wait() to complete such
-+   requests.
-+
-+ - int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len)
-+   Send raw output report via intr channel. Used by some HID device drivers
-+   which require high throughput for outgoing requests on the intr channel. This
-+   must not cause SET_REPORT calls! This must be implemented as asynchronous
-+   output report on the intr channel!
-+
-+ - int (*hidinput_input_event) (struct input_dev *idev, unsigned int type,
-+                                unsigned int code, int value)
-+   Obsolete callback used by logitech converters. It is called when userspace
-+   writes input events to the input device (eg., EV_LED). A driver can use this
-+   callback to convert it into an output report and send it to the device. If
-+   this callback is not provided, HID core will use ->request() or
-+   ->raw_request() respectively.
-+
-+ - int (*idle) (struct hid_device *hdev, int report, int idle, int reqtype)
-+   Perform SET/GET_IDLE request. Only used by USB-HID, do not implement!
-+
-+2.3) Data Path
-+--------------
-+
-+Transport drivers are responsible of reading data from I/O devices. They must
-+handle any state-tracking themselves. HID core does not implement protocol
-+handshakes or other management commands which can be required by the given HID
-+transport specification.
-+
-+Every raw data packet read from a device must be fed into HID core via
-+hid_input_report(). You must specify the channel-type (intr or ctrl) and report
-+type (input/output/feature). Under normal conditions, only input reports are
-+provided via this API.
-+
-+Responses to GET_REPORT requests via ->request() must also be provided via this
-+API. Responses to ->raw_request() are synchronous and must be intercepted by the
-+transport driver and not passed to hid_input_report().
-+Acknowledgements to SET_REPORT requests are not of interest to HID core.
-+
-+----------------------------------------------------
-+Written 2013, David Herrmann <dh.herrmann@gmail.com>
+ static void hidp_idle_timeout(unsigned long arg)
+ {
+ 	struct hidp_session *session = (struct hidp_session *) arg;
+@@ -717,6 +805,8 @@ static struct hid_ll_driver hidp_hid_driver = {
+ 	.stop = hidp_stop,
+ 	.open  = hidp_open,
+ 	.close = hidp_close,
++	.raw_request = hidp_raw_request,
++	.output_report = hidp_output_report,
+ };
+ 
+ /* This function sets up the hid device. It does not add it
 -- 
 1.8.3.2
 

@@ -1,92 +1,118 @@
-From: Renato <rennabh@gmail.com>
-Subject: Re: joydev bug with playstation USB adapter
-Date: Mon, 15 Jul 2013 14:27:21 +0200
-Message-ID: <20130715142721.2babf320@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: base64
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/2] input/uinput: support abs resolution
+Date: Mon, 15 Jul 2013 15:12:51 +0200
+Message-ID: <1373893972-6734-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f182.google.com ([209.85.215.182]:44705 "EHLO
-	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756001Ab3GOM1a (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Jul 2013 08:27:30 -0400
-Received: by mail-ea0-f182.google.com with SMTP id d10so7768376eaj.13
-        for <linux-input@vger.kernel.org>; Mon, 15 Jul 2013 05:27:28 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:57059 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757100Ab3GONNO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Jul 2013 09:13:14 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-LS0tLS1CRUdJTiBQR1AgU0lHTkVEIE1FU1NBR0UtLS0tLQ0KSGFzaDogU0hBMQ0KDQoNCk9uIFNh
-dCwgMiBGZWIgMjAxMyAwMToxMToxNyBKaXJpIEtvc2luYSB3cm90ZQ0KPk9uIFNhdCwgMiBGZWIg
-MjAxMywgcmVuYXRvIHdyb3RlOg0KPg0KPj4gSGksIEkgaGF2ZSB0d28gcGxheXN0YXRpb24gVVNC
-IGFkcHRlcnMsIG9uZSBvZiB0aGVtIHdpdGggdGhpcyBbMV0NCj4+ICJsc3VzYiAtdiIgKHRoZSBv
-dGhlciBJIGRvbid0IGhhdmUgYWNjZXNzIHRvIEFUTSkgYW5kIHRoZXkgYm90aCBnaXZlDQo+PiBt
-ZSB0aGUgZm9sbG93aW5nIGJ1Z2d5IGJlaGF2aW91cjogdGhlIHJhbmdlIG9mIHRoZSBzdGlja3Mg
-aXMgbGltaXRlZA0KPj4gLSBpLmUuIHZhbHVlIDMyNzY3IGlzIHJlYWNoZWQgd2hlbiB0aGUgc3Rp
-Y2sgaXMgb25seSBhYm91dCBoYWxmLXdheQ0KPj4gdGhyb3VnaCBpdHMgcnVuLCBsZWF2aW5nIGEg
-YmlnIGRlYWQgem9uZSBhZnRlciB0aGF0LiBUaGlzIGhhcHBlbnMgb24NCj4+IGFsbCBheGVzIGFu
-ZCByZWNhbGlicmF0aW5nIHdpdGggImpzY2FsIC1jIiBkaWRuJ3QgaGVscC4NCj4+IA0KPj4gSSdt
-IG9uIGFuIHVwLXRvLWRhdGUgQXJjaGxpbnV4LCBrZXJuZWwgMy43LjUsIGFuZCBoYXZlIHRyaWVk
-IHZhcmlvdXMNCj4+IGtlcm5lbCB2ZXJzaW9ucyBkb3duIHRvIDMuMC4xIHdpdGggc2FtZSByZXN1
-bHRzLg0KPj4gDQo+PiBJcyB0aGVyZSBhbnkgb3RoZXIgaW5mbyBJIGNhbiBwcm92aWRlPw0KPg0K
-PlsgYWRkaW5nIEFuc3NpIHRvIENDIF0NCj4NCj5IaSByZW5hdG8sDQo+DQo+dGhlcmUgaXMgYSBk
-cml2ZXIgZm9yIHRoaXMgcGFydGljdWxhciBkZXZpY2UgKGhpZC1wbCksIHdyaXR0ZW4gYnkNCj5B
-bnNzaSBIYW5udWxhLg0KPg0KPlNvIGJlZm9yZSBJJ2xsIGJlIGRpZ2dpbmcgaW50byB0aGlzIGFu
-eSBmdXJ0aGVyIC0tIEFuc3NpLCBkb2VzIHRoaXMgDQo+bGltaXRlZCByYW5nZSBzb3VuZCBmYW1p
-bGlhciB0byB5b3Ugd2hlbiBpdCBjb21lcyB0byAweDA4MTAvMHgwMDENCj5kZXZpY2U/DQo+DQo+
-VGhhbmtzLg0KPg0KPj4gDQo+PiB0aGFua3MsDQo+PiByZW5hdG8NCj4+IA0KPj4gDQo+PiBbMV0N
-Cj4+IEJ1cyAwMDIgRGV2aWNlIDAwMjogSUQgMDgxMDowMDAxIFBlcnNvbmFsIENvbW11bmljYXRp
-b24gU3lzdGVtcywgSW5jLg0KPj4gRHVhbCBQU1ggQSBkYXB0b3INCj4+IERldmljZSBEZXNjcmlw
-dG9yOg0KPj4gICBiTGVuZ3RoICAgICAgICAgICAgICAgIDE4DQo+PiAgIGJEZXNjcmlwdG9yVHlw
-ZSAgICAgICAgIDENCj4+ICAgYmNkVVNCICAgICAgICAgICAgICAgMS4wMA0KPj4gICBiRGV2aWNl
-Q2xhc3MgICAgICAgICAgICAwIChEZWZpbmVkIGF0IEludGVyZmFjZSBsZXZlbCkNCj4+ICAgYkRl
-dmljZVN1YkNsYXNzICAgICAgICAgMA0KPj4gICBiRGV2aWNlUHJvdG9jb2wgICAgICAgICAwDQo+
-PiAgIGJNYXhQYWNrZXRTaXplMCAgICAgICAgIDgNCj4+ICAgaWRWZW5kb3IgICAgICAgICAgIDB4
-MDgxMCBQZXJzb25hbCBDb21tdW5pY2F0aW9uIFN5c3RlbXMsIEluYy4NCj4+ICAgaWRQcm9kdWN0
-ICAgICAgICAgIDB4MDAwMSBEdWFsIFBTWCBBZGFwdG9yDQo+PiAgIGJjZERldmljZSAgICAgICAg
-ICAgIDEuMDYNCj4+ICAgaU1hbnVmYWN0dXJlciAgICAgICAgICAgMA0KPj4gICBpUHJvZHVjdCAg
-ICAgICAgICAgICAgICAyIFR3aW4gVVNCIEpveXN0aWNrDQo+PiAgIGlTZXJpYWwgICAgICAgICAg
-ICAgICAgIDANCj4+ICAgYk51bUNvbmZpZ3VyYXRpb25zICAgICAgMQ0KPj4gICBDb25maWd1cmF0
-aW9uIERlc2NyaXB0b3I6DQo+PiAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KPj4gICAg
-IGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDINCj4+ICAgICB3VG90YWxMZW5ndGggICAgICAgICAg
-IDM0DQo+PiAgICAgYk51bUludGVyZmFjZXMgICAgICAgICAgMQ0KPj4gICAgIGJDb25maWd1cmF0
-aW9uVmFsdWUgICAgIDENCj4+ICAgICBpQ29uZmlndXJhdGlvbiAgICAgICAgICAwDQo+PiAgICAg
-Ym1BdHRyaWJ1dGVzICAgICAgICAgMHg4MA0KPj4gICAgICAgKEJ1cyBQb3dlcmVkKQ0KPj4gICAg
-IE1heFBvd2VyICAgICAgICAgICAgICA1MDBtQQ0KPj4gICAgIEludGVyZmFjZSBEZXNjcmlwdG9y
-Og0KPj4gICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KPj4gICAgICAgYkRlc2NyaXB0
-b3JUeXBlICAgICAgICAgNA0KPj4gICAgICAgYkludGVyZmFjZU51bWJlciAgICAgICAgMA0KPj4g
-ICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMA0KPj4gICAgICAgYk51bUVuZHBvaW50cyAg
-ICAgICAgICAgMQ0KPj4gICAgICAgYkludGVyZmFjZUNsYXNzICAgICAgICAgMyBIdW1hbiBJbnRl
-cmZhY2UgRGV2aWNlDQo+PiAgICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAwIE5vIFN1YmNs
-YXNzDQo+PiAgICAgICBiSW50ZXJmYWNlUHJvdG9jb2wgICAgICAwIE5vbmUNCj4+ICAgICAgIGlJ
-bnRlcmZhY2UgICAgICAgICAgICAgIDANCj4+ICAgICAgICAgSElEIERldmljZSBEZXNjcmlwdG9y
-Og0KPj4gICAgICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDkNCj4+ICAgICAgICAgICBi
-RGVzY3JpcHRvclR5cGUgICAgICAgIDMzDQo+PiAgICAgICAgICAgYmNkSElEICAgICAgICAgICAg
-ICAgMS4xMA0KPj4gICAgICAgICAgIGJDb3VudHJ5Q29kZSAgICAgICAgICAgMzMgVVMNCj4+ICAg
-ICAgICAgICBiTnVtRGVzY3JpcHRvcnMgICAgICAgICAxDQo+PiAgICAgICAgICAgYkRlc2NyaXB0
-b3JUeXBlICAgICAgICAzNCBSZXBvcnQNCj4+ICAgICAgICAgICB3RGVzY3JpcHRvckxlbmd0aCAg
-ICAgMjAyDQo+PiAgICAgICAgICBSZXBvcnQgRGVzY3JpcHRvcnM6DQo+PiAgICAgICAgICAgICoq
-IFVOQVZBSUxBQkxFICoqDQo+PiAgICAgICBFbmRwb2ludCBEZXNjcmlwdG9yOg0KPj4gICAgICAg
-ICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3DQo+PiAgICAgICAgIGJEZXNjcmlwdG9yVHlwZSAg
-ICAgICAgIDUNCj4+ICAgICAgICAgYkVuZHBvaW50QWRkcmVzcyAgICAgMHg4MSAgRVAgMSBJTg0K
-Pj4gICAgICAgICBibUF0dHJpYnV0ZXMgICAgICAgICAgICAzDQo+PiAgICAgICAgICAgVHJhbnNm
-ZXIgVHlwZSAgICAgICAgICAgIEludGVycnVwdA0KPj4gICAgICAgICAgIFN5bmNoIFR5cGUgICAg
-ICAgICAgICAgICBOb25lDQo+PiAgICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAgICAgICAgIERh
-dGENCj4+ICAgICAgICAgd01heFBhY2tldFNpemUgICAgIDB4MDAwOCAgMXggOCBieXRlcw0KPj4g
-ICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgIDEwDQo+PiBEZXZpY2UgU3RhdHVzOiAgICAg
-MHgwMDAwDQo+PiAgIChCdXMgUG93ZXJlZCkNCj4+IA0KPg0KPi0tIA0KPkppcmkgS29zaW5hDQo+
-U1VTRSBMYWJzDQo+LS0NCg0KSGksIHNvIGFueSBuZXdzIG9uIHRoaXM/IEkgc3RpbGwgaGF2ZSBh
-IGxpbWl0ZWQgcmFuZ2Ugb24gbXkgZ2FtZXBhZHMnDQphbmFsb2cgc3RpY2tzLCB3aXRoIGtlcm5l
-bCAzLjkuOS4NCg0KSSB3b3VsJ3ZlIENDZWQgQW5zc2kgSGFubnVsYSBhcyB3YXMgc3VnZ2VzdGVk
-IGJ5IHlvdSBidXQgSSBjb3Vsbid0IGZpbmQNCmhpcyBtYWlsLg0KDQpjaGVlcnMsDQpyZW5hdG8N
-Ci0tLS0tQkVHSU4gUEdQIFNJR05BVFVSRS0tLS0tDQpWZXJzaW9uOiBHbnVQRyB2Mi4wLjIwIChH
-TlUvTGludXgpDQoNCmlRRWNCQUVCQWdBR0JRSlI0K3FzQUFvSkVCejZ4RmR0dGpyZkJtd0gvMmlo
-VCtuS2RrbUZ1S25UNUpSMFo5VWUNCmYyVWRUb1V3eThWOTQwQ2czOXYzSGdWTDlaWk8rdnZ1eksx
-UWcvbVlndnRqZDFVcW1PS0NPSkZFZFpkaUxsejcNCktlMUZIUCs3ZEJZL2M1dEVLOTZwc01pd1hK
-SnBKVFpKdmZ5blR2MGpHZ0x0SjJFSCsxeGoyUVk5bjlIV1lMZ3cNCmluTnhXd3ExdUt4YVh0NkxE
-K1pXd2FWZEtUSjhPcyt4K09tbERoU0lhUGhXMzFtQnFKbWdDb1ZJNkZDeXVweFQNCm4wMjFac2Uz
-K3l0ajAzb2RRNjhPY2d5bDN3a21qUi9MeEZZWEpkd2tCMW1Ta2lZZzVuc2VKOFVXcXYyQXlYQ0YN
-CkpmaUtEaWd6bkRVS0x5TVZSZm9wbGdsMzNxSWEySzRpSHQ3WDFXM0VyZVFudWdNUlF5dzl1bDNZ
-V3dZSDRjdz0NCj1JNEoyDQotLS0tLUVORCBQR1AgU0lHTkFUVVJFLS0tLS0NCg==
+Input resolution has been added in kernel v2.6.31 with commit
+ec20a022aa24fc63. However, uinput was never updated since, meaning that
+devices cannot be emulated in full. User-space processes that rely on the
+resolution to be accurate need this.
+
+Resolution is added in struct uinput_user_dev in a way it won't break
+current programs relying on the old implementation.
+
+Bump the UINPUT_VERSION number to 4 to aid detection of this in user-space.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+---
+ drivers/input/misc/uinput.c | 17 ++++++++++++-----
+ include/linux/uinput.h      |  2 ++
+ include/uapi/linux/uinput.h |  3 +++
+ 3 files changed, 17 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index a0a4bba..7d518b4 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -20,6 +20,8 @@
+  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+  *
+  * Changes/Revisions:
++ *	0.4	12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
++ *		- update uinput_user_dev struct to allow abs resolution
+  *	0.3	09/04/2006 (Anssi Hannula <anssi.hannula@gmail.com>)
+  *		- updated ff support for the changes in kernel interface
+  *		- added MODULE_VERSION
+@@ -364,9 +366,9 @@ static int uinput_setup_device(struct uinput_device *udev,
+ 	struct input_dev	*dev;
+ 	int			i;
+ 	int			retval;
++	size_t			size;
+ 
+-	if (count != sizeof(struct uinput_user_dev))
+-		return -EINVAL;
++	size = min_t(size_t, count, sizeof(struct uinput_user_dev));
+ 
+ 	if (!udev->dev) {
+ 		retval = uinput_allocate_device(udev);
+@@ -376,9 +378,13 @@ static int uinput_setup_device(struct uinput_device *udev,
+ 
+ 	dev = udev->dev;
+ 
+-	user_dev = memdup_user(buffer, sizeof(struct uinput_user_dev));
+-	if (IS_ERR(user_dev))
+-		return PTR_ERR(user_dev);
++	user_dev = kzalloc(sizeof(struct uinput_user_dev), GFP_KERNEL);
++	if (!user_dev)
++		return -ENOMEM;
++	if (copy_from_user(user_dev, buffer, size)) {
++		retval = -EFAULT;
++		goto exit;
++	}
+ 
+ 	udev->ff_effects_max = user_dev->ff_effects_max;
+ 
+@@ -406,6 +412,7 @@ static int uinput_setup_device(struct uinput_device *udev,
+ 		input_abs_set_min(dev, i, user_dev->absmin[i]);
+ 		input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);
+ 		input_abs_set_flat(dev, i, user_dev->absflat[i]);
++		input_abs_set_res(dev, i, user_dev->absres[i]);
+ 	}
+ 
+ 	/* check if absmin/absmax/absfuzz/absflat are filled as
+diff --git a/include/linux/uinput.h b/include/linux/uinput.h
+index 0a4487d..6291a22 100644
+--- a/include/linux/uinput.h
++++ b/include/linux/uinput.h
+@@ -20,6 +20,8 @@
+  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+  *
+  * Changes/Revisions:
++ *	0.4	12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
++ *		- update uinput_user_dev struct to allow abs resolution
+  *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
+  *		- update ff support for the changes in kernel interface
+  *		- add UINPUT_VERSION
+diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
+index fe46431..f6a393b 100644
+--- a/include/uapi/linux/uinput.h
++++ b/include/uapi/linux/uinput.h
+@@ -20,6 +20,8 @@
+  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+  *
+  * Changes/Revisions:
++ *	0.4	12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
++ *		- update uinput_user_dev struct to allow abs resolution
+  *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
+  *		- update ff support for the changes in kernel interface
+  *		- add UINPUT_VERSION
+@@ -133,5 +135,6 @@ struct uinput_user_dev {
+ 	__s32 absmin[ABS_CNT];
+ 	__s32 absfuzz[ABS_CNT];
+ 	__s32 absflat[ABS_CNT];
++	__s32 absres[ABS_CNT];
+ };
+ #endif /* _UAPI__UINPUT_H_ */
+-- 
+1.8.3.1
+

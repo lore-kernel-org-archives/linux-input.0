@@ -1,137 +1,87 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 2/2] input/uinput: add UI_GET_SYSPATH ioctl to retrieve the sysfs path
-Date: Mon, 15 Jul 2013 15:37:09 +0200
-Message-ID: <1373895429-8846-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1373895429-8846-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1373895429-8846-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Zubair Lutfullah <zubair.lutfullah@gmail.com>
+Subject: [PATCH] typo fixes (coordiante -> coordinate) in am335x
+Date: Mon, 15 Jul 2013 16:25:28 +0100
+Message-ID: <1373901928-19605-1-git-send-email-zubair.lutfullah@gmail.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: sameo@linux.intel.com
+Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Evemu [1] uses uinput to replay devices traces it has recorded. However,
-the way evemu uses uinput is slightly different from how uinput is
-supposed to be used.
-Evemu creates the device node through uinput, bu inject events through
-the input device node directly (and skipping the uinput node).
+Did a grep for coordiante and replaced them all
+with coordinate.
 
-Currently, evemu relies on an heuristic to guess which input node was
-created. The problem is that is heuristic is subjected to races between
-different uinput devices or even with physical devices. Having a way
-to retrieve the sysfs path allows us to find the event node without
-having to rely on this heuristic.
+This applies to the mfd-next tree.
 
-[1] http://www.freedesktop.org/wiki/Evemu/
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Zubair Lutfullah <zubair.lutfullah@gmail.com>
 ---
- drivers/input/misc/uinput.c | 37 ++++++++++++++++++++++++++++++++++++-
- include/linux/uinput.h      |  1 +
- include/uapi/linux/uinput.h |  3 +++
- 3 files changed, 40 insertions(+), 1 deletion(-)
+ .../bindings/input/touchscreen/ti-tsc-adc.txt      |    4 ++--
+ arch/arm/boot/dts/am335x-evm.dts                   |    2 +-
+ drivers/input/touchscreen/ti_am335x_tsc.c          |    2 +-
+ drivers/mfd/ti_am335x_tscadc.c                     |    2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 7d518b4..49a9f7d 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -22,6 +22,7 @@
-  * Changes/Revisions:
-  *	0.4	12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
-  *		- update uinput_user_dev struct to allow abs resolution
-+ *		- add UI_GET_SYSPATH ioctl
-  *	0.3	09/04/2006 (Anssi Hannula <anssi.hannula@gmail.com>)
-  *		- updated ff support for the changes in kernel interface
-  *		- added MODULE_VERSION
-@@ -667,6 +668,21 @@ static int uinput_ff_upload_from_user(const char __user *buffer,
- 	__ret;						\
- })
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+index 491c97b..3e22aec 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+@@ -6,7 +6,7 @@ Required properties:
+ 	ti,wires: Wires refer to application modes i.e. 4/5/8 wire touchscreen
+ 		  support on the platform.
+ 	ti,x-plate-resistance: X plate resistance
+-	ti,coordiante-readouts: The sequencer supports a total of 16
++	ti,coordinate-readouts: The sequencer supports a total of 16
+ 				programmable steps each step is used to
+ 				read a single coordinate. A single
+                                 readout is enough but multiple reads can
+@@ -34,7 +34,7 @@ Example:
+ 		tsc {
+ 			ti,wires = <4>;
+ 			ti,x-plate-resistance = <200>;
+-			ti,coordiante-readouts = <5>;
++			ti,coordinate-readouts = <5>;
+ 			ti,wire-config = <0x00 0x11 0x22 0x33>;
+ 		};
  
-+static int uinput_str_to_user(const char *str, unsigned int maxlen,
-+			      void __user *p)
-+{
-+	int len;
-+
-+	if (!str)
-+		return -ENOENT;
-+
-+	len = strlen(str) + 1;
-+	if (len > maxlen)
-+		len = maxlen;
-+
-+	return copy_to_user(p, str, len) ? -EFAULT : len;
-+}
-+
- static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 				 unsigned long arg, void __user *p)
- {
-@@ -676,6 +692,8 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 	struct uinput_ff_erase  ff_erase;
- 	struct uinput_request   *req;
- 	char			*phys;
-+	const char		*path;
-+	unsigned int		size;
+diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
+index 0fa4c7f..e50b781 100644
+--- a/arch/arm/boot/dts/am335x-evm.dts
++++ b/arch/arm/boot/dts/am335x-evm.dts
+@@ -250,7 +250,7 @@
+ 	tsc {
+ 		ti,wires = <4>;
+ 		ti,x-plate-resistance = <200>;
+-		ti,coordiante-readouts = <5>;
++		ti,coordinate-readouts = <5>;
+ 		ti,wire-config = <0x00 0x11 0x22 0x33>;
+ 	};
  
- 	retval = mutex_lock_interruptible(&udev->mutex);
- 	if (retval)
-@@ -828,7 +846,24 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 			break;
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index 0e9f02a..6422f65 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -348,7 +348,7 @@ static int titsc_parse_dt(struct platform_device *pdev,
+ 	if (err < 0)
+ 		return err;
  
- 		default:
--			retval = -EINVAL;
-+			retval = -EAGAIN;
-+	}
-+
-+	if (retval == -EAGAIN) {
-+		size = _IOC_SIZE(cmd);
-+
-+		/* Now check variable-length commands */
-+		switch (cmd & ~IOCSIZE_MASK) {
-+			case UI_GET_SYSPATH(0):
-+				path = kobject_get_path(&udev->dev->dev.kobj,
-+							GFP_KERNEL);
-+				retval = uinput_str_to_user(path, size, p);
-+				kfree(path);
-+				break;
-+
-+			default:
-+				retval = -EINVAL;
-+		}
- 	}
+-	err = of_property_read_u32(node, "ti,coordiante-readouts",
++	err = of_property_read_u32(node, "ti,coordinate-readouts",
+ 			&ts_dev->coordinate_readouts);
+ 	if (err < 0)
+ 		return err;
+diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+index b003a16..dd31e23 100644
+--- a/drivers/mfd/ti_am335x_tscadc.c
++++ b/drivers/mfd/ti_am335x_tscadc.c
+@@ -106,7 +106,7 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
  
-  out:
-diff --git a/include/linux/uinput.h b/include/linux/uinput.h
-index 6291a22..64fab81 100644
---- a/include/linux/uinput.h
-+++ b/include/linux/uinput.h
-@@ -22,6 +22,7 @@
-  * Changes/Revisions:
-  *	0.4	12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
-  *		- update uinput_user_dev struct to allow abs resolution
-+ *		- add UI_GET_SYSPATH ioctl
-  *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
-  *		- update ff support for the changes in kernel interface
-  *		- add UINPUT_VERSION
-diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
-index f6a393b..d826409 100644
---- a/include/uapi/linux/uinput.h
-+++ b/include/uapi/linux/uinput.h
-@@ -22,6 +22,7 @@
-  * Changes/Revisions:
-  *	0.4	12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
-  *		- update uinput_user_dev struct to allow abs resolution
-+ *		- add UI_GET_SYSPATH ioctl
-  *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
-  *		- update ff support for the changes in kernel interface
-  *		- add UINPUT_VERSION
-@@ -75,6 +76,8 @@ struct uinput_ff_erase {
- #define UI_BEGIN_FF_ERASE	_IOWR(UINPUT_IOCTL_BASE, 202, struct uinput_ff_erase)
- #define UI_END_FF_ERASE		_IOW(UINPUT_IOCTL_BASE, 203, struct uinput_ff_erase)
+ 	node = of_get_child_by_name(pdev->dev.of_node, "tsc");
+ 	of_property_read_u32(node, "ti,wires", &tsc_wires);
+-	of_property_read_u32(node, "ti,coordiante-readouts", &readouts);
++	of_property_read_u32(node, "ti,coordinate-readouts", &readouts);
  
-+#define UI_GET_SYSPATH(len)	_IOC(_IOC_READ, UINPUT_IOCTL_BASE, 300, len)
-+
- /*
-  * To write a force-feedback-capable driver, the upload_effect
-  * and erase_effect callbacks in input_dev must be implemented.
+ 	node = of_get_child_by_name(pdev->dev.of_node, "adc");
+ 	of_property_for_each_u32(node, "ti,adc-channels", prop, cur, val) {
 -- 
-1.8.3.1
+1.7.9.5
+

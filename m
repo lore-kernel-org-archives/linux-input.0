@@ -1,78 +1,35 @@
-From: Ferruh Yigit <fery@cypress.com>
-Subject: Re: [PATCH 1/1] MAINTAINERS: Change maintainer for cyttsp driver
-Date: Tue, 16 Jul 2013 09:57:46 +0300
-Message-ID: <51E4EEEA.4000208@cypress.com>
-References: <1373838082-12372-1-git-send-email-javier@dowhile0.org> <1373838082-12372-2-git-send-email-javier@dowhile0.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [RFC 1/8] HID: usbhid: make usbhid_set_leds() static
+Date: Tue, 16 Jul 2013 09:41:12 +0200
+Message-ID: <CAN+gG=E_Jg37vKnwn0b-=qQ4ozEDKyuZN70pkRNxkcYcPG4jOw@mail.gmail.com>
+References: <1373908217-16748-1-git-send-email-dh.herrmann@gmail.com>
+	<1373908217-16748-2-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f49.google.com ([209.85.160.49]:56363 "EHLO
-	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751715Ab3GPG5y (ORCPT
+Received: from mail-lb0-f179.google.com ([209.85.217.179]:47967 "EHLO
+	mail-lb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752940Ab3GPHlO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Jul 2013 02:57:54 -0400
-In-Reply-To: <1373838082-12372-2-git-send-email-javier@dowhile0.org>
+	Tue, 16 Jul 2013 03:41:14 -0400
+Received: by mail-lb0-f179.google.com with SMTP id w20so343357lbh.10
+        for <linux-input@vger.kernel.org>; Tue, 16 Jul 2013 00:41:13 -0700 (PDT)
+In-Reply-To: <1373908217-16748-2-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier@dowhile0.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, ttdrivers@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Oliver Neukum <oliver@neukum.org>
 
-On 07/15/2013 12:41 AM, Javier Martinez Canillas wrote:
-> I haven't had time to work on this driver for a long time and
-> Ferruh has been doing a great job making it more generic,
-> adding support for new hardware and providing bug fixes.
-Thank you a lot for your work on cyttsp drivers,
-we would like to see your support back whenever you have time again.
-Your expertise/know-how on issue is valuable.
-
+On Mon, Jul 15, 2013 at 7:10 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> usbhid_set_leds() is only used inside of usbhid/hid-core.c so no need to
+> export it.
 >
-> So, let's make MAINTAINERS reflect reality and add him as the
-> cyttsp maintainer instead of me.
->
-> Also, since Ferruh works for Cypress, we may change the driver
-> status from Maintained to Supported.
->
-> Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 > ---
->
-> Ferruh, please send your ack if you are willing to take over
-> maintainance of this driver.
 
-Acked-by: Ferruh Yigit <fery@cypress.com>
+Hi David,
 
->
-> Also, please confirm that you have been working on behalf of
-> Cypress instead of doing it on your free time. Otherwise we
-> should keep the driver status to maintained instead supported.
-Right, I am a Cypress employee and working on TrueTouch drivers.
->
-> Thanks a lot and best regards,
-> Javier
->
->   MAINTAINERS |    4 ++--
->   1 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 9d771d9..4ba996c 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -2458,9 +2458,9 @@ S:	Maintained
->   F:	drivers/media/common/cypress_firmware*
->   
->   CYTTSP TOUCHSCREEN DRIVER
-> -M:	Javier Martinez Canillas <javier@dowhile0.org>
-> +M:	Ferruh Yigit <fery@cypress.com>
->   L:	linux-input@vger.kernel.org
-> -S:	Maintained
-> +S:	Supported
->   F:	drivers/input/touchscreen/cyttsp*
->   F:	include/linux/input/cyttsp.h
->   
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-
--- 
-
-Regards,
-ferruh
-
+Cheers,
+Benjamin

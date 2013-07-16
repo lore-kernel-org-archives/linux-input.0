@@ -1,156 +1,186 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [RFC 0/8] HID: Transport Driver Cleanup
-Date: Mon, 15 Jul 2013 20:55:49 +0200
-Message-ID: <CAN+gG=E0s_5sbmynx5hujMYqNneb0UH0tnG-_hT31f-Cd994pg@mail.gmail.com>
-References: <1373908217-16748-1-git-send-email-dh.herrmann@gmail.com>
+From: Rob Herring <robherring2@gmail.com>
+Subject: Re: [PATCH v4] Input: sysrq - DT binding for key sequence
+Date: Mon, 15 Jul 2013 21:43:41 -0500
+Message-ID: <51E4B35D.8020000@gmail.com>
+References: <1373902598-10062-1-git-send-email-mathieu.poirier@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f47.google.com ([209.85.215.47]:50686 "EHLO
-	mail-la0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754084Ab3GOSzv (ORCPT
+Received: from mail-ob0-f180.google.com ([209.85.214.180]:38515 "EHLO
+	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757458Ab3GPCoA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Jul 2013 14:55:51 -0400
-Received: by mail-la0-f47.google.com with SMTP id fe20so9739733lab.20
-        for <linux-input@vger.kernel.org>; Mon, 15 Jul 2013 11:55:49 -0700 (PDT)
-In-Reply-To: <1373908217-16748-1-git-send-email-dh.herrmann@gmail.com>
+	Mon, 15 Jul 2013 22:44:00 -0400
+Received: by mail-ob0-f180.google.com with SMTP id eh20so180028obb.11
+        for <linux-input@vger.kernel.org>; Mon, 15 Jul 2013 19:43:59 -0700 (PDT)
+In-Reply-To: <1373902598-10062-1-git-send-email-mathieu.poirier@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Oliver Neukum <oliver@neukum.org>
+To: mathieu.poirier@linaro.org
+Cc: grant.likely@linaro.org, dmitry.torokhov@gmail.com, kernel-team@android.com, devicetree-discuss@lists.ozlabs.org, john.stultz@linaro.org, linux-input@vger.kernel.org
 
-Hi David,
+On 07/15/2013 10:36 AM, mathieu.poirier@linaro.org wrote:
+> From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
+> 
+> Adding a simple device tree binding for the specification of key sequences.
+> Definition of the keys found in the sequence are located in
+> 'include/uapi/linux/input.h'.
+> 
+> For the sysrq driver, holding the sequence of keys down for a specific amount of time
+> will reset the system.
+> 
+> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+> ---
+> changes for v4:
+>   - Moved seach of reset sequence nodes to a single call.
+> ---
+>  .../devicetree/bindings/input/input-reset.txt      | 34 ++++++++++++++
+>  drivers/tty/sysrq.c                                | 54 ++++++++++++++++++++++
+>  2 files changed, 88 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/input-reset.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/input-reset.txt b/Documentation/devicetree/bindings/input/input-reset.txt
+> new file mode 100644
+> index 0000000..79504af
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/input-reset.txt
+> @@ -0,0 +1,34 @@
+> +Input: sysrq reset sequence
+> +
+> +A simple binding to represent a set of keys as described in
+> +include/uapi/linux/input.h.  This is to communicate a
+> +sequence of keys to the sysrq driver.  Upon holding the keys
+> +for a specified amount of time (if specified) the system is
+> +sync'ed and reset.
+> +
+> +Key sequences are global to the system but all the keys in a
+> +set must be coming from the same input device.
+> +
+> +The /chosen node should contain a 'linux,sysrq-reset-seq' child
+> +node to define a set of keys.
+> +
+> +Required property:
+> +sysrq-reset-seq: array of keycodes
+> +
+> +Optional property:
+> +timeout-ms: duration keys must be pressed together in microseconds
 
-On Mon, Jul 15, 2013 at 7:10 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi
->
-> This series provides some cleanups for HID transport drivers:
->  Patch #1: Cleanup which can be picked up
->  Patch #2-#6: Provide generic hidinput_input_event() helpers
->  Patch #7-#8: Transport-driver Cleanup
+milliseconds (ms) or microseconds (us)?
 
-First, thank you very much for this work. Especially the patch #7. I
-did not read it entirely though, but it looks great.
+> +before generating a sysrq
+> +
+> +Example:
+> +
+> + chosen {
+> +                linux,sysrq-reset-seq {
+> +                        keyset = <0x03
+> +                                  0x04
+> +                                  0x0a>;
+> +                        timeout-ms = <3000>;
+> +                };
+> +         };
+> +
+> +Would represent KEY_2, KEY_3 and KEY_9.
+> +
+> diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+> index b51c154..01a8729 100644
+> --- a/drivers/tty/sysrq.c
+> +++ b/drivers/tty/sysrq.c
+> @@ -44,6 +44,7 @@
+>  #include <linux/uaccess.h>
+>  #include <linux/moduleparam.h>
+>  #include <linux/jiffies.h>
+> +#include <linux/of.h>
+>  
+>  #include <asm/ptrace.h>
+>  #include <asm/irq_regs.h>
+> @@ -671,6 +672,50 @@ static void sysrq_detect_reset_sequence(struct sysrq_state *state,
+>  	}
+>  }
+>  
+> +static void sysrq_of_get_keyreset_config(void)
+> +{
+> +	unsigned short key;
+> +	struct device_node *np;
+> +	const struct property *prop;
+> +	const __be32 *val;
+> +	int count, i;
+> +
+> +	np = of_find_node_by_path("/chosen/linux,sysrq-reset-seq");
+> +	if (!np) {
+> +		pr_debug("No sysrq node found");
+> +		goto out;
+> +	}
+> +
+> +	prop = of_find_property(np, "keyset", NULL);
+> +	if (!prop || !prop->value) {
+> +		pr_err("Invalid input keyset");
+> +		goto out;
+> +	}
+> +
+> +	count = prop->length / sizeof(u32);
+> +	val = prop->value;
 
-I won't have the brain in a good state this evening to do an entire
-review right now, but here are a few preliminary comments:
+None of the existing helpers to retrieve property arrays doesn't work here?
 
->
-> Patch #7-#8 is an attempt to clean up the transport driver callbacks. Lets look
-> at how the following hooks are currently implemented:
->  1) GET_REPORT: Issue a synchronous GET_REPORT via the ctrl-channel
->  2) SET_REPORT: Issue a synchronous SET_REPORT via the ctrl-channel
+> +
+> +	if (count > SYSRQ_KEY_RESET_MAX)
+> +		count = SYSRQ_KEY_RESET_MAX;
+> +
+> +	/* reset in case a __weak definition was present */
+> +	sysrq_reset_seq_len = 0;
+> +
+> +	for (i = 0; i < count; i++) {
+> +		key = (unsigned short)be32_to_cpup(val++);
+> +		if (key == KEY_RESERVED || key > KEY_MAX)
+> +			break;
+> +
+> +		sysrq_reset_seq[sysrq_reset_seq_len++] = key;
+> +	}
+> +
+> +	/* get reset timeout if any */
+> +	of_property_read_u32(np, "timeout-ms", &sysrq_reset_downtime_ms);
+> +
+> + out:
+> +	;
+> +}
+> +
+>  static void sysrq_reinject_alt_sysrq(struct work_struct *work)
+>  {
+>  	struct sysrq_state *sysrq =
+> @@ -688,6 +733,7 @@ static void sysrq_reinject_alt_sysrq(struct work_struct *work)
+>  		input_inject_event(handle, EV_KEY, KEY_SYSRQ, 1);
+>  		input_inject_event(handle, EV_SYN, SYN_REPORT, 1);
+>  
+> +
 
-I am not 100% sure GET/SET_REPORT are synchronous. At least, they
-ensure for the usbhid module some kind of PM negotiation which allows
-communication.
+spurious ws change
 
->  3) OUTPUT: Issue an asynchronous OUTPUT report on the intr-channel
->
-> USB-HID:
->  1) GET_REPORT can be issued via ->hid_get_raw_report() for all three report
->     types correctly.
->  2) SET_REPORT can only be issued for FEATURE reports via
->     ->hid_output_raw_report(). INPUT and OUTPUT reports on the same callback
->     cause an asynchronous report on the intr channel.
->  3) OUTPUT reports can be issued via ->hid_output_raw_report() as described
->     above in SET_REPORT.
+>  		input_inject_event(handle, EV_KEY, KEY_SYSRQ, 0);
+>  		input_inject_event(handle, EV_KEY, alt_code, 0);
+>  		input_inject_event(handle, EV_SYN, SYN_REPORT, 1);
+> @@ -903,6 +949,7 @@ static inline void sysrq_register_handler(void)
+>  	int error;
+>  	int i;
+>  
+> +	/* first check if a __weak interface was instantiated */
+>  	for (i = 0; i < ARRAY_SIZE(sysrq_reset_seq); i++) {
+>  		key = platform_sysrq_reset_seq[i];
+>  		if (key == KEY_RESERVED || key > KEY_MAX)
+> @@ -911,6 +958,13 @@ static inline void sysrq_register_handler(void)
+>  		sysrq_reset_seq[sysrq_reset_seq_len++] = key;
+>  	}
+>  
+> +	/*
+> +	 * DT configuration takes precedence over anything
+> +	 * that would have been defined via the __weak
+> +	 * interface
+> +	 */
+> +	sysrq_of_get_keyreset_config();
+> +
+>  	error = input_register_handler(&sysrq_handler);
+>  	if (error)
+>  		pr_err("Failed to register input handler, error %d", error);
+> 
 
-I'm afraid no (for the 3 points). See dcd9006b1b053c7 in Linus' tree.
-hid_hw_request uses usbhid_submit_report() which is very different
-from ->hid_output_raw_report() or ->hid_get_raw_report() thanks to all
-the glue around the USB communication.
-
->
-> HIDP:
->  1) GET_REPORT: same as for USB-HID
->  2) SET_REPORT can only be issued for FEATURE reports via
->     ->hid_output_raw_report(). SET_REPORT for INPUT reports is forbidden (why?)
->     and SET_REPORT for OUTPUT reports is actually implemented as 3)
->  3) OUTPUT reports can be issued via ->hid_output_raw_report().
->
-> I2C:
->  1) GET_REPORT implemented for INPUT and FEATURE via ->hid_get_raw_report().
->     Forbidden for OUTPUT reports (why?).
-
-To me (I will double check later):
- - an INPUT report is read only, and send spontaneous events.
- - an OUTPUT report is write only.
- - a FEATURE is read/write but does not send spontaneous events
-
-Then, the device firmware may allow you to do other things, but I
-doubt there is any sense to write something on an INPUT report for
-example.
-
->  2) SET_REPORT can be issued for OUTPUT and FEATURE reports via
->     ->hid_output_raw_report() but is forbidden for INPUT reports (why?).
->  3) OUTPUT reports cannot be issued at all.
->
-> UHID:
->  1) GET_REPORT only supported for FEATURE via ->hid_get_raw_report()
->  2) SET_REPORT not supported at all
->  3) OUTPUT supported via ->hid_output_raw_report()
->
->
-> As this is all very inconsistent, I added two new callbacks:
->  ->raw_request() is the same as ->request() but with a raw buffer. It should be
->  implemented by the transport drivers as SET/GET_REPORT calls in the
->  ctrl-channel.
->
->  ->output_report() is supposed to send an OUTPUT report on the intr-channel
->  (same channel asynchronous input reports are received from).
->
-> Please see the hid-transport.txt for a description. The last patch tries to
-> implement them. I have no idea how to implement it for i2c, it seems that i2c
-> multiplexes ctrl and intr channels on a single i2c channel. I don't know how to
-> send raw output reports at all.. Help welcome!
-
-I can help. Actually, on I2C, there is no ctrl and intr channels. You
-just send plain reports from both sides, and the device can notify the
-host from an INPUT report thanks to an interrupt line (external to the
-actual I2C communication). Anyway, I'll implement and test the I2C
-stuffs if you need.
-
->
->
-> If there is more interest in this work, I will clean it up, try to convert the
-> other hid_ll_driver drivers and resend as a proper patchset.
-
-Yes, I am very interested. Before cleaning it up, I think we already
-have a lot to discuss (at least, I have some points :-P ).
-
-Again, thanks for this work.
-
-Cheers,
-Benjamin
-
->
-> Cheers
-> David
->
-> David Herrmann (8):
->   HID: usbhid: make usbhid_set_leds() static
->   HID: usbhid: update LED fields unlocked
->   HID: input: generic hidinput_input_event handler
->   HID: usbhid: use generic hidinput_input_event()
->   HID: i2c: use generic hidinput_input_event()
->   HID: uhid: use generic hidinput_input_event()
->   HID: add transport driver documentation
->   HID: implement new transport-driver callbacks
->
->  Documentation/hid/hid-transport.txt | 299 ++++++++++++++++++++++++++++++++++++
->  Documentation/hid/uhid.txt          |   4 +-
->  drivers/hid/hid-input.c             |  80 +++++++++-
->  drivers/hid/i2c-hid/i2c-hid.c       |  24 ---
->  drivers/hid/uhid.c                  |  52 ++++---
->  drivers/hid/usbhid/hid-core.c       | 144 +++++++++--------
->  drivers/hid/usbhid/usbhid.h         |   3 -
->  include/linux/hid.h                 |  10 +-
->  include/uapi/linux/uhid.h           |   4 +-
->  net/bluetooth/hidp/core.c           |  90 +++++++++++
->  10 files changed, 590 insertions(+), 120 deletions(-)
->  create mode 100644 Documentation/hid/hid-transport.txt
->
-> --
-> 1.8.3.2
->

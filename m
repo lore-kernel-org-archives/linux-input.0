@@ -1,526 +1,451 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [RFC 7/8] HID: add transport driver documentation
-Date: Tue, 16 Jul 2013 12:32:50 +0200
-Message-ID: <51E52152.3020801@gmail.com>
-References: <1373908217-16748-1-git-send-email-dh.herrmann@gmail.com> <1373908217-16748-8-git-send-email-dh.herrmann@gmail.com>
+From: Mathieu Poirier <mathieu.poirier-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4] Input: sysrq - DT binding for key sequence
+Date: Tue, 16 Jul 2013 16:24:38 -0600
+Message-ID: <CANLsYkzgHqnuDq46JEJH713jrnD8rAAG_2wLbKJCAOGLpw+e4g@mail.gmail.com>
+References: <1373902598-10062-1-git-send-email-mathieu.poirier@linaro.org>
+ <51E4B35D.8020000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:22325 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754107Ab3GPKdF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Jul 2013 06:33:05 -0400
-In-Reply-To: <1373908217-16748-8-git-send-email-dh.herrmann@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============6032580236146745071=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <51E4B35D.8020000-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: devicetree-discuss <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, John Stultz <john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, kernel-team-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Oliver Neukum <oliver@neukum.org>
 
-Hi David,
+--===============6032580236146745071==
+Content-Type: multipart/alternative; boundary=047d7b3a87504e336e04e1a8710e
 
-On Mon, Jul 15, 2013 at 7:10 PM, David Herrmann <dh.herrmann@gmail.com>
-wrote:
-> hid-transport.txt describes the transport driver layout which is required
-> by HID-core to work correctly. HID-core supports many different transport
-> drivers and new drivers can be added for any kind of I/O system.
+--047d7b3a87504e336e04e1a8710e
+Content-Type: text/plain; charset=ISO-8859-1
+
+On 15 July 2013 20:43, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+
+> On 07/15/2013 10:36 AM, mathieu.poirier-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org wrote:
+> > From: "Mathieu J. Poirier" <mathieu.poirier-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> >
+> > Adding a simple device tree binding for the specification of key
+> sequences.
+> > Definition of the keys found in the sequence are located in
+> > 'include/uapi/linux/input.h'.
+> >
+> > For the sysrq driver, holding the sequence of keys down for a specific
+> amount of time
+> > will reset the system.
+> >
+> > Signed-off-by: Mathieu Poirier <mathieu.poirier-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > ---
+> > changes for v4:
+> >   - Moved seach of reset sequence nodes to a single call.
+> > ---
+> >  .../devicetree/bindings/input/input-reset.txt      | 34 ++++++++++++++
+> >  drivers/tty/sysrq.c                                | 54
+> ++++++++++++++++++++++
+> >  2 files changed, 88 insertions(+)
+> >  create mode 100644
+> Documentation/devicetree/bindings/input/input-reset.txt
+> >
+> > diff --git a/Documentation/devicetree/bindings/input/input-reset.txt
+> b/Documentation/devicetree/bindings/input/input-reset.txt
+> > new file mode 100644
+> > index 0000000..79504af
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/input-reset.txt
+> > @@ -0,0 +1,34 @@
+> > +Input: sysrq reset sequence
+> > +
+> > +A simple binding to represent a set of keys as described in
+> > +include/uapi/linux/input.h.  This is to communicate a
+> > +sequence of keys to the sysrq driver.  Upon holding the keys
+> > +for a specified amount of time (if specified) the system is
+> > +sync'ed and reset.
+> > +
+> > +Key sequences are global to the system but all the keys in a
+> > +set must be coming from the same input device.
+> > +
+> > +The /chosen node should contain a 'linux,sysrq-reset-seq' child
+> > +node to define a set of keys.
+> > +
+> > +Required property:
+> > +sysrq-reset-seq: array of keycodes
+> > +
+> > +Optional property:
+> > +timeout-ms: duration keys must be pressed together in microseconds
 >
-> The current layout doesn't really differentiate between intr and ctrl
-> channels, which confuses some hid-drivers and may break devices. HIDP,
-> USBHID and I2DHID all implement different semantics for each callback, so
-
-typo: I2CHID
-
-> our device drivers aren't really transport-driver-agnostic.
+> milliseconds (ms) or microseconds (us)?
 >
-> To solve that, hid-transport.txt describes the layout of transport drivers
-> that is required by HID core. Furthermore, it introduces some new
-> callbacks which replace the current hid_get_raw_report() and
-> hid_output_raw_report() hooks. These will be implemented in follow-up
-> patches.
 >
-> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
-> ---
->  Documentation/hid/hid-transport.txt | 299 ++++++++++++++++++++++++++++++++++++
->  1 file changed, 299 insertions(+)
->  create mode 100644 Documentation/hid/hid-transport.txt
+Right, milliseconds.
+
+
+> > +before generating a sysrq
+> > +
+> > +Example:
+> > +
+> > + chosen {
+> > +                linux,sysrq-reset-seq {
+> > +                        keyset = <0x03
+> > +                                  0x04
+> > +                                  0x0a>;
+> > +                        timeout-ms = <3000>;
+> > +                };
+> > +         };
+> > +
+> > +Would represent KEY_2, KEY_3 and KEY_9.
+> > +
+> > diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+> > index b51c154..01a8729 100644
+> > --- a/drivers/tty/sysrq.c
+> > +++ b/drivers/tty/sysrq.c
+> > @@ -44,6 +44,7 @@
+> >  #include <linux/uaccess.h>
+> >  #include <linux/moduleparam.h>
+> >  #include <linux/jiffies.h>
+> > +#include <linux/of.h>
+> >
+> >  #include <asm/ptrace.h>
+> >  #include <asm/irq_regs.h>
+> > @@ -671,6 +672,50 @@ static void sysrq_detect_reset_sequence(struct
+> sysrq_state *state,
+> >       }
+> >  }
+> >
+> > +static void sysrq_of_get_keyreset_config(void)
+> > +{
+> > +     unsigned short key;
+> > +     struct device_node *np;
+> > +     const struct property *prop;
+> > +     const __be32 *val;
+> > +     int count, i;
+> > +
+> > +     np = of_find_node_by_path("/chosen/linux,sysrq-reset-seq");
+> > +     if (!np) {
+> > +             pr_debug("No sysrq node found");
+> > +             goto out;
+> > +     }
+> > +
+> > +     prop = of_find_property(np, "keyset", NULL);
+> > +     if (!prop || !prop->value) {
+> > +             pr_err("Invalid input keyset");
+> > +             goto out;
+> > +     }
+> > +
+> > +     count = prop->length / sizeof(u32);
+> > +     val = prop->value;
 >
-> diff --git a/Documentation/hid/hid-transport.txt b/Documentation/hid/hid-transport.txt
-> new file mode 100644
-> index 0000000..034f11d
-> --- /dev/null
-> +++ b/Documentation/hid/hid-transport.txt
-> @@ -0,0 +1,299 @@
-> +                          HID I/O Transport Drivers
-> +                         ===========================
-> +
-> +The HID subsystem is independent of the underlying transport driver. Initially,
-> +only USB was supported, but other specifications adopted the HID design and
-> +provided new transport drivers. The kernel includes at least support for USB,
-> +Bluetooth, i2c and user-space I/O drivers.
-
-IIRC, we should put I2C in capital letters.
-
-> +
-> +1) HID Bus
-> +==========
-> +
-> +The HID subsystem is designed as a bus. Any I/O subsystem may provide HID
-> +devices and register them with the HID bus. HID core then loads generic device
-> +drivers on top of it. The transport drivers are responsible of raw data
-> +transport and device setup/management. HID core is responsible of
-> +report-parsing, report interpretation and the user-space API. Device specifics
-> +and quirks are also handled by HID core and the HID device drivers.
-
-Hmm, the quirks part is not exactly what is currently implemented.
-Usbhid (Transport Driver) set and use quirks while you say here that
-they are handled by hid-core.
-
-I personally prefer the way it is documented here (quirks handled in
-hid-core) so HIDP, i2c-hid and uhid will benefit from the dynamic quirks
-already implemented in usbhid. But that will require another patch :)
-
-> +
-> + +-----------+  +-----------+            +-----------+  +-----------+
-> + | Device #1 |  | Device #i |            | Device #j |  | Device #k |
-> + +-----------+  +-----------+            +-----------+  +-----------+
-> +          \\      //                              \\      //
-> +        +------------+                          +------------+
-> +        | I/O Driver |                          | I/O Driver |
-> +        +------------+                          +------------+
-> +              ||                                      ||
-> +     +------------------+                    +------------------+
-> +     | Transport Driver |                    | Transport Driver |
-> +     +------------------+                    +------------------+
-> +                       \___                ___/
-> +                           \              /
-> +                          +----------------+
-> +                          |    HID Core    |
-> +                          +----------------+
-> +                           /  |        |  \
-> +                          /   |        |   \
-> +             ____________/    |        |    \_________________
-> +            /                 |        |                      \
-> +           /                  |        |                       \
-> + +----------------+  +-----------+  +------------------+  +------------------+
-> + | Generic Driver |  | MT Driver |  | Custom Driver #1 |  | Custom Driver #2 |
-> + +----------------+  +-----------+  +------------------+  +------------------+
-> +
-> +Example Drivers:
-> +  I/O: USB, I2C, Bluetooth-l2cap
-> +  Transport: USB-HID, I2C-HID, BT-HIDP
-> +
-> +Normally, a transport driver is specific for a given I/O driver. But the HID
-> +design also allows transport drivers to work with different I/O systems at the
-> +same time.
-
-I do not follow you here. Which transport driver you have in mind?
-
-> +
-> +Everything below "HID Core" is simplified in this graph as it is only of
-> +interest to HID device drivers. Transport drivers do not need to know the
-> +specifics.
-> +
-> +1.1) Device Setup
-> +-----------------
-> +
-> +I/O drivers normally provide hotplug detection or device enumeration APIs to the
-> +transport drivers. Transport drivers use this to find any suitable HID device.
-> +They allocate HID device objects and register them with HID core. Transport
-> +drivers are not required to register themselves with HID core. HID core is never
-> +aware of which transport drivers are available and is not interested in it. It
-> +is only interested in devices.
-> +
-> +Transport drivers attach a constant "struct hid_ll_driver" object with each
-> +device. Once a device is registered with HID core, the callbacks provided via
-> +this struct are used by HID core to communicate with the device.
-> +
-> +Transport drivers are responsible of detecting device failures and unplugging.
-> +HID core will operate an device as long as it is registered regardless of any
-
-typo:                    ^^ "a"
-
-> +device failures. Once transport drivers detect unplug or failure events, they
-> +must unregister the device from HID core and HID core will stop using the
-> +provided callbacks.
-> +
-> +1.2) Transport Driver Requirements
-> +----------------------------------
-> +
-> +HID core requires transport drivers to follow a given design. A Transport
-> +drivers must provide two bi-directional I/O channels to each HID device. These
-> +channels might be multiplexed on a single physical channel, though.
-> +
-> + - Interrupt Channel (intr): The intr channel is used for asynchronous data
-> +   reports. No management commands or data acknowledgements are sent on this
-> +   channel. Any unrequested incoming or outgoing data report must be sent on
-> +   this channel and is never acknowledged by the remote side. Devices usually
-> +   send their input events on this channel. Outgoing events are normally
-> +   not send via intr, except if high throughput is required.
-> + - Control Channel (ctrl): The ctrl channel is used for synchronous requests and
-> +   device management. Unrequested data input events must not be sent on this
-> +   channel and are normally ignored. Instead, devices only send management
-> +   events or answers to host requests on this channel.
-> +   Outgoing reports are usually sent on the ctrl channel via synchronous
-> +   SET_REPORT requests.
-
-This is not entirely true for USB and I2C:
-- for USB, OUTPUT reports can also be sent through a direct write on an URB.
-- for I2C, the notion of intr vs ctrl is slightly different, but it
-remains roughly the same. Let me detail it so that you can make your idea:
-  The HID descriptors declares three I2C registers:
-  * the "Input" register: this one correspond to the intr you are
-describing. The difference is that this register is only used from the
-communication from the device to the host (no outputs here). The big
-interest in this register is that the communication is device initiated
-thanks to an external line triggered by the device (in I2C, the
-communication is only master (host) initiated).
-  * the "Command" register: this one corresponds to the ctrl channel.
-This channel/register is host initiated too (like on the USB side), and
-there is a slight head over due to the HID protocol regarding sending
-output events.
-  * the "Output" register: this one corresponds to the URBs described in
-USB. Every communication coming from the host on this channel is
-considered as an OUTPUT report, reducing the HID protocol over head.
-
-  The HID/I2C also declares a forth register (the "data") register which
-is used by the HID protocol while using the "Command" register.
-
-
-To sum up, I think the differences between the channels are:
-- Interrupt Channel (intr): asynchronous, device initiated, no
-acknowledgements (beside the fact that data has been read), read only.
-- Control Channel (ctrl): synchronous, host initiated, acknowledged
-(because synchronous), read/write
-- Output Channel (out): synchronous, host initiated, acknowledged
-(because synchronous), write only
-
-Then, the usbhid transport layer makes the ctrl and out channels
-asynchronous...
-
-> +
-> +Communication between devices and HID core is mostly done via HID reports. A
-> +report can be of one of three types:
-> +
-> + - INPUT Report: Input reports provide data from device to host. This
-> +   data may include button events, axis events, battery status or more. This
-> +   data is generated by the device and sent to the host without requiring
-
-_with_ or without requiring explicit requests.
-On I2C, the command GET_REPORT is even mandatory (which does not seems
-to be the case for USB, given the amount of QUIRK_NO_INIT_REPORT we have.)
-
-> +   explicit requests. Devices can choose to send data continously or only on
-
-My spell checker gives me a typo on: "continuously"
-
-> +   change.
-> + - OUTPUT Report: Output reports change device states. They are sent from host
-> +   to device and may include LED requests, rumble requests or more. Output
-> +   reports are never sent from device to host, except if explicitly requested.
-
-In this case, I think it would be better to say that Output reports are
-never sent from device to host, but the host can _retrieve_ its current
-state.
-
-> +   Hosts may choose to send output reports either continously or only on change.
-
-My spell checker gives me a typo on: "continuously"
-
-> + - FEATURE Report: Feature reports can be anything that doesn't belong into the
-> +   other two categories. Some of them are generic and defined by the HID spec,
-> +   but most of them are used as custom device extensions. For instance, they may
-> +   provide battery status information.
-
-I disagree. FEATURE are specific reports which are read/write, and not
-spontaneously emitted by the device. For instance, this allows the host
-to change the current mode of the device (mouse emulation or multitouch
-in the case I know most), or to set constants in the device (max
-reported touches in my case, but this can be hardware macros for
-keyboards, or something else).
-
-> +   Feature reports are never sent without requests. A host must explicitly
-> +   request a device to set or send a feature report. This also means, feature
-
-I would prefer a "host must explicitly request a device to set or
-_retrieve_ a feature report".
-
-> +   reports are never sent on the intr channel as this channel is asynchronous.
-> +
-> +INPUT and OUTPUT reports can be sent as pure data reports on the intr channel.
-
-In my mind, OUTPUT reports are not sent through the intr channel
-(because write only), but you already get my point I think :)
-
-> +For INPUT reports this is the usual operational mode. But for OUTPUT reports,
-> +this is rarely done as OUTPUT reports are normally quite rare. But devices are
-> +free to make excessive use of asynchronous OUTPUT reports (for instance, custom
-> +HID audio speakers make great use of it).
-
-Ok, did not know about it.
-
-> +
-> +Raw reports must not be sent on the ctrl channel, though. Instead, the ctrl
-> +channel provides synchronous GET/SET_REPORT requests.
-> +
-> + - GET_REPORT: A GET_REPORT request has a report ID as payload and is sent
-> +   from host to device. The device must answer with a data report for the
-> +   requested report ID on the ctrl channel as a synchronous acknowledgement.
-
-Beware that the report ID is not mandatory in case the HID report
-descriptors declares only 1 report without report ID. But I'm fine with
-it anyway (it's understandable that way).
-
-> +   Only one GET_REPORT request can be pending for each device. This restriction
-> +   is enforced by HID core as several transport drivers don't allow multiple
-> +   simultaneous GET_REPORT requests.
-> +   Note that data reports which are sent as answer to a GET_REPORT request are
-> +   not handled as generic device events. That is, if a device does not operate
-> +   in continuous data reporting mode, an answer to GET_REPORT does not replace
-> +   the raw data report on the intr channel on state change.
-> +   GET_REPORT is only used by custom HID device drivers to query device state.
-> +   Normally, HID core caches any device state so this request is not necessary
-> +   on devices that follow the HID specs.
-
-FYI, HID/I2C spec says: "GET_REPORT is often used by applications on
-startup to retrieve the ``current state'' of the device rather than
-waiting for the device to generate the next input/feature report".
-
-And as under Linux applications do not talk directly to the hid devices,
-I fully concurs to your point.
-
-> +   GET_REPORT requests can be sent for any of the 3 report types and shall
-> +   return the current report state of the device.
-
-The HID/I2C spec explicitly says: "the DEVICE shall ignore a GET_REPORT
-requests with the REPORT TYPE set to Output, as it is not used in this
-specification." So under i2c, we can send GET_REPORT with OUTPUT, but we
-will not get anything from the device (this is why it is forbidden by
-the transport driver).
-
-> + - SET_REPORT: A SET_REPORT request has a report ID plus data as payload. It is
-> +   sent from host to device and a device must update it's current report state
-> +   according to the given data. Any of the 3 report types can be used.
-
-The HID/I2C spec explicitly says: "the DEVICE might choose to ignore
-input SET_REPORT requests as meaningless."...
-
-> +   A device must answer with a synchronous acknowledgement. However, HID core
-> +   does not require transport drivers to forward this acknowledgement to HID
-> +   core.
-> +   Same as for GET_REPORT, only one SET_REPORT can be pending at a time. This
-> +   restriction is enforced by HID core as some transport drivers do not support
-> +   multiple synchronous SET_REPORT requests.
-> +
-> +Other ctrl-channel requests are supported by USB-HID but are not available
-> +(or deprecated) in most other transport level specifications:
-> +
-> + - GET/SET_IDLE: Only used by USB-HID. Do not implement!
-> + - GET/SET_PROTOCOL: Not used by HID core. Do not implement!
-
-The I2C declares also:
-- RESET: mandatory (reset the device at any time)
-- SET_POWER: mandatory on the device side (request from host to device
-to indicate preferred power setting).
-
-> +
-> +2) HID API
-> +==========
-> +
-> +2.1) Initialization
-> +-------------------
-> +
-> +Transport drivers normally use the following procedure to register a new device
-> +with HID core:
-> +
-> +       struct hid_device *hid;
-> +       int ret;
-> +
-> +       hid = hid_allocate_device();
-> +       if (IS_ERR(hid)) {
-> +               ret = PTR_ERR(hid);
-> +               goto err_<...>;
-> +       }
-> +
-> +       strlcpy(hid->name, <device-name-src>, 127);
-> +       strlcpy(hid->phys, <device-phys-src>, 63);
-> +       strlcpy(hid->uniq, <device-uniq-src>, 63);
-> +
-> +       hid->ll_driver = &custom_ll_driver;
-> +       hid->bus = <device-bus>;
-> +       hid->vendor = <device-vendor>;
-> +       hid->product = <device-product>;
-> +       hid->version = <device-version>;
-> +       hid->country = <device-country>;
-
-FYI, HID/I2C does not define any device-country field (I guess it will
-come in a later release...)
-
-> +       hid->dev.parent = <pointer-to-parent-device>;
-
-FYI, I have started implementing a devm API for HID (in the same way the
-input devm API is implemented), and dev.parent should not be overwritten.
-
-Anyway the two last comments are not requesting any changes in the document.
-
-> +       hid->driver_data = <transport-driver-data-field>;
-> +
-> +       ret = hid_add_device(hid);
-> +       if (ret)
-> +               goto err_<...>;
-> +
-> +Once hid_add_device() is entered, HID core might use the callbacks provided in
-> +"custom_ll_driver". To unregister a device, use:
-                    ^^^^
-Maybe introduce a new paragraph (otherwise, it looks like
-hid_destroy_device is called from HID core).
-
-> +
-> +       hid_destroy_device(hid);
-> +
-> +Once hid_destroy_device() returns, HID core will no longer make use of any
-> +driver callbacks.
-> +
-> +2.2) hid_ll_driver operations
-> +-----------------------------
-> +
-> +The available HID callbacks are:
-> + - int (*start) (struct hid_device *hdev)
-> +   Called from HID device drivers once they want to use the device. Transport
-> +   drivers can choose to setup their device in this callback. However, normally
-> +   devices are already set up before transport drivers register them to HID core
-> +   so this is mostly only used by USB-HID.
-> +
-> + - void (*stop) (struct hid_device *hdev)
-> +   Called from HID device drivers once they are done with a device. Transport
-> +   drivers can free any buffers and deinitialize the device. But note that
-> +   ->start() might be called again if another HID device driver is loaded on the
-> +   device.
-> +   Transport drivers are free to ignore it and deinitialize devices after they
-> +   destroyed them via hid_destroy_device().
-> +
-> + - int (*open) (struct hid_device *hdev)
-> +   Called from HID device drivers once they are interested in data reports.
-> +   Usually, while user-space didn't open any input API/etc., device drivers are
-> +   not interested in device data and transport drivers can put devices asleep.
-> +   However, once ->open() is called, transport drivers must be ready for I/O.
-> +   ->open() calls are never nested. So in between two ->open() calls there must
-> +   be a call to ->close().
-
-This is not true in either USB or I2C. And I guess with every BT or UHID
-devices. ->open() and ->close() are called upon open/close of the input
-node (or hidraw, or hiddev). So If two clients are opening the same
-input node, there will be two calls to ->open() without any call to
-->close() in between.
-
-I guess you mixed up this part with the ->start() ->stop() :)
-
-> +
-> + - void (*close) (struct hid_device *hdev)
-> +   Called from HID device drivers after ->open() was called but they are no
-> +   longer interested in device reports. (Usually if user-space closed any input
-> +   devices of the driver).
-> +   Transport drivers can put devices asleep and terminate any I/O. However,
-> +   ->start() may be called again if the device driver is interested in input
-> +   reports again.
-> +
-> + - int (*parse) (struct hid_device *hdev)
-> +   Called once during device setup after ->start() has been called. Transport
-> +   drivers must read the HID report-descriptor from the device and tell HID core
-> +   about it via hid_parse_report().
-> +
-> + - int (*power) (struct hid_device *hdev, int level)
-> +   Called by HID core to give PM hints to transport drivers. Usually this is
-> +   analogical to the ->open() and ->close() hints and redundant.
-> +
-> + - void (*request) (struct hid_device *hdev, struct hid_report *report,
-> +                    int reqtype)
-> +   Send an HID request on the ctrl channel. "report" contains the report that
-> +   should be sent and "reqtype" the request type. Request-type can be
-> +   HID_REQ_SET_REPORT or HID_REQ_GET_REPORT.
-> +   This callback is optional. If not provided, HID core will assemble a raw
-> +   report following the HID specs and send it via the ->raw_request() callback.
-> +   The transport driver is free to implement this asynchronously.
-> +
-> + - int (*wait) (struct hid_device *hdev)
-> +   Used by HID core before calling ->request() again. A transport driver can use
-> +   it to wait for any pending requests to complete if only one request is
-> +   allowed at a time.
-> +
-> + - int (*raw_request) (struct hid_device *hdev, unsigned char reportnum,
-> +                       __u8 *buf, size_t count, unsigned char rtype,
-> +                       int reqtype)
-> +   Same as ->request() but provides the report as raw buffer. This request shall
-> +   be synchronous. A transport driver must not use ->wait() to complete such
-> +   requests.
-
-2 questions/remarks here:
-- is raw_request() meant to replace ->hid_output_raw_report() and
-->hid_get_raw_report()?
-- reportnum declared as an unsigned will be problematic regarding the
-rare devices not having any report ID in their report descriptors.
-
-> +
-> + - int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len)
-> +   Send raw output report via intr channel. Used by some HID device drivers
-> +   which require high throughput for outgoing requests on the intr channel. This
-> +   must not cause SET_REPORT calls! This must be implemented as asynchronous
-> +   output report on the intr channel!
-
-For me, there is something wrong here. The name infers that we are
-trying to send an output_report directly (so through the USB URB or
-through the output i2c register), but you are implementing it through
-the intr channel... :-S
-
-> +
-> + - int (*hidinput_input_event) (struct input_dev *idev, unsigned int type,
-> +                                unsigned int code, int value)
-> +   Obsolete callback used by logitech converters. It is called when userspace
-> +   writes input events to the input device (eg., EV_LED). A driver can use this
-> +   callback to convert it into an output report and send it to the device. If
-> +   this callback is not provided, HID core will use ->request() or
-> +   ->raw_request() respectively.
-
-I bet there will be a way to make this work with logitech devices too
-(if we implement a proper ->hid_output_raw_report() in each paired devices).
-
-> +
-> + - int (*idle) (struct hid_device *hdev, int report, int idle, int reqtype)
-> +   Perform SET/GET_IDLE request. Only used by USB-HID, do not implement!
-> +
-> +2.3) Data Path
-> +--------------
-> +
-> +Transport drivers are responsible of reading data from I/O devices. They must
-> +handle any state-tracking themselves. HID core does not implement protocol
-
-I don't get the "state-tracking" here. The reports states should be
-handled by core, and I do not see the other states (or you meant PM
-states?).
-
-> +handshakes or other management commands which can be required by the given HID
-> +transport specification.
-> +
-> +Every raw data packet read from a device must be fed into HID core via
-> +hid_input_report(). You must specify the channel-type (intr or ctrl) and report
-> +type (input/output/feature). Under normal conditions, only input reports are
-> +provided via this API.
-> +
-> +Responses to GET_REPORT requests via ->request() must also be provided via this
-> +API. Responses to ->raw_request() are synchronous and must be intercepted by the
-> +transport driver and not passed to hid_input_report().
-> +Acknowledgements to SET_REPORT requests are not of interest to HID core.
-> +
-> +----------------------------------------------------
-> +Written 2013, David Herrmann <dh.herrmann@gmail.com>
-> --
-> 1.8.3.2
+> None of the existing helpers to retrieve property arrays doesn't work here?
 >
 
-done!
-Many thanks for this David. It was very interesting and detailed. It
-will make a great documentation.
+The problem here is that we never know how long the sequence will be.  As
+such the 'of_property_read_uXY_array' functions won't work.  Or maybe
+you're referring to another set of helpers... If so, please clarify.
 
-Cheers,
-Benjamin
 
+>
+> > +
+> > +     if (count > SYSRQ_KEY_RESET_MAX)
+> > +             count = SYSRQ_KEY_RESET_MAX;
+> > +
+> > +     /* reset in case a __weak definition was present */
+> > +     sysrq_reset_seq_len = 0;
+> > +
+> > +     for (i = 0; i < count; i++) {
+> > +             key = (unsigned short)be32_to_cpup(val++);
+> > +             if (key == KEY_RESERVED || key > KEY_MAX)
+> > +                     break;
+> > +
+> > +             sysrq_reset_seq[sysrq_reset_seq_len++] = key;
+> > +     }
+> > +
+> > +     /* get reset timeout if any */
+> > +     of_property_read_u32(np, "timeout-ms", &sysrq_reset_downtime_ms);
+> > +
+> > + out:
+> > +     ;
+> > +}
+> > +
+> >  static void sysrq_reinject_alt_sysrq(struct work_struct *work)
+> >  {
+> >       struct sysrq_state *sysrq =
+> > @@ -688,6 +733,7 @@ static void sysrq_reinject_alt_sysrq(struct
+> work_struct *work)
+> >               input_inject_event(handle, EV_KEY, KEY_SYSRQ, 1);
+> >               input_inject_event(handle, EV_SYN, SYN_REPORT, 1);
+> >
+> > +
+>
+> spurious ws change
+
+
+> >               input_inject_event(handle, EV_KEY, KEY_SYSRQ, 0);
+> >               input_inject_event(handle, EV_KEY, alt_code, 0);
+> >               input_inject_event(handle, EV_SYN, SYN_REPORT, 1);
+> > @@ -903,6 +949,7 @@ static inline void sysrq_register_handler(void)
+> >       int error;
+> >       int i;
+> >
+> > +     /* first check if a __weak interface was instantiated */
+> >       for (i = 0; i < ARRAY_SIZE(sysrq_reset_seq); i++) {
+> >               key = platform_sysrq_reset_seq[i];
+> >               if (key == KEY_RESERVED || key > KEY_MAX)
+> > @@ -911,6 +958,13 @@ static inline void sysrq_register_handler(void)
+> >               sysrq_reset_seq[sysrq_reset_seq_len++] = key;
+> >       }
+> >
+> > +     /*
+> > +      * DT configuration takes precedence over anything
+> > +      * that would have been defined via the __weak
+> > +      * interface
+> > +      */
+> > +     sysrq_of_get_keyreset_config();
+> > +
+> >       error = input_register_handler(&sysrq_handler);
+> >       if (error)
+> >               pr_err("Failed to register input handler, error %d",
+> error);
+> >
+>
+>
+
+--047d7b3a87504e336e04e1a8710e
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><br><div class=3D"gmail=
+_quote">On 15 July 2013 20:43, Rob Herring <span dir=3D"ltr">&lt;<a href=3D=
+"mailto:robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" target=3D"_blank">robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org</a>&=
+gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">On 07/15/2013 10:36 AM, <a href=3D"mailto:ma=
+thieu.poirier-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org">mathieu.poirier-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org</a> wrote:<br>
+&gt; From: &quot;Mathieu J. Poirier&quot; &lt;<a href=3D"mailto:mathieu.poi=
+rier-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org">mathieu.poirier-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org</a>&gt;<br>
+&gt;<br>
+&gt; Adding a simple device tree binding for the specification of key seque=
+nces.<br>
+&gt; Definition of the keys found in the sequence are located in<br>
+&gt; &#39;include/uapi/linux/input.h&#39;.<br>
+&gt;<br>
+&gt; For the sysrq driver, holding the sequence of keys down for a specific=
+ amount of time<br>
+&gt; will reset the system.<br>
+&gt;<br>
+&gt; Signed-off-by: Mathieu Poirier &lt;<a href=3D"mailto:mathieu.poirier@l=
+inaro.org">mathieu.poirier-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org</a>&gt;<br>
+&gt; ---<br>
+&gt; changes for v4:<br>
+&gt; =A0 - Moved seach of reset sequence nodes to a single call.<br>
+&gt; ---<br>
+&gt; =A0.../devicetree/bindings/input/input-reset.txt =A0 =A0 =A0| 34 +++++=
++++++++++<br>
+&gt; =A0drivers/tty/sysrq.c =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0| 54 ++++++++++++++++++++++<br>
+&gt; =A02 files changed, 88 insertions(+)<br>
+&gt; =A0create mode 100644 Documentation/devicetree/bindings/input/input-re=
+set.txt<br>
+&gt;<br>
+&gt; diff --git a/Documentation/devicetree/bindings/input/input-reset.txt b=
+/Documentation/devicetree/bindings/input/input-reset.txt<br>
+&gt; new file mode 100644<br>
+&gt; index 0000000..79504af<br>
+&gt; --- /dev/null<br>
+&gt; +++ b/Documentation/devicetree/bindings/input/input-reset.txt<br>
+&gt; @@ -0,0 +1,34 @@<br>
+&gt; +Input: sysrq reset sequence<br>
+&gt; +<br>
+&gt; +A simple binding to represent a set of keys as described in<br>
+&gt; +include/uapi/linux/input.h. =A0This is to communicate a<br>
+&gt; +sequence of keys to the sysrq driver. =A0Upon holding the keys<br>
+&gt; +for a specified amount of time (if specified) the system is<br>
+&gt; +sync&#39;ed and reset.<br>
+&gt; +<br>
+&gt; +Key sequences are global to the system but all the keys in a<br>
+&gt; +set must be coming from the same input device.<br>
+&gt; +<br>
+&gt; +The /chosen node should contain a &#39;linux,sysrq-reset-seq&#39; chi=
+ld<br>
+&gt; +node to define a set of keys.<br>
+&gt; +<br>
+&gt; +Required property:<br>
+&gt; +sysrq-reset-seq: array of keycodes<br>
+&gt; +<br>
+&gt; +Optional property:<br>
+&gt; +timeout-ms: duration keys must be pressed together in microseconds<br=
+>
+<br>
+milliseconds (ms) or microseconds (us)?<br>
+<br></blockquote><div><br></div><div>Right, milliseconds.</div><div>=A0</di=
+v><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:=
+1px #ccc solid;padding-left:1ex">
+&gt; +before generating a sysrq<br>
+&gt; +<br>
+&gt; +Example:<br>
+&gt; +<br>
+&gt; + chosen {<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0linux,sysrq-reset-seq {<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0keyset =3D &lt;0x03<b=
+r>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00=
+x04<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A00=
+x0a&gt;;<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0timeout-ms =3D &lt;30=
+00&gt;;<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0};<br>
+&gt; + =A0 =A0 =A0 =A0 };<br>
+&gt; +<br>
+&gt; +Would represent KEY_2, KEY_3 and KEY_9.<br>
+&gt; +<br>
+&gt; diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c<br>
+&gt; index b51c154..01a8729 100644<br>
+&gt; --- a/drivers/tty/sysrq.c<br>
+&gt; +++ b/drivers/tty/sysrq.c<br>
+&gt; @@ -44,6 +44,7 @@<br>
+&gt; =A0#include &lt;linux/uaccess.h&gt;<br>
+&gt; =A0#include &lt;linux/moduleparam.h&gt;<br>
+&gt; =A0#include &lt;linux/jiffies.h&gt;<br>
+&gt; +#include &lt;linux/of.h&gt;<br>
+&gt;<br>
+&gt; =A0#include &lt;asm/ptrace.h&gt;<br>
+&gt; =A0#include &lt;asm/irq_regs.h&gt;<br>
+&gt; @@ -671,6 +672,50 @@ static void sysrq_detect_reset_sequence(struct sy=
+srq_state *state,<br>
+&gt; =A0 =A0 =A0 }<br>
+&gt; =A0}<br>
+&gt;<br>
+&gt; +static void sysrq_of_get_keyreset_config(void)<br>
+&gt; +{<br>
+&gt; + =A0 =A0 unsigned short key;<br>
+&gt; + =A0 =A0 struct device_node *np;<br>
+&gt; + =A0 =A0 const struct property *prop;<br>
+&gt; + =A0 =A0 const __be32 *val;<br>
+&gt; + =A0 =A0 int count, i;<br>
+&gt; +<br>
+&gt; + =A0 =A0 np =3D of_find_node_by_path(&quot;/chosen/linux,sysrq-reset-=
+seq&quot;);<br>
+&gt; + =A0 =A0 if (!np) {<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 pr_debug(&quot;No sysrq node found&quot;);<b=
+r>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 goto out;<br>
+&gt; + =A0 =A0 }<br>
+&gt; +<br>
+&gt; + =A0 =A0 prop =3D of_find_property(np, &quot;keyset&quot;, NULL);<br>
+&gt; + =A0 =A0 if (!prop || !prop-&gt;value) {<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 pr_err(&quot;Invalid input keyset&quot;);<br=
+>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 goto out;<br>
+&gt; + =A0 =A0 }<br>
+&gt; +<br>
+&gt; + =A0 =A0 count =3D prop-&gt;length / sizeof(u32);<br>
+&gt; + =A0 =A0 val =3D prop-&gt;value;<br>
+<br>
+None of the existing helpers to retrieve property arrays doesn&#39;t work h=
+ere?<br></blockquote><div><br></div><div>The problem here is that we never =
+know how long the sequence will be. =A0As such the &#39;of_property_read_uX=
+Y_array&#39; functions won&#39;t work. =A0Or maybe you&#39;re referring to =
+another set of helpers... If so, please clarify.</div>
+<div>=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;=
+border-left:1px #ccc solid;padding-left:1ex">
+<br>
+&gt; +<br>
+&gt; + =A0 =A0 if (count &gt; SYSRQ_KEY_RESET_MAX)<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 count =3D SYSRQ_KEY_RESET_MAX;<br>
+&gt; +<br>
+&gt; + =A0 =A0 /* reset in case a __weak definition was present */<br>
+&gt; + =A0 =A0 sysrq_reset_seq_len =3D 0;<br>
+&gt; +<br>
+&gt; + =A0 =A0 for (i =3D 0; i &lt; count; i++) {<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 key =3D (unsigned short)be32_to_cpup(val++);=
+<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 if (key =3D=3D KEY_RESERVED || key &gt; KEY_=
+MAX)<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;<br>
+&gt; +<br>
+&gt; + =A0 =A0 =A0 =A0 =A0 =A0 sysrq_reset_seq[sysrq_reset_seq_len++] =3D k=
+ey;<br>
+&gt; + =A0 =A0 }<br>
+&gt; +<br>
+&gt; + =A0 =A0 /* get reset timeout if any */<br>
+&gt; + =A0 =A0 of_property_read_u32(np, &quot;timeout-ms&quot;, &amp;sysrq_=
+reset_downtime_ms);<br>
+&gt; +<br>
+&gt; + out:<br>
+&gt; + =A0 =A0 ;<br>
+&gt; +}<br>
+&gt; +<br>
+&gt; =A0static void sysrq_reinject_alt_sysrq(struct work_struct *work)<br>
+&gt; =A0{<br>
+&gt; =A0 =A0 =A0 struct sysrq_state *sysrq =3D<br>
+&gt; @@ -688,6 +733,7 @@ static void sysrq_reinject_alt_sysrq(struct work_s=
+truct *work)<br>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_inject_event(handle, EV_KEY, KEY_SYS=
+RQ, 1);<br>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_inject_event(handle, EV_SYN, SYN_REP=
+ORT, 1);<br>
+&gt;<br>
+&gt; +<br>
+<br>
+spurious ws change=A0</blockquote><blockquote class=3D"gmail_quote" style=
+=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+<br>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_inject_event(handle, EV_KEY, KEY_SYS=
+RQ, 0);<br>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_inject_event(handle, EV_KEY, alt_cod=
+e, 0);<br>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_inject_event(handle, EV_SYN, SYN_REP=
+ORT, 1);<br>
+&gt; @@ -903,6 +949,7 @@ static inline void sysrq_register_handler(void)<br=
+>
+&gt; =A0 =A0 =A0 int error;<br>
+&gt; =A0 =A0 =A0 int i;<br>
+&gt;<br>
+&gt; + =A0 =A0 /* first check if a __weak interface was instantiated */<br>
+&gt; =A0 =A0 =A0 for (i =3D 0; i &lt; ARRAY_SIZE(sysrq_reset_seq); i++) {<b=
+r>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 key =3D platform_sysrq_reset_seq[i];<br>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (key =3D=3D KEY_RESERVED || key &gt; KE=
+Y_MAX)<br>
+&gt; @@ -911,6 +958,13 @@ static inline void sysrq_register_handler(void)<b=
+r>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 sysrq_reset_seq[sysrq_reset_seq_len++] =3D=
+ key;<br>
+&gt; =A0 =A0 =A0 }<br>
+&gt;<br>
+&gt; + =A0 =A0 /*<br>
+&gt; + =A0 =A0 =A0* DT configuration takes precedence over anything<br>
+&gt; + =A0 =A0 =A0* that would have been defined via the __weak<br>
+&gt; + =A0 =A0 =A0* interface<br>
+&gt; + =A0 =A0 =A0*/<br>
+&gt; + =A0 =A0 sysrq_of_get_keyreset_config();<br>
+&gt; +<br>
+&gt; =A0 =A0 =A0 error =3D input_register_handler(&amp;sysrq_handler);<br>
+&gt; =A0 =A0 =A0 if (error)<br>
+&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err(&quot;Failed to register input hand=
+ler, error %d&quot;, error);<br>
+&gt;<br>
+<br>
+</blockquote></div><br></div></div>
+
+--047d7b3a87504e336e04e1a8710e--
+
+--===============6032580236146745071==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============6032580236146745071==--

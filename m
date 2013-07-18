@@ -1,46 +1,237 @@
 From: rydberg@euromail.se
-Subject: Re: [PATCH 02/51] Input: atmel_mxt_ts - Improve T19 GPIO keys
- handling
-Date: Thu, 18 Jul 2013 19:11:31 +0200
-Message-ID: <20130718171131.GA32381@polaris.bitmath.org>
+Subject: Re: [PATCH 08/51] Input: atmel_mxt_ts - Initialise IRQ before probing
+Date: Thu, 18 Jul 2013 19:13:45 +0200
+Message-ID: <20130718171345.GB32381@polaris.bitmath.org>
 References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
- <1372337366-9286-3-git-send-email-nick.dyer@itdev.co.uk>
+ <1372337366-9286-9-git-send-email-nick.dyer@itdev.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-b21.telenor.se ([195.54.99.212]:35976 "EHLO
-	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758890Ab3GRRKW (ORCPT
+Received: from smtprelay-h22.telenor.se ([195.54.99.197]:58832 "EHLO
+	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758705Ab3GRRMg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Jul 2013 13:10:22 -0400
+	Thu, 18 Jul 2013 13:12:36 -0400
 Content-Disposition: inline
-In-Reply-To: <1372337366-9286-3-git-send-email-nick.dyer@itdev.co.uk>
+In-Reply-To: <1372337366-9286-9-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Nick Dyer <nick.dyer@itdev.co.uk>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
 
-On Thu, Jun 27, 2013 at 01:48:37PM +0100, Nick Dyer wrote:
+Hi Nick,
+
+> This allows the interrupt handler to be used to detect CHG line during config
+> download. We need to make sure we do not report events if input device not yet
+> registered.
 > 
->  * The mapping of the GPIO numbers into the T19 status byte varies between
->    different maXTouch chips. Some have up to 7 GPIOs. Allowing a keycode array
->    of up to 8 items is simpler and more generic. So replace #define with
->    configurable number of keys which also allows the removal of is_tp.
->  * Rename platform data parameters to include "t19" to prevent confusion with
->    T15 key array.
->  * Probe aborts early on when pdata is NULL, so no need to check.
->  * Move "int i" to beginning of function (mixed declarations and code)
->  * Use API calls rather than __set_bit()
->  * Remove unused dev variable.
+> data->enable_reporting is checked in each of the possible message handling
+> function paths rather than higher up (such as at mxt_proc_message) because
+> some objects may be used for completions (T6).
 > 
 > Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+> Acked-by: Benson Leung <bleung@chromium.org>
 > ---
->  drivers/input/touchscreen/atmel_mxt_ts.c |   44 ++++++++++++------------------
->  drivers/platform/x86/chromeos_laptop.c   |   17 ++++++++----
->  include/linux/i2c/atmel_mxt_ts.h         |    7 ++---
->  3 files changed, 30 insertions(+), 38 deletions(-)
+>  drivers/input/touchscreen/atmel_mxt_ts.c |   73 +++++++++++++++++++++---------
+>  1 file changed, 51 insertions(+), 22 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 55d7667..1e24e54 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -2,6 +2,7 @@
+>   * Atmel maXTouch Touchscreen driver
+>   *
+>   * Copyright (C) 2010 Samsung Electronics Co.Ltd
+> + * Copyright (C) 2011-2012 Atmel Corporation
+>   * Copyright (C) 2012 Google, Inc.
+>   *
+>   * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+> @@ -261,6 +262,9 @@ struct mxt_data {
+>  
+>  	/* for fw update in bootloader */
+>  	struct completion bl_completion;
+> +
+> +	/* Enable reporting of input events */
+> +	bool enable_reporting;
+>  };
+>  
+>  static inline size_t mxt_obj_size(const struct mxt_object *obj)
+> @@ -568,6 +572,10 @@ static void mxt_input_button(struct mxt_data *data, struct mxt_message *message)
+>  	bool button;
+>  	int i;
+>  
+> +	/* do not report events if input device not yet registered */
+> +	if (!data->enable_reporting)
+> +		return;
 
-    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+Regardless of the rationale, this test seems to create complex logic
+further down the patchset. Any chance it could be done differently?
+
+> +
+>  	/* Active-low switch */
+>  	for (i = 0; i < pdata->t19_num_keys; i++) {
+>  		if (pdata->t19_keymap[i] == KEY_RESERVED)
+> @@ -588,6 +596,10 @@ static void mxt_input_touchevent(struct mxt_data *data,
+>  	int area;
+>  	int pressure;
+>  
+> +	/* do not report events if input device not yet registered */
+> +	if (!data->enable_reporting)
+> +		return;
+> +
+>  	x = (message->message[1] << 4) | ((message->message[3] >> 4) & 0xf);
+>  	y = (message->message[2] << 4) | ((message->message[3] & 0xf));
+>  	if (data->max_x < 1024)
+> @@ -667,7 +679,7 @@ static irqreturn_t mxt_process_messages_until_invalid(struct mxt_data *data)
+>  		}
+>  	} while (reportid != 0xff);
+>  
+> -	if (update_input) {
+> +	if (data->enable_reporting && update_input) {
+>  		input_mt_report_pointer_emulation(data->input_dev, false);
+>  		input_sync(data->input_dev);
+>  	}
+> @@ -685,6 +697,9 @@ static irqreturn_t mxt_interrupt(int irq, void *dev_id)
+>  		return IRQ_HANDLED;
+>  	}
+>  
+> +	if (!data->object_table)
+> +		return IRQ_NONE;
+> +
+>  	return mxt_process_messages_until_invalid(data);
+>  }
+>  
+> @@ -746,6 +761,19 @@ static int mxt_make_highchg(struct mxt_data *data)
+>  	return 0;
+>  }
+>  
+> +static int mxt_acquire_irq(struct mxt_data *data)
+> +{
+> +	int error;
+> +
+> +	enable_irq(data->irq);
+> +
+> +	error = mxt_make_highchg(data);
+> +	if (error)
+> +		return error;
+> +
+> +	return 0;
+> +}
+> +
+
+Strange error handling; the name suggests that an error means the irq
+has not been enabled, which it clearly does anyways. Also, the error
+is not checked everywhere later in the patchset. Opencode instead?
+
+>  static int mxt_get_info(struct mxt_data *data)
+>  {
+>  	struct i2c_client *client = data->client;
+> @@ -819,6 +847,7 @@ static void mxt_free_object_table(struct mxt_data *data)
+>  {
+>  	kfree(data->object_table);
+>  	data->object_table = NULL;
+> +	data->enable_reporting = false;
+>  	data->T6_reportid = 0;
+>  	data->T9_reportid_min = 0;
+>  	data->T9_reportid_max = 0;
+> @@ -849,6 +878,10 @@ static int mxt_initialize(struct mxt_data *data)
+>  	if (error)
+>  		goto err_free_object_table;
+>  
+> +	error = mxt_acquire_irq(data);
+> +	if (error)
+> +		goto err_free_object_table;
+> +
+>  	/* Check register init values */
+>  	error = mxt_check_reg_init(data);
+>  	if (error)
+> @@ -886,6 +919,8 @@ static int mxt_initialize(struct mxt_data *data)
+>  			info->matrix_xsize, info->matrix_ysize,
+>  			info->object_num);
+>  
+> +	data->enable_reporting = true;
+> +
+>  	return 0;
+>  
+>  err_free_object_table:
+> @@ -1087,11 +1122,7 @@ static ssize_t mxt_update_fw_store(struct device *dev,
+>  		dev_dbg(dev, "The firmware update succeeded\n");
+>  		mxt_free_object_table(data);
+>  
+> -		mxt_initialize(data);
+> -
+> -		enable_irq(data->irq);
+> -
+> -		error = mxt_make_highchg(data);
+> +		error = mxt_initialize(data);
+>  		if (error)
+>  			return error;
+>  	}
+> @@ -1188,9 +1219,19 @@ static int mxt_probe(struct i2c_client *client,
+>  
+>  	mxt_calc_resolution(data);
+>  
+> +	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
+> +				     pdata->irqflags | IRQF_ONESHOT,
+> +				     client->name, data);
+> +	if (error) {
+> +		dev_err(&client->dev, "Failed to register interrupt\n");
+> +		goto err_free_mem;
+> +	}
+> +
+> +	disable_irq(client->irq);
+
+It is unclear what portion of the code should be executed with irqs
+off. A better framing of the sensitive code path would be nice.
+
+> +
+>  	error = mxt_initialize(data);
+>  	if (error)
+> -		goto err_free_mem;
+> +		goto err_free_irq;
+>  
+>  	__set_bit(EV_ABS, input_dev->evbit);
+>  	__set_bit(EV_KEY, input_dev->evbit);
+> @@ -1241,21 +1282,9 @@ static int mxt_probe(struct i2c_client *client,
+>  	input_set_drvdata(input_dev, data);
+>  	i2c_set_clientdata(client, data);
+>  
+> -	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
+> -				     pdata->irqflags | IRQF_ONESHOT,
+> -				     client->name, data);
+> -	if (error) {
+> -		dev_err(&client->dev, "Failed to register interrupt\n");
+> -		goto err_free_object;
+> -	}
+> -
+> -	error = mxt_make_highchg(data);
+> -	if (error)
+> -		goto err_free_irq;
+> -
+>  	error = input_register_device(input_dev);
+>  	if (error)
+> -		goto err_free_irq;
+> +		goto err_free_object;
+>  
+>  	error = sysfs_create_group(&client->dev.kobj, &mxt_attr_group);
+>  	if (error)
+> @@ -1266,10 +1295,10 @@ static int mxt_probe(struct i2c_client *client,
+>  err_unregister_device:
+>  	input_unregister_device(input_dev);
+>  	input_dev = NULL;
+> -err_free_irq:
+> -	free_irq(client->irq, data);
+>  err_free_object:
+>  	kfree(data->object_table);
+> +err_free_irq:
+> +	free_irq(client->irq, data);
+>  err_free_mem:
+>  	input_free_device(input_dev);
+>  	kfree(data);
+> -- 
+> 1.7.10.4
+> 
 
 Thanks,
 Henrik

@@ -1,37 +1,37 @@
 From: rydberg@euromail.se
-Subject: Re: Atmel updates to atmel_mxt_ts touch controller driver - v6
-Date: Thu, 18 Jul 2013 21:47:39 +0200
-Message-ID: <20130718194739.GA559@polaris.bitmath.org>
-References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
+Subject: Re: [RFC 6/8] HID: uhid: use generic hidinput_input_event()
+Date: Thu, 18 Jul 2013 21:53:24 +0200
+Message-ID: <20130718195324.GA570@polaris.bitmath.org>
+References: <1373908217-16748-1-git-send-email-dh.herrmann@gmail.com>
+ <1373908217-16748-7-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:41067 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759194Ab3GRTqa (ORCPT
+Received: from smtprelay-h21.telenor.se ([195.54.99.196]:39561 "EHLO
+	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933590Ab3GRTwP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Jul 2013 15:46:30 -0400
+	Thu, 18 Jul 2013 15:52:15 -0400
+Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
+	by smtprelay-h21.telenor.se (Postfix) with ESMTP id A5284E95AB
+	for <linux-input@vger.kernel.org>; Thu, 18 Jul 2013 21:52:13 +0200 (CEST)
 Content-Disposition: inline
-In-Reply-To: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
+In-Reply-To: <1373908217-16748-7-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick.dyer@itdev.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Oliver Neukum <oliver@neukum.org>
 
-Hi Nick,
+Hi David,
 
-First: thanks for the patches and you work on this driver.
+> HID core provides the same functionality and can convert the input event
+> to a raw output report. We can thus drop UHID_OUTPUT_EV and rely on the
+> mandatory UHID_OUTPUT.
+> 
+> User-space wasn't able to do anything with UHID_OUTPUT_EV, anyway. They
+> don't have access to the report fields.
 
-Now, I don't swear much, but I would like to emphasize line 161 of
-Documentation/SubmittingPatches:
-
-**Do not send more than 15 patches at once to the vger mailing lists!!!***
-
-One reason that should be obvious by now is that your work will be
-attended to much quicker. One may think that it is more efficient to
-send the whole backlog at once, but in fact, the time it takes to get
-a patchset accepted is inversely proportional to the length of the
-patchset. So please, keep it small and simple next time,
+I like your patchset overall, but this looks like userspace breakage?
 
 Thanks,
 Henrik

@@ -1,53 +1,81 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [RFC 6/8] HID: uhid: use generic hidinput_input_event()
-Date: Thu, 18 Jul 2013 22:49:20 +0200
-Message-ID: <CANq1E4T6KnzXpoq2PEA4KLroViDpdJVidNFCWN1mg1vYwjm4dw@mail.gmail.com>
-References: <1373908217-16748-1-git-send-email-dh.herrmann@gmail.com>
-	<1373908217-16748-7-git-send-email-dh.herrmann@gmail.com>
-	<20130718195324.GA570@polaris.bitmath.org>
+From: Sarah Sharp <sarah.a.sharp@linux.intel.com>
+Subject: Re: [PATCH 1/2] Revert "Revert "HID: Fix logitech-dj: missing
+ Unifying device issue""
+Date: Thu, 18 Jul 2013 15:09:36 -0700
+Message-ID: <20130718220936.GA8025@xanatos>
+References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com>
+ <51E84FD1.4050400@hurleysoftware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f181.google.com ([209.85.223.181]:56694 "EHLO
-	mail-ie0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754929Ab3GRUtV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Jul 2013 16:49:21 -0400
-Received: by mail-ie0-f181.google.com with SMTP id x12so7751582ief.26
-        for <linux-input@vger.kernel.org>; Thu, 18 Jul 2013 13:49:20 -0700 (PDT)
-In-Reply-To: <20130718195324.GA570@polaris.bitmath.org>
+Received: from mga02.intel.com ([134.134.136.20]:44360 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759234Ab3GRWJx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 18 Jul 2013 18:09:53 -0400
+Content-Disposition: inline
+In-Reply-To: <51E84FD1.4050400@hurleysoftware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Oliver Neukum <oliver@neukum.org>
+To: Peter Hurley <peter@hurleysoftware.com>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, jkosina@suse.cz, benjamin.tissoires@gmail.com, adlr@chromium.org, joseph.salisbury@canonical.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-Hi
+On Thu, Jul 18, 2013 at 04:28:01PM -0400, Peter Hurley wrote:
+> [ +cc Sarah Sharp, linux-usb ]
+> 
+> On 07/18/2013 09:21 AM, Nestor Lopez Casado wrote:
+> >This reverts commit 8af6c08830b1ae114d1a8b548b1f8b056e068887.
+> >
+> >This patch re-adds the workaround introduced by 596264082f10dd4
+> >which was reverted by 8af6c08830b1ae114.
+> >
+> >The original patch 596264 was needed to overcome a situation where
+> >the hid-core would drop incoming reports while probe() was being
+> >executed.
+> >
+> >This issue was solved by c849a6143bec520af which added
+> >hid_device_io_start() and hid_device_io_stop() that enable a specific
+> >hid driver to opt-in for input reports while its probe() is being
+> >executed.
+> >
+> >Commit a9dd22b730857347 modified hid-logitech-dj so as to use the
+> >functionality added to hid-core. Having done that, workaround 596264
+> >was no longer necessary and was reverted by 8af6c08.
+> >
+> >We now encounter a different problem that ends up 'again' thwarting
+> >the Unifying receiver enumeration. The problem is time and usb controller
+> >dependent. Ocasionally the reports sent to the usb receiver to start
+> >the paired devices enumeration fail with -EPIPE and the receiver never
+> >gets to enumerate the paired devices.
+> >
+> >With dcd9006b1b053c7b1c the problem was "hidden" as the call to the usb
+> >driver became asynchronous and none was catching the error from the
+> >failing URB.
+> >
+> >As the root cause for this failing SET_REPORT is not understood yet,
+> >-possibly a race on the usb controller drivers or a problem with the
+> >Unifying receiver- reintroducing this workaround solves the problem.
+> 
+> 
+> Before we revert to using the workaround, I'd like to suggest that
+> this new "hidden" problem may be an interaction with the xhci_hcd host
+> controller driver only.
+> 
+> Looking at the related bug, the OP indicates the machine only has
+> USB3 ports. Additionally, comments #7, #100, and #104 of the original
+> bug report [1] add additional information that would seem to confirm
+> this suspicion.
 
-On Thu, Jul 18, 2013 at 9:53 PM,  <rydberg@euromail.se> wrote:
-> Hi David,
->
->> HID core provides the same functionality and can convert the input event
->> to a raw output report. We can thus drop UHID_OUTPUT_EV and rely on the
->> mandatory UHID_OUTPUT.
->>
->> User-space wasn't able to do anything with UHID_OUTPUT_EV, anyway. They
->> don't have access to the report fields.
->
-> I like your patchset overall, but this looks like userspace breakage?
+Question: does this USB device need a control transfer to reset its
+endpoints when the endpoints are not actually halted?  If so, yes, that
+is a known xHCI driver bug that needs to be fixed.  The xHCI host will
+not accept a Reset Endpoint command when the endpoints are not actually
+halted, but the USB core will send the control transfer to reset the
+endpoint.  That means the device and host toggles will be out of sync,
+and all messages will start to fail with -EPIPE.
 
-Not really. UHID_OUTPUT_EV provides input_event data to user-space,
-which user-space converts into raw output events. With this patch, we
-do the conversion in the kernel itself and just send the raw output
-event (which user-space supported even before this).
+Can the OP capture a usbmon trace when the device starts failing?  That
+will reveal whether this actually is the issue.  dmesg output with
+CONFIG_USB_DEBUG and CONFIG_USB_XHCI_HCD_DEBUGGING turned on would also
+be helpful.
 
-This breaks user-space only if the conversion was done differently in
-user-space. But this sounds highly unlikely to me. All uhid
-applications I am aware of ignored UHID_OUTPUT_EV so far as they don't
-have any report-information. So we actually *fix* all available users
-with that.
-
-If there is an uhid user I am not aware of, we can easily revert that.
-I doubt that, though.
-
-Cheers
-David
+Sarah Sharp

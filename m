@@ -1,109 +1,52 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 1/2] Revert "Revert "HID: Fix logitech-dj: missing
- Unifying device issue""
-Date: Fri, 19 Jul 2013 10:35:57 +0200
-Message-ID: <CAN+gG=HKe0eNBmwaf=h6nzR9U3DPC-Hvb1W-uwVqjih5AiKUuQ@mail.gmail.com>
-References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com>
-	<51E84FD1.4050400@hurleysoftware.com>
-	<20130718220936.GA8025@xanatos>
-	<51E87C1F.1090301@hurleysoftware.com>
+Subject: Re: [PATCH] HID: multitouch: do not init reports for multitouch devices
+Date: Fri, 19 Jul 2013 10:47:05 +0200
+Message-ID: <CAN+gG=G6jw0BkJejZ=Rb+Vzzey1=JdqiiYmMonwjt9G1R779Tg@mail.gmail.com>
+References: <1373620101-16113-1-git-send-email-benjamin.tissoires@redhat.com>
+	<20130718192416.GA526@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <51E87C1F.1090301@hurleysoftware.com>
+In-Reply-To: <20130718192416.GA526@polaris.bitmath.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Hurley <peter@hurleysoftware.com>
-Cc: Sarah Sharp <sarah.a.sharp@linux.intel.com>, joseph.salisbury@canonical.com, Nestor Lopez Casado <nlopezcasad@logitech.com>, Jiri Kosina <jkosina@suse.cz>, Andrew de los Reyes <adlr@chromium.org>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org, wujun zhou <zwj.echo@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Peter,
+Hi Henrik,
 
-thanks for forwarding this to the appropriate people & mailing list.
-
-Hi Sarah,
-
-thanks for starting investigating this :)
-
-On Fri, Jul 19, 2013 at 1:37 AM, Peter Hurley <peter@hurleysoftware.com> wrote:
->>>
->>>
->>>
->>> Before we revert to using the workaround, I'd like to suggest that
->>> this new "hidden" problem may be an interaction with the xhci_hcd host
->>> controller driver only.
->>>
->>> Looking at the related bug, the OP indicates the machine only has
->>> USB3 ports. Additionally, comments #7, #100, and #104 of the original
->>> bug report [1] add additional information that would seem to confirm
->>> this suspicion.
-
-Definitively, this is a USB3 problem. However, it is not generic (I
-can not reproduce it with my USB3 boards.)
-
+On Thu, Jul 18, 2013 at 9:24 PM,  <rydberg@euromail.se> wrote:
+> Hi Benjamin,
+>
+>> Some multitouch screens do not like to be polled for input reports.
+>> However, the Win8 spec says that all touches should be sent during
+>> each report, making the initialization of reports unnecessary.
+>> The Win7 spec is less precise, but we can safely assume that when
+>> the module is loaded (at boot), no one is touching the screen.
 >>
->>
->> Question: does this USB device need a control transfer to reset its
->> endpoints when the endpoints are not actually halted?  If so, yes, that
->> is a known xHCI driver bug that needs to be fixed.  The xHCI host will
->> not accept a Reset Endpoint command when the endpoints are not actually
->> halted, but the USB core will send the control transfer to reset the
->> endpoint.  That means the device and host toggles will be out of sync,
->> and all messages will start to fail with -EPIPE.
->>
->> Can the OP capture a usbmon trace when the device starts failing?  That
->> will reveal whether this actually is the issue.  dmesg output with
->> CONFIG_USB_DEBUG and CONFIG_USB_XHCI_HCD_DEBUGGING turned on would also
->> be helpful.
+>> Add the quirk HID_QUIRK_NO_INIT_REPORTS so that we do not have to
+>> introduce a quirk for each problematic device.
 >
+> I assume you have tested thoroughly for regressions? How about odd
+> eGalax devices, for instance? Changes affecting existing hardware
+> makes me nervous. Is it so bad to add this quirk on a per-device
+> basis? Or perhaps turned on by default for win8 devices only?
 
-Here is another linux-input thread were you have the usbmon traces:
-http://www.spinics.net/lists/linux-input/msg26542.html
-Wujun Zhou already did one test of a kernel patch for me (which did
-not solve the problem, because I was not at the USB level), so I bet
-he will be able to do some testings for you.
+Aargh, I forgot the eGalax... (I don't have it anymore on my desk). I
+was pretty confident because Win [7-8] is not doing any quirks for the
+multitouch devices, and I had in mind that it did not asked for the
+reports at startup (at least, I am sure about it for HID/I2C). I'm not
+sure win 8 devices is a sufficient denominator, because this init
+sequence is not mentioned anywhere in the Win 8 spec. It's true that
+we are going to see fewer Win 7 devices, but I would say it's the
+exact same problem for win 7 and 8. Moreover, asking this for Win 8
+devices only will forces us to detect it in core before hid-multitouch
+is loaded because the init reports is called before the parsing.
 
-In the logs he posted (logitech_work.pcapng.gz), the interesting part
-is starting from the capture #45:
-
-#45: SET_REPORT request to switch the receiver to the "DJ" mode (the
-receiver stops sending regular HID events, but goes into its
-proprietary protocol)
-#47: SET_REPORT response -> all good
-#48: SET_REPORT request to ask the receiver to enumerate all of his
-devices (it is called right after we received the previous response)
-#49: SET_REPORT response -> -EPIPE
-#50: URB_INTERRUPT_IN (~3 seconds later) -> the device is working normally
-
-The weird thing is that only the first enumeration message failed with
--EPIPE: the device answers later control transfer correctly (#54 /
-#55).
-
->
-> Sarah,
->
-> I forwarded your usbmon capture request to the OP in the bug report
-> (I don't have an email address for the reporter).
->
-
-Here are some other helpful information:
-the first "fix" we have done is dcd9006b1b053c7b1c. It is linked to
-several bugs:
-
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1072082
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1039143
-https://bugzilla.redhat.com/show_bug.cgi?id=840391
-https://bugzilla.kernel.org/show_bug.cgi?id=49781
-
-Most of them are people complaining, but in one of the comments,
-adding a 500ms wait between the two control transfer (switch to DJ +
-enumerate) fixed the -EPIPE problem. I interpreted it as a scheduled
-problem (using direct call to usb_control_msg() vs use the scheduled
-one usbhid_submit_message()) but it was just delaying the problem out
-of the probe. Unfortunately, I missed that as I did not asked for the
-usbmon traces at that time.
-
-One last thing, I understood that Linus is also experiencing this
-problem... Adding him in CC to let him know of the progress.
+If I capture the Win 7 & Win 8 initialization events and I observe
+that they do not retrieve the reports, will it be sufficient as a
+guarantee to include this patch even if it is not widely tested under
+Linux?
 
 Cheers,
 Benjamin

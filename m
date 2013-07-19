@@ -1,71 +1,48 @@
-From: Illia Smyrnov <illia.smyrnov@globallogic.com>
-Subject: [PATCH 1/2] Input: omap-keypad: Cleanup - use bitfiled instead of hardcoded values
-Date: Fri, 19 Jul 2013 16:03:46 +0300
-Message-ID: <1374239027-3927-2-git-send-email-illia.smyrnov@globallogic.com>
+From: Illia Smyrnov <x0194613@ti.com>
+Subject: Re: [PATCH 0/2] Input: omap-keypad: Cleanup - remove hardcoded values
+ and IRQ enabling/disabling
+Date: Fri, 19 Jul 2013 16:10:50 +0300
+Message-ID: <51E93ADA.3010402@ti.com>
 References: <1374239027-3927-1-git-send-email-illia.smyrnov@globallogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:55671 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759922Ab3GSNLD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Jul 2013 09:11:03 -0400
 In-Reply-To: <1374239027-3927-1-git-send-email-illia.smyrnov@globallogic.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-From: Illia Smyrnov <illia.smyrnov@ti.com>
+On 07/19/2013 04:03 PM, Illia Smyrnov wrote:
+> From: Illia Smyrnov <illia.smyrnov@ti.com>
+>
+> Replace unclear hardcoded values with bit field and remove
+> unnecessary IRQ enabling/disabling.
+>
+> Based on top of v3.10-rc1.
 
-Use bitfiled instead of hardcoded values to set KBD_CTRL, use BIT macro,
-remove unused defines.
+Sorry, it is typo here. Based on v3.11-rc1.
 
-Signed-off-by: Illia Smyrnov <illia.smyrnov@ti.com>
----
- drivers/input/keyboard/omap4-keypad.c |   25 +++++++++++--------------
- 1 files changed, 11 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index f4aa53a..c727548 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -53,21 +53,17 @@
- #define OMAP4_KBD_FULLCODE63_32		0x48
- 
- /* OMAP4 bit definitions */
--#define OMAP4_DEF_IRQENABLE_EVENTEN	(1 << 0)
--#define OMAP4_DEF_IRQENABLE_LONGKEY	(1 << 1)
--#define OMAP4_DEF_IRQENABLE_TIMEOUTEN	(1 << 2)
--#define OMAP4_DEF_WUP_EVENT_ENA		(1 << 0)
--#define OMAP4_DEF_WUP_LONG_KEY_ENA	(1 << 1)
--#define OMAP4_DEF_CTRL_NOSOFTMODE	(1 << 1)
--#define OMAP4_DEF_CTRLPTVVALUE		(1 << 2)
--#define OMAP4_DEF_CTRLPTV		(1 << 1)
-+#define OMAP4_DEF_IRQENABLE_EVENTEN	BIT(0)
-+#define OMAP4_DEF_IRQENABLE_LONGKEY	BIT(1)
-+#define OMAP4_DEF_WUP_EVENT_ENA		BIT(0)
-+#define OMAP4_DEF_WUP_LONG_KEY_ENA	BIT(1)
-+#define OMAP4_DEF_CTRL_NOSOFTMODE	BIT(1)
-+#define OMAP4_DEF_CTRL_PTV_SHIFT	2
- 
- /* OMAP4 values */
--#define OMAP4_VAL_IRQDISABLE		0x00
--#define OMAP4_VAL_DEBOUNCINGTIME	0x07
--#define OMAP4_VAL_FUNCTIONALCFG		0x1E
--
--#define OMAP4_MASK_IRQSTATUSDISABLE	0xFFFF
-+#define OMAP4_VAL_IRQDISABLE		0x0
-+#define OMAP4_VAL_DEBOUNCINGTIME	0x7
-+#define OMAP4_VAL_PVT			0x7
- 
- enum {
- 	KBD_REVISION_OMAP4 = 0,
-@@ -175,7 +171,8 @@ static int omap4_keypad_open(struct input_dev *input)
- 	disable_irq(keypad_data->irq);
- 
- 	kbd_writel(keypad_data, OMAP4_KBD_CTRL,
--			OMAP4_VAL_FUNCTIONALCFG);
-+			OMAP4_DEF_CTRL_NOSOFTMODE |
-+			(OMAP4_VAL_PVT << OMAP4_DEF_CTRL_PTV_SHIFT));
- 	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
- 			OMAP4_VAL_DEBOUNCINGTIME);
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
--- 
-1.7.0.4
+>
+> Tested on OMAP4 SDP.
+>
+> Illia Smyrnov (2):
+>    Input: omap-keypad: Cleanup - use bitfiled instead of hardcoded
+>      values
+>    Input: omap-keypad: Cleanup - remove unnecessary IRQ
+>      enabling/disabling
+>
+>   drivers/input/keyboard/omap4-keypad.c |   40 ++++++++++++--------------------
+>   1 files changed, 15 insertions(+), 25 deletions(-)
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

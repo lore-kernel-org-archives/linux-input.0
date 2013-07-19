@@ -1,95 +1,207 @@
-From: Peter Hurley <peter@hurleysoftware.com>
-Subject: Re: [PATCH 1/2] Revert "Revert "HID: Fix logitech-dj: missing Unifying
- device issue""
-Date: Thu, 18 Jul 2013 19:37:03 -0400
-Message-ID: <51E87C1F.1090301@hurleysoftware.com>
-References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com> <51E84FD1.4050400@hurleysoftware.com> <20130718220936.GA8025@xanatos>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH] hid: replace strict_strtoul() with kstrtoul()
+Date: Fri, 19 Jul 2013 15:53:16 +0900
+Message-ID: <000601ce844c$a5059330$ef10b990$@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout39.mail01.mtsvc.net ([216.70.64.83]:37645 "EHLO
-	n12.mail01.mtsvc.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S934751Ab3GRXhI (ORCPT
+Received: from mailout4.samsung.com ([203.254.224.34]:44327 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933858Ab3GSGxS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Jul 2013 19:37:08 -0400
-In-Reply-To: <20130718220936.GA8025@xanatos>
+	Fri, 19 Jul 2013 02:53:18 -0400
+Received: from epcpsbgr4.samsung.com
+ (u144.gpu120.samsung.co.kr [203.254.230.144])
+ by mailout4.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MQ6005NL8GS0NN0@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Fri, 19 Jul 2013 15:53:16 +0900 (KST)
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sarah Sharp <sarah.a.sharp@linux.intel.com>, joseph.salisbury@canonical.com
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, jkosina@suse.cz, benjamin.tissoires@gmail.com, adlr@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: 'Jiri Kosina' <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>
 
-On 07/18/2013 06:09 PM, Sarah Sharp wrote:
-> On Thu, Jul 18, 2013 at 04:28:01PM -0400, Peter Hurley wrote:
->> [ +cc Sarah Sharp, linux-usb ]
->>
->> On 07/18/2013 09:21 AM, Nestor Lopez Casado wrote:
->>> This reverts commit 8af6c08830b1ae114d1a8b548b1f8b056e068887.
->>>
->>> This patch re-adds the workaround introduced by 596264082f10dd4
->>> which was reverted by 8af6c08830b1ae114.
->>>
->>> The original patch 596264 was needed to overcome a situation where
->>> the hid-core would drop incoming reports while probe() was being
->>> executed.
->>>
->>> This issue was solved by c849a6143bec520af which added
->>> hid_device_io_start() and hid_device_io_stop() that enable a specific
->>> hid driver to opt-in for input reports while its probe() is being
->>> executed.
->>>
->>> Commit a9dd22b730857347 modified hid-logitech-dj so as to use the
->>> functionality added to hid-core. Having done that, workaround 596264
->>> was no longer necessary and was reverted by 8af6c08.
->>>
->>> We now encounter a different problem that ends up 'again' thwarting
->>> the Unifying receiver enumeration. The problem is time and usb controller
->>> dependent. Ocasionally the reports sent to the usb receiver to start
->>> the paired devices enumeration fail with -EPIPE and the receiver never
->>> gets to enumerate the paired devices.
->>>
->>> With dcd9006b1b053c7b1c the problem was "hidden" as the call to the usb
->>> driver became asynchronous and none was catching the error from the
->>> failing URB.
->>>
->>> As the root cause for this failing SET_REPORT is not understood yet,
->>> -possibly a race on the usb controller drivers or a problem with the
->>> Unifying receiver- reintroducing this workaround solves the problem.
->>
->>
->> Before we revert to using the workaround, I'd like to suggest that
->> this new "hidden" problem may be an interaction with the xhci_hcd host
->> controller driver only.
->>
->> Looking at the related bug, the OP indicates the machine only has
->> USB3 ports. Additionally, comments #7, #100, and #104 of the original
->> bug report [1] add additional information that would seem to confirm
->> this suspicion.
->
-> Question: does this USB device need a control transfer to reset its
-> endpoints when the endpoints are not actually halted?  If so, yes, that
-> is a known xHCI driver bug that needs to be fixed.  The xHCI host will
-> not accept a Reset Endpoint command when the endpoints are not actually
-> halted, but the USB core will send the control transfer to reset the
-> endpoint.  That means the device and host toggles will be out of sync,
-> and all messages will start to fail with -EPIPE.
->
-> Can the OP capture a usbmon trace when the device starts failing?  That
-> will reveal whether this actually is the issue.  dmesg output with
-> CONFIG_USB_DEBUG and CONFIG_USB_XHCI_HCD_DEBUGGING turned on would also
-> be helpful.
+The usage of strict_strtoul() is not preferred, because
+strict_strtoul() is obsolete. Thus, kstrtoul() should be
+used.
 
-Sarah,
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/hid/hid-magicmouse.c      |    2 +-
+ drivers/hid/hid-ntrig.c           |   12 ++++++------
+ drivers/hid/hid-roccat-arvo.c     |    6 +++---
+ drivers/hid/hid-roccat-isku.c     |    2 +-
+ drivers/hid/hid-roccat-kone.c     |    4 ++--
+ drivers/hid/hid-roccat-koneplus.c |    2 +-
+ drivers/hid/hid-roccat-kovaplus.c |    2 +-
+ 7 files changed, 15 insertions(+), 15 deletions(-)
 
-I forwarded your usbmon capture request to the OP in the bug report
-(I don't have an email address for the reporter).
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 5bc3734..a32f5a2 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -36,7 +36,7 @@ MODULE_PARM_DESC(emulate_scroll_wheel, "Emulate a scroll wheel");
+ static unsigned int scroll_speed = 32;
+ static int param_set_scroll_speed(const char *val, struct kernel_param *kp) {
+ 	unsigned long speed;
+-	if (!val || strict_strtoul(val, 0, &speed) || speed > 63)
++	if (!val || kstrtoul(val, 0, &speed) || speed > 63)
+ 		return -EINVAL;
+ 	scroll_speed = speed;
+ 	return 0;
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index ef95102..98d1fdf 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -237,7 +237,7 @@ static ssize_t set_min_width(struct device *dev,
+ 
+ 	unsigned long val;
+ 
+-	if (strict_strtoul(buf, 0, &val))
++	if (kstrtoul(buf, 0, &val))
+ 		return -EINVAL;
+ 
+ 	if (val > nd->sensor_physical_width)
+@@ -272,7 +272,7 @@ static ssize_t set_min_height(struct device *dev,
+ 
+ 	unsigned long val;
+ 
+-	if (strict_strtoul(buf, 0, &val))
++	if (kstrtoul(buf, 0, &val))
+ 		return -EINVAL;
+ 
+ 	if (val > nd->sensor_physical_height)
+@@ -306,7 +306,7 @@ static ssize_t set_activate_slack(struct device *dev,
+ 
+ 	unsigned long val;
+ 
+-	if (strict_strtoul(buf, 0, &val))
++	if (kstrtoul(buf, 0, &val))
+ 		return -EINVAL;
+ 
+ 	if (val > 0x7f)
+@@ -341,7 +341,7 @@ static ssize_t set_activation_width(struct device *dev,
+ 
+ 	unsigned long val;
+ 
+-	if (strict_strtoul(buf, 0, &val))
++	if (kstrtoul(buf, 0, &val))
+ 		return -EINVAL;
+ 
+ 	if (val > nd->sensor_physical_width)
+@@ -377,7 +377,7 @@ static ssize_t set_activation_height(struct device *dev,
+ 
+ 	unsigned long val;
+ 
+-	if (strict_strtoul(buf, 0, &val))
++	if (kstrtoul(buf, 0, &val))
+ 		return -EINVAL;
+ 
+ 	if (val > nd->sensor_physical_height)
+@@ -411,7 +411,7 @@ static ssize_t set_deactivate_slack(struct device *dev,
+ 
+ 	unsigned long val;
+ 
+-	if (strict_strtoul(buf, 0, &val))
++	if (kstrtoul(buf, 0, &val))
+ 		return -EINVAL;
+ 
+ 	/*
+diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
+index 327f9b8..071ee9e 100644
+--- a/drivers/hid/hid-roccat-arvo.c
++++ b/drivers/hid/hid-roccat-arvo.c
+@@ -59,7 +59,7 @@ static ssize_t arvo_sysfs_set_mode_key(struct device *dev,
+ 	unsigned long state;
+ 	int retval;
+ 
+-	retval = strict_strtoul(buf, 10, &state);
++	retval = kstrtoul(buf, 10, &state);
+ 	if (retval)
+ 		return retval;
+ 
+@@ -107,7 +107,7 @@ static ssize_t arvo_sysfs_set_key_mask(struct device *dev,
+ 	unsigned long key_mask;
+ 	int retval;
+ 
+-	retval = strict_strtoul(buf, 10, &key_mask);
++	retval = kstrtoul(buf, 10, &key_mask);
+ 	if (retval)
+ 		return retval;
+ 
+@@ -159,7 +159,7 @@ static ssize_t arvo_sysfs_set_actual_profile(struct device *dev,
+ 	unsigned long profile;
+ 	int retval;
+ 
+-	retval = strict_strtoul(buf, 10, &profile);
++	retval = kstrtoul(buf, 10, &profile);
+ 	if (retval)
+ 		return retval;
+ 
+diff --git a/drivers/hid/hid-roccat-isku.c b/drivers/hid/hid-roccat-isku.c
+index 8023751..5dd0ea4 100644
+--- a/drivers/hid/hid-roccat-isku.c
++++ b/drivers/hid/hid-roccat-isku.c
+@@ -82,7 +82,7 @@ static ssize_t isku_sysfs_set_actual_profile(struct device *dev,
+ 	isku = hid_get_drvdata(dev_get_drvdata(dev));
+ 	usb_dev = interface_to_usbdev(to_usb_interface(dev));
+ 
+-	retval = strict_strtoul(buf, 10, &profile);
++	retval = kstrtoul(buf, 10, &profile);
+ 	if (retval)
+ 		return retval;
+ 
+diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+index 7fae070..00ab287 100644
+--- a/drivers/hid/hid-roccat-kone.c
++++ b/drivers/hid/hid-roccat-kone.c
+@@ -456,7 +456,7 @@ static ssize_t kone_sysfs_set_tcu(struct device *dev,
+ 	kone = hid_get_drvdata(dev_get_drvdata(dev));
+ 	usb_dev = interface_to_usbdev(to_usb_interface(dev));
+ 
+-	retval = strict_strtoul(buf, 10, &state);
++	retval = kstrtoul(buf, 10, &state);
+ 	if (retval)
+ 		return retval;
+ 
+@@ -545,7 +545,7 @@ static ssize_t kone_sysfs_set_startup_profile(struct device *dev,
+ 	kone = hid_get_drvdata(dev_get_drvdata(dev));
+ 	usb_dev = interface_to_usbdev(to_usb_interface(dev));
+ 
+-	retval = strict_strtoul(buf, 10, &new_startup_profile);
++	retval = kstrtoul(buf, 10, &new_startup_profile);
+ 	if (retval)
+ 		return retval;
+ 
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index 6a48fa3..26b9663 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -246,7 +246,7 @@ static ssize_t koneplus_sysfs_set_actual_profile(struct device *dev,
+ 	koneplus = hid_get_drvdata(dev_get_drvdata(dev));
+ 	usb_dev = interface_to_usbdev(to_usb_interface(dev));
+ 
+-	retval = strict_strtoul(buf, 10, &profile);
++	retval = kstrtoul(buf, 10, &profile);
+ 	if (retval)
+ 		return retval;
+ 
+diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
+index b8b3778..c2a17e4 100644
+--- a/drivers/hid/hid-roccat-kovaplus.c
++++ b/drivers/hid/hid-roccat-kovaplus.c
+@@ -282,7 +282,7 @@ static ssize_t kovaplus_sysfs_set_actual_profile(struct device *dev,
+ 	kovaplus = hid_get_drvdata(dev_get_drvdata(dev));
+ 	usb_dev = interface_to_usbdev(to_usb_interface(dev));
+ 
+-	retval = strict_strtoul(buf, 10, &profile);
++	retval = kstrtoul(buf, 10, &profile);
+ 	if (retval)
+ 		return retval;
+ 
+-- 
+1.7.10.4
 
-As far as getting printk output from a custom kernel, I think that may
-be beyond the reporter's capability. Perhaps one of the Ubuntu devs
-triaging this bug could provide a test kernel for the OP with those
-options on.
 
-Joseph, would you be willing to do that?
-
-Regards,
-Peter Hurley

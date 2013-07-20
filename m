@@ -1,216 +1,470 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] input : wacom - Integrate resolution calculation
-Date: Fri, 19 Jul 2013 16:10:55 -0700
-Message-ID: <1374275455-28465-1-git-send-email-pingc@wacom.com>
+From: Alexander Shiyan <shc_work@mail.ru>
+Subject: [PATCH v3 1/3] input: mc13783: Prepare driver to support MC13892 and OF
+Date: Sat, 20 Jul 2013 09:41:35 +0400
+Message-ID: <1374298897-788-1-git-send-email-shc_work@mail.ru>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f51.google.com ([209.85.160.51]:64376 "EHLO
-	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752772Ab3GSXLH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Jul 2013 19:11:07 -0400
-Received: by mail-pb0-f51.google.com with SMTP id um15so4964521pbc.10
-        for <linux-input@vger.kernel.org>; Fri, 19 Jul 2013 16:11:06 -0700 (PDT)
+Received: from smtp21.mail.ru ([94.100.176.174]:38097 "EHLO smtp21.mail.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752202Ab3GTFl5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 20 Jul 2013 01:41:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
+Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Sascha Hauer <kernel@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Shiyan <shc_work@mail.ru>
 
-Reviewed-by: Jason Gerecke <killertofu@gmail.com>
-Tested-by: Jason Gerecke <killertofu@gmail.com>
-Signed-off-by: Ping Cheng <pingc@wacom.com>
+This patch is a preparation mc13xxx powerbutton driver to support
+MC13892 and support the probe through the DT.
+
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 ---
- drivers/input/tablet/wacom_sys.c | 75 ++++++++++++++++++----------------------
- drivers/input/tablet/wacom_wac.c | 19 +++-------
- 2 files changed, 37 insertions(+), 57 deletions(-)
+ arch/arm/mach-imx/mach-mx31moboard.c   |   9 +-
+ drivers/input/misc/mc13783-pwrbutton.c | 332 +++++++++++++--------------------
+ include/linux/mfd/mc13xxx.h            |  28 +--
+ 3 files changed, 151 insertions(+), 218 deletions(-)
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index aaf23ae..0ca248a 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -221,39 +221,6 @@ static int wacom_calc_hid_res(int logical_extents, int physical_extents,
- 	return logical_extents / physical_extents;
- }
+diff --git a/arch/arm/mach-imx/mach-mx31moboard.c b/arch/arm/mach-imx/mach-mx31moboard.c
+index 6f424ec..2a8aa43 100644
+--- a/arch/arm/mach-imx/mach-mx31moboard.c
++++ b/arch/arm/mach-imx/mach-mx31moboard.c
+@@ -276,9 +276,12 @@ static struct mc13xxx_leds_platform_data moboard_leds = {
+ };
  
--/*
-- * The physical dimension specified by the HID descriptor is likely not in
-- * the "100th of a mm" units expected by wacom_calculate_touch_res. This
-- * function adjusts the value of [xy]_phy based on the unit and exponent
-- * provided by the HID descriptor. If an error occurs durring conversion
-- * (e.g. from the unit being left unspecified) [xy]_phy is not modified.
-- */
--static void wacom_fix_phy_from_hid(struct wacom_features *features)
--{
--	int xres = wacom_calc_hid_res(features->x_max, features->x_phy,
--					features->unit, features->unitExpo);
--	int yres = wacom_calc_hid_res(features->y_max, features->y_phy,
--					features->unit, features->unitExpo);
+ static struct mc13xxx_buttons_platform_data moboard_buttons = {
+-	.b1on_flags = MC13783_BUTTON_DBNC_750MS | MC13783_BUTTON_ENABLE |
+-			MC13783_BUTTON_POL_INVERT,
+-	.b1on_key = KEY_POWER,
++	.buttons[0] = {
++		.keycode	= KEY_POWER,
++		.flags		= MC13XXX_BUTTON_ENABLE |
++				  MC13XXX_BUTTON_DBNC_750MS |
++				  MC13XXX_BUTTON_POL_INVERT,
++	},
+ };
+ 
+ static struct mc13xxx_codec_platform_data moboard_codec = {
+diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
+index d0277a7..aaaacef 100644
+--- a/drivers/input/misc/mc13783-pwrbutton.c
++++ b/drivers/input/misc/mc13783-pwrbutton.c
+@@ -24,248 +24,176 @@
+ #include <linux/kernel.h>
+ #include <linux/errno.h>
+ #include <linux/input.h>
+-#include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/mfd/mc13783.h>
+-#include <linux/sched.h>
+-#include <linux/slab.h>
 -
--	if (xres > 0 && yres > 0) {
--		features->x_phy = (100 * features->x_max) / xres;
--		features->y_phy = (100 * features->y_max) / yres;
+-struct mc13783_pwrb {
+-	struct input_dev *pwr;
+-	struct mc13xxx *mc13783;
+-#define MC13783_PWRB_B1_POL_INVERT	(1 << 0)
+-#define MC13783_PWRB_B2_POL_INVERT	(1 << 1)
+-#define MC13783_PWRB_B3_POL_INVERT	(1 << 2)
+-	int flags;
+-	unsigned short keymap[3];
++
++struct mc13xxx_button_def {
++	unsigned int	irq;
++	unsigned int	sense_bit;
+ };
+ 
+-#define MC13783_REG_INTERRUPT_SENSE_1		5
+-#define MC13783_IRQSENSE1_ONOFD1S		(1 << 3)
+-#define MC13783_IRQSENSE1_ONOFD2S		(1 << 4)
+-#define MC13783_IRQSENSE1_ONOFD3S		(1 << 5)
++struct mc13xxx_pwrb_devtype {
++	struct mc13xxx_button_def	btn_def[MAX13XXX_NUM_BUTTONS];
++};
+ 
+-#define MC13783_REG_POWER_CONTROL_2		15
+-#define MC13783_POWER_CONTROL_2_ON1BDBNC	4
+-#define MC13783_POWER_CONTROL_2_ON2BDBNC	6
+-#define MC13783_POWER_CONTROL_2_ON3BDBNC	8
+-#define MC13783_POWER_CONTROL_2_ON1BRSTEN	(1 << 1)
+-#define MC13783_POWER_CONTROL_2_ON2BRSTEN	(1 << 2)
+-#define MC13783_POWER_CONTROL_2_ON3BRSTEN	(1 << 3)
++struct mc13xxx_pwrb {
++	struct mc13xxx_pwrb_devtype	*devtype;
++	unsigned int			enabled;
++	unsigned int			inverted;
++	u16				btn_code[MAX13XXX_NUM_BUTTONS];
++	struct input_dev		*input;
++	struct mc13xxx			*mc13xxx;
++};
+ 
+-static irqreturn_t button_irq(int irq, void *_priv)
+-{
+-	struct mc13783_pwrb *priv = _priv;
+-	int val;
+-
+-	mc13xxx_irq_ack(priv->mc13783, irq);
+-	mc13xxx_reg_read(priv->mc13783, MC13783_REG_INTERRUPT_SENSE_1, &val);
+-
+-	switch (irq) {
+-	case MC13783_IRQ_ONOFD1:
+-		val = val & MC13783_IRQSENSE1_ONOFD1S ? 1 : 0;
+-		if (priv->flags & MC13783_PWRB_B1_POL_INVERT)
+-			val ^= 1;
+-		input_report_key(priv->pwr, priv->keymap[0], val);
+-		break;
+-
+-	case MC13783_IRQ_ONOFD2:
+-		val = val & MC13783_IRQSENSE1_ONOFD2S ? 1 : 0;
+-		if (priv->flags & MC13783_PWRB_B2_POL_INVERT)
+-			val ^= 1;
+-		input_report_key(priv->pwr, priv->keymap[1], val);
+-		break;
+-
+-	case MC13783_IRQ_ONOFD3:
+-		val = val & MC13783_IRQSENSE1_ONOFD3S ? 1 : 0;
+-		if (priv->flags & MC13783_PWRB_B3_POL_INVERT)
+-			val ^= 1;
+-		input_report_key(priv->pwr, priv->keymap[2], val);
+-		break;
 -	}
--}
--
--/*
-- * Static values for max X/Y and resolution of Pen interface is stored in
-- * features. This mean physical size of active area can be computed.
-- * This is useful to do when Pen and Touch have same active area of tablet.
-- * This means for Touch device, we only need to find max X/Y value and we
-- * have enough information to compute resolution of touch.
-- */
--static void wacom_set_phy_from_res(struct wacom_features *features)
--{
--	features->x_phy = (features->x_max * 100) / features->x_resolution;
--	features->y_phy = (features->y_max * 100) / features->y_resolution;
--}
--
- static int wacom_parse_logical_collection(unsigned char *report,
- 					  struct wacom_features *features)
- {
-@@ -265,8 +232,6 @@ static int wacom_parse_logical_collection(unsigned char *report,
- 		features->pktlen = WACOM_PKGLEN_BBTOUCH3;
- 		features->device_type = BTN_TOOL_FINGER;
++#define MC13XXX_REG_INTERRUPT_SENSE_1	5
++#define MC13XXX_REG_POWER_CONTROL_2	15
  
--		wacom_set_phy_from_res(features);
--
- 		features->x_max = features->y_max =
- 			get_unaligned_le16(&report[10]);
- 
-@@ -640,9 +605,6 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
- 		}
- 	}
- 	error = wacom_parse_hid(intf, hid_desc, features);
--	if (error)
--		goto out;
--	wacom_fix_phy_from_hid(features);
- 
-  out:
- 	return error;
-@@ -1228,7 +1190,6 @@ static void wacom_wireless_work(struct work_struct *work)
- 			*((struct wacom_features *)id->driver_info);
- 		wacom_wac2->features.pktlen = WACOM_PKGLEN_BBTOUCH3;
- 		wacom_wac2->features.device_type = BTN_TOOL_FINGER;
--		wacom_set_phy_from_res(&wacom_wac2->features);
- 		wacom_wac2->features.x_max = wacom_wac2->features.y_max = 4096;
- 		error = wacom_register_input(wacom2);
- 		if (error)
-@@ -1251,6 +1212,29 @@ fail1:
- 	return;
- }
- 
-+/*
-+ * Not all devices report physical dimensions from HID.
-+ * Compute the default from hardcoded logical dimension
-+ * and resolution before driver overwrites them.
-+ */
-+static void wacom_set_default_phy(struct wacom_features *features)
+-	input_sync(priv->pwr);
++static irqreturn_t mc13xxx_pwrbutton_irq(int irq, void *data)
 +{
-+	if (features->x_resolution) {
-+		features->x_phy = (features->x_max * 100) / features->x_resolution;
-+		features->y_phy = (features->y_max * 100) / features->y_resolution;
-+	}
-+}
++	struct mc13xxx_pwrb *priv = data;
++	unsigned int i, val;
 +
-+static void wacom_calculate_res(struct wacom_features *features)
-+{
-+	features->x_resolution = wacom_calc_hid_res(features->x_max,
-+				 features->x_phy, features->unit,
-+				 features->unitExpo);
-+	features->y_resolution = wacom_calc_hid_res(features->y_max,
-+				 features->y_phy, features->unit,
-+				 features->unitExpo);
-+}
++	mc13xxx_irq_ack(priv->mc13xxx, irq);
++	mc13xxx_reg_read(priv->mc13xxx, MC13XXX_REG_INTERRUPT_SENSE_1, &val);
 +
- static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *id)
- {
- 	struct usb_device *dev = interface_to_usbdev(intf);
-@@ -1297,6 +1281,9 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
++	for (i = 0; i < MAX13XXX_NUM_BUTTONS; i++)
++		if (irq == priv->devtype->btn_def[i].irq) {
++			val = !!(val & priv->devtype->btn_def[i].sense_bit);
++			if (priv->inverted & BIT(i))
++				val = !val;
++			input_report_key(priv->input, priv->btn_code[i], val);
++			input_sync(priv->input);
++			break;
++		}
  
- 	endpoint = &intf->cur_altsetting->endpoint[0].desc;
- 
-+	/* set the default size in case we do not get them from hid */
-+	wacom_set_default_phy(features);
-+
- 	/* Retrieve the physical and logical size for touch devices */
- 	error = wacom_retrieve_hid_descriptor(intf, features);
- 	if (error)
-@@ -1312,8 +1299,6 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 			features->device_type = BTN_TOOL_FINGER;
- 			features->pktlen = WACOM_PKGLEN_BBTOUCH3;
- 
--			wacom_set_phy_from_res(features);
--
- 			features->x_max = 4096;
- 			features->y_max = 4096;
- 		} else {
-@@ -1323,6 +1308,13 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 
- 	wacom_setup_device_quirks(features);
- 
-+	/* set unit to "100th of a mm" for devices not reported by HID */
-+	if (!features->unit) {
-+		features->unit = 0x11;
-+		features->unitExpo = 16-3;
-+	}
-+	wacom_calculate_res(features);
-+
- 	strlcpy(wacom_wac->name, features->name, sizeof(wacom_wac->name));
- 
- 	if (features->quirks & WACOM_QUIRK_MULTI_INPUT) {
-@@ -1334,7 +1326,6 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 				" Pen" : " Finger",
- 			sizeof(wacom_wac->name));
- 
--
- 		other_dev = wacom_get_sibling(dev, features->oVid, features->oPid);
- 		if (other_dev == NULL || wacom_get_usbdev_data(other_dev) == NULL)
- 			other_dev = dev;
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 384fbcd..7d691a5 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1445,13 +1445,6 @@ void wacom_setup_device_quirks(struct wacom_features *features)
- 	}
+ 	return IRQ_HANDLED;
  }
  
--static unsigned int wacom_calculate_touch_res(unsigned int logical_max,
--					      unsigned int physical_max)
--{
--       /* Touch physical dimensions are in 100th of mm */
--       return (logical_max * 100) / physical_max;
--}
--
- static void wacom_abs_set_axis(struct input_dev *input_dev,
- 			       struct wacom_wac *wacom_wac)
+-static int mc13783_pwrbutton_probe(struct platform_device *pdev)
++static int __init mc13xxx_pwrbutton_probe(struct platform_device *pdev)
  {
-@@ -1475,11 +1468,9 @@ static void wacom_abs_set_axis(struct input_dev *input_dev,
- 			input_set_abs_params(input_dev, ABS_Y, 0,
- 				features->y_max, features->y_fuzz, 0);
- 			input_abs_set_res(input_dev, ABS_X,
--				wacom_calculate_touch_res(features->x_max,
--							features->x_phy));
-+				features->x_resolution);
- 			input_abs_set_res(input_dev, ABS_Y,
--				wacom_calculate_touch_res(features->y_max,
--							features->y_phy));
-+				features->y_resolution);
- 		}
- 
- 		if (features->touch_max > 1) {
-@@ -1488,11 +1479,9 @@ static void wacom_abs_set_axis(struct input_dev *input_dev,
- 			input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
- 				features->y_max, features->y_fuzz, 0);
- 			input_abs_set_res(input_dev, ABS_MT_POSITION_X,
--				wacom_calculate_touch_res(features->x_max,
--							features->x_phy));
-+				features->x_resolution);
- 			input_abs_set_res(input_dev, ABS_MT_POSITION_Y,
--				wacom_calculate_touch_res(features->y_max,
--							features->y_phy));
-+				features->y_resolution);
- 		}
+-	const struct mc13xxx_buttons_platform_data *pdata;
+-	struct mc13xxx *mc13783 = dev_get_drvdata(pdev->dev.parent);
+-	struct input_dev *pwr;
+-	struct mc13783_pwrb *priv;
+-	int err = 0;
+-	int reg = 0;
+-
+-	pdata = dev_get_platdata(&pdev->dev);
++	struct mc13xxx_buttons_platform_data *pdata =
++		dev_get_platdata(&pdev->dev);
++	struct mc13xxx *mc13xxx = dev_get_drvdata(pdev->dev.parent);
++	struct mc13xxx_pwrb_devtype *devtype =
++		(struct mc13xxx_pwrb_devtype *)pdev->id_entry->driver_data;
++	struct mc13xxx_pwrb *priv;
++	int i, reg = 0, ret = -EINVAL;
++
+ 	if (!pdata) {
+-		dev_err(&pdev->dev, "missing platform data\n");
++		dev_err(&pdev->dev, "Missing platform data\n");
+ 		return -ENODEV;
  	}
+ 
+-	pwr = input_allocate_device();
+-	if (!pwr) {
+-		dev_dbg(&pdev->dev, "Can't allocate power button\n");
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
+ 		return -ENOMEM;
+-	}
+-
+-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv) {
+-		err = -ENOMEM;
+-		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+-		goto free_input_dev;
+-	}
+-
+-	reg |= (pdata->b1on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
+-	reg |= (pdata->b2on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON2BDBNC;
+-	reg |= (pdata->b3on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON3BDBNC;
+-
+-	priv->pwr = pwr;
+-	priv->mc13783 = mc13783;
+ 
+-	mc13xxx_lock(mc13783);
+-
+-	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE) {
+-		priv->keymap[0] = pdata->b1on_key;
+-		if (pdata->b1on_key != KEY_RESERVED)
+-			__set_bit(pdata->b1on_key, pwr->keybit);
+-
+-		if (pdata->b1on_flags & MC13783_BUTTON_POL_INVERT)
+-			priv->flags |= MC13783_PWRB_B1_POL_INVERT;
++	priv->input = devm_input_allocate_device(&pdev->dev);
++	if (!priv->input)
++		return -ENOMEM;
+ 
+-		if (pdata->b1on_flags & MC13783_BUTTON_RESET_EN)
+-			reg |= MC13783_POWER_CONTROL_2_ON1BRSTEN;
++	priv->mc13xxx = mc13xxx;
++	priv->devtype = devtype;
++	platform_set_drvdata(pdev, priv);
+ 
+-		err = mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD1,
+-					  button_irq, "b1on", priv);
+-		if (err) {
+-			dev_dbg(&pdev->dev, "Can't request irq\n");
+-			goto free_priv;
+-		}
++	for (i = 0; i < MAX13XXX_NUM_BUTTONS; i++) {
++		u16 code, invert, reset, debounce;
++
++		if (!(pdata->buttons[i].flags & MC13XXX_BUTTON_ENABLE))
++			continue;
++		code = pdata->buttons[i].keycode;
++		invert = !!(pdata->buttons[i].flags &
++			    MC13XXX_BUTTON_POL_INVERT);
++		reset = !!(pdata->buttons[i].flags &
++			   MC13XXX_BUTTON_RESET_EN);
++		debounce = pdata->buttons[i].flags;
++
++		priv->btn_code[i] = code;
++		if (code != KEY_RESERVED)
++			__set_bit(code, priv->input->keybit);
++
++		priv->enabled |= BIT(i);
++		priv->inverted |= invert << i;
++		reg |= reset << (i + 1);
++		reg |= (debounce & 0x03) << (4 + i * 2);
+ 	}
+ 
+-	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE) {
+-		priv->keymap[1] = pdata->b2on_key;
+-		if (pdata->b2on_key != KEY_RESERVED)
+-			__set_bit(pdata->b2on_key, pwr->keybit);
+-
+-		if (pdata->b2on_flags & MC13783_BUTTON_POL_INVERT)
+-			priv->flags |= MC13783_PWRB_B2_POL_INVERT;
+-
+-		if (pdata->b2on_flags & MC13783_BUTTON_RESET_EN)
+-			reg |= MC13783_POWER_CONTROL_2_ON2BRSTEN;
+-
+-		err = mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD2,
+-					  button_irq, "b2on", priv);
+-		if (err) {
+-			dev_dbg(&pdev->dev, "Can't request irq\n");
+-			goto free_irq_b1;
++	mc13xxx_lock(mc13xxx);
++
++	mc13xxx_reg_rmw(mc13xxx, MC13XXX_REG_POWER_CONTROL_2, 0x3fe, reg);
++
++	for (i = 0; i < MAX13XXX_NUM_BUTTONS; i++)
++		if (priv->enabled & BIT(i)) {
++			ret = mc13xxx_irq_request(mc13xxx,
++						  devtype->btn_def[i].irq,
++						  mc13xxx_pwrbutton_irq, NULL,
++						  priv);
++			if (ret) {
++				dev_err(&pdev->dev, "Can't request IRQ%i: %i\n",
++					devtype->btn_def[i].irq, ret);
++				priv->enabled &= ~BIT(i);
++			}
+ 		}
+-	}
+ 
+-	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE) {
+-		priv->keymap[2] = pdata->b3on_key;
+-		if (pdata->b3on_key != KEY_RESERVED)
+-			__set_bit(pdata->b3on_key, pwr->keybit);
++	mc13xxx_unlock(mc13xxx);
+ 
+-		if (pdata->b3on_flags & MC13783_BUTTON_POL_INVERT)
+-			priv->flags |= MC13783_PWRB_B3_POL_INVERT;
++	priv->input->name		= "mc13xxx_pwrbutton";
++	priv->input->phys		= "mc13xxx_pwrbutton/input0";
++	priv->input->id.bustype		= BUS_HOST;
++	priv->input->id.vendor		= 0x0001;
++	priv->input->id.product		= 0x0001;
++	priv->input->id.version		= 0x0100;
++	priv->input->keycode		= priv->btn_code;
++	priv->input->keycodemax		= ARRAY_SIZE(priv->btn_code);
++	priv->input->keycodesize	= sizeof(priv->btn_code[0]);
++	__set_bit(EV_KEY, priv->input->evbit);
+ 
+-		if (pdata->b3on_flags & MC13783_BUTTON_RESET_EN)
+-			reg |= MC13783_POWER_CONTROL_2_ON3BRSTEN;
+-
+-		err = mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD3,
+-					  button_irq, "b3on", priv);
+-		if (err) {
+-			dev_dbg(&pdev->dev, "Can't request irq: %d\n", err);
+-			goto free_irq_b2;
+-		}
+-	}
++	input_set_drvdata(priv->input, priv);
+ 
+-	mc13xxx_reg_rmw(mc13783, MC13783_REG_POWER_CONTROL_2, 0x3FE, reg);
++	ret = input_register_device(priv->input);
++	if (ret)
++		dev_err(&pdev->dev, "Can't register input device: %i\n", ret);
+ 
+-	mc13xxx_unlock(mc13783);
+-
+-	pwr->name = "mc13783_pwrbutton";
+-	pwr->phys = "mc13783_pwrbutton/input0";
+-	pwr->dev.parent = &pdev->dev;
+-
+-	pwr->keycode = priv->keymap;
+-	pwr->keycodemax = ARRAY_SIZE(priv->keymap);
+-	pwr->keycodesize = sizeof(priv->keymap[0]);
+-	__set_bit(EV_KEY, pwr->evbit);
+-
+-	err = input_register_device(pwr);
+-	if (err) {
+-		dev_dbg(&pdev->dev, "Can't register power button: %d\n", err);
+-		goto free_irq;
+-	}
+-
+-	platform_set_drvdata(pdev, priv);
+-
+-	return 0;
+-
+-free_irq:
+-	mc13xxx_lock(mc13783);
+-
+-	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE)
+-		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD3, priv);
+-
+-free_irq_b2:
+-	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE)
+-		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD2, priv);
+-
+-free_irq_b1:
+-	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
+-		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD1, priv);
+-
+-free_priv:
+-	mc13xxx_unlock(mc13783);
+-	kfree(priv);
+-
+-free_input_dev:
+-	input_free_device(pwr);
+-
+-	return err;
++	return ret;
  }
+ 
+-static int mc13783_pwrbutton_remove(struct platform_device *pdev)
++static int mc13xxx_pwrbutton_remove(struct platform_device *pdev)
+ {
+-	struct mc13783_pwrb *priv = platform_get_drvdata(pdev);
+-	const struct mc13xxx_buttons_platform_data *pdata;
+-
+-	pdata = dev_get_platdata(&pdev->dev);
+-
+-	mc13xxx_lock(priv->mc13783);
+-
+-	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE)
+-		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD3, priv);
+-	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE)
+-		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD2, priv);
+-	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
+-		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD1, priv);
++	struct mc13xxx_pwrb *priv = platform_get_drvdata(pdev);
++	int i;
+ 
+-	mc13xxx_unlock(priv->mc13783);
+-
+-	input_unregister_device(priv->pwr);
+-	kfree(priv);
++	mc13xxx_lock(priv->mc13xxx);
++	for (i = 0; i < MAX13XXX_NUM_BUTTONS; i++)
++		if (priv->enabled & BIT(i))
++			mc13xxx_irq_free(priv->mc13xxx,
++					 priv->devtype->btn_def[i].irq, priv);
++	mc13xxx_unlock(priv->mc13xxx);
+ 
+ 	return 0;
+ }
+ 
+-static struct platform_driver mc13783_pwrbutton_driver = {
+-	.probe		= mc13783_pwrbutton_probe,
+-	.remove		= mc13783_pwrbutton_remove,
+-	.driver		= {
+-		.name	= "mc13783-pwrbutton",
++static const struct mc13xxx_pwrb_devtype mc13783_pwrb_devtype = {
++	.btn_def[0] = { MC13783_IRQ_ONOFD1, BIT(3) },
++	.btn_def[1] = { MC13783_IRQ_ONOFD2, BIT(4) },
++	.btn_def[2] = { MC13783_IRQ_ONOFD3, BIT(5) }
++};
++
++static const struct platform_device_id mc13xxx_pwrbutton_id_table[] = {
++	{ "mc13783-pwrbutton", (kernel_ulong_t)&mc13783_pwrb_devtype },
++	{ }
++};
++MODULE_DEVICE_TABLE(platform, mc13xxx_pwrbutton_id_table);
++
++static struct platform_driver mc13xxx_pwrbutton_driver = {
++	.driver	= {
++		.name	= "mc13xxx-pwrbutton",
+ 		.owner	= THIS_MODULE,
+ 	},
++	.remove		= mc13xxx_pwrbutton_remove,
++	.id_table	= mc13xxx_pwrbutton_id_table,
+ };
++module_platform_driver_probe(mc13xxx_pwrbutton_driver, mc13xxx_pwrbutton_probe);
+ 
+-module_platform_driver(mc13783_pwrbutton_driver);
+-
+-MODULE_ALIAS("platform:mc13783-pwrbutton");
+ MODULE_DESCRIPTION("MC13783 Power Button");
+ MODULE_LICENSE("GPL v2");
+ MODULE_AUTHOR("Philippe Retornaz");
+diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
+index 41ed592..b895538 100644
+--- a/include/linux/mfd/mc13xxx.h
++++ b/include/linux/mfd/mc13xxx.h
+@@ -142,20 +142,22 @@ struct mc13xxx_leds_platform_data {
+ 	u32 led_control[MAX_LED_CONTROL_REGS];
+ };
+ 
++#define MAX13XXX_NUM_BUTTONS	3
++
++struct mc13xxx_button {
++	u16		keycode;
++	unsigned int	flags;
++#define MC13XXX_BUTTON_DBNC_0MS		0
++#define MC13XXX_BUTTON_DBNC_30MS	1
++#define MC13XXX_BUTTON_DBNC_150MS	2
++#define MC13XXX_BUTTON_DBNC_750MS	3
++#define MC13XXX_BUTTON_ENABLE		(1 << 2)
++#define MC13XXX_BUTTON_POL_INVERT	(1 << 3)
++#define MC13XXX_BUTTON_RESET_EN		(1 << 4)
++};
++
+ struct mc13xxx_buttons_platform_data {
+-#define MC13783_BUTTON_DBNC_0MS		0
+-#define MC13783_BUTTON_DBNC_30MS	1
+-#define MC13783_BUTTON_DBNC_150MS	2
+-#define MC13783_BUTTON_DBNC_750MS	3
+-#define MC13783_BUTTON_ENABLE		(1 << 2)
+-#define MC13783_BUTTON_POL_INVERT	(1 << 3)
+-#define MC13783_BUTTON_RESET_EN		(1 << 4)
+-	int b1on_flags;
+-	unsigned short b1on_key;
+-	int b2on_flags;
+-	unsigned short b2on_key;
+-	int b3on_flags;
+-	unsigned short b3on_key;
++	struct mc13xxx_button	buttons[MAX13XXX_NUM_BUTTONS];
+ };
+ 
+ struct mc13xxx_ts_platform_data {
 -- 
-1.8.1.2
+1.8.1.5
 

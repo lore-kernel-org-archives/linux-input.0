@@ -1,85 +1,63 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 03/15] input: ti_tsc: Enable shared IRQ for TSC
-Date: Sat, 20 Jul 2013 11:58:38 +0100
-Message-ID: <51EA6D5E.9060107@kernel.org>
-References: <1374186086-5015-1-git-send-email-zubair.lutfullah@gmail.com> <1374186086-5015-4-git-send-email-zubair.lutfullah@gmail.com> <51EA6D19.7040401@kernel.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] Revert "Revert "HID: Fix logitech-dj: missing Unifying
+ device issue""
+Date: Mon, 22 Jul 2013 13:44:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1307221342410.23128@pobox.suse.cz>
+References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com> <51E84FD1.4050400@hurleysoftware.com> <20130718220936.GA8025@xanatos> <51E87C1F.1090301@hurleysoftware.com> <51E94F7C.9090302@canonical.com> <51E9B025.8010803@hurleysoftware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:45181 "EHLO
-	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753688Ab3GTK6k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Jul 2013 06:58:40 -0400
-In-Reply-To: <51EA6D19.7040401@kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:47716 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752591Ab3GVLom (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Jul 2013 07:44:42 -0400
+In-Reply-To: <51E9B025.8010803@hurleysoftware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Cc: jic23@cam.ac.uk, gregkh@linuxfoundation.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, koen@dominion.thruhere.net, Torokhov <dmitry.torokhov@gmail.com>
+To: Peter Hurley <peter@hurleysoftware.com>
+Cc: Sarah Sharp <sarah.a.sharp@linux.intel.com>, Joseph Salisbury <joseph.salisbury@canonical.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, benjamin.tissoires@gmail.com, adlr@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On 07/20/2013 11:57 AM, Jonathan Cameron wrote:
-> On 07/18/2013 11:21 PM, Zubair Lutfullah wrote:
->> From: "Patil, Rachna" <rachna@ti.com>
->>
->> Touchscreen and ADC share the same IRQ line from parent MFD core.
->> Previously only Touchscreen was interrupt based.
->> With continuous mode support added in ADC driver, driver requires
->> interrupt to process the ADC samples, so enable shared IRQ flag bit for
->> touchscreen.
->>
->> Signed-off-by: Patil, Rachna <rachna@ti.com>
->> Acked-by: Vaibhav Hiremath <hvaibhav@ti.com>
->> Signed-off-by: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-> cc'd Dmitry and Linux-input.
-> 
-> If this goes through IIO as it is required for the rest of the series to
-> work then I will need an Ack from Dmitry.
-Sorry, finger memory meant I cc'd linux-iio again, instead of linux-input.
+On Fri, 19 Jul 2013, Peter Hurley wrote:
 
+> > > As far as getting printk output from a custom kernel, I think that may
+> > > be beyond the reporter's capability. Perhaps one of the Ubuntu devs
+> > > triaging this bug could provide a test kernel for the OP with those
+> > > options on.
+> > > 
+> > > Joseph, would you be willing to do that?
+> > 
+> > Sure thing.  I'll build a kernel and request that the bug reporter
+> > collect usbmon data.
 > 
->> ---
->>  drivers/input/touchscreen/ti_am335x_tsc.c |   14 +++++++++++---
->>  1 file changed, 11 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
->> index 0e9f02a..edc3d03 100644
->> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
->> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
->> @@ -260,8 +260,16 @@ static irqreturn_t titsc_irq(int irq, void *dev)
->>  	unsigned int fsm;
->>  
->>  	status = titsc_readl(ts_dev, REG_IRQSTATUS);
->> -	if (status & IRQENB_FIFO0THRES) {
->>  
->> +	/*
->> +	* ADC and touchscreen share the IRQ line.
->> +	* FIFO1 threshold interrupt is used by ADC,
->> +	* hence return from touchscreen IRQ handler if FIFO1
->> +	* threshold interrupt occurred.
->> +	*/
->> +	if (status & IRQENB_FIFO1THRES)
->> +		return IRQ_NONE;
->> +	else if (status & IRQENB_FIFO0THRES) {
->>  		titsc_read_coordinates(ts_dev, &x, &y, &z1, &z2);
->>  
->>  		if (ts_dev->pen_down && z1 != 0 && z2 != 0) {
->> @@ -315,7 +323,7 @@ static irqreturn_t titsc_irq(int irq, void *dev)
->>  	}
->>  
->>  	if (irqclr) {
->> -		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
->> +		titsc_writel(ts_dev, REG_IRQSTATUS, (status | irqclr));
->>  		am335x_tsc_se_update(ts_dev->mfd_tscadc);
->>  		return IRQ_HANDLED;
->>  	}
->> @@ -389,7 +397,7 @@ static int titsc_probe(struct platform_device *pdev)
->>  	}
->>  
->>  	err = request_irq(ts_dev->irq, titsc_irq,
->> -			  0, pdev->dev.driver->name, ts_dev);
->> +			  IRQF_SHARED, pdev->dev.driver->name, ts_dev);
->>  	if (err) {
->>  		dev_err(&pdev->dev, "failed to allocate irq.\n");
->>  		goto err_free_mem;
->>
+> Thanks Joseph for building the test kernel and getting it to the reporter!
+> 
+> Sarah,
+> 
+> I've attached the dmesg capture supplied by the original reporter on
+> a 3.10 custom kernel w/ the kbuild options you requested.
+> 
+> It seems as if your initial suspicion is correct:
+> 
+> [   46.785490] xhci_hcd 0000:00:14.0: Endpoint 0x81 not halted, refusing to
+> reset.
+> [   46.785493] xhci_hcd 0000:00:14.0: Endpoint 0x82 not halted, refusing to
+> reset.
+> [   46.785496] xhci_hcd 0000:00:14.0: Endpoint 0x83 not halted, refusing to
+> reset.
+> [   46.785952] xhci_hcd 0000:00:14.0: Waiting for status stage event
+> 
+> At this point, would you recommend proceeding with the workaround or
+> waiting for an xHCI bug fix?
+
+Thanks for your efforts.
+
+Seems like this might be a part of the picture, but not a complete one. 
+Linus claims to have similar problem, but his receiver is not connected 
+through xHCI (I got this as an off-list report, so can't really provide a 
+pointer to ML archives).
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

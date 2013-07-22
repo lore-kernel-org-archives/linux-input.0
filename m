@@ -1,66 +1,51 @@
-From: Illia Smyrnov <x0194613@ti.com>
-Subject: Re: [PATCH 2/2] Input: omap-keypad: Cleanup - remove unnecessary
- IRQ enabling/disabling
-Date: Mon, 22 Jul 2013 20:25:05 +0300
-Message-ID: <51ED6AF1.9070605@ti.com>
-References: <1374239027-3927-1-git-send-email-illia.smyrnov@globallogic.com> <1374239027-3927-3-git-send-email-illia.smyrnov@globallogic.com> <20130719132648.GB17188@arwen.pp.htv.fi>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 1/2] Revert "Revert "HID: Fix logitech-dj: missing
+ Unifying device issue""
+Date: Mon, 22 Jul 2013 12:21:10 -0700
+Message-ID: <CA+55aFxKZnYResCmCvaYGksdWYuuHCAAjJ1eRkR94GmiTrJrkA@mail.gmail.com>
+References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com>
+	<alpine.LNX.2.00.1307221633010.23128@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:52009 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932409Ab3GVRZK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Jul 2013 13:25:10 -0400
-In-Reply-To: <20130719132648.GB17188@arwen.pp.htv.fi>
+Received: from mail-ea0-f174.google.com ([209.85.215.174]:37846 "EHLO
+	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932676Ab3GVTVL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Jul 2013 15:21:11 -0400
+In-Reply-To: <alpine.LNX.2.00.1307221633010.23128@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: balbi@ti.com
-Cc: Illia Smyrnov <illia.smyrnov@globallogic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, benjamin.tissoires@gmail.com, Andrew de los Reyes <adlr@chromium.org>, joseph.salisbury@canonical.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Hurley <peter@hurleysoftware.com>
 
-Hi,
+On Mon, Jul 22, 2013 at 7:35 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+>
+> Linus -- could you please by any chance test whether the two patches in
+> that branch make the problem you are observing any better? (and no, this
+> is not a pull request yet).
+>
+> It's still not clear whether we are chasing two different issues here, or
+> not.
 
-On 07/19/2013 04:26 PM, Felipe Balbi wrote:
-> Hi,
->
-> [...]
-> please don't remove this code. It'll be good to have this around when we
-> move the driver to threaded IRQs without IRQF_ONESHOT. In fact, it would
-> be very simple to implement such a change, wanna take it up ?
->
-> It should be doable in few patches:
->
-> 1) switch over to request_threaded_irq()
->
-> 	just blind move to a thread, without hardirq handler, so
-> 	IRQF_ONESHOT is mandatory.
->
-> 2) add hardirq handler
->
-> 	read IRQSTATUS to check if our device has generated IRQs
-> 	returning IRQ_WAKE_THREAD if true
->
-> 3) move 'IRQ masking logic' to hardirq handler, before returning
-> IRQ_WAKE_THREAD
->
-> 	this will let you remove IRQF_ONESHOT
->
-> 4) finally remove IRQF_ONESHOT
->
-> 	this makes sure that IRQs aren't kept disabled until we have
-> 	time to iterate over the entire keypad matrix. Only the keypad
-> 	IRQ will be masked.
->
+I think it's two different issues. It sounds like the USB3 one is
+fairly repeatable?
 
-Ok, but why we need to remove IRQF_ONESHOT flag for omap keypad driver?
+Mine is quite rare. I think it's so far happened just once during the
+the 3.11 merge window+, and that's despite me rebooting usually a few
+times a day (less now that things are calming down).
 
-The keypad IRQ isn't shared IRQ and in our case hardirq handler will 
-always return IRQ_WAKE_THREAD like default irq_default_primary_handler 
-do. With IRQF_ONESHOT flag IRQ line will be masked until the threaded
-handler finished, but there is only keypad on this line.
+On Mon, Jul 22, 2013 at 8:27 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+>
+> It might help to get a usbmon trace and dmesg log from Linus, if he
+> still has this problem.
 
-I tested two versions:
-the first one - just threaded IRQs with IRQF_ONESHOT and without 
-specific hardirq handler.
-the second version - threaded IRQs without IRQF_ONESHOT as you described.
-Both versions was successfully tested on Blaze's keypad.
+So see above. I've sent the dmesg - not that it's useful, since it
+just lacks the lines showing the actual wireless device after plugging
+it in (but the receiver is recognized). No error messages, just not
+any working keyboard.
+
+And it's not common. I think it has happened a handful of times over
+the last four months or so.
+
+                  Linus

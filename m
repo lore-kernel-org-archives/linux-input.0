@@ -1,51 +1,54 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 1/2] Revert "Revert "HID: Fix logitech-dj: missing
- Unifying device issue""
-Date: Mon, 22 Jul 2013 12:21:10 -0700
-Message-ID: <CA+55aFxKZnYResCmCvaYGksdWYuuHCAAjJ1eRkR94GmiTrJrkA@mail.gmail.com>
-References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com>
-	<alpine.LNX.2.00.1307221633010.23128@pobox.suse.cz>
+From: Adam Nielsen <a.nielsen@shikadi.net>
+Subject: Is it possible to debounce button events?
+Date: Tue, 23 Jul 2013 05:38:25 +1000
+Message-ID: <20130723053825.7b6b37a7@korath.teln.shikadi.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:37846 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932676Ab3GVTVL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Jul 2013 15:21:11 -0400
-In-Reply-To: <alpine.LNX.2.00.1307221633010.23128@pobox.suse.cz>
+Received: from plane.gmane.org ([80.91.229.3]:57581 "EHLO plane.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932820Ab3GVTkE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Jul 2013 15:40:04 -0400
+Received: from list by plane.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1V1Lxj-0006m6-B2
+	for linux-input@vger.kernel.org; Mon, 22 Jul 2013 21:40:03 +0200
+Received: from 124-171-210-100.dyn.iinet.net.au ([124.171.210.100])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Mon, 22 Jul 2013 21:40:03 +0200
+Received: from a.nielsen by 124-171-210-100.dyn.iinet.net.au with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Mon, 22 Jul 2013 21:40:03 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, benjamin.tissoires@gmail.com, Andrew de los Reyes <adlr@chromium.org>, joseph.salisbury@canonical.com, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Hurley <peter@hurleysoftware.com>
+To: linux-input@vger.kernel.org
 
-On Mon, Jul 22, 2013 at 7:35 AM, Jiri Kosina <jkosina@suse.cz> wrote:
->
-> Linus -- could you please by any chance test whether the two patches in
-> that branch make the problem you are observing any better? (and no, this
-> is not a pull request yet).
->
-> It's still not clear whether we are chasing two different issues here, or
-> not.
+Hi all,
 
-I think it's two different issues. It sounds like the USB3 one is
-fairly repeatable?
+In every mouse I have ever owned, as it ages the buttons become less
+and less reliable.  Usually this means it starts to send multiple
+button press events each time the button is clicked.  The Logitech
+mouse I am currently using is now producing double-clicks about 10% of
+the time when I only press the left button once.
 
-Mine is quite rare. I think it's so far happened just once during the
-the 3.11 merge window+, and that's despite me rebooting usually a few
-times a day (less now that things are calming down).
+Rather than replace an otherwise perfectly working device, or
+disassemble and clean the switches (again), I am wondering whether
+there is any sort of debounce option in the input subsystem.
 
-On Mon, Jul 22, 2013 at 8:27 AM, Jiri Kosina <jkosina@suse.cz> wrote:
->
-> It might help to get a usbmon trace and dmesg log from Linus, if he
-> still has this problem.
+I am looking for some setting where I can tell the input subsystem to
+ignore button-press/release events if they occur within a configurable
+amount of time after the initial event, e.g. 10 milliseconds.
 
-So see above. I've sent the dmesg - not that it's useful, since it
-just lacks the lines showing the actual wireless device after plugging
-it in (but the receiver is recognized). No error messages, just not
-any working keyboard.
+This would be quick enough that it would not interfere with intentional
+double-clicks, but unintentional double-clicks would be eliminated.
 
-And it's not common. I think it has happened a handful of times over
-the last four months or so.
+It looks like a few input drivers internally implement debouncing, so
+I'm wondering whether there is a generic mechanism that can be used for
+any button on any input device?
 
-                  Linus
+Many thanks,
+Adam.
+
+

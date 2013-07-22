@@ -1,120 +1,87 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH 2/2] Input: omap-keypad: Cleanup - remove unnecessary IRQ
- enabling/disabling
-Date: Tue, 23 Jul 2013 00:04:06 +0300
-Message-ID: <20130722210406.GE12726@radagast>
-References: <1374239027-3927-1-git-send-email-illia.smyrnov@globallogic.com>
- <1374239027-3927-3-git-send-email-illia.smyrnov@globallogic.com>
- <20130719132648.GB17188@arwen.pp.htv.fi>
- <51ED6AF1.9070605@ti.com>
-Reply-To: <balbi@ti.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: [ANNOUNCE] libevdev 0.2
+Date: Tue, 23 Jul 2013 09:09:08 +1000
+Message-ID: <20130722230908.GA14622@yabbi.redhat.com>
+Reply-To: input-tools@lists.freedesktop.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OZkY3AIuv2LYvjdk"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:48347 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755781Ab3GVVEL (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:27905 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751890Ab3GVXJI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Jul 2013 17:04:11 -0400
+	Mon, 22 Jul 2013 19:09:08 -0400
 Content-Disposition: inline
-In-Reply-To: <51ED6AF1.9070605@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Illia Smyrnov <x0194613@ti.com>
-Cc: balbi@ti.com, Illia Smyrnov <illia.smyrnov@globallogic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+To: input-tools@lists.freedesktop.org
 
---OZkY3AIuv2LYvjdk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[Note: bcc'd linux-input, wayland-devel and xorg-devel since those are the
+expected interested parties. Apologies if you get this email multiple times,
+I won't do this in the future. Future announcements will only go to
+input-tools@lists.freedesktop.org]
 
-Hi,
+This is the first release for libevdev, a C library that wraps the
+kernel evdev interface. The benefits are
+* type-safe interface for checking bits on a device
+* various abstractions for ioctls that aren't quite as straightforward (e.g.
+  EV_REP handling)
+* simple abstraction for handling SYN_DROPPED events
 
-On Mon, Jul 22, 2013 at 08:25:05PM +0300, Illia Smyrnov wrote:
-> >please don't remove this code. It'll be good to have this around when we
-> >move the driver to threaded IRQs without IRQF_ONESHOT. In fact, it would
-> >be very simple to implement such a change, wanna take it up ?
-> >
-> >It should be doable in few patches:
-> >
-> >1) switch over to request_threaded_irq()
-> >
-> >	just blind move to a thread, without hardirq handler, so
-> >	IRQF_ONESHOT is mandatory.
-> >
-> >2) add hardirq handler
-> >
-> >	read IRQSTATUS to check if our device has generated IRQs
-> >	returning IRQ_WAKE_THREAD if true
-> >
-> >3) move 'IRQ masking logic' to hardirq handler, before returning
-> >IRQ_WAKE_THREAD
-> >
-> >	this will let you remove IRQF_ONESHOT
-> >
-> >4) finally remove IRQF_ONESHOT
-> >
-> >	this makes sure that IRQs aren't kept disabled until we have
-> >	time to iterate over the entire keypad matrix. Only the keypad
-> >	IRQ will be masked.
-> >
->=20
-> Ok, but why we need to remove IRQF_ONESHOT flag for omap keypad driver?
+This library is now hosted on freedesktop.org:
+http://www.freedesktop.org/wiki/Software/libevdev/
+API documentation: http://www.freedesktop.org/software/libevdev/doc/latest/
+Bugzilla component: https://bugs.freedesktop.org/enter_bug.cgi?product=libevdev
+cgit: http://cgit.freedesktop.org/libevdev/
 
-well, we might want to use this HW with the RT patchset. In that case,
-we want to run with IRQs disabled for as short time as possible.
+libevdev provides API calls for the various bits, so a simple process can
+work this way:
 
-> The keypad IRQ isn't shared IRQ and in our case hardirq handler will
-> always return IRQ_WAKE_THREAD like default
+  struct libevdev *dev;
 
-not entirely true, you still want to check if *this* HW generated to
-interrupt in case you get spurious IRQs and whatnot.
+  fd = open("/dev/input/event0", O_RDONLY);
+  rc = libevdev_new_from_fd(fd, &dev);
 
-> irq_default_primary_handler do. With IRQF_ONESHOT flag IRQ line will
-> be masked until the threaded
-> handler finished, but there is only keypad on this line.
->=20
-> I tested two versions:
-> the first one - just threaded IRQs with IRQF_ONESHOT and without
-> specific hardirq handler.
-> the second version - threaded IRQs without IRQF_ONESHOT as you described.
-> Both versions was successfully tested on Blaze's keypad.
+  if (libevdev_has_event_code(dev, EV_REL, REL_X))
+        /* do something */
 
-you can't simply remove IRQF_ONESHOT, you need to mask this interrupt at
-the keypad level, basically you clear IRQ_ENABLE_SET (or write to
-IRQ_CLEAR or whatever it's called).
+For event handling, libevdev provides one call that returns the next event
+in the queue:
 
-Remember that the hardirq handler runs with IRQs disabled and what you
-need to guarantee is that once you go over your hardirq, you mask
-keypad's IRQs only.
+  rc = libevdev_next_event(dev, flags, &ev);
 
-Currently, the RT patchset forces all IRQs to run as threads, but that's
-less than optimal.
+which does what you expect and returns 0 on success or -EAGAIN if there are
+no events waiting. If a SYN_DROPPED is the next event in the queue, libevdev
+syncs the device state and returns 1. The process can then handle the delta
+by simply parsing events until the device is fully synced again:
 
---=20
-balbi
+  while ((rc = libevdev_next_event(dev, LIBEVEV_READ_SYNC, &ev)) == 1)
+     /* this is a synced event */
 
---OZkY3AIuv2LYvjdk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+  if (rc == -EAGAIN)
+     /* we are now fully synced */
+  else
+     /* error */
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+To check out an example of how libevdev looks like, have a look at how
+evtest would look like with libevdev.
+http://cgit.freedesktop.org/libevdev/tree/tools/libevdev-events.c
 
-iQIcBAEBAgAGBQJR7Z5GAAoJEIaOsuA1yqREMmEP/1517gypoT3As/2C/jqplUvi
-WoGkBSb1cDklyeRRsHU+Yz3simlDDC2dcFQcLJ+YXJjxCItaPEUbdseY3TdySpax
-EXR773Dw+1gQrZklvjloPYDO4YbLAfchDAck6kt8fDnGXhQSMzwoZ/vBqHHTjyOC
-mL8FFY1U203ZwoSSMThjL76DRTAWm/FoQb7ApBI7H0Z9aUoyTi1AOaQxfEpIwXe3
-rF9liO8DavMh/SlHMibmi3OTwwduyazoqpeLvhhkb6l/QX72No5qH6Sn0i20AG1M
-WMf0cY6S+cpr2sWq+I8H4ZW4FA9J3n3R1c95RCBWJCuL6lwjyebnWuG9ZA8zmOE9
-RsXC5F58ejkcKyGx8Iy7QD4I/mMSWiEZCxftjxs2xVZShCdjZPcoy8IAKCOunQCC
-tLSMtQKIlt3eFdRvqFZKNhMyf5DlKiP9ANQhlDU/9C/QuoKa2eR9WVR+cHkyhvF5
-uiLt/zfeDC5CnEO9rdCdGpe2beoxBxvzd253ni/7YB5keA+IjSJsd3SZ3Zz+0V4t
-1NN7hOUVYXi04nmF0fQH3W6pxbUnCdAyWTIciGwVQ24Awoulm0mkP58/1uBp2zUe
-2Ggb8kf/9rit1D0Nvc0Jd+3a68XjTRIh9CYBFjJNkCgt9ijkhUVBqCwkObbCxPZc
-uJ5fdHIEn4iFdauZyZNM
-=1WOy
------END PGP SIGNATURE-----
+The goal is that future and current processes that deal with evdev events
+will switch to libevdev. An example of changes needed for the X.org
+synaptics driver is here:
+http://cgit.freedesktop.org/~whot/xf86-input-synaptics/commit/?h=libevdev
 
---OZkY3AIuv2LYvjdk--
+Suggestions, comments, etc. are all welcome. Please note that the library is
+still in an early stage and may change in the future.
+
+Cheers,
+   Peter
+
+git tag: libevdev-0.2
+
+http://www.freedesktop.org/software/libevdev/libevdev-0.2.tar.xz
+MD5:  bce22c2ae9c87b9a7b5c8d055f771084  libevdev-0.2.tar.xz
+SHA1: 8efec1ff4f8b45929c3acc2b7e4f9fd37c9f8d37  libevdev-0.2.tar.xz
+SHA256: da25b6efba09d7e357e50a31e599d98b97f116eb0f32086335640a06e13e37a6  libevdev-0.2.tar.xz
+

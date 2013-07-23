@@ -1,31 +1,28 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: replace strict_strtoul() with kstrtoul()
-Date: Tue, 23 Jul 2013 16:06:55 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1307231606410.14024@pobox.suse.cz>
-References: <000601ce844c$a5059330$ef10b990$@samsung.com>
+From: Illia Smyrnov <illia.smyrnov@ti.com>
+Subject: [PATCH v2 0/3] Input: omap-keypad: Convert to threaded IRQ and cleanup
+Date: Tue, 23 Jul 2013 19:09:55 +0300
+Message-ID: <1374595798-15492-1-git-send-email-illia.smyrnov@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41974 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932442Ab3GWOG7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jul 2013 10:06:59 -0400
-In-Reply-To: <000601ce844c$a5059330$ef10b990$@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: balbi@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: linux-input@vger.kernel.org
 
-On Fri, 19 Jul 2013, Jingoo Han wrote:
+Replace unclear hardcoded values with bit field, convert to threaded IRQ and
+clear pending interrupts when open the keypad.
 
-> The usage of strict_strtoul() is not preferred, because
-> strict_strtoul() is obsolete. Thus, kstrtoul() should be
-> used.
-> 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+Based on top of v3.11-rc2.
 
-Applied, thanks.
+Tested on OMAP4 SDP.
 
--- 
-Jiri Kosina
-SUSE Labs
+Illia Smyrnov (3):
+  Input: omap-keypad: Cleanup - use bitfiled instead of hardcoded
+    values
+  Input: omap-keypad: Convert to threaded IRQ
+  Input: omap-keypad: Clear pending interrupts on open
+
+ drivers/input/keyboard/omap4-keypad.c |   59 +++++++++++++++++++--------------
+ 1 files changed, 34 insertions(+), 25 deletions(-)
+

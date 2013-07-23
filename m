@@ -1,69 +1,89 @@
-From: Illia Smyrnov <illia.smyrnov@ti.com>
-Subject: [PATCH v2 1/3] Input: omap-keypad: Cleanup - use bitfiled instead of hardcoded values
-Date: Tue, 23 Jul 2013 19:09:56 +0300
-Message-ID: <1374595798-15492-2-git-send-email-illia.smyrnov@ti.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH v2 3/3] Input: omap-keypad: Clear pending interrupts on
+ open
+Date: Tue, 23 Jul 2013 20:18:38 +0300
+Message-ID: <20130723171838.GA9166@radagast>
 References: <1374595798-15492-1-git-send-email-illia.smyrnov@ti.com>
+ <1374595798-15492-4-git-send-email-illia.smyrnov@ti.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1374595798-15492-1-git-send-email-illia.smyrnov@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: balbi@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:57392 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757630Ab3GWRSk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jul 2013 13:18:40 -0400
+Content-Disposition: inline
+In-Reply-To: <1374595798-15492-4-git-send-email-illia.smyrnov@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Illia Smyrnov <illia.smyrnov@ti.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, balbi@ti.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 
-Use bitfiled instead of hardcoded values to set KBD_CTRL, use BIT macro,
-remove unused defines.
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Illia Smyrnov <illia.smyrnov@ti.com>
----
- drivers/input/keyboard/omap4-keypad.c |   25 +++++++++++--------------
- 1 files changed, 11 insertions(+), 14 deletions(-)
+Hi,
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index f4aa53a..c727548 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -53,21 +53,17 @@
- #define OMAP4_KBD_FULLCODE63_32		0x48
- 
- /* OMAP4 bit definitions */
--#define OMAP4_DEF_IRQENABLE_EVENTEN	(1 << 0)
--#define OMAP4_DEF_IRQENABLE_LONGKEY	(1 << 1)
--#define OMAP4_DEF_IRQENABLE_TIMEOUTEN	(1 << 2)
--#define OMAP4_DEF_WUP_EVENT_ENA		(1 << 0)
--#define OMAP4_DEF_WUP_LONG_KEY_ENA	(1 << 1)
--#define OMAP4_DEF_CTRL_NOSOFTMODE	(1 << 1)
--#define OMAP4_DEF_CTRLPTVVALUE		(1 << 2)
--#define OMAP4_DEF_CTRLPTV		(1 << 1)
-+#define OMAP4_DEF_IRQENABLE_EVENTEN	BIT(0)
-+#define OMAP4_DEF_IRQENABLE_LONGKEY	BIT(1)
-+#define OMAP4_DEF_WUP_EVENT_ENA		BIT(0)
-+#define OMAP4_DEF_WUP_LONG_KEY_ENA	BIT(1)
-+#define OMAP4_DEF_CTRL_NOSOFTMODE	BIT(1)
-+#define OMAP4_DEF_CTRL_PTV_SHIFT	2
- 
- /* OMAP4 values */
--#define OMAP4_VAL_IRQDISABLE		0x00
--#define OMAP4_VAL_DEBOUNCINGTIME	0x07
--#define OMAP4_VAL_FUNCTIONALCFG		0x1E
--
--#define OMAP4_MASK_IRQSTATUSDISABLE	0xFFFF
-+#define OMAP4_VAL_IRQDISABLE		0x0
-+#define OMAP4_VAL_DEBOUNCINGTIME	0x7
-+#define OMAP4_VAL_PVT			0x7
- 
- enum {
- 	KBD_REVISION_OMAP4 = 0,
-@@ -175,7 +171,8 @@ static int omap4_keypad_open(struct input_dev *input)
- 	disable_irq(keypad_data->irq);
- 
- 	kbd_writel(keypad_data, OMAP4_KBD_CTRL,
--			OMAP4_VAL_FUNCTIONALCFG);
-+			OMAP4_DEF_CTRL_NOSOFTMODE |
-+			(OMAP4_VAL_PVT << OMAP4_DEF_CTRL_PTV_SHIFT));
- 	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
- 			OMAP4_VAL_DEBOUNCINGTIME);
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
--- 
-1.7.0.4
+On Tue, Jul 23, 2013 at 07:09:58PM +0300, Illia Smyrnov wrote:
+> Clear pending interrupts when open keypad.
+
+where are these interrupts coming from ?
+
+> Signed-off-by: Illia Smyrnov <illia.smyrnov@ti.com>
+> ---
+>  drivers/input/keyboard/omap4-keypad.c |    5 +++--
+>  1 files changed, 3 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboa=
+rd/omap4-keypad.c
+> index b876a0d..62abc3e 100644
+> --- a/drivers/input/keyboard/omap4-keypad.c
+> +++ b/drivers/input/keyboard/omap4-keypad.c
+> @@ -185,13 +185,14 @@ static int omap4_keypad_open(struct input_dev *inpu=
+t)
+>  			(OMAP4_VAL_PVT << OMAP4_DEF_CTRL_PTV_SHIFT));
+>  	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
+>  			OMAP4_VAL_DEBOUNCINGTIME);
+> -	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
+> -			OMAP4_VAL_IRQDISABLE);
+>  	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
+>  			OMAP4_DEF_IRQENABLE_EVENTEN |
+>  				OMAP4_DEF_IRQENABLE_LONGKEY);
+>  	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
+>  			OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA);
+> +	/* clear pending interrupts */
+> +	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
+> +			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
+
+you might want to clear these interrupts before unmasking them :-)
+
+--=20
+balbi
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJR7rruAAoJEIaOsuA1yqREfYcP/iDwq1NDC6D7pH3Xh6Aamnqu
+Dxpb/1i8/IaHPfPNnGQAICSPgZ9sjTTc9tWvfodPQQaN0j+vCyBehE/PCFSXS7Ug
+V2X8yh5Jk2mWOK93QlgMumhjbhk46UYnPUjrym4HDS3vHA+cUpE0aFPms9FeSHvU
+USqsmS7vP/Ul/+vZWXMLILAjEAGO/nd/S07QkK/DG17kSfvIl+L3RJKJ3CR1Tpa7
+wLTAuRB5sOVBwTrDrVQshGna0WE6DC3X9OGpDVjQDdc6YhYJFXFPdwB2Bhq05Xwi
++YYThVW/PjZcCWi1Jw9gmxCWWrqb7E62NqDrEGjG2P5k6rzz+AHMG4MkeIwLq9P8
+5DFVWnQ6uZwlrj/DE+6UDBN63E4vaS+T8hnwjP3dxLB6TkNvmsTL5lFIoXj9OzmD
+RgeIGwxSlU0RHhCnwRbvpemAL/+CVgSLjpky193hHjGShxnyf6HAhzh4e6gFLUXh
+0xal/gqfPoY5iokahdYMj2k26EeRNn1gpdgNXkvwzA2urllhyGu/6Rmqgv8vjqTY
+zvXfBxMl1khBFaWQgUuFjXi7/z8Xw1xRlpu+/m0n8pwzZXePn4H/YXJz1EAeXRRv
+ZpU8I8CZYQnp73vDb3yHpQTVtX20DUZxY5baIPgmJhfK+lVC99Ab4QxN8YiLZGPS
+rWhK5fnwjZ0A/w7/2rM+
+=u7k9
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--

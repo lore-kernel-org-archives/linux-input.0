@@ -1,87 +1,163 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [ANNOUNCE] libevdev 0.2
-Date: Tue, 23 Jul 2013 09:09:08 +1000
-Message-ID: <20130722230908.GA14622@yabbi.redhat.com>
-Reply-To: input-tools@lists.freedesktop.org
+Subject: Re: [PATCH v2 2/2] input/uinput: add UI_GET_SYSPATH ioctl to
+ retrieve the sysfs path
+Date: Tue, 23 Jul 2013 11:15:46 +1000
+Message-ID: <20130723011546.GB9302@yabbi.HOME>
+References: <1373895429-8846-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1373895429-8846-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:27905 "EHLO
+Received: from leo.clearchain.com ([199.73.29.74]:36186 "EHLO
 	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751890Ab3GVXJI (ORCPT
+	with ESMTP id S1750747Ab3GWBPs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Jul 2013 19:09:08 -0400
+	Mon, 22 Jul 2013 21:15:48 -0400
 Content-Disposition: inline
+In-Reply-To: <1373895429-8846-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: input-tools@lists.freedesktop.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-[Note: bcc'd linux-input, wayland-devel and xorg-devel since those are the
-expected interested parties. Apologies if you get this email multiple times,
-I won't do this in the future. Future announcements will only go to
-input-tools@lists.freedesktop.org]
+On Mon, Jul 15, 2013 at 03:37:09PM +0200, Benjamin Tissoires wrote:
+> Evemu [1] uses uinput to replay devices traces it has recorded. However,
+> the way evemu uses uinput is slightly different from how uinput is
+> supposed to be used.
+> Evemu creates the device node through uinput, bu inject events through
+> the input device node directly (and skipping the uinput node).
+> 
+> Currently, evemu relies on an heuristic to guess which input node was
+> created. The problem is that is heuristic is subjected to races between
+> different uinput devices or even with physical devices. Having a way
+> to retrieve the sysfs path allows us to find the event node without
+> having to rely on this heuristic.
+> 
+> [1] http://www.freedesktop.org/wiki/Evemu/
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-This is the first release for libevdev, a C library that wraps the
-kernel evdev interface. The benefits are
-* type-safe interface for checking bits on a device
-* various abstractions for ioctls that aren't quite as straightforward (e.g.
-  EV_REP handling)
-* simple abstraction for handling SYN_DROPPED events
+Tested-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-This library is now hosted on freedesktop.org:
-http://www.freedesktop.org/wiki/Software/libevdev/
-API documentation: http://www.freedesktop.org/software/libevdev/doc/latest/
-Bugzilla component: https://bugs.freedesktop.org/enter_bug.cgi?product=libevdev
-cgit: http://cgit.freedesktop.org/libevdev/
+I'd really appreciate a comment above the ioctl define stating what the
+ioctl actually returns. only comment regarding the code:
 
-libevdev provides API calls for the various bits, so a simple process can
-work this way:
+> +static int uinput_str_to_user(const char *str, unsigned int maxlen,
+> +			      void __user *p)
 
-  struct libevdev *dev;
-
-  fd = open("/dev/input/event0", O_RDONLY);
-  rc = libevdev_new_from_fd(fd, &dev);
-
-  if (libevdev_has_event_code(dev, EV_REL, REL_X))
-        /* do something */
-
-For event handling, libevdev provides one call that returns the next event
-in the queue:
-
-  rc = libevdev_next_event(dev, flags, &ev);
-
-which does what you expect and returns 0 on success or -EAGAIN if there are
-no events waiting. If a SYN_DROPPED is the next event in the queue, libevdev
-syncs the device state and returns 1. The process can then handle the delta
-by simply parsing events until the device is fully synced again:
-
-  while ((rc = libevdev_next_event(dev, LIBEVEV_READ_SYNC, &ev)) == 1)
-     /* this is a synced event */
-
-  if (rc == -EAGAIN)
-     /* we are now fully synced */
-  else
-     /* error */
-
-To check out an example of how libevdev looks like, have a look at how
-evtest would look like with libevdev.
-http://cgit.freedesktop.org/libevdev/tree/tools/libevdev-events.c
-
-The goal is that future and current processes that deal with evdev events
-will switch to libevdev. An example of changes needed for the X.org
-synaptics driver is here:
-http://cgit.freedesktop.org/~whot/xf86-input-synaptics/commit/?h=libevdev
-
-Suggestions, comments, etc. are all welcome. Please note that the library is
-still in an early stage and may change in the future.
+I'd do this with a signature of the type (dest, src, len).
 
 Cheers,
    Peter
 
-git tag: libevdev-0.2
-
-http://www.freedesktop.org/software/libevdev/libevdev-0.2.tar.xz
-MD5:  bce22c2ae9c87b9a7b5c8d055f771084  libevdev-0.2.tar.xz
-SHA1: 8efec1ff4f8b45929c3acc2b7e4f9fd37c9f8d37  libevdev-0.2.tar.xz
-SHA256: da25b6efba09d7e357e50a31e599d98b97f116eb0f32086335640a06e13e37a6  libevdev-0.2.tar.xz
-
+> ---
+>  drivers/input/misc/uinput.c | 37 ++++++++++++++++++++++++++++++++++++-
+>  include/linux/uinput.h      |  1 +
+>  include/uapi/linux/uinput.h |  3 +++
+>  3 files changed, 40 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 7d518b4..49a9f7d 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -22,6 +22,7 @@
+>   * Changes/Revisions:
+>   *	0.4	12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
+>   *		- update uinput_user_dev struct to allow abs resolution
+> + *		- add UI_GET_SYSPATH ioctl
+>   *	0.3	09/04/2006 (Anssi Hannula <anssi.hannula@gmail.com>)
+>   *		- updated ff support for the changes in kernel interface
+>   *		- added MODULE_VERSION
+> @@ -667,6 +668,21 @@ static int uinput_ff_upload_from_user(const char __user *buffer,
+>  	__ret;						\
+>  })
+>  
+> +static int uinput_str_to_user(const char *str, unsigned int maxlen,
+> +			      void __user *p)
+> +{
+> +	int len;
+> +
+> +	if (!str)
+> +		return -ENOENT;
+> +
+> +	len = strlen(str) + 1;
+> +	if (len > maxlen)
+> +		len = maxlen;
+> +
+> +	return copy_to_user(p, str, len) ? -EFAULT : len;
+> +}
+> +
+>  static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>  				 unsigned long arg, void __user *p)
+>  {
+> @@ -676,6 +692,8 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>  	struct uinput_ff_erase  ff_erase;
+>  	struct uinput_request   *req;
+>  	char			*phys;
+> +	const char		*path;
+> +	unsigned int		size;
+>  
+>  	retval = mutex_lock_interruptible(&udev->mutex);
+>  	if (retval)
+> @@ -828,7 +846,24 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>  			break;
+>  
+>  		default:
+> -			retval = -EINVAL;
+> +			retval = -EAGAIN;
+> +	}
+> +
+> +	if (retval == -EAGAIN) {
+> +		size = _IOC_SIZE(cmd);
+> +
+> +		/* Now check variable-length commands */
+> +		switch (cmd & ~IOCSIZE_MASK) {
+> +			case UI_GET_SYSPATH(0):
+> +				path = kobject_get_path(&udev->dev->dev.kobj,
+> +							GFP_KERNEL);
+> +				retval = uinput_str_to_user(path, size, p);
+> +				kfree(path);
+> +				break;
+> +
+> +			default:
+> +				retval = -EINVAL;
+> +		}
+>  	}
+>  
+>   out:
+> diff --git a/include/linux/uinput.h b/include/linux/uinput.h
+> index 6291a22..64fab81 100644
+> --- a/include/linux/uinput.h
+> +++ b/include/linux/uinput.h
+> @@ -22,6 +22,7 @@
+>   * Changes/Revisions:
+>   *	0.4	12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
+>   *		- update uinput_user_dev struct to allow abs resolution
+> + *		- add UI_GET_SYSPATH ioctl
+>   *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
+>   *		- update ff support for the changes in kernel interface
+>   *		- add UINPUT_VERSION
+> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
+> index f6a393b..d826409 100644
+> --- a/include/uapi/linux/uinput.h
+> +++ b/include/uapi/linux/uinput.h
+> @@ -22,6 +22,7 @@
+>   * Changes/Revisions:
+>   *	0.4	12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
+>   *		- update uinput_user_dev struct to allow abs resolution
+> + *		- add UI_GET_SYSPATH ioctl
+>   *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
+>   *		- update ff support for the changes in kernel interface
+>   *		- add UINPUT_VERSION
+> @@ -75,6 +76,8 @@ struct uinput_ff_erase {
+>  #define UI_BEGIN_FF_ERASE	_IOWR(UINPUT_IOCTL_BASE, 202, struct uinput_ff_erase)
+>  #define UI_END_FF_ERASE		_IOW(UINPUT_IOCTL_BASE, 203, struct uinput_ff_erase)
+>  
+> +#define UI_GET_SYSPATH(len)	_IOC(_IOC_READ, UINPUT_IOCTL_BASE, 300, len)
+> +
+>  /*
+>   * To write a force-feedback-capable driver, the upload_effect
+>   * and erase_effect callbacks in input_dev must be implemented.
+> -- 
+> 1.8.3.1
+> 

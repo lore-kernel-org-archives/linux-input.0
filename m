@@ -1,19 +1,21 @@
 From: mathieu.poirier@linaro.org
 Subject: [RESEND PATCH v5] Input: sysrq - DT binding for key sequence
-Date: Wed, 24 Jul 2013 16:16:38 -0600
-Message-ID: <1374704198-8327-1-git-send-email-mathieu.poirier@linaro.org>
+Date: Wed, 24 Jul 2013 16:35:16 -0600
+Message-ID: <1374705316-8520-1-git-send-email-mathieu.poirier@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f48.google.com ([74.125.83.48]:40318 "EHLO
-	mail-ee0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752153Ab3GXWQ5 (ORCPT
+Received: from mail-ea0-f172.google.com ([209.85.215.172]:55865 "EHLO
+	mail-ea0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752699Ab3GXWfm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jul 2013 18:16:57 -0400
-Received: by mail-ee0-f48.google.com with SMTP id b47so520430eek.21
-        for <linux-input@vger.kernel.org>; Wed, 24 Jul 2013 15:16:55 -0700 (PDT)
+	Wed, 24 Jul 2013 18:35:42 -0400
+Received: by mail-ea0-f172.google.com with SMTP id q10so548664eaj.3
+        for <linux-input@vger.kernel.org>; Wed, 24 Jul 2013 15:35:41 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: grant.likely@linaro.org, dmitry.torokhov@gmail.com
-Cc: devicetree-discuss@lists.ozlabs.org, john.stultz@linaro.org, linux-input@vger.kernel.org, kernel-team@android.com, mathieu.poirier@linaro.org
+To: robherring2@gmail.com, grant.likely@linaro.org, dmitry.torokhov@gmail.com
+Cc: devicetree@vger.kernel.org, john.stultz@linaro.org, linux-input@vger.kernel.org, kernel-team@android.com, mathieu.poirier@linaro.org
+
+Sorry about the noise - device tree mailing has changed.
 
 I haven't heard back from anyone after making the last modifications
 a week ago.  If it's all good with you Rob, please ack it so that 

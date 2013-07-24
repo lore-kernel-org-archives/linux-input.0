@@ -1,102 +1,41 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH]  Input: max11801_ts - convert to devm
-Date: Wed, 24 Jul 2013 20:05:02 -0300
-Message-ID: <1374707102-5461-1-git-send-email-festevam@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gg0-f174.google.com ([209.85.161.174]:43899 "EHLO
-	mail-gg0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752518Ab3GXXFL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jul 2013 19:05:11 -0400
-Received: by mail-gg0-f174.google.com with SMTP id y3so208830ggc.33
-        for <linux-input@vger.kernel.org>; Wed, 24 Jul 2013 16:05:11 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: [RFC ebeam PATCH 0/2] new USB eBeam input driver
+Date: Thu, 25 Jul 2013 01:52:18 +0200
+Message-ID: <1374709940-607-1-git-send-email-yann.cantin@laposte.net>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz, rob@landley.net, gregkh@linuxfoundation.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-From: Fabio Estevam <fabio.estevam@freescale.com>
+Hi,
 
-Converting to devm functions can make the code smaller and cleaner.
+New USB input driver for eBeam devices.
 
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
----
- drivers/input/touchscreen/max11801_ts.c | 37 ++++++++-------------------------
- 1 file changed, 9 insertions(+), 28 deletions(-)
+Currently supported (tested) :
+- Luidia eBeam classic projection and edge projection models
+- Nec "interactive solution" NP01Wi1 & NP01Wi2 accessories.
 
-diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
-index 00bc6ca..9f84fcd 100644
---- a/drivers/input/touchscreen/max11801_ts.c
-+++ b/drivers/input/touchscreen/max11801_ts.c
-@@ -181,12 +181,11 @@ static int max11801_ts_probe(struct i2c_client *client,
- 	struct input_dev *input_dev;
- 	int error;
- 
--	data = kzalloc(sizeof(struct max11801_data), GFP_KERNEL);
--	input_dev = input_allocate_device();
-+	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
-+	input_dev = devm_input_allocate_device(&client->dev);
- 	if (!data || !input_dev) {
- 		dev_err(&client->dev, "Failed to allocate memory\n");
--		error = -ENOMEM;
--		goto err_free_mem;
-+		return -ENOMEM;
- 	}
- 
- 	data->client = client;
-@@ -205,38 +204,21 @@ static int max11801_ts_probe(struct i2c_client *client,
- 
- 	max11801_ts_phy_init(data);
- 
--	error = request_threaded_irq(client->irq, NULL, max11801_ts_interrupt,
--				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
--				     "max11801_ts", data);
-+	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+					  max11801_ts_interrupt,
-+					  IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+					  "max11801_ts", data);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to register interrupt\n");
--		goto err_free_mem;
-+		return error;
- 	}
- 
- 	error = input_register_device(data->input_dev);
- 	if (error)
--		goto err_free_irq;
-+		return error;
- 
- 	i2c_set_clientdata(client, data);
- 	return 0;
--
--err_free_irq:
--	free_irq(client->irq, data);
--err_free_mem:
--	input_free_device(input_dev);
--	kfree(data);
--	return error;
--}
--
--static int max11801_ts_remove(struct i2c_client *client)
--{
--	struct max11801_data *data = i2c_get_clientdata(client);
--
--	free_irq(client->irq, data);
--	input_unregister_device(data->input_dev);
--	kfree(data);
--
--	return 0;
- }
- 
- static const struct i2c_device_id max11801_ts_id[] = {
-@@ -252,7 +234,6 @@ static struct i2c_driver max11801_ts_driver = {
- 	},
- 	.id_table	= max11801_ts_id,
- 	.probe		= max11801_ts_probe,
--	.remove		= max11801_ts_remove,
- };
- 
- module_i2c_driver(max11801_ts_driver);
--- 
-1.8.1.2
+>From basic usb point of view, all these devices are
+indistinguishable : they have the same usb ids and (blank) hid
+report descriptors. There's other re-branded hardware that need to be
+test, but i bet on same ids.
+
+Patch 1 to blacklist the devices for hid generic-usb.
+
+Patch 2 is the actual driver.
+
+Notable stuff :
+- use div64_s64 for portable 64/64-bits divisions.
+- 13 sysfs custom files : 9 values for the transformation matrix,
+  4 for xy ranges and a calibration trigger.
+
+The module run fine since 3.3.6 kernel, both x86_32 and 64, actually
+run in production on a 3.8.13 and compile without errors on
+today's linus tree.
+
+Side note :
+- This driver was first submit and discuss last year.
+
+Thanks for your help.
 

@@ -1,48 +1,38 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3.11-rc2] HID: sony: fix HID mapping for PS3 sixaxis controller
-Date: Wed, 24 Jul 2013 16:53:07 +0200
-Message-ID: <1374677587-8194-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v3.11-rc2] HID: sony: fix HID mapping for PS3 sixaxis
+ controller
+Date: Wed, 24 Jul 2013 16:57:36 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1307241657200.3167@pobox.suse.cz>
+References: <1374677587-8194-1-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59943 "EHLO mx1.redhat.com"
+Received: from cantor2.suse.de ([195.135.220.15]:33540 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751935Ab3GXOxN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jul 2013 10:53:13 -0400
+	id S1751605Ab3GXO5l (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Jul 2013 10:57:41 -0400
+In-Reply-To: <1374677587-8194-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Commit f04d51404f51 (HID: driver for PS2/3 Buzz controllers) introduced
-an input_mapping() callback, but set the return value to -1 to all devices
-except the Buzz controllers. The result of this is that the Sixaxis input
-device is not populated, making it useless.
+On Wed, 24 Jul 2013, Benjamin Tissoires wrote:
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-Hi Jiri,
+> Commit f04d51404f51 (HID: driver for PS2/3 Buzz controllers) introduced
+> an input_mapping() callback, but set the return value to -1 to all devices
+> except the Buzz controllers. The result of this is that the Sixaxis input
+> device is not populated, making it useless.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+> Hi Jiri,
+> 
+> I have since yesterday a Sixaxis controller on my desk, and I noticed that it
+> was broken in v3.11.
 
-I have since yesterday a Sixaxis controller on my desk, and I noticed that it
-was broken in v3.11.
+Good catch, applied, thanks Benjamin.
 
-Cheers,
-Benjamin
-
- drivers/hid/hid-sony.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index ecbc749..87fbe29 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -369,7 +369,8 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	if (sc->quirks & PS3REMOTE)
- 		return ps3remote_mapping(hdev, hi, field, usage, bit, max);
- 
--	return -1;
-+	/* Let hid-core decide for the others */
-+	return 0;
- }
- 
- /*
 -- 
-1.8.3.1
-
+Jiri Kosina
+SUSE Labs

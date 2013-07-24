@@ -1,38 +1,76 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v3.11-rc2] HID: sony: fix HID mapping for PS3 sixaxis
- controller
-Date: Wed, 24 Jul 2013 16:57:36 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1307241657200.3167@pobox.suse.cz>
-References: <1374677587-8194-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: do not init reports for multitouch devices
+Date: Wed, 24 Jul 2013 17:01:01 +0200
+Message-ID: <CAN+gG=EqFZ3-Grx-F+5Bu7gVfm-0psPxE=84-fff8_Hgh=68jg@mail.gmail.com>
+References: <1373620101-16113-1-git-send-email-benjamin.tissoires@redhat.com>
+	<20130718192416.GA526@polaris.bitmath.org>
+	<CAN+gG=G6jw0BkJejZ=Rb+Vzzey1=JdqiiYmMonwjt9G1R779Tg@mail.gmail.com>
+	<20130719210430.GA31481@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33540 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751605Ab3GXO5l (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jul 2013 10:57:41 -0400
-In-Reply-To: <1374677587-8194-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130719210430.GA31481@polaris.bitmath.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2013, Benjamin Tissoires wrote:
+Hi Henrik,
 
-> Commit f04d51404f51 (HID: driver for PS2/3 Buzz controllers) introduced
-> an input_mapping() callback, but set the return value to -1 to all devices
-> except the Buzz controllers. The result of this is that the Sixaxis input
-> device is not populated, making it useless.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> Hi Jiri,
-> 
-> I have since yesterday a Sixaxis controller on my desk, and I noticed that it
-> was broken in v3.11.
+On Fri, Jul 19, 2013 at 11:04 PM,  <rydberg@euromail.se> wrote:
+> Hi Benjamin,
+>
+>> >> Some multitouch screens do not like to be polled for input reports.
+>> >> However, the Win8 spec says that all touches should be sent during
+>> >> each report, making the initialization of reports unnecessary.
+>> >> The Win7 spec is less precise, but we can safely assume that when
+>> >> the module is loaded (at boot), no one is touching the screen.
+>> >>
+>> >> Add the quirk HID_QUIRK_NO_INIT_REPORTS so that we do not have to
+>> >> introduce a quirk for each problematic device.
+>> >
+>> > I assume you have tested thoroughly for regressions? How about odd
+>> > eGalax devices, for instance? Changes affecting existing hardware
+>> > makes me nervous. Is it so bad to add this quirk on a per-device
+>> > basis? Or perhaps turned on by default for win8 devices only?
+>>
+>> Aargh, I forgot the eGalax... (I don't have it anymore on my desk). I
+>> was pretty confident because Win [7-8] is not doing any quirks for the
+>> multitouch devices, and I had in mind that it did not asked for the
+>> reports at startup (at least, I am sure about it for HID/I2C). I'm not
+>> sure win 8 devices is a sufficient denominator, because this init
+>> sequence is not mentioned anywhere in the Win 8 spec. It's true that
+>> we are going to see fewer Win 7 devices, but I would say it's the
+>> exact same problem for win 7 and 8. Moreover, asking this for Win 8
+>> devices only will forces us to detect it in core before hid-multitouch
+>> is loaded because the init reports is called before the parsing.
+>
+> We already branch on report specifics in hid_add_device(). Adding win8
+> detection there is more or less what it was built for.
 
-Good catch, applied, thanks Benjamin.
+right. So I will send a following series to detect win8 multitouch
+device in core.
 
--- 
-Jiri Kosina
-SUSE Labs
+>
+>> If I capture the Win 7 & Win 8 initialization events and I observe
+>> that they do not retrieve the reports, will it be sufficient as a
+>> guarantee to include this patch even if it is not widely tested under
+>> Linux?
+
+Actually, the current quirk is not imitating Windows behavior. Windows
+does not retrieve the input reports, but only the feature reports.
+This scheme is also useful for us as the feature_mapping() callback
+makes use of the ->value, and if we do not retrieve the feature
+report, the field is left uninitialized.
+
+I will also add an other quirk to retrieve only the features at init.
+
+>
+> We already have the usbhid quirks to handle odd cases, and we can add
+> all sorts of generic detection during device add, so there really is
+> no reason to risk regressions at all, is there?
+
+Ok, so let's go for another patch series.. :)
+
+Cheers,
+Benjamin

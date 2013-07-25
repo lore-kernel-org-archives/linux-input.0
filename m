@@ -1,63 +1,40 @@
-From: Oskar Andero <oskar.andero@sonymobile.com>
-Subject: [PATCH v2] input: don't call input_dev_release_keys() in resume
-Date: Thu, 25 Jul 2013 14:09:14 +0200
-Message-ID: <1374754154-7990-1-git-send-email-oskar.andero@sonymobile.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Mischa Jonker <Mischa.Jonker@synopsys.com>
+Subject: [PATCH] input/serio: disable i8042 PC keyboard ctrl for ARC
+Date: Thu, 25 Jul 2013 14:13:41 +0200
+Message-ID: <1374754421-27433-1-git-send-email-mjonker@synopsys.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:15414 "EHLO
-	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755226Ab3GYMJV (ORCPT
+Received: from alvesta.synopsys.com ([198.182.60.77]:57912 "EHLO
+	alvesta.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755343Ab3GYMNs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Jul 2013 08:09:21 -0400
+	Thu, 25 Jul 2013 08:13:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Bjorn Andersson <bjorn.andersson@sonymobile.com>, Radovan Lekanovic <radovan.lekanovic@sonymobile.com>, Aleksej Makarov <aleksej.makarov@sonymobile.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Oskar Andero <oskar.andero@sonymobile.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet.Gupta1@synopsys.com
+Cc: Mischa Jonker <Mischa.Jonker@synopsys.com>
 
-From: Aleksej Makarov <aleksej.makarov@sonymobile.com>
+It causes crashes when enabled, and we don't have such a peripheral
+anyway on ARC platforms.
 
-When waking up the platform by pressing a specific key, sending a
-release on that key makes it impossible to react on the event in
-user-space. This is fixed by moving the input_reset_device() call to
-resume instead.
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reviewed-by: Radovan Lekanovic <radovan.lekanovic@sonymobile.com>
-Signed-off-by: Aleksej Makarov <aleksej.makarov@sonymobile.com>
-Signed-off-by: Oskar Andero <oskar.andero@sonymobile.com>
+Signed-off-by: Mischa Jonker <mjonker@synopsys.com>
 ---
- drivers/input/input.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/input/serio/Kconfig |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index c044699..ee3ff16 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1676,22 +1676,13 @@ static int input_dev_suspend(struct device *dev)
- {
- 	struct input_dev *input_dev = to_input_dev(dev);
- 
--	mutex_lock(&input_dev->mutex);
--
--	if (input_dev->users)
--		input_dev_toggle(input_dev, false);
--
--	mutex_unlock(&input_dev->mutex);
-+	input_reset_device(input_dev);
- 
- 	return 0;
- }
- 
- static int input_dev_resume(struct device *dev)
- {
--	struct input_dev *input_dev = to_input_dev(dev);
--
--	input_reset_device(input_dev);
--
- 	return 0;
- }
- 
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index 94c17c2..1e691a3 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -22,7 +22,8 @@ config SERIO_I8042
+ 	tristate "i8042 PC Keyboard controller" if EXPERT || !X86
+ 	default y
+ 	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
+-		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN && !S390
++		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN && !S390 && \
++		   !ARC
+ 	help
+ 	  i8042 is the chip over which the standard AT keyboard and PS/2
+ 	  mouse are connected to the computer. If you use these devices,
 -- 
-1.8.1.5
+1.7.9.5
 

@@ -1,165 +1,134 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH 35/50] media: usb: cx231xx: spin_lock in complete() cleanup
-Date: Fri, 26 Jul 2013 16:28:30 +0200
-Message-ID: <51F2878E.90705@xs4all.nl>
-References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com> <1373533573-12272-36-git-send-email-ming.lei@canonical.com>
+From: Rolf Morel <rolfmorel@gmail.com>
+Subject: [BUG?] EV_LED events not seperated from other events by SYN_REPORT
+Date: Fri, 26 Jul 2013 16:45:09 +0200
+Message-ID: <CAFRyfCz4A_o6ECVb34Xf2KEtFh3neAOU4f6cBvevsQA9PJcGtw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1373533573-12272-36-git-send-email-ming.lei@canonical.com>
-Sender: netdev-owner@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Hans Verkuil <hans.verkuil@cisco.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oa0-f68.google.com ([209.85.219.68]:40187 "EHLO
+	mail-oa0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759039Ab3GZOpK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Jul 2013 10:45:10 -0400
+Received: by mail-oa0-f68.google.com with SMTP id n12so573858oag.7
+        for <linux-input@vger.kernel.org>; Fri, 26 Jul 2013 07:45:09 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
+Hello,
 
+I am having some trouble with how device LED switches are being
+presented in the, userspace API, event stream.
 
-On 07/11/2013 11:05 AM, Ming Lei wrote:
-> Complete() will be run with interrupt enabled, so change to
-> spin_lock_irqsave().
-> 
-> Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
-> Cc: Hans Verkuil <hans.verkuil@cisco.com>
-> Cc: linux-media@vger.kernel.org
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
-> ---
->  drivers/media/usb/cx231xx/cx231xx-audio.c |    6 ++++++
->  drivers/media/usb/cx231xx/cx231xx-core.c  |   10 ++++++----
->  drivers/media/usb/cx231xx/cx231xx-vbi.c   |    5 +++--
->  3 files changed, 15 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/media/usb/cx231xx/cx231xx-audio.c b/drivers/media/usb/cx231xx/cx231xx-audio.c
-> index 81a1d97..58c1b5c 100644
-> --- a/drivers/media/usb/cx231xx/cx231xx-audio.c
-> +++ b/drivers/media/usb/cx231xx/cx231xx-audio.c
-> @@ -136,6 +136,7 @@ static void cx231xx_audio_isocirq(struct urb *urb)
->  		stride = runtime->frame_bits >> 3;
->  
->  		for (i = 0; i < urb->number_of_packets; i++) {
-> +			unsigned long flags;
->  			int length = urb->iso_frame_desc[i].actual_length /
->  				     stride;
->  			cp = (unsigned char *)urb->transfer_buffer +
-> @@ -158,6 +159,7 @@ static void cx231xx_audio_isocirq(struct urb *urb)
->  				       length * stride);
->  			}
->  
-> +			local_irq_save(flags);
->  			snd_pcm_stream_lock(substream);
+If a program sets the LED using the evdev interface, write EV_LED
+input_event to device, other programs connected to the device will
+have the event in their stream, as expected. The problem is the
+received EV_LED events are not separated in time, as in moment in
+time. It does not generate a separate SYN_REPORT to make the EV_LED
+event a separate event in time.
 
-Can't you use snd_pcm_stream_lock_irqsave here?
+I have only two devices which have this functionality, set LED state
+through evdev, to test and they both are 3Dconnexion devices. They
+both exhibit the same behavior.
 
-Ditto for the other media drivers where this happens: em28xx and tlg2300.
+So my questions are:
+Is this considered a bug (/should it be filed as a bug)?
+Does the fault lie in the input-subsystem or a more specific driver?
 
-I've reviewed the media driver changes and they look OK to me, so if
-my comment above is fixed, then I can merge them for 3.12. Or are these
-changes required for 3.11?
+Here is some evtest data which has only button BTN_0 presses and a
+separate program setting the LED state by writing an input_event
+to the device.
 
-Regards,
+$ evtest /dev/input/event7
+Input driver version is 1.0.1
+Input device ID: bus 0x3 vendor 0x46d product 0xc626 version 0x110
+Input device name: "3Dconnexion SpaceNavigator"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 256 (BTN_0)
+...
+  Event type 4 (EV_MSC)
+    Event code 4 (MSC_SCAN)
+  Event type 17 (EV_LED)
+    Event code 8 (LED_MISC)
+Properties:
+Testing ... (interrupt to exit)
+Event: time 1374507104.352812, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90001
+Event: time 1374507104.352812, type 1 (EV_KEY), code 256 (BTN_0), value 1
+Event: time 1374507104.352812, -------------- SYN_REPORT ------------
+Event: time 1374507104.504809, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90001
+Event: time 1374507104.504809, type 1 (EV_KEY), code 256 (BTN_0), value 0
+Event: time 1374507104.504809, -------------- SYN_REPORT ------------
+...
+Switch terminal and run program which sets LED using evdev and
+wait 5 seconds before pressing the button.
+...
+Event: time 1374507117.496465, type 17 (EV_LED), code 8 (LED_MISC), value 1
+Event: time 1374507117.496465, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90001
+Event: time 1374507117.496465, type 1 (EV_KEY), code 256 (BTN_0), value 1
+Event: time 1374507117.496465, -------------- SYN_REPORT ------------
+Event: time 1374507117.616560, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90001
+Event: time 1374507117.616560, type 1 (EV_KEY), code 256 (BTN_0), value 0
+Event: time 1374507117.616560, -------------- SYN_REPORT ------------
 
-	Hans
+The EV_LED events even accumelate.
+Event: time 1374507610.679128, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90001
+Event: time 1374507610.679128, type 1 (EV_KEY), code 256 (BTN_0), value 1
+Event: time 1374507610.679128, -------------- SYN_REPORT ------------
+Event: time 1374507610.791126, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90001
+Event: time 1374507610.791126, type 1 (EV_KEY), code 256 (BTN_0), value 0
+Event: time 1374507610.791126, -------------- SYN_REPORT ------------
+Event: time 1374507617.247107, type 17 (EV_LED), code 8 (LED_MISC), value 0
+Event: time 1374507617.247107, type 17 (EV_LED), code 8 (LED_MISC), value 1
+Event: time 1374507617.247107, type 17 (EV_LED), code 8 (LED_MISC), value 0
+Event: time 1374507617.247107, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90001
+Event: time 1374507617.247107, type 1 (EV_KEY), code 256 (BTN_0), value 1
+Event: time 1374507617.247107, -------------- SYN_REPORT ------------
+Event: time 1374507617.423105, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90001
+Event: time 1374507617.423105, type 1 (EV_KEY), code 256 (BTN_0), value 0
+Event: time 1374507617.423105, -------------- SYN_REPORT ------------
 
->  
->  			dev->adev.hwptr_done_capture += length;
-> @@ -174,6 +176,7 @@ static void cx231xx_audio_isocirq(struct urb *urb)
->  				period_elapsed = 1;
->  			}
->  			snd_pcm_stream_unlock(substream);
-> +			local_irq_restore(flags);
->  		}
->  		if (period_elapsed)
->  			snd_pcm_period_elapsed(substream);
-> @@ -224,6 +227,7 @@ static void cx231xx_audio_bulkirq(struct urb *urb)
->  		stride = runtime->frame_bits >> 3;
->  
->  		if (1) {
-> +			unsigned long flags;
->  			int length = urb->actual_length /
->  				     stride;
->  			cp = (unsigned char *)urb->transfer_buffer;
-> @@ -242,6 +246,7 @@ static void cx231xx_audio_bulkirq(struct urb *urb)
->  				       length * stride);
->  			}
->  
-> +			local_irq_save(flags);
->  			snd_pcm_stream_lock(substream);
->  
->  			dev->adev.hwptr_done_capture += length;
-> @@ -258,6 +263,7 @@ static void cx231xx_audio_bulkirq(struct urb *urb)
->  				period_elapsed = 1;
->  			}
->  			snd_pcm_stream_unlock(substream);
-> +			local_irq_restore(flags);
->  		}
->  		if (period_elapsed)
->  			snd_pcm_period_elapsed(substream);
-> diff --git a/drivers/media/usb/cx231xx/cx231xx-core.c b/drivers/media/usb/cx231xx/cx231xx-core.c
-> index 4ba3ce0..593b397 100644
-> --- a/drivers/media/usb/cx231xx/cx231xx-core.c
-> +++ b/drivers/media/usb/cx231xx/cx231xx-core.c
-> @@ -798,6 +798,7 @@ static void cx231xx_isoc_irq_callback(struct urb *urb)
->  	    container_of(dma_q, struct cx231xx_video_mode, vidq);
->  	struct cx231xx *dev = container_of(vmode, struct cx231xx, video_mode);
->  	int i;
-> +	unsigned long flags;
->  
->  	switch (urb->status) {
->  	case 0:		/* success */
-> @@ -813,9 +814,9 @@ static void cx231xx_isoc_irq_callback(struct urb *urb)
->  	}
->  
->  	/* Copy data from URB */
-> -	spin_lock(&dev->video_mode.slock);
-> +	spin_lock_irqsave(&dev->video_mode.slock, flags);
->  	dev->video_mode.isoc_ctl.isoc_copy(dev, urb);
-> -	spin_unlock(&dev->video_mode.slock);
-> +	spin_unlock_irqrestore(&dev->video_mode.slock, flags);
->  
->  	/* Reset urb buffers */
->  	for (i = 0; i < urb->number_of_packets; i++) {
-> @@ -842,6 +843,7 @@ static void cx231xx_bulk_irq_callback(struct urb *urb)
->  	struct cx231xx_video_mode *vmode =
->  	    container_of(dma_q, struct cx231xx_video_mode, vidq);
->  	struct cx231xx *dev = container_of(vmode, struct cx231xx, video_mode);
-> +	unsigned long flags;
->  
->  	switch (urb->status) {
->  	case 0:		/* success */
-> @@ -857,9 +859,9 @@ static void cx231xx_bulk_irq_callback(struct urb *urb)
->  	}
->  
->  	/* Copy data from URB */
-> -	spin_lock(&dev->video_mode.slock);
-> +	spin_lock_irqsave(&dev->video_mode.slock, flags);
->  	dev->video_mode.bulk_ctl.bulk_copy(dev, urb);
-> -	spin_unlock(&dev->video_mode.slock);
-> +	spin_unlock_irqrestore(&dev->video_mode.slock, flags);
->  
->  	/* Reset urb buffers */
->  	urb->status = usb_submit_urb(urb, GFP_ATOMIC);
-> diff --git a/drivers/media/usb/cx231xx/cx231xx-vbi.c b/drivers/media/usb/cx231xx/cx231xx-vbi.c
-> index c027942..38e78f8 100644
-> --- a/drivers/media/usb/cx231xx/cx231xx-vbi.c
-> +++ b/drivers/media/usb/cx231xx/cx231xx-vbi.c
-> @@ -306,6 +306,7 @@ static void cx231xx_irq_vbi_callback(struct urb *urb)
->  	struct cx231xx_video_mode *vmode =
->  	    container_of(dma_q, struct cx231xx_video_mode, vidq);
->  	struct cx231xx *dev = container_of(vmode, struct cx231xx, vbi_mode);
-> +	unsigned long flags;
->  
->  	switch (urb->status) {
->  	case 0:		/* success */
-> @@ -322,9 +323,9 @@ static void cx231xx_irq_vbi_callback(struct urb *urb)
->  	}
->  
->  	/* Copy data from URB */
-> -	spin_lock(&dev->vbi_mode.slock);
-> +	spin_lock_irqsave(&dev->vbi_mode.slock, flags);
->  	dev->vbi_mode.bulk_ctl.bulk_copy(dev, urb);
-> -	spin_unlock(&dev->vbi_mode.slock);
-> +	spin_unlock_irqrestore(&dev->vbi_mode.slock, flags);
->  
->  	/* Reset status */
->  	urb->status = 0;
-> 
+Event used to 'write' to device ('int state' is either 0 or 1):
+struct input_event input_event;
+input_event.type = EV_LED;
+input_event.code = LED_MISC;
+input_event.value = state;
+
+Relevant part of 'cat /proc/bus/input/devices':
+I: Bus=0003 Vendor=046d Product=c626 Version=0110
+N: Name="3Dconnexion SpaceNavigator"
+P: Phys=usb-0000:00:13.1-1/input0
+S: Sysfs=/devices/pci0000:00/0000:00:13.1/usb6/6-1/6-1:1.0/input/input53
+U: Uniq=
+H: Handlers=event7 js0
+B: PROP=0
+B: EV=2001b
+B: KEY=3 0 0 0 0
+B: ABS=3f
+B: MSC=10
+B: LED=100
+
+Relevant part of 'dmesg':
+[124497.173908] usb 6-1: new low-speed USB device number 5 using ohci_hcd
+[124497.456966] logitech 0003:046D:C626.0007: fixing up rel/abs in
+Logitech report descriptor
+[124497.521043] input: 3Dconnexion SpaceNavigator as
+/devices/pci0000:00/0000:00:13.1/usb6/6-1/6-1:1.0/input/input54
+[124497.521208] logitech 0003:046D:C626.0007: input,hidraw3: USB HID
+v1.10 Multi-Axis Controller [3Dconnexion SpaceNavigator] on
+usb-0000:00:13.1-1/input0
+
+Tested on two home desktop machines, ArchLinux and XUbuntu.
+$ cat /proc/version
+Linux version 3.10.2-1-ARCH (tobias@T-POWA-LX) (gcc version 4.8.1
+(GCC) ) #1 SMP PREEMPT Mon Jul 22 08:47:24 CEST 2013
+$ cat /proc/version
+Linux version 3.8.0-26-generic (buildd@panlong) (gcc version 4.7.3
+(Ubuntu/Linaro 4.7.3-1ubuntu1) ) #38-Ubuntu SMP Mon Jun 17 21:43:33
+UTC 2013
+
+P.S. This is my first time posting to a kernel mailing list,
+I hope that this message is adequate and in the right place.

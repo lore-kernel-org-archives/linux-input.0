@@ -1,98 +1,56 @@
 From: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Subject: [PATCH] mfd: input: arm: dts: doc: ti_am335x: typo fixes (coordiante
- -> coordinate)
-Date: Fri, 26 Jul 2013 22:37:10 +0100
-Message-ID: <1374874630-25457-2-git-send-email-zubair.lutfullah@gmail.com>
-References: <1374874630-25457-1-git-send-email-zubair.lutfullah@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1374874630-25457-1-git-send-email-zubair.lutfullah@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-doc@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Subject: [PATCH 0/2] iio: input: ti_am335x_adc: Add continuous sampling and trigger support round 3
+Date: Sat, 27 Jul 2013 00:51:12 +0100
+Message-ID: <1374882674-18403-1-git-send-email-zubair.lutfullah@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f42.google.com ([74.125.83.42]:37789 "EHLO
+	mail-ee0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755017Ab3GZXvT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Jul 2013 19:51:19 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jic23@cam.ac.uk
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org, Russ.Dill@ti.com
 
-Did a grep for 'coordiante' and replaced them all with 'coordinate'
+ADC and TSC share an IRQ line. Patch one is simple and adds shared irq support on the TSC side.
 
-Signed-off-by: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
----
- .../bindings/input/touchscreen/ti-tsc-adc.txt      |    4 ++--
- arch/arm/boot/dts/am335x-evm.dts                   |    2 +-
- drivers/input/touchscreen/ti_am335x_tsc.c          |    2 +-
- drivers/mfd/ti_am335x_tscadc.c                     |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+The second patch adds continuous sampling support to the am335x_adc driver.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-index 491c97b..3e22aec 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-@@ -6,7 +6,7 @@ Required properties:
- 	ti,wires: Wires refer to application modes i.e. 4/5/8 wire touchscreen
- 		  support on the platform.
- 	ti,x-plate-resistance: X plate resistance
--	ti,coordiante-readouts: The sequencer supports a total of 16
-+	ti,coordinate-readouts: The sequencer supports a total of 16
- 				programmable steps each step is used to
- 				read a single coordinate. A single
-                                 readout is enough but multiple reads can
-@@ -34,7 +34,7 @@ Example:
- 		tsc {
- 			ti,wires = <4>;
- 			ti,x-plate-resistance = <200>;
--			ti,coordiante-readouts = <5>;
-+			ti,coordinate-readouts = <5>;
- 			ti,wire-config = <0x00 0x11 0x22 0x33>;
- 		};
- 
-diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
-index 0fa4c7f..e50b781 100644
---- a/arch/arm/boot/dts/am335x-evm.dts
-+++ b/arch/arm/boot/dts/am335x-evm.dts
-@@ -250,7 +250,7 @@
- 	tsc {
- 		ti,wires = <4>;
- 		ti,x-plate-resistance = <200>;
--		ti,coordiante-readouts = <5>;
-+		ti,coordinate-readouts = <5>;
- 		ti,wire-config = <0x00 0x11 0x22 0x33>;
- 	};
- 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 0e9f02a..6422f65 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -348,7 +348,7 @@ static int titsc_parse_dt(struct platform_device *pdev,
- 	if (err < 0)
- 		return err;
- 
--	err = of_property_read_u32(node, "ti,coordiante-readouts",
-+	err = of_property_read_u32(node, "ti,coordinate-readouts",
- 			&ts_dev->coordinate_readouts);
- 	if (err < 0)
- 		return err;
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index cd74d59..1686ae6 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -106,7 +106,7 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
- 
- 	node = of_get_child_by_name(pdev->dev.of_node, "tsc");
- 	of_property_read_u32(node, "ti,wires", &tsc_wires);
--	of_property_read_u32(node, "ti,coordiante-readouts", &readouts);
-+	of_property_read_u32(node, "ti,coordinate-readouts", &readouts);
- 
- 	node = of_get_child_by_name(pdev->dev.of_node, "adc");
- 	of_property_for_each_u32(node, "ti,adc-channels", prop, cur, val) {
+It has been submitted previously. This is round 3.
+
+Previously:
+- Submitted as a series of patches and bug fixes.
+- The driver would continuously push samples into a buffer exposed to userspace.
+- Extra sysfs attributes for selecting continuous mode or one shot mode.
+- No trigger functionality.
+- Reading from /dev/iio required patching the provided generic_buffer.c iio test application to bypass trigger.
+- Only one channel could be read at a time.
+- And even then, samples were skipped as the FIFO was read incorrectly.
+
+Now: 
+- All bug fixes merged together in one patch.
+- Stuck closely to the IIO ABI this time.
+- Added trigger support.
+- Fixed channel scanning where only one channel could be read into the buffer at a time.
+- Now all enabled channels in the scan_elements folder are pushed to the userspace properly without skipping any samples.
+- generic_buffer.c test application can read samples without any modification.
+- A sysfs trigger starts acquisition.
+
+This has been tested on the Beaglebone Black running the am335x processor.
+The patches apply on the iio branch fixes-togreg.
+
+Patil, Rachna (1):
+  input: ti_tsc: Enable shared IRQ for TSC
+
+Zubair Lutfullah (1):
+  iio: ti_am335x_adc: Add continuous sampling and trigger support
+
+ drivers/iio/adc/ti_am335x_adc.c           |  334 +++++++++++++++++++++++------
+ drivers/input/touchscreen/ti_am335x_tsc.c |   18 +-
+ include/linux/mfd/ti_am335x_tscadc.h      |   13 +-
+ 3 files changed, 299 insertions(+), 66 deletions(-)
+
 -- 
 1.7.9.5
+

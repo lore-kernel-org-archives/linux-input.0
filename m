@@ -1,77 +1,189 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH 35/50] media: usb: cx231xx: spin_lock in complete() cleanup
-Date: Sat, 27 Jul 2013 17:34:07 +0800
-Message-ID: <CACVXFVMHecbxaGWe6-EeF-sDXRx0GnPHb4shRYOQxUXPbRMyGg@mail.gmail.com>
-References: <1373533573-12272-1-git-send-email-ming.lei@canonical.com>
-	<1373533573-12272-36-git-send-email-ming.lei@canonical.com>
-	<51F2878E.90705@xs4all.nl>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v2 2/2] input/uinput: add UI_GET_SYSPATH ioctl to retrieve
+ the sysfs path
+Date: Sat, 27 Jul 2013 15:07:00 +0200
+Message-ID: <CANq1E4RfTLtDz1RYixg4qdkNxrU22rSaZxFss4++A-0hYM0bEQ@mail.gmail.com>
+References: <1373895429-8846-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1373895429-8846-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:34415 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751105Ab3G0JeL (ORCPT
+Received: from mail-ob0-f173.google.com ([209.85.214.173]:63672 "EHLO
+	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751640Ab3G0NHB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Jul 2013 05:34:11 -0400
-In-Reply-To: <51F2878E.90705@xs4all.nl>
+	Sat, 27 Jul 2013 09:07:01 -0400
+In-Reply-To: <1373895429-8846-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Hans Verkuil <hans.verkuil@cisco.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Fri, Jul 26, 2013 at 10:28 PM, Hans Verkuil <hverkuil@xs4all.nl> wrote:
+Hi
+
+On Mon, Jul 15, 2013 at 3:37 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Evemu [1] uses uinput to replay devices traces it has recorded. However,
+> the way evemu uses uinput is slightly different from how uinput is
+> supposed to be used.
+> Evemu creates the device node through uinput, bu inject events through
+> the input device node directly (and skipping the uinput node).
 >
+> Currently, evemu relies on an heuristic to guess which input node was
+> created. The problem is that is heuristic is subjected to races between
+> different uinput devices or even with physical devices. Having a way
+> to retrieve the sysfs path allows us to find the event node without
+> having to rely on this heuristic.
+
+It would actually be enough to return the "input_no" from
+input_register_device() (which is currently local but we could save it
+in "dev"). Or only the device-name. I don't know why you want the full
+syspath. It's just overhead in the kernel that we could easily let
+user-space do. And the path /sys/class/input/<devname> can be put
+together by user-space.
+
+Anyway, Dmitry has to decide on that. Apart from some style-issues I
+mentioned below:
+  Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+
+Cheers
+David
+
+> [1] http://www.freedesktop.org/wiki/Evemu/
 >
-> On 07/11/2013 11:05 AM, Ming Lei wrote:
->> Complete() will be run with interrupt enabled, so change to
->> spin_lock_irqsave().
->>
->> Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
->> Cc: Hans Verkuil <hans.verkuil@cisco.com>
->> Cc: linux-media@vger.kernel.org
->> Signed-off-by: Ming Lei <ming.lei@canonical.com>
->> ---
->>  drivers/media/usb/cx231xx/cx231xx-audio.c |    6 ++++++
->>  drivers/media/usb/cx231xx/cx231xx-core.c  |   10 ++++++----
->>  drivers/media/usb/cx231xx/cx231xx-vbi.c   |    5 +++--
->>  3 files changed, 15 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/media/usb/cx231xx/cx231xx-audio.c b/drivers/media/usb/cx231xx/cx231xx-audio.c
->> index 81a1d97..58c1b5c 100644
->> --- a/drivers/media/usb/cx231xx/cx231xx-audio.c
->> +++ b/drivers/media/usb/cx231xx/cx231xx-audio.c
->> @@ -136,6 +136,7 @@ static void cx231xx_audio_isocirq(struct urb *urb)
->>               stride = runtime->frame_bits >> 3;
->>
->>               for (i = 0; i < urb->number_of_packets; i++) {
->> +                     unsigned long flags;
->>                       int length = urb->iso_frame_desc[i].actual_length /
->>                                    stride;
->>                       cp = (unsigned char *)urb->transfer_buffer +
->> @@ -158,6 +159,7 @@ static void cx231xx_audio_isocirq(struct urb *urb)
->>                                      length * stride);
->>                       }
->>
->> +                     local_irq_save(flags);
->>                       snd_pcm_stream_lock(substream);
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/input/misc/uinput.c | 37 ++++++++++++++++++++++++++++++++++++-
+>  include/linux/uinput.h      |  1 +
+>  include/uapi/linux/uinput.h |  3 +++
+>  3 files changed, 40 insertions(+), 1 deletion(-)
 >
-> Can't you use snd_pcm_stream_lock_irqsave here?
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 7d518b4..49a9f7d 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -22,6 +22,7 @@
+>   * Changes/Revisions:
+>   *     0.4     12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
+>   *             - update uinput_user_dev struct to allow abs resolution
+> + *             - add UI_GET_SYSPATH ioctl
 
-Sure, that is already in my mind, :-)
+What tree is that patch against? I cannot see an "0.4" entry in:
+http://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/tree/drivers/input/misc/uinput.c?h=next
 
-> Ditto for the other media drivers where this happens: em28xx and tlg2300.
-
-Yes.
-
+>   *     0.3     09/04/2006 (Anssi Hannula <anssi.hannula@gmail.com>)
+>   *             - updated ff support for the changes in kernel interface
+>   *             - added MODULE_VERSION
+> @@ -667,6 +668,21 @@ static int uinput_ff_upload_from_user(const char __user *buffer,
+>         __ret;                                          \
+>  })
 >
-> I've reviewed the media driver changes and they look OK to me, so if
-> my comment above is fixed, then I can merge them for 3.12. Or are these
-> changes required for 3.11?
+> +static int uinput_str_to_user(const char *str, unsigned int maxlen,
+> +                             void __user *p)
 
-These are for 3.12.
+As Peter mentioned, I'd move "maxlen" to the end.
 
-I will send out v2 next week, and thanks for your review.
+> +{
+> +       int len;
+> +
+> +       if (!str)
+> +               return -ENOENT;
+> +
+> +       len = strlen(str) + 1;
+> +       if (len > maxlen)
+> +               len = maxlen;
+> +
+> +       return copy_to_user(p, str, len) ? -EFAULT : len;
 
-Thanks,
---
-Ming Lei
+I'd prefer a "strlcpy()" so we guarantee a terminating 0 for
+user-space, but I guess that'd be rather complex to do here. I
+couldn't find any strlcpy_to_user()...
+
+> +}
+> +
+>  static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>                                  unsigned long arg, void __user *p)
+>  {
+> @@ -676,6 +692,8 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>         struct uinput_ff_erase  ff_erase;
+>         struct uinput_request   *req;
+>         char                    *phys;
+> +       const char              *path;
+> +       unsigned int            size;
+>
+>         retval = mutex_lock_interruptible(&udev->mutex);
+>         if (retval)
+> @@ -828,7 +846,24 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>                         break;
+>
+>                 default:
+> -                       retval = -EINVAL;
+> +                       retval = -EAGAIN;
+> +       }
+> +
+> +       if (retval == -EAGAIN) {
+> +               size = _IOC_SIZE(cmd);
+> +
+> +               /* Now check variable-length commands */
+> +               switch (cmd & ~IOCSIZE_MASK) {
+> +                       case UI_GET_SYSPATH(0):
+> +                               path = kobject_get_path(&udev->dev->dev.kobj,
+> +                                                       GFP_KERNEL);
+
+I know, device registration is protected by udev->mutex but I'd still prefer:
+  if (udev->state != UIST_CREATED)
+    return -ENOENT;
+
+But that's probably a matter of taste.
+
+> +                               retval = uinput_str_to_user(path, size, p);
+> +                               kfree(path);
+> +                               break;
+> +
+> +                       default:
+> +                               retval = -EINVAL;
+> +               }
+>         }
+>
+>   out:
+> diff --git a/include/linux/uinput.h b/include/linux/uinput.h
+> index 6291a22..64fab81 100644
+> --- a/include/linux/uinput.h
+> +++ b/include/linux/uinput.h
+> @@ -22,6 +22,7 @@
+>   * Changes/Revisions:
+>   *     0.4     12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
+>   *             - update uinput_user_dev struct to allow abs resolution
+> + *             - add UI_GET_SYSPATH ioctl
+>   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
+>   *             - update ff support for the changes in kernel interface
+>   *             - add UINPUT_VERSION
+> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
+> index f6a393b..d826409 100644
+> --- a/include/uapi/linux/uinput.h
+> +++ b/include/uapi/linux/uinput.h
+> @@ -22,6 +22,7 @@
+>   * Changes/Revisions:
+>   *     0.4     12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
+>   *             - update uinput_user_dev struct to allow abs resolution
+> + *             - add UI_GET_SYSPATH ioctl
+>   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
+>   *             - update ff support for the changes in kernel interface
+>   *             - add UINPUT_VERSION
+> @@ -75,6 +76,8 @@ struct uinput_ff_erase {
+>  #define UI_BEGIN_FF_ERASE      _IOWR(UINPUT_IOCTL_BASE, 202, struct uinput_ff_erase)
+>  #define UI_END_FF_ERASE                _IOW(UINPUT_IOCTL_BASE, 203, struct uinput_ff_erase)
+>
+> +#define UI_GET_SYSPATH(len)    _IOC(_IOC_READ, UINPUT_IOCTL_BASE, 300, len)
+> +
+>  /*
+>   * To write a force-feedback-capable driver, the upload_effect
+>   * and erase_effect callbacks in input_dev must be implemented.
+> --
+> 1.8.3.1
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,68 +1,97 @@
-From: Mauro Carvalho Chehab <m.chehab@samsung.com>
-Subject: Samsung series 5 ultra keyboard
-Date: Sat, 27 Jul 2013 10:11:53 -0300
-Message-ID: <20130727101153.6a3ece65@samsung.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH v2 3/3] Input: omap-keypad: Set irq to level instead of
+ edge
+Date: Sat, 27 Jul 2013 20:07:09 +0300
+Message-ID: <20130727170647.GA17360@radagast>
+References: <1374858546-25034-1-git-send-email-illia.smyrnov@ti.com>
+ <1374858546-25034-4-git-send-email-illia.smyrnov@ti.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.w2.samsung.com ([211.189.100.13]:63093 "EHLO
-	usmailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751721Ab3G0NWA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Jul 2013 09:22:00 -0400
-Received: from uscpsbgm1.samsung.com
- (u114.gpu85.samsung.co.kr [203.254.195.114]) by usmailout3.samsung.com
- (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0MQL00GKTJBXU520@usmailout3.samsung.com> for
- linux-input@vger.kernel.org; Sat, 27 Jul 2013 09:11:57 -0400 (EDT)
+Received: from comal.ext.ti.com ([198.47.26.152]:56743 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752419Ab3G0RHQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 27 Jul 2013 13:07:16 -0400
+Content-Disposition: inline
+In-Reply-To: <1374858546-25034-4-git-send-email-illia.smyrnov@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Illia Smyrnov <illia.smyrnov@ti.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 
-Hi Dmitry,
+--3uo+9/B/ebqu+fSQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I received a new notebook those days that has an extra feature of a "Fn Lock"
-key.
+Hi,
 
-When this key is pressed, it produces a scan code 0xa8, and the direction
-keys (and other keys) start to produce different codes. When pressed again,
-it produces a scan code 0xa9, and the keys return to their normal behavior.
+On Fri, Jul 26, 2013 at 08:09:06PM +0300, Illia Smyrnov wrote:
+> From: Axel Haslam <axelhaslam@ti.com>
+>=20
+> Set mpu irq to level instead of edge, since if mpu is in low power
+> an edge detection may be lost if the event is a wkup event.
+>=20
+> Signed-off-by: Axel Haslam <axelhaslam@ti.com>
+> Signed-off-by: Illia Smyrnov <illia.smyrnov@ti.com>
+> ---
+>  Based on top of v3.11-rc2
+>=20
+>  Depends on:
+>  Input: omap-keypad: Convert to threaded IRQ
+>  https://patchwork.kernel.org/patch/2832920/
+>=20
+>  drivers/input/keyboard/omap4-keypad.c |    6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboa=
+rd/omap4-keypad.c
+> index e8bdc76..7adb53e 100644
+> --- a/drivers/input/keyboard/omap4-keypad.c
+> +++ b/drivers/input/keyboard/omap4-keypad.c
+> @@ -374,9 +374,13 @@ static int omap4_keypad_probe(struct platform_device=
+ *pdev)
+>  		goto err_free_keymap;
+>  	}
+> =20
+> +	/*
+> +	 * Set irq level detection for mpu. Edge event are missed in gic
+> +	 * if the mpu is in low power and keypad event is a wakeup
+> +	 */
+>  	error =3D request_threaded_irq(keypad_data->irq, omap4_keypad_irq_handl=
+er,
+>  				     omap4_keypad_irq_thread_fn,
+> -				     IRQF_TRIGGER_RISING,
+> +				     IRQF_TRIGGER_HIGH,
 
-The input layer doesn't currently produce any EV_KEY event for those two
-scancodes. It produces just EV_MSC events (and, of course, EV_SYN).
+omap4 is DT-only, why don't you pass zero here and expect DT to setup
+IRQ type correctly for you ?
 
-I was wandering that the better would be to have a LED indicator to
-track this, and maybe have two new keycodes, like KEY_FN_LOCK_ON and
-KEY_FN_LOCK_OFF.
+--=20
+balbi
 
-This way, some userspace program, like mate-lockkeys-applet could be
-presenting not only the CAPS LOCK indicator, but also the FN LOCK
-indicator.
+--3uo+9/B/ebqu+fSQ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Do you think it would be doable?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-FYI, this is how this keyboard identifies itself:
+iQIcBAEBAgAGBQJR8/48AAoJEIaOsuA1yqRElDYP+QGYEyLPwogx9u0/OQVDrX64
+8LPtPtmhe/X32ZNsn6jMr1Py0lB16K1j2sDhFK+CP85BT6k/1YBzMHIO1ePbynmr
+borjPWlmsptrNJh5FELxyDjxILvQ6npJ1L6DbM3gjCRZ4u9wvapnTSjm40KR/rsp
+jj/co7BeDZQ+KpIDnKVx7Jfut6ane2t9TFssPC5RNClJ8UpsWdzvCuphy5foN1Os
+TvShvqtsC7McMfpc1zI72tWgfeTJvr1SY5vJ5kMjkguaCCethW1Fy3iqaXghnrKV
+3/yaCRbo4loeywWuj13WXv3c770BQJnS66MxBCIdDX0xBOiUmgc5UlsmOXAmLz4U
+mWYRs8PFR3yesluy6Bq7S2iv6una6o4kHGVQI6K4ClTsRYQArhkTvd+BlbMKlIrH
+4sqchyiAB/ZANxuCxtFoRfEL3FBpp9PZtGu34xYWRwtPKvYs+7fesUq2EjDAI43U
+Qle1Pv7N5eqnKq8GIKqeVX9uwL99urcxoN6CEdzaGgAcsRE6R5B2WFF3VhvUQp6b
+eZFC2eQ1xt/RiJ8OwGRG6uGCwo0Otqc/7nFz+KXDZr1nTtPG9MsxGXc3UMrEQ75y
+zC8lpoZyvzJZDKAURAmpAawvgVEiSg7JaeetXEyMV4bDgV6zD5qzfl49RGTw639r
+eWgnu7vvPdkYXw4ET30c
+=C2Ku
+-----END PGP SIGNATURE-----
 
-$ cat /sys/class/input/event3/device/uevent 
-PRODUCT=11/1/1/ab41
-NAME="AT Translated Set 2 keyboard"
-PHYS="isa0060/serio0/input0"
-PROP=0
-EV=120013
-KEY=500f02000403 3803078f870d001 feffffdffbefffff fffffffffffffffe
-MSC=10
-LED=7
-MODALIAS=input:b0011v0001p0001eAB41-e0,1,4,11,14,k71,72,73,74,75,76,77,79,7A,7B,7C,7D,7E,7F,80,8C,8E,8F,94,95,96,9B,9C,9D,9E,9F,A3,A4,A5,A6,AC,AD,B7,B8,B9,C0,C1,CA,D9,E0,E1,E2,E3,EC,EE,ram4,l0,1,2,sfw
-
-I'm not sure if the PRODUCT there is unique, and if it could be used
-to add this kind of extra feature to the input subsystem (or if it would
-be just fine to add those extra features at the standard AT keyboard
-driver, although I personally don't like this idea, as other keyboards
-might be using scancodes 0xa8/0xa9 for other meanings).
-
-What do you think?
-
-Thanks!
-Mauro
+--3uo+9/B/ebqu+fSQ--

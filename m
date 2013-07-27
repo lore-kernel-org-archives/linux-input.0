@@ -1,49 +1,187 @@
 From: oscherler@ithink.ch
-Subject: [PATCH 0/1] hid: Add new driver for non-compliant Xin-Mo devices.
-Date: Sat, 27 Jul 2013 19:20:01 +0200
-Message-ID: <1374945602-11894-1-git-send-email-oscherler@ithink.ch>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f45.google.com ([74.125.83.45]:61963 "EHLO
-	mail-ee0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752429Ab3G0RUO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Jul 2013 13:20:14 -0400
-Received: by mail-ee0-f45.google.com with SMTP id c50so335904eek.32
-        for <linux-input@vger.kernel.org>; Sat, 27 Jul 2013 10:20:12 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: =?UTF-8?q?=5BPATCH=5D=20hid=3A=20Add=20new=20driver=20for=20non-compliant=20Xin-Mo=20devices=2E?=
+Date: Sat, 27 Jul 2013 19:20:02 +0200
+Message-ID: <1374945602-11894-2-git-send-email-oscherler@ithink.ch>
+References: <1374945602-11894-1-git-send-email-oscherler@ithink.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1374945602-11894-1-git-send-email-oscherler@ithink.ch>
+Sender: linux-kernel-owner@vger.kernel.org
 To: jkosina@suse.cz, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 Cc: Olivier Scherler <oscherler@ithink.ch>
+List-Id: linux-input@vger.kernel.org
 
-From: Olivier Scherler <oscherler@ithink.ch>
+=46rom: Olivier Scherler <oscherler@ithink.ch>
 
-The Xin-Mo Dual Arcade Controller sends axis values that are out of
-range with respect to the HID report descriptor. This patch adds a
-driver to correct the input values so they are not thrown out by the
-range check in hid-input.c.
+The driver currently only supports the Dual Arcade controller.
+It fixes the negative axis event values (the devices sends -2) to match=
+ the
+logical axis minimum of the HID report descriptor (the report announces=
+ -1).
+It is needed because hid-input discards out of bounds values.
 
-The issue is discussed here: <https://bugs.launchpad.net/bugs/1077359>
-
-checkpatch.pl gives warnings for two lines that are over 80 characters,
-but I decided not to change them since similar lines in other HID
-drivers. The third warning asks for a paragraph that describes the new
-config symbol in Kconfig fully. I will gladly accept advice on how to
-improve it.
-
-This has been tested on Ubuntu Desktop 13.04 in a VMware VM and on a
-Raspberry Pi running Raspbian.
-
-Olivier Scherler (1):
-  hid: Add new driver for non-compliant Xin-Mo devices.
-
+Signed-off-by: Olivier Scherler <oscherler@ithink.ch>
+---
  drivers/hid/Kconfig     |  8 ++++++
  drivers/hid/Makefile    |  1 +
  drivers/hid/hid-core.c  |  1 +
  drivers/hid/hid-ids.h   |  3 +++
- drivers/hid/hid-xinmo.c | 72 +++++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-xinmo.c | 72 +++++++++++++++++++++++++++++++++++++++++=
+++++++++
  5 files changed, 85 insertions(+)
  create mode 100644 drivers/hid/hid-xinmo.c
 
--- 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 14ef6ab..3d7c9f6 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -743,6 +743,14 @@ config HID_WIIMOTE
+ 	To compile this driver as a module, choose M here: the
+ 	module will be called hid-wiimote.
+=20
++config HID_XINMO
++	tristate "Xin-Mo non-fully compliant devices"
++	depends on HID
++	---help---
++	Support for Xin-Mo devices that are not fully compliant with the HID
++	standard. Currently only supports the Xin-Mo Dual Arcade. Say Y=C2=A0=
+here
++	if you have a Xin-Mo Dual Arcade controller.
++
+ config HID_ZEROPLUS
+ 	tristate "Zeroplus based game controller support"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 6f68728..a959f4a 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -110,6 +110,7 @@ obj-$(CONFIG_HID_TIVO)		+=3D hid-tivo.o
+ obj-$(CONFIG_HID_TOPSEED)	+=3D hid-topseed.o
+ obj-$(CONFIG_HID_TWINHAN)	+=3D hid-twinhan.o
+ obj-$(CONFIG_HID_UCLOGIC)	+=3D hid-uclogic.o
++obj-$(CONFIG_HID_XINMO)		+=3D hid-xinmo.o
+ obj-$(CONFIG_HID_ZEROPLUS)	+=3D hid-zpff.o
+ obj-$(CONFIG_HID_ZYDACRON)	+=3D hid-zydacron.o
+ obj-$(CONFIG_HID_WACOM)		+=3D hid-wacom.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 36668d1..283c70f 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1736,6 +1736,7 @@ static const struct hid_device_id hid_have_specia=
+l_driver[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TAB=
+LET_14_1_INCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BA=
+TTERY_FREE_TABLET) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_X_TENSIONS, USB_DEVICE_ID_SPEEDLINK_VA=
+D_CEZANNE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCA=
+DE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOT=
+E_CONTROL) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ffe4c7a..6051be8 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -887,6 +887,9 @@
+ #define USB_VENDOR_ID_XAT	0x2505
+ #define USB_DEVICE_ID_XAT_CSR	0x0220
+=20
++#define USB_VENDOR_ID_XIN_MO			0x16c0
++#define USB_DEVICE_ID_XIN_MO_DUAL_ARCADE	0x05e1
++
+ #define USB_VENDOR_ID_XIROKU		0x1477
+ #define USB_DEVICE_ID_XIROKU_SPX	0x1006
+ #define USB_DEVICE_ID_XIROKU_MPX	0x1007
+diff --git a/drivers/hid/hid-xinmo.c b/drivers/hid/hid-xinmo.c
+new file mode 100644
+index 0000000..6153e50
+--- /dev/null
++++ b/drivers/hid/hid-xinmo.c
+@@ -0,0 +1,72 @@
++/*
++ *  HID driver for Xin-Mo devices, currently only the Dual Arcade cont=
+roller.
++ *  Fixes the negative axis event values (the devices sends -2) to mat=
+ch the
++ *  logical axis minimum of the HID report descriptor (the report anno=
+unces
++ *  -1). It is needed because hid-input discards out of bounds values.
++ *  (This module is based on "hid-saitek" and "hid-lg".)
++ *
++ *  Copyright (c) 2013 Olivier Scherler
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modif=
+y it
++ * under the terms of the GNU General Public License as published by t=
+he Free
++ * Software Foundation; either version 2 of the License, or (at your o=
+ption)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++
++#include "hid-ids.h"
++
++/*
++ * Fix negative events that are out of bounds.
++ */
++static int xinmo_event(struct hid_device *hdev, struct hid_field *fiel=
+d,
++		struct hid_usage *usage, __s32 value)
++{
++	switch (usage->code) {
++	case ABS_X:
++	case ABS_Y:
++	case ABS_Z:
++	case ABS_RX:
++		if (value < -1) {
++			input_event(field->hidinput->input, usage->type,
++				usage->code, -1);
++			return 1;
++		}
++		break;
++	}
++
++	return 0;
++}
++
++static const struct hid_device_id xinmo_devices[] =3D {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCA=
+DE) },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(hid, xinmo_devices);
++
++static struct hid_driver xinmo_driver =3D {
++	.name =3D "xinmo",
++	.id_table =3D xinmo_devices,
++	.event =3D xinmo_event
++};
++
++static int __init xinmo_init(void)
++{
++	return hid_register_driver(&xinmo_driver);
++}
++
++static void __exit xinmo_exit(void)
++{
++	hid_unregister_driver(&xinmo_driver);
++}
++
++module_init(xinmo_init);
++module_exit(xinmo_exit);
++MODULE_LICENSE("GPL");
+--=20
 1.8.1.2
-

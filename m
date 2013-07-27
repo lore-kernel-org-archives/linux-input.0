@@ -1,189 +1,68 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH v2 2/2] input/uinput: add UI_GET_SYSPATH ioctl to retrieve
- the sysfs path
-Date: Sat, 27 Jul 2013 15:07:00 +0200
-Message-ID: <CANq1E4RfTLtDz1RYixg4qdkNxrU22rSaZxFss4++A-0hYM0bEQ@mail.gmail.com>
-References: <1373895429-8846-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1373895429-8846-2-git-send-email-benjamin.tissoires@redhat.com>
+From: Mauro Carvalho Chehab <m.chehab@samsung.com>
+Subject: Samsung series 5 ultra keyboard
+Date: Sat, 27 Jul 2013 10:11:53 -0300
+Message-ID: <20130727101153.6a3ece65@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f173.google.com ([209.85.214.173]:63672 "EHLO
-	mail-ob0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751640Ab3G0NHB (ORCPT
+Received: from mailout3.w2.samsung.com ([211.189.100.13]:63093 "EHLO
+	usmailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751721Ab3G0NWA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Jul 2013 09:07:01 -0400
-In-Reply-To: <1373895429-8846-2-git-send-email-benjamin.tissoires@redhat.com>
+	Sat, 27 Jul 2013 09:22:00 -0400
+Received: from uscpsbgm1.samsung.com
+ (u114.gpu85.samsung.co.kr [203.254.195.114]) by usmailout3.samsung.com
+ (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
+ 17 2011)) with ESMTP id <0MQL00GKTJBXU520@usmailout3.samsung.com> for
+ linux-input@vger.kernel.org; Sat, 27 Jul 2013 09:11:57 -0400 (EDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>
 
-Hi
+Hi Dmitry,
 
-On Mon, Jul 15, 2013 at 3:37 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Evemu [1] uses uinput to replay devices traces it has recorded. However,
-> the way evemu uses uinput is slightly different from how uinput is
-> supposed to be used.
-> Evemu creates the device node through uinput, bu inject events through
-> the input device node directly (and skipping the uinput node).
->
-> Currently, evemu relies on an heuristic to guess which input node was
-> created. The problem is that is heuristic is subjected to races between
-> different uinput devices or even with physical devices. Having a way
-> to retrieve the sysfs path allows us to find the event node without
-> having to rely on this heuristic.
+I received a new notebook those days that has an extra feature of a "Fn Lock"
+key.
 
-It would actually be enough to return the "input_no" from
-input_register_device() (which is currently local but we could save it
-in "dev"). Or only the device-name. I don't know why you want the full
-syspath. It's just overhead in the kernel that we could easily let
-user-space do. And the path /sys/class/input/<devname> can be put
-together by user-space.
+When this key is pressed, it produces a scan code 0xa8, and the direction
+keys (and other keys) start to produce different codes. When pressed again,
+it produces a scan code 0xa9, and the keys return to their normal behavior.
 
-Anyway, Dmitry has to decide on that. Apart from some style-issues I
-mentioned below:
-  Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+The input layer doesn't currently produce any EV_KEY event for those two
+scancodes. It produces just EV_MSC events (and, of course, EV_SYN).
 
-Cheers
-David
+I was wandering that the better would be to have a LED indicator to
+track this, and maybe have two new keycodes, like KEY_FN_LOCK_ON and
+KEY_FN_LOCK_OFF.
 
-> [1] http://www.freedesktop.org/wiki/Evemu/
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/input/misc/uinput.c | 37 ++++++++++++++++++++++++++++++++++++-
->  include/linux/uinput.h      |  1 +
->  include/uapi/linux/uinput.h |  3 +++
->  3 files changed, 40 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> index 7d518b4..49a9f7d 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -22,6 +22,7 @@
->   * Changes/Revisions:
->   *     0.4     12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
->   *             - update uinput_user_dev struct to allow abs resolution
-> + *             - add UI_GET_SYSPATH ioctl
+This way, some userspace program, like mate-lockkeys-applet could be
+presenting not only the CAPS LOCK indicator, but also the FN LOCK
+indicator.
 
-What tree is that patch against? I cannot see an "0.4" entry in:
-http://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/tree/drivers/input/misc/uinput.c?h=next
+Do you think it would be doable?
 
->   *     0.3     09/04/2006 (Anssi Hannula <anssi.hannula@gmail.com>)
->   *             - updated ff support for the changes in kernel interface
->   *             - added MODULE_VERSION
-> @@ -667,6 +668,21 @@ static int uinput_ff_upload_from_user(const char __user *buffer,
->         __ret;                                          \
->  })
->
-> +static int uinput_str_to_user(const char *str, unsigned int maxlen,
-> +                             void __user *p)
+FYI, this is how this keyboard identifies itself:
 
-As Peter mentioned, I'd move "maxlen" to the end.
+$ cat /sys/class/input/event3/device/uevent 
+PRODUCT=11/1/1/ab41
+NAME="AT Translated Set 2 keyboard"
+PHYS="isa0060/serio0/input0"
+PROP=0
+EV=120013
+KEY=500f02000403 3803078f870d001 feffffdffbefffff fffffffffffffffe
+MSC=10
+LED=7
+MODALIAS=input:b0011v0001p0001eAB41-e0,1,4,11,14,k71,72,73,74,75,76,77,79,7A,7B,7C,7D,7E,7F,80,8C,8E,8F,94,95,96,9B,9C,9D,9E,9F,A3,A4,A5,A6,AC,AD,B7,B8,B9,C0,C1,CA,D9,E0,E1,E2,E3,EC,EE,ram4,l0,1,2,sfw
 
-> +{
-> +       int len;
-> +
-> +       if (!str)
-> +               return -ENOENT;
-> +
-> +       len = strlen(str) + 1;
-> +       if (len > maxlen)
-> +               len = maxlen;
-> +
-> +       return copy_to_user(p, str, len) ? -EFAULT : len;
+I'm not sure if the PRODUCT there is unique, and if it could be used
+to add this kind of extra feature to the input subsystem (or if it would
+be just fine to add those extra features at the standard AT keyboard
+driver, although I personally don't like this idea, as other keyboards
+might be using scancodes 0xa8/0xa9 for other meanings).
 
-I'd prefer a "strlcpy()" so we guarantee a terminating 0 for
-user-space, but I guess that'd be rather complex to do here. I
-couldn't find any strlcpy_to_user()...
+What do you think?
 
-> +}
-> +
->  static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
->                                  unsigned long arg, void __user *p)
->  {
-> @@ -676,6 +692,8 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
->         struct uinput_ff_erase  ff_erase;
->         struct uinput_request   *req;
->         char                    *phys;
-> +       const char              *path;
-> +       unsigned int            size;
->
->         retval = mutex_lock_interruptible(&udev->mutex);
->         if (retval)
-> @@ -828,7 +846,24 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
->                         break;
->
->                 default:
-> -                       retval = -EINVAL;
-> +                       retval = -EAGAIN;
-> +       }
-> +
-> +       if (retval == -EAGAIN) {
-> +               size = _IOC_SIZE(cmd);
-> +
-> +               /* Now check variable-length commands */
-> +               switch (cmd & ~IOCSIZE_MASK) {
-> +                       case UI_GET_SYSPATH(0):
-> +                               path = kobject_get_path(&udev->dev->dev.kobj,
-> +                                                       GFP_KERNEL);
-
-I know, device registration is protected by udev->mutex but I'd still prefer:
-  if (udev->state != UIST_CREATED)
-    return -ENOENT;
-
-But that's probably a matter of taste.
-
-> +                               retval = uinput_str_to_user(path, size, p);
-> +                               kfree(path);
-> +                               break;
-> +
-> +                       default:
-> +                               retval = -EINVAL;
-> +               }
->         }
->
->   out:
-> diff --git a/include/linux/uinput.h b/include/linux/uinput.h
-> index 6291a22..64fab81 100644
-> --- a/include/linux/uinput.h
-> +++ b/include/linux/uinput.h
-> @@ -22,6 +22,7 @@
->   * Changes/Revisions:
->   *     0.4     12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
->   *             - update uinput_user_dev struct to allow abs resolution
-> + *             - add UI_GET_SYSPATH ioctl
->   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
->   *             - update ff support for the changes in kernel interface
->   *             - add UINPUT_VERSION
-> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
-> index f6a393b..d826409 100644
-> --- a/include/uapi/linux/uinput.h
-> +++ b/include/uapi/linux/uinput.h
-> @@ -22,6 +22,7 @@
->   * Changes/Revisions:
->   *     0.4     12/07/2013 (Peter Hutterer <peter.hutterer@redhat.com>)
->   *             - update uinput_user_dev struct to allow abs resolution
-> + *             - add UI_GET_SYSPATH ioctl
->   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
->   *             - update ff support for the changes in kernel interface
->   *             - add UINPUT_VERSION
-> @@ -75,6 +76,8 @@ struct uinput_ff_erase {
->  #define UI_BEGIN_FF_ERASE      _IOWR(UINPUT_IOCTL_BASE, 202, struct uinput_ff_erase)
->  #define UI_END_FF_ERASE                _IOW(UINPUT_IOCTL_BASE, 203, struct uinput_ff_erase)
->
-> +#define UI_GET_SYSPATH(len)    _IOC(_IOC_READ, UINPUT_IOCTL_BASE, 300, len)
-> +
->  /*
->   * To write a force-feedback-capable driver, the upload_effect
->   * and erase_effect callbacks in input_dev must be implemented.
-> --
-> 1.8.3.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks!
+Mauro

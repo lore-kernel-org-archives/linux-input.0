@@ -1,187 +1,150 @@
-From: oscherler@ithink.ch
-Subject: =?UTF-8?q?=5BPATCH=5D=20hid=3A=20Add=20new=20driver=20for=20non-compliant=20Xin-Mo=20devices=2E?=
-Date: Sat, 27 Jul 2013 19:20:02 +0200
-Message-ID: <1374945602-11894-2-git-send-email-oscherler@ithink.ch>
-References: <1374945602-11894-1-git-send-email-oscherler@ithink.ch>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: Samsung series 5 ultra keyboard
+Date: Sat, 27 Jul 2013 15:06:42 -0300
+Message-ID: <20130727150642.5a1f26cd@infradead.org>
+References: <20130727101153.6a3ece65@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1374945602-11894-1-git-send-email-oscherler@ithink.ch>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jkosina@suse.cz, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Olivier Scherler <oscherler@ithink.ch>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.9]:52137 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752610Ab3G0SGw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 27 Jul 2013 14:06:52 -0400
+In-Reply-To: <20130727101153.6a3ece65@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-=46rom: Olivier Scherler <oscherler@ithink.ch>
+Em Sat, 27 Jul 2013 10:11:53 -0300
+Mauro Carvalho Chehab <m.chehab@samsung.com> escreveu:
 
-The driver currently only supports the Dual Arcade controller.
-It fixes the negative axis event values (the devices sends -2) to match=
- the
-logical axis minimum of the HID report descriptor (the report announces=
- -1).
-It is needed because hid-input discards out of bounds values.
+> Hi Dmitry,
+> 
+> I received a new notebook those days that has an extra feature of a "Fn Lock"
+> key.
+> 
+> When this key is pressed, it produces a scan code 0xa8, and the direction
+> keys (and other keys) start to produce different codes. When pressed again,
+> it produces a scan code 0xa9, and the keys return to their normal behavior.
+> 
+> The input layer doesn't currently produce any EV_KEY event for those two
+> scancodes. It produces just EV_MSC events (and, of course, EV_SYN).
+> 
+> I was wandering that the better would be to have a LED indicator to
+> track this, and maybe have two new keycodes, like KEY_FN_LOCK_ON and
+> KEY_FN_LOCK_OFF.
+> 
+> This way, some userspace program, like mate-lockkeys-applet could be
+> presenting not only the CAPS LOCK indicator, but also the FN LOCK
+> indicator.
+> 
+> Do you think it would be doable?
+> 
+> FYI, this is how this keyboard identifies itself:
+> 
+> $ cat /sys/class/input/event3/device/uevent 
+> PRODUCT=11/1/1/ab41
+> NAME="AT Translated Set 2 keyboard"
+> PHYS="isa0060/serio0/input0"
+> PROP=0
+> EV=120013
+> KEY=500f02000403 3803078f870d001 feffffdffbefffff fffffffffffffffe
+> MSC=10
+> LED=7
+> MODALIAS=input:b0011v0001p0001eAB41-e0,1,4,11,14,k71,72,73,74,75,76,77,79,7A,7B,7C,7D,7E,7F,80,8C,8E,8F,94,95,96,9B,9C,9D,9E,9F,A3,A4,A5,A6,AC,AD,B7,B8,B9,C0,C1,CA,D9,E0,E1,E2,E3,EC,EE,ram4,l0,1,2,sfw
+> 
+> I'm not sure if the PRODUCT there is unique, and if it could be used
+> to add this kind of extra feature to the input subsystem (or if it would
+> be just fine to add those extra features at the standard AT keyboard
+> driver, although I personally don't like this idea, as other keyboards
+> might be using scancodes 0xa8/0xa9 for other meanings).
+> 
+> What do you think?
 
-Signed-off-by: Olivier Scherler <oscherler@ithink.ch>
----
- drivers/hid/Kconfig     |  8 ++++++
- drivers/hid/Makefile    |  1 +
- drivers/hid/hid-core.c  |  1 +
- drivers/hid/hid-ids.h   |  3 +++
- drivers/hid/hid-xinmo.c | 72 +++++++++++++++++++++++++++++++++++++++++=
-++++++++
- 5 files changed, 85 insertions(+)
- create mode 100644 drivers/hid/hid-xinmo.c
+Just discovered something weird while trying to write some code for
+systemd/udev: there are a few keys that only produce key down events:
+	Fn + F1 (KEY_SETUP)
+	Fn + F12 (KEY_WLAN)
+	Fn Lock (both scan codes 0xa8 and 0xa9)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 14ef6ab..3d7c9f6 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -743,6 +743,14 @@ config HID_WIIMOTE
- 	To compile this driver as a module, choose M here: the
- 	module will be called hid-wiimote.
-=20
-+config HID_XINMO
-+	tristate "Xin-Mo non-fully compliant devices"
-+	depends on HID
-+	---help---
-+	Support for Xin-Mo devices that are not fully compliant with the HID
-+	standard. Currently only supports the Xin-Mo Dual Arcade. Say Y=C2=A0=
-here
-+	if you have a Xin-Mo Dual Arcade controller.
-+
- config HID_ZEROPLUS
- 	tristate "Zeroplus based game controller support"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 6f68728..a959f4a 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -110,6 +110,7 @@ obj-$(CONFIG_HID_TIVO)		+=3D hid-tivo.o
- obj-$(CONFIG_HID_TOPSEED)	+=3D hid-topseed.o
- obj-$(CONFIG_HID_TWINHAN)	+=3D hid-twinhan.o
- obj-$(CONFIG_HID_UCLOGIC)	+=3D hid-uclogic.o
-+obj-$(CONFIG_HID_XINMO)		+=3D hid-xinmo.o
- obj-$(CONFIG_HID_ZEROPLUS)	+=3D hid-zpff.o
- obj-$(CONFIG_HID_ZYDACRON)	+=3D hid-zydacron.o
- obj-$(CONFIG_HID_WACOM)		+=3D hid-wacom.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 36668d1..283c70f 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1736,6 +1736,7 @@ static const struct hid_device_id hid_have_specia=
-l_driver[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TAB=
-LET_14_1_INCH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BA=
-TTERY_FREE_TABLET) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_X_TENSIONS, USB_DEVICE_ID_SPEEDLINK_VA=
-D_CEZANNE) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCA=
-DE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOT=
-E_CONTROL) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ffe4c7a..6051be8 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -887,6 +887,9 @@
- #define USB_VENDOR_ID_XAT	0x2505
- #define USB_DEVICE_ID_XAT_CSR	0x0220
-=20
-+#define USB_VENDOR_ID_XIN_MO			0x16c0
-+#define USB_DEVICE_ID_XIN_MO_DUAL_ARCADE	0x05e1
-+
- #define USB_VENDOR_ID_XIROKU		0x1477
- #define USB_DEVICE_ID_XIROKU_SPX	0x1006
- #define USB_DEVICE_ID_XIROKU_MPX	0x1007
-diff --git a/drivers/hid/hid-xinmo.c b/drivers/hid/hid-xinmo.c
-new file mode 100644
-index 0000000..6153e50
---- /dev/null
-+++ b/drivers/hid/hid-xinmo.c
-@@ -0,0 +1,72 @@
-+/*
-+ *  HID driver for Xin-Mo devices, currently only the Dual Arcade cont=
-roller.
-+ *  Fixes the negative axis event values (the devices sends -2) to mat=
-ch the
-+ *  logical axis minimum of the HID report descriptor (the report anno=
-unces
-+ *  -1). It is needed because hid-input discards out of bounds values.
-+ *  (This module is based on "hid-saitek" and "hid-lg".)
-+ *
-+ *  Copyright (c) 2013 Olivier Scherler
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modif=
-y it
-+ * under the terms of the GNU General Public License as published by t=
-he Free
-+ * Software Foundation; either version 2 of the License, or (at your o=
-ption)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+
-+#include "hid-ids.h"
-+
-+/*
-+ * Fix negative events that are out of bounds.
-+ */
-+static int xinmo_event(struct hid_device *hdev, struct hid_field *fiel=
-d,
-+		struct hid_usage *usage, __s32 value)
-+{
-+	switch (usage->code) {
-+	case ABS_X:
-+	case ABS_Y:
-+	case ABS_Z:
-+	case ABS_RX:
-+		if (value < -1) {
-+			input_event(field->hidinput->input, usage->type,
-+				usage->code, -1);
-+			return 1;
-+		}
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id xinmo_devices[] =3D {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCA=
-DE) },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(hid, xinmo_devices);
-+
-+static struct hid_driver xinmo_driver =3D {
-+	.name =3D "xinmo",
-+	.id_table =3D xinmo_devices,
-+	.event =3D xinmo_event
-+};
-+
-+static int __init xinmo_init(void)
-+{
-+	return hid_register_driver(&xinmo_driver);
-+}
-+
-+static void __exit xinmo_exit(void)
-+{
-+	hid_unregister_driver(&xinmo_driver);
-+}
-+
-+module_init(xinmo_init);
-+module_exit(xinmo_exit);
-+MODULE_LICENSE("GPL");
---=20
-1.8.1.2
+See:
+
+# ir-keytable -d /dev/input/event3 -t
+Testing events. Please, press CTRL-C to abort.
+1374948216.879719: event type EV_MSC(0x04): scancode = 0xce
+1374948216.879719: event type EV_KEY(0x01) key_down: KEY_SETUP(0x0001)
+1374948216.879719: event type EV_SYN(0x00).
+1374948218.420177: event type EV_MSC(0x04): scancode = 0xce
+1374948218.420177: event type EV_KEY(0x01) key_down: KEY_SETUP(0x0001)
+1374948218.420177: event type EV_SYN(0x00).
+1374948219.362185: event type EV_MSC(0x04): scancode = 0x89
+1374948219.362185: event type EV_KEY(0x01) key_down: KEY_BRIGHTNESSDOWN(0x0001)
+1374948219.362185: event type EV_SYN(0x00).
+1374948219.362218: event type EV_KEY(0x01) key_up: KEY_BRIGHTNESSDOWN(0x0001)
+1374948219.362218: event type EV_SYN(0x00).
+1374948222.746160: event type EV_MSC(0x04): scancode = 0xce
+1374948222.746160: event type EV_KEY(0x01) key_down: KEY_SETUP(0x0001)
+1374948222.746160: event type EV_SYN(0x00).
+1374948223.348321: event type EV_MSC(0x04): scancode = 0x89
+1374948223.348321: event type EV_KEY(0x01) key_down: KEY_BRIGHTNESSDOWN(0x0001)
+1374948223.348321: event type EV_SYN(0x00).
+1374948223.348356: event type EV_KEY(0x01) key_up: KEY_BRIGHTNESSDOWN(0x0001)
+1374948223.348356: event type EV_SYN(0x00).
+1374948224.864993: event type EV_MSC(0x04): scancode = 0xce
+1374948224.864993: event type EV_KEY(0x01) key_down: KEY_SETUP(0x0001)
+1374948224.864993: event type EV_SYN(0x00).
+1374948227.762895: event type EV_MSC(0x04): scancode = 0x82
+1374948227.762895: event type EV_KEY(0x01) key_down: KEY_SWITCHVIDEOMODE(0x0001)
+1374948227.762895: event type EV_SYN(0x00).
+1374948227.762930: event type EV_KEY(0x01) key_up: KEY_SWITCHVIDEOMODE(0x0001)
+1374948227.762930: event type EV_SYN(0x00).
+1374948229.212478: event type EV_MSC(0x04): scancode = 0x82
+1374948229.212478: event type EV_KEY(0x01) key_down: KEY_SWITCHVIDEOMODE(0x0001)
+1374948229.212478: event type EV_SYN(0x00).
+1374948229.212513: event type EV_KEY(0x01) key_up: KEY_SWITCHVIDEOMODE(0x0001)
+1374948229.212513: event type EV_SYN(0x00).
+1374948232.961500: event type EV_MSC(0x04): scancode = 0xd5
+1374948232.961500: event type EV_KEY(0x01) key_down: KEY_WLAN(0x0001)
+1374948232.961500: event type EV_SYN(0x00).
+1374948234.377876: event type EV_MSC(0x04): scancode = 0xd5
+1374948234.377876: event type EV_KEY(0x01) key_down: KEY_WLAN(0x0001)
+1374948234.377876: event type EV_SYN(0x00).
+1374948235.090077: event type EV_MSC(0x04): scancode = 0xa8
+1374948235.090077: event type EV_KEY(0x01) key_down: KEY_PROG1(0x0001)
+1374948235.090077: event type EV_SYN(0x00).
+1374948236.650001: event type EV_MSC(0x04): scancode = 0xa9
+1374948236.650001: event type EV_KEY(0x01) key_down: KEY_PROG2(0x0001)
+1374948236.650001: event type EV_SYN(0x00).
+1374948237.094992: event type EV_MSC(0x04): scancode = 0xb7
+1374948237.094992: event type EV_KEY(0x01) key_down: KEY_SYSRQ(0x0001)
+1374948237.094992: event type EV_SYN(0x00).
+1374948237.213233: event type EV_MSC(0x04): scancode = 0xb7
+1374948237.213233: event type EV_KEY(0x01) key_up: KEY_SYSRQ(0x0001)
+1374948237.213233: event type EV_SYN(0x00).
+1374948247.126649: event type EV_MSC(0x04): scancode = 0xb7
+1374948247.126649: event type EV_KEY(0x01) key_down: KEY_SYSRQ(0x0001)
+1374948247.126649: event type EV_SYN(0x00).
+1374948247.299130: event type EV_MSC(0x04): scancode = 0xb7
+1374948247.299130: event type EV_KEY(0x01) key_up: KEY_SYSRQ(0x0001)
+1374948247.299130: event type EV_SYN(0x00).
+1374948249.158131: event type EV_MSC(0x04): scancode = 0xb7
+1374948249.158131: event type EV_KEY(0x01) key_down: KEY_SYSRQ(0x0001)
+1374948249.158131: event type EV_SYN(0x00).
+1374948249.294389: event type EV_MSC(0x04): scancode = 0xb7
+1374948249.294389: event type EV_KEY(0x01) key_up: KEY_SYSRQ(0x0001)
+1374948249.294389: event type EV_SYN(0x00).
+1374948250.904246: event type EV_MSC(0x04): scancode = 0xa8
+1374948250.904246: event type EV_KEY(0x01) key_down: KEY_PROG1(0x0001)
+1374948250.904246: event type EV_SYN(0x00).
+1374948252.938739: event type EV_MSC(0x04): scancode = 0xa9
+1374948252.938739: event type EV_KEY(0x01) key_down: KEY_PROG2(0x0001)
+1374948252.938739: event type EV_SYN(0x00).
+
+So, perhaps some quirk will be needed at the Kernel driver to artificially
+produce KEYUP events for those scancodes.
+
+Cheers,
+Mauro

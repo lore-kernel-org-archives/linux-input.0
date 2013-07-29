@@ -1,48 +1,117 @@
-From: Mauro Carvalho Chehab <m.chehab@samsung.com>
-Subject: Re: [PATCH 1/5] atkbd: Fix key release for Fn keys on Samsung series 5
- ultra 540UC
-Date: Mon, 29 Jul 2013 07:04:32 -0300
-Message-ID: <20130729070432.726becc3@samsung.com>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [PATCH 3/5] input.h: add keycodes for Fn Lock
+Date: Mon, 29 Jul 2013 07:50:51 -0300
+Message-ID: <20130729075051.25b9e5b9@infradead.org>
 References: <1375070379-329-1-git-send-email-m.chehab@samsung.com>
- <20130729044909.GA8539@core.coreip.homeip.net>
+	<1375070379-329-3-git-send-email-m.chehab@samsung.com>
+	<20130729045358.GC8539@core.coreip.homeip.net>
+	<20130729070346.0cad1ace@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.w2.samsung.com ([211.189.100.13]:29017 "EHLO
-	usmailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752663Ab3G2KEh (ORCPT
+Received: from bombadil.infradead.org ([198.137.202.9]:58044 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753648Ab3G2Kuz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jul 2013 06:04:37 -0400
-Received: from uscpsbgm2.samsung.com
- (u115.gpu85.samsung.co.kr [203.254.195.115]) by usmailout3.samsung.com
- (Oracle Communications Messaging Server 7u4-24.01(7.0.4.24.0) 64bit (built Nov
- 17 2011)) with ESMTP id <0MQO00GXBZZPCA10@usmailout3.samsung.com> for
- linux-input@vger.kernel.org; Mon, 29 Jul 2013 06:04:37 -0400 (EDT)
-In-reply-to: <20130729044909.GA8539@core.coreip.homeip.net>
+	Mon, 29 Jul 2013 06:50:55 -0400
+In-Reply-To: <20130729070346.0cad1ace@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-Em Sun, 28 Jul 2013 21:49:09 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> escreveu:
+Em Mon, 29 Jul 2013 07:03:46 -0300
+Mauro Carvalho Chehab <m.chehab@samsung.com> escreveu:
 
-> Hi Mauro,
+> Hi Dmitry,
 > 
+> Em Sun, 28 Jul 2013 21:53:58 -0700
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> escreveu:
 > 
-> On Mon, Jul 29, 2013 at 12:59:35AM -0300, Mauro Carvalho Chehab wrote:
-> > Samsung series 5 ultra notebooks don't produce release events for certain
-> > keys (Fn+F1, Fn+F11, Fn+F12 and Fn Lock). Add those keys at the release
-> > fixup table.
+> > Hi Mauro,
 > > 
+> > On Mon, Jul 29, 2013 at 12:59:37AM -0300, Mauro Carvalho Chehab wrote:
+> > > Samsung notebooks have a FN LOCK key. It works like CAPS LOCK or NUM
+> > > LOCK keys.
+> > > 
+> > > When FN LOCK key is pressed, any further press to a key with a blue label
+> > > on it (Fn keys) will produce the alternate code.
+> > > 
+> > > Another press makes the keyboard to return to its normal state.
+> > > 
+> > > On the notebooks where such feature were found, a FN LOCK on event
+> > > produces scancode 0xa8, and a FN LOCK off event produces scancode 0xa9.
+> > > 
+> > > Yet, it is better to reserve some space at the keymap to allow some
+> > > different implementation of this feature where the same keycode might
+> > > be used.
+> > > 
+> > > Also, as this is actually a switch, add a switch indicator to report
+> > > when this switch is set/reset.
+> > > 
+> > > Signed-off-by: Mauro Carvalho Chehab <m.chehab@samsung.com>
+> > > ---
+> > >  include/uapi/linux/input.h | 5 +++++
+> > >  1 file changed, 5 insertions(+)
+> > > 
+> > > diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> > > index d584047..4622c34 100644
+> > > --- a/include/uapi/linux/input.h
+> > > +++ b/include/uapi/linux/input.h
+> > > @@ -716,6 +716,10 @@ struct input_keymap_entry {
+> > >  #define BTN_DPAD_LEFT		0x222
+> > >  #define BTN_DPAD_RIGHT		0x223
+> > >  
+> > > +#define KEY_FNLOCK_TOGGLE	0x224	/* Request switch Fn on or off */
+> > > +#define KEY_FNLOCK_ON		0x225
+> > > +#define KEY_FNLOCK_OFF		0x226
+> > > +
+> > >  #define BTN_TRIGGER_HAPPY		0x2c0
+> > >  #define BTN_TRIGGER_HAPPY1		0x2c0
+> > >  #define BTN_TRIGGER_HAPPY2		0x2c1
+> > > @@ -853,6 +857,7 @@ struct input_keymap_entry {
+> > >  #define SW_FRONT_PROXIMITY	0x0b  /* set = front proximity sensor active */
+> > >  #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
+> > >  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+> > > +#define SW_FNLOCK		0x0e  /* set = Fn locked */
+> > 
+> > I am not sure if we need both the keys and the switch, so I would
+> > probably simply go with the keys, and not bother with switch. Then we do
+> > not need to touch the atkbd driver at all and rely on udev to set up the
+> > keymap and force release keys. 
 > 
-> As I mentioned, the force release should be handled by udev instead of
-> adding kernel driver quirk.
+> The hole idea of doing those patches is to have an userspace tool that will
+> be able to show software LEDs, like mate-applet-lockeys, that will query
+> the input driver to know the current status. So, the better is to keep 
+> control of it as soon as kernel starts controlling the Keyboard, as, 
+> otherwise, the software LED indicators may be wrong.
+> 
+> If you think that having both keycodes and a switch is an overkill, then
+> the better is to just keep the switch.
 
-Ah, OK. I'll drop both patches 1 and 2 on a next patchset.
+After thinking for a little bit, I can see a few alternatives:
 
--- 
+1) add patch 3/5 and patch 4/5 as is. No need to apply patch 5/5. The
+Fn Lock switch support will start work as soon as udev initializes the
+keytables.
 
-Cheers,
+2) Add patches 3/5 and patch 4/5 as is, and patch 5/5 rebased, as:
+	http://git.infradead.org/users/mchehab/samsung.git/commitdiff/96171bbd42d8ab9dfc3f36e0d4796080a8989344
+
+This way, all keyboards with FN LOCK will require a quirk at atkbd.
+The key handling will only start after udev starts.
+
+3) Modify patch 3/5 to only have there a switch (or a LED). That will
+require a change at patch 5/5 to use the scancodes to handle the
+switch directly.
+
+IMHO, (3) is better, as it will start handling the FN LOCK earlier,
+reducing the risk of someone press the key after keyboard reset and
+before udev to load the keytable, and providing a more reliable
+software LED indication.
+
+Please let me know what works best for you, and I'll redo the patches.
+
+Thanks!
 Mauro

@@ -1,66 +1,132 @@
 From: Mauro Carvalho Chehab <m.chehab@samsung.com>
-Subject: [PATCH 3/5] input.h: add keycodes for Fn Lock
-Date: Mon, 29 Jul 2013 00:59:37 -0300
-Message-ID: <1375070379-329-3-git-send-email-m.chehab@samsung.com>
+Subject: [PATCH 5/5] atkbd: only enable SW_FNLOCK on keyboards that have FN LOCK key
+Date: Mon, 29 Jul 2013 00:59:39 -0300
+Message-ID: <1375070379-329-5-git-send-email-m.chehab@samsung.com>
 References: <1375070379-329-1-git-send-email-m.chehab@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:56916 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.9]:56928 "EHLO
 	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751446Ab3G2D7q (ORCPT
+	with ESMTP id S1750704Ab3G2EBJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Jul 2013 23:59:46 -0400
+	Mon, 29 Jul 2013 00:01:09 -0400
 In-Reply-To: <1375070379-329-1-git-send-email-m.chehab@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, Mauro Carvalho Chehab <m.chehab@samsung.com>
 
-Samsung notebooks have a FN LOCK key. It works like CAPS LOCK or NUM
-LOCK keys.
-
-When FN LOCK key is pressed, any further press to a key with a blue label
-on it (Fn keys) will produce the alternate code.
-
-Another press makes the keyboard to return to its normal state.
-
-On the notebooks where such feature were found, a FN LOCK on event
-produces scancode 0xa8, and a FN LOCK off event produces scancode 0xa9.
-
-Yet, it is better to reserve some space at the keymap to allow some
-different implementation of this feature where the same keycode might
-be used.
-
-Also, as this is actually a switch, add a switch indicator to report
-when this switch is set/reset.
+Instead of unconditionally enabling the switch, only make it available
+where the key actually exists.
 
 Signed-off-by: Mauro Carvalho Chehab <m.chehab@samsung.com>
 ---
- include/uapi/linux/input.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/keyboard/atkbd.c | 58 ++++++++++++++++++++++++------------------
+ 1 file changed, 33 insertions(+), 25 deletions(-)
 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index d584047..4622c34 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -716,6 +716,10 @@ struct input_keymap_entry {
- #define BTN_DPAD_LEFT		0x222
- #define BTN_DPAD_RIGHT		0x223
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 7f88132..3ec7d67 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -240,6 +240,7 @@ struct atkbd {
+ /*
+  * System-specific keymap fixup routine
+  */
++static bool atkbd_platform_has_fnlock;
+ static void (*atkbd_platform_fixup)(struct atkbd *, const void *data);
+ static void *atkbd_platform_fixup_data;
+ static unsigned int (*atkbd_platform_scancode_fixup)(struct atkbd *, unsigned int);
+@@ -454,26 +455,22 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
+ 	if (keycode != ATKBD_KEY_NULL)
+ 		input_event(dev, EV_MSC, MSC_SCAN, code);
  
-+#define KEY_FNLOCK_TOGGLE	0x224	/* Request switch Fn on or off */
-+#define KEY_FNLOCK_ON		0x225
-+#define KEY_FNLOCK_OFF		0x226
+-	/*
+-	 * Handles special Fn Lock switch.
+-	 *
+-	 * This switch can't be merged with the next one, as we also want
+-	 * to report those keycodes to userspace, via input_event, and
+-	 * call input_sync().
+-	 */
+-	switch (keycode) {
+-	case KEY_FNLOCK_OFF:
+-		atkbd->fnlock_set = false;
+-		input_report_switch(dev, SW_FNLOCK, atkbd->fnlock_set);
+-		break;
+-	case KEY_FNLOCK_ON:
+-		atkbd->fnlock_set = true;
+-		input_report_switch(dev, SW_FNLOCK, atkbd->fnlock_set);
+-		break;
+-	case KEY_FNLOCK_TOGGLE:
+-		atkbd->fnlock_set = !atkbd->fnlock_set;
+-		input_report_switch(dev, SW_FNLOCK, atkbd->fnlock_set);
+-		break;
++	/* Handles special Fn Lock switch found on some notebooks */
++	if (test_bit(SW_FNLOCK, dev->swbit)) {
++		switch (keycode) {
++		case KEY_FNLOCK_OFF:
++			atkbd->fnlock_set = false;
++			input_report_switch(dev, SW_FNLOCK, atkbd->fnlock_set);
++			break;
++		case KEY_FNLOCK_ON:
++			atkbd->fnlock_set = true;
++			input_report_switch(dev, SW_FNLOCK, atkbd->fnlock_set);
++			break;
++		case KEY_FNLOCK_TOGGLE:
++			atkbd->fnlock_set = !atkbd->fnlock_set;
++			input_report_switch(dev, SW_FNLOCK, atkbd->fnlock_set);
++			break;
++		}
+ 	}
+ 
+ 	switch (keycode) {
+@@ -1150,9 +1147,10 @@ static void atkbd_set_device_attrs(struct atkbd *atkbd)
+ 		}
+ 	}
+ 
+-	/* FIXME: Unconditionqally sets FN LOCK switch */
+-	__set_bit(SW_FNLOCK, atkbd->dev->swbit);
+-	input_dev->evbit[0] |= BIT_MASK(EV_SW);
++	if (atkbd_platform_has_fnlock) {
++		__set_bit(SW_FNLOCK, atkbd->dev->swbit);
++		input_dev->evbit[0] |= BIT_MASK(EV_SW);
++	}
+ }
+ 
+ /*
+@@ -1672,6 +1670,16 @@ static int __init atkbd_setup_forced_release(const struct dmi_system_id *id)
+ 	return 1;
+ }
+ 
++static int __init
++atkbd_setup_forced_release_and_fnlock(const struct dmi_system_id *id)
++{
++	atkbd_platform_fixup = atkbd_apply_forced_release_keylist;
++	atkbd_platform_fixup_data = id->driver_data;
++	atkbd_platform_has_fnlock = true;
 +
- #define BTN_TRIGGER_HAPPY		0x2c0
- #define BTN_TRIGGER_HAPPY1		0x2c0
- #define BTN_TRIGGER_HAPPY2		0x2c1
-@@ -853,6 +857,7 @@ struct input_keymap_entry {
- #define SW_FRONT_PROXIMITY	0x0b  /* set = front proximity sensor active */
- #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
- #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
-+#define SW_FNLOCK		0x0e  /* set = Fn locked */
- #define SW_MAX			0x0f
- #define SW_CNT			(SW_MAX+1)
- 
++	return 1;
++}
++
+ static int __init atkbd_setup_scancode_fixup(const struct dmi_system_id *id)
+ {
+ 	atkbd_platform_scancode_fixup = id->driver_data;
+@@ -1778,7 +1786,7 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "530U3C"),
+ 		},
+-		.callback = atkbd_setup_forced_release,
++		.callback = atkbd_setup_forced_release_and_fnlock,
+ 		.driver_data = atkbd_samsung_530u3c_forced_release_keys,
+ 	},
+ 	{
+@@ -1787,7 +1795,7 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "550P5C"),
+ 		},
+-		.callback = atkbd_setup_forced_release,
++		.callback = atkbd_setup_forced_release_and_fnlock,
+ 		.driver_data = atkbd_samsung_550p5c_forced_release_keys,
+ 	},
+ 	{
 -- 
 1.8.3.1
 

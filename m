@@ -1,117 +1,150 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH 3/5] input.h: add keycodes for Fn Lock
-Date: Mon, 29 Jul 2013 07:50:51 -0300
-Message-ID: <20130729075051.25b9e5b9@infradead.org>
-References: <1375070379-329-1-git-send-email-m.chehab@samsung.com>
-	<1375070379-329-3-git-send-email-m.chehab@samsung.com>
-	<20130729045358.GC8539@core.coreip.homeip.net>
-	<20130729070346.0cad1ace@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: mathieu.poirier@linaro.org
+Subject: [PATCH v6] Input: sysrq - DT binding for key sequence
+Date: Mon, 29 Jul 2013 10:33:58 -0600
+Message-ID: <1375115638-21236-1-git-send-email-mathieu.poirier@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.9]:58044 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753648Ab3G2Kuz (ORCPT
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:56658 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755508Ab3G2QeI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jul 2013 06:50:55 -0400
-In-Reply-To: <20130729070346.0cad1ace@samsung.com>
+	Mon, 29 Jul 2013 12:34:08 -0400
+Received: by mail-pa0-f43.google.com with SMTP id hz10so5041605pad.30
+        for <linux-input@vger.kernel.org>; Mon, 29 Jul 2013 09:34:07 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: robherring2@gmail.com, grant.likely@linaro.org, dmitry.torokhov@gmail.com
+Cc: devicetree@vger.kernel.org, john.stultz@linaro.org, linux-input@vger.kernel.org, kernel-team@android.com, mathieu.poirier@linaro.org
 
-Em Mon, 29 Jul 2013 07:03:46 -0300
-Mauro Carvalho Chehab <m.chehab@samsung.com> escreveu:
+From: "Mathieu J. Poirier" <mathieu.poirier@linaro.org>
 
-> Hi Dmitry,
-> 
-> Em Sun, 28 Jul 2013 21:53:58 -0700
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> escreveu:
-> 
-> > Hi Mauro,
-> > 
-> > On Mon, Jul 29, 2013 at 12:59:37AM -0300, Mauro Carvalho Chehab wrote:
-> > > Samsung notebooks have a FN LOCK key. It works like CAPS LOCK or NUM
-> > > LOCK keys.
-> > > 
-> > > When FN LOCK key is pressed, any further press to a key with a blue label
-> > > on it (Fn keys) will produce the alternate code.
-> > > 
-> > > Another press makes the keyboard to return to its normal state.
-> > > 
-> > > On the notebooks where such feature were found, a FN LOCK on event
-> > > produces scancode 0xa8, and a FN LOCK off event produces scancode 0xa9.
-> > > 
-> > > Yet, it is better to reserve some space at the keymap to allow some
-> > > different implementation of this feature where the same keycode might
-> > > be used.
-> > > 
-> > > Also, as this is actually a switch, add a switch indicator to report
-> > > when this switch is set/reset.
-> > > 
-> > > Signed-off-by: Mauro Carvalho Chehab <m.chehab@samsung.com>
-> > > ---
-> > >  include/uapi/linux/input.h | 5 +++++
-> > >  1 file changed, 5 insertions(+)
-> > > 
-> > > diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> > > index d584047..4622c34 100644
-> > > --- a/include/uapi/linux/input.h
-> > > +++ b/include/uapi/linux/input.h
-> > > @@ -716,6 +716,10 @@ struct input_keymap_entry {
-> > >  #define BTN_DPAD_LEFT		0x222
-> > >  #define BTN_DPAD_RIGHT		0x223
-> > >  
-> > > +#define KEY_FNLOCK_TOGGLE	0x224	/* Request switch Fn on or off */
-> > > +#define KEY_FNLOCK_ON		0x225
-> > > +#define KEY_FNLOCK_OFF		0x226
-> > > +
-> > >  #define BTN_TRIGGER_HAPPY		0x2c0
-> > >  #define BTN_TRIGGER_HAPPY1		0x2c0
-> > >  #define BTN_TRIGGER_HAPPY2		0x2c1
-> > > @@ -853,6 +857,7 @@ struct input_keymap_entry {
-> > >  #define SW_FRONT_PROXIMITY	0x0b  /* set = front proximity sensor active */
-> > >  #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
-> > >  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
-> > > +#define SW_FNLOCK		0x0e  /* set = Fn locked */
-> > 
-> > I am not sure if we need both the keys and the switch, so I would
-> > probably simply go with the keys, and not bother with switch. Then we do
-> > not need to touch the atkbd driver at all and rely on udev to set up the
-> > keymap and force release keys. 
-> 
-> The hole idea of doing those patches is to have an userspace tool that will
-> be able to show software LEDs, like mate-applet-lockeys, that will query
-> the input driver to know the current status. So, the better is to keep 
-> control of it as soon as kernel starts controlling the Keyboard, as, 
-> otherwise, the software LED indicators may be wrong.
-> 
-> If you think that having both keycodes and a switch is an overkill, then
-> the better is to just keep the switch.
+Adding a simple device tree binding for the specification of key sequences.
+Definition of the keys found in the sequence are located in
+'include/uapi/linux/input.h'.
 
-After thinking for a little bit, I can see a few alternatives:
+For the sysrq driver, holding the sequence of keys down for a specific amount of time
+will reset the system.
 
-1) add patch 3/5 and patch 4/5 as is. No need to apply patch 5/5. The
-Fn Lock switch support will start work as soon as udev initializes the
-keytables.
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+---
+changes for v6:
+  - Made binding description more specific.  'sysrq-reset-seq's definition
+    was enhanced and the case where 'timeout-ms' is omitted clearly
+    explained.
+---
+ .../devicetree/bindings/input/input-reset.txt      | 34 ++++++++++++++++++++
+ drivers/tty/sysrq.c                                | 37 ++++++++++++++++++++++
+ 2 files changed, 71 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/input-reset.txt
 
-2) Add patches 3/5 and patch 4/5 as is, and patch 5/5 rebased, as:
-	http://git.infradead.org/users/mchehab/samsung.git/commitdiff/96171bbd42d8ab9dfc3f36e0d4796080a8989344
+diff --git a/Documentation/devicetree/bindings/input/input-reset.txt b/Documentation/devicetree/bindings/input/input-reset.txt
+new file mode 100644
+index 0000000..13421a9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/input-reset.txt
+@@ -0,0 +1,34 @@
++Input: sysrq reset sequence
++
++A simple binding to represent a set of keys as described in
++include/uapi/linux/input.h.  This is to communicate a
++sequence of keys to the sysrq driver.  Upon holding the keys
++for a specified amount of time (if specified) the system is
++sync'ed and reset.
++
++Key sequences are global to the system but all the keys in a
++set must be coming from the same input device.
++
++The /chosen node should contain a 'linux,sysrq-reset-seq' child
++node to define a set of keys.
++
++Required property:
++sysrq-reset-seq: array of Linux keycodes, one keycode per cell.
++
++Optional property:
++timeout-ms: duration keys must be pressed together in milliseconds
++before generating a sysrq.  If omitted the system is rebooted
++immediately when a valid sequence has beend recognized.
++
++Example:
++
++ chosen {
++                linux,sysrq-reset-seq {
++                        keyset = <0x03
++                                  0x04
++                                  0x0a>;
++                        timeout-ms = <3000>;
++                };
++         };
++
++Would represent KEY_2, KEY_3 and KEY_9.
+diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+index d5cc3ac..b04a24d 100644
+--- a/drivers/tty/sysrq.c
++++ b/drivers/tty/sysrq.c
+@@ -45,6 +45,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/jiffies.h>
+ #include <linux/syscalls.h>
++#include <linux/of.h>
+ 
+ #include <asm/ptrace.h>
+ #include <asm/irq_regs.h>
+@@ -681,6 +682,34 @@ static void sysrq_detect_reset_sequence(struct sysrq_state *state,
+ 	}
+ }
+ 
++static void sysrq_of_get_keyreset_config(void)
++{
++	u32 key;
++	struct device_node *np;
++	struct property *prop;
++	const __be32 *p;
++
++	np = of_find_node_by_path("/chosen/linux,sysrq-reset-seq");
++	if (!np) {
++		pr_debug("No sysrq node found");
++		return;
++	}
++
++	/* reset in case a __weak definition was present */
++	sysrq_reset_seq_len = 0;
++
++	of_property_for_each_u32(np, "keyset", prop, p, key) {
++	if ((key == KEY_RESERVED || key > KEY_MAX) ||
++		(sysrq_reset_seq_len == SYSRQ_KEY_RESET_MAX))
++		break;
++
++		sysrq_reset_seq[sysrq_reset_seq_len++] = (unsigned short)key;
++	}
++
++	/* get reset timeout if any */
++	of_property_read_u32(np, "timeout-ms", &sysrq_reset_downtime_ms);
++}
++
+ static void sysrq_reinject_alt_sysrq(struct work_struct *work)
+ {
+ 	struct sysrq_state *sysrq =
+@@ -914,6 +943,7 @@ static inline void sysrq_register_handler(void)
+ 	int error;
+ 	int i;
+ 
++	/* first check if a __weak interface was instantiated */
+ 	for (i = 0; i < ARRAY_SIZE(sysrq_reset_seq); i++) {
+ 		key = platform_sysrq_reset_seq[i];
+ 		if (key == KEY_RESERVED || key > KEY_MAX)
+@@ -922,6 +952,13 @@ static inline void sysrq_register_handler(void)
+ 		sysrq_reset_seq[sysrq_reset_seq_len++] = key;
+ 	}
+ 
++	/*
++	 * DT configuration takes precedence over anything
++	 * that would have been defined via the __weak
++	 * interface
++	 */
++	sysrq_of_get_keyreset_config();
++
+ 	error = input_register_handler(&sysrq_handler);
+ 	if (error)
+ 		pr_err("Failed to register input handler, error %d", error);
+-- 
+1.8.1.2
 
-This way, all keyboards with FN LOCK will require a quirk at atkbd.
-The key handling will only start after udev starts.
-
-3) Modify patch 3/5 to only have there a switch (or a LED). That will
-require a change at patch 5/5 to use the scancodes to handle the
-switch directly.
-
-IMHO, (3) is better, as it will start handling the FN LOCK earlier,
-reducing the risk of someone press the key after keyboard reset and
-before udev to load the keytable, and providing a more reliable
-software LED indication.
-
-Please let me know what works best for you, and I'll redo the patches.
-
-Thanks!
-Mauro

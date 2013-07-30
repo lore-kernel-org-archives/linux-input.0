@@ -1,22 +1,22 @@
 From: Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH 24/35] Input: mouse: use dev_get_platdata()
-Date: Tue, 30 Jul 2013 17:15:10 +0900
-Message-ID: <005301ce8cfc$e8c0a6b0$ba41f410$@samsung.com>
+Subject: [PATCH 25/35] Input: touchscreen: use dev_get_platdata()
+Date: Tue, 30 Jul 2013 17:15:34 +0900
+Message-ID: <005401ce8cfc$f70d1500$e5273f00$@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:45044 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754524Ab3G3IPL (ORCPT
+Received: from mailout4.samsung.com ([203.254.224.34]:55060 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757991Ab3G3IPg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Jul 2013 04:15:11 -0400
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout3.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+	Tue, 30 Jul 2013 04:15:36 -0400
+Received: from epcpsbgr2.samsung.com
+ (u142.gpu120.samsung.co.kr [203.254.230.142])
+ by mailout4.samsung.com (Oracle Communications Messaging Server 7u4-24.01
  (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0MQQ001SFPLAQDU0@mailout3.samsung.com> for
- linux-input@vger.kernel.org; Tue, 30 Jul 2013 17:15:10 +0900 (KST)
+ with ESMTP id <0MQQ00FCDPLYDFS0@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 30 Jul 2013 17:15:34 +0900 (KST)
 Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -28,36 +28,45 @@ accessing dev->platform_data directly.
 
 Signed-off-by: Jingoo Han <jg1.han@samsung.com>
 ---
- drivers/input/mouse/gpio_mouse.c     |    2 +-
- drivers/input/mouse/pxa930_trkball.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/joystick/as5011.c       |    2 +-
+ drivers/input/joystick/maplecontrol.c |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
-index 6b44413..6810a46 100644
---- a/drivers/input/mouse/gpio_mouse.c
-+++ b/drivers/input/mouse/gpio_mouse.c
-@@ -48,7 +48,7 @@ static void gpio_mouse_scan(struct input_polled_dev *dev)
+diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
+index 121cd63..13eba2a 100644
+--- a/drivers/input/joystick/as5011.c
++++ b/drivers/input/joystick/as5011.c
+@@ -234,7 +234,7 @@ static int as5011_probe(struct i2c_client *client,
+ 	int irq;
+ 	int error;
  
- static int gpio_mouse_probe(struct platform_device *pdev)
+-	plat_data = client->dev.platform_data;
++	plat_data = dev_get_platdata(&client->dev);
+ 	if (!plat_data)
+ 		return -EINVAL;
+ 
+diff --git a/drivers/input/joystick/maplecontrol.c b/drivers/input/joystick/maplecontrol.c
+index 59c10ec..8aa6e4c 100644
+--- a/drivers/input/joystick/maplecontrol.c
++++ b/drivers/input/joystick/maplecontrol.c
+@@ -61,7 +61,7 @@ static void dc_pad_callback(struct mapleq *mq)
+ 
+ static int dc_pad_open(struct input_dev *dev)
  {
--	struct gpio_mouse_platform_data *pdata = pdev->dev.platform_data;
-+	struct gpio_mouse_platform_data *pdata = dev_get_platdata(&pdev->dev);
- 	struct input_polled_dev *input_poll;
- 	struct input_dev *input;
- 	int pin, i;
-diff --git a/drivers/input/mouse/pxa930_trkball.c b/drivers/input/mouse/pxa930_trkball.c
-index 0ecb9e7..d20d2ae 100644
---- a/drivers/input/mouse/pxa930_trkball.c
-+++ b/drivers/input/mouse/pxa930_trkball.c
-@@ -166,7 +166,7 @@ static int pxa930_trkball_probe(struct platform_device *pdev)
- 	if (!trkball)
- 		return -ENOMEM;
+-	struct dc_pad *pad = dev->dev.platform_data;
++	struct dc_pad *pad = dev_get_platdata(&dev->dev);
  
--	trkball->pdata = pdev->dev.platform_data;
-+	trkball->pdata = dev_get_platdata(&pdev->dev);
- 	if (!trkball->pdata) {
- 		dev_err(&pdev->dev, "no platform data defined\n");
- 		error = -EINVAL;
+ 	maple_getcond_callback(pad->mdev, dc_pad_callback, HZ/20,
+ 		MAPLE_FUNC_CONTROLLER);
+@@ -71,7 +71,7 @@ static int dc_pad_open(struct input_dev *dev)
+ 
+ static void dc_pad_close(struct input_dev *dev)
+ {
+-	struct dc_pad *pad = dev->dev.platform_data;
++	struct dc_pad *pad = dev_get_platdata(&dev->dev);
+ 
+ 	maple_getcond_callback(pad->mdev, dc_pad_callback, 0,
+ 		MAPLE_FUNC_CONTROLLER);
 -- 
 1.7.10.4
 

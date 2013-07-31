@@ -1,65 +1,66 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: i2c-hid: add DT bindings
-Date: Wed, 31 Jul 2013 12:12:19 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1307311212000.18809@pobox.suse.cz>
-References: <1371109835-30796-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1306181151030.6750@pobox.suse.cz> <CAN+gG=HA0wM=O-w_GRUtJJmGjwufmL52wTwhvLO6VLV9oPLmiA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:54068 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751192Ab3GaKMX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Jul 2013 06:12:23 -0400
-In-Reply-To: <CAN+gG=HA0wM=O-w_GRUtJJmGjwufmL52wTwhvLO6VLV9oPLmiA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Peter Hurley <peter@hurleysoftware.com>
+Subject: [PATCH linux-next] hid/logitech-dj: Fix non-atomic kmalloc in logi_dj_ll_input_event()
+Date: Wed, 31 Jul 2013 17:17:58 -0400
+Message-ID: <1375305478-26754-1-git-send-email-peter@hurleysoftware.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Hurley <peter@hurleysoftware.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, devicetree-discuss@lists.ozlabs.org, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, 24 Jul 2013, Benjamin Tissoires wrote:
+The ll_driver's .hidinput_input_event() method is called from
+atomic context [1]. Use GFP_ATOMIC for allocation of the
+synthesized hid report.
 
-> >> Add device tree based support for HID over I2C devices.
-> >>
-> >> Tested on an Odroid-X board with a Synaptics touchpad.
-> >>
-> >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >> ---
-> >>
-> >> Hi guys,
-> >>
-> >> well, as the commit message says, this is the DT binding for HID over I2C.
-> >> I honestly don't know if it will be used besides me, but it may help others
-> >> with a DT based board.
-> >> As the spec is for ACPI only, I had no specifications regarding the DT names. So
-> >> these names can be changed if you think they are bad.
-> >>
-> >> I also created a new bindings directory in the devicetree doc to reflect the
-> >> split we have between input and hid. However, if the DT experts prefer having
-> >> it under input, I'm fine with that.
-> >>
-> >> Cheers,
-> >> Benjamin
-> >>
-> >>  .../devicetree/bindings/hid/hid-over-i2c.txt       | 28 ++++++++++++++
-> >>  drivers/hid/i2c-hid/i2c-hid.c                      | 44 +++++++++++++++++++++-
-> >>  include/linux/i2c/i2c-hid.h                        |  3 +-
-> >>  3 files changed, 73 insertions(+), 2 deletions(-)
-> >>  create mode 100644 Documentation/devicetree/bindings/hid/hid-over-i2c.txt
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/hid/hid-over-i2c.txt b/Documentation/devicetree/bindings/hid/hid-over-i2c.txt
-> >
-> > DT folks, any objections to this, please?
-> >
-> > If not, I'd like to apply this for 3.11 into my tree.
-> >
-> 
-> DT folks, ping???
+Signed-off-by: Peter Hurley <peter@hurleysoftware.com>
 
-As there have been no objections for more than one month, I am now queuing 
-this up.
+[1]
+BUG: sleeping function called from invalid context at /home/peter/src/kernels/next/mm/slub.c:941
+in_atomic(): 1, irqs_disabled(): 1, pid: 2095, name: Xorg
+INFO: lockdep is turned off.
+irq event stamp: 1502178
+hardirqs last  enabled at (1502177): [<ffffffff81785e55>] _raw_spin_unlock_irqrestore+0x65/0x80
+hardirqs last disabled at (1502178): [<ffffffff8178632a>] common_interrupt+0x6a/0x6f
+softirqs last  enabled at (1501802): [<ffffffff81051ed3>] __do_softirq+0x183/0x420
+softirqs last disabled at (1501799): [<ffffffff81052315>] irq_exit+0xb5/0xc0
+CPU: 3 PID: 2095 Comm: Xorg Not tainted 3.11-next-20130725-xeon+lockdep #20130725
+Hardware name: Dell Inc. Precision WorkStation T5400  /0RW203, BIOS A11 04/30/2012
+ ffffffff81a662e0 ffff8802adcf9ca8 ffffffff8177c330 0000000000000000
+ ffff8802a76d2440 ffff8802adcf9cd8 ffffffff810867d0 ffff8802a7ac8000
+ 0000000000000010 00000000ffffffff 00000000000000d0 ffff8802adcf9d38
+Call Trace:
+ [<ffffffff8177c330>] dump_stack+0x4f/0x84
+ [<ffffffff810867d0>] __might_sleep+0x140/0x1f0
+ [<ffffffff811ad93b>] __kmalloc+0x6b/0x2e0
+ [<ffffffffa026cb08>] ? hid_alloc_report_buf+0x28/0x30 [hid]
+ [<ffffffffa026cb08>] hid_alloc_report_buf+0x28/0x30 [hid]
+ [<ffffffffa00700b0>] logi_dj_ll_input_event+0xb0/0x1b0 [hid_logitech_dj]
+ [<ffffffff815a559e>] input_handle_event+0x8e/0x540
+ [<ffffffff815a5aad>] ? input_inject_event+0x5d/0x220
+ [<ffffffff815a5c10>] input_inject_event+0x1c0/0x220
+ [<ffffffff815a5a94>] ? input_inject_event+0x44/0x220
+ [<ffffffff81181660>] ? might_fault+0xa0/0xb0
+ [<ffffffff81181617>] ? might_fault+0x57/0xb0
+ [<ffffffff815a909e>] evdev_write+0xde/0x160
+ [<ffffffff811c0ad8>] vfs_write+0xc8/0x1f0
+ [<ffffffff811c0fe5>] SyS_write+0x55/0xa0
+ [<ffffffff8178e682>] system_call_fastpath+0x16/0x1b
+---
+ drivers/hid/hid-logitech-dj.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 510fa8f..e7ad88e 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -591,7 +591,7 @@ static int logi_dj_ll_input_event(struct input_dev *dev, unsigned int type,
+ 	}
+ 	hid_set_field(field, offset, value);
+ 
+-	data = hid_alloc_report_buf(field->report, GFP_KERNEL);
++	data = hid_alloc_report_buf(field->report, GFP_ATOMIC);
+ 	if (!data) {
+ 		dev_warn(&dev->dev, "failed to allocate report buf memory\n");
+ 		return -1;
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.1.2

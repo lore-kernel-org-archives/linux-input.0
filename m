@@ -1,119 +1,65 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH v3 1/3] Input: omap-keypad: Enable wakeup capability for
- keypad.
-Date: Wed, 31 Jul 2013 12:49:48 +0300
-Message-ID: <20130731094948.GB15583@radagast>
-References: <1375116311-13999-1-git-send-email-illia.smyrnov@ti.com>
- <2416808.ThTjdiEasK@dtor-d630.eng.vmware.com>
- <20130729203605.GB6547@radagast>
- <1861803.h9dhBdaB3X@dtor-d630.eng.vmware.com>
-Reply-To: <balbi@ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: i2c-hid: add DT bindings
+Date: Wed, 31 Jul 2013 12:12:19 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1307311212000.18809@pobox.suse.cz>
+References: <1371109835-30796-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1306181151030.6750@pobox.suse.cz> <CAN+gG=HA0wM=O-w_GRUtJJmGjwufmL52wTwhvLO6VLV9oPLmiA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1861803.h9dhBdaB3X@dtor-d630.eng.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: balbi@ti.com, Illia Smyrnov <illia.smyrnov@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:54068 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751192Ab3GaKMX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Jul 2013 06:12:23 -0400
+In-Reply-To: <CAN+gG=HA0wM=O-w_GRUtJJmGjwufmL52wTwhvLO6VLV9oPLmiA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, devicetree-discuss@lists.ozlabs.org, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
---tjCHc7DPkfUGtrlw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, 24 Jul 2013, Benjamin Tissoires wrote:
 
-On Mon, Jul 29, 2013 at 01:40:28PM -0700, Dmitry Torokhov wrote:
-> On Monday, July 29, 2013 11:36:05 PM Felipe Balbi wrote:
-> > Hi,
-> >=20
-> > On Mon, Jul 29, 2013 at 12:59:23PM -0700, Dmitry Torokhov wrote:
-> > > > > > > @@ -439,12 +444,50 @@ static const struct of_device_id
-> > > > > > > omap_keypad_dt_match[] =3D {>
-> > > > > > >=20
-> > > > > > >  MODULE_DEVICE_TABLE(of, omap_keypad_dt_match);
-> > > > > > >  #endif
-> > > > > > >=20
-> > > > > > > +#ifdef CONFIG_PM_SLEEP
-> > > > > > > +static int omap4_keypad_suspend(struct device *dev)
-> > > > > > > +{
-> > > > > > > +	struct platform_device *pdev =3D to_platform_device(dev);
-> > > > > >=20
-> > > > > > you don't need to access the platform_device...
-> > > > > >=20
-> > > > > > > +	struct omap4_keypad *keypad_data =3D platform_get_drvdata(p=
-dev);
-> > > > > >=20
-> > > > > > ... since this can become:
-> > > > > > 	struct omap4_keypad *keypad_data =3D dev_get_drvdata(dev);
-> > > > >=20
-> > > > > No, please use correct accessors for the objects. Platform drivers
-> > > > > deal
-> > > > > with platform devices and I prefer using platform_get_drvdata() on
-> > > > > them.
-> > > >=20
-> > > > The argument to this function is a struct device, you prefer to do =
-some
-> > > > pointer math to find the containing pdev, then deref that back to d=
-ev,
-> > > > then to struct device_private and further to driver_data ?
-> > > >=20
-> > > > Sounds like a waste of time IMHO. You already have the device point=
-er
-> > > > anyway, why would you go through the trouble of calculating the
-> > > > offsets for the containing struct platform_device ?
-> > >=20
-> > > This assumes knowledge of dev_get_drvdata() implementation and assump=
-tion
-> > > that it will stay the same. Unless I hear from device core guys that
-> > > <bus>_{get|set}_drvdata() methods are obsolete and will be eventually
-> > > removed I will require proper accessors being used.
-> >=20
-> > they're not obsolete and will never be removed. They're nothing but
-> > helpers though. Instead of calling:
-> >=20
-> > 	dev_set_drvdata(&pdev->dev);
-> >=20
-> > you call:
-> >=20
-> > 	platform_set_drvdata(pdev);
-> >=20
-> > same is valid for every single bus, but in the end they all just wrap a
-> > call dev_{set,get}_drvdata() internally. If you already have a struct
-> > device pointer as argument, why waste cycles doing pointer math just to
-> > go back to the same struct device pointer on the next call ?
->=20
-> Because I do not want to rely on the fact that what my driver set up
-> with platform_set_drvdata(pdev, XXX) is the same as what dev_get_drvdata()
-> will return *in the current implementation*. Software layers and all
-> that...
+> >> Add device tree based support for HID over I2C devices.
+> >>
+> >> Tested on an Odroid-X board with a Synaptics touchpad.
+> >>
+> >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >> ---
+> >>
+> >> Hi guys,
+> >>
+> >> well, as the commit message says, this is the DT binding for HID over I2C.
+> >> I honestly don't know if it will be used besides me, but it may help others
+> >> with a DT based board.
+> >> As the spec is for ACPI only, I had no specifications regarding the DT names. So
+> >> these names can be changed if you think they are bad.
+> >>
+> >> I also created a new bindings directory in the devicetree doc to reflect the
+> >> split we have between input and hid. However, if the DT experts prefer having
+> >> it under input, I'm fine with that.
+> >>
+> >> Cheers,
+> >> Benjamin
+> >>
+> >>  .../devicetree/bindings/hid/hid-over-i2c.txt       | 28 ++++++++++++++
+> >>  drivers/hid/i2c-hid/i2c-hid.c                      | 44 +++++++++++++++++++++-
+> >>  include/linux/i2c/i2c-hid.h                        |  3 +-
+> >>  3 files changed, 73 insertions(+), 2 deletions(-)
+> >>  create mode 100644 Documentation/devicetree/bindings/hid/hid-over-i2c.txt
+> >>
+> >> diff --git a/Documentation/devicetree/bindings/hid/hid-over-i2c.txt b/Documentation/devicetree/bindings/hid/hid-over-i2c.txt
+> >
+> > DT folks, any objections to this, please?
+> >
+> > If not, I'd like to apply this for 3.11 into my tree.
+> >
+> 
+> DT folks, ping???
 
-fair enough, your call. It's a waste of CPU anyway.
+As there have been no objections for more than one month, I am now queuing 
+this up.
 
---=20
-balbi
+Thanks,
 
---tjCHc7DPkfUGtrlw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJR+N28AAoJEIaOsuA1yqREIVkP/0xMHfXbUhTQ9fJxGfjh0RI0
-5BAT6Ewq7y4mhWEwDSu5cnAU3uI3tpk2mCQjmYaBi5MeSz8PxG7dF6fZ0HSW+TAr
-zw9+Vf+0QbMH3bw21EnPaeHeaxEdnRh9wgKiNO14MbAheE4sedwIT5SwdTcoRdRo
-j0VSWOiPiMeABYVSN+V1BuBnoSJ/LMIBK/3/cDwjLnexbbDR1clhx7Q/q+VuQuGQ
-TtHueiWOsYsE9TKkFh2EJ1gi3J1nGBFtKsOYkBENBi8ApR/gn80wtXGppkYb1HTk
-4pVYPqH8E5iJ9Iy9bLEZ9XtnO56avLYAbEGuYI2OyKi6LVabLQV8BpCNpT4gEv33
-BbOlw5Cr3aj5F0weOen6fRMLo46F2VypXOpLBB8MLBSpFMwqHHmUhaT2mQAwtIj7
-QFydRfLIM9H9qr9l38d+AZuXgEwb3iS9BosZE4RBq8yTexxco7wEBuOCVn1cN3cv
-BNLquAHRs85fyqX3c6s3nCC5Nj+L5Ur5+b6r1HUtlEQftEcx+jsBKaRxba/2Xbn2
-zfnsoYwr6tdzyjdgQdfoHjhXgvVnjTDABXlH00aFuOFb0ydHJ30Xz/FjcZtqslRU
-XMb+4c+OB0orMUse7YdOaQKW5Zv6Cz6y+2LSR8wLvssHNJhfB/VtSrYqfl5tShdm
-RjWxpjsoqXOkBnGiX9jY
-=yfkA
------END PGP SIGNATURE-----
-
---tjCHc7DPkfUGtrlw--
+-- 
+Jiri Kosina
+SUSE Labs

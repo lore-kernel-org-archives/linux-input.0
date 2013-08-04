@@ -1,132 +1,60 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/2] iio: ti_am335x_adc: Add continuous sampling and
- trigger support
-Date: Sun, 4 Aug 2013 14:11:10 +0100
-Message-ID: <20130804131109.GA30541@gmail.com>
-References: <1374882674-18403-1-git-send-email-zubair.lutfullah@gmail.com>
- <1374882674-18403-3-git-send-email-zubair.lutfullah@gmail.com>
- <51FE357C.2040401@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <51FE357C.2040401-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Russ.Dill-l0cyMroinI0@public.gmane.org
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH] HID: wiimote: work around broken DRM_KAI on GEN10
+Date: Sun,  4 Aug 2013 18:50:10 +0200
+Message-ID: <1375635010-2468-1-git-send-email-dh.herrmann@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f51.google.com ([74.125.83.51]:37412 "EHLO
+	mail-ee0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753663Ab3HDQum (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Aug 2013 12:50:42 -0400
+Received: by mail-ee0-f51.google.com with SMTP id c1so1176686eek.38
+        for <linux-input@vger.kernel.org>; Sun, 04 Aug 2013 09:50:40 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-On Sun, Aug 04, 2013 at 12:05:32PM +0100, Jonathan Cameron wrote:
-> I'm afraid the tree has moved on a bit so this will need rebasing
-> against what is currently in iio.git.
+GEN10 and earlier devices seem to not support DRM_KAI if we run in basic
+IR mode. Use DRM_KAIE instead. This might increases overhead slightly as
+the extension port is read and streamed but we stream accelerometer data
+constantly, too, so this is negligible.
 
-The patches apply on top of fixes-to greg branch because of a recent fix
-in there. Which branch should I rebase them on?
+Note that our parsers are hardcoded on IR-formats, so we cannot actually
+use 96-bit IR DRMs for basic IR data. We would have to adjust the parsers.
+But as only GEN20 and newer support this, we simply avoid mixed DRMs.
 
-Also, I've squashed a few more bug fixes I have found since then. 
-Will update accordingly next time I send.
+This fixes a bug where GEN10 devices didn't provide IR data if
+accelerometer and IR are enabled simultaneously. As a workaround, you can
+enable DRM_KAIE without this patch via (disables device power-management):
+  echo "37" >/sys/kernel/debug/hid/<dev>/drm
 
-> 
-> I would like a description in here of what form of buffered sampling the
-> driver/device provides.  Does it run on it's own internal clock?  E.g.
-> are we dealing with a fairly autonomous device with a data ready trigger?
-> Is the driver to always be driven from an external trigger?
-> This looks like there is no explicit trigger at all (which is an unusual
-> case).  I vaguely remember discussing this before and concluding it was
-> probably valid for this device (as it is a hardware fifo pushed into a software
-> one).  If nothing else generic_buffer.c won't cover this case so might need
-> appropriately updating with a 'don't bother with an explicit trigger' option.
-> 
-> Having this stuff in the git commit log would be good as well as available
-> at time of review.  It's also usually best to assume everyone has forgotten
-> everything about the driver inbetween reviews ;)
-> 
-> Nearly there.
-> 
-> Jonathan
-> 
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+Reported-by: Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>
+---
+ drivers/hid/hid-wiimote-core.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-The trigger here is simply to give certain functionality like an oscilloscope 
-trigger. The control is given to the userspace application via IIO triggers 
-(so sysfs/gpio/timer etc can be used)
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index 0c06054..6602098 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -212,10 +212,12 @@ static __u8 select_drm(struct wiimote_data *wdata)
+ 
+ 	if (ir == WIIPROTO_FLAG_IR_BASIC) {
+ 		if (wdata->state.flags & WIIPROTO_FLAG_ACCEL) {
+-			if (ext)
+-				return WIIPROTO_REQ_DRM_KAIE;
+-			else
+-				return WIIPROTO_REQ_DRM_KAI;
++			/* GEN10 and ealier devices bind IR formats to DRMs.
++			 * Hence, we cannot use DRM_KAI here as it might be
++			 * bound to IR_EXT. Use DRM_KAIE unconditionally so we
++			 * work with all devices and our parsers can use the
++			 * fixed formats, too. */
++			return WIIPROTO_REQ_DRM_KAIE;
+ 		} else {
+ 			return WIIPROTO_REQ_DRM_KIE;
+ 		}
+-- 
+1.8.3.4
 
-A buffer of samples is read on one trigger.
-
-An alternative would be the buffer being sampled and read as soon as the 
-buffer is enabled. Which would lead to a buffer enable/disable if another 
-buffer is to be read.
-
-This is NOT a data ready trigger like in spi adcs.
-
-The TSCADC module is inside the processor. Hardware FIFO interrupts and handler
-reads samples from fifo and pushes to software FIFO.
-
-At the moment, I use sysfs triggers to check this.
-I'm still not sure on how to connect the gpio trigger driver by IIO.
-
-generic_buffer.c reads the samples with a simple sysfs trigger.
-
-So.
-Additional description in the git log only?
-
-I'll add following in log message.
-"Any IIO trigger can be used to trigger driver to read a buffer
-of samples from enabled channels."
-
-Responses on comments on actual code is inline below.
-
-Thanks
-Zubair Lutfullah
-
-> > +++ b/drivers/iio/adc/ti_am335x_adc.c
-> > @@ -26,14 +26,25 @@
-> >  #include <linux/of_device.h>
-> >  #include <linux/iio/machine.h>
-> Err, what is the machine header doing in here?
-> (clearly my review of the original driver missed a few
-> things).
-I have no idea. 
-Old stuff. I'll remove and see if it changes anything..
-> 
-
-> >  #include <linux/iio/driver.h>
-> > -
-> Cleaner to group the headers appropriately.
-Ok
-
-> > @@ -251,6 +451,10 @@ static int tiadc_probe(struct platform_device *pdev)
-> >
-> >  	return 0;
-> >
-> The error handling in this function is thoroughly scrambled up. Please review
-> it and fix it.
-Sure.
-> 
-> > +err_unregister:
-> This label is too generic to make for easy review.
-Ok.
-
-
-> > +++ b/include/linux/mfd/ti_am335x_tscadc.h
-> 
-> Clearly you are working in keeping with the current driver
-> but these defines could really do with appropriate prefixes
-> to make them more specific to the driver.  You are almost
-> certain that one of these will turn up in a general header
-> at some point.
->
-I understand your point.
-But this header is common and affects mfd, input and iio.
-Changing all of them now is going to be a massive(impossible) pain..
-
-And adding new defines should conform to the naming of the previous.
-
-What should I do?
-> > @@ -46,17 +46,23 @@
-> >  /* Step Enable */
-> >  #define STEPENB_MASK		(0x1FFFF << 0)
-> >  #define STEPENB(val)		((val) << 0)
-> > +#define ENB(val)			(1 << (val))
-> > +#define STPENB_STEPENB		STEPENB(0x1FFFF)
-> > +#define STPENB_STEPENB_TC	STEPENB(0x1FFF)
-> >

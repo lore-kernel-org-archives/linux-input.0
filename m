@@ -1,80 +1,72 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 2/2] HID: hid-logitech-dj, querying_devices was never set
-Date: Mon, 5 Aug 2013 16:40:42 +0200
-Message-ID: <CAN+gG=Hjd1Ay0=HrJdV9797DxTMf97_13kdkuHNWi24EfPL-ig@mail.gmail.com>
-References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com>
-	<1374153691-25100-2-git-send-email-nlopezcasad@logitech.com>
-	<CAN+gG=GcS7pfK9K5FuW9TyX+PJWNkXZWLk8UX9PzLXom2PSpgQ@mail.gmail.com>
-	<alpine.LNX.2.00.1308020309340.24017@pobox.suse.cz>
-	<CAN+gG=FV=OjnktkET-_KM_iTPStsWCKdj8fpyktnJczusFz0=w@mail.gmail.com>
-	<alpine.LNX.2.00.1308051516181.17512@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: ti_tsc: Enable shared IRQ for TSC
+Date: Mon, 5 Aug 2013 09:12:56 -0700
+Message-ID: <20130805161256.GA8794@core.coreip.homeip.net>
+References: <1374882674-18403-1-git-send-email-zubair.lutfullah@gmail.com>
+ <1374882674-18403-2-git-send-email-zubair.lutfullah@gmail.com>
+ <51FE361B.5030900@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f48.google.com ([209.85.215.48]:59937 "EHLO
-	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753286Ab3HEOko (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Aug 2013 10:40:44 -0400
-In-Reply-To: <alpine.LNX.2.00.1308051516181.17512@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <51FE361B.5030900@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Zubair Lutfullah <zubair.lutfullah@gmail.com>, jic23@cam.ac.uk, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org, Russ.Dill@ti.com
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <adlr@chromium.org>, joseph.salisbury@canonical.com, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Aug 5, 2013 at 3:22 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Fri, 2 Aug 2013, Benjamin Tissoires wrote:
->
->> > Could you please elaborate? (and put an elaborate description to revert
->> > commit log perhaps?)
->>
->> Sure, so here is the revert commit log:
->>
->> --
->>
->> Commit "HID: hid-logitech-dj, querying_devices was never set" activate
->> a flag which guarantees that we do not ask the receiver for too many
->> enumeration. When the flag is set, each following enumeration call is
->> discarded (the usb request is not forwarded to the receiver). The flag
->> is then released when the driver receive a pairing information event,
->> which normally follows the enumeration request.
->> However, the USB3 bug makes the driver think the enumeration request
->> has been forwarded to the receiver. However, it is actually not the
->> case because the USB stack returns -EPIPE. So, when a new unknown
->> device appears, the workaround consisting in asking for a new
->> enumeration is not working anymore: this new enumeration is discarded
->> because of the flag, which is never reset.
->>
->> A solution could be to trigger a timeout before releasing it, but for
->> now, let's just revert the patch.
->>
->> --
->
-> Thanks Benjamin.
->
-> I'd like to have a bit more clarification about the USB3 bug, as this
-> whole issue is not completely clear to me.
->
-> To be more specific -- when exactly do we receive -EPIPE, why do we
-> receive it and why do we not handle it properly?
+On Sun, Aug 04, 2013 at 12:08:11PM +0100, Jonathan Cameron wrote:
+> On 07/27/13 00:51, Zubair Lutfullah wrote:
+> > From: "Patil, Rachna" <rachna@ti.com>
+> > 
+> > Touchscreen and ADC share the same IRQ line from parent MFD core.
+> > Previously only Touchscreen was interrupt based.
+> > With continuous mode support added in ADC driver, driver requires
+> > interrupt to process the ADC samples, so enable shared IRQ flag bit for
+> > touchscreen.
+> > 
+> > Signed-off-by: Patil, Rachna <rachna@ti.com>
+> > Acked-by: Vaibhav Hiremath <hvaibhav@ti.com>
+> > Signed-off-by: Zubair Lutfullah <zubair.lutfullah@gmail.com>
+> > Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> I'd rather this went via input independent of the other patch
+> (if not there all that will happen is one or other driver will
+> fail to probe if both are attempted?)
+> 
+> Can take it through IIO but only with a Dmitry Ack.
+> 
+> > ---
+> >  drivers/input/touchscreen/ti_am335x_tsc.c |   18 ++++++++++++++----
+> >  1 file changed, 14 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > index e1c5300..68d1250 100644
+> > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > @@ -260,8 +260,18 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+> >  	unsigned int fsm;
+> >  
+> >  	status = titsc_readl(ts_dev, REG_IRQSTATUS);
+> > -	if (status & IRQENB_FIFO0THRES) {
+> > -
+> > +	/*
+> > +	 * ADC and touchscreen share the IRQ line.
+> > +	 * FIFO1 threshold, FIFO1 Overrun and FIFO1 underflow
+> > +	 * interrupts are used by ADC,
+> > +	 * hence return from touchscreen IRQ handler if FIFO1
+> > +	 * related interrupts occurred.
+> > +	 */
+> > +	if ((status & IRQENB_FIFO1THRES) ||
+> > +			(status & IRQENB_FIFO1OVRRUN) ||
+> > +			(status & IRQENB_FIFO1UNDRFLW))
+> > +		return IRQ_NONE;
+> > +	else if (status & IRQENB_FIFO0THRES) {
 
-Sure, I'll try (though the more I think of it, the more it seems
-blurry to me :( ).
+What happens if both parts have data at the same time? Can both
+IRQENB_FIFO1THRES and IRQENB_FIFO0THRES be signalled? What will happen
+in this case?
 
-So the initial probe function in hid-logitech-dj was implemented by
-using a direct call to hid_output_raw_report(). This call was
-synchronous, so we did get the -EPIPE return code. Then, the probe()
-function returns the -EPIPE error, cleaning the receiver and
-unregister it from the hid bus.
+Thanks.
 
-However, now, we use hid_hw_request(), which is asynchronous (from
-what I can read). At least, this code returns "void" as the set_report
-command seems to be scheduled for later handling. In usbhid, when the
-queue is flushed, I did not found a way to retrieve the error code...
-
-So basically, the -EPIPE is received in usbhid_restart_ctrl_queue(),
-but nothing notifies hid-logitech-dj from the error. In the end, the
-probe() function returns without error code, but the receiver never
-received the notification.
-
-Cheers,
-Benjamin
+-- 
+Dmitry

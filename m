@@ -1,50 +1,71 @@
-From: Luis Henriques <luis.henriques@canonical.com>
-Subject: Re: [PATCH][v3.2.y][v3.5.y][3.8.y] Input: elantech - fix for newer hardware versions (v7)
-Date: Mon, 05 Aug 2013 11:57:40 +0100
-Message-ID: <87bo5cjtgb.fsf@canonical.com>
-References: <51E9B4A1.3080205@canonical.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: wiimote: work around broken DRM_KAI on GEN10
+Date: Mon, 5 Aug 2013 13:46:06 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308051345590.17512@pobox.suse.cz>
+References: <1375635010-2468-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:35562 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754433Ab3HEK5n (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Aug 2013 06:57:43 -0400
-In-Reply-To: <51E9B4A1.3080205@canonical.com> (Joseph Salisbury's message of
-	"Fri, 19 Jul 2013 17:50:25 -0400")
+Received: from cantor2.suse.de ([195.135.220.15]:50077 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751862Ab3HELqK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 5 Aug 2013 07:46:10 -0400
+In-Reply-To: <1375635010-2468-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joseph Salisbury <joseph.salisbury@canonical.com>
-Cc: Ben Hutchings <ben@decadent.org.uk>, Kamal Mostafa <kamal.mostafa@canonical.com>, dmitry.torokhov@gmail.com, rydberg@euromail.se, kendatsuba@gmail.com, linux-input@vger.kernel.org, stable@vger.kernel.org, linux-kernel@vger.kernel.org, Kernel Team <kernel-team@lists.ubuntu.com>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>
 
-Joseph Salisbury <joseph.salisbury@canonical.com> writes:
+On Sun, 4 Aug 2013, David Herrmann wrote:
 
-> Hello,
->
-> Please consider including upstream commit
-> 9eebed7de660c0b5ab129a9de4f89d20b60de68c in the next v3.2.y, v3.5.y and
-> v3.8.y releases. 
->
-> It was included upstream as of v3.11-rc1.  It has been tested and
-> confirmed to resolve http://bugs.launchpad.net/bugs/1166442 .
->
-> commit 9eebed7de660c0b5ab129a9de4f89d20b60de68c
-> Author: Matteo Delfino <kendatsuba@gmail.com>
-> Date:   Sat Jul 6 21:52:26 2013 -0700
->
->     Input: elantech - fix for newer hardware versions (v7)
->
->
-> Sincerely,
-> Joseph Salisbury
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe stable" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> GEN10 and earlier devices seem to not support DRM_KAI if we run in basic
+> IR mode. Use DRM_KAIE instead. This might increases overhead slightly as
+> the extension port is read and streamed but we stream accelerometer data
+> constantly, too, so this is negligible.
+> 
+> Note that our parsers are hardcoded on IR-formats, so we cannot actually
+> use 96-bit IR DRMs for basic IR data. We would have to adjust the parsers.
+> But as only GEN20 and newer support this, we simply avoid mixed DRMs.
+> 
+> This fixes a bug where GEN10 devices didn't provide IR data if
+> accelerometer and IR are enabled simultaneously. As a workaround, you can
+> enable DRM_KAIE without this patch via (disables device power-management):
+>   echo "37" >/sys/kernel/debug/hid/<dev>/drm
+> 
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> Reported-by: Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>
 
-Thanks, I'm queuing it for the 3.5 kernel.
+Applied, thanks.
 
-Cheers,
+> ---
+>  drivers/hid/hid-wiimote-core.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+> index 0c06054..6602098 100644
+> --- a/drivers/hid/hid-wiimote-core.c
+> +++ b/drivers/hid/hid-wiimote-core.c
+> @@ -212,10 +212,12 @@ static __u8 select_drm(struct wiimote_data *wdata)
+>  
+>  	if (ir == WIIPROTO_FLAG_IR_BASIC) {
+>  		if (wdata->state.flags & WIIPROTO_FLAG_ACCEL) {
+> -			if (ext)
+> -				return WIIPROTO_REQ_DRM_KAIE;
+> -			else
+> -				return WIIPROTO_REQ_DRM_KAI;
+> +			/* GEN10 and ealier devices bind IR formats to DRMs.
+> +			 * Hence, we cannot use DRM_KAI here as it might be
+> +			 * bound to IR_EXT. Use DRM_KAIE unconditionally so we
+> +			 * work with all devices and our parsers can use the
+> +			 * fixed formats, too. */
+> +			return WIIPROTO_REQ_DRM_KAIE;
+>  		} else {
+>  			return WIIPROTO_REQ_DRM_KIE;
+>  		}
+> -- 
+> 1.8.3.4
+> 
+
 -- 
-Luis
+Jiri Kosina
+SUSE Labs

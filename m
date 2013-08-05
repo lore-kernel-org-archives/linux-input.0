@@ -1,47 +1,50 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid-holtekff: don't push static constants on stack for
- %*ph
-Date: Mon, 5 Aug 2013 11:30:18 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308051130120.17512@pobox.suse.cz>
-References: <1375441680-13593-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Luis Henriques <luis.henriques@canonical.com>
+Subject: Re: [PATCH][v3.2.y][v3.5.y][3.8.y] Input: elantech - fix for newer hardware versions (v7)
+Date: Mon, 05 Aug 2013 11:57:40 +0100
+Message-ID: <87bo5cjtgb.fsf@canonical.com>
+References: <51E9B4A1.3080205@canonical.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45595 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752546Ab3HEJaW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 5 Aug 2013 05:30:22 -0400
-In-Reply-To: <1375441680-13593-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:35562 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754433Ab3HEK5n (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Aug 2013 06:57:43 -0400
+In-Reply-To: <51E9B4A1.3080205@canonical.com> (Joseph Salisbury's message of
+	"Fri, 19 Jul 2013 17:50:25 -0400")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-input@vger.kernel.org
+To: Joseph Salisbury <joseph.salisbury@canonical.com>
+Cc: Ben Hutchings <ben@decadent.org.uk>, Kamal Mostafa <kamal.mostafa@canonical.com>, dmitry.torokhov@gmail.com, rydberg@euromail.se, kendatsuba@gmail.com, linux-input@vger.kernel.org, stable@vger.kernel.org, linux-kernel@vger.kernel.org, Kernel Team <kernel-team@lists.ubuntu.com>
 
-On Fri, 2 Aug 2013, Andy Shevchenko wrote:
+Joseph Salisbury <joseph.salisbury@canonical.com> writes:
 
-> There is no need to pass constants via stack. The width may be explicitly
-> specified in the format.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  drivers/hid/hid-holtekff.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-holtekff.c b/drivers/hid/hid-holtekff.c
-> index 9a8f051..9325545 100644
-> --- a/drivers/hid/hid-holtekff.c
-> +++ b/drivers/hid/hid-holtekff.c
-> @@ -98,7 +98,7 @@ static void holtekff_send(struct holtekff_device *holtekff,
->  		holtekff->field->value[i] = data[i];
->  	}
->  
-> -	dbg_hid("sending %*ph\n", 7, data);
-> +	dbg_hid("sending %7ph\n", data);
->  
->  	hid_hw_request(hid, holtekff->field->report, HID_REQ_SET_REPORT);
+> Hello,
+>
+> Please consider including upstream commit
+> 9eebed7de660c0b5ab129a9de4f89d20b60de68c in the next v3.2.y, v3.5.y and
+> v3.8.y releases. 
+>
+> It was included upstream as of v3.11-rc1.  It has been tested and
+> confirmed to resolve http://bugs.launchpad.net/bugs/1166442 .
+>
+> commit 9eebed7de660c0b5ab129a9de4f89d20b60de68c
+> Author: Matteo Delfino <kendatsuba@gmail.com>
+> Date:   Sat Jul 6 21:52:26 2013 -0700
+>
+>     Input: elantech - fix for newer hardware versions (v7)
+>
+>
+> Sincerely,
+> Joseph Salisbury
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe stable" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Applied, thanks Andy.
+Thanks, I'm queuing it for the 3.5 kernel.
 
+Cheers,
 -- 
-Jiri Kosina
-SUSE Labs
+Luis

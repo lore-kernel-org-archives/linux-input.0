@@ -1,66 +1,62 @@
-From: Russ Dill <Russ.Dill@ti.com>
-Subject: Re: [PATCH 1/2] input: ti_tsc: Enable shared IRQ for TSC
-Date: Mon, 5 Aug 2013 15:42:54 -0700
-Message-ID: <52002A6E.6010203@ti.com>
-References: <1374882674-18403-1-git-send-email-zubair.lutfullah@gmail.com> <1374882674-18403-2-git-send-email-zubair.lutfullah@gmail.com> <51FE361B.5030900@kernel.org> <20130805161256.GA8794@core.coreip.homeip.net> <20130805170201.GA4310@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 2/2] i2c-hid: remove mostly useless parameter 'debug'
+Date: Tue, 06 Aug 2013 11:02:33 +0300
+Message-ID: <1375776153.403.15.camel@smile>
+References: <1375441636-12921-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	   <1375441636-12921-2-git-send-email-andriy.shevchenko@linux.intel.com>
+	   <CAN+gG=Ec=jJy7HxRW08up+=Z8C0Lz4B8bhPcP+7__zuONnCAgw@mail.gmail.com>
+	  <1375454987.31118.77.camel@smile> <51FBF71E.1040802@redhat.com>
+	 <1375468274.31118.87.camel@smile> <51FBFDA0.4010205@redhat.com>
+	 <alpine.LNX.2.00.1308051124240.17512@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:46858 "EHLO comal.ext.ti.com"
+Received: from mga01.intel.com ([192.55.52.88]:27829 "EHLO mga01.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754946Ab3HEWnB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 5 Aug 2013 18:43:01 -0400
-In-Reply-To: <20130805170201.GA4310@gmail.com>
+	id S1751608Ab3HFICp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Aug 2013 04:02:45 -0400
+In-Reply-To: <alpine.LNX.2.00.1308051124240.17512@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: zubair.lutfullah@gmail.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, jic23@cam.ac.uk, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@linuxfoundation.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On 08/05/2013 10:02 AM, Zubair Lutfullah : wrote:
-> On Mon, Aug 05, 2013 at 09:12:56AM -0700, Dmitry Torokhov wrote:
->>>> Touchscreen and ADC share the same IRQ line from parent MFD core.
->>>> Previously only Touchscreen was interrupt based.
->>>> With continuous mode support added in ADC driver, driver requires
->>>> interrupt to process the ADC samples, so enable shared IRQ flag bit for
->>>> touchscreen.
->>>>
->>>> @@ -260,8 +260,18 @@ static irqreturn_t titsc_irq(int irq, void *dev)
->>>>  	unsigned int fsm;
->>>>  
->>>> +	/*
->>>> +	 * ADC and touchscreen share the IRQ line.
->>>> +	 * FIFO1 threshold, FIFO1 Overrun and FIFO1 underflow
->>>> +	 * interrupts are used by ADC,
->>>> +	 * hence return from touchscreen IRQ handler if FIFO1
->>>> +	 * related interrupts occurred.
->>>> +	 */
->>>> +	if ((status & IRQENB_FIFO1THRES) ||
->>>> +			(status & IRQENB_FIFO1OVRRUN) ||
->>>> +			(status & IRQENB_FIFO1UNDRFLW))
->>>> +		return IRQ_NONE;
->>>> +	else if (status & IRQENB_FIFO0THRES) {
->>
->> What happens if both parts have data at the same time? Can both
->> IRQENB_FIFO1THRES and IRQENB_FIFO0THRES be signalled? What will happen
->> in this case?
+On Mon, 2013-08-05 at 11:26 +0200, Jiri Kosina wrote: 
+> On Fri, 2 Aug 2013, Benjamin Tissoires wrote:
 > 
-> If ADC is sampling and someone is touching the TSC, both interrupts
-> can signal so closely that for the purpose of the kernel,
-> they can be seen as signaled together.
+> > > With only one condition if dynamic debug is enabled in kernel.
+> > > So, it would be nice to gather opinions, however, the decision is
+> > > totally depends on type of user who wants to debug the module.
+> > > 
+> > Yep, I agree that Jiri's opinion would be helpful.
+> > 
+> > Meanwhile, we could also wait a little for more i2c-hid to hit the
+> > market and to be widely tested, and then remove the debug flag. We
+> > should also remove the debug events in get_i2c_hid_get_input() which
+> > would pollute systems without dynamic debugging but with the DEBUG
+> > config still enabled.
 > 
-> FIFO 1 used only by ADC and FIFO1THRES handler is inside the iio/adc driver
-> FIFO 0 used only by TSC and FIFO0THRES handler is inside the input/touchscreen
+> Well, it doesn't seem to make too much sense to me to have generic/bus use 
+> hid_dbg() (although it's used very rarely) and a "sub-driver" use 
+> something else.
 > 
-> Note: These are level interrupts.
+> Basically the options I see:
 > 
-> I would like some input on how to handle such a situation. 
-> 
-> Thanks
-> Zubair Lutfullah
-> 
+> - keep i2c-hid as is
+> - convert the whole drivers/hid to dev_dbg()
+> - introduce another hid debugfs file in parallel to rdesc and events for 
+>   these types of messages
 
-As far as I know, if there are any bits you can handle and ack, do so
-and return IRQ_HANDLED. Otherwise, return IRQ_NONE. If there are still
-pending bits, the interrupt will fire again, your handler will be called
-again, return IRQ_NONE, and the next handler will be called.
+Debugfs could be off in the kernel configuration. Whatever we choose
+there will be a kernel that has a disabled option which prevents to
+debug: either debugging is turned off, or driver itself.
+
+
+There is another possibility as well:
+instead of dev_dbg() we may add trace points and subscribe to them from
+userspace via perf, for example.
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

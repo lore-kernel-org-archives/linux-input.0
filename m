@@ -1,61 +1,47 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c-hid: remove mostly useless parameter 'debug'
-Date: Tue, 06 Aug 2013 11:02:33 +0300
-Message-ID: <1375776153.403.15.camel@smile>
-References: <1375441636-12921-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	   <1375441636-12921-2-git-send-email-andriy.shevchenko@linux.intel.com>
-	   <CAN+gG=Ec=jJy7HxRW08up+=Z8C0Lz4B8bhPcP+7__zuONnCAgw@mail.gmail.com>
-	  <1375454987.31118.77.camel@smile> <51FBF71E.1040802@redhat.com>
-	 <1375468274.31118.87.camel@smile> <51FBFDA0.4010205@redhat.com>
-	 <alpine.LNX.2.00.1308051124240.17512@pobox.suse.cz>
+Subject: Re: [PATCH] i2c-hid: explicitly cast parametrs to follow specifiers
+Date: Tue, 06 Aug 2013 14:43:56 +0300
+Message-ID: <1375789436.403.16.camel@smile>
+References: <1372163081-11394-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:27829 "EHLO mga01.intel.com"
+Received: from mga02.intel.com ([134.134.136.20]:21828 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751608Ab3HFICp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Aug 2013 04:02:45 -0400
-In-Reply-To: <alpine.LNX.2.00.1308051124240.17512@pobox.suse.cz>
+	id S1755424Ab3HFLoJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Aug 2013 07:44:09 -0400
+In-Reply-To: <1372163081-11394-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Mon, 2013-08-05 at 11:26 +0200, Jiri Kosina wrote: 
-> On Fri, 2 Aug 2013, Benjamin Tissoires wrote:
-> 
-> > > With only one condition if dynamic debug is enabled in kernel.
-> > > So, it would be nice to gather opinions, however, the decision is
-> > > totally depends on type of user who wants to debug the module.
-> > > 
-> > Yep, I agree that Jiri's opinion would be helpful.
-> > 
-> > Meanwhile, we could also wait a little for more i2c-hid to hit the
-> > market and to be widely tested, and then remove the debug flag. We
-> > should also remove the debug events in get_i2c_hid_get_input() which
-> > would pollute systems without dynamic debugging but with the DEBUG
-> > config still enabled.
-> 
-> Well, it doesn't seem to make too much sense to me to have generic/bus use 
-> hid_dbg() (although it's used very rarely) and a "sub-driver" use 
-> something else.
-> 
-> Basically the options I see:
-> 
-> - keep i2c-hid as is
-> - convert the whole drivers/hid to dev_dbg()
-> - introduce another hid debugfs file in parallel to rdesc and events for 
->   these types of messages
+On Tue, 2013-06-25 at 15:24 +0300, Andy Shevchenko wrote: 
+> The vendor and product parameters are defined as __u32, but used as short int.
+> Let's do an explicit casting for them.
 
-Debugfs could be off in the kernel configuration. Whatever we choose
-there will be a kernel that has a disabled option which prevents to
-debug: either debugging is turned off, or driver itself.
+Jiri, Benjamin, any comment on this?
 
-
-There is another possibility as well:
-instead of dev_dbg() we may add trace points and subscribe to them from
-userspace via perf, for example.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 879b0ed..d595f2a 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -1009,7 +1009,7 @@ static int i2c_hid_probe(struct i2c_client *client,
+>  	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+>  
+>  	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
+> -		 client->name, hid->vendor, hid->product);
+> +		 client->name, (short int)hid->vendor, (short int)hid->product);
+>  
+>  	ret = hid_add_device(hid);
+>  	if (ret) {
 
 -- 
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>

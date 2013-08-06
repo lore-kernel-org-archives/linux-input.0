@@ -1,109 +1,124 @@
-From: =?UTF-8?B?U3VuZSBNw7hsZ2FhcmQ=?= <sune@molgaard.org>
-Subject: Re: [PATCH 2/2] HID: hid-logitech-dj, querying_devices was never
- set
-Date: Tue, 06 Aug 2013 23:03:33 +0200
-Message-ID: <520164A5.2020008@molgaard.org>
-References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com>	<1374153691-25100-2-git-send-email-nlopezcasad@logitech.com>	<CAN+gG=GcS7pfK9K5FuW9TyX+PJWNkXZWLk8UX9PzLXom2PSpgQ@mail.gmail.com>	<alpine.LNX.2.00.1308020309340.24017@pobox.suse.cz>	<CAN+gG=FV=OjnktkET-_KM_iTPStsWCKdj8fpyktnJczusFz0=w@mail.gmail.com>	<alpine.LNX.2.00.1308051516181.17512@pobox.suse.cz> <CAN+gG=Hjd1Ay0=HrJdV9797DxTMf97_13kdkuHNWi24EfPL-ig@mail.gmail.com>
+From: Peter Wu <lekensteyn@gmail.com>
+Subject: List corruption in hidraw_release in 3.11-rc4
+Date: Tue, 06 Aug 2013 23:30:09 +0200
+Message-ID: <6712128.bn50J4si9x@al>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAN+gG=Hjd1Ay0=HrJdV9797DxTMf97_13kdkuHNWi24EfPL-ig@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <adlr@chromium.org>, joseph.salisbury@canonical.com, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ea0-f171.google.com ([209.85.215.171]:49891 "EHLO
+	mail-ea0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755344Ab3HFVaO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Aug 2013 17:30:14 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Manoj Chourasia <mchourasia@nvidia.com>, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Being affected by this bug, I can confirm that Linux 3.11-rc4 still
-exhibits the unwanted behaviour for me, but that commenting out the
-single line from the second patch makes it work.
+Hi,
 
-Thus, for requesting a revert on that line, you are most welcome to put
-me down as a "Tested-By".
+While debugging upowerd (with Logitech Unifying receiver via hidraw),
+I came across this list corruption warning. It probably has something
+to do with me removing the receiver and re-inserting it while the file
+descriptor to /dev/hidraw0 was still open. journalctl excerpt is on the
+bottom of this message, what I did was:
 
-Best regards,
+1. Run upowerd under gdb (using sudo)
+2. disconnect, wait for a short time and reinsert the USB receiver
+3. kill upowerd (ctrl+c in gdb, confirm kill, gdb exits)
 
-Sune M=C3=B8lgaard
+I have not yet tried to reproduce it, this is a heads-up.
 
-Benjamin Tissoires wrote:
-> On Mon, Aug 5, 2013 at 3:22 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->> On Fri, 2 Aug 2013, Benjamin Tissoires wrote:
->>
->>>> Could you please elaborate? (and put an elaborate description to r=
-evert
->>>> commit log perhaps?)
->>>
->>> Sure, so here is the revert commit log:
->>>
->>> --
->>>
->>> Commit "HID: hid-logitech-dj, querying_devices was never set" activ=
-ate
->>> a flag which guarantees that we do not ask the receiver for too man=
-y
->>> enumeration. When the flag is set, each following enumeration call =
-is
->>> discarded (the usb request is not forwarded to the receiver). The f=
-lag
->>> is then released when the driver receive a pairing information even=
-t,
->>> which normally follows the enumeration request.
->>> However, the USB3 bug makes the driver think the enumeration reques=
-t
->>> has been forwarded to the receiver. However, it is actually not the
->>> case because the USB stack returns -EPIPE. So, when a new unknown
->>> device appears, the workaround consisting in asking for a new
->>> enumeration is not working anymore: this new enumeration is discard=
-ed
->>> because of the flag, which is never reset.
->>>
->>> A solution could be to trigger a timeout before releasing it, but f=
-or
->>> now, let's just revert the patch.
->>>
->>> --
->>
->> Thanks Benjamin.
->>
->> I'd like to have a bit more clarification about the USB3 bug, as thi=
-s
->> whole issue is not completely clear to me.
->>
->> To be more specific -- when exactly do we receive -EPIPE, why do we
->> receive it and why do we not handle it properly?
->=20
-> Sure, I'll try (though the more I think of it, the more it seems
-> blurry to me :( ).
->=20
-> So the initial probe function in hid-logitech-dj was implemented by
-> using a direct call to hid_output_raw_report(). This call was
-> synchronous, so we did get the -EPIPE return code. Then, the probe()
-> function returns the -EPIPE error, cleaning the receiver and
-> unregister it from the hid bus.
->=20
-> However, now, we use hid_hw_request(), which is asynchronous (from
-> what I can read). At least, this code returns "void" as the set_repor=
-t
-> command seems to be scheduled for later handling. In usbhid, when the
-> queue is flushed, I did not found a way to retrieve the error code...
->=20
-> So basically, the -EPIPE is received in usbhid_restart_ctrl_queue(),
-> but nothing notifies hid-logitech-dj from the error. In the end, the
-> probe() function returns without error code, but the receiver never
-> received the notification.
->=20
-> Cheers,
-> Benjamin
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
->=20
+Could http://lkml.org/lkml/2013/7/22/248 help with this case? I have not
+seen a kernel Oops as mentioned in that report though.
 
+Regards,
+Peter
 
---=20
-"Testiculos habet et bene pendentes"
-See http://www.newint.org/features/1993/06/05/curious/
+Aug 06 22:57:42 al sudo[14951]: peter : TTY=pts/8 ; PWD=/tmp/upower ; USER=root ; ENV=G_DEBUG=all ; COMMAND=/usr/bin/gdb --args /tmp/upower-build/dst/usr/lib/upower/upowerd -v
+Aug 06 22:57:42 al sudo[14951]: pam_unix(sudo:session): session opened for user root by peter(uid=0)
+Aug 06 22:58:11 al kernel: usb 1-1.1: USB disconnect, device number 7
+Aug 06 22:58:13 al kernel: usb 1-1.1: new full-speed USB device number 8 using ehci-pci
+Aug 06 22:58:13 al kernel: logitech-djreceiver 0003:046D:C52B.001B: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:1a.0-1.1/input2
+Aug 06 22:58:13 al kernel: input: Logitech Unifying Device. Wireless PID:4013 as /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1:1.2/0003:046D:C52B.001B/input/input21
+Aug 06 22:58:13 al kernel: logitech-djdevice 0003:046D:C52B.001C: input,hidraw1: USB HID v1.11 Mouse [Logitech Unifying Device. Wireless PID:4013] on usb-0000:00:1a.0-1.1:1
+Aug 06 22:58:13 al kernel: input: Logitech Unifying Device. Wireless PID:2010 as /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1:1.2/0003:046D:C52B.001B/input/input22
+Aug 06 22:58:13 al kernel: logitech-djdevice 0003:046D:C52B.001D: input,hidraw2: USB HID v1.11 Keyboard [Logitech Unifying Device. Wireless PID:2010] on usb-0000:00:1a.0-1.1:2
+Aug 06 22:58:13 al mtp-probe[14989]: checking bus 1, device 8: "/sys/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1"
+Aug 06 22:58:13 al mtp-probe[14989]: bus: 1, device: 8 was not an MTP device
+Aug 06 22:59:45 al kernel: usb 1-1.1: USB disconnect, device number 8
+Aug 06 22:59:47 al kernel: usb 1-1.1: new full-speed USB device number 9 using ehci-pci
+Aug 06 22:59:47 al kernel: logitech-djreceiver 0003:046D:C52B.0020: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:1a.0-1.1/input2
+Aug 06 22:59:47 al kernel: input: Logitech Unifying Device. Wireless PID:4013 as /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1:1.2/0003:046D:C52B.0020/input/input23
+Aug 06 22:59:47 al kernel: logitech-djdevice 0003:046D:C52B.0021: input,hidraw1: USB HID v1.11 Mouse [Logitech Unifying Device. Wireless PID:4013] on usb-0000:00:1a.0-1.1:1
+Aug 06 22:59:47 al kernel: input: Logitech Unifying Device. Wireless PID:2010 as /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1/1-1.1:1.2/0003:046D:C52B.0020/input/input24
+Aug 06 22:59:47 al kernel: logitech-djdevice 0003:046D:C52B.0022: input,hidraw2: USB HID v1.11 Keyboard [Logitech Unifying Device. Wireless PID:2010] on usb-0000:00:1a.0-1.1:2
+Aug 06 22:59:47 al mtp-probe[15011]: checking bus 1, device 9: "/sys/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.1"
+Aug 06 22:59:47 al mtp-probe[15011]: bus: 1, device: 9 was not an MTP device
+Aug 06 23:02:40 al kernel: ------------[ cut here ]------------
+Aug 06 23:02:40 al kernel: WARNING: CPU: 3 PID: 14954 at lib/list_debug.c:59 __list_del_entry+0xa1/0xd0()
+Aug 06 23:02:40 al kernel: list_del corruption. prev->next should be ffff8801ef384c18, but was           (null)
+Aug 06 23:02:40 al kernel: Modules linked in: usb_storage ip_set_hash_ip xt_set ip_set nfnetlink ipt_REJECT xt_recent xt_owner xt_addrtype iptable_filter ipt_MASQUERADE iptable_nat nf_conntrack_ipv4 nf_defrag_ipv4 nf_nat_ipv4 nf_nat ip_tables xt_tcpudp nf_conntrack_ipv6 nf_defrag_ipv6 xt_LOG xt_limit sit tunnel4 ip_tunnel xt_conntrack nf_conntrack ip6table_filter ip6_tables x_tables arc4 iwldvm mac80211 pl2303 usbserial coretemp kvm_intel kvm psmouse snd_hda_codec_hdmi snd_hda_codec_via snd_hda_intel snd_hda_codec iwlwifi snd_hwdep snd_pcm cfg80211 snd_page_alloc jmb38x_ms jme memstick mii snd_timer snd soundcore i2c_i801 intel_ips mxm_wmi clevo_wmi(O) wmi bbswitch(O) autofs4 dm_crypt ahci xhci_hcd libahci sdhci_pci sdhci hid_logitech_dj usbhid hid i915 video i2c_algo_bit drm_kms_helper dr
+ m
+Aug 06 23:02:40 al kernel: CPU: 3 PID: 14954 Comm: upowerd Tainted: G           O 3.11.0-1-custom #1
+Aug 06 23:02:40 al sudo[14951]: pam_unix(sudo:session): session closed for user root
+Aug 06 23:02:40 al kernel: Hardware name: CLEVO CO.                        B7130                           /B7130                           , BIOS 6.00 08/27/2010
+Aug 06 23:02:40 al kernel:  0000000000000009 ffff8801a4345b78 ffffffff81598af5 ffff8801a4345bc0
+Aug 06 23:02:40 al kernel:  ffff8801a4345bb0 ffffffff810456bd ffff8801ef384c18 ffff8801ef384800
+Aug 06 23:02:40 al kernel:  ffff8801a4257168 ffff880194e71000 ffff880232673820 ffff8801a4345c10
+Aug 06 23:02:40 al kernel: Call Trace:
+Aug 06 23:02:40 al kernel:  [<ffffffff81598af5>] dump_stack+0x54/0x74
+Aug 06 23:02:40 al kernel:  [<ffffffff810456bd>] warn_slowpath_common+0x7d/0xa0
+Aug 06 23:02:40 al kernel:  [<ffffffff8104572c>] warn_slowpath_fmt+0x4c/0x50
+Aug 06 23:02:40 al kernel:  [<ffffffff812f58c1>] __list_del_entry+0xa1/0xd0
+Aug 06 23:02:40 al kernel:  [<ffffffff812f58fd>] list_del+0xd/0x30
+Aug 06 23:02:40 al kernel:  [<ffffffffa013c0a6>] hidraw_release+0x46/0xe0 [hid]
+Aug 06 23:02:40 al kernel:  [<ffffffff81171c74>] __fput+0xf4/0x250
+Aug 06 23:02:40 al kernel:  [<ffffffff81171e1e>] ____fput+0xe/0x10
+Aug 06 23:02:40 al kernel:  [<ffffffff810670c4>] task_work_run+0xb4/0xe0
+Aug 06 23:02:40 al kernel:  [<ffffffff81046ba8>] do_exit+0x2b8/0xa70
+Aug 06 23:02:40 al kernel:  [<ffffffff815a005c>] ? _raw_spin_unlock_irq+0x2c/0x40
+Aug 06 23:02:40 al kernel:  [<ffffffff810482e9>] do_group_exit+0x49/0xc0
+Aug 06 23:02:40 al kernel:  [<ffffffff81058c73>] get_signal_to_deliver+0x2c3/0x6e0
+Aug 06 23:02:40 al kernel:  [<ffffffff81058d67>] ? get_signal_to_deliver+0x3b7/0x6e0
+Aug 06 23:02:40 al kernel:  [<ffffffff810023d8>] do_signal+0x48/0x8b0
+Aug 06 23:02:40 al kernel:  [<ffffffff811394d7>] ? might_fault+0x57/0xb0
+Aug 06 23:02:40 al kernel:  [<ffffffff815a90c0>] ? sysret_signal+0x5/0x47
+Aug 06 23:02:40 al kernel:  [<ffffffff81002ca5>] do_notify_resume+0x65/0x80
+Aug 06 23:02:40 al kernel:  [<ffffffff815a9352>] int_signal+0x12/0x17
+Aug 06 23:02:40 al kernel: ---[ end trace cb12de73e428a7e2 ]---
+Aug 06 23:02:40 al kernel: ------------[ cut here ]------------
+Aug 06 23:02:40 al kernel: WARNING: CPU: 3 PID: 14954 at lib/list_debug.c:59 __list_del_entry+0xa1/0xd0()
+Aug 06 23:02:40 al kernel: list_del corruption. prev->next should be ffff88019126f418, but was dead000000100100
+Aug 06 23:02:40 al kernel: Modules linked in: usb_storage ip_set_hash_ip xt_set ip_set nfnetlink ipt_REJECT xt_recent xt_owner xt_addrtype iptable_filter ipt_MASQUERADE iptable_nat nf_conntrack_ipv4 nf_defrag_ipv4 nf_nat_ipv4 nf_nat ip_tables xt_tcpudp nf_conntrack_ipv6 nf_defrag_ipv6 xt_LOG xt_limit sit tunnel4 ip_tunnel xt_conntrack nf_conntrack ip6table_filter ip6_tables x_tables arc4 iwldvm mac80211 pl2303 usbserial coretemp kvm_intel kvm psmouse snd_hda_codec_hdmi snd_hda_codec_via snd_hda_intel snd_hda_codec iwlwifi snd_hwdep snd_pcm cfg80211 snd_page_alloc jmb38x_ms jme memstick mii snd_timer snd soundcore i2c_i801 intel_ips mxm_wmi clevo_wmi(O) wmi bbswitch(O) autofs4 dm_crypt ahci xhci_hcd libahci sdhci_pci sdhci hid_logitech_dj usbhid hid i915 video i2c_algo_bit drm_kms_helper dr
+ m
+Aug 06 23:02:40 al kernel: CPU: 3 PID: 14954 Comm: upowerd Tainted: G        W  O 3.11.0-1-custom #1
+Aug 06 23:02:40 al kernel: Hardware name: CLEVO CO.                        B7130                           /B7130                           , BIOS 6.00 08/27/2010
+Aug 06 23:02:40 al kernel:  0000000000000009 ffff8801a4345b78 ffffffff81598af5 ffff8801a4345bc0
+Aug 06 23:02:40 al kernel:  ffff8801a4345bb0 ffffffff810456bd ffff88019126f418 ffff88019126f000
+Aug 06 23:02:40 al kernel:  ffff8801a4257168 ffff880194e71000 ffff880232673820 ffff8801a4345c10
+Aug 06 23:02:40 al kernel: Call Trace:
+Aug 06 23:02:40 al kernel:  [<ffffffff81598af5>] dump_stack+0x54/0x74
+Aug 06 23:02:40 al kernel:  [<ffffffff810456bd>] warn_slowpath_common+0x7d/0xa0
+Aug 06 23:02:40 al kernel:  [<ffffffff8104572c>] warn_slowpath_fmt+0x4c/0x50
+Aug 06 23:02:40 al kernel:  [<ffffffff812f58c1>] __list_del_entry+0xa1/0xd0
+Aug 06 23:02:40 al kernel:  [<ffffffff812f58fd>] list_del+0xd/0x30
+Aug 06 23:02:40 al kernel:  [<ffffffffa013c0a6>] hidraw_release+0x46/0xe0 [hid]
+Aug 06 23:02:40 al kernel:  [<ffffffff81171c74>] __fput+0xf4/0x250
+Aug 06 23:02:40 al kernel:  [<ffffffff81171e1e>] ____fput+0xe/0x10
+Aug 06 23:02:40 al kernel:  [<ffffffff810670c4>] task_work_run+0xb4/0xe0
+Aug 06 23:02:40 al kernel:  [<ffffffff81046ba8>] do_exit+0x2b8/0xa70
+Aug 06 23:02:40 al kernel:  [<ffffffff815a005c>] ? _raw_spin_unlock_irq+0x2c/0x40
+Aug 06 23:02:40 al kernel:  [<ffffffff810482e9>] do_group_exit+0x49/0xc0
+Aug 06 23:02:40 al kernel:  [<ffffffff81058c73>] get_signal_to_deliver+0x2c3/0x6e0
+Aug 06 23:02:40 al kernel:  [<ffffffff81058d67>] ? get_signal_to_deliver+0x3b7/0x6e0
+Aug 06 23:02:40 al kernel:  [<ffffffff810023d8>] do_signal+0x48/0x8b0
+Aug 06 23:02:40 al kernel:  [<ffffffff811394d7>] ? might_fault+0x57/0xb0
+Aug 06 23:02:40 al kernel:  [<ffffffff815a90c0>] ? sysret_signal+0x5/0x47
+Aug 06 23:02:40 al kernel:  [<ffffffff81002ca5>] do_notify_resume+0x65/0x80
+Aug 06 23:02:40 al kernel:  [<ffffffff815a9352>] int_signal+0x12/0x17
+Aug 06 23:02:40 al kernel: ---[ end trace cb12de73e428a7e3 ]---
+Aug 06 23:02:41 al sudo[15029]: peter : TTY=pts/8 ; PWD=/tmp/upower ; USER=root ; ENV=G_DEBUG=all ; COMMAND=/usr/bin/gdb --args /tmp/upower-build/dst/usr/lib/upower/upowerd -v
+Aug 06 23:02:41 al sudo[15029]: pam_unix(sudo:session): session opened for user root by peter(uid=0)
+Aug 06 23:03:20 al sudo[15029]: pam_unix(sudo:session): session closed for user root
+

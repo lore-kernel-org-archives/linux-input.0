@@ -1,15 +1,17 @@
 From: Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH 1/3] input: gpio_keys_polled: Convert to devm-* API
-Date: Wed,  7 Aug 2013 12:25:11 +0400
-Message-ID: <1375863913-26648-1-git-send-email-shc_work@mail.ru>
+Subject: [PATCH 2/3] input: gpio_keys: Convert to devm-* API
+Date: Wed,  7 Aug 2013 12:25:12 +0400
+Message-ID: <1375863913-26648-2-git-send-email-shc_work@mail.ru>
+References: <1375863913-26648-1-git-send-email-shc_work@mail.ru>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback3.mail.ru ([94.100.176.58]:60842 "EHLO
-	fallback3.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754597Ab3HGIZp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 04:25:45 -0400
+Received: from fallback7.mail.ru ([94.100.176.135]:37390 "EHLO
+	fallback7.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754597Ab3HGIZs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 04:25:48 -0400
 Received: from smtp48.i.mail.ru (smtp48.i.mail.ru [94.100.177.108])
-	by fallback3.mail.ru (mPOP.Fallback_MX) with ESMTP id 6662FF19AD9B
-	for <linux-input@vger.kernel.org>; Wed,  7 Aug 2013 12:25:40 +0400 (MSK)
+	by fallback7.mail.ru (mPOP.Fallback_MX) with ESMTP id 8E959DE1B428
+	for <linux-input@vger.kernel.org>; Wed,  7 Aug 2013 12:25:47 +0400 (MSK)
+In-Reply-To: <1375863913-26648-1-git-send-email-shc_work@mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -18,14 +20,71 @@ Cc: Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@g
 
 Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 ---
- drivers/input/keyboard/gpio_keys_polled.c | 87 ++++++++-----------------------
- 1 file changed, 23 insertions(+), 64 deletions(-)
+ drivers/input/keyboard/gpio_keys.c | 96 +++++++++++---------------------------
+ 1 file changed, 28 insertions(+), 68 deletions(-)
 
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index cd5ed9e..b589d12 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -108,9 +108,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 440ce32..8fe28d7 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -432,7 +432,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	struct device *dev = &pdev->dev;
+ 	irq_handler_t isr;
+ 	unsigned long irqflags;
+-	int irq, error;
++	int error;
+ 
+ 	bdata->input = input;
+ 	bdata->button = button;
+@@ -440,7 +440,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 
+ 	if (gpio_is_valid(button->gpio)) {
+ 
+-		error = gpio_request_one(button->gpio, GPIOF_IN, desc);
++		error = devm_gpio_request_one(&pdev->dev, button->gpio,
++					      GPIOF_IN, desc);
+ 		if (error < 0) {
+ 			dev_err(dev, "Failed to request GPIO %d, error %d\n",
+ 				button->gpio, error);
+@@ -456,15 +457,13 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 						button->debounce_interval;
+ 		}
+ 
+-		irq = gpio_to_irq(button->gpio);
+-		if (irq < 0) {
+-			error = irq;
++		bdata->irq = gpio_to_irq(button->gpio);
++		if (bdata->irq < 0) {
+ 			dev_err(dev,
+ 				"Unable to get irq number for GPIO %d, error %d\n",
+-				button->gpio, error);
+-			goto fail;
++				button->gpio, bdata->irq);
++			return bdata->irq;
+ 		}
+-		bdata->irq = irq;
+ 
+ 		INIT_WORK(&bdata->work, gpio_keys_gpio_work_func);
+ 		setup_timer(&bdata->timer,
+@@ -506,16 +505,10 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	if (error < 0) {
+ 		dev_err(dev, "Unable to claim irq %d; error %d\n",
+ 			bdata->irq, error);
+-		goto fail;
++		return error;
+ 	}
+ 
+ 	return 0;
+-
+-fail:
+-	if (gpio_is_valid(button->gpio))
+-		gpio_free(button->gpio);
+-
+-	return error;
+ }
+ 
+ static void gpio_keys_report_state(struct gpio_keys_drvdata *ddata)
+@@ -572,28 +565,20 @@ gpio_keys_get_devtree_pdata(struct device *dev)
  	struct device_node *node, *pp;
  	struct gpio_keys_platform_data *pdata;
  	struct gpio_keys_button *button;
@@ -35,10 +94,20 @@ index cd5ed9e..b589d12 100644
 +	int i, nbuttons;
  
  	node = dev->of_node;
- 	if (!node)
-@@ -120,12 +118,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 	if (nbuttons == 0)
- 		return NULL;
+-	if (!node) {
+-		error = -ENODEV;
+-		goto err_out;
+-	}
++	if (!node)
++		return ERR_PTR(-ENODEV);
+ 
+ 	nbuttons = of_get_child_count(node);
+-	if (nbuttons == 0) {
+-		error = -ENODEV;
+-		goto err_out;
+-	}
++	if (nbuttons == 0)
++		return ERR_PTR(-ENODEV);
  
 -	pdata = kzalloc(sizeof(*pdata) + nbuttons * (sizeof *button),
 -			GFP_KERNEL);
@@ -53,7 +122,7 @@ index cd5ed9e..b589d12 100644
  
  	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
  	pdata->nbuttons = nbuttons;
-@@ -146,12 +142,11 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+@@ -613,12 +598,11 @@ gpio_keys_get_devtree_pdata(struct device *dev)
  
  		gpio = of_get_gpio_flags(pp, 0, &flags);
  		if (gpio < 0) {
@@ -69,7 +138,7 @@ index cd5ed9e..b589d12 100644
  		}
  
  		button = &pdata->buttons[i++];
-@@ -162,8 +157,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+@@ -629,8 +613,7 @@ gpio_keys_get_devtree_pdata(struct device *dev)
  		if (of_property_read_u32(pp, "linux,code", &button->code)) {
  			dev_err(dev, "Button without keycode: 0x%x\n",
  				button->gpio);
@@ -79,7 +148,7 @@ index cd5ed9e..b589d12 100644
  		}
  
  		button->desc = of_get_property(pp, "label", NULL);
-@@ -178,17 +172,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+@@ -645,17 +628,10 @@ gpio_keys_get_devtree_pdata(struct device *dev)
  			button->debounce_interval = 5;
  	}
  
@@ -98,110 +167,59 @@ index cd5ed9e..b589d12 100644
 -	return ERR_PTR(error);
  }
  
- static struct of_device_id gpio_keys_polled_of_match[] = {
-@@ -228,24 +215,21 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ static struct of_device_id gpio_keys_of_match[] = {
+@@ -680,8 +656,6 @@ static void gpio_remove_key(struct gpio_button_data *bdata)
+ 	if (bdata->timer_debounce)
+ 		del_timer_sync(&bdata->timer);
+ 	cancel_work_sync(&bdata->work);
+-	if (gpio_is_valid(bdata->button->gpio))
+-		gpio_free(bdata->button->gpio);
+ }
  
- 	if (!pdata->poll_interval) {
- 		dev_err(dev, "missing poll_interval value\n");
--		error = -EINVAL;
--		goto err_free_pdata;
-+		return -EINVAL;
+ static int gpio_keys_probe(struct platform_device *pdev)
+@@ -699,14 +673,13 @@ static int gpio_keys_probe(struct platform_device *pdev)
+ 			return PTR_ERR(pdata);
  	}
  
--	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
--		       pdata->nbuttons * sizeof(struct gpio_keys_button_data),
--		       GFP_KERNEL);
-+	bdev = devm_kzalloc(&pdev->dev, sizeof(struct gpio_keys_polled_dev) +
-+		pdata->nbuttons * sizeof(struct gpio_keys_button_data),
-+		GFP_KERNEL);
- 	if (!bdev) {
- 		dev_err(dev, "no memory for private data\n");
+-	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
+-			pdata->nbuttons * sizeof(struct gpio_button_data),
+-			GFP_KERNEL);
+-	input = input_allocate_device();
++	ddata = devm_kzalloc(&pdev->dev, sizeof(struct gpio_keys_drvdata) +
++			     pdata->nbuttons * sizeof(struct gpio_button_data),
++			     GFP_KERNEL);
++	input = devm_input_allocate_device(&pdev->dev);
+ 	if (!ddata || !input) {
+ 		dev_err(dev, "failed to allocate state\n");
 -		error = -ENOMEM;
--		goto err_free_pdata;
+-		goto fail1;
 +		return -ENOMEM;
  	}
  
- 	poll_dev = input_allocate_polled_device();
- 	if (!poll_dev) {
- 		dev_err(dev, "no memory for polled device\n");
--		error = -ENOMEM;
--		goto err_free_bdev;
-+		return -ENOMEM;
- 	}
+ 	ddata->pdata = pdata;
+@@ -767,13 +740,6 @@ static int gpio_keys_probe(struct platform_device *pdev)
+ 	while (--i >= 0)
+ 		gpio_remove_key(&ddata->data[i]);
  
- 	poll_dev->private = bdev;
-@@ -278,15 +262,15 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 		if (button->wakeup) {
- 			dev_err(dev, DRV_NAME " does not support wakeup\n");
- 			error = -EINVAL;
--			goto err_free_gpio;
-+			goto err_out;
- 		}
- 
--		error = gpio_request_one(gpio, GPIOF_IN,
--					 button->desc ?: DRV_NAME);
-+		error = devm_gpio_request_one(&pdev->dev, gpio, GPIOF_IN,
-+					      button->desc ? : DRV_NAME);
- 		if (error) {
- 			dev_err(dev, "unable to claim gpio %u, err=%d\n",
- 				gpio, error);
--			goto err_free_gpio;
-+			goto err_out;
- 		}
- 
- 		bdata->can_sleep = gpio_cansleep(gpio);
-@@ -306,7 +290,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 	if (error) {
- 		dev_err(dev, "unable to register polled device, err=%d\n",
- 			error);
--		goto err_free_gpio;
-+		goto err_out;
- 	}
- 
- 	/* report initial state of the buttons */
-@@ -316,45 +300,20 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
--err_free_gpio:
--	while (--i >= 0)
--		gpio_free(pdata->buttons[i].gpio);
--
-+err_out:
- 	input_free_polled_device(poll_dev);
- 
--err_free_bdev:
--	kfree(bdev);
--
--err_free_pdata:
--	/* If we have no platform_data, we allocated pdata dynamically.  */
+- fail1:
+-	input_free_device(input);
+-	kfree(ddata);
+-	/* If we have no platform data, we allocated pdata dynamically. */
 -	if (!dev_get_platdata(&pdev->dev))
 -		kfree(pdata);
 -
  	return error;
  }
  
- static int gpio_keys_polled_remove(struct platform_device *pdev)
- {
- 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
--	const struct gpio_keys_platform_data *pdata = bdev->pdata;
--	int i;
+@@ -792,12 +758,6 @@ static int gpio_keys_remove(struct platform_device *pdev)
  
- 	input_unregister_polled_device(bdev->poll_dev);
+ 	input_unregister_device(input);
  
--	for (i = 0; i < pdata->nbuttons; i++)
--		gpio_free(pdata->buttons[i].gpio);
--
- 	input_free_polled_device(bdev->poll_dev);
- 
--	/*
--	 * If we had no platform_data, we allocated pdata dynamically and
--	 * must free it here.
--	 */
+-	/* If we have no platform data, we allocated pdata dynamically. */
 -	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
+-		kfree(ddata->pdata);
 -
--	kfree(bdev);
+-	kfree(ddata);
 -
  	return 0;
  }

@@ -1,39 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/1] input: ideapad_slidebar: new input driver
-Date: Wed, 7 Aug 2013 11:42:54 -0700
-Message-ID: <20130807184254.GA830@core.coreip.homeip.net>
-References: <52022EAE.5040000@gmail.com>
+From: Peter Wu <lekensteyn@gmail.com>
+Subject: Re: List corruption in hidraw_release in 3.11-rc4
+Date: Thu, 08 Aug 2013 00:28:45 +0200
+Message-ID: <1416898.RFahovXudQ@al>
+References: <6712128.bn50J4si9x@al> <6207700.eHyYqS01s0@al> <alpine.LNX.2.00.1308071533130.10425@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:34756 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757129Ab3HGSm7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 14:42:59 -0400
-Content-Disposition: inline
-In-Reply-To: <52022EAE.5040000@gmail.com>
+Received: from mail-we0-f175.google.com ([74.125.82.175]:44412 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757447Ab3HGW2u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 18:28:50 -0400
+In-Reply-To: <alpine.LNX.2.00.1308071533130.10425@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrey Moiseev <o2g.org.ru@gmail.com>
-Cc: linux-input@vger.kernel.org, arnoques@gmail.com, russianneuromancer@ya.ru, ike.pan@canonical.com, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Manoj Chourasia <mchourasia@nvidia.com>, linux-kernel@vger.kernel.org, alnovak@suse.cz
 
-Hi Andrey,
+On Wednesday 07 August 2013 15:34:08 Jiri Kosina wrote:
+> On Wed, 7 Aug 2013, Peter Wu wrote:
+> > [..]
+> > I have applied Manoj's patch[1] on top of 3.11-rc4 which seem to fix the
+> > issue. One observation is that the new device is named /dev/hidraw1
+> > instead of /dev/hidraw0. Example:
+> > 
+> > f(){ hidraw-test /dev/hidraw$1 usb1;}
+> > # needed for 3.11-rc4
+> > f 1; f 1 # crash
+> > # needed for 3.11-rc4 + patch
+> > f 1; f 2 # ok
+> > 
+> > Regards,
+> > Peter
+> > 
+> >  [1]: http://lkml.org/lkml/2013/7/22/248
+> 
+> That one I am still reviewing ... can I add your Tested-by: to it when
+> I'll be applying it and pushing to Linus?
 
-On Wed, Aug 07, 2013 at 03:25:34PM +0400, Andrey Moiseev wrote:
-> +/* Keyboard handler */
-> +static irq_handler_t kbd_irq_handler(int irq, void *dev_id,
-> +                    struct pt_regs *regs)
-> +{
-> +    /* Scancodes: e03b on move, bb on release */
-> +    int scancode = inb(0x60);
+Sure, once you accept it you can add:
+Tested-by: Peter Wu <lekensteyn@gmail.com>
 
-No, you should not just read KBC data without regard to what other
-parts of kernel are doing (i8042 might be accessing it at the same time
-because AUX IRQ was raised).
+While you are at it, are the other functions also safe? (i.e. hidraw_poll, 
+that one is not protected by any locks?)
 
-This driver has to be implemented as i8042 filter.
-
-Thanks.
-
--- 
-Dmitry
+Regards,
+Peter

@@ -1,232 +1,210 @@
 From: Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH 3/3] input: gpio_keys{_polled}: Replace enable/disable callbacks with regulator API
-Date: Wed,  7 Aug 2013 12:25:13 +0400
-Message-ID: <1375863913-26648-3-git-send-email-shc_work@mail.ru>
-References: <1375863913-26648-1-git-send-email-shc_work@mail.ru>
+Subject: [PATCH 1/3] input: gpio_keys_polled: Convert to devm-* API
+Date: Wed,  7 Aug 2013 12:25:11 +0400
+Message-ID: <1375863913-26648-1-git-send-email-shc_work@mail.ru>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback7.mail.ru ([94.100.176.135]:37350 "EHLO
-	fallback7.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752237Ab3HGIZn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 04:25:43 -0400
+Received: from fallback3.mail.ru ([94.100.176.58]:60842 "EHLO
+	fallback3.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754597Ab3HGIZp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 04:25:45 -0400
 Received: from smtp48.i.mail.ru (smtp48.i.mail.ru [94.100.177.108])
-	by fallback7.mail.ru (mPOP.Fallback_MX) with ESMTP id 48E1DDE1B24C
-	for <linux-input@vger.kernel.org>; Wed,  7 Aug 2013 12:25:42 +0400 (MSK)
-In-Reply-To: <1375863913-26648-1-git-send-email-shc_work@mail.ru>
+	by fallback3.mail.ru (mPOP.Fallback_MX) with ESMTP id 6662FF19AD9B
+	for <linux-input@vger.kernel.org>; Wed,  7 Aug 2013 12:25:40 +0400 (MSK)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Shiyan <shc_work@mail.ru>
 
-Typical use to enable/disable is a power switch, so replace these
-callbacks to the regulator API. This will allow using devices,
-which depends on the regulator, from devicetree.
 
 Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 ---
- .../devicetree/bindings/input/gpio-keys-polled.txt |  1 +
- arch/arm/mach-ux500/board-mop500-regulators.c      |  2 +-
- arch/arm/mach-ux500/board-mop500.c                 | 25 ----------------------
- drivers/input/keyboard/gpio_keys.c                 | 16 ++++++++------
- drivers/input/keyboard/gpio_keys_polled.c          | 16 ++++++++------
- include/linux/gpio_keys.h                          |  2 --
- 6 files changed, 22 insertions(+), 40 deletions(-)
+ drivers/input/keyboard/gpio_keys_polled.c | 87 ++++++++-----------------------
+ 1 file changed, 23 insertions(+), 64 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-index 313abef..4dba546 100644
---- a/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-+++ b/Documentation/devicetree/bindings/input/gpio-keys-polled.txt
-@@ -7,6 +7,7 @@ Required properties:
- Optional properties:
- 	- autorepeat: Boolean, Enable auto repeat feature of Linux input
- 	  subsystem.
-+	- keys-supply: The regulator to drive the GPIOs.
- 
- Each button (key) is represented as a sub-node of "gpio-keys-polled":
- Subnode properties:
-diff --git a/arch/arm/mach-ux500/board-mop500-regulators.c b/arch/arm/mach-ux500/board-mop500-regulators.c
-index 0dc44c6..6952117 100644
---- a/arch/arm/mach-ux500/board-mop500-regulators.c
-+++ b/arch/arm/mach-ux500/board-mop500-regulators.c
-@@ -76,7 +76,7 @@ static struct regulator_consumer_supply ab8500_vaux1_consumers[] = {
- 	/* Secondary display, ST uib */
- 	REGULATOR_SUPPLY("vdd1", "samsung_s6d16d0.1"),
- 	/* SFH7741 proximity sensor */
--	REGULATOR_SUPPLY("vcc", "gpio-keys.0"),
-+	REGULATOR_SUPPLY("keys", "gpio-keys.0"),
- 	/* BH1780GLS ambient light sensor */
- 	REGULATOR_SUPPLY("vcc", "2-0029"),
- 	/* lsm303dlh accelerometer */
-diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
-index df5d27a..f0b327d 100644
---- a/arch/arm/mach-ux500/board-mop500.c
-+++ b/arch/arm/mach-ux500/board-mop500.c
-@@ -375,15 +375,9 @@ static struct gpio_keys_button mop500_gpio_keys[] = {
- 	}
- };
- 
--static struct regulator *prox_regulator;
--static int mop500_prox_activate(struct device *dev);
--static void mop500_prox_deactivate(struct device *dev);
--
- static struct gpio_keys_platform_data mop500_gpio_keys_data = {
- 	.buttons	= mop500_gpio_keys,
- 	.nbuttons	= ARRAY_SIZE(mop500_gpio_keys),
--	.enable		= mop500_prox_activate,
--	.disable	= mop500_prox_deactivate,
- };
- 
- static struct platform_device mop500_gpio_keys_device = {
-@@ -394,25 +388,6 @@ static struct platform_device mop500_gpio_keys_device = {
- 	},
- };
- 
--static int mop500_prox_activate(struct device *dev)
--{
--	prox_regulator = regulator_get(&mop500_gpio_keys_device.dev,
--						"vcc");
--	if (IS_ERR(prox_regulator)) {
--		dev_err(&mop500_gpio_keys_device.dev,
--			"no regulator\n");
--		return PTR_ERR(prox_regulator);
--	}
--
--	return regulator_enable(prox_regulator);
--}
--
--static void mop500_prox_deactivate(struct device *dev)
--{
--	regulator_disable(prox_regulator);
--	regulator_put(prox_regulator);
--}
--
- static struct cryp_platform_data u8500_cryp1_platform_data = {
- 		.mem_to_engine = {
- 				.dir = DMA_MEM_TO_DEV,
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 8fe28d7..785befc 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -29,6 +29,7 @@
- #include <linux/of_platform.h>
- #include <linux/of_gpio.h>
- #include <linux/spinlock.h>
-+#include <linux/regulator/consumer.h>
- 
- struct gpio_button_data {
- 	const struct gpio_keys_button *button;
-@@ -47,6 +48,7 @@ struct gpio_keys_drvdata {
- 	struct input_dev *input;
- 	struct mutex disable_lock;
- 	struct gpio_button_data data[0];
-+	struct regulator *regulator;
- };
- 
- /*
-@@ -527,11 +529,10 @@ static void gpio_keys_report_state(struct gpio_keys_drvdata *ddata)
- static int gpio_keys_open(struct input_dev *input)
- {
- 	struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
--	const struct gpio_keys_platform_data *pdata = ddata->pdata;
- 	int error;
- 
--	if (pdata->enable) {
--		error = pdata->enable(input->dev.parent);
-+	if (!IS_ERR(ddata->regulator)) {
-+		error = regulator_enable(ddata->regulator);
- 		if (error)
- 			return error;
- 	}
-@@ -545,10 +546,9 @@ static int gpio_keys_open(struct input_dev *input)
- static void gpio_keys_close(struct input_dev *input)
- {
- 	struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
--	const struct gpio_keys_platform_data *pdata = ddata->pdata;
- 
--	if (pdata->disable)
--		pdata->disable(input->dev.parent);
-+	if (!IS_ERR(ddata->regulator))
-+		regulator_disable(ddata->regulator);
- }
- 
- /*
-@@ -682,6 +682,10 @@ static int gpio_keys_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
-+	ddata->regulator = devm_regulator_get(&pdev->dev, "keys");
-+	if (PTR_ERR(ddata->regulator) == -EPROBE_DEFER)
-+		return -EPROBE_DEFER;
-+
- 	ddata->pdata = pdata;
- 	ddata->input = input;
- 	mutex_init(&ddata->disable_lock);
 diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index b589d12..405afbd 100644
+index cd5ed9e..b589d12 100644
 --- a/drivers/input/keyboard/gpio_keys_polled.c
 +++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -27,6 +27,7 @@
- #include <linux/gpio_keys.h>
- #include <linux/of_platform.h>
- #include <linux/of_gpio.h>
-+#include <linux/regulator/consumer.h>
+@@ -108,9 +108,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+ 	struct device_node *node, *pp;
+ 	struct gpio_keys_platform_data *pdata;
+ 	struct gpio_keys_button *button;
+-	int error;
+-	int nbuttons;
+-	int i;
++	int i, nbuttons;
  
- #define DRV_NAME	"gpio-keys-polled"
+ 	node = dev->of_node;
+ 	if (!node)
+@@ -120,12 +118,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+ 	if (nbuttons == 0)
+ 		return NULL;
  
-@@ -42,6 +43,7 @@ struct gpio_keys_polled_dev {
- 	struct device *dev;
- 	const struct gpio_keys_platform_data *pdata;
- 	struct gpio_keys_button_data data[0];
-+	struct regulator *regulator;
- };
+-	pdata = kzalloc(sizeof(*pdata) + nbuttons * (sizeof *button),
+-			GFP_KERNEL);
+-	if (!pdata) {
+-		error = -ENOMEM;
+-		goto err_out;
+-	}
++	pdata = devm_kzalloc(dev, sizeof(*pdata) + nbuttons * sizeof(*button),
++			     GFP_KERNEL);
++	if (!pdata)
++		return ERR_PTR(-ENOMEM);
  
- static void gpio_keys_polled_check_state(struct input_dev *input,
-@@ -87,19 +89,17 @@ static void gpio_keys_polled_poll(struct input_polled_dev *dev)
- static void gpio_keys_polled_open(struct input_polled_dev *dev)
- {
- 	struct gpio_keys_polled_dev *bdev = dev->private;
--	const struct gpio_keys_platform_data *pdata = bdev->pdata;
+ 	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
+ 	pdata->nbuttons = nbuttons;
+@@ -146,12 +142,11 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
  
--	if (pdata->enable)
--		pdata->enable(bdev->dev);
-+	if (!IS_ERR(bdev->regulator))
-+		regulator_enable(bdev->regulator);
- }
+ 		gpio = of_get_gpio_flags(pp, 0, &flags);
+ 		if (gpio < 0) {
+-			error = gpio;
+-			if (error != -EPROBE_DEFER)
++			if (gpio != -EPROBE_DEFER)
+ 				dev_err(dev,
+ 					"Failed to get gpio flags, error: %d\n",
+-					error);
+-			goto err_free_pdata;
++					gpio);
++			return ERR_PTR(gpio);
+ 		}
  
- static void gpio_keys_polled_close(struct input_polled_dev *dev)
- {
- 	struct gpio_keys_polled_dev *bdev = dev->private;
--	const struct gpio_keys_platform_data *pdata = bdev->pdata;
+ 		button = &pdata->buttons[i++];
+@@ -162,8 +157,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+ 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
+ 			dev_err(dev, "Button without keycode: 0x%x\n",
+ 				button->gpio);
+-			error = -EINVAL;
+-			goto err_free_pdata;
++			return ERR_PTR(-EINVAL);
+ 		}
  
--	if (pdata->disable)
--		pdata->disable(bdev->dev);
-+	if (!IS_ERR(bdev->regulator))
-+		regulator_disable(bdev->regulator);
- }
- 
- #ifdef CONFIG_OF
-@@ -226,6 +226,10 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+ 		button->desc = of_get_property(pp, "label", NULL);
+@@ -178,17 +172,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+ 			button->debounce_interval = 5;
  	}
  
-+	bdev->regulator = devm_regulator_get(&pdev->dev, "keys");
-+	if (PTR_ERR(bdev->regulator) == -EPROBE_DEFER)
-+		return -EPROBE_DEFER;
-+
+-	if (pdata->nbuttons == 0) {
+-		error = -EINVAL;
+-		goto err_free_pdata;
+-	}
++	if (!pdata->nbuttons)
++		return ERR_PTR(-EINVAL);
+ 
+ 	return pdata;
+-
+-err_free_pdata:
+-	kfree(pdata);
+-err_out:
+-	return ERR_PTR(error);
+ }
+ 
+ static struct of_device_id gpio_keys_polled_of_match[] = {
+@@ -228,24 +215,21 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 	if (!pdata->poll_interval) {
+ 		dev_err(dev, "missing poll_interval value\n");
+-		error = -EINVAL;
+-		goto err_free_pdata;
++		return -EINVAL;
+ 	}
+ 
+-	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
+-		       pdata->nbuttons * sizeof(struct gpio_keys_button_data),
+-		       GFP_KERNEL);
++	bdev = devm_kzalloc(&pdev->dev, sizeof(struct gpio_keys_polled_dev) +
++		pdata->nbuttons * sizeof(struct gpio_keys_button_data),
++		GFP_KERNEL);
+ 	if (!bdev) {
+ 		dev_err(dev, "no memory for private data\n");
+-		error = -ENOMEM;
+-		goto err_free_pdata;
++		return -ENOMEM;
+ 	}
+ 
  	poll_dev = input_allocate_polled_device();
  	if (!poll_dev) {
  		dev_err(dev, "no memory for polled device\n");
-diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-index a7e977f..05d3bf8 100644
---- a/include/linux/gpio_keys.h
-+++ b/include/linux/gpio_keys.h
-@@ -23,8 +23,6 @@ struct gpio_keys_platform_data {
- 	unsigned int poll_interval;	/* polling interval in msecs -
- 					   for polling driver only */
- 	unsigned int rep:1;		/* enable input subsystem auto repeat */
--	int (*enable)(struct device *dev);
--	void (*disable)(struct device *dev);
- 	const char *name;		/* input device name */
- };
+-		error = -ENOMEM;
+-		goto err_free_bdev;
++		return -ENOMEM;
+ 	}
+ 
+ 	poll_dev->private = bdev;
+@@ -278,15 +262,15 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 		if (button->wakeup) {
+ 			dev_err(dev, DRV_NAME " does not support wakeup\n");
+ 			error = -EINVAL;
+-			goto err_free_gpio;
++			goto err_out;
+ 		}
+ 
+-		error = gpio_request_one(gpio, GPIOF_IN,
+-					 button->desc ?: DRV_NAME);
++		error = devm_gpio_request_one(&pdev->dev, gpio, GPIOF_IN,
++					      button->desc ? : DRV_NAME);
+ 		if (error) {
+ 			dev_err(dev, "unable to claim gpio %u, err=%d\n",
+ 				gpio, error);
+-			goto err_free_gpio;
++			goto err_out;
+ 		}
+ 
+ 		bdata->can_sleep = gpio_cansleep(gpio);
+@@ -306,7 +290,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 	if (error) {
+ 		dev_err(dev, "unable to register polled device, err=%d\n",
+ 			error);
+-		goto err_free_gpio;
++		goto err_out;
+ 	}
+ 
+ 	/* report initial state of the buttons */
+@@ -316,45 +300,20 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
+-err_free_gpio:
+-	while (--i >= 0)
+-		gpio_free(pdata->buttons[i].gpio);
+-
++err_out:
+ 	input_free_polled_device(poll_dev);
+ 
+-err_free_bdev:
+-	kfree(bdev);
+-
+-err_free_pdata:
+-	/* If we have no platform_data, we allocated pdata dynamically.  */
+-	if (!dev_get_platdata(&pdev->dev))
+-		kfree(pdata);
+-
+ 	return error;
+ }
+ 
+ static int gpio_keys_polled_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
+-	const struct gpio_keys_platform_data *pdata = bdev->pdata;
+-	int i;
+ 
+ 	input_unregister_polled_device(bdev->poll_dev);
+ 
+-	for (i = 0; i < pdata->nbuttons; i++)
+-		gpio_free(pdata->buttons[i].gpio);
+-
+ 	input_free_polled_device(bdev->poll_dev);
+ 
+-	/*
+-	 * If we had no platform_data, we allocated pdata dynamically and
+-	 * must free it here.
+-	 */
+-	if (!dev_get_platdata(&pdev->dev))
+-		kfree(pdata);
+-
+-	kfree(bdev);
+-
+ 	return 0;
+ }
  
 -- 
 1.8.1.5

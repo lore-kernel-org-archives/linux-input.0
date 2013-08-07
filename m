@@ -1,44 +1,62 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: List corruption in hidraw_release in 3.11-rc4
-Date: Wed, 7 Aug 2013 15:34:08 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308071533130.10425@pobox.suse.cz>
-References: <6712128.bn50J4si9x@al> <alpine.LNX.2.00.1308070258480.10817@pobox.suse.cz> <6207700.eHyYqS01s0@al>
+From: Manoj Chourasia <mchourasia@nvidia.com>
+Subject: RE: List corruption in hidraw_release in 3.11-rc4
+Date: Wed, 7 Aug 2013 20:36:40 +0530
+Message-ID: <F17EA9D408D3644C864D33B8F5E1CC526DAC4BDA59@BGMAIL02.nvidia.com>
+References: <6712128.bn50J4si9x@al>
+ <alpine.LNX.2.00.1308070258480.10817@pobox.suse.cz> <6207700.eHyYqS01s0@al>
+ <alpine.LNX.2.00.1308071533130.10425@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59668 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933086Ab3HGNeO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 7 Aug 2013 09:34:14 -0400
-In-Reply-To: <6207700.eHyYqS01s0@al>
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:6204 "EHLO
+	hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932491Ab3HGPGp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 11:06:45 -0400
+In-Reply-To: <alpine.LNX.2.00.1308071533130.10425@pobox.suse.cz>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Wu <lekensteyn@gmail.com>
-Cc: linux-input@vger.kernel.org, Manoj Chourasia <mchourasia@nvidia.com>, linux-kernel@vger.kernel.org, alnovak@suse.cz
+To: Jiri Kosina <jkosina@suse.cz>, Peter Wu <lekensteyn@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alnovak@suse.cz" <alnovak@suse.cz>
+
+Hi Peter,
+
+The patch I posted was solving slab memory corruption issue which was occurring because of the race in device disconnect and device release. We found the some of the device data structure being used after free. Later we figure out the patch which was reverted earlier was solving our issue but there was still some slab memory corruption.  That was due to reason that list delete of the device was called after freeing the hidraw. I protect drop_ref by mutex lock and also delete the list before calling drop_ref that solve the issue. If you are seeing memory corruption then the patch could solve your issue.
+
+Regards
+-Manoj
+
+-----Original Message-----
+From: Jiri Kosina [mailto:jkosina@suse.cz] 
+Sent: Wednesday, August 07, 2013 7:04 PM
+To: Peter Wu
+Cc: linux-input@vger.kernel.org; Manoj Chourasia; linux-kernel@vger.kernel.org; alnovak@suse.cz
+Subject: Re: List corruption in hidraw_release in 3.11-rc4
 
 On Wed, 7 Aug 2013, Peter Wu wrote:
 
 > > does the patch below fix the problem you are seeing?
-> That one is already in 3.11-rc4 as far as I can see. Also, that code can 
-> probably simplified by moving the mutex_unlock after the out label, removing 
-> the need to duplicate the mutex_unlock.
+> That one is already in 3.11-rc4 as far as I can see. Also, that code 
+> can probably simplified by moving the mutex_unlock after the out 
+> label, removing the need to duplicate the mutex_unlock.
 > 
-> Remember what I said about "no Oopses"? Well, it turned out that several 
-> memory structures were damaged which causes a general protection fault in 
-> sock_alloc_inode and other places.
+> Remember what I said about "no Oopses"? Well, it turned out that 
+> several memory structures were damaged which causes a general 
+> protection fault in sock_alloc_inode and other places.
 > 
-> I managed to create a program that can reproduce this bug 100% in a QEMU 
-> virtual machine with a Logitech USB receiver passed to it.
+> I managed to create a program that can reproduce this bug 100% in a 
+> QEMU virtual machine with a Logitech USB receiver passed to it.
 > 
-> qemu-system-x86_64 -enable-kvm -m 1G -usb -usbdevice host:046d:c52b
+> qemu-system-x86_64 -enable-kvm -m 1G -usb -usbdevice host:046d:c52b 
 > (pass -kernel, -initrd, -append as needed)
 > 
-> Copy hidraw-test to initrd, boot QEMU and run `hidraw-test`. Result: instant
-> (= +/- 2 seconds) crash.
+> Copy hidraw-test to initrd, boot QEMU and run `hidraw-test`. Result: 
+> instant (= +/- 2 seconds) crash.
 > 
 > I have applied Manoj's patch[1] on top of 3.11-rc4 which seem to fix the issue. 
-> One observation is that the new device is named /dev/hidraw1 instead of 
-> /dev/hidraw0. Example:
+> One observation is that the new device is named /dev/hidraw1 instead 
+> of /dev/hidraw0. Example:
 > 
 > f(){ hidraw-test /dev/hidraw$1 usb1;}
 > # needed for 3.11-rc4
@@ -51,21 +69,15 @@ On Wed, 7 Aug 2013, Peter Wu wrote:
 > 
 >  [1]: http://lkml.org/lkml/2013/7/22/248
 
-That one I am still reviewing ... can I add your Tested-by: to it when 
-I'll be applying it and pushing to Linus?
+That one I am still reviewing ... can I add your Tested-by: to it when I'll be applying it and pushing to Linus?
 
 Thanks.
 
 > --
 > /* cc hidraw-test.c -o hidraw-test
->  * hidraw-test /dev/hidraw0 usb1; hidraw-test /dev/hidraw0 usb1;
->  */
-> #include <unistd.h>
-> #include <fcntl.h>
-> #include <stdio.h>
-> #include <errno.h>
-> #include <string.h>
-> #include <stdlib.h>
+>  * hidraw-test /dev/hidraw0 usb1; hidraw-test /dev/hidraw0 usb1;  */ 
+> #include <unistd.h> #include <fcntl.h> #include <stdio.h> #include 
+> <errno.h> #include <string.h> #include <stdlib.h>
 > 
 > int open_and_write(const char *path, const char *data) {
 > 	int sfd, r;
@@ -128,6 +140,6 @@ Thanks.
 > }
 > 
 
--- 
+--
 Jiri Kosina
 SUSE Labs

@@ -1,42 +1,39 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c-hid: remove mostly useless parameter 'debug'
-Date: Wed, 07 Aug 2013 18:21:36 +0300
-Message-ID: <1375888896.403.23.camel@smile>
-References: <1375441636-12921-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	  <1375441636-12921-2-git-send-email-andriy.shevchenko@linux.intel.com>
-	  <CAN+gG=Ec=jJy7HxRW08up+=Z8C0Lz4B8bhPcP+7__zuONnCAgw@mail.gmail.com>
-	 <1375454987.31118.77.camel@smile> <51FBF71E.1040802@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/1] input: ideapad_slidebar: new input driver
+Date: Wed, 7 Aug 2013 11:42:54 -0700
+Message-ID: <20130807184254.GA830@core.coreip.homeip.net>
+References: <52022EAE.5040000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:22173 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751139Ab3HGPWB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 11:22:01 -0400
-In-Reply-To: <51FBF71E.1040802@redhat.com>
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:34756 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757129Ab3HGSm7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 14:42:59 -0400
+Content-Disposition: inline
+In-Reply-To: <52022EAE.5040000@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Andrey Moiseev <o2g.org.ru@gmail.com>
+Cc: linux-input@vger.kernel.org, arnoques@gmail.com, russianneuromancer@ya.ru, ike.pan@canonical.com, linux-kernel@vger.kernel.org
 
-On Fri, 2013-08-02 at 20:14 +0200, Benjamin Tissoires wrote: 
-> On 02/08/13 16:49, Andy Shevchenko wrote:
+Hi Andrey,
 
-> > Usually when I see such code I understood it was written in
-> > pre-dynamic-debug epoch. So, my point is to switch to dynamic debug and
-> > use it efficiently.
-> 
-> Ok, so if you can guarantee me that adding the proper kernel parameter
-> will allow me to retrieve all the i2c-hid logs from the boot, then I'd
-> be happy to ack this. However, I have no way to test this right now, so
-> I'll need to trust you (that's why I'm asking you to do proper testing).
+On Wed, Aug 07, 2013 at 03:25:34PM +0400, Andrey Moiseev wrote:
+> +/* Keyboard handler */
+> +static irq_handler_t kbd_irq_handler(int irq, void *dev_id,
+> +                    struct pt_regs *regs)
+> +{
+> +    /* Scancodes: e03b on move, bb on release */
+> +    int scancode = inb(0x60);
 
-Just to your information, I noticed that Greg KH did something like I
-propose for usb drivers (misc, serial, ...).
+No, you should not just read KBC data without regard to what other
+parts of kernel are doing (i8042 might be accessing it at the same time
+because AUX IRQ was raised).
 
-So, it would be considered as third party opinion, I guess.
+This driver has to be implemented as i8042 filter.
+
+Thanks.
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Dmitry

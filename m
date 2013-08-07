@@ -1,145 +1,42 @@
-From: Manoj Chourasia <mchourasia@nvidia.com>
-Subject: RE: List corruption in hidraw_release in 3.11-rc4
-Date: Wed, 7 Aug 2013 20:36:40 +0530
-Message-ID: <F17EA9D408D3644C864D33B8F5E1CC526DAC4BDA59@BGMAIL02.nvidia.com>
-References: <6712128.bn50J4si9x@al>
- <alpine.LNX.2.00.1308070258480.10817@pobox.suse.cz> <6207700.eHyYqS01s0@al>
- <alpine.LNX.2.00.1308071533130.10425@pobox.suse.cz>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 2/2] i2c-hid: remove mostly useless parameter 'debug'
+Date: Wed, 07 Aug 2013 18:21:36 +0300
+Message-ID: <1375888896.403.23.camel@smile>
+References: <1375441636-12921-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	  <1375441636-12921-2-git-send-email-andriy.shevchenko@linux.intel.com>
+	  <CAN+gG=Ec=jJy7HxRW08up+=Z8C0Lz4B8bhPcP+7__zuONnCAgw@mail.gmail.com>
+	 <1375454987.31118.77.camel@smile> <51FBF71E.1040802@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:6204 "EHLO
-	hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932491Ab3HGPGp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 11:06:45 -0400
-In-Reply-To: <alpine.LNX.2.00.1308071533130.10425@pobox.suse.cz>
-Content-Language: en-US
+Received: from mga01.intel.com ([192.55.52.88]:22173 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751139Ab3HGPWB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Aug 2013 11:22:01 -0400
+In-Reply-To: <51FBF71E.1040802@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Peter Wu <lekensteyn@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alnovak@suse.cz" <alnovak@suse.cz>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Hi Peter,
+On Fri, 2013-08-02 at 20:14 +0200, Benjamin Tissoires wrote: 
+> On 02/08/13 16:49, Andy Shevchenko wrote:
 
-The patch I posted was solving slab memory corruption issue which was occurring because of the race in device disconnect and device release. We found the some of the device data structure being used after free. Later we figure out the patch which was reverted earlier was solving our issue but there was still some slab memory corruption.  That was due to reason that list delete of the device was called after freeing the hidraw. I protect drop_ref by mutex lock and also delete the list before calling drop_ref that solve the issue. If you are seeing memory corruption then the patch could solve your issue.
+> > Usually when I see such code I understood it was written in
+> > pre-dynamic-debug epoch. So, my point is to switch to dynamic debug and
+> > use it efficiently.
+> 
+> Ok, so if you can guarantee me that adding the proper kernel parameter
+> will allow me to retrieve all the i2c-hid logs from the boot, then I'd
+> be happy to ack this. However, I have no way to test this right now, so
+> I'll need to trust you (that's why I'm asking you to do proper testing).
 
-Regards
--Manoj
+Just to your information, I noticed that Greg KH did something like I
+propose for usb drivers (misc, serial, ...).
 
------Original Message-----
-From: Jiri Kosina [mailto:jkosina@suse.cz] 
-Sent: Wednesday, August 07, 2013 7:04 PM
-To: Peter Wu
-Cc: linux-input@vger.kernel.org; Manoj Chourasia; linux-kernel@vger.kernel.org; alnovak@suse.cz
-Subject: Re: List corruption in hidraw_release in 3.11-rc4
+So, it would be considered as third party opinion, I guess.
 
-On Wed, 7 Aug 2013, Peter Wu wrote:
-
-> > does the patch below fix the problem you are seeing?
-> That one is already in 3.11-rc4 as far as I can see. Also, that code 
-> can probably simplified by moving the mutex_unlock after the out 
-> label, removing the need to duplicate the mutex_unlock.
-> 
-> Remember what I said about "no Oopses"? Well, it turned out that 
-> several memory structures were damaged which causes a general 
-> protection fault in sock_alloc_inode and other places.
-> 
-> I managed to create a program that can reproduce this bug 100% in a 
-> QEMU virtual machine with a Logitech USB receiver passed to it.
-> 
-> qemu-system-x86_64 -enable-kvm -m 1G -usb -usbdevice host:046d:c52b 
-> (pass -kernel, -initrd, -append as needed)
-> 
-> Copy hidraw-test to initrd, boot QEMU and run `hidraw-test`. Result: 
-> instant (= +/- 2 seconds) crash.
-> 
-> I have applied Manoj's patch[1] on top of 3.11-rc4 which seem to fix the issue. 
-> One observation is that the new device is named /dev/hidraw1 instead 
-> of /dev/hidraw0. Example:
-> 
-> f(){ hidraw-test /dev/hidraw$1 usb1;}
-> # needed for 3.11-rc4
-> f 1; f 1 # crash
-> # needed for 3.11-rc4 + patch
-> f 1; f 2 # ok
-> 
-> Regards,
-> Peter
-> 
->  [1]: http://lkml.org/lkml/2013/7/22/248
-
-That one I am still reviewing ... can I add your Tested-by: to it when I'll be applying it and pushing to Linus?
-
-Thanks.
-
-> --
-> /* cc hidraw-test.c -o hidraw-test
->  * hidraw-test /dev/hidraw0 usb1; hidraw-test /dev/hidraw0 usb1;  */ 
-> #include <unistd.h> #include <fcntl.h> #include <stdio.h> #include 
-> <errno.h> #include <string.h> #include <stdlib.h>
-> 
-> int open_and_write(const char *path, const char *data) {
-> 	int sfd, r;
-> 
-> 	sfd = open(path, O_WRONLY);
-> 	if (sfd < 0) {
-> 		perror(path);
-> 		return 1;
-> 	}
-> 
-> 	r = write(sfd, data, strlen(data));
-> 	if (r < 0) {
-> 		fprintf(stderr, "write(%s, %s): %s\n",
-> 			path, data, strerror(errno));
-> 		return 1;
-> 	}
-> 	close(sfd);
-> 	return 0;
-> }
-> 
-> int dork(const char *hiddev, const char *name) {
-> 	int fd;
-> 	char c;
-> 
-> 	fd = open(hiddev, O_RDWR | O_NONBLOCK);
-> 	if (fd < 0) {
-> 		perror("open");
-> 		return 1;
-> 	}
-> 
-> 	if (open_and_write("/sys/bus/usb/drivers/usb/unbind", name))
-> 		return 1;
-> 
-> 	// does not make a difference
-> 	//sleep(1);
-> 
-> 	if (open_and_write("/sys/bus/usb/drivers/usb/bind", name))
-> 		return 1;
-> 
-> 	// allow devices to get discovered
-> 	sleep(1);
-> 
-> 	printf("read() = %zi\n", read(fd, &c, 1)); perror("read");
-> 	close(fd);
-> 	return 0;
-> }
-> 
-> int main(int argc, char **argv) {
-> 	if (argc < 3) {
-> 		fprintf(stderr, "Usage: %s /dev/hidrawN usbN\n", *argv);
-> 		return 1;
-> 	}
-> 
-> 	system("modprobe -v usbhid");
-> 	system("modprobe -v hid-logitech-dj");
-> 
-> 	dork(argv[1], argv[2]);
-> 
-> 	return 0;
-> }
-> 
-
---
-Jiri Kosina
-SUSE Labs
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

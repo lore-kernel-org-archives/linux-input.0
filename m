@@ -1,24 +1,24 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
 Subject: Re: [PATCH 1/2] include: dt-binding: input: create a DT header defining
  key codes.
-Date: Thu, 8 Aug 2013 23:02:50 +0530
-Message-ID: <5203D642.60405@nvidia.com>
+Date: Thu, 08 Aug 2013 11:25:27 -0600
+Message-ID: <5203D487.5020507@wwwdotorg.org>
 References: <1375798370-2231-1-git-send-email-ldewangan@nvidia.com> <52014E50.6030508@wwwdotorg.org> <5203D138.4030107@nvidia.com> <20130808171331.GA6960@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:5076 "EHLO
-	hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S965361Ab3HHRS6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Aug 2013 13:18:58 -0400
+Received: from avon.wwwdotorg.org ([70.85.31.133]:47821 "EHLO
+	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965673Ab3HHRZd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Aug 2013 13:25:33 -0400
 In-Reply-To: <20130808171331.GA6960@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Stephen Warren <swarren@nvidia.com>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Ian Campbell <ian.campbell@citrix.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <Mark.Rutland@arm.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@nvidia.com>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Ian Campbell <ian.campbell@citrix.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <Mark.Rutland@arm.com>
 
-On Thursday 08 August 2013 10:43 PM, Dmitry Torokhov wrote:
+On 08/08/2013 11:13 AM, Dmitry Torokhov wrote:
 > On Thu, Aug 08, 2013 at 10:41:20PM +0530, Laxman Dewangan wrote:
 >> On Wednesday 07 August 2013 12:58 AM, Stephen Warren wrote:
 >>> (CC'ing DT bindings maintainers too, hence quoting a bit of the patch)
@@ -32,30 +32,14 @@ On Thursday 08 August 2013 10:43 PM, Dmitry Torokhov wrote:
 >>>> Create a DT header which defines all the key code so that DT key bindings
 >>>> can use it as follows:
 >>>> 	linux,code = <KEY_HOME>;
->>> This looks fine to me.
->>> Reviewed-by: Stephen Warren <swarren@nvidia.com>
->>>
->>> A comment in support of the patch: This is adding OS-specific content to
->>> the DT. However, the bindings this header file supports are already
->>> written that way. There's not really any alternative here, since some
->>> numbering scheme had to be chosen for keycodes, and it may as well be
->>> the same set as the first/primary OS that'll use the binding.
->>>
->>> As far as merging it, this patch should probably go through the core DT
->>> tree, perhaps in a topic branch so that e.g. Tegra an MVEBU can merge it
->>> in to apply your subsequent patches (or we can just wait until the next
->>> kernel release to merge them in).
->> Do I need to include anyone for this patch to be applied or can go
->> through Dmitry's input git branch?
+...
 > I am uncomfortable that we are duplicating the whole list of keycodes
 > here. Do you think we could split keycodes and other event codes from
 > include/uapi/linux/input.h into include/uapi/linux/input-events.h and
 > unclude it directly into DTS?
 
-Yes, it will be very much possible to split this but I am not sure it is 
-allowed to include the header in DTS file which is not inside 
-include/dt-bindings.
-If there is no limitation/restriction then we can split this adn amke 
-single header for key code which will be used by code and dts.
-
+Device tree files can only include headers in include/dt-bindings.
+Eventually/soon, all the DT files and the headers in the dt-bindings/
+directory will be split out into a separate git tree, which does not
+have access to include/uapi, or indeed any other Linux kernel header files.
 

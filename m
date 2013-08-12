@@ -1,56 +1,59 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 1/2] include: dt-binding: input: create a DT header defining
- key codes.
-Date: Mon, 12 Aug 2013 11:59:53 -0600
-Message-ID: <52092299.4080104@wwwdotorg.org>
-References: <1375798370-2231-1-git-send-email-ldewangan@nvidia.com> <52014E50.6030508@wwwdotorg.org> <5203D138.4030107@nvidia.com> <20130808171331.GA6960@core.coreip.homeip.net> <5203D487.5020507@wwwdotorg.org> <20130812171504.GA31418@core.coreip.homeip.net>
+From: Peter Wu <lekensteyn@gmail.com>
+Subject: Re: [PATCH 1/2] Revert "Revert "HID: Fix logitech-dj: missing Unifying device issue""
+Date: Mon, 12 Aug 2013 23:54:40 +0200
+Message-ID: <2324751.QaRpZppUQy@al>
+References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com> <51E84FD1.4050400@hurleysoftware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:51331 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750980Ab3HLR75 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Aug 2013 13:59:57 -0400
-In-Reply-To: <20130812171504.GA31418@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <51E84FD1.4050400@hurleysoftware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Hurley <peter@hurleysoftware.com>
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, jkosina@suse.cz, benjamin.tissoires@gmail.com, adlr@chromium.org, joseph.salisbury@canonical.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sarah Sharp <sarah.a.sharp@linux.intel.com>, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Rob Herring <rob.herring@calxeda.com>
-Cc: Stephen Warren <swarren@nvidia.com>, "linux@arm.linux.org.uk" <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Ian Campbell <ian.campbell@citrix.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <Mark.Rutland@arm.com>
 
-On 08/12/2013 11:15 AM, Dmitry Torokhov wrote:
-> On Thu, Aug 08, 2013 at 11:25:27AM -0600, Stephen Warren wrote:
->> On 08/08/2013 11:13 AM, Dmitry Torokhov wrote:
->>> On Thu, Aug 08, 2013 at 10:41:20PM +0530, Laxman Dewangan wrote:
->>>> On Wednesday 07 August 2013 12:58 AM, Stephen Warren wrote:
->>>>> (CC'ing DT bindings maintainers too, hence quoting a bit of the patch)
->>>>>
->>>>> On 08/06/2013 08:12 AM, Laxman Dewangan wrote:
->>>>>> Many of Key device tree bindings uses the constant number as key code
->>>>>> which matches with kernel header key code and then comment as follows
->>>>>> for reference/better readability:
->>>>>> 	linux,code = <102>; /* KEY_HOME */
->>>>>>
->>>>>> Create a DT header which defines all the key code so that DT key bindings
->>>>>> can use it as follows:
->>>>>> 	linux,code = <KEY_HOME>;
->> ...
->>> I am uncomfortable that we are duplicating the whole list of keycodes
->>> here. Do you think we could split keycodes and other event codes from
->>> include/uapi/linux/input.h into include/uapi/linux/input-events.h and
->>> unclude it directly into DTS?
->>
->> Device tree files can only include headers in include/dt-bindings.
->> Eventually/soon, all the DT files and the headers in the dt-bindings/
->> directory will be split out into a separate git tree, which does not
->> have access to include/uapi, or indeed any other Linux kernel header files.
+On Thursday 18 July 2013 16:28:01 Peter Hurley wrote:
+> Before we revert to using the workaround, I'd like to suggest that
+> this new "hidden" problem may be an interaction with the xhci_hcd host
+> controller driver only.
 > 
-> OK, that makes it easier for me - please merge through whatever tree
-> that owns include/dt-bindings.
+> Looking at the related bug, the OP indicates the machine only has
+> USB3 ports. Additionally, comments #7, #100, and #104 of the original
+> bug report add additional information that would seem to confirm
+> this suspicion.
+> 
+> Let me add I have this USB device running on the uhci_hcd driver
+> with or without this workaround on v3.10.
 
-Are there any objections to my taking both patches through the Tegra
-tree? Patch 2/2 depends on 1/2 and is Tegra-specific. This should work
-out fine unless anyone else wants to use the new header this kernel
-cycle; if they do, this should go into a topic branch in the DT tree
-that I can pull into the Tegra tree.
+This problem does not seem specific to xhci, uhci seems also effected. Today I 
+upgraded a system (running Arch Linux) from kernel 3.9.9 to 3.10.5. After a 
+reboot to 3.10.5, things broke. The setup:
+
+- There are two USB receivers plugged into USB 1.1 ports (different buses 
+according to lsusb, uhci), each receiver is paired to a K360 keyboard.
+- One of the receivers are passed to a QEMU guest with -usbdevice host:$busid.
+$devid. This keyboard is working (probably because QEMU performed a reset).
+- Since 3.10.5, the keyboard that is *not* passed to the QEMU guest is not 
+functioning on reboot.
+
+After closing the QEMU guest, the USB bus gets reset(?) after which the other 
+keyboard suddenly gets detected. I had only booted 3.10.5 twice before rolling 
+back to 3.9.9, both boots triggered the issue. Do I need to provide a usbmon, 
+lsusb, dmesg and/ or other details from 3.10.5?
+
+
+Note that there are other Arch Linux users who have reported issues[1][2] 
+since upgrading to 3.10.z. Triggering a re-enumeration by writing the magic 
+HID++ message[3] makes the paired devices appear again (as reported in 
+forums[1], I haven't tried this on the affected UHCI machine).
+
+While the underlying bug is fixed, can this patch be forwarded to stable? I see 
+that 3.10.6 has been released, but still without this patch.
+
+Regards,
+Peter
+
+ [1]: https://bbs.archlinux.org/viewtopic.php?id=167210
+ [2]: https://bugs.archlinux.org/task/35991
+ [3]: https://bbs.archlinux.org/viewtopic.php?pid=1309535#p1309535

@@ -1,52 +1,36 @@
 From: "Stefan Lippers-Hollmann" <s.L-H@gmx.de>
-Subject: [PATCH 3/3] wistron_btns: add MODULE_DEVICE_TABLE
-Date: Tue, 13 Aug 2013 00:55:22 +0200
-Message-ID: <201308130055.29423.s.L-H@gmx.de>
+Subject: [PATCH 2/3] wistron_btns: mark the Medion MD96500 keymap as tested
+Date: Tue, 13 Aug 2013 00:53:53 +0200
+Message-ID: <201308130053.59956.s.L-H@gmx.de>
 References: <201308130050.52800.s.L-H@gmx.de>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo-p05-ob.rzone.de ([81.169.146.181]:27792 "EHLO
-	mo-p05-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755722Ab3HLWzb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Aug 2013 18:55:31 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <201308130050.52800.s.L-H@gmx.de>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Miloslav Trmac <mitr@volny.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-This allows the wistron_btns module to be autoloaded on boot, its functionality
-is required to support the hardware rfkill switches on most of the supported
-notebooks, in order to unblock the hard blocked rfkill state for wireless and
-bluetooth devices.
-
-Tested on a Medion MD96500:
-alias:          dmi*:svn*MEDIONPC*:pn*WIM2040*:
+DMI: MEDIONPC WIM 2040/WIM 2040, BIOS R01-A0O    11/04/2005
+wistron_btns: BIOS signature found at c00f6b00, entry point 000FDD50
+input: Wistron laptop buttons as /devices/platform/wistron-bios/input/input5
 
 Signed-off-by: Stefan Lippers-Hollmann <s.l-h@gmx.de>
 ---
-This patch may be considered RFC, while it is certainly the right thing to do,
-some of the DMI matches might be a bit wide, e.g.:
-dmi*:svn*FUJITSUSIEMENS*:pn*AMILOD*:
-dmi*:svn*FUJITSUSIEMENS*:pn*AmiloD*:
-dmi*:svn*FUJITSUSIEMENS*:pn*AMILOM*:
-all others are very targetted - and I haven't noticed any issues by forcing
-wistron_btns on system not requiring it so far.
-
- drivers/input/misc/wistron_btns.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/misc/wistron_btns.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/input/misc/wistron_btns.c
 +++ b/drivers/input/misc/wistron_btns.c
-@@ -971,6 +971,7 @@ static const struct dmi_system_id __init
- 	},
- 	{ NULL, }
+@@ -562,7 +562,7 @@ static struct key_entry keymap_wistron_m
+ 	{ KE_KEY, 0x36, {KEY_WWW} },
+ 	{ KE_WIFI, 0x30 },
+ 	{ KE_BLUETOOTH, 0x44 },
+-	{ KE_END, FE_UNTESTED }
++	{ KE_END, 0 }
  };
-+MODULE_DEVICE_TABLE(dmi, dmi_ids);
  
- /* Copy the good keymap, as the original ones are free'd */
- static int __init copy_keymap(void)
+ static struct key_entry keymap_wistron_generic[] __initdata = {

@@ -1,98 +1,53 @@
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Subject: [PATCH] mc13xxx-ts: use zero as default value if no pdata was defined
-Date: Tue, 13 Aug 2013 14:14:30 +0200
-Message-ID: <1376396070-24507-1-git-send-email-m.grzeschik@pengutronix.de>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/3] HID: Win 8 multitouch panels detection in core
+Date: Tue, 13 Aug 2013 16:58:06 +0200
+Message-ID: <1376405889-12378-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:39353 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757731Ab3HMMOj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Aug 2013 08:14:39 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:41452 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757984Ab3HMO62 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Aug 2013 10:58:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, kernel@pengutronix.de, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Mika Westerberg <mika.westerberg@linux.intel.com>, Alexander Holler <holler@ahsoftware.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-In case of devicetree, we currently don't have a way to append pdata for
-the touchscreen. The current approach is to bail out in that case.
-This patch makes it possible to probe the touchscreen without pdata
-and use zero as default values for the atox and ato adc conversion.
+Hi guys,
 
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
----
- drivers/input/touchscreen/mc13783_ts.c | 14 +++++++++-----
- drivers/mfd/mc13xxx-core.c             | 11 +++++++----
- 2 files changed, 16 insertions(+), 9 deletions(-)
+This series is the following of the patch "HID: multitouch: do not init
+reports for multitouch devices" which I sent on the 12th of July.
 
-diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
-index d6f099c..0e24304 100644
---- a/drivers/input/touchscreen/mc13783_ts.c
-+++ b/drivers/input/touchscreen/mc13783_ts.c
-@@ -124,10 +124,17 @@ static void mc13783_ts_work(struct work_struct *work)
- 		container_of(work, struct mc13783_ts_priv, work.work);
- 	unsigned int mode = MC13XXX_ADC_MODE_TS;
- 	unsigned int channel = 12;
-+	u8 ato = 0;
-+	bool atox = 0;
-+
-+	if (priv->touch) {
-+		ato = priv->touch->ato;
-+		atox = priv->touch->atox;
-+	}
- 
- 	if (mc13xxx_adc_do_conversion(priv->mc13xxx,
- 				mode, channel,
--				priv->touch->ato, priv->touch->atox,
-+				ato, atox,
- 				priv->sample) == 0)
- 		mc13783_ts_report_sample(priv);
- }
-@@ -183,11 +190,8 @@ static int __init mc13783_ts_probe(struct platform_device *pdev)
- 	priv->mc13xxx = dev_get_drvdata(pdev->dev.parent);
- 	priv->idev = idev;
- 	priv->touch = dev_get_platdata(&pdev->dev);
--	if (!priv->touch) {
-+	if (!priv->touch)
- 		dev_err(&pdev->dev, "missing platform data\n");
--		ret = -ENODEV;
--		goto err_free_mem;
--	}
- 
- 	/*
- 	 * We need separate workqueue because mc13783_adc_do_conversion
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index 2a9b100..278601f 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -694,10 +694,6 @@ err_revision:
- 	if (mc13xxx->flags & MC13XXX_USE_RTC)
- 		mc13xxx_add_subdevice(mc13xxx, "%s-rtc");
- 
--	if (mc13xxx->flags & MC13XXX_USE_TOUCHSCREEN)
--		mc13xxx_add_subdevice_pdata(mc13xxx, "%s-ts",
--				&pdata->touch, sizeof(pdata->touch));
--
- 	if (pdata) {
- 		mc13xxx_add_subdevice_pdata(mc13xxx, "%s-regulator",
- 			&pdata->regulators, sizeof(pdata->regulators));
-@@ -705,10 +701,17 @@ err_revision:
- 				pdata->leds, sizeof(*pdata->leds));
- 		mc13xxx_add_subdevice_pdata(mc13xxx, "%s-pwrbutton",
- 				pdata->buttons, sizeof(*pdata->buttons));
-+
-+		if (mc13xxx->flags & MC13XXX_USE_TOUCHSCREEN)
-+			mc13xxx_add_subdevice_pdata(mc13xxx, "%s-ts",
-+					&pdata->touch, sizeof(pdata->touch));
- 	} else {
- 		mc13xxx_add_subdevice(mc13xxx, "%s-regulator");
- 		mc13xxx_add_subdevice(mc13xxx, "%s-led");
- 		mc13xxx_add_subdevice(mc13xxx, "%s-pwrbutton");
-+
-+		if (mc13xxx->flags & MC13XXX_USE_TOUCHSCREEN)
-+			mc13xxx_add_subdevice(mc13xxx, "%s-ts");
- 	}
- 
- 	return 0;
+The goal is just to not call a GET_REPORT on input reports to imitate
+what Win 8 is doing with the touch panels. However, to have an accurate
+detection of Win 8 panels and to not introduce regressions, we need
+to adapt the pre-scanning of hid devices.
+
+The first patch drops the custom parsing and relies on the well tested
+parser that we have in hid-core. This cleans up the pre-scanning and
+allows us to scan the features in addition to the input reports and the
+collections.
+
+The second patch uses the pre-scanning method to detect Win 8 multitouch
+panels. This allows a simplification in hid-multitouch because those
+panels will now use the general path instead of having special quirks
+attached during the parsing.
+
+The third patch introduce the actual quirk which would allow us not to
+have to maintain a growing list of quirks.
+
+Cheers,
+Benjamin
+
+Benjamin Tissoires (3):
+  HID: Use existing parser for pre-scanning the report descriptors
+  HID: detect Win 8 multitouch devices in core
+  HID: do not init input reports for Win 8 multitouch devices
+
+ drivers/hid/hid-core.c        | 143 +++++++++++++++++++++++++++++++-----------
+ drivers/hid/hid-multitouch.c  |  36 +++++++----
+ drivers/hid/usbhid/hid-core.c |  11 +++-
+ include/linux/hid.h           |   7 +++
+ 4 files changed, 143 insertions(+), 54 deletions(-)
+
 -- 
-1.8.4.rc2
+1.8.3.1
 

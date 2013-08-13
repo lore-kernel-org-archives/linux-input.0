@@ -1,35 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] mc13xxx-ts: use zero as default value if no pdata was
- defined
-Date: Tue, 13 Aug 2013 09:46:09 -0700
-Message-ID: <20130813164609.GA21548@core.coreip.homeip.net>
-References: <1376396070-24507-1-git-send-email-m.grzeschik@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Zubair Lutfullah <zubair.lutfullah@gmail.com>
+Subject: [PATCH 0/4] iio: input: ti_am335x_adc: Add continuous sampling support round 4
+Date: Tue, 13 Aug 2013 17:48:15 +0100
+Message-ID: <1376412499-21007-1-git-send-email-zubair.lutfullah@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f41.google.com ([209.85.160.41]:65523 "EHLO
-	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756248Ab3HMQqN (ORCPT
+Received: from mail-ea0-f174.google.com ([209.85.215.174]:44018 "EHLO
+	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754645Ab3HMQsY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Aug 2013 12:46:13 -0400
-Content-Disposition: inline
-In-Reply-To: <1376396070-24507-1-git-send-email-m.grzeschik@pengutronix.de>
+	Tue, 13 Aug 2013 12:48:24 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pengutronix.de, Samuel Ortiz <sameo@linux.intel.com>
+To: jic23@cam.ac.uk, dmitry.torokhov@gmail.com, sameo@linux.intel.com, lee.jones@linaro.org
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bigeasy@linutronix.de, gregkh@linuxfoundation.org, Russ.Dill@ti.com
 
-Hi Michael,
+Note: These apply to the fixes-togreg branch in IIO because of
+a fix on the adc side in there.
 
-On Tue, Aug 13, 2013 at 02:14:30PM +0200, Michael Grzeschik wrote:
-> In case of devicetree, we currently don't have a way to append pdata for
-> the touchscreen. The current approach is to bail out in that case.
-> This patch makes it possible to probe the touchscreen without pdata
-> and use zero as default values for the atox and ato adc conversion.
+The first few are for input which tweak the TSC driver to
+allow ADC in continuous mode with irqs to work nicely together.
 
-I'd rather you added the devicetree support to the driver.
+The last one is for iio which adds continuous mode to the adc side.
 
-Thanks.
+Received feedback on previous series.
+1. What if IRQs occur together? 
+This is handled now. Even if both assert.
+They both work.
+
+2. IIO error handling wrong. 
+Fixed now.
+
+3. Headers wierd in IIO. 
+Fixed.
+
+Apart from that, found a few bugs in continuous mode
+here and there. And squashed them into the same patch.
+
+Thanks
+Zubair Lutfullah
+
+Zubair Lutfullah (4):
+  input: ti_am335x_tsc: correct step mask update after IRQ
+  input: ti_am335x_tsc: Increase sequencer delay time
+  input: ti_tsc: Enable shared IRQ for TSC and add overrun, underflow
+    checks
+  iio: ti_am335x_adc: Add continuous sampling and trigger support
+
+ drivers/iio/adc/ti_am335x_adc.c           |  353 ++++++++++++++++++++++++-----
+ drivers/input/touchscreen/ti_am335x_tsc.c |   45 +++-
+ include/linux/mfd/ti_am335x_tscadc.h      |   15 +-
+ 3 files changed, 342 insertions(+), 71 deletions(-)
 
 -- 
-Dmitry
+1.7.9.5
+

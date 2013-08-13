@@ -1,55 +1,57 @@
 From: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Subject: [PATCH 0/4] iio: input: ti_am335x_adc: Add continuous sampling support round 4
-Date: Tue, 13 Aug 2013 17:48:15 +0100
-Message-ID: <1376412499-21007-1-git-send-email-zubair.lutfullah@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:44018 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754645Ab3HMQsY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Aug 2013 12:48:24 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: =?UTF-8?q?=5BPATCH=201/4=5D=20input=3A=20ti=5Fam335x=5Ftsc=3A=20correct=20step=20mask=20update=20after=20IRQ?=
+Date: Tue, 13 Aug 2013 17:48:16 +0100
+Message-ID: <1376412499-21007-2-git-send-email-zubair.lutfullah@gmail.com>
+References: <1376412499-21007-1-git-send-email-zubair.lutfullah@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1376412499-21007-1-git-send-email-zubair.lutfullah@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: jic23@cam.ac.uk, dmitry.torokhov@gmail.com, sameo@linux.intel.com, lee.jones@linaro.org
 Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bigeasy@linutronix.de, gregkh@linuxfoundation.org, Russ.Dill@ti.com
+List-Id: linux-input@vger.kernel.org
 
-Note: These apply to the fixes-togreg branch in IIO because of
-a fix on the adc side in there.
+TSC steps should be enabled again after IRQ routine.
+This fix ensures they are updated correctly every time.
 
-The first few are for input which tweak the TSC driver to
-allow ADC in continuous mode with irqs to work nicely together.
+Signed-off-by: Zubair Lutfullah <zubair.lutfullah@gmail.com>
+---
+ drivers/input/touchscreen/ti_am335x_tsc.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-The last one is for iio which adds continuous mode to the adc side.
-
-Received feedback on previous series.
-1. What if IRQs occur together? 
-This is handled now. Even if both assert.
-They both work.
-
-2. IIO error handling wrong. 
-Fixed now.
-
-3. Headers wierd in IIO. 
-Fixed.
-
-Apart from that, found a few bugs in continuous mode
-here and there. And squashed them into the same patch.
-
-Thanks
-Zubair Lutfullah
-
-Zubair Lutfullah (4):
-  input: ti_am335x_tsc: correct step mask update after IRQ
-  input: ti_am335x_tsc: Increase sequencer delay time
-  input: ti_tsc: Enable shared IRQ for TSC and add overrun, underflow
-    checks
-  iio: ti_am335x_adc: Add continuous sampling and trigger support
-
- drivers/iio/adc/ti_am335x_adc.c           |  353 ++++++++++++++++++++++++-----
- drivers/input/touchscreen/ti_am335x_tsc.c |   45 +++-
- include/linux/mfd/ti_am335x_tscadc.h      |   15 +-
- 3 files changed, 342 insertions(+), 71 deletions(-)
-
--- 
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/=
+touchscreen/ti_am335x_tsc.c
+index e1c5300..e165fcb 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -52,6 +52,7 @@ struct titsc {
+ 	u32			config_inp[4];
+ 	u32			bit_xp, bit_xn, bit_yp, bit_yn;
+ 	u32			inp_xp, inp_xn, inp_yp, inp_yn;
++	u32			step_mask;
+ };
+=20
+ static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
+@@ -196,7 +197,8 @@ static void titsc_step_config(struct titsc *ts_dev)
+=20
+ 	/* The steps1 =E2=80=A6 end and bit 0 for TS_Charge */
+ 	stepenable =3D (1 << (end_step + 2)) - 1;
+-	am335x_tsc_se_set(ts_dev->mfd_tscadc, stepenable);
++	ts_dev->step_mask =3D stepenable;
++	am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
+ }
+=20
+ static void titsc_read_coordinates(struct titsc *ts_dev,
+@@ -316,7 +318,7 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+=20
+ 	if (irqclr) {
+ 		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
+-		am335x_tsc_se_update(ts_dev->mfd_tscadc);
++		am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
+ 		return IRQ_HANDLED;
+ 	}
+ 	return IRQ_NONE;
+--=20
 1.7.9.5
-

@@ -1,138 +1,100 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/3] HID: detect Win 8 multitouch devices in core
-Date: Tue, 13 Aug 2013 16:58:08 +0200
-Message-ID: <1376405889-12378-3-git-send-email-benjamin.tissoires@redhat.com>
-References: <1376405889-12378-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1376405889-12378-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Mika Westerberg <mika.westerberg@linux.intel.com>, Alexander Holler <holler@ahsoftware.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Peter Wu <lekensteyn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] Revert "Revert "HID: Fix logitech-dj: missing Unifying device issue""
+Date: Tue, 13 Aug 2013 17:42:32 +0200
+Message-ID: <1614065.3ZkY1dAtg4@al>
+References: <1374153691-25100-1-git-send-email-nlopezcasad@logitech.com> <2324751.QaRpZppUQy@al> <520A22DD.3010308@hurleysoftware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <520A22DD.3010308-WaGBZJeGNqdsbIuE7sb01tBPR1lH4CV8@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Hurley <peter-WaGBZJeGNqdsbIuE7sb01tBPR1lH4CV8@public.gmane.org>
+Cc: Nestor Lopez Casado <nlopezcasad-VLMvL59Kb9lWk0Htik3J/w@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org, benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, adlr-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, joseph.salisbury-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sarah Sharp <sarah.a.sharp-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Detecting Win 8 multitouch devices in core allows us to set quirks
-before the device is parsed through hid_hw_start().
-It also simplifies the detection of those devices in hid-multitouch and
-makes the handling of those devices cleaner.
+On Tuesday 13 August 2013 08:13:17 Peter Hurley wrote:
+> On 08/12/2013 05:54 PM, Peter Wu wrote:
+> > On Thursday 18 July 2013 16:28:01 Peter Hurley wrote:
+> >> Before we revert to using the workaround, I'd like to suggest that
+> >> this new "hidden" problem may be an interaction with the xhci_hcd host
+> >> controller driver only.
+> >> 
+> >> Looking at the related bug, the OP indicates the machine only has
+> >> USB3 ports. Additionally, comments #7, #100, and #104 of the original
+> >> bug report add additional information that would seem to confirm
+> >> this suspicion.
+> >> 
+> >> Let me add I have this USB device running on the uhci_hcd driver
+> >> with or without this workaround on v3.10.
+> > 
+> > This problem does not seem specific to xhci, uhci seems also effected.
+> 
+> If true, it would certainly help to have a bug report confirming uhci
+> failure from a bare-metal system which contained:
+> 1) kernel version
+> 2) complete dmesg output
+> 3) lsusb -v output
+> 4) lsmod output
+> 5) usbmon capture from a plug attempt
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-core.c       | 12 ++++++++++++
- drivers/hid/hid-multitouch.c | 24 +++++++++++-------------
- include/linux/hid.h          |  2 ++
- 3 files changed, 25 insertions(+), 13 deletions(-)
+I was too fast in drawing a conclusion, besides the kernel I also upgraded 
+some other packages. Today the issue also showed up in 3.9.9 + updated 
+packages.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index d8cdb0a..11c6f2b 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -683,6 +683,13 @@ static void hid_scan_input_usage(struct hid_parser *parser, u32 usage)
- 		parser->flags |= HID_FLAG_MULTITOUCH;
- }
- 
-+static void hid_scan_feature_usage(struct hid_parser *parser, u32 usage)
-+{
-+	if (usage == 0xff0000c5 && parser->global.report_count == 256 &&
-+	    parser->global.report_size == 8)
-+		parser->flags |= HID_FLAG_WIN_8_CERTIFIED;
-+}
-+
- static void hid_scan_open_collection(struct hid_parser *parser, unsigned type)
- {
- 	if (parser->global.usage_page == HID_UP_SENSOR &&
-@@ -710,6 +717,8 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
- 	case HID_MAIN_ITEM_TAG_OUTPUT:
- 		break;
- 	case HID_MAIN_ITEM_TAG_FEATURE:
-+		for (i = 0; i < parser->local.usage_index; i++)
-+			hid_scan_feature_usage(parser, parser->local.usage[i]);
- 		break;
- 	default:
- 		hid_err(parser->device, "unknown main item tag 0x%x\n",
-@@ -779,6 +788,9 @@ out:
- 	case HID_FLAG_MULTITOUCH:
- 		hid->group = HID_GROUP_MULTITOUCH;
- 		break;
-+	case HID_FLAG_MULTITOUCH | HID_FLAG_WIN_8_CERTIFIED:
-+		hid->group = HID_GROUP_MULTITOUCH_WIN_8;
-+		break;
- 	case HID_FLAG_SENSOR_HUB:
- 		hid->group = HID_GROUP_SENSOR_HUB;
- 		break;
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 0fe00e2..c28ef86 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -133,6 +133,7 @@ static void mt_post_parse(struct mt_device *td);
- #define MT_CLS_NSMU				0x000a
- #define MT_CLS_DUAL_CONTACT_NUMBER		0x0010
- #define MT_CLS_DUAL_CONTACT_ID			0x0011
-+#define MT_CLS_WIN_8				0x0012
- 
- /* vendor specific classes */
- #define MT_CLS_3M				0x0101
-@@ -205,6 +206,11 @@ static struct mt_class mt_classes[] = {
- 			MT_QUIRK_CONTACT_CNT_ACCURATE |
- 			MT_QUIRK_SLOT_IS_CONTACTID,
- 		.maxcontacts = 2 },
-+	{ .name = MT_CLS_WIN_8,
-+		.quirks = MT_QUIRK_ALWAYS_VALID |
-+			MT_QUIRK_IGNORE_DUPLICATES |
-+			MT_QUIRK_HOVERING |
-+			MT_QUIRK_CONTACT_CNT_ACCURATE },
- 
- 	/*
- 	 * vendor specific classes
-@@ -332,19 +338,6 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 			td->maxcontacts = td->mtclass.maxcontacts;
- 
- 		break;
--	case 0xff0000c5:
--		if (field->report_count == 256 && field->report_size == 8) {
--			/* Win 8 devices need special quirks */
--			__s32 *quirks = &td->mtclass.quirks;
--			*quirks |= MT_QUIRK_ALWAYS_VALID;
--			*quirks |= MT_QUIRK_IGNORE_DUPLICATES;
--			*quirks |= MT_QUIRK_HOVERING;
--			*quirks |= MT_QUIRK_CONTACT_CNT_ACCURATE;
--			*quirks &= ~MT_QUIRK_NOT_SEEN_MEANS_UP;
--			*quirks &= ~MT_QUIRK_VALID_IS_INRANGE;
--			*quirks &= ~MT_QUIRK_VALID_IS_CONFIDENCE;
--		}
--		break;
- 	}
- }
- 
-@@ -1346,6 +1339,11 @@ static const struct hid_device_id mt_devices[] = {
- 
- 	/* Generic MT device */
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
-+
-+	/* Generic Win 8 certified MT device */
-+	{  .driver_data = MT_CLS_WIN_8,
-+		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
-+			HID_ANY_ID, HID_ANY_ID) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, mt_devices);
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 7d823db..28ee7dd 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -295,6 +295,7 @@ struct hid_item {
- #define HID_GROUP_GENERIC			0x0001
- #define HID_GROUP_MULTITOUCH			0x0002
- #define HID_GROUP_SENSOR_HUB			0x0003
-+#define HID_GROUP_MULTITOUCH_WIN_8		0x0004
- 
- /*
-  * This is the global environment of the parser. This information is
-@@ -535,6 +536,7 @@ static inline void hid_set_drvdata(struct hid_device *hdev, void *data)
- 
- #define HID_FLAG_MULTITOUCH		0x0001
- #define HID_FLAG_SENSOR_HUB		0x0002
-+#define HID_FLAG_WIN_8_CERTIFIED	0x0004
- 
- struct hid_parser {
- 	struct hid_global     global;
--- 
-1.8.3.1
+When checking the dmesg, the issue solved by this patch did not occur (the 
+enumeration was successful).
+
+> > Today I
+> > upgraded a system (running Arch Linux) from kernel 3.9.9 to 3.10.5. After
+> > a
+> > reboot to 3.10.5, things broke. The setup:
+> > 
+> > - There are two USB receivers plugged into USB 1.1 ports (different buses
+> > according to lsusb, uhci), each receiver is paired to a K360 keyboard.
+> > - One of the receivers are passed to a QEMU guest with -usbdevice
+> > host:$busid. $devid. This keyboard is working (probably because QEMU
+> > performed a reset). - Since 3.10.5, the keyboard that is *not* passed to
+> > the QEMU guest is not functioning on reboot.
+> > 
+> > After closing the QEMU guest, the USB bus gets reset(?) after which the
+> > other keyboard suddenly gets detected. I had only booted 3.10.5 twice
+> > before rolling back to 3.9.9, both boots triggered the issue. Do I need
+> > to provide a usbmon, lsusb, dmesg and/ or other details from 3.10.5?
+> 
+> Do both keyboards work on bare metal? Seems like this problem might be
+> specific to qemu (or kvm) and you may get more insight on those lists.
+
+I haven't tested that, the system automatically boots into openbox + QEMU. 
+Previously, both keyboards worked on bare metal, so I think it still works.
+
+> > Note that there are other Arch Linux users who have reported issues[1][2]
+> 
+> Unfortunately, not even one user in the referenced reports identified
+> the usb hub the receiver was plugged into.
+
+I've asked it now.
+
+> > since upgrading to 3.10.z. Triggering a re-enumeration by writing the
+> > magic
+> > HID++ message[3] makes the paired devices appear again (as reported in
+> > forums[1], I haven't tried this on the affected UHCI machine).
+> > 
+> > While the underlying bug is fixed, can this patch be forwarded to stable?
+> > I see that 3.10.6 has been released, but still without this patch.
+> 
+> This is still a workaround and not really a fix for the underlying bug.
+
+I meant to say, "while the underlying bug is *being* fixed". Anyway, can this 
+patch be applied to 3.10?
+
+Sorry for the confusion with uhci, looking further it seems that the wrong USB 
+receiver is being passed to QEMU. It's not a kernel issue, perhaps I can blame 
+libusbx.
+
+Regards,
+Peter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

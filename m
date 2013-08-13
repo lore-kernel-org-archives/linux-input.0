@@ -1,36 +1,73 @@
-From: "Stefan Lippers-Hollmann" <s.L-H@gmx.de>
-Subject: [PATCH 2/3] wistron_btns: mark the Medion MD96500 keymap as tested
-Date: Tue, 13 Aug 2013 00:53:53 +0200
-Message-ID: <201308130053.59956.s.L-H@gmx.de>
-References: <201308130050.52800.s.L-H@gmx.de>
+From: Bo Shen <voice.shen@atmel.com>
+Subject: [PATCH] input: qt1070: add power management ops
+Date: Tue, 13 Aug 2013 15:43:46 +0800
+Message-ID: <1376379826-28808-1-git-send-email-voice.shen@atmel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201308130050.52800.s.L-H@gmx.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Miloslav Trmac <mitr@volny.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: dmitry.torokhov@gmail.com
+Cc: Wenyou.Yang@atmel.com, Bo Shen <voice.shen@atmel.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-DMI: MEDIONPC WIM 2040/WIM 2040, BIOS R01-A0O    11/04/2005
-wistron_btns: BIOS signature found at c00f6b00, entry point 000FDD50
-input: Wistron laptop buttons as /devices/platform/wistron-bios/input/input5
+Add power management ops for qt1070, it maybe a wakeup source
 
-Signed-off-by: Stefan Lippers-Hollmann <s.l-h@gmx.de>
+Signed-off-by: Bo Shen <voice.shen@atmel.com>
 ---
- drivers/input/misc/wistron_btns.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/keyboard/qt1070.c |   25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
---- a/drivers/input/misc/wistron_btns.c
-+++ b/drivers/input/misc/wistron_btns.c
-@@ -562,7 +562,7 @@ static struct key_entry keymap_wistron_m
- 	{ KE_KEY, 0x36, {KEY_WWW} },
- 	{ KE_WIFI, 0x30 },
- 	{ KE_BLUETOOTH, 0x44 },
--	{ KE_END, FE_UNTESTED }
-+	{ KE_END, 0 }
- };
+diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+index 42b773b..deefe5a 100644
+--- a/drivers/input/keyboard/qt1070.c
++++ b/drivers/input/keyboard/qt1070.c
+@@ -243,6 +243,30 @@ static int qt1070_remove(struct i2c_client *client)
+ 	return 0;
+ }
  
- static struct key_entry keymap_wistron_generic[] __initdata = {
++#ifdef CONFIG_PM_SLEEP
++static int qt1070_suspend(struct device *dev)
++{
++	struct qt1070_data *data = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		enable_irq_wake(data->irq);
++
++	return 0;
++}
++
++static int qt1070_resume(struct device *dev)
++{
++	struct qt1070_data *data = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		disable_irq_wake(data->irq);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(qt1070_pm_ops, qt1070_suspend, qt1070_resume);
++
+ static const struct i2c_device_id qt1070_id[] = {
+ 	{ "qt1070", 0 },
+ 	{ },
+@@ -253,6 +277,7 @@ static struct i2c_driver qt1070_driver = {
+ 	.driver	= {
+ 		.name	= "qt1070",
+ 		.owner	= THIS_MODULE,
++		.pm	= &qt1070_pm_ops,
+ 	},
+ 	.id_table	= qt1070_id,
+ 	.probe		= qt1070_probe,
+-- 
+1.7.9.5

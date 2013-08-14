@@ -1,79 +1,68 @@
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: Re: [PATCH] input: qt1070: add power management ops
-Date: Wed, 14 Aug 2013 08:52:17 +0200
-Message-ID: <520B2921.3000906@atmel.com>
-References: <1376379826-28808-1-git-send-email-voice.shen@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 1/4] hid-sensor-hub: fix style of comments
+Date: Wed, 14 Aug 2013 11:07:08 +0300
+Message-ID: <1376467631-20857-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.242]:52400 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752687Ab3HNGwB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Aug 2013 02:52:01 -0400
-In-Reply-To: <1376379826-28808-1-git-send-email-voice.shen@atmel.com>
+Received: from mga14.intel.com ([143.182.124.37]:17884 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754917Ab3HNIH0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Aug 2013 04:07:26 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bo Shen <voice.shen@atmel.com>
-Cc: dmitry.torokhov@gmail.com, Wenyou.Yang@atmel.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On 13/08/2013 09:43, Bo Shen :
-> Add power management ops for qt1070, it maybe a wakeup source
->
-> Signed-off-by: Bo Shen <voice.shen@atmel.com>
+This patch fixes the style of the comments to be like following
+	/* The commentary */
 
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+There is no functional change.
 
-> ---
->   drivers/input/keyboard/qt1070.c |   25 +++++++++++++++++++++++++
->   1 file changed, 25 insertions(+)
->
-> diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
-> index 42b773b..deefe5a 100644
-> --- a/drivers/input/keyboard/qt1070.c
-> +++ b/drivers/input/keyboard/qt1070.c
-> @@ -243,6 +243,30 @@ static int qt1070_remove(struct i2c_client *client)
->   	return 0;
->   }
->
-> +#ifdef CONFIG_PM_SLEEP
-> +static int qt1070_suspend(struct device *dev)
-> +{
-> +	struct qt1070_data *data = dev_get_drvdata(dev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		enable_irq_wake(data->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +static int qt1070_resume(struct device *dev)
-> +{
-> +	struct qt1070_data *data = dev_get_drvdata(dev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		disable_irq_wake(data->irq);
-> +
-> +	return 0;
-> +}
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(qt1070_pm_ops, qt1070_suspend, qt1070_resume);
-> +
->   static const struct i2c_device_id qt1070_id[] = {
->   	{ "qt1070", 0 },
->   	{ },
-> @@ -253,6 +277,7 @@ static struct i2c_driver qt1070_driver = {
->   	.driver	= {
->   		.name	= "qt1070",
->   		.owner	= THIS_MODULE,
-> +		.pm	= &qt1070_pm_ops,
->   	},
->   	.id_table	= qt1070_id,
->   	.probe		= qt1070_probe,
->
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/hid/hid-sensor-hub.c   | 2 +-
+ include/linux/hid-sensor-hub.h | 2 +-
+ include/linux/hid-sensor-ids.h | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index ca749810..ffc80cf 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -416,7 +416,7 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 		return 1;
+ 
+ 	ptr = raw_data;
+-	ptr++; /*Skip report id*/
++	ptr++; /* Skip report id */
+ 
+ 	spin_lock_irqsave(&pdata->lock, flags);
+ 
+diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+index ecefb73..32ba451 100644
+--- a/include/linux/hid-sensor-hub.h
++++ b/include/linux/hid-sensor-hub.h
+@@ -172,7 +172,7 @@ struct hid_sensor_common {
+ 	struct hid_sensor_hub_attribute_info sensitivity;
+ };
+ 
+-/*Convert from hid unit expo to regular exponent*/
++/* Convert from hid unit expo to regular exponent */
+ static inline int hid_sensor_convert_exponent(int unit_expo)
+ {
+ 	if (unit_expo < 0x08)
+diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
+index 6f24446..4f945d3 100644
+--- a/include/linux/hid-sensor-ids.h
++++ b/include/linux/hid-sensor-ids.h
+@@ -37,7 +37,7 @@
+ #define HID_USAGE_SENSOR_ANGL_VELOCITY_Y_AXIS			0x200458
+ #define HID_USAGE_SENSOR_ANGL_VELOCITY_Z_AXIS			0x200459
+ 
+-/*ORIENTATION: Compass 3D: (200083) */
++/* ORIENTATION: Compass 3D: (200083) */
+ #define HID_USAGE_SENSOR_COMPASS_3D				0x200083
+ #define HID_USAGE_SENSOR_ORIENT_MAGN_HEADING			0x200471
+ #define HID_USAGE_SENSOR_ORIENT_MAGN_HEADING_X			0x200472
 -- 
-Nicolas Ferre
+1.8.4.rc2
+

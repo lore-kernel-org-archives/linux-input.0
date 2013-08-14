@@ -1,88 +1,163 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 3/4] hid-sensor-hub: move to devm_kzalloc
-Date: Wed, 14 Aug 2013 11:07:10 +0300
-Message-ID: <1376467631-20857-3-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 2/4] hid-sensor-hub: fix indentation accross the code
+Date: Wed, 14 Aug 2013 11:07:09 +0300
+Message-ID: <1376467631-20857-2-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1376467631-20857-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([143.182.124.37]:17884 "EHLO mga14.intel.com"
+Received: from mga09.intel.com ([134.134.136.24]:55255 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756769Ab3HNIHa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Aug 2013 04:07:30 -0400
+	id S1755153Ab3HNIHe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Aug 2013 04:07:34 -0400
 In-Reply-To: <1376467631-20857-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-devm_kzalloc() will manage resources freeing and allows to make error path
-smaller and nicer.
+Patch just rearranges lines to be more compact and/or readable. Additionally it
+converts double space to one in several places.
+
+There is no functional change.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/hid/hid-sensor-hub.c | 17 +++++------------
- 1 file changed, 5 insertions(+), 12 deletions(-)
+ drivers/hid/hid-sensor-hub.c | 31 +++++++++++++++----------------
+ 1 file changed, 15 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index d0687d0..4cb19df 100644
+index ffc80cf..d0687d0 100644
 --- a/drivers/hid/hid-sensor-hub.c
 +++ b/drivers/hid/hid-sensor-hub.c
-@@ -477,16 +477,15 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 	struct hid_field *field;
- 	int dev_cnt;
+@@ -103,8 +103,7 @@ static int sensor_hub_get_physical_device_count(
  
--	sd = kzalloc(sizeof(struct sensor_hub_data), GFP_KERNEL);
-+	sd = devm_kzalloc(&hdev->dev, sizeof(*sd), GFP_KERNEL);
- 	if (!sd) {
- 		hid_err(hdev, "cannot allocate Sensor data\n");
- 		return -ENOMEM;
+ 	list_for_each_entry(report, &report_enum->report_list, list) {
+ 		field = report->field[0];
+-		if (report->maxfield && field &&
+-					field->physical)
++		if (report->maxfield && field && field->physical)
+ 			cnt++;
  	}
--	sd->hsdev = kzalloc(sizeof(struct hid_sensor_hub_device), GFP_KERNEL);
-+	sd->hsdev = devm_kzalloc(&hdev->dev, sizeof(*sd->hsdev), GFP_KERNEL);
- 	if (!sd->hsdev) {
- 		hid_err(hdev, "cannot allocate hid_sensor_hub_device\n");
--		ret = -ENOMEM;
--		goto err_free_hub;
-+		return -ENOMEM;
- 	}
- 	hid_set_drvdata(hdev, sd);
- 	sd->hsdev->hdev = hdev;
-@@ -498,14 +497,14 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 	ret = hid_parse(hdev);
- 	if (ret) {
- 		hid_err(hdev, "parse failed\n");
--		goto err_free;
-+		return ret;
- 	}
- 	INIT_LIST_HEAD(&hdev->inputs);
  
- 	ret = hid_hw_start(hdev, 0);
- 	if (ret) {
- 		hid_err(hdev, "hw start failed\n");
--		goto err_free;
-+		return ret;
- 	}
- 	ret = hid_hw_open(hdev);
- 	if (ret) {
-@@ -570,10 +569,6 @@ err_close:
- 	hid_hw_close(hdev);
- err_stop_hw:
- 	hid_hw_stop(hdev);
--err_free:
--	kfree(sd->hsdev);
--err_free_hub:
--	kfree(sd);
+@@ -192,12 +191,12 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 				u32 field_index, s32 value)
+ {
+ 	struct hid_report *report;
+-	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
++	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+ 	int ret = 0;
  
- 	return ret;
+ 	mutex_lock(&data->mutex);
+ 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+-	if (!report || (field_index >=  report->maxfield)) {
++	if (!report || (field_index >= report->maxfield)) {
+ 		ret = -EINVAL;
+ 		goto done_proc;
+ 	}
+@@ -216,12 +215,12 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 				u32 field_index, s32 *value)
+ {
+ 	struct hid_report *report;
+-	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
++	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+ 	int ret = 0;
+ 
+ 	mutex_lock(&data->mutex);
+ 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+-	if (!report || (field_index >=  report->maxfield)) {
++	if (!report || (field_index >= report->maxfield)) {
+ 		ret = -EINVAL;
+ 		goto done_proc;
+ 	}
+@@ -241,7 +240,7 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+ 					u32 usage_id,
+ 					u32 attr_usage_id, u32 report_id)
+ {
+-	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
++	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+ 	unsigned long flags;
+ 	struct hid_report *report;
+ 	int ret_val = 0;
+@@ -302,7 +301,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+ 
+ 	/* Initialize with defaults */
+ 	info->usage_id = usage_id;
+-	info->attrib_id =  attr_usage_id;
++	info->attrib_id = attr_usage_id;
+ 	info->report_id = -1;
+ 	info->index = -1;
+ 	info->units = -1;
+@@ -333,7 +332,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+ 					if (field->usage[j].hid ==
+ 					attr_usage_id &&
+ 					field->usage[j].collection_index ==
+-					collection_index)  {
++					collection_index) {
+ 						sensor_hub_fill_attr_info(info,
+ 							i, report->id,
+ 							field->unit,
+@@ -357,7 +356,7 @@ EXPORT_SYMBOL_GPL(sensor_hub_input_get_attribute_info);
+ #ifdef CONFIG_PM
+ static int sensor_hub_suspend(struct hid_device *hdev, pm_message_t message)
+ {
+-	struct sensor_hub_data *pdata =  hid_get_drvdata(hdev);
++	struct sensor_hub_data *pdata = hid_get_drvdata(hdev);
+ 	struct hid_sensor_hub_callbacks_list *callback;
+ 
+ 	hid_dbg(hdev, " sensor_hub_suspend\n");
+@@ -374,7 +373,7 @@ static int sensor_hub_suspend(struct hid_device *hdev, pm_message_t message)
+ 
+ static int sensor_hub_resume(struct hid_device *hdev)
+ {
+-	struct sensor_hub_data *pdata =  hid_get_drvdata(hdev);
++	struct sensor_hub_data *pdata = hid_get_drvdata(hdev);
+ 	struct hid_sensor_hub_callbacks_list *callback;
+ 
+ 	hid_dbg(hdev, " sensor_hub_resume\n");
+@@ -394,6 +393,7 @@ static int sensor_hub_reset_resume(struct hid_device *hdev)
+ 	return 0;
  }
-@@ -597,8 +592,6 @@ static void sensor_hub_remove(struct hid_device *hdev)
- 	kfree(data->hid_sensor_hub_client_devs);
- 	hid_set_drvdata(hdev, NULL);
- 	mutex_destroy(&data->mutex);
--	kfree(data->hsdev);
--	kfree(data);
- }
+ #endif
++
+ /*
+  * Handle raw report as sent by device
+  */
+@@ -421,7 +421,6 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 	spin_lock_irqsave(&pdata->lock, flags);
  
- static const struct hid_device_id sensor_hub_devices[] = {
+ 	for (i = 0; i < report->maxfield; ++i) {
+-
+ 		hid_dbg(hdev, "%d collection_index:%x hid:%x sz:%x\n",
+ 				i, report->field[i]->usage->collection_index,
+ 				report->field[i]->usage->hid,
+@@ -434,7 +433,7 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 			pdata->pending.raw_data = kmalloc(sz, GFP_ATOMIC);
+ 			if (pdata->pending.raw_data) {
+ 				memcpy(pdata->pending.raw_data, ptr, sz);
+-				pdata->pending.raw_size  = sz;
++				pdata->pending.raw_size = sz;
+ 			} else
+ 				pdata->pending.raw_size = 0;
+ 			complete(&pdata->pending.ready);
+@@ -539,7 +538,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 					field->physical) {
+ 			name = kasprintf(GFP_KERNEL, "HID-SENSOR-%x",
+ 						field->physical);
+-			if (name  == NULL) {
++			if (name == NULL) {
+ 				hid_err(hdev, "Failed MFD device name\n");
+ 					ret = -ENOMEM;
+ 					goto err_free_names;
+@@ -617,8 +616,8 @@ static struct hid_driver sensor_hub_driver = {
+ 	.raw_event = sensor_hub_raw_event,
+ #ifdef CONFIG_PM
+ 	.suspend = sensor_hub_suspend,
+-	.resume =  sensor_hub_resume,
+-	.reset_resume =  sensor_hub_reset_resume,
++	.resume = sensor_hub_resume,
++	.reset_resume = sensor_hub_reset_resume,
+ #endif
+ };
+ module_hid_driver(sensor_hub_driver);
 -- 
 1.8.4.rc2
 

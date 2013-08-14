@@ -1,45 +1,54 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4/4] hid-sensor-hub: change kmalloc + memcpy by kmemdup
-Date: Wed, 14 Aug 2013 11:07:11 +0300
-Message-ID: <1376467631-20857-4-git-send-email-andriy.shevchenko@linux.intel.com>
-References: <1376467631-20857-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:60005 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755153Ab3HNIHv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Aug 2013 04:07:51 -0400
-In-Reply-To: <1376467631-20857-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 0/29] simplify use of devm_ioremap_resource
+Date: Wed, 14 Aug 2013 11:11:04 +0200
+Message-ID: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: dri-devel@lists.freedesktop.org
+Cc: alsa-devel@alsa-project.org, kernel-janitors@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-ide@vger.kernel.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-tegra@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-The patch substitutes kmemdup for kmalloc followed by memcpy.
+devm_ioremap_resource often uses the result of a call to
+platform_get_resource as its last argument.  devm_ioremap_resource does
+appropriate error handling on this argument, so error handling can be
+removed from the call site.  To make the connection between the call to
+platform_get_resource and the call to devm_ioremap_resource more clear, the
+former is also moved down to be adjacent to the latter.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/hid/hid-sensor-hub.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+In many cases, this patch changes the specific error value that is
+returned on failure of platform_get_resource.
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 4cb19df..0794e9f 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -430,11 +430,10 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 		if (pdata->pending.status && pdata->pending.attr_usage_id ==
- 				report->field[i]->usage->hid) {
- 			hid_dbg(hdev, "data was pending ...\n");
--			pdata->pending.raw_data = kmalloc(sz, GFP_ATOMIC);
--			if (pdata->pending.raw_data) {
--				memcpy(pdata->pending.raw_data, ptr, sz);
-+			pdata->pending.raw_data = kmemdup(ptr, sz, GFP_ATOMIC);
-+			if (pdata->pending.raw_data)
- 				pdata->pending.raw_size = sz;
--			} else
-+			else
- 				pdata->pending.raw_size = 0;
- 			complete(&pdata->pending.ready);
- 		}
--- 
-1.8.4.rc2
+The semantic patch that makes this change is as follows:
+(http://coccinelle.lip6.fr/)
 
+// <smpl>
+@@
+expression pdev,res,n,e,e1;
+expression ret != 0;
+identifier l;
+@@
+
+(
+  res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+- if (res == NULL) { ... \(goto l;\|return ret;\) }
+  e = devm_ioremap_resource(e1, res);
+|
+- res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  ... when != res
+- if (res == NULL) { ... \(goto l;\|return ret;\) }
+  ... when != res
++ res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  e = devm_ioremap_resource(e1, res);
+)
+// </smpl>

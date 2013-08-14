@@ -1,92 +1,359 @@
-From: =?utf-8?Q?Andreas_Lilleb=C3=B8_Holm?= <andreas@sqhead.com>
-Subject: Re: kernel Oops: 0003 on usbhid_submit_report
-Date: Wed, 14 Aug 2013 15:38:04 +0200
-Message-ID: <16FA42AC8F654C3B81924591E607B342@sqhead.com>
-References: <9921350AD19C46EFA70EA181A0C1F7E9@sqhead.com>
- <20130813184056.GH7740@kroah.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/3] HID: Use existing parser for pre-scanning the report
+ descriptors
+Date: Wed, 14 Aug 2013 17:08:58 +0200
+Message-ID: <520B9D8A.20308@redhat.com>
+References: <1376405889-12378-1-git-send-email-benjamin.tissoires@redhat.com> <1376405889-12378-2-git-send-email-benjamin.tissoires@redhat.com> <520A7CDF.3070808@ahsoftware.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f169.google.com ([209.85.217.169]:37426 "EHLO
-	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933098Ab3HNNiL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Aug 2013 09:38:11 -0400
-Received: by mail-lb0-f169.google.com with SMTP id u10so6894252lbi.0
-        for <linux-input@vger.kernel.org>; Wed, 14 Aug 2013 06:38:09 -0700 (PDT)
-In-Reply-To: <20130813184056.GH7740@kroah.com>
-Content-Disposition: inline
+Received: from mx1.redhat.com ([209.132.183.28]:26444 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932404Ab3HNPJV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Aug 2013 11:09:21 -0400
+In-Reply-To: <520A7CDF.3070808@ahsoftware.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Alexander Holler <holler@ahsoftware.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Hi,
+On 13/08/13 20:37, Alexander Holler wrote:
+> Am 13.08.2013 16:58, schrieb Benjamin Tissoires:
+>> hid_scan_report() implements its own HID report descriptor parsing. It
+>> was
+>> fine until we added the SENSOR_HUB detection. It is going to be even
+>> worse
+>> with the detection of Win 8 certified touchscreen, as this detection
+>> relies on a special feature and on the report_size and report_count
+>> fields.
+> 
+> Sorry, but I can't agree with your wording here.
+> 
+> If you look at the if expression I've added to support HID sensor hubs,
+> you will notice that the first expression was a test for the usage page
+> of sensor hubs. That wasn't the first test by accident, instead I've
+> choosen the order of those 4 tests very carefully to make the impact on
+> the existing parsing of other HID devices very small. So it might not
+> have be pleasing to your eyes, but it was for sure an appropriate solution.
+> 
+> Anyway, I've tested your patch 1/3 on top of 3.11-rc5 here and the
+> detection of sensor hubs doesn't work anymore with your patch applied.
+> Up to now I only had a quick look at it, but it looks like the test in
+> hid_scan_open_collection() isn't hit for my device.
 
-On Tuesday, August 13, 2013 at 8:40 PM, Greg KH wrote:
-> > When communicating with AT90USB1287, at random intervals (1/25 boot=
-s)
-> > the linux hid_output_field Oopses and kills the communicating threa=
-d.
-> > The AT90USB1287 microcontroller uses LUFA library for usb/hid
-> > communication. It is trigged by a ioctl call from userspace and fai=
-ls
-> > in a kernel paging request. The system is after the oops in a state
-> > where no hid commands is sent anymore and only a boot can fix the
-> > system.
-> > =20
-> > Keywords: usbhid hid
-> > =20
-> > Kernel version: Linux version 3.8.13-03081301-generic (apw@gomeisa)=
- (gcc version 4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu5) ) #201305311535 SMP =
-=46ri May 31 19:44:30 UTC 2013
-> > =20
-> > Oopses:
-> > http://paste.debian.net/24305
-> > http://paste.debian.net/24306
-> > http://paste.debian.net/24307
-> > =20
-> > Code:
-> > The error is triggered by:
-> > ioctl(fd,HIDIOCSUSAGES, &ref_multi_u);
-> > ioctl(fd,HIDIOCSREPORT, &rep_info_u);
-> > =20
-> > Notes:
-> > It is very hard to reproduce so seems like race condition=E2=80=A6
-> > =20
-> > Any tips to resolve/workaround this issue is appreciated and please
-> > let me know if my information is incomplete (This is my first kerne=
-l
-> > bug report)
-> =20
-> =20
-> =20
-> =20
-> Any chance you can try a supported kernel, like 3.10.6 or 3.11-rc5 to
-> see if that also causes problems? We can't do anything with
-> distro-specific kernel releases like your 3.8.13 release from Ubuntu,
-> sorry.
+Ok, I found the culprit (see below). Thanks for providing your report
+descriptors (and sources), I managed to test the detection of your device.
 
 
-I've now tried with kernel 3.10.6 (http://kernel.ubuntu.com/~kernel-ppa=
-/mainline/v3.10.6-saucy/) and I can trigger the same issue on this kern=
-el.
+> 
+> Another problem is that I don't have any commercial sensor hub and I'm
+> therefor not a very relvant as tester (I've implemented the firmware for
+> my HID (sensor hub) device too). Therefor I've added Srinivas Pandruvada
+> to cc, because he's the only one I know who has HID sensor hubs.
+> 
+> And, as said, I've implemented the other side here too, therefor I've
+> added the descriptor I'm using below.
+> 
+> Regards,
+> 
+> Alexander Holler
+> 
+> 
+> --my-descriptor--
+>     0x05, 0x20, // HID_USAGE_PAGE_SENSOR
+>     0xa1, 0x01, // COLLECTION (Application)
+>         0x09, 0xa0, // HID_USAGE_SENSOR_CATEGORY_TIME
+>         0xa1, 0x00, // COLLECTION (Physical)
+> #ifndef USE_FULL_YEAR
+>             0x75, 0x08, // REPORT_SIZE (8 bits)
+> #endif
+>             0x95, 0x01, // REPORT_COUNT (1)
+>             0x85, HID_REPORT_ID_TIME, // REPORT_ID
+> 
+>             0x0a, 0x21, 0x05, // USAGE (Year)
+> #ifdef USE_FULL_YEAR
+>             0x75, 0x10, // REPORT_SIZE (16 bits)
+> #else
+>             0x15, 0x00, // LOGICAL_MINIMUM (0) (Range is currently not
+> specified in HUTRR39)
+>             0x25, 0x63, // LOGICAL_MAXIMUM (99)
+> #endif
+>             0x65, 0x00, // UNIT (None)
+>             0x81, 0x02, // INPUT (Data,Var,Abs)
+> 
+>             0x0a, 0x22, 0x05, // USAGE (Month)
+> #ifdef USE_FULL_YEAR
+>             0x75, 0x08, // REPORT_SIZE (8 bits)
+> #endif
+>             0x15, 0x01, // LOGICAL_MINIMUM (1)
+>             0x25, 0x0c, // LOGICAL_MAXIMUM (12)
+>             0x65, 0x00, // UNIT (None)
+>             0x81, 0x02, // INPUT (Data,Var,Abs)
+> 
+>             0x0a, 0x23, 0x05, // USAGE (Day)
+>             0x15, 0x01, // LOGICAL_MINIMUM (1)
+>             0x25, 0x1f, // LOGICAL_MAXIMUM (31)
+>             0x65, 0x00, // UNIT (None)
+>             0x81, 0x02, // INPUT (Data,Var,Abs)
+> 
+>             0x0a, 0x24, 0x05, // USAGE (Day of Week)
+>             0x15, 0x00, // LOGICAL_MINIMUM (0)
+>             0x25, 0x06, // LOGICAL_MAXIMUM (6)
+>             0xa1, 0x02, // COLLECTION (Logical)
+>                 0x0a, 0xc0, 0x08, // Day of Week: Sunday
+>                 0x0a, 0xc1, 0x08, // Day of Week: Monday
+>                 0x0a, 0xc2, 0x08, // Day of Week: Tuesday
+>                 0x0a, 0xc3, 0x08, // Day of Week: Wednesday
+>                 0x0a, 0xc4, 0x08, // Day of Week: Thursday
+>                 0x0a, 0xc5, 0x08, // Day of Week: Friday
+>                 0x0a, 0xc6, 0x08, // Day of Week: Saturday
+>                 0x81, 0x02, // INPUT (Const,Arr,Abs)
+>             0xc0, // END_COLLECTION
+> 
+>             0x0a, 0x25, 0x05, // USAGE (Hour)
+>             0x15, 0x00, // LOGICAL_MINIMUM (0)
+>             0x25, 0x17, // LOGICAL_MAXIMUM (23)
+>             0x65, 0x00, // UNIT (None)
+>             0x81, 0x02, // INPUT (Data,Var,Abs)
+> 
+>             0x0a, 0x26, 0x05, // USAGE (Minute)
+>             0x15, 0x00, // LOGICAL_MINIMUM (0)
+>             0x25, 0x3b, // LOGICAL_MAXIMUM (59)
+>             0x65, 0x00, // UNIT (None)
+>             0x81, 0x02, // INPUT (Data,Var,Abs)
+> 
+>             0x0a, 0x27, 0x05, // USAGE (Second)
+>             0x15, 0x00, // LOGICAL_MINIMUM (0)
+>             0x25, 0x3b, // LOGICAL_MAXIMUM (59)
+>             0x65, 0x00, // UNIT (None)
+>             //0x66, 0x10, 0x01, // UNIT (second)
+>             0x81, 0x02, // INPUT (Data,Var,Abs)
+> 
+>             0x0a, 0x28, 0x05, // USAGE (Millisecond)
+>             0x75, 0x10, // REPORT_SIZE (16 bits)
+>             0x65, 0x00, // UNIT (None)
+>             0x81, 0x02, // INPUT (Data,Var,Abs)
+> 
+>         0xc0, // END_COLLECTION
+>     0xc0, // END_COLLECTION
+> --my-descriptor--
+> 
+>>
+>> We can use the existing HID parser in hid-core for hid_scan_report()
+>> by re-using the code from hid_open_report(). hid_parser_global,
+>> hid_parser_local and hid_parser_reserved does not have any side effects.
+>> We just need to reimplement the MAIN_ITEM callback to have a proper
+>> parsing without side effects.
+>>
+>> Instead of directly overwriting the ->group field, this patch introduce
+>> a ->flags field and then decide which group the device belongs to,
+>> depending on the whole parsing (not just the local item). This will be
+>> useful for Win 8 multitouch devices, which are multitouch devices and
+>> Win 8 certified (so 2 flags to check).
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
+>>   drivers/hid/hid-core.c | 131
+>> +++++++++++++++++++++++++++++++++++--------------
+>>   include/linux/hid.h    |   4 ++
+>>   2 files changed, 97 insertions(+), 38 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 3efe19f..d8cdb0a 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -677,10 +677,49 @@ static u8 *fetch_item(__u8 *start, __u8 *end,
+>> struct hid_item *item)
+>>       return NULL;
+>>   }
+>>
+>> -static void hid_scan_usage(struct hid_device *hid, u32 usage)
+>> +static void hid_scan_input_usage(struct hid_parser *parser, u32 usage)
+>>   {
+>>       if (usage == HID_DG_CONTACTID)
+>> -        hid->group = HID_GROUP_MULTITOUCH;
+>> +        parser->flags |= HID_FLAG_MULTITOUCH;
+>> +}
+>> +
+>> +static void hid_scan_open_collection(struct hid_parser *parser,
+>> unsigned type)
+>> +{
+>> +    if (parser->global.usage_page == HID_UP_SENSOR &&
 
-Here is a paste from last Oops on this kernel:
-http://paste.debian.net/24993/ =20
+HID_UP_SENSOR is actually 0x00200000, and parser->global.usage_page
+contains the raw value 0x0020... Moving HID_UP_SENSOR 16 bits to the
+right makes the test working, and your sensor device correctly tagged.
 
-I am also using usbmon to monitor the usb bus traffic, but cannot see a=
-nything that should cause the driver to Oops.
+Cheers,
+Benjamin
 
-Is there any way to find out what can trigger this issue?
+>> +        type == HID_COLLECTION_PHYSICAL)
+>> +        parser->flags |= HID_FLAG_SENSOR_HUB;
+>> +}
+>> +
+>> +static int hid_scan_main(struct hid_parser *parser, struct hid_item
+>> *item)
+>> +{
+>> +    __u32 data;
+>> +    int i;
+>> +
+>> +    data = item_udata(item);
+>> +
+>> +    switch (item->tag) {
+>> +    case HID_MAIN_ITEM_TAG_BEGIN_COLLECTION:
+>> +        hid_scan_open_collection(parser, data & 0xff);
+>> +        break;
+>> +    case HID_MAIN_ITEM_TAG_END_COLLECTION:
+>> +        break;
+>> +    case HID_MAIN_ITEM_TAG_INPUT:
+>> +        for (i = 0; i < parser->local.usage_index; i++)
+>> +            hid_scan_input_usage(parser, parser->local.usage[i]);
+>> +        break;
+>> +    case HID_MAIN_ITEM_TAG_OUTPUT:
+>> +        break;
+>> +    case HID_MAIN_ITEM_TAG_FEATURE:
+>> +        break;
+>> +    default:
+>> +        hid_err(parser->device, "unknown main item tag 0x%x\n",
+>> +            item->tag);
+>> +    }
+>> +
+>> +    /* Reset the local parser environment */
+>> +    memset(&parser->local, 0, sizeof(parser->local));
+>> +
+>> +    return 0;
+>>   }
+>>
+>>   /*
+>> @@ -690,49 +729,65 @@ static void hid_scan_usage(struct hid_device
+>> *hid, u32 usage)
+>>    */
+>>   static int hid_scan_report(struct hid_device *hid)
+>>   {
+>> -    unsigned int page = 0, delim = 0;
+>> +    struct hid_parser *parser;
+>> +    struct hid_item item;
+>>       __u8 *start = hid->dev_rdesc;
+>>       __u8 *end = start + hid->dev_rsize;
+>> -    unsigned int u, u_min = 0, u_max = 0;
+>> -    struct hid_item item;
+>> +    int ret;
+>> +    static int (*dispatch_type[])(struct hid_parser *parser,
+>> +                      struct hid_item *item) = {
+>> +        hid_scan_main,
+>> +        hid_parser_global,
+>> +        hid_parser_local,
+>> +        hid_parser_reserved
+>> +    };
+>>
+>> -    hid->group = HID_GROUP_GENERIC;
+>> +    parser = vzalloc(sizeof(struct hid_parser));
+>> +    if (!parser)
+>> +        return -ENOMEM;
+>> +
+>> +    parser->device = hid;
+>> +
+>> +    ret = -EINVAL;
+>>       while ((start = fetch_item(start, end, &item)) != NULL) {
+>> -        if (item.format != HID_ITEM_FORMAT_SHORT)
+>> -            return -EINVAL;
+>> -        if (item.type == HID_ITEM_TYPE_GLOBAL) {
+>> -            if (item.tag == HID_GLOBAL_ITEM_TAG_USAGE_PAGE)
+>> -                page = item_udata(&item) << 16;
+>> -        } else if (item.type == HID_ITEM_TYPE_LOCAL) {
+>> -            if (delim > 1)
+>> -                break;
+>> -            u = item_udata(&item);
+>> -            if (item.size <= 2)
+>> -                u += page;
+>> -            switch (item.tag) {
+>> -            case HID_LOCAL_ITEM_TAG_DELIMITER:
+>> -                delim += !!u;
+>> -                break;
+>> -            case HID_LOCAL_ITEM_TAG_USAGE:
+>> -                hid_scan_usage(hid, u);
+>> -                break;
+>> -            case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
+>> -                u_min = u;
+>> -                break;
+>> -            case HID_LOCAL_ITEM_TAG_USAGE_MAXIMUM:
+>> -                u_max = u;
+>> -                for (u = u_min; u <= u_max; u++)
+>> -                    hid_scan_usage(hid, u);
+>> -                break;
+>> +
+>> +        if (item.format != HID_ITEM_FORMAT_SHORT) {
+>> +            hid_err(hid, "unexpected long global item\n");
+>> +            goto out;
+>> +        }
+>> +
+>> +        if (dispatch_type[item.type](parser, &item)) {
+>> +            hid_err(hid, "item %u %u %u %u parsing failed\n",
+>> +                item.format, (unsigned)item.size,
+>> +                (unsigned)item.type, (unsigned)item.tag);
+>> +            goto out;
+>> +        }
+>> +
+>> +        if (start == end) {
+>> +            if (parser->local.delimiter_depth) {
+>> +                hid_err(hid, "unbalanced delimiter at end of report
+>> description\n");
+>> +                goto out;
+>>               }
+>> -        } else if (page == HID_UP_SENSOR &&
+>> -            item.type == HID_ITEM_TYPE_MAIN &&
+>> -            item.tag == HID_MAIN_ITEM_TAG_BEGIN_COLLECTION &&
+>> -            (item_udata(&item) & 0xff) == HID_COLLECTION_PHYSICAL)
+>> -            hid->group = HID_GROUP_SENSOR_HUB;
+>> +            ret = 0;
+>> +            goto out;
+>> +        }
+>>       }
+>>
+>> -    return 0;
+>> +    hid_err(hid, "item fetching failed at offset %d\n", (int)(end -
+>> start));
+>> +out:
+>> +    switch (parser->flags) {
+>> +    case HID_FLAG_MULTITOUCH:
+>> +        hid->group = HID_GROUP_MULTITOUCH;
+>> +        break;
+>> +    case HID_FLAG_SENSOR_HUB:
+>> +        hid->group = HID_GROUP_SENSOR_HUB;
+>> +        break;
+>> +    default:
+>> +        hid->group = HID_GROUP_GENERIC;
+>> +    }
+>> +
+>> +    vfree(parser);
+>> +    return ret;
+>>   }
+>>
+>>   /**
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index 5a4e789..7d823db 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -533,6 +533,9 @@ static inline void hid_set_drvdata(struct
+>> hid_device *hdev, void *data)
+>>   #define HID_GLOBAL_STACK_SIZE 4
+>>   #define HID_COLLECTION_STACK_SIZE 4
+>>
+>> +#define HID_FLAG_MULTITOUCH        0x0001
+>> +#define HID_FLAG_SENSOR_HUB        0x0002
+>> +
+>>   struct hid_parser {
+>>       struct hid_global     global;
+>>       struct hid_global     global_stack[HID_GLOBAL_STACK_SIZE];
+>> @@ -541,6 +544,7 @@ struct hid_parser {
+>>       unsigned              collection_stack[HID_COLLECTION_STACK_SIZE];
+>>       unsigned              collection_stack_ptr;
+>>       struct hid_device    *device;
+>> +    unsigned              flags;
+>>   };
+>>
+>>   struct hid_class_descriptor {
+>>
+> 
 
-Thanks
-Andreas L. Holm
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

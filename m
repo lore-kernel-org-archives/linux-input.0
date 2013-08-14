@@ -1,150 +1,160 @@
-From: Matteo Delfino <kendatsuba@gmail.com>
-Subject: [PATCH] Input: elantech - fix packet check for v3 and v4 hardware
-Date: Wed, 14 Aug 2013 11:37:17 +0200
-Message-ID: <1376473037-11211-1-git-send-email-kendatsuba@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f47.google.com ([74.125.82.47]:53589 "EHLO
-	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751399Ab3HNJhd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Aug 2013 05:37:33 -0400
-Received: by mail-wg0-f47.google.com with SMTP id j13so7493361wgh.14
-        for <linux-input@vger.kernel.org>; Wed, 14 Aug 2013 02:37:31 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 28/29] drivers/input/{keyboard,serio}: simplify use of devm_ioremap_resource
+Date: Wed, 14 Aug 2013 13:03:33 +0200
+Message-ID: <1376478213-24091-1-git-send-email-Julia.Lawall@lip6.fr>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-The signatures of v3 and v4 packets change depending on the value of a
-hardware flag called 'crc_enabled'. The packet type detection must change
-accordingly.
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-This patch also restores a consistency check for v4 packets inadvertently
-removed by commit:
+Remove unneeded error handling on the result of a call to
+platform_get_resource when the value is passed to devm_ioremap_resource.
 
-9eebed7de660c0b5ab129a9de4f89d20b60de68c
-Input: elantech - fix for newer hardware versions (v7)
+Move the call to platform_get_resource adjacent to the call to
+devm_ioremap_resource to make the connection between them more clear.
 
-A note about the naming convention: v3 hardware is associated with IC body
-v5 while v4 hardware is associated with IC body v6 and v7. The above commit
-refers to IC body v7, not to v7 hardware.
+A simplified version of the semantic patch that makes this change is as
+follows: (http://coccinelle.lip6.fr/)
 
-Tested on Samsung NP730U3E (fw = 0x675f05, ICv7, crc_enabled = 1)
+// <smpl>
+@@
+expression pdev,res,n,e,e1;
+expression ret != 0;
+identifier l;
+@@
 
-Tested-by: Giovanni Frigione <gio.frigione@gmail.com>
-Signed-off-by: Matteo Delfino <kendatsuba@gmail.com>
+- res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  ... when != res
+- if (res == NULL) { ... \(goto l;\|return ret;\) }
+  ... when != res
++ res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  e = devm_ioremap_resource(e1, res);
+// </smpl>
+
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+
 ---
+ drivers/input/keyboard/imx_keypad.c     |    7 +------
+ drivers/input/keyboard/nspire-keypad.c  |    7 +------
+ drivers/input/keyboard/spear-keyboard.c |    7 +------
+ drivers/input/serio/arc_ps2.c           |    7 +------
+ drivers/input/serio/olpc_apsp.c         |    3 ---
+ 5 files changed, 4 insertions(+), 27 deletions(-)
 
-Hello Dmitry,
-this patch is based on some information provided by elantech. It has
-been successfully tested on the above v4 hardware so the information
-seems to be reliable. More testing is needed on v3 hardware with
-crc_enabled=1 (if there's such hardware out there..). The behaviour
-should be unchanged for v3 and v4 hardware with crc_enabled=0 (the
-vast majority).
-
-I was asked to CC stable kernels too since this patch restores a
-consistency check on v4 packets removed by a previous commit already
-queued in linux-3.5.y-queue but, considering the above, I think it's
-best to leave this decision to you.
-
-Best regards,
-Matteo
-
- drivers/input/mouse/elantech.c |   44 ++++++++++++++++++++++++++++++++++++----
- drivers/input/mouse/elantech.h |    1 +
- 2 files changed, 41 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 57b2637..8551dca 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -672,6 +672,7 @@ static int elantech_packet_check_v2(struct psmouse *psmouse)
-  */
- static int elantech_packet_check_v3(struct psmouse *psmouse)
- {
-+	struct elantech_data *etd = psmouse->private;
- 	const u8 debounce_packet[] = { 0xc4, 0xff, 0xff, 0x02, 0xff, 0xff };
- 	unsigned char *packet = psmouse->packet;
- 
-@@ -682,19 +683,48 @@ static int elantech_packet_check_v3(struct psmouse *psmouse)
- 	if (!memcmp(packet, debounce_packet, sizeof(debounce_packet)))
- 		return PACKET_DEBOUNCE;
- 
--	if ((packet[0] & 0x0c) == 0x04 && (packet[3] & 0xcf) == 0x02)
--		return PACKET_V3_HEAD;
-+	/*
-+	 * If the hardware flag 'crc_enabled' is set the packets have
-+	 * different signatures.
-+	 */
-+	if (etd->crc_enabled) {
-+		if ((packet[3] & 0x09) == 0x08)
-+			return PACKET_V3_HEAD;
-+
-+		if ((packet[3] & 0x09) == 0x09)
-+			return PACKET_V3_TAIL;
-+	} else {
-+		if ((packet[0] & 0x0c) == 0x04 && (packet[3] & 0xcf) == 0x02)
-+			return PACKET_V3_HEAD;
- 
--	if ((packet[0] & 0x0c) == 0x0c && (packet[3] & 0xce) == 0x0c)
--		return PACKET_V3_TAIL;
-+		if ((packet[0] & 0x0c) == 0x0c && (packet[3] & 0xce) == 0x0c)
-+			return PACKET_V3_TAIL;
-+	}
- 
- 	return PACKET_UNKNOWN;
- }
- 
- static int elantech_packet_check_v4(struct psmouse *psmouse)
- {
-+	struct elantech_data *etd = psmouse->private;
- 	unsigned char *packet = psmouse->packet;
- 	unsigned char packet_type = packet[3] & 0x03;
-+	bool sanity_check;
-+
-+	/*
-+	 * Sanity check based on the constant bits of a packet.
-+	 * The constant bits change depending on the value of
-+	 * the hardware flag 'crc_enabled' but are the same for
-+	 * every packet, regardless of the type.
-+	 */
-+	if (etd->crc_enabled)
-+		sanity_check = ((packet[3] & 0x08) == 0x00);
-+	else
-+		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
-+				(packet[3] & 0x1c) == 0x10);
-+
-+	if (!sanity_check)
-+		return PACKET_UNKNOWN;
- 
- 	switch (packet_type) {
- 	case 0:
-@@ -1313,6 +1343,12 @@ static int elantech_set_properties(struct elantech_data *etd)
- 			etd->reports_pressure = true;
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index 03c8cc5..328cfc1 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -442,12 +442,6 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 		return -EINVAL;
  	}
  
-+	/*
-+	 * The signatures of v3 and v4 packets change depending on the
-+	 * value of this hardware flag.
-+	 */
-+	etd->crc_enabled = ((etd->fw_version & 0x4000) == 0x4000);
-+
- 	return 0;
- }
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (res == NULL) {
+-		dev_err(&pdev->dev, "no I/O memory defined in platform data\n");
+-		return -EINVAL;
+-	}
+-
+ 	input_dev = devm_input_allocate_device(&pdev->dev);
+ 	if (!input_dev) {
+ 		dev_err(&pdev->dev, "failed to allocate the input device\n");
+@@ -468,6 +462,7 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 	setup_timer(&keypad->check_matrix_timer,
+ 		    imx_keypad_check_for_events, (unsigned long) keypad);
  
-diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
-index 46db3be..036a04a 100644
---- a/drivers/input/mouse/elantech.h
-+++ b/drivers/input/mouse/elantech.h
-@@ -129,6 +129,7 @@ struct elantech_data {
- 	bool paritycheck;
- 	bool jumpy_cursor;
- 	bool reports_pressure;
-+	bool crc_enabled;
- 	unsigned char hw_version;
- 	unsigned int fw_version;
- 	unsigned int single_finger_reports;
--- 
-1.7.10.4
-
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	keypad->mmio_base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(keypad->mmio_base))
+ 		return PTR_ERR(keypad->mmio_base);
+diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
+index 20d872d..b3e3eda 100644
+--- a/drivers/input/keyboard/nspire-keypad.c
++++ b/drivers/input/keyboard/nspire-keypad.c
+@@ -171,12 +171,6 @@ static int nspire_keypad_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		dev_err(&pdev->dev, "missing platform resources\n");
+-		return -EINVAL;
+-	}
+-
+ 	keypad = devm_kzalloc(&pdev->dev, sizeof(struct nspire_keypad),
+ 			      GFP_KERNEL);
+ 	if (!keypad) {
+@@ -208,6 +202,7 @@ static int nspire_keypad_probe(struct platform_device *pdev)
+ 		return PTR_ERR(keypad->clk);
+ 	}
+ 
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	keypad->reg_base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(keypad->reg_base))
+ 		return PTR_ERR(keypad->reg_base);
+diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+index 7111124..85ff530 100644
+--- a/drivers/input/keyboard/spear-keyboard.c
++++ b/drivers/input/keyboard/spear-keyboard.c
+@@ -191,12 +191,6 @@ static int spear_kbd_probe(struct platform_device *pdev)
+ 	int irq;
+ 	int error;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		dev_err(&pdev->dev, "no keyboard resource defined\n");
+-		return -EBUSY;
+-	}
+-
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "not able to get irq for the device\n");
+@@ -228,6 +222,7 @@ static int spear_kbd_probe(struct platform_device *pdev)
+ 		kbd->suspended_rate = pdata->suspended_rate;
+ 	}
+ 
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	kbd->io_base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(kbd->io_base))
+ 		return PTR_ERR(kbd->io_base);
+diff --git a/drivers/input/serio/arc_ps2.c b/drivers/input/serio/arc_ps2.c
+index 3fb7727..8024a6d 100644
+--- a/drivers/input/serio/arc_ps2.c
++++ b/drivers/input/serio/arc_ps2.c
+@@ -189,12 +189,6 @@ static int arc_ps2_probe(struct platform_device *pdev)
+ 	int irq;
+ 	int error, id, i;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		dev_err(&pdev->dev, "no IO memory defined\n");
+-		return -EINVAL;
+-	}
+-
+ 	irq = platform_get_irq_byname(pdev, "arc_ps2_irq");
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no IRQ defined\n");
+@@ -208,6 +202,7 @@ static int arc_ps2_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	arc_ps2->addr = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(arc_ps2->addr))
+ 		return PTR_ERR(arc_ps2->addr);
+diff --git a/drivers/input/serio/olpc_apsp.c b/drivers/input/serio/olpc_apsp.c
+index 818aa46..51b1d40 100644
+--- a/drivers/input/serio/olpc_apsp.c
++++ b/drivers/input/serio/olpc_apsp.c
+@@ -183,9 +183,6 @@ static int olpc_apsp_probe(struct platform_device *pdev)
+ 
+ 	np = pdev->dev.of_node;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res)
+-		return -ENOENT;
+-
+ 	priv->base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(priv->base)) {
+ 		dev_err(&pdev->dev, "Failed to map WTM registers\n");

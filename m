@@ -1,28 +1,58 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: Re: [PATCH 0/4] iio: input: ti_am335x_adc: Add continuous sampling
- support round 5
-Date: Wed, 14 Aug 2013 20:05:18 +0200
-Message-ID: <520BC6DE.7020200@linutronix.de>
-References: <1376424303-22740-1-git-send-email-zubair.lutfullah@gmail.com> <520BD308.7030709@kernel.org>
+From: Alexander Holler <holler@ahsoftware.de>
+Subject: Re: [PATCH 1/3] HID: Use existing parser for pre-scanning the report
+ descriptors
+Date: Wed, 14 Aug 2013 22:03:12 +0200
+Message-ID: <520BE280.6010407@ahsoftware.de>
+References: <1376405889-12378-1-git-send-email-benjamin.tissoires@redhat.com> <1376405889-12378-2-git-send-email-benjamin.tissoires@redhat.com> <20130813191731.GA8391@polaris.bitmath.org> <520BA464.9060200@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:57698 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758386Ab3HNSFY (ORCPT
+Received: from h1446028.stratoserver.net ([85.214.92.142]:40529 "EHLO
+	mail.ahsoftware.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933017Ab3HNUDk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Aug 2013 14:05:24 -0400
-In-Reply-To: <520BD308.7030709@kernel.org>
+	Wed, 14 Aug 2013 16:03:40 -0400
+In-Reply-To: <520BA464.9060200@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Zubair Lutfullah <zubair.lutfullah@gmail.com>, jic23@cam.ac.uk, dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Russ.Dill@ti.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: rydberg@euromail.se, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 08/14/2013 08:57 PM, Jonathan Cameron wrote:
-> I'll actually look at these later, but please do put a version number
-me, too.
+Am 14.08.2013 17:38, schrieb Benjamin Tissoires:
 
-> Jonathan
+>>>   {
+>>>   	if (usage == HID_DG_CONTACTID)
+>>> -		hid->group = HID_GROUP_MULTITOUCH;
+>>> +		parser->flags |= HID_FLAG_MULTITOUCH;
+>>
+>> Did you consider reusing the group flags, e.g., parser->groups |= (1
+>> << HID_GROUP_MULTITOUCH)? This change could be made regardless of the
+>> parser logic.
+>
+> If nobody is against changing the values of the different groups across
+> kernel version (which should be harmless), then I fully agree, we can
+> use the group item as a bit field (but we would be able to only have 16
+> different device groups).
 
-Sebastian
+Hmm, that might become a problem. E.g. all the HID sensors might be used 
+stand alone (without a sensor-hub, if someone modifies the drivers). But 
+I agree that currently the flags are just confusing and would introduce 
+them only if the number of groups reaches the limit.
+
+
+>>> -	hid->group = HID_GROUP_GENERIC;
+>>> +	parser = vzalloc(sizeof(struct hid_parser));
+>>
+>> Argh, I realize it is inevitable for this patch, but it still makes my
+>> eyes bleed. The parser takes quite a bit of memory...
+>
+> Yep, my first attempt was to remove it, then I re-added it with a small
+> tear...
+
+So you actually create a new parser and the subject (that existing) of 
+this patch is misleading.
+
+Regards,
+
+Alexander Holler

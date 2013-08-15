@@ -1,621 +1,250 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 4/4] iio: ti_am335x_adc: Add continuous sampling and trigger
- support
-Date: Thu, 15 Aug 2013 12:43:02 +0100
-Message-ID: <520CBEC6.8010400@kernel.org>
-References: <1376424303-22740-1-git-send-email-zubair.lutfullah@gmail.com> <1376424303-22740-5-git-send-email-zubair.lutfullah@gmail.com>
+From: Yonghua Zheng <younghua.zheng@gmail.com>
+Subject: Re: [PATCH 1/1] HID: hidraw: Add spinlock in struct hidraw to
+ protect list
+Date: Thu, 15 Aug 2013 22:57:01 +0800
+Message-ID: <20130815145658.GA5813@gmail.com>
+References: <CAMyfujdB0JrnNeHk3b=AqR+1nz_W=bzDJpk1=iYZBnytDk-ztw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1376424303-22740-5-git-send-email-zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Russ.Dill-l0cyMroinI0@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:53493 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757136Ab3HOO5M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Aug 2013 10:57:12 -0400
+Received: by mail-pd0-f181.google.com with SMTP id g10so926313pdj.26
+        for <linux-input@vger.kernel.org>; Thu, 15 Aug 2013 07:57:11 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAMyfujdB0JrnNeHk3b=AqR+1nz_W=bzDJpk1=iYZBnytDk-ztw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On 08/13/13 21:05, Zubair Lutfullah wrote:
-> Previously the driver had only one-shot reading functionality.
-> This patch adds triggered buffer support to the driver.
-> A buffer of samples can now be read via /dev/iio.
-> Any IIO trigger can be used to start acquisition.
->
-> Patil Rachna (TI) laid the ground work for ADC HW register access.
-> Russ Dill (TI) fixed bugs in the driver relevant to FIFOs and IRQs.
->
-> I fixed channel scanning so multiple ADC channels can be read
-> simultaneously and pushed to userspace. Restructured the driver
-> to fit IIO ABI. And added trigger support.
->
-> Signed-off-by: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Acked-by: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-> Signed-off-by: Russ Dill <Russ.Dill-l0cyMroinI0@public.gmane.org>
+Retitle
 
-Hi,
+Hi Jiri,
 
-Whilst the below review is based on what we have here, I tried to apply it
-to the latest iio.git togreg branch (which for this driver should be
-much the same as staging-next and hence linux-next).  It's not even
-close and I can't immediately spot where some of the changes came
-from.  Have I missed a precursor patch or is this based on an
-older version of this driver?
+As hidraw_report_event can be called from interrupt context, it is a mistake
+to use mutex_lock for protecting the list member in my previous patch, so
+update the patch which adds a spinlock in struct hidraw to protect the list
+member from concurrent access:
 
-Note I'd also like a much more detailed description in the patch header.
-This is an unusual driver in that it is pushing an entire fifo on a single
-trigger into the iio buffers.  Normally it is one trigger / one scan. I have
-no particular problem with hybrid software / hardware buffer approach but
-it should certainly be clearly documented!
+>From 21e3dfdf124065dac8bb56f4a7ed48d20870323b Mon Sep 17 00:00:00 2001
+From: Yonghua Zheng <younghua.zheng@gmail.com>
+Date: Wed, 14 Aug 2013 17:43:36 +0800
+Subject: [PATCH 1/1] HID: hidraw: Add spinlock in struct hidraw to protect
+ list
 
-I would also expect an option for the trigger to be supplied from the
-chip itself based on fifo watershead interrupts.  Thus the adc could be
-operated at full rate without losing data.  As you described in a previous
-email this is much more similar to a one shot osciloscope trigger where it
-grabs the next set of readings.  Now this is an interesting option, but
-it isn't the standard one for IIO.  I'd be interested to see a proposal
-for adding this functionality to the core in a more general fashion.
-(I actually like this idea a lot!)
+It is unsafe to call list_for_each_entry in hidraw_report_event to
+traverse each hidraw_list node without a lock protection, the list
+could be modified if someone calls hidraw_release and list_del to
+remove itself from the list, this can cause hidraw_report_event
+to touch a deleted list struct and panic.
 
-A quick thought on interface would be to have
+To prevent this, introduce a spinlock in struct hidraw to protect
+list from concurrent access.
 
-iio:device0/buffer/oneshot_length
-(need not actually be the same as the buffer_length - longer and it would
- require userspace to have grabbed the data out in the meantime, shorter and
- we could grab a series before userspace read any of them).
-iio:device0/buffer/buffer_enable_oneshot
-(capture would then occur until oneshot_length had been acquired - then stop
- - if the trigger that is driving capture wants to be gated by another signal
-   that would not be that hard to do either).
+Signed-off-by: Yonghua Zheng <younghua.zheng@gmail.com>
 
-Could be neffarouious and abuse one of the poll variants to indicate when
-our oneshot sample is done (this was discussed before as we had a watershed
-interrupt on a ring buffer at one point).
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 6f1feb2..a5372b8 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -253,6 +253,7 @@ static int hidraw_open(struct inode *inode, struct file *file)
+ 	unsigned int minor = iminor(inode);
+ 	struct hidraw *dev;
+ 	struct hidraw_list *list;
++	unsigned long flags;
+ 	int err = 0;
+ 
+ 	if (!(list = kzalloc(sizeof(struct hidraw_list), GFP_KERNEL))) {
+@@ -266,11 +267,6 @@ static int hidraw_open(struct inode *inode, struct file *file)
+ 		goto out_unlock;
+ 	}
+ 
+-	list->hidraw = hidraw_table[minor];
+-	mutex_init(&list->read_mutex);
+-	list_add_tail(&list->node, &hidraw_table[minor]->list);
+-	file->private_data = list;
+-
+ 	dev = hidraw_table[minor];
+ 	if (!dev->open++) {
+ 		err = hid_hw_power(dev->hid, PM_HINT_FULLON);
+@@ -283,9 +279,16 @@ static int hidraw_open(struct inode *inode, struct file *file)
+ 		if (err < 0) {
+ 			hid_hw_power(dev->hid, PM_HINT_NORMAL);
+ 			dev->open--;
++			goto out_unlock;
+ 		}
+ 	}
+ 
++	list->hidraw = hidraw_table[minor];
++	mutex_init(&list->read_mutex);
++	spin_lock_irqsave(&hidraw_table[minor]->list_lock, flags);
++	list_add_tail(&list->node, &hidraw_table[minor]->list);
++	spin_unlock_irqrestore(&hidraw_table[minor]->list_lock, flags);
++	file->private_data = list;
+ out_unlock:
+ 	mutex_unlock(&minors_lock);
+ out:
+@@ -309,6 +312,7 @@ static int hidraw_release(struct inode * inode, struct file * file)
+ 	struct hidraw_list *list = file->private_data;
+ 	int ret;
+ 	int i;
++	unsigned long flags;
+ 
+ 	mutex_lock(&minors_lock);
+ 	if (!hidraw_table[minor]) {
+@@ -316,8 +320,10 @@ static int hidraw_release(struct inode * inode, struct file * file)
+ 		goto unlock;
+ 	}
+ 
+-	list_del(&list->node);
+ 	dev = hidraw_table[minor];
++	spin_lock_irqsave(&dev->list_lock, flags);
++	list_del(&list->node);
++	spin_unlock_irqrestore(&dev->list_lock, flags);
+ 	if (!--dev->open) {
+ 		if (list->hidraw->exist) {
+ 			hid_hw_power(dev->hid, PM_HINT_NORMAL);
+@@ -457,7 +463,9 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+ 	struct hidraw *dev = hid->hidraw;
+ 	struct hidraw_list *list;
+ 	int ret = 0;
++	unsigned long flags;
+ 
++	spin_lock_irqsave(&dev->list_lock, flags);
+ 	list_for_each_entry(list, &dev->list, node) {
+ 		int new_head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
+ 
+@@ -468,10 +476,12 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
+ 			ret = -ENOMEM;
+ 			break;
+ 		}
++
+ 		list->buffer[list->head].len = len;
+ 		list->head = new_head;
+ 		kill_fasync(&list->fasync, SIGIO, POLL_IN);
+ 	}
++	spin_unlock_irqrestore(&dev->list_lock, flags);
+ 
+ 	wake_up_interruptible(&dev->wait);
+ 	return ret;
+@@ -519,6 +529,7 @@ int hidraw_connect(struct hid_device *hid)
+ 	}
+ 
+ 	init_waitqueue_head(&dev->wait);
++	spin_lock_init(&dev->list_lock);
+ 	INIT_LIST_HEAD(&dev->list);
+ 
+ 	dev->hid = hid;
+diff --git a/include/linux/hidraw.h b/include/linux/hidraw.h
+index 2451662..ddf5261 100644
+--- a/include/linux/hidraw.h
++++ b/include/linux/hidraw.h
+@@ -23,6 +23,7 @@ struct hidraw {
+ 	wait_queue_head_t wait;
+ 	struct hid_device *hid;
+ 	struct device *dev;
++	spinlock_t list_lock;
+ 	struct list_head list;
+ };
+ 
+-- 
+1.7.9.5
 
-For now I'd be much happier if this driver conformed to more or less the
-standard form with the one exception being that the 'trigger' is based on
-the fifo threshold and so it might appear to grab multiple scans of the
-enabled channels for each trigger (which is fine). Even if we provide the
-functionality sketched out above, it would still be as core functionality, not
-in the driver as you have done here.
+Best regards
+Yonghua
 
-Sorry I can't really take the patch as is because we would end up with one
-driver with a substantially different ABI to all others and that would make
-thinks very fiddly for userspace.
-
-Jonathan
-.
-
+On Fri, Aug 09, 2013 at 04:45:19PM +0800, yonghua zheng wrote:
+> Hi Jiri,
+> 
+> We met another kernel panic issue in hidraw_report_event while using
+> BT remote on our Android system, the panic log below shows a unhandle
+> kernel paging request at virtual address 001000f0, this can happen if
+> hidraw_report_event access a hidraw_list node which is already removed
+> by list_del() in hidraw_release.
+> 
+> One last thing list_del() does is set entry->next = LIST_POISON1;
+> where LIST_POISON1 is 00100100, and this should be able to explain why
+> panic address is 001000f0, hidraw_report_event try to access somewhere
+> in struct hidraw_list:
+> 
+> [ 1337.530941] Unable to handle kernel paging request at virtual
+> address 001000f0
+> [ 1337.538679] pgd = a0570000
+> [ 1337.541877] [001000f0] *pgd=00000000
+> [ 1337.545884] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+> [ 1337.551373] Modules linked in: mbt8787 fusion(O) gal3d amp_core(O)
+> [ 1337.557834] CPU: 0    Tainted: G           O  (3.4.50+ #1)
+> [ 1337.563512] PC is at hidraw_report_event+0x38/0x98
+> [ 1337.568462] LR is at hidraw_report_event+0x70/0x98
+> [ 1337.573412] pc : [<8035286c>]    lr : [<803528a4>]    psr: a0000013
+> [ 1337.573416] sp : a0eede30  ip : a0eede30  fp : a0eede54
+> [ 1337.575086] [amp_driver] [vpp isr] MsgQ full
+> [ 1337.589671] r10: a0b7e4c0  r9 : a035b800  r8 : a0bb002c
+> [ 1337.595068] r7 : a0b7e4e4  r6 : 00000001  r5 : 0000001f  r4 : 000ffef0
+> [ 1337.601809] r3 : a36db808  r2 : 00000020  r1 : 0000001f  r0 : a0bb002c
+> [ 1337.608553] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment user
+> [ 1337.615923] Control: 10c5387d  Table: 2157004a  DAC: 00000015
+> 
+> So the fix is to grab the minors_lock to avoid list_del in the middle
+> of hidraw_report_event()
+> 
+> From 725ed6c402f36e34479739a8d6c68f78f2f96d31 Mon Sep 17 00:00:00 2001
+> From: Yonghua Zheng <younghua.zheng@gmail.com>
+> Date: Fri, 9 Aug 2013 15:54:59 +0800
+> Subject: [PATCH 1/1] HID: hidraw: need to grab minors_lock in
+>  hidraw_report_event
+> 
+> It is unsafe to call list_for_each_entry to go through each hidraw_list
+> node without grabing the minors_lock, because the dev->list can be
+> modified if other process calls hidraw_release to list_del itself from
+> the same &dev->list, if this happens, it can result in kernel panic
+> due to unable handle kernel paging request at invalid virtual address
+> 
+> Signed-off-by: Yonghua Zheng <younghua.zheng@gmail.com>
 > ---
->  drivers/iio/adc/ti_am335x_adc.c      |  353 ++++++++++++++++++++++++++++------
->  include/linux/mfd/ti_am335x_tscadc.h |   12 ++
->  2 files changed, 303 insertions(+), 62 deletions(-)
->
-> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-> index 3ceac3e..0d7e313 100644
-> --- a/drivers/iio/adc/ti_am335x_adc.c
-> +++ b/drivers/iio/adc/ti_am335x_adc.c
-> @@ -24,16 +24,28 @@
->  #include <linux/iio/iio.h>
->  #include <linux/of.h>
->  #include <linux/of_device.h>
-> -#include <linux/iio/machine.h>
->  #include <linux/iio/driver.h>
-> +#include <linux/wait.h>
-> +#include <linux/sched.h>
->
->  #include <linux/mfd/ti_am335x_tscadc.h>
-> +#include <linux/iio/buffer.h>
-> +#include <linux/iio/trigger.h>
-> +#include <linux/iio/trigger_consumer.h>
-> +#include <linux/iio/triggered_buffer.h>
->
->  struct tiadc_device {
->  	struct ti_tscadc_dev *mfd_tscadc;
->  	int channels;
->  	u8 channel_line[8];
->  	u8 channel_step[8];
-> +	struct work_struct poll_work;
-> +	wait_queue_head_t wq_data_avail;
-> +	bool data_avail;
-> +	u32 *inputbuffer;
-> +	int sample_count;
-> +	int irq;
-> +	int buffer_en_ch_steps;
->  };
->
->  static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
-> @@ -56,27 +68,28 @@ static u32 get_adc_step_mask(struct tiadc_device *adc_dev)
->  	return step_en;
->  }
->
-> -static void tiadc_step_config(struct tiadc_device *adc_dev)
-> +static void tiadc_step_config(struct iio_dev *indio_dev)
->  {
-> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
->  	unsigned int stepconfig;
-> -	int i, steps;
-> +	int i, steps, chan;
->
->  	/*
->  	 * There are 16 configurable steps and 8 analog input
->  	 * lines available which are shared between Touchscreen and ADC.
-> -	 *
->  	 * Steps backwards i.e. from 16 towards 0 are used by ADC
->  	 * depending on number of input lines needed.
->  	 * Channel would represent which analog input
->  	 * needs to be given to ADC to digitalize data.
->  	 */
-> -
->  	steps = TOTAL_STEPS - adc_dev->channels;
-> -	stepconfig = STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1;
-> +	if (iio_buffer_enabled(indio_dev))
-> +		stepconfig = STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1
-> +					| STEPCONFIG_MODE_SWCNT;
-> +	else
-> +		stepconfig = STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1;
->
->  	for (i = 0; i < adc_dev->channels; i++) {
-> -		int chan;
-> -
->  		chan = adc_dev->channel_line[i];
->  		tiadc_writel(adc_dev, REG_STEPCONFIG(steps),
->  				stepconfig | STEPCONFIG_INP(chan));
-> @@ -85,7 +98,203 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
->  		adc_dev->channel_step[i] = steps;
->  		steps++;
->  	}
-> +}
-> +
-> +static irqreturn_t tiadc_irq(int irq, void *private)
-> +{
-> +	struct iio_dev *idev = private;
-> +	struct tiadc_device *adc_dev = iio_priv(idev);
-> +	unsigned int status, config;
-> +	status = tiadc_readl(adc_dev, REG_IRQSTATUS);
-> +
-> +	/* FIFO Overrun. Clear flag. Disable/Enable ADC to recover */
-> +	if (status & IRQENB_FIFO1OVRRUN) {
-> +		config = tiadc_readl(adc_dev, REG_CTRL);
-> +		config &= ~(CNTRLREG_TSCSSENB);
-> +		tiadc_writel(adc_dev, REG_CTRL, config);
-> +		tiadc_writel(adc_dev, REG_IRQSTATUS, IRQENB_FIFO1OVRRUN |
-> +				IRQENB_FIFO1UNDRFLW | IRQENB_FIFO1THRES);
-> +		tiadc_writel(adc_dev, REG_CTRL, (config | CNTRLREG_TSCSSENB));
-> +	} else if (status & IRQENB_FIFO1THRES) {
+>  drivers/hid/hidraw.c |    3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+> index 6f1feb2..8b408c4 100644
+> --- a/drivers/hid/hidraw.c
+> +++ b/drivers/hid/hidraw.c
+> @@ -458,6 +458,7 @@ int hidraw_report_event(struct hid_device *hid, u8
+> *data, int len)
+>      struct hidraw_list *list;
+>      int ret = 0;
+> 
+> +    mutex_lock(&minors_lock);
+>      list_for_each_entry(list, &dev->list, node) {
+>          int new_head = (list->head + 1) & (HIDRAW_BUFFER_SIZE - 1);
+> 
+> @@ -465,6 +466,7 @@ int hidraw_report_event(struct hid_device *hid, u8
+> *data, int len)
+>              continue;
+> 
+>          if (!(list->buffer[list->head].value = kmemdup(data, len,
+> GFP_ATOMIC))) {
+> +            mutex_unlock(&minors_lock);
+>              ret = -ENOMEM;
+>              break;
+>          }
+> @@ -472,6 +474,7 @@ int hidraw_report_event(struct hid_device *hid, u8
+> *data, int len)
+>          list->head = new_head;
+>          kill_fasync(&list->fasync, SIGIO, POLL_IN);
+>      }
+> +    mutex_unlock(&minors_lock);
+> 
+>      wake_up_interruptible(&dev->wait);
+>      return ret;
+> -- 
+> 1.7.9.5
+> 
+> Best regards
+> Yonghua
 
-I'd normally expect this interrupt to drive a trigger that in turn results in
-the data being dumped into the software buffers.
 
-> +		/* Wake adc_work that pushes FIFO data to iio buffer */
-> +		tiadc_writel(adc_dev, REG_IRQCLR, IRQENB_FIFO1THRES);
-> +		adc_dev->data_avail = 1;
-> +		wake_up_interruptible(&adc_dev->wq_data_avail);
-> +	} else
-> +		return IRQ_NONE;
-> +
-> +	status = tiadc_readl(adc_dev, REG_IRQSTATUS);
-> +	if (status == false)
-> +			return IRQ_HANDLED;
-> +	else
-> +		return IRQ_NONE;
-> +}
-> +
-> +static irqreturn_t tiadc_trigger_h(int irq, void *p)
-> +{
-> +	struct iio_poll_func *pf = p;
-> +	struct iio_dev *indio_dev = pf->indio_dev;
-> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-> +	unsigned int config;
-> +
-> +	schedule_work(&adc_dev->poll_work);
-> +	am335x_tsc_se_set(adc_dev->mfd_tscadc, adc_dev->buffer_en_ch_steps);
-> +	if (adc_dev->mfd_tscadc->tsc_cell == -1) {
-> +		config = tiadc_readl(adc_dev, REG_CTRL);
-> +		tiadc_writel(adc_dev, REG_CTRL,	config & ~CNTRLREG_TSCSSENB);
-> +		tiadc_writel(adc_dev, REG_CTRL,	config |  CNTRLREG_TSCSSENB);
-> +	}
-> +
-> +	tiadc_writel(adc_dev,  REG_IRQSTATUS, IRQENB_FIFO1THRES |
-> +			 IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW);
-> +	tiadc_writel(adc_dev,  REG_IRQENABLE, IRQENB_FIFO1THRES
-> +				| IRQENB_FIFO1OVRRUN);
-> +
-> +	iio_trigger_notify_done(indio_dev->trig);
-Are you actually done?  What happens if another trigger turns up in the
-meantime?  I'd expect this to occur only after the results of the trigger
-have been handled.
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int tiadc_buffer_preenable(struct iio_dev *indio_dev)
-> +{
-Don't have pointless wrappers like this.
-> +	return iio_sw_buffer_preenable(indio_dev);
-> +}
-> +
-> +static int tiadc_buffer_postenable(struct iio_dev *indio_dev)
-> +{
-> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-> +	struct iio_buffer *buffer = indio_dev->buffer;
-> +	unsigned int enb = 0, stepnum;
-> +	u8 bit;
-> +
-> +	tiadc_step_config(indio_dev);
-> +	for_each_set_bit(bit, buffer->scan_mask,
-> +			adc_dev->channels) {
-> +		struct iio_chan_spec const *chan = indio_dev->channels + bit;
-> +		/*
-> +		 * There are a total of 16 steps available
-> +		 * that are shared between ADC and touchscreen.
-> +		 * We start configuring from step 16 to 0 incase of
-> +		 * ADC. Hence the relation between input channel
-> +		 * and step for ADC would be as below.
-> +		 */
-> +		stepnum = chan->channel + 9;
-> +		enb |= (1 << stepnum);
-> +	}
-> +	adc_dev->buffer_en_ch_steps = enb;
-> +
-> +	return iio_triggered_buffer_postenable(indio_dev);
-> +}
-> +
-> +static int tiadc_buffer_predisable(struct iio_dev *indio_dev)
-> +{
-> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-> +	int fifo1count, i, read, config;
-> +
-> +	if (adc_dev->mfd_tscadc->tsc_cell == -1) {
-> +		config = tiadc_readl(adc_dev, REG_CTRL);
-> +		config &= ~(CNTRLREG_TSCSSENB);
-> +		tiadc_writel(adc_dev, REG_CTRL, config);
-> +	} else
-> +		tiadc_writel(adc_dev, REG_SE, STPENB_STEPENB_TC);
-> +
-> +	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
-> +				IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW));
-> +
-> +	/* Flush FIFO of any leftover data */
-> +	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-> +	for (i = 0; i < fifo1count; i++)
-> +		read = tiadc_readl(adc_dev, REG_FIFO1);
-> +
-> +	return iio_triggered_buffer_predisable(indio_dev);
-> +}
-> +
-> +static int tiadc_buffer_postdisable(struct iio_dev *indio_dev)
-> +{
-> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-> +	int config;
-> +
-> +	tiadc_step_config(indio_dev);
-> +	if (adc_dev->mfd_tscadc->tsc_cell == -1) {
-> +		config = tiadc_readl(adc_dev, REG_CTRL);
-> +		tiadc_writel(adc_dev, REG_CTRL, (config | CNTRLREG_TSCSSENB));
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct iio_buffer_setup_ops tiadc_buffer_setup_ops = {
-> +	.preenable = &tiadc_buffer_preenable,
-> +	.postenable = &tiadc_buffer_postenable,
-> +	.predisable = &tiadc_buffer_predisable,
-> +	.postdisable = &tiadc_buffer_postdisable,
-> +};
-> +
-> +static void tiadc_adc_work(struct work_struct *work_s)
-> +{
-> +	struct tiadc_device *adc_dev =
-> +		container_of(work_s, struct tiadc_device, poll_work);
-> +	struct iio_dev *indio_dev = iio_priv_to_dev(adc_dev);
-> +	struct iio_buffer *buffer = indio_dev->buffer;
-> +	int i, j, k, fifo1count, read;
-> +	unsigned int config;
-So normally we'd just fill with one sample hence for this case
-I'd expect to push out whatever samples are in the fifo right now
-then return.  The next trigger would grab the next lot etc.
-
-> +	int size_to_acquire = buffer->access->get_length(buffer);
-> +	int sample_count = 0;
-> +	u32 *data;
-> +
-> +	adc_dev->data_avail = 0;
-> +	data = kmalloc(indio_dev->scan_bytes, GFP_KERNEL);
-> +	if (data == NULL)
-> +		goto out;
-> +
-> +	while (sample_count < size_to_acquire) {
-> +		tiadc_writel(adc_dev, REG_IRQSTATUS, IRQENB_FIFO1THRES);
-> +		tiadc_writel(adc_dev, REG_IRQENABLE, IRQENB_FIFO1THRES);
-> +
-> +		wait_event_interruptible(adc_dev->wq_data_avail,
-> +					(adc_dev->data_avail == 1));
-> +		adc_dev->data_avail = 0;
-> +
-> +		fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-> +		if (fifo1count * sizeof(u32) <
-> +				buffer->access->get_bytes_per_datum(buffer))
-> +			continue;
-> +
-> +		sample_count = sample_count + fifo1count;
-> +		for (k = 0; k < fifo1count; k = k + i) {
-> +			for (i = 0, j = 0; i < (indio_dev->scan_bytes)/4; i++) {
-> +				read = tiadc_readl(adc_dev, REG_FIFO1);
-> +				data[i] = read & FIFOREAD_DATA_MASK;
-> +			}
-> +			iio_push_to_buffers(indio_dev, (u8 *) data);
-> +		}
-> +	}
-> +out:
-> +	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
-> +				IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW));
-> +	am335x_tsc_se_clr(adc_dev->mfd_tscadc, adc_dev->buffer_en_ch_steps);
-> +	if (adc_dev->mfd_tscadc->tsc_cell == -1) {
-> +		config = tiadc_readl(adc_dev, REG_CTRL);
-> +		tiadc_writel(adc_dev, REG_CTRL,	config & ~CNTRLREG_TSCSSENB);
-> +	}
-> +}
-> +
-> +irqreturn_t tiadc_iio_pollfunc(int irq, void *p)
-> +{
-> +	struct iio_poll_func *pf = p;
-> +	struct iio_dev *indio_dev = pf->indio_dev;
-> +	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-> +	int i, fifo1count, read;
-> +
-> +	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
-> +				IRQENB_FIFO1OVRRUN |
-> +				IRQENB_FIFO1UNDRFLW));
-> +
-> +	/* Flush FIFO before trigger */
-> +	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-> +	for (i = 0; i < fifo1count; i++)
-> +		read = tiadc_readl(adc_dev, REG_FIFO1);
->
-> +	return IRQ_WAKE_THREAD;
->  }
->
->  static const char * const chan_name_ain[] = {
-> @@ -120,13 +329,13 @@ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
->  		chan->channel = adc_dev->channel_line[i];
->  		chan->info_mask_separate = BIT(IIO_CHAN_INFO_RAW);
->  		chan->datasheet_name = chan_name_ain[chan->channel];
-> +		chan->scan_index = i;
->  		chan->scan_type.sign = 'u';
->  		chan->scan_type.realbits = 12;
->  		chan->scan_type.storagebits = 32;
->  	}
->
->  	indio_dev->channels = chan_array;
-> -
->  	return 0;
->  }
->
-> @@ -141,58 +350,51 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
->  {
->  	struct tiadc_device *adc_dev = iio_priv(indio_dev);
->  	int i, map_val;
-> -	unsigned int fifo1count, read, stepid;
-> -	u32 step = UINT_MAX;
-> -	bool found = false;
-> -	u32 step_en;
-> -	unsigned long timeout = jiffies + usecs_to_jiffies
-> -				(IDLE_TIMEOUT * adc_dev->channels);
-> -	step_en = get_adc_step_mask(adc_dev);
-> -	am335x_tsc_se_set(adc_dev->mfd_tscadc, step_en);
-> -
-> -	/* Wait for ADC sequencer to complete sampling */
-> -	while (tiadc_readl(adc_dev, REG_ADCFSM) & SEQ_STATUS) {
-> -		if (time_after(jiffies, timeout))
-> -			return -EAGAIN;
-> -		}
-> -	map_val = chan->channel + TOTAL_CHANNELS;
-> -
-> -	/*
-> -	 * When the sub-system is first enabled,
-> -	 * the sequencer will always start with the
-> -	 * lowest step (1) and continue until step (16).
-> -	 * For ex: If we have enabled 4 ADC channels and
-> -	 * currently use only 1 out of them, the
-> -	 * sequencer still configures all the 4 steps,
-> -	 * leading to 3 unwanted data.
-> -	 * Hence we need to flush out this data.
-> -	 */
-> -
-> -	for (i = 0; i < ARRAY_SIZE(adc_dev->channel_step); i++) {
-> -		if (chan->channel == adc_dev->channel_line[i]) {
-> -			step = adc_dev->channel_step[i];
-> -			break;
-> -		}
-> -	}
-> -	if (WARN_ON_ONCE(step == UINT_MAX))
-> -		return -EINVAL;
-> -
-> -	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-> -	for (i = 0; i < fifo1count; i++) {
-> -		read = tiadc_readl(adc_dev, REG_FIFO1);
-> -		stepid = read & FIFOREAD_CHNLID_MASK;
-> -		stepid = stepid >> 0x10;
-> +	unsigned int fifo1count, read, stepid, step_en;
->
-> -		if (stepid == map_val) {
-> -			read = read & FIFOREAD_DATA_MASK;
-> -			found = true;
-> -			*val = read;
-> +	if (iio_buffer_enabled(indio_dev))
-> +		return -EBUSY;
-> +	else {
-> +		unsigned long timeout = jiffies + usecs_to_jiffies
-> +					(IDLE_TIMEOUT * adc_dev->channels);
-> +		step_en = get_adc_step_mask(adc_dev);
-> +		am335x_tsc_se_set(adc_dev->mfd_tscadc, step_en);
-> +
-> +		/* Wait for ADC sequencer to complete sampling */
-> +		while (tiadc_readl(adc_dev, REG_ADCFSM) & SEQ_STATUS) {
-> +			if (time_after(jiffies, timeout))
-> +				return -EAGAIN;
-> +			}
-> +		map_val = chan->channel + TOTAL_CHANNELS;
-> +
-> +		/*
-> +		 * When the sub-system is first enabled,
-> +		 * the sequencer will always start with the
-> +		 * lowest step (1) and continue until step (16).
-> +		 * For ex: If we have enabled 4 ADC channels and
-> +		 * currently use only 1 out of them, the
-> +		 * sequencer still configures all the 4 steps,
-> +		 * leading to 3 unwanted data.
-> +		 * Hence we need to flush out this data.
-> +		 */
-> +
-> +		*val = -1;
-> +		fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-> +		for (i = 0; i < fifo1count; i++) {
-> +			read = tiadc_readl(adc_dev, REG_FIFO1);
-> +			stepid = read & FIFOREAD_CHNLID_MASK;
-> +			stepid = stepid >> 0x10;
-> +
-> +			if (stepid == map_val) {
-> +				read = read & FIFOREAD_DATA_MASK;
-> +				*val = read;
-> +			}
->  		}
-> +		if (*val != -1)
-> +			return IIO_VAL_INT;
-> +		else
-> +			return -EAGAIN;
->  	}
-> -
-> -	if (found == false)
-> -		return -EBUSY;
-> -	return IIO_VAL_INT;
->  }
->
->  static const struct iio_info tiadc_info = {
-> @@ -231,26 +433,45 @@ static int tiadc_probe(struct platform_device *pdev)
->  		channels++;
->  	}
->  	adc_dev->channels = channels;
-> +	adc_dev->irq = adc_dev->mfd_tscadc->irq;
->
->  	indio_dev->dev.parent = &pdev->dev;
->  	indio_dev->name = dev_name(&pdev->dev);
->  	indio_dev->modes = INDIO_DIRECT_MODE;
->  	indio_dev->info = &tiadc_info;
->
-> -	tiadc_step_config(adc_dev);
-> +	tiadc_step_config(indio_dev);
-> +	tiadc_writel(adc_dev, REG_FIFO1THR, FIFO1_THRESHOLD);
->
->  	err = tiadc_channel_init(indio_dev, adc_dev->channels);
->  	if (err < 0)
->  		goto err_free_device;
->
-> -	err = iio_device_register(indio_dev);
-> +	INIT_WORK(&adc_dev->poll_work, &tiadc_adc_work);
-> +	init_waitqueue_head(&adc_dev->wq_data_avail);
-> +
-> +	err = request_irq(adc_dev->irq, tiadc_irq, IRQF_SHARED,
-> +		indio_dev->name, indio_dev);
->  	if (err)
->  		goto err_free_channels;
->
-> +	err = iio_triggered_buffer_setup(indio_dev, &tiadc_iio_pollfunc,
-> +			&tiadc_trigger_h, &tiadc_buffer_setup_ops);
-> +	if (err)
-> +		goto err_free_irq;
-> +
-> +	err = iio_device_register(indio_dev);
-> +	if (err)
-> +		goto err_buffer_unregister;
-> +
->  	platform_set_drvdata(pdev, indio_dev);
->
->  	return 0;
->
-> +err_buffer_unregister:
-> +	iio_buffer_unregister(indio_dev);
-> +err_free_irq:
-> +	free_irq(adc_dev->irq, indio_dev);
->  err_free_channels:
->  	tiadc_channels_remove(indio_dev);
->  err_free_device:
-> @@ -265,7 +486,9 @@ static int tiadc_remove(struct platform_device *pdev)
->  	struct tiadc_device *adc_dev = iio_priv(indio_dev);
->  	u32 step_en;
->
-> +	free_irq(adc_dev->irq, indio_dev);
->  	iio_device_unregister(indio_dev);
-> +	iio_buffer_unregister(indio_dev);
->  	tiadc_channels_remove(indio_dev);
->
->  	step_en = get_adc_step_mask(adc_dev);
-> @@ -303,10 +526,16 @@ static int tiadc_resume(struct device *dev)
->
->  	/* Make sure ADC is powered up */
->  	restore = tiadc_readl(adc_dev, REG_CTRL);
-> -	restore &= ~(CNTRLREG_POWERDOWN);
-> +	restore &= ~(CNTRLREG_TSCSSENB);
->  	tiadc_writel(adc_dev, REG_CTRL, restore);
->
-> -	tiadc_step_config(adc_dev);
-> +	tiadc_writel(adc_dev, REG_FIFO1THR, FIFO1_THRESHOLD);
-> +	tiadc_step_config(indio_dev);
-> +
-> +	/* Make sure ADC is powered up */
-> +	restore &= ~(CNTRLREG_POWERDOWN);
-> +	restore |= CNTRLREG_TSCSSENB;
-> +	tiadc_writel(adc_dev, REG_CTRL, restore);
->
->  	return 0;
->  }
-> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-> index e2db978..14f75a4 100644
-> --- a/include/linux/mfd/ti_am335x_tscadc.h
-> +++ b/include/linux/mfd/ti_am335x_tscadc.h
-> @@ -46,6 +46,9 @@
->  /* Step Enable */
->  #define STEPENB_MASK		(0x1FFFF << 0)
->  #define STEPENB(val)		((val) << 0)
-> +#define ENB(val)			(1 << (val))
-> +#define STPENB_STEPENB		STEPENB(0x1FFFF)
-> +#define STPENB_STEPENB_TC	STEPENB(0x1FFF)
->
->  /* IRQ enable */
->  #define IRQENB_HW_PEN		BIT(0)
-> @@ -53,12 +56,15 @@
->  #define IRQENB_FIFO0OVRRUN	BIT(3)
->  #define IRQENB_FIFO0UNDRFLW	BIT(4)
->  #define IRQENB_FIFO1THRES	BIT(5)
-> +#define IRQENB_FIFO1OVRRUN	BIT(6)
-> +#define IRQENB_FIFO1UNDRFLW	BIT(7)
->  #define IRQENB_PENUP		BIT(9)
->
->  /* Step Configuration */
->  #define STEPCONFIG_MODE_MASK	(3 << 0)
->  #define STEPCONFIG_MODE(val)	((val) << 0)
->  #define STEPCONFIG_MODE_HWSYNC	STEPCONFIG_MODE(2)
-> +#define STEPCONFIG_MODE_SWCNT	STEPCONFIG_MODE(1)
->  #define STEPCONFIG_AVG_MASK	(7 << 2)
->  #define STEPCONFIG_AVG(val)	((val) << 2)
->  #define STEPCONFIG_AVG_16	STEPCONFIG_AVG(4)
-> @@ -126,6 +132,8 @@
->  #define	MAX_CLK_DIV		7
->  #define TOTAL_STEPS		16
->  #define TOTAL_CHANNELS		8
-> +#define FIFO1_THRESHOLD		19
-> +#define FIFO_SIZE		64
->
->  /*
->  * ADC runs at 3MHz, and it takes
-> @@ -155,6 +163,10 @@ struct ti_tscadc_dev {
->
->  	/* adc device */
->  	struct adc_device *adc;
-> +
-> +	/* Context save */
-> +	unsigned int irqstat;
-> +	unsigned int ctrl;
->  };
->
->  static inline struct ti_tscadc_dev *ti_tscadc_dev_get(struct platform_device *p)
->

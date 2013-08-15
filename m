@@ -1,61 +1,64 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input: htcpen - Fix incorrect placement of __initdata
-Date: Wed, 14 Aug 2013 23:51:38 -0700
-Message-ID: <20130815065138.GA15374@core.coreip.homeip.net>
-References: <1375868346-28851-1-git-send-email-sachin.kamat@linaro.org>
- <CAK9yfHy-Q8W=0ujnnMmspsSJuwJeH-GMpOky+_GkPXf14mHK5w@mail.gmail.com>
+Subject: Re: [PATCH 28/29] drivers/input/{keyboard,serio}: simplify use of
+ devm_ioremap_resource
+Date: Thu, 15 Aug 2013 00:09:36 -0700
+Message-ID: <20130815070936.GB15691@core.coreip.homeip.net>
+References: <1376478213-24091-1-git-send-email-Julia.Lawall@lip6.fr>
+ <CAOh2x=muvdm+tSR+ucUWLhb1vOvXB=_+vm_v9fHfa6mHUnhRRw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:65221 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753922Ab3HOGvk (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:54071 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752765Ab3HOHJj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Aug 2013 02:51:40 -0400
-Received: by mail-pa0-f48.google.com with SMTP id kp13so464021pab.35
-        for <linux-input@vger.kernel.org>; Wed, 14 Aug 2013 23:51:40 -0700 (PDT)
+	Thu, 15 Aug 2013 03:09:39 -0400
 Content-Disposition: inline
-In-Reply-To: <CAK9yfHy-Q8W=0ujnnMmspsSJuwJeH-GMpOky+_GkPXf14mHK5w@mail.gmail.com>
+In-Reply-To: <CAOh2x=muvdm+tSR+ucUWLhb1vOvXB=_+vm_v9fHfa6mHUnhRRw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Pau Oliva Fora <pau@eslack.org>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Julia Lawall <Julia.Lawall@lip6.fr>, kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, spear-devel <spear-devel@list.st.com>
 
-Hi Sachin,
-
-On Wed, Aug 14, 2013 at 11:55:22AM +0530, Sachin Kamat wrote:
-> Hi Dmitry,
-> 
-> On 7 August 2013 15:09, Sachin Kamat <sachin.kamat@linaro.org> wrote:
-> > __initdata should be placed between the variable name and equal
-> > sign for the variable to be placed in the intended section.
+On Wed, Aug 14, 2013 at 04:51:02PM +0530, Viresh Kumar wrote:
+> On Wed, Aug 14, 2013 at 4:33 PM, Julia Lawall <Julia.Lawall@lip6.fr> wrote:
+> > From: Julia Lawall <Julia.Lawall@lip6.fr>
 > >
-> > Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> > Cc: Pau Oliva Fora <pau@eslack.org>
+> > Remove unneeded error handling on the result of a call to
+> > platform_get_resource when the value is passed to devm_ioremap_resource.
+> >
+> > Move the call to platform_get_resource adjacent to the call to
+> > devm_ioremap_resource to make the connection between them more clear.
+> >
+> > A simplified version of the semantic patch that makes this change is as
+> > follows: (http://coccinelle.lip6.fr/)
+> >
+> > // <smpl>
+> > @@
+> > expression pdev,res,n,e,e1;
+> > expression ret != 0;
+> > identifier l;
+> > @@
+> >
+> > - res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+> >   ... when != res
+> > - if (res == NULL) { ... \(goto l;\|return ret;\) }
+> >   ... when != res
+> > + res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+> >   e = devm_ioremap_resource(e1, res);
+> > // </smpl>
+> >
+> > Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+> >
 > > ---
-> >  drivers/input/touchscreen/htcpen.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/input/touchscreen/htcpen.c b/drivers/input/touchscreen/htcpen.c
-> > index 6c4fb84..6650085 100644
-> > --- a/drivers/input/touchscreen/htcpen.c
-> > +++ b/drivers/input/touchscreen/htcpen.c
-> > @@ -221,7 +221,7 @@ static struct isa_driver htcpen_isa_driver = {
-> >         }
-> >  };
-> >
-> > -static struct dmi_system_id __initdata htcshift_dmi_table[] = {
-> > +static struct dmi_system_id htcshift_dmi_table[] __initdata = {
-> >         {
-> >                 .ident = "Shift",
-> >                 .matches = {
-> > --
-> > 1.7.9.5
-> >
 > 
-> Thanks for applying my other patches. Looks like you missed this one though :)
+> >  drivers/input/keyboard/spear-keyboard.c |    7 +------
+> 
+> For SPEAr:
+> 
+> Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 
-Got it now, thanks.
+Thanks, applied.
 
 -- 
 Dmitry

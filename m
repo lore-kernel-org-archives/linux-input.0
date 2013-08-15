@@ -1,55 +1,75 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: [PATCH 37/51] Input: atmel_mxt_ts - Implement vector/orientation
- support
-Date: Thu, 15 Aug 2013 17:18:52 +0100
-Message-ID: <520CFF6C.7020302@itdev.co.uk>
-References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk> <1372337366-9286-38-git-send-email-nick.dyer@itdev.co.uk> <20130718172029.GF32381@polaris.bitmath.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 35/36] hid: roccat: convert class code to use bin_attrs
+ in groups
+Date: Thu, 15 Aug 2013 09:40:24 -0700
+Message-ID: <20130815164024.GB15688@kroah.com>
+References: <1376582626.2452.26.camel@neuromancer.tessier-ashpool>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:13450 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756721Ab3HOQSz (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:38994 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756829Ab3HOQit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Aug 2013 12:18:55 -0400
-In-Reply-To: <20130718172029.GF32381@polaris.bitmath.org>
+	Thu, 15 Aug 2013 12:38:49 -0400
+Content-Disposition: inline
+In-Reply-To: <1376582626.2452.26.camel@neuromancer.tessier-ashpool>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: rydberg@euromail.se
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-rydberg@euromail.se wrote:
-> On Thu, Jun 27, 2013 at 01:49:12PM +0100, Nick Dyer wrote:
->> The atmel touch messages contain orientation information as a byte in a packed
->> format which can be passed straight on to Android if the input device
->> configuration is correct, see
->> http://source.android.com/tech/input/touch-devices.html#touchorientationcalibration
-
-Except they've changed the URL, should be:
-https://source.android.com/devices/tech/input/touch-devices.html#touchorientationcalibration
-
-The Atmel format is two 4-bit signed values packed into 1 byte, you use
-inverse tan to work out the angle, and pythagoras theorem to work out the
-magnitude of the vector (giving a confidence level)
-
->> This requires vector reports to be enabled in maXTouch config (zero DISVECT
->> bit in T9 CTRL field)
->>
->> Android converts the format in frameworks/base/services/input/Input.cpp,
->> search for ORIENTATION_CALIBRATION_VECTOR.
+On Thu, Aug 15, 2013 at 06:03:46PM +0200, Stefan Achatz wrote:
+> Hello Greg,
+> looking through the patch I found the following:
 > 
-> How does this compare to the input mt documentation?
+> 
+> 
+> In hid-roccat-kone.c, PROFILE_ATTR macro:
+> The line
+>  .private = &profile_numbers[number],
+> should read
+>  .private = &profile_numbers[number-1],
 
-http://lxr.free-electrons.com/source/Documentation/input/multi-touch-protocol.txt#L263
+Ah, ok, thanks, will fix up.
 
-So yes, we don't meet the documented format. Options:
-1. Leave out this patch entirely and support out of tree
-2. Update multi-touch-protocol.txt to include the Atmel format
-3. Convert in driver to match documented protocol. Presumably via a LUT of
-the 256 possible values. Although this loses the confidence level that is
-implied.
-4. Getting the firmware changed is not a valid option I'm afraid (too many
-devices already out there).
+> Regarding the compiler warning about unused pyra_sysfs_write_settings:
+> The attribute is indeed readwrite, but the code to write is not standard
+> code. The read function was created with the PYRA_SYSFS_R macro and the
+> write function was written manually. Used were both by
+> PYRA_BIN_ATTRIBUTE_RW.
+> In this case I would keep the PYRA_SYSFS_* macros standalone so that the
+> calling code looks like this:
+> 
+> PYRA_SYSFS_W(control, CONTROL);
+> PYRA_SYSFS_RW(info, INFO);
+> PYRA_SYSFS_RW(profile_settings, PROFILE_SETTINGS);
+> PYRA_SYSFS_RW(profile_buttons, PROFILE_BUTTONS);
+> PYRA_SYSFS_R(settings, SETTINGS);
+> 
+> PYRA_BIN_ATTRIBUTE_W(control, CONTROL);
+> PYRA_BIN_ATTRIBUTE_RW(info, INFO);
+> PYRA_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS);
+> PYRA_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS);
+> PYRA_BIN_ATTRIBUTE_RW(settings, SETTINGS);
 
-Which do you prefer (I suspect 3) ?
+Hm, I'll look this over again and see if I can make it better.
+
+But why are you using a "non standard" write function?  What is special
+here about this?
+
+> Another thing: Why does nobody (besides me) use the get_maintainer.pl
+> script, so I have to search manually for patches regarding my code?
+
+I did use it:
+
+$ ./scripts/get_maintainer.pl --file drivers/hid/hid-roccat-kone.c 
+Jiri Kosina <jkosina@suse.cz> (maintainer:HID CORE LAYER)
+linux-input@vger.kernel.org (open list:HID CORE LAYER)
+linux-kernel@vger.kernel.org (open list)
+
+You aren't listed there, perhaps a MAINTAINERS entry needs to be added?
+
+thanks,
+
+greg k-h

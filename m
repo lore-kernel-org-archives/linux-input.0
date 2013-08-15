@@ -1,20 +1,15 @@
 From: Andrey Moiseev <o2g.org.ru@gmail.com>
-Subject: [PATCH v6 1/1] input: ideapad_slidebar: new input driver
-Date: Thu, 15 Aug 2013 19:06:39 +0400
-Message-ID: <520CEE7F.20205@gmail.com>
+Subject: [PATCH v6 resend] input: ideapad_slidebar: new input driver
+Date: Thu, 15 Aug 2013 19:35:51 +0400
+Message-ID: <520CF557.7030004@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f172.google.com ([209.85.217.172]:43765 "EHLO
-	mail-lb0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752860Ab3HOPHs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Aug 2013 11:07:48 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, arnoques@gmail.com, russianneuromancer@ya.ru, ike.pan@canonical.com, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 v6: fixed things addressed by Dmitry Torokhov to v5 (quoted message goes below the patch)
 
@@ -25,7 +20,7 @@ Navigator under Windows)
 Fixes this: https://bugzilla.kernel.org/show_bug.cgi?id=16004
 
 Registers 'IdeaPad Slidebar' input device and
-/sys/devices/platform/ideapad_slidebar/input/inputX/slidebar_mode
+/sys/devices/platform/ideapad_slidebar/slidebar_mode
 for switching slidebar's modes.
 
 Now works on:
@@ -40,13 +35,6 @@ Driver source: https://github.com/o2genum/ideapad-slidebar.git
 Patch is generated against current mainline kernel.
 
 Signed-off-by: Andrey Moiseev <o2g.org.ru@gmail.com>
----
- MAINTAINERS                           |   7 +
- drivers/input/misc/Kconfig            |   9 +
- drivers/input/misc/Makefile           |   1 +
- drivers/input/misc/ideapad_slidebar.c | 348 ++++++++++++++++++++++++++++++++++
- 4 files changed, 365 insertions(+)
- create mode 100644 drivers/input/misc/ideapad_slidebar.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
 index defc053..2ff3dd8 100644
@@ -95,7 +83,7 @@ index 829de43..0ebfb6d 100644
 +obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
 diff --git a/drivers/input/misc/ideapad_slidebar.c b/drivers/input/misc/ideapad_slidebar.c
 new file mode 100644
-index 0000000..5725d88
+index 0000000..3d97933
 --- /dev/null
 +++ b/drivers/input/misc/ideapad_slidebar.c
 @@ -0,0 +1,348 @@
@@ -124,7 +112,7 @@ index 0000000..5725d88
 + *
 + * LEDs blinking and input mode are managed via sysfs,
 + * (hex, unsigned byte value):
-+ * /sys/devices/platform/ideapad_slidebar/input/inputX/slidebar_mode
++ * /sys/devices/platform/ideapad_slidebar/slidebar_mode
 + *
 + * The value is in byte range, however, I only figured out
 + * how bits 0b10011001 work. Some other bits, probably,
@@ -309,7 +297,6 @@ index 0000000..5725d88
 +	slidebar_input_dev->name = "IdeaPad Slidebar";
 +	slidebar_input_dev->id.bustype = BUS_HOST;
 +	slidebar_input_dev->dev.parent = &slidebar_platform_dev->dev;
-+	slidebar_input_dev->dev.groups = ideapad_attr_groups;
 +	input_set_capability(slidebar_input_dev, EV_KEY, BTN_TOUCH);
 +	input_set_capability(slidebar_input_dev, EV_ABS, ABS_X);
 +	input_set_abs_params(slidebar_input_dev, ABS_X, 0, 0xff, 0, 0);
@@ -344,6 +331,7 @@ index 0000000..5725d88
 +{
 +	int err;
 +	slidebar_platform_dev = platform_device_alloc("ideapad_slidebar", -1);
++	slidebar_platform_dev->dev.groups = ideapad_attr_groups;
 +	if (!slidebar_platform_dev) {
 +		pr_err("ideapad_slidebar: Not enough memory\n");
 +		return -ENOMEM;

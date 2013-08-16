@@ -1,89 +1,54 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah@gmail.com>
-Subject: Re: [PATCH 3/4] input: ti_tsc: Enable shared IRQ for TSC and add
- overrun, underflow checks
-Date: Fri, 16 Aug 2013 22:31:33 +0100
-Message-ID: <20130816213132.GD2636@gmail.com>
-References: <1376412499-21007-1-git-send-email-zubair.lutfullah@gmail.com>
- <1376412499-21007-4-git-send-email-zubair.lutfullah@gmail.com>
- <20130816091409.GC26895@linutronix.de>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v2 1/2] input: document gamepad API and add extra keycodes
+Date: Fri, 16 Aug 2013 23:39:44 +0200
+Message-ID: <CANq1E4SxGTKoL+OXDaYN5S1x-GXbg7ym+e8ivCywe2FMqQgCvg@mail.gmail.com>
+References: <1371303165-1802-1-git-send-email-dh.herrmann@gmail.com>
+	<1371303165-1802-2-git-send-email-dh.herrmann@gmail.com>
+	<20130626160727.GA32420@core.coreip.homeip.net>
+	<alpine.LNX.2.00.1306271147150.3538@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f181.google.com ([209.85.215.181]:36502 "EHLO
-	mail-ea0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754286Ab3HPW2j (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Aug 2013 18:28:39 -0400
-Content-Disposition: inline
-In-Reply-To: <20130816091409.GC26895@linutronix.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1306271147150.3538@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Zubair Lutfullah <zubair.lutfullah@gmail.com>, jic23@cam.ac.uk, dmitry.torokhov@gmail.com, sameo@linux.intel.com, lee.jones@linaro.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Russ.Dill@ti.com
 
-On Fri, Aug 16, 2013 at 11:14:09AM +0200, Sebastian Andrzej Siewior wrote:
-> * Zubair Lutfullah | 2013-08-13 17:48:18 [+0100]:
-> >+	if ((status & IRQENB_FIFO0OVRRUN) ||
-> >+			(status & IRQENB_FIFO0UNDRFLW)) {
-> >+
-> >+		config = titsc_readl(ts_dev, REG_CTRL);
-> >+		config &= ~(CNTRLREG_TSCSSENB);
-> >+		titsc_writel(ts_dev, REG_CTRL, config);
-> >+
-> >+		if (status & IRQENB_FIFO0UNDRFLW) {
-> >+			titsc_writel(ts_dev, REG_IRQSTATUS,
-> >+				(status | IRQENB_FIFO0UNDRFLW));
-> >+			irqclr |= IRQENB_FIFO0UNDRFLW;
-> >+		} else {
-> >+			titsc_writel(ts_dev, REG_IRQSTATUS,
-> >+				(status | IRQENB_FIFO0OVRRUN));
-> >+			irqclr |= IRQENB_FIFO0OVRRUN;
-> >+		}
-> 
-> You don't do anything on overflow / underflow. Is this due to the fact
-> once enabled for FIFO1 it also triggers for FIFO0?
-> 
-The TSCADC module doesn't recover from these interrupts.
+Hi Jiri
 
-> >+		titsc_writel(ts_dev, REG_CTRL,
-> >+			(config | CNTRLREG_TSCSSENB));
+On Thu, Jun 27, 2013 at 11:47 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 26 Jun 2013, Dmitry Torokhov wrote:
+>
+>> On Sat, Jun 15, 2013 at 03:32:44PM +0200, David Herrmann wrote:
+>> > --- a/include/uapi/linux/input.h
+>> > +++ b/include/uapi/linux/input.h
+>> > @@ -507,10 +507,14 @@ struct input_keymap_entry {
+>> >
+>> >  #define BTN_GAMEPAD                0x130
+>> >  #define BTN_A                      0x130
+>> > +#define BTN_SOUTH          0x130
+>>
+>> Could we do:
+>>
+>> #define BTN_SOUTH             0x130
+>> #define BTN_A                 BTN_SOUTH
+>>
+>> so that it is clear that BTN_A, BTN_B, etc are legacy definitions and
+>> not an accidental typos that need their own key codes.
+>
+> Makes sense, will do that modification.
+>
+>> Otherwise:
+>>
+>> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>
+> Thanks Dmitry. Will be taking it (with the above modification) through my
+> tree.
 
-The fix is to re-enable the module after disabling 
-and clearing the interrupts.
+Hm, I just noticed that this got merged without the
+Documentation/input/gamepad.txt description. Was this intentional?
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d09bbfd2a8408a995419dff0d2ba906013cf4cc9
 
-That is what the handler is doing.
-> >+	} else if (status & IRQENB_FIFO0THRES) {
-> > 		titsc_read_coordinates(ts_dev, &x, &y, &z1, &z2);
-> > 
-> > 		if (ts_dev->pen_down && z1 != 0 && z2 != 0) {
-> >@@ -317,9 +342,11 @@ static irqreturn_t titsc_irq(int irq, void *dev)
-> > 	}
-> > 
-> > 	if (irqclr) {
-> >-		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
-> >+		titsc_writel(ts_dev, REG_IRQSTATUS, (status | irqclr));
-> 
-> Shouldn't FIFO1UNDRFLW & OVRRUN be handled by the adc driver? Why do you
-> or the unhandled bits as well here?
-FIFO1 is only used by TSC. ADC doesn't touch it.
-> 
-> > 		am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
-> >-		return IRQ_HANDLED;
-> >+		status = titsc_readl(ts_dev, REG_IRQSTATUS);
-> >+		if (status == false)
-> >+			return IRQ_HANDLED;
-> 
-> And why this? If you something you handled it, if you didn't you return
-> NONE. Why does it depend on REG_IRQSTATUS?
-
-These quirks are to handle the situation where both IRQs happen
-simultaneously. Which can occur when someone is using the TSC
-while continuously sampling using the ADC.
-
-REG_IRQSTATUS has flags for FIFO0 used by ADC as well.
-
-If there are still those IRQs to handle, then IRQ_NONE is returned.
-Otherwise, all IRQ flags are clear so IRQ_HANDLED is returned.
-
-Thanks
-Zubair
+Regards
+David

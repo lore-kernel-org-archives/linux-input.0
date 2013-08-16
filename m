@@ -1,65 +1,40 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah@gmail.com>
-Subject: Re: [PATCH 1/4] input: ti_am335x_tsc: correct step mask update after
- IRQ
-Date: Fri, 16 Aug 2013 22:42:24 +0100
-Message-ID: <20130816214224.GE2636@gmail.com>
-References: <1376412499-21007-1-git-send-email-zubair.lutfullah@gmail.com>
- <1376412499-21007-2-git-send-email-zubair.lutfullah@gmail.com>
- <20130816085350.GA26895@linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: [PATCH 0/2] new USB eBeam input driver
+Date: Fri, 16 Aug 2013 22:25:41 +0200
+Message-ID: <1376684743-25047-1-git-send-email-yann.cantin@laposte.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130816085350.GA26895@linutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Zubair Lutfullah <zubair.lutfullah@gmail.com>, jic23@cam.ac.uk, dmitry.torokhov@gmail.com, sameo@linux.intel.com, lee.jones@linaro.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Russ.Dill@ti.com
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz, rob@landley.net, gregkh@linuxfoundation.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 16, 2013 at 10:53:50AM +0200, Sebastian Andrzej Siewior wrote:
-> * Zubair Lutfullah | 2013-08-13 17:48:16 [+0100]:
-> 
-> >@@ -316,7 +318,7 @@ static irqreturn_t titsc_irq(int irq, void *dev)
-> > 
-> > 	if (irqclr) {
-> > 		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
-> >-		am335x_tsc_se_update(ts_dev->mfd_tscadc);
-> >+		am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
-> > 		return IRQ_HANDLED;
-> > 	}
-> > 	return IRQ_NONE;
-> 
-> titsc_step_config() computes the mask once since it does not change. It
-> is then assigned via am335x_tsc_se_set() to ->reg_se_cache() and later
-> always udpated via am335x_tsc_se_update(). This should ensure that ADC's
-> and TSC's bits are in sync and clear each other out.
-> Now you call am335x_tsc_se_set() in every irq which adds the TSC's mask
-> to ->reg_se_cache but why? It was never removed.
-> 
-> Sebastian
+Hi,
 
-The problem is when ADC/TSC are used together.
+New USB input driver for eBeam devices.
 
-reg_se_cache would get updated with masks in the se_set function in MFD core.
+Currently supported (tested) :
+- Luidia eBeam classic projection and edge projection models
+- Nec "interactive solution" NP01Wi1 & NP01Wi2 accessories.
 
->From TSC driver, the TSC steps would be set in the reg_se_cache variable.
->From ADC driver, the ADC steps would be set in the reg_se_cache variable.
+>From basic usb point of view, all these devices are
+indistinguishable : they have the same usb ids and (blank) hid
+report descriptors. There's other re-branded hardware that need to be
+test, but i bet on same ids.
 
-But the ADC masks weren't being cleared from the reg_se_cache variable
-anywhere.
+Patch 1 to blacklist the devices for hid generic-usb.
 
-After a while of using ADC/TSC together, the reg_se_cache 
-variable would have FFFF always. Resulting in redundant sampling 
-and data in ADC FIFO0.
+Patch 2 is the actual driver.
 
-MFD has received fixes to update the reg_se_cache upon 
-every call to the se_set functions.
+Notable stuff :
+- use div64_s64 for portable 64/64-bits divisions.
+- 13 sysfs custom files : 9 values for the transformation matrix,
+  4 for xy ranges and a calibration trigger.
 
-Thus, the step_mask must be set every time to ensure
-that it is updated correctly every time.
+The module run fine since 3.3.6 kernel, both x86_32 and 64, actually
+run in production on a 3.8.13 and compile without errors on
+today's linus tree.
 
-Hope that clears the confusion.
-This TSC/ADC sharing can be pretty confusing.
+Side note :
+- This driver was first submit and discuss last year.
 
-Thanks
-Zubair
+Thanks for your help.

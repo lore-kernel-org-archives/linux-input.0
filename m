@@ -1,8 +1,8 @@
 From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Subject: Re: [PATCH 4/4] iio: ti_am335x_adc: Add continuous sampling and
  trigger support
-Date: Fri, 16 Aug 2013 14:53:40 +0200
-Message-ID: <20130816125340.GC1263@linutronix.de>
+Date: Fri, 16 Aug 2013 15:25:49 +0200
+Message-ID: <20130816132549.GD1263@linutronix.de>
 References: <1376424303-22740-1-git-send-email-zubair.lutfullah@gmail.com>
  <1376424303-22740-5-git-send-email-zubair.lutfullah@gmail.com>
 Mime-Version: 1.0
@@ -23,33 +23,36 @@ List-Id: linux-input@vger.kernel.org
 >index 3ceac3e..0d7e313 100644
 >--- a/drivers/iio/adc/ti_am335x_adc.c
 >+++ b/drivers/iio/adc/ti_am335x_adc.c
->@@ -24,16 +24,28 @@
+>@@ -141,58 +350,51 @@ static int tiadc_read_raw(struct iio_dev *indio_=
+dev,
+> {
 =E2=80=A6
->+static irqreturn_t tiadc_irq(int irq, void *private)
->+{
->+	struct iio_dev *idev =3D private;
->+	struct tiadc_device *adc_dev =3D iio_priv(idev);
->+	unsigned int status, config;
->+	status =3D tiadc_readl(adc_dev, REG_IRQSTATUS);
+>+	if (iio_buffer_enabled(indio_dev))
+>+		return -EBUSY;
+>+	else {
+
+You can drop else so you lose one ident level.
+
+>+		unsigned long timeout =3D jiffies + usecs_to_jiffies
+>+					(IDLE_TIMEOUT * adc_dev->channels);
+
+What computing this once? ->channels is assigned at probe time.
+
+>+		step_en =3D get_adc_step_mask(adc_dev);
+>+		am335x_tsc_se_set(adc_dev->mfd_tscadc, step_en);
 >+
->+	/* FIFO Overrun. Clear flag. Disable/Enable ADC to recover */
->+	if (status & IRQENB_FIFO1OVRRUN) {
->+		config =3D tiadc_readl(adc_dev, REG_CTRL);
->+		config &=3D ~(CNTRLREG_TSCSSENB);
->+		tiadc_writel(adc_dev, REG_CTRL, config);
->+		tiadc_writel(adc_dev, REG_IRQSTATUS, IRQENB_FIFO1OVRRUN |
->+				IRQENB_FIFO1UNDRFLW | IRQENB_FIFO1THRES);
->+		tiadc_writel(adc_dev, REG_CTRL, (config | CNTRLREG_TSCSSENB));
+>+		/* Wait for ADC sequencer to complete sampling */
+>+		while (tiadc_readl(adc_dev, REG_ADCFSM) & SEQ_STATUS) {
+>+			if (time_after(jiffies, timeout))
+>+				return -EAGAIN;
 
-I have no idea how other handle this but shouldn't you somehow inform
-*anyone* that you lost some samples due to this overrun?
+You should check the condition after the timeout occured once again. It
+is possible that the task performing the read has been pushed away by a
+higher prio task (or preempted incase this sounds like a bully) and
+after it got back on the cpu the timeout occured but the condition is
+valid and no reason for -EAGAIN.
 
->+	} else if (status & IRQENB_FIFO1THRES) {
->+		/* Wake adc_work that pushes FIFO data to iio buffer */
->+		tiadc_writel(adc_dev, REG_IRQCLR, IRQENB_FIFO1THRES);
->+		adc_dev->data_avail =3D 1;
->+		wake_up_interruptible(&adc_dev->wq_data_avail);
->+	} else
->+		return IRQ_NONE;
+>+			}
+and the bracket needs to left by one tab.
 
 Sebastian

@@ -1,107 +1,46 @@
 From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCH 3/4] input: ti_tsc: Enable shared IRQ for TSC and add
- overrun, underflow checks
-Date: Fri, 16 Aug 2013 11:14:09 +0200
-Message-ID: <20130816091409.GC26895@linutronix.de>
-References: <1376412499-21007-1-git-send-email-zubair.lutfullah@gmail.com>
- <1376412499-21007-4-git-send-email-zubair.lutfullah@gmail.com>
+Subject: Re: [PATCH 4/4] iio: ti_am335x_adc: Add continuous sampling and
+ trigger support
+Date: Fri, 16 Aug 2013 12:07:02 +0200
+Message-ID: <20130816100702.GD26895@linutronix.de>
+References: <1376424303-22740-1-git-send-email-zubair.lutfullah@gmail.com>
+ <1376424303-22740-5-git-send-email-zubair.lutfullah@gmail.com>
+ <520CBEC6.8010400@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1376412499-21007-4-git-send-email-zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <520CBEC6.8010400-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Russ.Dill-l0cyMroinI0@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Russ.Dill-l0cyMroinI0@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-* Zubair Lutfullah | 2013-08-13 17:48:18 [+0100]:
+* Jonathan Cameron | 2013-08-15 12:43:02 [+0100]:
 
->Enable shared IRQ to allow ADC to share IRQ line from
->parent MFD core. Only FIFO0 IRQs are for TSC and handled
->on the TSC side.
->
->Patch also adds overrun and underflow irq handlers.
->
->Russ Dill (TI) worked on overrun and underflow handlers.
->Rachna Patil (TI) laid ground work for shared IRQ.
->
->Signed-off-by: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->---
-> drivers/input/touchscreen/ti_am335x_tsc.c |   37 +++++++++++++++++++++++++----
-> include/linux/mfd/ti_am335x_tscadc.h      |    2 ++
-> 2 files changed, 34 insertions(+), 5 deletions(-)
->
->diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
->index 766bc7e..9c114b2 100644
->--- a/drivers/input/touchscreen/ti_am335x_tsc.c
->+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
->@@ -256,14 +256,39 @@ static irqreturn_t titsc_irq(int irq, void *dev)
-> {
-> 	struct titsc *ts_dev = dev;
-> 	struct input_dev *input_dev = ts_dev->input;
->-	unsigned int status, irqclr = 0;
->+	unsigned int status, irqclr = 0, config = 0;
-> 	unsigned int x = 0, y = 0;
-> 	unsigned int z1, z2, z;
-> 	unsigned int fsm;
-> 
-> 	status = titsc_readl(ts_dev, REG_IRQSTATUS);
->-	if (status & IRQENB_FIFO0THRES) {
->+	/*
->+	 * ADC and touchscreen share the IRQ line.
->+	 * FIFO1 threshold, FIFO1 Overrun and FIFO1 underflow
->+	 * interrupts are used by ADC. Handle FIFO0 IRQs here only
->+	 * and check if any IRQs left in case both fifos interrupt.
->+	 * If any irq left, return none, else return handled.
->+	 */
->+	if ((status & IRQENB_FIFO0OVRRUN) ||
->+			(status & IRQENB_FIFO0UNDRFLW)) {
->+
->+		config = titsc_readl(ts_dev, REG_CTRL);
->+		config &= ~(CNTRLREG_TSCSSENB);
->+		titsc_writel(ts_dev, REG_CTRL, config);
->+
->+		if (status & IRQENB_FIFO0UNDRFLW) {
->+			titsc_writel(ts_dev, REG_IRQSTATUS,
->+				(status | IRQENB_FIFO0UNDRFLW));
->+			irqclr |= IRQENB_FIFO0UNDRFLW;
->+		} else {
->+			titsc_writel(ts_dev, REG_IRQSTATUS,
->+				(status | IRQENB_FIFO0OVRRUN));
->+			irqclr |= IRQENB_FIFO0OVRRUN;
->+		}
+>Hi,
+Hi Jonathan,
 
-You don't do anything on overflow / underflow. Is this due to the fact
-once enabled for FIFO1 it also triggers for FIFO0?
+>Whilst the below review is based on what we have here, I tried to appl=
+y it
+>to the latest iio.git togreg branch (which for this driver should be
+>much the same as staging-next and hence linux-next).  It's not even
+>close and I can't immediately spot where some of the changes came
+>from.  Have I missed a precursor patch or is this based on an
+>older version of this driver?
 
->+		titsc_writel(ts_dev, REG_CTRL,
->+			(config | CNTRLREG_TSCSSENB));
->+	} else if (status & IRQENB_FIFO0THRES) {
-> 		titsc_read_coordinates(ts_dev, &x, &y, &z1, &z2);
-> 
-> 		if (ts_dev->pen_down && z1 != 0 && z2 != 0) {
->@@ -317,9 +342,11 @@ static irqreturn_t titsc_irq(int irq, void *dev)
-> 	}
-> 
-> 	if (irqclr) {
->-		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
->+		titsc_writel(ts_dev, REG_IRQSTATUS, (status | irqclr));
+I took the four patches, checkout iio/fixes-togreg and then
 
-Shouldn't FIFO1UNDRFLW & OVRRUN be handled by the adc driver? Why do you
-or the unhandled bits as well here?
+|git am -3 iio.mbox
+|Applying: input: ti_am335x_tsc: correct step mask update after IRQ
+|Applying: input: ti_am335x_tsc: Increase sequencer delay time
+|Applying: input: ti_am335x_tsc: Enable shared IRQ for TSC, add overrun=
+ and underflow checks
+|Applying: iio: ti_am335x_adc: Add continuous sampling and trigger supp=
+ort
 
-> 		am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
->-		return IRQ_HANDLED;
->+		status = titsc_readl(ts_dev, REG_IRQSTATUS);
->+		if (status == false)
->+			return IRQ_HANDLED;
-
-And why this? If you something you handled it, if you didn't you return
-NONE. Why does it depend on REG_IRQSTATUS?
-
-> 	}
-> 	return IRQ_NONE;
-> }
+It did apply with no trouble here.
+Let me look at your comments=E2=80=A6
 
 Sebastian

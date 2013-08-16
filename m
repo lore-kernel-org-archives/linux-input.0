@@ -1,65 +1,89 @@
 From: "Zubair Lutfullah :" <zubair.lutfullah@gmail.com>
-Subject: Re: [PATCH 4/4] iio: ti_am335x_adc: Add continuous sampling and
- trigger support
-Date: Fri, 16 Aug 2013 22:18:10 +0100
-Message-ID: <20130816211809.GA2636@gmail.com>
-References: <1376424303-22740-1-git-send-email-zubair.lutfullah@gmail.com>
- <1376424303-22740-5-git-send-email-zubair.lutfullah@gmail.com>
- <20130816125340.GC1263@linutronix.de>
+Subject: Re: [PATCH 3/4] input: ti_tsc: Enable shared IRQ for TSC and add
+ overrun, underflow checks
+Date: Fri, 16 Aug 2013 22:31:33 +0100
+Message-ID: <20130816213132.GD2636@gmail.com>
+References: <1376412499-21007-1-git-send-email-zubair.lutfullah@gmail.com>
+ <1376412499-21007-4-git-send-email-zubair.lutfullah@gmail.com>
+ <20130816091409.GC26895@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ea0-f181.google.com ([209.85.215.181]:36502 "EHLO
+	mail-ea0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754286Ab3HPW2j (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Aug 2013 18:28:39 -0400
 Content-Disposition: inline
-In-Reply-To: <20130816125340.GC1263@linutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Zubair Lutfullah <zubair.lutfullah@gmail.com>, jic23@cam.ac.uk, dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Russ.Dill@ti.com
+In-Reply-To: <20130816091409.GC26895@linutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Zubair Lutfullah <zubair.lutfullah@gmail.com>, jic23@cam.ac.uk, dmitry.torokhov@gmail.com, sameo@linux.intel.com, lee.jones@linaro.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Russ.Dill@ti.com
 
-On Fri, Aug 16, 2013 at 02:53:40PM +0200, Sebastian Andrzej Siewior wro=
-te:
-> * Zubair Lutfullah | 2013-08-13 21:05:03 [+0100]:
->=20
-> >diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am=
-335x_adc.c
-> >index 3ceac3e..0d7e313 100644
-> >--- a/drivers/iio/adc/ti_am335x_adc.c
-> >+++ b/drivers/iio/adc/ti_am335x_adc.c
-> >@@ -24,16 +24,28 @@
-> =E2=80=A6
-> >+static irqreturn_t tiadc_irq(int irq, void *private)
-> >+{
-> >+	struct iio_dev *idev =3D private;
-> >+	struct tiadc_device *adc_dev =3D iio_priv(idev);
-> >+	unsigned int status, config;
-> >+	status =3D tiadc_readl(adc_dev, REG_IRQSTATUS);
+On Fri, Aug 16, 2013 at 11:14:09AM +0200, Sebastian Andrzej Siewior wrote:
+> * Zubair Lutfullah | 2013-08-13 17:48:18 [+0100]:
+> >+	if ((status & IRQENB_FIFO0OVRRUN) ||
+> >+			(status & IRQENB_FIFO0UNDRFLW)) {
 > >+
-> >+	/* FIFO Overrun. Clear flag. Disable/Enable ADC to recover */
-> >+	if (status & IRQENB_FIFO1OVRRUN) {
-> >+		config =3D tiadc_readl(adc_dev, REG_CTRL);
-> >+		config &=3D ~(CNTRLREG_TSCSSENB);
-> >+		tiadc_writel(adc_dev, REG_CTRL, config);
-> >+		tiadc_writel(adc_dev, REG_IRQSTATUS, IRQENB_FIFO1OVRRUN |
-> >+				IRQENB_FIFO1UNDRFLW | IRQENB_FIFO1THRES);
-> >+		tiadc_writel(adc_dev, REG_CTRL, (config | CNTRLREG_TSCSSENB));
->=20
-> I have no idea how other handle this but shouldn't you somehow inform
-> *anyone* that you lost some samples due to this overrun?
->=20
-> Sebastian
+> >+		config = titsc_readl(ts_dev, REG_CTRL);
+> >+		config &= ~(CNTRLREG_TSCSSENB);
+> >+		titsc_writel(ts_dev, REG_CTRL, config);
+> >+
+> >+		if (status & IRQENB_FIFO0UNDRFLW) {
+> >+			titsc_writel(ts_dev, REG_IRQSTATUS,
+> >+				(status | IRQENB_FIFO0UNDRFLW));
+> >+			irqclr |= IRQENB_FIFO0UNDRFLW;
+> >+		} else {
+> >+			titsc_writel(ts_dev, REG_IRQSTATUS,
+> >+				(status | IRQENB_FIFO0OVRRUN));
+> >+			irqclr |= IRQENB_FIFO0OVRRUN;
+> >+		}
+> 
+> You don't do anything on overflow / underflow. Is this due to the fact
+> once enabled for FIFO1 it also triggers for FIFO0?
+> 
+The TSCADC module doesn't recover from these interrupts.
 
-The ref manual states that TSCADC module doesn't recover=20
-from overrun interrupts. Thats why the disable enable of
-the module here to handle the situation.
-And of course, clearing interrupt flags.
-The data is lost.
+> >+		titsc_writel(ts_dev, REG_CTRL,
+> >+			(config | CNTRLREG_TSCSSENB));
 
-Informing someone about lost samples is important indeed.
-But a print statement in this area causes more overruns.
+The fix is to re-enable the module after disabling 
+and clearing the interrupts.
 
-I'm open to some input on how to inform userspace of such=20
-a situation.
+That is what the handler is doing.
+> >+	} else if (status & IRQENB_FIFO0THRES) {
+> > 		titsc_read_coordinates(ts_dev, &x, &y, &z1, &z2);
+> > 
+> > 		if (ts_dev->pen_down && z1 != 0 && z2 != 0) {
+> >@@ -317,9 +342,11 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+> > 	}
+> > 
+> > 	if (irqclr) {
+> >-		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
+> >+		titsc_writel(ts_dev, REG_IRQSTATUS, (status | irqclr));
+> 
+> Shouldn't FIFO1UNDRFLW & OVRRUN be handled by the adc driver? Why do you
+> or the unhandled bits as well here?
+FIFO1 is only used by TSC. ADC doesn't touch it.
+> 
+> > 		am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
+> >-		return IRQ_HANDLED;
+> >+		status = titsc_readl(ts_dev, REG_IRQSTATUS);
+> >+		if (status == false)
+> >+			return IRQ_HANDLED;
+> 
+> And why this? If you something you handled it, if you didn't you return
+> NONE. Why does it depend on REG_IRQSTATUS?
+
+These quirks are to handle the situation where both IRQs happen
+simultaneously. Which can occur when someone is using the TSC
+while continuously sampling using the ADC.
+
+REG_IRQSTATUS has flags for FIFO0 used by ADC as well.
+
+If there are still those IRQs to handle, then IRQ_NONE is returned.
+Otherwise, all IRQ flags are clear so IRQ_HANDLED is returned.
 
 Thanks
 Zubair

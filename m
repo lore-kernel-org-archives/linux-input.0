@@ -1,116 +1,59 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 4/4] iio: ti_am335x_adc: Add continuous sampling and
- trigger support
-Date: Sat, 17 Aug 2013 09:58:25 +0100
-Message-ID: <20130817085824.GA5090@gmail.com>
-References: <1376424303-22740-1-git-send-email-zubair.lutfullah@gmail.com>
- <1376424303-22740-5-git-send-email-zubair.lutfullah@gmail.com>
- <520CBEC6.8010400@kernel.org>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH v3 RESEND 1/3] input: mc13783: Prepare driver to
+ support MC13892 and OF
+Date: Sat, 17 Aug 2013 11:23:02 +0200
+Message-ID: <20130817092302.GS26614@pengutronix.de>
+References: <1376718381-16924-1-git-send-email-shc_work@mail.ru>
+ <20130817062012.GA26693@pengutronix.de>
+ <20130817105305.5201c078d4f2cf52ffb172f8@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:32775 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751631Ab3HQJXL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 17 Aug 2013 05:23:11 -0400
 Content-Disposition: inline
-In-Reply-To: <520CBEC6.8010400-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Russ.Dill-l0cyMroinI0@public.gmane.org
+In-Reply-To: <20130817105305.5201c078d4f2cf52ffb172f8@mail.ru>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: Michael Grzeschik <mgr@pengutronix.de>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <kernel@pengutronix.de>
 
-On Thu, Aug 15, 2013 at 12:43:02PM +0100, Jonathan Cameron wrote:
-> Note I'd also like a much more detailed description in the patch header.
+On Sat, Aug 17, 2013 at 10:53:05AM +0400, Alexander Shiyan wrote:
+> On Sat, 17 Aug 2013 08:20:12 +0200
+> Michael Grzeschik <mgr@pengutronix.de> wrote:
 > 
-> I would also expect an option for the trigger to be supplied from the
-> chip itself based on fifo watershead interrupts.  Thus the adc could be
-> operated at full rate without losing data.  As you described in a previous
-> email this is much more similar to a one shot osciloscope trigger where it
-> grabs the next set of readings.  Now this is an interesting option, but
-> it isn't the standard one for IIO.  I'd be interested to see a proposal
-> for adding this functionality to the core in a more general fashion.
-
-When I read trigger, this functionality is what comes to my mind.
-Not the single scan current implementation in IIO. My background I guess.
-
-Adding this feature to the core feels a bit above my level at the moment.
-I'd like to get this driver sorted first.
+> > On Sat, Aug 17, 2013 at 09:46:20AM +0400, Alexander Shiyan wrote:
+> > > This patch is a preparation mc13xxx powerbutton driver to support
+> > > MC13892 and support the probe through the DT.
+> > 
+> > As this patch already mention by itself, it's doing to much at once.
+> > And by looking at it, it realy does more than it tells here.
+> > 
+> > Can you rework that into seperate readable tasks. In this patch you
+> > nearly rewrite the whole file. That runs the review impossible.
 > 
-> For now I'd be much happier if this driver conformed to more or less the
-> standard form with the one exception being that the 'trigger' is based on
-> the fifo threshold and so it might appear to grab multiple scans of the
-> enabled channels for each trigger (which is fine). Even if we provide the
-> functionality sketched out above, it would still be as core functionality, not
-> in the driver as you have done here.
-> 
-> Jonathan
+> All changes in this patch are addicted to each other, can not be divided.
 
-Will that affect the way generic_buffer.c will read from the driver?
+I find this hard to believe. Here are some changes that can be separated
+easily:
 
-Rest comments below.
+- Rename defines from MC13XXX_BUTTON_ to MC13783_BUTTON_
+- convert module_platform_driver to module_platform_driver_probe, why do
+  you change this anyway?
+- convert from kzalloc to devm_kzalloc
+- rewrite error message from "missing platform data" to "Missing
+  platform data"
 
-> > diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-> > +	/* FIFO Overrun. Clear flag. Disable/Enable ADC to recover */
-> > +	if (status & IRQENB_FIFO1OVRRUN) {
-> > +		config = tiadc_readl(adc_dev, REG_CTRL);
-> > +		config &= ~(CNTRLREG_TSCSSENB);
-> > +		tiadc_writel(adc_dev, REG_CTRL, config);
-> > +		tiadc_writel(adc_dev, REG_IRQSTATUS, IRQENB_FIFO1OVRRUN |
-> > +				IRQENB_FIFO1UNDRFLW | IRQENB_FIFO1THRES);
-> > +		tiadc_writel(adc_dev, REG_CTRL, (config | CNTRLREG_TSCSSENB));
-> > +	} else if (status & IRQENB_FIFO1THRES) {
-> 
-> I'd normally expect this interrupt to drive a trigger that in turn results in
-> the data being dumped into the software buffers.
-> 
-The work handler is sort of providing similar functionality..
-But, I guess using the trigger ABI is more efficient.
-> > +
-> > +	tiadc_writel(adc_dev,  REG_IRQSTATUS, IRQENB_FIFO1THRES |
-> > +			 IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW);
-> > +	tiadc_writel(adc_dev,  REG_IRQENABLE, IRQENB_FIFO1THRES
-> > +				| IRQENB_FIFO1OVRRUN);
-> > +
-> > +	iio_trigger_notify_done(indio_dev->trig);
-> Are you actually done?  What happens if another trigger turns up in the
-> meantime?  I'd expect this to occur only after the results of the trigger
-> have been handled.
+Drop these changes or make them separate patches and your original patch
+would be smaller already.
 
-Indeed Done is passed immediately while ADC is still sampling.
-Because of the way the trigger was used and structure of the driver.
+Sascha
 
-> > +static int tiadc_buffer_preenable(struct iio_dev *indio_dev)
-> > +{
-> Don't have pointless wrappers like this.
-
-Noted
-> > +	return iio_sw_buffer_preenable(indio_dev);
-> > +}
-> > +
-> > +static void tiadc_adc_work(struct work_struct *work_s)
-> > +{
-> > +	struct tiadc_device *adc_dev =
-> > +		container_of(work_s, struct tiadc_device, poll_work);
-> > +	struct iio_dev *indio_dev = iio_priv_to_dev(adc_dev);
-> > +	struct iio_buffer *buffer = indio_dev->buffer;
-> > +	int i, j, k, fifo1count, read;
-> > +	unsigned int config;
-> So normally we'd just fill with one sample hence for this case
-> I'd expect to push out whatever samples are in the fifo right now
-> then return.  The next trigger would grab the next lot etc.
->
-Again. If I understand correctly, 
-
-I restructure the driver so that
-enabling the buffer via userspace starts sampling the ADC channels.
-Preenable/postenable do all that hard work.
-
-I need to use iio_trigger_register to create an IIO trigger inside the
-driver.
-
-The IRQ handler for FIFO Threshold causes a trigger event.
-
-The trigger handler pushes the entire fifo to userspace.
-
-I'd like a small ACK before I get to work.
-Just to make sure I got things correctly.
-
-Thanks for the input
-Zubair
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

@@ -1,241 +1,125 @@
-From: Tomasz Figa <tomasz.figa@gmail.com>
-Subject: Re: [PATCH v3 RESEND 3/3] input: mc13783: Add DT probe support
-Date: Sat, 17 Aug 2013 13:52:30 +0200
-Message-ID: <3233260.60GMVrPt0m@flatron>
-References: <1376718340-16885-1-git-send-email-shc_work@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Ming Lei <ming.lei@canonical.com>
+Subject: [PATCH v1 00/49] USB: prepare for enabling irq in complete()
+Date: Sun, 18 Aug 2013 00:24:25 +0800
+Message-ID: <1376756714-25479-1-git-send-email-ming.lei@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f44.google.com ([209.85.214.44]:37710 "EHLO
-	mail-bk0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753076Ab3HQLwg (ORCPT
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:58049 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753444Ab3HQQZj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 17 Aug 2013 07:52:36 -0400
-In-Reply-To: <1376718340-16885-1-git-send-email-shc_work@mail.ru>
+	Sat, 17 Aug 2013 12:25:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <kernel@pengutronix.de>, devicetree@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ian.campbell@citrix.com>, Grant Likely <grant.likely@linaro.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org
 
-Hi Alexander,
+Hi,
 
-Please see my comments inline.
+As we are going to run URB->complete() in tasklet context[1][2], and
+hard interrupt may be enabled when running URB completion handler[3],
+so we might need to disable interrupt when acquiring one lock in
+the completion handler for the below reasons:
 
-On Saturday 17 of August 2013 09:45:40 Alexander Shiyan wrote:
-> Patch adds DT support for MC13783/MC13892 PMICs.
-> 
-> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-> ---
->  Documentation/devicetree/bindings/mfd/mc13xxx.txt | 13 +++++
->  drivers/input/misc/mc13783-pwrbutton.c            | 61
-> +++++++++++++++++------ 2 files changed, 60 insertions(+), 14
-> deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-> b/Documentation/devicetree/bindings/mfd/mc13xxx.txt index
-> abd9e3c..cf8b61c 100644
-> --- a/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-> +++ b/Documentation/devicetree/bindings/mfd/mc13xxx.txt
-> @@ -10,6 +10,12 @@ Optional properties:
->  - fsl,mc13xxx-uses-touch : Indicate the touchscreen controller is being
-> used
-> 
->  Sub-nodes:
-> +- buttons : Contain power button nodes. Each button should be declared
-> as +  "button@<num>" and contain code in "linux,code" property.
+- URB->complete() holds a subsystem wide lock which may be acquired
+in another hard irq context, and the subsystem wide lock is acquired
+by spin_lock()/read_lock()/write_lock() in complete()
 
-You should not really be enforcing such strict node naming. If you have 
-the "buttons" node, which aggregates all the buttons, all you need is just 
-parsing all the child nodes of it, regardless of their names.
+- URB->complete() holds a private lock with spin_lock()/read_lock()/write_lock()
+but driver may export APIs to make other drivers acquire the same private
+lock in its interrupt handler.
 
-As a side note, the @unit-address suffix is used only when you have the 
-reg property present in the node and must be equal to the address value 
-set in this property.
+For the sake of safety and making the change simple, this patch set
+converts all spin_lock()/read_lock()/write_lock() in completion handler
+path into their irqsave version mechanically.
 
-If you need the button index (which is true, looking at the code), you 
-should use the reg property instead, with appropriate #address-cells 
-(probably 1 for your use case) and #size-cells (0, as size doesn't make 
-sense in your use case) in "buttons" node.
+But if you are sure the above two cases do not happen in your driver,
+please let me know and I can drop the unnecessary change.
 
-> +  Optional properties:
+Also if you find some conversions are missed, also please let me know so
+that I can add it in the next round.
 
-The properties below should be rather prefixed with "fsl," string to 
-indicate that they are specific to this particular device.
 
-> +    active-high : Change active button level from 0 to 1.
+[1], USB: URB documentation: claim complete() will be run with IRQs enabled
+https://git.kernel.org/cgit/linux/kernel/git/gregkh/usb.git/commit/?h=usb-next&id=85721d45261c4be684730c7509a59daa6cda30d8
 
-It is a boolean property, isn't it? If yes, this should be noted. Also the 
-"from 0 to 1" statement is a bit unfortunate.
+[2], USB: HCD: support giveback of URB in tasklet context
+https://git.kernel.org/cgit/linux/kernel/git/gregkh/usb.git/commit/?h=usb-next&id=94dfd7edfd5c9b605caf7b562de7a813d216e011
 
-What about:
+[3], http://marc.info/?l=linux-usb&m=137286330626363&w=2
 
-	active-high : A boolean property present if the button is active 
-high. Otherwise the button is assumed to be active low.
+V1:
+	- rename patchset title
+	- add missed changes on 'usb_skeleon and usb sg lib'
+	- remove several sound usb drivers which have been done via sound tree
+	- some patch style fix
+	- replace snd_pcm_stream_lock with snd_pcm_stream_lock_irqsave for related
+	a/v drivers
 
-> +    enable-reset: Performs hadware reset through PMIC.
+Cc: linux-input@vger.kernel.org
+Cc: linux-bluetooth@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-wireless@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: alsa-devel@alsa-project.org
 
-Could you elaborate on meaning of this property a bit more, please?
+ drivers/bluetooth/bfusb.c                     |   12 ++++----
+ drivers/bluetooth/btusb.c                     |    5 ++--
+ drivers/hid/usbhid/hid-core.c                 |    5 ++--
+ drivers/input/misc/cm109.c                    |   10 ++++---
+ drivers/isdn/hardware/mISDN/hfcsusb.c         |   36 ++++++++++++-----------
+ drivers/media/dvb-core/dvb_demux.c            |   17 +++++++----
+ drivers/media/usb/cx231xx/cx231xx-audio.c     |   10 ++++---
+ drivers/media/usb/cx231xx/cx231xx-core.c      |   10 ++++---
+ drivers/media/usb/cx231xx/cx231xx-vbi.c       |    5 ++--
+ drivers/media/usb/em28xx/em28xx-audio.c       |    5 ++--
+ drivers/media/usb/em28xx/em28xx-core.c        |    5 ++--
+ drivers/media/usb/sn9c102/sn9c102_core.c      |    7 +++--
+ drivers/media/usb/tlg2300/pd-alsa.c           |    5 ++--
+ drivers/media/usb/tlg2300/pd-video.c          |    5 ++--
+ drivers/media/usb/tm6000/tm6000-video.c       |    5 ++--
+ drivers/net/usb/cdc-phonet.c                  |    5 ++--
+ drivers/net/usb/hso.c                         |   38 ++++++++++++++-----------
+ drivers/net/usb/kaweth.c                      |    7 +++--
+ drivers/net/usb/rtl8150.c                     |    5 ++--
+ drivers/net/wireless/ath/ath9k/hif_usb.c      |   29 ++++++++++---------
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c |    9 +++---
+ drivers/net/wireless/ath/ath9k/wmi.c          |   11 +++----
+ drivers/net/wireless/ath/carl9170/rx.c        |    5 ++--
+ drivers/net/wireless/libertas/if_usb.c        |    5 ++--
+ drivers/net/wireless/libertas_tf/if_usb.c     |    6 ++--
+ drivers/net/wireless/zd1211rw/zd_usb.c        |   21 ++++++++------
+ drivers/staging/bcm/InterfaceRx.c             |    5 ++--
+ drivers/staging/btmtk_usb/btmtk_usb.c         |    5 ++--
+ drivers/staging/ced1401/usb1401.c             |   35 ++++++++++++-----------
+ drivers/staging/vt6656/usbpipe.c              |    9 +++---
+ drivers/usb/class/cdc-wdm.c                   |   16 +++++++----
+ drivers/usb/class/usblp.c                     |   10 ++++---
+ drivers/usb/core/devio.c                      |    5 ++--
+ drivers/usb/core/message.c                    |    5 ++--
+ drivers/usb/misc/adutux.c                     |   10 ++++---
+ drivers/usb/misc/iowarrior.c                  |    5 ++--
+ drivers/usb/misc/ldusb.c                      |    7 +++--
+ drivers/usb/misc/legousbtower.c               |    6 ++--
+ drivers/usb/misc/usbtest.c                    |   10 ++++---
+ drivers/usb/misc/uss720.c                     |    7 ++++-
+ drivers/usb/serial/cyberjack.c                |   15 ++++++----
+ drivers/usb/serial/digi_acceleport.c          |   23 ++++++++-------
+ drivers/usb/serial/io_edgeport.c              |   14 +++++----
+ drivers/usb/serial/io_ti.c                    |    5 ++--
+ drivers/usb/serial/mos7720.c                  |    5 ++--
+ drivers/usb/serial/mos7840.c                  |    5 ++--
+ drivers/usb/serial/quatech2.c                 |    5 ++--
+ drivers/usb/serial/sierra.c                   |    9 +++---
+ drivers/usb/serial/symbolserial.c             |    5 ++--
+ drivers/usb/serial/ti_usb_3410_5052.c         |    9 +++---
+ drivers/usb/serial/usb_wwan.c                 |    5 ++--
+ drivers/usb/usb-skeleton.c                    |   11 ++++---
+ sound/usb/caiaq/audio.c                       |    5 ++--
+ sound/usb/midi.c                              |    5 ++--
+ 54 files changed, 318 insertions(+), 221 deletions(-)
 
-> +    debounce    : Debounce value which will be taken from PMIC
-> datasheet. - regulators : Contain the regulator nodes. The regulators
-> are bound using their names as listed below with their registers and
-> bits for enabling.
-> 
-> @@ -89,6 +95,13 @@ ecspi@70010000 { /* ECSPI1 */
->  		interrupt-parent = <&gpio0>;
->  		interrupts = <8>;
-> 
-> +		buttons {
-> +			button@1 {
-> +				linux,code = <0x1f>;
-> +				debounce = <1>;
-> +			};
-> +		};
-> +
 
-So basically this example after addressing my comments would look like:
-
-	buttons {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		irrelevant-name@1 {
-			reg = <1>;
-			linux,code = <0x1f>;
-			fsl,debounce = <1>;
-		};
-	};
-
->  		regulators {
->  			sw1_reg: mc13892__sw1 {
->  				regulator-min-microvolt = <600000>;
-> diff --git a/drivers/input/misc/mc13783-pwrbutton.c
-> b/drivers/input/misc/mc13783-pwrbutton.c index 2e21f19..3f9cfd1 100644
-> --- a/drivers/input/misc/mc13783-pwrbutton.c
-> +++ b/drivers/input/misc/mc13783-pwrbutton.c
-> @@ -24,6 +24,7 @@
->  #include <linux/kernel.h>
->  #include <linux/errno.h>
->  #include <linux/input.h>
-> +#include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/mfd/mc13783.h>
->  #include <linux/mfd/mc13892.h>
-> @@ -77,21 +78,28 @@ static int __init mc13xxx_pwrbutton_probe(struct
-> platform_device *pdev) struct mc13xxx *mc13xxx =
-> dev_get_drvdata(pdev->dev.parent); struct mc13xxx_pwrb_devtype *devtype
-> =
->  		(struct mc13xxx_pwrb_devtype *)pdev->id_entry-
->driver_data;
-> +	struct device_node *parent, *child;
->  	struct mc13xxx_pwrb *priv;
->  	int i, reg = 0, ret = -EINVAL;
-> 
-> -	if (!pdata) {
-> +	of_node_get(pdev->dev.parent->of_node);
-> +	parent = of_find_node_by_name(pdev->dev.parent->of_node, 
-"buttons");
-
-The of_find_node_by_name() function does not search for node with given 
-name inside the node you specify, but rather starting from this node and 
-going over all the rest of device tree.
-
-of_get_child_by_name() seems to be what you need here.
-
-> +	if (!pdata && !parent) {
->  		dev_err(&pdev->dev, "Missing platform data\n");
->  		return -ENODEV;
->  	}
-> 
->  	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> -	if (!priv)
-> -		return -ENOMEM;
-> +	if (!priv) {
-> +		ret = -ENOMEM;
-> +		goto out_node_put;
-> +	}
-> 
->  	priv->input = devm_input_allocate_device(&pdev->dev);
-> -	if (!priv->input)
-> -		return -ENOMEM;
-> +	if (!priv->input) {
-> +		ret = -ENOMEM;
-> +		goto out_node_put;
-> +	}
-> 
->  	priv->mc13xxx = mc13xxx;
->  	priv->devtype = devtype;
-> @@ -99,15 +107,36 @@ static int __init mc13xxx_pwrbutton_probe(struct
-> platform_device *pdev)
-> 
->  	for (i = 0; i < MAX13XXX_NUM_BUTTONS; i++) {
->  		u16 code, invert, reset, debounce;
-> -
-> -		if (!(pdata->buttons[i].flags & MC13XXX_BUTTON_ENABLE))
-> -			continue;
-> -		code = pdata->buttons[i].keycode;
-> -		invert = !!(pdata->buttons[i].flags &
-> -			    MC13XXX_BUTTON_POL_INVERT);
-> -		reset = !!(pdata->buttons[i].flags &
-> -			   MC13XXX_BUTTON_RESET_EN);
-> -		debounce = pdata->buttons[i].flags;
-> +		const __be32 *prop;
-> +		char childname[5];
-> +
-> +		if (parent) {
-> +			sprintf(childname, "button@%i", i + 1);
-
-Hmm, this can lead to stack corruption. The line above will print 9 
-(including terminating zero) characters to the childname array, which can 
-hold only 5 of them.
-
-> +			child = of_get_child_by_name(parent, childname);
-> +			if (!child)
-> +				continue;
-> +			prop = of_get_property(child, "linux,code", NULL);
-> +			if (prop)
-> +				code = be32_to_cpu(*prop) & 0xffff;
-
-What about using of_property_read_u32() here? See include/linux/of.h for a 
-whole lot of useful DT parsing functions and their descriptions in 
-drivers/of/base.c (kernel-doc comments).
-
-> +			else {
-> +				dev_err(&pdev->dev,
-> +					"Button %i: Missing key code\n", i 
-+ 1);
-> +				continue;
-> +			}
-> +			invert = of_property_read_bool(child, "active-
-high");
-> +			reset = of_property_read_bool(child, "enable-
-reset");
-> +			prop = of_get_property(child, "debounce", NULL);
-> +			debounce = prop ? be32_to_cpu(*prop) : 0;
-
-Again, of_property_read_u32() would simplify the code. As a side note, 
-there is also a be32_to_cpup() helper, which dereferences a __be32 pointer 
-for you and returns a value in CPU endianess.
-
-> +		} else {
-> +			if (!(pdata->buttons[i].flags & 
-MC13XXX_BUTTON_ENABLE))
-> +				continue;
-> +			code = pdata->buttons[i].keycode;
-> +			invert = !!(pdata->buttons[i].flags &
-> +				    MC13XXX_BUTTON_POL_INVERT);
-> +			reset = !!(pdata->buttons[i].flags &
-> +				   MC13XXX_BUTTON_RESET_EN);
-> +			debounce = pdata->buttons[i].flags;
-> +		}
-
-Anyway, based on my comments wrt the bindings, I would rather separate the 
-DT parsing code from this loop and, in DT case, parse the buttons in a 
-for_each_child_of_node() loop, reading the reg property and using it as an 
-index to the buttons array (after checking if the index isn't out of 
-bounds, of course).
-
-Best regards,
-Tomasz
+Thanks,
+--
+Ming Lei
 

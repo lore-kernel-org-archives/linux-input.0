@@ -1,54 +1,109 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v1 26/49] input: cm109: prepare for enabling irq in
- complete()
-Date: Sun, 18 Aug 2013 11:05:53 -0700
-Message-ID: <20130818180553.GA17144@kroah.com>
-References: <1376756714-25479-1-git-send-email-ming.lei@canonical.com>
- <1376756714-25479-27-git-send-email-ming.lei@canonical.com>
- <20130818033745.GC11553@core.coreip.homeip.net>
- <CACVXFVMTAYZR43pk=sc=ZDMqgS_8iSzPo880CEATNj+0SEz0aQ@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] usb: USB host support should depend on HAS_DMA
+Date: Sun, 18 Aug 2013 23:12:47 +0200
+Message-ID: <CAMuHMdVXeWaggY5FPKrr2fBBnKLq3Rqw9WF99N+AX5sFwBOnog@mail.gmail.com>
+References: <Pine.LNX.4.44L0.1307101724430.1215-100000@iolanthe.rowland.org>
+	<201307110112.57398.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:42736 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754341Ab3HRSEI (ORCPT
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:45102 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754639Ab3HRVMs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Aug 2013 14:04:08 -0400
-Content-Disposition: inline
-In-Reply-To: <CACVXFVMTAYZR43pk=sc=ZDMqgS_8iSzPo880CEATNj+0SEz0aQ@mail.gmail.com>
+	Sun, 18 Aug 2013 17:12:48 -0400
+In-Reply-To: <201307110112.57398.arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-usb <linux-usb@vger.kernel.org>, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sun, Aug 18, 2013 at 10:10:15PM +0800, Ming Lei wrote:
-> Hi Dmitry,
-> 
-> On Sun, Aug 18, 2013 at 11:37 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Ming,
-> >
-> > On Sun, Aug 18, 2013 at 12:24:51AM +0800, Ming Lei wrote:
-> >> Complete() will be run with interrupt enabled, so change to
-> >> spin_lock_irqsave().
-> >
-> > I think cm109 needs some love in it's URB handling, but this patch does
-> > not change anything, so:
-> >
-> > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Thank you.
-> 
-> >
-> > Or do you want me to pick it up for my tree?
-> 
-> IMO, it might be easier to merge these patches via one tree, so
-> 
-> Greg, would you like to manage all these patches via your tree?
+On Thu, Jul 11, 2013 at 1:12 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Wednesday 10 July 2013, Alan Stern wrote:
+>> This isn't right.  There are USB host controllers that use PIO, not
+>> DMA.  The HAS_DMA dependency should go with the controller driver, not
+>> the USB core.
+>>
+>> On the other hand, the USB core does call various routines like
+>> dma_unmap_single.  It ought to be possible to compile these calls even
+>> when DMA isn't enabled.  That is, they should be defined as do-nothing
+>> stubs.
+>
+> The asm-generic/dma-mapping-broken.h file intentionally causes link
+> errors, but that could be changed.
+>
+> The better approach in my mind would be to replace code like
+>
+>
+>         if (hcd->self.uses_dma)
+>
+> with
+>
+>         if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
+>
+> which will reliably cause that reference to be omitted from object code,
+> but not stop giving link errors for drivers that actually require
+> DMA.
 
-Yes, I can take them all.
+This can be done for drivers/usb/core/hcd.c.
 
-thanks,
+But I'm a bit puzzled by drivers/usb/core/buffer.c. E.g.
 
-greg k-h
+void *hcd_buffer_alloc(...)
+{
+        ....
+        /* some USB hosts just use PIO */
+        if (!bus->controller->dma_mask &&
+            !(hcd->driver->flags & HCD_LOCAL_MEM)) {
+                *dma = ~(dma_addr_t) 0;
+                return kmalloc(size, mem_flags);
+        }
+
+        for (i = 0; i < HCD_BUFFER_POOLS; i++) {
+                if (size <= pool_max[i])
+                        return dma_pool_alloc(hcd->pool[i], mem_flags, dma);
+        }
+        return dma_alloc_coherent(hcd->self.controller, size, dma, mem_flags);
+}
+
+which is called from usb_hcd_map_urb_for_dma():
+
+                if (hcd->self.uses_dma) {
+                        ....
+                } else if (hcd->driver->flags & HCD_LOCAL_MEM) {
+                        ret = hcd_alloc_coherent(
+                                        urb->dev->bus, mem_flags,
+                                        &urb->setup_dma,
+                                        (void **)&urb->setup_packet,
+                                        sizeof(struct usb_ctrlrequest),
+                                        DMA_TO_DEVICE);
+                        ...
+                }
+
+So if DMA is not used (!hcd->self.uses_dma, i.e. bus->controller->dma_mask
+is zero), and HCD_LOCAL_MEM is set, we still end up calling dma_pool_alloc()?
+
+(Naively, I'm not so familiar with the USB code) I'd expect it to use
+kmalloc() instead?
+
+So I would change it to
+
+        if (!IS_ENABLED(CONFIG_HAS_DMA) ||
+            (!bus->controller->dma_mask &&
+             !(hcd->driver->flags & HCD_LOCAL_MEM))) {
+                *dma = ~(dma_addr_t) 0;
+                return kmalloc(size, mem_flags);
+        }
+
+Thanks for your clarification!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

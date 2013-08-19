@@ -1,74 +1,76 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] usb: USB host support should depend on HAS_DMA
-Date: Mon, 19 Aug 2013 11:09:32 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1308191106040.3616-100000@netrider.rowland.org>
-References: <CAMuHMdVXeWaggY5FPKrr2fBBnKLq3Rqw9WF99N+AX5sFwBOnog@mail.gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH 1/4] hid-sensor-hub: fix style of comments
+Date: Mon, 19 Aug 2013 08:26:39 -0700
+Message-ID: <5212392F.8090204@linux.intel.com>
+References: <1376467631-20857-1-git-send-email-andriy.shevchenko@linux.intel.com> <1376902117.403.151.camel@smile>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:57154 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750817Ab3HSPJd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Aug 2013 11:09:33 -0400
-In-Reply-To: <CAMuHMdVXeWaggY5FPKrr2fBBnKLq3Rqw9WF99N+AX5sFwBOnog@mail.gmail.com>
+Received: from mga02.intel.com ([134.134.136.20]:54772 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750775Ab3HSPTb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Aug 2013 11:19:31 -0400
+In-Reply-To: <1376902117.403.151.camel@smile>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>
 
-On Sun, 18 Aug 2013, Geert Uytterhoeven wrote:
-
-> On Thu, Jul 11, 2013 at 1:12 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Wednesday 10 July 2013, Alan Stern wrote:
-> >> This isn't right.  There are USB host controllers that use PIO, not
-> >> DMA.  The HAS_DMA dependency should go with the controller driver, not
-> >> the USB core.
-> >>
-> >> On the other hand, the USB core does call various routines like
-> >> dma_unmap_single.  It ought to be possible to compile these calls even
-> >> when DMA isn't enabled.  That is, they should be defined as do-nothing
-> >> stubs.
-> >
-> > The asm-generic/dma-mapping-broken.h file intentionally causes link
-> > errors, but that could be changed.
-> >
-> > The better approach in my mind would be to replace code like
-> >
-> >
-> >         if (hcd->self.uses_dma)
-> >
-> > with
-> >
-> >         if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
-> >
-> > which will reliably cause that reference to be omitted from object code,
-> > but not stop giving link errors for drivers that actually require
-> > DMA.
-> 
-> This can be done for drivers/usb/core/hcd.c.
-> 
-> But I'm a bit puzzled by drivers/usb/core/buffer.c. E.g.
-> 
-> void *hcd_buffer_alloc(...)
-> {
->         ....
->         /* some USB hosts just use PIO */
->         if (!bus->controller->dma_mask &&
->             !(hcd->driver->flags & HCD_LOCAL_MEM)) {
-
-I don't remember the full story.  You should check with the person who
-added the HCD_LOCAL_MEM flag originally.
-
-> So if DMA is not used (!hcd->self.uses_dma, i.e. bus->controller->dma_mask
-> is zero), and HCD_LOCAL_MEM is set, we still end up calling dma_pool_alloc()?
-> 
-> (Naively, I'm not so familiar with the USB code) I'd expect it to use
-> kmalloc() instead?
-
-Maybe what happens in this case is that some sort of hook causes the 
-allocation to be made from a special memory-mapped region on board the 
-controller.
-
-Alan Stern
-
+On 08/19/2013 01:48 AM, Andy Shevchenko wrote:
+> On Wed, 2013-08-14 at 11:07 +0300, Andy Shevchenko wrote:
+>> This patch fixes the style of the comments to be like following
+>> 	/* The commentary */
+>>
+>> There is no functional change.
+>>
+>> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Jiri, Srinivas, any comments on this?
+Agreed.
+>> ---
+>>   drivers/hid/hid-sensor-hub.c   | 2 +-
+>>   include/linux/hid-sensor-hub.h | 2 +-
+>>   include/linux/hid-sensor-ids.h | 2 +-
+>>   3 files changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+>> index ca749810..ffc80cf 100644
+>> --- a/drivers/hid/hid-sensor-hub.c
+>> +++ b/drivers/hid/hid-sensor-hub.c
+>> @@ -416,7 +416,7 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+>>   		return 1;
+>>   
+>>   	ptr = raw_data;
+>> -	ptr++; /*Skip report id*/
+>> +	ptr++; /* Skip report id */
+>>   
+>>   	spin_lock_irqsave(&pdata->lock, flags);
+>>   
+>> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+>> index ecefb73..32ba451 100644
+>> --- a/include/linux/hid-sensor-hub.h
+>> +++ b/include/linux/hid-sensor-hub.h
+>> @@ -172,7 +172,7 @@ struct hid_sensor_common {
+>>   	struct hid_sensor_hub_attribute_info sensitivity;
+>>   };
+>>   
+>> -/*Convert from hid unit expo to regular exponent*/
+>> +/* Convert from hid unit expo to regular exponent */
+>>   static inline int hid_sensor_convert_exponent(int unit_expo)
+>>   {
+>>   	if (unit_expo < 0x08)
+>> diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
+>> index 6f24446..4f945d3 100644
+>> --- a/include/linux/hid-sensor-ids.h
+>> +++ b/include/linux/hid-sensor-ids.h
+>> @@ -37,7 +37,7 @@
+>>   #define HID_USAGE_SENSOR_ANGL_VELOCITY_Y_AXIS			0x200458
+>>   #define HID_USAGE_SENSOR_ANGL_VELOCITY_Z_AXIS			0x200459
+>>   
+>> -/*ORIENTATION: Compass 3D: (200083) */
+>> +/* ORIENTATION: Compass 3D: (200083) */
+>>   #define HID_USAGE_SENSOR_COMPASS_3D				0x200083
+>>   #define HID_USAGE_SENSOR_ORIENT_MAGN_HEADING			0x200471
+>>   #define HID_USAGE_SENSOR_ORIENT_MAGN_HEADING_X			0x200472
+Thanks,
+Srinivas

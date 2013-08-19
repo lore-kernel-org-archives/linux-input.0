@@ -1,39 +1,74 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/2] include: dt-binding: input: create a DT header defining
- key codes.
-Date: Mon, 19 Aug 2013 20:23:06 +0530
-Message-ID: <52123152.9070408@nvidia.com>
-References: <1375798370-2231-1-git-send-email-ldewangan@nvidia.com> <52014E50.6030508@wwwdotorg.org> <5203D138.4030107@nvidia.com> <20130808171331.GA6960@core.coreip.homeip.net> <5203D487.5020507@wwwdotorg.org> <20130812171504.GA31418@core.coreip.homeip.net> <52092299.4080104@wwwdotorg.org>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] usb: USB host support should depend on HAS_DMA
+Date: Mon, 19 Aug 2013 11:09:32 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1308191106040.3616-100000@netrider.rowland.org>
+References: <CAMuHMdVXeWaggY5FPKrr2fBBnKLq3Rqw9WF99N+AX5sFwBOnog@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <52092299.4080104-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org" <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ian Campbell <ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <Mark.Rutland-5wv7dgnIgG8@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from netrider.rowland.org ([192.131.102.5]:57154 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1750817Ab3HSPJd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Aug 2013 11:09:33 -0400
+In-Reply-To: <CAMuHMdVXeWaggY5FPKrr2fBBnKLq3Rqw9WF99N+AX5sFwBOnog@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Monday 12 August 2013 11:29 PM, Stephen Warren wrote:
-> On 08/12/2013 11:15 AM, Dmitry Torokhov wrote:
->>>
->>> Device tree files can only include headers in include/dt-bindings.
->>> Eventually/soon, all the DT files and the headers in the dt-bindings/
->>> directory will be split out into a separate git tree, which does not
->>> have access to include/uapi, or indeed any other Linux kernel header files.
->> OK, that makes it easier for me - please merge through whatever tree
->> that owns include/dt-bindings.
-> Are there any objections to my taking both patches through the Tegra
-> tree? Patch 2/2 depends on 1/2 and is Tegra-specific. This should work
-> out fine unless anyone else wants to use the new header this kernel
-> cycle; if they do, this should go into a topic branch in the DT tree
-> that I can pull into the Tegra tree.
+On Sun, 18 Aug 2013, Geert Uytterhoeven wrote:
 
-Hi Stephen,
-Just wanted to check if you are taking this on Tegra tree. I want to 
-post some more cleanups on other dts file  to use dt-binding include for 
-key code otherwise I will defer for next kernel version.
+> On Thu, Jul 11, 2013 at 1:12 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+> > On Wednesday 10 July 2013, Alan Stern wrote:
+> >> This isn't right.  There are USB host controllers that use PIO, not
+> >> DMA.  The HAS_DMA dependency should go with the controller driver, not
+> >> the USB core.
+> >>
+> >> On the other hand, the USB core does call various routines like
+> >> dma_unmap_single.  It ought to be possible to compile these calls even
+> >> when DMA isn't enabled.  That is, they should be defined as do-nothing
+> >> stubs.
+> >
+> > The asm-generic/dma-mapping-broken.h file intentionally causes link
+> > errors, but that could be changed.
+> >
+> > The better approach in my mind would be to replace code like
+> >
+> >
+> >         if (hcd->self.uses_dma)
+> >
+> > with
+> >
+> >         if (IS_ENABLED(CONFIG_HAS_DMA) && hcd->self.uses_dma) {
+> >
+> > which will reliably cause that reference to be omitted from object code,
+> > but not stop giving link errors for drivers that actually require
+> > DMA.
+> 
+> This can be done for drivers/usb/core/hcd.c.
+> 
+> But I'm a bit puzzled by drivers/usb/core/buffer.c. E.g.
+> 
+> void *hcd_buffer_alloc(...)
+> {
+>         ....
+>         /* some USB hosts just use PIO */
+>         if (!bus->controller->dma_mask &&
+>             !(hcd->driver->flags & HCD_LOCAL_MEM)) {
 
+I don't remember the full story.  You should check with the person who
+added the HCD_LOCAL_MEM flag originally.
 
-Thanks,
-Laxman
+> So if DMA is not used (!hcd->self.uses_dma, i.e. bus->controller->dma_mask
+> is zero), and HCD_LOCAL_MEM is set, we still end up calling dma_pool_alloc()?
+> 
+> (Naively, I'm not so familiar with the USB code) I'd expect it to use
+> kmalloc() instead?
+
+Maybe what happens in this case is that some sort of hook causes the 
+allocation to be made from a special memory-mapped region on board the 
+controller.
+
+Alan Stern
+

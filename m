@@ -1,38 +1,93 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: [PATCH] mc13xxx-ts: use zero as default value if no pdata was
- defined
-Date: Tue, 20 Aug 2013 03:34:33 +0200
-Message-ID: <20130820013433.GE13324@zurbaran>
-References: <1376396070-24507-1-git-send-email-m.grzeschik@pengutronix.de>
+From: screamingfist@arcor.de
+Subject: Aw: Re: [PATCH 35/36] hid: roccat: convert class code to use
+ bin_attrs in groups
+Date: Tue, 20 Aug 2013 07:28:46 +0200 (CEST)
+Message-ID: <855534750.937448.1376976526543.JavaMail.ngmail@webmail11.arcor-online.net>
+References: <20130815164024.GB15688@kroah.com> <1376582626.2452.26.camel@neuromancer.tessier-ashpool>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:40676 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751545Ab3HTBej (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Aug 2013 21:34:39 -0400
-Content-Disposition: inline
-In-Reply-To: <1376396070-24507-1-git-send-email-m.grzeschik@pengutronix.de>
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:59315 "EHLO
+	mail-in-08.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751831Ab3HTF2s (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Aug 2013 01:28:48 -0400
+In-Reply-To: <20130815164024.GB15688@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pengutronix.de, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: gregkh@linuxfoundation.org, erazor_de@users.sourceforge.net
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Michael,
+----- Original Nachricht ----
+Von:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+An:      Stefan Achatz <erazor_de@users.sourceforge.net>
+Datum:   15.08.2013 18:40
+Betreff: Re: [PATCH 35/36] hid: roccat: convert class code to use bin_attrs
+ in groups
 
-On Tue, Aug 13, 2013 at 02:14:30PM +0200, Michael Grzeschik wrote:
-> In case of devicetree, we currently don't have a way to append pdata for
-> the touchscreen. The current approach is to bail out in that case.
-> This patch makes it possible to probe the touchscreen without pdata
-> and use zero as default values for the atox and ato adc conversion.
-Would that still make the touchscreen somehow functional ?
-If that's the case, and if Dmitry is fine with the ts part of this
-patch, could you please separate the mfd part of this patch into a
-separate one ?
+> On Thu, Aug 15, 2013 at 06:03:46PM +0200, Stefan Achatz wrote:
+> > Hello Greg,
+> > looking through the patch I found the following:
+> > 
+> > 
+> > 
+> > In hid-roccat-kone.c, PROFILE_ATTR macro:
+> > The line
+> >  .private = &profile_numbers[number],
+> > should read
+> >  .private = &profile_numbers[number-1],
+> 
+> Ah, ok, thanks, will fix up.
+> 
+> > Regarding the compiler warning about unused pyra_sysfs_write_settings:
+> > The attribute is indeed readwrite, but the code to write is not standard
+> > code. The read function was created with the PYRA_SYSFS_R macro and the
+> > write function was written manually. Used were both by
+> > PYRA_BIN_ATTRIBUTE_RW.
+> > In this case I would keep the PYRA_SYSFS_* macros standalone so that the
+> > calling code looks like this:
+> > 
+> > PYRA_SYSFS_W(control, CONTROL);
+> > PYRA_SYSFS_RW(info, INFO);
+> > PYRA_SYSFS_RW(profile_settings, PROFILE_SETTINGS);
+> > PYRA_SYSFS_RW(profile_buttons, PROFILE_BUTTONS);
+> > PYRA_SYSFS_R(settings, SETTINGS);
+> > 
+> > PYRA_BIN_ATTRIBUTE_W(control, CONTROL);
+> > PYRA_BIN_ATTRIBUTE_RW(info, INFO);
+> > PYRA_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS);
+> > PYRA_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS);
+> > PYRA_BIN_ATTRIBUTE_RW(settings, SETTINGS);
+> 
+> Hm, I'll look this over again and see if I can make it better.
+> 
+> But why are you using a "non standard" write function?  What is special
+> here about this?
 
-Cheers,
-Samuel.
+The module stores the written value, so that events from the device can be
+written to chardev with this extra information.
+I made the mistake to put too many functionality in the early kernel modules
+and I'm not getting fully rid of it now.
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+> > Another thing: Why does nobody (besides me) use the get_maintainer.pl
+> > script, so I have to search manually for patches regarding my code?
+> 
+> I did use it:
+> 
+> $ ./scripts/get_maintainer.pl --file drivers/hid/hid-roccat-kone.c 
+> Jiri Kosina <jkosina@suse.cz> (maintainer:HID CORE LAYER)
+> linux-input@vger.kernel.org (open list:HID CORE LAYER)
+> linux-kernel@vger.kernel.org (open list)
+> 
+> You aren't listed there, perhaps a MAINTAINERS entry needs to be added?
+
+I thought get_maintainer spits out my name when doing my own patches...
+I'll add myself to this list then.
+
+> thanks,
+> 
+> greg k-h
+
+Have a nice day
+Stefan

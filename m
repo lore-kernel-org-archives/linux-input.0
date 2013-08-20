@@ -1,55 +1,78 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] mc13xxx-ts: use zero as default value if no pdata was
- defined
-Date: Tue, 20 Aug 2013 13:06:36 -0700
-Message-ID: <20130820200635.GA22769@core.coreip.homeip.net>
-References: <1376396070-24507-1-git-send-email-m.grzeschik@pengutronix.de>
- <20130820013433.GE13324@zurbaran>
- <20130820093432.GC26693@pengutronix.de>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: Re: [PATCH 35/36] hid: roccat: convert class code to use
+ bin_attrs in groups
+Date: Tue, 20 Aug 2013 16:58:11 -0700
+Message-ID: <20130820235811.GA13887@kroah.com>
+References: <20130815164024.GB15688@kroah.com>
+ <1376582626.2452.26.camel@neuromancer.tessier-ashpool>
+ <855534750.937448.1376976526543.JavaMail.ngmail@webmail11.arcor-online.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:35657 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751136Ab3HTUGj (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:38894 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751572Ab3HTX6M (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Aug 2013 16:06:39 -0400
+	Tue, 20 Aug 2013 19:58:12 -0400
 Content-Disposition: inline
-In-Reply-To: <20130820093432.GC26693@pengutronix.de>
+In-Reply-To: <855534750.937448.1376976526543.JavaMail.ngmail@webmail11.arcor-online.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Grzeschik <mgr@pengutronix.de>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Michael Grzeschik <m.grzeschik@pengutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pengutronix.de
+To: screamingfist@arcor.de
+Cc: erazor_de@users.sourceforge.net, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Aug 20, 2013 at 11:34:32AM +0200, Michael Grzeschik wrote:
-> On Tue, Aug 20, 2013 at 03:34:33AM +0200, Samuel Ortiz wrote:
-> > Hi Michael,
+On Tue, Aug 20, 2013 at 07:28:46AM +0200, screamingfist@arcor.de wrote:
+> ----- Original Nachricht ----
+> Von:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> An:      Stefan Achatz <erazor_de@users.sourceforge.net>
+> Datum:   15.08.2013 18:40
+> Betreff: Re: [PATCH 35/36] hid: roccat: convert class code to use bin_attrs
+>  in groups
+> 
+> > On Thu, Aug 15, 2013 at 06:03:46PM +0200, Stefan Achatz wrote:
+> > > Hello Greg,
+> > > looking through the patch I found the following:
+> > > 
+> > > 
+> > > 
+> > > In hid-roccat-kone.c, PROFILE_ATTR macro:
+> > > The line
+> > >  .private = &profile_numbers[number],
+> > > should read
+> > >  .private = &profile_numbers[number-1],
 > > 
-> > On Tue, Aug 13, 2013 at 02:14:30PM +0200, Michael Grzeschik wrote:
-> > > In case of devicetree, we currently don't have a way to append pdata for
-> > > the touchscreen. The current approach is to bail out in that case.
-> > > This patch makes it possible to probe the touchscreen without pdata
-> > > and use zero as default values for the atox and ato adc conversion.
-> > Would that still make the touchscreen somehow functional ?
+> > Ah, ok, thanks, will fix up.
+> > 
+> > > Regarding the compiler warning about unused pyra_sysfs_write_settings:
+> > > The attribute is indeed readwrite, but the code to write is not standard
+> > > code. The read function was created with the PYRA_SYSFS_R macro and the
+> > > write function was written manually. Used were both by
+> > > PYRA_BIN_ATTRIBUTE_RW.
+> > > In this case I would keep the PYRA_SYSFS_* macros standalone so that the
+> > > calling code looks like this:
+> > > 
+> > > PYRA_SYSFS_W(control, CONTROL);
+> > > PYRA_SYSFS_RW(info, INFO);
+> > > PYRA_SYSFS_RW(profile_settings, PROFILE_SETTINGS);
+> > > PYRA_SYSFS_RW(profile_buttons, PROFILE_BUTTONS);
+> > > PYRA_SYSFS_R(settings, SETTINGS);
+> > > 
+> > > PYRA_BIN_ATTRIBUTE_W(control, CONTROL);
+> > > PYRA_BIN_ATTRIBUTE_RW(info, INFO);
+> > > PYRA_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS);
+> > > PYRA_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS);
+> > > PYRA_BIN_ATTRIBUTE_RW(settings, SETTINGS);
+> > 
+> > Hm, I'll look this over again and see if I can make it better.
+> > 
+> > But why are you using a "non standard" write function?  What is special
+> > here about this?
 > 
-> Yes, it still works. It just defaults to zero values in no pdata case.
-> 
-> > If that's the case, and if Dmitry is fine with the ts part of this
-> > patch, could you please separate the mfd part of this patch into a
-> > separate one ?
-> 
-> Why?
-> 
-> The purpose of this patch is to have both cases working, pdata and no
-> pdata.
+> The module stores the written value, so that events from the device can be
+> written to chardev with this extra information.
+> I made the mistake to put too many functionality in the early kernel modules
+> and I'm not getting fully rid of it now.
 
-My concern with allowing defaults with missing pdata or device tree data
-is that it makes it easy for the integrator to miss the necessity of the
-parameters and then start piling on driver workarounds. I have seen a
-few examples of this happening, so I'd rather prefer an explicit values
-if possible.
+Ok, I've fixed this up now, so it all good, thanks for reviewing this.
 
-Thanks.
-
--- 
-Dmitry
+greg k-h

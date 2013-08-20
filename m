@@ -1,73 +1,51 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 4/4] iio: ti_am335x_adc: Add continuous sampling and
- trigger support
-Date: Tue, 20 Aug 2013 17:26:58 +0100
-Message-ID: <20130820162657.GA6776@gmail.com>
-References: <1376424303-22740-1-git-send-email-zubair.lutfullah@gmail.com>
- <1376424303-22740-5-git-send-email-zubair.lutfullah@gmail.com>
- <20130819171238.GA31610@linutronix.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v7 1/1] input: ideapad_slidebar: new input driver
+Date: Tue, 20 Aug 2013 12:45:27 -0700
+Message-ID: <20130820194527.GA22595@core.coreip.homeip.net>
+References: <520DCDA5.8090001@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f41.google.com ([209.85.220.41]:32923 "EHLO
+	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750912Ab3HTTpc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Aug 2013 15:45:32 -0400
 Content-Disposition: inline
-In-Reply-To: <20130819171238.GA31610-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Russ.Dill-l0cyMroinI0@public.gmane.org
+In-Reply-To: <520DCDA5.8090001@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrey Moiseev <o2g.org.ru@gmail.com>
+Cc: linux-input@vger.kernel.org, arnoques@gmail.com, russianneuromancer@ya.ru, ike.pan@canonical.com, linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2013 at 07:12:38PM +0200, Sebastian Andrzej Siewior wro=
-te:
-> * Zubair Lutfullah | 2013-08-13 21:05:03 [+0100]:
->=20
-> >diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am=
-335x_adc.c
-> >index 3ceac3e..0d7e313 100644
-> >--- a/drivers/iio/adc/ti_am335x_adc.c
-> >+++ b/drivers/iio/adc/ti_am335x_adc.c
-> =E2=80=A6
-> >+static irqreturn_t tiadc_irq(int irq, void *private)
-> >+{
-> =E2=80=A6
-> >+		wake_up_interruptible(&adc_dev->wq_data_avail);
-> =E2=80=A6
-> >+}
-> =E2=80=A6
-> >+static irqreturn_t tiadc_trigger_h(int irq, void *p)
-> >+{
-> =E2=80=A6
-> >+	schedule_work(&adc_dev->poll_work);
-> =E2=80=A6
-> >+}
-> =E2=80=A6
-> >+static void tiadc_adc_work(struct work_struct *work_s)
-> >+{
-> =E2=80=A6
-> >+		wait_event_interruptible(adc_dev->wq_data_avail,
-> >+					(adc_dev->data_avail =3D=3D 1));
-> =E2=80=A6
-> >+}
->=20
-> This is not very nice. The problem is that you might sleep in a
-> workqueue and so the other jobs will wait until you are done. I'm thi=
-nk
-This will change to a different style.
+Hi Andrey,
 
-> I'm looking into DMA support for this so once your code is working it
-> should be possible to switch to DMA instead reading byte wise from th=
-e
-> fifo.
-Great.
+On Fri, Aug 16, 2013 at 10:58:45AM +0400, Andrey Moiseev wrote:
+> v7: fixed things addressed by Dmitry Torokhov to v7 (quoted message goes below the patch)
+> 
 
-> How did you test the whole thing? Do you have a test program which
-> selects a few sources and reads them in continuous mode?
->=20
-generic_buffer.c runs for this for sysfs trigger..=20
-However. If you follow the other thread.=20
-This is obsolete and trigger style is changing to a driver trigger.
+This looks almost perfect, I have just one question:
 
-I'll update when I'm done.
+> +static bool slidebar_i8042_filter(unsigned char data, unsigned char str,
+> +				struct serio *port)
+> +{
+> +	static bool extended = false;
+> +
+> +	/* Scancodes: e03b on move, e0bb on release */
+> +	if (unlikely(data == 0xe0)) {
+> +		extended = true;
+> +		return false;
+> +	} else if (unlikely(extended && (data == 0x3b))) {
+> +		extended = false;
+> +		input_report_key(slidebar_input_dev, BTN_TOUCH, 1);
+> +		input_report_abs(slidebar_input_dev, ABS_X, slidebar_pos_get());
+> +		input_sync(slidebar_input_dev);
+> +		return false;
+> +	} else if (unlikely(extended && (data == 0xbb))) {
+> +		input_report_key(slidebar_input_dev, BTN_TOUCH, 0);
+> +		input_sync(slidebar_input_dev);
 
-Thanks
-ZubairLK
+Don't you need to reset 'extended" here as well?
+
+-- 
+Dmitry

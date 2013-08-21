@@ -1,54 +1,57 @@
-From: GRENON =?iso-8859-1?b?TG/vYw==?= <difool@rs2i.net>
-Subject: Rotary encoder platform device driver code examples
-Date: Wed, 21 Aug 2013 22:50:16 +0200
-Message-ID: <52152808.1000608@rs2i.net>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH v2 0/3] HID: Win 8 multitouch panels detection in core
+Date: Wed, 21 Aug 2013 14:24:37 -0700
+Message-ID: <52153015.6060409@linux.intel.com>
+References: <1377099620-23947-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp24.services.sfr.fr ([93.17.128.82]:1933 "EHLO
-	smtp24.services.sfr.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752766Ab3HUVAP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Aug 2013 17:00:15 -0400
-Received: from filter.sfr.fr (localhost [127.0.0.1])
-	by msfrf2417.sfr.fr (SMTP Server) with ESMTP id B992170000D4
-	for <linux-input@vger.kernel.org>; Wed, 21 Aug 2013 22:50:16 +0200 (CEST)
-Received: from [192.168.1.100] (AAmiens-154-1-6-33.w83-192.abo.wanadoo.fr [83.192.82.33])
-	by msfrf2417.sfr.fr (SMTP Server) with ESMTP id 9A95870000D0
-	for <linux-input@vger.kernel.org>; Wed, 21 Aug 2013 22:50:16 +0200 (CEST)
+Received: from mga02.intel.com ([134.134.136.20]:33554 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752419Ab3HUVRp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 Aug 2013 17:17:45 -0400
+In-Reply-To: <1377099620-23947-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Alexander Holler <holler@ahsoftware.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi guys,
+On 08/21/2013 08:40 AM, Benjamin Tissoires wrote:
+> Hi guys,
+>
+> this is the v2 of the rework of the pre-scanning of the hid report descriptors.
+> This allows us to be able to detect Win 8 multitouch panels.
+> I tried to take into account all of the previous reviews, and I think the patch
+> series is in a better shape now.
+>
+> Alexander, Srinivas, could you please review/test patches 1/3 and 2/3 as they
+> will both impact hid_sensor_hub detection now. From the report descriptors
+> Alexander sent, I would say that it will work now, but it's always better to
+> have different testers :)
+Tested sensor hub. It works.
+>
+> Cheers,
+> Benjamin
+>
+> Changes in v2:
+> - moved "flags" processing in patch 2/3
+> - do not introduce parser->flags, but use hid->group as a temporary flag placeholder
+> - hid_scan_report() is less verbose when errors are found in the descriptor
+> - hid_scan_report() is tolerant to parsing errors
+> - fixed usage_page handling in hid_scan_collection(), which fixes sensors detection
+> - amended commit messages
+> - #define and #undef HID_FLAG_* in hid-core.c instead of hid.h
+>
+> Benjamin Tissoires (3):
+>    HID: Use hid_parser for pre-scanning the report descriptors
+>    HID: detect Win 8 multitouch devices in core
+>    HID: do not init input reports for Win 8 multitouch devices
+>
+>   drivers/hid/hid-core.c        | 143 ++++++++++++++++++++++++++++++------------
+>   drivers/hid/hid-multitouch.c  |  36 +++++++----
+>   drivers/hid/usbhid/hid-core.c |  11 +++-
+>   include/linux/hid.h           |   2 +
+>   4 files changed, 137 insertions(+), 55 deletions(-)
+>
 
-I want to interface a magnetic scale position sensor with a BeagleBone=20
-Black (an ARM development platform).
-While I was reading this following article :=20
-http://bwgz57.wordpress.com/2012/04/11/beaglebone-with-a-rotary-encoder=
-/=20
-I discovered that linux has built-in support for rotary encoders=20
-connected via GPIO.
-
-The magnetic scale position sensor can be considered like a rotary=20
-encoder so I would use the rotary_encoder platform device driver.
-
-I've read the code example at the end of this document :=20
-https://www.kernel.org/doc/Documentation/input/rotary-encoder.txt
-But I don't know how to access to the "pos" value of the rotary encoder=
-=2E
-
-Do you have some code example of use of this driver ? Or anything that=20
-can be helpful for me.
-
-Thanks,
-Regards,
-
-Lo=EFc
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

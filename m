@@ -1,93 +1,46 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 3/3] HID: do not init input reports for Win 8 multitouch devices
-Date: Wed, 21 Aug 2013 17:40:20 +0200
-Message-ID: <1377099620-23947-4-git-send-email-benjamin.tissoires@redhat.com>
-References: <1377099620-23947-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 0/3] HID: Win 8 multitouch panels detection in core
+Date: Wed, 21 Aug 2013 17:40:17 +0200
+Message-ID: <1377099620-23947-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1377099620-23947-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Alexander Holler <holler@ahsoftware.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Some multitouch screens do not like to be polled for input reports.
-However, the Win8 spec says that all touches should be sent during
-each report, making the initialization of reports unnecessary.
-The Win7 spec is less precise, so do not use this for those devices.
+Hi guys,
 
-Add the quirk HID_QUIRK_NO_INIT_INPUT_REPORTS so that we do not have to
-introduce a quirk for each problematic device. This quirk makes the driver
-behave the same way the Win 8 does. It actually retrieves the features,
-but not the inputs.
+this is the v2 of the rework of the pre-scanning of the hid report descriptors.
+This allows us to be able to detect Win 8 multitouch panels.
+I tried to take into account all of the previous reviews, and I think the patch
+series is in a better shape now.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+Alexander, Srinivas, could you please review/test patches 1/3 and 2/3 as they
+will both impact hid_sensor_hub detection now. From the report descriptors
+Alexander sent, I would say that it will work now, but it's always better to
+have different testers :)
 
-no changes in v2
+Cheers,
+Benjamin
 
- drivers/hid/hid-multitouch.c  | 12 ++++++++++++
- drivers/hid/usbhid/hid-core.c | 11 ++++++++---
- include/linux/hid.h           |  1 +
- 3 files changed, 21 insertions(+), 3 deletions(-)
+Changes in v2:
+- moved "flags" processing in patch 2/3
+- do not introduce parser->flags, but use hid->group as a temporary flag placeholder
+- hid_scan_report() is less verbose when errors are found in the descriptor
+- hid_scan_report() is tolerant to parsing errors
+- fixed usage_page handling in hid_scan_collection(), which fixes sensors detection
+- amended commit messages
+- #define and #undef HID_FLAG_* in hid-core.c instead of hid.h
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c28ef86..ac28f08 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -951,6 +951,18 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
- 	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
- 
-+	/*
-+	 * Handle special quirks for Windows 8 certified devices.
-+	 */
-+	if (id->group == HID_GROUP_MULTITOUCH_WIN_8)
-+		/*
-+		 * Some multitouch screens do not like to be polled for input
-+		 * reports. Fortunately, the Win8 spec says that all touches
-+		 * should be sent during each report, making the initialization
-+		 * of input reports unnecessary.
-+		 */
-+		hdev->quirks |= HID_QUIRK_NO_INIT_INPUT_REPORTS;
-+
- 	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
- 	if (!td) {
- 		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index bd38cdf..44df131 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -750,12 +750,17 @@ void usbhid_init_reports(struct hid_device *hid)
- {
- 	struct hid_report *report;
- 	struct usbhid_device *usbhid = hid->driver_data;
-+	struct hid_report_enum *report_enum;
- 	int err, ret;
- 
--	list_for_each_entry(report, &hid->report_enum[HID_INPUT_REPORT].report_list, list)
--		usbhid_submit_report(hid, report, USB_DIR_IN);
-+	if (!(hid->quirks & HID_QUIRK_NO_INIT_INPUT_REPORTS)) {
-+		report_enum = &hid->report_enum[HID_INPUT_REPORT];
-+		list_for_each_entry(report, &report_enum->report_list, list)
-+			usbhid_submit_report(hid, report, USB_DIR_IN);
-+	}
- 
--	list_for_each_entry(report, &hid->report_enum[HID_FEATURE_REPORT].report_list, list)
-+	report_enum = &hid->report_enum[HID_FEATURE_REPORT];
-+	list_for_each_entry(report, &report_enum->report_list, list)
- 		usbhid_submit_report(hid, report, USB_DIR_IN);
- 
- 	err = 0;
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 45b7f3f..654627d 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -283,6 +283,7 @@ struct hid_item {
- #define HID_QUIRK_MULTI_INPUT			0x00000040
- #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
- #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
-+#define HID_QUIRK_NO_INIT_INPUT_REPORTS		0x00000200
- #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
- #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
- #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+Benjamin Tissoires (3):
+  HID: Use hid_parser for pre-scanning the report descriptors
+  HID: detect Win 8 multitouch devices in core
+  HID: do not init input reports for Win 8 multitouch devices
+
+ drivers/hid/hid-core.c        | 143 ++++++++++++++++++++++++++++++------------
+ drivers/hid/hid-multitouch.c  |  36 +++++++----
+ drivers/hid/usbhid/hid-core.c |  11 +++-
+ include/linux/hid.h           |   2 +
+ 4 files changed, 137 insertions(+), 55 deletions(-)
+
 -- 
 1.8.3.1

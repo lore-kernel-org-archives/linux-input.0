@@ -1,46 +1,42 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 0/3] HID: Win 8 multitouch panels detection in core
-Date: Wed, 21 Aug 2013 17:40:17 +0200
-Message-ID: <1377099620-23947-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH V3 1/2] tps6507x-ts: Add DT support
+Date: Wed, 21 Aug 2013 09:20:49 -0700
+Message-ID: <20130821162049.GA28359@core.coreip.homeip.net>
+References: <1369126458-24872-1-git-send-email-manishv.b@ti.com>
+ <1369126458-24872-2-git-send-email-manishv.b@ti.com>
+ <CA+V-a8u1BEXMHHso80NdP4FX_au2mnUEtzqYyJXg_vA9JvSJbA@mail.gmail.com>
+ <CAKDJKT45=BUcx5q8bHL=xzHQ0aAhE=cwGy4EK8MWRfpiKVzt0g@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAKDJKT45=BUcx5q8bHL=xzHQ0aAhE=cwGy4EK8MWRfpiKVzt0g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Alexander Holler <holler@ahsoftware.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Manish Badarkhe <badarkhe.manish@gmail.com>
+Cc: Prabhakar Lad <prabhakar.csengg@gmail.com>, "Vishwanathrao Badarkhe, Manish" <manishv.b@ti.com>, dlos <davinci-linux-open-source@linux.davincidsp.com>, LDOC <linux-doc@vger.kernel.org>, device-tree <devicetree-discuss@lists.ozlabs.org>, LKML <linux-kernel@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Rob Landley <rob@landley.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi guys,
+Hi Manish,
 
-this is the v2 of the rework of the pre-scanning of the hid report descriptors.
-This allows us to be able to detect Win 8 multitouch panels.
-I tried to take into account all of the previous reviews, and I think the patch
-series is in a better shape now.
+On Tue, Aug 20, 2013 at 12:25:32PM +0530, Manish Badarkhe wrote:
+> Hi Prabhakar,
+> 
+> On Tue, Aug 20, 2013 at 11:44 AM, Prabhakar Lad
+> >
+> > All the three above properties as per the documentation  above
+> > are optional, but the code here makes them required property.
+> > May be what you can do is if property is not defined make it as
+> > zero as per documentation.
+> 
+> I already taken care of this as per Dmitry's comment but not yet
+> posted patch series as
+> there is discussion going on populating child node's properties.
 
-Alexander, Srinivas, could you please review/test patches 1/3 and 2/3 as they
-will both impact hid_sensor_hub detection now. From the report descriptors
-Alexander sent, I would say that it will work now, but it's always better to
-have different testers :)
+Please post the series using find node properties (as they were). We can
+discuss if MFD devices should be automatically attaching parents OF data
+to child devices they are creating later.
 
-Cheers,
-Benjamin
-
-Changes in v2:
-- moved "flags" processing in patch 2/3
-- do not introduce parser->flags, but use hid->group as a temporary flag placeholder
-- hid_scan_report() is less verbose when errors are found in the descriptor
-- hid_scan_report() is tolerant to parsing errors
-- fixed usage_page handling in hid_scan_collection(), which fixes sensors detection
-- amended commit messages
-- #define and #undef HID_FLAG_* in hid-core.c instead of hid.h
-
-Benjamin Tissoires (3):
-  HID: Use hid_parser for pre-scanning the report descriptors
-  HID: detect Win 8 multitouch devices in core
-  HID: do not init input reports for Win 8 multitouch devices
-
- drivers/hid/hid-core.c        | 143 ++++++++++++++++++++++++++++++------------
- drivers/hid/hid-multitouch.c  |  36 +++++++----
- drivers/hid/usbhid/hid-core.c |  11 +++-
- include/linux/hid.h           |   2 +
- 4 files changed, 137 insertions(+), 55 deletions(-)
+Thanks.
 
 -- 
-1.8.3.1
+Dmitry

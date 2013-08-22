@@ -1,44 +1,28 @@
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 3/3] thinkpad_acpi: Wire unused micmute LED to capslock
-Date: Thu, 22 Aug 2013 16:02:12 +0200
-Message-ID: <1377180132-4933-3-git-send-email-Jason@zx2c4.com>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH 3/3] thinkpad_acpi: Wire unused micmute LED to capslock
+Date: Thu, 22 Aug 2013 16:39:00 +0100
+Message-ID: <20130822153900.GA2878@srcf.ucam.org>
 References: <1377180132-4933-1-git-send-email-Jason@zx2c4.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from frisell.zx2c4.com ([192.95.5.64]:38115 "EHLO frisell.zx2c4.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752958Ab3HVOJr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Aug 2013 10:09:47 -0400
-In-Reply-To: <1377180132-4933-1-git-send-email-Jason@zx2c4.com>
-Sender: linux-input-owner@vger.kernel.org
+ <1377180132-4933-3-git-send-email-Jason@zx2c4.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1377180132-4933-3-git-send-email-Jason@zx2c4.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mjg@redhat.com, rjw@sisk.pl, len.brown@intel.com, dtor@insightbb.com
 List-Id: linux-input@vger.kernel.org
-To: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: mjg@redhat.com, rjw@sisk.pl, len.brown@intel.com, dtor@insightbb.com, "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-Thinkpads with a micmute LED do not have a capslock LED. The micmute LED
-is currently not used by any piece of Linux kernel land or user land. It
-seems reasonable to hook it up to caps lock, at least by default, so
-users can have some degree of functionality.
+On Thu, Aug 22, 2013 at 04:02:12PM +0200, Jason A. Donenfeld wrote:
+> Thinkpads with a micmute LED do not have a capslock LED. The micmute LED
+> is currently not used by any piece of Linux kernel land or user land. It
+> seems reasonable to hook it up to caps lock, at least by default, so
+> users can have some degree of functionality.
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- drivers/platform/x86/thinkpad_acpi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+I think there's a risk of user confusion here, in that it's now possible 
+for the mic mute light to be lit despite the internal microphone still 
+being active. That seems like surprising behaviour.
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 33b23cb..708fdb8 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -5235,6 +5235,10 @@ static int __init tpacpi_init_led(unsigned int led)
- 
- 	tpacpi_leds[led].led_classdev.name = tpacpi_led_names[led];
- 
-+	/* Special case wiring micmute to caps-lock by default. */
-+	if (led == 14)
-+		tpacpi_leds[led].led_classdev.default_trigger = "caps-lock";
-+
- 	INIT_WORK(&tpacpi_leds[led].work, led_set_status_worker);
- 
- 	rc = led_classdev_register(&tpacpi_pdev->dev,
 -- 
-1.8.3.2
-
+Matthew Garrett | mjg59@srcf.ucam.org

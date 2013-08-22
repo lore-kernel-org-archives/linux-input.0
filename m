@@ -1,38 +1,37 @@
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: Re: [PATCH 3/3] thinkpad_acpi: Wire unused micmute LED to capslock
-Date: Thu, 22 Aug 2013 19:29:56 +0200
-Message-ID: <CAHmME9rHX=3UrFEERkGs0AvGuvoSJYKz35qsMaith4zSDzQTxg@mail.gmail.com>
-References: <1377180132-4933-1-git-send-email-Jason@zx2c4.com>
-	<1377180132-4933-3-git-send-email-Jason@zx2c4.com>
-	<20130822153900.GA2878@srcf.ucam.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH v3 0/3] HID: Win 8 multitouch panels detection in core
+Date: Thu, 22 Aug 2013 19:55:15 +0200
+Message-ID: <20130822175515.GA5215@polaris.bitmath.org>
+References: <1377175869-5336-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20130822153900.GA2878@srcf.ucam.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mjg@redhat.com, rjw@sisk.pl, len.brown@intel.com, dtor@insightbb.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:58162 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753631Ab3HVRuE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 22 Aug 2013 13:50:04 -0400
+Content-Disposition: inline
+In-Reply-To: <1377175869-5336-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Alexander Holler <holler@ahsoftware.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Aug 22, 2013 at 5:39 PM, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> I think there's a risk of user confusion here, in that it's now possible
-> for the mic mute light to be lit despite the internal microphone still
-> being active. That seems like surprising behaviour.
+Hi Benjamin,
 
-Yeah, that is a legitimate concern. Patches 1/3 [1] and 2/3 [2]
-clearly make sense, as they're generic and don't really suggest any
-new behavior.
+thanks for the patches, it all looks fine now.
 
-But setting this behavior here as the default could indeed be a bit
-unexpected. I think it's fair to reject this patch (3/3), but accept
-the first two. Tweakers who have the same early boot caps-lock LED
-needs as me can simply put this in their initramfs after 1/3 and 2/3
-are applied:
+> this is the v3 of this patch series.
+> 
+> Srinivas, I still did not added your tested-by as I made minors modifications of
+> the patches 1 and 2. Now only the patch 1 will impact sensor_hub, and patch 2
+> will not impact this. Maybe just wait for Henrik to put his "Reviewed-by" before
+> giving one last test.
 
-# echo caps-lock >
-/sys/devices/platform/thinkpad_acpi/leds/tpacpi\:\:micmute/trigger
+Here goes:
 
-Jason
+    Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
-[1] https://lkml.org/lkml/2013/8/22/310
-[2] https://lkml.org/lkml/2013/8/22/313
+Cheers,
+Henrik

@@ -1,94 +1,97 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 3/3] HID: do not init input reports for Win 8 multitouch devices
-Date: Thu, 22 Aug 2013 14:51:09 +0200
-Message-ID: <1377175869-5336-4-git-send-email-benjamin.tissoires@redhat.com>
-References: <1377175869-5336-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1377175869-5336-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Alexander Holler <holler@ahsoftware.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 1/3] Input: atkbd - add LED triggers for keyboard state
+Date: Thu, 22 Aug 2013 16:02:10 +0200
+Message-ID: <1377180132-4933-1-git-send-email-Jason@zx2c4.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from frisell.zx2c4.com ([192.95.5.64]:38115 "EHLO frisell.zx2c4.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752958Ab3HVOJi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 22 Aug 2013 10:09:38 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mjg@redhat.com, rjw@sisk.pl, len.brown@intel.com, dtor@insightbb.com, "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-Some multitouch screens do not like to be polled for input reports.
-However, the Win8 spec says that all touches should be sent during
-each report, making the initialization of reports unnecessary.
-The Win7 spec is less precise, so do not use this for those devices.
+Many new laptop keyboards aren't shipping with LEDs in the keys for
+caps lock, num lock, and scroll lock. They do, however, ship with many LEDs
+for specialized functions that mostly go non-utilized by any current
+Linux drivers. Having a caps lock LED is very helpful in early boot full
+disk encryption, where a fancy GUI is not available to show that caps
+lock is activated.
 
-Add the quirk HID_QUIRK_NO_INIT_INPUT_REPORTS so that we do not have to
-introduce a quirk for each problematic device. This quirk makes the driver
-behave the same way the Win 8 does. It actually retrieves the features,
-but not the inputs.
+This patch wires in the caps, num, and scroll lock states of the
+keyboard into the generic LED trigger subsystem, so that integrators can
+have different LEDs activated on caps/num/scroll lock state changes.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
+ drivers/input/keyboard/atkbd.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-no changes in v3
-no changes in v2
-
- drivers/hid/hid-multitouch.c  | 12 ++++++++++++
- drivers/hid/usbhid/hid-core.c | 11 ++++++++---
- include/linux/hid.h           |  1 +
- 3 files changed, 21 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c28ef86..ac28f08 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -951,6 +951,18 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
- 	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 2626773..15061bf 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -28,6 +28,7 @@
+ #include <linux/libps2.h>
+ #include <linux/mutex.h>
+ #include <linux/dmi.h>
++#include <linux/leds.h>
  
-+	/*
-+	 * Handle special quirks for Windows 8 certified devices.
-+	 */
-+	if (id->group == HID_GROUP_MULTITOUCH_WIN_8)
-+		/*
-+		 * Some multitouch screens do not like to be polled for input
-+		 * reports. Fortunately, the Win8 spec says that all touches
-+		 * should be sent during each report, making the initialization
-+		 * of input reports unnecessary.
-+		 */
-+		hdev->quirks |= HID_QUIRK_NO_INIT_INPUT_REPORTS;
+ #define DRIVER_DESC	"AT and PS/2 keyboard driver"
+ 
+@@ -302,6 +303,12 @@ static const unsigned int xl_table[] = {
+ 	ATKBD_RET_NAK, ATKBD_RET_HANJA, ATKBD_RET_HANGEUL,
+ };
+ 
++#ifdef CONFIG_LEDS_TRIGGERS
++struct led_trigger *capsl_led_trigger = 0;
++struct led_trigger *numl_led_trigger = 0;
++struct led_trigger *scrolll_led_trigger = 0;
++#endif
 +
- 	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
- 	if (!td) {
- 		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index bd38cdf..44df131 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -750,12 +750,17 @@ void usbhid_init_reports(struct hid_device *hid)
+ /*
+  * Checks if we should mangle the scancode to extract 'release' bit
+  * in translated mode.
+@@ -559,6 +566,12 @@ static int atkbd_set_leds(struct atkbd *atkbd)
+ 	if (ps2_command(&atkbd->ps2dev, param, ATKBD_CMD_SETLEDS))
+ 		return -1;
+ 
++#ifdef CONFIG_LEDS_TRIGGERS
++	led_trigger_event(capsl_led_trigger, test_bit(LED_CAPSL, dev->led) ? LED_FULL : LED_OFF);
++	led_trigger_event(numl_led_trigger, test_bit(LED_NUML, dev->led) ? LED_FULL : LED_OFF);
++	led_trigger_event(scrolll_led_trigger, test_bit(LED_SCROLLL, dev->led) ? LED_FULL : LED_OFF);
++#endif
++
+ 	if (atkbd->extra) {
+ 		param[0] = 0;
+ 		param[1] = (test_bit(LED_COMPOSE, dev->led) ? 0x01 : 0)
+@@ -1781,12 +1794,25 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ static int __init atkbd_init(void)
  {
- 	struct hid_report *report;
- 	struct usbhid_device *usbhid = hid->driver_data;
-+	struct hid_report_enum *report_enum;
- 	int err, ret;
+ 	dmi_check_system(atkbd_dmi_quirk_table);
++#ifdef CONFIG_LEDS_TRIGGERS
++	led_trigger_register_simple("caps-lock", &capsl_led_trigger);
++	led_trigger_register_simple("num-lock", &numl_led_trigger);
++	led_trigger_register_simple("scroll-lock", &scrolll_led_trigger);
++#endif
  
--	list_for_each_entry(report, &hid->report_enum[HID_INPUT_REPORT].report_list, list)
--		usbhid_submit_report(hid, report, USB_DIR_IN);
-+	if (!(hid->quirks & HID_QUIRK_NO_INIT_INPUT_REPORTS)) {
-+		report_enum = &hid->report_enum[HID_INPUT_REPORT];
-+		list_for_each_entry(report, &report_enum->report_list, list)
-+			usbhid_submit_report(hid, report, USB_DIR_IN);
-+	}
+ 	return serio_register_driver(&atkbd_drv);
+ }
  
--	list_for_each_entry(report, &hid->report_enum[HID_FEATURE_REPORT].report_list, list)
-+	report_enum = &hid->report_enum[HID_FEATURE_REPORT];
-+	list_for_each_entry(report, &report_enum->report_list, list)
- 		usbhid_submit_report(hid, report, USB_DIR_IN);
+ static void __exit atkbd_exit(void)
+ {
++#ifdef CONFIG_LEDS_TRIGGERS
++	led_trigger_unregister_simple(capsl_led_trigger);
++	capsl_led_trigger = 0;
++	led_trigger_unregister_simple(numl_led_trigger);
++	numl_led_trigger = 0;
++	led_trigger_unregister_simple(scrolll_led_trigger);
++	scrolll_led_trigger = 0;
++#endif
+ 	serio_unregister_driver(&atkbd_drv);
+ }
  
- 	err = 0;
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 24f1197..d421848 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -283,6 +283,7 @@ struct hid_item {
- #define HID_QUIRK_MULTI_INPUT			0x00000040
- #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
- #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
-+#define HID_QUIRK_NO_INIT_INPUT_REPORTS		0x00000200
- #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
- #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
- #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
 -- 
-1.8.3.1
+1.8.3.2
+

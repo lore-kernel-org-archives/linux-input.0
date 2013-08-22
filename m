@@ -1,34 +1,51 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH v1 23/49] hid: usbhid: prepare for enabling irq in complete()
-Date: Thu, 22 Aug 2013 20:19:27 +0800
-Message-ID: <CACVXFVPes_UE1gJ_DuifKTMNOvDv0cwm5k=Ea03TB05rDzKBEA@mail.gmail.com>
-References: <1376756714-25479-1-git-send-email-ming.lei@canonical.com>
-	<1376756714-25479-24-git-send-email-ming.lei@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:57207 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752077Ab3HVMTa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Aug 2013 08:19:30 -0400
-In-Reply-To: <1376756714-25479-24-git-send-email-ming.lei@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 0/3] HID: Win 8 multitouch panels detection in core
+Date: Thu, 22 Aug 2013 14:51:06 +0200
+Message-ID: <1377175869-5336-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Alexander Holler <holler@ahsoftware.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb <linux-usb@vger.kernel.org>, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, Ming Lei <ming.lei@canonical.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Sun, Aug 18, 2013 at 12:24 AM, Ming Lei <ming.lei@canonical.com> wrote:
-> Complete() will be run with interrupt enabled, so change to
-> spin_lock_irqsave().
->
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+Hi guys,
 
-Jiri, could you review and give an Ack?
+this is the v3 of this patch series.
 
+Srinivas, I still did not added your tested-by as I made minors modifications of
+the patches 1 and 2. Now only the patch 1 will impact sensor_hub, and patch 2
+will not impact this. Maybe just wait for Henrik to put his "Reviewed-by" before
+giving one last test.
 
-Thanks,
---
-Ming Lei
+Cheers,
+Benjamin
+
+Changes in v3:
+- remove one remnant duplicate message
+- amended commit messages
+- re-add initializer of hid->group (set to HID_GROUP_GENERIC)
+- removed ugly #define #undef :)
+- add back scan_flags in hid_parser
+- simpler post processing of Win 8 certified multitouch panels
+
+Changes in v2:
+- moved "flags" processing in patch 2/3
+- do not introduce parser->flags, but use hid->group as a temporary flag placeholder
+- hid_scan_report() is less verbose when errors are found in the descriptor
+- hid_scan_report() is tolerant to parsing errors
+- fixed usage_page handling in hid_scan_collection(), which fixes sensors detection
+- amended commit messages
+- #define and #undef HID_FLAG_* in hid-core.c instead of hid.h
+
+Benjamin Tissoires (3):
+  HID: Use hid_parser for pre-scanning the report descriptors
+  HID: detect Win 8 multitouch devices in core
+  HID: do not init input reports for Win 8 multitouch devices
+
+ drivers/hid/hid-core.c        | 118 ++++++++++++++++++++++++++++--------------
+ drivers/hid/hid-multitouch.c  |  36 ++++++++-----
+ drivers/hid/usbhid/hid-core.c |  11 ++--
+ include/linux/hid.h           |   5 ++
+ 4 files changed, 116 insertions(+), 54 deletions(-)
+
+-- 
+1.8.3.1

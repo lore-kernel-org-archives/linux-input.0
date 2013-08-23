@@ -1,32 +1,50 @@
 From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH 3/3] thinkpad_acpi: Wire unused micmute LED to capslock
-Date: Fri, 23 Aug 2013 15:18:26 -0300
-Message-ID: <20130823181826.GB27893@khazad-dum.debian.net>
+Subject: Re: [PATCH 2/3] thinkpad_acpi: Support micmute LED
+Date: Fri, 23 Aug 2013 15:16:42 -0300
+Message-ID: <20130823181642.GA27893@khazad-dum.debian.net>
 References: <1377180132-4933-1-git-send-email-Jason@zx2c4.com>
- <1377180132-4933-3-git-send-email-Jason@zx2c4.com>
+ <1377180132-4933-2-git-send-email-Jason@zx2c4.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:36452 "EHLO
-	out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754565Ab3HWS2i (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Aug 2013 14:28:38 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1377180132-4933-3-git-send-email-Jason@zx2c4.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <1377180132-4933-2-git-send-email-Jason@zx2c4.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mjg@redhat.com, rjw@sisk.pl, len.brown@intel.com, dtor@insightbb.com
+List-Id: linux-input@vger.kernel.org
+
+Hi Jason!
 
 On Thu, 22 Aug 2013, Jason A. Donenfeld wrote:
-> Thinkpads with a micmute LED do not have a capslock LED. The micmute LED
-> is currently not used by any piece of Linux kernel land or user land. It
-> seems reasonable to hook it up to caps lock, at least by default, so
-> users can have some degree of functionality.
 
-NACK.  This we won't do.  It is a LED misuse, and it will get in the way
-when we finally put that LED to its proper use.
+> The micmute LED is currently unused. This patch allows it to be hooked
+> up to various LED triggers.
+> 
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  drivers/platform/x86/thinkpad_acpi.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+> index 54d31c0..33b23cb 100644
+> --- a/drivers/platform/x86/thinkpad_acpi.c
+> +++ b/drivers/platform/x86/thinkpad_acpi.c
+> @@ -5050,8 +5050,10 @@ static const char * const tpacpi_led_names[TPACPI_LED_NUMLEDS] = {
+>  	"tpacpi::unknown_led2",
+>  	"tpacpi::unknown_led3",
+>  	"tpacpi::thinkvantage",
+> +	"tpacpi::unknown_led4",
+> +	"tpacpi::micmute"
+>  };
+> -#define TPACPI_SAFE_LEDS	0x1081U
+> +#define TPACPI_SAFE_LEDS	0x5081U
+
+Micmute is not a "safe" LED by thinkpad-acpi's definition.
+
+Besides, I want to see that LED hooked to alsa, any other use should be
+protected by a module parameter (like fan-control is) or kernel config (like
+unsafe LEDs are).
 
 -- 
   "One disk to rule them all, One disk to find them. One disk to bring

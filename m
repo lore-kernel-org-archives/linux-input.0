@@ -1,57 +1,44 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 3/3] Input: wacom - Send proper tablet state info when pen leaves proximity
-Date: Thu, 22 Aug 2013 18:15:37 -0700
-Message-ID: <1377220537-1474-3-git-send-email-killertofu@gmail.com>
-References: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
+From: Wei Yongjun <weiyj.lk@gmail.com>
+Subject: [PATCH] Input: wacom - fix error return code in wacom_probe()
+Date: Fri, 23 Aug 2013 10:53:00 +0800
+Message-ID: <CAPgLHd99Hc=EvmNSv6D4X=HYhDsypwHDGjN9eNJktmGZ_qOABQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:44760 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753301Ab3HWBQ3 (ORCPT
+Received: from mail-bk0-f45.google.com ([209.85.214.45]:61779 "EHLO
+	mail-bk0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752821Ab3HWCxC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Aug 2013 21:16:29 -0400
-Received: by mail-pb0-f43.google.com with SMTP id md4so18263pbc.2
-        for <linux-input@vger.kernel.org>; Thu, 22 Aug 2013 18:16:29 -0700 (PDT)
-In-Reply-To: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
+	Thu, 22 Aug 2013 22:53:02 -0400
+Received: by mail-bk0-f45.google.com with SMTP id mx11so28907bkb.18
+        for <linux-input@vger.kernel.org>; Thu, 22 Aug 2013 19:53:01 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, pinglinux@gmail.com
-Cc: Jason Gerecke <killertofu@gmail.com>
+To: dmitry.torokhov@gmail.com, killertofu@gmail.com, pinglinux@gmail.com, chris@cnpbagwell.com, fengguang.wu@intel.com
+Cc: yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
 
-The EMR sensor of Intuos4 and newer devices can send a packet with
-0x20 in its second byte which contains only location information.
-This packet is sent when the pen is too far away to reliably obtain
-other information. Because only the location is updated userspace
-will continue to see stale information for other values, most notably
-TOUCH, PRESSURE, and DISTANCE.
+From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
-This patch ensures userspace is not left with stale device state
-information when the pen re-enters proximity (possibly leading to
-the assumption the pen is still in contact even though it is
-actually hovering).
+Fix to return a negative error code from the urb submit error
+handling case instead of 0, as done elsewhere in this function.
 
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 ---
- drivers/input/tablet/wacom_wac.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/input/tablet/wacom_sys.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 869e9c9..f67a75a 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -425,6 +425,13 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 			(features->type == WACOM_21UX2))
- 		return 1;
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index aaf23ae..7eeac61 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -1366,7 +1366,8 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 	usb_set_intfdata(intf, wacom);
  
-+	/* Range Report */
-+	if ((data[1] & 0xfe) == 0x20) {
-+		input_report_key(input, BTN_TOUCH, 0);
-+		input_report_abs(input, ABS_PRESSURE, 0);
-+		input_report_abs(input, ABS_DISTANCE, wacom->features.distance_max);
-+	}
-+
- 	/* Exit report */
- 	if ((data[1] & 0xfe) == 0x80) {
- 		if (features->quirks == WACOM_QUIRK_MULTI_INPUT)
--- 
-1.8.3.4
+ 	if (features->quirks & WACOM_QUIRK_MONITOR) {
+-		if (usb_submit_urb(wacom->irq, GFP_KERNEL))
++		error = usb_submit_urb(wacom->irq, GFP_KERNEL);
++		if (error)
+ 			goto fail5;
+ 	}
+ 
 

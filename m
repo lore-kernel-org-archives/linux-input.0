@@ -1,70 +1,44 @@
-From: Ian Munsie <darkstarsword@gmail.com>
-Subject: [PATCH 2/2] Input: bcm5974: Add another device ID for the mid-2013 Macbook Air
-Date: Sun, 25 Aug 2013 00:17:53 +1000
-Message-ID: <1377353873-17000-3-git-send-email-darkstarsword@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] HID: apple: Add another device ID for the mid-2013
+ Macbook Air
+Date: Sat, 24 Aug 2013 16:26:30 -0700
+Message-ID: <20130824232630.GA4454@core.coreip.homeip.net>
 References: <1377353873-17000-1-git-send-email-darkstarsword@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1377353873-17000-1-git-send-email-darkstarsword@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ian Munsie <darkstarsword@gmail.com>
+ <1377353873-17000-2-git-send-email-darkstarsword@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:38030 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755950Ab3HXX0e (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 24 Aug 2013 19:26:34 -0400
+Content-Disposition: inline
+In-Reply-To: <1377353873-17000-2-git-send-email-darkstarsword@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ian Munsie <darkstarsword@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch adds a device ID found for mid-2013 Macbook Air 6,1 from
-lsusb:
+Hi Ian,
 
-Bus 001 Device 003: ID 05ac:0290 Apple, Inc.
+On Sun, Aug 25, 2013 at 12:17:52AM +1000, Ian Munsie wrote:
+> This patch adds a device ID found for mid-2013 Macbook Air 6,1 from
+> lsusb:
+> 
+> Bus 001 Device 003: ID 05ac:0290 Apple, Inc.
+> 
+> Since IDs already exist for this generation Macbook air as WELLSPRING8,
+> name this one WELLSPRING8A. This only adds an ANSI version since it's
+> device ID is only one less than the existing WELLSPRING8 IDs.
+> 
+> Signed-off-by: Ian Munsie <darkstarsword@gmail.com>
 
-Since IDs already exist for this generation Macbook air as WELLSPRING8,
-name this one WELLSPRING8A. This only adds an ANSI version since it's
-device ID is only one less than the existing WELLSPRING8 IDs.
+Thank you for the patch!
 
-Signed-off-by: Ian Munsie <darkstarsword@gmail.com>
----
- drivers/input/mouse/bcm5974.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+Jiri, can I take it through my tree for 3.11?
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 4ef4d5e..fcd2f3f 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -88,6 +88,8 @@
- #define USB_DEVICE_ID_APPLE_WELLSPRING7A_ANSI	0x0259
- #define USB_DEVICE_ID_APPLE_WELLSPRING7A_ISO	0x025a
- #define USB_DEVICE_ID_APPLE_WELLSPRING7A_JIS	0x025b
-+/* MacbookAir6,1 (unibody, June 2013) */
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8A_ANSI	0x0290
- /* MacbookAir6,2 (unibody, June 2013) */
- #define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI	0x0291
- #define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO	0x0292
-@@ -149,6 +151,8 @@ static const struct usb_device_id bcm5974_table[] = {
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING7A_ANSI),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING7A_ISO),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING7A_JIS),
-+	/* MacbookAir6,1 */
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING8A_ANSI),
- 	/* MacbookAir6,2 */
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING8_ISO),
-@@ -424,6 +428,19 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		{ SN_COORD, -150, 6600 },
- 		{ SN_ORIENT, -MAX_FINGER_ORIENTATION, MAX_FINGER_ORIENTATION }
- 	},
-+	{
-+		USB_DEVICE_ID_APPLE_WELLSPRING8A_ANSI,
-+		0,
-+		0,
-+		HAS_INTEGRATED_BUTTON,
-+		0, sizeof(struct bt_data),
-+		0x83, TYPE3, FINGER_TYPE3, FINGER_TYPE3 + SIZEOF_ALL_FINGERS,
-+		{ SN_PRESSURE, 0, 300 },
-+		{ SN_WIDTH, 0, 2048 },
-+		{ SN_COORD, -4620, 5140 },
-+		{ SN_COORD, -150, 6600 },
-+		{ SN_ORIENT, -MAX_FINGER_ORIENTATION, MAX_FINGER_ORIENTATION }
-+	},
- 	{}
- };
- 
+Thanks.
+
 -- 
-1.8.4.rc3
+Dmitry

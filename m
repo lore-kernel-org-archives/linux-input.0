@@ -1,53 +1,29 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH 2/3] thinkpad_acpi: Support micmute LED
-Date: Fri, 23 Aug 2013 15:16:42 -0300
-Message-ID: <20130823181642.GA27893@khazad-dum.debian.net>
-References: <1377180132-4933-1-git-send-email-Jason@zx2c4.com>
- <1377180132-4933-2-git-send-email-Jason@zx2c4.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1377180132-4933-2-git-send-email-Jason@zx2c4.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mjg@redhat.com, rjw@sisk.pl, len.brown@intel.com, dtor@insightbb.com
+From: Ian Munsie <darkstarsword@gmail.com>
+Subject: Add missing device ID for mid-2013 Macbook Air 6,1
+Date: Sun, 25 Aug 2013 00:17:51 +1000
+Message-ID: <1377353873-17000-1-git-send-email-darkstarsword@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:44094 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754186Ab3HXOS3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 24 Aug 2013 10:18:29 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jason!
+I recently got a new mid-2013 Macbook Air, which seems to use a device ID that
+is missing from the kernel. From lsusb:
+Bus 001 Device 003: ID 05ac:0290 Apple, Inc.
 
-On Thu, 22 Aug 2013, Jason A. Donenfeld wrote:
+This generation of Macbook Air already has three IDs listed in the kernel
+(0x0291, 0x0292 and 0x0293) as WELLSPRING8, so I've added 0x0290 to that list
+as WELLSPRING8A. It looks like these generally come in triplets of consecutive
+device IDs, so it's not clear to me why there would be an extra one in this
+generation (and only -1 from the existing IDs which doesn't leave room for
+additional ISO & JIS layouts if they are numbered consecutively).
 
-> The micmute LED is currently unused. This patch allows it to be hooked
-> up to various LED triggers.
-> 
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> ---
->  drivers/platform/x86/thinkpad_acpi.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-> index 54d31c0..33b23cb 100644
-> --- a/drivers/platform/x86/thinkpad_acpi.c
-> +++ b/drivers/platform/x86/thinkpad_acpi.c
-> @@ -5050,8 +5050,10 @@ static const char * const tpacpi_led_names[TPACPI_LED_NUMLEDS] = {
->  	"tpacpi::unknown_led2",
->  	"tpacpi::unknown_led3",
->  	"tpacpi::thinkvantage",
-> +	"tpacpi::unknown_led4",
-> +	"tpacpi::micmute"
->  };
-> -#define TPACPI_SAFE_LEDS	0x1081U
-> +#define TPACPI_SAFE_LEDS	0x5081U
+With these patches the Fn key now works for me, as does the multitouch
+functionality of the touchpad.
 
-Micmute is not a "safe" LED by thinkpad-acpi's definition.
-
-Besides, I want to see that LED hooked to alsa, any other use should be
-protected by a module parameter (like fan-control is) or kernel config (like
-unsafe LEDs are).
-
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh

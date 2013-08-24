@@ -1,44 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] HID: apple: Add another device ID for the mid-2013
- Macbook Air
-Date: Sat, 24 Aug 2013 16:26:30 -0700
-Message-ID: <20130824232630.GA4454@core.coreip.homeip.net>
-References: <1377353873-17000-1-git-send-email-darkstarsword@gmail.com>
- <1377353873-17000-2-git-send-email-darkstarsword@gmail.com>
+Subject: Re: [PATCH] Input: as5011 - fix error return code in as5011_probe()
+Date: Sat, 24 Aug 2013 16:40:08 -0700
+Message-ID: <20130824234007.GD4454@core.coreip.homeip.net>
+References: <CAPgLHd_zTAT7hGkcNCBCzKE5TiXfCYzCysbCDANX2vBDyrpH8A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:38030 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755950Ab3HXX0e (ORCPT
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:49630 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755911Ab3HXXkL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Aug 2013 19:26:34 -0400
+	Sat, 24 Aug 2013 19:40:11 -0400
+Received: by mail-pd0-f181.google.com with SMTP id g10so2040552pdj.26
+        for <linux-input@vger.kernel.org>; Sat, 24 Aug 2013 16:40:10 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1377353873-17000-2-git-send-email-darkstarsword@gmail.com>
+In-Reply-To: <CAPgLHd_zTAT7hGkcNCBCzKE5TiXfCYzCysbCDANX2vBDyrpH8A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ian Munsie <darkstarsword@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: wfp5p@virginia.edu, broonie@opensource.wolfsonmicro.com, shubhrajyoti@ti.com, javier@dowhile0.org, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
 
-Hi Ian,
-
-On Sun, Aug 25, 2013 at 12:17:52AM +1000, Ian Munsie wrote:
-> This patch adds a device ID found for mid-2013 Macbook Air 6,1 from
-> lsusb:
+On Fri, Aug 23, 2013 at 10:54:55AM +0800, Wei Yongjun wrote:
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 > 
-> Bus 001 Device 003: ID 05ac:0290 Apple, Inc.
+> Fix to return a negative error code from the error handling
+> case instead of 0, as done elsewhere in this function.
 > 
-> Since IDs already exist for this generation Macbook air as WELLSPRING8,
-> name this one WELLSPRING8A. This only adds an ANSI version since it's
-> device ID is only one less than the existing WELLSPRING8 IDs.
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/joystick/as5011.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> Signed-off-by: Ian Munsie <darkstarsword@gmail.com>
-
-Thank you for the patch!
-
-Jiri, can I take it through my tree for 3.11?
-
-Thanks.
+> diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
+> index 121cd63..262ebe2 100644
+> --- a/drivers/input/joystick/as5011.c
+> +++ b/drivers/input/joystick/as5011.c
+> @@ -288,6 +288,7 @@ static int as5011_probe(struct i2c_client *client,
+>  	if (irq < 0) {
+>  		dev_err(&client->dev,
+>  			"Failed to get irq number for button gpio\n");
+> +		error = irq;
+>  		goto err_free_button_gpio;
+>  	}
+>  
+> 
 
 -- 
 Dmitry

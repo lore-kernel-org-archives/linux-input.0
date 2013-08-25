@@ -1,69 +1,31 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 2/3] Input: wacom - Provide a range for the ABS_MISC axis
-Date: Sun, 25 Aug 2013 10:43:49 -0700
-Message-ID: <CANRwn3SjV-Esz8_smnGc9F7bZ0eGYcJ+fzO+8FKEmQcmoU6fsg@mail.gmail.com>
-References: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
-	<1377220537-1474-2-git-send-email-killertofu@gmail.com>
-	<20130824235039.GG4454@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f176.google.com ([209.85.216.176]:41329 "EHLO
-	mail-qc0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755475Ab3HYRnv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Aug 2013 13:43:51 -0400
-Received: by mail-qc0-f176.google.com with SMTP id u20so532044qcx.35
-        for <linux-input@vger.kernel.org>; Sun, 25 Aug 2013 10:43:50 -0700 (PDT)
-In-Reply-To: <20130824235039.GG4454@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH V6 0/2] iio: input: ti_am335x_adc: Add continuous sampling support
+Date: Sun, 25 Aug 2013 23:45:22 +0100
+Message-ID: <1377470724-15710-1-git-send-email-zubair.lutfullah@gmail.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linuxwacom-devel <linuxwacom-devel@lists.sourceforge.net>, Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>
 
-On Sat, Aug 24, 2013 at 4:50 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Jason,
->
-> On Thu, Aug 22, 2013 at 06:15:36PM -0700, Jason Gerecke wrote:
-> > Android marks found axes as 'valid' only if they have a minimum
-> > and maximum value that aren't equal. Since we don't actually
-> > assign any range information for ABS_MISC, Android doesn't bother
-> > to mark it such. This prevents userspace from being able to make
-> > use of tool serial information.
->
-> That should be fixed in Android code. Min/max are filled on best effo=
-rt
-> basis and 0/0 is effectively unknown.
->
-> Thanks.
->
-> --
-> Dmitry
+This applies to togreg branch in iio.
 
-If userspace is written with the assumption that 0/0 =3D=3D unknown, th=
-en
-this patch changes nothing since the consumer will expect any value
-between INT_MIN and INT_MAX anyway. Furthermore, if some userspace
-program strictly interprets 0/0 to mean "will always be equal to 0",
-then this patch actually provides it with the correct range. Either
-way, setting the values to INT_MIN and INT_MAX does nothing more than
-explicitly state the correct range.
+Round 6 updates
+Fixed trigger the way iio list wanted. Driver has its own trigger.
+Triggers at every FIFO Threshold IRQ and pushes samples to iio buffer.
 
-I agree that Google should re-visit the function which does this
-"valid" filtering, but I don't see a problem with this patch.
+Went through the driver and cleaned it up quite a bit.
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Squashed patches together instead of having multiple tiny patches.
+
+Zubair Lutfullah (2):
+  input: ti_am335x_tsc: Enable shared IRQ for TSC
+  iio: ti_am335x_adc: Add continuous sampling support
+
+ drivers/iio/adc/ti_am335x_adc.c           |  254 ++++++++++++++++++++++++++---
+ drivers/input/touchscreen/ti_am335x_tsc.c |   24 ++-
+ include/linux/mfd/ti_am335x_tscadc.h      |   13 ++
+ 3 files changed, 264 insertions(+), 27 deletions(-)
+
+-- 
+1.7.9.5

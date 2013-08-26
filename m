@@ -1,58 +1,36 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH -next] HID: use module_hid_driver() to simplify the
- code
-Date: Mon, 26 Aug 2013 13:23:46 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308261323410.2077@pobox.suse.cz>
-References: <CAPgLHd9pb+49BC7BOOSrgkOWMQJQ76GcEGStt-UeaqGqtYfpFQ@mail.gmail.com>
+Subject: Re: [PATCH v3 0/3] HID: Win 8 multitouch panels detection in core
+Date: Mon, 26 Aug 2013 13:43:06 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308261342430.2077@pobox.suse.cz>
+References: <1377175869-5336-1-git-send-email-benjamin.tissoires@redhat.com> <20130822175515.GA5215@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47997 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:48621 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752036Ab3HZLXv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Aug 2013 07:23:51 -0400
-In-Reply-To: <CAPgLHd9pb+49BC7BOOSrgkOWMQJQ76GcEGStt-UeaqGqtYfpFQ@mail.gmail.com>
+	id S1751524Ab3HZLnL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Aug 2013 07:43:11 -0400
+In-Reply-To: <20130822175515.GA5215@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephane Chatty <chatty@enac.fr>, Alexander Holler <holler@ahsoftware.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 23 Aug 2013, Wei Yongjun wrote:
+On Thu, 22 Aug 2013, Henrik Rydberg wrote:
 
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> > this is the v3 of this patch series.
+> > 
+> > Srinivas, I still did not added your tested-by as I made minors modifications of
+> > the patches 1 and 2. Now only the patch 1 will impact sensor_hub, and patch 2
+> > will not impact this. Maybe just wait for Henrik to put his "Reviewed-by" before
+> > giving one last test.
 > 
-> module_hid_driver() makes the code simpler by eliminating
-> boilerplate code.
+> Here goes:
 > 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> ---
->  drivers/hid/hid-xinmo.c | 13 +------------
->  1 file changed, 1 insertion(+), 12 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-xinmo.c b/drivers/hid/hid-xinmo.c
-> index 6153e50..7df5227 100644
-> --- a/drivers/hid/hid-xinmo.c
-> +++ b/drivers/hid/hid-xinmo.c
-> @@ -57,16 +57,5 @@ static struct hid_driver xinmo_driver = {
->  	.event = xinmo_event
->  };
->  
-> -static int __init xinmo_init(void)
-> -{
-> -	return hid_register_driver(&xinmo_driver);
-> -}
-> -
-> -static void __exit xinmo_exit(void)
-> -{
-> -	hid_unregister_driver(&xinmo_driver);
-> -}
-> -
-> -module_init(xinmo_init);
-> -module_exit(xinmo_exit);
-> +module_hid_driver(xinmo_driver);
->  MODULE_LICENSE("GPL");
+>     Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
 
-Applied, thanks.
+Thanks guys. Not applying this just yet, waiting for Tested-by: from 
+Srinivas.
 
 -- 
 Jiri Kosina

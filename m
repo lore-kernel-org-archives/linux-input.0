@@ -1,40 +1,43 @@
-From: Ferruh Yigit <fery@cypress.com>
-Subject: Re: [PATCH v2] Input: cyttsp4 - remove useless NULL test from cyttsp4_watchdog_timer()
-Date: Mon, 26 Aug 2013 09:28:28 +0300
-Message-ID: <521AF58C.1010004@cypress.com>
-References: <CAPgLHd-VmhDGxLgx7T7BoTntOhOabG4j07u-fFtB0X3NVwOgyw@mail.gmail.com>
-Reply-To: fery@cypress.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 0/3] Input: omap-keypad: Convert to threaded IRQ and
+ cleanup
+Date: Sun, 25 Aug 2013 23:27:37 -0700
+Message-ID: <20130826062737.GA26405@core.coreip.homeip.net>
+References: <1374681293-5320-1-git-send-email-illia.smyrnov@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f46.google.com ([209.85.160.46]:59033 "EHLO
-	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755928Ab3HZG2m (ORCPT
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:49147 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755800Ab3HZGgA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Aug 2013 02:28:42 -0400
-Received: by mail-pb0-f46.google.com with SMTP id rq2so3023749pbb.19
-        for <linux-input@vger.kernel.org>; Sun, 25 Aug 2013 23:28:38 -0700 (PDT)
-In-Reply-To: <CAPgLHd-VmhDGxLgx7T7BoTntOhOabG4j07u-fFtB0X3NVwOgyw@mail.gmail.com>
+	Mon, 26 Aug 2013 02:36:00 -0400
+Content-Disposition: inline
+In-Reply-To: <1374681293-5320-1-git-send-email-illia.smyrnov@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: javier@dowhile0.org, dmitry.torokhov@gmail.com, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
+To: Illia Smyrnov <illia.smyrnov@ti.com>
+Cc: Felipe Balbi <balbi@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 
-On 08/26/2013 09:00 AM, Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
->
-> Remove useless NULL test from cyttsp4_watchdog_timer().
->
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> ---
-> v1 -> v2: remove NULL test instead.
->    (was: Input: cyttsp4 - fix potential NULL pointer dereference in cyttsp4_watchdog_timer())
-> ---
->   drivers/input/touchscreen/cyttsp4_core.c | 3 ---
->   1 file changed, 3 deletions(-)
+On Wed, Jul 24, 2013 at 06:54:50PM +0300, Illia Smyrnov wrote:
+> Replace unclear hardcoded values with bit field, convert to threaded IRQ and
+> clear interrupts when open the keypad.
+> 
+> Based on top of v3.11-rc2.
+> 
+> Tested on OMAP4 SDP.
+> 
+> Illia Smyrnov (3):
+>   Input: omap-keypad: Cleanup - use bitfiled instead of hardcoded
+>     values
+>   Input: omap-keypad: Convert to threaded IRQ
+>   Input: omap-keypad: Clear interrupts on open
+> 
+>  drivers/input/keyboard/omap4-keypad.c |   57 +++++++++++++++++++--------------
+>  1 files changed, 33 insertions(+), 24 deletions(-)
+> 
 
-Acked-by: Ferruh Yigit <fery@cypress.com>
+Applied, thank you.
 
---
-ferruh
+-- 
+Dmitry

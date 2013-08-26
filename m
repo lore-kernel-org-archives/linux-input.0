@@ -1,22 +1,36 @@
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: Re: [PATCH 3/3] thinkpad_acpi: Wire unused micmute LED to capslock
-Date: Sat, 24 Aug 2013 22:29:53 +0200
-Message-ID: <CAHmME9oHDqoEA7Abuvr2iE5Abb_T_+GAuK=KJpC54g8q3vZH9Q@mail.gmail.com>
-References: <1377180132-4933-1-git-send-email-Jason@zx2c4.com>
-	<1377180132-4933-3-git-send-email-Jason@zx2c4.com>
-	<20130823181826.GB27893@khazad-dum.debian.net>
+From: Ian Munsie <darkstarsword@gmail.com>
+Subject: Re: [PATCH 1/2] HID: apple: Add another device ID for the mid-2013
+ Macbook Air
+Date: Mon, 26 Aug 2013 11:50:07 +1000
+Message-ID: <CAH4=b6LSE0XJPwLAz+oeb98mbdYyocr_AdWvU+T98-oHST2=Cg@mail.gmail.com>
+References: <1377353873-17000-1-git-send-email-darkstarsword@gmail.com>
+ <1377353873-17000-2-git-send-email-darkstarsword@gmail.com> <20130825071122.GA12567@polaris.bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20130823181826.GB27893@khazad-dum.debian.net>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mjg@redhat.com, rjw@sisk.pl, len.brown@intel.com, dtor@insightbb.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ea0-f178.google.com ([209.85.215.178]:53336 "EHLO
+	mail-ea0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754809Ab3HZBu2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 25 Aug 2013 21:50:28 -0400
+In-Reply-To: <20130825071122.GA12567@polaris.bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Brad Ford <plymouthffl@gmail.com>, Linus G Thiel <linus@hanssonlarsson.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2013 at 8:18 PM, Henrique de Moraes Holschuh
-<hmh@hmh.eng.br> wrote:
-> NACK.  This we won't do.  It is a LED misuse, and it will get in the way
-> when we finally put that LED to its proper use.
+> Brad, Linus, does the above patch work for you as well as for Ian?
 
-Agreed. Please see my response to mjg.
+That would work fine for me, but I guess we need confirmation from
+someone with the ISO or JIS layouts.
+
+Cheers,
+-Ian
+
+-- 
+http://sites.google.com/site/DarkStarJunkSpace
+--
+http://darkstarshout.blogspot.com/
+--
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.gnu.org/philosophy/no-word-attachments.html

@@ -1,160 +1,111 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 1/3 v2] Input: wacom - Support EMR and MFT sensors of Cintiq Companion Hybrid
-Date: Mon, 26 Aug 2013 10:13:30 -0700
-Message-ID: <1377537210-2536-1-git-send-email-killertofu@gmail.com>
-References: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH 1/3] Input: introduce BTN/ABS bits for drums and guitars
+Date: Mon, 26 Aug 2013 19:14:46 +0200
+Message-ID: <1377537288-19289-2-git-send-email-dh.herrmann@gmail.com>
+References: <1377537288-19289-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f181.google.com ([209.85.192.181]:48992 "EHLO
-	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752065Ab3HZRNi (ORCPT
+Received: from mail-ea0-f182.google.com ([209.85.215.182]:38643 "EHLO
+	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751902Ab3HZRPN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Aug 2013 13:13:38 -0400
-Received: by mail-pd0-f181.google.com with SMTP id g10so3678310pdj.26
-        for <linux-input@vger.kernel.org>; Mon, 26 Aug 2013 10:13:37 -0700 (PDT)
-In-Reply-To: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
+	Mon, 26 Aug 2013 13:15:13 -0400
+Received: by mail-ea0-f182.google.com with SMTP id o10so1757095eaj.13
+        for <linux-input@vger.kernel.org>; Mon, 26 Aug 2013 10:15:12 -0700 (PDT)
+In-Reply-To: <1377537288-19289-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, pinglinux@gmail.com
-Cc: Jason Gerecke <killertofu@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-Adds support for the sensors integrated in to the Cintiq Companion
-Hybrid. These sensors use by-and-large the same protocol as the
-Cintiq 24HD touch.
+There are a bunch of guitar and drums devices out there that all report
+similar data. To avoid reporting this as BTN_MISC or ABS_MISC, we
+allocate some proper namespace for them. Note that most of these devices
+are toys and we cannot report any sophisticated physics via this API.
 
-NOTE: The ExpressKeys on the Cintiq Companion Hybrid are wired to
-both the EMR controller and CPU GPIO pins. It may be necessary to
-disable their functionality in this driver if building a custom
-Android kernel for this device (lest two events be sent to userspace
-for every button press).
+I did some google-images research and tried to provide definitions that
+work with all common devices. That's why I went with 4 toms, 4 cymbals,
+one bass, one hi-hat. I haven't seen other drums and I doubt that we need
+any additions to that. Anyway, the naming-scheme is intentionally done in
+an extensible way.
 
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+For guitars, we support 5 frets (normally aligned vertically, compared to
+the real horizontal layouts), a single strum-bar with up/down directions,
+an optional fret-board and a whammy-bar.
+
+Most of the devices provide pressure values so I went with ABS_* bits. If
+we ever support devices which only provide digital input, we have to
+decide whether to emulate pressure data or add additional BTN_* bits.
+
+If someone is not familiar with these devices, here are two pictures which
+provide almost all introduced interfaces (or try the given keywords
+with a google-image search):
+  Guitar: ("guitar hero world tour guitar")
+    http://images1.wikia.nocookie.net/__cb20120911023442/applezone/es/images/f/f9/Wii_Guitar.jpg
+  Drums: ("guitar hero drums")
+    http://oyster.ignimgs.com/franchises/images/03/55/35526_band-hero-drum-set-hands-on-20090929040735768.jpg
+
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
-Changes in v2:
- * Remove "#if 1" block surrounding conditional ExpressKey reporting
- * Change to C-style comments
+ include/linux/mod_devicetable.h |  2 +-
+ include/uapi/linux/input.h      | 25 +++++++++++++++++++++++--
+ 2 files changed, 24 insertions(+), 3 deletions(-)
 
- drivers/input/tablet/wacom_sys.c |  2 +-
- drivers/input/tablet/wacom_wac.c | 46 +++++++++++++++++++++++++++++++++++++++-
- drivers/input/tablet/wacom_wac.h |  1 +
- 3 files changed, 47 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 1ad3e07..8fa7af7 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -548,7 +548,7 @@ static int wacom_query_tablet_data(struct usb_interface *intf, struct wacom_feat
- 			/* MT Tablet PC touch */
- 			return wacom_set_device_mode(intf, 3, 4, 4);
- 		}
--		else if (features->type == WACOM_24HDT) {
-+		else if (features->type == WACOM_24HDT || features->type == ASTERIX) {
- 			return wacom_set_device_mode(intf, 18, 3, 2);
- 		}
- 	} else if (features->device_type == BTN_TOOL_PEN) {
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 541197b..9265b3d 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -475,7 +475,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
- 	/* general pen packet */
- 	if ((data[1] & 0xb8) == 0xa0) {
- 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
--		if (features->type >= INTUOS4S && features->type <= WACOM_24HD) {
-+		if (features->type >= INTUOS4S && features->type <= ASTERIX) {
- 			t = (t << 1) | (data[1] & 1);
- 		}
- 		input_report_abs(input, ABS_PRESSURE, t);
-@@ -619,6 +619,22 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 			} else {
- 				input_report_abs(input, ABS_MISC, 0);
- 			}
-+		} else if (features->type == ASTERIX) {
-+			/*
-+			 * Do not send hardware buttons under Android. They
-+			 * are already sent to the system through GPIO (and
-+			 * have different meaning).
-+			 */
-+			input_report_key(input, BTN_1, (data[4] & 0x01));
-+			input_report_key(input, BTN_2, (data[4] & 0x02));
-+			input_report_key(input, BTN_3, (data[4] & 0x04));
-+			input_report_key(input, BTN_4, (data[4] & 0x08));
-+
-+			input_report_key(input, BTN_5, (data[4] & 0x10));  /* Right  */
-+			input_report_key(input, BTN_6, (data[4] & 0x20));  /* Up     */
-+			input_report_key(input, BTN_7, (data[4] & 0x40));  /* Left   */
-+			input_report_key(input, BTN_8, (data[4] & 0x80));  /* Down   */
-+			input_report_key(input, BTN_0, (data[3] & 0x01));  /* Center */
- 		} else if (features->type >= INTUOS5S && features->type <= INTUOS5L) {
- 			int i;
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 45e9214..329aa30 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -277,7 +277,7 @@ struct pcmcia_device_id {
+ #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING	0x71
+ #define INPUT_DEVICE_ID_KEY_MAX		0x2ff
+ #define INPUT_DEVICE_ID_REL_MAX		0x0f
+-#define INPUT_DEVICE_ID_ABS_MAX		0x3f
++#define INPUT_DEVICE_ID_ABS_MAX		0x4f
+ #define INPUT_DEVICE_ID_MSC_MAX		0x07
+ #define INPUT_DEVICE_ID_LED_MAX		0x0f
+ #define INPUT_DEVICE_ID_SND_MAX		0x07
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index d584047..76457ee 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -716,6 +716,14 @@ struct input_keymap_entry {
+ #define BTN_DPAD_LEFT		0x222
+ #define BTN_DPAD_RIGHT		0x223
  
-@@ -1325,6 +1341,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case WACOM_22HD:
- 	case WACOM_24HD:
- 	case DTK:
-+	case ASTERIX:
- 		sync = wacom_intuos_irq(wacom_wac);
- 		break;
++#define BTN_FRET_FAR_UP		0x224
++#define BTN_FRET_UP		0x225
++#define BTN_FRET_MID		0x226
++#define BTN_FRET_LOW		0x227
++#define BTN_FRET_FAR_LOW	0x228
++#define BTN_STRUM_BAR_UP	0x229
++#define BTN_STRUM_BAR_DOWN	0x22a
++
+ #define BTN_TRIGGER_HAPPY		0x2c0
+ #define BTN_TRIGGER_HAPPY1		0x2c0
+ #define BTN_TRIGGER_HAPPY2		0x2c1
+@@ -829,8 +837,21 @@ struct input_keymap_entry {
+ #define ABS_MT_TOOL_X		0x3c	/* Center X tool position */
+ #define ABS_MT_TOOL_Y		0x3d	/* Center Y tool position */
  
-@@ -1763,6 +1780,24 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 					      0, 0);
- 		}
- 		break;
+-
+-#define ABS_MAX			0x3f
++/* Drums and guitars (mostly toys) */
++#define ABS_TOM_FAR_LEFT	0x40
++#define ABS_TOM_LEFT		0x41
++#define ABS_TOM_RIGHT		0x42
++#define ABS_TOM_FAR_RIGHT	0x43
++#define ABS_CYMBAL_FAR_LEFT	0x44
++#define ABS_CYMBAL_LEFT		0x45
++#define ABS_CYMBAL_RIGHT	0x46
++#define ABS_CYMBAL_FAR_RIGHT	0x47
++#define ABS_BASS		0x48
++#define ABS_HI_HAT		0x49
++#define ABS_FRET_BOARD		0x4a	/* Guitar fret board, vertical pos */
++#define ABS_WHAMMY_BAR		0x4b	/* Guitar whammy bar (or vibrato) */
 +
-+	case ASTERIX:
-+		__set_bit(BTN_1, input_dev->keybit);
-+		__set_bit(BTN_2, input_dev->keybit);
-+		__set_bit(BTN_3, input_dev->keybit);
-+		__set_bit(BTN_4, input_dev->keybit);
-+
-+		__set_bit(BTN_5, input_dev->keybit);
-+		__set_bit(BTN_6, input_dev->keybit);
-+		__set_bit(BTN_7, input_dev->keybit);
-+		__set_bit(BTN_8, input_dev->keybit);
-+		__set_bit(BTN_0, input_dev->keybit);
-+
-+		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
-+		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-+
-+		wacom_setup_cintiq(wacom_wac);
-+		break;
- 	}
- 	return 0;
- }
-@@ -2117,6 +2152,13 @@ static const struct wacom_features wacom_features_0xDF =
- static const struct wacom_features wacom_features_0x6004 =
- 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x0307 =
-+	{ "Wacom ISDv5 307", WACOM_PKGLEN_INTUOS,  59552,  33848, 2047,
-+	  63, ASTERIX, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x309 };
-+static const struct wacom_features wacom_features_0x0309 =
-+	{ "Wacom ISDv5 309", .type = WACOM_24HDT, /* Touch */
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x0307, .touch_max = 10 };
++#define ABS_MAX			0x4f
+ #define ABS_CNT			(ABS_MAX+1)
  
- #define USB_DEVICE_WACOM(prod)					\
- 	USB_DEVICE(USB_VENDOR_ID_WACOM, prod),			\
-@@ -2247,6 +2289,8 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0xF8) },
- 	{ USB_DEVICE_DETAILED(0xF6, USB_CLASS_HID, 0, 0) },
- 	{ USB_DEVICE_WACOM(0xFA) },
-+	{ USB_DEVICE_WACOM(0x0307) },
-+	{ USB_DEVICE_DETAILED(0x0309, USB_CLASS_HID, 0, 0) },
- 	{ USB_DEVICE_LENOVO(0x6004) },
- 	{ }
- };
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index dfc9e08..f47a5c1 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -80,6 +80,7 @@ enum {
- 	WACOM_22HD,
- 	DTK,
- 	WACOM_24HD,
-+	ASTERIX,
- 	CINTIQ,
- 	WACOM_BEE,
- 	WACOM_13HD,
+ /*
 -- 
-1.8.3.4
+1.8.4
 

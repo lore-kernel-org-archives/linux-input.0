@@ -1,64 +1,334 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 0/3] Input/HID: Guitar/Drums support
-Date: Mon, 26 Aug 2013 19:14:45 +0200
-Message-ID: <1377537288-19289-1-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 2/3] HID: wiimote: add support for Guitar-Hero drums
+Date: Mon, 26 Aug 2013 19:14:47 +0200
+Message-ID: <1377537288-19289-3-git-send-email-dh.herrmann@gmail.com>
+References: <1377537288-19289-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f169.google.com ([209.85.215.169]:56714 "EHLO
-	mail-ea0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751902Ab3HZRPL (ORCPT
+Received: from mail-ea0-f180.google.com ([209.85.215.180]:54296 "EHLO
+	mail-ea0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751902Ab3HZRPQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Aug 2013 13:15:11 -0400
-Received: by mail-ea0-f169.google.com with SMTP id k11so1759286eaj.14
-        for <linux-input@vger.kernel.org>; Mon, 26 Aug 2013 10:15:10 -0700 (PDT)
+	Mon, 26 Aug 2013 13:15:16 -0400
+Received: by mail-ea0-f180.google.com with SMTP id h10so1716286eaj.25
+        for <linux-input@vger.kernel.org>; Mon, 26 Aug 2013 10:15:14 -0700 (PDT)
+In-Reply-To: <1377537288-19289-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-Hi
+Guitar-Hero comes with a drums extension. Use the newly introduced input
+drums-bits to report this back to user-space. This is a usual extension
+like any other device. Nothing special to take care of.
 
-This series adds wiimote extension support for guitars and drums. The patches
-are fairly simple and work the same as the other 5 wiimote extensions. But as we
-currently don't have IDs to report drums or guitar events to user-space, I had
-to add them.
+We report this to user-space as "Nintendo Wii Remote Drums". There are
+other drums (like "RockBand" drums) which we currently do not support and
+maybe will at some point. However, it is quite likely that we can report
+these via the same interface. This allows user-space to work with them
+without knowing the exact branding.
+I couldn't find anyone who owns a "RockBand" device, though.
 
-Patch #1 adds basic IDs to <linux/input.h>. I tried to find as many devices as I
-could and looked what IDs would be required. Turned out, the device I was
-implementing already supported almost all (except 2 instead of 4 cymbals and 3
-instead of 4 toms).
+Initial-work-by: Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ drivers/hid/hid-wiimote-core.c    |   7 ++
+ drivers/hid/hid-wiimote-modules.c | 218 ++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-wiimote.h         |   2 +
+ 3 files changed, 227 insertions(+)
 
-Patch #2 and #3 add the wiimote extensions.
-
-This has been mostly worked out and tested by Nicolas (thanks!) and we started
-this work almost 3 month ago. Due to holidays it took a bit longer to get
-pressure reports working. But now everything should be fine.
-
-The xwiimote user-space tools already support this and provide testing utilities
-if someone is interested: http://github.com/dvdhrm/xwiimote
-
-Jiri, Dmitry, can we try merging this for 3.13? I know it's late, but it did see
-a lot of testing from Nicolas.
-
-Regards
-David
-
-Btw., if someone has similar PS3 or WorldTour devices, I'd be glad to add
-support for them!
-
-David Herrmann (2):
-  Input: introduce BTN/ABS bits for drums and guitars
-  HID: wiimote: add support for Guitar-Hero drums
-
-Nicolas Adenis-Lamarre (1):
-  HID: wiimote: add support for Guitar-Hero guitars
-
- drivers/hid/hid-wiimote-core.c    |  14 ++
- drivers/hid/hid-wiimote-modules.c | 392 ++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-wiimote.h         |   3 +
- include/linux/mod_devicetable.h   |   2 +-
- include/uapi/linux/input.h        |  25 ++-
- 5 files changed, 433 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index 6602098..946cdef 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -456,6 +456,9 @@ static __u8 wiimote_cmd_read_ext(struct wiimote_data *wdata, __u8 *rmem)
+ 		return WIIMOTE_EXT_BALANCE_BOARD;
+ 	if (rmem[4] == 0x01 && rmem[5] == 0x20)
+ 		return WIIMOTE_EXT_PRO_CONTROLLER;
++	if (rmem[0] == 0x01 && rmem[1] == 0x00 &&
++	    rmem[4] == 0x01 && rmem[5] == 0x03)
++		return WIIMOTE_EXT_GUITAR_HERO_DRUMS;
+ 
+ 	return WIIMOTE_EXT_UNKNOWN;
+ }
+@@ -489,6 +492,7 @@ static bool wiimote_cmd_map_mp(struct wiimote_data *wdata, __u8 exttype)
+ 	/* map MP with correct pass-through mode */
+ 	switch (exttype) {
+ 	case WIIMOTE_EXT_CLASSIC_CONTROLLER:
++	case WIIMOTE_EXT_GUITAR_HERO_DRUMS:
+ 		wmem = 0x07;
+ 		break;
+ 	case WIIMOTE_EXT_NUNCHUK:
+@@ -1079,6 +1083,7 @@ static const char *wiimote_exttype_names[WIIMOTE_EXT_NUM] = {
+ 	[WIIMOTE_EXT_CLASSIC_CONTROLLER] = "Nintendo Wii Classic Controller",
+ 	[WIIMOTE_EXT_BALANCE_BOARD] = "Nintendo Wii Balance Board",
+ 	[WIIMOTE_EXT_PRO_CONTROLLER] = "Nintendo Wii U Pro Controller",
++	[WIIMOTE_EXT_GUITAR_HERO_DRUMS] = "Nintendo Wii Guitar Hero Drums",
+ };
+ 
+ /*
+@@ -1665,6 +1670,8 @@ static ssize_t wiimote_ext_show(struct device *dev,
+ 		return sprintf(buf, "balanceboard\n");
+ 	case WIIMOTE_EXT_PRO_CONTROLLER:
+ 		return sprintf(buf, "procontroller\n");
++	case WIIMOTE_EXT_GUITAR_HERO_DRUMS:
++		return sprintf(buf, "drums\n");
+ 	case WIIMOTE_EXT_UNKNOWN:
+ 		/* fallthrough */
+ 	default:
+diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
+index 2e7d644..08a44a7 100644
+--- a/drivers/hid/hid-wiimote-modules.c
++++ b/drivers/hid/hid-wiimote-modules.c
+@@ -1834,6 +1834,223 @@ static const struct wiimod_ops wiimod_pro = {
+ };
+ 
+ /*
++ * Drums
++ * Guitar-Hero, Rock-Band and other games came bundled with drums which can
++ * be plugged as extension to a Wiimote. Drum-reports are still not entirely
++ * figured out, but the most important information is known.
++ * We create a separate device for drums and report all information via this
++ * input device.
++ */
++
++static inline void wiimod_drums_report_pressure(struct wiimote_data *wdata,
++						__u8 none, __u8 which,
++						__u8 pressure, __u8 onoff,
++						__u8 *store, __u16 code,
++						__u8 which_code)
++{
++	static const __u8 default_pressure = 3;
++
++	if (!none && which == which_code) {
++		*store = pressure;
++		input_report_abs(wdata->extension.input, code, *store);
++	} else if (onoff != !!*store) {
++		*store = onoff ? default_pressure : 0;
++		input_report_abs(wdata->extension.input, code, *store);
++	}
++}
++
++static void wiimod_drums_in_ext(struct wiimote_data *wdata, const __u8 *ext)
++{
++	__u8 pressure, which, none, hhp, sx, sy;
++	__u8 o, r, y, g, b, bass, bm, bp;
++
++	/*   Byte |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    1   |  0  |  0  |              SX <5:0>             |
++	 *    2   |  0  |  0  |              SY <5:0>             |
++	 *   -----+-----+-----+-----------------------------+-----+
++	 *    3   | HPP | NON |         WHICH <5:1>         |  ?  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    4   |   SOFT <7:5>    |  0  |  1  |  1  |  0  |  ?  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    5   |  ?  |  1  |  1  | B-  |  1  | B+  |  1  |  ?  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    6   |  O  |  R  |  Y  |  G  |  B  | BSS |  1  |  1  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 * All buttons are 0 if pressed
++	 *
++	 * With Motion+ enabled, the following bits will get invalid:
++	 *   Byte |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    1   |  0  |  0  |              SX <5:1>       |XXXXX|
++	 *    2   |  0  |  0  |              SY <5:1>       |XXXXX|
++	 *   -----+-----+-----+-----------------------------+-----+
++	 *    3   | HPP | NON |         WHICH <5:1>         |  ?  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    4   |   SOFT <7:5>    |  0  |  1  |  1  |  0  |  ?  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    5   |  ?  |  1  |  1  | B-  |  1  | B+  |  1  |XXXXX|
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    6   |  O  |  R  |  Y  |  G  |  B  | BSS |XXXXX|XXXXX|
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 */
++
++	pressure = 7 - (ext[3] >> 5);
++	which = (ext[2] >> 1) & 0x1f;
++	none = !!(ext[2] & 0x40);
++	hhp = !(ext[2] & 0x80);
++	sx = ext[0] & 0x3f;
++	sy = ext[1] & 0x3f;
++	o = !(ext[5] & 0x80);
++	r = !(ext[5] & 0x40);
++	y = !(ext[5] & 0x20);
++	g = !(ext[5] & 0x10);
++	b = !(ext[5] & 0x08);
++	bass = !(ext[5] & 0x04);
++	bm = !(ext[4] & 0x10);
++	bp = !(ext[4] & 0x04);
++
++	wiimod_drums_report_pressure(wdata, none, which, pressure,
++				     o, &wdata->state.pressure_drums[0],
++				     ABS_CYMBAL_RIGHT, 0x0e);
++	wiimod_drums_report_pressure(wdata, none, which, pressure,
++				     r, &wdata->state.pressure_drums[1],
++				     ABS_TOM_LEFT, 0x19);
++	wiimod_drums_report_pressure(wdata, none, which, pressure,
++				     y, &wdata->state.pressure_drums[2],
++				     ABS_CYMBAL_LEFT, 0x11);
++	wiimod_drums_report_pressure(wdata, none, which, pressure,
++				     g, &wdata->state.pressure_drums[3],
++				     ABS_TOM_FAR_RIGHT, 0x12);
++	wiimod_drums_report_pressure(wdata, none, which, pressure,
++				     b, &wdata->state.pressure_drums[4],
++				     ABS_TOM_RIGHT, 0x0f);
++
++	/* Bass shares pressure with hi-hat (set via hhp) */
++	wiimod_drums_report_pressure(wdata, none, hhp ? 0xff : which, pressure,
++				     bass, &wdata->state.pressure_drums[5],
++				     ABS_BASS, 0x1b);
++	/* Hi-hat has no on/off values, just pressure. Force to off/0. */
++	wiimod_drums_report_pressure(wdata, none, hhp ? which : 0xff, pressure,
++				     0, &wdata->state.pressure_drums[6],
++				     ABS_HI_HAT, 0x0e);
++
++	input_report_abs(wdata->extension.input, ABS_X, sx - 0x20);
++	input_report_abs(wdata->extension.input, ABS_Y, sy - 0x20);
++
++	input_report_key(wdata->extension.input, BTN_START, bp);
++	input_report_key(wdata->extension.input, BTN_SELECT, bm);
++
++	input_sync(wdata->extension.input);
++}
++
++static int wiimod_drums_open(struct input_dev *dev)
++{
++	struct wiimote_data *wdata = input_get_drvdata(dev);
++	unsigned long flags;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wdata->state.flags |= WIIPROTO_FLAG_EXT_USED;
++	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
++	return 0;
++}
++
++static void wiimod_drums_close(struct input_dev *dev)
++{
++	struct wiimote_data *wdata = input_get_drvdata(dev);
++	unsigned long flags;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wdata->state.flags &= ~WIIPROTO_FLAG_EXT_USED;
++	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++}
++
++static int wiimod_drums_probe(const struct wiimod_ops *ops,
++			      struct wiimote_data *wdata)
++{
++	int ret;
++
++	wdata->extension.input = input_allocate_device();
++	if (!wdata->extension.input)
++		return -ENOMEM;
++
++	input_set_drvdata(wdata->extension.input, wdata);
++	wdata->extension.input->open = wiimod_drums_open;
++	wdata->extension.input->close = wiimod_drums_close;
++	wdata->extension.input->dev.parent = &wdata->hdev->dev;
++	wdata->extension.input->id.bustype = wdata->hdev->bus;
++	wdata->extension.input->id.vendor = wdata->hdev->vendor;
++	wdata->extension.input->id.product = wdata->hdev->product;
++	wdata->extension.input->id.version = wdata->hdev->version;
++	wdata->extension.input->name = WIIMOTE_NAME " Drums";
++
++	set_bit(EV_KEY, wdata->extension.input->evbit);
++	set_bit(BTN_START, wdata->extension.input->keybit);
++	set_bit(BTN_SELECT, wdata->extension.input->keybit);
++
++	set_bit(EV_ABS, wdata->extension.input->evbit);
++	set_bit(ABS_X, wdata->extension.input->absbit);
++	set_bit(ABS_Y, wdata->extension.input->absbit);
++	set_bit(ABS_TOM_LEFT, wdata->extension.input->absbit);
++	set_bit(ABS_TOM_RIGHT, wdata->extension.input->absbit);
++	set_bit(ABS_TOM_FAR_RIGHT, wdata->extension.input->absbit);
++	set_bit(ABS_CYMBAL_LEFT, wdata->extension.input->absbit);
++	set_bit(ABS_CYMBAL_RIGHT, wdata->extension.input->absbit);
++	set_bit(ABS_BASS, wdata->extension.input->absbit);
++	set_bit(ABS_HI_HAT, wdata->extension.input->absbit);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_X, -32, 31, 1, 1);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_Y, -32, 31, 1, 1);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_TOM_LEFT, 0, 7, 0, 0);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_TOM_RIGHT, 0, 7, 0, 0);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_TOM_FAR_RIGHT, 0, 7, 0, 0);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_CYMBAL_LEFT, 0, 7, 0, 0);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_CYMBAL_RIGHT, 0, 7, 0, 0);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_BASS, 0, 7, 0, 0);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_HI_HAT, 0, 7, 0, 0);
++
++	ret = input_register_device(wdata->extension.input);
++	if (ret)
++		goto err_free;
++
++	return 0;
++
++err_free:
++	input_free_device(wdata->extension.input);
++	wdata->extension.input = NULL;
++	return ret;
++}
++
++static void wiimod_drums_remove(const struct wiimod_ops *ops,
++				struct wiimote_data *wdata)
++{
++	if (!wdata->extension.input)
++		return;
++
++	input_unregister_device(wdata->extension.input);
++	wdata->extension.input = NULL;
++}
++
++static const struct wiimod_ops wiimod_drums = {
++	.flags = 0,
++	.arg = 0,
++	.probe = wiimod_drums_probe,
++	.remove = wiimod_drums_remove,
++	.in_ext = wiimod_drums_in_ext,
++};
++
++/*
+  * Builtin Motion Plus
+  * This module simply sets the WIIPROTO_FLAG_BUILTIN_MP protocol flag which
+  * disables polling for Motion-Plus. This should be set only for devices which
+@@ -2083,4 +2300,5 @@ const struct wiimod_ops *wiimod_ext_table[WIIMOTE_EXT_NUM] = {
+ 	[WIIMOTE_EXT_CLASSIC_CONTROLLER] = &wiimod_classic,
+ 	[WIIMOTE_EXT_BALANCE_BOARD] = &wiimod_bboard,
+ 	[WIIMOTE_EXT_PRO_CONTROLLER] = &wiimod_pro,
++	[WIIMOTE_EXT_GUITAR_HERO_DRUMS] = &wiimod_drums,
+ };
+diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
+index f1474f3..6e18b55 100644
+--- a/drivers/hid/hid-wiimote.h
++++ b/drivers/hid/hid-wiimote.h
+@@ -88,6 +88,7 @@ enum wiimote_exttype {
+ 	WIIMOTE_EXT_CLASSIC_CONTROLLER,
+ 	WIIMOTE_EXT_BALANCE_BOARD,
+ 	WIIMOTE_EXT_PRO_CONTROLLER,
++	WIIMOTE_EXT_GUITAR_HERO_DRUMS,
+ 	WIIMOTE_EXT_NUM,
+ };
+ 
+@@ -135,6 +136,7 @@ struct wiimote_state {
+ 
+ 	/* calibration data */
+ 	__u16 calib_bboard[4][3];
++	__u8 pressure_drums[7];
+ };
+ 
+ struct wiimote_data {
 -- 
 1.8.4
 

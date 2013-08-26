@@ -1,64 +1,81 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v1 23/49] hid: usbhid: prepare for enabling irq in
- complete()
-Date: Mon, 26 Aug 2013 13:44:32 +0200 (CEST)
-Message-ID: <alpine.LRH.2.00.1308261344240.11387@twin.jikos.cz>
-References: <1376756714-25479-1-git-send-email-ming.lei@canonical.com> <1376756714-25479-24-git-send-email-ming.lei@canonical.com>
+Subject: Re: [PATCH 1/4] hid-sensor-hub: fix style of comments
+Date: Mon, 26 Aug 2013 13:46:41 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308261346370.2077@pobox.suse.cz>
+References: <1376467631-20857-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48674 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:48724 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751529Ab3HZLoy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Aug 2013 07:44:54 -0400
-In-Reply-To: <1376756714-25479-24-git-send-email-ming.lei@canonical.com>
+	id S1751484Ab3HZLqo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Aug 2013 07:46:44 -0400
+In-Reply-To: <1376467631-20857-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>
 
-On Sun, 18 Aug 2013, Ming Lei wrote:
+On Wed, 14 Aug 2013, Andy Shevchenko wrote:
 
-> Complete() will be run with interrupt enabled, so change to
-> spin_lock_irqsave().
+> This patch fixes the style of the comments to be like following
+> 	/* The commentary */
 > 
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+> There is no functional change.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Acked-by: Jiri Kosina <jkosina@suse.cz>
+Applied.
 
 > ---
->  drivers/hid/usbhid/hid-core.c |    5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+>  drivers/hid/hid-sensor-hub.c   | 2 +-
+>  include/linux/hid-sensor-hub.h | 2 +-
+>  include/linux/hid-sensor-ids.h | 2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index bd38cdf..2445fd6 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -489,8 +489,9 @@ static void hid_ctrl(struct urb *urb)
->  	struct hid_device *hid = urb->context;
->  	struct usbhid_device *usbhid = hid->driver_data;
->  	int unplug = 0, status = urb->status;
-> +	unsigned long flags;
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index ca749810..ffc80cf 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -416,7 +416,7 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+>  		return 1;
 >  
-> -	spin_lock(&usbhid->lock);
-> +	spin_lock_irqsave(&usbhid->lock, flags);
+>  	ptr = raw_data;
+> -	ptr++; /*Skip report id*/
+> +	ptr++; /* Skip report id */
 >  
->  	switch (status) {
->  	case 0:			/* success */
-> @@ -525,7 +526,7 @@ static void hid_ctrl(struct urb *urb)
->  	}
+>  	spin_lock_irqsave(&pdata->lock, flags);
 >  
->  	clear_bit(HID_CTRL_RUNNING, &usbhid->iofl);
-> -	spin_unlock(&usbhid->lock);
-> +	spin_unlock_irqrestore(&usbhid->lock, flags);
->  	usb_autopm_put_interface_async(usbhid->intf);
->  	wake_up(&usbhid->wait);
->  }
+> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+> index ecefb73..32ba451 100644
+> --- a/include/linux/hid-sensor-hub.h
+> +++ b/include/linux/hid-sensor-hub.h
+> @@ -172,7 +172,7 @@ struct hid_sensor_common {
+>  	struct hid_sensor_hub_attribute_info sensitivity;
+>  };
+>  
+> -/*Convert from hid unit expo to regular exponent*/
+> +/* Convert from hid unit expo to regular exponent */
+>  static inline int hid_sensor_convert_exponent(int unit_expo)
+>  {
+>  	if (unit_expo < 0x08)
+> diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
+> index 6f24446..4f945d3 100644
+> --- a/include/linux/hid-sensor-ids.h
+> +++ b/include/linux/hid-sensor-ids.h
+> @@ -37,7 +37,7 @@
+>  #define HID_USAGE_SENSOR_ANGL_VELOCITY_Y_AXIS			0x200458
+>  #define HID_USAGE_SENSOR_ANGL_VELOCITY_Z_AXIS			0x200459
+>  
+> -/*ORIENTATION: Compass 3D: (200083) */
+> +/* ORIENTATION: Compass 3D: (200083) */
+>  #define HID_USAGE_SENSOR_COMPASS_3D				0x200083
+>  #define HID_USAGE_SENSOR_ORIENT_MAGN_HEADING			0x200471
+>  #define HID_USAGE_SENSOR_ORIENT_MAGN_HEADING_X			0x200472
+> -- 
+> 1.8.4.rc2
 > 
 
 -- 
 Jiri Kosina
 SUSE Labs
-

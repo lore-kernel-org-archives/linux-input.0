@@ -1,79 +1,160 @@
-From: =?utf-8?Q?Andreas_Lilleb=C3=B8_Holm?= <andreas@sqhead.com>
-Subject: Re: kernel Oops: 0003 on usbhid_submit_report
-Date: Mon, 26 Aug 2013 18:16:11 +0200
-Message-ID: <7851429DDA1F498899F023F32CC33483@sqhead.com>
-References: <9921350AD19C46EFA70EA181A0C1F7E9@sqhead.com>
- <20130813184056.GH7740@kroah.com>
- <16FA42AC8F654C3B81924591E607B342@sqhead.com>
- <20130815063736.GF25754@kroah.com>
- <26E21BF00B944AB6B8F48B5E59B0442D@sqhead.com>
- <CAN+gG=FJSMyQNHcq=0cO1srVpRb_83YihUH0WuAPTcKAJHhv4g@mail.gmail.com>
- <alpine.LNX.2.00.1308231447440.11021@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 1/3 v2] Input: wacom - Support EMR and MFT sensors of Cintiq Companion Hybrid
+Date: Mon, 26 Aug 2013 10:13:30 -0700
+Message-ID: <1377537210-2536-1-git-send-email-killertofu@gmail.com>
+References: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f174.google.com ([209.85.217.174]:48032 "EHLO
-	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752028Ab3HZQQP convert rfc822-to-8bit (ORCPT
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:48992 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752065Ab3HZRNi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Aug 2013 12:16:15 -0400
-Received: by mail-lb0-f174.google.com with SMTP id w6so1572136lbh.5
-        for <linux-input@vger.kernel.org>; Mon, 26 Aug 2013 09:16:13 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1308231447440.11021@pobox.suse.cz>
-Content-Disposition: inline
+	Mon, 26 Aug 2013 13:13:38 -0400
+Received: by mail-pd0-f181.google.com with SMTP id g10so3678310pdj.26
+        for <linux-input@vger.kernel.org>; Mon, 26 Aug 2013 10:13:37 -0700 (PDT)
+In-Reply-To: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Greg KH <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-input <linux-input@vger.kernel.org>
+To: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, pinglinux@gmail.com
+Cc: Jason Gerecke <killertofu@gmail.com>
 
-On Friday, August 23, 2013 at 2:49 PM, Jiri Kosina wrote:
-> On Fri, 23 Aug 2013, Benjamin Tissoires wrote:
-> =20
-> > IIRC, Jiri fixed some paging requests with the two following patche=
-s:
-> > http://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=
-=3Dfor-next&id=3D27ce405039bfe6d3f4143415c638f56a3df77dca
-> > http://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=
-=3Dfor-next&id=3Dbc197eedef1ae082ec662c64c3f4aa302821fb7a
-> > =20
-> > At least, these two patches are related to hid_output_report(). I
-> > think they are scheduled for 3.12, so I can not find them in Linus'
-> > tree.
-> > =20
-> > It would worth trying them :)
-> =20
-> All three reported oopses happened on page boundary exactly, so this =
-=20
-> pretty much looks like my implement() fix is the one.
-> =20
-> Andreas, could you please apply
-> =20
-> http://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=3D=
-for-next&id=3D27ce405039bfe6d3f4143415c638f56a3df77dca
-> =20
-> and report back whether it makes your problem go away?
-Hi,
+Adds support for the sensors integrated in to the Cintiq Companion
+Hybrid. These sensors use by-and-large the same protocol as the
+Cintiq 24HD touch.
 
-You are my hero Jiri :-) These two patches fixes the issues I was seein=
-g and I can no longer reproduce them.
+NOTE: The ExpressKeys on the Cintiq Companion Hybrid are wired to
+both the EMR controller and CPU GPIO pins. It may be necessary to
+disable their functionality in this driver if building a custom
+Android kernel for this device (lest two events be sent to userspace
+for every button press).
 
-I have only tried them on one hardware platform yet; the one that I had=
- failing: Atom Intel e6xx CPU with EG20T PCH platform controller. I hav=
-e had approximately 300 boots in our test rigg now and no fails yet. Be=
-fore was the failrate 1/25 boots.
+Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+---
+Changes in v2:
+ * Remove "#if 1" block surrounding conditional ExpressKey reporting
+ * Change to C-style comments
 
-I made the kernel based on 3.10.9 stable tag and applied them directly =
-on there. I do recommend that these patches makes it way into the stabl=
-e tree :-)
+ drivers/input/tablet/wacom_sys.c |  2 +-
+ drivers/input/tablet/wacom_wac.c | 46 +++++++++++++++++++++++++++++++++++++++-
+ drivers/input/tablet/wacom_wac.h |  1 +
+ 3 files changed, 47 insertions(+), 2 deletions(-)
 
-Thanks again :)
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 1ad3e07..8fa7af7 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -548,7 +548,7 @@ static int wacom_query_tablet_data(struct usb_interface *intf, struct wacom_feat
+ 			/* MT Tablet PC touch */
+ 			return wacom_set_device_mode(intf, 3, 4, 4);
+ 		}
+-		else if (features->type == WACOM_24HDT) {
++		else if (features->type == WACOM_24HDT || features->type == ASTERIX) {
+ 			return wacom_set_device_mode(intf, 18, 3, 2);
+ 		}
+ 	} else if (features->device_type == BTN_TOOL_PEN) {
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 541197b..9265b3d 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -475,7 +475,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
+ 	/* general pen packet */
+ 	if ((data[1] & 0xb8) == 0xa0) {
+ 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
+-		if (features->type >= INTUOS4S && features->type <= WACOM_24HD) {
++		if (features->type >= INTUOS4S && features->type <= ASTERIX) {
+ 			t = (t << 1) | (data[1] & 1);
+ 		}
+ 		input_report_abs(input, ABS_PRESSURE, t);
+@@ -619,6 +619,22 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 			} else {
+ 				input_report_abs(input, ABS_MISC, 0);
+ 			}
++		} else if (features->type == ASTERIX) {
++			/*
++			 * Do not send hardware buttons under Android. They
++			 * are already sent to the system through GPIO (and
++			 * have different meaning).
++			 */
++			input_report_key(input, BTN_1, (data[4] & 0x01));
++			input_report_key(input, BTN_2, (data[4] & 0x02));
++			input_report_key(input, BTN_3, (data[4] & 0x04));
++			input_report_key(input, BTN_4, (data[4] & 0x08));
++
++			input_report_key(input, BTN_5, (data[4] & 0x10));  /* Right  */
++			input_report_key(input, BTN_6, (data[4] & 0x20));  /* Up     */
++			input_report_key(input, BTN_7, (data[4] & 0x40));  /* Left   */
++			input_report_key(input, BTN_8, (data[4] & 0x80));  /* Down   */
++			input_report_key(input, BTN_0, (data[3] & 0x01));  /* Center */
+ 		} else if (features->type >= INTUOS5S && features->type <= INTUOS5L) {
+ 			int i;
+ 
+@@ -1325,6 +1341,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+ 	case WACOM_22HD:
+ 	case WACOM_24HD:
+ 	case DTK:
++	case ASTERIX:
+ 		sync = wacom_intuos_irq(wacom_wac);
+ 		break;
+ 
+@@ -1763,6 +1780,24 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 					      0, 0);
+ 		}
+ 		break;
++
++	case ASTERIX:
++		__set_bit(BTN_1, input_dev->keybit);
++		__set_bit(BTN_2, input_dev->keybit);
++		__set_bit(BTN_3, input_dev->keybit);
++		__set_bit(BTN_4, input_dev->keybit);
++
++		__set_bit(BTN_5, input_dev->keybit);
++		__set_bit(BTN_6, input_dev->keybit);
++		__set_bit(BTN_7, input_dev->keybit);
++		__set_bit(BTN_8, input_dev->keybit);
++		__set_bit(BTN_0, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
++		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
++
++		wacom_setup_cintiq(wacom_wac);
++		break;
+ 	}
+ 	return 0;
+ }
+@@ -2117,6 +2152,13 @@ static const struct wacom_features wacom_features_0xDF =
+ static const struct wacom_features wacom_features_0x6004 =
+ 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
+ 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0x0307 =
++	{ "Wacom ISDv5 307", WACOM_PKGLEN_INTUOS,  59552,  33848, 2047,
++	  63, ASTERIX, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x309 };
++static const struct wacom_features wacom_features_0x0309 =
++	{ "Wacom ISDv5 309", .type = WACOM_24HDT, /* Touch */
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x0307, .touch_max = 10 };
+ 
+ #define USB_DEVICE_WACOM(prod)					\
+ 	USB_DEVICE(USB_VENDOR_ID_WACOM, prod),			\
+@@ -2247,6 +2289,8 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xF8) },
+ 	{ USB_DEVICE_DETAILED(0xF6, USB_CLASS_HID, 0, 0) },
+ 	{ USB_DEVICE_WACOM(0xFA) },
++	{ USB_DEVICE_WACOM(0x0307) },
++	{ USB_DEVICE_DETAILED(0x0309, USB_CLASS_HID, 0, 0) },
+ 	{ USB_DEVICE_LENOVO(0x6004) },
+ 	{ }
+ };
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index dfc9e08..f47a5c1 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -80,6 +80,7 @@ enum {
+ 	WACOM_22HD,
+ 	DTK,
+ 	WACOM_24HD,
++	ASTERIX,
+ 	CINTIQ,
+ 	WACOM_BEE,
+ 	WACOM_13HD,
+-- 
+1.8.3.4
 
-Best regards
-Andreas Lilleb=C3=B8 Holm
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

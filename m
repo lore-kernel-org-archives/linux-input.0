@@ -1,61 +1,44 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: Re: Rotary encoder platform device driver code examples
-Date: Tue, 27 Aug 2013 12:39:14 +0200
-Message-ID: <CAH9NwWfo0Y5ngy48Qn0wM+Lgs88bfe3+ASyUBy4d=tX8H56U1g@mail.gmail.com>
-References: <52152808.1000608@rs2i.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH] Input: add SYN_MAX and SYN_CNT constants
+Date: Tue, 27 Aug 2013 13:23:52 +0200
+Message-ID: <1377602632-23259-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qe0-f43.google.com ([209.85.128.43]:43010 "EHLO
-	mail-qe0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752143Ab3H0Kje convert rfc822-to-8bit (ORCPT
+Received: from mail-ee0-f50.google.com ([74.125.83.50]:52246 "EHLO
+	mail-ee0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753296Ab3H0LYG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Aug 2013 06:39:34 -0400
-Received: by mail-qe0-f43.google.com with SMTP id t7so2448937qeb.16
-        for <linux-input@vger.kernel.org>; Tue, 27 Aug 2013 03:39:34 -0700 (PDT)
-In-Reply-To: <52152808.1000608@rs2i.net>
+	Tue, 27 Aug 2013 07:24:06 -0400
+Received: by mail-ee0-f50.google.com with SMTP id d51so2199487eek.37
+        for <linux-input@vger.kernel.org>; Tue, 27 Aug 2013 04:24:05 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?R1JFTk9OIExvw69j?= <difool@rs2i.net>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-2013/8/21 GRENON Lo=C3=AFc <difool@rs2i.net>:
-> Hi guys,
->
-> I want to interface a magnetic scale position sensor with a BeagleBon=
-e Black
-> (an ARM development platform).
-> While I was reading this following article :
-> http://bwgz57.wordpress.com/2012/04/11/beaglebone-with-a-rotary-encod=
-er/ I
-> discovered that linux has built-in support for rotary encoders connec=
-ted via
-> GPIO.
->
-> The magnetic scale position sensor can be considered like a rotary en=
-coder
-> so I would use the rotary_encoder platform device driver.
->
-> I've read the code example at the end of this document :
-> https://www.kernel.org/doc/Documentation/input/rotary-encoder.txt
-> But I don't know how to access to the "pos" value of the rotary encod=
-er.
->
-> Do you have some code example of use of this driver ? Or anything tha=
-t can
-> be helpful for me.
->
+SYN_* events are special and not enabled via set_bit() for devices. Hence,
+they haven't been really needed, yet. However, user-space can still make
+great use of that for int->string debugging helpers or alike.
 
-As the rotary encoder is an input device it is accessible via
-/dev/input/eventX where X is
-a number. Have a look at evtest user space application.
+Also, I haven't seen any reason not to define these, so here they are.
 
-greets
---
-Christian Gmeiner, MSc
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ include/uapi/linux/input.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 4649ee3..2fb6fae 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -194,6 +194,8 @@ struct input_keymap_entry {
+ #define SYN_CONFIG		1
+ #define SYN_MT_REPORT		2
+ #define SYN_DROPPED		3
++#define SYN_MAX			0xf
++#define SYN_CNT			(SYN_MAX+1)
+ 
+ /*
+  * Keys and buttons
+-- 
+1.8.4
+

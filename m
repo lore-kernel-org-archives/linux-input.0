@@ -1,52 +1,61 @@
-From: Illia Smyrnov <illia.smyrnov@globallogic.com>
-Subject: Re: [PATCH v3 0/3] Input: omap-keypad: Wakeup capability and w/a
- for i689 errata.
-Date: Tue, 27 Aug 2013 13:08:05 +0300
-Message-ID: <521C7A85.6000504@ti.com>
-References: <1375116311-13999-1-git-send-email-illia.smyrnov@ti.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: Re: Rotary encoder platform device driver code examples
+Date: Tue, 27 Aug 2013 12:39:14 +0200
+Message-ID: <CAH9NwWfo0Y5ngy48Qn0wM+Lgs88bfe3+ASyUBy4d=tX8H56U1g@mail.gmail.com>
+References: <52152808.1000608@rs2i.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1375116311-13999-1-git-send-email-illia.smyrnov@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Illia Smyrnov <illia.smyrnov@globallogic.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Felipe Balbi <balbi@ti.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qe0-f43.google.com ([209.85.128.43]:43010 "EHLO
+	mail-qe0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752143Ab3H0Kje convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Aug 2013 06:39:34 -0400
+Received: by mail-qe0-f43.google.com with SMTP id t7so2448937qeb.16
+        for <linux-input@vger.kernel.org>; Tue, 27 Aug 2013 03:39:34 -0700 (PDT)
+In-Reply-To: <52152808.1000608@rs2i.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?B?R1JFTk9OIExvw69j?= <difool@rs2i.net>
+Cc: linux-input@vger.kernel.org
 
-Hello Dmitry,
+2013/8/21 GRENON Lo=C3=AFc <difool@rs2i.net>:
+> Hi guys,
+>
+> I want to interface a magnetic scale position sensor with a BeagleBon=
+e Black
+> (an ARM development platform).
+> While I was reading this following article :
+> http://bwgz57.wordpress.com/2012/04/11/beaglebone-with-a-rotary-encod=
+er/ I
+> discovered that linux has built-in support for rotary encoders connec=
+ted via
+> GPIO.
+>
+> The magnetic scale position sensor can be considered like a rotary en=
+coder
+> so I would use the rotary_encoder platform device driver.
+>
+> I've read the code example at the end of this document :
+> https://www.kernel.org/doc/Documentation/input/rotary-encoder.txt
+> But I don't know how to access to the "pos" value of the rotary encod=
+er.
+>
+> Do you have some code example of use of this driver ? Or anything tha=
+t can
+> be helpful for me.
+>
 
-could you take reviewed patches from this patchset?
+As the rotary encoder is an input device it is accessible via
+/dev/input/eventX where X is
+a number. Have a look at evtest user space application.
 
-Reviewed patches:
-[PATCH v3 1/3] Input: omap-keypad: Enable wakeup capability for keypad.
-[PATCH v3 3/3] Input: omap-keypad: Setup irq type from DT
-are not depend on
-[PATCH v3 2/3] Input: omap-keypad: errata i689: Correct debounce time
-
-Thanks.
-
-On 07/29/2013 07:45 PM, Illia Smyrnov wrote:
-> This patchset adds wake up capability for the keypad and
-> workaround for i689 errata.
->
-> Based on top of v3.11-rc3
->
-> Depends on:
->
-> Input: omap-keypad: Convert to threaded IRQ
-> https://patchwork.kernel.org/patch/2832920/
->
-> Input: omap-keypad: Cleanup - use bitfiled instead of hardcoded values
-> https://patchwork.kernel.org/patch/2832913/
->
-> Axel Haslam (1):
->    Input: omap-keypad: errata i689: Correct debounce time
->
-> Illia Smyrnov (2):
->    Input: omap-keypad: Enable wakeup capability for keypad.
->    Input: omap-keypad: Setup irq type from DT
->
->   drivers/input/keyboard/omap4-keypad.c |   52 ++++++++++++++++++++++++++++++---
->   1 file changed, 48 insertions(+), 4 deletions(-)
->
+greets
+--
+Christian Gmeiner, MSc
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

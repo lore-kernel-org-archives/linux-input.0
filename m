@@ -1,37 +1,36 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH v3 0/3] HID: Win 8 multitouch panels detection in core
-Date: Mon, 26 Aug 2013 14:12:55 -0700
-Message-ID: <521BC4D7.5050507@linux.intel.com>
-References: <1377175869-5336-1-git-send-email-benjamin.tissoires@redhat.com> <20130822175515.GA5215@polaris.bitmath.org> <alpine.LNX.2.00.1308261342430.2077@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH] HID: uhid: add devname module alias
+Date: Mon, 26 Aug 2013 22:07:42 -0700
+Message-ID: <1377580062-14346-1-git-send-email-marcel@holtmann.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:1761 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751465Ab3HZVFv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Aug 2013 17:05:51 -0400
-In-Reply-To: <alpine.LNX.2.00.1308261342430.2077@pobox.suse.cz>
+Received: from s15283307.onlinehome-server.info ([87.106.208.187]:41525 "EHLO
+	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752165Ab3H0FHu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Aug 2013 01:07:50 -0400
+Received: from localhost.localdomain (S010620c9d099deff.vc.shawcable.net [24.84.124.211])
+	by mail.holtmann.org (Postfix) with ESMTPSA id 575E98B343
+	for <linux-input@vger.kernel.org>; Tue, 27 Aug 2013 07:07:47 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephane Chatty <chatty@enac.fr>, Alexander Holler <holler@ahsoftware.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 08/26/2013 04:43 AM, Jiri Kosina wrote:
-> On Thu, 22 Aug 2013, Henrik Rydberg wrote:
->
->>> this is the v3 of this patch series.
->>>
->>> Srinivas, I still did not added your tested-by as I made minors modifications of
->>> the patches 1 and 2. Now only the patch 1 will impact sensor_hub, and patch 2
->>> will not impact this. Maybe just wait for Henrik to put his "Reviewed-by" before
->>> giving one last test.
->> Here goes:
->>
->>      Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
-> Thanks guys. Not applying this just yet, waiting for Tested-by: from
-> Srinivas.
->
-Tested-by: Srinivas Pandruvada<srinivas.pandruvada@linux.intel.com>
+For simple device node creation, add the devname module alias.
 
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+---
+ drivers/hid/uhid.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index fc307e0..9ab7dfc 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -659,3 +659,4 @@ module_exit(uhid_exit);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
+ MODULE_DESCRIPTION("User-space I/O driver support for HID subsystem");
++MODULE_ALIAS("devname:" UHID_NAME);
+-- 
+1.8.3.1
 

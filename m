@@ -1,7 +1,7 @@
 From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Subject: Re: [PATCH 2/2] iio: ti_am335x_adc: Add continuous sampling support
-Date: Wed, 28 Aug 2013 16:18:35 +0200
-Message-ID: <20130828141835.GD14111@linutronix.de>
+Date: Wed, 28 Aug 2013 18:43:08 +0200
+Message-ID: <20130828164308.GE14111@linutronix.de>
 References: <1377470724-15710-1-git-send-email-zubair.lutfullah@gmail.com>
  <1377470724-15710-3-git-send-email-zubair.lutfullah@gmail.com>
 Mime-Version: 1.0
@@ -22,47 +22,17 @@ List-Id: linux-input@vger.kernel.org
 >index a952538..ae2202b 100644
 >--- a/drivers/iio/adc/ti_am335x_adc.c
 >+++ b/drivers/iio/adc/ti_am335x_adc.c
+>@@ -231,28 +406,56 @@ static int tiadc_probe(struct platform_device *p=
+dev)
 =E2=80=A6
+>+err_free_device:
+>+	iio_device_free(indio_dev);
 
->+static struct iio_trigger *tiadc_iio_allocate_trigger(struct iio_dev =
-*indio_dev)
->+{
->+	struct iio_trigger *trig;
->+	int ret;
->+
->+	trig =3D iio_trigger_alloc("%s-dev%d", indio_dev->name, indio_dev->i=
-d);
->+	if (trig =3D=3D NULL)
->+		return NULL;
->+
->+	trig->dev.parent =3D indio_dev->dev.parent;
->+	trig->ops =3D &tiadc_trigger_ops;
->+	iio_trigger_set_drvdata(trig, indio_dev);
->+
->+	ret =3D iio_trigger_register(trig);
->+	if (ret)
+I am not sure about this one.
 
-shouldn't you free the trigger / undo iio_trigger_alloc() here?
-
->+		return NULL;
->+
->+	return trig;
+>+err_ret:
+> 	return err;
 > }
-
->=20
-> static const char * const chan_name_ain[] =3D {
->@@ -220,7 +394,8 @@ static int tiadc_probe(struct platform_device *pde=
-v)
-> 					  sizeof(struct tiadc_device));
-> 	if (indio_dev =3D=3D NULL) {
-> 		dev_err(&pdev->dev, "failed to allocate iio device\n");
->-		return -ENOMEM;
->+		err =3D -ENOMEM;
->+		goto err_ret;
-Why the jump instead of leave right away?
-
-> 	}
-> 	adc_dev =3D iio_priv(indio_dev);
 >=20
 >@@ -262,11 +465,14 @@ static int tiadc_remove(struct platform_device *=
 pdev)
@@ -73,17 +43,16 @@ pdev)
 > 	iio_device_unregister(indio_dev);
 >+	iio_buffer_unregister(indio_dev);
 > 	tiadc_channels_remove(indio_dev);
-
-I think you need also to
-
-	iio_trigger_unregister(adc_dev->trig);
-	iio_trigger_free(adc_dev->trig);
-
-here.
-=20
+>=20
 > 	step_en =3D get_adc_step_mask(adc_dev);
 > 	am335x_tsc_se_clr(adc_dev->mfd_tscadc, step_en);
 >+	iio_device_free(indio_dev);
+
+But this one is wrong. The will be removed via dev_res() and if you do
+it here as well then dev_res() will decrement the reference of an unuse=
+d
+object.
+
 >=20
 > 	return 0;
 > }

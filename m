@@ -1,75 +1,51 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 09/14] HID: logitech-dj: validate output report details
-Date: Wed, 28 Aug 2013 22:31:18 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308282220530.22181@pobox.suse.cz>
+Subject: [PATCH 10/14] HID: ntrig: validate feature report details
+Date: Wed, 28 Aug 2013 22:31:28 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308282221210.22181@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57976 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:57985 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751971Ab3H1UbV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 16:31:21 -0400
+	id S1751971Ab3H1Ubb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Aug 2013 16:31:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: Kees Cook <keescook@chromium.org>, Rafi Rubin <rafi@seas.upenn.edu>
 
 From: Kees Cook <keescook@chromium.org>
 
-A HID device could send a malicious output report that would cause the
-logitech-dj HID driver to leak kernel memory contents to the device, or
-trigger a NULL dereference during initialization:
+A HID device could send a malicious feature report that would cause the
+ntrig HID driver to trigger a NULL dereference during initialization:
 
-[  304.424553] usb 1-1: New USB device found, idVendor=046d, idProduct=c52b
+[57383.031190] usb 3-1: New USB device found, idVendor=1b96, idProduct=0001
 ...
-[  304.780467] BUG: unable to handle kernel NULL pointer dereference at 0000000000000028
-[  304.781409] IP: [<ffffffff815d50aa>] logi_dj_recv_send_report.isra.11+0x1a/0x90
+[57383.315193] BUG: unable to handle kernel NULL pointer dereference at 0000000000000030
+[57383.315308] IP: [<ffffffffa08102de>] ntrig_probe+0x25e/0x420 [hid_ntrig]
 
-CVE-2013-2895
+CVE-2013-2896
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@kernel.org
 ---
- drivers/hid/hid-logitech-dj.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/hid/hid-ntrig.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index cd33084..7b99c2a 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -461,7 +461,7 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
- 	struct hid_report *report;
- 	struct hid_report_enum *output_report_enum;
- 	u8 *data = (u8 *)(&dj_report->device_index);
--	int i;
-+	unsigned int i, length;
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index ef95102..5482156 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -115,7 +115,8 @@ static inline int ntrig_get_mode(struct hid_device *hdev)
+ 	struct hid_report *report = hdev->report_enum[HID_FEATURE_REPORT].
+ 				    report_id_hash[0x0d];
  
- 	output_report_enum = &hdev->report_enum[HID_OUTPUT_REPORT];
- 	report = output_report_enum->report_id_hash[REPORT_ID_DJ_SHORT];
-@@ -471,7 +471,9 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
- 		return -ENODEV;
- 	}
+-	if (!report)
++	if (!report || report->maxfield < 1 ||
++	    report->field[0]->report_count < 1)
+ 		return -EINVAL;
  
--	for (i = 0; i < report->field[0]->report_count; i++)
-+	length = min_t(size_t, sizeof(*dj_report) - 1,
-+			       report->field[0]->report_count);
-+	for (i = 0; i < length; i++)
- 		report->field[0]->value[i] = data[i];
- 
- 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
-@@ -783,6 +785,12 @@ static int logi_dj_probe(struct hid_device *hdev,
- 		goto hid_parse_fail;
- 	}
- 
-+	if (!hid_validate_report(hdev, HID_OUTPUT_REPORT, REPORT_ID_DJ_SHORT,
-+				 1, 3)) {
-+		retval = -ENODEV;
-+		goto hid_parse_fail;
-+	}
-+
- 	/* Starts the usb device and connects to upper interfaces hiddev and
- 	 * hidraw */
- 	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	hid_hw_request(hdev, report, HID_REQ_GET_REPORT);
 
 -- 
 Jiri Kosina

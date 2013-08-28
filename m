@@ -1,58 +1,40 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] input: ti_am335x_tsc: Enable shared IRQ for TSC
-Date: Wed, 28 Aug 2013 12:42:11 +0200
-Message-ID: <20130828104211.GB14111@linutronix.de>
-References: <1377470724-15710-1-git-send-email-zubair.lutfullah@gmail.com>
- <1377470724-15710-2-git-send-email-zubair.lutfullah@gmail.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: kernel Oops: 0003 on usbhid_submit_report
+Date: Wed, 28 Aug 2013 14:42:46 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308281441300.4557@pobox.suse.cz>
+References: <9921350AD19C46EFA70EA181A0C1F7E9@sqhead.com> <20130813184056.GH7740@kroah.com> <16FA42AC8F654C3B81924591E607B342@sqhead.com> <20130815063736.GF25754@kroah.com> <26E21BF00B944AB6B8F48B5E59B0442D@sqhead.com> <CAN+gG=FJSMyQNHcq=0cO1srVpRb_83YihUH0WuAPTcKAJHhv4g@mail.gmail.com>
+ <alpine.LNX.2.00.1308231447440.11021@pobox.suse.cz> <7851429DDA1F498899F023F32CC33483@sqhead.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1377470724-15710-2-git-send-email-zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <7851429DDA1F498899F023F32CC33483-nr7O5T6ryCTQT0dZR+AlfA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?ISO-8859-15?Q?Andreas_Lilleb=F8_Holm?= <andreas-nr7O5T6ryCTQT0dZR+AlfA@public.gmane.org>
+Cc: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-* Zubair Lutfullah | 2013-08-25 23:45:23 [+0100]:
+On Mon, 26 Aug 2013, Andreas Lilleb=C3=B8 Holm wrote:
 
->diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
->index e1c5300..4124e580 100644
->--- a/drivers/input/touchscreen/ti_am335x_tsc.c
->+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
->@@ -315,11 +321,17 @@ static irqreturn_t titsc_irq(int irq, void *dev)
-> 	}
-> 
-> 	if (irqclr) {
->-		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
->-		am335x_tsc_se_update(ts_dev->mfd_tscadc);
->-		return IRQ_HANDLED;
->+		titsc_writel(ts_dev, REG_IRQSTATUS, (status | irqclr));
->+		am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
-> 	}
->-	return IRQ_NONE;
->+
->+	/* If any IRQ flags left, return none. So ADC can handle its IRQs */
->+	status = titsc_readl(ts_dev, REG_IRQSTATUS);
->+	if (status == false)
->+		return IRQ_HANDLED;
->+	else
->+		return IRQ_NONE;
+> You are my hero Jiri :-) These two patches fixes the issues I was see=
+ing=20
+> and I can no longer reproduce them.
 
-If I understand this correctly you return IRQ_NONE the TSC interrupt has
-been handled and no ADC interrupt is outstanding.
-This is bad because if you received 1k _only_ TSC interrupts you return
-always IRQ_NONE and the irq-core will disable the interrupt line. You
-don't want this.
+Thanks a lot for confirmation.
 
-Now, if you handle an interrupt at the TSC level and return IRQ_HANDLED
-then the second handler, the ADC in your case, is also invoked.
-So you can drop this and return IRQ_HANDLED if you *did* something here
-and NONE if didn't do anything.
+This has been a very long-standing bug, but for some reasons I have=20
+started to see devices actually triggering it only now.
 
-Basides that, I'm fine with it.
+My plan is to push it to Linus in the upcoming merge window, and once i=
+t=20
+proves to be stable, I'll do a -stable backport.
 
->+
-> }
+Thanks again,
 
-Sebastian
+--=20
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

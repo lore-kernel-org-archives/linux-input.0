@@ -1,88 +1,47 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 11/14] HID: multitouch: validate feature report details
-Date: Wed, 28 Aug 2013 22:31:37 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308282221440.22181@pobox.suse.cz>
+Subject: [PATCH 12/14] HID: sensor-hub: validate feature report details
+Date: Wed, 28 Aug 2013 22:31:44 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308282222190.22181@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57991 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:58000 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754222Ab3H1Ubk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 16:31:40 -0400
+	id S1754228Ab3H1Ubt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Aug 2013 16:31:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Kees Cook <keescook@chromium.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, srinivas pandruvada <srinivas.pandruvada@intel.com>
 
 From: Kees Cook <keescook@chromium.org>
 
-When working on report indexes, always validate that they are in bounds.
-Without this, a HID device could report a malicious feature report that
-could trick the driver into a heap overflow:
+A HID device could send a malicious feature report that would cause the
+sensor-hub HID driver to read past the end of heap allocation, leaking
+kernel memory contents to the caller.
 
-[  634.885003] usb 1-1: New USB device found, idVendor=0596, idProduct=0500
-...
-[  676.469629] BUG kmalloc-192 (Tainted: G        W   ): Redzone overwritten
-
-CVE-2013-2897
+CVE-2013-2898
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@kernel.org
 ---
- drivers/hid/hid-multitouch.c |   25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/hid/hid-sensor-hub.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index cb0e361..2aa275e 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -330,9 +330,18 @@ static void mt_feature_mapping(struct hid_device *hdev,
- 				break;
- 			}
- 		}
-+		/* Ignore if value index is out of bounds. */
-+		if (td->inputmode_index < 0 ||
-+		    td->inputmode_index >= field->report_count) {
-+			dev_err(&hdev->dev, "HID_DG_INPUTMODE out of range\n");
-+			td->inputmode = -1;
-+		}
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index ca749810..aa34755 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -221,7 +221,8 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
  
- 		break;
- 	case HID_DG_CONTACTMAX:
-+		/* Ignore if value count is out of bounds. */
-+		if (field->report_count < 1)
-+			break;
- 		td->maxcontact_report_id = field->report->id;
- 		td->maxcontacts = field->value[0];
- 		if (!td->maxcontacts &&
-@@ -743,15 +752,21 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
- 	unsigned count;
- 	int r, n;
- 
-+	if (report->maxfield == 0)
-+		return;
-+
- 	/*
- 	 * Includes multi-packet support where subsequent
- 	 * packets are sent with zero contactcount.
- 	 */
--	if (td->cc_index >= 0) {
--		struct hid_field *field = report->field[td->cc_index];
--		int value = field->value[td->cc_value_index];
--		if (value)
--			td->num_expected = value;
-+	if (td->cc_index >= 0 && td->cc_index < report->maxfield) {
-+		field = report->field[td->cc_index];
-+		if (td->cc_value_index >= 0 &&
-+		    td->cc_value_index < field->report_count) {
-+			int value = field->value[td->cc_value_index];
-+			if (value)
-+				td->num_expected = value;
-+		}
+ 	mutex_lock(&data->mutex);
+ 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+-	if (!report || (field_index >=  report->maxfield)) {
++	if (!report || (field_index >=  report->maxfield) ||
++	    report->field[field_index]->report_count < 1) {
+ 		ret = -EINVAL;
+ 		goto done_proc;
  	}
- 
- 	for (r = 0; r < report->maxfield; r++) {
-
 -- 
 Jiri Kosina
 SUSE Labs

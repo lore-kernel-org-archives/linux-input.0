@@ -1,14 +1,14 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 03/14] HID: zeroplus: validate output report details
-Date: Wed, 28 Aug 2013 22:30:15 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308282159270.22181@pobox.suse.cz>
+Subject: [PATCH 04/14] HID: sony: validate HID output report details
+Date: Wed, 28 Aug 2013 22:30:23 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308282159590.22181@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57913 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:57919 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752748Ab3H1UaS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 16:30:18 -0400
+	id S1753936Ab3H1Ua0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Aug 2013 16:30:26 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -16,52 +16,38 @@ Cc: Kees Cook <keescook@chromium.org>
 
 From: Kees Cook <keescook@chromium.org>
 
-The zeroplus HID driver was not checking the size of allocated values
-in fields it used. A HID device could send a malicious output report
-that would cause the driver to write beyond the output report allocation
-during initialization, causing a heap overflow:
+This driver must validate the availability of the HID output report and
+its size before it can write LED states via buzz_set_leds(). This stops
+a heap overflow that is possible if a device provides a malicious HID
+output report:
 
-[ 1442.728680] usb 1-1: New USB device found, idVendor=0c12, idProduct=0005
+[  108.171280] usb 1-1: New USB device found, idVendor=054c, idProduct=0002
 ...
-[ 1466.243173] BUG kmalloc-192 (Tainted: G        W   ): Redzone overwritten
+[  117.507877] BUG kmalloc-192 (Not tainted): Redzone overwritten
 
-CVE-2013-2889
+CVE-2013-2890
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@kernel.org
 ---
- drivers/hid/hid-zpff.c |   14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+ drivers/hid/hid-sony.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-zpff.c b/drivers/hid/hid-zpff.c
-index 6ec28a3..b124991 100644
---- a/drivers/hid/hid-zpff.c
-+++ b/drivers/hid/hid-zpff.c
-@@ -68,22 +68,12 @@ static int zpff_init(struct hid_device *hid)
- 	struct hid_report *report;
- 	struct hid_input *hidinput = list_entry(hid->inputs.next,
- 						struct hid_input, list);
--	struct list_head *report_list =
--			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct input_dev *dev = hidinput->input;
- 	int error;
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 87fbe29..b987926 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -537,6 +537,10 @@ static int buzz_init(struct hid_device *hdev)
+ 	drv_data = hid_get_drvdata(hdev);
+ 	BUG_ON(!(drv_data->quirks & BUZZ_CONTROLLER));
  
--	if (list_empty(report_list)) {
--		hid_err(hid, "no output report found\n");
-+	report = hid_validate_report(hid, HID_OUTPUT_REPORT, 0, 4, 1);
-+	if (!report)
- 		return -ENODEV;
--	}
--
--	report = list_entry(report_list->next, struct hid_report, list);
--
--	if (report->maxfield < 4) {
--		hid_err(hid, "not enough fields in report\n");
--		return -ENODEV;
--	}
- 
- 	zpff = kzalloc(sizeof(struct zpff_device), GFP_KERNEL);
- 	if (!zpff)
++	/* Validate expected report characteristics. */
++	if (!hid_validate_report(hdev, HID_OUTPUT_REPORT, 0, 1, 7))
++		return -ENODEV;
++
+ 	buzz = kzalloc(sizeof(*buzz), GFP_KERNEL);
+ 	if (!buzz) {
+ 		hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
 
 -- 
 Jiri Kosina

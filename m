@@ -1,74 +1,81 @@
 From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH 14/14] HID: check for NULL field when setting values
-Date: Wed, 28 Aug 2013 14:14:22 -0700
-Message-ID: <CAGXu5jJXJVZR8=q0b6joVyXtrJC1NNeoQ81WfJkq4umcjRVDnQ@mail.gmail.com>
-References: <alpine.LNX.2.00.1308282223090.22181@pobox.suse.cz>
-	<alpine.LNX.2.00.1308282232080.22181@pobox.suse.cz>
+Subject: Re: [PATCH 12/14] HID: sensor-hub: validate feature report details
+Date: Wed, 28 Aug 2013 14:16:42 -0700
+Message-ID: <CAGXu5jL2vrO5NR+Bm+HeWa0WihwN4nAr5b=Fga9QE8WW2Wjt6w@mail.gmail.com>
+References: <alpine.LNX.2.00.1308282222190.22181@pobox.suse.cz>
+	<521E60CE.6050000@linux.intel.com>
+	<alpine.LNX.2.00.1308282241270.22181@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f178.google.com ([209.85.223.178]:52486 "EHLO
-	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753181Ab3H1VOY (ORCPT
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:33565 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755413Ab3H1VQn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 17:14:24 -0400
-Received: by mail-ie0-f178.google.com with SMTP id f4so9427266iea.23
-        for <linux-input@vger.kernel.org>; Wed, 28 Aug 2013 14:14:22 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1308282232080.22181@pobox.suse.cz>
+	Wed, 28 Aug 2013 17:16:43 -0400
+Received: by mail-ie0-f169.google.com with SMTP id 10so10133296ied.28
+        for <linux-input@vger.kernel.org>; Wed, 28 Aug 2013 14:16:42 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1308282241270.22181@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, srinivas pandruvada <srinivas.pandruvada@intel.com>
 
-On Wed, Aug 28, 2013 at 1:32 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 28 Aug 2013, Jiri Kosina wrote:
+On Wed, Aug 28, 2013 at 1:42 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 28 Aug 2013, Srinivas Pandruvada wrote:
 >
->> From: Kees Cook <keescook@chromium.org>
->>
->> Defensively check that the field to be worked on is not NULL.
->>
->> Signed-off-by: Kees Cook <keescook@chromium.org>
->> Cc: stable@kernel.org
->> ---
->>  drivers/hid/hid-core.c |    7 ++++++-
->>  1 file changed, 6 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index 55798b2..192be6b 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -1206,7 +1206,12 @@ EXPORT_SYMBOL_GPL(hid_output_report);
->>
->>  int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
->>  {
->> -     unsigned size = field->report_size;
->> +     unsigned size;
->> +
->> +     if (!field)
->> +             return -1;
->> +
->> +     size = field->report_size;
+>> > A HID device could send a malicious feature report that would cause the
+>> > sensor-hub HID driver to read past the end of heap allocation, leaking
+>> > kernel memory contents to the caller.
+>> >
+>> > CVE-2013-2898
+>> >
+>> > Signed-off-by: Kees Cook <keescook@chromium.org>
+>> > Cc: stable@kernel.org
+>> > ---
+>> >   drivers/hid/hid-sensor-hub.c |    3 ++-
+>> >   1 file changed, 2 insertions(+), 1 deletion(-)
+>> >
+>> > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+>> > index ca749810..aa34755 100644
+>> > --- a/drivers/hid/hid-sensor-hub.c
+>> > +++ b/drivers/hid/hid-sensor-hub.c
+>> > @@ -221,7 +221,8 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device
+>> > *hsdev, u32 report_id,
+>> >             mutex_lock(&data->mutex);
+>> >     report = sensor_hub_report(report_id, hsdev->hdev,
+>> > HID_FEATURE_REPORT);
+>> > -   if (!report || (field_index >=  report->maxfield)) {
+>> > +   if (!report || (field_index >=  report->maxfield) ||
+>> > +       report->field[field_index]->report_count < 1) {
+>> Is it based on some HID device is sending junk report or just from a code
+>> review?
 >
-> Kees,
->
-> do you actually see any way how field could ever be null in
-> hid_set_field()?
+> My understanding is that this whole Kees' patchset is about potentially
+> evil devices doing bad things (on purpose).
 
-Yes, report->field[0] may be uninitialized (NULL due to kzalloc) if
-hid_add_field() bails out during the padding field check:
+Correct, though this particular flaw is pretty weak. It requires both
+malicious device and malicious user-space. However, with the advent of
+things like HTML5 USB API, it's possible these could be combined to
+attack a device.
 
-        if (!parser->local.usage_index) /* Ignore padding fields */
-                return 0;
-
-The report will be registered (earlier call to hid_register_report()
-was successful), but the entire field list will be NULL.
-
-The hid-ntrig.c fix is a fix for such a problem
-(report->field[0]->value[0]) where field[0] can be NULL. I was able to
-make a reproduction case for this, with the crash can be seen in the
-hid-ntrig.c patch.
+Regardless, this fix seems obviously correct and trivial to me.
 
 -Kees
+
+>
+>> >             ret = -EINVAL;
+>> >             goto done_proc;
+>> >     }
+>> Thanks,
+>> Srinivas
+>>
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+
+
 
 -- 
 Kees Cook

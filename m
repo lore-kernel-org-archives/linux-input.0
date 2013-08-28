@@ -1,14 +1,14 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 01/14] HID: validate HID report id size
-Date: Wed, 28 Aug 2013 22:29:55 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308282158220.22181@pobox.suse.cz>
+Subject: [PATCH 02/14] HID: provide a helper for validating hid reports
+Date: Wed, 28 Aug 2013 22:30:06 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308282158570.22181@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57907 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:57911 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752748Ab3H1UaD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 16:30:03 -0400
+	id S1752748Ab3H1UaK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Aug 2013 16:30:10 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -16,76 +16,94 @@ Cc: Kees Cook <keescook@chromium.org>
 
 From: Kees Cook <keescook@chromium.org>
 
-The "Report ID" field of a HID report is used to build indexes of
-reports. The kernel's index of these is limited to 256 entries, so any
-malicious device that sets a Report ID greater than 255 will trigger
-memory corruption on the host:
-
-[ 1347.156239] BUG: unable to handle kernel paging request at ffff88094958a878
-[ 1347.156261] IP: [<ffffffff813e4da0>] hid_register_report+0x2a/0x8b
-
-CVE-2013-2888
+Many drivers need to validate the characteristics of their HID report
+during initialization to avoid misusing the reports. This adds a common
+helper to perform validation of the report, its field count, and the
+value count within the fields.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@kernel.org
 ---
- drivers/hid/hid-core.c |   10 +++++++---
- include/linux/hid.h    |    4 +++-
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/hid/hid-core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/hid.h    |    4 ++++
+ 2 files changed, 54 insertions(+)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 36668d1..5ea7d51 100644
+index 5ea7d51..55798b2 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -63,6 +63,8 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
- 	struct hid_report_enum *report_enum = device->report_enum + type;
- 	struct hid_report *report;
+@@ -759,6 +759,56 @@ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size)
+ }
+ EXPORT_SYMBOL_GPL(hid_parse_report);
  
-+	if (id >= HID_MAX_IDS)
++static const char * const hid_report_names[] = {
++	"HID_INPUT_REPORT",
++	"HID_OUTPUT_REPORT",
++	"HID_FEATURE_REPORT",
++};
++/**
++ * hid_validate_report - validate existing device report
++ *
++ * @device: hid device
++ * @type: which report type to examine
++ * @id: which report ID to examine (0 for first)
++ * @fields: expected number of fields
++ * @report_counts: expected number of values per field
++ *
++ * Validate the report details after parsing.
++ */
++struct hid_report *hid_validate_report(struct hid_device *hid,
++				       unsigned int type, unsigned int id,
++				       unsigned int fields,
++				       unsigned int report_counts)
++{
++	struct hid_report *report;
++	unsigned int i;
++
++	if (type > HID_FEATURE_REPORT) {
++		hid_err(hid, "invalid HID report %u\n", type);
 +		return NULL;
- 	if (report_enum->report_id_hash[id])
- 		return report_enum->report_id_hash[id];
- 
-@@ -404,8 +406,10 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
- 
- 	case HID_GLOBAL_ITEM_TAG_REPORT_ID:
- 		parser->global.report_id = item_udata(item);
--		if (parser->global.report_id == 0) {
--			hid_err(parser->device, "report_id 0 is invalid\n");
-+		if (parser->global.report_id == 0 ||
-+		    parser->global.report_id >= HID_MAX_IDS) {
-+			hid_err(parser->device, "report_id %u is invalid\n",
-+				parser->global.report_id);
- 			return -1;
- 		}
- 		return 0;
-@@ -575,7 +579,7 @@ static void hid_close_report(struct hid_device *device)
- 	for (i = 0; i < HID_REPORT_TYPES; i++) {
- 		struct hid_report_enum *report_enum = device->report_enum + i;
- 
--		for (j = 0; j < 256; j++) {
-+		for (j = 0; j < HID_MAX_IDS; j++) {
- 			struct hid_report *report = report_enum->report_id_hash[j];
- 			if (report)
- 				hid_free_report(report);
++	}
++
++	report = hid->report_enum[type].report_id_hash[id];
++	if (!report) {
++		hid_err(hid, "missing %s %u\n", hid_report_names[type], id);
++		return NULL;
++	}
++	if (report->maxfield < fields) {
++		hid_err(hid, "not enough fields in %s %u\n",
++			hid_report_names[type], id);
++		return NULL;
++	}
++	for (i = 0; i < fields; i++) {
++		if (report->field[i]->report_count < report_counts) {
++			hid_err(hid, "not enough values in %s %u fields\n",
++				hid_report_names[type], id);
++			return NULL;
++		}
++	}
++	return report;
++}
++EXPORT_SYMBOL_GPL(hid_validate_report);
++
+ /**
+  * hid_open_report - open a driver-specific device report
+  *
 diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 0c48991..ff545cc 100644
+index ff545cc..76e41d8 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
-@@ -393,10 +393,12 @@ struct hid_report {
- 	struct hid_device *device;			/* associated device */
- };
- 
-+#define HID_MAX_IDS 256
-+
- struct hid_report_enum {
- 	unsigned numbered;
- 	struct list_head report_list;
--	struct hid_report *report_id_hash[256];
-+	struct hid_report *report_id_hash[HID_MAX_IDS];
- };
- 
- #define HID_REPORT_TYPES 3
+@@ -749,6 +749,10 @@ void hid_output_report(struct hid_report *report, __u8 *data);
+ struct hid_device *hid_allocate_device(void);
+ struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
+ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size);
++struct hid_report *hid_validate_report(struct hid_device *hid,
++				       unsigned int type, unsigned int id,
++				       unsigned int fields,
++				       unsigned int report_counts);
+ int hid_open_report(struct hid_device *device);
+ int hid_check_keys_pressed(struct hid_device *hid);
+ int hid_connect(struct hid_device *hid, unsigned int connect_mask);
 
 -- 
 Jiri Kosina

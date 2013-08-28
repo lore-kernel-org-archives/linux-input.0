@@ -1,40 +1,48 @@
-From: Mischa Jonker <Mischa.Jonker@synopsys.com>
-Subject: [PATCH] input/serio: disable i8042 PC keyboard ctrl for ARC
-Date: Wed, 28 Aug 2013 20:46:56 +0200
-Message-ID: <1377715616-2548-1-git-send-email-mjonker@synopsys.com>
+From: "Zubair Lutfullah :" <zubair.lutfullah@gmail.com>
+Subject: Re: [PATCH 1/2] input: ti_am335x_tsc: Enable shared IRQ for TSC
+Date: Wed, 28 Aug 2013 19:49:22 +0100
+Message-ID: <20130828184921.GC3777@gmail.com>
+References: <1377470724-15710-1-git-send-email-zubair.lutfullah@gmail.com>
+ <1377470724-15710-2-git-send-email-zubair.lutfullah@gmail.com>
+ <20130828104211.GB14111@linutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hermes.synopsys.com ([198.182.44.81]:43941 "EHLO
-	hermes.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753484Ab3H1SrL (ORCPT
+Received: from mail-ee0-f51.google.com ([74.125.83.51]:40749 "EHLO
+	mail-ee0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753828Ab3H1St2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 14:47:11 -0400
+	Wed, 28 Aug 2013 14:49:28 -0400
+Content-Disposition: inline
+In-Reply-To: <20130828104211.GB14111@linutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Mischa Jonker <Mischa.Jonker@synopsys.com>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Zubair Lutfullah <zubair.lutfullah@gmail.com>, jic23@cam.ac.uk, lee.jones@linaro.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org
 
-It causes crashes when enabled, and we don't have such a peripheral
-anyway on ARC platforms.
+On Wed, Aug 28, 2013 at 12:42:11PM +0200, Sebastian Andrzej Siewior wrote:
+> * Zubair Lutfullah | 2013-08-25 23:45:23 [+0100]:
+> 
+> >diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> >index e1c5300..4124e580 100644
+> >--- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> >+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> >@@ -315,11 +321,17 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+...
+> >+	/* If any IRQ flags left, return none. So ADC can handle its IRQs */
+> >+	status = titsc_readl(ts_dev, REG_IRQSTATUS);
+> >+	if (status == false)
+> >+		return IRQ_HANDLED;
+> >+	else
+> >+		return IRQ_NONE;
+> 
+> If I understand this correctly you return IRQ_NONE the TSC interrupt has
+> been handled and no ADC interrupt is outstanding.
 
-Signed-off-by: Mischa Jonker <mjonker@synopsys.com>
----
- drivers/input/serio/Kconfig |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Its actually the opposite. TSC handler checks if there are any ADC IRQ flags
+outstanding.
 
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index 94c17c2..1e691a3 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -22,7 +22,8 @@ config SERIO_I8042
- 	tristate "i8042 PC Keyboard controller" if EXPERT || !X86
- 	default y
- 	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
--		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN && !S390
-+		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN && !S390 && \
-+		   !ARC
- 	help
- 	  i8042 is the chip over which the standard AT keyboard and PS/2
- 	  mouse are connected to the computer. If you use these devices,
--- 
-1.7.9.5
+If there is no outstanding, then IRQ_HANDLED is returned.
+If there is ADC IRQ outstanding, then IRQ_NONE is returned.
 
+ZubairLK

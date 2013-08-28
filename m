@@ -1,55 +1,75 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH 13/14] HID: picolcd_core: validate output report details
-Date: Wed, 28 Aug 2013 23:00:20 +0200
-Message-ID: <20130828230020.6b655bb9@neptune.home>
-References: <alpine.LNX.2.00.1308282222460.22181@pobox.suse.cz>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 14/14] HID: check for NULL field when setting values
+Date: Wed, 28 Aug 2013 14:14:22 -0700
+Message-ID: <CAGXu5jJXJVZR8=q0b6joVyXtrJC1NNeoQ81WfJkq4umcjRVDnQ@mail.gmail.com>
+References: <alpine.LNX.2.00.1308282223090.22181@pobox.suse.cz>
+	<alpine.LNX.2.00.1308282232080.22181@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:35776 "EHLO
-	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753656Ab3H1VIa (ORCPT
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:52486 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753181Ab3H1VOY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 17:08:30 -0400
-In-Reply-To: <alpine.LNX.2.00.1308282222460.22181@pobox.suse.cz>
+	Wed, 28 Aug 2013 17:14:24 -0400
+Received: by mail-ie0-f178.google.com with SMTP id f4so9427266iea.23
+        for <linux-input@vger.kernel.org>; Wed, 28 Aug 2013 14:14:22 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1308282232080.22181@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Kees Cook <keescook@chromium.org>
+Cc: linux-input@vger.kernel.org
 
-On Wed, 28 August 2013 Jiri Kosina <jkosina@suse.cz> wrote:
-> From: Kees Cook <keescook@chromium.org>
-> 
-> A HID device could send a malicious output report that would cause the
-> picolcd HID driver to trigger a NULL dereference during attr file writing.
-> 
-> CVE-2013-2899
-> 
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Cc: stable@kernel.org
-> ---
->  drivers/hid/hid-picolcd_core.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
-> index b48092d..72bba1e 100644
-> --- a/drivers/hid/hid-picolcd_core.c
-> +++ b/drivers/hid/hid-picolcd_core.c
-> @@ -290,7 +290,7 @@ static ssize_t picolcd_operation_mode_store(struct device *dev,
->  		buf += 10;
->  		cnt -= 10;
->  	}
-> -	if (!report)
-> +	if (!report || report->maxfield < 1)
->  		return -EINVAL;
->  
->  	while (cnt > 0 && (buf[cnt-1] == '\n' || buf[cnt-1] == '\r'))
+On Wed, Aug 28, 2013 at 1:32 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 28 Aug 2013, Jiri Kosina wrote:
+>
+>> From: Kees Cook <keescook@chromium.org>
+>>
+>> Defensively check that the field to be worked on is not NULL.
+>>
+>> Signed-off-by: Kees Cook <keescook@chromium.org>
+>> Cc: stable@kernel.org
+>> ---
+>>  drivers/hid/hid-core.c |    7 ++++++-
+>>  1 file changed, 6 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 55798b2..192be6b 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -1206,7 +1206,12 @@ EXPORT_SYMBOL_GPL(hid_output_report);
+>>
+>>  int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
+>>  {
+>> -     unsigned size = field->report_size;
+>> +     unsigned size;
+>> +
+>> +     if (!field)
+>> +             return -1;
+>> +
+>> +     size = field->report_size;
+>
+> Kees,
+>
+> do you actually see any way how field could ever be null in
+> hid_set_field()?
 
-I will check tomorrow or Friday evening what the documentation I have
-says for this report and test, might be a report->maxfield != 1 would
-be even better suited.
+Yes, report->field[0] may be uninitialized (NULL due to kzalloc) if
+hid_add_field() bails out during the padding field check:
 
-Too late today for looking into it.
+        if (!parser->local.usage_index) /* Ignore padding fields */
+                return 0;
 
-Bruno
+The report will be registered (earlier call to hid_register_report()
+was successful), but the entire field list will be NULL.
+
+The hid-ntrig.c fix is a fix for such a problem
+(report->field[0]->value[0]) where field[0] can be NULL. I was able to
+make a reproduction case for this, with the crash can be seen in the
+hid-ntrig.c patch.
+
+-Kees
+
+-- 
+Kees Cook
+Chrome OS Security

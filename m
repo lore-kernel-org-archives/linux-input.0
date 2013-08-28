@@ -1,60 +1,55 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 12/14] HID: sensor-hub: validate feature report details
-Date: Wed, 28 Aug 2013 22:42:07 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308282241270.22181@pobox.suse.cz>
-References: <alpine.LNX.2.00.1308282222190.22181@pobox.suse.cz> <521E60CE.6050000@linux.intel.com>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH 13/14] HID: picolcd_core: validate output report details
+Date: Wed, 28 Aug 2013 23:00:20 +0200
+Message-ID: <20130828230020.6b655bb9@neptune.home>
+References: <alpine.LNX.2.00.1308282222460.22181@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58556 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754636Ab3H1UmM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 16:42:12 -0400
-In-Reply-To: <521E60CE.6050000@linux.intel.com>
+Received: from smtprelay.restena.lu ([158.64.1.62]:35776 "EHLO
+	smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753656Ab3H1VIa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Aug 2013 17:08:30 -0400
+In-Reply-To: <alpine.LNX.2.00.1308282222460.22181@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: linux-input@vger.kernel.org, Kees Cook <keescook@chromium.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, srinivas pandruvada <srinivas.pandruvada@intel.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Kees Cook <keescook@chromium.org>
 
-On Wed, 28 Aug 2013, Srinivas Pandruvada wrote:
-
-> > A HID device could send a malicious feature report that would cause the
-> > sensor-hub HID driver to read past the end of heap allocation, leaking
-> > kernel memory contents to the caller.
-> > 
-> > CVE-2013-2898
-> > 
-> > Signed-off-by: Kees Cook <keescook@chromium.org>
-> > Cc: stable@kernel.org
-> > ---
-> >   drivers/hid/hid-sensor-hub.c |    3 ++-
-> >   1 file changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> > index ca749810..aa34755 100644
-> > --- a/drivers/hid/hid-sensor-hub.c
-> > +++ b/drivers/hid/hid-sensor-hub.c
-> > @@ -221,7 +221,8 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device
-> > *hsdev, u32 report_id,
-> >     	mutex_lock(&data->mutex);
-> >   	report = sensor_hub_report(report_id, hsdev->hdev,
-> > HID_FEATURE_REPORT);
-> > -	if (!report || (field_index >=  report->maxfield)) {
-> > +	if (!report || (field_index >=  report->maxfield) ||
-> > +	    report->field[field_index]->report_count < 1) {
-> Is it based on some HID device is sending junk report or just from a code
-> review?
-
-My understanding is that this whole Kees' patchset is about potentially 
-evil devices doing bad things (on purpose).
-
-> >   		ret = -EINVAL;
-> >   		goto done_proc;
-> >   	}
-> Thanks,
-> Srinivas
+On Wed, 28 August 2013 Jiri Kosina <jkosina@suse.cz> wrote:
+> From: Kees Cook <keescook@chromium.org>
 > 
+> A HID device could send a malicious output report that would cause the
+> picolcd HID driver to trigger a NULL dereference during attr file writing.
+> 
+> CVE-2013-2899
+> 
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Cc: stable@kernel.org
+> ---
+>  drivers/hid/hid-picolcd_core.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
+> index b48092d..72bba1e 100644
+> --- a/drivers/hid/hid-picolcd_core.c
+> +++ b/drivers/hid/hid-picolcd_core.c
+> @@ -290,7 +290,7 @@ static ssize_t picolcd_operation_mode_store(struct device *dev,
+>  		buf += 10;
+>  		cnt -= 10;
+>  	}
+> -	if (!report)
+> +	if (!report || report->maxfield < 1)
+>  		return -EINVAL;
+>  
+>  	while (cnt > 0 && (buf[cnt-1] == '\n' || buf[cnt-1] == '\r'))
 
--- 
-Jiri Kosina
-SUSE Labs
+I will check tomorrow or Friday evening what the documentation I have
+says for this report and test, might be a report->maxfield != 1 would
+be even better suited.
+
+Too late today for looking into it.
+
+Bruno

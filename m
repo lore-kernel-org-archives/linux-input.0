@@ -1,48 +1,92 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah@gmail.com>
-Subject: Re: [PATCH 1/2] input: ti_am335x_tsc: Enable shared IRQ for TSC
-Date: Wed, 28 Aug 2013 19:49:22 +0100
-Message-ID: <20130828184921.GC3777@gmail.com>
-References: <1377470724-15710-1-git-send-email-zubair.lutfullah@gmail.com>
- <1377470724-15710-2-git-send-email-zubair.lutfullah@gmail.com>
- <20130828104211.GB14111@linutronix.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 01/14] HID: validate HID report id size
+Date: Wed, 28 Aug 2013 22:29:55 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308282158220.22181@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f51.google.com ([74.125.83.51]:40749 "EHLO
-	mail-ee0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753828Ab3H1St2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 14:49:28 -0400
-Content-Disposition: inline
-In-Reply-To: <20130828104211.GB14111@linutronix.de>
+Received: from cantor2.suse.de ([195.135.220.15]:57907 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752748Ab3H1UaD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Aug 2013 16:30:03 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Zubair Lutfullah <zubair.lutfullah@gmail.com>, jic23@cam.ac.uk, lee.jones@linaro.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org
+To: linux-input@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>
 
-On Wed, Aug 28, 2013 at 12:42:11PM +0200, Sebastian Andrzej Siewior wrote:
-> * Zubair Lutfullah | 2013-08-25 23:45:23 [+0100]:
-> 
-> >diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> >index e1c5300..4124e580 100644
-> >--- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> >+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> >@@ -315,11 +321,17 @@ static irqreturn_t titsc_irq(int irq, void *dev)
-...
-> >+	/* If any IRQ flags left, return none. So ADC can handle its IRQs */
-> >+	status = titsc_readl(ts_dev, REG_IRQSTATUS);
-> >+	if (status == false)
-> >+		return IRQ_HANDLED;
-> >+	else
-> >+		return IRQ_NONE;
-> 
-> If I understand this correctly you return IRQ_NONE the TSC interrupt has
-> been handled and no ADC interrupt is outstanding.
+From: Kees Cook <keescook@chromium.org>
 
-Its actually the opposite. TSC handler checks if there are any ADC IRQ flags
-outstanding.
+The "Report ID" field of a HID report is used to build indexes of
+reports. The kernel's index of these is limited to 256 entries, so any
+malicious device that sets a Report ID greater than 255 will trigger
+memory corruption on the host:
 
-If there is no outstanding, then IRQ_HANDLED is returned.
-If there is ADC IRQ outstanding, then IRQ_NONE is returned.
+[ 1347.156239] BUG: unable to handle kernel paging request at ffff88094958a878
+[ 1347.156261] IP: [<ffffffff813e4da0>] hid_register_report+0x2a/0x8b
 
-ZubairLK
+CVE-2013-2888
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: stable@kernel.org
+---
+ drivers/hid/hid-core.c |   10 +++++++---
+ include/linux/hid.h    |    4 +++-
+ 2 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 36668d1..5ea7d51 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -63,6 +63,8 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
+ 	struct hid_report_enum *report_enum = device->report_enum + type;
+ 	struct hid_report *report;
+ 
++	if (id >= HID_MAX_IDS)
++		return NULL;
+ 	if (report_enum->report_id_hash[id])
+ 		return report_enum->report_id_hash[id];
+ 
+@@ -404,8 +406,10 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
+ 
+ 	case HID_GLOBAL_ITEM_TAG_REPORT_ID:
+ 		parser->global.report_id = item_udata(item);
+-		if (parser->global.report_id == 0) {
+-			hid_err(parser->device, "report_id 0 is invalid\n");
++		if (parser->global.report_id == 0 ||
++		    parser->global.report_id >= HID_MAX_IDS) {
++			hid_err(parser->device, "report_id %u is invalid\n",
++				parser->global.report_id);
+ 			return -1;
+ 		}
+ 		return 0;
+@@ -575,7 +579,7 @@ static void hid_close_report(struct hid_device *device)
+ 	for (i = 0; i < HID_REPORT_TYPES; i++) {
+ 		struct hid_report_enum *report_enum = device->report_enum + i;
+ 
+-		for (j = 0; j < 256; j++) {
++		for (j = 0; j < HID_MAX_IDS; j++) {
+ 			struct hid_report *report = report_enum->report_id_hash[j];
+ 			if (report)
+ 				hid_free_report(report);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 0c48991..ff545cc 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -393,10 +393,12 @@ struct hid_report {
+ 	struct hid_device *device;			/* associated device */
+ };
+ 
++#define HID_MAX_IDS 256
++
+ struct hid_report_enum {
+ 	unsigned numbered;
+ 	struct list_head report_list;
+-	struct hid_report *report_id_hash[256];
++	struct hid_report *report_id_hash[HID_MAX_IDS];
+ };
+ 
+ #define HID_REPORT_TYPES 3
+
+-- 
+Jiri Kosina
+SUSE Labs

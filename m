@@ -1,51 +1,87 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 10/14] HID: ntrig: validate feature report details
-Date: Wed, 28 Aug 2013 22:31:28 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308282221210.22181@pobox.suse.cz>
+Subject: [PATCH 11/14] HID: multitouch: validate feature report details
+Date: Wed, 28 Aug 2013 22:31:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308282221440.22181@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57985 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:57991 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751971Ab3H1Ubb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 16:31:31 -0400
+	id S1754222Ab3H1Ubk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Aug 2013 16:31:40 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Rafi Rubin <rafi@seas.upenn.edu>
+Cc: Kees Cook <keescook@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 From: Kees Cook <keescook@chromium.org>
 
-A HID device could send a malicious feature report that would cause the
-ntrig HID driver to trigger a NULL dereference during initialization:
+When working on report indexes, always validate that they are in bounds.
+Without this, a HID device could report a malicious feature report that
+could trick the driver into a heap overflow:
 
-[57383.031190] usb 3-1: New USB device found, idVendor=1b96, idProduct=0001
+[  634.885003] usb 1-1: New USB device found, idVendor=0596, idProduct=0500
 ...
-[57383.315193] BUG: unable to handle kernel NULL pointer dereference at 0000000000000030
-[57383.315308] IP: [<ffffffffa08102de>] ntrig_probe+0x25e/0x420 [hid_ntrig]
+[  676.469629] BUG kmalloc-192 (Tainted: G        W   ): Redzone overwritten
 
-CVE-2013-2896
+CVE-2013-2897
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@kernel.org
 ---
- drivers/hid/hid-ntrig.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-multitouch.c |   25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index ef95102..5482156 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -115,7 +115,8 @@ static inline int ntrig_get_mode(struct hid_device *hdev)
- 	struct hid_report *report = hdev->report_enum[HID_FEATURE_REPORT].
- 				    report_id_hash[0x0d];
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index cb0e361..2aa275e 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -330,9 +330,18 @@ static void mt_feature_mapping(struct hid_device *hdev,
+ 				break;
+ 			}
+ 		}
++		/* Ignore if value index is out of bounds. */
++		if (td->inputmode_index < 0 ||
++		    td->inputmode_index >= field->report_count) {
++			dev_err(&hdev->dev, "HID_DG_INPUTMODE out of range\n");
++			td->inputmode = -1;
++		}
  
--	if (!report)
-+	if (!report || report->maxfield < 1 ||
-+	    report->field[0]->report_count < 1)
- 		return -EINVAL;
+ 		break;
+ 	case HID_DG_CONTACTMAX:
++		/* Ignore if value count is out of bounds. */
++		if (field->report_count < 1)
++			break;
+ 		td->maxcontact_report_id = field->report->id;
+ 		td->maxcontacts = field->value[0];
+ 		if (!td->maxcontacts &&
+@@ -743,15 +752,21 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ 	unsigned count;
+ 	int r, n;
  
- 	hid_hw_request(hdev, report, HID_REQ_GET_REPORT);
++	if (report->maxfield == 0)
++		return;
++
+ 	/*
+ 	 * Includes multi-packet support where subsequent
+ 	 * packets are sent with zero contactcount.
+ 	 */
+-	if (td->cc_index >= 0) {
+-		struct hid_field *field = report->field[td->cc_index];
+-		int value = field->value[td->cc_value_index];
+-		if (value)
+-			td->num_expected = value;
++	if (td->cc_index >= 0 && td->cc_index < report->maxfield) {
++		field = report->field[td->cc_index];
++		if (td->cc_value_index >= 0 &&
++		    td->cc_value_index < field->report_count) {
++			int value = field->value[td->cc_value_index];
++			if (value)
++				td->num_expected = value;
++		}
+ 	}
+ 
+ 	for (r = 0; r < report->maxfield; r++) {
 
 -- 
 Jiri Kosina

@@ -1,53 +1,76 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 08/14] HID: lenovo-tpkbd: validate output report details
-Date: Wed, 28 Aug 2013 22:31:10 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308282219570.22181@pobox.suse.cz>
+Subject: [PATCH 09/14] HID: logitech-dj: validate output report details
+Date: Wed, 28 Aug 2013 22:31:18 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1308282220530.22181@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57965 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:57976 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752780Ab3H1UbN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 16:31:13 -0400
+	id S1751971Ab3H1UbV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Aug 2013 16:31:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Bernhard Seibold <mail@bernhard-seibold.de>
+Cc: Kees Cook <keescook@chromium.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>
 
 From: Kees Cook <keescook@chromium.org>
 
 A HID device could send a malicious output report that would cause the
-lenovo-tpkbd HID driver to write just beyond the output report allocation
-during initialization, causing a heap overflow:
+logitech-dj HID driver to leak kernel memory contents to the device, or
+trigger a NULL dereference during initialization:
 
-[   76.109807] usb 1-1: New USB device found, idVendor=17ef, idProduct=6009
+[  304.424553] usb 1-1: New USB device found, idVendor=046d, idProduct=c52b
 ...
-[   80.462540] BUG kmalloc-192 (Tainted: G        W   ): Redzone overwritten
+[  304.780467] BUG: unable to handle kernel NULL pointer dereference at 0000000000000028
+[  304.781409] IP: [<ffffffff815d50aa>] logi_dj_recv_send_report.isra.11+0x1a/0x90
 
-CVE-2013-2894
+CVE-2013-2895
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@kernel.org
 ---
- drivers/hid/hid-lenovo-tpkbd.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/hid-logitech-dj.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-lenovo-tpkbd.c b/drivers/hid/hid-lenovo-tpkbd.c
-index 07837f5..b697ada 100644
---- a/drivers/hid/hid-lenovo-tpkbd.c
-+++ b/drivers/hid/hid-lenovo-tpkbd.c
-@@ -341,6 +341,11 @@ static int tpkbd_probe_tp(struct hid_device *hdev)
- 	char *name_mute, *name_micmute;
- 	int ret;
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index cd33084..7b99c2a 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -461,7 +461,7 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
+ 	struct hid_report *report;
+ 	struct hid_report_enum *output_report_enum;
+ 	u8 *data = (u8 *)(&dj_report->device_index);
+-	int i;
++	unsigned int i, length;
  
-+	/* Validate required reports. */
-+	if (!hid_validate_report(hdev, HID_OUTPUT_REPORT, 4, 4, 1) ||
-+	    !hid_validate_report(hdev, HID_OUTPUT_REPORT, 3, 1, 2))
-+		return -ENODEV;
+ 	output_report_enum = &hdev->report_enum[HID_OUTPUT_REPORT];
+ 	report = output_report_enum->report_id_hash[REPORT_ID_DJ_SHORT];
+@@ -471,7 +471,9 @@ static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
+ 		return -ENODEV;
+ 	}
+ 
+-	for (i = 0; i < report->field[0]->report_count; i++)
++	length = min_t(size_t, sizeof(*dj_report) - 1,
++			       report->field[0]->report_count);
++	for (i = 0; i < length; i++)
+ 		report->field[0]->value[i] = data[i];
+ 
+ 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
+@@ -783,6 +785,12 @@ static int logi_dj_probe(struct hid_device *hdev,
+ 		goto hid_parse_fail;
+ 	}
+ 
++	if (!hid_validate_report(hdev, HID_OUTPUT_REPORT, REPORT_ID_DJ_SHORT,
++				 1, 3)) {
++		retval = -ENODEV;
++		goto hid_parse_fail;
++	}
 +
- 	if (sysfs_create_group(&hdev->dev.kobj,
- 				&tpkbd_attr_group_pointer)) {
- 		hid_warn(hdev, "Could not create sysfs group\n");
+ 	/* Starts the usb device and connects to upper interfaces hiddev and
+ 	 * hidraw */
+ 	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+
 -- 
 Jiri Kosina
 SUSE Labs

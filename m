@@ -1,133 +1,180 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 04/14] HID: sony: validate HID output report details
-Date: Thu, 29 Aug 2013 16:50:03 +0200
-Message-ID: <CAN+gG=FeU1ht-hmeGThw=sRshn7gZXde3PePFHpWEpKA1-K8=Q@mail.gmail.com>
-References: <alpine.LNX.2.00.1308282159590.22181@pobox.suse.cz>
-	<CAN+gG=F8Y2aoEMr-Zy=JLgT3VT_QGTBi60Hem299p8Sdc-icVg@mail.gmail.com>
-	<CAGXu5jLAieQo8FkvEAU6D4c2i388Y3AnH3RNkdsyz3yg7K6sag@mail.gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 2/4] hid-sensor-hub: fix indentation accross the code
+Date: Thu, 29 Aug 2013 17:53:08 +0300
+Message-ID: <1377787988.22798.1.camel@smile>
+References: <1376467631-20857-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	 <1376467631-20857-2-git-send-email-andriy.shevchenko@linux.intel.com>
+	 <52123982.5020704@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f49.google.com ([209.85.215.49]:36978 "EHLO
-	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753117Ab3H2OuF (ORCPT
+Received: from mga11.intel.com ([192.55.52.93]:10802 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753436Ab3H2OxY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Aug 2013 10:50:05 -0400
-Received: by mail-la0-f49.google.com with SMTP id ev20so454658lab.22
-        for <linux-input@vger.kernel.org>; Thu, 29 Aug 2013 07:50:03 -0700 (PDT)
-In-Reply-To: <CAGXu5jLAieQo8FkvEAU6D4c2i388Y3AnH3RNkdsyz3yg7K6sag@mail.gmail.com>
+	Thu, 29 Aug 2013 10:53:24 -0400
+In-Reply-To: <52123982.5020704@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@intel.com>
 
-On Thu, Aug 29, 2013 at 4:40 PM, Kees Cook <keescook@chromium.org> wrote:
-> On Thu, Aug 29, 2013 at 2:48 AM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->> On Wed, Aug 28, 2013 at 10:30 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->>> From: Kees Cook <keescook@chromium.org>
->>>
->>> This driver must validate the availability of the HID output report and
->>> its size before it can write LED states via buzz_set_leds(). This stops
->>> a heap overflow that is possible if a device provides a malicious HID
->>> output report:
->>>
->>> [  108.171280] usb 1-1: New USB device found, idVendor=054c, idProduct=0002
->>> ...
->>> [  117.507877] BUG kmalloc-192 (Not tainted): Redzone overwritten
->>>
->>> CVE-2013-2890
->>>
->>> Signed-off-by: Kees Cook <keescook@chromium.org>
->>> Cc: stable@kernel.org
->>> ---
->>>  drivers/hid/hid-sony.c |    4 ++++
->>>  1 file changed, 4 insertions(+)
->>>
->>> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
->>> index 87fbe29..b987926 100644
->>> --- a/drivers/hid/hid-sony.c
->>> +++ b/drivers/hid/hid-sony.c
->>> @@ -537,6 +537,10 @@ static int buzz_init(struct hid_device *hdev)
->>>         drv_data = hid_get_drvdata(hdev);
->>>         BUG_ON(!(drv_data->quirks & BUZZ_CONTROLLER));
->>>
->>> +       /* Validate expected report characteristics. */
->>> +       if (!hid_validate_report(hdev, HID_OUTPUT_REPORT, 0, 1, 7))
->>
->> I don't have access to the device anymore, but I still kept the report
->> descriptors (this is the interesting part):
->>
->> 0xa1, 0x02,                    //   Collection (Logical)              60
->> 0x75, 0x08,                    //     Report Size (8)                 62
->> 0x95, 0x07,                    //     Report Count (7)                64
->> 0x46, 0xff, 0x00,              //     Physical Maximum (255)          66
->> 0x26, 0xff, 0x00,              //     Logical Maximum (255)           69
->> 0x09, 0x02,                    //     Usage (Vendor Usage 2)          72
->> 0x91, 0x02,                    //     Output (Data,Var,Abs)           74
->> 0xc0,                          //   End Collection                    76
->>
->> So with the current implementation of hid_validate_report(), it works,
->> but if another Buzz controller show up at some point with extras
->> fields in this output report... we will be screwed. So please, amend
->> hid_validate_report(), or specifically test here that the LED output
->> report is 7 bytes.
->
-> hid_validate_report() checks for "at least" 7 in this call, so it
-> should be fine, unless I've misunderstood something.
->
+On Mon, 2013-08-19 at 08:28 -0700, Srinivas Pandruvada wrote: 
+> On 08/14/2013 01:07 AM, Andy Shevchenko wrote:
+> > Patch just rearranges lines to be more compact and/or readable. Additionally it
+> > converts double space to one in several places.
+> >
+> > There is no functional change.
 
-Sure, it' s fine with the current implementation of
-hid_validate_report(). However, as I mentioned in patch
-2/14, I am complaining about the implementation of hid_validate_report().
+Jiri, anything about this patch and the rest of the series?
+It seems you applied only patch 1/4. Do you have comments?
 
-In this case, if a new Buzz controller pops out with an extra usage
-(Vendor 3 for instance), mapped to another LED, and that the report
-count is for this usage < 7, the test invalidate the report.
+> >
+> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > ---
+> >   drivers/hid/hid-sensor-hub.c | 31 +++++++++++++++----------------
+> >   1 file changed, 15 insertions(+), 16 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> > index ffc80cf..d0687d0 100644
+> > --- a/drivers/hid/hid-sensor-hub.c
+> > +++ b/drivers/hid/hid-sensor-hub.c
+> > @@ -103,8 +103,7 @@ static int sensor_hub_get_physical_device_count(
+> >   
+> >   	list_for_each_entry(report, &report_enum->report_list, list) {
+> >   		field = report->field[0];
+> > -		if (report->maxfield && field &&
+> > -					field->physical)
+> > +		if (report->maxfield && field && field->physical)
+> >   			cnt++;
+> >   	}
+> >   
+> > @@ -192,12 +191,12 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+> >   				u32 field_index, s32 value)
+> >   {
+> >   	struct hid_report *report;
+> > -	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
+> > +	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+> >   	int ret = 0;
+> >   
+> >   	mutex_lock(&data->mutex);
+> >   	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+> > -	if (!report || (field_index >=  report->maxfield)) {
+> > +	if (!report || (field_index >= report->maxfield)) {
+> >   		ret = -EINVAL;
+> >   		goto done_proc;
+> >   	}
+> > @@ -216,12 +215,12 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+> >   				u32 field_index, s32 *value)
+> >   {
+> >   	struct hid_report *report;
+> > -	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
+> > +	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+> >   	int ret = 0;
+> >   
+> >   	mutex_lock(&data->mutex);
+> >   	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+> > -	if (!report || (field_index >=  report->maxfield)) {
+> > +	if (!report || (field_index >= report->maxfield)) {
+> >   		ret = -EINVAL;
+> >   		goto done_proc;
+> >   	}
+> > @@ -241,7 +240,7 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+> >   					u32 usage_id,
+> >   					u32 attr_usage_id, u32 report_id)
+> >   {
+> > -	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
+> > +	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+> >   	unsigned long flags;
+> >   	struct hid_report *report;
+> >   	int ret_val = 0;
+> > @@ -302,7 +301,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+> >   
+> >   	/* Initialize with defaults */
+> >   	info->usage_id = usage_id;
+> > -	info->attrib_id =  attr_usage_id;
+> > +	info->attrib_id = attr_usage_id;
+> >   	info->report_id = -1;
+> >   	info->index = -1;
+> >   	info->units = -1;
+> > @@ -333,7 +332,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+> >   					if (field->usage[j].hid ==
+> >   					attr_usage_id &&
+> >   					field->usage[j].collection_index ==
+> > -					collection_index)  {
+> > +					collection_index) {
+> >   						sensor_hub_fill_attr_info(info,
+> >   							i, report->id,
+> >   							field->unit,
+> > @@ -357,7 +356,7 @@ EXPORT_SYMBOL_GPL(sensor_hub_input_get_attribute_info);
+> >   #ifdef CONFIG_PM
+> >   static int sensor_hub_suspend(struct hid_device *hdev, pm_message_t message)
+> >   {
+> > -	struct sensor_hub_data *pdata =  hid_get_drvdata(hdev);
+> > +	struct sensor_hub_data *pdata = hid_get_drvdata(hdev);
+> >   	struct hid_sensor_hub_callbacks_list *callback;
+> >   
+> >   	hid_dbg(hdev, " sensor_hub_suspend\n");
+> > @@ -374,7 +373,7 @@ static int sensor_hub_suspend(struct hid_device *hdev, pm_message_t message)
+> >   
+> >   static int sensor_hub_resume(struct hid_device *hdev)
+> >   {
+> > -	struct sensor_hub_data *pdata =  hid_get_drvdata(hdev);
+> > +	struct sensor_hub_data *pdata = hid_get_drvdata(hdev);
+> >   	struct hid_sensor_hub_callbacks_list *callback;
+> >   
+> >   	hid_dbg(hdev, " sensor_hub_resume\n");
+> > @@ -394,6 +393,7 @@ static int sensor_hub_reset_resume(struct hid_device *hdev)
+> >   	return 0;
+> >   }
+> >   #endif
+> > +
+> >   /*
+> >    * Handle raw report as sent by device
+> >    */
+> > @@ -421,7 +421,6 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+> >   	spin_lock_irqsave(&pdata->lock, flags);
+> >   
+> >   	for (i = 0; i < report->maxfield; ++i) {
+> > -
+> >   		hid_dbg(hdev, "%d collection_index:%x hid:%x sz:%x\n",
+> >   				i, report->field[i]->usage->collection_index,
+> >   				report->field[i]->usage->hid,
+> > @@ -434,7 +433,7 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+> >   			pdata->pending.raw_data = kmalloc(sz, GFP_ATOMIC);
+> >   			if (pdata->pending.raw_data) {
+> >   				memcpy(pdata->pending.raw_data, ptr, sz);
+> > -				pdata->pending.raw_size  = sz;
+> > +				pdata->pending.raw_size = sz;
+> >   			} else
+> >   				pdata->pending.raw_size = 0;
+> >   			complete(&pdata->pending.ready);
+> > @@ -539,7 +538,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+> >   					field->physical) {
+> >   			name = kasprintf(GFP_KERNEL, "HID-SENSOR-%x",
+> >   						field->physical);
+> > -			if (name  == NULL) {
+> > +			if (name == NULL) {
+> >   				hid_err(hdev, "Failed MFD device name\n");
+> >   					ret = -ENOMEM;
+> >   					goto err_free_names;
+> > @@ -617,8 +616,8 @@ static struct hid_driver sensor_hub_driver = {
+> >   	.raw_event = sensor_hub_raw_event,
+> >   #ifdef CONFIG_PM
+> >   	.suspend = sensor_hub_suspend,
+> > -	.resume =  sensor_hub_resume,
+> > -	.reset_resume =  sensor_hub_reset_resume,
+> > +	.resume = sensor_hub_resume,
+> > +	.reset_resume = sensor_hub_reset_resume,
+> >   #endif
+> >   };
+> >   module_hid_driver(sensor_hub_driver);
+> Agreed.
+> 
+> Thanks,
+> Srinivas
 
-for instance, let's imagine they pop up a new version:
-
-0xa1, 0x02,                    //   Collection (Logical)              60
-0x75, 0x08,                    //     Report Size (8)                 62
-0x95, 0x07,                    //     **Report Count (7)**                64
-0x46, 0xff, 0x00,              //     Physical Maximum (255)          66
-0x26, 0xff, 0x00,              //     Logical Maximum (255)           69
-0x09, 0x02,                    //     Usage (Vendor Usage 2)          72
-0x91, 0x02,                    //     Output (Data,Var,Abs)           74
-0x75, 0x08,                    //     Report Size (8)                 62
-0x95, 0x04,                    //     **Report Count (4)**                64
-0x46, 0xff, 0x00,              //     Physical Maximum (255)          66
-0x26, 0xff, 0x00,              //     Logical Maximum (255)           69
-0x09, 0x03,                    //     Usage (Vendor Usage 3)          72
-0x91, 0x02,                    //     Output (Data,Var,Abs)           74
-0xc0,                          //   End Collection                    76
-
-Ok, it's a lot of "if", but still this output report is valid, and the
-test will fail. And if we call hid_validate_report(hdev,
-HID_OUTPUT_REPORT, 0, 1, 4), the validation will fail, but the heap
-overflow will appear again.
-
-Does it makes more sense?
-
-Cheers,
-Benjamin
-
->>> +               return -ENODEV;
->>> +
->>>         buzz = kzalloc(sizeof(*buzz), GFP_KERNEL);
->>>         if (!buzz) {
->>>                 hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
->>>
->>> --
->>> Jiri Kosina
->>> SUSE Labs
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
->
-> --
-> Kees Cook
-> Chrome OS Security
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

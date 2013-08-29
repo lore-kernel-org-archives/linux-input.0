@@ -1,49 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/serio: disable i8042 PC keyboard ctrl for ARC
-Date: Thu, 29 Aug 2013 09:33:00 -0700
-Message-ID: <20130829163259.GC1576@core.coreip.homeip.net>
-References: <1377715616-2548-1-git-send-email-mjonker@synopsys.com>
+Subject: Re: [PATCH v3 0/3] Input: omap-keypad: Wakeup capability and w/a for
+ i689 errata.
+Date: Thu, 29 Aug 2013 09:34:16 -0700
+Message-ID: <20130829163416.GD1576@core.coreip.homeip.net>
+References: <1375116311-13999-1-git-send-email-illia.smyrnov@ti.com>
+ <521C7A85.6000504@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:58110 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753060Ab3H2QdE (ORCPT
+Received: from mail-pb0-f46.google.com ([209.85.160.46]:48971 "EHLO
+	mail-pb0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753938Ab3H2QeT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Aug 2013 12:33:04 -0400
+	Thu, 29 Aug 2013 12:34:19 -0400
 Content-Disposition: inline
-In-Reply-To: <1377715616-2548-1-git-send-email-mjonker@synopsys.com>
+In-Reply-To: <521C7A85.6000504@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mischa Jonker <Mischa.Jonker@synopsys.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Illia Smyrnov <illia.smyrnov@globallogic.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Felipe Balbi <balbi@ti.com>
 
-On Wed, Aug 28, 2013 at 08:46:56PM +0200, Mischa Jonker wrote:
-> It causes crashes when enabled, and we don't have such a peripheral
-> anyway on ARC platforms.
+Hi Illia,
+On Tue, Aug 27, 2013 at 01:08:05PM +0300, Illia Smyrnov wrote:
+> Hello Dmitry,
 > 
-> Signed-off-by: Mischa Jonker <mjonker@synopsys.com>
-> ---
->  drivers/input/serio/Kconfig |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> could you take reviewed patches from this patchset?
 > 
-> diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-> index 94c17c2..1e691a3 100644
-> --- a/drivers/input/serio/Kconfig
-> +++ b/drivers/input/serio/Kconfig
-> @@ -22,7 +22,8 @@ config SERIO_I8042
->  	tristate "i8042 PC Keyboard controller" if EXPERT || !X86
->  	default y
->  	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
-> -		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN && !S390
-> +		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN && !S390 && \
-> +		   !ARC
->  	help
->  	  i8042 is the chip over which the standard AT keyboard and PS/2
->  	  mouse are connected to the computer. If you use these devices,
+> Reviewed patches:
+> [PATCH v3 1/3] Input: omap-keypad: Enable wakeup capability for keypad.
+> [PATCH v3 3/3] Input: omap-keypad: Setup irq type from DT
+> are not depend on
+> [PATCH v3 2/3] Input: omap-keypad: errata i689: Correct debounce time
+> 
+> Thanks.
 
+Yes, they have been applied.
 
-Applied, thank you.
+Thanks.
 
 -- 
 Dmitry

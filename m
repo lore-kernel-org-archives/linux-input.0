@@ -1,91 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.11-rc7
-Date: Thu, 29 Aug 2013 10:31:53 -0700
-Message-ID: <20130829173153.GA1623@core.coreip.homeip.net>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH 12/14] HID: sensor-hub: validate feature report details
+Date: Thu, 29 Aug 2013 11:13:14 -0700
+Message-ID: <521F8F3A.7050002@linux.intel.com>
+References: <alpine.LNX.2.00.1308282222190.22181@pobox.suse.cz> <521E60CE.6050000@linux.intel.com> <alpine.LNX.2.00.1308282241270.22181@pobox.suse.cz> <CAGXu5jL2vrO5NR+Bm+HeWa0WihwN4nAr5b=Fga9QE8WW2Wjt6w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f179.google.com ([209.85.192.179]:36042 "EHLO
-	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755971Ab3H2Rb5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Aug 2013 13:31:57 -0400
-Content-Disposition: inline
+Received: from mga09.intel.com ([134.134.136.24]:9691 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755998Ab3H2SGb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Aug 2013 14:06:31 -0400
+In-Reply-To: <CAGXu5jL2vrO5NR+Bm+HeWa0WihwN4nAr5b=Fga9QE8WW2Wjt6w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, srinivas pandruvada <srinivas.pandruvada@intel.com>
 
+On 08/28/2013 02:16 PM, Kees Cook wrote:
+> On Wed, Aug 28, 2013 at 1:42 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> On Wed, 28 Aug 2013, Srinivas Pandruvada wrote:
+>>
+>>>> A HID device could send a malicious feature report that would cause the
+>>>> sensor-hub HID driver to read past the end of heap allocation, leaking
+>>>> kernel memory contents to the caller.
+>>>>
+>>>> CVE-2013-2898
+>>>>
+>>>> Signed-off-by: Kees Cook <keescook@chromium.org>
+>>>> Cc: stable@kernel.org
+>>>> ---
+>>>>    drivers/hid/hid-sensor-hub.c |    3 ++-
+>>>>    1 file changed, 2 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+>>>> index ca749810..aa34755 100644
+>>>> --- a/drivers/hid/hid-sensor-hub.c
+>>>> +++ b/drivers/hid/hid-sensor-hub.c
+>>>> @@ -221,7 +221,8 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device
+>>>> *hsdev, u32 report_id,
+>>>>              mutex_lock(&data->mutex);
+>>>>      report = sensor_hub_report(report_id, hsdev->hdev,
+>>>> HID_FEATURE_REPORT);
+>>>> -   if (!report || (field_index >=  report->maxfield)) {
+>>>> +   if (!report || (field_index >=  report->maxfield) ||
+>>>> +       report->field[field_index]->report_count < 1) {
+>>> Is it based on some HID device is sending junk report or just from a code
+>>> review?
+>> My understanding is that this whole Kees' patchset is about potentially
+>> evil devices doing bad things (on purpose).
+> Correct, though this particular flaw is pretty weak. It requires both
+> malicious device and malicious user-space. However, with the advent of
+> things like HTML5 USB API, it's possible these could be combined to
+> attack a device.
+>
+> Regardless, this fix seems obviously correct and trivial to me.
+Agree fix is simple, but the malicious feature report can contains other 
+junk also. Can we really address all such issues?
+>>>>              ret = -EINVAL;
+>>>>              goto done_proc;
+>>>>      }
+>>> Thanks,
+>>> Srinivas
+>>>
+>> --
+>> Jiri Kosina
+>> SUSE Labs
+>
+> Thanks,
+Srinivas
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. Just a couple of new IDs in
-Wacom and xpad drivers, i8042 is now disabled on ARC, and data checks
-in Elantech driver that were overly relaxed by the previous patch are
-now tightened.
-
-Changelog:
----------
-
-Mag (1):
-      Input: xpad - add signature for Razer Onza Classic Edition
-
-Matteo Delfino (1):
-      Input: elantech - fix packet check for v3 and v4 hardware
-
-Mischa Jonker (1):
-      Input: i8042 - disable the driver on ARC platforms
-
-Ping Cheng (1):
-      Input: wacom - add support for 0x300 and 0x301
-
-
-Diffstat:
---------
-
- drivers/input/joystick/xpad.c    |  1 +
- drivers/input/mouse/elantech.c   | 44 ++++++++++++++++++++++++++++++++++++=
-----
- drivers/input/mouse/elantech.h   |  1 +
- drivers/input/serio/Kconfig      |  3 ++-
- drivers/input/tablet/wacom_wac.c | 10 ++++++++-
- 5 files changed, 53 insertions(+), 6 deletions(-)
-
---=20
-Dmitry
-
-
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSH4WJAAoJEH70+W8r6ZYqPmMQAI6a3jlPtt5O42u/YR1hkIRo
-vmRiLnvEFB8MvxWbgv5IwqdgMfKO/ccYeD8ALE6ygyR5AcqXmYD7fe1nmepgTexH
-8a1nFtGuHoHtIA1Y9txRl84lwCuMNDA1zwpfPY/OvggWRtfA7FE1V0DRoQJmjOeT
-oOXnXrE3novtbuL/cKuuMrHkhZu21Rb7aG15w73ee9LGDkHS7clKsfZZLzVjVehQ
-NjZKIHXZDFAKw5lzh4PM4A9cBovOaspJSn9lIm58UIBpo6RmFLybywfIUfSwkJXt
-a0RqlcnE97VEjNW0X7Dy0B9dkXe3Ioz11vUMp2cGPseFZ1ersZMJk2HUdDglNS+B
-rMezOspYUFWnwWR/HcMBDzgXjibLiyLXo/0Lao6h0PgBAUuOIDgA4GY2BEoj6qn7
-puooX2H25eTsXF4mp8ENljGWglbNufqXNxQnjpDs4pxnUAh7lh+t0lyq6mpfaziC
-K3jgp7yTOlP2khaxpquw5V1ymMyOEsDz2Q5WfqitW0shyK2GpxiG95z/wKYjIPPV
-/yaMzQyXzCveGTMlXDoaKXJDnENHxahvoa02UBddvdJ8Iqkp4Ls1XiH30yoOtMm2
-zR7VSaddloKtJ7LfGvLb4mfcu+BG30jDgNOTW376fH75v9EGQIpekTPy8IYUyMMr
-FaD8A0rcpFR2p6RqnIdD
-=YS7B
------END PGP SIGNATURE-----
-
---SUOF0GtieIMvvwua--

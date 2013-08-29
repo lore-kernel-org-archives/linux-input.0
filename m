@@ -1,60 +1,100 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 10/14] HID: ntrig: validate feature report details
-Date: Thu, 29 Aug 2013 11:12:03 -0400
-Message-ID: <521F64C3.8000201@seas.upenn.edu>
-References: <alpine.LNX.2.00.1308282221210.22181@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] MAINTAINERS: Change maintainer for cyttsp driver
+Date: Thu, 29 Aug 2013 08:44:51 -0700
+Message-ID: <20130829154451.GA1576@core.coreip.homeip.net>
+References: <1373838082-12372-1-git-send-email-javier@dowhile0.org>
+ <1373838082-12372-2-git-send-email-javier@dowhile0.org>
+ <51E4EEEA.4000208@cypress.com>
+ <CABxcv=mOasXUvC301Dn3fGQqo2ipk_oYEaU8ht1VCJiz2bC8Sw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from talbot.seas.upenn.edu ([158.130.67.217]:34011 "EHLO
-	talbot.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752200Ab3H2PRv (ORCPT
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:46212 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753135Ab3H2Poz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Aug 2013 11:17:51 -0400
-In-Reply-To: <alpine.LNX.2.00.1308282221210.22181@pobox.suse.cz>
+	Thu, 29 Aug 2013 11:44:55 -0400
+Content-Disposition: inline
+In-Reply-To: <CABxcv=mOasXUvC301Dn3fGQqo2ipk_oYEaU8ht1VCJiz2bC8Sw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Kees Cook <keescook@chromium.org>
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Ferruh Yigit <fery@cypress.com>, Henrik Rydberg <rydberg@euromail.se>, ttdrivers@cypress.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+On Thu, Aug 29, 2013 at 11:48:57AM +0200, Javier Martinez Canillas wrote:
+> On Tue, Jul 16, 2013 at 8:57 AM, Ferruh Yigit <fery@cypress.com> wrote:
+> >
+> > On 07/15/2013 12:41 AM, Javier Martinez Canillas wrote:
+> >>
+> >> I haven't had time to work on this driver for a long time and
+> >> Ferruh has been doing a great job making it more generic,
+> >> adding support for new hardware and providing bug fixes.
+> >
+> > Thank you a lot for your work on cyttsp drivers,
+> > we would like to see your support back whenever you have time again.
+> > Your expertise/know-how on issue is valuable.
+> >
+> >
+> >>
+> >> So, let's make MAINTAINERS reflect reality and add him as the
+> >> cyttsp maintainer instead of me.
+> >>
+> >> Also, since Ferruh works for Cypress, we may change the driver
+> >> status from Maintained to Supported.
+> >>
+> >> Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
+> >> ---
+> >>
+> >> Ferruh, please send your ack if you are willing to take over
+> >> maintainance of this driver.
+> >
+> >
+> > Acked-by: Ferruh Yigit <fery@cypress.com>
+> >
+> >
+> >>
+> >> Also, please confirm that you have been working on behalf of
+> >> Cypress instead of doing it on your free time. Otherwise we
+> >> should keep the driver status to maintained instead supported.
+> >
+> > Right, I am a Cypress employee and working on TrueTouch drivers.
+> >
+> >>
+> >> Thanks a lot and best regards,
+> >> Javier
+> >>
+> >>   MAINTAINERS |    4 ++--
+> >>   1 files changed, 2 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/MAINTAINERS b/MAINTAINERS
+> >> index 9d771d9..4ba996c 100644
+> >> --- a/MAINTAINERS
+> >> +++ b/MAINTAINERS
+> >> @@ -2458,9 +2458,9 @@ S:        Maintained
+> >>   F:    drivers/media/common/cypress_firmware*
+> >>     CYTTSP TOUCHSCREEN DRIVER
+> >> -M:     Javier Martinez Canillas <javier@dowhile0.org>
+> >> +M:     Ferruh Yigit <fery@cypress.com>
+> >>   L:    linux-input@vger.kernel.org
+> >> -S:     Maintained
+> >> +S:     Supported
+> >>   F:    drivers/input/touchscreen/cyttsp*
+> >>   F:    include/linux/input/cyttsp.h
+> >>
+> >
+> >
+> >
+> > --
+> >
+> > Regards,
+> > ferruh
+> >
+> 
+> Hi Dmitry and Henrik,
+> 
+> Any comments about this patch? It was sent a couple of months ago...
 
-Thanks Kees,
-Rafi
+Sorry, missed it. Applied now.
 
-On 08/28/13 16:31, Jiri Kosina wrote:
-> From: Kees Cook <keescook@chromium.org>
-> 
-> A HID device could send a malicious feature report that would cause the
-> ntrig HID driver to trigger a NULL dereference during initialization:
-> 
-> [57383.031190] usb 3-1: New USB device found, idVendor=1b96, idProduct=0001
-> ...
-> [57383.315193] BUG: unable to handle kernel NULL pointer dereference at 0000000000000030
-> [57383.315308] IP: [<ffffffffa08102de>] ntrig_probe+0x25e/0x420 [hid_ntrig]
-> 
-> CVE-2013-2896
-> 
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Cc: stable@kernel.org
-> ---
->  drivers/hid/hid-ntrig.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index ef95102..5482156 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -115,7 +115,8 @@ static inline int ntrig_get_mode(struct hid_device *hdev)
->  	struct hid_report *report = hdev->report_enum[HID_FEATURE_REPORT].
->  				    report_id_hash[0x0d];
->  
-> -	if (!report)
-> +	if (!report || report->maxfield < 1 ||
-> +	    report->field[0]->report_count < 1)
->  		return -EINVAL;
->  
->  	hid_hw_request(hdev, report, HID_REQ_GET_REPORT);
-> 
-
+-- 
+Dmitry

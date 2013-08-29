@@ -1,82 +1,55 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH 12/14] HID: sensor-hub: validate feature report details
-Date: Wed, 28 Aug 2013 14:16:42 -0700
-Message-ID: <CAGXu5jL2vrO5NR+Bm+HeWa0WihwN4nAr5b=Fga9QE8WW2Wjt6w@mail.gmail.com>
-References: <alpine.LNX.2.00.1308282222190.22181@pobox.suse.cz>
-	<521E60CE.6050000@linux.intel.com>
-	<alpine.LNX.2.00.1308282241270.22181@pobox.suse.cz>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] Input: add SYN_MAX and SYN_CNT constants
+Date: Thu, 29 Aug 2013 11:06:27 +1000
+Message-ID: <20130829010627.GA1354@yabbi.redhat.com>
+References: <1377602632-23259-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:33565 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755413Ab3H1VQn (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:37725 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752981Ab3H2Bhq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 17:16:43 -0400
-Received: by mail-ie0-f169.google.com with SMTP id 10so10133296ied.28
-        for <linux-input@vger.kernel.org>; Wed, 28 Aug 2013 14:16:42 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1308282241270.22181@pobox.suse.cz>
+	Wed, 28 Aug 2013 21:37:46 -0400
+Content-Disposition: inline
+In-Reply-To: <1377602632-23259-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, srinivas pandruvada <srinivas.pandruvada@intel.com>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, Aug 28, 2013 at 1:42 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 28 Aug 2013, Srinivas Pandruvada wrote:
->
->> > A HID device could send a malicious feature report that would cause the
->> > sensor-hub HID driver to read past the end of heap allocation, leaking
->> > kernel memory contents to the caller.
->> >
->> > CVE-2013-2898
->> >
->> > Signed-off-by: Kees Cook <keescook@chromium.org>
->> > Cc: stable@kernel.org
->> > ---
->> >   drivers/hid/hid-sensor-hub.c |    3 ++-
->> >   1 file changed, 2 insertions(+), 1 deletion(-)
->> >
->> > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
->> > index ca749810..aa34755 100644
->> > --- a/drivers/hid/hid-sensor-hub.c
->> > +++ b/drivers/hid/hid-sensor-hub.c
->> > @@ -221,7 +221,8 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device
->> > *hsdev, u32 report_id,
->> >             mutex_lock(&data->mutex);
->> >     report = sensor_hub_report(report_id, hsdev->hdev,
->> > HID_FEATURE_REPORT);
->> > -   if (!report || (field_index >=  report->maxfield)) {
->> > +   if (!report || (field_index >=  report->maxfield) ||
->> > +       report->field[field_index]->report_count < 1) {
->> Is it based on some HID device is sending junk report or just from a code
->> review?
->
-> My understanding is that this whole Kees' patchset is about potentially
-> evil devices doing bad things (on purpose).
+On Tue, Aug 27, 2013 at 01:23:52PM +0200, David Herrmann wrote:
+> SYN_* events are special and not enabled via set_bit() for devices. Hence,
+> they haven't been really needed, yet. However, user-space can still make
+> great use of that for int->string debugging helpers or alike.
+> 
+> Also, I haven't seen any reason not to define these, so here they are.
+> 
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+>  include/uapi/linux/input.h | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index 4649ee3..2fb6fae 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -194,6 +194,8 @@ struct input_keymap_entry {
+>  #define SYN_CONFIG		1
+>  #define SYN_MT_REPORT		2
+>  #define SYN_DROPPED		3
+> +#define SYN_MAX			0xf
+> +#define SYN_CNT			(SYN_MAX+1)
+>  
+>  /*
+>   * Keys and buttons
+> -- 
+> 1.8.4
 
-Correct, though this particular flaw is pretty weak. It requires both
-malicious device and malicious user-space. However, with the advent of
-things like HTML5 USB API, it's possible these could be combined to
-attack a device.
+yes please!
 
-Regardless, this fix seems obviously correct and trivial to me.
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
 
--Kees
+Cheers,
+   Peter
 
->
->> >             ret = -EINVAL;
->> >             goto done_proc;
->> >     }
->> Thanks,
->> Srinivas
->>
->
-> --
-> Jiri Kosina
-> SUSE Labs
-
-
-
--- 
-Kees Cook
-Chrome OS Security

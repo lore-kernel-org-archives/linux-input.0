@@ -1,71 +1,39 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: roccat: Added support for KonePureOptical
-Date: Thu, 29 Aug 2013 22:41:36 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308292241150.23267@pobox.suse.cz>
-References: <1377786628.2404.1.camel@neuromancer.tessier-ashpool>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/2] Input: wacom - testing result shows get_report is unnecessary.
+Date: Thu, 29 Aug 2013 16:03:47 -0700
+Message-ID: <1377817427-29761-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42705 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753336Ab3H2Ull (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Aug 2013 16:41:41 -0400
-In-Reply-To: <1377786628.2404.1.camel@neuromancer.tessier-ashpool>
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:51003 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754336Ab3H2XEW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Aug 2013 19:04:22 -0400
+Received: by mail-pd0-f182.google.com with SMTP id r10so1063150pdi.27
+        for <linux-input@vger.kernel.org>; Thu, 29 Aug 2013 16:04:21 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-On Thu, 29 Aug 2013, Stefan Achatz wrote:
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_sys.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-> KonePureOptical is a KonePure with different sensor.
-> 
-> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
-> ---
->  drivers/hid/hid-ids.h             |    1 +
->  drivers/hid/hid-roccat-konepure.c |    3 ++-
->  2 files changed, 3 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index ffe4c7a..ef18cd9 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -716,6 +716,7 @@
->  #define USB_DEVICE_ID_ROCCAT_KONE	0x2ced
->  #define USB_DEVICE_ID_ROCCAT_KONEPLUS	0x2d51
->  #define USB_DEVICE_ID_ROCCAT_KONEPURE	0x2dbe
-> +#define USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL	0x2db4
->  #define USB_DEVICE_ID_ROCCAT_KONEXTD	0x2e22
->  #define USB_DEVICE_ID_ROCCAT_KOVAPLUS	0x2d50
->  #define USB_DEVICE_ID_ROCCAT_LUA	0x2c2e
-> diff --git a/drivers/hid/hid-roccat-konepure.c b/drivers/hid/hid-roccat-konepure.c
-> index c79d0b0..5850959 100644
-> --- a/drivers/hid/hid-roccat-konepure.c
-> +++ b/drivers/hid/hid-roccat-konepure.c
-> @@ -262,6 +262,7 @@ static int konepure_raw_event(struct hid_device *hdev,
->  
->  static const struct hid_device_id konepure_devices[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL) },
->  	{ }
->  };
-
-I believe you are missing hid_have_special_driver[] entry.
-
->  
-> @@ -300,5 +301,5 @@ module_init(konepure_init);
->  module_exit(konepure_exit);
->  
->  MODULE_AUTHOR("Stefan Achatz");
-> -MODULE_DESCRIPTION("USB Roccat KonePure driver");
-> +MODULE_DESCRIPTION("USB Roccat KonePure/Optical driver");
->  MODULE_LICENSE("GPL v2");
-> -- 
-> 1.7.3.4
-> 
-> 
-> 
-
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 79b69ea..1c70a8d 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -524,9 +524,6 @@ static int wacom_set_device_mode(struct usb_interface *intf, int report_id, int
+ 
+ 		error = wacom_set_report(intf, WAC_HID_FEATURE_REPORT,
+ 		                         report_id, rep_data, length, 1);
+-		if (error >= 0)
+-			error = wacom_get_report(intf, WAC_HID_FEATURE_REPORT,
+-			                         report_id, rep_data, length, 1);
+ 	} while ((error < 0 || rep_data[1] != mode) && limit++ < WAC_MSG_RETRIES);
+ 
+ 	kfree(rep_data);
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.1.2
+

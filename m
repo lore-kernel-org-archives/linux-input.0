@@ -1,102 +1,164 @@
 From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH 12/14] HID: sensor-hub: validate feature report details
-Date: Thu, 29 Aug 2013 12:47:30 -0700
-Message-ID: <CAGXu5j+8PEBA5MCeSPMofBRPkb0pXJ2ce_x5rGY98kojTdx8Xg@mail.gmail.com>
-References: <alpine.LNX.2.00.1308282222190.22181@pobox.suse.cz>
-	<521E60CE.6050000@linux.intel.com>
-	<alpine.LNX.2.00.1308282241270.22181@pobox.suse.cz>
-	<CAGXu5jL2vrO5NR+Bm+HeWa0WihwN4nAr5b=Fga9QE8WW2Wjt6w@mail.gmail.com>
-	<521F8F3A.7050002@linux.intel.com>
+Subject: Re: [PATCH 02/14] HID: provide a helper for validating hid reports
+Date: Thu, 29 Aug 2013 12:51:56 -0700
+Message-ID: <CAGXu5j+G0o6DZOar8j24ZDfqJc4_M_2RBAxToW+CxR1aoejyDw@mail.gmail.com>
+References: <alpine.LNX.2.00.1308282158570.22181@pobox.suse.cz>
+	<CAN+gG=H5v=XZ1OOqwiTiOK8fuieMCGRcg_gCks1A5732H4J72Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f176.google.com ([209.85.223.176]:53729 "EHLO
-	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754047Ab3H2Tra (ORCPT
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:55518 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755755Ab3H2Tv4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Aug 2013 15:47:30 -0400
-Received: by mail-ie0-f176.google.com with SMTP id s9so1574782iec.21
-        for <linux-input@vger.kernel.org>; Thu, 29 Aug 2013 12:47:30 -0700 (PDT)
-In-Reply-To: <521F8F3A.7050002@linux.intel.com>
+	Thu, 29 Aug 2013 15:51:56 -0400
+Received: by mail-ie0-f170.google.com with SMTP id 16so1395042iea.15
+        for <linux-input@vger.kernel.org>; Thu, 29 Aug 2013 12:51:56 -0700 (PDT)
+In-Reply-To: <CAN+gG=H5v=XZ1OOqwiTiOK8fuieMCGRcg_gCks1A5732H4J72Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, srinivas pandruvada <srinivas.pandruvada@intel.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
 
-On Thu, Aug 29, 2013 at 11:13 AM, Srinivas Pandruvada
-<srinivas.pandruvada@linux.intel.com> wrote:
-> On 08/28/2013 02:16 PM, Kees Cook wrote:
->>
->> On Wed, Aug 28, 2013 at 1:42 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->>>
->>> On Wed, 28 Aug 2013, Srinivas Pandruvada wrote:
->>>
->>>>> A HID device could send a malicious feature report that would cause the
->>>>> sensor-hub HID driver to read past the end of heap allocation, leaking
->>>>> kernel memory contents to the caller.
->>>>>
->>>>> CVE-2013-2898
->>>>>
->>>>> Signed-off-by: Kees Cook <keescook@chromium.org>
->>>>> Cc: stable@kernel.org
->>>>> ---
->>>>>    drivers/hid/hid-sensor-hub.c |    3 ++-
->>>>>    1 file changed, 2 insertions(+), 1 deletion(-)
->>>>>
->>>>> diff --git a/drivers/hid/hid-sensor-hub.c
->>>>> b/drivers/hid/hid-sensor-hub.c
->>>>> index ca749810..aa34755 100644
->>>>> --- a/drivers/hid/hid-sensor-hub.c
->>>>> +++ b/drivers/hid/hid-sensor-hub.c
->>>>> @@ -221,7 +221,8 @@ int sensor_hub_get_feature(struct
->>>>> hid_sensor_hub_device
->>>>> *hsdev, u32 report_id,
->>>>>              mutex_lock(&data->mutex);
->>>>>      report = sensor_hub_report(report_id, hsdev->hdev,
->>>>> HID_FEATURE_REPORT);
->>>>> -   if (!report || (field_index >=  report->maxfield)) {
->>>>> +   if (!report || (field_index >=  report->maxfield) ||
->>>>> +       report->field[field_index]->report_count < 1) {
->>>>
->>>> Is it based on some HID device is sending junk report or just from a
->>>> code
->>>> review?
->>>
->>> My understanding is that this whole Kees' patchset is about potentially
->>> evil devices doing bad things (on purpose).
->>
->> Correct, though this particular flaw is pretty weak. It requires both
->> malicious device and malicious user-space. However, with the advent of
->> things like HTML5 USB API, it's possible these could be combined to
->> attack a device.
->>
->> Regardless, this fix seems obviously correct and trivial to me.
+On Thu, Aug 29, 2013 at 2:35 AM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> Hi Kees,
 >
-> Agree fix is simple, but the malicious feature report can contains other
-> junk also. Can we really address all such issues?
+> On Wed, Aug 28, 2013 at 10:30 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> From: Kees Cook <keescook@chromium.org>
+>>
+>> Many drivers need to validate the characteristics of their HID report
+>> during initialization to avoid misusing the reports. This adds a common
+>> helper to perform validation of the report, its field count, and the
+>> value count within the fields.
+>>
+>> Signed-off-by: Kees Cook <keescook@chromium.org>
+>> Cc: stable@kernel.org
+>> ---
+>>  drivers/hid/hid-core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++
+>>  include/linux/hid.h    |    4 ++++
+>>  2 files changed, 54 insertions(+)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 5ea7d51..55798b2 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -759,6 +759,56 @@ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size)
+>>  }
+>>  EXPORT_SYMBOL_GPL(hid_parse_report);
+>>
+>> +static const char * const hid_report_names[] = {
+>> +       "HID_INPUT_REPORT",
+>> +       "HID_OUTPUT_REPORT",
+>> +       "HID_FEATURE_REPORT",
+>> +};
+>> +/**
+>> + * hid_validate_report - validate existing device report
+>> + *
+>> + * @device: hid device
+>> + * @type: which report type to examine
+>> + * @id: which report ID to examine (0 for first)
+>> + * @fields: expected number of fields
+>> + * @report_counts: expected number of values per field
+>> + *
+>> + * Validate the report details after parsing.
+>> + */
+>> +struct hid_report *hid_validate_report(struct hid_device *hid,
+>> +                                      unsigned int type, unsigned int id,
+>
+> You should consider having an u8 for id, or at least add a check
+> against id >= HID_MAX_IDS
 
-I certainly hope so! :) It should be possible to range check all
-usages. We just need to examine the code closely.
+Right, as you saw in later email, I added this check globally in the
+first patch.
+
+>
+>> +                                      unsigned int fields,
+>> +                                      unsigned int report_counts)
+>> +{
+>> +       struct hid_report *report;
+>> +       unsigned int i;
+>> +
+>> +       if (type > HID_FEATURE_REPORT) {
+>> +               hid_err(hid, "invalid HID report %u\n", type);
+>> +               return NULL;
+>> +       }
+>> +
+>> +       report = hid->report_enum[type].report_id_hash[id];
+>
+> for code readability, and better checking, I'd prefer use
+> hid_get_report() here instead. Or just add an inlined accessor in
+> hid.h to retrieve the report from the id as many drivers are using the
+> report_id_hash directly.
+
+I did not do this because hid_get_report() examines ->numbered and I
+explicitly didn't want that limitation since most of these drivers are
+blinding accessing the arrays by id number. If the structure members
+were opaque and all the drivers were forced to use the access
+functions, sure, we'd be fine.
+
+>
+>> +       if (!report) {
+>> +               hid_err(hid, "missing %s %u\n", hid_report_names[type], id);
+>> +               return NULL;
+>> +       }
+>> +       if (report->maxfield < fields) {
+>> +               hid_err(hid, "not enough fields in %s %u\n",
+>> +                       hid_report_names[type], id);
+>> +               return NULL;
+>> +       }
+>> +       for (i = 0; i < fields; i++) {
+>> +               if (report->field[i]->report_count < report_counts) {
+>
+> This is wrong.
+> you can have a per field different report_count, and it is perfectly
+> correct. So the only validate value for report_counts would be 1.
+> Otherwise, if you want to provide better checking, you need to provide
+> an array of report_counts, which start beeing a little bit annoying
+> for users.
+
+Well, nothing needs multiple differing report_counts in practice, so I
+opted to just do it this way since nothing calling the function needs
+more granular checking.
 
 -Kees
 
->>>>>
->>>>>              ret = -EINVAL;
->>>>>              goto done_proc;
->>>>>      }
->>>>
->>>> Thanks,
->>>> Srinivas
->>>>
->>> --
->>> Jiri Kosina
->>> SUSE Labs
->>
->>
->> Thanks,
 >
-> Srinivas
+>> +                       hid_err(hid, "not enough values in %s %u fields\n",
+>> +                               hid_report_names[type], id);
+>> +                       return NULL;
+>> +               }
+>> +       }
+>> +       return report;
+>> +}
+>> +EXPORT_SYMBOL_GPL(hid_validate_report);
+>> +
+>>  /**
+>>   * hid_open_report - open a driver-specific device report
+>>   *
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index ff545cc..76e41d8 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -749,6 +749,10 @@ void hid_output_report(struct hid_report *report, __u8 *data);
+>>  struct hid_device *hid_allocate_device(void);
+>>  struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
+>>  int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size);
+>> +struct hid_report *hid_validate_report(struct hid_device *hid,
+>> +                                      unsigned int type, unsigned int id,
+>> +                                      unsigned int fields,
+>> +                                      unsigned int report_counts);
+>>  int hid_open_report(struct hid_device *device);
+>>  int hid_check_keys_pressed(struct hid_device *hid);
+>>  int hid_connect(struct hid_device *hid, unsigned int connect_mask);
+>>
+>> --
+>> Jiri Kosina
+>> SUSE Labs
+>> --
 >
+> Cheers,
+> Benjamin
 
 
 

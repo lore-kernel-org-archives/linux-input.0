@@ -1,55 +1,61 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] Input: add SYN_MAX and SYN_CNT constants
-Date: Thu, 29 Aug 2013 11:06:27 +1000
-Message-ID: <20130829010627.GA1354@yabbi.redhat.com>
-References: <1377602632-23259-1-git-send-email-dh.herrmann@gmail.com>
+Subject: Re: [PATCH 1/3 v2] Input: wacom - Support EMR and MFT sensors of
+ Cintiq Companion Hybrid
+Date: Thu, 29 Aug 2013 11:10:54 +1000
+Message-ID: <20130829011054.GB1354@yabbi.redhat.com>
+References: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
+ <1377537210-2536-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from leo.clearchain.com ([199.73.29.74]:37725 "EHLO
 	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752981Ab3H2Bhq (ORCPT
+	with ESMTP id S1752696Ab3H2Bhp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Aug 2013 21:37:46 -0400
+	Wed, 28 Aug 2013 21:37:45 -0400
 Content-Disposition: inline
-In-Reply-To: <1377602632-23259-1-git-send-email-dh.herrmann@gmail.com>
+In-Reply-To: <1377537210-2536-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, pinglinux@gmail.com
 
-On Tue, Aug 27, 2013 at 01:23:52PM +0200, David Herrmann wrote:
-> SYN_* events are special and not enabled via set_bit() for devices. Hence,
-> they haven't been really needed, yet. However, user-space can still make
-> great use of that for int->string debugging helpers or alike.
+On Mon, Aug 26, 2013 at 10:13:30AM -0700, Jason Gerecke wrote:
+> Adds support for the sensors integrated in to the Cintiq Companion
+> Hybrid. These sensors use by-and-large the same protocol as the
+> Cintiq 24HD touch.
 > 
-> Also, I haven't seen any reason not to define these, so here they are.
+> NOTE: The ExpressKeys on the Cintiq Companion Hybrid are wired to
+> both the EMR controller and CPU GPIO pins. It may be necessary to
+> disable their functionality in this driver if building a custom
+> Android kernel for this device (lest two events be sent to userspace
+> for every button press).
 > 
-> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> Signed-off-by: Jason Gerecke <killertofu@gmail.com>
 > ---
->  include/uapi/linux/input.h | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index 4649ee3..2fb6fae 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-> @@ -194,6 +194,8 @@ struct input_keymap_entry {
->  #define SYN_CONFIG		1
->  #define SYN_MT_REPORT		2
->  #define SYN_DROPPED		3
-> +#define SYN_MAX			0xf
-> +#define SYN_CNT			(SYN_MAX+1)
->  
->  /*
->   * Keys and buttons
+> Changes in v2:
+>  * Remove "#if 1" block surrounding conditional ExpressKey reporting
+>  * Change to C-style comments
+
+[...]
+
+> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+> index dfc9e08..f47a5c1 100644
+> --- a/drivers/input/tablet/wacom_wac.h
+> +++ b/drivers/input/tablet/wacom_wac.h
+> @@ -80,6 +80,7 @@ enum {
+>  	WACOM_22HD,
+>  	DTK,
+>  	WACOM_24HD,
+> +	ASTERIX,
+>  	CINTIQ,
+>  	WACOM_BEE,
+>  	WACOM_13HD,
 > -- 
-> 1.8.4
+> 1.8.3.4
 
-yes please!
-
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+I assume ASTERIX is some internal codename - can we use the commonly used
+name instead?
 
 Cheers,
    Peter
-

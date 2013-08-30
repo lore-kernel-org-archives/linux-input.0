@@ -1,37 +1,75 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4/6] si4713 : HID blacklist Si4713 USB development
- board
-Date: Fri, 30 Aug 2013 13:47:24 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1308301346480.23267@pobox.suse.cz>
-References: <1377862104-15429-1-git-send-email-dinram@cisco.com> <228d4c6c3c411f4f5aad408d5bff88bb09a82e4e.1377861337.git.dinram@cisco.com>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH] HID: roccat: Added support for KonePureOptical v2
+Date: Fri, 30 Aug 2013 14:10:07 +0200
+Message-ID: <1377864607.2406.1.camel@neuromancer.tessier-ashpool>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37591 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752466Ab3H3Lr2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Aug 2013 07:47:28 -0400
-In-Reply-To: <228d4c6c3c411f4f5aad408d5bff88bb09a82e4e.1377861337.git.dinram@cisco.com>
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:60033 "EHLO
+	mail-in-07.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754621Ab3H3MKJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Aug 2013 08:10:09 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dinesh Ram <dinram@cisco.com>
-Cc: linux-media@vger.kernel.org, dinesh.ram@cern.ch, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 30 Aug 2013, Dinesh Ram wrote:
+KonePureOptical is a KonePure with different sensor.
 
-> The Si4713 development board contains a Si4713 FM transmitter chip
-> and is handled by the radio-usb-si4713 driver.
-> The board reports itself as (10c4:8244) Cygnal Integrated Products, Inc.
-> and misidentifies itself as a HID device in its USB interface descriptor.
-> This patch ignores this device as an HID device and hence loads the custom driver.
-> 
-> Signed-off-by: Dinesh Ram <dinram@cisco.com>
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ drivers/hid/hid-core.c            |    1 +
+ drivers/hid/hid-ids.h             |    1 +
+ drivers/hid/hid-roccat-konepure.c |    3 ++-
+ 3 files changed, 4 insertions(+), 1 deletions(-)
 
-	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-Please feel free to take it together with my sigoff with the rest of the 
-series.
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 36668d1..8c4e82c 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1679,6 +1679,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPLUS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KOVAPLUS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_LUA) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ffe4c7a..ef18cd9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -716,6 +716,7 @@
+ #define USB_DEVICE_ID_ROCCAT_KONE	0x2ced
+ #define USB_DEVICE_ID_ROCCAT_KONEPLUS	0x2d51
+ #define USB_DEVICE_ID_ROCCAT_KONEPURE	0x2dbe
++#define USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL	0x2db4
+ #define USB_DEVICE_ID_ROCCAT_KONEXTD	0x2e22
+ #define USB_DEVICE_ID_ROCCAT_KOVAPLUS	0x2d50
+ #define USB_DEVICE_ID_ROCCAT_LUA	0x2c2e
+diff --git a/drivers/hid/hid-roccat-konepure.c b/drivers/hid/hid-roccat-konepure.c
+index c79d0b0..5850959 100644
+--- a/drivers/hid/hid-roccat-konepure.c
++++ b/drivers/hid/hid-roccat-konepure.c
+@@ -262,6 +262,7 @@ static int konepure_raw_event(struct hid_device *hdev,
+ 
+ static const struct hid_device_id konepure_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL) },
+ 	{ }
+ };
+ 
+@@ -300,5 +301,5 @@ module_init(konepure_init);
+ module_exit(konepure_exit);
+ 
+ MODULE_AUTHOR("Stefan Achatz");
+-MODULE_DESCRIPTION("USB Roccat KonePure driver");
++MODULE_DESCRIPTION("USB Roccat KonePure/Optical driver");
+ MODULE_LICENSE("GPL v2");
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.3.4
+
+
+

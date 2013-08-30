@@ -1,58 +1,56 @@
-From: Sebastian =?utf-8?Q?Dalfu=C3=9F?= <sd@sedf.de>
-Subject: hid: egalax 0x0eef:0x0001 no longer detected by hid-multitouch
-Date: Fri, 30 Aug 2013 19:59:46 +0200
-Message-ID: <20130830175946.GA17584@sedf.de>
+From: Vasily Titskiy <qehgt0@gmail.com>
+Subject: [PATCH] HID: usbhid: quirk for N-Trig DuoSense Touch Screen
+Date: Fri, 30 Aug 2013 14:47:26 -0400
+Message-ID: <CABSveYg3gAnx=cKTqN-iqZdypzivXDuvVAJCdKdbCS6fz3gYkw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sedf.de ([46.38.234.219]:57168 "EHLO sedf.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752855Ab3H3S1u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Aug 2013 14:27:50 -0400
-Received: from dslb-188-097-122-098.pools.arcor-ip.net ([188.97.122.98] helo=ultra.localdomain)
-	by sedf.de with esmtpsa (TLS1.2:DHE_RSA_AES_128_CBC_SHA1:128)
-	(Exim 4.80)
-	(envelope-from <sd@sedf.de>)
-	id 1VFSz8-00046s-0y
-	for linux-input@vger.kernel.org; Fri, 30 Aug 2013 19:59:50 +0200
-Content-Disposition: inline
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:59310 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753633Ab3H3Srs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Aug 2013 14:47:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
-Dear Maintainers,
+The DuoSense touchscreen device causes a 10 second timeout. This fix
+removes the delay.
 
-In 3.6.x the egalax touch panel (Vendor: 0eef, Dev: 0001) worked=20
-perfectly well with hid-multitouch, right out of the box. In 3.9 and=20
-3.10 it doesn't; the panel doesn't show up in /proc/bus/input/devices .
-If the module usbtouchscreen is present, 3.9/3.10 wrongly try to use=20
-that one (flipped y-axis, wrong scale, get's stuck) instead of=20
-hid-multitouch(worked previously perfectly well, no need for=20
-calibration, quirks, configuration). If usbtouchscreen isn't present,=20
-the panel isn't detected, even if hid-multitouch gets poked with approp=
-riate
-parameters in /sys/module/hid_multitouch/drivers/hid\:hid-multitouch/ne=
-w_id .
-In an desperate attempt, I manually added the device/vendor id to
-hid-multitouch.c, which didn't yield any improvement. It seems that the=
- hid
-subsystem doesn't even recognize that this device is indeed a hid=20
-touchpanel.
+Signed-off-by: Vasily Titskiy <qehgt0@gmail.com>
+---
+ drivers/hid/hid-ids.h           |    2 ++
+ drivers/hid/usbhid/hid-quirks.c |    3 +++
+ 2 files changed, 5 insertions(+)
 
-Is there a way to force hid to take care of that vendor/device-id, as a
-temporary workaround?
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 2168885..c3929ea 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -898,4 +898,6 @@
+ #define USB_VENDOR_ID_PRIMAX 0x0461
+ #define USB_DEVICE_ID_PRIMAX_KEYBOARD 0x4e05
 
-This issue is also filed in Bugzilla:=20
-https://bugzilla.kernel.org/show_bug.cgi?id=3D60816
-
-lsusb-snippet:
-https://bugzilla.kernel.org/attachment.cgi?id=3D107362
-
-Greetings,
-Sebastian Dalfu=C3=9F
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
++#define USB_DEVICE_ID_NTRIG_DUOSENSE 0x1500
++
+ #endif
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 19b8360..3fd4dfd 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -89,6 +89,9 @@ static const struct hid_blacklist {
+  { USB_VENDOR_ID_SYMBOL, USB_DEVICE_ID_SYMBOL_SCANNER_2, HID_QUIRK_NOGET },
+  { USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN, HID_QUIRK_NOGET },
+  { USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD, HID_QUIRK_NOGET },
++
++ { USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_DUOSENSE, HID_QUIRK_NOGET },
++
+  { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209,
+HID_QUIRK_MULTI_INPUT },
+  { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U,
+HID_QUIRK_MULTI_INPUT },
+  { USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5,
+HID_QUIRK_MULTI_INPUT },
+-- 
+1.7.10.4

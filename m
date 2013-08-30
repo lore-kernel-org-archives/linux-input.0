@@ -1,48 +1,50 @@
-From: Yann Cantin <yann.cantin-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
-Subject: [PATCH v2 0/2] new USB eBeam input driver
-Date: Fri, 30 Aug 2013 22:53:05 +0200
-Message-ID: <1377895987-27715-1-git-send-email-yann.cantin@laposte.net>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
+From: Yann Cantin <yann.cantin@laposte.net>
+Subject: [PATCH v2 1/2] hid: Blacklist eBeam devices
+Date: Fri, 30 Aug 2013 22:53:06 +0200
+Message-ID: <1377895987-27715-2-git-send-email-yann.cantin@laposte.net>
+References: <1377895987-27715-1-git-send-email-yann.cantin@laposte.net>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1377895987-27715-1-git-send-email-yann.cantin@laposte.net>
+Sender: linux-doc-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz, rob@landley.net, gregkh@linuxfoundation.org, Yann Cantin <yann.cantin@laposte.net>
 List-Id: linux-input@vger.kernel.org
 
 
-Hi,
+Signed-off-by: Yann Cantin <yann.cantin@laposte.net>
+---
+ drivers/hid/hid-core.c | 3 +++
+ drivers/hid/hid-ids.h  | 3 +++
+ 2 files changed, 6 insertions(+)
 
-New USB input driver for eBeam devices.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 36668d1..da5dfa0 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1985,6 +1985,9 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x0004) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, 0x000a) },
++#if defined(CONFIG_INPUT_EBEAM_USB)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_EFI, USB_DEVICE_ID_EFI_EBEAM) },
++#endif
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ffe4c7a..abd1c53 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -288,6 +288,9 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
+ 
++#define USB_VENDOR_ID_EFI		0x2650
++#define USB_DEVICE_ID_EFI_EBEAM		0x1311
++
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+ 
+-- 
+1.8.1.5
 
-Currently supported (tested) :
-- Luidia eBeam classic projection and edge projection models
-- Nec "interactive solution" NP01Wi1 & NP01Wi2 accessories.
-
->From basic usb point of view, all these devices are
-indistinguishable : they have the same usb ids and (blank) hid
-report descriptors. There's other re-branded hardware that need to be
-test, but i bet on same ids.
-
-Patch 1 to blacklist the devices for hid generic-usb.
-
-Patch 2 is the actual driver.
-
-Notable stuff :
-- use div64_s64 for portable 64/64-bits divisions.
-- 13 sysfs custom files : 9 values for the transformation matrix,
-  4 for xy ranges and a calibration trigger.
-
-The module run fine since 3.3.6 kernel, both x86_32 and 64, actually
-run in production on a 3.8.13 and compile without errors on
-today's linus tree.
-
-Changes from v1 -> v2:
-- fix sysfs/input creation race in ebeam_probe
-- use get_unaligned_le16 macro in ebeam_read_data
-- move usb_kill_urb after usb_autopm_get_interface in ebeam_close
-- remove reset_resume(), use resume() in reset_resume entry
-
-Thanks for your help.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

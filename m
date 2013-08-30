@@ -1,184 +1,219 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 02/14] HID: provide a helper for validating hid reports
-Date: Fri, 30 Aug 2013 15:05:55 +0200
-Message-ID: <CAN+gG=HSQBmm23RveM_8uALKeZVS29qC+Dr6Bsh+3KEdH5wWEw@mail.gmail.com>
-References: <alpine.LNX.2.00.1308282158570.22181@pobox.suse.cz>
-	<CAN+gG=H5v=XZ1OOqwiTiOK8fuieMCGRcg_gCks1A5732H4J72Q@mail.gmail.com>
-	<CAGXu5j+G0o6DZOar8j24ZDfqJc4_M_2RBAxToW+CxR1aoejyDw@mail.gmail.com>
+Subject: Re: [PATCH 04/14] HID: sony: validate HID output report details
+Date: Fri, 30 Aug 2013 15:39:29 +0200
+Message-ID: <5220A091.30704@gmail.com>
+References: <alpine.LNX.2.00.1308282159590.22181@pobox.suse.cz> <CAN+gG=F8Y2aoEMr-Zy=JLgT3VT_QGTBi60Hem299p8Sdc-icVg@mail.gmail.com> <CAGXu5jLAieQo8FkvEAU6D4c2i388Y3AnH3RNkdsyz3yg7K6sag@mail.gmail.com> <CAN+gG=FeU1ht-hmeGThw=sRshn7gZXde3PePFHpWEpKA1-K8=Q@mail.gmail.com> <CAGXu5jKjEQDpSKT_jH-1kvzF3tSmjPsvgqJ+Bx6EzQTg8O-e0A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f179.google.com ([209.85.217.179]:51442 "EHLO
-	mail-lb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752057Ab3H3NF5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Aug 2013 09:05:57 -0400
-Received: by mail-lb0-f179.google.com with SMTP id x18so1831362lbi.38
-        for <linux-input@vger.kernel.org>; Fri, 30 Aug 2013 06:05:56 -0700 (PDT)
-In-Reply-To: <CAGXu5j+G0o6DZOar8j24ZDfqJc4_M_2RBAxToW+CxR1aoejyDw@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:56792 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754885Ab3H3Njf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Aug 2013 09:39:35 -0400
+In-Reply-To: <CAGXu5jKjEQDpSKT_jH-1kvzF3tSmjPsvgqJ+Bx6EzQTg8O-e0A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Kees Cook <keescook@chromium.org>
 Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
 
-On Thu, Aug 29, 2013 at 9:51 PM, Kees Cook <keescook@chromium.org> wrote:
-> On Thu, Aug 29, 2013 at 2:35 AM, Benjamin Tissoires
+
+
+On Thu, Aug 29, 2013 at 9:58 PM, Kees Cook <keescook@chromium.org> wrote:
+> On Thu, Aug 29, 2013 at 7:50 AM, Benjamin Tissoires
 > <benjamin.tissoires@gmail.com> wrote:
->> Hi Kees,
->>
->> On Wed, Aug 28, 2013 at 10:30 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->>> From: Kees Cook <keescook@chromium.org>
+>> On Thu, Aug 29, 2013 at 4:40 PM, Kees Cook <keescook@chromium.org> wrote:
+>>> On Thu, Aug 29, 2013 at 2:48 AM, Benjamin Tissoires
+>>> <benjamin.tissoires@gmail.com> wrote:
+>>>> On Wed, Aug 28, 2013 at 10:30 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>>>>> From: Kees Cook <keescook@chromium.org>
+>>>>>
+>>>>> This driver must validate the availability of the HID output report and
+>>>>> its size before it can write LED states via buzz_set_leds(). This stops
+>>>>> a heap overflow that is possible if a device provides a malicious HID
+>>>>> output report:
+>>>>>
+>>>>> [  108.171280] usb 1-1: New USB device found, idVendor=054c, idProduct=0002
+>>>>> ...
+>>>>> [  117.507877] BUG kmalloc-192 (Not tainted): Redzone overwritten
+>>>>>
+>>>>> CVE-2013-2890
+>>>>>
+>>>>> Signed-off-by: Kees Cook <keescook@chromium.org>
+>>>>> Cc: stable@kernel.org
+>>>>> ---
+>>>>>  drivers/hid/hid-sony.c |    4 ++++
+>>>>>  1 file changed, 4 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+>>>>> index 87fbe29..b987926 100644
+>>>>> --- a/drivers/hid/hid-sony.c
+>>>>> +++ b/drivers/hid/hid-sony.c
+>>>>> @@ -537,6 +537,10 @@ static int buzz_init(struct hid_device *hdev)
+>>>>>         drv_data = hid_get_drvdata(hdev);
+>>>>>         BUG_ON(!(drv_data->quirks & BUZZ_CONTROLLER));
+>>>>>
+>>>>> +       /* Validate expected report characteristics. */
+>>>>> +       if (!hid_validate_report(hdev, HID_OUTPUT_REPORT, 0, 1, 7))
+>>>>
+>>>> I don't have access to the device anymore, but I still kept the report
+>>>> descriptors (this is the interesting part):
+>>>>
+>>>> 0xa1, 0x02,                    //   Collection (Logical)              60
+>>>> 0x75, 0x08,                    //     Report Size (8)                 62
+>>>> 0x95, 0x07,                    //     Report Count (7)                64
+>>>> 0x46, 0xff, 0x00,              //     Physical Maximum (255)          66
+>>>> 0x26, 0xff, 0x00,              //     Logical Maximum (255)           69
+>>>> 0x09, 0x02,                    //     Usage (Vendor Usage 2)          72
+>>>> 0x91, 0x02,                    //     Output (Data,Var,Abs)           74
+>>>> 0xc0,                          //   End Collection                    76
+>>>>
+>>>> So with the current implementation of hid_validate_report(), it works,
+>>>> but if another Buzz controller show up at some point with extras
+>>>> fields in this output report... we will be screwed. So please, amend
+>>>> hid_validate_report(), or specifically test here that the LED output
+>>>> report is 7 bytes.
 >>>
->>> Many drivers need to validate the characteristics of their HID report
->>> during initialization to avoid misusing the reports. This adds a common
->>> helper to perform validation of the report, its field count, and the
->>> value count within the fields.
+>>> hid_validate_report() checks for "at least" 7 in this call, so it
+>>> should be fine, unless I've misunderstood something.
 >>>
->>> Signed-off-by: Kees Cook <keescook@chromium.org>
->>> Cc: stable@kernel.org
->>> ---
->>>  drivers/hid/hid-core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++
->>>  include/linux/hid.h    |    4 ++++
->>>  2 files changed, 54 insertions(+)
->>>
->>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->>> index 5ea7d51..55798b2 100644
->>> --- a/drivers/hid/hid-core.c
->>> +++ b/drivers/hid/hid-core.c
->>> @@ -759,6 +759,56 @@ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size)
->>>  }
->>>  EXPORT_SYMBOL_GPL(hid_parse_report);
->>>
->>> +static const char * const hid_report_names[] = {
->>> +       "HID_INPUT_REPORT",
->>> +       "HID_OUTPUT_REPORT",
->>> +       "HID_FEATURE_REPORT",
->>> +};
->>> +/**
->>> + * hid_validate_report - validate existing device report
->>> + *
->>> + * @device: hid device
->>> + * @type: which report type to examine
->>> + * @id: which report ID to examine (0 for first)
->>> + * @fields: expected number of fields
->>> + * @report_counts: expected number of values per field
->>> + *
->>> + * Validate the report details after parsing.
->>> + */
->>> +struct hid_report *hid_validate_report(struct hid_device *hid,
->>> +                                      unsigned int type, unsigned int id,
 >>
->> You should consider having an u8 for id, or at least add a check
->> against id >= HID_MAX_IDS
+>> Sure, it' s fine with the current implementation of
+>> hid_validate_report(). However, as I mentioned in patch
+>> 2/14, I am complaining about the implementation of hid_validate_report().
+>>
+>> In this case, if a new Buzz controller pops out with an extra usage
+>> (Vendor 3 for instance), mapped to another LED, and that the report
+>> count is for this usage < 7, the test invalidate the report.
+>>
+>> for instance, let's imagine they pop up a new version:
+>>
+>> 0xa1, 0x02,                    //   Collection (Logical)              60
+>> 0x75, 0x08,                    //     Report Size (8)                 62
+>> 0x95, 0x07,                    //     **Report Count (7)**                64
+>> 0x46, 0xff, 0x00,              //     Physical Maximum (255)          66
+>> 0x26, 0xff, 0x00,              //     Logical Maximum (255)           69
+>> 0x09, 0x02,                    //     Usage (Vendor Usage 2)          72
+>> 0x91, 0x02,                    //     Output (Data,Var,Abs)           74
+>> 0x75, 0x08,                    //     Report Size (8)                 62
+>> 0x95, 0x04,                    //     **Report Count (4)**                64
+>> 0x46, 0xff, 0x00,              //     Physical Maximum (255)          66
+>> 0x26, 0xff, 0x00,              //     Logical Maximum (255)           69
+>> 0x09, 0x03,                    //     Usage (Vendor Usage 3)          72
+>> 0x91, 0x02,                    //     Output (Data,Var,Abs)           74
+>> 0xc0,                          //   End Collection                    76
+>>
+>> Ok, it's a lot of "if", but still this output report is valid, and the
+>> test will fail. And if we call hid_validate_report(hdev,
+>> HID_OUTPUT_REPORT, 0, 1, 4), the validation will fail, but the heap
+>> overflow will appear again.
+>>
+>> Does it makes more sense?
 >
-> Right, as you saw in later email, I added this check globally in the
-> first patch.
+> Right, yeah, I understand what you meant here, but I guess my point
+> was, if there's something that uses <7, then the driver needs
+> adjustment too, beyond just the hid_validate_report() call, since it
+> would need to know to operate only on 4 instead of 7. My thinking was,
+> if such a thing is detected, it would need to identify which device it
+> was and fix both the bounds-checking, and the report-value-setting.
+> For example:
+>
+> if (i_am_vendor_3()) {
+>   hid_validate_report(hdev, HID_OUTPUT_REPORT, 0, 1, 4);
+> } else {
+>   hid_validate_report(hdev, HID_OUTPUT_REPORT, 0, 1, 7);
+> }
 >
 
-Yes, but still, a driver may call this with 257 as an id, leading to a
-report pointer with garbage value. And here, the function is used once
-after parsing, so the test can be added without any impact.
+hmm... not really. In my case, I supposed the device presented both vendor collections, one after the other. So the test could be:
 
->>
->>> +                                      unsigned int fields,
->>> +                                      unsigned int report_counts)
->>> +{
->>> +       struct hid_report *report;
->>> +       unsigned int i;
->>> +
->>> +       if (type > HID_FEATURE_REPORT) {
->>> +               hid_err(hid, "invalid HID report %u\n", type);
->>> +               return NULL;
->>> +       }
->>> +
->>> +       report = hid->report_enum[type].report_id_hash[id];
->>
->> for code readability, and better checking, I'd prefer use
->> hid_get_report() here instead. Or just add an inlined accessor in
->> hid.h to retrieve the report from the id as many drivers are using the
->> report_id_hash directly.
->
-> I did not do this because hid_get_report() examines ->numbered and I
-> explicitly didn't want that limitation since most of these drivers are
-> blinding accessing the arrays by id number. If the structure members
-> were opaque and all the drivers were forced to use the access
-> functions, sure, we'd be fine.
->
+hid_validate_report(hdev, HID_OUTPUT_REPORT, 0, 1, 7);
+if (I_contain_vendor_3())
+    hid_validate_report(hdev, HID_OUTPUT_REPORT, 0, 2, 4);
 
-Well, what I have in mind is just to add the accessor, and to convert
-all the drivers to use it. If a new driver try to not use it, we don't
-allow him to be upstream :)
+But this will not work if the small report is in front of the large one.
 
->>
->>> +       if (!report) {
->>> +               hid_err(hid, "missing %s %u\n", hid_report_names[type], id);
->>> +               return NULL;
->>> +       }
->>> +       if (report->maxfield < fields) {
->>> +               hid_err(hid, "not enough fields in %s %u\n",
->>> +                       hid_report_names[type], id);
->>> +               return NULL;
->>> +       }
->>> +       for (i = 0; i < fields; i++) {
->>> +               if (report->field[i]->report_count < report_counts) {
->>
->> This is wrong.
->> you can have a per field different report_count, and it is perfectly
->> correct. So the only validate value for report_counts would be 1.
->> Otherwise, if you want to provide better checking, you need to provide
->> an array of report_counts, which start beeing a little bit annoying
->> for users.
->
-> Well, nothing needs multiple differing report_counts in practice, so I
-> opted to just do it this way since nothing calling the function needs
-> more granular checking.
->
+I can propose another implementation of hid_validate_report() which will be covering this case:
+instead of checking a range of fields, just check the specific field index used later:
 
-So I would recommend at least to add a comment somewhere that this is
-the current implementation, and we may need to change it if we have
-different devices which would need a different processing.
++struct hid_report *hid_validate_report(struct hid_device *hid,
++				       unsigned int type, unsigned int id,
++				       unsigned int field_index,
++				       unsigned int report_counts)
++{
++	struct hid_report *report;
++
++	if (type > HID_FEATURE_REPORT) {
++		hid_err(hid, "invalid HID report %u\n", type);
++		return NULL;
++	}
++
++	report = hid->report_enum[type].report_id_hash[id];
++	if (!report) {
++		hid_err(hid, "missing %s %u\n", hid_report_names[type], id);
++		return NULL;
++	}
++	if (report->maxfield <= field_index) {
++		hid_err(hid, "not enough fields in %s %u\n",
++			hid_report_names[type], id);
++		return NULL;
++	}
++	
++	if (report->field[field_index]->report_count < report_counts) {
++		hid_err(hid, "not enough values in %s %u field #%d\n",
++				hid_report_names[type], id, field_index);
++			return NULL;
++	}
++	return report;
++}
++EXPORT_SYMBOL_GPL(hid_validate_report);
+
+Only hid-zpff and hid-lenovo-tpkbd are checking for more than one report, and we can afford a for loop on the field indexes for them.
 
 Cheers,
 Benjamin
 
+> ...
+>
+>         value[0] = 0x00;
+>         value[1] = (leds & 1) ? 0xff : 0x00;
+>         value[2] = (leds & 2) ? 0xff : 0x00;
+>         value[3] = (leds & 4) ? 0xff : 0x00;
+>         if (!i_am_vendor_3()) {
+>             value[4] = (leds & 8) ? 0xff : 0x00;
+>             value[5] = 0x00;
+>             value[6] = 0x00;
+>          }
+>
+> But actually, the logic would be id or usage based, but still, it
+> seems to me that the hid_validate_report() call must match the actual
+> value array assignments.
+>
 > -Kees
 >
 >>
->>> +                       hid_err(hid, "not enough values in %s %u fields\n",
->>> +                               hid_report_names[type], id);
->>> +                       return NULL;
->>> +               }
->>> +       }
->>> +       return report;
->>> +}
->>> +EXPORT_SYMBOL_GPL(hid_validate_report);
->>> +
->>>  /**
->>>   * hid_open_report - open a driver-specific device report
->>>   *
->>> diff --git a/include/linux/hid.h b/include/linux/hid.h
->>> index ff545cc..76e41d8 100644
->>> --- a/include/linux/hid.h
->>> +++ b/include/linux/hid.h
->>> @@ -749,6 +749,10 @@ void hid_output_report(struct hid_report *report, __u8 *data);
->>>  struct hid_device *hid_allocate_device(void);
->>>  struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
->>>  int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size);
->>> +struct hid_report *hid_validate_report(struct hid_device *hid,
->>> +                                      unsigned int type, unsigned int id,
->>> +                                      unsigned int fields,
->>> +                                      unsigned int report_counts);
->>>  int hid_open_report(struct hid_device *device);
->>>  int hid_check_keys_pressed(struct hid_device *hid);
->>>  int hid_connect(struct hid_device *hid, unsigned int connect_mask);
->>>
->>> --
->>> Jiri Kosina
->>> SUSE Labs
->>> --
->>
 >> Cheers,
 >> Benjamin
+>>
+>>>>> +               return -ENODEV;
+>>>>> +
+>>>>>         buzz = kzalloc(sizeof(*buzz), GFP_KERNEL);
+>>>>>         if (!buzz) {
+>>>>>                 hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
+>>>>>
+>>>>> --
+>>>>> Jiri Kosina
+>>>>> SUSE Labs
+>>>>> --
+>>>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>>>>> the body of a message to majordomo@vger.kernel.org
+>>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>
+>>>
+>>>
+>>> --
+>>> Kees Cook
+>>> Chrome OS Security
 >
 >
 >

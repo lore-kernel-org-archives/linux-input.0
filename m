@@ -1,75 +1,187 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH] HID: roccat: Added support for KonePureOptical v2
-Date: Fri, 30 Aug 2013 14:10:07 +0200
-Message-ID: <1377864607.2406.1.camel@neuromancer.tessier-ashpool>
-Reply-To: erazor_de@users.sourceforge.net
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 02/14] HID: provide a helper for validating hid reports
+Date: Fri, 30 Aug 2013 15:05:55 +0200
+Message-ID: <CAN+gG=HSQBmm23RveM_8uALKeZVS29qC+Dr6Bsh+3KEdH5wWEw@mail.gmail.com>
+References: <alpine.LNX.2.00.1308282158570.22181@pobox.suse.cz>
+	<CAN+gG=H5v=XZ1OOqwiTiOK8fuieMCGRcg_gCks1A5732H4J72Q@mail.gmail.com>
+	<CAGXu5j+G0o6DZOar8j24ZDfqJc4_M_2RBAxToW+CxR1aoejyDw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:60033 "EHLO
-	mail-in-07.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754621Ab3H3MKJ (ORCPT
+Received: from mail-lb0-f179.google.com ([209.85.217.179]:51442 "EHLO
+	mail-lb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752057Ab3H3NF5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Aug 2013 08:10:09 -0400
+	Fri, 30 Aug 2013 09:05:57 -0400
+Received: by mail-lb0-f179.google.com with SMTP id x18so1831362lbi.38
+        for <linux-input@vger.kernel.org>; Fri, 30 Aug 2013 06:05:56 -0700 (PDT)
+In-Reply-To: <CAGXu5j+G0o6DZOar8j24ZDfqJc4_M_2RBAxToW+CxR1aoejyDw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
 
-KonePureOptical is a KonePure with different sensor.
+On Thu, Aug 29, 2013 at 9:51 PM, Kees Cook <keescook@chromium.org> wrote:
+> On Thu, Aug 29, 2013 at 2:35 AM, Benjamin Tissoires
+> <benjamin.tissoires@gmail.com> wrote:
+>> Hi Kees,
+>>
+>> On Wed, Aug 28, 2013 at 10:30 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>>> From: Kees Cook <keescook@chromium.org>
+>>>
+>>> Many drivers need to validate the characteristics of their HID report
+>>> during initialization to avoid misusing the reports. This adds a common
+>>> helper to perform validation of the report, its field count, and the
+>>> value count within the fields.
+>>>
+>>> Signed-off-by: Kees Cook <keescook@chromium.org>
+>>> Cc: stable@kernel.org
+>>> ---
+>>>  drivers/hid/hid-core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++
+>>>  include/linux/hid.h    |    4 ++++
+>>>  2 files changed, 54 insertions(+)
+>>>
+>>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>>> index 5ea7d51..55798b2 100644
+>>> --- a/drivers/hid/hid-core.c
+>>> +++ b/drivers/hid/hid-core.c
+>>> @@ -759,6 +759,56 @@ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size)
+>>>  }
+>>>  EXPORT_SYMBOL_GPL(hid_parse_report);
+>>>
+>>> +static const char * const hid_report_names[] = {
+>>> +       "HID_INPUT_REPORT",
+>>> +       "HID_OUTPUT_REPORT",
+>>> +       "HID_FEATURE_REPORT",
+>>> +};
+>>> +/**
+>>> + * hid_validate_report - validate existing device report
+>>> + *
+>>> + * @device: hid device
+>>> + * @type: which report type to examine
+>>> + * @id: which report ID to examine (0 for first)
+>>> + * @fields: expected number of fields
+>>> + * @report_counts: expected number of values per field
+>>> + *
+>>> + * Validate the report details after parsing.
+>>> + */
+>>> +struct hid_report *hid_validate_report(struct hid_device *hid,
+>>> +                                      unsigned int type, unsigned int id,
+>>
+>> You should consider having an u8 for id, or at least add a check
+>> against id >= HID_MAX_IDS
+>
+> Right, as you saw in later email, I added this check globally in the
+> first patch.
+>
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- drivers/hid/hid-core.c            |    1 +
- drivers/hid/hid-ids.h             |    1 +
- drivers/hid/hid-roccat-konepure.c |    3 ++-
- 3 files changed, 4 insertions(+), 1 deletions(-)
+Yes, but still, a driver may call this with 257 as an id, leading to a
+report pointer with garbage value. And here, the function is used once
+after parsing, so the test can be added without any impact.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 36668d1..8c4e82c 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1679,6 +1679,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPLUS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KOVAPLUS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_LUA) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_PYRA_WIRED) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ffe4c7a..ef18cd9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -716,6 +716,7 @@
- #define USB_DEVICE_ID_ROCCAT_KONE	0x2ced
- #define USB_DEVICE_ID_ROCCAT_KONEPLUS	0x2d51
- #define USB_DEVICE_ID_ROCCAT_KONEPURE	0x2dbe
-+#define USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL	0x2db4
- #define USB_DEVICE_ID_ROCCAT_KONEXTD	0x2e22
- #define USB_DEVICE_ID_ROCCAT_KOVAPLUS	0x2d50
- #define USB_DEVICE_ID_ROCCAT_LUA	0x2c2e
-diff --git a/drivers/hid/hid-roccat-konepure.c b/drivers/hid/hid-roccat-konepure.c
-index c79d0b0..5850959 100644
---- a/drivers/hid/hid-roccat-konepure.c
-+++ b/drivers/hid/hid-roccat-konepure.c
-@@ -262,6 +262,7 @@ static int konepure_raw_event(struct hid_device *hdev,
- 
- static const struct hid_device_id konepure_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONEPURE_OPTICAL) },
- 	{ }
- };
- 
-@@ -300,5 +301,5 @@ module_init(konepure_init);
- module_exit(konepure_exit);
- 
- MODULE_AUTHOR("Stefan Achatz");
--MODULE_DESCRIPTION("USB Roccat KonePure driver");
-+MODULE_DESCRIPTION("USB Roccat KonePure/Optical driver");
- MODULE_LICENSE("GPL v2");
--- 
-1.7.3.4
+>>
+>>> +                                      unsigned int fields,
+>>> +                                      unsigned int report_counts)
+>>> +{
+>>> +       struct hid_report *report;
+>>> +       unsigned int i;
+>>> +
+>>> +       if (type > HID_FEATURE_REPORT) {
+>>> +               hid_err(hid, "invalid HID report %u\n", type);
+>>> +               return NULL;
+>>> +       }
+>>> +
+>>> +       report = hid->report_enum[type].report_id_hash[id];
+>>
+>> for code readability, and better checking, I'd prefer use
+>> hid_get_report() here instead. Or just add an inlined accessor in
+>> hid.h to retrieve the report from the id as many drivers are using the
+>> report_id_hash directly.
+>
+> I did not do this because hid_get_report() examines ->numbered and I
+> explicitly didn't want that limitation since most of these drivers are
+> blinding accessing the arrays by id number. If the structure members
+> were opaque and all the drivers were forced to use the access
+> functions, sure, we'd be fine.
+>
 
+Well, what I have in mind is just to add the accessor, and to convert
+all the drivers to use it. If a new driver try to not use it, we don't
+allow him to be upstream :)
 
+>>
+>>> +       if (!report) {
+>>> +               hid_err(hid, "missing %s %u\n", hid_report_names[type], id);
+>>> +               return NULL;
+>>> +       }
+>>> +       if (report->maxfield < fields) {
+>>> +               hid_err(hid, "not enough fields in %s %u\n",
+>>> +                       hid_report_names[type], id);
+>>> +               return NULL;
+>>> +       }
+>>> +       for (i = 0; i < fields; i++) {
+>>> +               if (report->field[i]->report_count < report_counts) {
+>>
+>> This is wrong.
+>> you can have a per field different report_count, and it is perfectly
+>> correct. So the only validate value for report_counts would be 1.
+>> Otherwise, if you want to provide better checking, you need to provide
+>> an array of report_counts, which start beeing a little bit annoying
+>> for users.
+>
+> Well, nothing needs multiple differing report_counts in practice, so I
+> opted to just do it this way since nothing calling the function needs
+> more granular checking.
+>
 
+So I would recommend at least to add a comment somewhere that this is
+the current implementation, and we may need to change it if we have
+different devices which would need a different processing.
+
+Cheers,
+Benjamin
+
+> -Kees
+>
+>>
+>>> +                       hid_err(hid, "not enough values in %s %u fields\n",
+>>> +                               hid_report_names[type], id);
+>>> +                       return NULL;
+>>> +               }
+>>> +       }
+>>> +       return report;
+>>> +}
+>>> +EXPORT_SYMBOL_GPL(hid_validate_report);
+>>> +
+>>>  /**
+>>>   * hid_open_report - open a driver-specific device report
+>>>   *
+>>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>>> index ff545cc..76e41d8 100644
+>>> --- a/include/linux/hid.h
+>>> +++ b/include/linux/hid.h
+>>> @@ -749,6 +749,10 @@ void hid_output_report(struct hid_report *report, __u8 *data);
+>>>  struct hid_device *hid_allocate_device(void);
+>>>  struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
+>>>  int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size);
+>>> +struct hid_report *hid_validate_report(struct hid_device *hid,
+>>> +                                      unsigned int type, unsigned int id,
+>>> +                                      unsigned int fields,
+>>> +                                      unsigned int report_counts);
+>>>  int hid_open_report(struct hid_device *device);
+>>>  int hid_check_keys_pressed(struct hid_device *hid);
+>>>  int hid_connect(struct hid_device *hid, unsigned int connect_mask);
+>>>
+>>> --
+>>> Jiri Kosina
+>>> SUSE Labs
+>>> --
+>>
+>> Cheers,
+>> Benjamin
+>
+>
+>
+> --
+> Kees Cook
+> Chrome OS Security

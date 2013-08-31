@@ -1,86 +1,31 @@
-From: Sebastian =?utf-8?Q?Dalfu=C3=9F?= <sd@sedf.de>
-Subject: Re: hid: egalax 0x0eef:0x0001 no longer detected by hid-multitouch
-Date: Sat, 31 Aug 2013 01:23:39 +0200
-Message-ID: <20130830232339.GA14739@sedf.de>
-References: <20130830175946.GA17584@sedf.de>
- <20130830184502.GH13685@alittletooquiet.net>
+From: Libo Chen <clbchenlibo.chen@huawei.com>
+Subject: [PATCH 0/3] driver: input: fix missing of_node_put
+Date: Sat, 31 Aug 2013 14:44:47 +0800
+Message-ID: <522190DF.80506@huawei.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sedf.de ([46.38.234.219]:52496 "EHLO sedf.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753121Ab3H3XXq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Aug 2013 19:23:46 -0400
-Content-Disposition: inline
-In-Reply-To: <20130830184502.GH13685@alittletooquiet.net>
+Received: from szxga02-in.huawei.com ([119.145.14.65]:34180 "EHLO
+	szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756979Ab3HaGpl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 31 Aug 2013 02:45:41 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Forest Bond <forest@alittletooquiet.net>
-Cc: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: peter.ujfalusi@ti.com, Bill Pemberton <wfp5p@virginia.edu>, broonie@opensource.wolfsonmicro.com, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Li Zefan <lizefan@huawei.com>, "zhangwei(Jovi)" <jovi.zhangwei@huawei.com>
 
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+decrease np device_node refcount after task completion
 
-Hi Forest,
+Libo Chen (3):
+  driver: input: 88pm860x-ts: fix missing of_node_put
+  driver: input: twl4030-vibra: fix missing of_node_put
+  driver: input: twl6040-vibra: fix missing of_node_put
 
-On Fri, Aug 30, 2013 at 02:45:02PM -0400, Forest Bond wrote:
-> For now look at hid_ignore in hid-core.c.  You can probably set
-> HID_QUIRK_NO_IGNORE to work around the problem.  You'll probably also wan=
-t to
-> blacklist usbtouchscreen.
+ drivers/input/misc/twl4030-vibra.c      |    4 +++-
+ drivers/input/misc/twl6040-vibra.c      |    3 +++
+ drivers/input/touchscreen/88pm860x-ts.c |   22 +++++++++++++++-------
+ 3 files changed, 21 insertions(+), 8 deletions(-)
 
-That helped indeed.
-
-Changing
-
-        case USB_VENDOR_ID_DWAV:
-                /* These are handled by usbtouchscreen. hdev->type is proba=
-bly
-                 * HID_TYPE_USBNONE, but we say !HID_TYPE_USBMOUSE to match
-                 * usbtouchscreen. */
-                if ((hdev->product =3D=3D USB_DEVICE_ID_EGALAX_TOUCHCONTROL=
-LER ||
-                     hdev->product =3D=3D USB_DEVICE_ID_DWAV_TOUCHCONTROLLE=
-R) &&
-                    hdev->type !=3D HID_TYPE_USBMOUSE)
-                        return true;
-                break;
-
-to
-
-        case USB_VENDOR_ID_DWAV:
-                /* These are handled by usbtouchscreen. hdev->type is proba=
-bly
-                 * HID_TYPE_USBNONE, but we say !HID_TYPE_USBMOUSE to match
-                 * usbtouchscreen. */
-                if (hdev->product =3D=3D USB_DEVICE_ID_DWAV_TOUCHCONTROLLER=
- &&
-                    hdev->type !=3D HID_TYPE_USBMOUSE)
-                        return true;
-                break;
-
-did the trick.
-I also commented the dev id in usbtouchscreen.c out.
-
-//      {USB_DEVICE(0x0eef, 0x0001), .driver_info =3D DEVTYPE_EGALAX},
-
-Thanks,
-Sebastian Dalfu=C3=9F
-
---ZGiS0Q5IWpPtfppv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iEYEARECAAYFAlIhKXsACgkQQfdJUNXnsjoKWwCgkvQStua5NdedCmRGnPxt1/be
-o/4AnjGW18D1jVtFCrJxsf0O0sooWBh0
-=+qpu
------END PGP SIGNATURE-----
-
---ZGiS0Q5IWpPtfppv--

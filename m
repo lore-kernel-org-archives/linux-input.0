@@ -1,78 +1,172 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: [PATCH] HID: Correct the USB IDs for the new Macbook Air 6
-Date: Sun,  1 Sep 2013 15:31:44 +0200
-Message-ID: <1378042304-1400-1-git-send-email-rydberg@euromail.se>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH v3] Input: evdev - add EVIOCREVOKE ioctl
+Date: Sun,  1 Sep 2013 16:07:30 +0200
+Message-ID: <1378044450-8327-1-git-send-email-dh.herrmann@gmail.com>
+References: <1377603589-25501-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:46170 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753191Ab3IANZu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Sep 2013 09:25:50 -0400
+Received: from mail-ea0-f174.google.com ([209.85.215.174]:65322 "EHLO
+	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752532Ab3IAOHq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Sep 2013 10:07:46 -0400
+Received: by mail-ea0-f174.google.com with SMTP id z15so1822458ead.5
+        for <linux-input@vger.kernel.org>; Sun, 01 Sep 2013 07:07:45 -0700 (PDT)
+In-Reply-To: <1377603589-25501-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-A recent patch (9d9a04ee) added support for the new machine, but got
-the sequence of USB ids wrong. Reports from both Ian and Linus T show
-that the 0x0291 id is for ISO, not ANSI, which should have the missing
-number 0x0290. This patchs moves the three numbers accordingly, fixing
-the problem.
+If we have multiple sessions on a system, we normally don't want
+background sessions to read input events. Otherwise, it could capture
+passwords and more entered by the user on the foreground session. This is
+a real world problem as the recent XMir development showed:
+  http://mjg59.dreamwidth.org/27327.html
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reported-and-tested-by: Ian Munsie <darkstarsword@gmail.com>
-Tested-by: Linus G Thiel <linus@hanssonlarsson.se>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+We currently rely on sessions to release input devices when being
+deactivated. This relies on trust across sessions. But that's not given on
+usual systems. We therefore need a way to control which processes have
+access to input devices.
+
+With VTs the kernel simply routed them through the active /dev/ttyX. This
+is not possible with evdev devices, though. Moreover, we want to avoid
+routing input-devices through some dispatcher-daemon in userspace (which
+would add some latency).
+
+This patch introduces EVIOCREVOKE. If called on an evdev fd, this revokes
+device-access irrecoverably for that *single* open-file. Hence, once you
+call EVIOCREVOKE on any dup()ed fd, all fds for that open-file will be
+rather useless now (but still valid compared to close()!). This allows us
+to pass fds directly to session-processes from a trusted source. The
+source keeps a dup()ed fd and revokes access once the session-process is
+no longer active.
+Compared to the EVIOCMUTE proposal, we can avoid the CAP_SYS_ADMIN
+restriction now as there is no way to revive the fd again. Hence, a user
+is free to call EVIOCREVOKE themself to kill the fd.
+
+Additionally, this ioctl allows multi-layer access-control (again compared
+to EVIOCMUTE which was limited to one layer via CAP_SYS_ADMIN). A middle
+layer can simply request a new open-file from the layer above and pass it
+to the layer below. Now each layer can call EVIOCREVOKE on the fds to
+revoke access for all layers below, at the expense of one fd per layer.
+
+There's already ongoing experimental user-space work which demonstrates
+how it can be used:
+  http://lists.freedesktop.org/archives/systemd-devel/2013-August/012897.html
+
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
-Hi Jiri, Dmitry,
+Changes from v2:
+ - Handle client->revoked like evdev->exist to avoid special-casing "revoked"
 
-it looks like this change has been sufficiently tested now, in
-addition to making perfect sense. Jiri, would you mind taking it, if
-Dmitry approves?
+ drivers/input/evdev.c      | 33 +++++++++++++++++++++++++++++----
+ include/uapi/linux/input.h |  1 +
+ 2 files changed, 30 insertions(+), 4 deletions(-)
 
-The patch should go to stable as well at some point, but the new order
-makes me not dare adding a Cc... ;-)
-
-Cheers,
-Henrik
-
- drivers/hid/hid-ids.h         | 6 +++---
- drivers/input/mouse/bcm5974.c | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ffe4c7a..0b7ac21 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -135,9 +135,9 @@
- #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
- #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI  0x0255
- #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO   0x0256
--#define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI	0x0291
--#define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO	0x0292
--#define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS	0x0293
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI	0x0290
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO	0x0291
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS	0x0292
- #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
- #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
- #define USB_DEVICE_ID_APPLE_IRCONTROL	0x8240
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 4ef4d5e..a73f961 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -89,9 +89,9 @@
- #define USB_DEVICE_ID_APPLE_WELLSPRING7A_ISO	0x025a
- #define USB_DEVICE_ID_APPLE_WELLSPRING7A_JIS	0x025b
- /* MacbookAir6,2 (unibody, June 2013) */
--#define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI	0x0291
--#define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO	0x0292
--#define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS	0x0293
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI	0x0290
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO	0x0291
-+#define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS	0x0292
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index d2b34fb..cf6bdff 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -48,6 +48,7 @@ struct evdev_client {
+ 	struct evdev *evdev;
+ 	struct list_head node;
+ 	int clkid;
++	bool revoked;
+ 	unsigned int bufsize;
+ 	struct input_event buffer[];
+ };
+@@ -164,6 +165,9 @@ static void evdev_pass_values(struct evdev_client *client,
+ 	struct input_event event;
+ 	bool wakeup = false;
  
- #define BCM5974_DEVICE(prod) {					\
- 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
++	if (client->revoked)
++		return;
++
+ 	event.time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
+ 				      mono : real);
+ 
+@@ -429,7 +433,7 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+ 	if (retval)
+ 		return retval;
+ 
+-	if (!evdev->exist) {
++	if (!evdev->exist || client->revoked) {
+ 		retval = -ENODEV;
+ 		goto out;
+ 	}
+@@ -511,7 +515,7 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
+ 		if (!(file->f_flags & O_NONBLOCK)) {
+ 			error = wait_event_interruptible(evdev->wait,
+ 					client->packet_head != client->tail ||
+-					!evdev->exist);
++					!evdev->exist || client->revoked);
+ 			if (error)
+ 				return error;
+ 		}
+@@ -529,7 +533,11 @@ static unsigned int evdev_poll(struct file *file, poll_table *wait)
+ 
+ 	poll_wait(file, &evdev->wait, wait);
+ 
+-	mask = evdev->exist ? POLLOUT | POLLWRNORM : POLLHUP | POLLERR;
++	if (evdev->exist && !client->revoked)
++		mask = POLLOUT | POLLWRNORM;
++	else
++		mask = POLLHUP | POLLERR;
++
+ 	if (client->packet_head != client->tail)
+ 		mask |= POLLIN | POLLRDNORM;
+ 
+@@ -795,6 +803,17 @@ static int evdev_handle_mt_request(struct input_dev *dev,
+ 	return 0;
+ }
+ 
++static int evdev_revoke(struct evdev *evdev, struct evdev_client *client,
++			struct file *file)
++{
++	client->revoked = true;
++	evdev_ungrab(evdev, client);
++	input_flush_device(&evdev->handle, file);
++	wake_up_interruptible(&evdev->wait);
++
++	return 0;
++}
++
+ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 			   void __user *p, int compat_mode)
+ {
+@@ -857,6 +876,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 		else
+ 			return evdev_ungrab(evdev, client);
+ 
++	case EVIOCREVOKE:
++		if (p)
++			return -EINVAL;
++		else
++			return evdev_revoke(evdev, client, file);
++
+ 	case EVIOCSCLOCKID:
+ 		if (copy_from_user(&i, p, sizeof(unsigned int)))
+ 			return -EFAULT;
+@@ -1002,7 +1027,7 @@ static long evdev_ioctl_handler(struct file *file, unsigned int cmd,
+ 	if (retval)
+ 		return retval;
+ 
+-	if (!evdev->exist) {
++	if (!evdev->exist || client->revoked) {
+ 		retval = -ENODEV;
+ 		goto out;
+ 	}
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 2fb6fae..d61c61c 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -152,6 +152,7 @@ struct input_keymap_entry {
+ #define EVIOCGEFFECTS		_IOR('E', 0x84, int)			/* Report number of effects playable at the same time */
+ 
+ #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
++#define EVIOCREVOKE		_IOW('E', 0x91, int)			/* Revoke device access */
+ 
+ #define EVIOCSCLOCKID		_IOW('E', 0xa0, int)			/* Set clockid to be used for timestamps */
+ 
 -- 
-1.8.3.4
+1.8.4
 

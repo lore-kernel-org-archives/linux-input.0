@@ -1,172 +1,74 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH v3] Input: evdev - add EVIOCREVOKE ioctl
-Date: Sun,  1 Sep 2013 16:07:30 +0200
-Message-ID: <1378044450-8327-1-git-send-email-dh.herrmann@gmail.com>
-References: <1377603589-25501-1-git-send-email-dh.herrmann@gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH 3/3] driver: input: twl6040-vibra: fix missing of_node_put
+Date: Sun, 1 Sep 2013 19:59:58 +0300
+Message-ID: <5223728E.8000905@ti.com>
+References: <522190F1.3010103@huawei.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f174.google.com ([209.85.215.174]:65322 "EHLO
-	mail-ea0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752532Ab3IAOHq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Sep 2013 10:07:46 -0400
-Received: by mail-ea0-f174.google.com with SMTP id z15so1822458ead.5
-        for <linux-input@vger.kernel.org>; Sun, 01 Sep 2013 07:07:45 -0700 (PDT)
-In-Reply-To: <1377603589-25501-1-git-send-email-dh.herrmann@gmail.com>
+Received: from bear.ext.ti.com ([192.94.94.41]:54139 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757569Ab3IARAE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 1 Sep 2013 13:00:04 -0400
+In-Reply-To: <522190F1.3010103@huawei.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
+To: Libo Chen <clbchenlibo.chen@huawei.com>
+Cc: dmitry.torokhov@gmail.com, Bill Pemberton <wfp5p@virginia.edu>, broonie@opensource.wolfsonmicro.com, javier@dowhile0.org, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Li Zefan <lizefan@huawei.com>, "zhangwei(Jovi)" <jovi.zhangwei@huawei.com>
 
-If we have multiple sessions on a system, we normally don't want
-background sessions to read input events. Otherwise, it could capture
-passwords and more entered by the user on the foreground session. This is
-a real world problem as the recent XMir development showed:
-  http://mjg59.dreamwidth.org/27327.html
+On 08/31/2013 09:45 AM, Libo Chen wrote:
+>=20
+> decrease twl6040_core_node device_node refcount after task completion
+>=20
+> There are two ways to implement the function of_node_put through
+> the marco CONFIG_OF_DYNAMIC, so it is save to call directly.
+>=20
+> Signed-off-by: Libo Chen <libo.chen@huawei.com>
 
-We currently rely on sessions to release input devices when being
-deactivated. This relies on trust across sessions. But that's not given on
-usual systems. We therefore need a way to control which processes have
-access to input devices.
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-With VTs the kernel simply routed them through the active /dev/ttyX. This
-is not possible with evdev devices, though. Moreover, we want to avoid
-routing input-devices through some dispatcher-daemon in userspace (which
-would add some latency).
+> ---
+>  drivers/input/misc/twl6040-vibra.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+>=20
+> diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/=
+twl6040-vibra.c
+> index 0c2dfc8..f16193a 100644
+> --- a/drivers/input/misc/twl6040-vibra.c
+> +++ b/drivers/input/misc/twl6040-vibra.c
+> @@ -271,12 +271,14 @@ static int twl6040_vibra_probe(struct platform_=
+device *pdev)
+>  #endif
+>=20
+>  	if (!pdata && !twl6040_core_node) {
+> +		of_node_put(twl6040_core_node);
+>  		dev_err(&pdev->dev, "platform_data not available\n");
+>  		return -EINVAL;
+>  	}
+>=20
+>  	info =3D devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
+>  	if (!info) {
+> +		of_node_put(twl6040_core_node);
+>  		dev_err(&pdev->dev, "couldn't allocate memory\n");
+>  		return -ENOMEM;
+>  	}
+> @@ -304,6 +306,7 @@ static int twl6040_vibra_probe(struct platform_de=
+vice *pdev)
+>  				     &vddvibl_uV);
+>  		of_property_read_u32(twl6040_core_node, "ti,vddvibr-uV",
+>  				     &vddvibr_uV);
+> +		of_node_put(twl6040_core_node);
+>  	}
+>=20
+>  	if ((!info->vibldrv_res && !info->viblmotor_res) ||
+>=20
 
-This patch introduces EVIOCREVOKE. If called on an evdev fd, this revokes
-device-access irrecoverably for that *single* open-file. Hence, once you
-call EVIOCREVOKE on any dup()ed fd, all fds for that open-file will be
-rather useless now (but still valid compared to close()!). This allows us
-to pass fds directly to session-processes from a trusted source. The
-source keeps a dup()ed fd and revokes access once the session-process is
-no longer active.
-Compared to the EVIOCMUTE proposal, we can avoid the CAP_SYS_ADMIN
-restriction now as there is no way to revive the fd again. Hence, a user
-is free to call EVIOCREVOKE themself to kill the fd.
 
-Additionally, this ioctl allows multi-layer access-control (again compared
-to EVIOCMUTE which was limited to one layer via CAP_SYS_ADMIN). A middle
-layer can simply request a new open-file from the layer above and pass it
-to the layer below. Now each layer can call EVIOCREVOKE on the fds to
-revoke access for all layers below, at the expense of one fd per layer.
-
-There's already ongoing experimental user-space work which demonstrates
-how it can be used:
-  http://lists.freedesktop.org/archives/systemd-devel/2013-August/012897.html
-
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
-Changes from v2:
- - Handle client->revoked like evdev->exist to avoid special-casing "revoked"
-
- drivers/input/evdev.c      | 33 +++++++++++++++++++++++++++++----
- include/uapi/linux/input.h |  1 +
- 2 files changed, 30 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index d2b34fb..cf6bdff 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -48,6 +48,7 @@ struct evdev_client {
- 	struct evdev *evdev;
- 	struct list_head node;
- 	int clkid;
-+	bool revoked;
- 	unsigned int bufsize;
- 	struct input_event buffer[];
- };
-@@ -164,6 +165,9 @@ static void evdev_pass_values(struct evdev_client *client,
- 	struct input_event event;
- 	bool wakeup = false;
- 
-+	if (client->revoked)
-+		return;
-+
- 	event.time = ktime_to_timeval(client->clkid == CLOCK_MONOTONIC ?
- 				      mono : real);
- 
-@@ -429,7 +433,7 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
- 	if (retval)
- 		return retval;
- 
--	if (!evdev->exist) {
-+	if (!evdev->exist || client->revoked) {
- 		retval = -ENODEV;
- 		goto out;
- 	}
-@@ -511,7 +515,7 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
- 		if (!(file->f_flags & O_NONBLOCK)) {
- 			error = wait_event_interruptible(evdev->wait,
- 					client->packet_head != client->tail ||
--					!evdev->exist);
-+					!evdev->exist || client->revoked);
- 			if (error)
- 				return error;
- 		}
-@@ -529,7 +533,11 @@ static unsigned int evdev_poll(struct file *file, poll_table *wait)
- 
- 	poll_wait(file, &evdev->wait, wait);
- 
--	mask = evdev->exist ? POLLOUT | POLLWRNORM : POLLHUP | POLLERR;
-+	if (evdev->exist && !client->revoked)
-+		mask = POLLOUT | POLLWRNORM;
-+	else
-+		mask = POLLHUP | POLLERR;
-+
- 	if (client->packet_head != client->tail)
- 		mask |= POLLIN | POLLRDNORM;
- 
-@@ -795,6 +803,17 @@ static int evdev_handle_mt_request(struct input_dev *dev,
- 	return 0;
- }
- 
-+static int evdev_revoke(struct evdev *evdev, struct evdev_client *client,
-+			struct file *file)
-+{
-+	client->revoked = true;
-+	evdev_ungrab(evdev, client);
-+	input_flush_device(&evdev->handle, file);
-+	wake_up_interruptible(&evdev->wait);
-+
-+	return 0;
-+}
-+
- static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 			   void __user *p, int compat_mode)
- {
-@@ -857,6 +876,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 		else
- 			return evdev_ungrab(evdev, client);
- 
-+	case EVIOCREVOKE:
-+		if (p)
-+			return -EINVAL;
-+		else
-+			return evdev_revoke(evdev, client, file);
-+
- 	case EVIOCSCLOCKID:
- 		if (copy_from_user(&i, p, sizeof(unsigned int)))
- 			return -EFAULT;
-@@ -1002,7 +1027,7 @@ static long evdev_ioctl_handler(struct file *file, unsigned int cmd,
- 	if (retval)
- 		return retval;
- 
--	if (!evdev->exist) {
-+	if (!evdev->exist || client->revoked) {
- 		retval = -ENODEV;
- 		goto out;
- 	}
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 2fb6fae..d61c61c 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -152,6 +152,7 @@ struct input_keymap_entry {
- #define EVIOCGEFFECTS		_IOR('E', 0x84, int)			/* Report number of effects playable at the same time */
- 
- #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
-+#define EVIOCREVOKE		_IOW('E', 0x91, int)			/* Revoke device access */
- 
- #define EVIOCSCLOCKID		_IOW('E', 0xa0, int)			/* Set clockid to be used for timestamps */
- 
--- 
-1.8.4
-
+--=20
+P=E9ter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

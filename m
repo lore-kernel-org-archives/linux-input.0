@@ -1,461 +1,279 @@
-From: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Subject: [PATCH 2/2] iio: ti_am335x_adc: Add continuous sampling support
-Date: Sun,  1 Sep 2013 12:17:57 +0100
-Message-ID: <1378034277-26728-3-git-send-email-zubair.lutfullah@gmail.com>
-References: <1378034277-26728-1-git-send-email-zubair.lutfullah@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1378034277-26728-1-git-send-email-zubair.lutfullah@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jic23@cam.ac.uk, dmitry.torokhov@gmail.com
-Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bigeasy@linutronix.de, gregkh@linuxfoundation.org, zubair.lutfullah@gmail.com
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] Input: add driver for Neonode zForce based touchscreens
+Date: Sun, 1 Sep 2013 14:57:53 +0200
+Message-ID: <20130901125753.GA10455@polaris.bitmath.org>
+References: <201308161359.40134.heiko@sntech.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-b31.telenor.se ([213.150.131.20]:58705 "EHLO
+	smtprelay-b31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754968Ab3IAMvy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Sep 2013 08:51:54 -0400
+Content-Disposition: inline
+In-Reply-To: <201308161359.40134.heiko@sntech.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Previously the driver had only one-shot reading functionality.
-This patch adds triggered buffer support to the driver.
+Hi Heiko,
 
-Continuous sampling starts when buffer is enabled.
-And samples are pushed to userpace by the trigger which
-triggers automatically at every hardware interrupt
-of FIFO1 filling with samples upto threshold value.
+> This adds a driver for touchscreens using the zforce infrared
+> technology from Neonode connected via i2c to the host system.
+> 
+> It supports multitouch with up to two fingers and tracking of the
+> contacts in hardware.
+> 
+> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 
-Userspace responsibility to stop sampling by writing zero
-in the buffer enable file.
+Thanks for the driver. Please find some comments below.
 
-Patil Rachna (TI) laid the ground work for ADC HW register access.
-Russ Dill (TI) fixed bugs in the driver relevant to FIFOs and IRQs.
+> +static int zforce_touch_event(struct zforce_ts *ts, u8 *payload)
+> +{
+> +	struct i2c_client *client = ts->client;
+> +	struct zforce_point point[ZFORCE_REPORT_POINTS];
 
-I fixed channel scanning so multiple ADC channels can be read
-simultaneously and pushed to userspace.
-Restructured the driver to fit IIO ABI.
-And added trigger support.
+You do not really need the array here, do you? A single member should
+suffice, stack is precious.
 
-Signed-off-by: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Russ Dill <Russ.Dill@ti.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- drivers/iio/adc/Kconfig              |    1 +
- drivers/iio/adc/ti_am335x_adc.c      |  243 +++++++++++++++++++++++++++++++---
- include/linux/mfd/ti_am335x_tscadc.h |   13 ++
- 3 files changed, 237 insertions(+), 20 deletions(-)
+> +	const struct zforce_ts_platdata *pdata = client->dev.platform_data;
+> +	int count, i;
+> +
+> +	count = payload[0];
+> +	if (count > ZFORCE_REPORT_POINTS) {
+> +		dev_warn(&client->dev, "to many coordinates %d, expected max %d\n",
+> +			 count, ZFORCE_REPORT_POINTS);
+> +		count = ZFORCE_REPORT_POINTS;
+> +	}
+> +
+> +	for (i = 0; i < count; i++) {
+> +		point[i].coord_x =
+> +			payload[9 * i + 2] << 8 | payload[9 * i + 1];
+> +		point[i].coord_y =
+> +			payload[9 * i + 4] << 8 | payload[9 * i + 3];
+> +
+> +		if (point[i].coord_x > pdata->x_max ||
+> +		    point[i].coord_y > pdata->y_max) {
+> +			dev_warn(&client->dev, "coordinates (%d,%d) invalid\n",
+> +				point[i].coord_x, point[i].coord_y);
+> +			point[i].coord_x = point[i].coord_y = 0;
+> +		}
+> +
+> +		point[i].state = payload[9 * i + 5] & 0x03;
+> +		point[i].id = (payload[9 * i + 5] & 0xfc) >> 2;
+> +
+> +		/* determine touch major, minor and orientation */
+> +		point[i].area_major = max(payload[9 * i + 6],
+> +					  payload[9 * i + 7]);
+> +		point[i].area_minor = min(payload[9 * i + 6],
+> +					  payload[9 * i + 7]);
+> +		point[i].orientation = payload[9 * i + 6] > payload[9 * i + 7];
+> +
+> +		point[i].pressure = payload[9 * i + 8];
+> +		point[i].prblty = payload[9 * i + 9];
+> +	}
+> +
+> +	for (i = 0; i < count; i++) {
 
-diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index 09371cb..cfa2039 100644
---- a/drivers/iio/adc/Kconfig
-+++ b/drivers/iio/adc/Kconfig
-@@ -167,6 +167,7 @@ config TI_ADC081C
- config TI_AM335X_ADC
- 	tristate "TI's AM335X ADC driver"
- 	depends on MFD_TI_AM335X_TSCADC
-+	select IIO_TRIGGERED_BUFFER
- 	help
- 	  Say yes here to build support for Texas Instruments ADC
- 	  driver which is also a MFD client.
-diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-index a952538..1626e16 100644
---- a/drivers/iio/adc/ti_am335x_adc.c
-+++ b/drivers/iio/adc/ti_am335x_adc.c
-@@ -24,16 +24,23 @@
- #include <linux/iio/iio.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
--#include <linux/iio/machine.h>
- #include <linux/iio/driver.h>
- 
- #include <linux/mfd/ti_am335x_tscadc.h>
-+#include <linux/iio/buffer.h>
-+#include <linux/iio/trigger.h>
-+#include <linux/iio/trigger_consumer.h>
-+#include <linux/iio/triggered_buffer.h>
- 
- struct tiadc_device {
- 	struct ti_tscadc_dev *mfd_tscadc;
- 	int channels;
- 	u8 channel_line[8];
- 	u8 channel_step[8];
-+	int irq;
-+	int buffer_en_ch_steps;
-+	struct iio_trigger *trig;
-+	u32 *data;
- };
- 
- static unsigned int tiadc_readl(struct tiadc_device *adc, unsigned int reg)
-@@ -56,10 +63,16 @@ static u32 get_adc_step_mask(struct tiadc_device *adc_dev)
- 	return step_en;
- }
- 
--static void tiadc_step_config(struct tiadc_device *adc_dev)
-+static u32 get_adc_step_bit(struct tiadc_device *adc_dev, int chan)
- {
-+	return 1 << adc_dev->channel_step[chan];
-+}
-+
-+static void tiadc_step_config(struct iio_dev *indio_dev)
-+{
-+	struct tiadc_device *adc_dev = iio_priv(indio_dev);
- 	unsigned int stepconfig;
--	int i, steps;
-+	int i, steps, chan;
- 
- 	/*
- 	 * There are 16 configurable steps and 8 analog input
-@@ -72,11 +85,13 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
- 	 */
- 
- 	steps = TOTAL_STEPS - adc_dev->channels;
--	stepconfig = STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1;
-+	if (iio_buffer_enabled(indio_dev))
-+		stepconfig = STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1
-+					| STEPCONFIG_MODE_SWCNT;
-+	else
-+		stepconfig = STEPCONFIG_AVG_16 | STEPCONFIG_FIFO1;
- 
- 	for (i = 0; i < adc_dev->channels; i++) {
--		int chan;
--
- 		chan = adc_dev->channel_line[i];
- 		tiadc_writel(adc_dev, REG_STEPCONFIG(steps),
- 				stepconfig | STEPCONFIG_INP(chan));
-@@ -85,7 +100,167 @@ static void tiadc_step_config(struct tiadc_device *adc_dev)
- 		adc_dev->channel_step[i] = steps;
- 		steps++;
- 	}
-+}
-+
-+static irqreturn_t tiadc_irq(int irq, void *private)
-+{
-+	struct iio_dev *indio_dev = private;
-+	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-+	unsigned int status, config;
-+	status = tiadc_readl(adc_dev, REG_IRQSTATUS);
-+
-+	/*
-+	 * ADC and touchscreen share the IRQ line.
-+	 * FIFO0 interrupts are used by TSC. Handle FIFO1 IRQs here only
-+	 */
-+	if (status & IRQENB_FIFO1OVRRUN) {
-+		/* FIFO Overrun. Clear flag. Disable/Enable ADC to recover */
-+		config = tiadc_readl(adc_dev, REG_CTRL);
-+		config &= ~(CNTRLREG_TSCSSENB);
-+		tiadc_writel(adc_dev, REG_CTRL, config);
-+		tiadc_writel(adc_dev, REG_IRQSTATUS, IRQENB_FIFO1OVRRUN
-+				| IRQENB_FIFO1UNDRFLW | IRQENB_FIFO1THRES);
-+		tiadc_writel(adc_dev, REG_CTRL, (config | CNTRLREG_TSCSSENB));
-+		return IRQ_HANDLED;
-+	} else if (status & IRQENB_FIFO1THRES) {
-+		/* Trigger to push FIFO data to iio buffer */
-+		tiadc_writel(adc_dev, REG_IRQCLR, IRQENB_FIFO1THRES);
-+		iio_trigger_poll(indio_dev->trig, iio_get_time_ns());
-+		return IRQ_HANDLED;
-+	} else
-+		return IRQ_NONE;
-+
-+}
-+
-+static irqreturn_t tiadc_trigger_h(int irq, void *p)
-+{
-+	struct iio_poll_func *pf = p;
-+	struct iio_dev *indio_dev = pf->indio_dev;
-+	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-+	int i, k, fifo1count, read;
-+	u32 *data = adc_dev->data;
-+
-+	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-+	for (k = 0; k < fifo1count; k = k + i) {
-+		for (i = 0; i < (indio_dev->scan_bytes)/4; i++) {
-+			read = tiadc_readl(adc_dev, REG_FIFO1);
-+			data[i] = read & FIFOREAD_DATA_MASK;
-+		}
-+		iio_push_to_buffers(indio_dev, (u8 *) data);
-+	}
- 
-+	tiadc_writel(adc_dev, REG_IRQSTATUS, IRQENB_FIFO1THRES);
-+	tiadc_writel(adc_dev, REG_IRQENABLE, IRQENB_FIFO1THRES);
-+
-+	iio_trigger_notify_done(indio_dev->trig);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int tiadc_buffer_preenable(struct iio_dev *indio_dev)
-+{
-+	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-+	int i, fifo1count, read;
-+
-+	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
-+				IRQENB_FIFO1OVRRUN |
-+				IRQENB_FIFO1UNDRFLW));
-+
-+	/* Flush FIFO before starting sampling */
-+	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-+	for (i = 0; i < fifo1count; i++)
-+		read = tiadc_readl(adc_dev, REG_FIFO1);
-+
-+	return iio_sw_buffer_preenable(indio_dev);
-+}
-+
-+static int tiadc_buffer_postenable(struct iio_dev *indio_dev)
-+{
-+	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-+	struct iio_buffer *buffer = indio_dev->buffer;
-+	unsigned int enb = 0;
-+	u8 bit;
-+
-+	adc_dev->data = kmalloc(indio_dev->scan_bytes, GFP_KERNEL);
-+	if (adc_dev->data == NULL)
-+		return -ENOMEM;
-+
-+	tiadc_step_config(indio_dev);
-+	for_each_set_bit(bit, buffer->scan_mask, adc_dev->channels)
-+		enb |= (get_adc_step_bit(adc_dev, bit) << 1);
-+	adc_dev->buffer_en_ch_steps = enb;
-+
-+	am335x_tsc_se_set(adc_dev->mfd_tscadc, enb);
-+
-+	tiadc_writel(adc_dev,  REG_IRQSTATUS, IRQENB_FIFO1THRES
-+				| IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW);
-+	tiadc_writel(adc_dev,  REG_IRQENABLE, IRQENB_FIFO1THRES
-+				| IRQENB_FIFO1OVRRUN);
-+
-+	return iio_triggered_buffer_postenable(indio_dev);
-+}
-+
-+static int tiadc_buffer_predisable(struct iio_dev *indio_dev)
-+{
-+	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-+	int fifo1count, i, read;
-+
-+	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
-+				IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW));
-+	am335x_tsc_se_clr(adc_dev->mfd_tscadc, adc_dev->buffer_en_ch_steps);
-+
-+	/* Flush FIFO of any leftover data */
-+	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-+	for (i = 0; i < fifo1count; i++)
-+		read = tiadc_readl(adc_dev, REG_FIFO1);
-+
-+	return iio_triggered_buffer_predisable(indio_dev);
-+}
-+
-+static int tiadc_buffer_postdisable(struct iio_dev *indio_dev)
-+{
-+	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-+
-+	tiadc_step_config(indio_dev);
-+	kfree(adc_dev->data);
-+	return 0;
-+}
-+
-+static const struct iio_buffer_setup_ops tiadc_buffer_setup_ops = {
-+	.preenable = &tiadc_buffer_preenable,
-+	.postenable = &tiadc_buffer_postenable,
-+	.predisable = &tiadc_buffer_predisable,
-+	.postdisable = &tiadc_buffer_postdisable,
-+};
-+
-+static const struct iio_trigger_ops tiadc_trigger_ops = {
-+	.owner = THIS_MODULE,
-+};
-+
-+static int tiadc_iio_allocate_trigger(struct iio_dev *indio_dev)
-+{
-+	struct tiadc_device *adc_dev = iio_priv(indio_dev);
-+	struct iio_trigger *trig = adc_dev->trig;
-+	int ret;
-+
-+	trig = iio_trigger_alloc("%s-dev%d", indio_dev->name, indio_dev->id);
-+	if (trig == NULL)
-+		return -ENOMEM;
-+
-+	trig->dev.parent = indio_dev->dev.parent;
-+	trig->ops = &tiadc_trigger_ops;
-+	iio_trigger_set_drvdata(trig, indio_dev);
-+
-+	ret = iio_trigger_register(trig);
-+	if (ret)
-+		goto err_free_trigger;
-+
-+	return 0;
-+
-+err_free_trigger:
-+	iio_trigger_free(adc_dev->trig);
-+
-+	return ret;
- }
- 
- static const char * const chan_name_ain[] = {
-@@ -120,6 +295,7 @@ static int tiadc_channel_init(struct iio_dev *indio_dev, int channels)
- 		chan->channel = adc_dev->channel_line[i];
- 		chan->info_mask_separate = BIT(IIO_CHAN_INFO_RAW);
- 		chan->datasheet_name = chan_name_ain[chan->channel];
-+		chan->scan_index = i;
- 		chan->scan_type.sign = 'u';
- 		chan->scan_type.realbits = 12;
- 		chan->scan_type.storagebits = 32;
-@@ -142,11 +318,14 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
- 	struct tiadc_device *adc_dev = iio_priv(indio_dev);
- 	int i, map_val;
- 	unsigned int fifo1count, read, stepid;
--	u32 step = UINT_MAX;
- 	bool found = false;
- 	u32 step_en;
- 	unsigned long timeout = jiffies + usecs_to_jiffies
- 				(IDLE_TIMEOUT * adc_dev->channels);
-+
-+	if (iio_buffer_enabled(indio_dev))
-+		return -EBUSY;
-+
- 	step_en = get_adc_step_mask(adc_dev);
- 	am335x_tsc_se_set(adc_dev->mfd_tscadc, step_en);
- 
-@@ -168,15 +347,6 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
- 	 * Hence we need to flush out this data.
- 	 */
- 
--	for (i = 0; i < ARRAY_SIZE(adc_dev->channel_step); i++) {
--		if (chan->channel == adc_dev->channel_line[i]) {
--			step = adc_dev->channel_step[i];
--			break;
--		}
--	}
--	if (WARN_ON_ONCE(step == UINT_MAX))
--		return -EINVAL;
--
- 	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
- 	for (i = 0; i < fifo1count; i++) {
- 		read = tiadc_readl(adc_dev, REG_FIFO1);
-@@ -231,26 +401,49 @@ static int tiadc_probe(struct platform_device *pdev)
- 		channels++;
- 	}
- 	adc_dev->channels = channels;
-+	adc_dev->irq = adc_dev->mfd_tscadc->irq;
- 
- 	indio_dev->dev.parent = &pdev->dev;
- 	indio_dev->name = dev_name(&pdev->dev);
- 	indio_dev->modes = INDIO_DIRECT_MODE;
- 	indio_dev->info = &tiadc_info;
- 
--	tiadc_step_config(adc_dev);
-+	tiadc_step_config(indio_dev);
-+	tiadc_writel(adc_dev, REG_FIFO1THR, FIFO1_THRESHOLD);
- 
- 	err = tiadc_channel_init(indio_dev, adc_dev->channels);
- 	if (err < 0)
- 		return err;
- 
--	err = iio_device_register(indio_dev);
-+	err = tiadc_iio_allocate_trigger(indio_dev);
- 	if (err)
- 		goto err_free_channels;
- 
-+	err = request_irq(adc_dev->irq, tiadc_irq, IRQF_SHARED,
-+		indio_dev->name, indio_dev);
-+	if (err)
-+		goto err_unregister_trigger;
-+
-+	err = iio_triggered_buffer_setup(indio_dev, NULL,
-+			&tiadc_trigger_h, &tiadc_buffer_setup_ops);
-+	if (err)
-+		goto err_free_irq;
-+
-+	err = iio_device_register(indio_dev);
-+	if (err)
-+		goto err_buffer_unregister;
-+
- 	platform_set_drvdata(pdev, indio_dev);
- 
- 	return 0;
- 
-+err_buffer_unregister:
-+	iio_buffer_unregister(indio_dev);
-+err_free_irq:
-+	free_irq(adc_dev->irq, indio_dev);
-+err_unregister_trigger:
-+	iio_trigger_unregister(adc_dev->trig);
-+	iio_trigger_free(adc_dev->trig);
- err_free_channels:
- 	tiadc_channels_remove(indio_dev);
- 	return err;
-@@ -262,7 +455,11 @@ static int tiadc_remove(struct platform_device *pdev)
- 	struct tiadc_device *adc_dev = iio_priv(indio_dev);
- 	u32 step_en;
- 
-+	iio_trigger_unregister(adc_dev->trig);
-+	iio_trigger_free(adc_dev->trig);
-+	free_irq(adc_dev->irq, indio_dev);
- 	iio_device_unregister(indio_dev);
-+	iio_buffer_unregister(indio_dev);
- 	tiadc_channels_remove(indio_dev);
- 
- 	step_en = get_adc_step_mask(adc_dev);
-@@ -298,10 +495,16 @@ static int tiadc_resume(struct device *dev)
- 
- 	/* Make sure ADC is powered up */
- 	restore = tiadc_readl(adc_dev, REG_CTRL);
--	restore &= ~(CNTRLREG_POWERDOWN);
-+	restore &= ~(CNTRLREG_TSCSSENB);
- 	tiadc_writel(adc_dev, REG_CTRL, restore);
- 
--	tiadc_step_config(adc_dev);
-+	tiadc_writel(adc_dev, REG_FIFO1THR, FIFO1_THRESHOLD);
-+	tiadc_step_config(indio_dev);
-+
-+	/* Make sure ADC is powered up */
-+	restore &= ~(CNTRLREG_POWERDOWN);
-+	restore |= CNTRLREG_TSCSSENB;
-+	tiadc_writel(adc_dev, REG_CTRL, restore);
- 
- 	return 0;
- }
-diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index db1791b..a372ebf 100644
---- a/include/linux/mfd/ti_am335x_tscadc.h
-+++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -46,17 +46,25 @@
- /* Step Enable */
- #define STEPENB_MASK		(0x1FFFF << 0)
- #define STEPENB(val)		((val) << 0)
-+#define ENB(val)			(1 << (val))
-+#define STPENB_STEPENB		STEPENB(0x1FFFF)
-+#define STPENB_STEPENB_TC	STEPENB(0x1FFF)
- 
- /* IRQ enable */
- #define IRQENB_HW_PEN		BIT(0)
- #define IRQENB_FIFO0THRES	BIT(2)
-+#define IRQENB_FIFO0OVRRUN	BIT(3)
-+#define IRQENB_FIFO0UNDRFLW	BIT(4)
- #define IRQENB_FIFO1THRES	BIT(5)
-+#define IRQENB_FIFO1OVRRUN	BIT(6)
-+#define IRQENB_FIFO1UNDRFLW	BIT(7)
- #define IRQENB_PENUP		BIT(9)
- 
- /* Step Configuration */
- #define STEPCONFIG_MODE_MASK	(3 << 0)
- #define STEPCONFIG_MODE(val)	((val) << 0)
- #define STEPCONFIG_MODE_HWSYNC	STEPCONFIG_MODE(2)
-+#define STEPCONFIG_MODE_SWCNT	STEPCONFIG_MODE(1)
- #define STEPCONFIG_AVG_MASK	(7 << 2)
- #define STEPCONFIG_AVG(val)	((val) << 2)
- #define STEPCONFIG_AVG_16	STEPCONFIG_AVG(4)
-@@ -124,6 +132,7 @@
- #define	MAX_CLK_DIV		7
- #define TOTAL_STEPS		16
- #define TOTAL_CHANNELS		8
-+#define FIFO1_THRESHOLD		19
- 
- /*
- * ADC runs at 3MHz, and it takes
-@@ -153,6 +162,10 @@ struct ti_tscadc_dev {
- 
- 	/* adc device */
- 	struct adc_device *adc;
-+
-+	/* Context save */
-+	unsigned int irqstat;
-+	unsigned int ctrl;
- };
- 
- static inline struct ti_tscadc_dev *ti_tscadc_dev_get(struct platform_device *p)
--- 
-1.7.9.5
+just continue the loop here (or move the conversion out as a function).
+
+> +		dev_dbg(&client->dev, "point %d/%d: state %d, id %d, pressure %d, prblty %d, x %d, y %d, amajor %d, aminor %d, ori %d\n",
+> +			i, count, point[i].state, point[i].id,
+> +			point[i].pressure, point[i].prblty,
+> +			point[i].coord_x, point[i].coord_y,
+> +			point[i].area_major, point[i].area_minor,
+> +			point[i].orientation);
+> +
+> +		/* the zforce id starts with "1", so needs to be decreased */
+> +		input_mt_slot(ts->input, point[i].id - 1);
+> +
+> +		input_mt_report_slot_state(ts->input, MT_TOOL_FINGER,
+> +						point[i].state != STATE_UP);
+> +
+> +		if (point[i].state != STATE_UP) {
+> +			input_report_abs(ts->input, ABS_MT_POSITION_X,
+> +					 point[i].coord_x);
+> +			input_report_abs(ts->input, ABS_MT_POSITION_Y,
+> +					 point[i].coord_y);
+> +			input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
+> +					 point[i].area_major);
+> +			input_report_abs(ts->input, ABS_MT_TOUCH_MINOR,
+> +					 point[i].area_minor);
+> +			input_report_abs(ts->input, ABS_MT_ORIENTATION,
+> +					 point[i].orientation);
+> +		}
+> +	}
+> +
+> +	if (point[0].state != STATE_UP) {
+> +		input_report_abs(ts->input, ABS_X, point[0].coord_x);
+> +		input_report_abs(ts->input, ABS_Y, point[0].coord_y);
+> +	}
+> +
+> +	input_report_key(ts->input, BTN_TOUCH, point[0].state != STATE_UP);
+
+You can use input_mt_sync() here instead of the single-touch stuff.
+
+> +
+> +	input_sync(ts->input);
+> +
+> +	return 0;
+> +}
+> +
+> +static int zforce_probe(struct i2c_client *client,
+> +			const struct i2c_device_id *id)
+> +{
+> +	const struct zforce_ts_platdata *pdata = client->dev.platform_data;
+> +	struct zforce_ts *ts;
+> +	struct input_dev *input_dev;
+> +	int ret;
+> +
+> +	if (!pdata)
+> +		return -EINVAL;
+> +
+> +	ts = devm_kzalloc(&client->dev, sizeof(struct zforce_ts), GFP_KERNEL);
+> +	if (!ts)
+> +		return -ENOMEM;
+> +
+> +	ret = devm_gpio_request_one(&client->dev, pdata->gpio_int, GPIOF_IN,
+> +				    "zforce_ts_int");
+> +	if (ret) {
+> +		dev_err(&client->dev, "request of gpio %d failed, %d\n",
+> +			pdata->gpio_int, ret);
+> +		return ret;
+> +	}
+> +
+> +	ret = devm_gpio_request_one(&client->dev, pdata->gpio_rst,
+> +				    GPIOF_OUT_INIT_LOW, "zforce_ts_rst");
+> +	if (ret) {
+> +		dev_err(&client->dev, "request of gpio %d failed, %d\n",
+> +			pdata->gpio_rst, ret);
+> +		return ret;
+> +	}
+> +
+> +	ret = devm_add_action(&client->dev, zforce_reset, ts);
+> +	if (ret) {
+> +		dev_err(&client->dev, "failed to register reset action, %d\n",
+> +			ret);
+> +		return ret;
+> +	}
+> +
+> +	msleep(20);
+> +
+> +	snprintf(ts->phys, sizeof(ts->phys),
+> +		 "%s/input0", dev_name(&client->dev));
+> +
+> +	input_dev = devm_input_allocate_device(&client->dev);
+> +	if (!input_dev) {
+> +		dev_err(&client->dev, "could not allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	mutex_init(&ts->access_mutex);
+> +	mutex_init(&ts->command_mutex);
+> +
+> +	ts->pdata = pdata;
+> +	ts->client = client;
+> +	ts->input = input_dev;
+> +
+> +	input_dev->name = "Neonode zForce touchscreen";
+> +	input_dev->phys = ts->phys;
+> +	input_dev->id.bustype = BUS_I2C;
+> +	input_dev->dev.parent = &client->dev;
+> +
+> +	input_dev->open = zforce_input_open;
+> +	input_dev->close = zforce_input_close;
+> +
+> +	set_bit(EV_KEY, input_dev->evbit);
+> +	set_bit(EV_SYN, input_dev->evbit);
+> +	set_bit(EV_ABS, input_dev->evbit);
+> +	set_bit(BTN_TOUCH, input_dev->keybit);
+
+BTN_TOUCH can be skipped,
+
+> +
+> +	/* For single touch */
+> +	input_set_abs_params(input_dev, ABS_X, 0, pdata->x_max, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_Y, 0, pdata->y_max, 0, 0);
+
+and these too,
+
+> +
+> +	/* For multi touch */
+> +	input_mt_init_slots(input_dev, ZFORCE_REPORT_POINTS, 0);
+
+if you add INPUT_MT_DIRECT as argument here.
+
+> +	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0,
+> +			     pdata->x_max, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
+> +			     pdata->y_max, 0, 0);
+> +
+> +	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0,
+> +			     ZFORCE_MAX_AREA, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR, 0,
+> +			     ZFORCE_MAX_AREA, 0, 0);
+> +	input_set_abs_params(input_dev, ABS_MT_ORIENTATION, 0, 1, 0, 0);
+> +
+> +	input_set_drvdata(ts->input, ts);
+> +
+> +	init_completion(&ts->command_done);
+> +
+> +	/* The zforce pulls the interrupt low when it has data ready.
+> +	 * After it is triggered the isr thread runs until all the available
+> +	 * packets have been read and the interrupt is high again.
+> +	 * Therefore we can trigger the interrupt anytime it is low and do
+> +	 * not need to limit it to the interrupt edge.
+> +	 */
+> +	ret = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+> +					zforce_interrupt,
+> +					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> +					input_dev->name, ts);
+> +	if (ret) {
+> +		dev_err(&client->dev, "irq %d request failed\n", client->irq);
+> +		return ret;
+> +	}
+> +
+> +	i2c_set_clientdata(client, ts);
+> +
+> +	/* let the controller boot */
+> +	gpio_set_value(pdata->gpio_rst, 1);
+> +
+> +	ts->command_waiting = NOTIFICATION_BOOTCOMPLETE;
+> +	if (wait_for_completion_timeout(&ts->command_done, WAIT_TIMEOUT) == 0)
+> +		dev_warn(&client->dev, "bootcomplete timed out\n");
+> +
+> +	/* need to start device to get version information */
+> +	ret = zforce_command_wait(ts, COMMAND_INITIALIZE);
+> +	if (ret) {
+> +		dev_err(&client->dev, "unable to initialize, %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	/* this gets the firmware version among other informations */
+> +	ret = zforce_command_wait(ts, COMMAND_STATUS);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "couldn't get status, %d\n", ret);
+> +		zforce_stop(ts);
+> +		return ret;
+> +	}
+> +
+> +	/* stop device and put it into sleep until it is opened */
+> +	ret = zforce_stop(ts);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	device_set_wakeup_capable(&client->dev, true);
+> +
+> +	ret = input_register_device(input_dev);
+> +	if (ret) {
+> +		dev_err(&client->dev, "could not register input device, %d\n",
+> +			ret);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+
+Thanks,
+Henrik

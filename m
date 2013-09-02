@@ -1,29 +1,43 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: uhid: add devname module alias
-Date: Mon, 2 Sep 2013 13:28:56 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309021328480.3796@pobox.suse.cz>
-References: <1378058566-5207-1-git-send-email-marcel@holtmann.org> <CANq1E4SMMY+aO3DfmKCWST9GUc0Lwugy9iB1TZq3Mg_QtjEAWw@mail.gmail.com>
+Subject: Re: [PATCH] HID: Correct the USB IDs for the new Macbook Air 6
+Date: Mon, 2 Sep 2013 13:30:07 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309021329510.3796@pobox.suse.cz>
+References: <1378042304-1400-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47534 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:47607 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932192Ab3IBL27 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Sep 2013 07:28:59 -0400
-In-Reply-To: <CANq1E4SMMY+aO3DfmKCWST9GUc0Lwugy9iB1TZq3Mg_QtjEAWw@mail.gmail.com>
+	id S1755133Ab3IBLaL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Sep 2013 07:30:11 -0400
+In-Reply-To: <1378042304-1400-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>, David Herrmann <dh.herrmann@googlemail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, 1 Sep 2013, David Herrmann wrote:
+On Sun, 1 Sep 2013, Henrik Rydberg wrote:
 
-> > For simple device node creation, add the devname module alias.
+> A recent patch (9d9a04ee) added support for the new machine, but got
+> the sequence of USB ids wrong. Reports from both Ian and Linus T show
+> that the 0x0291 id is for ISO, not ANSI, which should have the missing
+> number 0x0290. This patchs moves the three numbers accordingly, fixing
+> the problem.
 > 
-> Yepp, looks good. uinput already has it, so:
-> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Reported-and-tested-by: Ian Munsie <darkstarsword@gmail.com>
+> Tested-by: Linus G Thiel <linus@hanssonlarsson.se>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Hi Jiri, Dmitry,
+> 
+> it looks like this change has been sufficiently tested now, in
+> addition to making perfect sense. Jiri, would you mind taking it, if
+> Dmitry approves?
 
-Applied, thanks.
+Absolutely ... waiting for Dmitry's Ack.
+
+Thanks,
 
 -- 
 Jiri Kosina

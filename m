@@ -1,64 +1,64 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2] HID: usbhid: quirk for N-Trig DuoSense Touch Screen
-Date: Mon, 2 Sep 2013 13:36:05 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309021335330.3796@pobox.suse.cz>
-References: <CABSveYikpdAy9rUDfVrL=jAj7OCqFXyPd7GsvjTnhH3K=u--Zg@mail.gmail.com>
+Subject: Re: HID: picolcd: Prevent NULL pointer dereference on _remove()
+Date: Mon, 2 Sep 2013 13:37:28 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309021337170.3796@pobox.suse.cz>
+References: <20130831140748.3353e7bc@neptune.home>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CABSveYikpdAy9rUDfVrL=jAj7OCqFXyPd7GsvjTnhH3K=u--Zg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vasily Titskiy <qehgt0@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:48018 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756086Ab3IBLhc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Sep 2013 07:37:32 -0400
+In-Reply-To: <20130831140748.3353e7bc@neptune.home>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: linux-input@vger.kernel.org
 
-On Fri, 30 Aug 2013, Vasily Titskiy wrote:
+On Sat, 31 Aug 2013, Bruno Pr=C3=A9mont wrote:
 
-> The DuoSense touchscreen device causes a 10 second timeout. This fix
-> removes the delay.
-> 
-> Signed-off-by: Vasily Titskiy <qehgt0@gmail.com>
+> When picolcd is switched into bootloader mode (for FW flashing) make
+> sure not to try to dereference NULL-pointers of feature-devices durin=
+g
+> unplug/unbind.
+>=20
+> This fixes following BUG:
+>   BUG: unable to handle kernel NULL pointer dereference at 00000298
+>   IP: [<f811f56b>] picolcd_exit_framebuffer+0x1b/0x80 [hid_picolcd]
+>   *pde =3D 00000000
+>   Oops: 0000 [#1]
+>   Modules linked in: hid_picolcd syscopyarea sysfillrect sysimgblt fb=
+_sys_fops
+>   CPU: 0 PID: 15 Comm: khubd Not tainted 3.11.0-rc7-00002-g50d62d4 #2
+>   EIP: 0060:[<f811f56b>] EFLAGS: 00010292 CPU: 0
+>   EIP is at picolcd_exit_framebuffer+0x1b/0x80 [hid_picolcd]
+>   Call Trace:
+>    [<f811d1ab>] picolcd_remove+0xcb/0x120 [hid_picolcd]
+>    [<c1469b09>] hid_device_remove+0x59/0xc0
+>    [<c13464ca>] __device_release_driver+0x5a/0xb0
+>    [<c134653f>] device_release_driver+0x1f/0x30
+>    [<c134603d>] bus_remove_device+0x9d/0xd0
+>    [<c13439a5>] device_del+0xd5/0x150
+>    [<c14696a4>] hid_destroy_device+0x24/0x60
+>    [<c1474cbb>] usbhid_disconnect+0x1b/0x40
+>    ...
+>=20
+> Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+> Cc: stable@kernel.org
 > ---
->  drivers/hid/hid-ids.h           |    1 +
->  drivers/hid/usbhid/hid-quirks.c |    1 +
->  2 files changed, 2 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 2168885..376170e 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -646,6 +646,7 @@
->  #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_16   0x0012
->  #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_17   0x0013
->  #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18   0x0014
-> +#define USB_DEVICE_ID_NTRIG_DUOSENSE 0x1500
-> 
->  #define USB_VENDOR_ID_ONTRAK 0x0a07
->  #define USB_DEVICE_ID_ONTRAK_ADU100 0x0064
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 19b8360..1671b47 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -109,6 +109,7 @@ static const struct hid_blacklist {
->   { USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD,
-> HID_QUIRK_NO_INIT_REPORTS },
->   { USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X,
-> HID_QUIRK_MULTI_INPUT },
->   { USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X, HID_QUIRK_MULTI_INPUT },
-> + { USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_DUOSENSE,
-> HID_QUIRK_NO_INIT_REPORTS },
->   { 0, 0 }
->  };
+>  drivers/hid/hid-picolcd_cir.c | 3 ++-
+>  drivers/hid/hid-picolcd_fb.c  | 6 +++++-
+>  2 files changed, 7 insertions(+), 2 deletions(-)
 
-Vasily,
+Applied, thanks Bruno.
 
-your mail client is line-wrapping text, which causes corrupted patches.
-
-I have fixed it up and applied, but please keep that in mind for your 
-future submissions.
-
-Thanks,
-
--- 
+--=20
 Jiri Kosina
 SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

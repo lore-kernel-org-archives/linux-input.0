@@ -1,87 +1,91 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] hid: uhid: improve uhid example client
-Date: Mon, 2 Sep 2013 15:21:46 +0200
-Message-ID: <CANq1E4QwPRgCkROyLWNU7KtVDU6DAoLG+pD2_6brD90gSiJ9pg@mail.gmail.com>
-References: <1378071918-1152-1-git-send-email-dh.herrmann@gmail.com>
-	<CAN+gG=GbY9mQGQhRZcf9Osc1q5YjwpGVExhH6pAN9X0urcRv0w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Tom Gundersen <teg@jklm.no>
+Subject: [PATCH] input: allow SERIO=m even without EXPERT=y
+Date: Mon,  2 Sep 2013 20:47:10 +0200
+Message-ID: <1378147630-12471-1-git-send-email-teg@jklm.no>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f174.google.com ([209.85.223.174]:45868 "EHLO
-	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753836Ab3IBNVr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Sep 2013 09:21:47 -0400
-Received: by mail-ie0-f174.google.com with SMTP id k14so8080082iea.33
-        for <linux-input@vger.kernel.org>; Mon, 02 Sep 2013 06:21:46 -0700 (PDT)
-In-Reply-To: <CAN+gG=GbY9mQGQhRZcf9Osc1q5YjwpGVExhH6pAN9X0urcRv0w@mail.gmail.com>
+Received: from mail-wg0-f48.google.com ([74.125.82.48]:48912 "EHLO
+	mail-wg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758718Ab3IBSqZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Sep 2013 14:46:25 -0400
+Received: by mail-wg0-f48.google.com with SMTP id c11so3965156wgh.27
+        for <linux-input@vger.kernel.org>; Mon, 02 Sep 2013 11:46:24 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anderson Lizardo <anderson.lizardo@openbossa.org>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Tom Gundersen <teg@jklm.no>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi
+There is plenty of consumer hardware (e.g., mac books) that does not use
+AT keyboards or PS/2 mice. It therefore makes sense for distro kernels
+to build the related drivers as modules to avoid loading them on hardware
+that does not need them. As such, these options should no longer be protected
+by EXPERT.
 
-On Mon, Sep 2, 2013 at 3:16 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> Hi David,
->
-> On Sun, Sep 1, 2013 at 11:45 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
->> This extends the uhid example client. It properly documents the built-in
->> report-descriptor an adds explicit report-numbers.
->>
->> Furthermore, LED output reports are added to utilize the new UHID output
->> reports of the kernel. Support for 3 basic LEDs is added and a small
->> report-parser to print debug messages if output reports were received.
->>
->> To test this, simply write the EV_LED+LED_CAPSL+1 event to the evdev
->> device-node of the uhid-device and the kernel will forward it to your uhid
->> client.
->>
->> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
->> ---
->> Hi Jiri
->>
->> This is actually the first time that I wrote an HID report-descriptor. The old
->> 3-button mouse was just copied from a real mouse. My descriptor works perfectly
->> well but I am kind of scared I am no longer allowed to make fun of firmware
->> authors..
->
-> If you are affraid of legal issues, you should consider using the
-> keyboard report descriptor given as an example on the page 69
-> (Appendix E.6) of the USB HID specification 1.1.
+Moreover, building these drivers as modules gets rid of the following ugly
+error during boot:
 
-Not afraid of legal issues at all. I reviewed it thoroughly,
-documented the new one and I added my own extensions (like WHEEL). So
-it is no longer based on the old one. But thanks for the usb-spec
-hint, haven't looked there, yet.
+[    2.337745] i8042: PNP: No PS/2 controller found. Probing ports directly.
+[    3.439537] i8042: No controller found
 
-> Other than that, I had also to deal with raw reports and report
-> descriptors, so I have written some tools to decode them on:
-> https://github.com/bentiss/hid-replay/tree/master/tools
-> I am expecting in input the hid-replay file format, which you can
-> retrieve an example from hid-recorder, and from the man.
->
-> It's not 100% accurate (I had corner cases for some keyboards), but
-> it's doing the decoding job quite properly.
-> I am also thinking of a way to "reencode" it more efficiently from the
-> human readable version, but this is not done yet.
+Signed-off-by: Tom Gundersen <teg@jklm.no>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/Kconfig | 4 ++--
+ drivers/input/serio/Kconfig    | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-Cool! Encoding-support is actually what I need, but the decoding is
-nice to verify correctness.
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 269d4c3..2d31cec 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -2,7 +2,7 @@
+ # Input core configuration
+ #
+ menuconfig INPUT_KEYBOARD
+-	bool "Keyboards" if EXPERT || !X86
++	bool "Keyboards"
+ 	default y
+ 	help
+ 	  Say Y here, and a list of supported keyboards will be displayed.
+@@ -67,7 +67,7 @@ config KEYBOARD_ATARI
+ 	  module will be called atakbd.
+ 
+ config KEYBOARD_ATKBD
+-	tristate "AT keyboard" if EXPERT || !X86
++	tristate "AT keyboard"
+ 	default y
+ 	select SERIO
+ 	select SERIO_LIBPS2
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index 1e691a3..39c869d 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -2,7 +2,7 @@
+ # Input core configuration
+ #
+ config SERIO
+-	tristate "Serial I/O support" if EXPERT || !X86
++	tristate "Serial I/O support"
+ 	default y
+ 	help
+ 	  Say Yes here if you have any input device that uses serial I/O to
+@@ -19,7 +19,7 @@ config SERIO
+ if SERIO
+ 
+ config SERIO_I8042
+-	tristate "i8042 PC Keyboard controller" if EXPERT || !X86
++	tristate "i8042 PC Keyboard controller"
+ 	default y
+ 	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
+ 		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN && !S390 && \
+@@ -170,7 +170,7 @@ config SERIO_MACEPS2
+ 	  module will be called maceps2.
+ 
+ config SERIO_LIBPS2
+-	tristate "PS/2 driver library" if EXPERT
++	tristate "PS/2 driver library"
+ 	depends on SERIO_I8042 || SERIO_I8042=n
+ 	help
+ 	  Say Y here if you are using a driver for device connected
+-- 
+1.8.4
 
->>
->> Anyway, I extended the example to have a test-case for uhid output reports and
->> it all works as expected. I got asked for some help on this so I wrote up this
->> patch to push it mainline.
->
-> Great thanks!
->
-> On overall, the example looks sane, but I will not be able to do an
-> exhaustive review before Friday. So Jiri, I think you can take it
-> unless David decides to change the report descriptors with the one I
-> mentioned earlier.
-
-No intention to modify it. Looks all good to me now.
-
-Thanks!
-David

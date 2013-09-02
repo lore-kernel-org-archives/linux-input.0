@@ -1,268 +1,318 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 11/14] HID: multitouch: validate feature report details
-Date: Mon, 2 Sep 2013 14:56:47 +0200
-Message-ID: <CAN+gG=Fx5bjcPndRSBBJTvZFC2GOegigkzL3De8iK7vauiPq1g@mail.gmail.com>
-References: <alpine.LNX.2.00.1308282221440.22181@pobox.suse.cz>
-	<521F0D5F.7040108@redhat.com>
-	<CAGXu5jKkzWmMZeckmO6BeKnJs-AjrFuZvqWNxDa6Rjb7UzAeyw@mail.gmail.com>
-	<CAN+gG=EvuO4R2d=bj=_9aWo1e96ee_i0sqSDJNd=3h+dVf=oWQ@mail.gmail.com>
-	<CAGXu5jKAob5s1vs5s974QsJWdje2rQgyz=PVACxW3aWiJWiEEA@mail.gmail.com>
+Subject: Re: [PATCH] hid: uhid: improve uhid example client
+Date: Mon, 2 Sep 2013 15:16:02 +0200
+Message-ID: <CAN+gG=GbY9mQGQhRZcf9Osc1q5YjwpGVExhH6pAN9X0urcRv0w@mail.gmail.com>
+References: <1378071918-1152-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f178.google.com ([209.85.217.178]:40369 "EHLO
-	mail-lb0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756348Ab3IBM4u (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Sep 2013 08:56:50 -0400
-Received: by mail-lb0-f178.google.com with SMTP id z5so4009572lbh.9
-        for <linux-input@vger.kernel.org>; Mon, 02 Sep 2013 05:56:48 -0700 (PDT)
-In-Reply-To: <CAGXu5jKAob5s1vs5s974QsJWdje2rQgyz=PVACxW3aWiJWiEEA@mail.gmail.com>
+Received: from mail-la0-f43.google.com ([209.85.215.43]:40205 "EHLO
+	mail-la0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754342Ab3IBNQF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Sep 2013 09:16:05 -0400
+Received: by mail-la0-f43.google.com with SMTP id ep20so3552594lab.2
+        for <linux-input@vger.kernel.org>; Mon, 02 Sep 2013 06:16:03 -0700 (PDT)
+In-Reply-To: <1378071918-1152-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Anderson Lizardo <anderson.lizardo@openbossa.org>
 
-On Fri, Aug 30, 2013 at 8:27 PM, Kees Cook <keescook@chromium.org> wrote:
-> On Fri, Aug 30, 2013 at 8:27 AM, Benjamin Tissoires
-> <benjamin.tissoires@gmail.com> wrote:
->> On Thu, Aug 29, 2013 at 9:41 PM, Kees Cook <keescook@chromium.org> wrote:
->>> On Thu, Aug 29, 2013 at 1:59 AM, Benjamin Tissoires
->>> <benjamin.tissoires@redhat.com> wrote:
->>>> Hi Kees,
->>>>
->>>> I would be curious to have the HID report descriptors (maybe off list)
->>>> to understand how things can be that bad.
->>>
->>> Certainly! I'll send them your way. I did have to get pretty creative
->>> to tickle these conditions.
->>>
->>>> On overall, I'd prefer all those checks to be in hid-core so that we
->>>> have the guarantee that we don't have to open a new CVE each time a
->>>> specific hid driver do not check for these ranges.
->>>
->>> I pondered doing this, but it seemed like something that needed wider
->>> discussion, so I thought I'd start with just the dump of fixes. It
->>> seems like the entire HID report interface should use access functions
->>> to enforce range checking -- perhaps further enforced by making the
->>> structure opaque to the drivers.
->>
->> The problem with access functions with range checking is when they are
->> used at each input report. This will overload the kernel processing
->> for static checks.
->>
->>>
->>>> More specific comments inlined:
->>>>
->>>> On 28/08/13 22:31, Jiri Kosina wrote:
->>>>> From: Kees Cook <keescook@chromium.org>
->>>>>
->>>>> When working on report indexes, always validate that they are in bounds.
->>>>> Without this, a HID device could report a malicious feature report that
->>>>> could trick the driver into a heap overflow:
->>>>>
->>>>> [  634.885003] usb 1-1: New USB device found, idVendor=0596, idProduct=0500
->>>>> ...
->>>>> [  676.469629] BUG kmalloc-192 (Tainted: G        W   ): Redzone overwritten
->>>>>
->>>>> CVE-2013-2897
->>>>>
->>>>> Signed-off-by: Kees Cook <keescook@chromium.org>
->>>>> Cc: stable@kernel.org
->>>>> ---
->>>>>  drivers/hid/hid-multitouch.c |   25 ++++++++++++++++++++-----
->>>>>  1 file changed, 20 insertions(+), 5 deletions(-)
->>>>>
->>>>> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
->>>>> index cb0e361..2aa275e 100644
->>>>> --- a/drivers/hid/hid-multitouch.c
->>>>> +++ b/drivers/hid/hid-multitouch.c
->>>>> @@ -330,9 +330,18 @@ static void mt_feature_mapping(struct hid_device *hdev,
->>>>>                               break;
->>>>>                       }
->>>>>               }
->>>>> +             /* Ignore if value index is out of bounds. */
->>>>> +             if (td->inputmode_index < 0 ||
->>>>
->>>> td->inputmode_index can not be less than 0
->>>
->>> Well, it certainly _shouldn't_ be less than zero. :) However, it is
->>> defined as s8, and gets set from an int:
->>>
->>>                 for (i=0; i < field->maxusage; i++) {
->>>                         if (field->usage[i].hid == usage->hid) {
->>>                                 td->inputmode_index = i;
->>>                                 break;
->>>                         }
->>>                 }
->>>
->>> Both "i" and "maxusage" are int, and I can generate a large maxusage
->>> and usage array where the first matching hid equality happens when i
->>> is >127, causing inputmode_index to wrap.
->>
->> ouch. Sorry. This piece of code (the current code) is junk. We should
->> switch to usage->usage_index and change from __s8 to __s16 the
->> declaration ASAP.
->>
->>>
->>>>> +                 td->inputmode_index >= field->report_count) {
->>>>
->>>> if this is really required, we could just change the for loop above to
->>>> go from 0 to field->report_count instead.
->>>
->>> That's certainly true, but since usage count and report count are not
->>> directly associated, I don't know if there are devices that will freak
->>> out with this restriction.
->>
->> Actually, I just again another long time understanding all the mess of
->> having usage count and report count different in hid-core.
->>
->> I think it is a bug at some point (but it looks like I tend to be
->> wrong on a lot of things recently :-P ), because when you look at the
->> actual code of hid_input_field() in hid-core.c, we never go further
->> than field->report_count when dealing with input report.
->> So my guess is that we are declaring extra usages that are never used
->> to parse incoming data.
->>
->>>
->>>> However, I think we could just rely on usage->usage_index to get the
->>>> actual index.
->>>> I'll do more tests today and tell you later.
->>>>
->>>>> +                     dev_err(&hdev->dev, "HID_DG_INPUTMODE out of range\n");
->>>>> +                     td->inputmode = -1;
->>>>> +             }
->>>>>
->>>>>               break;
->>>>>       case HID_DG_CONTACTMAX:
->>>>> +             /* Ignore if value count is out of bounds. */
->>>>> +             if (field->report_count < 1)
->>>>> +                     break;
->>>>
->>>> If you can trigger this, I would say that the fix should be in hid-core,
->>>> not in every driver. A null report_count should not be allowed by the
->>>> HID protocol.
->>>
->>> Again, I have no problem with that idea, but there seem to be lots of
->>> general cases where this may not be possible (i.e. a HID with 0 OUTPUT
->>> or FEATURE reports). I didn't see a sensible way to approach this in
->>> core without declaring a "I require $foo many OUTPUT reports, $bar
->>> many INPUT, and $baz many FEATURE" for each driver. I instead opted
->>> for the report validation function instead.
->>>
->>
->> I think we can just add this check in both hidinput_configure_usage()
->> and report_features() (both in hid-input.c) so that we don't call the
->> *_mapping() callbacks with non sense fields.
->> This way, the specific hid drivers will know only the correct fields,
->> and don't need to check this. So patches 9, 11 and 13 can be amended.
->>
->> It looks to me that you mismatched field->report_count and the actual
->> report_count in your answer: field->report_count is the number of
->> consecutive fields of field->report_size that are present for the
->> parsing of the report. It has nothing to do with the total report
->> count.
->>
->>>>>               td->maxcontact_report_id = field->report->id;
->>>>>               td->maxcontacts = field->value[0];
->>>>>               if (!td->maxcontacts &&
->>>>> @@ -743,15 +752,21 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
->>>>>       unsigned count;
->>>>>       int r, n;
->>>>>
->>>>> +     if (report->maxfield == 0)
->>>>> +             return;
->>>>> +
->>>>>       /*
->>>>>        * Includes multi-packet support where subsequent
->>>>>        * packets are sent with zero contactcount.
->>>>>        */
->>>>> -     if (td->cc_index >= 0) {
->>>>> -             struct hid_field *field = report->field[td->cc_index];
->>>>> -             int value = field->value[td->cc_value_index];
->>>>> -             if (value)
->>>>> -                     td->num_expected = value;
->>>>> +     if (td->cc_index >= 0 && td->cc_index < report->maxfield) {
->>>>> +             field = report->field[td->cc_index];
->>>>
->>>> looks like we previously overwrote the definition of field :(
->>>>
->>>>> +             if (td->cc_value_index >= 0 &&
->>>>> +                 td->cc_value_index < field->report_count) {
->>>>> +                     int value = field->value[td->cc_value_index];
->>>>> +                     if (value)
->>>>> +                             td->num_expected = value;
->>>>> +             }
->>>>
->>>> I can not see why td->cc_index and td->cc_value_index could have bad
->>>> values. They are initially created by hid-core, and are not provided by
->>>> the device.
->>>> Anyway, if you are able to produce bad values with them, I'd rather have
->>>> those checks during the assignment of td->cc_index (in
->>>> mt_touch_input_mapping()), instead of checking them for each report.
->>>
->>> Well, the problem comes again from there not being a hard link between
->>> the usage array and the value array:
->>>
->>>                         td->cc_value_index = usage->usage_index;
->>> ...
->>>                         int value = field->value[td->cc_value_index];
->>>
->>> And all of this would be irrelevant if there was an access function
->>> for field->value[].
->>
->> True, with the current implementation, td->cc_value_index can be
->> greater than field->report_count. Still, moving this check in
->> mt_touch_input_mapping() will allow us to make it only once.
->>
->>>
->>> Thanks for the review!
->>
->> you are welcome :)
+Hi David,
+
+On Sun, Sep 1, 2013 at 11:45 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> This extends the uhid example client. It properly documents the built-in
+> report-descriptor an adds explicit report-numbers.
 >
-> Okay, so, where does the whole patch series stand? It seems like the
-> checks are all worth adding; and my fixes are, I think, "minimal" so
-> having them go into the tree (so that they land in stable) seems like
+> Furthermore, LED output reports are added to utilize the new UHID output
+> reports of the kernel. Support for 3 basic LEDs is added and a small
+> report-parser to print debug messages if output reports were received.
+>
+> To test this, simply write the EV_LED+LED_CAPSL+1 event to the evdev
+> device-node of the uhid-device and the kernel will forward it to your uhid
+> client.
+>
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+> Hi Jiri
+>
+> This is actually the first time that I wrote an HID report-descriptor. The old
+> 3-button mouse was just copied from a real mouse. My descriptor works perfectly
+> well but I am kind of scared I am no longer allowed to make fun of firmware
+> authors..
 
-Hi Kees,
+If you are affraid of legal issues, you should consider using the
+keyboard report descriptor given as an example on the page 69
+(Appendix E.6) of the USB HID specification 1.1.
 
-well, sorry for that, but I don't want to see this specific patch in
-stable (11/14). The blocking problem I see with this one is that it is
-doing the checks in mt_touch_report() at each incoming report, which
-will overload the processing without a real need as this check can be
-done while setting the device up.
-And having it in stable means that we will have to fix them right
-after, so I'm not particularly kind of it.
+Other than that, I had also to deal with raw reports and report
+descriptors, so I have written some tools to decode them on:
+https://github.com/bentiss/hid-replay/tree/master/tools
+I am expecting in input the hid-replay file format, which you can
+retrieve an example from hid-recorder, and from the man.
 
-For Fedora, for instance, we already have included the whole patch
-series to fix the CVE, and I'm sure other distributions will do the
-same. So I would say that the CVE is not particularly a problem right
-now for main users. For upstream, I would say it is a different
-matter.
-
-Anyway, the final decision will be taken by Jiri, I am just expressing
-my point of view.
-
-
-> a good idea. The work beyond that could be done on top of the existing
-> patches? There seems to be a lot of redesign ideas, but those probably
-> aren't so great for stable, and I'm probably not the best person to
-> write them, since everything I know about HID code I learned two weeks
-> ago. :)
-
-There are not so many changes I asked, but it's clear that I would
-prefer doing some regressions tests before having them in stable. The
-problem I have now is that I am taking this week 4 days off with
-little to no internet connection. So I will not be able to do the
-proper testing before Friday.
+It's not 100% accurate (I had corner cases for some keyboards), but
+it's doing the decoding job quite properly.
+I am also thinking of a way to "reencode" it more efficiently from the
+human readable version, but this is not done yet.
 
 >
-> Given the 12 flaws, what do you see as the best way forward?
+> Anyway, I extended the example to have a test-case for uhid output reports and
+> it all works as expected. I got asked for some help on this so I wrote up this
+> patch to push it mainline.
 
-If Jiri thinks we can wait one more week for some of these patches (I
-know that the most critical one, 1/14 is already on its way to Linus),
-then I can handle the v2, but not before Friday. Again, I think the
-current patch series is perfectly fine for distributions as they can
-add/remove things more easily than we can do in master.
+Great thanks!
+
+On overall, the example looks sane, but I will not be able to do an
+exhaustive review before Friday. So Jiri, I think you can take it
+unless David decides to change the report descriptors with the one I
+mentioned earlier.
 
 Cheers,
-Bnejamin
+Benjamin
+
+>
+> Cheers
+> David
+>
+> #include <assert.h>
+> #include <linux/input.h>
+> #include <fcntl.h>
+> #include <unistd.h>
+> #include <string.h>
+> #include <stdlib.h>
+>
+> int main(int argc, char **argv)
+> {
+>         int fd, r;
+>         struct input_event ev;
+>
+>         assert(argc >= 3);
+>
+>         fd = open(argv[1], O_RDWR | O_CLOEXEC);
+>         assert(fd >= 0);
+>
+>         memset(&ev, 0, sizeof(ev));
+>         ev.type = EV_LED;
+>         ev.code = LED_CAPSL;
+>         ev.value = atoi(argv[2]);
+>
+>         r = write(fd, &ev, sizeof(ev));
+>         assert(r == sizeof(ev));
+>
+>         close(fd);
+>
+>         return 0;
+> }
+>
+>  samples/uhid/uhid-example.c | 123 +++++++++++++++++++++++++++++++++++++-------
+>  1 file changed, 103 insertions(+), 20 deletions(-)
+>
+> diff --git a/samples/uhid/uhid-example.c b/samples/uhid/uhid-example.c
+> index 03ce3c0..7d58a4b 100644
+> --- a/samples/uhid/uhid-example.c
+> +++ b/samples/uhid/uhid-example.c
+> @@ -1,14 +1,15 @@
+>  /*
+>   * UHID Example
+>   *
+> - * Copyright (c) 2012 David Herrmann <dh.herrmann@googlemail.com>
+> + * Copyright (c) 2012-2013 David Herrmann <dh.herrmann@gmail.com>
+>   *
+>   * The code may be used by anyone for any purpose,
+>   * and can serve as a starting point for developing
+>   * applications using uhid.
+>   */
+>
+> -/* UHID Example
+> +/*
+> + * UHID Example
+>   * This example emulates a basic 3 buttons mouse with wheel over UHID. Run this
+>   * program as root and then use the following keys to control the mouse:
+>   *   q: Quit the application
+> @@ -22,6 +23,11 @@
+>   *   r: Move wheel up
+>   *   f: Move wheel down
+>   *
+> + * Additionally to 3 button mouse, 3 keyboard LEDs are also supported (LED_NUML,
+> + * LED_CAPSL and LED_SCROLLL). The device doesn't generate any related keyboard
+> + * events, though. You need to manually write the EV_LED/LED_XY/1 activation
+> + * input event to the evdev device to see it being sent to this device.
+> + *
+>   * If uhid is not available as /dev/uhid, then you can pass a different path as
+>   * first argument.
+>   * If <linux/uhid.h> is not installed in /usr, then compile this with:
+> @@ -41,11 +47,12 @@
+>  #include <unistd.h>
+>  #include <linux/uhid.h>
+>
+> -/* HID Report Desciptor
+> - * We emulate a basic 3 button mouse with wheel. This is the report-descriptor
+> - * as the kernel will parse it:
+> +/*
+> + * HID Report Desciptor
+> + * We emulate a basic 3 button mouse with wheel and 3 keyboard LEDs. This is
+> + * the report-descriptor as the kernel will parse it:
+>   *
+> - * INPUT[INPUT]
+> + * INPUT(1)[INPUT]
+>   *   Field(0)
+>   *     Physical(GenericDesktop.Pointer)
+>   *     Application(GenericDesktop.Mouse)
+> @@ -72,6 +79,19 @@
+>   *     Report Count(3)
+>   *     Report Offset(8)
+>   *     Flags( Variable Relative )
+> + * OUTPUT(2)[OUTPUT]
+> + *   Field(0)
+> + *     Application(GenericDesktop.Keyboard)
+> + *     Usage(3)
+> + *       LED.NumLock
+> + *       LED.CapsLock
+> + *       LED.ScrollLock
+> + *     Logical Minimum(0)
+> + *     Logical Maximum(1)
+> + *     Report Size(1)
+> + *     Report Count(3)
+> + *     Report Offset(0)
+> + *     Flags( Variable Absolute )
+>   *
+>   * This is the mapping that we expect:
+>   *   Button.0001 ---> Key.LeftBtn
+> @@ -80,19 +100,59 @@
+>   *   GenericDesktop.X ---> Relative.X
+>   *   GenericDesktop.Y ---> Relative.Y
+>   *   GenericDesktop.Wheel ---> Relative.Wheel
+> + *   LED.NumLock ---> LED.NumLock
+> + *   LED.CapsLock ---> LED.CapsLock
+> + *   LED.ScrollLock ---> LED.ScrollLock
+>   *
+>   * This information can be verified by reading /sys/kernel/debug/hid/<dev>/rdesc
+>   * This file should print the same information as showed above.
+>   */
+>
+>  static unsigned char rdesc[] = {
+> -       0x05, 0x01, 0x09, 0x02, 0xa1, 0x01, 0x09, 0x01,
+> -       0xa1, 0x00, 0x05, 0x09, 0x19, 0x01, 0x29, 0x03,
+> -       0x15, 0x00, 0x25, 0x01, 0x95, 0x03, 0x75, 0x01,
+> -       0x81, 0x02, 0x95, 0x01, 0x75, 0x05, 0x81, 0x01,
+> -       0x05, 0x01, 0x09, 0x30, 0x09, 0x31, 0x09, 0x38,
+> -       0x15, 0x80, 0x25, 0x7f, 0x75, 0x08, 0x95, 0x03,
+> -       0x81, 0x06, 0xc0, 0xc0,
+> +       0x05, 0x01,     /* USAGE_PAGE (Generic Desktop) */
+> +       0x09, 0x02,     /* USAGE (Mouse) */
+> +       0xa1, 0x01,     /* COLLECTION (Application) */
+> +       0x09, 0x01,             /* USAGE (Pointer) */
+> +       0xa1, 0x00,             /* COLLECTION (Physical) */
+> +       0x85, 0x01,                     /* REPORT_ID (1) */
+> +       0x05, 0x09,                     /* USAGE_PAGE (Button) */
+> +       0x19, 0x01,                     /* USAGE_MINIMUM (Button 1) */
+> +       0x29, 0x03,                     /* USAGE_MAXIMUM (Button 3) */
+> +       0x15, 0x00,                     /* LOGICAL_MINIMUM (0) */
+> +       0x25, 0x01,                     /* LOGICAL_MAXIMUM (1) */
+> +       0x95, 0x03,                     /* REPORT_COUNT (3) */
+> +       0x75, 0x01,                     /* REPORT_SIZE (1) */
+> +       0x81, 0x02,                     /* INPUT (Data,Var,Abs) */
+> +       0x95, 0x01,                     /* REPORT_COUNT (1) */
+> +       0x75, 0x05,                     /* REPORT_SIZE (5) */
+> +       0x81, 0x01,                     /* INPUT (Cnst,Var,Abs) */
+> +       0x05, 0x01,                     /* USAGE_PAGE (Generic Desktop) */
+> +       0x09, 0x30,                     /* USAGE (X) */
+> +       0x09, 0x31,                     /* USAGE (Y) */
+> +       0x09, 0x38,                     /* USAGE (WHEEL) */
+> +       0x15, 0x81,                     /* LOGICAL_MINIMUM (-127) */
+> +       0x25, 0x7f,                     /* LOGICAL_MAXIMUM (127) */
+> +       0x75, 0x08,                     /* REPORT_SIZE (8) */
+> +       0x95, 0x03,                     /* REPORT_COUNT (3) */
+> +       0x81, 0x06,                     /* INPUT (Data,Var,Rel) */
+> +       0xc0,                   /* END_COLLECTION */
+> +       0xc0,           /* END_COLLECTION */
+> +       0x05, 0x01,     /* USAGE_PAGE (Generic Desktop) */
+> +       0x09, 0x06,     /* USAGE (Keyboard) */
+> +       0xa1, 0x01,     /* COLLECTION (Application) */
+> +       0x85, 0x02,             /* REPORT_ID (2) */
+> +       0x05, 0x08,             /* USAGE_PAGE (Led) */
+> +       0x19, 0x01,             /* USAGE_MINIMUM (1) */
+> +       0x29, 0x03,             /* USAGE_MAXIMUM (3) */
+> +       0x15, 0x00,             /* LOGICAL_MINIMUM (0) */
+> +       0x25, 0x01,             /* LOGICAL_MAXIMUM (1) */
+> +       0x95, 0x03,             /* REPORT_COUNT (3) */
+> +       0x75, 0x01,             /* REPORT_SIZE (1) */
+> +       0x91, 0x02,             /* Output (Data,Var,Abs) */
+> +       0x95, 0x01,             /* REPORT_COUNT (1) */
+> +       0x75, 0x05,             /* REPORT_SIZE (5) */
+> +       0x91, 0x01,             /* Output (Cnst,Var,Abs) */
+> +       0xc0,           /* END_COLLECTION */
+>  };
+>
+>  static int uhid_write(int fd, const struct uhid_event *ev)
+> @@ -140,6 +200,27 @@ static void destroy(int fd)
+>         uhid_write(fd, &ev);
+>  }
+>
+> +/* This parses raw output reports sent by the kernel to the device. A normal
+> + * uhid program shouldn't do this but instead just forward the raw report.
+> + * However, for ducomentational purposes, we try to detect LED events here and
+> + * print debug messages for it. */
+> +static void handle_output(struct uhid_event *ev)
+> +{
+> +       /* LED messages are adverised via OUTPUT reports; ignore the rest */
+> +       if (ev->u.output.rtype != UHID_OUTPUT_REPORT)
+> +               return;
+> +       /* LED reports have length 2 bytes */
+> +       if (ev->u.output.size != 2)
+> +               return;
+> +       /* first byte is report-id which is 0x02 for LEDs in our rdesc */
+> +       if (ev->u.output.data[0] != 0x2)
+> +               return;
+> +
+> +       /* print flags payload */
+> +       fprintf(stderr, "LED output report received with flags %x\n",
+> +               ev->u.output.data[1]);
+> +}
+> +
+>  static int event(int fd)
+>  {
+>         struct uhid_event ev;
+> @@ -174,6 +255,7 @@ static int event(int fd)
+>                 break;
+>         case UHID_OUTPUT:
+>                 fprintf(stderr, "UHID_OUTPUT from uhid-dev\n");
+> +               handle_output(&ev);
+>                 break;
+>         case UHID_OUTPUT_EV:
+>                 fprintf(stderr, "UHID_OUTPUT_EV from uhid-dev\n");
+> @@ -198,18 +280,19 @@ static int send_event(int fd)
+>
+>         memset(&ev, 0, sizeof(ev));
+>         ev.type = UHID_INPUT;
+> -       ev.u.input.size = 4;
+> +       ev.u.input.size = 5;
+>
+> +       ev.u.input.data[0] = 0x1;
+>         if (btn1_down)
+> -               ev.u.input.data[0] |= 0x1;
+> +               ev.u.input.data[1] |= 0x1;
+>         if (btn2_down)
+> -               ev.u.input.data[0] |= 0x2;
+> +               ev.u.input.data[1] |= 0x2;
+>         if (btn3_down)
+> -               ev.u.input.data[0] |= 0x4;
+> +               ev.u.input.data[1] |= 0x4;
+>
+> -       ev.u.input.data[1] = abs_hor;
+> -       ev.u.input.data[2] = abs_ver;
+> -       ev.u.input.data[3] = wheel;
+> +       ev.u.input.data[2] = abs_hor;
+> +       ev.u.input.data[3] = abs_ver;
+> +       ev.u.input.data[4] = wheel;
+>
+>         return uhid_write(fd, &ev);
+>  }
+> --
+> 1.8.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

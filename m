@@ -1,41 +1,61 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Correct the USB IDs for the new Macbook Air 6
-Date: Mon, 2 Sep 2013 13:30:07 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309021329510.3796@pobox.suse.cz>
-References: <1378042304-1400-1-git-send-email-rydberg@euromail.se>
+Subject: Re: [PATCH v2] HID: usbhid: quirk for N-Trig DuoSense Touch Screen
+Date: Mon, 2 Sep 2013 13:36:05 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309021335330.3796@pobox.suse.cz>
+References: <CABSveYikpdAy9rUDfVrL=jAj7OCqFXyPd7GsvjTnhH3K=u--Zg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47607 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755133Ab3IBLaL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Sep 2013 07:30:11 -0400
-In-Reply-To: <1378042304-1400-1-git-send-email-rydberg@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CABSveYikpdAy9rUDfVrL=jAj7OCqFXyPd7GsvjTnhH3K=u--Zg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Vasily Titskiy <qehgt0@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, 1 Sep 2013, Henrik Rydberg wrote:
+On Fri, 30 Aug 2013, Vasily Titskiy wrote:
 
-> A recent patch (9d9a04ee) added support for the new machine, but got
-> the sequence of USB ids wrong. Reports from both Ian and Linus T show
-> that the 0x0291 id is for ISO, not ANSI, which should have the missing
-> number 0x0290. This patchs moves the three numbers accordingly, fixing
-> the problem.
+> The DuoSense touchscreen device causes a 10 second timeout. This fix
+> removes the delay.
 > 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Reported-and-tested-by: Ian Munsie <darkstarsword@gmail.com>
-> Tested-by: Linus G Thiel <linus@hanssonlarsson.se>
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> Signed-off-by: Vasily Titskiy <qehgt0@gmail.com>
 > ---
-> Hi Jiri, Dmitry,
+>  drivers/hid/hid-ids.h           |    1 +
+>  drivers/hid/usbhid/hid-quirks.c |    1 +
+>  2 files changed, 2 insertions(+)
 > 
-> it looks like this change has been sufficiently tested now, in
-> addition to making perfect sense. Jiri, would you mind taking it, if
-> Dmitry approves?
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 2168885..376170e 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -646,6 +646,7 @@
+>  #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_16   0x0012
+>  #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_17   0x0013
+>  #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18   0x0014
+> +#define USB_DEVICE_ID_NTRIG_DUOSENSE 0x1500
+> 
+>  #define USB_VENDOR_ID_ONTRAK 0x0a07
+>  #define USB_DEVICE_ID_ONTRAK_ADU100 0x0064
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 19b8360..1671b47 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -109,6 +109,7 @@ static const struct hid_blacklist {
+>   { USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD,
+> HID_QUIRK_NO_INIT_REPORTS },
+>   { USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X,
+> HID_QUIRK_MULTI_INPUT },
+>   { USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X, HID_QUIRK_MULTI_INPUT },
+> + { USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_DUOSENSE,
+> HID_QUIRK_NO_INIT_REPORTS },
+>   { 0, 0 }
+>  };
 
-Absolutely ... waiting for Dmitry's Ack.
+Vasily,
+
+your mail client is line-wrapping text, which causes corrupted patches.
+
+I have fixed it up and applied, but please keep that in mind for your 
+future submissions.
 
 Thanks,
 

@@ -1,121 +1,162 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 1/3] Input: introduce BTN/ABS bits for drums and guitars
-Date: Tue, 3 Sep 2013 23:14:57 +0200
-Message-ID: <CANq1E4RH9ytrY51AVEEyDOBuv3E6B8nWoBj_Le+CR2=EphO2uw@mail.gmail.com>
-References: <1377537288-19289-1-git-send-email-dh.herrmann@gmail.com>
-	<1377537288-19289-2-git-send-email-dh.herrmann@gmail.com>
-	<alpine.LNX.2.00.1309021341090.3796@pobox.suse.cz>
-	<20130903180528.GC25985@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 1/3 v3] Input: wacom - Support EMR and MFT sensors of Cintiq Companion Hybrid
+Date: Tue,  3 Sep 2013 14:52:06 -0700
+Message-ID: <1378245126-1329-1-git-send-email-killertofu@gmail.com>
+References: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:61032 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760880Ab3ICVO6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 17:14:58 -0400
-Received: by mail-ie0-f175.google.com with SMTP id u16so10961584iet.6
-        for <linux-input@vger.kernel.org>; Tue, 03 Sep 2013 14:14:58 -0700 (PDT)
-In-Reply-To: <20130903180528.GC25985@core.coreip.homeip.net>
+Received: from mail-pb0-f42.google.com ([209.85.160.42]:47368 "EHLO
+	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933068Ab3ICVwN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 17:52:13 -0400
+Received: by mail-pb0-f42.google.com with SMTP id un15so6571214pbc.29
+        for <linux-input@vger.kernel.org>; Tue, 03 Sep 2013 14:52:13 -0700 (PDT)
+In-Reply-To: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, pinglinux@gmail.com, peter.hutterer@who-t.net
+Cc: Jason Gerecke <killertofu@gmail.com>
 
-Hi
+Adds support for the sensors integrated in to the Cintiq Companion
+Hybrid. These sensors use by-and-large the same protocol as the
+Cintiq 24HD touch.
 
-On Tue, Sep 3, 2013 at 8:05 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Sep 02, 2013 at 01:41:57PM +0200, Jiri Kosina wrote:
->> On Mon, 26 Aug 2013, David Herrmann wrote:
->>
->> > There are a bunch of guitar and drums devices out there that all report
->> > similar data. To avoid reporting this as BTN_MISC or ABS_MISC, we
->> > allocate some proper namespace for them. Note that most of these devices
->> > are toys and we cannot report any sophisticated physics via this API.
->> >
->> > I did some google-images research and tried to provide definitions that
->> > work with all common devices. That's why I went with 4 toms, 4 cymbals,
->> > one bass, one hi-hat. I haven't seen other drums and I doubt that we need
->> > any additions to that. Anyway, the naming-scheme is intentionally done in
->> > an extensible way.
->> >
->> > For guitars, we support 5 frets (normally aligned vertically, compared to
->> > the real horizontal layouts), a single strum-bar with up/down directions,
->> > an optional fret-board and a whammy-bar.
->> >
->> > Most of the devices provide pressure values so I went with ABS_* bits. If
->> > we ever support devices which only provide digital input, we have to
->> > decide whether to emulate pressure data or add additional BTN_* bits.
->> >
->> > If someone is not familiar with these devices, here are two pictures which
->> > provide almost all introduced interfaces (or try the given keywords
->> > with a google-image search):
->> >   Guitar: ("guitar hero world tour guitar")
->> >     http://images1.wikia.nocookie.net/__cb20120911023442/applezone/es/images/f/f9/Wii_Guitar.jpg
->> >   Drums: ("guitar hero drums")
->> >     http://oyster.ignimgs.com/franchises/images/03/55/35526_band-hero-drum-set-hands-on-20090929040735768.jpg
->> >
->> > Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
->>
->> Hi,
->>
->> I have reviewed and like the implementation of 2/3 and 3/3, but I of
->> course would like to have Ack from Dmitry for this, so that I could take
->> it through my tree together with the rest of the patchset.
->>
->> Dmitry, pretty please?
->
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> We might want to see how much memory is taken now by ABS structures and
-> think if we could reduce it somehow...
+NOTE: The ExpressKeys on the Cintiq Companion Hybrid are wired to
+both the EMR controller and CPU GPIO pins. It may be necessary to
+disable their functionality in this driver if building a custom
+Android kernel for this device (lest two events be sent to userspace
+for every button press).
 
-Thanks Dmitry! And I thought about the "absinfo"-size, too. Some rough numbers:
+Signed-off-by: Jason Gerecke <killertofu@gmail.com>
+---
+Changes in v3:
+ * Change type name from 'ASTERIX' to 'CINTIQ_HYBRID'
 
-sizeof(struct input_absinfo) = 24 bytes
-ABS_CNT * sizeof(struct input_absinfo) = 0x50 * 24 bytes = 1920 bytes
+Changes in v2:
+ * Remove "#if 1" block surrounding conditional ExpressKey reporting
+ * Change to C-style comments
 
-sizeof(struct input_dev) = 1824 bytes
-name, phys, uniq + misc ~= 100 bytes
-dev->vals ~= 10 * sizeof(struct input_value) = 10 * 8 bytes = 80 bytes
+ drivers/input/tablet/wacom_sys.c |  2 +-
+ drivers/input/tablet/wacom_wac.c | 46 +++++++++++++++++++++++++++++++++++++++-
+ drivers/input/tablet/wacom_wac.h |  1 +
+ 3 files changed, 47 insertions(+), 2 deletions(-)
 
-So we get 1824 + 100 + 80 = 2008 bytes for an average trivial input device.
-The abs-values add 1920 bytes to that. So I don't think it's that bad.
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 1ad3e07..0750d2a 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -548,7 +548,7 @@ static int wacom_query_tablet_data(struct usb_interface *intf, struct wacom_feat
+ 			/* MT Tablet PC touch */
+ 			return wacom_set_device_mode(intf, 3, 4, 4);
+ 		}
+-		else if (features->type == WACOM_24HDT) {
++		else if (features->type == WACOM_24HDT || features->type == CINTIQ_HYBRID) {
+ 			return wacom_set_device_mode(intf, 18, 3, 2);
+ 		}
+ 	} else if (features->device_type == BTN_TOOL_PEN) {
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 541197b..d68bf73 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -475,7 +475,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
+ 	/* general pen packet */
+ 	if ((data[1] & 0xb8) == 0xa0) {
+ 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
+-		if (features->type >= INTUOS4S && features->type <= WACOM_24HD) {
++		if (features->type >= INTUOS4S && features->type <= CINTIQ_HYBRID) {
+ 			t = (t << 1) | (data[1] & 1);
+ 		}
+ 		input_report_abs(input, ABS_PRESSURE, t);
+@@ -619,6 +619,22 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 			} else {
+ 				input_report_abs(input, ABS_MISC, 0);
+ 			}
++		} else if (features->type == CINTIQ_HYBRID) {
++			/*
++			 * Do not send hardware buttons under Android. They
++			 * are already sent to the system through GPIO (and
++			 * have different meaning).
++			 */
++			input_report_key(input, BTN_1, (data[4] & 0x01));
++			input_report_key(input, BTN_2, (data[4] & 0x02));
++			input_report_key(input, BTN_3, (data[4] & 0x04));
++			input_report_key(input, BTN_4, (data[4] & 0x08));
++
++			input_report_key(input, BTN_5, (data[4] & 0x10));  /* Right  */
++			input_report_key(input, BTN_6, (data[4] & 0x20));  /* Up     */
++			input_report_key(input, BTN_7, (data[4] & 0x40));  /* Left   */
++			input_report_key(input, BTN_8, (data[4] & 0x80));  /* Down   */
++			input_report_key(input, BTN_0, (data[3] & 0x01));  /* Center */
+ 		} else if (features->type >= INTUOS5S && features->type <= INTUOS5L) {
+ 			int i;
+ 
+@@ -1325,6 +1341,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+ 	case WACOM_22HD:
+ 	case WACOM_24HD:
+ 	case DTK:
++	case CINTIQ_HYBRID:
+ 		sync = wacom_intuos_irq(wacom_wac);
+ 		break;
+ 
+@@ -1763,6 +1780,24 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 					      0, 0);
+ 		}
+ 		break;
++
++	case CINTIQ_HYBRID:
++		__set_bit(BTN_1, input_dev->keybit);
++		__set_bit(BTN_2, input_dev->keybit);
++		__set_bit(BTN_3, input_dev->keybit);
++		__set_bit(BTN_4, input_dev->keybit);
++
++		__set_bit(BTN_5, input_dev->keybit);
++		__set_bit(BTN_6, input_dev->keybit);
++		__set_bit(BTN_7, input_dev->keybit);
++		__set_bit(BTN_8, input_dev->keybit);
++		__set_bit(BTN_0, input_dev->keybit);
++
++		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
++		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
++
++		wacom_setup_cintiq(wacom_wac);
++		break;
+ 	}
+ 	return 0;
+ }
+@@ -2117,6 +2152,13 @@ static const struct wacom_features wacom_features_0xDF =
+ static const struct wacom_features wacom_features_0x6004 =
+ 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
+ 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0x0307 =
++	{ "Wacom ISDv5 307", WACOM_PKGLEN_INTUOS,  59552,  33848, 2047,
++	  63, CINTIQ_HYBRID, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x309 };
++static const struct wacom_features wacom_features_0x0309 =
++	{ "Wacom ISDv5 309", .type = WACOM_24HDT, /* Touch */
++	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x0307, .touch_max = 10 };
+ 
+ #define USB_DEVICE_WACOM(prod)					\
+ 	USB_DEVICE(USB_VENDOR_ID_WACOM, prod),			\
+@@ -2247,6 +2289,8 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xF8) },
+ 	{ USB_DEVICE_DETAILED(0xF6, USB_CLASS_HID, 0, 0) },
+ 	{ USB_DEVICE_WACOM(0xFA) },
++	{ USB_DEVICE_WACOM(0x0307) },
++	{ USB_DEVICE_DETAILED(0x0309, USB_CLASS_HID, 0, 0) },
+ 	{ USB_DEVICE_LENOVO(0x6004) },
+ 	{ }
+ };
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index dfc9e08..90ce10d 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -80,6 +80,7 @@ enum {
+ 	WACOM_22HD,
+ 	DTK,
+ 	WACOM_24HD,
++	CINTIQ_HYBRID,
+ 	CINTIQ,
+ 	WACOM_BEE,
+ 	WACOM_13HD,
+-- 
+1.8.3.4
 
-Anyway, some trivial ideas off the top of my head:
-
-1)
-Changing "absinfo" to double-indirection:
-    struct input_absinfo *absinfo[ABS_CNT];
-    struct input_absinfo *real_absinfo;
-We allocate "real_absinfo" as array for as many ABS entries as we need
-and set the pointers in "absinfo" accordingly (setting everything else
-to NULL).
-This, however, still adds ABS_CNT * 8 = 0x50 * 8 = 640 bytes only for
-the pointer array. So not really much better. And we get the
-additional TLB lookup for the double-indirection. I don't know whether
-it matters for the quite expensive input-handling, though.
-
-2)
-Using idr. But considering that most input-devices only have very few
-(<10?) ABS bits set, it probably doesn't scale.
-
-3)
-An rbtree for all absinfo objects. Only adds 24 bytes per absinfo and
-lookup is only needed once in input_handle_abs_event(). It takes the
-least space of all (except for linear search) and it's still
-reasonably fast for all setups.
-All in all, if we assume <10 input devices on a machine, we would save
-around 20kb with 3). I am not sure what impact it has on performance.
-But looking at the deep call-chains in input-interrupts, I doubt it
-would be noticeable. But that's only a rough guess..
-
-4)
-We let drivers manage absinfo objects and pass it together with
-input_event() (for ABS only). Would probably be the nicest solution
-but require huge codebase changes.
-
-But maybe someone else has some way better ideas.. It's getting late here.
-
-Cheers
-David

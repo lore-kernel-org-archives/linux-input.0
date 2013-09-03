@@ -1,56 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
 Subject: Re: [PATCH] input: allow SERIO=m even without EXPERT=y
-Date: Tue, 3 Sep 2013 12:24:21 -0700
-Message-ID: <20130903192421.GA26734@core.coreip.homeip.net>
+Date: Tue, 3 Sep 2013 20:35:47 +0100
+Message-ID: <20130903193547.GA8150@srcf.ucam.org>
 References: <1378147630-12471-1-git-send-email-teg@jklm.no>
  <20130903150226.GA2392@srcf.ucam.org>
  <CAG-2HqVK+nH4+AFrBUmr6wp1zfTeUdLArmXxZxC4TwuPSSkKZg@mail.gmail.com>
+ <20130903192421.GA26734@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cavan.codon.org.uk ([93.93.128.6]:59404 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753720Ab3ICTf4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 15:35:56 -0400
 Content-Disposition: inline
-In-Reply-To: <CAG-2HqVK+nH4+AFrBUmr6wp1zfTeUdLArmXxZxC4TwuPSSkKZg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tom Gundersen <teg@jklm.no>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20130903192421.GA26734@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Tom Gundersen <teg@jklm.no>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-On Tue, Sep 03, 2013 at 06:25:28PM +0200, Tom Gundersen wrote:
-> On Tue, Sep 3, 2013 at 5:02 PM, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> > On Mon, Sep 02, 2013 at 08:47:10PM +0200, Tom Gundersen wrote:
-> >> There is plenty of consumer hardware (e.g., mac books) that does not use
-> >> AT keyboards or PS/2 mice. It therefore makes sense for distro kernels
-> >> to build the related drivers as modules to avoid loading them on hardware
-> >> that does not need them. As such, these options should no longer be protected
-> >> by EXPERT.
-> >
-> > There are systems (although, with luck, only *very* old ones) where the
-> > modules won't get autoloaded. You should probably mention that in the
-> > help text.
-> 
-> Good point, if this turns out to be a problem on current hardware
-> distros probably want to load the modules automatically at boot by
-> default.
+On Tue, Sep 03, 2013 at 12:24:21PM -0700, Dmitry Torokhov wrote:
 
-Presumably such systems would carry over their .config which would have
-these as built-in.
+> Presumably such systems would carry over their .config which would have
+> these as built-in.
 
-> 
-> Does this problem only apply to the i8042 module or also atkbd and libps2?
+Yeah, but distributions should still be given guidance on their default 
+configs.
 
-Atkbd should be able to load automatically (as long as modutils support
-SERIO bus, which any recentish - 5 years? - modutils should do).
+> i8042 is old-style platform driver, so nothing will load it if it is
+> compiled as a module. This one worries me most.
 
-libps2 should load automatically to resolve dependencies of
-atkbd/psmouse.
-
-i8042 is old-style platform driver, so nothing will load it if it is
-compiled as a module. This one worries me most.
-
-mousedev should load automatically if something tries to open it's
-device nodes.
-
-Thanks.
+We could add the PNP aliases for it.
 
 -- 
-Dmitry
+Matthew Garrett | mjg59@srcf.ucam.org

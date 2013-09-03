@@ -1,46 +1,78 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: Behaviour of input-polldev?
-Date: Tue, 3 Sep 2013 13:54:45 +0200
-Message-ID: <CANq1E4Tr4gigvtTA7mqDgqjGfjGaLM477D2uW4qdFGkySaGPWA@mail.gmail.com>
-References: <5225CA65.7030104@butterbrot.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH] hid-wiimote: print small buffers via %*ph
+Date: Tue,  3 Sep 2013 15:32:24 +0300
+Message-ID: <1378211544-16594-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f172.google.com ([209.85.223.172]:59898 "EHLO
-	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932733Ab3ICLyq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 07:54:46 -0400
-Received: by mail-ie0-f172.google.com with SMTP id c11so3796135ieb.3
-        for <linux-input@vger.kernel.org>; Tue, 03 Sep 2013 04:54:45 -0700 (PDT)
-In-Reply-To: <5225CA65.7030104@butterbrot.org>
+Received: from mga02.intel.com ([134.134.136.20]:25967 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754408Ab3ICMcz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Sep 2013 08:32:55 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Hi Florian
+Instead of passing each byte through stack let's use %*ph specifier to dump
+buffer as a hex string.
 
-On Tue, Sep 3, 2013 at 1:39 PM, Florian Echtler <floe@butterbrot.org> wrote:
-> Hello everyone,
->
-> I'm in the process of writing an input driver for the Microsoft
-> Pixelsense (formerly Surface 2.0). The device only has bulk endpoints
-> and consequently needs to be polled regularly. My beta driver uses
-> input-polldev for this, and it appears to work nicely, however, I
-> couldn't find out how input-polldev behaves if one polling cycle takes
-> longer than expected and a new poll would already be triggered while the
-> first one is still running?
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/hid/hid-wiimote-core.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-(CC'ing polldev author Dmitry in case I'm missing something)
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index 6602098..ad3ac57 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -441,8 +441,7 @@ static __u8 wiimote_cmd_read_ext(struct wiimote_data *wdata, __u8 *rmem)
+ 	if (ret != 6)
+ 		return WIIMOTE_EXT_NONE;
+ 
+-	hid_dbg(wdata->hdev, "extension ID: %02x:%02x %02x:%02x %02x:%02x\n",
+-		rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
++	hid_dbg(wdata->hdev, "extension ID: %6ph\n", rmem);
+ 
+ 	if (rmem[0] == 0xff && rmem[1] == 0xff && rmem[2] == 0xff &&
+ 	    rmem[3] == 0xff && rmem[4] == 0xff && rmem[5] == 0xff)
+@@ -512,14 +511,12 @@ static bool wiimote_cmd_read_mp(struct wiimote_data *wdata, __u8 *rmem)
+ 	if (ret != 6)
+ 		return false;
+ 
+-	hid_dbg(wdata->hdev, "motion plus ID: %02x:%02x %02x:%02x %02x:%02x\n",
+-		rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
++	hid_dbg(wdata->hdev, "motion plus ID: %6ph\n", rmem);
+ 
+ 	if (rmem[5] == 0x05)
+ 		return true;
+ 
+-	hid_info(wdata->hdev, "unknown motion plus ID: %02x:%02x %02x:%02x %02x:%02x\n",
+-		 rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
++	hid_info(wdata->hdev, "unknown motion plus ID: %6ph\n", rmem);
+ 
+ 	return false;
+ }
+@@ -535,8 +532,7 @@ static __u8 wiimote_cmd_read_mp_mapped(struct wiimote_data *wdata)
+ 	if (ret != 6)
+ 		return WIIMOTE_MP_NONE;
+ 
+-	hid_dbg(wdata->hdev, "mapped motion plus ID: %02x:%02x %02x:%02x %02x:%02x\n",
+-		rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
++	hid_dbg(wdata->hdev, "mapped motion plus ID: %6ph\n", rmem);
+ 
+ 	if (rmem[0] == 0xff && rmem[1] == 0xff && rmem[2] == 0xff &&
+ 	    rmem[3] == 0xff && rmem[4] == 0xff && rmem[5] == 0xff)
+@@ -1128,9 +1124,8 @@ static void wiimote_init_hotplug(struct wiimote_data *wdata)
+ 		wiimote_ext_unload(wdata);
+ 
+ 		if (exttype == WIIMOTE_EXT_UNKNOWN) {
+-			hid_info(wdata->hdev, "cannot detect extension; %02x:%02x %02x:%02x %02x:%02x\n",
+-				 extdata[0], extdata[1], extdata[2],
+-				 extdata[3], extdata[4], extdata[5]);
++			hid_info(wdata->hdev, "cannot detect extension; %6ph\n",
++				 extdata);
+ 		} else if (exttype == WIIMOTE_EXT_NONE) {
+ 			spin_lock_irq(&wdata->state.lock);
+ 			wdata->state.exttype = WIIMOTE_EXT_NONE;
+-- 
+1.8.4.rc3
 
-input-polldev uses the system-freezable-wq. The related code is
-./drivers/input/input-polldev.c:33:
-  queue_delayed_work(system_freezable_wq, &dev->work, delay);
-
-Since the wq-rewrite all default workqueues are non-reentrant. That
-is, the new work is still scheduled but only executed after the
-previous worker returned (in this case, once your ->poll() callback
-returns).
-
-Regards
-David

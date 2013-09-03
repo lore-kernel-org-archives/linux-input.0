@@ -1,79 +1,32 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2] hid-wiimote: print small buffers via %*phC
-Date: Tue,  3 Sep 2013 17:48:26 +0300
-Message-ID: <1378219706-20252-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH] input: allow SERIO=m even without EXPERT=y
+Date: Tue, 3 Sep 2013 16:02:26 +0100
+Message-ID: <20130903150226.GA2392@srcf.ucam.org>
+References: <1378147630-12471-1-git-send-email-teg@jklm.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:14331 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754119Ab3ICOsn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Sep 2013 10:48:43 -0400
+Received: from cavan.codon.org.uk ([93.93.128.6]:55862 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753815Ab3ICPCb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 11:02:31 -0400
+Content-Disposition: inline
+In-Reply-To: <1378147630-12471-1-git-send-email-teg@jklm.no>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Tom Gundersen <teg@jklm.no>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Instead of passing each byte through stack let's use %*phC specifier to dump
-buffer as a hex string.
+On Mon, Sep 02, 2013 at 08:47:10PM +0200, Tom Gundersen wrote:
+> There is plenty of consumer hardware (e.g., mac books) that does not use
+> AT keyboards or PS/2 mice. It therefore makes sense for distro kernels
+> to build the related drivers as modules to avoid loading them on hardware
+> that does not need them. As such, these options should no longer be protected
+> by EXPERT.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: David Herrmann <dh.herrmann@gmail.com>
----
- drivers/hid/hid-wiimote-core.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+There are systems (although, with luck, only *very* old ones) where the 
+modules won't get autoloaded. You should probably mention that in the 
+help text.
 
-diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index 6602098..abb20db 100644
---- a/drivers/hid/hid-wiimote-core.c
-+++ b/drivers/hid/hid-wiimote-core.c
-@@ -441,8 +441,7 @@ static __u8 wiimote_cmd_read_ext(struct wiimote_data *wdata, __u8 *rmem)
- 	if (ret != 6)
- 		return WIIMOTE_EXT_NONE;
- 
--	hid_dbg(wdata->hdev, "extension ID: %02x:%02x %02x:%02x %02x:%02x\n",
--		rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
-+	hid_dbg(wdata->hdev, "extension ID: %6phC\n", rmem);
- 
- 	if (rmem[0] == 0xff && rmem[1] == 0xff && rmem[2] == 0xff &&
- 	    rmem[3] == 0xff && rmem[4] == 0xff && rmem[5] == 0xff)
-@@ -512,14 +511,12 @@ static bool wiimote_cmd_read_mp(struct wiimote_data *wdata, __u8 *rmem)
- 	if (ret != 6)
- 		return false;
- 
--	hid_dbg(wdata->hdev, "motion plus ID: %02x:%02x %02x:%02x %02x:%02x\n",
--		rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
-+	hid_dbg(wdata->hdev, "motion plus ID: %6phC\n", rmem);
- 
- 	if (rmem[5] == 0x05)
- 		return true;
- 
--	hid_info(wdata->hdev, "unknown motion plus ID: %02x:%02x %02x:%02x %02x:%02x\n",
--		 rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
-+	hid_info(wdata->hdev, "unknown motion plus ID: %6phC\n", rmem);
- 
- 	return false;
- }
-@@ -535,8 +532,7 @@ static __u8 wiimote_cmd_read_mp_mapped(struct wiimote_data *wdata)
- 	if (ret != 6)
- 		return WIIMOTE_MP_NONE;
- 
--	hid_dbg(wdata->hdev, "mapped motion plus ID: %02x:%02x %02x:%02x %02x:%02x\n",
--		rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
-+	hid_dbg(wdata->hdev, "mapped motion plus ID: %6phC\n", rmem);
- 
- 	if (rmem[0] == 0xff && rmem[1] == 0xff && rmem[2] == 0xff &&
- 	    rmem[3] == 0xff && rmem[4] == 0xff && rmem[5] == 0xff)
-@@ -1128,9 +1124,8 @@ static void wiimote_init_hotplug(struct wiimote_data *wdata)
- 		wiimote_ext_unload(wdata);
- 
- 		if (exttype == WIIMOTE_EXT_UNKNOWN) {
--			hid_info(wdata->hdev, "cannot detect extension; %02x:%02x %02x:%02x %02x:%02x\n",
--				 extdata[0], extdata[1], extdata[2],
--				 extdata[3], extdata[4], extdata[5]);
-+			hid_info(wdata->hdev, "cannot detect extension; %6phC\n",
-+				 extdata);
- 		} else if (exttype == WIIMOTE_EXT_NONE) {
- 			spin_lock_irq(&wdata->state.lock);
- 			wdata->state.exttype = WIIMOTE_EXT_NONE;
 -- 
-1.8.4.rc3
-
+Matthew Garrett | mjg59@srcf.ucam.org

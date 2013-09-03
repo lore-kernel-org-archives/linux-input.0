@@ -1,65 +1,56 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: Re: [PATCH] input: allow SERIO=m even without EXPERT=y
-Date: Mon, 2 Sep 2013 23:46:00 +0200
-Message-ID: <CAG-2HqX62iR_2fyFGAdTavL43EVLQ=cAoEArfKCkTVmxaEWQuw@mail.gmail.com>
-References: <1378147630-12471-1-git-send-email-teg@jklm.no>
- <CAFLxGvy+oBg-Qbd_8wL-86ODpB9fand2aVcyVcRRLarRe40wSw@mail.gmail.com> <CAMuHMdU1Dt2KOJny78d2DdprHwF5cOQEMGDm7rVDMRyL1jTAsA@mail.gmail.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Behaviour of input-polldev?
+Date: Tue, 03 Sep 2013 13:39:17 +0200
+Message-ID: <5225CA65.7030104@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="3GQ0qINcP1eNh4piK8kVhRn0Ikv9WPEJN"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f43.google.com ([209.85.214.43]:38438 "EHLO
-	mail-bk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759026Ab3IBVqW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Sep 2013 17:46:22 -0400
-Received: by mail-bk0-f43.google.com with SMTP id mz13so1763215bkb.2
-        for <linux-input@vger.kernel.org>; Mon, 02 Sep 2013 14:46:20 -0700 (PDT)
-In-Reply-To: <CAMuHMdU1Dt2KOJny78d2DdprHwF5cOQEMGDm7rVDMRyL1jTAsA@mail.gmail.com>
+Received: from butterbrot.org ([176.9.106.16]:33969 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932597Ab3ICLrQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Sep 2013 07:47:16 -0400
+Received: from [192.168.178.30] (ppp-188-174-14-6.dynamic.mnet-online.de [188.174.14.6])
+	(using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by butterbrot.org (Postfix) with ESMTPSA id B44BDC00214
+	for <linux-input@vger.kernel.org>; Tue,  3 Sep 2013 13:39:18 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: richard -rw- weinberger <richard.weinberger@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input <linux-input@vger.kernel.org>
 
-On Mon, Sep 2, 2013 at 11:30 PM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> On Mon, Sep 2, 2013 at 11:01 PM, richard -rw- weinberger
-> <richard.weinberger@gmail.com> wrote:
->> On Mon, Sep 2, 2013 at 8:47 PM, Tom Gundersen <teg@jklm.no> wrote:
->>> There is plenty of consumer hardware (e.g., mac books) that does not use
->>> AT keyboards or PS/2 mice. It therefore makes sense for distro kernels
->>> to build the related drivers as modules to avoid loading them on hardware
->>> that does not need them. As such, these options should no longer be protected
->>> by EXPERT.
->>>
->>> Moreover, building these drivers as modules gets rid of the following ugly
->>> error during boot:
->>>
->>> [    2.337745] i8042: PNP: No PS/2 controller found. Probing ports directly.
->>> [    3.439537] i8042: No controller found
->>>
->>> Signed-off-by: Tom Gundersen <teg@jklm.no>
->>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>> ---
->>>  drivers/input/keyboard/Kconfig | 4 ++--
->>>  drivers/input/serio/Kconfig    | 6 +++---
->>>  2 files changed, 5 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
->>> index 269d4c3..2d31cec 100644
->>> --- a/drivers/input/keyboard/Kconfig
->>> +++ b/drivers/input/keyboard/Kconfig
->>> @@ -2,7 +2,7 @@
->>>  # Input core configuration
->>>  #
->>>  menuconfig INPUT_KEYBOARD
->>> -       bool "Keyboards" if EXPERT || !X86
->>> +       bool "Keyboards"
->>
->> Maybe this a stupid question, but why are you dropping the "!X86" too?
->
-> Because the "if EXPERT" only mattered for X86.
->
-> Apply De Morgan and it read like "do not ask the question if !EXPERT && X86".
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--3GQ0qINcP1eNh4piK8kVhRn0Ikv9WPEJN
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Precisely.
+Hello everyone,
 
--t
+I'm in the process of writing an input driver for the Microsoft
+Pixelsense (formerly Surface 2.0). The device only has bulk endpoints
+and consequently needs to be polled regularly. My beta driver uses
+input-polldev for this, and it appears to work nicely, however, I
+couldn't find out how input-polldev behaves if one polling cycle takes
+longer than expected and a new poll would already be triggered while the
+first one is still running?
+
+Thanks & BR, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
+
+
+--3GQ0qINcP1eNh4piK8kVhRn0Ikv9WPEJN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlIlymUACgkQ7CzyshGvath5RwCg2gTC9e3TAfX/6d8QNANecTtr
+3yoAoOKz0R2bSJzl7laTZ9pxeueRxPtc
+=wYIA
+-----END PGP SIGNATURE-----
+
+--3GQ0qINcP1eNh4piK8kVhRn0Ikv9WPEJN--

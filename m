@@ -1,54 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Behaviour of input-polldev?
-Date: Tue, 3 Sep 2013 11:03:37 -0700
-Message-ID: <20130903180337.GA25985@core.coreip.homeip.net>
-References: <5225CA65.7030104@butterbrot.org>
- <CANq1E4Tr4gigvtTA7mqDgqjGfjGaLM477D2uW4qdFGkySaGPWA@mail.gmail.com>
+Subject: Re: [PATCH] HID: Correct the USB IDs for the new Macbook Air 6
+Date: Tue, 3 Sep 2013 11:04:16 -0700
+Message-ID: <20130903180416.GB25985@core.coreip.homeip.net>
+References: <1378042304-1400-1-git-send-email-rydberg@euromail.se>
+ <alpine.LNX.2.00.1309021329510.3796@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f181.google.com ([209.85.192.181]:42133 "EHLO
-	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759413Ab3ICSDp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 14:03:45 -0400
-Received: by mail-pd0-f181.google.com with SMTP id g10so6319847pdj.26
-        for <linux-input@vger.kernel.org>; Tue, 03 Sep 2013 11:03:44 -0700 (PDT)
+Received: from mail-pa0-f54.google.com ([209.85.220.54]:34748 "EHLO
+	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757048Ab3ICSET (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 14:04:19 -0400
 Content-Disposition: inline
-In-Reply-To: <CANq1E4Tr4gigvtTA7mqDgqjGfjGaLM477D2uW4qdFGkySaGPWA@mail.gmail.com>
+In-Reply-To: <alpine.LNX.2.00.1309021329510.3796@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Florian Echtler <floe@butterbrot.org>, linux-input <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Sep 03, 2013 at 01:54:45PM +0200, David Herrmann wrote:
-> Hi Florian
+On Mon, Sep 02, 2013 at 01:30:07PM +0200, Jiri Kosina wrote:
+> On Sun, 1 Sep 2013, Henrik Rydberg wrote:
 > 
-> On Tue, Sep 3, 2013 at 1:39 PM, Florian Echtler <floe@butterbrot.org> wrote:
-> > Hello everyone,
-> >
-> > I'm in the process of writing an input driver for the Microsoft
-> > Pixelsense (formerly Surface 2.0). The device only has bulk endpoints
-> > and consequently needs to be polled regularly. My beta driver uses
-> > input-polldev for this, and it appears to work nicely, however, I
-> > couldn't find out how input-polldev behaves if one polling cycle takes
-> > longer than expected and a new poll would already be triggered while the
-> > first one is still running?
+> > A recent patch (9d9a04ee) added support for the new machine, but got
+> > the sequence of USB ids wrong. Reports from both Ian and Linus T show
+> > that the 0x0291 id is for ISO, not ANSI, which should have the missing
+> > number 0x0290. This patchs moves the three numbers accordingly, fixing
+> > the problem.
+> > 
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Reported-and-tested-by: Ian Munsie <darkstarsword@gmail.com>
+> > Tested-by: Linus G Thiel <linus@hanssonlarsson.se>
+> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> > ---
+> > Hi Jiri, Dmitry,
+> > 
+> > it looks like this change has been sufficiently tested now, in
+> > addition to making perfect sense. Jiri, would you mind taking it, if
+> > Dmitry approves?
+> 
+> Absolutely ... waiting for Dmitry's Ack.
 
-With input-polldev new poll can not get scheduled until driver's poll()
-method returns:
+And here it is:
 
-static void input_polled_device_work(struct work_struct *work)
-{
-	struct input_polled_dev *dev =
-		container_of(work, struct input_polled_dev, work.work);
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-	dev->poll(dev);
-	input_polldev_queue_work(dev);
-}
-
-The expectation here is that poll function is quick and does not
-introduce much skew into scheduling of polls (although of course error
-is accumulating).
+Thanks.
 
 -- 
 Dmitry

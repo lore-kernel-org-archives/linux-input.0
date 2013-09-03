@@ -1,99 +1,79 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: Re: [PATCH 1/2] input: allow SERIO=m even without EXPERT=y
-Date: Tue, 3 Sep 2013 15:41:15 +0200
-Message-ID: <CAG-2HqVqDTEX=-AAb-3J8ZFv9imKcCBoxQaQt0o3vb7BTiz8tQ@mail.gmail.com>
-References: <1378215656-11827-1-git-send-email-teg@jklm.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2] hid-wiimote: print small buffers via %*phC
+Date: Tue,  3 Sep 2013 17:48:26 +0300
+Message-ID: <1378219706-20252-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f54.google.com ([209.85.214.54]:39490 "EHLO
-	mail-bk0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932928Ab3ICNlh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 09:41:37 -0400
-Received: by mail-bk0-f54.google.com with SMTP id mz12so2182028bkb.27
-        for <linux-input@vger.kernel.org>; Tue, 03 Sep 2013 06:41:36 -0700 (PDT)
-In-Reply-To: <1378215656-11827-1-git-send-email-teg@jklm.no>
+Received: from mga09.intel.com ([134.134.136.24]:14331 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754119Ab3ICOsn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Sep 2013 10:48:43 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Tom Gundersen <teg@jklm.no>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Sorry, this resend was accidental, please ignore. I only intended to
-send patch 2/2.
+Instead of passing each byte through stack let's use %*phC specifier to dump
+buffer as a hex string.
 
-On Tue, Sep 3, 2013 at 3:40 PM, Tom Gundersen <teg@jklm.no> wrote:
-> There is plenty of consumer hardware (e.g., mac books) that does not use
-> AT keyboards or PS/2 mice. It therefore makes sense for distro kernels
-> to build the related drivers as modules to avoid loading them on hardware
-> that does not need them. As such, these options should no longer be protected
-> by EXPERT.
->
-> Moreover, building these drivers as modules gets rid of the following ugly
-> error during boot:
->
-> [    2.337745] i8042: PNP: No PS/2 controller found. Probing ports directly.
-> [    3.439537] i8042: No controller found
->
-> Signed-off-by: Tom Gundersen <teg@jklm.no>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/keyboard/Kconfig | 4 ++--
->  drivers/input/serio/Kconfig    | 6 +++---
->  2 files changed, 5 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 269d4c3..2d31cec 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -2,7 +2,7 @@
->  # Input core configuration
->  #
->  menuconfig INPUT_KEYBOARD
-> -       bool "Keyboards" if EXPERT || !X86
-> +       bool "Keyboards"
->         default y
->         help
->           Say Y here, and a list of supported keyboards will be displayed.
-> @@ -67,7 +67,7 @@ config KEYBOARD_ATARI
->           module will be called atakbd.
->
->  config KEYBOARD_ATKBD
-> -       tristate "AT keyboard" if EXPERT || !X86
-> +       tristate "AT keyboard"
->         default y
->         select SERIO
->         select SERIO_LIBPS2
-> diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-> index 1e691a3..39c869d 100644
-> --- a/drivers/input/serio/Kconfig
-> +++ b/drivers/input/serio/Kconfig
-> @@ -2,7 +2,7 @@
->  # Input core configuration
->  #
->  config SERIO
-> -       tristate "Serial I/O support" if EXPERT || !X86
-> +       tristate "Serial I/O support"
->         default y
->         help
->           Say Yes here if you have any input device that uses serial I/O to
-> @@ -19,7 +19,7 @@ config SERIO
->  if SERIO
->
->  config SERIO_I8042
-> -       tristate "i8042 PC Keyboard controller" if EXPERT || !X86
-> +       tristate "i8042 PC Keyboard controller"
->         default y
->         depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
->                    (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN && !S390 && \
-> @@ -170,7 +170,7 @@ config SERIO_MACEPS2
->           module will be called maceps2.
->
->  config SERIO_LIBPS2
-> -       tristate "PS/2 driver library" if EXPERT
-> +       tristate "PS/2 driver library"
->         depends on SERIO_I8042 || SERIO_I8042=n
->         help
->           Say Y here if you are using a driver for device connected
-> --
-> 1.8.4
->
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ drivers/hid/hid-wiimote-core.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index 6602098..abb20db 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -441,8 +441,7 @@ static __u8 wiimote_cmd_read_ext(struct wiimote_data *wdata, __u8 *rmem)
+ 	if (ret != 6)
+ 		return WIIMOTE_EXT_NONE;
+ 
+-	hid_dbg(wdata->hdev, "extension ID: %02x:%02x %02x:%02x %02x:%02x\n",
+-		rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
++	hid_dbg(wdata->hdev, "extension ID: %6phC\n", rmem);
+ 
+ 	if (rmem[0] == 0xff && rmem[1] == 0xff && rmem[2] == 0xff &&
+ 	    rmem[3] == 0xff && rmem[4] == 0xff && rmem[5] == 0xff)
+@@ -512,14 +511,12 @@ static bool wiimote_cmd_read_mp(struct wiimote_data *wdata, __u8 *rmem)
+ 	if (ret != 6)
+ 		return false;
+ 
+-	hid_dbg(wdata->hdev, "motion plus ID: %02x:%02x %02x:%02x %02x:%02x\n",
+-		rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
++	hid_dbg(wdata->hdev, "motion plus ID: %6phC\n", rmem);
+ 
+ 	if (rmem[5] == 0x05)
+ 		return true;
+ 
+-	hid_info(wdata->hdev, "unknown motion plus ID: %02x:%02x %02x:%02x %02x:%02x\n",
+-		 rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
++	hid_info(wdata->hdev, "unknown motion plus ID: %6phC\n", rmem);
+ 
+ 	return false;
+ }
+@@ -535,8 +532,7 @@ static __u8 wiimote_cmd_read_mp_mapped(struct wiimote_data *wdata)
+ 	if (ret != 6)
+ 		return WIIMOTE_MP_NONE;
+ 
+-	hid_dbg(wdata->hdev, "mapped motion plus ID: %02x:%02x %02x:%02x %02x:%02x\n",
+-		rmem[0], rmem[1], rmem[2], rmem[3], rmem[4], rmem[5]);
++	hid_dbg(wdata->hdev, "mapped motion plus ID: %6phC\n", rmem);
+ 
+ 	if (rmem[0] == 0xff && rmem[1] == 0xff && rmem[2] == 0xff &&
+ 	    rmem[3] == 0xff && rmem[4] == 0xff && rmem[5] == 0xff)
+@@ -1128,9 +1124,8 @@ static void wiimote_init_hotplug(struct wiimote_data *wdata)
+ 		wiimote_ext_unload(wdata);
+ 
+ 		if (exttype == WIIMOTE_EXT_UNKNOWN) {
+-			hid_info(wdata->hdev, "cannot detect extension; %02x:%02x %02x:%02x %02x:%02x\n",
+-				 extdata[0], extdata[1], extdata[2],
+-				 extdata[3], extdata[4], extdata[5]);
++			hid_info(wdata->hdev, "cannot detect extension; %6phC\n",
++				 extdata);
+ 		} else if (exttype == WIIMOTE_EXT_NONE) {
+ 			spin_lock_irq(&wdata->state.lock);
+ 			wdata->state.exttype = WIIMOTE_EXT_NONE;
+-- 
+1.8.4.rc3
+

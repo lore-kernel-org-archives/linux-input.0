@@ -1,46 +1,54 @@
-From: Andrey Moiseev <o2g.org.ru@gmail.com>
-Subject: input: i8042 possible bug
-Date: Tue, 03 Sep 2013 21:39:10 +0400
-Message-ID: <52261EBE.5010007@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Behaviour of input-polldev?
+Date: Tue, 3 Sep 2013 11:03:37 -0700
+Message-ID: <20130903180337.GA25985@core.coreip.homeip.net>
+References: <5225CA65.7030104@butterbrot.org>
+ <CANq1E4Tr4gigvtTA7mqDgqjGfjGaLM477D2uW4qdFGkySaGPWA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:42133 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759413Ab3ICSDp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 14:03:45 -0400
+Received: by mail-pd0-f181.google.com with SMTP id g10so6319847pdj.26
+        for <linux-input@vger.kernel.org>; Tue, 03 Sep 2013 11:03:44 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CANq1E4Tr4gigvtTA7mqDgqjGfjGaLM477D2uW4qdFGkySaGPWA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Florian Echtler <floe@butterbrot.org>, linux-input <linux-input@vger.kernel.org>
 
-Here is an extract from drivers/input/serio/i8042.c:
+On Tue, Sep 03, 2013 at 01:54:45PM +0200, David Herrmann wrote:
+> Hi Florian
 > 
-> static int i8042_flush(void)
-> {
-> 	unsigned long flags;
-> 	unsigned char data, str;
-> 	int i = 0;
-> 
-> 	spin_lock_irqsave(&i8042_lock, flags);
-> 
-> 	while (((str = i8042_read_status()) & I8042_STR_OBF) && (i < I8042_BUFFER_SIZE)) {
-> 		udelay(50);
-> 		data = i8042_read_data();
-> 		i++;
-> 		dbg("%02x <- i8042 (flush, %s)\n",
-> 		    data, str & I8042_STR_AUXDATA ? "aux" : "kbd");
-> 	}
-> 
-> 	spin_unlock_irqrestore(&i8042_lock, flags);
-> 
-> 	return i;
-> }
-> 
-> static int i8042_controller_check(void)
-> {
-> 	if (i8042_flush() == I8042_BUFFER_SIZE) {
-Doesn't it panic needlessly, while the buffer was initially full?
-> 		pr_err("No controller found\n");
-> 		return -ENODEV;
-> 	}
-> 
-> 	return 0;
-> }
+> On Tue, Sep 3, 2013 at 1:39 PM, Florian Echtler <floe@butterbrot.org> wrote:
+> > Hello everyone,
+> >
+> > I'm in the process of writing an input driver for the Microsoft
+> > Pixelsense (formerly Surface 2.0). The device only has bulk endpoints
+> > and consequently needs to be polled regularly. My beta driver uses
+> > input-polldev for this, and it appears to work nicely, however, I
+> > couldn't find out how input-polldev behaves if one polling cycle takes
+> > longer than expected and a new poll would already be triggered while the
+> > first one is still running?
+
+With input-polldev new poll can not get scheduled until driver's poll()
+method returns:
+
+static void input_polled_device_work(struct work_struct *work)
+{
+	struct input_polled_dev *dev =
+		container_of(work, struct input_polled_dev, work.work);
+
+	dev->poll(dev);
+	input_polldev_queue_work(dev);
+}
+
+The expectation here is that poll function is quick and does not
+introduce much skew into scheduling of polls (although of course error
+is accumulating).
+
+-- 
+Dmitry

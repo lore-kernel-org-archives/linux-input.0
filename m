@@ -1,13 +1,13 @@
 From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4/7] HID: steelseries: validate output report details
-Date: Wed,  4 Sep 2013 09:37:22 -0700
-Message-ID: <1378312645-27736-5-git-send-email-keescook@chromium.org>
+Subject: [PATCH 5/7] HID: LG: validate HID output report details
+Date: Wed,  4 Sep 2013 09:37:23 -0700
+Message-ID: <1378312645-27736-6-git-send-email-keescook@chromium.org>
 References: <1378312645-27736-1-git-send-email-keescook@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.outflux.net ([198.145.64.163]:52821 "EHLO smtp.outflux.net"
+Received: from smtp.outflux.net ([198.145.64.163]:52482 "EHLO smtp.outflux.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964888Ab3IDQhn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Sep 2013 12:37:43 -0400
+	id S964892Ab3IDQho (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Sep 2013 12:37:44 -0400
 In-Reply-To: <1378312645-27736-1-git-send-email-keescook@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -15,37 +15,189 @@ To: linux-input@vger.kernel.org
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Kees Cook <keescook@chromium.org>, stable@kernel.org
 
 A HID device could send a malicious output report that would cause the
-steelseries HID driver to write beyond the output report allocation
-during initialization, causing a heap overflow:
+lg, lg3, and lg4 HID drivers to write beyond the output report allocation
+during an event, causing a heap overflow:
 
-[  167.981534] usb 1-1: New USB device found, idVendor=1038, idProduct=1410
+[  325.245240] usb 1-1: New USB device found, idVendor=046d, idProduct=c287
 ...
-[  182.050547] BUG kmalloc-256 (Tainted: G        W   ): Redzone overwritten
+[  414.518960] BUG kmalloc-4096 (Not tainted): Redzone overwritten
 
-CVE-2013-2891
+Additionally, while lg2 did correctly validate the report details, it was
+cleaned up and shortened.
+
+CVE-2013-2893
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@kernel.org
 ---
- drivers/hid/hid-steelseries.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/hid-lg2ff.c |   19 +++----------------
+ drivers/hid/hid-lg3ff.c |   29 ++++++-----------------------
+ drivers/hid/hid-lg4ff.c |   20 +-------------------
+ drivers/hid/hid-lgff.c  |   17 ++---------------
+ 4 files changed, 12 insertions(+), 73 deletions(-)
 
-diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-index d164911..29f328f 100644
---- a/drivers/hid/hid-steelseries.c
-+++ b/drivers/hid/hid-steelseries.c
-@@ -249,6 +249,11 @@ static int steelseries_srws1_probe(struct hid_device *hdev,
- 		goto err_free;
- 	}
+diff --git a/drivers/hid/hid-lg2ff.c b/drivers/hid/hid-lg2ff.c
+index b3cd150..1a42eaa 100644
+--- a/drivers/hid/hid-lg2ff.c
++++ b/drivers/hid/hid-lg2ff.c
+@@ -64,26 +64,13 @@ int lg2ff_init(struct hid_device *hid)
+ 	struct hid_report *report;
+ 	struct hid_input *hidinput = list_entry(hid->inputs.next,
+ 						struct hid_input, list);
+-	struct list_head *report_list =
+-			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
+ 	struct input_dev *dev = hidinput->input;
+ 	int error;
  
-+	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 16)) {
-+		ret = -ENODEV;
-+		goto err_free;
-+	}
-+
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (ret) {
- 		hid_err(hdev, "hw start failed\n");
+-	if (list_empty(report_list)) {
+-		hid_err(hid, "no output report found\n");
++	/* Check that the report looks ok */
++	report = hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 7);
++	if (!report)
+ 		return -ENODEV;
+-	}
+-
+-	report = list_entry(report_list->next, struct hid_report, list);
+-
+-	if (report->maxfield < 1) {
+-		hid_err(hid, "output report is empty\n");
+-		return -ENODEV;
+-	}
+-	if (report->field[0]->report_count < 7) {
+-		hid_err(hid, "not enough values in the field\n");
+-		return -ENODEV;
+-	}
+ 
+ 	lg2ff = kmalloc(sizeof(struct lg2ff_device), GFP_KERNEL);
+ 	if (!lg2ff)
+diff --git a/drivers/hid/hid-lg3ff.c b/drivers/hid/hid-lg3ff.c
+index e52f181..8c2da18 100644
+--- a/drivers/hid/hid-lg3ff.c
++++ b/drivers/hid/hid-lg3ff.c
+@@ -66,10 +66,11 @@ static int hid_lg3ff_play(struct input_dev *dev, void *data,
+ 	int x, y;
+ 
+ /*
+- * Maxusage should always be 63 (maximum fields)
+- * likely a better way to ensure this data is clean
++ * Available values in the field should always be 63, but we only use up to
++ * 35. Instead, clear the entire area, however big it is.
+  */
+-	memset(report->field[0]->value, 0, sizeof(__s32)*report->field[0]->maxusage);
++	memset(report->field[0]->value, 0,
++	       sizeof(__s32) * report->field[0]->report_count);
+ 
+ 	switch (effect->type) {
+ 	case FF_CONSTANT:
+@@ -129,32 +130,14 @@ static const signed short ff3_joystick_ac[] = {
+ int lg3ff_init(struct hid_device *hid)
+ {
+ 	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
+-	struct list_head *report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
+ 	struct input_dev *dev = hidinput->input;
+-	struct hid_report *report;
+-	struct hid_field *field;
+ 	const signed short *ff_bits = ff3_joystick_ac;
+ 	int error;
+ 	int i;
+ 
+-	/* Find the report to use */
+-	if (list_empty(report_list)) {
+-		hid_err(hid, "No output report found\n");
+-		return -1;
+-	}
+-
+ 	/* Check that the report looks ok */
+-	report = list_entry(report_list->next, struct hid_report, list);
+-	if (!report) {
+-		hid_err(hid, "NULL output report\n");
+-		return -1;
+-	}
+-
+-	field = report->field[0];
+-	if (!field) {
+-		hid_err(hid, "NULL field\n");
+-		return -1;
+-	}
++	if (!hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 35))
++		return -ENODEV;
+ 
+ 	/* Assume single fixed device G940 */
+ 	for (i = 0; ff_bits[i] >= 0; i++)
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 0ddae2a..8782fe1 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -484,34 +484,16 @@ static enum led_brightness lg4ff_led_get_brightness(struct led_classdev *led_cde
+ int lg4ff_init(struct hid_device *hid)
+ {
+ 	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
+-	struct list_head *report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
+ 	struct input_dev *dev = hidinput->input;
+-	struct hid_report *report;
+-	struct hid_field *field;
+ 	struct lg4ff_device_entry *entry;
+ 	struct lg_drv_data *drv_data;
+ 	struct usb_device_descriptor *udesc;
+ 	int error, i, j;
+ 	__u16 bcdDevice, rev_maj, rev_min;
+ 
+-	/* Find the report to use */
+-	if (list_empty(report_list)) {
+-		hid_err(hid, "No output report found\n");
+-		return -1;
+-	}
+-
+ 	/* Check that the report looks ok */
+-	report = list_entry(report_list->next, struct hid_report, list);
+-	if (!report) {
+-		hid_err(hid, "NULL output report\n");
++	if (!hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 7))
+ 		return -1;
+-	}
+-
+-	field = report->field[0];
+-	if (!field) {
+-		hid_err(hid, "NULL field\n");
+-		return -1;
+-	}
+ 
+ 	/* Check what wheel has been connected */
+ 	for (i = 0; i < ARRAY_SIZE(lg4ff_devices); i++) {
+diff --git a/drivers/hid/hid-lgff.c b/drivers/hid/hid-lgff.c
+index d7ea8c8..e1394af 100644
+--- a/drivers/hid/hid-lgff.c
++++ b/drivers/hid/hid-lgff.c
+@@ -128,27 +128,14 @@ static void hid_lgff_set_autocenter(struct input_dev *dev, u16 magnitude)
+ int lgff_init(struct hid_device* hid)
+ {
+ 	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
+-	struct list_head *report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
+ 	struct input_dev *dev = hidinput->input;
+-	struct hid_report *report;
+-	struct hid_field *field;
+ 	const signed short *ff_bits = ff_joystick;
+ 	int error;
+ 	int i;
+ 
+-	/* Find the report to use */
+-	if (list_empty(report_list)) {
+-		hid_err(hid, "No output report found\n");
+-		return -1;
+-	}
+-
+ 	/* Check that the report looks ok */
+-	report = list_entry(report_list->next, struct hid_report, list);
+-	field = report->field[0];
+-	if (!field) {
+-		hid_err(hid, "NULL field\n");
+-		return -1;
+-	}
++	if (!hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 7))
++		return -ENODEV;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(devices); i++) {
+ 		if (dev->id.vendor == devices[i].idVendor &&
 -- 
 1.7.9.5
 

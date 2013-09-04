@@ -1,56 +1,121 @@
 From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 6/7] HID: lenovo-tpkbd: validate output report details
-Date: Wed,  4 Sep 2013 09:37:24 -0700
-Message-ID: <1378312645-27736-7-git-send-email-keescook@chromium.org>
+Subject: [PATCH 1/7] HID: provide a helper for validating hid reports
+Date: Wed,  4 Sep 2013 09:37:19 -0700
+Message-ID: <1378312645-27736-2-git-send-email-keescook@chromium.org>
 References: <1378312645-27736-1-git-send-email-keescook@chromium.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.outflux.net ([198.145.64.163]:39559 "EHLO smtp.outflux.net"
+Received: from smtp.outflux.net ([198.145.64.163]:40349 "EHLO smtp.outflux.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S964880Ab3IDQhn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Sep 2013 12:37:43 -0400
+	id S964853Ab3IDQhp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Sep 2013 12:37:45 -0400
 In-Reply-To: <1378312645-27736-1-git-send-email-keescook@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, Kees Cook <keescook@chromium.org>, stable@kernel.org
 
-A HID device could send a malicious output report that would cause the
-lenovo-tpkbd HID driver to write just beyond the output report allocation
-during initialization, causing a heap overflow:
-
-[   76.109807] usb 1-1: New USB device found, idVendor=17ef, idProduct=6009
-...
-[   80.462540] BUG kmalloc-192 (Tainted: G        W   ): Redzone overwritten
-
-CVE-2013-2894
+Many drivers need to validate the characteristics of their HID report
+during initialization to avoid misusing the reports. This adds a common
+helper to perform validation of the report exisitng, the field existing,
+and the expected number of values within the field.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@kernel.org
----
- drivers/hid/hid-lenovo-tpkbd.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-lenovo-tpkbd.c b/drivers/hid/hid-lenovo-tpkbd.c
-index 07837f5..f458e76 100644
---- a/drivers/hid/hid-lenovo-tpkbd.c
-+++ b/drivers/hid/hid-lenovo-tpkbd.c
-@@ -339,7 +339,15 @@ static int tpkbd_probe_tp(struct hid_device *hdev)
- 	struct tpkbd_data_pointer *data_pointer;
- 	size_t name_sz = strlen(dev_name(dev)) + 16;
- 	char *name_mute, *name_micmute;
--	int ret;
-+	int i, ret;
-+
-+	/* Validate required reports. */
-+	for (i = 0; i < 4; i++) {
-+		if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 4, i, 1))
-+			return -ENODEV;
-+	}
-+	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 3, 0, 2))
-+		return -ENODEV;
+---
+v2:
+ - suggestions from Benjamin Tissoires:
+  - check id too, just to be double-safe.
+  - updated to check a specific field, moving the for loop to callers.
+---
+ drivers/hid/hid-core.c |   58 ++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/hid.h    |    4 ++++
+ 2 files changed, 62 insertions(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 21e3b9d..dc23284 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -759,6 +759,64 @@ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size)
+ }
+ EXPORT_SYMBOL_GPL(hid_parse_report);
  
- 	if (sysfs_create_group(&hdev->dev.kobj,
- 				&tpkbd_attr_group_pointer)) {
++static const char * const hid_report_names[] = {
++	"HID_INPUT_REPORT",
++	"HID_OUTPUT_REPORT",
++	"HID_FEATURE_REPORT",
++};
++/**
++ * hid_validate_values - validate existing device report's value indexes
++ *
++ * @device: hid device
++ * @type: which report type to examine
++ * @id: which report ID to examine (0 for first)
++ * @field_index: which report field to examine
++ * @report_counts: expected number of values
++ *
++ * Validate the number of values in a given field of a given report, after
++ * parsing.
++ */
++struct hid_report *hid_validate_values(struct hid_device *hid,
++				       unsigned int type, unsigned int id,
++				       unsigned int field_index,
++				       unsigned int report_counts)
++{
++	struct hid_report *report;
++
++	if (type > HID_FEATURE_REPORT) {
++		hid_err(hid, "invalid HID report type %u\n", type);
++		return NULL;
++	}
++
++	if (id >= HID_MAX_IDS) {
++		hid_err(hid, "invalid HID report id %u\n", id);
++		return NULL;
++	}
++
++	/*
++	 * Explicitly not using hid_get_report() here since it depends on
++	 * ->numbered being checked, which may not always be the case when
++	 * drivers go to access report values.
++	 */
++	report = hid->report_enum[type].report_id_hash[id];
++	if (!report) {
++		hid_err(hid, "missing %s %u\n", hid_report_names[type], id);
++		return NULL;
++	}
++	if (report->maxfield <= field_index) {
++		hid_err(hid, "not enough fields in %s %u\n",
++			hid_report_names[type], id);
++		return NULL;
++	}
++	if (report->field[field_index]->report_count < report_counts) {
++		hid_err(hid, "not enough values in %s %u field %u\n",
++			hid_report_names[type], id, field_index);
++		return NULL;
++	}
++	return report;
++}
++EXPORT_SYMBOL_GPL(hid_validate_values);
++
+ /**
+  * hid_open_report - open a driver-specific device report
+  *
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index ff545cc..6e18550 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -749,6 +749,10 @@ void hid_output_report(struct hid_report *report, __u8 *data);
+ struct hid_device *hid_allocate_device(void);
+ struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
+ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size);
++struct hid_report *hid_validate_values(struct hid_device *hid,
++				       unsigned int type, unsigned int id,
++				       unsigned int field_index,
++				       unsigned int report_counts);
+ int hid_open_report(struct hid_device *device);
+ int hid_check_keys_pressed(struct hid_device *hid);
+ int hid_connect(struct hid_device *hid, unsigned int connect_mask);
 -- 
 1.7.9.5
 

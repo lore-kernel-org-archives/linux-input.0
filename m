@@ -1,41 +1,65 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 11/14] HID: multitouch: validate feature report details
-Date: Wed, 4 Sep 2013 11:57:24 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309041155460.3684@pobox.suse.cz>
-References: <alpine.LNX.2.00.1308282221440.22181@pobox.suse.cz> <521F0D5F.7040108@redhat.com> <CAGXu5jKkzWmMZeckmO6BeKnJs-AjrFuZvqWNxDa6Rjb7UzAeyw@mail.gmail.com> <CAN+gG=EvuO4R2d=bj=_9aWo1e96ee_i0sqSDJNd=3h+dVf=oWQ@mail.gmail.com>
- <CAGXu5jKAob5s1vs5s974QsJWdje2rQgyz=PVACxW3aWiJWiEEA@mail.gmail.com> <CAN+gG=Fx5bjcPndRSBBJTvZFC2GOegigkzL3De8iK7vauiPq1g@mail.gmail.com>
+Subject: Re: [PATCH 06/14] HID: pantherlord: validate output report details
+Date: Wed, 4 Sep 2013 11:58:44 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309041158330.3684@pobox.suse.cz>
+References: <alpine.LNX.2.00.1308282218580.22181@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47924 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:47962 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934478Ab3IDJ51 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Sep 2013 05:57:27 -0400
-In-Reply-To: <CAN+gG=Fx5bjcPndRSBBJTvZFC2GOegigkzL3De8iK7vauiPq1g@mail.gmail.com>
+	id S934478Ab3IDJ6r (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Sep 2013 05:58:47 -0400
+In-Reply-To: <alpine.LNX.2.00.1308282218580.22181@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Kees Cook <keescook@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>
+To: linux-input@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>
 
-On Mon, 2 Sep 2013, Benjamin Tissoires wrote:
+On Wed, 28 Aug 2013, Jiri Kosina wrote:
 
-> > Given the 12 flaws, what do you see as the best way forward?
+> From: Kees Cook <keescook@chromium.org>
 > 
-> If Jiri thinks we can wait one more week for some of these patches (I
-> know that the most critical one, 1/14 is already on its way to Linus),
-> then I can handle the v2, but not before Friday. Again, I think the
-> current patch series is perfectly fine for distributions as they can
-> add/remove things more easily than we can do in master.
+> A HID device could send a malicious output report that would cause the
+> pantherlord HID driver to write beyond the output report allocation
+> during initialization, causing a heap overflow:
+> 
+> [  310.939483] usb 1-1: New USB device found, idVendor=0e8f, idProduct=0003
+> ...
+> [  315.980774] BUG kmalloc-192 (Tainted: G        W   ): Redzone overwritten
+> 
+> CVE-2013-2892
 
-I agree.
+Applying this one, thanks.
 
-1/14 will go to Linus shortly. The rest is public, and distributions are 
-taking it depending on their requirements, but I'd like to have the 
-patchset polished before pushing it to Linus.
-
-Therefore putting the rest on hold now, and waiting for v2.
-
-Thanks a lot to both of you,
+> 
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Cc: stable@kernel.org
+> ---
+>  drivers/hid/hid-pl.c |   10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
+> index d29112f..2dcd7d9 100644
+> --- a/drivers/hid/hid-pl.c
+> +++ b/drivers/hid/hid-pl.c
+> @@ -132,8 +132,14 @@ static int plff_init(struct hid_device *hid)
+>  			strong = &report->field[0]->value[2];
+>  			weak = &report->field[0]->value[3];
+>  			debug("detected single-field device");
+> -		} else if (report->maxfield >= 4 && report->field[0]->maxusage == 1 &&
+> -				report->field[0]->usage[0].hid == (HID_UP_LED | 0x43)) {
+> +		} else if (report->field[0]->maxusage == 1 &&
+> +			   report->field[0]->usage[0].hid ==
+> +				(HID_UP_LED | 0x43) &&
+> +			   report->maxfield >= 4 &&
+> +			   report->field[0]->report_count >= 1 &&
+> +			   report->field[1]->report_count >= 1 &&
+> +			   report->field[2]->report_count >= 1 &&
+> +			   report->field[3]->report_count >= 1) {
+>  			report->field[0]->value[0] = 0x00;
+>  			report->field[1]->value[0] = 0x00;
+>  			strong = &report->field[2]->value[0];
 
 -- 
 Jiri Kosina

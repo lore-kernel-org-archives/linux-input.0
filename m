@@ -1,66 +1,52 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH] Input: don't push static constants on stack for %*ph
-Date: Wed,  4 Sep 2013 13:41:49 +0300
-Message-ID: <1378291309-13869-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] i2c-hid: explicitly cast parametrs to follow
+ specifiers
+Date: Wed, 4 Sep 2013 13:17:18 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309041317030.3684@pobox.suse.cz>
+References: <1372163081-11394-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([143.182.124.21]:5091 "EHLO mga03.intel.com"
+Received: from cantor2.suse.de ([195.135.220.15]:50448 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760087Ab3IDKmG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Sep 2013 06:42:06 -0400
+	id S1755744Ab3IDLRZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Sep 2013 07:17:25 -0400
+In-Reply-To: <1372163081-11394-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-input@vger.kernel.org
 
-There is no need to pass constants via stack. The width may be explicitly
-specified in the format.
+On Tue, 25 Jun 2013, Andy Shevchenko wrote:
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/input/mouse/hgpk.c               | 7 +++----
- drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++--
- 2 files changed, 5 insertions(+), 6 deletions(-)
+> The vendor and product parameters are defined as __u32, but used as short int.
+> Let's do an explicit casting for them.
 
-diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
-index 62be888..27909a1 100644
---- a/drivers/input/mouse/hgpk.c
-+++ b/drivers/input/mouse/hgpk.c
-@@ -333,9 +333,8 @@ static bool hgpk_is_byte_valid(struct psmouse *psmouse, unsigned char *packet)
- 	}
- 
- 	if (!valid)
--		psmouse_dbg(psmouse,
--			    "bad data, mode %d (%d) %*ph\n",
--			    priv->mode, pktcnt, 6, psmouse->packet);
-+		psmouse_dbg(psmouse, "bad data, mode %d (%d) %6ph\n",
-+			    priv->mode, pktcnt, psmouse->packet);
- 
- 	return valid;
- }
-@@ -1027,7 +1026,7 @@ static enum hgpk_model_t hgpk_get_model(struct psmouse *psmouse)
- 		return -EIO;
- 	}
- 
--	psmouse_dbg(psmouse, "ID: %*ph\n", 3, param);
-+	psmouse_dbg(psmouse, "ID: %3ph\n", param);
- 
- 	/* HGPK signature: 0x67, 0x00, 0x<model> */
- 	if (param[0] != 0x67 || param[1] != 0x00)
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 59aa240..dd44ebf 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -331,8 +331,8 @@ static bool mxt_object_writable(unsigned int type)
- static void mxt_dump_message(struct device *dev,
- 			     struct mxt_message *message)
- {
--	dev_dbg(dev, "reportid: %u\tmessage: %*ph\n",
--		message->reportid, 7, message->message);
-+	dev_dbg(dev, "reportid: %u\tmessage: %7ph\n",
-+		message->reportid, message->message);
- }
- 
- static int mxt_check_bootloader(struct i2c_client *client,
+Is this fixing any compiler warning you have seen?
+
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 879b0ed..d595f2a 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -1009,7 +1009,7 @@ static int i2c_hid_probe(struct i2c_client *client,
+>  	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+>  
+>  	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
+> -		 client->name, hid->vendor, hid->product);
+> +		 client->name, (short int)hid->vendor, (short int)hid->product);
+>  
+>  	ret = hid_add_device(hid);
+>  	if (ret) {
+> -- 
+> 1.8.3.1
+> 
+
 -- 
-1.8.4.rc3
-
+Jiri Kosina
+SUSE Labs

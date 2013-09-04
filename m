@@ -1,58 +1,30 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 14/14] HID: check for NULL field when setting values
-Date: Wed, 4 Sep 2013 12:05:36 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309041205320.3684@pobox.suse.cz>
-References: <alpine.LNX.2.00.1308282223090.22181@pobox.suse.cz>
+Subject: Re: [PATCH 01/14] HID: validate HID report id size
+Date: Wed, 4 Sep 2013 12:11:29 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309041208440.3684@pobox.suse.cz>
+References: <alpine.LNX.2.00.1308282158220.22181@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48206 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:48430 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752843Ab3IDKFj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Sep 2013 06:05:39 -0400
-In-Reply-To: <alpine.LNX.2.00.1308282223090.22181@pobox.suse.cz>
+	id S1752866Ab3IDKLd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Sep 2013 06:11:33 -0400
+In-Reply-To: <alpine.LNX.2.00.1308282158220.22181@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>
+Cc: Kees Cook <keescook@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Wed, 28 Aug 2013, Jiri Kosina wrote:
+So I have now queued subset of the patches that don't deal with 
+hid_validate_report(); waiting for v2 based on Benjamin's comments with 
+the rest.
 
-> From: Kees Cook <keescook@chromium.org>
-> 
-> Defensively check that the field to be worked on is not NULL.
+The patches are public for distributions to apply them if they feel urgent 
+need, but for upstream I'd rather do things properly, and Benjamin had 
+quite some valuable feedback.
 
-Applied.
-
-> 
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Cc: stable@kernel.org
-> ---
->  drivers/hid/hid-core.c |    7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 55798b2..192be6b 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1206,7 +1206,12 @@ EXPORT_SYMBOL_GPL(hid_output_report);
->  
->  int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
->  {
-> -	unsigned size = field->report_size;
-> +	unsigned size;
-> +
-> +	if (!field)
-> +		return -1;
-> +
-> +	size = field->report_size;
->  
->  	hid_dump_input(field->report->device, field->usage + offset, value);
->  
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> 
+Thanks again,
 
 -- 
 Jiri Kosina

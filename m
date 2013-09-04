@@ -1,162 +1,84 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 1/3 v3] Input: wacom - Support EMR and MFT sensors of Cintiq Companion Hybrid
-Date: Tue,  3 Sep 2013 14:52:06 -0700
-Message-ID: <1378245126-1329-1-git-send-email-killertofu@gmail.com>
-References: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
+From: Andrew Deason <adeason@dson.org>
+Subject: synaptics_usb trackpoint
+Date: Tue, 3 Sep 2013 23:42:34 -0500
+Message-ID: <20130903234234.4c56267a8ec32ecec8440a5a@dson.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f42.google.com ([209.85.160.42]:47368 "EHLO
-	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933068Ab3ICVwN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Sep 2013 17:52:13 -0400
-Received: by mail-pb0-f42.google.com with SMTP id un15so6571214pbc.29
-        for <linux-input@vger.kernel.org>; Tue, 03 Sep 2013 14:52:13 -0700 (PDT)
-In-Reply-To: <1377220537-1474-1-git-send-email-killertofu@gmail.com>
+Received: from mail-ie0-f182.google.com ([209.85.223.182]:48897 "EHLO
+	mail-ie0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755821Ab3IDEmg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Sep 2013 00:42:36 -0400
+Received: by mail-ie0-f182.google.com with SMTP id aq17so12248904iec.41
+        for <linux-input@vger.kernel.org>; Tue, 03 Sep 2013 21:42:35 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org, pinglinux@gmail.com, peter.hutterer@who-t.net
-Cc: Jason Gerecke <killertofu@gmail.com>
+To: linux-input@vger.kernel.org
 
-Adds support for the sensors integrated in to the Cintiq Companion
-Hybrid. These sensors use by-and-large the same protocol as the
-Cintiq 24HD touch.
+I have an ultranav usb keyboard, which is recognized by the
+synaptics_usb driver (model SK-8835, FRU 02R0400, USB device 06CB:0009).
+When the kernel is built with synaptics_usb support, the device uses the
+"advanced" non-HID interface and the trackpoint becomes very difficult
+to use, and certainly does not "feel" like other trackpoint devices. I
+believe this is due to incorrect interpretation of the data from the
+relevant USB device; the module comments indeed indicate that the driver
+has not been well tested with pointing sticks.
 
-NOTE: The ExpressKeys on the Cintiq Companion Hybrid are wired to
-both the EMR controller and CPU GPIO pins. It may be necessary to
-disable their functionality in this driver if building a custom
-Android kernel for this device (lest two events be sent to userspace
-for every button press).
+I want to make some changes to the driver wrt trackpoints, but I wanted
+to ask for some feedback on this before I go off down the wrong path.
+Jan Steinhoff kindly directed me here. Anyway, details:
 
-Signed-off-by: Jason Gerecke <killertofu@gmail.com>
----
-Changes in v3:
- * Change type name from 'ASTERIX' to 'CINTIQ_HYBRID'
 
-Changes in v2:
- * Remove "#if 1" block surrounding conditional ExpressKey reporting
- * Change to C-style comments
+Right now, synaptics_usb just sends the raw numbers from the USB
+responses as input event relative coordinates after trimming off some
+low-order bits (see synusb_report_stick). That is, we get (0x52, 0x42)
+from the device, and we report relative movement of around (0x5, 0x4).
+But the values we get from the USB device don't seem very much like
+coordinates to me. They appear to be readings from the force sensors on
+the trackpoint in the x, y, and z directions. From what I have found
+when reading about trackpoint devices, these forces do not directly
+correspond to relative cursor movement, but are supposed to be
+interpreted through a transfer function that translates them to cursor
+velocity, which is then to be translated into movements at certain
+intervals.
 
- drivers/input/tablet/wacom_sys.c |  2 +-
- drivers/input/tablet/wacom_wac.c | 46 +++++++++++++++++++++++++++++++++++++++-
- drivers/input/tablet/wacom_wac.h |  1 +
- 3 files changed, 47 insertions(+), 2 deletions(-)
+There may be different transfer functions that are possible to use, but
+one such transfer function I've found is in the trackpoint 4 engineering
+spec [1]. That's where the various settings like 'sensitivity', 'speed',
+etc come into play for trackpoint devices where this translation is done
+in the hardware. That document doesn't give all of the necessary
+constants for generating that specific function, but it gives a general
+idea. I've got some code to roughly approximate that curve in an x.org
+input driver, and it seems to work pretty well considering that I'm
+making some guesses.
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 1ad3e07..0750d2a 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -548,7 +548,7 @@ static int wacom_query_tablet_data(struct usb_interface *intf, struct wacom_feat
- 			/* MT Tablet PC touch */
- 			return wacom_set_device_mode(intf, 3, 4, 4);
- 		}
--		else if (features->type == WACOM_24HDT) {
-+		else if (features->type == WACOM_24HDT || features->type == CINTIQ_HYBRID) {
- 			return wacom_set_device_mode(intf, 18, 3, 2);
- 		}
- 	} else if (features->device_type == BTN_TOOL_PEN) {
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 541197b..d68bf73 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -475,7 +475,7 @@ static void wacom_intuos_general(struct wacom_wac *wacom)
- 	/* general pen packet */
- 	if ((data[1] & 0xb8) == 0xa0) {
- 		t = (data[6] << 2) | ((data[7] >> 6) & 3);
--		if (features->type >= INTUOS4S && features->type <= WACOM_24HD) {
-+		if (features->type >= INTUOS4S && features->type <= CINTIQ_HYBRID) {
- 			t = (t << 1) | (data[1] & 1);
- 		}
- 		input_report_abs(input, ABS_PRESSURE, t);
-@@ -619,6 +619,22 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 			} else {
- 				input_report_abs(input, ABS_MISC, 0);
- 			}
-+		} else if (features->type == CINTIQ_HYBRID) {
-+			/*
-+			 * Do not send hardware buttons under Android. They
-+			 * are already sent to the system through GPIO (and
-+			 * have different meaning).
-+			 */
-+			input_report_key(input, BTN_1, (data[4] & 0x01));
-+			input_report_key(input, BTN_2, (data[4] & 0x02));
-+			input_report_key(input, BTN_3, (data[4] & 0x04));
-+			input_report_key(input, BTN_4, (data[4] & 0x08));
-+
-+			input_report_key(input, BTN_5, (data[4] & 0x10));  /* Right  */
-+			input_report_key(input, BTN_6, (data[4] & 0x20));  /* Up     */
-+			input_report_key(input, BTN_7, (data[4] & 0x40));  /* Left   */
-+			input_report_key(input, BTN_8, (data[4] & 0x80));  /* Down   */
-+			input_report_key(input, BTN_0, (data[3] & 0x01));  /* Center */
- 		} else if (features->type >= INTUOS5S && features->type <= INTUOS5L) {
- 			int i;
- 
-@@ -1325,6 +1341,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 	case WACOM_22HD:
- 	case WACOM_24HD:
- 	case DTK:
-+	case CINTIQ_HYBRID:
- 		sync = wacom_intuos_irq(wacom_wac);
- 		break;
- 
-@@ -1763,6 +1780,24 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 					      0, 0);
- 		}
- 		break;
-+
-+	case CINTIQ_HYBRID:
-+		__set_bit(BTN_1, input_dev->keybit);
-+		__set_bit(BTN_2, input_dev->keybit);
-+		__set_bit(BTN_3, input_dev->keybit);
-+		__set_bit(BTN_4, input_dev->keybit);
-+
-+		__set_bit(BTN_5, input_dev->keybit);
-+		__set_bit(BTN_6, input_dev->keybit);
-+		__set_bit(BTN_7, input_dev->keybit);
-+		__set_bit(BTN_8, input_dev->keybit);
-+		__set_bit(BTN_0, input_dev->keybit);
-+
-+		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
-+		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
-+
-+		wacom_setup_cintiq(wacom_wac);
-+		break;
- 	}
- 	return 0;
- }
-@@ -2117,6 +2152,13 @@ static const struct wacom_features wacom_features_0xDF =
- static const struct wacom_features wacom_features_0x6004 =
- 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x0307 =
-+	{ "Wacom ISDv5 307", WACOM_PKGLEN_INTUOS,  59552,  33848, 2047,
-+	  63, CINTIQ_HYBRID, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES,
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x309 };
-+static const struct wacom_features wacom_features_0x0309 =
-+	{ "Wacom ISDv5 309", .type = WACOM_24HDT, /* Touch */
-+	  .oVid = USB_VENDOR_ID_WACOM, .oPid = 0x0307, .touch_max = 10 };
- 
- #define USB_DEVICE_WACOM(prod)					\
- 	USB_DEVICE(USB_VENDOR_ID_WACOM, prod),			\
-@@ -2247,6 +2289,8 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0xF8) },
- 	{ USB_DEVICE_DETAILED(0xF6, USB_CLASS_HID, 0, 0) },
- 	{ USB_DEVICE_WACOM(0xFA) },
-+	{ USB_DEVICE_WACOM(0x0307) },
-+	{ USB_DEVICE_DETAILED(0x0309, USB_CLASS_HID, 0, 0) },
- 	{ USB_DEVICE_LENOVO(0x6004) },
- 	{ }
- };
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index dfc9e08..90ce10d 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -80,6 +80,7 @@ enum {
- 	WACOM_22HD,
- 	DTK,
- 	WACOM_24HD,
-+	CINTIQ_HYBRID,
- 	CINTIQ,
- 	WACOM_BEE,
- 	WACOM_13HD,
+But it seems like this translation should occur in the synaptics_usb
+driver. Or at least, even if it doesn't, the reported values should not
+be reported as REL_X and REL_Y events, since they are not relative
+cursor coordinates. The z coordinate still seems like it could just stay
+as ABS_PRESSURE, and features like "Press to Select" could be
+implemented in a userspace driver. But I personally don't really care
+about the z axis at all, since I never use any of the PtS functionality.
+
+Furthermore, I really think there should be a runtime option to switch
+the device between "advanced" mode and HID mode. Especially for the
+trackpoint, the transfer function is not trivial and its "correctness"
+may be subjective. Right now a system without a synaptics_usb-like
+driver is better off than Linux, since such a system would use the
+generic HID mode, and would be more usable. Maybe even the HID mode
+should be the default, and we only switch to 'advanced' mode on request,
+if the user wants to change e.g. sensitivity settings or PtS.
+
+So, thoughts? I haven't fiddled with adding anything like this to the
+synaptics_usb driver yet, but I was planning on doing that as soon as I
+sent this out and didn't hear any objections.
+
+
+[1] <http://blogs.epfl.ch/icenet/documents/Ykt3Eext.pdf>. A graph of the
+transfer function is on page 43, and some of the other relevant
+parameters are described on page 24 and 44.
+
 -- 
-1.8.3.4
-
+Andrew Deason
+adeason@dson.org

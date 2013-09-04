@@ -1,44 +1,86 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Correct the USB IDs for the new Macbook Air 6
-Date: Wed, 4 Sep 2013 10:51:18 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309041051060.3684@pobox.suse.cz>
-References: <1378042304-1400-1-git-send-email-rydberg@euromail.se> <alpine.LNX.2.00.1309021329510.3796@pobox.suse.cz> <20130903180416.GB25985@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130903180416.GB25985@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Tom Gundersen <teg@jklm.no>
+Subject: [PATCH] input: i8042 - add PNP modaliases
+Date: Wed,  4 Sep 2013 11:27:36 +0200
+Message-ID: <1378286856-6384-1-git-send-email-teg@jklm.no>
+References: <20130903193547.GA8150@srcf.ucam.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wi0-f169.google.com ([209.85.212.169]:45335 "EHLO
+	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762210Ab3IDJ0i (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Sep 2013 05:26:38 -0400
+Received: by mail-wi0-f169.google.com with SMTP id hj3so2940327wib.2
+        for <linux-input@vger.kernel.org>; Wed, 04 Sep 2013 02:26:37 -0700 (PDT)
+In-Reply-To: <20130903193547.GA8150@srcf.ucam.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Tom Gundersen <teg@jklm.no>, Matthew Garrett <mjg59@srcf.ucam.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Tue, 3 Sep 2013, Dmitry Torokhov wrote:
+This allows the module to be autoloaded in the common case.
 
-> > > A recent patch (9d9a04ee) added support for the new machine, but got
-> > > the sequence of USB ids wrong. Reports from both Ian and Linus T show
-> > > that the 0x0291 id is for ISO, not ANSI, which should have the missing
-> > > number 0x0290. This patchs moves the three numbers accordingly, fixing
-> > > the problem.
-> > > 
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > Reported-and-tested-by: Ian Munsie <darkstarsword@gmail.com>
-> > > Tested-by: Linus G Thiel <linus@hanssonlarsson.se>
-> > > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> > > ---
-> > > Hi Jiri, Dmitry,
-> > > 
-> > > it looks like this change has been sufficiently tested now, in
-> > > addition to making perfect sense. Jiri, would you mind taking it, if
-> > > Dmitry approves?
-> > 
-> > Absolutely ... waiting for Dmitry's Ack.
-> 
-> And here it is:
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+In order to work on non-PnP systems the module should be compiled in or loaded
+unconditionally at boot (c.f. modules-load.d(5)), as before.
 
-Perfect, thanks. Will push it to Linus this merge window.
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Tom Gundersen <teg@jklm.no>
+---
 
+This appears to work for me (though I don't have the real hardware to test), I get the following aliases:
+alias:          acpi*:CPQA0D7:*
+alias:          pnp:dCPQA0D7*
+alias:          acpi*:PNP0345:*
+alias:          pnp:dPNP0345*
+alias:          acpi*:PNP0344:*
+alias:          pnp:dPNP0344*
+alias:          acpi*:PNP0343:*
+alias:          pnp:dPNP0343*
+alias:          acpi*:PNP0320:*
+alias:          pnp:dPNP0320*
+alias:          acpi*:PNP030B:*
+alias:          pnp:dPNP030b*
+alias:          acpi*:PNP030A:*
+alias:          pnp:dPNP030a*
+alias:          acpi*:PNP0309:*
+alias:          pnp:dPNP0309*
+alias:          acpi*:PNP0306:*
+alias:          pnp:dPNP0306*
+alias:          acpi*:PNP0305:*
+alias:          pnp:dPNP0305*
+alias:          acpi*:PNP0304:*
+alias:          pnp:dPNP0304*
+alias:          acpi*:PNP0303:*
+alias:          pnp:dPNP0303*
+alias:          acpi*:PNP0302:*
+alias:          pnp:dPNP0302*
+alias:          acpi*:PNP0301:*
+alias:          pnp:dPNP0301*
+alias:          acpi*:PNP0300:*
+alias:          pnp:dPNP0300*
+
+ drivers/input/serio/i8042-x86ia64io.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 5f306f7..0ec9abb 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -765,6 +765,7 @@ static struct pnp_device_id pnp_kbd_devids[] = {
+ 	{ .id = "CPQA0D7", .driver_data = 0 },
+ 	{ .id = "", },
+ };
++MODULE_DEVICE_TABLE(pnp, pnp_kbd_devids);
+ 
+ static struct pnp_driver i8042_pnp_kbd_driver = {
+ 	.name           = "i8042 kbd",
+@@ -786,6 +787,7 @@ static struct pnp_device_id pnp_aux_devids[] = {
+ 	{ .id = "SYN0801", .driver_data = 0 },
+ 	{ .id = "", },
+ };
++MODULE_DEVICE_TABLE(pnp, pnp_aux_devids);
+ 
+ static struct pnp_driver i8042_pnp_aux_driver = {
+ 	.name           = "i8042 aux",
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.4
+

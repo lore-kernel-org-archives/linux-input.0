@@ -1,86 +1,37 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: [PATCH] input: i8042 - add PNP modaliases
-Date: Wed,  4 Sep 2013 11:27:36 +0200
-Message-ID: <1378286856-6384-1-git-send-email-teg@jklm.no>
-References: <20130903193547.GA8150@srcf.ucam.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: uhid: improve uhid example client
+Date: Wed, 4 Sep 2013 11:37:03 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309041135380.3684@pobox.suse.cz>
+References: <1378071918-1152-1-git-send-email-dh.herrmann@gmail.com> <CAN+gG=GbY9mQGQhRZcf9Osc1q5YjwpGVExhH6pAN9X0urcRv0w@mail.gmail.com> <CANq1E4QwPRgCkROyLWNU7KtVDU6DAoLG+pD2_6brD90gSiJ9pg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:45335 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762210Ab3IDJ0i (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Sep 2013 05:26:38 -0400
-Received: by mail-wi0-f169.google.com with SMTP id hj3so2940327wib.2
-        for <linux-input@vger.kernel.org>; Wed, 04 Sep 2013 02:26:37 -0700 (PDT)
-In-Reply-To: <20130903193547.GA8150@srcf.ucam.org>
+Received: from cantor2.suse.de ([195.135.220.15]:47133 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S934373Ab3IDJhH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Sep 2013 05:37:07 -0400
+In-Reply-To: <CANq1E4QwPRgCkROyLWNU7KtVDU6DAoLG+pD2_6brD90gSiJ9pg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Tom Gundersen <teg@jklm.no>, Matthew Garrett <mjg59@srcf.ucam.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>, Anderson Lizardo <anderson.lizardo@openbossa.org>
 
-This allows the module to be autoloaded in the common case.
+On Mon, 2 Sep 2013, David Herrmann wrote:
 
-In order to work on non-PnP systems the module should be compiled in or loaded
-unconditionally at boot (c.f. modules-load.d(5)), as before.
+> But thanks for the usb-spec hint, haven't looked there, yet.
 
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Tom Gundersen <teg@jklm.no>
----
+There is also HID report descriptor tool available at
 
-This appears to work for me (though I don't have the real hardware to test), I get the following aliases:
-alias:          acpi*:CPQA0D7:*
-alias:          pnp:dCPQA0D7*
-alias:          acpi*:PNP0345:*
-alias:          pnp:dPNP0345*
-alias:          acpi*:PNP0344:*
-alias:          pnp:dPNP0344*
-alias:          acpi*:PNP0343:*
-alias:          pnp:dPNP0343*
-alias:          acpi*:PNP0320:*
-alias:          pnp:dPNP0320*
-alias:          acpi*:PNP030B:*
-alias:          pnp:dPNP030b*
-alias:          acpi*:PNP030A:*
-alias:          pnp:dPNP030a*
-alias:          acpi*:PNP0309:*
-alias:          pnp:dPNP0309*
-alias:          acpi*:PNP0306:*
-alias:          pnp:dPNP0306*
-alias:          acpi*:PNP0305:*
-alias:          pnp:dPNP0305*
-alias:          acpi*:PNP0304:*
-alias:          pnp:dPNP0304*
-alias:          acpi*:PNP0303:*
-alias:          pnp:dPNP0303*
-alias:          acpi*:PNP0302:*
-alias:          pnp:dPNP0302*
-alias:          acpi*:PNP0301:*
-alias:          pnp:dPNP0301*
-alias:          acpi*:PNP0300:*
-alias:          pnp:dPNP0300*
+	http://www.usb.org/developers/hidpage/
 
- drivers/input/serio/i8042-x86ia64io.h | 2 ++
- 1 file changed, 2 insertions(+)
+The tool itself isn't that earth-shaking (and you have to run it in wine 
+:) ), but it contains a load of pre-defined example descriptors for 
+various devices.
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 5f306f7..0ec9abb 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -765,6 +765,7 @@ static struct pnp_device_id pnp_kbd_devids[] = {
- 	{ .id = "CPQA0D7", .driver_data = 0 },
- 	{ .id = "", },
- };
-+MODULE_DEVICE_TABLE(pnp, pnp_kbd_devids);
- 
- static struct pnp_driver i8042_pnp_kbd_driver = {
- 	.name           = "i8042 kbd",
-@@ -786,6 +787,7 @@ static struct pnp_device_id pnp_aux_devids[] = {
- 	{ .id = "SYN0801", .driver_data = 0 },
- 	{ .id = "", },
- };
-+MODULE_DEVICE_TABLE(pnp, pnp_aux_devids);
- 
- static struct pnp_driver i8042_pnp_aux_driver = {
- 	.name           = "i8042 aux",
+> No intention to modify it. Looks all good to me now.
+
+Now applied, thanks.
+
 -- 
-1.8.4
-
+Jiri Kosina
+SUSE Labs

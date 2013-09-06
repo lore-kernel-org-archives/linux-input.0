@@ -1,69 +1,150 @@
-From: Markus Trippelsdorf <markus@trippelsdorf.de>
+From: David Herrmann <dh.herrmann@gmail.com>
 Subject: Re: [GIT] HID for 3.12 merge window
-Date: Fri, 6 Sep 2013 22:20:22 +0200
-Message-ID: <20130906202022.GA353@x4>
+Date: Fri, 6 Sep 2013 23:50:00 +0200
+Message-ID: <CANq1E4Rf4c4zj1mD1aPr93Q2_M65DCEJhuLqcBWa5uH9tcKuWA@mail.gmail.com>
 References: <alpine.LNX.2.00.1309061202050.26934@pobox.suse.cz>
+	<20130906202022.GA353@x4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ud10.udmedia.de ([194.117.254.50]:40363 "EHLO
-	mail.ud10.udmedia.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753104Ab3IFU1E (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Sep 2013 16:27:04 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1309061202050.26934@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary=089e01493b542f7c1804e5be058e
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130906202022.GA353@x4>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Markus Trippelsdorf <markus@trippelsdorf.de>
+Cc: Jiri Kosina <jkosina@suse.cz>, Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 2013.09.06 at 14:00 +0200, Jiri Kosina wrote:
-> 
-> David Herrmann (12):
-...
->       HID: wiimote: add support for Guitar-Hero drums
+--089e01493b542f7c1804e5be058e
+Content-Type: text/plain; charset=ISO-8859-1
 
- commit 61e00655e9cb82e034eb72b95a51072e718d14a7
- Author: David Herrmann <dh.herrmann@gmail.com>
- Date:   Mon Aug 26 19:14:46 2013 +0200
+Hi
 
-     Input: introduce BTN/ABS bits for drums and guitars
+On Fri, Sep 6, 2013 at 10:20 PM, Markus Trippelsdorf
+<markus@trippelsdorf.de> wrote:
+> On 2013.09.06 at 14:00 +0200, Jiri Kosina wrote:
+>>
+>> David Herrmann (12):
+> ...
+>>       HID: wiimote: add support for Guitar-Hero drums
+>
+>  commit 61e00655e9cb82e034eb72b95a51072e718d14a7
+>  Author: David Herrmann <dh.herrmann@gmail.com>
+>  Date:   Mon Aug 26 19:14:46 2013 +0200
+>
+>      Input: introduce BTN/ABS bits for drums and guitars
+>
+> The commit above breaks my Logitech mouse. The mouse cursor just sits in
+> the middle of the screen and doesn't react to movements. dmesg is
+> normal, but Xorg.0.log says:
 
-The commit above breaks my Logitech mouse. The mouse cursor just sits in
-the middle of the screen and doesn't react to movements. dmesg is
-normal, but Xorg.0.log says:
+Ok, the issue is the kernel assumes ABS_MAX to be a power-of-2 minus 1
+(used as mask). That wasn't really obvious to me. Attached is a patch
+which should fix that. Could you apply it on top of linus/master and
+give it a try?
 
-[     5.717] (II) config/udev: Adding input device Logitech Unifying Device. Wireless PID:4026 (/dev/input/event0)
-[     5.717] (**) Logitech Unifying Device. Wireless PID:4026: Applying InputClass "evdev pointer catchall"
-[     5.717] (**) Logitech Unifying Device. Wireless PID:4026: Applying InputClass "evdev keyboard catchall"
-[     5.717] (II) Using input driver 'evdev' for 'Logitech Unifying Device. Wireless PID:4026'
-[     5.717] (**) Logitech Unifying Device. Wireless PID:4026: always reports core events
-[     5.717] (**) evdev: Logitech Unifying Device. Wireless PID:4026: Device: "/dev/input/event0"
-[     5.717] (EE) evdev: Logitech Unifying Device. Wireless PID:4026: ioctl EVIOCGABSi(32) failed: Invalid argument
-[     5.763] (EE) PreInit returned 8 for "Logitech Unifying Device. Wireless PID:4026"
-[     5.763] (II) UnloadModule: "evdev"
-[     5.763] (II) config/udev: Adding input device Logitech Unifying Device. Wireless PID:4026 (/dev/input/mouse0)
-[     5.763] (II) No input driver specified, ignoring this device.
-[     5.763] (II) This device may have been added with another device file.
+@Dmitry: The IOC_NR part of the definition of EVIOCSABS() is now
+bigger than 1-byte. I need to check how that affects the 'E' part. Any
+idea what to do here?
 
-I've double-checked the bisection by reverting the commit on top of
-current tree and this fixes the issue...
+Thanks
+David
 
->From dmesg:
-[    1.551437] XFS (sda): Mounting Filesystem
-[    1.555823] tsc: Refined TSC clocksource calibration: 3210.826 MHz
-[    1.729233] usb 4-2: new full-speed USB device number 2 using ohci-pci
-[    1.857691] XFS (sda): Ending clean mount
-[    1.915581] logitech-djreceiver 0003:046D:C52B.0003: hiddev0,hidraw0: USB HID v1.11 Device [Logitech USB Receiver] on usb-0000:00:12.1-2/input2
-[    1.920263] input: Logitech Unifying Device. Wireless PID:4026 as /devices/pci0000:00/0000:00:12.1/usb4/4-2/4-2:1.2/0003:046D:C52B.0003/input/input0
-[    1.920479] logitech-djdevice 0003:046D:C52B.0004: input,hidraw1: USB HID v1.11 Keyboard [Logitech Unifying Device. Wireless PID:4026] on usb-0000:00:12.1-2:1
-[    2.042641] usb 3-1: new low-speed USB device number 2 using ohci-pci
-[    2.204791] input: HID 046a:0011 as /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/input/input1
-[    2.204975] hid-generic 0003:046A:0011.0005: input,hidraw2: USB HID v1.10 Keyboard [HID 046a:0011] on usb-0000:00:12.0-1/input0
-[    2.341424] udevd[98]: starting eudev version 1.0
-[    2.556172] Switched to clocksource tsc
-[    2.791794] ATL1E 0000:02:00.0 eth0: NIC Link is Up <1000 Mbps Full Duplex>
-[    3.945433] Adding 3071996k swap on /var/cache/swapfile.img.  Priority:-1 extents:1 across:3071996k 
+Patch is also attached as I doubt that inlining it works in that
+stupid web-client:
 
+>From 653fe4d46ad368cdbf9b56a559a8468bd6f5cb3c Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Fri, 6 Sep 2013 23:46:08 +0200
+Subject: [PATCH] Input: evdev: don't assume ABS_MAX to be a power-of-2 minus 1
+
+ABS_MAX is no longer a full mask. Hence, don't use it directly to get any
+parameter for ioctls. Furthermore, the parameter-region and
+ioctl-definition overlap, so even bumping ABS_MAX to 0x7f wouldn't help.
+
+Reported-by: Markus Trippelsdorf <markus@trippelsdorf.de>
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ drivers/input/evdev.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index d2b34fb..82e0073 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -939,12 +939,13 @@ static long evdev_do_ioctl(struct file *file,
+unsigned int cmd,
+  _IOC_NR(cmd) & EV_MAX, size,
+  p, compat_mode);
+
+- if ((_IOC_NR(cmd) & ~ABS_MAX) == _IOC_NR(EVIOCGABS(0))) {
++ if (_IOC_NR(cmd) >= _IOC_NR(EVIOCGABS(0)) &&
++    _IOC_NR(cmd) <= _IOC_NR(EVIOCGABS(ABS_MAX))) {
+
+  if (!dev->absinfo)
+  return -EINVAL;
+
+- t = _IOC_NR(cmd) & ABS_MAX;
++ t = _IOC_NR(cmd) - _IOC_NR(EVIOCGABS(0));
+  abs = dev->absinfo[t];
+
+  if (copy_to_user(p, &abs, min_t(size_t,
+@@ -957,12 +958,13 @@ static long evdev_do_ioctl(struct file *file,
+unsigned int cmd,
+
+  if (_IOC_DIR(cmd) == _IOC_WRITE) {
+
+- if ((_IOC_NR(cmd) & ~ABS_MAX) == _IOC_NR(EVIOCSABS(0))) {
++ if (_IOC_NR(cmd) >= _IOC_NR(EVIOCSABS(0)) &&
++    _IOC_NR(cmd) <= _IOC_NR(EVIOCSABS(ABS_MAX))) {
+
+  if (!dev->absinfo)
+  return -EINVAL;
+
+- t = _IOC_NR(cmd) & ABS_MAX;
++ t = _IOC_NR(cmd) - _IOC_NR(EVIOCSABS(0));
+
+  if (copy_from_user(&abs, p, min_t(size_t,
+  size, sizeof(struct input_absinfo))))
 -- 
-Markus
+1.8.4
+
+--089e01493b542f7c1804e5be058e
+Content-Type: application/octet-stream;
+	name="0001-Input-evdev-don-t-assume-ABS_MAX-to-be-a-power-of-2-.patch"
+Content-Disposition: attachment;
+	filename="0001-Input-evdev-don-t-assume-ABS_MAX-to-be-a-power-of-2-.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hl9xsn0w0
+
+RnJvbSA2NTNmZTRkNDZhZDM2OGNkYmY5YjU2YTU1OWE4NDY4YmQ2ZjVjYjNjIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBEYXZpZCBIZXJybWFubiA8ZGguaGVycm1hbm5AZ21haWwuY29t
+PgpEYXRlOiBGcmksIDYgU2VwIDIwMTMgMjM6NDY6MDggKzAyMDAKU3ViamVjdDogW1BBVENIXSBJ
+bnB1dDogZXZkZXY6IGRvbid0IGFzc3VtZSBBQlNfTUFYIHRvIGJlIGEgcG93ZXItb2YtMiBtaW51
+cyAxCgpBQlNfTUFYIGlzIG5vIGxvbmdlciBhIGZ1bGwgbWFzay4gSGVuY2UsIGRvbid0IHVzZSBp
+dCBkaXJlY3RseSB0byBnZXQgYW55CnBhcmFtZXRlciBmb3IgaW9jdGxzLiBGdXJ0aGVybW9yZSwg
+dGhlIHBhcmFtZXRlci1yZWdpb24gYW5kCmlvY3RsLWRlZmluaXRpb24gb3ZlcmxhcCwgc28gZXZl
+biBidW1waW5nIEFCU19NQVggdG8gMHg3ZiB3b3VsZG4ndCBoZWxwLgoKUmVwb3J0ZWQtYnk6IE1h
+cmt1cyBUcmlwcGVsc2RvcmYgPG1hcmt1c0B0cmlwcGVsc2RvcmYuZGU+ClNpZ25lZC1vZmYtYnk6
+IERhdmlkIEhlcnJtYW5uIDxkaC5oZXJybWFubkBnbWFpbC5jb20+Ci0tLQogZHJpdmVycy9pbnB1
+dC9ldmRldi5jIHwgMTAgKysrKysrLS0tLQogMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygr
+KSwgNCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2V2ZGV2LmMgYi9k
+cml2ZXJzL2lucHV0L2V2ZGV2LmMKaW5kZXggZDJiMzRmYi4uODJlMDA3MyAxMDA2NDQKLS0tIGEv
+ZHJpdmVycy9pbnB1dC9ldmRldi5jCisrKyBiL2RyaXZlcnMvaW5wdXQvZXZkZXYuYwpAQCAtOTM5
+LDEyICs5MzksMTMgQEAgc3RhdGljIGxvbmcgZXZkZXZfZG9faW9jdGwoc3RydWN0IGZpbGUgKmZp
+bGUsIHVuc2lnbmVkIGludCBjbWQsCiAJCQkJCQlfSU9DX05SKGNtZCkgJiBFVl9NQVgsIHNpemUs
+CiAJCQkJCQlwLCBjb21wYXRfbW9kZSk7CiAKLQkJaWYgKChfSU9DX05SKGNtZCkgJiB+QUJTX01B
+WCkgPT0gX0lPQ19OUihFVklPQ0dBQlMoMCkpKSB7CisJCWlmIChfSU9DX05SKGNtZCkgPj0gX0lP
+Q19OUihFVklPQ0dBQlMoMCkpICYmCisJCSAgICBfSU9DX05SKGNtZCkgPD0gX0lPQ19OUihFVklP
+Q0dBQlMoQUJTX01BWCkpKSB7CiAKIAkJCWlmICghZGV2LT5hYnNpbmZvKQogCQkJCXJldHVybiAt
+RUlOVkFMOwogCi0JCQl0ID0gX0lPQ19OUihjbWQpICYgQUJTX01BWDsKKwkJCXQgPSBfSU9DX05S
+KGNtZCkgLSBfSU9DX05SKEVWSU9DR0FCUygwKSk7CiAJCQlhYnMgPSBkZXYtPmFic2luZm9bdF07
+CiAKIAkJCWlmIChjb3B5X3RvX3VzZXIocCwgJmFicywgbWluX3Qoc2l6ZV90LApAQCAtOTU3LDEy
+ICs5NTgsMTMgQEAgc3RhdGljIGxvbmcgZXZkZXZfZG9faW9jdGwoc3RydWN0IGZpbGUgKmZpbGUs
+IHVuc2lnbmVkIGludCBjbWQsCiAKIAlpZiAoX0lPQ19ESVIoY21kKSA9PSBfSU9DX1dSSVRFKSB7
+CiAKLQkJaWYgKChfSU9DX05SKGNtZCkgJiB+QUJTX01BWCkgPT0gX0lPQ19OUihFVklPQ1NBQlMo
+MCkpKSB7CisJCWlmIChfSU9DX05SKGNtZCkgPj0gX0lPQ19OUihFVklPQ1NBQlMoMCkpICYmCisJ
+CSAgICBfSU9DX05SKGNtZCkgPD0gX0lPQ19OUihFVklPQ1NBQlMoQUJTX01BWCkpKSB7CiAKIAkJ
+CWlmICghZGV2LT5hYnNpbmZvKQogCQkJCXJldHVybiAtRUlOVkFMOwogCi0JCQl0ID0gX0lPQ19O
+UihjbWQpICYgQUJTX01BWDsKKwkJCXQgPSBfSU9DX05SKGNtZCkgLSBfSU9DX05SKEVWSU9DU0FC
+UygwKSk7CiAKIAkJCWlmIChjb3B5X2Zyb21fdXNlcigmYWJzLCBwLCBtaW5fdChzaXplX3QsCiAJ
+CQkJCXNpemUsIHNpemVvZihzdHJ1Y3QgaW5wdXRfYWJzaW5mbykpKSkKLS0gCjEuOC40Cgo=
+--089e01493b542f7c1804e5be058e--

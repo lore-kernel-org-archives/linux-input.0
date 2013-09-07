@@ -1,165 +1,181 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.12-rc0
-Date: Fri, 6 Sep 2013 20:34:22 -0700
-Message-ID: <20130907033422.GA1426@core.coreip.homeip.net>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [GIT] HID for 3.12 merge window
+Date: Sat, 7 Sep 2013 09:31:45 +0200
+Message-ID: <CANq1E4Q85ewwKs7VoooZVapC7-Cvy6-Xp4rGL1-1Ee7w1EcT6w@mail.gmail.com>
+References: <alpine.LNX.2.00.1309061202050.26934@pobox.suse.cz>
+	<20130906202022.GA353@x4>
+	<CANq1E4Rf4c4zj1mD1aPr93Q2_M65DCEJhuLqcBWa5uH9tcKuWA@mail.gmail.com>
+	<CA+55aFzg-dv-N7UjXx2pxUJ+QQOOy0qtp_e94PDSM=tVd=LgUw@mail.gmail.com>
+	<506b9d43-f734-40f9-b137-0749a496fd6d@email.android.com>
+	<CA+55aFzLy+-VF022ORuyWk-qQO7gDSQ1LZES1+bEUxz0QxrH-g@mail.gmail.com>
+	<20130907032240.GA1256@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:41571 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751089Ab3IGHbq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Sep 2013 03:31:46 -0400
+In-Reply-To: <20130907032240.GA1256@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Markus Trippelsdorf <markus@trippelsdorf.de>, Jiri Kosina <jkosina@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
+Hi
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sat, Sep 7, 2013 at 5:22 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, Sep 06, 2013 at 06:00:29PM -0700, Linus Torvalds wrote:
+>> On Fri, Sep 6, 2013 at 5:58 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> >
+>> > The patch still had problems so I'd revert it and wii bits and try again later.
+>>
+>> Ok. Mind giving me a list of commits, so that I don't have to do a
+>> trial-and-error thing? I know the primary commit that causes problems,
+>> but there are commits that seem to depend on it..
+>
+>
+> Sorry for the delay. I believe you need to revert:
+>
+> 73f8645 HID: wiimote: add support for Guitar-Hero drums
+> 61e0065 Input: introduce BTN/ABS bits for drums and guitars
+>
+> Hmm... there also was "HID: wiimote: add support for Guitar-Hero
+> guitars" but I do not see it...
 
-Hi Linus,
+The commits to revert are:
 
-Please pull from:
+commit 61e00655e9cb82e034eb72b95a51072e718d14a7
+Author: David Herrmann <dh.herrmann@gmail.com>
+Date:   Mon Aug 26 19:14:46 2013 +0200
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+    Input: introduce BTN/ABS bits for drums and guitars
 
-to receive updates for the input subsystem. You will get a new driver
-for slidebar on Ideapad laptops and a bunch of assorted driver fixes.
+commit 73f8645db1913ab2475ec3c1cee8d5f748963aa7
+Author: David Herrmann <dh.herrmann@gmail.com>
+Date:   Mon Aug 26 19:14:47 2013 +0200
 
-Changelog:
----------
+    HID: wiimote: add support for Guitar-Hero drums
 
-Andrey Moiseev (1):
-      Input: add driver for slidebar on Lenovo IdeaPad laptops
+commit 8e22ecb603c88b7397ab2e80b7b0811b8a1318f5
+Author: Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>
+Date:   Mon Aug 26 19:14:48 2013 +0200
 
-Bo Shen (1):
-      Input: qt1070 - add power management ops
+    HID: wiimote: add support for Guitar-Hero guitars
 
-David Herrmann (1):
-      Input: add SYN_MAX and SYN_CNT constants
+Last one is not from me, so I guess that's why Dmitry missed it. And
+sorry for the delay, stupid UTC+1..
+The bug only occurs for multi-touch devices (their ABS_* bits are
+>0x1f), that's why I didn't see it happening during my tests..
 
-Fabio Estevam (2):
-      Input: egalax-ts - fix typo and improve text
-      Input: max11801_ts - convert to devm
+If you didn't revert it, yet, attached (and inlined) is a patch which
+reverts the ABS_MAX change and just moves the new identifiers in
+between the others. On top of 3.12-rc1, this should fix all issues. If
+you already reverted the patches, I guess we will just push it in
+linux-next again and wait for 3.13?
 
-Geert Uytterhoeven (1):
-      Input: cyttsp4 - kill 'defined but not used' compiler warnings
+Thanks
+David
 
-Illia Smyrnov (5):
-      Input: omap-keypad - use bitfiled instead of hardcoded values
-      Input: omap-keypad - convert to threaded IRQ
-      Input: omap-keypad - clear interrupts on open
-      Input: omap-keypad - enable wakeup capability for keypad.
-      Input: omap-keypad - set up irq type from DT
+(Inlined patch below, also attached to mail as gmail hates long lines)
 
-Javier Martinez Canillas (1):
-      Input: MAINTAINERS - change maintainer for cyttsp driver
+>From 13d549489b4bd2eade719cf2ec8c37724be6e640 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@gmail.com>
+Date: Sat, 7 Sep 2013 09:17:11 +0200
+Subject: [PATCH] Revert/Fix "Input: introduce BTN/ABS bits for drums and
+ guitars"
 
-Jingoo Han (5):
-      Input: max7359 - add CONFIG_PM_SLEEP to suspend/resume
-      Input: cy8ctmg110_ts - add CONFIG_PM_SLEEP to suspend/resume
-      Input: eeti_ts - add CONFIG_PM_SLEEP to suspend/resume
-      Input: pwm-beeper - add CONFIG_PM_SLEEP to suspend/resume
-      Input: joysticks - use dev_get_platdata()
+commit 61e00655e9cb82e034eb72b95a51072e718d14a7
+Author: David Herrmann <dh.herrmann@gmail.com>
+Date:   Mon Aug 26 19:14:46 2013 +0200
 
-Julia Lawall (2):
-      Input: tegra-kbc - simplify use of devm_ioremap_resource
-      Input: keyboard, serio - simplify use of devm_ioremap_resource
+    Input: introduce BTN/ABS bits for drums and guitars
 
-Mathieu J. Poirier (1):
-      Input: sysrq - DT binding for key sequence
+This introduced several new identifiers for drums/guitar devices. However,
+it also increased ABS_MAX. Unfortunately, 0x3f is already the maximum we
+can use for ABS_MAX due to the limited EVIOCSABS ioctl.
 
-Peter Ujfalusi (1):
-      Input: twl6040-vibra - remove support for legacy (pdata) mode
+Revert this commit and move the new identifiers somewhere in between. We
+need to figure out some other way to add new identifiers for the future.
+To avoid this happening again, I added a small comment.
 
-Ping Cheng (1):
-      Input: wacom - integrate resolution calculation
+This also fixes an issue where xf86-input-evdev failed on EVIOCGABS() due
+to ABS_MAX not being a full mask.
 
-Sachin Kamat (4):
-      Input: wistron_btns - fix incorrect placement of __initconst
-      Input: lifebook - fix incorrect placement of __initconst
-      Input: synaptics - fix incorrect placement of __initconst
-      Input: htcpen - fix incorrect placement of __initdata
+Markus Trippelsdorf <markus@trippelsdorf.de>
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ include/linux/mod_devicetable.h |  2 +-
+ include/uapi/linux/input.h      | 33 ++++++++++++++++++---------------
+ 2 files changed, 19 insertions(+), 16 deletions(-)
 
-Stefan Lippers-Hollmann (3):
-      Input: wistron_btns - drop bogus MODULE_VERSION macro
-      Input: wistron_btns - mark the Medion MD96500 keymap as tested
-      Input: wistron_btns - add MODULE_DEVICE_TABLE
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 329aa30..45e9214 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -277,7 +277,7 @@ struct pcmcia_device_id {
+ #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING 0x71
+ #define INPUT_DEVICE_ID_KEY_MAX 0x2ff
+ #define INPUT_DEVICE_ID_REL_MAX 0x0f
+-#define INPUT_DEVICE_ID_ABS_MAX 0x4f
++#define INPUT_DEVICE_ID_ABS_MAX 0x3f
+ #define INPUT_DEVICE_ID_MSC_MAX 0x07
+ #define INPUT_DEVICE_ID_LED_MAX 0x0f
+ #define INPUT_DEVICE_ID_SND_MAX 0x07
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 76457ee..12c33f8 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -819,8 +819,24 @@ struct input_keymap_entry {
 
-Wei Yongjun (3):
-      Input: as5011 - fix error return code in as5011_probe()
-      Input: wacom - fix error return code in wacom_probe()
-      Input: cyttsp4 - remove useless NULL test from cyttsp4_watchdog_timer=
-()
+ #define ABS_VOLUME 0x20
 
++/* Drums and guitars (mostly toys) */
++#define ABS_TOM_FAR_LEFT 0x21
++#define ABS_TOM_LEFT 0x22
++#define ABS_TOM_RIGHT 0x23
++#define ABS_TOM_FAR_RIGHT 0x24
++#define ABS_CYMBAL_FAR_LEFT 0x25
++#define ABS_CYMBAL_LEFT 0x26
++#define ABS_CYMBAL_RIGHT 0x27
++
+ #define ABS_MISC 0x28
 
-Diffstat:
---------
++/* Drums and guitars continued */
++#define ABS_CYMBAL_FAR_RIGHT 0x29
++#define ABS_BASS 0x2a
++#define ABS_HI_HAT 0x2b
++#define ABS_FRET_BOARD 0x2c /* Guitar fret board, vertical pos */
++#define ABS_WHAMMY_BAR 0x2d /* Guitar whammy bar (or vibrato) */
++
+ #define ABS_MT_SLOT 0x2f /* MT slot being modified */
+ #define ABS_MT_TOUCH_MAJOR 0x30 /* Major axis of touching ellipse */
+ #define ABS_MT_TOUCH_MINOR 0x31 /* Minor axis (omit if circular) */
+@@ -837,21 +853,8 @@ struct input_keymap_entry {
+ #define ABS_MT_TOOL_X 0x3c /* Center X tool position */
+ #define ABS_MT_TOOL_Y 0x3d /* Center Y tool position */
 
- .../devicetree/bindings/input/input-reset.txt      |  33 ++
- .../bindings/input/touchscreen/egalax-ts.txt       |   2 +-
- MAINTAINERS                                        |  11 +-
- drivers/input/joystick/as5011.c                    |   3 +-
- drivers/input/joystick/maplecontrol.c              |   4 +-
- drivers/input/keyboard/imx_keypad.c                |   7 +-
- drivers/input/keyboard/max7359_keypad.c            |   2 +-
- drivers/input/keyboard/nspire-keypad.c             |   7 +-
- drivers/input/keyboard/omap4-keypad.c              |  95 ++++--
- drivers/input/keyboard/qt1070.c                    |  27 ++
- drivers/input/keyboard/spear-keyboard.c            |   7 +-
- drivers/input/keyboard/tegra-kbc.c                 |   7 +-
- drivers/input/misc/Kconfig                         |  10 +
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/ideapad_slidebar.c              | 358 +++++++++++++++++=
-++++
- drivers/input/misc/pwm-beeper.c                    |   2 +-
- drivers/input/misc/twl6040-vibra.c                 |  41 +--
- drivers/input/misc/wistron_btns.c                  |   6 +-
- drivers/input/mouse/lifebook.c                     |   2 +-
- drivers/input/mouse/synaptics.c                    |   4 +-
- drivers/input/serio/arc_ps2.c                      |   7 +-
- drivers/input/serio/i8042.h                        |  24 --
- drivers/input/serio/olpc_apsp.c                    |   3 -
- drivers/input/tablet/wacom_sys.c                   |  87 +++--
- drivers/input/tablet/wacom_wac.c                   |  19 +-
- drivers/input/touchscreen/cy8ctmg110_ts.c          |   6 +-
- drivers/input/touchscreen/cyttsp4_core.c           | 203 ++++++------
- drivers/input/touchscreen/eeti_ts.c                |   6 +-
- drivers/input/touchscreen/htcpen.c                 |   2 +-
- drivers/input/touchscreen/max11801_ts.c            |  37 +--
- drivers/tty/sysrq.c                                |  42 +++
- include/linux/i8042.h                              |  24 ++
- include/uapi/linux/input.h                         |   2 +
- 33 files changed, 770 insertions(+), 321 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/input-reset.txt
- create mode 100644 drivers/input/misc/ideapad_slidebar.c
+-/* Drums and guitars (mostly toys) */
+-#define ABS_TOM_FAR_LEFT 0x40
+-#define ABS_TOM_LEFT 0x41
+-#define ABS_TOM_RIGHT 0x42
+-#define ABS_TOM_FAR_RIGHT 0x43
+-#define ABS_CYMBAL_FAR_LEFT 0x44
+-#define ABS_CYMBAL_LEFT 0x45
+-#define ABS_CYMBAL_RIGHT 0x46
+-#define ABS_CYMBAL_FAR_RIGHT 0x47
+-#define ABS_BASS 0x48
+-#define ABS_HI_HAT 0x49
+-#define ABS_FRET_BOARD 0x4a /* Guitar fret board, vertical pos */
+-#define ABS_WHAMMY_BAR 0x4b /* Guitar whammy bar (or vibrato) */
+-
+-#define ABS_MAX 0x4f
++/* EVIOCSABS() does not support ABS_MAX > 0x3f */
++#define ABS_MAX 0x3f
+ #define ABS_CNT (ABS_MAX+1)
 
---=20
-Dmitry
-
-
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSKp6+AAoJEH70+W8r6ZYqlfoQAL69ECovB8JPFkKPBcDuYVE6
-e88EYLljwW313JMhIxDP3lOqR8b59ZQgaamHagoHz9+8I7N+OU8U1D6W1bNhjknj
-GHMxu4jCSkh9HgBWoAaZFs3fYZvF6zRsbDY2Kkb+oZs/IpqrC0Y4X/vRoVoJw5Gg
-b/v5ps/LPxY1t8Ui6rVoe39XTCu9Su2zcpFAFzmrV3ndZbeiAmiXmCbX+p6+hM3V
-UIFEabxBcb2VqKyCFGfU78UPxEfr9OsziQrQe7CZTK0qgR6/X8CHnhRTseYmQi5B
-NaiLsP02Re0uqj6nxTPPvQYJEB6j09sXW/Q7ct2sv9SbFyWX1wEujaRI7fC01l3z
-e6B8c3Be4jIops6mCevzv5lHRmLSwsNmxJKFa5DtxAhR0P/vLw4CnWDSYn1cPYl5
-Bv2ENCylF3rYJBZYE/G1j3n8rY7hbZSG5BKn1W3HIFgSV7x4I0MmYvCBgJ6tsBDu
-T9ZADE2YHth4k0bWDGDalweV4mdpEijc0rmkQ6pJXFhWAZ83Kh0UkL9hYOU0lpMn
-vUtxCnMQLtRBWPU9q+lIn7LbfRzt4xkI76VqGxWdxEqXEsUzoJyLO7AZRZQPaSUR
-lKTbucnb0LChli08s+ELWMTpwgHdLqScd8YP4gk5YodcAlpvppJ2NO18PIf9p5X+
-X0DRyQz8oTiMiySJrUsp
-=wcyO
------END PGP SIGNATURE-----
-
---h31gzZEtNLTqOjlF--
+ /*
+-- 
+1.8.4

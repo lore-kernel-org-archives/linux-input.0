@@ -1,85 +1,206 @@
-From: Andrey Moiseev <o2g.org.ru@gmail.com>
-Subject: [PATCH] Input: i8042 - i8042_flush fix for a full 8042 buffer
-Date: Sat,  7 Sep 2013 11:45:08 +0400
-Message-ID: <1378539908-9431-1-git-send-email-o2g.org.ru@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [GIT] HID for 3.12 merge window
+Date: Sat, 7 Sep 2013 10:24:43 +0200
+Message-ID: <CAN+gG=Ge2dKvNvT=cY-QFiV=LMV7rddMs9APCb0v68yMGns1Ew@mail.gmail.com>
+References: <alpine.LNX.2.00.1309061202050.26934@pobox.suse.cz>
+	<20130906202022.GA353@x4>
+	<CANq1E4Rf4c4zj1mD1aPr93Q2_M65DCEJhuLqcBWa5uH9tcKuWA@mail.gmail.com>
+	<CA+55aFzg-dv-N7UjXx2pxUJ+QQOOy0qtp_e94PDSM=tVd=LgUw@mail.gmail.com>
+	<506b9d43-f734-40f9-b137-0749a496fd6d@email.android.com>
+	<CA+55aFzLy+-VF022ORuyWk-qQO7gDSQ1LZES1+bEUxz0QxrH-g@mail.gmail.com>
+	<20130907032240.GA1256@core.coreip.homeip.net>
+	<CANq1E4Q85ewwKs7VoooZVapC7-Cvy6-Xp4rGL1-1Ee7w1EcT6w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f176.google.com ([209.85.217.176]:35705 "EHLO
-	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751002Ab3IGHpq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Sep 2013 03:45:46 -0400
+Received: from mail-la0-f54.google.com ([209.85.215.54]:36545 "EHLO
+	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751099Ab3IGIYp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Sep 2013 04:24:45 -0400
+In-Reply-To: <CANq1E4Q85ewwKs7VoooZVapC7-Cvy6-Xp4rGL1-1Ee7w1EcT6w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrey Moiseev <o2g.org.ru@gmail.com>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Markus Trippelsdorf <markus@trippelsdorf.de>, Jiri Kosina <jkosina@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-When 8042 internal data buffer is full, the driver
-erroneously decides that the controller is not present.
+On Sat, Sep 7, 2013 at 9:31 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
+>
+> On Sat, Sep 7, 2013 at 5:22 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> On Fri, Sep 06, 2013 at 06:00:29PM -0700, Linus Torvalds wrote:
+>>> On Fri, Sep 6, 2013 at 5:58 PM, Dmitry Torokhov
+>>> <dmitry.torokhov@gmail.com> wrote:
+>>> >
+>>> > The patch still had problems so I'd revert it and wii bits and try again later.
+>>>
+>>> Ok. Mind giving me a list of commits, so that I don't have to do a
+>>> trial-and-error thing? I know the primary commit that causes problems,
+>>> but there are commits that seem to depend on it..
+>>
+>>
+>> Sorry for the delay. I believe you need to revert:
+>>
+>> 73f8645 HID: wiimote: add support for Guitar-Hero drums
+>> 61e0065 Input: introduce BTN/ABS bits for drums and guitars
+>>
+>> Hmm... there also was "HID: wiimote: add support for Guitar-Hero
+>> guitars" but I do not see it...
+>
+> The commits to revert are:
+>
+> commit 61e00655e9cb82e034eb72b95a51072e718d14a7
+> Author: David Herrmann <dh.herrmann@gmail.com>
+> Date:   Mon Aug 26 19:14:46 2013 +0200
+>
+>     Input: introduce BTN/ABS bits for drums and guitars
+>
+> commit 73f8645db1913ab2475ec3c1cee8d5f748963aa7
+> Author: David Herrmann <dh.herrmann@gmail.com>
+> Date:   Mon Aug 26 19:14:47 2013 +0200
+>
+>     HID: wiimote: add support for Guitar-Hero drums
+>
+> commit 8e22ecb603c88b7397ab2e80b7b0811b8a1318f5
+> Author: Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>
+> Date:   Mon Aug 26 19:14:48 2013 +0200
+>
+>     HID: wiimote: add support for Guitar-Hero guitars
+>
+> Last one is not from me, so I guess that's why Dmitry missed it. And
+> sorry for the delay, stupid UTC+1..
+> The bug only occurs for multi-touch devices (their ABS_* bits are
+>>0x1f), that's why I didn't see it happening during my tests..
+>
+> If you didn't revert it, yet, attached (and inlined) is a patch which
+> reverts the ABS_MAX change and just moves the new identifiers in
+> between the others. On top of 3.12-rc1, this should fix all issues. If
+> you already reverted the patches, I guess we will just push it in
+> linux-next again and wait for 3.13?
+>
+> Thanks
+> David
+>
+> (Inlined patch below, also attached to mail as gmail hates long lines)
+>
+> From 13d549489b4bd2eade719cf2ec8c37724be6e640 Mon Sep 17 00:00:00 2001
+> From: David Herrmann <dh.herrmann@gmail.com>
+> Date: Sat, 7 Sep 2013 09:17:11 +0200
+> Subject: [PATCH] Revert/Fix "Input: introduce BTN/ABS bits for drums and
+>  guitars"
+>
+> commit 61e00655e9cb82e034eb72b95a51072e718d14a7
+> Author: David Herrmann <dh.herrmann@gmail.com>
+> Date:   Mon Aug 26 19:14:46 2013 +0200
+>
+>     Input: introduce BTN/ABS bits for drums and guitars
+>
+> This introduced several new identifiers for drums/guitar devices. However,
+> it also increased ABS_MAX. Unfortunately, 0x3f is already the maximum we
+> can use for ABS_MAX due to the limited EVIOCSABS ioctl.
+>
+> Revert this commit and move the new identifiers somewhere in between. We
+> need to figure out some other way to add new identifiers for the future.
+> To avoid this happening again, I added a small comment.
+>
+> This also fixes an issue where xf86-input-evdev failed on EVIOCGABS() due
+> to ABS_MAX not being a full mask.
+>
+> Markus Trippelsdorf <markus@trippelsdorf.de>
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+>  include/linux/mod_devicetable.h |  2 +-
+>  include/uapi/linux/input.h      | 33 ++++++++++++++++++---------------
+>  2 files changed, 19 insertions(+), 16 deletions(-)
+>
+> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> index 329aa30..45e9214 100644
+> --- a/include/linux/mod_devicetable.h
+> +++ b/include/linux/mod_devicetable.h
+> @@ -277,7 +277,7 @@ struct pcmcia_device_id {
+>  #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING 0x71
+>  #define INPUT_DEVICE_ID_KEY_MAX 0x2ff
+>  #define INPUT_DEVICE_ID_REL_MAX 0x0f
+> -#define INPUT_DEVICE_ID_ABS_MAX 0x4f
+> +#define INPUT_DEVICE_ID_ABS_MAX 0x3f
+>  #define INPUT_DEVICE_ID_MSC_MAX 0x07
+>  #define INPUT_DEVICE_ID_LED_MAX 0x0f
+>  #define INPUT_DEVICE_ID_SND_MAX 0x07
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index 76457ee..12c33f8 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -819,8 +819,24 @@ struct input_keymap_entry {
+>
+>  #define ABS_VOLUME 0x20
+>
+> +/* Drums and guitars (mostly toys) */
+> +#define ABS_TOM_FAR_LEFT 0x21
+> +#define ABS_TOM_LEFT 0x22
+> +#define ABS_TOM_RIGHT 0x23
+> +#define ABS_TOM_FAR_RIGHT 0x24
+> +#define ABS_CYMBAL_FAR_LEFT 0x25
+> +#define ABS_CYMBAL_LEFT 0x26
+> +#define ABS_CYMBAL_RIGHT 0x27
+> +
+>  #define ABS_MISC 0x28
+>
+> +/* Drums and guitars continued */
+> +#define ABS_CYMBAL_FAR_RIGHT 0x29
+> +#define ABS_BASS 0x2a
+> +#define ABS_HI_HAT 0x2b
+> +#define ABS_FRET_BOARD 0x2c /* Guitar fret board, vertical pos */
+> +#define ABS_WHAMMY_BAR 0x2d /* Guitar whammy bar (or vibrato) */
+> +
 
-i8042_flush returns the number of flushed bytes, which is
-in 0 - I8042_BUFFER_SIZE range inclusive. Therefore, i8042_flush
-has no way to indicate an error. Moreover i8042_controller_check
-takes initially full buffer (i8042_flush returned
-I8042_BUFFER_SIZE) as a sign of absence of the controller.
+I'm not particularly in favor of adding semantic between ABS_MISC and
+ABS_MT_SLOT. We already did that once with the ABS_MT_* stuff, and the
+problem comes from devices showing several axes, not really mapped
+(like joysticks). These axes are all mapped to ABS_MISC, but the input
+core function map them to ABS_MISC+N. This way some joysticks show
+multitouch axes and are treated as such, whereas the axis are just
+regular absolute axes. (not sure I am clear enough... :( )
 
-The fix:
-i8042_flush should perform one more status check after
-I8042_BUFFER_SIZE bytes have been read, and, if it succeeds,
-indicate the error by returning -1. i8042_controller_check
-should be changed appropriately.
+Currently, nothing is done in X or in Wayland to detect these false
+multitouch devices with a large number of absolute axes. But if we
+keep a hole between ABS_MISC and ABS_MT_SLOT, we could add an
+heuristic like:
+"if all the axes between ABS_MISC and ABS_MT_SLOT are available, then
+ABS_MT_SLOT does not mean multitouch, but ABS_MISC+6."
 
-Signed-off-by: Andrey Moiseev <o2g.org.ru@gmail.com>
----
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 78e4de4..cdda786 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -222,29 +222,32 @@ static int i8042_wait_write(void)
- static int i8042_flush(void)
- {
- 	unsigned long flags;
- 	unsigned char data, str;
- 	int i = 0;
- 
- 	spin_lock_irqsave(&i8042_lock, flags);
- 
--	while (((str = i8042_read_status()) & I8042_STR_OBF) && (i < I8042_BUFFER_SIZE)) {
-+	while (((str = i8042_read_status()) & I8042_STR_OBF) && (i <= I8042_BUFFER_SIZE)) {
- 		udelay(50);
- 		data = i8042_read_data();
- 		i++;
- 		dbg("%02x <- i8042 (flush, %s)\n",
- 		    data, str & I8042_STR_AUXDATA ? "aux" : "kbd");
- 	}
- 
- 	spin_unlock_irqrestore(&i8042_lock, flags);
- 
-+	if (i == I8042_BUFFER_SIZE + 1)
-+		return -1;
-+
- 	return i;
- }
- 
- /*
-  * i8042_command() executes a command on the i8042. It also sends the input
-  * parameter(s) of the commands to it, and receives the output value(s). The
-  * parameters are to be stored in the param array, and the output is placed
-  * into the same array. The number of the parameters and output values is
-  * encoded in bits 8-11 of the command number.
-  */
- 
-@@ -849,11 +852,11 @@ static int __init i8042_check_aux(void)
- 
- static int i8042_controller_check(void)
- {
--	if (i8042_flush() == I8042_BUFFER_SIZE) {
-+	if (i8042_flush() == -1) {
- 		pr_err("No controller found\n");
- 		return -ENODEV;
- 	}
- 
- 	return 0;
- }
- 
--- 
-1.8.4
+Cheers,
+Benjamin
 
+>  #define ABS_MT_SLOT 0x2f /* MT slot being modified */
+>  #define ABS_MT_TOUCH_MAJOR 0x30 /* Major axis of touching ellipse */
+>  #define ABS_MT_TOUCH_MINOR 0x31 /* Minor axis (omit if circular) */
+> @@ -837,21 +853,8 @@ struct input_keymap_entry {
+>  #define ABS_MT_TOOL_X 0x3c /* Center X tool position */
+>  #define ABS_MT_TOOL_Y 0x3d /* Center Y tool position */
+>
+> -/* Drums and guitars (mostly toys) */
+> -#define ABS_TOM_FAR_LEFT 0x40
+> -#define ABS_TOM_LEFT 0x41
+> -#define ABS_TOM_RIGHT 0x42
+> -#define ABS_TOM_FAR_RIGHT 0x43
+> -#define ABS_CYMBAL_FAR_LEFT 0x44
+> -#define ABS_CYMBAL_LEFT 0x45
+> -#define ABS_CYMBAL_RIGHT 0x46
+> -#define ABS_CYMBAL_FAR_RIGHT 0x47
+> -#define ABS_BASS 0x48
+> -#define ABS_HI_HAT 0x49
+> -#define ABS_FRET_BOARD 0x4a /* Guitar fret board, vertical pos */
+> -#define ABS_WHAMMY_BAR 0x4b /* Guitar whammy bar (or vibrato) */
+> -
+> -#define ABS_MAX 0x4f
+> +/* EVIOCSABS() does not support ABS_MAX > 0x3f */
+> +#define ABS_MAX 0x3f
+>  #define ABS_CNT (ABS_MAX+1)
+>
+>  /*
+> --
+> 1.8.4
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

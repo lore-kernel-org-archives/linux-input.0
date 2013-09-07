@@ -1,44 +1,55 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [GIT] HID for 3.12 merge window
-Date: Sat, 7 Sep 2013 19:31:02 +0200
-Message-ID: <CANq1E4Qag351rbnDb7M+tu2OJ5WWk6n2hzhatVukjrFyw8BL9g@mail.gmail.com>
-References: <alpine.LNX.2.00.1309061202050.26934@pobox.suse.cz>
-	<20130906202022.GA353@x4>
-	<CANq1E4Rf4c4zj1mD1aPr93Q2_M65DCEJhuLqcBWa5uH9tcKuWA@mail.gmail.com>
-	<CA+55aFzg-dv-N7UjXx2pxUJ+QQOOy0qtp_e94PDSM=tVd=LgUw@mail.gmail.com>
-	<506b9d43-f734-40f9-b137-0749a496fd6d@email.android.com>
-	<CA+55aFzLy+-VF022ORuyWk-qQO7gDSQ1LZES1+bEUxz0QxrH-g@mail.gmail.com>
-	<20130907032240.GA1256@core.coreip.homeip.net>
-	<CANq1E4Q85ewwKs7VoooZVapC7-Cvy6-Xp4rGL1-1Ee7w1EcT6w@mail.gmail.com>
-	<CA+55aFye+TFiXPeJhB9fJjUcMR6LynjsZU+sjckKk2YoYOZDnw@mail.gmail.com>
+Subject: Re: [PATCH v4] Input: evdev - add EVIOCREVOKE ioctl
+Date: Sat, 7 Sep 2013 19:41:05 +0200
+Message-ID: <CANq1E4QZ9tZT+OesteyCrC9xyYxPxwZ6QV81+RQD70N3dQfM=g@mail.gmail.com>
+References: <1378044450-8327-1-git-send-email-dh.herrmann@gmail.com>
+	<1378551653-805-1-git-send-email-dh.herrmann@gmail.com>
+	<c552d883-34a3-4317-9053-be7ea190cebe@email.android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CA+55aFye+TFiXPeJhB9fJjUcMR6LynjsZU+sjckKk2YoYOZDnw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Markus Trippelsdorf <markus@trippelsdorf.de>, Jiri Kosina <jkosina@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f44.google.com ([209.85.215.44]:48933 "EHLO
+	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751012Ab3IGRlH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Sep 2013 13:41:07 -0400
+Received: by mail-la0-f44.google.com with SMTP id eo20so3759291lab.17
+        for <linux-input@vger.kernel.org>; Sat, 07 Sep 2013 10:41:05 -0700 (PDT)
+In-Reply-To: <c552d883-34a3-4317-9053-be7ea190cebe@email.android.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <hoegsberg@gmail.com>
 
-Hi Linus
+Hi Dmitry
 
-On Sat, Sep 7, 2013 at 6:52 PM, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
-> On Sat, Sep 7, 2013 at 12:31 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
->>
->> The bug only occurs for multi-touch devices (their ABS_* bits are
->>>0x1f), that's why I didn't see it happening during my tests..
+On Sat, Sep 7, 2013 at 7:16 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> David Herrmann <dh.herrmann@gmail.com> wrote:
+>>Given the recent ABS_*-regression, I wrote a bunch of more aggressive
+>>stress-tests for this. I didn't found any regressions if EVIOCREVOKE is
+>>not
+>>used, but one with revoke on an empty queue in evdev_read(). Now fixed.
+>>Please
+>>let me know what your plans for this patch are (-next or -rc1?) so we
+>>can
+>>schedule accordingly.
 >
-> It definitely affects keyboards too. That's how I noticed it. That is
-> with the logitech "universal" receiver, though, so maybe that counts
-> as a potential multi-touch device..
+> I think this one is safer than extending axis numbers as there is no concerns about breaking stuff - it's brand new. So I think we can work it in -rc1.
 
-I have been quite wrong with that statement, yepp. xorg-evdev fetches
-the whole device-information. So if a keyboard provides an affected
-ABS_* bit, it'll break, too. My ancient hardware didn't use any of the
-higher ABS bits, though.
-I'm sorry for the troubles caused. ABS_MAX must be at most 0x3f. So
-please, go ahead and revert the 3 mentioned patches.
+Sounds good, thanks.
+The ABS-fixes will take some time, yepp. We can retry these with the
+guitar/drums ABS bits for 3.13. EVIOC[SG]ABS2 is probably the way to
+go.
+
+>> As a side note, will you attend LPC this year? We
+>>have a
+>>bunch of fancy stuff I'd like your opinion on (including
+>>device-properties, device-detection, ABS_* bit extension).
+>
+> Yes. I'll get to new Orleans a couple days earlier (Sunday night) so if you are in town we could meet for drinks or such.
+
+I'll arrive there on Saturday-evening, will drop you a message. See
+you in New Orleans.
 
 Thanks
 David

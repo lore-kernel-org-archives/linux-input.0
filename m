@@ -1,32 +1,47 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [GIT] HID for 3.12 merge window
-Date: Fri, 6 Sep 2013 18:00:29 -0700
-Message-ID: <CA+55aFzLy+-VF022ORuyWk-qQO7gDSQ1LZES1+bEUxz0QxrH-g@mail.gmail.com>
+Date: Fri, 6 Sep 2013 20:22:40 -0700
+Message-ID: <20130907032240.GA1256@core.coreip.homeip.net>
 References: <alpine.LNX.2.00.1309061202050.26934@pobox.suse.cz>
-	<20130906202022.GA353@x4>
-	<CANq1E4Rf4c4zj1mD1aPr93Q2_M65DCEJhuLqcBWa5uH9tcKuWA@mail.gmail.com>
-	<CA+55aFzg-dv-N7UjXx2pxUJ+QQOOy0qtp_e94PDSM=tVd=LgUw@mail.gmail.com>
-	<506b9d43-f734-40f9-b137-0749a496fd6d@email.android.com>
+ <20130906202022.GA353@x4>
+ <CANq1E4Rf4c4zj1mD1aPr93Q2_M65DCEJhuLqcBWa5uH9tcKuWA@mail.gmail.com>
+ <CA+55aFzg-dv-N7UjXx2pxUJ+QQOOy0qtp_e94PDSM=tVd=LgUw@mail.gmail.com>
+ <506b9d43-f734-40f9-b137-0749a496fd6d@email.android.com>
+ <CA+55aFzLy+-VF022ORuyWk-qQO7gDSQ1LZES1+bEUxz0QxrH-g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ve0-f182.google.com ([209.85.128.182]:36642 "EHLO
-	mail-ve0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750815Ab3IGBAa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Sep 2013 21:00:30 -0400
-In-Reply-To: <506b9d43-f734-40f9-b137-0749a496fd6d@email.android.com>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:43055 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750752Ab3IGDWn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Sep 2013 23:22:43 -0400
+Content-Disposition: inline
+In-Reply-To: <CA+55aFzLy+-VF022ORuyWk-qQO7gDSQ1LZES1+bEUxz0QxrH-g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: David Herrmann <dh.herrmann@gmail.com>, Markus Trippelsdorf <markus@trippelsdorf.de>, Jiri Kosina <jkosina@suse.cz>, linux-kernel <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
-On Fri, Sep 6, 2013 at 5:58 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> The patch still had problems so I'd revert it and wii bits and try again later.
+On Fri, Sep 06, 2013 at 06:00:29PM -0700, Linus Torvalds wrote:
+> On Fri, Sep 6, 2013 at 5:58 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> >
+> > The patch still had problems so I'd revert it and wii bits and try again later.
+> 
+> Ok. Mind giving me a list of commits, so that I don't have to do a
+> trial-and-error thing? I know the primary commit that causes problems,
+> but there are commits that seem to depend on it..
 
-Ok. Mind giving me a list of commits, so that I don't have to do a
-trial-and-error thing? I know the primary commit that causes problems,
-but there are commits that seem to depend on it..
 
-             Linus
+Sorry for the delay. I believe you need to revert:
+
+73f8645 HID: wiimote: add support for Guitar-Hero drums
+61e0065 Input: introduce BTN/ABS bits for drums and guitars
+
+Hmm... there also was "HID: wiimote: add support for Guitar-Hero
+guitars" but I do not see it...
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,55 +1,95 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH v4] Input: evdev - add EVIOCREVOKE ioctl
-Date: Sat, 7 Sep 2013 19:41:05 +0200
-Message-ID: <CANq1E4QZ9tZT+OesteyCrC9xyYxPxwZ6QV81+RQD70N3dQfM=g@mail.gmail.com>
-References: <1378044450-8327-1-git-send-email-dh.herrmann@gmail.com>
-	<1378551653-805-1-git-send-email-dh.herrmann@gmail.com>
-	<c552d883-34a3-4317-9053-be7ea190cebe@email.android.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/2] input: ti_am335x_tsc: Enable shared IRQ for TSC
+Date: Sun, 08 Sep 2013 12:29:26 +0100
+Message-ID: <522C5F96.20001@kernel.org>
+References: <1378034277-26728-1-git-send-email-zubair.lutfullah@gmail.com> <1378034277-26728-2-git-send-email-zubair.lutfullah@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f44.google.com ([209.85.215.44]:48933 "EHLO
-	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751012Ab3IGRlH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Sep 2013 13:41:07 -0400
-Received: by mail-la0-f44.google.com with SMTP id eo20so3759291lab.17
-        for <linux-input@vger.kernel.org>; Sat, 07 Sep 2013 10:41:05 -0700 (PDT)
-In-Reply-To: <c552d883-34a3-4317-9053-be7ea190cebe@email.android.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1378034277-26728-2-git-send-email-zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <hoegsberg@gmail.com>
 
-Hi Dmitry
+On 09/01/13 12:17, Zubair Lutfullah wrote:
+> Enable shared IRQ to allow ADC to share IRQ line from
+> parent MFD core. Only FIFO0 IRQs are for TSC and handled
+> on the TSC side.
+>=20
+> Step mask would be updated from cached variable only previously.
+> In rare cases when both TSC and ADC are used, the cached
+> variable gets mixed up.
+> The step mask is written with the required mask every time.
+>=20
+> Rachna Patil (TI) laid ground work for shared IRQ.
+>=20
+> Signed-off-by: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Whilst I would have prefered an mfd under these drivers and elegant han=
+dling
+of the interrupts, I guess if this works it is at least not terribly in=
+vasive.
 
-On Sat, Sep 7, 2013 at 7:16 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> David Herrmann <dh.herrmann@gmail.com> wrote:
->>Given the recent ABS_*-regression, I wrote a bunch of more aggressive
->>stress-tests for this. I didn't found any regressions if EVIOCREVOKE is
->>not
->>used, but one with revoke on an empty queue in evdev_read(). Now fixed.
->>Please
->>let me know what your plans for this patch are (-next or -rc1?) so we
->>can
->>schedule accordingly.
->
-> I think this one is safer than extending axis numbers as there is no concerns about breaking stuff - it's brand new. So I think we can work it in -rc1.
+However, this does need an Ack from Dmitry before I can take it (or for
+Dmitry to take it himself?)
 
-Sounds good, thanks.
-The ABS-fixes will take some time, yepp. We can retry these with the
-guitar/drums ABS bits for 3.13. EVIOC[SG]ABS2 is probably the way to
-go.
-
->> As a side note, will you attend LPC this year? We
->>have a
->>bunch of fancy stuff I'd like your opinion on (including
->>device-properties, device-detection, ABS_* bit extension).
->
-> Yes. I'll get to new Orleans a couple days earlier (Sunday night) so if you are in town we could meet for drinks or such.
-
-I'll arrive there on Saturday-evening, will drop you a message. See
-you in New Orleans.
-
-Thanks
-David
+> ---
+>  drivers/input/touchscreen/ti_am335x_tsc.c |   12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/inpu=
+t/touchscreen/ti_am335x_tsc.c
+> index e1c5300..24e625c 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -52,6 +52,7 @@ struct titsc {
+>  	u32			config_inp[4];
+>  	u32			bit_xp, bit_xn, bit_yp, bit_yn;
+>  	u32			inp_xp, inp_xn, inp_yp, inp_yn;
+> +	u32			step_mask;
+>  };
+> =20
+>  static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
+> @@ -196,7 +197,8 @@ static void titsc_step_config(struct titsc *ts_de=
+v)
+> =20
+>  	/* The steps1 =E2=80=A6 end and bit 0 for TS_Charge */
+>  	stepenable =3D (1 << (end_step + 2)) - 1;
+> -	am335x_tsc_se_set(ts_dev->mfd_tscadc, stepenable);
+> +	ts_dev->step_mask =3D stepenable;
+> +	am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
+>  }
+> =20
+>  static void titsc_read_coordinates(struct titsc *ts_dev,
+> @@ -260,6 +262,10 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+>  	unsigned int fsm;
+> =20
+>  	status =3D titsc_readl(ts_dev, REG_IRQSTATUS);
+> +	/*
+> +	 * ADC and touchscreen share the IRQ line.
+> +	 * FIFO1 interrupts are used by ADC. Handle FIFO0 IRQs here only
+> +	 */
+>  	if (status & IRQENB_FIFO0THRES) {
+> =20
+>  		titsc_read_coordinates(ts_dev, &x, &y, &z1, &z2);
+> @@ -316,7 +322,7 @@ static irqreturn_t titsc_irq(int irq, void *dev)
+> =20
+>  	if (irqclr) {
+>  		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
+> -		am335x_tsc_se_update(ts_dev->mfd_tscadc);
+> +		am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
+>  		return IRQ_HANDLED;
+>  	}
+>  	return IRQ_NONE;
+> @@ -389,7 +395,7 @@ static int titsc_probe(struct platform_device *pd=
+ev)
+>  	}
+> =20
+>  	err =3D request_irq(ts_dev->irq, titsc_irq,
+> -			  0, pdev->dev.driver->name, ts_dev);
+> +			  IRQF_SHARED, pdev->dev.driver->name, ts_dev);
+>  	if (err) {
+>  		dev_err(&pdev->dev, "failed to allocate irq.\n");
+>  		goto err_free_mem;
+>=20

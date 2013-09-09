@@ -1,51 +1,75 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH] Input: cypress_ps2 - Remove casting the return value which is
- a void pointer
-Date: Mon, 09 Sep 2013 14:37:03 +0900
-Message-ID: <005401cead1e$9d3f7990$d7be6cb0$%han@samsung.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [RFC] surface-input
+Date: Mon, 09 Sep 2013 10:25:50 +0200
+Message-ID: <522D860E.4020909@butterbrot.org>
+References: <52289209.2070707@butterbrot.org> <5229D7CF.4090401@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="fPVEHu5Ok5qChSU9whDU5euQRAppNWbai"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:43113 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751050Ab3IIFhF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 01:37:05 -0400
-Received: from epcpsbgr1.samsung.com
- (u141.gpu120.samsung.co.kr [203.254.230.141])
- by mailout4.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0MSU00IM9FKYTOO0@mailout4.samsung.com> for
- linux-input@vger.kernel.org; Mon, 09 Sep 2013 14:37:04 +0900 (KST)
-Content-language: ko
+Received: from butterbrot.org ([176.9.106.16]:56747 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750934Ab3IIIZx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Sep 2013 04:25:53 -0400
+In-Reply-To: <5229D7CF.4090401@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: 'Dmitry Torokhov' <dtor@mail.ru>, linux-input@vger.kernel.org, 'Dudley Du' <dudl@cypress.com>, 'Jingoo Han' <jg1.han@samsung.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Casting the return value which is a void pointer is redundant.
-The conversion from void pointer to any other pointer type is
-guaranteed by the C programming language.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--fPVEHu5Ok5qChSU9whDU5euQRAppNWbai
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
----
- drivers/input/mouse/cypress_ps2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 06.09.2013 15:25, Benjamin Tissoires wrote:
+> Some generic comments:
+> - please always inline the code in the message, it is *much* easier to =
+review and comment it
+> - please directly use a patch format: if the code is good, Dmitry can t=
+ake it directly through his tree
+> - add the following people for further submissions:
+>   * Henrik - multitouch maintainer in the kernel, and I'm sure he will =
+be happy to see this stuff
+>   * Dmitry - input maintainer, the driver will go through his tree, so =
+it's better to let him know as soon as possible of the different discussi=
+ons.
+> - please stick to the kernel formatting guidelines (without orders: do =
+not use C99-style ("// ..."), do not mix tabs and spaces, stick to 80 col=
+umns, etc..). The whole documentation is in Documentation/CodingStyle, an=
+d use the script scripts/checkpatch.pl to validate most of these.
+> - I don't think a separate ".h" will be accepted as the declarations wi=
+ll not be used outside of the driver. Just merge the header on top of you=
+ .c file.
 
-diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-index f51765f..ef651cc 100644
---- a/drivers/input/mouse/cypress_ps2.c
-+++ b/drivers/input/mouse/cypress_ps2.c
-@@ -679,7 +679,7 @@ int cypress_init(struct psmouse *psmouse)
- {
- 	struct cytp_data *cytp;
- 
--	cytp = (struct cytp_data *)kzalloc(sizeof(struct cytp_data), GFP_KERNEL);
-+	cytp = kzalloc(sizeof(struct cytp_data), GFP_KERNEL);
- 	psmouse->private = (void *)cytp;
- 	if (cytp == NULL)
- 		return -ENOMEM;
--- 
-1.7.10.4
+Benjamin and David, thanks for your feedback. I will integrate this and
+get back to you with a proper patch ASAP.
+
+I have one additional question which is more about "future-proofing"
+this driver. The SUR40 hardware does also provide a raw video image from
+the touch sensor over another USB _endpoint_. Since it's not a different
+_interface_, this can only be handled in the same driver as far as I can
+tell. At some point in the future, I would like to add a V4L2 interface
+to also support the video endpoint - are there any issues I should
+already try to watch out for in the input part?
+
+Thanks again, and best regards, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
 
 
+--fPVEHu5Ok5qChSU9whDU5euQRAppNWbai
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlIthg4ACgkQ7CzyshGvatgOAACffIV5+qNNC1EKG3Me8URSQcth
+CZoAoL5Qw+gJZOdeYUWmBuUSB27gKJli
+=H58W
+-----END PGP SIGNATURE-----
+
+--fPVEHu5Ok5qChSU9whDU5euQRAppNWbai--

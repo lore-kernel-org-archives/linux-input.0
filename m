@@ -1,68 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: ALPS Touchpad- Improve the performance of
- alps v5-protocol's touchpad
-Date: Mon, 9 Sep 2013 09:27:34 -0700
-Message-ID: <20130909162734.GC25107@core.coreip.homeip.net>
-References: <89B48266C4EEC447B3A3A031C8DE21870263AF93@SIXPRD0410MB394.apcprd04.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH] HID: uhid: allocate static minor
+Date: Mon,  9 Sep 2013 18:33:54 +0200
+Message-ID: <1378744434-10883-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:40470 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754170Ab3IIQ1h (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 12:27:37 -0400
-Received: by mail-pd0-f174.google.com with SMTP id y13so6434435pdi.33
-        for <linux-input@vger.kernel.org>; Mon, 09 Sep 2013 09:27:37 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <89B48266C4EEC447B3A3A031C8DE21870263AF93@SIXPRD0410MB394.apcprd04.prod.outlook.com>
+Received: from mail-bk0-f41.google.com ([209.85.214.41]:63529 "EHLO
+	mail-bk0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752929Ab3IIQeY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 12:34:24 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "yunkang.tang@cn.alps.com" <yunkang.tang@cn.alps.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Tom Gundersen <teg@jklm.no>, Kay Sievers <kay.sievers@vrfy.org>, Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>
 
-Hi Tommy,
+udev has this nice feature of creating "dead" /dev/<node> device-nodes if
+it finds a devnode:<node> modalias. Once the node is accessed, the kernel
+automatically loads the module that provides the node. However, this
+requires udev to know the major:minor code to use for the node. This
+feature was introduced by:
 
-On Thu, Sep 05, 2013 at 05:50:55AM +0000, yunkang.tang@cn.alps.com wrote:
-> <Change list>
-> - Add the macro definition for v5 device.
-> 
-> --- linux-3.11/drivers/input/mouse/alps.h.orig 2013-09-04 19:51:33.837135870 +0800
-> +++ linux-3.11/drivers/input/mouse/alps.h 2013-09-05 21:01:57.074314890 +0800
-> @@ -18,6 +18,10 @@
->  #define ALPS_PROTO_V4 4
->  #define ALPS_PROTO_V5 5
->  
-> +#define DOLPHIN_COUNT_PER_ELECTRODE 64
-> +#define DOLPHIN_PROFILE_XOFFSET  8 /* [DOLPHIN] The number of the x-electrode offset value */
-> +#define DOLPHIN_PROFILE_YOFFSET  1 /* [DOLPHIN] The number of the y-electrode offset value */
-> +
->  /**
->   * struct alps_model_info - touchpad ID table
->   * @signature: E7 response string to match.
-> @@ -69,7 +73,7 @@ struct alps_nibble_commands {
->   * @y: Y position for ST.
->   * @z: Z position for ST.
->   * @first_mp: Packet is the first of a multi-packet report.
-> - * @is_mp: Packet is part of a multi-packet report.
-> + * @is_mp: Packet is the last of a multi-packet report.
->   * @left: Left touchpad button is active.
->   * @right: Right touchpad button is active.
->   * @middle: Middle touchpad button is active.
-> @@ -145,7 +149,7 @@ struct alps_data {
->  
->   int (*hw_init)(struct psmouse *psmouse);
->   void (*process_packet)(struct psmouse *psmouse);
-> - void (*decode_fields)(struct alps_fields *f, unsigned char *p);
-> + void (*decode_fields)(struct alps_fields *f, unsigned char *p, struct psmouse *psmouse);
->   void (*set_abs_params)(struct alps_data *priv, struct input_dev *dev1);
->  
->   int prev_fin;
+  commit 578454ff7eab61d13a26b568f99a89a2c9edc881
+  Author: Kay Sievers <kay.sievers@vrfy.org>
+  Date:   Thu May 20 18:07:20 2010 +0200
 
-Please do not separate changes in header files form changes in .c files
-because patches need to be complete. If I were to apply this patch alone
-it would break the compilation.
+      driver core: add devname module aliases to allow module on-demand auto-loading
 
-Thanks.
+However, uhid uses dynamic minor numbers so this doesn't actually work. We
+need to load uhid to know which minor it's going to use.
 
+Hence, allocate a static minor (just like uinput does) and we're good
+to go.
+
+Reported-by: Tom Gundersen <teg@jklm.no>
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ drivers/hid/uhid.c         | 3 ++-
+ include/linux/miscdevice.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 5bf2fb7..93b00d7 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -615,7 +615,7 @@ static const struct file_operations uhid_fops = {
+ 
+ static struct miscdevice uhid_misc = {
+ 	.fops		= &uhid_fops,
+-	.minor		= MISC_DYNAMIC_MINOR,
++	.minor		= UHID_MINOR,
+ 	.name		= UHID_NAME,
+ };
+ 
+@@ -634,4 +634,5 @@ module_exit(uhid_exit);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
+ MODULE_DESCRIPTION("User-space I/O driver support for HID subsystem");
++MODULE_ALIAS_MISCDEV(UHID_MINOR);
+ MODULE_ALIAS("devname:" UHID_NAME);
+diff --git a/include/linux/miscdevice.h b/include/linux/miscdevice.h
+index 09c2300..cb35835 100644
+--- a/include/linux/miscdevice.h
++++ b/include/linux/miscdevice.h
+@@ -45,6 +45,7 @@
+ #define MAPPER_CTRL_MINOR	236
+ #define LOOP_CTRL_MINOR		237
+ #define VHOST_NET_MINOR		238
++#define UHID_MINOR		239
+ #define MISC_DYNAMIC_MINOR	255
+ 
+ struct device;
 -- 
-Dmitry
+1.8.4
+

@@ -1,79 +1,45 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: HID input dealing with multiple collections?
-Date: Mon, 9 Sep 2013 15:12:34 +0200
-Message-ID: <CAN+gG=ELptZsD37P9XMAgbLCFt-yZVbgmbGrk+mLvT6G2raKLQ@mail.gmail.com>
-References: <522DC594.2000305@brettnet.eu>
+Subject: Re: [PATCH 5/7] HID: LG: validate HID output report details
+Date: Mon, 9 Sep 2013 15:22:35 +0200
+Message-ID: <CAN+gG=HppwzbLH74G=BmEUtQ06sQWj-n7Msguj9BAQ+n=EKkJg@mail.gmail.com>
+References: <1378312645-27736-1-git-send-email-keescook@chromium.org>
+	<1378312645-27736-6-git-send-email-keescook@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f44.google.com ([209.85.215.44]:41770 "EHLO
-	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751178Ab3IINMf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 09:12:35 -0400
-Received: by mail-la0-f44.google.com with SMTP id eo20so4884612lab.17
-        for <linux-input@vger.kernel.org>; Mon, 09 Sep 2013 06:12:34 -0700 (PDT)
-In-Reply-To: <522DC594.2000305@brettnet.eu>
+Received: from mail-lb0-f171.google.com ([209.85.217.171]:36882 "EHLO
+	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751012Ab3IINWh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 09:22:37 -0400
+Received: by mail-lb0-f171.google.com with SMTP id u14so4978345lbd.16
+        for <linux-input@vger.kernel.org>; Mon, 09 Sep 2013 06:22:36 -0700 (PDT)
+In-Reply-To: <1378312645-27736-6-git-send-email-keescook@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Breton M. Saunders" <bms20@brettnet.eu>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Kees Cook <keescook@chromium.org>
+Cc: linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, stable@kernel.org
 
-Hi,
-
-On Mon, Sep 9, 2013 at 2:56 PM, Breton M. Saunders <bms20@brettnet.eu> wrote:
-> Hello,
+On Wed, Sep 4, 2013 at 6:37 PM, Kees Cook <keescook@chromium.org> wrote:
+> A HID device could send a malicious output report that would cause the
+> lg, lg3, and lg4 HID drivers to write beyond the output report allocation
+> during an event, causing a heap overflow:
 >
->   I've written a USB device which supports multiple input devices:
->     * A touch surface digitizer (following Microsoft's specification)
->     * A pen surface digitizer
->     * A mouse emulator
+> [  325.245240] usb 1-1: New USB device found, idVendor=046d, idProduct=c287
+> ...
+> [  414.518960] BUG kmalloc-4096 (Not tainted): Redzone overwritten
 >
->   In windows each of these interfaces are exposed as a separate top level
-> collection, e.g.:
->   Usage_Page(Generic Desktop)
->   Usage(Mouse)
->   Collection(Application)
->        ...
->   End_Collection
->   Usage_Page(Digitzer)
->   Usage(Touch_Screen)
->   Collection(Application)
->      ...
->   End_Collection
->   Usage(Digitizer)
->   Usage(Pen)
->   Collection(Application)
->      ...
->   End_Collection
+> Additionally, while lg2 did correctly validate the report details, it was
+> cleaned up and shortened.
 >
->   Now this descriptor works well in Windows; all reporting channels are
-> exposed correctly as hid devices and mouse/multitouch/pen input all works
-> correctly as expected.  In linux, however, this is not the case.  What I see
-> is that if I drop out the touch/pen functionality then the mouse support
-> works correctly.  Likewise, if I drop any pair of other top level
-> collections such that I have exactly one top level collection the system
-> works correctly.
+> CVE-2013-2893
 >
->   Am I missing something here - as in: Have I made an error in my usage of
-> top level collections, or is linux-input's hid support incapable of dealing
-> with multiple top level collections?
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Cc: stable@kernel.org
+> ---
 
-If it works under Windows, there are huge chances that your report
-descriptor is good.
+To me, the patch looks good.
 
-However, under Linux, we use the report IDs to split (if required) the
-different inputs.
-The good thing for you is that if I understand correctly, the device
-you are talking about should be handled through hid-multitouch. Since
-kernel v3.10, we have introduced the support of devices showing both a
-digitizer and a pen (they will show up as two input devices).
-
-I would encourage you to test a 3.10 kernel, and/or send me some
-traces of your devices by using hid-replay[1]. This way I will be able
-to test your device on my laptop, and eventually figure out any
-problem.
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
-
-[1] http://bentiss.github.io/hid-replay-docs/

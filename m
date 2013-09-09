@@ -1,61 +1,73 @@
-From: "Breton M. Saunders" <bms20@brettnet.eu>
-Subject: HID input dealing with multiple collections?
-Date: Mon, 09 Sep 2013 13:56:52 +0100
-Message-ID: <522DC594.2000305@brettnet.eu>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 4/7] HID: steelseries: validate output report details
+Date: Mon, 9 Sep 2013 15:02:02 +0200
+Message-ID: <CAN+gG=H6Pib-kzWKPH_Hj_vcw7q_agHZ7_Qi-pEde9tbTB4EkA@mail.gmail.com>
+References: <1378312645-27736-1-git-send-email-keescook@chromium.org>
+	<1378312645-27736-5-git-send-email-keescook@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:63788 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751822Ab3IIM4z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 08:56:55 -0400
-Received: from [192.168.45.122] (unknown [194.223.214.122])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by brettnet.eu (Postfix) with ESMTPSA id 4B468200252
-	for <linux-input@vger.kernel.org>; Mon,  9 Sep 2013 13:54:31 +0100 (BST)
+Received: from mail-la0-f41.google.com ([209.85.215.41]:59306 "EHLO
+	mail-la0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751128Ab3IINCD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 09:02:03 -0400
+Received: by mail-la0-f41.google.com with SMTP id ec20so4976418lab.0
+        for <linux-input@vger.kernel.org>; Mon, 09 Sep 2013 06:02:02 -0700 (PDT)
+In-Reply-To: <1378312645-27736-5-git-send-email-keescook@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, stable@kernel.org
 
-Hello,
+On Wed, Sep 4, 2013 at 6:37 PM, Kees Cook <keescook@chromium.org> wrote:
+> A HID device could send a malicious output report that would cause the
+> steelseries HID driver to write beyond the output report allocation
+> during initialization, causing a heap overflow:
+>
+> [  167.981534] usb 1-1: New USB device found, idVendor=1038, idProduct=1410
+> ...
+> [  182.050547] BUG kmalloc-256 (Tainted: G        W   ): Redzone overwritten
+>
+> CVE-2013-2891
+>
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Cc: stable@kernel.org
+> ---
+>  drivers/hid/hid-steelseries.c |    5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
+> index d164911..29f328f 100644
+> --- a/drivers/hid/hid-steelseries.c
+> +++ b/drivers/hid/hid-steelseries.c
+> @@ -249,6 +249,11 @@ static int steelseries_srws1_probe(struct hid_device *hdev,
+>                 goto err_free;
+>         }
+>
+> +       if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 16)) {
+> +               ret = -ENODEV;
+> +               goto err_free;
 
-   I've written a USB device which supports multiple input devices:
-     * A touch surface digitizer (following Microsoft's specification)
-     * A pen surface digitizer
-     * A mouse emulator
+There is a problem here in case of a failure:
+hid_parse() allocates a lot of memory and sets the flag
+HID_STAT_PARSED, but we are leaving the probe() without clearing all
+this stuff.
+In hid_parse(), when a failure is detected, we call
+hid_close_report(), so we also should close the report in the same way
+here (but hid_close_report() is a static function).
 
-   In windows each of these interfaces are exposed as a separate top 
-level collection, e.g.:
-   Usage_Page(Generic Desktop)
-   Usage(Mouse)
-   Collection(Application)
-        ...
-   End_Collection
-   Usage_Page(Digitzer)
-   Usage(Touch_Screen)
-   Collection(Application)
-      ...
-   End_Collection
-   Usage(Digitizer)
-   Usage(Pen)
-   Collection(Application)
-      ...
-   End_Collection
+Cheers,
+Benjamin
 
-   Now this descriptor works well in Windows; all reporting channels are 
-exposed correctly as hid devices and mouse/multitouch/pen input all 
-works correctly as expected.  In linux, however, this is not the case.  
-What I see is that if I drop out the touch/pen functionality then the 
-mouse support works correctly.  Likewise, if I drop any pair of other 
-top level collections such that I have exactly one top level collection 
-the system works correctly.
-
-   Am I missing something here - as in: Have I made an error in my usage 
-of top level collections, or is linux-input's hid support incapable of 
-dealing with multiple top level collections?
-
-   Thanks in advance for any advice on this!
-
--bms20
+> +       }
+> +
+>         ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+>         if (ret) {
+>                 hid_err(hdev, "hw start failed\n");
+> --
+> 1.7.9.5
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

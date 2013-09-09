@@ -1,78 +1,47 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: Re: [PATCH] HID: uhid: allocate static minor
-Date: Mon, 9 Sep 2013 18:51:55 +0200
-Message-ID: <CAG-2HqVFJgz0cQTGZ-AAYBt8YrVaXPMtrjb=CfAg+=2H=rjmdg@mail.gmail.com>
-References: <1378744434-10883-1-git-send-email-dh.herrmann@gmail.com>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v2 0/7] HID: validate report details
+Date: Mon, 9 Sep 2013 14:48:29 -0700
+Message-ID: <CAGXu5j+UvgNyMF8zS_zooqn8ksoETieT=5D=i_SPz5=7fzTAtA@mail.gmail.com>
+References: <1378312645-27736-1-git-send-email-keescook@chromium.org>
+	<CAN+gG=HrA7LcAS=kyVHjK_TPo83kd80aZJfv78CJ+01a+UFKDA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1378744434-10883-1-git-send-email-dh.herrmann@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Kay Sievers <kay.sievers@vrfy.org>, Marcel Holtmann <marcel@holtmann.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f182.google.com ([209.85.214.182]:49253 "EHLO
+	mail-ob0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752806Ab3IIVsa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 17:48:30 -0400
+Received: by mail-ob0-f182.google.com with SMTP id wo10so6469496obc.13
+        for <linux-input@vger.kernel.org>; Mon, 09 Sep 2013 14:48:29 -0700 (PDT)
+In-Reply-To: <CAN+gG=HrA7LcAS=kyVHjK_TPo83kd80aZJfv78CJ+01a+UFKDA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>
 
-On Mon, Sep 9, 2013 at 6:33 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> udev has this nice feature of creating "dead" /dev/<node> device-nodes if
-> it finds a devnode:<node> modalias. Once the node is accessed, the kernel
-> automatically loads the module that provides the node. However, this
-> requires udev to know the major:minor code to use for the node. This
-> feature was introduced by:
+On Mon, Sep 9, 2013 at 6:48 AM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Wed, Sep 4, 2013 at 6:37 PM, Kees Cook <keescook@chromium.org> wrote:
+>> These patches introduce a validation function for HID devices that do
+>> direct report value accesses, solving a number of heap smashing flaws.
+>>
+>> This version changes to using an field-index-based checker for the new
+>> "hid_validate_values()" which requires callers to loop across fields if
+>> they use more than one field.
 >
->   commit 578454ff7eab61d13a26b568f99a89a2c9edc881
->   Author: Kay Sievers <kay.sievers@vrfy.org>
->   Date:   Thu May 20 18:07:20 2010 +0200
+> I am globally happy with the patch series.
+> I have some concerns about patches 4 6 and 7, but the other can be
+> applied right now.
 >
->       driver core: add devname module aliases to allow module on-demand auto-loading
->
-> However, uhid uses dynamic minor numbers so this doesn't actually work. We
-> need to load uhid to know which minor it's going to use.
->
-> Hence, allocate a static minor (just like uinput does) and we're good
-> to go.
->
-> Reported-by: Tom Gundersen <teg@jklm.no>
+> Kees, if you want to switch to something else, I can handle the v3 for
+> these three patches: I have some logitech-dj devices and a tester for
+> the lenovo one.
 
-Thanks, this works (I only tested the creation of the device node, not
-the actual module loading).
+That would be fantastic, thank you. I don't have any tools to test
+these in the "expected" case. :)
 
-> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
-> ---
->  drivers/hid/uhid.c         | 3 ++-
->  include/linux/miscdevice.h | 1 +
->  2 files changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-> index 5bf2fb7..93b00d7 100644
-> --- a/drivers/hid/uhid.c
-> +++ b/drivers/hid/uhid.c
-> @@ -615,7 +615,7 @@ static const struct file_operations uhid_fops = {
->
->  static struct miscdevice uhid_misc = {
->         .fops           = &uhid_fops,
-> -       .minor          = MISC_DYNAMIC_MINOR,
-> +       .minor          = UHID_MINOR,
->         .name           = UHID_NAME,
->  };
->
-> @@ -634,4 +634,5 @@ module_exit(uhid_exit);
->  MODULE_LICENSE("GPL");
->  MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
->  MODULE_DESCRIPTION("User-space I/O driver support for HID subsystem");
-> +MODULE_ALIAS_MISCDEV(UHID_MINOR);
->  MODULE_ALIAS("devname:" UHID_NAME);
-> diff --git a/include/linux/miscdevice.h b/include/linux/miscdevice.h
-> index 09c2300..cb35835 100644
-> --- a/include/linux/miscdevice.h
-> +++ b/include/linux/miscdevice.h
-> @@ -45,6 +45,7 @@
->  #define MAPPER_CTRL_MINOR      236
->  #define LOOP_CTRL_MINOR                237
->  #define VHOST_NET_MINOR                238
-> +#define UHID_MINOR             239
->  #define MISC_DYNAMIC_MINOR     255
->
->  struct device;
-> --
-> 1.8.4
->
+-Kees
+
+-- 
+Kees Cook
+Chrome OS Security

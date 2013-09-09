@@ -1,73 +1,124 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 4/7] HID: steelseries: validate output report details
-Date: Mon, 9 Sep 2013 15:02:02 +0200
-Message-ID: <CAN+gG=H6Pib-kzWKPH_Hj_vcw7q_agHZ7_Qi-pEde9tbTB4EkA@mail.gmail.com>
-References: <1378312645-27736-1-git-send-email-keescook@chromium.org>
-	<1378312645-27736-5-git-send-email-keescook@chromium.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] update my generaltouch driver for linux by luosong
+Date: Mon, 9 Sep 2013 15:04:54 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309091500230.22174@pobox.suse.cz>
+References: <2013090912331785917915@generaltouch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f41.google.com ([209.85.215.41]:59306 "EHLO
-	mail-la0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751128Ab3IINCD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 09:02:03 -0400
-Received: by mail-la0-f41.google.com with SMTP id ec20so4976418lab.0
-        for <linux-input@vger.kernel.org>; Mon, 09 Sep 2013 06:02:02 -0700 (PDT)
-In-Reply-To: <1378312645-27736-5-git-send-email-keescook@chromium.org>
+Received: from cantor2.suse.de ([195.135.220.15]:47789 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750835Ab3IINFN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Sep 2013 09:05:13 -0400
+In-Reply-To: <2013090912331785917915@generaltouch.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, stable@kernel.org
+To: android <android@generaltouch.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Wed, Sep 4, 2013 at 6:37 PM, Kees Cook <keescook@chromium.org> wrote:
-> A HID device could send a malicious output report that would cause the
-> steelseries HID driver to write beyond the output report allocation
-> during initialization, causing a heap overflow:
->
-> [  167.981534] usb 1-1: New USB device found, idVendor=1038, idProduct=1410
-> ...
-> [  182.050547] BUG kmalloc-256 (Tainted: G        W   ): Redzone overwritten
->
-> CVE-2013-2891
->
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Cc: stable@kernel.org
+On Mon, 9 Sep 2013, android wrote:
+
+> I am a software engineer from GeneralTouch Technology Co., Ltd. 
+> 
+> I want to add some driver patches to the linux kernel .
+> 
+> I do these jobs in hid-ids.h and hid-multitouch.c
+
+Adding Henrik and Benjamon to CC for the hid-multitouch driver.
+
+> The main changes in hid driver are like those:
+> (1)add our new products into kernel driver
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102 0x0102
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100 0xe100
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101 0x0101
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106 0x0106
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A 0x010a
+> (2) correct previous bug 
+> - MT_QUIRK_SLOT_IS_CONTACTNUMBER
+> + MT_QUIRK_SLOT_IS_CONTACTID
+
+This needs explanation / clarification in the changelog.
+
+> the content of patch is shown below:
+> 
+> From 5db217392e661695058606c7919be7fa6509f1e4 Mon Sep 17 00:00:00 2001
+> From: luosong android@generaltouch.com
+
+This doesn't look like a RFC-compliant from, I think.
+
+> Date: Mon, 9 Sep 2013 02:30:10 +0800
+> Subject: [PATCH] update my generaltouch driver for linux by luosong
+
+Please insert changelog (description of the changes) and Signed-off-by: 
+line here, as documented in Documentation/SubmittingPatches
+
 > ---
->  drivers/hid/hid-steelseries.c |    5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-> index d164911..29f328f 100644
-> --- a/drivers/hid/hid-steelseries.c
-> +++ b/drivers/hid/hid-steelseries.c
-> @@ -249,6 +249,11 @@ static int steelseries_srws1_probe(struct hid_device *hdev,
->                 goto err_free;
->         }
->
-> +       if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 16)) {
-> +               ret = -ENODEV;
-> +               goto err_free;
+>  drivers/hid/hid-ids.h        |    5 +++++
+>  drivers/hid/hid-multitouch.c |   19 +++++++++++++++++--
+>  2 files changed, 22 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index ffe4c7a..ca78f09 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -332,6 +332,11 @@
+>  #define USB_VENDOR_ID_GENERAL_TOUCH 0x0dfc
+>  #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
+>  #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS 0x0100
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102 0x0102
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100 0xe100
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101 0x0101
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106 0x0106
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A 0x010a
+> 
+>  #define USB_VENDOR_ID_GLAB 0x06c2
+>  #define USB_DEVICE_ID_4_PHIDGETSERVO_30 0x0038
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index cb0e361..9558dde 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -244,12 +244,12 @@ static struct mt_class mt_classes[] = {
+>   { .name = MT_CLS_GENERALTOUCH_TWOFINGERS,
+>   .quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+>   MT_QUIRK_VALID_IS_INRANGE |
+> - MT_QUIRK_SLOT_IS_CONTACTNUMBER,
+> + MT_QUIRK_SLOT_IS_CONTACTID,
+>   .maxcontacts = 2
+>   },
+>   { .name = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+>   .quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+> - MT_QUIRK_SLOT_IS_CONTACTNUMBER
+> + MT_QUIRK_SLOT_IS_CONTACTID
+>   },
+> 
+>   { .name = MT_CLS_FLATFROG,
+> @@ -1191,6 +1191,21 @@ static const struct hid_device_id mt_devices[] = {
+>   { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+>   MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+>   USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS) },
+> + { .driver_data = MT_CLS_GENERALTOUCH_TWOFINGERS,
+> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101) },
+> + { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100) },
+> + { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102) },
+> + { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106) },
+> + { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A) },
 
-There is a problem here in case of a failure:
-hid_parse() allocates a lot of memory and sets the flag
-HID_STAT_PARSED, but we are leaving the probe() without clearing all
-this stuff.
-In hid_parse(), when a failure is detected, we call
-hid_close_report(), so we also should close the report in the same way
-here (but hid_close_report() is a static function).
+Your mail client seems to be whitespace-corrupting patches (it ate the 
+tabs at least).
 
-Cheers,
-Benjamin
+Could you please fix all the above and resubmit?
 
-> +       }
-> +
->         ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
->         if (ret) {
->                 hid_err(hdev, "hw start failed\n");
-> --
-> 1.7.9.5
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks a lot,
+
+-- 
+Jiri Kosina
+SUSE Labs

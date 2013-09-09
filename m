@@ -1,124 +1,79 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] update my generaltouch driver for linux by luosong
-Date: Mon, 9 Sep 2013 15:04:54 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309091500230.22174@pobox.suse.cz>
-References: <2013090912331785917915@generaltouch.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: HID input dealing with multiple collections?
+Date: Mon, 9 Sep 2013 15:12:34 +0200
+Message-ID: <CAN+gG=ELptZsD37P9XMAgbLCFt-yZVbgmbGrk+mLvT6G2raKLQ@mail.gmail.com>
+References: <522DC594.2000305@brettnet.eu>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47789 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750835Ab3IINFN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 9 Sep 2013 09:05:13 -0400
-In-Reply-To: <2013090912331785917915@generaltouch.com>
+Received: from mail-la0-f44.google.com ([209.85.215.44]:41770 "EHLO
+	mail-la0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751178Ab3IINMf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 09:12:35 -0400
+Received: by mail-la0-f44.google.com with SMTP id eo20so4884612lab.17
+        for <linux-input@vger.kernel.org>; Mon, 09 Sep 2013 06:12:34 -0700 (PDT)
+In-Reply-To: <522DC594.2000305@brettnet.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: android <android@generaltouch.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: "Breton M. Saunders" <bms20@brettnet.eu>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Mon, 9 Sep 2013, android wrote:
+Hi,
 
-> I am a software engineer from GeneralTouch Technology Co., Ltd. 
-> 
-> I want to add some driver patches to the linux kernel .
-> 
-> I do these jobs in hid-ids.h and hid-multitouch.c
+On Mon, Sep 9, 2013 at 2:56 PM, Breton M. Saunders <bms20@brettnet.eu> wrote:
+> Hello,
+>
+>   I've written a USB device which supports multiple input devices:
+>     * A touch surface digitizer (following Microsoft's specification)
+>     * A pen surface digitizer
+>     * A mouse emulator
+>
+>   In windows each of these interfaces are exposed as a separate top level
+> collection, e.g.:
+>   Usage_Page(Generic Desktop)
+>   Usage(Mouse)
+>   Collection(Application)
+>        ...
+>   End_Collection
+>   Usage_Page(Digitzer)
+>   Usage(Touch_Screen)
+>   Collection(Application)
+>      ...
+>   End_Collection
+>   Usage(Digitizer)
+>   Usage(Pen)
+>   Collection(Application)
+>      ...
+>   End_Collection
+>
+>   Now this descriptor works well in Windows; all reporting channels are
+> exposed correctly as hid devices and mouse/multitouch/pen input all works
+> correctly as expected.  In linux, however, this is not the case.  What I see
+> is that if I drop out the touch/pen functionality then the mouse support
+> works correctly.  Likewise, if I drop any pair of other top level
+> collections such that I have exactly one top level collection the system
+> works correctly.
+>
+>   Am I missing something here - as in: Have I made an error in my usage of
+> top level collections, or is linux-input's hid support incapable of dealing
+> with multiple top level collections?
 
-Adding Henrik and Benjamon to CC for the hid-multitouch driver.
+If it works under Windows, there are huge chances that your report
+descriptor is good.
 
-> The main changes in hid driver are like those:
-> (1)add our new products into kernel driver
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102 0x0102
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100 0xe100
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101 0x0101
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106 0x0106
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A 0x010a
-> (2) correct previous bug 
-> - MT_QUIRK_SLOT_IS_CONTACTNUMBER
-> + MT_QUIRK_SLOT_IS_CONTACTID
+However, under Linux, we use the report IDs to split (if required) the
+different inputs.
+The good thing for you is that if I understand correctly, the device
+you are talking about should be handled through hid-multitouch. Since
+kernel v3.10, we have introduced the support of devices showing both a
+digitizer and a pen (they will show up as two input devices).
 
-This needs explanation / clarification in the changelog.
+I would encourage you to test a 3.10 kernel, and/or send me some
+traces of your devices by using hid-replay[1]. This way I will be able
+to test your device on my laptop, and eventually figure out any
+problem.
 
-> the content of patch is shown below:
-> 
-> From 5db217392e661695058606c7919be7fa6509f1e4 Mon Sep 17 00:00:00 2001
-> From: luosong android@generaltouch.com
+Cheers,
+Benjamin
 
-This doesn't look like a RFC-compliant from, I think.
-
-> Date: Mon, 9 Sep 2013 02:30:10 +0800
-> Subject: [PATCH] update my generaltouch driver for linux by luosong
-
-Please insert changelog (description of the changes) and Signed-off-by: 
-line here, as documented in Documentation/SubmittingPatches
-
-> ---
->  drivers/hid/hid-ids.h        |    5 +++++
->  drivers/hid/hid-multitouch.c |   19 +++++++++++++++++--
->  2 files changed, 22 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index ffe4c7a..ca78f09 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -332,6 +332,11 @@
->  #define USB_VENDOR_ID_GENERAL_TOUCH 0x0dfc
->  #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
->  #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS 0x0100
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102 0x0102
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100 0xe100
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101 0x0101
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106 0x0106
-> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A 0x010a
-> 
->  #define USB_VENDOR_ID_GLAB 0x06c2
->  #define USB_DEVICE_ID_4_PHIDGETSERVO_30 0x0038
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index cb0e361..9558dde 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -244,12 +244,12 @@ static struct mt_class mt_classes[] = {
->   { .name = MT_CLS_GENERALTOUCH_TWOFINGERS,
->   .quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
->   MT_QUIRK_VALID_IS_INRANGE |
-> - MT_QUIRK_SLOT_IS_CONTACTNUMBER,
-> + MT_QUIRK_SLOT_IS_CONTACTID,
->   .maxcontacts = 2
->   },
->   { .name = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
->   .quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
-> - MT_QUIRK_SLOT_IS_CONTACTNUMBER
-> + MT_QUIRK_SLOT_IS_CONTACTID
->   },
-> 
->   { .name = MT_CLS_FLATFROG,
-> @@ -1191,6 +1191,21 @@ static const struct hid_device_id mt_devices[] = {
->   { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
->   MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
->   USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS) },
-> + { .driver_data = MT_CLS_GENERALTOUCH_TWOFINGERS,
-> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101) },
-> + { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100) },
-> + { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102) },
-> + { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106) },
-> + { .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-> + MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-> + USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A) },
-
-Your mail client seems to be whitespace-corrupting patches (it ate the 
-tabs at least).
-
-Could you please fix all the above and resubmit?
-
-Thanks a lot,
-
--- 
-Jiri Kosina
-SUSE Labs
+[1] http://bentiss.github.io/hid-replay-docs/

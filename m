@@ -1,43 +1,61 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 3/7] HID: sony: validate HID output report details
-Date: Mon, 9 Sep 2013 14:39:34 +0200
-Message-ID: <CAN+gG=FEJ-7cK1teAzuCxDBsBmk5d45A6zUGLbejWSHf9COJdg@mail.gmail.com>
-References: <1378312645-27736-1-git-send-email-keescook@chromium.org>
-	<1378312645-27736-4-git-send-email-keescook@chromium.org>
+From: "Breton M. Saunders" <bms20@brettnet.eu>
+Subject: HID input dealing with multiple collections?
+Date: Mon, 09 Sep 2013 13:56:52 +0100
+Message-ID: <522DC594.2000305@brettnet.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f171.google.com ([209.85.217.171]:63144 "EHLO
-	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751960Ab3IIMjf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 08:39:35 -0400
-Received: by mail-lb0-f171.google.com with SMTP id u14so4930044lbd.16
-        for <linux-input@vger.kernel.org>; Mon, 09 Sep 2013 05:39:34 -0700 (PDT)
-In-Reply-To: <1378312645-27736-4-git-send-email-keescook@chromium.org>
+Received: from moutng.kundenserver.de ([212.227.126.187]:63788 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751822Ab3IIM4z (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Sep 2013 08:56:55 -0400
+Received: from [192.168.45.122] (unknown [194.223.214.122])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by brettnet.eu (Postfix) with ESMTPSA id 4B468200252
+	for <linux-input@vger.kernel.org>; Mon,  9 Sep 2013 13:54:31 +0100 (BST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, stable@kernel.org
+To: linux-input@vger.kernel.org
 
-On Wed, Sep 4, 2013 at 6:37 PM, Kees Cook <keescook@chromium.org> wrote:
-> This driver must validate the availability of the HID output report and
-> its size before it can write LED states via buzz_set_leds(). This stops
-> a heap overflow that is possible if a device provides a malicious HID
-> output report:
->
-> [  108.171280] usb 1-1: New USB device found, idVendor=054c, idProduct=0002
-> ...
-> [  117.507877] BUG kmalloc-192 (Not tainted): Redzone overwritten
->
-> CVE-2013-2890
->
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Cc: stable@kernel.org
-> ---
+Hello,
 
-The tests shows that the device is still working with the fix :)
+   I've written a USB device which supports multiple input devices:
+     * A touch surface digitizer (following Microsoft's specification)
+     * A pen surface digitizer
+     * A mouse emulator
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+   In windows each of these interfaces are exposed as a separate top 
+level collection, e.g.:
+   Usage_Page(Generic Desktop)
+   Usage(Mouse)
+   Collection(Application)
+        ...
+   End_Collection
+   Usage_Page(Digitzer)
+   Usage(Touch_Screen)
+   Collection(Application)
+      ...
+   End_Collection
+   Usage(Digitizer)
+   Usage(Pen)
+   Collection(Application)
+      ...
+   End_Collection
 
-Cheers,
-Benjamin
+   Now this descriptor works well in Windows; all reporting channels are 
+exposed correctly as hid devices and mouse/multitouch/pen input all 
+works correctly as expected.  In linux, however, this is not the case.  
+What I see is that if I drop out the touch/pen functionality then the 
+mouse support works correctly.  Likewise, if I drop any pair of other 
+top level collections such that I have exactly one top level collection 
+the system works correctly.
+
+   Am I missing something here - as in: Have I made an error in my usage 
+of top level collections, or is linux-input's hid support incapable of 
+dealing with multiple top level collections?
+
+   Thanks in advance for any advice on this!
+
+-bms20

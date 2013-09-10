@@ -1,61 +1,48 @@
-From: "yunkang.tang@cn.alps.com" <yunkang.tang@cn.alps.com>
-Subject: =?big5?B?tarOYDogW1BBVENIIDIvMl0gSW5wdXQ6IEFMUFMgVG91Y2hwYWQtIEltcHJvdmUg?=
- =?big5?Q?the_performance_of_alps_v5-protocol's_touchpad?=
-Date: Tue, 10 Sep 2013 11:50:10 +0000
-Message-ID: <89B48266C4EEC447B3A3A031C8DE21870263D49D@SIXPRD0410MB394.apcprd04.prod.outlook.com>
-References: <89B48266C4EEC447B3A3A031C8DE21870263AF93@SIXPRD0410MB394.apcprd04.prod.outlook.com>,<20130909162734.GC25107@core.coreip.homeip.net>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: Atmel updates to atmel_mxt_ts touch controller driver - v6
+Date: Tue, 10 Sep 2013 14:58:40 +0100
+Message-ID: <522F2590.1080103@itdev.co.uk>
+References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk> <20130718194739.GA559@polaris.bitmath.org> <520CFA0D.4090905@itdev.co.uk> <20130815160734.GB12196@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="big5"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from co9ehsobe002.messaging.microsoft.com ([207.46.163.25]:31990
-	"EHLO co9outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751292Ab3IJLuW (ORCPT
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:38802 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750974Ab3IJN6n (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Sep 2013 07:50:22 -0400
-In-Reply-To: <20130909162734.GC25107@core.coreip.homeip.net>
-Content-Language: zh-CN
+	Tue, 10 Sep 2013 09:58:43 -0400
+In-Reply-To: <20130815160734.GB12196@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: rydberg@euromail.se, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
 
-SGkgRG1pdHJ5LA0KDQo+UGxlYXNlIGRvIG5vdCBzZXBhcmF0ZSBjaGFuZ2VzIGluIGhlYWRlciBm
-aWxlcyBmb3JtIGNoYW5nZXMgaW4gLmMgZmlsZXMNCj5iZWNhdXNlIHBhdGNoZXMgbmVlZCB0byBi
-ZSBjb21wbGV0ZS4gSWYgSSB3ZXJlIHRvIGFwcGx5IHRoaXMgcGF0Y2ggYWxvbmUNCj5pdCB3b3Vs
-ZCBicmVhayB0aGUgY29tcGlsYXRpb24uDQoNClRoYW5rcyBmb3IgeW91ciBleHBhbmF0aW9uLiBJ
-IGdvdCB0aGF0Lg0KDQpUaGFua3MgDQpCZXN0IFJlZ2FyZHMNCi0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KVG9tbXkNCg0KDQpPbiBUaHUsIFNl
-cCAwNSwgMjAxMyBhdCAwNTo1MDo1NUFNICswMDAwLCB5dW5rYW5nLnRhbmdAY24uYWxwcy5jb20g
-d3JvdGU6DQo+IDxDaGFuZ2UgbGlzdD4NCj4gLSBBZGQgdGhlIG1hY3JvIGRlZmluaXRpb24gZm9y
-IHY1IGRldmljZS4NCj4NCj4gLS0tIGxpbnV4LTMuMTEvZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBz
-Lmgub3JpZyAyMDEzLTA5LTA0IDE5OjUxOjMzLjgzNzEzNTg3MCArMDgwMA0KPiArKysgbGludXgt
-My4xMS9kcml2ZXJzL2lucHV0L21vdXNlL2FscHMuaCAyMDEzLTA5LTA1IDIxOjAxOjU3LjA3NDMx
-NDg5MCArMDgwMA0KPiBAQCAtMTgsNiArMTgsMTAgQEANCj4gICNkZWZpbmUgQUxQU19QUk9UT19W
-NCA0DQo+ICAjZGVmaW5lIEFMUFNfUFJPVE9fVjUgNQ0KPg0KPiArI2RlZmluZSBET0xQSElOX0NP
-VU5UX1BFUl9FTEVDVFJPREUgNjQNCj4gKyNkZWZpbmUgRE9MUEhJTl9QUk9GSUxFX1hPRkZTRVQg
-IDggLyogW0RPTFBISU5dIFRoZSBudW1iZXIgb2YgdGhlIHgtZWxlY3Ryb2RlIG9mZnNldCB2YWx1
-ZSAqLw0KPiArI2RlZmluZSBET0xQSElOX1BST0ZJTEVfWU9GRlNFVCAgMSAvKiBbRE9MUEhJTl0g
-VGhlIG51bWJlciBvZiB0aGUgeS1lbGVjdHJvZGUgb2Zmc2V0IHZhbHVlICovDQo+ICsNCj4gIC8q
-Kg0KPiAgICogc3RydWN0IGFscHNfbW9kZWxfaW5mbyAtIHRvdWNocGFkIElEIHRhYmxlDQo+ICAg
-KiBAc2lnbmF0dXJlOiBFNyByZXNwb25zZSBzdHJpbmcgdG8gbWF0Y2guDQo+IEBAIC02OSw3ICs3
-Myw3IEBAIHN0cnVjdCBhbHBzX25pYmJsZV9jb21tYW5kcyB7DQo+ICAgKiBAeTogWSBwb3NpdGlv
-biBmb3IgU1QuDQo+ICAgKiBAejogWiBwb3NpdGlvbiBmb3IgU1QuDQo+ICAgKiBAZmlyc3RfbXA6
-IFBhY2tldCBpcyB0aGUgZmlyc3Qgb2YgYSBtdWx0aS1wYWNrZXQgcmVwb3J0Lg0KPiAtICogQGlz
-X21wOiBQYWNrZXQgaXMgcGFydCBvZiBhIG11bHRpLXBhY2tldCByZXBvcnQuDQo+ICsgKiBAaXNf
-bXA6IFBhY2tldCBpcyB0aGUgbGFzdCBvZiBhIG11bHRpLXBhY2tldCByZXBvcnQuDQo+ICAgKiBA
-bGVmdDogTGVmdCB0b3VjaHBhZCBidXR0b24gaXMgYWN0aXZlLg0KPiAgICogQHJpZ2h0OiBSaWdo
-dCB0b3VjaHBhZCBidXR0b24gaXMgYWN0aXZlLg0KPiAgICogQG1pZGRsZTogTWlkZGxlIHRvdWNo
-cGFkIGJ1dHRvbiBpcyBhY3RpdmUuDQo+IEBAIC0xNDUsNyArMTQ5LDcgQEAgc3RydWN0IGFscHNf
-ZGF0YSB7DQo+DQo+ICAgaW50ICgqaHdfaW5pdCkoc3RydWN0IHBzbW91c2UgKnBzbW91c2UpOw0K
-PiAgIHZvaWQgKCpwcm9jZXNzX3BhY2tldCkoc3RydWN0IHBzbW91c2UgKnBzbW91c2UpOw0KPiAt
-IHZvaWQgKCpkZWNvZGVfZmllbGRzKShzdHJ1Y3QgYWxwc19maWVsZHMgKmYsIHVuc2lnbmVkIGNo
-YXIgKnApOw0KPiArIHZvaWQgKCpkZWNvZGVfZmllbGRzKShzdHJ1Y3QgYWxwc19maWVsZHMgKmYs
-IHVuc2lnbmVkIGNoYXIgKnAsIHN0cnVjdCBwc21vdXNlICpwc21vdXNlKTsNCj4gICB2b2lkICgq
-c2V0X2Fic19wYXJhbXMpKHN0cnVjdCBhbHBzX2RhdGEgKnByaXYsIHN0cnVjdCBpbnB1dF9kZXYg
-KmRldjEpOw0KPg0KPiAgIGludCBwcmV2X2ZpbjsNCg0KUGxlYXNlIGRvIG5vdCBzZXBhcmF0ZSBj
-aGFuZ2VzIGluIGhlYWRlciBmaWxlcyBmb3JtIGNoYW5nZXMgaW4gLmMgZmlsZXMNCmJlY2F1c2Ug
-cGF0Y2hlcyBuZWVkIHRvIGJlIGNvbXBsZXRlLiBJZiBJIHdlcmUgdG8gYXBwbHkgdGhpcyBwYXRj
-aCBhbG9uZQ0KaXQgd291bGQgYnJlYWsgdGhlIGNvbXBpbGF0aW9uLg0KDQpUaGFua3MuDQoNCi0t
-DQpEbWl0cnk=
+Dmitry Torokhov wrote:
+> On Thu, Aug 15, 2013 at 04:55:57PM +0100, Nick Dyer wrote:
+>> rydberg@euromail.se wrote:
+>>> First: thanks for the patches and you work on this driver.
+>>
+>> Thank you for your time in looking at these changes.
+>>
+>>> Now, I don't swear much, but I would like to emphasize line 161 of
+>>> Documentation/SubmittingPatches:
+>>>
+>>> **Do not send more than 15 patches at once to the vger mailing lists!!!***
+>>>
+>>> One reason that should be obvious by now is that your work will be
+>>> attended to much quicker. One may think that it is more efficient to
+>>> send the whole backlog at once, but in fact, the time it takes to get
+>>> a patchset accepted is inversely proportional to the length of the
+>>> patchset. So please, keep it small and simple next time,
+>>
+>> Apologies. I will split this lot up into several smaller series of patches.
+> 
+> Wait, I am in the process of applying it actually...
 
+I wonder, have you made any progress with this? Is there any way I can assist?
+
+Thanks
+
+-- 
+Nick Dyer

@@ -1,70 +1,45 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 3/3] HID RTC: Open sensor hub open close
-Date: Tue, 10 Sep 2013 13:03:52 -0700
-Message-ID: <1378843432-5113-3-git-send-email-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 2/3] IIO: call sensor hub open close function
+Date: Tue, 10 Sep 2013 13:03:51 -0700
+Message-ID: <1378843432-5113-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 References: <1378843432-5113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:49191 "EHLO mga02.intel.com"
+Received: from mga02.intel.com ([134.134.136.20]:61911 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751296Ab3IJUEH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Sep 2013 16:04:07 -0400
+	id S1751204Ab3IJUEG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Sep 2013 16:04:06 -0400
 In-Reply-To: <1378843432-5113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-iio@vger.kernel.org
 Cc: jc23@cam.ac.uk, jkosina@suse.cz, holler@ahsoftware.de, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Open sensor hub when module is loaded and close when module is removed.
-This helps saving power by opening HID transport only when there is an
-user.
+Call hid_sensor_hub_device_open when user space opens device and call
+hid_sensor_hub_device_close when device is closed. This helps in
+saving power.
 
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/rtc/rtc-hid-sensor-time.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/iio/common/hid-sensors/hid-sensor-trigger.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/rtc/rtc-hid-sensor-time.c b/drivers/rtc/rtc-hid-sensor-time.c
-index 7273b01..1fe170c 100644
---- a/drivers/rtc/rtc-hid-sensor-time.c
-+++ b/drivers/rtc/rtc-hid-sensor-time.c
-@@ -279,15 +279,28 @@ static int hid_time_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index 87419c4..b6e77e0 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -34,6 +34,12 @@ static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
+ 	struct hid_sensor_common *st = iio_trigger_get_drvdata(trig);
+ 	int state_val;
  
-+	ret = sensor_hub_device_open(hsdev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to open sensor hub device!\n");
-+		goto err_open;
-+	}
++	if (state) {
++		if (sensor_hub_device_open(st->hsdev))
++			return -EIO;
++	} else
++		sensor_hub_device_close(st->hsdev);
 +
- 	time_state->rtc = devm_rtc_device_register(&pdev->dev,
- 					"hid-sensor-time", &hid_time_rtc_ops,
- 					THIS_MODULE);
- 
- 	if (IS_ERR(time_state->rtc)) {
- 		dev_err(&pdev->dev, "rtc device register failed!\n");
--		return PTR_ERR(time_state->rtc);
-+		ret = PTR_ERR(time_state->rtc);
-+		goto err_rtc;
- 	}
- 
-+	return 0;
-+
-+err_rtc:
-+	sensor_hub_device_close(hsdev);
-+err_open:
-+	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_TIME);
- 	return ret;
- }
- 
-@@ -295,6 +308,7 @@ static int hid_time_remove(struct platform_device *pdev)
- {
- 	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
- 
-+	sensor_hub_device_close(hsdev);
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_TIME);
- 
- 	return 0;
+ 	state_val = state ? 1 : 0;
+ 	if (IS_ENABLED(CONFIG_HID_SENSOR_ENUM_BASE_QUIRKS))
+ 		++state_val;
 -- 
 1.8.3.1
 

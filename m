@@ -1,87 +1,147 @@
-From: Tim Gardner <tim.gardner@canonical.com>
-Subject: [PATCH 3.12-rc1] USB: input: cm109.c: Convert high volume dev_err() to dev_err_ratelimited()
-Date: Tue, 10 Sep 2013 10:23:13 -0600
-Message-ID: <1378830193-48384-1-git-send-email-tim.gardner@canonical.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Tim Gardner <tim.gardner@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 1/3] HID: Delay opening HID device
+Date: Tue, 10 Sep 2013 13:03:50 -0700
+Message-ID: <1378843432-5113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jc23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-BugLink: http://bugs.launchpad.net/bugs/1222850
+Don't call hid_open_device till there is actually an user. This saves
+power by not opening underlying transport for HID. Also close device
+if there are no active mfd client using HID sensor hub.
 
-This input device can get into a state that produces a high
-volume of device status errors. Attempt to throttle these
-error messages such that the kernel log is not flooded.
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/input/misc/cm109.c |   17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/hid/hid-sensor-hub.c   | 45 ++++++++++++++++++++++++++++++++----------
+ include/linux/hid-sensor-hub.h | 18 +++++++++++++++++
+ 2 files changed, 53 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
-index 082684e..8ec72bc 100644
---- a/drivers/input/misc/cm109.c
-+++ b/drivers/input/misc/cm109.c
-@@ -351,7 +351,8 @@ static void cm109_urb_irq_callback(struct urb *urb)
- 	if (status) {
- 		if (status == -ESHUTDOWN)
- 			return;
--		dev_err(&dev->intf->dev, "%s: urb status %d\n", __func__, status);
-+		dev_err_ratelimited(&dev->intf->dev, "%s: urb status %d\n",
-+			__func__, status);
- 	}
- 
- 	/* Special keys */
-@@ -419,7 +420,8 @@ static void cm109_urb_ctl_callback(struct urb *urb)
- 	     dev->ctl_data->byte[3]);
- 
- 	if (status)
--		dev_err(&dev->intf->dev, "%s: urb status %d\n", __func__, status);
-+		dev_err_ratelimited(&dev->intf->dev, "%s: urb status %d\n",
-+			__func__, status);
- 
- 	spin_lock(&dev->ctl_submit_lock);
- 
-@@ -436,7 +438,7 @@ static void cm109_urb_ctl_callback(struct urb *urb)
- 			dev->irq_urb_pending = 1;
- 			error = usb_submit_urb(dev->urb_irq, GFP_ATOMIC);
- 			if (error)
--				dev_err(&dev->intf->dev,
-+				dev_err_ratelimited(&dev->intf->dev,
- 					"%s: usb_submit_urb (urb_irq) failed %d\n",
- 					__func__, error);
- 		}
-@@ -480,7 +482,7 @@ static void cm109_toggle_buzzer_sync(struct cm109_dev *dev, int on)
- 				dev->ctl_data,
- 				USB_PKT_LEN, USB_CTRL_SET_TIMEOUT);
- 	if (error < 0 && error != -EINTR)
--		dev_err(&dev->intf->dev, "%s: usb_control_msg() failed %d\n",
-+		dev_err_ratelimited(&dev->intf->dev, "%s: usb_control_msg() failed %d\n",
- 			__func__, error);
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 10e1581..8effdee 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -465,6 +465,39 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 	return 1;
  }
  
-@@ -542,8 +544,9 @@ static int cm109_input_open(struct input_dev *idev)
++int sensor_hub_device_open(struct hid_sensor_hub_device *hsdev)
++{
++	int ret;
++	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
++
++	mutex_lock(&data->mutex);
++	if (!hsdev->ref_cnt) {
++		ret = hid_hw_open(hsdev->hdev);
++		if (ret) {
++			hid_err(hsdev->hdev, "failed to open hid device\n");
++			mutex_unlock(&data->mutex);
++			return ret;
++		}
++	}
++	hsdev->ref_cnt++;
++	mutex_unlock(&data->mutex);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(sensor_hub_device_open);
++
++void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev)
++{
++	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
++
++	mutex_lock(&data->mutex);
++	hsdev->ref_cnt--;
++	if (!hsdev->ref_cnt)
++		hid_hw_close(hsdev->hdev);
++	mutex_unlock(&data->mutex);
++}
++EXPORT_SYMBOL_GPL(sensor_hub_device_close);
++
+ static int sensor_hub_probe(struct hid_device *hdev,
+ 				const struct hid_device_id *id)
+ {
+@@ -506,12 +539,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 		hid_err(hdev, "hw start failed\n");
+ 		return ret;
+ 	}
+-	ret = hid_hw_open(hdev);
+-	if (ret) {
+-		hid_err(hdev, "failed to open input interrupt pipe\n");
+-		goto err_stop_hw;
+-	}
+-
+ 	INIT_LIST_HEAD(&sd->dyn_callback_list);
+ 	sd->hid_sensor_client_cnt = 0;
+ 	report_enum = &hdev->report_enum[HID_INPUT_REPORT];
+@@ -520,7 +547,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 	if (dev_cnt > HID_MAX_PHY_DEVICES) {
+ 		hid_err(hdev, "Invalid Physical device count\n");
+ 		ret = -EINVAL;
+-		goto err_close;
++		goto err_stop_hw;
+ 	}
+ 	sd->hid_sensor_hub_client_devs = kzalloc(dev_cnt *
+ 						sizeof(struct mfd_cell),
+@@ -528,7 +555,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 	if (sd->hid_sensor_hub_client_devs == NULL) {
+ 		hid_err(hdev, "Failed to allocate memory for mfd cells\n");
+ 			ret = -ENOMEM;
+-			goto err_close;
++			goto err_stop_hw;
+ 	}
+ 	list_for_each_entry(report, &report_enum->report_list, list) {
+ 		hid_dbg(hdev, "Report id:%x\n", report->id);
+@@ -565,8 +592,6 @@ err_free_names:
+ 	for (i = 0; i < sd->hid_sensor_client_cnt ; ++i)
+ 		kfree(sd->hid_sensor_hub_client_devs[i].name);
+ 	kfree(sd->hid_sensor_hub_client_devs);
+-err_close:
+-	hid_hw_close(hdev);
+ err_stop_hw:
+ 	hid_hw_stop(hdev);
  
- 	error = usb_submit_urb(dev->urb_ctl, GFP_KERNEL);
- 	if (error)
--		dev_err(&dev->intf->dev, "%s: usb_submit_urb (urb_ctl) failed %d\n",
--			__func__, error);
-+		dev_err_ratelimited(&dev->intf->dev,
-+			"%s: usb_submit_urb (urb_ctl) failed %d\n", __func__,
-+			error);
- 	else
- 		dev->open = 1;
+diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+index 32ba451..a265af2 100644
+--- a/include/linux/hid-sensor-hub.h
++++ b/include/linux/hid-sensor-hub.h
+@@ -47,11 +47,13 @@ struct hid_sensor_hub_attribute_info {
+  * @hdev:		Stores the hid instance.
+  * @vendor_id:		Vendor id of hub device.
+  * @product_id:		Product id of hub device.
++ * @ref_cnt:		Number of MFD clients have opened this device
+  */
+ struct hid_sensor_hub_device {
+ 	struct hid_device *hdev;
+ 	u32 vendor_id;
+ 	u32 product_id;
++	int ref_cnt;
+ };
  
-@@ -716,7 +719,7 @@ static int cm109_usb_probe(struct usb_interface *intf,
- 	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
- 	ret = usb_maxpacket(udev, pipe, usb_pipeout(pipe));
- 	if (ret != USB_PKT_LEN)
--		dev_err(&intf->dev, "invalid payload size %d, expected %d\n",
-+		dev_err_ratelimited(&intf->dev, "invalid payload size %d, expected %d\n",
- 			ret, USB_PKT_LEN);
+ /**
+@@ -74,6 +76,22 @@ struct hid_sensor_hub_callbacks {
+ 			 void *priv);
+ };
  
- 	/* initialise irq urb */
++/**
++* sensor_hub_device_open() - Open hub device
++* @hsdev:	Hub device instance.
++*
++* Used to open hid device for sensor hub.
++*/
++int sensor_hub_device_open(struct hid_sensor_hub_device *hsdev);
++
++/**
++* sensor_hub_device_clode() - Close hub device
++* @hsdev:	Hub device instance.
++*
++* Used to clode hid device for sensor hub.
++*/
++void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev);
++
+ /* Registration functions */
+ 
+ /**
 -- 
-1.7.9.5
+1.8.3.1

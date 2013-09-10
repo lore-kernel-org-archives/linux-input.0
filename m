@@ -1,48 +1,87 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: Atmel updates to atmel_mxt_ts touch controller driver - v6
-Date: Tue, 10 Sep 2013 14:58:40 +0100
-Message-ID: <522F2590.1080103@itdev.co.uk>
-References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk> <20130718194739.GA559@polaris.bitmath.org> <520CFA0D.4090905@itdev.co.uk> <20130815160734.GB12196@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:38802 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750974Ab3IJN6n (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Sep 2013 09:58:43 -0400
-In-Reply-To: <20130815160734.GB12196@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Tim Gardner <tim.gardner@canonical.com>
+Subject: [PATCH 3.12-rc1] USB: input: cm109.c: Convert high volume dev_err() to dev_err_ratelimited()
+Date: Tue, 10 Sep 2013 10:23:13 -0600
+Message-ID: <1378830193-48384-1-git-send-email-tim.gardner@canonical.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Tim Gardner <tim.gardner@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: rydberg@euromail.se, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
 
-Dmitry Torokhov wrote:
-> On Thu, Aug 15, 2013 at 04:55:57PM +0100, Nick Dyer wrote:
->> rydberg@euromail.se wrote:
->>> First: thanks for the patches and you work on this driver.
->>
->> Thank you for your time in looking at these changes.
->>
->>> Now, I don't swear much, but I would like to emphasize line 161 of
->>> Documentation/SubmittingPatches:
->>>
->>> **Do not send more than 15 patches at once to the vger mailing lists!!!***
->>>
->>> One reason that should be obvious by now is that your work will be
->>> attended to much quicker. One may think that it is more efficient to
->>> send the whole backlog at once, but in fact, the time it takes to get
->>> a patchset accepted is inversely proportional to the length of the
->>> patchset. So please, keep it small and simple next time,
->>
->> Apologies. I will split this lot up into several smaller series of patches.
-> 
-> Wait, I am in the process of applying it actually...
+BugLink: http://bugs.launchpad.net/bugs/1222850
 
-I wonder, have you made any progress with this? Is there any way I can assist?
+This input device can get into a state that produces a high
+volume of device status errors. Attempt to throttle these
+error messages such that the kernel log is not flooded.
 
-Thanks
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+---
+ drivers/input/misc/cm109.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
+index 082684e..8ec72bc 100644
+--- a/drivers/input/misc/cm109.c
++++ b/drivers/input/misc/cm109.c
+@@ -351,7 +351,8 @@ static void cm109_urb_irq_callback(struct urb *urb)
+ 	if (status) {
+ 		if (status == -ESHUTDOWN)
+ 			return;
+-		dev_err(&dev->intf->dev, "%s: urb status %d\n", __func__, status);
++		dev_err_ratelimited(&dev->intf->dev, "%s: urb status %d\n",
++			__func__, status);
+ 	}
+ 
+ 	/* Special keys */
+@@ -419,7 +420,8 @@ static void cm109_urb_ctl_callback(struct urb *urb)
+ 	     dev->ctl_data->byte[3]);
+ 
+ 	if (status)
+-		dev_err(&dev->intf->dev, "%s: urb status %d\n", __func__, status);
++		dev_err_ratelimited(&dev->intf->dev, "%s: urb status %d\n",
++			__func__, status);
+ 
+ 	spin_lock(&dev->ctl_submit_lock);
+ 
+@@ -436,7 +438,7 @@ static void cm109_urb_ctl_callback(struct urb *urb)
+ 			dev->irq_urb_pending = 1;
+ 			error = usb_submit_urb(dev->urb_irq, GFP_ATOMIC);
+ 			if (error)
+-				dev_err(&dev->intf->dev,
++				dev_err_ratelimited(&dev->intf->dev,
+ 					"%s: usb_submit_urb (urb_irq) failed %d\n",
+ 					__func__, error);
+ 		}
+@@ -480,7 +482,7 @@ static void cm109_toggle_buzzer_sync(struct cm109_dev *dev, int on)
+ 				dev->ctl_data,
+ 				USB_PKT_LEN, USB_CTRL_SET_TIMEOUT);
+ 	if (error < 0 && error != -EINTR)
+-		dev_err(&dev->intf->dev, "%s: usb_control_msg() failed %d\n",
++		dev_err_ratelimited(&dev->intf->dev, "%s: usb_control_msg() failed %d\n",
+ 			__func__, error);
+ }
+ 
+@@ -542,8 +544,9 @@ static int cm109_input_open(struct input_dev *idev)
+ 
+ 	error = usb_submit_urb(dev->urb_ctl, GFP_KERNEL);
+ 	if (error)
+-		dev_err(&dev->intf->dev, "%s: usb_submit_urb (urb_ctl) failed %d\n",
+-			__func__, error);
++		dev_err_ratelimited(&dev->intf->dev,
++			"%s: usb_submit_urb (urb_ctl) failed %d\n", __func__,
++			error);
+ 	else
+ 		dev->open = 1;
+ 
+@@ -716,7 +719,7 @@ static int cm109_usb_probe(struct usb_interface *intf,
+ 	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
+ 	ret = usb_maxpacket(udev, pipe, usb_pipeout(pipe));
+ 	if (ret != USB_PKT_LEN)
+-		dev_err(&intf->dev, "invalid payload size %d, expected %d\n",
++		dev_err_ratelimited(&intf->dev, "invalid payload size %d, expected %d\n",
+ 			ret, USB_PKT_LEN);
+ 
+ 	/* initialise irq urb */
 -- 
-Nick Dyer
+1.7.9.5

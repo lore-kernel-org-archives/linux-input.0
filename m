@@ -1,70 +1,61 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 4/7] HID: steelseries: validate output report details
-Date: Tue, 10 Sep 2013 13:45:20 +0200
-Message-ID: <CAN+gG=HkWMWUgF1_G-Rj+QGDQwM1JONEKjCB2LpcWVMbJwzFAg@mail.gmail.com>
-References: <1378312645-27736-1-git-send-email-keescook@chromium.org>
-	<1378312645-27736-5-git-send-email-keescook@chromium.org>
-	<CAN+gG=H6Pib-kzWKPH_Hj_vcw7q_agHZ7_Qi-pEde9tbTB4EkA@mail.gmail.com>
+From: "yunkang.tang@cn.alps.com" <yunkang.tang@cn.alps.com>
+Subject: =?big5?B?tarOYDogW1BBVENIIDIvMl0gSW5wdXQ6IEFMUFMgVG91Y2hwYWQtIEltcHJvdmUg?=
+ =?big5?Q?the_performance_of_alps_v5-protocol's_touchpad?=
+Date: Tue, 10 Sep 2013 11:50:10 +0000
+Message-ID: <89B48266C4EEC447B3A3A031C8DE21870263D49D@SIXPRD0410MB394.apcprd04.prod.outlook.com>
+References: <89B48266C4EEC447B3A3A031C8DE21870263AF93@SIXPRD0410MB394.apcprd04.prod.outlook.com>,<20130909162734.GC25107@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="big5"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f43.google.com ([209.85.215.43]:64614 "EHLO
-	mail-la0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751292Ab3IJLpW (ORCPT
+Received: from co9ehsobe002.messaging.microsoft.com ([207.46.163.25]:31990
+	"EHLO co9outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751292Ab3IJLuW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Sep 2013 07:45:22 -0400
-Received: by mail-la0-f43.google.com with SMTP id ep20so5980782lab.2
-        for <linux-input@vger.kernel.org>; Tue, 10 Sep 2013 04:45:21 -0700 (PDT)
-In-Reply-To: <CAN+gG=H6Pib-kzWKPH_Hj_vcw7q_agHZ7_Qi-pEde9tbTB4EkA@mail.gmail.com>
+	Tue, 10 Sep 2013 07:50:22 -0400
+In-Reply-To: <20130909162734.GC25107@core.coreip.homeip.net>
+Content-Language: zh-CN
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, Sep 9, 2013 at 3:02 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Wed, Sep 4, 2013 at 6:37 PM, Kees Cook <keescook@chromium.org> wrote:
->> A HID device could send a malicious output report that would cause the
->> steelseries HID driver to write beyond the output report allocation
->> during initialization, causing a heap overflow:
->>
->> [  167.981534] usb 1-1: New USB device found, idVendor=1038, idProduct=1410
->> ...
->> [  182.050547] BUG kmalloc-256 (Tainted: G        W   ): Redzone overwritten
->>
->> CVE-2013-2891
->>
->> Signed-off-by: Kees Cook <keescook@chromium.org>
->> Cc: stable@kernel.org
->> ---
->>  drivers/hid/hid-steelseries.c |    5 +++++
->>  1 file changed, 5 insertions(+)
->>
->> diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
->> index d164911..29f328f 100644
->> --- a/drivers/hid/hid-steelseries.c
->> +++ b/drivers/hid/hid-steelseries.c
->> @@ -249,6 +249,11 @@ static int steelseries_srws1_probe(struct hid_device *hdev,
->>                 goto err_free;
->>         }
->>
->> +       if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 16)) {
->> +               ret = -ENODEV;
->> +               goto err_free;
->
-> There is a problem here in case of a failure:
-> hid_parse() allocates a lot of memory and sets the flag
-> HID_STAT_PARSED, but we are leaving the probe() without clearing all
-> this stuff.
-> In hid_parse(), when a failure is detected, we call
-> hid_close_report(), so we also should close the report in the same way
-> here (but hid_close_report() is a static function).
->
+SGkgRG1pdHJ5LA0KDQo+UGxlYXNlIGRvIG5vdCBzZXBhcmF0ZSBjaGFuZ2VzIGluIGhlYWRlciBm
+aWxlcyBmb3JtIGNoYW5nZXMgaW4gLmMgZmlsZXMNCj5iZWNhdXNlIHBhdGNoZXMgbmVlZCB0byBi
+ZSBjb21wbGV0ZS4gSWYgSSB3ZXJlIHRvIGFwcGx5IHRoaXMgcGF0Y2ggYWxvbmUNCj5pdCB3b3Vs
+ZCBicmVhayB0aGUgY29tcGlsYXRpb24uDQoNClRoYW5rcyBmb3IgeW91ciBleHBhbmF0aW9uLiBJ
+IGdvdCB0aGF0Lg0KDQpUaGFua3MgDQpCZXN0IFJlZ2FyZHMNCi0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KVG9tbXkNCg0KDQpPbiBUaHUsIFNl
+cCAwNSwgMjAxMyBhdCAwNTo1MDo1NUFNICswMDAwLCB5dW5rYW5nLnRhbmdAY24uYWxwcy5jb20g
+d3JvdGU6DQo+IDxDaGFuZ2UgbGlzdD4NCj4gLSBBZGQgdGhlIG1hY3JvIGRlZmluaXRpb24gZm9y
+IHY1IGRldmljZS4NCj4NCj4gLS0tIGxpbnV4LTMuMTEvZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBz
+Lmgub3JpZyAyMDEzLTA5LTA0IDE5OjUxOjMzLjgzNzEzNTg3MCArMDgwMA0KPiArKysgbGludXgt
+My4xMS9kcml2ZXJzL2lucHV0L21vdXNlL2FscHMuaCAyMDEzLTA5LTA1IDIxOjAxOjU3LjA3NDMx
+NDg5MCArMDgwMA0KPiBAQCAtMTgsNiArMTgsMTAgQEANCj4gICNkZWZpbmUgQUxQU19QUk9UT19W
+NCA0DQo+ICAjZGVmaW5lIEFMUFNfUFJPVE9fVjUgNQ0KPg0KPiArI2RlZmluZSBET0xQSElOX0NP
+VU5UX1BFUl9FTEVDVFJPREUgNjQNCj4gKyNkZWZpbmUgRE9MUEhJTl9QUk9GSUxFX1hPRkZTRVQg
+IDggLyogW0RPTFBISU5dIFRoZSBudW1iZXIgb2YgdGhlIHgtZWxlY3Ryb2RlIG9mZnNldCB2YWx1
+ZSAqLw0KPiArI2RlZmluZSBET0xQSElOX1BST0ZJTEVfWU9GRlNFVCAgMSAvKiBbRE9MUEhJTl0g
+VGhlIG51bWJlciBvZiB0aGUgeS1lbGVjdHJvZGUgb2Zmc2V0IHZhbHVlICovDQo+ICsNCj4gIC8q
+Kg0KPiAgICogc3RydWN0IGFscHNfbW9kZWxfaW5mbyAtIHRvdWNocGFkIElEIHRhYmxlDQo+ICAg
+KiBAc2lnbmF0dXJlOiBFNyByZXNwb25zZSBzdHJpbmcgdG8gbWF0Y2guDQo+IEBAIC02OSw3ICs3
+Myw3IEBAIHN0cnVjdCBhbHBzX25pYmJsZV9jb21tYW5kcyB7DQo+ICAgKiBAeTogWSBwb3NpdGlv
+biBmb3IgU1QuDQo+ICAgKiBAejogWiBwb3NpdGlvbiBmb3IgU1QuDQo+ICAgKiBAZmlyc3RfbXA6
+IFBhY2tldCBpcyB0aGUgZmlyc3Qgb2YgYSBtdWx0aS1wYWNrZXQgcmVwb3J0Lg0KPiAtICogQGlz
+X21wOiBQYWNrZXQgaXMgcGFydCBvZiBhIG11bHRpLXBhY2tldCByZXBvcnQuDQo+ICsgKiBAaXNf
+bXA6IFBhY2tldCBpcyB0aGUgbGFzdCBvZiBhIG11bHRpLXBhY2tldCByZXBvcnQuDQo+ICAgKiBA
+bGVmdDogTGVmdCB0b3VjaHBhZCBidXR0b24gaXMgYWN0aXZlLg0KPiAgICogQHJpZ2h0OiBSaWdo
+dCB0b3VjaHBhZCBidXR0b24gaXMgYWN0aXZlLg0KPiAgICogQG1pZGRsZTogTWlkZGxlIHRvdWNo
+cGFkIGJ1dHRvbiBpcyBhY3RpdmUuDQo+IEBAIC0xNDUsNyArMTQ5LDcgQEAgc3RydWN0IGFscHNf
+ZGF0YSB7DQo+DQo+ICAgaW50ICgqaHdfaW5pdCkoc3RydWN0IHBzbW91c2UgKnBzbW91c2UpOw0K
+PiAgIHZvaWQgKCpwcm9jZXNzX3BhY2tldCkoc3RydWN0IHBzbW91c2UgKnBzbW91c2UpOw0KPiAt
+IHZvaWQgKCpkZWNvZGVfZmllbGRzKShzdHJ1Y3QgYWxwc19maWVsZHMgKmYsIHVuc2lnbmVkIGNo
+YXIgKnApOw0KPiArIHZvaWQgKCpkZWNvZGVfZmllbGRzKShzdHJ1Y3QgYWxwc19maWVsZHMgKmYs
+IHVuc2lnbmVkIGNoYXIgKnAsIHN0cnVjdCBwc21vdXNlICpwc21vdXNlKTsNCj4gICB2b2lkICgq
+c2V0X2Fic19wYXJhbXMpKHN0cnVjdCBhbHBzX2RhdGEgKnByaXYsIHN0cnVjdCBpbnB1dF9kZXYg
+KmRldjEpOw0KPg0KPiAgIGludCBwcmV2X2ZpbjsNCg0KUGxlYXNlIGRvIG5vdCBzZXBhcmF0ZSBj
+aGFuZ2VzIGluIGhlYWRlciBmaWxlcyBmb3JtIGNoYW5nZXMgaW4gLmMgZmlsZXMNCmJlY2F1c2Ug
+cGF0Y2hlcyBuZWVkIHRvIGJlIGNvbXBsZXRlLiBJZiBJIHdlcmUgdG8gYXBwbHkgdGhpcyBwYXRj
+aCBhbG9uZQ0KaXQgd291bGQgYnJlYWsgdGhlIGNvbXBpbGF0aW9uLg0KDQpUaGFua3MuDQoNCi0t
+DQpEbWl0cnk=
 
-Sorry, my bad. hid_close_report() is called upon ->probe() failure. So
-this is perfectly good.
-
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin

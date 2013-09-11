@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 02/10] HID: zeroplus: validate output report details
-Date: Wed, 11 Sep 2013 21:56:51 +0200
-Message-ID: <1378929419-6269-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 06/10] HID: lenovo-tpkbd: validate output report details
+Date: Wed, 11 Sep 2013 21:56:55 +0200
+Message-ID: <1378929419-6269-7-git-send-email-benjamin.tissoires@redhat.com>
 References: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -11,57 +11,48 @@ List-Id: linux-input@vger.kernel.org
 
 From: Kees Cook <keescook@chromium.org>
 
-The zeroplus HID driver was not checking the size of allocated values
-in fields it used. A HID device could send a malicious output report
-that would cause the driver to write beyond the output report allocation
+From: Kees Cook <keescook@chromium.org>
+
+A HID device could send a malicious output report that would cause the
+lenovo-tpkbd HID driver to write just beyond the output report allocation
 during initialization, causing a heap overflow:
 
-[ 1442.728680] usb 1-1: New USB device found, idVendor=0c12, idProduct=0005
+[   76.109807] usb 1-1: New USB device found, idVendor=17ef, idProduct=6009
 ...
-[ 1466.243173] BUG kmalloc-192 (Tainted: G        W   ): Redzone overwritten
+[   80.462540] BUG kmalloc-192 (Tainted: G        W   ): Redzone overwritten
 
-CVE-2013-2889
+CVE-2013-2894
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@vger.kernel.org
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 v3:
- - no changes
+ - fix feature report check for report ID 4
 
- drivers/hid/hid-zpff.c | 18 +++++-------------
- 1 file changed, 5 insertions(+), 13 deletions(-)
+ drivers/hid/hid-lenovo-tpkbd.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-zpff.c b/drivers/hid/hid-zpff.c
-index 6ec28a3..a29756c 100644
---- a/drivers/hid/hid-zpff.c
-+++ b/drivers/hid/hid-zpff.c
-@@ -68,21 +68,13 @@ static int zpff_init(struct hid_device *hid)
- 	struct hid_report *report;
- 	struct hid_input *hidinput = list_entry(hid->inputs.next,
- 						struct hid_input, list);
--	struct list_head *report_list =
--			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct input_dev *dev = hidinput->input;
--	int error;
-+	int i, error;
- 
--	if (list_empty(report_list)) {
--		hid_err(hid, "no output report found\n");
--		return -ENODEV;
--	}
--
--	report = list_entry(report_list->next, struct hid_report, list);
--
--	if (report->maxfield < 4) {
--		hid_err(hid, "not enough fields in report\n");
--		return -ENODEV;
+diff --git a/drivers/hid/hid-lenovo-tpkbd.c b/drivers/hid/hid-lenovo-tpkbd.c
+index 07837f5..762d988 100644
+--- a/drivers/hid/hid-lenovo-tpkbd.c
++++ b/drivers/hid/hid-lenovo-tpkbd.c
+@@ -339,7 +339,15 @@ static int tpkbd_probe_tp(struct hid_device *hdev)
+ 	struct tpkbd_data_pointer *data_pointer;
+ 	size_t name_sz = strlen(dev_name(dev)) + 16;
+ 	char *name_mute, *name_micmute;
+-	int ret;
++	int i, ret;
++
++	/* Validate required reports. */
 +	for (i = 0; i < 4; i++) {
-+		report = hid_validate_values(hid, HID_OUTPUT_REPORT, 0, i, 1);
-+		if (!report)
++		if (!hid_validate_values(hdev, HID_FEATURE_REPORT, 4, i, 1))
 +			return -ENODEV;
- 	}
++	}
++	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 3, 0, 2))
++		return -ENODEV;
  
- 	zpff = kzalloc(sizeof(struct zpff_device), GFP_KERNEL);
+ 	if (sysfs_create_group(&hdev->dev.kobj,
+ 				&tpkbd_attr_group_pointer)) {
 -- 
 1.8.3.1

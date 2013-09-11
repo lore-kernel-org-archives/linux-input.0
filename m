@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 05/10] HID: LG: validate HID output report details
-Date: Wed, 11 Sep 2013 21:56:54 +0200
-Message-ID: <1378929419-6269-6-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 03/10] HID: sony: validate HID output report details
+Date: Wed, 11 Sep 2013 21:56:52 +0200
+Message-ID: <1378929419-6269-4-git-send-email-benjamin.tissoires@redhat.com>
 References: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -11,18 +11,16 @@ List-Id: linux-input@vger.kernel.org
 
 From: Kees Cook <keescook@chromium.org>
 
-A HID device could send a malicious output report that would cause the
-lg, lg3, and lg4 HID drivers to write beyond the output report allocation
-during an event, causing a heap overflow:
+This driver must validate the availability of the HID output report and
+its size before it can write LED states via buzz_set_leds(). This stops
+a heap overflow that is possible if a device provides a malicious HID
+output report:
 
-[  325.245240] usb 1-1: New USB device found, idVendor=046d, idProduct=c287
+[  108.171280] usb 1-1: New USB device found, idVendor=054c, idProduct=0002
 ...
-[  414.518960] BUG kmalloc-4096 (Not tainted): Redzone overwritten
+[  117.507877] BUG kmalloc-192 (Not tainted): Redzone overwritten
 
-Additionally, while lg2 did correctly validate the report details, it was
-cleaned up and shortened.
-
-CVE-2013-2893
+CVE-2013-2890
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@vger.kernel.org
@@ -31,173 +29,23 @@ Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 v3:
  - no changes
 
- drivers/hid/hid-lg2ff.c | 19 +++----------------
- drivers/hid/hid-lg3ff.c | 29 ++++++-----------------------
- drivers/hid/hid-lg4ff.c | 20 +-------------------
- drivers/hid/hid-lgff.c  | 17 ++---------------
- 4 files changed, 12 insertions(+), 73 deletions(-)
+ drivers/hid/hid-sony.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-lg2ff.c b/drivers/hid/hid-lg2ff.c
-index b3cd150..1a42eaa 100644
---- a/drivers/hid/hid-lg2ff.c
-+++ b/drivers/hid/hid-lg2ff.c
-@@ -64,26 +64,13 @@ int lg2ff_init(struct hid_device *hid)
- 	struct hid_report *report;
- 	struct hid_input *hidinput = list_entry(hid->inputs.next,
- 						struct hid_input, list);
--	struct list_head *report_list =
--			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct input_dev *dev = hidinput->input;
- 	int error;
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 30dbb6b..b18320d 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -537,6 +537,10 @@ static int buzz_init(struct hid_device *hdev)
+ 	drv_data = hid_get_drvdata(hdev);
+ 	BUG_ON(!(drv_data->quirks & BUZZ_CONTROLLER));
  
--	if (list_empty(report_list)) {
--		hid_err(hid, "no output report found\n");
-+	/* Check that the report looks ok */
-+	report = hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 7);
-+	if (!report)
- 		return -ENODEV;
--	}
--
--	report = list_entry(report_list->next, struct hid_report, list);
--
--	if (report->maxfield < 1) {
--		hid_err(hid, "output report is empty\n");
--		return -ENODEV;
--	}
--	if (report->field[0]->report_count < 7) {
--		hid_err(hid, "not enough values in the field\n");
--		return -ENODEV;
--	}
- 
- 	lg2ff = kmalloc(sizeof(struct lg2ff_device), GFP_KERNEL);
- 	if (!lg2ff)
-diff --git a/drivers/hid/hid-lg3ff.c b/drivers/hid/hid-lg3ff.c
-index e52f181..8c2da18 100644
---- a/drivers/hid/hid-lg3ff.c
-+++ b/drivers/hid/hid-lg3ff.c
-@@ -66,10 +66,11 @@ static int hid_lg3ff_play(struct input_dev *dev, void *data,
- 	int x, y;
- 
- /*
-- * Maxusage should always be 63 (maximum fields)
-- * likely a better way to ensure this data is clean
-+ * Available values in the field should always be 63, but we only use up to
-+ * 35. Instead, clear the entire area, however big it is.
-  */
--	memset(report->field[0]->value, 0, sizeof(__s32)*report->field[0]->maxusage);
-+	memset(report->field[0]->value, 0,
-+	       sizeof(__s32) * report->field[0]->report_count);
- 
- 	switch (effect->type) {
- 	case FF_CONSTANT:
-@@ -129,32 +130,14 @@ static const signed short ff3_joystick_ac[] = {
- int lg3ff_init(struct hid_device *hid)
- {
- 	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
--	struct list_head *report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct input_dev *dev = hidinput->input;
--	struct hid_report *report;
--	struct hid_field *field;
- 	const signed short *ff_bits = ff3_joystick_ac;
- 	int error;
- 	int i;
- 
--	/* Find the report to use */
--	if (list_empty(report_list)) {
--		hid_err(hid, "No output report found\n");
--		return -1;
--	}
--
- 	/* Check that the report looks ok */
--	report = list_entry(report_list->next, struct hid_report, list);
--	if (!report) {
--		hid_err(hid, "NULL output report\n");
--		return -1;
--	}
--
--	field = report->field[0];
--	if (!field) {
--		hid_err(hid, "NULL field\n");
--		return -1;
--	}
-+	if (!hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 35))
++	/* Validate expected report characteristics. */
++	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
 +		return -ENODEV;
- 
- 	/* Assume single fixed device G940 */
- 	for (i = 0; ff_bits[i] >= 0; i++)
-diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
-index 0ddae2a..8782fe1 100644
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -484,34 +484,16 @@ static enum led_brightness lg4ff_led_get_brightness(struct led_classdev *led_cde
- int lg4ff_init(struct hid_device *hid)
- {
- 	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
--	struct list_head *report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct input_dev *dev = hidinput->input;
--	struct hid_report *report;
--	struct hid_field *field;
- 	struct lg4ff_device_entry *entry;
- 	struct lg_drv_data *drv_data;
- 	struct usb_device_descriptor *udesc;
- 	int error, i, j;
- 	__u16 bcdDevice, rev_maj, rev_min;
- 
--	/* Find the report to use */
--	if (list_empty(report_list)) {
--		hid_err(hid, "No output report found\n");
--		return -1;
--	}
--
- 	/* Check that the report looks ok */
--	report = list_entry(report_list->next, struct hid_report, list);
--	if (!report) {
--		hid_err(hid, "NULL output report\n");
-+	if (!hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 7))
- 		return -1;
--	}
--
--	field = report->field[0];
--	if (!field) {
--		hid_err(hid, "NULL field\n");
--		return -1;
--	}
- 
- 	/* Check what wheel has been connected */
- 	for (i = 0; i < ARRAY_SIZE(lg4ff_devices); i++) {
-diff --git a/drivers/hid/hid-lgff.c b/drivers/hid/hid-lgff.c
-index d7ea8c8..e1394af 100644
---- a/drivers/hid/hid-lgff.c
-+++ b/drivers/hid/hid-lgff.c
-@@ -128,27 +128,14 @@ static void hid_lgff_set_autocenter(struct input_dev *dev, u16 magnitude)
- int lgff_init(struct hid_device* hid)
- {
- 	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
--	struct list_head *report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct input_dev *dev = hidinput->input;
--	struct hid_report *report;
--	struct hid_field *field;
- 	const signed short *ff_bits = ff_joystick;
- 	int error;
- 	int i;
- 
--	/* Find the report to use */
--	if (list_empty(report_list)) {
--		hid_err(hid, "No output report found\n");
--		return -1;
--	}
--
- 	/* Check that the report looks ok */
--	report = list_entry(report_list->next, struct hid_report, list);
--	field = report->field[0];
--	if (!field) {
--		hid_err(hid, "NULL field\n");
--		return -1;
--	}
-+	if (!hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 7))
-+		return -ENODEV;
- 
- 	for (i = 0; i < ARRAY_SIZE(devices); i++) {
- 		if (dev->id.vendor == devices[i].idVendor &&
++
+ 	buzz = kzalloc(sizeof(*buzz), GFP_KERNEL);
+ 	if (!buzz) {
+ 		hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
 -- 
 1.8.3.1

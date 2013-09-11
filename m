@@ -1,41 +1,93 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 0/3] Few cleanups
-Date: Wed, 11 Sep 2013 22:12:22 +0200
-Message-ID: <1378930345-6670-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:20919 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754117Ab3IKUMb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Sep 2013 16:12:31 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 1/3] HID: lenovo-tpkbd: devm conversion
+Date: Wed, 11 Sep 2013 22:12:23 +0200
+Message-ID: <1378930345-6670-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1378930345-6670-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1378930345-6670-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi Jiri,
+We can use the devres API in hid modules, so use it to avoid some kfree
+and potential leaks.
 
-Well, while debugging hid-lenovo-tpkbd, I also cleaned it up a little (so this
-goes on top of the CVE series):
-- use devres API
-- remove usb references (so that the regressions tests through uhid are working)
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-lenovo-tpkbd.c | 30 ++++++++----------------------
+ 1 file changed, 8 insertions(+), 22 deletions(-)
 
-This has also been tested by https://bugzilla.redhat.com/show_bug.cgi?id=1003998
-
-And I also had a patch for sony that I wanted to send, but I was waiting for a
-complete drop of usb, which I still did not managed to do.
-
-Cheers,
-Benjamin
-
-Benjamin Tissoires (3):
-  HID: lenovo-tpkbd: devm conversion
-  HID: lenovo-tpkbd: remove usb dependency
-  HID: sony: use hid_get_raw_report() instead of a direct call to usb
-
- drivers/hid/Kconfig            |  2 +-
- drivers/hid/hid-lenovo-tpkbd.c | 50 ++++++++++++------------------------------
- drivers/hid/hid-sony.c         | 11 ++--------
- 3 files changed, 17 insertions(+), 46 deletions(-)
-
+diff --git a/drivers/hid/hid-lenovo-tpkbd.c b/drivers/hid/hid-lenovo-tpkbd.c
+index 31cf29a..0d9a276 100644
+--- a/drivers/hid/hid-lenovo-tpkbd.c
++++ b/drivers/hid/hid-lenovo-tpkbd.c
+@@ -339,7 +339,7 @@ static int tpkbd_probe_tp(struct hid_device *hdev)
+ 	struct tpkbd_data_pointer *data_pointer;
+ 	size_t name_sz = strlen(dev_name(dev)) + 16;
+ 	char *name_mute, *name_micmute;
+-	int i, ret;
++	int i;
+ 
+ 	/* Validate required reports. */
+ 	for (i = 0; i < 4; i++) {
+@@ -354,7 +354,9 @@ static int tpkbd_probe_tp(struct hid_device *hdev)
+ 		hid_warn(hdev, "Could not create sysfs group\n");
+ 	}
+ 
+-	data_pointer = kzalloc(sizeof(struct tpkbd_data_pointer), GFP_KERNEL);
++	data_pointer = devm_kzalloc(&hdev->dev,
++				    sizeof(struct tpkbd_data_pointer),
++				    GFP_KERNEL);
+ 	if (data_pointer == NULL) {
+ 		hid_err(hdev, "Could not allocate memory for driver data\n");
+ 		return -ENOMEM;
+@@ -364,20 +366,13 @@ static int tpkbd_probe_tp(struct hid_device *hdev)
+ 	data_pointer->sensitivity = 0xa0;
+ 	data_pointer->press_speed = 0x38;
+ 
+-	name_mute = kzalloc(name_sz, GFP_KERNEL);
+-	if (name_mute == NULL) {
++	name_mute = devm_kzalloc(&hdev->dev, name_sz, GFP_KERNEL);
++	name_micmute = devm_kzalloc(&hdev->dev, name_sz, GFP_KERNEL);
++	if (name_mute == NULL || name_micmute == NULL) {
+ 		hid_err(hdev, "Could not allocate memory for led data\n");
+-		ret = -ENOMEM;
+-		goto err;
++		return -ENOMEM;
+ 	}
+ 	snprintf(name_mute, name_sz, "%s:amber:mute", dev_name(dev));
+-
+-	name_micmute = kzalloc(name_sz, GFP_KERNEL);
+-	if (name_micmute == NULL) {
+-		hid_err(hdev, "Could not allocate memory for led data\n");
+-		ret = -ENOMEM;
+-		goto err2;
+-	}
+ 	snprintf(name_micmute, name_sz, "%s:amber:micmute", dev_name(dev));
+ 
+ 	hid_set_drvdata(hdev, data_pointer);
+@@ -397,12 +392,6 @@ static int tpkbd_probe_tp(struct hid_device *hdev)
+ 	tpkbd_features_set(hdev);
+ 
+ 	return 0;
+-
+-err2:
+-	kfree(name_mute);
+-err:
+-	kfree(data_pointer);
+-	return ret;
+ }
+ 
+ static int tpkbd_probe(struct hid_device *hdev,
+@@ -449,9 +438,6 @@ static void tpkbd_remove_tp(struct hid_device *hdev)
+ 	led_classdev_unregister(&data_pointer->led_mute);
+ 
+ 	hid_set_drvdata(hdev, NULL);
+-	kfree(data_pointer->led_micmute.name);
+-	kfree(data_pointer->led_mute.name);
+-	kfree(data_pointer);
+ }
+ 
+ static void tpkbd_remove(struct hid_device *hdev)
 -- 
 1.8.3.1
-

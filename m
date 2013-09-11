@@ -1,37 +1,39 @@
-From: Kees Cook <keescook@chromium.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Subject: Re: [PATCH v3 06/10] HID: lenovo-tpkbd: validate output report details
-Date: Wed, 11 Sep 2013 13:06:59 -0700
-Message-ID: <CAGXu5j+9hDd388ynuppu9jiQJgMKnSfPJ-FbmMztioFwntta0Q@mail.gmail.com>
+Date: Wed, 11 Sep 2013 22:08:42 +0200
+Message-ID: <CAN+gG=FFUqimNKm0ZYMNL5_xeh4oWLACjC7hNbaKg_U9PajwGg@mail.gmail.com>
 References: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
 	<1378929419-6269-7-git-send-email-benjamin.tissoires@redhat.com>
+	<CAGXu5j+9hDd388ynuppu9jiQJgMKnSfPJ-FbmMztioFwntta0Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f171.google.com ([209.85.214.171]:56651 "EHLO
-	mail-ob0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755701Ab3IKUHA (ORCPT
+Received: from mail-la0-f50.google.com ([209.85.215.50]:45674 "EHLO
+	mail-la0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752657Ab3IKUIo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Sep 2013 16:07:00 -0400
-Received: by mail-ob0-f171.google.com with SMTP id tb18so8876924obb.2
-        for <linux-input@vger.kernel.org>; Wed, 11 Sep 2013 13:07:00 -0700 (PDT)
-In-Reply-To: <1378929419-6269-7-git-send-email-benjamin.tissoires@redhat.com>
+	Wed, 11 Sep 2013 16:08:44 -0400
+In-Reply-To: <CAGXu5j+9hDd388ynuppu9jiQJgMKnSfPJ-FbmMztioFwntta0Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Kees Cook <keescook@chromium.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-On Wed, Sep 11, 2013 at 12:56 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> From: Kees Cook <keescook@chromium.org>
+On Wed, Sep 11, 2013 at 10:06 PM, Kees Cook <keescook@chromium.org> wrote:
+> On Wed, Sep 11, 2013 at 12:56 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> From: Kees Cook <keescook@chromium.org>
+>>
+>> From: Kees Cook <keescook@chromium.org>
+>>
 >
-> From: Kees Cook <keescook@chromium.org>
+> Not sure if "git am" will eat the second one, but the "From:" is
+> duplicated above...
 >
 
-Not sure if "git am" will eat the second one, but the "From:" is
-duplicated above...
+Yep, I saw that I duplicated it. Sorry :(
+Anyway, feel free to add/remove any Signed-off-by if you wish (I think
+I kept your original ones when it mattered).
 
--Kees
-
--- 
-Kees Cook
-Chrome OS Security
+Cheers,
+Benjamin

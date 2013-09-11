@@ -1,48 +1,41 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v3 00/10] HID: validate report details
-Date: Wed, 11 Sep 2013 13:11:28 -0700
-Message-ID: <CAGXu5jJt=uBFLL=VUy5L8=eO2eX_6-dm=c3Ck0JZ-YHovdSv_g@mail.gmail.com>
-References: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/3] Few cleanups
+Date: Wed, 11 Sep 2013 22:12:22 +0200
+Message-ID: <1378930345-6670-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f179.google.com ([209.85.214.179]:36899 "EHLO
-	mail-ob0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754290Ab3IKUL3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Sep 2013 16:11:29 -0400
-Received: by mail-ob0-f179.google.com with SMTP id fb19so8782544obc.24
-        for <linux-input@vger.kernel.org>; Wed, 11 Sep 2013 13:11:28 -0700 (PDT)
-In-Reply-To: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:20919 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754117Ab3IKUMb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Sep 2013 16:12:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Sep 11, 2013 at 12:56 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Hi guys,
->
-> here is the v3 of the CVE fixes.
->
-> I have tested the multitouch and logitech-dj part, and the lenovo-tpkbd has been
-> tested in the bug referenced in patch 10.
->
-> Cheers,
-> Benjamin
->
-> Changes since v2:
-> - fix lenovo-tpkbd report validation
-> - fix lenovo-tpkbd not releasing the device when the report was not valid
-> - use generic tests found in previous hid-multitouch patches, so that this will
->   not happen again
-> - fix input_report index retrieving in hid-multitouch
+Hi Jiri,
 
-Awesome! Thanks very much for fixing these up. I replied with Acks
-where appropriate. :)
+Well, while debugging hid-lenovo-tpkbd, I also cleaned it up a little (so this
+goes on top of the CVE series):
+- use devres API
+- remove usb references (so that the regressions tests through uhid are working)
 
--Kees
+This has also been tested by https://bugzilla.redhat.com/show_bug.cgi?id=1003998
+
+And I also had a patch for sony that I wanted to send, but I was waiting for a
+complete drop of usb, which I still did not managed to do.
+
+Cheers,
+Benjamin
+
+Benjamin Tissoires (3):
+  HID: lenovo-tpkbd: devm conversion
+  HID: lenovo-tpkbd: remove usb dependency
+  HID: sony: use hid_get_raw_report() instead of a direct call to usb
+
+ drivers/hid/Kconfig            |  2 +-
+ drivers/hid/hid-lenovo-tpkbd.c | 50 ++++++++++++------------------------------
+ drivers/hid/hid-sony.c         | 11 ++--------
+ 3 files changed, 17 insertions(+), 46 deletions(-)
 
 -- 
-Kees Cook
-Chrome OS Security
+1.8.3.1
+

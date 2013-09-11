@@ -1,49 +1,71 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] input: ti_am335x_tsc: Enable shared IRQ for TSC
-Date: Wed, 11 Sep 2013 21:08:16 +0500
-Message-ID: <20130911160815.GA9748@gmail.com>
-References: <1378034277-26728-1-git-send-email-zubair.lutfullah@gmail.com>
- <1378034277-26728-2-git-send-email-zubair.lutfullah@gmail.com>
- <522C5F96.20001@kernel.org>
- <20130909161230.GA25107@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130909161230.GA25107-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 00/10] HID: validate report details
+Date: Wed, 11 Sep 2013 21:56:49 +0200
+Message-ID: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:60252 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755101Ab3IKT5M (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Sep 2013 15:57:12 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Kees Cook <keescook@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Sep 09, 2013 at 09:12:30AM -0700, Dmitry Torokhov wrote:
-> On Sun, Sep 08, 2013 at 12:29:26PM +0100, Jonathan Cameron wrote:
-> > On 09/01/13 12:17, Zubair Lutfullah wrote:
-> > > Enable shared IRQ to allow ADC to share IRQ line from
-> > > parent MFD core. Only FIFO0 IRQs are for TSC and handled
-> > > on the TSC side.
-> > > 
-> > > Step mask would be updated from cached variable only previously.
-> > > In rare cases when both TSC and ADC are used, the cached
-> > > variable gets mixed up.
-> > > The step mask is written with the required mask every time.
-> > > 
-> > > Rachna Patil (TI) laid ground work for shared IRQ.
-> > > 
-> > > Signed-off-by: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > Whilst I would have prefered an mfd under these drivers and elegant handling
-> > of the interrupts, I guess if this works it is at least not terribly invasive.
-> > 
-> > However, this does need an Ack from Dmitry before I can take it (or for
-> > Dmitry to take it himself?)
-> 
-> I completely agree with Jonathan, more elegant handling would be nice
-> but current one will do for now.
-> 
-> Since most of the work on the driver is going through IIO tree I think
-> it would make sense for this patch to go through it as well.
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Hi guys,
 
-Thank-you.
-ZubairLK
+here is the v3 of the CVE fixes.
+
+I have tested the multitouch and logitech-dj part, and the lenovo-tpkbd has been
+tested in the bug referenced in patch 10.
+
+Cheers,
+Benjamin
+
+Changes since v2:
+- fix lenovo-tpkbd report validation
+- fix lenovo-tpkbd not releasing the device when the report was not valid
+- use generic tests found in previous hid-multitouch patches, so that this will
+  not happen again
+- fix input_report index retrieving in hid-multitouch
+
+Original message from Kees (v2):
+
+These patches introduce a validation function for HID devices that do
+direct report value accesses, solving a number of heap smashing flaws.
+
+This version changes to using an field-index-based checker for the new
+"hid_validate_values()" which requires callers to loop across fields if
+they use more than one field.
+
+Benjamin Tissoires (3):
+  HID: validate feature and input report details
+  HID: multitouch: validate indexes details
+  HID: lenovo-tpkbd: fix leak if tpkbd_probe_tp fails
+
+Kees Cook (7):
+  HID: provide a helper for validating hid reports
+  HID: zeroplus: validate output report details
+  HID: sony: validate HID output report details
+  HID: steelseries: validate output report details
+  HID: LG: validate HID output report details
+  HID: lenovo-tpkbd: validate output report details
+  HID: logitech-dj: validate output report details
+
+ drivers/hid/hid-core.c         | 74 +++++++++++++++++++++++++++++++++++++-----
+ drivers/hid/hid-input.c        | 11 ++++++-
+ drivers/hid/hid-lenovo-tpkbd.c | 25 ++++++++++----
+ drivers/hid/hid-lg2ff.c        | 19 ++---------
+ drivers/hid/hid-lg3ff.c        | 29 ++++-------------
+ drivers/hid/hid-lg4ff.c        | 20 +-----------
+ drivers/hid/hid-lgff.c         | 17 ++--------
+ drivers/hid/hid-logitech-dj.c  | 10 ++++--
+ drivers/hid/hid-multitouch.c   | 26 ++++++++-------
+ drivers/hid/hid-sony.c         |  4 +++
+ drivers/hid/hid-steelseries.c  |  5 +++
+ drivers/hid/hid-zpff.c         | 18 +++-------
+ include/linux/hid.h            |  4 +++
+ 13 files changed, 146 insertions(+), 116 deletions(-)
+
+-- 
+1.8.3.1
+

@@ -1,73 +1,48 @@
-From: Josh Boyer <jwboyer@fedoraproject.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Subject: Re: [PATCH v3 03/10] HID: sony: validate HID output report details
-Date: Thu, 12 Sep 2013 08:39:14 -0400
-Message-ID: <CA+5PVA5LAzseeqv_OGPX57tnq+16smZRv72fZ=H_GN9BegDXcQ@mail.gmail.com>
-References: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1378929419-6269-4-git-send-email-benjamin.tissoires@redhat.com>
+Date: Thu, 12 Sep 2013 16:11:47 +0200
+Message-ID: <5231CBA3.3070405@redhat.com>
+References: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com> <1378929419-6269-4-git-send-email-benjamin.tissoires@redhat.com> <CA+5PVA5LAzseeqv_OGPX57tnq+16smZRv72fZ=H_GN9BegDXcQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f49.google.com ([209.85.219.49]:58509 "EHLO
-	mail-oa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752686Ab3ILMjP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Sep 2013 08:39:15 -0400
-In-Reply-To: <1378929419-6269-4-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:34708 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751130Ab3ILOMB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Sep 2013 10:12:01 -0400
+In-Reply-To: <CA+5PVA5LAzseeqv_OGPX57tnq+16smZRv72fZ=H_GN9BegDXcQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Josh Boyer <jwboyer@fedoraproject.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Kees Cook <keescook@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
 
-On Wed, Sep 11, 2013 at 3:56 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> From: Kees Cook <keescook@chromium.org>
->
-> This driver must validate the availability of the HID output report and
-> its size before it can write LED states via buzz_set_leds(). This stops
-> a heap overflow that is possible if a device provides a malicious HID
-> output report:
->
-> [  108.171280] usb 1-1: New USB device found, idVendor=054c, idProduct=0002
-> ...
-> [  117.507877] BUG kmalloc-192 (Not tainted): Redzone overwritten
->
-> CVE-2013-2890
->
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On 12/09/13 14:39, Josh Boyer wrote:
+> On Wed, Sep 11, 2013 at 3:56 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> From: Kees Cook <keescook@chromium.org>
+>>
+>> This driver must validate the availability of the HID output report and
+>> its size before it can write LED states via buzz_set_leds(). This stops
+>> a heap overflow that is possible if a device provides a malicious HID
+>> output report:
+>>
+>> [  108.171280] usb 1-1: New USB device found, idVendor=054c, idProduct=0002
+>> ...
+>> [  117.507877] BUG kmalloc-192 (Not tainted): Redzone overwritten
+>>
+>> CVE-2013-2890
+>>
+>> Signed-off-by: Kees Cook <keescook@chromium.org>
+>> Cc: stable@vger.kernel.org
+>> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> As far as I know, this should be Cc: stable@vger.kernel.org #3.11, correct?
+> 
 
-As far as I know, this should be Cc: stable@vger.kernel.org #3.11, correct?
+Yep, for this one, only 3.11 is impacted.
+Thanks Josh. And sorry for being to lazy to have added the proper tags :(
 
-josh
+Cheers,
+Benjamin
 
-> ---
-> v3:
->  - no changes
->
->  drivers/hid/hid-sony.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 30dbb6b..b18320d 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -537,6 +537,10 @@ static int buzz_init(struct hid_device *hdev)
->         drv_data = hid_get_drvdata(hdev);
->         BUG_ON(!(drv_data->quirks & BUZZ_CONTROLLER));
->
-> +       /* Validate expected report characteristics. */
-> +       if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
-> +               return -ENODEV;
-> +
->         buzz = kzalloc(sizeof(*buzz), GFP_KERNEL);
->         if (!buzz) {
->                 hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
-> --
-> 1.8.3.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

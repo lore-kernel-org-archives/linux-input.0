@@ -1,82 +1,73 @@
-From: "Vadim A. Misbakh-Soloviov" <mva@mva.name>
-Subject: [HELP] mediabuttons/buttons_backlight on MSI G-series laptops
-Date: Thu, 12 Sep 2013 15:49:34 +0700
-Message-ID: <5231801E.5040007@mva.name>
+From: Josh Boyer <jwboyer@fedoraproject.org>
+Subject: Re: [PATCH v3 03/10] HID: sony: validate HID output report details
+Date: Thu, 12 Sep 2013 08:39:14 -0400
+Message-ID: <CA+5PVA5LAzseeqv_OGPX57tnq+16smZRv72fZ=H_GN9BegDXcQ@mail.gmail.com>
+References: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1378929419-6269-4-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="hdrvG465ikMqJcT1KxRNf45mUMb3eerQV"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from forward2l.mail.yandex.net ([84.201.143.145]:50950 "EHLO
-	forward2l.mail.yandex.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753580Ab3ILI4C (ORCPT
+Received: from mail-oa0-f49.google.com ([209.85.219.49]:58509 "EHLO
+	mail-oa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752686Ab3ILMjP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Sep 2013 04:56:02 -0400
-Received: from smtp19.mail.yandex.net (smtp19.mail.yandex.net [95.108.252.19])
-	by forward2l.mail.yandex.net (Yandex) with ESMTP id 9F9CA1AC0CCA
-	for <linux-input@vger.kernel.org>; Thu, 12 Sep 2013 12:49:35 +0400 (MSK)
-Received: from smtp19.mail.yandex.net (localhost [127.0.0.1])
-	by smtp19.mail.yandex.net (Yandex) with ESMTP id 61950BE0237
-	for <linux-input@vger.kernel.org>; Thu, 12 Sep 2013 12:49:35 +0400 (MSK)
+	Thu, 12 Sep 2013 08:39:15 -0400
+In-Reply-To: <1378929419-6269-4-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Kees Cook <keescook@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---hdrvG465ikMqJcT1KxRNf45mUMb3eerQV
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Wed, Sep 11, 2013 at 3:56 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> From: Kees Cook <keescook@chromium.org>
+>
+> This driver must validate the availability of the HID output report and
+> its size before it can write LED states via buzz_set_leds(). This stops
+> a heap overflow that is possible if a device provides a malicious HID
+> output report:
+>
+> [  108.171280] usb 1-1: New USB device found, idVendor=054c, idProduct=0002
+> ...
+> [  117.507877] BUG kmalloc-192 (Not tainted): Redzone overwritten
+>
+> CVE-2013-2890
+>
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Hi, list!
+As far as I know, this should be Cc: stable@vger.kernel.org #3.11, correct?
 
-I wat to try to write a kernel driver for some mediabuttons (and their
-backlight) on my laptop, that don't want to work otherwise.
-First of all, can you suggest me some ways for reverse-engineering if I
-have no MS Windows OS (and don't want to buy it and even to install it)?
-Actually, exactly that buttons requires additional software to work even
-on windows (two different programms for Win7 and Win8, both on .NET).
+josh
 
-Unfortunately, kernel totally ignores two of that buttons, DisplayOff
-(with it's backlight) and FlightMode (without backlight): neither evbug
-nor acpid can't see any events on it. And it is also some buttons, that
-requires "setkeycodes", including "Eject" one, that works fine at
-BIOS/GRUB2 stage, for example. Also, it is virtual buttons on plugging
-in/out AC cord, CoolerBooster and Turbo one.
-
-So, there is may things, that requires to be rewritten, but I don't
-know, if it is okay to redefine such behaviour in module.
-
-P.S. I talking about MSI GE60 0NC (problem is the same for all of
-G-series laptops), so if anyone already working on this issue =E2=80=94 I=
-'d glad
-to participate.
-
-P.P.S. I already tried platform-dependent code for MSI, but without any
-luck.
-
-
---hdrvG465ikMqJcT1KxRNf45mUMb3eerQV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.21 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQIcBAEBAgAGBQJSMYAeAAoJECZQPTSbOzNLe6kQAJUldmeT2MCZLCXzFgn+slHf
-VLprM+bWOnpcs68MH9YXVk/chUksvLL0XQ3tNqWDujoJM2AORLi+mkHe58AaXb0g
-GY9OpuqKgzONkT16/iskpLJ8QoT6XZ3iuBEx5pk7B2b0XaL4WEwrZoqNLP+ypeqY
-B1qupj7QM4szo4kezC7Xa1c0fRsm0wDuZKFf/E7nDH8uw6ISQC5tT77CQRyc6KZ9
-BGI7dDBSs7QWhPe41asCuvfnGLwxPVErSlwo74i3gzh9tq4dLDkGu9kWjJzS2R2d
-aJLnwSS35qUS92C0t0vWpm2tHmeHDzYfvcbJ8xe9bgF2IZk3FJvO/m+hOR4j4hIi
-n4sDaSwswN4UWOhECmu1NIvbaTOaj6+OeuejvswH0bmrHEfW2PtAtka8Ez9nN/je
-Sh0s8QSsLuZeNkUSTOt7nUmTX9vrVxcEyGlMD8uzaC81utwCqKw7VqYvbAtBx7IX
-MlCZW3JFNSl4dqNoIp7mziaWRp5abjZKYQjp1qQ8XK75OQkoROH6sTm4PdzrxGzO
-DlyPRIj3IJYmZwZr5pCB1Rim3FtL3iHEY9+5SPo/kTarmcW6xGcstIH8PVUOz6/K
-sENbJk86C7/7p28QIFNOLD5qL6TIgr08LNWr918Z6a2j/yNDLXOUWn4+OZfM3YrM
-AJbK+zxk2x1QhSnX09X5
-=yV04
------END PGP SIGNATURE-----
-
---hdrvG465ikMqJcT1KxRNf45mUMb3eerQV--
+> ---
+> v3:
+>  - no changes
+>
+>  drivers/hid/hid-sony.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index 30dbb6b..b18320d 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -537,6 +537,10 @@ static int buzz_init(struct hid_device *hdev)
+>         drv_data = hid_get_drvdata(hdev);
+>         BUG_ON(!(drv_data->quirks & BUZZ_CONTROLLER));
+>
+> +       /* Validate expected report characteristics. */
+> +       if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
+> +               return -ENODEV;
+> +
+>         buzz = kzalloc(sizeof(*buzz), GFP_KERNEL);
+>         if (!buzz) {
+>                 hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
+> --
+> 1.8.3.1
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

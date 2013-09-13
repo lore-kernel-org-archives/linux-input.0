@@ -1,21 +1,23 @@
-From: Emirate <info@winners.net>
-Subject: Re
-Date: Fri, 13 Sep 2013 12:01:01 +0200
-Message-ID: <dfa8b6bf97007b79c935150a26f2183c@imapproxy.vub.ac.be>
-Reply-To: <megajackpot@yahoo.co.uk>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v3 00/10] HID: validate report details
+Date: Fri, 13 Sep 2013 15:15:29 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309131515150.22174@pobox.suse.cz>
+References: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mxin.vub.ac.be ([134.184.129.112]:46464 "EHLO mxin.vub.ac.be"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755789Ab3IMKKw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Sep 2013 06:10:52 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1378929419-6269-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Kees Cook <keescook@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Wed, 11 Sep 2013, Benjamin Tissoires wrote:
 
+> here is the v3 of the CVE fixes.
+
+Now applied, will be pushing to Linus for 3.12. Thanks everybody,
 
 -- 
-Do you received our last notification?
+Jiri Kosina
+SUSE Labs

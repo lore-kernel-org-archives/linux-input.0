@@ -1,33 +1,63 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+From: Tomasz Figa <tomasz.figa@gmail.com>
 Subject: Re: [PATCH] Input: gpio_keys - wakeup_trigger
-Date: Fri, 13 Sep 2013 16:56:00 -0700
-Message-ID: <CAD=FV=VeVYNAQMrGHdQFubeQOFqA0TQirDTMagYLw5u5pTkbMg@mail.gmail.com>
+Date: Sat, 14 Sep 2013 14:16:47 +0200
+Message-ID: <106090496.3hTZTLSVzK@flatron>
 References: <1379109160-32437-1-git-send-email-bleung@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1379109160-32437-1-git-send-email-bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, david-/Q/L1SwJa3aEVqv0pETR8A@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1379109160-32437-1-git-send-email-bleung@chromium.org>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Benson Leung <bleung@chromium.org>
+Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, david@protonic.nl, dianders@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-Benson,
+Hi Benson,
 
-On Fri, Sep 13, 2013 at 2:52 PM, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
+On Friday 13 of September 2013 14:52:40 Benson Leung wrote:
 > Allow wakeup_trigger to be defined per gpio button. Currently, all
 > gpio buttons are set up as IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING.
-> It may be more appropriate to only wake the system on one edge, for example
-> if the gpio is for a Lid Switch.
->
-> Signed-off-by: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> It may be more appropriate to only wake the system on one edge, for
+> example if the gpio is for a Lid Switch.
+> 
+> Signed-off-by: Benson Leung <bleung@chromium.org>
+> ---
+>  .../devicetree/bindings/gpio/gpio_keys.txt         |  7 +++++++
+>  drivers/input/keyboard/gpio_keys.c                 | 23
+> ++++++++++++++++++++-- include/linux/gpio_keys.h                       
+>   |  3 +++
+>  3 files changed, 31 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/gpio/gpio_keys.txt
+> b/Documentation/devicetree/bindings/gpio/gpio_keys.txt index
+> 5c2c021..243f569 100644
+> --- a/Documentation/devicetree/bindings/gpio/gpio_keys.txt
+> +++ b/Documentation/devicetree/bindings/gpio/gpio_keys.txt
+> @@ -20,6 +20,13 @@ Optional subnode-properties:
+>  	- debounce-interval: Debouncing interval time in milliseconds.
+>  	  If not specified defaults to 5.
+>  	- gpio-key,wakeup: Boolean, button can wake-up the system.
+> +	- gpio-key,wakeup-trigger : Specifies the type of wakeup behavior.
+> +	  <1> == Rising Edge Trigger
+> +	  <2> == Falling Edge Trigger
+> +	  <3> == Both Rising and Falling Edge Trigger
+> +	  <4> == Level High Trigger
+> +	  <8> == Level Low Trigger
+> +	  If not specified, defaults to <3> == Both Rising and Falling.
 
-As discussed out of band, I'd tend to put the masking/error checking
-in gpio_keys_get_devtree_pdata() then just rely on non-DT users not to
-pass in nonsense, but I don't feel that strongly about it, so:
+I don't like two things in this patch.
 
-Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+First is that this looks completely like a configuration option, not 
+hardware description, so it's not something that should be put into DT. 
+Especially that users might want to use another wake-up trigger depending 
+on their use cases. I'd rather see this as a sysfs entry.
+
+Another thing is that this driver assumes that key events are indicated by 
+edges on the GPIO line, so I don't think level trigger setting make any 
+sense here. I'd rather allow three settings here (through a sysfs knob) - 
+key down, key up, key down or up.
+
+Best regards,
+Tomasz
+

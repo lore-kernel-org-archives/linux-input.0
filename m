@@ -1,63 +1,59 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: input question: ambient light sensor button
-Date: Sun, 15 Sep 2013 15:53:33 +0200
-Message-ID: <201309151553.34000@pali>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 5/6] Staging/iio/adc/touchscreen/MXS: add interrupt driven
+ touch detection
+Date: Sun, 15 Sep 2013 17:10:18 +0100
+Message-ID: <5235DBEA.7030402@kernel.org>
+References: <1378887511-24530-1-git-send-email-jbe@pengutronix.de> <1378887511-24530-6-git-send-email-jbe@pengutronix.de> <52359259.8010202@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart275853707.FCcElxl8mS";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f50.google.com ([74.125.83.50]:54697 "EHLO
-	mail-ee0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756541Ab3IONxh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Sep 2013 09:53:37 -0400
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <52359259.8010202-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
---nextPart275853707.FCcElxl8mS
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On 09/15/13 11:56, Jonathan Cameron wrote:
+> On 09/11/13 09:18, Juergen Beisert wrote:
+>> For battery driven systems it is a very bad idea to collect the touchscreen
+>> data within a kernel busy loop.
+>>
+>> This change uses the features of the hardware to delay and accumulate samples in
+>> hardware to avoid a high interrupt and CPU load.
+>>
+>> Note: this is only tested on an i.MX23 SoC yet.
+>>
+>> Signed-off-by: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+>> CC: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+>> CC: devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org
+>> CC: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+>> CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+>> CC: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+> While this driver is placed in IIO within staging at the moment, these changes are definitely
+> input related.  Hence I have cc'd Dmitry and the input list.
+>
+> I am personaly a little uncomfortable that we have such a complex bit of input code sat
+> within an IIO driver but such is life.
 
-Hello,
+The logic in here looks reasonable to me. I am far from a specialist in how these touch
+screens are normally handled though.
 
-I do not know where to ask this question, but I think that kernel=20
-developers could help me.
-
-I have notebook with one special button on keyboard which is=20
-designed for turning ambient light sensor on and off. By default=20
-pressing button do nothing (I can turn ambient light sensor on/off=20
-via sysfs platform wmi module). Button press is reported by=20
-kernel input device AT Translated Set 2 keyboard and reports it=20
-as button "touchpad off".
-
-Of course "touchpad off" is incorrect and I'd like to ask which=20
-kernel key or button from /usr/include/linux/input.h should be=20
-mapped for my ambient light sensor button? Is there already some?=20
-And what is strategy for allocating KEY_* and BTN_* numbers?
-
-I'd like to know this, so udev could have correct DMI keymap=20
-hooks and other userspace programs can understand ambient light=20
-sensor button correctly.
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart275853707.FCcElxl8mS
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlI1u90ACgkQi/DJPQPkQ1JUKQCggeHfh9PuhAZJBOCp2E7/9xrJ
-uBMAmwUqeP/8oxNljwunGa/5hqOU6F9O
-=D6r8
------END PGP SIGNATURE-----
-
---nextPart275853707.FCcElxl8mS--
+One thing to note is that you really want to get a proposed device tree spec out asap
+as that can take longer to review than the driver.  If you are proposing to do that as a future
+patch, then take into account that you'll need to ensure these are the defaults if
+it is not specified in the device tree for ever more (which is more painful than
+hammering out he device tree stuff now!)
+...
+>> +static int mxs_lradc_probe_touchscreen(struct mxs_lradc *lradc,
+>> +						struct device_node *lradc_node)
+>> +{
+>> +	/* TODO retrieve from device tree */
+>> +	lradc->over_sample_cnt = 4;
+>> +	lradc->over_sample_delay = 2;
+>> +	lradc->settling_delay = 10;
+>> +
+>> +	return 0;
+>> +}
+>> +
+...

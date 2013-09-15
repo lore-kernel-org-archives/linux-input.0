@@ -1,63 +1,79 @@
-From: Tomasz Figa <tomasz.figa@gmail.com>
-Subject: Re: [PATCH] Input: gpio_keys - wakeup_trigger
-Date: Sat, 14 Sep 2013 14:16:47 +0200
-Message-ID: <106090496.3hTZTLSVzK@flatron>
-References: <1379109160-32437-1-git-send-email-bleung@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.12-rc0
+Date: Sat, 14 Sep 2013 22:34:15 -0700
+Message-ID: <20130915053415.GA9577@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1379109160-32437-1-git-send-email-bleung@chromium.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Benson Leung <bleung@chromium.org>
-Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, david@protonic.nl, dianders@chromium.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:41859 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752299Ab3IOFeT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 15 Sep 2013 01:34:19 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Benson,
 
-On Friday 13 of September 2013 14:52:40 Benson Leung wrote:
-> Allow wakeup_trigger to be defined per gpio button. Currently, all
-> gpio buttons are set up as IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING.
-> It may be more appropriate to only wake the system on one edge, for
-> example if the gpio is for a Lid Switch.
-> 
-> Signed-off-by: Benson Leung <bleung@chromium.org>
-> ---
->  .../devicetree/bindings/gpio/gpio_keys.txt         |  7 +++++++
->  drivers/input/keyboard/gpio_keys.c                 | 23
-> ++++++++++++++++++++-- include/linux/gpio_keys.h                       
->   |  3 +++
->  3 files changed, 31 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/gpio/gpio_keys.txt
-> b/Documentation/devicetree/bindings/gpio/gpio_keys.txt index
-> 5c2c021..243f569 100644
-> --- a/Documentation/devicetree/bindings/gpio/gpio_keys.txt
-> +++ b/Documentation/devicetree/bindings/gpio/gpio_keys.txt
-> @@ -20,6 +20,13 @@ Optional subnode-properties:
->  	- debounce-interval: Debouncing interval time in milliseconds.
->  	  If not specified defaults to 5.
->  	- gpio-key,wakeup: Boolean, button can wake-up the system.
-> +	- gpio-key,wakeup-trigger : Specifies the type of wakeup behavior.
-> +	  <1> == Rising Edge Trigger
-> +	  <2> == Falling Edge Trigger
-> +	  <3> == Both Rising and Falling Edge Trigger
-> +	  <4> == Level High Trigger
-> +	  <8> == Level Low Trigger
-> +	  If not specified, defaults to <3> == Both Rising and Falling.
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I don't like two things in this patch.
+Hi Linus,
 
-First is that this looks completely like a configuration option, not 
-hardware description, so it's not something that should be put into DT. 
-Especially that users might want to use another wake-up trigger depending 
-on their use cases. I'd rather see this as a sysfs entry.
+Please pull from:
 
-Another thing is that this driver assumes that key events are indicated by 
-edges on the GPIO line, so I don't think level trigger setting make any 
-sense here. I'd rather allow three settings here (through a sysfs knob) - 
-key down, key up, key down or up.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Best regards,
-Tomasz
+to receive updates for the input subsystem. The only change is David
+Hermann's new EVIOCREVOKE evdev ioctl that allows safely passing file
+descriptors to input devices to session processes and later being able
+to stop delivery of events through these fds so that inactive sessions
+will no longer receive user input that does not belong to them.
 
+Changelog:
+---------
+
+David Herrmann (1):
+      Input: evdev - add EVIOCREVOKE ioctl
+
+
+Diffstat:
+--------
+
+ drivers/input/evdev.c      | 37 +++++++++++++++++++++++++++++++------
+ include/uapi/linux/input.h |  1 +
+ 2 files changed, 32 insertions(+), 6 deletions(-)
+
+--=20
+Dmitry
+
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSNUbWAAoJEH70+W8r6ZYqqVMP/159JOloVUDV2uO9kCOB2Zlz
+ZFwbcXHxiqChXgZYh3+HdkLse74u10vjLxibiE0CcFM0ubIKazVxvPYlzkXTa5OB
+SAy2e1X1I/WyoCSZnG0fLMF5murL7D2/q9KPHQObYgbHau+WfJRqbrZYHbCLz7rC
+MnIk+On1ohDngiaos7kLpZEW6rpRh1TpPMsH5gmoVyjKXuQChajfNLBe+Ed7AJYC
+DXK6xmGyX3Jdgo6APfaYZeFDgJZUmiui/gt74bqKlfRZbVuvzk9la0GDgoQVvOjJ
+PW9q3nylzEkTBIWF2vKS8vTg7OjcF3dZsDJjzh4lKDP5pSH4ChELt4iWtHqyyZTz
+cd6O2oYkKO5ROF7/Cp0nGWw49HDW2SQ+CBAfY647Lo7+4UfyhNhkBIaV4kwF2XFv
+b3tISpIwkVLC6a0lrAPU8cVeZGrrzr6tCyET7MebBzkQ9Q8kvdj/IAE6uPrlK0pU
+nFnfd+GFaQnD9cN4dd166tftezz8CUKkAabsVLsc+Vm6GfCCICvr4fyQByFFS0mj
+p830x2I/FsTqPbGyauzkeKhfp6wE2FV5JPa+Q+snzmFY7bXrp3TtEylzmY+0+akV
+ZT96yPFo5n1uEABmRaqlymM0Fr8ylUo02XPf0bpSZqsaf9HL6VPJydu/j4efwsl2
+DR2tjQFB/broktrShOt3
+=gHrj
+-----END PGP SIGNATURE-----
+
+--lrZ03NoBR/3+SXJZ--

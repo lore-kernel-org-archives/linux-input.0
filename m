@@ -1,59 +1,63 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 5/6] Staging/iio/adc/touchscreen/MXS: add interrupt driven
- touch detection
-Date: Sun, 15 Sep 2013 17:10:18 +0100
-Message-ID: <5235DBEA.7030402@kernel.org>
-References: <1378887511-24530-1-git-send-email-jbe@pengutronix.de> <1378887511-24530-6-git-send-email-jbe@pengutronix.de> <52359259.8010202@kernel.org>
+From: Andrew Deason <adeason@dson.org>
+Subject: [PATCH 0/2] synaptics_usb trackpoint cursor movement improvements
+Date: Sun, 15 Sep 2013 16:01:34 -0500
+Message-ID: <20130915160134.cd2eb260d8a5703a78ebfe84@dson.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <52359259.8010202-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yh0-f47.google.com ([209.85.213.47]:61883 "EHLO
+	mail-yh0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752914Ab3IOVBh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 15 Sep 2013 17:01:37 -0400
+Received: by mail-yh0-f47.google.com with SMTP id l109so1624075yhq.6
+        for <linux-input@vger.kernel.org>; Sun, 15 Sep 2013 14:01:36 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 09/15/13 11:56, Jonathan Cameron wrote:
-> On 09/11/13 09:18, Juergen Beisert wrote:
->> For battery driven systems it is a very bad idea to collect the touchscreen
->> data within a kernel busy loop.
->>
->> This change uses the features of the hardware to delay and accumulate samples in
->> hardware to avoid a high interrupt and CPU load.
->>
->> Note: this is only tested on an i.MX23 SoC yet.
->>
->> Signed-off-by: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->> CC: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
->> CC: devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org
->> CC: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
->> CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->> CC: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-> While this driver is placed in IIO within staging at the moment, these changes are definitely
-> input related.  Hence I have cc'd Dmitry and the input list.
->
-> I am personaly a little uncomfortable that we have such a complex bit of input code sat
-> within an IIO driver but such is life.
+Here are a couple of patches for improving trackpoint movement with
+synaptics_usb. Currently, without these, the movement is much worse than
+it was before synaptics_usb was introduced into the tree, since the
+device was previously handled by usbhid. This is intended to be applied
+instead of the "Input: synaptics_usb - Scale stick axes evenly" patch
+submitted previously; there's no reason to apply that one if these
+patches are applied.
 
-The logic in here looks reasonable to me. I am far from a specialist in how these touch
-screens are normally handled though.
+I'm not familiar with code for input devices (in Linux or in general),
+so I may be making silly mistakes or violating certain conventions. Feel
+free to tear me apart :) Some particular highlights of things I was
+unsure of, and so may have been dumb things to do:
 
-One thing to note is that you really want to get a proposed device tree spec out asap
-as that can take longer to review than the driver.  If you are proposing to do that as a future
-patch, then take into account that you'll need to ensure these are the defaults if
-it is not specified in the device tree for ever more (which is more painful than
-hammering out he device tree stuff now!)
-...
->> +static int mxs_lradc_probe_touchscreen(struct mxs_lradc *lradc,
->> +						struct device_node *lradc_node)
->> +{
->> +	/* TODO retrieve from device tree */
->> +	lradc->over_sample_cnt = 4;
->> +	lradc->over_sample_delay = 2;
->> +	lradc->settling_delay = 10;
->> +
->> +	return 0;
->> +}
->> +
-...
+ - I'm not sure if there's a better way or if there are standard
+   conventions for doing fixed-point arithmetic. I just multiplied or
+   divided by STICK_PRECISION at the appropriate places, but since this
+   needs to be done pretty often in the calculations and with care, it
+   seems pretty easy to accidentally screw it up in future changes.
+
+ - The sysfs attributes getters/setters are mostly boilerplate. I don't
+   know if it's frowned upon to do it this way and I need to reduce the
+   duplication, or if it doesn't really matter since there are only 3
+   items.
+
+ - I'm not sure if there's a better way to transition between the HID
+   and non-HID modes. It seems like this should be switchable at runtime
+   instead of needing to reload the module, but I can't find an example
+   of another module doing this.
+
+Also, I've been testing these changes with my own devices just by
+myself; I would welcome feedback from others with similar devices if any
+of them see this. It's difficult to objectively test how the trackpoint
+"feel"s with different parameters.
+
+Andrew Deason (2):
+  Input: synaptics_usb - Improve stick movement
+  Input: synaptics_usb - Add stick_hid param
+
+ drivers/input/mouse/synaptics_usb.c | 431 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 418 insertions(+), 13 deletions(-)
+
+-- 
+Andrew Deason
+adeason@dson.org

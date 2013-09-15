@@ -1,79 +1,155 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.12-rc0
-Date: Sat, 14 Sep 2013 22:34:15 -0700
-Message-ID: <20130915053415.GA9577@core.coreip.homeip.net>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/3] HID: Delay opening HID device
+Date: Sun, 15 Sep 2013 11:15:58 +0100
+Message-ID: <523588DE.1000603@kernel.org>
+References: <1378843432-5113-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:41859 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752299Ab3IOFeT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Sep 2013 01:34:19 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1378843432-5113-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
+On 09/10/13 21:03, Srinivas Pandruvada wrote:
+> Don't call hid_open_device till there is actually an user. This saves
+> power by not opening underlying transport for HID. Also close device
+> if there are no active mfd client using HID sensor hub.
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Buglet inline.
+> ---
+>  drivers/hid/hid-sensor-hub.c   | 45 ++++++++++++++++++++++++++++++++----------
+>  include/linux/hid-sensor-hub.h | 18 +++++++++++++++++
+>  2 files changed, 53 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 10e1581..8effdee 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -465,6 +465,39 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+>  	return 1;
+>  }
+>  
+> +int sensor_hub_device_open(struct hid_sensor_hub_device *hsdev)
+> +{
+> +	int ret;
+> +	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
+> +
+> +	mutex_lock(&data->mutex);
+> +	if (!hsdev->ref_cnt) {
+> +		ret = hid_hw_open(hsdev->hdev);
+> +		if (ret) {
+> +			hid_err(hsdev->hdev, "failed to open hid device\n");
+> +			mutex_unlock(&data->mutex);
+> +			return ret;
+> +		}
+> +	}
+> +	hsdev->ref_cnt++;
+> +	mutex_unlock(&data->mutex);
+> +
+> +	return ret;
+Not initialized.
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. The only change is David
-Hermann's new EVIOCREVOKE evdev ioctl that allows safely passing file
-descriptors to input devices to session processes and later being able
-to stop delivery of events through these fds so that inactive sessions
-will no longer receive user input that does not belong to them.
-
-Changelog:
----------
-
-David Herrmann (1):
-      Input: evdev - add EVIOCREVOKE ioctl
-
-
-Diffstat:
---------
-
- drivers/input/evdev.c      | 37 +++++++++++++++++++++++++++++++------
- include/uapi/linux/input.h |  1 +
- 2 files changed, 32 insertions(+), 6 deletions(-)
-
---=20
-Dmitry
-
-
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSNUbWAAoJEH70+W8r6ZYqqVMP/159JOloVUDV2uO9kCOB2Zlz
-ZFwbcXHxiqChXgZYh3+HdkLse74u10vjLxibiE0CcFM0ubIKazVxvPYlzkXTa5OB
-SAy2e1X1I/WyoCSZnG0fLMF5murL7D2/q9KPHQObYgbHau+WfJRqbrZYHbCLz7rC
-MnIk+On1ohDngiaos7kLpZEW6rpRh1TpPMsH5gmoVyjKXuQChajfNLBe+Ed7AJYC
-DXK6xmGyX3Jdgo6APfaYZeFDgJZUmiui/gt74bqKlfRZbVuvzk9la0GDgoQVvOjJ
-PW9q3nylzEkTBIWF2vKS8vTg7OjcF3dZsDJjzh4lKDP5pSH4ChELt4iWtHqyyZTz
-cd6O2oYkKO5ROF7/Cp0nGWw49HDW2SQ+CBAfY647Lo7+4UfyhNhkBIaV4kwF2XFv
-b3tISpIwkVLC6a0lrAPU8cVeZGrrzr6tCyET7MebBzkQ9Q8kvdj/IAE6uPrlK0pU
-nFnfd+GFaQnD9cN4dd166tftezz8CUKkAabsVLsc+Vm6GfCCICvr4fyQByFFS0mj
-p830x2I/FsTqPbGyauzkeKhfp6wE2FV5JPa+Q+snzmFY7bXrp3TtEylzmY+0+akV
-ZT96yPFo5n1uEABmRaqlymM0Fr8ylUo02XPf0bpSZqsaf9HL6VPJydu/j4efwsl2
-DR2tjQFB/broktrShOt3
-=gHrj
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--
+> +}
+> +EXPORT_SYMBOL_GPL(sensor_hub_device_open);
+> +
+> +void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev)
+> +{
+> +	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
+> +
+> +	mutex_lock(&data->mutex);
+> +	hsdev->ref_cnt--;
+> +	if (!hsdev->ref_cnt)
+> +		hid_hw_close(hsdev->hdev);
+> +	mutex_unlock(&data->mutex);
+> +}
+> +EXPORT_SYMBOL_GPL(sensor_hub_device_close);
+> +
+>  static int sensor_hub_probe(struct hid_device *hdev,
+>  				const struct hid_device_id *id)
+>  {
+> @@ -506,12 +539,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>  		hid_err(hdev, "hw start failed\n");
+>  		return ret;
+>  	}
+> -	ret = hid_hw_open(hdev);
+> -	if (ret) {
+> -		hid_err(hdev, "failed to open input interrupt pipe\n");
+> -		goto err_stop_hw;
+> -	}
+> -
+>  	INIT_LIST_HEAD(&sd->dyn_callback_list);
+>  	sd->hid_sensor_client_cnt = 0;
+>  	report_enum = &hdev->report_enum[HID_INPUT_REPORT];
+> @@ -520,7 +547,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>  	if (dev_cnt > HID_MAX_PHY_DEVICES) {
+>  		hid_err(hdev, "Invalid Physical device count\n");
+>  		ret = -EINVAL;
+> -		goto err_close;
+> +		goto err_stop_hw;
+>  	}
+>  	sd->hid_sensor_hub_client_devs = kzalloc(dev_cnt *
+>  						sizeof(struct mfd_cell),
+> @@ -528,7 +555,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>  	if (sd->hid_sensor_hub_client_devs == NULL) {
+>  		hid_err(hdev, "Failed to allocate memory for mfd cells\n");
+>  			ret = -ENOMEM;
+> -			goto err_close;
+> +			goto err_stop_hw;
+>  	}
+>  	list_for_each_entry(report, &report_enum->report_list, list) {
+>  		hid_dbg(hdev, "Report id:%x\n", report->id);
+> @@ -565,8 +592,6 @@ err_free_names:
+>  	for (i = 0; i < sd->hid_sensor_client_cnt ; ++i)
+>  		kfree(sd->hid_sensor_hub_client_devs[i].name);
+>  	kfree(sd->hid_sensor_hub_client_devs);
+> -err_close:
+> -	hid_hw_close(hdev);
+>  err_stop_hw:
+>  	hid_hw_stop(hdev);
+>  
+> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+> index 32ba451..a265af2 100644
+> --- a/include/linux/hid-sensor-hub.h
+> +++ b/include/linux/hid-sensor-hub.h
+> @@ -47,11 +47,13 @@ struct hid_sensor_hub_attribute_info {
+>   * @hdev:		Stores the hid instance.
+>   * @vendor_id:		Vendor id of hub device.
+>   * @product_id:		Product id of hub device.
+> + * @ref_cnt:		Number of MFD clients have opened this device
+>   */
+>  struct hid_sensor_hub_device {
+>  	struct hid_device *hdev;
+>  	u32 vendor_id;
+>  	u32 product_id;
+> +	int ref_cnt;
+>  };
+>  
+>  /**
+> @@ -74,6 +76,22 @@ struct hid_sensor_hub_callbacks {
+>  			 void *priv);
+>  };
+>  
+> +/**
+> +* sensor_hub_device_open() - Open hub device
+> +* @hsdev:	Hub device instance.
+> +*
+> +* Used to open hid device for sensor hub.
+> +*/
+> +int sensor_hub_device_open(struct hid_sensor_hub_device *hsdev);
+> +
+> +/**
+> +* sensor_hub_device_clode() - Close hub device
+> +* @hsdev:	Hub device instance.
+> +*
+> +* Used to clode hid device for sensor hub.
+> +*/
+> +void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev);
+> +
+>  /* Registration functions */
+>  
+>  /**
+> 

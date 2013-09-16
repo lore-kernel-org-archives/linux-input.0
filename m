@@ -1,43 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 20/51] Input: atmel_mxt_ts - Set default irqflags when
- there is no pdata
-Date: Sun, 15 Sep 2013 19:25:33 -0700
-Message-ID: <20130916022533.GA6468@core.coreip.homeip.net>
-References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>
- <1372337366-9286-21-git-send-email-nick.dyer@itdev.co.uk>
- <20130718171744.GC32381@polaris.bitmath.org>
+From: =?iso-8859-1?q?J=FCrgen_Beisert?= <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 5/6] Staging/iio/adc/touchscreen/MXS: add interrupt driven touch detection
+Date: Mon, 16 Sep 2013 10:10:22 +0200
+Message-ID: <201309161010.22151.jbe@pengutronix.de>
+References: <1378887511-24530-1-git-send-email-jbe@pengutronix.de> <1378887511-24530-6-git-send-email-jbe@pengutronix.de> <52359259.8010202@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:34088 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753098Ab3IPGdI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Sep 2013 02:33:08 -0400
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <52359259.8010202-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130718171744.GC32381@polaris.bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: rydberg@euromail.se
-Cc: Nick Dyer <nick.dyer@itdev.co.uk>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, Yufeng Shen <miletus@chromium.org>
 
-On Thu, Jul 18, 2013 at 07:17:44PM +0200, rydberg@euromail.se wrote:
-> Hi Nick,
-> 
-> > From: Yufeng Shen <miletus@chromium.org>
-> > 
-> > This is the preparation for supporting the code path when there is
-> > platform data provided and still boot the device into a sane state
-> > with backup NVRAM config.
-> > 
-> > Make the irqflags default to be IRQF_TRIGGER_FALLING if no platform data is
-> > provided.
+Hi Jonathan,
 
-I think if there is no platform data we should use 0 as IRQ falgs and
-assume that IRQ line is properly configured by the board code or via
-device tree.
+On Sunday 15 September 2013 12:56:25 Jonathan Cameron wrote:
+> On 09/11/13 09:18, Juergen Beisert wrote:
+> > For battery driven systems it is a very bad idea to collect the
+> > touchscreen data within a kernel busy loop.
+> >
+> > This change uses the features of the hardware to delay and accumula=
+te
+> > samples in hardware to avoid a high interrupt and CPU load.
+> >
+> > Note: this is only tested on an i.MX23 SoC yet.
+> >
+> > Signed-off-by: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > CC: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> > CC: devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org
+> > CC: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> > CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > CC: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+>
+> While this driver is placed in IIO within staging at the moment, thes=
+e
+> changes are definitely input related.  Hence I have cc'd Dmitry and t=
+he
+> input list.
+>
+> I am personaly a little uncomfortable that we have such a complex bit=
+ of
+> input code sat within an IIO driver but such is life.
 
-Thanks.
+Maybe an MFD for this ADC unit would be a better way to go? Currently I=
+ have a=20
+different problem with this driver, because the ADC unit monitors the b=
+attery=20
+as well. And the charging driver from the power subsystem needs these v=
+alues=20
+to charge the battery in a correct manner.
 
--- 
-Dmitry
+> [...]
+
+Regards,
+Juergen
+
+--=20
+Pengutronix e.K. =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0| Juergen Beisert =A0 =A0 =A0 =A0 =A0 =A0 |
+Linux Solutions for Science and Industry =A0 =A0 =A0| http://www.pengut=
+ronix.de/  |

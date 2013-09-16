@@ -1,55 +1,104 @@
-From: Joseph Salisbury <joseph.salisbury@canonical.com>
-Subject: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to memdup
-Date: Mon, 16 Sep 2013 13:42:35 -0400
-Message-ID: <5237430B.5040009@canonical.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/1] Drivers: input: serio: New driver to support
+ Hyper-V synthetic keyboard
+Date: Mon, 16 Sep 2013 18:29:45 +0000
+Message-ID: <3e45f054c6e243eabf2896ab1dcf38d4@SN2PR03MB061.namprd03.prod.outlook.com>
+References: <1379309334-25042-1-git-send-email-kys@microsoft.com>
+ <20130916082110.GN25896@mwanda>
+ <3b5096d0190b4440a8e25afbd22ab72d@SN2PR03MB061.namprd03.prod.outlook.com>
+ <20130916150548.GO25896@mwanda>
+ <baabf219b12b40de8e17b029e621e079@SN2PR03MB061.namprd03.prod.outlook.com>
+ <20130916170951.GB20734@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: thomas@m3y3r.de, Jiri Kosina <jkosina@suse.cz>
-Cc: list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-by2lp0236.outbound.protection.outlook.com ([207.46.163.236]:20863
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751480Ab3IPS3t convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Sep 2013 14:29:49 -0400
+In-Reply-To: <20130916170951.GB20734@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-
-Hi Thomas,
-
-A bug was opened against the Ubuntu kernel[0].  After a kernel bisect,
-it was found that reverting the following commit resolved
-this bug:
-
-commit a4a23f6d68ad2c86ee8df6a6f89c9d315c0a761c
-Author: Thomas Meyer <thomas@m3y3r.de>
-Date:   Sat Jun 1 11:40:31 2013 +0200
-
-    HID: hyperv: convert alloc+memcpy to memdup
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, "olaf@aepfle.de" <olaf@aepfle.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "jasowang@redhat.com" <jasowang@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "vojtech@suse.cz" <vojtech@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 
 
-The regression was introduced as of v3.11-rc1.  The bug causes a system
-to lockup when connecting a bluetooth trackpad and has been reported on
-multiple machines. 
 
-I wanted to ping you since you are the author of this patch.  I was
-thinking of requesting a revert for v3.12 and v3.11, but I wanted to get
-your feedback first.
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Monday, September 16, 2013 10:10 AM
+> To: KY Srinivasan
+> Cc: Dan Carpenter; olaf@aepfle.de; gregkh@linuxfoundation.org;
+> jasowang@redhat.com; linux-kernel@vger.kernel.org; vojtech@suse.cz; linux-
+> input@vger.kernel.org; apw@canonical.com; devel@linuxdriverproject.org
+> Subject: Re: [PATCH 1/1] Drivers: input: serio: New driver to support Hyper-V
+> synthetic keyboard
+> 
+> On Mon, Sep 16, 2013 at 04:56:03PM +0000, KY Srinivasan wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
+> > > Sent: Monday, September 16, 2013 8:06 AM
+> > > To: KY Srinivasan
+> > > Cc: olaf@aepfle.de; gregkh@linuxfoundation.org; jasowang@redhat.com;
+> > > dmitry.torokhov@gmail.com; linux-kernel@vger.kernel.org;
+> vojtech@suse.cz;
+> > > linux-input@vger.kernel.org; apw@canonical.com;
+> devel@linuxdriverproject.org
+> > > Subject: Re: [PATCH 1/1] Drivers: input: serio: New driver to support Hyper-V
+> > > synthetic keyboard
+> > >
+> > > On Mon, Sep 16, 2013 at 02:46:24PM +0000, KY Srinivasan wrote:
+> > > > > > +			case VM_PKT_DATA_INBAND:
+> > > > > > +				hv_kbd_on_receive(device, desc);
+> > > > >
+> > > > > This is the error handling I mentioned at the top.  hv_kbd_on_receive()
+> > > > > doesn't take into consideration the amount of data we recieved, it
+> > > > > trusts the offset we recieved from the user.  There is an out of bounds
+> > > > > read.
+> > > >
+> > > > What user are you referring to. The message is sent by the host - the user
+> > > keystroke
+> > > > is normalized into a fixed size packet by the host and sent to the  guest. We
+> will
+> > > parse this
+> > > > packet, based on the host specified layout here.
+> > > >
+> > >
+> > > The user means the hypervisor, yes.
+> > >
+> > > I don't want the hypervisor accessing outside of the buffer.  It is
+> > > robustness issue.  Just check the offset against "bytes_recvd".  It's
+> > > not complicated.
+> >
+> > At the outset, let me apologize for not understanding your concern.
+> > You say: " I don't want the hypervisor accessing outside of the buffer"
+> > Where did you see the hypervisor accessing anything outside the buffer?
+> > The buffer is allocated by this driver and a packet from vmbus is read into this
+> > buffer - this is the call to vmbus_recvpacket(). If the specified buffer is smaller
+> > than the packet that needs to be read, then nothing will be read. Once the read
+> > completes, we can be sure we have read a valid packet and can proceed to
+> parse it in
+> > this driver.
+> 
+> The concern is that number of bytes received and contents of a packet
+> are not in sync. Imagine if we were told that 16 butes was received but
+> in the packet offset is 78. Then we'll try reading well past the buffer
+> boundary that we allocated for the packets.
 
-Reverting the patch changes the driver back to useing kzalloc() and
-memcpy() instead of  kmemdup.  Doing so has uncovered another bug, which
-causes an oops on memcpy()[1].  We are in the process of bisecting that
-one now and will provide the results.
+I am not sure how this would be the case. Following are the semantics of the function
+vmbus_recvpacket_raw():
+
+If the packet to be read is larger than the buffer specified; nothing will be read and 
+appropriate error is returned. If a  packet is read, the complete packet is read and 
+so we can safely peek into this packet based on the information in the header.
+
+Regards,
 
 
-Thanks,
-
-Joe
-
-[0] pad.lv/1218004
-[1]
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1218004/+attachment/3818671/+files/kern.log
+K. Y

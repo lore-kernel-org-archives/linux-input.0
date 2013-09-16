@@ -1,47 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: atmel_mxt_ts - update to devm_* API
-Date: Mon, 16 Sep 2013 08:06:57 -0700
-Message-ID: <20130916150657.GA12105@core.coreip.homeip.net>
-References: <1379343016-6354-1-git-send-email-badarkhe.manish@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 1/1] Drivers: input: serio: New driver to support Hyper-V
+ synthetic keyboard
+Date: Mon, 16 Sep 2013 18:05:48 +0300
+Message-ID: <20130916150548.GO25896@mwanda>
+References: <1379309334-25042-1-git-send-email-kys@microsoft.com>
+ <20130916082110.GN25896@mwanda>
+ <3b5096d0190b4440a8e25afbd22ab72d@SN2PR03MB061.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:59153 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754125Ab3IPPHB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Sep 2013 11:07:01 -0400
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
 Content-Disposition: inline
-In-Reply-To: <1379343016-6354-1-git-send-email-badarkhe.manish@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <3b5096d0190b4440a8e25afbd22ab72d@SN2PR03MB061.namprd03.prod.outlook.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "olaf@aepfle.de" <olaf@aepfle.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "jasowang@redhat.com" <jasowang@redhat.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "vojtech@suse.cz" <vojtech@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: linux-input@vger.kernel.org
-To: Manish Badarkhe <badarkhe.manish@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, josh.wu@atmel.com
 
-Hi Manish,
+On Mon, Sep 16, 2013 at 02:46:24PM +0000, KY Srinivasan wrote:
+> > > +			case VM_PKT_DATA_INBAND:
+> > > +				hv_kbd_on_receive(device, desc);
+> > 
+> > This is the error handling I mentioned at the top.  hv_kbd_on_receive()
+> > doesn't take into consideration the amount of data we recieved, it
+> > trusts the offset we recieved from the user.  There is an out of bounds
+> > read.
+> 
+> What user are you referring to. The message is sent by the host - the user keystroke
+> is normalized into a fixed size packet by the host and sent to the  guest. We will parse this
+> packet, based on the host specified layout here.
+> 
 
-On Mon, Sep 16, 2013 at 08:20:16PM +0530, Manish Badarkhe wrote:
-> @@ -1264,10 +1261,8 @@ static int mxt_remove(struct i2c_client *client)
->  	struct mxt_data *data = i2c_get_clientdata(client);
->  
->  	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
-> -	free_irq(data->irq, data);
->  	input_unregister_device(data->input_dev);
->  	kfree(data->object_table);
-> -	kfree(data);
+The user means the hypervisor, yes.
 
-YOu need to be _very_ careful when mixing devm_* and non-devm-managed
-resources, especially when interrupt is involved. In this particular
-case you are offloading freeing of the interrupt (and disabling it) to
-devm, which will happen later, bu you are freeing object table
-immediately. This may cause driver crash if interrupt comes while device
-is being unbound.
+I don't want the hypervisor accessing outside of the buffer.  It is
+robustness issue.  Just check the offset against "bytes_recvd".  It's
+not complicated.
 
-That said, there is a large outstanding series to the driver from Nick
-Dryer that I am trying to merge, you may want to coordinate this change
-with him.
+If you have a different place where the guest does this then tell me
+which function to look at.
 
-Thanks.
-
--- 
-Dmitry
+regards,
+dan carpenter

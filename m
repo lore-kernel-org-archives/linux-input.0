@@ -1,73 +1,175 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 5/6] Staging/iio/adc/touchscreen/MXS: add interrupt driven touch detection
-Date: Mon, 16 Sep 2013 16:30:32 +0100
-Message-ID: <0fb59809-c835-49b0-bd82-e791db1a9db7@email.android.com>
-References: <1378887511-24530-1-git-send-email-jbe@pengutronix.de> <1378887511-24530-6-git-send-email-jbe@pengutronix.de> <52359259.8010202@kernel.org> <201309161010.22151.jbe@pengutronix.de>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/1] Drivers: input: serio: New driver to support
+ Hyper-V synthetic keyboard
+Date: Mon, 16 Sep 2013 15:52:18 +0000
+Message-ID: <076938490f5141ef957947dc10b82c65@SN2PR03MB061.namprd03.prod.outlook.com>
+References: <1379309334-25042-1-git-send-email-kys@microsoft.com>
+ <20130916152019.GB12105@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201309161010.22151.jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-1?Q?J=FCrgen_Beisert?= <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-by2lp0244.outbound.protection.outlook.com ([207.46.163.244]:57341
+	"EHLO na01-by2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751040Ab3IPPwW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Sep 2013 11:52:22 -0400
+In-Reply-To: <20130916152019.GB12105@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "vojtech@suse.cz" <vojtech@suse.cz>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "jasowang@redhat.com" <jasowang@redhat.com>
 
 
 
-"J=C3=BCrgen Beisert" <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
->Hi Jonathan,
->
->On Sunday 15 September 2013 12:56:25 Jonathan Cameron wrote:
->> On 09/11/13 09:18, Juergen Beisert wrote:
->> > For battery driven systems it is a very bad idea to collect the
->> > touchscreen data within a kernel busy loop.
->> >
->> > This change uses the features of the hardware to delay and
->accumulate
->> > samples in hardware to avoid a high interrupt and CPU load.
->> >
->> > Note: this is only tested on an i.MX23 SoC yet.
->> >
->> > Signed-off-by: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->> > CC: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
->> > CC: devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org
->> > CC: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
->> > CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->> > CC: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
->>
->> While this driver is placed in IIO within staging at the moment,
->these
->> changes are definitely input related.  Hence I have cc'd Dmitry and
->the
->> input list.
->>
->> I am personaly a little uncomfortable that we have such a complex bi=
-t
->of
->> input code sat within an IIO driver but such is life.
->
->Maybe an MFD for this ADC unit would be a better way to go?
-That would be great and is definitely the preferred method.
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Monday, September 16, 2013 8:20 AM
+> To: KY Srinivasan
+> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; linux-input@vger.kernel.org; vojtech@suse.cz;
+> olaf@aepfle.de; apw@canonical.com; jasowang@redhat.com
+> Subject: Re: [PATCH 1/1] Drivers: input: serio: New driver to support Hyper-V
+> synthetic keyboard
+> 
+> Hi K. Y.
+> 
+> On Sun, Sep 15, 2013 at 10:28:54PM -0700, K. Y. Srinivasan wrote:
+> > Add a new driver to support synthetic keyboard. On the next generation
+> > Hyper-V guest firmware, many legacy devices will not be emulated and this
+> > driver will be required.
+> >
+> > I would like to thank Vojtech Pavlik <vojtech@suse.cz> for helping me with the
+> > details of the AT keyboard driver.
+> >
+> 
+> In addition to what Dan said:
+> 
+> > +
+> > +struct synth_kbd_protocol_response {
+> > +	struct synth_kbd_msg_hdr header;
+> > +	u32 accepted:1;
+> > +	u32 reserved:31;
+> > +};
+> 
+> Use of bitfields for on the wire structures makes me uneasy. I know that
+> currently you only going to run LE on LE, but still, maybe using
+> explicit shifts and masks would be better,
+
+This definition of the data structure is defined by the host. I will see what I
+can do here.
+
+> 
+> > +
+> > +struct synth_kbd_keystroke {
+> > +	struct synth_kbd_msg_hdr header;
+> > +	u16 make_code;
+> > +	u16 reserved0;
+> > +	u32 is_unicode:1;
+> > +	u32 is_break:1;
+> > +	u32 is_e0:1;
+> > +	u32 is_e1:1;
+> > +	u32 reserved:28;
+> > +};
+> 
+> Same here.
+> 
+> > +
+> > +
+> > +#define HK_MAXIMUM_MESSAGE_SIZE 256
+> > +
+> > +#define KBD_VSC_SEND_RING_BUFFER_SIZE		(10 * PAGE_SIZE)
+> > +#define KBD_VSC_RECV_RING_BUFFER_SIZE		(10 * PAGE_SIZE)
+> > +
+> > +#define XTKBD_EMUL0     0xe0
+> > +#define XTKBD_EMUL1     0xe1
+> > +#define XTKBD_RELEASE   0x80
+> > +
+> > +
+> > +/*
+> > + * Represents a keyboard device
+> > + */
+> > +struct hv_kbd_dev {
+> > +	unsigned char keycode[256];
+> 
+> I do not see anything using keycode table? This is wrong level for it
+> regardless.
+> 
+> > +	struct hv_device	*device;
+> > +	struct synth_kbd_protocol_request protocol_req;
+> > +	struct synth_kbd_protocol_response protocol_resp;
+> > +	/* Synchronize the request/response if needed */
+> > +	struct completion	wait_event;
+> > +	struct serio		*hv_serio;
+> > +};
+> > +
+> > +
+> > +static struct hv_kbd_dev *hv_kbd_alloc_device(struct hv_device *device)
+> > +{
+> > +	struct hv_kbd_dev *kbd_dev;
+> > +	struct serio	*hv_serio;
+> 
+> You are aligning with tabs half of declarations, leaving the others. Can
+> we not align at all?
+> 
+> > +
+> > +	kbd_dev = kzalloc(sizeof(struct hv_kbd_dev), GFP_KERNEL);
+> > +
+> > +	if (!kbd_dev)
+> > +		return NULL;
+> > +
+> > +	hv_serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
+> > +
+> > +	if (hv_serio == NULL) {
+> > +		kfree(kbd_dev);
+> > +		return NULL;
+> > +	}
+> > +
+> > +	hv_serio->id.type	= SERIO_8042_XL;
+> > +	strlcpy(hv_serio->name, dev_name(&device->device),
+> > +		sizeof(hv_serio->name));
+> > +	strlcpy(hv_serio->phys, dev_name(&device->device),
+> > +		sizeof(hv_serio->phys));
+> > +	hv_serio->dev.parent  = &device->device;
+> 
+> Do you also want to set up serio's parent device to point to hv device?
+
+Is there an issue here; I could setup the parent as the vmbus device.
+
+> 
+> > +
+> > +
+> > +	kbd_dev->device = device;
+> > +	kbd_dev->hv_serio = hv_serio;
+> > +	hv_set_drvdata(device, kbd_dev);
+> > +	init_completion(&kbd_dev->wait_event);
+> > +
+> > +	return kbd_dev;
+> > +}
+> > +
+> > +static void hv_kbd_free_device(struct hv_kbd_dev *device)
+> > +{
+> > +	serio_unregister_port(device->hv_serio);
+> > +	kfree(device->hv_serio);
+> 
+> Serio ports are refcounted, do not free them explicitly after they have
+> been registered.
+
+Thank you. I will fix this.
+
+> 
+> > +	hv_set_drvdata(device->device, NULL);
+> > +	kfree(device);
+> > +}
+> 
+> 
+> Thanks.
 
 
- Currently I
->have a=20
->different problem with this driver, because the ADC unit monitors the
->battery=20
->as well. And the charging driver from the power subsystem needs these
->values=20
->to charge the battery in a correct manner.
+Thank you!.
 
-There is an iio client battery driver as generic_ADC_battery.c but it i=
-s currently only doing polled access. Not too hard to add buffered acce=
-ss though ideally we would want a generic way of combining consumers do=
-ing polled and interrupt driven accesses.
->
->> [...]
->
->Regards,
->Juergen
+Regards,
 
---=20
-Sent from my Android phone with K-9 Mail. Please excuse my brevity.
+K. Y

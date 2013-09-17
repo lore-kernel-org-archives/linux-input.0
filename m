@@ -1,62 +1,39 @@
-From: =?iso-8859-1?q?J=FCrgen_Beisert?= <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 5/6] Staging/iio/adc/touchscreen/MXS: add interrupt driven touch detection
-Date: Tue, 17 Sep 2013 09:33:08 +0200
-Message-ID: <201309170933.08505.jbe@pengutronix.de>
-References: <1378887511-24530-1-git-send-email-jbe@pengutronix.de> <52359259.8010202@kernel.org> <20130916152846.GC12105@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH V9 0/2] iio: input: ti_am335x_adc: Add continuous sampling support
+Date: Tue, 17 Sep 2013 09:44:05 +0500
+Message-ID: <1379393047-11772-1-git-send-email-zubair.lutfullah@gmail.com>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130916152846.GC12105-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Content-Disposition: inline
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi,
 
-On Monday 16 September 2013 17:28:46 Dmitry Torokhov wrote:
-> [...]
-> > >  static int mxs_lradc_ts_register(struct mxs_lradc *lradc)
-> > > @@ -641,6 +1056,7 @@ static void mxs_lradc_ts_unregister(struct
-> > > mxs_lradc *lradc)
-> > >
-> > >  	cancel_work_sync(&lradc->ts_work);
-> > >
-> > > +	mxs_lradc_disable_ts(lradc);
-> > >  	input_unregister_device(lradc->ts_input);
-> > >  }
->
-> This looks iffy... Normally you disable the device so that it does no=
-t
-> generate more interrupts, and then cancel outstanding work(s), otherw=
-ise
-> newly generated interrupts may cause more work to be scheduled. Or I
-> missed some of the context and this is not a concern here?
+This applies to togreg branch in iio.
 
-This part gets removed in patch 6/6:
+Round 9 updates
 
-@@ -1054,8 +891,6 @@ static void mxs_lradc_ts_unregister(struct mxs_lra=
-dc *lradc)
-=A0=A0=A0=A0=A0=A0=A0=A0if (!lradc->use_touchscreen)
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return;
-=A0
--=A0=A0=A0=A0=A0=A0=A0cancel_work_sync(&lradc->ts_work);
--
-=A0=A0=A0=A0=A0=A0=A0=A0mxs_lradc_disable_ts(lradc);
-=A0=A0=A0=A0=A0=A0=A0=A0input_unregister_device(lradc->ts_input);
-=A0}
+- Removed Trigger.
+- Restructured everything for INDIO_BUFFERED_HARDWARE mode.
+- Threaded IRQ with top/bottom halfs. Top half HW IRQ wakes
+bottom half threaded worker that pushes samples to iio/userspace.
+- Removed some of the patchwork to the driver that was irrelevant to the
+continuous sampling patch.
 
-But you are right, I should move this into patch 5/6.
+Cleanup will be done separately once this goes through.
+Hope these patches meet the mighty kernel standards :)
 
-Thanks
+Zubair
 
-Regards,
-Juergen
+Zubair Lutfullah (2):
+  input: ti_am335x_tsc: Enable shared IRQ for TSC
+  iio: ti_am335x_adc: Add continuous sampling support
 
---=20
-Pengutronix e.K. =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0| Juergen Beisert =A0 =A0 =A0 =A0 =A0 =A0 |
-Linux Solutions for Science and Industry =A0 =A0 =A0| http://www.pengut=
-ronix.de/  |
+ drivers/iio/adc/ti_am335x_adc.c           |  222 ++++++++++++++++++++++++++++-
+ drivers/input/touchscreen/ti_am335x_tsc.c |   12 +-
+ include/linux/mfd/ti_am335x_tscadc.h      |    9 ++
+ 3 files changed, 235 insertions(+), 8 deletions(-)
+
+-- 
+1.7.9.5

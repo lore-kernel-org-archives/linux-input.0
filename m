@@ -1,79 +1,62 @@
-From: Manish Badarkhe <badarkhe.manish@gmail.com>
-Subject: [PATCH V2] Input: atmel_mxt_ts - update to devm_* API
-Date: Tue, 17 Sep 2013 08:50:49 +0530
-Message-ID: <1379388049-4641-1-git-send-email-badarkhe.manish@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:54695 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751602Ab3IQDUr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Sep 2013 23:20:47 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: =?iso-8859-1?q?J=FCrgen_Beisert?= <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 5/6] Staging/iio/adc/touchscreen/MXS: add interrupt driven touch detection
+Date: Tue, 17 Sep 2013 09:33:08 +0200
+Message-ID: <201309170933.08505.jbe@pengutronix.de>
+References: <1378887511-24530-1-git-send-email-jbe@pengutronix.de> <52359259.8010202@kernel.org> <20130916152846.GC12105@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130916152846.GC12105-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: nick.dyer@itdev.co.uk, dmitry.torokhov@gmail.com, josh.wu@atmel.com
 
-Update the code to use devm_* API so that driver core will manage
-resources.
+Hi Dmitry,
 
-Signed-off-by: Manish Badarkhe <badarkhe.manish@gmail.com>
----
-Changes since V1:
-As per Dmitry's comment, avoid "devm_" operation on irq as it may cause
-kernel crash while device is getting unbound and CCing Nick dryer.
+On Monday 16 September 2013 17:28:46 Dmitry Torokhov wrote:
+> [...]
+> > >  static int mxs_lradc_ts_register(struct mxs_lradc *lradc)
+> > > @@ -641,6 +1056,7 @@ static void mxs_lradc_ts_unregister(struct
+> > > mxs_lradc *lradc)
+> > >
+> > >  	cancel_work_sync(&lradc->ts_work);
+> > >
+> > > +	mxs_lradc_disable_ts(lradc);
+> > >  	input_unregister_device(lradc->ts_input);
+> > >  }
+>
+> This looks iffy... Normally you disable the device so that it does no=
+t
+> generate more interrupts, and then cancel outstanding work(s), otherw=
+ise
+> newly generated interrupts may cause more work to be scheduled. Or I
+> missed some of the context and this is not a concern here?
 
-:100644 100644 59aa240... d04dbed... M	drivers/input/touchscreen/atmel_mxt_ts.c
- drivers/input/touchscreen/atmel_mxt_ts.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+This part gets removed in patch 6/6:
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 59aa240..d04dbed 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -1139,12 +1139,12 @@ static int mxt_probe(struct i2c_client *client,
- 	if (!pdata)
- 		return -EINVAL;
- 
--	data = kzalloc(sizeof(struct mxt_data), GFP_KERNEL);
--	input_dev = input_allocate_device();
-+	data = devm_kzalloc(&client->dev, sizeof(struct mxt_data), GFP_KERNEL);
-+	input_dev = devm_input_allocate_device(&client->dev);
- 	if (!data || !input_dev) {
- 		dev_err(&client->dev, "Failed to allocate memory\n");
- 		error = -ENOMEM;
--		goto err_free_mem;
-+		goto err_out;
- 	}
- 
- 	data->is_tp = pdata && pdata->is_tp;
-@@ -1170,7 +1170,7 @@ static int mxt_probe(struct i2c_client *client,
- 
- 	error = mxt_initialize(data);
- 	if (error)
--		goto err_free_mem;
-+		goto err_out;
- 
- 	__set_bit(EV_ABS, input_dev->evbit);
- 	__set_bit(EV_KEY, input_dev->evbit);
-@@ -1253,9 +1253,7 @@ err_free_irq:
- 	free_irq(client->irq, data);
- err_free_object:
- 	kfree(data->object_table);
--err_free_mem:
--	input_free_device(input_dev);
--	kfree(data);
-+err_out:
- 	return error;
- }
- 
-@@ -1267,7 +1265,6 @@ static int mxt_remove(struct i2c_client *client)
- 	free_irq(data->irq, data);
- 	input_unregister_device(data->input_dev);
- 	kfree(data->object_table);
--	kfree(data);
- 
- 	return 0;
- }
--- 
-1.7.10.4
+@@ -1054,8 +891,6 @@ static void mxs_lradc_ts_unregister(struct mxs_lra=
+dc *lradc)
+=A0=A0=A0=A0=A0=A0=A0=A0if (!lradc->use_touchscreen)
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return;
+=A0
+-=A0=A0=A0=A0=A0=A0=A0cancel_work_sync(&lradc->ts_work);
+-
+=A0=A0=A0=A0=A0=A0=A0=A0mxs_lradc_disable_ts(lradc);
+=A0=A0=A0=A0=A0=A0=A0=A0input_unregister_device(lradc->ts_input);
+=A0}
 
+But you are right, I should move this into patch 5/6.
+
+Thanks
+
+Regards,
+Juergen
+
+--=20
+Pengutronix e.K. =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0| Juergen Beisert =A0 =A0 =A0 =A0 =A0 =A0 |
+Linux Solutions for Science and Industry =A0 =A0 =A0| http://www.pengut=
+ronix.de/  |

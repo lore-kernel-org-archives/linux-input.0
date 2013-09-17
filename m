@@ -1,64 +1,79 @@
-From: Joseph Salisbury <joseph.salisbury@canonical.com>
-Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to memdup
-Date: Mon, 16 Sep 2013 20:44:05 -0400
-Message-ID: <5237A5D5.8010006@canonical.com>
-References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda>
- <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20130916210503.GQ25896@mwanda>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: list@osuosl.org, Jiri Kosina <jkosina@suse.cz>, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org, thomas@m3y3r.de
+From: Manish Badarkhe <badarkhe.manish@gmail.com>
+Subject: [PATCH V2] Input: atmel_mxt_ts - update to devm_* API
+Date: Tue, 17 Sep 2013 08:50:49 +0530
+Message-ID: <1379388049-4641-1-git-send-email-badarkhe.manish@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:54695 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751602Ab3IQDUr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Sep 2013 23:20:47 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: nick.dyer@itdev.co.uk, dmitry.torokhov@gmail.com, josh.wu@atmel.com
 
-On 09/16/2013 05:05 PM, Dan Carpenter wrote:
-> On Mon, Sep 16, 2013 at 04:49:29PM -0400, Joseph Salisbury wrote:
->> On 09/16/2013 04:38 PM, Dan Carpenter wrote:
->>> On Mon, Sep 16, 2013 at 01:42:35PM -0400, Joseph Salisbury wrote:
->>>> Reverting the patch changes the driver back to useing kzalloc() and
->>>> memcpy() instead of  kmemdup.  Doing so has uncovered another bug, which
->>>> causes an oops on memcpy()[1].  We are in the process of bisecting that
->>>> one now and will provide the results.
->>> The two bugs are the same it's that the code has shifted a little.  Mark
->>> the commit as buggy and continue with the git bisect.
->>>
->>> regards,
->>> dan carpenter
->> Can you explain a little further?  Mark commit a4a23f6 as bad?  An
->> initial bisect already reported that was the first bad commit, so it
->> can't be marked bad.  The oops on memcpy() happens after commit a4a23f6
->> is reverted.  The oops on memcpy() did not happen before a4a23f6 was
->> committed, so I assume this new oops was introduced by a change later.
->>
->> Right now I'm bisecting down the oops on memcpy() by updating the bisect
->> with good or bad, depending if the test kernel hit the oops.  I then
->> revert a4a23f6, so that revert is the HEAD of the tree each time before
->> building the kernel again(As long as the commit spit out by bisect is
->> after when a4a23f6 was introduced).
-> Yep.  Please continue bisecting the memcpy() oops.
->
-> kmemdup() is just a kzalloc() followed by a memcpy().  When we split it
-> apart by reverting the patch then we would expect the oops to move to
-> the memcpy() part.  Somehow "desc" is a bogus pointer, but I don't
-> immediately see how that is possible.
->
-> regards,
-> dan carpenter
+Update the code to use devm_* API so that driver core will manage
+resources.
 
-Thanks for the details.  We'll continue the bisect and let you know how
-it goes.
+Signed-off-by: Manish Badarkhe <badarkhe.manish@gmail.com>
+---
+Changes since V1:
+As per Dmitry's comment, avoid "devm_" operation on irq as it may cause
+kernel crash while device is getting unbound and CCing Nick dryer.
 
-Thanks again,
+:100644 100644 59aa240... d04dbed... M	drivers/input/touchscreen/atmel_mxt_ts.c
+ drivers/input/touchscreen/atmel_mxt_ts.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-Joe
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 59aa240..d04dbed 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1139,12 +1139,12 @@ static int mxt_probe(struct i2c_client *client,
+ 	if (!pdata)
+ 		return -EINVAL;
+ 
+-	data = kzalloc(sizeof(struct mxt_data), GFP_KERNEL);
+-	input_dev = input_allocate_device();
++	data = devm_kzalloc(&client->dev, sizeof(struct mxt_data), GFP_KERNEL);
++	input_dev = devm_input_allocate_device(&client->dev);
+ 	if (!data || !input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate memory\n");
+ 		error = -ENOMEM;
+-		goto err_free_mem;
++		goto err_out;
+ 	}
+ 
+ 	data->is_tp = pdata && pdata->is_tp;
+@@ -1170,7 +1170,7 @@ static int mxt_probe(struct i2c_client *client,
+ 
+ 	error = mxt_initialize(data);
+ 	if (error)
+-		goto err_free_mem;
++		goto err_out;
+ 
+ 	__set_bit(EV_ABS, input_dev->evbit);
+ 	__set_bit(EV_KEY, input_dev->evbit);
+@@ -1253,9 +1253,7 @@ err_free_irq:
+ 	free_irq(client->irq, data);
+ err_free_object:
+ 	kfree(data->object_table);
+-err_free_mem:
+-	input_free_device(input_dev);
+-	kfree(data);
++err_out:
+ 	return error;
+ }
+ 
+@@ -1267,7 +1265,6 @@ static int mxt_remove(struct i2c_client *client)
+ 	free_irq(data->irq, data);
+ 	input_unregister_device(data->input_dev);
+ 	kfree(data->object_table);
+-	kfree(data);
+ 
+ 	return 0;
+ }
+-- 
+1.7.10.4
+

@@ -1,87 +1,64 @@
-From: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Subject: =?UTF-8?q?=5BPATCH=201/2=5D=20input=3A=20ti=5Fam335x=5Ftsc=3A=20Enable=20shared=20IRQ=20for=20TSC?=
-Date: Tue, 17 Sep 2013 09:44:06 +0500
-Message-ID: <1379393047-11772-2-git-send-email-zubair.lutfullah@gmail.com>
-References: <1379393047-11772-1-git-send-email-zubair.lutfullah@gmail.com>
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: Re: [PATCH 1/4] Input: cobalt_btns - Remove redundant dev_set_drvdata
+Date: Tue, 17 Sep 2013 14:41:08 +0530
+Message-ID: <CAK9yfHyo4oypRTKh_=Z+jWprWaHJyufevBcGPtyrLMaOQ4nwmQ@mail.gmail.com>
+References: <1378490888-5083-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1379393047-11772-1-git-send-email-zubair.lutfullah@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jic23@cam.ac.uk, dmitry.torokhov@gmail.com
-Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bigeasy@linutronix.de, gregkh@linuxfoundation.org, zubair.lutfullah@gmail.com
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f172.google.com ([209.85.214.172]:65177 "EHLO
+	mail-ob0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751445Ab3IQJLJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Sep 2013 05:11:09 -0400
+Received: by mail-ob0-f172.google.com with SMTP id gq1so5019047obb.31
+        for <linux-input@vger.kernel.org>; Tue, 17 Sep 2013 02:11:08 -0700 (PDT)
+In-Reply-To: <1378490888-5083-1-git-send-email-sachin.kamat@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sachin Kamat <sachin.kamat@linaro.org>
 
-Enable shared IRQ to allow ADC to share IRQ line from
-parent MFD core. Only FIFO0 IRQs are for TSC and handled
-on the TSC side.
+Hi Dmitry,
 
-Step mask would be updated from cached variable only previously.
-In rare cases when both TSC and ADC are used, the cached
-variable gets mixed up.
-The step mask is written with the required mask every time.
+Now that the merge window is closed, a gentle ping on this series :)
 
-Rachna Patil (TI) laid ground work for shared IRQ.
+On 6 September 2013 23:38, Sachin Kamat <sachin.kamat@linaro.org> wrote:
+> Driver core sets the data to NULL upon release or probe
+> failure. Hence explicit setting is not necessary.
+>
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Cc: Yoichi Yuasa <yuasa@linux-mips.org>
+> ---
+>  drivers/input/misc/cobalt_btns.c |    2 --
+>  1 files changed, 0 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/misc/cobalt_btns.c b/drivers/input/misc/cobalt_btns.c
+> index 4f77f87..b5d71d2 100644
+> --- a/drivers/input/misc/cobalt_btns.c
+> +++ b/drivers/input/misc/cobalt_btns.c
+> @@ -131,7 +131,6 @@ static int cobalt_buttons_probe(struct platform_device *pdev)
+>   err_free_mem:
+>         input_free_polled_device(poll_dev);
+>         kfree(bdev);
+> -       dev_set_drvdata(&pdev->dev, NULL);
+>         return error;
+>  }
+>
+> @@ -144,7 +143,6 @@ static int cobalt_buttons_remove(struct platform_device *pdev)
+>         input_free_polled_device(bdev->poll_dev);
+>         iounmap(bdev->reg);
+>         kfree(bdev);
+> -       dev_set_drvdata(dev, NULL);
+>
+>         return 0;
+>  }
+> --
+> 1.7.4.1
+>
 
-Signed-off-by: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/ti_am335x_tsc.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/=
-touchscreen/ti_am335x_tsc.c
-index e1c5300..24e625c 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -52,6 +52,7 @@ struct titsc {
- 	u32			config_inp[4];
- 	u32			bit_xp, bit_xn, bit_yp, bit_yn;
- 	u32			inp_xp, inp_xn, inp_yp, inp_yn;
-+	u32			step_mask;
- };
-=20
- static unsigned int titsc_readl(struct titsc *ts, unsigned int reg)
-@@ -196,7 +197,8 @@ static void titsc_step_config(struct titsc *ts_dev)
-=20
- 	/* The steps1 =E2=80=A6 end and bit 0 for TS_Charge */
- 	stepenable =3D (1 << (end_step + 2)) - 1;
--	am335x_tsc_se_set(ts_dev->mfd_tscadc, stepenable);
-+	ts_dev->step_mask =3D stepenable;
-+	am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
- }
-=20
- static void titsc_read_coordinates(struct titsc *ts_dev,
-@@ -260,6 +262,10 @@ static irqreturn_t titsc_irq(int irq, void *dev)
- 	unsigned int fsm;
-=20
- 	status =3D titsc_readl(ts_dev, REG_IRQSTATUS);
-+	/*
-+	 * ADC and touchscreen share the IRQ line.
-+	 * FIFO1 interrupts are used by ADC. Handle FIFO0 IRQs here only
-+	 */
- 	if (status & IRQENB_FIFO0THRES) {
-=20
- 		titsc_read_coordinates(ts_dev, &x, &y, &z1, &z2);
-@@ -316,7 +322,7 @@ static irqreturn_t titsc_irq(int irq, void *dev)
-=20
- 	if (irqclr) {
- 		titsc_writel(ts_dev, REG_IRQSTATUS, irqclr);
--		am335x_tsc_se_update(ts_dev->mfd_tscadc);
-+		am335x_tsc_se_set(ts_dev->mfd_tscadc, ts_dev->step_mask);
- 		return IRQ_HANDLED;
- 	}
- 	return IRQ_NONE;
-@@ -389,7 +395,7 @@ static int titsc_probe(struct platform_device *pdev=
-)
- 	}
-=20
- 	err =3D request_irq(ts_dev->irq, titsc_irq,
--			  0, pdev->dev.driver->name, ts_dev);
-+			  IRQF_SHARED, pdev->dev.driver->name, ts_dev);
- 	if (err) {
- 		dev_err(&pdev->dev, "failed to allocate irq.\n");
- 		goto err_free_mem;
---=20
-1.7.9.5
+
+-- 
+With warm regards,
+Sachin

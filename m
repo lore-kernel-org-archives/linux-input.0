@@ -1,74 +1,71 @@
-From: Oskar Andero <oskar.andero@sonymobile.com>
-Subject: Re: [PATCH v2] input: don't call input_dev_release_keys() in resume
-Date: Wed, 18 Sep 2013 11:10:08 +0200
-Message-ID: <20130918091008.GA23288@caracas.corpusers.net>
-References: <1374754154-7990-1-git-send-email-oskar.andero@sonymobile.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/2] iio: ti_am335x_adc: Add continuous sampling support
+Date: Wed, 18 Sep 2013 10:39:42 +0100
+Message-ID: <53771776-0d33-436d-9687-995ed0d6345d@email.android.com>
+References: <1379393047-11772-1-git-send-email-zubair.lutfullah@gmail.com> <1379393047-11772-3-git-send-email-zubair.lutfullah@gmail.com> <20130918042726.GB13196@core.coreip.homeip.net> <20130918065406.GA13451@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:15230 "EHLO
-	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751625Ab3IRJUN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Sep 2013 05:20:13 -0400
-Content-Disposition: inline
-In-Reply-To: <1374754154-7990-1-git-send-email-oskar.andero@sonymobile.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130918065406.GA13451-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: =?iso-8859-1?Q?Andersson=2C_Bj=F6rn?= <Bjorn.Andersson@sonymobile.com>, "Lekanovic, Radovan" <Radovan.Lekanovic@sonymobile.com>, "Makarov, Aleksej" <Aleksej.Makarov@sonymobile.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hii Dmitry,
 
-On 14:09 Thu 25 Jul     , Oskar Andero wrote:
-> From: Aleksej Makarov <aleksej.makarov@sonymobile.com>
-> 
-> When waking up the platform by pressing a specific key, sending a
-> release on that key makes it impossible to react on the event in
-> user-space. This is fixed by moving the input_reset_device() call to
-> resume instead.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Reviewed-by: Radovan Lekanovic <radovan.lekanovic@sonymobile.com>
-> Signed-off-by: Aleksej Makarov <aleksej.makarov@sonymobile.com>
-> Signed-off-by: Oskar Andero <oskar.andero@sonymobile.com>
-> ---
->  drivers/input/input.c | 11 +----------
->  1 file changed, 1 insertion(+), 10 deletions(-)
-> 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index c044699..ee3ff16 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -1676,22 +1676,13 @@ static int input_dev_suspend(struct device *dev)
->  {
->  	struct input_dev *input_dev = to_input_dev(dev);
->  
-> -	mutex_lock(&input_dev->mutex);
-> -
-> -	if (input_dev->users)
-> -		input_dev_toggle(input_dev, false);
-> -
-> -	mutex_unlock(&input_dev->mutex);
-> +	input_reset_device(input_dev);
->  
->  	return 0;
->  }
->  
->  static int input_dev_resume(struct device *dev)
->  {
-> -	struct input_dev *input_dev = to_input_dev(dev);
-> -
-> -	input_reset_device(input_dev);
-> -
->  	return 0;
->  }
 
-Sorry for bugging you with this patch again! I realize that changes to
-input.c is sensitive since it's a central part of the subsystem.
-However, the problem of reading input events after wake-up remains.
+"Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>On Tue, Sep 17, 2013 at 09:27:27PM -0700, Dmitry Torokhov wrote:
+>> Hi Zubair,
+>> 
+>> On Tue, Sep 17, 2013 at 09:44:07AM +0500, Zubair Lutfullah wrote:
+>> > +
+>> > +	ret = devm_request_threaded_irq(indio_dev->dev.parent,
+>> > +				irq,
+>> > +				pollfunc_th, pollfunc_bh,
+>> > +				flags, indio_dev->name,
+>> > +				indio_dev);
+>> > +	if (ret)
+>> > +		goto error_kfifo_free;
+>> > +
+>> > +	indio_dev->setup_ops = setup_ops;
+>> > +	indio_dev->modes |= INDIO_BUFFER_HARDWARE;
+>> > +
+>> > +	ret = iio_buffer_register(indio_dev,
+>> > +				  indio_dev->channels,
+>> > +				  indio_dev->num_channels);
+>> > +	if (ret)
+>> > +		goto error_free_irq;
+>> > +
+>> > +	return 0;
+>> > +
+>> > +error_free_irq:
+>> > +	devm_free_irq(indio_dev->dev.parent, irq, indio_dev);
+>> 
+>> What is the point of using devm_* here if you are doing explicit
+>> management of the resource anyway (you explicitly release it in all
+>code
+>> paths)?
+>> 
+>> Thanks.
+>> 
+>> -- 
+>> Dmitry
+>
+>I admit I am unaware at the moment about how it works.
+>
+>I use devm and simply ignore the error path?
+>
+>The devm function header description said something about using
+>devm_free when freeing. And this is the way I am used to seeing 
+>error handling.
 
-Does the patch make sense or do you see any potential risks with it?
+The devm interfaces ensure this is all cleaned when the device is removed thus avoiding the need to free the stuff explicitly.
+Device will get freed on deliberate remove and on an error from probe. Hence you can drop all calls to devm free. The devm free functions are only needed if you wish to free in order to reallocate. This might happen if you want to change a buffer size for instance.
+>
+>Zubair
 
-Thanks,
- Oskar
+-- 
+Sent from my Android phone with K-9 Mail. Please excuse my brevity.

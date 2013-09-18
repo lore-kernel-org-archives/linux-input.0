@@ -1,92 +1,83 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/2] iio: ti_am335x_adc: Add continuous sampling support
-Date: Wed, 18 Sep 2013 07:15:33 -0700
-Message-ID: <20130918141533.GA16424@core.coreip.homeip.net>
-References: <1379393047-11772-1-git-send-email-zubair.lutfullah@gmail.com>
- <1379393047-11772-3-git-send-email-zubair.lutfullah@gmail.com>
- <20130918042726.GB13196@core.coreip.homeip.net>
- <20130918065406.GA13451@gmail.com>
- <53771776-0d33-436d-9687-995ed0d6345d@email.android.com>
+From: Mike Dunn <mikedunn@newsguy.com>
+Subject: Re: [PATCH] input: pxa27x_keypad: fix NULL pointer dereference
+Date: Wed, 18 Sep 2013 07:28:20 -0700
+Message-ID: <5239B884.20809@newsguy.com>
+References: <1379349842-13089-1-git-send-email-mikedunn@newsguy.com> <201309161849.53556.marex@denx.de> <20130916170617.GA20734@core.coreip.homeip.net> <523926A2.1010607@newsguy.com> <20130918042423.GA13196@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <53771776-0d33-436d-9687-995ed0d6345d-2ueSQiBKiTY7tOexoI0I+QC/G2K4zDHf@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: "Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.newsguy.com ([74.209.136.69]:61281 "EHLO smtp.newsguy.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751533Ab3IRO3o (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Sep 2013 10:29:44 -0400
+In-Reply-To: <20130918042423.GA13196@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Marek Vasut <marex@denx.de>, linux-input@vger.kernel.org, Chao Xie <chao.xie@marvell.com>, Robert Jarzmik <robert.jarzmik@free.fr>
 
-On Wed, Sep 18, 2013 at 10:39:42AM +0100, Jonathan Cameron wrote:
+On 09/17/2013 09:24 PM, Dmitry Torokhov wrote:
+> On Tue, Sep 17, 2013 at 09:05:54PM -0700, Mike Dunn wrote:
+>> On 09/16/2013 10:06 AM, Dmitry Torokhov wrote:
+>>> On Mon, Sep 16, 2013 at 06:49:53PM +0200, Marek Vasut wrote:
+>>>> Dear Mike Dunn,
+>>>>
+>>>>> A NULL pointer dereference exception occurs in the driver probe function
+>>>>> when device tree is used.  The pdata pointer will be NULL in this case,
+>>>>> but the code dereferences it in all cases.  When device tree is used, a
+>>>>> platform data structure is allocated and initialized, and in all cases
+>>>>> this pointer is copied to the driver's private data, so the variable being
+>>>>> tested should be accessed through the driver's private data structure.
+>>>>>
+>>>>> Signed-off-by: Mike Dunn <mikedunn@newsguy.com>
+>>>>> ---
+>>>>>  drivers/input/keyboard/pxa27x_keypad.c | 6 ++++--
+>>>>>  1 file changed, 4 insertions(+), 2 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/input/keyboard/pxa27x_keypad.c
+>>>>> b/drivers/input/keyboard/pxa27x_keypad.c index 134c3b4..3b2a614 100644
+>>>>> --- a/drivers/input/keyboard/pxa27x_keypad.c
+>>>>> +++ b/drivers/input/keyboard/pxa27x_keypad.c
+>>>>> @@ -795,8 +795,10 @@ static int pxa27x_keypad_probe(struct platform_device
+>>>>> *pdev) goto failed_put_clk;
+>>>>>  	}
+>>>>>
+>>>>> -	if ((pdata->enable_rotary0 && keypad->rotary_rel_code[0] != -1) ||
+>>>>> -	    (pdata->enable_rotary1 && keypad->rotary_rel_code[1] != -1)) {
+>>>>> +	if ((keypad->pdata->enable_rotary0 &&
+>>>>> +	     keypad->rotary_rel_code[0] != -1) ||
+>>>>> +	    (keypad->pdata->enable_rotary1 &&
+>>>>> +	     keypad->rotary_rel_code[1] != -1)) {
+>>>>>  		input_dev->evbit[0] |= BIT_MASK(EV_REL);
+>>>>>  	}
+>>>>
+>>>> Nice find. Acked-by: Marek Vasut <marex@denx.de>
+>>>
+>>> Excellent booby trap. I would prefer if we explicitly did
+>>>
+>>> 	pdata = keypad->pdata;
+>>>
+>>> after calling the parse DT fucntion with a nice comment, because we
+>>> somebody might want to rearrange the code and accidentially revert the
+>>> checks to the original state.
+>>
+>>
+>> Yes, that would have been better.  Is someone picking this up?  I'm not familir
+>> with the input subsystem maintainer (sorry).
 > 
+> That would be yours truly.
 > 
-> "Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> >On Tue, Sep 17, 2013 at 09:27:27PM -0700, Dmitry Torokhov wrote:
-> >> Hi Zubair,
-> >> 
-> >> On Tue, Sep 17, 2013 at 09:44:07AM +0500, Zubair Lutfullah wrote:
-> >> > +
-> >> > +	ret = devm_request_threaded_irq(indio_dev->dev.parent,
-> >> > +				irq,
-> >> > +				pollfunc_th, pollfunc_bh,
-> >> > +				flags, indio_dev->name,
-> >> > +				indio_dev);
-> >> > +	if (ret)
-> >> > +		goto error_kfifo_free;
-> >> > +
-> >> > +	indio_dev->setup_ops = setup_ops;
-> >> > +	indio_dev->modes |= INDIO_BUFFER_HARDWARE;
-> >> > +
-> >> > +	ret = iio_buffer_register(indio_dev,
-> >> > +				  indio_dev->channels,
-> >> > +				  indio_dev->num_channels);
-> >> > +	if (ret)
-> >> > +		goto error_free_irq;
-> >> > +
-> >> > +	return 0;
-> >> > +
-> >> > +error_free_irq:
-> >> > +	devm_free_irq(indio_dev->dev.parent, irq, indio_dev);
-> >> 
-> >> What is the point of using devm_* here if you are doing explicit
-> >> management of the resource anyway (you explicitly release it in all
-> >code
-> >> paths)?
-> >> 
-> >> Thanks.
-> >> 
-> >> -- 
-> >> Dmitry
-> >
-> >I admit I am unaware at the moment about how it works.
-> >
-> >I use devm and simply ignore the error path?
-> >
-> >The devm function header description said something about using
-> >devm_free when freeing. And this is the way I am used to seeing 
-> >error handling.
+>> If this will be upstreamed in
+>> someone's tree, I'll be glad to resubmit with this change.
 > 
+> If you could resubmit that would be great - I do not have the hardware
+> and I prefer applying patches that were tested, if possible.
 
-> The devm interfaces ensure this is all cleaned when the device is
-> removed thus avoiding the need to free the stuff explicitly.  Device
-> will get freed on deliberate remove and on an error from probe. Hence
-> you can drop all calls to devm free. The devm free functions are only
-> needed if you wish to free in order to reallocate. This might happen
-> if you want to change a buffer size for instance.
 
-However in this case such conversion us dangerous. With all but IRQ
-resource managed by the traditional methods they will be released first
-with IRQ handler deregistered very last. Therefore if device is not
-properly quiesced IRQ raised during driver unbinding is likely to result
-in kernel oops.
+OK, will do.  Yes, I'm testing this on a palm treo 680 with matrix keys and one
+direct key.
 
-IOW devm_request_irq() is very often evil (it is still useful if _all_
-your resources are managed by devm_*).
+Thanks,
+Mike
 
-In case of your driver I'd recommend switching to
-request_irq()/free_irq() instead.
-
-Thanks.
-
--- 
-Dmitry

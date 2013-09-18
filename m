@@ -1,111 +1,164 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] iio: ti_am335x_adc: Add continuous sampling support
-Date: Wed, 18 Sep 2013 09:24:42 -0700
-Message-ID: <20130918162442.GA14803@core.coreip.homeip.net>
-References: <1379393047-11772-1-git-send-email-zubair.lutfullah@gmail.com>
- <1379393047-11772-3-git-send-email-zubair.lutfullah@gmail.com>
- <20130918042726.GB13196@core.coreip.homeip.net>
- <20130918065406.GA13451@gmail.com>
- <53771776-0d33-436d-9687-995ed0d6345d@email.android.com>
- <20130918141533.GA16424@core.coreip.homeip.net>
- <b37c9a0e-36ed-49bf-bb68-453c7b07b437@email.android.com>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 1/3] HID: Delay opening HID device
+Date: Wed, 18 Sep 2013 09:44:29 -0700
+Message-ID: <5239D86D.2010201@linux.intel.com>
+References: <1378843432-5113-1-git-send-email-srinivas.pandruvada@linux.intel.com> <523588DE.1000603@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <b37c9a0e-36ed-49bf-bb68-453c7b07b437@email.android.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: "Zubair Lutfullah :" <zubair.lutfullah@gmail.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bigeasy@linutronix.de, gregkh@linuxfoundation.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <523588DE.1000603-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 18, 2013 at 05:12:02PM +0100, Jonathan Cameron wrote:
-> 
-> 
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> >On Wed, Sep 18, 2013 at 10:39:42AM +0100, Jonathan Cameron wrote:
-> >> 
-> >> 
-> >> "Zubair Lutfullah :" <zubair.lutfullah@gmail.com> wrote:
-> >> >On Tue, Sep 17, 2013 at 09:27:27PM -0700, Dmitry Torokhov wrote:
-> >> >> Hi Zubair,
-> >> >> 
-> >> >> On Tue, Sep 17, 2013 at 09:44:07AM +0500, Zubair Lutfullah wrote:
-> >> >> > +
-> >> >> > +	ret = devm_request_threaded_irq(indio_dev->dev.parent,
-> >> >> > +				irq,
-> >> >> > +				pollfunc_th, pollfunc_bh,
-> >> >> > +				flags, indio_dev->name,
-> >> >> > +				indio_dev);
-> >> >> > +	if (ret)
-> >> >> > +		goto error_kfifo_free;
-> >> >> > +
-> >> >> > +	indio_dev->setup_ops = setup_ops;
-> >> >> > +	indio_dev->modes |= INDIO_BUFFER_HARDWARE;
-> >> >> > +
-> >> >> > +	ret = iio_buffer_register(indio_dev,
-> >> >> > +				  indio_dev->channels,
-> >> >> > +				  indio_dev->num_channels);
-> >> >> > +	if (ret)
-> >> >> > +		goto error_free_irq;
-> >> >> > +
-> >> >> > +	return 0;
-> >> >> > +
-> >> >> > +error_free_irq:
-> >> >> > +	devm_free_irq(indio_dev->dev.parent, irq, indio_dev);
-> >> >> 
-> >> >> What is the point of using devm_* here if you are doing explicit
-> >> >> management of the resource anyway (you explicitly release it in
-> >all
-> >> >code
-> >> >> paths)?
-> >> >> 
-> >> >> Thanks.
-> >> >> 
-> >> >> -- 
-> >> >> Dmitry
-> >> >
-> >> >I admit I am unaware at the moment about how it works.
-> >> >
-> >> >I use devm and simply ignore the error path?
-> >> >
-> >> >The devm function header description said something about using
-> >> >devm_free when freeing. And this is the way I am used to seeing 
-> >> >error handling.
-> >> 
-> >
-> >> The devm interfaces ensure this is all cleaned when the device is
-> >> removed thus avoiding the need to free the stuff explicitly.  Device
-> >> will get freed on deliberate remove and on an error from probe. Hence
-> >> you can drop all calls to devm free. The devm free functions are only
-> >> needed if you wish to free in order to reallocate. This might happen
-> >> if you want to change a buffer size for instance.
-> >
-> >However in this case such conversion us dangerous. With all but IRQ
-> >resource managed by the traditional methods they will be released first
-> >with IRQ handler deregistered very last. Therefore if device is not
-> >properly quiesced IRQ raised during driver unbinding is likely to
-> >result
-> >in kernel oops.
-> >
-> >IOW devm_request_irq() is very often evil (it is still useful if _all_
-> >your resources are managed by devm_*).
-> >
-> >In case of your driver I'd recommend switching to
-> >request_irq()/free_irq() instead.
-> >
-> >Thanks.
-> 
-> Pretty much all resources are devm managed in here
-> 
-> https://git.kernel.org/cgit/linux/kernel/git/jic23/iio.git/tree/drivers/iio/adc/ti_am335x_adc.c?h=togreg&id=7a1aeba7ed0d5a1e83fd5a8ee2a2869430d40347
+On 09/15/2013 03:15 AM, Jonathan Cameron wrote:
+> On 09/10/13 21:03, Srinivas Pandruvada wrote:
+>> Don't call hid_open_device till there is actually an user. This saves
+>> power by not opening underlying transport for HID. Also close device
+>> if there are no active mfd client using HID sensor hub.
+>>
+>> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Buglet inline.
+>> ---
+>>   drivers/hid/hid-sensor-hub.c   | 45 ++++++++++++++++++++++++++++++++----------
+>>   include/linux/hid-sensor-hub.h | 18 +++++++++++++++++
+>>   2 files changed, 53 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+>> index 10e1581..8effdee 100644
+>> --- a/drivers/hid/hid-sensor-hub.c
+>> +++ b/drivers/hid/hid-sensor-hub.c
+>> @@ -465,6 +465,39 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+>>   	return 1;
+>>   }
+>>   
+>> +int sensor_hub_device_open(struct hid_sensor_hub_device *hsdev)
+>> +{
+>> +	int ret;
+>> +	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
+>> +
+>> +	mutex_lock(&data->mutex);
+>> +	if (!hsdev->ref_cnt) {
+>> +		ret = hid_hw_open(hsdev->hdev);
+>> +		if (ret) {
+>> +			hid_err(hsdev->hdev, "failed to open hid device\n");
+>> +			mutex_unlock(&data->mutex);
+>> +			return ret;
+>> +		}
+>> +	}
+>> +	hsdev->ref_cnt++;
+>> +	mutex_unlock(&data->mutex);
+>> +
+>> +	return ret;
+> Not initialized.
+Good catch.
+>> +}
+>> +EXPORT_SYMBOL_GPL(sensor_hub_device_open);
+>> +
+>> +void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev)
+>> +{
+>> +	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
+>> +
+>> +	mutex_lock(&data->mutex);
+>> +	hsdev->ref_cnt--;
+>> +	if (!hsdev->ref_cnt)
+>> +		hid_hw_close(hsdev->hdev);
+>> +	mutex_unlock(&data->mutex);
+>> +}
+>> +EXPORT_SYMBOL_GPL(sensor_hub_device_close);
+>> +
+>>   static int sensor_hub_probe(struct hid_device *hdev,
+>>   				const struct hid_device_id *id)
+>>   {
+>> @@ -506,12 +539,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>>   		hid_err(hdev, "hw start failed\n");
+>>   		return ret;
+>>   	}
+>> -	ret = hid_hw_open(hdev);
+>> -	if (ret) {
+>> -		hid_err(hdev, "failed to open input interrupt pipe\n");
+>> -		goto err_stop_hw;
+>> -	}
+>> -
+>>   	INIT_LIST_HEAD(&sd->dyn_callback_list);
+>>   	sd->hid_sensor_client_cnt = 0;
+>>   	report_enum = &hdev->report_enum[HID_INPUT_REPORT];
+>> @@ -520,7 +547,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>>   	if (dev_cnt > HID_MAX_PHY_DEVICES) {
+>>   		hid_err(hdev, "Invalid Physical device count\n");
+>>   		ret = -EINVAL;
+>> -		goto err_close;
+>> +		goto err_stop_hw;
+>>   	}
+>>   	sd->hid_sensor_hub_client_devs = kzalloc(dev_cnt *
+>>   						sizeof(struct mfd_cell),
+>> @@ -528,7 +555,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+>>   	if (sd->hid_sensor_hub_client_devs == NULL) {
+>>   		hid_err(hdev, "Failed to allocate memory for mfd cells\n");
+>>   			ret = -ENOMEM;
+>> -			goto err_close;
+>> +			goto err_stop_hw;
+>>   	}
+>>   	list_for_each_entry(report, &report_enum->report_list, list) {
+>>   		hid_dbg(hdev, "Report id:%x\n", report->id);
+>> @@ -565,8 +592,6 @@ err_free_names:
+>>   	for (i = 0; i < sd->hid_sensor_client_cnt ; ++i)
+>>   		kfree(sd->hid_sensor_hub_client_devs[i].name);
+>>   	kfree(sd->hid_sensor_hub_client_devs);
+>> -err_close:
+>> -	hid_hw_close(hdev);
+>>   err_stop_hw:
+>>   	hid_hw_stop(hdev);
+>>   
+>> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+>> index 32ba451..a265af2 100644
+>> --- a/include/linux/hid-sensor-hub.h
+>> +++ b/include/linux/hid-sensor-hub.h
+>> @@ -47,11 +47,13 @@ struct hid_sensor_hub_attribute_info {
+>>    * @hdev:		Stores the hid instance.
+>>    * @vendor_id:		Vendor id of hub device.
+>>    * @product_id:		Product id of hub device.
+>> + * @ref_cnt:		Number of MFD clients have opened this device
+>>    */
+>>   struct hid_sensor_hub_device {
+>>   	struct hid_device *hdev;
+>>   	u32 vendor_id;
+>>   	u32 product_id;
+>> +	int ref_cnt;
+>>   };
+>>   
+>>   /**
+>> @@ -74,6 +76,22 @@ struct hid_sensor_hub_callbacks {
+>>   			 void *priv);
+>>   };
+>>   
+>> +/**
+>> +* sensor_hub_device_open() - Open hub device
+>> +* @hsdev:	Hub device instance.
+>> +*
+>> +* Used to open hid device for sensor hub.
+>> +*/
+>> +int sensor_hub_device_open(struct hid_sensor_hub_device *hsdev);
+>> +
+>> +/**
+>> +* sensor_hub_device_clode() - Close hub device
+>> +* @hsdev:	Hub device instance.
+>> +*
+>> +* Used to clode hid device for sensor hub.
+>> +*/
+>> +void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev);
+>> +
+>>   /* Registration functions */
+>>   
+>>   /**
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-
-So we are guaranteed that that new kfifo that is being allocated just
-before we requesting IRQ and will be freed way before we free the IRQ
-will not be used by the IOTQ handler?
-
-Thanks.
-
--- 
-Dmitry
+Thanks,
+Srinivas

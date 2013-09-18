@@ -1,48 +1,91 @@
-From: Zubair Lutfullah <zubair.lutfullah@gmail.com>
-Subject: [PATCH V10 0/2] iio: input: ti_am335x_adc: Add continuous sampling support
-Date: Wed, 18 Sep 2013 16:23:01 +0500
-Message-ID: <1379503383-17086-1-git-send-email-zubair.lutfullah@gmail.com>
+From: Andrey Moiseev <o2g.org.ru@gmail.com>
+Subject: [PATCH] Input: i8042 - i8042_flush fix for a full 8042 buffer
+Date: Wed, 18 Sep 2013 16:35:56 +0400
+Message-ID: <52399E2C.7000805@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f182.google.com ([209.85.215.182]:56413 "EHLO
-	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751881Ab3IRL22 (ORCPT
+Received: from mail-lb0-f180.google.com ([209.85.217.180]:51934 "EHLO
+	mail-lb0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752027Ab3IRMgB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Sep 2013 07:28:28 -0400
+	Wed, 18 Sep 2013 08:36:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jic23@cam.ac.uk, dmitry.torokhov@gmail.com
-Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bigeasy@linutronix.de, gregkh@linuxfoundation.org, zubair.lutfullah@gmail.com
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrey Moiseev <o2g.org.ru@gmail.com>
 
-Hi,
+When 8042 internal data buffer is full, the driver
+erroneously decides that the controller is not present.
 
-These apply to togreg branch in iio.
+I've already sent this 2 weeks ago, but that message received no comments.
 
-Round 10 updates
-- Removed devm_free as not needed
+i8042_flush returns the number of flushed bytes, which is
+in 0 - I8042_BUFFER_SIZE range inclusive. Therefore, i8042_flush
+has no way to indicate an error. Moreover i8042_controller_check
+takes initially full buffer (i8042_flush returned
+I8042_BUFFER_SIZE) as a sign of absence of the controller.
 
-Round 9 updates
+The fix:
+i8042_flush should perform one more status check after
+I8042_BUFFER_SIZE bytes have been read, and, if it succeeds,
+indicate the error by returning -1. i8042_controller_check
+should be changed appropriately.
 
-- Removed Trigger.
-- Restructured everything for INDIO_BUFFERED_HARDWARE mode.
-- Threaded IRQ with top/bottom halfs. Top half HW IRQ wakes
-bottom half threaded worker that pushes samples to iio/userspace.
-- Removed some of the patchwork to the driver that was irrelevant to the
-continuous sampling patch.
-
-Cleanup will be done separately once this goes through.
-Hope these patches meet the mighty kernel standards :)
-
-Zubair
-
-Zubair Lutfullah (2):
-  input: ti_am335x_tsc: Enable shared IRQ for TSC
-  iio: ti_am335x_adc: Add continuous sampling support
-
- drivers/iio/adc/ti_am335x_adc.c           |  216 ++++++++++++++++++++++++++++-
- drivers/input/touchscreen/ti_am335x_tsc.c |   12 +-
- include/linux/mfd/ti_am335x_tscadc.h      |    9 ++
- 3 files changed, 229 insertions(+), 8 deletions(-)
-
+Signed-off-by: Andrey Moiseev <o2g.org.ru@gmail.com>
+---
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index 78e4de4..cdda786 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -222,29 +222,32 @@ static int i8042_wait_write(void)
+ static int i8042_flush(void)
+ {
+ 	unsigned long flags;
+ 	unsigned char data, str;
+ 	int i = 0;
+ 
+ 	spin_lock_irqsave(&i8042_lock, flags);
+ 
+-	while (((str = i8042_read_status()) & I8042_STR_OBF) && (i < I8042_BUFFER_SIZE)) {
++	while (((str = i8042_read_status()) & I8042_STR_OBF) && (i <= I8042_BUFFER_SIZE)) {
+ 		udelay(50);
+ 		data = i8042_read_data();
+ 		i++;
+ 		dbg("%02x <- i8042 (flush, %s)\n",
+ 		    data, str & I8042_STR_AUXDATA ? "aux" : "kbd");
+ 	}
+ 
+ 	spin_unlock_irqrestore(&i8042_lock, flags);
+ 
++	if (i == I8042_BUFFER_SIZE + 1)
++		return -1;
++
+ 	return i;
+ }
+ 
+ /*
+  * i8042_command() executes a command on the i8042. It also sends the input
+  * parameter(s) of the commands to it, and receives the output value(s). The
+  * parameters are to be stored in the param array, and the output is placed
+  * into the same array. The number of the parameters and output values is
+  * encoded in bits 8-11 of the command number.
+  */
+ 
+@@ -849,11 +852,11 @@ static int __init i8042_check_aux(void)
+ 
+ static int i8042_controller_check(void)
+ {
+-	if (i8042_flush() == I8042_BUFFER_SIZE) {
++	if (i8042_flush() == -1) {
+ 		pr_err("No controller found\n");
+ 		return -ENODEV;
+ 	}
+ 
+ 	return 0;
+ }
+ 
 -- 
-1.7.9.5
+1.8.4
 

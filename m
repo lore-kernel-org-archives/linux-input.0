@@ -1,152 +1,38 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 1/3] HID: Delay opening HID device
-Date: Wed, 18 Sep 2013 10:13:17 -0700
-Message-ID: <1379524399-16995-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Martin Fuzzey <mfuzzey@parkeon.com>
+Subject: Re: [11/51] Input: atmel_mxt_ts - Implement CRC check for configuration
+ data
+Date: Wed, 18 Sep 2013 18:59:10 +0200
+Message-ID: <5239DBDE.7010709@parkeon.com>
+References: <1372337366-9286-12-git-send-email-nick.dyer@itdev.co.uk>
+Reply-To: mfuzzey@parkeon.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:53756 "EHLO mga02.intel.com"
+Received: from mta1.parkeon.com ([91.121.43.66]:33981 "EHLO mta1.parkeon.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751865Ab3IRRNI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Sep 2013 13:13:08 -0400
+	id S1752116Ab3IRR3f (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Sep 2013 13:29:35 -0400
+In-Reply-To: <1372337366-9286-12-git-send-email-nick.dyer@itdev.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Cc: jic23@kernel.org, jkosina@suse.cz, holler@ahsoftware.de, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Nick Dyer <nick.dyer@itdev.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Kurtz <djkurtz@chromium.org>, Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>
 
-Don't call hid_open_device till there is actually an user. This saves
-power by not opening underlying transport for HID. Also close device
-if there are no active mfd client using HID sensor hub.
+On 27/06/13 14:48, Nick Dyer wrote:
+> The configuration is stored in NVRAM on the maXTouch chip. When the device is
+> reset it reports a CRC of the stored configuration values. Therefore it isn't
+> necessary to send the configuration on each probe - we can check the CRC
+> matches and avoid a timeconsuming backup/reset cycle.
+>
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+> Acked-by: Benson Leung <bleung@chromium.org>
+> -static unsigned mxt_extract_T6_csum(const u8 *csum)
+> +static u16 mxt_extract_T6_csum(const u8 *csum)
+>   {
+>   	return csum[0] | (csum[1] << 8) | (csum[2] << 16);
+>   }
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/hid-sensor-hub.c   | 45 ++++++++++++++++++++++++++++++++----------
- include/linux/hid-sensor-hub.h | 18 +++++++++++++++++
- 2 files changed, 53 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 10e1581..88fc5ae 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -465,6 +465,39 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
- 	return 1;
- }
- 
-+int sensor_hub_device_open(struct hid_sensor_hub_device *hsdev)
-+{
-+	int ret = 0;
-+	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
-+
-+	mutex_lock(&data->mutex);
-+	if (!hsdev->ref_cnt) {
-+		ret = hid_hw_open(hsdev->hdev);
-+		if (ret) {
-+			hid_err(hsdev->hdev, "failed to open hid device\n");
-+			mutex_unlock(&data->mutex);
-+			return ret;
-+		}
-+	}
-+	hsdev->ref_cnt++;
-+	mutex_unlock(&data->mutex);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(sensor_hub_device_open);
-+
-+void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev)
-+{
-+	struct sensor_hub_data *data =  hid_get_drvdata(hsdev->hdev);
-+
-+	mutex_lock(&data->mutex);
-+	hsdev->ref_cnt--;
-+	if (!hsdev->ref_cnt)
-+		hid_hw_close(hsdev->hdev);
-+	mutex_unlock(&data->mutex);
-+}
-+EXPORT_SYMBOL_GPL(sensor_hub_device_close);
-+
- static int sensor_hub_probe(struct hid_device *hdev,
- 				const struct hid_device_id *id)
- {
-@@ -506,12 +539,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 		hid_err(hdev, "hw start failed\n");
- 		return ret;
- 	}
--	ret = hid_hw_open(hdev);
--	if (ret) {
--		hid_err(hdev, "failed to open input interrupt pipe\n");
--		goto err_stop_hw;
--	}
--
- 	INIT_LIST_HEAD(&sd->dyn_callback_list);
- 	sd->hid_sensor_client_cnt = 0;
- 	report_enum = &hdev->report_enum[HID_INPUT_REPORT];
-@@ -520,7 +547,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 	if (dev_cnt > HID_MAX_PHY_DEVICES) {
- 		hid_err(hdev, "Invalid Physical device count\n");
- 		ret = -EINVAL;
--		goto err_close;
-+		goto err_stop_hw;
- 	}
- 	sd->hid_sensor_hub_client_devs = kzalloc(dev_cnt *
- 						sizeof(struct mfd_cell),
-@@ -528,7 +555,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 	if (sd->hid_sensor_hub_client_devs == NULL) {
- 		hid_err(hdev, "Failed to allocate memory for mfd cells\n");
- 			ret = -ENOMEM;
--			goto err_close;
-+			goto err_stop_hw;
- 	}
- 	list_for_each_entry(report, &report_enum->report_list, list) {
- 		hid_dbg(hdev, "Report id:%x\n", report->id);
-@@ -565,8 +592,6 @@ err_free_names:
- 	for (i = 0; i < sd->hid_sensor_client_cnt ; ++i)
- 		kfree(sd->hid_sensor_hub_client_devs[i].name);
- 	kfree(sd->hid_sensor_hub_client_devs);
--err_close:
--	hid_hw_close(hdev);
- err_stop_hw:
- 	hid_hw_stop(hdev);
- 
-diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-index 32ba451..a265af2 100644
---- a/include/linux/hid-sensor-hub.h
-+++ b/include/linux/hid-sensor-hub.h
-@@ -47,11 +47,13 @@ struct hid_sensor_hub_attribute_info {
-  * @hdev:		Stores the hid instance.
-  * @vendor_id:		Vendor id of hub device.
-  * @product_id:		Product id of hub device.
-+ * @ref_cnt:		Number of MFD clients have opened this device
-  */
- struct hid_sensor_hub_device {
- 	struct hid_device *hdev;
- 	u32 vendor_id;
- 	u32 product_id;
-+	int ref_cnt;
- };
- 
- /**
-@@ -74,6 +76,22 @@ struct hid_sensor_hub_callbacks {
- 			 void *priv);
- };
- 
-+/**
-+* sensor_hub_device_open() - Open hub device
-+* @hsdev:	Hub device instance.
-+*
-+* Used to open hid device for sensor hub.
-+*/
-+int sensor_hub_device_open(struct hid_sensor_hub_device *hsdev);
-+
-+/**
-+* sensor_hub_device_clode() - Close hub device
-+* @hsdev:	Hub device instance.
-+*
-+* Used to clode hid device for sensor hub.
-+*/
-+void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev);
-+
- /* Registration functions */
- 
- /**
--- 
-1.8.3.1
+Shouldn't this be u32?
+It's losing data causing the checksums not to match for me.
 

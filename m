@@ -1,46 +1,103 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: Re: [PATCH] Input: gpio_keys - wakeup_trigger
-Date: Thu, 19 Sep 2013 13:43:43 -0700
-Message-ID: <CANLzEkufu+MA67tBi9eXDTzPrSqT9jUNpMiCqeqckJog1JdVbA@mail.gmail.com>
-References: <1379109160-32437-1-git-send-email-bleung@chromium.org>
-	<106090496.3hTZTLSVzK@flatron>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3.12-rc1] USB: input: cm109.c: Convert high volume
+ dev_err() to dev_err_ratelimited()
+Date: Thu, 19 Sep 2013 14:52:46 -0700
+Message-ID: <20130919215246.GB16015@core.coreip.homeip.net>
+References: <1378830193-48384-1-git-send-email-tim.gardner@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f182.google.com ([209.85.220.182]:37991 "EHLO
-	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752035Ab3ISUno (ORCPT
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:57671 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752150Ab3ISVwv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Sep 2013 16:43:44 -0400
-Received: by mail-vc0-f182.google.com with SMTP id hf12so7159311vcb.27
-        for <linux-input@vger.kernel.org>; Thu, 19 Sep 2013 13:43:43 -0700 (PDT)
-In-Reply-To: <106090496.3hTZTLSVzK@flatron>
+	Thu, 19 Sep 2013 17:52:51 -0400
+Content-Disposition: inline
+In-Reply-To: <1378830193-48384-1-git-send-email-tim.gardner@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tomasz Figa <tomasz.figa@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, david@protonic.nl, Douglas Anderson <dianders@chromium.org>
+To: Tim Gardner <tim.gardner@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Tomasz,
+Hi Tim,
 
-On Sat, Sep 14, 2013 at 5:16 AM, Tomasz Figa <tomasz.figa@gmail.com> wrote:
-> I don't like two things in this patch.
->
-> First is that this looks completely like a configuration option, not
-> hardware description, so it's not something that should be put into DT.
-> Especially that users might want to use another wake-up trigger depending
-> on their use cases. I'd rather see this as a sysfs entry.
->
-> Another thing is that this driver assumes that key events are indicated by
-> edges on the GPIO line, so I don't think level trigger setting make any
-> sense here. I'd rather allow three settings here (through a sysfs knob) -
-> key down, key up, key down or up.
+On Tue, Sep 10, 2013 at 10:23:13AM -0600, Tim Gardner wrote:
+> BugLink: http://bugs.launchpad.net/bugs/1222850
+> 
+> This input device can get into a state that produces a high
+> volume of device status errors. Attempt to throttle these
+> error messages such that the kernel log is not flooded.
+> 
 
-Thanks for your feedback. I agree with your suggestions. I will move
-this from platform data and DT to a sysfs property with three settings
-: rising, falling, both.
+Only 2 of these printks need to be rate-limited, as other failures are
+fatal to the driver since it will not resubmit the IO.
 
+Also I think we need to try and resubmit control URB to try and execute
+buzzer command if previous one failed.
+
+BTW, EPROTO/EILSEQ errors mentioned in the launchpad bug seem to relate
+to timeout/CRC errors reported by the host controller, so it must indeed
+be the extender that is misbehaving.
+
+Thanks.
 
 -- 
-Benson Leung
-Software Engineer, Chrom* OS
-bleung@chromium.org
+Dmitry
+
+
+Input: cm109 - convert high volume dev_err() to dev_err_ratelimited()
+
+From: Tim Gardner <tim.gardner@canonical.com>
+
+BugLink: http://bugs.launchpad.net/bugs/1222850
+
+This input device can get into a state that produces a high
+volume of device status errors. Attempt to throttle these
+error messages such that the kernel log is not flooded.
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/cm109.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
+index 082684e..9365535 100644
+--- a/drivers/input/misc/cm109.c
++++ b/drivers/input/misc/cm109.c
+@@ -351,7 +351,9 @@ static void cm109_urb_irq_callback(struct urb *urb)
+ 	if (status) {
+ 		if (status == -ESHUTDOWN)
+ 			return;
+-		dev_err(&dev->intf->dev, "%s: urb status %d\n", __func__, status);
++		dev_err_ratelimited(&dev->intf->dev, "%s: urb status %d\n",
++				    __func__, status);
++		goto out;
+ 	}
+ 
+ 	/* Special keys */
+@@ -418,8 +420,12 @@ static void cm109_urb_ctl_callback(struct urb *urb)
+ 	     dev->ctl_data->byte[2],
+ 	     dev->ctl_data->byte[3]);
+ 
+-	if (status)
+-		dev_err(&dev->intf->dev, "%s: urb status %d\n", __func__, status);
++	if (status) {
++		if (status == -ESHUTDOWN)
++			return;
++		dev_err_ratelimited(&dev->intf->dev, "%s: urb status %d\n",
++				    __func__, status);
++	}
+ 
+ 	spin_lock(&dev->ctl_submit_lock);
+ 
+@@ -427,7 +433,7 @@ static void cm109_urb_ctl_callback(struct urb *urb)
+ 
+ 	if (likely(!dev->shutdown)) {
+ 
+-		if (dev->buzzer_pending) {
++		if (dev->buzzer_pending || status) {
+ 			dev->buzzer_pending = 0;
+ 			dev->ctl_urb_pending = 1;
+ 			cm109_submit_buzz_toggle(dev);

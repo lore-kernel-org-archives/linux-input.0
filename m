@@ -1,98 +1,69 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH V2 1/1] Drivers: input: serio: New driver to support
- Hyper-V synthetic keyboard
-Date: Wed, 18 Sep 2013 23:27:51 +0000
-Message-ID: <304cbdeb0aa34f9a9ba6b44828fb5647@SN2PR03MB061.namprd03.prod.outlook.com>
-References: <1379460418-1523-1-git-send-email-kys@microsoft.com>
- <20130918210107.GA32320@core.coreip.homeip.net>
+From: "Zubair Lutfullah :" <zubair.lutfullah@gmail.com>
+Subject: Re: [PATCH 2/2] iio: ti_am335x_adc: Add continuous sampling support
+Date: Thu, 19 Sep 2013 10:16:12 +0500
+Message-ID: <20130919051611.GA4363@gmail.com>
+References: <1379393047-11772-1-git-send-email-zubair.lutfullah@gmail.com>
+ <1379393047-11772-3-git-send-email-zubair.lutfullah@gmail.com>
+ <20130918042726.GB13196@core.coreip.homeip.net>
+ <20130918065406.GA13451@gmail.com>
+ <53771776-0d33-436d-9687-995ed0d6345d@email.android.com>
+ <20130918141533.GA16424@core.coreip.homeip.net>
+ <b37c9a0e-36ed-49bf-bb68-453c7b07b437@email.android.com>
+ <20130918162442.GA14803@core.coreip.homeip.net>
+ <c141b8a3-1e5d-406c-bcc4-ef0abec56192@email.android.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2lp0207.outbound.protection.outlook.com ([207.46.163.207]:46260
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751511Ab3IRX2N convert rfc822-to-8bit (ORCPT
+Received: from mail-we0-f169.google.com ([74.125.82.169]:48109 "EHLO
+	mail-we0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751998Ab3ISFQ0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Sep 2013 19:28:13 -0400
-In-Reply-To: <20130918210107.GA32320@core.coreip.homeip.net>
-Content-Language: en-US
+	Thu, 19 Sep 2013 01:16:26 -0400
+Content-Disposition: inline
+In-Reply-To: <c141b8a3-1e5d-406c-bcc4-ef0abec56192@email.android.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "jasowang@redhat.com" <jasowang@redhat.com>, "dan.carpenter@oracle.com" <dan.carpenter@oracle.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "vojtech@suse.cz" <vojtech@suse.cz>
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Zubair Lutfullah :" <zubair.lutfullah@gmail.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bigeasy@linutronix.de, gregkh@linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Wednesday, September 18, 2013 2:01 PM
-> To: KY Srinivasan
-> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; olaf@aepfle.de; apw@canonical.com;
-> jasowang@redhat.com; dan.carpenter@oracle.com; linux-
-> input@vger.kernel.org; vojtech@suse.cz
-> Subject: Re: [PATCH V2 1/1] Drivers: input: serio: New driver to support Hyper-V
-> synthetic keyboard
+On Wed, Sep 18, 2013 at 06:05:12PM +0100, Jonathan Cameron wrote:
 > 
-> Hi K.Y.,
-> 
-> On Tue, Sep 17, 2013 at 04:26:58PM -0700, K. Y. Srinivasan wrote:
-> > Add a new driver to support synthetic keyboard. On the next generation
-> > Hyper-V guest firmware, many legacy devices will not be emulated and this
-> > driver will be required.
+> >> >However in this case such conversion us dangerous. With all but IRQ
+> >> >resource managed by the traditional methods they will be released
+> >first
+> >> >with IRQ handler deregistered very last. Therefore if device is not
+> >> >properly quiesced IRQ raised during driver unbinding is likely to
+> >> >result
+> >> >in kernel oops.
+> >> >
+> >> >IOW devm_request_irq() is very often evil (it is still useful if
+> >_all_
+> >> >your resources are managed by devm_*).
+> >> >
+> >> >In case of your driver I'd recommend switching to
+> >> >request_irq()/free_irq() instead.
+> >> >
+> >> >Thanks.
+> >> 
+> >> Pretty much all resources are devm managed in here
+> >> 
+> >>
+> >https://git.kernel.org/cgit/linux/kernel/git/jic23/iio.git/tree/drivers/iio/adc/ti_am335x_adc.c?h=togreg&id=7a1aeba7ed0d5a1e83fd5a8ee2a2869430d40347
 > >
-> > I would like to thank Vojtech Pavlik <vojtech@suse.cz> for helping me with the
-> > details of the AT keyboard driver. I would also like to thank
-> > Dan Carpenter <dan.carpenter@oracle.com> and
-> > Dmitry Torokhov <dmitry.torokhov@gmail.com> for their detailed review of
-> this
-> > driver.
 > >
-> > I have addressed all the comments of Dan and Dmitry in this version of
-> > the patch
+> >So we are guaranteed that that new kfifo that is being allocated just
+> >before we requesting IRQ and will be freed way before we free the IRQ
+> >will not be used by the IOTQ handler?
+> >
+> >Thanks.
+> Good point. I forgot about that.  The source of interrupts 'should' be disabled before the kfifo is freed but I guess perhaps better to play it safe. Would take a fair bit of review to be sure that is not going to cause grief.
 > 
-> This looks much better. Could you tell me if the patch below (on top of
-> yours) still works?
+> A few more devm handlers need writing before it is truly useful here.
 > 
-> Thanks.
-
-Thank you. The code looks much better now. You forgot to initialize the port_data and
-after I fixed that everything seems to work as it did before: Here is the patch I used:
-
-> -----Original Message-----
-> From: K. Y. Srinivasan [mailto:kys@microsoft.com]
-> Sent: Wednesday, September 18, 2013 4:50 PM
-> To: KY Srinivasan
-> Subject: [PATCH 1/1] Drivers: input: serio: hyper-V: Initialize the port data
-> correctly
+> Thanks for pointing this out.
 > 
-> 
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> ---
->  drivers/input/serio/hyperv-keyboard.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-
-> keyboard.c
-> index 401fbdd..aff4152 100644
-> --- a/drivers/input/serio/hyperv-keyboard.c
-> +++ b/drivers/input/serio/hyperv-keyboard.c
-> @@ -351,6 +351,7 @@ static int hv_kbd_probe(struct hv_device *hv_dev,
-> 
->  	hv_serio->dev.parent  = &hv_dev->device;
->  	hv_serio->id.type = SERIO_8042_XL;
-> +	hv_serio->port_data = kbd_dev;
->  	strlcpy(hv_serio->name, dev_name(&hv_dev->device),
->  		sizeof(hv_serio->name));
->  	strlcpy(hv_serio->phys, dev_name(&hv_dev->device),
-> --
-> 1.7.4.1
+> J
 
+If I understand the conclusion correctly, no devm here?
 
-Once again; thank you for all your help.
-
-Regards,
-
-K. Y
-
+Zubair

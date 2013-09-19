@@ -1,65 +1,84 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 5/6] Staging/iio/adc/touchscreen/MXS: add interrupt driven touch detection
-Date: Thu, 19 Sep 2013 17:12:42 +0100
-Message-ID: <b270500e-998f-4aa1-a592-cdee7db4ff2a@email.android.com>
-References: <1378887511-24530-1-git-send-email-jbe@pengutronix.de> <201309161010.22151.jbe@pengutronix.de> <0fb59809-c835-49b0-bd82-e791db1a9db7@email.android.com> <201309191449.37274.jbe@pengutronix.de>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH V2 1/1] Drivers: input: serio: New driver to support
+ Hyper-V synthetic keyboard
+Date: Thu, 19 Sep 2013 16:31:07 +0000
+Message-ID: <c3ebbe28a47b45a98252f2d57a5adad0@SN2PR03MB061.namprd03.prod.outlook.com>
+References: <1379460418-1523-1-git-send-email-kys@microsoft.com>
+ <20130918210107.GA32320@core.coreip.homeip.net>
+ <304cbdeb0aa34f9a9ba6b44828fb5647@SN2PR03MB061.namprd03.prod.outlook.com>
+ <20130919155259.GA5731@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201309191449.37274.jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-1?Q?J=FCrgen_Beisert?= <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130919155259.GA5731@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "jasowang@redhat.com" <jasowang@redhat.com>, "dan.carpenter@oracle.com" <dan.carpenter@oracle.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "vojtech@suse.cz" <vojtech@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
-=2E
 
-"J=C3=BCrgen Beisert" <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
->Hi Jonathan,
->
->On Monday 16 September 2013 17:30:32 Jonathan Cameron wrote:
->> >On Sunday 15 September 2013 12:56:25 Jonathan ,,, wrote:
->> >> On 09/11/13 09:18, Juergen Beisert wrote:
->> >> > For battery driven systems it is a very bad idea to collect the
->> >> > touchscreen data within a kernel busy loop.
->> >> >
->> >> > This change uses the features of the hardware to delay and
->> >> > accumulate samples in hardware to avoid a high interrupt and CP=
-U
->load.
->> >> >
->> >> > Note: this is only tested on an i.MX23 SoC yet.
->> >> >
->> >> > Signed-off-by: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->> >> > CC: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
->> >> > CC: devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org
->> >> > CC: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
->> >> > CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->> >> > CC: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
->> >>
->> >> While this driver is placed in IIO within staging at the moment,
->> >> these changes are definitely input related.  Hence I have cc'd
->Dmitry and
->> >> the input list.
->> >>
->> >> I am personaly a little uncomfortable that we have such a complex
->bit
->> >> of input code sat within an IIO driver but such is life.
->> >
->> > Maybe an MFD for this ADC unit would be a better way to go?
->>
->> That would be great and is definitely the preferred method.
->
->Cannot continue to convert the driver into an MFD device. The project
->does not=20
->give me the time to do so.
->
->Regards,
->Juergen
 
-=46air enough. Perhaps someone else will pick up the gauntlet :)=20
-The old call of why there isn't enough time in the day!
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Thursday, September 19, 2013 8:53 AM
+> To: KY Srinivasan
+> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; olaf@aepfle.de; apw@canonical.com;
+> jasowang@redhat.com; dan.carpenter@oracle.com; linux-
+> input@vger.kernel.org; vojtech@suse.cz
+> Subject: Re: [PATCH V2 1/1] Drivers: input: serio: New driver to support Hyper-V
+> synthetic keyboard
+> 
+> On Wed, Sep 18, 2013 at 11:27:51PM +0000, KY Srinivasan wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> > > Sent: Wednesday, September 18, 2013 2:01 PM
+> > > To: KY Srinivasan
+> > > Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> > > devel@linuxdriverproject.org; olaf@aepfle.de; apw@canonical.com;
+> > > jasowang@redhat.com; dan.carpenter@oracle.com; linux-
+> > > input@vger.kernel.org; vojtech@suse.cz
+> > > Subject: Re: [PATCH V2 1/1] Drivers: input: serio: New driver to support
+> Hyper-V
+> > > synthetic keyboard
+> > >
+> > > Hi K.Y.,
+> > >
+> > > On Tue, Sep 17, 2013 at 04:26:58PM -0700, K. Y. Srinivasan wrote:
+> > > > Add a new driver to support synthetic keyboard. On the next generation
+> > > > Hyper-V guest firmware, many legacy devices will not be emulated and this
+> > > > driver will be required.
+> > > >
+> > > > I would like to thank Vojtech Pavlik <vojtech@suse.cz> for helping me with
+> the
+> > > > details of the AT keyboard driver. I would also like to thank
+> > > > Dan Carpenter <dan.carpenter@oracle.com> and
+> > > > Dmitry Torokhov <dmitry.torokhov@gmail.com> for their detailed review of
+> > > this
+> > > > driver.
+> > > >
+> > > > I have addressed all the comments of Dan and Dmitry in this version of
+> > > > the patch
+> > >
+> > > This looks much better. Could you tell me if the patch below (on top of
+> > > yours) still works?
+> > >
+> > > Thanks.
+> >
+> > Thank you. The code looks much better now. You forgot to initialize the
+> port_data and
+> > after I fixed that everything seems to work as it did before: Here is the patch I
+> used:
+> 
+> Excellent, thank you for trying it out. I folded it all together and
+> queued for 3.13.
 
---=20
-Sent from my Android phone with K-9 Mail. Please excuse my brevity.
+Thank you.
+
+Regards,
+
+K. Y

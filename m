@@ -1,64 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: touchscreen: add driver for Pixcir Tango C series capacitive touchscreen
-Date: Thu, 19 Sep 2013 19:09:55 -0500
-Message-ID: <1600c874-f38a-42b6-bee9-066435031b7b@email.android.com>
-References: <1379579911-9763-1-git-send-email-Baohua.Song@csr.com> <20130919161239.GB5731@core.coreip.homeip.net> <CAGsJ_4wLc3aaSZyoEKNiyWhCQHKnv3MLHq6riS_=YZeqNGSeJg@mail.gmail.com> <CAGsJ_4zd0YDDHibBHuARrW7WkzojTpY_rzgjSAO1Y4cGnaeGHA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/4] Input: ad714x-spi - Remove redundant spi_set_drvdata
+Date: Fri, 20 Sep 2013 10:12:50 +0530
+Message-ID: <1379652173-32477-1-git-send-email-sachin.kamat@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f48.google.com ([209.85.160.48]:52233 "EHLO
-	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752566Ab3ITAKO (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:48940 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752186Ab3ITEmn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Sep 2013 20:10:14 -0400
-Received: by mail-pb0-f48.google.com with SMTP id ma3so8933363pbc.7
-        for <linux-input@vger.kernel.org>; Thu, 19 Sep 2013 17:10:13 -0700 (PDT)
-In-Reply-To: <CAGsJ_4zd0YDDHibBHuARrW7WkzojTpY_rzgjSAO1Y4cGnaeGHA@mail.gmail.com>
+	Fri, 20 Sep 2013 00:42:43 -0400
+Received: by mail-pa0-f47.google.com with SMTP id kl13so252435pab.6
+        for <linux-input@vger.kernel.org>; Thu, 19 Sep 2013 21:42:42 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Barry Song <21cnbao@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, Lisai Wang <Lisai.Wang@csr.com>, Qipan Li <Qipan.Li@csr.com>, Barry Song <Baohua.Song@csr.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, michael.hennerich@analog.com, sachin.kamat@linaro.org, Barry Song <21cnbao@gmail.com>
 
-Barry Song <21cnbao@gmail.com> wrote:
->>>> +
->>>> +     fingers = ts->touch_data.touch_fingers & 0x07;
->>>> +     if (fingers > 0) {
->>>> +             for (i = 0; i < fingers; i++) {
->>>> +                     /*Get the touch position*/
->>>> +                     input_report_abs(ts->input_dev,
->ABS_MT_POSITION_X,
->>>> +                                    
->ts->touch_data.point[i].posx);
->>>> +                     input_report_abs(ts->input_dev,
->ABS_MT_POSITION_Y,
->>>> +                                    
->ts->touch_data.point[i].posy);
->>>> +
->>>> +                     input_report_key(ts->input_dev,
->ABS_MT_TRACKING_ID,
->>>> +                                     ts->touch_data.point[i].id);
->>>> +                     input_report_abs(ts->input_dev,
->>>> +                                     ABS_MT_TOUCH_MAJOR,
->TOUCH_MAJOR_MAX);
->>>> +                     input_report_abs(ts->input_dev,
->>>> +                                     ABS_MT_WIDTH_MAJOR,
->WIDTH_MAJOR_MAX);
->>>> +                     input_mt_sync(ts->input_dev);
->>>
->>> Any chance we could use the B flavor of MT protocol?
->>
->> i am sorry i missed some, what do you mean for B flavor ?
->
->do you mean API wrappers like input_mt_init_slots(),
->input_mt_report_slot_state() ...?
->
+Driver core sets driver data to NULL upon failure or remove.
 
-Yes, exactly.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: Barry Song <21cnbao@gmail.com>
+---
+Series compile tested.
+---
+ drivers/input/misc/ad714x-spi.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-
-Thanks.
-
+diff --git a/drivers/input/misc/ad714x-spi.c b/drivers/input/misc/ad714x-spi.c
+index 6189148..3a90b71 100644
+--- a/drivers/input/misc/ad714x-spi.c
++++ b/drivers/input/misc/ad714x-spi.c
+@@ -108,7 +108,6 @@ static int ad714x_spi_remove(struct spi_device *spi)
+ 	struct ad714x_chip *chip = spi_get_drvdata(spi);
+ 
+ 	ad714x_remove(chip);
+-	spi_set_drvdata(spi, NULL);
+ 
+ 	return 0;
+ }
 -- 
-Dmitry
+1.7.9.5
+

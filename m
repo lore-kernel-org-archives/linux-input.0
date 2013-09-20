@@ -1,54 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/4] Input: ad714x-spi - Remove redundant spi_set_drvdata
-Date: Fri, 20 Sep 2013 09:39:38 -0700
-Message-ID: <20130920163938.GA6300@core.coreip.homeip.net>
-References: <1379652173-32477-1-git-send-email-sachin.kamat@linaro.org>
+Subject: Re: [PATCH] Input: atmel_tscadcc - update to devm_* API
+Date: Fri, 20 Sep 2013 10:01:35 -0700
+Message-ID: <20130920170135.GB6300@core.coreip.homeip.net>
+References: <1379343178-6468-1-git-send-email-badarkhe.manish@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:45259 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752567Ab3ITQjn (ORCPT
+Received: from mail-pb0-f52.google.com ([209.85.160.52]:57649 "EHLO
+	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752798Ab3ITRBr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Sep 2013 12:39:43 -0400
-Received: by mail-pa0-f52.google.com with SMTP id kq13so917907pab.11
-        for <linux-input@vger.kernel.org>; Fri, 20 Sep 2013 09:39:42 -0700 (PDT)
+	Fri, 20 Sep 2013 13:01:47 -0400
 Content-Disposition: inline
-In-Reply-To: <1379652173-32477-1-git-send-email-sachin.kamat@linaro.org>
+In-Reply-To: <1379343178-6468-1-git-send-email-badarkhe.manish@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-input@vger.kernel.org, michael.hennerich@analog.com, Barry Song <21cnbao@gmail.com>
+To: Manish Badarkhe <badarkhe.manish@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, josh.wu@atmel.com
 
-On Fri, Sep 20, 2013 at 10:12:50AM +0530, Sachin Kamat wrote:
-> Driver core sets driver data to NULL upon failure or remove.
-> 
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> Cc: Barry Song <21cnbao@gmail.com>
-> ---
-> Series compile tested.
+Hi Manish,
 
-Applied all 4, thank you.
-
-> ---
->  drivers/input/misc/ad714x-spi.c |    1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/input/misc/ad714x-spi.c b/drivers/input/misc/ad714x-spi.c
-> index 6189148..3a90b71 100644
-> --- a/drivers/input/misc/ad714x-spi.c
-> +++ b/drivers/input/misc/ad714x-spi.c
-> @@ -108,7 +108,6 @@ static int ad714x_spi_remove(struct spi_device *spi)
->  	struct ad714x_chip *chip = spi_get_drvdata(spi);
+On Mon, Sep 16, 2013 at 08:22:58PM +0530, Manish Badarkhe wrote:
+>  static int atmel_tsadcc_remove(struct platform_device *pdev)
+>  {
+>  	struct atmel_tsadcc *ts_dev = platform_get_drvdata(pdev);
+> -	struct resource *res;
+> -
+> -	free_irq(ts_dev->irq, ts_dev);
 >  
->  	ad714x_remove(chip);
-> -	spi_set_drvdata(spi, NULL);
+>  	input_unregister_device(ts_dev->input);
+>  
+> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	iounmap(tsc_base);
+> -	release_mem_region(res->start, resource_size(res));
+> -
+>  	clk_disable(ts_dev->clk);
+> -	clk_put(ts_dev->clk);
+> -
+> -	kfree(ts_dev);
 >  
 >  	return 0;
 >  }
-> -- 
-> 1.7.9.5
-> 
+
+
+By doing this conversion we disable the clock too early. I need to
+resurrect my patches to add devm_clk_enable and then we can revisit this
+patch.
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,22 +1,66 @@
-From: Andrey Moiseev <o2g.org.ru@gmail.com>
-Subject: Input: 8042 - only one i8042_filter
-Date: Sat, 21 Sep 2013 10:48:21 +0400
-Message-ID: <CABWXVkNeZ4_UjFsMGyzU9HhR1NRbzs7qXkBj5q6R8FMzCKQ5zg@mail.gmail.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH V11 0/3] iio: input: ti_am335x_adc: Add continuous sampling
+ support
+Date: Sat, 21 Sep 2013 11:52:21 +0100
+Message-ID: <523D7A65.5010303@kernel.org>
+References: <1379571876-12420-1-git-send-email-zubair.lutfullah@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f176.google.com ([209.85.223.176]:36764 "EHLO
-	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752065Ab3IUGsW (ORCPT
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:55914 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752144Ab3IUJwB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 21 Sep 2013 02:48:22 -0400
+	Sat, 21 Sep 2013 05:52:01 -0400
+In-Reply-To: <1379571876-12420-1-git-send-email-zubair.lutfullah@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Zubair Lutfullah <zubair.lutfullah@gmail.com>
+Cc: jic23@cam.ac.uk, dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bigeasy@linutronix.de, gregkh@linuxfoundation.org
 
-Is it ok that in /drivers/input/serio/i8042.c it's allowed to install
-only one i8042_filter? Theoretically, there may be several different
-devices that need their drivers to install i8042_filter, to eat out
-some device-specific subset of scancodes. Shouldn't that single
-pointer to the i8042_filter be replaced by a list, for example?
+Hi Zubair,
+
+Thanks for persevering with this patch set.  Now this
+gets to be the example for dealing with hardware buffer
+equipped devices ;)
+
+Applied to the togreg branch of
+ git://git.kernel.org/pub/scm/linux/kernel/git/jic23/iio.git
+
+On 09/19/13 07:24, Zubair Lutfullah wrote:
+> Hi,
+> 
+> These apply to the togreg branch in iio.
+> 
+> Round 11
+> - Optimized memory usage based on list feedback
+> - Changed devm_*_irq to normal *_irq functions
+> 
+> Round 10 updates
+> - Removed devm_free as not needed
+> 
+> Round 9 updates
+> 
+> - Removed Trigger.
+> - Restructured everything for INDIO_BUFFERED_HARDWARE mode.
+> - Threaded IRQ with top/bottom halfs. Top half HW IRQ wakes
+> bottom half threaded worker that pushes samples to iio/userspace.
+> - Removed some of the patchwork to the driver that was irrelevant to the
+> continuous sampling patch.
+> 
+> Cleanup will be done separately once this goes through.
+> Hope these patches meet the mighty kernel standards :)
+> 
+> Zubair
+> 
+> Zubair Lutfullah (3):
+>   input: ti_am335x_tsc: Enable shared IRQ for TSC
+>   iio: ti_am335x_adc: optimize memory usage.
+>   iio: ti_am335x_adc: Add continuous sampling support
+> 
+>  drivers/iio/adc/ti_am335x_adc.c           |  217 ++++++++++++++++++++++++++++-
+>  drivers/input/touchscreen/ti_am335x_tsc.c |   12 +-
+>  include/linux/mfd/ti_am335x_tscadc.h      |    9 ++
+>  3 files changed, 228 insertions(+), 10 deletions(-)
+> 

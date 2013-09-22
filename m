@@ -1,42 +1,35 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 3/3] iio: ti_am335x_adc: Add continuous sampling support
-Date: Sun, 22 Sep 2013 09:46:18 +0500
-Message-ID: <20130922044616.GB2989@gmail.com>
-References: <1379571876-12420-1-git-send-email-zubair.lutfullah@gmail.com>
- <1379571876-12420-4-git-send-email-zubair.lutfullah@gmail.com>
- <523DE550.4070107@kernel.org>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 1/3] Input: atkbd - add LED triggers for keyboard state
+Date: Sun, 22 Sep 2013 16:26:29 +0200
+Message-ID: <20130922142629.GA30282@amd.pavel.ucw.cz>
+References: <1377180132-4933-1-git-send-email-Jason@zx2c4.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <523DE550.4070107-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
+In-Reply-To: <1377180132-4933-1-git-send-email-Jason@zx2c4.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mjg@redhat.com, rjw@sisk.pl, len.brown@intel.com, dtor@insightbb.com
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Sep 21, 2013 at 07:28:32PM +0100, Jonathan Cameron wrote:
-> On 09/19/13 07:24, Zubair Lutfullah wrote:
-> > Previously the driver had only one-shot reading functionality.
-> > This patch adds continuous sampling support to the driver.
-...
-> I've added a SELECT IIO_KFIFO_BUF after the autobuilders picked
-> up that was missing.
+Hi!
+
+> Many new laptop keyboards aren't shipping with LEDs in the keys for
+> caps lock, num lock, and scroll lock. They do, however, ship with many LEDs
+> for specialized functions that mostly go non-utilized by any current
+> Linux drivers. Having a caps lock LED is very helpful in early boot full
+> disk encryption, where a fancy GUI is not available to show that caps
+> lock is activated.
 > 
-Thank-you.
+> This patch wires in the caps, num, and scroll lock states of the
+> keyboard into the generic LED trigger subsystem, so that integrators can
+> have different LEDs activated on caps/num/scroll lock state changes.
 
-> One other thing I'd missed until I was reviewing the updated patch.
-> Do you still need the trigger headers?  I can't immediately see why.
-> If not, could you post a follow up patch to drop them?
-> 
+There's another patch floating around that properly integrates input
+with LED subsystem; it already contains this functionality IIRC.
+									Pavel
 
-Sure.
-
-Zubair
-
-> Thanks,
-> 
-> Jonathan
-> > ---
-> >  drivers/iio/adc/ti_am335x_adc.c      |  213 +++++++++++++++++++++++++++++++++-
-> >  include/linux/mfd/ti_am335x_tscadc.h |    9 ++
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

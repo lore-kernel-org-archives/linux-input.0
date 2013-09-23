@@ -1,38 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Input: 8042 - only one i8042_filter
-Date: Sat, 21 Sep 2013 19:04:43 -0700
-Message-ID: <20130922020443.GA30148@core.coreip.homeip.net>
-References: <CABWXVkNeZ4_UjFsMGyzU9HhR1NRbzs7qXkBj5q6R8FMzCKQ5zg@mail.gmail.com>
+From: Heiko =?utf-8?q?St=C3=BCbner?= <heiko@sntech.de>
+Subject: Re: [PATCH v2] Input: add driver for Neonode zForce based touchscreens
+Date: Mon, 23 Sep 2013 15:50:26 +0200
+Message-ID: <201309231550.27313.heiko@sntech.de>
+References: <201309070133.11671.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:56223 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753051Ab3IWDvl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Sep 2013 23:51:41 -0400
-Content-Disposition: inline
-In-Reply-To: <CABWXVkNeZ4_UjFsMGyzU9HhR1NRbzs7qXkBj5q6R8FMzCKQ5zg@mail.gmail.com>
+Received: from gloria.sntech.de ([95.129.55.99]:59968 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753418Ab3IWNub (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Sep 2013 09:50:31 -0400
+In-Reply-To: <201309070133.11671.heiko@sntech.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrey Moiseev <o2g.org.ru@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Andrey,
+Am Samstag, 7. September 2013, 01:33:11 schrieb Heiko St=C3=BCbner:
+> This adds a driver for touchscreens using the zforce infrared
+> technology from Neonode connected via i2c to the host system.
+>=20
+> It supports multitouch with up to two fingers and tracking of the
+> contacts in hardware.
+>=20
+> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+> ---
+> changes since v1:
+> - address comments from Dmitry Torokhov
+>   but I kept the access_mutex due to the possible race I described in=
+ the
+> mail:
+>   - touch -> interrupt
+>   - isr reads first packet
+>   - user closes device -> stop command sent
+>   - isr reads payload
+> - address comments from Henrik Rydberg, letting the input system coll=
+ect
+>   singletouch from the multitouch data using the appropriate function=
+s
 
-On Sat, Sep 21, 2013 at 10:48:21AM +0400, Andrey Moiseev wrote:
-> Is it ok that in /drivers/input/serio/i8042.c it's allowed to install
-> only one i8042_filter? Theoretically, there may be several different
-> devices that need their drivers to install i8042_filter, to eat out
-> some device-specific subset of scancodes. Shouldn't that single
-> pointer to the i8042_filter be replaced by a list, for example?
+ping?
 
-The expectation that there will be a single platform specific driver
-living in drivers/platform/x86/... that will install platform specific
-filter and will do all necessary processing. So far there was no need
-for more than one filter.
 
-Thanks.
-
--- 
-Dmitry
+Thanks
+Heiko
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

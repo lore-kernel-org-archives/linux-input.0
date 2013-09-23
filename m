@@ -1,64 +1,45 @@
-From: =?utf-8?Q?Lothar_Wa=C3=9Fmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
-Subject: Re: [PATCH 1/9] Staging/iio/adc/touchscreen/MXS: add proper clock handling
-Date: Mon, 23 Sep 2013 17:30:18 +0200
-Message-ID: <21056.24202.312851.105281@ipc1.ka-ro>
-References: <1379946998-23041-1-git-send-email-jbe@pengutronix.de>
-	<1379946998-23041-2-git-send-email-jbe@pengutronix.de>
+From: Tim Gardner <tim.gardner@canonical.com>
+Subject: Re: [PATCH 3.12-rc1] USB: input: cm109.c: Convert high volume dev_err()
+ to dev_err_ratelimited()
+Date: Mon, 23 Sep 2013 10:51:09 -0700
+Message-ID: <52407F8D.7050902@canonical.com>
+References: <1378830193-48384-1-git-send-email-tim.gardner@canonical.com> <20130919215246.GB16015@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1379946998-23041-2-git-send-email-jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130919215246.GB16015@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On 09/19/2013 02:52 PM, Dmitry Torokhov wrote:
+> Hi Tim,
+> 
+> On Tue, Sep 10, 2013 at 10:23:13AM -0600, Tim Gardner wrote:
+>> BugLink: http://bugs.launchpad.net/bugs/1222850
+>>
+>> This input device can get into a state that produces a high
+>> volume of device status errors. Attempt to throttle these
+>> error messages such that the kernel log is not flooded.
+>>
+> 
+> Only 2 of these printks need to be rate-limited, as other failures are
+> fatal to the driver since it will not resubmit the IO.
+> 
+> Also I think we need to try and resubmit control URB to try and execute
+> buzzer command if previous one failed.
+> 
+> BTW, EPROTO/EILSEQ errors mentioned in the launchpad bug seem to relate
+> to timeout/CRC errors reported by the host controller, so it must indeed
+> be the extender that is misbehaving.
+> 
+> Thanks.
+> 
 
-Juergen Beisert writes:
-> diff --git a/drivers/staging/iio/adc/mxs-lradc.c b/drivers/staging/ii=
-o/adc/mxs-lradc.c
-> index a08c173..00b61ac 100644
-> --- a/drivers/staging/iio/adc/mxs-lradc.c
-> +++ b/drivers/staging/iio/adc/mxs-lradc.c
-> @@ -35,6 +35,7 @@
->  #include <linux/completion.h>
->  #include <linux/delay.h>
->  #include <linux/input.h>
-> +#include <linux/clk.h>
-> =20
->  #include <linux/iio/iio.h>
->  #include <linux/iio/buffer.h>
-> @@ -134,6 +135,8 @@ struct mxs_lradc {
->  	void __iomem		*base;
->  	int			irq[13];
-> =20
-> +	struct clk		*clk;
-> +
->  	uint32_t		*buffer;
->  	struct iio_trigger	*trig;
-> =20
-> @@ -928,6 +931,9 @@ static int mxs_lradc_probe(struct platform_device=
- *pdev)
->  	if (IS_ERR(lradc->base))
->  		return PTR_ERR(lradc->base);
-> =20
-> +	lradc->clk =3D devm_clk_get(&pdev->dev, NULL);
-> +	clk_prepare_enable(lradc->clk);
-> +
-Wouldn't it make sense to enable the clock only when the device is
-opened to save power while not actually in use?
+Looks good to me.
 
-
-Lothar Wa=C3=9Fmann
---=20
-___________________________________________________________
-
-Ka-Ro electronics GmbH | Pascalstra=C3=9Fe 22 | D - 52076 Aachen
-Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
-Gesch=C3=A4ftsf=C3=BChrer: Matthias Kaussen
-Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
-
-www.karo-electronics.de | info-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org
-___________________________________________________________
+rtg
+-- 
+Tim Gardner tim.gardner@canonical.com

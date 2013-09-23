@@ -1,45 +1,38 @@
-From: Tim Gardner <tim.gardner@canonical.com>
-Subject: Re: [PATCH 3.12-rc1] USB: input: cm109.c: Convert high volume dev_err()
- to dev_err_ratelimited()
-Date: Mon, 23 Sep 2013 10:51:09 -0700
-Message-ID: <52407F8D.7050902@canonical.com>
-References: <1378830193-48384-1-git-send-email-tim.gardner@canonical.com> <20130919215246.GB16015@core.coreip.homeip.net>
+From: Matthias Kaehlcke <matthias.list@kaehlcke.net>
+Subject: [PATCH] input: touchscreen: ti_am335x_tsc: Enable FIFO threshold
+ interrupt on resume
+Date: Mon, 23 Sep 2013 22:50:56 +0200
+Message-ID: <20130923205056.GH27515@raspi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130919215246.GB16015@core.coreip.homeip.net>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Samuel Ortiz <sameo@linux.intel.com>, Felipe Balbi <balbi@ti.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 09/19/2013 02:52 PM, Dmitry Torokhov wrote:
-> Hi Tim,
-> 
-> On Tue, Sep 10, 2013 at 10:23:13AM -0600, Tim Gardner wrote:
->> BugLink: http://bugs.launchpad.net/bugs/1222850
->>
->> This input device can get into a state that produces a high
->> volume of device status errors. Attempt to throttle these
->> error messages such that the kernel log is not flooded.
->>
-> 
-> Only 2 of these printks need to be rate-limited, as other failures are
-> fatal to the driver since it will not resubmit the IO.
-> 
-> Also I think we need to try and resubmit control URB to try and execute
-> buzzer command if previous one failed.
-> 
-> BTW, EPROTO/EILSEQ errors mentioned in the launchpad bug seem to relate
-> to timeout/CRC errors reported by the host controller, so it must indeed
-> be the extender that is misbehaving.
-> 
-> Thanks.
-> 
+When returning from suspend the FIFO threshold interrupt is
+disabled, re-enable it on resume
 
-Looks good to me.
+Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
 
-rtg
+---
+ drivers/input/touchscreen/ti_am335x_tsc.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index e1c5300..d86f140 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -480,6 +480,8 @@ static int titsc_resume(struct device *dev)
+ 	titsc_step_config(ts_dev);
+ 	titsc_writel(ts_dev, REG_FIFO0THR,
+ 			ts_dev->coordinate_readouts * 2 + 2 - 1);
++	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
++
+ 	return 0;
+ }
+ 
 -- 
-Tim Gardner tim.gardner@canonical.com
+1.7.9.5

@@ -1,44 +1,52 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Q: weird hidraw behaviour
-Date: Tue, 24 Sep 2013 11:56:06 +0300
-Message-ID: <20130924085606.GI28875@intel.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to
+ memdup
+Date: Tue, 24 Sep 2013 11:29:57 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
+References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda> <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda> <5237A5D5.8010006@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:4748 "EHLO mga09.intel.com"
+Received: from cantor2.suse.de ([195.135.220.15]:41623 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750817Ab3IXIui (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Sep 2013 04:50:38 -0400
-Content-Disposition: inline
+	id S1753574Ab3IXJaB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Sep 2013 05:30:01 -0400
+In-Reply-To: <5237A5D5.8010006@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Manoj Chourasia <mchourasia@nvidia.com>
-Cc: linux-input@vger.kernel.org
+To: Joseph Salisbury <joseph.salisbury@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, thomas@m3y3r.de, list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org
 
-Hi,
+On Mon, 16 Sep 2013, Joseph Salisbury wrote:
 
-I noticed that after commit 212a871a393 (HID: hidraw: correctly deallocate
-memory on device disconnect) hidraw doesn't close the underlying hid device
-when the device node is closed last time.
+> >> Can you explain a little further?  Mark commit a4a23f6 as bad?  An
+> >> initial bisect already reported that was the first bad commit, so it
+> >> can't be marked bad.  The oops on memcpy() happens after commit a4a23f6
+> >> is reverted.  The oops on memcpy() did not happen before a4a23f6 was
+> >> committed, so I assume this new oops was introduced by a change later.
+> >>
+> >> Right now I'm bisecting down the oops on memcpy() by updating the bisect
+> >> with good or bad, depending if the test kernel hit the oops.  I then
+> >> revert a4a23f6, so that revert is the HEAD of the tree each time before
+> >> building the kernel again(As long as the commit spit out by bisect is
+> >> after when a4a23f6 was introduced).
+> > Yep.  Please continue bisecting the memcpy() oops.
+> >
+> > kmemdup() is just a kzalloc() followed by a memcpy().  When we split it
+> > apart by reverting the patch then we would expect the oops to move to
+> > the memcpy() part.  Somehow "desc" is a bogus pointer, but I don't
+> > immediately see how that is possible.
+> >
+> > regards,
+> > dan carpenter
+> 
+> Thanks for the details.  We'll continue the bisect and let you know how
+> it goes.
 
-For example I have a touch panel (HID over I2C) device with added debug
-prints in i2c_hid_open()/i2c_hid_close():
+Did this please yield any useful result?
 
-	# od -x /dev/hidraw0
-	[   41.363813] i2c_hid 1-004c: i2c_hid_power lvl:32
-	[   41.368464] i2c_hid 1-004c: i2c_hid_set_power
-	[   41.372831] i2c_hid 1-004c: __i2c_hid_command: cmd=54 01 00 08
-	[   41.451455] i2c_hid 1-004c: i2c_hid_open
-	^C
+Thanks,
 
-	# od -x /dev/hidraw0
-	[   58.420928] i2c_hid 1-004c: i2c_hid_power lvl:32
-	[   58.425577] i2c_hid 1-004c: i2c_hid_set_power
-	[   58.429945] i2c_hid 1-004c: __i2c_hid_command: cmd=54 01 00 08
-	[   58.525276] i2c_hid 1-004c: i2c_hid_open
-	^C
-
-i2c_hid_close() is never called. Is this intended or am I missing
-something?
-
-Thanks.
+-- 
+Jiri Kosina
+SUSE Labs

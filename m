@@ -1,30 +1,38 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH 1/3] HID: Delay opening HID device
-Date: Tue, 24 Sep 2013 11:32:17 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309241131510.18703@pobox.suse.cz>
-References: <1379524399-16995-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/3] Few cleanups
+Date: Tue, 24 Sep 2013 11:48:48 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309241147500.18703@pobox.suse.cz>
+References: <1378930345-6670-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1379524399-16995-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:42567 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752809Ab3IXJsw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Sep 2013 05:48:52 -0400
+In-Reply-To: <1378930345-6670-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2013, Srinivas Pandruvada wrote:
+On Wed, 11 Sep 2013, Benjamin Tissoires wrote:
 
-> Don't call hid_open_device till there is actually an user. This saves
-> power by not opening underlying transport for HID. Also close device
-> if there are no active mfd client using HID sensor hub.
+> Well, while debugging hid-lenovo-tpkbd, I also cleaned it up a little (so this
+> goes on top of the CVE series):
+> - use devres API
+> - remove usb references (so that the regressions tests through uhid are working)
 > 
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> This has also been tested by https://bugzilla.redhat.com/show_bug.cgi?id=1003998
+> 
+> And I also had a patch for sony that I wanted to send, but I was waiting for a
+> complete drop of usb, which I still did not managed to do.
 
-Signed-off-by: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+It took me some time, as I wanted to think a little bit more about 
+cleaning up 2/3, but didn't really come up with something that'd be 
+substantially nicer.
 
-Jonathan, I'd be good if I pass this to you to apply the whole lot.
-
-Thanks.
+Applied, thanks.
 
 -- 
 Jiri Kosina

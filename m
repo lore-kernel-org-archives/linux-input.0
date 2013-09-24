@@ -1,73 +1,55 @@
 From: Joseph Salisbury <joseph.salisbury@canonical.com>
-Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to memdup
-Date: Tue, 24 Sep 2013 09:52:46 -0400
-Message-ID: <5241992E.3090805@canonical.com>
-References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda> <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda> <5237A5D5.8010006@canonical.com> <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:35528 "EHLO
-	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750882Ab3IXNw7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Sep 2013 09:52:59 -0400
-In-Reply-To: <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Subject: [PATCH 1/1] Input: cypress_ps2 - Return zero finger count if palm is detected.
+Date: Tue, 24 Sep 2013 11:44:38 -0400
+Message-ID: <007c09ae4ef7f72ffb657de0fb3854fcbc6d88f0.1379968154.git.joseph.salisbury@canonical.com>
+References: <cover.1379968154.git.joseph.salisbury@canonical.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <cover.1379968154.git.joseph.salisbury@canonical.com>
+Sender: stable-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, rydberg@euromail.se, kamal@canonical.com, dudl@cypress.com, git@status.e4ward.com, tim.gardner@canonical.com, linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, thomas@m3y3r.de, list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org
 
-On 09/24/2013 05:29 AM, Jiri Kosina wrote:
-> On Mon, 16 Sep 2013, Joseph Salisbury wrote:
->
->>>> Can you explain a little further?  Mark commit a4a23f6 as bad?  An
->>>> initial bisect already reported that was the first bad commit, so it
->>>> can't be marked bad.  The oops on memcpy() happens after commit a4a23f6
->>>> is reverted.  The oops on memcpy() did not happen before a4a23f6 was
->>>> committed, so I assume this new oops was introduced by a change later.
->>>>
->>>> Right now I'm bisecting down the oops on memcpy() by updating the bisect
->>>> with good or bad, depending if the test kernel hit the oops.  I then
->>>> revert a4a23f6, so that revert is the HEAD of the tree each time before
->>>> building the kernel again(As long as the commit spit out by bisect is
->>>> after when a4a23f6 was introduced).
->>> Yep.  Please continue bisecting the memcpy() oops.
->>>
->>> kmemdup() is just a kzalloc() followed by a memcpy().  When we split it
->>> apart by reverting the patch then we would expect the oops to move to
->>> the memcpy() part.  Somehow "desc" is a bogus pointer, but I don't
->>> immediately see how that is possible.
->>>
->>> regards,
->>> dan carpenter
->> Thanks for the details.  We'll continue the bisect and let you know how
->> it goes.
-> Did this please yield any useful result?
->
-> Thanks,
->
-Thanks for following up, Jiri.  It's been a little tricky narrowing this
-one down.  We bisected a couple of times, and both bisects indicated the
-following commits as the first bad:
+BugLink: http://bugs.launchpad.net/bugs/1229361
 
-commit b1a1442a23776756b254b69786848a94d92445ba
-Author: Jiri Kosina <jkosina@suse.cz>
-Date: Mon Jun 3 11:27:48 2013 +0200
+This patch sets the finger count to 0 in the case of palm contact.
 
-    HID: core: fix reporting of raw events
+Signed-off-by: Joseph Salisbury <joseph.salisbury@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com> (maintainer:INPUT (KEYBOARD,...,commit_signer:2/2=100%)
+Cc: Henrik Rydberg <rydberg@euromail.se> (maintainer:INPUT MULTITOUCH...)
+Cc: Kamal Mostafa <kamal@canonical.com> (commit_signer:2/2=100%)
+Cc: Dudley Du <dudl@cypress.com> (commit_signer:2/2=100%)
+Cc: Kyle Fazzari <git@status.e4ward.com> (commit_signer:1/2=50%)
+Cc: Tim Gardner <tim.gardner@canonical.com> (commit_signer:1/2=50%)
+Cc: linux-input@vger.kernel.org (open list:INPUT (KEYBOARD,...)
+Cc: linux-kernel@vger.kernel.org (open list)
+Cc: stable@vger.kernel.org
 
-However, reverting this commit does not stop the system from locking up,
-when the wireless trackpad is connected.  I was thinking of maybe using
-a brute force method and pulling out all the HID changes, added in
-3.11-rc1 to ensure the bug goes away.  Then add a group back in at a
-time to narrow down the commit that introduced this.  The bisect should
-have done this, but I'm not sure why it didn't.  It would be greatly
-appreciated if you had any other suggestions on tracking down the cause?
+---
+ drivers/input/mouse/cypress_ps2.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-
-Joe
-
-
-
+diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
+index 45b3eda..95b2c40 100644
+--- a/drivers/input/mouse/cypress_ps2.c
++++ b/drivers/input/mouse/cypress_ps2.c
+@@ -441,7 +441,7 @@ static int cypress_get_finger_count(unsigned char header_byte)
+ 			case 2: return 5;
+ 			default:
+ 				/* Invalid contact (e.g. palm). Ignore it. */
+-				return -1;
++				return 0;
+ 		}
+ 	}
+ 
+@@ -460,7 +460,7 @@ static int cypress_parse_packet(struct psmouse *psmouse,
+ 
+ 	contact_cnt = cypress_get_finger_count(header_byte);
+ 
+-	if (contact_cnt < 0) /* e.g. palm detect */
++	if (contact_cnt < 0)
+ 		return -EINVAL;
+ 
+ 	report_data->contact_cnt = contact_cnt;
+-- 
+1.7.9.5

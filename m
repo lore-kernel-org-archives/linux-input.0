@@ -1,61 +1,54 @@
-From: Joseph Salisbury <joseph.salisbury@canonical.com>
-Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to memdup
-Date: Wed, 25 Sep 2013 13:45:54 -0400
-Message-ID: <52432152.3030100@canonical.com>
-References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda> <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda> <5237A5D5.8010006@canonical.com> <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
+From: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] Scale up touch width and height values
+	for Intuos Pro
+Date: Wed, 25 Sep 2013 16:22:27 -0700
+Message-ID: <1380151347-1031-1-git-send-email-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, thomas@m3y3r.de, list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org
+Return-path: <linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
+	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxwacom-devel>
+List-Post: <mailto:linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
+	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 09/24/2013 05:29 AM, Jiri Kosina wrote:
-> On Mon, 16 Sep 2013, Joseph Salisbury wrote:
->
->>>> Can you explain a little further?  Mark commit a4a23f6 as bad?  An
->>>> initial bisect already reported that was the first bad commit, so it
->>>> can't be marked bad.  The oops on memcpy() happens after commit a4a23f6
->>>> is reverted.  The oops on memcpy() did not happen before a4a23f6 was
->>>> committed, so I assume this new oops was introduced by a change later.
->>>>
->>>> Right now I'm bisecting down the oops on memcpy() by updating the bisect
->>>> with good or bad, depending if the test kernel hit the oops.  I then
->>>> revert a4a23f6, so that revert is the HEAD of the tree each time before
->>>> building the kernel again(As long as the commit spit out by bisect is
->>>> after when a4a23f6 was introduced).
->>> Yep.  Please continue bisecting the memcpy() oops.
->>>
->>> kmemdup() is just a kzalloc() followed by a memcpy().  When we split it
->>> apart by reverting the patch then we would expect the oops to move to
->>> the memcpy() part.  Somehow "desc" is a bogus pointer, but I don't
->>> immediately see how that is possible.
->>>
->>> regards,
->>> dan carpenter
->> Thanks for the details.  We'll continue the bisect and let you know how
->> it goes.
-> Did this please yield any useful result?
->
-> Thanks,
->
+The width and height values reported by the Intuos Pro are not in
+surface units as required by the MT protocol. A simple multiplier
+of 100x seems to be approximately correct based on my tests.
 
-After further testing reverting the following commit does in fact
-resolve the bug:
+Signed-off-by: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/input/tablet/wacom_wac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-commit b1a1442a23776756b254b69786848a94d92445ba
-Author: Jiri Kosina <jkosina@suse.cz>
-Date: Mon Jun 3 11:27:48 2013 +0200
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 9c8eded..3f75f1d 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1151,8 +1151,8 @@ static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
+ 		int width, height;
+ 
+ 		if (features->type >= INTUOSPS && features->type <= INTUOSPL) {
+-			width  = data[5];
+-			height = data[6];
++			width  = data[5] * 100;
++			height = data[6] * 100;
+ 		} else {
+ 			/*
+ 			 * "a" is a scaled-down area which we assume is
+-- 
+1.8.4
 
-    HID: core: fix reporting of raw events
 
-Reverting this commit in v3.12-rc2 prevents the system from locking up, which happens when connecting a bluetooth trackpad.
-
-Jiri,  do you think we should revert this patch, or is there some further debugging/data collecting you would like to do?
-
-Thanks,
-
-Joe
+------------------------------------------------------------------------------
+October Webinars: Code for Performance
+Free Intel webinars can help you accelerate application performance.
+Explore tips for MPI, OpenMP, advanced profiling, and more. Get the most from 
+the latest Intel processors and coprocessors. See abstracts and register >
+http://pubads.g.doubleclick.net/gampad/clk?id=60133471&iu=/4140/ostg.clktrk

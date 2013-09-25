@@ -1,31 +1,61 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH] hid-elo: some systems cannot stomach work around
-Date: Wed, 25 Sep 2013 11:29:27 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309251129170.18703@pobox.suse.cz>
-References: <1380094975-4481-1-git-send-email-oliver@neukum.org>
+From: Joseph Salisbury <joseph.salisbury@canonical.com>
+Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to memdup
+Date: Wed, 25 Sep 2013 13:45:54 -0400
+Message-ID: <52432152.3030100@canonical.com>
+References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda> <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda> <5237A5D5.8010006@canonical.com> <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1380094975-4481-1-git-send-email-oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jslaby-AlSwsSmVLrQ@public.gmane.org, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, thomas@m3y3r.de, list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 25 Sep 2013, oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org wrote:
+On 09/24/2013 05:29 AM, Jiri Kosina wrote:
+> On Mon, 16 Sep 2013, Joseph Salisbury wrote:
+>
+>>>> Can you explain a little further?  Mark commit a4a23f6 as bad?  An
+>>>> initial bisect already reported that was the first bad commit, so it
+>>>> can't be marked bad.  The oops on memcpy() happens after commit a4a23f6
+>>>> is reverted.  The oops on memcpy() did not happen before a4a23f6 was
+>>>> committed, so I assume this new oops was introduced by a change later.
+>>>>
+>>>> Right now I'm bisecting down the oops on memcpy() by updating the bisect
+>>>> with good or bad, depending if the test kernel hit the oops.  I then
+>>>> revert a4a23f6, so that revert is the HEAD of the tree each time before
+>>>> building the kernel again(As long as the commit spit out by bisect is
+>>>> after when a4a23f6 was introduced).
+>>> Yep.  Please continue bisecting the memcpy() oops.
+>>>
+>>> kmemdup() is just a kzalloc() followed by a memcpy().  When we split it
+>>> apart by reverting the patch then we would expect the oops to move to
+>>> the memcpy() part.  Somehow "desc" is a bogus pointer, but I don't
+>>> immediately see how that is possible.
+>>>
+>>> regards,
+>>> dan carpenter
+>> Thanks for the details.  We'll continue the bisect and let you know how
+>> it goes.
+> Did this please yield any useful result?
+>
+> Thanks,
+>
 
-> Some systems although they have firmware class 'M', which usually
-> needs a work around to not crash, must not be subjected to the
-> work around because the work around crashes them. They cannot be
-> told apart by their own device descriptor, but as they are part
-> of compound devices, can be identified by looking at their siblings.
+After further testing reverting the following commit does in fact
+resolve the bug:
 
-Applied, thanks.
+commit b1a1442a23776756b254b69786848a94d92445ba
+Author: Jiri Kosina <jkosina@suse.cz>
+Date: Mon Jun 3 11:27:48 2013 +0200
 
--- 
-Jiri Kosina
-SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+    HID: core: fix reporting of raw events
+
+Reverting this commit in v3.12-rc2 prevents the system from locking up, which happens when connecting a bluetooth trackpad.
+
+Jiri,  do you think we should revert this patch, or is there some further debugging/data collecting you would like to do?
+
+Thanks,
+
+Joe

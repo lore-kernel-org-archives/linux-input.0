@@ -1,54 +1,40 @@
-From: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] Scale up touch width and height values
-	for Intuos Pro
-Date: Wed, 25 Sep 2013 16:22:27 -0700
-Message-ID: <1380151347-1031-1-git-send-email-killertofu@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [BUG?] HID: uhid: add devname module alias
+Date: Thu, 26 Sep 2013 11:06:16 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309261106050.18703@pobox.suse.cz>
+References: <CAG-2HqXVR5rFCa0XGmFpJcPWgPBKKaELgmFxhWKxxOYQRc-m2A@mail.gmail.com> <CANq1E4QNE7v1fV71E8EwPiKRR1A63erVKVYO07mJ0ySD+etG6g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxwacom-devel>
-List-Post: <mailto:linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxwacom-devel>,
-	<mailto:linuxwacom-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: linuxwacom-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: linuxwacom-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:38939 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755292Ab3IZJGV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Sep 2013 05:06:21 -0400
+In-Reply-To: <CANq1E4QNE7v1fV71E8EwPiKRR1A63erVKVYO07mJ0ySD+etG6g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Tom Gundersen <teg@jklm.no>, Marcel Holtmann <marcel@holtmann.org>, Kay Sievers <kay@vrfy.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-The width and height values reported by the Intuos Pro are not in
-surface units as required by the MT protocol. A simple multiplier
-of 100x seems to be approximately correct based on my tests.
+On Mon, 9 Sep 2013, David Herrmann wrote:
 
-Signed-off-by: Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/input/tablet/wacom_wac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > The above commit (60cbd53 in mainline) doesn't appear to work for me.
+> > I.e., depmod does not create an entry in modules.devname and hence no
+> > device node is created on boot.
+> >
+> > If I understand correctly, you'd also need to create the correct
+> > "char-major-<MAJOR>-<MINOR>" alias (which I don't think you can do as
+> > long as you are using MISC_DYNAMIC_MINOR).
+> >
+> > Or am I missing something?
+> 
+> Nope, that's correct as discussed on IRC. Patch pending as:
+>   Subject: [PATCH] HID: uhid: allocate static minor
+>   Message-Id: <1378744434-10883-1-git-send-email-dh.herrmann@gmail.com>
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 9c8eded..3f75f1d 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1151,8 +1151,8 @@ static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
- 		int width, height;
- 
- 		if (features->type >= INTUOSPS && features->type <= INTUOSPL) {
--			width  = data[5];
--			height = data[6];
-+			width  = data[5] * 100;
-+			height = data[6] * 100;
- 		} else {
- 			/*
- 			 * "a" is a scaled-down area which we assume is
+I have now queued that one. Thanks,
+
 -- 
-1.8.4
-
-
-------------------------------------------------------------------------------
-October Webinars: Code for Performance
-Free Intel webinars can help you accelerate application performance.
-Explore tips for MPI, OpenMP, advanced profiling, and more. Get the most from 
-the latest Intel processors and coprocessors. See abstracts and register >
-http://pubads.g.doubleclick.net/gampad/clk?id=60133471&iu=/4140/ostg.clktrk
+Jiri Kosina
+SUSE Labs

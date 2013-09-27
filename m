@@ -1,41 +1,63 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH 7/7] Input: st1232 - Include linux/of.h header
-Date: Fri, 27 Sep 2013 17:22:09 +0530
-Message-ID: <1380282729-26669-7-git-send-email-sachin.kamat@linaro.org>
-References: <1380282729-26669-1-git-send-email-sachin.kamat@linaro.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:48815 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751049Ab3I0Lw2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Sep 2013 07:52:28 -0400
-Received: by mail-pa0-f50.google.com with SMTP id fb1so2656163pad.23
-        for <linux-input@vger.kernel.org>; Fri, 27 Sep 2013 04:52:28 -0700 (PDT)
-In-Reply-To: <1380282729-26669-1-git-send-email-sachin.kamat@linaro.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Joseph Salisbury <joseph.salisbury@canonical.com>
+Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to memdup
+Date: Fri, 27 Sep 2013 10:42:10 -0400
+Message-ID: <52459942.3020600@canonical.com>
+References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda>
+ <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda>
+ <5237A5D5.8010006@canonical.com>
+ <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
+ <52432152.3030100@canonical.com>
+ <alpine.LNX.2.00.1309271250130.18703@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <alpine.LNX.2.00.1309271250130.18703@pobox.suse.cz>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, Dan Carpenter <dan.carpenter@oracle.com>, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org, thomas@m3y3r.de
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org
 
-'of_match_ptr' is defined in linux/of.h. Include it explicitly.
+On 09/27/2013 06:50 AM, Jiri Kosina wrote:
+> On Wed, 25 Sep 2013, Joseph Salisbury wrote:
+>
+>> After further testing reverting the following commit does in fact
+>> resolve the bug:
+>>
+>> commit b1a1442a23776756b254b69786848a94d92445ba
+>> Author: Jiri Kosina <jkosina@suse.cz>
+>> Date: Mon Jun 3 11:27:48 2013 +0200
+>>
+>>     HID: core: fix reporting of raw events
+>>
+>> Reverting this commit in v3.12-rc2 prevents the system from locking up, 
+>> which happens when connecting a bluetooth trackpad.
+>>
+>> Jiri, do you think we should revert this patch, or is there some further 
+>> debugging/data collecting you would like to do?
+> Hi Joseph,
+>
+> in this mail:
+>
+> 	Message-ID: <5241992E.3090805@canonical.com>
+> 	Date: Tue, 24 Sep 2013 09:52:46 -0400
+>
+> you said that reverting this commit doesn't prevent the lockups, so I am 
+> rather confused ... ?
+>
+> Thanks,
+>
+The testing was invalid.  Reverting commit b1a1442 does resolve the bug
+and stop the lockups.
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
----
- drivers/input/touchscreen/st1232.c |    1 +
- 1 file changed, 1 insertion(+)
+Thanks,
 
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index 1740a24..2f03b2f 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -24,6 +24,7 @@
- #include <linux/input.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
-+#include <linux/of.h>
- #include <linux/of_gpio.h>
- #include <linux/pm_qos.h>
- #include <linux/slab.h>
--- 
-1.7.9.5
-
+Joe

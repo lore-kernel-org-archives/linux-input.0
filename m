@@ -1,39 +1,59 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [BUG?] HID: uhid: add devname module alias
-Date: Thu, 26 Sep 2013 11:06:16 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309261106050.18703@pobox.suse.cz>
-References: <CAG-2HqXVR5rFCa0XGmFpJcPWgPBKKaELgmFxhWKxxOYQRc-m2A@mail.gmail.com> <CANq1E4QNE7v1fV71E8EwPiKRR1A63erVKVYO07mJ0ySD+etG6g@mail.gmail.com>
+Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to
+ memdup
+Date: Fri, 27 Sep 2013 12:50:57 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309271250130.18703@pobox.suse.cz>
+References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda>
+ <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda>
+ <5237A5D5.8010006@canonical.com>
+ <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
+ <52432152.3030100@canonical.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38939 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755292Ab3IZJGV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Sep 2013 05:06:21 -0400
-In-Reply-To: <CANq1E4QNE7v1fV71E8EwPiKRR1A63erVKVYO07mJ0ySD+etG6g@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <52432152.3030100@canonical.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: Joseph Salisbury <joseph.salisbury@canonical.com>
+Cc: list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, Dan Carpenter <dan.carpenter@oracle.com>, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org, thomas@m3y3r.de
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Tom Gundersen <teg@jklm.no>, Marcel Holtmann <marcel@holtmann.org>, Kay Sievers <kay@vrfy.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-On Mon, 9 Sep 2013, David Herrmann wrote:
+On Wed, 25 Sep 2013, Joseph Salisbury wrote:
 
-> >
-> > The above commit (60cbd53 in mainline) doesn't appear to work for me.
-> > I.e., depmod does not create an entry in modules.devname and hence no
-> > device node is created on boot.
-> >
-> > If I understand correctly, you'd also need to create the correct
-> > "char-major-<MAJOR>-<MINOR>" alias (which I don't think you can do as
-> > long as you are using MISC_DYNAMIC_MINOR).
-> >
-> > Or am I missing something?
+> After further testing reverting the following commit does in fact
+> resolve the bug:
 > 
-> Nope, that's correct as discussed on IRC. Patch pending as:
->   Subject: [PATCH] HID: uhid: allocate static minor
->   Message-Id: <1378744434-10883-1-git-send-email-dh.herrmann@gmail.com>
+> commit b1a1442a23776756b254b69786848a94d92445ba
+> Author: Jiri Kosina <jkosina@suse.cz>
+> Date: Mon Jun 3 11:27:48 2013 +0200
+> 
+>     HID: core: fix reporting of raw events
+> 
+> Reverting this commit in v3.12-rc2 prevents the system from locking up, 
+> which happens when connecting a bluetooth trackpad.
+> 
+> Jiri, do you think we should revert this patch, or is there some further 
+> debugging/data collecting you would like to do?
 
-I have now queued that one. Thanks,
+Hi Joseph,
+
+in this mail:
+
+	Message-ID: <5241992E.3090805@canonical.com>
+	Date: Tue, 24 Sep 2013 09:52:46 -0400
+
+you said that reverting this commit doesn't prevent the lockups, so I am 
+rather confused ... ?
+
+Thanks,
 
 -- 
 Jiri Kosina

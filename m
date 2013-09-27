@@ -1,60 +1,39 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to
- memdup
-Date: Fri, 27 Sep 2013 12:50:57 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309271250130.18703@pobox.suse.cz>
-References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda>
- <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda>
- <5237A5D5.8010006@canonical.com>
- <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
- <52432152.3030100@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <52432152.3030100@canonical.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Joseph Salisbury <joseph.salisbury@canonical.com>
-Cc: list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, Dan Carpenter <dan.carpenter@oracle.com>, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org, thomas@m3y3r.de
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/7] Input: gpio_keys - Include linux/of.h header
+Date: Fri, 27 Sep 2013 17:22:03 +0530
+Message-ID: <1380282729-26669-1-git-send-email-sachin.kamat@linaro.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:63989 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751010Ab3I0LwP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Sep 2013 07:52:15 -0400
+Received: by mail-pa0-f43.google.com with SMTP id hz1so2687462pad.16
+        for <linux-input@vger.kernel.org>; Fri, 27 Sep 2013 04:52:14 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org
 
-On Wed, 25 Sep 2013, Joseph Salisbury wrote:
+'of_match_ptr' is defined in linux/of.h. Include it explicitly.
 
-> After further testing reverting the following commit does in fact
-> resolve the bug:
-> 
-> commit b1a1442a23776756b254b69786848a94d92445ba
-> Author: Jiri Kosina <jkosina@suse.cz>
-> Date: Mon Jun 3 11:27:48 2013 +0200
-> 
->     HID: core: fix reporting of raw events
-> 
-> Reverting this commit in v3.12-rc2 prevents the system from locking up, 
-> which happens when connecting a bluetooth trackpad.
-> 
-> Jiri, do you think we should revert this patch, or is there some further 
-> debugging/data collecting you would like to do?
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+---
+ drivers/input/keyboard/gpio_keys.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-Hi Joseph,
-
-in this mail:
-
-	Message-ID: <5241992E.3090805@canonical.com>
-	Date: Tue, 24 Sep 2013 09:52:46 -0400
-
-you said that reverting this commit doesn't prevent the lockups, so I am 
-rather confused ... ?
-
-Thanks,
-
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 440ce32..2db1324 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -26,6 +26,7 @@
+ #include <linux/gpio_keys.h>
+ #include <linux/workqueue.h>
+ #include <linux/gpio.h>
++#include <linux/of.h>
+ #include <linux/of_platform.h>
+ #include <linux/of_gpio.h>
+ #include <linux/spinlock.h>
 -- 
-Jiri Kosina
-SUSE Labs
+1.7.9.5
+

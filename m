@@ -1,58 +1,109 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to memdup
-Date: Fri, 27 Sep 2013 18:59:41 +0300
-Message-ID: <20130927155941.GG6247@mwanda>
-References: <5237430B.5040009@canonical.com>
- <20130916203824.GP25896@mwanda>
- <52376ED9.5080208@canonical.com>
- <20130916210503.GQ25896@mwanda>
- <5237A5D5.8010006@canonical.com>
- <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
- <52432152.3030100@canonical.com>
- <alpine.LNX.2.00.1309271250130.18703@pobox.suse.cz>
- <52459942.3020600@canonical.com>
- <20130927152412.GF6192@mwanda>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH] HID: roccat: Fix "cannot create duplicate filename"
+ problems
+Date: Sat, 28 Sep 2013 05:57:46 +0200
+Message-ID: <1380340666.2451.4.camel@neuromancer.tessier-ashpool>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aserp1040.oracle.com ([141.146.126.69]:38258 "EHLO
-	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752087Ab3I0QAR (ORCPT
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:57972 "EHLO
+	mail-in-05.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754578Ab3I1D5t (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Sep 2013 12:00:17 -0400
-Content-Disposition: inline
-In-Reply-To: <20130927152412.GF6192@mwanda>
+	Fri, 27 Sep 2013 23:57:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joseph Salisbury <joseph.salisbury@canonical.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org, thomas@m3y3r.de
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Greg KH <gregkh@linuxfoundation.org>
 
-On Fri, Sep 27, 2013 at 06:24:12PM +0300, Dan Carpenter wrote:
-> 
-> It looks like magicmouse_raw_event() returns 1 on success and 0 on
-> failure.
+Fixing some wrong macro stringification/concatenation.
 
-Fixing the return codes is a good idea but it won't fix the oops.
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ drivers/hid/hid-roccat-kone.c     |    2 +-
+ drivers/hid/hid-roccat-koneplus.c |    4 ++--
+ drivers/hid/hid-roccat-kovaplus.c |    4 ++--
+ drivers/hid/hid-roccat-pyra.c     |    4 ++--
+ 4 files changed, 7 insertions(+), 7 deletions(-)
 
-What's the point of returning 1 and 0?  In the current code no one
-cares and both are treated the same.
-
-Also if we decide to fix this instead of reverting the we could do this
-cleanup as well:
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index b8470b1..868ebaa 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1417,10 +1417,8 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+index 602c188..6101816 100644
+--- a/drivers/hid/hid-roccat-kone.c
++++ b/drivers/hid/hid-roccat-kone.c
+@@ -382,7 +382,7 @@ static ssize_t kone_sysfs_write_profilex(struct file *fp,
+ }
+ #define PROFILE_ATTR(number)					\
+ static struct bin_attribute bin_attr_profile##number = {	\
+-	.attr = { .name = "profile##number", .mode = 0660 },	\
++	.attr = { .name = "profile" #number, .mode = 0660 },	\
+ 	.size = sizeof(struct kone_profile),			\
+ 	.read = kone_sysfs_read_profilex,			\
+ 	.write = kone_sysfs_write_profilex,			\
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index 5ddf605..5e99fcd 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -229,13 +229,13 @@ static ssize_t koneplus_sysfs_read_profilex_buttons(struct file *fp,
  
- 	if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
- 		ret = hdrv->raw_event(hid, report, data, size);
--		if (ret < 0) {
--			ret = ret < 0 ? ret : 0;
-+		if (ret < 0)
- 			goto unlock;
--		}
- 	}
+ #define PROFILE_ATTR(number)						\
+ static struct bin_attribute bin_attr_profile##number##_settings = {	\
+-	.attr = { .name = "profile##number##_settings", .mode = 0440 },	\
++	.attr = { .name = "profile" #number "_settings", .mode = 0440 },	\
+ 	.size = KONEPLUS_SIZE_PROFILE_SETTINGS,				\
+ 	.read = koneplus_sysfs_read_profilex_settings,			\
+ 	.private = &profile_numbers[number-1],				\
+ };									\
+ static struct bin_attribute bin_attr_profile##number##_buttons = {	\
+-	.attr = { .name = "profile##number##_buttons", .mode = 0440 },	\
++	.attr = { .name = "profile" #number "_buttons", .mode = 0440 },	\
+ 	.size = KONEPLUS_SIZE_PROFILE_BUTTONS,				\
+ 	.read = koneplus_sysfs_read_profilex_buttons,			\
+ 	.private = &profile_numbers[number-1],				\
+diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
+index 515bc03..0c8e1ef 100644
+--- a/drivers/hid/hid-roccat-kovaplus.c
++++ b/drivers/hid/hid-roccat-kovaplus.c
+@@ -257,13 +257,13 @@ static ssize_t kovaplus_sysfs_read_profilex_buttons(struct file *fp,
  
- 	ret = hid_report_raw_event(hid, type, data, size, interrupt);
+ #define PROFILE_ATTR(number)						\
+ static struct bin_attribute bin_attr_profile##number##_settings = {	\
+-	.attr = { .name = "profile##number##_settings", .mode = 0440 },	\
++	.attr = { .name = "profile" #number "_settings", .mode = 0440 },	\
+ 	.size = KOVAPLUS_SIZE_PROFILE_SETTINGS,				\
+ 	.read = kovaplus_sysfs_read_profilex_settings,			\
+ 	.private = &profile_numbers[number-1],				\
+ };									\
+ static struct bin_attribute bin_attr_profile##number##_buttons = {	\
+-	.attr = { .name = "profile##number##_buttons", .mode = 0440 },	\
++	.attr = { .name = "profile" #number "_buttons", .mode = 0440 },	\
+ 	.size = KOVAPLUS_SIZE_PROFILE_BUTTONS,				\
+ 	.read = kovaplus_sysfs_read_profilex_buttons,			\
+ 	.private = &profile_numbers[number-1],				\
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index 5a6dbbe..1a07e07 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -225,13 +225,13 @@ static ssize_t pyra_sysfs_read_profilex_buttons(struct file *fp,
+ 
+ #define PROFILE_ATTR(number)						\
+ static struct bin_attribute bin_attr_profile##number##_settings = {	\
+-	.attr = { .name = "profile##number##_settings", .mode = 0440 },	\
++	.attr = { .name = "profile" #number "_settings", .mode = 0440 },	\
+ 	.size = PYRA_SIZE_PROFILE_SETTINGS,				\
+ 	.read = pyra_sysfs_read_profilex_settings,			\
+ 	.private = &profile_numbers[number-1],				\
+ };									\
+ static struct bin_attribute bin_attr_profile##number##_buttons = {	\
+-	.attr = { .name = "profile##number##_buttons", .mode = 0440 },	\
++	.attr = { .name = "profile" #number "_buttons", .mode = 0440 },	\
+ 	.size = PYRA_SIZE_PROFILE_BUTTONS,				\
+ 	.read = pyra_sysfs_read_profilex_buttons,			\
+ 	.private = &profile_numbers[number-1],				\
+-- 
+1.7.3.4
+
+
+

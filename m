@@ -1,43 +1,69 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH 5/6] Input: egalax_ts - Remove redundant of_match_ptr
-Date: Sat, 28 Sep 2013 17:58:13 +0530
-Message-ID: <1380371294-10289-5-git-send-email-sachin.kamat@linaro.org>
-References: <1380371294-10289-1-git-send-email-sachin.kamat@linaro.org>
+From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Subject: [RFC/PATCH 0/1] rotary-encoder: Add new interruption handler
+Date: Sat, 28 Sep 2013 15:26:37 -0300
+Message-ID: <1380392798-23345-1-git-send-email-ezequiel@vanguardiasur.com.ar>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:54491 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754087Ab3I1M2b (ORCPT
+Received: from mail-wg0-f50.google.com ([74.125.82.50]:45075 "EHLO
+	mail-wg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751078Ab3I1S0i (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Sep 2013 08:28:31 -0400
-Received: by mail-pa0-f54.google.com with SMTP id kx10so3893301pab.13
-        for <linux-input@vger.kernel.org>; Sat, 28 Sep 2013 05:28:31 -0700 (PDT)
-In-Reply-To: <1380371294-10289-1-git-send-email-sachin.kamat@linaro.org>
+	Sat, 28 Sep 2013 14:26:38 -0400
+Received: by mail-wg0-f50.google.com with SMTP id f12so4043259wgh.5
+        for <linux-input@vger.kernel.org>; Sat, 28 Sep 2013 11:26:37 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, sachin.kamat@linaro.org
+Cc: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Daniel Mack <zonque@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-The data structure of_match_ptr() protects is always compiled in.
-Hence of_match_ptr() is not needed.
+Some rotary-encoder devices (such as those with detents) are capable
+of producing a stable event on each step. This simple patch adds support
+for this case, by implementing a new interruption handler.
 
-Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
----
- drivers/input/touchscreen/egalax_ts.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The handler needs only detect the direction of the turn and generate
+an event according to this detection.
 
-diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
-index c856fbc..b4d721f 100644
---- a/drivers/input/touchscreen/egalax_ts.c
-+++ b/drivers/input/touchscreen/egalax_ts.c
-@@ -274,7 +274,7 @@ static struct i2c_driver egalax_ts_driver = {
- 		.name	= "egalax_ts",
- 		.owner	= THIS_MODULE,
- 		.pm	= &egalax_ts_pm_ops,
--		.of_match_table	= of_match_ptr(egalax_ts_dt_ids),
-+		.of_match_table	= egalax_ts_dt_ids,
- 	},
- 	.id_table	= egalax_ts_id,
- 	.probe		= egalax_ts_probe,
+We encode the previous and the current state, and then use the sum of them
+to decide on the direction of the turn, according to the following simple
+table:
+
+Previous state + currrent state	| Movement
+==========================================
+	0b1101			| clockwise
+	0b0100			|   ..
+	0b0010			|   ..
+	0b1011			|   ..
+==========================================
+	0b1110			| counter-clockwise
+	0b0111			|   ..
+	0b0001			|   ..
+	0b1000			|   ..
+
+(The other sumed values are considered illegal)
+
+This calculation is based on some previous work found at this blog:
+
+  http://bildr.org/2012/08/rotary-encoder-arduino/
+
+The result is a seemingly very robust behavior, with a truly simple
+implementation, that produces an event on each turn of the device.
+
+I don't have much experience with this rotary-encoder devices, so I'm sending
+this just as an RFC/PATCH, to get some early feedback. In particular, I got a
+bit puzzled by the current implementation with 'armed' and 'dis-armed'.
+Maybe there's some way of using the current driver and get an event on each turn?
+
+If this change looks more or less acceptable, I can add device-tree bindings
+(which are missing from this first patch) and re-send.
+
+Thanks!
+
+Ezequiel Garcia (1):
+  Input: rotary-encoder: Add 'stepped' irq handler
+
+ drivers/input/misc/rotary_encoder.c | 34 ++++++++++++++++++++++++++++++++++
+ include/linux/rotary_encoder.h      |  1 +
+ 2 files changed, 35 insertions(+)
+
 -- 
-1.7.9.5
+1.8.1.5
 

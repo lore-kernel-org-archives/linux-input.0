@@ -1,56 +1,35 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] HID: roccat: Fix "cannot create duplicate filename"
- problems
-Date: Fri, 27 Sep 2013 21:02:57 -0700
-Message-ID: <20130928040257.GA21630@kroah.com>
-References: <1380340666.2451.4.camel@neuromancer.tessier-ashpool>
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: Re: [PATCH 6/7] Input: egalax_ts - Include linux/of.h header
+Date: Sat, 28 Sep 2013 17:47:44 +0530
+Message-ID: <CAK9yfHzXYQk-4mk33kkT5occPyaawpFZC02GWn1xVx-bDWUizQ@mail.gmail.com>
+References: <1380282729-26669-1-git-send-email-sachin.kamat@linaro.org>
+	<1380282729-26669-6-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:48227 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750844Ab3I1EBq (ORCPT
+Received: from mail-oa0-f54.google.com ([209.85.219.54]:36002 "EHLO
+	mail-oa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753402Ab3I1MRp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Sep 2013 00:01:46 -0400
-Content-Disposition: inline
-In-Reply-To: <1380340666.2451.4.camel@neuromancer.tessier-ashpool>
+	Sat, 28 Sep 2013 08:17:45 -0400
+Received: by mail-oa0-f54.google.com with SMTP id n5so2796589oag.41
+        for <linux-input@vger.kernel.org>; Sat, 28 Sep 2013 05:17:45 -0700 (PDT)
+In-Reply-To: <1380282729-26669-6-git-send-email-sachin.kamat@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sachin Kamat <sachin.kamat@linaro.org>
 
-On Sat, Sep 28, 2013 at 05:57:46AM +0200, Stefan Achatz wrote:
-> Fixing some wrong macro stringification/concatenation.
-> 
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+Hi Dmitry,
+
+On 27 September 2013 17:22, Sachin Kamat <sachin.kamat@linaro.org> wrote:
+> 'of_match_ptr' is defined in linux/of.h. Include it explicitly.
+>
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
 > ---
->  drivers/hid/hid-roccat-kone.c     |    2 +-
->  drivers/hid/hid-roccat-koneplus.c |    4 ++--
->  drivers/hid/hid-roccat-kovaplus.c |    4 ++--
->  drivers/hid/hid-roccat-pyra.c     |    4 ++--
->  4 files changed, 7 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-> index 602c188..6101816 100644
-> --- a/drivers/hid/hid-roccat-kone.c
-> +++ b/drivers/hid/hid-roccat-kone.c
-> @@ -382,7 +382,7 @@ static ssize_t kone_sysfs_write_profilex(struct file *fp,
->  }
->  #define PROFILE_ATTR(number)					\
->  static struct bin_attribute bin_attr_profile##number = {	\
-> -	.attr = { .name = "profile##number", .mode = 0660 },	\
-> +	.attr = { .name = "profile" #number, .mode = 0660 },	\
 
-Ugh, very sorry about that, I hate macros in C at times :)
+Please drop this patch. I will send a different one for this.
 
-Jiri, can you take this through your tree, or I can if you want, it
-needs to go in for 3.12-final.
-
-If yours, feel free to add:
-
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Stefan, thanks for fixing my bugs, it's much appreciated.
-
-greg k-h
+-- 
+With warm regards,
+Sachin

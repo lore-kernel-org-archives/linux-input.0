@@ -1,55 +1,87 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: atmel_mxt_ts driver DTS adoption
-Date: Mon, 30 Sep 2013 16:41:48 +0100
-Message-ID: <52499BBC.2060801@itdev.co.uk>
-References: <5241CC68.70909@ti.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: xpad input driver: Xbox 360 Wireless Adapter
+Date: Mon, 30 Sep 2013 20:49:42 +0200
+Message-ID: <CANq1E4QhpY1TdE2sXhwpY4RAHErAJs_Pek4-EKoRXCeGh_0j6A@mail.gmail.com>
+References: <CAC24_3tuw2Ejcg_TLB0kd2XumhS8UDdBd_3YAmY9hh0G8y9kKQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:50581 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754691Ab3I3Plv (ORCPT
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:44050 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755380Ab3I3Stm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Sep 2013 11:41:51 -0400
-In-Reply-To: <5241CC68.70909@ti.com>
+	Mon, 30 Sep 2013 14:49:42 -0400
+In-Reply-To: <CAC24_3tuw2Ejcg_TLB0kd2XumhS8UDdBd_3YAmY9hh0G8y9kKQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Murphy <dmurphy@ti.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+To: Zachary Lund <admin@computerquip.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christoph Fritz <chf.fritz@googlemail.com>, Marko Friedemann <mfr@bmx-chemnitz.de>
 
-Hi Dan-
+Hi
 
-Dan Murphy wrote:
-> I have been looking around and I am finding numerous patches for the
-> atmel_mxt_ts file to adopt it to DTS.
-> 
-> The last status I have seen was we were waiting for some re-write of 
-> the file and that was in April.
-> 
-> Are there any recent patches for this? And are they ready?
-> 
-> I have not followed the input list so I am sorry for not being up to 
-> date on this.
+I'm not very familiar with the xbox-gamepad driver, but please see
+below for some comments:
 
-There is a big pending update to atmel_mxt_ts that I sent to linux-input on
-27th June this year. It is combination of work done by the Google Chromium
-guys (for the Pixel laptop) and by myself (working for Atmel UK). Dimitry
-Torokhov was working on merging it as of earlier this month, I don't know
-how far along he is with it.
+On Mon, Sep 23, 2013 at 2:34 AM, Zachary Lund <admin@computerquip.com> wrote:
+> I'm apologize ahead of time if this thread isn't appropriate, I'm not
+> very familiar with mailing lists, especially lkml. I'm also very new
+> to kernel/module development (as of literally yesterday).
 
-Latest version is here:
-https://github.com/ndyer/linux/commits/for-next
+Input-drivers are discussed on <linux-input@vger.kernel.org> (now
+CC'ed). I recommend subscribing to that list. I also put some driver
+developers on CC as they are probably more qualified to answer your
+questions.
 
-Supporting DTS is very high on my priority list as the next item of work,
-amongst various other small features and code improvements. I should say,
-some of those patches make large changes to the platform data required. If
-you would like to send me a patch on top of the current set I am happy to
-generalise if necessary, include it in the set of changes and manage
-forwarding it to Dimitry in due course.
+Note that LKML is a high-traffic list mostly used in CC. Please always
+CC the driver authors or maintainers.
 
-cheers
+> I was looking into getting the LED working properly for the Xbox 360
+> controllers and learning about the basics of a kernel module at the
+> same time. There were a few things that confused me. I will reference
+> functions by name and all functions are from the current 3.12 branch.
 
-Nick
+It might be useful to mention the driver in question (it's
+drivers/input/joystick/xpad.c I guess?).
 
+> First, xpad_send_led_command seems to be geared only towards the
+> "Microsoft X-Box 360 pad". Using xboxdrv as a reference, they use a
+> completely different packet structure to set the LED status on the
+> wireless controller which can be seen here:
+> https://github.com/Grumbel/xboxdrv/blob/master/src/controller/xbox360_wireless_controller.cpp#L66
 
+I don't think the kernel driver supports wireless pads, so it might
+have a different "wireless optimized" wire-protocol. The driver is
+USB-only, isn't it?
+
+> Second, the driver acts strangely when setting the LED. It calls
+> xpad_send_led_command during xpad_led_probe during xpad_probe but
+> there's a chance that a controller might not even be connected if
+> using the wireless adapter during that time!
+
+What? During xpad_probe() a device must be fully functional. What
+adapter are your talking about?
+
+> The only way to seemingly
+> tell if a controller is connected is by receiving the correct
+> connection packets. If I use the correct packet structure (which I
+> ripped almost directly from xboxdrv) and set the led after parsing a
+> connection packet, the LED seemingly works fine!
+
+Sounds reasonable. Do all devices send the connection-packets? If yes,
+feel free to send a patch which moves LED initialization after receipt
+of this package.
+
+> Third, I'm incredibly new to really low level development. Whenever
+> loading the module, it finds my wireless adapter but then creates 4
+> devices (which seems to mean only 4 controllers are allowed per
+> wireless adapter), each of which cause a call to xpad_probe. I
+> couldn't figure out how to tell if other wireless controllers were
+> already connected to the wireless adapter so I could light up the
+> correct LED. How would I go about this properly?
+
+Ugh? Sorry, but I don't understand what kind of wireless adapter this
+is? Please give us a bit more information here. If the device is a
+Bluetooth-device, why use an adapter at all?
+
+Cheers
+David

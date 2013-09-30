@@ -1,54 +1,60 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: roccat: Fix "cannot create duplicate filename"
- problems
-Date: Mon, 30 Sep 2013 10:52:00 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1309301051430.28935@pobox.suse.cz>
-References: <1380340666.2451.4.camel@neuromancer.tessier-ashpool> <20130928040257.GA21630@kroah.com>
+Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to
+ memdup
+Date: Mon, 30 Sep 2013 16:35:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1309301634260.28935@pobox.suse.cz>
+References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda> <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda> <5237A5D5.8010006@canonical.com> <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz> <52432152.3030100@canonical.com>
+ <alpine.LNX.2.00.1309271250130.18703@pobox.suse.cz> <52459942.3020600@canonical.com> <20130927152412.GF6192@mwanda>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130928040257.GA21630@kroah.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: Stefan Achatz <erazor_de@users.sourceforge.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:40845 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752788Ab3I3Ofw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Sep 2013 10:35:52 -0400
+In-Reply-To: <20130927152412.GF6192@mwanda>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>, Joseph Salisbury <joseph.salisbury@canonical.com>
+Cc: list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org, thomas@m3y3r.de
 
-On Fri, 27 Sep 2013, Greg KH wrote:
+On Fri, 27 Sep 2013, Dan Carpenter wrote:
 
-> > Fixing some wrong macro stringification/concatenation.
-> > 
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
-> > ---
-> >  drivers/hid/hid-roccat-kone.c     |    2 +-
-> >  drivers/hid/hid-roccat-koneplus.c |    4 ++--
-> >  drivers/hid/hid-roccat-kovaplus.c |    4 ++--
-> >  drivers/hid/hid-roccat-pyra.c     |    4 ++--
-> >  4 files changed, 7 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-> > index 602c188..6101816 100644
-> > --- a/drivers/hid/hid-roccat-kone.c
-> > +++ b/drivers/hid/hid-roccat-kone.c
-> > @@ -382,7 +382,7 @@ static ssize_t kone_sysfs_write_profilex(struct file *fp,
-> >  }
-> >  #define PROFILE_ATTR(number)					\
-> >  static struct bin_attribute bin_attr_profile##number = {	\
-> > -	.attr = { .name = "profile##number", .mode = 0660 },	\
-> > +	.attr = { .name = "profile" #number, .mode = 0660 },	\
-> 
-> Ugh, very sorry about that, I hate macros in C at times :)
-> 
-> Jiri, can you take this through your tree, or I can if you want, it
-> needs to go in for 3.12-final.
-> 
-> If yours, feel free to add:
-> 
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> Stefan, thanks for fixing my bugs, it's much appreciated.
+> It looks like magicmouse_raw_event() returns 1 on success and 0 on
+> failure.
 
-Thanks, queued, will go to Linus for 3.12 still.
+Good catch indeed.
+
+I am not completely sure whether we are going to fix an oops or not by 
+this, as I haven't seen the actual oops anywhere in this thread :) But 
+definitely this looks like a good fix.
+
+Joseph, could you please test with that? Thanks.
+
+
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 3b43d1c..c211eb9 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -334,7 +334,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+ 			size - 2 - data[1]);
+ 		break;
+ 	default:
+-		return 0;
++		return 1;
+ 	}
+ 
+ 	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
+@@ -347,7 +347,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+ 	}
+ 
+ 	input_sync(input);
+-	return 1;
++	return 0;
+ }
+ 
+ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hdev)
 
 -- 
 Jiri Kosina

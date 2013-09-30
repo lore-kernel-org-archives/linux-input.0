@@ -1,87 +1,108 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: xpad input driver: Xbox 360 Wireless Adapter
-Date: Mon, 30 Sep 2013 20:49:42 +0200
-Message-ID: <CANq1E4QhpY1TdE2sXhwpY4RAHErAJs_Pek4-EKoRXCeGh_0j6A@mail.gmail.com>
-References: <CAC24_3tuw2Ejcg_TLB0kd2XumhS8UDdBd_3YAmY9hh0G8y9kKQ@mail.gmail.com>
+From: Kamal Mostafa <kamal@canonical.com>
+Subject: Re: [PATCH 1/1] Input: cypress_ps2 - Return zero finger count if
+ palm is detected.
+Date: Mon, 30 Sep 2013 13:12:02 -0700
+Message-ID: <1380571922.15513.29.camel@fourier>
+References: <cover.1379968154.git.joseph.salisbury@canonical.com>
+	 <007c09ae4ef7f72ffb657de0fb3854fcbc6d88f0.1379968154.git.joseph.salisbury@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg="pgp-sha256";
+	protocol="application/pgp-signature"; boundary="=-XkCwOR5f5Oya2NtwqQvz"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f178.google.com ([209.85.223.178]:44050 "EHLO
-	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755380Ab3I3Stm (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:46788 "EHLO
+	youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756320Ab3I3UMM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Sep 2013 14:49:42 -0400
-In-Reply-To: <CAC24_3tuw2Ejcg_TLB0kd2XumhS8UDdBd_3YAmY9hh0G8y9kKQ@mail.gmail.com>
+	Mon, 30 Sep 2013 16:12:12 -0400
+In-Reply-To: <007c09ae4ef7f72ffb657de0fb3854fcbc6d88f0.1379968154.git.joseph.salisbury@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zachary Lund <admin@computerquip.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christoph Fritz <chf.fritz@googlemail.com>, Marko Friedemann <mfr@bmx-chemnitz.de>
+To: Joseph Salisbury <joseph.salisbury@canonical.com>
+Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, rydberg@euromail.se, dudl@cypress.com, git@status.e4ward.com, tim.gardner@canonical.com, linux-input@vger.kernel.org
 
-Hi
 
-I'm not very familiar with the xbox-gamepad driver, but please see
-below for some comments:
+--=-XkCwOR5f5Oya2NtwqQvz
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 23, 2013 at 2:34 AM, Zachary Lund <admin@computerquip.com> wrote:
-> I'm apologize ahead of time if this thread isn't appropriate, I'm not
-> very familiar with mailing lists, especially lkml. I'm also very new
-> to kernel/module development (as of literally yesterday).
+On Tue, 2013-09-24 at 11:44 -0400, Joseph Salisbury wrote:
+> BugLink: http://bugs.launchpad.net/bugs/1229361
+>=20
+> This patch sets the finger count to 0 in the case of palm contact.
+>=20
+> Signed-off-by: Joseph Salisbury <joseph.salisbury@canonical.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com> (maintainer:INPUT (KEYBOA=
+RD,...,commit_signer:2/2=3D100%)
+> Cc: Henrik Rydberg <rydberg@euromail.se> (maintainer:INPUT MULTITOUCH...)
+> Cc: Kamal Mostafa <kamal@canonical.com> (commit_signer:2/2=3D100%)
+> Cc: Dudley Du <dudl@cypress.com> (commit_signer:2/2=3D100%)
+> Cc: Kyle Fazzari <git@status.e4ward.com> (commit_signer:1/2=3D50%)
+> Cc: Tim Gardner <tim.gardner@canonical.com> (commit_signer:1/2=3D50%)
+> Cc: linux-input@vger.kernel.org (open list:INPUT (KEYBOARD,...)
+> Cc: linux-kernel@vger.kernel.org (open list)
+> Cc: stable@vger.kernel.org
 
-Input-drivers are discussed on <linux-input@vger.kernel.org> (now
-CC'ed). I recommend subscribing to that list. I also put some driver
-developers on CC as they are probably more qualified to answer your
-questions.
+This patch works fine: eliminates stream of junk driver messages with no
+ill effects.
 
-Note that LKML is a high-traffic list mostly used in CC. Please always
-CC the driver authors or maintainers.
+Tested-by: Kamal Mostafa <kamal@canonical.com>
 
-> I was looking into getting the LED working properly for the Xbox 360
-> controllers and learning about the basics of a kernel module at the
-> same time. There were a few things that confused me. I will reference
-> functions by name and all functions are from the current 3.12 branch.
+ -Kamal
 
-It might be useful to mention the driver in question (it's
-drivers/input/joystick/xpad.c I guess?).
 
-> First, xpad_send_led_command seems to be geared only towards the
-> "Microsoft X-Box 360 pad". Using xboxdrv as a reference, they use a
-> completely different packet structure to set the LED status on the
-> wireless controller which can be seen here:
-> https://github.com/Grumbel/xboxdrv/blob/master/src/controller/xbox360_wireless_controller.cpp#L66
+> ---
+>  drivers/input/mouse/cypress_ps2.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypr=
+ess_ps2.c
+> index 45b3eda..95b2c40 100644
+> --- a/drivers/input/mouse/cypress_ps2.c
+> +++ b/drivers/input/mouse/cypress_ps2.c
+> @@ -441,7 +441,7 @@ static int cypress_get_finger_count(unsigned char hea=
+der_byte)
+>  			case 2: return 5;
+>  			default:
+>  				/* Invalid contact (e.g. palm). Ignore it. */
+> -				return -1;
+> +				return 0;
+>  		}
+>  	}
+> =20
+> @@ -460,7 +460,7 @@ static int cypress_parse_packet(struct psmouse *psmou=
+se,
+> =20
+>  	contact_cnt =3D cypress_get_finger_count(header_byte);
+> =20
+> -	if (contact_cnt < 0) /* e.g. palm detect */
+> +	if (contact_cnt < 0)
+>  		return -EINVAL;
+> =20
+>  	report_data->contact_cnt =3D contact_cnt;
 
-I don't think the kernel driver supports wireless pads, so it might
-have a different "wireless optimized" wire-protocol. The driver is
-USB-only, isn't it?
 
-> Second, the driver acts strangely when setting the LED. It calls
-> xpad_send_led_command during xpad_led_probe during xpad_probe but
-> there's a chance that a controller might not even be connected if
-> using the wireless adapter during that time!
+--=-XkCwOR5f5Oya2NtwqQvz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
 
-What? During xpad_probe() a device must be fully functional. What
-adapter are your talking about?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-> The only way to seemingly
-> tell if a controller is connected is by receiving the correct
-> connection packets. If I use the correct packet structure (which I
-> ripped almost directly from xboxdrv) and set the led after parsing a
-> connection packet, the LED seemingly works fine!
+iQIcBAABCAAGBQJSSdsSAAoJEHqwmdxYrXhZonMP/0TqT97FU6VkspADyhuKMdgz
+dJL0s67l1l+0G60LjweY4itv57N1oM9JU4xTi9zLhC/bm0aOz0SahopJbO5Tu89q
+63gkDJIWiCsE4ieYp0QzNqeSw/RYsFMGP7A3cw4ulSJlfz4azyUx8chunRBN27/s
+QDwxeJvppFUjuh+2W5CBF1xfs4FehfPP7hceap3BfvcaHE1UPQNdLmJpMkFtAFc8
+ojzNn2J8Hxp4RopmI3p7geAUgb8yqHLd1ncc2L3QzZV2eMTW2ivBP1iayN6bAAo4
+n3ATOpUdADYRv4JW+pUkqgTGGmf7VJVJ0uiekrw4+INrJcTducTOwoTv7dr/YuM1
+lUPcRpjSyzC5BsTV9KbTYkEsD6nfxiDPJvLS0arxy3+MoOiRstSGUrSLpqrmk0Jy
+8QdR8BUajB5g3wWXeGDmTFepSriGSM9exZmVg6KlvaF/hk1a+/kM4gjyxru5t3Az
+5g4YQgi4s3UmPFdex5YLuedv5BU22eONU+4jvCcYT/v+sAXxmTRF5ehFV3GgGzn6
+nGWgCv0Dl46C+6qc9olQfg6HLAxeWcKgTu9Sw3mRfIY0EY5f0aAVNJuBHgzePHI9
+dT9YNipJMRWw6qRzy3jCtvpA9Ila1TsZ8R7DJ+FKmrR4/AaQuYbk3g2QBCmAQEWU
+qAL00zNOcQ8UgvP+nLfI
+=MJNC
+-----END PGP SIGNATURE-----
 
-Sounds reasonable. Do all devices send the connection-packets? If yes,
-feel free to send a patch which moves LED initialization after receipt
-of this package.
+--=-XkCwOR5f5Oya2NtwqQvz--
 
-> Third, I'm incredibly new to really low level development. Whenever
-> loading the module, it finds my wireless adapter but then creates 4
-> devices (which seems to mean only 4 controllers are allowed per
-> wireless adapter), each of which cause a call to xpad_probe. I
-> couldn't figure out how to tell if other wireless controllers were
-> already connected to the wireless adapter so I could light up the
-> correct LED. How would I go about this properly?
-
-Ugh? Sorry, but I don't understand what kind of wireless adapter this
-is? Please give us a bit more information here. If the device is a
-Bluetooth-device, why use an adapter at all?
-
-Cheers
-David

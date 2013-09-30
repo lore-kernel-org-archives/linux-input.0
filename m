@@ -1,49 +1,55 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to memdup
-Date: Mon, 30 Sep 2013 17:59:39 +0300
-Message-ID: <20130930145939.GK6192@mwanda>
-References: <20130916203824.GP25896@mwanda> <52376ED9.5080208@canonical.com>
- <20130916210503.GQ25896@mwanda> <5237A5D5.8010006@canonical.com>
- <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
- <52432152.3030100@canonical.com>
- <alpine.LNX.2.00.1309271250130.18703@pobox.suse.cz>
- <52459942.3020600@canonical.com> <20130927152412.GF6192@mwanda>
- <alpine.LNX.2.00.1309301634260.28935@pobox.suse.cz>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: atmel_mxt_ts driver DTS adoption
+Date: Mon, 30 Sep 2013 16:41:48 +0100
+Message-ID: <52499BBC.2060801@itdev.co.uk>
+References: <5241CC68.70909@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1309301634260.28935@pobox.suse.cz>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: list@osuosl.org, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, thomas@m3y3r.de, HID CORE LAYER <linux-input@vger.kernel.org>, devel@linuxdriverproject.org, Joseph Salisbury <joseph.salisbury@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:50581 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754691Ab3I3Plv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Sep 2013 11:41:51 -0400
+In-Reply-To: <5241CC68.70909@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dan Murphy <dmurphy@ti.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 
-On Mon, Sep 30, 2013 at 04:35:47PM +0200, Jiri Kosina wrote:
-> On Fri, 27 Sep 2013, Dan Carpenter wrote:
-> 
-> > It looks like magicmouse_raw_event() returns 1 on success and 0 on
-> > failure.
-> 
-> Good catch indeed.
-> 
-> I am not completely sure whether we are going to fix an oops or not by 
-> this, as I haven't seen the actual oops anywhere in this thread :) But 
-> definitely this looks like a good fix.
-> 
-> Joseph, could you please test with that? Thanks.
+Hi Dan-
 
-In the new code both 0 and 1 are treated the same so this can't fix the
-bug.
+Dan Murphy wrote:
+> I have been looking around and I am finding numerous patches for the
+> atmel_mxt_ts file to adopt it to DTS.
+> 
+> The last status I have seen was we were waiting for some re-write of 
+> the file and that was in April.
+> 
+> Are there any recent patches for this? And are they ready?
+> 
+> I have not followed the input list so I am sorry for not being up to 
+> date on this.
 
-regards,
-dan carpenter
+There is a big pending update to atmel_mxt_ts that I sent to linux-input on
+27th June this year. It is combination of work done by the Google Chromium
+guys (for the Pixel laptop) and by myself (working for Atmel UK). Dimitry
+Torokhov was working on merging it as of earlier this month, I don't know
+how far along he is with it.
+
+Latest version is here:
+https://github.com/ndyer/linux/commits/for-next
+
+Supporting DTS is very high on my priority list as the next item of work,
+amongst various other small features and code improvements. I should say,
+some of those patches make large changes to the platform data required. If
+you would like to send me a patch on top of the current set I am happy to
+generalise if necessary, include it in the set of changes and manage
+forwarding it to Dimitry in due course.
+
+cheers
+
+Nick
+
+

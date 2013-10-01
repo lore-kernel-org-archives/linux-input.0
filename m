@@ -1,130 +1,118 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: xpad input driver: Xbox 360 Wireless Adapter
-Date: Tue, 1 Oct 2013 16:34:42 +0200
-Message-ID: <CANq1E4RxAnvBz6wnjcjuWndZfOFuWxjEPaUybnJJkt0-VB1pMQ@mail.gmail.com>
-References: <CAC24_3tuw2Ejcg_TLB0kd2XumhS8UDdBd_3YAmY9hh0G8y9kKQ@mail.gmail.com>
-	<CANq1E4QhpY1TdE2sXhwpY4RAHErAJs_Pek4-EKoRXCeGh_0j6A@mail.gmail.com>
-	<CAC24_3uGi8B_g7Jc0myOowdw2YgXP-UZLWMOUhiWbcgewvNEEA@mail.gmail.com>
+From: =?UTF-8?q?Anders=20F=2E=20U=2E=20Ki=C3=A6r?=
+	<ablacksheep@gmail.com>
+Subject: [PATCH] HID: Added Holtek USB ID 04d9:a081 SHARKOON DarkGlider Gaming mouse
+Date: Tue,  1 Oct 2013 19:22:05 +0200
+Message-ID: <1380648125-5735-1-git-send-email-ablacksheep@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f172.google.com ([209.85.223.172]:64002 "EHLO
-	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751093Ab3JAOen (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Oct 2013 10:34:43 -0400
-In-Reply-To: <CAC24_3uGi8B_g7Jc0myOowdw2YgXP-UZLWMOUhiWbcgewvNEEA@mail.gmail.com>
+Received: from mail-la0-f50.google.com ([209.85.215.50]:47116 "EHLO
+	mail-la0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751585Ab3JARWR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Oct 2013 13:22:17 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zachary Lund <admin@computerquip.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christoph Fritz <chf.fritz@googlemail.com>, Marko Friedemann <mfr@bmx-chemnitz.de>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Anders=20F=2E=20U=2E=20Ki=C3=A6r?= <ablacksheep@gmail.com>
 
-Hi
+Target: 3.11.2
+Added id, bindings and comments for Holtek USB ID 04d9:a081 SHARKOON
+DarkGlider Gaming mouse to use the same corrections of the report
+descriptor as Holtek 04d9:a04a. As the mouse exceed HID_MAX_USAGES
+at the same offsets in the reported descriptor.
+Tested on the hardware.
 
-On Tue, Oct 1, 2013 at 2:11 AM, Zachary Lund <admin@computerquip.com> wrote:
-> I apologize for poor assumptions and lack of general knowledge
-> concerning what I'm talking about. However, I feel I can still help on
-> the subject.
->
-> As to what device I'm talking about, I'm talking about the more
-> properly termed "Xbox 360 Wireless Gaming Reciever". More information
-> and a picture can be found here:
-> http://www.microsoft.com/games/en-US/Hardware/Controllers/Pages/XboxWirelessGamingReceiverforWindows.aspx
+Signed-off-by: Anders F. U. Ki=C3=A6r <ablacksheep@gmail.com>
+---
+ drivers/hid/Kconfig            | 1 +
+ drivers/hid/hid-core.c         | 1 +
+ drivers/hid/hid-holtek-mouse.c | 4 ++++
+ drivers/hid/hid-ids.h          | 1 +
+ 4 files changed, 7 insertions(+)
 
-Thanks for the link. Now I understand what you meant.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 14ef6ab..750adde 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -241,6 +241,7 @@ config HID_HOLTEK
+ 	  - Sharkoon Drakonia / Perixx MX-2000 gaming mice
+ 	  - Tracer Sniper TRM-503 / NOVA Gaming Slider X200 /
+ 	    Zalman ZM-GM1
++	  - SHARKOON DarkGlider Gaming mouse
+=20
+ config HOLTEK_FF
+ 	bool "Holtek On Line Grip force feedback support"
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 5956445..754cd59 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1600,6 +1600,7 @@ static const struct hid_device_id hid_have_specia=
+l_driver[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_K=
+EYBOARD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
+OUSE_A04A) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
+OUSE_A067) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
+OUSE_A081) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_580) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBL=
+E_PAD) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE) },
+diff --git a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mo=
+use.c
+index 7e6db3c..e696566 100644
+--- a/drivers/hid/hid-holtek-mouse.c
++++ b/drivers/hid/hid-holtek-mouse.c
+@@ -27,6 +27,7 @@
+  * - USB ID 04d9:a067, sold as Sharkoon Drakonia and Perixx MX-2000
+  * - USB ID 04d9:a04a, sold as Tracer Sniper TRM-503, NOVA Gaming Slid=
+er X200
+  *   and Zalman ZM-GM1
++ * - USB ID 04d9:a081, sold as SHARKOON DarkGlider Gaming mouse
+  */
+=20
+ static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *=
+rdesc,
+@@ -46,6 +47,7 @@ static __u8 *holtek_mouse_report_fixup(struct hid_dev=
+ice *hdev, __u8 *rdesc,
+ 			}
+ 			break;
+ 		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A:
++		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081:
+ 			if (*rsize >=3D 113 && rdesc[106] =3D=3D 0xff && rdesc[107] =3D=3D =
+0x7f
+ 					&& rdesc[111] =3D=3D 0xff && rdesc[112] =3D=3D 0x7f) {
+ 				hid_info(hdev, "Fixing up report descriptor\n");
+@@ -63,6 +65,8 @@ static const struct hid_device_id holtek_mouse_device=
+s[] =3D {
+ 			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+ 			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
++			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, holtek_mouse_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 22134d4..b602b02 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -450,6 +450,7 @@
+ #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD	0xa055
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067	0xa067
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A	0xa04a
++#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
+=20
+ #define USB_VENDOR_ID_IMATION		0x0718
+ #define USB_DEVICE_ID_DISC_STAKKA	0xd000
+--=20
+1.8.1.2
 
-> Future references will refer the above device as "wireless reciever"
-> and the opposing wired controller that requires no reciever as "wired
-> controller".
-> When I refer to the "xpad driver", I mean the USB driver sitting here:
-> https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/tree/drivers/input/joystick/xpad.c
->
-> To be clear, the wireless receiver connects to a USB port in the PC
-> and interacts wirelessly with any Xbox 360 controller that can connect
-> to the Xbox 360 console (but the driver doesn't need to know this).
-> When a controller is "synced" with the wireless receiver, it sends
-> events like normal over the corresponding USB interface via interrupt
-> endpoints.
-
-What exactly does the receiver provide to the host? Does it act as a
-"USB Hub" and emulates USB hotplugging whenever you connect a device?
-Or does it actually act as a single xbox-controller device and just
-waits for a connected device to send the "connected" event? But see
-below..
-
->>> Second, the driver acts strangely when setting the LED. It calls
->>> xpad_send_led_command during xpad_led_probe during xpad_probe but
->>> there's a chance that a controller might not even be connected if
->>> using the wireless adapter during that time!
->>
->>What? During xpad_probe() a device must be fully functional. What
->>adapter are your talking about?
->
-> I apologize again for not explaining well enough. When the wireless
-> receiver is connected, all 8 interfaces are probed immediately but a
-> wireless controller may not actually be synced with the wireless
-> receiver. Even if it were, the current method the xpad driver takes
-> doesn't seem to work on the wireless receiver and leaves the
-> controllers LED in a default "blinking" state.
-
-..so to answer my question above: The device provides 8 static USB
-interfaces with the VID/PID pre-configured to the host? And once a
-real device connects to the hub, it simply starts the USB interaction
-with the host? Sounds reasonable. But the linux driver might not have
-been written to work with such a setup.
-
->>> The only way to seemingly
->>> tell if a controller is connected is by receiving the correct
->>> connection packets. If I use the correct packet structure (which I
->>> ripped almost directly from xboxdrv) and set the led after parsing a
->>> connection packet, the LED seemingly works fine!
->>
->>Sounds reasonable. Do all devices send the connection-packets? If yes,
->>feel free to send a patch which moves LED initialization after receipt
->>of this package.
->
-> My inexperience comes into play here probably so take what I say with
-> a grain of salt please. Whenever a controller is synced with the
-> wireless reciever, the wireless receiver sends an interrupt packet
-> containing 0x08 0x80 to the driver to say that a new controller is
-> connected (which corresponds to the USB interface it was sent on,
-> explained below) or 0x08 0x00 to say that it has disconnected. I
-> believe there's already a patch available (not created by me) after
-> further diving in the mailing list, although I cannot confirm whether
-> it works or not as I've not tested it myself:
-> https://lkml.org/lkml/2012/11/30/558
-
-Yepp, this one looks good. Please test it and resend it if it fixes
-your problems.
-
-> To further explain, there are differences between the wireless
-> receiver and wired controller concerning how it works. The wired
-> controller seems to have only 4 USB interfaces (according to
-> http://www.free60.org/GamePad) whereas the wireless receiver has 8. I
-> cannot explain what the interfaces for the wired controller do but for
-> the wireless receiver, all odd interfaces seem to deal with input
-> events, LEDs, and anything to do with the actual controller. So
-> interfaces 1, 3, 5, and 7 can represent a controller. All even
-> interfaces (0, 2, 4, 6) seem to represent something else, probably a
-> headset which I can't confirm or test. Either way, the driver doesn't
-> support whatever these interfaces do so should xpad actually claim
-> them? The patch mentioned above seems to also remove the out bulk
-> endpoint sense it doesn't seem to be useful to any of the Xbox 360
-> controllers including the wired ones. A lot of things I don't know
-> myself. I apologize if I just confused the matter.
-
-Sorry, but I don't have the device so I cannot really help here. You
-need to reverse-engineer it yourself and patch the file. Sorry but I
-don't know anyone actively working on it.
-Problem is, this driver is quite old and supports a wide-range of
-devices. Patches like the one mentioned above might break other
-devices than yours. If you want your devices to be properly supported,
-you need to either fix the drivers yourself and send patches or find
-someone who does it for you, sorry..
-
-If it's just your LED thing that broke, you might want to just
-consider re-sending the SET-LED command after the configure-event.
-Don't remove the old SET-LED but just resend it. This shouldn't break
-other devices.
-
-Regards
-David
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

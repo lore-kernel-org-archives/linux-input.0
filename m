@@ -1,92 +1,27 @@
-From: Manoj Chourasia <mchourasia@nvidia.com>
-Subject: RE: weird hidraw behaviour
-Date: Tue, 1 Oct 2013 19:07:57 +0530
-Message-ID: <F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD44@BGMAIL02.nvidia.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: weird hidraw behaviour
+Date: Tue, 1 Oct 2013 16:56:40 +0300
+Message-ID: <20131001135640.GB28875@intel.com>
 References: <20130924085606.GI28875@intel.com>
  <F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD16@BGMAIL02.nvidia.com>
  <20131001124326.GZ28875@intel.com>
+ <F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD44@BGMAIL02.nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_002_F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD44BGMAIL02nvidi_"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:15163 "EHLO
-	hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752995Ab3JANh6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Oct 2013 09:37:58 -0400
-In-Reply-To: <20131001124326.GZ28875@intel.com>
-Content-Language: en-US
+Received: from mga09.intel.com ([134.134.136.24]:1153 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752802Ab3JANvM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Oct 2013 09:51:12 -0400
+Content-Disposition: inline
+In-Reply-To: <F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD44@BGMAIL02.nvidia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Manoj Chourasia <mchourasia@nvidia.com>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
---_002_F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD44BGMAIL02nvidi_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+On Tue, Oct 01, 2013 at 07:07:57PM +0530, Manoj Chourasia wrote:
+> I have posted the patch in mailing list for review. Attaching it here too.
+> Please test it one more time as I have fixed the warning.
 
-SGkgTWlrYSwNCg0KSSBoYXZlIHBvc3RlZCB0aGUgcGF0Y2ggaW4gbWFpbGluZyBsaXN0IGZvciBy
-ZXZpZXcuIEF0dGFjaGluZyBpdCBoZXJlIHRvby4NClBsZWFzZSB0ZXN0IGl0IG9uZSBtb3JlIHRp
-bWUgYXMgSSBoYXZlIGZpeGVkIHRoZSB3YXJuaW5nLg0KDQpSZWdhcmRzDQotTWFub2oNCg0KDQot
-LS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogTWlrYSBXZXN0ZXJiZXJnIFttYWlsdG86
-bWlrYS53ZXN0ZXJiZXJnQGxpbnV4LmludGVsLmNvbV0gDQpTZW50OiBUdWVzZGF5LCBPY3RvYmVy
-IDAxLCAyMDEzIDY6MTMgUE0NClRvOiBNYW5vaiBDaG91cmFzaWENCkNjOiBsaW51eC1pbnB1dEB2
-Z2VyLmtlcm5lbC5vcmc7IEppcmkgS29zaW5hDQpTdWJqZWN0OiBSZTogd2VpcmQgaGlkcmF3IGJl
-aGF2aW91cg0KDQpPbiBUdWUsIE9jdCAwMSwgMjAxMyBhdCAwNToxMzoxNlBNICswNTMwLCBNYW5v
-aiBDaG91cmFzaWEgd3JvdGU6DQo+IENhbiB5b3UgcGxlYXNlIHRyeSB0aGUgYXR0YWNoZWQgcGF0
-Y2ggYW5kIHNlZSBpZiBpdCBmaXhlcyB0aGlzIGlzc3VlPw0KDQpZZXMsIHRoYXQgcGF0Y2ggZml4
-ZXMgdGhlIGlzc3VlIGZvciBtZSwgdGhhbmtzIQ0KDQpJdCBpbnRyb2R1Y2VzIGZvbGxvd2luZyB3
-YXJuaW5nLCB0aG91Z2g6DQoNCmRyaXZlcnMvaGlkL2hpZHJhdy5jOiBJbiBmdW5jdGlvbiDigJhk
-cm9wX3JlZuKAmToNCmRyaXZlcnMvaGlkL2hpZHJhdy5jOjMyMDo1OiB3YXJuaW5nOiBzdWdnZXN0
-IGV4cGxpY2l0IGJyYWNlcyB0byBhdm9pZCBhbWJpZ3VvdXMg4oCYZWxzZeKAmSBbLVdwYXJlbnRo
-ZXNlc10NCiAgaWYgKCFoaWRyYXctPm9wZW4pDQoNCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-DQpUaGlzIGVtYWlsIG1lc3NhZ2UgaXMgZm9yIHRoZSBzb2xlIHVzZSBvZiB0aGUgaW50ZW5kZWQg
-cmVjaXBpZW50KHMpIGFuZCBtYXkgY29udGFpbg0KY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiAg
-QW55IHVuYXV0aG9yaXplZCByZXZpZXcsIHVzZSwgZGlzY2xvc3VyZSBvciBkaXN0cmlidXRpb24N
-CmlzIHByb2hpYml0ZWQuICBJZiB5b3UgYXJlIG5vdCB0aGUgaW50ZW5kZWQgcmVjaXBpZW50LCBw
-bGVhc2UgY29udGFjdCB0aGUgc2VuZGVyIGJ5DQpyZXBseSBlbWFpbCBhbmQgZGVzdHJveSBhbGwg
-Y29waWVzIG9mIHRoZSBvcmlnaW5hbCBtZXNzYWdlLg0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0NCg==
-
---_002_F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD44BGMAIL02nvidi_
-Content-Type: application/octet-stream;
-	name="PATCH-hidraw-close-underlying-device-at-removal-of-las.patch"
-Content-Description: PATCH-hidraw-close-underlying-device-at-removal-of-las.patch
-Content-Disposition: attachment;
-	modification-date="Tue, 01 Oct 2013 13:27:13 GMT"; creation-date="Tue, 01 Oct 2013 13:26:34 GMT";
-	size=1641;
-	filename="PATCH-hidraw-close-underlying-device-at-removal-of-las.patch"
-Content-Transfer-Encoding: base64
-
-RnJvbSBiMzc1MTliNjViZTBkNTFiOTBjNWZjMTc3YzBkYzBjZDJmNjM1OGIxIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBNYW5vaiBDaG91cmFzaWEgPG1jaG91cmFzaWFAbnZpZGlhLmNv
-bT4KRGF0ZTogVHVlLCAxIE9jdCAyMDEzIDE1OjM5OjAwICswNTMwClN1YmplY3Q6IFtQQVRDSF0g
-SElEOiBoaWRyYXc6IGNsb3NlIHVuZGVybHlpbmcgZGV2aWNlIGF0IHJlbW92YWwgb2YgbGFzdAog
-cmVhZGVyCgpFdmVuIHRob3VnaCBkZXZpY2UgZXhpc3QgaXMgc2V0IHRoZSB1bmRlcmx5aW5nCkhX
-IGRldmljZSBzaG91bGQgYmUgY2xvc2VkIHdoZW4gdGhlIGxhc3QgcmVhZGVyCm9mIHRoZSBkZXZp
-Y2UgaXMgY2xvc2VkIGkuZS4gb3BlbiBjb3VudCBkcm9wcyB0byB6ZXJvLgoKU2lnbmVkLW9mZi1i
-eTogTWFub2ogQ2hvdXJhc2lhIDxtY2hvdXJhc2lhQG52aWRpYS5jb20+Ci0tLQogZHJpdmVycy9o
-aWQvaGlkcmF3LmMgfCAgIDIxICsrKysrKysrKysrKysrKy0tLS0tLQogMSBmaWxlIGNoYW5nZWQs
-IDE1IGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9o
-aWQvaGlkcmF3LmMgYi9kcml2ZXJzL2hpZC9oaWRyYXcuYwppbmRleCBkYmZlMzAwLi4zYzBkZDQ0
-IDEwMDY0NAotLS0gYS9kcml2ZXJzL2hpZC9oaWRyYXcuYworKysgYi9kcml2ZXJzL2hpZC9oaWRy
-YXcuYwpAQCAtMzA1LDE5ICszMDUsMjggQEAgc3RhdGljIGludCBoaWRyYXdfZmFzeW5jKGludCBm
-ZCwgc3RydWN0IGZpbGUgKmZpbGUsIGludCBvbikKIHN0YXRpYyB2b2lkIGRyb3BfcmVmKHN0cnVj
-dCBoaWRyYXcgKmhpZHJhdywgaW50IGV4aXN0c19iaXQpCiB7CiAJaWYgKGV4aXN0c19iaXQpIHsK
-LQkJaGlkX2h3X2Nsb3NlKGhpZHJhdy0+aGlkKTsKIAkJaGlkcmF3LT5leGlzdCA9IDA7Ci0JCWlm
-IChoaWRyYXctPm9wZW4pCisJCWlmIChoaWRyYXctPm9wZW4pIHsKKwkJCWhpZF9od19jbG9zZSho
-aWRyYXctPmhpZCk7CiAJCQl3YWtlX3VwX2ludGVycnVwdGlibGUoJmhpZHJhdy0+d2FpdCk7CisJ
-CX0KIAl9IGVsc2UgewogCQktLWhpZHJhdy0+b3BlbjsKIAl9CiAKLQlpZiAoIWhpZHJhdy0+b3Bl
-biAmJiAhaGlkcmF3LT5leGlzdCkgewotCQlkZXZpY2VfZGVzdHJveShoaWRyYXdfY2xhc3MsIE1L
-REVWKGhpZHJhd19tYWpvciwgaGlkcmF3LT5taW5vcikpOwotCQloaWRyYXdfdGFibGVbaGlkcmF3
-LT5taW5vcl0gPSBOVUxMOwotCQlrZnJlZShoaWRyYXcpOworCWlmICghaGlkcmF3LT5vcGVuKSB7
-CisJCWlmICghaGlkcmF3LT5leGlzdCkgeworCQkJZGV2aWNlX2Rlc3Ryb3koaGlkcmF3X2NsYXNz
-LAorCQkJCU1LREVWKGhpZHJhd19tYWpvciwgaGlkcmF3LT5taW5vcikpOworCQkJaGlkcmF3X3Rh
-YmxlW2hpZHJhdy0+bWlub3JdID0gTlVMTDsKKwkJCWtmcmVlKGhpZHJhdyk7CisJCX0gZWxzZSB7
-CisJCQkvKiBjbG9zZSBkZXZpY2UgZm9yIGxhc3QgcmVhZGVyICovCisJCQloaWRfaHdfcG93ZXIo
-aGlkcmF3LT5oaWQsIFBNX0hJTlRfTk9STUFMKTsKKwkJCWhpZF9od19jbG9zZShoaWRyYXctPmhp
-ZCk7CisJCX0KIAl9CisKIH0KIAogc3RhdGljIGludCBoaWRyYXdfcmVsZWFzZShzdHJ1Y3QgaW5v
-ZGUgKiBpbm9kZSwgc3RydWN0IGZpbGUgKiBmaWxlKQotLSAKMS43LjkuNQoK
-
---_002_F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD44BGMAIL02nvidi_--
+Still works for me, thanks!

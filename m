@@ -1,37 +1,44 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: weird hidraw behaviour
-Date: Tue, 1 Oct 2013 15:43:26 +0300
-Message-ID: <20131001124326.GZ28875@intel.com>
+From: Manoj Chourasia <mchourasia@nvidia.com>
+Subject: RE: weird hidraw behaviour
+Date: Tue, 1 Oct 2013 18:48:59 +0530
+Message-ID: <F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD3D@BGMAIL02.nvidia.com>
 References: <20130924085606.GI28875@intel.com>
  <F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD16@BGMAIL02.nvidia.com>
+ <20131001124326.GZ28875@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:26836 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751211Ab3JAMiB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Oct 2013 08:38:01 -0400
-Content-Disposition: inline
-In-Reply-To: <F1F6C959961EA744BBD5B8EEF8B8FEA16DDD19DD16@BGMAIL02.nvidia.com>
+Received: from hqemgate14.nvidia.com ([216.228.121.143]:5382 "EHLO
+	hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751716Ab3JANS5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Oct 2013 09:18:57 -0400
+In-Reply-To: <20131001124326.GZ28875@intel.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Manoj Chourasia <mchourasia@nvidia.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Tue, Oct 01, 2013 at 05:13:16PM +0530, Manoj Chourasia wrote:
-> Can you please try the attached patch and see if it fixes this issue?
-
-Yes, that patch fixes the issue for me, thanks!
-
-It introduces following warning, though:
-
-drivers/hid/hidraw.c: In function =E2=80=98drop_ref=E2=80=99:
-drivers/hid/hidraw.c:320:5: warning: suggest explicit braces to avoid a=
-mbiguous =E2=80=98else=E2=80=99 [-Wparentheses]
-  if (!hidraw->open)
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+VGhhbmtzIE1pa2EsDQoNCkkgd2lsbCBiZSBmaXggdGhlIHdhcm5pbmcgYW5kIHBvc3QgYSBwYXRj
+aCBmb3IgSmlyaSB0byByZXZpZXcuDQoNCi1NYW5vag0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2Fn
+ZS0tLS0tDQpGcm9tOiBNaWthIFdlc3RlcmJlcmcgW21haWx0bzptaWthLndlc3RlcmJlcmdAbGlu
+dXguaW50ZWwuY29tXSANClNlbnQ6IFR1ZXNkYXksIE9jdG9iZXIgMDEsIDIwMTMgNjoxMyBQTQ0K
+VG86IE1hbm9qIENob3VyYXNpYQ0KQ2M6IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgSmly
+aSBLb3NpbmENClN1YmplY3Q6IFJlOiB3ZWlyZCBoaWRyYXcgYmVoYXZpb3VyDQoNCk9uIFR1ZSwg
+T2N0IDAxLCAyMDEzIGF0IDA1OjEzOjE2UE0gKzA1MzAsIE1hbm9qIENob3VyYXNpYSB3cm90ZToN
+Cj4gQ2FuIHlvdSBwbGVhc2UgdHJ5IHRoZSBhdHRhY2hlZCBwYXRjaCBhbmQgc2VlIGlmIGl0IGZp
+eGVzIHRoaXMgaXNzdWU/DQoNClllcywgdGhhdCBwYXRjaCBmaXhlcyB0aGUgaXNzdWUgZm9yIG1l
+LCB0aGFua3MhDQoNCkl0IGludHJvZHVjZXMgZm9sbG93aW5nIHdhcm5pbmcsIHRob3VnaDoNCg0K
+ZHJpdmVycy9oaWQvaGlkcmF3LmM6IEluIGZ1bmN0aW9uIOKAmGRyb3BfcmVm4oCZOg0KZHJpdmVy
+cy9oaWQvaGlkcmF3LmM6MzIwOjU6IHdhcm5pbmc6IHN1Z2dlc3QgZXhwbGljaXQgYnJhY2VzIHRv
+IGF2b2lkIGFtYmlndW91cyDigJhlbHNl4oCZIFstV3BhcmVudGhlc2VzXQ0KICBpZiAoIWhpZHJh
+dy0+b3BlbikNCg0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NClRoaXMgZW1haWwgbWVzc2Fn
+ZSBpcyBmb3IgdGhlIHNvbGUgdXNlIG9mIHRoZSBpbnRlbmRlZCByZWNpcGllbnQocykgYW5kIG1h
+eSBjb250YWluDQpjb25maWRlbnRpYWwgaW5mb3JtYXRpb24uICBBbnkgdW5hdXRob3JpemVkIHJl
+dmlldywgdXNlLCBkaXNjbG9zdXJlIG9yIGRpc3RyaWJ1dGlvbg0KaXMgcHJvaGliaXRlZC4gIElm
+IHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIHBsZWFzZSBjb250YWN0IHRoZSBz
+ZW5kZXIgYnkNCnJlcGx5IGVtYWlsIGFuZCBkZXN0cm95IGFsbCBjb3BpZXMgb2YgdGhlIG9yaWdp
+bmFsIG1lc3NhZ2UuDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0K

@@ -1,34 +1,35 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: New USB core API to change interval and max packet size
-Date: Wed, 2 Oct 2013 15:37:14 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1310021536110.1293-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.1310021449240.1293-100000@iolanthe.rowland.org>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH] amba: Ensure drvdata is NULL
+Date: Wed, 2 Oct 2013 21:25:21 +0100
+Message-ID: <20131002202521.GU12758@n2100.arm.linux.org.uk>
+References: <1b2479137287fa8dfda3089ca0cb9fba8c4b1f1d.1380524337.git.michal.simek@xilinx.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:53882 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754410Ab3JBThP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Oct 2013 15:37:15 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1310021449240.1293-100000@iolanthe.rowland.org>
+Received: from caramon.arm.linux.org.uk ([78.32.30.218]:40336 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753681Ab3JBUZq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Oct 2013 16:25:46 -0400
+Content-Disposition: inline
+In-Reply-To: <1b2479137287fa8dfda3089ca0cb9fba8c4b1f1d.1380524337.git.michal.simek@xilinx.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sarah Sharp <sarah.a.sharp@linux.intel.com>
-Cc: Xenia Ragiadakou <burzalodowa@gmail.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vinod.koul@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Ball <cjb@laptop.org>, Alessandro Zummo <a.zummo@towertech.it>, Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.cz>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Wim Van Sebroeck <wim@iguana.be>, Andrew Morton <akpm@linux-foundation.org>, "zhangwei(Jovi)" <jovi.zhangwei@huawei.com>, Randy Dunlap <rdunlap@infradead.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, rtc-linux@googlegroups.com, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-watchdog@vger
 
-On Wed, 2 Oct 2013, Alan Stern wrote:
-
-> > Ok, so it sounds like we want to keep the changes the endpoints across
-> > alt setting changes.
+On Mon, Sep 30, 2013 at 08:59:06AM +0200, Michal Simek wrote:
+> This patch is inpired by the patch for drvdata
+> "device-core: Ensure drvdata = NULL when no driver is bound"
+> (sha1: 0998d0631001288a5974afc0b2a5f568bcdecb4d)
 > 
-> No, just the opposite.  That was the point I was trying to make.  Any
-> changes to ep5 in altsetting 0 (for example) will have no effect on ep1
-----------------------------------------------------------------------^^^
+> Also it fixes all occurences in drivers.
+> 
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> ---
+> This patch has been sent as RFC in this thread.
+> http://lkml.org/lkml/2013/9/4/393
 
-Typo: this should have been ep5 as well.
+Why not have the driver core do this?  Then it gets applied to all bus
+types uniformly.
 
-> in altsetting 1, because the two altsettings reference the endpoint by
-> two separate usb_host_endpoint structures.
-
-Alan Stern
-
+Thanks.

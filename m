@@ -1,104 +1,173 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: multitouch: Fix GeneralTouch products and add more PIDs
-Date: Wed,  2 Oct 2013 11:20:00 +0200
-Message-ID: <1380705600-11055-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:1953 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752963Ab3JBJUX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Oct 2013 05:20:23 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH] HID: wiimote: fix FF deadlock
+Date: Wed,  2 Oct 2013 13:47:28 +0200
+Message-ID: <1380714448-878-1-git-send-email-dh.herrmann@gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Luosong <android@generaltouch.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-From: Luosong <android@generaltouch.com>
+The input core has an internal spinlock that is acquired during event
+injection via input_event() and friends but also held during FF callbacks.
+That means, there is no way to share a lock between event-injection and FF
+handling. Unfortunately, this is what is required for wiimote state
+tracking and what we do with state.lock and input->lock.
 
-GeneralTouch products should use the quirk SLOT_IS_CONTACTID
-instead of SLOT_IS_CONTACTNUMBER.
+This deadlock can be triggered when using continuous data reporting and FF
+on a wiimote device at the same time. I takes me at least 30m of
+stress-testing to trigger it but users reported considerably shorter
+times (http://bpaste.net/show/132504/) when using some gaming-console
+emulators.
 
-Adding PIDs 0101,e100,0102,0106,010a from the new products.
+The real problem is that we have two copies of internal state, one in the
+wiimote objects and the other in the input device. As the input-lock is
+not supposed to be accessed from outside of input-core, we have no other
+chance than offloading FF handling into a worker. This actually works
+pretty nice and also allows to implictly merge fast rumble changes into a
+single request.
 
-Tested on new and older products by GeneralTouch engineers.
+Due to the 3-layered workers (rumble+queue+l2cap) this might reduce FF
+responsiveness. Initial tests were fine so lets fix the race first and if
+it turns out to be too slow we can always handle FF out-of-band and skip
+the queue-worker.
 
-Signed-off-by: Luosong <android@generaltouch.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: <stable@vger.kernel.org> # 3.11+
+Reported-by: Thomas Schneider
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
+ drivers/hid/hid-wiimote-modules.c | 40 ++++++++++++++++++++++++++++-----------
+ drivers/hid/hid-wiimote.h         |  4 +++-
+ 2 files changed, 32 insertions(+), 12 deletions(-)
 
-Hi Luosong,
-
-I took the liberty to rewrite the commit message for it to be
-more compliant with the kernel rules:
-- there should be a one line title commit message first,
-- and the rest should detail the patch, tell how it was tested, etc...
-
-If you could just give our ack on this one, Jiri would be able to take it
-through his tree.
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-ids.h        |  5 +++++
- drivers/hid/hid-multitouch.c | 19 +++++++++++++++++--
- 2 files changed, 22 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e60e8d5..9a91dee 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -332,6 +332,11 @@
- #define USB_VENDOR_ID_GENERAL_TOUCH	0x0dfc
- #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
- #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS 0x0100
-+#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101 0x0101
-+#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102 0x0102
-+#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106 0x0106
-+#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A 0x010a
-+#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100 0xe100
+diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
+index 2e7d644..71adf9e 100644
+--- a/drivers/hid/hid-wiimote-modules.c
++++ b/drivers/hid/hid-wiimote-modules.c
+@@ -119,12 +119,22 @@ static const struct wiimod_ops wiimod_keys = {
+  * the rumble motor, this flag shouldn't be set.
+  */
  
- #define USB_VENDOR_ID_GLAB		0x06c2
- #define USB_DEVICE_ID_4_PHIDGETSERVO_30	0x0038
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 5e5fe1b..cb3250c 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -250,12 +250,12 @@ static struct mt_class mt_classes[] = {
- 	{ .name	= MT_CLS_GENERALTOUCH_TWOFINGERS,
- 		.quirks	= MT_QUIRK_NOT_SEEN_MEANS_UP |
- 			MT_QUIRK_VALID_IS_INRANGE |
--			MT_QUIRK_SLOT_IS_CONTACTNUMBER,
-+			MT_QUIRK_SLOT_IS_CONTACTID,
- 		.maxcontacts = 2
- 	},
- 	{ .name	= MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
- 		.quirks	= MT_QUIRK_NOT_SEEN_MEANS_UP |
--			MT_QUIRK_SLOT_IS_CONTACTNUMBER
-+			MT_QUIRK_SLOT_IS_CONTACTID
- 	},
++/* used by wiimod_rumble and wiipro_rumble */
++static void wiimod_rumble_worker(struct work_struct *work)
++{
++	struct wiimote_data *wdata = container_of(work, struct wiimote_data,
++						  rumble_worker);
++
++	spin_lock_irq(&wdata->state.lock);
++	wiiproto_req_rumble(wdata, wdata->state.cache_rumble);
++	spin_unlock_irq(&wdata->state.lock);
++}
++
+ static int wiimod_rumble_play(struct input_dev *dev, void *data,
+ 			      struct ff_effect *eff)
+ {
+ 	struct wiimote_data *wdata = input_get_drvdata(dev);
+ 	__u8 value;
+-	unsigned long flags;
  
- 	{ .name = MT_CLS_FLATFROG,
-@@ -1173,6 +1173,21 @@ static const struct hid_device_id mt_devices[] = {
- 	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
- 		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
- 			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS) },
-+	{ .driver_data = MT_CLS_GENERALTOUCH_TWOFINGERS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-+			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101) },
-+	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-+			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102) },
-+	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-+			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106) },
-+	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-+			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A) },
-+	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
-+			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100) },
+ 	/*
+ 	 * The wiimote supports only a single rumble motor so if any magnitude
+@@ -137,9 +147,10 @@ static int wiimod_rumble_play(struct input_dev *dev, void *data,
+ 	else
+ 		value = 0;
  
- 	/* Gametel game controller */
- 	{ .driver_data = MT_CLS_NSMU,
+-	spin_lock_irqsave(&wdata->state.lock, flags);
+-	wiiproto_req_rumble(wdata, value);
+-	spin_unlock_irqrestore(&wdata->state.lock, flags);
++	/* Locking state.lock here might deadlock with input_event() calls.
++	 * schedule_work acts as barrier. Merging multiple changes is fine. */
++	wdata->state.cache_rumble = value;
++	schedule_work(&wdata->rumble_worker);
+ 
+ 	return 0;
+ }
+@@ -147,6 +158,8 @@ static int wiimod_rumble_play(struct input_dev *dev, void *data,
+ static int wiimod_rumble_probe(const struct wiimod_ops *ops,
+ 			       struct wiimote_data *wdata)
+ {
++	INIT_WORK(&wdata->rumble_worker, wiimod_rumble_worker);
++
+ 	set_bit(FF_RUMBLE, wdata->input->ffbit);
+ 	if (input_ff_create_memless(wdata->input, NULL, wiimod_rumble_play))
+ 		return -ENOMEM;
+@@ -159,6 +172,8 @@ static void wiimod_rumble_remove(const struct wiimod_ops *ops,
+ {
+ 	unsigned long flags;
+ 
++	cancel_work_sync(&wdata->rumble_worker);
++
+ 	spin_lock_irqsave(&wdata->state.lock, flags);
+ 	wiiproto_req_rumble(wdata, 0);
+ 	spin_unlock_irqrestore(&wdata->state.lock, flags);
+@@ -1731,7 +1746,6 @@ static int wiimod_pro_play(struct input_dev *dev, void *data,
+ {
+ 	struct wiimote_data *wdata = input_get_drvdata(dev);
+ 	__u8 value;
+-	unsigned long flags;
+ 
+ 	/*
+ 	 * The wiimote supports only a single rumble motor so if any magnitude
+@@ -1744,9 +1758,10 @@ static int wiimod_pro_play(struct input_dev *dev, void *data,
+ 	else
+ 		value = 0;
+ 
+-	spin_lock_irqsave(&wdata->state.lock, flags);
+-	wiiproto_req_rumble(wdata, value);
+-	spin_unlock_irqrestore(&wdata->state.lock, flags);
++	/* Locking state.lock here might deadlock with input_event() calls.
++	 * schedule_work acts as barrier. Merging multiple changes is fine. */
++	wdata->state.cache_rumble = value;
++	schedule_work(&wdata->rumble_worker);
+ 
+ 	return 0;
+ }
+@@ -1756,6 +1771,8 @@ static int wiimod_pro_probe(const struct wiimod_ops *ops,
+ {
+ 	int ret, i;
+ 
++	INIT_WORK(&wdata->rumble_worker, wiimod_rumble_worker);
++
+ 	wdata->extension.input = input_allocate_device();
+ 	if (!wdata->extension.input)
+ 		return -ENOMEM;
+@@ -1817,12 +1834,13 @@ static void wiimod_pro_remove(const struct wiimod_ops *ops,
+ 	if (!wdata->extension.input)
+ 		return;
+ 
++	input_unregister_device(wdata->extension.input);
++	wdata->extension.input = NULL;
++	cancel_work_sync(&wdata->rumble_worker);
++
+ 	spin_lock_irqsave(&wdata->state.lock, flags);
+ 	wiiproto_req_rumble(wdata, 0);
+ 	spin_unlock_irqrestore(&wdata->state.lock, flags);
+-
+-	input_unregister_device(wdata->extension.input);
+-	wdata->extension.input = NULL;
+ }
+ 
+ static const struct wiimod_ops wiimod_pro = {
+diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
+index f1474f3..75db0c4 100644
+--- a/drivers/hid/hid-wiimote.h
++++ b/drivers/hid/hid-wiimote.h
+@@ -133,13 +133,15 @@ struct wiimote_state {
+ 	__u8 *cmd_read_buf;
+ 	__u8 cmd_read_size;
+ 
+-	/* calibration data */
++	/* calibration/cache data */
+ 	__u16 calib_bboard[4][3];
++	__u8 cache_rumble;
+ };
+ 
+ struct wiimote_data {
+ 	struct hid_device *hdev;
+ 	struct input_dev *input;
++	struct work_struct rumble_worker;
+ 	struct led_classdev *leds[4];
+ 	struct input_dev *accel;
+ 	struct input_dev *ir;
 -- 
-1.8.3.1
-
+1.8.4

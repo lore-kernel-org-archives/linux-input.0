@@ -1,96 +1,175 @@
-From: Xenia Ragiadakou <burzalodowa@gmail.com>
-Subject: Re: New USB core API to change interval and max packet size
-Date: Wed, 02 Oct 2013 00:16:04 +0300
-Message-ID: <524B3B94.8060806@gmail.com>
-References: <524B1BF4.6000305@gmail.com> <20131001204554.GB15395@xanatos>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH] add sur40 driver for Samsung SUR40 (aka MS Surface 2.0/Pixelsense)
+Date: Wed, 02 Oct 2013 10:01:28 +0200
+Message-ID: <524BD2D8.505@butterbrot.org>
+References: <1378934763-17938-1-git-send-email-floe@butterbrot.org> <20130918193853.GA2070@polaris.bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="HatCk8aMNiOn26THpCEeaNANFoc2CHaXm"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f172.google.com ([74.125.82.172]:46452 "EHLO
-	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751360Ab3JAVQK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Oct 2013 17:16:10 -0400
-In-Reply-To: <20131001204554.GB15395@xanatos>
+Received: from butterbrot.org ([176.9.106.16]:60271 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752837Ab3JBIvy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Oct 2013 04:51:54 -0400
+In-Reply-To: <20130918193853.GA2070@polaris.bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sarah Sharp <sarah.a.sharp@linux.intel.com>
-Cc: linux-usb@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, dmitry.torokhov@gmail.com, dh.herrmann@gmail.com
 
-On 10/01/2013 11:45 PM, Sarah Sharp wrote:
-> On Tue, Oct 01, 2013 at 10:01:08PM +0300, Xenia Ragiadakou wrote:
->> Hi Sarah,
->>
->> I read the mail on 'possible conflict between xhci_hcd and a patched
->> usbhid'.
-> For reference to others:
-> http://marc.info/?l=linux-usb&m=138064948726038&w=2
-> http://marc.info/?l=linux-usb&m=138065201426880&w=2
->
->> I looked in xhci and the problem arises in xhci_queue_intr_tx() when
->> if (xhci_interval != ep_interval) {
->>      ...
->>      urb->interval = xhci_interval;
->> }
->>
->> right?
-> Yes.  The underlying problem is that the xHCI host sets up the endpoint
-> contexts during the Configure Endpoint command, using the interval from
-> the device's endpoint descriptors.  It also uses the endpoint descriptor
-> wMaxPacketSize, which can be wrong as well.  If the device driver wants
-> to use a different urb->interval than is in the endpoint descriptor, the
-> xHCI driver will simply ignore it.
->
-> (I'm Ccing the linux-media list, as I've discussed some of these devices
-> with broken descriptors before.)
->
->> When you say a new API, what do you mean? New functions in usbcore
->> to be used by usb device drivers?
-> Yes.  You would export the function in the USB core, and put a prototype
-> in a USB include file (probably in include/linux/usb.h).  Let's say that
-> function is called usb_change_ep_bandwidth.
->
-> Drivers could call into that function when they needed to change either
-> the bInterval or wMaxPacketSize of a particular endpoint.  This could be
-> during the driver's probe function, or before switching alternate
-> interface settings, or even after the alt setting is in place, but
-> userspace dictates the driver use a different bandwidth.
->
-> Drivers should pass usb_change_ep_bandwidth a pointer to the endpoint
-> they need to change, along with the bInterval and wMaxPacketSize values
-> they would like the endpoint to have.  Those values could be stored as
-> new values in struct usb_host_endpoint.
->
-> usb_change_ep_bandwidth would then call into the xHCI driver to drop the
-> endpoint, re-add it, and then issue a bandwidth change.  The xHCI driver
-> would have to be changed to look at the new fields in usb_host_endpoint,
-> and set up the endpoint contexts with the interval and packet size from
-> those fields, instead of the endpoint descriptor.
->
-> We should probably set the new values in usb_host_endpoint to zero after
-> the driver unbinds from the device.  Not sure if they should be reset
-> after the driver switches interfaces.  I would have to see the use cases
-> in the driver.
->
->> Here, it is needed to change the endpoint descriptors with the new
->> value in urb so that xhci takes the correct value?
->> I mean the fix should be made in usbcore and xhci shall remain intact?
-> No, we need to fix both the xHCI driver and the USB core.
->
->> I have time to work on that but i 'm not sure that i understood.
-> Sure.  I would actually suggest you first finish up the patch to issue a
-> configure endpoint if userspace wants to clear a halt, but the endpoint
-> isn't actually halted.  Did your most current patch work?  I can't
-> remember what the status was.
->
-> Sarah Sharp
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--HatCk8aMNiOn26THpCEeaNANFoc2CHaXm
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for the clarification, I understand better now.
-As far as concerns the reset endpoint fix, I am not sure if it works I 
-have to send an RFC so that it can be further tested but I have a lot of 
-pending RFCs for xhci on the mailing list so i was waiting for those to 
-be reviewed before sending new ones. Or it is not necessary to wait and 
-just send the RFC based on current usb-next tree?
+On 18.09.2013 21:38, Henrik Rydberg wrote:
+> Hi Florian,=20
+> Thanks for the driver, this is excellent work. Please find some nit-pic=
+ks inline.
 
-regards,
-ksenia
+Hello Henrik, thanks for your feedback and sorry for the long silence -
+some final questions before the next iteration are below:
+
+>> +/* read 512 bytes from endpoint 0x86 -> get header + blobs */
+>> +struct sur40_header {
+>> +
+>> +	uint16_t type;       /* always 0x0001 */
+>> +	uint16_t count;      /* count of blobs (if 0: continue prev. packet)=
+ */
+>> +
+>> +	uint32_t packet_id;
+>> +
+>> +	uint32_t timestamp;  /* milliseconds (inc. by 16 or 17 each frame) *=
+/
+>> +	uint32_t unknown;    /* "epoch?" always 02/03 00 00 00 */
+>> +};
+>=20
+> Since you read these structs directly from the device, it would be
+> good to see the endianess explicitly. It probably also means this will
+> only work on some architectures... ;-) Also, you may want to use the
+> __packed attribute.
+
+Do you mean to add a comment about the endianness, or to use other data
+types? If so, which ones? __packed is a good point, will add this.
+
+>> +struct sur40_blob {
+>> +
+>> +	uint16_t blob_id;
+>> +
+>> +	uint8_t action;      /* 0x02 =3D enter/exit, 0x03 =3D update (?) */
+>> +	uint8_t unknown;     /* always 0x01 or 0x02 (no idea what this is?) =
+*/
+>> +
+>> +	uint16_t bb_pos_x;   /* upper left corner of bounding box */
+>> +	uint16_t bb_pos_y;
+>> +
+>> +	uint16_t bb_size_x;  /* size of bounding box */
+>> +	uint16_t bb_size_y;
+>> +
+>> +	uint16_t pos_x;      /* finger tip position */
+>> +	uint16_t pos_y;
+>> +
+>> +	uint16_t ctr_x;      /* centroid position */
+>> +	uint16_t ctr_y;
+>> +
+>> +	uint16_t axis_x;     /* somehow related to major/minor axis, mostly:=
+ */
+>> +	uint16_t axis_y;     /* axis_x =3D=3D bb_size_y && axis_y =3D=3D bb_=
+size_x */
+>> +
+>> +	float angle;         /* orientation in radians relative to x axis */=
+
+>=20
+> float is unusual in the kernel - is it actually ieee 754 encoded?
+
+Yes - was also surprised to see this directly from the hardware.
+
+> Same here. Also, you could add a struct like this:
+>=20
+> struct sur40_data {
+>        struct sur40_header	header;
+>        struct sur40_blob	blobs[];
+> };
+>=20
+> which should make conversion easier later on.
+
+Good idea.
+
+>> +
+>> +/* read 8 bytes using control message 0xc0,0xb1,0x00,0x00 */
+>> +struct sur40_sensors {
+>> +	uint16_t temp;
+>> +	uint16_t acc_x;
+>> +	uint16_t acc_y;
+>> +	uint16_t acc_z;
+>> +};
+>
+> Hmm, seems to be unused?
+
+Yes, I was planning to add some extra interface (sysfs?) for this later.
+I'll remove it for now.
+
+>> +/* polling interval (ms) */
+>> +#define POLL_INTERVAL 10
+>=20
+> Interesting that 100 Hz is enough here - is it the limit of the
+> device, or simply picked out of convenience?
+
+The device itself is running at 60 Hz, so I picked a lower interval to
+make sure that new packets are polled as soon as they are ready. The USB
+bulk read will block anyway until new data is available, so this could
+probably even be lowered to 15 ms.
+
+>> +	input_mt_slot(input, slotnum);
+>> +	input_mt_report_slot_state(input, MT_TOOL_FINGER, 1);
+>> +	wide =3D (blob->bb_size_x > blob->bb_size_y);
+>> +	major =3D max(blob->bb_size_x, blob->bb_size_y);
+>> +	minor =3D min(blob->bb_size_x, blob->bb_size_y);
+>> +
+>> +	input_event(input, EV_ABS, ABS_MT_POSITION_X, blob->pos_x);
+>> +	input_event(input, EV_ABS, ABS_MT_POSITION_Y, blob->pos_y);
+>> +	input_event(input, EV_ABS, ABS_MT_TOOL_X, blob->ctr_x);
+>> +	input_event(input, EV_ABS, ABS_MT_TOOL_Y, blob->ctr_y);
+>> +	input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
+>> +	input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+>> +	input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+>> +}
+>=20
+> You mention there is an angle in the data, but I take it it is not (yet=
+) useful?
+
+Right, this could actually be translated into degrees [0..359] and used
+for orientation. Good point.
+
+>> +	/* use the bulk-in endpoint tested above */
+>> +	sur40->bulk_in_size =3D le16_to_cpu(endpoint->wMaxPacketSize);
+>> +	sur40->bulk_in_epaddr =3D endpoint->bEndpointAddress;
+>> +	sur40->bulk_in_buffer =3D kmalloc(2 * sur40->bulk_in_size, GFP_KERNE=
+L);
+>=20
+> The factor of two looks a bit cryptic? There also seem to be functions
+> to extract the packet size nowadays, if one wants to get fancy.
+
+Ah, yes. The factor of two is actually completely unnecessary, the USB
+bulk read should just use sur40->bulk_in_size for the request size.
+
+Best regards, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
+
+
+--HatCk8aMNiOn26THpCEeaNANFoc2CHaXm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlJL0tgACgkQ7CzyshGvatg7lQCeOesbGY3h4VnVoTsNupm4Vpv0
+DuYAniWrXjSaJcje6eVchhUoxBIq2PE3
+=9f+M
+-----END PGP SIGNATURE-----
+
+--HatCk8aMNiOn26THpCEeaNANFoc2CHaXm--

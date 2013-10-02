@@ -1,48 +1,64 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+From: Mauro Carvalho Chehab <m.chehab@samsung.com>
 Subject: Re: New USB core API to change interval and max packet size
-Date: Wed, 2 Oct 2013 12:38:14 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1310021234510.1293-100000@iolanthe.rowland.org>
+Date: Wed, 02 Oct 2013 14:11:23 -0300
+Message-ID: <20131002141123.1c8d2e3b@samsung.com>
 References: <20131002131550.38f90611@samsung.com>
+ <Pine.LNX.4.44L0.1310021234510.1293-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131002131550.38f90611-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Sarah Sharp <sarah.a.sharp-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Xenia Ragiadakou <burzalodowa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout3.w2.samsung.com ([211.189.100.13]:21576 "EHLO
+	usmailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754740Ab3JBRLa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Oct 2013 13:11:30 -0400
+In-reply-to: <Pine.LNX.4.44L0.1310021234510.1293-100000@iolanthe.rowland.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Sarah Sharp <sarah.a.sharp@linux.intel.com>, Xenia Ragiadakou <burzalodowa@gmail.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Wed, 2 Oct 2013, Mauro Carvalho Chehab wrote:
+Em Wed, 02 Oct 2013 12:38:14 -0400 (EDT)
+Alan Stern <stern@rowland.harvard.edu> escreveu:
 
-> > > So, there's no need to call usb_change_ep_bandwidth().
-> > 
-> > That's right.
-> > 
-> > > If so, then usb_change_ep_bandwidth() as a quirk, if bInterval
-> > > or wMaxPacketSize were improperly filled.
-> > > 
-> > > Right?
-> > 
-> > Or if the values are correct, but the driver wants to use something 
-> > different for its own reasons (for example, to get lower latency or 
-> > because it knows that it will never use packets as large as the 
-> > descriptor allows).  Right.
+> On Wed, 2 Oct 2013, Mauro Carvalho Chehab wrote:
 > 
-> Ok, so, in this case, usb_change_ep_bandwidth() could be called
-> just before usb_alloc_urb(), in order to make it to use the packet
-> size that would be expected for that kind of ISOC traffic that
-> userspace indirectly selected, by adjusting the streaming
-> video resolution selected, right?
+> > > > So, there's no need to call usb_change_ep_bandwidth().
+> > > 
+> > > That's right.
+> > > 
+> > > > If so, then usb_change_ep_bandwidth() as a quirk, if bInterval
+> > > > or wMaxPacketSize were improperly filled.
+> > > > 
+> > > > Right?
+> > > 
+> > > Or if the values are correct, but the driver wants to use something 
+> > > different for its own reasons (for example, to get lower latency or 
+> > > because it knows that it will never use packets as large as the 
+> > > descriptor allows).  Right.
+> > 
+> > Ok, so, in this case, usb_change_ep_bandwidth() could be called
+> > just before usb_alloc_urb(), in order to make it to use the packet
+> > size that would be expected for that kind of ISOC traffic that
+> > userspace indirectly selected, by adjusting the streaming
+> > video resolution selected, right?
+> 
+> We haven't decided on the final API yet.  However, note that
+> usb_alloc_urb() doesn't depend on the packet size.  It requires you to
+> specify only the number of packets, not their sizes.  Therefore it
+> doesn't matter whether you call usb_change_ep_bandwidth() before or
+> after usb_alloc_urb().
 
-We haven't decided on the final API yet.  However, note that
-usb_alloc_urb() doesn't depend on the packet size.  It requires you to
-specify only the number of packets, not their sizes.  Therefore it
-doesn't matter whether you call usb_change_ep_bandwidth() before or
-after usb_alloc_urb().
+Sure, but, at least on almost all V4L2 drivers, the number of packets
+and their sizes should be calculated to be able to receive all URBs
+needed to store a complete image frame (that generally arrives on 
+every 1/60 Hz or 1/50 Hz - depending on the frames per second rate).
 
-Alan Stern
+On those drivers, the transfer_buffer is allocated at the same loop 
+where usb_alloc_urb() is called.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+So, it makes sense for them to specify the bandwidth parameters at
+the function that calls usb_alloc_coherent() and usb_alloc_urb().
+
+Regards,
+Mauro

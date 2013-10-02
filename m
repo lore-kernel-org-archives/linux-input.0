@@ -1,69 +1,126 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Subject: Re: New USB core API to change interval and max packet size
-Date: Wed, 2 Oct 2013 10:22:52 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1310021007110.1293-100000@iolanthe.rowland.org>
-References: <20131001204554.GB15395@xanatos>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: multitouch: Fix GeneralTouch products and add more
+ PIDs
+Date: Wed, 2 Oct 2013 16:55:39 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1310021654240.29701@pobox.suse.cz>
+References: <1380705600-11055-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131001204554.GB15395@xanatos>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sarah Sharp <sarah.a.sharp-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Xenia Ragiadakou <burzalodowa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:50363 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753392Ab3JBOz7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Oct 2013 10:55:59 -0400
+In-Reply-To: <1380705600-11055-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Luosong <android@generaltouch.com>
 
-On Tue, 1 Oct 2013, Sarah Sharp wrote:
+On Wed, 2 Oct 2013, Benjamin Tissoires wrote:
 
-> > When you say a new API, what do you mean? New functions in usbcore
-> > to be used by usb device drivers?
+> From: Luosong <android@generaltouch.com>
 > 
-> Yes.  You would export the function in the USB core, and put a prototype
-> in a USB include file (probably in include/linux/usb.h).  Let's say that
-> function is called usb_change_ep_bandwidth.
+> GeneralTouch products should use the quirk SLOT_IS_CONTACTID
+> instead of SLOT_IS_CONTACTNUMBER.
 > 
-> Drivers could call into that function when they needed to change either
-> the bInterval or wMaxPacketSize of a particular endpoint.  This could be
-> during the driver's probe function, or before switching alternate
-> interface settings, or even after the alt setting is in place, but
-> userspace dictates the driver use a different bandwidth.
+> Adding PIDs 0101,e100,0102,0106,010a from the new products.
 > 
-> Drivers should pass usb_change_ep_bandwidth a pointer to the endpoint
-> they need to change, along with the bInterval and wMaxPacketSize values
-> they would like the endpoint to have.  Those values could be stored as
-> new values in struct usb_host_endpoint.
+> Tested on new and older products by GeneralTouch engineers.
 > 
-> usb_change_ep_bandwidth would then call into the xHCI driver to drop the
-> endpoint, re-add it, and then issue a bandwidth change.  The xHCI driver
-> would have to be changed to look at the new fields in usb_host_endpoint,
-> and set up the endpoint contexts with the interval and packet size from
-> those fields, instead of the endpoint descriptor.
+> Signed-off-by: Luosong <android@generaltouch.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
 > 
-> We should probably set the new values in usb_host_endpoint to zero after
-> the driver unbinds from the device.  Not sure if they should be reset
-> after the driver switches interfaces.  I would have to see the use cases
-> in the driver.
+> Hi Luosong,
+> 
+> I took the liberty to rewrite the commit message for it to be
+> more compliant with the kernel rules:
+> - there should be a one line title commit message first,
+> - and the rest should detail the patch, tell how it was tested, etc...
+> 
+> If you could just give our ack on this one, Jiri would be able to take it
+> through his tree.
 
-We should consider this before rushing into a new API.
+Thanks Benjamin.
 
-In particular, do we want to go around changing single endpoints, one 
-at a time?  Or do we want to change all the endpoints in an interface 
-at once?
+Luosong, the patch as sent by Benjamin is properly formatted and contains 
+proper changelog. Please make sure that you fix your patch submission 
+workflow for your next submissions.
 
-Given that a change to one endpoint may require the entire schedule to 
-be recomputed, it seems to make more sense to do all of them at once.  
-For example, drivers could call a routine to set the desired endpoint 
-parameters, and then the new parameters could take effect when the 
-driver calls usb_set_interface().
+Luosong, please let me know that you are find with applying the patch as 
+Benjamin sent it (with attribution to you and your signoff), and I'll 
+proceed.
 
-In any case, the question about what to do when the interface setting
-gets switched never really arises.  Each usb_host_endpoint structure is
-referenced from only one altsetting.  If the driver wants the new 
-parameters applied to an endpoint in several altsettings, it will have 
-to change each altsetting separately.
+> 
+> Cheers,
+> Benjamin
+> 
+>  drivers/hid/hid-ids.h        |  5 +++++
+>  drivers/hid/hid-multitouch.c | 19 +++++++++++++++++--
+>  2 files changed, 22 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index e60e8d5..9a91dee 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -332,6 +332,11 @@
+>  #define USB_VENDOR_ID_GENERAL_TOUCH	0x0dfc
+>  #define USB_DEVICE_ID_GENERAL_TOUCH_WIN7_TWOFINGERS 0x0003
+>  #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS 0x0100
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101 0x0101
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102 0x0102
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106 0x0106
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A 0x010a
+> +#define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100 0xe100
+>  
+>  #define USB_VENDOR_ID_GLAB		0x06c2
+>  #define USB_DEVICE_ID_4_PHIDGETSERVO_30	0x0038
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 5e5fe1b..cb3250c 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -250,12 +250,12 @@ static struct mt_class mt_classes[] = {
+>  	{ .name	= MT_CLS_GENERALTOUCH_TWOFINGERS,
+>  		.quirks	= MT_QUIRK_NOT_SEEN_MEANS_UP |
+>  			MT_QUIRK_VALID_IS_INRANGE |
+> -			MT_QUIRK_SLOT_IS_CONTACTNUMBER,
+> +			MT_QUIRK_SLOT_IS_CONTACTID,
+>  		.maxcontacts = 2
+>  	},
+>  	{ .name	= MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+>  		.quirks	= MT_QUIRK_NOT_SEEN_MEANS_UP |
+> -			MT_QUIRK_SLOT_IS_CONTACTNUMBER
+> +			MT_QUIRK_SLOT_IS_CONTACTID
+>  	},
+>  
+>  	{ .name = MT_CLS_FLATFROG,
+> @@ -1173,6 +1173,21 @@ static const struct hid_device_id mt_devices[] = {
+>  	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+>  		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+>  			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PWT_TENFINGERS) },
+> +	{ .driver_data = MT_CLS_GENERALTOUCH_TWOFINGERS,
+> +		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> +			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0101) },
+> +	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+> +		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> +			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0102) },
+> +	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+> +		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> +			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_0106) },
+> +	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+> +		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> +			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A) },
+> +	{ .driver_data = MT_CLS_GENERALTOUCH_PWT_TENFINGERS,
+> +		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+> +			USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100) },
+>  
+>  	/* Gametel game controller */
+>  	{ .driver_data = MT_CLS_NSMU,
+> -- 
+> 1.8.3.1
+> 
 
-Alan Stern
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

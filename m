@@ -1,173 +1,134 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH] HID: wiimote: fix FF deadlock
-Date: Wed,  2 Oct 2013 13:47:28 +0200
-Message-ID: <1380714448-878-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, stable@vger.kernel.org
+From: Mauro Carvalho Chehab <m.chehab@samsung.com>
+Subject: Re: New USB core API to change interval and max packet size
+Date: Wed, 02 Oct 2013 09:33:54 -0300
+Message-ID: <20131002093354.507cd24d@samsung.com>
+References: <524B1BF4.6000305@gmail.com> <20131001204554.GB15395@xanatos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-reply-to: <20131001204554.GB15395@xanatos>
+Sender: linux-media-owner@vger.kernel.org
+To: Sarah Sharp <sarah.a.sharp@linux.intel.com>
+Cc: Xenia Ragiadakou <burzalodowa@gmail.com>, linux-usb@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The input core has an internal spinlock that is acquired during event
-injection via input_event() and friends but also held during FF callbacks.
-That means, there is no way to share a lock between event-injection and FF
-handling. Unfortunately, this is what is required for wiimote state
-tracking and what we do with state.lock and input->lock.
+Hi Sarah,
 
-This deadlock can be triggered when using continuous data reporting and FF
-on a wiimote device at the same time. I takes me at least 30m of
-stress-testing to trigger it but users reported considerably shorter
-times (http://bpaste.net/show/132504/) when using some gaming-console
-emulators.
+Em Tue, 1 Oct 2013 13:45:54 -0700
+Sarah Sharp <sarah.a.sharp@linux.intel.com> escreveu:
 
-The real problem is that we have two copies of internal state, one in the
-wiimote objects and the other in the input device. As the input-lock is
-not supposed to be accessed from outside of input-core, we have no other
-chance than offloading FF handling into a worker. This actually works
-pretty nice and also allows to implictly merge fast rumble changes into a
-single request.
+> On Tue, Oct 01, 2013 at 10:01:08PM +0300, Xenia Ragiadakou wrote:
+> > Hi Sarah,
+> > 
+> > I read the mail on 'possible conflict between xhci_hcd and a patched
+> > usbhid'.
+> 
+> For reference to others:
+> http://marc.info/?l=linux-usb&m=138064948726038&w=2
+> http://marc.info/?l=linux-usb&m=138065201426880&w=2
+> 
+> > I looked in xhci and the problem arises in xhci_queue_intr_tx() when
+> > if (xhci_interval != ep_interval) {
+> >     ...
+> >     urb->interval = xhci_interval;
+> > }
+> > 
+> > right?
+> 
+> Yes.  The underlying problem is that the xHCI host sets up the endpoint
+> contexts during the Configure Endpoint command, using the interval from
+> the device's endpoint descriptors.  It also uses the endpoint descriptor
+> wMaxPacketSize, which can be wrong as well.  If the device driver wants
+> to use a different urb->interval than is in the endpoint descriptor, the
+> xHCI driver will simply ignore it.
+> 
+> (I'm Ccing the linux-media list, as I've discussed some of these devices
+> with broken descriptors before.)
+> 
+> > When you say a new API, what do you mean? New functions in usbcore
+> > to be used by usb device drivers?
+> 
+> Yes.  You would export the function in the USB core, and put a prototype
+> in a USB include file (probably in include/linux/usb.h).  Let's say that
+> function is called usb_change_ep_bandwidth.
+> 
+> Drivers could call into that function when they needed to change either
+> the bInterval or wMaxPacketSize of a particular endpoint.  This could be
+> during the driver's probe function, or before switching alternate
+> interface settings, or even after the alt setting is in place, but
+> userspace dictates the driver use a different bandwidth.
+> 
+> Drivers should pass usb_change_ep_bandwidth a pointer to the endpoint
+> they need to change, along with the bInterval and wMaxPacketSize values
+> they would like the endpoint to have.  Those values could be stored as
+> new values in struct usb_host_endpoint.
 
-Due to the 3-layered workers (rumble+queue+l2cap) this might reduce FF
-responsiveness. Initial tests were fine so lets fix the race first and if
-it turns out to be too slow we can always handle FF out-of-band and skip
-the queue-worker.
+Let me see if I understand the changes at the media drivers. So, please
+correct me if I got it wrong.
 
-Cc: <stable@vger.kernel.org> # 3.11+
-Reported-by: Thomas Schneider
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
- drivers/hid/hid-wiimote-modules.c | 40 ++++++++++++++++++++++++++++-----------
- drivers/hid/hid-wiimote.h         |  4 +++-
- 2 files changed, 32 insertions(+), 12 deletions(-)
+I'm yet to get any USB 3.0 media device, although it is common to connect
+an USB 1.1 or USB 2.0 device on a USB 3.0 host port.
 
-diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
-index 2e7d644..71adf9e 100644
---- a/drivers/hid/hid-wiimote-modules.c
-+++ b/drivers/hid/hid-wiimote-modules.c
-@@ -119,12 +119,22 @@ static const struct wiimod_ops wiimod_keys = {
-  * the rumble motor, this flag shouldn't be set.
-  */
- 
-+/* used by wiimod_rumble and wiipro_rumble */
-+static void wiimod_rumble_worker(struct work_struct *work)
-+{
-+	struct wiimote_data *wdata = container_of(work, struct wiimote_data,
-+						  rumble_worker);
-+
-+	spin_lock_irq(&wdata->state.lock);
-+	wiiproto_req_rumble(wdata, wdata->state.cache_rumble);
-+	spin_unlock_irq(&wdata->state.lock);
-+}
-+
- static int wiimod_rumble_play(struct input_dev *dev, void *data,
- 			      struct ff_effect *eff)
- {
- 	struct wiimote_data *wdata = input_get_drvdata(dev);
- 	__u8 value;
--	unsigned long flags;
- 
- 	/*
- 	 * The wiimote supports only a single rumble motor so if any magnitude
-@@ -137,9 +147,10 @@ static int wiimod_rumble_play(struct input_dev *dev, void *data,
- 	else
- 		value = 0;
- 
--	spin_lock_irqsave(&wdata->state.lock, flags);
--	wiiproto_req_rumble(wdata, value);
--	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+	/* Locking state.lock here might deadlock with input_event() calls.
-+	 * schedule_work acts as barrier. Merging multiple changes is fine. */
-+	wdata->state.cache_rumble = value;
-+	schedule_work(&wdata->rumble_worker);
- 
- 	return 0;
- }
-@@ -147,6 +158,8 @@ static int wiimod_rumble_play(struct input_dev *dev, void *data,
- static int wiimod_rumble_probe(const struct wiimod_ops *ops,
- 			       struct wiimote_data *wdata)
- {
-+	INIT_WORK(&wdata->rumble_worker, wiimod_rumble_worker);
-+
- 	set_bit(FF_RUMBLE, wdata->input->ffbit);
- 	if (input_ff_create_memless(wdata->input, NULL, wiimod_rumble_play))
- 		return -ENOMEM;
-@@ -159,6 +172,8 @@ static void wiimod_rumble_remove(const struct wiimod_ops *ops,
- {
- 	unsigned long flags;
- 
-+	cancel_work_sync(&wdata->rumble_worker);
-+
- 	spin_lock_irqsave(&wdata->state.lock, flags);
- 	wiiproto_req_rumble(wdata, 0);
- 	spin_unlock_irqrestore(&wdata->state.lock, flags);
-@@ -1731,7 +1746,6 @@ static int wiimod_pro_play(struct input_dev *dev, void *data,
- {
- 	struct wiimote_data *wdata = input_get_drvdata(dev);
- 	__u8 value;
--	unsigned long flags;
- 
- 	/*
- 	 * The wiimote supports only a single rumble motor so if any magnitude
-@@ -1744,9 +1758,10 @@ static int wiimod_pro_play(struct input_dev *dev, void *data,
- 	else
- 		value = 0;
- 
--	spin_lock_irqsave(&wdata->state.lock, flags);
--	wiiproto_req_rumble(wdata, value);
--	spin_unlock_irqrestore(&wdata->state.lock, flags);
-+	/* Locking state.lock here might deadlock with input_event() calls.
-+	 * schedule_work acts as barrier. Merging multiple changes is fine. */
-+	wdata->state.cache_rumble = value;
-+	schedule_work(&wdata->rumble_worker);
- 
- 	return 0;
- }
-@@ -1756,6 +1771,8 @@ static int wiimod_pro_probe(const struct wiimod_ops *ops,
- {
- 	int ret, i;
- 
-+	INIT_WORK(&wdata->rumble_worker, wiimod_rumble_worker);
-+
- 	wdata->extension.input = input_allocate_device();
- 	if (!wdata->extension.input)
- 		return -ENOMEM;
-@@ -1817,12 +1834,13 @@ static void wiimod_pro_remove(const struct wiimod_ops *ops,
- 	if (!wdata->extension.input)
- 		return;
- 
-+	input_unregister_device(wdata->extension.input);
-+	wdata->extension.input = NULL;
-+	cancel_work_sync(&wdata->rumble_worker);
-+
- 	spin_lock_irqsave(&wdata->state.lock, flags);
- 	wiiproto_req_rumble(wdata, 0);
- 	spin_unlock_irqrestore(&wdata->state.lock, flags);
--
--	input_unregister_device(wdata->extension.input);
--	wdata->extension.input = NULL;
- }
- 
- static const struct wiimod_ops wiimod_pro = {
-diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-index f1474f3..75db0c4 100644
---- a/drivers/hid/hid-wiimote.h
-+++ b/drivers/hid/hid-wiimote.h
-@@ -133,13 +133,15 @@ struct wiimote_state {
- 	__u8 *cmd_read_buf;
- 	__u8 cmd_read_size;
- 
--	/* calibration data */
-+	/* calibration/cache data */
- 	__u16 calib_bboard[4][3];
-+	__u8 cache_rumble;
- };
- 
- struct wiimote_data {
- 	struct hid_device *hdev;
- 	struct input_dev *input;
-+	struct work_struct rumble_worker;
- 	struct led_classdev *leds[4];
- 	struct input_dev *accel;
- 	struct input_dev *ir;
+So, for example, on this device:
+
+	Bus 003 Device 002: ID 2040:6600 Hauppauge 
+	Device Descriptor:
+	  bLength                18
+	  bDescriptorType         1
+	  bcdUSB               2.00
+	  bDeviceClass            0 (Defined at Interface level)
+	  bDeviceSubClass         0 
+	  bDeviceProtocol         0 
+	  bMaxPacketSize0        64
+	  idVendor           0x2040 Hauppauge
+	  idProduct          0x6600 
+	  bcdDevice            0.69
+	  iManufacturer          16 
+	  iProduct               32 HVR900H
+	  iSerial                64 4031932745
+...
+	      Endpoint Descriptor:
+	        bLength                 7
+	        bDescriptorType         5
+	        bEndpointAddress     0x83  EP 3 IN
+	        bmAttributes            3
+	          Transfer Type            Interrupt
+	          Synch Type               None
+	          Usage Type               Data
+	        wMaxPacketSize     0x0004  1x 4 bytes
+	        bInterval               1
+...
+
+connected via this BUS device:
+
+	Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+	Device Descriptor:
+	  bLength                18
+	  bDescriptorType         1
+	  bcdUSB               2.00
+	  bDeviceClass            9 Hub
+	  bDeviceSubClass         0 Unused
+	  bDeviceProtocol         1 Single TT
+	  bMaxPacketSize0        64
+	  idVendor           0x1d6b Linux Foundation
+	  idProduct          0x0002 2.0 root hub
+	  bcdDevice            3.11
+	  iManufacturer           3 Linux 3.11.2-201.fc19.x86_64 xhci_hcd
+	  iProduct                2 xHCI Host Controller
+	  iSerial                 1 0000:00:14.0
+
+In such situation, and assuming that the USB tables are correct, there's
+nothing that needs to be done there, as bInterval/wMaxPacketSize are
+correct for USB 2.0.
+
+So, there's no need to call usb_change_ep_bandwidth().
+
+If so, then usb_change_ep_bandwidth() as a quirk, if bInterval
+or wMaxPacketSize were improperly filled.
+
+Right?
 -- 
-1.8.4
+
+Cheers,
+Mauro

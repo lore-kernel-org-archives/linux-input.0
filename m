@@ -1,612 +1,706 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [RFC] Input: introduce ABS_MAX2/CNT2 and friends
-Date: Thu,  3 Oct 2013 00:10:36 +0200
-Message-ID: <1380751836-10829-1-git-send-email-dh.herrmann@gmail.com>
+From: Clayton Craft <craftyguy@gmail.com>
+Subject: PROBLEM: Touchpad reported as: "elantech: unknown hardware version,
+ aborting" -- missing multitouch and scrolling
+Date: Wed, 2 Oct 2013 19:42:03 -0700
+Message-ID: <CAPf8-qF5afwQ97FLD8NJ4Zk12MzUTzdLtwyyvLZ+8FkgNukgAQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f169.google.com ([209.85.215.169]:56598 "EHLO
-	mail-ea0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753178Ab3JBWKl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Oct 2013 18:10:41 -0400
+Received: from mail-ie0-f179.google.com ([209.85.223.179]:61633 "EHLO
+	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753001Ab3JCCmo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Oct 2013 22:42:44 -0400
+Received: by mail-ie0-f179.google.com with SMTP id e14so4047104iej.38
+        for <linux-input@vger.kernel.org>; Wed, 02 Oct 2013 19:42:43 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>
+Cc: Clayton Craft <craftyguy@gmail.com>
 
-As we painfully noticed during the 3.12 merge-window our
-EVIOCGABS/EVIOCSABS API is limited to ABS_MAX<=0x3f. We tried several
-hacks to work around it but if we ever decide to increase ABS_MAX, the
-EVIOCSABS ioctl ABI might overflow into the next byte causing horrible
-misinterpretations in the kernel that we cannot catch.
+[1.] One line summary of the problem:
 
-Therefore, we decided to go with ABS_MAX2/CNT2 and introduce two new
-ioctls to get/set abs-params. They no longer encode the ABS code in the
-ioctl number and thus allow up to 4 billion ABS codes.
+Touchpad is missing multitouch and scrolling
 
-Unfortunately, the uinput API also hard-coded the ABS_CNT value in its
-ABI. To avoid any hacks in uinput, we simply introduce a new
-uinput_user_dev2 to replace the old one. The new API allows growing
-ABS_CNT2 values without any API changes.
+[2.] Full description of the problem/report:
 
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
-Hi
+Only basic functionality (right/left click, moving pointer) work.
+Expectation is that the device would be detected as a touchpad with
+support for multitouch/scrolling/etc. The laptop is an Acer S7 392.
+The following  message is printed to the kernel log:
+[   12.464107] psmouse serio1: elantech: unknown hardware version, aborting...
 
-This is only compile-tested but I wanted to get a first revision out to let
-people know what we're working on. Unfortunately, the ABS API has this horribly
-low ABS_MAX limit and we couldn't figure out a way to increase it while keeping
-ABI compatibility.
+The bug was originally files here, and I was instructed to notify the
+maintainers: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1232877
 
-Any feedback and review is welcome. And if anyone spots ABI breakage by this
-patch, please let me know. If nothing comes up I will patch libevdev to use the
-new API, write some extensive test-cases and push this forward.
 
-As a sidenote: I didn't modify joydev to use the new values. Fortunately, the
-joydev API would allow switching to ABS_CNT2 without breaking API, but it would
-limit the new ABS_CNT2 to 16k. This is quite high but nothing compared to the
- 2^32 that we can theoretically support now. If you think 16k ought to be enough
-(probably?) I can adjust the joydev API, too.
-All other kernel users were converted to the new values. Nothing left behind..
+[3.] Keywords (i.e., modules, networking, kernel):
 
-Thanks
-David
+elantech, touchpad
 
- drivers/hid/hid-debug.c                  |   2 +-
- drivers/hid/hid-input.c                  |   2 +-
- drivers/input/evdev.c                    |  63 ++++++++++++++-
- drivers/input/input.c                    |  14 ++--
- drivers/input/keyboard/goldfish_events.c |   6 +-
- drivers/input/keyboard/hil_kbd.c         |   2 +-
- drivers/input/misc/uinput.c              | 128 ++++++++++++++++++++++---------
- include/linux/hid.h                      |   2 +-
- include/linux/input.h                    |   6 +-
- include/linux/mod_devicetable.h          |   2 +-
- include/uapi/linux/input.h               |  31 +++++++-
- include/uapi/linux/uinput.h              |  13 ++++
- 12 files changed, 213 insertions(+), 58 deletions(-)
+[4.] Kernel version (from /proc/version):
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 8453214..d32fa30 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -862,7 +862,7 @@ static const char *relatives[REL_MAX + 1] = {
- 	[REL_WHEEL] = "Wheel",		[REL_MISC] = "Misc",
- };
- 
--static const char *absolutes[ABS_CNT] = {
-+static const char *absolutes[ABS_CNT2] = {
- 	[ABS_X] = "X",			[ABS_Y] = "Y",
- 	[ABS_Z] = "Z",			[ABS_RX] = "Rx",
- 	[ABS_RY] = "Ry",		[ABS_RZ] = "Rz",
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 8741d95..3e879bf 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1305,7 +1305,7 @@ static bool hidinput_has_been_populated(struct hid_input *hidinput)
- 	for (i = 0; i < BITS_TO_LONGS(REL_CNT); i++)
- 		r |= hidinput->input->relbit[i];
- 
--	for (i = 0; i < BITS_TO_LONGS(ABS_CNT); i++)
-+	for (i = 0; i < BITS_TO_LONGS(ABS_CNT2); i++)
- 		r |= hidinput->input->absbit[i];
- 
- 	for (i = 0; i < BITS_TO_LONGS(MSC_CNT); i++)
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index b6ded17..c76b87e 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -635,7 +635,7 @@ static int handle_eviocgbit(struct input_dev *dev,
- 	case      0: bits = dev->evbit;  len = EV_MAX;  break;
- 	case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
- 	case EV_REL: bits = dev->relbit; len = REL_MAX; break;
--	case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
-+	case EV_ABS: bits = dev->absbit; len = ABS_MAX2; break;
- 	case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
- 	case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
- 	case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
-@@ -663,6 +663,61 @@ static int handle_eviocgbit(struct input_dev *dev,
- }
- #undef OLD_KEY_MAX
- 
-+static int evdev_handle_get_abs2(struct input_dev *dev, void __user *p)
-+{
-+	u32 code;
-+	struct input_absinfo2 __user *pinfo = p;
-+	struct input_absinfo abs;
-+
-+	if (!dev->absinfo)
-+		return -EINVAL;
-+
-+	if (copy_from_user(&code, &pinfo->code, sizeof(code)))
-+		return -EFAULT;
-+
-+	if (code >= ABS_CNT2)
-+		return -EINVAL;
-+
-+	/*
-+	 * Take event lock to ensure that we are not
-+	 * copying data while EVIOCSABS2 changes it.
-+	 * Might be inconsistent, otherwise.
-+	 */
-+	spin_lock_irq(&dev->event_lock);
-+	abs = dev->absinfo[code];
-+	spin_unlock_irq(&dev->event_lock);
-+
-+	if (copy_to_user(&pinfo->info, &abs, sizeof(abs)))
-+		return -EFAULT;
-+
-+	return 0;
-+}
-+
-+static int evdev_handle_set_abs2(struct input_dev *dev, void __user *p)
-+{
-+	struct input_absinfo2 info;
-+
-+	if (!dev->absinfo)
-+		return -EINVAL;
-+
-+	if (copy_from_user(&info, p, sizeof(info)))
-+		return -EFAULT;
-+
-+	if (info.code == ABS_MT_SLOT || info.code >= ABS_CNT2)
-+		return -EINVAL;
-+
-+	/*
-+	 * Take event lock to ensure that we are not
-+	 * changing device parameters in the middle
-+	 * of event.
-+	 */
-+	spin_lock_irq(&dev->event_lock);
-+	dev->absinfo[info.code] = info.info;
-+	spin_unlock_irq(&dev->event_lock);
-+
-+	return 0;
-+}
-+
- static int evdev_handle_get_keycode(struct input_dev *dev, void __user *p)
- {
- 	struct input_keymap_entry ke = {
-@@ -890,6 +945,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 		client->clkid = i;
- 		return 0;
- 
-+	case EVIOCGABS2:
-+		return evdev_handle_get_abs2(dev, p);
-+
-+	case EVIOCSABS2:
-+		return evdev_handle_set_abs2(dev, p);
-+
- 	case EVIOCGKEYCODE:
- 		return evdev_handle_get_keycode(dev, p);
- 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index c044699..bc88f17 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -305,7 +305,7 @@ static int input_get_disposition(struct input_dev *dev,
- 		break;
- 
- 	case EV_ABS:
--		if (is_event_supported(code, dev->absbit, ABS_MAX))
-+		if (is_event_supported(code, dev->absbit, ABS_MAX2))
- 			disposition = input_handle_abs_event(dev, code, &value);
- 
- 		break;
-@@ -474,7 +474,7 @@ EXPORT_SYMBOL(input_inject_event);
- void input_alloc_absinfo(struct input_dev *dev)
- {
- 	if (!dev->absinfo)
--		dev->absinfo = kcalloc(ABS_CNT, sizeof(struct input_absinfo),
-+		dev->absinfo = kcalloc(ABS_CNT2, sizeof(struct input_absinfo),
- 					GFP_KERNEL);
- 
- 	WARN(!dev->absinfo, "%s(): kcalloc() failed?\n", __func__);
-@@ -954,7 +954,7 @@ static const struct input_device_id *input_match_device(struct input_handler *ha
- 		if (!bitmap_subset(id->relbit, dev->relbit, REL_MAX))
- 			continue;
- 
--		if (!bitmap_subset(id->absbit, dev->absbit, ABS_MAX))
-+		if (!bitmap_subset(id->absbit, dev->absbit, ABS_MAX2))
- 			continue;
- 
- 		if (!bitmap_subset(id->mscbit, dev->mscbit, MSC_MAX))
-@@ -1147,7 +1147,7 @@ static int input_devices_seq_show(struct seq_file *seq, void *v)
- 	if (test_bit(EV_REL, dev->evbit))
- 		input_seq_print_bitmap(seq, "REL", dev->relbit, REL_MAX);
- 	if (test_bit(EV_ABS, dev->evbit))
--		input_seq_print_bitmap(seq, "ABS", dev->absbit, ABS_MAX);
-+		input_seq_print_bitmap(seq, "ABS", dev->absbit, ABS_MAX2);
- 	if (test_bit(EV_MSC, dev->evbit))
- 		input_seq_print_bitmap(seq, "MSC", dev->mscbit, MSC_MAX);
- 	if (test_bit(EV_LED, dev->evbit))
-@@ -1333,7 +1333,7 @@ static int input_print_modalias(char *buf, int size, struct input_dev *id,
- 	len += input_print_modalias_bits(buf + len, size - len,
- 				'r', id->relbit, 0, REL_MAX);
- 	len += input_print_modalias_bits(buf + len, size - len,
--				'a', id->absbit, 0, ABS_MAX);
-+				'a', id->absbit, 0, ABS_MAX2);
- 	len += input_print_modalias_bits(buf + len, size - len,
- 				'm', id->mscbit, 0, MSC_MAX);
- 	len += input_print_modalias_bits(buf + len, size - len,
-@@ -1592,7 +1592,7 @@ static int input_dev_uevent(struct device *device, struct kobj_uevent_env *env)
- 	if (test_bit(EV_REL, dev->evbit))
- 		INPUT_ADD_HOTPLUG_BM_VAR("REL=", dev->relbit, REL_MAX);
- 	if (test_bit(EV_ABS, dev->evbit))
--		INPUT_ADD_HOTPLUG_BM_VAR("ABS=", dev->absbit, ABS_MAX);
-+		INPUT_ADD_HOTPLUG_BM_VAR("ABS=", dev->absbit, ABS_MAX2);
- 	if (test_bit(EV_MSC, dev->evbit))
- 		INPUT_ADD_HOTPLUG_BM_VAR("MSC=", dev->mscbit, MSC_MAX);
- 	if (test_bit(EV_LED, dev->evbit))
-@@ -1924,7 +1924,7 @@ static unsigned int input_estimate_events_per_packet(struct input_dev *dev)
- 
- 	events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
- 
--	for (i = 0; i < ABS_CNT; i++) {
-+	for (i = 0; i < ABS_CNT2; i++) {
- 		if (test_bit(i, dev->absbit)) {
- 			if (input_is_mt_axis(i))
- 				events += mt_slots;
-diff --git a/drivers/input/keyboard/goldfish_events.c b/drivers/input/keyboard/goldfish_events.c
-index 9f60a2e..9999cea 100644
---- a/drivers/input/keyboard/goldfish_events.c
-+++ b/drivers/input/keyboard/goldfish_events.c
-@@ -90,8 +90,8 @@ static void events_import_abs_params(struct event_dev *edev)
- 	__raw_writel(PAGE_ABSDATA, addr + REG_SET_PAGE);
- 
- 	count = __raw_readl(addr + REG_LEN) / sizeof(val);
--	if (count > ABS_MAX)
--		count = ABS_MAX;
-+	if (count > ABS_MAX2)
-+		count = ABS_MAX2;
- 
- 	for (i = 0; i < count; i++) {
- 		if (!test_bit(i, input_dev->absbit))
-@@ -158,7 +158,7 @@ static int events_probe(struct platform_device *pdev)
- 	events_import_bits(edev, input_dev->evbit, EV_SYN, EV_MAX);
- 	events_import_bits(edev, input_dev->keybit, EV_KEY, KEY_MAX);
- 	events_import_bits(edev, input_dev->relbit, EV_REL, REL_MAX);
--	events_import_bits(edev, input_dev->absbit, EV_ABS, ABS_MAX);
-+	events_import_bits(edev, input_dev->absbit, EV_ABS, ABS_MAX2);
- 	events_import_bits(edev, input_dev->mscbit, EV_MSC, MSC_MAX);
- 	events_import_bits(edev, input_dev->ledbit, EV_LED, LED_MAX);
- 	events_import_bits(edev, input_dev->sndbit, EV_SND, SND_MAX);
-diff --git a/drivers/input/keyboard/hil_kbd.c b/drivers/input/keyboard/hil_kbd.c
-index 589e3c2..4e4e010 100644
---- a/drivers/input/keyboard/hil_kbd.c
-+++ b/drivers/input/keyboard/hil_kbd.c
-@@ -387,7 +387,7 @@ static void hil_dev_pointer_setup(struct hil_dev *ptr)
- 					0, HIL_IDD_AXIS_MAX(idd, i - 3), 0, 0);
- 
- #ifdef TABLET_AUTOADJUST
--		for (i = 0; i < ABS_MAX; i++) {
-+		for (i = 0; i < ABS_MAX2; i++) {
- 			int diff = input_abs_get_max(input_dev, ABS_X + i) / 10;
- 			input_abs_set_min(input_dev, ABS_X + i,
- 				input_abs_get_min(input_dev, ABS_X + i) + diff);
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index a0a4bba..72029d6 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -311,7 +311,7 @@ static int uinput_validate_absbits(struct input_dev *dev)
- 	unsigned int cnt;
- 	int retval = 0;
- 
--	for (cnt = 0; cnt < ABS_CNT; cnt++) {
-+	for (cnt = 0; cnt < ABS_CNT2; cnt++) {
- 		int min, max;
- 		if (!test_bit(cnt, dev->absbit))
- 			continue;
-@@ -358,14 +358,15 @@ static int uinput_allocate_device(struct uinput_device *udev)
- }
- 
- static int uinput_setup_device(struct uinput_device *udev,
--			       const char __user *buffer, size_t count)
-+			       struct uinput_user_dev2 *user_dev2,
-+			       size_t abscnt)
- {
--	struct uinput_user_dev	*user_dev;
- 	struct input_dev	*dev;
- 	int			i;
- 	int			retval;
- 
--	if (count != sizeof(struct uinput_user_dev))
-+	/* Ensure name is filled in */
-+	if (!user_dev2->name[0])
- 		return -EINVAL;
- 
- 	if (!udev->dev) {
-@@ -375,37 +376,24 @@ static int uinput_setup_device(struct uinput_device *udev,
- 	}
- 
- 	dev = udev->dev;
--
--	user_dev = memdup_user(buffer, sizeof(struct uinput_user_dev));
--	if (IS_ERR(user_dev))
--		return PTR_ERR(user_dev);
--
--	udev->ff_effects_max = user_dev->ff_effects_max;
--
--	/* Ensure name is filled in */
--	if (!user_dev->name[0]) {
--		retval = -EINVAL;
--		goto exit;
--	}
-+	udev->ff_effects_max = user_dev2->ff_effects_max;
- 
- 	kfree(dev->name);
--	dev->name = kstrndup(user_dev->name, UINPUT_MAX_NAME_SIZE,
-+	dev->name = kstrndup(user_dev2->name, UINPUT_MAX_NAME_SIZE,
- 			     GFP_KERNEL);
--	if (!dev->name) {
--		retval = -ENOMEM;
--		goto exit;
--	}
-+	if (!dev->name)
-+		return -ENOMEM;
- 
--	dev->id.bustype	= user_dev->id.bustype;
--	dev->id.vendor	= user_dev->id.vendor;
--	dev->id.product	= user_dev->id.product;
--	dev->id.version	= user_dev->id.version;
-+	dev->id.bustype = user_dev2->id.bustype;
-+	dev->id.vendor = user_dev2->id.vendor;
-+	dev->id.product = user_dev2->id.product;
-+	dev->id.version = user_dev2->id.version;
- 
--	for (i = 0; i < ABS_CNT; i++) {
--		input_abs_set_max(dev, i, user_dev->absmax[i]);
--		input_abs_set_min(dev, i, user_dev->absmin[i]);
--		input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);
--		input_abs_set_flat(dev, i, user_dev->absflat[i]);
-+	for (i = 0; i < abscnt; i++) {
-+		input_abs_set_max(dev, i, user_dev2->abs[i].max);
-+		input_abs_set_min(dev, i, user_dev2->abs[i].min);
-+		input_abs_set_fuzz(dev, i, user_dev2->abs[i].fuzz);
-+		input_abs_set_flat(dev, i, user_dev2->abs[i].flat);
- 	}
- 
- 	/* check if absmin/absmax/absfuzz/absflat are filled as
-@@ -413,7 +401,7 @@ static int uinput_setup_device(struct uinput_device *udev,
- 	if (test_bit(EV_ABS, dev->evbit)) {
- 		retval = uinput_validate_absbits(dev);
- 		if (retval < 0)
--			goto exit;
-+			return retval;
- 		if (test_bit(ABS_MT_SLOT, dev->absbit)) {
- 			int nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
- 			input_mt_init_slots(dev, nslot, 0);
-@@ -423,11 +411,72 @@ static int uinput_setup_device(struct uinput_device *udev,
- 	}
- 
- 	udev->state = UIST_SETUP_COMPLETE;
--	retval = count;
-+	return 0;
-+}
-+
-+static int uinput_setup_device1(struct uinput_device *udev,
-+				const char __user *buffer, size_t count)
-+{
-+	struct uinput_user_dev	*user_dev;
-+	struct uinput_user_dev2	*user_dev2;
-+	int			i;
-+	int			retval;
-+
-+	if (count != sizeof(struct uinput_user_dev))
-+		return -EINVAL;
-+
-+	user_dev = memdup_user(buffer, sizeof(struct uinput_user_dev));
-+	if (IS_ERR(user_dev))
-+		return PTR_ERR(user_dev);
-+
-+	user_dev2 = kmalloc(sizeof(*user_dev2), GFP_KERNEL);
-+	if (!user_dev2) {
-+		kfree(user_dev);
-+		return -ENOMEM;
-+	}
-+
-+	memcpy(user_dev2->name, user_dev->name, UINPUT_MAX_NAME_SIZE);
-+	memcpy(&user_dev2->id, &user_dev->id, sizeof(struct input_id));
-+	user_dev2->ff_effects_max = user_dev->ff_effects_max;
-+
-+	for (i = 0; i < ABS_CNT; ++i) {
-+		user_dev2->abs[i].max = user_dev->absmax[i];
-+		user_dev2->abs[i].min = user_dev->absmin[i];
-+		user_dev2->abs[i].fuzz = user_dev->absfuzz[i];
-+		user_dev2->abs[i].flat = user_dev->absflat[i];
-+	}
-+
-+	retval = uinput_setup_device(udev, user_dev2, ABS_CNT);
- 
-- exit:
- 	kfree(user_dev);
--	return retval;
-+	kfree(user_dev2);
-+
-+	return retval ? retval : count;
-+}
-+
-+static int uinput_setup_device2(struct uinput_device *udev,
-+			       const char __user *buffer, size_t count)
-+{
-+	struct uinput_user_dev2	*user_dev2;
-+	int			retval;
-+	size_t			off, abscnt;
-+
-+	/* The first revision of "uinput_user_dev2" is bigger than
-+	 * "uinput_user_dev" and growing. Disallow any smaller payloads. */
-+	if (count <= sizeof(struct uinput_user_dev))
-+		return -EINVAL;
-+
-+	user_dev2 = memdup_user(buffer, count);
-+	if (IS_ERR(user_dev2))
-+		return PTR_ERR(user_dev2);
-+
-+	off = offsetof(struct uinput_user_dev2, abs);
-+	abscnt = (count - off) / sizeof(struct uinput_user_absinfo);
-+	retval = uinput_setup_device(udev, user_dev2, abscnt);
-+
-+	kfree(user_dev2);
-+
-+	return retval ? retval : count;
- }
- 
- static ssize_t uinput_inject_event(struct uinput_device *udev,
-@@ -459,9 +508,12 @@ static ssize_t uinput_write(struct file *file, const char __user *buffer,
- 	if (retval)
- 		return retval;
- 
--	retval = udev->state == UIST_CREATED ?
--			uinput_inject_event(udev, buffer, count) :
--			uinput_setup_device(udev, buffer, count);
-+	if (udev->state == UIST_CREATED)
-+		retval = uinput_inject_event(udev, buffer, count);
-+	else if (count <= sizeof(struct uinput_user_dev))
-+		retval = uinput_setup_device1(udev, buffer, count);
-+	else
-+		retval = uinput_setup_device2(udev, buffer, count);
- 
- 	mutex_unlock(&udev->mutex);
- 
-@@ -702,7 +754,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 			break;
- 
- 		case UI_SET_ABSBIT:
--			retval = uinput_set_bit(arg, absbit, ABS_MAX);
-+			retval = uinput_set_bit(arg, absbit, ABS_MAX2);
- 			break;
- 
- 		case UI_SET_MSCBIT:
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 31b9d29..c21d8bb 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -828,7 +828,7 @@ static inline void hid_map_usage(struct hid_input *hidinput,
- 	switch (type) {
- 	case EV_ABS:
- 		*bit = input->absbit;
--		*max = ABS_MAX;
-+		*max = ABS_MAX2;
- 		break;
- 	case EV_REL:
- 		*bit = input->relbit;
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 82ce323..c6add6f 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -129,7 +129,7 @@ struct input_dev {
- 	unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
- 	unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
- 	unsigned long relbit[BITS_TO_LONGS(REL_CNT)];
--	unsigned long absbit[BITS_TO_LONGS(ABS_CNT)];
-+	unsigned long absbit[BITS_TO_LONGS(ABS_CNT2)];
- 	unsigned long mscbit[BITS_TO_LONGS(MSC_CNT)];
- 	unsigned long ledbit[BITS_TO_LONGS(LED_CNT)];
- 	unsigned long sndbit[BITS_TO_LONGS(SND_CNT)];
-@@ -210,8 +210,8 @@ struct input_dev {
- #error "REL_MAX and INPUT_DEVICE_ID_REL_MAX do not match"
- #endif
- 
--#if ABS_MAX != INPUT_DEVICE_ID_ABS_MAX
--#error "ABS_MAX and INPUT_DEVICE_ID_ABS_MAX do not match"
-+#if ABS_MAX2 != INPUT_DEVICE_ID_ABS_MAX
-+#error "ABS_MAX2 and INPUT_DEVICE_ID_ABS_MAX do not match"
- #endif
- 
- #if MSC_MAX != INPUT_DEVICE_ID_MSC_MAX
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index 45e9214..329aa30 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -277,7 +277,7 @@ struct pcmcia_device_id {
- #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING	0x71
- #define INPUT_DEVICE_ID_KEY_MAX		0x2ff
- #define INPUT_DEVICE_ID_REL_MAX		0x0f
--#define INPUT_DEVICE_ID_ABS_MAX		0x3f
-+#define INPUT_DEVICE_ID_ABS_MAX		0x4f
- #define INPUT_DEVICE_ID_MSC_MAX		0x07
- #define INPUT_DEVICE_ID_LED_MAX		0x0f
- #define INPUT_DEVICE_ID_SND_MAX		0x07
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index a372627..4a6082a 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -74,6 +74,21 @@ struct input_absinfo {
- };
- 
- /**
-+ * struct input_absinfo2 - used by EVIOC[G/S]ABS2 ioctls
-+ * @code: ABS code to query
-+ * @info: absinfo structure to get/set abs parameters for @code
-+ *
-+ * This structure is used by the new EVIOC[G/S]ABS2 ioctls which
-+ * do the same as the old EVIOC[G/S]ABS ioctls but avoid encoding
-+ * the ABS code in the ioctl number. This allows a much wider
-+ * range of ABS codes.
-+ */
-+struct input_absinfo2 {
-+	__u32 code;
-+	struct input_absinfo info;
-+};
-+
-+/**
-  * struct input_keymap_entry - used by EVIOCGKEYCODE/EVIOCSKEYCODE ioctls
-  * @scancode: scancode represented in machine-endian form.
-  * @len: length of the scancode that resides in @scancode buffer.
-@@ -153,6 +168,8 @@ struct input_keymap_entry {
- 
- #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
- #define EVIOCREVOKE		_IOW('E', 0x91, int)			/* Revoke device access */
-+#define EVIOCGABS2		_IOR('E', 0x92, struct input_absinfo2)	/* get abs value/limits */
-+#define EVIOCSABS2		_IOW('E', 0x93, struct input_absinfo2)	/* set abs value/limits */
- 
- #define EVIOCSCLOCKID		_IOW('E', 0xa0, int)			/* Set clockid to be used for timestamps */
- 
-@@ -832,11 +849,23 @@ struct input_keymap_entry {
- #define ABS_MT_TOOL_X		0x3c	/* Center X tool position */
- #define ABS_MT_TOOL_Y		0x3d	/* Center Y tool position */
- 
--
-+/*
-+ * ABS_MAX/CNT is limited to a maximum of 0x3f due to the design of EVIOCGABS
-+ * and EVIOCSABS ioctls. Other kernel APIs like uinput also hardcoded it. Do
-+ * not modify this value and instead use the extended ABS_MAX2/CNT2 API.
-+ */
- #define ABS_MAX			0x3f
- #define ABS_CNT			(ABS_MAX+1)
- 
- /*
-+ * Due to API restrictions the legacy evdev API only supports ABS values up to
-+ * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on any ABS values in
-+ * between ABS_MAX and ABS_MAX2.
-+ */
-+#define ABS_MAX2		0x4f
-+#define ABS_CNT2		(ABS_MAX2+1)
-+
-+/*
-  * Switch events
-  */
- 
-diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
-index fe46431..124e20c 100644
---- a/include/uapi/linux/uinput.h
-+++ b/include/uapi/linux/uinput.h
-@@ -134,4 +134,17 @@ struct uinput_user_dev {
- 	__s32 absfuzz[ABS_CNT];
- 	__s32 absflat[ABS_CNT];
- };
-+
-+struct uinput_user_dev2 {
-+	char name[UINPUT_MAX_NAME_SIZE];
-+	struct input_id id;
-+	__u32 ff_effects_max;
-+	struct uinput_user_absinfo {
-+		__s32 max;
-+		__s32 min;
-+		__s32 fuzz;
-+		__s32 flat;
-+	} abs[ABS_CNT2];
-+};
-+
- #endif /* _UAPI__UINPUT_H_ */
--- 
-1.8.4
+clayton@ultrabook:~$ cat /proc/version
+Linux version 3.12.0-031200rc3-generic (apw@gomeisa) (gcc version
+4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu5) ) #201309291835 SMP Sun Sep 29
+22:37:02 UTC 2013
 
+[5.] Output of Oops.. message (if applicable) with symbolic information
+     resolved (see Documentation/oops-tracing.txt)
+
+n/a
+
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+
+n/a
+
+[7.] Environment
+
+[7.1.] Software (add the output of the ver_linux script here)
+
+clayton@ultrabook:~$ /usr/src/linux-headers-3.12.0-031200rc3/scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux ultrabook 3.12.0-031200rc3-generic #201309291835 SMP Sun Sep 29
+22:37:02 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux
+
+Gnu C                  4.8
+Gnu make               3.81
+binutils               2.23.52.20130913
+util-linux             2.20.1
+mount                  support
+module-init-tools      9
+e2fsprogs              1.42.8
+pcmciautils            018
+PPP                    2.4.5
+Linux C Library        2.17
+Dynamic linker (ldd)   2.17
+Procps                 3.3.3
+Net-tools              1.60
+Kbd                    1.15.5
+Sh-utils               8.20
+wireless-tools         30
+Modules Loaded         x86_pkg_temp_thermal coretemp kvm_intel kvm
+joydev arc4 acer_wmi sparse_keymap dm_multipath scsi_dh iwlmvm
+mac80211 parport_pc ppdev microcode psmouse iwlwifi serio_raw
+hid_multitouch uvcvideo videobuf2_vmalloc videobuf2_memops
+snd_hda_codec_realtek videobuf2_core snd_hda_codec_hdmi videodev bnep
+rfcomm btusb cfg80211 snd_hda_intel bluetooth snd_hda_codec snd_hwdep
+snd_pcm snd_page_alloc snd_seq_midi snd_seq_midi_event snd_rawmidi
+snd_seq snd_seq_device snd_timer i2c_designware_platform
+i2c_designware_core snd intel_smartconnect lpc_ich mac_hid tpm_tis
+mei_me mei soundcore binfmt_misc nls_iso8859_1 lp parport ext2 usbhid
+hid dm_crypt dm_mirror dm_region_hash dm_log crct10dif_pclmul
+crc32_pclmul ghash_clmulni_intel aesni_intel aes_x86_64 lrw gf128mul
+i915 glue_helper ablk_helper cryptd ahci libahci i2c_algo_bit
+drm_kms_helper drm wmi video
+
+
+[7.2.] Processor information (from /proc/cpuinfo):
+
+clayton@ultrabook:~$ cat /proc/cpuinfo
+processor : 0
+vendor_id : GenuineIntel
+cpu family : 6
+model : 69
+model name : Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+stepping : 1
+microcode : 0x10
+cpu MHz : 2507.000
+cache size : 3072 KB
+physical id : 0
+siblings : 4
+core id : 0
+cpu cores : 2
+apicid : 0
+initial apicid : 0
+fpu : yes
+fpu_exception : yes
+cpuid level : 13
+wp : yes
+flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
+pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl
+xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor
+ds_cpl vmx est tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe
+popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida
+arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid
+fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid
+bogomips : 4588.31
+clflush size : 64
+cache_alignment : 64
+address sizes : 39 bits physical, 48 bits virtual
+power management:
+
+processor : 1
+vendor_id : GenuineIntel
+cpu family : 6
+model : 69
+model name : Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+stepping : 1
+microcode : 0x10
+cpu MHz : 2484.000
+cache size : 3072 KB
+physical id : 0
+siblings : 4
+core id : 0
+cpu cores : 2
+apicid : 1
+initial apicid : 1
+fpu : yes
+fpu_exception : yes
+cpuid level : 13
+wp : yes
+flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
+pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl
+xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor
+ds_cpl vmx est tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe
+popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida
+arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid
+fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid
+bogomips : 4588.31
+clflush size : 64
+cache_alignment : 64
+address sizes : 39 bits physical, 48 bits virtual
+power management:
+
+processor : 2
+vendor_id : GenuineIntel
+cpu family : 6
+model : 69
+model name : Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+stepping : 1
+microcode : 0x10
+cpu MHz : 2530.000
+cache size : 3072 KB
+physical id : 0
+siblings : 4
+core id : 1
+cpu cores : 2
+apicid : 2
+initial apicid : 2
+fpu : yes
+fpu_exception : yes
+cpuid level : 13
+wp : yes
+flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
+pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl
+xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor
+ds_cpl vmx est tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe
+popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida
+arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid
+fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid
+bogomips : 4588.31
+clflush size : 64
+cache_alignment : 64
+address sizes : 39 bits physical, 48 bits virtual
+power management:
+
+processor : 3
+vendor_id : GenuineIntel
+cpu family : 6
+model : 69
+model name : Intel(R) Core(TM) i5-4200U CPU @ 1.60GHz
+stepping : 1
+microcode : 0x10
+cpu MHz : 2438.000
+cache size : 3072 KB
+physical id : 0
+siblings : 4
+core id : 1
+cpu cores : 2
+apicid : 3
+initial apicid : 3
+fpu : yes
+fpu_exception : yes
+cpuid level : 13
+wp : yes
+flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx
+pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl
+xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor
+ds_cpl vmx est tm2 ssse3 fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe
+popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm ida
+arat epb xsaveopt pln pts dtherm tpr_shadow vnmi flexpriority ept vpid
+fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid
+bogomips : 4588.31
+clflush size : 64
+cache_alignment : 64
+address sizes : 39 bits physical, 48 bits virtual
+power management:
+
+
+
+[7.3.] Module information (from /proc/modules):
+
+
+clayton@ultrabook:~$ cat /proc/modules
+x86_pkg_temp_thermal 14269 0 - Live 0x0000000000000000
+coretemp 17728 0 - Live 0x0000000000000000
+kvm_intel 144049 0 - Live 0x0000000000000000
+kvm 457676 1 kvm_intel, Live 0x0000000000000000
+joydev 17575 0 - Live 0x0000000000000000
+arc4 12573 2 - Live 0x0000000000000000
+acer_wmi 32938 0 - Live 0x0000000000000000
+sparse_keymap 13890 1 acer_wmi, Live 0x0000000000000000
+dm_multipath 27371 0 - Live 0x0000000000000000
+scsi_dh 14873 1 dm_multipath, Live 0x0000000000000000
+iwlmvm 176559 0 - Live 0x0000000000000000
+mac80211 634661 1 iwlmvm, Live 0x0000000000000000
+parport_pc 32866 0 - Live 0x0000000000000000
+ppdev 17711 0 - Live 0x0000000000000000
+microcode 23650 0 - Live 0x0000000000000000
+psmouse 104113 0 - Live 0x0000000000000000
+iwlwifi 171124 1 iwlmvm, Live 0x0000000000000000
+serio_raw 13462 0 - Live 0x0000000000000000
+hid_multitouch 17645 0 - Live 0x0000000000000000
+uvcvideo 82247 0 - Live 0x0000000000000000
+videobuf2_vmalloc 13216 1 uvcvideo, Live 0x0000000000000000
+videobuf2_memops 13362 1 videobuf2_vmalloc, Live 0x0000000000000000
+snd_hda_codec_realtek 56695 1 - Live 0x0000000000000000
+videobuf2_core 40903 1 uvcvideo, Live 0x0000000000000000
+snd_hda_codec_hdmi 41684 1 - Live 0x0000000000000000
+videodev 139144 2 uvcvideo,videobuf2_core, Live 0x0000000000000000
+bnep 23966 2 - Live 0x0000000000000000
+rfcomm 74658 12 - Live 0x0000000000000000
+btusb 28326 0 - Live 0x0000000000000000
+cfg80211 504229 3 iwlmvm,mac80211,iwlwifi, Live 0x0000000000000000
+snd_hda_intel 57183 5 - Live 0x0000000000000000
+bluetooth 391597 22 bnep,rfcomm,btusb, Live 0x0000000000000000
+snd_hda_codec 194881 3
+snd_hda_codec_realtek,snd_hda_codec_hdmi,snd_hda_intel, Live
+0x0000000000000000
+snd_hwdep 13613 1 snd_hda_codec, Live 0x0000000000000000
+snd_pcm 107140 3 snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec, Live
+0x0000000000000000
+snd_page_alloc 18798 2 snd_hda_intel,snd_pcm, Live 0x0000000000000000
+snd_seq_midi 13324 0 - Live 0x0000000000000000
+snd_seq_midi_event 14899 1 snd_seq_midi, Live 0x0000000000000000
+snd_rawmidi 30465 1 snd_seq_midi, Live 0x0000000000000000
+snd_seq 66061 2 snd_seq_midi,snd_seq_midi_event, Live 0x0000000000000000
+snd_seq_device 14497 3 snd_seq_midi,snd_rawmidi,snd_seq, Live 0x0000000000000000
+snd_timer 30038 2 snd_pcm,snd_seq, Live 0x0000000000000000
+i2c_designware_platform 13006 0 - Live 0x0000000000000000
+i2c_designware_core 14990 1 i2c_designware_platform, Live 0x0000000000000000
+snd 73802 21 snd_hda_codec_realtek,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,snd_hwdep,snd_pcm,snd_seq_midi,snd_rawmidi,snd_seq,snd_seq_device,snd_timer,
+Live 0x0000000000000000
+intel_smartconnect 12619 0 - Live 0x0000000000000000
+lpc_ich 21163 0 - Live 0x0000000000000000
+mac_hid 13253 0 - Live 0x0000000000000000
+tpm_tis 19116 0 - Live 0x0000000000000000
+mei_me 18418 0 - Live 0x0000000000000000
+mei 78609 1 mei_me, Live 0x0000000000000000
+soundcore 12680 1 snd, Live 0x0000000000000000
+binfmt_misc 17508 1 - Live 0x0000000000000000
+nls_iso8859_1 12713 1 - Live 0x0000000000000000
+lp 17799 0 - Live 0x0000000000000000
+parport 42481 3 parport_pc,ppdev,lp, Live 0x0000000000000000
+ext2 73684 1 - Live 0x0000000000000000
+usbhid 53067 0 - Live 0x0000000000000000
+hid 106254 2 hid_multitouch,usbhid, Live 0x0000000000000000
+dm_crypt 23012 1 - Live 0x0000000000000000
+dm_mirror 22326 0 - Live 0x0000000000000000
+dm_region_hash 20981 1 dm_mirror, Live 0x0000000000000000
+dm_log 18527 2 dm_mirror,dm_region_hash, Live 0x0000000000000000
+crct10dif_pclmul 14250 0 - Live 0x0000000000000000
+crc32_pclmul 13160 0 - Live 0x0000000000000000
+ghash_clmulni_intel 13259 0 - Live 0x0000000000000000
+aesni_intel 55720 4 - Live 0x0000000000000000
+aes_x86_64 17131 1 aesni_intel, Live 0x0000000000000000
+lrw 13294 1 aesni_intel, Live 0x0000000000000000
+gf128mul 14951 1 lrw, Live 0x0000000000000000
+i915 733800 5 - Live 0x0000000000000000
+glue_helper 14095 1 aesni_intel, Live 0x0000000000000000
+ablk_helper 13597 1 aesni_intel, Live 0x0000000000000000
+cryptd 20501 4 ghash_clmulni_intel,aesni_intel,ablk_helper, Live
+0x0000000000000000
+ahci 30063 2 - Live 0x0000000000000000
+libahci 32088 1 ahci, Live 0x0000000000000000
+i2c_algo_bit 13564 1 i915, Live 0x0000000000000000
+drm_kms_helper 53165 1 i915, Live 0x0000000000000000
+drm 303133 4 i915,drm_kms_helper, Live 0x0000000000000000
+wmi 19363 1 acer_wmi, Live 0x0000000000000000
+video 19574 2 acer_wmi,i915, Live 0x0000000000000000
+
+
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+
+clayton@ultrabook:~$ cat /proc/ioports
+0000-0cf7 : PCI Bus 0000:00
+  0000-001f : dma1
+  0020-0021 : pic1
+  0040-0043 : timer0
+  0050-0053 : timer1
+  0060-0060 : keyboard
+  0062-0062 : EC data
+  0064-0064 : keyboard
+  0066-0066 : EC cmd
+  0070-0071 : rtc_cmos
+    0070-0071 : rtc0
+  0080-008f : dma page reg
+  00a0-00a1 : pic2
+  00c0-00df : dma2
+  00f0-00ff : fpu
+0cf8-0cff : PCI conf1
+0d00-ffff : PCI Bus 0000:00
+  1800-1803 : ACPI PM1a_EVT_BLK
+  1804-1805 : ACPI PM1a_CNT_BLK
+  1808-180b : ACPI PM_TMR
+  1810-1815 : ACPI CPU throttle
+  1830-1833 : iTCO_wdt
+  1850-1850 : ACPI PM2_CNT_BLK
+  1860-187f : iTCO_wdt
+  1880-189f : ACPI GPE0_BLK
+  2000-2fff : PCI Bus 0000:01
+  3000-303f : 0000:00:02.0
+  3040-305f : 0000:00:1f.3
+  3060-307f : 0000:00:1f.2
+    3060-307f : ahci
+  3080-3087 : 0000:00:1f.2
+    3080-3087 : ahci
+  3088-308f : 0000:00:1f.2
+    3088-308f : ahci
+  3090-3093 : 0000:00:1f.2
+    3090-3093 : ahci
+  3094-3097 : 0000:00:1f.2
+    3094-3097 : ahci
+clayton@ultrabook:~$ cat /proc/iomem
+00000000-00000fff : reserved
+00001000-0006efff : System RAM
+0006f000-0006ffff : reserved
+00070000-00087fff : System RAM
+00088000-000bffff : reserved
+  000a0000-000bffff : PCI Bus 0000:00
+000c0000-000c3fff : PCI Bus 0000:00
+000c4000-000c7fff : PCI Bus 0000:00
+000c8000-000cbfff : PCI Bus 0000:00
+000cc000-000cffff : PCI Bus 0000:00
+000d0000-000d3fff : PCI Bus 0000:00
+000d4000-000d7fff : PCI Bus 0000:00
+000d8000-000dbfff : PCI Bus 0000:00
+000dc000-000dffff : PCI Bus 0000:00
+000e0000-000e3fff : PCI Bus 0000:00
+000e4000-000e7fff : PCI Bus 0000:00
+000e8000-000ebfff : PCI Bus 0000:00
+000ec000-000effff : PCI Bus 0000:00
+000f0000-000fffff : PCI Bus 0000:00
+  000f0000-000fffff : System ROM
+00100000-8c6befff : System RAM
+  02000000-02762924 : Kernel code
+  02762925-02d18c7f : Kernel data
+  02e72000-02fe4fff : Kernel bss
+  2c000000-33ffffff : Crash kernel
+8c6bf000-8cebefff : reserved
+8cebf000-8cfbefff : ACPI Non-volatile Storage
+8cfbf000-8cffefff : ACPI Tables
+8cfff000-8cffffff : System RAM
+8d000000-9f9fffff : reserved
+  97a00000-9f9fffff : Graphics Stolen Memory
+9fa00000-feafffff : PCI Bus 0000:00
+  9fa10000-9fa10fff : pnp 00:02
+  9fb00000-9fcfffff : PCI Bus 0000:01
+  a0000000-afffffff : 0000:00:02.0
+  b0000000-b03fffff : 0000:00:02.0
+  b0400000-b04fffff : PCI Bus 0000:01
+    b0400000-b0401fff : 0000:01:00.0
+      b0400000-b0401fff : iwlwifi
+  b0500000-b050ffff : 0000:00:14.0
+    b0500000-b050ffff : xhci_hcd
+  b0510000-b0513fff : 0000:00:03.0
+    b0510000-b0513fff : ICH HD audio
+  b0514000-b0517fff : 0000:00:1b.0
+    b0514000-b0517fff : ICH HD audio
+  b0519000-b0519007 : pnp 00:03
+  b0519014-b0519fff : pnp 00:03
+  b051a000-b051a01f : 0000:00:16.0
+    b051a000-b051a01f : mei_me
+  b051b000-b051b0ff : 0000:00:1f.3
+  b051d000-b051d7ff : 0000:00:1f.2
+    b051d000-b051d7ff : ahci
+  b051e000-b051e3ff : 0000:00:1d.0
+    b051e000-b051e3ff : ehci_hcd
+  b051f000-b051ffff : pnp 00:03
+  e0000000-efffffff : PCI MMCONFIG 0000 [bus 00-ff]
+    e0000000-efffffff : reserved
+      e0000000-efffffff : pnp 00:02
+  fe101000-fe112fff : reserved
+    fe105000-fe105fff : INT33C3:00
+      fe105000-fe105fff : INT33C3:00
+    fe106000-fe106fff : pnp 00:03
+feb00000-feb0ffff : reserved
+fec00000-fec00fff : reserved
+  fec00000-fec003ff : IOAPIC 0
+fed00000-fee00fff : reserved
+  fed00000-fed003ff : HPET 0
+  fed10000-fed17fff : pnp 00:02
+  fed18000-fed18fff : pnp 00:02
+  fed19000-fed19fff : pnp 00:02
+  fed1c000-fed1ffff : pnp 00:02
+    fed1f410-fed1f414 : iTCO_wdt
+  fed20000-fed3ffff : pnp 00:02
+  fed90000-fed93fff : pnp 00:02
+  fee00000-fee00fff : Local APIC
+ffc00000-ffffffff : reserved
+100000000-25f5fffff : System RAM
+25f600000-25fffffff : RAM buffer
+
+
+[7.5.] PCI information ('lspci -vvv' as root)
+
+
+00:00.0 Host bridge: Intel Corporation Haswell-ULT DRAM Controller (rev 09)
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx-
+Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR- INTx-
+Latency: 0
+Capabilities: <access denied>
+
+00:02.0 VGA compatible controller: Intel Corporation Haswell-ULT
+Integrated Graphics Controller (rev 09) (prog-if 00 [VGA controller])
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx+
+Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0
+Interrupt: pin A routed to IRQ 59
+Region 0: Memory at b0000000 (64-bit, non-prefetchable) [size=4M]
+Region 2: Memory at a0000000 (64-bit, prefetchable) [size=256M]
+Region 4: I/O ports at 3000 [size=64]
+Expansion ROM at <unassigned> [disabled]
+Capabilities: <access denied>
+Kernel driver in use: i915
+
+00:03.0 Audio device: Intel Corporation Device 0a0c (rev 09)
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx+
+Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0, Cache Line Size: 64 bytes
+Interrupt: pin A routed to IRQ 60
+Region 0: Memory at b0510000 (64-bit, non-prefetchable) [size=16K]
+Capabilities: <access denied>
+Kernel driver in use: snd_hda_intel
+
+00:14.0 USB controller: Intel Corporation Lynx Point-LP USB xHCI HC
+(rev 04) (prog-if 30 [XHCI])
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx+
+Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0
+Interrupt: pin A routed to IRQ 62
+Region 0: Memory at b0500000 (64-bit, non-prefetchable) [size=64K]
+Capabilities: <access denied>
+Kernel driver in use: xhci_hcd
+
+00:16.0 Communication controller: Intel Corporation Lynx Point-LP HECI
+#0 (rev 04)
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx+
+Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0
+Interrupt: pin A routed to IRQ 61
+Region 0: Memory at b051a000 (64-bit, non-prefetchable) [size=32]
+Capabilities: <access denied>
+Kernel driver in use: mei_me
+
+00:1b.0 Audio device: Intel Corporation Lynx Point-LP HD Audio
+Controller (rev 04)
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx+
+Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0, Cache Line Size: 64 bytes
+Interrupt: pin A routed to IRQ 57
+Region 0: Memory at b0514000 (64-bit, non-prefetchable) [size=16K]
+Capabilities: <access denied>
+Kernel driver in use: snd_hda_intel
+
+00:1c.0 PCI bridge: Intel Corporation Lynx Point-LP PCI Express Root
+Port 3 (rev e4) (prog-if 00 [Normal decode])
+Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx+
+Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0, Cache Line Size: 64 bytes
+Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+I/O behind bridge: 0000f000-00000fff
+Memory behind bridge: b0400000-b04fffff
+Prefetchable memory behind bridge: 00000000fff00000-00000000000fffff
+Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- <SERR- <PERR-
+BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
+Capabilities: <access denied>
+Kernel driver in use: pcieport
+
+00:1d.0 USB controller: Intel Corporation Lynx Point-LP USB EHCI #1
+(rev 04) (prog-if 20 [EHCI])
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx-
+Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0
+Interrupt: pin A routed to IRQ 23
+Region 0: Memory at b051e000 (32-bit, non-prefetchable) [size=1K]
+Capabilities: <access denied>
+Kernel driver in use: ehci-pci
+
+00:1f.0 ISA bridge: Intel Corporation Lynx Point-LP LPC Controller (rev 04)
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx-
+Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0
+Capabilities: <access denied>
+Kernel driver in use: lpc_ich
+
+00:1f.2 RAID bus controller: Intel Corporation 82801 Mobile SATA
+Controller [RAID mode] (rev 04)
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx+
+Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0
+Interrupt: pin B routed to IRQ 58
+Region 0: I/O ports at 3088 [size=8]
+Region 1: I/O ports at 3094 [size=4]
+Region 2: I/O ports at 3080 [size=8]
+Region 3: I/O ports at 3090 [size=4]
+Region 4: I/O ports at 3060 [size=32]
+Region 5: Memory at b051d000 (32-bit, non-prefetchable) [size=2K]
+Capabilities: <access denied>
+Kernel driver in use: ahci
+
+00:1f.3 SMBus: Intel Corporation Lynx Point-LP SMBus Controller (rev 04)
+Subsystem: Acer Incorporated [ALI] Device 0817
+Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx-
+Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Interrupt: pin C routed to IRQ 0
+Region 0: Memory at b051b000 (64-bit, non-prefetchable) [size=256]
+Region 4: I/O ports at 3040 [size=32]
+
+01:00.0 Network controller: Intel Corporation Wireless 7260 (rev 6b)
+Subsystem: Intel Corporation Dual Band Wireless-N 7260
+Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B- DisINTx+
+Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR- INTx-
+Latency: 0, Cache Line Size: 64 bytes
+Interrupt: pin A routed to IRQ 63
+Region 0: Memory at b0400000 (64-bit, non-prefetchable) [size=8K]
+Capabilities: <access denied>
+Kernel driver in use: iwlwifi
+
+
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+
+clayton@ultrabook:~$ cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: ATA      Model: KINGSTON SMSR150 Rev: S8FM
+  Type:   Direct-Access                    ANSI  SCSI revision: 05
+Host: scsi1 Channel: 00 Id: 00 Lun: 00
+  Vendor: ATA      Model: KINGSTON SMSR150 Rev: S8FM
+  Type:   Direct-Access                    ANSI  SCSI revision: 05
+
+
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+
+clayton@ultrabook:~$ sudo lsusb -vvv -d 04f3:015b
+[sudo] password for clayton:
+
+Bus 002 Device 004: ID 04f3:015b Elan Microelectronics Corp.
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x04f3 Elan Microelectronics Corp.
+  idProduct          0x015b
+  bcdDevice            0.11
+  iManufacturer           4 ELAN
+  iProduct               14 Touchscreen
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           41
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xe0
+      Self Powered
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.10
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     925
+         Report Descriptors:
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval              10
+Device Status:     0x0001
+  Self Powered
+
+
+
+[X.] Other notes, patches, fixes, workarounds:
+<None>

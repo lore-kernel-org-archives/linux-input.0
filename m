@@ -1,73 +1,58 @@
-From: Michal Simek <michal.simek@xilinx.com>
-Subject: [PATCH 2/9] input: ambakmi: Remove unnecessary amba_set_drvdata()
-Date: Thu,  3 Oct 2013 11:46:24 +0200
-Message-ID: <90c09ded0d4b6b9fbc0dbca7f57deb94384eaf8d.1380793579.git.michal.simek@xilinx.com>
-References: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-4075-1380793604-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH] Input: clarify gamepad API ABS values
+Date: Thu,  3 Oct 2013 15:27:09 +0200
+Message-ID: <1380806829-11824-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f52.google.com ([74.125.83.52]:35470 "EHLO
-	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752764Ab3JCJqt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Oct 2013 05:46:49 -0400
-Received: by mail-ee0-f52.google.com with SMTP id c41so956108eek.39
-        for <linux-input@vger.kernel.org>; Thu, 03 Oct 2013 02:46:47 -0700 (PDT)
-In-Reply-To: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
-In-Reply-To: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
-References: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
+Received: from mail-ea0-f176.google.com ([209.85.215.176]:52093 "EHLO
+	mail-ea0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753840Ab3JCN1L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Oct 2013 09:27:11 -0400
+Received: by mail-ea0-f176.google.com with SMTP id q16so1100224ead.35
+        for <linux-input@vger.kernel.org>; Thu, 03 Oct 2013 06:27:09 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, monstr@monstr.eu
-Cc: Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
-To open this message correctly you will need to install E-mail or Usenet
-software that supports modern Internet standards.
+It wasn't really clear from the gamepad-API description how ABS values are
+mapped exactly. Clarify that negative is left/up and positive is
+right/down. Unfortunately, this means I screwed up the Wii U ProController
+ABI. Anyhow, this just means we continue to have 0 compatible gamepad
+drivers in the kernel. User-space needs to fix them up, anyway, as all
+other gamepads are also incompatible.
 
---=_mimegpg-monstr-desktop-4075-1380793604-0001
-
-Driver core clears the driver data to NULL after device_release
-or on probe failure, so just remove it from here.
-
-Driver core change:
-"device-core: Ensure drvdata = NULL when no driver is bound"
-(sha1: 0998d0631001288a5974afc0b2a5f568bcdecb4d)
-
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/input/serio/ambakmi.c | 2 --
- 1 file changed, 2 deletions(-)
+ Documentation/input/gamepad.txt | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
-index 4e2fd44..b7c206d 100644
---- a/drivers/input/serio/ambakmi.c
-+++ b/drivers/input/serio/ambakmi.c
-@@ -167,8 +167,6 @@ static int amba_kmi_remove(struct amba_device *dev)
- {
- 	struct amba_kmi_port *kmi = amba_get_drvdata(dev);
+diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
+index 8002c89..31bb6a4 100644
+--- a/Documentation/input/gamepad.txt
++++ b/Documentation/input/gamepad.txt
+@@ -122,12 +122,14 @@ D-Pad:
+       BTN_DPAD_*
+     Analog buttons are reported as:
+       ABS_HAT0X and ABS_HAT0Y
++      (for ABS values negative is left/up, positive is right/down)
+ 
+ Analog-Sticks:
+   The left analog-stick is reported as ABS_X, ABS_Y. The right analog stick is
+   reported as ABS_RX, ABS_RY. Zero, one or two sticks may be present.
+   If analog-sticks provide digital buttons, they are mapped accordingly as
+   BTN_THUMBL (first/left) and BTN_THUMBR (second/right).
++    (for ABS values negative is left/up, positive is right/down)
+ 
+ Triggers:
+   Trigger buttons can be available as digital or analog buttons or both. User-
+@@ -138,6 +140,7 @@ Triggers:
+   ABS_HAT2X (right/ZR) and BTN_TL2 or ABS_HAT2Y (left/ZL).
+   If only one trigger-button combination is present (upper+lower), they are
+   reported as "right" triggers (BTN_TR/ABS_HAT1X).
++    (ABS trigger values start at 0, pressure is reported as positive values)
+ 
+ Menu-Pad:
+   Menu buttons are always digital and are mapped according to their location
+-- 
+1.8.4
 
--	amba_set_drvdata(dev, NULL);
--
- 	serio_unregister_port(kmi->io);
- 	clk_put(kmi->clk);
- 	iounmap(kmi->base);
---
-1.8.2.3
-
-
---=_mimegpg-monstr-desktop-4075-1380793604-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEABECAAYFAlJNPQQACgkQykllyylKDCH2VACghqYQRBSukqWtCd7fMSycl36i
-7IMAnRVOLi+Gv2phgIKzER2FjYw6J+aj
-=Apdc
------END PGP SIGNATURE-----
-
---=_mimegpg-monstr-desktop-4075-1380793604-0001--

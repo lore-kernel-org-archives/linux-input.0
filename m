@@ -1,48 +1,73 @@
 From: Michal Simek <michal.simek@xilinx.com>
-Subject: Re: [PATCH] amba: Ensure drvdata is NULL
-Date: Thu, 3 Oct 2013 11:13:05 +0200
-Message-ID: <d5a0aab9-f023-4464-b4a1-f7055e6c82d5@CO9EHSMHS010.ehs.local>
-References: <1b2479137287fa8dfda3089ca0cb9fba8c4b1f1d.1380524337.git.michal.simek@xilinx.com>
- <20131002202521.GU12758@n2100.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20131002202521.GU12758@n2100.arm.linux.org.uk>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: linux-fbdev@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Wim Van Sebroeck <wim@iguana.be>, Jiri Slaby <jslaby@suse.cz>, "zhangwei(Jovi)" <jovi.zhangwei@huawei.com>, Vinod Koul <vinod.koul@intel.com>, Michal Simek <michal.simek@xilinx.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, Chris Ball <cjb@laptop.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com, Mark Brown <broonie@kernel.org>, Dan Williams <dan.j.williams@intel.com>, linux-arm-kernel@lists.infradead.org, Alessandro Zummo <a.zummo@towertech.it>, monstr@monstr.eu, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-spi@vger.kernel.
+Subject: [PATCH 2/9] input: ambakmi: Remove unnecessary amba_set_drvdata()
+Date: Thu,  3 Oct 2013 11:46:24 +0200
+Message-ID: <90c09ded0d4b6b9fbc0dbca7f57deb94384eaf8d.1380793579.git.michal.simek@xilinx.com>
+References: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-monstr-desktop-4075-1380793604-0001";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f52.google.com ([74.125.83.52]:35470 "EHLO
+	mail-ee0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752764Ab3JCJqt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Oct 2013 05:46:49 -0400
+Received: by mail-ee0-f52.google.com with SMTP id c41so956108eek.39
+        for <linux-input@vger.kernel.org>; Thu, 03 Oct 2013 02:46:47 -0700 (PDT)
+In-Reply-To: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
+In-Reply-To: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
+References: <27e289763bbcb7d10f84081543cfc3a4dc770398.1380793579.git.michal.simek@xilinx.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, monstr@monstr.eu
+Cc: Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On 10/02/2013 10:25 PM, Russell King - ARM Linux wrote:
-> On Mon, Sep 30, 2013 at 08:59:06AM +0200, Michal Simek wrote:
->> This patch is inpired by the patch for drvdata
->> "device-core: Ensure drvdata = NULL when no driver is bound"
->> (sha1: 0998d0631001288a5974afc0b2a5f568bcdecb4d)
->>
->> Also it fixes all occurences in drivers.
->>
->> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
->> ---
->> This patch has been sent as RFC in this thread.
->> http://lkml.org/lkml/2013/9/4/393
-> 
-> Why not have the driver core do this?  Then it gets applied to all bus
-> types uniformly.
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
+The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
+To open this message correctly you will need to install E-mail or Usenet
+software that supports modern Internet standards.
 
-ok - I have checked that path and it should be already done
-in really_probe function which calls amba_probe() and then driver probe function.
+--=_mimegpg-monstr-desktop-4075-1380793604-0001
 
-It means that the patch should contain just "amba_set_drvdata(dev, NULL);"
-removal and not touching bus.c file.
+Driver core clears the driver data to NULL after device_release
+or on probe failure, so just remove it from here.
 
-Thanks,
-Michal
+Driver core change:
+"device-core: Ensure drvdata = NULL when no driver is bound"
+(sha1: 0998d0631001288a5974afc0b2a5f568bcdecb4d)
+
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
+ drivers/input/serio/ambakmi.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
+index 4e2fd44..b7c206d 100644
+--- a/drivers/input/serio/ambakmi.c
++++ b/drivers/input/serio/ambakmi.c
+@@ -167,8 +167,6 @@ static int amba_kmi_remove(struct amba_device *dev)
+ {
+ 	struct amba_kmi_port *kmi = amba_get_drvdata(dev);
+
+-	amba_set_drvdata(dev, NULL);
+-
+ 	serio_unregister_port(kmi->io);
+ 	clk_put(kmi->clk);
+ 	iounmap(kmi->base);
+--
+1.8.2.3
+
+
+--=_mimegpg-monstr-desktop-4075-1380793604-0001
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEABECAAYFAlJNPQQACgkQykllyylKDCH2VACghqYQRBSukqWtCd7fMSycl36i
+7IMAnRVOLi+Gv2phgIKzER2FjYw6J+aj
+=Apdc
+-----END PGP SIGNATURE-----
+
+--=_mimegpg-monstr-desktop-4075-1380793604-0001--

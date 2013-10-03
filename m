@@ -1,65 +1,48 @@
-From: Bibek Basu <bbasu@nvidia.com>
-Subject: [PATCH] HID: i2c-hid: add platform data for quirks
-Date: Thu, 3 Oct 2013 14:18:41 +0530
-Message-ID: <1380790121-1355-1-git-send-email-bbasu@nvidia.com>
+From: Michal Simek <michal.simek@xilinx.com>
+Subject: Re: [PATCH] amba: Ensure drvdata is NULL
+Date: Thu, 3 Oct 2013 11:13:05 +0200
+Message-ID: <d5a0aab9-f023-4464-b4a1-f7055e6c82d5@CO9EHSMHS010.ehs.local>
+References: <1b2479137287fa8dfda3089ca0cb9fba8c4b1f1d.1380524337.git.michal.simek@xilinx.com>
+ <20131002202521.GU12758@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:17685 "EHLO
-	hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753334Ab3JCItP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Oct 2013 04:49:15 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20131002202521.GU12758@n2100.arm.linux.org.uk>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: linux-fbdev@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Wim Van Sebroeck <wim@iguana.be>, Jiri Slaby <jslaby@suse.cz>, "zhangwei(Jovi)" <jovi.zhangwei@huawei.com>, Vinod Koul <vinod.koul@intel.com>, Michal Simek <michal.simek@xilinx.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, Chris Ball <cjb@laptop.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com, Mark Brown <broonie@kernel.org>, Dan Williams <dan.j.williams@intel.com>, linux-arm-kernel@lists.infradead.org, Alessandro Zummo <a.zummo@towertech.it>, monstr@monstr.eu, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-spi@vger.kernel.
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@gmail.com
-Cc: linux-tegra@vger.kernel.org, jkosina@suse.cz, kadduri@nvidia.com, linux-input@vger.kernel.org, Bibek Basu <bbasu@nvidia.com>
 
-Some HID device does not responds to INPUT/FEATURE
-report query during initialization. As a result HID driver
-throws error even when its not mandatory according to the
-HID specification. Add platform data to provide
-quirk information to the driver so that init query is not
-done on such devices.
+On 10/02/2013 10:25 PM, Russell King - ARM Linux wrote:
+> On Mon, Sep 30, 2013 at 08:59:06AM +0200, Michal Simek wrote:
+>> This patch is inpired by the patch for drvdata
+>> "device-core: Ensure drvdata = NULL when no driver is bound"
+>> (sha1: 0998d0631001288a5974afc0b2a5f568bcdecb4d)
+>>
+>> Also it fixes all occurences in drivers.
+>>
+>> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+>> ---
+>> This patch has been sent as RFC in this thread.
+>> http://lkml.org/lkml/2013/9/4/393
+> 
+> Why not have the driver core do this?  Then it gets applied to all bus
+> types uniformly.
 
-Signed-off-by: Bibek Basu <bbasu@nvidia.com>
----
- drivers/hid/i2c-hid/i2c-hid.c | 1 +
- include/linux/i2c/i2c-hid.h   | 3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ok - I have checked that path and it should be already done
+in really_probe function which calls amba_probe() and then driver probe function.
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index fd7ce37..a7aec2c 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -1017,6 +1017,7 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	hid->version = le16_to_cpu(ihid->hdesc.bcdVersion);
- 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
- 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
-+	hid->quirks = platform_data->quirks;
- 
- 	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
- 		 client->name, hid->vendor, hid->product);
-diff --git a/include/linux/i2c/i2c-hid.h b/include/linux/i2c/i2c-hid.h
-index 7aa901d..12e682d 100644
---- a/include/linux/i2c/i2c-hid.h
-+++ b/include/linux/i2c/i2c-hid.h
-@@ -17,7 +17,7 @@
- /**
-  * struct i2chid_platform_data - used by hid over i2c implementation.
-  * @hid_descriptor_address: i2c register where the HID descriptor is stored.
-- *
-+ * @quirks: quirks, if any for i2c-hid devices
-  * Note that it is the responsibility of the platform driver (or the acpi 5.0
-  * driver, or the flattened device tree) to setup the irq related to the gpio in
-  * the struct i2c_board_info.
-@@ -31,6 +31,7 @@
-  */
- struct i2c_hid_platform_data {
- 	u16 hid_descriptor_address;
-+	u32 quirks;
- };
- 
- #endif /* __LINUX_I2C_HID_H */
--- 
-1.8.1.5
+It means that the patch should contain just "amba_set_drvdata(dev, NULL);"
+removal and not touching bus.c file.
 
+Thanks,
+Michal

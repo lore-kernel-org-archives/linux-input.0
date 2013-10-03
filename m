@@ -1,58 +1,139 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH] Input: clarify gamepad API ABS values
-Date: Thu,  3 Oct 2013 15:27:09 +0200
-Message-ID: <1380806829-11824-1-git-send-email-dh.herrmann@gmail.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/2] Input - wacom: Not all multi-interface devices support touch
+Date: Thu,  3 Oct 2013 13:52:37 -0700
+Message-ID: <1380833557-25227-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f176.google.com ([209.85.215.176]:52093 "EHLO
-	mail-ea0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753840Ab3JCN1L (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Oct 2013 09:27:11 -0400
-Received: by mail-ea0-f176.google.com with SMTP id q16so1100224ead.35
-        for <linux-input@vger.kernel.org>; Thu, 03 Oct 2013 06:27:09 -0700 (PDT)
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:62505 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754953Ab3JCUwl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Oct 2013 16:52:41 -0400
+Received: by mail-pd0-f170.google.com with SMTP id x10so3048154pdj.29
+        for <linux-input@vger.kernel.org>; Thu, 03 Oct 2013 13:52:41 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
+Cc: dmitry.torokhov@gmail.com, chris@cnpbagwell.com, Ping Cheng <pingc@wacom.com>
 
-It wasn't really clear from the gamepad-API description how ABS values are
-mapped exactly. Clarify that negative is left/up and positive is
-right/down. Unfortunately, this means I screwed up the Wii U ProController
-ABI. Anyhow, this just means we continue to have 0 compatible gamepad
-drivers in the kernel. User-space needs to fix them up, anyway, as all
-other gamepads are also incompatible.
+Some multi-interface devices support expresskeys on a separate interface,
+such as Bamboo; some multi-interface devices do not support touch at all,
+such as Pen only Intuos5. Make sure we report the right device names.
 
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+Tested-by: Jason Gerecke <killertofu@gmail.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
 ---
- Documentation/input/gamepad.txt | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/tablet/wacom_sys.c | 58 +++++++++++++++++++++++++---------------
+ drivers/input/tablet/wacom_wac.h |  4 ++-
+ 2 files changed, 40 insertions(+), 22 deletions(-)
 
-diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
-index 8002c89..31bb6a4 100644
---- a/Documentation/input/gamepad.txt
-+++ b/Documentation/input/gamepad.txt
-@@ -122,12 +122,14 @@ D-Pad:
-       BTN_DPAD_*
-     Analog buttons are reported as:
-       ABS_HAT0X and ABS_HAT0Y
-+      (for ABS values negative is left/up, positive is right/down)
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 63971b8..7bdb5e9 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -1188,34 +1188,47 @@ static void wacom_wireless_work(struct work_struct *work)
+ 		wacom_wac1->features =
+ 			*((struct wacom_features *)id->driver_info);
+ 		wacom_wac1->features.device_type = BTN_TOOL_PEN;
++		snprintf(wacom_wac1->name, WACOM_NAME_MAX, "%s (WL) Pen",
++			 wacom_wac1->features.name);
+ 		error = wacom_register_input(wacom1);
+ 		if (error)
+-			goto fail1;
++			goto fail;
  
- Analog-Sticks:
-   The left analog-stick is reported as ABS_X, ABS_Y. The right analog stick is
-   reported as ABS_RX, ABS_RY. Zero, one or two sticks may be present.
-   If analog-sticks provide digital buttons, they are mapped accordingly as
-   BTN_THUMBL (first/left) and BTN_THUMBR (second/right).
-+    (for ABS values negative is left/up, positive is right/down)
+ 		/* Touch interface */
+-		wacom_wac2->features =
+-			*((struct wacom_features *)id->driver_info);
+-		wacom_wac2->features.pktlen = WACOM_PKGLEN_BBTOUCH3;
+-		wacom_wac2->features.device_type = BTN_TOOL_FINGER;
+-		wacom_wac2->features.x_max = wacom_wac2->features.y_max = 4096;
+-		error = wacom_register_input(wacom2);
+-		if (error)
+-			goto fail2;
++		if (wacom_wac1->features.touch_max) {
++			wacom_wac2->features =
++				*((struct wacom_features *)id->driver_info);
++			wacom_wac2->features.pktlen = WACOM_PKGLEN_BBTOUCH3;
++			wacom_wac2->features.device_type = BTN_TOOL_FINGER;
++			wacom_wac2->features.x_max = wacom_wac2->features.y_max = 4096;
++			if (wacom_wac2->features.touch_max)
++				snprintf(wacom_wac2->name, WACOM_NAME_MAX,
++					 "%s (WL) Finger",wacom_wac2->features.name);
++			else
++				snprintf(wacom_wac2->name, WACOM_NAME_MAX,
++					 "%s (WL) Pad",wacom_wac2->features.name);
++			error = wacom_register_input(wacom2);
++			if (error)
++				goto fail;
++		}
  
- Triggers:
-   Trigger buttons can be available as digital or analog buttons or both. User-
-@@ -138,6 +140,7 @@ Triggers:
-   ABS_HAT2X (right/ZR) and BTN_TL2 or ABS_HAT2Y (left/ZL).
-   If only one trigger-button combination is present (upper+lower), they are
-   reported as "right" triggers (BTN_TR/ABS_HAT1X).
-+    (ABS trigger values start at 0, pressure is reported as positive values)
+ 		error = wacom_initialize_battery(wacom);
+ 		if (error)
+-			goto fail3;
++			goto fail;
+ 	}
  
- Menu-Pad:
-   Menu buttons are always digital and are mapped according to their location
+ 	return;
+ 
+-fail3:
+-	input_unregister_device(wacom_wac2->input);
+-	wacom_wac2->input = NULL;
+-fail2:
+-	input_unregister_device(wacom_wac1->input);
+-	wacom_wac1->input = NULL;
+-fail1:
++fail:
++	if (wacom_wac2->input) {
++		input_unregister_device(wacom_wac2->input);
++		wacom_wac2->input = NULL;
++	}
++	if (wacom_wac1->input) {
++
++		input_unregister_device(wacom_wac1->input);
++		wacom_wac1->input = NULL;
++	}
+ 	return;
+ }
+ 
+@@ -1332,10 +1345,13 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 		struct usb_device *other_dev;
+ 
+ 		/* Append the device type to the name */
+-		strlcat(wacom_wac->name,
+-			features->device_type == BTN_TOOL_PEN ?
+-				" Pen" : " Finger",
+-			sizeof(wacom_wac->name));
++		if (features->device_type == BTN_TOOL_FINGER) {
++			if (features->touch_max)
++				strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
++			else
++				strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
++		} else
++			strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
+ 
+ 		other_dev = wacom_get_sibling(dev, features->oVid, features->oPid);
+ 		if (other_dev == NULL || wacom_get_usbdev_data(other_dev) == NULL)
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index 2a432e6..fd23a37 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -14,6 +14,8 @@
+ /* maximum packet length for USB devices */
+ #define WACOM_PKGLEN_MAX	64
+ 
++#define WACOM_NAME_MAX		64
++
+ /* packet length for individual models */
+ #define WACOM_PKGLEN_PENPRTN	 7
+ #define WACOM_PKGLEN_GRAPHIRE	 8
+@@ -130,7 +132,7 @@ struct wacom_shared {
+ };
+ 
+ struct wacom_wac {
+-	char name[64];
++	char name[WACOM_NAME_MAX];
+ 	unsigned char *data;
+ 	int tool[2];
+ 	int id[2];
 -- 
-1.8.4
+1.8.1.2
 

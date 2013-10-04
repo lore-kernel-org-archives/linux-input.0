@@ -1,95 +1,55 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: Re: [PATCH] input: i8042 - add PNP modaliases
-Date: Fri, 4 Oct 2013 14:26:20 +0200
-Message-ID: <CAG-2HqUhZdYgYcDGJaFUJV-AqgbbFh55HMcw6nRppiUyeHGjcw@mail.gmail.com>
-References: <20130903193547.GA8150@srcf.ucam.org> <1378286856-6384-1-git-send-email-teg@jklm.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Subject: [PATCH v2 0/2] rotary-encoder: Add new interruption handler
+Date: Fri,  4 Oct 2013 09:53:21 -0300
+Message-ID: <1380891203-17617-1-git-send-email-ezequiel@vanguardiasur.com.ar>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1378286856-6384-1-git-send-email-teg@jklm.no>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Tom Gundersen <teg@jklm.no>, Matthew Garrett <mjg59@srcf.ucam.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Daniel Mack <zonque@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 4, 2013 at 11:27 AM, Tom Gundersen <teg@jklm.no> wrote:
-> This allows the module to be autoloaded in the common case.
->
-> In order to work on non-PnP systems the module should be compiled in or loaded
-> unconditionally at boot (c.f. modules-load.d(5)), as before.
->
-> Cc: Matthew Garrett <mjg59@srcf.ucam.org>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Tom Gundersen <teg@jklm.no>
-> --
+Some rotary-encoder devices (such as those with detents) are capable
+of producing a stable event on each step. This simple patch adds support
+for this case, by implementing a new interruption handler.
 
+The handler needs only detect the direction of the turn and generate
+an event according to this detection.
 
-Hi Dmitry,
+We encode the previous and the current state, and then use the sum of them
+to decide on the direction of the turn, according to the following simple
+table:
 
-Any comments on this? Any chance of having this (and the two patches
-dropping EXPERT=y requirements) included for 3.13 (or even 3.12 if it
-is not too late for this kind of stuff)? Let me know if I should
-resend the three patches.
+Previous state + currrent state	| Movement
+==========================================
+	0b1101			| clockwise
+	0b0100			|   ..
+	0b0010			|   ..
+	0b1011			|   ..
+==========================================
+	0b1110			| counter-clockwise
+	0b0111			|   ..
+	0b0001			|   ..
+	0b1000			|   ..
 
-Cheers,
+(The other sumed values are considered illegal)
 
-Tom
+This calculation is based on some previous work found at this blog:
 
-> This appears to work for me (though I don't have the real hardware to test), I get the following aliases:
-> alias:          acpi*:CPQA0D7:*
-> alias:          pnp:dCPQA0D7*
-> alias:          acpi*:PNP0345:*
-> alias:          pnp:dPNP0345*
-> alias:          acpi*:PNP0344:*
-> alias:          pnp:dPNP0344*
-> alias:          acpi*:PNP0343:*
-> alias:          pnp:dPNP0343*
-> alias:          acpi*:PNP0320:*
-> alias:          pnp:dPNP0320*
-> alias:          acpi*:PNP030B:*
-> alias:          pnp:dPNP030b*
-> alias:          acpi*:PNP030A:*
-> alias:          pnp:dPNP030a*
-> alias:          acpi*:PNP0309:*
-> alias:          pnp:dPNP0309*
-> alias:          acpi*:PNP0306:*
-> alias:          pnp:dPNP0306*
-> alias:          acpi*:PNP0305:*
-> alias:          pnp:dPNP0305*
-> alias:          acpi*:PNP0304:*
-> alias:          pnp:dPNP0304*
-> alias:          acpi*:PNP0303:*
-> alias:          pnp:dPNP0303*
-> alias:          acpi*:PNP0302:*
-> alias:          pnp:dPNP0302*
-> alias:          acpi*:PNP0301:*
-> alias:          pnp:dPNP0301*
-> alias:          acpi*:PNP0300:*
-> alias:          pnp:dPNP0300*
->
->  drivers/input/serio/i8042-x86ia64io.h | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index 5f306f7..0ec9abb 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -765,6 +765,7 @@ static struct pnp_device_id pnp_kbd_devids[] = {
->         { .id = "CPQA0D7", .driver_data = 0 },
->         { .id = "", },
->  };
-> +MODULE_DEVICE_TABLE(pnp, pnp_kbd_devids);
->
->  static struct pnp_driver i8042_pnp_kbd_driver = {
->         .name           = "i8042 kbd",
-> @@ -786,6 +787,7 @@ static struct pnp_device_id pnp_aux_devids[] = {
->         { .id = "SYN0801", .driver_data = 0 },
->         { .id = "", },
->  };
-> +MODULE_DEVICE_TABLE(pnp, pnp_aux_devids);
->
->  static struct pnp_driver i8042_pnp_aux_driver = {
->         .name           = "i8042 aux",
-> --
-> 1.8.4
->
+  http://bildr.org/2012/08/rotary-encoder-arduino/
+
+The result is a seemingly very robust behavior, with a truly simple
+implementation, that produces an event on each turn of the device.
+
+Thanks!
+
+Ezequiel Garcia (2):
+  Input: rotary-encoder: Add 'stepped' irq handler
+  input: rotary-encoder: Add 'on-each-step' to binding documentation
+
+ .../devicetree/bindings/input/rotary-encoder.txt   |  1 +
+ drivers/input/misc/rotary_encoder.c                | 41 ++++++++++++++++++++++
+ include/linux/rotary_encoder.h                     |  1 +
+ 3 files changed, 43 insertions(+)
+
+-- 
+1.8.1.5

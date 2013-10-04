@@ -1,71 +1,95 @@
-From: Chris Bagwell <chris@cnpbagwell.com>
-Subject: Re: [PATCH] input - input.h: Add a new switch event
-Date: Thu, 3 Oct 2013 21:48:48 -0500
-Message-ID: <CAGzDe_bMe8h6R+VHgbmXvtK+mN63-+wNu3c_JgSLZiWFcW3Hrg@mail.gmail.com>
-References: <1380839467-27264-1-git-send-email-pingc@wacom.com>
+From: Tom Gundersen <teg@jklm.no>
+Subject: Re: [PATCH] input: i8042 - add PNP modaliases
+Date: Fri, 4 Oct 2013 14:26:20 +0200
+Message-ID: <CAG-2HqUhZdYgYcDGJaFUJV-AqgbbFh55HMcw6nRppiUyeHGjcw@mail.gmail.com>
+References: <20130903193547.GA8150@srcf.ucam.org> <1378286856-6384-1-git-send-email-teg@jklm.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1380839467-27264-1-git-send-email-pingc@wacom.com>
+In-Reply-To: <1378286856-6384-1-git-send-email-teg@jklm.no>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ping Cheng <pingc@wacom.com>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Tom Gundersen <teg@jklm.no>, Matthew Garrett <mjg59@srcf.ucam.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Oct 3, 2013 at 5:31 PM, Ping Cheng <pinglinux@gmail.com> wrote:
-> One of Wacom's pen and touch capable models added a switch for
-> users to turn on/off touch events. We need to report the state of
-> this switch to userland. But, there is no existing switch event
-> defined for this purpose. Luckily enough, there is a room for a
-> new switch event.
-
-It is a switch so hard to argue against adding it this way... but I
-also want to point out existing feature to consider.
-
-Touchpads on several laptops have either a single touchpad toggle
-button or a touchpad switch that serve same basic purpose.  Most of
-these switches are hooked up as keys and controlled by platform/x86
-driver or udev.
-
-Most platform/x86 drivers map these "keys" to KEY_TOUCHPAD_TOGGLE,
-KEY_TOUCHPAD_ON, and KEY_TOUCHPAD_OFF.  Since those don't make it to
-X, most udev keymaps instead use f21, f22, and f23 for same purpose.
-
-As long as this is a touch+tablet that looks like a touchpad then
-using those keys will cause gnome-settings-daemon to give a nice OSD
-touchpad status when switch is moved and will also enable/disable the
-touchpad using "Device Enabled" X property.
-
-On the down side, I think these keys are treated as system wide
-disable of all touchpads.  Having a Switch reported against the device
-its controlling (as apposed to above which is reported over different
-input then touchpad) would allow user land an easy way to know to only
-disable the single device.
-
-Chris
-
+On Wed, Sep 4, 2013 at 11:27 AM, Tom Gundersen <teg@jklm.no> wrote:
+> This allows the module to be autoloaded in the common case.
 >
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> ---
->  include/uapi/linux/input.h | 1 +
->  1 file changed, 1 insertion(+)
+> In order to work on non-PnP systems the module should be compiled in or loaded
+> unconditionally at boot (c.f. modules-load.d(5)), as before.
 >
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index d08abf9..d4097b0 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-> @@ -855,6 +855,7 @@ struct input_keymap_entry {
->  #define SW_FRONT_PROXIMITY     0x0b  /* set = front proximity sensor active */
->  #define SW_ROTATE_LOCK         0x0c  /* set = rotate locked/disabled */
->  #define SW_LINEIN_INSERT       0x0d  /* set = inserted */
-> +#define SW_TOUCH_ENABLED       0x0e  /* set = touch switch turned on (touch events off) */
->  #define SW_MAX                 0x0f
->  #define SW_CNT                 (SW_MAX+1)
->
+> Cc: Matthew Garrett <mjg59@srcf.ucam.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Tom Gundersen <teg@jklm.no>
 > --
-> 1.8.1.2
+
+
+Hi Dmitry,
+
+Any comments on this? Any chance of having this (and the two patches
+dropping EXPERT=y requirements) included for 3.13 (or even 3.12 if it
+is not too late for this kind of stuff)? Let me know if I should
+resend the three patches.
+
+Cheers,
+
+Tom
+
+> This appears to work for me (though I don't have the real hardware to test), I get the following aliases:
+> alias:          acpi*:CPQA0D7:*
+> alias:          pnp:dCPQA0D7*
+> alias:          acpi*:PNP0345:*
+> alias:          pnp:dPNP0345*
+> alias:          acpi*:PNP0344:*
+> alias:          pnp:dPNP0344*
+> alias:          acpi*:PNP0343:*
+> alias:          pnp:dPNP0343*
+> alias:          acpi*:PNP0320:*
+> alias:          pnp:dPNP0320*
+> alias:          acpi*:PNP030B:*
+> alias:          pnp:dPNP030b*
+> alias:          acpi*:PNP030A:*
+> alias:          pnp:dPNP030a*
+> alias:          acpi*:PNP0309:*
+> alias:          pnp:dPNP0309*
+> alias:          acpi*:PNP0306:*
+> alias:          pnp:dPNP0306*
+> alias:          acpi*:PNP0305:*
+> alias:          pnp:dPNP0305*
+> alias:          acpi*:PNP0304:*
+> alias:          pnp:dPNP0304*
+> alias:          acpi*:PNP0303:*
+> alias:          pnp:dPNP0303*
+> alias:          acpi*:PNP0302:*
+> alias:          pnp:dPNP0302*
+> alias:          acpi*:PNP0301:*
+> alias:          pnp:dPNP0301*
+> alias:          acpi*:PNP0300:*
+> alias:          pnp:dPNP0300*
 >
+>  drivers/input/serio/i8042-x86ia64io.h | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index 5f306f7..0ec9abb 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -765,6 +765,7 @@ static struct pnp_device_id pnp_kbd_devids[] = {
+>         { .id = "CPQA0D7", .driver_data = 0 },
+>         { .id = "", },
+>  };
+> +MODULE_DEVICE_TABLE(pnp, pnp_kbd_devids);
+>
+>  static struct pnp_driver i8042_pnp_kbd_driver = {
+>         .name           = "i8042 kbd",
+> @@ -786,6 +787,7 @@ static struct pnp_device_id pnp_aux_devids[] = {
+>         { .id = "SYN0801", .driver_data = 0 },
+>         { .id = "", },
+>  };
+> +MODULE_DEVICE_TABLE(pnp, pnp_aux_devids);
+>
+>  static struct pnp_driver i8042_pnp_aux_driver = {
+>         .name           = "i8042 aux",
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 1.8.4
+>

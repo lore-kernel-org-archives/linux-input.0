@@ -1,63 +1,68 @@
-From: Dinesh Ram <dinesh.ram@cern.ch>
-Subject: [Review PATCH 5/7] si4713 : HID blacklist Si4713 USB development board
-Date: Sat, 5 Oct 2013 22:58:20 +0200
-Message-ID: <0d3a992b1b8f3bc49da5696ab6f92266c2f5b86b.1381006700.git.dinesh.ram@cern.ch>
-References: <89ec888fdb63c693bd8cea96ae5ad008391e866b.1381006700.git.dinesh.ram@cern.ch>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] Input: introduce ABS_MAX2/CNT2 and friends
+Date: Sun, 6 Oct 2013 00:47:00 -0700
+Message-ID: <20131006074700.GA19155@core.coreip.homeip.net>
+References: <1380751836-10829-1-git-send-email-dh.herrmann@gmail.com>
+ <20131003233223.GA21255@yabbi.bne.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cernmx30.cern.ch ([137.138.144.177]:32957 "EHLO
-	CERNMX30.cern.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752536Ab3JEVEE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Oct 2013 17:04:04 -0400
-In-Reply-To: <89ec888fdb63c693bd8cea96ae5ad008391e866b.1381006700.git.dinesh.ram@cern.ch>
+Received: from mail-pd0-f176.google.com ([209.85.192.176]:56148 "EHLO
+	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751373Ab3JFHrF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Oct 2013 03:47:05 -0400
+Content-Disposition: inline
+In-Reply-To: <20131003233223.GA21255@yabbi.bne.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dinesh.superman2006@gmail.com
-Cc: Dinesh Ram <dinram@cisco.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
 
-From: Dinesh Ram <dinram@cisco.com>
+On Fri, Oct 04, 2013 at 09:32:23AM +1000, Peter Hutterer wrote:
+> On Thu, Oct 03, 2013 at 12:10:36AM +0200, David Herrmann wrote:
+> > As we painfully noticed during the 3.12 merge-window our
+> > EVIOCGABS/EVIOCSABS API is limited to ABS_MAX<=0x3f. We tried several
+> > hacks to work around it but if we ever decide to increase ABS_MAX, the
+> > EVIOCSABS ioctl ABI might overflow into the next byte causing horrible
+> > misinterpretations in the kernel that we cannot catch.
+> > 
+> > Therefore, we decided to go with ABS_MAX2/CNT2 and introduce two new
+> > ioctls to get/set abs-params. They no longer encode the ABS code in the
+> > ioctl number and thus allow up to 4 billion ABS codes.
+> > 
+> > Unfortunately, the uinput API also hard-coded the ABS_CNT value in its
+> > ABI. To avoid any hacks in uinput, we simply introduce a new
+> > uinput_user_dev2 to replace the old one. The new API allows growing
+> > ABS_CNT2 values without any API changes.
+> > 
+> > Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> > ---
+> > Hi
+> > 
+> > This is only compile-tested but I wanted to get a first revision out to let
+> > people know what we're working on. Unfortunately, the ABS API has this horribly
+> > low ABS_MAX limit and we couldn't figure out a way to increase it while keeping
+> > ABI compatibility.
+> > 
+> > Any feedback and review is welcome. And if anyone spots ABI breakage by this
+> > patch, please let me know. If nothing comes up I will patch libevdev to use the
+> > new API, write some extensive test-cases and push this forward.
+> > 
+> > As a sidenote: I didn't modify joydev to use the new values. Fortunately, the
+> > joydev API would allow switching to ABS_CNT2 without breaking API, but it would
+> > limit the new ABS_CNT2 to 16k. This is quite high but nothing compared to the
+> >  2^32 that we can theoretically support now. If you think 16k ought to be enough
+> > (probably?) I can adjust the joydev API, too.
+> > All other kernel users were converted to the new values. Nothing left behind..
+> 
+> 
+> just a comment from skimming the patch:
+> if you need a new uinput abi anyway, can we add the resolution here? it's
+> sorely needed for some tests. see also the patch Benjamin sent a while ago
+> ("input/uinput: support abs resolution", July 15 2013)
 
-The Si4713 development board contains a Si4713 FM transmitter chip
-and is handled by the radio-usb-si4713 driver.
-The board reports itself as (10c4:8244) Cygnal Integrated Products, Inc.
-and misidentifies itself as a HID device in its USB interface descriptor.
-This patch ignores this device as an HID device and hence loads the custom driver.
+Indeed. Also, while we are at it, would it make sense to allow
+requesting a range of ABS infos at once?
 
-Signed-off-by: Dinesh Ram <dinram@cisco.com>
-
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
----
- drivers/hid/hid-core.c |    1 +
- drivers/hid/hid-ids.h  |    2 ++
- 2 files changed, 3 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index b8470b1..81b9b44 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2106,6 +2106,7 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BERKSHIRE, USB_DEVICE_ID_BERKSHIRE_PCWD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CIDC, 0x0103) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYGNAL, USB_DEVICE_ID_CYGNAL_RADIO_SI470X) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CYGNAL, USB_DEVICE_ID_CYGNAL_RADIO_SI4713) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM109) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_HIDCOM) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_ULTRAMOUSE) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e60e8d5..1cdd34a 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -241,6 +241,8 @@
- #define USB_VENDOR_ID_CYGNAL		0x10c4
- #define USB_DEVICE_ID_CYGNAL_RADIO_SI470X	0x818a
- 
-+#define USB_DEVICE_ID_CYGNAL_RADIO_SI4713       0x8244
-+
- #define USB_VENDOR_ID_CYPRESS		0x04b4
- #define USB_DEVICE_ID_CYPRESS_MOUSE	0x0001
- #define USB_DEVICE_ID_CYPRESS_HIDCOM	0x5500
 -- 
-1.7.9.5
-
+Dmitry

@@ -1,74 +1,75 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah@gmail.com>
-Subject: Re: Testing ti_am335x_adc continuous mode (WAS: Re: [PATCH 2/2]
-Date: Mon, 7 Oct 2013 17:50:27 +0500
-Message-ID: <20131007125025.GA4655@gmail.com>
-References: <1379503383-17086-1-git-send-email-zubair.lutfullah@gmail.com>
- <1379503383-17086-3-git-send-email-zubair.lutfullah@gmail.com>
- <20131007115317.GA6135@linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Daniel Stone <daniel@fooishbar.org>
+Subject: [PATCH] Input: evdev: Fall back to vmalloc for client event buffer
+Date: Mon,  7 Oct 2013 14:06:53 +0100
+Message-ID: <1381151213-32690-1-git-send-email-daniels@collabora.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f54.google.com ([74.125.82.54]:40094 "EHLO
-	mail-wg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751648Ab3JGMui (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Oct 2013 08:50:38 -0400
-Content-Disposition: inline
-In-Reply-To: <20131007115317.GA6135@linutronix.de>
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:63972 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751779Ab3JGNG6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Oct 2013 09:06:58 -0400
+Received: by mail-wi0-f182.google.com with SMTP id ez12so4787909wid.9
+        for <linux-input@vger.kernel.org>; Mon, 07 Oct 2013 06:06:57 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Zubair Lutfullah <zubair.lutfullah@gmail.com>, jic23@cam.ac.uk, dmitry.torokhov@gmail.com, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, Felipe Balbi <balbi@ti.com>
+To: linux-input@vger.kernel.org
+Cc: Henrik Rydberg <rydberg@euromail.se>
 
-On Mon, Oct 07, 2013 at 01:53:17PM +0200, Sebastian Andrzej Siewior wro=
-te:
-> Hi Zubair,
->=20
-> I have here am335x-evm board. The output of voltage4 (via `cat
-> /sys/bus/iio/devices/iio\:device0/in_voltage4_raw=C2=B4) returns valu=
-es in
-> the range 570=E2=80=A6580. I tested the continuous sampling mdoe by e=
-xecuting
-> the following commands:
->=20
-> |echo 1 > /sys/bus/iio/devices/iio\:device0/scan_elements/in_voltage4=
-_en
-> |echo 25 > /sys/bus/iio/devices/iio\:device0/buffer/length
-> |echo 1 > /sys/bus/iio/devices/iio\:device0/buffer/enable
-> |sleep 1
-> |echo 0 > /sys/bus/iio/devices/iio\:device0/buffer/enable
-> |cat /dev/iio\:device0 > iio
-> |hexdump -C iio
->=20
-> and the output is:
-> |00000000  37 02 92 02 1f 07 0a 06  20 06 31 06 2f 07 2a 07
-> |00000010  2b 07 2d 07 2c 07 28 07  2c 07 2b 07 2b 07 0c 06
-> |00000020  21 06 32 06 2e 07 2c 07  2a 07 2a 07 2c 07 2b 07
-> |00000030  29 07 27 07 28 07 29 07  2a 07 0d 06 21 06 35 06
->=20
-> The first entry is in the range that I would expect. The second is
-> slitghly higher. The third and following entries are out of range. Ha=
-ve
-> you observed something like that? Is my testing close to what you hav=
-e
-> done or did I make an mistake here?
+evdev always tries to allocate the event buffer for clients using
+kzalloc rather than vmalloc, presumably to avoid mapping overhead where
+possible.  However, drivers like bcm5974, which claims support for
+reporting 16 fingers simultaneously, can have an extraordinarily large
+buffer.  The resultant contiguous order-4 allocation attempt fails due
+to fragmentation, and the device is thus unusable until reboot.
 
-I can't read the hex dump easily..
+Try kzalloc if we can to avoid the mapping overhead, but if that fails,
+fall back to vzalloc.
 
-Keep in mind that the driver now uses 16 bit storage.=20
+Signed-off-by: Daniel Stone <daniels@collabora.com>
+---
+ drivers/input/evdev.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-Also, I used generic_buffer.c after removing the trigger checks.
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index f0f8928..edfca4a 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -18,6 +18,7 @@
+ #include <linux/poll.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
++#include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/input/mt.h>
+@@ -289,7 +290,11 @@ static int evdev_release(struct inode *inode, struct file *file)
+ 	mutex_unlock(&evdev->mutex);
+ 
+ 	evdev_detach_client(evdev, client);
+-	kfree(client);
++
++	if (is_vmalloc_addr(client))
++		vfree(client);
++	else
++		kfree(client);
+ 
+ 	evdev_close_device(evdev);
+ 
+@@ -311,10 +316,12 @@ static int evdev_open(struct inode *inode, struct file *file)
+ 	unsigned int bufsize = evdev_compute_buffer_size(evdev->handle.dev);
+ 	struct evdev_client *client;
+ 	int error;
++	int size =
++		sizeof(struct evdev_client) + bufsize * sizeof(struct input_event);
+ 
+-	client = kzalloc(sizeof(struct evdev_client) +
+-				bufsize * sizeof(struct input_event),
+-			 GFP_KERNEL);
++	client = kzalloc(size, GFP_KERNEL | __GFP_NOWARN);
++	if (!client)
++		client = vzalloc(size);
+ 	if (!client)
+ 		return -ENOMEM;
+ 
+-- 
+1.8.3.1
 
-The driver would report stable values for 1.8V on one channel and gnd
-on another channel.
-
-Hope this helps
-ZubairLK
-
->=20
-> Sebastian
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

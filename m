@@ -1,60 +1,48 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: multitouch: Fix GeneralTouch products and add more
- PIDs
-Date: Mon, 7 Oct 2013 17:07:17 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1310071707070.29701@pobox.suse.cz>
-References: <1380705600-11055-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1310021654240.29701@pobox.suse.cz>
+Subject: Re: [PATCH] HID: wiimote: fix FF deadlock
+Date: Mon, 7 Oct 2013 17:09:51 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1310071709400.29701@pobox.suse.cz>
+References: <1380714448-878-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:50357 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755711Ab3JGPHh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 7 Oct 2013 11:07:37 -0400
-In-Reply-To: <alpine.LNX.2.00.1310021654240.29701@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1380714448-878-1-git-send-email-dh.herrmann@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Luosong <android@generaltouch.com>
 
-On Wed, 2 Oct 2013, Jiri Kosina wrote:
+On Wed, 2 Oct 2013, David Herrmann wrote:
 
-> On Wed, 2 Oct 2013, Benjamin Tissoires wrote:
+> The input core has an internal spinlock that is acquired during event
+> injection via input_event() and friends but also held during FF callbacks.
+> That means, there is no way to share a lock between event-injection and FF
+> handling. Unfortunately, this is what is required for wiimote state
+> tracking and what we do with state.lock and input->lock.
 > 
-> > From: Luosong <android@generaltouch.com>
-> > 
-> > GeneralTouch products should use the quirk SLOT_IS_CONTACTID
-> > instead of SLOT_IS_CONTACTNUMBER.
-> > 
-> > Adding PIDs 0101,e100,0102,0106,010a from the new products.
-> > 
-> > Tested on new and older products by GeneralTouch engineers.
-> > 
-> > Signed-off-by: Luosong <android@generaltouch.com>
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> > 
-> > Hi Luosong,
-> > 
-> > I took the liberty to rewrite the commit message for it to be
-> > more compliant with the kernel rules:
-> > - there should be a one line title commit message first,
-> > - and the rest should detail the patch, tell how it was tested, etc...
-> > 
-> > If you could just give our ack on this one, Jiri would be able to take it
-> > through his tree.
+> This deadlock can be triggered when using continuous data reporting and FF
+> on a wiimote device at the same time. I takes me at least 30m of
+> stress-testing to trigger it but users reported considerably shorter
+> times (http://bpaste.net/show/132504/) when using some gaming-console
+> emulators.
 > 
-> Thanks Benjamin.
+> The real problem is that we have two copies of internal state, one in the
+> wiimote objects and the other in the input device. As the input-lock is
+> not supposed to be accessed from outside of input-core, we have no other
+> chance than offloading FF handling into a worker. This actually works
+> pretty nice and also allows to implictly merge fast rumble changes into a
+> single request.
 > 
-> Luosong, the patch as sent by Benjamin is properly formatted and contains 
-> proper changelog. Please make sure that you fix your patch submission 
-> workflow for your next submissions.
+> Due to the 3-layered workers (rumble+queue+l2cap) this might reduce FF
+> responsiveness. Initial tests were fine so lets fix the race first and if
+> it turns out to be too slow we can always handle FF out-of-band and skip
+> the queue-worker.
 > 
-> Luosong, please let me know that you are find with applying the patch as 
-> Benjamin sent it (with attribution to you and your signoff), and I'll 
-> proceed.
+> Cc: <stable@vger.kernel.org> # 3.11+
+> Reported-by: Thomas Schneider
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 
-Luosong, hello ... ?
+Applied, thanks David.
 
 -- 
 Jiri Kosina

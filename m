@@ -1,75 +1,61 @@
-From: Daniel Stone <daniel@fooishbar.org>
-Subject: [PATCH] Input: evdev: Fall back to vmalloc for client event buffer
-Date: Mon,  7 Oct 2013 14:06:53 +0100
-Message-ID: <1381151213-32690-1-git-send-email-daniels@collabora.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: multitouch: Fix GeneralTouch products and add more
+ PIDs
+Date: Mon, 7 Oct 2013 17:07:17 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1310071707070.29701@pobox.suse.cz>
+References: <1380705600-11055-1-git-send-email-benjamin.tissoires@redhat.com> <alpine.LNX.2.00.1310021654240.29701@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f182.google.com ([209.85.212.182]:63972 "EHLO
-	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751779Ab3JGNG6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Oct 2013 09:06:58 -0400
-Received: by mail-wi0-f182.google.com with SMTP id ez12so4787909wid.9
-        for <linux-input@vger.kernel.org>; Mon, 07 Oct 2013 06:06:57 -0700 (PDT)
+Received: from cantor2.suse.de ([195.135.220.15]:50357 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755711Ab3JGPHh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 7 Oct 2013 11:07:37 -0400
+In-Reply-To: <alpine.LNX.2.00.1310021654240.29701@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Henrik Rydberg <rydberg@euromail.se>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Luosong <android@generaltouch.com>
 
-evdev always tries to allocate the event buffer for clients using
-kzalloc rather than vmalloc, presumably to avoid mapping overhead where
-possible.  However, drivers like bcm5974, which claims support for
-reporting 16 fingers simultaneously, can have an extraordinarily large
-buffer.  The resultant contiguous order-4 allocation attempt fails due
-to fragmentation, and the device is thus unusable until reboot.
+On Wed, 2 Oct 2013, Jiri Kosina wrote:
 
-Try kzalloc if we can to avoid the mapping overhead, but if that fails,
-fall back to vzalloc.
+> On Wed, 2 Oct 2013, Benjamin Tissoires wrote:
+> 
+> > From: Luosong <android@generaltouch.com>
+> > 
+> > GeneralTouch products should use the quirk SLOT_IS_CONTACTID
+> > instead of SLOT_IS_CONTACTNUMBER.
+> > 
+> > Adding PIDs 0101,e100,0102,0106,010a from the new products.
+> > 
+> > Tested on new and older products by GeneralTouch engineers.
+> > 
+> > Signed-off-by: Luosong <android@generaltouch.com>
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > ---
+> > 
+> > Hi Luosong,
+> > 
+> > I took the liberty to rewrite the commit message for it to be
+> > more compliant with the kernel rules:
+> > - there should be a one line title commit message first,
+> > - and the rest should detail the patch, tell how it was tested, etc...
+> > 
+> > If you could just give our ack on this one, Jiri would be able to take it
+> > through his tree.
+> 
+> Thanks Benjamin.
+> 
+> Luosong, the patch as sent by Benjamin is properly formatted and contains 
+> proper changelog. Please make sure that you fix your patch submission 
+> workflow for your next submissions.
+> 
+> Luosong, please let me know that you are find with applying the patch as 
+> Benjamin sent it (with attribution to you and your signoff), and I'll 
+> proceed.
 
-Signed-off-by: Daniel Stone <daniels@collabora.com>
----
- drivers/input/evdev.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+Luosong, hello ... ?
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index f0f8928..edfca4a 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -18,6 +18,7 @@
- #include <linux/poll.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
-+#include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/input/mt.h>
-@@ -289,7 +290,11 @@ static int evdev_release(struct inode *inode, struct file *file)
- 	mutex_unlock(&evdev->mutex);
- 
- 	evdev_detach_client(evdev, client);
--	kfree(client);
-+
-+	if (is_vmalloc_addr(client))
-+		vfree(client);
-+	else
-+		kfree(client);
- 
- 	evdev_close_device(evdev);
- 
-@@ -311,10 +316,12 @@ static int evdev_open(struct inode *inode, struct file *file)
- 	unsigned int bufsize = evdev_compute_buffer_size(evdev->handle.dev);
- 	struct evdev_client *client;
- 	int error;
-+	int size =
-+		sizeof(struct evdev_client) + bufsize * sizeof(struct input_event);
- 
--	client = kzalloc(sizeof(struct evdev_client) +
--				bufsize * sizeof(struct input_event),
--			 GFP_KERNEL);
-+	client = kzalloc(size, GFP_KERNEL | __GFP_NOWARN);
-+	if (!client)
-+		client = vzalloc(size);
- 	if (!client)
- 		return -ENOMEM;
- 
 -- 
-1.8.3.1
-
+Jiri Kosina
+SUSE Labs

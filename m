@@ -1,84 +1,28 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 3/8] input: gameport: convert bus code to use dev_groups
-Date: Mon,  7 Oct 2013 18:27:37 -0700
-Message-ID: <1381195662-28009-4-git-send-email-gregkh@linuxfoundation.org>
-References: <1381195662-28009-1-git-send-email-gregkh@linuxfoundation.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:35863 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753802Ab3JHCQX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Oct 2013 22:16:23 -0400
-In-Reply-To: <1381195662-28009-1-git-send-email-gregkh@linuxfoundation.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster-A1zFtI14ZBulVyrhU4qvOw@public.gmane.org>
+Subject: Re: [PATCH] HID: logitech - lg2ff: Add IDs for Formula Vibration Feedback Wheel
+Date: Tue, 08 Oct 2013 12:00:02 +0200
+Message-ID: <4607275.ItDsRbK9eM@geidi-prime>
+References: <1381164492-27145-1-git-send-email-anssi.hannula@iki.fi> <CADbOyBSry1eFsCycM-BaDEhaA7_+JUBpYZEqA4s5s-g2vq5whg@mail.gmail.com> <fa1af5a9ba814114ddf5ee8fe65b8b4b.squirrel@www.mungewell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <fa1af5a9ba814114ddf5ee8fe65b8b4b.squirrel-uf5OtEnyChf6gvvhDbwh+ti2O/JbrIOy@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org
+Cc: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Anssi Hannula <anssi.hannula-X3B1VOXEql0@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-The dev_attrs field of struct bus_type is going away soon, dev_groups
-should be used instead.  This converts the gameport bus code to use the
-correct field.
+Hey guys,
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: <linux-input@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
+I assume that we're talking about this wheel (http://www.logitech.com/en-roeu/support/298)?
 
-Dmitry, I can take this through my driver-core tree if you don't want to
-take it through yours, just let me know what works best for you.
+Does the wheel have an actual FFB servo or does it have just a rumble motor that shakes the wheel? If it's the latter, supporting it in lg2ff is a way to go. Description in KConfig should probably be updated to reflect this.
 
- drivers/input/gameport/gameport.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+As for the HID descriptors, Simon's suggestion will work just fine. Alternatively you can use Wireshark which can use usbmon to capture USB traffic. (Wireshark must run as root and usbmon module must be loaded before Wireshark starts). We can hack the descriptor in hid-logitech just like we did it for DFP. If we come across more wheels that need a hacked descriptor, perhaps we should consider handling the raw data ourselves (check out the Wii remote driver for details)...
 
-diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
-index 922a7fe..24c41ba 100644
---- a/drivers/input/gameport/gameport.c
-+++ b/drivers/input/gameport/gameport.c
-@@ -422,14 +422,15 @@ static struct gameport *gameport_get_pending_child(struct gameport *parent)
-  * Gameport port operations
-  */
- 
--static ssize_t gameport_show_description(struct device *dev, struct device_attribute *attr, char *buf)
-+static ssize_t gameport_description_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct gameport *gameport = to_gameport_port(dev);
- 
- 	return sprintf(buf, "%s\n", gameport->name);
- }
-+static DEVICE_ATTR(description, S_IRUGO, gameport_description_show, NULL);
- 
--static ssize_t gameport_rebind_driver(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
-+static ssize_t drvctl_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
- {
- 	struct gameport *gameport = to_gameport_port(dev);
- 	struct device_driver *drv;
-@@ -457,12 +458,14 @@ static ssize_t gameport_rebind_driver(struct device *dev, struct device_attribut
- 
- 	return error ? error : count;
- }
-+static DEVICE_ATTR_WO(drvctl);
- 
--static struct device_attribute gameport_device_attrs[] = {
--	__ATTR(description, S_IRUGO, gameport_show_description, NULL),
--	__ATTR(drvctl, S_IWUSR, NULL, gameport_rebind_driver),
--	__ATTR_NULL
-+static struct attribute *gameport_device_attrs[] = {
-+	&dev_attr_description.attr,
-+	&dev_attr_drvctl.attr,
-+	NULL,
- };
-+ATTRIBUTE_GROUPS(gameport_device);
- 
- static void gameport_release_port(struct device *dev)
- {
-@@ -750,7 +753,7 @@ static int gameport_bus_match(struct device *dev, struct device_driver *drv)
- 
- static struct bus_type gameport_bus = {
- 	.name		= "gameport",
--	.dev_attrs	= gameport_device_attrs,
-+	.dev_groups	= gameport_device_groups,
- 	.drv_groups	= gameport_driver_groups,
- 	.match		= gameport_bus_match,
- 	.probe		= gameport_driver_probe,
--- 
-1.8.4.6.g82e253f.dirty
-
+Michal.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

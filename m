@@ -1,20 +1,20 @@
 From: Nikolai Kondrashov <spbnick@gmail.com>
-Subject: [PATCH 1/1] Revert "HID: fix unit exponent parsing"
-Date: Tue,  8 Oct 2013 21:59:51 +0300
-Message-ID: <1381258791-24966-1-git-send-email-spbnick@gmail.com>
+Subject: [PATCH 1/1 FROM FIXED] Revert "HID: fix unit exponent parsing"
+Date: Tue,  8 Oct 2013 22:05:17 +0300
+Message-ID: <1381259117-25256-1-git-send-email-spbnick@gmail.com>
+References: <1381258791-24966-1-git-send-email-spbnick@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f181.google.com ([74.125.82.181]:58961 "EHLO
-	mail-we0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752667Ab3JHTAE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Oct 2013 15:00:04 -0400
-Received: by mail-we0-f181.google.com with SMTP id t60so3729543wes.26
-        for <linux-input@vger.kernel.org>; Tue, 08 Oct 2013 12:00:02 -0700 (PDT)
+Received: from mail-wi0-f173.google.com ([209.85.212.173]:59816 "EHLO
+	mail-wi0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754063Ab3JHTFh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Oct 2013 15:05:37 -0400
+Received: by mail-wi0-f173.google.com with SMTP id hq15so7119513wib.6
+        for <linux-input@vger.kernel.org>; Tue, 08 Oct 2013 12:05:36 -0700 (PDT)
+In-Reply-To: <1381258791-24966-1-git-send-email-spbnick@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
-
-From: Nikolai Kondrashov <Nikolai.Kondrashov@redhat.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nikolai Kondrashov <spbnick@gmail.com>
 
 Revert "HID: fix unit exponent parsing" as it is based on incorrect
 understanding of the HID specification and breaks resolution
@@ -55,12 +55,7 @@ chapter.
 
 This reverts commit 774638386826621c984ab6994439f474709cac5e.
 ---
-
-Jiri, I've had the HID specification thoroughly read WRT report descriptors
-when implementing hidrd [1] and would be happy to help reviewing any patches
-touching that area. Please CC me if there's any need.
-
-[1] https://sf.net/apps/mediawiki/digimend?title=Hidrd
+This patch has correct e-mail in "From".
 
  drivers/hid/hid-core.c  | 16 +---------------
  drivers/hid/hid-input.c | 13 ++++---------

@@ -1,72 +1,74 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH] HID: logitech - lg2ff: Add IDs for Formula Vibration
- Feedback Wheel
-Date: Mon, 7 Oct 2013 16:03:57 -0400
-Message-ID: <fa1af5a9ba814114ddf5ee8fe65b8b4b.squirrel@www.mungewell.org>
-References: <1381164492-27145-1-git-send-email-anssi.hannula@iki.fi>
-    <cec1e0ca61cf17ceb6e52faa4f2baad9.squirrel@mungewell.org>
-    <5252F5C7.3060700@iki.fi>
-    <CADbOyBSry1eFsCycM-BaDEhaA7_+JUBpYZEqA4s5s-g2vq5whg@mail.gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 01/02] input: serio: use DEVICE_ATTR_RO()
+Date: Mon, 7 Oct 2013 18:08:23 -0700
+Message-ID: <20131008010823.GA27012@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <CADbOyBSry1eFsCycM-BaDEhaA7_+JUBpYZEqA4s5s-g2vq5whg@mail.gmail.com>
-Sender: stable-owner@vger.kernel.org
-To: Elias Vanderstuyft <elias.vds@gmail.com>
-Cc: Anssi Hannula <anssi.hannula@iki.fi>, simon@mungewell.org, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org, =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@prifuk.cz>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:35850 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753532Ab3JHCP2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Oct 2013 22:15:28 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-> I don't really know what you need for the HID descriptors, but I thought
-> maybe I should post usbmon output when plugging in the wheel:
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I'm not sure I can do anything with that file. It would be great if you
-could dump/attach the report descriptor file. This can be found in the
-/sys folder structure under the USB ID for your device.
+Convert the serio sysfs fiels to use the DEVICE_ATTR_RO() macros to make
+it easier to audit the correct sysfs file permission usage.
 
-ie. for my Sony Dual Shock controller
---
-simon@simon-virtual-machine:/sys/bus/usb/devices/1-1:1.0/0003:054C:0268.0001$
-hexdump -C report_descriptor
-00000000  05 01 09 04 a1 01 a1 02  85 01 75 08 95 01 15 00 
-|..........u.....|
-00000010  26 ff 00 81 03 75 01 95  13 15 00 25 01 35 00 45 
-|&....u.....%.5.E|
-00000020  01 05 09 19 01 29 13 81  02 75 01 95 0d 06 00 ff 
-|.....)...u......|
-00000030  81 03 15 00 26 ff 00 05  01 09 01 a1 00 75 08 95 
-|....&........u..|
-00000040  04 35 00 46 ff 00 09 30  09 31 09 32 09 35 81 02 
-|.5.F...0.1.2.5..|
-00000050  c0 05 01 95 13 09 01 81  02 95 0c 81 01 75 10 95 
-|.............u..|
-00000060  04 26 ff 03 46 ff 03 09  01 81 02 c0 a1 02 85 02 
-|.&..F...........|
-00000070  75 08 95 30 09 01 b1 02  c0 a1 02 85 ee 75 08 95 
-|u..0.........u..|
-00000080  30 09 01 b1 02 c0 a1 02  85 ef 75 08 95 30 09 01 
-|0.........u..0..|
-00000090  b1 02 c0 c0                                       |....|
-00000094
---
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: <linux-input@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/input/serio/serio.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-To confirm which bits of the HID stream actually change when the pedals
-are pushed you could run the command as root.
---
-$ hexdump -v -e '17/1 "%02x " "\n"' < /dev/hidraw0
---
-
-You'll have to change the '17' to match the actual number of bytes your
-wheel sends, when you get it right the columns of values will change
-'nicely' as you steer/depress the pedals/etc.
-
-I'm expecting to see one column (or two adjacent if the bits don't align)
-change as you press the brake/etc. If you can send a small capture showing
-values changing for each of brake and accel that should be enough
-information.
-
-When we know where the data is, we can tell Linux's HID system which bits
-to interpret as Y and Z axis.
-
-Cheers,
-Simon
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -373,34 +373,34 @@ static ssize_t serio_show_modalias(struc
+ 			serio->id.type, serio->id.proto, serio->id.id, serio->id.extra);
+ }
+ 
+-static ssize_t serio_show_id_type(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t type_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	return sprintf(buf, "%02x\n", serio->id.type);
+ }
+ 
+-static ssize_t serio_show_id_proto(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t proto_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	return sprintf(buf, "%02x\n", serio->id.proto);
+ }
+ 
+-static ssize_t serio_show_id_id(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t id_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	return sprintf(buf, "%02x\n", serio->id.id);
+ }
+ 
+-static ssize_t serio_show_id_extra(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t extra_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	return sprintf(buf, "%02x\n", serio->id.extra);
+ }
+ 
+-static DEVICE_ATTR(type, S_IRUGO, serio_show_id_type, NULL);
+-static DEVICE_ATTR(proto, S_IRUGO, serio_show_id_proto, NULL);
+-static DEVICE_ATTR(id, S_IRUGO, serio_show_id_id, NULL);
+-static DEVICE_ATTR(extra, S_IRUGO, serio_show_id_extra, NULL);
++static DEVICE_ATTR_RO(type);
++static DEVICE_ATTR_RO(proto);
++static DEVICE_ATTR_RO(id);
++static DEVICE_ATTR_RO(extra);
+ 
+ static struct attribute *serio_device_id_attrs[] = {
+ 	&dev_attr_type.attr,

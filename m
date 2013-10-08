@@ -1,28 +1,63 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster-A1zFtI14ZBulVyrhU4qvOw@public.gmane.org>
-Subject: Re: [PATCH] HID: logitech - lg2ff: Add IDs for Formula Vibration Feedback Wheel
-Date: Tue, 08 Oct 2013 12:00:02 +0200
-Message-ID: <4607275.ItDsRbK9eM@geidi-prime>
-References: <1381164492-27145-1-git-send-email-anssi.hannula@iki.fi> <CADbOyBSry1eFsCycM-BaDEhaA7_+JUBpYZEqA4s5s-g2vq5whg@mail.gmail.com> <fa1af5a9ba814114ddf5ee8fe65b8b4b.squirrel@www.mungewell.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <fa1af5a9ba814114ddf5ee8fe65b8b4b.squirrel-uf5OtEnyChf6gvvhDbwh+ti2O/JbrIOy@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org
-Cc: Elias Vanderstuyft <elias.vds-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Anssi Hannula <anssi.hannula-X3B1VOXEql0@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Majunath Goudar <csmanjuvijay@gmail.com>
+Subject: [PATCH] INPUT/MISC: Fix input/misc PWM related undefined reference errors.
+Date: Tue,  8 Oct 2013 16:07:34 +0530
+Message-ID: <1381228654-21947-1-git-send-email-csmanjuvijay@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: nataraja.km@lge.com, Majunath Goudar <csmanjuvijay@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hey guys,
+This patch adds a PWM dependency to configure the INPUT_MAX8997_HAPTIC
+and INPUT_PWM_BEEPER. Without this patch, build system can lead to build
+failure. This was observed during randconfig testing, in which
+INPUT_MAX8997_HAPTIC or INPUT_PWM_BEEPER was enabled w/o PWM being
+enabled. leading to the following error:
 
-I assume that we're talking about this wheel (http://www.logitech.com/en-roeu/support/298)?
+init/built-in.o
+drivers/built-in.o: In function `max8997_haptic_disable':
+:(.text+0x1073a0): undefined reference to `pwm_disable'
+drivers/built-in.o: In function `max8997_haptic_remove':
+:(.text+0x1073fc): undefined reference to `pwm_free'
+drivers/built-in.o: In function `max8997_haptic_play_effect_work':
+:(.text+0x1074f0): undefined reference to `pwm_config'
+:(.text+0x1075b0): undefined reference to `pwm_enable'
+drivers/built-in.o: In function `max8997_haptic_probe':
+:(.text+0x1076f8): undefined reference to `pwm_request'
+:(.text+0x1077e8): undefined reference to `pwm_free'
+drivers/built-in.o: In function `pwm_beeper_resume':
+:(.text+0x1081a4): undefined reference to `pwm_config'
+make: *** [vmlinux] Error 1
 
-Does the wheel have an actual FFB servo or does it have just a rumble motor that shakes the wheel? If it's the latter, supporting it in lg2ff is a way to go. Description in KConfig should probably be updated to reflect this.
+Signed-off-by: Manjunath Goudar <csmanjuvijay@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/input/misc/Kconfig |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-As for the HID descriptors, Simon's suggestion will work just fine. Alternatively you can use Wireshark which can use usbmon to capture USB traffic. (Wireshark must run as root and usbmon module must be loaded before Wireshark starts). We can hack the descriptor in hid-logitech just like we did it for DFP. If we come across more wheels that need a hacked descriptor, perhaps we should consider handling the raw data ourselves (check out the Wii remote driver for details)...
-
-Michal.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index aa51baa..265240b 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -156,7 +156,7 @@ config INPUT_MAX8925_ONKEY
+ 
+ config INPUT_MAX8997_HAPTIC
+ 	tristate "MAXIM MAX8997 haptic controller support"
+-	depends on HAVE_PWM && MFD_MAX8997
++	depends on HAVE_PWM && MFD_MAX8997 && PWM
+ 	select INPUT_FF_MEMLESS
+ 	help
+ 	  This option enables device driver support for the haptic controller
+@@ -461,7 +461,7 @@ config INPUT_PCF8574
+ 
+ config INPUT_PWM_BEEPER
+ 	tristate "PWM beeper support"
+-	depends on HAVE_PWM || PWM
++	depends on HAVE_PWM && PWM
+ 	help
+ 	  Say Y here to get support for PWM based beeper devices.
+ 
+-- 
+1.7.9.5

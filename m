@@ -1,128 +1,61 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 1/1] HID: wiimote: invert Y-Axis and add automatic
- calibration for Wii U Pro Controller
-Date: Thu, 10 Oct 2013 11:16:40 +0200
-Message-ID: <CANq1E4ToCfOCe9Fe0iDdJGJv_D4rOT6gB5g=7neTaHj9_esiLA@mail.gmail.com>
-References: <1381085096-4511-1-git-send-email-mail@rbrune.de>
+Subject: Re: Q: weird hidraw behaviour
+Date: Thu, 10 Oct 2013 11:26:45 +0200
+Message-ID: <CANq1E4TxGS4NSc3BOon2+zVwkvY2LQTmQowHxOJnypf860+-jw@mail.gmail.com>
+References: <20130924085606.GI28875@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:35036 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755219Ab3JJJQl (ORCPT
+Received: from mail-ie0-f172.google.com ([209.85.223.172]:56734 "EHLO
+	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751664Ab3JJJ0p (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Oct 2013 05:16:41 -0400
-Received: by mail-ie0-f175.google.com with SMTP id aq17so3352399iec.6
-        for <linux-input@vger.kernel.org>; Thu, 10 Oct 2013 02:16:40 -0700 (PDT)
-In-Reply-To: <1381085096-4511-1-git-send-email-mail@rbrune.de>
+	Thu, 10 Oct 2013 05:26:45 -0400
+Received: by mail-ie0-f172.google.com with SMTP id x13so4607743ief.3
+        for <linux-input@vger.kernel.org>; Thu, 10 Oct 2013 02:26:45 -0700 (PDT)
+In-Reply-To: <20130924085606.GI28875@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafael Brune <mail@rbrune.de>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Manoj Chourasia <mchourasia@nvidia.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
 Hi
 
-On Sun, Oct 6, 2013 at 8:44 PM, Rafael Brune <mail@rbrune.de> wrote:
-> With these changes the Wii U Pro Controller fully complies
-> to the gamepad-API and with the calibration is fully usable
-> out-of-the-box without any user-space tools. This potentially
-> breaks compatibility with software that relies on the two
-> inverted Y-Axis but since current bluez 4.x and 5.x versions
-> don't even support pairing with the controller yet the amount
-> of people affected should be rather small.
-
-Did anyone try to read the calibration values from the EEPROM? Doing
-calibration in the kernel is fine, but I'd rather have the
-hardware-calibration values instead. Even if we cannot figure it out
-now, we should try to stay as compatible to the real values as we can.
-
-So how about keeping the min/max and neutral point as we have it know
-and instead adjusting the reported values by scaling/moving them?
-
-> Signed-off-by: Rafael Brune <mail@rbrune.de>
-> ---
->  drivers/hid/hid-wiimote-modules.c | 45 +++++++++++++++++++++++++++++++++++----
->  1 file changed, 41 insertions(+), 4 deletions(-)
+On Tue, Sep 24, 2013 at 10:56 AM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> Hi,
 >
-> diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
-> index 2e7d644..1422b0b 100644
-> --- a/drivers/hid/hid-wiimote-modules.c
-> +++ b/drivers/hid/hid-wiimote-modules.c
-> @@ -1640,10 +1640,41 @@ static void wiimod_pro_in_ext(struct wiimote_data *wdata, const __u8 *ext)
->         ly = (ext[4] & 0xff) | ((ext[5] & 0x0f) << 8);
->         ry = (ext[6] & 0xff) | ((ext[7] & 0x0f) << 8);
+> I noticed that after commit 212a871a393 (HID: hidraw: correctly deallocate
+> memory on device disconnect) hidraw doesn't close the underlying hid device
+> when the device node is closed last time.
 >
-> -       input_report_abs(wdata->extension.input, ABS_X, lx - 0x800);
-> -       input_report_abs(wdata->extension.input, ABS_Y, ly - 0x800);
-> -       input_report_abs(wdata->extension.input, ABS_RX, rx - 0x800);
-> -       input_report_abs(wdata->extension.input, ABS_RY, ry - 0x800);
-> +       /* Calibrating the sticks by saving the global min/max per axis */
-> +       if (lx < wdata->state.calib_bboard[0][0])
-> +               wdata->state.calib_bboard[0][0] = lx;
-> +       if (lx > wdata->state.calib_bboard[0][1])
-> +               wdata->state.calib_bboard[0][1] = lx;
-> +
-> +       if (ly < wdata->state.calib_bboard[1][0])
-> +               wdata->state.calib_bboard[1][0] = ly;
-> +       if (ly > wdata->state.calib_bboard[1][1])
-> +               wdata->state.calib_bboard[1][1] = ly;
-> +
-> +       if (rx < wdata->state.calib_bboard[2][0])
-> +               wdata->state.calib_bboard[2][0] = rx;
-> +       if (rx > wdata->state.calib_bboard[2][1])
-> +               wdata->state.calib_bboard[2][1] = rx;
-> +
-> +       if (ry < wdata->state.calib_bboard[3][0])
-> +               wdata->state.calib_bboard[3][0] = ry;
-> +       if (ry > wdata->state.calib_bboard[3][1])
-> +               wdata->state.calib_bboard[3][1] = ry;
-> +
-> +       /* Normalize using int math to prevent conversion to/from float */
-> +       lx = -2048 + (((__s32)(lx - wdata->state.calib_bboard[0][0]) * 4096)/
-> +          (wdata->state.calib_bboard[0][1]-wdata->state.calib_bboard[0][0]));
-> +       ly = -2048 + (((__s32)(ly - wdata->state.calib_bboard[1][0]) * 4096)/
-> +          (wdata->state.calib_bboard[1][1]-wdata->state.calib_bboard[1][0]));
-> +       rx = -2048 + (((__s32)(rx - wdata->state.calib_bboard[2][0]) * 4096)/
-> +          (wdata->state.calib_bboard[2][1]-wdata->state.calib_bboard[2][0]));
-> +       ry = -2048 + (((__s32)(ry - wdata->state.calib_bboard[3][0]) * 4096)/
-> +          (wdata->state.calib_bboard[3][1]-wdata->state.calib_bboard[3][0]));
-
-Don't use calib_bboard. Add a new array (or use a union). This is confusing.
-
-> +
-> +       input_report_abs(wdata->extension.input, ABS_X,  lx);
-> +       input_report_abs(wdata->extension.input, ABS_Y, -ly);
-> +       input_report_abs(wdata->extension.input, ABS_RX,  rx);
-> +       input_report_abs(wdata->extension.input, ABS_RY, -ry);
+> For example I have a touch panel (HID over I2C) device with added debug
+> prints in i2c_hid_open()/i2c_hid_close():
 >
->         input_report_key(wdata->extension.input,
->                          wiimod_pro_map[WIIMOD_PRO_KEY_RIGHT],
-> @@ -1760,6 +1791,12 @@ static int wiimod_pro_probe(const struct wiimod_ops *ops,
->         if (!wdata->extension.input)
->                 return -ENOMEM;
+>         # od -x /dev/hidraw0
+>         [   41.363813] i2c_hid 1-004c: i2c_hid_power lvl:32
+>         [   41.368464] i2c_hid 1-004c: i2c_hid_set_power
+>         [   41.372831] i2c_hid 1-004c: __i2c_hid_command: cmd=54 01 00 08
+>         [   41.451455] i2c_hid 1-004c: i2c_hid_open
+>         ^C
 >
-> +       /* Initialize min/max values for all Axis with reasonable values */
-> +       for (i = 0; i < 4; ++i) {
-> +               wdata->state.calib_bboard[i][0] = 0x780;
-> +               wdata->state.calib_bboard[i][1] = 0x880;
+>         # od -x /dev/hidraw0
+>         [   58.420928] i2c_hid 1-004c: i2c_hid_power lvl:32
+>         [   58.425577] i2c_hid 1-004c: i2c_hid_set_power
+>         [   58.429945] i2c_hid 1-004c: __i2c_hid_command: cmd=54 01 00 08
+>         [   58.525276] i2c_hid 1-004c: i2c_hid_open
+>         ^C
+>
+> i2c_hid_close() is never called. Is this intended or am I missing
+> something?
 
-Ugh, these values look weird. We have a reported range of -0x400 to
-+0x400 but you limit it to a virtual range of 0x100. That's a loss of
-precision of 80%. Where are these values from?
+I don't know whether it's intentional, but it is hardcoded this way
+now. Logic is, ->close() is called on hidraw_disconnect() that is,
+when hidraw is unloaded on a device. It no longer depends on
+user-space processes.
 
-> +       }
-> +
->         set_bit(FF_RUMBLE, wdata->extension.input->ffbit);
->         input_set_drvdata(wdata->extension.input, wdata);
+Any reason to change it back? It's no bug, so if no-one cares I'd
+leave it as it is now. Otherwise, we can try to change it again.
 
-Thanks for hacking this up. Could you give me some values from your
-device so I can see how big the deviation is? My device reports:
-
-Range: 0-4095 (0x0fff)
-Neutral-Point: 2048 (0x800)
-
-I haven't seen any big deviations from these values. I can try to take
-this over if you want, just let me know.
-
-Thanks
+Regards
 David

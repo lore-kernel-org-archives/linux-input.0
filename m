@@ -1,107 +1,43 @@
 From: Simon Wood <simon@mungewell.org>
-Subject: [PATCHv2 2/3] HID:hid-lg: Fixed Report Descriptor for Logitech MOMO Force (Black) to split Accel/Brake into seperate axis
-Date: Thu, 10 Oct 2013 08:20:13 -0600
-Message-ID: <1381414814-2107-2-git-send-email-simon@mungewell.org>
+Subject: [PATCHv2 3/3] HID:Kconfig: Correct MOMO description in wrong place (handled by LG4FF).
+Date: Thu, 10 Oct 2013 08:20:14 -0600
+Message-ID: <1381414814-2107-3-git-send-email-simon@mungewell.org>
 References: <alpine.LNX.2.00.1310101002120.13289@pobox.suse.cz>
  <1381414814-2107-1-git-send-email-simon@mungewell.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host171.canaca.com ([67.55.55.225]:58978 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755263Ab3JJOUc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Oct 2013 10:20:32 -0400
 In-Reply-To: <1381414814-2107-1-git-send-email-simon@mungewell.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, simon@mungewell.org, Elias Vanderstuyft <elias.vds@gmail.com>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@prifuk.cz>
-List-Id: linux-input@vger.kernel.org
 
-By default the Logitech MOMO Force (Black) presents a combined accel/brake
-axis ('Y'). This patch modifies the HID descriptor to present seperate 
-accel/brake axes ('Y' and 'Z').
+Minor correction to the description in Kconfig.
+
+The Logitect MOMO wheel is actually handled by the LOGITECH_WHEELS (hid-lg4ff) 
+section, not by the LOGITECH_FF (hid-lgff).
 
 Signed-off-by: Simon Wood <simon@mungewell.org>
 ---
- drivers/hid/hid-lg.c | 58 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 58 insertions(+)
+ drivers/hid/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index c6efdae..545da44 100644
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -47,6 +47,7 @@
- #define DFP_RDESC_ORIG_SIZE	97
- #define FV_RDESC_ORIG_SIZE	130
- #define MOMO_RDESC_ORIG_SIZE	87
-+#define MOMO2_RDESC_ORIG_SIZE	87
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 46fd27f..aee7182 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -362,7 +362,6 @@ config LOGITECH_FF
+ 	  - Logitech WingMan Force 3D
+ 	  - Logitech Formula Force EX
+ 	  - Logitech WingMan Formula Force GP
+-	  - Logitech MOMO Force wheel
  
- /* Fixed report descriptors for Logitech Driving Force (and Pro)
-  * wheel controllers
-@@ -284,6 +285,54 @@ static __u8 momo_rdesc_fixed[] = {
- 0xC0                /*  End Collection                      */
- };
- 
-+static __u8 momo2_rdesc_fixed[] = {
-+0x05, 0x01,         /*  Usage Page (Desktop),               */
-+0x09, 0x04,         /*  Usage (Joystik),                    */
-+0xA1, 0x01,         /*  Collection (Application),           */
-+0xA1, 0x02,         /*      Collection (Logical),           */
-+0x95, 0x01,         /*          Report Count (1),           */
-+0x75, 0x0A,         /*          Report Size (10),           */
-+0x15, 0x00,         /*          Logical Minimum (0),        */
-+0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
-+0x35, 0x00,         /*          Physical Minimum (0),       */
-+0x46, 0xFF, 0x03,   /*          Physical Maximum (1023),    */
-+0x09, 0x30,         /*          Usage (X),                  */
-+0x81, 0x02,         /*          Input (Variable),           */
-+0x95, 0x0A,         /*          Report Count (10),          */
-+0x75, 0x01,         /*          Report Size (1),            */
-+0x25, 0x01,         /*          Logical Maximum (1),        */
-+0x45, 0x01,         /*          Physical Maximum (1),       */
-+0x05, 0x09,         /*          Usage Page (Button),        */
-+0x19, 0x01,         /*          Usage Minimum (01h),        */
-+0x29, 0x0A,         /*          Usage Maximum (0Ah),        */
-+0x81, 0x02,         /*          Input (Variable),           */
-+0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),         */
-+0x09, 0x00,         /*          Usage (00h),                */
-+0x95, 0x04,         /*          Report Count (4),           */
-+0x81, 0x02,         /*          Input (Variable),           */
-+0x95, 0x01,         /*          Report Count (1),           */
-+0x75, 0x08,         /*          Report Size (8),            */
-+0x26, 0xFF, 0x00,   /*          Logical Maximum (255),      */
-+0x46, 0xFF, 0x00,   /*          Physical Maximum (255),     */
-+0x09, 0x01,         /*          Usage (01h),                */
-+0x81, 0x02,         /*          Input (Variable),           */
-+0x05, 0x01,         /*          Usage Page (Desktop),       */
-+0x09, 0x31,         /*          Usage (Y),                  */
-+0x81, 0x02,         /*          Input (Variable),           */
-+0x09, 0x32,         /*          Usage (Z),                  */
-+0x81, 0x02,         /*          Input (Variable),           */
-+0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),         */
-+0x09, 0x00,         /*          Usage (00h),                */
-+0x81, 0x02,         /*          Input (Variable),           */
-+0xC0,               /*      End Collection,                 */
-+0xA1, 0x02,         /*      Collection (Logical),           */
-+0x09, 0x02,         /*          Usage (02h),                */
-+0x95, 0x07,         /*          Report Count (7),           */
-+0x91, 0x02,         /*          Output (Variable),          */
-+0xC0,               /*      End Collection,                 */
-+0xC0                /*  End Collection                      */
-+};
-+
- /*
-  * Certain Logitech keyboards send in report #3 keys which are far
-  * above the logical maximum described in descriptor. This extends
-@@ -343,6 +392,15 @@ static __u8 *lg_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		}
- 		break;
- 
-+	case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2:
-+		if (*rsize == MOMO2_RDESC_ORIG_SIZE) {
-+			hid_info(hdev,
-+				"fixing up Logitech Momo Racing Force (Black) report descriptor\n");
-+			rdesc = momo2_rdesc_fixed;
-+			*rsize = sizeof(momo2_rdesc_fixed);
-+		}
-+		break;
-+
- 	case USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL:
- 		if (*rsize == FV_RDESC_ORIG_SIZE) {
- 			hid_info(hdev,
+ 	  and if you want to enable force feedback for them.
+ 	  Note: if you say N here, this device will still be supported, but without
 -- 
 1.8.1.2
+

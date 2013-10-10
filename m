@@ -1,173 +1,140 @@
-From: Rafael Brune <mail@rbrune.de>
-Subject: Re: [PATCH 1/1] HID: wiimote: invert Y-Axis and add automatic calibration for Wii U Pro Controller
-Date: Thu, 10 Oct 2013 17:46:27 +0200
-Message-ID: <121A2CAD-9706-4A86-AF20-60B25DF00101@rbrune.de>
-References: <1381085096-4511-1-git-send-email-mail@rbrune.de> <CANq1E4ToCfOCe9Fe0iDdJGJv_D4rOT6gB5g=7neTaHj9_esiLA@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v1283)
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH v2 1/2] Input - wacom: Not all multi-interface devices support touch
+Date: Thu, 10 Oct 2013 14:17:13 -0700
+Message-ID: <1381439833-1116-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tyrell.rbrune.de ([83.169.16.173]:58719 "EHLO tyrell.rbrune.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755910Ab3JJPq3 convert rfc822-to-8bit (ORCPT
+Received: from mail-pb0-f45.google.com ([209.85.160.45]:33250 "EHLO
+	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755992Ab3JJVRW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Oct 2013 11:46:29 -0400
-In-Reply-To: <CANq1E4ToCfOCe9Fe0iDdJGJv_D4rOT6gB5g=7neTaHj9_esiLA@mail.gmail.com>
+	Thu, 10 Oct 2013 17:17:22 -0400
+Received: by mail-pb0-f45.google.com with SMTP id mc17so3171171pbc.4
+        for <linux-input@vger.kernel.org>; Thu, 10 Oct 2013 14:17:22 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, peter.hutterer@who-t.net, chris@cnpbagwell.com, Ping Cheng <pingc@wacom.com>
 
-Hi
+Some multi-interface devices support expresskeys on a separate interface,
+such as Bamboo; some multi-interface devices do not support touch at all,
+such as Pen only Intuos5. Make sure we report the right device names.
 
-On Oct 10, 2013, at 11:16 AM, David Herrmann wrote:
+Tested-by: Jason Gerecke <killertofu@gmail.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/input/tablet/wacom_sys.c | 58 +++++++++++++++++++++++++---------------
+ drivers/input/tablet/wacom_wac.h |  4 ++-
+ 2 files changed, 40 insertions(+), 22 deletions(-)
 
-> Hi
-> 
-> On Sun, Oct 6, 2013 at 8:44 PM, Rafael Brune <mail@rbrune.de> wrote:
->> With these changes the Wii U Pro Controller fully complies
->> to the gamepad-API and with the calibration is fully usable
->> out-of-the-box without any user-space tools. This potentially
->> breaks compatibility with software that relies on the two
->> inverted Y-Axis but since current bluez 4.x and 5.x versions
->> don't even support pairing with the controller yet the amount
->> of people affected should be rather small.
-> 
-> Did anyone try to read the calibration values from the EEPROM? Doing
-> calibration in the kernel is fine, but I'd rather have the
-> hardware-calibration values instead. Even if we cannot figure it out
-> now, we should try to stay as compatible to the real values as we can.
-> 
-> So how about keeping the min/max and neutral point as we have it know
-> and instead adjusting the reported values by scaling/moving them?
-> 
-
-After googling a little bit it seems like their might actually be no
-calibration data for the Classic Controller and Wii U Pro Controller. The
-midpoint is supposedly just detected when the device connects.
-http://wiibrew.org/wiki/Classic_Controller
-
-My code did not change what we output as the min/max/mid values it's
-still -0x800,0x000,0x800. As you suggest it scales/moves the raw values
-so that the reported values fall into that range.
-
-
->> Signed-off-by: Rafael Brune <mail@rbrune.de>
->> ---
->> drivers/hid/hid-wiimote-modules.c | 45 +++++++++++++++++++++++++++++++++++----
->> 1 file changed, 41 insertions(+), 4 deletions(-)
->> 
->> diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
->> index 2e7d644..1422b0b 100644
->> --- a/drivers/hid/hid-wiimote-modules.c
->> +++ b/drivers/hid/hid-wiimote-modules.c
->> @@ -1640,10 +1640,41 @@ static void wiimod_pro_in_ext(struct wiimote_data *wdata, const __u8 *ext)
->>        ly = (ext[4] & 0xff) | ((ext[5] & 0x0f) << 8);
->>        ry = (ext[6] & 0xff) | ((ext[7] & 0x0f) << 8);
->> 
->> -       input_report_abs(wdata->extension.input, ABS_X, lx - 0x800);
->> -       input_report_abs(wdata->extension.input, ABS_Y, ly - 0x800);
->> -       input_report_abs(wdata->extension.input, ABS_RX, rx - 0x800);
->> -       input_report_abs(wdata->extension.input, ABS_RY, ry - 0x800);
->> +       /* Calibrating the sticks by saving the global min/max per axis */
->> +       if (lx < wdata->state.calib_bboard[0][0])
->> +               wdata->state.calib_bboard[0][0] = lx;
->> +       if (lx > wdata->state.calib_bboard[0][1])
->> +               wdata->state.calib_bboard[0][1] = lx;
->> +
->> +       if (ly < wdata->state.calib_bboard[1][0])
->> +               wdata->state.calib_bboard[1][0] = ly;
->> +       if (ly > wdata->state.calib_bboard[1][1])
->> +               wdata->state.calib_bboard[1][1] = ly;
->> +
->> +       if (rx < wdata->state.calib_bboard[2][0])
->> +               wdata->state.calib_bboard[2][0] = rx;
->> +       if (rx > wdata->state.calib_bboard[2][1])
->> +               wdata->state.calib_bboard[2][1] = rx;
->> +
->> +       if (ry < wdata->state.calib_bboard[3][0])
->> +               wdata->state.calib_bboard[3][0] = ry;
->> +       if (ry > wdata->state.calib_bboard[3][1])
->> +               wdata->state.calib_bboard[3][1] = ry;
->> +
->> +       /* Normalize using int math to prevent conversion to/from float */
->> +       lx = -2048 + (((__s32)(lx - wdata->state.calib_bboard[0][0]) * 4096)/
->> +          (wdata->state.calib_bboard[0][1]-wdata->state.calib_bboard[0][0]));
->> +       ly = -2048 + (((__s32)(ly - wdata->state.calib_bboard[1][0]) * 4096)/
->> +          (wdata->state.calib_bboard[1][1]-wdata->state.calib_bboard[1][0]));
->> +       rx = -2048 + (((__s32)(rx - wdata->state.calib_bboard[2][0]) * 4096)/
->> +          (wdata->state.calib_bboard[2][1]-wdata->state.calib_bboard[2][0]));
->> +       ry = -2048 + (((__s32)(ry - wdata->state.calib_bboard[3][0]) * 4096)/
->> +          (wdata->state.calib_bboard[3][1]-wdata->state.calib_bboard[3][0]));
-> 
-> Don't use calib_bboard. Add a new array (or use a union). This is confusing.
-
-I agree, will do that.
-
-
->> +
->> +       input_report_abs(wdata->extension.input, ABS_X,  lx);
->> +       input_report_abs(wdata->extension.input, ABS_Y, -ly);
->> +       input_report_abs(wdata->extension.input, ABS_RX,  rx);
->> +       input_report_abs(wdata->extension.input, ABS_RY, -ry);
->> 
->>        input_report_key(wdata->extension.input,
->>                         wiimod_pro_map[WIIMOD_PRO_KEY_RIGHT],
->> @@ -1760,6 +1791,12 @@ static int wiimod_pro_probe(const struct wiimod_ops *ops,
->>        if (!wdata->extension.input)
->>                return -ENOMEM;
->> 
->> +       /* Initialize min/max values for all Axis with reasonable values */
->> +       for (i = 0; i < 4; ++i) {
->> +               wdata->state.calib_bboard[i][0] = 0x780;
->> +               wdata->state.calib_bboard[i][1] = 0x880;
-> 
-> Ugh, these values look weird. We have a reported range of -0x400 to
-> +0x400 but you limit it to a virtual range of 0x100. That's a loss of
-> precision of 80%. Where are these values from?
-
-I picked these values arbitrarily as starting points since they will update
-during use of the gamepad as soon as lower/higher values are observed.
-As soon as the sticks have been moved to their extreme positions once
-everything is perfect.
-
-We could also set those values in a similar fashion as to what Nintendo
-seems to be doing. Wait for a first report of raw values, use them as the
-mid point and set these min/max values as midpoint +/- ~0x800.
-
-
->> +       }
->> +
->>        set_bit(FF_RUMBLE, wdata->extension.input->ffbit);
->>        input_set_drvdata(wdata->extension.input, wdata);
-> 
-> Thanks for hacking this up. Could you give me some values from your
-> device so I can see how big the deviation is? My device reports:
-> 
-> Range: 0-4095 (0x0fff)
-> Neutral-Point: 2048 (0x800)
-> 
-> I haven't seen any big deviations from these values. I can try to take
-> this over if you want, just let me know.
-> 
-> Thanks
-> David
-
-
-When I write out the observed raw min/max values of all Axis I get these:
-LX: 1033 - 3326 (center~=2179 (0x883))
-LY:  857 - 3211 (center~=2034 (0x7F2))
-RX: 944 - 3176 (center~=2060 (0x80C))
-RY: 853 - 3159 (center~=2006 (0x7D6))
-
-So not really the whole range of 0x0FFF is actually used and offsets due
-to manufacturing differences are present.
-
-
-Regards,
- Rafael
-
-
-
-
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 63971b8..7bdb5e9 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -1188,34 +1188,47 @@ static void wacom_wireless_work(struct work_struct *work)
+ 		wacom_wac1->features =
+ 			*((struct wacom_features *)id->driver_info);
+ 		wacom_wac1->features.device_type = BTN_TOOL_PEN;
++		snprintf(wacom_wac1->name, WACOM_NAME_MAX, "%s (WL) Pen",
++			 wacom_wac1->features.name);
+ 		error = wacom_register_input(wacom1);
+ 		if (error)
+-			goto fail1;
++			goto fail;
+ 
+ 		/* Touch interface */
+-		wacom_wac2->features =
+-			*((struct wacom_features *)id->driver_info);
+-		wacom_wac2->features.pktlen = WACOM_PKGLEN_BBTOUCH3;
+-		wacom_wac2->features.device_type = BTN_TOOL_FINGER;
+-		wacom_wac2->features.x_max = wacom_wac2->features.y_max = 4096;
+-		error = wacom_register_input(wacom2);
+-		if (error)
+-			goto fail2;
++		if (wacom_wac1->features.touch_max) {
++			wacom_wac2->features =
++				*((struct wacom_features *)id->driver_info);
++			wacom_wac2->features.pktlen = WACOM_PKGLEN_BBTOUCH3;
++			wacom_wac2->features.device_type = BTN_TOOL_FINGER;
++			wacom_wac2->features.x_max = wacom_wac2->features.y_max = 4096;
++			if (wacom_wac2->features.touch_max)
++				snprintf(wacom_wac2->name, WACOM_NAME_MAX,
++					 "%s (WL) Finger",wacom_wac2->features.name);
++			else
++				snprintf(wacom_wac2->name, WACOM_NAME_MAX,
++					 "%s (WL) Pad",wacom_wac2->features.name);
++			error = wacom_register_input(wacom2);
++			if (error)
++				goto fail;
++		}
+ 
+ 		error = wacom_initialize_battery(wacom);
+ 		if (error)
+-			goto fail3;
++			goto fail;
+ 	}
+ 
+ 	return;
+ 
+-fail3:
+-	input_unregister_device(wacom_wac2->input);
+-	wacom_wac2->input = NULL;
+-fail2:
+-	input_unregister_device(wacom_wac1->input);
+-	wacom_wac1->input = NULL;
+-fail1:
++fail:
++	if (wacom_wac2->input) {
++		input_unregister_device(wacom_wac2->input);
++		wacom_wac2->input = NULL;
++	}
++	if (wacom_wac1->input) {
++
++		input_unregister_device(wacom_wac1->input);
++		wacom_wac1->input = NULL;
++	}
+ 	return;
+ }
+ 
+@@ -1332,10 +1345,13 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 		struct usb_device *other_dev;
+ 
+ 		/* Append the device type to the name */
+-		strlcat(wacom_wac->name,
+-			features->device_type == BTN_TOOL_PEN ?
+-				" Pen" : " Finger",
+-			sizeof(wacom_wac->name));
++		if (features->device_type == BTN_TOOL_FINGER) {
++			if (features->touch_max)
++				strlcat(wacom_wac->name, " Finger", WACOM_NAME_MAX);
++			else
++				strlcat(wacom_wac->name, " Pad", WACOM_NAME_MAX);
++		} else
++			strlcat(wacom_wac->name, " Pen", WACOM_NAME_MAX);
+ 
+ 		other_dev = wacom_get_sibling(dev, features->oVid, features->oPid);
+ 		if (other_dev == NULL || wacom_get_usbdev_data(other_dev) == NULL)
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index 2a432e6..fd23a37 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -14,6 +14,8 @@
+ /* maximum packet length for USB devices */
+ #define WACOM_PKGLEN_MAX	64
+ 
++#define WACOM_NAME_MAX		64
++
+ /* packet length for individual models */
+ #define WACOM_PKGLEN_PENPRTN	 7
+ #define WACOM_PKGLEN_GRAPHIRE	 8
+@@ -130,7 +132,7 @@ struct wacom_shared {
+ };
+ 
+ struct wacom_wac {
+-	char name[64];
++	char name[WACOM_NAME_MAX];
+ 	unsigned char *data;
+ 	int tool[2];
+ 	int id[2];
+-- 
+1.8.1.2
 

@@ -1,138 +1,133 @@
-From: =?ISO-8859-1?Q?Ezequiel_Garc=EDa?= <ezequiel@vanguardiasur.com.ar>
-Subject: Re: [PATCH v2 2/2] input: rotary-encoder: Add 'on-each-step' to
- binding documentation
-Date: Thu, 10 Oct 2013 10:55:45 -0300
-Message-ID: <CAAEAJfA8iiuT-8k2psXLt5a9fAndwU=_YVR8OXU1Lz1xzZX5pA@mail.gmail.com>
-References: <1380891203-17617-1-git-send-email-ezequiel@vanguardiasur.com.ar>
-	<1380891203-17617-3-git-send-email-ezequiel@vanguardiasur.com.ar>
-	<20131004131956.GE6999@e106331-lin.cambridge.arm.com>
-	<20131004140925.GA27809@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Simon Wood <simon@mungewell.org>
+Subject: [PATCHv2 1/3] HID:hid-lg: Fixed ReportDescriptor for Logitech Formula Vibration to split Accel/Brake into seperate axis
+Date: Thu, 10 Oct 2013 08:20:12 -0600
+Message-ID: <1381414814-2107-1-git-send-email-simon@mungewell.org>
+References: <alpine.LNX.2.00.1310101002120.13289@pobox.suse.cz>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:38684 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752251Ab3JJNzp convert rfc822-to-8bit (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:58970 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755263Ab3JJOU3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Oct 2013 09:55:45 -0400
-Received: by mail-pb0-f50.google.com with SMTP id uo5so2601624pbc.37
-        for <linux-input@vger.kernel.org>; Thu, 10 Oct 2013 06:55:45 -0700 (PDT)
-In-Reply-To: <20131004140925.GA27809@localhost>
+	Thu, 10 Oct 2013 10:20:29 -0400
+In-Reply-To: <alpine.LNX.2.00.1310101002120.13289@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Daniel Mack <zonque@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, simon@mungewell.org, Elias Vanderstuyft <elias.vds@gmail.com>, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@prifuk.cz>
 
-On 4 October 2013 11:09, Ezequiel Garcia
-<ezequiel.garcia@free-electrons.com> wrote:
-> On Fri, Oct 04, 2013 at 02:19:56PM +0100, Mark Rutland wrote:
->> On Fri, Oct 04, 2013 at 01:53:23PM +0100, Ezequiel Garcia wrote:
->> > The driver now supports a new mode to handle the interruptions gen=
-erated
->> > by the device: on this new mode an input event is generated on eac=
-h step
->> > (i.e. on each IRQ). Therefore, add a new DT property, to select th=
-e
->> > mode: 'rotary-encoder,on-each-step'.
->> >
->> > Cc: Daniel Mack <zonque@gmail.com>
->> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> > Cc: Rob Herring <rob.herring@calxeda.com>
->> > Cc: devicetree@vger.kernel.org
->> > Signed-off-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
->> > ---
->> > I'm not at all happy with this DT binding as it's way to customize=
-d
->> > for the current driver. For instance, if we want to support mappin=
-g
->> > key events (or better arbitrary linux-input event types) it seems
->> > there's no easy way to fix the binding.
->> >
->> > Maybe a better way of handling the different 'modes' is through
->> > compatible strings?
->>
->> I'd prefer not to have more pseudo-devices in DT, and would prefer n=
-ot
->> to have compatible strings that boil down to driver options. We end =
-up
->> just embedding a tonne of Linux-specific driver configuration in the=
- DT
->> rather than describing hardware.
->>
->> That said, I'm not sure what the best solution is here.
->>
->> >
->> > I'm not really sure, so I hope the DT guys have some comment on th=
-is.
->> >
->> >  Documentation/devicetree/bindings/input/rotary-encoder.txt | 1 +
->> >  1 file changed, 1 insertion(+)
->> >
->> > diff --git a/Documentation/devicetree/bindings/input/rotary-encode=
-r.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
->> > index 3315495..b89e38d 100644
->> > --- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
->> > +++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
->> > @@ -15,6 +15,7 @@ Optional properties:
->> >  - rotary-encoder,rollover: Automatic rollove when the rotary valu=
-e becomes
->> >    greater than the specified steps or smaller than 0. For absolut=
-e axis only.
->> >  - rotary-encoder,half-period: Makes the driver work on half-perio=
-d mode.
->> > +- rotary-encoder,on-each-step: Makes the driver send an event on =
-each step.
->>
->> Could this not be something requested at runtime?
->>
->
-> Sure. The different modes:
->
-> * default (no option)
-> * rotary-encoder,half-period
-> * rotary-encoder,on-each-step
->
-> Just map to different interruption handlers. I don't have any other
-> rotary-encoder device, so I'm not at all sure what's the use of the
-> other two cases.
-> My particular device is detented, and produces a 'stable' event on ea=
-ch
-> step (i.e on each IRQ).
->
-> Regarding the runtime specification: you mean as a module parameter?
-> That should be trivial to add, no?
->
->> Could you explain what you want to achieve with this? -- what events=
- do
->> you want to occur when, to be handled in what way?
->>
->
-> Hm.. maybe I should have added the binding to the 1/2 patch and CCed
-> everybody involved for better context.
->
-> Anyway, I hope the above is clearer, I'm not really sure how to speci=
-fy
-> the details in the DT binding, since it's a specific interruption han=
-dler
-> for this class of encoder devices (stable on each step).
->
-> That said, I really hope I'm crafting a generic solution and not some
-> tailor-made implementation that just happens to match my use case.
->
-> The input maintainer's opinion on this would be valuable.
+Requires https://patchwork.kernel.org/patch/2998241/
 
-Any insights on this binding?
+By default the Logitech Formula Vibration presents a combined accel/brake
+axis ('Y'). This patch modifies the HID descriptor to present seperate    
+accel/brake axes ('Y' and 'Z').
 
-If nobody objects, then I'd like to get this change accepted,
-together with the driver change.
+Signed-off-by: Simon Wood <simon@mungewell.org>
+---
+ drivers/hid/hid-lg.c | 77 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 77 insertions(+)
 
-Thanks!
---=20
-Ezequiel Garc=EDa, VanguardiaSur
-www.vanguardiasur.com.ar
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+index c2c7dab..c6efdae 100644
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -45,6 +45,7 @@
+ /* Size of the original descriptors of the Driving Force (and Pro) wheels */
+ #define DF_RDESC_ORIG_SIZE	130
+ #define DFP_RDESC_ORIG_SIZE	97
++#define FV_RDESC_ORIG_SIZE	130
+ #define MOMO_RDESC_ORIG_SIZE	87
+ 
+ /* Fixed report descriptors for Logitech Driving Force (and Pro)
+@@ -170,6 +171,73 @@ static __u8 dfp_rdesc_fixed[] = {
+ 0xC0                /*  End Collection                          */
+ };
+ 
++static __u8 fv_rdesc_fixed[] = {
++0x05, 0x01,         /*  Usage Page (Desktop),                   */
++0x09, 0x04,         /*  Usage (Joystik),                        */
++0xA1, 0x01,         /*  Collection (Application),               */
++0xA1, 0x02,         /*      Collection (Logical),               */
++0x95, 0x01,         /*          Report Count (1),               */
++0x75, 0x0A,         /*          Report Size (10),               */
++0x15, 0x00,         /*          Logical Minimum (0),            */
++0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),         */
++0x35, 0x00,         /*          Physical Minimum (0),           */
++0x46, 0xFF, 0x03,   /*          Physical Maximum (1023),        */
++0x09, 0x30,         /*          Usage (X),                      */
++0x81, 0x02,         /*          Input (Variable),               */
++0x95, 0x0C,         /*          Report Count (12),              */
++0x75, 0x01,         /*          Report Size (1),                */
++0x25, 0x01,         /*          Logical Maximum (1),            */
++0x45, 0x01,         /*          Physical Maximum (1),           */
++0x05, 0x09,         /*          Usage Page (Button),            */
++0x19, 0x01,         /*          Usage Minimum (01h),            */
++0x29, 0x0C,         /*          Usage Maximum (0Ch),            */
++0x81, 0x02,         /*          Input (Variable),               */
++0x95, 0x02,         /*          Report Count (2),               */
++0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),             */
++0x09, 0x01,         /*          Usage (01h),                    */
++0x81, 0x02,         /*          Input (Variable),               */
++0x09, 0x02,         /*          Usage (02h),                    */
++0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
++0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
++0x95, 0x01,         /*          Report Count (1),               */
++0x75, 0x08,         /*          Report Size (8),                */
++0x81, 0x02,         /*          Input (Variable),               */
++0x05, 0x01,         /*          Usage Page (Desktop),           */
++0x25, 0x07,         /*          Logical Maximum (7),            */
++0x46, 0x3B, 0x01,   /*          Physical Maximum (315),         */
++0x75, 0x04,         /*          Report Size (4),                */
++0x65, 0x14,         /*          Unit (Degrees),                 */
++0x09, 0x39,         /*          Usage (Hat Switch),             */
++0x81, 0x42,         /*          Input (Variable, Null State),   */
++0x75, 0x01,         /*          Report Size (1),                */
++0x95, 0x04,         /*          Report Count (4),               */
++0x65, 0x00,         /*          Unit,                           */
++0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),             */
++0x09, 0x01,         /*          Usage (01h),                    */
++0x25, 0x01,         /*          Logical Maximum (1),            */
++0x45, 0x01,         /*          Physical Maximum (1),           */
++0x81, 0x02,         /*          Input (Variable),               */
++0x05, 0x01,         /*          Usage Page (Desktop),           */
++0x95, 0x01,         /*          Report Count (1),               */
++0x75, 0x08,         /*          Report Size (8),                */
++0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
++0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
++0x09, 0x31,         /*          Usage (Y),                      */
++0x81, 0x02,         /*          Input (Variable),               */
++0x09, 0x32,         /*          Usage (Z),                      */
++0x81, 0x02,         /*          Input (Variable),               */
++0xC0,               /*      End Collection,                     */
++0xA1, 0x02,         /*      Collection (Logical),               */
++0x26, 0xFF, 0x00,   /*          Logical Maximum (255),          */
++0x46, 0xFF, 0x00,   /*          Physical Maximum (255),         */
++0x95, 0x07,         /*          Report Count (7),               */
++0x75, 0x08,         /*          Report Size (8),                */
++0x09, 0x03,         /*          Usage (03h),                    */
++0x91, 0x02,         /*          Output (Variable),              */
++0xC0,               /*      End Collection,                     */
++0xC0                /*  End Collection                          */
++};
++
+ static __u8 momo_rdesc_fixed[] = {
+ 0x05, 0x01,         /*  Usage Page (Desktop),               */
+ 0x09, 0x04,         /*  Usage (Joystik),                    */
+@@ -275,6 +343,15 @@ static __u8 *lg_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		}
+ 		break;
+ 
++	case USB_DEVICE_ID_LOGITECH_VIBRATION_WHEEL:
++		if (*rsize == FV_RDESC_ORIG_SIZE) {
++			hid_info(hdev,
++				"fixing up Logitech Formula Vibration report descriptor\n");
++			rdesc = fv_rdesc_fixed;
++			*rsize = sizeof(fv_rdesc_fixed);
++		}
++		break;
++
+ 	case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
+ 		if (*rsize == DFP_RDESC_ORIG_SIZE) {
+ 			hid_info(hdev,
+-- 
+1.8.1.2
+

@@ -1,321 +1,265 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH v2 2/2] Input: wacom - add support for three new Intuos devices
-Date: Thu, 10 Oct 2013 14:17:46 -0700
-Message-ID: <1381439866-1161-1-git-send-email-pingc@wacom.com>
+From: "hyunhee.kim" <hyunhee.kim@samsung.com>
+Subject: [PATCH] Input: add regulator haptic driver
+Date: Fri, 11 Oct 2013 11:22:00 +0900
+Message-ID: <000101cec628$aaff69a0$00fe3ce0$%kim@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:61501 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756835Ab3JJVRx (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:51915 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751902Ab3JKCWE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Oct 2013 17:17:53 -0400
-Received: by mail-pa0-f51.google.com with SMTP id kp14so3337738pab.24
-        for <linux-input@vger.kernel.org>; Thu, 10 Oct 2013 14:17:53 -0700 (PDT)
+	Thu, 10 Oct 2013 22:22:04 -0400
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, peter.hutterer@who-t.net, chris@cnpbagwell.com, Ping Cheng <pingc@wacom.com>
+To: dmitry.torokhov@gmail.com, broonie@opensource.wolfsonmicro.com, peter.ujfalusi@ti.com, wfp5p@virginia.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 
-This series of models added a hardware switch to turn touch
-data on/off. To report the state of the switch, SW_TOUCH
-is added in include/uapi/linux/input.h.
+From: Hyunhee Kim <hyunhee.kim@samsung.com>
+Date: Wed, 9 Oct 2013 16:21:36 +0900
+Subject: [PATCH] Input: add regulator haptic driver
 
-The driver is also updated to process wireless devices that do
-not support touch interface.
+The regulator haptic driver function can be used to control motor by on/off
+regulator.
+User can control the haptic driver by using force feedback framework.
 
-Tested-by: Jason Gerecke <killertofu@gmail.com>
-Signed-off-by: Ping Cheng <pingc@wacom.com>
+Signed-off-by: Hyunhee Kim <hyunhee.kim@samsung.com>
+Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 ---
-v2: Change SW_TOUCH_ENABLED to SW_TOUCH and clear BTN_TOUCH bit 
-for button only interfaces as suggested by Peter Hutterer.
----
- drivers/input/tablet/wacom_sys.c | 16 +++++++-
- drivers/input/tablet/wacom_wac.c | 87 ++++++++++++++++++++++++++++++++--------
- drivers/input/tablet/wacom_wac.h |  7 ++++
- include/uapi/linux/input.h       |  1 +
- 4 files changed, 93 insertions(+), 18 deletions(-)
+ drivers/input/misc/Kconfig            |    6 ++
+ drivers/input/misc/Makefile           |    1 +
+ drivers/input/misc/regulator-haptic.c |  185
++++++++++++++++++++++++++++++++++
+ 3 files changed, 192 insertions(+)
+ create mode 100644 drivers/input/misc/regulator-haptic.c
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 7bdb5e9..efd9729 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -1190,12 +1190,15 @@ static void wacom_wireless_work(struct work_struct *work)
- 		wacom_wac1->features.device_type = BTN_TOOL_PEN;
- 		snprintf(wacom_wac1->name, WACOM_NAME_MAX, "%s (WL) Pen",
- 			 wacom_wac1->features.name);
-+		wacom_wac1->shared->touch_max = wacom_wac1->features.touch_max;
-+		wacom_wac1->shared->type = wacom_wac1->features.type;
- 		error = wacom_register_input(wacom1);
- 		if (error)
- 			goto fail;
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index bb698e1..f391cd7 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -82,6 +82,12 @@ config INPUT_ARIZONA_HAPTICS
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called arizona-haptics.
  
- 		/* Touch interface */
--		if (wacom_wac1->features.touch_max) {
-+		if (wacom_wac1->features.touch_max ||
-+		    wacom_wac1->features.type == INTUOS_HT) {
- 			wacom_wac2->features =
- 				*((struct wacom_features *)id->driver_info);
- 			wacom_wac2->features.pktlen = WACOM_PKGLEN_BBTOUCH3;
-@@ -1210,6 +1213,10 @@ static void wacom_wireless_work(struct work_struct *work)
- 			error = wacom_register_input(wacom2);
- 			if (error)
- 				goto fail;
++config INPUT_REGULATOR_HAPTIC
++	tristate "regulator haptics support"
++	select INPUT_FF_MEMLESS
++	help
++	  Say Y to enable support for the haptics module for regulator.
 +
-+			if (wacom_wac1->features.type == INTUOS_HT &&
-+			    wacom_wac1->features.touch_max)
-+				wacom_wac->shared->touch_input = wacom_wac2->input;
- 		}
- 
- 		error = wacom_initialize_battery(wacom);
-@@ -1318,7 +1325,7 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	 * HID descriptor. If this is the touch interface (wMaxPacketSize
- 	 * of WACOM_PKGLEN_BBTOUCH3), override the table values.
- 	 */
--	if (features->type >= INTUOS5S && features->type <= INTUOSPL) {
-+	if (features->type >= INTUOS5S && features->type <= INTUOS_HT) {
- 		if (endpoint->wMaxPacketSize == WACOM_PKGLEN_BBTOUCH3) {
- 			features->device_type = BTN_TOOL_FINGER;
- 			features->pktlen = WACOM_PKGLEN_BBTOUCH3;
-@@ -1390,6 +1397,11 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 		}
- 	}
- 
-+	if (wacom_wac->features.type == INTUOS_HT && wacom_wac->features.touch_max) {
-+		if (wacom_wac->features.device_type == BTN_TOOL_FINGER)
-+			wacom_wac->shared->touch_input = wacom_wac->input;
+ config INPUT_BMA150
+ 	tristate "BMA150/SMB380 acceleration sensor support"
+ 	depends on I2C
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index d7fc17f..106f0bc 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -15,6 +15,7 @@ obj-$(CONFIG_INPUT_ADXL34X_I2C)		+=
+adxl34x-i2c.o
+ obj-$(CONFIG_INPUT_ADXL34X_SPI)		+= adxl34x-spi.o
+ obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
+ obj-$(CONFIG_INPUT_ARIZONA_HAPTICS)	+= arizona-haptics.o
++obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
+ obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
+ obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
+ obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
+diff --git a/drivers/input/misc/regulator-haptic.c
+b/drivers/input/misc/regulator-haptic.c
+new file mode 100644
+index 0000000..29f57ea
+--- /dev/null
++++ b/drivers/input/misc/regulator-haptic.c
+@@ -0,0 +1,185 @@
++/*
++ * Regulator haptic driver
++ *
++ * Copyright (c) 2013 Samsung Electronics Co., Ltd.
++ *
++ * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/regulator/driver.h>
++
++struct regulator_haptic {
++	struct device *dev;
++	struct input_dev *input_dev;
++	struct work_struct work;
++	bool enabled;
++	struct regulator *regulator;
++	struct mutex mutex;
++	int level;
++};
++
++static void regulator_haptic_enable(struct regulator_haptic *haptic, bool
+enable)
++{
++	int ret;
++
++	mutex_lock(&haptic->mutex);
++	if (enable && !haptic->enabled) {
++		haptic->enabled = true;
++		ret = regulator_enable(haptic->regulator);
++		if (ret)
++			pr_err("haptic: %s failed to enable regulator\n",
++				__func__);
++	} else if (!enable && haptic->enabled) {
++		haptic->enabled = false;
++		ret = regulator_disable(haptic->regulator);
++		if (ret)
++			pr_err("haptic: %s failed to disable regulator\n",
++				__func__);
++	}
++	mutex_unlock(&haptic->mutex);
++}
++
++static void regulator_haptic_work(struct work_struct *work)
++{
++	struct regulator_haptic *haptic = container_of(work,
++						       struct
+regulator_haptic,
++						       work);
++	if (haptic->level)
++		regulator_haptic_enable(haptic, true);
++	else
++		regulator_haptic_enable(haptic, false);
++
++}
++
++static int regulator_haptic_play(struct input_dev *input, void *data,
++				struct ff_effect *effect)
++{
++	struct regulator_haptic *haptic = input_get_drvdata(input);
++
++	haptic->level = effect->u.rumble.strong_magnitude;
++	if (!haptic->level)
++		haptic->level = effect->u.rumble.weak_magnitude;
++	schedule_work(&haptic->work);
++
++	return 0;
++}
++
++static void regulator_haptic_close(struct input_dev *input)
++{
++	struct regulator_haptic *haptic = input_get_drvdata(input);
++
++	cancel_work_sync(&haptic->work);
++	regulator_haptic_enable(haptic, false);
++}
++
++static int regulator_haptic_probe(struct platform_device *pdev)
++{
++	struct regulator_haptic *haptic;
++	struct input_dev *input_dev;
++	int error;
++
++	haptic = kzalloc(sizeof(*haptic), GFP_KERNEL);
++	if (!haptic) {
++		dev_err(&pdev->dev, "unable to allocate memory for
+haptic\n");
++		return -ENOMEM;
 +	}
 +
- 	return 0;
- 
-  fail5: wacom_destroy_leds(wacom);
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index 9c8eded..4cbea85 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1176,10 +1176,17 @@ static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
- static void wacom_bpt3_button_msg(struct wacom_wac *wacom, unsigned char *data)
- {
- 	struct input_dev *input = wacom->input;
-+	struct wacom_features *features = &wacom->features;
- 
--	input_report_key(input, BTN_LEFT, (data[1] & 0x08) != 0);
-+	if (features->type == INTUOS_HT) {
-+		input_report_key(input, BTN_LEFT, (data[1] & 0x02) != 0);
-+		input_report_key(input, BTN_BACK, (data[1] & 0x08) != 0);
-+	} else {
++	input_dev = input_allocate_device();
 +
-+		input_report_key(input, BTN_BACK, (data[1] & 0x02) != 0);
-+		input_report_key(input, BTN_LEFT, (data[1] & 0x08) != 0);
-+	}
- 	input_report_key(input, BTN_FORWARD, (data[1] & 0x04) != 0);
--	input_report_key(input, BTN_BACK, (data[1] & 0x02) != 0);
- 	input_report_key(input, BTN_RIGHT, (data[1] & 0x01) != 0);
- }
- 
-@@ -1213,13 +1220,23 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
- 
- static int wacom_bpt_pen(struct wacom_wac *wacom)
- {
-+	struct wacom_features *features = &wacom->features;
- 	struct input_dev *input = wacom->input;
- 	unsigned char *data = wacom->data;
- 	int prox = 0, x = 0, y = 0, p = 0, d = 0, pen = 0, btn1 = 0, btn2 = 0;
- 
--	if (data[0] != 0x02)
-+	if (data[0] != WACOM_REPORT_PENABLED && data[0] != WACOM_REPORT_USB_MODE)
- 	    return 0;
- 
-+	if (data[0] == WACOM_REPORT_USB_MODE) {
-+		if ((features->type == INTUOS_HT) && features->touch_max) {
-+			input_report_switch(wacom->shared->touch_input,
-+					    SW_TOUCH, data[8] & 0x40);
-+			input_sync(wacom->shared->touch_input);
-+		}
-+		return 0;
++	if (!input_dev) {
++		dev_err(&pdev->dev, "unable to allocate memory\n");
++		error =  -ENOMEM;
++		goto err_kfree_mem;
 +	}
 +
- 	prox = (data[1] & 0x20) == 0x20;
- 
- 	/*
-@@ -1297,13 +1314,20 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
- 	unsigned char *data = wacom->data;
- 	int connected;
- 
--	if (len != WACOM_PKGLEN_WIRELESS || data[0] != 0x80)
-+	if (len != WACOM_PKGLEN_WIRELESS || data[0] != WACOM_REPORT_WL_MODE)
- 		return 0;
- 
- 	connected = data[1] & 0x01;
- 	if (connected) {
- 		int pid, battery;
- 
-+		if ((wacom->shared->type == INTUOS_HT) &&
-+				wacom->shared->touch_max) {
-+			input_report_switch(wacom->shared->touch_input,
-+					SW_TOUCH, data[5] & 0x40);
-+			input_sync(wacom->shared->touch_input);
-+		}
++	INIT_WORK(&haptic->work, regulator_haptic_work);
++	mutex_init(&haptic->mutex);
++	haptic->input_dev = input_dev;
++	haptic->dev = &pdev->dev;
++	haptic->regulator = regulator_get(&pdev->dev, "haptic");
 +
- 		pid = get_unaligned_be16(&data[6]);
- 		battery = data[5] & 0x3f;
- 		if (wacom->pid != pid) {
-@@ -1391,6 +1415,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
- 		break;
- 
- 	case BAMBOO_PT:
-+	case INTUOS_HT:
- 		sync = wacom_bpt_irq(wacom_wac, len);
- 		break;
- 
-@@ -1459,7 +1484,7 @@ void wacom_setup_device_quirks(struct wacom_features *features)
- 
- 	/* these device have multiple inputs */
- 	if (features->type >= WIRELESS ||
--	    (features->type >= INTUOS5S && features->type <= INTUOSPL) ||
-+	    (features->type >= INTUOS5S && features->type <= INTUOS_HT) ||
- 	    (features->oVid && features->oPid))
- 		features->quirks |= WACOM_QUIRK_MULTI_INPUT;
- 
-@@ -1531,7 +1556,8 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 	struct wacom_features *features = &wacom_wac->features;
- 	int i;
- 
--	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS) |
-+			       BIT_MASK(EV_SW);
- 
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 	__set_bit(ABS_MISC, input_dev->absbit);
-@@ -1771,33 +1797,48 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
- 		break;
- 
-+	case INTUOS_HT:
-+		if (features->touch_max &&
-+		    (features->device_type == BTN_TOOL_FINGER))
-+			__set_bit(SW_TOUCH, input_dev->swbit);
-+		/* fall through */
++	if (IS_ERR(haptic->regulator)) {
++		error = PTR_ERR(haptic->regulator);
++		dev_err(&pdev->dev, "unable to get regulator, err: %d\n",
++			error);
++		goto err_ifree_mem;
++	}
 +
- 	case BAMBOO_PT:
- 		__clear_bit(ABS_MISC, input_dev->absbit);
- 
--		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
--
- 		if (features->device_type == BTN_TOOL_FINGER) {
--			unsigned int flags = INPUT_MT_POINTER;
- 
- 			__set_bit(BTN_LEFT, input_dev->keybit);
- 			__set_bit(BTN_FORWARD, input_dev->keybit);
- 			__set_bit(BTN_BACK, input_dev->keybit);
- 			__set_bit(BTN_RIGHT, input_dev->keybit);
- 
--			if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
--				input_set_abs_params(input_dev,
-+			if (features->touch_max) {
-+				/* touch interface */
-+				unsigned int flags = INPUT_MT_POINTER;
++	haptic->input_dev->name = "regulator:haptic";
++	haptic->input_dev->dev.parent = &pdev->dev;
++	haptic->input_dev->close = regulator_haptic_close;
++	haptic->enabled = false;
++	input_set_drvdata(haptic->input_dev, haptic);
++	input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
 +
-+				__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-+				if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
-+					input_set_abs_params(input_dev,
- 						     ABS_MT_TOUCH_MAJOR,
- 						     0, features->x_max, 0, 0);
--				input_set_abs_params(input_dev,
-+					input_set_abs_params(input_dev,
- 						     ABS_MT_TOUCH_MINOR,
- 						     0, features->y_max, 0, 0);
-+				} else {
-+					__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
-+					__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
-+					flags = 0;
-+				}
-+				input_mt_init_slots(input_dev, features->touch_max, flags);
- 			} else {
--				__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
--				__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
--				flags = 0;
-+				/* buttons/keys only interface */
-+				__clear_bit(ABS_X, input_dev->absbit);
-+				__clear_bit(ABS_Y, input_dev->absbit);
-+				__clear_bit(BTN_TOUCH, input_dev->keybit);
- 			}
--			input_mt_init_slots(input_dev, features->touch_max, flags);
- 		} else if (features->device_type == BTN_TOOL_PEN) {
-+			__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
- 			__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
- 			__set_bit(BTN_TOOL_PEN, input_dev->keybit);
- 			__set_bit(BTN_STYLUS, input_dev->keybit);
-@@ -2194,6 +2235,17 @@ static const struct wacom_features wacom_features_0x300 =
- static const struct wacom_features wacom_features_0x301 =
- 	{ "Wacom Bamboo One M",    WACOM_PKGLEN_BBPEN,    21648, 13530, 1023,
- 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x302 =
-+	{ "Wacom Intuos PT S",     WACOM_PKGLEN_BBPEN,    15200,  9500, 1023,
-+	  31, INTUOS_HT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 16 };
-+static const struct wacom_features wacom_features_0x303 =
-+	{ "Wacom Intuos PT M",     WACOM_PKGLEN_BBPEN,    21600, 13500, 1023,
-+	  31, INTUOS_HT, WACOM_INTUOS_RES, WACOM_INTUOS_RES,
-+	  .touch_max = 16 };
-+static const struct wacom_features wacom_features_0x30E =
-+	{ "Wacom Intuos S",        WACOM_PKGLEN_BBPEN,    15200,  9500, 1023,
-+	  31, INTUOS_HT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x6004 =
- 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -2329,6 +2381,9 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x10D) },
- 	{ USB_DEVICE_WACOM(0x300) },
- 	{ USB_DEVICE_WACOM(0x301) },
-+	{ USB_DEVICE_WACOM(0x302) },
-+	{ USB_DEVICE_DETAILED(0x303, USB_CLASS_HID, 0, 0) },
-+	{ USB_DEVICE_DETAILED(0x30E, USB_CLASS_HID, 0, 0) },
- 	{ USB_DEVICE_WACOM(0x304) },
- 	{ USB_DEVICE_DETAILED(0x314, USB_CLASS_HID, 0, 0) },
- 	{ USB_DEVICE_DETAILED(0x315, USB_CLASS_HID, 0, 0) },
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index fd23a37..ba9e335 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -54,6 +54,8 @@
- #define WACOM_REPORT_TPCST		16
- #define WACOM_REPORT_TPC1FGE		18
- #define WACOM_REPORT_24HDT		1
-+#define WACOM_REPORT_WL_MODE		128
-+#define WACOM_REPORT_USB_MODE		192
- 
- /* device quirks */
- #define WACOM_QUIRK_MULTI_INPUT		0x0001
-@@ -81,6 +83,7 @@ enum {
- 	INTUOSPS,
- 	INTUOSPM,
- 	INTUOSPL,
-+	INTUOS_HT,
- 	WACOM_21UX2,
- 	WACOM_22HD,
- 	DTK,
-@@ -129,6 +132,10 @@ struct wacom_features {
- struct wacom_shared {
- 	bool stylus_in_proximity;
- 	bool touch_down;
-+	/* for wireless device to access USB interfaces */
-+	unsigned touch_max;
-+	int type;
-+	struct input_dev *touch_input;
- };
- 
- struct wacom_wac {
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index d08abf9..70e53e8 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -855,6 +855,7 @@ struct input_keymap_entry {
- #define SW_FRONT_PROXIMITY	0x0b  /* set = front proximity sensor active */
- #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
- #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
-+#define SW_TOUCH		0x0e  /* set = touch switch turned on (touch events off) */
- #define SW_MAX			0x0f
- #define SW_CNT			(SW_MAX+1)
- 
++	error = input_ff_create_memless(input_dev, NULL,
++				      regulator_haptic_play);
++	if (error) {
++		dev_err(&pdev->dev,
++			"input_ff_create_memless() failed: %d\n",
++			error);
++		goto err_put_regulator;
++	}
++
++	error = input_register_device(haptic->input_dev);
++	if (error) {
++		dev_err(&pdev->dev,
++			"couldn't register input device: %d\n",
++			error);
++		goto err_destroy_ff;
++	}
++
++	platform_set_drvdata(pdev, haptic);
++
++	return 0;
++
++err_destroy_ff:
++	input_ff_destroy(haptic->input_dev);
++err_put_regulator:
++	regulator_put(haptic->regulator);
++err_ifree_mem:
++	input_free_device(haptic->input_dev);
++err_kfree_mem:
++	kfree(haptic);
++
++	return error;
++}
++
++static int regulator_haptic_remove(struct platform_device *pdev)
++{
++	struct regulator_haptic *haptic = platform_get_drvdata(pdev);
++
++	input_unregister_device(haptic->input_dev);
++
++	return 0;
++}
++
++static struct of_device_id regulator_haptic_dt_match[] = {
++	{ .compatible = "linux,regulator-haptic" },
++	{},
++};
++
++static struct platform_driver regulator_haptic_driver = {
++	.driver		= {
++		.name	= "regulator-haptic",
++		.owner	= THIS_MODULE,
++		.of_match_table = regulator_haptic_dt_match,
++	},
++
++	.probe		= regulator_haptic_probe,
++	.remove		= regulator_haptic_remove,
++};
++module_platform_driver(regulator_haptic_driver);
++
++MODULE_ALIAS("platform:regulator-haptic");
++MODULE_DESCRIPTION("Regulator haptic driver");
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Hyunhee Kim <hyunhee.kim@samsung.com>");
 -- 
-1.8.1.2
+1.7.9.5
+
 

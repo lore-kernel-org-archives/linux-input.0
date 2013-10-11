@@ -1,87 +1,173 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: Re: [PATCH] add sur40 driver for Samsung SUR40 (aka MS Surface 2.0/Pixelsense)
-Date: Fri, 11 Oct 2013 11:22:43 +0200
-Message-ID: <5257C363.5020708@butterbrot.org>
-References: <1378934763-17938-1-git-send-email-floe@butterbrot.org>	<20130918193853.GA2070@polaris.bitmath.org>	<524BD2D8.505@butterbrot.org>	<CANq1E4S6ZkcCs8a6wo76kZq1R2vB3ti1Mw9y+_jE81c30gr6Pg@mail.gmail.com>	<524C24B8.9090000@butterbrot.org> <CANq1E4R5-WEx_e1vYOmY-xGL0w669Qj54SGLU_tb8h97=5zH=A@mail.gmail.com>
+From: Christian Engelmayer <christian.engelmayer@frequentis.com>
+Subject: [RFC] usbtouchscreen: stuck BTN_TOUCH release events
+Date: Fri, 11 Oct 2013 13:42:28 +0200
+Message-ID: <20131011134228.1ec2567a@frequentis.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="cO7jQguqkp0LjIfE4b68LwFi0cCEUJmTk"
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:33741 "EHLO butterbrot.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751044Ab3JKJWq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Oct 2013 05:22:46 -0400
-In-Reply-To: <CANq1E4R5-WEx_e1vYOmY-xGL0w669Qj54SGLU_tb8h97=5zH=A@mail.gmail.com>
+Received: from mail1.frequentis.com ([195.20.158.50]:41666 "EHLO
+	mail1.frequentis.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753336Ab3JKLxB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Oct 2013 07:53:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>, HID CORE LAYER <linux-input@vger.kernel.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, christian.engelmayer@frequentis.com
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---cO7jQguqkp0LjIfE4b68LwFi0cCEUJmTk
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hello,
 
-On 02.10.2013 15:59, David Herrmann wrote:
->>> Or maybe even replace it by "u32 angle;". That should always be safe.=
+We are using the usbtouchscreen driver for a 0eef:0001 eGalax based device and
+have observed cases were BTN_TOUCH seems to be stuck as release events are not
+reported promptly. In those situations the release event is reported after
+arbitrary time when the next touch event is triggered.
 
->>> Once you make use of this field, you can reconsider whether it's wort=
-h
->>> doing FP in the kernel. But as long as it's unused, I'd vote for
->>> avoiding "float" entirely.
->>
->> I was indeed planning to use this for orientation (as intended) in the=
+An usbmon trace shows that the problem occurs reproducible when the final 5
+byte report containing the liftoff event finishes at an 8 byte boundary:
 
->> next iteration, what macros would I have to use for proper float handl=
-ing?
->=20
-> Archived from 2003 but afaik his last paragraph still applies today:
->   http://yarchive.net/comp/linux/kernel_fp.html
->=20
-> So what you should do is forward the raw angle data to user-space and
-> let them deal with it. We usually don't apply policy in the kernel but
-> instead forward the given data to the user and let them do the
-> orientation computations. Any specific reason why you want to do that
-> in the kernel?
-I think it would be more consistent to have an EV_ABS value for
-orientation, ranging e.g. from 0 to 359 (or rather from 0 to e.g. 90, as
-described in multi-touch-protocol.txt). For pass-through to work, I
-would probably have to set min and max to 0 and __UINT32_MAX__?
+   ceb81c80 1241543630 C Ii:1:002:1 0:4 16 = 81097c0a 5b81097c 0a5a8109 7b0a5a81
+   ceb81c80 1241543964 S Ii:1:002:1 -115:4 16 <
+   ceb81c80 1241555630 C Ii:1:002:1 0:4 16 = 097a0a5a 8109780a 59810975 0a578109
+   ceb81c80 1241555988 S Ii:1:002:1 -115:4 16 <
 
-Alternatively, I think it should be possible to perform the required
-conversion using integer arithmetic and bit operations alone.
+   ---[abort - urb gets unlinked]---
 
-However, for the time being, I'd suggest to simply leave the float
-alone, use just a 0/1 value for orientation and deal with this in a
-later patch, agreed?
+   ceb81c80 1250629867 C Ii:1:002:1 -2:4 8 = 730a5380 09730a53
 
-One additional question: is there any provision in the multitouch
-protocol for differentiation between various types of objects, e.g.
-"finger" and "palm"?
+The usbtouchscreen driver is aware of both the report and diagnostic packets
+supported by the controller. It enables multi frame support and defines the
+report size for the eGalax to the 16 byte maximum diagnostic packet size
+opposed to the 5 byte coordinate report.
 
-BTW, what's the best practice for resubmitting a patch? I've used "git
-commit --amend" on my previous commit, and would now just use "git
-send-email" again, creating a new thread?
+In my opinion the situation described above is caused because the same size
+definition is used for buffer allocation and interrupt endpoint requests to
+the USB subsystem. The ehci-hcd will split the 16 byte request into up to 2
+accesses according to the wMaxPacketSize of 8 byte for this endpoint. In case
+the first transfer is answered by the eGalax with not less than the full 8 byte
+requested, the host controller has got no way of knowing that the touch
+controller will not have additional queued data until the next touch event.
 
-Best regards, Florian
---=20
-SENT FROM MY DEC VT50 TERMINAL
+As I am normally not involved into input drivers, please give me a hint to a
+solution to this issue that would be acceptable for the maintainers and I can
+prepare a tested patch accordingly.
 
+Regards,
+Christian
 
+---
 
+Bus 001 Device 002: ID 0eef:0001 D-WAV Scientific Co., Ltd eGalax TouchScreen
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x0eef D-WAV Scientific Co., Ltd
+  idProduct          0x0001 eGalax TouchScreen
+  bcdDevice            1.00
+  iManufacturer           1 eGalax Inc.
+  iProduct                2 USB TouchController
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           25
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          4 USB TouchScreen
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass    255 Vendor Specific Subclass
+      bInterfaceProtocol    255 Vendor Specific Protocol
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval               5
+Device Status:     0x0002
+  (Bus Powered)
+  Remote Wakeup Enabled
 
---cO7jQguqkp0LjIfE4b68LwFi0cCEUJmTk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAlJXw2MACgkQ7CzyshGvatgBAgCg8dGaizO4+5Nw9IeIuCtKm+AT
-S/gAn0eVFBFiGm4D4r1r00saTkKs8UQG
-=32r2
------END PGP SIGNATURE-----
-
---cO7jQguqkp0LjIfE4b68LwFi0cCEUJmTk--
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            9 Hub
+  bDeviceSubClass         0 Unused
+  bDeviceProtocol         1 Single TT
+  bMaxPacketSize0        64
+  idVendor           0x1d6b Linux Foundation
+  idProduct          0x0002 2.0 root hub
+  bcdDevice            3.04
+  iManufacturer           3 Linux 3.4.61-rel_4_4002_0-svn216359 ehci_hcd
+  iProduct                2 Freescale On-Chip EHCI Host Controller
+  iSerial                 1 fsl-ehci.0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           25
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xe0
+      Self Powered
+      Remote Wakeup
+    MaxPower                0mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         9 Hub
+      bInterfaceSubClass      0 Unused
+      bInterfaceProtocol      0 Full speed (or root) hub
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0004  1x 4 bytes
+        bInterval              12
+Hub Descriptor:
+  bLength               9
+  bDescriptorType      41
+  nNbrPorts             1
+  wHubCharacteristic 0x0009
+    Per-port power switching
+    Per-port overcurrent protection
+    TT think time 8 FS bits
+  bPwrOn2PwrGood       10 * 2 milli seconds
+  bHubContrCurrent      0 milli Ampere
+  DeviceRemovable    0x00
+  PortPwrCtrlMask    0xff
+ Hub Port Status:
+   Port 1: 0000.0303 lowspeed power enable connect
+Device Status:     0x0001
+  Self Powered

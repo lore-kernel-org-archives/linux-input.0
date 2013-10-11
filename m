@@ -1,57 +1,63 @@
-From: Phil Carmody <pc+n900@asdf.org>
-Subject: Disabling the tsc2005 driver at runtime
-Date: Fri, 11 Oct 2013 19:38:44 +0300
-Message-ID: <20131011163844.GH30709@fatphil.org>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 1/2] Input: twl4030_keypad - add device tree support
+Date: Fri, 11 Oct 2013 16:38:33 -0700
+Message-ID: <20131011233833.GE29913@atomide.com>
+References: <1381353447-32708-1-git-send-email-sre@debian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 87-119-183-129.tll.elisa.ee ([87.119.183.129]:51243 "EHLO
-	fatphil.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752510Ab3JKQpz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Oct 2013 12:45:55 -0400
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1381353447-32708-1-git-send-email-sre@debian.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Sebastian Reichel <sre@debian.org>
+Cc: Sebastian Reichel <sre@ring0.de>, linux-input@vger.kernel.org, =?utf-8?Q?'Beno=C3=AEt?= Cousson' <bcousson@baylibre.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: freemangordon@abv.bg, linux-input@vger.kernel.org, wfp5p@virginia.edu, broonie@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, pc+n900@asdf.org
 
-Greetings, Dmitry,
+* Sebastian Reichel <sre@debian.org> [131009 14:25]:
+> Add device tree support for twl4030 keypad driver and update the
+> Documentation with twl4030 keypad device tree binding information.
+> 
+> This patch also adds a twl4030 keypad node to the twl4030.dtsi file,
+> so that board files can just add the keymap.
+> 
+> Tested on Nokia N900.
 
-I'm looking for some advice regarding locally restoring a feature into
-the tsc2005 driver that was removed back in:
-  http://www.spinics.net/lists/linux-input/msg14575.html
-  commit 5cb81d1: Input: tsc2005 - remove 'disable' sysfs attribute
+Nice :) Just few cosmetic comments below.
+>  
+> +#ifdef CONFIG_OF
+> +static int twl4030_keypad_parse_dt(struct device *dev,
+> +				 struct twl4030_keypad *keypad_data)
+> +{
 
-Given the prior patch in the patchset:
-  commit 0b950d3: Input: tsc2005 - add open/close
-  "Introduce open and close methods for the input device 
-   to keep the device powered down when it is not in use."
-it seems you were expecting the device node to only have one reader, and
-that reader would be the entity who decided when it was time to disable
-and power down the device.
+I guess the way to go nowadays is to use #IS_ENABLED(CONFIG_OF) here
+and later on in this patch.
 
-However, in the Nokia N900, the device node has at least 3 readers, 2 of
-which I believe are closed source components, and therefore cannot be
-modified to follow kernel changes. And even then, forcing 3 userspace
-programs to now have to actively participate in the disabling of the
-device seems excessively wasteful, compared with the ultimate simplicity
-of the clients not even having to know about such things, which is how
-it was before the change.
+> @@ -331,20 +358,12 @@ static int twl4030_kp_program(struct twl4030_keypad *kp)
+>  static int twl4030_kp_probe(struct platform_device *pdev)
+>  {
+>  	struct twl4030_keypad_data *pdata = pdev->dev.platform_data;
+> -	const struct matrix_keymap_data *keymap_data;
+> +	const struct matrix_keymap_data *keymap_data = NULL;
+>  	struct twl4030_keypad *kp;
+>  	struct input_dev *input;
+>  	u8 reg;
+>  	int error;
+>  
+> -	if (!pdata || !pdata->rows || !pdata->cols || !pdata->keymap_data ||
+> -	    pdata->rows > TWL4030_MAX_ROWS || pdata->cols > TWL4030_MAX_COLS) {
+> -		dev_err(&pdev->dev, "Invalid platform_data\n");
+> -		return -EINVAL;
+> -	}
+> -
+> -	keymap_data = pdata->keymap_data;
+> -
+>  	kp = kzalloc(sizeof(*kp), GFP_KERNEL);
+>  	input = input_allocate_device();
+>  	if (!kp || !input) {
 
-Back then you mentioned a generic interface that should replace this
-device-specific one, but I can see no documentation for such an
-interface in the kernel Documentation/ABI. Can you elaborate?
+I assume you have tested the above so it does not break things
+for legacy booting?
 
-At the moment, as we can't break userspace, it seems that if we want to
-run a more modern kernel on the N900 or another tsc2005-based device
-running Fremantle, we should just locally revert that patch, and take 
-the maintenance hit ourselves for the implications of that. (Here 'we'
-= the volunteer community still supporting the device because of its
-longevity.)
+Other than that:
 
-Cheers,
-Phil
--- 
-People generally seem to want software to be free as in speech and/or
-free as in beer. Unfortunately rather too much of it is free as in jazz.
--- Janet McKnight, on a private newsgroup
+Acked-by: Tony Lindgren <tony@atomide.com>

@@ -1,20 +1,23 @@
 From: "hyunhee.kim" <hyunhee.kim@samsung.com>
 Subject: [PATCH] Input: add regulator haptic driver
-Date: Fri, 11 Oct 2013 11:22:00 +0900
-Message-ID: <000101cec628$aaff69a0$00fe3ce0$%kim@samsung.com>
+Date: Fri, 11 Oct 2013 11:26:05 +0900
+Message-ID: <000a01cec629$3cf34de0$b6d9e9a0$%kim@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:51915 "EHLO
+Received: from mailout1.samsung.com ([203.254.224.24]:52695 "EHLO
 	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751902Ab3JKCWE (ORCPT
+	with ESMTP id S1751902Ab3JKC0H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Oct 2013 22:22:04 -0400
+	Thu, 10 Oct 2013 22:26:07 -0400
+References: 
+In-reply-to: 
 Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, broonie@opensource.wolfsonmicro.com, peter.ujfalusi@ti.com, wfp5p@virginia.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+Cc: "'hyunhee.kim'" <hyunhee.kim@samsung.com>, kyungmin.park@samsung.com
 
 From: Hyunhee Kim <hyunhee.kim@samsung.com>
 Date: Wed, 9 Oct 2013 16:21:36 +0900

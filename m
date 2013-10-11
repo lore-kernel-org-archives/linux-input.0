@@ -1,268 +1,87 @@
-From: "hyunhee.kim" <hyunhee.kim@samsung.com>
-Subject: [PATCH] Input: add regulator haptic driver
-Date: Fri, 11 Oct 2013 11:26:05 +0900
-Message-ID: <000a01cec629$3cf34de0$b6d9e9a0$%kim@samsung.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH] add sur40 driver for Samsung SUR40 (aka MS Surface 2.0/Pixelsense)
+Date: Fri, 11 Oct 2013 11:22:43 +0200
+Message-ID: <5257C363.5020708@butterbrot.org>
+References: <1378934763-17938-1-git-send-email-floe@butterbrot.org>	<20130918193853.GA2070@polaris.bitmath.org>	<524BD2D8.505@butterbrot.org>	<CANq1E4S6ZkcCs8a6wo76kZq1R2vB3ti1Mw9y+_jE81c30gr6Pg@mail.gmail.com>	<524C24B8.9090000@butterbrot.org> <CANq1E4R5-WEx_e1vYOmY-xGL0w669Qj54SGLU_tb8h97=5zH=A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="cO7jQguqkp0LjIfE4b68LwFi0cCEUJmTk"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:52695 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751902Ab3JKC0H (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Oct 2013 22:26:07 -0400
-References: 
-In-reply-to: 
-Content-language: ko
+Received: from butterbrot.org ([176.9.106.16]:33741 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751044Ab3JKJWq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Oct 2013 05:22:46 -0400
+In-Reply-To: <CANq1E4R5-WEx_e1vYOmY-xGL0w669Qj54SGLU_tb8h97=5zH=A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, broonie@opensource.wolfsonmicro.com, peter.ujfalusi@ti.com, wfp5p@virginia.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
-Cc: "'hyunhee.kim'" <hyunhee.kim@samsung.com>, kyungmin.park@samsung.com
+To: David Herrmann <dh.herrmann@gmail.com>, HID CORE LAYER <linux-input@vger.kernel.org>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-From: Hyunhee Kim <hyunhee.kim@samsung.com>
-Date: Wed, 9 Oct 2013 16:21:36 +0900
-Subject: [PATCH] Input: add regulator haptic driver
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--cO7jQguqkp0LjIfE4b68LwFi0cCEUJmTk
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-The regulator haptic driver function can be used to control motor by on/off
-regulator.
-User can control the haptic driver by using force feedback framework.
+On 02.10.2013 15:59, David Herrmann wrote:
+>>> Or maybe even replace it by "u32 angle;". That should always be safe.=
 
-Signed-off-by: Hyunhee Kim <hyunhee.kim@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
----
- drivers/input/misc/Kconfig            |    6 ++
- drivers/input/misc/Makefile           |    1 +
- drivers/input/misc/regulator-haptic.c |  185
-+++++++++++++++++++++++++++++++++
- 3 files changed, 192 insertions(+)
- create mode 100644 drivers/input/misc/regulator-haptic.c
+>>> Once you make use of this field, you can reconsider whether it's wort=
+h
+>>> doing FP in the kernel. But as long as it's unused, I'd vote for
+>>> avoiding "float" entirely.
+>>
+>> I was indeed planning to use this for orientation (as intended) in the=
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index bb698e1..f391cd7 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -82,6 +82,12 @@ config INPUT_ARIZONA_HAPTICS
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called arizona-haptics.
- 
-+config INPUT_REGULATOR_HAPTIC
-+	tristate "regulator haptics support"
-+	select INPUT_FF_MEMLESS
-+	help
-+	  Say Y to enable support for the haptics module for regulator.
-+
- config INPUT_BMA150
- 	tristate "BMA150/SMB380 acceleration sensor support"
- 	depends on I2C
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index d7fc17f..106f0bc 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -15,6 +15,7 @@ obj-$(CONFIG_INPUT_ADXL34X_I2C)		+=
-adxl34x-i2c.o
- obj-$(CONFIG_INPUT_ADXL34X_SPI)		+= adxl34x-spi.o
- obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
- obj-$(CONFIG_INPUT_ARIZONA_HAPTICS)	+= arizona-haptics.o
-+obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
- obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
- obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
- obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
-diff --git a/drivers/input/misc/regulator-haptic.c
-b/drivers/input/misc/regulator-haptic.c
-new file mode 100644
-index 0000000..29f57ea
---- /dev/null
-+++ b/drivers/input/misc/regulator-haptic.c
-@@ -0,0 +1,185 @@
-+/*
-+ * Regulator haptic driver
-+ *
-+ * Copyright (c) 2013 Samsung Electronics Co., Ltd.
-+ *
-+ * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/regulator/driver.h>
-+
-+struct regulator_haptic {
-+	struct device *dev;
-+	struct input_dev *input_dev;
-+	struct work_struct work;
-+	bool enabled;
-+	struct regulator *regulator;
-+	struct mutex mutex;
-+	int level;
-+};
-+
-+static void regulator_haptic_enable(struct regulator_haptic *haptic, bool
-enable)
-+{
-+	int ret;
-+
-+	mutex_lock(&haptic->mutex);
-+	if (enable && !haptic->enabled) {
-+		haptic->enabled = true;
-+		ret = regulator_enable(haptic->regulator);
-+		if (ret)
-+			pr_err("haptic: %s failed to enable regulator\n",
-+				__func__);
-+	} else if (!enable && haptic->enabled) {
-+		haptic->enabled = false;
-+		ret = regulator_disable(haptic->regulator);
-+		if (ret)
-+			pr_err("haptic: %s failed to disable regulator\n",
-+				__func__);
-+	}
-+	mutex_unlock(&haptic->mutex);
-+}
-+
-+static void regulator_haptic_work(struct work_struct *work)
-+{
-+	struct regulator_haptic *haptic = container_of(work,
-+						       struct
-regulator_haptic,
-+						       work);
-+	if (haptic->level)
-+		regulator_haptic_enable(haptic, true);
-+	else
-+		regulator_haptic_enable(haptic, false);
-+
-+}
-+
-+static int regulator_haptic_play(struct input_dev *input, void *data,
-+				struct ff_effect *effect)
-+{
-+	struct regulator_haptic *haptic = input_get_drvdata(input);
-+
-+	haptic->level = effect->u.rumble.strong_magnitude;
-+	if (!haptic->level)
-+		haptic->level = effect->u.rumble.weak_magnitude;
-+	schedule_work(&haptic->work);
-+
-+	return 0;
-+}
-+
-+static void regulator_haptic_close(struct input_dev *input)
-+{
-+	struct regulator_haptic *haptic = input_get_drvdata(input);
-+
-+	cancel_work_sync(&haptic->work);
-+	regulator_haptic_enable(haptic, false);
-+}
-+
-+static int regulator_haptic_probe(struct platform_device *pdev)
-+{
-+	struct regulator_haptic *haptic;
-+	struct input_dev *input_dev;
-+	int error;
-+
-+	haptic = kzalloc(sizeof(*haptic), GFP_KERNEL);
-+	if (!haptic) {
-+		dev_err(&pdev->dev, "unable to allocate memory for
-haptic\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_dev = input_allocate_device();
-+
-+	if (!input_dev) {
-+		dev_err(&pdev->dev, "unable to allocate memory\n");
-+		error =  -ENOMEM;
-+		goto err_kfree_mem;
-+	}
-+
-+	INIT_WORK(&haptic->work, regulator_haptic_work);
-+	mutex_init(&haptic->mutex);
-+	haptic->input_dev = input_dev;
-+	haptic->dev = &pdev->dev;
-+	haptic->regulator = regulator_get(&pdev->dev, "haptic");
-+
-+	if (IS_ERR(haptic->regulator)) {
-+		error = PTR_ERR(haptic->regulator);
-+		dev_err(&pdev->dev, "unable to get regulator, err: %d\n",
-+			error);
-+		goto err_ifree_mem;
-+	}
-+
-+	haptic->input_dev->name = "regulator:haptic";
-+	haptic->input_dev->dev.parent = &pdev->dev;
-+	haptic->input_dev->close = regulator_haptic_close;
-+	haptic->enabled = false;
-+	input_set_drvdata(haptic->input_dev, haptic);
-+	input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
-+
-+	error = input_ff_create_memless(input_dev, NULL,
-+				      regulator_haptic_play);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"input_ff_create_memless() failed: %d\n",
-+			error);
-+		goto err_put_regulator;
-+	}
-+
-+	error = input_register_device(haptic->input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"couldn't register input device: %d\n",
-+			error);
-+		goto err_destroy_ff;
-+	}
-+
-+	platform_set_drvdata(pdev, haptic);
-+
-+	return 0;
-+
-+err_destroy_ff:
-+	input_ff_destroy(haptic->input_dev);
-+err_put_regulator:
-+	regulator_put(haptic->regulator);
-+err_ifree_mem:
-+	input_free_device(haptic->input_dev);
-+err_kfree_mem:
-+	kfree(haptic);
-+
-+	return error;
-+}
-+
-+static int regulator_haptic_remove(struct platform_device *pdev)
-+{
-+	struct regulator_haptic *haptic = platform_get_drvdata(pdev);
-+
-+	input_unregister_device(haptic->input_dev);
-+
-+	return 0;
-+}
-+
-+static struct of_device_id regulator_haptic_dt_match[] = {
-+	{ .compatible = "linux,regulator-haptic" },
-+	{},
-+};
-+
-+static struct platform_driver regulator_haptic_driver = {
-+	.driver		= {
-+		.name	= "regulator-haptic",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = regulator_haptic_dt_match,
-+	},
-+
-+	.probe		= regulator_haptic_probe,
-+	.remove		= regulator_haptic_remove,
-+};
-+module_platform_driver(regulator_haptic_driver);
-+
-+MODULE_ALIAS("platform:regulator-haptic");
-+MODULE_DESCRIPTION("Regulator haptic driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Hyunhee Kim <hyunhee.kim@samsung.com>");
--- 
-1.7.9.5
+>> next iteration, what macros would I have to use for proper float handl=
+ing?
+>=20
+> Archived from 2003 but afaik his last paragraph still applies today:
+>   http://yarchive.net/comp/linux/kernel_fp.html
+>=20
+> So what you should do is forward the raw angle data to user-space and
+> let them deal with it. We usually don't apply policy in the kernel but
+> instead forward the given data to the user and let them do the
+> orientation computations. Any specific reason why you want to do that
+> in the kernel?
+I think it would be more consistent to have an EV_ABS value for
+orientation, ranging e.g. from 0 to 359 (or rather from 0 to e.g. 90, as
+described in multi-touch-protocol.txt). For pass-through to work, I
+would probably have to set min and max to 0 and __UINT32_MAX__?
+
+Alternatively, I think it should be possible to perform the required
+conversion using integer arithmetic and bit operations alone.
+
+However, for the time being, I'd suggest to simply leave the float
+alone, use just a 0/1 value for orientation and deal with this in a
+later patch, agreed?
+
+One additional question: is there any provision in the multitouch
+protocol for differentiation between various types of objects, e.g.
+"finger" and "palm"?
+
+BTW, what's the best practice for resubmitting a patch? I've used "git
+commit --amend" on my previous commit, and would now just use "git
+send-email" again, creating a new thread?
+
+Best regards, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
 
 
+
+
+--cO7jQguqkp0LjIfE4b68LwFi0cCEUJmTk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlJXw2MACgkQ7CzyshGvatgBAgCg8dGaizO4+5Nw9IeIuCtKm+AT
+S/gAn0eVFBFiGm4D4r1r00saTkKs8UQG
+=32r2
+-----END PGP SIGNATURE-----
+
+--cO7jQguqkp0LjIfE4b68LwFi0cCEUJmTk--

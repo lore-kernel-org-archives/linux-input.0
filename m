@@ -1,47 +1,42 @@
-From: Jethro Beekman <jethro@jbeekman.nl>
-Subject: joydev: Keyboards incorrectly identified as joystick
-Date: Sat, 12 Oct 2013 15:05:57 -0700
-Message-ID: <5259C7C5.60706@jbeekman.nl>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Problem with Mighty Mouse
+Date: Sun, 13 Oct 2013 01:48:46 +0200
+Message-ID: <1381621726.21761.7.camel@nuvo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from jbeekman.nl ([94.142.245.119]:60513 "EHLO daxilon.jbeekman.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753238Ab3JLWfE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Oct 2013 18:35:04 -0400
-Received: from c-71-59-213-250.hsd1.or.comcast.net ([71.59.213.250] helo=[10.0.0.11])
-	by daxilon.jbeekman.nl with esmtpsa (TLS1.0:DHE_RSA_AES_256_CBC_SHA1:32)
-	(Exim 4.76)
-	(envelope-from <jethro@jbeekman.nl>)
-	id 1VV7K0-0003fI-I9
-	for linux-input@vger.kernel.org; Sun, 13 Oct 2013 00:06:04 +0200
+Received: from slow1-d.mail.gandi.net ([217.70.178.86]:49750 "EHLO
+	slow1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752922Ab3JLXxe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 12 Oct 2013 19:53:34 -0400
+Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
+	by slow1-d.mail.gandi.net (Postfix) with ESMTP id 6057353510E
+	for <linux-input@vger.kernel.org>; Sun, 13 Oct 2013 01:49:12 +0200 (CEST)
+Received: from mfilter20-d.gandi.net (mfilter20-d.gandi.net [217.70.178.148])
+	by relay5-d.mail.gandi.net (Postfix) with ESMTP id 7C30241C04B
+	for <linux-input@vger.kernel.org>; Sun, 13 Oct 2013 01:48:49 +0200 (CEST)
+Received: from relay5-d.mail.gandi.net ([217.70.183.197])
+	by mfilter20-d.gandi.net (mfilter20-d.gandi.net [10.0.15.180]) (amavisd-new, port 10024)
+	with ESMTP id d17zcYWkgG9v for <linux-input@vger.kernel.org>;
+	Sun, 13 Oct 2013 01:48:47 +0200 (CEST)
+Received: from [192.168.0.14] (mon69-7-83-155-44-161.fbx.proxad.net [83.155.44.161])
+	(Authenticated sender: hadess@hadess.net)
+	by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id A08D541C051
+	for <linux-input@vger.kernel.org>; Sun, 13 Oct 2013 01:48:47 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 
-Or, really: "Keyboards incorrectly say they're a joystick". Some keyboard like
-to say they have joystick capabilities while they don't. This results in a
-joystick device showing up (e.g. in games) that is not calibrated and just
-generally messes things up.
+Heya,
 
-This seems to happen with multiple keyboards, mostly from Microsoft: e.g. the
-Microsoft Digital Media Pro Keyboard and Microsoft Wired Keyboard 600.
+I've tested a Bluetooth Apple Mighty Mouse (AA1197) and though I can
+move the cursor without a problem, none of the buttons work. evtest
+doesn't see any button events.
 
-Earlier reports on this mailing list:
-http://thread.gmane.org/gmane.linux.kernel.input/25913
-http://thread.gmane.org/gmane.linux.kernel.input/25926
+Any ideas what I should look at, or which tool I could use to capture
+the raw data?
 
-Downstream bug reports:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/987877
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/390959
+Cheers
 
-evtest output for certain keyboards:
-https://launchpadlibrarian.net/112444244/evtest2
-http://pastebin.com/tX4nnhAg
-
-It would be easy to add an exception to joydev_match() like there currently are
-for touchpads, tablets, etc. The question is: what should the test be? Or should
-this be handled in userspace (udev)?
-
-Jethro Beekman

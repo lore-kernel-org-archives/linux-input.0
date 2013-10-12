@@ -1,47 +1,56 @@
-From: Wei Yongjun <weiyj.lk@gmail.com>
-Subject: [PATCH] Input: nspire-keypad - add missing clk_disable_unprepare() on
- error path
-Date: Sat, 12 Oct 2013 14:32:09 +0800
-Message-ID: <CAPgLHd9f_4-mtxXKLcL+fiNJw8gdTjU8ZSJtJoSLTW2tSa-N_Q@mail.gmail.com>
+From: =?ISO-8859-1?Q?Ezequiel_Garc=EDa?= <ezequiel@vanguardiasur.com.ar>
+Subject: Re: [PATCH v2 1/2] Input: rotary-encoder: Add 'stepped' irq handler
+Date: Sat, 12 Oct 2013 13:58:59 -0300
+Message-ID: <CAAEAJfCmnMFWnSRcWN946fc615po4zAn0a-yUSUnYeTjObXr_w@mail.gmail.com>
+References: <1380891203-17617-1-git-send-email-ezequiel@vanguardiasur.com.ar>
+	<1380891203-17617-2-git-send-email-ezequiel@vanguardiasur.com.ar>
+	<524EC022.2050203@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f43.google.com ([209.85.214.43]:50581 "EHLO
-	mail-bk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751393Ab3JLGcK (ORCPT
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:40296 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752255Ab3JLQ7A convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Oct 2013 02:32:10 -0400
-Received: by mail-bk0-f43.google.com with SMTP id mz13so1876410bkb.2
-        for <linux-input@vger.kernel.org>; Fri, 11 Oct 2013 23:32:09 -0700 (PDT)
+	Sat, 12 Oct 2013 12:59:00 -0400
+Received: by mail-pa0-f43.google.com with SMTP id hz1so5737048pad.30
+        for <linux-input@vger.kernel.org>; Sat, 12 Oct 2013 09:59:00 -0700 (PDT)
+In-Reply-To: <524EC022.2050203@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, grant.likely@linaro.org, rob.herring@calxeda.com, dt.tangr@gmail.com, yongjun_wei@trendmicro.com.cn, Julia.Lawall@lip6.fr, viresh.kumar@linaro.org
-Cc: linux-input@vger.kernel.org
+To: Daniel Mack <zonque@gmail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+Dmitry,
 
-Add the missing clk_disable_unprepare() before return
-from nspire_keypad_open() in the error handling case.
+On 4 October 2013 10:18, Daniel Mack <zonque@gmail.com> wrote:
+> On 04.10.2013 14:53, Ezequiel Garcia wrote:
+>> Some rotary-encoder devices (such as those with detents) are capable
+>> of producing a stable event on each step. This commit adds support
+>> for this case, by implementing a new interruption handler.
+>>
+>> The handler needs only detect the direction of the turn and generate
+>> an event according to this detection.
+>
+> I think you can squash patch 2/2 into this one. It doesn't make much
+> sense to have a one-liner patch to just update the documenation separ=
+ately.
+>
+> Other than that, the code looks fine to me.
+>
+>   Acked-by: Daniel Mack <zonque@gmail.com>
+>
 
-Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
----
- drivers/input/keyboard/nspire-keypad.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Could you merge these two patches?
 
-diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
-index b3e3eda..85e8d80 100644
---- a/drivers/input/keyboard/nspire-keypad.c
-+++ b/drivers/input/keyboard/nspire-keypad.c
-@@ -143,8 +143,10 @@ static int nspire_keypad_open(struct input_dev *input)
- 		return error;
- 
- 	error = nspire_keypad_chip_init(keypad);
--	if (error)
-+	if (error) {
-+		clk_disable_unprepare(keypad->clk);
- 		return error;
-+	}
- 
- 	return 0;
- }
-
+It's already acked by Daniel, and there wasn't any other feedback
+so I think we're ready to get them in and support more devices :-)
+--=20
+Ezequiel Garc=EDa, VanguardiaSur
+www.vanguardiasur.com.ar
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

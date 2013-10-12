@@ -1,56 +1,47 @@
-From: =?ISO-8859-1?Q?Ezequiel_Garc=EDa?= <ezequiel@vanguardiasur.com.ar>
-Subject: Re: [PATCH v2 1/2] Input: rotary-encoder: Add 'stepped' irq handler
-Date: Sat, 12 Oct 2013 13:58:59 -0300
-Message-ID: <CAAEAJfCmnMFWnSRcWN946fc615po4zAn0a-yUSUnYeTjObXr_w@mail.gmail.com>
-References: <1380891203-17617-1-git-send-email-ezequiel@vanguardiasur.com.ar>
-	<1380891203-17617-2-git-send-email-ezequiel@vanguardiasur.com.ar>
-	<524EC022.2050203@gmail.com>
+From: Jethro Beekman <jethro@jbeekman.nl>
+Subject: joydev: Keyboards incorrectly identified as joystick
+Date: Sat, 12 Oct 2013 15:05:57 -0700
+Message-ID: <5259C7C5.60706@jbeekman.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:40296 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752255Ab3JLQ7A convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Oct 2013 12:59:00 -0400
-Received: by mail-pa0-f43.google.com with SMTP id hz1so5737048pad.30
-        for <linux-input@vger.kernel.org>; Sat, 12 Oct 2013 09:59:00 -0700 (PDT)
-In-Reply-To: <524EC022.2050203@gmail.com>
+Received: from jbeekman.nl ([94.142.245.119]:60513 "EHLO daxilon.jbeekman.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753238Ab3JLWfE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 12 Oct 2013 18:35:04 -0400
+Received: from c-71-59-213-250.hsd1.or.comcast.net ([71.59.213.250] helo=[10.0.0.11])
+	by daxilon.jbeekman.nl with esmtpsa (TLS1.0:DHE_RSA_AES_256_CBC_SHA1:32)
+	(Exim 4.76)
+	(envelope-from <jethro@jbeekman.nl>)
+	id 1VV7K0-0003fI-I9
+	for linux-input@vger.kernel.org; Sun, 13 Oct 2013 00:06:04 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <zonque@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
 
-Dmitry,
+Or, really: "Keyboards incorrectly say they're a joystick". Some keyboard like
+to say they have joystick capabilities while they don't. This results in a
+joystick device showing up (e.g. in games) that is not calibrated and just
+generally messes things up.
 
-On 4 October 2013 10:18, Daniel Mack <zonque@gmail.com> wrote:
-> On 04.10.2013 14:53, Ezequiel Garcia wrote:
->> Some rotary-encoder devices (such as those with detents) are capable
->> of producing a stable event on each step. This commit adds support
->> for this case, by implementing a new interruption handler.
->>
->> The handler needs only detect the direction of the turn and generate
->> an event according to this detection.
->
-> I think you can squash patch 2/2 into this one. It doesn't make much
-> sense to have a one-liner patch to just update the documenation separ=
-ately.
->
-> Other than that, the code looks fine to me.
->
->   Acked-by: Daniel Mack <zonque@gmail.com>
->
+This seems to happen with multiple keyboards, mostly from Microsoft: e.g. the
+Microsoft Digital Media Pro Keyboard and Microsoft Wired Keyboard 600.
 
-Could you merge these two patches?
+Earlier reports on this mailing list:
+http://thread.gmane.org/gmane.linux.kernel.input/25913
+http://thread.gmane.org/gmane.linux.kernel.input/25926
 
-It's already acked by Daniel, and there wasn't any other feedback
-so I think we're ready to get them in and support more devices :-)
---=20
-Ezequiel Garc=EDa, VanguardiaSur
-www.vanguardiasur.com.ar
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Downstream bug reports:
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/987877
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/390959
+
+evtest output for certain keyboards:
+https://launchpadlibrarian.net/112444244/evtest2
+http://pastebin.com/tX4nnhAg
+
+It would be easy to add an exception to joydev_match() like there currently are
+for touchpads, tablets, etc. The question is: what should the test be? Or should
+this be handled in userspace (udev)?
+
+Jethro Beekman

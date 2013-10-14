@@ -1,42 +1,33 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: WPC8769L (WEC1020) support in winbond-cir?
-Date: Mon, 14 Oct 2013 15:16:20 +0200
-Message-ID: <CAG-2HqX-TO7h8zJ6F01r2LfRVjQtb0pK_1wKGsYVKzB0zC7TQA@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCHv2 3/3] HID:Kconfig: Correct MOMO description in wrong
+ place (handled by LG4FF).
+Date: Mon, 14 Oct 2013 16:03:35 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1310141602540.12405@pobox.suse.cz>
+References: <alpine.LNX.2.00.1310101002120.13289@pobox.suse.cz> <1381414814-2107-1-git-send-email-simon@mungewell.org> <1381414814-2107-3-git-send-email-simon@mungewell.org> <CADbOyBQodqzSb04OCO6oduJSZvveZXxQjSdp+CdyKKk5Bs=O7w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f42.google.com ([209.85.214.42]:56848 "EHLO
-	mail-bk0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756036Ab3JNNQl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Oct 2013 09:16:41 -0400
-Received: by mail-bk0-f42.google.com with SMTP id my10so2691393bkb.29
-        for <linux-input@vger.kernel.org>; Mon, 14 Oct 2013 06:16:40 -0700 (PDT)
+Received: from cantor2.suse.de ([195.135.220.15]:55556 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756410Ab3JNODl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Oct 2013 10:03:41 -0400
+In-Reply-To: <CADbOyBQodqzSb04OCO6oduJSZvveZXxQjSdp+CdyKKk5Bs=O7w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Juan J. Garcia de Soria" <skandalfo@gmail.com>, =?UTF-8?Q?David_H=C3=A4rdeman?= <david@hardeman.nu>
-Cc: Sean Young <sean@mess.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Elias Vanderstuyft <elias.vds@gmail.com>, Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?ISO-8859-15?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>
 
-Hi David and Juan,
+On Thu, 10 Oct 2013, Elias Vanderstuyft wrote:
 
-I'm going through the various out-of-tree LIRC drivers to see if we
-can stop shipping them in Arch Linux [0]. So far it appears we can
-drop all except for lirc_wpc8769l [1] (PnP id WEC1020).
+> I don't see any report-descriptor being fixed up, this results in having
+> only two axes: steering and combined accel-brake axis.
+> So, same procedure as the Formula Vibration wheel, I'll send you the report
+> descriptor and some hidraw data when using the accel and brake pedals, in
+> my next mail.
 
-I noticed the comment in windownd-cir [2]:
+So should I wait for v3, where the rdesc fixup for splitting the axes will 
+be done, or are you planning to submit it to me as a followup patch?
 
- *  Currently supports the Winbond WPCD376i chip (PNP id WEC1022), but
- *  could probably support others (Winbond WEC102X, NatSemi, etc)
- *  with minor modifications.
-
-What are your thoughts on adding support for WEC1020 upstream? Is
-anyone interested in doing this work (I sadly don't have the correct
-device, so can't really do it myself)?
-
-Cheers,
-
-Tom
-
-[0]: <https://mailman.archlinux.org/pipermail/arch-dev-public/2013-October/025541.html>
-[1]: <http://sourceforge.net/p/lirc/git/ci/master/tree/drivers/lirc_wpc8769l/>
-[2]: <https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/media/rc/winbond-cir.c#n5>
+-- 
+Jiri Kosina
+SUSE Labs

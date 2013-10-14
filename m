@@ -1,71 +1,87 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v2 2/2] Input: wacom - add support for three new Intuos
- devices
-Date: Mon, 14 Oct 2013 10:27:22 +1000
-Message-ID: <20131014002722.GC2256@yabbi.redhat.com>
-References: <1381439866-1161-1-git-send-email-pingc@wacom.com>
+From: Bo Shen <voice.shen@atmel.com>
+Subject: Re: [PATCH] input: qt1070: add power management ops
+Date: Mon, 14 Oct 2013 13:45:24 +0800
+Message-ID: <525B84F4.4000405@atmel.com>
+References: <1376379826-28808-1-git-send-email-voice.shen@atmel.com> <520B2921.3000906@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:50006 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755399Ab3JNAZw (ORCPT
+Received: from eusmtp01.atmel.com ([212.144.249.243]:20990 "EHLO
+	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750837Ab3JNFpa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Oct 2013 20:25:52 -0400
-Content-Disposition: inline
-In-Reply-To: <1381439866-1161-1-git-send-email-pingc@wacom.com>
+	Mon, 14 Oct 2013 01:45:30 -0400
+In-Reply-To: <520B2921.3000906@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, chris@cnpbagwell.com, Ping Cheng <pingc@wacom.com>
+To: dmitry.torokhov@gmail.com
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Wenyou.Yang@atmel.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Thu, Oct 10, 2013 at 02:17:46PM -0700, Ping Cheng wrote:
-> This series of models added a hardware switch to turn touch
-> data on/off. To report the state of the switch, SW_TOUCH
-> is added in include/uapi/linux/input.h.
-> 
-> The driver is also updated to process wireless devices that do
-> not support touch interface.
-> 
-> Tested-by: Jason Gerecke <killertofu@gmail.com>
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> ---
-> v2: Change SW_TOUCH_ENABLED to SW_TOUCH and clear BTN_TOUCH bit 
-> for button only interfaces as suggested by Peter Hutterer.
-> ---
->  drivers/input/tablet/wacom_sys.c | 16 +++++++-
->  drivers/input/tablet/wacom_wac.c | 87 ++++++++++++++++++++++++++++++++--------
->  drivers/input/tablet/wacom_wac.h |  7 ++++
->  include/uapi/linux/input.h       |  1 +
->  4 files changed, 93 insertions(+), 18 deletions(-)
-> 
+Hi Dmitry,
 
-[...]
+On 8/14/2013 14:52, Nicolas Ferre wrote:
+> On 13/08/2013 09:43, Bo Shen :
+>> Add power management ops for qt1070, it maybe a wakeup source
+>>
+>> Signed-off-by: Bo Shen <voice.shen@atmel.com>
+>
+> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
 
-> diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-> index fd23a37..ba9e335 100644
-> --- a/drivers/input/tablet/wacom_wac.h
-> +++ b/drivers/input/tablet/wacom_wac.h
-> @@ -54,6 +54,8 @@
->  #define WACOM_REPORT_TPCST		16
->  #define WACOM_REPORT_TPC1FGE		18
->  #define WACOM_REPORT_24HDT		1
-> +#define WACOM_REPORT_WL_MODE		128
-> +#define WACOM_REPORT_USB_MODE		192
->  
->  /* device quirks */
->  #define WACOM_QUIRK_MULTI_INPUT		0x0001
-> @@ -81,6 +83,7 @@ enum {
->  	INTUOSPS,
->  	INTUOSPM,
->  	INTUOSPL,
-> +	INTUOS_HT,
+Would this patch be applied with Nicolas' ACK?
 
-nitpick: why the underscore? all other intuos enums are one word.
+Best Regards,
+Bo Shen
 
-Cheers,
-   Peter
+>> ---
+>>   drivers/input/keyboard/qt1070.c |   25 +++++++++++++++++++++++++
+>>   1 file changed, 25 insertions(+)
+>>
+>> diff --git a/drivers/input/keyboard/qt1070.c
+>> b/drivers/input/keyboard/qt1070.c
+>> index 42b773b..deefe5a 100644
+>> --- a/drivers/input/keyboard/qt1070.c
+>> +++ b/drivers/input/keyboard/qt1070.c
+>> @@ -243,6 +243,30 @@ static int qt1070_remove(struct i2c_client *client)
+>>       return 0;
+>>   }
+>>
+>> +#ifdef CONFIG_PM_SLEEP
+>> +static int qt1070_suspend(struct device *dev)
+>> +{
+>> +    struct qt1070_data *data = dev_get_drvdata(dev);
+>> +
+>> +    if (device_may_wakeup(dev))
+>> +        enable_irq_wake(data->irq);
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int qt1070_resume(struct device *dev)
+>> +{
+>> +    struct qt1070_data *data = dev_get_drvdata(dev);
+>> +
+>> +    if (device_may_wakeup(dev))
+>> +        disable_irq_wake(data->irq);
+>> +
+>> +    return 0;
+>> +}
+>> +#endif
+>> +
+>> +static SIMPLE_DEV_PM_OPS(qt1070_pm_ops, qt1070_suspend, qt1070_resume);
+>> +
+>>   static const struct i2c_device_id qt1070_id[] = {
+>>       { "qt1070", 0 },
+>>       { },
+>> @@ -253,6 +277,7 @@ static struct i2c_driver qt1070_driver = {
+>>       .driver    = {
+>>           .name    = "qt1070",
+>>           .owner    = THIS_MODULE,
+>> +        .pm    = &qt1070_pm_ops,
+>>       },
+>>       .id_table    = qt1070_id,
+>>       .probe        = qt1070_probe,
+>>
+>
+>
 
->  	WACOM_21UX2,
->  	WACOM_22HD,
->  	DTK,

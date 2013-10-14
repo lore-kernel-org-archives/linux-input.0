@@ -1,46 +1,44 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: Re: WPC8769L (WEC1020) support in winbond-cir?
-Date: Mon, 14 Oct 2013 16:42:07 +0200
-Message-ID: <CAG-2HqXOhjVWuBE=UHdP9H69KZrsz=rvtVoDdTcqg9ahY0zuLQ@mail.gmail.com>
-References: <CAG-2HqX-TO7h8zJ6F01r2LfRVjQtb0pK_1wKGsYVKzB0zC7TQA@mail.gmail.com>
- <20131014110748.366ea45e@samsung.com>
+From: simon@mungewell.org
+Subject: Re: [PATCHv2 3/3] HID:Kconfig: Correct MOMO description in wrong
+ place (handled by LG4FF).
+Date: Mon, 14 Oct 2013 10:58:21 -0400
+Message-ID: <d241ee8c4a607eebd06cfdf5b04ab200.squirrel@mungewell.org>
+References: <alpine.LNX.2.00.1310101002120.13289@pobox.suse.cz>
+    <1381414814-2107-1-git-send-email-simon@mungewell.org>
+    <1381414814-2107-3-git-send-email-simon@mungewell.org>
+    <CADbOyBQodqzSb04OCO6oduJSZvveZXxQjSdp+CdyKKk5Bs=O7w@mail.gmail.com>
+    <alpine.LNX.2.00.1310141602540.12405@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f50.google.com ([209.85.214.50]:50026 "EHLO
-	mail-bk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932074Ab3JNOm3 (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:60208 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754841Ab3JNO61 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Oct 2013 10:42:29 -0400
-Received: by mail-bk0-f50.google.com with SMTP id mz11so2624520bkb.23
-        for <linux-input@vger.kernel.org>; Mon, 14 Oct 2013 07:42:27 -0700 (PDT)
-In-Reply-To: <20131014110748.366ea45e@samsung.com>
+	Mon, 14 Oct 2013 10:58:27 -0400
+In-Reply-To: <alpine.LNX.2.00.1310141602540.12405@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <m.chehab@samsung.com>
-Cc: "Juan J. Garcia de Soria" <skandalfo@gmail.com>, =?UTF-8?Q?David_H=C3=A4rdeman?= <david@hardeman.nu>, Sean Young <sean@mess.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LMML <linux-media@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Elias Vanderstuyft <elias.vds@gmail.com>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@prifuk.cz>
 
-On Mon, Oct 14, 2013 at 4:07 PM, Mauro Carvalho Chehab
-<m.chehab@samsung.com> wrote:
-> Hi Tom,
+> On Thu, 10 Oct 2013, Elias Vanderstuyft wrote:
 >
-> Em Mon, 14 Oct 2013 15:16:20 +0200
-> Tom Gundersen <teg@jklm.no> escreveu:
+>> I don't see any report-descriptor being fixed up, this results in having
+>> only two axes: steering and combined accel-brake axis.
+>> So, same procedure as the Formula Vibration wheel, I'll send you the
+>> report
+>> descriptor and some hidraw data when using the accel and brake pedals,
+>> in
+>> my next mail.
 >
->> Hi David and Juan,
->>
->> I'm going through the various out-of-tree LIRC drivers to see if we
->> can stop shipping them in Arch Linux [0]. So far it appears we can
->> drop all except for lirc_wpc8769l [1] (PnP id WEC1020).
->
-> Please copy the Linux Media ML to all Remote Controller drivers. There's
-> where we're discussing those drivers. No need to c/c linux-input.
->
-> Yeah, both lirc_atiusb and lirc_i2c were now obsoleted by upstream
-> non-staging drivers. I suggest to just drop it from Arch Linux.
+> So should I wait for v3, where the rdesc fixup for splitting the axes will
+> be done, or are you planning to submit it to me as a followup patch?
 
-Thanks for the info, we'll drop those drivers.
+The HID descriptor for the MOMO Black was re-written in part2 of the patch
+series:
+https://patchwork.kernel.org/patch/3016111/
 
-Cheers,
+Simon
 
-Tom

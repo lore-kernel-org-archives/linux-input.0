@@ -1,87 +1,95 @@
-From: Bo Shen <voice.shen@atmel.com>
-Subject: Re: [PATCH] input: qt1070: add power management ops
-Date: Mon, 14 Oct 2013 13:45:24 +0800
-Message-ID: <525B84F4.4000405@atmel.com>
-References: <1376379826-28808-1-git-send-email-voice.shen@atmel.com> <520B2921.3000906@atmel.com>
+From: Will Tommy <tommywill2011@gmail.com>
+Subject: Re: [PATCH v2 1/2] Add an additional argument for decode routine,
+ change secondary device name
+Date: Mon, 14 Oct 2013 13:50:52 +0800
+Message-ID: <CA+F6ckOfK25hhCxcJ5JRbzt+o1BKYvOynB1DQkPY+RSZrp8KFw@mail.gmail.com>
+References: <1379045010-3347-1-git-send-email-yunkang.tang@cn.alps.com>
+	<1379045010-3347-2-git-send-email-yunkang.tang@cn.alps.com>
+	<CAJiQ=7D9ZBKJcGgYT+3se92t2zn6nzJ8645CzWdB2xh1S60+nQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eusmtp01.atmel.com ([212.144.249.243]:20990 "EHLO
-	eusmtp01.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750837Ab3JNFpa (ORCPT
+Received: from mail-ee0-f49.google.com ([74.125.83.49]:51569 "EHLO
+	mail-ee0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750731Ab3JNFux (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Oct 2013 01:45:30 -0400
-In-Reply-To: <520B2921.3000906@atmel.com>
+	Mon, 14 Oct 2013 01:50:53 -0400
+Received: by mail-ee0-f49.google.com with SMTP id d41so3090125eek.22
+        for <linux-input@vger.kernel.org>; Sun, 13 Oct 2013 22:50:52 -0700 (PDT)
+In-Reply-To: <CAJiQ=7D9ZBKJcGgYT+3se92t2zn6nzJ8645CzWdB2xh1S60+nQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Wenyou.Yang@atmel.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Kevin Cernekee <cernekee@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, yunkang.tang@cn.alps.com, linux-input@vger.kernel.org, david turvene <dturvene@dahetral.com>
 
-Hi Dmitry,
+Hi Kevin,
 
-On 8/14/2013 14:52, Nicolas Ferre wrote:
-> On 13/08/2013 09:43, Bo Shen :
->> Add power management ops for qt1070, it maybe a wakeup source
->>
->> Signed-off-by: Bo Shen <voice.shen@atmel.com>
+Thanks for your carefully review. It's amazing !
+
+> So, assuming x_bits == y_bits == 8, and both x_map and y_map are in
+> the range 0x00..0xff:
 >
-> Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-
-Would this patch be applied with Nicolas' ACK?
-
-Best Regards,
-Bo Shen
-
->> ---
->>   drivers/input/keyboard/qt1070.c |   25 +++++++++++++++++++++++++
->>   1 file changed, 25 insertions(+)
->>
->> diff --git a/drivers/input/keyboard/qt1070.c
->> b/drivers/input/keyboard/qt1070.c
->> index 42b773b..deefe5a 100644
->> --- a/drivers/input/keyboard/qt1070.c
->> +++ b/drivers/input/keyboard/qt1070.c
->> @@ -243,6 +243,30 @@ static int qt1070_remove(struct i2c_client *client)
->>       return 0;
->>   }
->>
->> +#ifdef CONFIG_PM_SLEEP
->> +static int qt1070_suspend(struct device *dev)
->> +{
->> +    struct qt1070_data *data = dev_get_drvdata(dev);
->> +
->> +    if (device_may_wakeup(dev))
->> +        enable_irq_wake(data->irq);
->> +
->> +    return 0;
->> +}
->> +
->> +static int qt1070_resume(struct device *dev)
->> +{
->> +    struct qt1070_data *data = dev_get_drvdata(dev);
->> +
->> +    if (device_may_wakeup(dev))
->> +        disable_irq_wake(data->irq);
->> +
->> +    return 0;
->> +}
->> +#endif
->> +
->> +static SIMPLE_DEV_PM_OPS(qt1070_pm_ops, qt1070_suspend, qt1070_resume);
->> +
->>   static const struct i2c_device_id qt1070_id[] = {
->>       { "qt1070", 0 },
->>       { },
->> @@ -253,6 +277,7 @@ static struct i2c_driver qt1070_driver = {
->>       .driver    = {
->>           .name    = "qt1070",
->>           .owner    = THIS_MODULE,
->> +        .pm    = &qt1070_pm_ops,
->>       },
->>       .id_table    = qt1070_id,
->>       .probe        = qt1070_probe,
->>
+> y_bitmap.* lies in the range 0..7
+> x_bitmap.* lies in the range 1..8
 >
+> Is that correct, or is x_bitmap off by one?
+
+Hmm, it seems a bug of algorithm. Both x_bitmay&y_bitmap's range should be 0..7.
+I'll fix it.
+
+> I suspect that this whole function could be simplified a bit.
+>
+> Would it be possible to use ffs() and fls() instead of loops?
+>
+> Just a personal preference, but if you calculated X first and then Y,
+> it may require fewer temporary variables and the alps_palm_bitmap
+> struct could be removed.
+
+Thanks for your proposal. I'll re-write this function in next submission.
+
+> > +        box_middle_x = (priv->x_max * (x_bitmap.start_bit + x_bitmap.end_bit)) /
+> > +                (2 * (priv->x_bits - 1));
+> > +        box_middle_y = (priv->y_max * (y_bitmap.start_bit + y_bitmap.end_bit)) /
+> > +                (2 * (priv->y_bits - 1));
+> These lines look a bit long - suggest running through checkpatch.pl
 >
 
+Yes, they're longer than 80. However, in order not to let code hard to
+be understood,
+I decided not to split them. Anyway, since this function would be
+re-written, there
+would be no problem.
+
+> I assume start_bit and end_bit can never be negative, because the code
+> that calculates e.g. x_map will populate at most bits 0..(x_bits-1)?
+
+Do you mean it's not good to define start_bit & end_bit as "int" since they have
+no chance to be negative ? Actually, "unsigned char" is much better.
+
+> Suggest something like:
+>
+> f->y_map = palm_low & (BIT(priv->y_bits) - 1);
+
+> Likewise, maybe use:
+>
+> f->x_map = (palm_low >> priv->y_bits) & (BIT(priv->x_bits) - 1);
+>
+> (but double-check my math first)
+
+> Would it be cleaner to just use a u64 for the palm data, instead of
+> splitting into low/high?  (If so you'll probably want to compile-test
+> a 32-bit kernel.)
+
+> Aside from this clause, alps_process_touchpad_packet_v5() is virtually
+> identical to alps_process_touchpad_packet_v3().  It would be good to
+> find a way to reuse more of the code.
+
+Okay, I'll take your advice and check the behavior on both 32-bit and 64-bit.
+
+> This is strictly optional, but adding a comment indicating typical
+> values for num_x_electrode and num_y_electrode could aid in
+> understanding the math.
+
+That's a good idea! I'll add them.
+
+Tommy

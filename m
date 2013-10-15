@@ -1,108 +1,102 @@
-From: Bibek Basu <bbasu@nvidia.com>
-Subject: [PATCH] HID: i2c-hid: Stop querying for init reports
-Date: Tue, 15 Oct 2013 13:58:29 +0530
-Message-ID: <1381825709-5098-1-git-send-email-bbasu@nvidia.com>
+From: Christian Engelmayer <christian.engelmayer@frequentis.com>
+Subject: [PATCH] Input: usbtouchscreen - separate report and transmit buffer
+ size handling
+Date: Tue, 15 Oct 2013 16:50:00 +0200
+Message-ID: <20131015165000.5987a916@frequentis.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:2266 "EHLO
-	hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755233Ab3JOI2j (ORCPT
+Received: from mail1.frequentis.com ([195.20.158.50]:33493 "EHLO
+	mail1.frequentis.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932202Ab3JOOuI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Oct 2013 04:28:39 -0400
+	Tue, 15 Oct 2013 10:50:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@gmail.com, jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Bibek Basu <bbasu@nvidia.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Forest Bond <forest.bond@rapidrollout.com>, Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, christian.engelmayer@frequentis.com
 
-According to specifications, HID over I2C devices
-are not bound to respond to query for INPUT
-REPORTS. Thus dropping the call during init
-as many devices does not respond causing error
-messages during boot.
+This patch supports the separate handling of the USB transfer buffer length
+and the length of the buffer used for multi packet support. The USB transfer
+size can now be explicitly configured via the device_info record. Otherwise
+it defaults to the configured report packet size as before. For devices
+supporting multiple report or diagnostic packets, the USB transfer size is
+now reduced to the USB endpoints wMaxPacketSize if not explicitly set.
 
-Signed-off-by: Bibek Basu <bbasu@nvidia.com>
+This fixes an issue where event reporting can be delayed for an arbitrary
+time for multi packet devices. For instance the report size for eGalax devices
+is defined to the 16 byte maximum diagnostic packet size as opposed to the 5
+byte report packet size. In case the driver requests 16 byte from the USB
+interrupt endpoint, the USB host controller driver needs to split up the
+request into 2 accesses according to the endpoints wMaxPacketSize of 8 byte.
+When the first transfer is answered by the eGalax device with not less than
+the full 8 byte requested, the host controller has got no way of knowing
+whether the touch controller has got additional data queued and will issue
+the second transfer. If per example a liftoff event finishes at such a
+wMaxPacketSize boundary, the data will not be available to the usbtouch driver
+until a further event is triggered and transfered to the host. From user
+perspective the BTN_TOUCH release event in this case is stuck until the next
+touch down event.
+
+Signed-off-by: Christian Engelmayer <christian.engelmayer@frequentis.com>
 ---
- drivers/hid/i2c-hid/i2c-hid.c | 59 -------------------------------------------
- 1 file changed, 59 deletions(-)
+ drivers/input/touchscreen/usbtouchscreen.c |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index fd7ce37..58a4f12 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -409,62 +409,6 @@ static int i2c_hid_get_report_length(struct hid_report *report)
- 		report->device->report_enum[report->type].numbered + 2;
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 721fdb3..aa1f6a7 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -76,6 +76,7 @@ struct usbtouch_device_info {
+ 	int min_yc, max_yc;
+ 	int min_press, max_press;
+ 	int rept_size;
++	int xmit_size;
+ 
+ 	/*
+ 	 * Always service the USB devices irq not just when the input device is
+@@ -1523,7 +1524,7 @@ static int usbtouch_reset_resume(struct usb_interface *intf)
+ static void usbtouch_free_buffers(struct usb_device *udev,
+ 				  struct usbtouch_usb *usbtouch)
+ {
+-	usb_free_coherent(udev, usbtouch->type->rept_size,
++	usb_free_coherent(udev, usbtouch->type->xmit_size,
+ 			  usbtouch->data, usbtouch->data_dma);
+ 	kfree(usbtouch->buffer);
  }
+@@ -1567,8 +1568,15 @@ static int usbtouch_probe(struct usb_interface *intf,
+ 	usbtouch->type = type;
+ 	if (!type->process_pkt)
+ 		type->process_pkt = usbtouch_process_pkt;
++	if (!type->xmit_size) {
++		if ((type->get_pkt_len) &&
++		    (type->rept_size > le16_to_cpu(endpoint->wMaxPacketSize)))
++			type->xmit_size = le16_to_cpu(endpoint->wMaxPacketSize);
++		else
++			type->xmit_size = type->rept_size;
++	}
  
--static void i2c_hid_init_report(struct hid_report *report, u8 *buffer,
--	size_t bufsize)
--{
--	struct hid_device *hid = report->device;
--	struct i2c_client *client = hid->driver_data;
--	struct i2c_hid *ihid = i2c_get_clientdata(client);
--	unsigned int size, ret_size;
--
--	size = i2c_hid_get_report_length(report);
--	if (i2c_hid_get_report(client,
--			report->type == HID_FEATURE_REPORT ? 0x03 : 0x01,
--			report->id, buffer, size))
--		return;
--
--	i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, ihid->inbuf);
--
--	ret_size = buffer[0] | (buffer[1] << 8);
--
--	if (ret_size != size) {
--		dev_err(&client->dev, "error in %s size:%d / ret_size:%d\n",
--			__func__, size, ret_size);
--		return;
--	}
--
--	/* hid->driver_lock is held as we are in probe function,
--	 * we just need to setup the input fields, so using
--	 * hid_report_raw_event is safe. */
--	hid_report_raw_event(hid, report->type, buffer + 2, size - 2, 1);
--}
--
--/*
-- * Initialize all reports
-- */
--static void i2c_hid_init_reports(struct hid_device *hid)
--{
--	struct hid_report *report;
--	struct i2c_client *client = hid->driver_data;
--	struct i2c_hid *ihid = i2c_get_clientdata(client);
--	u8 *inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
--
--	if (!inbuf) {
--		dev_err(&client->dev, "can not retrieve initial reports\n");
--		return;
--	}
--
--	list_for_each_entry(report,
--		&hid->report_enum[HID_INPUT_REPORT].report_list, list)
--		i2c_hid_init_report(report, inbuf, ihid->bufsize);
--
--	list_for_each_entry(report,
--		&hid->report_enum[HID_FEATURE_REPORT].report_list, list)
--		i2c_hid_init_report(report, inbuf, ihid->bufsize);
--
--	kfree(inbuf);
--}
--
- /*
-  * Traverse the supplied list of reports and find the longest
-  */
-@@ -683,9 +627,6 @@ static int i2c_hid_start(struct hid_device *hid)
- 			return ret;
- 	}
+-	usbtouch->data = usb_alloc_coherent(udev, type->rept_size,
++	usbtouch->data = usb_alloc_coherent(udev, type->xmit_size,
+ 					    GFP_KERNEL, &usbtouch->data_dma);
+ 	if (!usbtouch->data)
+ 		goto out_free;
+@@ -1628,12 +1636,12 @@ static int usbtouch_probe(struct usb_interface *intf,
+ 	if (usb_endpoint_type(endpoint) == USB_ENDPOINT_XFER_INT)
+ 		usb_fill_int_urb(usbtouch->irq, udev,
+ 			 usb_rcvintpipe(udev, endpoint->bEndpointAddress),
+-			 usbtouch->data, type->rept_size,
++			 usbtouch->data, type->xmit_size,
+ 			 usbtouch_irq, usbtouch, endpoint->bInterval);
+ 	else
+ 		usb_fill_bulk_urb(usbtouch->irq, udev,
+ 			 usb_rcvbulkpipe(udev, endpoint->bEndpointAddress),
+-			 usbtouch->data, type->rept_size,
++			 usbtouch->data, type->xmit_size,
+ 			 usbtouch_irq, usbtouch);
  
--	if (!(hid->quirks & HID_QUIRK_NO_INIT_REPORTS))
--		i2c_hid_init_reports(hid);
--
- 	return 0;
- }
- 
+ 	usbtouch->irq->dev = udev;
 -- 
-1.8.1.5
+1.7.2.5
 

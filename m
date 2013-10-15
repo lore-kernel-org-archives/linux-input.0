@@ -1,102 +1,127 @@
-From: Christian Engelmayer <christian.engelmayer@frequentis.com>
-Subject: [PATCH] Input: usbtouchscreen - separate report and transmit buffer
- size handling
-Date: Tue, 15 Oct 2013 16:50:00 +0200
-Message-ID: <20131015165000.5987a916@frequentis.com>
+From: Forest Bond <forest@forestbond.com>
+Subject: Fixing 0eef:0001 (eGalax) driver binding
+Date: Tue, 15 Oct 2013 14:27:01 -0400
+Message-ID: <20131015182701.GD14822@alittletooquiet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.frequentis.com ([195.20.158.50]:33493 "EHLO
-	mail1.frequentis.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932202Ab3JOOuI (ORCPT
+Received: from storm.alittletooquiet.net ([67.23.28.199]:44184 "EHLO
+	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757481Ab3JOSsw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Oct 2013 10:50:08 -0400
+	Tue, 15 Oct 2013 14:48:52 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Forest Bond <forest.bond@rapidrollout.com>, Daniel Ritz <daniel.ritz@gmx.ch>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, christian.engelmayer@frequentis.com
+To: linux-input@vger.kernel.org
+Cc: Sebastian =?iso-8859-1?Q?Dalfu=DF?= <sd@sedf.de>, Jiri Kosina <jkosina@suse.cz>, Daniel Ritz <daniel.ritz@gmx.ch>, Max Weninger <max.weninger@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christian Engelmayer <christian.engelmayer@frequentis.com>
 
-This patch supports the separate handling of the USB transfer buffer length
-and the length of the buffer used for multi packet support. The USB transfer
-size can now be explicitly configured via the device_info record. Otherwise
-it defaults to the configured report packet size as before. For devices
-supporting multiple report or diagnostic packets, the USB transfer size is
-now reduced to the USB endpoints wMaxPacketSize if not explicitly set.
 
-This fixes an issue where event reporting can be delayed for an arbitrary
-time for multi packet devices. For instance the report size for eGalax devices
-is defined to the 16 byte maximum diagnostic packet size as opposed to the 5
-byte report packet size. In case the driver requests 16 byte from the USB
-interrupt endpoint, the USB host controller driver needs to split up the
-request into 2 accesses according to the endpoints wMaxPacketSize of 8 byte.
-When the first transfer is answered by the eGalax device with not less than
-the full 8 byte requested, the host controller has got no way of knowing
-whether the touch controller has got additional data queued and will issue
-the second transfer. If per example a liftoff event finishes at such a
-wMaxPacketSize boundary, the data will not be available to the usbtouch driver
-until a further event is triggered and transfered to the host. From user
-perspective the BTN_TOUCH release event in this case is stuck until the next
-touch down event.
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Christian Engelmayer <christian.engelmayer@frequentis.com>
----
- drivers/input/touchscreen/usbtouchscreen.c |   16 ++++++++++++----
- 1 files changed, 12 insertions(+), 4 deletions(-)
+Hi,
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 721fdb3..aa1f6a7 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -76,6 +76,7 @@ struct usbtouch_device_info {
- 	int min_yc, max_yc;
- 	int min_press, max_press;
- 	int rept_size;
-+	int xmit_size;
- 
- 	/*
- 	 * Always service the USB devices irq not just when the input device is
-@@ -1523,7 +1524,7 @@ static int usbtouch_reset_resume(struct usb_interface *intf)
- static void usbtouch_free_buffers(struct usb_device *udev,
- 				  struct usbtouch_usb *usbtouch)
- {
--	usb_free_coherent(udev, usbtouch->type->rept_size,
-+	usb_free_coherent(udev, usbtouch->type->xmit_size,
- 			  usbtouch->data, usbtouch->data_dma);
- 	kfree(usbtouch->buffer);
- }
-@@ -1567,8 +1568,15 @@ static int usbtouch_probe(struct usb_interface *intf,
- 	usbtouch->type = type;
- 	if (!type->process_pkt)
- 		type->process_pkt = usbtouch_process_pkt;
-+	if (!type->xmit_size) {
-+		if ((type->get_pkt_len) &&
-+		    (type->rept_size > le16_to_cpu(endpoint->wMaxPacketSize)))
-+			type->xmit_size = le16_to_cpu(endpoint->wMaxPacketSize);
-+		else
-+			type->xmit_size = type->rept_size;
-+	}
- 
--	usbtouch->data = usb_alloc_coherent(udev, type->rept_size,
-+	usbtouch->data = usb_alloc_coherent(udev, type->xmit_size,
- 					    GFP_KERNEL, &usbtouch->data_dma);
- 	if (!usbtouch->data)
- 		goto out_free;
-@@ -1628,12 +1636,12 @@ static int usbtouch_probe(struct usb_interface *intf,
- 	if (usb_endpoint_type(endpoint) == USB_ENDPOINT_XFER_INT)
- 		usb_fill_int_urb(usbtouch->irq, udev,
- 			 usb_rcvintpipe(udev, endpoint->bEndpointAddress),
--			 usbtouch->data, type->rept_size,
-+			 usbtouch->data, type->xmit_size,
- 			 usbtouch_irq, usbtouch, endpoint->bInterval);
- 	else
- 		usb_fill_bulk_urb(usbtouch->irq, udev,
- 			 usb_rcvbulkpipe(udev, endpoint->bEndpointAddress),
--			 usbtouch->data, type->rept_size,
-+			 usbtouch->data, type->xmit_size,
- 			 usbtouch_irq, usbtouch);
- 
- 	usbtouch->irq->dev = udev;
--- 
-1.7.2.5
+[If you're Cc'd it's because I thought you would be interested=E2=80=94exce=
+pt for Max!
+Max, I was hoping for some quick help if you still have that eGalax touch s=
+creen
+you reported about back in 2009.]
 
+
+To review, these are devices with vendor ID 0eef and product ID 0001 (or 00=
+02,
+which I've never actually seen myself) with varying interfaces class, subcl=
+ass,
+and protocol.  Different devices have worked with different mainline driver=
+s to
+varying degrees over the years.  It has never been entirely clear how to
+(automatically) select a driver to bind to a particular device.
+
+There is some history to this situation that I will not describe in detail =
+here
+as I think it is most beneficial to focus on the present situation.  To that
+end, here are the relevant points of interest (to the best of my knowledge):
+
+1. Devices with vendor specific class and protocol apparently work fine with
+   usbtouchscreen, which is where they are bound.  Nice!
+
+2. Devices with class HID, protocol Mouse apparently work fine with usbhid,
+   which is where they are bound.  Woo hoo!
+
+3. Some devices with class HID, protocol None work fine with usbtouchscreen,
+   which is where they are currently bound.  Okay!
+
+   Some of these also work with usbhid (using quirks=3D0x20000048 to preven=
+t it
+   from being ignored).  All of the ones I have here are like this.  I'm not
+   sure if there is a reason to prefer one driver over the other (dual touc=
+h?).
+
+   Others reportedly do *not* work with usbhid (this is Max):
+
+   https://lkml.org/lkml/2009/1/25/127
+
+4. Some devices with class HID, protocol None do *not* work with usbtouchsc=
+reen,
+   which is where they are currently bound.  No bueno.  Here's one (this is
+   Sebastian):
+
+   http://comments.gmane.org/gmane.linux.kernel.input/31710
+
+   I suspect these are all multitouch devices, but I am not sure.
+
+So we need to figure out the device driver mapping that supports the most
+devices (or regresses the fewest, although I think we've messed this up eno=
+ugh
+for that to be a secondary concern).
+
+
+What I'm hoping is that the report in #3 that led to class HID, protocol No=
+ne
+devices being bound to usbtouchscreen is no longer accurate and these devic=
+es
+work fine with current usbhid.
+
+Max, can you test this for us?  I.e. does your touch screen work with curre=
+nt
+usbhid using quirks=3D0x20000048?  The following modprobe snippet might be
+helpful:
+
+options usbhid quirks=3D0x0eef:0x0001:0x40000048
+install usbtouchscreen /bin/false
+
+If Max's touch screen works with current usbhid, I think we can drop the sp=
+ecial
+case that binds it to usbtouchscreen and we're done!  If not, things will be
+more complicated (e.g. we may have to consider whether a device is multitou=
+ch to
+decide if we should bind usbhid or usbtouchscreen).
+
+
+Hope we can get it sorted.  Thanks for your help and input.
+
+Regards,
+Forest
+--=20
+Forest Bond
+http://www.forestbond.com/
+http://www.rapidrollout.com/
+
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlJdiPUACgkQRO4fQQdv5AwozwCfftoMhCKtPHuzOUjHiBSv31nd
+2xkAoKUxh3nE2pUtX0M+SRPz7DJ27Ku2
+=qjL7
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--

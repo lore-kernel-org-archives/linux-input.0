@@ -1,83 +1,108 @@
 From: Bibek Basu <bbasu@nvidia.com>
-Subject: RE: [PATCH] HID: i2c-hid: add platform data for quirks
-Date: Tue, 15 Oct 2013 10:51:11 +0530
-Message-ID: <77F7DB30C698A44DA22FB222C89DE941A68D423812@BGMAIL01.nvidia.com>
-References: <1380790121-1355-1-git-send-email-bbasu@nvidia.com>
-	<alpine.LNX.2.00.1310091225230.13289@pobox.suse.cz>
- <CAN+gG=Fi2cmJktiUCTT0mBQNnkAFcL8jTctw7EngQh50odQO-g@mail.gmail.com>
+Subject: [PATCH] HID: i2c-hid: Stop querying for init reports
+Date: Tue, 15 Oct 2013 13:58:29 +0530
+Message-ID: <1381825709-5098-1-git-send-email-bbasu@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:13781 "EHLO
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:2266 "EHLO
 	hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753265Ab3JOFVP (ORCPT
+	with ESMTP id S1755233Ab3JOI2j (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Oct 2013 01:21:15 -0400
-In-Reply-To: <CAN+gG=Fi2cmJktiUCTT0mBQNnkAFcL8jTctw7EngQh50odQO-g@mail.gmail.com>
-Content-Language: en-US
+	Tue, 15 Oct 2013 04:28:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, Kiran Adduri <kadduri@nvidia.com>, linux-input <linux-input@vger.kernel.org>
+To: benjamin.tissoires@gmail.com, jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Bibek Basu <bbasu@nvidia.com>
 
-DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEJlbmphbWluIFRpc3NvaXJl
-cyBbbWFpbHRvOmJlbmphbWluLnRpc3NvaXJlc0BnbWFpbC5jb21dDQo+IFNlbnQ6IFdlZG5lc2Rh
-eSwgT2N0b2JlciAwOSwgMjAxMyA0OjMwIFBNDQo+IFRvOiBKaXJpIEtvc2luYQ0KPiBDYzogQmli
-ZWsgQmFzdTsgbGludXgtdGVncmFAdmdlci5rZXJuZWwub3JnOyBLaXJhbiBBZGR1cmk7IGxpbnV4
-LWlucHV0DQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIEhJRDogaTJjLWhpZDogYWRkIHBsYXRmb3Jt
-IGRhdGEgZm9yIHF1aXJrcw0KPiANCj4gT24gV2VkLCBPY3QgOSwgMjAxMyBhdCAxMjoyNiBQTSwg
-SmlyaSBLb3NpbmEgPGprb3NpbmFAc3VzZS5jej4gd3JvdGU6DQo+ID4gT24gVGh1LCAzIE9jdCAy
-MDEzLCBCaWJlayBCYXN1IHdyb3RlOg0KPiA+DQo+ID4+IFNvbWUgSElEIGRldmljZSBkb2VzIG5v
-dCByZXNwb25kcyB0byBJTlBVVC9GRUFUVVJFIHJlcG9ydCBxdWVyeQ0KPiA+PiBkdXJpbmcgaW5p
-dGlhbGl6YXRpb24uIEFzIGEgcmVzdWx0IEhJRCBkcml2ZXIgdGhyb3dzIGVycm9yIGV2ZW4gd2hl
-bg0KPiA+PiBpdHMgbm90IG1hbmRhdG9yeSBhY2NvcmRpbmcgdG8gdGhlIEhJRCBzcGVjaWZpY2F0
-aW9uLiBBZGQgcGxhdGZvcm0NCj4gPj4gZGF0YSB0byBwcm92aWRlIHF1aXJrIGluZm9ybWF0aW9u
-IHRvIHRoZSBkcml2ZXIgc28gdGhhdCBpbml0IHF1ZXJ5IGlzDQo+ID4+IG5vdCBkb25lIG9uIHN1
-Y2ggZGV2aWNlcy4NCj4gPj4NCj4gPj4gU2lnbmVkLW9mZi1ieTogQmliZWsgQmFzdSA8YmJhc3VA
-bnZpZGlhLmNvbT4NCj4gPj4gLS0tDQo+ID4+ICBkcml2ZXJzL2hpZC9pMmMtaGlkL2kyYy1oaWQu
-YyB8IDEgKw0KPiA+PiAgaW5jbHVkZS9saW51eC9pMmMvaTJjLWhpZC5oICAgfCAzICsrLQ0KPiA+
-PiAgMiBmaWxlcyBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4gPj4N
-Cj4gPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2kyYy1oaWQvaTJjLWhpZC5jDQo+ID4+IGIv
-ZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMgaW5kZXggZmQ3Y2UzNy4uYTdhZWMyYyAxMDA2
-NDQNCj4gPj4gLS0tIGEvZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMNCj4gPj4gKysrIGIv
-ZHJpdmVycy9oaWQvaTJjLWhpZC9pMmMtaGlkLmMNCj4gPj4gQEAgLTEwMTcsNiArMTAxNyw3IEBA
-IHN0YXRpYyBpbnQgaTJjX2hpZF9wcm9iZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KPiA+
-PiAgICAgICBoaWQtPnZlcnNpb24gPSBsZTE2X3RvX2NwdShpaGlkLT5oZGVzYy5iY2RWZXJzaW9u
-KTsNCj4gPj4gICAgICAgaGlkLT52ZW5kb3IgPSBsZTE2X3RvX2NwdShpaGlkLT5oZGVzYy53VmVu
-ZG9ySUQpOw0KPiA+PiAgICAgICBoaWQtPnByb2R1Y3QgPSBsZTE2X3RvX2NwdShpaGlkLT5oZGVz
-Yy53UHJvZHVjdElEKTsNCj4gPj4gKyAgICAgaGlkLT5xdWlya3MgPSBwbGF0Zm9ybV9kYXRhLT5x
-dWlya3M7DQo+ID4+DQo+ID4+ICAgICAgIHNucHJpbnRmKGhpZC0+bmFtZSwgc2l6ZW9mKGhpZC0+
-bmFtZSksICIlcyAlMDRoWDolMDRoWCIsDQo+ID4+ICAgICAgICAgICAgICAgIGNsaWVudC0+bmFt
-ZSwgaGlkLT52ZW5kb3IsIGhpZC0+cHJvZHVjdCk7IGRpZmYgLS1naXQNCj4gPj4gYS9pbmNsdWRl
-L2xpbnV4L2kyYy9pMmMtaGlkLmggYi9pbmNsdWRlL2xpbnV4L2kyYy9pMmMtaGlkLmggaW5kZXgN
-Cj4gPj4gN2FhOTAxZC4uMTJlNjgyZCAxMDA2NDQNCj4gPj4gLS0tIGEvaW5jbHVkZS9saW51eC9p
-MmMvaTJjLWhpZC5oDQo+ID4+ICsrKyBiL2luY2x1ZGUvbGludXgvaTJjL2kyYy1oaWQuaA0KPiA+
-PiBAQCAtMTcsNyArMTcsNyBAQA0KPiA+PiAgLyoqDQo+ID4+ICAgKiBzdHJ1Y3QgaTJjaGlkX3Bs
-YXRmb3JtX2RhdGEgLSB1c2VkIGJ5IGhpZCBvdmVyIGkyYyBpbXBsZW1lbnRhdGlvbi4NCj4gPj4g
-ICAqIEBoaWRfZGVzY3JpcHRvcl9hZGRyZXNzOiBpMmMgcmVnaXN0ZXIgd2hlcmUgdGhlIEhJRCBk
-ZXNjcmlwdG9yIGlzDQo+IHN0b3JlZC4NCj4gPj4gLSAqDQo+ID4+ICsgKiBAcXVpcmtzOiBxdWly
-a3MsIGlmIGFueSBmb3IgaTJjLWhpZCBkZXZpY2VzDQo+ID4+ICAgKiBOb3RlIHRoYXQgaXQgaXMg
-dGhlIHJlc3BvbnNpYmlsaXR5IG9mIHRoZSBwbGF0Zm9ybSBkcml2ZXIgKG9yIHRoZSBhY3BpIDUu
-MA0KPiA+PiAgICogZHJpdmVyLCBvciB0aGUgZmxhdHRlbmVkIGRldmljZSB0cmVlKSB0byBzZXR1
-cCB0aGUgaXJxIHJlbGF0ZWQgdG8gdGhlIGdwaW8NCj4gaW4NCj4gPj4gICAqIHRoZSBzdHJ1Y3Qg
-aTJjX2JvYXJkX2luZm8uDQo+ID4+IEBAIC0zMSw2ICszMSw3IEBADQo+ID4+ICAgKi8NCj4gPj4g
-IHN0cnVjdCBpMmNfaGlkX3BsYXRmb3JtX2RhdGEgew0KPiA+PiAgICAgICB1MTYgaGlkX2Rlc2Ny
-aXB0b3JfYWRkcmVzczsNCj4gPj4gKyAgICAgdTMyIHF1aXJrczsNCj4gPj4gIH07DQo+ID4NCj4g
-DQo+IEhpIEppcmksDQo+IA0KPiA+IFVtbSwgYW5kIHdoZXJlIGRvZXMgdGhlIHF1aXJrcyBmaWVs
-ZCBvZiBwbGF0Zm9ybSBkYXRhIGFjdHVhbGx5IGdldA0KPiA+IHNldD8gSSBkb24ndCBzZWVtIHRv
-IHNlZSBhbnkgZm9sbG93dXAgcGF0Y2hzZXQgZG9pbmcgdGhhdD8NCj4gDQo+IFRoZSBwbGF0Zm9y
-bSBkYXRhIGlzIGZpbGxlZCBieSBzcGVjaWZpYyBtYXJjaC0qIGJvYXJkIGRlZmluaXRpb24gZGF0
-YS4NCj4gSW4gdGhpcyBjYXNlIHNvbWUgSSB3b3VsZCBzYXkgYSB0ZWdyYSBib2FyZC4gU28gaXQn
-cyBmaW5lIG5vdCBoYXZpbmcgYSBwYXRjaHNldA0KPiBzZXR0aW5nIHRoZSBxdWlyayAoYXMgaXQg
-aXMgcGVyIGJvYXJkLCBhbmQgbWF5YmUgcGVyIHZlcnNpb24vbWFudWZhY3R1cmVyKS4NCj4gDQo+
-IE90aGVyIHRoYW4gdGhhdCBJIHdvdWxkIGxvdmUgc2VlaW5nIHRoZSBzYW1lIGZvciB0aGUgZGV2
-aWNlIHRyZWUgYmluZGluZyBpZg0KPiB3ZSBhZGQgdGhpcyB0byB0aGUgc3RydWN0IGkyY19oaWRf
-cGxhdGZvcm1fZGF0YS4NCj4gDQo+IEJUVywgSmlyaSwgdGhlIGFpbSBvZiB0aGUgcGF0Y2ggd2Fz
-IHRvIGJlIGFibGUgdG8gYWRkIHRoZSBxdWlyaw0KPiBISURfUVVJUktfTk9fSU5JVF9JTlBVVF9S
-RVBPUlRTIHRvIHNvbWUgb2YgdGhlIGkyYy1oaWQgZGV2aWNlcy4NCj4gSG93ZXZlciwgdGhlIFdp
-bmRvd3MgZHJpdmVyIHVzZXMgdGhpcyBieSBkZWZhdWx0LCBzbyBJIGFscmVhZHkgdG9sZCB0byBC
-aWJlaw0KPiB0aGF0IHdlIGNvdWxkIGp1c3QgZHJvcCB0aGUgcmVsYXRlZCBjYWxscyBpbiBpMmNf
-aGlkX2luaXRfcmVwb3J0cygpLg0KPiANCkhpLA0KU29ycnksIEkgd2FzIE9PTy4NCk9LLCBJIGFt
-IHJlcHVzaGluZyBhIG5ldyBwYXRjaCB0byBqdXN0IGRyb3AgdGhlIGkyY19oaWRfaW5pdF9yZXBv
-cnRzIGNhbGxzDQoNCnJlZ2FyZHMNCkJpYmVrDQo+IENoZWVycywNCj4gQmVuamFtaW4NCg==
+According to specifications, HID over I2C devices
+are not bound to respond to query for INPUT
+REPORTS. Thus dropping the call during init
+as many devices does not respond causing error
+messages during boot.
+
+Signed-off-by: Bibek Basu <bbasu@nvidia.com>
+---
+ drivers/hid/i2c-hid/i2c-hid.c | 59 -------------------------------------------
+ 1 file changed, 59 deletions(-)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index fd7ce37..58a4f12 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -409,62 +409,6 @@ static int i2c_hid_get_report_length(struct hid_report *report)
+ 		report->device->report_enum[report->type].numbered + 2;
+ }
+ 
+-static void i2c_hid_init_report(struct hid_report *report, u8 *buffer,
+-	size_t bufsize)
+-{
+-	struct hid_device *hid = report->device;
+-	struct i2c_client *client = hid->driver_data;
+-	struct i2c_hid *ihid = i2c_get_clientdata(client);
+-	unsigned int size, ret_size;
+-
+-	size = i2c_hid_get_report_length(report);
+-	if (i2c_hid_get_report(client,
+-			report->type == HID_FEATURE_REPORT ? 0x03 : 0x01,
+-			report->id, buffer, size))
+-		return;
+-
+-	i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, ihid->inbuf);
+-
+-	ret_size = buffer[0] | (buffer[1] << 8);
+-
+-	if (ret_size != size) {
+-		dev_err(&client->dev, "error in %s size:%d / ret_size:%d\n",
+-			__func__, size, ret_size);
+-		return;
+-	}
+-
+-	/* hid->driver_lock is held as we are in probe function,
+-	 * we just need to setup the input fields, so using
+-	 * hid_report_raw_event is safe. */
+-	hid_report_raw_event(hid, report->type, buffer + 2, size - 2, 1);
+-}
+-
+-/*
+- * Initialize all reports
+- */
+-static void i2c_hid_init_reports(struct hid_device *hid)
+-{
+-	struct hid_report *report;
+-	struct i2c_client *client = hid->driver_data;
+-	struct i2c_hid *ihid = i2c_get_clientdata(client);
+-	u8 *inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+-
+-	if (!inbuf) {
+-		dev_err(&client->dev, "can not retrieve initial reports\n");
+-		return;
+-	}
+-
+-	list_for_each_entry(report,
+-		&hid->report_enum[HID_INPUT_REPORT].report_list, list)
+-		i2c_hid_init_report(report, inbuf, ihid->bufsize);
+-
+-	list_for_each_entry(report,
+-		&hid->report_enum[HID_FEATURE_REPORT].report_list, list)
+-		i2c_hid_init_report(report, inbuf, ihid->bufsize);
+-
+-	kfree(inbuf);
+-}
+-
+ /*
+  * Traverse the supplied list of reports and find the longest
+  */
+@@ -683,9 +627,6 @@ static int i2c_hid_start(struct hid_device *hid)
+ 			return ret;
+ 	}
+ 
+-	if (!(hid->quirks & HID_QUIRK_NO_INIT_REPORTS))
+-		i2c_hid_init_reports(hid);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.8.1.5
+

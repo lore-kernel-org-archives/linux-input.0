@@ -1,110 +1,44 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4/5] input: tc3589x-keypad: support probing from device tree
-Date: Tue, 15 Oct 2013 23:21:11 +0200
-Message-ID: <1381872071-23455-1-git-send-email-linus.walleij@linaro.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f181.google.com ([209.85.212.181]:41142 "EHLO
-	mail-wi0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932802Ab3JOVVT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Oct 2013 17:21:19 -0400
-Received: by mail-wi0-f181.google.com with SMTP id l12so5736433wiv.2
-        for <linux-input@vger.kernel.org>; Tue, 15 Oct 2013 14:21:18 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: WPC8769L (WEC1020) support in winbond-cir?
+Date: Tue, 15 Oct 2013 23:59:43 +0200
+Message-ID: <20131015215943.GC26542@hardeman.nu>
+References: <CAG-2HqX-TO7h8zJ6F01r2LfRVjQtb0pK_1wKGsYVKzB0zC7TQA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAG-2HqX-TO7h8zJ6F01r2LfRVjQtb0pK_1wKGsYVKzB0zC7TQA@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Tom Gundersen <teg@jklm.no>
+Cc: "Juan J. Garcia de Soria" <skandalfo@gmail.com>, Sean Young <sean@mess.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Linus Walleij <linus.walleij@linaro.org>
 
-Implement device tree probing for the tc3589x keypad driver.
-This is modeled on the STMPE keypad driver and tested on the
-Ux500 TVK1281618 UIB.
+On Mon, Oct 14, 2013 at 03:16:20PM +0200, Tom Gundersen wrote:
+>Hi David and Juan,
+>
+>I'm going through the various out-of-tree LIRC drivers to see if we
+>can stop shipping them in Arch Linux [0]. So far it appears we can
+>drop all except for lirc_wpc8769l [1] (PnP id WEC1020).
+>
+>I noticed the comment in windownd-cir [2]:
+>
+> *  Currently supports the Winbond WPCD376i chip (PNP id WEC1022), but
+> *  could probably support others (Winbond WEC102X, NatSemi, etc)
+> *  with minor modifications.
+>
+>What are your thoughts on adding support for WEC1020 upstream? Is
+>anyone interested in doing this work (I sadly don't have the correct
+>device, so can't really do it myself)?
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/input/keyboard/tc3589x-keypad.c | 63 +++++++++++++++++++++++++++++++--
- 1 file changed, 61 insertions(+), 2 deletions(-)
+IIRC, Juan had a hacked-up version of the winbond-cir driver working on
+his hardware back in March (the hardware seems similar enough, basicall=
+y
+the WEC1022 adds some additional Wake-On-IR functionality...I seem to
+recall).
 
-diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/keyboard/tc3589x-keypad.c
-index 208de7c..f6ec0d7 100644
---- a/drivers/input/keyboard/tc3589x-keypad.c
-+++ b/drivers/input/keyboard/tc3589x-keypad.c
-@@ -297,6 +297,62 @@ static void tc3589x_keypad_close(struct input_dev *input)
- 	tc3589x_keypad_disable(keypad);
- }
- 
-+#ifdef CONFIG_OF
-+static const struct tc3589x_keypad_platform_data *
-+tc3589x_keypad_of_probe(struct device *dev)
-+{
-+	struct device_node *np = dev->of_node;
-+	struct tc3589x_keypad_platform_data *plat;
-+	u32 debounce_ms;
-+	int proplen;
-+
-+	if (!np)
-+		return ERR_PTR(-ENODEV);
-+
-+	plat = devm_kzalloc(dev, sizeof(*plat), GFP_KERNEL);
-+	if (!plat)
-+		return ERR_PTR(-ENOMEM);
-+
-+	of_property_read_u8(np, "keypad,num-columns", &plat->kcol);
-+	of_property_read_u8(np, "keypad,num-rows", &plat->krow);
-+	if (!plat->krow || !plat->kcol ||
-+	     plat->krow > TC_KPD_ROWS || plat->kcol > TC_KPD_COLUMNS) {
-+		dev_err(dev,
-+			"keypad columns/rows not properly specified (%ux%u)\n",
-+			plat->kcol, plat->krow);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	if (!of_get_property(np, "linux,keymap", &proplen)) {
-+		dev_err(dev, "property linux,keymap not found\n");
-+		return ERR_PTR(-ENOENT);
-+	}
-+
-+	plat->no_autorepeat = of_property_read_bool(np, "linux,no-autorepeat");
-+	plat->enable_wakeup = of_property_read_bool(np, "linux,wakeup");
-+
-+	/* The custom delay format is ms/16 */
-+	of_property_read_u32(np, "debounce-delay-ms", &debounce_ms);
-+	if (debounce_ms)
-+		plat->debounce_period = debounce_ms * 16;
-+	else
-+		plat->debounce_period = TC_KPD_DEBOUNCE_PERIOD;
-+
-+	plat->settle_time = TC_KPD_SETTLE_TIME;
-+	/* FIXME: should be property of the IRQ resource? */
-+	plat->irqtype = IRQF_TRIGGER_FALLING;
-+
-+	return plat;
-+}
-+#else
-+static inline const struct tc3589x_keypad_platform_data *
-+tc3589x_keypad_of_probe(struct device *dev)
-+{
-+	return ERR_PTR(-ENODEV);
-+}
-+#endif
-+
-+
- static int tc3589x_keypad_probe(struct platform_device *pdev)
- {
- 	struct tc3589x *tc3589x = dev_get_drvdata(pdev->dev.parent);
-@@ -307,8 +363,11 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
- 
- 	plat = tc3589x->pdata->keypad;
- 	if (!plat) {
--		dev_err(&pdev->dev, "invalid keypad platform data\n");
--		return -EINVAL;
-+		plat = tc3589x_keypad_of_probe(&pdev->dev);
-+		if (IS_ERR(plat)) {
-+			dev_err(&pdev->dev, "invalid keypad platform data\n");
-+			return PTR_ERR(plat);
-+		}
- 	}
- 
- 	irq = platform_get_irq(pdev, 0);
--- 
-1.8.3.1
+But I think Juan is the one to talk to. I don't have the WEC1020
+hardware and I don't have his experience of adding support for it...
 
+--=20
+David H=E4rdeman

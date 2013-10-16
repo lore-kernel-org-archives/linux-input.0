@@ -1,96 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: usbtouchscreen - separate report and transmit
- buffer size handling
-Date: Tue, 15 Oct 2013 23:29:02 -0700
-Message-ID: <20131016062902.GA4282@core.coreip.homeip.net>
-References: <20131015165000.5987a916@frequentis.com>
+Subject: Re: [PATCH] input: qt1070: add power management ops
+Date: Tue, 15 Oct 2013 23:31:36 -0700
+Message-ID: <20131016063136.GB4282@core.coreip.homeip.net>
+References: <1376379826-28808-1-git-send-email-voice.shen@atmel.com>
+ <520B2921.3000906@atmel.com>
+ <525B84F4.4000405@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f44.google.com ([209.85.160.44]:63571 "EHLO
-	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753584Ab3JPG3F (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:53865 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750923Ab3JPGbj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Oct 2013 02:29:05 -0400
+	Wed, 16 Oct 2013 02:31:39 -0400
+Received: by mail-pa0-f47.google.com with SMTP id kp14so591629pab.34
+        for <linux-input@vger.kernel.org>; Tue, 15 Oct 2013 23:31:39 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20131015165000.5987a916@frequentis.com>
+In-Reply-To: <525B84F4.4000405@atmel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christian Engelmayer <christian.engelmayer@frequentis.com>
-Cc: Forest Bond <forest.bond@rapidrollout.com>, Daniel Ritz <daniel.ritz@gmx.ch>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: Bo Shen <voice.shen@atmel.com>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Wenyou.Yang@atmel.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Hi Christian,
+Hi Bo,
 
-On Tue, Oct 15, 2013 at 04:50:00PM +0200, Christian Engelmayer wrote:
-> This patch supports the separate handling of the USB transfer buffer length
-> and the length of the buffer used for multi packet support. The USB transfer
-> size can now be explicitly configured via the device_info record. Otherwise
-> it defaults to the configured report packet size as before. For devices
-> supporting multiple report or diagnostic packets, the USB transfer size is
-> now reduced to the USB endpoints wMaxPacketSize if not explicitly set.
+On Mon, Oct 14, 2013 at 01:45:24PM +0800, Bo Shen wrote:
+> Hi Dmitry,
 > 
-> This fixes an issue where event reporting can be delayed for an arbitrary
-> time for multi packet devices. For instance the report size for eGalax devices
-> is defined to the 16 byte maximum diagnostic packet size as opposed to the 5
-> byte report packet size. In case the driver requests 16 byte from the USB
-> interrupt endpoint, the USB host controller driver needs to split up the
-> request into 2 accesses according to the endpoints wMaxPacketSize of 8 byte.
-> When the first transfer is answered by the eGalax device with not less than
-> the full 8 byte requested, the host controller has got no way of knowing
-> whether the touch controller has got additional data queued and will issue
-> the second transfer. If per example a liftoff event finishes at such a
-> wMaxPacketSize boundary, the data will not be available to the usbtouch driver
-> until a further event is triggered and transfered to the host. From user
-> perspective the BTN_TOUCH release event in this case is stuck until the next
-> touch down event.
+> On 8/14/2013 14:52, Nicolas Ferre wrote:
+> >On 13/08/2013 09:43, Bo Shen :
+> >>Add power management ops for qt1070, it maybe a wakeup source
+> >>
+> >>Signed-off-by: Bo Shen <voice.shen@atmel.com>
+> >
+> >Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
 > 
-> Signed-off-by: Christian Engelmayer <christian.engelmayer@frequentis.com>
-> ---
->  drivers/input/touchscreen/usbtouchscreen.c |   16 ++++++++++++----
->  1 files changed, 12 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-> index 721fdb3..aa1f6a7 100644
-> --- a/drivers/input/touchscreen/usbtouchscreen.c
-> +++ b/drivers/input/touchscreen/usbtouchscreen.c
-> @@ -76,6 +76,7 @@ struct usbtouch_device_info {
->  	int min_yc, max_yc;
->  	int min_press, max_press;
->  	int rept_size;
-> +	int xmit_size;
->  
->  	/*
->  	 * Always service the USB devices irq not just when the input device is
-> @@ -1523,7 +1524,7 @@ static int usbtouch_reset_resume(struct usb_interface *intf)
->  static void usbtouch_free_buffers(struct usb_device *udev,
->  				  struct usbtouch_usb *usbtouch)
->  {
-> -	usb_free_coherent(udev, usbtouch->type->rept_size,
-> +	usb_free_coherent(udev, usbtouch->type->xmit_size,
->  			  usbtouch->data, usbtouch->data_dma);
->  	kfree(usbtouch->buffer);
->  }
-> @@ -1567,8 +1568,15 @@ static int usbtouch_probe(struct usb_interface *intf,
->  	usbtouch->type = type;
->  	if (!type->process_pkt)
->  		type->process_pkt = usbtouch_process_pkt;
-> +	if (!type->xmit_size) {
-> +		if ((type->get_pkt_len) &&
-> +		    (type->rept_size > le16_to_cpu(endpoint->wMaxPacketSize)))
-> +			type->xmit_size = le16_to_cpu(endpoint->wMaxPacketSize);
-> +		else
-> +			type->xmit_size = type->rept_size;
+> Would this patch be applied with Nicolas' ACK?
 
-'type' points to a shared data structure and should not be modified. It
-looks like we already violating this so a cleanup patch would be
-appreciated as well.
+This patch is already in mainline:
 
-BTW, maybe we should do:
+commit 3719b54bc62318db7dd8ac7c39a09dfb991a208f
+Author: Bo Shen <voice.shen@atmel.com>
+Date:   Tue Aug 13 09:46:40 2013 -0700
 
-	u16 wMaxPaxetSize = le16_to_cpu(endpoint->wMaxPacketSize);
-	xmit_size = min(type->rept_size, wMaxPaxetSize);
+    Input: qt1070 - add power management ops
 
-?
+    Add power management ops for qt1070, it may be a wakeup source.
+
+    Signed-off-by: Bo Shen <voice.shen@atmel.com>
+    Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 Thanks.
 

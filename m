@@ -1,57 +1,33 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: nspire-keypad - add missing
- clk_disable_unprepare() on error path
-Date: Tue, 15 Oct 2013 23:55:10 -0700
-Message-ID: <20131016065510.GB15710@core.coreip.homeip.net>
-References: <CAPgLHd9f_4-mtxXKLcL+fiNJw8gdTjU8ZSJtJoSLTW2tSa-N_Q@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 4/5] input: tc3589x-keypad: support probing from device tree
+Date: Wed, 16 Oct 2013 09:50:54 +0200
+Message-ID: <CACRpkdbjHVGHCuUAjhM6uxtah45PUhedSxzh0gZkjbHot2oeqA@mail.gmail.com>
+References: <1381872071-23455-1-git-send-email-linus.walleij@linaro.org>
+	<20131016063947.GD4282@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f51.google.com ([209.85.160.51]:49941 "EHLO
-	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751081Ab3JPGzQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Oct 2013 02:55:16 -0400
-Received: by mail-pb0-f51.google.com with SMTP id jt11so415041pbb.10
-        for <linux-input@vger.kernel.org>; Tue, 15 Oct 2013 23:55:15 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <CAPgLHd9f_4-mtxXKLcL+fiNJw8gdTjU8ZSJtJoSLTW2tSa-N_Q@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20131016063947.GD4282@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: grant.likely@linaro.org, rob.herring@calxeda.com, dt.tangr@gmail.com, yongjun_wei@trendmicro.com.cn, Julia.Lawall@lip6.fr, viresh.kumar@linaro.org, linux-input@vger.kernel.org
 
-On Sat, Oct 12, 2013 at 02:32:09PM +0800, Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> 
-> Add the missing clk_disable_unprepare() before return
-> from nspire_keypad_open() in the error handling case.
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+On Wed, Oct 16, 2013 at 8:39 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Oct 15, 2013 at 11:21:11PM +0200, Linus Walleij wrote:
+>> Implement device tree probing for the tc3589x keypad driver.
+>> This is modeled on the STMPE keypad driver and tested on the
+>> Ux500 TVK1281618 UIB.
+>>
+>> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>
+> Looks good, should I merge it or you want to take it through another
+> tree??
 
-Applied, thank you.
+As this one is only using old device tree bindings
+(Documentation/devicetree/bindings/input/matrix-keymap.txt
+and friends) I think you can just merge it.
 
-> ---
->  drivers/input/keyboard/nspire-keypad.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/nspire-keypad.c b/drivers/input/keyboard/nspire-keypad.c
-> index b3e3eda..85e8d80 100644
-> --- a/drivers/input/keyboard/nspire-keypad.c
-> +++ b/drivers/input/keyboard/nspire-keypad.c
-> @@ -143,8 +143,10 @@ static int nspire_keypad_open(struct input_dev *input)
->  		return error;
->  
->  	error = nspire_keypad_chip_init(keypad);
-> -	if (error)
-> +	if (error) {
-> +		clk_disable_unprepare(keypad->clk);
->  		return error;
-> +	}
->  
->  	return 0;
->  }
-> 
-
--- 
-Dmitry
+Yours,
+Linus Walleij

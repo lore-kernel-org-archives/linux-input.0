@@ -1,35 +1,40 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input - wacom: Not all multi-interface devices
- support touch
-Date: Tue, 15 Oct 2013 23:48:47 -0700
-Message-ID: <20131016064847.GB24554@core.coreip.homeip.net>
-References: <1381439833-1116-1-git-send-email-pingc@wacom.com>
+Subject: Re: [PATCH v2 1/2] Add an additional argument for decode routine,
+ change secondary device name
+Date: Tue, 15 Oct 2013 23:54:17 -0700
+Message-ID: <20131016065417.GA15710@core.coreip.homeip.net>
+References: <1379045010-3347-1-git-send-email-yunkang.tang@cn.alps.com>
+ <1379045010-3347-2-git-send-email-yunkang.tang@cn.alps.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:35754 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751874Ab3JPGsu (ORCPT
+Received: from mail-pa0-f44.google.com ([209.85.220.44]:40910 "EHLO
+	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753722Ab3JPGyU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Oct 2013 02:48:50 -0400
-Received: by mail-pd0-f176.google.com with SMTP id g10so351124pdj.35
-        for <linux-input@vger.kernel.org>; Tue, 15 Oct 2013 23:48:49 -0700 (PDT)
+	Wed, 16 Oct 2013 02:54:20 -0400
+Received: by mail-pa0-f44.google.com with SMTP id lf10so623684pab.17
+        for <linux-input@vger.kernel.org>; Tue, 15 Oct 2013 23:54:20 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1381439833-1116-1-git-send-email-pingc@wacom.com>
+In-Reply-To: <1379045010-3347-2-git-send-email-yunkang.tang@cn.alps.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, peter.hutterer@who-t.net, chris@cnpbagwell.com, Ping Cheng <pingc@wacom.com>
+To: Yunkang Tang <tommywill2011@gmail.com>
+Cc: yunkang.tang@cn.alps.com, linux-input@vger.kernel.org
 
-On Thu, Oct 10, 2013 at 02:17:13PM -0700, Ping Cheng wrote:
-> Some multi-interface devices support expresskeys on a separate interface,
-> such as Bamboo; some multi-interface devices do not support touch at all,
-> such as Pen only Intuos5. Make sure we report the right device names.
+Hi Yunkang,
+
+On Fri, Sep 13, 2013 at 12:03:29PM +0800, Yunkang Tang wrote:
+> From: Yunkang Tang <yunkang.tang@cn.alps.com>
 > 
-> Tested-by: Jason Gerecke <killertofu@gmail.com>
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
+> - Add an addition argument for decode routine, new devices need this info.
+> - Change the dev2's name from "PS/2 Mouse" to "ALPS PS/2 Device".
+> 
 
-Applied, thank you.
+I carved the name change device out of this patch and applied to my
+3.13 queue.
+
+Thanks.
 
 -- 
 Dmitry

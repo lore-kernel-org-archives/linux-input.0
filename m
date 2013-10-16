@@ -1,92 +1,57 @@
-From: Justin Clift <jclift@redhat.com>
-Subject: Re: [PATCH v2 0/2] Improve the performance of alps v5-protocol's touchpad
-Date: Wed, 16 Oct 2013 10:37:36 +0100
-Message-ID: <78C6748E-8767-4F39-9AB4-0839D74370E4@redhat.com>
-References: <1379045010-3347-1-git-send-email-yunkang.tang@cn.alps.com>
-Mime-Version: 1.0 (Apple Message framework v1283)
-Content-Type: text/plain; charset=utf-8
+From: =?UTF-8?Q?Juan_Jes=C3=BAs_Garc=C3=ADa_de_Soria_Lucena?=
+	<skandalfo@gmail.com>
+Subject: Re: WPC8769L (WEC1020) support in winbond-cir?
+Date: Wed, 16 Oct 2013 15:47:08 +0100
+Message-ID: <CAB+yVgD-sJixJT=paT=oM6vRtZuz6-dM+DpsYdPNmpR-6CA-bw@mail.gmail.com>
+References: <CAG-2HqX-TO7h8zJ6F01r2LfRVjQtb0pK_1wKGsYVKzB0zC7TQA@mail.gmail.com>
+ <20131015215943.GC26542@hardeman.nu> <CAB+yVgCtvRHRLxP2SRgCAqkCKdyThgr48fOvBFe9YHfz3xArmQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:27156 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760494Ab3JPJhp convert rfc822-to-8bit (ORCPT
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:41386 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751441Ab3JPOrs convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Oct 2013 05:37:45 -0400
-In-Reply-To: <1379045010-3347-1-git-send-email-yunkang.tang@cn.alps.com>
+	Wed, 16 Oct 2013 10:47:48 -0400
+In-Reply-To: <CAB+yVgCtvRHRLxP2SRgCAqkCKdyThgr48fOvBFe9YHfz3xArmQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yunkang Tang <tommywill2011@gmail.com>
-Cc: dmitry.torokhov@gmail.com, yunkang.tang@cn.alps.com, linux-input@vger.kernel.org, Kevin Cernekee <cernekee@gmail.com>, Niels de Vos <ndevos@redhat.com>
+To: =?UTF-8?Q?David_H=C3=A4rdeman?= <david@hardeman.nu>
+Cc: Tom Gundersen <teg@jklm.no>, Sean Young <sean@mess.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
 
-On 13/09/2013, at 5:03 AM, Yunkang Tang wrote:
-> Hi all,
->=20
-> Here is the v2 of improving ALPS v5 protocol device.
->=20
-> Change since v1:
-> - fix the issue that previous patches were broken by mail system.
-> - split the modification to 2 patches.
-> - Change dev2's name to "ALPS PS/2 Device"
+Resending, now making sure I use plain text for the email...
 
-Thanks Tommy.  We've been trying to get recent ALPS touchpads
-working through Red Hat Bugzilla issue 953211.
+Hi there,
 
-  https://bugzilla.redhat.com/show_bug.cgi?id=3D953211
+2013/10/15 David H=C3=A4rdeman <david@hardeman.nu>
+>
+> IIRC, Juan had a hacked-up version of the winbond-cir driver working =
+on
+> his hardware back in March (the hardware seems similar enough, basica=
+lly
+> the WEC1022 adds some additional Wake-On-IR functionality...I seem to
+> recall).
 
-Niels de Vos, CC'd, was kind enough to build a Fedora 19 kernel
-with your patch added.  We've been testing it since yesterday.
+I did indeed look at this at the time. I still have the hardware,
+should have the hardware docs somewhere, and can look at where I left
+that hacked code at the time...
 
-Your patch works well for several models of laptop (confirmed
-success):
+I really would have liked to merge in the support for it into
+winbond-cir, but real life took over.
 
- * Dell Inspiron 17R SE / Inspiron 7720
- * Dell Vostro 3360
- * Fujitsu Lifebook AH532
+> But I think Juan is the one to talk to. I don't have the WEC1020
+> hardware and I don't have his experience of adding support for it...
 
-With your patches, the touchpad:
+As I said, I still have the hardware around. I might get some time
+around this weekend to look at it and come back with at least an idea
+of what is left to be done.
 
-* is recognised as a touchpad
-* both KDE and Gnome can control it
-* 2 finger scrolling works
+Best regards,
 
-That being said, we have conflicting reports about 1 finger
-vertical scrolling on the Inspiron 17R SE / Inspiron 7720.
+   Juan.
 
-* 1 finger scrolling works on my laptop (Inspiron 17R SE),
-  if 2 finger scrolling is NOT enabled in Gnome3 mouse &
-  touchpad settings. (seems mutually exclusive)
-* 1 finger scrolling does NOT work in KDE (Inspiron 7720)
-  * I'm following this up with the reporter, as it may
-    turn out to be a KDE settings issue
-
-=46rom my point of view, I'm be happy to see these patches
-be applied, and you're welcome to use:
-
-  Tested-by: Justin Clift <jclift@redhat.com>
-
-Side note - Thanks to the people who've tested this and
-reported back. :)
-
-* Stanislav Datskevich
-* =C3=96zg=C3=BCr G=C3=BCndo=C4=9Fan
-* Pentarh Udi
-* Arnaud Lacombe
-* Gaspard Jankowiak
-* myself ;>
-
-Regards and best wishes,
-
-Justin Clift
-
-
-> Best Regards,
-> Tommy
-
---
-Open Source and Standards @ Red Hat
-
-twitter.com/realjustinclift
-
+:wq
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

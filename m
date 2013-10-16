@@ -1,33 +1,94 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 4/5] input: tc3589x-keypad: support probing from device tree
-Date: Wed, 16 Oct 2013 09:50:54 +0200
-Message-ID: <CACRpkdbjHVGHCuUAjhM6uxtah45PUhedSxzh0gZkjbHot2oeqA@mail.gmail.com>
-References: <1381872071-23455-1-git-send-email-linus.walleij@linaro.org>
-	<20131016063947.GD4282@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20131016063947.GD4282@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+From: Justin Clift <jclift@redhat.com>
+Subject: Re: [PATCH v2 0/2] Improve the performance of alps v5-protocol's touchpad
+Date: Wed, 16 Oct 2013 10:37:36 +0100
+Message-ID: <78C6748E-8767-4F39-9AB4-0839D74370E4@redhat.com>
+References: <1379045010-3347-1-git-send-email-yunkang.tang@cn.alps.com>
+Mime-Version: 1.0 (Apple Message framework v1283)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:27156 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760494Ab3JPJhp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Oct 2013 05:37:45 -0400
+In-Reply-To: <1379045010-3347-1-git-send-email-yunkang.tang@cn.alps.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yunkang Tang <tommywill2011@gmail.com>
+Cc: dmitry.torokhov@gmail.com, yunkang.tang@cn.alps.com, linux-input@vger.kernel.org, Kevin Cernekee <cernekee@gmail.com>, Niels de Vos <ndevos@redhat.com>
 
-On Wed, Oct 16, 2013 at 8:39 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Oct 15, 2013 at 11:21:11PM +0200, Linus Walleij wrote:
->> Implement device tree probing for the tc3589x keypad driver.
->> This is modeled on the STMPE keypad driver and tested on the
->> Ux500 TVK1281618 UIB.
->>
->> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
->
-> Looks good, should I merge it or you want to take it through another
-> tree??
+On 13/09/2013, at 5:03 AM, Yunkang Tang wrote:
+> Hi all,
+>=20
+> Here is the v2 of improving ALPS v5 protocol device.
+>=20
+> Change since v1:
+> - fix the issue that previous patches were broken by mail system.
+> - split the modification to 2 patches.
+> - Change dev2's name to "ALPS PS/2 Device"
 
-As this one is only using old device tree bindings
-(Documentation/devicetree/bindings/input/matrix-keymap.txt
-and friends) I think you can just merge it.
+Thanks Tommy.  We've been trying to get recent ALPS touchpads
+working through Red Hat Bugzilla issue 953211.
 
-Yours,
-Linus Walleij
+  https://bugzilla.redhat.com/show_bug.cgi?id=3D953211
+
+Niels de Vos, CC'd, was kind enough to build a Fedora 19 kernel
+with your patch added.  We've been testing it since yesterday.
+
+Your patch works well for several models of laptop (confirmed
+success):
+
+ * Dell Inspiron 17R SE / Inspiron 7720
+ * Dell Vostro 3360
+ * Fujitsu Lifebook AH532
+
+With your patches, the touchpad:
+
+* is recognised as a touchpad
+* both KDE and Gnome can control it
+* 2 finger scrolling works
+
+That being said, we have conflicting reports about 1 finger
+vertical scrolling on the Inspiron 17R SE / Inspiron 7720.
+
+* 1 finger scrolling works on my laptop (Inspiron 17R SE),
+  if 2 finger scrolling is NOT enabled in Gnome3 mouse &
+  touchpad settings. (seems mutually exclusive)
+* 1 finger scrolling does NOT work in KDE (Inspiron 7720)
+  * I'm following this up with the reporter, as it may
+    turn out to be a KDE settings issue
+
+=46rom my point of view, I'm be happy to see these patches
+be applied, and you're welcome to use:
+
+  Tested-by: Justin Clift <jclift@redhat.com>
+
+Side note - Thanks to the people who've tested this and
+reported back. :)
+
+* Stanislav Datskevich
+* =C3=96zg=C3=BCr G=C3=BCndo=C4=9Fan
+* Pentarh Udi
+* Arnaud Lacombe
+* Gaspard Jankowiak
+* myself ;>
+
+Regards and best wishes,
+
+Justin Clift
+
+
+> Best Regards,
+> Tommy
+
+--
+Open Source and Standards @ Red Hat
+
+twitter.com/realjustinclift
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

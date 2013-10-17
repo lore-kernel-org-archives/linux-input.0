@@ -1,51 +1,139 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] drivers: input: mouse: Remove useless casting in
- cypress_ps2.c
-Date: Thu, 17 Oct 2013 10:19:49 -0700
-Message-ID: <20131017171948.GB3884@core.coreip.homeip.net>
-References: <1381962675-26876-1-git-send-email-geyslan@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: i2c-hid: Stop querying for init reports
+Date: Thu, 17 Oct 2013 13:57:04 -0400
+Message-ID: <CAN+gG=FukmZEpo8wvsmNeV=0h7xR9xYOPLyvYEiDq98T-4tn=A@mail.gmail.com>
+References: <1381825709-5098-1-git-send-email-bbasu@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:59851 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757423Ab3JQRTy (ORCPT
+Received: from mail-lb0-f178.google.com ([209.85.217.178]:36711 "EHLO
+	mail-lb0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756801Ab3JQR5G (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Oct 2013 13:19:54 -0400
-Content-Disposition: inline
-In-Reply-To: <1381962675-26876-1-git-send-email-geyslan@gmail.com>
+	Thu, 17 Oct 2013 13:57:06 -0400
+In-Reply-To: <1381825709-5098-1-git-send-email-bbasu@nvidia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Geyslan G. Bem" <geyslan@gmail.com>
-Cc: dudl@cypress.com, kamal@canonical.com, mario_limonciello@dell.com, git@status.e4ward.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-br@googlegroups.com
+To: Bibek Basu <bbasu@nvidia.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, Oct 16, 2013 at 07:31:15PM -0300, Geyslan G. Bem wrote:
-> Get rid of unnecessary (void *) casting in 'cypress_init' function.
-> 
-> Signed-off-by: Geyslan G. Bem <geyslan@gmail.com>
+Hi Bibek,
 
-Applied, thank you.
+On Tue, Oct 15, 2013 at 4:28 AM, Bibek Basu <bbasu@nvidia.com> wrote:
+> According to specifications, HID over I2C devices
+> are not bound to respond to query for INPUT
+> REPORTS. Thus dropping the call during init
+> as many devices does not respond causing error
+> messages during boot.
+>
 
+This time, the patch is removing too many things that are correct. :)
+
+see below to know what to remove and what to keep:
+
+> Signed-off-by: Bibek Basu <bbasu@nvidia.com>
 > ---
->  drivers/input/mouse/cypress_ps2.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-> index f51765f..b87d7ba 100644
-> --- a/drivers/input/mouse/cypress_ps2.c
-> +++ b/drivers/input/mouse/cypress_ps2.c
-> @@ -680,7 +680,7 @@ int cypress_init(struct psmouse *psmouse)
->  	struct cytp_data *cytp;
->  
->  	cytp = (struct cytp_data *)kzalloc(sizeof(struct cytp_data), GFP_KERNEL);
-> -	psmouse->private = (void *)cytp;
-> +	psmouse->private = cytp;
->  	if (cytp == NULL)
->  		return -ENOMEM;
->  
-> -- 
-> 1.8.4
-> 
+>  drivers/hid/i2c-hid/i2c-hid.c | 59 -------------------------------------------
+>  1 file changed, 59 deletions(-)
+>
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index fd7ce37..58a4f12 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -409,62 +409,6 @@ static int i2c_hid_get_report_length(struct hid_report *report)
+>                 report->device->report_enum[report->type].numbered + 2;
+>  }
+>
+> -static void i2c_hid_init_report(struct hid_report *report, u8 *buffer,
+> -       size_t bufsize)
+> -{
+> -       struct hid_device *hid = report->device;
+> -       struct i2c_client *client = hid->driver_data;
+> -       struct i2c_hid *ihid = i2c_get_clientdata(client);
+> -       unsigned int size, ret_size;
+> -
+> -       size = i2c_hid_get_report_length(report);
+> -       if (i2c_hid_get_report(client,
+> -                       report->type == HID_FEATURE_REPORT ? 0x03 : 0x01,
+> -                       report->id, buffer, size))
+> -               return;
+> -
+> -       i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, ihid->inbuf);
+> -
+> -       ret_size = buffer[0] | (buffer[1] << 8);
+> -
+> -       if (ret_size != size) {
+> -               dev_err(&client->dev, "error in %s size:%d / ret_size:%d\n",
+> -                       __func__, size, ret_size);
+> -               return;
+> -       }
+> -
+> -       /* hid->driver_lock is held as we are in probe function,
+> -        * we just need to setup the input fields, so using
+> -        * hid_report_raw_event is safe. */
+> -       hid_report_raw_event(hid, report->type, buffer + 2, size - 2, 1);
+> -}
 
--- 
-Dmitry
+This function should be kept
+
+> -
+> -/*
+> - * Initialize all reports
+> - */
+> -static void i2c_hid_init_reports(struct hid_device *hid)
+> -{
+> -       struct hid_report *report;
+> -       struct i2c_client *client = hid->driver_data;
+> -       struct i2c_hid *ihid = i2c_get_clientdata(client);
+> -       u8 *inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+> -
+> -       if (!inbuf) {
+> -               dev_err(&client->dev, "can not retrieve initial reports\n");
+> -               return;
+> -       }
+> -
+
+Above should be kept
+
+> -       list_for_each_entry(report,
+> -               &hid->report_enum[HID_INPUT_REPORT].report_list, list)
+> -               i2c_hid_init_report(report, inbuf, ihid->bufsize);
+> -
+
+these for lines should be removed (they are the one giving the errors
+in the logs)
+
+and please keep the rest of the code as is.
+
+
+> -       list_for_each_entry(report,
+> -               &hid->report_enum[HID_FEATURE_REPORT].report_list, list)
+> -               i2c_hid_init_report(report, inbuf, ihid->bufsize);
+
+Actually, this part is very important because we have no spontaneous
+events emitted by features, so we don't know the value of the feature
+until we probed it. So please keep this part as mentioned above.
+
+Cheers,
+Benjamin
+
+> -
+> -       kfree(inbuf);
+> -}
+> -
+>  /*
+>   * Traverse the supplied list of reports and find the longest
+>   */
+> @@ -683,9 +627,6 @@ static int i2c_hid_start(struct hid_device *hid)
+>                         return ret;
+>         }
+>
+> -       if (!(hid->quirks & HID_QUIRK_NO_INIT_REPORTS))
+> -               i2c_hid_init_reports(hid);
+> -
+>         return 0;
+>  }
+>
+> --
+> 1.8.1.5
+>

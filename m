@@ -1,51 +1,67 @@
-From: =?UTF-8?Q?Geyslan_Greg=C3=B3rio_Bem?= <geyslan@gmail.com>
-Subject: Re: [PATCH v2] drivers: input: mouse: Remove useless casting in cypress_ps2.c
-Date: Wed, 16 Oct 2013 19:53:42 -0300
-Message-ID: <CAGG-pUQMunYkZC38DWOOiEJM3U6vG-VbJJRGMB3PSfOZYvDKXg@mail.gmail.com>
-References: <1381962675-26876-1-git-send-email-geyslan@gmail.com>
-	<1381963198.22110.73.camel@joe-AO722>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] input: wacom - make sure touch_max is set for touch devices
+Date: Wed, 16 Oct 2013 17:06:39 -0700
+Message-ID: <1381968399-18075-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qc0-f178.google.com ([209.85.216.178]:56687 "EHLO
-	mail-qc0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752089Ab3JPWxn (ORCPT
+Received: from mail-pb0-f44.google.com ([209.85.160.44]:64489 "EHLO
+	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760618Ab3JQAGs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Oct 2013 18:53:43 -0400
-In-Reply-To: <1381963198.22110.73.camel@joe-AO722>
+	Wed, 16 Oct 2013 20:06:48 -0400
+Received: by mail-pb0-f44.google.com with SMTP id xa7so1520979pbc.31
+        for <linux-input@vger.kernel.org>; Wed, 16 Oct 2013 17:06:47 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: dmitry.torokhov@gmail.com, dudl@cypress.com, kamal@canonical.com, mario_limonciello@dell.com, git@status.e4ward.com, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, kernel-br <kernel-br@googlegroups.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, killertofu@gmail.com, Ping Cheng <pingc@wacom.com>
 
-2013/10/16 Joe Perches <joe@perches.com>:
-> On Wed, 2013-10-16 at 19:31 -0300, Geyslan G. Bem wrote:
->> Get rid of unnecessary (void *) casting in 'cypress_init' function.
-> []
->> diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-> []
->> @@ -680,7 +680,7 @@ int cypress_init(struct psmouse *psmouse)
->>       struct cytp_data *cytp;
->>
->>       cytp = (struct cytp_data *)kzalloc(sizeof(struct cytp_data), GFP_KERNEL);
->> -     psmouse->private = (void *)cytp;
->> +     psmouse->private = cytp;
->
-> If you are going to remove useless casts, please
-> also remove the unnecessary kzalloc cast too.
->
->
+Old single touch Tablet PCs do not have touch_max set at
+wacom_features. Since touch device at lease supports one
+finger, assign touch_max to 1 when touch usage is defined
+in its HID Descriptor and touch_max is not pre-defined.
 
-Joe, thanks for reply. Actually I did it and receive this reply from Dmitry:
+Signed-off-by: Ping Cheng <pingc@wacom.com>
 
-       struct cytp_data *cytp;
+--
+This patch is based on last posted (unmerged) patch:
 
- -     cytp = (struct cytp_data *)kzalloc(sizeof(struct cytp_data), GFP_KERNEL);
- +     cytp = kzalloc(sizeof(struct cytp_data), GFP_KERNEL);
+ "add support for three new Intuos devices"
+---
+ drivers/input/tablet/wacom_sys.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-I already have a patch for this from Jingoo Han in my queue.
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 81d5910..28066bc 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -304,7 +304,7 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+ 	char limit = 0;
+ 	/* result has to be defined as int for some devices */
+-	int result = 0;
++	int result = 0, touch_max = 0;
+ 	int i = 0, usage = WCM_UNDEFINED, finger = 0, pen = 0;
+ 	unsigned char *report;
+ 
+@@ -351,7 +351,8 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 				if (usage == WCM_DESKTOP) {
+ 					if (finger) {
+ 						features->device_type = BTN_TOOL_FINGER;
+-
++						/* touch device at least supports one touch point */
++						touch_max = 1;
+ 						switch (features->type) {
+ 						case TABLETPC2FG:
+ 							features->pktlen = WACOM_PKGLEN_TPC2FG;
+@@ -504,6 +505,8 @@ static int wacom_parse_hid(struct usb_interface *intf,
+ 	}
+ 
+  out:
++	if (!features->touch_max && touch_max)
++		features->touch_max = touch_max;
+ 	result = 0;
+ 	kfree(report);
+ 	return result;
+-- 
+1.8.1.2
 
-       psmouse->private = (void *)cytp;
-
-But this cast is also not needed, so if you could send me a patch for it
-I'd appreciate that.

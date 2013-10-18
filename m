@@ -1,35 +1,33 @@
-From: Nikolai Kondrashov <spbnick@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH 1/1] HID: Fix unit exponent parsing again
-Date: Fri, 18 Oct 2013 16:08:04 +0300
-Message-ID: <526132B4.2000008@gmail.com>
-References: <1381666192-25309-1-git-send-email-spbnick@gmail.com> <CAN+gG=FC8Zvkt+9wcaMyo+akmqY-mm=xSPDqWOqGHEPwZx3XTQ@mail.gmail.com> <alpine.LNX.2.00.1310181456500.31790@pobox.suse.cz>
+Date: Fri, 18 Oct 2013 15:14:16 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1310181514090.31790@pobox.suse.cz>
+References: <1381666192-25309-1-git-send-email-spbnick@gmail.com> <CAN+gG=FC8Zvkt+9wcaMyo+akmqY-mm=xSPDqWOqGHEPwZx3XTQ@mail.gmail.com> <alpine.LNX.2.00.1310181456500.31790@pobox.suse.cz> <526132B4.2000008@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f53.google.com ([74.125.83.53]:45369 "EHLO
-	mail-ee0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753418Ab3JRNII (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Oct 2013 09:08:08 -0400
-Received: by mail-ee0-f53.google.com with SMTP id t10so2017130eei.12
-        for <linux-input@vger.kernel.org>; Fri, 18 Oct 2013 06:08:07 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1310181456500.31790@pobox.suse.cz>
+Received: from cantor2.suse.de ([195.135.220.15]:48745 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753446Ab3JRNOU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Oct 2013 09:14:20 -0400
+In-Reply-To: <526132B4.2000008@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
+To: Nikolai Kondrashov <spbnick@gmail.com>
 Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-Hi Jiri,
+On Fri, 18 Oct 2013, Nikolai Kondrashov wrote:
 
-On 10/18/2013 03:58 PM, Jiri Kosina wrote:
-> I am about to apply it, just a minor thing -- you seem to have forgotten
-> your Signed-off-by: line in the patch. Could you please send it to me, so
-> that I can ammend it to the patch and apply it?
+> > I am about to apply it, just a minor thing -- you seem to have forgotten
+> > your Signed-off-by: line in the patch. Could you please send it to me, so
+> > that I can ammend it to the patch and apply it?
+> 
+> Sure, sorry, haven't sent any kernel patches in a while.
+> 
+> Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 
-Sure, sorry, haven't sent any kernel patches in a while.
+Thanks, applied.
 
-Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
-
-Sincerely,
-Nick
+-- 
+Jiri Kosina
+SUSE Labs

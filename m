@@ -1,76 +1,64 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH] HID: wiimote: add LEGO-wiimote VID
-Date: Fri, 18 Oct 2013 16:26:22 +0200
-Message-ID: <1382106382-24800-1-git-send-email-dh.herrmann@gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH] HID: hid-sensor-hub: fix report size
+Date: Fri, 18 Oct 2013 09:48:44 -0700
+Message-ID: <1382114924-25654-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f43.google.com ([74.125.83.43]:62834 "EHLO
-	mail-ee0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754780Ab3JRO0a (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Oct 2013 10:26:30 -0400
+Received: from mga02.intel.com ([134.134.136.20]:19213 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756521Ab3JRQwT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Oct 2013 12:52:19 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, stable@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-The LEGO-wiimote uses a different VID than the Nintendo ID. The device is
-technically the same so add the ID.
+The number of bytes in a field needs to take account of report_count
+field. Need to multiply report_size and report_count to get total
+number of bytes.
 
-Cc: <stable@vger.kernel.org> # 3.11+
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/hid-core.c         | 1 +
- drivers/hid/hid-ids.h          | 1 +
- drivers/hid/hid-wiimote-core.c | 5 ++++-
- 3 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/hid/hid-sensor-hub.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 95d2dff..e6c3a03 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1871,6 +1871,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO2, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
- 	{ }
- };
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ac803c5..000e0df 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -639,6 +639,7 @@
- #define USB_DEVICE_ID_NEXTWINDOW_TOUCHSCREEN	0x0003
- 
- #define USB_VENDOR_ID_NINTENDO		0x057e
-+#define USB_VENDOR_ID_NINTENDO2		0x054c
- #define USB_DEVICE_ID_NINTENDO_WIIMOTE	0x0306
- #define USB_DEVICE_ID_NINTENDO_WIIMOTE2	0x0330
- 
-diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-index abb20db..1446f52 100644
---- a/drivers/hid/hid-wiimote-core.c
-+++ b/drivers/hid/hid-wiimote-core.c
-@@ -834,7 +834,8 @@ static void wiimote_init_set_type(struct wiimote_data *wdata,
- 		goto done;
- 	}
- 
--	if (vendor == USB_VENDOR_ID_NINTENDO) {
-+	if (vendor == USB_VENDOR_ID_NINTENDO ||
-+	    vendor == USB_VENDOR_ID_NINTENDO2) {
- 		if (product == USB_DEVICE_ID_NINTENDO_WIIMOTE) {
- 			devtype = WIIMOTE_DEV_GEN10;
- 			goto done;
-@@ -1855,6 +1856,8 @@ static void wiimote_hid_remove(struct hid_device *hdev)
- static const struct hid_device_id wiimote_hid_devices[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO,
- 				USB_DEVICE_ID_NINTENDO_WIIMOTE) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO2,
-+				USB_DEVICE_ID_NINTENDO_WIIMOTE) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO,
- 				USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
- 	{ }
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 88fc5ae..a184e19 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -326,7 +326,8 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+ 				field->logical == attr_usage_id) {
+ 				sensor_hub_fill_attr_info(info, i, report->id,
+ 					field->unit, field->unit_exponent,
+-					field->report_size);
++					field->report_size *
++							field->report_count);
+ 				ret = 0;
+ 			} else {
+ 				for (j = 0; j < field->maxusage; ++j) {
+@@ -338,7 +339,8 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+ 							i, report->id,
+ 							field->unit,
+ 							field->unit_exponent,
+-							field->report_size);
++							field->report_size *
++							field->report_count);
+ 						ret = 0;
+ 						break;
+ 					}
+@@ -425,9 +427,10 @@ static int sensor_hub_raw_event(struct hid_device *hdev,
+ 		hid_dbg(hdev, "%d collection_index:%x hid:%x sz:%x\n",
+ 				i, report->field[i]->usage->collection_index,
+ 				report->field[i]->usage->hid,
+-				report->field[i]->report_size/8);
+-
+-		sz = report->field[i]->report_size/8;
++				(report->field[i]->report_size *
++					report->field[i]->report_count)/8);
++		sz = (report->field[i]->report_size *
++					report->field[i]->report_count)/8;
+ 		if (pdata->pending.status && pdata->pending.attr_usage_id ==
+ 				report->field[i]->usage->hid) {
+ 			hid_dbg(hdev, "data was pending ...\n");
 -- 
-1.8.4
+1.8.3.2
 

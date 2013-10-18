@@ -1,52 +1,35 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Nikolai Kondrashov <spbnick@gmail.com>
 Subject: Re: [PATCH 1/1] HID: Fix unit exponent parsing again
-Date: Fri, 18 Oct 2013 14:58:59 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1310181456500.31790@pobox.suse.cz>
-References: <1381666192-25309-1-git-send-email-spbnick@gmail.com> <CAN+gG=FC8Zvkt+9wcaMyo+akmqY-mm=xSPDqWOqGHEPwZx3XTQ@mail.gmail.com>
+Date: Fri, 18 Oct 2013 16:08:04 +0300
+Message-ID: <526132B4.2000008@gmail.com>
+References: <1381666192-25309-1-git-send-email-spbnick@gmail.com> <CAN+gG=FC8Zvkt+9wcaMyo+akmqY-mm=xSPDqWOqGHEPwZx3XTQ@mail.gmail.com> <alpine.LNX.2.00.1310181456500.31790@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48144 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751883Ab3JRM7D (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Oct 2013 08:59:03 -0400
-In-Reply-To: <CAN+gG=FC8Zvkt+9wcaMyo+akmqY-mm=xSPDqWOqGHEPwZx3XTQ@mail.gmail.com>
+Received: from mail-ee0-f53.google.com ([74.125.83.53]:45369 "EHLO
+	mail-ee0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753418Ab3JRNII (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Oct 2013 09:08:08 -0400
+Received: by mail-ee0-f53.google.com with SMTP id t10so2017130eei.12
+        for <linux-input@vger.kernel.org>; Fri, 18 Oct 2013 06:08:07 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1310181456500.31790@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Nikolai Kondrashov <spbnick@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-On Thu, 17 Oct 2013, Benjamin Tissoires wrote:
+Hi Jiri,
 
-> > Revert some changes done in 774638386826621c984ab6994439f474709cac5e.
-> >
-> > Revert all changes done in hidinput_calc_abs_res as it mistakingly used
-> > "Unit" item exponent nibbles to affect resolution value. This wasn't
-> > breaking resolution calculation of relevant axes of any existing
-> > devices, though, as they have only one dimension to their units and thus
-> > 1 in the corresponding nible.
-> >
-> > Revert to reading "Unit Exponent" item value as a signed integer in
-> > hid_parser_global to fix reading specification-complying values. This
-> > fixes resolution calculation of devices complying to the HID standard,
-> > including Huion, KYE, Waltop and UC-Logic graphics tablets which have
-> > their report descriptors fixed by the drivers.
-> >
-> > Explanations follow.
-[ ... snip ... ]
-> I finally understood what you mean here, and why I introduced such a change.
-> I have weird report descriptors available in the field which are
-> making a funny use of units:
+On 10/18/2013 03:58 PM, Jiri Kosina wrote:
+> I am about to apply it, just a minor thing -- you seem to have forgotten
+> your Signed-off-by: line in the patch. Could you please send it to me, so
+> that I can ammend it to the patch and apply it?
 
-Ok, it took me quite some time to figure this all out. Good work Nikolai, 
-thanks.
+Sure, sorry, haven't sent any kernel patches in a while.
 
-I am about to apply it, just a minor thing -- you seem to have forgotten 
-your Signed-off-by: line in the patch. Could you please send it to me, so 
-that I can ammend it to the patch and apply it?
+Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 
-Thanks.
-
--- 
-Jiri Kosina
-SUSE Labs
+Sincerely,
+Nick

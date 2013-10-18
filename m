@@ -1,33 +1,76 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: Fix unit exponent parsing again
-Date: Fri, 18 Oct 2013 15:14:16 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1310181514090.31790@pobox.suse.cz>
-References: <1381666192-25309-1-git-send-email-spbnick@gmail.com> <CAN+gG=FC8Zvkt+9wcaMyo+akmqY-mm=xSPDqWOqGHEPwZx3XTQ@mail.gmail.com> <alpine.LNX.2.00.1310181456500.31790@pobox.suse.cz> <526132B4.2000008@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH] HID: wiimote: add LEGO-wiimote VID
+Date: Fri, 18 Oct 2013 16:26:22 +0200
+Message-ID: <1382106382-24800-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:48745 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753446Ab3JRNOU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Oct 2013 09:14:20 -0400
-In-Reply-To: <526132B4.2000008@gmail.com>
+Received: from mail-ee0-f43.google.com ([74.125.83.43]:62834 "EHLO
+	mail-ee0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754780Ab3JRO0a (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Oct 2013 10:26:30 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, stable@vger.kernel.org
 
-On Fri, 18 Oct 2013, Nikolai Kondrashov wrote:
+The LEGO-wiimote uses a different VID than the Nintendo ID. The device is
+technically the same so add the ID.
 
-> > I am about to apply it, just a minor thing -- you seem to have forgotten
-> > your Signed-off-by: line in the patch. Could you please send it to me, so
-> > that I can ammend it to the patch and apply it?
-> 
-> Sure, sorry, haven't sent any kernel patches in a while.
-> 
-> Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
+Cc: <stable@vger.kernel.org> # 3.11+
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ drivers/hid/hid-core.c         | 1 +
+ drivers/hid/hid-ids.h          | 1 +
+ drivers/hid/hid-wiimote-core.c | 5 ++++-
+ 3 files changed, 6 insertions(+), 1 deletion(-)
 
-Thanks, applied.
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 95d2dff..e6c3a03 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1871,6 +1871,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO2, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
+ 	{ }
+ };
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ac803c5..000e0df 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -639,6 +639,7 @@
+ #define USB_DEVICE_ID_NEXTWINDOW_TOUCHSCREEN	0x0003
+ 
+ #define USB_VENDOR_ID_NINTENDO		0x057e
++#define USB_VENDOR_ID_NINTENDO2		0x054c
+ #define USB_DEVICE_ID_NINTENDO_WIIMOTE	0x0306
+ #define USB_DEVICE_ID_NINTENDO_WIIMOTE2	0x0330
+ 
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index abb20db..1446f52 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -834,7 +834,8 @@ static void wiimote_init_set_type(struct wiimote_data *wdata,
+ 		goto done;
+ 	}
+ 
+-	if (vendor == USB_VENDOR_ID_NINTENDO) {
++	if (vendor == USB_VENDOR_ID_NINTENDO ||
++	    vendor == USB_VENDOR_ID_NINTENDO2) {
+ 		if (product == USB_DEVICE_ID_NINTENDO_WIIMOTE) {
+ 			devtype = WIIMOTE_DEV_GEN10;
+ 			goto done;
+@@ -1855,6 +1856,8 @@ static void wiimote_hid_remove(struct hid_device *hdev)
+ static const struct hid_device_id wiimote_hid_devices[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO,
+ 				USB_DEVICE_ID_NINTENDO_WIIMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO2,
++				USB_DEVICE_ID_NINTENDO_WIIMOTE) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO,
+ 				USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
+ 	{ }
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.4
+

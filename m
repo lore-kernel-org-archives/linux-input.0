@@ -1,356 +1,151 @@
-From: Yunkang Tang <tommywill2011@gmail.com>
-Subject: [PATCH v3 1/1] Input: Improve the performance of alps v5-protocol's touchpad
-Date: Sun, 20 Oct 2013 14:23:00 +0800
-Message-ID: <1382250180-3579-1-git-send-email-yunkang.tang@cn.alps.com>
+From: <gregkh@linuxfoundation.org>
+Subject: patch "input: serio: remove bus usage of dev_attrs" added to driver-core tree
+Date: Sat, 19 Oct 2013 20:06:05 -0700
+Message-ID: <13822383653361@kroah.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:43884 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750824Ab3JTGXU (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:36820 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751113Ab3JTHip (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Oct 2013 02:23:20 -0400
-Received: by mail-pa0-f52.google.com with SMTP id kl14so6513163pab.11
-        for <linux-input@vger.kernel.org>; Sat, 19 Oct 2013 23:23:20 -0700 (PDT)
+	Sun, 20 Oct 2013 03:38:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, cernekee@gmail.com, dturvene@dahetral.com
-Cc: linux-input@vger.kernel.org, ndevos@redhat.com, yunkang.tang@cn.alps.com
+To: gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Hi all,
 
-Here is the 3rd version of supporting ALPS v5 protocol's device
+This is a note to let you know that I've just added the patch titled
 
-Change since v2:
-- Merge two patches into one patch because they're all for improving v5 device.
-- Modify the source code according to Kevin's suggestions.
-  1) Simplify the alps_process_bitmap() function by using ffs() and fls().
-  2) Simplify the alps_decode_dolphin() function by using u64 for the palm data.
-  3) Reuse the alps_process_touchpad_packet_v3() for v5 device.
-  4) Add an sample for calculating touchpad's x_max&y_max by using sensor line number.
+    input: serio: remove bus usage of dev_attrs
 
-Signed-off-by: Yunkang Tang <yunkang.tang@cn.alps.com>
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+>From 3778a2129bcce84f684cc0017ed20d2524afd289 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Mon, 7 Oct 2013 18:09:08 -0700
+Subject: input: serio: remove bus usage of dev_attrs
+
+The dev_attrs field of struct bus_type is going away soon, so move the
+remaining sysfs files that are being described with this field to use
+dev_groups instead.
+
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: <linux-input@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/mouse/alps.c | 201 ++++++++++++++++++++++++++++++++++++---------
- drivers/input/mouse/alps.h |   7 +-
- 2 files changed, 169 insertions(+), 39 deletions(-)
+ drivers/input/serio/serio.c | 62 ++++++++++++++++++++++-----------------------
+ 1 file changed, 30 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index ca7a26f..7cd0ac0 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -257,6 +257,50 @@ static void alps_process_packet_v1_v2(struct psmouse *psmouse)
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index 478880e..98707fb 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -365,7 +365,7 @@ static ssize_t serio_show_description(struct device *dev, struct device_attribut
+ 	return sprintf(buf, "%s\n", serio->name);
  }
  
- /*
-+ * Process bitmap data for V5 protocols. Return value is null.
-+ *
-+ * The bitmaps don't have enough data to track fingers, so this function
-+ * only generates points representing a bounding box of at most two contacts.
-+ * These two points are returned in x1, y1, x2, and y2.
-+ */
-+static void alps_process_bitmap_dolphin(struct alps_data *priv,
-+					struct alps_fields *fields,
-+					int *x1, int *y1, int *x2, int *y2)
-+{
-+	int box_middle_x, box_middle_y;
-+	unsigned int x_map, y_map;
-+	unsigned char start_bit, end_bit;
-+
-+	x_map = fields->x_map;
-+	y_map = fields->y_map;
-+
-+	if (!x_map || !y_map)
-+		return;
-+
-+	/* Most-significant bit should never exceed max sensor line number */
-+	if (fls(x_map) > priv->x_bits || fls(y_map) > priv->y_bits)
-+		return;
-+
-+	*x1 = *y1 = *x2 = *y2 = 0;
-+
-+	if (fields->fingers > 1) {
-+		start_bit = priv->x_bits - fls(x_map);
-+		end_bit = priv->x_bits - ffs(x_map);
-+		box_middle_x = (priv->x_max * (start_bit + end_bit)) /
-+				(2 * (priv->x_bits - 1));
-+
-+		start_bit = ffs(y_map) - 1;
-+		end_bit = fls(y_map) - 1;
-+		box_middle_y = (priv->y_max * (start_bit + end_bit)) /
-+				(2 * (priv->y_bits - 1));
-+		*x1 = fields->x;
-+		*y1 = fields->y;
-+		*x2 = 2 * box_middle_x - *x1;
-+		*y2 = 2 * box_middle_y - *y1;
-+	}
-+}
-+
-+/*
-  * Process bitmap data from v3 and v4 protocols. Returns the number of
-  * fingers detected. A return value of 0 means at least one of the
-  * bitmaps was empty.
-@@ -461,7 +505,8 @@ static void alps_decode_buttons_v3(struct alps_fields *f, unsigned char *p)
- 	f->ts_middle = !!(p[3] & 0x40);
- }
- 
--static void alps_decode_pinnacle(struct alps_fields *f, unsigned char *p)
-+static void alps_decode_pinnacle(struct alps_fields *f, unsigned char *p,
-+				 struct psmouse *psmouse)
+-static ssize_t serio_show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t modalias_show(struct device *dev, struct device_attribute *attr, char *buf)
  {
- 	f->first_mp = !!(p[4] & 0x40);
- 	f->is_mp = !!(p[0] & 0x40);
-@@ -482,48 +527,61 @@ static void alps_decode_pinnacle(struct alps_fields *f, unsigned char *p)
- 	alps_decode_buttons_v3(f, p);
+ 	struct serio *serio = to_serio_port(dev);
+ 
+@@ -397,30 +397,7 @@ static ssize_t extra_show(struct device *dev, struct device_attribute *attr, cha
+ 	return sprintf(buf, "%02x\n", serio->id.extra);
  }
  
--static void alps_decode_rushmore(struct alps_fields *f, unsigned char *p)
-+static void alps_decode_rushmore(struct alps_fields *f, unsigned char *p,
-+				 struct psmouse *psmouse)
- {
--	alps_decode_pinnacle(f, p);
-+	alps_decode_pinnacle(f, p, psmouse);
- 
- 	f->x_map |= (p[5] & 0x10) << 11;
- 	f->y_map |= (p[5] & 0x20) << 6;
- }
- 
--static void alps_decode_dolphin(struct alps_fields *f, unsigned char *p)
-+static void alps_decode_dolphin(struct alps_fields *f, unsigned char *p,
-+				struct psmouse *psmouse)
- {
-+	u64 palm_data = 0;
-+	struct alps_data *priv = psmouse->private;
-+
- 	f->first_mp = !!(p[0] & 0x02);
- 	f->is_mp = !!(p[0] & 0x20);
- 
--	f->fingers = ((p[0] & 0x6) >> 1 |
-+	if (!f->is_mp) {
-+		f->x = ((p[1] & 0x7f) | ((p[4] & 0x0f) << 7));
-+		f->y = ((p[2] & 0x7f) | ((p[4] & 0xf0) << 3));
-+		f->z = (p[0] & 4) ? 0 : p[5] & 0x7f;
-+		alps_decode_buttons_v3(f, p);
-+	} else {
-+		f->fingers = ((p[0] & 0x6) >> 1 |
- 		     (p[0] & 0x10) >> 2);
--	f->x_map = ((p[2] & 0x60) >> 5) |
--		   ((p[4] & 0x7f) << 2) |
--		   ((p[5] & 0x7f) << 9) |
--		   ((p[3] & 0x07) << 16) |
--		   ((p[3] & 0x70) << 15) |
--		   ((p[0] & 0x01) << 22);
--	f->y_map = (p[1] & 0x7f) |
--		   ((p[2] & 0x1f) << 7);
+-static DEVICE_ATTR_RO(type);
+-static DEVICE_ATTR_RO(proto);
+-static DEVICE_ATTR_RO(id);
+-static DEVICE_ATTR_RO(extra);
 -
--	f->x = ((p[1] & 0x7f) | ((p[4] & 0x0f) << 7));
--	f->y = ((p[2] & 0x7f) | ((p[4] & 0xf0) << 3));
--	f->z = (p[0] & 4) ? 0 : p[5] & 0x7f;
- 
--	alps_decode_buttons_v3(f, p);
-+		palm_data = (p[1] & 0x7f) |
-+			    ((p[2] & 0x7f) << 7) |
-+			    ((p[4] & 0x7f) << 14) |
-+			    ((p[5] & 0x7f) << 21) |
-+			    ((p[3] & 0x07) << 28) |
-+			    (((u64)p[3] & 0x70) << 27) |
-+			    (((u64)p[0] & 0x01) << 34);
-+
-+		/* Y-profile is stored in P(0) to p(n-1), n = y_bits; */
-+		f->y_map = palm_data & (BIT(priv->y_bits) - 1);
-+
-+		/* X-profile is stored in p(n) to p(n+m-1), m = x_bits; */
-+		f->x_map = (palm_data >> priv->y_bits) &
-+			   (BIT(priv->x_bits) - 1);
-+	}
- }
- 
--static void alps_process_touchpad_packet_v3(struct psmouse *psmouse)
-+static void alps_process_touchpad_packet_v3_v5(struct psmouse *psmouse)
- {
- 	struct alps_data *priv = psmouse->private;
- 	unsigned char *packet = psmouse->packet;
- 	struct input_dev *dev = psmouse->dev;
- 	struct input_dev *dev2 = priv->dev2;
- 	int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
--	int fingers = 0, bmap_fingers;
--	struct alps_fields f;
-+	int fingers = 0, bmap_fn;
-+	struct alps_fields f = {0};
- 
--	priv->decode_fields(&f, packet);
-+	priv->decode_fields(&f, packet, psmouse);
- 
- 	/*
- 	 * There's no single feature of touchpad position and bitmap packets
-@@ -540,19 +598,27 @@ static void alps_process_touchpad_packet_v3(struct psmouse *psmouse)
- 		 */
- 		if (f.is_mp) {
- 			fingers = f.fingers;
--			bmap_fingers = alps_process_bitmap(priv,
--							   f.x_map, f.y_map,
--							   &x1, &y1, &x2, &y2);
+-static struct attribute *serio_device_id_attrs[] = {
+-	&dev_attr_type.attr,
+-	&dev_attr_proto.attr,
+-	&dev_attr_id.attr,
+-	&dev_attr_extra.attr,
+-	NULL
+-};
 -
--			/*
--			 * We shouldn't report more than one finger if
--			 * we don't have two coordinates.
--			 */
--			if (fingers > 1 && bmap_fingers < 2)
--				fingers = bmap_fingers;
-+			if (priv->proto_version == ALPS_PROTO_V3) {
-+				bmap_fn = alps_process_bitmap(priv, f.x_map,
-+							      f.y_map, &x1, &y1,
-+							      &x2, &y2);
-+
-+				/*
-+				 * We shouldn't report more than one finger if
-+				 * we don't have two coordinates.
-+				 */
-+				if (fingers > 1 && bmap_fn < 2)
-+					fingers = bmap_fn;
-+			} else {
-+				/* Since Dolphin's finger number is reliable,
-+				 * there is no need to compare with bmap_fn.
-+				 */
-+				alps_process_bitmap_dolphin(priv, &f, &x1, &y1,
-+							    &x2, &y2);
-+			}
- 
- 			/* Now process position packet */
--			priv->decode_fields(&f, priv->multi_data);
-+			priv->decode_fields(&f, priv->multi_data, psmouse);
- 		} else {
- 			priv->multi_packet = 0;
- 		}
-@@ -642,7 +708,7 @@ static void alps_process_packet_v3(struct psmouse *psmouse)
- 		return;
- 	}
- 
--	alps_process_touchpad_packet_v3(psmouse);
-+	alps_process_touchpad_packet_v3_v5(psmouse);
- }
- 
- static void alps_process_packet_v4(struct psmouse *psmouse)
-@@ -742,6 +808,17 @@ static void alps_process_packet_v4(struct psmouse *psmouse)
- 	input_sync(dev);
- }
- 
-+static void alps_process_packet_v5(struct psmouse *psmouse)
-+{
-+	unsigned char *packet = psmouse->packet;
-+
-+	/* Ignore stick point data */
-+	if (packet[0] == 0xD8)
-+		return;
-+
-+	alps_process_touchpad_packet_v3_v5(psmouse);
-+}
-+
- static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
- 					unsigned char packet[],
- 					bool report_buttons)
-@@ -1519,6 +1596,52 @@ error:
- 	return -1;
- }
- 
-+static int alps_dolphin_get_device_area(struct psmouse *psmouse,
-+					struct alps_data *priv)
-+{
-+	struct ps2dev *ps2dev = &psmouse->ps2dev;
-+	unsigned char param[4] = {0};
-+	int num_x_electrode, num_y_electrode;
-+
-+	if (alps_enter_command_mode(psmouse))
-+		return -1;
-+
-+	if (ps2_command(ps2dev, NULL, 0x00EC) ||
-+	    ps2_command(ps2dev, NULL, 0x00F0) ||
-+	    ps2_command(ps2dev, NULL, 0x00F0) ||
-+	    ps2_command(ps2dev, NULL, 0x00F3) ||
-+	    ps2_command(ps2dev, NULL, 0x000A) ||
-+	    ps2_command(ps2dev, NULL, 0x00F3) ||
-+	    ps2_command(ps2dev, NULL, 0x000A))
-+		return -1;
-+
-+	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
-+		return -1;
-+
-+	/* Dolphin's sensor line number is not fixed. It can be calculated
-+	 * by adding the device's register value with DOLPHIN_PROFILE_X/YOFFSET.
-+	 * Further more, we can get device's x_max and y_max by multiplying
-+	 * sensor line number with DOLPHIN_COUNT_PER_ELECTRODE.
-+	 *
-+	 * e.g. When we get register's sensor_x = 11 & sensor_y = 8,
-+	 *	real sensor line number X = 11 + 8 = 19, and
-+	 *	real sensor line number Y = 8 + 1 = 9.
-+	 *	So, x_max = (19 - 1) * 64 = 1152, and
-+	 *	    y_max = (9 - 1) * 64 = 512.
-+	 */
-+	num_x_electrode = DOLPHIN_PROFILE_XOFFSET + (param[2] & 0x0F);
-+	num_y_electrode = DOLPHIN_PROFILE_YOFFSET + ((param[2] >> 4) & 0x0F);
-+	priv->x_bits = num_x_electrode;
-+	priv->y_bits = num_y_electrode;
-+	priv->x_max = (num_x_electrode - 1) * DOLPHIN_COUNT_PER_ELECTRODE;
-+	priv->y_max = (num_y_electrode - 1) * DOLPHIN_COUNT_PER_ELECTRODE;
-+
-+	if (alps_exit_command_mode(psmouse))
-+		return -1;
-+
-+	return 0;
-+}
-+
- static int alps_hw_init_dolphin_v1(struct psmouse *psmouse)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
-@@ -1571,7 +1694,7 @@ static void alps_set_defaults(struct alps_data *priv)
- 		break;
- 	case ALPS_PROTO_V5:
- 		priv->hw_init = alps_hw_init_dolphin_v1;
--		priv->process_packet = alps_process_packet_v3;
-+		priv->process_packet = alps_process_packet_v5;
- 		priv->decode_fields = alps_decode_dolphin;
- 		priv->set_abs_params = alps_set_abs_params_mt;
- 		priv->nibble_commands = alps_v3_nibble_commands;
-@@ -1645,11 +1768,13 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
- 	if (alps_match_table(psmouse, priv, e7, ec) == 0) {
- 		return 0;
- 	} else if (e7[0] == 0x73 && e7[1] == 0x03 && e7[2] == 0x50 &&
--		   ec[0] == 0x73 && ec[1] == 0x01) {
-+		   ec[0] == 0x73 && (ec[1] == 0x01 || ec[1] == 0x02)) {
- 		priv->proto_version = ALPS_PROTO_V5;
- 		alps_set_defaults(priv);
+-static struct attribute_group serio_id_attr_group = {
+-	.name	= "id",
+-	.attrs	= serio_device_id_attrs,
+-};
 -
--		return 0;
-+		if (alps_dolphin_get_device_area(psmouse, priv))
-+			return -EIO;
-+		else
-+			return 0;
- 	} else if (ec[0] == 0x88 && ec[1] == 0x08) {
- 		priv->proto_version = ALPS_PROTO_V3;
- 		alps_set_defaults(priv);
-diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-index eee5985..c5c53f4 100644
---- a/drivers/input/mouse/alps.h
-+++ b/drivers/input/mouse/alps.h
-@@ -18,6 +18,10 @@
- #define ALPS_PROTO_V4	4
- #define ALPS_PROTO_V5	5
+-static const struct attribute_group *serio_device_attr_groups[] = {
+-	&serio_id_attr_group,
+-	NULL
+-};
+-
+-static ssize_t serio_rebind_driver(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
++static ssize_t drvctl_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	struct device_driver *drv;
+@@ -474,14 +451,36 @@ static ssize_t serio_set_bind_mode(struct device *dev, struct device_attribute *
+ 	return retval;
+ }
  
-+#define DOLPHIN_COUNT_PER_ELECTRODE	64
-+#define DOLPHIN_PROFILE_XOFFSET		8	/* x-electrode offset */
-+#define DOLPHIN_PROFILE_YOFFSET		1	/* y-electrode offset */
+-static struct device_attribute serio_device_attrs[] = {
+-	__ATTR(description, S_IRUGO, serio_show_description, NULL),
+-	__ATTR(modalias, S_IRUGO, serio_show_modalias, NULL),
+-	__ATTR(drvctl, S_IWUSR, NULL, serio_rebind_driver),
+-	__ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode),
+-	__ATTR_NULL
++static DEVICE_ATTR_RO(type);
++static DEVICE_ATTR_RO(proto);
++static DEVICE_ATTR_RO(id);
++static DEVICE_ATTR_RO(extra);
++static DEVICE_ATTR_RO(modalias);
++static DEVICE_ATTR_WO(drvctl);
++static DEVICE_ATTR(description, S_IRUGO, serio_show_description, NULL);
++static DEVICE_ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode);
 +
- /**
-  * struct alps_model_info - touchpad ID table
-  * @signature: E7 response string to match.
-@@ -145,7 +149,8 @@ struct alps_data {
++static struct attribute *serio_device_id_attrs[] = {
++	&dev_attr_type.attr,
++	&dev_attr_proto.attr,
++	&dev_attr_id.attr,
++	&dev_attr_extra.attr,
++	&dev_attr_modalias.attr,
++	&dev_attr_description.attr,
++	&dev_attr_drvctl.attr,
++	&dev_attr_bind_mode.attr,
++	NULL
++};
++
++static struct attribute_group serio_id_attr_group = {
++	.name	= "id",
++	.attrs	= serio_device_id_attrs,
+ };
  
- 	int (*hw_init)(struct psmouse *psmouse);
- 	void (*process_packet)(struct psmouse *psmouse);
--	void (*decode_fields)(struct alps_fields *f, unsigned char *p);
-+	void (*decode_fields)(struct alps_fields *f, unsigned char *p,
-+			      struct psmouse *psmouse);
- 	void (*set_abs_params)(struct alps_data *priv, struct input_dev *dev1);
++static const struct attribute_group *serio_device_attr_groups[] = {
++	&serio_id_attr_group,
++	NULL
++};
  
- 	int prev_fin;
+ static void serio_release_port(struct device *dev)
+ {
+@@ -996,7 +995,6 @@ EXPORT_SYMBOL(serio_interrupt);
+ 
+ static struct bus_type serio_bus = {
+ 	.name		= "serio",
+-	.dev_attrs	= serio_device_attrs,
+ 	.drv_groups	= serio_driver_groups,
+ 	.match		= serio_bus_match,
+ 	.uevent		= serio_uevent,
 -- 
-1.8.1.2
+1.8.4.6.g82e253f.dirty
+
 

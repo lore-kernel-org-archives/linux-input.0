@@ -1,16 +1,16 @@
 From: <gregkh@linuxfoundation.org>
-Subject: patch "input: serio: use DEVICE_ATTR_RO()" added to driver-core tree
+Subject: patch "input: gameport: convert bus code to use dev_groups" added to driver-core tree
 Date: Sat, 19 Oct 2013 20:06:05 -0700
-Message-ID: <1382238365810@kroah.org>
+Message-ID: <13822383653330@kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:36826 "EHLO
+Received: from mail.linuxfoundation.org ([140.211.169.12]:36823 "EHLO
 	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751113Ab3JTHiw (ORCPT
+	with ESMTP id S1751113Ab3JTHit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Oct 2013 03:38:52 -0400
+	Sun, 20 Oct 2013 03:38:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
@@ -18,7 +18,7 @@ To: gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-input@vger.kern
 
 This is a note to let you know that I've just added the patch titled
 
-    input: serio: use DEVICE_ATTR_RO()
+    input: gameport: convert bus code to use dev_groups
 
 to my driver-core git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
@@ -33,68 +33,72 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
->From 7eab8ded347244f1464006ace851521254cabb07 Mon Sep 17 00:00:00 2001
+>From 0cba7de7f6cdcf84c9b75d29041c475aedeb45c9 Mon Sep 17 00:00:00 2001
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon, 7 Oct 2013 18:08:23 -0700
-Subject: input: serio: use DEVICE_ATTR_RO()
+Date: Mon, 7 Oct 2013 18:27:37 -0700
+Subject: input: gameport: convert bus code to use dev_groups
 
-Convert the serio sysfs fiels to use the DEVICE_ATTR_RO() macros to make
-it easier to audit the correct sysfs file permission usage.
+The dev_attrs field of struct bus_type is going away soon, dev_groups
+should be used instead.  This converts the gameport bus code to use the
+correct field.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: <linux-input@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/serio/serio.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/input/gameport/gameport.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 2b56855..478880e 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -373,34 +373,34 @@ static ssize_t serio_show_modalias(struct device *dev, struct device_attribute *
- 			serio->id.type, serio->id.proto, serio->id.id, serio->id.extra);
- }
+diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
+index 922a7fe..24c41ba 100644
+--- a/drivers/input/gameport/gameport.c
++++ b/drivers/input/gameport/gameport.c
+@@ -422,14 +422,15 @@ static struct gameport *gameport_get_pending_child(struct gameport *parent)
+  * Gameport port operations
+  */
  
--static ssize_t serio_show_id_type(struct device *dev, struct device_attribute *attr, char *buf)
-+static ssize_t type_show(struct device *dev, struct device_attribute *attr, char *buf)
+-static ssize_t gameport_show_description(struct device *dev, struct device_attribute *attr, char *buf)
++static ssize_t gameport_description_show(struct device *dev, struct device_attribute *attr, char *buf)
  {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%02x\n", serio->id.type);
- }
+ 	struct gameport *gameport = to_gameport_port(dev);
  
--static ssize_t serio_show_id_proto(struct device *dev, struct device_attribute *attr, char *buf)
-+static ssize_t proto_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	return sprintf(buf, "%s\n", gameport->name);
+ }
++static DEVICE_ATTR(description, S_IRUGO, gameport_description_show, NULL);
+ 
+-static ssize_t gameport_rebind_driver(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
++static ssize_t drvctl_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
  {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%02x\n", serio->id.proto);
- }
+ 	struct gameport *gameport = to_gameport_port(dev);
+ 	struct device_driver *drv;
+@@ -457,12 +458,14 @@ static ssize_t gameport_rebind_driver(struct device *dev, struct device_attribut
  
--static ssize_t serio_show_id_id(struct device *dev, struct device_attribute *attr, char *buf)
-+static ssize_t id_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	return error ? error : count;
+ }
++static DEVICE_ATTR_WO(drvctl);
+ 
+-static struct device_attribute gameport_device_attrs[] = {
+-	__ATTR(description, S_IRUGO, gameport_show_description, NULL),
+-	__ATTR(drvctl, S_IWUSR, NULL, gameport_rebind_driver),
+-	__ATTR_NULL
++static struct attribute *gameport_device_attrs[] = {
++	&dev_attr_description.attr,
++	&dev_attr_drvctl.attr,
++	NULL,
+ };
++ATTRIBUTE_GROUPS(gameport_device);
+ 
+ static void gameport_release_port(struct device *dev)
  {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%02x\n", serio->id.id);
- }
+@@ -750,7 +753,7 @@ static int gameport_bus_match(struct device *dev, struct device_driver *drv)
  
--static ssize_t serio_show_id_extra(struct device *dev, struct device_attribute *attr, char *buf)
-+static ssize_t extra_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct serio *serio = to_serio_port(dev);
- 	return sprintf(buf, "%02x\n", serio->id.extra);
- }
- 
--static DEVICE_ATTR(type, S_IRUGO, serio_show_id_type, NULL);
--static DEVICE_ATTR(proto, S_IRUGO, serio_show_id_proto, NULL);
--static DEVICE_ATTR(id, S_IRUGO, serio_show_id_id, NULL);
--static DEVICE_ATTR(extra, S_IRUGO, serio_show_id_extra, NULL);
-+static DEVICE_ATTR_RO(type);
-+static DEVICE_ATTR_RO(proto);
-+static DEVICE_ATTR_RO(id);
-+static DEVICE_ATTR_RO(extra);
- 
- static struct attribute *serio_device_id_attrs[] = {
- 	&dev_attr_type.attr,
+ static struct bus_type gameport_bus = {
+ 	.name		= "gameport",
+-	.dev_attrs	= gameport_device_attrs,
++	.dev_groups	= gameport_device_groups,
+ 	.drv_groups	= gameport_driver_groups,
+ 	.match		= gameport_bus_match,
+ 	.probe		= gameport_driver_probe,
 -- 
 1.8.4.6.g82e253f.dirty
 

@@ -1,41 +1,89 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 01/02] input: serio: use DEVICE_ATTR_RO()
-Date: Mon, 21 Oct 2013 09:25:32 -0700
-Message-ID: <20131021162531.GC4575@core.coreip.homeip.net>
-References: <20131008010823.GA27012@kroah.com>
+From: Forest Bond <forest@forestbond.com>
+Subject: [PATCH 1/2] HID: don't ignore eGalax/D-Wav/EETI HIDs
+Date: Mon, 21 Oct 2013 12:38:02 -0400
+Message-ID: <20131021163802.GA30240@alittletooquiet.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f169.google.com ([209.85.192.169]:35096 "EHLO
-	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751085Ab3JUQZf (ORCPT
+Received: from storm.alittletooquiet.net ([67.23.28.199]:55597 "EHLO
+	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751025Ab3JUQxv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Oct 2013 12:25:35 -0400
-Received: by mail-pd0-f169.google.com with SMTP id q10so6466853pdj.0
-        for <linux-input@vger.kernel.org>; Mon, 21 Oct 2013 09:25:34 -0700 (PDT)
+	Mon, 21 Oct 2013 12:53:51 -0400
 Content-Disposition: inline
-In-Reply-To: <20131008010823.GA27012@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Sebastian =?iso-8859-1?Q?Dalfu=DF?= <sd@sedf.de>, Daniel Ritz <daniel.ritz@gmx.ch>, Max Weninger <max.weninger@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christian Engelmayer <christian.engelmayer@frequentis.com>
 
-Hi Greg,
+From: Forest Bond <forest.bond@rapidrollout.com>
 
-On Mon, Oct 07, 2013 at 06:08:23PM -0700, Greg Kroah-Hartman wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> Convert the serio sysfs fiels to use the DEVICE_ATTR_RO() macros to make
-> it easier to audit the correct sysfs file permission usage.
+Certain devices with class HID, protocol None did not work with the HID
+driver at one point, and as a result were bound to usbtouchscreen
+instead as of commit 139ebe8 ("Input: usbtouchscreen - fix eGalax HID
+ignoring").  This change was prompted by the following report:
 
-Sorry for the delay. Frankly I am not a fan of DEVICE_ATTR macros as it
-forces particular naming of the attribute structures and methods and
-forces us to lose the module prefix in names. I prefer all functions and
-file-scope variables have module prefix because in the absence of
-language-supported namespaces this is the one thing that insulates
-drivers from changes in shared headers.
+https://lkml.org/lkml/2009/1/25/127
 
-Thanks.
+Unfortunately, the device mentioned in this report is no longer
+available for testing.
 
+We've recently discovered that some devices with class HID, protocol
+None do not work with usbtouchscreen, but do work with usbhid.  Here is
+the report that made this evident:
+
+http://comments.gmane.org/gmane.linux.kernel.input/31710
+
+Driver binding for these devices has flip-flopped a few times, so both
+of the above reports were regressions.
+
+This situation would appear to leave us with no easy way to bind every
+device to the right driver.  However, in my own testing with several
+devices I have not found a device with class HID that does not work with
+the current HID driver.  It is my belief that changes to the HID driver
+since the original report have likely fixed the issue(s) that made it
+unsuitable at the time, and that we should prefer it over usbtouchscreen
+for these devices.  In particular, HID quirks affecting these devices
+were added/removed in the following commits since then:
+
+fe6065d HID: add multi-input quirk for eGalax Touchcontroller
+77933c3 Merge branch 'egalax' into for-linus
+ebd11fe HID: Add quirk for eGalax touch controler.
+d34c4aa HID: add no-get quirk for eGalax touch controller
+
+This patch makes the HID driver no longer ignore eGalax/D-Wav/EETI
+devices with class HID.  If there are in fact devices with class HID
+that still do not work with the HID driver, we will see another round of
+regressions.  In that case I propose we investigate why the device is
+not working with the HID driver rather than re-introduce regressions for
+functioning HID devices by again binding them to usbtouchscreen.
+
+The corresponding change to usbtouchscreen will be made separately.
+
+Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
+---
+ drivers/hid/hid-core.c |    9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 5a8c011..dfcd67f 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2374,15 +2374,6 @@ bool hid_ignore(struct hid_device *hdev)
+ 				hdev->type == HID_TYPE_USBNONE)
+ 			return true;
+ 		break;
+-	case USB_VENDOR_ID_DWAV:
+-		/* These are handled by usbtouchscreen. hdev->type is probably
+-		 * HID_TYPE_USBNONE, but we say !HID_TYPE_USBMOUSE to match
+-		 * usbtouchscreen. */
+-		if ((hdev->product == USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER ||
+-		     hdev->product == USB_DEVICE_ID_DWAV_TOUCHCONTROLLER) &&
+-		    hdev->type != HID_TYPE_USBMOUSE)
+-			return true;
+-		break;
+ 	case USB_VENDOR_ID_VELLEMAN:
+ 		/* These are not HID devices.  They are handled by comedi. */
+ 		if ((hdev->product >= USB_DEVICE_ID_VELLEMAN_K8055_FIRST &&
 -- 
-Dmitry
+1.7.9.5

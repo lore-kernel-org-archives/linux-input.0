@@ -1,47 +1,124 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: [PATCH 2/2] arm: dts: am335x sk: add touchscreen support
-Date: Mon, 21 Oct 2013 15:13:24 -0500
-Message-ID: <1382386404-6659-3-git-send-email-balbi@ti.com>
-References: <1382386404-6659-1-git-send-email-balbi@ti.com>
+From: =?UTF-8?q?Anders=20F=2E=20U=2E=20Ki=C3=A6r?=
+	<ablacksheep@gmail.com>
+Subject: [PATCH] HID: Added Holtek USB ID 04d9:a072 LEETGION Hellion Gaming Mouse
+Date: Mon, 21 Oct 2013 23:42:22 +0200
+Message-ID: <1382391742-31335-1-git-send-email-ablacksheep@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:44929 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751282Ab3JUUNV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Oct 2013 16:13:21 -0400
-In-Reply-To: <1382386404-6659-1-git-send-email-balbi@ti.com>
+Received: from mail-la0-f52.google.com ([209.85.215.52]:49337 "EHLO
+	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751287Ab3JUVno (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Oct 2013 17:43:44 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: rob.herring@calxeda.com, pawel.moll@arm.com, mark.rutland@arm.com, swarren@wwwdotorg.org, ijc+devicetree@hellion.org.uk, rob@landley.net, bcousson@baylibre.com, Tony Lindgren <tony@atomide.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, devicetree@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org, Felipe Balbi <balbi@ti.com>
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Anders=20F=2E=20U=2E=20Ki=C3=A6r?= <ablacksheep@gmail.com>
 
-Add missing nodes for the touchscreen available
-on AM335x EVM SK.
+ Added id, bindings and comments for Holtek USB ID 04d9:a072
+ LEETGION Hellion Gaming mouse to use the same corrections of the repor=
+t
+ descriptor as Holtek 04d9:a067. As the mouse exceed HID_MAX_USAGES at =
+the
+ same offsets in the reported descriptor.
+ Tested on the hardware.
 
-Signed-off-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Anders F. U. Ki=C3=A6r <ablacksheep@gmail.com>
 ---
- arch/arm/boot/dts/am335x-evmsk.dts | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/hid/Kconfig            | 1 +
+ drivers/hid/hid-core.c         | 1 +
+ drivers/hid/hid-holtek-mouse.c | 4 ++++
+ drivers/hid/hid-ids.h          | 3 ++-
+ 4 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/am335x-evmsk.dts b/arch/arm/boot/dts/am335x-evmsk.dts
-index 4f339fa..d7c2c0c 100644
---- a/arch/arm/boot/dts/am335x-evmsk.dts
-+++ b/arch/arm/boot/dts/am335x-evmsk.dts
-@@ -419,3 +419,13 @@
- 	phy_id = <&davinci_mdio>, <1>;
- 	phy-mode = "rgmii-txid";
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index c91d547..d68292a 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -242,6 +242,7 @@ config HID_HOLTEK
+ 	  - Tracer Sniper TRM-503 / NOVA Gaming Slider X200 /
+ 	    Zalman ZM-GM1
+ 	  - SHARKOON DarkGlider Gaming mouse
++	  - LEETGION Hellion Gaming Mouse
+=20
+ config HOLTEK_FF
+ 	bool "Holtek On Line Grip force feedback support"
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 5a8c011..6ab7133 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1715,6 +1715,7 @@ static const struct hid_device_id hid_have_specia=
+l_driver[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_K=
+EYBOARD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
+OUSE_A04A) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
+OUSE_A067) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
+OUSE_A072) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
+OUSE_A081) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_580) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBL=
+E_PAD) },
+diff --git a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mo=
+use.c
+index e696566..0caa676 100644
+--- a/drivers/hid/hid-holtek-mouse.c
++++ b/drivers/hid/hid-holtek-mouse.c
+@@ -28,6 +28,7 @@
+  * - USB ID 04d9:a04a, sold as Tracer Sniper TRM-503, NOVA Gaming Slid=
+er X200
+  *   and Zalman ZM-GM1
+  * - USB ID 04d9:a081, sold as SHARKOON DarkGlider Gaming mouse
++ * - USB ID 04d9:a072, sold as LEETGION Hellion Gaming Mouse
+  */
+=20
+ static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *=
+rdesc,
+@@ -40,6 +41,7 @@ static __u8 *holtek_mouse_report_fixup(struct hid_dev=
+ice *hdev, __u8 *rdesc,
+ 		 * 0x2fff, so they don't exceed HID_MAX_USAGES */
+ 		switch (hdev->product) {
+ 		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067:
++		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072:
+ 			if (*rsize >=3D 122 && rdesc[115] =3D=3D 0xff && rdesc[116] =3D=3D =
+0x7f
+ 					&& rdesc[120] =3D=3D 0xff && rdesc[121] =3D=3D 0x7f) {
+ 				hid_info(hdev, "Fixing up report descriptor\n");
+@@ -66,6 +68,8 @@ static const struct hid_device_id holtek_mouse_device=
+s[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+ 			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
++			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+ 			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
+ 	{ }
  };
-+
-+&tscadc {
-+	status = "okay";
-+	tsc {
-+		ti,wires = <4>;
-+		ti,x-plate-resistance = <200>;
-+		ti,coordinate-readouts = <5>;
-+		ti,wire-config = <0x00 0x11 0x22 0x33>;
-+	};
-+};
--- 
-1.8.4.GIT
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9cbc7ab..8ebaef95 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -448,8 +448,9 @@
+=20
+ #define USB_VENDOR_ID_HOLTEK_ALT		0x04d9
+ #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD	0xa055
+-#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067	0xa067
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A	0xa04a
++#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067	0xa067
++#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072	0xa072
+ #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
+=20
+ #define USB_VENDOR_ID_IMATION		0x0718
+--=20
+1.8.1.2
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

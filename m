@@ -1,54 +1,294 @@
-From: Denis Carikli <denis@eukrea.com>
-Subject: [PATCHv4][ 3/4] ARM: dts: cpuimx35 Add touchscreen support.
-Date: Mon, 21 Oct 2013 15:54:26 +0200
-Message-ID: <1382363667-10341-3-git-send-email-denis@eukrea.com>
-References: <1382363667-10341-1-git-send-email-denis@eukrea.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: add regulator haptic driver
+Date: Mon, 21 Oct 2013 08:55:58 -0700
+Message-ID: <20131021155558.GA4255@core.coreip.homeip.net>
+References: <000a01cec629$3cf34de0$b6d9e9a0$%kim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1382363667-10341-1-git-send-email-denis@eukrea.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <rob.herring@calxeda.com>, Denis Carikli <denis@eukrea.com>, =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <000a01cec629$3cf34de0$b6d9e9a0$%kim@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "hyunhee.kim" <hyunhee.kim@samsung.com>
+Cc: broonie@opensource.wolfsonmicro.com, peter.ujfalusi@ti.com, wfp5p@virginia.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, kyungmin.park@samsung.com, Aristeu Sergio Rozanski Filho <aris@ruivo.org>
 List-Id: linux-input@vger.kernel.org
 
-Q2M6IFJvYiBIZXJyaW5nIDxyb2IuaGVycmluZ0BjYWx4ZWRhLmNvbT4KQ2M6IFBhd2VsIE1vbGwg
-PHBhd2VsLm1vbGxAYXJtLmNvbT4KQ2M6IE1hcmsgUnV0bGFuZCA8bWFyay5ydXRsYW5kQGFybS5j
-b20+CkNjOiBTdGVwaGVuIFdhcnJlbiA8c3dhcnJlbkB3d3dkb3Rvcmcub3JnPgpDYzogSWFuIENh
-bXBiZWxsIDxpamMrZGV2aWNldHJlZUBoZWxsaW9uLm9yZy51az4KQ2M6IGRldmljZXRyZWVAdmdl
-ci5rZXJuZWwub3JnCkNjOiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFpbC5j
-b20+CkNjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcKQ2M6IFNhc2NoYSBIYXVlciA8a2Vy
-bmVsQHBlbmd1dHJvbml4LmRlPgpDYzogbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQu
-b3JnCkNjOiBMb3RoYXIgV2HDn21hbm4gPExXQEtBUk8tZWxlY3Ryb25pY3MuZGU+CkNjOiBFcmlj
-IELDqW5hcmQgPGVyaWNAZXVrcmVhLmNvbT4KU2lnbmVkLW9mZi1ieTogRGVuaXMgQ2FyaWtsaSA8
-ZGVuaXNAZXVrcmVhLmNvbT4KLS0tCkNoYW5nZUxvZyB2Mi0+djQ6Ci0gVGhpcyBwYXRjaCB3YXMg
-c3BsaXR0ZWQsIG9ubHkgdGhlIHBhcnQgZW5hYmxpbmcgdGhlIGF1ZGlvIHdhcyBrZXB0LgogIFBh
-cnQgb2YgdGhlIHJlc3QgaGFzIGFscmVhZHkgYmVlbiBzdWJtaXRlZCwgYW5kIHRoZSByZW1haW5p
-bmcgcGFydHMKICB3aWxsIGJlIHN1Ym1pdGVkIGxhdGVyLCBiZWNhdXNlIHRoZXkgZGVwZW5kIG9u
-IGNoYW5nZXMgdG91Y2hpbmcgb3RoZXIKICBzdWJzeXN0ZW1zLgotIFRoZSB4LXBsYXRlLW9obXMg
-cHJvcGVydHkgd2FzIHJlbmFtZWQgdG8gdGkseC1wbGF0ZS1vaG1zLgotLS0KIGFyY2gvYXJtL2Jv
-b3QvZHRzL2lteDM1LWV1a3JlYS1jcHVpbXgzNS5kdHNpIHwgICAxMSArKysrKysrKysrKwogMSBm
-aWxlIGNoYW5nZWQsIDExIGluc2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9hcmNoL2FybS9ib290
-L2R0cy9pbXgzNS1ldWtyZWEtY3B1aW14MzUuZHRzaSBiL2FyY2gvYXJtL2Jvb3QvZHRzL2lteDM1
-LWV1a3JlYS1jcHVpbXgzNS5kdHNpCmluZGV4IDJjMmQ0Y2QuLmEyMjIzMGIgMTAwNjQ0Ci0tLSBh
-L2FyY2gvYXJtL2Jvb3QvZHRzL2lteDM1LWV1a3JlYS1jcHVpbXgzNS5kdHNpCisrKyBiL2FyY2gv
-YXJtL2Jvb3QvZHRzL2lteDM1LWV1a3JlYS1jcHVpbXgzNS5kdHNpCkBAIC00MSw2ICs0MSwxNyBA
-QAogCQljb21wYXRpYmxlID0gIm54cCxwY2Y4NTYzIjsKIAkJcmVnID0gPDB4NTE+OwogCX07CisK
-Kwl0c2MyMDA3OiB0c2MyMDA3QDQ4IHsKKwkJY29tcGF0aWJsZSA9ICJ0aSx0c2MyMDA3IjsKKwkJ
-cmVnID0gPDB4NDg+OworCQlwaW5jdHJsLW5hbWVzID0gImRlZmF1bHQiOworCQlwaW5jdHJsLTAg
-PSA8JnBpbmN0cmxfdHNjMjAwN18xPjsKKwkJaW50ZXJydXB0LXBhcmVudCA9IDwmZ3BpbzM+Owor
-CQlpbnRlcnJ1cHRzID0gPDB4MiAweDg+OworCQlncGlvcyA9IDwmZ3BpbzMgMiAwPjsKKwkJdGks
-eC1wbGF0ZS1vaG1zID0gPDE4MD47CisJfTsKIH07CiAKICZpb211eGMgewotLSAKMS43LjkuNQoK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFy
-bS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9y
-ZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1r
-ZXJuZWwK
+Hi Hyunhee,
+ 
+On Fri, Oct 11, 2013 at 11:26:05AM +0900, hyunhee.kim wrote:
+> From: Hyunhee Kim <hyunhee.kim@samsung.com>
+> Date: Wed, 9 Oct 2013 16:21:36 +0900
+> Subject: [PATCH] Input: add regulator haptic driver
+> 
+> The regulator haptic driver function can be used to control motor by on/off
+> regulator.
+> User can control the haptic driver by using force feedback framework.
+> 
+> Signed-off-by: Hyunhee Kim <hyunhee.kim@samsung.com>
+> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+> ---
+>  drivers/input/misc/Kconfig            |    6 ++
+>  drivers/input/misc/Makefile           |    1 +
+>  drivers/input/misc/regulator-haptic.c |  185
+> +++++++++++++++++++++++++++++++++
+>  3 files changed, 192 insertions(+)
+>  create mode 100644 drivers/input/misc/regulator-haptic.c
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index bb698e1..f391cd7 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -82,6 +82,12 @@ config INPUT_ARIZONA_HAPTICS
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called arizona-haptics.
+>  
+> +config INPUT_REGULATOR_HAPTIC
+> +	tristate "regulator haptics support"
+
+This option should be worded better I think.
+
+> +	select INPUT_FF_MEMLESS
+> +	help
+> +	  Say Y to enable support for the haptics module for regulator.
+
+And explained better to. Also please add "To compile this driver as a
+module..."
+
+> +
+>  config INPUT_BMA150
+>  	tristate "BMA150/SMB380 acceleration sensor support"
+>  	depends on I2C
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index d7fc17f..106f0bc 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -15,6 +15,7 @@ obj-$(CONFIG_INPUT_ADXL34X_I2C)		+=
+> adxl34x-i2c.o
+>  obj-$(CONFIG_INPUT_ADXL34X_SPI)		+= adxl34x-spi.o
+>  obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
+>  obj-$(CONFIG_INPUT_ARIZONA_HAPTICS)	+= arizona-haptics.o
+> +obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
+>  obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
+>  obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
+>  obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
+> diff --git a/drivers/input/misc/regulator-haptic.c
+> b/drivers/input/misc/regulator-haptic.c
+> new file mode 100644
+> index 0000000..29f57ea
+> --- /dev/null
+> +++ b/drivers/input/misc/regulator-haptic.c
+> @@ -0,0 +1,185 @@
+> +/*
+> + * Regulator haptic driver
+> + *
+> + * Copyright (c) 2013 Samsung Electronics Co., Ltd.
+> + *
+> + * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/input.h>
+> +#include <linux/slab.h>
+> +#include <linux/regulator/driver.h>
+> +
+> +struct regulator_haptic {
+> +	struct device *dev;
+> +	struct input_dev *input_dev;
+> +	struct work_struct work;
+> +	bool enabled;
+> +	struct regulator *regulator;
+> +	struct mutex mutex;
+> +	int level;
+> +};
+> +
+> +static void regulator_haptic_enable(struct regulator_haptic *haptic, bool
+> enable)
+> +{
+> +	int ret;
+> +
+> +	mutex_lock(&haptic->mutex);
+> +	if (enable && !haptic->enabled) {
+> +		haptic->enabled = true;
+> +		ret = regulator_enable(haptic->regulator);
+> +		if (ret)
+> +			pr_err("haptic: %s failed to enable regulator\n",
+> +				__func__);
+
+Please use dev_err() here and also stick error code into the message.
+
+> +	} else if (!enable && haptic->enabled) {
+> +		haptic->enabled = false;
+> +		ret = regulator_disable(haptic->regulator);
+> +		if (ret)
+> +			pr_err("haptic: %s failed to disable regulator\n",
+> +				__func__);
+> +	}
+> +	mutex_unlock(&haptic->mutex);
+
+I wonder if you want separate functions for regulator_haptic_enable and
+regulator_haptic_disable seeing how you are using it later in the code.
+If not then ...
+
+> +}
+> +
+> +static void regulator_haptic_work(struct work_struct *work)
+> +{
+> +	struct regulator_haptic *haptic = container_of(work,
+> +						       struct
+> regulator_haptic,
+> +						       work);
+> +	if (haptic->level)
+> +		regulator_haptic_enable(haptic, true);
+> +	else
+> +		regulator_haptic_enable(haptic, false);
+
+... just say:
+
+	regulator_haptic_toggle(haptic, haptic->level != 0);
+
+> +
+> +}
+> +
+> +static int regulator_haptic_play(struct input_dev *input, void *data,
+> +				struct ff_effect *effect)
+> +{
+> +	struct regulator_haptic *haptic = input_get_drvdata(input);
+> +
+> +	haptic->level = effect->u.rumble.strong_magnitude;
+> +	if (!haptic->level)
+> +		haptic->level = effect->u.rumble.weak_magnitude;
+> +	schedule_work(&haptic->work);
+> +
+> +	return 0;
+> +}
+> +
+> +static void regulator_haptic_close(struct input_dev *input)
+> +{
+> +	struct regulator_haptic *haptic = input_get_drvdata(input);
+> +
+> +	cancel_work_sync(&haptic->work);
+> +	regulator_haptic_enable(haptic, false);
+> +}
+> +
+> +static int regulator_haptic_probe(struct platform_device *pdev)
+> +{
+> +	struct regulator_haptic *haptic;
+> +	struct input_dev *input_dev;
+> +	int error;
+> +
+> +	haptic = kzalloc(sizeof(*haptic), GFP_KERNEL);
+> +	if (!haptic) {
+> +		dev_err(&pdev->dev, "unable to allocate memory for
+> haptic\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	input_dev = input_allocate_device();
+> +
+> +	if (!input_dev) {
+> +		dev_err(&pdev->dev, "unable to allocate memory\n");
+> +		error =  -ENOMEM;
+> +		goto err_kfree_mem;
+> +	}
+> +
+> +	INIT_WORK(&haptic->work, regulator_haptic_work);
+> +	mutex_init(&haptic->mutex);
+> +	haptic->input_dev = input_dev;
+> +	haptic->dev = &pdev->dev;
+> +	haptic->regulator = regulator_get(&pdev->dev, "haptic");
+> +
+> +	if (IS_ERR(haptic->regulator)) {
+> +		error = PTR_ERR(haptic->regulator);
+> +		dev_err(&pdev->dev, "unable to get regulator, err: %d\n",
+> +			error);
+> +		goto err_ifree_mem;
+> +	}
+> +
+> +	haptic->input_dev->name = "regulator:haptic";
+> +	haptic->input_dev->dev.parent = &pdev->dev;
+> +	haptic->input_dev->close = regulator_haptic_close;
+> +	haptic->enabled = false;
+> +	input_set_drvdata(haptic->input_dev, haptic);
+> +	input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
+> +
+> +	error = input_ff_create_memless(input_dev, NULL,
+> +				      regulator_haptic_play);
+> +	if (error) {
+> +		dev_err(&pdev->dev,
+> +			"input_ff_create_memless() failed: %d\n",
+> +			error);
+> +		goto err_put_regulator;
+> +	}
+> +
+> +	error = input_register_device(haptic->input_dev);
+> +	if (error) {
+> +		dev_err(&pdev->dev,
+> +			"couldn't register input device: %d\n",
+> +			error);
+> +		goto err_destroy_ff;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, haptic);
+> +
+> +	return 0;
+> +
+> +err_destroy_ff:
+> +	input_ff_destroy(haptic->input_dev);
+> +err_put_regulator:
+> +	regulator_put(haptic->regulator);
+> +err_ifree_mem:
+> +	input_free_device(haptic->input_dev);
+> +err_kfree_mem:
+> +	kfree(haptic);
+> +
+> +	return error;
+> +}
+> +
+> +static int regulator_haptic_remove(struct platform_device *pdev)
+> +{
+> +	struct regulator_haptic *haptic = platform_get_drvdata(pdev);
+> +
+> +	input_unregister_device(haptic->input_dev);
+
+I think you are leaking reference to regulator and memory allocated for
+the haptic structure here. Maybe it should all be converted to devm.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static struct of_device_id regulator_haptic_dt_match[] = {
+> +	{ .compatible = "linux,regulator-haptic" },
+> +	{},
+> +};
+> +
+> +static struct platform_driver regulator_haptic_driver = {
+> +	.driver		= {
+> +		.name	= "regulator-haptic",
+> +		.owner	= THIS_MODULE,
+> +		.of_match_table = regulator_haptic_dt_match,
+> +	},
+> +
+> +	.probe		= regulator_haptic_probe,
+> +	.remove		= regulator_haptic_remove,
+> +};
+> +module_platform_driver(regulator_haptic_driver);
+> +
+> +MODULE_ALIAS("platform:regulator-haptic");
+> +MODULE_DESCRIPTION("Regulator haptic driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Hyunhee Kim <hyunhee.kim@samsung.com>");
+> -- 
+> 1.7.9.5
+> 
+> 
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,107 +1,64 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: Re: [PATCH v2] add sur40 driver for Samsung SUR40 (aka MS Surface
- 2.0/Pixelsense)
-Date: Tue, 22 Oct 2013 08:08:12 +0200
-Message-ID: <5266164C.3060509@butterbrot.org>
-References: <1382287751-21515-1-git-send-email-floe@butterbrot.org> <20131021162006.GB4575@core.coreip.homeip.net>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 01/02] input: serio: use DEVICE_ATTR_RO()
+Date: Tue, 22 Oct 2013 07:12:19 +0100
+Message-ID: <20131022061219.GA15412@kroah.com>
+References: <20131008010823.GA27012@kroah.com>
+ <20131021162531.GC4575@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="GirmGBBFV3JtbmUdQuxAHSivv7DnU6wls"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:35952 "EHLO butterbrot.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750874Ab3JVGIP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Oct 2013 02:08:15 -0400
-In-Reply-To: <20131021162006.GB4575@core.coreip.homeip.net>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:53649 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750951Ab3JVGKz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Oct 2013 02:10:55 -0400
+Content-Disposition: inline
+In-Reply-To: <20131021162531.GC4575@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, rydberg@euromail.se, dh.herrmann@gmail.com
+Cc: linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---GirmGBBFV3JtbmUdQuxAHSivv7DnU6wls
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Mon, Oct 21, 2013 at 09:25:32AM -0700, Dmitry Torokhov wrote:
+> Hi Greg,
+> 
+> On Mon, Oct 07, 2013 at 06:08:23PM -0700, Greg Kroah-Hartman wrote:
+> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > 
+> > Convert the serio sysfs fiels to use the DEVICE_ATTR_RO() macros to make
+> > it easier to audit the correct sysfs file permission usage.
+> 
+> Sorry for the delay. Frankly I am not a fan of DEVICE_ATTR macros as it
+> forces particular naming of the attribute structures and methods and
+> forces us to lose the module prefix in names. I prefer all functions and
+> file-scope variables have module prefix because in the absence of
+> language-supported namespaces this is the one thing that insulates
+> drivers from changes in shared headers.
 
-Hello Dmitry,
+No sysfs read/write functions should ever be exported out of the local
+file "scope", so why is this an issue?  I have run into it being a
+problem for some files, where people have device/bus/class sysfs files
+all in the same .c file, but that usage is very limited.
 
-thanks for your quick feedback, a few questions below:
+I'm trying to eventually convert the whole kernel to use the
+DEVICE_ATTR_??() macros to make it so that we can audit the sysfs file
+permissions easier, by making them impossible to get wrong.  We have had
+problems in the past where device files had incorrect permissions and
+unprivilidged users could do things they shouldn't have.  Using these
+macros _should_ prevent almost all of that from even being possible.
 
-On 21.10.2013 18:20, Dmitry Torokhov wrote:
-> On Sun, Oct 20, 2013 at 06:49:11PM +0200, Florian Echtler wrote:
->> +/* read 512 bytes from endpoint 0x86 -> get header + blobs */
->> +struct sur40_header {
->> +
->> +	uint16_t type;       /* always 0x0001 */
->> +	uint16_t count;      /* count of blobs (if 0: continue prev. packet)=
- */
->> +
->> +	uint32_t packet_id;
->> +
->> +	uint32_t timestamp;  /* milliseconds (inc. by 16 or 17 each frame) *=
-/
->> +	uint32_t unknown;    /* "epoch?" always 02/03 00 00 00 */
->=20
-> Proper internal kernel types are u8, u16, u32. For user-facing APIs
-> __u8, __u16, and __u32 should be used. Also, since this is data coming
-> directly off the wire, you should be using __le16, __le32, etc, and the=
-n
-> do __leXX_to_cpu() conversion before using it in calculations.
-OK, I'll switch to u32 throughout (also for the float, I'll explain in a
-commment). However, I haven't found a single other touchscreen driver
-which uses __le32, even though they all probably process raw wire data -
-can you suggest an example?
+Now odds are, I'll never be able to remove DEVICE_ATTR() from the tree,
+as there are some strange files that use crazy permissions and we have
+to live with that, but for all of the "simple" files, like are done
+here, I'd really like to use them, especially as it provides a
+kernel-wide uniformity to the naming of attribute function calls, which
+is a huge benifit as well.
 
->> +/* debug helper macro */
->> +#define get_dev(x) (&(x->usbdev->dev))
-> Just stick that dev in sur40_state and then use sur40->dev throughout.
-OK.
+Note, I did apply this patch to my tree already, and it's queued up for
+3.13-rc1.  If you really object to it, I'll revert it, and fix up the
+02/02 patch in this series to not need it, but I'd really like you to
+reconsider your objection.
 
->> +	struct sur40_header *header =3D &(sur40->bulk_in_buffer->header);
-> No need to have parenthesis around & operator.
->> +	struct sur40_blob *inblob =3D &(sur40->bulk_in_buffer->blobs[0]);
-> Same here.
-Intention seems clearer to me with parentheses, but if this doesn't
-conform to coding style, I'll fix it.
+thanks,
 
->> +	if (!sur40->bulk_in_buffer) {
->> +		dev_err(&interface->dev, "Unable to allocate input buffer.");
->> +		sur40_delete(sur40);
-> Would prefer standard kernel error unwinding style (gotos to proper
-> unwinding point).
-Something like this example from ucb1400_ts?
-
-	error =3D input_register_device(ucb->ts_idev);
-	if (error)
-		goto err_free_irq;
-
-	return 0;
-
-err_free_irq:
-	free_irq(ucb->irq, ucb);
-err_free_devs:
-	input_free_device(ucb->ts_idev);
-err:
-	return error;
-
-
-Best regards, Florian
---=20
-SENT FROM MY DEC VT50 TERMINAL
-
-
---GirmGBBFV3JtbmUdQuxAHSivv7DnU6wls
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAlJmFkwACgkQ7CzyshGvathQ+wCfQODPTlBE3uB4fbLbIQtRpM4j
-+L0An1Tk0FtrWlFe7Am2VtS95ocr4rcT
-=Nhar
------END PGP SIGNATURE-----
-
---GirmGBBFV3JtbmUdQuxAHSivv7DnU6wls--
+greg k-h

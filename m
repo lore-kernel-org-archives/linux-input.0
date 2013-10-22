@@ -1,96 +1,114 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH 1/4] Input: twl4030-pwrbutton - add device tree support
-Date: Tue, 22 Oct 2013 08:50:40 -0500
-Message-ID: <20131022135040.GN9340@gimli>
-References: <1382446504-27837-1-git-send-email-sre@debian.org>
- <1382446504-27837-2-git-send-email-sre@debian.org>
-Reply-To: <balbi@ti.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v2] add sur40 driver for Samsung SUR40 (aka MS Surface 2.0/Pixelsense)
+Date: Tue, 22 Oct 2013 17:22:08 +0200
+Message-ID: <CANq1E4R88OooYjFz0d46uJZgvD=a_qzVVxV74wQzWfaUB7WBEg@mail.gmail.com>
+References: <1382287751-21515-1-git-send-email-floe@butterbrot.org>
+	<20131021162006.GB4575@core.coreip.homeip.net>
+	<5266164C.3060509@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XFI+TFG+M3u0jUjZ"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:57854 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750753Ab3JVNvJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Oct 2013 09:51:09 -0400
-Content-Disposition: inline
-In-Reply-To: <1382446504-27837-2-git-send-email-sre@debian.org>
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:63507 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753700Ab3JVPWJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Oct 2013 11:22:09 -0400
+Received: by mail-ie0-f178.google.com with SMTP id x13so978595ief.37
+        for <linux-input@vger.kernel.org>; Tue, 22 Oct 2013 08:22:08 -0700 (PDT)
+In-Reply-To: <5266164C.3060509@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@debian.org>
-Cc: Sebastian Reichel <sre@ring0.de>, linux-input@vger.kernel.org, =?iso-8859-1?Q?'Beno=EEt?= Cousson' <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
+To: Florian Echtler <floe@butterbrot.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 
---XFI+TFG+M3u0jUjZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi
 
-Hi,
+On Tue, Oct 22, 2013 at 8:08 AM, Florian Echtler <floe@butterbrot.org> wrote:
+> Hello Dmitry,
+>
+> thanks for your quick feedback, a few questions below:
+>
+> On 21.10.2013 18:20, Dmitry Torokhov wrote:
+>> On Sun, Oct 20, 2013 at 06:49:11PM +0200, Florian Echtler wrote:
+>>> +/* read 512 bytes from endpoint 0x86 -> get header + blobs */
+>>> +struct sur40_header {
+>>> +
+>>> +    uint16_t type;       /* always 0x0001 */
+>>> +    uint16_t count;      /* count of blobs (if 0: continue prev. packet) */
+>>> +
+>>> +    uint32_t packet_id;
+>>> +
+>>> +    uint32_t timestamp;  /* milliseconds (inc. by 16 or 17 each frame) */
+>>> +    uint32_t unknown;    /* "epoch?" always 02/03 00 00 00 */
+>>
+>> Proper internal kernel types are u8, u16, u32. For user-facing APIs
+>> __u8, __u16, and __u32 should be used. Also, since this is data coming
+>> directly off the wire, you should be using __le16, __le32, etc, and then
+>> do __leXX_to_cpu() conversion before using it in calculations.
+> OK, I'll switch to u32 throughout (also for the float, I'll explain in a
+> commment). However, I haven't found a single other touchscreen driver
+> which uses __le32, even though they all probably process raw wire data -
+> can you suggest an example?
 
-On Tue, Oct 22, 2013 at 02:55:01PM +0200, Sebastian Reichel wrote:
-> Add device tree support for twl4030 power button driver.
->=20
-> Signed-off-by: Sebastian Reichel <sre@debian.org>
-> ---
->  drivers/input/misc/twl4030-pwrbutton.c | 19 +++++++++++++++----
->  1 file changed, 15 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/=
-twl4030-pwrbutton.c
-> index b9a05fd..e450947 100644
-> --- a/drivers/input/misc/twl4030-pwrbutton.c
-> +++ b/drivers/input/misc/twl4030-pwrbutton.c
-> @@ -52,7 +52,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
->  	return IRQ_HANDLED;
->  }
-> =20
-> -static int __init twl4030_pwrbutton_probe(struct platform_device *pdev)
-> +static int twl4030_pwrbutton_probe(struct platform_device *pdev)
->  {
->  	struct input_dev *pwr;
->  	int irq =3D platform_get_irq(pdev, 0);
-> @@ -106,16 +106,27 @@ static int __exit twl4030_pwrbutton_remove(struct p=
-latform_device *pdev)
->  	return 0;
->  }
-> =20
-> +#if IS_ENABLED(CONFIG_OF)
-> +static const struct of_device_id twl4030_pwrbutton_dt_match_table[] =3D {
-> +       { .compatible =3D "ti,twl4030-pwrbutton" },
-> +       {},
-> +};
-> +MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
-> +#define twl4030_pwrbutton_dt_match of_match_ptr(twl4030_pwrbutton_dt_mat=
-ch_table)
-> +#else
-> +#define twl4030_pwrbutton_dt_match NULL
-> +#endif
+These are probably all broken or the hardware guarantees
+cpu-byte-order. Anyway, what you should do is use __le16/32 for your
+types which represent data from the device. Then call le16_to_cpu() on
+these values to convert it to host byte-order. Something like this:
 
-you don't ned this trickery.. just always device the match table.
+struct sur40_raw_header {
+  __le16 type;
+  __le32 unused;
+  __le8 count;
+} __packed;
 
---=20
-balbi
+struct sur40_header {
+  u16 type;
+  u8 count;
+};
 
---XFI+TFG+M3u0jUjZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+static void parse_data(const struct sur40_raw_header *h)
+{
+  struct sur40_header d;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+  d.type = __le16_to_cpu(h->type);
+  d.count = h->count;
+  do_something(&d);
+}
 
-iQIcBAEBAgAGBQJSZoKvAAoJEIaOsuA1yqREH5EP/RS0Nl8ppNk75V08SuxgTsWZ
-rCJvBEVX8CQEz2Qc2uEswR1N5YxR47BCjyY4yY2Rx2joUGY+t8jXtiuH+4c/luc5
-HOnOS2JbO8AYlRAjqFaLi/vTdfCVw8O7hsL5yGdHYQoHDdZCf2ts0FR4aenryVZG
-LRZwXnRIR8KVIsk+yuIMA71ngvpsdBUa5j05RZuNzxyfTqU84ENawBZs31kRVbTQ
-v49BJiWHbUtFVpVUgukMTw/WC6Dqzi1x3A4FcbgEFrDhpd+TOQYCencLJPdsIfiE
-J7WUmfVA2X5A86Kl9u6TFAgS5p+yo4kOtgnTG9k1QO1LqAGJQu4to1fHd93P99mH
-lLEqkLEcjYyxUdOYVLynJT3wRrkkt+8rpCa21mk5ie30Rv7EmHp8arQBcq2Ls39d
-j/4QZ4zCeq+m/VNSfKaQeA/aJ7PrD9pOPWlolzxwBAPl2fapxIIRsy8LCvQuM+A8
-jXe2iht2ZKUQKHrQJASNcuaboAo/Xe0k9GrYMYTO9mcVEpa6gaqEctPZ9lxlY/3M
-PMNQVqeLCG5DoFv+LCLB68CXYnse8H85ZN2GZEJ/jC8Tuc+u6HVn4UeCqq/6gaoG
-TR8NnvkAWKqFuSaJkZMkmb6VlZ5V+mOreLm4M5x5ADWE2IXpS2NScm0wuACJSZiC
-tPSwYj0hmOYAyZ6b+5kK
-=Uejm
------END PGP SIGNATURE-----
+>>> +/* debug helper macro */
+>>> +#define get_dev(x) (&(x->usbdev->dev))
+>> Just stick that dev in sur40_state and then use sur40->dev throughout.
+> OK.
+>
+>>> +    struct sur40_header *header = &(sur40->bulk_in_buffer->header);
+>> No need to have parenthesis around & operator.
+>>> +    struct sur40_blob *inblob = &(sur40->bulk_in_buffer->blobs[0]);
+>> Same here.
+> Intention seems clearer to me with parentheses, but if this doesn't
+> conform to coding style, I'll fix it.
 
---XFI+TFG+M3u0jUjZ--
+We never use parentheses for that. You will get used to it ;)
+
+>>> +    if (!sur40->bulk_in_buffer) {
+>>> +            dev_err(&interface->dev, "Unable to allocate input buffer.");
+>>> +            sur40_delete(sur40);
+>> Would prefer standard kernel error unwinding style (gotos to proper
+>> unwinding point).
+> Something like this example from ucb1400_ts?
+>
+>         error = input_register_device(ucb->ts_idev);
+>         if (error)
+>                 goto err_free_irq;
+>
+>         return 0;
+>
+> err_free_irq:
+>         free_irq(ucb->irq, ucb);
+> err_free_devs:
+>         input_free_device(ucb->ts_idev);
+> err:
+>         return error;
+
+Yepp, exactly.
+
+David

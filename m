@@ -1,64 +1,45 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 01/02] input: serio: use DEVICE_ATTR_RO()
-Date: Tue, 22 Oct 2013 07:12:19 +0100
-Message-ID: <20131022061219.GA15412@kroah.com>
-References: <20131008010823.GA27012@kroah.com>
- <20131021162531.GC4575@core.coreip.homeip.net>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH 1/2] input: touchscreen: fix spelling mistake in TSC/ADC
+ DT binding
+Date: Tue, 22 Oct 2013 10:42:00 +0200
+Message-ID: <52663A58.9070706@linutronix.de>
+References: <1382386404-6659-1-git-send-email-balbi@ti.com> <1382386404-6659-2-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:53649 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750951Ab3JVGKz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Oct 2013 02:10:55 -0400
-Content-Disposition: inline
-In-Reply-To: <20131021162531.GC4575@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1382386404-6659-2-git-send-email-balbi@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: dmitry.torokhov@gmail.com, rob.herring@calxeda.com, pawel.moll@arm.com, mark.rutland@arm.com, swarren@wwwdotorg.org, ijc+devicetree@hellion.org.uk, rob@landley.net, bcousson@baylibre.com, Tony Lindgren <tony@atomide.com>, devicetree@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On Mon, Oct 21, 2013 at 09:25:32AM -0700, Dmitry Torokhov wrote:
-> Hi Greg,
-> 
-> On Mon, Oct 07, 2013 at 06:08:23PM -0700, Greg Kroah-Hartman wrote:
-> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > 
-> > Convert the serio sysfs fiels to use the DEVICE_ATTR_RO() macros to make
-> > it easier to audit the correct sysfs file permission usage.
-> 
-> Sorry for the delay. Frankly I am not a fan of DEVICE_ATTR macros as it
-> forces particular naming of the attribute structures and methods and
-> forces us to lose the module prefix in names. I prefer all functions and
-> file-scope variables have module prefix because in the absence of
-> language-supported namespaces this is the one thing that insulates
-> drivers from changes in shared headers.
+On 10/21/2013 10:13 PM, Felipe Balbi wrote:
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index e1c5300..b61df9d 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -348,9 +348,16 @@ static int titsc_parse_dt(struct platform_device *pdev,
+>  	if (err < 0)
+>  		return err;
+>  
+> -	err = of_property_read_u32(node, "ti,coordiante-readouts",
+> +	/*
+> +	 * try with new binding first. If it fails, still try with
+> +	 * bogus, miss-spelled version.
+> +	 */
+> +	err = of_property_read_u32(node, "ti,coordinate-readouts",
+>  			&ts_dev->coordinate_readouts);
+>  	if (err < 0)
+> +		err = of_property_read_u32(node, "ti,coordiante-readouts",
+> +				&ts_dev->coordinate_readouts);
+> +	if (err < 0)
+>  		return err;
 
-No sysfs read/write functions should ever be exported out of the local
-file "scope", so why is this an issue?  I have run into it being a
-problem for some files, where people have device/bus/class sysfs files
-all in the same .c file, but that usage is very limited.
+Thanks, very good. Do we keep this fallback for ever or just for a year
+or two?
 
-I'm trying to eventually convert the whole kernel to use the
-DEVICE_ATTR_??() macros to make it so that we can audit the sysfs file
-permissions easier, by making them impossible to get wrong.  We have had
-problems in the past where device files had incorrect permissions and
-unprivilidged users could do things they shouldn't have.  Using these
-macros _should_ prevent almost all of that from even being possible.
+>  
+>  	return of_property_read_u32_array(node, "ti,wire-config",
 
-Now odds are, I'll never be able to remove DEVICE_ATTR() from the tree,
-as there are some strange files that use crazy permissions and we have
-to live with that, but for all of the "simple" files, like are done
-here, I'd really like to use them, especially as it provides a
-kernel-wide uniformity to the naming of attribute function calls, which
-is a huge benifit as well.
-
-Note, I did apply this patch to my tree already, and it's queued up for
-3.13-rc1.  If you really object to it, I'll revert it, and fix up the
-02/02 patch in this series to not need it, but I'd really like you to
-reconsider your objection.
-
-thanks,
-
-greg k-h
+Sebastian

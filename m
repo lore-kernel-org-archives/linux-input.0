@@ -1,70 +1,77 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] add sur40 driver for Samsung SUR40 (aka MS Surface
- 2.0/Pixelsense)
-Date: Tue, 22 Oct 2013 08:47:04 -0700
-Message-ID: <20131022154703.GB13473@core.coreip.homeip.net>
-References: <1382287751-21515-1-git-send-email-floe@butterbrot.org>
- <20131021162006.GB4575@core.coreip.homeip.net>
- <5266164C.3060509@butterbrot.org>
- <CANq1E4R88OooYjFz0d46uJZgvD=a_qzVVxV74wQzWfaUB7WBEg@mail.gmail.com>
+Subject: Re: [PATCH 01/02] input: serio: use DEVICE_ATTR_RO()
+Date: Tue, 22 Oct 2013 08:51:20 -0700
+Message-ID: <20131022155120.GD13473@core.coreip.homeip.net>
+References: <20131008010823.GA27012@kroah.com>
+ <20131021162531.GC4575@core.coreip.homeip.net>
+ <20131022061219.GA15412@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:57112 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753018Ab3JVPrH (ORCPT
+Received: from mail-pb0-f51.google.com ([209.85.160.51]:59425 "EHLO
+	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752624Ab3JVPvY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Oct 2013 11:47:07 -0400
-Received: by mail-pa0-f42.google.com with SMTP id kx10so10067545pab.1
-        for <linux-input@vger.kernel.org>; Tue, 22 Oct 2013 08:47:06 -0700 (PDT)
+	Tue, 22 Oct 2013 11:51:24 -0400
+Received: by mail-pb0-f51.google.com with SMTP id wz7so3886241pbc.24
+        for <linux-input@vger.kernel.org>; Tue, 22 Oct 2013 08:51:23 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CANq1E4R88OooYjFz0d46uJZgvD=a_qzVVxV74wQzWfaUB7WBEg@mail.gmail.com>
+In-Reply-To: <20131022061219.GA15412@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Florian Echtler <floe@butterbrot.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Oct 22, 2013 at 05:22:08PM +0200, David Herrmann wrote:
-> Hi
+On Tue, Oct 22, 2013 at 07:12:19AM +0100, Greg Kroah-Hartman wrote:
+> On Mon, Oct 21, 2013 at 09:25:32AM -0700, Dmitry Torokhov wrote:
+> > Hi Greg,
+> > 
+> > On Mon, Oct 07, 2013 at 06:08:23PM -0700, Greg Kroah-Hartman wrote:
+> > > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > 
+> > > Convert the serio sysfs fiels to use the DEVICE_ATTR_RO() macros to make
+> > > it easier to audit the correct sysfs file permission usage.
+> > 
+> > Sorry for the delay. Frankly I am not a fan of DEVICE_ATTR macros as it
+> > forces particular naming of the attribute structures and methods and
+> > forces us to lose the module prefix in names. I prefer all functions and
+> > file-scope variables have module prefix because in the absence of
+> > language-supported namespaces this is the one thing that insulates
+> > drivers from changes in shared headers.
 > 
-> On Tue, Oct 22, 2013 at 8:08 AM, Florian Echtler <floe@butterbrot.org> wrote:
-> > Hello Dmitry,
-> >
-> > thanks for your quick feedback, a few questions below:
-> >
-> > On 21.10.2013 18:20, Dmitry Torokhov wrote:
-> >> On Sun, Oct 20, 2013 at 06:49:11PM +0200, Florian Echtler wrote:
-> >>> +/* read 512 bytes from endpoint 0x86 -> get header + blobs */
-> >>> +struct sur40_header {
-> >>> +
-> >>> +    uint16_t type;       /* always 0x0001 */
-> >>> +    uint16_t count;      /* count of blobs (if 0: continue prev. packet) */
-> >>> +
-> >>> +    uint32_t packet_id;
-> >>> +
-> >>> +    uint32_t timestamp;  /* milliseconds (inc. by 16 or 17 each frame) */
-> >>> +    uint32_t unknown;    /* "epoch?" always 02/03 00 00 00 */
-> >>
-> >> Proper internal kernel types are u8, u16, u32. For user-facing APIs
-> >> __u8, __u16, and __u32 should be used. Also, since this is data coming
-> >> directly off the wire, you should be using __le16, __le32, etc, and then
-> >> do __leXX_to_cpu() conversion before using it in calculations.
-> > OK, I'll switch to u32 throughout (also for the float, I'll explain in a
-> > commment). However, I haven't found a single other touchscreen driver
-> > which uses __le32, even though they all probably process raw wire data -
-> > can you suggest an example?
-> 
-> These are probably all broken or the hardware guarantees
-> cpu-byte-order. Anyway, what you should do is use __le16/32 for your
-> types which represent data from the device. Then call le16_to_cpu() on
-> these values to convert it to host byte-order. Something like this:
-> 
-> struct sur40_raw_header {
->   __le16 type;
->   __le32 unused;
->   __le8 count;
+> No sysfs read/write functions should ever be exported out of the local
+> file "scope", so why is this an issue?  I have run into it being a
+> problem for some files, where people have device/bus/class sysfs files
+> all in the same .c file, but that usage is very limited.
 
-Not the last one please ;)
+It is not about exporting read/write functions, it is about newly
+defined data from common headers stomping on the local module
+definitions.
+
+> 
+> I'm trying to eventually convert the whole kernel to use the
+> DEVICE_ATTR_??() macros to make it so that we can audit the sysfs file
+> permissions easier, by making them impossible to get wrong.  We have had
+> problems in the past where device files had incorrect permissions and
+> unprivilidged users could do things they shouldn't have.  Using these
+> macros _should_ prevent almost all of that from even being possible.
+
+Sounds more like task for sparse to ensure we have sane permission bits.
+
+> 
+> Now odds are, I'll never be able to remove DEVICE_ATTR() from the tree,
+> as there are some strange files that use crazy permissions and we have
+> to live with that, but for all of the "simple" files, like are done
+> here, I'd really like to use them, especially as it provides a
+> kernel-wide uniformity to the naming of attribute function calls, which
+> is a huge benifit as well.
+> 
+> Note, I did apply this patch to my tree already, and it's queued up for
+> 3.13-rc1.  If you really object to it, I'll revert it, and fix up the
+> 02/02 patch in this series to not need it, but I'd really like you to
+> reconsider your objection.
+
+Nah, that is fine.
 
 Thanks.
 

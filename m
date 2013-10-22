@@ -1,124 +1,107 @@
-From: =?UTF-8?q?Anders=20F=2E=20U=2E=20Ki=C3=A6r?=
-	<ablacksheep@gmail.com>
-Subject: [PATCH] HID: Added Holtek USB ID 04d9:a072 LEETGION Hellion Gaming Mouse
-Date: Mon, 21 Oct 2013 23:42:22 +0200
-Message-ID: <1382391742-31335-1-git-send-email-ablacksheep@gmail.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH v2] add sur40 driver for Samsung SUR40 (aka MS Surface
+ 2.0/Pixelsense)
+Date: Tue, 22 Oct 2013 08:08:12 +0200
+Message-ID: <5266164C.3060509@butterbrot.org>
+References: <1382287751-21515-1-git-send-email-floe@butterbrot.org> <20131021162006.GB4575@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="GirmGBBFV3JtbmUdQuxAHSivv7DnU6wls"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f52.google.com ([209.85.215.52]:49337 "EHLO
-	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751287Ab3JUVno (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Oct 2013 17:43:44 -0400
+Received: from butterbrot.org ([176.9.106.16]:35952 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750874Ab3JVGIP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Oct 2013 02:08:15 -0400
+In-Reply-To: <20131021162006.GB4575@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Anders=20F=2E=20U=2E=20Ki=C3=A6r?= <ablacksheep@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, rydberg@euromail.se, dh.herrmann@gmail.com
 
- Added id, bindings and comments for Holtek USB ID 04d9:a072
- LEETGION Hellion Gaming mouse to use the same corrections of the repor=
-t
- descriptor as Holtek 04d9:a067. As the mouse exceed HID_MAX_USAGES at =
-the
- same offsets in the reported descriptor.
- Tested on the hardware.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--GirmGBBFV3JtbmUdQuxAHSivv7DnU6wls
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Anders F. U. Ki=C3=A6r <ablacksheep@gmail.com>
----
- drivers/hid/Kconfig            | 1 +
- drivers/hid/hid-core.c         | 1 +
- drivers/hid/hid-holtek-mouse.c | 4 ++++
- drivers/hid/hid-ids.h          | 3 ++-
- 4 files changed, 8 insertions(+), 1 deletion(-)
+Hello Dmitry,
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index c91d547..d68292a 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -242,6 +242,7 @@ config HID_HOLTEK
- 	  - Tracer Sniper TRM-503 / NOVA Gaming Slider X200 /
- 	    Zalman ZM-GM1
- 	  - SHARKOON DarkGlider Gaming mouse
-+	  - LEETGION Hellion Gaming Mouse
-=20
- config HOLTEK_FF
- 	bool "Holtek On Line Grip force feedback support"
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 5a8c011..6ab7133 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1715,6 +1715,7 @@ static const struct hid_device_id hid_have_specia=
-l_driver[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_K=
-EYBOARD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
-OUSE_A04A) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
-OUSE_A067) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
-OUSE_A072) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_M=
-OUSE_A081) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_580) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBL=
-E_PAD) },
-diff --git a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mo=
-use.c
-index e696566..0caa676 100644
---- a/drivers/hid/hid-holtek-mouse.c
-+++ b/drivers/hid/hid-holtek-mouse.c
-@@ -28,6 +28,7 @@
-  * - USB ID 04d9:a04a, sold as Tracer Sniper TRM-503, NOVA Gaming Slid=
-er X200
-  *   and Zalman ZM-GM1
-  * - USB ID 04d9:a081, sold as SHARKOON DarkGlider Gaming mouse
-+ * - USB ID 04d9:a072, sold as LEETGION Hellion Gaming Mouse
-  */
-=20
- static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *=
-rdesc,
-@@ -40,6 +41,7 @@ static __u8 *holtek_mouse_report_fixup(struct hid_dev=
-ice *hdev, __u8 *rdesc,
- 		 * 0x2fff, so they don't exceed HID_MAX_USAGES */
- 		switch (hdev->product) {
- 		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067:
-+		case USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072:
- 			if (*rsize >=3D 122 && rdesc[115] =3D=3D 0xff && rdesc[116] =3D=3D =
-0x7f
- 					&& rdesc[120] =3D=3D 0xff && rdesc[121] =3D=3D 0x7f) {
- 				hid_info(hdev, "Fixing up report descriptor\n");
-@@ -66,6 +68,8 @@ static const struct hid_device_id holtek_mouse_device=
-s[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
- 			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
-+			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
- 			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
- 	{ }
- };
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9cbc7ab..8ebaef95 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -448,8 +448,9 @@
-=20
- #define USB_VENDOR_ID_HOLTEK_ALT		0x04d9
- #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD	0xa055
--#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067	0xa067
- #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A	0xa04a
-+#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067	0xa067
-+#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072	0xa072
- #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
-=20
- #define USB_VENDOR_ID_IMATION		0x0718
+thanks for your quick feedback, a few questions below:
+
+On 21.10.2013 18:20, Dmitry Torokhov wrote:
+> On Sun, Oct 20, 2013 at 06:49:11PM +0200, Florian Echtler wrote:
+>> +/* read 512 bytes from endpoint 0x86 -> get header + blobs */
+>> +struct sur40_header {
+>> +
+>> +	uint16_t type;       /* always 0x0001 */
+>> +	uint16_t count;      /* count of blobs (if 0: continue prev. packet)=
+ */
+>> +
+>> +	uint32_t packet_id;
+>> +
+>> +	uint32_t timestamp;  /* milliseconds (inc. by 16 or 17 each frame) *=
+/
+>> +	uint32_t unknown;    /* "epoch?" always 02/03 00 00 00 */
+>=20
+> Proper internal kernel types are u8, u16, u32. For user-facing APIs
+> __u8, __u16, and __u32 should be used. Also, since this is data coming
+> directly off the wire, you should be using __le16, __le32, etc, and the=
+n
+> do __leXX_to_cpu() conversion before using it in calculations.
+OK, I'll switch to u32 throughout (also for the float, I'll explain in a
+commment). However, I haven't found a single other touchscreen driver
+which uses __le32, even though they all probably process raw wire data -
+can you suggest an example?
+
+>> +/* debug helper macro */
+>> +#define get_dev(x) (&(x->usbdev->dev))
+> Just stick that dev in sur40_state and then use sur40->dev throughout.
+OK.
+
+>> +	struct sur40_header *header =3D &(sur40->bulk_in_buffer->header);
+> No need to have parenthesis around & operator.
+>> +	struct sur40_blob *inblob =3D &(sur40->bulk_in_buffer->blobs[0]);
+> Same here.
+Intention seems clearer to me with parentheses, but if this doesn't
+conform to coding style, I'll fix it.
+
+>> +	if (!sur40->bulk_in_buffer) {
+>> +		dev_err(&interface->dev, "Unable to allocate input buffer.");
+>> +		sur40_delete(sur40);
+> Would prefer standard kernel error unwinding style (gotos to proper
+> unwinding point).
+Something like this example from ucb1400_ts?
+
+	error =3D input_register_device(ucb->ts_idev);
+	if (error)
+		goto err_free_irq;
+
+	return 0;
+
+err_free_irq:
+	free_irq(ucb->irq, ucb);
+err_free_devs:
+	input_free_device(ucb->ts_idev);
+err:
+	return error;
+
+
+Best regards, Florian
 --=20
-1.8.1.2
+SENT FROM MY DEC VT50 TERMINAL
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--GirmGBBFV3JtbmUdQuxAHSivv7DnU6wls
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlJmFkwACgkQ7CzyshGvathQ+wCfQODPTlBE3uB4fbLbIQtRpM4j
++L0An1Tk0FtrWlFe7Am2VtS95ocr4rcT
+=Nhar
+-----END PGP SIGNATURE-----
+
+--GirmGBBFV3JtbmUdQuxAHSivv7DnU6wls--

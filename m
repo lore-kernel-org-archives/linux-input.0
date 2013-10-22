@@ -1,59 +1,85 @@
-From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
-Subject: Re: [PATCHv4][ 1/4] Input: tsc2007: Add device tree support.
-Date: Tue, 22 Oct 2013 11:49:47 +0200
-Message-ID: <20131022114947.30dc9c07@ipc1.ka-ro>
-References: <1382363667-10341-1-git-send-email-denis@eukrea.com>
-	<20131021155927.GB4255@core.coreip.homeip.net>
+From: =?UTF-8?Q?Juan_Jes=C3=BAs_Garc=C3=ADa_de_Soria_Lucena?=
+	<skandalfo@gmail.com>
+Subject: Re: WPC8769L (WEC1020) support in winbond-cir?
+Date: Tue, 22 Oct 2013 11:57:33 +0100
+Message-ID: <CAB+yVgBKrEk-7JioddM_EHPfme=NFDqUQwa+=JH-7yA8-1gYFw@mail.gmail.com>
+References: <CAG-2HqX-TO7h8zJ6F01r2LfRVjQtb0pK_1wKGsYVKzB0zC7TQA@mail.gmail.com>
+ <20131015215943.GC26542@hardeman.nu> <CAB+yVgCtvRHRLxP2SRgCAqkCKdyThgr48fOvBFe9YHfz3xArmQ@mail.gmail.com>
+ <CAG-2HqVh1hzC0rzft9gD+4zmJpnpH9OKj64vyO4teCrX5wuT+g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.karo-electronics.de ([81.173.242.67]:50470 "EHLO
-	mail.karo-electronics.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751174Ab3JVJt4 convert rfc822-to-8bit (ORCPT
+Received: from mail-pd0-f180.google.com ([209.85.192.180]:55033 "EHLO
+	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752468Ab3JVK6O convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Oct 2013 05:49:56 -0400
-In-Reply-To: <20131021155927.GB4255@core.coreip.homeip.net>
+	Tue, 22 Oct 2013 06:58:14 -0400
+In-Reply-To: <CAG-2HqVh1hzC0rzft9gD+4zmJpnpH9OKj64vyO4teCrX5wuT+g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Denis Carikli <denis@eukrea.com>, linux-input@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Eric =?UTF-8?B?QsOpbmFyZA==?= <eric@eukrea.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org
+To: Tom Gundersen <teg@jklm.no>
+Cc: =?UTF-8?Q?David_H=C3=A4rdeman?= <david@hardeman.nu>, Sean Young <sean@mess.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
 
-Hi,
+I tried to find the hacked code, but it's not there anymore.
 
-> On Mon, Oct 21, 2013 at 03:54:24PM +0200, Denis Carikli wrote:
-> > =20
-> > +	if (ts->of)
-> > +		return tsc2007_get_pendown_state_dt(ts);
-> > +
-> >  	if (!ts->get_pendown_state)
-> >  		return true;
->=20
-> Instead of special casing "if (ts->of)" all over the place why don't =
-you
-> set up the device structure as:
->=20
-> 	if (<configuring_tsc2007_form_dt>)
-> 		ts->get_pendown_state =3D tsc2007_get_pendown_state_dt;
->=20
-> and be done with it?
+I have the docs, through, and a rough idea of what would have to be
+done in order to support WEC1020 in winbond-cir.
+
+I cannot tell when I will be able to put time into this, though :-(
+
+
+Best regards,
+
+    Juan.
+
+2013/10/17 Tom Gundersen <teg@jklm.no>:
 >
-I also thought about that, but the existing function does not have any
-parameters, while the DT version of get_pendown_state() requires to get
-the GPIO passed to it somehow.
+>
+> On Wednesday, October 16, 2013, Juan Jes=C3=BAs Garc=C3=ADa de Soria =
+Lucena
+> <skandalfo@gmail.com> wrote:
+>> Hi there,
+>>
+>> 2013/10/15 David H=C3=A4rdeman <david@hardeman.nu>
+>>>
+>>> IIRC, Juan had a hacked-up version of the winbond-cir driver workin=
+g on
+>>> his hardware back in March (the hardware seems similar enough, basi=
+cally
+>>> the WEC1022 adds some additional Wake-On-IR functionality...I seem =
+to
+>>> recall).
+>>
+>> I did indeed look at this at the time. I still have the hardware, sh=
+ould
+>> have the hardware docs somewhere, and can look at where I left that =
+hacked
+>> code at the time...
+>> I really would have liked to merge in the support for it into winbon=
+d-cir,
+>> but real life took over.
+>>>
+>>> But I think Juan is the one to talk to. I don't have the WEC1020
+>>> hardware and I don't have his experience of adding support for it..=
+=2E
+>>
+>> As I said, I still have the hardware around. I might get some time a=
+round
+>> this weekend to look at it and come back with at least an idea of wh=
+at is
+>> left to be done.
+>
+> Thanks for taking a look.
+>
+> Cheers,
+>
+> Tom
 
 
-Lothar Wa=C3=9Fmann
+
 --=20
-___________________________________________________________
-
-Ka-Ro electronics GmbH | Pascalstra=C3=9Fe 22 | D - 52076 Aachen
-Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
-Gesch=C3=A4ftsf=C3=BChrer: Matthias Kaussen
-Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
-
-www.karo-electronics.de | info@karo-electronics.de
-___________________________________________________________
+:wq
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

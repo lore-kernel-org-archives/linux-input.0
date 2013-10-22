@@ -1,87 +1,88 @@
-From: =?UTF-8?Q?Juan_Jes=C3=BAs_Garc=C3=ADa_de_Soria_Lucena?=
-	<skandalfo@gmail.com>
-Subject: Re: WPC8769L (WEC1020) support in winbond-cir?
-Date: Tue, 22 Oct 2013 11:57:33 +0100
-Message-ID: <CAB+yVgBKrEk-7JioddM_EHPfme=NFDqUQwa+=JH-7yA8-1gYFw@mail.gmail.com>
-References: <CAG-2HqX-TO7h8zJ6F01r2LfRVjQtb0pK_1wKGsYVKzB0zC7TQA@mail.gmail.com>
- <20131015215943.GC26542@hardeman.nu> <CAB+yVgCtvRHRLxP2SRgCAqkCKdyThgr48fOvBFe9YHfz3xArmQ@mail.gmail.com>
- <CAG-2HqVh1hzC0rzft9gD+4zmJpnpH9OKj64vyO4teCrX5wuT+g@mail.gmail.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 1/2] input: touchscreen: fix spelling mistake in TSC/ADC
+ DT binding
+Date: Tue, 22 Oct 2013 07:02:53 -0500
+Message-ID: <20131022120253.GD9340@gimli>
+References: <1382386404-6659-1-git-send-email-balbi@ti.com>
+ <1382386404-6659-2-git-send-email-balbi@ti.com>
+ <52663A58.9070706@linutronix.de>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jTMWTj4UTAEmbWeb"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f180.google.com ([209.85.192.180]:55033 "EHLO
-	mail-pd0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752468Ab3JVK6O convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Oct 2013 06:58:14 -0400
-In-Reply-To: <CAG-2HqVh1hzC0rzft9gD+4zmJpnpH9OKj64vyO4teCrX5wuT+g@mail.gmail.com>
+Received: from comal.ext.ti.com ([198.47.26.152]:53159 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751257Ab3JVMCt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Oct 2013 08:02:49 -0400
+Content-Disposition: inline
+In-Reply-To: <52663A58.9070706@linutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tom Gundersen <teg@jklm.no>
-Cc: =?UTF-8?Q?David_H=C3=A4rdeman?= <david@hardeman.nu>, Sean Young <sean@mess.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Felipe Balbi <balbi@ti.com>, dmitry.torokhov@gmail.com, rob.herring@calxeda.com, pawel.moll@arm.com, mark.rutland@arm.com, swarren@wwwdotorg.org, ijc+devicetree@hellion.org.uk, rob@landley.net, bcousson@baylibre.com, Tony Lindgren <tony@atomide.com>, devicetree@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org
 
-I tried to find the hacked code, but it's not there anymore.
+--jTMWTj4UTAEmbWeb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I have the docs, through, and a rough idea of what would have to be
-done in order to support WEC1020 in winbond-cir.
+Hi,
 
-I cannot tell when I will be able to put time into this, though :-(
+On Tue, Oct 22, 2013 at 10:42:00AM +0200, Sebastian Andrzej Siewior wrote:
+> On 10/21/2013 10:13 PM, Felipe Balbi wrote:
+> > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/=
+touchscreen/ti_am335x_tsc.c
+> > index e1c5300..b61df9d 100644
+> > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > @@ -348,9 +348,16 @@ static int titsc_parse_dt(struct platform_device *=
+pdev,
+> >  	if (err < 0)
+> >  		return err;
+> > =20
+> > -	err =3D of_property_read_u32(node, "ti,coordiante-readouts",
+> > +	/*
+> > +	 * try with new binding first. If it fails, still try with
+> > +	 * bogus, miss-spelled version.
+> > +	 */
+> > +	err =3D of_property_read_u32(node, "ti,coordinate-readouts",
+> >  			&ts_dev->coordinate_readouts);
+> >  	if (err < 0)
+> > +		err =3D of_property_read_u32(node, "ti,coordiante-readouts",
+> > +				&ts_dev->coordinate_readouts);
+> > +	if (err < 0)
+> >  		return err;
+>=20
+> Thanks, very good. Do we keep this fallback for ever or just for a year
+> or two?
 
-
-Best regards,
-
-    Juan.
-
-2013/10/17 Tom Gundersen <teg@jklm.no>:
->
->
-> On Wednesday, October 16, 2013, Juan Jes=C3=BAs Garc=C3=ADa de Soria =
-Lucena
-> <skandalfo@gmail.com> wrote:
->> Hi there,
->>
->> 2013/10/15 David H=C3=A4rdeman <david@hardeman.nu>
->>>
->>> IIRC, Juan had a hacked-up version of the winbond-cir driver workin=
-g on
->>> his hardware back in March (the hardware seems similar enough, basi=
-cally
->>> the WEC1022 adds some additional Wake-On-IR functionality...I seem =
-to
->>> recall).
->>
->> I did indeed look at this at the time. I still have the hardware, sh=
-ould
->> have the hardware docs somewhere, and can look at where I left that =
-hacked
->> code at the time...
->> I really would have liked to merge in the support for it into winbon=
-d-cir,
->> but real life took over.
->>>
->>> But I think Juan is the one to talk to. I don't have the WEC1020
->>> hardware and I don't have his experience of adding support for it..=
-=2E
->>
->> As I said, I still have the hardware around. I might get some time a=
-round
->> this weekend to look at it and come back with at least an idea of wh=
-at is
->> left to be done.
->
-> Thanks for taking a look.
->
-> Cheers,
->
-> Tom
-
-
+That's for DT maintainers to decide but considering DT is an ABI, I
+guess we need to keep for 30 years or so :-p
 
 --=20
-:wq
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+balbi
+
+--jTMWTj4UTAEmbWeb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSZmltAAoJEIaOsuA1yqRERcIQAKOJhR2abNPihxEOg0lnKb7O
+f/8UI3L7RdHadFGBzjP5pxZ2BIwdc78ro9MNwlEeQV61etvnLSjqbGvQv5yuulR3
+HtkIWltn/ILlUSb0tTXecxlN53EyTpRw0d+uFSsv4r/Op1HLBxt39W0Uv8GajQfO
+4cAGhWELOOt3u8/rHE/zG4dBhAXwJ/HNIakebOAoXmyworZLvGxf0xLCVpFopYKB
+EHw8wJDK6CEiV+SeZOzToelAkTYbCdqNRdwFdXpufRWkYRBvan+1bFW9fkW3FscM
+kab3YZpO9DkV4mZvGaF45mfwo+6VhHEnYWz0fsdc1jdLoe0eiZMHrsPrTDpFB4+j
++wC4ToBzEgOJPn6QG0pcgztzbIRXsPVi7/y8kXzyrfG/IGncfFrt+Cm6roxq886g
+4qLjc6zdQtrnhb2xOO8OriPbxptJULzUyst/dzPYGhCAfLCR8VMI70dMrvKLtOaj
+DvbYVWuZsUu+ODFvDD5XWQgxfCXm8vaqbUGX12XUtbKGiraJP5RfT4yShM8j5wbH
+Kc2XSklu3r8tsZVzx9UcHVcxiovX9k2Q2mIgqm9d84RnWsPKjff0oNl7fsnabnvl
+v1JN5kNvf7SfXJJY6ayBm4QkJDqWhRwSuuvooHpdivavMqz+22Gr9UKt59NnbzH+
+APDN6p1u/zPmn58sCtAq
+=C9jL
+-----END PGP SIGNATURE-----
+
+--jTMWTj4UTAEmbWeb--

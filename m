@@ -1,7 +1,7 @@
 From: Sebastian Reichel <sre@debian.org>
-Subject: [PATCHv2 3/3] Input: twl4030-pwrbutton: simplify driver using devm_*
-Date: Wed, 23 Oct 2013 17:01:22 +0200
-Message-ID: <1382540482-12261-4-git-send-email-sre@debian.org>
+Subject: [PATCHv2 2/3] Input: twl4030-pwrbutton: use dev_err for errors
+Date: Wed, 23 Oct 2013 17:01:21 +0200
+Message-ID: <1382540482-12261-3-git-send-email-sre@debian.org>
 References: <1382540482-12261-1-git-send-email-sre@debian.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1382540482-12261-1-git-send-email-sre@debian.org>
@@ -10,52 +10,41 @@ To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com
 Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Sebastian Reichel <sre@debian.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Use managed irq resource to simplify the driver.
+Use dev_err() to output errors instead of dev_dbg().
 
 Signed-off-by: Sebastian Reichel <sre@debian.org>
 ---
- drivers/input/misc/twl4030-pwrbutton.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/input/misc/twl4030-pwrbutton.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-index 3efbb13..49ca7b1 100644
+index a3a0fe3..3efbb13 100644
 --- a/drivers/input/misc/twl4030-pwrbutton.c
 +++ b/drivers/input/misc/twl4030-pwrbutton.c
-@@ -70,7 +70,7 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
- 	pwr->phys = "twl4030_pwrbutton/input0";
- 	pwr->dev.parent = &pdev->dev;
+@@ -60,7 +60,7 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
  
--	err = request_threaded_irq(irq, NULL, powerbutton_irq,
-+	err = devm_request_threaded_irq(&pwr->dev, irq, NULL, powerbutton_irq,
+ 	pwr = input_allocate_device();
+ 	if (!pwr) {
+-		dev_dbg(&pdev->dev, "Can't allocate power button\n");
++		dev_err(&pdev->dev, "Can't allocate power button\n");
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -74,13 +74,13 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
  			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
  			"twl4030_pwrbutton", pwr);
  	if (err < 0) {
-@@ -81,15 +81,13 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
- 	err = input_register_device(pwr);
- 	if (err) {
- 		dev_err(&pdev->dev, "Can't register power button: %d\n", err);
--		goto free_irq;
-+		goto free_input_dev;
+-		dev_dbg(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
++		dev_err(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
+ 		goto free_input_dev;
  	}
  
- 	platform_set_drvdata(pdev, pwr);
+ 	err = input_register_device(pwr);
+ 	if (err) {
+-		dev_dbg(&pdev->dev, "Can't register power button: %d\n", err);
++		dev_err(&pdev->dev, "Can't register power button: %d\n", err);
+ 		goto free_irq;
+ 	}
  
- 	return 0;
- 
--free_irq:
--	free_irq(irq, pwr);
- free_input_dev:
- 	input_free_device(pwr);
- 	return err;
-@@ -98,9 +96,7 @@ free_input_dev:
- static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
- {
- 	struct input_dev *pwr = platform_get_drvdata(pdev);
--	int irq = platform_get_irq(pdev, 0);
- 
--	free_irq(irq, pwr);
- 	input_unregister_device(pwr);
- 
- 	return 0;
 -- 
 1.8.4.rc3

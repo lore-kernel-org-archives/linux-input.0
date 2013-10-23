@@ -1,48 +1,46 @@
-From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCHv4 2/3] Input: twl4030-pwrbutton: use dev_err for errors
-Date: Wed, 23 Oct 2013 12:38:14 -0700
-Message-ID: <1382557094.22433.40.camel@joe-AO722>
-References: <1382550852-11508-1-git-send-email-sre@debian.org>
-	 <1382550852-11508-3-git-send-email-sre@debian.org>
-	 <1382552266.22433.36.camel@joe-AO722>
-	 <20131023193112.GB30437@earth.universe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131023193112.GB30437-SfvFxonMDyemK9LvCR3Hrw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Peter Ujfalusi <peter.ujfalusi-l0cyMroinI0@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sebastian Reichel <sre@debian.org>
+Subject: [PATCHv5 2/3] Input: twl4030-pwrbutton: use dev_err for errors
+Date: Wed, 23 Oct 2013 22:26:41 +0200
+Message-ID: <1382560002-6299-3-git-send-email-sre@debian.org>
+References: <1382560002-6299-1-git-send-email-sre@debian.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ring0.de ([91.143.88.219]:43232 "EHLO smtp.ring0.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751972Ab3JWU04 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Oct 2013 16:26:56 -0400
+In-Reply-To: <1382560002-6299-1-git-send-email-sre@debian.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Sebastian Reichel <sre@debian.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, 2013-10-23 at 21:31 +0200, Sebastian Reichel wrote:
-> On Wed, Oct 23, 2013 at 11:17:46AM -0700, Joe Perches wrote:
-> > On Wed, 2013-10-23 at 19:54 +0200, Sebastian Reichel wrote:
-> > > Use dev_err() to output errors instead of dev_dbg().
-> > []
-> > > diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-> > []
-> > > @@ -60,7 +60,7 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
-> > >  
-> > >  	pwr = input_allocate_device();
-> > >  	if (!pwr) {
-> > > -		dev_dbg(&pdev->dev, "Can't allocate power button\n");
-> > > +		dev_err(&pdev->dev, "Can't allocate power button\n");
-> > >  		return -ENOMEM;
-> > >  	}
-> > 
-> > input_allocate_device uses kzalloc and it will emit a
-> > standardized OOM message along with a dump_stack()
-> > so this dev_err/dev_dbg is redundant and not necessary.
-> 
-> I saw you sent a big patchset changing this for all drivers.
-> Should I drop this patch?
+Use dev_err() to output errors instead of dev_dbg().
 
-I think the 2 other bits of this patch are fine.
-Maybe resend with this section dropped?
+Signed-off-by: Sebastian Reichel <sre@debian.org>
+---
+ drivers/input/misc/twl4030-pwrbutton.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+index a3a0fe3..48639ff 100644
+--- a/drivers/input/misc/twl4030-pwrbutton.c
++++ b/drivers/input/misc/twl4030-pwrbutton.c
+@@ -74,13 +74,13 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
+ 			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
+ 			"twl4030_pwrbutton", pwr);
+ 	if (err < 0) {
+-		dev_dbg(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
++		dev_err(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
+ 		goto free_input_dev;
+ 	}
+ 
+ 	err = input_register_device(pwr);
+ 	if (err) {
+-		dev_dbg(&pdev->dev, "Can't register power button: %d\n", err);
++		dev_err(&pdev->dev, "Can't register power button: %d\n", err);
+ 		goto free_irq;
+ 	}
+ 
+-- 
+1.8.4.rc3
+

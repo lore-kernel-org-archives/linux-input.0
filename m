@@ -1,58 +1,81 @@
-From: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCHv5][ 4/4] ARM: imx_v6_v7_defconfig: Enable tsc2007 support.
-Date: Wed, 23 Oct 2013 14:10:20 +0200
-Message-ID: <1382530220-27881-4-git-send-email-denis@eukrea.com>
-References: <1382530220-27881-1-git-send-email-denis@eukrea.com>
+From: Tommy Will <tommywill2011@gmail.com>
+Subject: Re: [PATCH v4 1/1] Input: Improve the performance of alps
+ v5-protocol's touchpad
+Date: Wed, 23 Oct 2013 21:56:47 +0800
+Message-ID: <CA+F6ckMbXk+2ze2HRx+Wb+YoYoNMOp-Py7JtWdnec9dEVzpaXA@mail.gmail.com>
+References: <1382355711-3211-1-git-send-email-yunkang.tang@cn.alps.com>
+	<20131023122954.2d63b0e85fd963dabde574f4@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1382530220-27881-1-git-send-email-denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, =?UTF-8?q?Eric=20B=C3=A9nard?= <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f48.google.com ([74.125.83.48]:63020 "EHLO
+	mail-ee0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751163Ab3JWN4s convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Oct 2013 09:56:48 -0400
+Received: by mail-ee0-f48.google.com with SMTP id e50so414611eek.21
+        for <linux-input@vger.kernel.org>; Wed, 23 Oct 2013 06:56:47 -0700 (PDT)
+In-Reply-To: <20131023122954.2d63b0e85fd963dabde574f4@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Justin Clift <jclift@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin Cernekee <cernekee@gmail.com>, david turvene <dturvene@dahetral.com>, linux-input@vger.kernel.org, Niels de Vos <ndevos@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>
 
-The eukrea cpuimx35 and cpuimx51 have a tsc2007 touchscreen controller,
-  so we turn it on.
+Hi Justin, Niels & All Fedora Community members,
 
-Cc: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
-Cc: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Lothar Wa=C3=9Fmann <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
-Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Eric B=C3=A9nard <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
----
- arch/arm/configs/imx_v6_v7_defconfig |    1 +
- 1 file changed, 1 insertion(+)
+Thank you so much for your help !
 
-diff --git a/arch/arm/configs/imx_v6_v7_defconfig b/arch/arm/configs/im=
-x_v6_v7_defconfig
-index d8a52a0..23ba17d 100644
---- a/arch/arm/configs/imx_v6_v7_defconfig
-+++ b/arch/arm/configs/imx_v6_v7_defconfig
-@@ -130,6 +130,7 @@ CONFIG_MOUSE_PS2_ELANTECH=3Dy
- CONFIG_INPUT_TOUCHSCREEN=3Dy
- CONFIG_TOUCHSCREEN_EGALAX=3Dy
- CONFIG_TOUCHSCREEN_MC13783=3Dy
-+CONFIG_TOUCHSCREEN_TSC2007=3Dy
- CONFIG_INPUT_MISC=3Dy
- CONFIG_INPUT_MMA8450=3Dy
- CONFIG_SERIO_SERPORT=3Dm
---=20
-1.7.9.5
+Best Regards
+Tommy Will
 
+2013/10/23 Justin Clift <jclift@redhat.com>:
+> On Mon, 21 Oct 2013 19:41:50 +0800
+> Yunkang Tang <tommywill2011@gmail.com> wrote:
+>> Hi all,
+>>
+>> Here is the 4th version of supporting ALPS v5 protocol's device.
+>
+> Niels de Vos, CC'd, was kind enough to build a Fedora 19 kernel
+> with this v4 patch added.  We've been testing it since yesterday.
+>
+> This patch has been successfully tested on:
+>
+>  * Dell Inspiron 17R SE / Inspiron 7720
+>  * Dell Vostro 3360
+>  * Fujitsu Lifebook AH532
+>
+> With the v4 patch, the touchpad:
+>
+> * is recognised as a touchpad
+> * both KDE and Gnome can control it
+> * Both hardware buttons (left/right) work
+> * Both 1 & 2 finger scrolling works
+>
+> So, it seems good here. :)
+>
+> From my point of view, I would be happy to see this
+> patch applied, and you're welcome to use:
+>
+>   Tested-by: Justin Clift <jclift@redhat.com>
+>
+> Side note - Many thanks to the Fedora Community members
+> who tested this v4 patch on their hardware and reported
+> back. :)
+>
+> * =C3=96zg=C3=BCr G=C3=BCndo=C4=9Fan
+> * Stanislav Datskevich
+> * Thane
+> * Alexander Volovics
+>
+> Regards and best wishes,
+>
+> Justin Clift
+>
+> --
+> Justin Clift <jclift@redhat.com>
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

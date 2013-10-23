@@ -1,97 +1,85 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Sebastian Reichel <sre@debian.org>
 Subject: Re: [PATCHv5 1/3] Input: twl4030-pwrbutton - add device tree support
-Date: Wed, 23 Oct 2013 17:24:14 -0500
-Message-ID: <52684C8E.6080802@gmail.com>
-References: <1382560002-6299-1-git-send-email-sre@debian.org> <1382560002-6299-2-git-send-email-sre@debian.org>
+Date: Thu, 24 Oct 2013 00:49:42 +0200
+Message-ID: <20131023224940.GA19522@earth.universe>
+References: <1382560002-6299-1-git-send-email-sre@debian.org>
+ <1382560002-6299-2-git-send-email-sre@debian.org>
+ <52684C8E.6080802@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1382560002-6299-2-git-send-email-sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>, Sebastian Reichel <sre-GFxCN5SEZAc@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Peter Ujfalusi <peter.ujfalusi-l0cyMroinI0@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <52684C8E.6080802@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robherring2@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 10/23/2013 03:26 PM, Sebastian Reichel wrote:
-> Add device tree support for twl4030 power button driver.
-> 
-> Signed-off-by: Sebastian Reichel <sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-> ---
->  .../devicetree/bindings/input/twl4030-pwrbutton.txt      | 13 +++++++++++++
->  drivers/input/misc/twl4030-pwrbutton.c                   | 16 ++++++++++++----
->  2 files changed, 25 insertions(+), 4 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-> new file mode 100644
-> index 0000000..945ec74
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-> @@ -0,0 +1,13 @@
-> +* TWL4030's pwrbutton device tree bindings
-> +
-> +Required SoC Specific Properties:
-> +- compatible: should be one of the following
-> +   - "ti,twl4030-pwrbutton": For controllers compatible with twl4030
-> +- interrupt: should be one of the following
-> +   - <8>: For controllers compatible with twl4030
-> +
-> +Example:
-> +	twl_pwrbutton: pwrbutton {
-> +		compatible = "ti,twl4030-pwrbutton";
-> +		interrupts = <8>;
-> +	};
 
-So a twl4030 device is only a power button? DT should describe the h/w
-not a node for a sub-function of a device.
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Rob
+On Wed, Oct 23, 2013 at 05:24:14PM -0500, Rob Herring wrote:
+> So a twl4030 device is only a power button? DT should describe the h/w
+> not a node for a sub-function of a device.
 
-> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-> index b9a05fd..a3a0fe3 100644
-> --- a/drivers/input/misc/twl4030-pwrbutton.c
-> +++ b/drivers/input/misc/twl4030-pwrbutton.c
-> @@ -52,7 +52,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
->  	return IRQ_HANDLED;
->  }
->  
-> -static int __init twl4030_pwrbutton_probe(struct platform_device *pdev)
-> +static int twl4030_pwrbutton_probe(struct platform_device *pdev)
->  {
->  	struct input_dev *pwr;
->  	int irq = platform_get_irq(pdev, 0);
-> @@ -106,16 +106,24 @@ static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> +#if IS_ENABLED(CONFIG_OF)
-> +static const struct of_device_id twl4030_pwrbutton_dt_match_table[] = {
-> +       { .compatible = "ti,twl4030-pwrbutton" },
-> +       {},
-> +};
-> +MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
-> +#endif
-> +
->  static struct platform_driver twl4030_pwrbutton_driver = {
-> +	.probe		= twl4030_pwrbutton_probe,
->  	.remove		= __exit_p(twl4030_pwrbutton_remove),
->  	.driver		= {
->  		.name	= "twl4030_pwrbutton",
->  		.owner	= THIS_MODULE,
-> +		.of_match_table = of_match_ptr(twl4030_pwrbutton_dt_match_table),
->  	},
->  };
-> -
-> -module_platform_driver_probe(twl4030_pwrbutton_driver,
-> -			twl4030_pwrbutton_probe);
-> +module_platform_driver(twl4030_pwrbutton_driver);
->  
->  MODULE_ALIAS("platform:twl4030_pwrbutton");
->  MODULE_DESCRIPTION("Triton2 Power Button");
-> 
+No. TWL4030 is a companion chip for the OMAP3 processor. It provides
+miscellaneous functionality, e.g.:
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ * RTC
+ * Watchdog
+ * Regulators
+ * Keypad Matrix
+ * USB
+ * Audio
+ * Vibrator
+ * GPIO
+ * ...
+
+One part of the functionality is the power button. The patch
+assumes, that the twl4030-pwrbutton node is used as follows:
+
+twl {
+    /* ... common stuff ... */
+
+    pwrbutton {
+        compatible = "ti,twl4030-pwrbutton";
+		interrupts = <8>;
+    };
+};
+
+See also:
+* Documentation/devicetree/bindings/mfd/twl-familly.txt
+* Documentation/devicetree/bindings/watchdog/twl4030-wdt.txt
+* Documentation/devicetree/bindings/sound/omap-twl4030.txt
+* Documentation/devicetree/bindings/mfd/twl4030-power.txt
+* Documentation/devicetree/bindings/mfd/twl4030-audio.txt
+* Documentation/devicetree/bindings/gpio/gpio-twl4030.txt
+
+-- Sebastian
+
+--cNdxnHkX5QqsyA0e
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBCAAGBQJSaFKEAAoJENju1/PIO/qaThIP/RIh/gXpohEecXYYShzhNfoz
+LVoMrx876PcWtzUl79aXWKu5YvrWio2H2yoc/5VcS3zQTUEIWaXDRowVQ/Zm0ltb
+Up+tNwP3IKQBjLXTAY8cUqXyqIerA9lxHlSSd2fEfdp8b5GwxKxBPRm7IZ2KZ3yO
+YWvnPHXLcV6mTkthNQf4WHUUW4AmqRdwdtzbn4ZuqTwv5IPygUz3YdwVw0J0EXVK
+fGdQN9PAGJ09APwYyTDbSOmmqG2mWqadr8OQiaHddrjDBZQ9SBFHoUovu8LfDJ92
+4O5Dx1cG3xKVut5UXU1mvexLU/QHKzfCnc5lspRRwHAbzniH0zm5Rmcf7p3kK5ZF
+9sSLGqJF2lqSJB3gDotmIanPXXggcF/Si21GBJQkaeW8mmYl7mi4Wa89dVyukZDE
+1acFbTOrUbqa+W9TxyiPuQmbotVdus+RJi/aholbCC1HQK1xvJ3xEqNXT6rP43Og
+6igAjKIgbY4TP2vb4wVrJdHpw8FVPtg0MqOF0tdmFCmQSzuXKMblzMUyhA+l+sq7
+xB3o0kp8mrRGaF+Vmz4heuDDkhZoDAXcQ2LXl5e7iBXTyLrQ9IvbnkQNJbsxQxtx
+T6nXURxqTD7wn2d5UMO7RvBm760Wa7rCa6PUPQWBZh54oXqkjGaLeq8gzXs/k+3u
+OzlPrnZu2ulaaAcV2YEU
+=VSpi
+-----END PGP SIGNATURE-----
+
+--cNdxnHkX5QqsyA0e--

@@ -1,69 +1,38 @@
-From: Justin Clift <jclift@redhat.com>
-Subject: Re: [PATCH v4 1/1] Input: Improve the performance of alps
- v5-protocol's touchpad
-Date: Wed, 23 Oct 2013 12:29:54 +0100
-Message-ID: <20131023122954.2d63b0e85fd963dabde574f4@redhat.com>
-References: <1382355711-3211-1-git-send-email-yunkang.tang@cn.alps.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Sebastian Reichel <sre@debian.org>
+Subject: [PATCHv2 0/3] DT Support for TWL4030 power button
+Date: Wed, 23 Oct 2013 17:01:19 +0200
+Message-ID: <1382540482-12261-1-git-send-email-sre@debian.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:3382 "EHLO mx1.redhat.com"
+Received: from ring0.de ([91.143.88.219]:42023 "EHLO smtp.ring0.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750936Ab3JWOCa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Oct 2013 10:02:30 -0400
-In-Reply-To: <1382355711-3211-1-git-send-email-yunkang.tang@cn.alps.com>
+	id S1751416Ab3JWPBg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Oct 2013 11:01:36 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yunkang Tang <tommywill2011@gmail.com>
-Cc: dmitry.torokhov@gmail.com, cernekee@gmail.com, dturvene@dahetral.com, linux-input@vger.kernel.org, ndevos@redhat.com, yunkang.tang@cn.alps.com
+To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Sebastian Reichel <sre@debian.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Mon, 21 Oct 2013 19:41:50 +0800
-Yunkang Tang <tommywill2011@gmail.com> wrote:
-> Hi all,
->=20
-> Here is the 4th version of supporting ALPS v5 protocol's device.
+Hi,
 
-Niels de Vos, CC'd, was kind enough to build a Fedora 19 kernel
-with this v4 patch added.  We've been testing it since yesterday.
+This is the second iteration of DT support for the TWL4030
+power button.
 
-This patch has been successfully tested on:
+Changes since v1 [0]:
+ * Simplify OF handling of twl4030_pwrbutton_dt_match_table
+ * Remove Patch 4 (queued by Benoit)
 
- * Dell Inspiron 17R SE / Inspiron 7720
- * Dell Vostro 3360
- * Fujitsu Lifebook AH532
+[0] https://lkml.org/lkml/2013/10/22/151
 
-With the v4 patch, the touchpad:
+-- Sebastian
 
-* is recognised as a touchpad
-* both KDE and Gnome can control it
-* Both hardware buttons (left/right) work
-* Both 1 & 2 finger scrolling works
+Sebastian Reichel (3):
+  Input: twl4030-pwrbutton - add device tree support
+  Input: twl4030-pwrbutton: use dev_err for errors
+  Input: twl4030-pwrbutton: simplify driver using devm_*
 
-So, it seems good here. :)
+ drivers/input/misc/twl4030-pwrbutton.c | 30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
-=46rom my point of view, I would be happy to see this
-patch applied, and you're welcome to use:
+-- 
+1.8.4.rc3
 
-  Tested-by: Justin Clift <jclift@redhat.com>
-
-Side note - Many thanks to the Fedora Community members
-who tested this v4 patch on their hardware and reported
-back. :)
-
-* =C3=96zg=C3=BCr G=C3=BCndo=C4=9Fan
-* Stanislav Datskevich
-* Thane
-* Alexander Volovics
-
-Regards and best wishes,
-
-Justin Clift
-
---=20
-Justin Clift <jclift@redhat.com>
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

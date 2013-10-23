@@ -1,77 +1,48 @@
-From: Sebastian Reichel <sre@debian.org>
+From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
 Subject: Re: [PATCHv4 2/3] Input: twl4030-pwrbutton: use dev_err for errors
-Date: Wed, 23 Oct 2013 21:31:12 +0200
-Message-ID: <20131023193112.GB30437@earth.universe>
+Date: Wed, 23 Oct 2013 12:38:14 -0700
+Message-ID: <1382557094.22433.40.camel@joe-AO722>
 References: <1382550852-11508-1-git-send-email-sre@debian.org>
- <1382550852-11508-3-git-send-email-sre@debian.org>
- <1382552266.22433.36.camel@joe-AO722>
+	 <1382550852-11508-3-git-send-email-sre@debian.org>
+	 <1382552266.22433.36.camel@joe-AO722>
+	 <20131023193112.GB30437@earth.universe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="kXdP64Ggrk/fb43R"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ring0.de ([91.143.88.219]:43035 "EHLO smtp.ring0.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751719Ab3JWTbZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Oct 2013 15:31:25 -0400
-Content-Disposition: inline
-In-Reply-To: <1382552266.22433.36.camel@joe-AO722>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20131023193112.GB30437-SfvFxonMDyemK9LvCR3Hrw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Peter Ujfalusi <peter.ujfalusi-l0cyMroinI0@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
+On Wed, 2013-10-23 at 21:31 +0200, Sebastian Reichel wrote:
+> On Wed, Oct 23, 2013 at 11:17:46AM -0700, Joe Perches wrote:
+> > On Wed, 2013-10-23 at 19:54 +0200, Sebastian Reichel wrote:
+> > > Use dev_err() to output errors instead of dev_dbg().
+> > []
+> > > diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+> > []
+> > > @@ -60,7 +60,7 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
+> > >  
+> > >  	pwr = input_allocate_device();
+> > >  	if (!pwr) {
+> > > -		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+> > > +		dev_err(&pdev->dev, "Can't allocate power button\n");
+> > >  		return -ENOMEM;
+> > >  	}
+> > 
+> > input_allocate_device uses kzalloc and it will emit a
+> > standardized OOM message along with a dump_stack()
+> > so this dev_err/dev_dbg is redundant and not necessary.
+> 
+> I saw you sent a big patchset changing this for all drivers.
+> Should I drop this patch?
 
---kXdP64Ggrk/fb43R
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think the 2 other bits of this patch are fine.
+Maybe resend with this section dropped?
 
-On Wed, Oct 23, 2013 at 11:17:46AM -0700, Joe Perches wrote:
-> On Wed, 2013-10-23 at 19:54 +0200, Sebastian Reichel wrote:
-> > Use dev_err() to output errors instead of dev_dbg().
-> []
-> > diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/mis=
-c/twl4030-pwrbutton.c
-> []
-> > @@ -60,7 +60,7 @@ static int twl4030_pwrbutton_probe(struct platform_de=
-vice *pdev)
-> > =20
-> >  	pwr =3D input_allocate_device();
-> >  	if (!pwr) {
-> > -		dev_dbg(&pdev->dev, "Can't allocate power button\n");
-> > +		dev_err(&pdev->dev, "Can't allocate power button\n");
-> >  		return -ENOMEM;
-> >  	}
->=20
-> input_allocate_device uses kzalloc and it will emit a
-> standardized OOM message along with a dump_stack()
-> so this dev_err/dev_dbg is redundant and not necessary.
-
-I saw you sent a big patchset changing this for all drivers.
-Should I drop this patch?
-
--- Sebastian
-
---kXdP64Ggrk/fb43R
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBCAAGBQJSaCQAAAoJENju1/PIO/qa6m8P/3pSlYlEIrdc/ZCFHkRKfOIP
-Z1TsVJLGNnXJ3uY/PEU2/fFzWBilSgrH8eK0Iuv0SFig69hJnGYw+/BWr102ACQ/
-GIPJOrFM9zlCN2qgpN0rZ4i7/yaK+JKd4WlyiroRnrcC9sWPmL+b2uw0hRaDi5IV
-n0Ib9C4Oi7V0J76HGz1Tzp0lT/+Z2DBfK6Y7bRqo7vLreLn1khTfjXHIGbR3e9th
-wLdw3Pj2xHHfMj96xdkzNsZLvKUleKN3D7tZHh2PLaEKNZTn3eZZblScFsculkPz
-Dopuc7Kjy1SQGMPy7ZY/JPCY9ZeA7HDH3zE/90kcBJF+xUROUCALq/jxovw9i3NM
-Ppp0tm0+oGxOcjTSwKZTKx0CiRJ+e4TZZcMDwIJw3o3iOSLY7+JatD6hSAoDnPcw
-nEMgYQJgP4+ZxlCG/2Da+ZV5u0GR7sTUaf998oBFJ8IwtLRdxkUsiaElfu4KLtk8
-z6OWr1/aZ5w3rMTkVI7yriwyZjKJfi3jYFOzaQnZsJdPZ23N7U1nezXUgGWEfgZU
-4MbNIreE8f8MnEUALe1DGnyE2cGSe1bdYd0D8mEVRry3VAAyJLmYWkQ9EWyNlsmN
-LLDGymdDyBfJcMbytXWyXiA9ob7iMUgorGkgXzS8d6m8nYqNd+GdLliyx8Tl7Pft
-v9y91ej4ZRreyun7EQwB
-=+Y67
------END PGP SIGNATURE-----
-
---kXdP64Ggrk/fb43R--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

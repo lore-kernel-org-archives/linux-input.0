@@ -1,239 +1,97 @@
-From: Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCHv5][ 1/4] Input: tsc2007: Add device tree support.
-Date: Wed, 23 Oct 2013 17:18:27 -0500
-Message-ID: <52684B33.6040109@gmail.com>
-References: <1382530220-27881-1-git-send-email-denis@eukrea.com>
+From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCHv5 1/3] Input: twl4030-pwrbutton - add device tree support
+Date: Wed, 23 Oct 2013 17:24:14 -0500
+Message-ID: <52684C8E.6080802@gmail.com>
+References: <1382560002-6299-1-git-send-email-sre@debian.org> <1382560002-6299-2-git-send-email-sre@debian.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f172.google.com ([74.125.82.172]:34715 "EHLO
-	mail-we0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752989Ab3JWWSb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Oct 2013 18:18:31 -0400
-In-Reply-To: <1382530220-27881-1-git-send-email-denis@eukrea.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1382560002-6299-2-git-send-email-sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>, Sebastian Reichel <sre-GFxCN5SEZAc@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Peter Ujfalusi <peter.ujfalusi-l0cyMroinI0@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Denis Carikli <denis@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <rob.herring@calxeda.com>, Thierry Reding <thierry.reding@gmail.com>, =?UTF-8?B?RXJpYyBCw6luYXJk?= <eric@eukrea.com>, linux-input@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>, linux-arm-kernel@lists.infradead.org, =?UTF-8?B?TG90aGFyIFdhw59tYW5u?= <LW@KARO-electronics.de>
 
-On 10/23/2013 07:10 AM, Denis Carikli wrote:
-> Cc: Rob Herring <rob.herring@calxeda.com>
-> Cc: Pawel Moll <pawel.moll@arm.com>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Stephen Warren <swarren@wwwdotorg.org>
-> Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-> Cc: devicetree@vger.kernel.org
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: Sascha Hauer <kernel@pengutronix.de>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
-> Cc: Eric B=C3=A9nard <eric@eukrea.com>
-> Signed-off-by: Denis Carikli <denis@eukrea.com>
+On 10/23/2013 03:26 PM, Sebastian Reichel wrote:
+> Add device tree support for twl4030 power button driver.
+> 
+> Signed-off-by: Sebastian Reichel <sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
 > ---
-> ChangeLog v4->v5:
-> - Most of the "if (ts->of)" were replaced by wrapping them in the
->   tsc2007_is_pen_down_valid and tsc2007_is_pen_down functions.
-> - Some whitespace cleanups.
-> - The devm_kzalloc call was fixed to make it compile.
-> ---
->  .../bindings/input/touchscreen/tsc2007.txt         |   44 +++++
->  drivers/input/touchscreen/tsc2007.c                |  194 ++++++++++=
-+++++-----
->  2 files changed, 197 insertions(+), 41 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscre=
-en/tsc2007.txt
->=20
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc2=
-007.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2007.t=
-xt
+>  .../devicetree/bindings/input/twl4030-pwrbutton.txt      | 13 +++++++++++++
+>  drivers/input/misc/twl4030-pwrbutton.c                   | 16 ++++++++++++----
+>  2 files changed, 25 insertions(+), 4 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
 > new file mode 100644
-> index 0000000..fadd3f6
+> index 0000000..945ec74
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
-> @@ -0,0 +1,44 @@
-> +* Texas Instruments tsc2007 touchscreen controller
+> +++ b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+> @@ -0,0 +1,13 @@
+> +* TWL4030's pwrbutton device tree bindings
 > +
-> +Required properties:
-> +- compatible: must be "ti,tsc2007".
-> +- reg: I2C address of the chip.
-> +- pinctrl-0: Should specify pin control groups used for this control=
-ler
-> +  (see pinctrl bindings[0]).
-> +- pinctrl-names: Should contain only one value - "default"
-> +  (see pinctrl bindings[0]).
-
-I'm confused why an i2c slave needs pinctl binding?
-
-> +- interrupt-parent: the phandle for the interrupt controller
-> +  (see interrupt binding[1]).
-> +- interrupts: interrupt to which the chip is connected
-> +  (see interrupt binding[1]).
-> +- ti,x-plate-ohms: X-plate resistance in ohms.
-> +
-> +Optional properties:
-> +- gpios: the interrupt gpio the chip is connected to (trough the pen=
-irq pin)
-> +  (see GPIO binding[2] for more details).
-> +- max-rt: maximum pressure.
-> +- fuzzy: specifies the fuzz value that is used to filter noise from =
-the event
-> +  stream.
-> +- poll-period: how much time to wait(in millisecond) before reading =
-again the
-> +  values from the tsc2007.
-> +
-> +[0]: Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
-> +[1]: Documentation/devicetree/bindings/interrupt-controller/interrup=
-ts.txt
-> +[2]: Documentation/devicetree/bindings/gpio/gpio.txt
+> +Required SoC Specific Properties:
+> +- compatible: should be one of the following
+> +   - "ti,twl4030-pwrbutton": For controllers compatible with twl4030
+> +- interrupt: should be one of the following
+> +   - <8>: For controllers compatible with twl4030
 > +
 > +Example:
-> +	&i2c1 {
-> +		/* ... */
-> +		tsc2007@49 {
-> +			compatible =3D "ti,tsc2007";
-> +			reg =3D <0x49>;
-> +			pinctrl-names =3D "default";
-> +			pinctrl-0 =3D <&pinctrl_tsc2007_1>;
-> +			interrupt-parent =3D <&gpio4>;
-> +			interrupts =3D <0x0 0x8>;
-> +			gpios =3D <&gpio4 0 0>;
-> +			ti,x-plate-ohms =3D <180>;
-> +		};
-> +
-> +		/* ... */
+> +	twl_pwrbutton: pwrbutton {
+> +		compatible = "ti,twl4030-pwrbutton";
+> +		interrupts = <8>;
 > +	};
-> diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touc=
-hscreen/tsc2007.c
-> index 0b67ba4..0625fe1 100644
-> --- a/drivers/input/touchscreen/tsc2007.c
-> +++ b/drivers/input/touchscreen/tsc2007.c
-> @@ -26,6 +26,9 @@
->  #include <linux/interrupt.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c/tsc2007.h>
-> +#include <linux/of_device.h>
-> +#include <linux/of.h>
-> +#include <linux/of_gpio.h>
-> =20
->  #define TSC2007_MEASURE_TEMP0		(0x0 << 4)
->  #define TSC2007_MEASURE_AUX		(0x2 << 4)
-> @@ -74,7 +77,10 @@ struct tsc2007 {
->  	u16			max_rt;
->  	unsigned long		poll_delay;
->  	unsigned long		poll_period;
-> +	int			fuzzy;
-> +	char			of;
-> =20
-> +	unsigned		gpio;
->  	int			irq;
-> =20
->  	wait_queue_head_t	wait;
-> @@ -84,6 +90,11 @@ struct tsc2007 {
->  	void			(*clear_penirq)(void);
->  };
-> =20
-> +static int tsc2007_get_pendown_state_dt(struct tsc2007 *ts)
-> +{
-> +	return !gpio_get_value(ts->gpio);
-> +}
-> +
->  static inline int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd)
->  {
->  	s32 data;
-> @@ -142,6 +153,14 @@ static u32 tsc2007_calculate_pressure(struct tsc=
-2007 *tsc, struct ts_event *tc)
->  	return rt;
->  }
-> =20
-> +static bool tsc2007_is_pen_down_valid(struct tsc2007 *ts)
-> +{
-> +	if (ts->of)
-> +		return gpio_is_valid(ts->gpio);
-> +	else
-> +		return ts->get_pendown_state ? true : false;
-> +}
-> +
->  static bool tsc2007_is_pen_down(struct tsc2007 *ts)
->  {
->  	/*
-> @@ -158,10 +177,13 @@ static bool tsc2007_is_pen_down(struct tsc2007 =
-*ts)
->  	 * to fall back on the pressure reading.
->  	 */
-> =20
-> -	if (!ts->get_pendown_state)
-> +	if (!tsc2007_is_pen_down_valid(ts))
->  		return true;
-> =20
-> -	return ts->get_pendown_state();
-> +	if (ts->of)
-> +		return tsc2007_get_pendown_state_dt(ts);
-> +	else
-> +		return ts->get_pendown_state();
->  }
-> =20
->  static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
-> @@ -178,7 +200,7 @@ static irqreturn_t tsc2007_soft_irq(int irq, void=
- *handle)
-> =20
->  		rt =3D tsc2007_calculate_pressure(ts, &tc);
-> =20
-> -		if (rt =3D=3D 0 && !ts->get_pendown_state) {
-> +		if(!rt && !tsc2007_is_pen_down_valid(ts)) {
->  			/*
->  			 * If pressure reported is 0 and we don't have
->  			 * callback to check pendown state, we have to
-> @@ -228,7 +250,7 @@ static irqreturn_t tsc2007_hard_irq(int irq, void=
- *handle)
->  {
->  	struct tsc2007 *ts =3D handle;
-> =20
-> -	if (!ts->get_pendown_state || likely(ts->get_pendown_state()))
-> +	if (tsc2007_is_pen_down(ts))
->  		return IRQ_WAKE_THREAD;
-> =20
->  	if (ts->clear_penirq)
-> @@ -273,34 +295,65 @@ static void tsc2007_close(struct input_dev *inp=
-ut_dev)
->  	tsc2007_stop(ts);
->  }
-> =20
-> -static int tsc2007_probe(struct i2c_client *client,
-> -				   const struct i2c_device_id *id)
-> +#ifdef CONFIG_OF
-> +static int tsc2007_probe_dt(struct i2c_client *client, struct tsc200=
-7 *ts,
-> +			    struct device_node *np)
->  {
-> -	struct tsc2007 *ts;
-> -	struct tsc2007_platform_data *pdata =3D client->dev.platform_data;
-> -	struct input_dev *input_dev;
-> -	int err;
-> -
-> -	if (!pdata) {
-> -		dev_err(&client->dev, "platform data is required!\n");
-> +	int err =3D 0;
-> +	u32 val32;
-> +	u64 val64;
-> +
-> +	if (!of_property_read_u32(np, "max-rt", &val32))
-> +		ts->max_rt =3D val32;
-> +	else
-> +		ts->max_rt =3D MAX_12BIT;
 
-These functions don't overwrite the value if the property isn't present=
-=2E
-So you can set the values to the defaults and just pass the variable
-(i.e. ts->max_rt) to of_property_read_u32 directly.
+So a twl4030 device is only a power button? DT should describe the h/w
+not a node for a sub-function of a device.
 
 Rob
 
+> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+> index b9a05fd..a3a0fe3 100644
+> --- a/drivers/input/misc/twl4030-pwrbutton.c
+> +++ b/drivers/input/misc/twl4030-pwrbutton.c
+> @@ -52,7 +52,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -static int __init twl4030_pwrbutton_probe(struct platform_device *pdev)
+> +static int twl4030_pwrbutton_probe(struct platform_device *pdev)
+>  {
+>  	struct input_dev *pwr;
+>  	int irq = platform_get_irq(pdev, 0);
+> @@ -106,16 +106,24 @@ static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +#if IS_ENABLED(CONFIG_OF)
+> +static const struct of_device_id twl4030_pwrbutton_dt_match_table[] = {
+> +       { .compatible = "ti,twl4030-pwrbutton" },
+> +       {},
+> +};
+> +MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
+> +#endif
+> +
+>  static struct platform_driver twl4030_pwrbutton_driver = {
+> +	.probe		= twl4030_pwrbutton_probe,
+>  	.remove		= __exit_p(twl4030_pwrbutton_remove),
+>  	.driver		= {
+>  		.name	= "twl4030_pwrbutton",
+>  		.owner	= THIS_MODULE,
+> +		.of_match_table = of_match_ptr(twl4030_pwrbutton_dt_match_table),
+>  	},
+>  };
+> -
+> -module_platform_driver_probe(twl4030_pwrbutton_driver,
+> -			twl4030_pwrbutton_probe);
+> +module_platform_driver(twl4030_pwrbutton_driver);
+>  
+>  MODULE_ALIAS("platform:twl4030_pwrbutton");
+>  MODULE_DESCRIPTION("Triton2 Power Button");
+> 
+
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

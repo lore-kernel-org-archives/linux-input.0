@@ -1,7 +1,7 @@
 From: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCHv5][ 2/4] ARM: dts: cpuimx51 Add touchscreen support.
-Date: Wed, 23 Oct 2013 14:10:18 +0200
-Message-ID: <1382530220-27881-2-git-send-email-denis@eukrea.com>
+Subject: [PATCHv5][ 3/4] ARM: dts: cpuimx35 Add touchscreen support.
+Date: Wed, 23 Oct 2013 14:10:19 +0200
+Message-ID: <1382530220-27881-3-git-send-email-denis@eukrea.com>
 References: <1382530220-27881-1-git-send-email-denis@eukrea.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -27,27 +27,27 @@ Cc: Lothar Wa=C3=9Fmann <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
 Cc: Eric B=C3=A9nard <eric-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
 Signed-off-by: Denis Carikli <denis-fO0SIAKYzcbQT0dZR+AlfA@public.gmane.org>
 ---
- arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi |   11 +++++++++++
+ arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi |   11 +++++++++++
  1 file changed, 11 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi b/arch/arm/bo=
-ot/dts/imx51-eukrea-cpuimx51.dtsi
-index 8638656..34ca8d3a 100644
---- a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
-+++ b/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
-@@ -42,6 +42,17 @@
+diff --git a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi b/arch/arm/bo=
+ot/dts/imx35-eukrea-cpuimx35.dtsi
+index 2c2d4cd..a22230b 100644
+--- a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
++++ b/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
+@@ -41,6 +41,17 @@
  		compatible =3D "nxp,pcf8563";
  		reg =3D <0x51>;
  	};
 +
-+	tsc2007: tsc2007@49 {
++	tsc2007: tsc2007@48 {
 +		compatible =3D "ti,tsc2007";
-+		reg =3D <0x49>;
++		reg =3D <0x48>;
 +		pinctrl-names =3D "default";
 +		pinctrl-0 =3D <&pinctrl_tsc2007_1>;
-+		interrupt-parent =3D <&gpio4>;
-+		interrupts =3D <0x0 0x8>;
-+		gpios =3D <&gpio4 0 0>;
++		interrupt-parent =3D <&gpio3>;
++		interrupts =3D <0x2 0x8>;
++		gpios =3D <&gpio3 2 0>;
 +		ti,x-plate-ohms =3D <180>;
 +	};
  };

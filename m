@@ -1,74 +1,40 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCHv3 3/3] Input: twl4030-pwrbutton: simplify driver using
- devm_*
-Date: Wed, 23 Oct 2013 12:44:20 -0500
-Message-ID: <20131023174419.GH25954@gimli>
-References: <1382546835-20212-1-git-send-email-sre@debian.org>
- <1382546835-20212-4-git-send-email-sre@debian.org>
- <20131023172524.GE24448@blackmetal.musicnaut.iki.fi>
-Reply-To: <balbi@ti.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9iyR+p8Z2cn535Lj"
+From: Sebastian Reichel <sre@debian.org>
+Subject: [PATCHv4 0/3] DT Support for TWL4030 power button
+Date: Wed, 23 Oct 2013 19:54:09 +0200
+Message-ID: <1382550852-11508-1-git-send-email-sre@debian.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:46902 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751054Ab3JWRoO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Oct 2013 13:44:14 -0400
-Content-Disposition: inline
-In-Reply-To: <20131023172524.GE24448@blackmetal.musicnaut.iki.fi>
+Received: from ring0.de ([91.143.88.219]:42698 "EHLO smtp.ring0.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751363Ab3JWRyX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Oct 2013 13:54:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Sebastian Reichel <sre@debian.org>, Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Sebastian Reichel <sre@debian.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
---9iyR+p8Z2cn535Lj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Wed, Oct 23, 2013 at 08:25:24PM +0300, Aaro Koskinen wrote:
-> Hi,
->=20
-> On Wed, Oct 23, 2013 at 06:47:15PM +0200, Sebastian Reichel wrote:
-> >  static int __exit twl4030_pwrbutton_remove(struct platform_device *pde=
-v)
-> >  {
-> >  	struct input_dev *pwr =3D platform_get_drvdata(pdev);
-> > -	int irq =3D platform_get_irq(pdev, 0);
-> > =20
-> > -	free_irq(irq, pwr);
-> >  	input_unregister_device(pwr);
->=20
-> The same bug still exists. You don't need to unregister manually any more,
-> this whole function can be just reduced to "return 0;".
+This is the fourth iteration of DT support for the TWL4030
+power button.
 
-then it can be removed altogether, no ?
+Changes since v3 [0]:
+* remove twl4030_pwrbutton_remove function, which is no
+  longer needed after devm_ conversion.
 
---=20
-balbi
+[0] https://lkml.org/lkml/2013/10/23/353
 
---9iyR+p8Z2cn535Lj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+-- Sebastian
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+Sebastian Reichel (3):
+  Input: twl4030-pwrbutton - add device tree support
+  Input: twl4030-pwrbutton: use dev_err for errors
+  Input: twl4030-pwrbutton: simplify driver using devm_*
 
-iQIcBAEBAgAGBQJSaArzAAoJEIaOsuA1yqREYOwP/3PVEzbBfW/1fQHrll8mKHHe
-P2kmqyb5JwBIv89PwHVQ74gJYDKCU/p0gRMyywrYwUAT9mQ+77amtWV/1RXPdzRG
-//UfSl4+s2gFmigk8aY/ob0JwYPWib+r+IaAb9P+0IX/OvlvhV6S0FQYc5PHIbuv
-IdJ7FPsObQxD/VLpaN+7jzzcCuHX0Je4FATah/2XVbHSx7Fmt3ZN83Xd0Xb8f7T/
-/8+ktign0YRgHYo4sJQrvO2NzIt0RL7xecjXIRvZRlqjT+G9hUDVNl0DQn15u6g6
-58ALl2uRTPM4nEbYHcXDQPYDkQfwHwB1/udfjf8Ihuq7kqZUNfU5Pf2F0FR0OrIM
-iFTVHHlBRPfdskcOPOmUr7brjElDhvW8B4yIwOEq/s8/9SdCrfkUviBKnfHI5FF2
-lLFDZv1wtcxHvuf8ldoaueslc0gboKElQH7GdCdsumbgo21Z+rNTCRJEs8xWNE79
-BS+uuModXMa7Iaa3qhlx0dr8Y6WBoXpIUay1f48n79ssVdoCbIuvG4csBsdgbg3H
-ithAjwWNh/pkdVVgPEuVg/PVb8wNc6O4cf3DlJmVyqTTyqWp90W/ki0Yexhcmib/
-NWuKH9yxPazLk3UwU8O3quTFnejzTpYjwQ6AO/sj+k8GbyEXctQwAHYEHRNkS+9v
-N44VCo4YHWy14XD6wle7
-=rUCi
------END PGP SIGNATURE-----
+ .../bindings/input/twl4030-pwrbutton.txt           | 13 ++++++
+ drivers/input/misc/twl4030-pwrbutton.c             | 46 +++++++++-------------
+ 2 files changed, 31 insertions(+), 28 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
 
---9iyR+p8Z2cn535Lj--
+-- 
+1.8.4.rc3
+

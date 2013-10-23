@@ -1,50 +1,60 @@
-From: Sebastian Reichel <sre@debian.org>
-Subject: [PATCHv2 2/3] Input: twl4030-pwrbutton: use dev_err for errors
-Date: Wed, 23 Oct 2013 17:01:21 +0200
-Message-ID: <1382540482-12261-3-git-send-email-sre@debian.org>
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCHv2 1/3] Input: twl4030-pwrbutton - add device tree support
+Date: Wed, 23 Oct 2013 17:09:36 +0100
+Message-ID: <20131023160934.GA6042@kartoffel>
 References: <1382540482-12261-1-git-send-email-sre@debian.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1382540482-12261-1-git-send-email-sre@debian.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Sebastian Reichel <sre@debian.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+ <1382540482-12261-2-git-send-email-sre@debian.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:63493 "EHLO
+	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750847Ab3JWQKf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Oct 2013 12:10:35 -0400
+Content-Disposition: inline
+In-Reply-To: <1382540482-12261-2-git-send-email-sre@debian.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Reichel <sre@debian.org>
+Cc: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 
-Use dev_err() to output errors instead of dev_dbg().
+On Wed, Oct 23, 2013 at 04:01:20PM +0100, Sebastian Reichel wrote:
+> Add device tree support for twl4030 power button driver.
 
-Signed-off-by: Sebastian Reichel <sre@debian.org>
----
- drivers/input/misc/twl4030-pwrbutton.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+This requires a binding document. As it is it's not possible to review.
 
-diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-index a3a0fe3..3efbb13 100644
---- a/drivers/input/misc/twl4030-pwrbutton.c
-+++ b/drivers/input/misc/twl4030-pwrbutton.c
-@@ -60,7 +60,7 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
- 
- 	pwr = input_allocate_device();
- 	if (!pwr) {
--		dev_dbg(&pdev->dev, "Can't allocate power button\n");
-+		dev_err(&pdev->dev, "Can't allocate power button\n");
- 		return -ENOMEM;
- 	}
- 
-@@ -74,13 +74,13 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
- 			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
- 			"twl4030_pwrbutton", pwr);
- 	if (err < 0) {
--		dev_dbg(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
-+		dev_err(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
- 		goto free_input_dev;
- 	}
- 
- 	err = input_register_device(pwr);
- 	if (err) {
--		dev_dbg(&pdev->dev, "Can't register power button: %d\n", err);
-+		dev_err(&pdev->dev, "Can't register power button: %d\n", err);
- 		goto free_irq;
- 	}
- 
--- 
-1.8.4.rc3
+Mark.
+
+> 
+> Signed-off-by: Sebastian Reichel <sre@debian.org>
+> ---
+>  drivers/input/misc/twl4030-pwrbutton.c | 16 ++++++++++++----
+>  1 file changed, 12 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+> index b9a05fd..a3a0fe3 100644
+> --- a/drivers/input/misc/twl4030-pwrbutton.c
+> +++ b/drivers/input/misc/twl4030-pwrbutton.c
+> @@ -52,7 +52,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -static int __init twl4030_pwrbutton_probe(struct platform_device *pdev)
+> +static int twl4030_pwrbutton_probe(struct platform_device *pdev)
+>  {
+>  	struct input_dev *pwr;
+>  	int irq = platform_get_irq(pdev, 0);
+> @@ -106,16 +106,24 @@ static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +#if IS_ENABLED(CONFIG_OF)
+> +static const struct of_device_id twl4030_pwrbutton_dt_match_table[] = {
+> +       { .compatible = "ti,twl4030-pwrbutton" },
+
+There's no need to shorten this, "ti,twl4030-power-button" would be far easier
+to understand. Unless the datasheet refers to it as pwrbutton?
+
+Thanks,
+Mark.

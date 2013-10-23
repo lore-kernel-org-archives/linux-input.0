@@ -1,184 +1,81 @@
-From: Kevin Cernekee <cernekee@gmail.com>
-Subject: Re: [PATCH v3 1/1] Input: Improve the performance of alps
- v5-protocol's touchpad
-Date: Tue, 22 Oct 2013 17:09:05 -0700
-Message-ID: <CAJiQ=7DpFa+zxZ0EAQ48u3KLTJuh6OK4QdJqcfoeMm7EBZHU4w@mail.gmail.com>
-References: <1382250180-3579-1-git-send-email-yunkang.tang@cn.alps.com>
+From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
+Subject: Re: [PATCHv4][ 1/4] Input: tsc2007: Add device tree support.
+Date: Wed, 23 Oct 2013 09:25:53 +0200
+Message-ID: <20131023092553.6989a592@ipc1.ka-ro>
+References: <1382363667-10341-1-git-send-email-denis@eukrea.com>
+	<20131021155927.GB4255@core.coreip.homeip.net>
+	<20131022114947.30dc9c07@ipc1.ka-ro>
+	<20131022223504.GA19819@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:58009 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753526Ab3JWAJH (ORCPT
+Received: from mail.karo-electronics.de ([81.173.242.67]:49289 "EHLO
+	mail.karo-electronics.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751111Ab3JWH0E convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Oct 2013 20:09:07 -0400
-Received: by mail-pa0-f42.google.com with SMTP id kx10so231702pab.29
-        for <linux-input@vger.kernel.org>; Tue, 22 Oct 2013 17:09:05 -0700 (PDT)
-In-Reply-To: <1382250180-3579-1-git-send-email-yunkang.tang@cn.alps.com>
+	Wed, 23 Oct 2013 03:26:04 -0400
+In-Reply-To: <20131022223504.GA19819@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yunkang Tang <tommywill2011@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, david turvene <dturvene@dahetral.com>, linux-input@vger.kernel.org, Niels de Vos <ndevos@redhat.com>, yunkang.tang@cn.alps.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <rob.herring@calxeda.com>, Denis Carikli <denis@eukrea.com>, Eric =?UTF-8?B?QsOpbmFyZA==?= <eric@eukrea.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Sat, Oct 19, 2013 at 11:23 PM, Yunkang Tang <tommywill2011@gmail.com> wrote:
->  /*
-> + * Process bitmap data for V5 protocols. Return value is null.
-> + *
-> + * The bitmaps don't have enough data to track fingers, so this function
-> + * only generates points representing a bounding box of at most two contacts.
-> + * These two points are returned in x1, y1, x2, and y2.
-> + */
-> +static void alps_process_bitmap_dolphin(struct alps_data *priv,
-> +                                        struct alps_fields *fields,
-> +                                        int *x1, int *y1, int *x2, int *y2)
-> +{
-> +        int box_middle_x, box_middle_y;
-> +        unsigned int x_map, y_map;
-> +        unsigned char start_bit, end_bit;
-> +
-> +        x_map = fields->x_map;
-> +        y_map = fields->y_map;
-> +
-> +        if (!x_map || !y_map)
-> +                return;
-> +
-> +        /* Most-significant bit should never exceed max sensor line number */
-> +        if (fls(x_map) > priv->x_bits || fls(y_map) > priv->y_bits)
-> +                return;
+Hi,
 
-fls() does require a little computation, so it might be preferable to
-calculate it once and store the result.
-
-> +
-> +        *x1 = *y1 = *x2 = *y2 = 0;
-> +
-> +        if (fields->fingers > 1) {
-> +                start_bit = priv->x_bits - fls(x_map);
-> +                end_bit = priv->x_bits - ffs(x_map);
-> +                box_middle_x = (priv->x_max * (start_bit + end_bit)) /
-> +                                (2 * (priv->x_bits - 1));
-> +
-> +                start_bit = ffs(y_map) - 1;
-> +                end_bit = fls(y_map) - 1;
-> +                box_middle_y = (priv->y_max * (start_bit + end_bit)) /
-> +                                (2 * (priv->y_bits - 1));
-
-The revised logic looks good to me.
-
-> +                *x1 = fields->x;
-> +                *y1 = fields->y;
-> +                *x2 = 2 * box_middle_x - *x1;
-> +                *y2 = 2 * box_middle_y - *y1;
-> +        }
-> +}
-> +
-> +/*
->   * Process bitmap data from v3 and v4 protocols. Returns the number of
->   * fingers detected. A return value of 0 means at least one of the
->   * bitmaps was empty.
-> @@ -461,7 +505,8 @@ static void alps_decode_buttons_v3(struct alps_fields *f, unsigned char *p)
->          f->ts_middle = !!(p[3] & 0x40);
->  }
+> On Tue, Oct 22, 2013 at 11:49:47AM +0200, Lothar Wa=C3=9Fmann wrote:
+> > Hi,
+> >=20
+> > > On Mon, Oct 21, 2013 at 03:54:24PM +0200, Denis Carikli wrote:
+> > > > =20
+> > > > +	if (ts->of)
+> > > > +		return tsc2007_get_pendown_state_dt(ts);
+> > > > +
+> > > >  	if (!ts->get_pendown_state)
+> > > >  		return true;
+> > >=20
+> > > Instead of special casing "if (ts->of)" all over the place why do=
+n't you
+> > > set up the device structure as:
+> > >=20
+> > > 	if (<configuring_tsc2007_form_dt>)
+> > > 		ts->get_pendown_state =3D tsc2007_get_pendown_state_dt;
+> > >=20
+> > > and be done with it?
+> > >
+> > I also thought about that, but the existing function does not have =
+any
+> > parameters, while the DT version of get_pendown_state() requires to=
+ get
+> > the GPIO passed to it somehow.
+>=20
+> You can always have tsc2007_get_pendown_state_platform() wrapping the
 >
-> -static void alps_decode_pinnacle(struct alps_fields *f, unsigned char *p)
-> +static void alps_decode_pinnacle(struct alps_fields *f, unsigned char *p,
-> +                                 struct psmouse *psmouse)
->  {
->          f->first_mp = !!(p[4] & 0x40);
->          f->is_mp = !!(p[0] & 0x40);
-> @@ -482,48 +527,61 @@ static void alps_decode_pinnacle(struct alps_fields *f, unsigned char *p)
->          alps_decode_buttons_v3(f, p);
->  }
+Yes, but how would you pass the GPIO number to the
+get_pendown_state_dt() function? Global variables are just ugly.
+
+> call. Or we just go and fix board code.
 >
-> -static void alps_decode_rushmore(struct alps_fields *f, unsigned char *p)
-> +static void alps_decode_rushmore(struct alps_fields *f, unsigned char *p,
-> +                                 struct psmouse *psmouse)
->  {
-> -        alps_decode_pinnacle(f, p);
-> +        alps_decode_pinnacle(f, p, psmouse);
->
->          f->x_map |= (p[5] & 0x10) << 11;
->          f->y_map |= (p[5] & 0x20) << 6;
->  }
->
-> -static void alps_decode_dolphin(struct alps_fields *f, unsigned char *p)
-> +static void alps_decode_dolphin(struct alps_fields *f, unsigned char *p,
-> +                                struct psmouse *psmouse)
->  {
-> +        u64 palm_data = 0;
-> +        struct alps_data *priv = psmouse->private;
-> +
->          f->first_mp = !!(p[0] & 0x02);
->          f->is_mp = !!(p[0] & 0x20);
->
-> -        f->fingers = ((p[0] & 0x6) >> 1 |
-> +        if (!f->is_mp) {
-> +                f->x = ((p[1] & 0x7f) | ((p[4] & 0x0f) << 7));
-> +                f->y = ((p[2] & 0x7f) | ((p[4] & 0xf0) << 3));
-> +                f->z = (p[0] & 4) ? 0 : p[5] & 0x7f;
-> +                alps_decode_buttons_v3(f, p);
-> +        } else {
-> +                f->fingers = ((p[0] & 0x6) >> 1 |
->                       (p[0] & 0x10) >> 2);
-> -        f->x_map = ((p[2] & 0x60) >> 5) |
-> -                   ((p[4] & 0x7f) << 2) |
-> -                   ((p[5] & 0x7f) << 9) |
-> -                   ((p[3] & 0x07) << 16) |
-> -                   ((p[3] & 0x70) << 15) |
-> -                   ((p[0] & 0x01) << 22);
-> -        f->y_map = (p[1] & 0x7f) |
-> -                   ((p[2] & 0x1f) << 7);
-> -
-> -        f->x = ((p[1] & 0x7f) | ((p[4] & 0x0f) << 7));
-> -        f->y = ((p[2] & 0x7f) | ((p[4] & 0xf0) << 3));
-> -        f->z = (p[0] & 4) ? 0 : p[5] & 0x7f;
->
-> -        alps_decode_buttons_v3(f, p);
-> +                palm_data = (p[1] & 0x7f) |
-> +                            ((p[2] & 0x7f) << 7) |
-> +                            ((p[4] & 0x7f) << 14) |
-> +                            ((p[5] & 0x7f) << 21) |
-> +                            ((p[3] & 0x07) << 28) |
-> +                            (((u64)p[3] & 0x70) << 27) |
-> +                            (((u64)p[0] & 0x01) << 34);
-> +
-> +                /* Y-profile is stored in P(0) to p(n-1), n = y_bits; */
-> +                f->y_map = palm_data & (BIT(priv->y_bits) - 1);
-> +
-> +                /* X-profile is stored in p(n) to p(n+m-1), m = x_bits; */
-> +                f->x_map = (palm_data >> priv->y_bits) &
-> +                           (BIT(priv->x_bits) - 1);
-> +        }
+That's IMO a better option, but not easy to achieve without breaking
+anything. The in-kernel platforms would be easy to fix, but there may b=
+e
+external users that still use the old hook, so you can't just remove it
+or change its semantics.
 
-This also looks OK.  For a touchpad with x_bits = 23, the computed MT
-X/Y maps look equivalent to the old code.
 
-[snip]
+Lothar Wa=C3=9Fmann
+--=20
+___________________________________________________________
 
-> +static int alps_dolphin_get_device_area(struct psmouse *psmouse,
-> +                                        struct alps_data *priv)
-> +{
-> +        struct ps2dev *ps2dev = &psmouse->ps2dev;
-> +        unsigned char param[4] = {0};
-> +        int num_x_electrode, num_y_electrode;
-> +
-> +        if (alps_enter_command_mode(psmouse))
-> +                return -1;
-> +
-> +        if (ps2_command(ps2dev, NULL, 0x00EC) ||
-> +            ps2_command(ps2dev, NULL, 0x00F0) ||
-> +            ps2_command(ps2dev, NULL, 0x00F0) ||
-> +            ps2_command(ps2dev, NULL, 0x00F3) ||
-> +            ps2_command(ps2dev, NULL, 0x000A) ||
-> +            ps2_command(ps2dev, NULL, 0x00F3) ||
-> +            ps2_command(ps2dev, NULL, 0x000A))
-> +                return -1;
+Ka-Ro electronics GmbH | Pascalstra=C3=9Fe 22 | D - 52076 Aachen
+Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
+Gesch=C3=A4ftsf=C3=BChrer: Matthias Kaussen
+Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
 
-The other ps2_command() calls in alps.c tend to use the PSMOUSE_*
-constants instead of raw hex values.
-
-(Sorry I didn't catch this the first time around.)
-
-Everything else looks fine.  So:
-
-Reviewed-by: Kevin Cernekee <cernekee@gmail.com>
+www.karo-electronics.de | info@karo-electronics.de
+___________________________________________________________
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,34 +1,86 @@
 From: Sebastian Reichel <sre@debian.org>
-Subject: [PATCHv6 0/3] DT Support for TWL4030 power button
-Date: Thu, 24 Oct 2013 16:48:43 +0200
-Message-ID: <1382626126-12565-1-git-send-email-sre@debian.org>
+Subject: [PATCHv6 3/3] Input: twl4030-pwrbutton: simplify driver using devm_*
+Date: Thu, 24 Oct 2013 16:48:46 +0200
+Message-ID: <1382626126-12565-4-git-send-email-sre@debian.org>
+References: <1382626126-12565-1-git-send-email-sre@debian.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1382626126-12565-1-git-send-email-sre@debian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Sebastian Reichel <sre@debian.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, Florian Vaussard <florian.vaussard@epfl.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Use managed irq resource to simplify the driver.
 
-This is the sixth iteration of DT support for the TWL4030
-power button.
+Signed-off-by: Sebastian Reichel <sre@debian.org>
+---
+ drivers/input/misc/twl4030-pwrbutton.c | 26 ++++----------------------
+ 1 file changed, 4 insertions(+), 22 deletions(-)
 
-Changes since v5 [0]:
-* Updated documentation
-
-[0] https://lkml.org/lkml/2013/10/23/416
-
--- Sebastian
-
-Sebastian Reichel (3):
-  Input: twl4030-pwrbutton - add device tree support
-  Input: twl4030-pwrbutton: use dev_err for errors
-  Input: twl4030-pwrbutton: simplify driver using devm_*
-
- .../bindings/input/twl4030-pwrbutton.txt           | 21 +++++++++++
- drivers/input/misc/twl4030-pwrbutton.c             | 44 +++++++++-------------
- 2 files changed, 38 insertions(+), 27 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-
+diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+index 48639ff..be1759c 100644
+--- a/drivers/input/misc/twl4030-pwrbutton.c
++++ b/drivers/input/misc/twl4030-pwrbutton.c
+@@ -58,7 +58,7 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
+ 	int irq = platform_get_irq(pdev, 0);
+ 	int err;
+ 
+-	pwr = input_allocate_device();
++	pwr = devm_input_allocate_device(&pdev->dev);
+ 	if (!pwr) {
+ 		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+ 		return -ENOMEM;
+@@ -70,40 +70,23 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
+ 	pwr->phys = "twl4030_pwrbutton/input0";
+ 	pwr->dev.parent = &pdev->dev;
+ 
+-	err = request_threaded_irq(irq, NULL, powerbutton_irq,
++	err = devm_request_threaded_irq(&pwr->dev, irq, NULL, powerbutton_irq,
+ 			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
+ 			"twl4030_pwrbutton", pwr);
+ 	if (err < 0) {
+ 		dev_err(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
+-		goto free_input_dev;
++		return err;
+ 	}
+ 
+ 	err = input_register_device(pwr);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "Can't register power button: %d\n", err);
+-		goto free_irq;
++		return err;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, pwr);
+ 
+ 	return 0;
+-
+-free_irq:
+-	free_irq(irq, pwr);
+-free_input_dev:
+-	input_free_device(pwr);
+-	return err;
+-}
+-
+-static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
+-{
+-	struct input_dev *pwr = platform_get_drvdata(pdev);
+-	int irq = platform_get_irq(pdev, 0);
+-
+-	free_irq(irq, pwr);
+-	input_unregister_device(pwr);
+-
+-	return 0;
+ }
+ 
+ #if IS_ENABLED(CONFIG_OF)
+@@ -116,7 +99,6 @@ MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
+ 
+ static struct platform_driver twl4030_pwrbutton_driver = {
+ 	.probe		= twl4030_pwrbutton_probe,
+-	.remove		= __exit_p(twl4030_pwrbutton_remove),
+ 	.driver		= {
+ 		.name	= "twl4030_pwrbutton",
+ 		.owner	= THIS_MODULE,
 -- 
 1.8.4.rc3

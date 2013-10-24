@@ -1,43 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
 Subject: Re: [PATCH 4/8] input: Remove OOM message after input_allocate_device
-Date: Thu, 24 Oct 2013 12:10:33 -0700
-Message-ID: <20131024191032.GA5553@core.coreip.homeip.net>
+Date: Thu, 24 Oct 2013 21:15:57 +0200
+Message-ID: <20131024191557.GD3512@pengutronix.de>
 References: <cover.1382555436.git.joe@perches.com>
  <cc5e6a317bc9ef33cfdfae3ed9d3a47b5319a47b.1382555436.git.joe@perches.com>
- <20131024183707.GA5281@core.coreip.homeip.net>
- <1382640339.22433.73.camel@joe-AO722>
+ <20131024182611.GA3512@pengutronix.de>
+ <1382640218.22433.71.camel@joe-AO722>
+ <20131024184612.GC3512@pengutronix.de>
+ <1382640528.22433.75.camel@joe-AO722>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1382640339.22433.73.camel@joe-AO722>
+In-Reply-To: <1382640528.22433.75.camel@joe-AO722>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Joe Perches <joe@perches.com>
-Cc: linux-kernel@vger.kernel.org, Wan ZongShun <mcuos.com@gmail.com>, Andrey Moiseev <o2g.org.ru@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Josh Wu <josh.wu@atmel.com>, Ferruh Yigit <fery@cypress.com>, Pau Oliva Fora <pof@eslack.org>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
+Cc: Kukjin Kim <kgene.kim@samsung.com>, Ferruh Yigit <fery@cypress.com>, Wan ZongShun <mcuos.com@gmail.com>, Andrey Moiseev <o2g.org.ru@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Josh Wu <josh.wu@atmel.com>, linux-samsung-soc@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, Pau Oliva Fora <pof@eslack.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Oct 24, 2013 at 11:45:39AM -0700, Joe Perches wrote:
-> On Thu, 2013-10-24 at 11:37 -0700, Dmitry Torokhov wrote:
-> > Hi Joe,
-> > 
-> > On Wed, Oct 23, 2013 at 12:14:50PM -0700, Joe Perches wrote:
-> > > Emitting an OOM message isn't necessary after input_allocate_device
-> > > as there's a generic OOM and a dump_stack already done.
-> > 
-> > No, please don't. The kzalloc may get changed in the future to not dump
-> > stack (that was added originally because not everyone was handling OOM
-> > properly, right?), input core might get changed to use something else
-> > than kzalloc, etc, etc.
-> > 
-> > The majority of errors use dev_err so we also get idea what device
-> > failed (if there are several), and more.
-> 
-> I think that's not valuable as input_allocate_device already has
-> dozens of locations that don't emit a specific OOM and centralizing
-> the location for any generic message would work anyway.
+On Thu, Oct 24, 2013 at 11:48:48AM -0700, Joe Perches wrote:
+> On Thu, 2013-10-24 at 20:46 +0200, Uwe Kleine-K=F6nig wrote:
+> > On Thu, Oct 24, 2013 at 11:43:38AM -0700, Joe Perches wrote:
+> []
+> > > Any k.alloc without __GFP_NOWARN does a generic OOM message
+> > > and a dump_stack() so there could already be 2 messages anyway.
+> > Then mention that in the commit log if you still want this patch?!
+>=20
+> How do you think this commit message should be changed:
+>=20
+> Emitting an OOM message isn't necessary after input_allocate_device
+> as there's a generic OOM and a dump_stack already done.
+after input_allocate_device and/or k.alloc ...
 
-Not having diagnostic messages in some of the drivers is hardly a
-justification to remove them from everywhere else.
+Best regards
+Uwe
 
--- 
-Dmitry
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |

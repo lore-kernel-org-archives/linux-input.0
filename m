@@ -1,7 +1,7 @@
 From: "hyunhee.kim" <hyunhee.kim@samsung.com>
-Subject: [PATCH v3] Input: add regulator haptic driver
-Date: Thu, 24 Oct 2013 18:19:17 +0900
-Message-ID: <028301ced09a$1d5fed50$581fc7f0$%kim@samsung.com>
+Subject: RE: [PATCH v2] Input: add regulator haptic driver
+Date: Thu, 24 Oct 2013 18:26:30 +0900
+Message-ID: <028401ced09b$1f6564d0$5e302e70$%kim@samsung.com>
 References: <000a01cec629$3cf34de0$b6d9e9a0$%kim@samsung.com>
  <20131021155558.GA4255@core.coreip.homeip.net>
  <025101ced083$35f2a270$a1d7e750$%kim@samsung.com>
@@ -17,243 +17,55 @@ To: 'Oliver Neukum' <oneukum@suse.de>
 Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, broonie@opensource.wolfsonmicro.com, peter.ujfalusi@ti.com, wfp5p@virginia.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, kyungmin.park@samsung.com, 'Aristeu Sergio Rozanski Filho' <aris@ruivo.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Hyunhee Kim <hyunhee.kim@samsung.com>
-Date: Wed, 9 Oct 2013 16:21:36 +0900
-Subject: [PATCH] Input: add regulator haptic driver
+Hi, 
 
-Signed-off-by: Hyunhee Kim <hyunhee.kim@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-Acked-by: Aristeu Rozanski <aris@ruivo.org>
+Thanks for your review.
+I resent patch v3 after removing wrong wrapping.
 
----
- drivers/input/misc/Kconfig            |   10 ++
- drivers/input/misc/Makefile           |    1 +
- drivers/input/misc/regulator-haptic.c |  184 +++++++++++++++++++++++++++++++++
- 3 files changed, 195 insertions(+)
- create mode 100644 drivers/input/misc/regulator-haptic.c
+I made one toggle function because enable/disable functions have redundant codes and another reviewer suggested it.
+Is it better to separate it into two functions?
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index bb698e1..21b4d5b 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -82,6 +82,16 @@ config INPUT_ARIZONA_HAPTICS
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called arizona-haptics.
- 
-+config INPUT_REGULATOR_HAPTIC
-+	tristate "support haptics on/off using regulator"
-+	select INPUT_FF_MEMLESS
-+	help
-+	  Say Y to enable support for the haptic module. Haptic can be
-+	  enabled/disabled by regulator.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called regulator-haptic.
-+
- config INPUT_BMA150
- 	tristate "BMA150/SMB380 acceleration sensor support"
- 	depends on I2C
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index d7fc17f..106f0bc 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -15,6 +15,7 @@ obj-$(CONFIG_INPUT_ADXL34X_I2C)		+= adxl34x-i2c.o
- obj-$(CONFIG_INPUT_ADXL34X_SPI)		+= adxl34x-spi.o
- obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
- obj-$(CONFIG_INPUT_ARIZONA_HAPTICS)	+= arizona-haptics.o
-+obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
- obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
- obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
- obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
-diff --git a/drivers/input/misc/regulator-haptic.c b/drivers/input/misc/regulator-haptic.c
-new file mode 100644
-index 0000000..882c8b9
---- /dev/null
-+++ b/drivers/input/misc/regulator-haptic.c
-@@ -0,0 +1,184 @@
-+/*
-+ * Regulator haptic driver
-+ *
-+ * Copyright (c) 2013 Samsung Electronics Co., Ltd.
-+ *
-+ * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/regulator/driver.h>
-+
-+struct regulator_haptic {
-+	struct device *dev;
-+	struct input_dev *input_dev;
-+	struct work_struct work;
-+	bool enabled;
-+	struct regulator *regulator;
-+	struct mutex mutex;
-+	int level;
-+};
-+
-+static void regulator_haptic_toggle(struct regulator_haptic *haptic, bool enable)
-+{
-+	int ret;
-+
-+	mutex_lock(&haptic->mutex);
-+	if (enable && !haptic->enabled) {
-+		haptic->enabled = true;
-+		ret = regulator_enable(haptic->regulator);
-+		if (ret)
-+			dev_err(haptic->dev, "failed to enable regulator\n");
-+	} else if (!enable && haptic->enabled) {
-+		haptic->enabled = false;
-+		ret = regulator_disable(haptic->regulator);
-+		if (ret)
-+			dev_err(haptic->dev, "failed to disable regulator\n");
-+	}
-+	mutex_unlock(&haptic->mutex);
-+}
-+
-+static void regulator_haptic_work(struct work_struct *work)
-+{
-+	struct regulator_haptic *haptic = container_of(work,
-+						       struct regulator_haptic,
-+						       work);
-+	if (haptic->level)
-+		regulator_haptic_toggle(haptic, true);
-+	else
-+		regulator_haptic_toggle(haptic, false);
-+
-+}
-+
-+static int regulator_haptic_play(struct input_dev *input, void *data,
-+				struct ff_effect *effect)
-+{
-+	struct regulator_haptic *haptic = input_get_drvdata(input);
-+
-+	haptic->level = effect->u.rumble.strong_magnitude;
-+	if (!haptic->level)
-+		haptic->level = effect->u.rumble.weak_magnitude;
-+	schedule_work(&haptic->work);
-+
-+	return 0;
-+}
-+
-+static void regulator_haptic_close(struct input_dev *input)
-+{
-+	struct regulator_haptic *haptic = input_get_drvdata(input);
-+
-+	cancel_work_sync(&haptic->work);
-+	regulator_haptic_toggle(haptic, false);
-+}
-+
-+static int regulator_haptic_probe(struct platform_device *pdev)
-+{
-+	struct regulator_haptic *haptic;
-+	struct input_dev *input_dev;
-+	int error;
-+
-+	haptic = devm_kzalloc(&pdev->dev, sizeof(*haptic), GFP_KERNEL);
-+	if (!haptic) {
-+		dev_err(&pdev->dev, "unable to allocate memory for haptic\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_dev = input_allocate_device();
-+
-+	if (!input_dev) {
-+		dev_err(&pdev->dev, "unable to allocate memory\n");
-+		error =  -ENOMEM;
-+		goto err_kfree_mem;
-+	}
-+
-+	INIT_WORK(&haptic->work, regulator_haptic_work);
-+	mutex_init(&haptic->mutex);
-+	haptic->input_dev = input_dev;
-+	haptic->dev = &pdev->dev;
-+	haptic->regulator = regulator_get(&pdev->dev, "haptic");
-+
-+	if (IS_ERR(haptic->regulator)) {
-+		error = PTR_ERR(haptic->regulator);
-+		dev_err(&pdev->dev, "unable to get regulator, err: %d\n",
-+			error);
-+		goto err_ifree_mem;
-+	}
-+
-+	haptic->input_dev->name = "regulator:haptic";
-+	haptic->input_dev->dev.parent = &pdev->dev;
-+	haptic->input_dev->close = regulator_haptic_close;
-+	haptic->enabled = false;
-+	input_set_drvdata(haptic->input_dev, haptic);
-+	input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
-+
-+	error = input_ff_create_memless(input_dev, NULL,
-+				      regulator_haptic_play);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"input_ff_create_memless() failed: %d\n",
-+			error);
-+		goto err_put_regulator;
-+	}
-+
-+	error = input_register_device(haptic->input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"couldn't register input device: %d\n",
-+			error);
-+		goto err_destroy_ff;
-+	}
-+
-+	platform_set_drvdata(pdev, haptic);
-+
-+	return 0;
-+
-+err_destroy_ff:
-+	input_ff_destroy(haptic->input_dev);
-+err_put_regulator:
-+	regulator_put(haptic->regulator);
-+err_ifree_mem:
-+	input_free_device(haptic->input_dev);
-+err_kfree_mem:
-+	kfree(haptic);
-+
-+	return error;
-+}
-+
-+static int regulator_haptic_remove(struct platform_device *pdev)
-+{
-+	struct regulator_haptic *haptic = platform_get_drvdata(pdev);
-+
-+	input_unregister_device(haptic->input_dev);
-+	regulator_put(haptic->regulator);
-+
-+	return 0;
-+}
-+
-+static struct of_device_id regulator_haptic_dt_match[] = {
-+	{ .compatible = "linux,regulator-haptic" },
-+	{},
-+};
-+
-+static struct platform_driver regulator_haptic_driver = {
-+	.driver		= {
-+		.name	= "regulator-haptic",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = regulator_haptic_dt_match,
-+	},
-+
-+	.probe		= regulator_haptic_probe,
-+	.remove		= regulator_haptic_remove,
-+};
-+module_platform_driver(regulator_haptic_driver);
-+
-+MODULE_ALIAS("platform:regulator-haptic");
-+MODULE_DESCRIPTION("Regulator haptic driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Hyunhee Kim <hyunhee.kim@samsung.com>");
--- 
-1.7.9.5
+Thanks,
+Hyunhee Kim.
+
+-----Original Message-----
+From: Oliver Neukum [mailto:oneukum@suse.de] 
+Sent: Thursday, October 24, 2013 5:38 PM
+To: hyunhee.kim
+Cc: 'Dmitry Torokhov'; broonie@opensource.wolfsonmicro.com; peter.ujfalusi@ti.com; wfp5p@virginia.edu; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; akpm@linux-foundation.org; kyungmin.park@samsung.com; 'Aristeu Sergio Rozanski Filho'
+Subject: Re: [PATCH v2] Input: add regulator haptic driver
+
+On Thu, 2013-10-24 at 15:35 +0900, hyunhee.kim wrote:
+
+Hi,
+
+first of all your mail client mangled the patch.
+
+> +static void regulator_haptic_toggle(struct regulator_haptic *haptic, bool
+> enable)
+> +{
+> +	int ret;
+> +
+> +	mutex_lock(&haptic->mutex);
+> +	if (enable && !haptic->enabled) {
+> +		haptic->enabled = true;
+> +		ret = regulator_enable(haptic->regulator);
+> +		if (ret)
+> +			dev_err(haptic->dev, "failed to enable
+> regulator\n");
+> +	} else if (!enable && haptic->enabled) {
+> +		haptic->enabled = false;
+> +		ret = regulator_disable(haptic->regulator);
+> +		if (ret)
+> +			dev_err(haptic->dev, "failed to disable
+> regulator\n");
+> +	}
+> +	mutex_unlock(&haptic->mutex);
+> +}
+> +
+
+Is there anything gained by the toggle parameter? Just code two
+functions.
+
+	Regards
+		Oliver

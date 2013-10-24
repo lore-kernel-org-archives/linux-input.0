@@ -1,62 +1,81 @@
-From: Denis Carikli <denis@eukrea.com>
-Subject: [PATCHv6][ 4/4] ARM: imx_v6_v7_defconfig: Enable tsc2007 support.
-Date: Thu, 24 Oct 2013 10:38:53 +0200
-Message-ID: <1382603933-8539-4-git-send-email-denis@eukrea.com>
-References: <1382603933-8539-1-git-send-email-denis@eukrea.com>
+From: Florian Vaussard <florian.vaussard@epfl.ch>
+Subject: Re: [PATCHv4 1/3] Input: twl4030-pwrbutton - add device tree support
+Date: Thu, 24 Oct 2013 11:16:22 +0200
+Message-ID: <5268E566.2060309@epfl.ch>
+References: <1382550852-11508-1-git-send-email-sre@debian.org> <1382550852-11508-2-git-send-email-sre@debian.org> <5268D095.3060302@epfl.ch> <20131024083837.GA28938@earth.universe>
+Reply-To: florian.vaussard@epfl.ch
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp2-g21.free.fr ([212.27.42.2]:56423 "EHLO smtp2-g21.free.fr"
+Received: from smtp0.epfl.ch ([128.178.224.218]:46777 "EHLO smtp0.epfl.ch"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753090Ab3JXIjZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Oct 2013 04:39:25 -0400
-In-Reply-To: <1382603933-8539-1-git-send-email-denis@eukrea.com>
+	id S1752036Ab3JXJQ0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Oct 2013 05:16:26 -0400
+In-Reply-To: <20131024083837.GA28938@earth.universe>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sascha Hauer <kernel@pengutronix.de>
-Cc: Shawn Guo <shawn.guo@linaro.org>, =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>, linux-arm-kernel@lists.infradead.org, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Denis Carikli <denis@eukrea.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>, Fabio Estevam <fabio.estevam@freescale.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-The eukrea cpuimx35 and cpuimx51 have a tsc2007 touchscreen controller,
-  so we turn it on.
+Hello,
 
-Cc: Rob Herring <rob.herring@calxeda.com>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-Cc: devicetree@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Cc: Sascha Hauer <kernel@pengutronix.de>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
-Cc: Fabio Estevam <fabio.estevam@freescale.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>
-Cc: Eric B=C3=A9nard <eric@eukrea.com>
-Signed-off-by: Denis Carikli <denis@eukrea.com>
----
- arch/arm/configs/imx_v6_v7_defconfig |    1 +
- 1 file changed, 1 insertion(+)
+On 10/24/2013 10:38 AM, Sebastian Reichel wrote:
+> Hi Florian,
+>
+> On Thu, Oct 24, 2013 at 09:47:33AM +0200, Florian Vaussard wrote:
+>>> +Required SoC Specific Properties:
+>>> +- compatible: should be one of the following
+>>> +   - "ti,twl4030-pwrbutton": For controllers compatible with twl4030
+>>> +- interrupt: should be one of the following
+>>> +   - <8>: For controllers compatible with twl4030
+>>
+>> This is <8> for your particular case, but it will depend on your
+>> SoC, won't it?  Moreover, this property will be most likely
+>> inherited from the root twl node, so I do not see the need to
+>> document it here. See:
+>>
+>> Documentation/devicetree/bindings/mfd/twl-familly.txt
+>
+> No. This is an internal twl4030 interrupt. TWL4030 functions
+> itself as an interrupt controller.
+>
 
-diff --git a/arch/arm/configs/imx_v6_v7_defconfig b/arch/arm/configs/im=
-x_v6_v7_defconfig
-index d8a52a0..23ba17d 100644
---- a/arch/arm/configs/imx_v6_v7_defconfig
-+++ b/arch/arm/configs/imx_v6_v7_defconfig
-@@ -130,6 +130,7 @@ CONFIG_MOUSE_PS2_ELANTECH=3Dy
- CONFIG_INPUT_TOUCHSCREEN=3Dy
- CONFIG_TOUCHSCREEN_EGALAX=3Dy
- CONFIG_TOUCHSCREEN_MC13783=3Dy
-+CONFIG_TOUCHSCREEN_TSC2007=3Dy
- CONFIG_INPUT_MISC=3Dy
- CONFIG_INPUT_MMA8450=3Dy
- CONFIG_SERIO_SERPORT=3Dm
---=20
-1.7.9.5
+So if it does not belong to the TWL parent, where is it used in your code?
+You should be parsing this property, so you can set up the IRQ properly.
+I am a bit confused here. If it is fixed, no need for a OF property.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>> +
+>>> +Example:
+>>> +	twl_pwrbutton: pwrbutton {
+>>> +		compatible = "ti,twl4030-pwrbutton";
+>>> +		interrupts = <8>;
+>>> +	};
+>>
+>> You are missing the root twl node here, no?
+>
+> So should I document it like this?
+>
+
+IMHO it is more clear for the user.
+
+> twl4030 {
+>     compatible = "ti,twl4030";
+>
+>     pwrbutton {
+>         compatible = "ti,twl4030-pwrbutton";
+>         interrupts = <8>;
+>     };
+> };
+
+Nit, but existing documentations follow the "name@address"
+form for the root node, as the TWL is on an I2C bus.
+Either it is already defined, thus you should use "&twl4030"
+to reference it, or you create the TWL node and something like
+"twl4030@48" should be used.
+
+For an example, you can refer to existing bindings, like
+Documentation/devicetree/bindings/mfd/twl4030-audio.txt.
+
+Best regards,
+
+Florian

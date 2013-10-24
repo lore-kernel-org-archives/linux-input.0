@@ -1,108 +1,57 @@
-From: Florian Vaussard <florian.vaussard@epfl.ch>
-Subject: Re: [PATCHv4 1/3] Input: twl4030-pwrbutton - add device tree support
-Date: Thu, 24 Oct 2013 09:47:33 +0200
-Message-ID: <5268D095.3060302@epfl.ch>
-References: <1382550852-11508-1-git-send-email-sre@debian.org> <1382550852-11508-2-git-send-email-sre@debian.org>
-Reply-To: florian.vaussard@epfl.ch
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: [PATCH v2] Input: add regulator haptic driver
+Date: Thu, 24 Oct 2013 10:38:06 +0200
+Message-ID: <1382603886.1559.11.camel@linux-fkkt.site>
+References: <000a01cec629$3cf34de0$b6d9e9a0$%kim@samsung.com>
+	 <20131021155558.GA4255@core.coreip.homeip.net>
+	 <025101ced083$35f2a270$a1d7e750$%kim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1382550852-11508-2-git-send-email-sre@debian.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@debian.org>, Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:47090 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753888Ab3JXIiJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Oct 2013 04:38:09 -0400
+In-Reply-To: <025101ced083$35f2a270$a1d7e750$%kim@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "hyunhee.kim" <hyunhee.kim@samsung.com>
+Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, broonie@opensource.wolfsonmicro.com, peter.ujfalusi@ti.com, wfp5p@virginia.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, kyungmin.park@samsung.com, 'Aristeu Sergio Rozanski Filho' <aris@ruivo.org>
 
-Hello Sebastian,
+On Thu, 2013-10-24 at 15:35 +0900, hyunhee.kim wrote:
 
-On 10/23/2013 07:54 PM, Sebastian Reichel wrote:
-> Add device tree support for twl4030 power button driver.
-> 
-> Signed-off-by: Sebastian Reichel <sre@debian.org>
-> ---
->  .../devicetree/bindings/input/twl4030-pwrbutton.txt      | 13 +++++++++++++
->  drivers/input/misc/twl4030-pwrbutton.c                   | 16 ++++++++++++----
->  2 files changed, 25 insertions(+), 4 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-> new file mode 100644
-> index 0000000..945ec74
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-> @@ -0,0 +1,13 @@
-> +* TWL4030's pwrbutton device tree bindings
+Hi,
+
+first of all your mail client mangled the patch.
+
+> +static void regulator_haptic_toggle(struct regulator_haptic *haptic, bool
+> enable)
+> +{
+> +	int ret;
 > +
-> +Required SoC Specific Properties:
-> +- compatible: should be one of the following
-> +   - "ti,twl4030-pwrbutton": For controllers compatible with twl4030
-> +- interrupt: should be one of the following
-> +   - <8>: For controllers compatible with twl4030
-
-This is <8> for your particular case, but it will depend on your SoC,
-won't it?
-Moreover, this property will be most likely inherited from the root twl
-node,
-so I do not see the need to document it here. See:
-
-Documentation/devicetree/bindings/mfd/twl-familly.txt
-
+> +	mutex_lock(&haptic->mutex);
+> +	if (enable && !haptic->enabled) {
+> +		haptic->enabled = true;
+> +		ret = regulator_enable(haptic->regulator);
+> +		if (ret)
+> +			dev_err(haptic->dev, "failed to enable
+> regulator\n");
+> +	} else if (!enable && haptic->enabled) {
+> +		haptic->enabled = false;
+> +		ret = regulator_disable(haptic->regulator);
+> +		if (ret)
+> +			dev_err(haptic->dev, "failed to disable
+> regulator\n");
+> +	}
+> +	mutex_unlock(&haptic->mutex);
+> +}
 > +
-> +Example:
-> +	twl_pwrbutton: pwrbutton {
-> +		compatible = "ti,twl4030-pwrbutton";
-> +		interrupts = <8>;
-> +	};
 
-You are missing the root twl node here, no?
+Is there anything gained by the toggle parameter? Just code two
+functions.
 
-> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-> index b9a05fd..a3a0fe3 100644
-> --- a/drivers/input/misc/twl4030-pwrbutton.c
-> +++ b/drivers/input/misc/twl4030-pwrbutton.c
+	Regards
+		Oliver
 
-Missing #include <linux/of.h> ?
 
-> @@ -52,7 +52,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
->  	return IRQ_HANDLED;
->  }
->  
-> -static int __init twl4030_pwrbutton_probe(struct platform_device *pdev)
-> +static int twl4030_pwrbutton_probe(struct platform_device *pdev)
->  {
->  	struct input_dev *pwr;
->  	int irq = platform_get_irq(pdev, 0);
-> @@ -106,16 +106,24 @@ static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> +#if IS_ENABLED(CONFIG_OF)
-> +static const struct of_device_id twl4030_pwrbutton_dt_match_table[] = {
-> +       { .compatible = "ti,twl4030-pwrbutton" },
-> +       {},
-> +};
-> +MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
-> +#endif
-> +
->  static struct platform_driver twl4030_pwrbutton_driver = {
-> +	.probe		= twl4030_pwrbutton_probe,
->  	.remove		= __exit_p(twl4030_pwrbutton_remove),
->  	.driver		= {
->  		.name	= "twl4030_pwrbutton",
->  		.owner	= THIS_MODULE,
-> +		.of_match_table = of_match_ptr(twl4030_pwrbutton_dt_match_table),
->  	},
->  };
-> -
-> -module_platform_driver_probe(twl4030_pwrbutton_driver,
-> -			twl4030_pwrbutton_probe);
-> +module_platform_driver(twl4030_pwrbutton_driver);
->  
->  MODULE_ALIAS("platform:twl4030_pwrbutton");
->  MODULE_DESCRIPTION("Triton2 Power Button");
-> 
-
-Best regards,
-
-Florian

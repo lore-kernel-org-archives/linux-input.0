@@ -1,67 +1,98 @@
-From: Denis Carikli <denis@eukrea.com>
-Subject: [PATCHv7][ 3/4] ARM: dts: cpuimx35 Add touchscreen support.
-Date: Thu, 24 Oct 2013 14:42:15 +0200
-Message-ID: <1382618536-25320-3-git-send-email-denis@eukrea.com>
-References: <1382618536-25320-1-git-send-email-denis@eukrea.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH] Input: add regulator haptic driver
+Date: Thu, 24 Oct 2013 14:38:36 +0100
+Message-ID: <20131024133836.GG18506@sirena.org.uk>
+References: <000101cec628$aaff69a0$00fe3ce0$%kim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5-g21.free.fr ([212.27.42.5]:60027 "EHLO smtp5-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754709Ab3JXMmn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Oct 2013 08:42:43 -0400
-In-Reply-To: <1382618536-25320-1-git-send-email-denis@eukrea.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="L+ofChggJdETEG3Y"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <000101cec628$aaff69a0$00fe3ce0$%kim@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "hyunhee.kim" <hyunhee.kim@samsung.com>
+Cc: dmitry.torokhov@gmail.com, peter.ujfalusi@ti.com, wfp5p@virginia.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <rob.herring@calxeda.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>, =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, Grant Likely <grant.likely@secretlab.ca>, Thierry Reding <thierry.reding@gmail.com>, Denis Carikli <denis@eukrea.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
 
-Cc: Rob Herring <rob.herring@calxeda.com>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-Cc: devicetree@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Cc: Sascha Hauer <kernel@pengutronix.de>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
-Cc: Eric B=C3=A9nard <eric@eukrea.com>
-Signed-off-by: Denis Carikli <denis@eukrea.com>
----
- arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi |   11 +++++++++++
- 1 file changed, 11 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi b/arch/arm/bo=
-ot/dts/imx35-eukrea-cpuimx35.dtsi
-index 2c2d4cd..a22230b 100644
---- a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
-+++ b/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
-@@ -41,6 +41,17 @@
- 		compatible =3D "nxp,pcf8563";
- 		reg =3D <0x51>;
- 	};
-+
-+	tsc2007: tsc2007@48 {
-+		compatible =3D "ti,tsc2007";
-+		reg =3D <0x48>;
-+		pinctrl-names =3D "default";
-+		pinctrl-0 =3D <&pinctrl_tsc2007_1>;
-+		interrupt-parent =3D <&gpio3>;
-+		interrupts =3D <0x2 0x8>;
-+		gpios =3D <&gpio3 2 0>;
-+		ti,x-plate-ohms =3D <180>;
-+	};
- };
-=20
- &iomuxc {
---=20
-1.7.9.5
+--L+ofChggJdETEG3Y
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Fri, Oct 11, 2013 at 11:22:00AM +0900, hyunhee.kim wrote:
+
+> +	if (enable && !haptic->enabled) {
+> +		haptic->enabled =3D true;
+> +		ret =3D regulator_enable(haptic->regulator);
+> +		if (ret)
+> +			pr_err("haptic: %s failed to enable regulator\n",
+> +				__func__);
+
+These should probably set the flag after the regulator API call has
+succeeded, otherwise if the call fails the driver will incorrectly
+remember that the regulator is enabled and never disable it (or vice
+versa on disable).=20
+
+> +static void regulator_haptic_work(struct work_struct *work)
+> +{
+> +	struct regulator_haptic *haptic =3D container_of(work,
+> +						       struct
+> regulator_haptic,
+> +						       work);
+> +	if (haptic->level)
+> +		regulator_haptic_enable(haptic, true);
+> +	else
+> +		regulator_haptic_enable(haptic, false);
+> +
+> +}
+
+Should the mutex for the level be at this level rather than in the
+subfunctions?  Though it'd probably be just as well to inline the true
+and false cases since there's basically two equivalent forks in the
+enable function anyway.
+
+> +
+> +	haptic =3D kzalloc(sizeof(*haptic), GFP_KERNEL);
+> +	if (!haptic) {
+> +		dev_err(&pdev->dev, "unable to allocate memory for
+> haptic\n");
+> +		return -ENOMEM;
+> +	}
+
+Might be better to use devm_ functions throughout here, saves error
+handling and cleanup code...
+
+> +static int regulator_haptic_remove(struct platform_device *pdev)
+> +{
+> +	struct regulator_haptic *haptic =3D platform_get_drvdata(pdev);
+> +
+> +	input_unregister_device(haptic->input_dev);
+> +
+> +	return 0;
+
+=2E..which is currently missing.
+
+--L+ofChggJdETEG3Y
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSaSLYAAoJELSic+t+oim9KpkP/0S7MuEPo4tPqBgiS9VfWbiO
+gc7h6Xjoal1h8Jef2IUJLjfgzyY5YapqWRL+ajybrfJmbuCM9C8zQiQ3+W8Lyhjl
+BtHA4C1mcGub2OEuhy/6Oe3166kiPoufOpNQz9lIuGsAURpKzg8+R98YeLfy0yw5
+j3bPqL/wuW5bJXzS7kQx0bDY3QWVke3UINxX0GSjPkT3ZQnge3goGxS2M3MajB/c
+lQIA2WBoR5B8Y9ilrFSCYxgSo9gwFXmq7V0dCj70jqhe6Lrth2doveY1aVLeGnZD
+kbaLq/2cOZb+mdOdo2gQ/Poi/w6gvBLiJFT4JfIQ09Etz0iGzXUyT6OI8NVASRiR
+5Nv9xEd8O0k7w/BB8PjV8gV2+yCS6Zh/NijkOucM5BTqpD0U1h9UODu/tECPJ82R
+NoO+rNXLtI2miTg0KbB+Ypj3GBqQxofRaE2JBUl8e90GsOzQSRS1iJfs6XmTSV9e
+znTWjRw7pec0FXueFEUsM5gosM3uxItKU4PEq7Von2Q4oRFlk/ur/A3JULIQgbuI
+KgdwF7cSLzZAkTybxGE1rBxPpEDS0wViZyDMqF1HbJfPAkOqMCsPldap4f3T9PNO
+nyirCtfHpCzxsCdCIC3lDOTZFgY05tj+HsnPBiONNW6cmWc1Gwep9E0PVU28I8OW
+3JeMAB/jFCp5beKuapar
+=u9oq
+-----END PGP SIGNATURE-----
+
+--L+ofChggJdETEG3Y--

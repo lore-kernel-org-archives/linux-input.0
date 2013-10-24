@@ -1,107 +1,442 @@
-From: Sebastian Reichel <sre@debian.org>
-Subject: Re: [PATCHv4 1/3] Input: twl4030-pwrbutton - add device tree support
-Date: Thu, 24 Oct 2013 10:38:39 +0200
-Message-ID: <20131024083837.GA28938@earth.universe>
-References: <1382550852-11508-1-git-send-email-sre@debian.org>
- <1382550852-11508-2-git-send-email-sre@debian.org>
- <5268D095.3060302@epfl.ch>
+From: Denis Carikli <denis@eukrea.com>
+Subject: [PATCHv6][ 1/4] Input: tsc2007: Add device tree support.
+Date: Thu, 24 Oct 2013 10:38:50 +0200
+Message-ID: <1382603933-8539-1-git-send-email-denis@eukrea.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ring0.de ([91.143.88.219]:45260 "EHLO smtp.ring0.de"
+Received: from smtp2-g21.free.fr ([212.27.42.2]:55248 "EHLO smtp2-g21.free.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753888Ab3JXIin (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Oct 2013 04:38:43 -0400
-Content-Disposition: inline
-In-Reply-To: <5268D095.3060302@epfl.ch>
+	id S1753090Ab3JXIjF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Oct 2013 04:39:05 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Vaussard <florian.vaussard@epfl.ch>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Sascha Hauer <kernel@pengutronix.de>
+Cc: Shawn Guo <shawn.guo@linaro.org>, =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>, linux-arm-kernel@lists.infradead.org, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Denis Carikli <denis@eukrea.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
 
+Cc: Rob Herring <rob.herring@calxeda.com>
+Cc: Pawel Moll <pawel.moll@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+Cc: devicetree@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: Sascha Hauer <kernel@pengutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
+Cc: Eric B=C3=A9nard <eric@eukrea.com>
+Signed-off-by: Denis Carikli <denis@eukrea.com>
+---
+ChangeLog v5->v6:
+- Fixed a code style issue.
+- Improved the documentation to set some gpio related properties as opt=
+ional.
+- The properties related to the gpios are also explained better.
+---
+ .../bindings/input/touchscreen/tsc2007.txt         |   44 +++++
+ drivers/input/touchscreen/tsc2007.c                |  194 ++++++++++++=
++++-----
+ 2 files changed, 197 insertions(+), 41 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen=
+/tsc2007.txt
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc200=
+7.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+new file mode 100644
+index 0000000..46fc677
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+@@ -0,0 +1,44 @@
++* Texas Instruments tsc2007 touchscreen controller
++
++Required properties:
++- compatible: must be "ti,tsc2007".
++- reg: I2C address of the chip.
++- ti,x-plate-ohms: X-plate resistance in ohms.
++
++Optional properties:
++- gpios: the interrupt gpio the chip is connected to (trough the penir=
+q pin)
++  (see GPIO binding[2] for more details).
++- interrupt-parent: the phandle for the gpio controller
++  (see interrupt binding[1]).
++- interrupts: (gpio) interrupt to which the chip is connected
++  (see interrupt binding[1]).
++- pinctrl-0: Should specify pin control groups used for the gpio
++  (see pinctrl bindings[0]).
++- pinctrl-names: Should contain only one value - "default"
++  (see pinctrl bindings[0]).
++- max-rt: maximum pressure.
++- fuzzy: specifies the fuzz value that is used to filter noise from th=
+e event
++  stream.
++- poll-period: how much time to wait(in millisecond) before reading ag=
+ain the
++  values from the tsc2007.
++
++[0]: Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
++[1]: Documentation/devicetree/bindings/interrupt-controller/interrupts=
+=2Etxt
++[2]: Documentation/devicetree/bindings/gpio/gpio.txt
++
++Example:
++	&i2c1 {
++		/* ... */
++		tsc2007@49 {
++			compatible =3D "ti,tsc2007";
++			reg =3D <0x49>;
++			pinctrl-names =3D "default";
++			pinctrl-0 =3D <&pinctrl_tsc2007_1>;
++			interrupt-parent =3D <&gpio4>;
++			interrupts =3D <0x0 0x8>;
++			gpios =3D <&gpio4 0 0>;
++			ti,x-plate-ohms =3D <180>;
++		};
++
++		/* ... */
++	};
+diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchs=
+creen/tsc2007.c
+index 0b67ba4..6b1d7a9 100644
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -26,6 +26,9 @@
+ #include <linux/interrupt.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c/tsc2007.h>
++#include <linux/of_device.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
+=20
+ #define TSC2007_MEASURE_TEMP0		(0x0 << 4)
+ #define TSC2007_MEASURE_AUX		(0x2 << 4)
+@@ -74,7 +77,10 @@ struct tsc2007 {
+ 	u16			max_rt;
+ 	unsigned long		poll_delay;
+ 	unsigned long		poll_period;
++	int			fuzzy;
++	char			of;
+=20
++	unsigned		gpio;
+ 	int			irq;
+=20
+ 	wait_queue_head_t	wait;
+@@ -84,6 +90,11 @@ struct tsc2007 {
+ 	void			(*clear_penirq)(void);
+ };
+=20
++static int tsc2007_get_pendown_state_dt(struct tsc2007 *ts)
++{
++	return !gpio_get_value(ts->gpio);
++}
++
+ static inline int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd)
+ {
+ 	s32 data;
+@@ -142,6 +153,14 @@ static u32 tsc2007_calculate_pressure(struct tsc20=
+07 *tsc, struct ts_event *tc)
+ 	return rt;
+ }
+=20
++static bool tsc2007_is_pen_down_valid(struct tsc2007 *ts)
++{
++	if (ts->of)
++		return gpio_is_valid(ts->gpio);
++	else
++		return ts->get_pendown_state ? true : false;
++}
++
+ static bool tsc2007_is_pen_down(struct tsc2007 *ts)
+ {
+ 	/*
+@@ -158,10 +177,13 @@ static bool tsc2007_is_pen_down(struct tsc2007 *t=
+s)
+ 	 * to fall back on the pressure reading.
+ 	 */
+=20
+-	if (!ts->get_pendown_state)
++	if (!tsc2007_is_pen_down_valid(ts))
+ 		return true;
+=20
+-	return ts->get_pendown_state();
++	if (ts->of)
++		return tsc2007_get_pendown_state_dt(ts);
++	else
++		return ts->get_pendown_state();
+ }
+=20
+ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+@@ -178,7 +200,7 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *=
+handle)
+=20
+ 		rt =3D tsc2007_calculate_pressure(ts, &tc);
+=20
+-		if (rt =3D=3D 0 && !ts->get_pendown_state) {
++		if (!rt && !tsc2007_is_pen_down_valid(ts)) {
+ 			/*
+ 			 * If pressure reported is 0 and we don't have
+ 			 * callback to check pendown state, we have to
+@@ -228,7 +250,7 @@ static irqreturn_t tsc2007_hard_irq(int irq, void *=
+handle)
+ {
+ 	struct tsc2007 *ts =3D handle;
+=20
+-	if (!ts->get_pendown_state || likely(ts->get_pendown_state()))
++	if (tsc2007_is_pen_down(ts))
+ 		return IRQ_WAKE_THREAD;
+=20
+ 	if (ts->clear_penirq)
+@@ -273,34 +295,65 @@ static void tsc2007_close(struct input_dev *input=
+_dev)
+ 	tsc2007_stop(ts);
+ }
+=20
+-static int tsc2007_probe(struct i2c_client *client,
+-				   const struct i2c_device_id *id)
++#ifdef CONFIG_OF
++static int tsc2007_probe_dt(struct i2c_client *client, struct tsc2007 =
+*ts,
++			    struct device_node *np)
+ {
+-	struct tsc2007 *ts;
+-	struct tsc2007_platform_data *pdata =3D client->dev.platform_data;
+-	struct input_dev *input_dev;
+-	int err;
+-
+-	if (!pdata) {
+-		dev_err(&client->dev, "platform data is required!\n");
++	int err =3D 0;
++	u32 val32;
++	u64 val64;
++
++	if (!of_property_read_u32(np, "max-rt", &val32))
++		ts->max_rt =3D val32;
++	else
++		ts->max_rt =3D MAX_12BIT;
++
++	if (!of_property_read_u32(np, "fuzzy", &val32))
++		ts->fuzzy =3D val32;
++
++	if (!of_property_read_u64(np, "poll-period", &val64))
++		ts->poll_period =3D val64;
++	else
++		ts->poll_period =3D 1;
++
++	if (!of_property_read_u32(np, "ti,x-plate-ohms", &val32)) {
++		ts->x_plate_ohms =3D val32;
++	} else {
++		dev_err(&client->dev,
++			"Error: lacking ti,x-plate-ohms devicetree property. (err %d).",
++			err);
+ 		return -EINVAL;
+ 	}
+=20
+-	if (!i2c_check_functionality(client->adapter,
+-				     I2C_FUNC_SMBUS_READ_WORD_DATA))
+-		return -EIO;
++	ts->gpio =3D of_get_gpio(np, 0);
++	if (!gpio_is_valid(ts->gpio))
++		dev_err(&client->dev,
++			"GPIO not found (of_get_gpio returned %d)\n",
++			ts->gpio);
+=20
+-	ts =3D kzalloc(sizeof(struct tsc2007), GFP_KERNEL);
+-	input_dev =3D input_allocate_device();
+-	if (!ts || !input_dev) {
+-		err =3D -ENOMEM;
+-		goto err_free_mem;
+-	}
++	/* Used to detect if it is probed trough the device tree,
++	 * in order to be able to use that information in the IRQ handler.
++	 */
++	ts->of =3D 1;
+=20
+-	ts->client =3D client;
+-	ts->irq =3D client->irq;
+-	ts->input =3D input_dev;
+-	init_waitqueue_head(&ts->wait);
++	return 0;
++}
++#else
++static int tsc2007_probe_dt(struct i2c_client *client, struct tsc2007 =
+*ts,
++			    struct device_node *np)
++{
++	return -ENODEV;
++}
++#endif
++
++static int tsc2007_probe_pdev(struct i2c_client *client, struct tsc200=
+7 *ts,
++			      struct tsc2007_platform_data *pdata,
++			      const struct i2c_device_id *id)
++{
++	if (!pdata) {
++		dev_err(&client->dev, "platform data is required!\n");
++		return -EINVAL;
++	}
+=20
+ 	ts->model             =3D pdata->model;
+ 	ts->x_plate_ohms      =3D pdata->x_plate_ohms;
+@@ -309,13 +362,57 @@ static int tsc2007_probe(struct i2c_client *clien=
+t,
+ 	ts->poll_period       =3D pdata->poll_period ? : 1;
+ 	ts->get_pendown_state =3D pdata->get_pendown_state;
+ 	ts->clear_penirq      =3D pdata->clear_penirq;
++	ts->fuzzy             =3D pdata->fuzzy;
+=20
+ 	if (pdata->x_plate_ohms =3D=3D 0) {
+ 		dev_err(&client->dev, "x_plate_ohms is not set up in platform data")=
+;
+-		err =3D -EINVAL;
+-		goto err_free_mem;
++		return -EINVAL;
+ 	}
+=20
++	/* Used to detect if it is probed trough the device tree,
++	 * in order to be able to use that information in the IRQ handler.
++	 */
++	ts->of =3D 0;
++
++	return 0;
++}
++
++static int tsc2007_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id)
++{
++	struct device_node *np =3D client->dev.of_node;
++	struct tsc2007_platform_data *pdata =3D client->dev.platform_data;
++	struct tsc2007 *ts;
++	struct input_dev *input_dev;
++	int err =3D 0;
++
++	ts =3D devm_kzalloc(&client->dev, sizeof(struct tsc2007), GFP_KERNEL)=
+;
++	if (!ts)
++		return -ENOMEM;
++
++	if (np)
++		err =3D tsc2007_probe_dt(client, ts, np);
++	else
++		err =3D tsc2007_probe_pdev(client, ts, pdata, id);
++
++	if (err)
++		return err;
++
++	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_SMBUS_READ_WORD_DATA))
++		return -EIO;
++
++	input_dev =3D input_allocate_device();
++	if (!input_dev) {
++		err =3D -ENOMEM;
++		goto err_free_input;
++	};
++
++	ts->client =3D client;
++	ts->irq =3D client->irq;
++	ts->input =3D input_dev;
++	init_waitqueue_head(&ts->wait);
++
+ 	snprintf(ts->phys, sizeof(ts->phys),
+ 		 "%s/input0", dev_name(&client->dev));
+=20
+@@ -331,19 +428,21 @@ static int tsc2007_probe(struct i2c_client *clien=
+t,
+ 	input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+ 	input_dev->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
+=20
+-	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, pdata->fuzzx, 0)=
+;
+-	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, pdata->fuzzy, 0)=
+;
++	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, ts->fuzzy, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, ts->fuzzy, 0);
+ 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT,
+-			pdata->fuzzz, 0);
++			     ts->fuzzy, 0);
+=20
+-	if (pdata->init_platform_hw)
+-		pdata->init_platform_hw();
++	if (!np) {
++		if (pdata->init_platform_hw)
++			pdata->init_platform_hw();
++	}
+=20
+ 	err =3D request_threaded_irq(ts->irq, tsc2007_hard_irq, tsc2007_soft_=
+irq,
+ 				   IRQF_ONESHOT, client->dev.driver->name, ts);
+ 	if (err < 0) {
+ 		dev_err(&client->dev, "irq %d busy?\n", ts->irq);
+-		goto err_free_mem;
++		goto err_free_input;
+ 	}
+=20
+ 	tsc2007_stop(ts);
+@@ -358,23 +457,27 @@ static int tsc2007_probe(struct i2c_client *clien=
+t,
+=20
+  err_free_irq:
+ 	free_irq(ts->irq, ts);
+-	if (pdata->exit_platform_hw)
+-		pdata->exit_platform_hw();
+- err_free_mem:
++	if (!np) {
++		if (pdata->exit_platform_hw)
++			pdata->exit_platform_hw();
++	}
++ err_free_input:
+ 	input_free_device(input_dev);
+-	kfree(ts);
+ 	return err;
+ }
+=20
+ static int tsc2007_remove(struct i2c_client *client)
+ {
++	struct device_node *np =3D client->dev.of_node;
+ 	struct tsc2007	*ts =3D i2c_get_clientdata(client);
+ 	struct tsc2007_platform_data *pdata =3D client->dev.platform_data;
+=20
+ 	free_irq(ts->irq, ts);
+=20
+-	if (pdata->exit_platform_hw)
+-		pdata->exit_platform_hw();
++	if (!np) {
++		if (pdata->exit_platform_hw)
++			pdata->exit_platform_hw();
++	}
+=20
+ 	input_unregister_device(ts->input);
+ 	kfree(ts);
+@@ -389,10 +492,19 @@ static const struct i2c_device_id tsc2007_idtable=
+[] =3D {
+=20
+ MODULE_DEVICE_TABLE(i2c, tsc2007_idtable);
+=20
++#ifdef CONFIG_OF
++static const struct of_device_id tsc2007_of_match[] =3D {
++	{ .compatible =3D "ti,tsc2007" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, tsc2007_of_match);
++#endif
++
+ static struct i2c_driver tsc2007_driver =3D {
+ 	.driver =3D {
+ 		.owner	=3D THIS_MODULE,
+-		.name	=3D "tsc2007"
++		.name	=3D "tsc2007",
++		.of_match_table =3D of_match_ptr(tsc2007_of_match),
+ 	},
+ 	.id_table	=3D tsc2007_idtable,
+ 	.probe		=3D tsc2007_probe,
+--=20
+1.7.9.5
 
-Hi Florian,
-
-On Thu, Oct 24, 2013 at 09:47:33AM +0200, Florian Vaussard wrote:
-> > +Required SoC Specific Properties:
-> > +- compatible: should be one of the following
-> > +   - "ti,twl4030-pwrbutton": For controllers compatible with twl4030
-> > +- interrupt: should be one of the following
-> > +   - <8>: For controllers compatible with twl4030
->=20
-> This is <8> for your particular case, but it will depend on your
-> SoC, won't it?  Moreover, this property will be most likely
-> inherited from the root twl node, so I do not see the need to
-> document it here. See:
->=20
-> Documentation/devicetree/bindings/mfd/twl-familly.txt
-
-No. This is an internal twl4030 interrupt. TWL4030 functions
-itself as an interrupt controller.
-
-> > +
-> > +Example:
-> > +	twl_pwrbutton: pwrbutton {
-> > +		compatible =3D "ti,twl4030-pwrbutton";
-> > +		interrupts =3D <8>;
-> > +	};
->=20
-> You are missing the root twl node here, no?
-
-So should I document it like this?
-
-twl4030 {
-    compatible =3D "ti,twl4030";
-
-    pwrbutton {
-        compatible =3D "ti,twl4030-pwrbutton";
-        interrupts =3D <8>;
-    };
-};
-
-> > diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/mis=
-c/twl4030-pwrbutton.c
-> > index b9a05fd..a3a0fe3 100644
-> > --- a/drivers/input/misc/twl4030-pwrbutton.c
-> > +++ b/drivers/input/misc/twl4030-pwrbutton.c
->=20
-> Missing #include <linux/of.h> ?
-
-It's included indirectly, but I should probably add a direct
-include. Thanks.
-
-> Best regards,
-
-Thanks for the comments. I will sent out an updated patchset later.
-
--- Sebastian
-
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBCAAGBQJSaNyNAAoJENju1/PIO/qaviEQAJgWOewpGQxQ0hPJP325+1Rm
-LVM5YxDke2xPKWteEDgEnOjGlgZjqOGU9ZwW5bOTc9yB7M0vlPK1qS9hKjF/7nRS
-cKPsoXo/8JxgfBjo9eBsUoXPv1gO/QpwBisLtiVfcQFDlSZlWYMwuQtD+rrdEUbq
-whTUvniz9vmGk3dyRFOWch7B6PGjVXA2rjrr7FzO5MgmfWgR8RlTQCFVm3I65wNM
-DYNfsTF/Mbah40wwJohF/QDk+4ZQKUbq5NLZKpO+yFR/Pc/IK2ePRaGVLl9WFv98
-uGWu99FvJ9gZq5K8N7WAWJWxaj456+6PXts6TlXQbUhWRrPa4xfFs5F9CQ6AKpsb
-4AmB2WYEt2r9SEcX8VYHMKCXQVy0/3O2DUiFpFzJUVcp4SqfRshhfP8L4vFU+6fz
-K0GmT2joL+gwcBqkRZ+Di1+uD4OrwfBKIxVG0YK38T1DNpZGJB2W3P62t0839Fmw
-tS1vUJnX6vOfbAbWTDLNz9iOBMqzFBX8cojZ9L0MAAHmbVra1OEMDjMXmdPp0J30
-P6vcV6PBFXMtt0X1DJLdGtx5Pl7paelKQGCgJI5YE2PBUWNQb7AvaTUhcjWO1rW+
-g8O7nmgIbwLjMZmJYjFaxx5V0kNroB23iPmgP2/9XLJekLdBlisQxjD99JDoH4f1
-4UBQQJEH3fkIPCE2jl2f
-=KrTs
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,92 +1,73 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 4/8] input: Remove OOM message after
- input_allocate_device
-Date: Thu, 24 Oct 2013 12:20:25 -0700
-Message-ID: <1382642425.22433.79.camel@joe-AO722>
-References: <cover.1382555436.git.joe@perches.com>
-	 <cc5e6a317bc9ef33cfdfae3ed9d3a47b5319a47b.1382555436.git.joe@perches.com>
-	 <20131024183707.GA5281@core.coreip.homeip.net>
-	 <1382640339.22433.73.camel@joe-AO722>
-	 <20131024191032.GA5553@core.coreip.homeip.net>
+From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
+Subject: Re: [PATCHv7][ 1/4] Input: tsc2007: Add device tree support.
+Date: Fri, 25 Oct 2013 07:56:39 +0200
+Message-ID: <20131025075639.75f45fb0@ipc1.ka-ro>
+References: <1382618536-25320-1-git-send-email-denis@eukrea.com>
+ <20131024164746.3CB36C403B6@trevor.secretlab.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20131024191032.GA5553@core.coreip.homeip.net>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Wan ZongShun <mcuos.com@gmail.com>, Andrey Moiseev <o2g.org.ru@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Josh Wu <josh.wu@atmel.com>, Ferruh Yigit <fery@cypress.com>, Pau Oliva Fora <pof@eslack.org>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20131024164746.3CB36C403B6@trevor.secretlab.ca>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric BXXnard <eric@eukrea.com>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <rob.herring@calxeda.com>, Denis Carikli <denis@eukrea.com>, Thierry Reding <thierry.reding@gmail.com>, Sascha Hauer <kernel@pengutronix.de>, linux-input@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2013-10-24 at 12:10 -0700, Dmitry Torokhov wrote:
-> On Thu, Oct 24, 2013 at 11:45:39AM -0700, Joe Perches wrote:
-> > On Thu, 2013-10-24 at 11:37 -0700, Dmitry Torokhov wrote:
-> > > Hi Joe,
-> > > 
-> > > On Wed, Oct 23, 2013 at 12:14:50PM -0700, Joe Perches wrote:
-> > > > Emitting an OOM message isn't necessary after input_allocate_device
-> > > > as there's a generic OOM and a dump_stack already done.
-> > > 
-> > > No, please don't. The kzalloc may get changed in the future to not dump
-> > > stack (that was added originally because not everyone was handling OOM
-> > > properly, right?), input core might get changed to use something else
-> > > than kzalloc, etc, etc.
-> > > 
-> > > The majority of errors use dev_err so we also get idea what device
-> > > failed (if there are several), and more.
-> > 
-> > I think that's not valuable as input_allocate_device already has
-> > dozens of locations that don't emit a specific OOM and centralizing
-> > the location for any generic message would work anyway.
-> 
-> Not having diagnostic messages in some of the drivers is hardly a
-> justification to remove them from everywhere else.
-
-But standardization is.
-
-If a diagnostic message is really desired
-without the already existing dump_stack(),
-it's a small matter of adding something like:
-
- drivers/input/input.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index c044699..98570c2 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1736,19 +1736,23 @@ struct input_dev *input_allocate_device(void)
- {
- 	struct input_dev *dev;
- 
--	dev = kzalloc(sizeof(struct input_dev), GFP_KERNEL);
--	if (dev) {
--		dev->dev.type = &input_dev_type;
--		dev->dev.class = &input_class;
--		device_initialize(&dev->dev);
--		mutex_init(&dev->mutex);
--		spin_lock_init(&dev->event_lock);
--		INIT_LIST_HEAD(&dev->h_list);
--		INIT_LIST_HEAD(&dev->node);
--
--		__module_get(THIS_MODULE);
-+	dev = kzalloc(sizeof(struct input_dev), GFP_KERNEL | __GFP_NOWARN);
-+	if (!dev) {
-+		pr_err("%pf: input_allocate_device failed\n",
-+		       __builtin_return_address(1));
-+		return NULL;
- 	}
- 
-+	dev->dev.type = &input_dev_type;
-+	dev->dev.class = &input_class;
-+	device_initialize(&dev->dev);
-+	mutex_init(&dev->mutex);
-+	spin_lock_init(&dev->event_lock);
-+	INIT_LIST_HEAD(&dev->h_list);
-+	INIT_LIST_HEAD(&dev->node);
-+
-+	__module_get(THIS_MODULE);
-+
- 	return dev;
- }
- EXPORT_SYMBOL(input_allocate_device);
+SGksCgpHcmFudCBMaWtlbHkgd3JvdGU6Cj4gT24gVGh1LCAyNCBPY3QgMjAxMyAxNDo0MjoxMyAr
+MDIwMCwgRGVuaXMgQ2FyaWtsaSA8ZGVuaXNAZXVrcmVhLmNvbT4gd3JvdGU6Cj4gPiBDYzogUm9i
+IEhlcnJpbmcgPHJvYi5oZXJyaW5nQGNhbHhlZGEuY29tPgo+ID4gQ2M6IFBhd2VsIE1vbGwgPHBh
+d2VsLm1vbGxAYXJtLmNvbT4KPiA+IENjOiBNYXJrIFJ1dGxhbmQgPG1hcmsucnV0bGFuZEBhcm0u
+Y29tPgo+ID4gQ2M6IFN0ZXBoZW4gV2FycmVuIDxzd2FycmVuQHd3d2RvdG9yZy5vcmc+Cj4gPiBD
+YzogSWFuIENhbXBiZWxsIDxpamMrZGV2aWNldHJlZUBoZWxsaW9uLm9yZy51az4KPiA+IENjOiBk
+ZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZwo+ID4gQ2M6IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5
+LnRvcm9raG92QGdtYWlsLmNvbT4KPiA+IENjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcK
+PiA+IENjOiBTYXNjaGEgSGF1ZXIgPGtlcm5lbEBwZW5ndXRyb25peC5kZT4KPiA+IENjOiBsaW51
+eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKPiA+IENjOiBMb3RoYXIgV2HDg8W4bWFu
+biA8TFdAS0FSTy1lbGVjdHJvbmljcy5kZT4KPiA+IENjOiBFcmljIELDg8KpbmFyZCA8ZXJpY0Bl
+dWtyZWEuY29tPgo+ID4gU2lnbmVkLW9mZi1ieTogRGVuaXMgQ2FyaWtsaSA8ZGVuaXNAZXVrcmVh
+LmNvbT4KPiA+IC0tLQo+ID4gQ2hhbmdlTG9nIHY2LT52NzoKPiA+IC0gT25lIHNtYWxsIHdoaXRl
+c3BhY2UgY2xlYW51cC4KPiA+IC0gVGhlIHByb3BlcnRpZXMgc3BlY2lmaWMgdG8gdGhhdCBkcml2
+ZXIgYXJlIG5vdyBwcmVmaXhlZCB3aXRoICJ0aSwiLgo+ID4gLSBUaGUgdGksZnV6enkgcHJvcGVy
+dHkgaGFzIG5vdyBiZXR0ZXIgZG9jdW1lbnRhdGlvbi4KPiA+IC0tLQo+ID4gIC4uLi9iaW5kaW5n
+cy9pbnB1dC90b3VjaHNjcmVlbi90c2MyMDA3LnR4dCAgICAgICAgIHwgICA0NSArKysrKwo+ID4g
+IGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdHNjMjAwNy5jICAgICAgICAgICAgICAgIHwgIDE5
+NCArKysrKysrKysrKysrKystLS0tLQo+ID4gIDIgZmlsZXMgY2hhbmdlZCwgMTk4IGluc2VydGlv
+bnMoKyksIDQxIGRlbGV0aW9ucygtKQo+ID4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0
+aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaW5wdXQvdG91Y2hzY3JlZW4vdHNjMjAwNy50eHQKPiA+
+IAo+ID4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1
+dC90b3VjaHNjcmVlbi90c2MyMDA3LnR4dCBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5k
+aW5ncy9pbnB1dC90b3VjaHNjcmVlbi90c2MyMDA3LnR4dAo+ID4gbmV3IGZpbGUgbW9kZSAxMDA2
+NDQKPiA+IGluZGV4IDAwMDAwMDAuLjUxNmI2M2IKPiA+IC0tLSAvZGV2L251bGwKPiA+ICsrKyBi
+L0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi90c2My
+MDA3LnR4dAo+ID4gQEAgLTAsMCArMSw0NSBAQAo+ID4gKyogVGV4YXMgSW5zdHJ1bWVudHMgdHNj
+MjAwNyB0b3VjaHNjcmVlbiBjb250cm9sbGVyCj4gPiArCj4gPiArUmVxdWlyZWQgcHJvcGVydGll
+czoKPiA+ICstIGNvbXBhdGlibGU6IG11c3QgYmUgInRpLHRzYzIwMDciLgo+ID4gKy0gcmVnOiBJ
+MkMgYWRkcmVzcyBvZiB0aGUgY2hpcC4KPiA+ICstIHRpLHgtcGxhdGUtb2htczogWC1wbGF0ZSBy
+ZXNpc3RhbmNlIGluIG9obXMuCj4gPiArCj4gPiArT3B0aW9uYWwgcHJvcGVydGllczoKPiA+ICst
+IGdwaW9zOiB0aGUgaW50ZXJydXB0IGdwaW8gdGhlIGNoaXAgaXMgY29ubmVjdGVkIHRvICh0cm91
+Z2ggdGhlIHBlbmlycSBwaW4pCj4gPiArICAoc2VlIEdQSU8gYmluZGluZ1syXSBmb3IgbW9yZSBk
+ZXRhaWxzKS4KPiAKPiBIbW1tLCB3aHkgaXMgdGhpcyBuZWVkZWQ/IElzIHRoZSBsaW5lIHVzZWQg
+Zm9yIGFueXRoaW5nIG90aGVyIHRoYW4KPiBmaW5kaW5nIHRoZSBpcnEgbnVtYmVyPyBJZiBpdCBp
+cyBqdXN0IGFuIGludGVycnVwdCB0aGVuIGFuIGludGVycnVwdHMKPiBwcm9wZXJ0eSBpcyBhbGwg
+dGhhdCBzaG91bGQgYmUgc3BlY2lmaWVkLgo+IApJdCdzIGFsc28gdGhlIHBlbmRvd24gZGV0ZWN0
+IEdQSU8uIEl0IGFzc2VydHMgYW4gaW50ZXJydXB0IHdoZW4gZmlyc3QKYWN0aXZhdGVkIGFuZCBp
+cyB0aGVuIHBvbGxlZCBpbiB0aGUgZHJpdmVyIHVudGlsIGl0IGdvZXMgaW5hY3RpdmUgYWdhaW4u
+CgoKTG90aGFyIFdhw59tYW5uCi0tIApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwoKS2EtUm8gZWxlY3Ryb25pY3MgR21iSCB8IFBhc2Nh
+bHN0cmHDn2UgMjIgfCBEIC0gNTIwNzYgQWFjaGVuClBob25lOiArNDkgMjQwOCAxNDAyLTAgfCBG
+YXg6ICs0OSAyNDA4IDE0MDItMTAKR2VzY2jDpGZ0c2bDvGhyZXI6IE1hdHRoaWFzIEthdXNzZW4K
+SGFuZGVsc3JlZ2lzdGVyZWludHJhZzogQW10c2dlcmljaHQgQWFjaGVuLCBIUkIgNDk5NgoKd3d3
+Lmthcm8tZWxlY3Ryb25pY3MuZGUgfCBpbmZvQGthcm8tZWxlY3Ryb25pY3MuZGUKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJu
+ZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRw
+Oi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK

@@ -1,33 +1,61 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Added Holtek USB ID 04d9:a072 LEETGION Hellion
- Gaming Mouse
-Date: Fri, 25 Oct 2013 10:28:11 +0100 (BST)
-Message-ID: <alpine.LNX.2.00.1310251028010.30926@pobox.suse.cz>
-References: <1382391742-31335-1-git-send-email-ablacksheep@gmail.com>
+From: Forest Bond <forest@forestbond.com>
+Subject: Re: [PATCH] HID: hid-multitouch: add support for SiS panels
+Date: Fri, 25 Oct 2013 07:56:11 -0400
+Message-ID: <20131025115611.GI30240@alittletooquiet.net>
+References: <20131021163849.GC30240@alittletooquiet.net>
+ <alpine.LNX.2.00.1310250947340.30926@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1382391742-31335-1-git-send-email-ablacksheep@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?Anders_F=2E_U=2E_Ki=E6r?= <ablacksheep@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from storm.alittletooquiet.net ([67.23.28.199]:48331 "EHLO
+	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751863Ab3JYMML (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Oct 2013 08:12:11 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1310250947340.30926@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 21 Oct 2013, Anders F. U. Ki=C3=A6r wrote:
 
->  Added id, bindings and comments for Holtek USB ID 04d9:a072
->  LEETGION Hellion Gaming mouse to use the same corrections of the rep=
-ort
->  descriptor as Holtek 04d9:a067. As the mouse exceed HID_MAX_USAGES a=
-t the
->  same offsets in the reported descriptor.
->  Tested on the hardware.
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Jiri,
+
+On Fri, Oct 25, 2013 at 09:47:55AM +0100, Jiri Kosina wrote:
+> On Mon, 21 Oct 2013, Forest Bond wrote:
 >=20
-> Signed-off-by: Anders F. U. Ki=C3=A6r <ablacksheep@gmail.com>
+> > From: Forest Bond <forest.bond@rapidrollout.com>
+> >=20
+> > Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
+>=20
+> Added changelog (I don't like commits without changelog) and applied.
 
-Applied, thanks.
+Noted.  Thanks!
 
+-Forest
 --=20
-Jiri Kosina
-SUSE Labs
+Forest Bond
+http://www.forestbond.com/
+http://www.rapidrollout.com/
+
+--8t9RHnE3ZwKMSgU+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlJqXFsACgkQRO4fQQdv5Ax7+ACgyY2dalKMNKgWasdhZlJpZN8h
+vWYAoJG9xxX7mppdIemCF9hSDP5EiMb8
+=fJmb
+-----END PGP SIGNATURE-----
+
+--8t9RHnE3ZwKMSgU+--

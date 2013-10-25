@@ -1,62 +1,124 @@
-From: Sebastian Reichel <sre@debian.org>
+From: Grant Likely <grant.likely@linaro.org>
 Subject: Re: [PATCHv6 1/3] Input: twl4030-pwrbutton - add device tree support
-Date: Sat, 26 Oct 2013 00:18:52 +0200
-Message-ID: <20131025221850.GA8657@earth.universe>
-References: <1382626126-12565-1-git-send-email-sre@debian.org>
- <1382626126-12565-2-git-send-email-sre@debian.org>
- <FC6F0077-7E61-4F64-94E5-10E8FEF1F1E4@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+Date: Fri, 25 Oct 2013 20:09:04 +0100
+Message-ID: <20131025190904.3EE93C403B8@trevor.secretlab.ca>
+References: <1382626126-12565-1-git-send-email-sre@debian.org> <1382626126-12565-2-git-send-email-sre@debian.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ring0.de ([91.143.88.219]:53177 "EHLO smtp.ring0.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751658Ab3JYWTD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Oct 2013 18:19:03 -0400
-Content-Disposition: inline
-In-Reply-To: <FC6F0077-7E61-4F64-94E5-10E8FEF1F1E4@codeaurora.org>
+Received: from mail-wg0-f46.google.com ([74.125.82.46]:46617 "EHLO
+	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752042Ab3JYWvH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Oct 2013 18:51:07 -0400
+Received: by mail-wg0-f46.google.com with SMTP id m15so4453999wgh.25
+        for <linux-input@vger.kernel.org>; Fri, 25 Oct 2013 15:51:05 -0700 (PDT)
+In-Reply-To: <1382626126-12565-2-git-send-email-sre@debian.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kumar Gala <galak@codeaurora.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, Florian Vaussard <florian.vaussard@epfl.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <rob.herring@calxeda.com>, Sebastian Reichel <sre@debian.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, Florian Vaussard <florian.vaussard@epfl.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
+On Thu, 24 Oct 2013 16:48:44 +0200, Sebastian Reichel <sre@debian.org> wrote:
+> Add device tree support for twl4030 power button driver.
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The above commit text is insufficient. There are changes in the patch
+that aren't described here and have nothing to do with device tree
+bindings.
 
-On Fri, Oct 25, 2013 at 04:41:20PM -0500, Kumar Gala wrote:
-> On Oct 24, 2013, at 9:48 AM, Sebastian Reichel wrote:
-> > +- interrupt: should be one of the following
-> > +   - <8>: For controllers compatible with twl4030
->=20
-> Just checking, but the interrupt is always 8 for this device?
+> 
+> Signed-off-by: Sebastian Reichel <sre@debian.org>
+> ---
+>  .../devicetree/bindings/input/twl4030-pwrbutton.txt | 21 +++++++++++++++++++++
+>  drivers/input/misc/twl4030-pwrbutton.c              | 16 ++++++++++++----
+>  2 files changed, 33 insertions(+), 4 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+> new file mode 100644
+> index 0000000..4375646
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+> @@ -0,0 +1,21 @@
+> +Texas Instruments TWL family (twl4030) pwrbutton module
 
-Yes. It's currently hardcoded in drivers/mfd/twl-core.c.
+Can all of the TWL or TWL4030 funciton bindings be collected into a
+single file please? It is a single device after all. All of it should be
+in bindings/mfd/twl-family.txt
 
--- Sebastian
+> +
+> +This module is part of the TWL4030. For more details about the whole
+> +chip see Documentation/devicetree/bindings/mfd/twl-familly.txt.
+> +
+> +This module provides a simple power button event via an Interrupt.
+> +
+> +Required properties:
+> +- compatible: should be one of the following
+> +   - "ti,twl4030-pwrbutton": For controllers compatible with twl4030
+> +- interrupt: should be one of the following
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Spelling: s/interrupt/interrupts/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+> +   - <8>: For controllers compatible with twl4030
+> +
+> +Example:
+> +
+> +&twl {
+> +	twl_pwrbutton: pwrbutton {
+> +		compatible = "ti,twl4030-pwrbutton";
+> +		interrupts = <8>;
+> +	};
+> +};
+> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+> index b9a05fd..a3a0fe3 100644
+> --- a/drivers/input/misc/twl4030-pwrbutton.c
+> +++ b/drivers/input/misc/twl4030-pwrbutton.c
+> @@ -52,7 +52,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -static int __init twl4030_pwrbutton_probe(struct platform_device *pdev)
+> +static int twl4030_pwrbutton_probe(struct platform_device *pdev)
+>  {
+>  	struct input_dev *pwr;
+>  	int irq = platform_get_irq(pdev, 0);
+> @@ -106,16 +106,24 @@ static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +#if IS_ENABLED(CONFIG_OF)
+> +static const struct of_device_id twl4030_pwrbutton_dt_match_table[] = {
+> +       { .compatible = "ti,twl4030-pwrbutton" },
+> +       {},
+> +};
+> +MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
+> +#endif
+> +
+>  static struct platform_driver twl4030_pwrbutton_driver = {
+> +	.probe		= twl4030_pwrbutton_probe,
+>  	.remove		= __exit_p(twl4030_pwrbutton_remove),
 
-iQIcBAEBCAAGBQJSau5KAAoJENju1/PIO/qaIokP/1RaF9TR1vfiQdBkVzhjTMNM
-O0mHgNHPfuUUHsViwmGwx9AJ6aspLhSvTVr7KByhm/JgbSRuLfOV2wrFR3ptH1e9
-MTaENaI8yfSxQTVtxTQFyd9QEFPP4iGlBonKHjY+Mgo8gGPBErqOMg12tL40RgYz
-nOQ4WBg+sP4/jEyusz7uNvGK3wurM2evLL5TJV+GviWgt/gL8VYZq8UPOFJu0YpD
-Z+fAnKK0hAtbsVoTjmNbF0GRkt2oo5w25H0iZ1RWKVtDfYXZdzuQRqZObmt68pTQ
-P6bJnQOctkahXv3Kp2g7b/Is8fS/04zat5xz1+aXqMjuXdJT3Cuzgoano0mFHxMo
-saNEwZSRIgSDTF4wARJn8X95L3TciTvHwAuqF1iS/PYzgCmt14pGNnbsRhZa7Agb
-RAmwNiWnkKtccMEzcoSNuvQx3NNKdu9NvVW62P6A3lSyI4tfFlwV5CZkNA6FvqNt
-HENpnoESX+j2zVx3kpM+MwrpKDxsPKNSqXeJZRnGv7zAL3X7TEY5zOO8sfixbPxB
-b5conGRQ6s0B6VAg9RMJCdtzIUT74TK8ebSwLLJqggaAoLcJJlV+DM9FwJjgvEFP
-6x/LhbfTu0R9RnHlpfkEwKCGPNTyCNSzRIGCkKgYRSWQ+retpuoa7DTuWHWT36s2
-PT0O0Kxazgb/8blQBY2j
-=sRTo
------END PGP SIGNATURE-----
+Remove the __exit_p() wrapper. __exit is for module exit functions, not
+remove hooks (I know, that's not actually this patch, but the code is
+definitely wrong here).
 
---Nq2Wo0NMKNjxTN9z--
+>  	.driver		= {
+>  		.name	= "twl4030_pwrbutton",
+>  		.owner	= THIS_MODULE,
+> +		.of_match_table = of_match_ptr(twl4030_pwrbutton_dt_match_table),
+>  	},
+>  };
+> -
+> -module_platform_driver_probe(twl4030_pwrbutton_driver,
+> -			twl4030_pwrbutton_probe);
+> +module_platform_driver(twl4030_pwrbutton_driver);
+>  
+>  MODULE_ALIAS("platform:twl4030_pwrbutton");
+>  MODULE_DESCRIPTION("Triton2 Power Button");
+> -- 
+> 1.8.4.rc3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

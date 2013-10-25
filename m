@@ -1,89 +1,63 @@
-From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
-Subject: Re: [PATCHv7][ 1/4] Input: tsc2007: Add device tree support.
-Date: Fri, 25 Oct 2013 08:39:51 +0200
-Message-ID: <20131025083951.18675574@ipc1.ka-ro>
-References: <1382618536-25320-1-git-send-email-denis@eukrea.com>
- <20131024151736.GE9044@ulmo.nvidia.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v4] Input: add regulator haptic driver
+Date: Fri, 25 Oct 2013 09:29:44 +0100
+Message-ID: <20131025082944.GK18506@sirena.org.uk>
+References: <000101cec628$aaff69a0$00fe3ce0$%kim@samsung.com>
+ <20131024133836.GG18506@sirena.org.uk>
+ <002601ced14b$9c412330$d4c36990$%kim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20131024151736.GE9044@ulmo.nvidia.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric =?UTF-8?B?QsOpbmFyZA==?= <eric@eukrea.com>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Linus Walleij <linus.walleij@linaro.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Denis Carikli <denis@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-input@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BFVE2HhgxTpCzM8t"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:36113 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751464Ab3JYIaU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Oct 2013 04:30:20 -0400
+Content-Disposition: inline
+In-Reply-To: <002601ced14b$9c412330$d4c36990$%kim@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hyunhee Kim <hyunhee.kim@samsung.com>
+Cc: dmitry.torokhov@gmail.com, peter.ujfalusi@ti.com, wfp5p@virginia.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, kyungmin.park@samsung.com
 
-SGksCgpUaGllcnJ5IFJlZGluZyB3cm90ZToKPiBPbiBUaHUsIE9jdCAyNCwgMjAxMyBhdCAwMjo0
-MjoxM1BNICswMjAwLCBEZW5pcyBDYXJpa2xpIHdyb3RlOgo+ID4gQ2M6IFJvYiBIZXJyaW5nIDxy
-b2IuaGVycmluZ0BjYWx4ZWRhLmNvbT4KPiA+IENjOiBQYXdlbCBNb2xsIDxwYXdlbC5tb2xsQGFy
-bS5jb20+Cj4gPiBDYzogTWFyayBSdXRsYW5kIDxtYXJrLnJ1dGxhbmRAYXJtLmNvbT4KPiA+IENj
-OiBTdGVwaGVuIFdhcnJlbiA8c3dhcnJlbkB3d3dkb3Rvcmcub3JnPgo+ID4gQ2M6IElhbiBDYW1w
-YmVsbCA8aWpjK2RldmljZXRyZWVAaGVsbGlvbi5vcmcudWs+Cj4gPiBDYzogZGV2aWNldHJlZUB2
-Z2VyLmtlcm5lbC5vcmcKPiA+IENjOiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBn
-bWFpbC5jb20+Cj4gPiBDYzogbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnCj4gPiBDYzogU2Fz
-Y2hhIEhhdWVyIDxrZXJuZWxAcGVuZ3V0cm9uaXguZGU+Cj4gPiBDYzogbGludXgtYXJtLWtlcm5l
-bEBsaXN0cy5pbmZyYWRlYWQub3JnCj4gPiBDYzogTG90aGFyIFdhw59tYW5uIDxMV0BLQVJPLWVs
-ZWN0cm9uaWNzLmRlPgo+ID4gQ2M6IEVyaWMgQsOpbmFyZCA8ZXJpY0BldWtyZWEuY29tPgo+ID4g
-U2lnbmVkLW9mZi1ieTogRGVuaXMgQ2FyaWtsaSA8ZGVuaXNAZXVrcmVhLmNvbT4KPiA+IC0tLQo+
-ID4gQ2hhbmdlTG9nIHY2LT52NzoKPiA+IC0gT25lIHNtYWxsIHdoaXRlc3BhY2UgY2xlYW51cC4K
-PiA+IC0gVGhlIHByb3BlcnRpZXMgc3BlY2lmaWMgdG8gdGhhdCBkcml2ZXIgYXJlIG5vdyBwcmVm
-aXhlZCB3aXRoICJ0aSwiLgo+ID4gLSBUaGUgdGksZnV6enkgcHJvcGVydHkgaGFzIG5vdyBiZXR0
-ZXIgZG9jdW1lbnRhdGlvbi4KPiA+IC0tLQo+ID4gIC4uLi9iaW5kaW5ncy9pbnB1dC90b3VjaHNj
-cmVlbi90c2MyMDA3LnR4dCAgICAgICAgIHwgICA0NSArKysrKwo+ID4gIGRyaXZlcnMvaW5wdXQv
-dG91Y2hzY3JlZW4vdHNjMjAwNy5jICAgICAgICAgICAgICAgIHwgIDE5NCArKysrKysrKysrKysr
-KystLS0tLQo+ID4gIDIgZmlsZXMgY2hhbmdlZCwgMTk4IGluc2VydGlvbnMoKyksIDQxIGRlbGV0
-aW9ucygtKQo+ID4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUv
-YmluZGluZ3MvaW5wdXQvdG91Y2hzY3JlZW4vdHNjMjAwNy50eHQKPiA+IAo+ID4gZGlmZiAtLWdp
-dCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi90
-c2MyMDA3LnR4dCBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3Vj
-aHNjcmVlbi90c2MyMDA3LnR4dAo+ID4gbmV3IGZpbGUgbW9kZSAxMDA2NDQKPiA+IGluZGV4IDAw
-MDAwMDAuLjUxNmI2M2IKPiA+IC0tLSAvZGV2L251bGwKPiA+ICsrKyBiL0RvY3VtZW50YXRpb24v
-ZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi90c2MyMDA3LnR4dAo+ID4gQEAg
-LTAsMCArMSw0NSBAQAo+ID4gKyogVGV4YXMgSW5zdHJ1bWVudHMgdHNjMjAwNyB0b3VjaHNjcmVl
-biBjb250cm9sbGVyCj4gPiArCj4gPiArUmVxdWlyZWQgcHJvcGVydGllczoKPiA+ICstIGNvbXBh
-dGlibGU6IG11c3QgYmUgInRpLHRzYzIwMDciLgo+ID4gKy0gcmVnOiBJMkMgYWRkcmVzcyBvZiB0
-aGUgY2hpcC4KPiA+ICstIHRpLHgtcGxhdGUtb2htczogWC1wbGF0ZSByZXNpc3RhbmNlIGluIG9o
-bXMuCj4gPiArCj4gPiArT3B0aW9uYWwgcHJvcGVydGllczoKPiA+ICstIGdwaW9zOiB0aGUgaW50
-ZXJydXB0IGdwaW8gdGhlIGNoaXAgaXMgY29ubmVjdGVkIHRvICh0cm91Z2ggdGhlIHBlbmlycSBw
-aW4pCj4gPiArICAoc2VlIEdQSU8gYmluZGluZ1syXSBmb3IgbW9yZSBkZXRhaWxzKS4KPiA+ICst
-IGludGVycnVwdC1wYXJlbnQ6IHRoZSBwaGFuZGxlIGZvciB0aGUgZ3BpbyBjb250cm9sbGVyCj4g
-PiArICAoc2VlIGludGVycnVwdCBiaW5kaW5nWzFdKS4KPiA+ICstIGludGVycnVwdHM6IChncGlv
-KSBpbnRlcnJ1cHQgdG8gd2hpY2ggdGhlIGNoaXAgaXMgY29ubmVjdGVkCj4gPiArICAoc2VlIGlu
-dGVycnVwdCBiaW5kaW5nWzFdKS4KPiA+ICstIHBpbmN0cmwtMDogU2hvdWxkIHNwZWNpZnkgcGlu
-IGNvbnRyb2wgZ3JvdXBzIHVzZWQgZm9yIHRoZSBncGlvCj4gPiArICAoc2VlIHBpbmN0cmwgYmlu
-ZGluZ3NbMF0pLgo+ID4gKy0gcGluY3RybC1uYW1lczogU2hvdWxkIGNvbnRhaW4gb25seSBvbmUg
-dmFsdWUgLSAiZGVmYXVsdCIKPiA+ICsgIChzZWUgcGluY3RybCBiaW5kaW5nc1swXSkuCj4gCj4g
-QWxzbyBJIGhhdmVuJ3Qgc2VlbiBhIHJlc3BvbnNlIGFzIHRvIHdoeSB0aGlzIGNhbid0IGJlIGhh
-bmRsZWQgYnkgdGhlCj4gR1BJTyBkcml2ZXIuIEFkZGluZyBMaW51cyBXYWxsZWlqLCBwZXJoYXBz
-IGhlIGtub3dzIGEgbW9yZSBkZWZpbml0aXZlCj4gYW5zd2VyLgo+IAo+IExpbnVzLCB0aGUgaXNz
-dWUgaGVyZSBpcyB0aGF0IHRoZSBwaW5jdHJsIHByb3BlcnRpZXMgZm9yIHRoaXMgY2hpcCBhcmUK
-PiBzdXBwb3NlZCB0byBwaW5tdXggdGhlIHBlbmRvd24gR1BJTyBmb3IgdGhpcyBjaGlwLiBJIHdh
-cyB1bmRlciB0aGUKPiBpbXByZXNzaW9uIHRoYXQgdGhpcyBzaG91bGQgYmUgaGFuZGxlZCBieSB0
-aGUgR1BJTyBjb250cm9sbGVyIGl0c2VsZiwgc28KPiB0aGF0IHdoZW4gZ3Bpb19yZXF1ZXN0KCkg
-d2FzIGNhbGxlZCBvbiBhIHBpbiBpdCB3b3VsZCBiZSB0aGUgR1BJTwo+IGNvbnRyb2xsZXIgZHJp
-dmVyJ3MgcmVzcG9uc2liaWxpdHkgdG8gcGlubXV4IGl0IGFwcHJvcHJpYXRlbHkuCj4gCldoZW4g
-YSBHUElPIGlzIHJlcXVlc3RlZCB0aGUgR1BJTyBsYXllciBjYW5ub3Qga25vdyB3aGF0IGl0IGlz
-CnJlcXVlc3RlZCBmb3IgYW5kIGhvdyB0aGUgcGlubXV4IGZvciB0aGUgcGluIGZ1bmN0aW9uIHNo
-b3VsZCBiZQpjb25maWd1cmVkIChwdWxsdXBzLCBkcml2ZSBzdHJlbmd0aCwgLi4uKS4gQSBwaW4g
-bWF5IGhhdmUgbXVsdGlwbGUKZnVuY3Rpb25zIGRlcGVuZGluZyBvbiB3aGF0IG1vZHVsZXMgYXJl
-IHBsdWdnZWQgaW50byBhIGJhc2Vib2FyZC4KClRodXMgdGhlIHBpbmN0cmwgYmluZGluZyBuZWVk
-cyB0byBiZSB3aXRoIHRoZSBkcml2ZXIgdGhhdCB1c2VzIHRoZSBwaW4uCgoKTG90aGFyIFdhw59t
-YW5uCi0tIApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwoKS2EtUm8gZWxlY3Ryb25pY3MgR21iSCB8IFBhc2NhbHN0cmHDn2UgMjIgfCBE
-IC0gNTIwNzYgQWFjaGVuClBob25lOiArNDkgMjQwOCAxNDAyLTAgfCBGYXg6ICs0OSAyNDA4IDE0
-MDItMTAKR2VzY2jDpGZ0c2bDvGhyZXI6IE1hdHRoaWFzIEthdXNzZW4KSGFuZGVsc3JlZ2lzdGVy
-ZWludHJhZzogQW10c2dlcmljaHQgQWFjaGVuLCBIUkIgNDk5NgoKd3d3Lmthcm8tZWxlY3Ryb25p
-Y3MuZGUgfCBpbmZvQGthcm8tZWxlY3Ryb25pY3MuZGUKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0
-CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFk
-ZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+
+--BFVE2HhgxTpCzM8t
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, Oct 25, 2013 at 03:29:51PM +0900, Hyunhee Kim wrote:
+> From: Hyunhee Kim <hyunhee.kim@samsung.com>
+> Date: Wed, 9 Oct 2013 16:21:36 +0900
+> Subject: [PATCH] Input: add regulator haptic driver
+
+This is OK from a regulator point of view though there's still a lot of
+use of regulator devm_ and input devm_ that could happen - it wasn't
+just the kzalloc(), it was most of the allocations in the driver.
+
+You also have some word wrapping in your e-mail so the patch probably
+won't apply.
+
+--BFVE2HhgxTpCzM8t
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSaiv0AAoJELSic+t+oim9j3AP/irkpPAqOH6Mf1xklvWGl6/p
+2aEY1MS4g6syu0UPkNMTcGdgr/ex5qjjgM56+eJb9blgcJdRLcnWLD1uCVd5ePX4
+Dfg8+R/M2higJpNK6LagEqfigXGHHNysWoi9eLNW1aoZArZ4JAJGTjVHgxzHxZ2h
+w19dsvDDmGPD/OcVDNwM5jCbeVIjtOAQC5LmrqvRi31Z1uTmgObH0E/Z9y0AYB9y
+jG2oLVCRzFqss7nbGrJ7ttRjMJtsdLsOaxvXuXTJhhoGU6eA3sEbxHOB429VjPi3
+kEl2nhG5bg9n9dAEHKaiL1vLnVt8wKv8vBwSK2NKeIwp10fVBWrCjPuI5NToMDnP
+9KzleikCkEcgyDnR6HuerOFrLMIXasDm1coE9twlNN1HuVvjvKBZ1MAmP9BjcQnf
+0WMspTqzpVppURcE4/yhcAiNDufSfhbD316ugJ5DP7YaRsfNoQOY82rlqAv8ByNG
+zQNMcXsTqIPKdUmvgosLqbZbmwrJz871HD0aE9ZflnKZ8MeCwaf7QwMLsbYmlgg2
+V6pEevkfadlZr3/uQEf8xUsHbJtj30naLYnClcQUq5eEr5OoUYE1aRSEoUCdDE9e
+a5iJjHYtbQNzEzYoAwrAE23IRZLVAcd3ii30dLfSCFGIOkgJJgb3YbOQpLvPAqBg
+5dk9CXq+59F8qO3B+767
+=uhLj
+-----END PGP SIGNATURE-----
+
+--BFVE2HhgxTpCzM8t--

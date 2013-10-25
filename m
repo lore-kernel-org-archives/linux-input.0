@@ -1,25 +1,89 @@
-From: Torrey Hoffman <thoffman@arnor.net>
-Subject: Re: changes to ati_remote to support ATI Remote Wonder Plus RF Remote Control
-Date: Fri, 25 Oct 2013 16:28:49 +0200
-Message-ID: <CAA0J1PApOTc-n43DOnaETxHwhujMKJ16VCbnpyVH0SPMTi9HAg@mail.gmail.com>
-References: <34245.198.84.133.226.1382707162.squirrel@cargocult.ca>
+From: Sebastian Reichel <sre@debian.org>
+Subject: Re: [PATCHv6 1/3] Input: twl4030-pwrbutton - add device tree support
+Date: Fri, 25 Oct 2013 16:44:28 +0200
+Message-ID: <20131025144427.GA14862@earth.universe>
+References: <1382626126-12565-1-git-send-email-sre@debian.org>
+ <1382626126-12565-2-git-send-email-sre@debian.org>
+ <526A680A.8090308@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f177.google.com ([209.85.217.177]:55097 "EHLO
-	mail-lb0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751967Ab3JYO3L (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Oct 2013 10:29:11 -0400
-Received: by mail-lb0-f177.google.com with SMTP id u14so784709lbd.8
-        for <linux-input@vger.kernel.org>; Fri, 25 Oct 2013 07:29:10 -0700 (PDT)
-In-Reply-To: <34245.198.84.133.226.1382707162.squirrel@cargocult.ca>
+Received: from ring0.de ([91.143.88.219]:51611 "EHLO smtp.ring0.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753349Ab3JYOoy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Oct 2013 10:44:54 -0400
+Content-Disposition: inline
+In-Reply-To: <526A680A.8090308@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: sfo@cargocult.ca
-Cc: linux-input@vger.kernel.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Sachin Kamat <sachin.kamat@linaro.org>, Florian Vaussard <florian.vaussard@epfl.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-I should mention that of course, I don't get to 'decide' who the
-official maintainer of anything is :-)
-But given that Stephen is willing to work on it, he has my blessing,
-for what that's worth.
+
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi P=E9ter,
+
+On Fri, Oct 25, 2013 at 03:46:02PM +0300, Peter Ujfalusi wrote:
+> > [...]
+> > +#if IS_ENABLED(CONFIG_OF)
+>=20
+> You don't need to do this.
+
+It's done like this in all the other drivers.
+
+> > +static const struct of_device_id twl4030_pwrbutton_dt_match_table[] =
+=3D {
+> > +       { .compatible =3D "ti,twl4030-pwrbutton" },
+> > +       {},
+> > +};
+> > +MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
+> > +#endif
+> > +
+> >  static struct platform_driver twl4030_pwrbutton_driver =3D {
+> > +	.probe		=3D twl4030_pwrbutton_probe,
+> >  	.remove		=3D __exit_p(twl4030_pwrbutton_remove),
+> >  	.driver		=3D {
+> >  		.name	=3D "twl4030_pwrbutton",
+> >  		.owner	=3D THIS_MODULE,
+> > +		.of_match_table =3D of_match_ptr(twl4030_pwrbutton_dt_match_table),
+>=20
+> If you try to compile this driver with config !CONFIG_OF it will not work=
+ in
+> this way.
+
+For !CONFIG_OF of_match_ptr is defined as follows (in "include/linux/of.h"):
+
+#define of_match_ptr(_ptr)  NULL
+
+So the preprocessor will remove the undefined symbol.
+
+-- Sebastian
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBCAAGBQJSaoPLAAoJENju1/PIO/qapscP/1wH218rX6suEps9GQ3nqB/8
+ttufgBcA/qofrMTgTYPSYleEZrGEA1VIW4SGLnQvsHhivnMHlavki2nbw2ib88CA
+99G6tOqaCnKjmy6pJoOyWK4VK2oreI1MGgd55dTxEMApBcyEhNi/Ch1p3xe/gBWw
+3BvlQTg1qo9rc0Bpo4qzHjHUAOOsEbJVqXVwpUHVApZGHo4nwhbiVapkEvA5pTgo
+6617/CZv5Ttoq6uHJeaD9STuQ8c5REzWMSuLtBqaMOQC8CQTcSXjmuNlai/QTFQe
+6dd9q56QDu/Ji93kT03Y3EhXek7L/rOKs4GjatmfQ63nfdCMqz7elUUTC8iuZMfl
+DOpmwhDAXKwlNRwCpMEXDUxrluV7iuavxrGTvb2/61DXtgCrKMMOuAocEscm3vNk
+sv75K8803sb2mZgvkU9jD51VXQBhjcm4oD1yYvpnwSU3/wmxOXxspYfDsas3Ppd/
+LKSZQsEpxEikalnGp5l9dvMgZ7XI00nmaj3h5xhRn/Mv+ArFqUevtF3Yuk6535Zb
+ZGVLnF60ixQEz0s7Q3W9QwCcowVr+tjiohEyUQV3jQLEuqAsJmVmcat34AqF4KIN
+h3P7VS0XAcNtHLE570PcUb4hh7DOSdKcqkMvmnUFUB0ukdtI3uSj8rIENKjJRDNt
+aX9UET3e5q5p73zZSA8F
+=WoCt
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--

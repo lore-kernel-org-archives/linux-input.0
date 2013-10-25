@@ -1,61 +1,35 @@
-From: Forest Bond <forest@forestbond.com>
-Subject: Re: [PATCH] HID: hid-multitouch: add support for SiS panels
-Date: Fri, 25 Oct 2013 07:56:11 -0400
-Message-ID: <20131025115611.GI30240@alittletooquiet.net>
-References: <20131021163849.GC30240@alittletooquiet.net>
- <alpine.LNX.2.00.1310250947340.30926@pobox.suse.cz>
+From: Florian Vaussard <florian.vaussard@epfl.ch>
+Subject: Re: [PATCHv6 1/3] Input: twl4030-pwrbutton - add device tree support
+Date: Fri, 25 Oct 2013 14:40:32 +0200
+Message-ID: <526A66C0.1040402@epfl.ch>
+References: <1382626126-12565-1-git-send-email-sre@debian.org> <1382626126-12565-2-git-send-email-sre@debian.org>
+Reply-To: florian.vaussard@epfl.ch
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from storm.alittletooquiet.net ([67.23.28.199]:48331 "EHLO
-	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751863Ab3JYMML (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Oct 2013 08:12:11 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1310250947340.30926@pobox.suse.cz>
+Received: from smtp4.epfl.ch ([128.178.224.219]:59246 "EHLO smtp4.epfl.ch"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753309Ab3JYMkj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Oct 2013 08:40:39 -0400
+In-Reply-To: <1382626126-12565-2-git-send-email-sre@debian.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Sebastian Reichel <sre@debian.org>, Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
+Hello,
 
---8t9RHnE3ZwKMSgU+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 10/24/2013 04:48 PM, Sebastian Reichel wrote:
+> Add device tree support for twl4030 power button driver.
+> 
+> Signed-off-by: Sebastian Reichel <sre@debian.org>
 
-Hi Jiri,
+I tested on my OMAP3 board, the button event works as expected. So for
+the DT boot, feel free to add my:
 
-On Fri, Oct 25, 2013 at 09:47:55AM +0100, Jiri Kosina wrote:
-> On Mon, 21 Oct 2013, Forest Bond wrote:
->=20
-> > From: Forest Bond <forest.bond@rapidrollout.com>
-> >=20
-> > Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
->=20
-> Added changelog (I don't like commits without changelog) and applied.
+Tested-by: Florian Vaussard <florian.vaussard@epfl.ch>
 
-Noted.  Thanks!
+Best regards,
 
--Forest
---=20
-Forest Bond
-http://www.forestbond.com/
-http://www.rapidrollout.com/
-
---8t9RHnE3ZwKMSgU+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAlJqXFsACgkQRO4fQQdv5Ax7+ACgyY2dalKMNKgWasdhZlJpZN8h
-vWYAoJG9xxX7mppdIemCF9hSDP5EiMb8
-=fJmb
------END PGP SIGNATURE-----
-
---8t9RHnE3ZwKMSgU+--
+Florian

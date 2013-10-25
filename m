@@ -1,105 +1,73 @@
-From: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
-Subject: Re: [PATCHv6 3/3] Input: twl4030-pwrbutton: simplify driver using
- devm_*
-Date: Fri, 25 Oct 2013 23:05:19 +0300
-Message-ID: <20131025200519.GF17447@blackmetal.musicnaut.iki.fi>
-References: <1382626126-12565-1-git-send-email-sre@debian.org>
- <1382626126-12565-4-git-send-email-sre@debian.org>
-Mime-Version: 1.0
+From: Kumar Gala <galak@codeaurora.org>
+Subject: Re: [PATCHv6 1/3] Input: twl4030-pwrbutton - add device tree support
+Date: Fri, 25 Oct 2013 16:41:20 -0500
+Message-ID: <FC6F0077-7E61-4F64-94E5-10E8FEF1F1E4@codeaurora.org>
+References: <1382626126-12565-1-git-send-email-sre@debian.org> <1382626126-12565-2-git-send-email-sre@debian.org>
+Mime-Version: 1.0 (Apple Message framework v1283)
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1382626126-12565-4-git-send-email-sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-Cc: Sebastian Reichel <sre-GFxCN5SEZAc@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Peter Ujfalusi <peter.ujfalusi-l0cyMroinI0@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.11.231]:42444 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751399Ab3JYVlG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Oct 2013 17:41:06 -0400
+In-Reply-To: <1382626126-12565-2-git-send-email-sre@debian.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Reichel <sre@debian.org>
+Cc: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, Florian Vaussard <florian.vaussard@epfl.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Thu, Oct 24, 2013 at 04:48:46PM +0200, Sebastian Reichel wrote:
-> Use managed irq resource to simplify the driver.
+
+On Oct 24, 2013, at 9:48 AM, Sebastian Reichel wrote:
+
+> Add device tree support for twl4030 power button driver.
 > 
-> Signed-off-by: Sebastian Reichel <sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-
-Reviewed-by: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
-
+> Signed-off-by: Sebastian Reichel <sre@debian.org>
 > ---
->  drivers/input/misc/twl4030-pwrbutton.c | 26 ++++----------------------
->  1 file changed, 4 insertions(+), 22 deletions(-)
+> .../devicetree/bindings/input/twl4030-pwrbutton.txt | 21 +++++++++++++++++++++
+> drivers/input/misc/twl4030-pwrbutton.c              | 16 ++++++++++++----
+> 2 files changed, 33 insertions(+), 4 deletions(-)
+> create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
 > 
-> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-> index 48639ff..be1759c 100644
-> --- a/drivers/input/misc/twl4030-pwrbutton.c
-> +++ b/drivers/input/misc/twl4030-pwrbutton.c
-> @@ -58,7 +58,7 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
->  	int irq = platform_get_irq(pdev, 0);
->  	int err;
->  
-> -	pwr = input_allocate_device();
-> +	pwr = devm_input_allocate_device(&pdev->dev);
->  	if (!pwr) {
->  		dev_dbg(&pdev->dev, "Can't allocate power button\n");
->  		return -ENOMEM;
-> @@ -70,40 +70,23 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
->  	pwr->phys = "twl4030_pwrbutton/input0";
->  	pwr->dev.parent = &pdev->dev;
->  
-> -	err = request_threaded_irq(irq, NULL, powerbutton_irq,
-> +	err = devm_request_threaded_irq(&pwr->dev, irq, NULL, powerbutton_irq,
->  			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
->  			"twl4030_pwrbutton", pwr);
->  	if (err < 0) {
->  		dev_err(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
-> -		goto free_input_dev;
-> +		return err;
->  	}
->  
->  	err = input_register_device(pwr);
->  	if (err) {
->  		dev_err(&pdev->dev, "Can't register power button: %d\n", err);
-> -		goto free_irq;
-> +		return err;
->  	}
->  
->  	platform_set_drvdata(pdev, pwr);
->  
->  	return 0;
-> -
-> -free_irq:
-> -	free_irq(irq, pwr);
-> -free_input_dev:
-> -	input_free_device(pwr);
-> -	return err;
-> -}
-> -
-> -static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
-> -{
-> -	struct input_dev *pwr = platform_get_drvdata(pdev);
-> -	int irq = platform_get_irq(pdev, 0);
-> -
-> -	free_irq(irq, pwr);
-> -	input_unregister_device(pwr);
-> -
-> -	return 0;
->  }
->  
->  #if IS_ENABLED(CONFIG_OF)
-> @@ -116,7 +99,6 @@ MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
->  
->  static struct platform_driver twl4030_pwrbutton_driver = {
->  	.probe		= twl4030_pwrbutton_probe,
-> -	.remove		= __exit_p(twl4030_pwrbutton_remove),
->  	.driver		= {
->  		.name	= "twl4030_pwrbutton",
->  		.owner	= THIS_MODULE,
-> -- 
-> 1.8.4.rc3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> diff --git a/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+> new file mode 100644
+> index 0000000..4375646
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+> @@ -0,0 +1,21 @@
+> +Texas Instruments TWL family (twl4030) pwrbutton module
+> +
+> +This module is part of the TWL4030. For more details about the whole
+> +chip see Documentation/devicetree/bindings/mfd/twl-familly.txt.
+> +
+> +This module provides a simple power button event via an Interrupt.
+> +
+> +Required properties:
+> +- compatible: should be one of the following
+> +   - "ti,twl4030-pwrbutton": For controllers compatible with twl4030
+> +- interrupt: should be one of the following
+> +   - <8>: For controllers compatible with twl4030
+
+Just checking, but the interrupt is always 8 for this device?
+
+> +
+> +Example:
+> +
+> +&twl {
+> +	twl_pwrbutton: pwrbutton {
+> +		compatible = "ti,twl4030-pwrbutton";
+> +		interrupts = <8>;
+> +	};
+> +};
+
+Otherwise Ack on binding:
+
+Acked-by: Kumar Gala <galak@codeaurora.org>
+
+- k
+
+-- 
+Employee of Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
+

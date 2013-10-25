@@ -1,274 +1,89 @@
-From: Hyunhee Kim <hyunhee.kim@samsung.com>
-Subject: [PATCH v4] Input: add regulator haptic driver
-Date: Fri, 25 Oct 2013 15:29:51 +0900
-Message-ID: <002601ced14b$9c412330$d4c36990$%kim@samsung.com>
-References: <000101cec628$aaff69a0$00fe3ce0$%kim@samsung.com>
- <20131024133836.GG18506@sirena.org.uk>
+From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW@KARO-electronics.de>
+Subject: Re: [PATCHv7][ 1/4] Input: tsc2007: Add device tree support.
+Date: Fri, 25 Oct 2013 08:39:51 +0200
+Message-ID: <20131025083951.18675574@ipc1.ka-ro>
+References: <1382618536-25320-1-git-send-email-denis@eukrea.com>
+ <20131024151736.GE9044@ulmo.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:45118 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751388Ab3JYGaD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Oct 2013 02:30:03 -0400
-In-reply-to: <20131024133836.GG18506@sirena.org.uk>
-Content-language: ko
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20131024151736.GE9044@ulmo.nvidia.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric =?UTF-8?B?QsOpbmFyZA==?= <eric@eukrea.com>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Linus Walleij <linus.walleij@linaro.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Denis Carikli <denis@eukrea.com>, Sascha Hauer <kernel@pengutronix.de>, linux-input@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: 'Mark Brown' <broonie@kernel.org>, dmitry.torokhov@gmail.com, peter.ujfalusi@ti.com, wfp5p@virginia.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
-Cc: "'hyunhee.kim'" <hyunhee.kim@samsung.com>, kyungmin.park@samsung.com
 
-From: Hyunhee Kim <hyunhee.kim@samsung.com>
-Date: Wed, 9 Oct 2013 16:21:36 +0900
-Subject: [PATCH] Input: add regulator haptic driver
-
-Signed-off-by: Hyunhee Kim <hyunhee.kim@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-Acked-by: Aristeu Rozanski <aris@ruivo.org>
-
----
- drivers/input/misc/Kconfig            |   10 ++
- drivers/input/misc/Makefile           |    1 +
- drivers/input/misc/regulator-haptic.c |  187
-+++++++++++++++++++++++++++++++++
- 3 files changed, 198 insertions(+)
- create mode 100644 drivers/input/misc/regulator-haptic.c
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index bb698e1..21b4d5b 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -82,6 +82,16 @@ config INPUT_ARIZONA_HAPTICS
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called arizona-haptics.
- 
-+config INPUT_REGULATOR_HAPTIC
-+	tristate "support haptics on/off using regulator"
-+	select INPUT_FF_MEMLESS
-+	help
-+	  Say Y to enable support for the haptic module. Haptic can be
-+	  enabled/disabled by regulator.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called regulator-haptic.
-+
- config INPUT_BMA150
- 	tristate "BMA150/SMB380 acceleration sensor support"
- 	depends on I2C
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index d7fc17f..106f0bc 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -15,6 +15,7 @@ obj-$(CONFIG_INPUT_ADXL34X_I2C)		+=
-adxl34x-i2c.o
- obj-$(CONFIG_INPUT_ADXL34X_SPI)		+= adxl34x-spi.o
- obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
- obj-$(CONFIG_INPUT_ARIZONA_HAPTICS)	+= arizona-haptics.o
-+obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
- obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
- obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
- obj-$(CONFIG_INPUT_BFIN_ROTARY)		+= bfin_rotary.o
-diff --git a/drivers/input/misc/regulator-haptic.c
-b/drivers/input/misc/regulator-haptic.c
-new file mode 100644
-index 0000000..bab2ad9
---- /dev/null
-+++ b/drivers/input/misc/regulator-haptic.c
-@@ -0,0 +1,187 @@
-+/*
-+ * Regulator haptic driver
-+ *
-+ * Copyright (c) 2013 Samsung Electronics Co., Ltd.
-+ *
-+ * Author: Hyunhee Kim <hyunhee.kim@samsung.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/regulator/driver.h>
-+
-+struct regulator_haptic {
-+	struct device *dev;
-+	struct input_dev *input_dev;
-+	struct work_struct work;
-+	bool enabled;
-+	struct regulator *regulator;
-+	struct mutex mutex;
-+	int level;
-+};
-+
-+static void regulator_haptic_enable(struct regulator_haptic *haptic)
-+{
-+	int ret;
-+
-+	if (!haptic->enabled) {
-+		ret = regulator_enable(haptic->regulator);
-+		if (ret)
-+			dev_err(haptic->dev, "failed to enable
-regulator\n");
-+		haptic->enabled = true;
-+	}
-+}
-+
-+static void regulator_haptic_disable(struct regulator_haptic *haptic)
-+{
-+	int ret;
-+
-+	if (haptic->enabled) {
-+		ret = regulator_disable(haptic->regulator);
-+		if (ret)
-+			dev_err(haptic->dev, "failed to disable
-regulator\n");
-+		haptic->enabled = false;
-+	}
-+}
-+
-+static void regulator_haptic_work(struct work_struct *work)
-+{
-+	struct regulator_haptic *haptic = container_of(work,
-+						       struct
-regulator_haptic,
-+						       work);
-+	mutex_lock(&haptic->mutex);
-+	if (haptic->level)
-+		regulator_haptic_enable(haptic);
-+	else
-+		regulator_haptic_disable(haptic);
-+	mutex_unlock(&haptic->mutex);
-+}
-+
-+static int regulator_haptic_play(struct input_dev *input, void *data,
-+				struct ff_effect *effect)
-+{
-+	struct regulator_haptic *haptic = input_get_drvdata(input);
-+
-+	haptic->level = effect->u.rumble.strong_magnitude;
-+	if (!haptic->level)
-+		haptic->level = effect->u.rumble.weak_magnitude;
-+	schedule_work(&haptic->work);
-+
-+	return 0;
-+}
-+
-+static void regulator_haptic_close(struct input_dev *input)
-+{
-+	struct regulator_haptic *haptic = input_get_drvdata(input);
-+
-+	cancel_work_sync(&haptic->work);
-+	regulator_haptic_disable(haptic);
-+}
-+
-+static int regulator_haptic_probe(struct platform_device *pdev)
-+{
-+	struct regulator_haptic *haptic;
-+	struct input_dev *input_dev;
-+	int error;
-+
-+	haptic = devm_kzalloc(&pdev->dev, sizeof(*haptic), GFP_KERNEL);
-+	if (!haptic) {
-+		dev_err(&pdev->dev, "unable to allocate memory for
-haptic\n");
-+		return -ENOMEM;
-+	}
-+
-+	input_dev = input_allocate_device();
-+
-+	if (!input_dev) {
-+		dev_err(&pdev->dev, "unable to allocate memory\n");
-+		return  -ENOMEM;
-+	}
-+
-+	INIT_WORK(&haptic->work, regulator_haptic_work);
-+	mutex_init(&haptic->mutex);
-+	haptic->input_dev = input_dev;
-+	haptic->dev = &pdev->dev;
-+	haptic->regulator = regulator_get(&pdev->dev, "haptic");
-+
-+	if (IS_ERR(haptic->regulator)) {
-+		error = PTR_ERR(haptic->regulator);
-+		dev_err(&pdev->dev, "unable to get regulator, err: %d\n",
-+			error);
-+		goto err_ifree_mem;
-+	}
-+
-+	haptic->input_dev->name = "regulator:haptic";
-+	haptic->input_dev->dev.parent = &pdev->dev;
-+	haptic->input_dev->close = regulator_haptic_close;
-+	haptic->enabled = false;
-+	input_set_drvdata(haptic->input_dev, haptic);
-+	input_set_capability(haptic->input_dev, EV_FF, FF_RUMBLE);
-+
-+	error = input_ff_create_memless(input_dev, NULL,
-+				      regulator_haptic_play);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"input_ff_create_memless() failed: %d\n",
-+			error);
-+		goto err_put_regulator;
-+	}
-+
-+	error = input_register_device(haptic->input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev,
-+			"couldn't register input device: %d\n",
-+			error);
-+		goto err_destroy_ff;
-+	}
-+
-+	platform_set_drvdata(pdev, haptic);
-+
-+	return 0;
-+
-+err_destroy_ff:
-+	input_ff_destroy(haptic->input_dev);
-+err_put_regulator:
-+	regulator_put(haptic->regulator);
-+err_ifree_mem:
-+	input_free_device(haptic->input_dev);
-+
-+	return error;
-+}
-+
-+static int regulator_haptic_remove(struct platform_device *pdev)
-+{
-+	struct regulator_haptic *haptic = platform_get_drvdata(pdev);
-+
-+	input_unregister_device(haptic->input_dev);
-+	regulator_put(haptic->regulator);
-+
-+	return 0;
-+}
-+
-+static struct of_device_id regulator_haptic_dt_match[] = {
-+	{ .compatible = "linux,regulator-haptic" },
-+	{},
-+};
-+
-+static struct platform_driver regulator_haptic_driver = {
-+	.driver		= {
-+		.name	= "regulator-haptic",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = regulator_haptic_dt_match,
-+	},
-+
-+	.probe		= regulator_haptic_probe,
-+	.remove		= regulator_haptic_remove,
-+};
-+module_platform_driver(regulator_haptic_driver);
-+
-+MODULE_ALIAS("platform:regulator-haptic");
-+MODULE_DESCRIPTION("Regulator haptic driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Hyunhee Kim <hyunhee.kim@samsung.com>");
--- 
-1.7.9.5
-
-
+SGksCgpUaGllcnJ5IFJlZGluZyB3cm90ZToKPiBPbiBUaHUsIE9jdCAyNCwgMjAxMyBhdCAwMjo0
+MjoxM1BNICswMjAwLCBEZW5pcyBDYXJpa2xpIHdyb3RlOgo+ID4gQ2M6IFJvYiBIZXJyaW5nIDxy
+b2IuaGVycmluZ0BjYWx4ZWRhLmNvbT4KPiA+IENjOiBQYXdlbCBNb2xsIDxwYXdlbC5tb2xsQGFy
+bS5jb20+Cj4gPiBDYzogTWFyayBSdXRsYW5kIDxtYXJrLnJ1dGxhbmRAYXJtLmNvbT4KPiA+IENj
+OiBTdGVwaGVuIFdhcnJlbiA8c3dhcnJlbkB3d3dkb3Rvcmcub3JnPgo+ID4gQ2M6IElhbiBDYW1w
+YmVsbCA8aWpjK2RldmljZXRyZWVAaGVsbGlvbi5vcmcudWs+Cj4gPiBDYzogZGV2aWNldHJlZUB2
+Z2VyLmtlcm5lbC5vcmcKPiA+IENjOiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBn
+bWFpbC5jb20+Cj4gPiBDYzogbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnCj4gPiBDYzogU2Fz
+Y2hhIEhhdWVyIDxrZXJuZWxAcGVuZ3V0cm9uaXguZGU+Cj4gPiBDYzogbGludXgtYXJtLWtlcm5l
+bEBsaXN0cy5pbmZyYWRlYWQub3JnCj4gPiBDYzogTG90aGFyIFdhw59tYW5uIDxMV0BLQVJPLWVs
+ZWN0cm9uaWNzLmRlPgo+ID4gQ2M6IEVyaWMgQsOpbmFyZCA8ZXJpY0BldWtyZWEuY29tPgo+ID4g
+U2lnbmVkLW9mZi1ieTogRGVuaXMgQ2FyaWtsaSA8ZGVuaXNAZXVrcmVhLmNvbT4KPiA+IC0tLQo+
+ID4gQ2hhbmdlTG9nIHY2LT52NzoKPiA+IC0gT25lIHNtYWxsIHdoaXRlc3BhY2UgY2xlYW51cC4K
+PiA+IC0gVGhlIHByb3BlcnRpZXMgc3BlY2lmaWMgdG8gdGhhdCBkcml2ZXIgYXJlIG5vdyBwcmVm
+aXhlZCB3aXRoICJ0aSwiLgo+ID4gLSBUaGUgdGksZnV6enkgcHJvcGVydHkgaGFzIG5vdyBiZXR0
+ZXIgZG9jdW1lbnRhdGlvbi4KPiA+IC0tLQo+ID4gIC4uLi9iaW5kaW5ncy9pbnB1dC90b3VjaHNj
+cmVlbi90c2MyMDA3LnR4dCAgICAgICAgIHwgICA0NSArKysrKwo+ID4gIGRyaXZlcnMvaW5wdXQv
+dG91Y2hzY3JlZW4vdHNjMjAwNy5jICAgICAgICAgICAgICAgIHwgIDE5NCArKysrKysrKysrKysr
+KystLS0tLQo+ID4gIDIgZmlsZXMgY2hhbmdlZCwgMTk4IGluc2VydGlvbnMoKyksIDQxIGRlbGV0
+aW9ucygtKQo+ID4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUv
+YmluZGluZ3MvaW5wdXQvdG91Y2hzY3JlZW4vdHNjMjAwNy50eHQKPiA+IAo+ID4gZGlmZiAtLWdp
+dCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi90
+c2MyMDA3LnR4dCBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3Vj
+aHNjcmVlbi90c2MyMDA3LnR4dAo+ID4gbmV3IGZpbGUgbW9kZSAxMDA2NDQKPiA+IGluZGV4IDAw
+MDAwMDAuLjUxNmI2M2IKPiA+IC0tLSAvZGV2L251bGwKPiA+ICsrKyBiL0RvY3VtZW50YXRpb24v
+ZGV2aWNldHJlZS9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi90c2MyMDA3LnR4dAo+ID4gQEAg
+LTAsMCArMSw0NSBAQAo+ID4gKyogVGV4YXMgSW5zdHJ1bWVudHMgdHNjMjAwNyB0b3VjaHNjcmVl
+biBjb250cm9sbGVyCj4gPiArCj4gPiArUmVxdWlyZWQgcHJvcGVydGllczoKPiA+ICstIGNvbXBh
+dGlibGU6IG11c3QgYmUgInRpLHRzYzIwMDciLgo+ID4gKy0gcmVnOiBJMkMgYWRkcmVzcyBvZiB0
+aGUgY2hpcC4KPiA+ICstIHRpLHgtcGxhdGUtb2htczogWC1wbGF0ZSByZXNpc3RhbmNlIGluIG9o
+bXMuCj4gPiArCj4gPiArT3B0aW9uYWwgcHJvcGVydGllczoKPiA+ICstIGdwaW9zOiB0aGUgaW50
+ZXJydXB0IGdwaW8gdGhlIGNoaXAgaXMgY29ubmVjdGVkIHRvICh0cm91Z2ggdGhlIHBlbmlycSBw
+aW4pCj4gPiArICAoc2VlIEdQSU8gYmluZGluZ1syXSBmb3IgbW9yZSBkZXRhaWxzKS4KPiA+ICst
+IGludGVycnVwdC1wYXJlbnQ6IHRoZSBwaGFuZGxlIGZvciB0aGUgZ3BpbyBjb250cm9sbGVyCj4g
+PiArICAoc2VlIGludGVycnVwdCBiaW5kaW5nWzFdKS4KPiA+ICstIGludGVycnVwdHM6IChncGlv
+KSBpbnRlcnJ1cHQgdG8gd2hpY2ggdGhlIGNoaXAgaXMgY29ubmVjdGVkCj4gPiArICAoc2VlIGlu
+dGVycnVwdCBiaW5kaW5nWzFdKS4KPiA+ICstIHBpbmN0cmwtMDogU2hvdWxkIHNwZWNpZnkgcGlu
+IGNvbnRyb2wgZ3JvdXBzIHVzZWQgZm9yIHRoZSBncGlvCj4gPiArICAoc2VlIHBpbmN0cmwgYmlu
+ZGluZ3NbMF0pLgo+ID4gKy0gcGluY3RybC1uYW1lczogU2hvdWxkIGNvbnRhaW4gb25seSBvbmUg
+dmFsdWUgLSAiZGVmYXVsdCIKPiA+ICsgIChzZWUgcGluY3RybCBiaW5kaW5nc1swXSkuCj4gCj4g
+QWxzbyBJIGhhdmVuJ3Qgc2VlbiBhIHJlc3BvbnNlIGFzIHRvIHdoeSB0aGlzIGNhbid0IGJlIGhh
+bmRsZWQgYnkgdGhlCj4gR1BJTyBkcml2ZXIuIEFkZGluZyBMaW51cyBXYWxsZWlqLCBwZXJoYXBz
+IGhlIGtub3dzIGEgbW9yZSBkZWZpbml0aXZlCj4gYW5zd2VyLgo+IAo+IExpbnVzLCB0aGUgaXNz
+dWUgaGVyZSBpcyB0aGF0IHRoZSBwaW5jdHJsIHByb3BlcnRpZXMgZm9yIHRoaXMgY2hpcCBhcmUK
+PiBzdXBwb3NlZCB0byBwaW5tdXggdGhlIHBlbmRvd24gR1BJTyBmb3IgdGhpcyBjaGlwLiBJIHdh
+cyB1bmRlciB0aGUKPiBpbXByZXNzaW9uIHRoYXQgdGhpcyBzaG91bGQgYmUgaGFuZGxlZCBieSB0
+aGUgR1BJTyBjb250cm9sbGVyIGl0c2VsZiwgc28KPiB0aGF0IHdoZW4gZ3Bpb19yZXF1ZXN0KCkg
+d2FzIGNhbGxlZCBvbiBhIHBpbiBpdCB3b3VsZCBiZSB0aGUgR1BJTwo+IGNvbnRyb2xsZXIgZHJp
+dmVyJ3MgcmVzcG9uc2liaWxpdHkgdG8gcGlubXV4IGl0IGFwcHJvcHJpYXRlbHkuCj4gCldoZW4g
+YSBHUElPIGlzIHJlcXVlc3RlZCB0aGUgR1BJTyBsYXllciBjYW5ub3Qga25vdyB3aGF0IGl0IGlz
+CnJlcXVlc3RlZCBmb3IgYW5kIGhvdyB0aGUgcGlubXV4IGZvciB0aGUgcGluIGZ1bmN0aW9uIHNo
+b3VsZCBiZQpjb25maWd1cmVkIChwdWxsdXBzLCBkcml2ZSBzdHJlbmd0aCwgLi4uKS4gQSBwaW4g
+bWF5IGhhdmUgbXVsdGlwbGUKZnVuY3Rpb25zIGRlcGVuZGluZyBvbiB3aGF0IG1vZHVsZXMgYXJl
+IHBsdWdnZWQgaW50byBhIGJhc2Vib2FyZC4KClRodXMgdGhlIHBpbmN0cmwgYmluZGluZyBuZWVk
+cyB0byBiZSB3aXRoIHRoZSBkcml2ZXIgdGhhdCB1c2VzIHRoZSBwaW4uCgoKTG90aGFyIFdhw59t
+YW5uCi0tIApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwoKS2EtUm8gZWxlY3Ryb25pY3MgR21iSCB8IFBhc2NhbHN0cmHDn2UgMjIgfCBE
+IC0gNTIwNzYgQWFjaGVuClBob25lOiArNDkgMjQwOCAxNDAyLTAgfCBGYXg6ICs0OSAyNDA4IDE0
+MDItMTAKR2VzY2jDpGZ0c2bDvGhyZXI6IE1hdHRoaWFzIEthdXNzZW4KSGFuZGVsc3JlZ2lzdGVy
+ZWludHJhZzogQW10c2dlcmljaHQgQWFjaGVuLCBIUkIgNDk5NgoKd3d3Lmthcm8tZWxlY3Ryb25p
+Y3MuZGUgfCBpbmZvQGthcm8tZWxlY3Ryb25pY3MuZGUKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0
+CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFk
+ZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK

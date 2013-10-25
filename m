@@ -1,124 +1,98 @@
-From: Grant Likely <grant.likely@linaro.org>
-Subject: Re: [PATCHv6 1/3] Input: twl4030-pwrbutton - add device tree support
-Date: Fri, 25 Oct 2013 20:09:04 +0100
-Message-ID: <20131025190904.3EE93C403B8@trevor.secretlab.ca>
-References: <1382626126-12565-1-git-send-email-sre@debian.org> <1382626126-12565-2-git-send-email-sre@debian.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wg0-f46.google.com ([74.125.82.46]:46617 "EHLO
-	mail-wg0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752042Ab3JYWvH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Oct 2013 18:51:07 -0400
-Received: by mail-wg0-f46.google.com with SMTP id m15so4453999wgh.25
-        for <linux-input@vger.kernel.org>; Fri, 25 Oct 2013 15:51:05 -0700 (PDT)
-In-Reply-To: <1382626126-12565-2-git-send-email-sre@debian.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCHv7][ 1/4] Input: tsc2007: Add device tree support.
+Date: Fri, 25 Oct 2013 20:11:55 +0100
+Message-ID: <20131025191155.2D7D7C40429@trevor.secretlab.ca>
+References: <1382618536-25320-1-git-send-email-denis@eukrea.com>
+ <20131024164746.3CB36C403B6@trevor.secretlab.ca>
+ <20131025075639.75f45fb0@ipc1.ka-ro>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============8611668151746118644=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20131025075639.75f45fb0@ipc1.ka-ro>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric BXXnard <eric@eukrea.com>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <rob.herring@calxeda.com>, Denis Carikli <denis@eukrea.com>, Thierry Reding <thierry.reding@gmail.com>, Sascha Hauer <kernel@pengutronix.de>, linux-input@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <rob.herring@calxeda.com>, Sebastian Reichel <sre@debian.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, Florian Vaussard <florian.vaussard@epfl.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Thu, 24 Oct 2013 16:48:44 +0200, Sebastian Reichel <sre@debian.org> wrote:
-> Add device tree support for twl4030 power button driver.
+--===============8611668151746118644==
+Content-Type: text/plain
 
-The above commit text is insufficient. There are changes in the patch
-that aren't described here and have nothing to do with device tree
-bindings.
-
+On Fri, 25 Oct 2013 07:56:39 +0200, Lothar Waßmann <LW@KARO-electronics.de> wrote:
+> Hi,
 > 
-> Signed-off-by: Sebastian Reichel <sre@debian.org>
-> ---
->  .../devicetree/bindings/input/twl4030-pwrbutton.txt | 21 +++++++++++++++++++++
->  drivers/input/misc/twl4030-pwrbutton.c              | 16 ++++++++++++----
->  2 files changed, 33 insertions(+), 4 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-> new file mode 100644
-> index 0000000..4375646
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-> @@ -0,0 +1,21 @@
-> +Texas Instruments TWL family (twl4030) pwrbutton module
+> Grant Likely wrote:
+> > On Thu, 24 Oct 2013 14:42:13 +0200, Denis Carikli <denis@eukrea.com> wrote:
+> > > Cc: Rob Herring <rob.herring@calxeda.com>
+> > > Cc: Pawel Moll <pawel.moll@arm.com>
+> > > Cc: Mark Rutland <mark.rutland@arm.com>
+> > > Cc: Stephen Warren <swarren@wwwdotorg.org>
+> > > Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+> > > Cc: devicetree@vger.kernel.org
+> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > Cc: linux-input@vger.kernel.org
+> > > Cc: Sascha Hauer <kernel@pengutronix.de>
+> > > Cc: linux-arm-kernel@lists.infradead.org
+> > > Cc: Lothar WaÃŸmann <LW@KARO-electronics.de>
+> > > Cc: Eric BÃ©nard <eric@eukrea.com>
+> > > Signed-off-by: Denis Carikli <denis@eukrea.com>
+> > > ---
+> > > ChangeLog v6->v7:
+> > > - One small whitespace cleanup.
+> > > - The properties specific to that driver are now prefixed with "ti,".
+> > > - The ti,fuzzy property has now better documentation.
+> > > ---
+> > >  .../bindings/input/touchscreen/tsc2007.txt         |   45 +++++
+> > >  drivers/input/touchscreen/tsc2007.c                |  194 +++++++++++++++-----
+> > >  2 files changed, 198 insertions(+), 41 deletions(-)
+> > >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+> > > 
+> > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+> > > new file mode 100644
+> > > index 0000000..516b63b
+> > > --- /dev/null
+> > > +++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+> > > @@ -0,0 +1,45 @@
+> > > +* Texas Instruments tsc2007 touchscreen controller
+> > > +
+> > > +Required properties:
+> > > +- compatible: must be "ti,tsc2007".
+> > > +- reg: I2C address of the chip.
+> > > +- ti,x-plate-ohms: X-plate resistance in ohms.
+> > > +
+> > > +Optional properties:
+> > > +- gpios: the interrupt gpio the chip is connected to (trough the penirq pin)
+> > > +  (see GPIO binding[2] for more details).
+> > 
+> > Hmmm, why is this needed? Is the line used for anything other than
+> > finding the irq number? If it is just an interrupt then an interrupts
+> > property is all that should be specified.
+> > 
+> It's also the pendown detect GPIO. It asserts an interrupt when first
+> activated and is then polled in the driver until it goes inactive again.
 
-Can all of the TWL or TWL4030 funciton bindings be collected into a
-single file please? It is a single device after all. All of it should be
-in bindings/mfd/twl-family.txt
+That should definitely be in the document then. Otherwise the binding
+looks okay to me.
 
-> +
-> +This module is part of the TWL4030. For more details about the whole
-> +chip see Documentation/devicetree/bindings/mfd/twl-familly.txt.
-> +
-> +This module provides a simple power button event via an Interrupt.
-> +
-> +Required properties:
-> +- compatible: should be one of the following
-> +   - "ti,twl4030-pwrbutton": For controllers compatible with twl4030
-> +- interrupt: should be one of the following
+g.
 
-Spelling: s/interrupt/interrupts/
 
-> +   - <8>: For controllers compatible with twl4030
-> +
-> +Example:
-> +
-> +&twl {
-> +	twl_pwrbutton: pwrbutton {
-> +		compatible = "ti,twl4030-pwrbutton";
-> +		interrupts = <8>;
-> +	};
-> +};
-> diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-> index b9a05fd..a3a0fe3 100644
-> --- a/drivers/input/misc/twl4030-pwrbutton.c
-> +++ b/drivers/input/misc/twl4030-pwrbutton.c
-> @@ -52,7 +52,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
->  	return IRQ_HANDLED;
->  }
->  
-> -static int __init twl4030_pwrbutton_probe(struct platform_device *pdev)
-> +static int twl4030_pwrbutton_probe(struct platform_device *pdev)
->  {
->  	struct input_dev *pwr;
->  	int irq = platform_get_irq(pdev, 0);
-> @@ -106,16 +106,24 @@ static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> +#if IS_ENABLED(CONFIG_OF)
-> +static const struct of_device_id twl4030_pwrbutton_dt_match_table[] = {
-> +       { .compatible = "ti,twl4030-pwrbutton" },
-> +       {},
-> +};
-> +MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
-> +#endif
-> +
->  static struct platform_driver twl4030_pwrbutton_driver = {
-> +	.probe		= twl4030_pwrbutton_probe,
->  	.remove		= __exit_p(twl4030_pwrbutton_remove),
 
-Remove the __exit_p() wrapper. __exit is for module exit functions, not
-remove hooks (I know, that's not actually this patch, but the code is
-definitely wrong here).
+--===============8611668151746118644==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->  	.driver		= {
->  		.name	= "twl4030_pwrbutton",
->  		.owner	= THIS_MODULE,
-> +		.of_match_table = of_match_ptr(twl4030_pwrbutton_dt_match_table),
->  	},
->  };
-> -
-> -module_platform_driver_probe(twl4030_pwrbutton_driver,
-> -			twl4030_pwrbutton_probe);
-> +module_platform_driver(twl4030_pwrbutton_driver);
->  
->  MODULE_ALIAS("platform:twl4030_pwrbutton");
->  MODULE_DESCRIPTION("Triton2 Power Button");
-> -- 
-> 1.8.4.rc3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
+--===============8611668151746118644==--

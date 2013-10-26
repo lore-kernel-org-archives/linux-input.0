@@ -1,40 +1,53 @@
-From: Kumar Gala <galak@codeaurora.org>
-Subject: Re: [PATCHv6 1/3] Input: twl4030-pwrbutton - add device tree support
-Date: Sat, 26 Oct 2013 01:37:57 -0500
-Message-ID: <085234CB-BD53-4120-AE77-B06FA9314E96@codeaurora.org>
-References: <1382626126-12565-1-git-send-email-sre@debian.org> <1382626126-12565-2-git-send-email-sre@debian.org> <FC6F0077-7E61-4F64-94E5-10E8FEF1F1E4@codeaurora.org> <20131025221850.GA8657@earth.universe>
-Mime-Version: 1.0 (Apple Message framework v1283)
+From: Niels de Vos <ndevos@redhat.com>
+Subject: Re: [PATCH] Input: Adding support for touchpad on Dell XT2 model
+Date: Sat, 26 Oct 2013 09:18:03 +0200
+Message-ID: <20131026071803.GL32239@ndevos-laptop.usersys.redhat.com>
+References: <1382715581-2584-1-git-send-email-yunkang.tang@cn.alps.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:60163 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751686Ab3JZGho convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Oct 2013 02:37:44 -0400
-In-Reply-To: <20131025221850.GA8657@earth.universe>
+Received: from mx1.redhat.com ([209.132.183.28]:30325 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751815Ab3JZHST (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Oct 2013 03:18:19 -0400
+Content-Disposition: inline
+In-Reply-To: <1382715581-2584-1-git-send-email-yunkang.tang@cn.alps.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@debian.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, Florian Vaussard <florian.vaussard@epfl.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Yunkang Tang <tommywill2011@gmail.com>
+Cc: dmitry.torokhov@gmail.com, cernekee@gmail.com, dturvene@dahetral.com, linux-input@vger.kernel.org, gaspard@oknaj.eu, jclift@redhat.com, yunkang.tang@cn.alps.com
 
-
-On Oct 25, 2013, at 5:18 PM, Sebastian Reichel wrote:
-
-> On Fri, Oct 25, 2013 at 04:41:20PM -0500, Kumar Gala wrote:
->> On Oct 24, 2013, at 9:48 AM, Sebastian Reichel wrote:
->>> +- interrupt: should be one of the following
->>> +   - <8>: For controllers compatible with twl4030
->> 
->> Just checking, but the interrupt is always 8 for this device?
+On Fri, Oct 25, 2013 at 11:39:41PM +0800, Yunkang Tang wrote:
+> Hi all,
 > 
-> Yes. It's currently hardcoded in drivers/mfd/twl-core.c.
+> This patch adding the support for touchpad on Dell XT2 model.
+> It's a dual device with device ID: 73, 00, 14, that comply with "ALPS_PROTO_V2".
+> 
+> 
+> Signed-off-by: Yunkang Tang <yunkang.tang@cn.alps.com>
 
-The fact that is hard coded in the driver does not imply that it should be in the device tree binding.  Is there an interrupt controller as part of the TWL4030?
+Tested-by: Gaspard Jankowiak <gaspard@oknaj.eu>
+Reviewed-by: Niels de Vos <ndevos@redhat.com>
+    (well, for as far a one-line review goes)
 
-- k
+Thanks!
 
--- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
-
+> ---
+>  drivers/input/mouse/alps.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index ca7a26f..24b3626 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -103,6 +103,7 @@ static const struct alps_model_info alps_model_data[] = {
+>  	/* Dell Latitude E5500, E6400, E6500, Precision M4400 */
+>  	{ { 0x62, 0x02, 0x14 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf,
+>  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },
+> +	{ { 0x73, 0x00, 0x14 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_DUALPOINT },		/* Dell XT2 */
+>  	{ { 0x73, 0x02, 0x50 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },		/* Dell Vostro 1400 */
+>  	{ { 0x52, 0x01, 0x14 }, 0x00, ALPS_PROTO_V2, 0xff, 0xff,
+>  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },				/* Toshiba Tecra A11-11L */
+> -- 
+> 1.8.1.2
+> 

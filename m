@@ -1,83 +1,103 @@
-From: Pavel Machek <pavel@ucw.cz>
+From: Sebastian Reichel <sre@debian.org>
 Subject: Re: [PATCHv2 1/3] Input: twl4030-keypad - add device tree support
-Date: Sun, 27 Oct 2013 12:17:15 +0100
-Message-ID: <20131027111715.GA2437@xo-6d-61-c0.localdomain>
+Date: Sun, 27 Oct 2013 12:40:26 +0100
+Message-ID: <20131027114026.GB14091@earth.universe>
 References: <1382446042-27099-1-git-send-email-sre@debian.org>
  <1382446042-27099-2-git-send-email-sre@debian.org>
+ <20131027111715.GA2437@xo-6d-61-c0.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="QKdGvSO+nmPlgiQ/"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ring0.de ([91.143.88.219]:58315 "EHLO smtp.ring0.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751881Ab3J0Lkb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 27 Oct 2013 07:40:31 -0400
 Content-Disposition: inline
-In-Reply-To: <1382446042-27099-2-git-send-email-sre@debian.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Sebastian Reichel <sre@debian.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King <linux@arm.linux.org.uk>, Rob Landley <rob@landley.net>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Tony Lindgren <tony@atomide.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Sebastian Reichel <sre@ring0.de>, 'Beno?t Cousson' <bcousson@baylibre.com>, linux-input@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <20131027111715.GA2437@xo-6d-61-c0.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-input@vger.kernel.org, 'Beno?t Cousson' <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
 
-Hi!
 
-> Add device tree support for twl4030 keypad driver and update the
-> Documentation with twl4030 keypad device tree binding information.
-> 
-> Tested on Nokia N900.
+--QKdGvSO+nmPlgiQ/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It looks pretty good.
+Hi Pavel,
 
-> +++ b/Documentation/devicetree/bindings/input/twl4030-keypad.txt
-> @@ -0,0 +1,31 @@
-> +* TWL4030's Keypad Controller device tree bindings
-> +
-> +TWL4030's Keypad controller is used to interface a SoC with a matrix-type
-> +keypad device. The keypad controller supports multiple row and column lines.
-> +A key can be placed at each intersection of a unique row and a unique column.
-> +The keypad controller can sense a key-press and key-release and report the
-> +event using a interrupt to the cpu.
-> +
-> +This binding is based on the matrix-keymap binding with the following
-> +changes:
-> +
-> + * keypad,num-rows and keypad,num-columns are required.
+On Sun, Oct 27, 2013 at 12:17:15PM +0100, Pavel Machek wrote:
+> > Add device tree support for twl4030 keypad driver and update the
+> > Documentation with twl4030 keypad device tree binding information.
+> >=20
+> > Tested on Nokia N900.
+>=20
+> It looks pretty good.
 
-Is "keypad," prefix neccessary here?
+Thanks.
 
-> +Optional Properties specific to linux:
-> +- linux,keypad-no-autorepeat: do no enable autorepeat feature.
+> > + * keypad,num-rows and keypad,num-columns are required.
+> Is "keypad," prefix neccessary here?
 
-"do not autorepeat". Plus I do not see what is Linux specifc about not
-autorepeating... Other systems will likely know about autorepeat, too.
+See Documentation/devicetree/bindings/input/matrix-keymap.txt
 
-> @@ -324,6 +326,31 @@ static int twl4030_kp_program(struct twl4030_keypad *kp)
->  	return 0;
->  }
->  
-> +#if IS_ENABLED(CONFIG_OF)
+> > +Optional Properties specific to linux:
+> > +- linux,keypad-no-autorepeat: do no enable autorepeat feature.
+>=20
+> "do not autorepeat". Plus I do not see what is Linux specifc about not
+> autorepeating... Other systems will likely know about autorepeat, too.
 
-I'm probably missing something here, but why not #ifdef CONFIG_OF?
+This property has already been used like this for
+samsung-keypad, stmpe-keypad, omap-keypad and
+gpio-matrix-keypad.
 
-> @@ -381,7 +426,7 @@ static int twl4030_kp_probe(struct platform_device *pdev)
->  
->  	input_set_capability(input, EV_MSC, MSC_SCAN);
->  	/* Enable auto repeat feature of Linux input subsystem */
-> -	if (pdata->rep)
-> +	if (!kp->no_autorepeat)
->  		__set_bit(EV_REP, input->evbit);
->
+> > +#if IS_ENABLED(CONFIG_OF)
+> I'm probably missing something here, but why not #ifdef CONFIG_OF?
 
-Double negation is nasty to read. I believe code would be more
-readable if you switched logic to kp->autorepeat.
+I have been told for other drivers, that IS_ENABLED() is
+the prefered way to check for configuration these days.
 
-Thanks,
-									Pavel
+> > @@ -381,7 +426,7 @@ static int twl4030_kp_probe(struct platform_device =
+*pdev)
+> > =20
+> >  	input_set_capability(input, EV_MSC, MSC_SCAN);
+> >  	/* Enable auto repeat feature of Linux input subsystem */
+> > -	if (pdata->rep)
+> > +	if (!kp->no_autorepeat)
+> >  		__set_bit(EV_REP, input->evbit);
+> >
+>=20
+> Double negation is nasty to read. I believe code would be more
+> readable if you switched logic to kp->autorepeat.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+I was thinking about the same when writing it, but decided
+against it, since it will just move the double negation to
+the variable initialization.
+
+-- Sebastian
+
+--QKdGvSO+nmPlgiQ/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBCAAGBQJSbPupAAoJENju1/PIO/qaIFAQAIxtcXUK0WX62Y5lL0/2VNJh
+m+7Wn3q0Z1zKi4JVrOQNkY3a1xMTZsDAreVahcEifgPQr+iY8zXh9WH8+H9V0poK
+G912yCnySvAc571d43VxCnKkqloyi/fV12AlYao1Aa9r0Hbhp/61CC9BL7jyj15x
+aQZAoEJq8DUhAo1/6zCw82LLOP6El36SODkDhJYjdyDfToQVp5lTkqO215e1Nfj2
+bzdTvL7vEadRwvK3ifNUqJDHbDMITwabKG05z/Yw7jiDUPxRXzd5NJ5/N9K1hVM8
+XaH8JdXT4zYZQZTbGNiCKiEAbauHhuhA3R915ykQhwL1uU8a2GU9CavZhGtR7Cf1
+l6ntlnAeuUhzXdZH+xJeY3BH8daOf73TrbJDA4zWOivy0ca3ze+EYVmY7SGgdoY+
+59igSbOoFKSh8rIdCB6GiGtGY6bB+jU5cij7TV4NH5VbergWhX2EegXyhTy8APJf
+iRRyTkpHSjXlvz8WB++kVET9PycIi4p41uvU2TYu9JT0xpLMwDbbOZkQLpYBuA3B
+KnEvLagdczDgnNKFTH2miNZroqE5oBH+z8L05iRkaN9wD8+TGPp0wEScWH/Y2uO0
+MZamA6FkFs4dyPjMASTwKWSUCWQrF3I1r9WK5atOsApRxlhcqOpTbY8QsDaTFw1I
+KbvJJrrmFZTYtmBonIHc
+=68OJ
+-----END PGP SIGNATURE-----
+
+--QKdGvSO+nmPlgiQ/--

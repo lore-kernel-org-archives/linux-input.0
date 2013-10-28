@@ -1,74 +1,72 @@
-From: Sebastian Reichel <sre@ring0.de>
-Subject: Re: [PATCHv2 1/3] Input: twl4030-keypad - add device tree support
-Date: Sun, 27 Oct 2013 17:31:27 +0100
-Message-ID: <20131027163126.GA25517@earth.universe>
-References: <1382446042-27099-1-git-send-email-sre@debian.org>
- <1382446042-27099-2-git-send-email-sre@debian.org>
- <20131027111715.GA2437@xo-6d-61-c0.localdomain>
- <20131027114026.GB14091@earth.universe>
- <20131027114753.GB14901@amd.pavel.ucw.cz>
- <20131027122347.GE15154@atomide.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20131027122347.GE15154@atomide.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org, 'Beno?t Cousson' <bcousson@baylibre.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-
-
---dDRMvlgZJXvWKvBx
+From: Kumar Gala <galak@codeaurora.org>
+Subject: Re: [PATCHv6 1/3] Input: twl4030-pwrbutton - add device tree support
+Date: Mon, 28 Oct 2013 01:31:28 -0500
+Message-ID: <FAB6821F-08A8-40F9-B6A9-A1AFBD928043@codeaurora.org>
+References: <1382626126-12565-1-git-send-email-sre@debian.org> <1382626126-12565-2-git-send-email-sre@debian.org> <FC6F0077-7E61-4F64-94E5-10E8FEF1F1E4@codeaurora.org> <20131025221850.GA8657@earth.universe> <085234CB-BD53-4120-AE77-B06FA9314E96@codeaurora.org> <20131026113138.GA22920@earth.universe>
+Mime-Version: 1.0 (Apple Message framework v1283)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.11.231]:58424 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752715Ab3J1Gba convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Oct 2013 02:31:30 -0400
+In-Reply-To: <20131026113138.GA22920@earth.universe>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: Sebastian Reichel <sre@debian.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Sachin Kamat <sachin.kamat@linaro.org>, Florian Vaussard <florian.vaussard@epfl.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Sun, Oct 27, 2013 at 05:23:48AM -0700, Tony Lindgren wrote:
-> * Pavel Machek <pavel@ucw.cz> [131027 04:48]:
-> > > > > +#if IS_ENABLED(CONFIG_OF)
-> > > > I'm probably missing something here, but why not #ifdef CONFIG_OF?
-> > >=20
-> > > I have been told for other drivers, that IS_ENABLED() is
-> > > the prefered way to check for configuration these days.
-> >=20
-> > CONFIG_OF can not be module, using IS_ENABLED() on it is just wrong.
->=20
-> Good point. Looks like there's IS_BUILTIN that's for boolean options.
 
-Using IS_ENABLED for boolean options is supposed to be supported
-according to the comment above IS_BUILTIN:
+On Oct 26, 2013, at 6:31 AM, Sebastian Reichel wrote:
 
-/*
- * IS_BUILTIN(CONFIG_FOO) evaluates to 1 if CONFIG_FOO is set to 'y', 0
- * otherwise. For boolean options, this is equivalent to
- * IS_ENABLED(CONFIG_FOO).
- */
-#define IS_BUILTIN(option) config_enabled(option)
+> On Sat, Oct 26, 2013 at 01:37:57AM -0500, Kumar Gala wrote:
+>> 
+>> On Oct 25, 2013, at 5:18 PM, Sebastian Reichel wrote:
+>> 
+>>> On Fri, Oct 25, 2013 at 04:41:20PM -0500, Kumar Gala wrote:
+>>>> On Oct 24, 2013, at 9:48 AM, Sebastian Reichel wrote:
+>>>>> +- interrupt: should be one of the following
+>>>>> +   - <8>: For controllers compatible with twl4030
+>>>> 
+>>>> Just checking, but the interrupt is always 8 for this device?
+>>> 
+>>> Yes. It's currently hardcoded in drivers/mfd/twl-core.c.
+>> 
+>> The fact that is hard coded in the driver does not imply that it
+>> should be in the device tree binding.  Is there an interrupt
+>> controller as part of the TWL4030?
+> 
+> Hardware looks like this:
+> 
+> &twl4030 {
+>    compatible = "ti,twl4030";
+> 	interrupt-controller;
+> 	#interrupt-cells = <1>;
+> 
+>    twl_pwrbutton: pwrbutton {
+> 		compatible = "ti,twl4030-pwrbutton";
+> 		interrupts = <8>; /* 8th interrupt from the twl4030 */
+> 	};
+> };
+> 
+> Simplified the initialization of twl4030 stuff works
+> like this for non DT boot:
+> 
+> twl4030_init(...) {
+>    init_subdev(...);
+>    init_subdev("twl4030-pwrbutton", ..., irq=8, ...);
+>    init_subdev(...);
+> };
+> 
+> -- Sebastian
 
--- Sebastian
+ok, than other than Grant's comment about merging some of this together with the other twl4030 bindings, ack.
 
---dDRMvlgZJXvWKvBx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+- k
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+-- 
+Employee of Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
 
-iQIcBAEBCAAGBQJSbT/eAAoJENju1/PIO/qakkwP/A16K3L2a3ZV6ytDoFG1lMG9
-xfKPgI6Y6GZRjU9a4EUPE/qV/NS7BEQl0VUyxVgEYJ4NOCxnSIM/RibTxGlmV5mj
-TJz8116axWAsS5mKgQx+zxw/r+dXh2RuZe0ClE2kh2k+ba50iDc7QMRtJlbTumaW
-TPcUsGY+2lHVVSQjlTdRpq6v4IcsrOTVYrYTUfPdk6ichUJiqtheCni39zBLvCZ/
-Eat//nBa5UW3iajcn3uX2xkwVBiTZNNjFGPQJqmjqGDF4EltkTm5db+EdmdFtrma
-I8a8M7lOrhpIva9uEMwz/NC1FPho5l35Vp0emUFWIHqmIDjD8i3dk6s2gnOrFKZ/
-n+8k15Ed22nhw5JWoCwdh9bIu2u9drr/6m2JI0YSWagw99+oCtqScNG5KjQmSMgn
-YdiAbrOvAFpbj4scu8ntmpj6baUs8FMXFEf+zbclJwgSh+T6AYf6er1hziHUKqrt
-WIXR6+AoDYoiX0z8zFoaecx2TDT1B4mjbCUSyenFvwO8mlpyVDigFaBcCgy/Jjfk
-+1aYeXqqa4RjeD7a5VWTJf4cMnxe41W8PW3OJxDnXhFMSbhKLYhMTmorkvLS4qsd
-uSysrO7i/YGn7TDypBWIimjRIl/nwisHdleRipSvKXloPn3vMxVGCYqM4CE/LpSW
-Vjoarfs0iyeDNS6KVpGm
-=iXiI
------END PGP SIGNATURE-----
-
---dDRMvlgZJXvWKvBx--

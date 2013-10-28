@@ -1,41 +1,39 @@
-From: Daniel Stone <daniel@fooishbar.org>
-Subject: Re: [PATCH] Input: evdev: Fall back to vmalloc for client event buffer
-Date: Mon, 28 Oct 2013 11:50:31 +0000
-Message-ID: <CAPj87rMGYQYBPa1uuyKSuaKA8k0wuRQ0yPuvaP1EF4UuAzr+gw@mail.gmail.com>
-References: <1381151213-32690-1-git-send-email-daniels@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f174.google.com ([74.125.82.174]:53230 "EHLO
-	mail-we0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756403Ab3J1Lud (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Oct 2013 07:50:33 -0400
-Received: by mail-we0-f174.google.com with SMTP id u56so6400203wes.19
-        for <linux-input@vger.kernel.org>; Mon, 28 Oct 2013 04:50:32 -0700 (PDT)
-In-Reply-To: <1381151213-32690-1-git-send-email-daniels@collabora.com>
-Sender: linux-input-owner@vger.kernel.org
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH] HID: wiimote: fix inverted pro-controller axes
+Date: Mon, 28 Oct 2013 17:47:53 +0100
+Message-ID: <1382978873-802-1-git-send-email-dh.herrmann@gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Rafael Brune <mail@rbrune.de>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: Henrik Rydberg <rydberg@euromail.se>
 
-Hi,
+The analog-stick vertical axes are inverted. Fix that! Otherwise, games
+and other gamepad applications need to carry their own fixups (which they
+thankfully haven't done, yet).
 
-On 7 October 2013 14:06, Daniel Stone <daniel@fooishbar.org> wrote:
-> evdev always tries to allocate the event buffer for clients using
-> kzalloc rather than vmalloc, presumably to avoid mapping overhead where
-> possible.  However, drivers like bcm5974, which claims support for
-> reporting 16 fingers simultaneously, can have an extraordinarily large
-> buffer.  The resultant contiguous order-4 allocation attempt fails due
-> to fragmentation, and the device is thus unusable until reboot.
->
-> Try kzalloc if we can to avoid the mapping overhead, but if that fails,
-> fall back to vzalloc.
->
-> Signed-off-by: Daniel Stone <daniels@collabora.com>
+Cc: <stable@vger.kernel.org> # 3.11+
+Reported-by: Rafael Brune <mail@rbrune.de>
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ drivers/hid/hid-wiimote-modules.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Ping? This bit me again yesterday, and is pretty much guaranteed to
-happen eventually, if you suspend and resume enough times.
-
-Cheers,
-Daniel
+diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
+index 71adf9e..e30567a 100644
+--- a/drivers/hid/hid-wiimote-modules.c
++++ b/drivers/hid/hid-wiimote-modules.c
+@@ -1656,9 +1656,9 @@ static void wiimod_pro_in_ext(struct wiimote_data *wdata, const __u8 *ext)
+ 	ry = (ext[6] & 0xff) | ((ext[7] & 0x0f) << 8);
+ 
+ 	input_report_abs(wdata->extension.input, ABS_X, lx - 0x800);
+-	input_report_abs(wdata->extension.input, ABS_Y, ly - 0x800);
++	input_report_abs(wdata->extension.input, ABS_Y, 0x800 - ly);
+ 	input_report_abs(wdata->extension.input, ABS_RX, rx - 0x800);
+-	input_report_abs(wdata->extension.input, ABS_RY, ry - 0x800);
++	input_report_abs(wdata->extension.input, ABS_RY, 0x800 - ry);
+ 
+ 	input_report_key(wdata->extension.input,
+ 			 wiimod_pro_map[WIIMOD_PRO_KEY_RIGHT],
+-- 
+1.8.4.1

@@ -1,127 +1,80 @@
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Subject: [PATCH 00/19] Enable various Renesas drivers on all ARM platforms
-Date: Tue, 29 Oct 2013 00:46:48 +0100
-Message-ID: <1383004027-25036-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+From: Sebastian Reichel <sre@debian.org>
+Subject: Re: [PATCHv2 1/3] Input: twl4030-keypad - add device tree support
+Date: Tue, 29 Oct 2013 02:06:08 +0100
+Message-ID: <20131029010608.GA5353@earth.universe>
+References: <1382446042-27099-1-git-send-email-sre@debian.org>
+ <1382446042-27099-2-git-send-email-sre@debian.org>
+ <5137C017-2515-427C-865F-B938CC24B210@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
-List-Post: <mailto:linux-mtd@lists.infradead.org>
-List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
-Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
-To: linux-sh@vger.kernel.org
-Cc: linux-fbdev@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>, Joerg Roedel <joro@8bytes.org>, Magnus Damm <magnus.damm@gmail.com>, Eduardo Valentin <eduardo.valentin@ti.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, Chris Ball <cjb@laptop.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, Samuel Ortiz <samuel@sortiz.org>, linux-pm@vger.kernel.org, Ian Molton <ian@mnementh.co.uk>, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, Sergei Shtylyov <sergei.shtyly>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <5137C017-2515-427C-865F-B938CC24B210@codeaurora.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Kumar Gala <galak@codeaurora.org>
+Cc: linux-input@vger.kernel.org, =?iso-8859-1?Q?'Beno=EEt?= Cousson' <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hello,
 
-This patch series, based on v3.12-rc7, prepares various Renesas drivers
-for migration to multiplatform kernels by enabling their compilation or
-otherwise fixing them on all ARM platforms. The patches are pretty
-straightforward and are described in their commit message.
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'd like to get all these patches merged in v3.14. As they will need to go
-through their respective subsystems' trees, I would appreciate if all
-maintainers involved could notify me when they merge patches from this series
-in their tree to help me tracking the merge status. I don't plan to send pull
-requests individually for these patches, and I will repost patches
-individually if changes are requested during review.
+On Mon, Oct 28, 2013 at 01:42:47AM -0500, Kumar Gala wrote:
+> > +This binding is based on the matrix-keymap binding with the following
+> > +changes:
+>=20
+> Maybe be a bit more specific and say 'based on the input/matrix-keymap.tx=
+t binding'..
 
-If you believe the issue should be solved in a different way (for instance by
-removing the architecture dependency completely) please reply to the cover
-letter to let other maintainers chime in.
+OK.
 
-Cc: Chris Ball <cjb@laptop.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: dmaengine@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Eduardo Valentin <eduardo.valentin@ti.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
-Cc: Ian Molton <ian@mnementh.co.uk>
-Cc: iommu@lists.linux-foundation.org
-Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-fbdev@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: linux-mmc@vger.kernel.org
-Cc: linux-mtd@lists.infradead.org
-Cc: linux-pm@vger.kernel.org
-Cc: linux-pwm@vger.kernel.org
-Cc: linux-serial@vger.kernel.org
-Cc: linux-spi@vger.kernel.org
-Cc: Magnus Damm <magnus.damm@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Mauro Carvalho Chehab <m.chehab@samsung.com>
-Cc: netdev@vger.kernel.org
-Cc: Samuel Ortiz <samuel@sortiz.org>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: Vinod Koul <vinod.koul@intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Zhang Rui <rui.zhang@intel.com>
+> > + * keypad,num-rows and keypad,num-columns are required.
+>=20
+> Is linux,keymap required from matrix-keymap.txt?
 
-Laurent Pinchart (19):
-  serial: sh-sci: Enable the driver on all ARM platforms
-  DMA: shdma: Enable the driver on all ARM platforms
-  i2c: sh_mobile: Enable the driver on all ARM platforms
-  input: sh_keysc: Enable the driver on all ARM platforms
-  iommu: shmobile: Enable the driver on all ARM platforms
-  i2c: rcar: Enable the driver on all ARM platforms
-  v4l: sh_vou: Enable the driver on all ARM platforms
-  mmc: sdhi: Enable the driver on all ARM platforms
-  mmc: sh_mmcif: Enable the driver on all ARM platforms
-  mtd: sh_flctl: Enable the driver on all ARM platforms
-  net: sh_eth: Set receive alignment correctly on all ARM platforms
-  irda: sh_irda: Enable the driver on all ARM platforms
-  pinctrl: sh-pfc: Enable the driver on all ARM platforms
-  pwm: pwm-renesas-tpu: Enable the driver on all ARM platforms
-  sh: intc: Enable the driver on all ARM platforms
-  spi: sh_msiof: Enable the driver on all ARM platforms
-  spi: sh_hspi: Enable the driver on all ARM platforms
-  thermal: rcar-thermal: Enable the driver on all ARM platforms
-  fbdev: sh-mobile-lcdcfb: Enable the driver on all ARM platforms
+Yes, matrix-keymap.txt contains descriptions for the following:
 
- drivers/dma/sh/Kconfig                | 2 +-
- drivers/dma/sh/shdmac.c               | 6 +++---
- drivers/i2c/busses/Kconfig            | 4 ++--
- drivers/input/keyboard/Kconfig        | 2 +-
- drivers/iommu/Kconfig                 | 2 +-
- drivers/media/platform/Kconfig        | 2 +-
- drivers/mmc/host/Kconfig              | 4 ++--
- drivers/mmc/host/tmio_mmc_dma.c       | 2 +-
- drivers/mtd/nand/Kconfig              | 2 +-
- drivers/net/ethernet/renesas/sh_eth.c | 2 +-
- drivers/net/ethernet/renesas/sh_eth.h | 2 +-
- drivers/net/irda/Kconfig              | 2 +-
- drivers/pinctrl/Makefile              | 2 +-
- drivers/pinctrl/sh-pfc/Kconfig        | 2 +-
- drivers/pwm/Kconfig                   | 2 +-
- drivers/sh/intc/Kconfig               | 2 +-
- drivers/spi/Kconfig                   | 4 ++--
- drivers/thermal/Kconfig               | 2 +-
- drivers/tty/serial/Kconfig            | 2 +-
- drivers/video/Kconfig                 | 6 +++---
- 20 files changed, 27 insertions(+), 27 deletions(-)
+required:
+ - linux,keymap
+optional:
+ - keypad,num-rows
+ - keypad,num-columns
 
--- 
-Regards,
+> > +Optional Properties specific to linux:
+> > +- linux,keypad-no-autorepeat: do no enable autorepeat feature.
+>=20
+> Does it make sense to update the matrix-keymap.txt binding to add
+> 'linux,keypad-no-autorepeat' there?
 
-Laurent Pinchart
+At least according to devicetree documentation there are
+keymap-matrix.txt based drivers, which do not support
+"linux,keypad-no-autorepeat".
 
+-- Sebastian
 
-______________________________________________________
-Linux MTD discussion mailing list
-http://lists.infradead.org/mailman/listinfo/linux-mtd/
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBCAAGBQJSbwn/AAoJENju1/PIO/qakfIP/RzLbeDgdIolOTlkwGfucBEa
+lPxJn/QuxpFeSMN/rC/2ui+palmqwwCgMYl2t9KeyERdRuna6Tm7aDT784fANRA1
+bZE19QY17Nl4usNyyfNDfnPpGaLg6shyopNYtxnEfTW/5437VzBcUEqHzebrCeCB
+myFB4kxtq5OViNHQSjdHE68+knzbmUmXRp8b8VoM/XzWaVUH/hN23JA7rataRqKd
+UMtW8/K6nchvC/YB7cASpYjmDQEclUdhPro9bYXw5HUNQiC4wAWFPBoeOrJ7GyYJ
+Aj6g00EEp7iQmz2VtqhMOagUIbV1+LG5YQP7IHYSmh0wgVgwLiPAD2ZUCHEYLAB0
+Qxq4lcLvoD6ug+d1eWfek17MClIbn+AORKxZwJcCECxPxEvBdNet2dA1JpzEWKTA
+2NaQ1zKYnqvhL0dH47zc4gzz0uhW31ADdNDNgjHmVTK31XM3RV0mhh14cTzUF5Y4
+uKXhaE6r6X9kUM1j+CK2l0KU2Yo6avxqCdS+s4nzLQlBJK4IRP8OiVFjnZoULA1R
+yMOnglxW+sIvPqfYUXzXmeq9oyoJKs7a9j2/QvcddoU6A6iunPIOqxS85lmFhpxh
+sMO1OI6dtNYTxfAfnlebFhK7vIf7r1wmgi/cuA8oifmUKRdRjOfZyu+jmWo3e5ri
+GyJZmbajGhCSTswzhhn0
+=ixKm
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--

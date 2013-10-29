@@ -1,112 +1,63 @@
-From: Sebastian Reichel <sre@debian.org>
-Subject: Re: [PATCHv2 1/3] Input: twl4030-keypad - add device tree support
-Date: Tue, 29 Oct 2013 11:25:28 +0100
-Message-ID: <20131029102527.GA10530@earth.universe>
-References: <1382446042-27099-1-git-send-email-sre@debian.org>
- <1382446042-27099-2-git-send-email-sre@debian.org>
- <5137C017-2515-427C-865F-B938CC24B210@codeaurora.org>
- <20131029010608.GA5353@earth.universe>
- <14DEC9DA-8C77-4F73-AF3A-6C0D20C6C1AB@codeaurora.org>
+From: Artem Bityutskiy <dedekind1@gmail.com>
+Subject: Re: [PATCH 00/19] Enable various Renesas drivers on all ARM platforms
+Date: Tue, 29 Oct 2013 15:06:20 +0200
+Message-ID: <1383051980.29619.33.camel@sauron.fi.intel.com>
+References: <1383004027-25036-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <Pine.LNX.4.64.1310291009121.8404@axis700.grange>
+Reply-To: dedekind1@gmail.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ring0.de ([91.143.88.219]:39506 "EHLO smtp.ring0.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751237Ab3J2KZh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Oct 2013 06:25:37 -0400
-Content-Disposition: inline
-In-Reply-To: <14DEC9DA-8C77-4F73-AF3A-6C0D20C6C1AB@codeaurora.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <Pine.LNX.4.64.1310291009121.8404@axis700.grange>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: linux-fbdev@vger.kernel.org, linux-sh@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Vinod Koul <vinod.koul@intel.com>, Joerg Roedel <joro@8bytes.org>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Eduardo Valentin <eduardo.valentin@ti.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, Chris Ball <cjb@laptop.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, Samuel Ortiz <samuel@sortiz.org>, linux-pm@vger.kernel.org, Ian Molton <ian@mnementh.co.uk>Mark Brown <b>
 List-Id: linux-input@vger.kernel.org
-To: Kumar Gala <galak@codeaurora.org>
-Cc: linux-input@vger.kernel.org, =?iso-8859-1?Q?=22'Beno=EEt_Cousson'=22?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
 
+On Tue, 2013-10-29 at 10:12 +0100, Guennadi Liakhovetski wrote:
+> Hi Laurent
+> 
+> On Tue, 29 Oct 2013, Laurent Pinchart wrote:
+> 
+> > Hello,
+> > 
+> > This patch series, based on v3.12-rc7, prepares various Renesas drivers
+> > for migration to multiplatform kernels by enabling their compilation or
+> > otherwise fixing them on all ARM platforms. The patches are pretty
+> > straightforward and are described in their commit message.
+> > 
+> > I'd like to get all these patches merged in v3.14. As they will need to go
+> > through their respective subsystems' trees, I would appreciate if all
+> > maintainers involved could notify me when they merge patches from this series
+> > in their tree to help me tracking the merge status. I don't plan to send pull
+> > requests individually for these patches, and I will repost patches
+> > individually if changes are requested during review.
+> > 
+> > If you believe the issue should be solved in a different way (for instance by
+> > removing the architecture dependency completely) please reply to the cover
+> > letter to let other maintainers chime in.
+> 
+> Exactly this was my doubt. If we let these drivers build on all ARM 
+> platforms... Maybe we should just let them build everywhere? Unless there 
+> are real ARM dependencies. Maybe you could try to remove the restriction 
+> and try to build them all on x86?
 
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If they have never been used on anything but ARM, why would you remove
+ARM dependencies? Just for the sake of compile-checking?
 
-On Tue, Oct 29, 2013 at 03:33:31AM -0500, Kumar Gala wrote:
-> On Oct 28, 2013, at 8:06 PM, Sebastian Reichel wrote:
-> > On Mon, Oct 28, 2013 at 01:42:47AM -0500, Kumar Gala wrote:
-> >>> +This binding is based on the matrix-keymap binding with the following
-> >>> +changes:
-> >>=20
-> >> Maybe be a bit more specific and say 'based on the input/matrix-keymap=
-=2Etxt binding'..
-> >=20
-> > OK.
-> >=20
-> >>> + * keypad,num-rows and keypad,num-columns are required.
-> >>=20
-> >> Is linux,keymap required from matrix-keymap.txt?
-> >=20
-> > Yes, matrix-keymap.txt contains descriptions for the following:
-> >=20
-> > required:
-> > - linux,keymap
->=20
-> So you don't say that linux,keymap is required for twl4030-keypad
-> (wasn't clear if you assumed that or not).
+Also, if ARM dependency is ever removed, all these should become 'n' by
+default in the Kconfig, in order to make sure they do not slip into
+defconfigs of different architectures.
 
-It's already required by matrix-keypad, so I assumed the requirement
-is inherited by twl4030-keypad. The other matrix-keymap based
-bindings assume the same.
-
-keypad,num-rows and keypad,num-columns are only stated explicitly,
-because they are optional in matrix-keymap, but required by
-twl4030-keympad.
-
-> > optional:
-> > - keypad,num-rows
-> > - keypad,num-columns
-> >=20
-> >>> +Optional Properties specific to linux:
-> >>> +- linux,keypad-no-autorepeat: do no enable autorepeat feature.
-> >>=20
-> >> Does it make sense to update the matrix-keymap.txt binding to add
-> >> 'linux,keypad-no-autorepeat' there?
-> >=20
-> > At least according to devicetree documentation there are
-> > keymap-matrix.txt based drivers, which do not support
-> > "linux,keypad-no-autorepeat".
->=20
-> Which is why it could be optional in keymap-matrix.txt.  I dont
-> know anything about keymap/keypad's just asking the question?
->=20
-> It seems as if linux,keypad-no-autorepeat is intended to mean the
-> same thing (if relevant to the device) across all drivers.  Is
-> that correct?  If so it seems like moving it to be specified in a
-> generic input binding makes sense, just not sure if
-> keymap-matrix.txt is that place or not.
-
-Yes, when supported it means the same. I can add it to
-keymap-matrix.txt.
-
--- Sebastian
-
---k1lZvvs/B4yU6o8G
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBCAAGBQJSb40XAAoJENju1/PIO/qahGoP/1DAToS7oOCrQFVKlQ52Wk7f
-BV2abfnWS1wxzv4VL+PdWTF2uidtanqzyD5zAG1L9eOQct43gWZncpp0Pf2xsuZS
-6NXQMov1g+qzO754EoShcC/Hefhu3zspxMFkckpdAG9R8Y0cQFqwscnnCBMLjCD9
-YwxnCqCLA/k261FmjLmV3D/aS6IOnC9Htx1VVu0/BhUYJTt2d0jNxeUzV59XTz48
-3p8Ib5ZxvtcV/nZgwH+UAPO5C8NuRurd3AabRLZz8W+2WlOnkEbDeUWmJyowIzNF
-PoJYHgosqOHO/Zfbzaodl2F4ZjB9mQgPsWLqoA6c/mmPnbT80Tj1PHzBr9YoTqn9
-zy6uVDf+kFU5HdJqatoOl4GQVWf+E2I5rxYc9FymXnejtQXpRkQ8+fs1mvZJ95zC
-Ffbhl9Gh2ccPdXjEjntyvcGNgB8vr2rTAOLwzoJKZHOv7vKPA+Rcl5yXd7PK4eUy
-y3J8NFlL5kwuWpfl1W+dwjl9DLE7x52WVAzUqZe7+XOYNoTTucZKsrT/ux1FI3+X
-XE7ml3v5clvcuZAroSUVnfZRXsJvG5H7x9GGuJ9POu4M8DHr4l2Az3KLSWg5vr8h
-aemiJ1mndAn8DPZJWx7woAWB5+Wm8JeVcN6/qfOAx1VOhMt+7uP+UFdZR4QQRj+S
-ZEwcMTUhSYox1W5NA06T
-=aZwS
------END PGP SIGNATURE-----
-
---k1lZvvs/B4yU6o8G--
+-- 
+Best Regards,
+Artem Bityutskiy

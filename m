@@ -1,61 +1,47 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCHv2 1/3] Input: twl4030-keypad - add device tree support
-Date: Wed, 30 Oct 2013 14:59:02 +0100
-Message-ID: <20131030135902.GA2656@amd.pavel.ucw.cz>
-References: <1382446042-27099-1-git-send-email-sre@debian.org>
- <1382446042-27099-2-git-send-email-sre@debian.org>
- <20131027111715.GA2437@xo-6d-61-c0.localdomain>
- <20131027114026.GB14091@earth.universe>
- <20131027114753.GB14901@amd.pavel.ucw.cz>
- <20131030135307.D8CE1C402A0@trevor.secretlab.ca>
+From: Tom Gundersen <teg@jklm.no>
+Subject: Re: [PATCH] input: i8042 - add PNP modaliases
+Date: Wed, 30 Oct 2013 15:30:07 +0100
+Message-ID: <CAG-2HqWKCcFcaWFnLz96YZa=G5mYJg0dMk54jZ7FyNkK-m=PKA@mail.gmail.com>
+References: <20130903193547.GA8150@srcf.ucam.org> <1378286856-6384-1-git-send-email-teg@jklm.no>
+ <CAG-2HqUhZdYgYcDGJaFUJV-AqgbbFh55HMcw6nRppiUyeHGjcw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20131030135307.D8CE1C402A0@trevor.secretlab.ca>
-Sender: linux-doc-owner@vger.kernel.org
-To: Grant Likely <grant.likely@linaro.org>
-Cc: linux-input@vger.kernel.org, 'Beno?t Cousson' <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bk0-f43.google.com ([209.85.214.43]:43709 "EHLO
+	mail-bk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754263Ab3J3Oa3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Oct 2013 10:30:29 -0400
+Received: by mail-bk0-f43.google.com with SMTP id mz11so493054bkb.30
+        for <linux-input@vger.kernel.org>; Wed, 30 Oct 2013 07:30:28 -0700 (PDT)
+In-Reply-To: <CAG-2HqUhZdYgYcDGJaFUJV-AqgbbFh55HMcw6nRppiUyeHGjcw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Tom Gundersen <teg@jklm.no>, Matthew Garrett <mjg59@srcf.ucam.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed 2013-10-30 06:53:07, Grant Likely wrote:
-> On Sun, 27 Oct 2013 12:47:53 +0100, Pavel Machek <pavel@ucw.cz> wrote:
-> > > > > +#if IS_ENABLED(CONFIG_OF)
-> > > > I'm probably missing something here, but why not #ifdef CONFIG_OF?
-> > > 
-> > > I have been told for other drivers, that IS_ENABLED() is
-> > > the prefered way to check for configuration these days.
-> > 
-> > CONFIG_OF can not be module, using IS_ENABLED() on it is just wrong.
-> 
-> That makes no sense. There is absolutely nothing wrong with using
-> IS_ENABLED() for CONFIG_OF.
+On Fri, Oct 4, 2013 at 2:26 PM, Tom Gundersen <teg@jklm.no> wrote:
+> On Wed, Sep 4, 2013 at 11:27 AM, Tom Gundersen <teg@jklm.no> wrote:
+>> This allows the module to be autoloaded in the common case.
+>>
+>> In order to work on non-PnP systems the module should be compiled in or loaded
+>> unconditionally at boot (c.f. modules-load.d(5)), as before.
+>>
+>> Cc: Matthew Garrett <mjg59@srcf.ucam.org>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Signed-off-by: Tom Gundersen <teg@jklm.no>
+>> --
+>
+>
+> Hi Dmitry,
+>
+> Any comments on this? Any chance of having this (and the two patches
+> dropping EXPERT=y requirements) included for 3.13 (or even 3.12 if it
+> is not too late for this kind of stuff)? Let me know if I should
+> resend the three patches.
 
-Besides being too long, confusing for a reader, and testing for an
-option that can't exist?
+Ping? Any chance of seeing this in 3.13?
 
-include/linux/kconfig.h-/*
-include/linux/kconfig.h: * IS_ENABLED(CONFIG_FOO) evaluates to 1 if CONFIG_FOO is set to 'y' or 'm',
-include/linux/kconfig.h- * 0 otherwise.
-include/linux/kconfig.h- *
-include/linux/kconfig.h- */
-include/linux/kconfig.h:#define IS_ENABLED(option) \
-include/linux/kconfig.h-	(config_enabled(option) || config_enabled(option##_MODULE))
-include/linux/kconfig.h-
-include/linux/kconfig.h-/*
-include/linux/kconfig.h- * IS_BUILTIN(CONFIG_FOO) evaluates to 1 if CONFIG_FOO is set to 'y', 0
-include/linux/kconfig.h- * otherwise. For boolean options, this is
-equivalent to
-include/linux/kconfig.h: * IS_ENABLED(CONFIG_FOO).
-include/linux/kconfig.h- */
-include/linux/kconfig.h-#define IS_BUILTIN(option) config_enabled(option)
-include/linux/kconfig.h-
+Cheers,
 
-Oops. And I made a mistake of looking up config_enabled(). Obfuscated
-C code contest.
-
-Just use #ifdef CONFIG_foo.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Tom

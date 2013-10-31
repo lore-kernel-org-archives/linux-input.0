@@ -1,52 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 04/19] input: sh_keysc: Enable the driver on all ARM
- platforms
-Date: Thu, 31 Oct 2013 00:54:53 -0700
-Message-ID: <20131031075453.GB2098@core.coreip.homeip.net>
-References: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1383086274-11049-5-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Subject: Re: [PATCH] Input: Adding support for touchpad on Dell XT2 model
+Date: Thu, 31 Oct 2013 00:56:13 -0700
+Message-ID: <20131031075613.GA2590@core.coreip.homeip.net>
+References: <1382715581-2584-1-git-send-email-yunkang.tang@cn.alps.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:55323 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751858Ab3JaH4Q (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Oct 2013 03:56:16 -0400
+Received: by mail-pa0-f43.google.com with SMTP id hz1so2140498pad.30
+        for <linux-input@vger.kernel.org>; Thu, 31 Oct 2013 00:56:15 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1383086274-11049-5-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc: linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+In-Reply-To: <1382715581-2584-1-git-send-email-yunkang.tang@cn.alps.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yunkang Tang <tommywill2011@gmail.com>
+Cc: cernekee@gmail.com, dturvene@dahetral.com, linux-input@vger.kernel.org, ndevos@redhat.com, gaspard@oknaj.eu, jclift@redhat.com, yunkang.tang@cn.alps.com
 
-On Tue, Oct 29, 2013 at 11:37:39PM +0100, Laurent Pinchart wrote:
-> Renesas ARM platforms are transitioning from single-platform to
-> multi-platform kernels using the new ARCH_SHMOBILE_MULTI. Make the
-> driver available on all ARM platforms to enable it on both ARCH_SHMOBILE
-> and ARCH_SHMOBILE_MULTI, and increase build testing coverage with
-> COMPILE_TEST.
+On Fri, Oct 25, 2013 at 11:39:41PM +0800, Yunkang Tang wrote:
+> Hi all,
 > 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+> This patch adding the support for touchpad on Dell XT2 model.
+> It's a dual device with device ID: 73, 00, 14, that comply with "ALPS_PROTO_V2".
+> 
+> 
+> Signed-off-by: Yunkang Tang <yunkang.tang@cn.alps.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/keyboard/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/input/mouse/alps.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index c1edd39..28d75c7 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -525,7 +525,7 @@ config KEYBOARD_SUNKBD
->  
->  config KEYBOARD_SH_KEYSC
->  	tristate "SuperH KEYSC keypad support"
-> -	depends on SUPERH || ARCH_SHMOBILE
-> +	depends on SUPERH || ARM || COMPILE_TEST
->  	help
->  	  Say Y here if you want to use a keypad attached to the KEYSC block
->  	  on SuperH processors such as sh7722 and sh7343.
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index ca7a26f..24b3626 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -103,6 +103,7 @@ static const struct alps_model_info alps_model_data[] = {
+>  	/* Dell Latitude E5500, E6400, E6500, Precision M4400 */
+>  	{ { 0x62, 0x02, 0x14 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf,
+>  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },
+> +	{ { 0x73, 0x00, 0x14 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_DUALPOINT },		/* Dell XT2 */
+>  	{ { 0x73, 0x02, 0x50 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },		/* Dell Vostro 1400 */
+>  	{ { 0x52, 0x01, 0x14 }, 0x00, ALPS_PROTO_V2, 0xff, 0xff,
+>  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },				/* Toshiba Tecra A11-11L */
 > -- 
-> 1.8.1.5
+> 1.8.1.2
 > 
 
 -- 

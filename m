@@ -1,55 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Adding support for touchpad on Dell XT2 model
-Date: Thu, 31 Oct 2013 00:56:13 -0700
-Message-ID: <20131031075613.GA2590@core.coreip.homeip.net>
-References: <1382715581-2584-1-git-send-email-yunkang.tang@cn.alps.com>
+From: Shawn Guo <shawn.guo@linaro.org>
+Subject: Re: [PATCHv8][ 4/4] ARM: imx_v6_v7_defconfig: Enable tsc2007 support.
+Date: Thu, 31 Oct 2013 16:00:18 +0800
+Message-ID: <20131031080016.GI23549@S2101-09.ap.freescale.net>
+References: <1383155923-24076-1-git-send-email-denis@eukrea.com>
+ <1383155923-24076-4-git-send-email-denis@eukrea.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f43.google.com ([209.85.220.43]:55323 "EHLO
-	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751858Ab3JaH4Q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Oct 2013 03:56:16 -0400
-Received: by mail-pa0-f43.google.com with SMTP id hz1so2140498pad.30
-        for <linux-input@vger.kernel.org>; Thu, 31 Oct 2013 00:56:15 -0700 (PDT)
+Received: from ch1ehsobe006.messaging.microsoft.com ([216.32.181.186]:2204
+	"EHLO ch1outboundpool.messaging.microsoft.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751086Ab3JaIAO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Oct 2013 04:00:14 -0400
 Content-Disposition: inline
-In-Reply-To: <1382715581-2584-1-git-send-email-yunkang.tang@cn.alps.com>
+In-Reply-To: <1383155923-24076-4-git-send-email-denis@eukrea.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yunkang Tang <tommywill2011@gmail.com>
-Cc: cernekee@gmail.com, dturvene@dahetral.com, linux-input@vger.kernel.org, ndevos@redhat.com, gaspard@oknaj.eu, jclift@redhat.com, yunkang.tang@cn.alps.com
+To: Denis Carikli <denis@eukrea.com>
+Cc: Eric =?iso-8859-1?Q?B=E9nard?= <eric@eukrea.com>, linux-arm-kernel@lists.infradead.org, Sascha Hauer <kernel@pengutronix.de>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Fabio Estevam <fabio.estevam@freescale.com>
 
-On Fri, Oct 25, 2013 at 11:39:41PM +0800, Yunkang Tang wrote:
-> Hi all,
-> 
-> This patch adding the support for touchpad on Dell XT2 model.
-> It's a dual device with device ID: 73, 00, 14, that comply with "ALPS_PROTO_V2".
-> 
-> 
-> Signed-off-by: Yunkang Tang <yunkang.tang@cn.alps.com>
+On Wed, Oct 30, 2013 at 06:58:43PM +0100, Denis Carikli wrote:
+> The eukrea cpuimx35 and cpuimx51 have a tsc2007 touchscreen controlle=
+r,
+>   so we turn it on.
+>=20
+> Cc: Rob Herring <rob.herring@calxeda.com>
+> Cc: Pawel Moll <pawel.moll@arm.com>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Stephen Warren <swarren@wwwdotorg.org>
+> Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+> Cc: devicetree@vger.kernel.org
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: Sascha Hauer <kernel@pengutronix.de>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Lothar Wa=DFmann <LW@KARO-electronics.de>
+> Cc: Fabio Estevam <fabio.estevam@freescale.com>
+> Cc: Shawn Guo <shawn.guo@linaro.org>
+> Cc: Eric B=E9nard <eric@eukrea.com>
+> Signed-off-by: Denis Carikli <denis@eukrea.com>
 
-Applied, thank you.
+Applied this one.
 
-> ---
->  drivers/input/mouse/alps.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index ca7a26f..24b3626 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -103,6 +103,7 @@ static const struct alps_model_info alps_model_data[] = {
->  	/* Dell Latitude E5500, E6400, E6500, Precision M4400 */
->  	{ { 0x62, 0x02, 0x14 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf,
->  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },
-> +	{ { 0x73, 0x00, 0x14 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_DUALPOINT },		/* Dell XT2 */
->  	{ { 0x73, 0x02, 0x50 }, 0x00, ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },		/* Dell Vostro 1400 */
->  	{ { 0x52, 0x01, 0x14 }, 0x00, ALPS_PROTO_V2, 0xff, 0xff,
->  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },				/* Toshiba Tecra A11-11L */
-> -- 
-> 1.8.1.2
-> 
+Shawn
 
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

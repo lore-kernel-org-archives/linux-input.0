@@ -1,98 +1,39 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.12-rc7
-Date: Thu, 31 Oct 2013 01:08:31 -0700
-Message-ID: <20131031080831.GA25525@core.coreip.homeip.net>
+Subject: Re: [PATCH RESEND v2] Input: add driver for Neonode zForce based
+ touchscreens
+Date: Thu, 31 Oct 2013 01:30:31 -0700
+Message-ID: <20131031083031.GA26810@core.coreip.homeip.net>
+References: <201310301718.48650.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:46644 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752431Ab3JaIae (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Oct 2013 04:30:34 -0400
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <201310301718.48650.heiko@sntech.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+
+On Wed, Oct 30, 2013 at 05:18:47PM +0100, Heiko St=FCbner wrote:
+> This adds a driver for touchscreens using the zforce infrared
+> technology from Neonode connected via i2c to the host system.
+>=20
+> It supports multitouch with up to two fingers and tracking of the
+> contacts in hardware.
 
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. A bit late than I would
-want, but the changes are very minor - a few new device IDs for new
-hardware in existing drivers, fix for battery in Wacom devices not be
-considered system battery and cause emergency hibernations, and a couple
-of other bug fixes.
-
-Changelog:
----------
-
-Andrey Moiseev (1):
-      Input: i8042 - i8042_flush fix for a full 8042 buffer
-
-Bastien Nocera (1):
-      Input: wacom - export battery scope
-
-David Herrmann (1):
-      Input: move name/timer init to input_alloc_dev()
-
-Jason Gerecke (2):
-      Input: wacom - add support for ISDv4 0x10F sensor
-      Input: wacom - add support for ISDv4 0x10E sensor
-
-Mike Dunn (1):
-      Input: pxa27x_keypad - fix NULL pointer dereference
-
-Tim Gardner (1):
-      Input: cm109 - convert high volume dev_err() to dev_err_ratelimited()
-
-Yunkang Tang (1):
-      Input: ALPS - add support for model found on Dell XT2
-
-
-Diffstat:
---------
-
- drivers/input/input.c                  | 10 +++++-----
- drivers/input/keyboard/pxa27x_keypad.c | 11 +++++++++--
- drivers/input/misc/cm109.c             | 14 ++++++++++----
- drivers/input/mouse/alps.c             |  1 +
- drivers/input/serio/i8042.c            | 23 ++++++++++++++---------
- drivers/input/tablet/wacom_sys.c       |  4 ++++
- drivers/input/tablet/wacom_wac.c       |  8 ++++++++
- 7 files changed, 51 insertions(+), 20 deletions(-)
+Applied, thank you.
 
 --=20
 Dmitry
-
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJScg//AAoJEH70+W8r6ZYqMXsQAKiLzHCpj+LChytQbUVn8bYG
-LsSClzc653t3uAzf2Ha/i4vkmGnnop64b9wDxZVDFK36p9L5oZw8ZF9BRxpWV+Pr
-/RQ5i/ax3YvrcMUs5gLuEOPatRpPRfHCxUD/NFlB+873QH6J+ngwiURttSMEhzE/
-tmRw57BT5v0yOIsSGDtHwAdv+/M3ocFCb1VrpmjT4CktSt7F2V5/ZiomvSUiIzZT
-/JkJhvJ8Uwjq1nk5bXQ562fSFpTRoBrS/vbPAIF9+XwHpXCRzmKUzt8DEZmm+1xR
-+fdKJn3ZIuDfGY4XPr6zUhOpdIe6GvRTfAvV9dI4Gfgf/78rcJp6UWSN0z4/P/UO
-bcAw381PxxWo/kOagXfnsinQIMzQEdC9Hgvl2syXjyo6f8S3HvpGiQ6qOP+d2681
-SqktomwBkWwyy2iQum2a9D//a9U7GC+KNOJWZ7xnNVISMfKxggO+Cqd/D9f38p2s
-jiJd1MA58uPaFrorGTc8ft7oSMk5M6vMUfpKQTH0q219a2GD5U/jTRjwiZ379ja6
-lTL8SfZpX7/142Kyrr27k5mt1LR0a55tCA3TnTesXLh7Z8d9Wvd86LrZ/67CQLJm
-Rf0yYPeVyq/Rae4mGA9yvrZsyiyV7i4xG2E9P+o5UYXAbQOq/3hSg7RklA6JVtEH
-vpEGA7lo9jLPzEjSIljy
-=quWC
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

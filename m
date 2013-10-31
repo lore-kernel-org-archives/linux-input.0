@@ -1,33 +1,35 @@
-From: Kang Hu <hukangustc@gmail.com>
-Subject: [PATCH 1/1] Input: remove a redundant max() call.
-Date: Thu, 31 Oct 2013 15:26:34 +0800
-Message-ID: <1383204394-15399-1-git-send-email-hukangustc@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kang Hu <hukangustc@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: i8042 - add PNP modaliases
+Date: Thu, 31 Oct 2013 00:44:13 -0700
+Message-ID: <20131031074413.GA14944@core.coreip.homeip.net>
+References: <20130903193547.GA8150@srcf.ucam.org>
+ <1378286856-6384-1-git-send-email-teg@jklm.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:42190 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751592Ab3JaHoS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Oct 2013 03:44:18 -0400
+Content-Disposition: inline
+In-Reply-To: <1378286856-6384-1-git-send-email-teg@jklm.no>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tom Gundersen <teg@jklm.no>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Matthew Garrett <mjg59@srcf.ucam.org>
 
-dev->hint_events_per_packet is guaranteed to be >= packet_size.
-so an extra max() call is not needed.
+On Wed, Sep 04, 2013 at 11:27:36AM +0200, Tom Gundersen wrote:
+> This allows the module to be autoloaded in the common case.
+> 
+> In order to work on non-PnP systems the module should be compiled in or loaded
+> unconditionally at boot (c.f. modules-load.d(5)), as before.
+> 
+> Cc: Matthew Garrett <mjg59@srcf.ucam.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Tom Gundersen <teg@jklm.no>
 
-Signed-off-by: Kang Hu <hukangustc@gmail.com>
----
- drivers/input/input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Applied, thank you.
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index c044699..fb513da 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -2048,7 +2048,7 @@ int input_register_device(struct input_dev *dev)
- 	if (dev->hint_events_per_packet < packet_size)
- 		dev->hint_events_per_packet = packet_size;
- 
--	dev->max_vals = max(dev->hint_events_per_packet, packet_size) + 2;
-+	dev->max_vals = dev->hint_events_per_packet + 2;
- 	dev->vals = kcalloc(dev->max_vals, sizeof(*dev->vals), GFP_KERNEL);
- 	if (!dev->vals) {
- 		error = -ENOMEM;
 -- 
-1.8.3.1
+Dmitry

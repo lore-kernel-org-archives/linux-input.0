@@ -1,51 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input: remove a redundant max() call.
-Date: Thu, 31 Oct 2013 00:48:08 -0700
-Message-ID: <20131031074808.GA1886@core.coreip.homeip.net>
-References: <1383204394-15399-1-git-send-email-hukangustc@gmail.com>
+Subject: Re: [PATCH v2 04/19] input: sh_keysc: Enable the driver on all ARM
+ platforms
+Date: Thu, 31 Oct 2013 00:54:53 -0700
+Message-ID: <20131031075453.GB2098@core.coreip.homeip.net>
+References: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1383086274-11049-5-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f48.google.com ([209.85.160.48]:57575 "EHLO
-	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753326Ab3JaHsK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Oct 2013 03:48:10 -0400
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1383204394-15399-1-git-send-email-hukangustc@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1383086274-11049-5-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kang Hu <hukangustc@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2013 at 03:26:34PM +0800, Kang Hu wrote:
-> dev->hint_events_per_packet is guaranteed to be >= packet_size.
-> so an extra max() call is not needed.
-
+On Tue, Oct 29, 2013 at 11:37:39PM +0100, Laurent Pinchart wrote:
+> Renesas ARM platforms are transitioning from single-platform to
+> multi-platform kernels using the new ARCH_SHMOBILE_MULTI. Make the
+> driver available on all ARM platforms to enable it on both ARCH_SHMOBILE
+> and ARCH_SHMOBILE_MULTI, and increase build testing coverage with
+> COMPILE_TEST.
+> 
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
 Applied, thank you.
 
-> 
-> Signed-off-by: Kang Hu <hukangustc@gmail.com>
 > ---
->  drivers/input/input.c | 2 +-
+>  drivers/input/keyboard/Kconfig | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index c044699..fb513da 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -2048,7 +2048,7 @@ int input_register_device(struct input_dev *dev)
->  	if (dev->hint_events_per_packet < packet_size)
->  		dev->hint_events_per_packet = packet_size;
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index c1edd39..28d75c7 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -525,7 +525,7 @@ config KEYBOARD_SUNKBD
 >  
-> -	dev->max_vals = max(dev->hint_events_per_packet, packet_size) + 2;
-> +	dev->max_vals = dev->hint_events_per_packet + 2;
->  	dev->vals = kcalloc(dev->max_vals, sizeof(*dev->vals), GFP_KERNEL);
->  	if (!dev->vals) {
->  		error = -ENOMEM;
+>  config KEYBOARD_SH_KEYSC
+>  	tristate "SuperH KEYSC keypad support"
+> -	depends on SUPERH || ARCH_SHMOBILE
+> +	depends on SUPERH || ARM || COMPILE_TEST
+>  	help
+>  	  Say Y here if you want to use a keypad attached to the KEYSC block
+>  	  on SuperH processors such as sh7722 and sh7343.
 > -- 
-> 1.8.3.1
+> 1.8.1.5
 > 
 
 -- 

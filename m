@@ -1,146 +1,40 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH v2 00/19] Enable various Renesas drivers on all ARM
- platforms
-Date: Thu, 31 Oct 2013 14:52:28 +0900
-Message-ID: <20131031055228.GS1603@verge.net.au>
-References: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: evdev: Fall back to vmalloc for client event
+ buffer
+Date: Thu, 31 Oct 2013 00:26:06 -0700
+Message-ID: <20131031072606.GA14057@core.coreip.homeip.net>
+References: <1381151213-32690-1-git-send-email-daniels@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f52.google.com ([209.85.160.52]:51597 "EHLO
+	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751668Ab3JaH0J (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Oct 2013 03:26:09 -0400
+Received: by mail-pb0-f52.google.com with SMTP id rr13so977636pbb.39
+        for <linux-input@vger.kernel.org>; Thu, 31 Oct 2013 00:26:09 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc: linux-fbdev@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>, Joerg Roedel <joro@8bytes.org>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Eduardo Valentin <eduardo.valentin@ti.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, Chris Ball <cjb@laptop.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, Samuel Ortiz <samuel@sortiz.org>, linux-pm@vger.kernel.org, Ian Molton <ian@mnementh.co.uk>, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, Ser
+In-Reply-To: <1381151213-32690-1-git-send-email-daniels@collabora.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Stone <daniel@fooishbar.org>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Tue, Oct 29, 2013 at 11:37:35PM +0100, Laurent Pinchart wrote:
-> Hello,
+On Mon, Oct 07, 2013 at 02:06:53PM +0100, Daniel Stone wrote:
+> evdev always tries to allocate the event buffer for clients using
+> kzalloc rather than vmalloc, presumably to avoid mapping overhead where
+> possible.  However, drivers like bcm5974, which claims support for
+> reporting 16 fingers simultaneously, can have an extraordinarily large
+> buffer.  The resultant contiguous order-4 allocation attempt fails due
+> to fragmentation, and the device is thus unusable until reboot.
 > 
-> This patch series, based on v3.12-rc7, prepares various Renesas drivers
-> for migration to multiplatform kernels by enabling their compilation or
-> otherwise fixing them on all ARM platforms. The patches are pretty
-> straightforward and are described in their commit message.
+> Try kzalloc if we can to avoid the mapping overhead, but if that fails,
+> fall back to vzalloc.
 > 
-> Changes since v1:
-> 
-> - The drivers can also be selected when COMPILE_TEST is enabled, regardless of
->   the architecture. This should provide a good compromise between wide build
->   test coverage and not clobbering configuration with drivers useless on
->   non-SuperH, non-ARM platforms.
-> 
-> - DMA configuration is now unconditional in patch 08/19
-> 
-> I'd like to get all these patches merged in v3.14. As they will need to go
-> through their respective subsystems' trees, I would appreciate if all
-> maintainers involved could notify me when they merge patches from this series
-> in their tree to help me tracking the merge status. I don't plan to send pull
-> requests individually for these patches, and I will repost patches
-> individually if changes are requested during review.
-> 
-> If you believe the issue should be solved in a different way please reply to
-> the cover letter to let other maintainers chime in.
+> Signed-off-by: Daniel Stone <daniels@collabora.com>
 
-All patches, including the v3 ones present in the thread at this time:
+Applied, thank you Daniel.
 
-Acked-by: Simon Horman <horms@verge.net.au>
-
-> Cc: Chris Ball <cjb@laptop.org>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: David Woodhouse <dwmw2@infradead.org>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Eduardo Valentin <eduardo.valentin@ti.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
-> Cc: Ian Molton <ian@mnementh.co.uk>
-> Cc: iommu@lists.linux-foundation.org
-> Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
-> Cc: Joerg Roedel <joro@8bytes.org>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Magnus Damm <magnus.damm@gmail.com>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Mauro Carvalho Chehab <m.chehab@samsung.com>
-> Cc: Samuel Ortiz <samuel@sortiz.org>
-> Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-> Cc: Thierry Reding <thierry.reding@gmail.com>
-> Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> Cc: Vinod Koul <vinod.koul@intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Zhang Rui <rui.zhang@intel.com>
-> Cc: dmaengine@vger.kernel.org
-> Cc: linux-fbdev@vger.kernel.org
-> Cc: linux-i2c@vger.kernel.org
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-media@vger.kernel.org
-> Cc: linux-mmc@vger.kernel.org
-> Cc: linux-mtd@lists.infradead.org
-> Cc: linux-pm@vger.kernel.org
-> Cc: linux-pwm@vger.kernel.org
-> Cc: linux-serial@vger.kernel.org
-> Cc: linux-spi@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> 
-> Laurent Pinchart (19):
->   serial: sh-sci: Enable the driver on all ARM platforms
->   DMA: shdma: Enable the driver on all ARM platforms
->   i2c: sh_mobile: Enable the driver on all ARM platforms
->   input: sh_keysc: Enable the driver on all ARM platforms
->   iommu: shmobile: Enable the driver on all ARM platforms
->   i2c: rcar: Enable the driver on all ARM platforms
->   v4l: sh_vou: Enable the driver on all ARM platforms
->   mmc: sdhi: Enable the driver on all ARM platforms
->   mmc: sh_mmcif: Enable the driver on all ARM platforms
->   mtd: sh_flctl: Enable the driver on all ARM platforms
->   net: sh_eth: Set receive alignment correctly on all ARM platforms
->   irda: sh_irda: Enable the driver on all ARM platforms
->   pinctrl: sh-pfc: Enable the driver on all ARM platforms
->   pwm: pwm-renesas-tpu: Enable the driver on all ARM platforms
->   sh: intc: Enable the driver on all ARM platforms
->   spi: sh_msiof: Enable the driver on all ARM platforms
->   spi: sh_hspi: Enable the driver on all ARM platforms
->   thermal: rcar-thermal: Enable the driver on all ARM platforms
->   fbdev: sh-mobile-lcdcfb: Enable the driver on all ARM platforms
-> 
->  drivers/dma/sh/Kconfig                | 2 +-
->  drivers/dma/sh/shdmac.c               | 6 +++---
->  drivers/i2c/busses/Kconfig            | 4 ++--
->  drivers/input/keyboard/Kconfig        | 2 +-
->  drivers/iommu/Kconfig                 | 2 +-
->  drivers/media/platform/Kconfig        | 2 +-
->  drivers/mmc/host/Kconfig              | 4 ++--
->  drivers/mmc/host/tmio_mmc_dma.c       | 4 +---
->  drivers/mtd/nand/Kconfig              | 2 +-
->  drivers/net/ethernet/renesas/sh_eth.c | 2 +-
->  drivers/net/ethernet/renesas/sh_eth.h | 2 +-
->  drivers/net/irda/Kconfig              | 2 +-
->  drivers/pinctrl/Makefile              | 2 +-
->  drivers/pinctrl/sh-pfc/Kconfig        | 2 +-
->  drivers/pwm/Kconfig                   | 2 +-
->  drivers/sh/intc/Kconfig               | 2 +-
->  drivers/spi/Kconfig                   | 4 ++--
->  drivers/thermal/Kconfig               | 2 +-
->  drivers/tty/serial/Kconfig            | 2 +-
->  drivers/video/Kconfig                 | 6 +++---
->  20 files changed, 27 insertions(+), 29 deletions(-)
-> 
-> -- 
-> Regards,
-> 
-> Laurent Pinchart
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+-- 
+Dmitry

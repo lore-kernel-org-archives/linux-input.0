@@ -1,125 +1,187 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 06/13] HID: wiimote: adjust button-mapping to gamepad rules
-Date: Fri,  1 Nov 2013 21:16:17 +0100
-Message-ID: <1383336984-26601-7-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 07/13] HID: wiimote: map nunchuk as real gamepad
+Date: Fri,  1 Nov 2013 21:16:18 +0100
+Message-ID: <1383336984-26601-8-git-send-email-dh.herrmann@gmail.com>
 References: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f48.google.com ([74.125.83.48]:58041 "EHLO
+Received: from mail-ee0-f48.google.com ([74.125.83.48]:40210 "EHLO
 	mail-ee0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753223Ab3KAUQx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Nov 2013 16:16:53 -0400
-Received: by mail-ee0-f48.google.com with SMTP id d49so4927eek.7
-        for <linux-input@vger.kernel.org>; Fri, 01 Nov 2013 13:16:52 -0700 (PDT)
+	with ESMTP id S1753223Ab3KAUQz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Nov 2013 16:16:55 -0400
+Received: by mail-ee0-f48.google.com with SMTP id d49so4936eek.7
+        for <linux-input@vger.kernel.org>; Fri, 01 Nov 2013 13:16:54 -0700 (PDT)
 In-Reply-To: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-Our gamepad API (./Documentation/input/gamepad.txt) clearly defines rules
-how to map buttons for gamepads. A wiimote can easily be used as gamepad
-and provides most of the features. Unfortunately, the gamepad API didn't
-exist when hid-wiimote was written.
+The nunchuk device can easily be used as reduced gamepad. Add a new
+mapping according to linux gamepad rules.
 
-This patch changes the button-mappings to comply to gamepad rules. For
-compatibility reasons, we keep the old mappings if legacy-mode was
-enabled.
+Note that we map it as gamepad with:
+ - one analog-stick (left)
+ - two trigger buttons (left upper+lower)
+ - accelerometer
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- drivers/hid/hid-wiimote-modules.c | 49 ++++++++++++++++++++++++++++-----------
- 1 file changed, 36 insertions(+), 13 deletions(-)
+ drivers/hid/hid-wiimote-modules.c | 94 ++++++++++++++++++++++++++++-----------
+ 1 file changed, 67 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
-index 6b61f01..372fec1 100644
+index 372fec1..a02059c 100644
 --- a/drivers/hid/hid-wiimote-modules.c
 +++ b/drivers/hid/hid-wiimote-modules.c
-@@ -48,7 +48,7 @@
-  * It uses the shared input device.
-  */
- 
--static const __u16 wiimod_keys_map[] = {
-+static const __u16 wiimod_keys_map_legacy[] = {
- 	KEY_LEFT,	/* WIIPROTO_KEY_LEFT */
- 	KEY_RIGHT,	/* WIIPROTO_KEY_RIGHT */
- 	KEY_UP,		/* WIIPROTO_KEY_UP */
-@@ -62,29 +62,48 @@ static const __u16 wiimod_keys_map[] = {
- 	BTN_MODE,	/* WIIPROTO_KEY_HOME */
+@@ -839,15 +839,24 @@ enum wiimod_nunchuk_keys {
+ 	WIIMOD_NUNCHUK_KEY_NUM,
  };
  
-+static const __u16 wiimod_keys_map[] = {
-+	BTN_DPAD_LEFT,		/* WIIPROTO_KEY_LEFT */
-+	BTN_DPAD_RIGHT,		/* WIIPROTO_KEY_RIGHT */
-+	BTN_DPAD_UP,		/* WIIPROTO_KEY_UP */
-+	BTN_DPAD_DOWN,		/* WIIPROTO_KEY_DOWN */
-+	BTN_START,		/* WIIPROTO_KEY_PLUS */
-+	BTN_SELECT,		/* WIIPROTO_KEY_MINUS */
-+	BTN_TRIGGER_HAPPY1,	/* WIIPROTO_KEY_ONE */
-+	BTN_TRIGGER_HAPPY2,	/* WIIPROTO_KEY_TWO */
-+	BTN_SOUTH,		/* WIIPROTO_KEY_A */
-+	BTN_TR,			/* WIIPROTO_KEY_B */
-+	BTN_MODE,		/* WIIPROTO_KEY_HOME */
+-static const __u16 wiimod_nunchuk_map[] = {
++static const __u16 wiimod_nunchuk_map_legacy[] = {
+ 	BTN_C,		/* WIIMOD_NUNCHUK_KEY_C */
+ 	BTN_Z,		/* WIIMOD_NUNCHUK_KEY_Z */
+ };
+ 
++static const __u16 wiimod_nunchuk_map[] = {
++	BTN_TL,		/* WIIMOD_NUNCHUK_KEY_C */
++	BTN_TL2,	/* WIIMOD_NUNCHUK_KEY_Z */
 +};
 +
- static void wiimod_keys_in_keys(struct wiimote_data *wdata, const __u8 *keys)
+ static void wiimod_nunchuk_in_ext(struct wiimote_data *wdata, const __u8 *ext)
  {
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_LEFT],
-+	const __u16 *map = wiimod_keys_map;
-+
-+	if (wdata->state.flags & WIIPROTO_FLAG_LEGACY)
-+		map = wiimod_keys_map_legacy;
-+
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_LEFT],
- 							!!(keys[0] & 0x01));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_RIGHT],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_RIGHT],
- 							!!(keys[0] & 0x02));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_DOWN],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_DOWN],
- 							!!(keys[0] & 0x04));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_UP],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_UP],
- 							!!(keys[0] & 0x08));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_PLUS],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_PLUS],
- 							!!(keys[0] & 0x10));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_TWO],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_TWO],
- 							!!(keys[1] & 0x01));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_ONE],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_ONE],
- 							!!(keys[1] & 0x02));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_B],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_B],
- 							!!(keys[1] & 0x04));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_A],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_A],
- 							!!(keys[1] & 0x08));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_MINUS],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_MINUS],
- 							!!(keys[1] & 0x10));
--	input_report_key(wdata->input, wiimod_keys_map[WIIPROTO_KEY_HOME],
-+	input_report_key(wdata->input, map[WIIPROTO_KEY_HOME],
- 							!!(keys[1] & 0x80));
- 	input_sync(wdata->input);
- }
-@@ -92,11 +111,15 @@ static void wiimod_keys_in_keys(struct wiimote_data *wdata, const __u8 *keys)
- static int wiimod_keys_probe(const struct wiimod_ops *ops,
- 			     struct wiimote_data *wdata)
- {
-+	const __u16 *map = wiimod_keys_map;
- 	unsigned int i;
++	const __u16 *map = wiimod_nunchuk_map;
+ 	__s16 x, y, z, bx, by;
  
 +	if (wdata->state.flags & WIIPROTO_FLAG_LEGACY)
-+		map = wiimod_keys_map_legacy;
++		map = wiimod_nunchuk_map_legacy;
 +
- 	set_bit(EV_KEY, wdata->input->evbit);
- 	for (i = 0; i < WIIPROTO_KEY_COUNT; ++i)
--		set_bit(wiimod_keys_map[i], wdata->input->keybit);
-+		set_bit(map[i], wdata->input->keybit);
+ 	/*   Byte |   8    7 |  6    5 |  4    3 |  2 |  1  |
+ 	 *   -----+----------+---------+---------+----+-----+
+ 	 *    1   |              Button X <7:0>             |
+@@ -902,26 +911,35 @@ static void wiimod_nunchuk_in_ext(struct wiimote_data *wdata, const __u8 *ext)
+ 	y -= 0x200;
+ 	z -= 0x200;
  
- 	return 0;
- }
+-	input_report_abs(wdata->extension.input, ABS_HAT0X, bx);
+-	input_report_abs(wdata->extension.input, ABS_HAT0Y, by);
++	if (wdata->state.flags & WIIPROTO_FLAG_LEGACY) {
++		input_report_abs(wdata->extension.input, ABS_HAT0X, bx);
++		input_report_abs(wdata->extension.input, ABS_HAT0Y, by);
+ 
+-	input_report_abs(wdata->extension.input, ABS_RX, x);
+-	input_report_abs(wdata->extension.input, ABS_RY, y);
+-	input_report_abs(wdata->extension.input, ABS_RZ, z);
++		input_report_abs(wdata->extension.input, ABS_RX, x);
++		input_report_abs(wdata->extension.input, ABS_RY, y);
++		input_report_abs(wdata->extension.input, ABS_RZ, z);
++	} else {
++		input_report_abs(wdata->extension.input, ABS_X, bx);
++		input_report_abs(wdata->extension.input, ABS_Y, -by);
++
++		input_report_abs(wdata->extension.input, ABS_ACCEL_X, x);
++		input_report_abs(wdata->extension.input, ABS_ACCEL_Y, y);
++		input_report_abs(wdata->extension.input, ABS_ACCEL_Z, z);
++	}
+ 
+ 	if (wdata->state.flags & WIIPROTO_FLAG_MP_ACTIVE) {
+ 		input_report_key(wdata->extension.input,
+-			wiimod_nunchuk_map[WIIMOD_NUNCHUK_KEY_Z],
++			map[WIIMOD_NUNCHUK_KEY_Z],
+ 			!(ext[5] & 0x04));
+ 		input_report_key(wdata->extension.input,
+-			wiimod_nunchuk_map[WIIMOD_NUNCHUK_KEY_C],
++			map[WIIMOD_NUNCHUK_KEY_C],
+ 			!(ext[5] & 0x08));
+ 	} else {
+ 		input_report_key(wdata->extension.input,
+-			wiimod_nunchuk_map[WIIMOD_NUNCHUK_KEY_Z],
++			map[WIIMOD_NUNCHUK_KEY_Z],
+ 			!(ext[5] & 0x01));
+ 		input_report_key(wdata->extension.input,
+-			wiimod_nunchuk_map[WIIMOD_NUNCHUK_KEY_C],
++			map[WIIMOD_NUNCHUK_KEY_C],
+ 			!(ext[5] & 0x02));
+ 	}
+ 
+@@ -955,12 +973,16 @@ static void wiimod_nunchuk_close(struct input_dev *dev)
+ static int wiimod_nunchuk_probe(const struct wiimod_ops *ops,
+ 				struct wiimote_data *wdata)
+ {
++	const __u16 *map = wiimod_nunchuk_map;
+ 	int ret, i;
+ 
+ 	wdata->extension.input = input_allocate_device();
+ 	if (!wdata->extension.input)
+ 		return -ENOMEM;
+ 
++	if (wdata->state.flags & WIIPROTO_FLAG_LEGACY)
++		map = wiimod_nunchuk_map_legacy;
++
+ 	input_set_drvdata(wdata->extension.input, wdata);
+ 	wdata->extension.input->open = wiimod_nunchuk_open;
+ 	wdata->extension.input->close = wiimod_nunchuk_close;
+@@ -973,25 +995,43 @@ static int wiimod_nunchuk_probe(const struct wiimod_ops *ops,
+ 
+ 	set_bit(EV_KEY, wdata->extension.input->evbit);
+ 	for (i = 0; i < WIIMOD_NUNCHUK_KEY_NUM; ++i)
+-		set_bit(wiimod_nunchuk_map[i],
+-			wdata->extension.input->keybit);
++		set_bit(map[i], wdata->extension.input->keybit);
+ 
+ 	set_bit(EV_ABS, wdata->extension.input->evbit);
+-	set_bit(ABS_HAT0X, wdata->extension.input->absbit);
+-	set_bit(ABS_HAT0Y, wdata->extension.input->absbit);
+-	input_set_abs_params(wdata->extension.input,
+-			     ABS_HAT0X, -120, 120, 2, 4);
+-	input_set_abs_params(wdata->extension.input,
+-			     ABS_HAT0Y, -120, 120, 2, 4);
+-	set_bit(ABS_RX, wdata->extension.input->absbit);
+-	set_bit(ABS_RY, wdata->extension.input->absbit);
+-	set_bit(ABS_RZ, wdata->extension.input->absbit);
+-	input_set_abs_params(wdata->extension.input,
+-			     ABS_RX, -500, 500, 2, 4);
+-	input_set_abs_params(wdata->extension.input,
+-			     ABS_RY, -500, 500, 2, 4);
+-	input_set_abs_params(wdata->extension.input,
+-			     ABS_RZ, -500, 500, 2, 4);
++
++	if (wdata->state.flags & WIIPROTO_FLAG_LEGACY) {
++		set_bit(ABS_HAT0X, wdata->extension.input->absbit);
++		set_bit(ABS_HAT0Y, wdata->extension.input->absbit);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_HAT0X, -120, 120, 2, 4);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_HAT0Y, -120, 120, 2, 4);
++		set_bit(ABS_RX, wdata->extension.input->absbit);
++		set_bit(ABS_RY, wdata->extension.input->absbit);
++		set_bit(ABS_RZ, wdata->extension.input->absbit);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_RX, -500, 500, 2, 4);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_RY, -500, 500, 2, 4);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_RZ, -500, 500, 2, 4);
++	} else {
++		set_bit(ABS_X, wdata->extension.input->absbit);
++		set_bit(ABS_Y, wdata->extension.input->absbit);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_X, -120, 120, 2, 4);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_Y, -120, 120, 2, 4);
++		set_bit(ABS_ACCEL_X, wdata->extension.input->absbit);
++		set_bit(ABS_ACCEL_Y, wdata->extension.input->absbit);
++		set_bit(ABS_ACCEL_Z, wdata->extension.input->absbit);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_ACCEL_X, -500, 500, 2, 4);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_ACCEL_Y, -500, 500, 2, 4);
++		input_set_abs_params(wdata->extension.input,
++				     ABS_ACCEL_Z, -500, 500, 2, 4);
++	}
+ 
+ 	ret = input_register_device(wdata->extension.input);
+ 	if (ret)
 -- 
 1.8.4.1
 

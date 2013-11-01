@@ -1,75 +1,262 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 00/13] Input/HID: Bits and Pieces
-Date: Fri,  1 Nov 2013 21:16:11 +0100
-Message-ID: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 01/13] Input: uinput: add full absinfo support
+Date: Fri,  1 Nov 2013 21:16:12 +0100
+Message-ID: <1383336984-26601-2-git-send-email-dh.herrmann@gmail.com>
+References: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f169.google.com ([209.85.215.169]:64489 "EHLO
-	mail-ea0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751612Ab3KAUQm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Nov 2013 16:16:42 -0400
-Received: by mail-ea0-f169.google.com with SMTP id k11so2268036eaj.14
-        for <linux-input@vger.kernel.org>; Fri, 01 Nov 2013 13:16:41 -0700 (PDT)
+Received: from mail-ea0-f181.google.com ([209.85.215.181]:64633 "EHLO
+	mail-ea0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751612Ab3KAUQp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Nov 2013 16:16:45 -0400
+Received: by mail-ea0-f181.google.com with SMTP id d10so2272820eaj.40
+        for <linux-input@vger.kernel.org>; Fri, 01 Nov 2013 13:16:43 -0700 (PDT)
+In-Reply-To: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-Hi
+We currently lack support for abs-resolution and abs-value parameters
+during uinput ABS initialization. Furthermore, our parsers don't allow
+growing ABS_CNT values. Therefore, introduce uinput_user_dev2.
 
-My backlog kept growing and most of the stuff depends on the ABS_* fixes, so I
-gave it another try. The first 2 patches introduce EVIOC[GS]ABS2 and friends.
-The rest is wiimote stuff that was laying around for some time and just needs
-new ABS bits. So once the ABS stuff is in, I see no reason to delay the wiimote
-patches (as they're even tested already). Hence, I put it all in a single
-series.
+User-space is free to write uinput_user_dev2 objects instead of
+uinput_user_dev legacy objects now. If the kernel lacks support for it,
+our comparison for "count != sizeof(struct uinput_user_dev)" will catch
+this and return EINVAL. User-space shall retry with the legacy mode then.
 
-Jiri, Dmitry, feel free to bribe me to split / not split the series so the
-other one has to take it through their tree. Highest bid wins!
+Internally, we transform the legacy object into uinput_user_dev2 and then
+handle both the same way.
 
-And I am still running tests, so please don't merge, yet. I will report back my
-results. Besides, it's probably too late for 3.13, anyway and we should put it
-into -next for 3.14 for some while.
+The new uinput_user_dev2 object has multiple new features:
+ - abs payload now has "value" and "resolution" parameters as part of the
+   switch to "struct input_absinfo". We simply copy these over.
+ - Our parser allows growing ABS_CNT. We automatically detect the payload
+   size of the caller, thus, calculating the ABS_CNT the program was
+   compiled with.
+ - A "version" field to denote the uinput-version used. This is required
+   to properly support changing "struct input_user_dev2" changes in the
+   future. Due to the dynamic ABS_CNT support, we cannot simply add new
+   fields, as we cannot deduce the structure size from the user-space
+   given size. Thus, we need the "version" field to allow changing the
+   object and properly detecting it in our write() handler.
 
-Comments welcome!
-David
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ drivers/input/misc/uinput.c | 142 ++++++++++++++++++++++++++++++++------------
+ include/uapi/linux/uinput.h |   9 +++
+ 2 files changed, 114 insertions(+), 37 deletions(-)
 
-David Herrmann (12):
-  Input: uinput: add full absinfo support
-  Input: introduce ABS_MAX2/CNT2 and friends
-  Input: remove ambigious gamepad comment
-  Input: add motion-tracking ABS_* bits and docs
-  HID: wiimote: add hid_wiimote.legacy parameter
-  HID: wiimote: adjust button-mapping to gamepad rules
-  HID: wiimote: map nunchuk as real gamepad
-  HID: wiimote: map classic controller as gamepad
-  HID: wiimote: use ABS_ACCEL_* for accelerometer
-  HID: wiimote: use ABS_GYRO_* bits for MP
-  Input: introduce BTN/ABS bits for drums and guitars
-  HID: wiimote: add support for Guitar-Hero drums
-
-Nicolas Adenis-Lamarre (1):
-  HID: wiimote: add support for Guitar-Hero guitars
-
- Documentation/input/gamepad.txt          |   9 +-
- Documentation/input/motion-tracking.txt  | 149 ++++++
- drivers/hid/hid-debug.c                  |   2 +-
- drivers/hid/hid-input.c                  |   2 +-
- drivers/hid/hid-wiimote-core.c           |  23 +
- drivers/hid/hid-wiimote-modules.c        | 761 ++++++++++++++++++++++++++-----
- drivers/hid/hid-wiimote.h                |   4 +
- drivers/input/evdev.c                    |  88 +++-
- drivers/input/input.c                    |  14 +-
- drivers/input/keyboard/goldfish_events.c |   6 +-
- drivers/input/keyboard/hil_kbd.c         |   2 +-
- drivers/input/misc/uinput.c              | 146 ++++--
- include/linux/hid.h                      |   2 +-
- include/linux/input.h                    |   6 +-
- include/linux/mod_devicetable.h          |   2 +-
- include/uapi/linux/input.h               |  66 ++-
- include/uapi/linux/uinput.h              |   9 +
- 17 files changed, 1125 insertions(+), 166 deletions(-)
- create mode 100644 Documentation/input/motion-tracking.txt
-
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index a0a4bba..3cd84d2 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -358,14 +358,16 @@ static int uinput_allocate_device(struct uinput_device *udev)
+ }
+ 
+ static int uinput_setup_device(struct uinput_device *udev,
+-			       const char __user *buffer, size_t count)
++			       struct uinput_user_dev2 *user_dev2,
++			       size_t abscnt)
+ {
+-	struct uinput_user_dev	*user_dev;
+ 	struct input_dev	*dev;
+ 	int			i;
+ 	int			retval;
++	struct input_absinfo	*abs;
+ 
+-	if (count != sizeof(struct uinput_user_dev))
++	/* Ensure name is filled in */
++	if (!user_dev2->name[0])
+ 		return -EINVAL;
+ 
+ 	if (!udev->dev) {
+@@ -375,37 +377,27 @@ static int uinput_setup_device(struct uinput_device *udev,
+ 	}
+ 
+ 	dev = udev->dev;
+-
+-	user_dev = memdup_user(buffer, sizeof(struct uinput_user_dev));
+-	if (IS_ERR(user_dev))
+-		return PTR_ERR(user_dev);
+-
+-	udev->ff_effects_max = user_dev->ff_effects_max;
+-
+-	/* Ensure name is filled in */
+-	if (!user_dev->name[0]) {
+-		retval = -EINVAL;
+-		goto exit;
+-	}
++	udev->ff_effects_max = user_dev2->ff_effects_max;
+ 
+ 	kfree(dev->name);
+-	dev->name = kstrndup(user_dev->name, UINPUT_MAX_NAME_SIZE,
++	dev->name = kstrndup(user_dev2->name, UINPUT_MAX_NAME_SIZE,
+ 			     GFP_KERNEL);
+-	if (!dev->name) {
+-		retval = -ENOMEM;
+-		goto exit;
+-	}
+-
+-	dev->id.bustype	= user_dev->id.bustype;
+-	dev->id.vendor	= user_dev->id.vendor;
+-	dev->id.product	= user_dev->id.product;
+-	dev->id.version	= user_dev->id.version;
++	if (!dev->name)
++		return -ENOMEM;
+ 
+-	for (i = 0; i < ABS_CNT; i++) {
+-		input_abs_set_max(dev, i, user_dev->absmax[i]);
+-		input_abs_set_min(dev, i, user_dev->absmin[i]);
+-		input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);
+-		input_abs_set_flat(dev, i, user_dev->absflat[i]);
++	dev->id.bustype = user_dev2->id.bustype;
++	dev->id.vendor = user_dev2->id.vendor;
++	dev->id.product = user_dev2->id.product;
++	dev->id.version = user_dev2->id.version;
++
++	for (i = 0; i < abscnt; i++) {
++		abs = &user_dev2->abs[i];
++		input_abs_set_val(dev, i, abs->value);
++		input_abs_set_max(dev, i, abs->maximum);
++		input_abs_set_min(dev, i, abs->minimum);
++		input_abs_set_fuzz(dev, i, abs->fuzz);
++		input_abs_set_flat(dev, i, abs->flat);
++		input_abs_set_res(dev, i, abs->resolution);
+ 	}
+ 
+ 	/* check if absmin/absmax/absfuzz/absflat are filled as
+@@ -413,7 +405,7 @@ static int uinput_setup_device(struct uinput_device *udev,
+ 	if (test_bit(EV_ABS, dev->evbit)) {
+ 		retval = uinput_validate_absbits(dev);
+ 		if (retval < 0)
+-			goto exit;
++			return retval;
+ 		if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+ 			int nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+ 			input_mt_init_slots(dev, nslot, 0);
+@@ -423,11 +415,84 @@ static int uinput_setup_device(struct uinput_device *udev,
+ 	}
+ 
+ 	udev->state = UIST_SETUP_COMPLETE;
+-	retval = count;
++	return 0;
++}
++
++static int uinput_setup_device1(struct uinput_device *udev,
++				const char __user *buffer, size_t count)
++{
++	struct uinput_user_dev	*user_dev;
++	struct uinput_user_dev2	*user_dev2;
++	int			i;
++	int			retval;
++
++	if (count != sizeof(struct uinput_user_dev))
++		return -EINVAL;
++
++	user_dev = memdup_user(buffer, sizeof(struct uinput_user_dev));
++	if (IS_ERR(user_dev))
++		return PTR_ERR(user_dev);
++
++	user_dev2 = kmalloc(sizeof(*user_dev2), GFP_KERNEL);
++	if (!user_dev2) {
++		kfree(user_dev);
++		return -ENOMEM;
++	}
++
++	user_dev2->version = UINPUT_VERSION;
++	memcpy(user_dev2->name, user_dev->name, UINPUT_MAX_NAME_SIZE);
++	memcpy(&user_dev2->id, &user_dev->id, sizeof(struct input_id));
++	user_dev2->ff_effects_max = user_dev->ff_effects_max;
++
++	for (i = 0; i < ABS_CNT; ++i) {
++		user_dev2->abs[i].value = 0;
++		user_dev2->abs[i].maximum = user_dev->absmax[i];
++		user_dev2->abs[i].minimum = user_dev->absmin[i];
++		user_dev2->abs[i].fuzz = user_dev->absfuzz[i];
++		user_dev2->abs[i].flat = user_dev->absflat[i];
++		user_dev2->abs[i].resolution = 0;
++	}
++
++	retval = uinput_setup_device(udev, user_dev2, ABS_CNT);
+ 
+- exit:
+ 	kfree(user_dev);
+-	return retval;
++	kfree(user_dev2);
++
++	return retval ? retval : count;
++}
++
++static int uinput_setup_device2(struct uinput_device *udev,
++			       const char __user *buffer, size_t count)
++{
++	struct uinput_user_dev2	*user_dev2;
++	int			retval;
++	size_t			off, abscnt, max;
++
++	/* The first revision of "uinput_user_dev2" is bigger than
++	 * "uinput_user_dev" and growing. Disallow any smaller payloads. */
++	if (count <= sizeof(struct uinput_user_dev))
++		return -EINVAL;
++
++	/* rough check to avoid huge kernel space allocations */
++	max = ABS_CNT * sizeof(*user_dev2->abs) + sizeof(*user_dev2);
++	if (count > max)
++		return -EINVAL;
++
++	user_dev2 = memdup_user(buffer, count);
++	if (IS_ERR(user_dev2))
++		return PTR_ERR(user_dev2);
++
++	if (user_dev2->version > UINPUT_VERSION) {
++		retval = -EINVAL;
++	} else {
++		off = offsetof(struct uinput_user_dev2, abs);
++		abscnt = (count - off) / sizeof(*user_dev2->abs);
++		retval = uinput_setup_device(udev, user_dev2, abscnt);
++	}
++
++	kfree(user_dev2);
++
++	return retval ? retval : count;
+ }
+ 
+ static ssize_t uinput_inject_event(struct uinput_device *udev,
+@@ -459,9 +524,12 @@ static ssize_t uinput_write(struct file *file, const char __user *buffer,
+ 	if (retval)
+ 		return retval;
+ 
+-	retval = udev->state == UIST_CREATED ?
+-			uinput_inject_event(udev, buffer, count) :
+-			uinput_setup_device(udev, buffer, count);
++	if (udev->state == UIST_CREATED)
++		retval = uinput_inject_event(udev, buffer, count);
++	else if (count <= sizeof(struct uinput_user_dev))
++		retval = uinput_setup_device1(udev, buffer, count);
++	else
++		retval = uinput_setup_device2(udev, buffer, count);
+ 
+ 	mutex_unlock(&udev->mutex);
+ 
+diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
+index fe46431..c2e8710 100644
+--- a/include/uapi/linux/uinput.h
++++ b/include/uapi/linux/uinput.h
+@@ -134,4 +134,13 @@ struct uinput_user_dev {
+ 	__s32 absfuzz[ABS_CNT];
+ 	__s32 absflat[ABS_CNT];
+ };
++
++struct uinput_user_dev2 {
++	__u8 version;
++	char name[UINPUT_MAX_NAME_SIZE];
++	struct input_id id;
++	__u32 ff_effects_max;
++	struct input_absinfo abs[ABS_CNT];
++};
++
+ #endif /* _UAPI__UINPUT_H_ */
 -- 
 1.8.4.1
 

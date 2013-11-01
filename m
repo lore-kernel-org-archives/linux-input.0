@@ -1,47 +1,45 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 4/5] input: tc3589x-keypad: support probing from device tree
-Date: Fri, 1 Nov 2013 09:08:41 -0700
-Message-ID: <CACRpkdY3XCJSEK88sDBSQFUyPUkSVNdbpMKzOWUdqt3O7rm=XA@mail.gmail.com>
-References: <1381872071-23455-1-git-send-email-linus.walleij@linaro.org>
-	<20131101005840.GB8413@kartoffel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20131101005840.GB8413@kartoffel>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH 03/13] Input: remove ambigious gamepad comment
+Date: Fri,  1 Nov 2013 21:16:14 +0100
+Message-ID: <1383336984-26601-4-git-send-email-dh.herrmann@gmail.com>
+References: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ee0-f42.google.com ([74.125.83.42]:51873 "EHLO
+	mail-ee0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752751Ab3KAUQs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Nov 2013 16:16:48 -0400
+Received: by mail-ee0-f42.google.com with SMTP id b45so5910eek.15
+        for <linux-input@vger.kernel.org>; Fri, 01 Nov 2013 13:16:47 -0700 (PDT)
+In-Reply-To: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-On Thu, Oct 31, 2013 at 5:58 PM, Mark Rutland <mark.rutland@arm.com> wrote:
+If only a single trigger combination is present on a device, either can be
+reported. If the side of the trigger (left/right) cannot be decided (eg.,
+if it's centered), then choose any side. User-space automatically notices
+that only a single trigger is reported and thus doesn't care how it is
+reported.
 
->> +     plat = devm_kzalloc(dev, sizeof(*plat), GFP_KERNEL);
->> +     if (!plat)
->> +             return ERR_PTR(-ENOMEM);
->> +
->> +     of_property_read_u8(np, "keypad,num-columns", &plat->kcol);
->> +     of_property_read_u8(np, "keypad,num-rows", &plat->krow);
->
-> These look wrong to me, as almost every single use of of_property_read_u8 (or
-> of_property_read_u16) do. They read _packed_ values out of the dt, and do not
-> read (u32) cells as u8s or u16s.
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+---
+ Documentation/input/gamepad.txt | 2 --
+ 1 file changed, 2 deletions(-)
 
-Yes...
+diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
+index 8002c89..c40b109 100644
+--- a/Documentation/input/gamepad.txt
++++ b/Documentation/input/gamepad.txt
+@@ -136,8 +136,6 @@ Triggers:
+   Upper trigger buttons are reported as BTN_TR or ABS_HAT1X (right) and BTN_TL
+   or ABS_HAT1Y (left). Lower trigger buttons are reported as BTN_TR2 or
+   ABS_HAT2X (right/ZR) and BTN_TL2 or ABS_HAT2Y (left/ZL).
+-  If only one trigger-button combination is present (upper+lower), they are
+-  reported as "right" triggers (BTN_TR/ABS_HAT1X).
+ 
+ Menu-Pad:
+   Menu buttons are always digital and are mapped according to their location
+-- 
+1.8.4.1
 
-> The matrix-keymap binding doesn't define these as 8-bit, and the example
-> binding they are u32 cells. Either the binding document or this code is wrong.
-
-The biding is in patch titled:
-"mfd: tc3589x: Add device tree bindings"
-and yes, you are right, this seems wrong. (The example in that patch
-is wrong too.)
-
-> I'm confused as to how this can work. Are you using /bits/ 8 in your dts?
-
-Yes indeed I do. So it was working fine...
-
-I'll adjust this to use u32:s, even if it seems odd supporting keypads
-with 255+ columns and rows... well it's in there.
-
-Yours,
-Linus Walleij

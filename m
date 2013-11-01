@@ -1,114 +1,281 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 11/13] Input: introduce BTN/ABS bits for drums and guitars
-Date: Fri,  1 Nov 2013 21:16:22 +0100
-Message-ID: <1383336984-26601-12-git-send-email-dh.herrmann@gmail.com>
+Subject: [PATCH 13/13] HID: wiimote: add support for Guitar-Hero guitars
+Date: Fri,  1 Nov 2013 21:16:24 +0100
+Message-ID: <1383336984-26601-14-git-send-email-dh.herrmann@gmail.com>
 References: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f170.google.com ([209.85.215.170]:61641 "EHLO
-	mail-ea0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753223Ab3KAURC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Nov 2013 16:17:02 -0400
-Received: by mail-ea0-f170.google.com with SMTP id q10so1869589eaj.29
-        for <linux-input@vger.kernel.org>; Fri, 01 Nov 2013 13:17:01 -0700 (PDT)
+Received: from mail-ea0-f171.google.com ([209.85.215.171]:61297 "EHLO
+	mail-ea0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753323Ab3KAURF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 Nov 2013 16:17:05 -0400
+Received: by mail-ea0-f171.google.com with SMTP id h10so2276643eak.30
+        for <linux-input@vger.kernel.org>; Fri, 01 Nov 2013 13:17:04 -0700 (PDT)
 In-Reply-To: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-There are a bunch of guitar and drums devices out there that all report
-similar data. To avoid reporting this as BTN_MISC or ABS_MISC, we
-allocate some proper namespace for them. Note that most of these devices
-are toys and we cannot report any sophisticated physics via this API.
+From: Nicolas Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>
 
-I did some google-images research and tried to provide definitions that
-work with all common devices. That's why I went with 4 toms, 4 cymbals,
-one bass, one hi-hat. I haven't seen other drums and I doubt that we need
-any additions to that. Anyway, the naming-scheme is intentionally done in
-an extensible way.
+Apart from drums, Guitar-Hero also ships with guitars. Use the recently
+introduced input ABS/BTN-bits to report this to user-space.
 
-For guitars, we support 5 frets (normally aligned vertically, compared to
-the real horizontal layouts), a single strum-bar with up/down directions,
-an optional fret-board and a whammy-bar.
+Devices are reported as "Nintendo Wii Remote Guitar". If I ever get my
+hands on "RockBand" guitars, I will try to report them via the same
+interface so user-space does not have to bother which device it deals
+with.
 
-Most of the devices provide pressure values so I went with ABS_* bits. If
-we ever support devices which only provide digital input, we have to
-decide whether to emulate pressure data or add additional BTN_* bits.
-
-If someone is not familiar with these devices, here are two pictures which
-provide almost all introduced interfaces (or try the given keywords
-with a google-image search):
-  Guitar: ("guitar hero world tour guitar")
-    http://images1.wikia.nocookie.net/__cb20120911023442/applezone/es/images/f/f9/Wii_Guitar.jpg
-  Drums: ("guitar hero drums")
-    http://oyster.ignimgs.com/franchises/images/03/55/35526_band-hero-drum-set-hands-on-20090929040735768.jpg
-
+Signed-off-by: Nicolas.Adenis-Lamarre <nicolas.adenis.lamarre@gmail.com>
+(add commit-msg and adjust to new BTN_* IDs)
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- include/linux/mod_devicetable.h |  2 +-
- include/uapi/linux/input.h      | 24 +++++++++++++++++++++++-
- 2 files changed, 24 insertions(+), 2 deletions(-)
+ drivers/hid/hid-wiimote-core.c    |   7 ++
+ drivers/hid/hid-wiimote-modules.c | 174 ++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-wiimote.h         |   1 +
+ 3 files changed, 182 insertions(+)
 
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index 329aa30..61f358a 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -277,7 +277,7 @@ struct pcmcia_device_id {
- #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING	0x71
- #define INPUT_DEVICE_ID_KEY_MAX		0x2ff
- #define INPUT_DEVICE_ID_REL_MAX		0x0f
--#define INPUT_DEVICE_ID_ABS_MAX		0x4f
-+#define INPUT_DEVICE_ID_ABS_MAX		0x5f
- #define INPUT_DEVICE_ID_MSC_MAX		0x07
- #define INPUT_DEVICE_ID_LED_MAX		0x0f
- #define INPUT_DEVICE_ID_SND_MAX		0x07
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index f347498..3aac45a 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -742,6 +742,14 @@ struct input_keymap_entry {
- #define BTN_DPAD_LEFT		0x222
- #define BTN_DPAD_RIGHT		0x223
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index 6212678..829e437 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -461,6 +461,9 @@ static __u8 wiimote_cmd_read_ext(struct wiimote_data *wdata, __u8 *rmem)
+ 	if (rmem[0] == 0x01 && rmem[1] == 0x00 &&
+ 	    rmem[4] == 0x01 && rmem[5] == 0x03)
+ 		return WIIMOTE_EXT_GUITAR_HERO_DRUMS;
++	if (rmem[0] == 0x00 && rmem[1] == 0x00 &&
++	    rmem[4] == 0x01 && rmem[5] == 0x03)
++		return WIIMOTE_EXT_GUITAR_HERO_GUITAR;
  
-+#define BTN_FRET_FAR_UP		0x224
-+#define BTN_FRET_UP		0x225
-+#define BTN_FRET_MID		0x226
-+#define BTN_FRET_LOW		0x227
-+#define BTN_FRET_FAR_LOW	0x228
-+#define BTN_STRUM_BAR_UP	0x229
-+#define BTN_STRUM_BAR_DOWN	0x22a
-+
- #define BTN_TRIGGER_HAPPY		0x2c0
- #define BTN_TRIGGER_HAPPY1		0x2c0
- #define BTN_TRIGGER_HAPPY2		0x2c1
-@@ -870,12 +878,26 @@ struct input_keymap_entry {
- #define ABS_GYRO_Y		0x44	/* Gyroscope Y axis */
- #define ABS_GYRO_Z		0x45	/* Gyroscope Z axis */
- 
-+/* Drums and guitars (mostly toys) */
-+#define ABS_TOM_FAR_LEFT	0x50
-+#define ABS_TOM_LEFT		0x51
-+#define ABS_TOM_RIGHT		0x52
-+#define ABS_TOM_FAR_RIGHT	0x53
-+#define ABS_CYMBAL_FAR_LEFT	0x54
-+#define ABS_CYMBAL_LEFT		0x55
-+#define ABS_CYMBAL_RIGHT	0x56
-+#define ABS_CYMBAL_FAR_RIGHT	0x57
-+#define ABS_BASS		0x58
-+#define ABS_HI_HAT		0x59
-+#define ABS_FRET_BOARD		0x5a	/* Guitar fret board, vertical pos */
-+#define ABS_WHAMMY_BAR		0x5b	/* Guitar whammy bar (or vibrato) */
-+
- /*
-  * Due to API restrictions the legacy evdev API only supports ABS values up to
-  * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on any ABS values in
-  * between ABS_MAX and ABS_MAX2.
-  */
--#define ABS_MAX2		0x4f
-+#define ABS_MAX2		0x5f
- #define ABS_CNT2		(ABS_MAX2+1)
+ 	return WIIMOTE_EXT_UNKNOWN;
+ }
+@@ -495,6 +498,7 @@ static bool wiimote_cmd_map_mp(struct wiimote_data *wdata, __u8 exttype)
+ 	switch (exttype) {
+ 	case WIIMOTE_EXT_CLASSIC_CONTROLLER:
+ 	case WIIMOTE_EXT_GUITAR_HERO_DRUMS:
++	case WIIMOTE_EXT_GUITAR_HERO_GUITAR:
+ 		wmem = 0x07;
+ 		break;
+ 	case WIIMOTE_EXT_NUNCHUK:
+@@ -1084,6 +1088,7 @@ static const char *wiimote_exttype_names[WIIMOTE_EXT_NUM] = {
+ 	[WIIMOTE_EXT_BALANCE_BOARD] = "Nintendo Wii Balance Board",
+ 	[WIIMOTE_EXT_PRO_CONTROLLER] = "Nintendo Wii U Pro Controller",
+ 	[WIIMOTE_EXT_GUITAR_HERO_DRUMS] = "Nintendo Wii Guitar Hero Drums",
++	[WIIMOTE_EXT_GUITAR_HERO_GUITAR] = "Nintendo Wii Guitar Hero Guitar",
+ };
  
  /*
+@@ -1671,6 +1676,8 @@ static ssize_t wiimote_ext_show(struct device *dev,
+ 		return sprintf(buf, "procontroller\n");
+ 	case WIIMOTE_EXT_GUITAR_HERO_DRUMS:
+ 		return sprintf(buf, "drums\n");
++	case WIIMOTE_EXT_GUITAR_HERO_GUITAR:
++		return sprintf(buf, "guitar\n");
+ 	case WIIMOTE_EXT_UNKNOWN:
+ 		/* fallthrough */
+ 	default:
+diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
+index 5f6d66b..625e1f3 100644
+--- a/drivers/hid/hid-wiimote-modules.c
++++ b/drivers/hid/hid-wiimote-modules.c
+@@ -2307,6 +2307,179 @@ static const struct wiimod_ops wiimod_drums = {
+ };
+ 
+ /*
++ * Guitar
++ * Guitar-Hero, Rock-Band and other games came bundled with guitars which can
++ * be plugged as extension to a Wiimote.
++ * We create a separate device for guitars and report all information via this
++ * input device.
++ */
++
++static void wiimod_guitar_in_ext(struct wiimote_data *wdata, const __u8 *ext)
++{
++	__u8 sx, sy, tb, wb, bd, bm, bp, bo, br, bb, bg, by, bu;
++
++	/*   Byte |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    1   |  0  |  0  |              SX <5:0>             |
++	 *    2   |  0  |  0  |              SY <5:0>             |
++	 *   -----+-----+-----+-----+-----------------------------+
++	 *    3   |  0  |  0  |  0  |      TB <4:0>               |
++	 *   -----+-----+-----+-----+-----------------------------+
++	 *    4   |  0  |  0  |  0  |      WB <4:0>               |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    5   |  1  | BD  |  1  | B-  |  1  | B+  |  1  |  1  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    6   | BO  | BR  | BB  | BG  | BY  |  1  |  1  | BU  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 * All buttons are 0 if pressed
++	 *
++	 * With Motion+ enabled, the following bits will get invalid:
++	 *   Byte |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    1   |  0  |  0  |              SX <5:1>       |XXXXX|
++	 *    2   |  0  |  0  |              SY <5:1>       |XXXXX|
++	 *   -----+-----+-----+-----+-----------------------+-----+
++	 *    3   |  0  |  0  |  0  |      TB <4:0>               |
++	 *   -----+-----+-----+-----+-----------------------------+
++	 *    4   |  0  |  0  |  0  |      WB <4:0>               |
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    5   |  1  | BD  |  1  | B-  |  1  | B+  |  1  |XXXXX|
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 *    6   | BO  | BR  | BB  | BG  | BY  |  1  |XXXXX|XXXXX|
++	 *   -----+-----+-----+-----+-----+-----+-----+-----+-----+
++	 */
++
++	sx = ext[0] & 0x3f;
++	sy = ext[1] & 0x3f;
++	tb = ext[2] & 0x1f;
++	wb = ext[3] & 0x1f;
++	bd = !(ext[4] & 0x40);
++	bm = !(ext[4] & 0x10);
++	bp = !(ext[4] & 0x04);
++	bo = !(ext[5] & 0x80);
++	br = !(ext[5] & 0x40);
++	bb = !(ext[5] & 0x20);
++	bg = !(ext[5] & 0x10);
++	by = !(ext[5] & 0x08);
++	bu = !(ext[5] & 0x01);
++
++	input_report_abs(wdata->extension.input, ABS_X, sx - 0x20);
++	input_report_abs(wdata->extension.input, ABS_Y, sy - 0x20);
++	input_report_abs(wdata->extension.input, ABS_FRET_BOARD, tb);
++	input_report_abs(wdata->extension.input, ABS_WHAMMY_BAR, wb - 0x10);
++
++	input_report_key(wdata->extension.input, BTN_MODE, bm);
++	input_report_key(wdata->extension.input, BTN_START, bp);
++	input_report_key(wdata->extension.input, BTN_STRUM_BAR_UP, bu);
++	input_report_key(wdata->extension.input, BTN_STRUM_BAR_DOWN, bd);
++	input_report_key(wdata->extension.input, BTN_FRET_FAR_UP, bg);
++	input_report_key(wdata->extension.input, BTN_FRET_UP, br);
++	input_report_key(wdata->extension.input, BTN_FRET_MID, by);
++	input_report_key(wdata->extension.input, BTN_FRET_LOW, bb);
++	input_report_key(wdata->extension.input, BTN_FRET_FAR_LOW, bo);
++
++	input_sync(wdata->extension.input);
++}
++
++static int wiimod_guitar_open(struct input_dev *dev)
++{
++	struct wiimote_data *wdata = input_get_drvdata(dev);
++	unsigned long flags;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wdata->state.flags |= WIIPROTO_FLAG_EXT_USED;
++	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++
++	return 0;
++}
++
++static void wiimod_guitar_close(struct input_dev *dev)
++{
++	struct wiimote_data *wdata = input_get_drvdata(dev);
++	unsigned long flags;
++
++	spin_lock_irqsave(&wdata->state.lock, flags);
++	wdata->state.flags &= ~WIIPROTO_FLAG_EXT_USED;
++	wiiproto_req_drm(wdata, WIIPROTO_REQ_NULL);
++	spin_unlock_irqrestore(&wdata->state.lock, flags);
++}
++
++static int wiimod_guitar_probe(const struct wiimod_ops *ops,
++			       struct wiimote_data *wdata)
++{
++	int ret;
++
++	wdata->extension.input = input_allocate_device();
++	if (!wdata->extension.input)
++		return -ENOMEM;
++
++	input_set_drvdata(wdata->extension.input, wdata);
++	wdata->extension.input->open = wiimod_guitar_open;
++	wdata->extension.input->close = wiimod_guitar_close;
++	wdata->extension.input->dev.parent = &wdata->hdev->dev;
++	wdata->extension.input->id.bustype = wdata->hdev->bus;
++	wdata->extension.input->id.vendor = wdata->hdev->vendor;
++	wdata->extension.input->id.product = wdata->hdev->product;
++	wdata->extension.input->id.version = wdata->hdev->version;
++	wdata->extension.input->name = WIIMOTE_NAME " Guitar";
++
++	set_bit(EV_KEY, wdata->extension.input->evbit);
++	set_bit(BTN_MODE, wdata->extension.input->keybit);
++	set_bit(BTN_START, wdata->extension.input->keybit);
++	set_bit(BTN_FRET_FAR_UP, wdata->extension.input->keybit);
++	set_bit(BTN_FRET_UP, wdata->extension.input->keybit);
++	set_bit(BTN_FRET_MID, wdata->extension.input->keybit);
++	set_bit(BTN_FRET_LOW, wdata->extension.input->keybit);
++	set_bit(BTN_FRET_FAR_LOW, wdata->extension.input->keybit);
++	set_bit(BTN_STRUM_BAR_UP, wdata->extension.input->keybit);
++	set_bit(BTN_STRUM_BAR_DOWN, wdata->extension.input->keybit);
++
++	set_bit(EV_ABS, wdata->extension.input->evbit);
++	set_bit(ABS_X, wdata->extension.input->absbit);
++	set_bit(ABS_Y, wdata->extension.input->absbit);
++	set_bit(ABS_FRET_BOARD, wdata->extension.input->absbit);
++	set_bit(ABS_WHAMMY_BAR, wdata->extension.input->absbit);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_X, -32, 31, 1, 1);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_Y, -32, 31, 1, 1);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_FRET_BOARD, 0, 0x1f, 1, 1);
++	input_set_abs_params(wdata->extension.input,
++			     ABS_WHAMMY_BAR, 0, 0x0f, 1, 1);
++
++	ret = input_register_device(wdata->extension.input);
++	if (ret)
++		goto err_free;
++
++	return 0;
++
++err_free:
++	input_free_device(wdata->extension.input);
++	wdata->extension.input = NULL;
++	return ret;
++}
++
++static void wiimod_guitar_remove(const struct wiimod_ops *ops,
++				 struct wiimote_data *wdata)
++{
++	if (!wdata->extension.input)
++		return;
++
++	input_unregister_device(wdata->extension.input);
++	wdata->extension.input = NULL;
++}
++
++static const struct wiimod_ops wiimod_guitar = {
++	.flags = 0,
++	.arg = 0,
++	.probe = wiimod_guitar_probe,
++	.remove = wiimod_guitar_remove,
++	.in_ext = wiimod_guitar_in_ext,
++};
++
++/*
+  * Builtin Motion Plus
+  * This module simply sets the WIIPROTO_FLAG_BUILTIN_MP protocol flag which
+  * disables polling for Motion-Plus. This should be set only for devices which
+@@ -2577,4 +2750,5 @@ const struct wiimod_ops *wiimod_ext_table[WIIMOTE_EXT_NUM] = {
+ 	[WIIMOTE_EXT_BALANCE_BOARD] = &wiimod_bboard,
+ 	[WIIMOTE_EXT_PRO_CONTROLLER] = &wiimod_pro,
+ 	[WIIMOTE_EXT_GUITAR_HERO_DRUMS] = &wiimod_drums,
++	[WIIMOTE_EXT_GUITAR_HERO_GUITAR] = &wiimod_guitar,
+ };
+diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
+index c8a7fc3..0ca6262 100644
+--- a/drivers/hid/hid-wiimote.h
++++ b/drivers/hid/hid-wiimote.h
+@@ -91,6 +91,7 @@ enum wiimote_exttype {
+ 	WIIMOTE_EXT_BALANCE_BOARD,
+ 	WIIMOTE_EXT_PRO_CONTROLLER,
+ 	WIIMOTE_EXT_GUITAR_HERO_DRUMS,
++	WIIMOTE_EXT_GUITAR_HERO_GUITAR,
+ 	WIIMOTE_EXT_NUM,
+ };
+ 
 -- 
 1.8.4.1
 

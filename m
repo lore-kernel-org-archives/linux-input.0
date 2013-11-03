@@ -1,47 +1,39 @@
-From: matthew@incomplete.io
-Subject: [PATCH] INPUT: wacom: Added definition for Wacom CTH680 The Wacom Creative Pen & Touch Tablet M (CTH680, 056A:0303) is a newer revision of the Bamboo series. This patch adds product 0303 to wacom.ko.
-Date: Sat,  2 Nov 2013 12:04:49 -0700
-Message-ID: <1383419089-31248-1-git-send-email-matthew@incomplete.io>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [199.73.29.170] ([199.73.29.170]:58018 "EHLO
-	gumby.musicalcarrion.com" rhost-flags-FAIL-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1751096Ab3KBTMi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 2 Nov 2013 15:12:38 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH] HID: roccat: Fixed Coverity CID 141438
+Date: Sun, 03 Nov 2013 06:25:33 +0100
+Message-ID: <1383456333.4017.2.camel@neuromancer.tessier-ashpool>
+Reply-To: erazor_de@users.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Matthew Geddes <matthew@incomplete.io>
 
-From: Matthew Geddes <matthew@incomplete.io>
 
-Signed-off-by: Matthew Geddes <matthew@incomplete.io>
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 ---
- drivers/input/tablet/wacom_wac.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/hid-roccat-kovaplus.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index c59b797..5015269 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -2128,6 +2128,9 @@ static const struct wacom_features wacom_features_0x300 =
- static const struct wacom_features wacom_features_0x301 =
- 	{ "Wacom Bamboo One M",    WACOM_PKGLEN_BBPEN,    21648, 13530, 1023,
- 	  31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x303 =
-+	{ "Wacom Creative Touch & Pen M", WACOM_PKGLEN_BBPEN, 21648, 13530,
-+	  1023, 31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- static const struct wacom_features wacom_features_0x6004 =
- 	{ "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
- 	  0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-@@ -2258,6 +2261,7 @@ const struct usb_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x10F) },
- 	{ USB_DEVICE_WACOM(0x300) },
- 	{ USB_DEVICE_WACOM(0x301) },
-+	{ USB_DEVICE_WACOM(0x303) },
- 	{ USB_DEVICE_WACOM(0x304) },
- 	{ USB_DEVICE_WACOM(0x4001) },
- 	{ USB_DEVICE_WACOM(0x47) },
+diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
+index 0c8e1ef..9660477 100644
+--- a/drivers/hid/hid-roccat-kovaplus.c
++++ b/drivers/hid/hid-roccat-kovaplus.c
+@@ -554,9 +554,13 @@ static void kovaplus_keep_values_up_to_date(struct kovaplus_device *kovaplus,
+ 		break;
+ 	case KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_CPI:
+ 		kovaplus->actual_cpi = kovaplus_convert_event_cpi(button_report->data1);
++		break;
+ 	case KOVAPLUS_MOUSE_REPORT_BUTTON_TYPE_SENSITIVITY:
+ 		kovaplus->actual_x_sensitivity = button_report->data1;
+ 		kovaplus->actual_y_sensitivity = button_report->data2;
++		break;
++	default:
++		break;
+ 	}
+ }
+ 
 -- 
-1.8.3.2
-
+1.7.3.4

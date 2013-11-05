@@ -1,59 +1,461 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] typo fixes (coordiante -> coordinate) in am335x
-Date: Tue, 5 Nov 2013 18:03:49 +0000
-Message-ID: <20131105180349.GD30901@lee--X1>
-References: <1373901928-19605-1-git-send-email-zubair.lutfullah@gmail.com>
- <20130821075828.GZ7656@atomide.com>
- <1382198544.22609.8.camel@polaris.local>
- <20131022090552.GE19112@lee--X1>
- <1383667293.6753.35.camel@polaris.local>
- <20131105171553.GB30901@lee--X1>
- <1383673871.6753.36.camel@polaris.local>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 02/13] Input: introduce ABS_MAX2/CNT2 and friends
+Date: Tue, 5 Nov 2013 23:29:42 +0100
+Message-ID: <CANq1E4SgXsjZMhjaU-hjvUnDdp_bOxFgWM=+baiT+sHUH+y3GQ@mail.gmail.com>
+References: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
+	<1383336984-26601-3-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1383673871.6753.36.camel@polaris.local>
-Sender: linux-omap-owner@vger.kernel.org
-To: Jan =?iso-8859-1?Q?L=FCbbe?= <jlu@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Samuel Ortiz <sameo@linux.intel.com>, Zubair Lutfullah <zubair.lutfullah@gmail.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f169.google.com ([209.85.217.169]:35471 "EHLO
+	mail-lb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755730Ab3KEW3o (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Nov 2013 17:29:44 -0500
+Received: by mail-lb0-f169.google.com with SMTP id p9so5036755lbv.0
+        for <linux-input@vger.kernel.org>; Tue, 05 Nov 2013 14:29:42 -0800 (PST)
+In-Reply-To: <1383336984-26601-3-git-send-email-dh.herrmann@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-On Tue, 05 Nov 2013, Jan L=C3=BCbbe wrote:
+Hi
 
-> On Tue, 2013-11-05 at 17:15 +0000, Lee Jones wrote:
-> > On Tue, 05 Nov 2013, Jan L=C3=BCbbe wrote:
-> >=20
-> > > On Tue, 2013-10-22 at 10:05 +0100, Lee Jones wrote:
-> > > > This is the first time this patch has been sent to me.
-> > > >=20
-> > > > I need Dmitry's input (no pun intended) on how he's like to dea=
-l with
-> > > > this. At a bare minimum I'd like his Ack.
-> > >=20
-> > > Is there anything I can do to push this forward? The earlier we g=
-et the
-> > > typo fixed in the documentation, the less chance that someone wil=
-l use
-> > > it that way.
-> >=20
-> > I think you should sent it again, but this time Cc the Device Tree
-> > list, Dmitry and myself when you submit.
->=20
-> The original patch was not from me. But sure, I can resend it.
+On Fri, Nov 1, 2013 at 9:16 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> As we painfully noticed during the 3.12 merge-window our
+> EVIOCGABS/EVIOCSABS API is limited to ABS_MAX<=0x3f. We tried several
+> hacks to work around it but if we ever decide to increase ABS_MAX, the
+> EVIOCSABS ioctl ABI might overflow into the next byte causing horrible
+> misinterpretations in the kernel that we cannot catch.
+>
+> Therefore, we decided to go with ABS_MAX2/CNT2 and introduce two new
+> ioctls to get/set abs-params. They no longer encode the ABS code in the
+> ioctl number and thus allow up to 4 billion ABS codes.
+>
+> The new API also allows to query multiple ABS values with one call. To
+> allow EVIOCSABS2(code = 0, cnt = ABS_CNT2) we need to silently ignore
+> writes to ABS_MT_SLOT. Other than that, semantics are the same as for the
+> legacy API.
 
-I'm not worried about who re-sends the patch. Just make sure whoever
-does sends in correctly with regards to the $SUBJECT line etc. The one
-on this patch looks odd.
+I'm currently having a hard time making this properly work with
+backwards-compatibility in mind. It can get really hairy to properly
+detect whether a kernel supports   ABS2 or not (during runtime). Any
+objections to increasing the EVDEV version field? User-space could
+then easily know whether EVIOCGABS2 is supported.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Just as a note: the libevdev test-suite runs just fine with this
+patch, so at least it shouldn't break backwards-compat this time.
+Anyway, I would feel a lot better if we can let this stay in
+linux-next for one cycle.
+
+Thanks
+David
+
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+>  drivers/hid/hid-debug.c                  |  2 +-
+>  drivers/hid/hid-input.c                  |  2 +-
+>  drivers/input/evdev.c                    | 88 +++++++++++++++++++++++++++++++-
+>  drivers/input/input.c                    | 14 ++---
+>  drivers/input/keyboard/goldfish_events.c |  6 +--
+>  drivers/input/keyboard/hil_kbd.c         |  2 +-
+>  drivers/input/misc/uinput.c              |  6 +--
+>  include/linux/hid.h                      |  2 +-
+>  include/linux/input.h                    |  6 +--
+>  include/uapi/linux/input.h               | 37 +++++++++++++-
+>  include/uapi/linux/uinput.h              |  2 +-
+>  11 files changed, 144 insertions(+), 23 deletions(-)
+>
+> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+> index 8453214..d32fa30 100644
+> --- a/drivers/hid/hid-debug.c
+> +++ b/drivers/hid/hid-debug.c
+> @@ -862,7 +862,7 @@ static const char *relatives[REL_MAX + 1] = {
+>         [REL_WHEEL] = "Wheel",          [REL_MISC] = "Misc",
+>  };
+>
+> -static const char *absolutes[ABS_CNT] = {
+> +static const char *absolutes[ABS_CNT2] = {
+>         [ABS_X] = "X",                  [ABS_Y] = "Y",
+>         [ABS_Z] = "Z",                  [ABS_RX] = "Rx",
+>         [ABS_RY] = "Ry",                [ABS_RZ] = "Rz",
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index d97f232..a02721c 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -1300,7 +1300,7 @@ static bool hidinput_has_been_populated(struct hid_input *hidinput)
+>         for (i = 0; i < BITS_TO_LONGS(REL_CNT); i++)
+>                 r |= hidinput->input->relbit[i];
+>
+> -       for (i = 0; i < BITS_TO_LONGS(ABS_CNT); i++)
+> +       for (i = 0; i < BITS_TO_LONGS(ABS_CNT2); i++)
+>                 r |= hidinput->input->absbit[i];
+>
+>         for (i = 0; i < BITS_TO_LONGS(MSC_CNT); i++)
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index b6ded17..ffe65fd 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -635,7 +635,7 @@ static int handle_eviocgbit(struct input_dev *dev,
+>         case      0: bits = dev->evbit;  len = EV_MAX;  break;
+>         case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
+>         case EV_REL: bits = dev->relbit; len = REL_MAX; break;
+> -       case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
+> +       case EV_ABS: bits = dev->absbit; len = ABS_MAX2; break;
+>         case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
+>         case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
+>         case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
+> @@ -663,6 +663,86 @@ static int handle_eviocgbit(struct input_dev *dev,
+>  }
+>  #undef OLD_KEY_MAX
+>
+> +static int evdev_handle_get_abs2(struct input_dev *dev, void __user *p)
+> +{
+> +       u32 code, cnt, i;
+> +       struct input_absinfo2 __user *pinfo = p;
+> +       struct input_absinfo abs;
+> +
+> +       if (!dev->absinfo)
+> +               return -EINVAL;
+> +
+> +       if (copy_from_user(&code, &pinfo->code, sizeof(code)))
+> +               return -EFAULT;
+> +       if (copy_from_user(&cnt, &pinfo->cnt, sizeof(cnt)))
+> +               return -EFAULT;
+> +
+> +       if (!cnt || code > ABS_MAX2 || cnt > ABS_CNT2)
+> +               return -EINVAL;
+> +       if (code + cnt > ABS_MAX2)
+> +               return -EINVAL;
+> +
+> +       for (i = 0; i < cnt; ++i) {
+> +               /*
+> +                * Take event lock to ensure that we are not
+> +                * copying data while EVIOCSABS2 changes it.
+> +                * Might be inconsistent, otherwise.
+> +                */
+> +               spin_lock_irq(&dev->event_lock);
+> +               abs = dev->absinfo[code + i];
+> +               spin_unlock_irq(&dev->event_lock);
+> +
+> +               if (copy_to_user(&pinfo->info[i], &abs, sizeof(abs)))
+> +                       return -EFAULT;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +static int evdev_handle_set_abs2(struct input_dev *dev, void __user *p)
+> +{
+> +       struct input_absinfo2 __user *pinfo = p;
+> +       struct input_absinfo *abs;
+> +       u32 code, cnt, i;
+> +       size_t size;
+> +
+> +       if (!dev->absinfo)
+> +               return -EINVAL;
+> +
+> +       if (copy_from_user(&code, &pinfo->code, sizeof(code)))
+> +               return -EFAULT;
+> +       if (copy_from_user(&cnt, &pinfo->cnt, sizeof(cnt)))
+> +               return -EFAULT;
+> +
+> +       if (!cnt || code > ABS_MAX2 || cnt > ABS_CNT2)
+> +               return -EINVAL;
+> +       if (code + cnt > ABS_MAX2)
+> +               return -EINVAL;
+> +
+> +       size = cnt * sizeof(*abs);
+> +       abs = memdup_user(&pinfo->info[0], size);
+> +       if (IS_ERR(abs))
+> +               return PTR_ERR(abs);
+> +
+> +       /*
+> +        * Take event lock to ensure that we are not
+> +        * changing device parameters in the middle
+> +        * of event.
+> +        */
+> +       spin_lock_irq(&dev->event_lock);
+> +       for (i = 0; i < cnt; ++i) {
+> +               /* silently drop ABS_MT_SLOT */
+> +               if (code + i == ABS_MT_SLOT)
+> +                       continue;
+> +
+> +               dev->absinfo[code + i] = abs[i];
+> +       }
+> +       spin_unlock_irq(&dev->event_lock);
+> +
+> +       kfree(abs);
+> +       return 0;
+> +}
+> +
+>  static int evdev_handle_get_keycode(struct input_dev *dev, void __user *p)
+>  {
+>         struct input_keymap_entry ke = {
+> @@ -890,6 +970,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+>                 client->clkid = i;
+>                 return 0;
+>
+> +       case EVIOCGABS2:
+> +               return evdev_handle_get_abs2(dev, p);
+> +
+> +       case EVIOCSABS2:
+> +               return evdev_handle_set_abs2(dev, p);
+> +
+>         case EVIOCGKEYCODE:
+>                 return evdev_handle_get_keycode(dev, p);
+>
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index c044699..bc88f17 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -305,7 +305,7 @@ static int input_get_disposition(struct input_dev *dev,
+>                 break;
+>
+>         case EV_ABS:
+> -               if (is_event_supported(code, dev->absbit, ABS_MAX))
+> +               if (is_event_supported(code, dev->absbit, ABS_MAX2))
+>                         disposition = input_handle_abs_event(dev, code, &value);
+>
+>                 break;
+> @@ -474,7 +474,7 @@ EXPORT_SYMBOL(input_inject_event);
+>  void input_alloc_absinfo(struct input_dev *dev)
+>  {
+>         if (!dev->absinfo)
+> -               dev->absinfo = kcalloc(ABS_CNT, sizeof(struct input_absinfo),
+> +               dev->absinfo = kcalloc(ABS_CNT2, sizeof(struct input_absinfo),
+>                                         GFP_KERNEL);
+>
+>         WARN(!dev->absinfo, "%s(): kcalloc() failed?\n", __func__);
+> @@ -954,7 +954,7 @@ static const struct input_device_id *input_match_device(struct input_handler *ha
+>                 if (!bitmap_subset(id->relbit, dev->relbit, REL_MAX))
+>                         continue;
+>
+> -               if (!bitmap_subset(id->absbit, dev->absbit, ABS_MAX))
+> +               if (!bitmap_subset(id->absbit, dev->absbit, ABS_MAX2))
+>                         continue;
+>
+>                 if (!bitmap_subset(id->mscbit, dev->mscbit, MSC_MAX))
+> @@ -1147,7 +1147,7 @@ static int input_devices_seq_show(struct seq_file *seq, void *v)
+>         if (test_bit(EV_REL, dev->evbit))
+>                 input_seq_print_bitmap(seq, "REL", dev->relbit, REL_MAX);
+>         if (test_bit(EV_ABS, dev->evbit))
+> -               input_seq_print_bitmap(seq, "ABS", dev->absbit, ABS_MAX);
+> +               input_seq_print_bitmap(seq, "ABS", dev->absbit, ABS_MAX2);
+>         if (test_bit(EV_MSC, dev->evbit))
+>                 input_seq_print_bitmap(seq, "MSC", dev->mscbit, MSC_MAX);
+>         if (test_bit(EV_LED, dev->evbit))
+> @@ -1333,7 +1333,7 @@ static int input_print_modalias(char *buf, int size, struct input_dev *id,
+>         len += input_print_modalias_bits(buf + len, size - len,
+>                                 'r', id->relbit, 0, REL_MAX);
+>         len += input_print_modalias_bits(buf + len, size - len,
+> -                               'a', id->absbit, 0, ABS_MAX);
+> +                               'a', id->absbit, 0, ABS_MAX2);
+>         len += input_print_modalias_bits(buf + len, size - len,
+>                                 'm', id->mscbit, 0, MSC_MAX);
+>         len += input_print_modalias_bits(buf + len, size - len,
+> @@ -1592,7 +1592,7 @@ static int input_dev_uevent(struct device *device, struct kobj_uevent_env *env)
+>         if (test_bit(EV_REL, dev->evbit))
+>                 INPUT_ADD_HOTPLUG_BM_VAR("REL=", dev->relbit, REL_MAX);
+>         if (test_bit(EV_ABS, dev->evbit))
+> -               INPUT_ADD_HOTPLUG_BM_VAR("ABS=", dev->absbit, ABS_MAX);
+> +               INPUT_ADD_HOTPLUG_BM_VAR("ABS=", dev->absbit, ABS_MAX2);
+>         if (test_bit(EV_MSC, dev->evbit))
+>                 INPUT_ADD_HOTPLUG_BM_VAR("MSC=", dev->mscbit, MSC_MAX);
+>         if (test_bit(EV_LED, dev->evbit))
+> @@ -1924,7 +1924,7 @@ static unsigned int input_estimate_events_per_packet(struct input_dev *dev)
+>
+>         events = mt_slots + 1; /* count SYN_MT_REPORT and SYN_REPORT */
+>
+> -       for (i = 0; i < ABS_CNT; i++) {
+> +       for (i = 0; i < ABS_CNT2; i++) {
+>                 if (test_bit(i, dev->absbit)) {
+>                         if (input_is_mt_axis(i))
+>                                 events += mt_slots;
+> diff --git a/drivers/input/keyboard/goldfish_events.c b/drivers/input/keyboard/goldfish_events.c
+> index 9f60a2e..9999cea 100644
+> --- a/drivers/input/keyboard/goldfish_events.c
+> +++ b/drivers/input/keyboard/goldfish_events.c
+> @@ -90,8 +90,8 @@ static void events_import_abs_params(struct event_dev *edev)
+>         __raw_writel(PAGE_ABSDATA, addr + REG_SET_PAGE);
+>
+>         count = __raw_readl(addr + REG_LEN) / sizeof(val);
+> -       if (count > ABS_MAX)
+> -               count = ABS_MAX;
+> +       if (count > ABS_MAX2)
+> +               count = ABS_MAX2;
+>
+>         for (i = 0; i < count; i++) {
+>                 if (!test_bit(i, input_dev->absbit))
+> @@ -158,7 +158,7 @@ static int events_probe(struct platform_device *pdev)
+>         events_import_bits(edev, input_dev->evbit, EV_SYN, EV_MAX);
+>         events_import_bits(edev, input_dev->keybit, EV_KEY, KEY_MAX);
+>         events_import_bits(edev, input_dev->relbit, EV_REL, REL_MAX);
+> -       events_import_bits(edev, input_dev->absbit, EV_ABS, ABS_MAX);
+> +       events_import_bits(edev, input_dev->absbit, EV_ABS, ABS_MAX2);
+>         events_import_bits(edev, input_dev->mscbit, EV_MSC, MSC_MAX);
+>         events_import_bits(edev, input_dev->ledbit, EV_LED, LED_MAX);
+>         events_import_bits(edev, input_dev->sndbit, EV_SND, SND_MAX);
+> diff --git a/drivers/input/keyboard/hil_kbd.c b/drivers/input/keyboard/hil_kbd.c
+> index 589e3c2..4e4e010 100644
+> --- a/drivers/input/keyboard/hil_kbd.c
+> +++ b/drivers/input/keyboard/hil_kbd.c
+> @@ -387,7 +387,7 @@ static void hil_dev_pointer_setup(struct hil_dev *ptr)
+>                                         0, HIL_IDD_AXIS_MAX(idd, i - 3), 0, 0);
+>
+>  #ifdef TABLET_AUTOADJUST
+> -               for (i = 0; i < ABS_MAX; i++) {
+> +               for (i = 0; i < ABS_MAX2; i++) {
+>                         int diff = input_abs_get_max(input_dev, ABS_X + i) / 10;
+>                         input_abs_set_min(input_dev, ABS_X + i,
+>                                 input_abs_get_min(input_dev, ABS_X + i) + diff);
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 3cd84d2..2f7355e 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -311,7 +311,7 @@ static int uinput_validate_absbits(struct input_dev *dev)
+>         unsigned int cnt;
+>         int retval = 0;
+>
+> -       for (cnt = 0; cnt < ABS_CNT; cnt++) {
+> +       for (cnt = 0; cnt < ABS_CNT2; cnt++) {
+>                 int min, max;
+>                 if (!test_bit(cnt, dev->absbit))
+>                         continue;
+> @@ -474,7 +474,7 @@ static int uinput_setup_device2(struct uinput_device *udev,
+>                 return -EINVAL;
+>
+>         /* rough check to avoid huge kernel space allocations */
+> -       max = ABS_CNT * sizeof(*user_dev2->abs) + sizeof(*user_dev2);
+> +       max = ABS_CNT2 * sizeof(*user_dev2->abs) + sizeof(*user_dev2);
+>         if (count > max)
+>                 return -EINVAL;
+>
+> @@ -770,7 +770,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+>                         break;
+>
+>                 case UI_SET_ABSBIT:
+> -                       retval = uinput_set_bit(arg, absbit, ABS_MAX);
+> +                       retval = uinput_set_bit(arg, absbit, ABS_MAX2);
+>                         break;
+>
+>                 case UI_SET_MSCBIT:
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 31b9d29..c21d8bb 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -828,7 +828,7 @@ static inline void hid_map_usage(struct hid_input *hidinput,
+>         switch (type) {
+>         case EV_ABS:
+>                 *bit = input->absbit;
+> -               *max = ABS_MAX;
+> +               *max = ABS_MAX2;
+>                 break;
+>         case EV_REL:
+>                 *bit = input->relbit;
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 82ce323..c6add6f 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -129,7 +129,7 @@ struct input_dev {
+>         unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
+>         unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
+>         unsigned long relbit[BITS_TO_LONGS(REL_CNT)];
+> -       unsigned long absbit[BITS_TO_LONGS(ABS_CNT)];
+> +       unsigned long absbit[BITS_TO_LONGS(ABS_CNT2)];
+>         unsigned long mscbit[BITS_TO_LONGS(MSC_CNT)];
+>         unsigned long ledbit[BITS_TO_LONGS(LED_CNT)];
+>         unsigned long sndbit[BITS_TO_LONGS(SND_CNT)];
+> @@ -210,8 +210,8 @@ struct input_dev {
+>  #error "REL_MAX and INPUT_DEVICE_ID_REL_MAX do not match"
+>  #endif
+>
+> -#if ABS_MAX != INPUT_DEVICE_ID_ABS_MAX
+> -#error "ABS_MAX and INPUT_DEVICE_ID_ABS_MAX do not match"
+> +#if ABS_MAX2 != INPUT_DEVICE_ID_ABS_MAX
+> +#error "ABS_MAX2 and INPUT_DEVICE_ID_ABS_MAX do not match"
+>  #endif
+>
+>  #if MSC_MAX != INPUT_DEVICE_ID_MSC_MAX
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index a372627..9e525f9 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -74,6 +74,27 @@ struct input_absinfo {
+>  };
+>
+>  /**
+> + * struct input_absinfo2 - used by EVIOC[G/S]ABS2 ioctls
+> + * @code: First ABS code to query
+> + * @cnt: Number of ABS codes to query starting at @code
+> + * @info: #@cnt absinfo structures to get/set abs parameters for all codes
+> + *
+> + * This structure is used by the new EVIOC[G/S]ABS2 ioctls which
+> + * do the same as the old EVIOC[G/S]ABS ioctls but avoid encoding
+> + * the ABS code in the ioctl number. This allows a much wider
+> + * range of ABS codes. Furthermore, it allows to query multiple codes with a
+> + * single call.
+> + *
+> + * Note that this silently drops any requests to set ABS_MT_SLOT. Hence, it is
+> + * allowed to call this with code=0 cnt=ABS_CNT2.
+> + */
+> +struct input_absinfo2 {
+> +       __u32 code;
+> +       __u32 cnt;
+> +       struct input_absinfo info[1];
+> +};
+> +
+> +/**
+>   * struct input_keymap_entry - used by EVIOCGKEYCODE/EVIOCSKEYCODE ioctls
+>   * @scancode: scancode represented in machine-endian form.
+>   * @len: length of the scancode that resides in @scancode buffer.
+> @@ -153,6 +174,8 @@ struct input_keymap_entry {
+>
+>  #define EVIOCGRAB              _IOW('E', 0x90, int)                    /* Grab/Release device */
+>  #define EVIOCREVOKE            _IOW('E', 0x91, int)                    /* Revoke device access */
+> +#define EVIOCGABS2             _IOR('E', 0x92, struct input_absinfo2)  /* get abs value/limits */
+> +#define EVIOCSABS2             _IOW('E', 0x93, struct input_absinfo2)  /* set abs value/limits */
+>
+>  #define EVIOCSCLOCKID          _IOW('E', 0xa0, int)                    /* Set clockid to be used for timestamps */
+>
+> @@ -832,11 +855,23 @@ struct input_keymap_entry {
+>  #define ABS_MT_TOOL_X          0x3c    /* Center X tool position */
+>  #define ABS_MT_TOOL_Y          0x3d    /* Center Y tool position */
+>
+> -
+> +/*
+> + * ABS_MAX/CNT is limited to a maximum of 0x3f due to the design of EVIOCGABS
+> + * and EVIOCSABS ioctls. Other kernel APIs like uinput also hardcoded it. Do
+> + * not modify this value and instead use the extended ABS_MAX2/CNT2 API.
+> + */
+>  #define ABS_MAX                        0x3f
+>  #define ABS_CNT                        (ABS_MAX+1)
+>
+>  /*
+> + * Due to API restrictions the legacy evdev API only supports ABS values up to
+> + * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on any ABS values in
+> + * between ABS_MAX and ABS_MAX2.
+> + */
+> +#define ABS_MAX2               0x3f
+> +#define ABS_CNT2               (ABS_MAX2+1)
+> +
+> +/*
+>   * Switch events
+>   */
+>
+> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
+> index c2e8710..27ee521 100644
+> --- a/include/uapi/linux/uinput.h
+> +++ b/include/uapi/linux/uinput.h
+> @@ -140,7 +140,7 @@ struct uinput_user_dev2 {
+>         char name[UINPUT_MAX_NAME_SIZE];
+>         struct input_id id;
+>         __u32 ff_effects_max;
+> -       struct input_absinfo abs[ABS_CNT];
+> +       struct input_absinfo abs[ABS_CNT2];
+>  };
+>
+>  #endif /* _UAPI__UINPUT_H_ */
+> --
+> 1.8.4.1
+>

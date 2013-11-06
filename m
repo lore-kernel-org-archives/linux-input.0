@@ -1,50 +1,54 @@
-From: Gaspard Jankowiak <gaspard@oknaj.eu>
-Subject: Re: [PATCH] Input: Adding support for touchpad on Dell XT2 model
-Date: Wed, 06 Nov 2013 16:24:28 +0100
-Message-ID: <527A5F2C.2000008@oknaj.eu>
-References: <1382715581-2584-1-git-send-email-yunkang.tang@cn.alps.com> <20131031075613.GA2590@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [appleir] BUG: unable to handle kernel NULL pointer
+ dereference
+Date: Wed, 6 Nov 2013 16:38:26 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1311061635160.835@pobox.suse.cz>
+References: <20131029145139.GA2788@hercules>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.oknaj.eu ([82.226.221.229]:39023 "EHLO styx.oknaj.eu"
+Received: from cantor2.suse.de ([195.135.220.15]:39699 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751017Ab3KFQUu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Nov 2013 11:20:50 -0500
-In-Reply-To: <20131031075613.GA2590@core.coreip.homeip.net>
+	id S1750841Ab3KFRDu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Nov 2013 12:03:50 -0500
+In-Reply-To: <20131029145139.GA2788@hercules>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yunkang Tang <tommywill2011@gmail.com>
-Cc: cernekee@gmail.com, dturvene@dahetral.com, linux-input@vger.kernel.org, ndevos@redhat.com, jclift@redhat.com, yunkang.tang@cn.alps.com
+To: Luis Henriques <luis.henriques@canonical.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, James Henstridge <james.henstridge@canonical.com>, =?ISO-8859-15?Q?Fabien_Andr=E9?= <fabien.andre@gmail.com>, Bastien Nocera <hadess@hadess.net>
 
-On 31/10/13 08:56, Dmitry Torokhov wrote:
+On Tue, 29 Oct 2013, Luis Henriques wrote:
 
->
-> Applied, thank you.
->
+> James has reported a NULL pointer dereference[1] on the appleir
+> driver.  From the bug report[2] it looks like it is 100%
+> reproducible using a 3.12-rc6 kernel simply by pressing any button on
+> the IR remote.
+> 
+> >From the stack trace, it looks like input_event is invoked with the
+> input_dev parameter set to NULL, which seems to indicate that
+> appleir_input_configured is never invoked.
+> 
+> Any ideas?
+> 
+> [1] https://launchpadlibrarian.net/154942024/macmini-oops.jpg
+> [2] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1244505
 
-Hi,
+[ adding some more CCs ]
 
-I don't know how to go about this, but it seems the patch is affecting 
-other input devices. The trackpoint goes haywire when used, making the 
-cursor jump all over the place and triggering random "right clicks" on 
-the Latitude XT2. I don't know if it affects other models too.
+Okay, so apparently we didn't register with input, but only hiddev / 
+hidraw.
 
-Sorry for not spotting this earlier.
+appleir 0003:05AC:8240.0005: hiddev0,hidraw4: USB HID v1.11 Device [Apple Computer, Inc. IR Receiver] on usb-0000:00:1d.3-2/input0
 
-Name        : kernel
-Version     : 3.11.6
-Release     : 201.fc19
-Architecture: x86_64
-Install Date: Tue 05 Nov 2013 09:22:37 CET
-Group       : System Environment/Kernel
-Size        : 134433560
-License     : GPLv2 and Redistributable, no modification permitted
-Signature   : RSA/SHA256, Sat 02 Nov 2013 22:00:51 CET, Key ID 
-07477e65fb4b18e6
-Source RPM  : kernel-3.11.6-201.fc19.src.rpm
-Build Date  : Sat 02 Nov 2013 15:35:07 CET
+Therefore ->input_configured() callback has never been called, and thus we 
+oops due to appleir->input_dev being NULL when the first raw event is 
+reported.
 
-Best,
-Gaspard
+Could you please provide report descriptor of the device?
 
+The driver apparently relies on it being registered with hid-input, but 
+for some reason that doesn't happen.
+
+-- 
+Jiri Kosina
+SUSE Labs

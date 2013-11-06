@@ -1,7 +1,7 @@
 From: Duan Jiong <duanj.fnst@cn.fujitsu.com>
-Subject: [PATCH] leds: leds-mc13783: replace IS_ERR and PTR_ERR with PTR_ERR_OR_ZERO
-Date: Wed, 6 Nov 2013 15:54:44 +0800
-Message-ID: <1383724484-15520-1-git-send-email-duanj.fnst@cn.fujitsu.com>
+Subject: [PATCH] libcrc32c: replace IS_ERR and PTR_ERR with PTR_ERR_OR_ZERO
+Date: Wed, 6 Nov 2013 15:55:00 +0800
+Message-ID: <1383724500-15568-1-git-send-email-duanj.fnst@cn.fujitsu.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: kernel@pengutronix.de, linux@arm.linux.org.uk, a.zummo@towertech.it, airlied@linux.ie, dmitry.torokhov@gmail.com
@@ -13,24 +13,24 @@ PTR_ERR instead of PTR_ERR_OR_ZERO.
 
 Signed-off-by: Duan Jiong <duanj.fnst@cn.fujitsu.com>
 ---
- arch/arm/mach-imx/mach-mx31moboard.c | 5 +----
+ lib/libcrc32c.c | 5 +----
  1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/arm/mach-imx/mach-mx31moboard.c b/arch/arm/mach-imx/mach-mx31moboard.c
-index 6f424ec..118ea68 100644
---- a/arch/arm/mach-imx/mach-mx31moboard.c
-+++ b/arch/arm/mach-imx/mach-mx31moboard.c
-@@ -446,10 +446,7 @@ static int __init moboard_usbh2_init(void)
- 		return -ENODEV;
- 
- 	pdev = imx31_add_mxc_ehci_hs(2, &usbh2_pdata);
--	if (IS_ERR(pdev))
--		return PTR_ERR(pdev);
+diff --git a/lib/libcrc32c.c b/lib/libcrc32c.c
+index 244f548..b3131f5 100644
+--- a/lib/libcrc32c.c
++++ b/lib/libcrc32c.c
+@@ -62,10 +62,7 @@ EXPORT_SYMBOL(crc32c);
+ static int __init libcrc32c_mod_init(void)
+ {
+ 	tfm = crypto_alloc_shash("crc32c", 0, 0);
+-	if (IS_ERR(tfm))
+-		return PTR_ERR(tfm);
 -
 -	return 0;
-+	return PTR_ERR_OR_ZERO(pdev);
++	return PTR_ERR_OR_ZERO(tfm);
  }
  
- static const struct gpio_led mx31moboard_leds[] __initconst = {
+ static void __exit libcrc32c_mod_fini(void)
 -- 
 1.8.3.1

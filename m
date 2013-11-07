@@ -1,115 +1,90 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [appleir] BUG: unable to handle kernel NULL pointer dereference
-Date: Thu, 07 Nov 2013 10:49:41 -0500
-Message-ID: <527BB695.9040209@redhat.com>
-References: <20131029145139.GA2788@hercules>	<alpine.LNX.2.00.1311061635160.835@pobox.suse.cz> <CALcaVO=jOEqCwLCMUgEkFJMcc4H6bMLU4yvjo1fJ7DeXgkZH6A@mail.gmail.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH] INPUT: wacom: Added definition for Wacom CTH680 The Wacom
+ Creative Pen & Touch Tablet M (CTH680, 056A:0303) is a newer revision of the
+ Bamboo series. This patch adds product 0303 to wacom.ko.
+Date: Thu, 7 Nov 2013 10:03:38 -0600
+Message-ID: <CAGzDe_ZSVEkH0BaU1oZjPWjKuR02ibs=r+jQEU7hF-R68q7rfA@mail.gmail.com>
+References: <1383419089-31248-1-git-send-email-matthew@incomplete.io>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:27405 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753162Ab3KGPtz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 Nov 2013 10:49:55 -0500
-In-Reply-To: <CALcaVO=jOEqCwLCMUgEkFJMcc4H6bMLU4yvjo1fJ7DeXgkZH6A@mail.gmail.com>
+Received: from mail-wi0-f177.google.com ([209.85.212.177]:62494 "EHLO
+	mail-wi0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751701Ab3KGQDj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Nov 2013 11:03:39 -0500
+Received: by mail-wi0-f177.google.com with SMTP id f4so843145wiw.4
+        for <linux-input@vger.kernel.org>; Thu, 07 Nov 2013 08:03:38 -0800 (PST)
+In-Reply-To: <1383419089-31248-1-git-send-email-matthew@incomplete.io>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: James Henstridge <james.henstridge@canonical.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: Luis Henriques <luis.henriques@canonical.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, =?ISO-8859-1?Q?Fabien_Andr=E9?= <fabien.andre@gmail.com>, Bastien Nocera <hadess@hadess.net>
+To: matthew@incomplete.io
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi James,
+On Sat, Nov 2, 2013 at 2:04 PM,  <matthew@incomplete.io> wrote:
+> From: Matthew Geddes <matthew@incomplete.io>
+>
 
-On 07/11/13 02:52, James Henstridge wrote:
-> On Wed, Nov 6, 2013 at 11:38 PM, Jiri Kosina <jkosina@suse.cz> wrote:
->> On Tue, 29 Oct 2013, Luis Henriques wrote:
->>
->>> James has reported a NULL pointer dereference[1] on the appleir
->>> driver.  From the bug report[2] it looks like it is 100%
->>> reproducible using a 3.12-rc6 kernel simply by pressing any button on
->>> the IR remote.
->>>
->>> >From the stack trace, it looks like input_event is invoked with the
->>> input_dev parameter set to NULL, which seems to indicate that
->>> appleir_input_configured is never invoked.
->>>
->>> Any ideas?
->>>
->>> [1] https://launchpadlibrarian.net/154942024/macmini-oops.jpg
->>> [2] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1244505
->>
->> [ adding some more CCs ]
->>
->> Okay, so apparently we didn't register with input, but only hiddev /
->> hidraw.
->>
->> appleir 0003:05AC:8240.0005: hiddev0,hidraw4: USB HID v1.11 Device [Apple Computer, Inc. IR Receiver] on usb-0000:00:1d.3-2/input0
->>
->> Therefore ->input_configured() callback has never been called, and thus we
->> oops due to appleir->input_dev being NULL when the first raw event is
->> reported.
->>
->> Could you please provide report descriptor of the device?
->>
->> The driver apparently relies on it being registered with hid-input, but
->> for some reason that doesn't happen.
-> 
-> Here is the relevant lsusb output that I think contains what you're
-> asking for (I had to unbind usbhid for it to include the descriptor):
-> 
-> Bus 005 Device 003: ID 05ac:8240 Apple, Inc. Built-in IR Receiver
-> Device Descriptor:
->   bLength                18
->   bDescriptorType         1
->   bcdUSB               2.00
-> ...
+Your whole commit message appears to be crammed into first summary
+line.  Could you please align with git conventions: put a line break
+after "CTH680", a blank line, and then the remaining description
+afterwards.
 
-Ok, thanks for the report. Could you please test the following patch
-which should solve your problem (hopefully)?
+> Signed-off-by: Matthew Geddes <matthew@incomplete.io>
+> ---
+>  drivers/input/tablet/wacom_wac.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+> index c59b797..5015269 100644
+> --- a/drivers/input/tablet/wacom_wac.c
+> +++ b/drivers/input/tablet/wacom_wac.c
+> @@ -2128,6 +2128,9 @@ static const struct wacom_features wacom_features_0x300 =
+>  static const struct wacom_features wacom_features_0x301 =
+>         { "Wacom Bamboo One M",    WACOM_PKGLEN_BBPEN,    21648, 13530, 1023,
+>           31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+> +static const struct wacom_features wacom_features_0x303 =
+> +       { "Wacom Creative Touch & Pen M", WACOM_PKGLEN_BBPEN, 21648, 13530,
 
-Cheers,
-Benjamin
+A search for model CTH680 shows this device is the newly released
+"Intuos Pen & Touch Medium"; which is also the new name for Bamboo's
+and with new form factor.  I do see occasional site that added
+Creative in there: "Intuos Creative Pen & Touch Medium".  Can you
+confirm if this is the model you have?
 
---
+I'd suggest using Wacom's terms closer (add in Intuos and swap Pen &
+Touch to their order; maybe drop phrase Creative).
 
->From 54b332b992da1666abe7180b6cecd313c864e0b7 Mon Sep 17 00:00:00 2001
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date: Thu, 7 Nov 2013 10:46:48 -0500
-Subject: [PATCH] HID: appleir: force input to be set
+Also, the 21648/13530 values look copy&pasted from previous line.  Can
+you use "evtest" or similar to find real maximum values.  Previous
+"Bamboo Touch" models had 13700 as second number.  Since your tablet
+has different shape from previous Bamboo and the "Bamboo One" then
+there is good change you need unique values to get full usable area of
+tablet.
 
-Some weird remotes are not correctly creating the input device. Their
-report descriptor starts with:
-0x06, 0x00, 0xff,              // Usage Page (Vendor Defined Page 1)  0
-0xa1, 0x01,                    // Collection (Application)            3
+> +         1023, 31, BAMBOO_PT, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
 
-whereas others (which are correctly handled) start with:
-0x05, 0x0c,                    // Usage Page (Consumer Devices)       0
-0x09, 0x01,                    // Usage (Consumer Control)            2
-0xa1, 0x01,                    // Collection (Application)            4
+Can you update patch to exactly follow form of structures surrounding
+it?  Namely, put the "1023" value on first line like rest of lines do.
 
-The rest of the report descriptor is the same.
+Thanks!
+Chris
 
-Adding the quirk HID_QUIRK_HIDINPUT_FORCE forces hid-input to allocate
-the inputs, and everything should be ok.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-appleir.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
-index a42e6a3..0e6a42d 100644
---- a/drivers/hid/hid-appleir.c
-+++ b/drivers/hid/hid-appleir.c
-@@ -297,6 +297,9 @@ static int appleir_probe(struct hid_device *hid, const struct hid_device_id *id)
- 
- 	appleir->hid = hid;
- 
-+	/* force input as some remotes bypass the input registration */
-+	hid->quirks |= HID_QUIRK_HIDINPUT_FORCE;
-+
- 	spin_lock_init(&appleir->lock);
- 	setup_timer(&appleir->key_up_timer,
- 		    key_up_tick, (unsigned long) appleir);
--- 
-1.8.3.1
-
+>  static const struct wacom_features wacom_features_0x6004 =
+>         { "ISD-V4",               WACOM_PKGLEN_GRAPHIRE,  12800,  8000,  255,
+>           0, TABLETPC, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+> @@ -2258,6 +2261,7 @@ const struct usb_device_id wacom_ids[] = {
+>         { USB_DEVICE_WACOM(0x10F) },
+>         { USB_DEVICE_WACOM(0x300) },
+>         { USB_DEVICE_WACOM(0x301) },
+> +       { USB_DEVICE_WACOM(0x303) },
+>         { USB_DEVICE_WACOM(0x304) },
+>         { USB_DEVICE_WACOM(0x4001) },
+>         { USB_DEVICE_WACOM(0x47) },
+> --
+> 1.8.3.2
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

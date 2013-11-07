@@ -1,29 +1,48 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] net:drivers/net: replace IS_ERR and PTR_ERR with
- PTR_ERR_OR_ZERO
-Date: Thu, 07 Nov 2013 03:02:37 -0500 (EST)
-Message-ID: <20131107.030237.589434363047224407.davem@davemloft.net>
-References: <1383724693-16220-1-git-send-email-duanj.fnst@cn.fujitsu.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: My "enable bluetooth" hotkey increase brightness instead
+Date: Thu, 7 Nov 2013 15:44:32 +0100
+Message-ID: <CANq1E4TBHcCe6V7PhP_guhS3=nTd=hTq2jYYCzp+w7NjZiEpiQ@mail.gmail.com>
+References: <1383035869.66885.YahooMailNeo@web171805.mail.ir2.yahoo.com>
+	<1383036747.30147.YahooMailNeo@web171802.mail.ir2.yahoo.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from shards.monkeyblade.net ([149.20.54.216]:47563 "EHLO
-	shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753170Ab3KGICj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Nov 2013 03:02:39 -0500
-In-Reply-To: <1383724693-16220-1-git-send-email-duanj.fnst@cn.fujitsu.com>
+Received: from mail-la0-f54.google.com ([209.85.215.54]:61778 "EHLO
+	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753827Ab3KGOod (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Nov 2013 09:44:33 -0500
+Received: by mail-la0-f54.google.com with SMTP id n7so519788lam.13
+        for <linux-input@vger.kernel.org>; Thu, 07 Nov 2013 06:44:32 -0800 (PST)
+In-Reply-To: <1383036747.30147.YahooMailNeo@web171802.mail.ir2.yahoo.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: duanj.fnst@cn.fujitsu.com
-Cc: kernel@pengutronix.de, linux@arm.linux.org.uk, a.zummo@towertech.it, airlied@linux.ie, dmitry.torokhov@gmail.com, axboe@kernel.dk, linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-input@vger.kernel.org, devel@driverdev.osuosl.org, netdev@vger.kernel.org
+To: Gianfranco Costamagna <costamagnagianfranco@yahoo.it>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-From: Duan Jiong <duanj.fnst@cn.fujitsu.com>
-Date: Wed, 6 Nov 2013 15:58:13 +0800
+Hi
 
-> This patch fixes coccinelle error regarding usage of IS_ERR and
-> PTR_ERR instead of PTR_ERR_OR_ZERO.
-> 
-> Signed-off-by: Duan Jiong <duanj.fnst@cn.fujitsu.com>
+On Tue, Oct 29, 2013 at 9:52 AM, Gianfranco Costamagna
+<costamagnagianfranco@yahoo.it> wrote:
+> Hi linux-input developers, I write here since suggested on my launchpad bug.
+>
+> The problem is really simple, I have an acer aspire 6930G and when I press "enable bluetooth" on my keyboard I get the brightness of my screen increased.
+> I reported on launchpad my configuration [1], and also opened a bug here [2].
+>
+> the problem seems to be in the kernel so far, but I honestly don't know where to better report it and how to debug/check it.
+>
+> I tested also kernel 3.12rc6 without any better outcome.
+>
+> Can anybody please help me out with this problem?
+>
+> Many thanks!
 
-Applied.
+Please use "evtest" to see which events are generated for your keys:
+  http://cgit.freedesktop.org/evtest/
+You need to run it on your keyboard-event chardev, something like:
+/dev/input/eventX (just try each until you find your keyboard).
+
+Please append the information you get and press the key which is
+incorrectly mapped.
+
+Thanks
+David

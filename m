@@ -1,43 +1,28 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] Input: tnetv107x-keypad - make irqs signed for error handling
-Date: Thu, 7 Nov 2013 10:52:40 +0300
-Message-ID: <20131107075240.GK21844@elgon.mountain>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] smsc: replace IS_ERR and PTR_ERR with PTR_ERR_OR_ZERO
+Date: Thu, 07 Nov 2013 03:02:26 -0500 (EST)
+Message-ID: <20131107.030226.60499118013736952.davem@davemloft.net>
+References: <1383724637-15849-1-git-send-email-duanj.fnst@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from userp1040.oracle.com ([156.151.31.81]:39264 "EHLO
-	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753634Ab3KGHxE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Nov 2013 02:53:04 -0500
-Content-Disposition: inline
+Received: from shards.monkeyblade.net ([149.20.54.216]:47540 "EHLO
+	shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751144Ab3KGICc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Nov 2013 03:02:32 -0500
+In-Reply-To: <1383724637-15849-1-git-send-email-duanj.fnst@cn.fujitsu.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Javier Martinez Canillas <javier@dowhile0.org>, Russell King <rmk+kernel@arm.linux.org.uk>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: duanj.fnst@cn.fujitsu.com
+Cc: kernel@pengutronix.de, linux@arm.linux.org.uk, a.zummo@towertech.it, airlied@linux.ie, dmitry.torokhov@gmail.com, axboe@kernel.dk, linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-input@vger.kernel.org, devel@driverdev.osuosl.org, netdev@vger.kernel.org
 
-There is a bug in keypad_probe() where we do:
+From: Duan Jiong <duanj.fnst@cn.fujitsu.com>
+Date: Wed, 6 Nov 2013 15:57:17 +0800
 
-	kp->irq_press   = platform_get_irq_byname(pdev, "press");
-	kp->irq_release = platform_get_irq_byname(pdev, "release");
-	if (kp->irq_press < 0 || kp->irq_release < 0) {
+> This patch fixes coccinelle error regarding usage of IS_ERR and
+> PTR_ERR instead of PTR_ERR_OR_ZERO.
+> 
+> Signed-off-by: Duan Jiong <duanj.fnst@cn.fujitsu.com>
 
-The problem is that these irq variables are unsigned so the error
-handling doesn't work.  I've changed them to signed values.
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-diff --git a/drivers/input/keyboard/tnetv107x-keypad.c b/drivers/input/keyboard/tnetv107x-keypad.c
-index 5f7b427..8bd24d5 100644
---- a/drivers/input/keyboard/tnetv107x-keypad.c
-+++ b/drivers/input/keyboard/tnetv107x-keypad.c
-@@ -60,8 +60,8 @@ struct keypad_data {
- 	struct clk			*clk;
- 	struct device			*dev;
- 	spinlock_t			lock;
--	u32				irq_press;
--	u32				irq_release;
-+	int				irq_press;
-+	int				irq_release;
- 	int				rows, cols, row_shift;
- 	int				debounce_ms, active_low;
- 	u32				prev_keys[3];
+Applied.

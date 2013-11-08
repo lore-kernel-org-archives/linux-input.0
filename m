@@ -1,46 +1,40 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH v3] add sur40 driver for Samsung SUR40 (aka MS Surface
- 2.0/Pixelsense)
-Date: Fri, 8 Nov 2013 22:37:12 +0100
-Message-ID: <20131108213712.GA10121@polaris.bitmath.org>
-References: <1383748012-28880-1-git-send-email-floe@butterbrot.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h22.telenor.se ([195.54.99.197]:52068 "EHLO
-	smtprelay-h22.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757848Ab3KHVyv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Nov 2013 16:54:51 -0500
-Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
-	by smtprelay-h22.telenor.se (Postfix) with ESMTP id 98B65EA484
-	for <linux-input@vger.kernel.org>; Fri,  8 Nov 2013 22:35:43 +0100 (CET)
-Content-Disposition: inline
-In-Reply-To: <1383748012-28880-1-git-send-email-floe@butterbrot.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Sebastian Reichel <sre@debian.org>
+Subject: [PATCHv7 0/4] twl4030-pwrbutton DT binding
+Date: Fri,  8 Nov 2013 23:11:23 +0100
+Message-ID: <1383948687-32279-1-git-send-email-sre@debian.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@debian.org>
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, dmitry.torokhov@gmail.com, dh.herrmann@gmail.com
 
-Hi Florian,
+Hi,
 
-> This patch adds support for the built-in multitouch sensor in the Samsung
-> SUR40 touchscreen device, also known as Microsoft Surface 2.0 or Microsoft
-> Pixelsense. Support for raw video output from the sensor as well as the 
-> accelerometer will be added in a later patch.
-> 
-> Signed-off-by: Florian Echtler <floe@butterbrot.org>
-> ---
->  drivers/input/touchscreen/Kconfig  |   10 +
->  drivers/input/touchscreen/Makefile |    1 +
->  drivers/input/touchscreen/sur40.c  |  467 ++++++++++++++++++++++++++++++++++++
->  3 files changed, 478 insertions(+)
->  create mode 100644 drivers/input/touchscreen/sur40.c
+This is the seventh iteration of DT support for the TWL4030
+power button.
 
-The driver looks pretty good now, thanks for making the changes. There
-might be one or two white space problems, but those can be fixed while
-applying. Dmitry, I guess you want to take this through your tree, so
+Changes since v6 [0]:
+* Splitted DT binding documentation into its own patch
+* Updated commit message of first patch
+* Added Reviewed-by: Aaro Koskinen
+* Added Tested-by: Florian Vaussard
+* Added Acked-by: Kumar Gala
 
-Reviewed-by: Henrik Rydberg <rydberg@euromail.se>
+[0] https://lkml.org/lkml/2013/10/24/269
 
-Thanks,
-Henrik
+-- Sebastian
+
+Sebastian Reichel (4):
+  Input: twl4030-pwrbutton: add device tree support
+  dt: binding documentation for twl4030-pwrbutton
+  Input: twl4030-pwrbutton: use dev_err for errors
+  Input: twl4030-pwrbutton: simplify driver using devm_*
+
+ .../bindings/input/twl4030-pwrbutton.txt           | 21 +++++++++++
+ drivers/input/misc/twl4030-pwrbutton.c             | 44 +++++++++-------------
+ 2 files changed, 38 insertions(+), 27 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
+
+-- 
+1.8.4.rc3
+

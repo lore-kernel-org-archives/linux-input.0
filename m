@@ -1,40 +1,72 @@
 From: Sebastian Reichel <sre@debian.org>
-Subject: [PATCHv7 0/4] twl4030-pwrbutton DT binding
-Date: Fri,  8 Nov 2013 23:11:23 +0100
-Message-ID: <1383948687-32279-1-git-send-email-sre@debian.org>
-Return-path: <linux-doc-owner@vger.kernel.org>
-Sender: linux-doc-owner@vger.kernel.org
+Subject: [PATCHv7 1/4] Input: twl4030-pwrbutton: add device tree support
+Date: Fri,  8 Nov 2013 23:11:24 +0100
+Message-ID: <1383948687-32279-2-git-send-email-sre@debian.org>
+References: <1383948687-32279-1-git-send-email-sre@debian.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ring0.de ([91.143.88.219]:60242 "EHLO smtp.ring0.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757983Ab3KHWL4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 8 Nov 2013 17:11:56 -0500
+In-Reply-To: <1383948687-32279-1-git-send-email-sre@debian.org>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
 Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@debian.org>
-List-Id: linux-input@vger.kernel.org
 
-Hi,
+Add device tree support for twl4030 power button driver.
 
-This is the seventh iteration of DT support for the TWL4030
-power button.
+Adding device tree support involved converting the
+driver to module_platform_driver().
 
-Changes since v6 [0]:
-* Splitted DT binding documentation into its own patch
-* Updated commit message of first patch
-* Added Reviewed-by: Aaro Koskinen
-* Added Tested-by: Florian Vaussard
-* Added Acked-by: Kumar Gala
+Signed-off-by: Sebastian Reichel <sre@debian.org>
+Acked-by: Kumar Gala <galak@codeaurora.org>
+Tested-by: Florian Vaussard <florian.vaussard@epfl.ch>
+---
+ drivers/input/misc/twl4030-pwrbutton.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-[0] https://lkml.org/lkml/2013/10/24/269
-
--- Sebastian
-
-Sebastian Reichel (4):
-  Input: twl4030-pwrbutton: add device tree support
-  dt: binding documentation for twl4030-pwrbutton
-  Input: twl4030-pwrbutton: use dev_err for errors
-  Input: twl4030-pwrbutton: simplify driver using devm_*
-
- .../bindings/input/twl4030-pwrbutton.txt           | 21 +++++++++++
- drivers/input/misc/twl4030-pwrbutton.c             | 44 +++++++++-------------
- 2 files changed, 38 insertions(+), 27 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt
-
+diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+index b9a05fd..a3a0fe3 100644
+--- a/drivers/input/misc/twl4030-pwrbutton.c
++++ b/drivers/input/misc/twl4030-pwrbutton.c
+@@ -52,7 +52,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static int __init twl4030_pwrbutton_probe(struct platform_device *pdev)
++static int twl4030_pwrbutton_probe(struct platform_device *pdev)
+ {
+ 	struct input_dev *pwr;
+ 	int irq = platform_get_irq(pdev, 0);
+@@ -106,16 +106,24 @@ static int __exit twl4030_pwrbutton_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#if IS_ENABLED(CONFIG_OF)
++static const struct of_device_id twl4030_pwrbutton_dt_match_table[] = {
++       { .compatible = "ti,twl4030-pwrbutton" },
++       {},
++};
++MODULE_DEVICE_TABLE(of, twl4030_pwrbutton_dt_match_table);
++#endif
++
+ static struct platform_driver twl4030_pwrbutton_driver = {
++	.probe		= twl4030_pwrbutton_probe,
+ 	.remove		= __exit_p(twl4030_pwrbutton_remove),
+ 	.driver		= {
+ 		.name	= "twl4030_pwrbutton",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(twl4030_pwrbutton_dt_match_table),
+ 	},
+ };
+-
+-module_platform_driver_probe(twl4030_pwrbutton_driver,
+-			twl4030_pwrbutton_probe);
++module_platform_driver(twl4030_pwrbutton_driver);
+ 
+ MODULE_ALIAS("platform:twl4030_pwrbutton");
+ MODULE_DESCRIPTION("Triton2 Power Button");
 -- 
 1.8.4.rc3
 

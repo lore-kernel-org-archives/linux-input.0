@@ -1,64 +1,124 @@
-From: Sebastian Reichel <sre@debian.org>
-Subject: [PATCHv3 2/2] dt: binding documentation for twl4030-keypad
-Date: Fri,  8 Nov 2013 23:14:26 +0100
-Message-ID: <1383948866-32672-3-git-send-email-sre@debian.org>
-References: <1383948866-32672-1-git-send-email-sre@debian.org>
+From: Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH] HID: sony: Add force feedback support for Dualshock3 USB
+Date: Sat,  9 Nov 2013 19:25:57 +0100
+Message-ID: <1384021557-24106-1-git-send-email-sven@narfation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ring0.de ([91.143.88.219]:60327 "EHLO smtp.ring0.de"
+Received: from narfation.org ([79.140.41.39]:41789 "EHLO v3-1039.vlinux.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758528Ab3KHWSa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 8 Nov 2013 17:18:30 -0500
-In-Reply-To: <1383948866-32672-1-git-send-email-sre@debian.org>
+	id S1756290Ab3KISgr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 9 Nov 2013 13:36:47 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
-Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@debian.org>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Colin Leitner <colin.leitner@gmail.com>, Sven Eckelmann <sven@narfation.org>
 
-Add devicetree binding documentation for twl4030-keypad.
+Sony Dualshock 3 controllers have two motors which can be used to provide
+simple force feedback rumble effects. The right motor is can be used to create
+a weak rumble effect but does not allow to set the force. The left motor is
+used to create a strong rumble effect with adjustable intensity.
 
-Signed-off-by: Sebastian Reichel <sre@debian.org>
+The state of both motors can be changed using HID_OUTPUT_REPORT packets and
+have no timing information. FF memless is used to keep track of the timing and
+the sony driver just generates the necessary URBs.
+
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
- .../devicetree/bindings/input/twl4030-keypad.txt   | 31 ++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/twl4030-keypad.txt
+ drivers/hid/Kconfig    |  8 ++++++++
+ drivers/hid/hid-sony.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 60 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/twl4030-keypad.txt b/Documentation/devicetree/bindings/input/twl4030-keypad.txt
-new file mode 100644
-index 0000000..901d10f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/twl4030-keypad.txt
-@@ -0,0 +1,31 @@
-+* TWL4030's Keypad Controller device tree bindings
+The device will not have any reports. Thus the payload is generated on the fly
+as it is already done in different other places in the driver.
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index a27e531..329fbb9 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -618,6 +618,14 @@ config HID_SONY
+ 	  * Sony PS3 Blue-ray Disk Remote Control (Bluetooth)
+ 	  * Logitech Harmony adapter for Sony Playstation 3 (Bluetooth)
+ 
++config SONY_FF
++	bool "Sony PS2/3 accessories force feedback support"
++	depends on HID_SONY
++	select INPUT_FF_MEMLESS
++	---help---
++	Say Y here if you have a Sony PS2/3 accessory and want to enable force
++	feedback support for it.
 +
-+TWL4030's Keypad controller is used to interface a SoC with a matrix-type
-+keypad device. The keypad controller supports multiple row and column lines.
-+A key can be placed at each intersection of a unique row and a unique column.
-+The keypad controller can sense a key-press and key-release and report the
-+event using a interrupt to the cpu.
-+
-+This binding is based on the matrix-keymap binding with the following
-+changes:
-+
-+ * keypad,num-rows and keypad,num-columns are required.
-+
-+Required SoC Specific Properties:
-+- compatible: should be one of the following
-+   - "ti,twl4030-keypad": For controllers compatible with twl4030 keypad
-+      controller.
-+- interrupt: should be one of the following
-+   - <1>: For controllers compatible with twl4030 keypad controller.
-+
-+Optional Properties specific to linux:
-+- linux,keypad-no-autorepeat: do not enable autorepeat feature.
-+
-+Example:
-+	twl_keypad: keypad {
-+		compatible = "ti,twl4030-keypad";
-+		interrupts = <1>;
-+		keypad,num-rows = <8>;
-+		keypad,num-columns = <8>;
-+		linux,keypad-no-autorepeat;
+ config HID_SPEEDLINK
+ 	tristate "Speedlink VAD Cezanne mouse support"
+ 	depends on HID
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index bc37a18..da551d1 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -614,6 +614,54 @@ static void buzz_remove(struct hid_device *hdev)
+ 	drv_data->extra = NULL;
+ }
+ 
++#ifdef CONFIG_SONY_FF
++static int sony_play_effect(struct input_dev *dev, void *data,
++			    struct ff_effect *effect)
++{
++	unsigned char buf[] = {
++		0x01,
++		0x00, 0xff, 0x00, 0xff, 0x00,
++		0x00, 0x00, 0x00, 0x00, 0x03,
++		0xff, 0x27, 0x10, 0x00, 0x32,
++		0xff, 0x27, 0x10, 0x00, 0x32,
++		0xff, 0x27, 0x10, 0x00, 0x32,
++		0xff, 0x27, 0x10, 0x00, 0x32,
++		0x00, 0x00, 0x00, 0x00, 0x00
 +	};
++	__u8 left;
++	__u8 right;
++	struct hid_device *hid = input_get_drvdata(dev);
++
++	if (effect->type != FF_RUMBLE)
++		return 0;
++
++	left = effect->u.rumble.strong_magnitude / 256;
++	right = effect->u.rumble.weak_magnitude ? 1 : 0;
++
++	buf[3] = right;
++	buf[5] = left;
++
++	return hid->hid_output_raw_report(hid, buf, sizeof(buf),
++					  HID_OUTPUT_REPORT);
++}
++
++static int sony_init_ff(struct hid_device *hdev)
++{
++	struct hid_input *hidinput = list_entry(hdev->inputs.next,
++						struct hid_input, list);
++	struct input_dev *input_dev = hidinput->input;
++
++	input_set_capability(input_dev, EV_FF, FF_RUMBLE);
++	return input_ff_create_memless(input_dev, NULL, sony_play_effect);
++}
++
++#else
++static int sony_init_ff(struct hid_device *hdev)
++{
++	return 0;
++}
++#endif
++
+ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	int ret;
+@@ -663,6 +711,10 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (ret < 0)
+ 		goto err_stop;
+ 
++	ret = sony_init_ff(hdev);
++	if (ret < 0)
++		goto err_stop;
++
+ 	return 0;
+ err_stop:
+ 	hid_hw_stop(hdev);
 -- 
-1.8.4.rc3
+1.8.4.2
 

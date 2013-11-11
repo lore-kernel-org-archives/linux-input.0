@@ -1,43 +1,36 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/2] Input: usbtouchscreen: ignore eGalax/D-Wav/EETI
- HIDs
-Date: Mon, 11 Nov 2013 11:21:42 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1311111121290.7751@pobox.suse.cz>
-References: <20131021163818.GB30240@alittletooquiet.net> <alpine.LNX.2.00.1311051052530.2779@pobox.suse.cz> <20131108174937.GB17307@core.coreip.homeip.net>
+Subject: Re: [PATCH] HID: sony: Add force feedback support for Dualshock3
+ USB
+Date: Mon, 11 Nov 2013 11:26:58 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1311111126500.7751@pobox.suse.cz>
+References: <1384021557-24106-1-git-send-email-sven@narfation.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53183 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:53480 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753283Ab3KKKVq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Nov 2013 05:21:46 -0500
-In-Reply-To: <20131108174937.GB17307@core.coreip.homeip.net>
+	id S1752808Ab3KKK1C (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Nov 2013 05:27:02 -0500
+In-Reply-To: <1384021557-24106-1-git-send-email-sven@narfation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Forest Bond <forest@forestbond.com>, linux-input@vger.kernel.org, =?ISO-8859-15?Q?Sebastian_Dalfu=DF?= <sd@sedf.de>, Daniel Ritz <daniel.ritz@gmx.ch>, Max Weninger <max.weninger@gmail.com>, Christian Engelmayer <christian.engelmayer@frequentis.com>
+To: Sven Eckelmann <sven@narfation.org>
+Cc: linux-input@vger.kernel.org, Colin Leitner <colin.leitner@gmail.com>
 
-On Fri, 8 Nov 2013, Dmitry Torokhov wrote:
+On Sat, 9 Nov 2013, Sven Eckelmann wrote:
 
-> > > From: Forest Bond <forest.bond@rapidrollout.com>
-> > > 
-> > > The HID driver now handles these devices, regardless of what protocol
-> > > the device claims it supports.
-> > > 
-> > > Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
-> > 
-> > Dmitry,
-> > 
-> > could you please Ack this, so that it can be applied together with 1/2? 
-> > Thanks!
+> Sony Dualshock 3 controllers have two motors which can be used to provide
+> simple force feedback rumble effects. The right motor is can be used to create
+> a weak rumble effect but does not allow to set the force. The left motor is
+> used to create a strong rumble effect with adjustable intensity.
 > 
-> Jiri,
+> The state of both motors can be changed using HID_OUTPUT_REPORT packets and
+> have no timing information. FF memless is used to keep track of the timing and
+> the sony driver just generates the necessary URBs.
 > 
-> Sorry for the delay. Yes, please merge through your tree.
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Sven Eckelmann <sven@narfation.org>
 
-Thanks, I have applied both patches now.
+Applied, thanks.
 
 -- 
 Jiri Kosina

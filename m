@@ -1,38 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] Input: tnetv107x-keypad - make irqs signed for error
- handling
-Date: Sun, 10 Nov 2013 23:31:42 -0800
-Message-ID: <20131111073142.GB7645@core.coreip.homeip.net>
-References: <20131107075240.GK21844@elgon.mountain>
+Subject: Re: [PATCH] Input: mpu3050 - add missing i2c_set_clientdata() in
+ mpu3050_probe()
+Date: Sun, 10 Nov 2013 23:34:47 -0800
+Message-ID: <20131111073447.GC7645@core.coreip.homeip.net>
+References: <CAPgLHd-ujkwTBn=hUH6SxfhHpYHyGqvrkcyuRTFkXmWtqE2Zjg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:39185 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751419Ab3KKHbq (ORCPT
+Received: from mail-pb0-f50.google.com ([209.85.160.50]:55941 "EHLO
+	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750929Ab3KKHeu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Nov 2013 02:31:46 -0500
+	Mon, 11 Nov 2013 02:34:50 -0500
+Received: by mail-pb0-f50.google.com with SMTP id xb12so768603pbc.23
+        for <linux-input@vger.kernel.org>; Sun, 10 Nov 2013 23:34:50 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20131107075240.GK21844@elgon.mountain>
+In-Reply-To: <CAPgLHd-ujkwTBn=hUH6SxfhHpYHyGqvrkcyuRTFkXmWtqE2Zjg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Javier Martinez Canillas <javier@dowhile0.org>, Russell King <rmk+kernel@arm.linux.org.uk>, Sachin Kamat <sachin.kamat@linaro.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: grant.likely@linaro.org, rob.herring@calxeda.com, wfp5p@virginia.edu, broonie@opensource.wolfsonmicro.com, javier@dowhile0.org, rmk+kernel@arm.linux.org.uk, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
 
-On Thu, Nov 07, 2013 at 10:52:40AM +0300, Dan Carpenter wrote:
-> There is a bug in keypad_probe() where we do:
+On Mon, Nov 11, 2013 at 02:18:54PM +0800, Wei Yongjun wrote:
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 > 
-> 	kp->irq_press   = platform_get_irq_byname(pdev, "press");
-> 	kp->irq_release = platform_get_irq_byname(pdev, "release");
-> 	if (kp->irq_press < 0 || kp->irq_release < 0) {
+> Add missing i2c_set_clientdata() in mpu3050_probe(), otherwise
+> calling i2c_get_clientdata() in mpu3050_remove() returns NULL.
 > 
-> The problem is that these irq variables are unsigned so the error
-> handling doesn't work.  I've changed them to signed values.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
 Applied, thank you.
+
+> ---
+>  drivers/input/misc/mpu3050.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
+> index dce0d95..6983ffb 100644
+> --- a/drivers/input/misc/mpu3050.c
+> +++ b/drivers/input/misc/mpu3050.c
+> @@ -383,6 +383,7 @@ static int mpu3050_probe(struct i2c_client *client,
+>  
+>  	pm_runtime_enable(&client->dev);
+>  	pm_runtime_set_autosuspend_delay(&client->dev, MPU3050_AUTO_DELAY);
+> +	i2c_set_clientdata(client, sensor);
+>  
+>  	return 0;
+>  
+> 
 
 -- 
 Dmitry

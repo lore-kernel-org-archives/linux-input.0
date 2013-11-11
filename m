@@ -1,37 +1,33 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: sony: Add force feedback support for Dualshock3
- USB
-Date: Mon, 11 Nov 2013 11:26:58 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1311111126500.7751@pobox.suse.cz>
-References: <1384021557-24106-1-git-send-email-sven@narfation.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH v3] add sur40 driver for Samsung SUR40 (aka MS Surface
+ 2.0/Pixelsense)
+Date: Mon, 11 Nov 2013 11:27:10 +0100
+Message-ID: <5280B0FE.5080203@euromail.se>
+References: <1383748012-28880-1-git-send-email-floe@butterbrot.org> <20131111073105.GA7645@core.coreip.homeip.net> <5280AC87.4020905@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53480 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752808Ab3KKK1C (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Nov 2013 05:27:02 -0500
-In-Reply-To: <1384021557-24106-1-git-send-email-sven@narfation.org>
+Received: from smtprelay-h31.telenor.se ([213.150.131.4]:47534 "EHLO
+	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753134Ab3KKKpq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 Nov 2013 05:45:46 -0500
+Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
+	by smtprelay-h31.telenor.se (Postfix) with ESMTP id 9BCFEE8A57
+	for <linux-input@vger.kernel.org>; Mon, 11 Nov 2013 11:25:15 +0100 (CET)
+In-Reply-To: <5280AC87.4020905@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sven Eckelmann <sven@narfation.org>
-Cc: linux-input@vger.kernel.org, Colin Leitner <colin.leitner@gmail.com>
+To: Florian Echtler <floe@butterbrot.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, dh.herrmann@gmail.com
 
-On Sat, 9 Nov 2013, Sven Eckelmann wrote:
+ >> Also, does the patch below mess up or device or it still works?
+> I'll test this tomorrow (no access to SUR40 today). If everything works,
+> should I resubmit my patch with yours included or just tell you that
+> it's fine?
 
-> Sony Dualshock 3 controllers have two motors which can be used to provide
-> simple force feedback rumble effects. The right motor is can be used to create
-> a weak rumble effect but does not allow to set the force. The left motor is
-> used to create a strong rumble effect with adjustable intensity.
-> 
-> The state of both motors can be changed using HID_OUTPUT_REPORT packets and
-> have no timing information. FF memless is used to keep track of the timing and
-> the sony driver just generates the necessary URBs.
-> 
-> Signed-off-by: Sven Eckelmann <sven@narfation.org>
+No need to resubmit, a confirmation will do nicely. Thanks!
 
-Applied, thanks.
+Henrik
 
--- 
-Jiri Kosina
-SUSE Labs

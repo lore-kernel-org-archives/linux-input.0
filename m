@@ -1,53 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: mma8450 - add missing i2c_set_clientdata() in
- mma8450_probe()
-Date: Sun, 10 Nov 2013 23:37:04 -0800
-Message-ID: <20131111073704.GD7645@core.coreip.homeip.net>
-References: <CAPgLHd-02-tPeJghvYq+ZB9_MxdRKQ7Kvdqf2YdB=0wg9MoXow@mail.gmail.com>
+Subject: Re: [PATCH] Input: replace IS_ERR and PTR_ERR with PTR_ERR_OR_ZERO
+Date: Sun, 10 Nov 2013 23:42:34 -0800
+Message-ID: <20131111074234.GF7645@core.coreip.homeip.net>
+References: <1383724472-15475-1-git-send-email-duanj.fnst@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f42.google.com ([209.85.220.42]:62923 "EHLO
-	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751220Ab3KKHhH (ORCPT
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:46545 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751354Ab3KKHmh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Nov 2013 02:37:07 -0500
-Received: by mail-pa0-f42.google.com with SMTP id kp14so4995512pab.15
-        for <linux-input@vger.kernel.org>; Sun, 10 Nov 2013 23:37:07 -0800 (PST)
+	Mon, 11 Nov 2013 02:42:37 -0500
 Content-Disposition: inline
-In-Reply-To: <CAPgLHd-02-tPeJghvYq+ZB9_MxdRKQ7Kvdqf2YdB=0wg9MoXow@mail.gmail.com>
+In-Reply-To: <1383724472-15475-1-git-send-email-duanj.fnst@cn.fujitsu.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: grant.likely@linaro.org, rob.herring@calxeda.com, wfp5p@virginia.edu, broonie@opensource.wolfsonmicro.com, javier@dowhile0.org, sebastien.royen@armadeus.com, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
+To: Duan Jiong <duanj.fnst@cn.fujitsu.com>
+Cc: kernel@pengutronix.de, linux@arm.linux.org.uk, a.zummo@towertech.it, airlied@linux.ie, linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Nov 11, 2013 at 02:24:20PM +0800, Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+On Wed, Nov 06, 2013 at 03:54:32PM +0800, Duan Jiong wrote:
+> This patch fixes coccinelle error regarding usage of IS_ERR and
+> PTR_ERR instead of PTR_ERR_OR_ZERO.
 > 
-> Add missing i2c_set_clientdata() in mma8450_probe(), otherwise
-> calling i2c_get_clientdata() in mma8450_remove() returns NULL.
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> Signed-off-by: Duan Jiong <duanj.fnst@cn.fujitsu.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/misc/mma8450.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/input/touchscreen/cyttsp4_spi.c | 5 +----
+>  1 file changed, 1 insertion(+), 4 deletions(-)
 > 
-> diff --git a/drivers/input/misc/mma8450.c b/drivers/input/misc/mma8450.c
-> index f330969..92c43a1 100644
-> --- a/drivers/input/misc/mma8450.c
-> +++ b/drivers/input/misc/mma8450.c
-> @@ -204,6 +204,8 @@ static int mma8450_probe(struct i2c_client *c,
->  		goto err_free_mem;
->  	}
+> diff --git a/drivers/input/touchscreen/cyttsp4_spi.c b/drivers/input/touchscreen/cyttsp4_spi.c
+> index a71e114..b19434c 100644
+> --- a/drivers/input/touchscreen/cyttsp4_spi.c
+> +++ b/drivers/input/touchscreen/cyttsp4_spi.c
+> @@ -171,10 +171,7 @@ static int cyttsp4_spi_probe(struct spi_device *spi)
+>  	ts = cyttsp4_probe(&cyttsp_spi_bus_ops, &spi->dev, spi->irq,
+>  			  CY_SPI_DATA_BUF_SIZE);
 >  
-> +	i2c_set_clientdata(c, m);
-> +
->  	return 0;
+> -	if (IS_ERR(ts))
+> -		return PTR_ERR(ts);
+> -
+> -	return 0;
+> +	return PTR_ERR_OR_ZERO(ts);
+>  }
 >  
->  err_free_mem:
+>  static int cyttsp4_spi_remove(struct spi_device *spi)
+> -- 
+> 1.8.3.1
 > 
 
 -- 

@@ -1,33 +1,76 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH v3] add sur40 driver for Samsung SUR40 (aka MS Surface
- 2.0/Pixelsense)
-Date: Mon, 11 Nov 2013 11:27:10 +0100
-Message-ID: <5280B0FE.5080203@euromail.se>
-References: <1383748012-28880-1-git-send-email-floe@butterbrot.org> <20131111073105.GA7645@core.coreip.homeip.net> <5280AC87.4020905@butterbrot.org>
+From: Forest Bond <forest@forestbond.com>
+Subject: Re: [PATCH 2/2] Input: usbtouchscreen: ignore eGalax/D-Wav/EETI
+ HIDs
+Date: Mon, 11 Nov 2013 08:06:41 -0500
+Message-ID: <20131111130641.GP12687@alittletooquiet.net>
+References: <20131021163818.GB30240@alittletooquiet.net>
+ <alpine.LNX.2.00.1311051052530.2779@pobox.suse.cz>
+ <20131108174937.GB17307@core.coreip.homeip.net>
+ <alpine.LNX.2.00.1311111121290.7751@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/2994txjAzEdQwm5"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h31.telenor.se ([213.150.131.4]:47534 "EHLO
-	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753134Ab3KKKpq (ORCPT
+Received: from storm.alittletooquiet.net ([67.23.28.199]:48223 "EHLO
+	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753222Ab3KKNXQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Nov 2013 05:45:46 -0500
-Received: from ipb1.telenor.se (ipb1.telenor.se [195.54.127.164])
-	by smtprelay-h31.telenor.se (Postfix) with ESMTP id 9BCFEE8A57
-	for <linux-input@vger.kernel.org>; Mon, 11 Nov 2013 11:25:15 +0100 (CET)
-In-Reply-To: <5280AC87.4020905@butterbrot.org>
+	Mon, 11 Nov 2013 08:23:16 -0500
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1311111121290.7751@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, dh.herrmann@gmail.com
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Sebastian =?iso-8859-1?Q?Dalfu=DF?= <sd@sedf.de>, Daniel Ritz <daniel.ritz@gmx.ch>, Max Weninger <max.weninger@gmail.com>, Christian Engelmayer <christian.engelmayer@frequentis.com>
 
- >> Also, does the patch below mess up or device or it still works?
-> I'll test this tomorrow (no access to SUR40 today). If everything works,
-> should I resubmit my patch with yours included or just tell you that
-> it's fine?
 
-No need to resubmit, a confirmation will do nicely. Thanks!
+--/2994txjAzEdQwm5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Henrik
+Hi,
 
+On Mon, Nov 11, 2013 at 11:21:42AM +0100, Jiri Kosina wrote:
+> On Fri, 8 Nov 2013, Dmitry Torokhov wrote:
+>=20
+> > > > From: Forest Bond <forest.bond@rapidrollout.com>
+> > > >=20
+> > > > The HID driver now handles these devices, regardless of what protoc=
+ol
+> > > > the device claims it supports.
+> > > >=20
+> > > > Signed-off-by: Forest Bond <forest.bond@rapidrollout.com>
+> > >=20
+> > > Dmitry,
+> > >=20
+> > > could you please Ack this, so that it can be applied together with 1/=
+2?=20
+> > > Thanks!
+> >=20
+> > Jiri,
+> >=20
+> > Sorry for the delay. Yes, please merge through your tree.
+> >=20
+> > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>=20
+> Thanks, I have applied both patches now.
+
+Thanks for your help, Dmitry and Jiri.
+
+-Forest
+
+--/2994txjAzEdQwm5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlKA1mEACgkQRO4fQQdv5Awp9gCgmOFTrkO8DCkpwQSmF5dGU2Ey
+4IsAn0q8jPJlpeVerIK7sNNktkllOTlA
+=k31I
+-----END PGP SIGNATURE-----
+
+--/2994txjAzEdQwm5--

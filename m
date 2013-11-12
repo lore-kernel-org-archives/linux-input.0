@@ -1,70 +1,68 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH] Input: Add new driver for GPIO beeper
-Date: Tue, 12 Nov 2013 12:23:46 -0700
-Message-ID: <52828042.4050501@wwwdotorg.org>
-References: <1384250833-4600-1-git-send-email-shc_work@mail.ru> <20131112101544.GD2976@e106331-lin.cambridge.arm.com> <1384253277.731839001@f27.i.mail.ru> <20131112105930.GE2976@e106331-lin.cambridge.arm.com>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH v2 00/19] Enable various Renesas drivers on all ARM
+	platforms
+Date: Wed, 13 Nov 2013 00:32:06 +0100
+Message-ID: <55374441.jb1As8srky@avalon>
+References: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avon.wwwdotorg.org ([70.85.31.133]:55977 "EHLO
-	avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754089Ab3KLTX4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Nov 2013 14:23:56 -0500
-In-Reply-To: <20131112105930.GE2976@e106331-lin.cambridge.arm.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Guennadi Liakhovetski <g.liakhovetski+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <eduardo.valentin-l0cyMroinI0@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <samuel-jcdQHdrhKHMdnm+yROfE0A@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ian Molton <ian-zdned+2MO1+9FHfhHBbuYA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, xfoundat@
 List-Id: linux-input@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>, Alexander Shiyan <shc_work@mail.ru>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>
 
-On 11/12/2013 03:59 AM, Mark Rutland wrote:
-> On Tue, Nov 12, 2013 at 10:47:57AM +0000, Alexander Shiyan wrote:
->> Hello.
->>
->>> On Tue, Nov 12, 2013 at 10:07:13AM +0000, Alexander Shiyan wrote:
->>>> This patch adds a new driver for the beeper controlled via GPIO pin.
->>>> The driver does not depend on the architecture and is positioned as
->>>> a replacement for the specific drivers that are used for this function.
->>>>
->>>> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
->> ...
->>>> diff --git a/Documentation/devicetree/bindings/input/gpio-beeper.txt b/Documentation/devicetree/bindings/input/gpio-beeper.txt
->> ...
->>>> +Example:
->>>> +
->>>> +beeper: input@0 {
->>>> +	compatible = "gpio-beeper";
->>>> +	reg = <0>;
->>>> +	gpios = <&gpio3 23 0>;
->>>> +};
->>>
->>> What are the reg / unit-address for?
->>
->> Just an example from "simple-bus" container.
-> 
-> If they have no meaning, they should go. They're unnecessary and make
-> things more confusing.
-> 
-> I'd expect the example to be:
-> 
-> beeper: beeper {
-> 	compatible = "gpio-beeper";
-> 	gpios - <&gpio3 23 0>;
-> };
-> 
-> And if we have multiple beepers, something like:
-> 
-> beeper0: beeper0 { ... };
-> beeper1: beeper1 { ... };
+Hello,
 
-DT node names aren't meant to encode identity though. What we've done in
-the past for nodes without a reg where multiple instances were desired
-is to put them into simple-bus and add a reg, so:
+On Tuesday 29 October 2013 23:37:35 Laurent Pinchart wrote:
+> Hello,
+> 
+> This patch series, based on v3.12-rc7, prepares various Renesas drivers
+> for migration to multiplatform kernels by enabling their compilation or
+> otherwise fixing them on all ARM platforms. The patches are pretty
+> straightforward and are described in their commit message.
+> 
+> Changes since v1:
+> 
+> - The drivers can also be selected when COMPILE_TEST is enabled, regardless
+> of the architecture. This should provide a good compromise between wide
+> build test coverage and not clobbering configuration with drivers useless
+> on non-SuperH, non-ARM platforms.
+> 
+> - DMA configuration is now unconditional in patch 08/19
+> 
+> I'd like to get all these patches merged in v3.14. As they will need to go
+> through their respective subsystems' trees, I would appreciate if all
+> maintainers involved could notify me when they merge patches from this
+> series in their tree to help me tracking the merge status. I don't plan to
+> send pull requests individually for these patches, and I will repost
+> patches individually if changes are requested during review.
+> 
+> If you believe the issue should be solved in a different way please reply to
+> the cover letter to let other maintainers chime in.
 
-beeper0: beeper@0 { reg = <0>; ... };
-beeper1: beeper@1 { reg = <1>; ... };
+This patch series was a prerequisite for a larger rework of Renesas platforms. 
+However, we've decided to go with an alternative approach that renames Kconfig 
+symbols to avoid touching all the drivers. There is thus no urgency to apply 
+this series anymore.
 
-Of course, if there's only one of them, then it could just be "beeper"
-with no reg. The binding and example should probably reflect that simple
-case.
+I still plan to enable COMPILE_TEST on Renesas drivers. I will send a v3 of 
+these patches based on the feedback received on v2. Patches from v2 that have 
+already been applied can be dropped, but there's no need to revert them rebase 
+trees as they're not invalid per-se. I will make sure to address the situation 
+in v3. I'm sorry for the inconvenience.
+
+-- 
+Regards,
+
+Laurent Pinchart

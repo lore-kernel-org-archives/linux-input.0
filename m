@@ -1,217 +1,59 @@
-From: Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH RESEND 1/3] input: gpio_keys_polled: Convert to devm-* API
-Date: Tue, 12 Nov 2013 14:38:23 +0400
-Message-ID: <1384252705-18553-1-git-send-email-shc_work@mail.ru>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH v3] add sur40 driver for Samsung SUR40 (aka MS Surface
+ 2.0/Pixelsense)
+Date: Tue, 12 Nov 2013 14:35:07 +0100
+Message-ID: <52822E8B.6030906@butterbrot.org>
+References: <1383748012-28880-1-git-send-email-floe@butterbrot.org> <20131111073105.GA7645@core.coreip.homeip.net> <5280AC87.4020905@butterbrot.org> <5280B0FE.5080203@euromail.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="AwU5Q0leexfS4vosi1eSgeeEBbS46sNRP"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback8.mail.ru ([94.100.176.136]:41894 "EHLO
-	fallback8.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751214Ab3KLLMB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Nov 2013 06:12:01 -0500
-Received: from smtp48.i.mail.ru (smtp48.i.mail.ru [94.100.177.108])
-	by fallback8.mail.ru (mPOP.Fallback_MX) with ESMTP id BB1E444D9D38
-	for <linux-input@vger.kernel.org>; Tue, 12 Nov 2013 14:41:58 +0400 (MSK)
+Received: from butterbrot.org ([176.9.106.16]:33542 "EHLO butterbrot.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754749Ab3KLNfN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Nov 2013 08:35:13 -0500
+In-Reply-To: <5280B0FE.5080203@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Shiyan <shc_work@mail.ru>
+To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, dh.herrmann@gmail.com
 
-Replace existing resource handling in the driver with managed
-device resource, this ensures more consistent error values and
-simplifies error paths.
-kzalloc -> devm_kzalloc
-gpio_request_one -> devm_gpio_request_one
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--AwU5Q0leexfS4vosi1eSgeeEBbS46sNRP
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
----
- drivers/input/keyboard/gpio_keys_polled.c | 87 ++++++++-----------------------
- 1 file changed, 23 insertions(+), 64 deletions(-)
+On 11.11.2013 11:27, Henrik Rydberg wrote:
+>  >> Also, does the patch below mess up or device or it still works?
+>> I'll test this tomorrow (no access to SUR40 today). If everything work=
+s,
+>> should I resubmit my patch with yours included or just tell you that
+>> it's fine?
+> No need to resubmit, a confirmation will do nicely. Thanks!
+> Henrik
 
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index 4e42819..0dce49d 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -109,9 +109,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 	struct device_node *node, *pp;
- 	struct gpio_keys_platform_data *pdata;
- 	struct gpio_keys_button *button;
--	int error;
--	int nbuttons;
--	int i;
-+	int i, nbuttons;
- 
- 	node = dev->of_node;
- 	if (!node)
-@@ -121,12 +119,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 	if (nbuttons == 0)
- 		return NULL;
- 
--	pdata = kzalloc(sizeof(*pdata) + nbuttons * (sizeof *button),
--			GFP_KERNEL);
--	if (!pdata) {
--		error = -ENOMEM;
--		goto err_out;
--	}
-+	pdata = devm_kzalloc(dev, sizeof(*pdata) + nbuttons * (sizeof *button),
-+			     GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
- 
- 	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
- 	pdata->nbuttons = nbuttons;
-@@ -147,12 +143,11 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 
- 		gpio = of_get_gpio_flags(pp, 0, &flags);
- 		if (gpio < 0) {
--			error = gpio;
--			if (error != -EPROBE_DEFER)
-+			if (gpio != -EPROBE_DEFER)
- 				dev_err(dev,
- 					"Failed to get gpio flags, error: %d\n",
--					error);
--			goto err_free_pdata;
-+					gpio);
-+			return ERR_PTR(gpio);
- 		}
- 
- 		button = &pdata->buttons[i++];
-@@ -163,8 +158,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
- 			dev_err(dev, "Button without keycode: 0x%x\n",
- 				button->gpio);
--			error = -EINVAL;
--			goto err_free_pdata;
-+			return ERR_PTR(-EINVAL);
- 		}
- 
- 		button->desc = of_get_property(pp, "label", NULL);
-@@ -179,17 +173,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 			button->debounce_interval = 5;
- 	}
- 
--	if (pdata->nbuttons == 0) {
--		error = -EINVAL;
--		goto err_free_pdata;
--	}
-+	if (!pdata->nbuttons)
-+		return ERR_PTR(-EINVAL);
- 
- 	return pdata;
--
--err_free_pdata:
--	kfree(pdata);
--err_out:
--	return ERR_PTR(error);
- }
- 
- static struct of_device_id gpio_keys_polled_of_match[] = {
-@@ -229,24 +216,21 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	if (!pdata->poll_interval) {
- 		dev_err(dev, "missing poll_interval value\n");
--		error = -EINVAL;
--		goto err_free_pdata;
-+		return -EINVAL;
- 	}
- 
--	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
--		       pdata->nbuttons * sizeof(struct gpio_keys_button_data),
--		       GFP_KERNEL);
-+	bdev = devm_kzalloc(&pdev->dev, sizeof(struct gpio_keys_polled_dev) +
-+		pdata->nbuttons * sizeof(struct gpio_keys_button_data),
-+		GFP_KERNEL);
- 	if (!bdev) {
- 		dev_err(dev, "no memory for private data\n");
--		error = -ENOMEM;
--		goto err_free_pdata;
-+		return -ENOMEM;
- 	}
- 
- 	poll_dev = input_allocate_polled_device();
- 	if (!poll_dev) {
- 		dev_err(dev, "no memory for polled device\n");
--		error = -ENOMEM;
--		goto err_free_bdev;
-+		return -ENOMEM;
- 	}
- 
- 	poll_dev->private = bdev;
-@@ -279,15 +263,15 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 		if (button->wakeup) {
- 			dev_err(dev, DRV_NAME " does not support wakeup\n");
- 			error = -EINVAL;
--			goto err_free_gpio;
-+			goto err_out;
- 		}
- 
--		error = gpio_request_one(gpio, GPIOF_IN,
--					 button->desc ?: DRV_NAME);
-+		error = devm_gpio_request_one(&pdev->dev, gpio, GPIOF_IN,
-+					      button->desc ? : DRV_NAME);
- 		if (error) {
- 			dev_err(dev, "unable to claim gpio %u, err=%d\n",
- 				gpio, error);
--			goto err_free_gpio;
-+			goto err_out;
- 		}
- 
- 		bdata->can_sleep = gpio_cansleep(gpio);
-@@ -307,7 +291,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 	if (error) {
- 		dev_err(dev, "unable to register polled device, err=%d\n",
- 			error);
--		goto err_free_gpio;
-+		goto err_out;
- 	}
- 
- 	/* report initial state of the buttons */
-@@ -317,45 +301,20 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
--err_free_gpio:
--	while (--i >= 0)
--		gpio_free(pdata->buttons[i].gpio);
--
-+err_out:
- 	input_free_polled_device(poll_dev);
- 
--err_free_bdev:
--	kfree(bdev);
--
--err_free_pdata:
--	/* If we have no platform_data, we allocated pdata dynamically.  */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
--
- 	return error;
- }
- 
- static int gpio_keys_polled_remove(struct platform_device *pdev)
- {
- 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
--	const struct gpio_keys_platform_data *pdata = bdev->pdata;
--	int i;
- 
- 	input_unregister_polled_device(bdev->poll_dev);
- 
--	for (i = 0; i < pdata->nbuttons; i++)
--		gpio_free(pdata->buttons[i].gpio);
--
- 	input_free_polled_device(bdev->poll_dev);
- 
--	/*
--	 * If we had no platform_data, we allocated pdata dynamically and
--	 * must free it here.
--	 */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
--
--	kfree(bdev);
--
- 	return 0;
- }
- 
--- 
-1.8.1.5
+I've tested Dmitry's additional patch, confirmed to work. Just for the
+record:
 
+Tested-by: Florian Echtler <floe@butterbrot.org>
+
+BR, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
+
+
+--AwU5Q0leexfS4vosi1eSgeeEBbS46sNRP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAlKCLosACgkQ7CzyshGvathZ6QCg9HNdcPgu3bydjHeoF0FxBZlj
+X3gAnR/HgXmfyjg8MgCIAYH+9SUMUlDR
+=KfM3
+-----END PGP SIGNATURE-----
+
+--AwU5Q0leexfS4vosi1eSgeeEBbS46sNRP--

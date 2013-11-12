@@ -1,59 +1,120 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: Re: [PATCH v3] add sur40 driver for Samsung SUR40 (aka MS Surface
- 2.0/Pixelsense)
-Date: Tue, 12 Nov 2013 14:35:07 +0100
-Message-ID: <52822E8B.6030906@butterbrot.org>
-References: <1383748012-28880-1-git-send-email-floe@butterbrot.org> <20131111073105.GA7645@core.coreip.homeip.net> <5280AC87.4020905@butterbrot.org> <5280B0FE.5080203@euromail.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="AwU5Q0leexfS4vosi1eSgeeEBbS46sNRP"
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4/5 v3] input: tc3589x-keypad: support probing from device tree
+Date: Tue, 12 Nov 2013 16:31:01 +0100
+Message-ID: <1384270261-15889-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:33542 "EHLO butterbrot.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754749Ab3KLNfN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Nov 2013 08:35:13 -0500
-In-Reply-To: <5280B0FE.5080203@euromail.se>
+Received: from mail-we0-f175.google.com ([74.125.82.175]:54543 "EHLO
+	mail-we0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755455Ab3KLPbK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Nov 2013 10:31:10 -0500
+Received: by mail-we0-f175.google.com with SMTP id t60so813714wes.34
+        for <linux-input@vger.kernel.org>; Tue, 12 Nov 2013 07:31:09 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@gmail.com, dh.herrmann@gmail.com
+To: devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---AwU5Q0leexfS4vosi1eSgeeEBbS46sNRP
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Implement device tree probing for the tc3589x keypad driver.
+This is modeled on the STMPE keypad driver and tested on the
+Ux500 TVK1281618 UIB.
 
-On 11.11.2013 11:27, Henrik Rydberg wrote:
->  >> Also, does the patch below mess up or device or it still works?
->> I'll test this tomorrow (no access to SUR40 today). If everything work=
-s,
->> should I resubmit my patch with yours included or just tell you that
->> it's fine?
-> No need to resubmit, a confirmation will do nicely. Thanks!
-> Henrik
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ChangeLog v2->v3:
+- Use two local u32 variables to avoid weirdness in u8 casting
+  of the resulting values to the pointers.
+ChangeLog v1->v2:
+- Fix rows/columns binding to read two u32's insead of two
+  u8 /bits/ as noted by Mark Rutland.
+---
+ drivers/input/keyboard/tc3589x-keypad.c | 66 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 64 insertions(+), 2 deletions(-)
 
-I've tested Dmitry's additional patch, confirmed to work. Just for the
-record:
+diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/keyboard/tc3589x-keypad.c
+index 208de7cbb7fa..7f36e7addb86 100644
+--- a/drivers/input/keyboard/tc3589x-keypad.c
++++ b/drivers/input/keyboard/tc3589x-keypad.c
+@@ -297,6 +297,65 @@ static void tc3589x_keypad_close(struct input_dev *input)
+ 	tc3589x_keypad_disable(keypad);
+ }
+ 
++#ifdef CONFIG_OF
++static const struct tc3589x_keypad_platform_data *
++tc3589x_keypad_of_probe(struct device *dev)
++{
++	struct device_node *np = dev->of_node;
++	struct tc3589x_keypad_platform_data *plat;
++	u32 cols, rows;
++	u32 debounce_ms;
++	int proplen;
++
++	if (!np)
++		return ERR_PTR(-ENODEV);
++
++	plat = devm_kzalloc(dev, sizeof(*plat), GFP_KERNEL);
++	if (!plat)
++		return ERR_PTR(-ENOMEM);
++
++	of_property_read_u32(np, "keypad,num-columns", &cols);
++	of_property_read_u32(np, "keypad,num-rows", &rows);
++	plat->kcol = (u8) cols;
++	plat->krow = (u8) rows;
++	if (!plat->krow || !plat->kcol ||
++	     plat->krow > TC_KPD_ROWS || plat->kcol > TC_KPD_COLUMNS) {
++		dev_err(dev,
++			"keypad columns/rows not properly specified (%ux%u)\n",
++			plat->kcol, plat->krow);
++		return ERR_PTR(-EINVAL);
++	}
++
++	if (!of_get_property(np, "linux,keymap", &proplen)) {
++		dev_err(dev, "property linux,keymap not found\n");
++		return ERR_PTR(-ENOENT);
++	}
++
++	plat->no_autorepeat = of_property_read_bool(np, "linux,no-autorepeat");
++	plat->enable_wakeup = of_property_read_bool(np, "linux,wakeup");
++
++	/* The custom delay format is ms/16 */
++	of_property_read_u32(np, "debounce-delay-ms", &debounce_ms);
++	if (debounce_ms)
++		plat->debounce_period = debounce_ms * 16;
++	else
++		plat->debounce_period = TC_KPD_DEBOUNCE_PERIOD;
++
++	plat->settle_time = TC_KPD_SETTLE_TIME;
++	/* FIXME: should be property of the IRQ resource? */
++	plat->irqtype = IRQF_TRIGGER_FALLING;
++
++	return plat;
++}
++#else
++static inline const struct tc3589x_keypad_platform_data *
++tc3589x_keypad_of_probe(struct device *dev)
++{
++	return ERR_PTR(-ENODEV);
++}
++#endif
++
++
+ static int tc3589x_keypad_probe(struct platform_device *pdev)
+ {
+ 	struct tc3589x *tc3589x = dev_get_drvdata(pdev->dev.parent);
+@@ -307,8 +366,11 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
+ 
+ 	plat = tc3589x->pdata->keypad;
+ 	if (!plat) {
+-		dev_err(&pdev->dev, "invalid keypad platform data\n");
+-		return -EINVAL;
++		plat = tc3589x_keypad_of_probe(&pdev->dev);
++		if (IS_ERR(plat)) {
++			dev_err(&pdev->dev, "invalid keypad platform data\n");
++			return PTR_ERR(plat);
++		}
+ 	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-- 
+1.8.3.1
 
-Tested-by: Florian Echtler <floe@butterbrot.org>
-
-BR, Florian
---=20
-SENT FROM MY DEC VT50 TERMINAL
-
-
---AwU5Q0leexfS4vosi1eSgeeEBbS46sNRP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAlKCLosACgkQ7CzyshGvathZ6QCg9HNdcPgu3bydjHeoF0FxBZlj
-X3gAnR/HgXmfyjg8MgCIAYH+9SUMUlDR
-=KfM3
------END PGP SIGNATURE-----
-
---AwU5Q0leexfS4vosi1eSgeeEBbS46sNRP--

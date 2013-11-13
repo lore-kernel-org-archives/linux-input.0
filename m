@@ -1,57 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: input question: ambient light sensor button
-Date: Wed, 13 Nov 2013 08:28:40 -0800
-Message-ID: <20131113162840.GB11657@core.coreip.homeip.net>
-References: <201309151553.34000@pali>
- <alpine.LNX.2.00.1311131146410.22940@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH] input synaptics-rmi4: Fix camel case in comments.
+Date: Wed, 13 Nov 2013 13:15:25 -0800
+Message-ID: <1384377325-29380-1-git-send-email-cheiny@synaptics.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f41.google.com ([209.85.220.41]:45712 "EHLO
-	mail-pa0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754138Ab3KMQ2o (ORCPT
+Received: from [192.147.44.15] ([192.147.44.15]:12120 "EHLO
+	localhost.localdomain" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751931Ab3KMWCs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Nov 2013 11:28:44 -0500
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1311131146410.22940@pobox.suse.cz>
+	Wed, 13 Nov 2013 17:02:48 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>
 
-On Wed, Nov 13, 2013 at 11:47:18AM +0100, Jiri Kosina wrote:
-> On Sun, 15 Sep 2013, Pali Roh=E1r wrote:
->=20
-> > I do not know where to ask this question, but I think that kernel=20
-> > developers could help me.
-> >=20
-> > I have notebook with one special button on keyboard which is=20
-> > designed for turning ambient light sensor on and off. By default=20
-> > pressing button do nothing (I can turn ambient light sensor on/off=20
-> > via sysfs platform wmi module). Button press is reported by=20
-> > kernel input device AT Translated Set 2 keyboard and reports it=20
-> > as button "touchpad off".
-> >=20
-> > Of course "touchpad off" is incorrect and I'd like to ask which=20
-> > kernel key or button from /usr/include/linux/input.h should be=20
-> > mapped for my ambient light sensor button? Is there already some?=20
-> > And what is strategy for allocating KEY_* and BTN_* numbers?
->=20
-> This is maintained by Dmitry, so he's the one to answer this. I am ad=
-ding=20
-> him to CC.
+Trivial change to make variable names in a comment match those in the code.
 
-I guess we need patch adding
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-	#define KEY_ALS_TOGGLE	0x230
+---
 
-Thanks.
+ include/linux/rmi.h | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index 01f2f13..dc94dc1 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -9,8 +9,19 @@
+ 
+ #ifndef _RMI_H
+ #define _RMI_H
+-
++#include <linux/kernel.h>
++#include <linux/cdev.h>
++#include <linux/device.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/list.h>
++#include <linux/lockdep.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/stat.h>
+ #include <linux/types.h>
++#include <linux/wait.h>
++#include <linux/debugfs.h>
+ 
+ enum rmi_attn_polarity {
+ 	RMI_ATTN_ACTIVE_LOW = 0,
+@@ -22,16 +33,16 @@ enum rmi_attn_polarity {
+  * @swap_axes: set to TRUE if desired to swap x- and y-axis
+  * @flip_x: set to TRUE if desired to flip direction on x-axis
+  * @flip_y: set to TRUE if desired to flip direction on y-axis
+- * @clip_X_low - reported X coordinates below this setting will be clipped to
++ * @clip_x_low - reported X coordinates below this setting will be clipped to
+  *               the specified value
+- * @clip_X_high - reported X coordinates above this setting will be clipped to
++ * @clip_x_high - reported X coordinates above this setting will be clipped to
+  *               the specified value
+- * @clip_Y_low - reported Y coordinates below this setting will be clipped to
++ * @clip_y_low - reported Y coordinates below this setting will be clipped to
+  *               the specified value
+- * @clip_Y_high - reported Y coordinates above this setting will be clipped to
++ * @clip_y_high - reported Y coordinates above this setting will be clipped to
+  *               the specified value
+- * @offset_X - this value will be added to all reported X coordinates
+- * @offset_Y - this value will be added to all reported Y coordinates
++ * @offset_x - this value will be added to all reported X coordinates
++ * @offset_y - this value will be added to all reported Y coordinates
+  * @rel_report_enabled - if set to true, the relative reporting will be
+  *               automatically enabled for this sensor.
+  */

@@ -1,17 +1,21 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH] input synaptics-rmi4: Fix camel case in comments.
-Date: Wed, 13 Nov 2013 13:15:25 -0800
-Message-ID: <1384377325-29380-1-git-send-email-cheiny@synaptics.com>
+Subject: [RESEND] [PATCH] input synaptics-rmi4: Fix camel case in comments.
+Date: Wed, 13 Nov 2013 15:02:01 -0800
+Message-ID: <1384383721-385-1-git-send-email-cheiny@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [192.147.44.15] ([192.147.44.15]:12120 "EHLO
-	localhost.localdomain" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751931Ab3KMWCs (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:2913 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751560Ab3KMXCG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Nov 2013 17:02:48 -0500
+	Wed, 13 Nov 2013 18:02:06 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>
+
+[Sorry if this is a duplicate - vger.kernel.org has bounced previous attempts.]
 
 Trivial change to make variable names in a comment match those in the code.
 

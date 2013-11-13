@@ -1,77 +1,68 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [RESEND] [PATCH] input synaptics-rmi4: Fix camel case in comments.
-Date: Wed, 13 Nov 2013 15:02:01 -0800
-Message-ID: <1384383721-385-1-git-send-email-cheiny@synaptics.com>
+Subject: [PATCH 00/04] input: RMI4 Synaptics RMI4 Touchscreen Driver
+Date: Wed, 13 Nov 2013 15:39:28 -0800
+Message-ID: <1384385972-1686-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:2913 "EHLO
+Received: from us-mx2.synaptics.com ([192.147.44.131]:16061 "EHLO
 	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751560Ab3KMXCG (ORCPT
+	with ESMTP id S1751026Ab3KMXjp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Nov 2013 18:02:06 -0500
+	Wed, 13 Nov 2013 18:39:45 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>
 
-[Sorry if this is a duplicate - vger.kernel.org has bounced previous attempts.]
+This patchset implements changes to the synaptics-rmi4 branch of
+Dmitry's input tree.  The base for the patchset is Dmitry's commit
+4a695a01fba9bf467b3b52e124ccee6cef73b323 from 2013-01-31.
 
-Trivial change to make variable names in a comment match those in the code.
+
+
+Overall this patchset implements the following changes with respect to
+the Dmitry's 2013-01-31 commit:
+
+* Refactors the transport layer (rmi_i2c) to be named appropriately.
+
+* Eliminates packed struct bitfields, replacing them with masks
+and shifts.  This should make the various register definitions
+endian-independent.
+
+* Removed most or all of the sysfs and debugfs support from the driver core
+and function drivers.  These features are still critical during platform 
+development, particularly on embedded systems, so there are hooks that allow 
+custom modules that support these control and debug capabilities.  One result 
+of this is that several .c files have a corresponding .h file (for example, 
+rmi_f01.c has a corresponding rmi_f01.h).  Also, a rmi_control.h file is
+added to provide general definitions for control/debug modules.
+
+* Fixes a number of bugs in the baseline commit.
+
+* Trivial - added an rmi_version.h file, which lets the version be easily
+tweaked using a script.
+
+
+We've broken this patch into 6 parts, as follows:
+    01 - core sensor and bus implementation
+    02 - I2C physical layer driver
+    03..04 - drivers for individual RMI functions
+
+
+Hopefully this is the last time we'll have wide-ranging structural changes in
+the driver code, and future patchsets can be much smaller and confined to
+one or two areas of interest. (yeah, I've said that before...)
+
+
+Comments and other feedback on this driver are welcomed.
+
+Christopher Heiny and the Synaptics RMI4 driver team
 
 Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Joerie de Gram <j.de.gram@gmail.com>
 
 ---
-
- include/linux/rmi.h | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
-
-diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index 01f2f13..dc94dc1 100644
---- a/include/linux/rmi.h
-+++ b/include/linux/rmi.h
-@@ -9,8 +9,19 @@
- 
- #ifndef _RMI_H
- #define _RMI_H
--
-+#include <linux/kernel.h>
-+#include <linux/cdev.h>
-+#include <linux/device.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/list.h>
-+#include <linux/lockdep.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/stat.h>
- #include <linux/types.h>
-+#include <linux/wait.h>
-+#include <linux/debugfs.h>
- 
- enum rmi_attn_polarity {
- 	RMI_ATTN_ACTIVE_LOW = 0,
-@@ -22,16 +33,16 @@ enum rmi_attn_polarity {
-  * @swap_axes: set to TRUE if desired to swap x- and y-axis
-  * @flip_x: set to TRUE if desired to flip direction on x-axis
-  * @flip_y: set to TRUE if desired to flip direction on y-axis
-- * @clip_X_low - reported X coordinates below this setting will be clipped to
-+ * @clip_x_low - reported X coordinates below this setting will be clipped to
-  *               the specified value
-- * @clip_X_high - reported X coordinates above this setting will be clipped to
-+ * @clip_x_high - reported X coordinates above this setting will be clipped to
-  *               the specified value
-- * @clip_Y_low - reported Y coordinates below this setting will be clipped to
-+ * @clip_y_low - reported Y coordinates below this setting will be clipped to
-  *               the specified value
-- * @clip_Y_high - reported Y coordinates above this setting will be clipped to
-+ * @clip_y_high - reported Y coordinates above this setting will be clipped to
-  *               the specified value
-- * @offset_X - this value will be added to all reported X coordinates
-- * @offset_Y - this value will be added to all reported Y coordinates
-+ * @offset_x - this value will be added to all reported X coordinates
-+ * @offset_y - this value will be added to all reported Y coordinates
-  * @rel_report_enabled - if set to true, the relative reporting will be
-  *               automatically enabled for this sensor.
-  */

@@ -1,68 +1,52 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH v2 00/19] Enable various Renesas drivers on all ARM
-	platforms
-Date: Wed, 13 Nov 2013 00:32:06 +0100
-Message-ID: <55374441.jb1As8srky@avalon>
-References: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: input question: ambient light sensor button
+Date: Wed, 13 Nov 2013 11:47:18 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1311131146410.22940@pobox.suse.cz>
+References: <201309151553.34000@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Guennadi Liakhovetski <g.liakhovetski+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <eduardo.valentin-l0cyMroinI0@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <samuel-jcdQHdrhKHMdnm+yROfE0A@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ian Molton <ian-zdned+2MO1+9FHfhHBbuYA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, xfoundat@
+Content-Type: TEXT/PLAIN; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:46269 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751375Ab3KMKrW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Nov 2013 05:47:22 -0500
+In-Reply-To: <201309151553.34000@pali>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Pali_Roh=E1r?= <pali.rohar@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hello,
+On Sun, 15 Sep 2013, Pali Roh=C3=A1r wrote:
 
-On Tuesday 29 October 2013 23:37:35 Laurent Pinchart wrote:
-> Hello,
-> 
-> This patch series, based on v3.12-rc7, prepares various Renesas drivers
-> for migration to multiplatform kernels by enabling their compilation or
-> otherwise fixing them on all ARM platforms. The patches are pretty
-> straightforward and are described in their commit message.
-> 
-> Changes since v1:
-> 
-> - The drivers can also be selected when COMPILE_TEST is enabled, regardless
-> of the architecture. This should provide a good compromise between wide
-> build test coverage and not clobbering configuration with drivers useless
-> on non-SuperH, non-ARM platforms.
-> 
-> - DMA configuration is now unconditional in patch 08/19
-> 
-> I'd like to get all these patches merged in v3.14. As they will need to go
-> through their respective subsystems' trees, I would appreciate if all
-> maintainers involved could notify me when they merge patches from this
-> series in their tree to help me tracking the merge status. I don't plan to
-> send pull requests individually for these patches, and I will repost
-> patches individually if changes are requested during review.
-> 
-> If you believe the issue should be solved in a different way please reply to
-> the cover letter to let other maintainers chime in.
+> I do not know where to ask this question, but I think that kernel=20
+> developers could help me.
+>=20
+> I have notebook with one special button on keyboard which is=20
+> designed for turning ambient light sensor on and off. By default=20
+> pressing button do nothing (I can turn ambient light sensor on/off=20
+> via sysfs platform wmi module). Button press is reported by=20
+> kernel input device AT Translated Set 2 keyboard and reports it=20
+> as button "touchpad off".
+>=20
+> Of course "touchpad off" is incorrect and I'd like to ask which=20
+> kernel key or button from /usr/include/linux/input.h should be=20
+> mapped for my ambient light sensor button? Is there already some?=20
+> And what is strategy for allocating KEY_* and BTN_* numbers?
 
-This patch series was a prerequisite for a larger rework of Renesas platforms. 
-However, we've decided to go with an alternative approach that renames Kconfig 
-symbols to avoid touching all the drivers. There is thus no urgency to apply 
-this series anymore.
+This is maintained by Dmitry, so he's the one to answer this. I am addi=
+ng=20
+him to CC.
 
-I still plan to enable COMPILE_TEST on Renesas drivers. I will send a v3 of 
-these patches based on the feedback received on v2. Patches from v2 that have 
-already been applied can be dropped, but there's no need to revert them rebase 
-trees as they're not invalid per-se. I will make sure to address the situation 
-in v3. I'm sorry for the inconvenience.
+> I'd like to know this, so udev could have correct DMI keymap=20
+> hooks and other userspace programs can understand ambient light=20
+> sensor button correctly.
 
--- 
-Regards,
-
-Laurent Pinchart
+--=20
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,95 +1,98 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH 1/2] input: touchscreen: fix spelling mistake in TSC/ADC
- DT binding
-Date: Thu, 14 Nov 2013 09:54:04 -0600
-Message-ID: <20131114155404.GE15835@saruman.home>
-References: <1382386404-6659-1-git-send-email-balbi@ti.com>
- <1382386404-6659-2-git-send-email-balbi@ti.com>
- <52663A58.9070706@linutronix.de>
- <20131022120253.GD9340@gimli>
- <20131114111958.GG16396@e106331-lin.cambridge.arm.com>
-Reply-To: <balbi@ti.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH] Input: clarify gamepad API ABS values
+Date: Thu, 14 Nov 2013 18:07:20 +0100
+Message-ID: <20131114180720.fece45888942c29d5865073e@studenti.unina.it>
+References: <1380806829-11824-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WBsA/oQW3eTA3LlM"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20131114111958.GG16396@e106331-lin.cambridge.arm.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Felipe Balbi <balbi@ti.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Pawel Moll <Pawel.Moll@arm.com>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "rob@landley.net" <rob@landley.net>, "bcousson@baylibre.com" <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp205.alice.it ([82.57.200.101]:32178 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754977Ab3KNRND (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Nov 2013 12:13:03 -0500
+In-Reply-To: <1380806829-11824-1-git-send-email-dh.herrmann@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
---WBsA/oQW3eTA3LlM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu,  3 Oct 2013 15:27:09 +0200
+David Herrmann <dh.herrmann@gmail.com> wrote:
 
-HI,
+> It wasn't really clear from the gamepad-API description how ABS values are
+> mapped exactly. Clarify that negative is left/up and positive is
+> right/down.
 
-On Thu, Nov 14, 2013 at 11:19:59AM +0000, Mark Rutland wrote:
-> > On Tue, Oct 22, 2013 at 10:42:00AM +0200, Sebastian Andrzej Siewior wro=
-te:
-> > > On 10/21/2013 10:13 PM, Felipe Balbi wrote:
-> > > > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/in=
-put/touchscreen/ti_am335x_tsc.c
-> > > > index e1c5300..b61df9d 100644
-> > > > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> > > > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> > > > @@ -348,9 +348,16 @@ static int titsc_parse_dt(struct platform_devi=
-ce *pdev,
-> > > >  	if (err < 0)
-> > > >  		return err;
-> > > > =20
-> > > > -	err =3D of_property_read_u32(node, "ti,coordiante-readouts",
-> > > > +	/*
-> > > > +	 * try with new binding first. If it fails, still try with
-> > > > +	 * bogus, miss-spelled version.
-> > > > +	 */
-> > > > +	err =3D of_property_read_u32(node, "ti,coordinate-readouts",
-> > > >  			&ts_dev->coordinate_readouts);
-> > > >  	if (err < 0)
-> > > > +		err =3D of_property_read_u32(node, "ti,coordiante-readouts",
-> > > > +				&ts_dev->coordinate_readouts);
-> > > > +	if (err < 0)
-> > > >  		return err;
-> > >=20
-> > > Thanks, very good. Do we keep this fallback for ever or just for a ye=
-ar
-> > > or two?
-> >=20
-> > That's for DT maintainers to decide but considering DT is an ABI, I
-> > guess we need to keep for 30 years or so :-p
->=20
-> We keep it as long as we have to. If no-one's relying on the typo by the
-> next merge window, I see no reason we'd have to keep support for the
+I was just going to ask that, thanks.
+Has this patch picked up?
 
-and how could you know that ? considering it's an ABI, how could you
-ever know that ?
+> ... Unfortunately, this means I screwed up the Wii U ProController
+> ABI. Anyhow, this just means we continue to have 0 compatible gamepad
+> drivers in the kernel. User-space needs to fix them up, anyway, as all
+> other gamepads are also incompatible.
+>
 
---=20
-balbi
+I know it is not really relevant and you won't fix the kernel interface
+anyway, but I was just curios: is there any known userspace using the
+gamepad API?
 
---WBsA/oQW3eTA3LlM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Another question is below.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+>  Documentation/input/gamepad.txt | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
+> index 8002c89..31bb6a4 100644
+> --- a/Documentation/input/gamepad.txt
+> +++ b/Documentation/input/gamepad.txt
+> @@ -122,12 +122,14 @@ D-Pad:
+>        BTN_DPAD_*
+>      Analog buttons are reported as:
+>        ABS_HAT0X and ABS_HAT0Y
+> +      (for ABS values negative is left/up, positive is right/down)
+>
 
-iQIcBAEBAgAGBQJShPIcAAoJEIaOsuA1yqREB9sP/1MPk+MC4xlmxzCLOg9tUjYw
-wOeCmLX4UR/iJOMG/GZ/tOJlq7fs/J66lLOdQTs+Ytg/Oi8kRnJdMXWlGnCdmb1f
-lrYZHCpyBQ0bfjcFGt3s9LWywMHrHvVXg0bOt96VRC46l5O7BY4kKNtnsH6UwPuG
-bbVGftI3w14qZiBOn5OYpYtluQLwZ2Oqi3j803VttITXKx+QekOjP/z/7SZWi6iV
-/UFmdUDTeNxhdhMjKETCJ+DO6stJrM0yxrOgfBkMCmrGDJ5PTZ6G44h2KuYCFsGO
-wbBPn9wwak49/ljdHzYVAuWUXz/+l6Y1jPPCv7sn8PwgiFZiOJzd7Ulpnx73PYBl
-ULvUw66hOrRoBXFXCHHUgbwDHZeByqtltUT1hN4YfoqFn31UEKx4O+lYh8+NZe/x
-XpiWzQsys2ko8NnEtZLa6kZdIhHCRzRRz3G+gFq2MGiYknrqqPmHfeJBghMqsG5j
-fb0ny9CnpUBubSuNcQMbOk49JGpHgArM+3QlLxBwjAd44qnKmW4KgKJOO1BIKfIn
-TrybWupSxuZxW5WKzaKX4E6PaRaM6HHqqRxDkzjFn19m95L/yGAqG7Omde6a3mne
-U1qkd9eJpga5w1hg+cazep4sbMPKW6+EGxbKk3heaKCr4/JQPVdCN3+Z7/Sms6AU
-ZsnmrioLprUpTqiDiqc5
-=Cstf
------END PGP SIGNATURE-----
+Does that mean that analog D-Pad Left and D-Pad Right are supposed to be
+described as a single axis (ABS_HAT0X), even if in the input report
+they come as two different fields (non adjacent even)? And same for
+analog Up/Down?
 
---WBsA/oQW3eTA3LlM--
+JFYI on the PS3 controller it is possible to have values from analog
+D-Pad Left and analog D-Pad Right at the same time, even if it is
+mechanically unlikely.
+
+>  Analog-Sticks:
+>    The left analog-stick is reported as ABS_X, ABS_Y. The right analog stick is
+>    reported as ABS_RX, ABS_RY. Zero, one or two sticks may be present.
+>    If analog-sticks provide digital buttons, they are mapped accordingly as
+>    BTN_THUMBL (first/left) and BTN_THUMBR (second/right).
+> +    (for ABS values negative is left/up, positive is right/down)
+>  
+>  Triggers:
+>    Trigger buttons can be available as digital or analog buttons or both. User-
+> @@ -138,6 +140,7 @@ Triggers:
+>    ABS_HAT2X (right/ZR) and BTN_TL2 or ABS_HAT2Y (left/ZL).
+>    If only one trigger-button combination is present (upper+lower), they are
+>    reported as "right" triggers (BTN_TR/ABS_HAT1X).
+> +    (ABS trigger values start at 0, pressure is reported as positive values)
+>
+
+What about analog Action-Pad buttons?
+Do you suggest any mapping for them?
+
+>  Menu-Pad:
+>    Menu buttons are always digital and are mapped according to their location
+
+Thanks,
+   Antonio
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

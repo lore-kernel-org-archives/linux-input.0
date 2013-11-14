@@ -1,41 +1,66 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] Input: hp_sdc_rtc - unlock on error in
- hp_sdc_rtc_read_i8042timer()
-Date: Thu, 14 Nov 2013 11:18:08 +0300
-Message-ID: <20131114081808.GA8150@elgon.mountain>
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH 1/2] input: touchscreen: fix spelling mistake in
+ TSC/ADC DT binding
+Date: Thu, 14 Nov 2013 11:19:59 +0000
+Message-ID: <20131114111958.GG16396@e106331-lin.cambridge.arm.com>
+References: <1382386404-6659-1-git-send-email-balbi@ti.com>
+ <1382386404-6659-2-git-send-email-balbi@ti.com>
+ <52663A58.9070706@linutronix.de>
+ <20131022120253.GD9340@gimli>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from userp1040.oracle.com ([156.151.31.81]:46825 "EHLO
-	userp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751438Ab3KNIS1 (ORCPT
+Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:54610 "EHLO
+	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752939Ab3KNLUR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Nov 2013 03:18:27 -0500
+	Thu, 14 Nov 2013 06:20:17 -0500
 Content-Disposition: inline
+In-Reply-To: <20131022120253.GD9340@gimli>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Helge Deller <deller@gmx.de>, David Howells <dhowells@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Pawel Moll <Pawel.Moll@arm.com>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "rob@landley.net" <rob@landley.net>, "bcousson@baylibre.com" <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-The transaction task here is hp_sdc_tasklet() and it releases the lock.
-The problem is if we aren't able to queue the transaction then we need
-to release the lock ourselves.
+On Tue, Oct 22, 2013 at 01:02:53PM +0100, Felipe Balbi wrote:
+> Hi,
+> 
+> On Tue, Oct 22, 2013 at 10:42:00AM +0200, Sebastian Andrzej Siewior wrote:
+> > On 10/21/2013 10:13 PM, Felipe Balbi wrote:
+> > > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > > index e1c5300..b61df9d 100644
+> > > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> > > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > > @@ -348,9 +348,16 @@ static int titsc_parse_dt(struct platform_device *pdev,
+> > >  	if (err < 0)
+> > >  		return err;
+> > >  
+> > > -	err = of_property_read_u32(node, "ti,coordiante-readouts",
+> > > +	/*
+> > > +	 * try with new binding first. If it fails, still try with
+> > > +	 * bogus, miss-spelled version.
+> > > +	 */
+> > > +	err = of_property_read_u32(node, "ti,coordinate-readouts",
+> > >  			&ts_dev->coordinate_readouts);
+> > >  	if (err < 0)
+> > > +		err = of_property_read_u32(node, "ti,coordiante-readouts",
+> > > +				&ts_dev->coordinate_readouts);
+> > > +	if (err < 0)
+> > >  		return err;
+> > 
+> > Thanks, very good. Do we keep this fallback for ever or just for a year
+> > or two?
+> 
+> That's for DT maintainers to decide but considering DT is an ABI, I
+> guess we need to keep for 30 years or so :-p
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+We keep it as long as we have to. If no-one's relying on the typo by the
+next merge window, I see no reason we'd have to keep support for the
+typo beyond that. If someone's shipped a device with a dtb with the typo
+hard-coded into some ROM, that's another matter...
 
-diff --git a/drivers/input/misc/hp_sdc_rtc.c b/drivers/input/misc/hp_sdc_rtc.c
-index 86b8228..45e0e3e 100644
---- a/drivers/input/misc/hp_sdc_rtc.c
-+++ b/drivers/input/misc/hp_sdc_rtc.c
-@@ -180,7 +180,10 @@ static int64_t hp_sdc_rtc_read_i8042timer (uint8_t loadcmd, int numreg)
- 	if (WARN_ON(down_interruptible(&i8042tregs)))
- 		return -1;
- 
--	if (hp_sdc_enqueue_transaction(&t)) return -1;
-+	if (hp_sdc_enqueue_transaction(&t)) {
-+		up(&i8042tregs);
-+		return -1;
-+	}
- 	
- 	/* Sleep until results come back. */
- 	if (WARN_ON(down_interruptible(&i8042tregs)))
+It might be worth printing a warning in the case of the typo'd version,
+suggesting correcting the DT. That will encourage anyone with a broken
+dt to get a fixed one.
+
+Mark.

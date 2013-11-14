@@ -1,76 +1,77 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: input question: ambient light sensor button
-Date: Thu, 14 Nov 2013 13:02:31 +0100
-Message-ID: <201311141302.33384@pali>
-References: <201309151553.34000@pali> <alpine.LNX.2.00.1311131146410.22940@pobox.suse.cz> <20131113162840.GB11657@core.coreip.homeip.net>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] Input: don't push static constants on stack for %*ph
+Date: Thu, 14 Nov 2013 17:07:23 +0200
+Message-ID: <1384441643.14845.96.camel@smile>
+References: <1378291309-13869-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1917016.QdsGLqR9mN";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f180.google.com ([209.85.212.180]:46644 "EHLO
-	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752624Ab3KNMCi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Nov 2013 07:02:38 -0500
-In-Reply-To: <20131113162840.GB11657@core.coreip.homeip.net>
+Received: from mga09.intel.com ([134.134.136.24]:19499 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752880Ab3KNPHs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Nov 2013 10:07:48 -0500
+In-Reply-To: <1378291309-13869-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
---nextPart1917016.QdsGLqR9mN
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Wed, 2013-09-04 at 13:41 +0300, Andy Shevchenko wrote:
+> There is no need to pass constants via stack. The width may be explicitly
+> specified in the format.
 
-On Wednesday 13 November 2013 17:28:40 Dmitry Torokhov wrote:
-> On Wed, Nov 13, 2013 at 11:47:18AM +0100, Jiri Kosina wrote:
-> > On Sun, 15 Sep 2013, Pali Roh=C3=A1r wrote:
-> > > I do not know where to ask this question, but I think that
-> > > kernel developers could help me.
-> > >=20
-> > > I have notebook with one special button on keyboard which
-> > > is designed for turning ambient light sensor on and off.
-> > > By default pressing button do nothing (I can turn ambient
-> > > light sensor on/off via sysfs platform wmi module).
-> > > Button press is reported by kernel input device AT
-> > > Translated Set 2 keyboard and reports it as button
-> > > "touchpad off".
-> > >=20
-> > > Of course "touchpad off" is incorrect and I'd like to ask
-> > > which kernel key or button from
-> > > /usr/include/linux/input.h should be mapped for my
-> > > ambient light sensor button? Is there already some? And
-> > > what is strategy for allocating KEY_* and BTN_* numbers?
-> >=20
-> > This is maintained by Dmitry, so he's the one to answer
-> > this. I am adding him to CC.
->=20
-> I guess we need patch adding
->=20
-> 	#define KEY_ALS_TOGGLE	0x230
->=20
-> Thanks.
+Any comments on this so far?
 
-So there is no good key for als yet?
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/input/mouse/hgpk.c               | 7 +++----
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++--
+>  2 files changed, 5 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
+> index 62be888..27909a1 100644
+> --- a/drivers/input/mouse/hgpk.c
+> +++ b/drivers/input/mouse/hgpk.c
+> @@ -333,9 +333,8 @@ static bool hgpk_is_byte_valid(struct psmouse *psmouse, unsigned char *packet)
+>  	}
+>  
+>  	if (!valid)
+> -		psmouse_dbg(psmouse,
+> -			    "bad data, mode %d (%d) %*ph\n",
+> -			    priv->mode, pktcnt, 6, psmouse->packet);
+> +		psmouse_dbg(psmouse, "bad data, mode %d (%d) %6ph\n",
+> +			    priv->mode, pktcnt, psmouse->packet);
+>  
+>  	return valid;
+>  }
+> @@ -1027,7 +1026,7 @@ static enum hgpk_model_t hgpk_get_model(struct psmouse *psmouse)
+>  		return -EIO;
+>  	}
+>  
+> -	psmouse_dbg(psmouse, "ID: %*ph\n", 3, param);
+> +	psmouse_dbg(psmouse, "ID: %3ph\n", param);
+>  
+>  	/* HGPK signature: 0x67, 0x00, 0x<model> */
+>  	if (param[0] != 0x67 || param[1] != 0x00)
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 59aa240..dd44ebf 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -331,8 +331,8 @@ static bool mxt_object_writable(unsigned int type)
+>  static void mxt_dump_message(struct device *dev,
+>  			     struct mxt_message *message)
+>  {
+> -	dev_dbg(dev, "reportid: %u\tmessage: %*ph\n",
+> -		message->reportid, 7, message->message);
+> +	dev_dbg(dev, "reportid: %u\tmessage: %7ph\n",
+> +		message->reportid, message->message);
+>  }
+>  
+>  static int mxt_check_bootloader(struct i2c_client *client,
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
 
---nextPart1917016.QdsGLqR9mN
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlKEu9kACgkQi/DJPQPkQ1KjOwCgl+ZCq5uJPmE4nzDC0DDHYnPV
-NuIAn2FNCmKfQVxLSERM7ropiuwuCNVj
-=3B3H
------END PGP SIGNATURE-----
-
---nextPart1917016.QdsGLqR9mN--

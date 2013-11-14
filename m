@@ -1,66 +1,76 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 1/2] input: touchscreen: fix spelling mistake in
- TSC/ADC DT binding
-Date: Thu, 14 Nov 2013 11:19:59 +0000
-Message-ID: <20131114111958.GG16396@e106331-lin.cambridge.arm.com>
-References: <1382386404-6659-1-git-send-email-balbi@ti.com>
- <1382386404-6659-2-git-send-email-balbi@ti.com>
- <52663A58.9070706@linutronix.de>
- <20131022120253.GD9340@gimli>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: input question: ambient light sensor button
+Date: Thu, 14 Nov 2013 13:02:31 +0100
+Message-ID: <201311141302.33384@pali>
+References: <201309151553.34000@pali> <alpine.LNX.2.00.1311131146410.22940@pobox.suse.cz> <20131113162840.GB11657@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1917016.QdsGLqR9mN";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cam-admin0.cambridge.arm.com ([217.140.96.50]:54610 "EHLO
-	cam-admin0.cambridge.arm.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752939Ab3KNLUR (ORCPT
+Received: from mail-wi0-f180.google.com ([209.85.212.180]:46644 "EHLO
+	mail-wi0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752624Ab3KNMCi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Nov 2013 06:20:17 -0500
-Content-Disposition: inline
-In-Reply-To: <20131022120253.GD9340@gimli>
+	Thu, 14 Nov 2013 07:02:38 -0500
+In-Reply-To: <20131113162840.GB11657@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Pawel Moll <Pawel.Moll@arm.com>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "rob@landley.net" <rob@landley.net>, "bcousson@baylibre.com" <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Oct 22, 2013 at 01:02:53PM +0100, Felipe Balbi wrote:
-> Hi,
-> 
-> On Tue, Oct 22, 2013 at 10:42:00AM +0200, Sebastian Andrzej Siewior wrote:
-> > On 10/21/2013 10:13 PM, Felipe Balbi wrote:
-> > > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> > > index e1c5300..b61df9d 100644
-> > > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> > > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> > > @@ -348,9 +348,16 @@ static int titsc_parse_dt(struct platform_device *pdev,
-> > >  	if (err < 0)
-> > >  		return err;
-> > >  
-> > > -	err = of_property_read_u32(node, "ti,coordiante-readouts",
-> > > +	/*
-> > > +	 * try with new binding first. If it fails, still try with
-> > > +	 * bogus, miss-spelled version.
-> > > +	 */
-> > > +	err = of_property_read_u32(node, "ti,coordinate-readouts",
-> > >  			&ts_dev->coordinate_readouts);
-> > >  	if (err < 0)
-> > > +		err = of_property_read_u32(node, "ti,coordiante-readouts",
-> > > +				&ts_dev->coordinate_readouts);
-> > > +	if (err < 0)
-> > >  		return err;
-> > 
-> > Thanks, very good. Do we keep this fallback for ever or just for a year
-> > or two?
-> 
-> That's for DT maintainers to decide but considering DT is an ABI, I
-> guess we need to keep for 30 years or so :-p
+--nextPart1917016.QdsGLqR9mN
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-We keep it as long as we have to. If no-one's relying on the typo by the
-next merge window, I see no reason we'd have to keep support for the
-typo beyond that. If someone's shipped a device with a dtb with the typo
-hard-coded into some ROM, that's another matter...
+On Wednesday 13 November 2013 17:28:40 Dmitry Torokhov wrote:
+> On Wed, Nov 13, 2013 at 11:47:18AM +0100, Jiri Kosina wrote:
+> > On Sun, 15 Sep 2013, Pali Roh=C3=A1r wrote:
+> > > I do not know where to ask this question, but I think that
+> > > kernel developers could help me.
+> > >=20
+> > > I have notebook with one special button on keyboard which
+> > > is designed for turning ambient light sensor on and off.
+> > > By default pressing button do nothing (I can turn ambient
+> > > light sensor on/off via sysfs platform wmi module).
+> > > Button press is reported by kernel input device AT
+> > > Translated Set 2 keyboard and reports it as button
+> > > "touchpad off".
+> > >=20
+> > > Of course "touchpad off" is incorrect and I'd like to ask
+> > > which kernel key or button from
+> > > /usr/include/linux/input.h should be mapped for my
+> > > ambient light sensor button? Is there already some? And
+> > > what is strategy for allocating KEY_* and BTN_* numbers?
+> >=20
+> > This is maintained by Dmitry, so he's the one to answer
+> > this. I am adding him to CC.
+>=20
+> I guess we need patch adding
+>=20
+> 	#define KEY_ALS_TOGGLE	0x230
+>=20
+> Thanks.
 
-It might be worth printing a warning in the case of the typo'd version,
-suggesting correcting the DT. That will encourage anyone with a broken
-dt to get a fixed one.
+So there is no good key for als yet?
 
-Mark.
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--nextPart1917016.QdsGLqR9mN
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlKEu9kACgkQi/DJPQPkQ1KjOwCgl+ZCq5uJPmE4nzDC0DDHYnPV
+NuIAn2FNCmKfQVxLSERM7ropiuwuCNVj
+=3B3H
+-----END PGP SIGNATURE-----
+
+--nextPart1917016.QdsGLqR9mN--

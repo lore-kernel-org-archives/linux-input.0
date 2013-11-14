@@ -1,77 +1,95 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] Input: don't push static constants on stack for %*ph
-Date: Thu, 14 Nov 2013 17:07:23 +0200
-Message-ID: <1384441643.14845.96.camel@smile>
-References: <1378291309-13869-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 1/2] input: touchscreen: fix spelling mistake in TSC/ADC
+ DT binding
+Date: Thu, 14 Nov 2013 09:54:04 -0600
+Message-ID: <20131114155404.GE15835@saruman.home>
+References: <1382386404-6659-1-git-send-email-balbi@ti.com>
+ <1382386404-6659-2-git-send-email-balbi@ti.com>
+ <52663A58.9070706@linutronix.de>
+ <20131022120253.GD9340@gimli>
+ <20131114111958.GG16396@e106331-lin.cambridge.arm.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:19499 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752880Ab3KNPHs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Nov 2013 10:07:48 -0500
-In-Reply-To: <1378291309-13869-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WBsA/oQW3eTA3LlM"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20131114111958.GG16396@e106331-lin.cambridge.arm.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Felipe Balbi <balbi@ti.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Pawel Moll <Pawel.Moll@arm.com>, "swarren@wwwdotorg.org" <swarren@wwwdotorg.org>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "rob@landley.net" <rob@landley.net>, "bcousson@baylibre.com" <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On Wed, 2013-09-04 at 13:41 +0300, Andy Shevchenko wrote:
-> There is no need to pass constants via stack. The width may be explicitly
-> specified in the format.
+--WBsA/oQW3eTA3LlM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Any comments on this so far?
+HI,
 
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  drivers/input/mouse/hgpk.c               | 7 +++----
->  drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++--
->  2 files changed, 5 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
-> index 62be888..27909a1 100644
-> --- a/drivers/input/mouse/hgpk.c
-> +++ b/drivers/input/mouse/hgpk.c
-> @@ -333,9 +333,8 @@ static bool hgpk_is_byte_valid(struct psmouse *psmouse, unsigned char *packet)
->  	}
->  
->  	if (!valid)
-> -		psmouse_dbg(psmouse,
-> -			    "bad data, mode %d (%d) %*ph\n",
-> -			    priv->mode, pktcnt, 6, psmouse->packet);
-> +		psmouse_dbg(psmouse, "bad data, mode %d (%d) %6ph\n",
-> +			    priv->mode, pktcnt, psmouse->packet);
->  
->  	return valid;
->  }
-> @@ -1027,7 +1026,7 @@ static enum hgpk_model_t hgpk_get_model(struct psmouse *psmouse)
->  		return -EIO;
->  	}
->  
-> -	psmouse_dbg(psmouse, "ID: %*ph\n", 3, param);
-> +	psmouse_dbg(psmouse, "ID: %3ph\n", param);
->  
->  	/* HGPK signature: 0x67, 0x00, 0x<model> */
->  	if (param[0] != 0x67 || param[1] != 0x00)
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 59aa240..dd44ebf 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -331,8 +331,8 @@ static bool mxt_object_writable(unsigned int type)
->  static void mxt_dump_message(struct device *dev,
->  			     struct mxt_message *message)
->  {
-> -	dev_dbg(dev, "reportid: %u\tmessage: %*ph\n",
-> -		message->reportid, 7, message->message);
-> +	dev_dbg(dev, "reportid: %u\tmessage: %7ph\n",
-> +		message->reportid, message->message);
->  }
->  
->  static int mxt_check_bootloader(struct i2c_client *client,
+On Thu, Nov 14, 2013 at 11:19:59AM +0000, Mark Rutland wrote:
+> > On Tue, Oct 22, 2013 at 10:42:00AM +0200, Sebastian Andrzej Siewior wro=
+te:
+> > > On 10/21/2013 10:13 PM, Felipe Balbi wrote:
+> > > > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/in=
+put/touchscreen/ti_am335x_tsc.c
+> > > > index e1c5300..b61df9d 100644
+> > > > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> > > > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> > > > @@ -348,9 +348,16 @@ static int titsc_parse_dt(struct platform_devi=
+ce *pdev,
+> > > >  	if (err < 0)
+> > > >  		return err;
+> > > > =20
+> > > > -	err =3D of_property_read_u32(node, "ti,coordiante-readouts",
+> > > > +	/*
+> > > > +	 * try with new binding first. If it fails, still try with
+> > > > +	 * bogus, miss-spelled version.
+> > > > +	 */
+> > > > +	err =3D of_property_read_u32(node, "ti,coordinate-readouts",
+> > > >  			&ts_dev->coordinate_readouts);
+> > > >  	if (err < 0)
+> > > > +		err =3D of_property_read_u32(node, "ti,coordiante-readouts",
+> > > > +				&ts_dev->coordinate_readouts);
+> > > > +	if (err < 0)
+> > > >  		return err;
+> > >=20
+> > > Thanks, very good. Do we keep this fallback for ever or just for a ye=
+ar
+> > > or two?
+> >=20
+> > That's for DT maintainers to decide but considering DT is an ABI, I
+> > guess we need to keep for 30 years or so :-p
+>=20
+> We keep it as long as we have to. If no-one's relying on the typo by the
+> next merge window, I see no reason we'd have to keep support for the
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+and how could you know that ? considering it's an ABI, how could you
+ever know that ?
 
+--=20
+balbi
+
+--WBsA/oQW3eTA3LlM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJShPIcAAoJEIaOsuA1yqREB9sP/1MPk+MC4xlmxzCLOg9tUjYw
+wOeCmLX4UR/iJOMG/GZ/tOJlq7fs/J66lLOdQTs+Ytg/Oi8kRnJdMXWlGnCdmb1f
+lrYZHCpyBQ0bfjcFGt3s9LWywMHrHvVXg0bOt96VRC46l5O7BY4kKNtnsH6UwPuG
+bbVGftI3w14qZiBOn5OYpYtluQLwZ2Oqi3j803VttITXKx+QekOjP/z/7SZWi6iV
+/UFmdUDTeNxhdhMjKETCJ+DO6stJrM0yxrOgfBkMCmrGDJ5PTZ6G44h2KuYCFsGO
+wbBPn9wwak49/ljdHzYVAuWUXz/+l6Y1jPPCv7sn8PwgiFZiOJzd7Ulpnx73PYBl
+ULvUw66hOrRoBXFXCHHUgbwDHZeByqtltUT1hN4YfoqFn31UEKx4O+lYh8+NZe/x
+XpiWzQsys2ko8NnEtZLa6kZdIhHCRzRRz3G+gFq2MGiYknrqqPmHfeJBghMqsG5j
+fb0ny9CnpUBubSuNcQMbOk49JGpHgArM+3QlLxBwjAd44qnKmW4KgKJOO1BIKfIn
+TrybWupSxuZxW5WKzaKX4E6PaRaM6HHqqRxDkzjFn19m95L/yGAqG7Omde6a3mne
+U1qkd9eJpga5w1hg+cazep4sbMPKW6+EGxbKk3heaKCr4/JQPVdCN3+Z7/Sms6AU
+ZsnmrioLprUpTqiDiqc5
+=Cstf
+-----END PGP SIGNATURE-----
+
+--WBsA/oQW3eTA3LlM--

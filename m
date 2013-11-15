@@ -1,174 +1,194 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 4/4 v3] Input: wacom - add SW_TOUCH to include/uapi/linux/input.h
-Date: Fri, 15 Nov 2013 12:00:02 -0800
-Message-ID: <1384545602-15549-1-git-send-email-pingc@wacom.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f175.google.com ([209.85.192.175]:33841 "EHLO
-	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753143Ab3KOUAL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Nov 2013 15:00:11 -0500
-Received: by mail-pd0-f175.google.com with SMTP id w10so1799453pde.20
-        for <linux-input@vger.kernel.org>; Fri, 15 Nov 2013 12:00:10 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: [PATCH 00/31] ARM: tegra: use common reset and DMA bindings
+Date: Fri, 15 Nov 2013 13:53:55 -0700
+Message-ID: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: swarren@wwwdotorg.org
+Cc: Mark Rutland <mark.rutland@arm.com>, alsa-devel@alsa-project.org, linux-usb@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, Marc Dietrich <marvin24@gmx.de>, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, ac100@lists.launchpad.net, devel@driverdev.osuosl.org, Stephen Warren <swarren@nvidia.com>, Alan Stern <stern@rowland.harvard.edu>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, =?UTF-8?q?Terje=20Bergstr=C3=B6m?= <tbergstrom@nvidia.com>, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Julian Andres Klode <jak@jak-linux.org>, Rob Herring <rob.herring@calxeda.com>, Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Mike Turquette <mturquette@linaro.org>, Dan Williams <dan.j.willi>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, killertofu@gmail.com, chris@cnpbagwell.com, peter.hutterer@who-t.net, Ping Cheng <pingc@wacom.com>
 
-New Intuos series models added a hardware switch to turn touch
-data on/off. To report the state of the switch, SW_TOUCH
-is added in include/uapi/linux/input.h.
-
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-Tested-by: Jason Gerecke <killertofu@gmail.com>
-Signed-off-by: Ping Cheng <pingc@wacom.com>
----
- drivers/input/tablet/wacom_sys.c | 12 ++++++++++++
- drivers/input/tablet/wacom_wac.c | 30 +++++++++++++++++++++++++++---
- drivers/input/tablet/wacom_wac.h |  5 +++++
- include/uapi/linux/input.h       |  1 +
- 4 files changed, 45 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 3a7d99c..bb72fa3 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -1193,6 +1193,8 @@ static void wacom_wireless_work(struct work_struct *work)
- 		wacom_wac1->features.device_type = BTN_TOOL_PEN;
- 		snprintf(wacom_wac1->name, WACOM_NAME_MAX, "%s (WL) Pen",
- 			 wacom_wac1->features.name);
-+		wacom_wac1->shared->touch_max = wacom_wac1->features.touch_max;
-+		wacom_wac1->shared->type = wacom_wac1->features.type;
- 		error = wacom_register_input(wacom1);
- 		if (error)
- 			goto fail;
-@@ -1214,6 +1216,10 @@ static void wacom_wireless_work(struct work_struct *work)
- 			error = wacom_register_input(wacom2);
- 			if (error)
- 				goto fail;
-+
-+			if (wacom_wac1->features.type == INTUOSHT &&
-+			    wacom_wac1->features.touch_max)
-+				wacom_wac->shared->touch_input = wacom_wac2->input;
- 		}
- 
- 		error = wacom_initialize_battery(wacom);
-@@ -1392,6 +1398,12 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 			goto fail5;
- 		}
- 	}
-+
-+	if (wacom_wac->features.type == INTUOSHT && wacom_wac->features.touch_max) {
-+		if (wacom_wac->features.device_type == BTN_TOOL_FINGER)
-+			wacom_wac->shared->touch_input = wacom_wac->input;
-+	}
-+
- 	return 0;
- 
-  fail5: wacom_destroy_leds(wacom);
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index c0cd85d..70beca8 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1220,13 +1220,23 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
- 
- static int wacom_bpt_pen(struct wacom_wac *wacom)
- {
-+	struct wacom_features *features = &wacom->features;
- 	struct input_dev *input = wacom->input;
- 	unsigned char *data = wacom->data;
- 	int prox = 0, x = 0, y = 0, p = 0, d = 0, pen = 0, btn1 = 0, btn2 = 0;
- 
--	if (data[0] != WACOM_REPORT_PENABLED)
-+	if (data[0] != WACOM_REPORT_PENABLED && data[0] != WACOM_REPORT_USB)
- 	    return 0;
- 
-+	if (data[0] == WACOM_REPORT_USB) {
-+		if ((features->type == INTUOSHT) && features->touch_max) {
-+			input_report_switch(wacom->shared->touch_input,
-+					    SW_TOUCH, data[8] & 0x40);
-+			input_sync(wacom->shared->touch_input);
-+		}
-+		return 0;
-+	}
-+
- 	prox = (data[1] & 0x20) == 0x20;
- 
- 	/*
-@@ -1259,8 +1269,8 @@ static int wacom_bpt_pen(struct wacom_wac *wacom)
- 		 * touching and applying pressure; do not report negative
- 		 * distance.
- 		 */
--		if (data[8] <= wacom->features.distance_max)
--			d = wacom->features.distance_max - data[8];
-+		if (data[8] <= features->distance_max)
-+			d = features->distance_max - data[8];
- 
- 		pen = data[1] & 0x01;
- 		btn1 = data[1] & 0x02;
-@@ -1311,6 +1321,13 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
- 	if (connected) {
- 		int pid, battery;
- 
-+		if ((wacom->shared->type == INTUOSHT) &&
-+				wacom->shared->touch_max) {
-+			input_report_switch(wacom->shared->touch_input,
-+					SW_TOUCH, data[5] & 0x40);
-+			input_sync(wacom->shared->touch_input);
-+		}
-+
- 		pid = get_unaligned_be16(&data[6]);
- 		battery = data[5] & 0x3f;
- 		if (wacom->pid != pid) {
-@@ -1780,6 +1797,13 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 		break;
- 
- 	case INTUOSHT:
-+		if (features->touch_max &&
-+		    (features->device_type == BTN_TOOL_FINGER)) {
-+			input_dev->evbit[0] |= BIT_MASK(EV_SW);
-+			__set_bit(SW_TOUCH, input_dev->swbit);
-+		}
-+		/* fall through */
-+
- 	case BAMBOO_PT:
- 		__clear_bit(ABS_MISC, input_dev->absbit);
- 
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 854cceb..3600cf7 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -55,6 +55,7 @@
- #define WACOM_REPORT_TPC1FGE		18
- #define WACOM_REPORT_24HDT		1
- #define WACOM_REPORT_WL			128
-+#define WACOM_REPORT_USB		192
- 
- /* device quirks */
- #define WACOM_QUIRK_MULTI_INPUT		0x0001
-@@ -131,6 +132,10 @@ struct wacom_features {
- struct wacom_shared {
- 	bool stylus_in_proximity;
- 	bool touch_down;
-+	/* for wireless device to access USB interfaces */
-+	unsigned touch_max;
-+	int type;
-+	struct input_dev *touch_input;
- };
- 
- struct wacom_wac {
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index a372627..fcddcb1 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -856,6 +856,7 @@ struct input_keymap_entry {
- #define SW_FRONT_PROXIMITY	0x0b  /* set = front proximity sensor active */
- #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
- #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
-+#define SW_TOUCH		0x0e  /* set = touch switch turned on (touch events off) */
- #define SW_MAX			0x0f
- #define SW_CNT			(SW_MAX+1)
- 
--- 
-1.8.3.2
-
+RnJvbTogU3RlcGhlbiBXYXJyZW4gPHN3YXJyZW5AbnZpZGlhLmNvbT4KClRoaXMgc2VyaWVzIGlt
+cGxlbWVudHMgYSBjb21tb24gcmVzZXQgZnJhbWV3b3JrIGRyaXZlciBmb3IgVGVncmEsIGFuZAp1
+cGRhdGVzIGFsbCByZWxldmFudCBUZWdyYSBkcml2ZXJzIHRvIHVzZSBpdC4gSXQgYWxzbyByZW1v
+dmVzIHRoZSBjdXN0b20KRE1BIGJpbmRpbmdzIGFuZCByZXBsYWNlZCB0aGVtIHdpdGggdGhlIHN0
+YW5kYXJkIERNQSBEVCBiaW5kaW5ncy4KCkhpc3RvcmljYWxseSwgdGhlIFRlZ3JhIGNsb2NrIGRy
+aXZlciBoYXMgZXhwb3J0ZWQgYSBjdXN0b20gQVBJIGZvciBtb2R1bGUKcmVzZXQuIFRoaXMgc2Vy
+aWVzIHJlbW92ZXMgdGhhdCBBUEksIGFuZCB0cmFuc2l0aW9ucyBEVCBhbmQgZHJpdmVycyB0bwp0
+aGUgbmV3IHJlc2V0IGZyYW1ld29yay4KClRoZSBjdXN0b20gQVBJIHVzZWQgYSAic3RydWN0IGNs
+ayIgdG8gaWRlbnRpZnkgd2hpY2ggbW9kdWxlIHRvIHJlc2V0LCBhbmQKY29uc2VxdWVudGx5IHNv
+bWUgRFQgYmluZGluZ3MgYW5kIGRyaXZlcnMgcmVxdWlyZWQgY2xvY2tzIHRvIGJlIHByb3ZpZGVk
+CndoZXJlIHRoZXkgcmVhbGx5IG5lZWRlZCBqdXN0IGEgcmVzZXQgaWRlbnRpZmllciBpbnN0ZWFk
+LiBEdWUgdG8gdGhpcwprbm93biBkZWZpY2llbmN5LCBJIGhhdmUgYWx3YXlzIGNvbnNpZGVyZWQg
+bW9zdCBUZWdyYSBiaW5kaW5ncyB0byBiZQp1bnN0YWJsZS4gVGhpcyBzZXJpZXMgcmVtb3ZlcyB0
+aGlzIGV4Y3VzZSBmb3IgaW5zdGFiaWxpdHksIGFsdGhvdWdoIEkKc3RpbGwgY29uc2lkZXIgc29t
+ZSBUZWdyYSBiaW5kaW5ncyB1bnN0YWJsZSBkdWUgdG8gdGhlIG5lZWQgdG8gY29udmVydCB0bwp0
+aGUgY29tbW9uIERNQSBiaW5kaW5ncy4KCkhpc3RvcmljYWxseSwgVGVncmEgRE1BIGNoYW5uZWxz
+IGhhdmUgYmVlbiByZXByZXNlbnRlZCBpbiBEVCB1c2luZyBhCmN1c3RvbSBudmlkaWEsZG1hLXJl
+cXVlc3Qtc2VsZWN0b3IgcHJvcGVydHkuIE5vdyB0aGF0IHN0YW5kYXJkIERNQSBEVApiaW5kaW5n
+cyBleGlzdCwgY29udmVydCBhbGwgVGVncmEgYmluZGluZ3MsIERUcywgYW5kIGRyaXZlcnMgdG8g
+dXNlIHRoZQpzdGFuZGFyZCBpbnN0ZWFkLgoKVGhpcyBzZXJpZXMgbWFrZXMgYSBEVC1BQkktaW5j
+b21wYXRpYmxlIGNoYW5nZSB0bzoKLSBSZXF1aXJlIHJlc2V0IHNwZWNpZmllcnMgaW4gRFQgd2hl
+cmUgcmVsZXZhbnQuCi0gUmVxdWlyZSBzdGFuZGFyZCBETUEgc3BlY2lmaWVycy4KLSBSZW1vdmUg
+Y2xvY2sgc3BlY2lmaWVycyBmcm9tIERUIHdoZXJlIHRoZXkgd2VyZSBvbmx5IG5lZWRlZCBmb3Ig
+cmVzZXQuCi0gUmVtb3ZlIGxlZ2FjeSBETUEgc3BlY2lmaWVyIHByb3BlcnRpZXMuCgpJIGFudGlj
+aXBhdGUgbWVyZ2luZyB0aGlzIHdob2xlIHNlcmllcyBpbnRvIHRoZSBUZWdyYSBhbmQgYXJtLXNv
+YyB0cmVlcwphcyBpdHMgb3duIGJyYW5jaCwgZHVlIHRvIGludGVybmFsIGRlcGVuZGVuY2llcy4g
+VGhpcyBicmFuY2ggd2lsbCBiZQpzdGFibGUgYW5kIGNhbiB0aGVuIGJlIG1lcmdlZCBpbnRvIGFu
+eSBvdGhlciBzdWJzeXN0ZW0gdHJlZXMgc2hvdWxkIGFueQpjb25mbGljdHMgYXJpc2UuCgpUaGlz
+IHNlcmllcyBkZXBlbmRzIG9uIFBldGVyJ3MgVGVncmEgY2xvY2sgZHJpdmVyIHJld29yaywgYXZh
+aWxhYmxlIGF0CmdpdDovL252LXRlZ3JhLm52aWRpYS5jb20vdXNlci9wZGVzY2hyaWp2ZXIvbGlu
+dXggdGVncmEtY2xrLXRlZ3JhMTI0LTAKKG9yIHdoYXRldmVyIHZlcnNpb24gb2YgdGhhdCBnZXRz
+IGluY2x1ZGVkIGluIDMuMTQpCgpDYzogYWMxMDBAbGlzdHMubGF1bmNocGFkLm5ldApDYzogQWxh
+biBTdGVybiA8c3Rlcm5Acm93bGFuZC5oYXJ2YXJkLmVkdT4KQ2M6IGFsc2EtZGV2ZWxAYWxzYS1w
+cm9qZWN0Lm9yZwpDYzogQmpvcm4gSGVsZ2FhcyA8YmhlbGdhYXNAZ29vZ2xlLmNvbT4KQ2M6IERh
+biBXaWxsaWFtcyA8ZGFuLmoud2lsbGlhbXNAaW50ZWwuY29tPgpDYzogRGF2aWQgQWlybGllIDxh
+aXJsaWVkQGxpbnV4LmllPgpDYzogZGV2ZWxAZHJpdmVyZGV2Lm9zdW9zbC5vcmcKQ2M6IGRldmlj
+ZXRyZWVAdmdlci5rZXJuZWwub3JnCkNjOiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hv
+dkBnbWFpbC5jb20+CkNjOiBEbWl0cnkgVG9yb2tob3YgPGR0b3JAbWFpbC5ydT4KQ2M6IGRyaS1k
+ZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKQ2M6IEdyZWcgS3JvYWgtSGFydG1hbiA8Z3JlZ2to
+QGxpbnV4Zm91bmRhdGlvbi5vcmc+CkNjOiBJYW4gQ2FtcGJlbGwgPGlqYytkZXZpY2V0cmVlQGhl
+bGxpb24ub3JnLnVrPgpDYzogSnVsaWFuIEFuZHJlcyBLbG9kZSA8amFrQGphay1saW51eC5vcmc+
+CkNjOiBMaWFtIEdpcmR3b29kIDxsZ2lyZHdvb2RAZ21haWwuY29tPgpDYzogbGludXgtYXJtLWtl
+cm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCkNjOiBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnCkNj
+OiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcKQ2M6IGxpbnV4LXBjaUB2Z2VyLmtlcm5lbC5v
+cmcKQ2M6IGxpbnV4LXNlcmlhbEB2Z2VyLmtlcm5lbC5vcmcKQ2M6IGxpbnV4LXNwaUB2Z2VyLmtl
+cm5lbC5vcmcKQ2M6IGxpbnV4LXRlZ3JhQHZnZXIua2VybmVsLm9yZwpDYzogbGludXgtdXNiQHZn
+ZXIua2VybmVsLm9yZwpDYzogTWFyYyBEaWV0cmljaCA8bWFydmluMjRAZ214LmRlPgpDYzogTWFy
+ayBCcm93biA8YnJvb25pZUBrZXJuZWwub3JnPgpDYzogTWFyayBSdXRsYW5kIDxtYXJrLnJ1dGxh
+bmRAYXJtLmNvbT4KQ2M6IE1pa2UgVHVycXVldHRlIDxtdHVycXVldHRlQGxpbmFyby5vcmc+CkNj
+OiBQYXdlbCBNb2xsIDxwYXdlbC5tb2xsQGFybS5jb20+CkNjOiBwZGVzY2hyaWp2ZXJAbnZpZGlh
+LmNvbQpDYzogUm9iIEhlcnJpbmcgPHJvYi5oZXJyaW5nQGNhbHhlZGEuY29tPgpDYzogVGVyamUg
+QmVyZ3N0csO2bSA8dGJlcmdzdHJvbUBudmlkaWEuY29tPgpDYzogdHJlZGluZ0BudmlkaWEuY29t
+CkNjOiBXb2xmcmFtIFNhbmcgPHdzYUB0aGUtZHJlYW1zLmRlPgoKU3RlcGhlbiBXYXJyZW4gKDMx
+KToKICBBUk06IHRlZ3JhOiBhZGQgbWlzc2luZyBjbG9jayBkb2N1bWVudGF0aW9uIHRvIERUIGJp
+bmRpbmdzCiAgQVJNOiB0ZWdyYTogZG9jdW1lbnQgcmVzZXQgcHJvcGVydGllcyBpbiBEVCBiaW5k
+aW5ncwogIEFSTTogdGVncmE6IGRvY3VtZW50IHVzZSBvZiBzdGFuZGFyZCBETUEgRFQgYmluZGlu
+Z3MKICBBUk06IHRlZ3JhOiB1cGRhdGUgRFQgZmlsZXMgdG8gYWRkIHJlc2V0IHByb3BlcnRpZXMK
+ICBBUk06IHRlZ3JhOiB1cGRhdGUgRFQgZmlsZXMgdG8gYWRkIERNQSBwcm9wZXJ0aWVzCiAgQVJN
+OiB0ZWdyYTogc2VsZWN0IHRoZSByZXNldCBmcmFtZXdvcmsKICBjbGs6IHRlZ3JhOiBpbXBsZW1l
+bnQgYSByZXNldCBkcml2ZXIKICBwY2k6IHRlZ3JhOiB1c2UgcmVzZXQgZnJhbWV3b3JrCiAgZHJt
+L3RlZ3JhOiB1c2UgcmVzZXQgZnJhbWV3b3JrCiAgQVJNOiB0ZWdyYTogcGFzcyByZXNldCB0byB0
+ZWdyYV9wb3dlcmdhdGVfc2VxdWVuY2VfcG93ZXJfdXAoKQogIGRtYTogYWRkIGNoYW5uZWwgcmVx
+dWVzdCBBUEkgdGhhdCBzdXBwb3J0cyBkZWZlcnJlZCBwcm9iZQogIGRtYTogdGVncmE6IHVzZSBy
+ZXNldCBmcmFtZXdvcmsKICBkbWE6IHRlZ3JhOiByZWdpc3RlciBhcyBhbiBPRiBETUEgY29udHJv
+bGxlcgogIEFTb0M6IGRtYWVuZ2luZTogc3VwcG9ydCBkZWZlcnJlZCBwcm9iZSBmb3IgRE1BIGNo
+YW5uZWxzCiAgQVNvQzogZG1hZW5naW5lOiBhZGQgY3VzdG9tIERNQSBjb25maWcgdG8gc25kX2Rt
+YWVuZ2luZV9wY21fY29uZmlnCiAgQVNvQzogdGVncmE6IHVzZSByZXNldCBmcmFtZXdvcmsKICBB
+U29DOiB0ZWdyYTogY2FsbCBwbV9ydW50aW1lIEFQSXMgYXJvdW5kIHJlZ2lzdGVyIGFjY2Vzc2Vz
+CiAgQVNvQzogdGVncmE6IGFsbG9jYXRlIEFIVUIgRklGTyBkdXJpbmcgcHJvYmUoKSBub3Qgc3Rh
+cnR1cCgpCiAgQVNvQzogdGVncmE6IGNvbnZlcnQgdG8gc3RhbmRhcmQgRE1BIERUIGJpbmRpbmdz
+CiAgaTJjOiB0ZWdyYTogdXNlIHJlc2V0IGZyYW1ld29yawogIHN0YWdpbmc6IG52ZWM6IHVzZSBy
+ZXNldCBmcmFtZXdvcmsKICBzcGk6IHRlZ3JhOiB1c2UgcmVzZXQgZnJhbWV3b3JrCiAgc3BpOiB0
+ZWdyYTogY29udmVydCB0byBzdGFuZGFyZCBETUEgRFQgYmluZGluZ3MKICBzZXJpYWw6IHRlZ3Jh
+OiB1c2UgcmVzZXQgZnJhbWV3b3JrCiAgc2VyaWFsOiB0ZWdyYTogY29udmVydCB0byBzdGFuZGFy
+ZCBETUEgRFQgYmluZGluZ3MKICBJbnB1dDogdGVncmEta2JjIC0gdXNlIHJlc2V0IGZyYW1ld29y
+awogIFVTQjogRUhDSTogdGVncmE6IHVzZSByZXNldCBmcmFtZXdvcmsKICBBUk06IHRlZ3JhOiBy
+ZW1vdmUgbGVnYWN5IGNsb2NrIGVudHJpZXMgZnJvbSBEVAogIEFSTTogdGVncmE6IHJlbW92ZSBs
+ZWdhY3kgRE1BIGVudHJpZXMgZnJvbSBEVAogIGNsazogdGVncmE6IHJlbW92ZSBsZWdhY3kgcmVz
+ZXQgQVBJcwogIGNsazogdGVncmE6IHJlbW92ZSBib2d1cyBQQ0lFX1hDTEsKCiAuLi4vYmluZGlu
+Z3MvYXJtL3RlZ3JhL252aWRpYSx0ZWdyYTIwLXBtYy50eHQgICAgICB8ICAgMSArCiAuLi4vYmlu
+ZGluZ3MvY2xvY2svbnZpZGlhLHRlZ3JhMTE0LWNhci50eHQgICAgICAgICB8ICAgNCArCiAuLi4v
+YmluZGluZ3MvY2xvY2svbnZpZGlhLHRlZ3JhMTI0LWNhci50eHQgICAgICAgICB8ICAgNCArCiAu
+Li4vYmluZGluZ3MvY2xvY2svbnZpZGlhLHRlZ3JhMjAtY2FyLnR4dCAgICAgICAgICB8ICAgNCAr
+CiAuLi4vYmluZGluZ3MvY2xvY2svbnZpZGlhLHRlZ3JhMzAtY2FyLnR4dCAgICAgICAgICB8ICAg
+NCArCiAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9kbWEvdGVncmEyMC1hcGJkbWEudHh0ICAgICB8
+ICAgOSArKwogLi4uL2JpbmRpbmdzL2dwdS9udmlkaWEsdGVncmEyMC1ob3N0MXgudHh0ICAgICAg
+ICAgfCAxMjQgKysrKysrKysrKysrKysrCiAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvbnZp
+ZGlhLHRlZ3JhMjAtaTJjLnR4dCB8ICAyNyArKystCiAuLi4vYmluZGluZ3MvaW5wdXQvbnZpZGlh
+LHRlZ3JhMjAta2JjLnR4dCAgICAgICAgICB8ICAgOSArKwogLi4uL2JpbmRpbmdzL21tYy9udmlk
+aWEsdGVncmEyMC1zZGhjaS50eHQgICAgICAgICAgfCAgIDkgKysKIC4uLi9kZXZpY2V0cmVlL2Jp
+bmRpbmdzL252ZWMvbnZpZGlhLG52ZWMudHh0ICAgICAgIHwgIDEyICsrCiAuLi4vYmluZGluZ3Mv
+cGNpL252aWRpYSx0ZWdyYTIwLXBjaWUudHh0ICAgICAgICAgICB8ICAyOCArKy0tCiAuLi4vZGV2
+aWNldHJlZS9iaW5kaW5ncy9wd20vbnZpZGlhLHRlZ3JhMjAtcHdtLnR4dCB8ICAgOSArKwogLi4u
+L2RldmljZXRyZWUvYmluZGluZ3MvcnRjL252aWRpYSx0ZWdyYTIwLXJ0Yy50eHQgfCAgIDMgKwog
+Li4uL2JpbmRpbmdzL3NlcmlhbC9udmlkaWEsdGVncmEyMC1oc3VhcnQudHh0ICAgICAgfCAgMTkg
+KystCiAuLi4vYmluZGluZ3Mvc291bmQvbnZpZGlhLHRlZ3JhLWF1ZGlvLWFsYzU2MzIudHh0ICB8
+ICAgNyArLQogLi4uL2JpbmRpbmdzL3NvdW5kL252aWRpYSx0ZWdyYS1hdWRpby1ydDU2NDAudHh0
+ICAgfCAgIDcgKy0KIC4uLi9iaW5kaW5ncy9zb3VuZC9udmlkaWEsdGVncmEtYXVkaW8td204NzUz
+LnR4dCAgIHwgICA3ICstCiAuLi4vYmluZGluZ3Mvc291bmQvbnZpZGlhLHRlZ3JhLWF1ZGlvLXdt
+ODkwMy50eHQgICB8ICAgNyArLQogLi4uL2JpbmRpbmdzL3NvdW5kL252aWRpYSx0ZWdyYS1hdWRp
+by13bTk3MTIudHh0ICAgfCAgIDcgKy0KIC4uLi9iaW5kaW5ncy9zb3VuZC9udmlkaWEsdGVncmEy
+MC1hYzk3LnR4dCAgICAgICAgIHwgIDIwICsrLQogLi4uL2JpbmRpbmdzL3NvdW5kL252aWRpYSx0
+ZWdyYTIwLWkycy50eHQgICAgICAgICAgfCAgMTkgKystCiAuLi4vYmluZGluZ3Mvc291bmQvbnZp
+ZGlhLHRlZ3JhMzAtYWh1Yi50eHQgICAgICAgICB8ICA1NCArKysrKy0tCiAuLi4vYmluZGluZ3Mv
+c291bmQvbnZpZGlhLHRlZ3JhMzAtaTJzLnR4dCAgICAgICAgICB8ICAxMSArLQogLi4uL2JpbmRp
+bmdzL3NwaS9udmlkaWEsdGVncmExMTQtc3BpLnR4dCAgICAgICAgICAgfCAgMjQgKystCiAuLi4v
+YmluZGluZ3Mvc3BpL252aWRpYSx0ZWdyYTIwLXNmbGFzaC50eHQgICAgICAgICB8ICAyMCArKy0K
+IC4uLi9iaW5kaW5ncy9zcGkvbnZpZGlhLHRlZ3JhMjAtc2xpbmsudHh0ICAgICAgICAgIHwgIDIw
+ICsrLQogLi4uL2JpbmRpbmdzL3RpbWVyL252aWRpYSx0ZWdyYTIwLXRpbWVyLnR4dCAgICAgICAg
+fCAgIDMgKwogLi4uL2JpbmRpbmdzL3RpbWVyL252aWRpYSx0ZWdyYTMwLXRpbWVyLnR4dCAgICAg
+ICAgfCAgIDMgKwogLi4uL2JpbmRpbmdzL3VzYi9udmlkaWEsdGVncmEyMC1laGNpLnR4dCAgICAg
+ICAgICAgfCAgIDcgKy0KIGFyY2gvYXJtL2Jvb3QvZHRzL3RlZ3JhMTE0LmR0c2kgICAgICAgICAg
+ICAgICAgICAgIHwgMTQyICsrKysrKysrKysrKysrLS0tCiBhcmNoL2FybS9ib290L2R0cy90ZWdy
+YTIwLXBhejAwLmR0cyAgICAgICAgICAgICAgICB8ICAgMiArCiBhcmNoL2FybS9ib290L2R0cy90
+ZWdyYTIwLmR0c2kgICAgICAgICAgICAgICAgICAgICB8IDEzMiArKysrKysrKysrKysrKy0tCiBh
+cmNoL2FybS9ib290L2R0cy90ZWdyYTMwLmR0c2kgICAgICAgICAgICAgICAgICAgICB8IDE3MSAr
+KysrKysrKysrKysrKysrKy0tLS0KIGFyY2gvYXJtL21hY2gtdGVncmEvS2NvbmZpZyAgICAgICAg
+ICAgICAgICAgICAgICAgIHwgICAyICsKIGFyY2gvYXJtL21hY2gtdGVncmEvcG93ZXJnYXRlLmMg
+ICAgICAgICAgICAgICAgICAgIHwgICA4ICstCiBkcml2ZXJzL2Nsay90ZWdyYS9jbGstcGVyaXBo
+LWdhdGUuYyAgICAgICAgICAgICAgICB8ICAyMiAtLS0KIGRyaXZlcnMvY2xrL3RlZ3JhL2Nsay1w
+ZXJpcGguYyAgICAgICAgICAgICAgICAgICAgIHwgIDQwIC0tLS0tCiBkcml2ZXJzL2Nsay90ZWdy
+YS9jbGstdGVncmExMTQuYyAgICAgICAgICAgICAgICAgICB8ICAgMyArLQogZHJpdmVycy9jbGsv
+dGVncmEvY2xrLXRlZ3JhMTI0LmMgICAgICAgICAgICAgICAgICAgfCAgIDIgKy0KIGRyaXZlcnMv
+Y2xrL3RlZ3JhL2Nsay10ZWdyYTIwLmMgICAgICAgICAgICAgICAgICAgIHwgICA5ICstCiBkcml2
+ZXJzL2Nsay90ZWdyYS9jbGstdGVncmEzMC5jICAgICAgICAgICAgICAgICAgICB8ICAxMCArLQog
+ZHJpdmVycy9jbGsvdGVncmEvY2xrLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNTUg
+KysrKysrLQogZHJpdmVycy9jbGsvdGVncmEvY2xrLmggICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgfCAgIDMgKy0KIGRyaXZlcnMvZG1hL2FjcGktZG1hLmMgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIHwgIDEyICstCiBkcml2ZXJzL2RtYS9kbWFlbmdpbmUuYyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICB8ICA0NCArKysrKy0KIGRyaXZlcnMvZG1hL29mLWRtYS5jICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIHwgIDEyICstCiBkcml2ZXJzL2RtYS90ZWdyYTIwLWFwYi1kbWEu
+YyAgICAgICAgICAgICAgICAgICAgICB8ICA0OSArKysrKy0KIGRyaXZlcnMvZ3B1L2RybS90ZWdy
+YS9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgIHwgICAxICsKIGRyaXZlcnMvZ3B1L2RybS90
+ZWdyYS9kYy5jICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA5ICstCiBkcml2ZXJzL2dwdS9k
+cm0vdGVncmEvZHJtLmggICAgICAgICAgICAgICAgICAgICAgICB8ICAgMyArCiBkcml2ZXJzL2dw
+dS9kcm0vdGVncmEvZ3IzZC5jICAgICAgICAgICAgICAgICAgICAgICB8ICAyMiArKy0KIGRyaXZl
+cnMvZ3B1L2RybS90ZWdyYS9oZG1pLmMgICAgICAgICAgICAgICAgICAgICAgIHwgIDE0ICstCiBk
+cml2ZXJzL2kyYy9idXNzZXMvaTJjLXRlZ3JhLmMgICAgICAgICAgICAgICAgICAgICB8ICAxMyAr
+LQogZHJpdmVycy9pbnB1dC9rZXlib2FyZC90ZWdyYS1rYmMuYyAgICAgICAgICAgICAgICAgfCAg
+MTMgKy0KIGRyaXZlcnMvcGNpL2hvc3QvcGNpLXRlZ3JhLmMgICAgICAgICAgICAgICAgICAgICAg
+IHwgIDUyICsrKysrLS0KIGRyaXZlcnMvc3BpL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgICAzICsKIGRyaXZlcnMvc3BpL3NwaS10ZWdyYTExNC5jICAgICAgICAgICAg
+ICAgICAgICAgICAgIHwgIDY2ICsrKystLS0tCiBkcml2ZXJzL3NwaS9zcGktdGVncmEyMC1zZmxh
+c2guYyAgICAgICAgICAgICAgICAgICB8ICAxOCArKy0KIGRyaXZlcnMvc3BpL3NwaS10ZWdyYTIw
+LXNsaW5rLmMgICAgICAgICAgICAgICAgICAgIHwgIDY2ICsrKystLS0tCiBkcml2ZXJzL3N0YWdp
+bmcvbnZlYy9udmVjLmMgICAgICAgICAgICAgICAgICAgICAgICB8ICAxMSArLQogZHJpdmVycy9z
+dGFnaW5nL252ZWMvbnZlYy5oICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUgKy0KIGRyaXZl
+cnMvdHR5L3NlcmlhbC9zZXJpYWwtdGVncmEuYyAgICAgICAgICAgICAgICAgIHwgIDg2ICsrKysr
+LS0tLS0tCiBkcml2ZXJzL3VzYi9ob3N0L2VoY2ktdGVncmEuYyAgICAgICAgICAgICAgICAgICAg
+ICB8ICAxNCArLQogaW5jbHVkZS9kdC1iaW5kaW5ncy9jbG9jay90ZWdyYTIwLWNhci5oICAgICAg
+ICAgICAgfCAgIDIgKy0KIGluY2x1ZGUvZHQtYmluZGluZ3MvY2xvY2svdGVncmEzMC1jYXIuaCAg
+ICAgICAgICAgIHwgICAyICstCiBpbmNsdWRlL2xpbnV4L2Nsay90ZWdyYS5oICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8ICAgNyAtCiBpbmNsdWRlL2xpbnV4L2RtYWVuZ2luZS5oICAgICAgICAg
+ICAgICAgICAgICAgICAgICB8ICAgNyArCiBpbmNsdWRlL2xpbnV4L29mX2RtYS5oICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB8ICAgOSArLQogaW5jbHVkZS9saW51eC90ZWdyYS1wb3dlcmdh
+dGUuaCAgICAgICAgICAgICAgICAgICAgfCAgIDQgKy0KIGluY2x1ZGUvc291bmQvZG1hZW5naW5l
+X3BjbS5oICAgICAgICAgICAgICAgICAgICAgIHwgICA2ICsKIHNvdW5kL3NvYy9zb2MtZ2VuZXJp
+Yy1kbWFlbmdpbmUtcGNtLmMgICAgICAgICAgICAgIHwgIDgyICsrKysrKystLS0KIHNvdW5kL3Nv
+Yy90ZWdyYS9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAyICsKIHNvdW5k
+L3NvYy90ZWdyYS90ZWdyYTIwX2FjOTcuYyAgICAgICAgICAgICAgICAgICAgIHwgIDExIC0tCiBz
+b3VuZC9zb2MvdGVncmEvdGVncmEyMF9pMnMuYyAgICAgICAgICAgICAgICAgICAgICB8ICAyMCAr
+LS0KIHNvdW5kL3NvYy90ZWdyYS90ZWdyYTMwX2FodWIuYyAgICAgICAgICAgICAgICAgICAgIHwg
+MTI1ICsrKysrKysrKy0tLS0tLQogc291bmQvc29jL3RlZ3JhL3RlZ3JhMzBfYWh1Yi5oICAgICAg
+ICAgICAgICAgICAgICAgfCAgMTEgKy0KIHNvdW5kL3NvYy90ZWdyYS90ZWdyYTMwX2kycy5jICAg
+ICAgICAgICAgICAgICAgICAgIHwgIDk3ICsrKysrKy0tLS0tLQogc291bmQvc29jL3RlZ3JhL3Rl
+Z3JhMzBfaTJzLmggICAgICAgICAgICAgICAgICAgICAgfCAgIDMgKwogc291bmQvc29jL3RlZ3Jh
+L3RlZ3JhX3BjbS5jICAgICAgICAgICAgICAgICAgICAgICAgfCAgMTcgKy0KIHNvdW5kL3NvYy90
+ZWdyYS90ZWdyYV9wY20uaCAgICAgICAgICAgICAgICAgICAgICAgIHwgICA1ICsKIDgxIGZpbGVz
+IGNoYW5nZWQsIDE0NDggaW5zZXJ0aW9ucygrKSwgNTU4IGRlbGV0aW9ucygtKQoKLS0gCjEuOC4x
+LjUKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51
+eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVh
+ZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1h
+cm0ta2VybmVsCg==

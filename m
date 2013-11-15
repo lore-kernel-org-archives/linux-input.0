@@ -1,153 +1,219 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH] Input: clarify gamepad API ABS values
-Date: Thu, 14 Nov 2013 23:53:35 +0100
-Message-ID: <20131114235335.f18e7440e0803ed97dc65972@studenti.unina.it>
-References: <1380806829-11824-1-git-send-email-dh.herrmann@gmail.com>
-	<20131114180720.fece45888942c29d5865073e@studenti.unina.it>
-	<CANq1E4Q-yPVh7ah-SMGb--VCJA97c2yCLSGQakFzGWWQydo7jw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.13-rc0
+Date: Thu, 14 Nov 2013 18:01:06 -0800
+Message-ID: <20131115020106.GA13412@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:3507 "EHLO smtp207.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755391Ab3KNWxj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Nov 2013 17:53:39 -0500
-In-Reply-To: <CANq1E4Q-yPVh7ah-SMGb--VCJA97c2yCLSGQakFzGWWQydo7jw@mail.gmail.com>
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:44682 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755978Ab3KOCBK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 Nov 2013 21:01:10 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, 14 Nov 2013 18:22:28 +0100
-David Herrmann <dh.herrmann@gmail.com> wrote:
 
-> On Thu, Nov 14, 2013 at 6:07 PM, Antonio Ospite
-> <ospite@studenti.unina.it> wrote:
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[...]
-> > I know it is not really relevant and you won't fix the kernel interface
-> > anyway, but I was just curios: is there any known userspace using the
-> > gamepad API?
-> 
-> The xwiimote userspace-drivers use it, other than that it is hard to
-> tell.. I looked at a lot of games and applications and they all just
-> contain a bunch of hacks and per-driver-mappings. I cannot really tell
-> whether anyone uses it, yet (there's isn't really a reason to use it
-> as only the wiimote kernel drivers comply to it).
-> 
-> However, I hope we can make all new drivers adhere these rules so
-> user-space no longer has to guess the mappings.
->
+Hi Linus,
 
-I am going to adopt the gamepad API for the PS3 controller as well,
-motivating the change with the current utterly broken status of
-the mapping from the evdev point of view.
+Please pull from:
 
-I have reasons to believe that any existing linux software targeting the
-PS3 controller is just parsing the hidraw data itself, the joystick
-interface is not completely usable either in the current status.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> > Another question is below.
-> >
-> >> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
-> >> ---
-> >>  Documentation/input/gamepad.txt | 3 +++
-> >>  1 file changed, 3 insertions(+)
-> >>
-> >> diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
-> >> index 8002c89..31bb6a4 100644
-> >> --- a/Documentation/input/gamepad.txt
-> >> +++ b/Documentation/input/gamepad.txt
-> >> @@ -122,12 +122,14 @@ D-Pad:
-> >>        BTN_DPAD_*
-> >>      Analog buttons are reported as:
-> >>        ABS_HAT0X and ABS_HAT0Y
-> >> +      (for ABS values negative is left/up, positive is right/down)
-> >>
-> >
-> > Does that mean that analog D-Pad Left and D-Pad Right are supposed to be
-> > described as a single axis (ABS_HAT0X), even if in the input report
-> > they come as two different fields (non adjacent even)? And same for
-> > analog Up/Down?
-> >
-> > JFYI on the PS3 controller it is possible to have values from analog
-> > D-Pad Left and analog D-Pad Right at the same time, even if it is
-> > mechanically unlikely.
-> 
-> Yes, it's a single axis. It's called a D-Pad (Direction-Pad) so it is
-> supposed to give information about a direction. This somehow excludes
-> reporting information for left/right separately, right?
->
+to receive updates for the input subsystem. You will get an new drivers
+for Hyper-V synthetic keyboard and for Neonode zForce touchscreens, plus
+a bunch of driver fixes and cleanups.
 
-Mathematically, yes, but I am still not completely sure that being so
-strict is convenient in this case: when describing the _digital_ D-Pad
-we mention "4 buttons" and then "four directions", and indeed hardware
-generally exposes all four directional buttons independently (even if
-opposed ones are not supposed to be pressed at the same time, they still
-might); so it could make sense to use the same scheme for _analog_
-D-Pad axes too: four independent analog D-Pad axes.
+Please note that you will get a small conflict in
+arch/arm/boot/dts/am335x-evmsk.dts but that shoudl be easily resolvable.
 
-Again, JFYI the PS3 controller allows to press even _digital_ D-Pad
-Left and Right at the same time even if this is mechanically trickier
-to achieve than the correspondent analog events.
+Changelog:
+---------
 
-> I didn't know there are actually devices reporting this separately, so
-> I never considered that during the development of the API.
-> Fortunately, the drivers which follow this spec all use digital DPADs,
-> so we can easily change it now.
->
+Dan Carpenter (1):
+      Input: tnetv107x-keypad - make irqs signed for error handling
 
-I'd say we change it. But maybe it's better to hear from someone more
-into games.
+Daniel Stone (1):
+      Input: evdev - fall back to vmalloc for client event buffer
 
-> What exactly does the PS3 controller return? Is it
-> pressure-information for the dpad?
+David Herrmann (1):
+      Input: clarify gamepad API ABS values
 
-Yes it is, 4 pressure values form 0 to 255, one for each "direction".
+Dmitry Torokhov (1):
+      Revert "Input: ALPS - add support for model found on Dell XT2"
 
->I'm open to change this to report 4
-> ABS values, but I'm not sure that we want that. From a user-space
-> perspective I want to get 2 values, not 4. I wouldn't even know what
-> to do with 4 dpad-values. So why not convert that in the kernel to:
->   x = x1 - x0;
->   y = y1 - y0;
-> This gives you proper x/y DPAD values from 4 pressure inputs.
-> 
-> But I'm open for suggestions..
+Duan Jiong (1):
+      Input: cyttsp4 - replace IS_ERR and PTR_ERR with PTR_ERR_OR_ZERO
 
-If I have to, I'll do that conversion; I just don't know yet how to
-prepare for this scenario at the HID descriptor level.
+Felipe Balbi (2):
+      Input: ti_am335x_tsc - fix spelling mistake in TSC/ADC DT binding
+      arm: dts: am335x sk: add touchscreen support
 
-In my driver I'd like to just fixup the whole HID descriptor and then
-simply remap the keycodes, I'd like to avoid parsing the raw data
-explicitly in C.
+Geyslan G. Bem (1):
+      Input: cypress_ps2 - remove useless cast
 
-[...]
-> >
-> > What about analog Action-Pad buttons?
-> > Do you suggest any mapping for them?
-> 
-> Do we have devices which report analog action-pad values? If there
-> are, we can introduce new ABS_* bits for them (the current ones really
-> don't fit). This requires the ABS2 patches which are currently pending
-> on the list, though.
->
-> And again, what information do these action-pads provide? Pressure?
+Heiko St=FCbner (1):
+      Input: add driver for Neonode zForce based touchscreens
 
-The PS3 controller reports a pressure value from 0 to 255 for each of
-the Action-Pad buttons.
+Jason Gerecke (2):
+      Input: wacom - support EMR and MFT sensors of Cintiq Companion Hybrid
+      Input: wacom - send proper tablet state info when pen leaves proximity
 
-I am writing some documentation of the input report of the PS3
-controller, I'll post it here soon.
+Jingoo Han (1):
+      Input: cypress_ps2 - remove casting the return value which is a void =
+pointer
 
-Thanks,
-   Antonio
+Joseph Salisbury (1):
+      Input: cypress_ps2 - do not consider data bad if palm is detected
 
--- 
-Antonio Ospite
-http://ao2.it
+K. Y. Srinivasan (1):
+      Input: add a driver to support Hyper-V synthetic keyboard
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+Kang Hu (1):
+      Input: remove a redundant max() call
+
+Laurent Pinchart (1):
+      Input: sh_keysc - enable the driver on all ARM platforms
+
+Majunath Goudar (1):
+      Input: fix PWM-related undefined reference errors
+
+Ping Cheng (4):
+      Input: wacom - testing result shows get_report is unnecessary.
+      Input: wacom - LED is only supported through digitizer interface
+      Input: wacom - add support for three new Intuos Pro devices
+      Input: wacom - not all multi-interface devices support touch
+
+Ryan Mallon (1):
+      Input: uinput - support injecting multiple events in one write() call
+
+Sachin Kamat (20):
+      Input: cobalt_btns - remove redundant dev_set_drvdata
+      Input: htcpen - remove redundant dev_set_drvdata
+      Input: rb532_button - remove redundant dev_set_drvdata
+      Input: cyttsp4_core - remove redundant dev_set_drvdata
+      Input: ad714x-spi - remove redundant spi_set_drvdata
+      Input: ad7877 - remove redundant spi_set_drvdata
+      Input: ad7879-spi - remove redundant spi_set_drvdata
+      Input: tsc2005 - remove redundant spi_set_drvdata
+      Input: lpc32xx-keys - remove redundant of_match_ptr
+      Input: nspire-keypad - remove redundant of_match_ptr
+      Input: tegra-kbc - remove redundant of_match_ptr
+      Input: sirfsoc-onkey - remove redundant of_match_ptr
+      Input: egalax_ts - remove redundant of_match_ptr
+      Input: ti_am335x_tsc - remove redundant of_match_ptr
+      Input: gpio_keys - include linux/of.h header
+      Input: gpio_keys_polled - include linux/of.h header
+      Input: pxa27x_keypad - include linux/of.h header
+      Input: pwm-beeper - include linux/of.h header
+      Input: rotary_encoder - include linux/of.h header
+      Input: st1232 - include linux/of.h header
+
+Tom Gundersen (3):
+      Input: i8042 - add PNP modaliases
+      Input: allow deselecting serio drivers even without CONFIG_EXPERT
+      Input: mousedev - allow disabling even without CONFIG_EXPERT
+
+Wei Yongjun (3):
+      Input: nspire-keypad - add missing clk_disable_unprepare() on error p=
+ath
+      Input: mpu3050 - add missing i2c_set_clientdata() in mpu3050_probe()
+      Input: mma8450 - add missing i2c_set_clientdata() in mma8450_probe()
+
+Yunkang Tang (1):
+      Input: ALPS - change secondary device's name
+
+
+Diffstat:
+--------
+
+ .../bindings/input/touchscreen/ti-tsc-adc.txt      |   2 +-
+ Documentation/input/gamepad.txt                    |   3 +
+ arch/arm/boot/dts/am335x-evm.dts                   |   2 +-
+ arch/arm/boot/dts/am335x-evmsk.dts                 |  10 +
+ drivers/input/Kconfig                              |   2 +-
+ drivers/input/evdev.c                              |  16 +-
+ drivers/input/input.c                              |   2 +-
+ drivers/input/keyboard/Kconfig                     |   6 +-
+ drivers/input/keyboard/gpio_keys.c                 |   1 +
+ drivers/input/keyboard/gpio_keys_polled.c          |   1 +
+ drivers/input/keyboard/lpc32xx-keys.c              |   2 +-
+ drivers/input/keyboard/nspire-keypad.c             |   6 +-
+ drivers/input/keyboard/pxa27x_keypad.c             |   1 +
+ drivers/input/keyboard/tegra-kbc.c                 |   2 +-
+ drivers/input/keyboard/tnetv107x-keypad.c          |   4 +-
+ drivers/input/misc/Kconfig                         |   4 +-
+ drivers/input/misc/ad714x-spi.c                    |   1 -
+ drivers/input/misc/cobalt_btns.c                   |   2 -
+ drivers/input/misc/mma8450.c                       |   4 +-
+ drivers/input/misc/mpu3050.c                       |   1 +
+ drivers/input/misc/pwm-beeper.c                    |   1 +
+ drivers/input/misc/rb532_button.c                  |   1 -
+ drivers/input/misc/rotary_encoder.c                |   1 +
+ drivers/input/misc/sirfsoc-onkey.c                 |   2 +-
+ drivers/input/misc/uinput.c                        |  26 +-
+ drivers/input/mouse/alps.c                         |   3 +-
+ drivers/input/mouse/cypress_ps2.c                  |  29 +-
+ drivers/input/serio/Kconfig                        |  16 +-
+ drivers/input/serio/Makefile                       |   1 +
+ drivers/input/serio/hyperv-keyboard.c              | 437 +++++++++++
+ drivers/input/serio/i8042-x86ia64io.h              |   2 +
+ drivers/input/tablet/wacom_sys.c                   |  96 ++-
+ drivers/input/tablet/wacom_wac.c                   | 114 ++-
+ drivers/input/tablet/wacom_wac.h                   |   8 +-
+ drivers/input/touchscreen/Kconfig                  |  13 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/ad7877.c                 |   2 -
+ drivers/input/touchscreen/ad7879-spi.c             |   1 -
+ drivers/input/touchscreen/cyttsp4_core.c           |   2 -
+ drivers/input/touchscreen/cyttsp4_spi.c            |   5 +-
+ drivers/input/touchscreen/egalax_ts.c              |   2 +-
+ drivers/input/touchscreen/htcpen.c                 |   2 -
+ drivers/input/touchscreen/st1232.c                 |   1 +
+ drivers/input/touchscreen/ti_am335x_tsc.c          |  11 +-
+ drivers/input/touchscreen/tsc2005.c                |   2 -
+ drivers/input/touchscreen/zforce_ts.c              | 836 +++++++++++++++++=
+++++
+ include/linux/platform_data/zforce_ts.h            |  26 +
+ 47 files changed, 1585 insertions(+), 128 deletions(-)
+ create mode 100644 drivers/input/serio/hyperv-keyboard.c
+ create mode 100644 drivers/input/touchscreen/zforce_ts.c
+ create mode 100644 include/linux/platform_data/zforce_ts.h
+
+--=20
+Dmitry
+
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJShYBhAAoJEH70+W8r6ZYqBLMP/ix70zCOcahOdoGsrYocoEke
+jLpWsFDD1vVxws0ri1CXKB6zG8vS8lOv/AnPMlWfUEMW/jknbEtn0Go2BIf1JeE7
+MOw8THcxJoi8U1aCzi5z0Oqywvjy90YvcjMjxh7uNOWPRE384grn8HyfLipzs0ty
+tQmg1yVwbPkbr8Hs15g0nWaqQEUWKrcV6G1TZiLhcSgBxz79l4TsvV2OmIgEMspf
+FiI642k0bW7AlRIF67jTWjTooYcvJhNaK3XVSit94I74u5UgjQBDYYPWvDwHi+j4
+vcIcnTlZ76OF5nIxB9DoATm/Qdxu2maRH4usRgi9edqFY/roNrMWqupJ86o5bd9U
+rEfx11LlM5sUZ2d7izarqx/7AmWSiFBto8OeYCQY1Uif2rZZXhC8CaMWiTRoPGyV
+M2hus8I4yQJurX0DtpiTvGVxZLOp+ptWHDWRCwFpzw43dgCadfL49LEY2MgXgrfD
+BTGdJfvUv8ycU1bVjnInzwjSBnXsuen0g/XjUn+FnA/JpzrfVd9GRVg+sT4saD+b
+suM136XNEWa9DFwwfzktnimqcFX+nGvach0KB2iIh4YV42ugUxQictJCvBy5JimH
+YCba/A87afPnnS3EYwofiS0p0fiuP8z2grQzFUgEZkvoGesYemo+t8LeS16+7MCn
+QLXChlgKWDW9nX0SRjgN
+=7urP
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--

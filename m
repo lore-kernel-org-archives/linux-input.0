@@ -1,71 +1,64 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 04/13] Input: add motion-tracking ABS_* bits and docs
-Date: Sat, 16 Nov 2013 19:07:02 +0100
-Message-ID: <CANq1E4SCRApAk6TxNp5=AiAtj3+NS67_0FE598By6Z14h4MKDQ@mail.gmail.com>
-References: <1383336984-26601-1-git-send-email-dh.herrmann@gmail.com>
-	<1383336984-26601-5-git-send-email-dh.herrmann@gmail.com>
-	<20131115111135.1548dc0a4effdad8f672ff24@studenti.unina.it>
-	<CANq1E4Szv+0-GSkekH_Q5HXDv+hq7LS6tYbZFTtmxsUp1-ALkA@mail.gmail.com>
-	<20131116185337.0d2c80ff184ea582d69858ed@studenti.unina.it>
+From: simon@mungewell.org
+Subject: Re: [PATCH] HID: sony: Add force feedback support for Dualshock3
+ USB
+Date: Sat, 16 Nov 2013 17:30:25 -0500
+Message-ID: <f26febe04a776d22c913ed3ade3a8d90.squirrel@mungewell.org>
+References: <1384021557-24106-1-git-send-email-sven@narfation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/mixed;boundary="----=_20131116173025_18109"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f46.google.com ([209.85.215.46]:38285 "EHLO
-	mail-la0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751303Ab3KPSHE (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:50519 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752127Ab3KPWa2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Nov 2013 13:07:04 -0500
-Received: by mail-la0-f46.google.com with SMTP id eh20so3685234lab.5
-        for <linux-input@vger.kernel.org>; Sat, 16 Nov 2013 10:07:02 -0800 (PST)
-In-Reply-To: <20131116185337.0d2c80ff184ea582d69858ed@studenti.unina.it>
+	Sat, 16 Nov 2013 17:30:28 -0500
+In-Reply-To: <1384021557-24106-1-git-send-email-sven@narfation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Colin Leitner <colin.leitner@gmail.com>, Sven Eckelmann <sven@narfation.org>
 
-Hi
+------=_20131116173025_18109
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-On Sat, Nov 16, 2013 at 6:53 PM, Antonio Ospite
-<ospite@studenti.unina.it> wrote:
-> On Fri, 15 Nov 2013 11:17:31 +0100
-> David Herrmann <dh.herrmann@gmail.com> wrote:
->
->> Hi Antonio
->>
->> On Fri, Nov 15, 2013 at 11:11 AM, Antonio Ospite
->> <ospite@studenti.unina.it> wrote:
->> > On Fri,  1 Nov 2013 21:16:15 +0100
->> > David Herrmann <dh.herrmann@gmail.com> wrote:
->> >
->> >> Motion sensors are getting quite common in mobile devices. To avoid
->> >> returning accelerometer data via ABS_X/Y/Z and irritating the Xorg
->> >> mouse-driver, this adds separate ABS_* bits for that.
->> >>
->> >> This is needed if gaming devices want to report their normal data plus
->> >> accelerometer/gyro data. Usually, ABS_X/Y are already used by analog
->> >> sticks, so need separate definitions, anyway.
->> >>
->> >> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
->> >
->> > Hi, what's the status of this patch?
->> > I cannot see it in Dmitry's repository, David maybe you have another
->> > repository I can pull from?
->>
->> Please see patch 1/13 and 2/13. They fix the kernel ABI to support new
->> ABS_* bits (the current ABI is broken in that regard). As this is
->> quite critical and caused breaks during the last merge-window, we
->> haven't merged it yet. I hope to get it into 3.14, though. The current
->> patches seem fine and work for me. I will try to get the user-space
->> part working in the next weeks.
->>
->> Any help is welcome!
->>
->
-> I can try updating evtest, any idea about how I should check at
-> runtime whether ABS_MAX2 is supported or not?
+> Sony Dualshock 3 controllers have two motors which can be used to provide
+> simple force feedback rumble effects. The right motor is can be used to
+> create
+> a weak rumble effect but does not allow to set the force. The left motor
+> is
+> used to create a strong rumble effect with adjustable intensity.
 
-That's still my current issue that I need to fix. My intention is to
-increase EVDEV_VERSION, so EVIOCGVERSION will suffice to test for it.
+Hi,
+This patch appears to work OK with my DualShock/SixAxis controller (USB
+connection), but causes a machine lockup when used with my Intec wired
+controller.
 
-Thanks
-David
+The Intec controller works OK up to the point when I start rumble,
+sometimes the motor runs some times it doesn't. I am using SDL2's
+'testhaptic' application.
+
+Syslog log attached detail controller.
+
+If you have any specific tests to run, please advise,
+Simon
+------=_20131116173025_18109
+Content-Type: text/plain; name="intec.txt"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="intec.txt"
+
+Nov 16 14:26:21 womble kernel: [   95.296039] usb 3-1: new full-speed USB device number 2 using uhci_hcd
+Nov 16 14:26:22 womble kernel: [   95.463964] usb 3-1: New USB device found, idVendor=054c, idProduct=0268
+Nov 16 14:26:22 womble kernel: [   95.463973] usb 3-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+Nov 16 14:26:22 womble kernel: [   95.463978] usb 3-1: Product: PLAYSTATION(R)3 Controller
+Nov 16 14:26:22 womble kernel: [   95.463982] usb 3-1: Manufacturer: GASIA CORP.
+Nov 16 14:26:22 womble mtp-probe: checking bus 3, device 2: "/sys/devices/pci0000:00/0000:00:1d.1/usb3/3-1"
+Nov 16 14:26:22 womble mtp-probe: bus: 3, device: 2 was not an MTP device
+Nov 16 14:26:22 womble kernel: [   95.770400] usbcore: registered new interface driver usbhid
+Nov 16 14:26:22 womble kernel: [   95.770408] usbhid: USB HID core driver
+Nov 16 14:26:22 womble kernel: [   95.838174] sony 0003:054C:0268.0001: Fixing up Sony Sixaxis report descriptor
+Nov 16 14:26:22 womble kernel: [   95.848763] input: GASIA CORP. PLAYSTATION(R)3 Controller as /devices/pci0000:00/0000:00:1d.1/usb3/3-1/3-1:1.0/input/input7
+Nov 16 14:26:22 womble kernel: [   95.849784] sony 0003:054C:0268.0001: input,hiddev0,hidraw0: USB HID v1.11 Joystick [GASIA CORP. PLAYSTATION(R)3 Controller] on usb-0000:00:1d.1-1/input0
+
+------=_20131116173025_18109--
+
+

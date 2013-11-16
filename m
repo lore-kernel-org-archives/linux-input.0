@@ -1,77 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [appleir] BUG: unable to handle kernel NULL pointer
- dereference
-Date: Sat, 16 Nov 2013 01:21:56 +0100 (CET)
-Message-ID: <alpine.LRH.2.00.1311160121310.24147@twin.jikos.cz>
-References: <20131029145139.GA2788@hercules> <alpine.LNX.2.00.1311061635160.835@pobox.suse.cz> <CALcaVO=jOEqCwLCMUgEkFJMcc4H6bMLU4yvjo1fJ7DeXgkZH6A@mail.gmail.com> <527BB695.9040209@redhat.com>
+From: Alexander Ploumistos <alex.ploumistos@gmail.com>
+Subject: Logitech M560 (Unifying receiver mouse) - strange keycodes, wrong mapping
+Date: Sat, 16 Nov 2013 13:09:31 +0200
+Message-ID: <CAM86y2vwou-C11eo8gwpgnTbQQEpd+3NNhoRCr41t13oWrg8kA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34472 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752148Ab3KPAWE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Nov 2013 19:22:04 -0500
-In-Reply-To: <527BB695.9040209@redhat.com>
+Received: from mail-wi0-f182.google.com ([209.85.212.182]:40008 "EHLO
+	mail-wi0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751906Ab3KPLJd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 16 Nov 2013 06:09:33 -0500
+Received: by mail-wi0-f182.google.com with SMTP id en1so179132wid.15
+        for <linux-input@vger.kernel.org>; Sat, 16 Nov 2013 03:09:32 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: James Henstridge <james.henstridge@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Luis Henriques <luis.henriques@canonical.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, =?ISO-8859-15?Q?Fabien_Andr=E9?= <fabien.andre@gmail.com>, Bastien Nocera <hadess@hadess.net>
+To: linux-input@vger.kernel.org
 
-On Thu, 7 Nov 2013, Benjamin Tissoires wrote:
+Hello everyone,
 
-> Ok, thanks for the report. Could you please test the following patch
-> which should solve your problem (hopefully)?
+I recently got my hands on a Logitech M560 mouse and I tried to use it
+with 3.11.x kernels (Fedora & Ubuntu). The button mapping was not what
+I expected, so I ran it through evtest, xev and xinput, to see what
+was off.
 
-James, do you happen to have testing results please?
+First, a few words about the device itself: It appears to be a
+somewhat new model, so there is almost no info about it on the net. It
+has nine buttons (left & right click, scroll wheel, tilt, forward &
+back buttons and a small button behind the wheel) and it connects to
+the computer via a "Unifying receiver". It lacks a middle button;
+pressing on the wheel engages and disengages the freewheel mechanism,
+although I guess the small button behind the wheel is not too
+inconvenient to be used for middle clicks. However, this button is
+supposed to do something special in windows 8 and surprisingly, it has
+two different states.
 
-> 
-> Cheers,
-> Benjamin
-> 
-> --
-> 
-> >From 54b332b992da1666abe7180b6cecd313c864e0b7 Mon Sep 17 00:00:00 2001
-> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Date: Thu, 7 Nov 2013 10:46:48 -0500
-> Subject: [PATCH] HID: appleir: force input to be set
-> 
-> Some weird remotes are not correctly creating the input device. Their
-> report descriptor starts with:
-> 0x06, 0x00, 0xff,              // Usage Page (Vendor Defined Page 1)  0
-> 0xa1, 0x01,                    // Collection (Application)            3
-> 
-> whereas others (which are correctly handled) start with:
-> 0x05, 0x0c,                    // Usage Page (Consumer Devices)       0
-> 0x09, 0x01,                    // Usage (Consumer Control)            2
-> 0xa1, 0x01,                    // Collection (Application)            4
-> 
-> The rest of the report descriptor is the same.
-> 
-> Adding the quirk HID_QUIRK_HIDINPUT_FORCE forces hid-input to allocate
-> the inputs, and everything should be ok.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/hid/hid-appleir.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
-> index a42e6a3..0e6a42d 100644
-> --- a/drivers/hid/hid-appleir.c
-> +++ b/drivers/hid/hid-appleir.c
-> @@ -297,6 +297,9 @@ static int appleir_probe(struct hid_device *hid, const struct hid_device_id *id)
->  
->  	appleir->hid = hid;
->  
-> +	/* force input as some remotes bypass the input registration */
-> +	hid->quirks |= HID_QUIRK_HIDINPUT_FORCE;
-> +
->  	spin_lock_init(&appleir->lock);
->  	setup_timer(&appleir->key_up_timer,
->  		    key_up_tick, (unsigned long) appleir);
-> 
+The original mapping: Left and right clicks are mapped to buttons 1
+and 3, wheel up/down to buttons 4/5, left/right tilts to buttons 8/9
+(BTN_SIDE & BTN_EXTRA respectively instead of horizontal wheel
+left/right), the back button sends simultaneously keypresses for
+Super_L and "d", the forward button acts like a keypress for Super_R.
+When you press the aforementioned "special" button for the first time,
+it sends keycodes 64, 133 and 201 simultaneously (Alt_L, Super_L and
+XF86TouchpadOff); press it again, and it acts like button 1. From
+there on, it cycles between those two events.
 
--- 
-Jiri Kosina
-SUSE Labs
+Would anyone be interested in adding support for the mouse? Is it
+possible to override the keycodes sent by the buttons, so that they
+are recognized as buttons and not keyboard keys?
 
+I will send the evtest output in a follow-up message.
+
+Thank you for your time

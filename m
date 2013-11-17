@@ -1,147 +1,71 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH] HID: sony: Add force feedback support for Dualshock3
- USB
-Date: Sat, 16 Nov 2013 20:48:59 -0500
-Message-ID: <f963c143b30a370dc9d79232dfe59c2f.squirrel@mungewell.org>
-References: <1384021557-24106-1-git-send-email-sven@narfation.org>
-    <f26febe04a776d22c913ed3ade3a8d90.squirrel@mungewell.org>
+From: Sven Eckelmann <sven@narfation.org>
+Subject: Re: Re: [PATCH] HID: sony: Add force feedback support for Dualshock3 USB
+Date: Sun, 17 Nov 2013 10:36:55 +0100
+Message-ID: <1567991.TNa7UhjX8Q@sven-desktop>
+References: <1384021557-24106-1-git-send-email-sven@narfation.org> <f26febe04a776d22c913ed3ade3a8d90.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20131116204858_78414"
+Content-Type: multipart/signed; boundary="nextPart3333706.daXzLSPg9T"; micalg="pgp-sha512"; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:58499 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753150Ab3KQBtA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 16 Nov 2013 20:49:00 -0500
+Received: from narfation.org ([79.140.41.39]:42071 "EHLO v3-1039.vlinux.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753741Ab3KQJg7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 17 Nov 2013 04:36:59 -0500
 In-Reply-To: <f26febe04a776d22c913ed3ade3a8d90.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: simon@mungewell.org
-Cc: Sven Eckelmann <sven@narfation.org>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Colin Leitner <colin.leitner@gmail.com>
-
-------=_20131116204858_78414
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Colin Leitner <colin.leitner@gmail.com>
 
 
+--nextPart3333706.daXzLSPg9T
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="ISO-8859-1"
+
+On Saturday 16 November 2013 17:30:25 simon@mungewell.org wrote:
+> This patch appears to work OK with my DualShock/SixAxis controller (USB
+> connection), but causes a machine lockup when used with my Intec wired
+> controller.
+> 
 > The Intec controller works OK up to the point when I start rumble,
 > sometimes the motor runs some times it doesn't. I am using SDL2's
 > 'testhaptic' application.
 
-That's not quite true. Both SixAxis and Intec lock up machine with
-'testhaptic'.
+Thanks a lot for this bug report. The testhaptic was a good testcase because 
+it is a heavy user and can reproduce the problem quite easily. I've only 
+tested it using testrumble and own programs which didn't seem to trigger the 
+problem here. The problem is easy to explain:
 
-Using 'testrumble' the SixAxis works multiple times, Intec locks up
-straight away (sometimes starts motor).
+ * usb_control_msg/usb_interrupt_msg/usb_bulk_msg/... may sleep
+ * sony_play_effect may gets called in an softirq context (atomic)
 
-USBMon shows Testrumble does (on SixAxis)
---
-e9b23e40 2764496125 S Co:002:00 s 21 09 0201 0000 0023 35 = 00ff01ff
-7f000000 0003ff27 100032ff 27100032 ff271000 32ff2710 00320000
-e9b23e40 2764507425 C Co:002:00 0 35 >
-e99fe840 2766509714 S Co:002:00 s 21 09 0201 0000 0023 35 = 00ff00ff
-00000000 0003ff27 100032ff 27100032 ff271000 32ff2710 00320000
-e99fe840 2766521086 C Co:002:00 0 35 >
-e9b23cc0 2768521311 S Co:002:00 s 21 09 0201 0000 0023 35 = 00ff01ff
-4c000000 0003ff27 100032ff 27100032 ff271000 32ff2710 00320000
-e9b23cc0 2768532755 C Co:002:00 0 35 >
-e9b8e3c0 2770532954 S Co:002:00 s 21 09 0201 0000 0023 35 = 00ff00ff
-00000000 0003ff27 100032ff 27100032 ff271000 32ff2710 00320000
-e9b8e3c0 2770544425 C Co:002:00 0 35 >
-e9b8f780 2770545424 C Ii:002:01 -2 0
---
+So it is a bad choice to use hid_output_raw_report (which calls 
+usb_control_msg) in a ff_memless control function. I will just send a revert 
+patch in some minutes.
 
-Attached is a script from a while ago, when I was trying to figure out how
-to get the Intec to rumble. Which runs without crashing machine.
+Kind regards,
+	Sven
+--nextPart3333706.daXzLSPg9T
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
-Simon
-------=_20131116204858_78414
-Content-Type: text/x-python; name="intec_rumble.py"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="intec_rumble.py"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-#!/usr/bin/python
-#
-# Small script to test the rumble on a PS3 gamepad
-#
+iQIcBAABCgAGBQJSiI44AAoJEF2HCgfBJntG8UEQAK4i7zOOSc6slj2u7LKu+xAZ
+jhSmtUKgcXYL4qko5n55ogLQxsSm8Il/YiWqmlEsMK8IdchrjH6m1CNlp60UJQ9Q
+d65TBZWfrN3aH+k5Srj2hTIYiAv9Gw0uv8ePmmyzxqcFOFAqrV2tgeIF4Gm8rpZ9
+BKoTvgHtURFOwyQZ/MDmLePd+i5czXrBVg/yY1m9EYJf48FGvAjAHBUJiYhbSwE0
+ruKhwyzOp2Q2L9Jczl/YQvr029mU3Jv1b5XTh1wx2OapmlJLzVKIagRw/phOrSxr
+teHY9LufawRvYvewsOuTdNhOb++PEOamYIxyCYx8iI7ztzuhqht4/ZUcTXdWX2dC
+gqwIVNepJ06LMhydN/lzKNWgWh8IvAIaCoXgtpIV5ihqa0d9E6Mw06JRqMI+o0JR
+VJYHiZshaQ9L4EfubNmqJlJCqV+o8LZuX3zarmb9E1uATXIpkZyLH+EBQ4pVPiWp
+azrfliHZkal+avfNcu0u0PmlfsMkgZ0mowGshOlkhNKSZpDPX7jU4feXaM2G/X5a
+2n6MD3wX186wBuk6AXWq0h9c/D242e/anBjmFadTY1TDBn+Qn/d/bHgR50VCKROX
+EVMtRrEz2yIdBpsnKht/161OdrQi7WuMdqqVzB1CHU7k8oe9K6UamIm5eVN0uVMg
+m4WjicpacoBhULQ9p1Ww
+=mIyL
+-----END PGP SIGNATURE-----
 
-import usb
-import time
-
-rumble = 0
-
-busses = usb.busses()
-for bus in busses:      
-  devices = bus.devices   
-  for dev in devices:
-    if dev.idVendor == 0x054c and dev.idProduct == 0x0268:
-      print "Found RumblePad"
-      rumble = dev
-
-if rumble == 0:
-  print "RumblePad not found"
-  exit(0)
-
-# Get a device handler for the usb device and detach it from the kernel
-dh = rumble.open()
-try:
-        dh.detachKernelDriver(0)
-except:
-        print "Already detached?"
-dh.claimInterface(0)
-
-print "Intec - Weak Rumble"
-command='\x01\x00\xfe\x80\xfe\x40\x00\x00\x00\x00\x12\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\x00\x00\x00\x00\x00'
-
-dh.bulkWrite(0x02, command, len(command))
-time.sleep(3)
-
-print "Intec - Strong Rumble"
-command='\x01\x00\xfe\xff\xfe\xff\x00\x00\x00\x00\x0C\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\x00\x00\x00\x00\x00'
-
-dh.bulkWrite(0x02, command, len(command))
-time.sleep(3)
-
-'''
-New kernel driver - USBMon
-e9b23e40 2764496125 S Co:002:00 s 21 09 0201 0000 0023 35 = 00ff01ff 7f000000 0003ff27 100032ff 27100032 ff271000 32ff2710 00320000
-e9b23e40 2764507425 C Co:002:00 0 35 >
-e99fe840 2766509714 S Co:002:00 s 21 09 0201 0000 0023 35 = 00ff00ff 00000000 0003ff27 100032ff 27100032 ff271000 32ff2710 00320000
-e99fe840 2766521086 C Co:002:00 0 35 >
-e9b23cc0 2768521311 S Co:002:00 s 21 09 0201 0000 0023 35 = 00ff01ff 4c000000 0003ff27 100032ff 27100032 ff271000 32ff2710 00320000
-e9b23cc0 2768532755 C Co:002:00 0 35 >
-e9b8e3c0 2770532954 S Co:002:00 s 21 09 0201 0000 0023 35 = 00ff00ff 00000000 0003ff27 100032ff 27100032 ff271000 32ff2710 00320000
-e9b8e3c0 2770544425 C Co:002:00 0 35 >
-e9b8f780 2770545424 C Ii:002:01 -2 0
-
-But code below does
-eb2d3480 2972495664 S Io:002:02 -115 36 = 0100ff01 ff4c0000 000003ff 27100032 ff271000 32ff2710 0032ff27 10003200
-eb2d3480 2972497404 C Io:002:02 0 36 >
-e9b8dd80 2975502053 S Io:002:02 -115 36 = 0100ff01 ff7f0000 000003ff 27100032 ff271000 32ff2710 0032ff27 10003200
-e9b8dd80 2975503910 C Io:002:02 0 36 >
-e99e2600 2978507120 S Io:002:02 -115 36 = 0100fe00 fe000000 000020ff 27100032 ff271000 32ff2710 0032ff27 10003200
-e99e2600 2978508406 C Io:002:02 0 36 >
-'''
-
-'''
-print "Sony Six Axis - Weak"
-command='\x01\x00\xff\x01\xff\x4c\x00\x00\x00\x00\x03\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\x00\x00\x00\x00\x00'
-
-dh.bulkWrite(0x02, command, len(command))
-time.sleep(3)
-
-print "Sony Six Axis - Strong"
-command='\x01\x00\xff\x01\xff\x7f\x00\x00\x00\x00\x03\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\x00\x00\x00\x00\x00'
-
-dh.bulkWrite(0x02, command, len(command))
-time.sleep(3)
-'''
-
-print "Cancel Rumble"
-command='\x01\x00\xfe\x00\xfe\x00\x00\x00\x00\x00\x20\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\xff\x27\x10\x00\x32\x00\x00\x00\x00\x00'
-
-dh.bulkWrite(0x02, command, len(command))
-
-------=_20131116204858_78414--
-
+--nextPart3333706.daXzLSPg9T--
 

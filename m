@@ -1,52 +1,63 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: conflict of wiimote and hid-sony
-Date: Sun, 17 Nov 2013 17:26:00 +0100
-Message-ID: <CANq1E4TVhxDk7JvNOMQG2Qddktdp2zzRayeAhQ0Zc=vghyGw7g@mail.gmail.com>
-References: <CADwLDZsUsHduucFXrb218wemsGaWM76BCqQUY_OobuSf0UEP1Q@mail.gmail.com>
+Subject: Re: Re: [PATCH] HID: sony: Add force feedback support for Dualshock3 USB
+Date: Sun, 17 Nov 2013 17:30:51 +0100
+Message-ID: <CANq1E4RN2vpFvLcT6jdPw59wyJN-cBfFRQhMFzak7kJpPL86Nw@mail.gmail.com>
+References: <1384021557-24106-1-git-send-email-sven@narfation.org>
+	<f26febe04a776d22c913ed3ade3a8d90.squirrel@mungewell.org>
+	<1567991.TNa7UhjX8Q@sven-desktop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f50.google.com ([209.85.215.50]:56980 "EHLO
-	mail-la0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754456Ab3KQQ0E (ORCPT
+Received: from mail-lb0-f173.google.com ([209.85.217.173]:63639 "EHLO
+	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751996Ab3KQQaw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Nov 2013 11:26:04 -0500
-Received: by mail-la0-f50.google.com with SMTP id el20so4092609lab.23
-        for <linux-input@vger.kernel.org>; Sun, 17 Nov 2013 08:26:01 -0800 (PST)
-In-Reply-To: <CADwLDZsUsHduucFXrb218wemsGaWM76BCqQUY_OobuSf0UEP1Q@mail.gmail.com>
+	Sun, 17 Nov 2013 11:30:52 -0500
+Received: by mail-lb0-f173.google.com with SMTP id u14so644308lbd.4
+        for <linux-input@vger.kernel.org>; Sun, 17 Nov 2013 08:30:51 -0800 (PST)
+In-Reply-To: <1567991.TNa7UhjX8Q@sven-desktop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michel Kraus <mksolpa@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Sven Eckelmann <sven@narfation.org>
+Cc: Simon Wood <simon@mungewell.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Colin Leitner <colin.leitner@gmail.com>
 
 Hi
 
-On Sun, Nov 17, 2013 at 2:13 AM, Michel Kraus <mksolpa@gmail.com> wrote:
-> Hi,
+On Sun, Nov 17, 2013 at 10:36 AM, Sven Eckelmann <sven@narfation.org> wrote:
+> On Saturday 16 November 2013 17:30:25 simon@mungewell.org wrote:
+>> This patch appears to work OK with my DualShock/SixAxis controller (USB
+>> connection), but causes a machine lockup when used with my Intec wired
+>> controller.
+>>
+>> The Intec controller works OK up to the point when I start rumble,
+>> sometimes the motor runs some times it doesn't. I am using SDL2's
+>> 'testhaptic' application.
 >
-> commit 86b84167 HID: wiimote: add LEGO-wiimote VID
+> Thanks a lot for this bug report. The testhaptic was a good testcase because
+> it is a heavy user and can reproduce the problem quite easily. I've only
+> tested it using testrumble and own programs which didn't seem to trigger the
+> problem here. The problem is easy to explain:
 >
-> introduced a VID/PID conflict with its original owner: hid-wiimote got
-> hid:b0005g*v0000054Cp00000306 added but hid-sony already has this id for
-> the PS3 Remote.
+>  * usb_control_msg/usb_interrupt_msg/usb_bulk_msg/... may sleep
+>  * sony_play_effect may gets called in an softirq context (atomic)
 >
-> I think the original and legitimate owner should remain the default for this
-> VID/PID combination.
+> So it is a bad choice to use hid_output_raw_report (which calls
+> usb_control_msg) in a ff_memless control function. I will just send a revert
+> patch in some minutes.
 
-Thanks for the report! It's indeed officially allocated as USB ID to Sony.
+Yeah, the input-ff callbacks cannot be handled inline. You also get
+deadlocks with the input-spinlock. In the wiimote driver I simply
+dispatch the ff-events to a workqueue. You can have a look at
+drivers/hid/hid-wiimote-modules.c. You can get some ordering-problems
+then, but these can usually be ignored as they just collapse events.
 
-@Jiri, can you revert the following commit (note: it was already
-backported to stable):
+The related commit was:
 
-commit 86b84167d4e67372376a57ea9955c5d53dae232f
+commit f50f9aabf32db7414551ffdfdccc71be5f3d6e7d
 Author: David Herrmann <dh.herrmann@gmail.com>
-Date:   Fri Oct 18 16:26:22 2013 +0200
+Date:   Wed Oct 2 13:47:28 2013 +0200
 
-    HID: wiimote: add LEGO-wiimote VID
-
-I will write a bluez-patch to force the official wiimote-id on the
-device, based on a name-comparison. This should allow us to support
-both devices.
+    HID: wiimote: fix FF deadlock
 
 Thanks
 David

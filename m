@@ -1,66 +1,40 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCHv3 1/2] Input: twl4030-keypad - add device tree support
-Date: Sun, 17 Nov 2013 19:28:40 +0100
-Message-ID: <20131117182840.GA30012@xo-6d-61-c0.localdomain>
-References: <1383948866-32672-1-git-send-email-sre@debian.org>
- <1383948866-32672-2-git-send-email-sre@debian.org>
- <20131111221941.GB23331@amd.pavel.ucw.cz>
- <20131112032506.GA30028@earth.universe>
+From: simon@mungewell.org
+Subject: Re: Re: Re: [PATCH] HID: sony: Add force feedback support for
+ Dualshock3 USB
+Date: Sun, 17 Nov 2013 14:11:00 -0500
+Message-ID: <8c40cb08b7c44f373c2c533614d70b6a.squirrel@mungewell.org>
+References: <1384021557-24106-1-git-send-email-sven@narfation.org>
+    <1567991.TNa7UhjX8Q@sven-desktop>
+    <CANq1E4RN2vpFvLcT6jdPw59wyJN-cBfFRQhMFzak7kJpPL86Nw@mail.gmail.com>
+    <2014555.nmU692BQMt@sven-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:50288 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752006Ab3KQS24 (ORCPT
+Received: from host171.canaca.com ([67.55.55.225]:42988 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751360Ab3KQTLC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Nov 2013 13:28:56 -0500
-Content-Disposition: inline
-In-Reply-To: <20131112032506.GA30028@earth.universe>
+	Sun, 17 Nov 2013 14:11:02 -0500
+In-Reply-To: <2014555.nmU692BQMt@sven-desktop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sven Eckelmann <sven@narfation.org>
+Cc: David Herrmann <dh.herrmann@gmail.com>, Simon Wood <simon@mungewell.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Colin Leitner <colin.leitner@gmail.com>
 
-Hi!
 
-> On Mon, Nov 11, 2013 at 11:19:41PM +0100, Pavel Machek wrote:
-> > > +	if (of_get_property(np, "linux,input-no-autorepeat", NULL))
-> > > +		keypad_data->no_autorepeat = true;
-> > 
-> > From 2/2:
-> > 
-> > +Optional Properties specific to linux:
-> > +- linux,keypad-no-autorepeat: do not enable autorepeat feature.
-> > 
-> > I'm confused now.
-> 
-> good catch! That happens when one tries to mimic other drivers :/
-> 
-> I just checked all DT input drivers for autorepeat keyword:
-> 
-> DRIVER              CODE                        DOCUMENTATION
-> twl4030-keypad      linux,input-no-autorepeat   linux,keypad-no-autorepeat
-> omap4-keypad        linux,input-no-autorepeat   linux,keypad-no-autorepeat
-> samsung-keypad      linux,input-no-autorepeat   linux,keypad-no-autorepeat
-> stmpe-keypad        st,no-autorepeat            st,no-autorepeat
-> spear-keyboard      autorepeat                  autorepeat
-> tca8418-keypad      keypad,autorepeat           --- not documented ---
-> gpio-matrix-keypad  linux,no-autorepeat         linux,no-autorepeat
-> gpio-keys-polled    autorepeat                  autorepeat
-> gpio-keys           autorepeat                  --- no documentation ---
-> 
-> Any suggestions how to continue fixing this mess? I guess first of
-> all the documentation of omap4-keypad, samsung-keypad and of course
-> the new twl4030-keypad driver should be fixed.
-> 
-> Next it would be nice to choose one standard property name for this
-> and use it for twl4030-keypad. I suggest to use "linux,input-no-autorepeat".
+> Maybe Simon Wood can test his devices because I am unsure whether PS3
+> dualshock clones will work with the interrupt or control urbs. For example
+> the script from Simon didn't work at all for me.
 
-I'd suggest just simple "autorepeat", so that we get rid of ugly double-negation.
+With the proof of concept both my devices work OK with 'testhaptic' and
+'testrumble' - the controllers rumble and the computer does not lock up.
 
-But I guess this is not too important as long as it is consistent... And I'm not
-even sure consistency is huge issue.
-								Pavel	
+My script is from a couple of years ago, and it didn't work for me with
+the dualshock.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Simon.
+
+PS. We know that some of the bits of that data frame are used to control
+the LEDs. Anyone interested on getting them working via the LED class?
+

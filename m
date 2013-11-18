@@ -1,96 +1,189 @@
 From: Sven Eckelmann <sven@narfation.org>
-Subject: [PATCHv3 3/5] HID: sony: Rename buzz_* functions to sony_led_*
-Date: Mon, 18 Nov 2013 21:42:34 +0100
-Message-ID: <1384807356-15561-4-git-send-email-sven@narfation.org>
+Subject: [PATCHv3 4/5] HID: sony: Move LED data to the main structure
+Date: Mon, 18 Nov 2013 21:42:35 +0100
+Message-ID: <1384807356-15561-5-git-send-email-sven@narfation.org>
 References: <1384807356-15561-1-git-send-email-sven@narfation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from narfation.org ([79.140.41.39]:42173 "EHLO v3-1039.vlinux.de"
+Received: from narfation.org ([79.140.41.39]:42176 "EHLO v3-1039.vlinux.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751561Ab3KRUnW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Nov 2013 15:43:22 -0500
+	id S1751561Ab3KRUn0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Nov 2013 15:43:26 -0500
 In-Reply-To: <1384807356-15561-1-git-send-email-sven@narfation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, Colin Leitner <colin.leitner@gmail.com>, Sven Eckelmann <sven@narfation.org>
 
-More controllers managed by the hid-sony module have 4 LEDs. These can share
-most of the functionality provided by the buzz functions.
+It is not necessary to keep the LED information in an extra struct which is
+only used by the Buzz device. It can also be used by other devices.
 
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
- drivers/hid/hid-sony.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/hid/hid-sony.c | 58 +++++++++++++++-----------------------------------
+ 1 file changed, 17 insertions(+), 41 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 0677292..cdb2419 100644
+index cdb2419..2f93aab 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -466,7 +466,7 @@ static void buzz_set_leds(struct hid_device *hdev, int leds)
- 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
- }
+@@ -223,6 +223,7 @@ static const unsigned int buzz_keymap[] = {
+ };
  
--static void buzz_led_set_brightness(struct led_classdev *led,
-+static void sony_led_set_brightness(struct led_classdev *led,
- 				    enum led_brightness value)
- {
- 	struct device *dev = led->dev->parent;
-@@ -498,7 +498,7 @@ static void buzz_led_set_brightness(struct led_classdev *led,
- 	}
- }
+ struct sony_sc {
++	struct led_classdev *leds[4];
+ 	unsigned long quirks;
  
--static enum led_brightness buzz_led_get_brightness(struct led_classdev *led)
-+static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
- {
+ #ifdef CONFIG_SONY_FF
+@@ -232,12 +233,7 @@ struct sony_sc {
+ 	__u8 right;
+ #endif
+ 
+-	void *extra;
+-};
+-
+-struct buzz_extra {
+-	int led_state;
+-	struct led_classdev *leds[4];
++	__u8 led_state;
+ };
+ 
+ static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
+@@ -472,26 +468,24 @@ static void sony_led_set_brightness(struct led_classdev *led,
  	struct device *dev = led->dev->parent;
  	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-@@ -525,7 +525,7 @@ static enum led_brightness buzz_led_get_brightness(struct led_classdev *led)
- 	return on ? LED_FULL : LED_OFF;
- }
+ 	struct sony_sc *drv_data;
+-	struct buzz_extra *buzz;
  
--static int buzz_init(struct hid_device *hdev)
-+static int sony_leds_init(struct hid_device *hdev)
+ 	int n;
+ 
+ 	drv_data = hid_get_drvdata(hdev);
+-	if (!drv_data || !drv_data->extra) {
++	if (!drv_data) {
+ 		hid_err(hdev, "No device data\n");
+ 		return;
+ 	}
+-	buzz = drv_data->extra;
+ 
+ 	for (n = 0; n < 4; n++) {
+-		if (led == buzz->leds[n]) {
+-			int on = !! (buzz->led_state & (1 << n));
++		if (led == drv_data->leds[n]) {
++			int on = !!(drv_data->led_state & (1 << n));
+ 			if (value == LED_OFF && on) {
+-				buzz->led_state &= ~(1 << n);
+-				buzz_set_leds(hdev, buzz->led_state);
++				drv_data->led_state &= ~(1 << n);
++				buzz_set_leds(hdev, drv_data->led_state);
+ 			} else if (value != LED_OFF && !on) {
+-				buzz->led_state |= (1 << n);
+-				buzz_set_leds(hdev, buzz->led_state);
++				drv_data->led_state |= (1 << n);
++				buzz_set_leds(hdev, drv_data->led_state);
+ 			}
+ 			break;
+ 		}
+@@ -503,21 +497,19 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
+ 	struct device *dev = led->dev->parent;
+ 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+ 	struct sony_sc *drv_data;
+-	struct buzz_extra *buzz;
+ 
+ 	int n;
+ 	int on = 0;
+ 
+ 	drv_data = hid_get_drvdata(hdev);
+-	if (!drv_data || !drv_data->extra) {
++	if (!drv_data) {
+ 		hid_err(hdev, "No device data\n");
+ 		return LED_OFF;
+ 	}
+-	buzz = drv_data->extra;
+ 
+ 	for (n = 0; n < 4; n++) {
+-		if (led == buzz->leds[n]) {
+-			on = !! (buzz->led_state & (1 << n));
++		if (led == drv_data->leds[n]) {
++			on = !!(drv_data->led_state & (1 << n));
+ 			break;
+ 		}
+ 	}
+@@ -528,7 +520,6 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
+ static int sony_leds_init(struct hid_device *hdev)
  {
  	struct sony_sc *drv_data;
- 	struct buzz_extra *buzz;
-@@ -567,8 +567,8 @@ static int buzz_init(struct hid_device *hdev)
- 		led->name = name;
- 		led->brightness = 0;
- 		led->max_brightness = 1;
--		led->brightness_get = buzz_led_get_brightness;
--		led->brightness_set = buzz_led_set_brightness;
-+		led->brightness_get = sony_led_get_brightness;
-+		led->brightness_set = sony_led_set_brightness;
+-	struct buzz_extra *buzz;
+ 	int n, ret = 0;
+ 	struct led_classdev *led;
+ 	size_t name_sz;
+@@ -541,13 +532,6 @@ static int sony_leds_init(struct hid_device *hdev)
+ 	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
+ 		return -ENODEV;
  
- 		if (led_classdev_register(&hdev->dev, led)) {
- 			hid_err(hdev, "Failed to register LED %d\n", n);
-@@ -596,7 +596,7 @@ error_leds:
+-	buzz = kzalloc(sizeof(*buzz), GFP_KERNEL);
+-	if (!buzz) {
+-		hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
+-		return -ENOMEM;
+-	}
+-	drv_data->extra = buzz;
+-
+ 	/* Clear LEDs as we have no way of reading their initial state. This is
+ 	 * only relevant if the driver is loaded after somebody actively set the
+ 	 * LEDs to on */
+@@ -576,49 +560,41 @@ static int sony_leds_init(struct hid_device *hdev)
+ 			goto error_leds;
+ 		}
+ 
+-		buzz->leds[n] = led;
++		drv_data->leds[n] = led;
+ 	}
+ 
+ 	return ret;
+ 
+ error_leds:
+ 	for (n = 0; n < 4; n++) {
+-		led = buzz->leds[n];
+-		buzz->leds[n] = NULL;
++		led = drv_data->leds[n];
++		drv_data->leds[n] = NULL;
+ 		if (!led)
+ 			continue;
+ 		led_classdev_unregister(led);
+ 		kfree(led);
+ 	}
+ 
+-	kfree(drv_data->extra);
+-	drv_data->extra = NULL;
  	return ret;
  }
  
--static void buzz_remove(struct hid_device *hdev)
-+static void sony_leds_remove(struct hid_device *hdev)
+ static void sony_leds_remove(struct hid_device *hdev)
  {
  	struct sony_sc *drv_data;
- 	struct buzz_extra *buzz;
-@@ -733,7 +733,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
- 		ret = sixaxis_set_operational_bt(hdev);
- 	else if (sc->quirks & BUZZ_CONTROLLER)
--		ret = buzz_init(hdev);
-+		ret = sony_leds_init(hdev);
- 	else
- 		ret = 0;
+-	struct buzz_extra *buzz;
+ 	struct led_classdev *led;
+ 	int n;
  
-@@ -755,7 +755,7 @@ static void sony_remove(struct hid_device *hdev)
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
+ 	drv_data = hid_get_drvdata(hdev);
+ 	BUG_ON(!(drv_data->quirks & BUZZ_CONTROLLER));
  
- 	if (sc->quirks & BUZZ_CONTROLLER)
--		buzz_remove(hdev);
-+		sony_leds_remove(hdev);
+-	buzz = drv_data->extra;
+-
+ 	for (n = 0; n < 4; n++) {
+-		led = buzz->leds[n];
+-		buzz->leds[n] = NULL;
++		led = drv_data->leds[n];
++		drv_data->leds[n] = NULL;
+ 		if (!led)
+ 			continue;
+ 		led_classdev_unregister(led);
+ 		kfree(led);
+ 	}
+-
+-	kfree(drv_data->extra);
+-	drv_data->extra = NULL;
+ }
  
- 	sony_destroy_ff(hdev);
- 
+ #ifdef CONFIG_SONY_FF
 -- 
 1.8.4.3
 

@@ -1,64 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv3 1/2] Input: twl4030-keypad - add device tree support
-Date: Sun, 17 Nov 2013 19:58:15 -0800
-Message-ID: <20131118035815.GA3311@core.coreip.homeip.net>
-References: <1383948866-32672-1-git-send-email-sre@debian.org>
- <1383948866-32672-2-git-send-email-sre@debian.org>
- <20131111221941.GB23331@amd.pavel.ucw.cz>
- <20131112032506.GA30028@earth.universe>
- <20131117182840.GA30012@xo-6d-61-c0.localdomain>
+From: =?UTF-8?B?VGVyamUgQmVyZ3N0csO2bQ==?= <tbergstrom@nvidia.com>
+Subject: Re: [PATCH 00/31] ARM: tegra: use common reset and DMA bindings
+Date: Mon, 18 Nov 2013 10:24:26 +0200
+Message-ID: <5289CEBA.3070502@nvidia.com>
+References: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20131117182840.GA30012@xo-6d-61-c0.localdomain>
-Sender: linux-doc-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Marc Dietrich <marvin24@gmx.de>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "ac100@lists.launchpad.net" <ac100@lists.launchpad.net>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, Stephen Warren <swarren@nvidia.com>, Alan Stern <stern@rowland.harvard.edu>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Thierry Reding <treding@nvidia.com>, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Nov 17, 2013 at 07:28:40PM +0100, Pavel Machek wrote:
-> Hi!
+On 15.11.2013 22:53, Stephen Warren wrote:
+> From: Stephen Warren <swarren@nvidia.com>
 > 
-> > On Mon, Nov 11, 2013 at 11:19:41PM +0100, Pavel Machek wrote:
-> > > > +	if (of_get_property(np, "linux,input-no-autorepeat", NULL))
-> > > > +		keypad_data->no_autorepeat = true;
-> > > 
-> > > From 2/2:
-> > > 
-> > > +Optional Properties specific to linux:
-> > > +- linux,keypad-no-autorepeat: do not enable autorepeat feature.
-> > > 
-> > > I'm confused now.
-> > 
-> > good catch! That happens when one tries to mimic other drivers :/
-> > 
-> > I just checked all DT input drivers for autorepeat keyword:
-> > 
-> > DRIVER              CODE                        DOCUMENTATION
-> > twl4030-keypad      linux,input-no-autorepeat   linux,keypad-no-autorepeat
-> > omap4-keypad        linux,input-no-autorepeat   linux,keypad-no-autorepeat
-> > samsung-keypad      linux,input-no-autorepeat   linux,keypad-no-autorepeat
-> > stmpe-keypad        st,no-autorepeat            st,no-autorepeat
-> > spear-keyboard      autorepeat                  autorepeat
-> > tca8418-keypad      keypad,autorepeat           --- not documented ---
-> > gpio-matrix-keypad  linux,no-autorepeat         linux,no-autorepeat
-> > gpio-keys-polled    autorepeat                  autorepeat
-> > gpio-keys           autorepeat                  --- no documentation ---
-> > 
-> > Any suggestions how to continue fixing this mess? I guess first of
-> > all the documentation of omap4-keypad, samsung-keypad and of course
-> > the new twl4030-keypad driver should be fixed.
-> > 
-> > Next it would be nice to choose one standard property name for this
-> > and use it for twl4030-keypad. I suggest to use "linux,input-no-autorepeat".
+> This series implements a common reset framework driver for Tegra, and
+> updates all relevant Tegra drivers to use it. It also removes the custom
+> DMA bindings and replaced them with the standard DMA DT bindings.
 > 
-> I'd suggest just simple "autorepeat", so that we get rid of ugly double-negation.
+> Historically, the Tegra clock driver has exported a custom API for module
+> reset. This series removes that API, and transitions DT and drivers to
+> the new reset framework.
+> 
+> The custom API used a "struct clk" to identify which module to reset, and
+> consequently some DT bindings and drivers required clocks to be provided
+> where they really needed just a reset identifier instead. Due to this
+> known deficiency, I have always considered most Tegra bindings to be
+> unstable. This series removes this excuse for instability, although I
+> still consider some Tegra bindings unstable due to the need to convert to
+> the common DMA bindings.
+> 
+> Historically, Tegra DMA channels have been represented in DT using a
+> custom nvidia,dma-request-selector property. Now that standard DMA DT
+> bindings exist, convert all Tegra bindings, DTs, and drivers to use the
+> standard instead.
+> 
+> This series makes a DT-ABI-incompatible change to:
+> - Require reset specifiers in DT where relevant.
+> - Require standard DMA specifiers.
+> - Remove clock specifiers from DT where they were only needed for reset.
+> - Remove legacy DMA specifier properties.
+> 
+> I anticipate merging this whole series into the Tegra and arm-soc trees
+> as its own branch, due to internal dependencies. This branch will be
+> stable and can then be merged into any other subsystem trees should any
+> conflicts arise.
+> 
+> This series depends on Peter's Tegra clock driver rework, available at
+> git://nv-tegra.nvidia.com/user/pdeschrijver/linux tegra-clk-tegra124-0
+> (or whatever version of that gets included in 3.14)
 
-The idea was that majority of setups want autorepeat so in the absence
-of the property autorepeat is turned on.
+Overall, a good change. For host1x part:
 
-Thanks.
+Acked-By: Terje Bergstrom <tbergstrom@nvidia.com>
 
--- 
-Dmitry
+This patch does not change the behavior, but we have in original code
+the problem that we don't flush the MC queue when resetting an engine.
+This can cause some memory writes to not hit memory. There was an
+earlier discussion on that, but we seem to have lost track of the issue.
+
+Terje

@@ -1,58 +1,112 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: About the PS3 Sixaxis linux driver
-Date: Mon, 18 Nov 2013 12:02:56 -0500
-Message-ID: <528A4840.6010205@redhat.com>
-References: <526A697E.7050605@corpsmoderne.net>	<1256411740.1745741.1383597450835.JavaMail.root@redhat.com>	<20131104221824.2bd181e60f01f41e1e4f4898@studenti.unina.it>	<6ead5599102745d03c2c28b640b11fb4.squirrel@mungewell.org>	<20131116180607.8508c13158a181f8c5fa7dd6@studenti.unina.it>	<528A3482.8040807@redhat.com> <20131118172535.e6abd12d338023ead6477058@studenti.unina.it>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Synaptics i2c-hid touchpad driver
+Date: Mon, 18 Nov 2013 14:32:57 -0500
+Message-ID: <CAN+gG=EyFsaaa1wnYCEv99GYCOowkt2gy=XKujGPjM6r=Dn4Fg@mail.gmail.com>
+References: <5289EDEB.1020006@dynora.nl>
+	<CAN+gG=Ewzcp5m-kZT4cv6z6EmJ2Kv7yQO63quEaPMX6-+doJFg@mail.gmail.com>
+	<528A6991.2010604@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:8704 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751171Ab3KRRDP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Nov 2013 12:03:15 -0500
-In-Reply-To: <20131118172535.e6abd12d338023ead6477058@studenti.unina.it>
+Received: from mail-lb0-f177.google.com ([209.85.217.177]:50854 "EHLO
+	mail-lb0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751375Ab3KRTc7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Nov 2013 14:32:59 -0500
+Received: by mail-lb0-f177.google.com with SMTP id w7so1480129lbi.36
+        for <linux-input@vger.kernel.org>; Mon, 18 Nov 2013 11:32:58 -0800 (PST)
+In-Reply-To: <528A6991.2010604@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: simon@mungewell.org, Henrik Rydberg <rydberg@euromail.se>, case <case@corpsmoderne.net>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Wouter van der Graaf <wouter@dynora.nl>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
 
-On 18/11/13 11:25, Antonio Ospite wrote:
-> On Mon, 18 Nov 2013 10:38:42 -0500
-> Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
-> 
->> Hi guys,
->>
->> I forgot to say that:
->> - IMO, the approach raised in 2011 by Antonio[1] was the correct one:
->> the multitouch protocol introduced a regression with devices providing
->> large axis number, so we should fix this in input core, not on a per
->> device basis.
->> - I'll send an update to this patch later this week.
-> 
-> Thanks.
-> 
->> - I don't think remapping the PS3 axis now will make into upstream
->> (backward compatibility), but this is only my own opinion
-> 
-> What do other people think? I was going to motivate the change of
-> keycodes with the fact that the device was not fully functional for a
-> long time, but if you fix it in input core this argument does not hold
-> anymore :)
+Alright, here we go... \o/
 
-Just FYI, I mentioned this because there already has been 2 or 3 threads
-regarding bad uses of keycodes/axis for gamepads (WII, XBox, and PS3
-IIRC), and the result was always "we do not break user space".
-Personally, I have nothing against mapping the correct axis :)
+following the thread
+http://www.spinics.net/lists/linux-input/msg27737.html
 
-> 
-> It would have been a good excuse to have a user of the full gamepad
-> API and of a good part of the motion-tracking API, but I won't push
-> this too hard.
+=46or the record, the Dell XPS12 from 2013 has a current driver under
+development for its touchpad.
 
-There are some initiatives in the user space to fix those kernel
-problems. libinputmapper (find one of David Herrmann's post) and
-libevdev (on Freedesktop) are some good candidates.
+It is located here:
+https://github.com/mightybigcar/synaptics-rmi4/commits/rmihid
+
+As mentioned by Andrew, any feedback are welcome.
 
 Cheers,
 Benjamin
+
+On Mon, Nov 18, 2013 at 2:25 PM, Andrew Duggan <aduggan@synaptics.com> =
+wrote:
+> Hi Benjamin and Wouter,
+>
+> Adding linux-input to this thread is fine with me. The plan is to sub=
+mit the
+> core of the rmi4 driver and then submitting the HID pieces. But, havi=
+ng
+> people who are interested in the driver look it over in the mean time=
+ would
+> be good. Especially, now that there is hardware on the market.
+>
+> Andrew
+>
+>
+> On 11/18/2013 07:48 AM, Benjamin Tissoires wrote:
+>>
+>> Hi Wouter,
+>>
+>> sorry, I should have kept you informed.
+>>
+>> I have asked Andrew from Synaptics to know what was their plan for
+>> this. He told me that they are still working on it.
+>>
+>> He also gave me the link to the development tree of this work:
+>> https://github.com/mightybigcar/synaptics-rmi4/commits/rmihid
+>>
+>> I have tested it, and it works even if there is some tiny adjustment=
+s
+>> to do before taking this upstream.
+>>
+>> Andrew, I was not sure if we could add the linux-input LKML to this
+>> thread (don't know how much private this repo is). If so, I think so=
+me
+>> other users would be interested by this information, and we should
+>> open it.
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> On Mon, Nov 18, 2013 at 5:37 AM, Wouter van der Graaf <wouter@dynora=
+=2Enl>
+>> wrote:
+>>>
+>>> Hi Benjamin,
+>>>
+>>> Just curious; is there any progress on the Synaptics i2c-hid touchp=
+ad
+>>> driver? Is it still on the radar? Can I contribute in some way?
+>>>
+>>> Thank you!
+>>>
+>>> Wouter
+>>>
+>>> --
+>>> Wouter van der Graaf
+>>> Open technologist / Partner
+>>>
+>>> d y n o r a
+>>> Innovative software development
+>>>
+>>> +31 6 2893 0615 | wouter@dynora.nl
+>>>
+>>> Burg. de Bru=C3=AFnelaan 95 | 3331 AC Zwijndrecht | NL
+>>> +31 78 843 3139 | contact@dynora.nl | www.dynora.nl
+>
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

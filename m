@@ -1,81 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Add new driver for GPIO beeper
-Date: Tue, 19 Nov 2013 13:32:39 -0800
-Message-ID: <20131119213239.GC25784@core.coreip.homeip.net>
-References: <1384250833-4600-1-git-send-email-shc_work@mail.ru>
- <20131112101544.GD2976@e106331-lin.cambridge.arm.com>
- <1384253277.731839001@f27.i.mail.ru>
- <20131112105930.GE2976@e106331-lin.cambridge.arm.com>
- <52828042.4050501@wwwdotorg.org>
+Subject: Re: input question: ambient light sensor button
+Date: Tue, 19 Nov 2013 13:27:36 -0800
+Message-ID: <20131119212736.GA25784@core.coreip.homeip.net>
+References: <201309151553.34000@pali>
+ <alpine.LNX.2.00.1311131146410.22940@pobox.suse.cz>
+ <20131113162840.GB11657@core.coreip.homeip.net>
+ <201311141302.33384@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:62225 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753756Ab3KTOhq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Nov 2013 09:37:46 -0500
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <52828042.4050501@wwwdotorg.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <201311141302.33384@pali>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Alexander Shiyan <shc_work@mail.ru>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>
 
-On Tue, Nov 12, 2013 at 12:23:46PM -0700, Stephen Warren wrote:
-> On 11/12/2013 03:59 AM, Mark Rutland wrote:
-> > On Tue, Nov 12, 2013 at 10:47:57AM +0000, Alexander Shiyan wrote:
-> >> Hello.
-> >>
-> >>> On Tue, Nov 12, 2013 at 10:07:13AM +0000, Alexander Shiyan wrote:
-> >>>> This patch adds a new driver for the beeper controlled via GPIO pin.
-> >>>> The driver does not depend on the architecture and is positioned as
-> >>>> a replacement for the specific drivers that are used for this function.
-> >>>>
-> >>>> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-> >> ...
-> >>>> diff --git a/Documentation/devicetree/bindings/input/gpio-beeper.txt b/Documentation/devicetree/bindings/input/gpio-beeper.txt
-> >> ...
-> >>>> +Example:
-> >>>> +
-> >>>> +beeper: input@0 {
-> >>>> +	compatible = "gpio-beeper";
-> >>>> +	reg = <0>;
-> >>>> +	gpios = <&gpio3 23 0>;
-> >>>> +};
-> >>>
-> >>> What are the reg / unit-address for?
-> >>
-> >> Just an example from "simple-bus" container.
-> > 
-> > If they have no meaning, they should go. They're unnecessary and make
-> > things more confusing.
-> > 
-> > I'd expect the example to be:
-> > 
-> > beeper: beeper {
-> > 	compatible = "gpio-beeper";
-> > 	gpios - <&gpio3 23 0>;
-> > };
-> > 
-> > And if we have multiple beepers, something like:
-> > 
-> > beeper0: beeper0 { ... };
-> > beeper1: beeper1 { ... };
-> 
-> DT node names aren't meant to encode identity though. What we've done in
-> the past for nodes without a reg where multiple instances were desired
-> is to put them into simple-bus and add a reg, so:
-> 
-> beeper0: beeper@0 { reg = <0>; ... };
-> beeper1: beeper@1 { reg = <1>; ... };
-> 
-> Of course, if there's only one of them, then it could just be "beeper"
-> with no reg. The binding and example should probably reflect that simple
-> case.
+On Thu, Nov 14, 2013 at 01:02:31PM +0100, Pali Roh=E1r wrote:
+> On Wednesday 13 November 2013 17:28:40 Dmitry Torokhov wrote:
+> > On Wed, Nov 13, 2013 at 11:47:18AM +0100, Jiri Kosina wrote:
+> > > On Sun, 15 Sep 2013, Pali Roh=E1r wrote:
+> > > > I do not know where to ask this question, but I think that
+> > > > kernel developers could help me.
+> > > >=20
+> > > > I have notebook with one special button on keyboard which
+> > > > is designed for turning ambient light sensor on and off.
+> > > > By default pressing button do nothing (I can turn ambient
+> > > > light sensor on/off via sysfs platform wmi module).
+> > > > Button press is reported by kernel input device AT
+> > > > Translated Set 2 keyboard and reports it as button
+> > > > "touchpad off".
+> > > >=20
+> > > > Of course "touchpad off" is incorrect and I'd like to ask
+> > > > which kernel key or button from
+> > > > /usr/include/linux/input.h should be mapped for my
+> > > > ambient light sensor button? Is there already some? And
+> > > > what is strategy for allocating KEY_* and BTN_* numbers?
+> > >=20
+> > > This is maintained by Dmitry, so he's the one to answer
+> > > this. I am adding him to CC.
+> >=20
+> > I guess we need patch adding
+> >=20
+> > 	#define KEY_ALS_TOGGLE	0x230
+> >=20
+> > Thanks.
+>=20
+> So there is no good key for als yet?
 
-So do we have an agreement on bindings? Otherwise the driver looks good
-to me.
+No, but if you send me a patch adding it I will gladly apply it.
 
--- 
+Thanks.
+
+--=20
 Dmitry

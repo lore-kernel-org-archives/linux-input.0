@@ -1,46 +1,34 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] usbkbd.c: trivial typo ('released' -> 'pressed')
-Date: Tue, 19 Nov 2013 11:32:27 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1311191132200.6657@pobox.suse.cz>
-References: <1384725083-3963-1-git-send-email-acozzette@gmail.com>
+Subject: Re: [PATCHv2] HID: sony: Send FF commands in non-atomic context
+Date: Tue, 19 Nov 2013 11:35:27 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1311191133550.6657@pobox.suse.cz>
+References: <1384682880-5960-1-git-send-email-sven@narfation.org> <1384717101-7027-1-git-send-email-sven@narfation.org> <alpine.LNX.2.00.1311190938020.6919@pobox.suse.cz> <2436222.LsGn6ZW5hr@bentobox>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49023 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:49158 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751290Ab3KSKcb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Nov 2013 05:32:31 -0500
-In-Reply-To: <1384725083-3963-1-git-send-email-acozzette@gmail.com>
+	id S1750823Ab3KSKfa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Nov 2013 05:35:30 -0500
+In-Reply-To: <2436222.LsGn6ZW5hr@bentobox>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Adam Cozzette <acozzette@gmail.com>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sven Eckelmann <sven@narfation.org>
+Cc: linux-input@vger.kernel.org, simon@mungewell.org
 
-On Sun, 17 Nov 2013, Adam Cozzette wrote:
+On Tue, 19 Nov 2013, Sven Eckelmann wrote:
 
-> It looks like this typo was introduced by a mistake in a copy-and-paste in
-> commit ddbe32491951.
+> > Now applied for 3.13. Thanks.
 > 
-> Signed-off-by: Adam Cozzette <acozzette@gmail.com>
-> ---
->  drivers/hid/usbhid/usbkbd.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
-> index 7960869..9a332e6 100644
-> --- a/drivers/hid/usbhid/usbkbd.c
-> +++ b/drivers/hid/usbhid/usbkbd.c
-> @@ -146,7 +146,7 @@ static void usb_kbd_irq(struct urb *urb)
->  				input_report_key(kbd->dev, usb_kbd_keycode[kbd->new[i]], 1);
->  			else
->  				hid_info(urb->dev,
-> -					 "Unknown key (scancode %#x) released.\n",
-> +					 "Unknown key (scancode %#x) pressed.\n",
->  					 kbd->new[i]);
->  		}
->  	}
+> Ok, but would have been nice when the v3 version have been applied. 
 
-Applied to hid.git, thanks.
+I apparently got confused by this thread, sorry.
+
+> Now I have to resubmit the LED patchset to include the function/variable 
+> rename. I will do this tonight or tomorrow.
+
+That'd be nice, thanks. Also I think really only the first patch (atomic 
+context fix) is really applicable for this (3.13) merge window.
 
 -- 
 Jiri Kosina

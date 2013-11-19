@@ -1,58 +1,49 @@
-From: Sven Eckelmann <sven@narfation.org>
-Subject: Re: [PATCHv2] HID: sony: Send FF commands in non-atomic context
-Date: Tue, 19 Nov 2013 11:02:48 +0100
-Message-ID: <2436222.LsGn6ZW5hr@bentobox>
-References: <1384682880-5960-1-git-send-email-sven@narfation.org> <1384717101-7027-1-git-send-email-sven@narfation.org> <alpine.LNX.2.00.1311190938020.6919@pobox.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: conflict of wiimote and hid-sony
+Date: Tue, 19 Nov 2013 11:30:50 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1311191130370.6657@pobox.suse.cz>
+References: <CADwLDZsUsHduucFXrb218wemsGaWM76BCqQUY_OobuSf0UEP1Q@mail.gmail.com> <CANq1E4TVhxDk7JvNOMQG2Qddktdp2zzRayeAhQ0Zc=vghyGw7g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2911742.Ze4aWAbEBq"; micalg="pgp-sha512"; protocol="application/pgp-signature"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from narfation.org ([79.140.41.39]:42209 "EHLO v3-1039.vlinux.de"
+Received: from cantor2.suse.de ([195.135.220.15]:48943 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751290Ab3KSKC4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 Nov 2013 05:02:56 -0500
-In-Reply-To: <alpine.LNX.2.00.1311190938020.6919@pobox.suse.cz>
+	id S1751290Ab3KSKaz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Nov 2013 05:30:55 -0500
+In-Reply-To: <CANq1E4TVhxDk7JvNOMQG2Qddktdp2zzRayeAhQ0Zc=vghyGw7g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, simon@mungewell.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Michel Kraus <mksolpa@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
+On Sun, 17 Nov 2013, David Herrmann wrote:
 
---nextPart2911742.Ze4aWAbEBq
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+> > commit 86b84167 HID: wiimote: add LEGO-wiimote VID
+> >
+> > introduced a VID/PID conflict with its original owner: hid-wiimote got
+> > hid:b0005g*v0000054Cp00000306 added but hid-sony already has this id for
+> > the PS3 Remote.
+> >
+> > I think the original and legitimate owner should remain the default for this
+> > VID/PID combination.
+> 
+> Thanks for the report! It's indeed officially allocated as USB ID to Sony.
+> 
+> @Jiri, can you revert the following commit (note: it was already
+> backported to stable):
+> 
+> commit 86b84167d4e67372376a57ea9955c5d53dae232f
+> Author: David Herrmann <dh.herrmann@gmail.com>
+> Date:   Fri Oct 18 16:26:22 2013 +0200
+> 
+>     HID: wiimote: add LEGO-wiimote VID
+> 
+> I will write a bluez-patch to force the official wiimote-id on the
+> device, based on a name-comparison. This should allow us to support
+> both devices.
 
-On Tuesday 19 November 2013 09:38:21 Jiri Kosina wrote:
-[...]
-> Now applied for 3.13. Thanks.
+Thanks a lot for the report. I have queued the revert for 3.13.
 
-Ok, but would have been nice when the v3 version have been applied. Now I have 
-to resubmit the LED patchset to include the function/variable rename. I will 
-do this tonight or tomorrow.
-
-Kind regards,
-	Sven
---nextPart2911742.Ze4aWAbEBq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAABCgAGBQJSizdIAAoJEF2HCgfBJntGUW0QAIc9QOKfx0CcXwWg1EBCLqiT
-y46goQLpv/0Fk5wqbgMOKbY5eQebfcM8yeI4GOg5/Q6reKTWB3nzAUvZYKhtexbP
-vryaZhsfWJkPELDm2cvgJjxd+EE+vFYk9T/596JRIcmOn/Utok4PepMxGy880tCP
-vSANzdgUq7Tv5BGf8JWRui7cBY6876gNyiZ2T0YX7Am7wEu4DjRG2WMcAuFysANE
-zq8APucleRfBqiTfSEufDPob7cw+fH4nyF1WOQHUoDnrszk3GL+y1pbYQ8CXD7Wx
-5vdGvUK919W+Wa5onUOidYwvc/Q/swbg8qnsAI3/vRG8diTpa7bZ5E+RR69FC8yt
-Zvt7eRRknRmxPtE0g8h/DXxsf6dGGzUv/RRyGR4hyz3vPdLLZVRjsLa2OO4rrgsg
-f17gUfdOHWpkUoNQuNMS1z1VxInIn0mPXSne/0ZEtzaa4j07q5RjQxQ11vid1g3b
-mHnOb18rzlge6vjo4dqD+gPi2b2U3ytuOFliCiUQ2VjZ0CUXREx4zhUqb2TUcLq1
-Ki5/Pks6rS8BiPdPskHaIimSyNJqRjpn1++9iT86cBaRFCurZ2JgxSwCImwkmQKm
-CpL20xTy++N5Sut0mUqMTn2ldvFhj8Ed/Ih78XmPkiN5rjxdZSL3qIEr0ly1SMn1
-NqeMmNlyqhBR9OKLTXK6
-=vqrm
------END PGP SIGNATURE-----
-
---nextPart2911742.Ze4aWAbEBq--
-
+-- 
+Jiri Kosina
+SUSE Labs

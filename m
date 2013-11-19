@@ -1,45 +1,81 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] Input: hp_sdc_rtc - unlock on error in
- hp_sdc_rtc_read_i8042timer()
-Date: Tue, 19 Nov 2013 13:28:19 -0800
-Message-ID: <20131119212819.GB25784@core.coreip.homeip.net>
-References: <20131114081808.GA8150@elgon.mountain>
+Subject: Re: [PATCH] Input: Add new driver for GPIO beeper
+Date: Tue, 19 Nov 2013 13:32:39 -0800
+Message-ID: <20131119213239.GC25784@core.coreip.homeip.net>
+References: <1384250833-4600-1-git-send-email-shc_work@mail.ru>
+ <20131112101544.GD2976@e106331-lin.cambridge.arm.com>
+ <1384253277.731839001@f27.i.mail.ru>
+ <20131112105930.GE2976@e106331-lin.cambridge.arm.com>
+ <52828042.4050501@wwwdotorg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kernel-janitors-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f50.google.com ([209.85.160.50]:62225 "EHLO
+	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753756Ab3KTOhq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Nov 2013 09:37:46 -0500
 Content-Disposition: inline
-In-Reply-To: <20131114081808.GA8150@elgon.mountain>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Helge Deller <deller@gmx.de>, David Howells <dhowells@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+In-Reply-To: <52828042.4050501@wwwdotorg.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Alexander Shiyan <shc_work@mail.ru>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "rob.herring@calxeda.com" <rob.herring@calxeda.com>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>
 
-On Thu, Nov 14, 2013 at 11:18:08AM +0300, Dan Carpenter wrote:
-> The transaction task here is hp_sdc_tasklet() and it releases the lock.
-> The problem is if we aren't able to queue the transaction then we need
-> to release the lock ourselves.
+On Tue, Nov 12, 2013 at 12:23:46PM -0700, Stephen Warren wrote:
+> On 11/12/2013 03:59 AM, Mark Rutland wrote:
+> > On Tue, Nov 12, 2013 at 10:47:57AM +0000, Alexander Shiyan wrote:
+> >> Hello.
+> >>
+> >>> On Tue, Nov 12, 2013 at 10:07:13AM +0000, Alexander Shiyan wrote:
+> >>>> This patch adds a new driver for the beeper controlled via GPIO pin.
+> >>>> The driver does not depend on the architecture and is positioned as
+> >>>> a replacement for the specific drivers that are used for this function.
+> >>>>
+> >>>> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+> >> ...
+> >>>> diff --git a/Documentation/devicetree/bindings/input/gpio-beeper.txt b/Documentation/devicetree/bindings/input/gpio-beeper.txt
+> >> ...
+> >>>> +Example:
+> >>>> +
+> >>>> +beeper: input@0 {
+> >>>> +	compatible = "gpio-beeper";
+> >>>> +	reg = <0>;
+> >>>> +	gpios = <&gpio3 23 0>;
+> >>>> +};
+> >>>
+> >>> What are the reg / unit-address for?
+> >>
+> >> Just an example from "simple-bus" container.
+> > 
+> > If they have no meaning, they should go. They're unnecessary and make
+> > things more confusing.
+> > 
+> > I'd expect the example to be:
+> > 
+> > beeper: beeper {
+> > 	compatible = "gpio-beeper";
+> > 	gpios - <&gpio3 23 0>;
+> > };
+> > 
+> > And if we have multiple beepers, something like:
+> > 
+> > beeper0: beeper0 { ... };
+> > beeper1: beeper1 { ... };
 > 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-Applied, thank you.
-
+> DT node names aren't meant to encode identity though. What we've done in
+> the past for nodes without a reg where multiple instances were desired
+> is to put them into simple-bus and add a reg, so:
 > 
-> diff --git a/drivers/input/misc/hp_sdc_rtc.c b/drivers/input/misc/hp_sdc_rtc.c
-> index 86b8228..45e0e3e 100644
-> --- a/drivers/input/misc/hp_sdc_rtc.c
-> +++ b/drivers/input/misc/hp_sdc_rtc.c
-> @@ -180,7 +180,10 @@ static int64_t hp_sdc_rtc_read_i8042timer (uint8_t loadcmd, int numreg)
->  	if (WARN_ON(down_interruptible(&i8042tregs)))
->  		return -1;
->  
-> -	if (hp_sdc_enqueue_transaction(&t)) return -1;
-> +	if (hp_sdc_enqueue_transaction(&t)) {
-> +		up(&i8042tregs);
-> +		return -1;
-> +	}
->  	
->  	/* Sleep until results come back. */
->  	if (WARN_ON(down_interruptible(&i8042tregs)))
+> beeper0: beeper@0 { reg = <0>; ... };
+> beeper1: beeper@1 { reg = <1>; ... };
+> 
+> Of course, if there's only one of them, then it could just be "beeper"
+> with no reg. The binding and example should probably reflect that simple
+> case.
+
+So do we have an agreement on bindings? Otherwise the driver looks good
+to me.
 
 -- 
 Dmitry

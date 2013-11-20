@@ -1,57 +1,34 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/2] HID: kye: fix unresponsive keyboard
-Date: Wed, 20 Nov 2013 09:49:42 -0500
-Message-ID: <1384958982-23099-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1384958982-23099-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1384958982-23099-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Adam Kulagowski <fidor@fidor.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 00/31] ARM: tegra: use common reset and DMA bindings
+Date: Wed, 20 Nov 2013 16:37:36 +0100
+Message-ID: <201311201637.36733.arnd@arndb.de>
+References: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Mark Rutland <mark.rutland@arm.com>, alsa-devel@alsa-project.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, Marc Dietrich <marvin24@gmx.de>, Bjorn Helgaas <bhelgaas@google.com>, linux-i2c@vger.kernel.org, ac100@lists.launchpad.net, devel@driverdev.osuosl.org, Stephen Warren <swarren@nvidia.com>, Mike Turquette <mturquette@linaro.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Alan Stern <stern@rowland.harvard.edu>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, treding@nvidia.com, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Julian Andres Klode <jak@jak-linux.org>, Rob Herring <rob.herring@calxeda.com>, Mark Brown <broonie@kernel.org>, linux-tegra@vger.kernel.org, Terje
 List-Id: linux-input@vger.kernel.org
 
-The manticore keyboard requires that all usb EP are opened at least
-once to be fully functional. The third EP forwards to the user space
-some vendor specific information about the keyboard state, but are useless
-currently for the kernel.
+On Friday 15 November 2013, Stephen Warren wrote:
+> This series implements a common reset framework driver for Tegra, and
+> updates all relevant Tegra drivers to use it. It also removes the custom
+> DMA bindings and replaced them with the standard DMA DT bindings.
 
-Opening them and closing them makes the keyboard responsive again.
+The series is rather long, so I may have missed it, but I think you need one
+more patch to the apbdma binding to document the use of #dma-cells, what
+value it has, and what the format of the dma specifiers in slave drivers
+needs to be.
 
-Reported-and-tested-by: Adam Kulagowski <fidor@fidor.org>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-
-Hi Jiri,
-
-well, this one was a long shot as I do not have the hardware to actually
-spot the exact call which enables the keyboard. Adam told me that just
-opening and closing once all the /dev/hidrawX attached to the keyboard makes
-the keyboard functional, so, here is the kernel version of this.
-Anyway, it just works, so I think we can take this one as well.
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-kye.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
-index 35a4f9c..ecb5ca6 100644
---- a/drivers/hid/hid-kye.c
-+++ b/drivers/hid/hid-kye.c
-@@ -421,6 +421,14 @@ static int kye_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			goto enabling_err;
- 		}
- 		break;
-+	case USB_DEVICE_ID_GENIUS_MANTICORE:
-+		/*
-+		 * The manticore keyboard needs to have all the interfaces
-+		 * opened at least once to be fully functional.
-+		 */
-+		if (hid_hw_open(hdev))
-+			hid_hw_close(hdev);
-+		break;
- 	}
- 
- 	return 0;
--- 
-1.8.3.1
+	Arnd

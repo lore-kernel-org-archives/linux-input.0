@@ -1,57 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: input question: ambient light sensor button
-Date: Tue, 19 Nov 2013 13:27:36 -0800
-Message-ID: <20131119212736.GA25784@core.coreip.homeip.net>
-References: <201309151553.34000@pali>
- <alpine.LNX.2.00.1311131146410.22940@pobox.suse.cz>
- <20131113162840.GB11657@core.coreip.homeip.net>
- <201311141302.33384@pali>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <201311141302.33384@pali>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/2] HID: kye: Add report fixup for Genius Manticore Keyboard
+Date: Wed, 20 Nov 2013 09:49:41 -0500
+Message-ID: <1384958982-23099-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:20905 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750976Ab3KTOtt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Nov 2013 09:49:49 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Adam Kulagowski <fidor@fidor.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2013 at 01:02:31PM +0100, Pali Roh=E1r wrote:
-> On Wednesday 13 November 2013 17:28:40 Dmitry Torokhov wrote:
-> > On Wed, Nov 13, 2013 at 11:47:18AM +0100, Jiri Kosina wrote:
-> > > On Sun, 15 Sep 2013, Pali Roh=E1r wrote:
-> > > > I do not know where to ask this question, but I think that
-> > > > kernel developers could help me.
-> > > >=20
-> > > > I have notebook with one special button on keyboard which
-> > > > is designed for turning ambient light sensor on and off.
-> > > > By default pressing button do nothing (I can turn ambient
-> > > > light sensor on/off via sysfs platform wmi module).
-> > > > Button press is reported by kernel input device AT
-> > > > Translated Set 2 keyboard and reports it as button
-> > > > "touchpad off".
-> > > >=20
-> > > > Of course "touchpad off" is incorrect and I'd like to ask
-> > > > which kernel key or button from
-> > > > /usr/include/linux/input.h should be mapped for my
-> > > > ambient light sensor button? Is there already some? And
-> > > > what is strategy for allocating KEY_* and BTN_* numbers?
-> > >=20
-> > > This is maintained by Dmitry, so he's the one to answer
-> > > this. I am adding him to CC.
-> >=20
-> > I guess we need patch adding
-> >=20
-> > 	#define KEY_ALS_TOGGLE	0x230
-> >=20
-> > Thanks.
->=20
-> So there is no good key for als yet?
+Genius Manticore Keyboard presents the same problem in its report
+descriptors than Genius Gila Gaming Mouse and Genius Imperator Keyboard.
+Use the same fixup.
 
-No, but if you send me a patch adding it I will gladly apply it.
+Reported-and-tested-by: Adam Kulagowski <fidor@fidor.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-core.c | 1 +
+ drivers/hid/hid-ids.h  | 1 +
+ drivers/hid/hid-kye.c  | 5 +++++
+ 3 files changed, 7 insertions(+)
 
-Thanks.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 9bbbb72..0a82fdb 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1722,6 +1722,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_GENIUS_GILA_GAMING_MOUSE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_GENIUS_MANTICORE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_GENIUS_GX_IMPERATOR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_I405X) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7655962..c8c7cb1 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -489,6 +489,7 @@
+ #define USB_VENDOR_ID_KYE		0x0458
+ #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
+ #define USB_DEVICE_ID_GENIUS_GILA_GAMING_MOUSE	0x0138
++#define USB_DEVICE_ID_GENIUS_MANTICORE	0x0153
+ #define USB_DEVICE_ID_GENIUS_GX_IMPERATOR	0x4018
+ #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
+ #define USB_DEVICE_ID_KYE_EASYPEN_I405X	0x5010
+diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
+index 7384512..35a4f9c 100644
+--- a/drivers/hid/hid-kye.c
++++ b/drivers/hid/hid-kye.c
+@@ -341,6 +341,9 @@ static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	case USB_DEVICE_ID_GENIUS_GX_IMPERATOR:
+ 		rdesc = kye_consumer_control_fixup(hdev, rdesc, rsize, 83,
+ 					"Genius Gx Imperator Keyboard");
++	case USB_DEVICE_ID_GENIUS_MANTICORE:
++		rdesc = kye_consumer_control_fixup(hdev, rdesc, rsize, 104,
++					"Genius Manticore Keyboard");
+ 		break;
+ 	}
+ 	return rdesc;
+@@ -439,6 +442,8 @@ static const struct hid_device_id kye_devices[] = {
+ 				USB_DEVICE_ID_GENIUS_GILA_GAMING_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+ 				USB_DEVICE_ID_GENIUS_GX_IMPERATOR) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
++				USB_DEVICE_ID_GENIUS_MANTICORE) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, kye_devices);
+-- 
+1.8.3.1
 
---=20
-Dmitry

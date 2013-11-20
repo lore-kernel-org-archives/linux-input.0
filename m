@@ -1,158 +1,83 @@
 From: =?UTF-8?q?Friedrich=20Sch=C3=B6ller?= <linux@schoeller.se>
-Subject: [PATCH 1/3] Input: Fixed ABS_MT_TOUCH_MINOR scale factor in BCM5974 multitouch driver
-Date: Wed, 20 Nov 2013 23:54:10 +0100
-Message-ID: <1384988052-31898-1-git-send-email-linux@schoeller.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 2/3] Input: Fixed pressure and tool width calculation in BCM5974 multitouch driver
+Date: Wed, 20 Nov 2013 23:54:11 +0100
+Message-ID: <1384988052-31898-2-git-send-email-linux@schoeller.se>
+References: <1384988052-31898-1-git-send-email-linux@schoeller.se>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from pavo.uberspace.de ([95.143.172.191]:57135 "HELO
+	pavo.uberspace.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754281Ab3KTXBQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Nov 2013 18:01:16 -0500
+In-Reply-To: <1384988052-31898-1-git-send-email-linux@schoeller.se>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, =?UTF-8?q?Friedrich=20Sch=C3=B6ller?= <linux@schoeller.se>
-List-Id: linux-input@vger.kernel.org
 
-On wellspring3 devices ABS_MT_TOUCH_MINOR was sometimes reported bigger than
-ABS_MT_TOUCH_MAJOR. This is fixed by rescaling ABS_MT_TOUCH_MINOR by a factor of
-0.85 instead of 2. Excessive tapping on the trackpad shows this to be the right
-value. Circular touches should now lead to values for ABS_MT_TOUCH_MAJOR and
-ABS_MT_TOUCH_MINOR that are similar, with ABS_MT_TOUCH_MINOR never greater than
-ABS_MT_TOUCH_MAJOR.
+Previously ABS_PRESSURE and ABS_TOOL_WIDTH were calculated by looking at the
+size of the first touch in the list reported by the trackpad. This is not
+necessarily the same touch as the one used to perform pointer emulation in the
+input multitouch library (input-mt). By using the sum of the sizes of all
+touches as a basis for this calculation we get more coherent values.
 ---
- drivers/input/mouse/bcm5974.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/input/mouse/bcm5974.c | 21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index a73f961..af15410 100644
+index af15410..ecbf359 100644
 --- a/drivers/input/mouse/bcm5974.c
 +++ b/drivers/input/mouse/bcm5974.c
-@@ -235,6 +235,7 @@ struct bcm5974_config {
- 	enum tp_type tp_type;	/* type of trackpad interface */
- 	int tp_offset;		/* offset to trackpad finger data */
- 	int tp_datalen;		/* data length of the trackpad interface */
-+	float touch_minor_f;	/* factor for ABS_MT_TOUCH_MINOR */
- 	struct bcm5974_param p;	/* finger pressure limits */
- 	struct bcm5974_param w;	/* finger width limits */
- 	struct bcm5974_param x;	/* horizontal limits */
-@@ -275,6 +276,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		0,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE1, FINGER_TYPE1, FINGER_TYPE1 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 256 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4824, 5342 },
-@@ -288,6 +290,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		0,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE1, FINGER_TYPE1, FINGER_TYPE1 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 256 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4824, 4824 },
-@@ -301,6 +304,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		0.85,
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4460, 5166 },
-@@ -314,6 +318,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4620, 5140 },
-@@ -327,6 +332,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4616, 5112 },
-@@ -340,6 +346,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4415, 5050 },
-@@ -353,6 +360,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4620, 5140 },
-@@ -366,6 +374,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4750, 5280 },
-@@ -379,6 +388,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4620, 5140 },
-@@ -392,6 +402,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4750, 5280 },
-@@ -405,6 +416,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0x84, sizeof(struct bt_data),
- 		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4750, 5280 },
-@@ -418,6 +430,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
- 		HAS_INTEGRATED_BUTTON,
- 		0, sizeof(struct bt_data),
- 		0x83, TYPE3, FINGER_TYPE3, FINGER_TYPE3 + SIZEOF_ALL_FINGERS,
-+		2, /* verify me! */
- 		{ SN_PRESSURE, 0, 300 },
- 		{ SN_WIDTH, 0, 2048 },
- 		{ SN_COORD, -4620, 5140 },
-@@ -502,7 +515,8 @@ static int report_bt_state(struct bcm5974 *dev, int size)
- 	return 0;
- }
+@@ -539,19 +539,10 @@ static void report_finger_data(struct input_dev *input,
  
--static void report_finger_data(struct input_dev *input, int slot,
-+static void report_finger_data(struct input_dev *input,
-+			       const struct bcm5974_config *cfg, int slot,
- 			       const struct input_mt_pos *pos,
- 			       const struct tp_finger *f)
+ static void report_synaptics_data(struct input_dev *input,
+ 				  const struct bcm5974_config *cfg,
+-				  const struct tp_finger *f, int raw_n)
++				  int p, int w)
  {
-@@ -512,7 +526,7 @@ static void report_finger_data(struct input_dev *input, int slot,
- 	input_report_abs(input, ABS_MT_TOUCH_MAJOR,
- 			 raw2int(f->touch_major) << 1);
- 	input_report_abs(input, ABS_MT_TOUCH_MINOR,
--			 raw2int(f->touch_minor) << 1);
-+			 raw2int(f->touch_minor) * cfg->touch_minor_f);
- 	input_report_abs(input, ABS_MT_WIDTH_MAJOR,
- 			 raw2int(f->tool_major) << 1);
- 	input_report_abs(input, ABS_MT_WIDTH_MINOR,
-@@ -568,7 +582,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
- 	input_mt_assign_slots(input, dev->slots, dev->pos, n);
+-	int abs_p = 0, abs_w = 0;
+-
+-	if (raw_n) {
+-		int p = raw2int(f->touch_major);
+-		int w = raw2int(f->tool_major);
+-		if (p > 0 && raw2int(f->origin)) {
+-			abs_p = clamp_val(256 * p / cfg->p.max, 0, 255);
+-			abs_w = clamp_val(16 * w / cfg->w.max, 0, 15);
+-		}
+-	}
+-
++	int abs_p = clamp_val(256 * p / cfg->p.max, 0, 255);
++	int abs_w = clamp_val(16 * w / cfg->w.max, 0, 15);
+ 	input_report_abs(input, ABS_PRESSURE, abs_p);
+ 	input_report_abs(input, ABS_TOOL_WIDTH, abs_w);
+ }
+@@ -562,7 +553,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	const struct bcm5974_config *c = &dev->cfg;
+ 	const struct tp_finger *f;
+ 	struct input_dev *input = dev->input;
+-	int raw_n, i, n = 0;
++	int raw_n, i, n = 0, p = 0, w = 0;
  
- 	for (i = 0; i < n; i++)
--		report_finger_data(input, dev->slots[i],
-+		report_finger_data(input, c, dev->slots[i],
- 				   &dev->pos[i], dev->index[i]);
+ 	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
+ 		return -EIO;
+@@ -577,6 +568,8 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 		dev->pos[n].x = raw2int(f[i].abs_x);
+ 		dev->pos[n].y = c->y.min + c->y.max - raw2int(f[i].abs_y);
+ 		dev->index[n++] = &f[i];
++		p += raw2int(f[i].touch_major);
++		w += raw2int(f[i].tool_major);
+ 	}
+ 
+ 	input_mt_assign_slots(input, dev->slots, dev->pos, n);
+@@ -587,7 +580,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
  
  	input_mt_sync_frame(input);
+ 
+-	report_synaptics_data(input, c, f, raw_n);
++	report_synaptics_data(input, c, p, w);
+ 
+ 	/* type 2 reports button events via ibt only */
+ 	if (c->tp_type == TYPE2) {
 -- 
 1.8.4.2
+

@@ -1,64 +1,40 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] Input: Added thumb detection in BCM5974 multitouch
- driver
-Date: Wed, 20 Nov 2013 21:05:51 -0800
-Message-ID: <20131121050549.GC4702@core.coreip.homeip.net>
-References: <1384988052-31898-1-git-send-email-linux@schoeller.se>
- <1384988052-31898-3-git-send-email-linux@schoeller.se>
+Subject: Re: randconfig build error with next-20131120, in
+ drivers/input/touchscreen
+Date: Wed, 20 Nov 2013 21:07:34 -0800
+Message-ID: <20131121050733.GD4702@core.coreip.homeip.net>
+References: <CA+r1ZhimRvYuw2SAajEM6y-P2TL3KMdAMyX6UQ0BFb-peRMn5A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:58339 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751375Ab3KUFGE (ORCPT
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:57304 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750805Ab3KUFHq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Nov 2013 00:06:04 -0500
+	Thu, 21 Nov 2013 00:07:46 -0500
 Content-Disposition: inline
-In-Reply-To: <1384988052-31898-3-git-send-email-linux@schoeller.se>
+In-Reply-To: <CA+r1ZhimRvYuw2SAajEM6y-P2TL3KMdAMyX6UQ0BFb-peRMn5A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Friedrich =?iso-8859-1?Q?Sch=F6ller?= <linux@schoeller.se>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jim Davis <jim.epost@gmail.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, rydberg@euromail.se, floe@butterbrot.org, dh.herrmann@gmail.com, linux-input@vger.kernel.org
 
-Hi Friedrich,
+Hi Jim,
 
-On Wed, Nov 20, 2013 at 11:54:12PM +0100, Friedrich Sch=F6ller wrote:
-> Trackpads with integrated buttons are hard to use when the driver res=
-ponds to
-> movements of the thumb that is resting or clicking on the surface of =
-the
-> trackpad. This patch adds rudimentary support to filter out these tou=
-ch events.
->=20
-> The feature can be turned on via sysfs:
-> 	/sys/class/input/input[0-9]+/thumb_ignore:
-> 		Enables thumb detection
-> 		Values: 0/1
-> 	/sys/class/input/input[0-9]+/thumb_ratio_on:
-> 		When the ratio of ABS_MT_TOUCH_MINOR / ABS_MT_TOUCH_MAJOR
-> 		times 100 is smaller than this value the touch qualifies
-> 		as a thumb.
-> 	/sys/class/input/input[0-9]+/thumb_ratio_off:
-> 		When the ratio of ABS_MT_TOUCH_MINOR / ABS_MT_TOUCH_MAJOR
-> 		times 100 is bigger than this value the touch no longer
-> 		qualifies as a thumb.
-> 	/sys/class/input/input[0-9]+/thumb_y_on:
-> 		When ABS_MT_POSITION_Y is bigger than this value the touch
-> 		qualifies as a thumb.
-> 	/sys/class/input/input[0-9]+/thumb_y_off:
-> 		When ABS_MT_POSITION_Y is smaller than this value the touch
-> 		no longer qualifies as a thumb.
+On Wed, Nov 20, 2013 at 11:23:31AM -0700, Jim Davis wrote:
+> Building with the attached random configuration file,
+> 
+> drivers/built-in.o: In function `sur40_disconnect':
+> sur40.c:(.text+0x15c1cc): undefined reference to
+> `input_unregister_polled_device'
+> sur40.c:(.text+0x15c1d5): undefined reference to `input_free_polled_device'
+> drivers/built-in.o: In function `sur40_probe':
+> sur40.c:(.text+0x15c47a): undefined reference to `input_allocate_polled_device'
+> sur40.c:(.text+0x15c65b): undefined reference to `input_register_polled_device'
+> sur40.c:(.text+0x15c68b): undefined reference to `input_free_polled_device'
+> make: *** [vmlinux] Error 1
 
-I'd rather this been implemented in userspace (synaptics and/or evdev X
-drivers).
+Thanks for the report. I amended the commit to select INPUT_POLLDEV.
 
-Thanks.
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

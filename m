@@ -1,35 +1,46 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [appleir] BUG: unable to handle kernel NULL pointer
- dereference
-Date: Thu, 21 Nov 2013 09:59:27 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1311210959170.22082@pobox.suse.cz>
-References: <20131029145139.GA2788@hercules> <alpine.LNX.2.00.1311061635160.835@pobox.suse.cz> <CALcaVO=jOEqCwLCMUgEkFJMcc4H6bMLU4yvjo1fJ7DeXgkZH6A@mail.gmail.com> <527BB695.9040209@redhat.com> <alpine.LNX.2.00.1311191533200.6657@pobox.suse.cz>
- <CALcaVOmCAV8XeURJ5UpWfaFXoj+bz6DZ1NgAt7Xiv5pfEynRFQ@mail.gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 1/3] Input: Fixed ABS_MT_TOUCH_MINOR scale factor in BCM5974
+ multitouch driver
+Date: Thu, 21 Nov 2013 10:05:01 +0100
+Message-ID: <528DCCBD.80009@euromail.se>
+References: <1384988052-31898-1-git-send-email-linux@schoeller.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37214 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751154Ab3KUI7b (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Nov 2013 03:59:31 -0500
-In-Reply-To: <CALcaVOmCAV8XeURJ5UpWfaFXoj+bz6DZ1NgAt7Xiv5pfEynRFQ@mail.gmail.com>
+Received: from smtprelay-b21.telenor.se ([195.54.99.212]:33475 "EHLO
+	smtprelay-b21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753751Ab3KUJBs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Nov 2013 04:01:48 -0500
+In-Reply-To: <1384988052-31898-1-git-send-email-linux@schoeller.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: James Henstridge <james.henstridge@canonical.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Luis Henriques <luis.henriques@canonical.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, =?ISO-8859-15?Q?Fabien_Andr=E9?= <fabien.andre@gmail.com>, Bastien Nocera <hadess@hadess.net>
+To: =?ISO-8859-1?Q?Friedrich_Sch=F6ller?= <linux@schoeller.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Thu, 21 Nov 2013, James Henstridge wrote:
+Hi Friedrich,
 
-> Sorry for the delays in testing out the patch.  I have tried a kernel
-> with the patch applied, and can no longer reproduce the oops.  The
-> hid-appleir driver appears to be working correctly, generating key
-> press events in response to the remote, and LIRC functions correctly
-> via hiddev.
-> 
-> Thanks for the everyone's help with this.
+> On wellspring3 devices ABS_MT_TOUCH_MINOR was sometimes reported bigger than
+> ABS_MT_TOUCH_MAJOR. This is fixed by rescaling ABS_MT_TOUCH_MINOR by a factor of
+> 0.85 instead of 2. Excessive tapping on the trackpad shows this to be the right
+> value. Circular touches should now lead to values for ABS_MT_TOUCH_MAJOR and
+> ABS_MT_TOUCH_MINOR that are similar, with ABS_MT_TOUCH_MINOR never greater than
+> ABS_MT_TOUCH_MAJOR.
+> ---
+>  drivers/input/mouse/bcm5974.c | 20 +++++++++++++++++---
+>  1 file changed, 17 insertions(+), 3 deletions(-)
 
-Applied, thanks.
+The major/minor scales are following the aspect ratio of the device, and as such
+it could happen that minor > major. Most userland drivers do not use the finger
+width limits, which are estimates, but only the device axes limit, which are
+accurate.
 
--- 
-Jiri Kosina
-SUSE Labs
+Also, we cannot have floats in the kernel.
+
+I would consider a patch which tries to make the finger widths more accurate,
+but all in all, I think this problem is best solved in userland.
+
+Thanks,
+Henrik
+

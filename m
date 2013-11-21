@@ -1,75 +1,146 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: tsc2007 - remove unused poll_delay from platform data
-Date: Wed, 20 Nov 2013 21:13:23 -0800
-Message-ID: <20131121051319.GA6131@core.coreip.homeip.net>
+Subject: [PATCH] Input: tsc2007 - convert to use devres-managed resources
+Date: Wed, 20 Nov 2013 21:14:43 -0800
+Message-ID: <20131121051438.GA6180@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:55947 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750782Ab3KUFNb (ORCPT
+Received: from mail-pb0-f45.google.com ([209.85.160.45]:36006 "EHLO
+	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752031Ab3KUFOy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Nov 2013 00:13:31 -0500
+	Thu, 21 Nov 2013 00:14:54 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Denis Carikli <denis@eukrea.com>, linux-kernel@vger.kernel.org
 
-****
-Dmitry Torokhov <dmitry.torokhov@gmail.com> (maintainer:INPUT (KEYBOARD,...,commit_signer:7/7=100%,commit_signer:2/2=100%)
-Bill Pemberton <wfp5p@virginia.edu> (commit_signer:3/7=43%)
-Mark Brown <broonie@opensource.wolfsonmicro.com> (commit_signer:2/7=29%)
-Javier Martinez Canillas <javier@dowhile0.org> (commit_signer:1/7=14%)
-Russell King <rmk+kernel@arm.linux.org.uk> (commit_signer:1/7=14%)
-linux-input@vger.kernel.org (open list:INPUT (KEYBOARD,...)
-linux-kernel@vger.kernel.org (open list)
-****
-Authors
-drivers/input/touchscreen/tsc2007.c: Kwangwoo Lee <kwangwoo.lee@gmail.com>
-include/linux/i2c/tsc2007.h: Kwangwoo Lee <kwangwoo.lee@gmail.com>
-****
-The driver does not use poll_delay parameter, so let's remove it.
+This simplifies error handling path and allows us get rid of
+tsc2007_remove().
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/tsc2007.c | 2 --
- include/linux/i2c/tsc2007.h         | 2 --
- 2 files changed, 4 deletions(-)
+ drivers/input/touchscreen/tsc2007.c | 79 +++++++++++++++++++------------------
+ 1 file changed, 40 insertions(+), 39 deletions(-)
 
 diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
-index 390148c..48a165a 100644
+index 48a165a..bd51eee 100644
 --- a/drivers/input/touchscreen/tsc2007.c
 +++ b/drivers/input/touchscreen/tsc2007.c
-@@ -75,7 +75,6 @@ struct tsc2007 {
- 	u16			model;
- 	u16			x_plate_ohms;
- 	u16			max_rt;
--	unsigned long		poll_delay;
- 	unsigned long		poll_period;
- 	int			fuzzx;
- 	int			fuzzy;
-@@ -352,7 +351,6 @@ static int tsc2007_probe_pdev(struct i2c_client *client, struct tsc2007 *ts,
- 	ts->model             = pdata->model;
- 	ts->x_plate_ohms      = pdata->x_plate_ohms;
- 	ts->max_rt            = pdata->max_rt ? : MAX_12BIT;
--	ts->poll_delay        = pdata->poll_delay ? : 1;
- 	ts->poll_period       = pdata->poll_period ? : 1;
- 	ts->get_pendown_state = pdata->get_pendown_state;
- 	ts->clear_penirq      = pdata->clear_penirq;
-diff --git a/include/linux/i2c/tsc2007.h b/include/linux/i2c/tsc2007.h
-index 041c8e8..4f35b6a 100644
---- a/include/linux/i2c/tsc2007.h
-+++ b/include/linux/i2c/tsc2007.h
-@@ -7,8 +7,6 @@ struct tsc2007_platform_data {
- 	u16	model;				/* 2007. */
- 	u16	x_plate_ohms;	/* must be non-zero value */
- 	u16	max_rt; /* max. resistance above which samples are ignored */
--	unsigned long poll_delay; /* delay (in ms) after pen-down event
--				     before polling starts */
- 	unsigned long poll_period; /* time (in ms) between samples */
- 	int	fuzzx; /* fuzz factor for X, Y and pressure axes */
- 	int	fuzzy;
+@@ -366,6 +366,14 @@ static int tsc2007_probe_pdev(struct i2c_client *client, struct tsc2007 *ts,
+ 	return 0;
+ }
+ 
++static void tsc2007_call_exit_platform_hw(void *data)
++{
++	struct device *dev = data;
++	const struct tsc2007_platform_data *pdata = dev_get_platdata(dev);
++
++	pdata->exit_platform_hw();
++}
++
+ static int tsc2007_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+@@ -389,11 +397,9 @@ static int tsc2007_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
+ 
+-	input_dev = input_allocate_device();
+-	if (!input_dev) {
+-		err = -ENOMEM;
+-		goto err_free_input;
+-	};
++	input_dev = devm_input_allocate_device(&client->dev);
++	if (!input_dev)
++		return -ENOMEM;
+ 
+ 	i2c_set_clientdata(client, ts);
+ 
+@@ -422,45 +428,41 @@ static int tsc2007_probe(struct i2c_client *client,
+ 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT,
+ 			     ts->fuzzz, 0);
+ 
+-	if (pdata && pdata->init_platform_hw)
+-		pdata->init_platform_hw();
++	if (pdata) {
++		if (pdata->exit_platform_hw) {
++			err = devm_add_action(&client->dev,
++					      tsc2007_call_exit_platform_hw,
++					      &client->dev);
++			if (err) {
++				dev_err(&client->dev,
++					"Failed to register exit_platform_hw action, %d\n",
++					err);
++				return err;
++			}
++		}
++
++		if (pdata->init_platform_hw)
++			pdata->init_platform_hw();
++	}
+ 
+-	err = request_threaded_irq(ts->irq, tsc2007_hard_irq, tsc2007_soft_irq,
+-				   IRQF_ONESHOT, client->dev.driver->name, ts);
+-	if (err < 0) {
+-		dev_err(&client->dev, "irq %d busy?\n", ts->irq);
+-		goto err_free_input;
++	err = devm_request_threaded_irq(&client->dev, ts->irq,
++					tsc2007_hard_irq, tsc2007_soft_irq,
++					IRQF_ONESHOT,
++					client->dev.driver->name, ts);
++	if (err) {
++		dev_err(&client->dev, "Failed to request irq %d: %d\n",
++			ts->irq, err);
++		return err;
+ 	}
+ 
+ 	tsc2007_stop(ts);
+ 
+ 	err = input_register_device(input_dev);
+-	if (err)
+-		goto err_free_irq;
+-
+-	return 0;
+-
+- err_free_irq:
+-	free_irq(ts->irq, ts);
+-	if (pdata && pdata->exit_platform_hw)
+-		pdata->exit_platform_hw();
+- err_free_input:
+-	input_free_device(input_dev);
+-	return err;
+-}
+-
+-static int tsc2007_remove(struct i2c_client *client)
+-{
+-	const struct tsc2007_platform_data *pdata = dev_get_platdata(&client->dev);
+-	struct tsc2007 *ts = i2c_get_clientdata(client);
+-
+-	free_irq(ts->irq, ts);
+-
+-	if (pdata && pdata->exit_platform_hw)
+-		pdata->exit_platform_hw();
+-
+-	input_unregister_device(ts->input);
+-	kfree(ts);
++	if (err) {
++		dev_err(&client->dev,
++			"Failed to register input device: %d\n", err);
++		return err;
++	}
+ 
+ 	return 0;
+ }
+@@ -488,7 +490,6 @@ static struct i2c_driver tsc2007_driver = {
+ 	},
+ 	.id_table	= tsc2007_idtable,
+ 	.probe		= tsc2007_probe,
+-	.remove		= tsc2007_remove,
+ };
+ 
+ module_i2c_driver(tsc2007_driver);
 -- 
 1.8.3.1
 

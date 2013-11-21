@@ -1,97 +1,78 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: Re: [PATCHv9][ 2/3] ARM: dts: cpuimx51 Add touchscreen support.
-Date: Thu, 21 Nov 2013 06:10:53 +0100
-Message-ID: <20131121051053.GG18477@ns203013.ovh.net>
-References: <1383916659-9988-1-git-send-email-denis@eukrea.com>
- <1383916659-9988-2-git-send-email-denis@eukrea.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: tsc2007 - remove unused poll_delay from platform data
+Date: Wed, 20 Nov 2013 21:13:23 -0800
+Message-ID: <20131121051319.GA6131@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f43.google.com ([209.85.160.43]:55947 "EHLO
+	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750782Ab3KUFNb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 Nov 2013 00:13:31 -0500
 Content-Disposition: inline
-In-Reply-To: <1383916659-9988-2-git-send-email-denis@eukrea.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Denis Carikli <denis@eukrea.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-fbdev@vger.kernel.org, Eric B??nard <eric@eukrea.com>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@linaro.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Sascha Hauer <kernel@pengutronix.de>, linux-input@vger.kernel.org, Ian Campbell <ijc+devicetree@hellion.org.uk>, Shawn Guo <shawn.guo@linaro.org>, linux-arm-kernel@lists.infradead.org, Lothar Wa??mann <LW@KARO-electronics.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Denis Carikli <denis@eukrea.com>, linux-kernel@vger.kernel.org
 
-On 14:17 Fri 08 Nov     , Denis Carikli wrote:
-> Cc: Rob Herring <rob.herring@calxeda.com>
-> Cc: Pawel Moll <pawel.moll@arm.com>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Stephen Warren <swarren@wwwdotorg.org>
-> Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-> Cc: Grant Likely <grant.likely@linaro.org>
-> Cc: devicetree@vger.kernel.org
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: Sascha Hauer <kernel@pengutronix.de>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: Lothar Wa=DFmann <LW@KARO-electronics.de>
-> Cc: Shawn Guo <shawn.guo@linaro.org>
-> Cc: Eric B=E9nard <eric@eukrea.com>
-> Signed-off-by: Denis Carikli <denis@eukrea.com>
-> ---
-> ChangeLog v8->v9:
-> - Added Grant Likely in the Cc list.
-> - Adapted to the removal of the pinctrl properties in the tsc2007 documen=
-tation.
-> - Fixed the gpios property (before, it was set to active high by error).
-> =
+****
+Dmitry Torokhov <dmitry.torokhov@gmail.com> (maintainer:INPUT (KEYBOARD,...,commit_signer:7/7=100%,commit_signer:2/2=100%)
+Bill Pemberton <wfp5p@virginia.edu> (commit_signer:3/7=43%)
+Mark Brown <broonie@opensource.wolfsonmicro.com> (commit_signer:2/7=29%)
+Javier Martinez Canillas <javier@dowhile0.org> (commit_signer:1/7=14%)
+Russell King <rmk+kernel@arm.linux.org.uk> (commit_signer:1/7=14%)
+linux-input@vger.kernel.org (open list:INPUT (KEYBOARD,...)
+linux-kernel@vger.kernel.org (open list)
+****
+Authors
+drivers/input/touchscreen/tsc2007.c: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+include/linux/i2c/tsc2007.h: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+****
+The driver does not use poll_delay parameter, so let's remove it.
 
-> ChangeLog v7->v8:
-> - Added Shawn Guo in the cc list.
-> ---
->  arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi |   14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
-> =
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/tsc2007.c | 2 --
+ include/linux/i2c/tsc2007.h         | 2 --
+ 2 files changed, 4 deletions(-)
 
-> diff --git a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi b/arch/arm/boot=
-/dts/imx51-eukrea-cpuimx51.dtsi
-> index b22841a..b04c65b 100644
-> --- a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
-> +++ b/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
-> @@ -42,11 +42,23 @@
->  		compatible =3D "nxp,pcf8563";
->  		reg =3D <0x51>;
->  	};
-> +
-> +	tsc2007: tsc2007@49 {
-> +		compatible =3D "ti,tsc2007";
-> +		reg =3D <0x49>;
-> +		interrupt-parent =3D <&gpio4>;
-> +		interrupts =3D <0x0 0x8>;
-> +		gpios =3D <&gpio4 0 1>;
-> +		ti,x-plate-ohms =3D <180>;
-as explain on the binding drop this gpios this is an IRQ not a gpio
+diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
+index 390148c..48a165a 100644
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -75,7 +75,6 @@ struct tsc2007 {
+ 	u16			model;
+ 	u16			x_plate_ohms;
+ 	u16			max_rt;
+-	unsigned long		poll_delay;
+ 	unsigned long		poll_period;
+ 	int			fuzzx;
+ 	int			fuzzy;
+@@ -352,7 +351,6 @@ static int tsc2007_probe_pdev(struct i2c_client *client, struct tsc2007 *ts,
+ 	ts->model             = pdata->model;
+ 	ts->x_plate_ohms      = pdata->x_plate_ohms;
+ 	ts->max_rt            = pdata->max_rt ? : MAX_12BIT;
+-	ts->poll_delay        = pdata->poll_delay ? : 1;
+ 	ts->poll_period       = pdata->poll_period ? : 1;
+ 	ts->get_pendown_state = pdata->get_pendown_state;
+ 	ts->clear_penirq      = pdata->clear_penirq;
+diff --git a/include/linux/i2c/tsc2007.h b/include/linux/i2c/tsc2007.h
+index 041c8e8..4f35b6a 100644
+--- a/include/linux/i2c/tsc2007.h
++++ b/include/linux/i2c/tsc2007.h
+@@ -7,8 +7,6 @@ struct tsc2007_platform_data {
+ 	u16	model;				/* 2007. */
+ 	u16	x_plate_ohms;	/* must be non-zero value */
+ 	u16	max_rt; /* max. resistance above which samples are ignored */
+-	unsigned long poll_delay; /* delay (in ms) after pen-down event
+-				     before polling starts */
+ 	unsigned long poll_period; /* time (in ms) between samples */
+ 	int	fuzzx; /* fuzz factor for X, Y and pressure axes */
+ 	int	fuzzy;
+-- 
+1.8.3.1
 
-NACK
 
-Best Regards,
-J.
-> +	};
->  };
->  =
-
->  &iomuxc {
-> +	pinctrl-names =3D "default";
-> +	pinctrl-0 =3D <&pinctrl_hog>;
-> +
->  	imx51-eukrea {
-> -		pinctrl_tsc2007_1: tsc2007grp-1 {
-> +		pinctrl_hog: hoggrp {
->  			fsl,pins =3D <
->  				MX51_PAD_GPIO_NAND__GPIO_NAND 0x1f5
->  				MX51_PAD_NANDF_D8__GPIO4_0 0x1f5
-> -- =
-
-> 1.7.9.5
-> =
+-- 
+Dmitry

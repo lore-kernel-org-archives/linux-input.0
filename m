@@ -1,40 +1,100 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: randconfig build error with next-20131120, in
- drivers/input/touchscreen
-Date: Wed, 20 Nov 2013 21:07:34 -0800
-Message-ID: <20131121050733.GD4702@core.coreip.homeip.net>
-References: <CA+r1ZhimRvYuw2SAajEM6y-P2TL3KMdAMyX6UQ0BFb-peRMn5A@mail.gmail.com>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Subject: Re: [PATCHv9][ 3/3] ARM: dts: cpuimx35 Add touchscreen support.
+Date: Thu, 21 Nov 2013 06:09:22 +0100
+Message-ID: <20131121050922.GF18477@ns203013.ovh.net>
+References: <1383916659-9988-1-git-send-email-denis@eukrea.com>
+ <1383916659-9988-3-git-send-email-denis@eukrea.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:57304 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750805Ab3KUFHq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Nov 2013 00:07:46 -0500
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <CA+r1ZhimRvYuw2SAajEM6y-P2TL3KMdAMyX6UQ0BFb-peRMn5A@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1383916659-9988-3-git-send-email-denis@eukrea.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Denis Carikli <denis@eukrea.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-fbdev@vger.kernel.org, Eric B??nard <eric@eukrea.com>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@linaro.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Sascha Hauer <kernel@pengutronix.de>, linux-input@vger.kernel.org, Ian Campbell <ijc+devicetree@hellion.org.uk>, Shawn Guo <shawn.guo@linaro.org>, linux-arm-kernel@lists.infradead.org, Lothar Wa??mann <LW@KARO-electronics.de>
 List-Id: linux-input@vger.kernel.org
-To: Jim Davis <jim.epost@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, rydberg@euromail.se, floe@butterbrot.org, dh.herrmann@gmail.com, linux-input@vger.kernel.org
 
-Hi Jim,
+On 14:17 Fri 08 Nov     , Denis Carikli wrote:
+> Cc: Rob Herring <rob.herring@calxeda.com>
+> Cc: Pawel Moll <pawel.moll@arm.com>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Stephen Warren <swarren@wwwdotorg.org>
+> Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
+> Cc: Grant Likely <grant.likely@linaro.org>
+> Cc: devicetree@vger.kernel.org
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: Sascha Hauer <kernel@pengutronix.de>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Lothar Wa=DFmann <LW@KARO-electronics.de>
+> Cc: Shawn Guo <shawn.guo@linaro.org>
+> Cc: Eric B=E9nard <eric@eukrea.com>
+> Signed-off-by: Denis Carikli <denis@eukrea.com>
+> ---
+> ChangeLog v8->v9:
+> - Added Grant Likely in the cc list.
+> - Adapted to the removal of the pinctrl properties in the tsc2007 documen=
+tation.
+> - Fixed the gpios property (before, it was set to active high by error).
+> =
 
-On Wed, Nov 20, 2013 at 11:23:31AM -0700, Jim Davis wrote:
-> Building with the attached random configuration file,
-> 
-> drivers/built-in.o: In function `sur40_disconnect':
-> sur40.c:(.text+0x15c1cc): undefined reference to
-> `input_unregister_polled_device'
-> sur40.c:(.text+0x15c1d5): undefined reference to `input_free_polled_device'
-> drivers/built-in.o: In function `sur40_probe':
-> sur40.c:(.text+0x15c47a): undefined reference to `input_allocate_polled_device'
-> sur40.c:(.text+0x15c65b): undefined reference to `input_register_polled_device'
-> sur40.c:(.text+0x15c68b): undefined reference to `input_free_polled_device'
-> make: *** [vmlinux] Error 1
+> ChangeLog v7->v8:
+> - Added Shawn Guo in the cc list.
+> ---
+>  arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi |   21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+> =
 
-Thanks for the report. I amended the commit to select INPUT_POLLDEV.
+> diff --git a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi b/arch/arm/boot=
+/dts/imx35-eukrea-cpuimx35.dtsi
+> index b9cb5a5..f25a40f 100644
+> --- a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
+> +++ b/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
+> @@ -36,6 +36,27 @@
+>  		compatible =3D "nxp,pcf8563";
+>  		reg =3D <0x51>;
+>  	};
+> +
+> +	tsc2007: tsc2007@48 {
+> +		compatible =3D "ti,tsc2007";
+> +		reg =3D <0x48>;
+> +		interrupt-parent =3D <&gpio3>;
+> +		interrupts =3D <0x2 0x8>;
+> +		gpios =3D <&gpio3 2 1>;
+as explain on the binding drop this gpios this is an IRQ not a gpio
 
--- 
-Dmitry
+NACK
+
+Best Regards,
+J.
+> +		ti,x-plate-ohms =3D <180>;
+> +        };
+> +
+> +};
+> +
+> +&iomuxc {
+> +	pinctrl-names =3D "default";
+> +	pinctrl-0 =3D <&pinctrl_hog>;
+> +
+> +	imx35-eukrea {
+> +		pinctrl_hog: hoggrp {
+> +			fsl,pins =3D <MX35_PAD_ATA_DA2__GPIO3_2 0x80000000>;
+> +		};
+> +	};
+>  };
+>  =
+
+>  &nfc {
+> -- =
+
+> 1.7.9.5
+> =

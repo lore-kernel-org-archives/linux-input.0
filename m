@@ -1,46 +1,43 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/2] HID: kye: fix unresponsive keyboard
-Date: Thu, 21 Nov 2013 10:30:24 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1311211030060.22082@pobox.suse.cz>
-References: <1384958982-23099-1-git-send-email-benjamin.tissoires@redhat.com> <1384958982-23099-2-git-send-email-benjamin.tissoires@redhat.com>
+From: Luis Henriques <luis.henriques@canonical.com>
+Subject: Re: [appleir] BUG: unable to handle kernel NULL pointer dereference
+Date: Thu, 21 Nov 2013 10:13:16 +0000
+Message-ID: <20131121101316.GA3394@hercules.my.domain>
+References: <20131029145139.GA2788@hercules>
+ <alpine.LNX.2.00.1311061635160.835@pobox.suse.cz>
+ <CALcaVO=jOEqCwLCMUgEkFJMcc4H6bMLU4yvjo1fJ7DeXgkZH6A@mail.gmail.com>
+ <527BB695.9040209@redhat.com>
+ <alpine.LNX.2.00.1311191533200.6657@pobox.suse.cz>
+ <CALcaVOmCAV8XeURJ5UpWfaFXoj+bz6DZ1NgAt7Xiv5pfEynRFQ@mail.gmail.com>
+ <alpine.LNX.2.00.1311210959170.22082@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38290 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751133Ab3KUJa2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Nov 2013 04:30:28 -0500
-In-Reply-To: <1384958982-23099-2-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1311210959170.22082@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: James Henstridge <james.henstridge@canonical.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Fabien =?iso-8859-1?Q?Andr=E9?= <fabien.andre@gmail.com>, Bastien Nocera <hadess@hadess.net>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Adam Kulagowski <fidor@fidor.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 20 Nov 2013, Benjamin Tissoires wrote:
-
-> The manticore keyboard requires that all usb EP are opened at least
-> once to be fully functional. The third EP forwards to the user space
-> some vendor specific information about the keyboard state, but are useless
-> currently for the kernel.
+On Thu, Nov 21, 2013 at 09:59:27AM +0100, Jiri Kosina wrote:
+> On Thu, 21 Nov 2013, James Henstridge wrote:
 > 
-> Opening them and closing them makes the keyboard responsive again.
+> > Sorry for the delays in testing out the patch.  I have tried a kernel
+> > with the patch applied, and can no longer reproduce the oops.  The
+> > hid-appleir driver appears to be working correctly, generating key
+> > press events in response to the remote, and LIRC functions correctly
+> > via hiddev.
+> > 
+> > Thanks for the everyone's help with this.
 > 
-> Reported-and-tested-by: Adam Kulagowski <fidor@fidor.org>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> Hi Jiri,
-> 
-> well, this one was a long shot as I do not have the hardware to actually
-> spot the exact call which enables the keyboard. Adam told me that just
-> opening and closing once all the /dev/hidrawX attached to the keyboard makes
-> the keyboard functional, so, here is the kernel version of this.
-> Anyway, it just works, so I think we can take this one as well.
+> Applied, thanks.
 
-Man, this is ugly :)
+Hi Jiri,
 
-What can we do anyway. Applied, thanks.
+Since this fixes an issue in a 3.11 kernel, could you please tag this
+commit for stable>=3.11?  If its too late, I can send the request to
+stable@ once this patch is merged.
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers,
+--
+Luis

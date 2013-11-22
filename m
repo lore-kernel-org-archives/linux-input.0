@@ -1,51 +1,57 @@
-From: Luis Henriques <luis.henriques@canonical.com>
-Subject: Re: [appleir] BUG: unable to handle kernel NULL pointer dereference
-Date: Fri, 22 Nov 2013 12:52:57 +0000
-Message-ID: <20131122125257.GD4629@hercules.my.domain>
-References: <20131029145139.GA2788@hercules>
- <alpine.LNX.2.00.1311061635160.835@pobox.suse.cz>
- <CALcaVO=jOEqCwLCMUgEkFJMcc4H6bMLU4yvjo1fJ7DeXgkZH6A@mail.gmail.com>
- <527BB695.9040209@redhat.com>
- <alpine.LNX.2.00.1311191533200.6657@pobox.suse.cz>
- <CALcaVOmCAV8XeURJ5UpWfaFXoj+bz6DZ1NgAt7Xiv5pfEynRFQ@mail.gmail.com>
- <alpine.LNX.2.00.1311210959170.22082@pobox.suse.cz>
- <20131121101316.GA3394@hercules.my.domain>
- <alpine.LNX.2.00.1311221339110.22082@pobox.suse.cz>
+From: Oskar Andero <oskar.andero@sonymobile.com>
+Subject: [PATCH v2] input: don't call input_dev_release_keys() in resume
+Date: Fri, 22 Nov 2013 14:27:04 +0100
+Message-ID: <1385126824-20446-1-git-send-email-oskar.andero@sonymobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1311221339110.22082@pobox.suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: James Henstridge <james.henstridge@canonical.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Fabien =?iso-8859-1?Q?Andr=E9?= <fabien.andre@gmail.com>, Bastien Nocera <hadess@hadess.net>
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Julian Shandorov <jshandorov@gmail.com>, Aleksej Makarov <aleksej.makarov@sonymobile.com>, Oskar Andero <oskar.andero@sonymobile.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Nov 22, 2013 at 01:39:47PM +0100, Jiri Kosina wrote:
-> On Thu, 21 Nov 2013, Luis Henriques wrote:
-> 
-> > > > Sorry for the delays in testing out the patch.  I have tried a kernel
-> > > > with the patch applied, and can no longer reproduce the oops.  The
-> > > > hid-appleir driver appears to be working correctly, generating key
-> > > > press events in response to the remote, and LIRC functions correctly
-> > > > via hiddev.
-> > > > 
-> > > > Thanks for the everyone's help with this.
-> > > 
-> > > Applied, thanks.
-> > 
-> > Hi Jiri,
-> > 
-> > Since this fixes an issue in a 3.11 kernel, could you please tag this
-> > commit for stable>=3.11?  If its too late, I can send the request to
-> > stable@ once this patch is merged.
-> 
-> Thanks for noticing. It's too late to add the tag, so if you submit it to 
-> -stable once it's in Linus' tree, I'll appreciate it; otherwise I'll try 
-> to remember to do that myself.
+From: Aleksej Makarov <aleksej.makarov@sonymobile.com>
 
-Sure, no problem.  I'll keep an eye on this.
+When waking up the platform by pressing a specific key, sending a
+release on that key makes it impossible to react on the event in
+user-space. This is fixed by moving the input_reset_device() call to
+resume instead.
 
-Cheers,
---
-Luis
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Radovan Lekanovic <radovan.lekanovic@sonymobile.com>
+Signed-off-by: Aleksej Makarov <aleksej.makarov@sonymobile.com>
+Signed-off-by: Oskar Andero <oskar.andero@sonymobile.com>
+---
+ drivers/input/input.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 846ccdd..511d490 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1676,22 +1676,13 @@ static int input_dev_suspend(struct device *dev)
+ {
+ 	struct input_dev *input_dev = to_input_dev(dev);
+ 
+-	mutex_lock(&input_dev->mutex);
+-
+-	if (input_dev->users)
+-		input_dev_toggle(input_dev, false);
+-
+-	mutex_unlock(&input_dev->mutex);
++	input_reset_device(input_dev);
+ 
+ 	return 0;
+ }
+ 
+ static int input_dev_resume(struct device *dev)
+ {
+-	struct input_dev *input_dev = to_input_dev(dev);
+-
+-	input_reset_device(input_dev);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.8.1.5

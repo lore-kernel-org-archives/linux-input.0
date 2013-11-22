@@ -1,81 +1,91 @@
-From: Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>
-Subject: Re: [PATCH] Input: Add new driver for GPIO beeper
-Date: Fri, 22 Nov 2013 21:28:22 +0400
-Message-ID: <20131122212822.7c6983c307ab6755183e54f1@mail.ru>
-References: <1384250833-4600-1-git-send-email-shc_work@mail.ru>
-	<20131112101544.GD2976@e106331-lin.cambridge.arm.com>
-	<1384253277.731839001@f27.i.mail.ru>
-	<20131112105930.GE2976@e106331-lin.cambridge.arm.com>
-	<52828042.4050501@wwwdotorg.org>
-	<20131119213239.GC25784@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.13-rc0 (2nd)
+Date: Fri, 22 Nov 2013 14:57:02 -0800
+Message-ID: <20131122225700.GC12800@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131119213239.GC25784-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org" <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 19 Nov 2013 13:32:39 -0800
-Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
 
-> > >>>> This patch adds a new driver for the beeper controlled via GPIO pin.
-> > >>>> The driver does not depend on the architecture and is positioned as
-> > >>>> a replacement for the specific drivers that are used for this function.
-> > >>>>
-> > >>>> Signed-off-by: Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>
-> > >> ...
-> > >>>> diff --git a/Documentation/devicetree/bindings/input/gpio-beeper.txt b/Documentation/devicetree/bindings/input/gpio-beeper.txt
-> > >> ...
-> > >>>> +Example:
-> > >>>> +
-> > >>>> +beeper: input@0 {
-> > >>>> +	compatible = "gpio-beeper";
-> > >>>> +	reg = <0>;
-> > >>>> +	gpios = <&gpio3 23 0>;
-> > >>>> +};
-> > >>>
-> > >>> What are the reg / unit-address for?
-> > >>
-> > >> Just an example from "simple-bus" container.
-> > > 
-> > > If they have no meaning, they should go. They're unnecessary and make
-> > > things more confusing.
-> > > 
-> > > I'd expect the example to be:
-> > > 
-> > > beeper: beeper {
-> > > 	compatible = "gpio-beeper";
-> > > 	gpios - <&gpio3 23 0>;
-> > > };
-> > > 
-> > > And if we have multiple beepers, something like:
-> > > 
-> > > beeper0: beeper0 { ... };
-> > > beeper1: beeper1 { ... };
-> > 
-> > DT node names aren't meant to encode identity though. What we've done in
-> > the past for nodes without a reg where multiple instances were desired
-> > is to put them into simple-bus and add a reg, so:
-> > 
-> > beeper0: beeper@0 { reg = <0>; ... };
-> > beeper1: beeper@1 { reg = <1>; ... };
-> > 
-> > Of course, if there's only one of them, then it could just be "beeper"
-> > with no reg. The binding and example should probably reflect that simple
-> > case.
-> 
-> So do we have an agreement on bindings? Otherwise the driver looks good
-> to me.
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'll send v2 of this patch.
-Thanks.
+Hi Linus,
 
--- 
-Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive 2nd round of updates for the input subsystem. You will get a
+new driver for Surface 2.0/Pixelsense touchscreen and a couple of driver
+fixups.
+
+Changelog:
+---------
+
+Dan Carpenter (1):
+      Input: hp_sdc_rtc - unlock on error in hp_sdc_rtc_read_i8042timer()
+
+Dmitry Torokhov (1):
+      Input: atmel-wm97xx - fix compile error
+
+Florian Echtler (1):
+      Input: add sur40 driver for Samsung SUR40 (aka MS Surface 2.0/Pixelse=
+nse)
+
+Haiyang Zhang (1):
+      MAINTAINERS - add keyboard driver to Hyper-V file list
+
+Xie XiuQi (1):
+      Input: cyttsp4 -  remove unnecessary work pending test
+
+
+Diffstat:
+--------
+
+ drivers/input/misc/hp_sdc_rtc.c          |   5 +-
+ drivers/input/touchscreen/Kconfig        |  11 +
+ drivers/input/touchscreen/Makefile       |   1 +
+ drivers/input/touchscreen/atmel-wm97xx.c |   2 +-
+ drivers/input/touchscreen/cyttsp4_core.c |   3 +-
+ drivers/input/touchscreen/sur40.c        | 466 +++++++++++++++++++++++++++=
+++++
+ 6 files changed, 484 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/input/touchscreen/sur40.c
+
+--=20
+Dmitry
+
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSj+E8AAoJEH70+W8r6ZYqDr4P/1r6t9zqCqEPhBV0pxJ3tmE/
+HHmZx2wKWcCZvaQJV/bWNZJhIbjK8riV9Q1usyHNGpa82QEFHf7zKY+H7dOpzxia
+NA7ixX2R9Ks1LRMSOJOIIWBMjG4rZ55YOvD7tQA4cXLlYNQEV+8v5iregdXztdc0
+Sdn/wMh3hZ/LoW7i1EWisUHKth2Av2LCNpgdeuSnAizilHjC58UTf5F0lwKB5vhk
+19j8RPNFpS5quPU65g+m11SdxQbh7Bufw67L3J72Z6ecelgW4YbPeP9erMN2Wd6O
+l5TQkO+QoCdXsajR8c5P/X+x+1jVR6RclnxQsMKYBimc/RjZ25VurBVh7HIiLWGw
+JoLcYGHrHH6+Q4y+s5nc1XEvbET9TtfCg9dABiT5QEII+ir9x6w0dmeWSxuLua/2
+GlOyRoZoMqDXax+yxwdd1pG0p+yQy5SIUezCmoQY479jMY//gx53Sf+4QRRB3ZY4
+JBknahK6Taog8Ft8hLNL235zC0+CocJEM9aLtH4luLDvoHgoAtcbj84nqkLt19HP
+UV611AXnUaIc1Qe3a9QIjhDqCR6V5HqiDESonbuzyNTiOOU8oLNdkjALA/17JmsL
+orNep6WIADUU75KlXD2C8f2agtqVA1BlMipItV/l8/37jpMHC8tbgaq0+/77sEqB
++bJQh402aUiUqCtM0qQ1
+=Eckf
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--

@@ -1,136 +1,190 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input:keyboard: "keycode & KEY_MAX" changes some keycode
- value.
-Date: Sat, 23 Nov 2013 10:06:23 -0800
-Message-ID: <20131123180621.GA15116@core.coreip.homeip.net>
-References: <1385214345-10385-1-git-send-email-andrew.liu200917@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] Input: ads7846: Convert to devm_hwmon_device_register_with_groups
+Date: Sat, 23 Nov 2013 13:37:00 -0800
+Message-ID: <1385242620-21719-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1385214345-10385-1-git-send-email-andrew.liu200917@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: andrew.liu200917@gmail.com
-Cc: michael.hennerich@analog.com, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
 
-Hi Andrew,
+Simplify the code and create mandatory 'name' attribute by using
+new hwmon API.
 
-On Sat, Nov 23, 2013 at 09:45:45PM +0800, andrew.liu200917@gmail.com wrote:
-> From: Andrew Liu <andrew.liu200917@gmail.com>
-> 
-> For exmaple, keycode: KEY_OK(0x160) is changed by "and" operation with
-> KEY_MAX(0x2ff) to KEY_KPENTER(96).
-> 
-> Signed-off-by: Andrew Liu <andrew.liu200917@gmail.com>
-> ---
->  drivers/input/keyboard/adp5588-keys.c |    8 ++++++--
->  drivers/input/keyboard/adp5589-keys.c |    8 ++++++--
->  drivers/input/keyboard/bf54x-keys.c   |    8 ++++++--
->  drivers/input/misc/pcf8574_keypad.c   |    6 +++++-
->  drivers/media/pci/ttpci/av7110_ir.c   |    1 +
->  5 files changed, 24 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-> index dbd2047..1ce559e 100644
-> --- a/drivers/input/keyboard/adp5588-keys.c
-> +++ b/drivers/input/keyboard/adp5588-keys.c
-> @@ -535,8 +535,12 @@ static int adp5588_probe(struct i2c_client *client,
->  	if (pdata->repeat)
->  		__set_bit(EV_REP, input->evbit);
->  
-> -	for (i = 0; i < input->keycodemax; i++)
-> -		__set_bit(kpad->keycode[i] & KEY_MAX, input->keybit);
-> +	for (i = 0; i < input->keycodemax; i++) {
-> +		if (kpad->keycode[i] > KEY_MAX)
-> +			kpad->keycode[i] = 0;
+Also use is_visible to determine visible attributes instead of creating
+several different attribute groups.
 
-There is no need to reset keymap entires to 0, not setting keybit is
-enough.
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+Compiled tested only.
 
-> +		else if (kpad->keycode[i] > KEY_RESERVED)
-> +			__set_bit(kpad->keycode[i], input->keybit);
-> +	}
->  	__clear_bit(KEY_RESERVED, input->keybit);
->  
->  	if (kpad->gpimapsize)
-> diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
-> index 67d12b3..22ca2a5 100644
-> --- a/drivers/input/keyboard/adp5589-keys.c
-> +++ b/drivers/input/keyboard/adp5589-keys.c
-> @@ -991,8 +991,12 @@ static int adp5589_probe(struct i2c_client *client,
->  	if (pdata->repeat)
->  		__set_bit(EV_REP, input->evbit);
->  
-> -	for (i = 0; i < input->keycodemax; i++)
-> -		__set_bit(kpad->keycode[i] & KEY_MAX, input->keybit);
-> +	for (i = 0; i < input->keycodemax; i++) {
-> +		if (kpad->keycode[i] > KEY_MAX)
-> +			kpad->keycode[i] = 0;
-> +		else if (kpad->keycode[i] > KEY_RESERVED)
-> +			__set_bit(kpad->keycode[i], input->keybit);
-> +	}
->  	__clear_bit(KEY_RESERVED, input->keybit);
->  
->  	if (kpad->gpimapsize)
-> diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
-> index fc88fb4..96f54e7 100644
-> --- a/drivers/input/keyboard/bf54x-keys.c
-> +++ b/drivers/input/keyboard/bf54x-keys.c
-> @@ -288,8 +288,12 @@ static int bfin_kpad_probe(struct platform_device *pdev)
->  	if (pdata->repeat)
->  		__set_bit(EV_REP, input->evbit);
->  
-> -	for (i = 0; i < input->keycodemax; i++)
-> -		__set_bit(bf54x_kpad->keycode[i] & KEY_MAX, input->keybit);
-> +	for (i = 0; i < input->keycodemax; i++) {
-> +		if (bf54x_kpad->keycode[i] > KEY_MAX)
-> +			bf54x_kpad->keycode[i] = 0;
-> +		else if (bf54x_kpad->keycode[i] > KEY_RESERVED)
-> +			__set_bit(bf54x_kpad->keycode[i], input->keybit);
-> +	}
->  	__clear_bit(KEY_RESERVED, input->keybit);
->  
->  	error = input_register_device(input);
-> diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
-> index e373929..48829f3 100644
-> --- a/drivers/input/misc/pcf8574_keypad.c
-> +++ b/drivers/input/misc/pcf8574_keypad.c
-> @@ -114,8 +114,12 @@ static int pcf8574_kp_probe(struct i2c_client *client, const struct i2c_device_i
->  
->  	for (i = 0; i < ARRAY_SIZE(pcf8574_kp_btncode); i++) {
->  		lp->btncode[i] = pcf8574_kp_btncode[i];
-> -		__set_bit(lp->btncode[i] & KEY_MAX, idev->keybit);
-> +		if (lp->btncode[i] > KEY_MAX)
-> +			lp->btncode[i] = 0;
-> +		else if (lp->btncode[i] > KEY_RESERVED)
-> +			__set_bit(lp->btncode[i], idev->keybit);
->  	}
-> +	__clear_bit(KEY_RESERVED, idev->keybit);
->  
->  	sprintf(lp->name, DRV_NAME);
->  	sprintf(lp->phys, "kp_data/input0");
-> diff --git a/drivers/media/pci/ttpci/av7110_ir.c b/drivers/media/pci/ttpci/av7110_ir.c
-> index 0e763a7..7fdac45 100644
-> --- a/drivers/media/pci/ttpci/av7110_ir.c
-> +++ b/drivers/media/pci/ttpci/av7110_ir.c
-> @@ -201,6 +201,7 @@ static void input_register_keys(struct infrared *ir)
->  		else if (ir->key_map[i] > KEY_RESERVED)
->  			set_bit(ir->key_map[i], ir->input_dev->keybit);
->  	}
-> +	__clear_bit(KEY_RESERVED, ir->input_dev->keybit);
+ drivers/input/touchscreen/ads7846.c |   97 +++++++++--------------------------
+ 1 file changed, 24 insertions(+), 73 deletions(-)
 
-Here we only setting bits for keycodes above KEY_RESERVED so we do not
-need to clear KEY_RESERVED bit.
-
->  
->  	ir->input_dev->keycode = ir->key_map;
->  	ir->input_dev->keycodesize = sizeof(ir->key_map[0]);
-> -- 
-> 1.7.1
-> 
-
-Edited and applied, thank you.
-
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index ea19536..38acc4c 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -101,11 +101,6 @@ struct ads7846 {
+ 	struct spi_device	*spi;
+ 	struct regulator	*reg;
+ 
+-#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
+-	struct attribute_group	*attr_group;
+-	struct device		*hwmon;
+-#endif
+-
+ 	u16			model;
+ 	u16			vref_mv;
+ 	u16			vref_delay_usecs;
+@@ -479,41 +474,37 @@ static inline unsigned vbatt_adjust(struct ads7846 *ts, ssize_t v)
+ SHOW(in0_input, vaux, vaux_adjust)
+ SHOW(in1_input, vbatt, vbatt_adjust)
+ 
+-static struct attribute *ads7846_attributes[] = {
+-	&dev_attr_temp0.attr,
+-	&dev_attr_temp1.attr,
+-	&dev_attr_in0_input.attr,
+-	&dev_attr_in1_input.attr,
+-	NULL,
+-};
+-
+-static struct attribute_group ads7846_attr_group = {
+-	.attrs = ads7846_attributes,
+-};
++static umode_t ads7846_is_visible(struct kobject *kobj, struct attribute *attr,
++				  int index)
++{
++	struct device *dev = container_of(kobj, struct device, kobj);
++	struct ads7846 *ts = dev_get_drvdata(dev);
+ 
+-static struct attribute *ads7843_attributes[] = {
+-	&dev_attr_in0_input.attr,
+-	&dev_attr_in1_input.attr,
+-	NULL,
+-};
++	if (ts->model == 7843 && index < 2)	/* in0, in1 */
++		return 0;
++	if (ts->model == 7845 && index != 2)	/* in0 */
++		return 0;
+ 
+-static struct attribute_group ads7843_attr_group = {
+-	.attrs = ads7843_attributes,
+-};
++	return attr->mode;
++}
+ 
+-static struct attribute *ads7845_attributes[] = {
+-	&dev_attr_in0_input.attr,
++static struct attribute *ads7846_attributes[] = {
++	&dev_attr_temp0.attr,		/* 0 */
++	&dev_attr_temp1.attr,		/* 1 */
++	&dev_attr_in0_input.attr,	/* 2 */
++	&dev_attr_in1_input.attr,	/* 3 */
+ 	NULL,
+ };
+ 
+-static struct attribute_group ads7845_attr_group = {
+-	.attrs = ads7845_attributes,
++static struct attribute_group ads7846_attr_group = {
++	.attrs = ads7846_attributes,
++	.is_visible = ads7846_is_visible,
+ };
++__ATTRIBUTE_GROUPS(ads7846_attr);
+ 
+ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+ {
+ 	struct device *hwmon;
+-	int err;
+ 
+ 	/* hwmon sensors need a reference voltage */
+ 	switch (ts->model) {
+@@ -535,56 +526,20 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
+ 		break;
+ 	}
+ 
+-	/* different chips have different sensor groups */
+-	switch (ts->model) {
+-	case 7846:
+-		ts->attr_group = &ads7846_attr_group;
+-		break;
+-	case 7845:
+-		ts->attr_group = &ads7845_attr_group;
+-		break;
+-	case 7843:
+-		ts->attr_group = &ads7843_attr_group;
+-		break;
+-	default:
+-		dev_dbg(&spi->dev, "ADS%d not recognized\n", ts->model);
+-		return 0;
+-	}
+-
+-	err = sysfs_create_group(&spi->dev.kobj, ts->attr_group);
+-	if (err)
+-		return err;
+-
+-	hwmon = hwmon_device_register(&spi->dev);
+-	if (IS_ERR(hwmon)) {
+-		sysfs_remove_group(&spi->dev.kobj, ts->attr_group);
++	hwmon = devm_hwmon_device_register_with_groups(&spi->dev, spi->modalias,
++						       ts, ads7846_attr_groups);
++	if (IS_ERR(hwmon))
+ 		return PTR_ERR(hwmon);
+-	}
+ 
+-	ts->hwmon = hwmon;
+ 	return 0;
+ }
+ 
+-static void ads784x_hwmon_unregister(struct spi_device *spi,
+-				     struct ads7846 *ts)
+-{
+-	if (ts->hwmon) {
+-		sysfs_remove_group(&spi->dev.kobj, ts->attr_group);
+-		hwmon_device_unregister(ts->hwmon);
+-	}
+-}
+-
+ #else
+ static inline int ads784x_hwmon_register(struct spi_device *spi,
+ 					 struct ads7846 *ts)
+ {
+ 	return 0;
+ }
+-
+-static inline void ads784x_hwmon_unregister(struct spi_device *spi,
+-					    struct ads7846 *ts)
+-{
+-}
+ #endif
+ 
+ static ssize_t ads7846_pen_down_show(struct device *dev,
+@@ -1447,7 +1402,7 @@ static int ads7846_probe(struct spi_device *spi)
+ 
+ 	err = sysfs_create_group(&spi->dev.kobj, &ads784x_attr_group);
+ 	if (err)
+-		goto err_remove_hwmon;
++		goto err_free_irq;
+ 
+ 	err = input_register_device(input_dev);
+ 	if (err)
+@@ -1466,8 +1421,6 @@ static int ads7846_probe(struct spi_device *spi)
+ 
+  err_remove_attr_group:
+ 	sysfs_remove_group(&spi->dev.kobj, &ads784x_attr_group);
+- err_remove_hwmon:
+-	ads784x_hwmon_unregister(spi, ts);
+  err_free_irq:
+ 	free_irq(spi->irq, ts);
+  err_disable_regulator:
+@@ -1500,8 +1453,6 @@ static int ads7846_remove(struct spi_device *spi)
+ 
+ 	input_unregister_device(ts->input);
+ 
+-	ads784x_hwmon_unregister(spi, ts);
+-
+ 	regulator_disable(ts->reg);
+ 	regulator_put(ts->reg);
+ 
 -- 
-Dmitry
+1.7.9.7

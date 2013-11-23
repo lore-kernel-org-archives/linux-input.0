@@ -1,102 +1,136 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: Re: [git pull] Input updates for 3.13-rc0 (2nd)
-Date: Sat, 23 Nov 2013 16:07:12 +0100
-Message-ID: <5290C4A0.80600@butterbrot.org>
-References: <20131122225700.GC12800@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input:keyboard: "keycode & KEY_MAX" changes some keycode
+ value.
+Date: Sat, 23 Nov 2013 10:06:23 -0800
+Message-ID: <20131123180621.GA15116@core.coreip.homeip.net>
+References: <1385214345-10385-1-git-send-email-andrew.liu200917@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="qU1eleVcrMO0mv68P69Vv9AWt59uNclG3"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:59142 "EHLO butterbrot.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751554Ab3KWPHT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 23 Nov 2013 10:07:19 -0500
-In-Reply-To: <20131122225700.GC12800@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1385214345-10385-1-git-send-email-andrew.liu200917@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: andrew.liu200917@gmail.com
+Cc: michael.hennerich@analog.com, device-drivers-devel@blackfin.uclinux.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---qU1eleVcrMO0mv68P69Vv9AWt59uNclG3
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi Andrew,
 
-Hi Dmitry,
+On Sat, Nov 23, 2013 at 09:45:45PM +0800, andrew.liu200917@gmail.com wrote:
+> From: Andrew Liu <andrew.liu200917@gmail.com>
+> 
+> For exmaple, keycode: KEY_OK(0x160) is changed by "and" operation with
+> KEY_MAX(0x2ff) to KEY_KPENTER(96).
+> 
+> Signed-off-by: Andrew Liu <andrew.liu200917@gmail.com>
+> ---
+>  drivers/input/keyboard/adp5588-keys.c |    8 ++++++--
+>  drivers/input/keyboard/adp5589-keys.c |    8 ++++++--
+>  drivers/input/keyboard/bf54x-keys.c   |    8 ++++++--
+>  drivers/input/misc/pcf8574_keypad.c   |    6 +++++-
+>  drivers/media/pci/ttpci/av7110_ir.c   |    1 +
+>  5 files changed, 24 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+> index dbd2047..1ce559e 100644
+> --- a/drivers/input/keyboard/adp5588-keys.c
+> +++ b/drivers/input/keyboard/adp5588-keys.c
+> @@ -535,8 +535,12 @@ static int adp5588_probe(struct i2c_client *client,
+>  	if (pdata->repeat)
+>  		__set_bit(EV_REP, input->evbit);
+>  
+> -	for (i = 0; i < input->keycodemax; i++)
+> -		__set_bit(kpad->keycode[i] & KEY_MAX, input->keybit);
+> +	for (i = 0; i < input->keycodemax; i++) {
+> +		if (kpad->keycode[i] > KEY_MAX)
+> +			kpad->keycode[i] = 0;
 
-great - thanks again for your help and for amending the missing config
-option. Had entirely missed that one.
+There is no need to reset keymap entires to 0, not setting keybit is
+enough.
 
-BR, Florian
+> +		else if (kpad->keycode[i] > KEY_RESERVED)
+> +			__set_bit(kpad->keycode[i], input->keybit);
+> +	}
+>  	__clear_bit(KEY_RESERVED, input->keybit);
+>  
+>  	if (kpad->gpimapsize)
+> diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
+> index 67d12b3..22ca2a5 100644
+> --- a/drivers/input/keyboard/adp5589-keys.c
+> +++ b/drivers/input/keyboard/adp5589-keys.c
+> @@ -991,8 +991,12 @@ static int adp5589_probe(struct i2c_client *client,
+>  	if (pdata->repeat)
+>  		__set_bit(EV_REP, input->evbit);
+>  
+> -	for (i = 0; i < input->keycodemax; i++)
+> -		__set_bit(kpad->keycode[i] & KEY_MAX, input->keybit);
+> +	for (i = 0; i < input->keycodemax; i++) {
+> +		if (kpad->keycode[i] > KEY_MAX)
+> +			kpad->keycode[i] = 0;
+> +		else if (kpad->keycode[i] > KEY_RESERVED)
+> +			__set_bit(kpad->keycode[i], input->keybit);
+> +	}
+>  	__clear_bit(KEY_RESERVED, input->keybit);
+>  
+>  	if (kpad->gpimapsize)
+> diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
+> index fc88fb4..96f54e7 100644
+> --- a/drivers/input/keyboard/bf54x-keys.c
+> +++ b/drivers/input/keyboard/bf54x-keys.c
+> @@ -288,8 +288,12 @@ static int bfin_kpad_probe(struct platform_device *pdev)
+>  	if (pdata->repeat)
+>  		__set_bit(EV_REP, input->evbit);
+>  
+> -	for (i = 0; i < input->keycodemax; i++)
+> -		__set_bit(bf54x_kpad->keycode[i] & KEY_MAX, input->keybit);
+> +	for (i = 0; i < input->keycodemax; i++) {
+> +		if (bf54x_kpad->keycode[i] > KEY_MAX)
+> +			bf54x_kpad->keycode[i] = 0;
+> +		else if (bf54x_kpad->keycode[i] > KEY_RESERVED)
+> +			__set_bit(bf54x_kpad->keycode[i], input->keybit);
+> +	}
+>  	__clear_bit(KEY_RESERVED, input->keybit);
+>  
+>  	error = input_register_device(input);
+> diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
+> index e373929..48829f3 100644
+> --- a/drivers/input/misc/pcf8574_keypad.c
+> +++ b/drivers/input/misc/pcf8574_keypad.c
+> @@ -114,8 +114,12 @@ static int pcf8574_kp_probe(struct i2c_client *client, const struct i2c_device_i
+>  
+>  	for (i = 0; i < ARRAY_SIZE(pcf8574_kp_btncode); i++) {
+>  		lp->btncode[i] = pcf8574_kp_btncode[i];
+> -		__set_bit(lp->btncode[i] & KEY_MAX, idev->keybit);
+> +		if (lp->btncode[i] > KEY_MAX)
+> +			lp->btncode[i] = 0;
+> +		else if (lp->btncode[i] > KEY_RESERVED)
+> +			__set_bit(lp->btncode[i], idev->keybit);
+>  	}
+> +	__clear_bit(KEY_RESERVED, idev->keybit);
+>  
+>  	sprintf(lp->name, DRV_NAME);
+>  	sprintf(lp->phys, "kp_data/input0");
+> diff --git a/drivers/media/pci/ttpci/av7110_ir.c b/drivers/media/pci/ttpci/av7110_ir.c
+> index 0e763a7..7fdac45 100644
+> --- a/drivers/media/pci/ttpci/av7110_ir.c
+> +++ b/drivers/media/pci/ttpci/av7110_ir.c
+> @@ -201,6 +201,7 @@ static void input_register_keys(struct infrared *ir)
+>  		else if (ir->key_map[i] > KEY_RESERVED)
+>  			set_bit(ir->key_map[i], ir->input_dev->keybit);
+>  	}
+> +	__clear_bit(KEY_RESERVED, ir->input_dev->keybit);
 
-On 22.11.2013 23:57, Dmitry Torokhov wrote:
-> Hi Linus,
->=20
-> Please pull from:
->=20
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus=
+Here we only setting bits for keycodes above KEY_RESERVED so we do not
+need to clear KEY_RESERVED bit.
 
-> or
-> 	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
->=20
-> to receive 2nd round of updates for the input subsystem. You will get a=
+>  
+>  	ir->input_dev->keycode = ir->key_map;
+>  	ir->input_dev->keycodesize = sizeof(ir->key_map[0]);
+> -- 
+> 1.7.1
+> 
 
-> new driver for Surface 2.0/Pixelsense touchscreen and a couple of drive=
-r
-> fixups.
->=20
-> Changelog:
-> ---------
->=20
-> Dan Carpenter (1):
->       Input: hp_sdc_rtc - unlock on error in hp_sdc_rtc_read_i8042timer=
-()
->=20
-> Dmitry Torokhov (1):
->       Input: atmel-wm97xx - fix compile error
->=20
-> Florian Echtler (1):
->       Input: add sur40 driver for Samsung SUR40 (aka MS Surface 2.0/Pix=
-elsense)
->=20
-> Haiyang Zhang (1):
->       MAINTAINERS - add keyboard driver to Hyper-V file list
->=20
-> Xie XiuQi (1):
->       Input: cyttsp4 -  remove unnecessary work pending test
->=20
->=20
-> Diffstat:
-> --------
->=20
->  drivers/input/misc/hp_sdc_rtc.c          |   5 +-
->  drivers/input/touchscreen/Kconfig        |  11 +
->  drivers/input/touchscreen/Makefile       |   1 +
->  drivers/input/touchscreen/atmel-wm97xx.c |   2 +-
->  drivers/input/touchscreen/cyttsp4_core.c |   3 +-
->  drivers/input/touchscreen/sur40.c        | 466 +++++++++++++++++++++++=
-++++++++
->  6 files changed, 484 insertions(+), 4 deletions(-)
->  create mode 100644 drivers/input/touchscreen/sur40.c
->=20
+Edited and applied, thank you.
 
-
---=20
-SENT FROM MY DEC VT50 TERMINAL
-
-
---qU1eleVcrMO0mv68P69Vv9AWt59uNclG3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAlKQxKAACgkQ7CzyshGvatjcEgCgs1DeRTYY5Jsjbiuk2Bize5fA
-+UcAoO8/UWgzOfKdmVRlH6pvwBl3nIc2
-=b3IY
------END PGP SIGNATURE-----
-
---qU1eleVcrMO0mv68P69Vv9AWt59uNclG3--
+-- 
+Dmitry

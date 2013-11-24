@@ -1,190 +1,60 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] Input: ads7846: Convert to devm_hwmon_device_register_with_groups
-Date: Sat, 23 Nov 2013 13:37:00 -0800
-Message-ID: <1385242620-21719-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+From: Sebastian Reichel <sre-GFxCN5SEZAc@public.gmane.org>
+Subject: Re: [PATCHv7 0/4] twl4030-pwrbutton DT binding
+Date: Sun, 24 Nov 2013 17:33:44 +0100
+Message-ID: <20131124163343.GA31845@earth.universe>
+References: <1383948687-32279-1-git-send-email-sre@debian.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1383948687-32279-1-git-send-email-sre-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Simplify the code and create mandatory 'name' attribute by using
-new hwmon API.
 
-Also use is_visible to determine visible attributes instead of creating
-several different attribute groups.
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-Compiled tested only.
+Hi,
 
- drivers/input/touchscreen/ads7846.c |   97 +++++++++--------------------------
- 1 file changed, 24 insertions(+), 73 deletions(-)
+On Fri, Nov 08, 2013 at 11:11:23PM +0100, Sebastian Reichel wrote:
+> This is the seventh iteration of DT support for the TWL4030
+> power button.
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index ea19536..38acc4c 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -101,11 +101,6 @@ struct ads7846 {
- 	struct spi_device	*spi;
- 	struct regulator	*reg;
- 
--#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
--	struct attribute_group	*attr_group;
--	struct device		*hwmon;
--#endif
--
- 	u16			model;
- 	u16			vref_mv;
- 	u16			vref_delay_usecs;
-@@ -479,41 +474,37 @@ static inline unsigned vbatt_adjust(struct ads7846 *ts, ssize_t v)
- SHOW(in0_input, vaux, vaux_adjust)
- SHOW(in1_input, vbatt, vbatt_adjust)
- 
--static struct attribute *ads7846_attributes[] = {
--	&dev_attr_temp0.attr,
--	&dev_attr_temp1.attr,
--	&dev_attr_in0_input.attr,
--	&dev_attr_in1_input.attr,
--	NULL,
--};
--
--static struct attribute_group ads7846_attr_group = {
--	.attrs = ads7846_attributes,
--};
-+static umode_t ads7846_is_visible(struct kobject *kobj, struct attribute *attr,
-+				  int index)
-+{
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct ads7846 *ts = dev_get_drvdata(dev);
- 
--static struct attribute *ads7843_attributes[] = {
--	&dev_attr_in0_input.attr,
--	&dev_attr_in1_input.attr,
--	NULL,
--};
-+	if (ts->model == 7843 && index < 2)	/* in0, in1 */
-+		return 0;
-+	if (ts->model == 7845 && index != 2)	/* in0 */
-+		return 0;
- 
--static struct attribute_group ads7843_attr_group = {
--	.attrs = ads7843_attributes,
--};
-+	return attr->mode;
-+}
- 
--static struct attribute *ads7845_attributes[] = {
--	&dev_attr_in0_input.attr,
-+static struct attribute *ads7846_attributes[] = {
-+	&dev_attr_temp0.attr,		/* 0 */
-+	&dev_attr_temp1.attr,		/* 1 */
-+	&dev_attr_in0_input.attr,	/* 2 */
-+	&dev_attr_in1_input.attr,	/* 3 */
- 	NULL,
- };
- 
--static struct attribute_group ads7845_attr_group = {
--	.attrs = ads7845_attributes,
-+static struct attribute_group ads7846_attr_group = {
-+	.attrs = ads7846_attributes,
-+	.is_visible = ads7846_is_visible,
- };
-+__ATTRIBUTE_GROUPS(ads7846_attr);
- 
- static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
- {
- 	struct device *hwmon;
--	int err;
- 
- 	/* hwmon sensors need a reference voltage */
- 	switch (ts->model) {
-@@ -535,56 +526,20 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
- 		break;
- 	}
- 
--	/* different chips have different sensor groups */
--	switch (ts->model) {
--	case 7846:
--		ts->attr_group = &ads7846_attr_group;
--		break;
--	case 7845:
--		ts->attr_group = &ads7845_attr_group;
--		break;
--	case 7843:
--		ts->attr_group = &ads7843_attr_group;
--		break;
--	default:
--		dev_dbg(&spi->dev, "ADS%d not recognized\n", ts->model);
--		return 0;
--	}
--
--	err = sysfs_create_group(&spi->dev.kobj, ts->attr_group);
--	if (err)
--		return err;
--
--	hwmon = hwmon_device_register(&spi->dev);
--	if (IS_ERR(hwmon)) {
--		sysfs_remove_group(&spi->dev.kobj, ts->attr_group);
-+	hwmon = devm_hwmon_device_register_with_groups(&spi->dev, spi->modalias,
-+						       ts, ads7846_attr_groups);
-+	if (IS_ERR(hwmon))
- 		return PTR_ERR(hwmon);
--	}
- 
--	ts->hwmon = hwmon;
- 	return 0;
- }
- 
--static void ads784x_hwmon_unregister(struct spi_device *spi,
--				     struct ads7846 *ts)
--{
--	if (ts->hwmon) {
--		sysfs_remove_group(&spi->dev.kobj, ts->attr_group);
--		hwmon_device_unregister(ts->hwmon);
--	}
--}
--
- #else
- static inline int ads784x_hwmon_register(struct spi_device *spi,
- 					 struct ads7846 *ts)
- {
- 	return 0;
- }
--
--static inline void ads784x_hwmon_unregister(struct spi_device *spi,
--					    struct ads7846 *ts)
--{
--}
- #endif
- 
- static ssize_t ads7846_pen_down_show(struct device *dev,
-@@ -1447,7 +1402,7 @@ static int ads7846_probe(struct spi_device *spi)
- 
- 	err = sysfs_create_group(&spi->dev.kobj, &ads784x_attr_group);
- 	if (err)
--		goto err_remove_hwmon;
-+		goto err_free_irq;
- 
- 	err = input_register_device(input_dev);
- 	if (err)
-@@ -1466,8 +1421,6 @@ static int ads7846_probe(struct spi_device *spi)
- 
-  err_remove_attr_group:
- 	sysfs_remove_group(&spi->dev.kobj, &ads784x_attr_group);
-- err_remove_hwmon:
--	ads784x_hwmon_unregister(spi, ts);
-  err_free_irq:
- 	free_irq(spi->irq, ts);
-  err_disable_regulator:
-@@ -1500,8 +1453,6 @@ static int ads7846_remove(struct spi_device *spi)
- 
- 	input_unregister_device(ts->input);
- 
--	ads784x_hwmon_unregister(spi, ts);
--
- 	regulator_disable(ts->reg);
- 	regulator_put(ts->reg);
- 
--- 
-1.7.9.7
+Dmitry, can you add this patchset to your queue?
+
+It got no further comments in two weeks.
+
+-- Sebastian
+
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBCAAGBQJSkipnAAoJENju1/PIO/qaD1MP/jIOAhmJR0OZ4ZUjcyXkF0N7
+jgxFASP+bevTniHUZWUlNueEgazCzIW6oZIVTi5rmlvTspccljy93siz+B+7Pglo
+QafcgGzVsqJpIHLBwl3lhLhoMUCChdQKJKHkII0LxslgiJrEwRUg85P9pRPy1E2a
+uuo8SWzCFQNGx4D6E3jhRekZnvUNKKg/4cztkp9r2SBkVE5q/0lVL3i6zkDkOSdu
+1/kbzOGYOdbKI96bvonIGVL+u6WrY8RJXeQSCs+DY6W42ODHZEUHkwTM65nXDlgd
+Kxuat0KcqVzwCgQeJYblpnHhFc8HAs8GBsfaE3qi2HAFwNGtcxbs5LEejLSLklbA
+3fU3s/xdgEyYEfqDP+cRr6rxceKoApKOrz1a6B2bNvakkaDOG01tcEZYev0pJslx
+yROjdg/ZShnbOBCa+i35SdoiWYzzCg0GaPPmWll8szQMOEosfZelh0xBXmJFVof4
+D+NEvEbAF2AGjGBkbCIHfe5wPfsxXqKOBcuo7TZt13YHc8svBEDBq3gTFMIBg86W
+obNQJDAaJ5XNcSj1ULB4jLGQ98RLE+XRFEuV5Y2Max3kwG741Vbli6FXoKYZ3igL
+H9bVPO7NlIeZiSoaS8e4yr3i+k94IE7iQT+M9pswgSCXhL6JdhApZnrJaJtj4ZdB
+FT6ke0gModLcxBGVY9TH
+=csXG
+-----END PGP SIGNATURE-----
+
+--gBBFr7Ir9EOA20Yy--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

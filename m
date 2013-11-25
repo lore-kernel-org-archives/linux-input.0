@@ -1,76 +1,50 @@
-From: Sebastian Reichel <sre@ring0.de>
-Subject: Re: [PATCHv3 1/2] Input: twl4030-keypad - add device tree support
-Date: Sun, 24 Nov 2013 18:17:23 +0100
-Message-ID: <20131124171723.GA1050@earth.universe>
-References: <1383948866-32672-1-git-send-email-sre@debian.org>
- <1383948866-32672-2-git-send-email-sre@debian.org>
- <20131111221941.GB23331@amd.pavel.ucw.cz>
- <20131112032506.GA30028@earth.universe>
- <20131117182840.GA30012@xo-6d-61-c0.localdomain>
- <20131118035815.GA3311@core.coreip.homeip.net>
- <20131119125031.GA14587@amd.pavel.ucw.cz>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH] Input: serio: remove unnecessary pci_set_drvdata()
+Date: Mon, 25 Nov 2013 11:13:46 +0900
+Message-ID: <001b01cee983$f894c510$e9be4f30$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20131119125031.GA14587@amd.pavel.ucw.cz>
-Sender: linux-doc-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-
-
---TB36FDmn/VVEgNH/
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout2.samsung.com ([203.254.224.25]:14704 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752560Ab3KYCNz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 24 Nov 2013 21:13:55 -0500
+Received: from epcpsbgr3.samsung.com
+ (u143.gpu120.samsung.co.kr [203.254.230.143])
+ by mailout2.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MWS0085ARIY4K00@mailout2.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 25 Nov 2013 11:13:46 +0900 (KST)
+Content-language: ko
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Dmitry Torokhov' <dtor@mail.ru>, linux-input@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
 
-Hi,
+The driver core clears the driver data to NULL after device_release
+or on probe failure. Thus, it is not needed to manually clear the
+device driver data to NULL.
 
-> > > I'd suggest just simple "autorepeat", so that we get rid of ugly doub=
-le-negation.
-> > The idea was that majority of setups want autorepeat so in the absence
-> > of the property autorepeat is turned on.
->=20
-> I see... but autorepeat on by default makes sense on devices that are
-> usually querty keybaords, but does not make sense on devices that are
-> usually phone keypads or power buttons.
->=20
-> So my proposal is:
->=20
-> 1) driver decides if it makes sense to autorepeat by default or not.
->=20
-> 2) dts says autorepeat=3D0 or autorepeat=3D1
->=20
-> That way, we get dts that get chance to work on other OSes, get rid of
-> double negations, and get right defaults when autorepeat is not
-> specified.
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/input/serio/pcips2.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-Sounds fine to me. Any objections?
+diff --git a/drivers/input/serio/pcips2.c b/drivers/input/serio/pcips2.c
+index 76f8383..13062f6 100644
+--- a/drivers/input/serio/pcips2.c
++++ b/drivers/input/serio/pcips2.c
+@@ -181,7 +181,6 @@ static void pcips2_remove(struct pci_dev *dev)
+ 	struct pcips2_data *ps2if = pci_get_drvdata(dev);
+ 
+ 	serio_unregister_port(ps2if->io);
+-	pci_set_drvdata(dev, NULL);
+ 	kfree(ps2if);
+ 	pci_release_regions(dev);
+ 	pci_disable_device(dev);
+-- 
+1.7.10.4
 
--- Sebastian
 
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBCAAGBQJSkjSiAAoJENju1/PIO/qaixUP/1NY6jaxnhiLo1qW0KJ68Fuh
-BXvrCogHOlW64FxhNc+m5g8E2Lzijt34eVGvaD/PPm+Yhs5qNXcGta/7RZtEnEaw
-/IK0bKDhF9cfvUusfZhOMbbTsuEac2C28kNPl9We7f85uL8G3pzMV+WGv74QU6R5
-gD3dSymnNhUUokvVVrb9iU9u3HgZDm87bfGaFqJsDmlKAjBtwzLB0iZnQ684+87a
-HiA4oWNlbA+Wyxb0By9eqgF6RKGXQrrmeSGx7A11xoSb3xli8aXO825WE09na2aB
-WjDMXpTiAVcjCDAWGjOIxFu3nzKZYckOjOg9aVNkCm1UD3DIqhS51MMSAq/QSFev
-kLvq0SzqRL1J4XSGVSrxyHQGvdOWQ9GLGpHjOYcWTlE652laIhrnQreltypfa6va
-Km/GrAX4qsHDWj6iYolUGPkaUBMgA9UG9p1SKfclZy+ccCLdmhM9AwzNTK+KY2Bt
-wMdKbaopNQ63WWKgFni0hopjj//9+H0KVJAxgzq506IOHuupeQ3NBtESjXRwG08x
-6XdL/Xp+1JISkPKEuohvg86eSJh0twEkOEkqRpn9pbwExWYku1oiCwdept+W6nt2
-1kdKBoA36p2H9+L52BqbmSuehgjpB697k5Dqmq6/x4cz6mkHOG5FiyXU3FELeSkR
-0AVqR1mcjt8CrIbQftm8
-=lh55
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--

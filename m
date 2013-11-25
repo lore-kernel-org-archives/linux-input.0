@@ -1,34 +1,215 @@
-From: Denis Carikli <denis@eukrea.com>
-Subject: Re: [PATCH] Input: tsc2007 - remove unused poll_delay from platform
- data
-Date: Mon, 25 Nov 2013 09:40:35 +0100
-Message-ID: <52930D03.2070607@eukrea.com>
-References: <20131121051319.GA6131@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 19.mo1.mail-out.ovh.net ([178.32.97.206]:42368 "EHLO
-	mo1.mail-out.ovh.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751906Ab3KYJEo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Nov 2013 04:04:44 -0500
-Received: from mail95.ha.ovh.net (gw6.ovh.net [213.251.189.206])
-	by mo1.mail-out.ovh.net (Postfix) with SMTP id F3C81FFB4BE
-	for <linux-input@vger.kernel.org>; Mon, 25 Nov 2013 09:43:02 +0100 (CET)
-In-Reply-To: <20131121051319.GA6131@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>
+Subject: [PATCH v2] input: Add new driver for GPIO beeper
+Date: Mon, 25 Nov 2013 14:03:07 +0400
+Message-ID: <1385373787-15668-1-git-send-email-shc_work@mail.ru>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Bill Pemberton <wfp5p@virginia.edu>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org
 
-On 11/21/2013 06:13 AM, Dmitry Torokhov wrote:
-> The driver does not use poll_delay parameter, so let's remove it.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This patch adds a new driver for the beeper controlled via GPIO pin.
+The driver does not depend on the architecture and is positioned as
+a replacement for the specific drivers that are used for this function.
 
-I tested on top of the "tsc2007 misc fixes" patch.
+Signed-off-by: Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>
+---
+ .../devicetree/bindings/input/gpio-beeper.txt      |  13 +++
+ drivers/input/misc/Kconfig                         |   9 ++
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/gpio-beeper.c                   | 127 +++++++++++++++++++++
+ 4 files changed, 150 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/gpio-beeper.txt
+ create mode 100644 drivers/input/misc/gpio-beeper.c
 
-Tested-by: Denis Carikli <denis@eukrea.com>
+diff --git a/Documentation/devicetree/bindings/input/gpio-beeper.txt b/Documentation/devicetree/bindings/input/gpio-beeper.txt
+new file mode 100644
+index 0000000..a5086e3
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/gpio-beeper.txt
+@@ -0,0 +1,13 @@
++* GPIO beeper device tree bindings
++
++Register a beeper connected to GPIO pin.
++
++Required properties:
++- compatible:	Should be "gpio-beeper".
++- gpios:	From common gpio binding; gpio connection to beeper enable pin.
++
++Example:
++	beeper: beeper {
++		compatible = "gpio-beeper";
++		gpios = <&gpio3 23 GPIO_ACTIVE_HIGH>;
++	};
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 5f4967d..4ffc397 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -222,6 +222,15 @@ config INPUT_GP2A
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called gp2ap002a00f.
+ 
++config INPUT_GPIO_BEEPER
++	tristate "Generic GPIO Beeper support"
++	depends on OF_GPIO
++	help
++	  Say Y here if you have a beeper connected to a GPIO pin.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called gpio-beeper.
++
+ config INPUT_GPIO_TILT_POLLED
+ 	tristate "Polled GPIO tilt switch"
+ 	depends on GPIOLIB
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 0ebfb6d..cda71fc 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -27,6 +27,7 @@ obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
+ obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
+ obj-$(CONFIG_INPUT_DM355EVM)		+= dm355evm_keys.o
+ obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
++obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
+ obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
+ obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+ obj-$(CONFIG_INPUT_IMS_PCU)		+= ims-pcu.o
+diff --git a/drivers/input/misc/gpio-beeper.c b/drivers/input/misc/gpio-beeper.c
+new file mode 100644
+index 0000000..cc81e6e
+--- /dev/null
++++ b/drivers/input/misc/gpio-beeper.c
+@@ -0,0 +1,127 @@
++/*
++ *  Generic GPIO beeper driver
++ *
++ *  Copyright (C) 2013 Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/input.h>
++#include <linux/module.h>
++#include <linux/of_gpio.h>
++#include <linux/workqueue.h>
++#include <linux/platform_device.h>
++
++#define BEEPER_MODNAME		"gpio-beeper"
++
++struct gpio_beeper {
++	struct work_struct	work;
++	int			gpio;
++	bool			active_low;
++	bool			beeping;
++};
++
++static void gpio_beeper_toggle(struct gpio_beeper *beep, bool on)
++{
++	gpio_set_value_cansleep(beep->gpio, on ^ beep->active_low);
++}
++
++static void gpio_beeper_work(struct work_struct *work)
++{
++	struct gpio_beeper *beep = container_of(work, struct gpio_beeper, work);
++
++	gpio_beeper_toggle(beep, beep->beeping);
++}
++
++static int gpio_beeper_event(struct input_dev *dev, unsigned int type,
++			     unsigned int code, int value)
++{
++	struct gpio_beeper *beep = input_get_drvdata(dev);
++
++	if (type != EV_SND || code != SND_BELL)
++		return -ENOTSUPP;
++
++	if (value < 0)
++		return -EINVAL;
++
++	beep->beeping = value;
++	/* Schedule work to actually turn the beeper on or off */
++	schedule_work(&beep->work);
++
++	return 0;
++}
++
++static void gpio_beeper_close(struct input_dev *input)
++{
++	struct gpio_beeper *beep = input_get_drvdata(input);
++
++	cancel_work_sync(&beep->work);
++	gpio_beeper_toggle(beep, false);
++}
++
++static int gpio_beeper_probe(struct platform_device *pdev)
++{
++	struct gpio_beeper *beep;
++	enum of_gpio_flags flags;
++	struct input_dev *input;
++	unsigned long gflags;
++	int err;
++
++	beep = devm_kzalloc(&pdev->dev, sizeof(*beep), GFP_KERNEL);
++	if (!beep)
++		return -ENOMEM;
++
++	beep->gpio = of_get_gpio_flags(pdev->dev.of_node, 0, &flags);
++	if (!gpio_is_valid(beep->gpio))
++		return beep->gpio;
++
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input)
++		return -ENOMEM;
++
++	INIT_WORK(&beep->work, gpio_beeper_work);
++
++	input->name		= pdev->name;
++	input->id.bustype	= BUS_HOST;
++	input->id.vendor	= 0x0001;
++	input->id.product	= 0x0001;
++	input->id.version	= 0x0100;
++	input->close		= gpio_beeper_close;
++	input->event		= gpio_beeper_event;
++
++	input_set_capability(input, EV_SND, SND_BELL);
++
++	beep->active_low = flags & OF_GPIO_ACTIVE_LOW;
++	gflags = beep->active_low ? GPIOF_OUT_INIT_HIGH : GPIOF_OUT_INIT_LOW;
++
++	err = devm_gpio_request_one(&pdev->dev, beep->gpio, gflags, pdev->name);
++	if (err)
++		return err;
++
++	input_set_drvdata(input, beep);
++
++	return input_register_device(input);
++}
++
++static struct of_device_id gpio_beeper_of_match[] = {
++	{ .compatible = BEEPER_MODNAME, },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, gpio_beeper_of_match);
++
++static struct platform_driver gpio_beeper_platform_driver = {
++	.driver	= {
++		.name		= BEEPER_MODNAME,
++		.owner		= THIS_MODULE,
++		.of_match_table	= gpio_beeper_of_match,
++	},
++	.probe	= gpio_beeper_probe,
++};
++module_platform_driver(gpio_beeper_platform_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>");
++MODULE_DESCRIPTION("Generic GPIO beeper driver");
+-- 
+1.8.3.2
 
-Denis.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

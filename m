@@ -1,47 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: i2c-hid: disable interrupt on suspend
-Date: Mon, 25 Nov 2013 23:18:54 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1311252318350.22082@pobox.suse.cz>
-References: <1384342458-5551-1-git-send-email-mika.westerberg@linux.intel.com> <52936FC5.3060905@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: serio: remove unnecessary pci_set_drvdata()
+Date: Mon, 25 Nov 2013 18:11:29 -0800
+Message-ID: <20131126021128.GA31517@core.coreip.homeip.net>
+References: <001b01cee983$f894c510$e9be4f30$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46736 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750709Ab3KYWTA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Nov 2013 17:19:00 -0500
-In-Reply-To: <52936FC5.3060905@redhat.com>
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:57616 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752498Ab3KZCLh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Nov 2013 21:11:37 -0500
+Received: by mail-pd0-f172.google.com with SMTP id g10so6765072pdj.31
+        for <linux-input@vger.kernel.org>; Mon, 25 Nov 2013 18:11:37 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <001b01cee983$f894c510$e9be4f30$%han@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <khali@linux-fr.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jerome Blin <jerome.blin@intel.com>
+To: Jingoo Han <jg1.han@samsung.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 25 Nov 2013, Benjamin Tissoires wrote:
-
-> > When an I2C HID device is powered of during system sleep, as a result of
-> > removing its power resources (by the ACPI core) the interrupt line might go
-> > low as well. This results inadvertent interrupt and wakes the system from
-> > sleep immediately.
-> > 
-> > To prevent this we disable the device interrupt in the drivers suspend
-> > method and enable it on resume. The device can still wake the system up if
-> > it is wake capable (this also means that not all of its power will be
-> > removed to keep the interrupt line high).
-> > 
-> > Reported-by: Jerome Blin <jerome.blin@intel.com>
-> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > ---
+On Mon, Nov 25, 2013 at 11:13:46AM +0900, Jingoo Han wrote:
+> The driver core clears the driver data to NULL after device_release
+> or on probe failure. Thus, it is not needed to manually clear the
+> device driver data to NULL.
 > 
-> Jiri, just FYI, I still do not have any final consumer ready i2c-hid
-> hardware. So I can not test/debug anything related to the suspend-resume.
+> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/serio/pcips2.c |    1 -
+>  1 file changed, 1 deletion(-)
 > 
-> If Mika tested it properly (which I expect), you may consider pulling
-> this one.
-
-Understood, thanks guys.
-
-Applied now.
+> diff --git a/drivers/input/serio/pcips2.c b/drivers/input/serio/pcips2.c
+> index 76f8383..13062f6 100644
+> --- a/drivers/input/serio/pcips2.c
+> +++ b/drivers/input/serio/pcips2.c
+> @@ -181,7 +181,6 @@ static void pcips2_remove(struct pci_dev *dev)
+>  	struct pcips2_data *ps2if = pci_get_drvdata(dev);
+>  
+>  	serio_unregister_port(ps2if->io);
+> -	pci_set_drvdata(dev, NULL);
+>  	kfree(ps2if);
+>  	pci_release_regions(dev);
+>  	pci_disable_device(dev);
+> -- 
+> 1.7.10.4
+> 
+> 
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

@@ -1,31 +1,30 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: ads7846: Convert to
- devm_hwmon_device_register_with_groups
-Date: Mon, 25 Nov 2013 19:03:08 -0800
-Message-ID: <20131126030308.GF31517@core.coreip.homeip.net>
-References: <1385242620-21719-1-git-send-email-linux@roeck-us.net>
+Subject: Re: [PATCHv7 0/4] twl4030-pwrbutton DT binding
+Date: Mon, 25 Nov 2013 19:29:00 -0800
+Message-ID: <20131126032858.GH31517@core.coreip.homeip.net>
+References: <1383948687-32279-1-git-send-email-sre@debian.org>
+ <20131124163343.GA31845@earth.universe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1385242620-21719-1-git-send-email-linux@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20131124163343.GA31845@earth.universe>
+Sender: linux-doc-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Guenter,
-
-On Sat, Nov 23, 2013 at 01:37:00PM -0800, Guenter Roeck wrote:
-> Simplify the code and create mandatory 'name' attribute by using
-> new hwmon API.
+On Sun, Nov 24, 2013 at 05:33:44PM +0100, Sebastian Reichel wrote:
+> Hi,
 > 
-> Also use is_visible to determine visible attributes instead of creating
-> several different attribute groups.
+> On Fri, Nov 08, 2013 at 11:11:23PM +0100, Sebastian Reichel wrote:
+> > This is the seventh iteration of DT support for the TWL4030
+> > power button.
+> 
+> Dmitry, can you add this patchset to your queue?
+> 
+> It got no further comments in two weeks.
 
-This change does not quite work without converting the rest of the
-driver to devm_ resources as it makes hwmon outlive regulator and other
-essential resources when unbinding driver from the device.
+Yes, I just applied the series.
 
 Thanks.
 

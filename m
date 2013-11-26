@@ -1,43 +1,31 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4 v3] Input: wacom - add SW_TOUCH to
- include/uapi/linux/input.h
-Date: Mon, 25 Nov 2013 18:59:29 -0800
-Message-ID: <20131126025928.GD31517@core.coreip.homeip.net>
-References: <1384545602-15549-1-git-send-email-pingc@wacom.com>
+Subject: Re: [PATCH] Input: ads7846: Convert to
+ devm_hwmon_device_register_with_groups
+Date: Mon, 25 Nov 2013 19:03:08 -0800
+Message-ID: <20131126030308.GF31517@core.coreip.homeip.net>
+References: <1385242620-21719-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f48.google.com ([209.85.160.48]:58596 "EHLO
-	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751119Ab3KZC7e (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 25 Nov 2013 21:59:34 -0500
-Received: by mail-pb0-f48.google.com with SMTP id md12so7135313pbc.35
-        for <linux-input@vger.kernel.org>; Mon, 25 Nov 2013 18:59:34 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1384545602-15549-1-git-send-email-pingc@wacom.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1385242620-21719-1-git-send-email-linux@roeck-us.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, killertofu@gmail.com, chris@cnpbagwell.com, peter.hutterer@who-t.net, Ping Cheng <pingc@wacom.com>
 
-Hi Ping,
+Hi Guenter,
 
-On Fri, Nov 15, 2013 at 12:00:02PM -0800, Ping Cheng wrote:
->> @@ -856,6 +856,7 @@ struct input_keymap_entry {
->  #define SW_FRONT_PROXIMITY	0x0b  /* set = front proximity sensor active */
->  #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
->  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
-> +#define SW_TOUCH		0x0e  /* set = touch switch turned on (touch events off) */
+On Sat, Nov 23, 2013 at 01:37:00PM -0800, Guenter Roeck wrote:
+> Simplify the code and create mandatory 'name' attribute by using
+> new hwmon API.
+> 
+> Also use is_visible to determine visible attributes instead of creating
+> several different attribute groups.
 
-I do not think we should be adding this as is as it seems to be very
-wacom-specific. I'd rather call it something else, like SW_MUTE_DEVICE
-or similar.
-
-I also wonder if this should really be a switch: can you query it's
-state? What happen if user plugs in the device, engages the switch and
-then [re]loads the driver? Will the state be still signalled properly?
-What about suspend/resume or hibernation?
+This change does not quite work without converting the rest of the
+driver to devm_ resources as it makes hwmon outlive regulator and other
+essential resources when unbinding driver from the device.
 
 Thanks.
 

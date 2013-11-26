@@ -1,43 +1,65 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [lm-sensors] [PATCH v2] Input: ads7846: Convert to
- hwmon_device_register_with_groups
-Date: Tue, 26 Nov 2013 20:36:34 +0100
-Message-ID: <20131126203634.05c7baa1@endymion.delvare>
-References: <1385440744-6607-1-git-send-email-linux@roeck-us.net>
-	<20131126185846.GB22242@core.coreip.homeip.net>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 4/4 v3] Input: wacom - add SW_TOUCH to include/uapi/linux/input.h
+Date: Tue, 26 Nov 2013 12:38:09 -0800
+Message-ID: <CAF8JNh+=3kYSR_wwVRw3PMicyZgWWDXBWPjB0jrcBd8JCa11XQ@mail.gmail.com>
+References: <1384545602-15549-1-git-send-email-pingc@wacom.com>
+	<20131126025928.GD31517@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zoneX.GCU-Squad.org ([194.213.125.0]:15986 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754496Ab3KZTgu (ORCPT
+Received: from mail-lb0-f173.google.com ([209.85.217.173]:56609 "EHLO
+	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757990Ab3KZUiK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Nov 2013 14:36:50 -0500
-In-Reply-To: <20131126185846.GB22242@core.coreip.homeip.net>
+	Tue, 26 Nov 2013 15:38:10 -0500
+Received: by mail-lb0-f173.google.com with SMTP id u14so4938635lbd.32
+        for <linux-input@vger.kernel.org>; Tue, 26 Nov 2013 12:38:09 -0800 (PST)
+In-Reply-To: <20131126025928.GD31517@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: linux-input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>, Chris Bagwell <chris@cnpbagwell.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-Hi Dmitry,
+On Mon, Nov 25, 2013 at 6:59 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Ping,
+>
+> On Fri, Nov 15, 2013 at 12:00:02PM -0800, Ping Cheng wrote:
+>>> @@ -856,6 +856,7 @@ struct input_keymap_entry {
+>>  #define SW_FRONT_PROXIMITY   0x0b  /* set = front proximity sensor active */
+>>  #define SW_ROTATE_LOCK               0x0c  /* set = rotate locked/disabled */
+>>  #define SW_LINEIN_INSERT     0x0d  /* set = inserted */
+>> +#define SW_TOUCH             0x0e  /* set = touch switch turned on (touch events off) */
+>
+> I do not think we should be adding this as is as it seems to be very
+> wacom-specific. I'd rather call it something else, like SW_MUTE_DEVICE
+> or similar.
 
-On Tue, 26 Nov 2013 10:58:46 -0800, Dmitry Torokhov wrote:
-> On Mon, Nov 25, 2013 at 08:39:04PM -0800, Guenter Roeck wrote:
-> > Simplify the code and create mandatory 'name' attribute by using
-> > new hwmon API.
-> 
-> So this moves hwmon attributes from the parent i2c device to the hwmon
-> device, right? Would not that break userspace which expects to find the
-> attributes where they were?
+Thank you Dmitry for reviewing the patch. I can change the event to
+SW_MUTE_DEVICE.
 
-libsensors supports that just fine since version 3.0.3 which was
-released in September 2008, over 5 years ago.
+> I also wonder if this should really be a switch: can you query it's
+> state?
 
-Applications bypassing libsensors are on their own, and always have
-been. But several other drivers have had their attributes in the hwmon
-device forever so even these applications are likely to be happy with
-other drivers moving in that direction.
+Yes, it is a hardware switch. The state is posted periodically from the device.
 
--- 
-Jean Delvare
+> What happen if user plugs in the device, engages the switch and
+> then [re]loads the driver?
+
+The state will be updated in the driver, with this patch.
+
+> Will the state be still signalled properly?
+
+Sure.
+
+> What about suspend/resume or hibernation?
+
+Since the state is updated regularly, it won't be lost when system wakes up.
+
+Basically, we are dealing with a hardware switch, which is controlled
+by end users. Firmware and driver can not do much about it except
+reporting its state.
+
+Does this answer your questions?
+
+Ping

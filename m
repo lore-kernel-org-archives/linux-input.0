@@ -1,39 +1,67 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH v2] HID: uhid: fix leak for 64/32 UHID_CREATE
-Date: Tue, 26 Nov 2013 13:58:18 +0100
-Message-ID: <1385470698-6036-1-git-send-email-dh.herrmann@gmail.com>
-References: <1385449330.23855.46.camel@deadeye.wl.decadent.org.uk>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1385449330.23855.46.camel@deadeye.wl.decadent.org.uk>
-Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Ben Hutchings <ben@decadent.org.uk>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, stable@vger.kernel.org
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: [PATCH] input: ixp4xx-beeper: don't use symbols from <mach/timex.h>
+Date: Tue, 26 Nov 2013 15:29:01 +0100
+Message-ID: <1385476141-29131-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:44531 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756518Ab3KZO3M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Nov 2013 09:29:12 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Imre Kaloz <kaloz@openwrt.org>, kernel@pengutronix.de
 
-UHID allows short writes so user-space can omit unused fields. We
-automatically set them to 0 in the kernel. However, the 64/32 bit
-compat-handler didn't do that in the UHID_CREATE fallback. This will
-reveal random kernel heap data (of random size, even) to user-space.
+mach/timex.h is about to be dropped so don't use symbols defined in
+there. For ixp4xx there is a suitable substitute for IXP4XX_TIMER_FREQ,
+i.e. a global and exported variable that holds the same value.
 
-Reported-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
 ---
- drivers/hid/uhid.c | 2 +-
+
+Hello,
+
+I'd like to keep that patch in a series for the arm-soc people to pull =
+that
+get's rid of <mach/timex.h>, so please don't take this patch but only a=
+ck to
+keep coordinating the series as easy as possible.
+
+I don't know who's Ack is good enough to be counted as maintainer ack, =
+so
+please point that out in your reply, too.
+
+Thanks
+Uwe
+
+ drivers/input/misc/ixp4xx-beeper.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 93b00d7..cedc6da 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -287,7 +287,7 @@ static int uhid_event_from_user(const char __user *buffer, size_t len,
- 			 */
- 			struct uhid_create_req_compat *compat;
- 
--			compat = kmalloc(sizeof(*compat), GFP_KERNEL);
-+			compat = kzalloc(sizeof(*compat), GFP_KERNEL);
- 			if (!compat)
- 				return -ENOMEM;
- 
--- 
+diff --git a/drivers/input/misc/ixp4xx-beeper.c b/drivers/input/misc/ix=
+p4xx-beeper.c
+index 17ccba8..ed8e5e8 100644
+--- a/drivers/input/misc/ixp4xx-beeper.c
++++ b/drivers/input/misc/ixp4xx-beeper.c
+@@ -67,7 +67,7 @@ static int ixp4xx_spkr_event(struct input_dev *dev, u=
+nsigned int type, unsigned
+ 	}
+=20
+ 	if (value > 20 && value < 32767)
+-		count =3D (IXP4XX_TIMER_FREQ / (value * 4)) - 1;
++		count =3D (ixp4xx_timer_freq / (value * 4)) - 1;
+=20
+ 	ixp4xx_spkr_control(pin, count);
+=20
+--=20
 1.8.4.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

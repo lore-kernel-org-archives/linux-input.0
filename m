@@ -1,151 +1,89 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2] Input: ads7846: Convert to hwmon_device_register_with_groups
-Date: Mon, 25 Nov 2013 20:39:04 -0800
-Message-ID: <1385440744-6607-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH] uhid: Pad short UHID_CREATE writes from compat tasks
+Date: Tue, 26 Nov 2013 07:02:10 +0000
+Message-ID: <1385449330.23855.46.camel@deadeye.wl.decadent.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-fdUB8xjS7BXCczRvKa4O"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33300 "EHLO
+	shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753007Ab3KZHCS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Nov 2013 02:02:18 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>
+Cc: linux-input@vger.kernel.org
 
-Simplify the code and create mandatory 'name' attribute by using
-new hwmon API.
 
-Also use is_visible to determine visible attributes instead of creating
-several different attribute groups.
+--=-fdUB8xjS7BXCczRvKa4O
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Short event writes are normally padded with zeroes, but the compat
+fixup for UHID_CREATE didn't ensure this.  This appears to allow an
+information leak.
+
+Compile-tested only.
+
+Fixes: befde0226a59 ('HID: uhid: make creating devices work on 64/32 system=
+s')
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: stable@vger.kernel.org
 ---
-v2: Use hwmon_device_register_with_groups instead of
-    devm_hwmon_device_register_with_groups to keep
-    device removal aligned with resource removal.
+I have no familiarity with uhid so I haven't written a test for this.
+It looks like it would be possible to write a UHID_CREATE event that
+only covers fields up to rd_size, and the following data on the heap
+would be copied to the HID device metadata and be readable that way.
 
- drivers/input/touchscreen/ads7846.c |   81 +++++++++++------------------------
- 1 file changed, 25 insertions(+), 56 deletions(-)
+Ben.
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index ea19536..932d4cf 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -102,7 +102,6 @@ struct ads7846 {
- 	struct regulator	*reg;
- 
- #if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
--	struct attribute_group	*attr_group;
- 	struct device		*hwmon;
- #endif
- 
-@@ -479,42 +478,36 @@ static inline unsigned vbatt_adjust(struct ads7846 *ts, ssize_t v)
- SHOW(in0_input, vaux, vaux_adjust)
- SHOW(in1_input, vbatt, vbatt_adjust)
- 
--static struct attribute *ads7846_attributes[] = {
--	&dev_attr_temp0.attr,
--	&dev_attr_temp1.attr,
--	&dev_attr_in0_input.attr,
--	&dev_attr_in1_input.attr,
--	NULL,
--};
--
--static struct attribute_group ads7846_attr_group = {
--	.attrs = ads7846_attributes,
--};
-+static umode_t ads7846_is_visible(struct kobject *kobj, struct attribute *attr,
-+				  int index)
-+{
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct ads7846 *ts = dev_get_drvdata(dev);
- 
--static struct attribute *ads7843_attributes[] = {
--	&dev_attr_in0_input.attr,
--	&dev_attr_in1_input.attr,
--	NULL,
--};
-+	if (ts->model == 7843 && index < 2)	/* in0, in1 */
-+		return 0;
-+	if (ts->model == 7845 && index != 2)	/* in0 */
-+		return 0;
- 
--static struct attribute_group ads7843_attr_group = {
--	.attrs = ads7843_attributes,
--};
-+	return attr->mode;
-+}
- 
--static struct attribute *ads7845_attributes[] = {
--	&dev_attr_in0_input.attr,
-+static struct attribute *ads7846_attributes[] = {
-+	&dev_attr_temp0.attr,		/* 0 */
-+	&dev_attr_temp1.attr,		/* 1 */
-+	&dev_attr_in0_input.attr,	/* 2 */
-+	&dev_attr_in1_input.attr,	/* 3 */
- 	NULL,
- };
- 
--static struct attribute_group ads7845_attr_group = {
--	.attrs = ads7845_attributes,
-+static struct attribute_group ads7846_attr_group = {
-+	.attrs = ads7846_attributes,
-+	.is_visible = ads7846_is_visible,
- };
-+__ATTRIBUTE_GROUPS(ads7846_attr);
- 
- static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
- {
--	struct device *hwmon;
--	int err;
--
- 	/* hwmon sensors need a reference voltage */
- 	switch (ts->model) {
- 	case 7846:
-@@ -535,43 +528,19 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
- 		break;
- 	}
- 
--	/* different chips have different sensor groups */
--	switch (ts->model) {
--	case 7846:
--		ts->attr_group = &ads7846_attr_group;
--		break;
--	case 7845:
--		ts->attr_group = &ads7845_attr_group;
--		break;
--	case 7843:
--		ts->attr_group = &ads7843_attr_group;
--		break;
--	default:
--		dev_dbg(&spi->dev, "ADS%d not recognized\n", ts->model);
--		return 0;
--	}
--
--	err = sysfs_create_group(&spi->dev.kobj, ts->attr_group);
--	if (err)
--		return err;
--
--	hwmon = hwmon_device_register(&spi->dev);
--	if (IS_ERR(hwmon)) {
--		sysfs_remove_group(&spi->dev.kobj, ts->attr_group);
--		return PTR_ERR(hwmon);
--	}
-+	ts->hwmon = hwmon_device_register_with_groups(&spi->dev, spi->modalias,
-+						      ts, ads7846_attr_groups);
-+	if (IS_ERR(ts->hwmon))
-+		return PTR_ERR(ts->hwmon);
- 
--	ts->hwmon = hwmon;
- 	return 0;
- }
- 
- static void ads784x_hwmon_unregister(struct spi_device *spi,
- 				     struct ads7846 *ts)
- {
--	if (ts->hwmon) {
--		sysfs_remove_group(&spi->dev.kobj, ts->attr_group);
-+	if (ts->hwmon)
- 		hwmon_device_unregister(ts->hwmon);
--	}
- }
- 
- #else
--- 
-1.7.9.7
+ drivers/hid/uhid.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 5bf2fb7..579a7115 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -298,6 +298,9 @@ static int uhid_event_from_user(const char __user *buff=
+er, size_t len,
+ 				kfree(compat);
+ 				return -EFAULT;
+ 			}
++			if (len < sizeof(*compat))
++				memset((char *)buffer + len, 0,
++				       sizeof(*compat) - len);
+=20
+ 			/* Shuffle the data over to proper structure */
+ 			event->type =3D type;
+
+--=20
+Ben Hutchings
+Usenet is essentially a HUGE group of people passing notes in class.
+                      - Rachel Kadel, `A Quick Guide to Newsgroup Etiquette=
+'
+
+--=-fdUB8xjS7BXCczRvKa4O
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIVAwUAUpRHcue/yOyVhhEJAQpQhxAAgoo7bqfBBH1YgeUFOHOEuXx/lBqalXs8
+qalCfDE42vW2CQ/FSGksGodrodeBdcKLp8wGpdZ+OPdk1TBqri41Mj60Y6+PnxkC
+1BxwUml4broKRMHiJqOZ+CHTqyM89NCpX3tZJe8OSrbtgbfzo3tecG50+U+hX5zf
+L4EkRFeC2ulUkKcA/TEwevleOmHhpNfcNUVMQKDG507yDfj/n8sz8FEVgssedF6D
+jFg7I9DTEyg1NDi8itgKsWqvhhhQ9TsWIyLVSIUY1sYDREUv1oDW8jbT66IP6YWF
+RvRUss8mfc8C953f3fNnjQjv1E3tQ/pRUiHLMo99hBlTkpbpTYjB/tgFMhZQ2srn
+xpvARHm06eag+afmQTVFra0DAlgmUm60Oq+zW9inYAgAYfpRzAdV0pKsMDw/z2UP
+F3X+HixjAOdV/DNjcwFcE6xVb8cdQ3C6pUb3CbfFKy7XggHK+hBs1cOzl8iPj8Xr
+7ezaAlWiBjpaGzmqznMS9OeFdhh5J4S/T2HCym2vFkqaMiHPC8jcQTl8zqvmropW
+qNghslfZo0yBFsg/14vKIDqe7Iy+fizXDsx8Zt6DsDDgXoJGparbHB6Vm+RWKA/+
+Gg+roVTp12cq86ZRB/bSt3mIZD/hV+ldKgua7PFm6Ra4zaO6X/oyX/BanYBZD4vE
+7zrerDIrp2A=
+=c2OV
+-----END PGP SIGNATURE-----
+
+--=-fdUB8xjS7BXCczRvKa4O--

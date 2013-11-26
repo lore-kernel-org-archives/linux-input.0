@@ -1,32 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv7 0/4] twl4030-pwrbutton DT binding
-Date: Mon, 25 Nov 2013 19:29:00 -0800
-Message-ID: <20131126032858.GH31517@core.coreip.homeip.net>
-References: <1383948687-32279-1-git-send-email-sre@debian.org>
- <20131124163343.GA31845@earth.universe>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] Input: ads7846: Convert to devm_hwmon_device_register_with_groups
+Date: Mon, 25 Nov 2013 20:38:09 -0800
+Message-ID: <529425B1.7000708@roeck-us.net>
+References: <1385242620-21719-1-git-send-email-linux@roeck-us.net> <20131126030308.GF31517@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20131124163343.GA31845@earth.universe>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.active-venture.com ([67.228.131.205]:53692 "EHLO
+	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751524Ab3KZEiK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Nov 2013 23:38:10 -0500
+In-Reply-To: <20131126030308.GF31517@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
 
-On Sun, Nov 24, 2013 at 05:33:44PM +0100, Sebastian Reichel wrote:
-> Hi,
-> 
-> On Fri, Nov 08, 2013 at 11:11:23PM +0100, Sebastian Reichel wrote:
-> > This is the seventh iteration of DT support for the TWL4030
-> > power button.
-> 
-> Dmitry, can you add this patchset to your queue?
-> 
-> It got no further comments in two weeks.
+On 11/25/2013 07:03 PM, Dmitry Torokhov wrote:
+> Hi Guenter,
+>
+> On Sat, Nov 23, 2013 at 01:37:00PM -0800, Guenter Roeck wrote:
+>> Simplify the code and create mandatory 'name' attribute by using
+>> new hwmon API.
+>>
+>> Also use is_visible to determine visible attributes instead of creating
+>> several different attribute groups.
+>
+> This change does not quite work without converting the rest of the
+> driver to devm_ resources as it makes hwmon outlive regulator and other
+> essential resources when unbinding driver from the device.
+>
+Ok, I'll use hwmon_device_register_with_groups instead.
 
-Yes, I just applied the series.
+Thanks,
+Guenter
 
-Thanks.
 
--- 
-Dmitry

@@ -1,54 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] Input: pcips2 - use DEFINE_PCI_DEVICE_TABLE macro
-Date: Wed, 27 Nov 2013 19:56:37 -0800
-Message-ID: <20131128035637.GA11139@core.coreip.homeip.net>
-References: <001901ceebe0$46c96b10$d45c4130$%han@samsung.com>
- <001b01ceebe0$82141940$863c4bc0$%han@samsung.com>
+Subject: Re: [PATCH] drivers: input: touchscreen: sur40: use static variable
+ instead of stack varialbe for 'packet_id'
+Date: Wed, 27 Nov 2013 20:07:41 -0800
+Message-ID: <20131128040741.GD15452@core.coreip.homeip.net>
+References: <528AD6B3.1060507@gmail.com>
+ <20131125011908.GA18921@codeaurora.org>
+ <529555C5.7030404@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:48317 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754667Ab3K1D4k (ORCPT
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:43875 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757808Ab3K1EHo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Nov 2013 22:56:40 -0500
-Received: by mail-pd0-f177.google.com with SMTP id q10so11189586pdj.22
-        for <linux-input@vger.kernel.org>; Wed, 27 Nov 2013 19:56:40 -0800 (PST)
+	Wed, 27 Nov 2013 23:07:44 -0500
 Content-Disposition: inline
-In-Reply-To: <001b01ceebe0$82141940$863c4bc0$%han@samsung.com>
+In-Reply-To: <529555C5.7030404@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: linux-input@vger.kernel.org
+To: Chen Gang <gang.chen.5i5j@gmail.com>
+Cc: floe@butterbrot.org, rydberg@euromail.se, David Herrmann <dh.herrmann@gmail.com>, rkuo <rkuo@codeaurora.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Thu, Nov 28, 2013 at 11:21:12AM +0900, Jingoo Han wrote:
-> This macro is used to create a struct pci_device_id array.
+Hi Chen,
 
-Applied all 3, thank you.
-
+On Wed, Nov 27, 2013 at 10:15:33AM +0800, Chen Gang wrote:
+> 'packet_id' is used for checking sequence whether in order, it need be
+> static variable independent from sur40_poll().
 > 
-> Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> The related warning (with allmodconfig under hexagon):
+> 
+>   drivers/input/touchscreen/sur40.c: In function 'sur40_poll':
+>   drivers/input/touchscreen/sur40.c:297:6: warning: 'packet_id' may be used uninitialized in this function [-Wuninitialized]
+> 
+> 
+> Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
 > ---
->  drivers/input/serio/pcips2.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/input/touchscreen/sur40.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> diff --git a/drivers/input/serio/pcips2.c b/drivers/input/serio/pcips2.c
-> index 13062f6..2fff5d4 100644
-> --- a/drivers/input/serio/pcips2.c
-> +++ b/drivers/input/serio/pcips2.c
-> @@ -186,7 +186,7 @@ static void pcips2_remove(struct pci_dev *dev)
->  	pci_disable_device(dev);
->  }
->  
-> -static const struct pci_device_id pcips2_ids[] = {
-> +static DEFINE_PCI_DEVICE_TABLE(pcips2_ids) = {
->  	{
->  		.vendor		= 0x14f2,	/* MOBILITY */
->  		.device		= 0x0123,	/* Keyboard */
-> -- 
-> 1.7.10.4
-> 
-> 
+> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+> index cfd1b7e..5dfd01a 100644
+> --- a/drivers/input/touchscreen/sur40.c
+> +++ b/drivers/input/touchscreen/sur40.c
+> @@ -251,7 +251,7 @@ static void sur40_poll(struct input_polled_dev *polldev)
+>  	struct sur40_state *sur40 = polldev->private;
+>  	struct input_dev *input = polldev->input;
+>  	int result, bulk_read, need_blobs, packet_blobs, i;
+> -	u32 packet_id;
+> +	static u32 packet_id;
+
+It is usually not a good idea to use statics in device drivers as it
+does not work well when you have several devices of the same type
+present in a system. Also, we process all blobs in one pass so there is
+no need to preserve value of packet_id between calls to sur40_poll().
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,120 +1,91 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 2/2] iio: hid-sensors: Fix power and report state
-Date: Wed, 27 Nov 2013 14:19:43 -0800
-Message-ID: <1385590783-27604-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-References: <1385590783-27604-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Christopher Heiny <Cheiny@synaptics.com>
+Subject: RE: [PATCH 00/04] input: RMI4 Synaptics RMI4 Touchscreen Driver
+Date: Thu, 28 Nov 2013 01:39:52 +0000
+Message-ID: <BFABBC009FBA1C43B207B15FD485ABD930137015@USW-MAIL1.synaptics-inc.local>
+References: <1384385972-1686-1-git-send-email-cheiny@synaptics.com>,<CAN+gG=Ev12P=p-b8O4Zq9ThJx+TuKXb_1NJAkNj6idZmncz4RQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:15572 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755553Ab3K0WVE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Nov 2013 17:21:04 -0500
-In-Reply-To: <1385590783-27604-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:62852 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757442Ab3K1Bjy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Nov 2013 20:39:54 -0500
+In-Reply-To: <CAN+gG=Ev12P=p-b8O4Zq9ThJx+TuKXb_1NJAkNj6idZmncz4RQ@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, jic23@kernel.org
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <Vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>
 
-In the original HID sensor hub firmwares all Named array enums were
-to 0-based. But the most recent hub implemented as 1-based,
-because of the implementation by one of the major OS vendor.
-Using logical minimum for the field as the base of enum. So we add
-logical minimum to the selector values before setting those fields.
-Some sensor hub FWs already changed logical minimum from 0 to 1
-to reflect this and hope every other vendor will follow.
-There is no easy way to add a common HID quirk for NAry elements,
-even if the standard specifies these field as NAry, the collection
-used to describe selectors is still just "logical".
+[sorry for top posting - I'm out of the office today, and restricted to the feeble webmail interface.]
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/iio/common/hid-sensors/Kconfig              |  9 ---------
- drivers/iio/common/hid-sensors/hid-sensor-trigger.c | 20 +++++++++++++++-----
- include/linux/hid-sensor-ids.h                      | 12 ++++++++++++
- 3 files changed, 27 insertions(+), 14 deletions(-)
+Benjamin made some excellent points in our off-line conversation.  Please disregard this particular patchset.  We'll work on doing the same thing in a series of smaller, more manageable steps.
 
-diff --git a/drivers/iio/common/hid-sensors/Kconfig b/drivers/iio/common/hid-sensors/Kconfig
-index 1178121..39188b7 100644
---- a/drivers/iio/common/hid-sensors/Kconfig
-+++ b/drivers/iio/common/hid-sensors/Kconfig
-@@ -25,13 +25,4 @@ config HID_SENSOR_IIO_TRIGGER
- 	  If this driver is compiled as a module, it will be named
- 	  hid-sensor-trigger.
- 
--config HID_SENSOR_ENUM_BASE_QUIRKS
--	bool "ENUM base quirks for HID Sensor IIO drivers"
--	depends on HID_SENSOR_IIO_COMMON
--	help
--	  Say yes here to build support for sensor hub FW using
--	  enumeration, which is using 1 as base instead of 0.
--	  Since logical minimum is still set 0 instead of 1,
--	  there is no easy way to differentiate.
--
- endmenu
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-index b6e77e0..781d3fa 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-@@ -33,24 +33,34 @@ static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
- {
- 	struct hid_sensor_common *st = iio_trigger_get_drvdata(trig);
- 	int state_val;
-+	int report_val;
- 
- 	if (state) {
- 		if (sensor_hub_device_open(st->hsdev))
- 			return -EIO;
--	} else
-+		state_val =
-+		HID_USAGE_SENSOR_PROP_POWER_STATE_D0_FULL_POWER_ENUM;
-+		report_val =
-+		HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM;
-+
-+	} else {
- 		sensor_hub_device_close(st->hsdev);
-+		state_val =
-+		HID_USAGE_SENSOR_PROP_POWER_STATE_D4_POWER_OFF_ENUM;
-+		report_val =
-+		HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM;
-+	}
- 
--	state_val = state ? 1 : 0;
--	if (IS_ENABLED(CONFIG_HID_SENSOR_ENUM_BASE_QUIRKS))
--		++state_val;
- 	st->data_ready = state;
-+	state_val += st->power_state.logical_minimum;
-+	report_val += st->report_state.logical_minimum;
- 	sensor_hub_set_feature(st->hsdev, st->power_state.report_id,
- 					st->power_state.index,
- 					(s32)state_val);
- 
- 	sensor_hub_set_feature(st->hsdev, st->report_state.report_id,
- 					st->report_state.index,
--					(s32)state_val);
-+					(s32)report_val);
- 
- 	return 0;
- }
-diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-index 4f945d3..8323775 100644
---- a/include/linux/hid-sensor-ids.h
-+++ b/include/linux/hid-sensor-ids.h
-@@ -117,4 +117,16 @@
- #define HID_USAGE_SENSOR_PROP_REPORT_STATE			0x200316
- #define HID_USAGE_SENSOR_PROY_POWER_STATE			0x200319
- 
-+/* Power state enumerations */
-+#define HID_USAGE_SENSOR_PROP_POWER_STATE_UNDEFINED_ENUM		0x00
-+#define HID_USAGE_SENSOR_PROP_POWER_STATE_D0_FULL_POWER_ENUM		0x01
-+#define HID_USAGE_SENSOR_PROP_POWER_STATE_D1_LOW_POWER_ENUM		0x02
-+#define HID_USAGE_SENSOR_PROP_POWER_STATE_D2_STANDBY_WITH_WAKE_ENUM	0x03
-+#define HID_USAGE_SENSOR_PROP_POWER_STATE_D3_SLEEP_WITH_WAKE_ENUM	0x04
-+#define HID_USAGE_SENSOR_PROP_POWER_STATE_D4_POWER_OFF_ENUM		0x05
-+
-+/* Report State enumerations */
-+#define HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM		0x00
-+#define HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM		0x01
-+
- #endif
--- 
-1.8.3.2
+Thanks!
+Chris
 
+________________________________________
+From: Benjamin Tissoires [benjamin.tissoires@gmail.com]
+Sent: Wednesday, November 27, 2013 2:20 PM
+To: Christopher Heiny
+Cc: Dmitry Torokhov; Linux Input; Andrew Duggan; Vincent Huang; Vivian Ly; Daniel Rosenberg; Jean Delvare; Joerie de Gram; Linus Walleij
+Subject: Re: [PATCH 00/04] input: RMI4 Synaptics RMI4 Touchscreen Driver
+
+On Wed, Nov 13, 2013 at 6:39 PM, Christopher Heiny <cheiny@synaptics.com> wrote:
+> This patchset implements changes to the synaptics-rmi4 branch of
+> Dmitry's input tree.  The base for the patchset is Dmitry's commit
+> 4a695a01fba9bf467b3b52e124ccee6cef73b323 from 2013-01-31.
+>
+>
+>
+> Overall this patchset implements the following changes with respect to
+> the Dmitry's 2013-01-31 commit:
+>
+> * Refactors the transport layer (rmi_i2c) to be named appropriately.
+>
+> * Eliminates packed struct bitfields, replacing them with masks
+> and shifts.  This should make the various register definitions
+> endian-independent.
+>
+> * Removed most or all of the sysfs and debugfs support from the driver core
+> and function drivers.  These features are still critical during platform
+> development, particularly on embedded systems, so there are hooks that allow
+> custom modules that support these control and debug capabilities.  One result
+> of this is that several .c files have a corresponding .h file (for example,
+> rmi_f01.c has a corresponding rmi_f01.h).  Also, a rmi_control.h file is
+> added to provide general definitions for control/debug modules.
+>
+> * Fixes a number of bugs in the baseline commit.
+>
+> * Trivial - added an rmi_version.h file, which lets the version be easily
+> tweaked using a script.
+>
+>
+> We've broken this patch into 6 parts, as follows:
+>     01 - core sensor and bus implementation
+>     02 - I2C physical layer driver
+>     03..04 - drivers for individual RMI functions
+>
+>
+> Hopefully this is the last time we'll have wide-ranging structural changes in
+> the driver code, and future patchsets can be much smaller and confined to
+> one or two areas of interest. (yeah, I've said that before...)
+>
+>
+> Comments and other feedback on this driver are welcomed.
+>
+> Christopher Heiny and the Synaptics RMI4 driver team
+>
+
+I have discussed off list with Chris about this patch series. I was
+interested in it because it will be a requirement for the touchpad in
+the Dell XPS 12 from 2013.
+Basically, I told him that the patches are hard to review because of
+the huge 1/4.
+
+a v2 should be on its way :)
+
+Cheers,
+Benjamin

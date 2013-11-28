@@ -1,91 +1,49 @@
-From: Christopher Heiny <Cheiny@synaptics.com>
-Subject: RE: [PATCH 00/04] input: RMI4 Synaptics RMI4 Touchscreen Driver
-Date: Thu, 28 Nov 2013 01:39:52 +0000
-Message-ID: <BFABBC009FBA1C43B207B15FD485ABD930137015@USW-MAIL1.synaptics-inc.local>
-References: <1384385972-1686-1-git-send-email-cheiny@synaptics.com>,<CAN+gG=Ev12P=p-b8O4Zq9ThJx+TuKXb_1NJAkNj6idZmncz4RQ@mail.gmail.com>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH 1/3] Input: emu10k1 - use DEFINE_PCI_DEVICE_TABLE macro
+Date: Thu, 28 Nov 2013 11:19:33 +0900
+Message-ID: <001901ceebe0$46c96b10$d45c4130$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:62852 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757442Ab3K1Bjy convert rfc822-to-8bit (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:9417 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758477Ab3K1CTf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Nov 2013 20:39:54 -0500
-In-Reply-To: <CAN+gG=Ev12P=p-b8O4Zq9ThJx+TuKXb_1NJAkNj6idZmncz4RQ@mail.gmail.com>
-Content-Language: en-US
+	Wed, 27 Nov 2013 21:19:35 -0500
+Received: from epcpsbgr3.samsung.com
+ (u143.gpu120.samsung.co.kr [203.254.230.143])
+ by mailout1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MWY00DE6BSL0P50@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 28 Nov 2013 11:19:33 +0900 (KST)
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <Vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Dmitry Torokhov' <dtor@mail.ru>, linux-input@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
 
-[sorry for top posting - I'm out of the office today, and restricted to the feeble webmail interface.]
+This macro is used to create a struct pci_device_id array.
 
-Benjamin made some excellent points in our off-line conversation.  Please disregard this particular patchset.  We'll work on doing the same thing in a series of smaller, more manageable steps.
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/input/gameport/emu10k1-gp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks!
-Chris
+diff --git a/drivers/input/gameport/emu10k1-gp.c b/drivers/input/gameport/emu10k1-gp.c
+index fa7a95c..72a7213 100644
+--- a/drivers/input/gameport/emu10k1-gp.c
++++ b/drivers/input/gameport/emu10k1-gp.c
+@@ -46,7 +46,7 @@ struct emu {
+ 	int size;
+ };
+ 
+-static const struct pci_device_id emu_tbl[] = {
++static DEFINE_PCI_DEVICE_TABLE(emu_tbl) = {
+ 
+ 	{ 0x1102, 0x7002, PCI_ANY_ID, PCI_ANY_ID }, /* SB Live gameport */
+ 	{ 0x1102, 0x7003, PCI_ANY_ID, PCI_ANY_ID }, /* Audigy gameport */
+-- 
+1.7.10.4
 
-________________________________________
-From: Benjamin Tissoires [benjamin.tissoires@gmail.com]
-Sent: Wednesday, November 27, 2013 2:20 PM
-To: Christopher Heiny
-Cc: Dmitry Torokhov; Linux Input; Andrew Duggan; Vincent Huang; Vivian Ly; Daniel Rosenberg; Jean Delvare; Joerie de Gram; Linus Walleij
-Subject: Re: [PATCH 00/04] input: RMI4 Synaptics RMI4 Touchscreen Driver
 
-On Wed, Nov 13, 2013 at 6:39 PM, Christopher Heiny <cheiny@synaptics.com> wrote:
-> This patchset implements changes to the synaptics-rmi4 branch of
-> Dmitry's input tree.  The base for the patchset is Dmitry's commit
-> 4a695a01fba9bf467b3b52e124ccee6cef73b323 from 2013-01-31.
->
->
->
-> Overall this patchset implements the following changes with respect to
-> the Dmitry's 2013-01-31 commit:
->
-> * Refactors the transport layer (rmi_i2c) to be named appropriately.
->
-> * Eliminates packed struct bitfields, replacing them with masks
-> and shifts.  This should make the various register definitions
-> endian-independent.
->
-> * Removed most or all of the sysfs and debugfs support from the driver core
-> and function drivers.  These features are still critical during platform
-> development, particularly on embedded systems, so there are hooks that allow
-> custom modules that support these control and debug capabilities.  One result
-> of this is that several .c files have a corresponding .h file (for example,
-> rmi_f01.c has a corresponding rmi_f01.h).  Also, a rmi_control.h file is
-> added to provide general definitions for control/debug modules.
->
-> * Fixes a number of bugs in the baseline commit.
->
-> * Trivial - added an rmi_version.h file, which lets the version be easily
-> tweaked using a script.
->
->
-> We've broken this patch into 6 parts, as follows:
->     01 - core sensor and bus implementation
->     02 - I2C physical layer driver
->     03..04 - drivers for individual RMI functions
->
->
-> Hopefully this is the last time we'll have wide-ranging structural changes in
-> the driver code, and future patchsets can be much smaller and confined to
-> one or two areas of interest. (yeah, I've said that before...)
->
->
-> Comments and other feedback on this driver are welcomed.
->
-> Christopher Heiny and the Synaptics RMI4 driver team
->
-
-I have discussed off list with Chris about this patch series. I was
-interested in it because it will be a requirement for the touchpad in
-the Dell XPS 12 from 2013.
-Basically, I told him that the patches are hard to review because of
-the huge 1/4.
-
-a v2 should be on its way :)
-
-Cheers,
-Benjamin

@@ -1,49 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: ads7846: Convert to
- hwmon_device_register_with_groups
-Date: Wed, 27 Nov 2013 20:08:15 -0800
-Message-ID: <20131128040815.GE15452@core.coreip.homeip.net>
-References: <1385440744-6607-1-git-send-email-linux@roeck-us.net>
- <20131126185846.GB22242@core.coreip.homeip.net>
- <529548CD.7060906@roeck-us.net>
+From: Chen Gang <gang.chen.5i5j@gmail.com>
+Subject: Re: [PATCH] drivers: input: touchscreen: sur40: use static variable
+ instead of stack varialbe for 'packet_id'
+Date: Thu, 28 Nov 2013 12:24:28 +0800
+Message-ID: <5296C57C.3010900@gmail.com>
+References: <528AD6B3.1060507@gmail.com> <20131125011908.GA18921@codeaurora.org> <529555C5.7030404@gmail.com> <20131128040741.GD15452@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f54.google.com ([209.85.160.54]:48225 "EHLO
-	mail-pb0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754314Ab3K1EIS (ORCPT
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:44948 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754159Ab3K1EWT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Nov 2013 23:08:18 -0500
-Content-Disposition: inline
-In-Reply-To: <529548CD.7060906@roeck-us.net>
+	Wed, 27 Nov 2013 23:22:19 -0500
+In-Reply-To: <20131128040741.GD15452@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: floe@butterbrot.org, rydberg@euromail.se, David Herrmann <dh.herrmann@gmail.com>, rkuo <rkuo@codeaurora.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Tue, Nov 26, 2013 at 05:20:13PM -0800, Guenter Roeck wrote:
-> On 11/26/2013 10:58 AM, Dmitry Torokhov wrote:
-> >Hi Guenter,
-> >
-> >On Mon, Nov 25, 2013 at 08:39:04PM -0800, Guenter Roeck wrote:
-> >>Simplify the code and create mandatory 'name' attribute by using
-> >>new hwmon API.
-> >
-> >So this moves hwmon attributes from the parent i2c device to the hwmon
-> >device, right? Would not that break userspace which expects to find the
-> >attributes where they were?
-> >
+On 11/28/2013 12:07 PM, Dmitry Torokhov wrote:
+> Hi Chen,
 > 
-> In addition to Jean's earlier comments ... s/i2c/spi/, I assume. spi devices
-> don't create the mandatory name attribute automatically, which means
-> that the created hwmon device was not recognized by standard user space
-> applications (eg the sensors command or anything else using libsensors)
-> in the first place. Which in turn means that only applications which don't
-> support the standard hwmon ABI - if there are any - would be affected.
-> What we are more concerned about is to make sure that applications
-> which _do_ follow the hwmon ABI are working.
+> On Wed, Nov 27, 2013 at 10:15:33AM +0800, Chen Gang wrote:
+>> > 'packet_id' is used for checking sequence whether in order, it need be
+>> > static variable independent from sur40_poll().
+>> > 
+>> > The related warning (with allmodconfig under hexagon):
+>> > 
+>> >   drivers/input/touchscreen/sur40.c: In function 'sur40_poll':
+>> >   drivers/input/touchscreen/sur40.c:297:6: warning: 'packet_id' may be used uninitialized in this function [-Wuninitialized]
+>> > 
+>> > 
+>> > Signed-off-by: Chen Gang <gang.chen.5i5j@gmail.com>
+>> > ---
+>> >  drivers/input/touchscreen/sur40.c |    2 +-
+>> >  1 files changed, 1 insertions(+), 1 deletions(-)
+>> > 
+>> > diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+>> > index cfd1b7e..5dfd01a 100644
+>> > --- a/drivers/input/touchscreen/sur40.c
+>> > +++ b/drivers/input/touchscreen/sur40.c
+>> > @@ -251,7 +251,7 @@ static void sur40_poll(struct input_polled_dev *polldev)
+>> >  	struct sur40_state *sur40 = polldev->private;
+>> >  	struct input_dev *input = polldev->input;
+>> >  	int result, bulk_read, need_blobs, packet_blobs, i;
+>> > -	u32 packet_id;
+>> > +	static u32 packet_id;
+> It is usually not a good idea to use statics in device drivers as it
+> does not work well when you have several devices of the same type
+> present in a system. Also, we process all blobs in one pass so there is
+> no need to preserve value of packet_id between calls to sur40_poll().
 
-OK, fair enough, I'll apply this then.
+OK, thanks, I will/should send patch v2 for it.
 
 -- 
-Dmitry
+Chen Gang

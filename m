@@ -1,46 +1,71 @@
-From: Matt Walker <matt.g.d.walker@gmail.com>
-Subject: [Patch] Fix for so that recent Elantech touchpads are recognized as such
-Date: Thu, 28 Nov 2013 19:00:17 -0500
-Message-ID: <CA+X2d=AuAm3ENDbrfk7L5fXoSiLwVU5xxKVo+MbbCf_aWu=cyg@mail.gmail.com>
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 26/31] Input: tegra-kbc - use reset framework
+Date: Fri, 29 Nov 2013 15:50:54 +0100
+Message-ID: <20131129145053.GF9712@ulmo.nvidia.com>
+References: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
+ <1384548866-13141-27-git-send-email-swarren@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=047d7bd6b9acf5373904ec458348
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f169.google.com ([209.85.212.169]:37971 "EHLO
-	mail-wi0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751443Ab3K2AAT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Nov 2013 19:00:19 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/aVve/J9H4Wl5yVO"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1384548866-13141-27-git-send-email-swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, pdeschrijver-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: backports@vger.kernel.org, linux-input@vger.kernel.org
 
---047d7bd6b9acf5373904ec458348
-Content-Type: text/plain; charset=ISO-8859-1
 
-Hello,
+--/aVve/J9H4Wl5yVO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Attached is a patch for drivers/input/mouse/elantech.c.  It allows
-recent Elantech touchpads to be detected.  I have tested it on the
-touchpad that comes with the Acer Aspire S7-392 (released ~August
-2013)
+On Fri, Nov 15, 2013 at 01:54:21PM -0700, Stephen Warren wrote:
+> From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>=20
+> Tegra's clock driver now provides an implementation of the common
+> reset API (include/linux/reset.h). Use this instead of the old Tegra-
+> specific API; that will soon be removed.
+>=20
+> Cc: treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+> Cc: pdeschrijver-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+> Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>
+> Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> ---
+> This patch is part of a series with strong internal depdendencies. I'm
+> looking for an ack so that I can take the entire series through the Tegra
+> and arm-soc trees. The series will be part of a stable branch that can be
+> merged into other subsystems if needed to avoid/resolve dependencies.
+> ---
+>  drivers/input/keyboard/tegra-kbc.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
 
-I figure it could be backported with little effort and no danger,
-since all it does it add one to the number of values that were
-previously recognized as valid "firmware version numbers".
+Reviewed-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Begin Patch:
-1315a1316
->         case 8:
-End Patch
+--/aVve/J9H4Wl5yVO
+Content-Type: application/pgp-signature
 
-Best,
-Matt
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
 
---047d7bd6b9acf5373904ec458348
-Content-Type: text/x-patch; charset=US-ASCII; name="elantech.patch"
-Content-Disposition: attachment; filename="elantech.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hoknzxnr0
+iQIcBAEBAgAGBQJSmKnNAAoJEN0jrNd/PrOhR5IQAKeFVfIHkOQj+VpN+e9W6gdO
+wa5f+i8VoIDy05Q85wWYBmuLSg6CpLhDdZ0h0ItorKNqfp/m8P+/NamlPZClhpRw
+bf8GyHVDY8B0IntLh2s9Zc4rMcNa7DAeccH9DYjspbV0IoXT/QQn2igB7IOHzHST
+IqrMwQ/0hSCuuzfMuyCCGzy/X1J9DvcF1GSkoQIADdYctxSeU8QYsqMnXH7E/den
+fcN7HdnuGQAsd6nPntqI0vmYdA6lJoARITZv/xJgBGzi46CKHUu+LIK6O3NAwYTI
+OqIBXyF7ZDDYoV84sZ6bRrs/UDLretW485+jVIUo8ws2NSWWczjvXIpYibnu3JKj
+XmF+vQa4E9CODxDuIFpFYNy1GiZaWYNe09AgzK7iOJwIkQKLGJx7qj71MPjimuAQ
+JawK/8D7UAR1M5CwSMSi8uncm2D45sazXOLtT/K9M3Lh4glFQ0zeQTR5yFjkWDhD
+dNBt4KdcpcscLZAA5NcupFWNLEJ5lWtDAggSOXvv6qVn2zW6mDtJO0jAnM3LYMPU
+bCOec+zImC36xkrcONXBrP8msXH8SUek90ampWeCooP6s1DUrWYW7NSQjVMWKvNS
+LUbj3hb6V4xKXThjpKpYoTLp7OVYrjpXfmZrFcieLFxPZU8D4VRqJcZyEvbLgLHF
+s1lQJkj+x50ih6JqVQxJ
+=iaDY
+-----END PGP SIGNATURE-----
 
-MTMxNWExMzE2Cj4gCQljYXNlIDg6Cg==
---047d7bd6b9acf5373904ec458348--
+--/aVve/J9H4Wl5yVO--

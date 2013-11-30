@@ -1,46 +1,55 @@
-From: Hauke Mehrtens <hauke-5/S+JYg5SzeELgA04lAiVw@public.gmane.org>
-Subject: Re: [Patch] Fix for so that recent Elantech touchpads are recognized
- as such
-Date: Fri, 29 Nov 2013 22:26:45 +0100
-Message-ID: <52990695.5000203@hauke-m.de>
-References: <CA+X2d=AuAm3ENDbrfk7L5fXoSiLwVU5xxKVo+MbbCf_aWu=cyg@mail.gmail.com>
+From: Zawullon <zawullon@gmail.com>
+Subject: [PATCH] hid: add NOGET quirk and device id for Logitech Dual Action
+ gamepads support
+Date: Sat, 30 Nov 2013 13:51:28 +0400
+Message-ID: <5299B520.9060200@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <backports-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CA+X2d=AuAm3ENDbrfk7L5fXoSiLwVU5xxKVo+MbbCf_aWu=cyg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: backports-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Walker <matt.g.d.walker-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: backports-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f174.google.com ([209.85.217.174]:50425 "EHLO
+	mail-lb0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750979Ab3K3Jvd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 30 Nov 2013 04:51:33 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 11/29/2013 01:00 AM, Matt Walker wrote:
-> Hello,
-> 
-> Attached is a patch for drivers/input/mouse/elantech.c.  It allows
-> recent Elantech touchpads to be detected.  I have tested it on the
-> touchpad that comes with the Acer Aspire S7-392 (released ~August
-> 2013)
-> 
-> I figure it could be backported with little effort and no danger,
-> since all it does it add one to the number of values that were
-> previously recognized as valid "firmware version numbers".
-> 
-> Begin Patch:
-> 1315a1316
->>         case 8:
-> End Patch
-> 
-> Best,
-> Matt
-> 
-This is not a patch, I do not know what you want to do.
+Issue description: I have two Logitech Dual Action gamepads, both have
+same Vendor/Device id pair. Newest gamepad (A) can switch between old mode (HID)
+and XBox gamepad emulation mode. Old gamepad (B) can only work in HID mode.
+In HID mode gamepad A sends many EPIPE errors during initialization and was
+disconnected immediately after connect  to usb port. It works fine in Win and
+Mac. After adding NOGET quirk in driver, it was working properly.
+Gamepad B works fine before and after changes. I tested both gamepads
+with 3.8.0 and 3.11.6 kernels  with modified driver. Follow patch can apply
+for current git kernel version. I can send pcap log from usb bus with both
+gamepads or any other additional information if it is needed
 
-This is the documentation for hacking on backprts:
-https://backports.wiki.kernel.org/index.php/Documentation/backports/hacking
 
-This is the guideline for patch submission to the linux kernel which
-mostly also applies for backports:
-https://www.kernel.org/doc/Documentation/SubmittingPatches
+diff -uprN -X linux-git/Documentation/dontdiff linux-git/drivers/hid/hid-ids.h linux-my/drivers/hid/hid-ids.h
+--- linux-git/drivers/hid/hid-ids.h	2013-11-30 13:29:27.937351968 +0400
++++ linux-my/drivers/hid/hid-ids.h	2013-11-30 13:46:05.201378674 +0400
+@@ -552,6 +552,7 @@
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD	0xc20a
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD	0xc211
+ #define USB_DEVICE_ID_LOGITECH_EXTREME_3D	0xc215
++#define USB_DEVICE_ID_LOGITECH_DUAL_ACTION	0xc216
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2	0xc219
+ #define USB_DEVICE_ID_LOGITECH_WINGMAN_F3D	0xc283
+diff -uprN -X linux-git/Documentation/dontdiff linux-git/drivers/hid/hid-lg.c linux-my/drivers/hid/hid-lg.c
+--- linux-git/drivers/hid/hid-lg.c	2013-11-30 13:29:27.937351968 +0400
++++ linux-my/drivers/hid/hid-lg.c	2013-11-30 13:46:05.201378674 +0400
+@@ -758,6 +758,8 @@ static const struct hid_device_id lg_dev
+ 
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_EXTREME_3D),
+ 		.driver_data = LG_NOGET },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DUAL_ACTION),
++		.driver_data = LG_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL),
+ 		.driver_data = LG_NOGET | LG_FF4 },
+ 
 
-Hauke

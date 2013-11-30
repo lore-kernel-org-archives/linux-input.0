@@ -1,96 +1,44 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/2] HID: hid-sensor-hub: Add logical min and max
-Date: Sat, 30 Nov 2013 11:31:54 +0000
-Message-ID: <5299CCAA.6090100@kernel.org>
-References: <1385590783-27604-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1385590783-27604-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sebastian Reichel <sre@debian.org>
+Subject: [PATCHv4 0/2] twl4030-keypad DT binding
+Date: Sat, 30 Nov 2013 17:53:34 +0100
+Message-ID: <1385830416-12900-1-git-send-email-sre@debian.org>
+References: <1383948866-32672-1-git-send-email-sre@debian.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ring0.de ([91.143.88.219]:36212 "EHLO smtp.ring0.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751752Ab3K3Qxn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 30 Nov 2013 11:53:43 -0500
+In-Reply-To: <1383948866-32672-1-git-send-email-sre@debian.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@debian.org>
 
-On 11/27/13 22:19, Srinivas Pandruvada wrote:
-> Exporting logical minimum and maximum of HID fields as part of the
-> hid sensor attribute info. This can be used for range checking and
-> to calculate enumeration base for NAry fields of HID sensor hub.
-> 
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Hi,  I would have preffred this being done in two patches, the first
-refactoring the function call and the second doing the min and max.
+Hi,
 
-Anyhow, I'll take it anyway.
+Add device tree support for the twl4030 keypad, which is
+for example used in the Nokia N900.
 
-Applied to the togreg branch of iio.git.
+Changes since v3 [0]:
+ * Removed support for disabling autorepeat via DT. There
+   is still discussion going on, how the standard binding
+   should look like. On the other hand everyone agrees,
+   that autorepeat should be default for keypads.
+ * Remove useless twl4030_keypad_dt_match
 
+[0] https://lkml.org/lkml/2013/11/8/463
 
-> ---
->  drivers/hid/hid-sensor-hub.c   | 20 ++++++++------------
->  include/linux/hid-sensor-hub.h |  2 ++
->  2 files changed, 10 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index a184e19..d87f7cb 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -112,13 +112,15 @@ static int sensor_hub_get_physical_device_count(
->  
->  static void sensor_hub_fill_attr_info(
->  		struct hid_sensor_hub_attribute_info *info,
-> -		s32 index, s32 report_id, s32 units, s32 unit_expo, s32 size)
-> +		s32 index, s32 report_id, struct hid_field *field)
->  {
->  	info->index = index;
->  	info->report_id = report_id;
-> -	info->units = units;
-> -	info->unit_expo = unit_expo;
-> -	info->size = size/8;
-> +	info->units = field->unit;
-> +	info->unit_expo = field->unit_exponent;
-> +	info->size = (field->report_size * field->report_count)/8;
-> +	info->logical_minimum = field->logical_minimum;
-> +	info->logical_maximum = field->logical_maximum;
->  }
->  
->  static struct hid_sensor_hub_callbacks *sensor_hub_get_callback(
-> @@ -325,9 +327,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
->  			if (field->physical == usage_id &&
->  				field->logical == attr_usage_id) {
->  				sensor_hub_fill_attr_info(info, i, report->id,
-> -					field->unit, field->unit_exponent,
-> -					field->report_size *
-> -							field->report_count);
-> +							  field);
->  				ret = 0;
->  			} else {
->  				for (j = 0; j < field->maxusage; ++j) {
-> @@ -336,11 +336,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
->  					field->usage[j].collection_index ==
->  					collection_index) {
->  						sensor_hub_fill_attr_info(info,
-> -							i, report->id,
-> -							field->unit,
-> -							field->unit_exponent,
-> -							field->report_size *
-> -							field->report_count);
-> +							  i, report->id, field);
->  						ret = 0;
->  						break;
->  					}
-> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-> index a265af2..fd66e45 100644
-> --- a/include/linux/hid-sensor-hub.h
-> +++ b/include/linux/hid-sensor-hub.h
-> @@ -40,6 +40,8 @@ struct hid_sensor_hub_attribute_info {
->  	s32 units;
->  	s32 unit_expo;
->  	s32 size;
-> +	s32 logical_minimum;
-> +	s32 logical_maximum;
->  };
->  
->  /**
-> 
+-- Sebastian
+
+Sebastian Reichel (2):
+  Input: twl4030-keypad - add device tree support
+  dt: binding documentation for twl4030-keypad
+
+ .../devicetree/bindings/input/twl4030-keypad.txt   | 27 +++++++++
+ drivers/input/keyboard/twl4030_keypad.c            | 65 ++++++++++++++++------
+ 2 files changed, 75 insertions(+), 17 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/twl4030-keypad.txt
+
+-- 
+1.8.4.3
+

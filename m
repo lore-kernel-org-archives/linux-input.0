@@ -1,79 +1,62 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH] HID: kye: Fix missing break in kye_report_fixup()
-Date: Sat, 30 Nov 2013 19:12:27 +0000
-Message-ID: <1385838747.2760.4.camel@deadeye.wl.decadent.org.uk>
+From: Peter Hurley <peter@hurleysoftware.com>
+Subject: Re: 3.12.x looses serial mouse over hibernate + resume
+Date: Sun, 01 Dec 2013 10:43:27 -0500
+Message-ID: <529B591F.1020909@hurleysoftware.com>
+References: <52951E69.7090602@netscape.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-MA5Yx3fTYYxGo9fbBy0v"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:47073 "EHLO
-	shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750915Ab3K3TMi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 30 Nov 2013 14:12:38 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-serial-owner@vger.kernel.org>
+In-Reply-To: <52951E69.7090602@netscape.net>
+Sender: linux-serial-owner@vger.kernel.org
+To: Manuel Krause <manuelkrause@netscape.net>
+Cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-serial <linux-serial@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Adam Kulagowski <fidor@fidor.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
+[ +cc Dmitry Torokhov, Greg Kroah-Hartman, linux-input, linux-serial ]
 
---=-MA5Yx3fTYYxGo9fbBy0v
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On 11/26/2013 05:19 PM, Manuel Krause wrote:
+> Since kernel 3.12.0 I have a problem with hibernate+resume
+> not reactivating my serial mouse (trackball) with my HP notebook.
+> Kernels 3.11.0 til 9 don't show this behaviour.
+>
+> Machine:           HP Notebook with Core2Duo CPU (Penryn)
+> Distro:            openSUSE 12.3, 64bit, continuously updated
+> Desktop:           KDE 4.11.3
+> MESA & drm & Xorg: most recent ones from:
+>
+> http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_12.3/x86_64/
+> Current kernel:    3.12.1 vanilla from openSUSE repos, with
+>                     -ck1 and BFQ patches
+>
+> The Logitech Trackman Marble FX is a PS/2 device and connected via an original Logitech
+> PS/2-COM-port adapter and manually configured via my xorg.conf.
+>
+> At first, I blamed the -ck1 patches from Con Kolivas for this behaviour that I use in
+> addition  to the BFQ patches, what has showed up as not right: This happens with the
+> normal vanilla kernel
+> schedulers for CPU and disk I/O, too.
+>
+> By coincidence I found a weird(!) way to reactivate the serial mouse:
+> (1) call Hibernate (suspend-to-disk) from KDE desktop as normal
+> (2) resume --> the PS/2 touchpad is working, the serial trackball NOT
+> (3) call suspend-to-RAM (Sleep) from KDE, serial trackball still dead
+> (4) execute `setserial -a /dev/ttyS0` in a konsole window or a tty* console
+> (5) ==> serial trackball is back with all configuration from xorg.conf
+>
+> It's fully reproducible over multiple hibernations. This also happens when calling
+> `pm-hibernate` (to-disk) and `pm-suspend` (to-RAM) and the setserial from a root shell
+> in KDE or any tty*.
+>
+> Please, _always_CC_me_ -- as I'm not on the kernel mailing list.
 
-The change to support Genius Manticore Keyboard also changed behaviour
-for Genius Gx Imperator Keyboard, as there is no break between the
-cases.  This is presumably a mistake.
+Manuel,
 
-Reported by Coverity as CID 1134029.
+Please attach complete dmesgs (zipped, if necessary) of a suspend/resume cycle
+on a vanilla 3.12.x (where resume fails) _and_ a vanilla 3.11.x (where resume succeeds).
 
-Fixes: 4a2c94c9b6c0 ('HID: kye: Add report fixup for Genius Manticore Keybo=
-ard')
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
----
- drivers/hid/hid-kye.c | 1 +
- 1 file changed, 1 insertion(+)
+For the test configurations, please do not apply patches.
 
-diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
-index ecb5ca6..e776963 100644
---- a/drivers/hid/hid-kye.c
-+++ b/drivers/hid/hid-kye.c
-@@ -341,6 +341,7 @@ static __u8 *kye_report_fixup(struct hid_device *hdev, =
-__u8 *rdesc,
- 	case USB_DEVICE_ID_GENIUS_GX_IMPERATOR:
- 		rdesc =3D kye_consumer_control_fixup(hdev, rdesc, rsize, 83,
- 					"Genius Gx Imperator Keyboard");
-+		break;
- 	case USB_DEVICE_ID_GENIUS_MANTICORE:
- 		rdesc =3D kye_consumer_control_fixup(hdev, rdesc, rsize, 104,
- 					"Genius Manticore Keyboard");
+Regards,
+Peter Hurley
 
---=20
-Ben Hutchings
-Usenet is essentially a HUGE group of people passing notes in class.
-                      - Rachel Kadel, `A Quick Guide to Newsgroup Etiquette=
-'
-
---=-MA5Yx3fTYYxGo9fbBy0v
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIVAwUAUpo4m+e/yOyVhhEJAQp2VQ/+MQ9M5y1j6yzciQh3GVAwj+how5zCIK4V
-Pg+sfEJOHbxndCVyoFR33V8JBseEM/uPS4eR26oCZo2jxV53wkUK91QgXn7aS6OO
-WJvlVDRiG03Pd297xYK8tTz4FNL4rRSLGSeIR5zBKbjf3I1IG9wsZUjdW6wOSCbq
-Je1YQCN91ll7Dy81GDFfpa4e9Q3Gv5hV67NFiA+oGYCx2/O4QRIn68Hi54qNqBMn
-ENooP/j/qNEmWRhQVW9GPVagR6Ea/kO6nhXGHkwhEu/oDRSxIHkuqNS2IDFTHEyg
-oGfkGY5vrDIwr4m9uqtLTDAbRfAe2wl0ktwkiNwPAO0exssLBXhuTgTLv028FEQT
-+ZEEgsXZBZqymnoHFbFFdkIO8AY7JUqp9wd82k6E9Z+fME2XqlhxRd3V9QIlkt9o
-vAnvH6VPOttsl0mTGKin6vZxbwxz3TMnK7ARhyCDD5avpVTUqCBvW5fmkpKOa1HK
-SBqZQztOURTmEPA1XvUd15cJMHVGlZJXbG1sA5Kh+X2iNCAOr9fTZHUmUKd18tkv
-ap2nOt5RoeIRfeCwDEkrRYr0ja3WgT0yZvGMbZPfLsAbSAGj8+eE0Uzu0nU7qdCM
-5v4jd3a/r5UpB2tiwPbGGE8J0Hg9reZgjuXTa+AzuPQ0BZmef/LiGDbmgMIT1agI
-CHvosuNcByc=
-=4mqB
------END PGP SIGNATURE-----
-
---=-MA5Yx3fTYYxGo9fbBy0v--

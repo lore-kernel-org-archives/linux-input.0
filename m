@@ -1,33 +1,52 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: add NOGET quirk and device id for Logitech Dual
- Action gamepads support
-Date: Mon, 2 Dec 2013 22:51:03 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1312022249510.24931@pobox.suse.cz>
-References: <5299B520.9060200@gmail.com> <alpine.LNX.2.00.1312021512460.24931@pobox.suse.cz> <529CCA03.8090602@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34099 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753589Ab3LBVvH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Dec 2013 16:51:07 -0500
-In-Reply-To: <529CCA03.8090602@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Olivier Gay <ogay@logitech.com>
+Subject: [PATCH] HID: logitech-dj: add HIDRAW dependency in Kconfig
+Date: Tue,  3 Dec 2013 00:17:24 +0100
+Message-ID: <1386026244-21553-1-git-send-email-ogay@logitech.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Olivier Gay <ogay@logitech.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Mathieu Meisser <mmeisser@logitech.com>
 List-Id: linux-input@vger.kernel.org
-To: Zawullon <zawullon@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 2 Dec 2013, Zawullon wrote:
+hid-logitech-dj.c driver needs hidraw to work correctly. Without
+hidraw, hid-logitech-dj.c fails during probe() and Logitech
+Unifying devices HID reports aren't recognized.
 
-> > Please provide your Signed-off-by: line so that I could apply the patch. 
-> > Thanks.
-> 
-> Oh, of course. Sorry.
-> 
-> Signed-off-by: Vitaly Katraew <zawullon@gmail.com>
+Signed-off-by: Olivier Gay <ogay@logitech.com>
+Signed-off-by: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Signed-off-by: Mathieu Meisser <mmeisser@logitech.com>
+---
 
-Now applied (with the name above as authorship as well). Thanks,
+Hi everyone,
 
+this adds a HIDRAW dependency in Kconfig for hid-logitech-dj.c
+driver. The driver uses hidraw and needs it to work correctly.
+
+Without hidraw if a Logitech Unifying device is plugged, the driver
+fails during probe() and Logitech Unifying devices HID reports aren't
+recognized. This has been the cause of some confusion. Some Linux and
+Android distributions had HID_LOGITECH_DJ enabled without HIDRAW and
+the Unifying mice and keyboards would simply not work (no cursor
+tracking / no keyboard typing).
+
+Best regards,
+
+Olivier
+
+ drivers/hid/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 329fbb9..c8a66b9 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -344,6 +344,7 @@ config HID_LOGITECH
+ 
+ config HID_LOGITECH_DJ
+ 	tristate "Logitech Unifying receivers full support"
++	depends on HIDRAW
+ 	depends on HID_LOGITECH
+ 	---help---
+ 	Say Y if you want support for Logitech Unifying receivers and devices.
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.4

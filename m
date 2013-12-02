@@ -1,62 +1,50 @@
-From: Peter Hurley <peter@hurleysoftware.com>
-Subject: Re: 3.12.x looses serial mouse over hibernate + resume
-Date: Sun, 01 Dec 2013 10:43:27 -0500
-Message-ID: <529B591F.1020909@hurleysoftware.com>
-References: <52951E69.7090602@netscape.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-serial-owner@vger.kernel.org>
-In-Reply-To: <52951E69.7090602@netscape.net>
-Sender: linux-serial-owner@vger.kernel.org
-To: Manuel Krause <manuelkrause@netscape.net>
-Cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-serial <linux-serial@vger.kernel.org>
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH] Input: ads7846 - Use IS_ENABLED() macro
+Date: Mon,  2 Dec 2013 00:34:11 -0200
+Message-ID: <1385951651-19605-1-git-send-email-festevam@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qe0-f51.google.com ([209.85.128.51]:49922 "EHLO
+	mail-qe0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752630Ab3LBCeh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Dec 2013 21:34:37 -0500
+Received: by mail-qe0-f51.google.com with SMTP id 1so10335193qee.38
+        for <linux-input@vger.kernel.org>; Sun, 01 Dec 2013 18:34:36 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@freescale.com>
 
-[ +cc Dmitry Torokhov, Greg Kroah-Hartman, linux-input, linux-serial ]
+From: Fabio Estevam <fabio.estevam@freescale.com>
 
-On 11/26/2013 05:19 PM, Manuel Krause wrote:
-> Since kernel 3.12.0 I have a problem with hibernate+resume
-> not reactivating my serial mouse (trackball) with my HP notebook.
-> Kernels 3.11.0 til 9 don't show this behaviour.
->
-> Machine:           HP Notebook with Core2Duo CPU (Penryn)
-> Distro:            openSUSE 12.3, 64bit, continuously updated
-> Desktop:           KDE 4.11.3
-> MESA & drm & Xorg: most recent ones from:
->
-> http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_12.3/x86_64/
-> Current kernel:    3.12.1 vanilla from openSUSE repos, with
->                     -ck1 and BFQ patches
->
-> The Logitech Trackman Marble FX is a PS/2 device and connected via an original Logitech
-> PS/2-COM-port adapter and manually configured via my xorg.conf.
->
-> At first, I blamed the -ck1 patches from Con Kolivas for this behaviour that I use in
-> addition  to the BFQ patches, what has showed up as not right: This happens with the
-> normal vanilla kernel
-> schedulers for CPU and disk I/O, too.
->
-> By coincidence I found a weird(!) way to reactivate the serial mouse:
-> (1) call Hibernate (suspend-to-disk) from KDE desktop as normal
-> (2) resume --> the PS/2 touchpad is working, the serial trackball NOT
-> (3) call suspend-to-RAM (Sleep) from KDE, serial trackball still dead
-> (4) execute `setserial -a /dev/ttyS0` in a konsole window or a tty* console
-> (5) ==> serial trackball is back with all configuration from xorg.conf
->
-> It's fully reproducible over multiple hibernations. This also happens when calling
-> `pm-hibernate` (to-disk) and `pm-suspend` (to-RAM) and the setserial from a root shell
-> in KDE or any tty*.
->
-> Please, _always_CC_me_ -- as I'm not on the kernel mailing list.
+Using the IS_ENABLED() macro can make the code shorter and simpler
 
-Manuel,
+Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+---
+ drivers/input/touchscreen/ads7846.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Please attach complete dmesgs (zipped, if necessary) of a suspend/resume cycle
-on a vanilla 3.12.x (where resume fails) _and_ a vanilla 3.11.x (where resume succeeds).
-
-For the test configurations, please do not apply patches.
-
-Regards,
-Peter Hurley
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index ea19536..5695786 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -101,7 +101,7 @@ struct ads7846 {
+ 	struct spi_device	*spi;
+ 	struct regulator	*reg;
+ 
+-#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
++#if IS_ENABLED(CONFIG_HWMON)
+ 	struct attribute_group	*attr_group;
+ 	struct device		*hwmon;
+ #endif
+@@ -421,7 +421,7 @@ static int ads7845_read12_ser(struct device *dev, unsigned command)
+ 	return status;
+ }
+ 
+-#if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
++#if IS_ENABLED(CONFIG_HWMON)
+ 
+ #define SHOW(name, var, adjust) static ssize_t \
+ name ## _show(struct device *dev, struct device_attribute *attr, char *buf) \
+-- 
+1.8.1.2
 

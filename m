@@ -1,64 +1,73 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: add NOGET quirk and device id for Logitech Dual
- Action gamepads support
-Date: Mon, 2 Dec 2013 15:13:03 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1312021512460.24931@pobox.suse.cz>
-References: <5299B520.9060200@gmail.com>
+From: Tommy Will <tommywill2011@gmail.com>
+Subject: Re: [PATCH v4 1/1] Input: Improve the performance of alps
+ v5-protocol's touchpad
+Date: Mon, 2 Dec 2013 22:16:48 +0800
+Message-ID: <CA+F6ckOSfTed-0cVYgNdv6k3=NuE1CQcwTHT51KM0p9Zd+0TKQ@mail.gmail.com>
+References: <1382355711-3211-1-git-send-email-yunkang.tang@cn.alps.com>
+	<20131202064121.GD21404@core.coreip.homeip.net>
+	<CA+F6ckMRwq_1TbBvzQjqGFRBTdJxH74rUTuDUMmdL8c8Nda_Rw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45400 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752000Ab3LBONH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Dec 2013 09:13:07 -0500
-In-Reply-To: <5299B520.9060200@gmail.com>
+Received: from mail-we0-f182.google.com ([74.125.82.182]:38465 "EHLO
+	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751556Ab3LBOQt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Dec 2013 09:16:49 -0500
+Received: by mail-we0-f182.google.com with SMTP id q59so11888837wes.41
+        for <linux-input@vger.kernel.org>; Mon, 02 Dec 2013 06:16:48 -0800 (PST)
+In-Reply-To: <CA+F6ckMRwq_1TbBvzQjqGFRBTdJxH74rUTuDUMmdL8c8Nda_Rw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zawullon <zawullon@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kevin Cernekee <cernekee@gmail.com>, david turvene <dturvene@dahetral.com>, linux-input@vger.kernel.org, Niels de Vos <ndevos@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>
 
-On Sat, 30 Nov 2013, Zawullon wrote:
+Hi Dmitry,
 
-> Issue description: I have two Logitech Dual Action gamepads, both have
-> same Vendor/Device id pair. Newest gamepad (A) can switch between old mode (HID)
-> and XBox gamepad emulation mode. Old gamepad (B) can only work in HID mode.
-> In HID mode gamepad A sends many EPIPE errors during initialization and was
-> disconnected immediately after connect  to usb port. It works fine in Win and
-> Mac. After adding NOGET quirk in driver, it was working properly.
-> Gamepad B works fine before and after changes. I tested both gamepads
-> with 3.8.0 and 3.11.6 kernels  with modified driver. Follow patch can apply
-> for current git kernel version. I can send pcap log from usb bus with both
-> gamepads or any other additional information if it is needed
-> 
+I'm suddenly aware that change like below would be better.
+Do you think so?
 
-Please provide your Signed-off-by: line so that I could apply the patch. 
-Thanks.
+{ { 0x73, 0x03, 0x50 }, 0x0d, ALPS_PROTO_V5, 0xc8, 0xc8, 0 }
+ => { { 0x73, 0x03, 0x50 }, 0x0d, ALPS_PROTO_V5, 0xc8, 0xd8, 0 }
 
-> diff -uprN -X linux-git/Documentation/dontdiff linux-git/drivers/hid/hid-ids.h linux-my/drivers/hid/hid-ids.h
-> --- linux-git/drivers/hid/hid-ids.h	2013-11-30 13:29:27.937351968 +0400
-> +++ linux-my/drivers/hid/hid-ids.h	2013-11-30 13:46:05.201378674 +0400
-> @@ -552,6 +552,7 @@
->  #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD	0xc20a
->  #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD	0xc211
->  #define USB_DEVICE_ID_LOGITECH_EXTREME_3D	0xc215
-> +#define USB_DEVICE_ID_LOGITECH_DUAL_ACTION	0xc216
->  #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
->  #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2	0xc219
->  #define USB_DEVICE_ID_LOGITECH_WINGMAN_F3D	0xc283
-> diff -uprN -X linux-git/Documentation/dontdiff linux-git/drivers/hid/hid-lg.c linux-my/drivers/hid/hid-lg.c
-> --- linux-git/drivers/hid/hid-lg.c	2013-11-30 13:29:27.937351968 +0400
-> +++ linux-my/drivers/hid/hid-lg.c	2013-11-30 13:46:05.201378674 +0400
-> @@ -758,6 +758,8 @@ static const struct hid_device_id lg_dev
->  
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_EXTREME_3D),
->  		.driver_data = LG_NOGET },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DUAL_ACTION),
-> +		.driver_data = LG_NOGET },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL),
->  		.driver_data = LG_NOGET | LG_FF4 },
->  
-> 
-
+Thanks
 -- 
-Jiri Kosina
-SUSE Labs
+Best Regards,
+Tommy
+
+
+2013/12/2 Tommy Will <tommywill2011@gmail.com>:
+> Hi Dmitry,
+>
+> Thanks for your review.
+>
+> 2013/12/2 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>
+>>> +     /* Ignore stick point data */
+>>> +     if (packet[0] == 0xD8)
+>>> +             return;
+>
+>> Why are we ignoring trackstick data? If there Dolphin models with
+>> tracksticks that would basically "break" the device for users compared
+>> withe the emulated Explorer PS/2 mode.
+>
+> I'm sorry, I think I used the wrong comment here...
+> Use comment /* Check if it's an valid touchpad packet */ would be better
+>
+> From the V5's spec, "0xC8" is the checkmask for 6byte Raw mode and
+> 0x10 is the mask for trackpoint's / touchpad's packet.
+> So, 0xC8 means current packet is from touchpad and 0xD8 for trackpoint.
+> In current source code, what I wanted to do is just add a protection
+> logic to double check if it's a valid touchpad packet.
+>
+> About your concern, I think there would be no problem because:
+> 1) In initialization, we did not initialize trackpoint device as Raw
+> mode and it should always report 3Byte-packet. And in the first of
+>     alps_process_byte(), 3byte packet would be processed separately.
+> 2) I checked with my Japanese colleague and in fact, there is no V5
+> device with trackpoint + touchpad in the world, although V5's spec
+>    designed the case of trackpoint's packet.
+>
+> Thanks
+> --
+> Best Regards,
+> Tommy

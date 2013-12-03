@@ -1,1354 +1,921 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH] input synaptics-rmi4: Remove sysfs & debugfs stuff
-Date: Mon, 2 Dec 2013 16:52:20 -0800
-Message-ID: <1386031940-20829-1-git-send-email-cheiny@synaptics.com>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: [PATCH] Input: use dev_get_platdata()
+Date: Tue, 03 Dec 2013 15:40:23 +0900
+Message-ID: <000e01ceeff2$8b6f62e0$a24e28a0$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:22749 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751957Ab3LCAwZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Dec 2013 19:52:25 -0500
+Received: from mailout4.samsung.com ([203.254.224.34]:14211 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751595Ab3LCGk2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Dec 2013 01:40:28 -0500
+Received: from epcpsbgr5.samsung.com
+ (u145.gpu120.samsung.co.kr [203.254.230.145])
+ by mailout4.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MX700KK6X7CW3A0@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 03 Dec 2013 15:40:24 +0900 (KST)
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Dmitry Torokhov' <dtor@mail.ru>, linux-input@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>, 'Fugang Duan' <B38611@freescale.com>, 'Michael Hennerich' <michael.hennerich@analog.com>, 'Wan ZongShun' <mcuos.com@gmail.com>, 'Josh Wu' <josh.wu@atmel.com>, 'Ferruh Yigit' <fery@cypress.com>
 
-This patch implements changes to the synaptics-rmi4 branch of
-Dmitry's input tree.  The base for the patchset is Dmitry's commit
-4a695a01fba9bf467b3b52e124ccee6cef73b323 from 2013-01-31.
+Use the wrapper function for retrieving the platform data instead
+of accessing dev->platform_data directly. This is a cosmetic change
+to make the code simpler and enhance the readability.
 
-Removed all of the sysfs and most of the debugfs support from the driver core
-and function drivers.  The code is still horribly broken (as previously
-advertised) but should now be easier to work with.  A few lines are reformatted
-for line-length issues.
-
-Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jean Delvare <khali@linux-fr.org>
-Cc: Linus Walleij <linus.walleij@stericsson.com>
-Cc: Joerie de Gram <j.de.gram@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+Acked-by: Fugang Duan <B38611@freescale.com>
 ---
- drivers/input/rmi4/rmi_bus.h    |  11 -
- drivers/input/rmi4/rmi_driver.c | 175 +--------
- drivers/input/rmi4/rmi_f01.c    | 787 +---------------------------------------
- drivers/input/rmi4/rmi_f11.c    | 183 ----------
- drivers/input/rmi4/rmi_i2c.c    |   6 +-
- 5 files changed, 9 insertions(+), 1153 deletions(-)
+ drivers/input/keyboard/adp5520-keys.c       |    2 +-
+ drivers/input/keyboard/adp5588-keys.c       |   10 ++++++----
+ drivers/input/keyboard/adp5589-keys.c       |    8 ++++----
+ drivers/input/keyboard/bf54x-keys.c         |    4 ++--
+ drivers/input/keyboard/davinci_keyscan.c    |    2 +-
+ drivers/input/keyboard/ep93xx_keypad.c      |    2 +-
+ drivers/input/keyboard/imx_keypad.c         |    3 ++-
+ drivers/input/keyboard/lm8323.c             |    2 +-
+ drivers/input/keyboard/lm8333.c             |    3 ++-
+ drivers/input/keyboard/max7359_keypad.c     |    3 ++-
+ drivers/input/keyboard/mcs_touchkey.c       |    2 +-
+ drivers/input/keyboard/mpr121_touchkey.c    |    3 ++-
+ drivers/input/keyboard/nomadik-ske-keypad.c |    3 ++-
+ drivers/input/keyboard/omap-keypad.c        |    2 +-
+ drivers/input/keyboard/pxa930_rotary.c      |    3 ++-
+ drivers/input/keyboard/samsung-keypad.c     |    2 +-
+ drivers/input/keyboard/sh_keysc.c           |    4 ++--
+ drivers/input/keyboard/tca6416-keypad.c     |    2 +-
+ drivers/input/keyboard/tnetv107x-keypad.c   |    2 +-
+ drivers/input/keyboard/twl4030_keypad.c     |    2 +-
+ drivers/input/keyboard/w90p910_keypad.c     |    2 +-
+ drivers/input/leds.c                        |    2 +-
+ drivers/input/misc/ad714x.c                 |    4 ++--
+ drivers/input/misc/adxl34x.c                |    2 +-
+ drivers/input/misc/bfin_rotary.c            |    2 +-
+ drivers/input/misc/bma150.c                 |    3 ++-
+ drivers/input/misc/cma3000_d0x.c            |    2 +-
+ drivers/input/misc/gp2ap002a00f.c           |    2 +-
+ drivers/input/misc/gpio_tilt_polled.c       |    3 ++-
+ drivers/input/misc/kxtj9.c                  |    3 ++-
+ drivers/input/misc/pwm-beeper.c             |    2 +-
+ drivers/input/misc/twl4030-vibra.c          |    2 +-
+ drivers/input/mouse/gpio_mouse.c            |    2 +-
+ drivers/input/mouse/pxa930_trkball.c        |    2 +-
+ drivers/input/touchscreen/88pm860x-ts.c     |    2 +-
+ drivers/input/touchscreen/ad7877.c          |    2 +-
+ drivers/input/touchscreen/ad7879.c          |    4 ++--
+ drivers/input/touchscreen/atmel_mxt_ts.c    |    2 +-
+ drivers/input/touchscreen/atmel_tsadcc.c    |    2 +-
+ drivers/input/touchscreen/cy8ctmg110_ts.c   |    2 +-
+ drivers/input/touchscreen/cyttsp_core.c     |    4 ++--
+ drivers/input/touchscreen/da9034-ts.c       |    2 +-
+ drivers/input/touchscreen/edt-ft5x06.c      |    2 +-
+ drivers/input/touchscreen/eeti_ts.c         |    2 +-
+ drivers/input/touchscreen/ili210x.c         |    2 +-
+ drivers/input/touchscreen/mcs5000_ts.c      |    4 ++--
+ drivers/input/touchscreen/pixcir_i2c_ts.c   |    3 ++-
+ drivers/input/touchscreen/s3c2410_ts.c      |    4 ++--
+ drivers/input/touchscreen/st1232.c          |    2 +-
+ drivers/input/touchscreen/tsc2005.c         |    2 +-
+ drivers/input/touchscreen/ucb1400_ts.c      |    8 ++++----
+ drivers/input/touchscreen/wm97xx-core.c     |    2 +-
+ 52 files changed, 80 insertions(+), 68 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-index 33e8f1b..e2a3dc6 100644
---- a/drivers/input/rmi4/rmi_bus.h
-+++ b/drivers/input/rmi4/rmi_bus.h
-@@ -22,17 +22,6 @@
- #include <linux/debugfs.h>
- #include <linux/rmi.h>
+diff --git a/drivers/input/keyboard/adp5520-keys.c b/drivers/input/keyboard/adp5520-keys.c
+index ef26b17..0dc1151 100644
+--- a/drivers/input/keyboard/adp5520-keys.c
++++ b/drivers/input/keyboard/adp5520-keys.c
+@@ -71,7 +71,7 @@ static int adp5520_keys_notifier(struct notifier_block *nb,
  
--
--/* Permissions for sysfs attributes.  Since the permissions policy will change
-- * on a global basis in the future, rather than edit all sysfs attrs everywhere
-- * in the driver (and risk screwing that up in the process), we use this handy
-- * set of #defines.  That way when we change the policy for sysfs permissions,
-- * we only need to change them here.
-- */
--#define RMI_RO_ATTR S_IRUGO
--#define RMI_RW_ATTR (S_IRUGO | S_IWUGO)
--#define RMI_WO_ATTR S_IWUGO
--
- struct rmi_device;
- 
- /**
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 5cf7b33..132cd52 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -4,9 +4,10 @@
-  *
-  * This driver provides the core support for a single RMI4-based device.
-  *
-- * The RMI4 specification can be found here:
-+ * The RMI4 specification can be found here (URL split for line length):
-  *
-- * http://www.synaptics.com/sites/default/files/511-000136-01-Rev-E-RMI4%20Intrfacing%20Guide.pdf
-+ * http://www.synaptics.com/sites/default/files/
-+ *      511-000136-01-Rev-E-RMI4%20Intrfacing%20Guide.pdf
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU General Public License version 2 as published by
-@@ -42,48 +43,6 @@
- 
- #define IRQ_DEBUG(data) (IS_ENABLED(CONFIG_RMI4_DEBUG) && data->irq_debug)
- 
--#ifdef	CONFIG_RMI4_DEBUG
--static void rmi_driver_setup_debugfs(struct rmi_device *rmi_dev)
--{
--	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
--	struct rmi_phys_info *info = &rmi_dev->phys->info;
--
--	if (!rmi_dev->debugfs_root)
--		return;
--
--	if (!debugfs_create_u32_array("transport_stats", RMI_RO_ATTR,
--				      rmi_dev->debugfs_root,
--				      (u32 *)&info->tx_count, 6))
--		dev_warn(&rmi_dev->dev,
--			 "Failed to create debugfs transport_stats\n");
--
--	if (!debugfs_create_bool("irq_debug", RMI_RW_ATTR,
--				 rmi_dev->debugfs_root,
--				 &data->irq_debug))
--		dev_warn(&rmi_dev->dev, "Failed to create debugfs irq_debug\n");
--
--	if (!debugfs_create_u32("attn_count", RMI_RO_ATTR,
--				rmi_dev->debugfs_root,
--				&data->attn_count))
--		dev_warn(&rmi_dev->dev,
--			 "Failed to create debugfs attn_count\n");
--}
--
--static void rmi_driver_teardown_debugfs(struct rmi_device *rmi_dev)
--{
--	debugfs_remove_recursive(rmi_dev->debugfs_root);
--}
--
--#else
--static inline void rmi_driver_setup_debugfs(struct rmi_device *rmi_dev)
--{
--}
--
--static inline rmi_driver_teardown_debugfs(struct rmi_device *rmi_dev)
--{
--}
--#endif
--
- static irqreturn_t rmi_irq_thread(int irq, void *p)
+ static int adp5520_keys_probe(struct platform_device *pdev)
  {
- 	struct rmi_phys_device *phys = p;
-@@ -217,122 +176,6 @@ static int enable_sensor(struct rmi_device *rmi_dev)
- 	return retval;
- }
- 
--/* sysfs show and store fns for driver attributes */
--
--static ssize_t rmi_driver_bsr_show(struct device *dev,
--				   struct device_attribute *attr, char *buf)
--{
--	struct rmi_device *rmi_dev;
--	struct rmi_driver_data *data;
--	rmi_dev = to_rmi_device(dev);
--	data = dev_get_drvdata(&rmi_dev->dev);
--
--	return snprintf(buf, PAGE_SIZE, "%u\n", data->bsr);
--}
--
--static ssize_t rmi_driver_bsr_store(struct device *dev,
--				    struct device_attribute *attr,
--				    const char *buf, size_t count)
--{
--	int retval;
--	unsigned long val;
--	struct rmi_device *rmi_dev;
--	struct rmi_driver_data *data;
--
--	rmi_dev = to_rmi_device(dev);
--	data = dev_get_drvdata(&rmi_dev->dev);
--
--	/* need to convert the string data to an actual value */
--	retval = strict_strtoul(buf, 10, &val);
--	if (retval < 0 || val > 255) {
--		dev_err(dev, "Invalid value '%s' written to BSR.\n", buf);
--		return -EINVAL;
--	}
--
--	retval = rmi_write(rmi_dev, BSR_LOCATION, (u8)val);
--	if (retval < 0) {
--		dev_err(dev, "%s : failed to write bsr %lu to %#06x\n",
--			__func__, val, BSR_LOCATION);
--		return retval;
--	}
--
--	data->bsr = val;
--
--	return count;
--}
--
--static DEVICE_ATTR(bsr, RMI_RW_ATTR, rmi_driver_bsr_show, rmi_driver_bsr_store);
--
--static ssize_t rmi_driver_enabled_show(struct device *dev,
--				       struct device_attribute *attr, char *buf)
--{
--	struct rmi_device *rmi_dev = to_rmi_device(dev);
--	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
--
--	return snprintf(buf, PAGE_SIZE, "%u\n", data->enabled);
--}
--
--static ssize_t rmi_driver_enabled_store(struct device *dev,
--					struct device_attribute *attr,
--					const char *buf, size_t count)
--{
--	struct rmi_device *rmi_dev = to_rmi_device(dev);
--	int retval;
--	int new_value;
--
--	if (sysfs_streq(buf, "0"))
--		new_value = false;
--	else if (sysfs_streq(buf, "1"))
--		new_value = true;
--	else
--		return -EINVAL;
--
--	if (new_value) {
--		retval = enable_sensor(rmi_dev);
--		if (retval) {
--			dev_err(dev, "Failed to enable sensor, code=%d.\n",
--				retval);
--			return -EIO;
--		}
--	} else {
--		disable_sensor(rmi_dev);
--	}
--
--	return count;
--}
--
--/** This sysfs attribute is deprecated, and will be removed in a future release.
-- */
--static DEVICE_ATTR(enabled, RMI_RW_ATTR,
--		   rmi_driver_enabled_show, rmi_driver_enabled_store);
--
--static umode_t rmi_driver_attr_visible(struct kobject *kobj,
--				       struct attribute *attr, int n)
--{
--	struct device *dev = kobj_to_dev(kobj);
--	struct rmi_device *rmi_dev = to_rmi_device(dev);
--	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
--	umode_t mode = attr->mode;
--
--	if (attr == &dev_attr_bsr.attr) {
--		if (!data->pdt_props.has_bsr)
--			mode = 0;
--	}
--
--	return mode;
--}
--
--static struct attribute *rmi_driver_attrs[] = {
--	&dev_attr_bsr.attr,
--	&dev_attr_enabled.attr,
--	NULL
--};
--
--static struct attribute_group rmi_driver_attr_group = {
--	.is_visible	= rmi_driver_attr_visible,
--	.attrs		= rmi_driver_attrs,
--};
--
- static void rmi_free_function_list(struct rmi_device *rmi_dev)
+-	struct adp5520_keys_platform_data *pdata = pdev->dev.platform_data;
++	struct adp5520_keys_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct input_dev *input;
+ 	struct adp5520_keys *dev;
+ 	int ret, i;
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 3ed2351..a8f5f92 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -173,7 +173,7 @@ static int adp5588_build_gpiomap(struct adp5588_kpad *kpad,
+ static int adp5588_gpio_add(struct adp5588_kpad *kpad)
  {
- 	struct rmi_function *fn, *tmp;
-@@ -718,7 +561,8 @@ static int reset_and_reflash(struct rmi_device *rmi_dev)
- 	bool has_f01 = false;
+ 	struct device *dev = &kpad->client->dev;
+-	const struct adp5588_kpad_platform_data *pdata = dev->platform_data;
++	const struct adp5588_kpad_platform_data *pdata = dev_get_platdata(dev);
+ 	const struct adp5588_gpio_platform_data *gpio_data = pdata->gpio_data;
+ 	int i, error;
+ 
+@@ -227,7 +227,7 @@ static int adp5588_gpio_add(struct adp5588_kpad *kpad)
+ static void adp5588_gpio_remove(struct adp5588_kpad *kpad)
+ {
+ 	struct device *dev = &kpad->client->dev;
+-	const struct adp5588_kpad_platform_data *pdata = dev->platform_data;
++	const struct adp5588_kpad_platform_data *pdata = dev_get_platdata(dev);
+ 	const struct adp5588_gpio_platform_data *gpio_data = pdata->gpio_data;
+ 	int error;
+ 
+@@ -321,7 +321,8 @@ static irqreturn_t adp5588_irq(int irq, void *handle)
+ 
+ static int adp5588_setup(struct i2c_client *client)
+ {
+-	const struct adp5588_kpad_platform_data *pdata = client->dev.platform_data;
++	const struct adp5588_kpad_platform_data *pdata =
++			dev_get_platdata(&client->dev);
+ 	const struct adp5588_gpio_platform_data *gpio_data = pdata->gpio_data;
+ 	int i, ret;
+ 	unsigned char evt_mode1 = 0, evt_mode2 = 0, evt_mode3 = 0;
+@@ -424,7 +425,8 @@ static int adp5588_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+ 	struct adp5588_kpad *kpad;
+-	const struct adp5588_kpad_platform_data *pdata = client->dev.platform_data;
++	const struct adp5588_kpad_platform_data *pdata =
++			dev_get_platdata(&client->dev);
+ 	struct input_dev *input;
+ 	unsigned int revid;
+ 	int ret, i;
+diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
+index 60dafd4..ff7725a 100644
+--- a/drivers/input/keyboard/adp5589-keys.c
++++ b/drivers/input/keyboard/adp5589-keys.c
+@@ -499,7 +499,7 @@ static int adp5589_build_gpiomap(struct adp5589_kpad *kpad,
+ static int adp5589_gpio_add(struct adp5589_kpad *kpad)
+ {
+ 	struct device *dev = &kpad->client->dev;
+-	const struct adp5589_kpad_platform_data *pdata = dev->platform_data;
++	const struct adp5589_kpad_platform_data *pdata = dev_get_platdata(dev);
+ 	const struct adp5589_gpio_platform_data *gpio_data = pdata->gpio_data;
+ 	int i, error;
+ 
+@@ -553,7 +553,7 @@ static int adp5589_gpio_add(struct adp5589_kpad *kpad)
+ static void adp5589_gpio_remove(struct adp5589_kpad *kpad)
+ {
+ 	struct device *dev = &kpad->client->dev;
+-	const struct adp5589_kpad_platform_data *pdata = dev->platform_data;
++	const struct adp5589_kpad_platform_data *pdata = dev_get_platdata(dev);
+ 	const struct adp5589_gpio_platform_data *gpio_data = pdata->gpio_data;
+ 	int error;
+ 
+@@ -658,7 +658,7 @@ static int adp5589_setup(struct adp5589_kpad *kpad)
+ {
+ 	struct i2c_client *client = kpad->client;
+ 	const struct adp5589_kpad_platform_data *pdata =
+-		client->dev.platform_data;
++		dev_get_platdata(&client->dev);
+ 	u8 (*reg) (u8) = kpad->var->reg;
+ 	unsigned char evt_mode1 = 0, evt_mode2 = 0, evt_mode3 = 0;
+ 	unsigned char pull_mask = 0;
+@@ -864,7 +864,7 @@ static int adp5589_probe(struct i2c_client *client,
+ {
+ 	struct adp5589_kpad *kpad;
+ 	const struct adp5589_kpad_platform_data *pdata =
+-		client->dev.platform_data;
++		dev_get_platdata(&client->dev);
+ 	struct input_dev *input;
+ 	unsigned int revid;
+ 	int ret, i;
+diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
+index 09b91d0..16223f4 100644
+--- a/drivers/input/keyboard/bf54x-keys.c
++++ b/drivers/input/keyboard/bf54x-keys.c
+@@ -180,7 +180,7 @@ static irqreturn_t bfin_kpad_isr(int irq, void *dev_id)
+ static int bfin_kpad_probe(struct platform_device *pdev)
+ {
+ 	struct bf54x_kpad *bf54x_kpad;
+-	struct bfin_kpad_platform_data *pdata = pdev->dev.platform_data;
++	struct bfin_kpad_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct input_dev *input;
+ 	int i, error;
+ 
+@@ -333,7 +333,7 @@ out:
+ 
+ static int bfin_kpad_remove(struct platform_device *pdev)
+ {
+-	struct bfin_kpad_platform_data *pdata = pdev->dev.platform_data;
++	struct bfin_kpad_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
+ 
+ 	del_timer_sync(&bf54x_kpad->timer);
+diff --git a/drivers/input/keyboard/davinci_keyscan.c b/drivers/input/keyboard/davinci_keyscan.c
+index d15977a..1559dc1 100644
+--- a/drivers/input/keyboard/davinci_keyscan.c
++++ b/drivers/input/keyboard/davinci_keyscan.c
+@@ -172,7 +172,7 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
+ 	struct input_dev *key_dev;
+ 	struct resource *res, *mem;
+ 	struct device *dev = &pdev->dev;
+-	struct davinci_ks_platform_data *pdata = pdev->dev.platform_data;
++	struct davinci_ks_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	int error, i;
+ 
+ 	if (pdata->device_enable) {
+diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+index 47206bd..e598762 100644
+--- a/drivers/input/keyboard/ep93xx_keypad.c
++++ b/drivers/input/keyboard/ep93xx_keypad.c
+@@ -244,7 +244,7 @@ static int ep93xx_keypad_probe(struct platform_device *pdev)
+ 	if (!keypad)
+ 		return -ENOMEM;
+ 
+-	keypad->pdata = pdev->dev.platform_data;
++	keypad->pdata = dev_get_platdata(&pdev->dev);
+ 	if (!keypad->pdata) {
+ 		err = -EINVAL;
+ 		goto failed_free;
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index 328cfc1..34bb358 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -425,7 +425,8 @@ MODULE_DEVICE_TABLE(of, imx_keypad_of_match);
+ 
+ static int imx_keypad_probe(struct platform_device *pdev)
+ {
+-	const struct matrix_keymap_data *keymap_data = pdev->dev.platform_data;
++	const struct matrix_keymap_data *keymap_data =
++			dev_get_platdata(&pdev->dev);
+ 	struct imx_keypad *keypad;
+ 	struct input_dev *input_dev;
+ 	struct resource *res;
+diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
+index 0de23f4..0b42118 100644
+--- a/drivers/input/keyboard/lm8323.c
++++ b/drivers/input/keyboard/lm8323.c
+@@ -627,7 +627,7 @@ static DEVICE_ATTR(disable_kp, 0644, lm8323_show_disable, lm8323_set_disable);
+ static int lm8323_probe(struct i2c_client *client,
+ 				  const struct i2c_device_id *id)
+ {
+-	struct lm8323_platform_data *pdata = client->dev.platform_data;
++	struct lm8323_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct input_dev *idev;
+ 	struct lm8323_chip *lm;
+ 	int pwm;
+diff --git a/drivers/input/keyboard/lm8333.c b/drivers/input/keyboard/lm8333.c
+index 5a8ca35..9081cbe 100644
+--- a/drivers/input/keyboard/lm8333.c
++++ b/drivers/input/keyboard/lm8333.c
+@@ -131,7 +131,8 @@ static irqreturn_t lm8333_irq_thread(int irq, void *data)
+ static int lm8333_probe(struct i2c_client *client,
+ 				  const struct i2c_device_id *id)
+ {
+-	const struct lm8333_platform_data *pdata = client->dev.platform_data;
++	const struct lm8333_platform_data *pdata =
++			dev_get_platdata(&client->dev);
+ 	struct lm8333 *lm8333;
+ 	struct input_dev *input;
+ 	int err, active_time;
+diff --git a/drivers/input/keyboard/max7359_keypad.c b/drivers/input/keyboard/max7359_keypad.c
+index bc2cdaf..430b545 100644
+--- a/drivers/input/keyboard/max7359_keypad.c
++++ b/drivers/input/keyboard/max7359_keypad.c
+@@ -182,7 +182,8 @@ static void max7359_initialize(struct i2c_client *client)
+ static int max7359_probe(struct i2c_client *client,
+ 					const struct i2c_device_id *id)
+ {
+-	const struct matrix_keymap_data *keymap_data = client->dev.platform_data;
++	const struct matrix_keymap_data *keymap_data =
++			dev_get_platdata(&client->dev);
+ 	struct max7359_keypad *keypad;
+ 	struct input_dev *input_dev;
+ 	int ret;
+diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
+index 7c236f9..5ec77523 100644
+--- a/drivers/input/keyboard/mcs_touchkey.c
++++ b/drivers/input/keyboard/mcs_touchkey.c
+@@ -108,7 +108,7 @@ static int mcs_touchkey_probe(struct i2c_client *client,
+ 	int error;
  	int i;
- 	int retval;
--	const struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
-+	const struct rmi_device_platform_data *pdata =
-+			to_rmi_platform_data(rmi_dev);
  
- 	dev_dbg(dev, "Initial reset.\n");
- 
-@@ -941,7 +785,6 @@ static int rmi_driver_remove(struct device *dev)
- 	struct rmi_device *rmi_dev = to_rmi_device(dev);
- 
- 	rmi_driver_teardown_debugfs(rmi_dev);
--	sysfs_remove_group(&dev->kobj, &rmi_driver_attr_group);
- 
- 	disable_sensor(rmi_dev);
- 	rmi_free_function_list(rmi_dev);
-@@ -1079,14 +922,6 @@ static int rmi_driver_probe(struct device *dev)
- 		mutex_init(&data->suspend_mutex);
- 	}
- 
--	retval = sysfs_create_group(&dev->kobj, &rmi_driver_attr_group);
--	if (retval < 0) {
--		dev_err(dev, "%s: Failed to create sysfs group\n", __func__);
--		goto err_free_data;
--	}
--
--	rmi_driver_setup_debugfs(rmi_dev);
--
- 	if (pdata->attn_gpio) {
- 		data->irq = gpio_to_irq(pdata->attn_gpio);
- 		if (pdata->level_triggered) {
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index fe26869..840a8d0 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -8,7 +8,6 @@
-  */
- 
- #include <linux/kernel.h>
--#include <linux/debugfs.h>
- #include <linux/kconfig.h>
- #include <linux/rmi.h>
- #include <linux/slab.h>
-@@ -143,780 +142,6 @@ struct f01_data {
- 	bool suspended;
- 	bool old_nosleep;
- #endif
--
--#ifdef CONFIG_RMI4_DEBUG
--	struct dentry *debugfs_interrupt_enable;
--#endif
--};
--
--#ifdef CONFIG_RMI4_DEBUG
--struct f01_debugfs_data {
--	bool done;
--	struct rmi_function *fn;
--};
--
--static int f01_debug_open(struct inode *inodep, struct file *filp)
--{
--	struct f01_debugfs_data *data;
--	struct rmi_function *fn = inodep->i_private;
--
--	data = kzalloc(sizeof(struct f01_debugfs_data), GFP_KERNEL);
--	if (!data)
--		return -ENOMEM;
--
--	data->fn = fn;
--	filp->private_data = data;
--	return 0;
--}
--
--static int f01_debug_release(struct inode *inodep, struct file *filp)
--{
--	kfree(filp->private_data);
--	return 0;
--}
--
--static ssize_t interrupt_enable_read(struct file *filp, char __user *buffer,
--				     size_t size, loff_t *offset) {
--	int i;
--	int len;
--	int total_len = 0;
--	char local_buf[size]; // FIXME!!!! XXX arbitrary size array on stack
--	char *current_buf = local_buf;
--	struct f01_debugfs_data *data = filp->private_data;
--	struct f01_data *f01 = data->fn->data;
--
--	if (data->done)
--		return 0;
--
--	data->done = 1;
--
--	/* loop through each irq value and copy its
--	 * string representation into buf */
--	for (i = 0; i < f01->irq_count; i++) {
--		int irq_reg;
--		int irq_shift;
--		int interrupt_enable;
--
--		irq_reg = i / 8;
--		irq_shift = i % 8;
--		interrupt_enable =
--		    ((f01->device_control.interrupt_enable[irq_reg]
--			>> irq_shift) & 0x01);
--
--		/* get next irq value and write it to buf */
--		len = snprintf(current_buf, size - total_len,
--			"%u ", interrupt_enable);
--		/* bump up ptr to next location in buf if the
--		 * snprintf was valid.  Otherwise issue an error
--		 * and return. */
--		if (len > 0) {
--			current_buf += len;
--			total_len += len;
--		} else {
--			dev_err(&data->fn->dev, "Failed to build interrupt_enable buffer, code = %d.\n",
--						len);
--			return snprintf(local_buf, size, "unknown\n");
--		}
--	}
--	len = snprintf(current_buf, size - total_len, "\n");
--	if (len > 0)
--		total_len += len;
--	else
--		dev_warn(&data->fn->dev, "%s: Failed to append carriage return.\n",
--			 __func__);
--
--	if (copy_to_user(buffer, local_buf, total_len))
--		return -EFAULT;
--
--	return total_len;
--}
--
--static ssize_t interrupt_enable_write(struct file *filp,
--		const char __user *buffer, size_t size, loff_t *offset) {
--	int retval;
--	char buf[size];
--	char *local_buf = buf;
--	int i;
--	int irq_count = 0;
--	int irq_reg = 0;
--	struct f01_debugfs_data *data = filp->private_data;
--	struct f01_data *f01 = data->fn->data;
--
--	retval = copy_from_user(buf, buffer, size);
--	if (retval)
--		return -EFAULT;
--
--	for (i = 0; i < f01->irq_count && *local_buf != 0;
--	     i++, local_buf += 2) {
--		int irq_shift;
--		int interrupt_enable;
--		int result;
--
--		irq_reg = i / 8;
--		irq_shift = i % 8;
--
--		/* get next interrupt mapping value and store and bump up to
--		 * point to next item in local_buf */
--		result = sscanf(local_buf, "%u", &interrupt_enable);
--		if ((result != 1) ||
--			(interrupt_enable != 0 && interrupt_enable != 1)) {
--			dev_err(&data->fn->dev, "Interrupt enable[%d] is not a valid value 0x%x.\n",
--				i, interrupt_enable);
--			return -EINVAL;
--		}
--		if (interrupt_enable == 0) {
--			f01->device_control.interrupt_enable[irq_reg] &=
--				(1 << irq_shift) ^ 0xFF;
--		} else
--			f01->device_control.interrupt_enable[irq_reg] |=
--				(1 << irq_shift);
--		irq_count++;
--	}
--
--	/* Make sure the irq count matches */
--	if (irq_count != f01->irq_count) {
--		dev_err(&data->fn->dev, "Interrupt enable count of %d doesn't match device count of %d.\n",
--			 irq_count, f01->irq_count);
--		return -EINVAL;
--	}
--
--	/* write back to the control register */
--	retval = rmi_write_block(data->fn->rmi_dev, f01->interrupt_enable_addr,
--			f01->device_control.interrupt_enable,
--			f01->num_of_irq_regs);
--	if (retval < 0) {
--		dev_err(&data->fn->dev, "Could not write interrupt_enable mask to %#06x\n",
--			f01->interrupt_enable_addr);
--		return retval;
--	}
--
--	return size;
--}
--
--static const struct file_operations interrupt_enable_fops = {
--	.owner = THIS_MODULE,
--	.open = f01_debug_open,
--	.release = f01_debug_release,
--	.read = interrupt_enable_read,
--	.write = interrupt_enable_write,
--};
--
--static int setup_debugfs(struct rmi_function *fn)
--{
--	struct f01_data *data = fn->data;
--
--	if (!fn->debugfs_root)
--		return -ENODEV;
--
--	data->debugfs_interrupt_enable = debugfs_create_file("interrupt_enable",
--		RMI_RW_ATTR, fn->debugfs_root, fn, &interrupt_enable_fops);
--	if (!data->debugfs_interrupt_enable)
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs interrupt_enable.\n");
--
--	return 0;
--}
--
--static void teardown_debugfs(struct f01_data *f01)
--{
--	if (f01->debugfs_interrupt_enable)
--		debugfs_remove(f01->debugfs_interrupt_enable);
--}
--
--#else
--
--static inline int setup_debugfs(struct rmi_function *fn)
--{
--	return 0;
--}
--
--static inline void teardown_debugfs(struct f01_data *f01)
--{
--}
--
--#endif
--
--static ssize_t rmi_fn_01_productinfo_show(struct device *dev,
--					  struct device_attribute *attr,
--					  char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "0x%04x\n",
--			data->properties.productinfo);
--}
--
--static ssize_t rmi_fn_01_productid_show(struct device *dev,
--					struct device_attribute *attr,
--					char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "%s\n", data->properties.product_id);
--}
--
--static ssize_t rmi_fn_01_manufacturer_show(struct device *dev,
--					   struct device_attribute *attr,
--					   char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "0x%02x\n",
--			data->properties.manufacturer_id);
--}
--
--static ssize_t rmi_fn_01_datecode_show(struct device *dev,
--				       struct device_attribute *attr,
--				       char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "%s\n", data->properties.dom);
--}
--
--static ssize_t rmi_fn_01_reset_store(struct device *dev,
--				     struct device_attribute *attr,
--				     const char *buf, size_t count)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	unsigned int reset;
--	int error;
--
--	if (sscanf(buf, "%u", &reset) != 1)
--		return -EINVAL;
--	if (reset < 0 || reset > 1)
--		return -EINVAL;
--
--	/* Per spec, 0 has no effect, so we skip it entirely. */
--	if (reset) {
--		/* Command register always reads as 0, so just use a local. */
--		u8 command = RMI_F01_CMD_DEVICE_RESET;
--
--		error = rmi_write_block(fn->rmi_dev, fn->fd.command_base_addr,
--					 &command, sizeof(command));
--		if (error < 0) {
--			dev_err(dev, "Failed to issue reset command, code = %d.",
--				error);
--			return error;
--		}
--	}
--
--	return count;
--}
--
--static ssize_t rmi_fn_01_sleepmode_show(struct device *dev,
--					struct device_attribute *attr,
--					char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned int value = data->device_control.ctrl0 &
--					RMI_F01_CTRL0_SLEEP_MODE_MASK;
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", value);
--}
--
--static ssize_t rmi_fn_01_sleepmode_store(struct device *dev,
--					 struct device_attribute *attr,
--					 const char *buf, size_t count)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned long new_value;
--	int retval;
--
--	retval = strict_strtoul(buf, 10, &new_value);
--	if (retval < 0 || !RMI_IS_VALID_SLEEPMODE(new_value)) {
--		dev_err(dev, "%s: Invalid sleep mode %s.", __func__, buf);
--		return -EINVAL;
--	}
--
--	retval = mutex_lock_interruptible(&data->control_mutex);
--	if (retval)
--		return retval;
--
--	dev_dbg(dev, "Setting sleep mode to %ld.", new_value);
--
--	data->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
--	data->device_control.ctrl0 |= new_value;
--
--	retval = rmi_write_block(fn->rmi_dev, fn->fd.control_base_addr,
--			&data->device_control.ctrl0,
--			sizeof(data->device_control.ctrl0));
--	if (retval >= 0)
--		retval = count;
--	else
--		dev_err(dev, "Failed to write sleep mode, code %d.\n", retval);
--
--	mutex_unlock(&data->control_mutex);
--	return retval;
--}
--
--static ssize_t rmi_fn_01_nosleep_show(struct device *dev,
--				      struct device_attribute *attr, char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned int value = !!(data->device_control.ctrl0 &
--					RMI_F01_CRTL0_NOSLEEP_BIT);
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", value);
--}
--
--static ssize_t rmi_fn_01_nosleep_store(struct device *dev,
--				       struct device_attribute *attr,
--				       const char *buf, size_t count)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned long new_value;
--	int retval;
--
--	retval = strict_strtoul(buf, 10, &new_value);
--	if (retval < 0 || new_value > 1) {
--		dev_err(dev, "%s: Invalid nosleep bit %s.", __func__, buf);
--		return -EINVAL;
--	}
--
--	retval = mutex_lock_interruptible(&data->control_mutex);
--	if (retval)
--		return retval;
--
--	if (new_value)
--		data->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
--	else
--		data->device_control.ctrl0 &= ~RMI_F01_CRTL0_NOSLEEP_BIT;
--
--	retval = rmi_write_block(fn->rmi_dev, fn->fd.control_base_addr,
--				 &data->device_control.ctrl0,
--				 sizeof(data->device_control.ctrl0));
--	if (retval >= 0)
--		retval = count;
--	else
--		dev_err(dev, "Failed to write nosleep bit.\n");
--
--	mutex_unlock(&data->control_mutex);
--	return retval;
--}
--
--static ssize_t rmi_fn_01_chargerinput_show(struct device *dev,
--				      struct device_attribute *attr, char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned int value = !!(data->device_control.ctrl0 &
--					RMI_F01_CRTL0_CHARGER_BIT);
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", value);
--}
--
--static ssize_t rmi_fn_01_chargerinput_store(struct device *dev,
--				       struct device_attribute *attr,
--				       const char *buf, size_t count)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned long new_value;
--	int retval;
--
--	retval = strict_strtoul(buf, 10, &new_value);
--	if (retval < 0 || new_value > 1) {
--		dev_err(dev, "%s: Invalid chargerinput bit %s.", __func__, buf);
--		return -EINVAL;
--	}
--
--	retval = mutex_lock_interruptible(&data->control_mutex);
--	if (retval)
--		return retval;
--
--	if (new_value)
--		data->device_control.ctrl0 |= RMI_F01_CRTL0_CHARGER_BIT;
--	else
--		data->device_control.ctrl0 &= ~RMI_F01_CRTL0_CHARGER_BIT;
--
--	retval = rmi_write_block(fn->rmi_dev, fn->fd.control_base_addr,
--				 &data->device_control.ctrl0,
--				 sizeof(data->device_control.ctrl0));
--	if (retval >= 0)
--		retval = count;
--	else
--		dev_err(dev, "Failed to write chargerinput bit.\n");
--
--	mutex_unlock(&data->control_mutex);
--	return retval;
--}
--
--static ssize_t rmi_fn_01_reportrate_show(struct device *dev,
--				      struct device_attribute *attr, char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	int value = !!(data->device_control.ctrl0 &
--				RMI_F01_CRTL0_REPORTRATE_BIT);
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", value);
--}
--
--static ssize_t rmi_fn_01_reportrate_store(struct device *dev,
--				       struct device_attribute *attr,
--				       const char *buf, size_t count)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned long new_value;
--	int retval;
--
--	retval = strict_strtoul(buf, 10, &new_value);
--	if (retval < 0 || new_value > 1) {
--		dev_err(dev, "%s: Invalid reportrate bit %s.", __func__, buf);
--		return -EINVAL;
--	}
--
--	retval = mutex_lock_interruptible(&data->control_mutex);
--	if (retval)
--		return retval;
--
--	if (new_value)
--		data->device_control.ctrl0 |= RMI_F01_CRTL0_REPORTRATE_BIT;
--	else
--		data->device_control.ctrl0 &= ~RMI_F01_CRTL0_REPORTRATE_BIT;
--
--	retval = rmi_write_block(fn->rmi_dev, fn->fd.control_base_addr,
--				 &data->device_control.ctrl0,
--				 sizeof(data->device_control.ctrl0));
--	if (retval >= 0)
--		retval = count;
--	else
--		dev_err(dev, "Failed to write reportrate bit.\n");
--
--	mutex_unlock(&data->control_mutex);
--	return retval;
--}
--
--static ssize_t rmi_fn_01_interrupt_enable_show(struct device *dev,
--				struct device_attribute *attr, char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	int i, len, total_len = 0;
--	char *current_buf = buf;
--
--	/* loop through each irq value and copy its
--	 * string representation into buf */
--	for (i = 0; i < data->irq_count; i++) {
--		int irq_reg;
--		int irq_shift;
--		int interrupt_enable;
--
--		irq_reg = i / 8;
--		irq_shift = i % 8;
--		interrupt_enable =
--		    ((data->device_control.interrupt_enable[irq_reg]
--			>> irq_shift) & 0x01);
--
--		/* get next irq value and write it to buf */
--		len = snprintf(current_buf, PAGE_SIZE - total_len,
--			"%u ", interrupt_enable);
--		/* bump up ptr to next location in buf if the
--		 * snprintf was valid.  Otherwise issue an error
--		 * and return. */
--		if (len > 0) {
--			current_buf += len;
--			total_len += len;
--		} else {
--			dev_err(dev, "Failed to build interrupt_enable buffer, code = %d.\n",
--						len);
--			return snprintf(buf, PAGE_SIZE, "unknown\n");
--		}
--	}
--	len = snprintf(current_buf, PAGE_SIZE - total_len, "\n");
--	if (len > 0)
--		total_len += len;
--	else
--		dev_warn(dev, "%s: Failed to append carriage return.\n",
--			 __func__);
--	return total_len;
--
--}
--
--static ssize_t rmi_fn_01_doze_interval_show(struct device *dev,
--				struct device_attribute *attr, char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "%d\n",
--			data->device_control.doze_interval);
--
--}
--
--static ssize_t rmi_fn_01_doze_interval_store(struct device *dev,
--					  struct device_attribute *attr,
--					  const char *buf, size_t count)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned long new_value;
--	int retval;
--	u16 ctrl_base_addr;
--
--	retval = strict_strtoul(buf, 10, &new_value);
--	if (retval < 0 || new_value > 255) {
--		dev_err(dev, "%s: Invalid doze interval %s.", __func__, buf);
--		return -EINVAL;
--	}
--
--	retval = mutex_lock_interruptible(&data->control_mutex);
--	if (retval)
--		return retval;
--
--	data->device_control.doze_interval = new_value;
--	ctrl_base_addr = fn->fd.control_base_addr + sizeof(u8) +
--			(sizeof(u8)*(data->num_of_irq_regs));
--	dev_dbg(dev, "doze_interval store address %x, value %d",
--		ctrl_base_addr, data->device_control.doze_interval);
--
--	retval = rmi_write_block(fn->rmi_dev, data->doze_interval_addr,
--			&data->device_control.doze_interval,
--			sizeof(u8));
--	if (retval >= 0)
--		retval = count;
--	else
--		dev_err(dev, "Failed to write doze interval.\n");
--
--	mutex_unlock(&data->control_mutex);
--	return retval;
--}
--
--static ssize_t rmi_fn_01_wakeup_threshold_show(struct device *dev,
--					 struct device_attribute *attr,
--					 char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "%d\n",
--			data->device_control.wakeup_threshold);
--}
--
--static ssize_t rmi_fn_01_wakeup_threshold_store(struct device *dev,
--					  struct device_attribute *attr,
--					  const char *buf, size_t count)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned long new_value;
--	int retval;
--
--	retval = strict_strtoul(buf, 10, &new_value);
--	if (retval < 0 || new_value > 255) {
--		dev_err(dev, "%s: Invalid wakeup threshold %s.", __func__, buf);
--		return -EINVAL;
--	}
--
--	retval = mutex_lock_interruptible(&data->control_mutex);
--	if (retval)
--		return retval;
--
--	data->device_control.doze_interval = new_value;
--	retval = rmi_write_block(fn->rmi_dev, data->wakeup_threshold_addr,
--			&data->device_control.wakeup_threshold,
--			sizeof(u8));
--	if (retval >= 0)
--		retval = count;
--	else
--		dev_err(dev, "Failed to write wakeup threshold.\n");
--
--	mutex_unlock(&data->control_mutex);
--	return retval;
--}
--
--static ssize_t rmi_fn_01_doze_holdoff_show(struct device *dev,
--					 struct device_attribute *attr,
--					 char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "%d\n",
--			data->device_control.doze_holdoff);
--
--}
--
--static ssize_t rmi_fn_01_doze_holdoff_store(struct device *dev,
--					  struct device_attribute *attr,
--					  const char *buf, size_t count)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned long new_value;
--	int retval;
--
--	retval = strict_strtoul(buf, 10, &new_value);
--	if (retval < 0 || new_value > 255) {
--		dev_err(dev, "%s: Invalid doze holdoff %s.", __func__, buf);
--		return -EINVAL;
--	}
--
--	retval = mutex_lock_interruptible(&data->control_mutex);
--	if (retval)
--		return retval;
--
--	data->device_control.doze_interval = new_value;
--	retval = rmi_write_block(fn->rmi_dev, data->doze_holdoff_addr,
--			&data->device_control.doze_holdoff,
--			sizeof(u8));
--	if (retval >= 0)
--		retval = count;
--	else
--		dev_err(dev, "Failed to write doze holdoff.\n");
--
--	mutex_unlock(&data->control_mutex);
--	return retval;
--}
--
--static ssize_t rmi_fn_01_configured_show(struct device *dev,
--				      struct device_attribute *attr, char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	unsigned int value = !!(data->device_control.ctrl0 &
--					RMI_F01_CRTL0_CONFIGURED_BIT);
--
--	return snprintf(buf, PAGE_SIZE, "%d\n", value);
--}
--
--static ssize_t rmi_fn_01_unconfigured_show(struct device *dev,
--				      struct device_attribute *attr, char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "%d\n",
--			RMI_F01_STATUS_UNCONFIGURED(data->device_status));
--}
--
--static ssize_t rmi_fn_01_flashprog_show(struct device *dev,
--				      struct device_attribute *attr, char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "%d\n",
--			RMI_F01_STATUS_BOOTLOADER(data->device_status));
--}
--
--static ssize_t rmi_fn_01_statuscode_show(struct device *dev,
--				      struct device_attribute *attr, char *buf)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--
--	return snprintf(buf, PAGE_SIZE, "0x%02x\n",
--			RMI_F01_STATUS_CODE(data->device_status));
--}
--
--#define RMI_F01_ATTR(_name)			\
--	DEVICE_ATTR(_name, RMI_RW_ATTR,		\
--		    rmi_fn_01_##_name##_show,	\
--		    rmi_fn_01_##_name##_store)
--
--#define RMI_F01_RO_ATTR(_name)			\
--	DEVICE_ATTR(_name, RMI_RO_ATTR,		\
--		    rmi_fn_01_##_name##_show,	\
--		    NULL)
--
--#define RMI_F01_WO_ATTR(_name)			\
--	DEVICE_ATTR(_name, RMI_RO_ATTR,		\
--		    NULL,			\
--		    rmi_fn_01_##_name##_store)
--
--
--static RMI_F01_RO_ATTR(productinfo);
--static RMI_F01_RO_ATTR(productid);
--static RMI_F01_RO_ATTR(manufacturer);
--static RMI_F01_RO_ATTR(datecode);
--
--/* Control register access */
--static RMI_F01_ATTR(sleepmode);
--static RMI_F01_ATTR(nosleep);
--static RMI_F01_ATTR(chargerinput);
--static RMI_F01_ATTR(reportrate);
--
--/*
-- * We don't want arbitrary callers changing the interrupt enable mask,
-- * so it's read only.
-- */
--static RMI_F01_RO_ATTR(interrupt_enable);
--static RMI_F01_ATTR(doze_interval);
--static RMI_F01_ATTR(wakeup_threshold);
--static RMI_F01_ATTR(doze_holdoff);
--
--/*
-- * We make 'configured' RO, since the driver uses that to look for
-- * resets.  We don't want someone faking us out by changing that
-- * bit.
-- */
--static RMI_F01_RO_ATTR(configured);
--
--/* Command register access. */
--static RMI_F01_WO_ATTR(reset);
--
--/* Status register access. */
--static RMI_F01_RO_ATTR(unconfigured);
--static RMI_F01_RO_ATTR(flashprog);
--static RMI_F01_RO_ATTR(statuscode);
--
--static struct attribute *rmi_fn_01_attrs[] = {
--	&dev_attr_productinfo.attr,
--	&dev_attr_productid.attr,
--	&dev_attr_manufacturer.attr,
--	&dev_attr_datecode.attr,
--	&dev_attr_sleepmode.attr,
--	&dev_attr_nosleep.attr,
--	&dev_attr_chargerinput.attr,
--	&dev_attr_reportrate.attr,
--	&dev_attr_interrupt_enable.attr,
--	&dev_attr_doze_interval.attr,
--	&dev_attr_wakeup_threshold.attr,
--	&dev_attr_doze_holdoff.attr,
--	&dev_attr_configured.attr,
--	&dev_attr_reset.attr,
--	&dev_attr_unconfigured.attr,
--	&dev_attr_flashprog.attr,
--	&dev_attr_statuscode.attr,
--	NULL
--};
--
--static umode_t rmi_fn_01_attr_visible(struct kobject *kobj,
--				      struct attribute *attr, int n)
--{
--	struct device *dev = kobj_to_dev(kobj);
--	struct rmi_function *fn = to_rmi_function(dev);
--	struct f01_data *data = fn->data;
--	umode_t mode = attr->mode;
--
--	if (attr == &dev_attr_doze_interval.attr) {
--		if (!data->properties.has_lts)
--			mode = 0;
--	} else if (attr == &dev_attr_wakeup_threshold.attr) {
--		if (!data->properties.has_adjustable_doze)
--			mode = 0;
--	} else if (attr == &dev_attr_doze_holdoff.attr) {
--		if (!data->properties.has_adjustable_doze_holdoff)
--			mode = 0;
--	}
--
--	return mode;
--}
--
--static struct attribute_group rmi_fn_01_attr_group = {
--	.is_visible	= rmi_fn_01_attr_visible,
--	.attrs		= rmi_fn_01_attrs,
- };
- 
- static int rmi_f01_alloc_memory(struct rmi_function *fn,
-@@ -1148,11 +373,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
- 		goto error_exit;
- 	}
- 
--	error = setup_debugfs(fn);
--	if (error)
--		dev_warn(&fn->dev, "Failed to setup debugfs, error: %d.\n",
--			 error);
--
- 	return 0;
- 
-  error_exit:
-@@ -1228,17 +448,12 @@ static int rmi_f01_probe(struct rmi_function *fn)
- 	if (error)
- 		return error;
- 
--	error = sysfs_create_group(&fn->dev.kobj, &rmi_fn_01_attr_group);
--	if (error)
--		return error;
--
- 	return 0;
- }
- 
- static void rmi_f01_remove(struct rmi_function *fn)
+-	pdata = client->dev.platform_data;
++	pdata = dev_get_platdata(&client->dev);
+ 	if (!pdata) {
+ 		dev_err(&client->dev, "no platform data defined\n");
+ 		return -EINVAL;
+diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+index f7f3e9a..98b8467 100644
+--- a/drivers/input/keyboard/mpr121_touchkey.c
++++ b/drivers/input/keyboard/mpr121_touchkey.c
+@@ -188,7 +188,8 @@ err_i2c_write:
+ static int mpr_touchkey_probe(struct i2c_client *client,
+ 			      const struct i2c_device_id *id)
  {
--	teardown_debugfs(fn->data);
--	sysfs_remove_group(&fn->dev.kobj, &rmi_fn_01_attr_group);
-+	/* Placeholder for now. */
- }
+-	const struct mpr121_platform_data *pdata = client->dev.platform_data;
++	const struct mpr121_platform_data *pdata =
++			dev_get_platdata(&client->dev);
+ 	struct mpr121_touchkey *mpr121;
+ 	struct input_dev *input_dev;
+ 	int error;
+diff --git a/drivers/input/keyboard/nomadik-ske-keypad.c b/drivers/input/keyboard/nomadik-ske-keypad.c
+index c7d505c..63332e2 100644
+--- a/drivers/input/keyboard/nomadik-ske-keypad.c
++++ b/drivers/input/keyboard/nomadik-ske-keypad.c
+@@ -222,7 +222,8 @@ static irqreturn_t ske_keypad_irq(int irq, void *dev_id)
  
- #ifdef CONFIG_PM_SLEEP
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 017c8ff..8984054 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -10,7 +10,6 @@
- #define FUNCTION_DATA f11_data
+ static int __init ske_keypad_probe(struct platform_device *pdev)
+ {
+-	const struct ske_keypad_platform_data *plat = pdev->dev.platform_data;
++	const struct ske_keypad_platform_data *plat =
++			dev_get_platdata(&pdev->dev);
+ 	struct ske_keypad *keypad;
+ 	struct input_dev *input;
+ 	struct resource *res;
+diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+index d0d5226..e80bb97 100644
+--- a/drivers/input/keyboard/omap-keypad.c
++++ b/drivers/input/keyboard/omap-keypad.c
+@@ -248,7 +248,7 @@ static int omap_kp_probe(struct platform_device *pdev)
+ {
+ 	struct omap_kp *omap_kp;
+ 	struct input_dev *input_dev;
+-	struct omap_kp_platform_data *pdata =  pdev->dev.platform_data;
++	struct omap_kp_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	int i, col_idx, row_idx, ret;
+ 	unsigned int row_shift, keycodemax;
  
- #include <linux/kernel.h>
--#include <linux/debugfs.h>
- #include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/input.h>
-@@ -822,177 +821,6 @@ enum finger_state_values {
- 	F11_RESERVED	= 0x03
- };
+diff --git a/drivers/input/keyboard/pxa930_rotary.c b/drivers/input/keyboard/pxa930_rotary.c
+index 248cdcf..367b03a 100644
+--- a/drivers/input/keyboard/pxa930_rotary.c
++++ b/drivers/input/keyboard/pxa930_rotary.c
+@@ -84,7 +84,8 @@ static void pxa930_rotary_close(struct input_dev *dev)
  
--static ssize_t rmi_f11_rezero_store(struct device *dev,
--				    struct device_attribute *attr,
--				    const char *buf, size_t count)
--{
--	struct rmi_function *fn = to_rmi_function(dev);
--	unsigned int rezero;
--	int error;
--
--	error = kstrtouint(buf, 0, &rezero);
--	if (error)
--		return error;
--
--	if (rezero > 1)
--		return -ERANGE;
--
--	/* Per spec, 0 has no effect, so we skip it entirely. */
--	if (rezero) {
--		/* Command register always reads as 0, so just use a local. */
--		struct f11_2d_commands commands = {
--			.rezero = true,
--		};
--
--		error = rmi_write_block(fn->rmi_dev, fn->fd.command_base_addr,
--					&commands, sizeof(commands));
--		if (error < 0) {
--			dev_err(dev,
--				"%s: failed to issue rezero command, error = %d.",
--				__func__, error);
--			return error;
--		}
--	}
--
--	return count;
--}
--
--static DEVICE_ATTR(rezero, RMI_WO_ATTR, NULL, rmi_f11_rezero_store);
--
--static struct attribute *rmi_f11_attrs[] = {
--	&dev_attr_rezero.attr,
--	NULL
--};
--
--static struct attribute_group rmi_f11_attr_group = {
--	.attrs = rmi_f11_attrs,
--};
--
--#ifdef CONFIG_RMI4_DEBUG
--static void rmi_f11_setup_sensor_debugfs(struct f11_2d_sensor *sensor)
--{
--	struct rmi_function *fn = sensor->fn;
--	struct dentry *sensor_root;
--	char dirname[sizeof("sensorNNN")];
--
--	if (!fn->debugfs_root)
--		return;
--
--	snprintf(dirname, sizeof(dirname), "input%3u", sensor->sensor_index);
--	sensor_root = debugfs_create_dir(dirname, fn->debugfs_root);
--	if (!sensor_root) {
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs directory %s for sensor %d\n",
--			 dirname, sensor->sensor_index);
--		return;
--	}
--
--	if (!debugfs_create_bool("type_a", RMI_RW_ATTR, sensor_root,
--				 &sensor->type_a))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs type_a for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u16("max_x", RMI_RW_ATTR, sensor_root,
--				&sensor->max_x))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs max_x for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u16("max_xy", RMI_RW_ATTR, sensor_root,
--				&sensor->max_y))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs max_y for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_bool("flip_x", RMI_RW_ATTR, sensor_root,
--				 &sensor->axis_align.flip_x))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs flip_x for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_bool("flip_y", RMI_RW_ATTR, sensor_root,
--				 &sensor->axis_align.flip_y))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs flip_y for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u16("clip_x_low", RMI_RW_ATTR, sensor_root,
--				&sensor->axis_align.clip_x_low))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs clip_x_low for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u16("clip_x_high", RMI_RW_ATTR, sensor_root,
--				&sensor->axis_align.clip_x_high))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs clip_x_high for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u16("clip_y_low", RMI_RW_ATTR, sensor_root,
--				 &sensor->axis_align.clip_y_low))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs clip_y_low for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u16("clip_y_high", RMI_RW_ATTR, sensor_root,
--				 &sensor->axis_align.clip_y_high))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs clip_y_high for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u8("delta_x_threshold", RMI_RW_ATTR, sensor_root,
--				&sensor->axis_align.delta_x_threshold))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs delta_x_threshold for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u8("delta_y_threshold", RMI_RW_ATTR, sensor_root,
--				&sensor->axis_align.delta_y_threshold))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs delta_y_threshold for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u16("offset_x", RMI_RW_ATTR, sensor_root,
--				 &sensor->axis_align.offset_x))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs offset_x for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_u16("offset_x", RMI_RW_ATTR, sensor_root,
--				 &sensor->axis_align.offset_x))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs offset_y for sensor %d.\n",
--			 sensor->sensor_index);
--
--	if (!debugfs_create_bool("swap", RMI_RW_ATTR, sensor_root,
--				 &sensor->axis_align.swap_axes))
--		dev_warn(&fn->dev,
--			 "Failed to create debugfs swap for sensor %d.\n",
--			 sensor->sensor_index);
--}
--
--static void rmi_f11_setup_debugfs(struct rmi_function *fn)
--{
--	struct f11_data *f11 = fn->data;
--
--	if (fn->debugfs_root)
--		if (!debugfs_create_u16("rezero_wait", RMI_RW_ATTR,
--					fn->debugfs_root,
--					&f11->rezero_wait_ms))
--			dev_warn(&fn->dev,
--				 "Failed to create debugfs rezero_wait.\n");
--}
--#else
--static inline void rmi_f11_setup_sensor_debugfs(struct f11_2d_sensor *sensor)
--{
--}
--static inline void rmi_f11_setup_debugfs(struct rmi_function *fn)
--{
--}
--#endif
--/* End adding debugfs */
--
- /** F11_INACCURATE state is overloaded to indicate pen present. */
- #define F11_PEN F11_INACCURATE
+ static int pxa930_rotary_probe(struct platform_device *pdev)
+ {
+-	struct pxa930_rotary_platform_data *pdata = pdev->dev.platform_data;
++	struct pxa930_rotary_platform_data *pdata =
++			dev_get_platdata(&pdev->dev);
+ 	struct pxa930_rotary *r;
+ 	struct input_dev *input_dev;
+ 	struct resource *res;
+diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+index ac43a48..9ac8a1e 100644
+--- a/drivers/input/keyboard/samsung-keypad.c
++++ b/drivers/input/keyboard/samsung-keypad.c
+@@ -321,7 +321,7 @@ static int samsung_keypad_probe(struct platform_device *pdev)
+ 	if (pdev->dev.of_node)
+ 		pdata = samsung_keypad_parse_dt(&pdev->dev);
+ 	else
+-		pdata = pdev->dev.platform_data;
++		pdata = dev_get_platdata(&pdev->dev);
+ 	if (!pdata) {
+ 		dev_err(&pdev->dev, "no platform data defined\n");
+ 		return -EINVAL;
+diff --git a/drivers/input/keyboard/sh_keysc.c b/drivers/input/keyboard/sh_keysc.c
+index fe0e498..d65a98b 100644
+--- a/drivers/input/keyboard/sh_keysc.c
++++ b/drivers/input/keyboard/sh_keysc.c
+@@ -171,7 +171,7 @@ static int sh_keysc_probe(struct platform_device *pdev)
+ 	int i;
+ 	int irq, error;
  
-@@ -1886,12 +1714,8 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 				dev_warn(&fn->dev, "Failed to write to delta_y_threshold %d. Code: %d.\n",
- 					i, rc);
- 		}
--
--		rmi_f11_setup_sensor_debugfs(sensor);
+-	if (!pdev->dev.platform_data) {
++	if (!dev_get_platdata(&pdev->dev)) {
+ 		dev_err(&pdev->dev, "no platform data defined\n");
+ 		error = -EINVAL;
+ 		goto err0;
+@@ -198,7 +198,7 @@ static int sh_keysc_probe(struct platform_device *pdev)
  	}
  
--	rmi_f11_setup_debugfs(fn);
--
- 	mutex_init(&f11->dev_controls_mutex);
- 	return 0;
- }
-@@ -2112,18 +1936,11 @@ static int rmi_f11_probe(struct rmi_function *fn)
- 	if (error)
- 		return error;
+ 	platform_set_drvdata(pdev, priv);
+-	memcpy(&priv->pdata, pdev->dev.platform_data, sizeof(priv->pdata));
++	memcpy(&priv->pdata, dev_get_platdata(&pdev->dev), sizeof(priv->pdata));
+ 	pdata = &priv->pdata;
  
--	error = sysfs_create_group(&fn->dev.kobj, &rmi_f11_attr_group);
--	if (error)
--		return error;
--
- 	return 0;
- }
- 
- static void rmi_f11_remove(struct rmi_function *fn)
- {
--	debugfs_remove_recursive(fn->debugfs_root);
--	sysfs_remove_group(&fn->dev.kobj, &rmi_f11_attr_group);
--
- 	rmi_f11_free_devices(fn);
- }
- 
-diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-index f3bef04..62351c4 100644
---- a/drivers/input/rmi4/rmi_i2c.c
-+++ b/drivers/input/rmi4/rmi_i2c.c
-@@ -8,7 +8,6 @@
-  */
- 
- #include <linux/kernel.h>
--#include <linux/debugfs.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
-@@ -61,8 +60,9 @@ static int setup_debugfs(struct rmi_device *rmi_dev, struct rmi_i2c_data *data)
- 	if (!rmi_dev->debugfs_root)
+ 	priv->iomem_base = ioremap_nocache(res->start, resource_size(res));
+diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
+index bfc832c..dc983ab 100644
+--- a/drivers/input/keyboard/tca6416-keypad.c
++++ b/drivers/input/keyboard/tca6416-keypad.c
+@@ -213,7 +213,7 @@ static int tca6416_keypad_probe(struct i2c_client *client,
  		return -ENODEV;
+ 	}
  
--	data->debugfs_comms = debugfs_create_bool("comms_debug", RMI_RW_ATTR,
--			rmi_dev->debugfs_root, &data->comms_debug);
-+	data->debugfs_comms = debugfs_create_bool("comms_debug",
-+			(S_IRUGO | S_IWUGO), rmi_dev->debugfs_root,
-+			&data->comms_debug);
- 	if (!data->debugfs_comms || IS_ERR(data->debugfs_comms)) {
- 		dev_warn(&rmi_dev->dev,
- 			 "Failed to create debugfs comms_debug.\n");
+-	pdata = client->dev.platform_data;
++	pdata = dev_get_platdata(&client->dev);
+ 	if (!pdata) {
+ 		dev_dbg(&client->dev, "no platform data\n");
+ 		return -EINVAL;
+diff --git a/drivers/input/keyboard/tnetv107x-keypad.c b/drivers/input/keyboard/tnetv107x-keypad.c
+index 8bd24d5..086511c 100644
+--- a/drivers/input/keyboard/tnetv107x-keypad.c
++++ b/drivers/input/keyboard/tnetv107x-keypad.c
+@@ -162,7 +162,7 @@ static int keypad_probe(struct platform_device *pdev)
+ 	int error = 0, sz, row_shift;
+ 	u32 rev = 0;
+ 
+-	pdata = pdev->dev.platform_data;
++	pdata = dev_get_platdata(&pdev->dev);
+ 	if (!pdata) {
+ 		dev_err(dev, "cannot find device data\n");
+ 		return -EINVAL;
+diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+index d2d178c..8bc2879 100644
+--- a/drivers/input/keyboard/twl4030_keypad.c
++++ b/drivers/input/keyboard/twl4030_keypad.c
+@@ -330,7 +330,7 @@ static int twl4030_kp_program(struct twl4030_keypad *kp)
+  */
+ static int twl4030_kp_probe(struct platform_device *pdev)
+ {
+-	struct twl4030_keypad_data *pdata = pdev->dev.platform_data;
++	struct twl4030_keypad_data *pdata = dev_get_platdata(&pdev->dev);
+ 	const struct matrix_keymap_data *keymap_data;
+ 	struct twl4030_keypad *kp;
+ 	struct input_dev *input;
+diff --git a/drivers/input/keyboard/w90p910_keypad.c b/drivers/input/keyboard/w90p910_keypad.c
+index 7b03916..e03614f 100644
+--- a/drivers/input/keyboard/w90p910_keypad.c
++++ b/drivers/input/keyboard/w90p910_keypad.c
+@@ -121,7 +121,7 @@ static void w90p910_keypad_close(struct input_dev *dev)
+ static int w90p910_keypad_probe(struct platform_device *pdev)
+ {
+ 	const struct w90p910_keypad_platform_data *pdata =
+-						pdev->dev.platform_data;
++						dev_get_platdata(&pdev->dev);
+ 	const struct matrix_keymap_data *keymap_data;
+ 	struct w90p910_keypad *keypad;
+ 	struct input_dev *input_dev;
+diff --git a/drivers/input/leds.c b/drivers/input/leds.c
+index 6bdb51d..99bb05e 100644
+--- a/drivers/input/leds.c
++++ b/drivers/input/leds.c
+@@ -117,7 +117,7 @@ static void perdevice_input_led_set(struct led_classdev *cdev,
+ 	struct led_classdev *leds;
+ 	int led;
+ 
+-	dev = cdev->dev->platform_data;
++	dev = dev_get_platdata(cdev->dev);
+ 	if (!dev)
+ 		/* Still initializing */
+ 		return;
+diff --git a/drivers/input/misc/ad714x.c b/drivers/input/misc/ad714x.c
+index 2e5d5e1..6deecdd 100644
+--- a/drivers/input/misc/ad714x.c
++++ b/drivers/input/misc/ad714x.c
+@@ -969,7 +969,7 @@ struct ad714x_chip *ad714x_probe(struct device *dev, u16 bus_type, int irq,
+ 	int error;
+ 	struct input_dev *input[MAX_DEVICE_NUM];
+ 
+-	struct ad714x_platform_data *plat_data = dev->platform_data;
++	struct ad714x_platform_data *plat_data = dev_get_platdata(dev);
+ 	struct ad714x_chip *ad714x;
+ 	void *drv_mem;
+ 	unsigned long irqflags;
+@@ -986,7 +986,7 @@ struct ad714x_chip *ad714x_probe(struct device *dev, u16 bus_type, int irq,
+ 		goto err_out;
+ 	}
+ 
+-	if (dev->platform_data == NULL) {
++	if (dev_get_platdata(dev) == NULL) {
+ 		dev_err(dev, "platform data for ad714x doesn't exist\n");
+ 		error = -EINVAL;
+ 		goto err_out;
+diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
+index 0735de3..d204997 100644
+--- a/drivers/input/misc/adxl34x.c
++++ b/drivers/input/misc/adxl34x.c
+@@ -714,7 +714,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
+ 
+ 	ac->fifo_delay = fifo_delay_default;
+ 
+-	pdata = dev->platform_data;
++	pdata = dev_get_platdata(dev);
+ 	if (!pdata) {
+ 		dev_dbg(dev,
+ 			"No platform data: Using default initialization\n");
+diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
+index cd139cb..7703447 100644
+--- a/drivers/input/misc/bfin_rotary.c
++++ b/drivers/input/misc/bfin_rotary.c
+@@ -92,7 +92,7 @@ static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
+ 
+ static int bfin_rotary_probe(struct platform_device *pdev)
+ {
+-	struct bfin_rotary_platform_data *pdata = pdev->dev.platform_data;
++	struct bfin_rotary_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct bfin_rot *rotary;
+ 	struct input_dev *input;
+ 	int error;
+diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+index 865c2f9..52d3a9b 100644
+--- a/drivers/input/misc/bma150.c
++++ b/drivers/input/misc/bma150.c
+@@ -526,7 +526,8 @@ static int bma150_register_polled_device(struct bma150_data *bma150)
+ static int bma150_probe(struct i2c_client *client,
+ 				  const struct i2c_device_id *id)
+ {
+-	const struct bma150_platform_data *pdata = client->dev.platform_data;
++	const struct bma150_platform_data *pdata =
++			dev_get_platdata(&client->dev);
+ 	const struct bma150_cfg *cfg;
+ 	struct bma150_data *bma150;
+ 	int chip_id;
+diff --git a/drivers/input/misc/cma3000_d0x.c b/drivers/input/misc/cma3000_d0x.c
+index df9b756..c7d0074 100644
+--- a/drivers/input/misc/cma3000_d0x.c
++++ b/drivers/input/misc/cma3000_d0x.c
+@@ -284,7 +284,7 @@ EXPORT_SYMBOL(cma3000_resume);
+ struct cma3000_accl_data *cma3000_init(struct device *dev, int irq,
+ 				       const struct cma3000_bus_ops *bops)
+ {
+-	const struct cma3000_platform_data *pdata = dev->platform_data;
++	const struct cma3000_platform_data *pdata = dev_get_platdata(dev);
+ 	struct cma3000_accl_data *data;
+ 	struct input_dev *input_dev;
+ 	int rev;
+diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
+index fe30bd0..de21e31 100644
+--- a/drivers/input/misc/gp2ap002a00f.c
++++ b/drivers/input/misc/gp2ap002a00f.c
+@@ -125,7 +125,7 @@ static int gp2a_initialize(struct gp2a_data *dt)
+ static int gp2a_probe(struct i2c_client *client,
+ 				const struct i2c_device_id *id)
+ {
+-	const struct gp2a_platform_data *pdata = client->dev.platform_data;
++	const struct gp2a_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct gp2a_data *dt;
+ 	int error;
+ 
+diff --git a/drivers/input/misc/gpio_tilt_polled.c b/drivers/input/misc/gpio_tilt_polled.c
+index 714c683..38b3c11 100644
+--- a/drivers/input/misc/gpio_tilt_polled.c
++++ b/drivers/input/misc/gpio_tilt_polled.c
+@@ -98,7 +98,8 @@ static void gpio_tilt_polled_close(struct input_polled_dev *dev)
+ 
+ static int gpio_tilt_polled_probe(struct platform_device *pdev)
+ {
+-	const struct gpio_tilt_platform_data *pdata = pdev->dev.platform_data;
++	const struct gpio_tilt_platform_data *pdata =
++			dev_get_platdata(&pdev->dev);
+ 	struct device *dev = &pdev->dev;
+ 	struct gpio_tilt_polled_dev *tdev;
+ 	struct input_polled_dev *poll_dev;
+diff --git a/drivers/input/misc/kxtj9.c b/drivers/input/misc/kxtj9.c
+index a993b67..d708478 100644
+--- a/drivers/input/misc/kxtj9.c
++++ b/drivers/input/misc/kxtj9.c
+@@ -509,7 +509,8 @@ out:
+ static int kxtj9_probe(struct i2c_client *client,
+ 				 const struct i2c_device_id *id)
+ {
+-	const struct kxtj9_platform_data *pdata = client->dev.platform_data;
++	const struct kxtj9_platform_data *pdata =
++			dev_get_platdata(&client->dev);
+ 	struct kxtj9_data *tj9;
+ 	int err;
+ 
+diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+index 940566e..8ef288e 100644
+--- a/drivers/input/misc/pwm-beeper.c
++++ b/drivers/input/misc/pwm-beeper.c
+@@ -68,7 +68,7 @@ static int pwm_beeper_event(struct input_dev *input,
+ 
+ static int pwm_beeper_probe(struct platform_device *pdev)
+ {
+-	unsigned long pwm_id = (unsigned long)pdev->dev.platform_data;
++	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
+ 	struct pwm_beeper *beeper;
+ 	int error;
+ 
+diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+index 68a5f33..d993775 100644
+--- a/drivers/input/misc/twl4030-vibra.c
++++ b/drivers/input/misc/twl4030-vibra.c
+@@ -193,7 +193,7 @@ static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+ 
+ static int twl4030_vibra_probe(struct platform_device *pdev)
+ {
+-	struct twl4030_vibra_data *pdata = pdev->dev.platform_data;
++	struct twl4030_vibra_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct device_node *twl4030_core_node = pdev->dev.parent->of_node;
+ 	struct vibra_info *info;
+ 	int ret;
+diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
+index 6b44413..6810a46 100644
+--- a/drivers/input/mouse/gpio_mouse.c
++++ b/drivers/input/mouse/gpio_mouse.c
+@@ -48,7 +48,7 @@ static void gpio_mouse_scan(struct input_polled_dev *dev)
+ 
+ static int gpio_mouse_probe(struct platform_device *pdev)
+ {
+-	struct gpio_mouse_platform_data *pdata = pdev->dev.platform_data;
++	struct gpio_mouse_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct input_polled_dev *input_poll;
+ 	struct input_dev *input;
+ 	int pin, i;
+diff --git a/drivers/input/mouse/pxa930_trkball.c b/drivers/input/mouse/pxa930_trkball.c
+index 0ecb9e7..d20d2ae 100644
+--- a/drivers/input/mouse/pxa930_trkball.c
++++ b/drivers/input/mouse/pxa930_trkball.c
+@@ -166,7 +166,7 @@ static int pxa930_trkball_probe(struct platform_device *pdev)
+ 	if (!trkball)
+ 		return -ENOMEM;
+ 
+-	trkball->pdata = pdev->dev.platform_data;
++	trkball->pdata = dev_get_platdata(&pdev->dev);
+ 	if (!trkball->pdata) {
+ 		dev_err(&pdev->dev, "no platform data defined\n");
+ 		error = -EINVAL;
+diff --git a/drivers/input/touchscreen/88pm860x-ts.c b/drivers/input/touchscreen/88pm860x-ts.c
+index f7de14a..544e20c 100644
+--- a/drivers/input/touchscreen/88pm860x-ts.c
++++ b/drivers/input/touchscreen/88pm860x-ts.c
+@@ -172,7 +172,7 @@ static int pm860x_touch_dt_init(struct platform_device *pdev,
+ static int pm860x_touch_probe(struct platform_device *pdev)
+ {
+ 	struct pm860x_chip *chip = dev_get_drvdata(pdev->dev.parent);
+-	struct pm860x_touch_pdata *pdata = pdev->dev.platform_data;
++	struct pm860x_touch_pdata *pdata = dev_get_platdata(&pdev->dev);
+ 	struct pm860x_touch *touch;
+ 	struct i2c_client *i2c = (chip->id == CHIP_PM8607) ? chip->client \
+ 				 : chip->companion;
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+index 69834dd..b9f9bcb 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -686,7 +686,7 @@ static int ad7877_probe(struct spi_device *spi)
+ {
+ 	struct ad7877			*ts;
+ 	struct input_dev		*input_dev;
+-	struct ad7877_platform_data	*pdata = spi->dev.platform_data;
++	struct ad7877_platform_data	*pdata = dev_get_platdata(&spi->dev);
+ 	int				err;
+ 	u16				verify;
+ 
+diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+index facd305..a0364d8 100644
+--- a/drivers/input/touchscreen/ad7879.c
++++ b/drivers/input/touchscreen/ad7879.c
+@@ -470,7 +470,7 @@ static int ad7879_gpio_add(struct ad7879 *ts,
+ 
+ static void ad7879_gpio_remove(struct ad7879 *ts)
+ {
+-	const struct ad7879_platform_data *pdata = ts->dev->platform_data;
++	const struct ad7879_platform_data *pdata = dev_get_platdata(ts->dev);
+ 	int ret;
+ 
+ 	if (pdata->gpio_export) {
+@@ -495,7 +495,7 @@ static inline void ad7879_gpio_remove(struct ad7879 *ts)
+ struct ad7879 *ad7879_probe(struct device *dev, u8 devid, unsigned int irq,
+ 			    const struct ad7879_bus_ops *bops)
+ {
+-	struct ad7879_platform_data *pdata = dev->platform_data;
++	struct ad7879_platform_data *pdata = dev_get_platdata(dev);
+ 	struct ad7879 *ts;
+ 	struct input_dev *input_dev;
+ 	int err;
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 59aa240..37ea057 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1130,7 +1130,7 @@ static void mxt_input_close(struct input_dev *dev)
+ static int mxt_probe(struct i2c_client *client,
+ 		const struct i2c_device_id *id)
+ {
+-	const struct mxt_platform_data *pdata = client->dev.platform_data;
++	const struct mxt_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct mxt_data *data;
+ 	struct input_dev *input_dev;
+ 	int error;
+diff --git a/drivers/input/touchscreen/atmel_tsadcc.c b/drivers/input/touchscreen/atmel_tsadcc.c
+index bddabc5..f7d1ea5 100644
+--- a/drivers/input/touchscreen/atmel_tsadcc.c
++++ b/drivers/input/touchscreen/atmel_tsadcc.c
+@@ -182,7 +182,7 @@ static int atmel_tsadcc_probe(struct platform_device *pdev)
+ 	struct atmel_tsadcc	*ts_dev;
+ 	struct input_dev	*input_dev;
+ 	struct resource		*res;
+-	struct at91_tsadcc_data *pdata = pdev->dev.platform_data;
++	struct at91_tsadcc_data *pdata = dev_get_platdata(&pdev->dev);
+ 	int		err;
+ 	unsigned int	prsc;
+ 	unsigned int	reg;
+diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
+index 8c65198..5bf1aee 100644
+--- a/drivers/input/touchscreen/cy8ctmg110_ts.c
++++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
+@@ -178,7 +178,7 @@ static irqreturn_t cy8ctmg110_irq_thread(int irq, void *dev_id)
+ static int cy8ctmg110_probe(struct i2c_client *client,
+ 					const struct i2c_device_id *id)
+ {
+-	const struct cy8ctmg110_pdata *pdata = client->dev.platform_data;
++	const struct cy8ctmg110_pdata *pdata = dev_get_platdata(&client->dev);
+ 	struct cy8ctmg110 *ts;
+ 	struct input_dev *input_dev;
+ 	int err;
+diff --git a/drivers/input/touchscreen/cyttsp_core.c b/drivers/input/touchscreen/cyttsp_core.c
+index 4204841..eee656f 100644
+--- a/drivers/input/touchscreen/cyttsp_core.c
++++ b/drivers/input/touchscreen/cyttsp_core.c
+@@ -534,7 +534,7 @@ static void cyttsp_close(struct input_dev *dev)
+ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
+ 			    struct device *dev, int irq, size_t xfer_buf_size)
+ {
+-	const struct cyttsp_platform_data *pdata = dev->platform_data;
++	const struct cyttsp_platform_data *pdata = dev_get_platdata(dev);
+ 	struct cyttsp *ts;
+ 	struct input_dev *input_dev;
+ 	int error;
+@@ -553,7 +553,7 @@ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
+ 
+ 	ts->dev = dev;
+ 	ts->input = input_dev;
+-	ts->pdata = dev->platform_data;
++	ts->pdata = dev_get_platdata(dev);
+ 	ts->bus_ops = bus_ops;
+ 	ts->irq = irq;
+ 
+diff --git a/drivers/input/touchscreen/da9034-ts.c b/drivers/input/touchscreen/da9034-ts.c
+index 34ad841..ea0f764 100644
+--- a/drivers/input/touchscreen/da9034-ts.c
++++ b/drivers/input/touchscreen/da9034-ts.c
+@@ -299,7 +299,7 @@ static void da9034_touch_close(struct input_dev *dev)
+ 
+ static int da9034_touch_probe(struct platform_device *pdev)
+ {
+-	struct da9034_touch_pdata *pdata = pdev->dev.platform_data;
++	struct da9034_touch_pdata *pdata = dev_get_platdata(&pdev->dev);
+ 	struct da9034_touch *touch;
+ 	struct input_dev *input_dev;
+ 	int ret;
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 83fa1b1..af0d68b 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -705,7 +705,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 					 const struct i2c_device_id *id)
+ {
+ 	const struct edt_ft5x06_platform_data *pdata =
+-						client->dev.platform_data;
++						dev_get_platdata(&client->dev);
+ 	struct edt_ft5x06_ts_data *tsdata;
+ 	struct input_dev *input;
+ 	int error;
+diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+index 1ce3d29..b1884dd 100644
+--- a/drivers/input/touchscreen/eeti_ts.c
++++ b/drivers/input/touchscreen/eeti_ts.c
+@@ -157,7 +157,7 @@ static void eeti_ts_close(struct input_dev *dev)
+ static int eeti_ts_probe(struct i2c_client *client,
+ 				   const struct i2c_device_id *idp)
+ {
+-	struct eeti_ts_platform_data *pdata = client->dev.platform_data;
++	struct eeti_ts_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct eeti_ts_priv *priv;
+ 	struct input_dev *input;
+ 	unsigned int irq_flags;
+diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+index 1418bdd..2a50891 100644
+--- a/drivers/input/touchscreen/ili210x.c
++++ b/drivers/input/touchscreen/ili210x.c
+@@ -184,7 +184,7 @@ static int ili210x_i2c_probe(struct i2c_client *client,
+ 				       const struct i2c_device_id *id)
+ {
+ 	struct device *dev = &client->dev;
+-	const struct ili210x_platform_data *pdata = dev->platform_data;
++	const struct ili210x_platform_data *pdata = dev_get_platdata(dev);
+ 	struct ili210x *priv;
+ 	struct input_dev *input;
+ 	struct panel_info panel;
+diff --git a/drivers/input/touchscreen/mcs5000_ts.c b/drivers/input/touchscreen/mcs5000_ts.c
+index f9f4e0c..58486f1 100644
+--- a/drivers/input/touchscreen/mcs5000_ts.c
++++ b/drivers/input/touchscreen/mcs5000_ts.c
+@@ -194,7 +194,7 @@ static int mcs5000_ts_probe(struct i2c_client *client,
+ 	struct input_dev *input_dev;
+ 	int ret;
+ 
+-	if (!client->dev.platform_data)
++	if (!dev_get_platdata(&client->dev))
+ 		return -EINVAL;
+ 
+ 	data = kzalloc(sizeof(struct mcs5000_ts_data), GFP_KERNEL);
+@@ -207,7 +207,7 @@ static int mcs5000_ts_probe(struct i2c_client *client,
+ 
+ 	data->client = client;
+ 	data->input_dev = input_dev;
+-	data->platform_data = client->dev.platform_data;
++	data->platform_data = dev_get_platdata(&client->dev);
+ 
+ 	input_dev->name = "MELPAS MCS-5000 Touchscreen";
+ 	input_dev->id.bustype = BUS_I2C;
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 6cc6b36..02392d2 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -128,7 +128,8 @@ static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
+ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 					 const struct i2c_device_id *id)
+ {
+-	const struct pixcir_ts_platform_data *pdata = client->dev.platform_data;
++	const struct pixcir_ts_platform_data *pdata =
++			dev_get_platdata(&client->dev);
+ 	struct pixcir_i2c_ts_data *tsdata;
+ 	struct input_dev *input;
+ 	int error;
+diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+index b061af2..d32bd9e 100644
+--- a/drivers/input/touchscreen/s3c2410_ts.c
++++ b/drivers/input/touchscreen/s3c2410_ts.c
+@@ -251,7 +251,7 @@ static int s3c2410ts_probe(struct platform_device *pdev)
+ 
+ 	ts.dev = dev;
+ 
+-	info = pdev->dev.platform_data;
++	info = dev_get_platdata(&pdev->dev);
+ 	if (!info) {
+ 		dev_err(dev, "no platform data, cannot attach\n");
+ 		return -EINVAL;
+@@ -392,7 +392,7 @@ static int s3c2410ts_suspend(struct device *dev)
+ static int s3c2410ts_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+-	struct s3c2410_ts_mach_info *info = pdev->dev.platform_data;
++	struct s3c2410_ts_mach_info *info = dev_get_platdata(&pdev->dev);
+ 
+ 	clk_enable(ts.clock);
+ 	enable_irq(ts.irq_tc);
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+index 2f03b2f..5c342b3 100644
+--- a/drivers/input/touchscreen/st1232.c
++++ b/drivers/input/touchscreen/st1232.c
+@@ -154,7 +154,7 @@ static int st1232_ts_probe(struct i2c_client *client,
+ 					const struct i2c_device_id *id)
+ {
+ 	struct st1232_ts_data *ts;
+-	struct st1232_pdata *pdata = client->dev.platform_data;
++	struct st1232_pdata *pdata = dev_get_platdata(&client->dev);
+ 	struct input_dev *input_dev;
+ 	int error;
+ 
+diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
+index 8113533..550adcb 100644
+--- a/drivers/input/touchscreen/tsc2005.c
++++ b/drivers/input/touchscreen/tsc2005.c
+@@ -571,7 +571,7 @@ static void tsc2005_setup_spi_xfer(struct tsc2005 *ts)
+ 
+ static int tsc2005_probe(struct spi_device *spi)
+ {
+-	const struct tsc2005_platform_data *pdata = spi->dev.platform_data;
++	const struct tsc2005_platform_data *pdata = dev_get_platdata(&spi->dev);
+ 	struct tsc2005 *ts;
+ 	struct input_dev *input_dev;
+ 	unsigned int max_x, max_y, max_p;
+diff --git a/drivers/input/touchscreen/ucb1400_ts.c b/drivers/input/touchscreen/ucb1400_ts.c
+index 1271f97..5b3ca80 100644
+--- a/drivers/input/touchscreen/ucb1400_ts.c
++++ b/drivers/input/touchscreen/ucb1400_ts.c
+@@ -320,7 +320,7 @@ static int ucb1400_ts_detect_irq(struct ucb1400_ts *ucb,
+ 
+ static int ucb1400_ts_probe(struct platform_device *pdev)
+ {
+-	struct ucb1400_ts *ucb = pdev->dev.platform_data;
++	struct ucb1400_ts *ucb = dev_get_platdata(&pdev->dev);
+ 	int error, x_res, y_res;
+ 	u16 fcsr;
+ 
+@@ -399,7 +399,7 @@ err:
+ 
+ static int ucb1400_ts_remove(struct platform_device *pdev)
+ {
+-	struct ucb1400_ts *ucb = pdev->dev.platform_data;
++	struct ucb1400_ts *ucb = dev_get_platdata(&pdev->dev);
+ 
+ 	free_irq(ucb->irq, ucb);
+ 	input_unregister_device(ucb->ts_idev);
+@@ -410,7 +410,7 @@ static int ucb1400_ts_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM_SLEEP
+ static int ucb1400_ts_suspend(struct device *dev)
+ {
+-	struct ucb1400_ts *ucb = dev->platform_data;
++	struct ucb1400_ts *ucb = dev_get_platdata(dev);
+ 	struct input_dev *idev = ucb->ts_idev;
+ 
+ 	mutex_lock(&idev->mutex);
+@@ -424,7 +424,7 @@ static int ucb1400_ts_suspend(struct device *dev)
+ 
+ static int ucb1400_ts_resume(struct device *dev)
+ {
+-	struct ucb1400_ts *ucb = dev->platform_data;
++	struct ucb1400_ts *ucb = dev_get_platdata(dev);
+ 	struct input_dev *idev = ucb->ts_idev;
+ 
+ 	mutex_lock(&idev->mutex);
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index 7e45c9f..d0ef91f 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -584,7 +584,7 @@ static void wm97xx_ts_input_close(struct input_dev *idev)
+ static int wm97xx_probe(struct device *dev)
+ {
+ 	struct wm97xx *wm;
+-	struct wm97xx_pdata *pdata = dev->platform_data;
++	struct wm97xx_pdata *pdata = dev_get_platdata(dev);
+ 	int ret = 0, id = 0;
+ 
+ 	wm = kzalloc(sizeof(struct wm97xx), GFP_KERNEL);
+-- 
+1.7.10.4
+
+

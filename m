@@ -1,78 +1,91 @@
-From: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: Re: [PATCH] HID: logitech-dj: add HIDRAW dependency in Kconfig
-Date: Tue, 3 Dec 2013 15:03:52 +0100
-Message-ID: <CAE7qMroSinrr21hq60bXok8yKDRhjdWq+otGq8VOpV4sadzGAQ@mail.gmail.com>
-References: <1386026244-21553-1-git-send-email-ogay@logitech.com>
- <alpine.LNX.2.00.1312030852410.24931@pobox.suse.cz> <CAFLMSp-7X568ZdZ-JAAX9ttmMFhYP+DeLuc_-yCw1WCuvVAHng@mail.gmail.com>
- <alpine.LNX.2.00.1312031350130.24931@pobox.suse.cz> <CAE7qMrq6YzvprAGDTO8uEU9WZXXGpP=TG_OxB6=-1KuF1Tr8sg@mail.gmail.com>
+From: Matt Walker <matt.g.d.walker-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] drivers/input/mouse: add support for newer elantech touchpads
+ (released ca. August 2013);
+Date: Tue, 3 Dec 2013 12:42:34 -0500
+Message-ID: <CA+X2d=Ar93dXujLt8xNeh9tNmEX9HU+VgVSqWsdGtKLvk=Rdyg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog103.obsmtp.com ([74.125.149.71]:39411 "EHLO
-	na3sys009aog103.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753402Ab3LCOKn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Dec 2013 09:10:43 -0500
-Received: by mail-ve0-f181.google.com with SMTP id oy12so10460682veb.12
-        for <linux-input@vger.kernel.org>; Tue, 03 Dec 2013 06:10:42 -0800 (PST)
-In-Reply-To: <CAE7qMrq6YzvprAGDTO8uEU9WZXXGpP=TG_OxB6=-1KuF1Tr8sg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary=089e0102fb5c5378c104eca4d2b8
+Return-path: <backports-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: backports-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Hauke Mehrtens <hauke-5/S+JYg5SzeELgA04lAiVw@public.gmane.org>
+Cc: backports-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Olivier Gay <ogay@logitech.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mathieu Meisser <mmeisser@logitech.com>
 
-Sorry, no html now.
+--089e0102fb5c5378c104eca4d2b8
+Content-Type: text/plain; charset=ISO-8859-1
+
+From: Matt Walker <matt.g.d.walker-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+Added detection for newer Elantech touchpads, so that kernel doesn't
+fall-back to default PS/2 driver. Supports touchpads released after
+~August 2013.  Fixes bug:
+https://lists.launchpad.net/kernel-packages/msg18481.html
+
+Tested-by: Matt Walker <matt.g.d.walker-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> on an Acer Aspire S7-392-6302
+
+----
+
+Thanks to Hauke for the reference on how to submit a patch properly.
+Please let me know if additional modifications are required.
+
+Diff Output:
+
+--- linux-3.13-rc1/drivers/input/mouse/elantech.c.orig    2013-12-03
+12:14:52.829173656 -0500
++++ linux-3.13-rc1/drivers/input/mouse/elantech.c    2013-12-03
+12:15:11.833173880 -0500
+@@ -1313,6 +1313,7 @@ static int elantech_set_properties(struc
+             break;
+         case 6:
+         case 7:
++        case 8:
+             etd->hw_version = 4;
+             break;
+         default:
 
 
-On Tue, Dec 3, 2013 at 3:01 PM, Nestor Lopez Casado
-<nlopezcasad@logitech.com> wrote:
->
->
->
->
-> On Tue, Dec 3, 2013 at 1:51 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+On Fri, Nov 29, 2013 at 4:26 PM, Hauke Mehrtens <hauke-5/S+JYg5SzeELgA04lAiVw@public.gmane.org> wrote:
+> On 11/29/2013 01:00 AM, Matt Walker wrote:
+>> Hello,
 >>
->> On Tue, 3 Dec 2013, Olivier Gay wrote:
+>> Attached is a patch for drivers/input/mouse/elantech.c.  It allows
+>> recent Elantech touchpads to be detected.  I have tested it on the
+>> touchpad that comes with the Acer Aspire S7-392 (released ~August
+>> 2013)
 >>
->> > Without hidraw driver, we get this:
->> >
->> > <3>[  210.131988] logitech-djreceiver 0003:046D:C52B.0005: claimed by
->> > neither input, hiddev nor hidraw
->> > <3>[  210.132202] logitech-djreceiver 0003:046D:C52B.0005:
->> > logi_dj_probe:hid_hw_start returned error
->> >
->> > In logi_dj_probe, we call hid_hw_start with HID_CONNECT_DEFAULT
->> > argument and if hidraw driver is not present, the call fails and we
->> > return an error in logi_dj_probe.
->> >
->> > > It's clear that without hidraw it's not possible to change the pairing
->> > > from userspace, but I fail to see why probing the receiver should be
->> > > affected?
->> >
->> > As of today, hid-logitech-dj.c depends on hidraw API to work. All HID
->> > reports sent to control / configure the receiver are sent using hidraw
->> > API. That's why we fail logi_dj_probe if we cannot connect to hidraw.
+>> I figure it could be backported with little effort and no danger,
+>> since all it does it add one to the number of values that were
+>> previously recognized as valid "firmware version numbers".
 >>
->> Hmm, so unifying receiver is not claimed by hid-input at all?
->> (HID_CONNECT_DEFAULT also contains HID_CONNECT_HIDINPUT) How so?
+>> Begin Patch:
+>> 1315a1316
+>>>         case 8:
+>> End Patch
 >>
->> (again, I will not be able to test it with my receiver up until the day
->> after tomorrow).
+>> Best,
+>> Matt
+>>
+> This is not a patch, I do not know what you want to do.
 >
-> The unifying receiver has 3 usb interfaces. When hid-logitech-dj driver is loaded, interfaces 0 and 1 are discarded.
+> This is the documentation for hacking on backprts:
+> https://backports.wiki.kernel.org/index.php/Documentation/backports/hacking
 >
-> Interface 2 consists of a hid class interface with 3 collections, each of which sports the 'vendor' usage, thus, there is no reason for hid_input to claim any of them. On the other hand, hidraw has no issue in claiming the collections, even if they are 'vendor'. As of today, hid-logitech-dj uses hidraw api to send configuration/control reports to interface 2 of the Unifying receiver.
+> This is the guideline for patch submission to the linux kernel which
+> mostly also applies for backports:
+> https://www.kernel.org/doc/Documentation/SubmittingPatches
 >
-> Without the hid-logitech-dj driver, interfaces 0 and 1 are claimed by hid-input, as they correspond to a keyboard and a mouse. But that is not relevant to the discussion.
->>
->>
->> Thanks,
->>
->> --
->> Jiri Kosina
->> SUSE Labs
->
-> Cheers,
-> -nestor
->
+> Hauke
+
+--089e0102fb5c5378c104eca4d2b8
+Content-Type: application/octet-stream; name=patch
+Content-Disposition: attachment; filename=patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_horexehc0
+
+LS0tIGxpbnV4LTMuMTMtcmMxL2RyaXZlcnMvaW5wdXQvbW91c2UvZWxhbnRlY2guYy5vcmlnCTIw
+MTMtMTItMDMgMTI6MTQ6NTIuODI5MTczNjU2IC0wNTAwCisrKyBsaW51eC0zLjEzLXJjMS9kcml2
+ZXJzL2lucHV0L21vdXNlL2VsYW50ZWNoLmMJMjAxMy0xMi0wMyAxMjoxNToxMS44MzMxNzM4ODAg
+LTA1MDAKQEAgLTEzMTMsNiArMTMxMyw3IEBAIHN0YXRpYyBpbnQgZWxhbnRlY2hfc2V0X3Byb3Bl
+cnRpZXMoc3RydWMKIAkJCWJyZWFrOwogCQljYXNlIDY6CiAJCWNhc2UgNzoKKwkJY2FzZSA4Ogog
+CQkJZXRkLT5od192ZXJzaW9uID0gNDsKIAkJCWJyZWFrOwogCQlkZWZhdWx0Ogo=
+--089e0102fb5c5378c104eca4d2b8--

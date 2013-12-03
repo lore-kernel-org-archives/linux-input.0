@@ -1,177 +1,281 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH v4] Input: wacom - add SW_MUTE_DEVICE to include/uapi/linux/input.h
-Date: Tue,  3 Dec 2013 11:59:09 -0800
-Message-ID: <1386100749-8827-1-git-send-email-pingc@wacom.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f44.google.com ([209.85.160.44]:57104 "EHLO
-	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752028Ab3LCT7Y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Dec 2013 14:59:24 -0500
-Received: by mail-pb0-f44.google.com with SMTP id rq2so21865987pbb.3
-        for <linux-input@vger.kernel.org>; Tue, 03 Dec 2013 11:59:23 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH] xen/pvhvm: If xen_platform_pci=0 is set don't
+	blow up.
+Date: Tue,  3 Dec 2013 16:14:06 -0500
+Message-ID: <1386105246-14337-1-git-send-email-konrad.wilk@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <xen-devel-bounces@lists.xen.org>
+List-Unsubscribe: <http://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
+	<mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xen.org>
+List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
+List-Subscribe: <http://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
+	<mailto:xen-devel-request@lists.xen.org?subject=subscribe>
+Sender: xen-devel-bounces@lists.xen.org
+Errors-To: xen-devel-bounces@lists.xen.org
+To: stefano.stabellini@eu.citrix.com, ian.campbell@citrix.com, xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, boris.ostrovsky@oracle.com, david.vrabel@citrix.com, leosilva@linux.vnet.ibm.com, ashley@ashleylai.com, peterhuewe@gmx.de, mail@srajiv.net, tpmdd@selhorst.net, tpmdd@sirrix.com, dmitry.torokhov@gmail.com, bhelgaas@google.com, plagnioj@jcrosoft.com, tomi.valkeinen@ti.com, tpmdd-devel@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-pci@vger.kernel.org, linux-fbdev@vger.kernel.org
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, killertofu@gmail.com, chris@cnpbagwell.com, peter.hutterer@who-t.net, Ping Cheng <pingc@wacom.com>
 
-New Intuos series models added a hardware switch to turn touch
-data on/off. The state of the switch is reported periodically
-from the tablet. To report the state, SW_MUTE_DEVICE is added
-in include/uapi/linux/input.h.
+The user has the option of disabling the platform driver:
+00:02.0 Unassigned class [ff80]: XenSource, Inc. Xen Platform Device (rev 01)
 
-Reviewed_by: Chris Bagwell <chris@cnpbagwell.com>
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-Tested-by: Jason Gerecke <killertofu@gmail.com>
-Signed-off-by: Ping Cheng <pingc@wacom.com>
+which is used to unplug the emulated drivers (IDE, Realtek 8169, etc)
+and allow the PV drivers to take over. If the user wishes
+to disable that they can set:
+
+  xen_platform_pci=0
+  (in the guest config file)
+
+or
+  xen_emul_unplug=never
+  (on the Linux command line)
+
+except it does not work properly. The PV drivers still try to
+load and since the Xen platform driver is not run - and it
+has not initialized the grant tables, most of the PV drivers
+stumble upon:
+
+input: Xen Virtual Keyboard as /devices/virtual/input/input5
+input: Xen Virtual Pointer as /devices/virtual/input/input6M
+------------[ cut here ]------------
+kernel BUG at /home/konrad/ssd/konrad/linux/drivers/xen/grant-table.c:1206!
+invalid opcode: 0000 [#1] SMP
+Modules linked in: xen_kbdfront(+) xenfs xen_privcmd
+CPU: 6 PID: 1389 Comm: modprobe Not tainted 3.13.0-rc1upstream-00021-ga6c892b-dirty #1
+Hardware name: Xen HVM domU, BIOS 4.4-unstable 11/26/2013
+RIP: 0010:[<ffffffff813ddc40>]  [<ffffffff813ddc40>] get_free_entries+0x2e0/0x300
+Call Trace:
+ [<ffffffff8150d9a3>] ? evdev_connect+0x1e3/0x240
+ [<ffffffff813ddd0e>] gnttab_grant_foreign_access+0x2e/0x70
+ [<ffffffffa0010081>] xenkbd_connect_backend+0x41/0x290 [xen_kbdfront]
+ [<ffffffffa0010a12>] xenkbd_probe+0x2f2/0x324 [xen_kbdfront]
+ [<ffffffff813e5757>] xenbus_dev_probe+0x77/0x130
+ [<ffffffff813e7217>] xenbus_frontend_dev_probe+0x47/0x50
+ [<ffffffff8145e9a9>] driver_probe_device+0x89/0x230
+ [<ffffffff8145ebeb>] __driver_attach+0x9b/0xa0
+ [<ffffffff8145eb50>] ? driver_probe_device+0x230/0x230
+ [<ffffffff8145eb50>] ? driver_probe_device+0x230/0x230
+ [<ffffffff8145cf1c>] bus_for_each_dev+0x8c/0xb0
+ [<ffffffff8145e7d9>] driver_attach+0x19/0x20
+ [<ffffffff8145e260>] bus_add_driver+0x1a0/0x220
+ [<ffffffff8145f1ff>] driver_register+0x5f/0xf0
+ [<ffffffff813e55c5>] xenbus_register_driver_common+0x15/0x20
+ [<ffffffff813e76b3>] xenbus_register_frontend+0x23/0x40
+ [<ffffffffa0015000>] ? 0xffffffffa0014fff
+ [<ffffffffa001502b>] xenkbd_init+0x2b/0x1000 [xen_kbdfront]
+ [<ffffffff81002049>] do_one_initcall+0x49/0x170
+
+.. snip..
+
+which is hardly nice. This patch fixes this by having each
+PV driver check for:
+ - if running in PV, then it is fine to execute (as that is their
+   native environment).
+ - if running in HVM, check if user wanted 'xen_emul_unplug=never',
+   in which case bail out and don't load PV drivers.
+ - if running in HVM, and if PCI device 5853:0001 (xen_platform_pci)
+   does not exist, then bail out and not load PV drivers.
+
+P.S.
+Ian Campbell suggested getting rid of 'xen_platform_pci_unplug'
+but unfortunatly the xen-blkfront driver is using it, so we
+cannot do it.
+
+Reported-by: Sander Eikelenboom <linux@eikelenboom.it
+Reported-by: Anthony PERARD <anthony.perard@citrix.com>
+Reported-by: Fabio Fantoni <fabio.fantoni@m2r.biz>
 ---
-v4: Changed SW_TOUCH to SW_MUTE_DEVICE as suggested by Dmitry.
----
- drivers/input/tablet/wacom_sys.c | 12 ++++++++++++
- drivers/input/tablet/wacom_wac.c | 30 +++++++++++++++++++++++++++---
- drivers/input/tablet/wacom_wac.h |  5 +++++
- include/uapi/linux/input.h       |  1 +
- 4 files changed, 45 insertions(+), 3 deletions(-)
+ arch/x86/xen/platform-pci-unplug.c         | 18 ++++++++++++++++++
+ drivers/block/xen-blkfront.c               |  2 +-
+ drivers/char/tpm/xen-tpmfront.c            |  4 ++++
+ drivers/input/misc/xen-kbdfront.c          |  4 ++++
+ drivers/net/xen-netfront.c                 |  2 +-
+ drivers/pci/xen-pcifront.c                 |  4 ++++
+ drivers/video/xen-fbfront.c                |  4 ++++
+ drivers/xen/xenbus/xenbus_probe_frontend.c |  2 +-
+ include/xen/platform_pci.h                 | 13 ++++++++++++-
+ 9 files changed, 49 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 3a7d99c..bb72fa3 100644
---- a/drivers/input/tablet/wacom_sys.c
-+++ b/drivers/input/tablet/wacom_sys.c
-@@ -1193,6 +1193,8 @@ static void wacom_wireless_work(struct work_struct *work)
- 		wacom_wac1->features.device_type = BTN_TOOL_PEN;
- 		snprintf(wacom_wac1->name, WACOM_NAME_MAX, "%s (WL) Pen",
- 			 wacom_wac1->features.name);
-+		wacom_wac1->shared->touch_max = wacom_wac1->features.touch_max;
-+		wacom_wac1->shared->type = wacom_wac1->features.type;
- 		error = wacom_register_input(wacom1);
- 		if (error)
- 			goto fail;
-@@ -1214,6 +1216,10 @@ static void wacom_wireless_work(struct work_struct *work)
- 			error = wacom_register_input(wacom2);
- 			if (error)
- 				goto fail;
-+
-+			if (wacom_wac1->features.type == INTUOSHT &&
-+			    wacom_wac1->features.touch_max)
-+				wacom_wac->shared->touch_input = wacom_wac2->input;
- 		}
- 
- 		error = wacom_initialize_battery(wacom);
-@@ -1392,6 +1398,12 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 			goto fail5;
- 		}
- 	}
-+
-+	if (wacom_wac->features.type == INTUOSHT && wacom_wac->features.touch_max) {
-+		if (wacom_wac->features.device_type == BTN_TOOL_FINGER)
-+			wacom_wac->shared->touch_input = wacom_wac->input;
-+	}
-+
+diff --git a/arch/x86/xen/platform-pci-unplug.c b/arch/x86/xen/platform-pci-unplug.c
+index 0a78524..087dfeb 100644
+--- a/arch/x86/xen/platform-pci-unplug.c
++++ b/arch/x86/xen/platform-pci-unplug.c
+@@ -69,6 +69,24 @@ static int check_platform_magic(void)
  	return 0;
+ }
  
-  fail5: wacom_destroy_leds(wacom);
-diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
-index eb60a28..4892366 100644
---- a/drivers/input/tablet/wacom_wac.c
-+++ b/drivers/input/tablet/wacom_wac.c
-@@ -1219,13 +1219,23 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
- 
- static int wacom_bpt_pen(struct wacom_wac *wacom)
- {
-+	struct wacom_features *features = &wacom->features;
- 	struct input_dev *input = wacom->input;
- 	unsigned char *data = wacom->data;
- 	int prox = 0, x = 0, y = 0, p = 0, d = 0, pen = 0, btn1 = 0, btn2 = 0;
- 
--	if (data[0] != WACOM_REPORT_PENABLED)
-+	if (data[0] != WACOM_REPORT_PENABLED && data[0] != WACOM_REPORT_USB)
- 	    return 0;
- 
-+	if (data[0] == WACOM_REPORT_USB) {
-+		if ((features->type == INTUOSHT) && features->touch_max) {
-+			input_report_switch(wacom->shared->touch_input,
-+					    SW_MUTE_DEVICE, data[8] & 0x40);
-+			input_sync(wacom->shared->touch_input);
-+		}
-+		return 0;
++bool xen_has_pv_devices(void)
++{
++	if (!xen_domain())
++		return false;
++
++	if (xen_hvm_domain()) {
++		/* User requested no unplug, so no PV drivers. */
++		if (xen_emul_unplug & XEN_UNPLUG_NEVER)
++			return false;
++		/* And user has xen_platform_pci=0 set in guest config as
++		 * driver did not modify the value. */
++		if (!xen_platform_pci_unplug)
++			return false;
 +	}
++	return true;
++}
++EXPORT_SYMBOL_GPL(xen_has_pv_devices);
 +
- 	prox = (data[1] & 0x20) == 0x20;
+ void xen_unplug_emulated_devices(void)
+ {
+ 	int r;
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index 432db1b..9616b81 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -2074,7 +2074,7 @@ static int __init xlblk_init(void)
+ 	if (!xen_domain())
+ 		return -ENODEV;
  
- 	/*
-@@ -1258,8 +1268,8 @@ static int wacom_bpt_pen(struct wacom_wac *wacom)
- 		 * touching and applying pressure; do not report negative
- 		 * distance.
- 		 */
--		if (data[8] <= wacom->features.distance_max)
--			d = wacom->features.distance_max - data[8];
-+		if (data[8] <= features->distance_max)
-+			d = features->distance_max - data[8];
+-	if (xen_hvm_domain() && !xen_platform_pci_unplug)
++	if (!xen_has_pv_devices())
+ 		return -ENODEV;
  
- 		pen = data[1] & 0x01;
- 		btn1 = data[1] & 0x02;
-@@ -1310,6 +1320,13 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
- 	if (connected) {
- 		int pid, battery;
+ 	if (register_blkdev(XENVBD_MAJOR, DEV_NAME)) {
+diff --git a/drivers/char/tpm/xen-tpmfront.c b/drivers/char/tpm/xen-tpmfront.c
+index c8ff4df..62e7d38 100644
+--- a/drivers/char/tpm/xen-tpmfront.c
++++ b/drivers/char/tpm/xen-tpmfront.c
+@@ -17,6 +17,7 @@
+ #include <xen/xenbus.h>
+ #include <xen/page.h>
+ #include "tpm.h"
++#include <xen/platform_pci.h>
  
-+		if ((wacom->shared->type == INTUOSHT) &&
-+				wacom->shared->touch_max) {
-+			input_report_switch(wacom->shared->touch_input,
-+					SW_MUTE_DEVICE, data[5] & 0x40);
-+			input_sync(wacom->shared->touch_input);
-+		}
+ struct tpm_private {
+ 	struct tpm_chip *chip;
+@@ -421,6 +422,9 @@ static int __init xen_tpmfront_init(void)
+ 	if (!xen_domain())
+ 		return -ENODEV;
+ 
++	if (!xen_has_pv_devices())
++		return -ENODEV;
 +
- 		pid = get_unaligned_be16(&data[6]);
- 		battery = data[5] & 0x3f;
- 		if (wacom->pid != pid) {
-@@ -1779,6 +1796,13 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
- 		break;
+ 	return xenbus_register_frontend(&tpmfront_driver);
+ }
+ module_init(xen_tpmfront_init);
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index e21c181..fbfdc10 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -29,6 +29,7 @@
+ #include <xen/interface/io/fbif.h>
+ #include <xen/interface/io/kbdif.h>
+ #include <xen/xenbus.h>
++#include <xen/platform_pci.h>
  
- 	case INTUOSHT:
-+		if (features->touch_max &&
-+		    (features->device_type == BTN_TOOL_FINGER)) {
-+			input_dev->evbit[0] |= BIT_MASK(EV_SW);
-+			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
-+		}
-+		/* fall through */
+ struct xenkbd_info {
+ 	struct input_dev *kbd;
+@@ -380,6 +381,9 @@ static int __init xenkbd_init(void)
+ 	if (xen_initial_domain())
+ 		return -ENODEV;
+ 
++	if (!xen_has_pv_devices())
++		return -ENODEV;
 +
- 	case BAMBOO_PT:
- 		__clear_bit(ABS_MISC, input_dev->absbit);
+ 	return xenbus_register_frontend(&xenkbd_driver);
+ }
  
-diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
-index 854cceb..3600cf7 100644
---- a/drivers/input/tablet/wacom_wac.h
-+++ b/drivers/input/tablet/wacom_wac.h
-@@ -55,6 +55,7 @@
- #define WACOM_REPORT_TPC1FGE		18
- #define WACOM_REPORT_24HDT		1
- #define WACOM_REPORT_WL			128
-+#define WACOM_REPORT_USB		192
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index e59acb1..d4b52e9 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -2115,7 +2115,7 @@ static int __init netif_init(void)
+ 	if (!xen_domain())
+ 		return -ENODEV;
  
- /* device quirks */
- #define WACOM_QUIRK_MULTI_INPUT		0x0001
-@@ -131,6 +132,10 @@ struct wacom_features {
- struct wacom_shared {
- 	bool stylus_in_proximity;
- 	bool touch_down;
-+	/* for wireless device to access USB interfaces */
-+	unsigned touch_max;
-+	int type;
-+	struct input_dev *touch_input;
- };
+-	if (xen_hvm_domain() && !xen_platform_pci_unplug)
++	if (!xen_has_pv_devices())
+ 		return -ENODEV;
  
- struct wacom_wac {
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index a372627..c1f07c9 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -856,6 +856,7 @@ struct input_keymap_entry {
- #define SW_FRONT_PROXIMITY	0x0b  /* set = front proximity sensor active */
- #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
- #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
-+#define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
- #define SW_MAX			0x0f
- #define SW_CNT			(SW_MAX+1)
+ 	pr_info("Initialising Xen virtual ethernet driver\n");
+diff --git a/drivers/pci/xen-pcifront.c b/drivers/pci/xen-pcifront.c
+index f7197a7..eae7cd9 100644
+--- a/drivers/pci/xen-pcifront.c
++++ b/drivers/pci/xen-pcifront.c
+@@ -20,6 +20,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/bitops.h>
+ #include <linux/time.h>
++#include <xen/platform_pci.h>
  
+ #include <asm/xen/swiotlb-xen.h>
+ #define INVALID_GRANT_REF (0)
+@@ -1138,6 +1139,9 @@ static int __init pcifront_init(void)
+ 	if (!xen_pv_domain() || xen_initial_domain())
+ 		return -ENODEV;
+ 
++	if (!xen_has_pv_devices())
++		return -ENODEV;
++
+ 	pci_frontend_registrar(1 /* enable */);
+ 
+ 	return xenbus_register_frontend(&xenpci_driver);
+diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
+index cd005c2..4b2d3ab 100644
+--- a/drivers/video/xen-fbfront.c
++++ b/drivers/video/xen-fbfront.c
+@@ -35,6 +35,7 @@
+ #include <xen/interface/io/fbif.h>
+ #include <xen/interface/io/protocols.h>
+ #include <xen/xenbus.h>
++#include <xen/platform_pci.h>
+ 
+ struct xenfb_info {
+ 	unsigned char		*fb;
+@@ -699,6 +700,9 @@ static int __init xenfb_init(void)
+ 	if (xen_initial_domain())
+ 		return -ENODEV;
+ 
++	if (!xen_has_pv_devices())
++		return -ENODEV;
++
+ 	return xenbus_register_frontend(&xenfb_driver);
+ }
+ 
+diff --git a/drivers/xen/xenbus/xenbus_probe_frontend.c b/drivers/xen/xenbus/xenbus_probe_frontend.c
+index 129bf84..cb385c1 100644
+--- a/drivers/xen/xenbus/xenbus_probe_frontend.c
++++ b/drivers/xen/xenbus/xenbus_probe_frontend.c
+@@ -496,7 +496,7 @@ subsys_initcall(xenbus_probe_frontend_init);
+ #ifndef MODULE
+ static int __init boot_wait_for_devices(void)
+ {
+-	if (xen_hvm_domain() && !xen_platform_pci_unplug)
++	if (!xen_has_pv_devices())
+ 		return -ENODEV;
+ 
+ 	ready_to_wait_for_devices = 1;
+diff --git a/include/xen/platform_pci.h b/include/xen/platform_pci.h
+index 438c256..87bc59c 100644
+--- a/include/xen/platform_pci.h
++++ b/include/xen/platform_pci.h
+@@ -47,5 +47,16 @@ static inline int xen_must_unplug_disks(void) {
+ }
+ 
+ extern int xen_platform_pci_unplug;
+-
++#if defined(CONFIG_XEN_PVHVM)
++extern bool xen_has_pv_devices(void);
++#else
++static inline bool xen_has_pv_devices(void)
++{
++#if defined(CONFIG_XEN)
++	return true;
++#else
++	return false;
++#endif
++}
++#endif
+ #endif /* _XEN_PLATFORM_PCI_H */
 -- 
-1.8.3.2
-
+1.8.3.1

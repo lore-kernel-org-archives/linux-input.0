@@ -1,91 +1,177 @@
-From: Matt Walker <matt.g.d.walker-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] drivers/input/mouse: add support for newer elantech touchpads
- (released ca. August 2013);
-Date: Tue, 3 Dec 2013 12:42:34 -0500
-Message-ID: <CA+X2d=Ar93dXujLt8xNeh9tNmEX9HU+VgVSqWsdGtKLvk=Rdyg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=089e0102fb5c5378c104eca4d2b8
-Return-path: <backports-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: backports-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hauke Mehrtens <hauke-5/S+JYg5SzeELgA04lAiVw@public.gmane.org>
-Cc: backports-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH v4] Input: wacom - add SW_MUTE_DEVICE to include/uapi/linux/input.h
+Date: Tue,  3 Dec 2013 11:59:09 -0800
+Message-ID: <1386100749-8827-1-git-send-email-pingc@wacom.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f44.google.com ([209.85.160.44]:57104 "EHLO
+	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752028Ab3LCT7Y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Dec 2013 14:59:24 -0500
+Received: by mail-pb0-f44.google.com with SMTP id rq2so21865987pbb.3
+        for <linux-input@vger.kernel.org>; Tue, 03 Dec 2013 11:59:23 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, killertofu@gmail.com, chris@cnpbagwell.com, peter.hutterer@who-t.net, Ping Cheng <pingc@wacom.com>
 
---089e0102fb5c5378c104eca4d2b8
-Content-Type: text/plain; charset=ISO-8859-1
+New Intuos series models added a hardware switch to turn touch
+data on/off. The state of the switch is reported periodically
+from the tablet. To report the state, SW_MUTE_DEVICE is added
+in include/uapi/linux/input.h.
 
-From: Matt Walker <matt.g.d.walker-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Reviewed_by: Chris Bagwell <chris@cnpbagwell.com>
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+Tested-by: Jason Gerecke <killertofu@gmail.com>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+v4: Changed SW_TOUCH to SW_MUTE_DEVICE as suggested by Dmitry.
+---
+ drivers/input/tablet/wacom_sys.c | 12 ++++++++++++
+ drivers/input/tablet/wacom_wac.c | 30 +++++++++++++++++++++++++++---
+ drivers/input/tablet/wacom_wac.h |  5 +++++
+ include/uapi/linux/input.h       |  1 +
+ 4 files changed, 45 insertions(+), 3 deletions(-)
 
-Added detection for newer Elantech touchpads, so that kernel doesn't
-fall-back to default PS/2 driver. Supports touchpads released after
-~August 2013.  Fixes bug:
-https://lists.launchpad.net/kernel-packages/msg18481.html
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 3a7d99c..bb72fa3 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -1193,6 +1193,8 @@ static void wacom_wireless_work(struct work_struct *work)
+ 		wacom_wac1->features.device_type = BTN_TOOL_PEN;
+ 		snprintf(wacom_wac1->name, WACOM_NAME_MAX, "%s (WL) Pen",
+ 			 wacom_wac1->features.name);
++		wacom_wac1->shared->touch_max = wacom_wac1->features.touch_max;
++		wacom_wac1->shared->type = wacom_wac1->features.type;
+ 		error = wacom_register_input(wacom1);
+ 		if (error)
+ 			goto fail;
+@@ -1214,6 +1216,10 @@ static void wacom_wireless_work(struct work_struct *work)
+ 			error = wacom_register_input(wacom2);
+ 			if (error)
+ 				goto fail;
++
++			if (wacom_wac1->features.type == INTUOSHT &&
++			    wacom_wac1->features.touch_max)
++				wacom_wac->shared->touch_input = wacom_wac2->input;
+ 		}
+ 
+ 		error = wacom_initialize_battery(wacom);
+@@ -1392,6 +1398,12 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 			goto fail5;
+ 		}
+ 	}
++
++	if (wacom_wac->features.type == INTUOSHT && wacom_wac->features.touch_max) {
++		if (wacom_wac->features.device_type == BTN_TOOL_FINGER)
++			wacom_wac->shared->touch_input = wacom_wac->input;
++	}
++
+ 	return 0;
+ 
+  fail5: wacom_destroy_leds(wacom);
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index eb60a28..4892366 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -1219,13 +1219,23 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
+ 
+ static int wacom_bpt_pen(struct wacom_wac *wacom)
+ {
++	struct wacom_features *features = &wacom->features;
+ 	struct input_dev *input = wacom->input;
+ 	unsigned char *data = wacom->data;
+ 	int prox = 0, x = 0, y = 0, p = 0, d = 0, pen = 0, btn1 = 0, btn2 = 0;
+ 
+-	if (data[0] != WACOM_REPORT_PENABLED)
++	if (data[0] != WACOM_REPORT_PENABLED && data[0] != WACOM_REPORT_USB)
+ 	    return 0;
+ 
++	if (data[0] == WACOM_REPORT_USB) {
++		if ((features->type == INTUOSHT) && features->touch_max) {
++			input_report_switch(wacom->shared->touch_input,
++					    SW_MUTE_DEVICE, data[8] & 0x40);
++			input_sync(wacom->shared->touch_input);
++		}
++		return 0;
++	}
++
+ 	prox = (data[1] & 0x20) == 0x20;
+ 
+ 	/*
+@@ -1258,8 +1268,8 @@ static int wacom_bpt_pen(struct wacom_wac *wacom)
+ 		 * touching and applying pressure; do not report negative
+ 		 * distance.
+ 		 */
+-		if (data[8] <= wacom->features.distance_max)
+-			d = wacom->features.distance_max - data[8];
++		if (data[8] <= features->distance_max)
++			d = features->distance_max - data[8];
+ 
+ 		pen = data[1] & 0x01;
+ 		btn1 = data[1] & 0x02;
+@@ -1310,6 +1320,13 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
+ 	if (connected) {
+ 		int pid, battery;
+ 
++		if ((wacom->shared->type == INTUOSHT) &&
++				wacom->shared->touch_max) {
++			input_report_switch(wacom->shared->touch_input,
++					SW_MUTE_DEVICE, data[5] & 0x40);
++			input_sync(wacom->shared->touch_input);
++		}
++
+ 		pid = get_unaligned_be16(&data[6]);
+ 		battery = data[5] & 0x3f;
+ 		if (wacom->pid != pid) {
+@@ -1779,6 +1796,13 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 		break;
+ 
+ 	case INTUOSHT:
++		if (features->touch_max &&
++		    (features->device_type == BTN_TOOL_FINGER)) {
++			input_dev->evbit[0] |= BIT_MASK(EV_SW);
++			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
++		}
++		/* fall through */
++
+ 	case BAMBOO_PT:
+ 		__clear_bit(ABS_MISC, input_dev->absbit);
+ 
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index 854cceb..3600cf7 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -55,6 +55,7 @@
+ #define WACOM_REPORT_TPC1FGE		18
+ #define WACOM_REPORT_24HDT		1
+ #define WACOM_REPORT_WL			128
++#define WACOM_REPORT_USB		192
+ 
+ /* device quirks */
+ #define WACOM_QUIRK_MULTI_INPUT		0x0001
+@@ -131,6 +132,10 @@ struct wacom_features {
+ struct wacom_shared {
+ 	bool stylus_in_proximity;
+ 	bool touch_down;
++	/* for wireless device to access USB interfaces */
++	unsigned touch_max;
++	int type;
++	struct input_dev *touch_input;
+ };
+ 
+ struct wacom_wac {
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index a372627..c1f07c9 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -856,6 +856,7 @@ struct input_keymap_entry {
+ #define SW_FRONT_PROXIMITY	0x0b  /* set = front proximity sensor active */
+ #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
+ #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
++#define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+ #define SW_MAX			0x0f
+ #define SW_CNT			(SW_MAX+1)
+ 
+-- 
+1.8.3.2
 
-Tested-by: Matt Walker <matt.g.d.walker-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> on an Acer Aspire S7-392-6302
-
-----
-
-Thanks to Hauke for the reference on how to submit a patch properly.
-Please let me know if additional modifications are required.
-
-Diff Output:
-
---- linux-3.13-rc1/drivers/input/mouse/elantech.c.orig    2013-12-03
-12:14:52.829173656 -0500
-+++ linux-3.13-rc1/drivers/input/mouse/elantech.c    2013-12-03
-12:15:11.833173880 -0500
-@@ -1313,6 +1313,7 @@ static int elantech_set_properties(struc
-             break;
-         case 6:
-         case 7:
-+        case 8:
-             etd->hw_version = 4;
-             break;
-         default:
-
-
-On Fri, Nov 29, 2013 at 4:26 PM, Hauke Mehrtens <hauke-5/S+JYg5SzeELgA04lAiVw@public.gmane.org> wrote:
-> On 11/29/2013 01:00 AM, Matt Walker wrote:
->> Hello,
->>
->> Attached is a patch for drivers/input/mouse/elantech.c.  It allows
->> recent Elantech touchpads to be detected.  I have tested it on the
->> touchpad that comes with the Acer Aspire S7-392 (released ~August
->> 2013)
->>
->> I figure it could be backported with little effort and no danger,
->> since all it does it add one to the number of values that were
->> previously recognized as valid "firmware version numbers".
->>
->> Begin Patch:
->> 1315a1316
->>>         case 8:
->> End Patch
->>
->> Best,
->> Matt
->>
-> This is not a patch, I do not know what you want to do.
->
-> This is the documentation for hacking on backprts:
-> https://backports.wiki.kernel.org/index.php/Documentation/backports/hacking
->
-> This is the guideline for patch submission to the linux kernel which
-> mostly also applies for backports:
-> https://www.kernel.org/doc/Documentation/SubmittingPatches
->
-> Hauke
-
---089e0102fb5c5378c104eca4d2b8
-Content-Type: application/octet-stream; name=patch
-Content-Disposition: attachment; filename=patch
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_horexehc0
-
-LS0tIGxpbnV4LTMuMTMtcmMxL2RyaXZlcnMvaW5wdXQvbW91c2UvZWxhbnRlY2guYy5vcmlnCTIw
-MTMtMTItMDMgMTI6MTQ6NTIuODI5MTczNjU2IC0wNTAwCisrKyBsaW51eC0zLjEzLXJjMS9kcml2
-ZXJzL2lucHV0L21vdXNlL2VsYW50ZWNoLmMJMjAxMy0xMi0wMyAxMjoxNToxMS44MzMxNzM4ODAg
-LTA1MDAKQEAgLTEzMTMsNiArMTMxMyw3IEBAIHN0YXRpYyBpbnQgZWxhbnRlY2hfc2V0X3Byb3Bl
-cnRpZXMoc3RydWMKIAkJCWJyZWFrOwogCQljYXNlIDY6CiAJCWNhc2UgNzoKKwkJY2FzZSA4Ogog
-CQkJZXRkLT5od192ZXJzaW9uID0gNDsKIAkJCWJyZWFrOwogCQlkZWZhdWx0Ogo=
---089e0102fb5c5378c104eca4d2b8--

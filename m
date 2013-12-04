@@ -1,63 +1,66 @@
-From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+From: Ian Campbell <Ian.Campbell@citrix.com>
 Subject: Re: [PATCH] xen/pvhvm: If xen_platform_pci=0 is set don't blow up.
-Date: Wed, 4 Dec 2013 11:05:07 +0000
-Message-ID: <alpine.DEB.2.02.1312041104110.7093@kaball.uk.xensource.com>
-References: <1386105246-14337-1-git-send-email-konrad.wilk@oracle.com>  <1386149848.13256.86.camel@kazak.uk.xensource.com>  <alpine.DEB.2.02.1312041049310.7093@kaball.uk.xensource.com> <1386154783.17466.14.camel@kazak.uk.xensource.com>
+Date: Wed, 4 Dec 2013 11:08:11 +0000
+Message-ID: <1386155291.17466.19.camel@kazak.uk.xensource.com>
+References: <1386105246-14337-1-git-send-email-konrad.wilk@oracle.com>
+	  <1386149848.13256.86.camel@kazak.uk.xensource.com>
+	  <alpine.DEB.2.02.1312041049310.7093@kaball.uk.xensource.com>
+	 <1386154783.17466.14.camel@kazak.uk.xensource.com>
+	 <alpine.DEB.2.02.1312041104110.7093@kaball.uk.xensource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp02.citrix.com ([66.165.176.63]:28613 "EHLO
-	SMTP02.CITRIX.COM" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754084Ab3LDLF2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Dec 2013 06:05:28 -0500
-In-Reply-To: <1386154783.17466.14.camel@kazak.uk.xensource.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.DEB.2.02.1312041104110.7093@kaball.uk.xensource.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, boris.ostrovsky@oracle.com, david.vrabel@citrix.com, leosilva@linux.vnet.ibm.com, ashley@ashleylai.com, peterhuewe@gmx.de, mail@srajiv.net, tpmdd@selhorst.net, tpmdd@sirrix.com, dmitry.torokhov@gmail.com, bhelgaas@google.com, plagnioj@jcrosoft.com, tomi.valkeinen@ti.com, tpmdd-devel@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-pci@vger.kernel.org, linux-fbdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ian Campbell <Ian.Campbell@citrix.com>
-Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, boris.ostrovsky@oracle.com, david.vrabel@citrix.com, leosilva@linux.vnet.ibm.com, ashley@ashleylai.com, peterhuewe@gmx.de, mail@srajiv.net, tpmdd@selhorst.net, tpmdd@sirrix.com, dmitry.torokhov@gmail.com, bhelgaas@google.com, plagnioj@jcrosoft.com, tomi.valkeinen@ti.com, tpmdd-devel@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-pci@vger.kernel.org, linux-fbdev@vger.kernel.org
 
-On Wed, 4 Dec 2013, Ian Campbell wrote:
-> On Wed, 2013-12-04 at 10:51 +0000, Stefano Stabellini wrote:
-> > On Wed, 4 Dec 2013, Ian Campbell wrote:
-> > > > +bool xen_has_pv_devices(void)
-> > > > +{
-> > > > +	if (!xen_domain())
-> > > > +		return false;
-> > > > +
-> > > > +	if (xen_hvm_domain()) {
-> > > > +		/* User requested no unplug, so no PV drivers. */
-> > > > +		if (xen_emul_unplug & XEN_UNPLUG_NEVER)
-> > > > +			return false;
+On Wed, 2013-12-04 at 11:05 +0000, Stefano Stabellini wrote:
+> On Wed, 4 Dec 2013, Ian Campbell wrote:
+> > On Wed, 2013-12-04 at 10:51 +0000, Stefano Stabellini wrote:
+> > > On Wed, 4 Dec 2013, Ian Campbell wrote:
+> > > > > +bool xen_has_pv_devices(void)
+> > > > > +{
+> > > > > +	if (!xen_domain())
+> > > > > +		return false;
+> > > > > +
+> > > > > +	if (xen_hvm_domain()) {
+> > > > > +		/* User requested no unplug, so no PV drivers. */
+> > > > > +		if (xen_emul_unplug & XEN_UNPLUG_NEVER)
+> > > > > +			return false;
+> > > > 
+> > > > I think you need
+> > > > 		if (xen_emul_unpug & XEN_UNPLUG_UNNECESSARY)
+> > > > 			return true;
+> > > > don't you?
 > > > 
-> > > I think you need
-> > > 		if (xen_emul_unpug & XEN_UNPLUG_UNNECESSARY)
-> > > 			return true;
-> > > don't you?
+> > > XEN_UNPLUG_UNNECESSARY was introduced to enable the platform PCI device
+> > > even if it didn't respond properly to the unplug protocol.
+> > > The corresponding parameter is called "unnecessary" because if you pass
+> > > it to the kernel you mean that it is unnecessary to unplug the emulated
+> > > devices but you can use the pv devices anyway.
+> > > 
+> > > So no, we shouldn't check for XEN_UNPLUG_UNNECESSARY here.
 > > 
-> > XEN_UNPLUG_UNNECESSARY was introduced to enable the platform PCI device
-> > even if it didn't respond properly to the unplug protocol.
-> > The corresponding parameter is called "unnecessary" because if you pass
-> > it to the kernel you mean that it is unnecessary to unplug the emulated
-> > devices but you can use the pv devices anyway.
+> > Oh, we will eventually fall through to the return true, so it does
+> > actually work out OK.
 > > 
-> > So no, we shouldn't check for XEN_UNPLUG_UNNECESSARY here.
+> > I'd still be in favour of handling each option explicitly, for clarity.
+> > Which means checking for XEN_UNPLUG_UNNECESSARY.
 > 
-> Oh, we will eventually fall through to the return true, so it does
-> actually work out OK.
-> 
-> I'd still be in favour of handling each option explicitly, for clarity.
-> Which means checking for XEN_UNPLUG_UNNECESSARY.
+> I think is wrong to check for any xen_emul_unpug options in this function.
+> The xen_emul_unpug options should be used to set the right value of
+> xen_platform_pci_unplug. (See my other reply.)
 
-I think is wrong to check for any xen_emul_unpug options in this function.
-The xen_emul_unpug options should be used to set the right value of
-xen_platform_pci_unplug. (See my other reply.)
+Whichever one we check we should still be checking explicitly for the
+"unnecessary" case, for clarity if nothing else.
 
+TBH I think the split between xen_emul_unplug and
+xen_platform_pci_unplug is a bit artificial. There should be one value
+which is static to platform-pci-unplug.c and accessor functions should
+be provided for other code to use. Open coding all those accesses to
+xen_platform_pci_unplug in every driver is just too error prone.
 
-> > > > +		/* And user has xen_platform_pci=0 set in guest config as
-> > > > +		 * driver did not modify the value. */
-> > > > +		if (!xen_platform_pci_unplug)
-> > > > +			return false;
-> 
-> I assume this check doesn't trigger if unnecessary has been specified?
- 
-right
+Ian.

@@ -1,49 +1,94 @@
-From: =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
-Subject: Re: [PATCH] Input: define KEY_WWAN for Wireless WAN
-Date: Wed, 4 Dec 2013 19:00:00 +0100
-Message-ID: <CACna6rzEg5kTApDf7QeCafwYbXwamE+pru+vos=A1-P_mSSqaQ@mail.gmail.com>
-References: <1385664173-18879-1-git-send-email-zajec5@gmail.com>
-	<20131204171029.GC8838@core.coreip.homeip.net>
+From: Manuel Krause <manuelkrause@netscape.net>
+Subject: Re: 3.12.x looses serial mouse over hibernate + resume
+Date: Wed, 04 Dec 2013 21:33:00 +0100
+Message-ID: <529F917C.3070501@netscape.net>
+References: <52951E69.7090602@netscape.net> <529B591F.1020909@hurleysoftware.com> <529CB07C.2040609@netscape.net> <19253701.sgP3OieFUq@dtor-d630.eng.vmware.com> <20131202164525.GA32406@core.coreip.homeip.net> <529CD303.4040103@netscape.net> <20131202190730.GA5245@core.coreip.homeip.net> <529CF034.1060505@netscape.net> <20131204171626.GD8838@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f50.google.com ([209.85.219.50]:36173 "EHLO
-	mail-oa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755294Ab3LDSAA convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Dec 2013 13:00:00 -0500
-Received: by mail-oa0-f50.google.com with SMTP id n16so17041937oag.37
-        for <linux-input@vger.kernel.org>; Wed, 04 Dec 2013 10:00:00 -0800 (PST)
-In-Reply-To: <20131204171029.GC8838@core.coreip.homeip.net>
+Received: from omr-m01.mx.aol.com ([64.12.143.75]:56747 "EHLO
+	omr-m01.mx.aol.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754423Ab3LDUdQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Dec 2013 15:33:16 -0500
+In-Reply-To: <20131204171626.GD8838@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Hauke Mehrtens <hauke@hauke-m.de>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Peter Hurley <peter@hurleysoftware.com>, linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-serial <linux-serial@vger.kernel.org>, Shuah Khan <shuah.kh@samsung.com>
 
-2013/12/4 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> Hi Rafal,
+On 2013-12-04 18:16, Dmitry Torokhov wrote:
+> On Mon, Dec 02, 2013 at 09:40:20PM +0100, Manuel Krause wrote:
+>> On 2013-12-02 20:07, Dmitry Torokhov wrote:
+>>>
+>>> Thank you Manuel, but IO think the patch is not complete as we need to
+>>> re-enable PNP devices after we make a snapshot to make sure they are
+>>> working and can handle saving the data. Coudl you please try the patch
+>>> below?
+>>>
+>>
+>> PNP: fix restoring devices after hibernation
+>>
+>> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>>
+>> On returning from hibernation 'restore; callback is called, not
+>> 'resume'.
+>> This fixes breakage introduced by commit
+>> eaf140b60ec961252083ab8adaf67aef29a362dd
+>>
+>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> ---
+>>   drivers/pnp/driver.c |   12 +++++++++++-
+>>   1 file changed, 11 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/pnp/driver.c b/drivers/pnp/driver.c
+>> index a39ee38..2bd5c5f 100644
+>> --- a/drivers/pnp/driver.c
+>> +++ b/drivers/pnp/driver.c
+>> @@ -197,6 +197,11 @@ static int pnp_bus_freeze(struct device *dev)
+>>   	return __pnp_bus_suspend(dev, PMSG_FREEZE);
+>>   }
+>>
+>> +static int pnp_bus_poweroff(struct device *dev)
+>> +{
+>> +	return __pnp_bus_suspend(dev, PMSG_HIBERNATE);
+>> +}
+>> +
+>>   static int pnp_bus_resume(struct device *dev)
+>>   {
+>>   	struct pnp_dev *pnp_dev = to_pnp_dev(dev);
+>> @@ -234,9 +239,14 @@ static int pnp_bus_resume(struct device *dev)
+>>   }
+>>
+>>   static const struct dev_pm_ops pnp_bus_dev_pm_ops = {
+>> +	/* Suspend callbacks */
+>>   	.suspend = pnp_bus_suspend,
+>> -	.freeze = pnp_bus_freeze,
+>>   	.resume = pnp_bus_resume,
+>> +	/* Hibernate callbacks */
+>> +	.freeze = pnp_bus_freeze,
+>> +	.thaw = pnp_bus_resume,
+>> +	.poweroff = pnp_bus_poweroff,
+>> +	.restore = pnp_bus_resume,
+>>   };
+>>
+>>   struct bus_type pnp_bus_type = {
+>>
+>> ALSO, YES, this second patch version does cure the issue, on here,
+>> too.
 >
-> On Thu, Nov 28, 2013 at 07:42:53PM +0100, Rafa=C5=82 Mi=C5=82ecki wro=
-te:
->> Some devices with support for mobile networks may have buttons for
->> enabling/disabling such connection. An example can be Linksys router
->> 54G3G.
->> We already have KEY_BLUETOOTH, KEY_WLAN and KEY_UWB so it makes sens=
-e
->> to add KEY_WWAN as well.
+> Rafael,
 >
-> Isn't WiMAX an implementation of WWAN? Maybe instead of adding a new
-> keycode we should use KEY_WIMAX code and alias KEY_WIMAX to KEY_WWAN =
-to
-> preserve ABI?
+> Will you please take this patch in? It would also make sense to add it
+> to stable I think.
+>
+> Thanks.
+>
 
-I didn't think about it but if WiMAX is indeed kind of WWAN, it makes
-a perfect sense to me!
+This patch works very well for many following hibernate/resume 
+cyles, now, since the patch is applied. And it doesn't show any 
+side-effects for me.
+Thank you for "taking it in".
 
---=20
-Rafa=C5=82
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Best regards, Manuel Krause
+

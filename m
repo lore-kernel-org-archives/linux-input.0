@@ -1,32 +1,26 @@
-From: Manuel Krause <manuelkrause@netscape.net>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 Subject: Re: 3.12.x looses serial mouse over hibernate + resume
-Date: Wed, 04 Dec 2013 21:33:00 +0100
-Message-ID: <529F917C.3070501@netscape.net>
+Date: Thu, 05 Dec 2013 01:41:14 +0100
+Message-ID: <529FCBAA.70308@intel.com>
 References: <52951E69.7090602@netscape.net> <529B591F.1020909@hurleysoftware.com> <529CB07C.2040609@netscape.net> <19253701.sgP3OieFUq@dtor-d630.eng.vmware.com> <20131202164525.GA32406@core.coreip.homeip.net> <529CD303.4040103@netscape.net> <20131202190730.GA5245@core.coreip.homeip.net> <529CF034.1060505@netscape.net> <20131204171626.GD8838@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from omr-m01.mx.aol.com ([64.12.143.75]:56747 "EHLO
-	omr-m01.mx.aol.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754423Ab3LDUdQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Dec 2013 15:33:16 -0500
+Return-path: <linux-serial-owner@vger.kernel.org>
 In-Reply-To: <20131204171626.GD8838@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-serial-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Peter Hurley <peter@hurleysoftware.com>, linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-serial <linux-serial@vger.kernel.org>, Shuah Khan <shuah.kh@samsung.com>
+Cc: Peter Hurley <peter@hurleysoftware.com>, linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-serial <linux-serial@vger.kernel.org>, Shuah Khan <shuah.kh@samsung.com>, Manuel Krause <manuelkrause@netscape.net>
+List-Id: linux-input@vger.kernel.org
 
-On 2013-12-04 18:16, Dmitry Torokhov wrote:
+On 12/4/2013 6:16 PM, Dmitry Torokhov wrote:
 > On Mon, Dec 02, 2013 at 09:40:20PM +0100, Manuel Krause wrote:
 >> On 2013-12-02 20:07, Dmitry Torokhov wrote:
->>>
 >>> Thank you Manuel, but IO think the patch is not complete as we need to
 >>> re-enable PNP devices after we make a snapshot to make sure they are
 >>> working and can handle saving the data. Coudl you please try the patch
 >>> below?
 >>>
->>
 >> PNP: fix restoring devices after hibernation
 >>
 >> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -76,19 +70,15 @@ On 2013-12-04 18:16, Dmitry Torokhov wrote:
 >>
 >> ALSO, YES, this second patch version does cure the issue, on here,
 >> too.
->
 > Rafael,
 >
 > Will you please take this patch in? It would also make sense to add it
 > to stable I think.
->
-> Thanks.
->
 
-This patch works very well for many following hibernate/resume 
-cyles, now, since the patch is applied. And it doesn't show any 
-side-effects for me.
-Thank you for "taking it in".
+Well, it conveniently hasn't been sent to linux-pm.
 
-Best regards, Manuel Krause
+OK, I'll try to find it in the linux-kernel archives.
+
+Thanks,
+Rafael
 

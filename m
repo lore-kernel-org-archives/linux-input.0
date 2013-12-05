@@ -1,84 +1,108 @@
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: Re: 3.12.x looses serial mouse over hibernate + resume
-Date: Thu, 05 Dec 2013 01:41:14 +0100
-Message-ID: <529FCBAA.70308@intel.com>
-References: <52951E69.7090602@netscape.net> <529B591F.1020909@hurleysoftware.com> <529CB07C.2040609@netscape.net> <19253701.sgP3OieFUq@dtor-d630.eng.vmware.com> <20131202164525.GA32406@core.coreip.homeip.net> <529CD303.4040103@netscape.net> <20131202190730.GA5245@core.coreip.homeip.net> <529CF034.1060505@netscape.net> <20131204171626.GD8838@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-serial-owner@vger.kernel.org>
-In-Reply-To: <20131204171626.GD8838@core.coreip.homeip.net>
-Sender: linux-serial-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hurley <peter@hurleysoftware.com>, linux-kernel@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-serial <linux-serial@vger.kernel.org>, Shuah Khan <shuah.kh@samsung.com>, Manuel Krause <manuelkrause@netscape.net>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH] HID: hid-sensor-hub: Fix kernel warning and failure
+Date: Thu,  5 Dec 2013 11:56:49 -0800
+Message-ID: <1386273409-30752-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:13409 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751352Ab3LET6O (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 5 Dec 2013 14:58:14 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-On 12/4/2013 6:16 PM, Dmitry Torokhov wrote:
-> On Mon, Dec 02, 2013 at 09:40:20PM +0100, Manuel Krause wrote:
->> On 2013-12-02 20:07, Dmitry Torokhov wrote:
->>> Thank you Manuel, but IO think the patch is not complete as we need to
->>> re-enable PNP devices after we make a snapshot to make sure they are
->>> working and can handle saving the data. Coudl you please try the patch
->>> below?
->>>
->> PNP: fix restoring devices after hibernation
->>
->> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>
->> On returning from hibernation 'restore; callback is called, not
->> 'resume'.
->> This fixes breakage introduced by commit
->> eaf140b60ec961252083ab8adaf67aef29a362dd
->>
->> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> ---
->>   drivers/pnp/driver.c |   12 +++++++++++-
->>   1 file changed, 11 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/pnp/driver.c b/drivers/pnp/driver.c
->> index a39ee38..2bd5c5f 100644
->> --- a/drivers/pnp/driver.c
->> +++ b/drivers/pnp/driver.c
->> @@ -197,6 +197,11 @@ static int pnp_bus_freeze(struct device *dev)
->>   	return __pnp_bus_suspend(dev, PMSG_FREEZE);
->>   }
->>
->> +static int pnp_bus_poweroff(struct device *dev)
->> +{
->> +	return __pnp_bus_suspend(dev, PMSG_HIBERNATE);
->> +}
->> +
->>   static int pnp_bus_resume(struct device *dev)
->>   {
->>   	struct pnp_dev *pnp_dev = to_pnp_dev(dev);
->> @@ -234,9 +239,14 @@ static int pnp_bus_resume(struct device *dev)
->>   }
->>
->>   static const struct dev_pm_ops pnp_bus_dev_pm_ops = {
->> +	/* Suspend callbacks */
->>   	.suspend = pnp_bus_suspend,
->> -	.freeze = pnp_bus_freeze,
->>   	.resume = pnp_bus_resume,
->> +	/* Hibernate callbacks */
->> +	.freeze = pnp_bus_freeze,
->> +	.thaw = pnp_bus_resume,
->> +	.poweroff = pnp_bus_poweroff,
->> +	.restore = pnp_bus_resume,
->>   };
->>
->>   struct bus_type pnp_bus_type = {
->>
->> ALSO, YES, this second patch version does cure the issue, on here,
->> too.
-> Rafael,
->
-> Will you please take this patch in? It would also make sense to add it
-> to stable I think.
+Fix kernel warning and failure to register sensor hub devices with MFD.
+Now many devices has in-built sensor hubs. So by default this HID hub,
+is properly parsed and register individual sensors as platform device
+using MFD framework. But if a second sensor hub is attached via USB,
+which has same sensors, it will result in kernel warning and failure
+to register MFD cell as the platform device sysfs file name will be
+same as created by in-built sensor hubs. This patch uses MFD cell id
+to genarate unique platform device name. In this way there will never
+be duplicate sysfs file names.
 
-Well, it conveniently hasn't been sent to linux-pm.
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+ drivers/hid/hid-sensor-hub.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-OK, I'll try to find it in the linux-kernel archives.
-
-Thanks,
-Rafael
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index a184e19..4cead68 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -22,6 +22,7 @@
+ #include <linux/slab.h>
+ #include <linux/mfd/core.h>
+ #include <linux/list.h>
++#include <linux/idr.h>
+ #include <linux/hid-sensor-ids.h>
+ #include <linux/hid-sensor-hub.h>
+ #include "hid-ids.h"
+@@ -80,6 +81,8 @@ struct hid_sensor_hub_callbacks_list {
+ 	void *priv;
+ };
+ 
++static DEFINE_IDR(hid_sensor_hub_idr);
++
+ static struct hid_report *sensor_hub_report(int id, struct hid_device *hdev,
+ 						int dir)
+ {
+@@ -512,6 +515,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 	struct hid_report_enum *report_enum;
+ 	struct hid_field *field;
+ 	int dev_cnt;
++	int cell_id;
+ 
+ 	sd = devm_kzalloc(&hdev->dev, sizeof(*sd), GFP_KERNEL);
+ 	if (!sd) {
+@@ -565,6 +569,11 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 		field = report->field[0];
+ 		if (report->maxfield && field &&
+ 					field->physical) {
++			cell_id = idr_alloc(&hid_sensor_hub_idr,
++							NULL, 0, 0,
++							GFP_KERNEL);
++			if (cell_id < 0)
++					goto err_free_names;
+ 			name = kasprintf(GFP_KERNEL, "HID-SENSOR-%x",
+ 						field->physical);
+ 			if (name == NULL) {
+@@ -573,6 +582,8 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 					goto err_free_names;
+ 			}
+ 			sd->hid_sensor_hub_client_devs[
++				sd->hid_sensor_client_cnt].id = cell_id;
++			sd->hid_sensor_hub_client_devs[
+ 				sd->hid_sensor_client_cnt].name = name;
+ 			sd->hid_sensor_hub_client_devs[
+ 				sd->hid_sensor_client_cnt].platform_data =
+@@ -592,8 +603,11 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 	return ret;
+ 
+ err_free_names:
+-	for (i = 0; i < sd->hid_sensor_client_cnt ; ++i)
++	for (i = 0; i < sd->hid_sensor_client_cnt; ++i) {
+ 		kfree(sd->hid_sensor_hub_client_devs[i].name);
++		idr_remove(&hid_sensor_hub_idr,
++			sd->hid_sensor_hub_client_devs[i].id);
++	}
+ 	kfree(sd->hid_sensor_hub_client_devs);
+ err_stop_hw:
+ 	hid_hw_stop(hdev);
+@@ -615,8 +629,11 @@ static void sensor_hub_remove(struct hid_device *hdev)
+ 		complete(&data->pending.ready);
+ 	spin_unlock_irqrestore(&data->lock, flags);
+ 	mfd_remove_devices(&hdev->dev);
+-	for (i = 0; i < data->hid_sensor_client_cnt ; ++i)
++	for (i = 0; i < data->hid_sensor_client_cnt; ++i) {
+ 		kfree(data->hid_sensor_hub_client_devs[i].name);
++		idr_remove(&hid_sensor_hub_idr,
++			data->hid_sensor_hub_client_devs[i].id);
++	}
+ 	kfree(data->hid_sensor_hub_client_devs);
+ 	hid_set_drvdata(hdev, NULL);
+ 	mutex_destroy(&data->mutex);
+-- 
+1.8.1.2
 

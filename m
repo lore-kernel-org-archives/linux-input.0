@@ -1,77 +1,46 @@
-From: Sebastian Reichel <sre@debian.org>
-Subject: [PATCH 2/2] Documentation: dt: Document TSC2005 DT binding
-Date: Fri,  6 Dec 2013 00:09:39 +0100
-Message-ID: <1386284979-9680-3-git-send-email-sre@debian.org>
-References: <1386284979-9680-1-git-send-email-sre@debian.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1386284979-9680-1-git-send-email-sre@debian.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
-Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@debian.org>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH] input synaptics-rmi4: Remove sysfs & debugfs stuff
+Date: Thu, 5 Dec 2013 15:24:43 -0800
+Message-ID: <1386285884-10584-1-git-send-email-cheiny@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:7579 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754842Ab3LEXYr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Dec 2013 18:24:47 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Add devicetree binding documentation for TSC2005 touchscreen.
+This patch implements changes to the synaptics-rmi4 branch of
+Dmitry's input tree.  The base for the patch is commit
+8ca01dc61a42b6f7bcba052a8c084000f7057a34.
 
-Signed-off-by: Sebastian Reichel <sre@debian.org>
+Fix computation of poll interval milliseconds.
+
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Joerie de Gram <j.de.gram@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
 ---
- .../bindings/input/touchscreen/tsc2005.txt         | 49 ++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
+ drivers/input/rmi4/rmi_driver.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-new file mode 100644
-index 0000000..4e7df0b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-@@ -0,0 +1,49 @@
-+* TSC2005 Touchscreen
-+
-+Required properties:
-+ - compatible		      : "ti,tsc2005"
-+ - reg			      : SPI device address
-+ - spi-max-frequency	      : Maximal SPI speed
-+ - interrupts		      : IRQ specifier
-+ - reset-gpio		      : GPIO specifier
-+
-+Optional properties:
-+ - ti,fuzz-x		      : integer, X noise value of the touchscreen
-+				(defaults to 4)
-+ - ti,fuzz-y		      : integer, Y noise value of the touchscreen
-+				(defaults to 8)
-+ - ti,fuzz-pressure	      : integer, pressure noise value of the touchscreen
-+				(defaults to 2)
-+ - ti,max-x		      : integer, maximum reported x value
-+				(defaults to 4096)
-+ - ti,max-y		      : integer, maximum reported y value
-+				(defaults to 4096)
-+ - ti,max-pressure	      : integer, maximum reported pressure
-+				(defaults to 4096)
-+ - ti,x-plate-resistance      : integer, resistance of the touchscreen's X plates
-+				in ohm (defaults to 280)
-+ - ti,esd-recovery-timeout-ms : integer, if the touchscreen does not respond after
-+				the configured time (in milli seconds), the driver
-+				will reset it. This is disabled by default.
-+
-+Example:
-+
-+&mcspi1 {
-+	tsc2005@0 {
-+		compatible = "ti,tsc2005";
-+		spi-max-frequency = <6000000>;
-+		reg = <0>;
-+		reset-gpio = <&gpio4 8 GPIO_ACTIVE_HIGH>; /* 104 */
-+		interrupt-parent = <&gpio4>;
-+		interrupts = <4 IRQ_TYPE_NONE>; /* gpio line 100 */
-+
-+		ti,fuzz-x = <4>;
-+		ti,fuzz-y = <7>;
-+		ti,fuzz-pressure = <2>;
-+		ti,max-x = <4096>;
-+		ti,max-y = <4096>;
-+		ti,max-pressure = <2048>;
-+		ti,x-plate-resistance = <280>;
-+		ti,esd-recovery-timeout-ms = <8000>;
-+	};
-+}
--- 
-1.8.4.3
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 9af297e..dffbfa0 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -934,7 +934,7 @@ static int rmi_driver_probe(struct device *dev)
+ 	} else
+ 		data->poll_interval = ktime_set(0,
+ 			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
+-			DEFAULT_POLL_INTERVAL_MS) * 1000);
++			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
+ 
+ 	if (data->f01_container->dev.driver) {
+ 		/* Driver already bound, so enable ATTN now. */

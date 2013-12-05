@@ -1,30 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input synaptics-rmi4: Fix camel case in comments.
-Date: Thu, 5 Dec 2013 13:02:11 -0800
-Message-ID: <20131205210210.GC2761@core.coreip.homeip.net>
-References: <1384377325-29380-1-git-send-email-cheiny@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sebastian Reichel <sre@debian.org>
+Subject: [PATCH 0/2] tsc2005 DT binding
+Date: Fri,  6 Dec 2013 00:09:37 +0100
+Message-ID: <1386284979-9680-1-git-send-email-sre@debian.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f41.google.com ([209.85.160.41]:53300 "EHLO
-	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751591Ab3LEVCO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Dec 2013 16:02:14 -0500
-Received: by mail-pb0-f41.google.com with SMTP id jt11so26692920pbb.14
-        for <linux-input@vger.kernel.org>; Thu, 05 Dec 2013 13:02:14 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1384377325-29380-1-git-send-email-cheiny@synaptics.com>
+Received: from ring0.de ([91.143.88.219]:39506 "EHLO smtp.ring0.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752426Ab3LEXJo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 5 Dec 2013 18:09:44 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>
+To: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@debian.org>
 
-On Wed, Nov 13, 2013 at 01:15:25PM -0800, Christopher Heiny wrote:
-> Trivial change to make variable names in a comment match those in the code.
-> 
-> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Hi,
 
-Applied, thank you.
+This adds device tree support for the tsc2005 touchscreen
+controller, which is currently only used by the Nokia N900
+board.
+
+The patch does not update the reset pin handling for platform
+data based probe to avoid merge conflicts (Tony will remove
+the Nokia N900 boardcode in 3.14). The platform data based
+probe can be removed once the N900 boardcode is gone.
+
+-- Sebastian
+
+Sebastian Reichel (2):
+  Input: tsc2005: add DT support
+  Documentation: dt: Document TSC2005 DT binding
+
+ .../bindings/input/touchscreen/tsc2005.txt         | 49 +++++++++++
+ drivers/input/touchscreen/tsc2005.c                | 95 ++++++++++++++++++----
+ 2 files changed, 127 insertions(+), 17 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
 
 -- 
-Dmitry
+1.8.4.3
+

@@ -1,44 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] Input: wacom - add SW_MUTE_DEVICE to
- include/uapi/linux/input.h
-Date: Thu, 5 Dec 2013 19:37:46 -0800
-Message-ID: <20131206033746.GC16530@core.coreip.homeip.net>
-References: <1386100749-8827-1-git-send-email-pingc@wacom.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [PATCH 3.4-stable][CVE] HID: picolcd_core: validate output report details
+Date: Fri, 6 Dec 2013 17:46:02 +0800
+Message-ID: <1386323162-7676-1-git-send-email-wangkefeng.wang@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:43728 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753513Ab3LFJb5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Dec 2013 04:31:57 -0500
-Received: by mail-pb0-f53.google.com with SMTP id ma3so753675pbc.12
-        for <linux-input@vger.kernel.org>; Fri, 06 Dec 2013 01:31:56 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1386100749-8827-1-git-send-email-pingc@wacom.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>, Jiri Kosina <jkosina@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org, linux-input@vger.kernel.org, wangkefeng.wang@huawei.com, guohanjun@huawei.com
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, killertofu@gmail.com, chris@cnpbagwell.com, peter.hutterer@who-t.net, Ping Cheng <pingc@wacom.com>
 
-Hi Ping,
+=46rom: Kees Cook <keescook@chromium.org>
 
-On Tue, Dec 03, 2013 at 11:59:09AM -0800, Ping Cheng wrote:
-> New Intuos series models added a hardware switch to turn touch
-> data on/off. The state of the switch is reported periodically
-> from the tablet. To report the state, SW_MUTE_DEVICE is added
-> in include/uapi/linux/input.h.
-> 
-> Reviewed_by: Chris Bagwell <chris@cnpbagwell.com>
-> Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-> Tested-by: Jason Gerecke <killertofu@gmail.com>
-> Signed-off-by: Ping Cheng <pingc@wacom.com>
-> ---
-> v4: Changed SW_TOUCH to SW_MUTE_DEVICE as suggested by Dmitry.
+Hi Kees, Jiri or Greg,
 
-I split SW_MUTE_DEVICE addition into a separate patch (want to push it
-sooner rather than later) and applied both.
+This patch has been backported to 3.2 stable tree.
+It is a CVE bugfix, and looks applicable to stable-3.4.
+It prevents from triggering a NULL dereference during
+atrr file writing if a HID device send a malicious output
+report.
 
-Thanks.
+NOTE:
+Rename file drivers/hid/hid-picolcd_core.c
+	->  drivers/hid/hid-picolcd.c.
 
--- 
-Dmitry
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+=46rom: Kees Cook <keescook@chromium.org>
+commit 1e87a2456b0227ca4ab881e19a11bb99d164e792 upstream.
+
+A HID device could send a malicious output report that would cause the
+picolcd HID driver to trigger a NULL dereference during attr file writi=
+ng.
+
+[jkosina@suse.cz: changed
+
+	report->maxfield < 1
+
+to
+
+	report->maxfield !=3D 1
+
+as suggested by Bruno].
+
+CVE-2013-2899
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: stable@kernel.org
+Reviewed-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+Acked-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+[Kefeng: backported to stable 3.4: adjust filename]
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ drivers/hid/hid-picolcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
+index 45c3433..95f9047 100644
+--- a/drivers/hid/hid-picolcd.c
++++ b/drivers/hid/hid-picolcd.c
+@@ -1424,7 +1424,7 @@ static ssize_t picolcd_operation_mode_store(struc=
+t device *dev,
+ 		buf +=3D 10;
+ 		cnt -=3D 10;
+ 	}
+-	if (!report)
++	if (!report || report->maxfield !=3D 1)
+ 		return -EINVAL;
+=20
+ 	while (cnt > 0 && (buf[cnt-1] =3D=3D '\n' || buf[cnt-1] =3D=3D '\r'))
+--=20
+1.8.2.2

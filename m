@@ -1,32 +1,29 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: ADXL34X orientation definition
-Date: Sat, 7 Dec 2013 01:53:36 -0800
-Message-ID: <20131207095335.GA10573@core.coreip.homeip.net>
+From: Andrey Moiseev <o2g.org.ru@gmail.com>
+Subject: Re: synaptics: PS/2 touchpad isn't detected if a keyboard key is held
+ down on boot
+Date: Sat, 7 Dec 2013 15:01:07 +0400
+Message-ID: <CABWXVkMUFdRKNm76Vc3oJ+Ef9M_MS1xU2TKh=rdyv-t9Cq5V1w@mail.gmail.com>
+References: <CABWXVkMdyDNxG3QFOvyx4=6EiJQ5ik9aJxa7jQvtO+UJKwc8Fw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f42.google.com ([209.85.160.42]:50899 "EHLO
-	mail-pb0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752758Ab3LGJxl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Dec 2013 04:53:41 -0500
-Received: by mail-pb0-f42.google.com with SMTP id uo5so2492094pbc.29
-        for <linux-input@vger.kernel.org>; Sat, 07 Dec 2013 01:53:40 -0800 (PST)
-Content-Disposition: inline
+Received: from mail-ie0-f174.google.com ([209.85.223.174]:53525 "EHLO
+	mail-ie0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754066Ab3LGLBI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Dec 2013 06:01:08 -0500
+In-Reply-To: <CABWXVkMdyDNxG3QFOvyx4=6EiJQ5ik9aJxa7jQvtO+UJKwc8Fw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-hotplug@vger.kernel.org
 
-Hi Michael,
+psmouse module is not loaded when I hold down a key on boot (when
+GRUB2 says "loading vmlinuz"), and, in its turn, the PS/2 touchpad
+doesn't work. Latest mainline kernel, latest stable one and probably
+many older ones. I guess i8042's buffer gets full and that confuses
+drivers somehow.
 
-I was going though Coverity reports and it looks like definition of
-
-#define ADXL346_2D_ORIENT(x)            (((x) & 0x3) >> 4)
-
-is not correct as it will always evaluate to 0. Should the mask be 0x30
-instead?
-
-Thanks.
-
--- 
-Dmitry
+On Fri, Dec 6, 2013 at 9:22 PM, Andrey Moiseev <o2g.org.ru@gmail.com> wrote:
+> This is an ancient bug, I noticed it since I bought my notebook.
+> Synaptics PS/2 touchpad is not detected and is not shown in
+> /dev/input/event* if I hold a keyboard key down when booting just
+> started.

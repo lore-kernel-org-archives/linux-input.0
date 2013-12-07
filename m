@@ -1,32 +1,443 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] Input: serio - fix sysfs layout
-Date: Sat, 7 Dec 2013 09:12:17 -0800
-Message-ID: <20131207171217.GA19016@kroah.com>
-References: <20131207154116.GA9902@core.coreip.homeip.net>
+From: simon@mungewell.org
+Subject: Sony DualShock4 - basic functions work, but looking to improve
+ support
+Date: Sat, 7 Dec 2013 12:52:34 -0500
+Message-ID: <61a33717137a02a1d0eac5a2d1cb257e.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;boundary="----=_20131207125234_31690"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:38172 "EHLO
-	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753464Ab3LGRKs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Dec 2013 12:10:48 -0500
-Content-Disposition: inline
-In-Reply-To: <20131207154116.GA9902@core.coreip.homeip.net>
+Received: from host171.canaca.com ([67.55.55.225]:59445 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755666Ab3LGRwh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Dec 2013 12:52:37 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>, linux-kernel@vger.kernel.org
+To: Linux Input <linux-input@vger.kernel.org>
+Cc: Antonio Ospite <ospite@studenti.unina.it>
 
-On Sat, Dec 07, 2013 at 07:41:19AM -0800, Dmitry Torokhov wrote:
-> Restore previous layout of sysfs attributes that was broken by commit
-> 3778a2129bcce84f684cc0017ed20d2524afd289 (input: serio: remove bus usage of
-> dev_attrs) which moved all serio device attributes into 'id' group, when
-> only 'type', 'proto', 'id', and 'extra' should be in 'id' group and the
-> rest of attributes should be attached directly to the device.
+------=_20131207125234_31690
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Ick, sorry about that.
+Hi all,
+I wanted to report that basic functions of the DualShock4 work under Linux
+(USB connected), but I'd like to work on it to get everything working -
+like we have on the DualShock3.
 
-> Reported-by: Thomas Hellstrom <thellstrom@vmware.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Attached are a couple of logs and the report descriptor.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Haptic/Rumble does not work, even though I have my machine patched to make
+DualShock3 work.
+
+If we look at the hidraw stream there's a lot (64 bytes) more there!
+--
+$ hexdump -v -e '64/1 "%02x " "\n"' < /dev/hidraw0
+--
+
+Anyone here want to collaborate?
+Simon
+
+
+
+------=_20131207125234_31690
+Content-Type: text/plain; name="lsusb_vv.txt"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="lsusb_vv.txt"
+
+
+Bus 003 Device 002: ID 054c:05c4 Sony Corp. 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0x054c Sony Corp.
+  idProduct          0x05c4 
+  bcdDevice            1.00
+  iManufacturer           1 Sony Computer Entertainment
+  iProduct                2 Wireless Controller
+  iSerial                 0 
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           41
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     467
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x84  EP 4 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               5
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x03  EP 3 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               5
+Device Status:     0x0000
+  (Bus Powered)
+------=_20131207125234_31690
+Content-Type: application/octet-stream; name="des.code"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="des.code"
+
+MHgwNSwgMHgwMSwgICAgICAgICAvKiAgVXNhZ2UgUGFnZSAoRGVza3RvcCksICAgICAgICAgICAg
+ICAgKi8KMHgwOSwgMHgwNSwgICAgICAgICAvKiAgVXNhZ2UgKEdhbWVwYWQpLCAgICAgICAgICAg
+ICAgICAgICAgKi8KMHhBMSwgMHgwMSwgICAgICAgICAvKiAgQ29sbGVjdGlvbiAoQXBwbGljYXRp
+b24pLCAgICAgICAgICAgKi8KMHg4NSwgMHgwMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAo
+MSksICAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgzMCwgICAgICAgICAvKiAgICAgIFVzYWdl
+IChYKSwgICAgICAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgzMSwgICAgICAgICAvKiAgICAg
+IFVzYWdlIChZKSwgICAgICAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgzMiwgICAgICAgICAv
+KiAgICAgIFVzYWdlIChaKSwgICAgICAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgzNSwgICAg
+ICAgICAvKiAgICAgIFVzYWdlIChSeiksICAgICAgICAgICAgICAgICAgICAgKi8KMHgxNSwgMHgw
+MCwgICAgICAgICAvKiAgICAgIExvZ2ljYWwgTWluaW11bSAoMCksICAgICAgICAgICAgKi8KMHgy
+NiwgMHhGRiwgMHgwMCwgICAvKiAgICAgIExvZ2ljYWwgTWF4aW11bSAoMjU1KSwgICAgICAgICAg
+Ki8KMHg3NSwgMHgwOCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBTaXplICg4KSwgICAgICAgICAg
+ICAgICAgKi8KMHg5NSwgMHgwNCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNCksICAg
+ICAgICAgICAgICAgKi8KMHg4MSwgMHgwMiwgICAgICAgICAvKiAgICAgIElucHV0IChWYXJpYWJs
+ZSksICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgzOSwgICAgICAgICAvKiAgICAgIFVzYWdlIChI
+YXQgU3dpdGNoKSwgICAgICAgICAgICAgKi8KMHgxNSwgMHgwMCwgICAgICAgICAvKiAgICAgIExv
+Z2ljYWwgTWluaW11bSAoMCksICAgICAgICAgICAgKi8KMHgyNSwgMHgwNywgICAgICAgICAvKiAg
+ICAgIExvZ2ljYWwgTWF4aW11bSAoNyksICAgICAgICAgICAgKi8KMHgzNSwgMHgwMCwgICAgICAg
+ICAvKiAgICAgIFBoeXNpY2FsIE1pbmltdW0gKDApLCAgICAgICAgICAgKi8KMHg0NiwgMHgzQiwg
+MHgwMSwgICAvKiAgICAgIFBoeXNpY2FsIE1heGltdW0gKDMxNSksICAgICAgICAgKi8KMHg2NSwg
+MHgxNCwgICAgICAgICAvKiAgICAgIFVuaXQgKERlZ3JlZXMpLCAgICAgICAgICAgICAgICAgKi8K
+MHg3NSwgMHgwNCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBTaXplICg0KSwgICAgICAgICAgICAg
+ICAgKi8KMHg5NSwgMHgwMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMSksICAgICAg
+ICAgICAgICAgKi8KMHg4MSwgMHg0MiwgICAgICAgICAvKiAgICAgIElucHV0IChWYXJpYWJsZSwg
+TnVsbCBTdGF0ZSksICAgKi8KMHg2NSwgMHgwMCwgICAgICAgICAvKiAgICAgIFVuaXQsICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgKi8KMHgwNSwgMHgwOSwgICAgICAgICAvKiAgICAgIFVzYWdl
+IFBhZ2UgKEJ1dHRvbiksICAgICAgICAgICAgKi8KMHgxOSwgMHgwMSwgICAgICAgICAvKiAgICAg
+IFVzYWdlIE1pbmltdW0gKDAxaCksICAgICAgICAgICAgKi8KMHgyOSwgMHgwRSwgICAgICAgICAv
+KiAgICAgIFVzYWdlIE1heGltdW0gKDBFaCksICAgICAgICAgICAgKi8KMHgxNSwgMHgwMCwgICAg
+ICAgICAvKiAgICAgIExvZ2ljYWwgTWluaW11bSAoMCksICAgICAgICAgICAgKi8KMHgyNSwgMHgw
+MSwgICAgICAgICAvKiAgICAgIExvZ2ljYWwgTWF4aW11bSAoMSksICAgICAgICAgICAgKi8KMHg3
+NSwgMHgwMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBTaXplICgxKSwgICAgICAgICAgICAgICAg
+Ki8KMHg5NSwgMHgwRSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMTQpLCAgICAgICAg
+ICAgICAgKi8KMHg4MSwgMHgwMiwgICAgICAgICAvKiAgICAgIElucHV0IChWYXJpYWJsZSksICAg
+ICAgICAgICAgICAgKi8KMHgwNiwgMHgwMCwgMHhGRiwgICAvKiAgICAgIFVzYWdlIFBhZ2UgKEZG
+MDBoKSwgICAgICAgICAgICAgKi8KMHgwOSwgMHgyMCwgICAgICAgICAvKiAgICAgIFVzYWdlICgy
+MGgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg3NSwgMHgwNiwgICAgICAgICAvKiAgICAgIFJl
+cG9ydCBTaXplICg2KSwgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMSwgICAgICAgICAvKiAg
+ICAgIFJlcG9ydCBDb3VudCAoMSksICAgICAgICAgICAgICAgKi8KMHgxNSwgMHgwMCwgICAgICAg
+ICAvKiAgICAgIExvZ2ljYWwgTWluaW11bSAoMCksICAgICAgICAgICAgKi8KMHgyNSwgMHg3Riwg
+ICAgICAgICAvKiAgICAgIExvZ2ljYWwgTWF4aW11bSAoMTI3KSwgICAgICAgICAgKi8KMHg4MSwg
+MHgwMiwgICAgICAgICAvKiAgICAgIElucHV0IChWYXJpYWJsZSksICAgICAgICAgICAgICAgKi8K
+MHgwNSwgMHgwMSwgICAgICAgICAvKiAgICAgIFVzYWdlIFBhZ2UgKERlc2t0b3ApLCAgICAgICAg
+ICAgKi8KMHgwOSwgMHgzMywgICAgICAgICAvKiAgICAgIFVzYWdlIChSeCksICAgICAgICAgICAg
+ICAgICAgICAgKi8KMHgwOSwgMHgzNCwgICAgICAgICAvKiAgICAgIFVzYWdlIChSeSksICAgICAg
+ICAgICAgICAgICAgICAgKi8KMHgxNSwgMHgwMCwgICAgICAgICAvKiAgICAgIExvZ2ljYWwgTWlu
+aW11bSAoMCksICAgICAgICAgICAgKi8KMHgyNiwgMHhGRiwgMHgwMCwgICAvKiAgICAgIExvZ2lj
+YWwgTWF4aW11bSAoMjU1KSwgICAgICAgICAgKi8KMHg3NSwgMHgwOCwgICAgICAgICAvKiAgICAg
+IFJlcG9ydCBTaXplICg4KSwgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMiwgICAgICAgICAv
+KiAgICAgIFJlcG9ydCBDb3VudCAoMiksICAgICAgICAgICAgICAgKi8KMHg4MSwgMHgwMiwgICAg
+ICAgICAvKiAgICAgIElucHV0IChWYXJpYWJsZSksICAgICAgICAgICAgICAgKi8KMHgwNiwgMHgw
+MCwgMHhGRiwgICAvKiAgICAgIFVzYWdlIFBhZ2UgKEZGMDBoKSwgICAgICAgICAgICAgKi8KMHgw
+OSwgMHgyMSwgICAgICAgICAvKiAgICAgIFVzYWdlICgyMWgpLCAgICAgICAgICAgICAgICAgICAg
+Ki8KMHg5NSwgMHgzNiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNTQpLCAgICAgICAg
+ICAgICAgKi8KMHg4MSwgMHgwMiwgICAgICAgICAvKiAgICAgIElucHV0IChWYXJpYWJsZSksICAg
+ICAgICAgICAgICAgKi8KMHg4NSwgMHgwNSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoNSks
+ICAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyMiwgICAgICAgICAvKiAgICAgIFVzYWdlICgy
+MmgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgxRiwgICAgICAgICAvKiAgICAgIFJl
+cG9ydCBDb3VudCAoMzEpLCAgICAgICAgICAgICAgKi8KMHg5MSwgMHgwMiwgICAgICAgICAvKiAg
+ICAgIE91dHB1dCAoVmFyaWFibGUpLCAgICAgICAgICAgICAgKi8KMHg4NSwgMHgwNCwgICAgICAg
+ICAvKiAgICAgIFJlcG9ydCBJRCAoNCksICAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyMywg
+ICAgICAgICAvKiAgICAgIFVzYWdlICgyM2gpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwg
+MHgyNCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMzYpLCAgICAgICAgICAgICAgKi8K
+MHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAg
+ICAgKi8KMHg4NSwgMHgwMiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMiksICAgICAgICAg
+ICAgICAgICAgKi8KMHgwOSwgMHgyNCwgICAgICAgICAvKiAgICAgIFVzYWdlICgyNGgpLCAgICAg
+ICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgyNCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3Vu
+dCAoMzYpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1
+cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHgwOCwgICAgICAgICAvKiAgICAg
+IFJlcG9ydCBJRCAoOCksICAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyNSwgICAgICAgICAv
+KiAgICAgIFVzYWdlICgyNWgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMywgICAg
+ICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMyksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgw
+MiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4
+NSwgMHgxMCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTYpLCAgICAgICAgICAgICAgICAg
+Ki8KMHgwOSwgMHgyNiwgICAgICAgICAvKiAgICAgIFVzYWdlICgyNmgpLCAgICAgICAgICAgICAg
+ICAgICAgKi8KMHg5NSwgMHgwNCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNCksICAg
+ICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlh
+YmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHgxMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJ
+RCAoMTcpLCAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyNywgICAgICAgICAvKiAgICAgIFVz
+YWdlICgyN2gpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMiwgICAgICAgICAvKiAg
+ICAgIFJlcG9ydCBDb3VudCAoMiksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAg
+ICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHgxMiwg
+ICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTgpLCAgICAgICAgICAgICAgICAgKi8KMHgwNiwg
+MHgwMiwgMHhGRiwgICAvKiAgICAgIFVzYWdlIFBhZ2UgKEZGMDJoKSwgICAgICAgICAgICAgKi8K
+MHgwOSwgMHgyMSwgICAgICAgICAvKiAgICAgIFVzYWdlICgyMWgpLCAgICAgICAgICAgICAgICAg
+ICAgKi8KMHg5NSwgMHgwRiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMTUpLCAgICAg
+ICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxl
+KSwgICAgICAgICAgICAgKi8KMHg4NSwgMHgxMywgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAo
+MTkpLCAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyMiwgICAgICAgICAvKiAgICAgIFVzYWdl
+ICgyMmgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgxNiwgICAgICAgICAvKiAgICAg
+IFJlcG9ydCBDb3VudCAoMjIpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAv
+KiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHgxNCwgICAg
+ICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMjApLCAgICAgICAgICAgICAgICAgKi8KMHgwNiwgMHgw
+NSwgMHhGRiwgICAvKiAgICAgIFVzYWdlIFBhZ2UgKEZGMDVoKSwgICAgICAgICAgICAgKi8KMHgw
+OSwgMHgyMCwgICAgICAgICAvKiAgICAgIFVzYWdlICgyMGgpLCAgICAgICAgICAgICAgICAgICAg
+Ki8KMHg5NSwgMHgxMCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMTYpLCAgICAgICAg
+ICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwg
+ICAgICAgICAgICAgKi8KMHg4NSwgMHgxNSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMjEp
+LCAgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyMSwgICAgICAgICAvKiAgICAgIFVzYWdlICgy
+MWgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgyQywgICAgICAgICAvKiAgICAgIFJl
+cG9ydCBDb3VudCAoNDQpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAg
+ICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHgwNiwgMHg4MCwgMHhGRiwg
+ICAvKiAgICAgIFVzYWdlIFBhZ2UgKEZGODBoKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHg4MCwg
+ICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTI4KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwg
+MHgyMCwgICAgICAgICAvKiAgICAgIFVzYWdlICgyMGgpLCAgICAgICAgICAgICAgICAgICAgKi8K
+MHg5NSwgMHgwNiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNiksICAgICAgICAgICAg
+ICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAg
+ICAgICAgICAgKi8KMHg4NSwgMHg4MSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTI5KSwg
+ICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyMSwgICAgICAgICAvKiAgICAgIFVzYWdlICgyMWgp
+LCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwNiwgICAgICAgICAvKiAgICAgIFJlcG9y
+dCBDb3VudCAoNiksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAg
+IEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHg4MiwgICAgICAgICAv
+KiAgICAgIFJlcG9ydCBJRCAoMTMwKSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyMiwgICAg
+ICAgICAvKiAgICAgIFVzYWdlICgyMmgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgw
+NSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNSksICAgICAgICAgICAgICAgKi8KMHhC
+MSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAg
+Ki8KMHg4NSwgMHg4MywgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTMxKSwgICAgICAgICAg
+ICAgICAgKi8KMHgwOSwgMHgyMywgICAgICAgICAvKiAgICAgIFVzYWdlICgyM2gpLCAgICAgICAg
+ICAgICAgICAgICAgKi8KMHg5NSwgMHgwMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAo
+MSksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUg
+KFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHg4NCwgICAgICAgICAvKiAgICAgIFJl
+cG9ydCBJRCAoMTMyKSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyNCwgICAgICAgICAvKiAg
+ICAgIFVzYWdlICgyNGgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwNCwgICAgICAg
+ICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNCksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwg
+ICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwg
+MHg4NSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTMzKSwgICAgICAgICAgICAgICAgKi8K
+MHgwOSwgMHgyNSwgICAgICAgICAvKiAgICAgIFVzYWdlICgyNWgpLCAgICAgICAgICAgICAgICAg
+ICAgKi8KMHg5NSwgMHgwNiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNiksICAgICAg
+ICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxl
+KSwgICAgICAgICAgICAgKi8KMHg4NSwgMHg4NiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAo
+MTM0KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyNiwgICAgICAgICAvKiAgICAgIFVzYWdl
+ICgyNmgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwNiwgICAgICAgICAvKiAgICAg
+IFJlcG9ydCBDb3VudCAoNiksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAv
+KiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHg4NywgICAg
+ICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTM1KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgy
+NywgICAgICAgICAvKiAgICAgIFVzYWdlICgyN2gpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5
+NSwgMHgyMywgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMzUpLCAgICAgICAgICAgICAg
+Ki8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAg
+ICAgICAgKi8KMHg4NSwgMHg4OCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTM2KSwgICAg
+ICAgICAgICAgICAgKi8KMHgwOSwgMHgyOCwgICAgICAgICAvKiAgICAgIFVzYWdlICgyOGgpLCAg
+ICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgyMiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBD
+b3VudCAoMzQpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZl
+YXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHg4OSwgICAgICAgICAvKiAg
+ICAgIFJlcG9ydCBJRCAoMTM3KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgyOSwgICAgICAg
+ICAvKiAgICAgIFVzYWdlICgyOWgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMiwg
+ICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMiksICAgICAgICAgICAgICAgKi8KMHhCMSwg
+MHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8K
+MHg4NSwgMHg5MCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTQ0KSwgICAgICAgICAgICAg
+ICAgKi8KMHgwOSwgMHgzMCwgICAgICAgICAvKiAgICAgIFVzYWdlICgzMGgpLCAgICAgICAgICAg
+ICAgICAgICAgKi8KMHg5NSwgMHgwNSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNSks
+ICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZh
+cmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHg5MSwgICAgICAgICAvKiAgICAgIFJlcG9y
+dCBJRCAoMTQ1KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgzMSwgICAgICAgICAvKiAgICAg
+IFVzYWdlICgzMWgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMywgICAgICAgICAv
+KiAgICAgIFJlcG9ydCBDb3VudCAoMyksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAg
+ICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHg5
+MiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTQ2KSwgICAgICAgICAgICAgICAgKi8KMHgw
+OSwgMHgzMiwgICAgICAgICAvKiAgICAgIFVzYWdlICgzMmgpLCAgICAgICAgICAgICAgICAgICAg
+Ki8KMHg5NSwgMHgwMywgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMyksICAgICAgICAg
+ICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwg
+ICAgICAgICAgICAgKi8KMHg4NSwgMHg5MywgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTQ3
+KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHgzMywgICAgICAgICAvKiAgICAgIFVzYWdlICgz
+M2gpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwQywgICAgICAgICAvKiAgICAgIFJl
+cG9ydCBDb3VudCAoMTIpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAg
+ICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhBMCwgICAgICAg
+ICAvKiAgICAgIFJlcG9ydCBJRCAoMTYwKSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg0MCwg
+ICAgICAgICAvKiAgICAgIFVzYWdlICg0MGgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwg
+MHgwNiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNiksICAgICAgICAgICAgICAgKi8K
+MHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAg
+ICAgKi8KMHg4NSwgMHhBMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTYxKSwgICAgICAg
+ICAgICAgICAgKi8KMHgwOSwgMHg0MSwgICAgICAgICAvKiAgICAgIFVzYWdlICg0MWgpLCAgICAg
+ICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3Vu
+dCAoMSksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1
+cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhBMiwgICAgICAgICAvKiAgICAg
+IFJlcG9ydCBJRCAoMTYyKSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg0MiwgICAgICAgICAv
+KiAgICAgIFVzYWdlICg0MmgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMSwgICAg
+ICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMSksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgw
+MiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4
+NSwgMHhBMywgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTYzKSwgICAgICAgICAgICAgICAg
+Ki8KMHgwOSwgMHg0MywgICAgICAgICAvKiAgICAgIFVzYWdlICg0M2gpLCAgICAgICAgICAgICAg
+ICAgICAgKi8KMHg5NSwgMHgzMCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNDgpLCAg
+ICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlh
+YmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhBNCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJ
+RCAoMTY0KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg0NCwgICAgICAgICAvKiAgICAgIFVz
+YWdlICg0NGgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwRCwgICAgICAgICAvKiAg
+ICAgIFJlcG9ydCBDb3VudCAoMTMpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAg
+ICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhBNSwg
+ICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTY1KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwg
+MHg0NSwgICAgICAgICAvKiAgICAgIFVzYWdlICg0NWgpLCAgICAgICAgICAgICAgICAgICAgKi8K
+MHg5NSwgMHgxNSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMjEpLCAgICAgICAgICAg
+ICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAg
+ICAgICAgICAgKi8KMHg4NSwgMHhBNiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTY2KSwg
+ICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg0NiwgICAgICAgICAvKiAgICAgIFVzYWdlICg0Nmgp
+LCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgxNSwgICAgICAgICAvKiAgICAgIFJlcG9y
+dCBDb3VudCAoMjEpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAg
+IEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhGMCwgICAgICAgICAv
+KiAgICAgIFJlcG9ydCBJRCAoMjQwKSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg0NywgICAg
+ICAgICAvKiAgICAgIFVzYWdlICg0N2gpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgz
+RiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNjMpLCAgICAgICAgICAgICAgKi8KMHhC
+MSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAg
+Ki8KMHg4NSwgMHhGMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMjQxKSwgICAgICAgICAg
+ICAgICAgKi8KMHgwOSwgMHg0OCwgICAgICAgICAvKiAgICAgIFVzYWdlICg0OGgpLCAgICAgICAg
+ICAgICAgICAgICAgKi8KMHg5NSwgMHgzRiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAo
+NjMpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUg
+KFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhGMiwgICAgICAgICAvKiAgICAgIFJl
+cG9ydCBJRCAoMjQyKSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg0OSwgICAgICAgICAvKiAg
+ICAgIFVzYWdlICg0OWgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwRiwgICAgICAg
+ICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMTUpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwg
+ICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwg
+MHhBNywgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTY3KSwgICAgICAgICAgICAgICAgKi8K
+MHgwOSwgMHg0QSwgICAgICAgICAvKiAgICAgIFVzYWdlICg0QWgpLCAgICAgICAgICAgICAgICAg
+ICAgKi8KMHg5NSwgMHgwMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMSksICAgICAg
+ICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxl
+KSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhBOCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAo
+MTY4KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg0QiwgICAgICAgICAvKiAgICAgIFVzYWdl
+ICg0QmgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMSwgICAgICAgICAvKiAgICAg
+IFJlcG9ydCBDb3VudCAoMSksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAv
+KiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhBOSwgICAg
+ICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTY5KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg0
+QywgICAgICAgICAvKiAgICAgIFVzYWdlICg0Q2gpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5
+NSwgMHgwOCwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoOCksICAgICAgICAgICAgICAg
+Ki8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAg
+ICAgICAgKi8KMHg4NSwgMHhBQSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTcwKSwgICAg
+ICAgICAgICAgICAgKi8KMHgwOSwgMHg0RSwgICAgICAgICAvKiAgICAgIFVzYWdlICg0RWgpLCAg
+ICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBD
+b3VudCAoMSksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZl
+YXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhBQiwgICAgICAgICAvKiAg
+ICAgIFJlcG9ydCBJRCAoMTcxKSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg0RiwgICAgICAg
+ICAvKiAgICAgIFVzYWdlICg0RmgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgzOSwg
+ICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNTcpLCAgICAgICAgICAgICAgKi8KMHhCMSwg
+MHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8K
+MHg4NSwgMHhBQywgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTcyKSwgICAgICAgICAgICAg
+ICAgKi8KMHgwOSwgMHg1MCwgICAgICAgICAvKiAgICAgIFVzYWdlICg1MGgpLCAgICAgICAgICAg
+ICAgICAgICAgKi8KMHg5NSwgMHgzOSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNTcp
+LCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZh
+cmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhBRCwgICAgICAgICAvKiAgICAgIFJlcG9y
+dCBJRCAoMTczKSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg1MSwgICAgICAgICAvKiAgICAg
+IFVzYWdlICg1MWgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwQiwgICAgICAgICAv
+KiAgICAgIFJlcG9ydCBDb3VudCAoMTEpLCAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAg
+ICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhB
+RSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTc0KSwgICAgICAgICAgICAgICAgKi8KMHgw
+OSwgMHg1MiwgICAgICAgICAvKiAgICAgIFVzYWdlICg1MmgpLCAgICAgICAgICAgICAgICAgICAg
+Ki8KMHg5NSwgMHgwMSwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoMSksICAgICAgICAg
+ICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwg
+ICAgICAgICAgICAgKi8KMHg4NSwgMHhBRiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBJRCAoMTc1
+KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg1MywgICAgICAgICAvKiAgICAgIFVzYWdlICg1
+M2gpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwgMHgwMiwgICAgICAgICAvKiAgICAgIFJl
+cG9ydCBDb3VudCAoMiksICAgICAgICAgICAgICAgKi8KMHhCMSwgMHgwMiwgICAgICAgICAvKiAg
+ICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAgICAgKi8KMHg4NSwgMHhCMCwgICAgICAg
+ICAvKiAgICAgIFJlcG9ydCBJRCAoMTc2KSwgICAgICAgICAgICAgICAgKi8KMHgwOSwgMHg1NCwg
+ICAgICAgICAvKiAgICAgIFVzYWdlICg1NGgpLCAgICAgICAgICAgICAgICAgICAgKi8KMHg5NSwg
+MHgzRiwgICAgICAgICAvKiAgICAgIFJlcG9ydCBDb3VudCAoNjMpLCAgICAgICAgICAgICAgKi8K
+MHhCMSwgMHgwMiwgICAgICAgICAvKiAgICAgIEZlYXR1cmUgKFZhcmlhYmxlKSwgICAgICAgICAg
+ICAgKi8KMHhDMCAgICAgICAgICAgICAgICAvKiAgRW5kIENvbGxlY3Rpb24gICAgICAgICAgICAg
+ICAgICAgICAgKi8K
+------=_20131207125234_31690
+Content-Type: application/octet-stream; name="des.bin"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="des.bin"
+
+BQEJBaEBhQEJMAkxCTIJNRUAJv8AdQiVBIECCTkVACUHNQBGOwFlFHUElQGBQmUABQkZASkOFQAl
+AXUBlQ6BAgYA/wkgdQaVARUAJX+BAgUBCTMJNBUAJv8AdQiVAoECBgD/CSGVNoEChQUJIpUfkQKF
+BAkjlSSxAoUCCSSVJLEChQgJJZUDsQKFEAkmlQSxAoURCSeVArEChRIGAv8JIZUPsQKFEwkilRax
+AoUUBgX/CSCVELEChRUJIZUssQIGgP+FgAkglQaxAoWBCSGVBrEChYIJIpUFsQKFgwkjlQGxAoWE
+CSSVBLEChYUJJZUGsQKFhgkmlQaxAoWHCSeVI7EChYgJKJUisQKFiQkplQKxAoWQCTCVBbEChZEJ
+MZUDsQKFkgkylQOxAoWTCTOVDLEChaAJQJUGsQKFoQlBlQGxAoWiCUKVAbEChaMJQ5UwsQKFpAlE
+lQ2xAoWlCUWVFbEChaYJRpUVsQKF8AlHlT+xAoXxCUiVP7EChfIJSZUPsQKFpwlKlQGxAoWoCUuV
+AbEChakJTJUIsQKFqglOlQGxAoWrCU+VObEChawJUJU5sQKFrQlRlQuxAoWuCVKVAbECha8JU5UC
+sQKFsAlUlT+xAsA=
+------=_20131207125234_31690
+Content-Type: text/plain; name="jstest.txt"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="jstest.txt"
+
+Driver version is 2.1.0.
+Joystick (Sony Computer Entertainment Wireless Controller) has 8 axes (X, Y, Z, Rx, Ry, Rz, Hat0X, Hat0Y)
+and 14 buttons (BtnX, BtnY, BtnZ, BtnTL, BtnTR, BtnTL2, BtnTR2, BtnSelect, BtnStart, BtnMode, BtnThumbL, BtnThumbR, ?, ?).
+Testing ... (interrupt to exit)
+Axes:  0:     0  1:     0  2:     0  3:     0  4:     0  5:     0  6:     0  7:     0 Buttons:  0:off  1:off  2:off  3:off  4:off  5:off  6:off  7:off  8:off  9:off 10:off 11:off 12:off 13:off
+
+Axes:  
+0:     0  L-Thumbstick X (left -ve)
+1:     0  L-Thumbstick Y (up -ve)
+2:     0  R-Thumbstick X (left -ve)
+3:     0  L-Trigger (released -ve)
+4:     0  R-Trigger (released -ve)
+5:     0  R-Thumbstick Y (up -ve)
+6:     0  D-Pad X (left -ve)
+7:     0  D-Pad Y (up -ve)
+Buttons:  
+0:off  Square
+1:off  Cross
+2:off  Circle
+3:off  Triangle
+4:off  L1 (Shoulder)
+5:off  R1 (Shoulder)
+6:off  L2 (Trigger) - also axis
+7:off  R2 (Trigger) - also axis
+8:off  Share
+9:off  Options
+10:off L-Thumbstick
+11:off R-Thumbstick
+12:off PS
+13:off TouchPad
+------=_20131207125234_31690
+Content-Type: text/plain; name="syslog.txt"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="syslog.txt"
+
+Dec  7 09:59:31 womble kernel: [  190.548071] usb 3-2: new full-speed USB device number 2 using uhci_hcd
+Dec  7 09:59:31 womble kernel: [  190.723988] usb 3-2: New USB device found, idVendor=054c, idProduct=05c4
+Dec  7 09:59:31 womble kernel: [  190.724001] usb 3-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+Dec  7 09:59:31 womble kernel: [  190.724039] usb 3-2: Product: Wireless Controller
+Dec  7 09:59:31 womble kernel: [  190.724049] usb 3-2: Manufacturer: Sony Computer Entertainment
+Dec  7 09:59:32 womble mtp-probe: checking bus 3, device 2: "/sys/devices/pci0000:00/0000:00:1d.1/usb3/3-2"
+Dec  7 09:59:32 womble mtp-probe: bus: 3, device: 2 was not an MTP device
+Dec  7 09:59:32 womble kernel: [  191.302128] usbcore: registered new interface driver usbhid
+Dec  7 09:59:32 womble kernel: [  191.302135] usbhid: USB HID core driver
+Dec  7 09:59:32 womble kernel: [  191.397030] input: Sony Computer Entertainment Wireless Controller as /devices/pci0000:00/0000:00:1d.1/usb3/3-2/3-2:1.0/input/input7
+Dec  7 09:59:32 womble kernel: [  191.397438] hid-generic 0003:054C:05C4.0001: input,hidraw0: USB HID v1.11 Gamepad [Sony Computer Entertainment Wireless Controller] on usb-0000:00:1d.1-2/input0
+------=_20131207125234_31690--
+
+

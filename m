@@ -1,97 +1,41 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 2/2] Documentation: dt: Document TSC2005 DT binding
-Date: Mon, 9 Dec 2013 09:46:38 -0800
-Message-ID: <20131209174638.GC12527@atomide.com>
-References: <1386284979-9680-1-git-send-email-sre@debian.org>
- <1386284979-9680-3-git-send-email-sre@debian.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 2/2] elantech: Add support for IC-body version 8
+Date: Mon, 9 Dec 2013 12:50:43 -0500
+Message-ID: <CAN+gG=F6tjhWQjbSEx9ku+AYrZkUjjdUwWE6oiCwcyysMAvUUg@mail.gmail.com>
+References: <1386599551-2339-1-git-send-email-hdegoede@redhat.com>
+	<1386599551-2339-2-git-send-email-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1386284979-9680-3-git-send-email-sre@debian.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@debian.org>
-Cc: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-la0-f53.google.com ([209.85.215.53]:48516 "EHLO
+	mail-la0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760514Ab3LIRup (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Dec 2013 12:50:45 -0500
+Received: by mail-la0-f53.google.com with SMTP id mc6so1582673lab.40
+        for <linux-input@vger.kernel.org>; Mon, 09 Dec 2013 09:50:43 -0800 (PST)
+In-Reply-To: <1386599551-2339-2-git-send-email-hdegoede@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>
 
-* Sebastian Reichel <sre@debian.org> [131205 15:11]:
-> Add devicetree binding documentation for TSC2005 touchscreen.
-> 
-> Signed-off-by: Sebastian Reichel <sre@debian.org>
+On Mon, Dec 9, 2013 at 9:32 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Acording to: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1232877
+> a patch for this has been send before, but I don't see this in 3.13-rc3,
+> so here is another one.
+>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
->  .../bindings/input/touchscreen/tsc2005.txt         | 49 ++++++++++++++++++++++
->  1 file changed, 49 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-> new file mode 100644
-> index 0000000..4e7df0b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-> @@ -0,0 +1,49 @@
-> +* TSC2005 Touchscreen
-> +
-> +Required properties:
-> + - compatible		      : "ti,tsc2005"
-> + - reg			      : SPI device address
-> + - spi-max-frequency	      : Maximal SPI speed
-> + - interrupts		      : IRQ specifier
-> + - reset-gpio		      : GPIO specifier
-> +
-> +Optional properties:
-> + - ti,fuzz-x		      : integer, X noise value of the touchscreen
-> +				(defaults to 4)
-> + - ti,fuzz-y		      : integer, Y noise value of the touchscreen
-> +				(defaults to 8)
-> + - ti,fuzz-pressure	      : integer, pressure noise value of the touchscreen
-> +				(defaults to 2)
-> + - ti,max-x		      : integer, maximum reported x value
-> +				(defaults to 4096)
-> + - ti,max-y		      : integer, maximum reported y value
-> +				(defaults to 4096)
-> + - ti,max-pressure	      : integer, maximum reported pressure
-> +				(defaults to 4096)
-> + - ti,x-plate-resistance      : integer, resistance of the touchscreen's X plates
-> +				in ohm (defaults to 280)
-> + - ti,esd-recovery-timeout-ms : integer, if the touchscreen does not respond after
-> +				the configured time (in milli seconds), the driver
-> +				will reset it. This is disabled by default.
+>
 
-Instead of adding these optional ti,* properties you can set them in the
-driver directly in the of_match table based on the compatible flag. Then
-you can pass compatible flag like ti,tsc2005-nokia-n900, or the name of
-the LCD panel. Most likely these depend on the LCD panel selected.
+Hey Hans,
 
-Regards,
+good to see you on linux-input :)
 
-Tony
+anyway, Dmitry already took this patch in his tree:
+https://git.kernel.org/cgit/linux/kernel/git/dtor/input.git/commit/?h=for-linus&id=9cb80b965eaf7af1369f6e16f48a05fbaaccc021
 
+And this patch is part of the pull request for 3.13-rc3 (so should be in rc4).
 
-> +Example:
-> +
-> +&mcspi1 {
-> +	tsc2005@0 {
-> +		compatible = "ti,tsc2005";
-> +		spi-max-frequency = <6000000>;
-> +		reg = <0>;
-> +		reset-gpio = <&gpio4 8 GPIO_ACTIVE_HIGH>; /* 104 */
-> +		interrupt-parent = <&gpio4>;
-> +		interrupts = <4 IRQ_TYPE_NONE>; /* gpio line 100 */
-> +
-> +		ti,fuzz-x = <4>;
-> +		ti,fuzz-y = <7>;
-> +		ti,fuzz-pressure = <2>;
-> +		ti,max-x = <4096>;
-> +		ti,max-y = <4096>;
-> +		ti,max-pressure = <2048>;
-> +		ti,x-plate-resistance = <280>;
-> +		ti,esd-recovery-timeout-ms = <8000>;
-> +	};
-> +}
-> -- 
-> 1.8.4.3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Benjamin

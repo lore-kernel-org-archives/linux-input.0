@@ -1,37 +1,97 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v1] HID: hid-sensor-hub: Fix kernel warning and failure
-Date: Mon, 9 Dec 2013 15:46:34 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1312091546230.24835@pobox.suse.cz>
-References: <1386290065-31813-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1386290065-31813-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 2/2] Documentation: dt: Document TSC2005 DT binding
+Date: Mon, 9 Dec 2013 09:46:38 -0800
+Message-ID: <20131209174638.GC12527@atomide.com>
+References: <1386284979-9680-1-git-send-email-sre@debian.org>
+ <1386284979-9680-3-git-send-email-sre@debian.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58598 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932593Ab3LIOqi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 9 Dec 2013 09:46:38 -0500
-In-Reply-To: <1386290065-31813-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1386284979-9680-3-git-send-email-sre@debian.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sebastian Reichel <sre@debian.org>
+Cc: Sebastian Reichel <sre@ring0.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: linux-input@vger.kernel.org
 
-On Thu, 5 Dec 2013, Srinivas Pandruvada wrote:
-
-> Fix kernel warning and failure to register sensor hub devices with MFD.
-> Now many devices has in-built sensor hubs. So by default this HID hub,
-> is properly parsed and register individual sensors as platform device
-> using MFD framework. But if a second sensor hub is attached via USB,
-> which has same sensors, it will result in kernel warning and failure
-> to register MFD cell as the platform device sysfs file name will be
-> same as created by in-built sensor hubs. This patch sets MFD cell id
-> to PLATFORM_DEVID_AUTO. In this way there will never
-> be duplicate sysfs file names.
+* Sebastian Reichel <sre@debian.org> [131205 15:11]:
+> Add devicetree binding documentation for TSC2005 touchscreen.
 > 
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Signed-off-by: Sebastian Reichel <sre@debian.org>
+> ---
+>  .../bindings/input/touchscreen/tsc2005.txt         | 49 ++++++++++++++++++++++
+>  1 file changed, 49 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
+> new file mode 100644
+> index 0000000..4e7df0b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
+> @@ -0,0 +1,49 @@
+> +* TSC2005 Touchscreen
+> +
+> +Required properties:
+> + - compatible		      : "ti,tsc2005"
+> + - reg			      : SPI device address
+> + - spi-max-frequency	      : Maximal SPI speed
+> + - interrupts		      : IRQ specifier
+> + - reset-gpio		      : GPIO specifier
+> +
+> +Optional properties:
+> + - ti,fuzz-x		      : integer, X noise value of the touchscreen
+> +				(defaults to 4)
+> + - ti,fuzz-y		      : integer, Y noise value of the touchscreen
+> +				(defaults to 8)
+> + - ti,fuzz-pressure	      : integer, pressure noise value of the touchscreen
+> +				(defaults to 2)
+> + - ti,max-x		      : integer, maximum reported x value
+> +				(defaults to 4096)
+> + - ti,max-y		      : integer, maximum reported y value
+> +				(defaults to 4096)
+> + - ti,max-pressure	      : integer, maximum reported pressure
+> +				(defaults to 4096)
+> + - ti,x-plate-resistance      : integer, resistance of the touchscreen's X plates
+> +				in ohm (defaults to 280)
+> + - ti,esd-recovery-timeout-ms : integer, if the touchscreen does not respond after
+> +				the configured time (in milli seconds), the driver
+> +				will reset it. This is disabled by default.
 
-Applied, thanks Srinivas.
+Instead of adding these optional ti,* properties you can set them in the
+driver directly in the of_match table based on the compatible flag. Then
+you can pass compatible flag like ti,tsc2005-nokia-n900, or the name of
+the LCD panel. Most likely these depend on the LCD panel selected.
 
--- 
-Jiri Kosina
-SUSE Labs
+Regards,
+
+Tony
+
+
+> +Example:
+> +
+> +&mcspi1 {
+> +	tsc2005@0 {
+> +		compatible = "ti,tsc2005";
+> +		spi-max-frequency = <6000000>;
+> +		reg = <0>;
+> +		reset-gpio = <&gpio4 8 GPIO_ACTIVE_HIGH>; /* 104 */
+> +		interrupt-parent = <&gpio4>;
+> +		interrupts = <4 IRQ_TYPE_NONE>; /* gpio line 100 */
+> +
+> +		ti,fuzz-x = <4>;
+> +		ti,fuzz-y = <7>;
+> +		ti,fuzz-pressure = <2>;
+> +		ti,max-x = <4096>;
+> +		ti,max-y = <4096>;
+> +		ti,max-pressure = <2048>;
+> +		ti,x-plate-resistance = <280>;
+> +		ti,esd-recovery-timeout-ms = <8000>;
+> +	};
+> +}
+> -- 
+> 1.8.4.3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,81 +1,60 @@
-From: Sebastian Reichel <sre@debian.org>
-Subject: Re: [PATCH 2/2] Documentation: dt: Document TSC2005 DT binding
-Date: Mon, 9 Dec 2013 19:24:10 +0100
-Message-ID: <20131209182409.GA7626@earth.universe>
-References: <1386284979-9680-1-git-send-email-sre@debian.org>
- <1386284979-9680-3-git-send-email-sre@debian.org>
- <20131209174638.GC12527@atomide.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH V2] input synaptics-rmi4: Fix ms calculation in poll interval
+Date: Mon, 09 Dec 2013 13:53:14 -0500
+Message-ID: <52A6119A.4000703@redhat.com>
+References: <1386288825-11837-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20131209174638.GC12527@atomide.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:12116 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932605Ab3LIS4B (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Dec 2013 13:56:01 -0500
+In-Reply-To: <1386288825-11837-1-git-send-email-cheiny@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>
 
+On 05/12/13 19:13, Christopher Heiny wrote:
+> [Previous patch re-used an old template for the subject line.  Sorry about that]
+> 
+> This patch implements changes to the synaptics-rmi4 branch of
+> Dmitry's input tree.  The base for the patch is commit
+> 8ca01dc61a42b6f7bcba052a8c084000f7057a34.
+> 
+> Fix computation of poll interval milliseconds.
+> 
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Jean Delvare <khali@linux-fr.org>
+> Cc: Linus Walleij <linus.walleij@stericsson.com>
+> Cc: Joerie de Gram <j.de.gram@gmail.com>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Mon, Dec 09, 2013 at 09:46:38AM -0800, Tony Lindgren wrote:
-> > +Optional properties:
-> > + - ti,fuzz-x		      : integer, X noise value of the touchscreen
-> > +				(defaults to 4)
-> > + - ti,fuzz-y		      : integer, Y noise value of the touchscreen
-> > +				(defaults to 8)
-> > + - ti,fuzz-pressure	      : integer, pressure noise value of the touch=
-screen
-> > +				(defaults to 2)
-> > + - ti,max-x		      : integer, maximum reported x value
-> > +				(defaults to 4096)
-> > + - ti,max-y		      : integer, maximum reported y value
-> > +				(defaults to 4096)
-> > + - ti,max-pressure	      : integer, maximum reported pressure
-> > +				(defaults to 4096)
-> > + - ti,x-plate-resistance      : integer, resistance of the touchscreen=
-'s X plates
-> > +				in ohm (defaults to 280)
-> > + - ti,esd-recovery-timeout-ms : integer, if the touchscreen does not r=
-espond after
-> > +				the configured time (in milli seconds), the driver
-> > +				will reset it. This is disabled by default.
->=20
-> Instead of adding these optional ti,* properties you can set them in the
-> driver directly in the of_match table based on the compatible flag. Then
-> you can pass compatible flag like ti,tsc2005-nokia-n900, or the name of
-> the LCD panel. Most likely these depend on the LCD panel selected.
+Cheers,
+Benjamin
 
-I could certainly do this, but it would move the board specific data
-=66rom the boardcode into the driver. That looks contra-productive to
-me. Is there a good reason to do it this way?
+> ---
+>  drivers/input/rmi4/rmi_driver.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index 9af297e..dffbfa0 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -934,7 +934,7 @@ static int rmi_driver_probe(struct device *dev)
+>  	} else
+>  		data->poll_interval = ktime_set(0,
+>  			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
+> -			DEFAULT_POLL_INTERVAL_MS) * 1000);
+> +			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
+>  
+>  	if (data->f01_container->dev.driver) {
+>  		/* Driver already bound, so enable ATTN now. */
+> 
 
--- Sebastian
-
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBCAAGBQJSpgrJAAoJENju1/PIO/qapvsQAI7qV3JzrBekXuf88/1YRqxz
-bICnIQPP552wly+wEceIX5xm11RaTuOe8jNsZqZRNyxm0Sjfpd1dPxHkDdwSgiLq
-qgK+MC6jliaFmmStoBX6//cE2t6Hl21rYrnBfLFTcdP0sxIFlIzYeq7mdLEBKtgq
-PftysW2UMB+VZyM0sHnTt2xKztQpiAFaZDZROeI7Xe7mrzKKwN+JLVFGY6zW1fF7
-k4+Ra0hLfTnQpIQgkJBKCOKZh3Imjom4NjPRxcVcPb8HdlFe02+kRVp0V3mNUYay
-E8X8rW77cXRwGwqRXNSk4BJ1HPY3/g/q5wDNIaoSS9elgiSbv2K+NFPGnf7ug4yF
-Ir+YTa7cCv846zP5UJw8ksPPtOfCkSUQKYEUXVxBphjqMsdey2n6iaETwoxzOJkx
-HdK9caKzpoZSW0fDO8ZjR/5JaP35q+tFIST3GmxCO7bBtLfVHv6U1gDIJ8tvYXmI
-FPzcDcUrKvPbcydySCuMH4U4OQrp1pEG+K+18W2xQe05JiPb2RlF3vbcqjxFMiJq
-B1gaPZagmAv0DruGekd13zcNbuaYsp1dOuYmVDZftUiVnf6smSif7PtN3lP3c4pM
-hMD3q2g4Z3dKx3n/f4RCQlclsUVMqwWKuViz6Nm20603OfcRBPaUHZ4aYPJTlGgQ
-WN0DKYg64STqw+HRCMRT
-=grQi
------END PGP SIGNATURE-----
-
---jI8keyz6grp/JLjh--

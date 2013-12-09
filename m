@@ -1,149 +1,352 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 1/2] elantech: Properly differentiate between clickpads
- and normal touchpads
-Date: Mon, 9 Dec 2013 14:21:19 -0500
-Message-ID: <CAN+gG=FgR9cBwJ_GFrU3RAmwma0XWzt8Wdi-HM2zEOOmdPNS+A@mail.gmail.com>
-References: <1386599551-2339-1-git-send-email-hdegoede@redhat.com>
-	<CAN+gG=Eh72eBS67db_KNsUzXRNsOUXB8YkzuuHoJca22xRAkdQ@mail.gmail.com>
-	<52A6169C.1020904@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH V2] input synaptics-rmi4: Reorder declarations in rmi_bus.c
+Date: Mon, 09 Dec 2013 15:14:26 -0500
+Message-ID: <52A624A2.5000405@redhat.com>
+References: <1386289756-12429-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f54.google.com ([209.85.215.54]:36151 "EHLO
-	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755962Ab3LITVU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Dec 2013 14:21:20 -0500
-Received: by mail-la0-f54.google.com with SMTP id b8so1969631lan.27
-        for <linux-input@vger.kernel.org>; Mon, 09 Dec 2013 11:21:19 -0800 (PST)
-In-Reply-To: <52A6169C.1020904@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:4095 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756069Ab3LIUQd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Dec 2013 15:16:33 -0500
+In-Reply-To: <1386289756-12429-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, Duson Lin <dusonlin@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Christopher Heiny <cheiny@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>
 
-On Mon, Dec 9, 2013 at 2:14 PM, Hans de Goede <hdegoede@redhat.com> wrote:
-> Hi,
->
->
-> On 12/09/2013 07:02 PM, Benjamin Tissoires wrote:
->>
->> Hi Hans,
->>
->> adding in CC Duson, who seems to be working on the same driver
->> currently, and Dmitry, the input maintainer.
->>
->> On Mon, Dec 9, 2013 at 9:32 AM, Hans de Goede <hdegoede@redhat.com> wrote:
->>>
->>> The current assumption in the elantech driver that hw version 3 touchpads
->>> are
->>> never clickpads and hw version 4 touchpads are always clickpads is wrong.
->>>
->>> There are several bug reports for this, ie:
->>> https://bugzilla.redhat.com/show_bug.cgi?id=1030802
->>>
->>> http://superuser.com/questions/619582/right-elantech-touchpad-button-not-working-in-linux
->>>
->>> I've spend a couple of hours wading through various bugzillas,
->>> launchpads and forum posts to create a list of fw-versions and
->>> capabilities
->>> for different laptop models to find a good method to differentiate
->>> between
->>> clickpads and versions with separate hardware buttons.
->>>
->>> Which shows that a device being a clickpad is reliable indicated by bit
->>> 12
->>> being set in the fw_version. I've included the gathered list inside the
->>> driver,
->>> so that we've this info at hand if we need to revisit this later.
->>
->>
->> Duson, can you confirm this? It's not that I don't trust Hans, but if
->> we could have the hardware maker validating this part, this would be
->> great.
->>
->>>
->>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>> ---
->>>   drivers/input/mouse/elantech.c | 43
->>> +++++++++++++++++++++++++++++++++++++++---
->>>   1 file changed, 40 insertions(+), 3 deletions(-)
->>>
->>> diff --git a/drivers/input/mouse/elantech.c
->>> b/drivers/input/mouse/elantech.c
->>> index 8551dca..f7baa32 100644
->>> --- a/drivers/input/mouse/elantech.c
->>> +++ b/drivers/input/mouse/elantech.c
->>> @@ -486,6 +486,7 @@ static void elantech_input_sync_v4(struct psmouse
->>> *psmouse)
->>>          unsigned char *packet = psmouse->packet;
->>>
->>>          input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
->>> +       input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
->>>          input_mt_report_pointer_emulation(dev, true);
->>>          input_sync(dev);
->>>   }
->>> @@ -984,6 +985,42 @@ static int elantech_get_resolution_v4(struct psmouse
->>> *psmouse,
->>>   }
->>>
->>>   /*
->>> + * Advertise INPUT_PROP_BUTTONPAD for clickpads. The testing of bit 12
->>> in
->>> + * fw_version for this is based on the following fw_version & caps
->>> table:
->>> + *
->>> + * Laptop-model:           fw_version:     caps:           buttons:
->>> + * Acer S3                 0x461f00        10, 13, 0e      clickpad
->>> + * Acer S7-392             0x581f01        50, 17, 0d      clickpad
->>> + * Acer V5-131             0x461f02        01, 16, 0c      clickpad
->>> + * Acer V5-551             0x461f00        ?               clickpad
->>> + * Asus K53SV              0x450f01        78, 15, 0c      2 hw buttons
->>> + * Asus G46VW              0x460f02        00, 18, 0c      2 hw buttons
->>> + * Asus G750JX             0x360f00        00, 16, 0c      2 hw buttons
->>> + * Asus UX31               0x361f00        20, 15, 0e      clickpad
->>> + * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
->>> + * Avatar AVIU-145A2       0x361f00        ?               clickpad
->>> + * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw buttons
->>> + * Lenovo L430             0x350f02        b9, 15, 0c      2 hw buttons
->>> (*)
->>> + * Samsung NF210           0x150b00        78, 14, 0a      2 hw buttons
->>> + * Samsung NP770Z5E        0x575f01        10, 15, 0f      clickpad
->>> + * Samsung NP700Z5B        0x361f06        21, 15, 0f      clickpad
->>> + * Samsung NP900X3E-A02    0x575f03        ?               clickpad
->>> + * Samsung NP-QX410        0x851b00        19, 14, 0c      clickpad
->>> + * Samsung RC512           0x450f00        08, 15, 0c      2 hw buttons
->>> + * Samsung RF710           0x450f00        ?               2 hw buttons
->>> + * System76 Pangolin       0x250f01        ?               2 hw buttons
->>> + * (*) + 3 trackpoint buttons
->>> + */
->>> +static void elantech_set_buttonpad_prop(struct psmouse *psmouse)
->>> +{
->>> +       struct input_dev *dev = psmouse->dev;
->>> +       struct elantech_data *etd = psmouse->private;
->>> +
->>> +       if (etd->fw_version & 0x001000)
->>> +               __set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
->>
->>
->> Small question here: if the touchpad is a clickpad, should'nt we also
->> remove the BTN_RIGHT bit too?
->
->
-> We could, but I don't see much value in that, and it would also require
-> if statements in the sync methods to ensure that we don't tree to send
-> a button event for a button we don't advertise.
+Hi Chris,
 
-We don't need this test in the sync method. The test is already
-implemented in input_event. So now, it's just a matter of taste
-regarding upper layers. Peter, any thoughts on this?
+On 05/12/13 19:29, Christopher Heiny wrote:
+> This patch implements changes to the synaptics-rmi4 branch of
+> Dmitry's input tree.  The base for the patch is commit
+> 8ca01dc61a42b6f7bcba052a8c084000f7057a34.
+> 
+> This patch primarily reorders the various declarations in rmi_bus.c in order to
+> group related elements together, along with some typo fixes.  The code is still
+> horribly broken, but this change should make the following fixes easier to
+>  review.
+> 
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Jean Delvare <khali@linux-fr.org>
+> Cc: Linus Walleij <linus.walleij@stericsson.com>
+> Cc: Joerie de Gram <j.de.gram@gmail.com>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> ---
 
-Anyway, other than that:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+FWIW, I made a review of the patch.
+The patches does not only reorder the functions, but also fix some few
+things I will detail later (plus fixes of whitespace/comments issues).
+It also changes the exported functions as GPL.
+
+Dmitry, given the current state of the driver (which does not work at
+all if I understood correctly), maybe you can pick this one in its
+current state.
+
+>  drivers/input/rmi4/rmi_bus.c | 189 +++++++++++++++++++++----------------------
+>  1 file changed, 90 insertions(+), 99 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+> index 88f60ca..d9c450b 100644
+> --- a/drivers/input/rmi4/rmi_bus.c
+> +++ b/drivers/input/rmi4/rmi_bus.c
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Copyright (c) 2011, 2012 Synaptics Incorporated
+> + * Copyright (c) 2011-2013 Synaptics Incorporated
+>   * Copyright (c) 2011 Unixphere
+>   *
+>   * This program is free software; you can redistribute it and/or modify it
+> @@ -19,77 +19,20 @@
+>  #include "rmi_bus.h"
+>  #include "rmi_driver.h"
+>  
+> -static int rmi_function_match(struct device *dev, struct device_driver *drv)
+> -{
+> -	struct rmi_function_handler *handler = to_rmi_function_handler(drv);
+> -	struct rmi_function *fn = to_rmi_function(dev);
+> -
+> -	return fn->fd.function_number == handler->func;
+> -}
+> -
+> -static int rmi_bus_match(struct device *dev, struct device_driver *drv)
+> -{
+> -	bool physical = rmi_is_physical_device(dev);
+> -
+> -	/* First see if types are not compatible */
+> -	if (physical != rmi_is_physical_driver(drv))
+> -		return 0;
+> -
+> -	return physical || rmi_function_match(dev, drv);
+> -}
+> -
+> -struct bus_type rmi_bus_type = {
+> -	.match		= rmi_bus_match,
+> -	.name		= "rmi",
+> -};
+> -
+> -#ifdef CONFIG_RMI4_DEBUG
+> -
+> -static struct dentry *rmi_debugfs_root;
+> -
+> -static void rmi_bus_setup_debugfs(void)
+> -{
+> -	rmi_debugfs_root = debugfs_create_dir(rmi_bus_type.name, NULL);
+> -	if (!rmi_debugfs_root)
+> -		pr_err("%s: Failed to create debugfs root\n",
+> -		       __func__);
+> -}
+> -
+> -static void rmi_bus_teardown_debugfs(void)
+> -{
+> -	if (rmi_debugfs_root)
+> -		debugfs_remove_recursive(rmi_debugfs_root);
+> -}
+> -
+> -#else
+> -
+> -static void rmi_bus_setup_debugfs(void)
+> -{
+> -}
+> -
+> -static void rmi_bus_teardown_debugfs(void)
+> -{
+> -}
+> -
+> -#endif
+> -
+> -
+>  /*
+>   * RMI Physical devices
+>   *
+>   * Physical RMI device consists of several functions serving particular
+> - * purpose. For example F11 is a 2D touch sensor while F10 is a generic
+> + * purpose. For example F11 is a 2D touch sensor while F01 is a generic
+>   * function present in every RMI device.
+>   */
+>  
+>  static void rmi_release_device(struct device *dev)
+>  {
+>  	struct rmi_device *rmi_dev = to_rmi_device(dev);
+> -
+>  	kfree(rmi_dev);
+>  }
+>  
+> -/* Device type for physical RMI devices */
+>  struct device_type rmi_device_type = {
+>  	.name		= "rmi_sensor",
+>  	.release	= rmi_release_device,
+> @@ -118,7 +61,7 @@ static void rmi_physical_teardown_debugfs(struct rmi_device *rmi_dev)
+>  
+>  #else
+>  
+> -static void rmi_physocal_setup_debugfs(struct rmi_device *rmi_dev)
+> +static void rmi_physical_setup_debugfs(struct rmi_device *rmi_dev)
+
+This typo makes me wonder how nobody saw this before. This will not
+compile without CONFIG_RMI4_DEBUG... :(
+
+>  {
+>  }
+>  
+> @@ -128,7 +71,6 @@ static void rmi_physical_teardown_debugfs(struct rmi_device *rmi_dev)
+>  
+>  #endif
+>  
+> -
+>  /**
+>   * rmi_register_physical_device - register a physical device connection on the RMI
+>   * bus.  Physical drivers provide communication from the devices on the bus to
+> @@ -174,7 +116,7 @@ int rmi_register_physical_device(struct rmi_phys_device *phys)
+>  
+>  	return 0;
+>  }
+> -EXPORT_SYMBOL(rmi_register_physical_device);
+> +EXPORT_SYMBOL_GPL(rmi_register_physical_device);
+>  
+>  /**
+>   * rmi_unregister_physical_device - unregister a physical device connection
+> @@ -191,18 +133,14 @@ void rmi_unregister_physical_device(struct rmi_phys_device *phys)
+>  EXPORT_SYMBOL(rmi_unregister_physical_device);
+>  
+>  
+> -/*
+> - * RMI Function devices and their handlers
+> - */
+> +/* Function specific stuff */
+>  
+>  static void rmi_release_function(struct device *dev)
+>  {
+>  	struct rmi_function *fn = to_rmi_function(dev);
+> -
+>  	kfree(fn);
+>  }
+>  
+> -/* Device type for RMI Function devices */
+>  struct device_type rmi_function_type = {
+>  	.name		= "rmi_function",
+>  	.release	= rmi_release_function,
+> @@ -244,35 +182,12 @@ static void rmi_function_teardown_debugfs(struct rmi_function *fn)
+>  
+>  #endif
+>  
+> -int rmi_register_function(struct rmi_function *fn)
+> +static int rmi_function_match(struct device *dev, struct device_driver *drv)
+>  {
+> -	struct rmi_device *rmi_dev = fn->rmi_dev;
+> -	int error;
+> -
+> -	dev_set_name(&fn->dev, "%s.fn%02x",
+> -		     dev_name(&rmi_dev->dev), fn->fd.function_number);
+> -
+> -	fn->dev.parent = &rmi_dev->dev;
+> -	fn->dev.type = &rmi_function_type;
+> -	fn->dev.bus = &rmi_bus_type;
+> -
+> -	error = device_register(&fn->dev);
+> -	if (error) {
+> -		dev_err(&rmi_dev->dev,
+> -			"Failed device_register function device %s\n",
+> -			dev_name(&fn->dev));
+> -	}
+> -
+> -	dev_dbg(&rmi_dev->dev, "Registered F%02X.\n", fn->fd.function_number);
+> -
+> -	rmi_function_setup_debugfs(fn);
+> -	return 0;
+> -}
+> +	struct rmi_function_handler *handler = to_rmi_function_handler(drv);
+> +	struct rmi_function *fn = to_rmi_function(dev);
+>  
+> -void rmi_unregister_function(struct rmi_function *fn)
+> -{
+> -	rmi_function_teardown_debugfs(fn);
+> -	device_unregister(&fn->dev);
+> +	return fn->fd.function_number == handler->func;
+>  }
+>  
+>  static int rmi_function_probe(struct device *dev)
+> @@ -302,6 +217,38 @@ static int rmi_function_remove(struct device *dev)
+>  	return 0;
+>  }
+>  
+> +int rmi_register_function(struct rmi_function *fn)
+> +{
+> +	struct rmi_device *rmi_dev = fn->rmi_dev;
+> +	int error;
+> +
+> +	dev_set_name(&fn->dev, "%s.fn%02x",
+> +		     dev_name(&rmi_dev->dev), fn->fd.function_number);
+> +
+> +	fn->dev.parent = &rmi_dev->dev;
+> +	fn->dev.type = &rmi_function_type;
+> +	fn->dev.bus = &rmi_bus_type;
+> +
+> +	error = device_register(&fn->dev);
+> +	if (error) {
+> +		dev_err(&rmi_dev->dev,
+> +			"Failed device_register function device %s\n",
+> +			dev_name(&fn->dev));
+> +		return error;
+
+this return statement was not in the previous version of rmi_bus.c, but
+it looks obviously correct.
+
+So to sum up:
+Reviewed-by: benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
->
-> Regards,
->
-> Hans
+> +	}
+> +
+> +	dev_dbg(&rmi_dev->dev, "Registered F%02X.\n", fn->fd.function_number);
+> +
+> +	rmi_function_setup_debugfs(fn);
+> +	return 0;
+> +}
+> +
+> +void rmi_unregister_function(struct rmi_function *fn)
+> +{
+> +	rmi_function_teardown_debugfs(fn);
+> +	device_unregister(&fn->dev);
+> +}
+> +
+>  /**
+>   * rmi_register_function_handler - register a handler for an RMI function
+>   * @handler: RMI handler that should be registered.
+> @@ -334,7 +281,7 @@ int __rmi_register_function_handler(struct rmi_function_handler *handler,
+>  
+>  	return 0;
+>  }
+> -EXPORT_SYMBOL(__rmi_register_function_handler);
+> +EXPORT_SYMBOL_GPL(__rmi_register_function_handler);
+>  
+>  /**
+>   * rmi_unregister_function_handler - unregister given RMI function handler
+> @@ -347,11 +294,55 @@ void rmi_unregister_function_handler(struct rmi_function_handler *handler)
+>  {
+>  	driver_unregister(&handler->driver);
+>  }
+> -EXPORT_SYMBOL(rmi_unregister_function_handler);
+> +EXPORT_SYMBOL_GPL(rmi_unregister_function_handler);
+>  
+> -/*
+> - * Bus registration and tear-down
+> - */
+> +/* Bus specific stuff */
+> +
+> +static int rmi_bus_match(struct device *dev, struct device_driver *drv)
+> +{
+> +	bool physical = rmi_is_physical_device(dev);
+> +
+> +	/* First see if types are not compatible */
+> +	if (physical != rmi_is_physical_driver(drv))
+> +		return 0;
+> +
+> +	return physical || rmi_function_match(dev, drv);
+> +}
+> +
+> +struct bus_type rmi_bus_type = {
+> +	.match		= rmi_bus_match,
+> +	.name		= "rmi",
+> +};
+> +
+> +#ifdef CONFIG_RMI4_DEBUG
+> +
+> +static struct dentry *rmi_debugfs_root;
+> +
+> +static void rmi_bus_setup_debugfs(void)
+> +{
+> +	rmi_debugfs_root = debugfs_create_dir(rmi_bus_type.name, NULL);
+> +	if (!rmi_debugfs_root)
+> +		pr_err("%s: Failed to create debugfs root\n",
+> +		       __func__);
+> +}
+> +
+> +static void rmi_bus_teardown_debugfs(void)
+> +{
+> +	if (rmi_debugfs_root)
+> +		debugfs_remove_recursive(rmi_debugfs_root);
+> +}
+> +
+> +#else
+> +
+> +static void rmi_bus_setup_debugfs(void)
+> +{
+> +}
+> +
+> +static void rmi_bus_teardown_debugfs(void)
+> +{
+> +}
+> +
+> +#endif
+>  
+>  static int __init rmi_bus_init(void)
+>  {
+> 
+

@@ -1,110 +1,115 @@
-From: "duson" <dusonlin@emc.com.tw>
-Subject: RE: [PATCH 1/2] elantech: Properly differentiate between clickpads and normal touchpads
-Date: Tue, 10 Dec 2013 17:29:09 +0800
-Message-ID: <036E3BE6492F4925B4C5A93F2E2659E9@elan.corp>
-References: <1386599551-2339-1-git-send-email-hdegoede@redhat.com> <CAN+gG=Eh72eBS67db_KNsUzXRNsOUXB8YkzuuHoJca22xRAkdQ@mail.gmail.com> <52A6169C.1020904@redhat.com> <CAN+gG=FgR9cBwJ_GFrU3RAmwma0XWzt8Wdi-HM2zEOOmdPNS+A@mail.gmail.com> <20131210061256.GA12524@core.coreip.homeip.net> <CF3F8F5F02EE401CBA8F5EFBCC62074D@elan.corp> <52A6D4B0.20206@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2] elantech: Properly differentiate between clickpads and normal touchpads
+Date: Tue, 10 Dec 2013 10:31:14 +0100
+Message-ID: <1386667874-6669-1-git-send-email-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:53880 "EHLO
-	emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753679Ab3LJJ3f convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Dec 2013 04:29:35 -0500
-In-Reply-To: <52A6D4B0.20206@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:64331 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753609Ab3LJJbT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Dec 2013 04:31:19 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Hans de Goede' <hdegoede@redhat.com>
-Cc: 'linux-input' <linux-input@vger.kernel.org>, 'Peter Hutterer' <peter.hutterer@redhat.com>, =?big5?B?J7bApUDEUCc=?= <phoenix@emc.com.tw>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Benjamin Tissoires' <benjamin.tissoires@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@redhat.com>, Hans de Goede <hdegoede@redhat.com>
 
-Hi Hans:
+The current assumption in the elantech driver that hw version 3 touchpads are
+never clickpads and hw version 4 touchpads are always clickpads is wrong.
 
-> -----Original Message-----
-> From: linux-input-owner@vger.kernel.org
-[mailto:linux-input-owner@vger.kernel.org]
-> On Behalf Of Hans de Goede
-> Sent: Tuesday, December 10, 2013 4:46 PM
-> To: duson; 'Dmitry Torokhov'; 'Benjamin Tissoires'
-> Cc: 'linux-input'; 'Peter Hutterer'; '=B6=C0=A5@=C4P'
-> Subject: Re: [PATCH 1/2] elantech: Properly differentiate between
-clickpads and
-> normal touchpads
->=20
-> Hi Duson,
->=20
-> On 12/10/2013 09:35 AM, duson wrote:
->=20
-> <snip>
->=20
-> >> We should not advertise events that device does not generate. This
-> >> should help userspace to decide if emulation is needed or not. Inp=
-ut
-> >> core will drop events that are not set up as valid for device, so =
-if we
-> >> clear BTN_RIGHT there it should all work.
-> >
-> > Actually, our touchpad for PS2 protocol implements the left and rig=
-ht
-click
-> > function, even thought, it is a click-pad. And the flag for left/ri=
-ght
-click
-> > information is recorded in the first byte of the packet (when doing=
- sync
-> > method).
-> > 	Byte0 Bit 0 --> for left click flag
-> > 	Byte0 Bit1 --> for right click flag
-> > When user presses the left-bottom area of the click-pad, only the l=
-eft
-click
-> > flag will be set to "1". On the other hand, pressing the right-bott=
-om
-area
-> > of the click-pad, only the right click flag will be set to "1".
-> > So, I think this is the cause of the BTN_RIGHT need to be set.
->=20
-> Are you sure? All info we have so far indicates that the right button
-needs
-> to be emulated in software in the clickpad case, ie a while back this
-> commit was added:
->=20
->
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/=
-drive
-rs/input/mous
-> e/elantech.c?id=3De3dde4fba94e0ba5e1fd79ea9e5389eea1f0cfec
->=20
-> To fix the right button not working, this also removes the checking
-> for bit 1 / reporting of BTN_RIGHT events, so if the right click area
-> would actually send right clicks I would expect the above commit to
-> have broken right clicking for tons of users, and we have no bug repo=
-rts
-> about this (my patch fixes the right button being broken in the non
-> clickpad case).
->=20
-> Note that the Linux driver uses the touchpad in absolute mode, not in
-> relative / ps/2 mouse emulation mode. Could it be that the handling o=
-f the
-> right button emulation for clickpads is only done in the firmware in
-> relative mode ?
->=20
-> Or maybe it is done in firmware for hardware v3 clickpads, but not fo=
-r
-> v4 clickpads ?
->=20
-Sorry, this is my mistake. I had confirmed our firmware engineer again.
-The correct answer is "When using click-pad in absolute mode only the l=
-eft
-click function work." So, both the left/right click function is enabled=
- when
-using normal smart-pad (non-clickpad) or clickpad in relative mode.
+There are several bug reports for this, ie:
+https://bugzilla.redhat.com/show_bug.cgi?id=1030802
+http://superuser.com/questions/619582/right-elantech-touchpad-button-not-working-in-linux
 
-Thanks,
-Duson
+I've spend a couple of hours wading through various bugzillas,
+launchpads and forum posts to create a list of fw-versions and capabilities
+for different laptop models to find a good method to differentiate between
+clickpads and versions with separate hardware buttons.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Which shows that a device being a clickpad is reliable indicated by bit 12
+being set in the fw_version. I've included the gathered list inside the driver,
+so that we've this info at hand if we need to revisit this later.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/mouse/elantech.c | 45 +++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 42 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 597e9b8..ef1cf52 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -486,6 +486,7 @@ static void elantech_input_sync_v4(struct psmouse *psmouse)
+ 	unsigned char *packet = psmouse->packet;
+ 
+ 	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
++	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+ 	input_mt_report_pointer_emulation(dev, true);
+ 	input_sync(dev);
+ }
+@@ -984,6 +985,44 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
+ }
+ 
+ /*
++ * Advertise INPUT_PROP_BUTTONPAD for clickpads. The testing of bit 12 in
++ * fw_version for this is based on the following fw_version & caps table:
++ *
++ * Laptop-model:           fw_version:     caps:           buttons:
++ * Acer S3                 0x461f00        10, 13, 0e      clickpad
++ * Acer S7-392             0x581f01        50, 17, 0d      clickpad
++ * Acer V5-131             0x461f02        01, 16, 0c      clickpad
++ * Acer V5-551             0x461f00        ?               clickpad
++ * Asus K53SV              0x450f01        78, 15, 0c      2 hw buttons
++ * Asus G46VW              0x460f02        00, 18, 0c      2 hw buttons
++ * Asus G750JX             0x360f00        00, 16, 0c      2 hw buttons
++ * Asus UX31               0x361f00        20, 15, 0e      clickpad
++ * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
++ * Avatar AVIU-145A2       0x361f00        ?               clickpad
++ * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw buttons
++ * Lenovo L430             0x350f02        b9, 15, 0c      2 hw buttons (*)
++ * Samsung NF210           0x150b00        78, 14, 0a      2 hw buttons
++ * Samsung NP770Z5E        0x575f01        10, 15, 0f      clickpad
++ * Samsung NP700Z5B        0x361f06        21, 15, 0f      clickpad
++ * Samsung NP900X3E-A02    0x575f03        ?               clickpad
++ * Samsung NP-QX410        0x851b00        19, 14, 0c      clickpad
++ * Samsung RC512           0x450f00        08, 15, 0c      2 hw buttons
++ * Samsung RF710           0x450f00        ?               2 hw buttons
++ * System76 Pangolin       0x250f01        ?               2 hw buttons
++ * (*) + 3 trackpoint buttons
++ */
++static void elantech_set_buttonpad_prop(struct psmouse *psmouse)
++{
++	struct input_dev *dev = psmouse->dev;
++	struct elantech_data *etd = psmouse->private;
++
++	if (etd->fw_version & 0x001000) {
++		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
++		__clear_bit(BTN_RIGHT, dev->keybit);
++	}
++}
++
++/*
+  * Set the appropriate event bits for the input subsystem
+  */
+ static int elantech_set_input_params(struct psmouse *psmouse)
+@@ -1026,6 +1065,8 @@ static int elantech_set_input_params(struct psmouse *psmouse)
+ 		__set_bit(INPUT_PROP_SEMI_MT, dev->propbit);
+ 		/* fall through */
+ 	case 3:
++		if (etd->hw_version == 3)
++			elantech_set_buttonpad_prop(psmouse);
+ 		input_set_abs_params(dev, ABS_X, x_min, x_max, 0, 0);
+ 		input_set_abs_params(dev, ABS_Y, y_min, y_max, 0, 0);
+ 		if (etd->reports_pressure) {
+@@ -1047,9 +1088,7 @@ static int elantech_set_input_params(struct psmouse *psmouse)
+ 			 */
+ 			psmouse_warn(psmouse, "couldn't query resolution data.\n");
+ 		}
+-		/* v4 is clickpad, with only one button. */
+-		__set_bit(INPUT_PROP_BUTTONPAD, dev->propbit);
+-		__clear_bit(BTN_RIGHT, dev->keybit);
++		elantech_set_buttonpad_prop(psmouse);
+ 		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
+ 		/* For X to recognize me as touchpad. */
+ 		input_set_abs_params(dev, ABS_X, x_min, x_max, 0, 0);
+-- 
+1.8.4.2
+

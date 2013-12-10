@@ -1,98 +1,162 @@
 From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH 5/7] genirq: Add devm_request_any_context_irq()
-Date: Tue, 10 Dec 2013 15:43:14 -0800
-Message-ID: <1386718996-3733-6-git-send-email-sboyd@codeaurora.org>
+Subject: [PATCH 4/7] Input: pm8xxx-vibrator - Migrate to regmap APIs
+Date: Tue, 10 Dec 2013 15:43:13 -0800
+Message-ID: <1386718996-3733-5-git-send-email-sboyd@codeaurora.org>
 References: <1386718996-3733-1-git-send-email-sboyd@codeaurora.org>
 Return-path: <linux-arm-msm-owner@vger.kernel.org>
 In-Reply-To: <1386718996-3733-1-git-send-email-sboyd@codeaurora.org>
 Sender: linux-arm-msm-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Some drivers use request_any_context_irq() but there isn't a
-devm_* function for it. Add one so that these drivers don't need
-to explicitly free the irq on driver detach.
+Use the regmap APIs for this driver instead of custom pm8xxx
+APIs. This breaks this driver's dependency on the pm8xxx APIs and
+allows us to easily port it to other bus protocols in the future.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 ---
- include/linux/interrupt.h |  5 +++++
- kernel/irq/devres.c       | 45 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 50 insertions(+)
+ drivers/input/misc/pm8xxx-vibrator.c | 61 +++++++++---------------------------
+ 1 file changed, 14 insertions(+), 47 deletions(-)
 
-diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
-index c9e831d..8334f9b 100644
---- a/include/linux/interrupt.h
-+++ b/include/linux/interrupt.h
-@@ -160,6 +160,11 @@ devm_request_irq(struct device *dev, unsigned int irq, irq_handler_t handler,
- 					 devname, dev_id);
- }
+diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/pm8xxx-vibrator.c
+index 2a92ab0..cb5a8e8f 100644
+--- a/drivers/input/misc/pm8xxx-vibrator.c
++++ b/drivers/input/misc/pm8xxx-vibrator.c
+@@ -17,7 +17,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
+-#include <linux/mfd/pm8xxx/core.h>
++#include <linux/regmap.h>
  
-+extern int __must_check
-+devm_request_any_context_irq(struct device *dev, unsigned int irq,
-+		 irq_handler_t handler, unsigned long irqflags,
-+		 const char *devname, void *dev_id);
-+
- extern void devm_free_irq(struct device *dev, unsigned int irq, void *dev_id);
+ #define VIB_DRV			0x4A
  
- /*
-diff --git a/kernel/irq/devres.c b/kernel/irq/devres.c
-index bd8e788..f71e9ff 100644
---- a/kernel/irq/devres.c
-+++ b/kernel/irq/devres.c
-@@ -73,6 +73,51 @@ int devm_request_threaded_irq(struct device *dev, unsigned int irq,
- EXPORT_SYMBOL(devm_request_threaded_irq);
+@@ -35,7 +35,7 @@
+  * struct pm8xxx_vib - structure to hold vibrator data
+  * @vib_input_dev: input device supporting force feedback
+  * @work: work structure to set the vibration parameters
+- * @dev: device supporting force feedback
++ * @regmap: regmap for register read/write
+  * @speed: speed of vibration set from userland
+  * @active: state of vibrator
+  * @level: level of vibration to set in the chip
+@@ -44,7 +44,7 @@
+ struct pm8xxx_vib {
+ 	struct input_dev *vib_input_dev;
+ 	struct work_struct work;
+-	struct device *dev;
++	struct regmap *regmap;
+ 	int speed;
+ 	int level;
+ 	bool active;
+@@ -52,42 +52,6 @@ struct pm8xxx_vib {
+ };
  
  /**
-+ *	devm_request_any_context_irq - allocate an interrupt line for a managed device
-+ *	@dev: device to request interrupt for
-+ *	@irq: Interrupt line to allocate
-+ *	@handler: Function to be called when the IRQ occurs
-+ *	@thread_fn: function to be called in a threaded interrupt context. NULL
-+ *		    for devices which handle everything in @handler
-+ *	@irqflags: Interrupt type flags
-+ *	@devname: An ascii name for the claiming device
-+ *	@dev_id: A cookie passed back to the handler function
-+ *
-+ *	Except for the extra @dev argument, this function takes the
-+ *	same arguments and performs the same function as
-+ *	request_any_context_irq().  IRQs requested with this function will be
-+ *	automatically freed on driver detach.
-+ *
-+ *	If an IRQ allocated with this function needs to be freed
-+ *	separately, devm_free_irq() must be used.
-+ */
-+int devm_request_any_context_irq(struct device *dev, unsigned int irq,
-+			      irq_handler_t handler, unsigned long irqflags,
-+			      const char *devname, void *dev_id)
-+{
-+	struct irq_devres *dr;
-+	int rc;
+- * pm8xxx_vib_read_u8 - helper to read a byte from pmic chip
+- * @vib: pointer to vibrator structure
+- * @data: placeholder for data to be read
+- * @reg: register address
+- */
+-static int pm8xxx_vib_read_u8(struct pm8xxx_vib *vib,
+-				 u8 *data, u16 reg)
+-{
+-	int rc;
+-
+-	rc = pm8xxx_readb(vib->dev->parent, reg, data);
+-	if (rc < 0)
+-		dev_warn(vib->dev, "Error reading pm8xxx reg 0x%x(0x%x)\n",
+-				reg, rc);
+-	return rc;
+-}
+-
+-/**
+- * pm8xxx_vib_write_u8 - helper to write a byte to pmic chip
+- * @vib: pointer to vibrator structure
+- * @data: data to write
+- * @reg: register address
+- */
+-static int pm8xxx_vib_write_u8(struct pm8xxx_vib *vib,
+-				 u8 data, u16 reg)
+-{
+-	int rc;
+-
+-	rc = pm8xxx_writeb(vib->dev->parent, reg, data);
+-	if (rc < 0)
+-		dev_warn(vib->dev, "Error writing pm8xxx reg 0x%x(0x%x)\n",
+-				reg, rc);
+-	return rc;
+-}
+-
+-/**
+  * pm8xxx_vib_set - handler to start/stop vibration
+  * @vib: pointer to vibrator structure
+  * @on: state to set
+@@ -95,14 +59,14 @@ static int pm8xxx_vib_write_u8(struct pm8xxx_vib *vib,
+ static int pm8xxx_vib_set(struct pm8xxx_vib *vib, bool on)
+ {
+ 	int rc;
+-	u8 val = vib->reg_vib_drv;
++	unsigned int val = vib->reg_vib_drv;
+ 
+ 	if (on)
+ 		val |= ((vib->level << VIB_DRV_SEL_SHIFT) & VIB_DRV_SEL_MASK);
+ 	else
+ 		val &= ~VIB_DRV_SEL_MASK;
+ 
+-	rc = pm8xxx_vib_write_u8(vib, val, VIB_DRV);
++	rc = regmap_write(vib->regmap, VIB_DRV, val);
+ 	if (rc < 0)
+ 		return rc;
+ 
+@@ -118,9 +82,9 @@ static void pm8xxx_work_handler(struct work_struct *work)
+ {
+ 	struct pm8xxx_vib *vib = container_of(work, struct pm8xxx_vib, work);
+ 	int rc;
+-	u8 val;
++	unsigned int val;
+ 
+-	rc = pm8xxx_vib_read_u8(vib, &val, VIB_DRV);
++	rc = regmap_read(vib->regmap, VIB_DRV, &val);
+ 	if (rc < 0)
+ 		return;
+ 
+@@ -184,27 +148,30 @@ static int pm8xxx_vib_probe(struct platform_device *pdev)
+ 	struct pm8xxx_vib *vib;
+ 	struct input_dev *input_dev;
+ 	int error;
+-	u8 val;
++	unsigned int val;
+ 
+ 	vib = devm_kzalloc(&pdev->dev, sizeof(*vib), GFP_KERNEL);
+ 	if (!vib)
+ 		return -ENOMEM;
+ 
++	vib->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	if (!vib->regmap)
++		return -ENODEV;
 +
-+	dr = devres_alloc(devm_irq_release, sizeof(struct irq_devres),
-+			  GFP_KERNEL);
-+	if (!dr)
-+		return -ENOMEM;
-+
-+	rc = request_any_context_irq(irq, handler, irqflags, devname, dev_id);
-+	if (rc) {
-+		devres_free(dr);
-+		return rc;
-+	}
-+
-+	dr->irq = irq;
-+	dr->dev_id = dev_id;
-+	devres_add(dev, dr);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(devm_request_any_context_irq);
-+
-+/**
-  *	devm_free_irq - free an interrupt
-  *	@dev: device to free interrupt for
-  *	@irq: Interrupt line to free
+ 	input_dev = devm_input_allocate_device(&pdev->dev);
+ 	if (!input_dev)
+ 		return -ENOMEM;
+ 
+ 	INIT_WORK(&vib->work, pm8xxx_work_handler);
+-	vib->dev = &pdev->dev;
+ 	vib->vib_input_dev = input_dev;
+ 
+ 	/* operate in manual mode */
+-	error = pm8xxx_vib_read_u8(vib, &val, VIB_DRV);
++	error = regmap_read(vib->regmap, VIB_DRV, &val);
+ 	if (error < 0)
+ 		return error;
+ 
+ 	val &= ~VIB_DRV_EN_MANUAL_MASK;
+-	error = pm8xxx_vib_write_u8(vib, val, VIB_DRV);
++	error = regmap_write(vib->regmap, VIB_DRV, val);
+ 	if (error < 0)
+ 		return error;
+ 
 -- 
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
 hosted by The Linux Foundation

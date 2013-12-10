@@ -1,84 +1,89 @@
-From: Heiko =?utf-8?q?St=C3=BCbner?= <heiko@sntech.de>
-Subject: [PATCH] Input: zforce: fix possible driver hang during suspend
-Date: Tue, 10 Dec 2013 16:50:04 +0100
-Message-ID: <201312101650.04799.heiko@sntech.de>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH V2] input synaptics-rmi4: Reorder declarations in rmi_bus.c
+Date: Tue, 10 Dec 2013 09:41:13 -0800
+Message-ID: <52A75239.5010001@synaptics.com>
+References: <1386289756-12429-1-git-send-email-cheiny@synaptics.com> <52A624A2.5000405@redhat.com> <20131210063914.GD12524@core.coreip.homeip.net> <20131210064624.GE12524@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gloria.sntech.de ([95.129.55.99]:57944 "EHLO gloria.sntech.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754464Ab3LJPuJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Dec 2013 10:50:09 -0500
+Received: from us-mx2.synaptics.com ([192.147.44.131]:43355 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753309Ab3LJRlO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Dec 2013 12:41:14 -0500
+In-Reply-To: <20131210064624.GE12524@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>
 
-handle_level_irq masks the interrupt before handling it, and only
-unmasks it after the handler is finished. So when a touch event
-happens after threads are suspended, but before the system is fully asleep
-the irq handler tries to wakeup the thread which will only happen on the
-next resume, resulting in the wakeup event never being sent and the driver
-not being able to wake the system from sleep due to the masked irq.
+On 12/09/2013 10:46 PM, Dmitry Torokhov wrote:
+> On Mon, Dec 09, 2013 at 10:39:14PM -0800, Dmitry Torokhov wrote:
+>> On Mon, Dec 09, 2013 at 03:14:26PM -0500, Benjamin Tissoires wrote:
+>>> Hi Chris,
+>>>
+>>> On 05/12/13 19:29, Christopher Heiny wrote:
+>>>> This patch implements changes to the synaptics-rmi4 branch of
+>>>> Dmitry's input tree.  The base for the patch is commit
+>>>> 8ca01dc61a42b6f7bcba052a8c084000f7057a34.
+>>>>
+>>>> This patch primarily reorders the various declarations in rmi_bus.=
+c in order to
+>>>> group related elements together, along with some typo fixes.  The =
+code is still
+>>>> horribly broken, but this change should make the following fixes e=
+asier to
+>>>>  review.
+>>>>
+>>>> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+>>>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>>>> Cc: Jean Delvare <khali@linux-fr.org>
+>>>> Cc: Linus Walleij <linus.walleij@stericsson.com>
+>>>> Cc: Joerie de Gram <j.de.gram@gmail.com>
+>>>> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>>>>
+>>>> ---
+>>>
+>>> FWIW, I made a review of the patch.
+>>> The patches does not only reorder the functions, but also fix some =
+few
+>>> things I will detail later (plus fixes of whitespace/comments issue=
+s).
+>>> It also changes the exported functions as GPL.
+>>>
+>>> Dmitry, given the current state of the driver (which does not work =
+at
+>>> all if I understood correctly), maybe you can pick this one in its
+>>> current state.
+>>
+>> Applied, thank you.
+>=20
+> Well, I had to pull up rmi_debugfs_root declaration to avoid:
+>=20
+>   CC [M]  drivers/input/rmi4/rmi_driver.o
+> drivers/input/rmi4/rmi_bus.c: In function =E2=80=98rmi_physical_setup=
+_debugfs=E2=80=99:
+> drivers/input/rmi4/rmi_bus.c:51:10: error: =E2=80=98rmi_debugfs_root=E2=
+=80=99 undeclared
+> (first use in this function)
+>           rmi_debugfs_root);
+>=20
+> Guys, a bit better compile coverage would be appreciated.
 
-Therefore move the wakeup_event to a small non-threaded handler.
+Um, well, OK.  As mentioned in a previous patch, the code is still
+horribly broken, although it's getting better.  I should have included
+that previous patch's disclaimer with this one.
 
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
----
- drivers/input/touchscreen/zforce_ts.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+There's a bunch of debugfs problems in the branch as it stands, such as
+failure to compile in certain configurations, kernel panics in others,
+problematic initialization sequence, and so on. I was planning to fix
+all that in a separate patch following this one, rather than putting
+changes in piece meal, or piggybacking the changes onto another patch.
 
-diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
-index 75762d6..aa127ba 100644
---- a/drivers/input/touchscreen/zforce_ts.c
-+++ b/drivers/input/touchscreen/zforce_ts.c
-@@ -455,7 +455,18 @@ static void zforce_complete(struct zforce_ts *ts, int cmd, int result)
- 	}
- }
- 
--static irqreturn_t zforce_interrupt(int irq, void *dev_id)
-+static irqreturn_t zforce_irq(int irq, void *dev_id)
-+{
-+	struct zforce_ts *ts = dev_id;
-+	struct i2c_client *client = ts->client;
-+
-+	if (ts->suspended && device_may_wakeup(&client->dev))
-+		pm_wakeup_event(&client->dev, 500);
-+
-+	return IRQ_WAKE_THREAD;
-+}
-+
-+static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
- {
- 	struct zforce_ts *ts = dev_id;
- 	struct i2c_client *client = ts->client;
-@@ -465,12 +476,10 @@ static irqreturn_t zforce_interrupt(int irq, void *dev_id)
- 	u8 *payload;
- 
- 	/*
--	 * When suspended, emit a wakeup signal if necessary and return.
-+	 * When still suspended, return.
- 	 * Due to the level-interrupt we will get re-triggered later.
- 	 */
- 	if (ts->suspended) {
--		if (device_may_wakeup(&client->dev))
--			pm_wakeup_event(&client->dev, 500);
- 		msleep(20);
- 		return IRQ_HANDLED;
- 	}
-@@ -763,8 +772,8 @@ static int zforce_probe(struct i2c_client *client,
- 	 * Therefore we can trigger the interrupt anytime it is low and do
- 	 * not need to limit it to the interrupt edge.
- 	 */
--	ret = devm_request_threaded_irq(&client->dev, client->irq, NULL,
--					zforce_interrupt,
-+	ret = devm_request_threaded_irq(&client->dev, client->irq,
-+					zforce_irq, zforce_irq_thread,
- 					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
- 					input_dev->name, ts);
- 	if (ret) {
--- 
-1.7.10.4
-
+					Chris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

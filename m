@@ -1,78 +1,48 @@
-From: Benjamin Franzke <benjaminfranzke@googlemail.com>
-Subject: [PATCH 2/2] joystick/xpad: Advertise the triggers as throttle/break
-Date: Wed, 11 Dec 2013 09:15:31 +0100
-Message-ID: <1386749731-6500-2-git-send-email-benjaminfranzke@googlemail.com>
-References: <1386749731-6500-1-git-send-email-benjaminfranzke@googlemail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Sony DualShock4 - basic functions work, but looking to improve
+ support
+Date: Wed, 11 Dec 2013 16:00:42 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1312111559190.1413@pobox.suse.cz>
+References: <61a33717137a02a1d0eac5a2d1cb257e.squirrel@mungewell.org> <10aade622f5593ec49af0256e3c60d83.squirrel@mungewell.org> <CANq1E4QxyKNbYCBAEUQN08dxz4YfYHfZQVHG0+w=cf5Fz1XpkQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f48.google.com ([74.125.83.48]:45190 "EHLO
-	mail-ee0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750743Ab3LKIQz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Dec 2013 03:16:55 -0500
-Received: by mail-ee0-f48.google.com with SMTP id e49so2663899eek.21
-        for <linux-input@vger.kernel.org>; Wed, 11 Dec 2013 00:16:52 -0800 (PST)
-In-Reply-To: <1386749731-6500-1-git-send-email-benjaminfranzke@googlemail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:55512 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751400Ab3LKPAr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Dec 2013 10:00:47 -0500
+In-Reply-To: <CANq1E4QxyKNbYCBAEUQN08dxz4YfYHfZQVHG0+w=cf5Fz1XpkQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Franzke <benjaminfranzke@googlemail.com>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Simon Wood <simon@mungewell.org>, Linux Input <linux-input@vger.kernel.org>, Antonio Ospite <ospite@studenti.unina.it>
 
-They are considered positive only axes, so userspace and joydev can
-handle them correctly.
-It also fits semantically better, since these triggers are really intended
-for throttle/break.
+On Sun, 8 Dec 2013, David Herrmann wrote:
 
-Signed-off-by: Benjamin Franzke <benjaminfranzke@googlemail.com>
----
- drivers/input/joystick/xpad.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+> >> Anyone here want to collaborate?
+> >
+> > I've decoded the majority of the HID stream including the multi-touch.
+> 
+> Nice! I already got my hands on one but will probably not find time
+> for it until February. However, I will gladly test any patches!
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 75e3b10..4e9de34 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -226,7 +226,7 @@ static const signed short xpad_abs_pad[] = {
- 
- /* used when triggers are mapped to axes */
- static const signed short xpad_abs_triggers[] = {
--	ABS_Z, ABS_RZ,		/* triggers left/right */
-+	ABS_BRAKE, ABS_THROTTLE, /* triggers left/right */
- 	-1
- };
- 
-@@ -327,8 +327,8 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
- 		input_report_key(dev, BTN_TL2, data[10]);
- 		input_report_key(dev, BTN_TR2, data[11]);
- 	} else {
--		input_report_abs(dev, ABS_Z, data[10]);
--		input_report_abs(dev, ABS_RZ, data[11]);
-+		input_report_abs(dev, ABS_BRAKE, data[10]);
-+		input_report_abs(dev, ABS_THROTTLE, data[11]);
- 	}
- 
- 	/* digital pad */
-@@ -429,8 +429,8 @@ static void xpad360_process_packet(struct usb_xpad *xpad,
- 		input_report_key(dev, BTN_TL2, data[4]);
- 		input_report_key(dev, BTN_TR2, data[5]);
- 	} else {
--		input_report_abs(dev, ABS_Z, data[4]);
--		input_report_abs(dev, ABS_RZ, data[5]);
-+		input_report_abs(dev, ABS_BRAKE, data[4]);
-+		input_report_abs(dev, ABS_THROTTLE, data[5]);
- 	}
- 
- 	input_sync(dev);
-@@ -824,8 +824,8 @@ static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
- 	case ABS_RY:	/* the two sticks */
- 		input_set_abs_params(input_dev, abs, -32768, 32767, 16, 128);
- 		break;
--	case ABS_Z:
--	case ABS_RZ:	/* the triggers (if mapped to axes) */
-+	case ABS_BRAKE:
-+	case ABS_THROTTLE: /* the triggers (if mapped to axes) */
- 		input_set_abs_params(input_dev, abs, 0, 255, 0, 0);
- 		break;
- 	case ABS_HAT0X:
+Good work!
+
+> Also, could you write your findings down and maybe put it into
+> ./Documentation/hid/? I'm not sure whether we put protocol data there
+> (Jiri?) but at least you could share the information on the list or
+> github. I would appreciate that a lot!
+
+We've never used Documentation/hid/ for this kind of purpose, especially 
+as the driver doesn't exist yet. I am not really sure whether kernel tree 
+is a proper collaboration method for this.
+
+What we have for quite a few of the existing drivers is having the 
+protocol described in comments directly in the driver, usually at its very 
+beginning. Would that work in this case as well?
+
+Thanks,
+
 -- 
-1.8.1.5
-
+Jiri Kosina
+SUSE Labs

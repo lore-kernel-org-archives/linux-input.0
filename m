@@ -1,79 +1,137 @@
-From: "Felipe F. Tonello" <eu@felipetonello.com>
-Subject: [PATCH] input: egalax: Send touch end event when is about to suspend
-Date: Tue, 10 Dec 2013 16:03:16 -0800
-Message-ID: <1386720196-5821-1-git-send-email-eu@felipetonello.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH] input synaptics-rmi4: Debugfs initialization fixes
+Date: Tue, 10 Dec 2013 18:12:04 -0800
+Message-ID: <1386727924-11522-1-git-send-email-cheiny@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f180.google.com ([209.85.214.180]:63758 "EHLO
-	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750965Ab3LKADW (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:3328 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750806Ab3LKCMK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Dec 2013 19:03:22 -0500
-Received: by mail-ob0-f180.google.com with SMTP id wo20so6065823obc.25
-        for <linux-input@vger.kernel.org>; Tue, 10 Dec 2013 16:03:22 -0800 (PST)
+	Tue, 10 Dec 2013 21:12:10 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sachin Kamat <sachin.kamat@linaro.org>, Heiko Abraham <abrahamh@web.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Felipe F. Tonello" <eu@felipetonello.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-From: "Felipe F. Tonello" <eu@felipetonello.com>
+This fixes the broken #ifdefs on CONFIG_RMI4_DEBUG.  Per device debugfs
+setup is reordered to ensure that the debugfs tree for a given device is
+created before it is registered (since the action of registering a device
+may cause other things to happen that depend on debugfs being initialized
+already).
 
-This is useful to report for users of this device that don't know anything
-about the suspension of the device. So users will receive a touch end event
-when the device is about to suspend, making it more user friendly.
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: Linus Walleij <linus.walleij@stericsson.com>
+Cc: Joerie de Gram <j.de.gram@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-One example of users is the X Server with the evdev input driver. This patch
-make sure that the X server will propagate a touch end event to its windows.
-
-Signed-off-by: Felipe F. Tonello <eu@felipetonello.com>
 ---
- drivers/input/touchscreen/egalax_ts.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
-index 054d225..1f21f0d 100644
---- a/drivers/input/touchscreen/egalax_ts.c
-+++ b/drivers/input/touchscreen/egalax_ts.c
-@@ -63,6 +63,7 @@
- struct egalax_ts {
- 	struct i2c_client		*client;
- 	struct input_dev		*input_dev;
-+	bool					ids_in_use[MAX_SUPPORT_POINTS];
- };
- 
- static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
-@@ -117,6 +118,8 @@ static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
- 	input_mt_report_pointer_emulation(input_dev, true);
- 	input_sync(input_dev);
- 
-+	ts->ids_in_use[id] = down;
-+
- 	return IRQ_HANDLED;
+This patch implements changes to the synaptics-rmi4 branch of
+Dmitry's input tree.  The base for the patch is commit
+f154022b208a59b048f52b7b5d58a5ec1949b96e.
+
+ drivers/input/rmi4/rmi_bus.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+index cb14cf6..173f6be 100644
+--- a/drivers/input/rmi4/rmi_bus.c
++++ b/drivers/input/rmi4/rmi_bus.c
+@@ -47,7 +47,7 @@ bool rmi_is_physical_device(struct device *dev)
+ 	return dev->type == &rmi_device_type;
  }
  
-@@ -247,9 +250,22 @@ static int egalax_ts_suspend(struct device *dev)
- 		0x3, 0x6, 0xa, 0x3, 0x36, 0x3f, 0x2, 0, 0, 0
- 	};
- 	struct i2c_client *client = to_i2c_client(dev);
--	int ret;
-+	struct egalax_ts *ts = i2c_get_clientdata(client);
-+	int ret, id;
+-#if CONFIG_RMI4_DEBUG
++#ifdef CONFIG_RMI4_DEBUG
  
- 	ret = i2c_master_send(client, suspend_cmd, MAX_I2C_DATA_LEN);
+ static void rmi_physical_setup_debugfs(struct rmi_device *rmi_dev)
+ {
+@@ -109,12 +109,12 @@ int rmi_register_physical_device(struct rmi_phys_device *phys)
+ 
+ 	phys->rmi_dev = rmi_dev;
+ 
++	rmi_physical_setup_debugfs(rmi_dev);
 +
-+	/* We send a touch end event (for the ids in use) if the egalax module is
-+	   about to be turned off. */
-+	for (id = 0; id < MAX_SUPPORT_POINTS; ++id) {
-+		if (ts->ids_in_use[id]) {
-+			input_mt_slot(ts->input_dev, id);
-+			input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, false);
-+			input_mt_report_pointer_emulation(ts->input_dev, true);
-+			input_sync(ts->input_dev);
-+		}
-+	}
-+
- 	return ret > 0 ? 0 : ret;
+ 	error = device_register(&rmi_dev->dev);
+ 	if (error)
+ 		return error;
+ 
+-	rmi_physical_setup_debugfs(rmi_dev);
+-
+ 	dev_dbg(phys->dev, "%s: Registered %s as %s.\n", __func__,
+ 		pdata->sensor_name, dev_name(&rmi_dev->dev));
+ 
+@@ -155,7 +155,7 @@ bool rmi_is_function_device(struct device *dev)
+ 	return dev->type == &rmi_function_type;
  }
  
--- 
-1.8.3.1
-
+-#if CONFIG_RMI4_DEBUG
++#ifdef CONFIG_RMI4_DEBUG
+ 
+ static void rmi_function_setup_debugfs(struct rmi_function *fn)
+ {
+@@ -233,18 +233,23 @@ int rmi_register_function(struct rmi_function *fn)
+ 	fn->dev.type = &rmi_function_type;
+ 	fn->dev.bus = &rmi_bus_type;
+ 
++	rmi_function_setup_debugfs(fn);
++
+ 	error = device_register(&fn->dev);
+ 	if (error) {
+ 		dev_err(&rmi_dev->dev,
+ 			"Failed device_register function device %s\n",
+ 			dev_name(&fn->dev));
+-		return error;
++		goto error_exit;
+ 	}
+ 
+ 	dev_dbg(&rmi_dev->dev, "Registered F%02X.\n", fn->fd.function_number);
+ 
+-	rmi_function_setup_debugfs(fn);
+ 	return 0;
++
++error_exit:
++	rmi_function_teardown_debugfs(fn);
++	return error;
+ }
+ 
+ void rmi_unregister_function(struct rmi_function *fn)
+@@ -357,6 +362,8 @@ static int __init rmi_bus_init(void)
+ 		return error;
+ 	}
+ 
++	rmi_bus_setup_debugfs();
++
+ 	error = rmi_register_f01_handler();
+ 	if (error) {
+ 		pr_err("%s: error registering the RMI F01 handler: %d\n",
+@@ -371,13 +378,12 @@ static int __init rmi_bus_init(void)
+ 		goto err_unregister_f01;
+ 	}
+ 
+-	rmi_bus_setup_debugfs();
+-
+ 	return 0;
+ 
+ err_unregister_f01:
+ 	rmi_unregister_f01_handler();
+ err_unregister_bus:
++	rmi_bus_teardown_debugfs();
+ 	bus_unregister(&rmi_bus_type);
+ 	return error;
+ }
+@@ -390,9 +396,9 @@ static void __exit rmi_bus_exit(void)
+ 	 * all we have to do at this point is unregister ourselves.
+ 	 */
+ 
+-	rmi_bus_teardown_debugfs();
+ 	rmi_unregister_physical_driver();
+ 	rmi_unregister_f01_handler();
++	rmi_bus_teardown_debugfs();
+ 	bus_unregister(&rmi_bus_type);
+ }
+ module_exit(rmi_bus_exit);

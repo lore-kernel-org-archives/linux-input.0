@@ -1,64 +1,80 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 00/31] ARM: tegra: use common reset and DMA bindings
-Date: Wed, 11 Dec 2013 17:11:44 -0700
-Message-ID: <52A8FF40.6000809@wwwdotorg.org>
-References: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 3.13-rc3
+Date: Thu, 12 Dec 2013 08:37:02 -0800
+Message-ID: <20131212163701.GA402@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: swarren@wwwdotorg.org
-Cc: Mark Rutland <mark.rutland@arm.com>, alsa-devel@alsa-project.org, linux-usb@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, ac100@lists.launchpad.net, devel@driverdev.osuosl.org, Stephen Warren <swarren@nvidia.com>, Alan Stern <stern@rowland.harvard.edu>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, =?UTF-8?B?VGVyamUgQmVyZ3N0csO2bQ==?= <tbergstrom@nvidia.com>, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <rob.herring@calxeda.com>, Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Mike Turquette <mturquette@linaro.org>, Dan Williams <dan.j.williams@intel.com>, linux-arm-kernel@lists.infradead.org, treding@nvidia.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:56227 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751523Ab3LLQhI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Dec 2013 11:37:08 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 11/15/2013 01:53 PM, Stephen Warren wrote:
-> From: Stephen Warren <swarren@nvidia.com>
-> 
-> This series implements a common reset framework driver for Tegra, and
-> updates all relevant Tegra drivers to use it. It also removes the custom
-> DMA bindings and replaced them with the standard DMA DT bindings.
-> 
-> Historically, the Tegra clock driver has exported a custom API for module
-> reset. This series removes that API, and transitions DT and drivers to
-> the new reset framework.
-> 
-> The custom API used a "struct clk" to identify which module to reset, and
-> consequently some DT bindings and drivers required clocks to be provided
-> where they really needed just a reset identifier instead. Due to this
-> known deficiency, I have always considered most Tegra bindings to be
-> unstable. This series removes this excuse for instability, although I
-> still consider some Tegra bindings unstable due to the need to convert to
-> the common DMA bindings.
-> 
-> Historically, Tegra DMA channels have been represented in DT using a
-> custom nvidia,dma-request-selector property. Now that standard DMA DT
-> bindings exist, convert all Tegra bindings, DTs, and drivers to use the
-> standard instead.
-> 
-> This series makes a DT-ABI-incompatible change to:
-> - Require reset specifiers in DT where relevant.
-> - Require standard DMA specifiers.
-> - Remove clock specifiers from DT where they were only needed for reset.
-> - Remove legacy DMA specifier properties.
-> 
-> I anticipate merging this whole series into the Tegra and arm-soc trees
-> as its own branch, due to internal dependencies. This branch will be
-> stable and can then be merged into any other subsystem trees should any
-> conflicts arise.
-> 
-> This series depends on Peter's Tegra clock driver rework, available at
-> git://nv-tegra.nvidia.com/user/pdeschrijver/linux tegra-clk-tegra124-0
-> (or whatever version of that gets included in 3.14)
 
-I've applied this series (and pulled in the DMA/ASoC/clk dependencies
-required) to Tegra's for-3.14/dmas-resets-rework branch.
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Linus,
+
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive more updates for the input subsystem. You will get a fix for
+recent sysfs breakage in serio subsystem plus a fixup to adxl34x driver.
+
+Changelog:
+---------
+
+Dmitry Torokhov (1):
+      Input: serio - fix sysfs layout
+
+Michael Hennerich (1):
+      Input: adxl34x - Fix bug in definition of ADXL346_2D_ORIENT
+
+
+Diffstat:
+--------
+
+ drivers/input/misc/adxl34x.c |  2 +-
+ drivers/input/serio/serio.c  | 24 +++++++++++++++++-------
+ 2 files changed, 18 insertions(+), 8 deletions(-)
+
+
+--=20
+Dmitry
+
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSqeYtAAoJEH70+W8r6ZYqUCsQAIcAYbxQoYYFuw4XMM1oG8Kc
+3mlGc0QmHHK8WwXCcQ7GNWMGWb8Qu6usJrhLa3PX4ueJRm7p0L9t2fhUBECXMaPV
+mDvIoSjZE/wOFEIh6zZawxBMpwDB2RAODIXPcvc1r5GgX69De6VYV5sE6zdAy+u+
+FAPu39R3yS38+QUSbdsUNkc3DSiL4tz1cPRYqNegyVWMq8fkLqz6dwdRovgF7+wc
+Friurdaba00R6iVMkqMFoWFDVwxyz8OVeDe0g+5jWlbzIHo6kd4wHNagl376GJvU
+oH8IYFkeo8+56+lXglyQqflPt1IGiJlGFJ/UkZTsyrVZiqQtc4vSsS8cCAw7v1B6
+cBO5ucXDIYaKdKjtyOYFcOMriktT/KiAUoZ88rsuFCPBY+7oaEqU7yU4FmO+fDvH
+2LpAYnysRsI47REz9w9xZ29V+euE4DO/hoMXMcmkIKic0Z2sc+HllCLtg1nIvDYy
+5r8lJHDTYQNeKPL3XszleyNJ7LukhS9WlSR7S+jwq7W9khG0BNPKmIL5BHMpCHmp
+HUxabHvCTC1/wKtNS0ZX9D6aT3Zo75XSzf9v4477AQ/DTYKuKysEoJPIcjcHVDe2
+LGxaGgT+mQKVS/IKxst8eaJgk71K6xQ6y1ACOPehkiPlHKpfxmlBSod5F3kRPa83
+fCWf5Dm3gFoIcclgib3U
+=JXeb
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--

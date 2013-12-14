@@ -1,47 +1,91 @@
-From: Ken Phillis Jr <kphillisjr@gmail.com>
-Subject: Re: Xpad Driver Replacement
-Date: Fri, 13 Dec 2013 23:16:14 -0600
-Message-ID: <CACiKS=SWfYQ58BN3tDGk7e2bg5vNVNw5XyxigVE80=hz2xJsVg@mail.gmail.com>
-References: <52A40F19.3020109@computerquip.com>
-	<52A68A23.7050707@computerquip.com>
+From: Benjamin Franzke <benjaminfranzke@googlemail.com>
+Subject: Re: [PATCH 1/2] joydev: Map ABS_{THROTTLE,GAS,BREAK} to positive values.
+Date: Sat, 14 Dec 2013 07:22:29 +0100
+Message-ID: <CAFc8KeTxX7Wdm5nWGBctwLKew+kmgrJmR0Hdd1cSYStADPFQXQ@mail.gmail.com>
+References: <1386749731-6500-1-git-send-email-benjaminfranzke@googlemail.com>
+	<CACiKS=QHY6Zq69+zRamZu6xPDUQs0DzNXB8TO_y977fq+qY2pw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f54.google.com ([209.85.216.54]:56899 "EHLO
-	mail-qa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750803Ab3LNFQP convert rfc822-to-8bit (ORCPT
+Received: from mail-vc0-f182.google.com ([209.85.220.182]:59275 "EHLO
+	mail-vc0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751516Ab3LNGWa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Dec 2013 00:16:15 -0500
-Received: by mail-qa0-f54.google.com with SMTP id f11so124711qae.6
-        for <linux-input@vger.kernel.org>; Fri, 13 Dec 2013 21:16:15 -0800 (PST)
-In-Reply-To: <52A68A23.7050707@computerquip.com>
+	Sat, 14 Dec 2013 01:22:30 -0500
+Received: by mail-vc0-f182.google.com with SMTP id lc6so1965395vcb.27
+        for <linux-input@vger.kernel.org>; Fri, 13 Dec 2013 22:22:29 -0800 (PST)
+In-Reply-To: <CACiKS=QHY6Zq69+zRamZu6xPDUQs0DzNXB8TO_y977fq+qY2pw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ken Phillis Jr <kphillisjr@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Mon, Dec 9, 2013 at 9:27 PM, Zachary Lund <admin@computerquip.com> wrote:
->
->
-> On 12/08/13 00:18, Zachary Lund wrote:
+I didnt test with games on steam.
+I've tested with supertuxkart 0.8.1 and jstest.
+
+Could you give me a hint, why you think that it breaks(?) input detection?
+
+I think SDL2 used evdev, so how should a changed joydev break the
+correction? (or do you mean in joydev fallback mode?)
+Searching through the SDL code I guess you refer to this:
+ http://hg.libsdl.org/SDL/file/a5f8137ccf01/src/joystick/SDL_gamecontroller.c#l133
+This really looks like a workaround for this brokeness of the joydev
+correction for triggers,
+thats why this should be fixed in kernel.
+
+It cant really be inteded to map triggers to -32767-32767, and
+consider this API to not brake application that have workarounds for
+this.
+Or is it?
+
+2013/12/14 Ken Phillis Jr <kphillisjr@gmail.com>:
+> On Wed, Dec 11, 2013 at 2:15 AM, Benjamin Franzke
+> <benjaminfranzke@googlemail.com> wrote:
+>> Gamepads like XInput devices have triggers with a range from
+>> e.g. 0 to 255.
+>> When the conventional joydev AXES correction/mapping method is used,
+>> the default state 0 (i.e. when the user does not press a button or trigger)
+>> is mapped to -32767 (and 255 to 32767).
+>> You'll get 0 only when pressing the trigger half-way down.
+>> This has several drawbacks:
+>>  - A trigger is not usable at all when configured to have 2 directions
+>>    when there is physically only one.
+>>  - Applications that let the user configure joystick input assignments
+>>    may register the mapped non-zero default state as a press,
+>>    preventing the user from configuring any sensible value.
 >>
->> Secondly, the Xbox 360 controllers claim to be HID compliant... this is not an HID driver. That's because the report descriptor is missing and I, unfortunately, do not know what to do about that. Some drivers like XBCD and the driver found at tattiebogle.net both provide their own report descriptor and work from there. While I'd like to do the same eventually, it will take me longer than a week to do that as I'd have to educate myself on HID and figure out what to do about the missing descriptors.
+>> Traditonal calibration e.g. with jscal does not help to get a usable
+>> experience either, it'll map the default state to -32767 as well.
+>> Only manually editing the calibration data does work currently.
+>>
+>> This patch tries to fix this issue by calculating a positive-only range for
+>> the throttle break and gas ABS bits.
+>> Maybe other ABS types need to be added to this scheme as well(?)
+>>
+>> Note:
+>> Although joydev is considered obsolete and people are encouraged to just
+>> use evdev, joydev should still be fixed, because
+>>  1. many applications still use it.
+>>  2. userspace already copies the joydev correction code to evdev (e.g. libSDL).
+>>
+>> This bug should be fixed here in joydev first, and when we have a good
+>> sensible state, this should be propagated to the application/libraries
+>> that copied the joydev correction code.
+>>
+>> Gamepad drivers will need to advertise triggers as THROTTLE,GAS,BREAK instead
+>> of e.g. ABS_{RZ,Z} where phyisically appropriate, to make use of this.
+>>
+>> I've considered changing the current joydev correction calculation for all ABS
+>> types, to have only a scaling functionality by default, no translation
+>> (all positive values remain positive, negatives negative and zero remains zero),
+>> so that drivers would need to expose zero-centered ABS values.
+>> It turned out to many drivers would need to be adjusted, which i cant
+>> test.
+>>
+>> Signed-off-by: Benjamin Franzke <benjaminfranzke@googlemail.com>
 >
-> I've run into an instant road block. The controller claims bInterfaceClass to be 0xFF (Vendor-specific) so usbhid won't probe it. I didn't think it would be so difficult to work around that but I've spent the better part of today trying to figure out just that. usbhid is a usb_driver that has only one requirement to be probed: bInterfaceClass be 0x03. Unfortunately, the device fails this requirement.
 >
-> Does anyone know of a way around this mechanism? Or perhaps I should take a different approach?
->
-
-I agree that the XBOX 360 controller support should appear as a
-separate driver. However the approach for detecting this should
-instead rely on what microsoft has described as the "Xbox 360 Common
-Controller class" (XUSB) [1]. The documentation surround the XINPUT
-covers Audio and Joystick input. However I believe it is possible to
-just cover the joystick input types ( and sub-controller types ) [2]
-without overdoing the driver.
-
-[1] MSDN Reference - DirectInput and XUSB
- http://msdn.microsoft.com/en-us/library/windows/desktop/hh405052%28v=vs.85%29.aspx
-
-[2] MSDN Reference - XINPUT and sub-controller types.
-http://msdn.microsoft.com/en-us/library/windows/desktop/hh405050%28v=vs.85%29.aspx
+> I have serious concerns that this Patch and the Next patch will the
+> input detection of the triggers on various games powered by SDL2. Have
+> you tested this against games listed on steam that have full
+> controller support?

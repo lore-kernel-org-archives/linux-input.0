@@ -1,27 +1,61 @@
-From: Veronica Coxsome <VCoxsome@bmhsc.org>
-Subject: This is an Email Service Alert from Helpdesk
-Date: Sat, 14 Dec 2013 12:04:48 +0000
-Message-ID: <49B8F74AD1B0A54E8AB451EB4C50ACB52E47ECF7__22041.5206779309$1387023370$gmane$org@EXCHANGEDAG01.bmhsc.org>
+From: Rashika Kheria <rashika.kheria@gmail.com>
+Subject: [PATCH] drivers: input: Include appropriate header file in
+ cyttsp_i2c_common.c
+Date: Sat, 14 Dec 2013 19:08:22 +0530
+Message-ID: <20131214133822.GA13124@rashika>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.bmhsc.org ([67.238.81.72]:4725 "EHLO ironport.bmhsc.org"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753379Ab3LNMOz convert rfc822-to-8bit (ORCPT
+Received: from mail-pb0-f54.google.com ([209.85.160.54]:60435 "EHLO
+	mail-pb0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753312Ab3LNNib (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Dec 2013 07:14:55 -0500
-Content-Language: en-US
+	Sat, 14 Dec 2013 08:38:31 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Ferruh Yigit <fery@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, josh@joshtriplett.org
+
+This patch includes appropriate header file cyttsp4_core.h in
+touchscreen/cyttsp_i2c_common.c because functions
+cyttsp_i2c_read_block_data() and cyttsp_i2c_write_block_data()
+have their prototype declaration in cyttsp4_core.h.
+
+Thus, it also eliminates the following warning in cyttsp_i2c_common.c:
+drivers/input/touchscreen/cyttsp_i2c_common.c:34:5: warning: no previou=
+s prototype for =E2=80=98cyttsp_i2c_read_block_data=E2=80=99 [-Wmissing=
+-prototypes]
+drivers/input/touchscreen/cyttsp_i2c_common.c:64:5: warning: no previou=
+s prototype for =E2=80=98cyttsp_i2c_write_block_data=E2=80=99 [-Wmissin=
+g-prototypes]
 
 
+Signed-off-by: Rashika Kheria <rashika.kheria@gmail.com>
+---
+ drivers/input/touchscreen/cyttsp_i2c_common.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/drivers/input/touchscreen/cyttsp_i2c_common.c b/drivers/in=
+put/touchscreen/cyttsp_i2c_common.c
+index 1d7b6f1..ccefa56 100644
+--- a/drivers/input/touchscreen/cyttsp_i2c_common.c
++++ b/drivers/input/touchscreen/cyttsp_i2c_common.c
+@@ -31,6 +31,8 @@
+ #include <linux/module.h>
+ #include <linux/types.h>
+=20
++#include "cyttsp4_core.h"
++
+ int cyttsp_i2c_read_block_data(struct device *dev, u8 *xfer_buf,
+ 				      u16 addr, u8 length, void *values)
+ {
+--=20
+1.7.9.5
 
-
-This is an Email Service Alert from Helpdesk. This is to inform you that your mailbox has exceeds its storage limit, you will be unable to receive and send emails. To
-
-re-set your Account Space on our database, prior to maintain your INBOX from 20G to 20.9G. CLICK HERE http://www.flynet.pp.ua/-4./ to Activate.
-
-Warm Regards,
-Helpdesk Administrator.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

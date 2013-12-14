@@ -1,64 +1,37 @@
-From: Ken Phillis Jr <kphillisjr@gmail.com>
-Subject: Re: [PATCH 1/2] joydev: Map ABS_{THROTTLE,GAS,BREAK} to positive values.
-Date: Sat, 14 Dec 2013 00:56:16 -0600
-Message-ID: <CACiKS=TRkEcEXHrB2P9wOfxrYWb8LtJ3S7F+h-OvZeNXYsoxpg@mail.gmail.com>
-References: <1386749731-6500-1-git-send-email-benjaminfranzke@googlemail.com>
-	<CACiKS=QHY6Zq69+zRamZu6xPDUQs0DzNXB8TO_y977fq+qY2pw@mail.gmail.com>
-	<CAFc8KeTxX7Wdm5nWGBctwLKew+kmgrJmR0Hdd1cSYStADPFQXQ@mail.gmail.com>
+From: Reyad Attiyat <reyad.attiyat@gmail.com>
+Subject: Why does adding HID USB ID allow a keyboard to work?
+Date: Sat, 14 Dec 2013 01:14:14 -0600
+Message-ID: <CA+BWVUT_v4nQTY7DHfdwegJ8rKOEraodReAkWt4y7Ck93_-PBQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qa0-f45.google.com ([209.85.216.45]:35798 "EHLO
-	mail-qa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751391Ab3LNG4R (ORCPT
+Received: from mail-wi0-f174.google.com ([209.85.212.174]:47288 "EHLO
+	mail-wi0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751516Ab3LNHOg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Dec 2013 01:56:17 -0500
-Received: by mail-qa0-f45.google.com with SMTP id o15so158125qap.18
-        for <linux-input@vger.kernel.org>; Fri, 13 Dec 2013 22:56:16 -0800 (PST)
-In-Reply-To: <CAFc8KeTxX7Wdm5nWGBctwLKew+kmgrJmR0Hdd1cSYStADPFQXQ@mail.gmail.com>
+	Sat, 14 Dec 2013 02:14:36 -0500
+Received: by mail-wi0-f174.google.com with SMTP id z2so188786wiv.13
+        for <linux-input@vger.kernel.org>; Fri, 13 Dec 2013 23:14:34 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 
-On Sat, Dec 14, 2013 at 12:22 AM, Benjamin Franzke
-<benjaminfranzke@googlemail.com> wrote:
->
-> I didnt test with games on steam.
-> I've tested with supertuxkart 0.8.1 and jstest.
->
-> Could you give me a hint, why you think that it breaks(?) input detection?
->
-> I think SDL2 used evdev, so how should a changed joydev break the
-> correction? (or do you mean in joydev fallback mode?)
-> Searching through the SDL code I guess you refer to this:
->  http://hg.libsdl.org/SDL/file/a5f8137ccf01/src/joystick/SDL_gamecontroller.c#l133
-> This really looks like a workaround for this brokeness of the joydev
-> correction for triggers,
-> thats why this should be fixed in kernel.
->
-> It cant really be inteded to map triggers to -32767-32767, and
-> consider this API to not brake application that have workarounds for
-> this.
-> Or is it?
->
->
+I have a basic question about the way the linux kernel handles human
+input devices. I bought a Surface Pro 2 with a Type cover keyboard.
+This did not work out of the box with stock linux kernel 3.11. When I
+added the hardware id of the device to the hid-microsoft.c driver it
+worked.
 
+Does this work simply because when I add the hardware id to the
+driver, the kernel knows to use usb-hid generic driver with the
+device? I'm trying to understand the hid-microsoft driver and it seems
+to apply quirks/hacks that enable Microsoft devices to work with the
+hid driver. Such as remapping keys. I don't need any of these quirks
+as all the media keys on the keyboard work all by adding the hardware
+id.
 
-
-I believe the more appropriate work around would be to have the
-appropriate mappings setting that are dependent on the device type.
-This is to help improve overall interoperability. I know that most
-xbox 360 devices can directly define the device type with the
-descriptors. That said, Two of the mappings that can work are
-MAP_FLIGHT_STICK and  MAP_RACING_WHEEL.
-
-In the case of the MAP_RACING_WHEEL the following look reasonable enough...
-ABS_WHEEL ( X axis on Left stick )
-ABS_GAS  ( Left trigger )
-ABS_BRAKE ( Right Trigger )
-
-in the case of MAP_FLIGHT_STICK, the following is needed...
-PITCH/ROLL - Axis of Left stick
-POV Hat - Right stick
-Rudder - Left Trigger
-Throttle - Right Trigger.
+Why doesn't the device work out of the box? Is the device not
+advertising itself as a hid device over usb? I'm little confused as to
+how this should be fixed. Does the kernel fail in noticing this hid
+device or does the device fail in telling the kernel it is a
+keyboard/mouse?

@@ -1,67 +1,79 @@
-From: Josh Triplett <josh@joshtriplett.org>
-Subject: Re: [PATCH] drivers: input: Include appropriate header file in
- cyttsp_i2c_common.c
-Date: Sat, 14 Dec 2013 12:57:52 -0800
-Message-ID: <20131214205752.GS17601@leaf>
-References: <20131214133822.GA13124@rashika>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Add new USB_DEVICE_ID to holtek workaround module
+ (hid-holtek-mouse.c)
+Date: Sun, 15 Dec 2013 00:40:29 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1312150028340.28760@pobox.suse.cz>
+References: <120781387058135@web10j.yandex.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:42226 "EHLO
-	relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754185Ab3LNU56 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Dec 2013 15:57:58 -0500
-Content-Disposition: inline
-In-Reply-To: <20131214133822.GA13124@rashika>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <120781387058135@web10j.yandex.ru>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kharlamov Alexey <derlafff@yandex.ru>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rashika Kheria <rashika.kheria@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Ferruh Yigit <fery@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Sat, Dec 14, 2013 at 07:08:22PM +0530, Rashika Kheria wrote:
-> This patch includes appropriate header file cyttsp4_core.h in
-> touchscreen/cyttsp_i2c_common.c because functions
-> cyttsp_i2c_read_block_data() and cyttsp_i2c_write_block_data()
-> have their prototype declaration in cyttsp4_core.h.
->=20
-> Thus, it also eliminates the following warning in cyttsp_i2c_common.c=
-:
-> drivers/input/touchscreen/cyttsp_i2c_common.c:34:5: warning: no previ=
-ous prototype for =E2=80=98cyttsp_i2c_read_block_data=E2=80=99 [-Wmissi=
-ng-prototypes]
-> drivers/input/touchscreen/cyttsp_i2c_common.c:64:5: warning: no previ=
-ous prototype for =E2=80=98cyttsp_i2c_write_block_data=E2=80=99 [-Wmiss=
-ing-prototypes]
->=20
->=20
-> Signed-off-by: Rashika Kheria <rashika.kheria@gmail.com>
 
-Reviewed-by: Josh Triplett <josh@joshtriplett.org>
+[ usual CCs added ]
 
->  drivers/input/touchscreen/cyttsp_i2c_common.c |    2 ++
->  1 file changed, 2 insertions(+)
->=20
-> diff --git a/drivers/input/touchscreen/cyttsp_i2c_common.c b/drivers/=
-input/touchscreen/cyttsp_i2c_common.c
-> index 1d7b6f1..ccefa56 100644
-> --- a/drivers/input/touchscreen/cyttsp_i2c_common.c
-> +++ b/drivers/input/touchscreen/cyttsp_i2c_common.c
-> @@ -31,6 +31,8 @@
->  #include <linux/module.h>
->  #include <linux/types.h>
-> =20
-> +#include "cyttsp4_core.h"
-> +
->  int cyttsp_i2c_read_block_data(struct device *dev, u8 *xfer_buf,
->  				      u16 addr, u8 length, void *values)
->  {
-> --=20
-> 1.7.9.5
->=20
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Sun, 15 Dec 2013, Kharlamov Alexey wrote:
+
+> New USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A070 constant was added to existing 
+> workaround module, so RITMIX ROM-316 mouse can now work.
+> 
+> Signed-off-by: Alexey Kharlamov <derlafff@ya.ru>
+> 
+> ---
+> 
+> Tested and patched on linux-3.13-rc3
+
+Hi Alexey,
+
+I am wondering how this patch was tested, please? See comments below.
+
+> diff -uprN a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mouse.c
+> --- a/drivers/hid/hid-holtek-mouse.c	2013-12-06 21:34:04.000000000 +0400
+> +++ b/drivers/hid/hid-holtek-mouse.c	2013-12-15 01:24:30.277447386 +0400
+> @@ -28,6 +28,7 @@
+>   * - USB ID 04d9:a04a, sold as Tracer Sniper TRM-503, NOVA Gaming Slider X200
+>   *   and Zalman ZM-GM1
+>   * - USB ID 04d9:a081, sold as SHARKOON DarkGlider Gaming mouse
+> + * - USB ID 04d9:a070, sold as RITMIX ROM-316 Gaming Mouse
+>   * - USB ID 04d9:a072, sold as LEETGION Hellion Gaming Mouse
+>   */
+
+You are not adding a new switch case to holtek_mouse_report_fixup(), hence 
+your patch seems to be a no-op (as the function does absolutely nothing 
+and returns the original descriptor back)?
+
+>  
+> @@ -68,6 +69,8 @@ static const struct hid_device_id holtek
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+>  			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+> +			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A070) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+>  			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+>  			USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
+> diff -uprN a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> --- a/drivers/hid/hid-ids.h	2013-12-06 21:34:04.000000000 +0400
+> +++ b/drivers/hid/hid-ids.h	2013-12-15 01:22:37.661390627 +0400
+> @@ -455,6 +455,7 @@
+>  #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD	0xa055
+>  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A	0xa04a
+>  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A067	0xa067
+> +#define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A070	0xa070
+>  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072	0xa072
+>  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
+
+You also need to add the device to hid_have_special_driver[] so that the 
+binding is guaranteed to be correct.
+
+Could you please work in fixing up and resending the patch?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

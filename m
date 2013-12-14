@@ -1,57 +1,71 @@
-From: Sebastian Reichel <sre@ring0.de>
-Subject: Re: [PATCHv4 0/2] twl4030-keypad DT binding
-Date: Fri, 13 Dec 2013 19:47:21 +0100
-Message-ID: <20131213184720.GA2967@earth.universe>
-References: <1383948866-32672-1-git-send-email-sre@debian.org>
- <1385830416-12900-1-git-send-email-sre@debian.org>
+From: Ken Phillis Jr <kphillisjr@gmail.com>
+Subject: Re: [PATCH 1/2] joydev: Map ABS_{THROTTLE,GAS,BREAK} to positive values.
+Date: Fri, 13 Dec 2013 23:13:26 -0600
+Message-ID: <CACiKS=QHY6Zq69+zRamZu6xPDUQs0DzNXB8TO_y977fq+qY2pw@mail.gmail.com>
+References: <1386749731-6500-1-git-send-email-benjaminfranzke@googlemail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ring0.de ([91.143.88.219]:60027 "EHLO smtp.ring0.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753166Ab3LMSrZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Dec 2013 13:47:25 -0500
-Content-Disposition: inline
-In-Reply-To: <1385830416-12900-1-git-send-email-sre@debian.org>
+Received: from mail-qe0-f50.google.com ([209.85.128.50]:46743 "EHLO
+	mail-qe0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750803Ab3LNFN1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 14 Dec 2013 00:13:27 -0500
+Received: by mail-qe0-f50.google.com with SMTP id 1so2337564qec.23
+        for <linux-input@vger.kernel.org>; Fri, 13 Dec 2013 21:13:27 -0800 (PST)
+In-Reply-To: <1386749731-6500-1-git-send-email-benjaminfranzke@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+To: Benjamin Franzke <benjaminfranzke@googlemail.com>
+Cc: linux-input@vger.kernel.org
+
+On Wed, Dec 11, 2013 at 2:15 AM, Benjamin Franzke
+<benjaminfranzke@googlemail.com> wrote:
+> Gamepads like XInput devices have triggers with a range from
+> e.g. 0 to 255.
+> When the conventional joydev AXES correction/mapping method is used,
+> the default state 0 (i.e. when the user does not press a button or trigger)
+> is mapped to -32767 (and 255 to 32767).
+> You'll get 0 only when pressing the trigger half-way down.
+> This has several drawbacks:
+>  - A trigger is not usable at all when configured to have 2 directions
+>    when there is physically only one.
+>  - Applications that let the user configure joystick input assignments
+>    may register the mapped non-zero default state as a press,
+>    preventing the user from configuring any sensible value.
+>
+> Traditonal calibration e.g. with jscal does not help to get a usable
+> experience either, it'll map the default state to -32767 as well.
+> Only manually editing the calibration data does work currently.
+>
+> This patch tries to fix this issue by calculating a positive-only range for
+> the throttle break and gas ABS bits.
+> Maybe other ABS types need to be added to this scheme as well(?)
+>
+> Note:
+> Although joydev is considered obsolete and people are encouraged to just
+> use evdev, joydev should still be fixed, because
+>  1. many applications still use it.
+>  2. userspace already copies the joydev correction code to evdev (e.g. libSDL).
+>
+> This bug should be fixed here in joydev first, and when we have a good
+> sensible state, this should be propagated to the application/libraries
+> that copied the joydev correction code.
+>
+> Gamepad drivers will need to advertise triggers as THROTTLE,GAS,BREAK instead
+> of e.g. ABS_{RZ,Z} where phyisically appropriate, to make use of this.
+>
+> I've considered changing the current joydev correction calculation for all ABS
+> types, to have only a scaling functionality by default, no translation
+> (all positive values remain positive, negatives negative and zero remains zero),
+> so that drivers would need to expose zero-centered ABS values.
+> It turned out to many drivers would need to be adjusted, which i cant
+> test.
+>
+> Signed-off-by: Benjamin Franzke <benjaminfranzke@googlemail.com>
 
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Dmitry,
-
-> Add device tree support for the twl4030 keypad, which is
-> for example used in the Nokia N900.
-
-Can you add this to the input queue for 3.14?
-
--- Sebastian
-
---Kj7319i9nmIyA2yE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBCAAGBQJSq1Y3AAoJENju1/PIO/qaGGkP/2aXcO0pBtTn3or86JlNZOdp
-ooVY/sPL9foSNNV9U2KuHTrEC610VwOye+Y8MotmSSN5qBc5nYS5y46dWYgMqFVG
-n02t23hbqkY5OJ86QJGWsGc4V06KEQYiu2h2ZDZyXMWSvtoYQ6EIFqfiVdPcwVBZ
-JZ2E9GTKfUhg2J/XqVIjjTVTIQAKsFVisqJkvzbqVSk5cJQJn5Fb1v/VOGHgDw7L
-PyV/GfKyuqlJNFtxngtkLgcDMObrogAAm3iFgS4wqPpKoQ8FVr6yb7n6k8wtsL8L
-9x7q+MAuda0SlnQ94aCcES5wlfPxeTSf5veSaKS+lr1UPrlr5+KHCFnBi/daOvPT
-h0TmICcD+eoSWxnLuwn69351Zz02MEp3IeVwiXiIFf5xQnF/yfbpRK4UzAklzLhm
-8eSOyuE+kO9VhE1o994qDXPTaZzqSMFAgjG6IRudC8Q3gZctnYo3C9gBM1Bnax4N
-LFYcSGGjAtxjzueq+Kmm4v8+vUZ/rRs0mSbVpT25pRbbTtTNGF86UfTJyoLWk+/F
-Wu40V01g93h4WgjeMUQNzB3celV//cxvhihvaeuSnokbnx95lixwxPe8jzsMZqkP
-8kuubbazoSqGjiWHe2NXcWlkWH7sfFOa7UrQyGhug3r088IVFy2pMlUvtjN6WNG/
-qjgrvf5MHBF5a7Kda2Qz
-=hX4J
------END PGP SIGNATURE-----
-
---Kj7319i9nmIyA2yE--
+I have serious concerns that this Patch and the Next patch will the
+input detection of the triggers on various games powered by SDL2. Have
+you tested this against games listed on steam that have full
+controller support?

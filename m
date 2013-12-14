@@ -1,16 +1,16 @@
 From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@prifuk.cz>
 Subject: [RFC] Add ff-memless-next driver
-Date: Sun, 15 Dec 2013 01:19:52 +0100
-Message-ID: <20107437.IkYg87uJMY@geidi-prime>
+Date: Sat, 14 Dec 2013 21:58:45 +0100
+Message-ID: <1742860.KNd72mBNnt@geidi-prime>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.prifuk.cz ([31.31.77.241]:40257 "EHLO prifuk.cz"
+Received: from www.prifuk.cz ([31.31.77.241]:40261 "EHLO prifuk.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754329Ab3LOA3x convert rfc822-to-8bit (ORCPT
+	id S1754404Ab3LOAe4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Dec 2013 19:29:53 -0500
+	Sat, 14 Dec 2013 19:34:56 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
@@ -926,6 +926,7 @@ ol_effect)(struct input_dev *, void *, const struct mlnx_effect_command=
  *), const u16 update_rate);
 --=20
 1.8.5.1
+
 
 
 --

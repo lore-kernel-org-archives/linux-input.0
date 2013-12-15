@@ -1,75 +1,95 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers: input: Include appropriate header file in
- cyttsp_i2c_common.c
-Date: Sun, 15 Dec 2013 02:27:46 -0800
-Message-ID: <20131215102745.GA20197@core.coreip.homeip.net>
-References: <20131214133822.GA13124@rashika>
- <20131214205752.GS17601@leaf>
+Subject: Re: [PATCH] input: egalax: Send touch end event when is about to
+ suspend
+Date: Sun, 15 Dec 2013 02:40:54 -0800
+Message-ID: <20131215104053.GC20197@core.coreip.homeip.net>
+References: <1386720196-5821-1-git-send-email-eu@felipetonello.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:41531 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752784Ab3LOK1z (ORCPT
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:64383 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753138Ab3LOKk7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Dec 2013 05:27:55 -0500
+	Sun, 15 Dec 2013 05:40:59 -0500
 Content-Disposition: inline
-In-Reply-To: <20131214205752.GS17601@leaf>
+In-Reply-To: <1386720196-5821-1-git-send-email-eu@felipetonello.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Josh Triplett <josh@joshtriplett.org>
-Cc: Rashika Kheria <rashika.kheria@gmail.com>, linux-kernel@vger.kernel.org, Ferruh Yigit <fery@cypress.com>, linux-input@vger.kernel.org
+To: "Felipe F. Tonello" <eu@felipetonello.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sachin Kamat <sachin.kamat@linaro.org>, Heiko Abraham <abrahamh@web.de>
 
-On Sat, Dec 14, 2013 at 12:57:52PM -0800, Josh Triplett wrote:
-> On Sat, Dec 14, 2013 at 07:08:22PM +0530, Rashika Kheria wrote:
-> > This patch includes appropriate header file cyttsp4_core.h in
-> > touchscreen/cyttsp_i2c_common.c because functions
-> > cyttsp_i2c_read_block_data() and cyttsp_i2c_write_block_data()
-> > have their prototype declaration in cyttsp4_core.h.
-> >=20
-> > Thus, it also eliminates the following warning in cyttsp_i2c_common=
-=2Ec:
-> > drivers/input/touchscreen/cyttsp_i2c_common.c:34:5: warning: no pre=
-vious prototype for =E2=80=98cyttsp_i2c_read_block_data=E2=80=99 [-Wmis=
-sing-prototypes]
-> > drivers/input/touchscreen/cyttsp_i2c_common.c:64:5: warning: no pre=
-vious prototype for =E2=80=98cyttsp_i2c_write_block_data=E2=80=99 [-Wmi=
-ssing-prototypes]
-> >=20
-> >=20
-> > Signed-off-by: Rashika Kheria <rashika.kheria@gmail.com>
->=20
-> Reviewed-by: Josh Triplett <josh@joshtriplett.org>
+Hi Felipe,
 
-Applied, thank you.
+On Tue, Dec 10, 2013 at 04:03:16PM -0800, Felipe F. Tonello wrote:
+> From: "Felipe F. Tonello" <eu@felipetonello.com>
+> 
+> This is useful to report for users of this device that don't know anything
+> about the suspension of the device. So users will receive a touch end event
+> when the device is about to suspend, making it more user friendly.
+> 
+> One example of users is the X Server with the evdev input driver. This patch
+> make sure that the X server will propagate a touch end event to its windows.
+> 
 
->=20
-> >  drivers/input/touchscreen/cyttsp_i2c_common.c |    2 ++
-> >  1 file changed, 2 insertions(+)
-> >=20
-> > diff --git a/drivers/input/touchscreen/cyttsp_i2c_common.c b/driver=
-s/input/touchscreen/cyttsp_i2c_common.c
-> > index 1d7b6f1..ccefa56 100644
-> > --- a/drivers/input/touchscreen/cyttsp_i2c_common.c
-> > +++ b/drivers/input/touchscreen/cyttsp_i2c_common.c
-> > @@ -31,6 +31,8 @@
-> >  #include <linux/module.h>
-> >  #include <linux/types.h>
-> > =20
-> > +#include "cyttsp4_core.h"
-> > +
-> >  int cyttsp_i2c_read_block_data(struct device *dev, u8 *xfer_buf,
-> >  				      u16 addr, u8 length, void *values)
-> >  {
-> > --=20
-> > 1.7.9.5
-> >=20
+Hmm, I would argue we need to do this in input core, similarly to what
+we do for the keys, so that all drivers would benefit from the change.
 
---=20
+Thanks.
+
+> Signed-off-by: Felipe F. Tonello <eu@felipetonello.com>
+> ---
+>  drivers/input/touchscreen/egalax_ts.c | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+> index 054d225..1f21f0d 100644
+> --- a/drivers/input/touchscreen/egalax_ts.c
+> +++ b/drivers/input/touchscreen/egalax_ts.c
+> @@ -63,6 +63,7 @@
+>  struct egalax_ts {
+>  	struct i2c_client		*client;
+>  	struct input_dev		*input_dev;
+> +	bool					ids_in_use[MAX_SUPPORT_POINTS];
+>  };
+>  
+>  static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
+> @@ -117,6 +118,8 @@ static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
+>  	input_mt_report_pointer_emulation(input_dev, true);
+>  	input_sync(input_dev);
+>  
+> +	ts->ids_in_use[id] = down;
+> +
+>  	return IRQ_HANDLED;
+>  }
+>  
+> @@ -247,9 +250,22 @@ static int egalax_ts_suspend(struct device *dev)
+>  		0x3, 0x6, 0xa, 0x3, 0x36, 0x3f, 0x2, 0, 0, 0
+>  	};
+>  	struct i2c_client *client = to_i2c_client(dev);
+> -	int ret;
+> +	struct egalax_ts *ts = i2c_get_clientdata(client);
+> +	int ret, id;
+>  
+>  	ret = i2c_master_send(client, suspend_cmd, MAX_I2C_DATA_LEN);
+> +
+> +	/* We send a touch end event (for the ids in use) if the egalax module is
+> +	   about to be turned off. */
+> +	for (id = 0; id < MAX_SUPPORT_POINTS; ++id) {
+> +		if (ts->ids_in_use[id]) {
+> +			input_mt_slot(ts->input_dev, id);
+> +			input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, false);
+> +			input_mt_report_pointer_emulation(ts->input_dev, true);
+> +			input_sync(ts->input_dev);
+> +		}
+> +	}
+> +
+>  	return ret > 0 ? 0 : ret;
+>  }
+>  
+> -- 
+> 1.8.3.1
+> 
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

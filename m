@@ -1,108 +1,105 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: zforce: fix possible driver hang during suspend
-Date: Sun, 15 Dec 2013 02:43:13 -0800
-Message-ID: <20131215104313.GE20197@core.coreip.homeip.net>
-References: <201312101650.04799.heiko@sntech.de>
+Subject: Re: [PATCH 1/7] Input: pmic8xxx-pwrkey - Pass input device directly
+ to interrupt
+Date: Sun, 15 Dec 2013 03:21:04 -0800
+Message-ID: <20131215112103.GA14818@core.coreip.homeip.net>
+References: <1386718996-3733-1-git-send-email-sboyd@codeaurora.org>
+ <1386718996-3733-2-git-send-email-sboyd@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:47733 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754298Ab3LOKnS (ORCPT
+Received: from mail-pb0-f52.google.com ([209.85.160.52]:33565 "EHLO
+	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753903Ab3LOLVK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Dec 2013 05:43:18 -0500
-Received: by mail-pa0-f51.google.com with SMTP id fa1so1759077pad.24
-        for <linux-input@vger.kernel.org>; Sun, 15 Dec 2013 02:43:18 -0800 (PST)
+	Sun, 15 Dec 2013 06:21:10 -0500
 Content-Disposition: inline
-In-Reply-To: <201312101650.04799.heiko@sntech.de>
+In-Reply-To: <1386718996-3733-2-git-send-email-sboyd@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Tue, Dec 10, 2013 at 04:50:04PM +0100, Heiko St=FCbner wrote:
-> handle_level_irq masks the interrupt before handling it, and only
-> unmasks it after the handler is finished. So when a touch event
-> happens after threads are suspended, but before the system is fully a=
-sleep
-> the irq handler tries to wakeup the thread which will only happen on =
-the
-> next resume, resulting in the wakeup event never being sent and the d=
-river
-> not being able to wake the system from sleep due to the masked irq.
->=20
-> Therefore move the wakeup_event to a small non-threaded handler.
->=20
-> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Hi Stephen,
 
-Applied, thank you.
-
+On Tue, Dec 10, 2013 at 03:43:10PM -0800, Stephen Boyd wrote:
+> Instead of passing the pointer to the container structure just
+> pass the input device here. This saves a dereference in the fast
+> path.
+> 
+> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 > ---
->  drivers/input/touchscreen/zforce_ts.c |   21 +++++++++++++++------
->  1 file changed, 15 insertions(+), 6 deletions(-)
->=20
-> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/to=
-uchscreen/zforce_ts.c
-> index 75762d6..aa127ba 100644
-> --- a/drivers/input/touchscreen/zforce_ts.c
-> +++ b/drivers/input/touchscreen/zforce_ts.c
-> @@ -455,7 +455,18 @@ static void zforce_complete(struct zforce_ts *ts=
-, int cmd, int result)
->  	}
->  }
-> =20
-> -static irqreturn_t zforce_interrupt(int irq, void *dev_id)
-> +static irqreturn_t zforce_irq(int irq, void *dev_id)
-> +{
-> +	struct zforce_ts *ts =3D dev_id;
-> +	struct i2c_client *client =3D ts->client;
-> +
-> +	if (ts->suspended && device_may_wakeup(&client->dev))
-> +		pm_wakeup_event(&client->dev, 500);
-> +
-> +	return IRQ_WAKE_THREAD;
-> +}
-> +
-> +static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
->  {
->  	struct zforce_ts *ts =3D dev_id;
->  	struct i2c_client *client =3D ts->client;
-> @@ -465,12 +476,10 @@ static irqreturn_t zforce_interrupt(int irq, vo=
-id *dev_id)
->  	u8 *payload;
-> =20
->  	/*
-> -	 * When suspended, emit a wakeup signal if necessary and return.
-> +	 * When still suspended, return.
->  	 * Due to the level-interrupt we will get re-triggered later.
->  	 */
->  	if (ts->suspended) {
-> -		if (device_may_wakeup(&client->dev))
-> -			pm_wakeup_event(&client->dev, 500);
->  		msleep(20);
->  		return IRQ_HANDLED;
->  	}
-> @@ -763,8 +772,8 @@ static int zforce_probe(struct i2c_client *client=
-,
->  	 * Therefore we can trigger the interrupt anytime it is low and do
->  	 * not need to limit it to the interrupt edge.
->  	 */
-> -	ret =3D devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> -					zforce_interrupt,
-> +	ret =3D devm_request_threaded_irq(&client->dev, client->irq,
-> +					zforce_irq, zforce_irq_thread,
->  					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
->  					input_dev->name, ts);
->  	if (ret) {
-> --=20
-> 1.7.10.4
->=20
+>  drivers/input/misc/pmic8xxx-pwrkey.c | 22 ++++++++--------------
+>  1 file changed, 8 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+> index ce3c426..233b216 100644
+> --- a/drivers/input/misc/pmic8xxx-pwrkey.c
+> +++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+> @@ -32,26 +32,21 @@
+>   * @key_press_irq: key press irq number
+>   */
+>  struct pmic8xxx_pwrkey {
+> -	struct input_dev *pwr;
 
---=20
+This causes compile errors as you need pwrkey->pwr in remove() to
+unregister input device. I'll fix it up.
+
+>  	int key_press_irq;
+>  };
+>  
+> -static irqreturn_t pwrkey_press_irq(int irq, void *_pwrkey)
+> +static irqreturn_t pwrkey_press_irq(int irq, void *pwr)
+>  {
+> -	struct pmic8xxx_pwrkey *pwrkey = _pwrkey;
+> -
+> -	input_report_key(pwrkey->pwr, KEY_POWER, 1);
+> -	input_sync(pwrkey->pwr);
+> +	input_report_key(pwr, KEY_POWER, 1);
+> +	input_sync(pwr);
+>  
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -static irqreturn_t pwrkey_release_irq(int irq, void *_pwrkey)
+> +static irqreturn_t pwrkey_release_irq(int irq, void *pwr)
+>  {
+> -	struct pmic8xxx_pwrkey *pwrkey = _pwrkey;
+> -
+> -	input_report_key(pwrkey->pwr, KEY_POWER, 0);
+> -	input_sync(pwrkey->pwr);
+> +	input_report_key(pwr, KEY_POWER, 0);
+> +	input_sync(pwr);
+>  
+>  	return IRQ_HANDLED;
+>  }
+> @@ -147,12 +142,11 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	pwrkey->key_press_irq = key_press_irq;
+> -	pwrkey->pwr = pwr;
+>  
+>  	platform_set_drvdata(pdev, pwrkey);
+>  
+>  	err = devm_request_irq(&pdev->dev, key_press_irq, pwrkey_press_irq,
+> -		IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_press", pwrkey);
+> +		IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_press", pwr);
+>  	if (err < 0) {
+>  		dev_dbg(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
+>  				 key_press_irq, err);
+> @@ -160,7 +154,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	err = devm_request_irq(&pdev->dev, key_release_irq, pwrkey_release_irq,
+> -		 IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_release", pwrkey);
+> +		 IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_release", pwr);
+>  	if (err < 0) {
+>  		dev_dbg(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
+>  				 key_release_irq, err);
+> -- 
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+> hosted by The Linux Foundation
+> 
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

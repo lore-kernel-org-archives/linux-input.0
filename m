@@ -1,113 +1,108 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 5/7] genirq: Add devm_request_any_context_irq()
-Date: Sun, 15 Dec 2013 02:42:42 -0800
-Message-ID: <20131215104242.GD20197@core.coreip.homeip.net>
-References: <1386718996-3733-1-git-send-email-sboyd@codeaurora.org>
- <1386718996-3733-6-git-send-email-sboyd@codeaurora.org>
+Subject: Re: [PATCH] Input: zforce: fix possible driver hang during suspend
+Date: Sun, 15 Dec 2013 02:43:13 -0800
+Message-ID: <20131215104313.GE20197@core.coreip.homeip.net>
+References: <201312101650.04799.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f51.google.com ([209.85.220.51]:47733 "EHLO
+	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754298Ab3LOKnS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 15 Dec 2013 05:43:18 -0500
+Received: by mail-pa0-f51.google.com with SMTP id fa1so1759077pad.24
+        for <linux-input@vger.kernel.org>; Sun, 15 Dec 2013 02:43:18 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1386718996-3733-6-git-send-email-sboyd@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Stephen Boyd <sboyd@codeaurora.org>
+In-Reply-To: <201312101650.04799.heiko@sntech.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Tue, Dec 10, 2013 at 03:43:14PM -0800, Stephen Boyd wrote:
-> Some drivers use request_any_context_irq() but there isn't a
-> devm_* function for it. Add one so that these drivers don't need
-> to explicitly free the irq on driver detach.
-> 
-> Cc: Thomas Gleixner <tglx@linutronix.de>
+On Tue, Dec 10, 2013 at 04:50:04PM +0100, Heiko St=FCbner wrote:
+> handle_level_irq masks the interrupt before handling it, and only
+> unmasks it after the handler is finished. So when a touch event
+> happens after threads are suspended, but before the system is fully a=
+sleep
+> the irq handler tries to wakeup the thread which will only happen on =
+the
+> next resume, resulting in the wakeup event never being sent and the d=
+river
+> not being able to wake the system from sleep due to the masked irq.
+>=20
+> Therefore move the wakeup_event to a small non-threaded handler.
+>=20
+> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 
-Thomas, would it be OK with me picking this patch through my tree if you
-do not have issues with it?
+Applied, thank you.
 
-Thanks.
-
-> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 > ---
->  include/linux/interrupt.h |  5 +++++
->  kernel/irq/devres.c       | 45 +++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 50 insertions(+)
-> 
-> diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
-> index c9e831d..8334f9b 100644
-> --- a/include/linux/interrupt.h
-> +++ b/include/linux/interrupt.h
-> @@ -160,6 +160,11 @@ devm_request_irq(struct device *dev, unsigned int irq, irq_handler_t handler,
->  					 devname, dev_id);
+>  drivers/input/touchscreen/zforce_ts.c |   21 +++++++++++++++------
+>  1 file changed, 15 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/to=
+uchscreen/zforce_ts.c
+> index 75762d6..aa127ba 100644
+> --- a/drivers/input/touchscreen/zforce_ts.c
+> +++ b/drivers/input/touchscreen/zforce_ts.c
+> @@ -455,7 +455,18 @@ static void zforce_complete(struct zforce_ts *ts=
+, int cmd, int result)
+>  	}
 >  }
->  
-> +extern int __must_check
-> +devm_request_any_context_irq(struct device *dev, unsigned int irq,
-> +		 irq_handler_t handler, unsigned long irqflags,
-> +		 const char *devname, void *dev_id);
-> +
->  extern void devm_free_irq(struct device *dev, unsigned int irq, void *dev_id);
->  
->  /*
-> diff --git a/kernel/irq/devres.c b/kernel/irq/devres.c
-> index bd8e788..f71e9ff 100644
-> --- a/kernel/irq/devres.c
-> +++ b/kernel/irq/devres.c
-> @@ -73,6 +73,51 @@ int devm_request_threaded_irq(struct device *dev, unsigned int irq,
->  EXPORT_SYMBOL(devm_request_threaded_irq);
->  
->  /**
-> + *	devm_request_any_context_irq - allocate an interrupt line for a managed device
-> + *	@dev: device to request interrupt for
-> + *	@irq: Interrupt line to allocate
-> + *	@handler: Function to be called when the IRQ occurs
-> + *	@thread_fn: function to be called in a threaded interrupt context. NULL
-> + *		    for devices which handle everything in @handler
-> + *	@irqflags: Interrupt type flags
-> + *	@devname: An ascii name for the claiming device
-> + *	@dev_id: A cookie passed back to the handler function
-> + *
-> + *	Except for the extra @dev argument, this function takes the
-> + *	same arguments and performs the same function as
-> + *	request_any_context_irq().  IRQs requested with this function will be
-> + *	automatically freed on driver detach.
-> + *
-> + *	If an IRQ allocated with this function needs to be freed
-> + *	separately, devm_free_irq() must be used.
-> + */
-> +int devm_request_any_context_irq(struct device *dev, unsigned int irq,
-> +			      irq_handler_t handler, unsigned long irqflags,
-> +			      const char *devname, void *dev_id)
+> =20
+> -static irqreturn_t zforce_interrupt(int irq, void *dev_id)
+> +static irqreturn_t zforce_irq(int irq, void *dev_id)
 > +{
-> +	struct irq_devres *dr;
-> +	int rc;
+> +	struct zforce_ts *ts =3D dev_id;
+> +	struct i2c_client *client =3D ts->client;
 > +
-> +	dr = devres_alloc(devm_irq_release, sizeof(struct irq_devres),
-> +			  GFP_KERNEL);
-> +	if (!dr)
-> +		return -ENOMEM;
+> +	if (ts->suspended && device_may_wakeup(&client->dev))
+> +		pm_wakeup_event(&client->dev, 500);
 > +
-> +	rc = request_any_context_irq(irq, handler, irqflags, devname, dev_id);
-> +	if (rc) {
-> +		devres_free(dr);
-> +		return rc;
-> +	}
-> +
-> +	dr->irq = irq;
-> +	dr->dev_id = dev_id;
-> +	devres_add(dev, dr);
-> +
-> +	return 0;
+> +	return IRQ_WAKE_THREAD;
 > +}
-> +EXPORT_SYMBOL(devm_request_any_context_irq);
 > +
-> +/**
->   *	devm_free_irq - free an interrupt
->   *	@dev: device to free interrupt for
->   *	@irq: Interrupt line to free
-> -- 
-> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-> hosted by The Linux Foundation
-> 
+> +static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
+>  {
+>  	struct zforce_ts *ts =3D dev_id;
+>  	struct i2c_client *client =3D ts->client;
+> @@ -465,12 +476,10 @@ static irqreturn_t zforce_interrupt(int irq, vo=
+id *dev_id)
+>  	u8 *payload;
+> =20
+>  	/*
+> -	 * When suspended, emit a wakeup signal if necessary and return.
+> +	 * When still suspended, return.
+>  	 * Due to the level-interrupt we will get re-triggered later.
+>  	 */
+>  	if (ts->suspended) {
+> -		if (device_may_wakeup(&client->dev))
+> -			pm_wakeup_event(&client->dev, 500);
+>  		msleep(20);
+>  		return IRQ_HANDLED;
+>  	}
+> @@ -763,8 +772,8 @@ static int zforce_probe(struct i2c_client *client=
+,
+>  	 * Therefore we can trigger the interrupt anytime it is low and do
+>  	 * not need to limit it to the interrupt edge.
+>  	 */
+> -	ret =3D devm_request_threaded_irq(&client->dev, client->irq, NULL,
+> -					zforce_interrupt,
+> +	ret =3D devm_request_threaded_irq(&client->dev, client->irq,
+> +					zforce_irq, zforce_irq_thread,
+>  					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+>  					input_dev->name, ts);
+>  	if (ret) {
+> --=20
+> 1.7.10.4
+>=20
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

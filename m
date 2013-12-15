@@ -1,198 +1,166 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input synaptics-rmi4: Eliminate packed structs in PDT
- handling
-Date: Sun, 15 Dec 2013 03:57:14 -0800
-Message-ID: <20131215115713.GE14818@core.coreip.homeip.net>
-References: <1386731442-31146-1-git-send-email-cheiny@synaptics.com>
+Subject: [PATCH] Input: pmic8xxx-pwrkey - switch to using managed resources
+Date: Sun, 15 Dec 2013 04:07:25 -0800
+Message-ID: <20131215120723.GA375@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f170.google.com ([209.85.192.170]:56853 "EHLO
-	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753297Ab3LOL5T (ORCPT
+Received: from mail-pd0-f181.google.com ([209.85.192.181]:54499 "EHLO
+	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754028Ab3LOMHb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Dec 2013 06:57:19 -0500
-Received: by mail-pd0-f170.google.com with SMTP id g10so4207399pdj.15
-        for <linux-input@vger.kernel.org>; Sun, 15 Dec 2013 03:57:19 -0800 (PST)
+	Sun, 15 Dec 2013 07:07:31 -0500
 Content-Disposition: inline
-In-Reply-To: <1386731442-31146-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: linux-input@vger.kernel.org
+Cc: Stephen Boyd <sboyd@codeaurora.org>, Lars-Peter Clausen <lars@metafoo.de>, Sachin Kamat <sachin.kamat@linaro.org>, linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2013 at 07:10:42PM -0800, Christopher Heiny wrote:
-> This converts the PDT handling routines from using bitfields in packed structs,
-> converting to bitmasks and shifts to parse out bitfields, nibbles, and so on.
-> 
-> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Jean Delvare <khali@linux-fr.org>
-> Cc: Linus Walleij <linus.walleij@stericsson.com>
-> Cc: Joerie de Gram <j.de.gram@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
+This simplifies error handling and device removal paths.
 
-Applied, thank you.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/pmic8xxx-pwrkey.c | 74 ++++++++++++------------------------
+ 1 file changed, 25 insertions(+), 49 deletions(-)
 
-> ---
-> 
-> This patch implements changes to the synaptics-rmi4 branch of
-> Dmitry's input tree.  The base for the patch is commit
-> f154022b208a59b048f52b7b5d58a5ec1949b96e.
-> 
->  drivers/input/rmi4/rmi_driver.c | 45 +++++++++++++++++++++++++++-------------
->  drivers/input/rmi4/rmi_driver.h | 46 +++++++++++++++--------------------------
->  2 files changed, 48 insertions(+), 43 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index dffbfa0..a30c7d3 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -483,6 +483,31 @@ int rmi_driver_irq_get_mask(struct rmi_device *rmi_dev,
->  		return -ENOMEM;
->  }
->  
-> +int rmi_read_pdt_entry(struct rmi_device *rmi_dev, struct pdt_entry *entry,
-> +			u16 pdt_address)
-> +{
-> +	u8 buf[RMI_PDT_ENTRY_SIZE];
-> +	int error;
-> +
-> +	error = rmi_read_block(rmi_dev, pdt_address, buf, RMI_PDT_ENTRY_SIZE);
-> +	if (error < 0) {
-> +		dev_err(&rmi_dev->dev, "Read PDT entry at %#06x failed, code: %d.\n",
-> +				pdt_address, error);
-> +		return error;
-> +	}
-> +
-> +	entry->query_base_addr = buf[0];
-> +	entry->command_base_addr = buf[1];
-> +	entry->control_base_addr = buf[2];
-> +	entry->data_base_addr = buf[3];
-> +	entry->interrupt_source_count = buf[4] & RMI_PDT_INT_SOURCE_COUNT_MASK;
-> +	entry->function_version = (buf[4] & RMI_PDT_FUNCTION_VERSION_MASK) >> 5;
-> +	entry->function_number = buf[5];
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(rmi_read_pdt_entry);
-> +
->  static void rmi_driver_copy_pdt_to_fd(struct pdt_entry *pdt,
->  				      struct rmi_function_descriptor *fd,
->  				      u16 page_start)
-> @@ -572,14 +597,10 @@ static int reset_and_reflash(struct rmi_device *rmi_dev)
->  		u16 pdt_end = page_start + PDT_END_SCAN_LOCATION;
->  
->  		done = true;
-> -		for (i = pdt_start; i >= pdt_end; i -= sizeof(pdt_entry)) {
-> -			retval = rmi_read_block(rmi_dev, i, &pdt_entry,
-> -					       sizeof(pdt_entry));
-> -			if (retval != sizeof(pdt_entry)) {
-> -				dev_err(dev, "Read PDT entry at %#06x failed, code = %d.\n",
-> -						i, retval);
-> +		for (i = pdt_start; i >= pdt_end; i -= RMI_PDT_ENTRY_SIZE) {
-> +			retval = rmi_read_pdt_entry(rmi_dev, &pdt_entry, i);
-> +			if (retval < 0)
->  				return retval;
-> -			}
->  
->  			if (RMI4_END_OF_PDT(pdt_entry.function_number))
->  				break;
-> @@ -634,14 +655,10 @@ static int rmi_scan_pdt(struct rmi_device *rmi_dev)
->  		u16 pdt_end = page_start + PDT_END_SCAN_LOCATION;
->  
->  		done = true;
-> -		for (i = pdt_start; i >= pdt_end; i -= sizeof(pdt_entry)) {
-> -			retval = rmi_read_block(rmi_dev, i, &pdt_entry,
-> -					       sizeof(pdt_entry));
-> -			if (retval != sizeof(pdt_entry)) {
-> -				dev_err(dev, "Read of PDT entry at %#06x failed.\n",
-> -					i);
-> +		for (i = pdt_start; i >= pdt_end; i -= RMI_PDT_ENTRY_SIZE) {
-> +			retval = rmi_read_pdt_entry(rmi_dev, &pdt_entry, i);
-> +			if (retval < 0)
->  				goto error_exit;
-> -			}
->  
->  			if (RMI4_END_OF_PDT(pdt_entry.function_number))
->  				break;
-> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-> index f8d87e9..5e3c4d4 100644
-> --- a/drivers/input/rmi4/rmi_driver.h
-> +++ b/drivers/input/rmi4/rmi_driver.h
-> @@ -29,11 +29,7 @@
->  #define PDT_PROPERTIES_LOCATION 0x00EF
->  #define BSR_LOCATION 0x00FE
->  
-> -struct pdt_properties {
-> -	u8 reserved_1:6;
-> -	u8 has_bsr:1;
-> -	u8 reserved_2:1;
-> -} __attribute__((__packed__));
-> +#define RMI_PDT_PROPS_HAS_BSR 0x02
->  
->  struct rmi_driver_data {
->  	struct list_head function_list;
-> @@ -61,7 +57,7 @@ struct rmi_driver_data {
->  	ktime_t poll_interval;
->  
->  	struct mutex pdt_mutex;
-> -	struct pdt_properties pdt_props;
-> +	u8 pdt_props;
->  	u8 bsr;
->  
->  	bool enabled;
-> @@ -90,34 +86,26 @@ struct rmi_driver_data {
->  	void *data;
->  };
->  
-> +#define RMI_PDT_ENTRY_SIZE 6
-> +#define RMI_PDT_FUNCTION_VERSION_MASK   0x60
-> +#define RMI_PDT_INT_SOURCE_COUNT_MASK   0x07
-> +
->  #define PDT_START_SCAN_LOCATION 0x00e9
->  #define PDT_END_SCAN_LOCATION	0x0005
->  #define RMI4_END_OF_PDT(id) ((id) == 0x00 || (id) == 0xff)
->  
->  struct pdt_entry {
-> -	u8 query_base_addr:8;
-> -	u8 command_base_addr:8;
-> -	u8 control_base_addr:8;
-> -	u8 data_base_addr:8;
-> -	u8 interrupt_source_count:3;
-> -	u8 bits3and4:2;
-> -	u8 function_version:2;
-> -	u8 bit7:1;
-> -	u8 function_number:8;
-> -} __attribute__((__packed__));
-> -
-> -static inline void copy_pdt_entry_to_fd(struct pdt_entry *pdt,
-> -				 struct rmi_function_descriptor *fd,
-> -				 u16 page_start)
-> -{
-> -	fd->query_base_addr = pdt->query_base_addr + page_start;
-> -	fd->command_base_addr = pdt->command_base_addr + page_start;
-> -	fd->control_base_addr = pdt->control_base_addr + page_start;
-> -	fd->data_base_addr = pdt->data_base_addr + page_start;
-> -	fd->function_number = pdt->function_number;
-> -	fd->interrupt_source_count = pdt->interrupt_source_count;
-> -	fd->function_version = pdt->function_version;
-> -}
-> +	u8 query_base_addr;
-> +	u8 command_base_addr;
-> +	u8 control_base_addr;
-> +	u8 data_base_addr;
-> +	u8 interrupt_source_count;
-> +	u8 function_version;
-> +	u8 function_number;
-> +};
-> +
-> +int rmi_read_pdt_entry(struct rmi_device *rmi_dev, struct pdt_entry *entry,
-> +			u16 pdt_address);
->  
->  bool rmi_is_physical_driver(struct device_driver *);
->  int rmi_register_physical_driver(void);
+diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+index ef93840..aaf3325 100644
+--- a/drivers/input/misc/pmic8xxx-pwrkey.c
++++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+@@ -32,7 +32,6 @@
+  * @key_press_irq: key press irq number
+  */
+ struct pmic8xxx_pwrkey {
+-	struct input_dev *pwr;
+ 	int key_press_irq;
+ };
+ 
+@@ -110,22 +109,22 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	pwrkey = kzalloc(sizeof(*pwrkey), GFP_KERNEL);
++	pwrkey = devm_kzalloc(&pdev->dev, sizeof(*pwrkey), GFP_KERNEL);
+ 	if (!pwrkey)
+ 		return -ENOMEM;
+ 
+-	pwr = input_allocate_device();
++	pwrkey->key_press_irq = key_press_irq;
++
++	pwr = devm_input_allocate_device(&pdev->dev);
+ 	if (!pwr) {
+ 		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+-		err = -ENOMEM;
+-		goto free_pwrkey;
++		return -ENOMEM;
+ 	}
+ 
+ 	input_set_capability(pwr, EV_KEY, KEY_POWER);
+ 
+ 	pwr->name = "pmic8xxx_pwrkey";
+ 	pwr->phys = "pmic8xxx_pwrkey/input0";
+-	pwr->dev.parent = &pdev->dev;
+ 
+ 	delay = (pdata->kpd_trigger_delay_us << 10) / USEC_PER_SEC;
+ 	delay = 1 + ilog2(delay);
+@@ -133,7 +132,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+ 	err = regmap_read(regmap, PON_CNTL_1, &pon_cntl);
+ 	if (err < 0) {
+ 		dev_err(&pdev->dev, "failed reading PON_CNTL_1 err=%d\n", err);
+-		goto free_input_dev;
++		return err;
+ 	}
+ 
+ 	pon_cntl &= ~PON_CNTL_TRIG_DELAY_MASK;
+@@ -146,66 +145,43 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+ 	err = regmap_write(regmap, PON_CNTL_1, pon_cntl);
+ 	if (err < 0) {
+ 		dev_err(&pdev->dev, "failed writing PON_CNTL_1 err=%d\n", err);
+-		goto free_input_dev;
++		return err;
+ 	}
+ 
+-	err = input_register_device(pwr);
++	err = devm_request_irq(&pdev->dev, key_press_irq, pwrkey_press_irq,
++			       IRQF_TRIGGER_RISING,
++			       "pmic8xxx_pwrkey_press", pwr);
+ 	if (err) {
+-		dev_dbg(&pdev->dev, "Can't register power key: %d\n", err);
+-		goto free_input_dev;
++		dev_err(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
++			key_press_irq, err);
++		return err;
+ 	}
+ 
+-	pwrkey->key_press_irq = key_press_irq;
+-	pwrkey->pwr = pwr;
+-
+-	platform_set_drvdata(pdev, pwrkey);
+-
+-	err = request_irq(key_press_irq, pwrkey_press_irq,
+-		IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_press", pwr);
+-	if (err < 0) {
+-		dev_dbg(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
+-				 key_press_irq, err);
+-		goto unreg_input_dev;
++	err = devm_request_irq(&pdev->dev, key_release_irq, pwrkey_release_irq,
++			       IRQF_TRIGGER_RISING,
++			       "pmic8xxx_pwrkey_release", pwr);
++	if (err) {
++		dev_err(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
++			key_release_irq, err);
++		return err;
+ 	}
+ 
+-	err = request_irq(key_release_irq, pwrkey_release_irq,
+-		 IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_release", pwr);
+-	if (err < 0) {
+-		dev_dbg(&pdev->dev, "Can't get %d IRQ for pwrkey: %d\n",
+-				 key_release_irq, err);
+-
+-		goto free_press_irq;
++	err = input_register_device(pwr);
++	if (err) {
++		dev_err(&pdev->dev, "Can't register power key: %d\n", err);
++		return err;
+ 	}
+ 
++	platform_set_drvdata(pdev, pwrkey);
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 
+ 	return 0;
+-
+-free_press_irq:
+-	free_irq(key_press_irq, pwrkey);
+-unreg_input_dev:
+-	input_unregister_device(pwr);
+-	pwr = NULL;
+-free_input_dev:
+-	input_free_device(pwr);
+-free_pwrkey:
+-	kfree(pwrkey);
+-	return err;
+ }
+ 
+ static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
+ {
+-	struct pmic8xxx_pwrkey *pwrkey = platform_get_drvdata(pdev);
+-	int key_release_irq = platform_get_irq(pdev, 0);
+-	int key_press_irq = platform_get_irq(pdev, 1);
+-
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
+-	free_irq(key_press_irq, pwrkey->pwr);
+-	free_irq(key_release_irq, pwrkey->pwr);
+-	input_unregister_device(pwrkey->pwr);
+-	kfree(pwrkey);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.8.3.1
+
 
 -- 
 Dmitry

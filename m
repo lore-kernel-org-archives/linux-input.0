@@ -1,43 +1,58 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH] Input: add short note about ABS_MISC+<n> axes
-Date: Mon, 16 Dec 2013 16:23:06 +0100
-Message-ID: <1387207386-4601-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f49.google.com ([74.125.83.49]:62433 "EHLO
-	mail-ee0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754230Ab3LPPXn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Dec 2013 10:23:43 -0500
-Received: by mail-ee0-f49.google.com with SMTP id c41so2286774eek.22
-        for <linux-input@vger.kernel.org>; Mon, 16 Dec 2013 07:23:42 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Stephen Boyd <sboyd@codeaurora.org>
+Subject: Re: [PATCH 1/7] Input: pmic8xxx-pwrkey - Pass input device
+ directly to interrupt
+Date: Mon, 16 Dec 2013 11:59:10 -0800
+Message-ID: <20131216195910.GQ21983@codeaurora.org>
+References: <1386718996-3733-1-git-send-email-sboyd@codeaurora.org>
+ <1386718996-3733-2-git-send-email-sboyd@codeaurora.org>
+ <20131215112103.GA14818@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20131215112103.GA14818@core.coreip.homeip.net>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-We must not reassign those axes or we will break backwards-compat. Add a
-small note for that so we don't accidentally some day reuse these.
+On 12/15, Dmitry Torokhov wrote:
+> Hi Stephen,
+> 
+> On Tue, Dec 10, 2013 at 03:43:10PM -0800, Stephen Boyd wrote:
+> > Instead of passing the pointer to the container structure just
+> > pass the input device here. This saves a dereference in the fast
+> > path.
+> > 
+> > Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+> > ---
+> >  drivers/input/misc/pmic8xxx-pwrkey.c | 22 ++++++++--------------
+> >  1 file changed, 8 insertions(+), 14 deletions(-)
+> > 
+> > diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+> > index ce3c426..233b216 100644
+> > --- a/drivers/input/misc/pmic8xxx-pwrkey.c
+> > +++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+> > @@ -32,26 +32,21 @@
+> >   * @key_press_irq: key press irq number
+> >   */
+> >  struct pmic8xxx_pwrkey {
+> > -	struct input_dev *pwr;
+> 
+> This causes compile errors as you need pwrkey->pwr in remove() to
+> unregister input device. I'll fix it up.
+> 
 
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
- include/uapi/linux/input.h | 4 ++++
- 1 file changed, 4 insertions(+)
+Ah sorry. I forgot to send the patch before this that converts it
+to devm.
 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index a372627..da1125e 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -816,6 +816,10 @@ struct input_keymap_entry {
- 
- #define ABS_MISC		0x28
- 
-+/* ABS_MISC+x is used by HID to assign to unknown axes. Note that they used to
-+ * flow over into the MT definitions. For backwards-compatibility, we must
-+ * not reassign [0x29-0x2e] */
-+
- #define ABS_MT_SLOT		0x2f	/* MT slot being modified */
- #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
- #define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis (omit if circular) */
+> >  	err = devm_request_irq(&pdev->dev, key_press_irq, pwrkey_press_irq,
+> > -		IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_press", pwrkey);
+> > +		IRQF_TRIGGER_RISING, "pmic8xxx_pwrkey_press", pwr);
+
+As you can see here because this driver isn't currently using
+devm_request_irq().
+
 -- 
-1.8.5.1
-
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation

@@ -1,59 +1,50 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Recent change to hid-core.c
-Date: Mon, 16 Dec 2013 15:56:09 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1312161555430.12882@pobox.suse.cz>
-References: <52AD3D74.90905@pobox.com> <alpine.LNX.2.00.1312161418110.12882@pobox.suse.cz> <52AF13A4.8030900@pobox.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: [PATCH v3] if xen_platform_pci=0 is set don't blow up.
+Date: Mon, 16 Dec 2013 10:04:08 -0500
+Message-ID: <1387206250-13963-1-git-send-email-konrad.wilk@oracle.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58798 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753755Ab3LPO4M (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Dec 2013 09:56:12 -0500
-In-Reply-To: <52AF13A4.8030900@pobox.com>
+Received: from aserp1040.oracle.com ([141.146.126.69]:49596 "EHLO
+	aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753762Ab3LPPFs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Dec 2013 10:05:48 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Lord <mlord@pobox.com>
-Cc: linux-input@vger.kernel.org
+To: axboe@kernel.dk, stefano.stabellini@eu.citrix.com, ian.campbell@citrix.com, xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, boris.ostrovsky@oracle.com, david.vrabel@citrix.com, leosilva@linux.vnet.ibm.com, ashley@ashleylai.com, peterhuewe@gmx.de, mail@srajiv.net, tpmdd@selhorst.net, dmitry.torokhov@gmail.com, bhelgaas@google.com, plagnioj@jcrosoft.com, tomi.valkeinen@ti.com, tpmdd-devel@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-pci@vger.kernel.org, linux-fbdev@vger.kernel.org
 
-On Mon, 16 Dec 2013, Mark Lord wrote:
+The first patch:
+ [PATCH v3 1/2] xen/pvhvm: If xen_platform_pci=0 is set don't blow up
 
-> >> The recent update 08ec2dcc3527a20c619aca2fb36f800908256bac
-> >>  "Merge branches 'for-3.11/multitouch', 'for-3.11/sony' and 'for-3.11/upstream' into for-linus"
-> >> included an unexpected change to the return code handing for ->raw_event() calls.
-> ,,
-> >> Was this intentional?  Doesn't that have side-effects for some drivers?
-> ..
-> > this was intentional -- please see commit b1a1442a23 and discussion here: 
-> > https://lkml.org/lkml/2013/3/21/591
-> ..
-> 
-> Thanks Jiri.
-> In that case you'll be wanting this patch (unmangled copy attached) as well
-> to clean up a tiny bit of leftover logic in there.
-> 
-> * * * * * * SNIP * * * * * *
-> 
-> Recent updates to raw_event handling resulted in some leftover "dead" logic
-> in hid-core.c::hid_input_report().  Nuke it.
-> 
-> Signed-off-by: Mark Lord <mlord@pobox.com>
-> 
-> --- old/drivers/hid/hid-core.c	2013-12-12 01:38:07.000000000 -0500
-> +++ linux/drivers/hid/hid-core.c	2013-12-16 09:48:27.339162173 -0500
-> @@ -1418,10 +1418,8 @@
-> 
->  	if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
->  		ret = hdrv->raw_event(hid, report, data, size);
-> -		if (ret < 0) {
-> -			ret = ret < 0 ? ret : 0;
-> +		if (ret < 0)
->  			goto unlock;
-> -		}
+I would like to commit to stable as it is fixing an eggregious bug -
+where we blow up if the guest config has: "xen_platform_pci=0" setup.
+This bug has been in existence for years and it is time to stamp it out.
 
-Please see commit 556483e2a ("HID: remove self-assignment from 
-hid_input_report") in Linus' tree.
+The second patch is a cleanup - not a stable candidate.
 
--- 
-Jiri Kosina
-SUSE Labs
+It touches all of the Xen frontend drivers and adds the logic of:
+"if user disabled us, don't init" - with variations. As you can
+specify exactly which ones you want to init and which ones
+not (Linux runtime parameter 'xen_emul_unplug'). But for the majority
+of drivers - it is just an on/off switch.
+
+Since it touches a lot of maintainers I figured I would send it
+to Linus on Wednesday or Thursday.
+
+Thank you!
+
+ arch/x86/xen/platform-pci-unplug.c         | 79 ++++++++++++++++++++++++++++--
+ drivers/block/xen-blkfront.c               |  4 +-
+ drivers/char/tpm/xen-tpmfront.c            |  4 ++
+ drivers/input/misc/xen-kbdfront.c          |  4 ++
+ drivers/net/xen-netfront.c                 |  2 +-
+ drivers/pci/xen-pcifront.c                 |  4 ++
+ drivers/video/xen-fbfront.c                |  4 ++
+ drivers/xen/xenbus/xenbus_probe_frontend.c |  2 +-
+ include/xen/platform_pci.h                 | 25 +++++++++-
+ 9 files changed, 119 insertions(+), 9 deletions(-)
+
+
+Konrad Rzeszutek Wilk (2):
+      xen/pvhvm: If xen_platform_pci=0 is set don't blow up (v3).
+      xen/pvhvm: Remove the xen_platform_pci int.
+

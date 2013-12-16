@@ -1,74 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers/input/misc: new PC speaker sounds, clicks and
- notes
-Date: Sun, 15 Dec 2013 21:21:52 -0800
-Message-ID: <20131216052151.GC4322@core.coreip.homeip.net>
-References: <20131109072257.eklhad@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: [PATCH 0/2] Input: joystick - documentation fixes
+Date: Mon, 16 Dec 2013 09:57:13 +0100
+Message-ID: <1387184235-20169-1-git-send-email-ospite@studenti.unina.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f172.google.com ([209.85.192.172]:34863 "EHLO
-	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750802Ab3LPFV6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Dec 2013 00:21:58 -0500
-Content-Disposition: inline
-In-Reply-To: <20131109072257.eklhad@comcast.net>
+Received: from smtp207.alice.it ([82.57.200.103]:47935 "EHLO smtp207.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751706Ab3LPI53 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Dec 2013 03:57:29 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Karl Dahlke <eklhad@comcast.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Karl,
+Hi,
 
-On Mon, Dec 09, 2013 at 07:22:57AM -0500, Karl Dahlke wrote:
-> From: Karl Dahlke <eklhad@gmail.com>
-> 
-> The speaker driver can play a tone at a specified frequency,
-> or the standard control G bell,
-> which is a special case of TONE at 1000 hz 0.1 seconds.
-> This patch adds kd_mkpulse() to generate a soft click.
-> This is introduced to support accessibility modules and adapters in the future.
-> With this in place, a module can easily provide soft clicks,
-> i.e. audible feedback, whenever a key is depressed,
-> or when that keystroke is echoed on screen, whichever you prefer.
-> (Many people find the latter more valuable.)
-> This allows a blind user, for example, to have ongoing feedback while typing,
-> even if he is, at the same time, listening to text that is already on screen.
-> This is faster and more convenient than having characters echoed verbally.
-> And it works all the time, even if speech or braille is not working
-> for whatever reason.  And there are many reasons those adapters could fail.
-> Misconfigured sound card, bad serial connection,
-> software synth not loading, etc.
-> Thus these forms of audio feedback are very important.
-> 
-> This should not be confused with the click function in certain specialized
-> keyboards such as lkkbd.c.
-> That function does a serio write to the client to activate clicks locally.
-> In contrast, this function generates a one-time pulse at the pc speaker,
-> or through a similar driver, so that modules can click whenever they want,
-> e.g. when a key is echoed back to you by a running application,
-> perhaps a thousand miles away over ssh, so you know all is well.
-> A module may want to click, or issue a series of clicks, for many reasons.
+here are a couple of fixes for the joystick API documentation.
 
-I do not think it is a good idea to add SND_PULSE as it can be easily
-implemented by SND_TONE with the additional benefit that parameters of
-the click can be adjusted. Also, if clicking is done elsewhere, it would
-work with other speaker drivers besides pcspkr.
+Ciao,
+   Antonio
 
-> 
-> Another function introduced by this patch is kd_mknotes,
-> which plays a series of tones in the background.
-> You could do this yourself with kd_mksound and timers,
-> but why should everyone reinvent the wheel?
-> It is better to write the function once, properly, in the kernel,
-> and let modules use it thereafter.
+Antonio Ospite (2):
+  Input: joystick - refer to /dev/input/js0 in documentation
+  Input: joystick - use sizeof(VARIABLE) in documentation
 
-Can it be put into a library instead? Especially given David's work on
-trying to push the VT code out of the kernel. Also, what if you want
-clicks to go through sound card and not the speaker interface?
-
-Thanks.
+ Documentation/input/joystick-api.txt | 12 ++++++------
+ Documentation/input/joystick.txt     |  8 ++++----
+ 2 files changed, 10 insertions(+), 10 deletions(-)
 
 -- 
-Dmitry
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

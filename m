@@ -1,53 +1,998 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH 2/2] Input: joystick - use sizeof(VARIABLE) in
- documentation
-Date: Mon, 16 Dec 2013 11:06:59 +0100
-Message-ID: <20131216110659.25a1d9118aa6f473ccfd2e5e@studenti.unina.it>
-References: <1387184235-20169-1-git-send-email-ospite@studenti.unina.it>
-	<1387184235-20169-3-git-send-email-ospite@studenti.unina.it>
-	<20131216095140.GA15405@core.coreip.homeip.net>
+From: Duson Lin <dusonlin@emc.com.tw>
+Subject: =?UTF-8?q?=5BPATCH=5D=20Input=3A=20add=20i2c/smbus=20driver=20for=20elan=20touchpad?=
+Date: Mon, 16 Dec 2013 20:26:52 +0800
+Message-ID: <1387196812-16427-1-git-send-email-dusonlin@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp205.alice.it ([82.57.200.101]:28211 "EHLO smtp205.alice.it"
+Received: from msr12.hinet.net ([168.95.4.112]:60512 "EHLO msr12.hinet.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752291Ab3LPKHL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Dec 2013 05:07:11 -0500
-In-Reply-To: <20131216095140.GA15405@core.coreip.homeip.net>
+	id S1753285Ab3LPM2m (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Dec 2013 07:28:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: bleung@chromium.org, agnescheng@chromium.org, phoenix@emc.com.tw, Duson Lin <dusonlin@emc.com.tw>
 
-On Mon, 16 Dec 2013 01:51:41 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+This driver adds support for elan i2c/smbus touchpad found on some lapt=
+ops PC
 
-> Hi Antonio,
-> 
-> On Mon, Dec 16, 2013 at 09:57:15AM +0100, Antonio Ospite wrote:
-> > @@ -181,7 +181,7 @@ at a time using the typical read(2) functionality. For that, you would
-> >  replace the read above with something like
-> >  
-> >  	struct js_event mybuffer[0xff];
-> > -	int i = read (fd, mybuffer, sizeof(struct mybuffer));
-> > +	int i = read (fd, mybuffer, ARRAY_SIZE(mybuffer));
-> >  
-> 
-> This is wrong, as ARRAY_SIZE(mybuffer) would be 0xff and not the size of
-> buffer in bytes. I'll fix it up.
-> 
-> Thanks.
+Signed-off-by: Duson Lin <dusonlin@emc.com.tw>
+---
+ drivers/input/mouse/Kconfig    |   10 +
+ drivers/input/mouse/Makefile   |    1 +
+ drivers/input/mouse/elan_i2c.c |  908 ++++++++++++++++++++++++++++++++=
+++++++++
+ 3 files changed, 919 insertions(+)
+ create mode 100644 drivers/input/mouse/elan_i2c.c
 
-You're right of course, thank you.
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index effa9c5..095eccc 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -215,6 +215,16 @@ config MOUSE_CYAPA
+ 	  To compile this driver as a module, choose M here: the module will =
+be
+ 	  called cyapa.
+=20
++config MOUSE_ELAN_I2C
++	tristate "ELAN I2C Touchpad support"
++	depends on I2C
++	help
++	  This driver adds support for Elan I2C Trackpads.
++	  Say Y here if you have a ELAN I2C Touchpad.
++
++	  To compile this driver as a module, choose M here: the module will =
+be
++	  called elan_i2c.
++
+ config MOUSE_INPORT
+ 	tristate "InPort/MS/ATIXL busmouse"
+ 	depends on ISA
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefil=
+e
+index c25efdb..24a12a6 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -9,6 +9,7 @@ obj-$(CONFIG_MOUSE_APPLETOUCH)		+=3D appletouch.o
+ obj-$(CONFIG_MOUSE_ATARI)		+=3D atarimouse.o
+ obj-$(CONFIG_MOUSE_BCM5974)		+=3D bcm5974.o
+ obj-$(CONFIG_MOUSE_CYAPA)		+=3D cyapa.o
++obj-$(CONFIG_MOUSE_ELAN_I2C)		+=3D elan_i2c.o
+ obj-$(CONFIG_MOUSE_GPIO)		+=3D gpio_mouse.o
+ obj-$(CONFIG_MOUSE_INPORT)		+=3D inport.o
+ obj-$(CONFIG_MOUSE_LOGIBM)		+=3D logibm.o
+diff --git a/drivers/input/mouse/elan_i2c.c b/drivers/input/mouse/elan_=
+i2c.c
+new file mode 100644
+index 0000000..a5a11bb
+--- /dev/null
++++ b/drivers/input/mouse/elan_i2c.c
+@@ -0,0 +1,908 @@
++=EF=BB=BF/*
++ * Elan I2C/SMBus Touchpad driver
++ *
++ * Copyright (c) 2013 ELAN Microelectronics Corp.
++ *
++ * Author: =E6=9E=97=E6=94=BF=E7=B6=AD (Duson Lin) <dusonlin@emc.com.t=
+w>
++ * Version: 1.4.6
++ *
++ * Based on cyapa driver:
++ * copyright (c) 2011-2012 Cypress Semiconductor, Inc.
++ * copyright (c) 2011-2012 Google, Inc.
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y it
++ * under the terms of the GNU General Public License version 2 as publ=
+ished
++ * by the Free Software Foundation.
++ *
++ * Trademarks are the property of their respective owners.
++ */
++
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <linux/firmware.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/input/mt.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/debugfs.h>
++#include <linux/cdev.h>
++#include <linux/kernel.h>
++#include <linux/major.h>
++#include <linux/sched.h>
++#include <linux/input.h>
++#include <linux/uaccess.h>
++#include <linux/jiffies.h>
++
++#define DRIVER_NAME		"elan_i2c"
++#define ELAN_DRIVER_VERSION	"1.4.6"
++#define ETP_PRESSURE_OFFSET	25
++#define ETP_MAX_PRESSURE	255
++#define ETP_FWIDTH_REDUCE	90
++#define ETP_FINGER_WIDTH	15
++
++#define ELAN_ADAPTER_FUNC_NONE   0
++#define ELAN_ADAPTER_FUNC_I2C    1
++#define ELAN_ADAPTER_FUNC_SMBUS  2
++#define ELAN_ADAPTER_FUNC_BOTH   3
++
++/* Length of Elan touchpad information */
++#define ETP_INF_LENGTH		2
++#define ETP_MAX_FINGERS		5
++#define ETP_FINGER_DATA_LEN	5
++#define ETP_REPORT_ID		0x5D
++#define ETP_MAX_REPORT_LEN	34
++#define ETP_ENABLE_ABS		0x0001
++#define ETP_ENABLE_CALIBRATE	0x0002
++#define ETP_DISABLE_CALIBRATE	0x0000
++
++/* Elan smbus command */
++#define ETP_SMBUS_IAP_CMD		0x00
++#define ETP_SMBUS_ENABLE_TP		0x20
++#define ETP_SMBUS_SLEEP_CMD		0x21
++#define ETP_SMBUS_IAP_PASSWORD_WRITE	0x29
++#define ETP_SMBUS_IAP_PASSWORD_READ	0x80
++#define ETP_SMBUS_WRITE_FW_BLOCK	0x2A
++#define ETP_SMBUS_IAP_RESET_CMD		0x2B
++#define ETP_SMBUS_RANGE_CMD		0xA0
++#define ETP_SMBUS_FW_VERSION_CMD	0xA1
++#define ETP_SMBUS_XY_TRACENUM_CMD	0xA2
++#define ETP_SMBUS_SM_VERSION_CMD	0xA3
++#define ETP_SMBUS_UNIQUEID_CMD		0xA3
++#define ETP_SMBUS_RESOLUTION_CMD	0xA4
++#define ETP_SMBUS_HELLOPACKET_CMD	0xA7
++#define ETP_SMBUS_PACKET_QUERY		0xA8
++#define ETP_SMBUS_IAP_VERSION_CMD	0xAC
++#define ETP_SMBUS_IAP_CTRL_CMD		0xAD
++#define ETP_SMBUS_IAP_CHECKSUM_CMD	0xAE
++#define ETP_SMBUS_FW_CHECKSUM_CMD	0xAF
++#define ETP_SMBUS_MAX_BASELINE_CMD	0xC3
++#define ETP_SMBUS_MIN_BASELINE_CMD	0xC4
++#define ETP_SMBUS_CALIBRATE_QUERY	0xC5
++#define ETP_SMBUS_REPORT_LEN		32
++#define ETP_SMBUS_FINGER_DATA_OFFSET	2
++#define ETP_SMBUS_HELLOPACKET_LEN	5
++#define ETP_SMBUS_IAP_PASSWORD		0x1234
++#define ETP_SMBUS_IAP_MODE_ON		(1<<6)
++
++/* Elan i2c command */
++#define ETP_I2C_RESET			0x0100
++#define ETP_I2C_WAKE_UP			0x0800
++#define ETP_I2C_SLEEP			0x0801
++#define ETP_I2C_DESC_CMD		0x0001
++#define ETP_I2C_REPORT_DESC_CMD		0x0002
++#define ETP_I2C_STAND_CMD		0x0005
++#define ETP_I2C_UNIQUEID_CMD		0x0101
++#define ETP_I2C_FW_VERSION_CMD		0x0102
++#define ETP_I2C_SM_VERSION_CMD		0x0103
++#define ETP_I2C_XY_TRACENUM_CMD		0x0105
++#define ETP_I2C_MAX_X_AXIS_CMD		0x0106
++#define ETP_I2C_MAX_Y_AXIS_CMD		0x0107
++#define ETP_I2C_RESOLUTION_CMD		0x0108
++#define ETP_I2C_IAP_VERSION_CMD		0x0110
++#define ETP_I2C_SET_CMD			0x0300
++#define ETP_I2C_MAX_BASELINE_CMD	0x0306
++#define ETP_I2C_MIN_BASELINE_CMD	0x0307
++#define ETP_I2C_FW_CHECKSUM_CMD		0x030F
++#define ETP_I2C_IAP_CTRL_CMD		0x0310
++#define ETP_I2C_IAP_CMD			0x0311
++#define ETP_I2C_IAP_RESET_CMD		0x0314
++#define ETP_I2C_IAP_CHECKSUM_CMD	0x0315
++#define ETP_I2C_CALIBRATE_CMD		0x0316
++#define ETP_I2C_REPORT_LEN		34
++#define ETP_I2C_FINGER_DATA_OFFSET	4
++#define ETP_I2C_REPORT_ID_OFFSET	2
++#define ETP_I2C_DESC_LENGTH		30
++#define ETP_I2C_REPORT_DESC_LENGTH	158
++#define ETP_I2C_IAP_PASSWORD		0x1EA5
++#define ETP_I2C_IAP_RESET		0xF0F0
++#define ETP_I2C_MAIN_MODE_ON		(1<<9)
++#define ETP_I2C_IAP_REG_L		0x01
++#define ETP_I2C_IAP_REG_H		0x06
++
++/* The main device structure */
++struct elan_tp_data {
++	struct i2c_client	*client;
++	struct input_dev	*input;
++	unsigned int		max_x;
++	unsigned int		max_y;
++	unsigned int		width_x;
++	unsigned int		width_y;
++	unsigned int		irq;
++	u16			unique_id;
++	u16			fw_version;
++	u16			sm_version;
++	u16			iap_version;
++	bool			smbus;
++};
++
++/*
++ *******************************************************************
++ * Elan smbus interface
++ *******************************************************************
++ */
++static int elan_smbus_initialize(struct i2c_client *client)
++{
++	u8 check[ETP_SMBUS_HELLOPACKET_LEN] =3D {0x55, 0x55, 0x55, 0x55, 0x55=
+};
++	u8 values[ETP_SMBUS_HELLOPACKET_LEN] =3D {0, 0, 0, 0, 0};
++	int ret;
++
++	/* Get hello packet */
++	ret =3D i2c_smbus_read_block_data(client,
++					ETP_SMBUS_HELLOPACKET_CMD, values);
++	if (ret !=3D ETP_SMBUS_HELLOPACKET_LEN) {
++		dev_err(&client->dev, "hello packet length fail\n");
++		return -1;
++	}
++
++	/* compare hello packet */
++	if (memcmp(values, check, ETP_SMBUS_HELLOPACKET_LEN)) {
++		dev_err(&client->dev, "hello packet fail [%x %x %x %x %x]\n",
++			values[0], values[1], values[2], values[3], values[4]);
++		return -1;
++	}
++
++	/* enable tp */
++	ret =3D i2c_smbus_write_byte(client, ETP_SMBUS_ENABLE_TP);
++	return ret;
++}
++
++static int elan_smbus_enable_absolute_mode(struct i2c_client *client)
++{
++	u8 cmd[4] =3D {0x00, 0x07, 0x00, ETP_ENABLE_ABS};
++
++	return i2c_smbus_write_block_data(client, ETP_SMBUS_IAP_CMD, 4, cmd);
++}
++
++/*
++ ******************************************************************
++ * Elan i2c interface
++ ******************************************************************
++ */
++static int elan_i2c_read_block(struct i2c_client *client,
++			       u16 reg, u8 *val, u16 len)
++{
++	struct i2c_msg msgs[2];
++	u8 buf[2];
++	int ret;
++
++	buf[0] =3D reg & 0xff;
++	buf[1] =3D (reg >> 8) & 0xff;
++
++	msgs[0].addr =3D client->addr;
++	msgs[0].flags =3D client->flags & I2C_M_TEN;
++	msgs[0].len =3D 2;
++	msgs[0].buf =3D buf;
++
++	msgs[1].addr =3D client->addr;
++	msgs[1].flags =3D client->flags & I2C_M_TEN;
++	msgs[1].flags |=3D I2C_M_RD;
++	msgs[1].len =3D len;
++	msgs[1].buf =3D val;
++
++	ret =3D i2c_transfer(client->adapter, msgs, 2);
++	return ret !=3D 2 ? -EIO : 0;
++}
++
++static int elan_i2c_read_cmd(struct i2c_client *client, u16 reg, u8 *v=
+al)
++{
++	int retval;
++
++	retval =3D elan_i2c_read_block(client, reg, val, ETP_INF_LENGTH);
++	if (retval < 0) {
++		dev_err(&client->dev, "reading cmd (0x%04x) fail.\n", reg);
++		return retval;
++	}
++	return 0;
++}
++
++static int elan_i2c_write_cmd(struct i2c_client *client, u16 reg, u16 =
+cmd)
++{
++	struct i2c_msg msg;
++	u8 buf[4];
++	int ret;
++
++	buf[0] =3D reg & 0xff;
++	buf[1] =3D (reg >> 8) & 0xff;
++	buf[2] =3D cmd & 0xff;
++	buf[3] =3D (cmd >> 8) & 0xff;
++
++	msg.addr =3D client->addr;
++	msg.flags =3D client->flags & I2C_M_TEN;
++	msg.len =3D 4;
++	msg.buf =3D buf;
++
++	ret =3D i2c_transfer(client->adapter, &msg, 1);
++	return ret !=3D 1 ? -EIO : 0;
++}
++
++static int elan_i2c_reset(struct i2c_client *client)
++{
++	return elan_i2c_write_cmd(client, ETP_I2C_STAND_CMD,
++				  ETP_I2C_RESET);
++}
++
++static int elan_i2c_wake_up(struct i2c_client *client)
++{
++	return elan_i2c_write_cmd(client, ETP_I2C_STAND_CMD,
++				  ETP_I2C_WAKE_UP);
++}
++
++static int elan_i2c_sleep(struct i2c_client *client)
++{
++	return elan_i2c_write_cmd(client, ETP_I2C_STAND_CMD,
++				  ETP_I2C_SLEEP);
++}
++
++static int elan_i2c_enable_absolute_mode(struct i2c_client *client)
++{
++	return elan_i2c_write_cmd(client, ETP_I2C_SET_CMD,
++				  ETP_ENABLE_ABS);
++}
++
++static int elan_i2c_get_desc(struct i2c_client *client, u8 *val)
++{
++	return elan_i2c_read_block(client, ETP_I2C_DESC_CMD, val,
++				   ETP_I2C_DESC_LENGTH);
++}
++
++static int elan_i2c_get_report_desc(struct i2c_client *client, u8 *val=
+)
++{
++	return elan_i2c_read_block(client, ETP_I2C_REPORT_DESC_CMD,
++				   val, ETP_I2C_REPORT_DESC_LENGTH);
++}
++
++static int elan_i2c_initialize(struct i2c_client *client)
++{
++	struct device *dev =3D &client->dev;
++	int rc;
++	u8 val[256];
++
++	rc =3D elan_i2c_reset(client);
++	if (rc < 0) {
++		dev_err(dev, "device reset failed.\n");
++		return -1;
++	}
++
++	/* wait for get reset return flag */
++	msleep(100);
++	/* get reset return flag 0000 */
++	rc =3D i2c_master_recv(client, val, ETP_INF_LENGTH);
++	if (rc < 0) {
++		dev_err(dev, "get device reset return value failed.\n");
++		return -1;
++	}
++
++	rc =3D elan_i2c_get_desc(client, val);
++	if (rc < 0) {
++		dev_err(dev, "cannot get device descriptor.\n");
++		return -1;
++	}
++
++	rc =3D elan_i2c_get_report_desc(client, val);
++	if (rc < 0) {
++		dev_err(dev, "fetching report descriptor failed.\n");
++		return -1;
++	}
++	return 0;
++}
++
++/*
++ ******************************************************************
++ * General functions
++ ******************************************************************
++ */
++/*
++ * (value from firmware) * 10 + 790 =3D dpi
++ * we also have to convert dpi to dots/mm (*10/254 to avoid floating p=
+oint)
++ */
++static unsigned int elan_convert_res(char val)
++{
++	int res;
++	if (val & 0x80) {
++		val =3D ~val + 1;
++		res =3D (790 - val * 10) * 10 / 254;
++	} else
++		res =3D (val * 10 + 790) * 10 / 254;
++	return res;
++}
++
++static int elan_get_iap_version(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus) {
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_IAP_VERSION_CMD, val);
++		ret =3D val[2];
++	} else {
++		elan_i2c_read_cmd(data->client,
++				  ETP_I2C_IAP_VERSION_CMD, val);
++		ret =3D val[0];
++	}
++	return ret;
++}
++
++static int elan_get_x_max(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus) {
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_RANGE_CMD, val);
++		ret =3D (0x0f & val[0]) << 8 | val[1];
++	} else {
++		elan_i2c_read_cmd(data->client,
++				  ETP_I2C_MAX_X_AXIS_CMD, val);
++		ret =3D (0x0f & val[1]) << 8 | val[0];
++	}
++	return ret;
++}
++
++static int elan_get_y_max(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus) {
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_RANGE_CMD, val);
++		ret =3D (0xf0 & val[0]) << 4 | val[2];
++	} else {
++		elan_i2c_read_cmd(data->client,
++				  ETP_I2C_MAX_Y_AXIS_CMD, val);
++		ret =3D (0x0f & val[1]) << 8 | val[0];
++	}
++	return ret;
++}
++
++static int elan_get_x_tracenum(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus) {
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_XY_TRACENUM_CMD, val);
++		ret =3D (val[1] - 1);
++	} else {
++		elan_i2c_read_cmd(data->client,
++				  ETP_I2C_XY_TRACENUM_CMD, val);
++		ret =3D (val[0] - 1);
++	}
++	return ret;
++}
++
++static int elan_get_y_tracenum(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus) {
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_XY_TRACENUM_CMD, val);
++		ret =3D (val[2] - 1);
++	} else {
++		ret =3D elan_i2c_read_cmd(data->client,
++					ETP_I2C_XY_TRACENUM_CMD, val);
++		ret =3D (val[1] - 1);
++	}
++	return ret;
++}
++
++static int elan_get_fw_version(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus) {
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_FW_VERSION_CMD, val);
++		ret =3D val[2];
++	} else {
++		elan_i2c_read_cmd(data->client,
++				  ETP_I2C_FW_VERSION_CMD, val);
++		ret =3D val[0];
++	}
++	return ret;
++}
++
++static int elan_get_sm_version(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus)
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_SM_VERSION_CMD, val);
++	else
++		elan_i2c_read_block(data->client,
++				    ETP_I2C_SM_VERSION_CMD, val, 1);
++	ret =3D val[0];
++	return ret;
++}
++
++static int elan_get_unique_id(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus) {
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_UNIQUEID_CMD, val);
++		ret =3D val[1];
++	} else {
++		elan_i2c_read_cmd(data->client,
++				  ETP_I2C_UNIQUEID_CMD, val);
++		ret =3D val[0];
++	}
++	return ret;
++}
++
++static int elan_get_x_resolution(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus) {
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_RESOLUTION_CMD, val);
++		ret =3D elan_convert_res(val[1] & 0x0F);
++	} else {
++		elan_i2c_read_cmd(data->client,
++				  ETP_I2C_RESOLUTION_CMD, val);
++		ret =3D elan_convert_res(val[0]);
++	}
++	return ret;
++}
++
++static int elan_get_y_resolution(struct elan_tp_data *data)
++{
++	int ret;
++	u8 val[3];
++	if (data->smbus) {
++		i2c_smbus_read_block_data(data->client,
++					  ETP_SMBUS_RESOLUTION_CMD, val);
++		ret =3D elan_convert_res((val[1] & 0xF0) >> 4);
++	} else {
++		elan_i2c_read_cmd(data->client,
++				  ETP_I2C_RESOLUTION_CMD, val);
++		ret =3D elan_convert_res(val[1]);
++	}
++	return ret;
++}
++
++static int elan_initialize(struct elan_tp_data *data)
++{
++	int ret;
++	if (data->smbus) {
++		ret =3D elan_smbus_initialize(data->client);
++		if (ret < 0) {
++			dev_err(&data->client->dev,
++				"device initialize failed.\n");
++			goto err_initialize;
++		}
++
++		ret =3D elan_smbus_enable_absolute_mode(data->client);
++		if (ret < 0)
++			dev_err(&data->client->dev,
++				"cannot switch to absolute mode.\n");
++	} else {
++		ret =3D elan_i2c_initialize(data->client);
++		if (ret < 0) {
++			dev_err(&data->client->dev,
++				"device initialize failed.\n");
++			goto err_initialize;
++		}
++
++		ret =3D elan_i2c_enable_absolute_mode(data->client);
++		if (ret < 0) {
++			dev_err(&data->client->dev,
++				"cannot switch to absolute mode.\n");
++			goto err_initialize;
++		}
++
++		ret =3D elan_i2c_wake_up(data->client);
++		if (ret < 0)
++			dev_err(&data->client->dev,
++				"device wake up failed.\n");
++	}
++err_initialize:
++	return ret;
++}
++
++
++/*
++ ******************************************************************
++ * Elan isr functions
++ ******************************************************************
++ */
++static int elan_check_packet(struct elan_tp_data *data, u8 *packet)
++{
++	u8 rid;
++
++	if (data->smbus)
++		rid =3D packet[0];
++	else
++		rid =3D packet[ETP_I2C_REPORT_ID_OFFSET];
++
++	/* check report id */
++	if (rid !=3D ETP_REPORT_ID) {
++		dev_err(&data->client->dev, "report id [%x] fail.\n", rid);
++		return -1;
++	}
++	return 0;
++}
++
++static void elan_report_absolute(struct elan_tp_data *data, u8 *packet=
+)
++{
++	struct input_dev *input =3D data->input;
++	u8 *finger_data;
++	bool finger_on;
++	int pos_x, pos_y;
++	int pressure, mk_x, mk_y;
++	int i, area_x, area_y, major, minor, new_pressure;
++	int finger_count =3D 0;
++	int btn_click;
++	u8  tp_info;
++
++	if (data->smbus) {
++		finger_data =3D &packet[ETP_SMBUS_FINGER_DATA_OFFSET];
++		tp_info =3D packet[1];
++	} else {
++		finger_data =3D &packet[ETP_I2C_FINGER_DATA_OFFSET];
++		tp_info =3D packet[3];
++	}
++
++	btn_click =3D (tp_info & 0x01);
++	for (i =3D 0; i < ETP_MAX_FINGERS; i++) {
++		finger_on =3D (tp_info >> (3 + i)) & 0x01;
++
++		/* analyze touched finger raw data*/
++		if (finger_on) {
++			pos_x =3D ((finger_data[0] & 0xf0) << 4) |
++							finger_data[1];
++			pos_y =3D ((finger_data[0] & 0x0f) << 8) |
++							finger_data[2];
++			pos_y =3D  data->max_y - pos_y;
++			mk_x =3D (finger_data[3] & 0x0f);
++			mk_y =3D (finger_data[3] >> 4);
++			pressure =3D finger_data[4];
++
++			/*
++			 * to avoid fat finger be as palm, so reduce the
++			 * width x and y per trace
++			 */
++			area_x =3D mk_x * (data->width_x - ETP_FWIDTH_REDUCE);
++			area_y =3D mk_y * (data->width_y - ETP_FWIDTH_REDUCE);
++
++			major =3D max(area_x, area_y);
++			minor =3D min(area_x, area_y);
++
++			new_pressure =3D pressure + ETP_PRESSURE_OFFSET;
++			if (new_pressure > ETP_MAX_PRESSURE)
++				new_pressure =3D ETP_MAX_PRESSURE;
++
++			input_mt_slot(input, i);
++			input_mt_report_slot_state(input, MT_TOOL_FINGER,
++						   true);
++			input_report_abs(input, ABS_MT_POSITION_X, pos_x);
++			input_report_abs(input, ABS_MT_POSITION_Y, pos_y);
++			input_report_abs(input, ABS_MT_PRESSURE, new_pressure);
++			input_report_abs(input, ABS_TOOL_WIDTH, mk_x);
++			input_report_abs(input, ABS_MT_TOUCH_MAJOR, major);
++			input_report_abs(input, ABS_MT_TOUCH_MINOR, minor);
++			finger_data +=3D ETP_FINGER_DATA_LEN;
++			finger_count++;
++		} else {
++			input_mt_slot(input, i);
++			input_mt_report_slot_state(input,
++						   MT_TOOL_FINGER, false);
++		}
++	}
++
++	input_report_key(input, BTN_LEFT, (btn_click =3D=3D 1));
++	input_mt_report_pointer_emulation(input, true);
++	input_sync(input);
++}
++
++static irqreturn_t elan_isr(int irq, void *dev_id)
++{
++	struct elan_tp_data *data =3D dev_id;
++	u8 raw[ETP_MAX_REPORT_LEN];
++	int retval;
++	int report_len;
++
++	if (data->smbus) {
++		report_len =3D ETP_SMBUS_REPORT_LEN;
++		retval =3D i2c_smbus_read_block_data(data->client,
++						   ETP_SMBUS_PACKET_QUERY,
++						   raw);
++	} else {
++		report_len =3D ETP_I2C_REPORT_LEN;
++		retval =3D i2c_master_recv(data->client, raw, report_len);
++	}
++
++	if (retval !=3D report_len) {
++		dev_err(&data->client->dev, "wrong packet len(%d)", retval);
++		goto elan_isr_end;
++	}
++
++	if (elan_check_packet(data, raw) < 0) {
++		dev_err(&data->client->dev, "wrong packet format.");
++		goto elan_isr_end;
++	}
++	elan_report_absolute(data, raw);
++
++elan_isr_end:
++	return IRQ_HANDLED;
++}
++
++/*
++ ******************************************************************
++ * Elan initial functions
++ ******************************************************************
++ */
++static int elan_input_dev_create(struct elan_tp_data *data)
++{
++	struct i2c_client *client =3D data->client;
++	struct input_dev *input;
++	unsigned int x_res, y_res;
++	int ret, max_width, min_width;
++
++	data->input =3D input =3D input_allocate_device();
++	if (!input)
++		return -ENOMEM;
++	input->name =3D "Elan Touchpad";
++	input->id.bustype =3D BUS_I2C;
++	input->dev.parent =3D &data->client->dev;
++
++	__set_bit(EV_ABS, input->evbit);
++	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
++	__set_bit(BTN_LEFT, input->keybit);
++
++	data->unique_id =3D elan_get_unique_id(data);
++	data->fw_version =3D elan_get_fw_version(data);
++	data->sm_version =3D elan_get_sm_version(data);
++	data->iap_version =3D elan_get_iap_version(data);
++	data->max_x =3D elan_get_x_max(data);
++	data->max_y =3D elan_get_y_max(data);
++	data->width_x =3D data->max_x / elan_get_x_tracenum(data);
++	data->width_y =3D data->max_y / elan_get_y_tracenum(data);
++	x_res =3D elan_get_x_resolution(data);
++	y_res =3D elan_get_y_resolution(data);
++	max_width =3D max(data->width_x, data->width_y);
++	min_width =3D min(data->width_x, data->width_y);
++
++	dev_dbg(&client->dev,
++		"Elan Touchpad Information:\n"
++		"    Module unique ID:  0x%04x\n"
++		"    Firmware Version:  0x%04x\n"
++		"    Sample Version:  0x%04x\n"
++		"    IAP Version:  0x%04x\n"
++		"    Max ABS X,Y:   %d,%d\n"
++		"    Width X,Y:   %d,%d\n"
++		"    Resolution X,Y:   %d,%d (dots/mm)\n",
++		data->unique_id,
++		data->fw_version,
++		data->sm_version,
++		data->iap_version,
++		data->max_x, data->max_y,
++		data->width_x, data->width_y,
++		(char)x_res, (char)y_res);
++
++	input_set_abs_params(input, ABS_X, 0, data->max_x, 0, 0);
++	input_set_abs_params(input, ABS_Y, 0, data->max_y, 0, 0);
++	input_abs_set_res(input, ABS_X, x_res);
++	input_abs_set_res(input, ABS_Y, y_res);
++	input_set_abs_params(input, ABS_PRESSURE, 0, ETP_MAX_PRESSURE, 0, 0);
++	input_set_abs_params(input, ABS_TOOL_WIDTH, 0, ETP_FINGER_WIDTH, 0, 0=
+);
++
++	/* handle pointer emulation and unused slots in core */
++	ret =3D input_mt_init_slots(input, ETP_MAX_FINGERS,
++				  INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED);
++	if (ret) {
++		dev_err(&client->dev, "allocate MT slots failed, %d\n", ret);
++		goto err_free_device;
++	}
++	input_set_abs_params(input, ABS_MT_POSITION_X, 0, data->max_x, 0, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, data->max_y, 0, 0);
++	input_abs_set_res(input, ABS_MT_POSITION_X, x_res);
++	input_abs_set_res(input, ABS_MT_POSITION_Y, y_res);
++	input_set_abs_params(input, ABS_MT_PRESSURE, 0,
++			     ETP_MAX_PRESSURE, 0, 0);
++	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0,
++			     ETP_FINGER_WIDTH * max_width, 0, 0);
++	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0,
++			     ETP_FINGER_WIDTH * min_width, 0, 0);
++
++	/* Register the device in input subsystem */
++	ret =3D input_register_device(input);
++	if (ret) {
++		dev_err(&client->dev, "input_dev register failed, %d\n", ret);
++		goto err_free_device;
++	}
++
++	return 0;
++
++err_free_device:
++	input_free_device(input);
++	return ret;
++}
++
++static u8 elan_check_adapter_functionality(struct i2c_client *client)
++{
++	u8 ret =3D ELAN_ADAPTER_FUNC_NONE;
++
++	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
++		ret |=3D ELAN_ADAPTER_FUNC_I2C;
++	if (i2c_check_functionality(client->adapter,
++				    I2C_FUNC_SMBUS_BYTE_DATA |
++				    I2C_FUNC_SMBUS_BLOCK_DATA |
++				    I2C_FUNC_SMBUS_I2C_BLOCK))
++		ret |=3D ELAN_ADAPTER_FUNC_SMBUS;
++	return ret;
++}
++
++static int elan_probe(struct i2c_client *client,
++		      const struct i2c_device_id *dev_id)
++{
++	struct elan_tp_data *data;
++	int ret;
++	u8 adapter_func;
++	union i2c_smbus_data dummy;
++	struct device *dev =3D &client->dev;
++
++	adapter_func =3D elan_check_adapter_functionality(client);
++	if (adapter_func =3D=3D ELAN_ADAPTER_FUNC_NONE) {
++		dev_err(dev, "not a supported I2C/SMBus adapter\n");
++		return -EIO;
++	}
++
++	/* Make sure there is something at this address */
++	if (i2c_smbus_xfer(client->adapter, client->addr, 0,
++			   I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy) < 0)
++		return -ENODEV;
++
++	data =3D kzalloc(sizeof(struct elan_tp_data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	/* check protocol type */
++	if (adapter_func =3D=3D ELAN_ADAPTER_FUNC_SMBUS)
++		data->smbus =3D true;
++	else
++		data->smbus =3D false;
++	data->client =3D client;
++	data->irq =3D client->irq;
++
++	ret =3D request_threaded_irq(client->irq, NULL, elan_isr,
++				   IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
++				   client->name, data);
++	if (ret < 0) {
++		dev_err(&client->dev, "cannot register irq=3D%d\n",
++				client->irq);
++		goto err_irq;
++	}
++
++	/* initial elan touch pad */
++	ret =3D elan_initialize(data);
++	if (ret < 0)
++		goto err_init;
++
++	/* create input device */
++	ret =3D elan_input_dev_create(data);
++	if (ret < 0)
++		goto err_input_dev;
++
++	device_init_wakeup(&client->dev, 1);
++	i2c_set_clientdata(client, data);
++	return 0;
++
++err_input_dev:
++err_init:
++	free_irq(data->irq, data);
++err_irq:
++	kfree(data);
++	dev_err(&client->dev, "Elan Trackpad probe fail!\n");
++	return ret;
++}
++
++static int elan_remove(struct i2c_client *client)
++{
++	struct elan_tp_data *data =3D i2c_get_clientdata(client);
++	free_irq(data->irq, data);
++	input_free_device(data->input);
++	input_unregister_device(data->input);
++	kfree(data);
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int elan_suspend(struct device *dev)
++{
++	int ret =3D 0;
++	struct elan_tp_data *data =3D dev_get_drvdata(dev);
++
++	disable_irq(data->irq);
++	if (data->smbus)
++		ret =3D i2c_smbus_write_byte(data->client,
++					   ETP_SMBUS_SLEEP_CMD);
++	else
++		ret =3D elan_i2c_sleep(data->client);
++
++	if (ret < 0)
++		dev_err(dev, "suspend mode failed, %d\n", ret);
++
++	return ret;
++}
++
++static int elan_resume(struct device *dev)
++{
++	int ret =3D 0;
++	struct elan_tp_data *data =3D dev_get_drvdata(dev);
++
++	ret =3D elan_initialize(data);
++	if (ret < 0)
++		dev_err(dev, "resume active power failed, %d\n", ret);
++
++	enable_irq(data->irq);
++	return ret;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(elan_pm_ops, elan_suspend, elan_resume);
++
++static const struct i2c_device_id elan_id[] =3D {
++	{ DRIVER_NAME, 0 },
++	{ },
++};
++MODULE_DEVICE_TABLE(i2c, elan_id);
++
++static struct i2c_driver elan_driver =3D {
++	.driver =3D {
++		.name	=3D DRIVER_NAME,
++		.owner	=3D THIS_MODULE,
++		.pm	=3D &elan_pm_ops,
++	},
++	.probe		=3D elan_probe,
++	.remove		=3D elan_remove,
++	.id_table	=3D elan_id,
++};
++
++
++static int __init elan_init(void)
++{
++	int ret;
++	ret =3D i2c_add_driver(&elan_driver);
++	if (ret)
++		pr_err("elan driver register FAILED.\n");
++
++	return ret;
++}
++
++static void __exit elan_exit(void)
++{
++	i2c_del_driver(&elan_driver);
++}
++
++module_init(elan_init);
++module_exit(elan_exit);
++
++MODULE_AUTHOR("Duson Lin <dusonlin@emc.com.tw>");
++MODULE_DESCRIPTION("Elan I2C/SMBus Touchpad driver");
++MODULE_LICENSE("GPL");
+--=20
+1.7.10.4
 
-Ciao,
-   Antonio
-
--- 
-Antonio Ospite
-http://ao2.it
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

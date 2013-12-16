@@ -1,73 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2] Input: define KEY_WWAN for Wireless WAN
-Date: Sun, 15 Dec 2013 21:02:03 -0800
-Message-ID: <20131216050157.GB4322@core.coreip.homeip.net>
-References: <1385664173-18879-1-git-send-email-zajec5@gmail.com>
- <1386671349-16337-1-git-send-email-zajec5@gmail.com>
- <alpine.LNX.2.00.1312102036250.1413@pobox.suse.cz>
+Subject: Re: [PATCH] drivers/input/misc: new PC speaker sounds, clicks and
+ notes
+Date: Sun, 15 Dec 2013 21:21:52 -0800
+Message-ID: <20131216052151.GC4322@core.coreip.homeip.net>
+References: <20131109072257.eklhad@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f41.google.com ([209.85.160.41]:34675 "EHLO
-	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750741Ab3LPFCK (ORCPT
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:34863 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750802Ab3LPFV6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Dec 2013 00:02:10 -0500
-Received: by mail-pb0-f41.google.com with SMTP id jt11so5000558pbb.0
-        for <linux-input@vger.kernel.org>; Sun, 15 Dec 2013 21:02:09 -0800 (PST)
+	Mon, 16 Dec 2013 00:21:58 -0500
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1312102036250.1413@pobox.suse.cz>
+In-Reply-To: <20131109072257.eklhad@comcast.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: =?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, linux-input@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>
+To: Karl Dahlke <eklhad@comcast.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2013 at 08:36:41PM +0100, Jiri Kosina wrote:
-> On Tue, 10 Dec 2013, Rafa=C5=82 Mi=C5=82ecki wrote:
->=20
-> > Some devices with support for mobile networks may have buttons for
-> > enabling/disabling such connection. An example can be Linksys route=
-r
-> > 54G3G.
-> > We already have KEY_BLUETOOTH, KEY_WLAN and KEY_UWB so it makes sen=
-se
-> > to add KEY_WWAN as well.
-> > As we already have KEY_WIMAX, use it's value for KEY_WWAN and make =
-it an
-> > alias.
-> >=20
-> > Signed-off-by: Rafa=C5=82 Mi=C5=82ecki <zajec5@gmail.com>
-> > ---
-> > V2: Re-use 246 value for WWAN and make WIMAX an aliast to WWAN
-> > ---
-> >  include/uapi/linux/input.h |    3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> >=20
-> > diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.=
-h
-> > index a372627..7c69941 100644
-> > --- a/include/uapi/linux/input.h
-> > +++ b/include/uapi/linux/input.h
-> > @@ -464,7 +464,8 @@ struct input_keymap_entry {
-> >  #define KEY_BRIGHTNESS_ZERO	244	/* brightness off, use ambient */
-> >  #define KEY_DISPLAY_OFF		245	/* display device to off state */
-> > =20
-> > -#define KEY_WIMAX		246
-> > +#define KEY_WWAN		246	/* Wireless WAN (LTE, UMTS, GSM, etc.) */
-> > +#define KEY_WIMAX		KEY_WWAN
-> >  #define KEY_RFKILL		247	/* Key that controls all radios */
-> > =20
-> >  #define KEY_MICMUTE		248	/* Mute / unmute the microphone */
->=20
-> Adding Dmitry to CC
+Hi Karl,
 
-Applied, thank you.
+On Mon, Dec 09, 2013 at 07:22:57AM -0500, Karl Dahlke wrote:
+> From: Karl Dahlke <eklhad@gmail.com>
+> 
+> The speaker driver can play a tone at a specified frequency,
+> or the standard control G bell,
+> which is a special case of TONE at 1000 hz 0.1 seconds.
+> This patch adds kd_mkpulse() to generate a soft click.
+> This is introduced to support accessibility modules and adapters in the future.
+> With this in place, a module can easily provide soft clicks,
+> i.e. audible feedback, whenever a key is depressed,
+> or when that keystroke is echoed on screen, whichever you prefer.
+> (Many people find the latter more valuable.)
+> This allows a blind user, for example, to have ongoing feedback while typing,
+> even if he is, at the same time, listening to text that is already on screen.
+> This is faster and more convenient than having characters echoed verbally.
+> And it works all the time, even if speech or braille is not working
+> for whatever reason.  And there are many reasons those adapters could fail.
+> Misconfigured sound card, bad serial connection,
+> software synth not loading, etc.
+> Thus these forms of audio feedback are very important.
+> 
+> This should not be confused with the click function in certain specialized
+> keyboards such as lkkbd.c.
+> That function does a serio write to the client to activate clicks locally.
+> In contrast, this function generates a one-time pulse at the pc speaker,
+> or through a similar driver, so that modules can click whenever they want,
+> e.g. when a key is echoed back to you by a running application,
+> perhaps a thousand miles away over ssh, so you know all is well.
+> A module may want to click, or issue a series of clicks, for many reasons.
 
---=20
+I do not think it is a good idea to add SND_PULSE as it can be easily
+implemented by SND_TONE with the additional benefit that parameters of
+the click can be adjusted. Also, if clicking is done elsewhere, it would
+work with other speaker drivers besides pcspkr.
+
+> 
+> Another function introduced by this patch is kd_mknotes,
+> which plays a series of tones in the background.
+> You could do this yourself with kd_mksound and timers,
+> but why should everyone reinvent the wheel?
+> It is better to write the function once, properly, in the kernel,
+> and let modules use it thereafter.
+
+Can it be put into a library instead? Especially given David's work on
+trying to push the VT code out of the kernel. Also, what if you want
+clicks to go through sound card and not the speaker interface?
+
+Thanks.
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

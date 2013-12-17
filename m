@@ -1,34 +1,57 @@
-From: Josh Boyer <jwboyer@fedoraproject.org>
-Subject: Disable i8042 check on Apple machines
-Date: Tue, 17 Dec 2013 10:25:36 -0500
-Message-ID: <CA+5PVA565FmR+f5eOZDSUv_pb-pbgExg5L6zHXf9aJyNUoRVdg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: [PATCH 0/4] Input: ABS2 and friends
+Date: Tue, 17 Dec 2013 16:48:50 +0100
+Message-ID: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f176.google.com ([209.85.214.176]:58644 "EHLO
-	mail-ob0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753325Ab3LQPZh (ORCPT
+Received: from mail-ea0-f182.google.com ([209.85.215.182]:33311 "EHLO
+	mail-ea0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754224Ab3LQPtS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Dec 2013 10:25:37 -0500
-Received: by mail-ob0-f176.google.com with SMTP id vb8so6437760obc.21
-        for <linux-input@vger.kernel.org>; Tue, 17 Dec 2013 07:25:36 -0800 (PST)
+	Tue, 17 Dec 2013 10:49:18 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <bnocera@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Antonio Ospite <ospite@studenti.unina.it>, linux-kernel@vger.kernel.org, input-tools@lists.freedesktop.org, David Herrmann <dh.herrmann@gmail.com>
 
-Hi Bastien and Dmitry,
+Hi
 
-I was going through some of the patches we're carrying in Fedora and
-came across this one that Bastien submitted a long time ago:
+This implements the recently discussed ABS2 API. It's working fine on my machine
+with libevdev. Comments welcome!
 
-http://lkml.indiana.edu/hypermail/linux/kernel/1005.0/00938.html
+* Patch #1 fixes some uinput shortcomings and prepares uinput for ABS2
+* Patch #2 adds ABS2
+* Patch #3 is just a small comment-fix for #4
+* Patch #4 adds some new example ABS values in the new range
 
-It works and we're still carrying it, but Dmitry said it needed to be
-done differently in i8042-x86ia64io.h.  Would that just mean adding a
-DMI for Apple machines to the i8042_dmi_nopnp_table struct?  Or
-exactly what should be done here?
+Note that I have patches pending which make use of the new ABS values, but I'd
+like to get this reduced series in first.
 
-I'd like to get this upstream.
+Thanks
+David
 
-josh
+David Herrmann (4):
+  Input: uinput: add full absinfo support
+  Input: introduce ABS_MAX2/CNT2 and friends
+  Input: remove ambigious gamepad comment
+  Input: add motion-tracking ABS_* bits and docs
+
+ Documentation/input/gamepad.txt          |   9 +-
+ Documentation/input/motion-tracking.txt  | 149 +++++++++++++++++++++++++++++++
+ drivers/hid/hid-debug.c                  |   2 +-
+ drivers/hid/hid-input.c                  |   2 +-
+ drivers/input/evdev.c                    |  95 +++++++++++++++++++-
+ drivers/input/input.c                    |  14 +--
+ drivers/input/keyboard/goldfish_events.c |   6 +-
+ drivers/input/keyboard/hil_kbd.c         |   2 +-
+ drivers/input/misc/uinput.c              | 146 ++++++++++++++++++++++--------
+ include/linux/hid.h                      |   2 +-
+ include/linux/input.h                    |   6 +-
+ include/linux/mod_devicetable.h          |   2 +-
+ include/uapi/linux/input.h               |  49 +++++++++-
+ include/uapi/linux/uinput.h              |   9 ++
+ 14 files changed, 431 insertions(+), 62 deletions(-)
+ create mode 100644 Documentation/input/motion-tracking.txt
+
+-- 
+1.8.5.1
+

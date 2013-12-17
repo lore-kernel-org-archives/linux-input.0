@@ -1,49 +1,44 @@
-From: sboyd@codeaurora.org (spamassassin system account)
-Subject: Re: [PATCH 6/7] Input: pmic8xxx-keypad - Migrate to devm_* APIs
-Date: Mon, 16 Dec 2013 18:01:51 -0800
-Message-ID: <20131217020151.GB31766@codeaurora.org>
-References: <1386718996-3733-1-git-send-email-sboyd@codeaurora.org>
- <1386718996-3733-7-git-send-email-sboyd@codeaurora.org>
- <20131216153726.GB8884@core.coreip.homeip.net>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH] input synaptics-rmi4 trivial: Eliminate unused local variable.
+Date: Mon, 16 Dec 2013 18:25:51 -0800
+Message-ID: <1387247151-21131-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20131216153726.GB8884@core.coreip.homeip.net>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:65140 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752510Ab3LQCZz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Dec 2013 21:25:55 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On 12/16, Dmitry Torokhov wrote:
-> On Tue, Dec 10, 2013 at 03:43:15PM -0800, Stephen Boyd wrote:
-> > -
-> > -static int pmic8xxx_kp_remove(struct platform_device *pdev)
-> > -{
-> > -	struct pmic8xxx_kp *kp = platform_get_drvdata(pdev);
-> > -
-> > -	device_init_wakeup(&pdev->dev, 0);
-> 
-> Why are we removing restoring wakeup capable state?
-> 
+One-line change to eliminate an unused local variable warning in rmi_f11.c.
 
-It's the only thing blocking removal of the remove callback and
-as the driver is being unbound it didn't seem like we cared about
-the state of the wakeup of the device. I greped the kernel tree
-and I couldn't see a consistent pattern where driver probe was
-setting the flag and driver remove was clearing it. Do we need to
-keep it?
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-> > -	free_irq(kp->key_stuck_irq, kp);
-> > -	free_irq(kp->key_sense_irq, kp);
-> > -	input_unregister_device(kp->input);
-> > -	kfree(kp);
-> > -
-> > -	return 0;
-> >  }
-> >  
-> >  #ifdef CONFIG_PM_SLEEP
+---
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+This patch implements changes to the synaptics-rmi4 branch of
+Dmitry's input tree.  The base for the patch is commit
+e0c5aec5e6144ae8391d164e2dc659f8ef2b2ba7.
+
+drivers/input/rmi4/rmi_f11.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+index d63ef31..c2be9de 100644
+--- a/drivers/input/rmi4/rmi_f11.c
++++ b/drivers/input/rmi4/rmi_f11.c
+@@ -1289,7 +1289,6 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
+ 	struct f11_data *f11 = fn->data;
+ 	struct input_dev *input_dev;
+ 	struct input_dev *input_dev_mouse;
+-	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
+ 	struct rmi_driver *driver = rmi_dev->driver;
+ 	struct f11_2d_sensor *sensor = &f11->sensor;
+ 	int rc;

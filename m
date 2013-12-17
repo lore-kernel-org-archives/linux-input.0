@@ -1,44 +1,39 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH 3/4] Input: remove ambigious gamepad comment
-Date: Tue, 17 Dec 2013 16:48:53 +0100
-Message-ID: <1387295334-1744-4-git-send-email-dh.herrmann@gmail.com>
+Subject: Re: [PATCH 0/4] Input: ABS2 and friends
+Date: Tue, 17 Dec 2013 17:34:56 +0100
+Message-ID: <CANq1E4SDwSQuvBstC-xMhtsUwm8kWwy2fXTJwOfC09gwsLnnZQ@mail.gmail.com>
 References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f44.google.com ([74.125.83.44]:60173 "EHLO
-	mail-ee0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754873Ab3LQPt2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Dec 2013 10:49:28 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Antonio Ospite <ospite@studenti.unina.it>, linux-kernel <linux-kernel@vger.kernel.org>, Input Tools <input-tools@lists.freedesktop.org>, David Herrmann <dh.herrmann@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Antonio Ospite <ospite@studenti.unina.it>, linux-kernel@vger.kernel.org, input-tools@lists.freedesktop.org, David Herrmann <dh.herrmann@gmail.com>
 
-If only a single trigger combination is present on a device, either can be
-reported. If the side of the trigger (left/right) cannot be decided (eg.,
-if it's centered), then choose any side. User-space automatically notices
-that only a single trigger is reported and thus doesn't care how it is
-reported.
+Hi
 
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
----
- Documentation/input/gamepad.txt | 2 --
- 1 file changed, 2 deletions(-)
+On Tue, Dec 17, 2013 at 4:48 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
+>
+> This implements the recently discussed ABS2 API. It's working fine on my machine
+> with libevdev. Comments welcome!
+>
+> * Patch #1 fixes some uinput shortcomings and prepares uinput for ABS2
+> * Patch #2 adds ABS2
+> * Patch #3 is just a small comment-fix for #4
+> * Patch #4 adds some new example ABS values in the new range
+>
+> Note that I have patches pending which make use of the new ABS values, but I'd
+> like to get this reduced series in first.
 
-diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
-index 31bb6a4..196dc42 100644
---- a/Documentation/input/gamepad.txt
-+++ b/Documentation/input/gamepad.txt
-@@ -138,8 +138,6 @@ Triggers:
-   Upper trigger buttons are reported as BTN_TR or ABS_HAT1X (right) and BTN_TL
-   or ABS_HAT1Y (left). Lower trigger buttons are reported as BTN_TR2 or
-   ABS_HAT2X (right/ZR) and BTN_TL2 or ABS_HAT2Y (left/ZL).
--  If only one trigger-button combination is present (upper+lower), they are
--  reported as "right" triggers (BTN_TR/ABS_HAT1X).
-     (ABS trigger values start at 0, pressure is reported as positive values)
- 
- Menu-Pad:
--- 
-1.8.5.1
+If someone is interested in the libevdev patches, see here:
+  http://cgit.freedesktop.org/~dvdhrm/libevdev/log/?h=abs2
 
+I tested the libevdev test-suite in all combinations linux+libevdev,
+linux-abs2 + libevdev, linux + libevdev-abs2, linux-abs2 +
+libevdev-abs2 and all worked fine.
+
+Thanks
+David

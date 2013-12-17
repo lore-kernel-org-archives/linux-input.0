@@ -1,44 +1,45 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH] input synaptics-rmi4 trivial: Eliminate unused local variable.
-Date: Mon, 16 Dec 2013 18:25:51 -0800
-Message-ID: <1387247151-21131-1-git-send-email-cheiny@synaptics.com>
+From: Wei Yongjun <weiyj.lk@gmail.com>
+Subject: [PATCH -next] Input: zforce - fix error return code in zforce_start()
+Date: Tue, 17 Dec 2013 11:27:16 +0800
+Message-ID: <CAPgLHd8WBR38qd9VHfazXVTbuoJ=GPOafHzSz8d9XJ-F61a7nQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:65140 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752510Ab3LQCZz (ORCPT
+Received: from mail-bk0-f45.google.com ([209.85.214.45]:52034 "EHLO
+	mail-bk0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751551Ab3LQD1R (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Dec 2013 21:25:55 -0500
+	Mon, 16 Dec 2013 22:27:17 -0500
+Received: by mail-bk0-f45.google.com with SMTP id mx13so2631979bkb.32
+        for <linux-input@vger.kernel.org>; Mon, 16 Dec 2013 19:27:16 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: dmitry.torokhov@gmail.com, rydberg@euromail.se, heiko@sntech.de
+Cc: yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
 
-One-line change to eliminate an unused local variable warning in rmi_f11.c.
+From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
-Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+The error code was not set if unable to set config, so the error
+condition wasn't reflected in the return value. Fix to return a
+negative error code from the error handling case instead of 0.
 
+Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 ---
+ drivers/input/touchscreen/zforce_ts.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-This patch implements changes to the synaptics-rmi4 branch of
-Dmitry's input tree.  The base for the patch is commit
-e0c5aec5e6144ae8391d164e2dc659f8ef2b2ba7.
+diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+index aa127ba..2175f34 100644
+--- a/drivers/input/touchscreen/zforce_ts.c
++++ b/drivers/input/touchscreen/zforce_ts.c
+@@ -279,7 +279,8 @@ static int zforce_start(struct zforce_ts *ts)
+ 		goto error;
+ 	}
+ 
+-	if (zforce_setconfig(ts, SETCONFIG_DUALTOUCH)) {
++	ret = zforce_setconfig(ts, SETCONFIG_DUALTOUCH);
++	if (ret) {
+ 		dev_err(&client->dev, "Unable to set config\n");
+ 		goto error;
+ 	}
 
-drivers/input/rmi4/rmi_f11.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index d63ef31..c2be9de 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -1289,7 +1289,6 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
- 	struct f11_data *f11 = fn->data;
- 	struct input_dev *input_dev;
- 	struct input_dev *input_dev_mouse;
--	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
- 	struct rmi_driver *driver = rmi_dev->driver;
- 	struct f11_2d_sensor *sensor = &f11->sensor;
- 	int rc;

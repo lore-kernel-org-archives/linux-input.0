@@ -1,58 +1,45 @@
-From: Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: [PATCH v3] if xen_platform_pci=0 is set don't blow up.
-Date: Mon, 16 Dec 2013 18:00:25 -0700
-Message-ID: <CAErSpo7F+-TZ_dGwsFtr7pra45hVqTv4HLuQNr-SR4MeLespYw@mail.gmail.com>
-References: <1387206250-13963-1-git-send-email-konrad.wilk@oracle.com>
+From: Wei Yongjun <weiyj.lk@gmail.com>
+Subject: [PATCH -next] Input: pmic8xxx-pwrkey - fix to pass correct device
+ identity to free_irq()
+Date: Tue, 17 Dec 2013 09:16:10 +0800
+Message-ID: <CAPgLHd87FxZ6ur_WLC9Q9bjOfNbOTu6yzNWNcN-ar0=o1y48Kg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <1387206250-13963-1-git-send-email-konrad.wilk@oracle.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, ian.campbell@citrix.com, xen-devel@lists.xenproject.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, boris.ostrovsky@oracle.com, David Vrabel <david.vrabel@citrix.com>, leosilva@linux.vnet.ibm.com, ashley@ashleylai.com, =?UTF-8?Q?Peter_H=C3=BCwe?= <peterhuewe@gmx.de>, mail@srajiv.net, tpmdd@selhorst.net, Dmitry Torokhov <dmitry.torokhov@gmail.com>, plagnioj@jcrosoft.com, tomi.valkeinen@ti.com, tpmdd-devel@lists.sourceforge.net, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, netdev <netdev@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, linux-fbdev@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bk0-f42.google.com ([209.85.214.42]:50680 "EHLO
+	mail-bk0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751944Ab3LQBQL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Dec 2013 20:16:11 -0500
+Received: by mail-bk0-f42.google.com with SMTP id w11so2611155bkz.29
+        for <linux-input@vger.kernel.org>; Mon, 16 Dec 2013 17:16:10 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, sboyd@codeaurora.org, lars@metafoo.de, sachin.kamat@linaro.org
+Cc: yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
 
-On Mon, Dec 16, 2013 at 8:04 AM, Konrad Rzeszutek Wilk
-<konrad.wilk@oracle.com> wrote:
-> The first patch:
->  [PATCH v3 1/2] xen/pvhvm: If xen_platform_pci=0 is set don't blow up
->
-> I would like to commit to stable as it is fixing an eggregious bug -
-> where we blow up if the guest config has: "xen_platform_pci=0" setup.
-> This bug has been in existence for years and it is time to stamp it out.
->
-> The second patch is a cleanup - not a stable candidate.
->
-> It touches all of the Xen frontend drivers and adds the logic of:
-> "if user disabled us, don't init" - with variations. As you can
-> specify exactly which ones you want to init and which ones
-> not (Linux runtime parameter 'xen_emul_unplug'). But for the majority
-> of drivers - it is just an on/off switch.
->
-> Since it touches a lot of maintainers I figured I would send it
-> to Linus on Wednesday or Thursday.
->
-> Thank you!
->
->  arch/x86/xen/platform-pci-unplug.c         | 79 ++++++++++++++++++++++++++++--
->  drivers/block/xen-blkfront.c               |  4 +-
->  drivers/char/tpm/xen-tpmfront.c            |  4 ++
->  drivers/input/misc/xen-kbdfront.c          |  4 ++
->  drivers/net/xen-netfront.c                 |  2 +-
->  drivers/pci/xen-pcifront.c                 |  4 ++
->  drivers/video/xen-fbfront.c                |  4 ++
->  drivers/xen/xenbus/xenbus_probe_frontend.c |  2 +-
->  include/xen/platform_pci.h                 | 25 +++++++++-
->  9 files changed, 119 insertions(+), 9 deletions(-)
+From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
-If you want it:
+free_irq() in the error handling case is missing when change
+pass input device directly to interrupt.
 
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: b27f8fee4965('Input: pmic8xxx-pwrkey - pass input device directly to interrupt')
+Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+---
+ drivers/input/misc/pmic8xxx-pwrkey.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-for the PCI parts.
+diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+index ef93840..3914e5b 100644
+--- a/drivers/input/misc/pmic8xxx-pwrkey.c
++++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+@@ -182,7 +182,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ free_press_irq:
+-	free_irq(key_press_irq, pwrkey);
++	free_irq(key_press_irq, pwr);
+ unreg_input_dev:
+ 	input_unregister_device(pwr);
+ 	pwr = NULL;
 
->
-> Konrad Rzeszutek Wilk (2):
->       xen/pvhvm: If xen_platform_pci=0 is set don't blow up (v3).
->       xen/pvhvm: Remove the xen_platform_pci int.
->

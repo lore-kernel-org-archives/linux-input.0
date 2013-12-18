@@ -1,112 +1,120 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 5/9] Input: pixcir_i2c_ts: Get rid of
- pdata->attb_read_val()
-Date: Wed, 18 Dec 2013 06:20:56 -0800
-Message-ID: <20131218142056.GF28504@core.coreip.homeip.net>
-References: <1387358480-8313-1-git-send-email-rogerq@ti.com>
- <1387358480-8313-6-git-send-email-rogerq@ti.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH 2/4] Input: introduce ABS_MAX2/CNT2 and friends
+Date: Wed, 18 Dec 2013 15:27:31 +0100
+Message-ID: <20131218152731.0222ae3b3807601b7756c937@studenti.unina.it>
+References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
+	<1387295334-1744-3-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:37574 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754889Ab3LROU7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 09:20:59 -0500
-Content-Disposition: inline
-In-Reply-To: <1387358480-8313-6-git-send-email-rogerq@ti.com>
+Received: from smtp206.alice.it ([82.57.200.102]:26675 "EHLO smtp206.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754310Ab3LRO1f (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Dec 2013 09:27:35 -0500
+In-Reply-To: <1387295334-1744-3-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roger Quadros <rogerq@ti.com>
-Cc: rydberg@euromail.se, jcbian@pixcir.com.cn, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, input-tools@lists.freedesktop.org
 
-On Wed, Dec 18, 2013 at 02:51:16PM +0530, Roger Quadros wrote:
-> Get rid of the attb_read_val() platform hook. Instead,
-> read the ATTB gpio directly from the driver.
+Hi David,
+
+thanks for the update.
+
+On Tue, 17 Dec 2013 16:48:52 +0100
+David Herrmann <dh.herrmann@gmail.com> wrote:
+
+> As we painfully noticed during the 3.12 merge-window our
+> EVIOCGABS/EVIOCSABS API is limited to ABS_MAX<=0x3f. We tried several
+> hacks to work around it but if we ever decide to increase ABS_MAX, the
+> EVIOCSABS ioctl ABI might overflow into the next byte causing horrible
+> misinterpretations in the kernel that we cannot catch.
 > 
-> Fail if valid ATTB gpio is not provided by patform data.
+> Therefore, we decided to go with ABS_MAX2/CNT2 and introduce two new
+> ioctls to get/set abs-params. They no longer encode the ABS code in the
+> ioctl number and thus allow up to 4 billion ABS codes.
+>
 
-Do you also need to define polarity?
+Just a question: did you consider the possibility of not exposing _MAX2
+and _CNT2 in a header file at all but let those be queried? Or maybe
+this is not necessary if we assume that userspace programs are supposed
+to know what is the MAX _they_ support?
 
-> 
-> Signed-off-by: Roger Quadros <rogerq@ti.com>
-> Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
+BTW I was thinking for instance to a program compiled with ABS_MAX2 =
+0x4f but working with future kernels with an increased value, it still
+won't be able to support values greater than 0x4f.
+
+> The new API also allows to query multiple ABS values with one call. To
+> allow EVIOCSABS2(code = 0, cnt = ABS_CNT2) we need to silently ignore
+> writes to ABS_MT_SLOT. Furthermore, for better compatibility with
+> newer user-space, we ignore writes to unknown codes. Hence, if we ever
+> increase ABS_MAX2, new user-space will work with code=0,cnt=ABS_CNT2 just
+> fine even on old kernels.
+>
+
+To my inexperienced eye it's not obvious why ABS_MT_SLOT must be handled
+as a special case. Maybe because I don't even know what
+code=0,cnt=ABS_CNT2 is used for.
+
+> Note that we also need to increase EV_VERSION so user-space can reliably
+> know whether ABS2 is supported. Unfortunately, we return EINVAL instead of
+> ENOSYS for unknown evdev ioctls so it's nearly impossible to catch
+> reliably without EVIOCGVERSION.
+>
+
+I'll check how to use that in evtest.
+
+Just one more comment below.
+
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 > ---
->  drivers/input/touchscreen/pixcir_i2c_ts.c | 19 +++++++++++++++++--
->  include/linux/input/pixcir_ts.h           |  1 -
->  2 files changed, 17 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> index 3370fd9..a783d94 100644
-> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> @@ -91,11 +91,12 @@ static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
->  static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
->  {
->  	struct pixcir_i2c_ts_data *tsdata = dev_id;
-> +	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
->  
->  	while (!tsdata->exiting) {
->  		pixcir_ts_poscheck(tsdata);
->  
-> -		if (tsdata->chip->attb_read_val())
-> +		if (gpio_get_value(pdata->gpio_attb))
->  			break;
->  
->  		msleep(20);
-> @@ -301,8 +302,10 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
->  		return ERR_PTR(-ENOMEM);
->  
->  	pdata->gpio_attb = of_get_named_gpio(np, "attb-gpio", 0);
-> -	if (!gpio_is_valid(pdata->gpio_attb))
-> +	if (!gpio_is_valid(pdata->gpio_attb)) {
->  		dev_err(dev, "Failed to get ATTB GPIO\n");
-> +		return ERR_PTR(-EINVAL);
-> +	}
->  
->  	if (of_property_read_u32(np, "x-size", &pdata->x_size)) {
->  		dev_err(dev, "Failed to get x-size property\n");
-> @@ -344,6 +347,11 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->  	} else if (!pdata) {
->  		dev_err(&client->dev, "platform data not defined\n");
->  		return -EINVAL;
-> +	} else {
-> +		if (!gpio_is_valid(pdata->gpio_attb)) {
-> +			dev_err(dev, "Invalid gpio_attb in pdata\n");
-> +			return -EINVAL;
-> +		}
->  	}
->  
->  	tsdata = devm_kzalloc(dev, sizeof(*tsdata), GFP_KERNEL);
-> @@ -380,6 +388,13 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->  
->  	input_set_drvdata(input, tsdata);
->  
-> +	error = devm_gpio_request_one(dev, pdata->gpio_attb,
-> +			GPIOF_DIR_IN, "pixcir_i2c_attb");
-> +	if (error) {
-> +		dev_err(dev, "Failed to request ATTB gpio\n");
-> +		return error;
-> +	}
-> +
->  	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
->  				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
->  				     client->name, tsdata);
-> diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
-> index f17c192..88ffdb50 100644
-> --- a/include/linux/input/pixcir_ts.h
-> +++ b/include/linux/input/pixcir_ts.h
-> @@ -44,7 +44,6 @@ enum pixcir_int_mode {
->  #define PIXCIR_INT_POL_HIGH	(1UL << 2)
->  
->  struct pixcir_ts_platform_data {
-> -	int (*attb_read_val)(void);
->  	unsigned int x_size;	/* X axis resolution */
->  	unsigned int y_size;	/* Y axis resolution */
->  	int gpio_attb;		/* GPIO connected to ATTB line */
-> -- 
-> 1.8.3.2
+>  drivers/hid/hid-debug.c                  |  2 +-
+>  drivers/hid/hid-input.c                  |  2 +-
+>  drivers/input/evdev.c                    | 95 +++++++++++++++++++++++++++++++-
+>  drivers/input/input.c                    | 14 ++---
+>  drivers/input/keyboard/goldfish_events.c |  6 +-
+>  drivers/input/keyboard/hil_kbd.c         |  2 +-
+>  drivers/input/misc/uinput.c              |  6 +-
+>  include/linux/hid.h                      |  2 +-
+>  include/linux/input.h                    |  6 +-
+>  include/uapi/linux/input.h               | 42 +++++++++++++-
+>  include/uapi/linux/uinput.h              |  2 +-
+>  11 files changed, 155 insertions(+), 24 deletions(-)
 > 
 
+[...]
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index bd24470..1856461 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+[...]
+>  
+>  /*
+> + * Due to API restrictions the legacy evdev API only supports ABS values up to
+> + * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on any ABS values in
+> + * between ABS_MAX and ABS_MAX2.
+> + */
+> +#define ABS_MAX2		0x3f
+> +#define ABS_CNT2		(ABS_MAX2+1)
+> +
+
+Maybe it's just my English, but when you say "between ABS_MAX and
+ABS_MAX2" it sounds like the old protocol still _must_ be used for
+values <= ABS_MAX.
+
+IIUC this is true "only" for compatibility with older kernels right?
+If a program decides to support only newer kernels it can check the
+protocol version and use only the new ioctls, right?
+
+Maybe you can be more explicit about that in the comment?
+
+Thanks,
+   Antonio
 -- 
-Dmitry
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

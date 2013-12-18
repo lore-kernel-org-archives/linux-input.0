@@ -1,92 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/9] Input: pixcir_i2c_ts: Add register definitions
-Date: Wed, 18 Dec 2013 06:09:45 -0800
-Message-ID: <20131218140945.GB28504@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 3/9] Input: pixcir_i2c_ts: Initialize interrupt mode and
+ power mode
+Date: Wed, 18 Dec 2013 06:14:08 -0800
+Message-ID: <20131218141408.GC28504@core.coreip.homeip.net>
 References: <1387358480-8313-1-git-send-email-rogerq@ti.com>
- <1387358480-8313-3-git-send-email-rogerq@ti.com>
+ <1387358480-8313-4-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:42185 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754619Ab3LROJs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 09:09:48 -0500
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1387358480-8313-3-git-send-email-rogerq@ti.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1387358480-8313-4-git-send-email-rogerq-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Roger Quadros <rogerq-l0cyMroinI0@public.gmane.org>
+Cc: rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org, jcbian-mY6CKx1T+M6Pt1CcHtbs0g@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Roger Quadros <rogerq@ti.com>
-Cc: rydberg@euromail.se, jcbian@pixcir.com.cn, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, Dec 18, 2013 at 02:51:13PM +0530, Roger Quadros wrote:
-> Add power and interrupt register definitions.
-> 
+On Wed, Dec 18, 2013 at 02:51:14PM +0530, Roger Quadros wrote:
+> +
+> +static int pixcir_stop(struct pixcir_i2c_ts_data *ts)
+> +{
+> +	struct device *dev = &ts->client->dev;
+> +	int ret;
+> +
+> +	/* disable interrupt generation */
+> +	ret = pixcir_int_enable(ts, 0);
+> +	if (ret) {
+> +		dev_err(dev, "Failed to disable interrupt generation\n");
+> +		return ret;
+> +	}
+> +
+> +	disable_irq(ts->client->irq);
 
-Please fold into the next patch that uses these definitions.
+Why do you need to disable IRQ? If you disable interrupt generation in
+the chip I think you only need to call synchronize_irq() to make sure
+it's completed if it happens to be running. Also you need to move the
+code:
 
-> Signed-off-by: Roger Quadros <rogerq@ti.com>
-> Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
-> ---
->  include/linux/input/pixcir_ts.h | 42 +++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 42 insertions(+)
-> 
-> diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
-> index b34ff7e..f17c192 100644
-> --- a/include/linux/input/pixcir_ts.h
-> +++ b/include/linux/input/pixcir_ts.h
-> @@ -1,6 +1,48 @@
->  #ifndef	_PIXCIR_I2C_TS_H
->  #define	_PIXCIR_I2C_TS_H
->  
-> +/*
-> + * Register map
-> + */
-> +#define PIXCIR_REG_POWER_MODE	51
-> +#define PIXCIR_REG_INT_MODE	52
-> +
-> +/*
-> + * Power modes:
-> + * active: max scan speed
-> + * idle: lower scan speed with automatic transition to active on touch
-> + * halt: datasheet says sleep but this is more like halt as the chip
-> + *       clocks are cut and it can only be brought out of this mode
-> + *	 using the RESET pin.
-> + */
-> +enum pixcir_power_mode {
-> +	PIXCIR_POWER_ACTIVE,
-> +	PIXCIR_POWER_IDLE,
-> +	PIXCIR_POWER_HALT,
-> +};
-> +
-> +#define PIXCIR_POWER_MODE_MASK	0x03
-> +#define PIXCIR_POWER_ALLOW_IDLE (1UL << 2)
-> +
-> +/*
-> + * Interrupt modes:
-> + * periodical: interrupt is asserted periodicaly
-> + * diff coordinates: interrupt is asserted when coordinates change
-> + * level on touch: interrupt level asserted during touch
-> + * pulse on touch: interrupt pulse asserted druing touch
-> + *
-> + */
-> +enum pixcir_int_mode {
-> +	PIXCIR_INT_PERIODICAL,
-> +	PIXCIR_INT_DIFF_COORD,
-> +	PIXCIR_INT_LEVEL_TOUCH,
-> +	PIXCIR_INT_PULSE_TOUCH,
-> +};
-> +
-> +#define PIXCIR_INT_MODE_MASK	0x03
-> +#define PIXCIR_INT_ENABLE	(1UL << 3)
-> +#define PIXCIR_INT_POL_HIGH	(1UL << 2)
-> +
->  struct pixcir_ts_platform_data {
->  	int (*attb_read_val)(void);
->  	unsigned int x_size;	/* X axis resolution */
-> -- 
-> 1.8.3.2
-> 
+	tsdata->exiting = true;
+	mb();
+
+here from pixcir_i2c_ts_remove() to make sure handler exits promptly.
+
+You will also need to reset tsdata->exiting in your start method.
+
+Thanks.
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

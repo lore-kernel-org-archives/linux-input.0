@@ -1,74 +1,52 @@
-From: Jiang Liu <jiang.liu@linux.intel.com>
-Subject: [RFC Patch v1 10/13] ACPI, i2c-hid: replace open-coded _DSM specific code with helper functions
-Date: Wed, 18 Dec 2013 14:58:18 +0800
-Message-ID: <1387349901-3391-11-git-send-email-jiang.liu@linux.intel.com>
-References: <1387349901-3391-1-git-send-email-jiang.liu@linux.intel.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 0/4] Input: ABS2 and friends
+Date: Wed, 18 Dec 2013 09:12:45 +0100
+Message-ID: <CANq1E4SDTLzkiWWaAmZ3iU1mSTc2Ce5E=zKHthxrsuDnBUYYMw@mail.gmail.com>
+References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
+	<190d226e64e177a3cb631b8fc6f4787c.squirrel@mungewell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([143.182.124.37]:23599 "EHLO mga14.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751405Ab3LRG6J (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 01:58:09 -0500
-In-Reply-To: <1387349901-3391-1-git-send-email-jiang.liu@linux.intel.com>
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:53569 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751196Ab3LRIMp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Dec 2013 03:12:45 -0500
+In-Reply-To: <190d226e64e177a3cb631b8fc6f4787c.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Bjorn Helgaas <bhelgaas@google.com>, Lv Zheng <lv.zheng@intel.com>, Len Brown <lenb@kernel.org>, Leonidas Da Silva Barbosa <leosilva@linux.vnet.ibm.com>, Ashley Lai <ashley@ashleylai.com>, Peter Huewe <peterhuewe@gmx.de>, Rajiv Andrade <mail@srajiv.net>, Marcel Selhorst <tpmdd@selhorst.net>, Sirrix AG <tpmdd@sirrix.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, David Airlie <airlied@linux.ie>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jiang Liu <jiang.liu@linux.intel.com>, Tony Luck <tony.luck@intel.com>
+To: Simon Wood <simon@mungewell.org>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Antonio Ospite <ospite@studenti.unina.it>, linux-kernel <linux-kernel@vger.kernel.org>, Input Tools <input-tools@lists.freedesktop.org>
 
-Use helper functions to simplify _DSM related code in i2c-hid driver.
+Hi
 
-Signed-off-by: Jiang Liu <jiang.liu@linux.intel.com>
----
- drivers/hid/i2c-hid/i2c-hid.c |   26 ++++++--------------------
- 1 file changed, 6 insertions(+), 20 deletions(-)
+On Tue, Dec 17, 2013 at 10:28 PM,  <simon@mungewell.org> wrote:
+>> Hi
+>>
+>> This implements the recently discussed ABS2 API. It's working fine on my
+>> machine with libevdev. Comments welcome!
+>
+> Just looking at the documentation file, I have a couple of suggestions.
+>
+> 1). Make a note on the direction of gravity wrt the example image. Ie what
+> which axis/value will be positive with the device laid flat/stationary on
+> a desk. Might just prevent some confusion later.
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 5f7e55f..d22668f 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -850,37 +850,23 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
- 		0xF7, 0xF6, 0xDF, 0x3C, 0x67, 0x42, 0x55, 0x45,
- 		0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE,
- 	};
--	union acpi_object params[4];
--	struct acpi_object_list input;
-+	union acpi_object *obj;
- 	struct acpi_device *adev;
--	unsigned long long value;
- 	acpi_handle handle;
- 
- 	handle = ACPI_HANDLE(&client->dev);
- 	if (!handle || acpi_bus_get_device(handle, &adev))
- 		return -ENODEV;
- 
--	input.count = ARRAY_SIZE(params);
--	input.pointer = params;
--
--	params[0].type = ACPI_TYPE_BUFFER;
--	params[0].buffer.length = sizeof(i2c_hid_guid);
--	params[0].buffer.pointer = i2c_hid_guid;
--	params[1].type = ACPI_TYPE_INTEGER;
--	params[1].integer.value = 1;
--	params[2].type = ACPI_TYPE_INTEGER;
--	params[2].integer.value = 1; /* HID function */
--	params[3].type = ACPI_TYPE_PACKAGE;
--	params[3].package.count = 0;
--	params[3].package.elements = NULL;
--
--	if (ACPI_FAILURE(acpi_evaluate_integer(handle, "_DSM", &input,
--								&value))) {
-+	obj = acpi_evaluate_dsm_typed(handle, i2c_hid_guid, 1, 1, NULL,
-+				      ACPI_TYPE_INTEGER);
-+	if (!obj) {
- 		dev_err(&client->dev, "device _DSM execution failed\n");
- 		return -ENODEV;
- 	}
- 
--	pdata->hid_descriptor_address = value;
-+	pdata->hid_descriptor_address = obj->integer.value;
-+	ACPI_FREE(obj);
- 
- 	return 0;
- }
--- 
-1.7.10.4
+Yepp, can add that to the Accelerometer section.
 
+> 2). Calibration, Accels and Gyros are noisy in different ways. Gyros tend
+> to be wrong in the long term, giving some consistant bias which should be
+> calibrated out. Accels are noisy in the short term, but generally right
+> over a long period.
+
+I'm not entirely sure where to put calibration/normalization. Letting
+user-space deal with that should simplify things a lot. We could even
+add it to libevdev. Comments welcome..
+
+> Am I correct that the event framework will provide time-stamping of data,
+> thus making computation of relative movements possible.
+
+Yes, part of the evdev API.
+
+Thanks
+David

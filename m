@@ -1,116 +1,287 @@
 From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH 2/4] Input: introduce ABS_MAX2/CNT2 and friends
-Date: Wed, 18 Dec 2013 15:27:31 +0100
-Message-ID: <20131218152731.0222ae3b3807601b7756c937@studenti.unina.it>
+Subject: Re: [PATCH 4/4] Input: add motion-tracking ABS_* bits and docs
+Date: Wed, 18 Dec 2013 15:29:26 +0100
+Message-ID: <20131218152926.5bd31cf7d46dc5ce68bbfd0a@studenti.unina.it>
 References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
-	<1387295334-1744-3-git-send-email-dh.herrmann@gmail.com>
+	<1387295334-1744-5-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp206.alice.it ([82.57.200.102]:26675 "EHLO smtp206.alice.it"
+Received: from smtp207.alice.it ([82.57.200.103]:40645 "EHLO smtp207.alice.it"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754310Ab3LRO1f (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 09:27:35 -0500
-In-Reply-To: <1387295334-1744-3-git-send-email-dh.herrmann@gmail.com>
+	id S1753170Ab3LRO3a (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Dec 2013 09:29:30 -0500
+In-Reply-To: <1387295334-1744-5-git-send-email-dh.herrmann@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@gmail.com>
 Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org, input-tools@lists.freedesktop.org
 
-Hi David,
-
-thanks for the update.
-
-On Tue, 17 Dec 2013 16:48:52 +0100
+On Tue, 17 Dec 2013 16:48:54 +0100
 David Herrmann <dh.herrmann@gmail.com> wrote:
 
-> As we painfully noticed during the 3.12 merge-window our
-> EVIOCGABS/EVIOCSABS API is limited to ABS_MAX<=0x3f. We tried several
-> hacks to work around it but if we ever decide to increase ABS_MAX, the
-> EVIOCSABS ioctl ABI might overflow into the next byte causing horrible
-> misinterpretations in the kernel that we cannot catch.
+> Motion sensors are getting quite common in mobile devices. To avoid
+> returning accelerometer data via ABS_X/Y/Z and irritating the Xorg
+> mouse-driver, this adds separate ABS_* bits for that.
 > 
-> Therefore, we decided to go with ABS_MAX2/CNT2 and introduce two new
-> ioctls to get/set abs-params. They no longer encode the ABS code in the
-> ioctl number and thus allow up to 4 billion ABS codes.
->
+> This is needed if gaming devices want to report their normal data plus
+> accelerometer/gyro data. Usually, ABS_X/Y are already used by analog
+> sticks, so need separate definitions, anyway.
 
-Just a question: did you consider the possibility of not exposing _MAX2
-and _CNT2 in a header file at all but let those be queried? Or maybe
-this is not necessary if we assume that userspace programs are supposed
-to know what is the MAX _they_ support?
+What about:
+	...so motion sensors need separate definitions anyway.
+              ^^^^^^^^^^^^^^
+It was not immediately clear to me what the "need" referred to.
 
-BTW I was thinking for instance to a program compiled with ABS_MAX2 =
-0x4f but working with future kernels with an increased value, it still
-won't be able to support values greater than 0x4f.
-
-> The new API also allows to query multiple ABS values with one call. To
-> allow EVIOCSABS2(code = 0, cnt = ABS_CNT2) we need to silently ignore
-> writes to ABS_MT_SLOT. Furthermore, for better compatibility with
-> newer user-space, we ignore writes to unknown codes. Hence, if we ever
-> increase ABS_MAX2, new user-space will work with code=0,cnt=ABS_CNT2 just
-> fine even on old kernels.
->
-
-To my inexperienced eye it's not obvious why ABS_MT_SLOT must be handled
-as a special case. Maybe because I don't even know what
-code=0,cnt=ABS_CNT2 is used for.
-
-> Note that we also need to increase EV_VERSION so user-space can reliably
-> know whether ABS2 is supported. Unfortunately, we return EINVAL instead of
-> ENOSYS for unknown evdev ioctls so it's nearly impossible to catch
-> reliably without EVIOCGVERSION.
->
-
-I'll check how to use that in evtest.
-
-Just one more comment below.
-
+> 
 > Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 > ---
->  drivers/hid/hid-debug.c                  |  2 +-
->  drivers/hid/hid-input.c                  |  2 +-
->  drivers/input/evdev.c                    | 95 +++++++++++++++++++++++++++++++-
->  drivers/input/input.c                    | 14 ++---
->  drivers/input/keyboard/goldfish_events.c |  6 +-
->  drivers/input/keyboard/hil_kbd.c         |  2 +-
->  drivers/input/misc/uinput.c              |  6 +-
->  include/linux/hid.h                      |  2 +-
->  include/linux/input.h                    |  6 +-
->  include/uapi/linux/input.h               | 42 +++++++++++++-
->  include/uapi/linux/uinput.h              |  2 +-
->  11 files changed, 155 insertions(+), 24 deletions(-)
+>  Documentation/input/gamepad.txt         |   7 ++
+>  Documentation/input/motion-tracking.txt | 149 ++++++++++++++++++++++++++++++++
+>  include/linux/mod_devicetable.h         |   2 +-
+>  include/uapi/linux/input.h              |   9 +-
+>  4 files changed, 165 insertions(+), 2 deletions(-)
+>  create mode 100644 Documentation/input/motion-tracking.txt
 > 
-
-[...]
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index bd24470..1856461 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-[...]
+> diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
+> index 196dc42..eeda685 100644
+> --- a/Documentation/input/gamepad.txt
+> +++ b/Documentation/input/gamepad.txt
+> @@ -57,6 +57,9 @@ Most gamepads have the following features:
+>    - Rumble
+>      Many devices provide force-feedback features. But are mostly just
+>      simple rumble motors.
+> +  - Motion-tracking
+> +    Gamepads may include motion-tracking sensors like accelerometers and
+> +    gyroscopes.
 >  
->  /*
-> + * Due to API restrictions the legacy evdev API only supports ABS values up to
-> + * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on any ABS values in
-> + * between ABS_MAX and ABS_MAX2.
-> + */
-> +#define ABS_MAX2		0x3f
-> +#define ABS_CNT2		(ABS_MAX2+1)
+>  3. Detection
+>  ~~~~~~~~~~~~
+> @@ -153,5 +156,9 @@ Menu-Pad:
+>  Rumble:
+>    Rumble is adverticed as FF_RUMBLE.
+>  
+> +Motion-tracking:
+> +  Motion-tracking is defined in ./Documentation/input/motion-tracking.txt and
+> +  gamepads shall comply to the rules defined there.
 > +
 
-Maybe it's just my English, but when you say "between ABS_MAX and
-ABS_MAX2" it sounds like the old protocol still _must_ be used for
-values <= ABS_MAX.
+./Documentation/... looks like it's relative to this document, drop
+the leading ./
 
-IIUC this is true "only" for compatibility with older kernels right?
-If a program decides to support only newer kernels it can check the
-protocol version and use only the new ioctls, right?
+>  ----------------------------------------------------------------------------
+>    Written 2013 by David Herrmann <dh.herrmann@gmail.com>
+> diff --git a/Documentation/input/motion-tracking.txt b/Documentation/input/motion-tracking.txt
+> new file mode 100644
+> index 0000000..0885c9a
+> --- /dev/null
+> +++ b/Documentation/input/motion-tracking.txt
+> @@ -0,0 +1,149 @@
+> +                           Motion Tracking API
+> +----------------------------------------------------------------------------
+> +
+> +1. Intro
+> +~~~~~~~~
+> +Motion tracking devices produce device motion events generated from an
+> +accelerometer, gyroscope or compass. This data can be returned to user-space
+> +via input events. This document defines how this data is reported.
+> +
+> +2. Devices
+> +~~~~~~~~~~
+> +In this document, a "device" is one of:
+> + - accelerometer
+> + - gyroscope
+> + - compass
+> +
+> +These devices returned their information via different APIs in the past. To
+> +unify them and define a common API, a set of input evdev codes was created. Old
+> +drivers might continue using their API, but developers are encouraged to use
+> +the input evdev API for new drivers.
+> +
+> +2.1 Axes
+> +~~~~~~~~
+> +Movement data is usually returned as absolute data for the 3 axes of a device.
+> +In this context, the three axes are defined as:
+> + - X: Axis goes from the left to the right side of the device
+> + - Y: Axis goes from the bottom to the top of the device
+> + - Z: Axis goes from the back to the front of the device
+> +
+> +The front of a device is the side faced to the user. For a mobile-phone it
+> +would be the screen. For devices without a screen, the front is usually the
+> +side with the most buttons on it.
+> +
+> +                           Example: Mobile-Phone
+> +  +-------------------------------------------------------------------------+
+> +  |                      TOP                                                |
+> +  |                                                                         |
+> +  |                                                                         |
+> +  |          +---------------------------+                                  |
+> +  |          |\  ________________________ \      .__                        |
+> +  |          \ \ \                       \ \     |\                         |
+> +  |           \ \ \              __       \ \      \                   RIGHT|
+> +  |            \ \ \              /|       \ \      \__                     |
+> +  |             \ \ \          __/          \ \     |\                      |
+> +  |              \ \ \          /|           \ \      \ (Y Axis)            |
+> +  |               \ \ \      __/  (Z axis)    \ \      \__                  |
+> +  |                \ \ \      /|               \ \     |\                   |
+> +  | LEFT            \ \ \    /                  \ \      \                  |
+> +  |                  \ \ \         FRONT         \ \      \                 |
+> +  |                   \ \ \                       \ \                       |
+> +  |                    \ \ \_______________________\ \                      |
+> +  |                     \ \             ___           \                     |
+> +  |                     /\ \            \__\           \                    |
+> +  |                  __/  \ +---------------------------+                   |
+> +  |                   /|   \|___________________________|                   |
+> +  |                  / BACK                                                 |
+> +  |                                      (X axis)                           |
+> +  |                        ------->------->------->------->                 |
+> +  |                                                                         |
+> +  |                                                                         |
+> +  |                                         BOTTOM                          |
+> +  +-------------------------------------------------------------------------+
+> +
+> +Rotation-data is reported as clock-wise rotation on an axis. For a given axes,
+> +the reported rotation would be:
+> +                                          ___
+> +                                            /|
+> +                                           / | (axis)
+> +                                          /
+> +                                    .-**-.
+> +                                   /    / \
+> +                                  |    / \ | /
+> +                                   \  /   \|/  (clock-wise rotation)
+> +                                     /
+> +                                    /
+> +                                   /
+> +
+> +2.2 Calibration
+> +~~~~~~~~~~~~~~~
+> +Motion sensors are often highly sensitive and need precise calibration. Users
+> +are adviced to perform neutral-point calibration themselves or to implement a
+       ^^^^^^^
+       advised
 
-Maybe you can be more explicit about that in the comment?
+> +state-machine to normalize input data automatically.
+> +
+> +Kernel devices may perform their own calibration and/or normalization. However,
+> +this is usually sparse and, if implemented, transparent to the user.
+> +
+> +There is currently no way to feed calibration data into the kernel in a generic
+> +way. Proposals welcome!
+> +
+> +2.3 Units
+> +~~~~~~~~~
+> +(NOTE: This section describes an experimental API. Currently, no device complies
+> +to these rules so this might change in the future.)
+> +
+> +Reported data shall be returned as:
+> + - Acceleration: 1/1000 m per s^2
+
+Do you think it is worth mentioning that most hardware tend to report
+the values as relative to some multiple of G (9.8 m/s^2)?
+
+Or maybe we can get back to that when some actual driver (Wiimote, PS3
+controller) start using that part of the API.
+
+> + - Rotation: 1/1000 degree per second
+> +
+> +However, for most devices the reported units are unknown (more precisely: no
+> +one has the time to measure them and figure them out). Therefore, user-space
+> +shall use abs-minimum and abs-maximum to calculate relative data and use that
+> +instead. Devices which return wrong units may be fixed in the future to comply
+> +to these rules.
+> +
+> +3.1 Accelerometer
+> +~~~~~~~~~~~~~~~~~
+> +Accelerometers measure movement acceleration of devices. Any combination of the
+> +three available axes can be used. Usually, all three are supported.
+> +
+> +Data is provided as absolute acceleration. A positive integer defines the
+> +acceleration in the direction of an axis. A negative integer defines
+> +acceleration in the opposite direction.
+> +
+> +The evdev ABS codes used are:
+> + - ABS_ACCEL_X: X axis
+> + - ABS_ACCEL_Y: Y axis
+> + - ABS_ACCEL_Z: Z axis
+> +
+> +3.2 Gyroscope
+> +~~~~~~~~~~~~~
+> +A gyroscope measures rotational speed (*not* acceleration!). Any combination of
+> +the three available axes can be used. Usually, all three are supported.
+> +
+> +Data is provided as absolute speed. A positive integer defines the rotational
+> +speed in clock-wise order around a given axis. A negative integer defines it in
+> +counter-clock-wise order.
+> +
+> +The evdev ABS codes used are:
+> + - ABS_GYRO_X: X axis (also: Pitch)
+> + - ABS_GYRO_Y: Y axis (also: Roll)
+> + - ABS_GYRO_Z: Z axis (also: Azimuth/Yaw)
+> +
+> +3.3 Compass
+> +~~~~~~~~~~~
+> +(NOTE: No compass device currently uses the evdev input subsystem. Thus, this
+> +API is only a proposal, it hasn't been implemented, yet.)
+> +
+> +A compass measures the ambient magnetic field of the three defined axes. This
+> +makes the data self-contained and independent of the current device position.
+> +Any combination of the three axes can be used. Usually all three are supported,
+> +otherwise, it's not really useful as a compass.
+> +
+> +Proposed evdev ABS codes are:
+> + - ABS_COMPASS_X: X axis
+> + - ABS_COMPASS_Y: Y axis
+> + - ABS_COMPASS_Z: Z axis
+> +
+> +----------------------------------------------------------------------------
+> +  Written 2013 by David Herrmann <dh.herrmann@gmail.com>
+> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> index 45e9214..329aa30 100644
+> --- a/include/linux/mod_devicetable.h
+> +++ b/include/linux/mod_devicetable.h
+> @@ -277,7 +277,7 @@ struct pcmcia_device_id {
+>  #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING	0x71
+>  #define INPUT_DEVICE_ID_KEY_MAX		0x2ff
+>  #define INPUT_DEVICE_ID_REL_MAX		0x0f
+> -#define INPUT_DEVICE_ID_ABS_MAX		0x3f
+> +#define INPUT_DEVICE_ID_ABS_MAX		0x4f
+>  #define INPUT_DEVICE_ID_MSC_MAX		0x07
+>  #define INPUT_DEVICE_ID_LED_MAX		0x0f
+>  #define INPUT_DEVICE_ID_SND_MAX		0x07
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index 1856461..e4c3596 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -869,12 +869,19 @@ struct input_keymap_entry {
+>  #define ABS_MAX			0x3f
+>  #define ABS_CNT			(ABS_MAX+1)
+>  
+> +#define ABS_ACCEL_X		0x40	/* Accelerometer X axis */
+> +#define ABS_ACCEL_Y		0x41	/* Accelerometer Y axis */
+> +#define ABS_ACCEL_Z		0x42	/* Accelerometer Z axis */
+> +#define ABS_GYRO_X		0x43	/* Gyroscope X axis */
+> +#define ABS_GYRO_Y		0x44	/* Gyroscope Y axis */
+> +#define ABS_GYRO_Z		0x45	/* Gyroscope Z axis */
+> +
+>  /*
+>   * Due to API restrictions the legacy evdev API only supports ABS values up to
+>   * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on any ABS values in
+>   * between ABS_MAX and ABS_MAX2.
+>   */
+> -#define ABS_MAX2		0x3f
+> +#define ABS_MAX2		0x4f
+>  #define ABS_CNT2		(ABS_MAX2+1)
+>  
+>  /*
+> -- 
+> 1.8.5.1
+> 
 
 Thanks,
    Antonio
+
 -- 
 Antonio Ospite
 http://ao2.it

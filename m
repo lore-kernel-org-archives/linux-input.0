@@ -1,146 +1,132 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: [PATCH] input: rotary encoder: implement quarter period mode
-Date: Wed, 18 Dec 2013 15:43:18 +0100
-Message-ID: <1387377798-22344-1-git-send-email-s.hauer@pengutronix.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:54683 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754693Ab3LROnW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 09:43:22 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 2/4] Input: introduce ABS_MAX2/CNT2 and friends
+Date: Wed, 18 Dec 2013 15:44:48 +0100
+Message-ID: <CANq1E4RNa6XBaUTy=ur7Yig0iJSEaUbLzvi-Dn-hyxS2OLnyPw@mail.gmail.com>
+References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
+	<1387295334-1744-3-git-send-email-dh.herrmann@gmail.com>
+	<20131218152731.0222ae3b3807601b7756c937@studenti.unina.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20131218152731.0222ae3b3807601b7756c937@studenti.unina.it>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel <linux-kernel@vger.kernel.org>, Input Tools <input-tools@lists.freedesktop.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Sascha Hauer <s.hauer@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Mack <daniel@zonque.org>, devicetree@vger.kernel.org
 
-Some rotary encoders have a stable state in all output state
-combinations. Add support for this type of encoder.
+Hi
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Mack <daniel@zonque.org>
-Cc: linux-input@vger.kernel.org
-Cc: devicetree@vger.kernel.org
----
- .../devicetree/bindings/input/rotary-encoder.txt   |  1 +
- Documentation/input/rotary-encoder.txt             |  9 +++++--
- drivers/input/misc/rotary_encoder.c                | 30 ++++++++++++++++++++--
- include/linux/rotary_encoder.h                     |  1 +
- 4 files changed, 37 insertions(+), 4 deletions(-)
+On Wed, Dec 18, 2013 at 3:27 PM, Antonio Ospite
+<ospite@studenti.unina.it> wrote:
+> Hi David,
+>
+> thanks for the update.
+>
+> On Tue, 17 Dec 2013 16:48:52 +0100
+> David Herrmann <dh.herrmann@gmail.com> wrote:
+>
+>> As we painfully noticed during the 3.12 merge-window our
+>> EVIOCGABS/EVIOCSABS API is limited to ABS_MAX<=0x3f. We tried several
+>> hacks to work around it but if we ever decide to increase ABS_MAX, the
+>> EVIOCSABS ioctl ABI might overflow into the next byte causing horrible
+>> misinterpretations in the kernel that we cannot catch.
+>>
+>> Therefore, we decided to go with ABS_MAX2/CNT2 and introduce two new
+>> ioctls to get/set abs-params. They no longer encode the ABS code in the
+>> ioctl number and thus allow up to 4 billion ABS codes.
+>>
+>
+> Just a question: did you consider the possibility of not exposing _MAX2
+> and _CNT2 in a header file at all but let those be queried? Or maybe
+> this is not necessary if we assume that userspace programs are supposed
+> to know what is the MAX _they_ support?
+>
+> BTW I was thinking for instance to a program compiled with ABS_MAX2 =
+> 0x4f but working with future kernels with an increased value, it still
+> won't be able to support values greater than 0x4f.
 
-diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-index 3315495..cbdb29b 100644
---- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-+++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-@@ -15,6 +15,7 @@ Optional properties:
- - rotary-encoder,rollover: Automatic rollove when the rotary value becomes
-   greater than the specified steps or smaller than 0. For absolute axis only.
- - rotary-encoder,half-period: Makes the driver work on half-period mode.
-+- rotary-encoder,quarter-period: Makes the driver work on quarter-period mode.
- 
- See Documentation/input/rotary-encoder.txt for more information.
- 
-diff --git a/Documentation/input/rotary-encoder.txt b/Documentation/input/rotary-encoder.txt
-index 92e68bc..0bbff7e 100644
---- a/Documentation/input/rotary-encoder.txt
-+++ b/Documentation/input/rotary-encoder.txt
-@@ -9,8 +9,10 @@ peripherals with two wires. The outputs are phase-shifted by 90 degrees
- and by triggering on falling and rising edges, the turn direction can
- be determined.
- 
--Some encoders have both outputs low in stable states, whereas others also have
--a stable state with both outputs high (half-period mode).
-+
-+Some encoders have both outputs low in stable states, others also have
-+a stable state with both outputs high (half-period mode) and some have
-+a stable state in all steps (quarter-period mode).
- 
- The phase diagram of these two outputs look like this:
- 
-@@ -32,6 +34,9 @@ The phase diagram of these two outputs look like this:
-                 |<-->|
- 	          one step (half-period mode)
- 
-+                |<>|
-+	          one step (quarter-period mode)
-+
- For more information, please see
- 	http://en.wikipedia.org/wiki/Rotary_encoder
- 
-diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index 5b1aff8..264501c 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -42,7 +42,7 @@ struct rotary_encoder {
- 	bool armed;
- 	unsigned char dir;	/* 0 - clockwise, 1 - CCW */
- 
--	char last_stable;
-+	int last_stable;
- };
- 
- static int rotary_encoder_get_state(const struct rotary_encoder_platform_data *pdata)
-@@ -117,6 +117,28 @@ static irqreturn_t rotary_encoder_irq(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+static irqreturn_t rotary_encoder_quarter_period_irq(int irq, void *dev_id)
-+{
-+	struct rotary_encoder *encoder = dev_id;
-+	int state;
-+	static const u8 states[4][4] = {
-+		{ -1,  1,  0, -1 },
-+		{  0, -1, -1,  1 },
-+		{  1, -1, -1,  0 },
-+		{ -1,  0,  1, -1 },
-+	};
-+
-+	state = rotary_encoder_get_state(encoder->pdata);
-+
-+	encoder->dir = states[encoder->last_stable][state];
-+	encoder->last_stable = state;
-+
-+	if (encoder->dir >= 0)
-+		rotary_encoder_report_event(encoder);
-+
-+	return IRQ_HANDLED;
-+}
-+
- static irqreturn_t rotary_encoder_half_period_irq(int irq, void *dev_id)
- {
- 	struct rotary_encoder *encoder = dev_id;
-@@ -180,7 +202,8 @@ static struct rotary_encoder_platform_data *rotary_encoder_parse_dt(struct devic
- 					"rotary-encoder,rollover", NULL);
- 	pdata->half_period = !!of_get_property(np,
- 					"rotary-encoder,half-period", NULL);
--
-+	pdata->quarter_period = !!of_get_property(np,
-+					"rotary-encoder,quarter-period", NULL);
- 	return pdata;
- }
- #else
-@@ -254,6 +277,9 @@ static int rotary_encoder_probe(struct platform_device *pdev)
- 	if (pdata->half_period) {
- 		handler = &rotary_encoder_half_period_irq;
- 		encoder->last_stable = rotary_encoder_get_state(pdata);
-+	} else if (pdata->quarter_period) {
-+		handler = &rotary_encoder_quarter_period_irq;
-+		encoder->last_stable = rotary_encoder_get_state(pdata);
- 	} else {
- 		handler = &rotary_encoder_irq;
- 	}
-diff --git a/include/linux/rotary_encoder.h b/include/linux/rotary_encoder.h
-index 3f594dc..fd0a70f 100644
---- a/include/linux/rotary_encoder.h
-+++ b/include/linux/rotary_encoder.h
-@@ -11,6 +11,7 @@ struct rotary_encoder_platform_data {
- 	bool relative_axis;
- 	bool rollover;
- 	bool half_period;
-+	bool quarter_period;
- };
- 
- #endif /* __ROTARY_ENCODER_H__ */
--- 
-1.8.5.1
+Why would a program that was compiled with ABS_MAX2=0x4f want to use
+ABS_* values greater than 0x4f? It doesn't know of any new values so
+even if it could query ABS_MAX2, it could never know anything about
+the new constants. The only place where it is useful is for generic
+programs that just foward ABS_* codes. But these can just ignore
+ABS_MAX2 entirely and use the whole int32_t range for codes.
 
+If there is a specific use-case that'd require a dynamic way to
+retrieve ABS_MAX2, I can consider changing the API. But unless there's
+such a use-case, I'd like to keep it the same as for KEY_*, SW_*, ...
+
+>> The new API also allows to query multiple ABS values with one call. To
+>> allow EVIOCSABS2(code = 0, cnt = ABS_CNT2) we need to silently ignore
+>> writes to ABS_MT_SLOT. Furthermore, for better compatibility with
+>> newer user-space, we ignore writes to unknown codes. Hence, if we ever
+>> increase ABS_MAX2, new user-space will work with code=0,cnt=ABS_CNT2 just
+>> fine even on old kernels.
+>>
+>
+> To my inexperienced eye it's not obvious why ABS_MT_SLOT must be handled
+> as a special case. Maybe because I don't even know what
+> code=0,cnt=ABS_CNT2 is used for.
+
+ABS_MT_SLOT describes the current MT-slot that is reported via
+ABS_MT_* bits. It is read-only so we cannot let user-space write to
+it.
+
+>> Note that we also need to increase EV_VERSION so user-space can reliably
+>> know whether ABS2 is supported. Unfortunately, we return EINVAL instead of
+>> ENOSYS for unknown evdev ioctls so it's nearly impossible to catch
+>> reliably without EVIOCGVERSION.
+>>
+>
+> I'll check how to use that in evtest.
+>
+> Just one more comment below.
+>
+>> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+>> ---
+>>  drivers/hid/hid-debug.c                  |  2 +-
+>>  drivers/hid/hid-input.c                  |  2 +-
+>>  drivers/input/evdev.c                    | 95 +++++++++++++++++++++++++++++++-
+>>  drivers/input/input.c                    | 14 ++---
+>>  drivers/input/keyboard/goldfish_events.c |  6 +-
+>>  drivers/input/keyboard/hil_kbd.c         |  2 +-
+>>  drivers/input/misc/uinput.c              |  6 +-
+>>  include/linux/hid.h                      |  2 +-
+>>  include/linux/input.h                    |  6 +-
+>>  include/uapi/linux/input.h               | 42 +++++++++++++-
+>>  include/uapi/linux/uinput.h              |  2 +-
+>>  11 files changed, 155 insertions(+), 24 deletions(-)
+>>
+>
+> [...]
+>> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+>> index bd24470..1856461 100644
+>> --- a/include/uapi/linux/input.h
+>> +++ b/include/uapi/linux/input.h
+> [...]
+>>
+>>  /*
+>> + * Due to API restrictions the legacy evdev API only supports ABS values up to
+>> + * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on any ABS values in
+>> + * between ABS_MAX and ABS_MAX2.
+>> + */
+>> +#define ABS_MAX2             0x3f
+>> +#define ABS_CNT2             (ABS_MAX2+1)
+>> +
+>
+> Maybe it's just my English, but when you say "between ABS_MAX and
+> ABS_MAX2" it sounds like the old protocol still _must_ be used for
+> values <= ABS_MAX.
+>
+> IIUC this is true "only" for compatibility with older kernels right?
+> If a program decides to support only newer kernels it can check the
+> protocol version and use only the new ioctls, right?
+>
+> Maybe you can be more explicit about that in the comment?
+
+See the comment on "struct input_absinfo2". It describes the API, this
+comment just describes the ABS_* values. But if anyone has a better
+phrase to use here, I will gladly adjust it.
+
+Thanks
+David

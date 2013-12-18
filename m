@@ -1,48 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH -next] Input: zforce - fix error return code in
- zforce_start()
-Date: Wed, 18 Dec 2013 08:50:48 -0800
-Message-ID: <20131218165048.GC30922@core.coreip.homeip.net>
-References: <CAPgLHd8WBR38qd9VHfazXVTbuoJ=GPOafHzSz8d9XJ-F61a7nQ@mail.gmail.com>
- <201312171606.49401.heiko@sntech.de>
+Subject: Re: [PATCH] input synaptics-rmi4 trivial: Eliminate unused local
+ variable.
+Date: Wed, 18 Dec 2013 08:52:04 -0800
+Message-ID: <20131218165204.GD30922@core.coreip.homeip.net>
+References: <1387247151-21131-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:37559 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750853Ab3LRQuw (ORCPT
+Received: from mail-pb0-f53.google.com ([209.85.160.53]:33576 "EHLO
+	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751941Ab3LRQwK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 11:50:52 -0500
-Received: by mail-pa0-f50.google.com with SMTP id kl14so6227715pab.9
-        for <linux-input@vger.kernel.org>; Wed, 18 Dec 2013 08:50:52 -0800 (PST)
+	Wed, 18 Dec 2013 11:52:10 -0500
+Received: by mail-pb0-f53.google.com with SMTP id ma3so8607337pbc.26
+        for <linux-input@vger.kernel.org>; Wed, 18 Dec 2013 08:52:10 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <201312171606.49401.heiko@sntech.de>
+In-Reply-To: <1387247151-21131-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc: Wei Yongjun <weiyj.lk@gmail.com>, rydberg@euromail.se, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Tue, Dec 17, 2013 at 04:06:49PM +0100, Heiko St=FCbner wrote:
-> Am Dienstag, 17. Dezember 2013, 04:27:16 schrieb Wei Yongjun:
-> > From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> >=20
-> > The error code was not set if unable to set config, so the error
-> > condition wasn't reflected in the return value. Fix to return a
-> > negative error code from the error handling case instead of 0.
-> >=20
-> > Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
->=20
-> Thanks for the catch.
->=20
-> Acked-by: Heiko Stuebner <heiko@sntech.de>
+On Mon, Dec 16, 2013 at 06:25:51PM -0800, Christopher Heiny wrote:
+> One-line change to eliminate an unused local variable warning in rmi_f11.c.
+> 
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Applied, thank you.
 
---=20
+> 
+> ---
+> 
+> This patch implements changes to the synaptics-rmi4 branch of
+> Dmitry's input tree.  The base for the patch is commit
+> e0c5aec5e6144ae8391d164e2dc659f8ef2b2ba7.
+> 
+> drivers/input/rmi4/rmi_f11.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+> index d63ef31..c2be9de 100644
+> --- a/drivers/input/rmi4/rmi_f11.c
+> +++ b/drivers/input/rmi4/rmi_f11.c
+> @@ -1289,7 +1289,6 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
+>  	struct f11_data *f11 = fn->data;
+>  	struct input_dev *input_dev;
+>  	struct input_dev *input_dev_mouse;
+> -	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
+>  	struct rmi_driver *driver = rmi_dev->driver;
+>  	struct f11_2d_sensor *sensor = &f11->sensor;
+>  	int rc;
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

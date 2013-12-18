@@ -1,286 +1,167 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 1/4] Input: uinput: add full absinfo support
-Date: Thu, 19 Dec 2013 08:27:32 +1000
-Message-ID: <20131218222732.GA6315@yabbi.redhat.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH 2/4] Input: introduce ABS_MAX2/CNT2 and friends
+Date: Thu, 19 Dec 2013 00:21:01 +0100
+Message-ID: <20131219002101.08a12c6a3779f02018fc2a7c@studenti.unina.it>
 References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
- <1387295334-1744-2-git-send-email-dh.herrmann@gmail.com>
+	<1387295334-1744-3-git-send-email-dh.herrmann@gmail.com>
+	<20131218152731.0222ae3b3807601b7756c937@studenti.unina.it>
+	<CANq1E4RNa6XBaUTy=ur7Yig0iJSEaUbLzvi-Dn-hyxS2OLnyPw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:24918 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751068Ab3LRWYs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 17:24:48 -0500
-Content-Disposition: inline
-In-Reply-To: <1387295334-1744-2-git-send-email-dh.herrmann@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CANq1E4RNa6XBaUTy=ur7Yig0iJSEaUbLzvi-Dn-hyxS2OLnyPw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: David Herrmann <dh.herrmann@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ospite@studenti.unina.it>, linux-kernel@vger.kernel.org, input-tools@lists.freedesktop.org
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel <linux-kernel@vger.kernel.org>, Input Tools <input-tools@lists.freedesktop.org>
+List-Id: linux-input@vger.kernel.org
 
-On Tue, Dec 17, 2013 at 04:48:51PM +0100, David Herrmann wrote:
-> We currently lack support for abs-resolution and abs-value parameters
-> during uinput ABS initialization. Furthermore, our parsers don't allow
-> growing ABS_CNT values. Therefore, introduce uinput_user_dev2.
+On Wed, 18 Dec 2013 15:44:48 +0100
+David Herrmann <dh.herrmann@gmail.com> wrote:
+
+> Hi
 > 
-> User-space is free to write uinput_user_dev2 objects instead of
-> uinput_user_dev legacy objects now. If the kernel lacks support for it,
-> our comparison for "count != sizeof(struct uinput_user_dev)" will catch
-> this and return EINVAL. User-space shall retry with the legacy mode then.
+> On Wed, Dec 18, 2013 at 3:27 PM, Antonio Ospite
+> <ospite@studenti.unina.it> wrote:
+> > Hi David,
+> >
+> > thanks for the update.
+> >
+> > On Tue, 17 Dec 2013 16:48:52 +0100
+> > David Herrmann <dh.herrmann@gmail.com> wrote:
+> >
+> >> As we painfully noticed during the 3.12 merge-window our
+> >> EVIOCGABS/EVIOCSABS API is limited to ABS_MAX<=0x3f. We tried several
+> >> hacks to work around it but if we ever decide to increase ABS_MAX, the
+> >> EVIOCSABS ioctl ABI might overflow into the next byte causing horrible
+> >> misinterpretations in the kernel that we cannot catch.
+> >>
+> >> Therefore, we decided to go with ABS_MAX2/CNT2 and introduce two new
+> >> ioctls to get/set abs-params. They no longer encode the ABS code in the
+> >> ioctl number and thus allow up to 4 billion ABS codes.
+> >>
+> >
+> > Just a question: did you consider the possibility of not exposing _MAX2
+> > and _CNT2 in a header file at all but let those be queried? Or maybe
+> > this is not necessary if we assume that userspace programs are supposed
+> > to know what is the MAX _they_ support?
+> >
+> > BTW I was thinking for instance to a program compiled with ABS_MAX2 =
+> > 0x4f but working with future kernels with an increased value, it still
+> > won't be able to support values greater than 0x4f.
 > 
-> Internally, we transform the legacy object into uinput_user_dev2 and then
-> handle both the same way.
+> Why would a program that was compiled with ABS_MAX2=0x4f want to use
+> ABS_* values greater than 0x4f? It doesn't know of any new values so
+> even if it could query ABS_MAX2, it could never know anything about
+> the new constants. The only place where it is useful is for generic
+> programs that just foward ABS_* codes. But these can just ignore
+> ABS_MAX2 entirely and use the whole int32_t range for codes.
+>
+
+OK, that makes sense, thanks.
+
+> If there is a specific use-case that'd require a dynamic way to
+> retrieve ABS_MAX2, I can consider changing the API. But unless there's
+> such a use-case, I'd like to keep it the same as for KEY_*, SW_*, ...
 > 
-> The new uinput_user_dev2 object has multiple new features:
->  - abs payload now has "value" and "resolution" parameters as part of the
->    switch to "struct input_absinfo". We simply copy these over.
->  - Our parser allows growing ABS_CNT. We automatically detect the payload
->    size of the caller, thus, calculating the ABS_CNT the program was
->    compiled with.
->  - A "version" field to denote the uinput-version used. This is required
->    to properly support changing "struct input_user_dev2" changes in the
->    future. Due to the dynamic ABS_CNT support, we cannot simply add new
->    fields, as we cannot deduce the structure size from the user-space
->    given size. Thus, we need the "version" field to allow changing the
->    object and properly detecting it in our write() handler.
+> >> The new API also allows to query multiple ABS values with one call. To
+> >> allow EVIOCSABS2(code = 0, cnt = ABS_CNT2) we need to silently ignore
+> >> writes to ABS_MT_SLOT. Furthermore, for better compatibility with
+> >> newer user-space, we ignore writes to unknown codes. Hence, if we ever
+> >> increase ABS_MAX2, new user-space will work with code=0,cnt=ABS_CNT2 just
+> >> fine even on old kernels.
+> >>
+> >
+> > To my inexperienced eye it's not obvious why ABS_MT_SLOT must be handled
+> > as a special case. Maybe because I don't even know what
+> > code=0,cnt=ABS_CNT2 is used for.
 > 
-> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
-> ---
->  drivers/input/misc/uinput.c | 142 ++++++++++++++++++++++++++++++++------------
->  include/uapi/linux/uinput.h |   9 +++
->  2 files changed, 114 insertions(+), 37 deletions(-)
+> ABS_MT_SLOT describes the current MT-slot that is reported via
+> ABS_MT_* bits. It is read-only so we cannot let user-space write to
+> it.
+>
+
+I see.
+
+> >> Note that we also need to increase EV_VERSION so user-space can reliably
+> >> know whether ABS2 is supported. Unfortunately, we return EINVAL instead of
+> >> ENOSYS for unknown evdev ioctls so it's nearly impossible to catch
+> >> reliably without EVIOCGVERSION.
+> >>
+> >
+> > I'll check how to use that in evtest.
+> >
+> > Just one more comment below.
+> >
+> >> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> >> ---
+> >>  drivers/hid/hid-debug.c                  |  2 +-
+> >>  drivers/hid/hid-input.c                  |  2 +-
+> >>  drivers/input/evdev.c                    | 95 +++++++++++++++++++++++++++++++-
+> >>  drivers/input/input.c                    | 14 ++---
+> >>  drivers/input/keyboard/goldfish_events.c |  6 +-
+> >>  drivers/input/keyboard/hil_kbd.c         |  2 +-
+> >>  drivers/input/misc/uinput.c              |  6 +-
+> >>  include/linux/hid.h                      |  2 +-
+> >>  include/linux/input.h                    |  6 +-
+> >>  include/uapi/linux/input.h               | 42 +++++++++++++-
+> >>  include/uapi/linux/uinput.h              |  2 +-
+> >>  11 files changed, 155 insertions(+), 24 deletions(-)
+> >>
+> >
+> > [...]
+> >> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> >> index bd24470..1856461 100644
+> >> --- a/include/uapi/linux/input.h
+> >> +++ b/include/uapi/linux/input.h
+> > [...]
+> >>
+> >>  /*
+> >> + * Due to API restrictions the legacy evdev API only supports ABS values up to
+> >> + * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on any ABS values in
+> >> + * between ABS_MAX and ABS_MAX2.
+> >> + */
+> >> +#define ABS_MAX2             0x3f
+> >> +#define ABS_CNT2             (ABS_MAX2+1)
+> >> +
+> >
+> > Maybe it's just my English, but when you say "between ABS_MAX and
+> > ABS_MAX2" it sounds like the old protocol still _must_ be used for
+> > values <= ABS_MAX.
+> >
+> > IIUC this is true "only" for compatibility with older kernels right?
+> > If a program decides to support only newer kernels it can check the
+> > protocol version and use only the new ioctls, right?
+> >
+> > Maybe you can be more explicit about that in the comment?
 > 
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> index 7728359..927ad9a 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -358,14 +358,16 @@ static int uinput_allocate_device(struct uinput_device *udev)
->  }
->  
->  static int uinput_setup_device(struct uinput_device *udev,
-> -			       const char __user *buffer, size_t count)
-> +			       struct uinput_user_dev2 *user_dev2,
-> +			       size_t abscnt)
->  {
-> -	struct uinput_user_dev	*user_dev;
->  	struct input_dev	*dev;
->  	int			i;
->  	int			retval;
-> +	struct input_absinfo	*abs;
->  
-> -	if (count != sizeof(struct uinput_user_dev))
-> +	/* Ensure name is filled in */
-> +	if (!user_dev2->name[0])
->  		return -EINVAL;
->  
->  	if (!udev->dev) {
-> @@ -375,37 +377,27 @@ static int uinput_setup_device(struct uinput_device *udev,
->  	}
->  
->  	dev = udev->dev;
-> -
-> -	user_dev = memdup_user(buffer, sizeof(struct uinput_user_dev));
-> -	if (IS_ERR(user_dev))
-> -		return PTR_ERR(user_dev);
-> -
-> -	udev->ff_effects_max = user_dev->ff_effects_max;
-> -
-> -	/* Ensure name is filled in */
-> -	if (!user_dev->name[0]) {
-> -		retval = -EINVAL;
-> -		goto exit;
-> -	}
-> +	udev->ff_effects_max = user_dev2->ff_effects_max;
->  
->  	kfree(dev->name);
-> -	dev->name = kstrndup(user_dev->name, UINPUT_MAX_NAME_SIZE,
-> +	dev->name = kstrndup(user_dev2->name, UINPUT_MAX_NAME_SIZE,
->  			     GFP_KERNEL);
-> -	if (!dev->name) {
-> -		retval = -ENOMEM;
-> -		goto exit;
-> -	}
-> -
-> -	dev->id.bustype	= user_dev->id.bustype;
-> -	dev->id.vendor	= user_dev->id.vendor;
-> -	dev->id.product	= user_dev->id.product;
-> -	dev->id.version	= user_dev->id.version;
-> +	if (!dev->name)
-> +		return -ENOMEM;
->  
-> -	for (i = 0; i < ABS_CNT; i++) {
-> -		input_abs_set_max(dev, i, user_dev->absmax[i]);
-> -		input_abs_set_min(dev, i, user_dev->absmin[i]);
-> -		input_abs_set_fuzz(dev, i, user_dev->absfuzz[i]);
-> -		input_abs_set_flat(dev, i, user_dev->absflat[i]);
-> +	dev->id.bustype = user_dev2->id.bustype;
-> +	dev->id.vendor = user_dev2->id.vendor;
-> +	dev->id.product = user_dev2->id.product;
-> +	dev->id.version = user_dev2->id.version;
-> +
-> +	for (i = 0; i < abscnt; i++) {
-> +		abs = &user_dev2->abs[i];
-
-minor nit: I'd just declare abs here.
-
-> +		input_abs_set_val(dev, i, abs->value);
-> +		input_abs_set_max(dev, i, abs->maximum);
-> +		input_abs_set_min(dev, i, abs->minimum);
-> +		input_abs_set_fuzz(dev, i, abs->fuzz);
-> +		input_abs_set_flat(dev, i, abs->flat);
-> +		input_abs_set_res(dev, i, abs->resolution);
->  	}
->  
->  	/* check if absmin/absmax/absfuzz/absflat are filled as
-> @@ -413,7 +405,7 @@ static int uinput_setup_device(struct uinput_device *udev,
->  	if (test_bit(EV_ABS, dev->evbit)) {
->  		retval = uinput_validate_absbits(dev);
->  		if (retval < 0)
-> -			goto exit;
-> +			return retval;
->  		if (test_bit(ABS_MT_SLOT, dev->absbit)) {
->  			int nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
->  			input_mt_init_slots(dev, nslot, 0);
-> @@ -423,11 +415,84 @@ static int uinput_setup_device(struct uinput_device *udev,
->  	}
->  
->  	udev->state = UIST_SETUP_COMPLETE;
-> -	retval = count;
-> +	return 0;
-> +}
-> +
-> +static int uinput_setup_device1(struct uinput_device *udev,
-> +				const char __user *buffer, size_t count)
-> +{
-> +	struct uinput_user_dev	*user_dev;
-> +	struct uinput_user_dev2	*user_dev2;
-> +	int			i;
-> +	int			retval;
-> +
-> +	if (count != sizeof(struct uinput_user_dev))
-> +		return -EINVAL;
-> +
-> +	user_dev = memdup_user(buffer, sizeof(struct uinput_user_dev));
-> +	if (IS_ERR(user_dev))
-> +		return PTR_ERR(user_dev);
-> +
-> +	user_dev2 = kmalloc(sizeof(*user_dev2), GFP_KERNEL);
-> +	if (!user_dev2) {
-> +		kfree(user_dev);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	user_dev2->version = UINPUT_VERSION;
-> +	memcpy(user_dev2->name, user_dev->name, UINPUT_MAX_NAME_SIZE);
-> +	memcpy(&user_dev2->id, &user_dev->id, sizeof(struct input_id));
-
-you copy the id bits one-by-one into the input_dev but you memcpy it here.
-is this intentional?
-
-> +	user_dev2->ff_effects_max = user_dev->ff_effects_max;
-> +
-> +	for (i = 0; i < ABS_CNT; ++i) {
-> +		user_dev2->abs[i].value = 0;
-> +		user_dev2->abs[i].maximum = user_dev->absmax[i];
-> +		user_dev2->abs[i].minimum = user_dev->absmin[i];
-> +		user_dev2->abs[i].fuzz = user_dev->absfuzz[i];
-> +		user_dev2->abs[i].flat = user_dev->absflat[i];
-> +		user_dev2->abs[i].resolution = 0;
-> +	}
-> +
-> +	retval = uinput_setup_device(udev, user_dev2, ABS_CNT);
->  
-> - exit:
->  	kfree(user_dev);
-> -	return retval;
-> +	kfree(user_dev2);
-> +
-> +	return retval ? retval : count;
-> +}
-> +
-> +static int uinput_setup_device2(struct uinput_device *udev,
-> +			       const char __user *buffer, size_t count)
-> +{
-> +	struct uinput_user_dev2	*user_dev2;
-> +	int			retval;
-> +	size_t			off, abscnt, max;
-> +
-> +	/* The first revision of "uinput_user_dev2" is bigger than
-> +	 * "uinput_user_dev" and growing. Disallow any smaller payloads. */
-> +	if (count <= sizeof(struct uinput_user_dev))
-> +		return -EINVAL;
-> +
-> +	/* rough check to avoid huge kernel space allocations */
-> +	max = ABS_CNT * sizeof(*user_dev2->abs) + sizeof(*user_dev2);
-> +	if (count > max)
-> +		return -EINVAL;
-> +
-> +	user_dev2 = memdup_user(buffer, count);
-> +	if (IS_ERR(user_dev2))
-> +		return PTR_ERR(user_dev2);
-> +
-> +	if (user_dev2->version > UINPUT_VERSION) {
-> +		retval = -EINVAL;
-> +	} else {
-> +		off = offsetof(struct uinput_user_dev2, abs);
-> +		abscnt = (count - off) / sizeof(*user_dev2->abs);
-> +		retval = uinput_setup_device(udev, user_dev2, abscnt);
-> +	}
-> +
-
-I really wish uinput would be a bit easier to debug than just returning
--EINVAL when it's not happy. having said that, the only errno that would
-remotely make sense is -ERANGE for count > max and even that is a bit meh.
-
-Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
-
-Cheers,
-   Peter
-
-
-
-
-> +	kfree(user_dev2);
-> +
-> +	return retval ? retval : count;
->  }
->  
->  static ssize_t uinput_inject_events(struct uinput_device *udev,
-> @@ -469,9 +534,12 @@ static ssize_t uinput_write(struct file *file, const char __user *buffer,
->  	if (retval)
->  		return retval;
->  
-> -	retval = udev->state == UIST_CREATED ?
-> -			uinput_inject_events(udev, buffer, count) :
-> -			uinput_setup_device(udev, buffer, count);
-> +	if (udev->state == UIST_CREATED)
-> +		retval = uinput_inject_events(udev, buffer, count);
-> +	else if (count <= sizeof(struct uinput_user_dev))
-> +		retval = uinput_setup_device1(udev, buffer, count);
-> +	else
-> +		retval = uinput_setup_device2(udev, buffer, count);
->  
->  	mutex_unlock(&udev->mutex);
->  
-> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
-> index fe46431..c2e8710 100644
-> --- a/include/uapi/linux/uinput.h
-> +++ b/include/uapi/linux/uinput.h
-> @@ -134,4 +134,13 @@ struct uinput_user_dev {
->  	__s32 absfuzz[ABS_CNT];
->  	__s32 absflat[ABS_CNT];
->  };
-> +
-> +struct uinput_user_dev2 {
-> +	__u8 version;
-> +	char name[UINPUT_MAX_NAME_SIZE];
-> +	struct input_id id;
-> +	__u32 ff_effects_max;
-> +	struct input_absinfo abs[ABS_CNT];
-> +};
-> +
->  #endif /* _UAPI__UINPUT_H_ */
-> -- 
-> 1.8.5.1
+> See the comment on "struct input_absinfo2". It describes the API, this
+> comment just describes the ABS_* values. But if anyone has a better
+> phrase to use here, I will gladly adjust it.
 > 
+
+That comment says:
+
+	EVIOC[G/S]ABS2 ioctls [...] do the same as the old EVIOC
+	[G/S]ABS ioctls but...
+
+My bad, I was confused by the fact that the new ioctls are presented as
+a replacement for the old ones, but then I interpreted the later comment
+as suggesting to use them only for values between ABS_MAX and ABS_MAX2.
+
+Looking at how you use both mechanisms combined in libevdev it is clear
+they can be used together for backward compatibility.
+
+I like keywords, so I'd stress in the commit message that the new
+protocol can either _replace_ or _extend_ the old one.
+
+Ciao,
+   Antonio
+
+-- 
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

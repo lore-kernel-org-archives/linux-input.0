@@ -1,301 +1,109 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 7/9] Input: pixcir_i2c_ts: Implement Type B Multi Touch
- reporting
-Date: Wed, 18 Dec 2013 06:18:41 -0800
-Message-ID: <20131218141841.GE28504@core.coreip.homeip.net>
+Subject: Re: [PATCH 5/9] Input: pixcir_i2c_ts: Get rid of
+ pdata->attb_read_val()
+Date: Wed, 18 Dec 2013 06:20:56 -0800
+Message-ID: <20131218142056.GF28504@core.coreip.homeip.net>
 References: <1387358480-8313-1-git-send-email-rogerq@ti.com>
- <1387358480-8313-8-git-send-email-rogerq@ti.com>
+ <1387358480-8313-6-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f52.google.com ([209.85.220.52]:39815 "EHLO
-	mail-pa0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753243Ab3LROSp (ORCPT
+Received: from mail-pd0-f177.google.com ([209.85.192.177]:37574 "EHLO
+	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754889Ab3LROU7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 09:18:45 -0500
+	Wed, 18 Dec 2013 09:20:59 -0500
 Content-Disposition: inline
-In-Reply-To: <1387358480-8313-8-git-send-email-rogerq@ti.com>
+In-Reply-To: <1387358480-8313-6-git-send-email-rogerq@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Roger Quadros <rogerq@ti.com>
 Cc: rydberg@euromail.se, jcbian@pixcir.com.cn, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, Dec 18, 2013 at 02:51:18PM +0530, Roger Quadros wrote:
-> Some pixcir controllers e.g. tangoC family report finger IDs with
-> the co-ordinates and are more suitable for Type-B MT protocol.
+On Wed, Dec 18, 2013 at 02:51:16PM +0530, Roger Quadros wrote:
+> Get rid of the attb_read_val() platform hook. Instead,
+> read the ATTB gpio directly from the driver.
+> 
+> Fail if valid ATTB gpio is not provided by patform data.
+
+Do you also need to define polarity?
+
 > 
 > Signed-off-by: Roger Quadros <rogerq@ti.com>
 > Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
 > ---
->  drivers/input/touchscreen/pixcir_i2c_ts.c | 202 +++++++++++++++++++++++-------
->  1 file changed, 155 insertions(+), 47 deletions(-)
+>  drivers/input/touchscreen/pixcir_i2c_ts.c | 19 +++++++++++++++++--
+>  include/linux/input/pixcir_ts.h           |  1 -
+>  2 files changed, 17 insertions(+), 3 deletions(-)
 > 
 > diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> index ff68246..9e14415 100644
+> index 3370fd9..a783d94 100644
 > --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
 > +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-> @@ -23,84 +23,173 @@
->  #include <linux/slab.h>
->  #include <linux/i2c.h>
->  #include <linux/input.h>
-> +#include <linux/input/mt.h>
->  #include <linux/input/pixcir_ts.h>
->  #include <linux/gpio.h>
->  #include <linux/of.h>
->  #include <linux/of_gpio.h>
->  #include <linux/of_device.h>
->  
-> +#define MAX_FINGERS	5	/* Maximum supported by the driver */
-> +
->  struct pixcir_i2c_ts_data {
->  	struct i2c_client *client;
->  	struct input_dev *input;
->  	const struct pixcir_ts_platform_data *pdata;
->  	bool exiting;
-> +	u8 max_fingers;		/* Maximum supported by the chip */
->  };
->  
-> -static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
-> +static void pixcir_ts_typea_report(struct pixcir_i2c_ts_data *tsdata)
-
-Hmm, I do not think we should keep Type A reports if we can do Type B.
-The protocols are not new and userspace should be able to handle MT-B by
-now.
-
+> @@ -91,11 +91,12 @@ static void pixcir_ts_poscheck(struct pixcir_i2c_ts_data *data)
+>  static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
 >  {
-> -	struct pixcir_i2c_ts_data *tsdata = data;
-> +	const struct pixcir_ts_platform_data *pdata = tsdata->pdata;
->  	u8 rdbuf[10], wrbuf[1] = { 0 };
->  	u8 touch;
->  	int ret;
+>  	struct pixcir_i2c_ts_data *tsdata = dev_id;
+> +	const struct pixcir_ts_platform_data *pdata = tsdata->chip;
 >  
-> -	ret = i2c_master_send(tsdata->client, wrbuf, sizeof(wrbuf));
-> -	if (ret != sizeof(wrbuf)) {
-> -		dev_err(&tsdata->client->dev,
-> -			"%s: i2c_master_send failed(), ret=%d\n",
-> -			__func__, ret);
-> -		return;
-> -	}
-> +	while (!tsdata->exiting) {
+>  	while (!tsdata->exiting) {
+>  		pixcir_ts_poscheck(tsdata);
 >  
-> -	ret = i2c_master_recv(tsdata->client, rdbuf, sizeof(rdbuf));
-> -	if (ret != sizeof(rdbuf)) {
-> -		dev_err(&tsdata->client->dev,
-> -			"%s: i2c_master_recv failed(), ret=%d\n",
-> -			__func__, ret);
-> -		return;
-> -	}
-> +		ret = i2c_master_send(tsdata->client, wrbuf, sizeof(wrbuf));
-> +		if (ret != sizeof(wrbuf)) {
-> +			dev_err(&tsdata->client->dev,
-> +				 "%s: i2c_master_send failed(), ret=%d\n",
-> +				 __func__, ret);
-> +			return;
-> +		}
-> +
-> +		ret = i2c_master_recv(tsdata->client, rdbuf, sizeof(rdbuf));
-> +		if (ret != sizeof(rdbuf)) {
-> +			dev_err(&tsdata->client->dev,
-> +				 "%s: i2c_master_recv failed(), ret=%d\n",
-> +				 __func__, ret);
-> +			return;
-> +		}
->  
-> -	touch = rdbuf[0];
-> -	if (touch) {
-> -		u16 posx1 = (rdbuf[3] << 8) | rdbuf[2];
-> -		u16 posy1 = (rdbuf[5] << 8) | rdbuf[4];
-> -		u16 posx2 = (rdbuf[7] << 8) | rdbuf[6];
-> -		u16 posy2 = (rdbuf[9] << 8) | rdbuf[8];
-> -
-> -		input_report_key(tsdata->input, BTN_TOUCH, 1);
-> -		input_report_abs(tsdata->input, ABS_X, posx1);
-> -		input_report_abs(tsdata->input, ABS_Y, posy1);
-> -
-> -		input_report_abs(tsdata->input, ABS_MT_POSITION_X, posx1);
-> -		input_report_abs(tsdata->input, ABS_MT_POSITION_Y, posy1);
-> -		input_mt_sync(tsdata->input);
-> -
-> -		if (touch == 2) {
-> -			input_report_abs(tsdata->input,
-> -					 ABS_MT_POSITION_X, posx2);
-> -			input_report_abs(tsdata->input,
-> -					 ABS_MT_POSITION_Y, posy2);
-> +		touch = rdbuf[0];
-> +		if (touch) {
-> +			u16 posx1 = (rdbuf[3] << 8) | rdbuf[2];
-> +			u16 posy1 = (rdbuf[5] << 8) | rdbuf[4];
-> +			u16 posx2 = (rdbuf[7] << 8) | rdbuf[6];
-> +			u16 posy2 = (rdbuf[9] << 8) | rdbuf[8];
-> +
-> +			input_report_key(tsdata->input, BTN_TOUCH, 1);
-> +			input_report_abs(tsdata->input, ABS_X, posx1);
-> +			input_report_abs(tsdata->input, ABS_Y, posy1);
-> +
-> +			input_report_abs(tsdata->input, ABS_MT_POSITION_X,
-> +									posx1);
-> +			input_report_abs(tsdata->input, ABS_MT_POSITION_Y,
-> +									posy1);
->  			input_mt_sync(tsdata->input);
-> +
-> +			if (touch == 2) {
-> +				input_report_abs(tsdata->input,
-> +						ABS_MT_POSITION_X, posx2);
-> +				input_report_abs(tsdata->input,
-> +						ABS_MT_POSITION_Y, posy2);
-> +				input_mt_sync(tsdata->input);
-> +			}
-> +		} else {
-> +			input_report_key(tsdata->input, BTN_TOUCH, 0);
->  		}
-> -	} else {
-> -		input_report_key(tsdata->input, BTN_TOUCH, 0);
-> -	}
->  
-> -	input_sync(tsdata->input);
-> +		input_sync(tsdata->input);
-> +
+> -		if (tsdata->chip->attb_read_val())
 > +		if (gpio_get_value(pdata->gpio_attb))
-> +			break;
-> +
-> +		msleep(20);
-> +	}
->  }
->  
-> -static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
-> +static void pixcir_ts_typeb_report(struct pixcir_i2c_ts_data *ts)
->  {
-> -	struct pixcir_i2c_ts_data *tsdata = dev_id;
-> -	const struct pixcir_ts_platform_data *pdata = tsdata->pdata;
-> +	const struct pixcir_ts_platform_data *pdata = ts->pdata;
-> +	struct device *dev = &ts->client->dev;
-> +	u8 rdbuf[32], wrbuf[1] = { 0 };
-> +	u8 *bufptr;
-> +	u8 num_fingers;
-> +	u8 unreliable;
-> +	int ret, i;
-> +
-> +	while (!ts->exiting) {
-> +
-> +		ret = i2c_master_send(ts->client, wrbuf, sizeof(wrbuf));
-> +		if (ret != sizeof(wrbuf)) {
-> +			dev_err(dev, "%s: i2c_master_send failed(), ret=%d\n",
-> +				 __func__, ret);
-> +			return;
-> +		}
->  
-> -	while (!tsdata->exiting) {
-> -		pixcir_ts_poscheck(tsdata);
-> +		ret = i2c_master_recv(ts->client, rdbuf, sizeof(rdbuf));
-> +		if (ret != sizeof(rdbuf)) {
-> +			dev_err(dev, "%s: i2c_master_recv failed(), ret=%d\n",
-> +				 __func__, ret);
-> +			return;
-> +		}
-> +
-> +		unreliable = rdbuf[0] & 0xe0;
-> +
-> +		if (unreliable)
-> +			goto next;	/* ignore unreliable data */
-> +
-> +		num_fingers = rdbuf[0] & 0x7;
-> +		bufptr = &rdbuf[2];
->  
-> +		if (num_fingers > ts->max_fingers) {
-> +			num_fingers = ts->max_fingers;
-> +			dev_dbg(dev, "limiting num_fingers to %d\n",
-> +								num_fingers);
-> +		}
-> +
-> +		for (i = 0; i < num_fingers; i++) {
-> +			u8 id;
-> +			unsigned int x, y;
-> +			int slot;
-> +
-> +			id = bufptr[4];
-> +			slot = input_mt_get_slot_by_key(ts->input, id);
-> +			if (slot < 0) {
-> +				dev_dbg(dev, "no free slot for id 0x%x\n", id);
-> +				continue;
-> +			}
-> +
-> +
-> +			x = bufptr[1] << 8 | bufptr[0];
-> +			y = bufptr[3] << 8 | bufptr[2];
-> +
-> +			input_mt_slot(ts->input, slot);
-> +			input_mt_report_slot_state(ts->input,
-> +							MT_TOOL_FINGER, true);
-> +
-> +			input_event(ts->input, EV_ABS, ABS_MT_POSITION_X, x);
-> +			input_event(ts->input, EV_ABS, ABS_MT_POSITION_Y, y);
-> +
-> +			bufptr = &bufptr[5];
-> +			dev_dbg(dev, "%d: id 0x%x slot %d, x %d, y %d\n",
-> +							i, id, slot, x, y);
-> +		}
-> +
-> +		/* One frame is complete so sync it */
-> +		input_mt_sync_frame(ts->input);
-> +		input_sync(ts->input);
-> +
-> +next:
->  		if (gpio_get_value(pdata->gpio_attb))
 >  			break;
 >  
-> -		msleep(20);
-> +		usleep_range(2000, 5000);
->  	}
-> +}
-> +
-> +static irqreturn_t pixcir_ts_isr(int irq, void *dev_id)
-> +{
-> +	struct pixcir_i2c_ts_data *tsdata = dev_id;
-> +
-> +	if (tsdata->input->mt)
-> +		pixcir_ts_typeb_report(tsdata);
-> +	else
-> +		pixcir_ts_typea_report(tsdata);
+>  		msleep(20);
+> @@ -301,8 +302,10 @@ static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
+>  		return ERR_PTR(-ENOMEM);
 >  
->  	return IRQ_HANDLED;
->  }
-> @@ -376,9 +465,9 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->  	input->open = pixcir_input_open;
->  	input->close = pixcir_input_close;
->  
-> -	__set_bit(EV_KEY, input->evbit);
->  	__set_bit(EV_ABS, input->evbit);
->  	__set_bit(BTN_TOUCH, input->keybit);
-> +
->  	input_set_abs_params(input, ABS_X,
->  					0, pdata->x_size - 1, 0, 0);
->  	input_set_abs_params(input, ABS_Y,
-> @@ -388,6 +477,25 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->  	input_set_abs_params(input, ABS_MT_POSITION_Y,
->  					0, pdata->y_size - 1, 0, 0);
->  
-> +	/* Type-B Multi-Touch support */
-> +	if (pdata->chip.num_report_ids) {
-> +		const struct pixcir_i2c_chip_data *chip = &pdata->chip;
-> +
-> +		tsdata->max_fingers = chip->num_report_ids;
-> +		if (tsdata->max_fingers > MAX_FINGERS) {
-> +			dev_info(dev, "Limiting maximum fingers to %d\n",
-> +								MAX_FINGERS);
-> +			tsdata->max_fingers = MAX_FINGERS;
-> +		}
-> +
-> +		error = input_mt_init_slots(input, tsdata->max_fingers,
-> +					INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-> +		if (error) {
-> +			dev_err(dev, "Error initializing Multi-Touch slots\n");
-> +			return error;
-> +		}
+>  	pdata->gpio_attb = of_get_named_gpio(np, "attb-gpio", 0);
+> -	if (!gpio_is_valid(pdata->gpio_attb))
+> +	if (!gpio_is_valid(pdata->gpio_attb)) {
+>  		dev_err(dev, "Failed to get ATTB GPIO\n");
+> +		return ERR_PTR(-EINVAL);
 > +	}
-> +
+>  
+>  	if (of_property_read_u32(np, "x-size", &pdata->x_size)) {
+>  		dev_err(dev, "Failed to get x-size property\n");
+> @@ -344,6 +347,11 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+>  	} else if (!pdata) {
+>  		dev_err(&client->dev, "platform data not defined\n");
+>  		return -EINVAL;
+> +	} else {
+> +		if (!gpio_is_valid(pdata->gpio_attb)) {
+> +			dev_err(dev, "Invalid gpio_attb in pdata\n");
+> +			return -EINVAL;
+> +		}
+>  	}
+>  
+>  	tsdata = devm_kzalloc(dev, sizeof(*tsdata), GFP_KERNEL);
+> @@ -380,6 +388,13 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+>  
 >  	input_set_drvdata(input, tsdata);
 >  
->  	error = devm_gpio_request_one(dev, pdata->gpio_attb,
+> +	error = devm_gpio_request_one(dev, pdata->gpio_attb,
+> +			GPIOF_DIR_IN, "pixcir_i2c_attb");
+> +	if (error) {
+> +		dev_err(dev, "Failed to request ATTB gpio\n");
+> +		return error;
+> +	}
+> +
+>  	error = devm_request_threaded_irq(dev, client->irq, NULL, pixcir_ts_isr,
+>  				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+>  				     client->name, tsdata);
+> diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
+> index f17c192..88ffdb50 100644
+> --- a/include/linux/input/pixcir_ts.h
+> +++ b/include/linux/input/pixcir_ts.h
+> @@ -44,7 +44,6 @@ enum pixcir_int_mode {
+>  #define PIXCIR_INT_POL_HIGH	(1UL << 2)
+>  
+>  struct pixcir_ts_platform_data {
+> -	int (*attb_read_val)(void);
+>  	unsigned int x_size;	/* X axis resolution */
+>  	unsigned int y_size;	/* Y axis resolution */
+>  	int gpio_attb;		/* GPIO connected to ATTB line */
 > -- 
 > 1.8.3.2
 > 

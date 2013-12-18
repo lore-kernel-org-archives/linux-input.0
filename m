@@ -1,125 +1,146 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2] input synaptics-rmi4: Bug fixes to ATTN GPIO handling.
-Date: Wed, 18 Dec 2013 06:39:44 -0800
-Message-ID: <20131218143944.GG28504@core.coreip.homeip.net>
-References: <1387311361-29411-1-git-send-email-cheiny@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: [PATCH] input: rotary encoder: implement quarter period mode
+Date: Wed, 18 Dec 2013 15:43:18 +0100
+Message-ID: <1387377798-22344-1-git-send-email-s.hauer@pengutronix.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:54639 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754908Ab3LROjr (ORCPT
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:54683 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754693Ab3LROnW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 09:39:47 -0500
-Received: by mail-pa0-f46.google.com with SMTP id kl14so5962174pab.5
-        for <linux-input@vger.kernel.org>; Wed, 18 Dec 2013 06:39:47 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1387311361-29411-1-git-send-email-cheiny@synaptics.com>
+	Wed, 18 Dec 2013 09:43:22 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: linux-input@vger.kernel.org
+Cc: Sascha Hauer <s.hauer@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Mack <daniel@zonque.org>, devicetree@vger.kernel.org
 
-Hi Chris,
+Some rotary encoders have a stable state in all output state
+combinations. Add support for this type of encoder.
 
-On Tue, Dec 17, 2013 at 12:16:01PM -0800, Christopher Heiny wrote:
-> This patch fixes two bugs in handling of the RMI4 attention line GPIO.
-> 
-> 1) in enable_sensor(), make sure the attn_gpio is defined before attempting to
-> get its value.
-> 
-> 2) in rmi_driver_probe(), declare the name of the attn_gpio, then
-> request the attn_gpio before attempting to export it.
-> 
-> Also introduces a GPIO_LABEL constant for identifying the attention GPIO.
-> 
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Mack <daniel@zonque.org>
+Cc: linux-input@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+---
+ .../devicetree/bindings/input/rotary-encoder.txt   |  1 +
+ Documentation/input/rotary-encoder.txt             |  9 +++++--
+ drivers/input/misc/rotary_encoder.c                | 30 ++++++++++++++++++++--
+ include/linux/rotary_encoder.h                     |  1 +
+ 4 files changed, 37 insertions(+), 4 deletions(-)
 
-I was looking at the patch some more and I have some concerns with it.
-
-> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> ---
-> 
->  drivers/input/rmi4/rmi_driver.c | 28 +++++++++++++++++-----------
->  1 file changed, 17 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index a30c7d3..33fb8f8 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -169,7 +169,7 @@ static int enable_sensor(struct rmi_device *rmi_dev)
->  
->  	data->enabled = true;
->  
-> -	if (!pdata->level_triggered &&
-> +	if (pdata->attn_gpio && !pdata->level_triggered &&
-
-O is perfectly fine GPIO number, you want to use gpio_is_valid() hete. I
-also wonder why do you need such elaborate check. Can we simply "flush"
-device before enabling interrupts?
-
->  		    gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity)
->  		retval = process_interrupt_requests(rmi_dev);
->  
-> @@ -807,6 +807,8 @@ static int rmi_driver_remove(struct device *dev)
->  	return 0;
->  }
->  
-> +static const char GPIO_LABEL[] = "attn";
-> +
->  static int rmi_driver_probe(struct device *dev)
->  {
->  	struct rmi_driver *rmi_driver;
-> @@ -959,20 +961,24 @@ static int rmi_driver_probe(struct device *dev)
->  	}
->  
->  	if (IS_ENABLED(CONFIG_RMI4_DEV) && pdata->attn_gpio) {
-> -		retval = gpio_export(pdata->attn_gpio, false);
-> +		retval = gpio_request(pdata->attn_gpio, GPIO_LABEL);
-
-Here it is too late to request GPIO. You have been converting it to IRQ,
-enabling that IRQ and calling gpio_get_value() so GPIO should have
-already been requested by now.
-
-So you need to move this code up. You may also consider using
-gpio_request_one() and use GPIOF_EXPORT flag if you want to export it.
-It would also be nice to set the direction (GPIOF_DIR_IN).
-
-I also do not see matching call to gpio_free() in remove().
-
->  		if (retval) {
-> -			dev_warn(dev, "WARNING: Failed to export ATTN gpio!\n");
-> -			retval = 0;
-> +			dev_warn(dev, "WARNING: Failed to request ATTN gpio %d, code: %d.\n",
-> +				pdata->attn_gpio, retval);
->  		} else {
-> -			retval = gpio_export_link(dev,
-> -						  "attn", pdata->attn_gpio);
-> +			retval = gpio_export(pdata->attn_gpio, false);
->  			if (retval) {
-> -				dev_warn(dev,
-> -					"WARNING: Failed to symlink ATTN gpio!\n");
-> -				retval = 0;
-> +				dev_warn(dev, "WARNING: Failed to export ATTN gpio %d, code: %d.\n",
-> +					pdata->attn_gpio, retval);
->  			} else {
-> -				dev_info(dev, "Exported ATTN GPIO %d.",
-> -					pdata->attn_gpio);
-> +				retval = gpio_export_link(dev, GPIO_LABEL,
-> +							  pdata->attn_gpio);
-> +				if (retval)
-> +					dev_warn(dev,
-> +						"WARNING: Failed to symlink ATTN gpio!\n");
-> +				else
-> +					dev_info(dev, "Exported ATTN GPIO %d.",
-> +						pdata->attn_gpio);
->  			}
->  		}
->  	}
-
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+index 3315495..cbdb29b 100644
+--- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
++++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+@@ -15,6 +15,7 @@ Optional properties:
+ - rotary-encoder,rollover: Automatic rollove when the rotary value becomes
+   greater than the specified steps or smaller than 0. For absolute axis only.
+ - rotary-encoder,half-period: Makes the driver work on half-period mode.
++- rotary-encoder,quarter-period: Makes the driver work on quarter-period mode.
+ 
+ See Documentation/input/rotary-encoder.txt for more information.
+ 
+diff --git a/Documentation/input/rotary-encoder.txt b/Documentation/input/rotary-encoder.txt
+index 92e68bc..0bbff7e 100644
+--- a/Documentation/input/rotary-encoder.txt
++++ b/Documentation/input/rotary-encoder.txt
+@@ -9,8 +9,10 @@ peripherals with two wires. The outputs are phase-shifted by 90 degrees
+ and by triggering on falling and rising edges, the turn direction can
+ be determined.
+ 
+-Some encoders have both outputs low in stable states, whereas others also have
+-a stable state with both outputs high (half-period mode).
++
++Some encoders have both outputs low in stable states, others also have
++a stable state with both outputs high (half-period mode) and some have
++a stable state in all steps (quarter-period mode).
+ 
+ The phase diagram of these two outputs look like this:
+ 
+@@ -32,6 +34,9 @@ The phase diagram of these two outputs look like this:
+                 |<-->|
+ 	          one step (half-period mode)
+ 
++                |<>|
++	          one step (quarter-period mode)
++
+ For more information, please see
+ 	http://en.wikipedia.org/wiki/Rotary_encoder
+ 
+diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+index 5b1aff8..264501c 100644
+--- a/drivers/input/misc/rotary_encoder.c
++++ b/drivers/input/misc/rotary_encoder.c
+@@ -42,7 +42,7 @@ struct rotary_encoder {
+ 	bool armed;
+ 	unsigned char dir;	/* 0 - clockwise, 1 - CCW */
+ 
+-	char last_stable;
++	int last_stable;
+ };
+ 
+ static int rotary_encoder_get_state(const struct rotary_encoder_platform_data *pdata)
+@@ -117,6 +117,28 @@ static irqreturn_t rotary_encoder_irq(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static irqreturn_t rotary_encoder_quarter_period_irq(int irq, void *dev_id)
++{
++	struct rotary_encoder *encoder = dev_id;
++	int state;
++	static const u8 states[4][4] = {
++		{ -1,  1,  0, -1 },
++		{  0, -1, -1,  1 },
++		{  1, -1, -1,  0 },
++		{ -1,  0,  1, -1 },
++	};
++
++	state = rotary_encoder_get_state(encoder->pdata);
++
++	encoder->dir = states[encoder->last_stable][state];
++	encoder->last_stable = state;
++
++	if (encoder->dir >= 0)
++		rotary_encoder_report_event(encoder);
++
++	return IRQ_HANDLED;
++}
++
+ static irqreturn_t rotary_encoder_half_period_irq(int irq, void *dev_id)
+ {
+ 	struct rotary_encoder *encoder = dev_id;
+@@ -180,7 +202,8 @@ static struct rotary_encoder_platform_data *rotary_encoder_parse_dt(struct devic
+ 					"rotary-encoder,rollover", NULL);
+ 	pdata->half_period = !!of_get_property(np,
+ 					"rotary-encoder,half-period", NULL);
+-
++	pdata->quarter_period = !!of_get_property(np,
++					"rotary-encoder,quarter-period", NULL);
+ 	return pdata;
+ }
+ #else
+@@ -254,6 +277,9 @@ static int rotary_encoder_probe(struct platform_device *pdev)
+ 	if (pdata->half_period) {
+ 		handler = &rotary_encoder_half_period_irq;
+ 		encoder->last_stable = rotary_encoder_get_state(pdata);
++	} else if (pdata->quarter_period) {
++		handler = &rotary_encoder_quarter_period_irq;
++		encoder->last_stable = rotary_encoder_get_state(pdata);
+ 	} else {
+ 		handler = &rotary_encoder_irq;
+ 	}
+diff --git a/include/linux/rotary_encoder.h b/include/linux/rotary_encoder.h
+index 3f594dc..fd0a70f 100644
+--- a/include/linux/rotary_encoder.h
++++ b/include/linux/rotary_encoder.h
+@@ -11,6 +11,7 @@ struct rotary_encoder_platform_data {
+ 	bool relative_axis;
+ 	bool rollover;
+ 	bool half_period;
++	bool quarter_period;
+ };
+ 
+ #endif /* __ROTARY_ENCODER_H__ */
 -- 
-Dmitry
+1.8.5.1
+

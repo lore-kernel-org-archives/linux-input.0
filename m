@@ -1,27 +1,52 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: am335x: IIO/ADC fixes if used together with TSC
-Date: Wed, 18 Dec 2013 17:52:52 +0100
-Message-ID: <1387385577-24447-1-git-send-email-bigeasy@linutronix.de>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 2/5] mfd: ti_am335x_tscadc: make am335x_tsc_se_update() local
+Date: Wed, 18 Dec 2013 17:52:54 +0100
+Message-ID: <1387385577-24447-3-git-send-email-bigeasy@linutronix.de>
+References: <1387385577-24447-1-git-send-email-bigeasy@linutronix.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1387385577-24447-1-git-send-email-bigeasy@linutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Zubair Lutfullah <zubair.lutfullah@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+since the "recent" changes, am335x_tsc_se_update() has no longer any
+users outside of this file so make it local.
 
-this series got a little bigger than expected with a biggy at the end.
-I didn't managed to split the patches across the three subsystems it
-touches due to the changes are required to keep it working and break the
-logic.
-Even in 5/5 which does three logical changes I didn't manage to split it
-in three patches because the driver would not be functional (sometimes it would
-get worse than before). This is all documented in the changelog. 
-Thefore I ask to get this series applied via one tree, the iio tree which contains
-or depends on the most changes.
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/mfd/ti_am335x_tscadc.c       | 3 +--
+ include/linux/mfd/ti_am335x_tscadc.h | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-The two bigger issues here are fixed by the last patch incuding
-- time outs on the iio/adc side while TSC&ADC is used together
-- a lockup issue which occurs while TSC&ADC is used together.
-
-Sebastian
+diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+index 88718ab..67d0eb4 100644
+--- a/drivers/mfd/ti_am335x_tscadc.c
++++ b/drivers/mfd/ti_am335x_tscadc.c
+@@ -48,11 +48,10 @@ static const struct regmap_config tscadc_regmap_config = {
+ 	.val_bits = 32,
+ };
+ 
+-void am335x_tsc_se_update(struct ti_tscadc_dev *tsadc)
++static void am335x_tsc_se_update(struct ti_tscadc_dev *tsadc)
+ {
+ 	tscadc_writel(tsadc, REG_SE, tsadc->reg_se_cache);
+ }
+-EXPORT_SYMBOL_GPL(am335x_tsc_se_update);
+ 
+ void am335x_tsc_se_set(struct ti_tscadc_dev *tsadc, u32 val)
+ {
+diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
+index d498d98f..1fe7219 100644
+--- a/include/linux/mfd/ti_am335x_tscadc.h
++++ b/include/linux/mfd/ti_am335x_tscadc.h
+@@ -176,7 +176,6 @@ static inline struct ti_tscadc_dev *ti_tscadc_dev_get(struct platform_device *p)
+ 	return *tscadc_dev;
+ }
+ 
+-void am335x_tsc_se_update(struct ti_tscadc_dev *tsadc);
+ void am335x_tsc_se_set(struct ti_tscadc_dev *tsadc, u32 val);
+ void am335x_tsc_se_clr(struct ti_tscadc_dev *tsadc, u32 val);
+ 
+-- 
+1.8.5.1

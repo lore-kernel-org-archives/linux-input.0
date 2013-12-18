@@ -1,55 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] Input: introduce ABS_MAX2/CNT2 and friends
-Date: Wed, 18 Dec 2013 08:36:30 -0800
-Message-ID: <20131218163630.GA30922@core.coreip.homeip.net>
-References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
- <1387295334-1744-3-git-send-email-dh.herrmann@gmail.com>
- <20131218152731.0222ae3b3807601b7756c937@studenti.unina.it>
- <CANq1E4RNa6XBaUTy=ur7Yig0iJSEaUbLzvi-Dn-hyxS2OLnyPw@mail.gmail.com>
+Subject: Re: [PATCHv2] Input: fix typos in Documentation/input/gamepad.txt
+Date: Wed, 18 Dec 2013 08:39:53 -0800
+Message-ID: <20131218163953.GB30922@core.coreip.homeip.net>
+References: <52AF51EA.8090400@infradead.org>
+ <1387280024-12213-1-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:44804 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752692Ab3LRQgf (ORCPT
+Received: from mail-pb0-f48.google.com ([209.85.160.48]:43799 "EHLO
+	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754852Ab3LRQj5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 11:36:35 -0500
+	Wed, 18 Dec 2013 11:39:57 -0500
+Received: by mail-pb0-f48.google.com with SMTP id md12so8658492pbc.35
+        for <linux-input@vger.kernel.org>; Wed, 18 Dec 2013 08:39:57 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <CANq1E4RNa6XBaUTy=ur7Yig0iJSEaUbLzvi-Dn-hyxS2OLnyPw@mail.gmail.com>
+In-Reply-To: <1387280024-12213-1-git-send-email-ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Antonio Ospite <ospite@studenti.unina.it>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel <linux-kernel@vger.kernel.org>, Input Tools <input-tools@lists.freedesktop.org>
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: linux-input@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Dec 18, 2013 at 03:44:48PM +0100, David Herrmann wrote:
-> >>
-> >>  /*
-> >> + * Due to API restrictions the legacy evdev API only supports ABS values up to
-> >> + * ABS_MAX/CNT. Use the extended *ABS2 ioctls to operate on any ABS values in
-> >> + * between ABS_MAX and ABS_MAX2.
-> >> + */
-> >> +#define ABS_MAX2             0x3f
-> >> +#define ABS_CNT2             (ABS_MAX2+1)
-> >> +
-> >
-> > Maybe it's just my English, but when you say "between ABS_MAX and
-> > ABS_MAX2" it sounds like the old protocol still _must_ be used for
-> > values <= ABS_MAX.
-> >
-> > IIUC this is true "only" for compatibility with older kernels right?
-> > If a program decides to support only newer kernels it can check the
-> > protocol version and use only the new ioctls, right?
-> >
-> > Maybe you can be more explicit about that in the comment?
+On Tue, Dec 17, 2013 at 12:33:44PM +0100, Antonio Ospite wrote:
+> Fix some typos and while at it also use "PS" as the name for the central
+> "HOME" button on Sony controllers, this is how Sony itself calls it.
 > 
-> See the comment on "struct input_absinfo2". It describes the API, this
-> comment just describes the ABS_* values. But if anyone has a better
-> phrase to use here, I will gladly adjust it.
+> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+> Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
 
-"Use the extended *ABS2 ioctls to access the full range of ABS values
-supported by the kernel."
+Applied, thank you.
 
-?
+> ---
+> 
+> Changes since v1:
+>   - Fix one of the fixes: use "advise" (verb) in place of "advice" (noun)
+> 
+> Thanks Randy.
+> 
+>  Documentation/input/gamepad.txt | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
+> index 31bb6a4..3f6d8a5 100644
+> --- a/Documentation/input/gamepad.txt
+> +++ b/Documentation/input/gamepad.txt
+> @@ -68,7 +68,7 @@ features that you need, first. How each feature is mapped is described below.
+>  Legacy drivers often don't comply to these rules. As we cannot change them
+>  for backwards-compatibility reasons, you need to provide fixup mappings in
+>  user-space yourself. Some of them might also provide module-options that
+> -change the mappings so you can adivce users to set these.
+> +change the mappings so you can advise users to set these.
+>  
+>  All new gamepads are supposed to comply with this mapping. Please report any
+>  bugs, if they don't.
+> @@ -150,10 +150,10 @@ Menu-Pad:
+>                    BTN_START
+>    Many pads also have a third button which is branded or has a special symbol
+>    and meaning. Such buttons are mapped as BTN_MODE. Examples are the Nintendo
+> -  "HOME" button, the XBox "X"-button or Sony "P" button.
+> +  "HOME" button, the XBox "X"-button or Sony "PS" button.
+>  
+>  Rumble:
+> -  Rumble is adverticed as FF_RUMBLE.
+> +  Rumble is advertised as FF_RUMBLE.
+>  
+>  ----------------------------------------------------------------------------
+>    Written 2013 by David Herrmann <dh.herrmann@gmail.com>
+> -- 
+> 1.8.5.1
+> 
 
 -- 
 Dmitry

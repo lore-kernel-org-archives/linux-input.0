@@ -1,52 +1,46 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 0/4] Input: ABS2 and friends
-Date: Wed, 18 Dec 2013 09:12:45 +0100
-Message-ID: <CANq1E4SDTLzkiWWaAmZ3iU1mSTc2Ce5E=zKHthxrsuDnBUYYMw@mail.gmail.com>
-References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
-	<190d226e64e177a3cb631b8fc6f4787c.squirrel@mungewell.org>
+From: Roger Quadros <rogerq@ti.com>
+Subject: [PATCH 0/9] Input: pixcir_i2c_ts: Add Type-B Multitouch support
+Date: Wed, 18 Dec 2013 14:51:11 +0530
+Message-ID: <1387358480-8313-1-git-send-email-rogerq@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f170.google.com ([209.85.223.170]:53569 "EHLO
-	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751196Ab3LRIMp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 03:12:45 -0500
-In-Reply-To: <190d226e64e177a3cb631b8fc6f4787c.squirrel@mungewell.org>
+Received: from bear.ext.ti.com ([192.94.94.41]:44673 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750961Ab3LRJWF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Dec 2013 04:22:05 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Wood <simon@mungewell.org>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Antonio Ospite <ospite@studenti.unina.it>, linux-kernel <linux-kernel@vger.kernel.org>, Input Tools <input-tools@lists.freedesktop.org>
+To: dmitry.torokhov@gmail.com
+Cc: rydberg@euromail.se, jcbian@pixcir.com.cn, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Roger Quadros <rogerq@ti.com>
 
-Hi
+Hi,
 
-On Tue, Dec 17, 2013 at 10:28 PM,  <simon@mungewell.org> wrote:
->> Hi
->>
->> This implements the recently discussed ABS2 API. It's working fine on my
->> machine with libevdev. Comments welcome!
->
-> Just looking at the documentation file, I have a couple of suggestions.
->
-> 1). Make a note on the direction of gravity wrt the example image. Ie what
-> which axis/value will be positive with the device laid flat/stationary on
-> a desk. Might just prevent some confusion later.
+Some variants of the Pixcir I2C touch controller are more suitable for
+Type-B multi-touch reporting (e.g. Tango C). This series enhances the driver
+to support Type-B multi-touch reports. It also adds device tree support
+and power management.
 
-Yepp, can add that to the Accelerometer section.
+cheers,
+-roger
 
-> 2). Calibration, Accels and Gyros are noisy in different ways. Gyros tend
-> to be wrong in the long term, giving some consistant bias which should be
-> calibrated out. Accels are noisy in the short term, but generally right
-> over a long period.
+Roger Quadros (9):
+  Input: pixcir_i2c_ts: Add device tree support
+  Input: pixcir_i2c_ts: Add register definitions
+  Input: pixcir_i2c_ts: Initialize interrupt mode and power mode
+  Input: pixcir_i2c_ts: Use devres managed resource allocations
+  Input: pixcir_i2c_ts: Get rid of pdata->attb_read_val()
+  Input: pixcir_i2c_ts: Add chip specific data structure
+  Input: pixcir_i2c_ts: Implement Type B Multi Touch reporting
+  Input: pixcir_i2c_ts: Add support for TangoC family
+  Input: pixcir_i2c_ts: Implement wakeup from suspend
 
-I'm not entirely sure where to put calibration/normalization. Letting
-user-space deal with that should simplify things a lot. We could even
-add it to libevdev. Comments welcome..
+ .../bindings/input/touchscreen/pixcir_i2c_ts.txt   |  26 +
+ drivers/input/touchscreen/pixcir_i2c_ts.c          | 570 +++++++++++++++++----
+ include/linux/input/pixcir_ts.h                    |  59 ++-
+ 3 files changed, 564 insertions(+), 91 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
 
-> Am I correct that the event framework will provide time-stamping of data,
-> thus making computation of relative movements possible.
+-- 
+1.8.3.2
 
-Yes, part of the evdev API.
-
-Thanks
-David

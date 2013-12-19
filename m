@@ -1,75 +1,86 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] HID: input: fix input sysfs path for hid devices
-Date: Thu, 19 Dec 2013 17:33:40 +0100
-Message-ID: <CANq1E4QrPAJ7zNdN51PGQD5tkD_gTYfRoHOg7=zwVvnu-xOR0g@mail.gmail.com>
-References: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH] HID: hyperv: make sure input buffer is big enough
+Date: Thu, 19 Dec 2013 16:58:21 +0000
+Message-ID: <5bae77400133466d9698c925bfe58df5@BY2PR03MB299.namprd03.prod.outlook.com>
+References: <1387452744-8860-1-git-send-email-dh.herrmann@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:48504 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752109Ab3LSQdl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Dec 2013 11:33:41 -0500
-In-Reply-To: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1387452744-8860-1-git-send-email-dh.herrmann@gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dan Carpenter <dan.carpenter@oracle.com>, Joseph Salisbury <joseph.salisbury@canonical.com>, Haiyang Zhang <haiyangz@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi
 
-On Thu, Dec 19, 2013 at 5:05 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> we used to set the parent of the input device as the parent of
-> the hid bus. This was introduced when we created hid as a real bus, and
-> to keep backward compatibility. Now, it's time to proper set the parent
-> so that sysfs has an idea of which input device is attached to
-> which hid device.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+> -----Original Message-----
+> From: David Herrmann [mailto:dh.herrmann@gmail.com]
+> Sent: Thursday, December 19, 2013 3:32 AM
+> To: linux-input@vger.kernel.org
+> Cc: Jiri Kosina; Dan Carpenter; Joseph Salisbury; KY Srinivasan; Haiyang Zhang;
+> linux-kernel@vger.kernel.org; David Herrmann
+> Subject: [PATCH] HID: hyperv: make sure input buffer is big enough
+> 
+> We need at least HID_MAX_BUFFER_SIZE (4096) bytes as input buffer. HID
+> core depends on this as it requires every input report to be at least as
+> big as advertised.
+> 
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+
 > ---
->
-> Hi Jiri,
->
-> well, the regression test did not showed anything bad, and a look at the hid
-> drivers also showed that no drivers should be armed by that.
->
-> I think this is valuable because it will give a better understanding of the
-> actual mapping hardware/inputs. Like a touchscreen with pen + touch will have
-> the same hid parent, and I expect X/Wayland to be able to detect this at some
-> point to keep the mapping correctly between the two input devices and the screen.
->
-> I also need that for hid-replay, so that I can be sure which input is attached
-> to which uhid device, and give up the heuristics I currently use.
-
-I was just wondering where we have multiple HID devices on a single
-parent, but yeah, uhid is a good example. I actually have no
-objections to this patch and it looks fine. But I cannot tell whether
-anyone relies on this.
-
-I'd say we should give it a try.
-David
-
-> Cheers,
-> Benjamin
->
->  drivers/hid/hid-input.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index d97f232..d50e731 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1279,7 +1279,7 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
->         input_dev->id.vendor  = hid->vendor;
->         input_dev->id.product = hid->product;
->         input_dev->id.version = hid->version;
-> -       input_dev->dev.parent = hid->dev.parent;
-> +       input_dev->dev.parent = &hid->dev;
->         hidinput->input = input_dev;
->         list_add_tail(&hidinput->list, &hid->inputs);
->
+> Hi
+> 
+> Same as for the HIDP patch, if there's a way to avoid the extra copy, please
+> provide a better patch.
+> 
+> Thanks
+> David
+> 
+>  drivers/hid/hid-hyperv.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+> index 8fae6d1..c24908f 100644
+> --- a/drivers/hid/hid-hyperv.c
+> +++ b/drivers/hid/hid-hyperv.c
+> @@ -157,6 +157,7 @@ struct mousevsc_dev {
+>  	u32			report_desc_size;
+>  	struct hv_input_dev_info hid_dev_info;
+>  	struct hid_device       *hid_device;
+> +	u8			input_buf[HID_MAX_BUFFER_SIZE];
+>  };
+> 
+> 
+> @@ -256,6 +257,7 @@ static void mousevsc_on_receive(struct hv_device
+> *device,
+>  	struct synthhid_msg *hid_msg;
+>  	struct mousevsc_dev *input_dev = hv_get_drvdata(device);
+>  	struct synthhid_input_report *input_report;
+> +	size_t len;
+> 
+>  	pipe_msg = (struct pipe_prt_msg *)((unsigned long)packet +
+>  						(packet->offset8 << 3));
+> @@ -300,9 +302,12 @@ static void mousevsc_on_receive(struct hv_device
+> *device,
+>  			(struct synthhid_input_report *)pipe_msg->data;
+>  		if (!input_dev->init_complete)
+>  			break;
+> -		hid_input_report(input_dev->hid_device,
+> -				HID_INPUT_REPORT, input_report->buffer,
+> -				input_report->header.size, 1);
+> +
+> +		len = min(input_report->header.size,
+> +			  (u32)sizeof(input_dev->input_buf));
+> +		memcpy(input_dev->input_buf, input_report->buffer, len);
+> +		hid_input_report(input_dev->hid_device, HID_INPUT_REPORT,
+> +				 input_dev->input_buf, len, 1);
+>  		break;
+>  	default:
+>  		pr_err("unsupported hid msg type - type %d len %d",
 > --
-> 1.8.3.1
->
+> 1.8.5.1

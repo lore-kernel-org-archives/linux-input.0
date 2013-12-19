@@ -1,26 +1,37 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: am335x: IIO/ADC fixes if used together with TSC, v2
-Date: Thu, 19 Dec 2013 16:28:26 +0100
-Message-ID: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 1/5] iio: ti_am335x_adc: Adjust the closing bracket in tiadc_read_raw()
+Date: Thu, 19 Dec 2013 16:28:27 +0100
+Message-ID: <1387466911-3732-2-git-send-email-bigeasy@linutronix.de>
+References: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zubair Lutfullah <zubair.lutfullah@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-The two bigger issues here are fixed by the last patch incuding
-- time outs on the iio/adc side while TSC&ADC is used together
-- a lockup issue which occurs while TSC&ADC is used together.
+It somehow looks like the ending bracket belongs to the if statement but
+it does belong to the while loop. This patch moves the bracket where it
+belongs.
 
-v1=E2=80=A6v2:
- - spelled checked and re-read each commit message and formated to
-   subject line as Lee suggested.
- - removed am335x_tsc_se_set(), replaced am335x_tsc_se_tsc_set() by=20
-   am335x_tsc_se_set_cache() and adc variant is now named
-   am335x_tsc_se_set_once()
- - Added Lee Jones' tags
+Reviewed-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/iio/adc/ti_am335x_adc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Sebastian                                                           =20
+diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+index d4d7482..e948454 100644
+--- a/drivers/iio/adc/ti_am335x_adc.c
++++ b/drivers/iio/adc/ti_am335x_adc.c
+@@ -341,7 +341,7 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
+ 	while (tiadc_readl(adc_dev, REG_ADCFSM) & SEQ_STATUS) {
+ 		if (time_after(jiffies, timeout))
+ 			return -EAGAIN;
+-		}
++	}
+ 	map_val = chan->channel + TOTAL_CHANNELS;
+ 
+ 	/*
+-- 
+1.8.5.1

@@ -1,73 +1,147 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] Input: introduce ABS_MAX2/CNT2 and friends
-Date: Wed, 18 Dec 2013 16:34:25 -0800
-Message-ID: <20131219003425.GB838@core.coreip.homeip.net>
-References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
- <1387295334-1744-3-git-send-email-dh.herrmann@gmail.com>
- <20131218234009.GA9360@yabbi.redhat.com>
- <1950536.BXYYX85NB4@dtor-d630.eng.vmware.com>
- <20131218235504.GA17958@yabbi.redhat.com>
- <20131219000537.GA838@core.coreip.homeip.net>
- <20131219002542.GB6315@yabbi.redhat.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH V2] input synaptics-rmi4: Bug fixes to ATTN GPIO handling.
+Date: Wed, 18 Dec 2013 17:23:33 -0800
+Message-ID: <52B24A95.8070100@synaptics.com>
+References: <1387311361-29411-1-git-send-email-cheiny@synaptics.com> <20131218143944.GG28504@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f48.google.com ([209.85.160.48]:38707 "EHLO
-	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751131Ab3LSAe3 (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:6121 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751140Ab3LSBXh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 19:34:29 -0500
-Content-Disposition: inline
-In-Reply-To: <20131219002542.GB6315@yabbi.redhat.com>
+	Wed, 18 Dec 2013 20:23:37 -0500
+In-Reply-To: <20131218143944.GG28504@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ospite@studenti.unina.it>, linux-kernel@vger.kernel.org, input-tools@lists.freedesktop.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Thu, Dec 19, 2013 at 10:25:42AM +1000, Peter Hutterer wrote:
-> On Wed, Dec 18, 2013 at 04:05:37PM -0800, Dmitry Torokhov wrote:
-> > On Thu, Dec 19, 2013 at 09:55:04AM +1000, Peter Hutterer wrote:
-> > > On Wed, Dec 18, 2013 at 03:48:37PM -0800, Dmitry Torokhov wrote:
-> > > > On Thursday, December 19, 2013 09:40:09 AM Peter Hutterer wrote:
-> > > > > > +     memset(&abs, 0, sizeof(abs));
-> > > > > > +     for (i = valid_cnt; i < cnt; ++i)
-> > > > > > +             if (copy_to_user(&pinfo->info[i], &abs, sizeof(abs)))
-> > > > > > +                     return -EFAULT;
-> > > > > > +
-> > > > > > +     return 0;
-> > > > > 
-> > > > > why don't you return the number of valid copied axes to the user?
-> > > > > that seems better even than forcing the remainder to 0.
-> > > > 
-> > > > Well, if your program messed up buffers that it faulted we do not know
-> > > > for sure if data that did not cause fault ended up where it should have
-> > > > or if it smashed something else. This condition I think should be
-> > > > signaled early.
-> > > 
-> > > not 100% sure I understand but I wasn't proposing to remove the -EFAULT, i
-> > > was proposing to replace "return 0" with "return valid_cnt".
-> > 
-> > I understand what you were saying. Now consider: your program supplied
-> > buffer that is actually smaller than what it said to the kernel.
-> > Depending on the exact placement we may or may not fault when we get
-> > pass the buffer boundary, most likely not. We are likely to fault when
-> > we go way past the buffer boundary and wracked process' memory. If we
-> > return -EFAULT the program will at least notice that something wrong. If
-> > we return count it will try to resubmit the remainder of operation and
-> > not even know that there was something very bad happening.
-> > 
-> > IOW we should not treat fault condition as other partial read/write
-> > conditions.
-> 
-> I'm still not sure we're talking about the same thing :)
+On 12/18/2013 06:39 AM, Dmitry Torokhov wrote:
+> Hi Chris,
+>
+> On Tue, Dec 17, 2013 at 12:16:01PM -0800, Christopher Heiny wrote:
+>> This patch fixes two bugs in handling of the RMI4 attention line GPIO.
+>>
+>> 1) in enable_sensor(), make sure the attn_gpio is defined before attempting to
+>> get its value.
+>>
+>> 2) in rmi_driver_probe(), declare the name of the attn_gpio, then
+>> request the attn_gpio before attempting to export it.
+>>
+>> Also introduces a GPIO_LABEL constant for identifying the attention GPIO.
+>>
+>
+> I was looking at the patch some more and I have some concerns with it.
+>
+>> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>>
+>> ---
+>>
+>>   drivers/input/rmi4/rmi_driver.c | 28 +++++++++++++++++-----------
+>>   1 file changed, 17 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+>> index a30c7d3..33fb8f8 100644
+>> --- a/drivers/input/rmi4/rmi_driver.c
+>> +++ b/drivers/input/rmi4/rmi_driver.c
+>> @@ -169,7 +169,7 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+>>
+>>   	data->enabled = true;
+>>
+>> -	if (!pdata->level_triggered &&
+>> +	if (pdata->attn_gpio && !pdata->level_triggered &&
+>
+> O is perfectly fine GPIO number, you want to use gpio_is_valid() hete. I
+> also wonder why do you need such elaborate check. Can we simply "flush"
+> device before enabling interrupts?
 
-Hmm, it appears you are right ;)
+Hmmm.  gpio_is_valid() is a good suggestion.  However, I think we can do 
+away with the whole check on the ATTN gpio, and just call 
+process_interrupt_requests().  That will both flush the state and handle 
+any important pending events.  In the typical use case for 
+enable_sensor(), the RMI4 device will either be just coming up or else 
+coming out of a diagnostic mode, and there will at least be a status 
+event to handle.  In the off-case where there is nothing pending (that 
+is, ATTN not asserted), the overhead is pretty low - just a quick read 
+of the interrupt status register.
 
-> let me rephrase: why can't we use the behaviour bits_to_user() provides?
-> it limits the output to maxlen and returns that value (or -EFAULT), it's
-> only a small step from that to limit the output to min(maxbit, ABS_CNT2).
+>
+>>   		    gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity)
+>>   		retval = process_interrupt_requests(rmi_dev);
+>>
+>> @@ -807,6 +807,8 @@ static int rmi_driver_remove(struct device *dev)
+>>   	return 0;
+>>   }
+>>
+>> +static const char GPIO_LABEL[] = "attn";
+>> +
+>>   static int rmi_driver_probe(struct device *dev)
+>>   {
+>>   	struct rmi_driver *rmi_driver;
+>> @@ -959,20 +961,24 @@ static int rmi_driver_probe(struct device *dev)
+>>   	}
+>>
+>>   	if (IS_ENABLED(CONFIG_RMI4_DEV) && pdata->attn_gpio) {
+>> -		retval = gpio_export(pdata->attn_gpio, false);
+>> +		retval = gpio_request(pdata->attn_gpio, GPIO_LABEL);
+>
+> Here it is too late to request GPIO. You have been converting it to IRQ,
+> enabling that IRQ and calling gpio_get_value() so GPIO should have
+> already been requested by now.
+>
+> So you need to move this code up.
 
-OK, makes sense.
+I'll give that a try.
 
--- 
-Dmitry
+
+ > You may also consider using
+> gpio_request_one() and use GPIOF_EXPORT flag if you want to export it.
+> It would also be nice to set the direction (GPIOF_DIR_IN).
+
+Both of these are good ideas.
+
+
+> I also do not see matching call to gpio_free() in remove().
+
+Neither do I :-(.
+
+We'll update.
+
+
+>
+>>   		if (retval) {
+>> -			dev_warn(dev, "WARNING: Failed to export ATTN gpio!\n");
+>> -			retval = 0;
+>> +			dev_warn(dev, "WARNING: Failed to request ATTN gpio %d, code: %d.\n",
+>> +				pdata->attn_gpio, retval);
+>>   		} else {
+>> -			retval = gpio_export_link(dev,
+>> -						  "attn", pdata->attn_gpio);
+>> +			retval = gpio_export(pdata->attn_gpio, false);
+>>   			if (retval) {
+>> -				dev_warn(dev,
+>> -					"WARNING: Failed to symlink ATTN gpio!\n");
+>> -				retval = 0;
+>> +				dev_warn(dev, "WARNING: Failed to export ATTN gpio %d, code: %d.\n",
+>> +					pdata->attn_gpio, retval);
+>>   			} else {
+>> -				dev_info(dev, "Exported ATTN GPIO %d.",
+>> -					pdata->attn_gpio);
+>> +				retval = gpio_export_link(dev, GPIO_LABEL,
+>> +							  pdata->attn_gpio);
+>> +				if (retval)
+>> +					dev_warn(dev,
+>> +						"WARNING: Failed to symlink ATTN gpio!\n");
+>> +				else
+>> +					dev_info(dev, "Exported ATTN GPIO %d.",
+>> +						pdata->attn_gpio);
+>>   			}
+>>   		}
+>>   	}
+>
+> Thanks.
+>

@@ -1,106 +1,98 @@
-From: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] Bluetooth: hidp: make sure input buffers are big enough
-Date: Thu, 19 Dec 2013 12:09:32 +0100
-Message-ID: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to memdup
+Date: Thu, 19 Dec 2013 12:22:30 +0100
+Message-ID: <CANq1E4R3LSx7pYncZ1dWf-BYY5gvC15=AjhFvurFqp0jaTUqYg@mail.gmail.com>
+References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda>
+ <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda>
+ <5237A5D5.8010006@canonical.com>
+ <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz>
+ <52432152.3030100@canonical.com>
+ <alpine.LNX.2.00.1309271250130.18703@pobox.suse.cz>
+ <52459942.3020600@canonical.com>
+ <alpine.LNX.2.00.1312161401100.12882@pobox.suse.cz>
+ <CANq1E4QriATWbfruwj7oVnEBHvtLe_s2yhSSU5COXFjomt5R_A@mail.gmail.com>
+ <alpine.LNX.2.00.1312191058100.28730@pobox.suse.cz>
+ <CANq1E4RuteNfo23DQ5SvGXpsrpTmotLoJ6Wv1L8hAbE1ict6aA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <CANq1E4RuteNfo23DQ5SvGXpsrpTmotLoJ6Wv1L8hAbE1ict6aA@mail.gmail.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Joseph Salisbury <joseph.salisbury@canonical.com>, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, Dan Carpenter <dan.carpenter@oracle.com>, HID CORE LAYER <linux-input@vger.kernel.org>, "driverdev-devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, thomas@m3y3r.de
 List-Id: linux-input@vger.kernel.org
 
-HID core expects the input buffers to be at least of size 4096
-(HID_MAX_BUFFER_SIZE). Other sizes will result in buffer-overflows if an
-input-report is smaller than advertised. We could, like i2c, compute the
-biggest report-size instead of using HID_MAX_BUFFER_SIZE, but this will
-blow up if report-descriptors are changed after ->start() has been called.
-So lets be safe and just use the biggest buffer we have.
-
-Note that this adds an additional copy to the HIDP input path. If there is
-a way to make sure the skb-buf is big enough, we should use that instead.
-
-The best way would be to make hid-core honor the @size argument, though,
-that sounds easier than it is. So lets just fix the buffer-overflows for
-now and afterwards look for a faster way for all transport drivers.
-
-Signed-off-by: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
 Hi
 
-Any ideas how to improve this patch? I'd like to avoid the extra copy but I have
-no clue how the skb stuff works exactly.
+On Thu, Dec 19, 2013 at 11:08 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
+>
+> On Thu, Dec 19, 2013 at 10:59 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> On Thu, 19 Dec 2013, David Herrmann wrote:
+>>
+>>> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>>> > index 253fe23..81eacd3 100644
+>>> > --- a/drivers/hid/hid-core.c
+>>> > +++ b/drivers/hid/hid-core.c
+>>> > @@ -1334,7 +1334,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+>>> >                 csize--;
+>>> >         }
+>>> >
+>>> > -       rsize = ((report->size - 1) >> 3) + 1;
+>>> > +       rsize = ((report->size - 1) >> 3) + 1 + (report->id > 0) + 7;
+>>>
+>>> Isn't "report->id" already covered by "if (report_enum->numbered)"
+>>> above? The test for "id > 0" won't work here as in this case
+>>> "report_enum->numbered" must already be set to true by the hid-desc
+>>> parser, doesn't it?
+>>
+>> Right, that one is not correct here, thanks.
+>>
+>>> Where exactly did you get the +7 from?
+>>
+>> Please see commit (the one I am not really proud of) 27ce405039bfe6d3.
+>
+> Eh, I remember.. Ok, but the magic-mouse is BT right? So this commit
+> really breaks BT drivers:
+>
+> commit b1a1442a23776756b254b69786848a94d92445ba
+> Author: Jiri Kosina <jkosina@suse.cz>
+> Date:   Mon Jun 3 11:27:48 2013 +0200
+>
+>     HID: core: fix reporting of raw events
+>
+> Problem is, if the raw_event() callback returned 0 earlier, we just
+> skipped raw input reports. However, we now always call the
+> hid_report_raw_event() helper. Which is normally fine, but the helper
+> expects the input buffer to be of size HID_MAX_REPORT_SIZE, which is
+> *not* true for HIDP. So the memset() writes over some random memory.
+>
+> I don't know exactly how to fix it. HID_MAX_BUFFER_SIZE is too big to
+> be allocated on the stack, but we're in atomic-context here so a
+> kzalloc(rsize, GFP_ATOMIC) seems overkill. So I guess we'd have to
+> look into HIDP to make the skb big enough, but I'm not sure how we can
+> achieve that.
+>
+> So off the top of my head, the best idea is to add "char
+> inbuf[HID_MAX_BUFFER_SIZE];" to the hidp_session object in HIDP and
+> copy every input-report into the buffer before passing to
+> hid_input_report().
 
-I also haven't figured out a nice way to make HID-core honor the "size"
-parameter. hid-input depends on getting the whole input-report.
+As this thread doesn't really contain any oops message nor the exact
+driver name (except mentioning hyperv and magicmouse), I fixed a
+related bug for HIDP:
+  http://thread.gmane.org/gmane.linux.bluez.kernel/41969
 
-Comments welcome!
+A similar patch is *really* required for hid-hyperv.c as it also does
+not provide a properly sized buffer to hid_input_report().
+
 David
-
- net/bluetooth/hidp/core.c | 16 ++++++++++++++--
- net/bluetooth/hidp/hidp.h |  4 ++++
- 2 files changed, 18 insertions(+), 2 deletions(-)
-
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index 292e619..d9fb934 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -430,6 +430,16 @@ static void hidp_del_timer(struct hidp_session *session)
- 		del_timer(&session->timer);
- }
- 
-+static void hidp_process_report(struct hidp_session *session,
-+				int type, const u8 *data, int len, int intr)
-+{
-+	if (len > HID_MAX_BUFFER_SIZE)
-+		len = HID_MAX_BUFFER_SIZE;
-+
-+	memcpy(session->input_buf, data, len);
-+	hid_input_report(session->hid, type, session->input_buf, len, intr);
-+}
-+
- static void hidp_process_handshake(struct hidp_session *session,
- 					unsigned char param)
- {
-@@ -502,7 +512,8 @@ static int hidp_process_data(struct hidp_session *session, struct sk_buff *skb,
- 			hidp_input_report(session, skb);
- 
- 		if (session->hid)
--			hid_input_report(session->hid, HID_INPUT_REPORT, skb->data, skb->len, 0);
-+			hidp_process_report(session, HID_INPUT_REPORT,
-+					    skb->data, skb->len, 0);
- 		break;
- 
- 	case HIDP_DATA_RTYPE_OTHER:
-@@ -584,7 +595,8 @@ static void hidp_recv_intr_frame(struct hidp_session *session,
- 			hidp_input_report(session, skb);
- 
- 		if (session->hid) {
--			hid_input_report(session->hid, HID_INPUT_REPORT, skb->data, skb->len, 1);
-+			hidp_process_report(session, HID_INPUT_REPORT,
-+					    skb->data, skb->len, 1);
- 			BT_DBG("report len %d", skb->len);
- 		}
- 	} else {
-diff --git a/net/bluetooth/hidp/hidp.h b/net/bluetooth/hidp/hidp.h
-index ab52414..8798492 100644
---- a/net/bluetooth/hidp/hidp.h
-+++ b/net/bluetooth/hidp/hidp.h
-@@ -24,6 +24,7 @@
- #define __HIDP_H
- 
- #include <linux/types.h>
-+#include <linux/hid.h>
- #include <linux/kref.h>
- #include <net/bluetooth/bluetooth.h>
- #include <net/bluetooth/l2cap.h>
-@@ -179,6 +180,9 @@ struct hidp_session {
- 
- 	/* Used in hidp_output_raw_report() */
- 	int output_report_success; /* boolean */
-+
-+	/* temporary input buffer */
-+	u8 input_buf[HID_MAX_BUFFER_SIZE];
- };
- 
- /* HIDP init defines */
--- 
-1.8.5.1

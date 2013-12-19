@@ -1,259 +1,162 @@
-From: Roger Quadros <rogerq@ti.com>
-Subject: Re: [PATCH 1/9] Input: pixcir_i2c_ts: Add device tree support
-Date: Thu, 19 Dec 2013 11:42:57 +0530
-Message-ID: <52B28E69.3030703@ti.com>
-References: <1387358480-8313-1-git-send-email-rogerq@ti.com> <1387358480-8313-2-git-send-email-rogerq@ti.com> <20131218140918.GA28504@core.coreip.homeip.net>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 5/5] mfd: input: iio: ti_amm335x: rework TSC/ADC
+ synchronisation
+Date: Thu, 19 Dec 2013 08:42:06 +0000
+Message-ID: <20131219084206.GC2621@lee--X1>
+References: <1387385577-24447-1-git-send-email-bigeasy@linutronix.de>
+ <1387385577-24447-6-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:60115 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750807Ab3LSGNL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Dec 2013 01:13:11 -0500
-In-Reply-To: <20131218140918.GA28504@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1387385577-24447-6-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: rydberg@euromail.se, jcbian@pixcir.com.cn, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On 12/18/2013 07:39 PM, Dmitry Torokhov wrote:
-> Hi Roger,
-> 
-> On Wed, Dec 18, 2013 at 02:51:12PM +0530, Roger Quadros wrote:
->> Provide device tree support and binding information.
->> Change platform data parameters from x/y_max to x/y_size..
-> 
-> I'd rather keep them as they were.
+> The ADC driver always programms all possible ADC values and discards
+> them except for the value IIO asked for. On the am335x-evm the driver
+> programs four values and it takes 500us to gather them. Reducing the =
+number
+> of coversations down to (required) one also reduces the busy loop dow=
+n to
+> 125us.
+> This leads to another error, namely the FIFOCOUNT register is sometim=
+es
+> (like one out of 10 attempts) not updated in time leading to timeouts=
+=2E
+> The next read has the fifocount register updated.
+> Checking for the ADCStatus status register for beeing idle isn't a go=
+od
+> choice either. The problem is that it often times out if the TSC is u=
+sed
+> at the same time. The problem is that the HW compelted the conversato=
+n for
+> the ADC *and* before the driver noticed it, the HW began to perfom a
+> TSC conversation and so the driver never seen the HW idle. The next t=
+ime
+> we would have two values in the fifo but since the driver reads
+> everything we always see the current one.
+> So instead of polling for the IDLE bit, we check for the fifocount. I=
+t
+> should be one instead of zero because we request one value.
+> This change in turn lead to another error :) Sometimes if TSC & ADC a=
+re
+> used together the TSC starts becomming interrupts even if nobody
+> actually touched the touchscreen. The interrupts are valid because TS=
+C's
+> fifo is filled with values. This condition stops after a few ADC read=
+s but
+> will occur once TSC & ADC are used at the same time. So not good.
+>=20
+> On top of this (even without the changes I just mentioned) there is a=
+ ADC
+> & TSC lockup condition which was reported to my Jeff Lance including =
+a test
+> case:
+> A busyloop of loop of "cat /sys/bus/iio/devices/iio\:device0/in_volta=
+ge4_raw"
+> and a mug on touch screen. Whith this setup, the hardware will lockup=
+ after
+> something between 20min and it could take up to a couple of hours. Du=
+ring that
+> lockup, the ADCSTAT says 0x30 (or 0x70) which means STEP_ID =3D IDLE =
+and
+> FSM_BUSY =3D yes. That means it says that it is idle and busy at the =
+same
+> time which is an invalid condition.
+>=20
+> For all this reasons I decided to rework this TSC/ADC part and add a
+> handshake / synchronisation here:
+> First the ADC signals that it needs the HW and writes a 0 mask into t=
+he
+> SE register. The HW (if active) will complete the current conversatio=
+n
+> and become idle. The TSC driver will gather the values from the FIFO
+> (woken up by an interrupt) and won't "enable" another conversation.
+> Instead it will wake up the ADC driver which is already waiting. The =
+ADC
+> driver will start "its" converstation and once it is done, it will
+> enable the TSC events so the TSC will work again.
 
-OK.
+Spell check this entire block.
 
-> 
->>
->> Signed-off-by: Roger Quadros <rogerq@ti.com>
->> Acked-by: Mugunthan V N <mugunthanvnm@ti.com>
->> ---
->>  .../bindings/input/touchscreen/pixcir_i2c_ts.txt   | 26 ++++++++
->>  drivers/input/touchscreen/pixcir_i2c_ts.c          | 77 ++++++++++++++++++++--
->>  include/linux/input/pixcir_ts.h                    |  5 +-
->>  3 files changed, 101 insertions(+), 7 deletions(-)
->>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
->>
->> diff --git a/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
->> new file mode 100644
->> index 0000000..c0b0b270
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/touchscreen/pixcir_i2c_ts.txt
->> @@ -0,0 +1,26 @@
->> +* Pixcir I2C touchscreen controllers
->> +
->> +Required properties:
->> +- compatible: must be "pixcir,pixcir_ts"
->> +- reg: I2C address of the chip
->> +- interrupts: interrupt to which the chip is connected
->> +- attb-gpio: GPIO connected to the ATTB line of the chip
->> +- x-size: horizontal resolution of touchscreen
->> +- y-size: vertical resolution of touchscreen
->> +
->> +Example:
->> +
->> +	i2c@00000000 {
->> +		/* ... */
->> +
->> +		pixcir_ts@5c {
->> +			compatible = "pixcir,pixcir_ts";
->> +			reg = <0x5c>;
->> +			interrupts = <2 0>;
->> +			attb-gpio = <&gpf 2 0 2>;
->> +			x-size = <800>;
->> +			y-size = <600>;
->> +		};
->> +
->> +		/* ... */
->> +	};
->> diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
->> index 6cc6b36..3a447c9 100644
->> --- a/drivers/input/touchscreen/pixcir_i2c_ts.c
->> +++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
->> @@ -24,6 +24,10 @@
->>  #include <linux/i2c.h>
->>  #include <linux/input.h>
->>  #include <linux/input/pixcir_ts.h>
->> +#include <linux/gpio.h>
->> +#include <linux/of.h>
->> +#include <linux/of_gpio.h>
->> +#include <linux/of_device.h>
->>  
->>  struct pixcir_i2c_ts_data {
->>  	struct i2c_client *client;
->> @@ -125,15 +129,65 @@ static int pixcir_i2c_ts_resume(struct device *dev)
->>  static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
->>  			 pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
->>  
->> +#if defined(CONFIG_OF)
-> 
-> #ifdef is preferred for simple conditions.
-> 
->> +static const struct of_device_id pixcir_of_match[];
->> +
->> +static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
->> +{
->> +	struct pixcir_ts_platform_data *pdata;
->> +	struct device_node *np = dev->of_node;
->> +	const struct of_device_id *match;
->> +
->> +	match = of_match_device(of_match_ptr(pixcir_of_match), dev);
->> +	if (!match)
->> +		return ERR_PTR(-EINVAL);
-> 
-> Why do you need an explicit match here?
-> 
+Smileys in commit messages are generally a bad idea.
 
-Right, it is not needed here for this patch but used later in patch 6
-to get chip specific data. I'll fix this while re-arranging the patches.
+Please insert '\n's between paragraphs.
 
->> +
->> +	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
->> +	if (!pdata)
->> +		return ERR_PTR(-ENOMEM);
->> +
->> +	pdata->gpio_attb = of_get_named_gpio(np, "attb-gpio", 0);
->> +	if (!gpio_is_valid(pdata->gpio_attb))
->> +		dev_err(dev, "Failed to get ATTB GPIO\n");
->> +
->> +	if (of_property_read_u32(np, "x-size", &pdata->x_size)) {
->> +		dev_err(dev, "Failed to get x-size property\n");
->> +		return ERR_PTR(-EINVAL);
->> +	}
->> +
->> +	if (of_property_read_u32(np, "y-size", &pdata->y_size)) {
->> +		dev_err(dev, "Failed to get y-size property\n");
->> +		return ERR_PTR(-EINVAL);
->> +	}
->> +
->> +	dev_dbg(dev, "%s: x %d, y %d, gpio %d\n", __func__,
->> +				pdata->x_size, pdata->y_size, pdata->gpio_attb);
->> +
->> +	return pdata;
->> +}
->> +#else
->> +static struct pixcir_ts_platform_data *pixcir_parse_dt(struct device *dev)
->> +{
->> +	return NULL;
-> 
-> This should be
-> 
-> 	return ERR_PTR(-EINVAL);
-> 
-> since you test it with IS_ERR() later.
+Proof read, as some of the sentences are not comprehensible.
 
-OK.
+/* MFD Parts */
 
-> 
->> +}
->> +#endif
->> +
->>  static int pixcir_i2c_ts_probe(struct i2c_client *client,
->>  					 const struct i2c_device_id *id)
->>  {
->>  	const struct pixcir_ts_platform_data *pdata = client->dev.platform_data;
->> +	struct device *dev = &client->dev;
->> +	struct device_node *np = dev->of_node;
->>  	struct pixcir_i2c_ts_data *tsdata;
->>  	struct input_dev *input;
->>  	int error;
->>  
->> -	if (!pdata) {
->> +	if (np) {
->> +		pdata = pixcir_parse_dt(dev);
->> +		if (IS_ERR(pdata))
->> +			return PTR_ERR(pdata);
-> 
-> We should be favoring kernel-provided platform data if it is pesent even
-> if there is dt-data available. This way user can override firmware,m if
-> needed.
-> 
-OK. But how can the user override kernel provided platform data? Can't device
-tree overlays be used to patch DT data in the same fashion.
+> --- a/drivers/mfd/ti_am335x_tscadc.c
+> +++ b/drivers/mfd/ti_am335x_tscadc.c
+> @@ -24,6 +24,7 @@
 
-I've not tried either so I don't know which one is more user friendly.
+> -static void am335x_tsc_se_update(struct ti_tscadc_dev *tsadc)
+> +void am335x_tsc_se_set(struct ti_tscadc_dev *tsadc, u32 val)
+>  {
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&tsadc->reg_lock, flags);
+> +	tsadc->reg_se_cache |=3D val;
+>  	tscadc_writel(tsadc, REG_SE, tsadc->reg_se_cache);
+> +	spin_unlock_irqrestore(&tsadc->reg_lock, flags);
+>  }
+> +EXPORT_SYMBOL_GPL(am335x_tsc_se_set);
+> =20
+> -void am335x_tsc_se_set(struct ti_tscadc_dev *tsadc, u32 val)
+> +void am335x_tsc_se_tsc_set(struct ti_tscadc_dev *tsadc, u32 val)
 
->> +
->> +	} else if (!pdata) {
->>  		dev_err(&client->dev, "platform data not defined\n");
->>  		return -EINVAL;
->>  	}
->> @@ -157,10 +211,14 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
->>  	__set_bit(EV_KEY, input->evbit);
->>  	__set_bit(EV_ABS, input->evbit);
->>  	__set_bit(BTN_TOUCH, input->keybit);
->> -	input_set_abs_params(input, ABS_X, 0, pdata->x_max, 0, 0);
->> -	input_set_abs_params(input, ABS_Y, 0, pdata->y_max, 0, 0);
->> -	input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
->> -	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, pdata->y_max, 0, 0);
->> +	input_set_abs_params(input, ABS_X,
->> +					0, pdata->x_size - 1, 0, 0);
->> +	input_set_abs_params(input, ABS_Y,
->> +					0, pdata->y_size - 1, 0, 0);
->> +	input_set_abs_params(input, ABS_MT_POSITION_X,
->> +					0, pdata->x_size - 1, 0, 0);
->> +	input_set_abs_params(input, ABS_MT_POSITION_Y,
->> +					0, pdata->y_size - 1, 0, 0);
->>  
->>  	input_set_drvdata(input, tsdata);
->>  
->> @@ -211,11 +269,20 @@ static const struct i2c_device_id pixcir_i2c_ts_id[] = {
->>  };
->>  MODULE_DEVICE_TABLE(i2c, pixcir_i2c_ts_id);
->>  
->> +#if defined(CONFIG_OF)
->> +static const struct of_device_id pixcir_of_match[] = {
->> +	{ .compatible = "pixcir,pixcir_ts", },
->> +	{ }
->> +};
->> +MODULE_DEVICE_TABLE(of, pixcir_of_match);
->> +#endif
-> 
-> #ifdef is preferred for simple conditions.
-> 
-OK.
+What's the difference between:
 
->> +
->>  static struct i2c_driver pixcir_i2c_ts_driver = {
->>  	.driver = {
->>  		.owner	= THIS_MODULE,
->>  		.name	= "pixcir_ts",
->>  		.pm	= &pixcir_dev_pm_ops,
->> +		.of_match_table = of_match_ptr(pixcir_of_match),
->>  	},
->>  	.probe		= pixcir_i2c_ts_probe,
->>  	.remove		= pixcir_i2c_ts_remove,
->> diff --git a/include/linux/input/pixcir_ts.h b/include/linux/input/pixcir_ts.h
->> index 7163d91..b34ff7e 100644
->> --- a/include/linux/input/pixcir_ts.h
->> +++ b/include/linux/input/pixcir_ts.h
->> @@ -3,8 +3,9 @@
->>  
->>  struct pixcir_ts_platform_data {
->>  	int (*attb_read_val)(void);
->> -	int x_max;
->> -	int y_max;
->> +	unsigned int x_size;	/* X axis resolution */
->> +	unsigned int y_size;	/* Y axis resolution */
->> +	int gpio_attb;		/* GPIO connected to ATTB line */
->>  };
-> 
-> OK, it looks like the series were split awkwardly: you are defining data
-> that is used by follow-up patches and its purpose is unclear when
-> reviewing patch-by-patch. I'd recommend rearranging so that DT support
-> patch is the very last in the series.
-> 
-Got it.
+am335x_tsc_se_set()
+and
+am335x_tsc_se_tsc_set()
 
->>  
->>  #endif
->> -- 
->> 1.8.3.2
+Why don't you have a am335x_tsc_se_tsc_set_tsc_se_tsc_set() ;)
 
-cheers,
--roger
+Perhaps a better function name might be in order.
+
+>  {
+>  	unsigned long flags;
+> =20
+>  	spin_lock_irqsave(&tsadc->reg_lock, flags);
+> -	tsadc->reg_se_cache |=3D val;
+> -	am335x_tsc_se_update(tsadc);
+> +	tsadc->reg_se_cache =3D val;
+> +	if (tsadc->adc_in_use || tsadc->adc_waiting) {
+> +		if (tsadc->adc_waiting)
+> +			wake_up(&tsadc->reg_se_wait);
+
+So if we're either in-use or waiting, the step mask is never set?
+
+But I guess that the touchscreen driver assumes it has been set.
+
+Is this okay?
+
+> +	} else {
+> +		tscadc_writel(tsadc, REG_SE, val);
+> +	}
+
+I think this would be better represented as:
+
+        if (tsadc->adc_waiting)
+                wake_up(&tsadc->reg_se_wait);
+        else if (!tsadc->adc_in_use)
+                tscadc_writel(tsadc, REG_SE, val);
+
+>  	spin_unlock_irqrestore(&tsadc->reg_lock, flags);
+>  }
+> -EXPORT_SYMBOL_GPL(am335x_tsc_se_set);
+> +EXPORT_SYMBOL_GPL(am335x_tsc_se_tsc_set);
+
+<snip>
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog

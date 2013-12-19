@@ -1,71 +1,69 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: [PATCH] HID: hyperv: make sure input buffer is big enough
-Date: Thu, 19 Dec 2013 12:32:24 +0100
-Message-ID: <1387452744-8860-1-git-send-email-dh.herrmann@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f170.google.com ([209.85.215.170]:53082 "EHLO
-	mail-ea0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751465Ab3LSLdD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Dec 2013 06:33:03 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Jiang Liu <jiang.liu@linux.intel.com>
+Subject: [Patch v2 10/13] ACPI, i2c-hid: replace open-coded _DSM specific code with helper functions
+Date: Thu, 19 Dec 2013 20:38:19 +0800
+Message-ID: <1387456702-4709-11-git-send-email-jiang.liu@linux.intel.com>
+References: <1387456702-4709-1-git-send-email-jiang.liu@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1387456702-4709-1-git-send-email-jiang.liu@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Bjorn Helgaas <bhelgaas@google.com>, Lv Zheng <lv.zheng@intel.com>, Len Brown <lenb@kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jiang Liu <jiang.liu@linux.intel.com>, Tony Luck <tony.luck@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Dan Carpenter <dan.carpenter@oracle.com>, Joseph Salisbury <joseph.salisbury@canonical.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>
 
-We need at least HID_MAX_BUFFER_SIZE (4096) bytes as input buffer. HID
-core depends on this as it requires every input report to be at least as
-big as advertised.
+Use helper functions to simplify _DSM related code in i2c-hid driver.
 
-Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+Signed-off-by: Jiang Liu <jiang.liu@linux.intel.com>
 ---
-Hi
+ drivers/hid/i2c-hid/i2c-hid.c |   26 ++++++--------------------
+ 1 file changed, 6 insertions(+), 20 deletions(-)
 
-Same as for the HIDP patch, if there's a way to avoid the extra copy, please
-provide a better patch.
-
-Thanks
-David
-
- drivers/hid/hid-hyperv.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index 8fae6d1..c24908f 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -157,6 +157,7 @@ struct mousevsc_dev {
- 	u32			report_desc_size;
- 	struct hv_input_dev_info hid_dev_info;
- 	struct hid_device       *hid_device;
-+	u8			input_buf[HID_MAX_BUFFER_SIZE];
- };
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 5f7e55f..d22668f 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -850,37 +850,23 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
+ 		0xF7, 0xF6, 0xDF, 0x3C, 0x67, 0x42, 0x55, 0x45,
+ 		0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE,
+ 	};
+-	union acpi_object params[4];
+-	struct acpi_object_list input;
++	union acpi_object *obj;
+ 	struct acpi_device *adev;
+-	unsigned long long value;
+ 	acpi_handle handle;
  
+ 	handle = ACPI_HANDLE(&client->dev);
+ 	if (!handle || acpi_bus_get_device(handle, &adev))
+ 		return -ENODEV;
  
-@@ -256,6 +257,7 @@ static void mousevsc_on_receive(struct hv_device *device,
- 	struct synthhid_msg *hid_msg;
- 	struct mousevsc_dev *input_dev = hv_get_drvdata(device);
- 	struct synthhid_input_report *input_report;
-+	size_t len;
+-	input.count = ARRAY_SIZE(params);
+-	input.pointer = params;
+-
+-	params[0].type = ACPI_TYPE_BUFFER;
+-	params[0].buffer.length = sizeof(i2c_hid_guid);
+-	params[0].buffer.pointer = i2c_hid_guid;
+-	params[1].type = ACPI_TYPE_INTEGER;
+-	params[1].integer.value = 1;
+-	params[2].type = ACPI_TYPE_INTEGER;
+-	params[2].integer.value = 1; /* HID function */
+-	params[3].type = ACPI_TYPE_PACKAGE;
+-	params[3].package.count = 0;
+-	params[3].package.elements = NULL;
+-
+-	if (ACPI_FAILURE(acpi_evaluate_integer(handle, "_DSM", &input,
+-								&value))) {
++	obj = acpi_evaluate_dsm_typed(handle, i2c_hid_guid, 1, 1, NULL,
++				      ACPI_TYPE_INTEGER);
++	if (!obj) {
+ 		dev_err(&client->dev, "device _DSM execution failed\n");
+ 		return -ENODEV;
+ 	}
  
- 	pipe_msg = (struct pipe_prt_msg *)((unsigned long)packet +
- 						(packet->offset8 << 3));
-@@ -300,9 +302,12 @@ static void mousevsc_on_receive(struct hv_device *device,
- 			(struct synthhid_input_report *)pipe_msg->data;
- 		if (!input_dev->init_complete)
- 			break;
--		hid_input_report(input_dev->hid_device,
--				HID_INPUT_REPORT, input_report->buffer,
--				input_report->header.size, 1);
-+
-+		len = min(input_report->header.size,
-+			  (u32)sizeof(input_dev->input_buf));
-+		memcpy(input_dev->input_buf, input_report->buffer, len);
-+		hid_input_report(input_dev->hid_device, HID_INPUT_REPORT,
-+				 input_dev->input_buf, len, 1);
- 		break;
- 	default:
- 		pr_err("unsupported hid msg type - type %d len %d",
+-	pdata->hid_descriptor_address = value;
++	pdata->hid_descriptor_address = obj->integer.value;
++	ACPI_FREE(obj);
+ 
+ 	return 0;
+ }
 -- 
-1.8.5.1
-
+1.7.10.4

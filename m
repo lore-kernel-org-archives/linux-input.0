@@ -1,61 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
 Subject: Re: [PATCH 2/4] Input: introduce ABS_MAX2/CNT2 and friends
-Date: Wed, 18 Dec 2013 16:05:37 -0800
-Message-ID: <20131219000537.GA838@core.coreip.homeip.net>
+Date: Thu, 19 Dec 2013 10:25:42 +1000
+Message-ID: <20131219002542.GB6315@yabbi.redhat.com>
 References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
  <1387295334-1744-3-git-send-email-dh.herrmann@gmail.com>
  <20131218234009.GA9360@yabbi.redhat.com>
  <1950536.BXYYX85NB4@dtor-d630.eng.vmware.com>
  <20131218235504.GA17958@yabbi.redhat.com>
+ <20131219000537.GA838@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f49.google.com ([209.85.160.49]:55942 "EHLO
-	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751404Ab3LSAFm (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:10784 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753001Ab3LSAW6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Dec 2013 19:05:42 -0500
+	Wed, 18 Dec 2013 19:22:58 -0500
 Content-Disposition: inline
-In-Reply-To: <20131218235504.GA17958@yabbi.redhat.com>
+In-Reply-To: <20131219000537.GA838@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ospite@studenti.unina.it>, linux-kernel@vger.kernel.org, input-tools@lists.freedesktop.org
 
-On Thu, Dec 19, 2013 at 09:55:04AM +1000, Peter Hutterer wrote:
-> On Wed, Dec 18, 2013 at 03:48:37PM -0800, Dmitry Torokhov wrote:
-> > On Thursday, December 19, 2013 09:40:09 AM Peter Hutterer wrote:
-> > > > +     memset(&abs, 0, sizeof(abs));
-> > > > +     for (i = valid_cnt; i < cnt; ++i)
-> > > > +             if (copy_to_user(&pinfo->info[i], &abs, sizeof(abs)))
-> > > > +                     return -EFAULT;
-> > > > +
-> > > > +     return 0;
+On Wed, Dec 18, 2013 at 04:05:37PM -0800, Dmitry Torokhov wrote:
+> On Thu, Dec 19, 2013 at 09:55:04AM +1000, Peter Hutterer wrote:
+> > On Wed, Dec 18, 2013 at 03:48:37PM -0800, Dmitry Torokhov wrote:
+> > > On Thursday, December 19, 2013 09:40:09 AM Peter Hutterer wrote:
+> > > > > +     memset(&abs, 0, sizeof(abs));
+> > > > > +     for (i = valid_cnt; i < cnt; ++i)
+> > > > > +             if (copy_to_user(&pinfo->info[i], &abs, sizeof(abs)))
+> > > > > +                     return -EFAULT;
+> > > > > +
+> > > > > +     return 0;
+> > > > 
+> > > > why don't you return the number of valid copied axes to the user?
+> > > > that seems better even than forcing the remainder to 0.
 > > > 
-> > > why don't you return the number of valid copied axes to the user?
-> > > that seems better even than forcing the remainder to 0.
+> > > Well, if your program messed up buffers that it faulted we do not know
+> > > for sure if data that did not cause fault ended up where it should have
+> > > or if it smashed something else. This condition I think should be
+> > > signaled early.
 > > 
-> > Well, if your program messed up buffers that it faulted we do not know
-> > for sure if data that did not cause fault ended up where it should have
-> > or if it smashed something else. This condition I think should be
-> > signaled early.
+> > not 100% sure I understand but I wasn't proposing to remove the -EFAULT, i
+> > was proposing to replace "return 0" with "return valid_cnt".
 > 
-> not 100% sure I understand but I wasn't proposing to remove the -EFAULT, i
-> was proposing to replace "return 0" with "return valid_cnt".
+> I understand what you were saying. Now consider: your program supplied
+> buffer that is actually smaller than what it said to the kernel.
+> Depending on the exact placement we may or may not fault when we get
+> pass the buffer boundary, most likely not. We are likely to fault when
+> we go way past the buffer boundary and wracked process' memory. If we
+> return -EFAULT the program will at least notice that something wrong. If
+> we return count it will try to resubmit the remainder of operation and
+> not even know that there was something very bad happening.
+> 
+> IOW we should not treat fault condition as other partial read/write
+> conditions.
 
-I understand what you were saying. Now consider: your program supplied
-buffer that is actually smaller than what it said to the kernel.
-Depending on the exact placement we may or may not fault when we get
-pass the buffer boundary, most likely not. We are likely to fault when
-we go way past the buffer boundary and wracked process' memory. If we
-return -EFAULT the program will at least notice that something wrong. If
-we return count it will try to resubmit the remainder of operation and
-not even know that there was something very bad happening.
+I'm still not sure we're talking about the same thing :)
+let me rephrase: why can't we use the behaviour bits_to_user() provides?
+it limits the output to maxlen and returns that value (or -EFAULT), it's
+only a small step from that to limit the output to min(maxbit, ABS_CNT2).
 
-IOW we should not treat fault condition as other partial read/write
-conditions.
+Cheers,
+   Peter
 
-Thanks.
-
--- 
-Dmitry
+ 

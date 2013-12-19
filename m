@@ -1,118 +1,106 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: Re: [PATCH 5/5] mfd: input: iio: ti_amm335x: rework TSC/ADC synchronisation
-Date: Thu, 19 Dec 2013 11:36:16 +0100
-Message-ID: <52B2CC20.8040308@linutronix.de>
-References: <1387385577-24447-1-git-send-email-bigeasy@linutronix.de> <1387385577-24447-6-git-send-email-bigeasy@linutronix.de> <20131219084206.GC2621@lee--X1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.linutronix.de ([62.245.132.108]:51147 "EHLO
-	Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751525Ab3LSKgY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Dec 2013 05:36:24 -0500
-In-Reply-To: <20131219084206.GC2621@lee--X1>
-Sender: linux-input-owner@vger.kernel.org
+From: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] Bluetooth: hidp: make sure input buffers are big enough
+Date: Thu, 19 Dec 2013 12:09:32 +0100
+Message-ID: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com>
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Zubair Lutfullah <zubair.lutfullah@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 12/19/2013 09:42 AM, Lee Jones wrote:
-> Spell check this entire block.
+HID core expects the input buffers to be at least of size 4096
+(HID_MAX_BUFFER_SIZE). Other sizes will result in buffer-overflows if an
+input-report is smaller than advertised. We could, like i2c, compute the
+biggest report-size instead of using HID_MAX_BUFFER_SIZE, but this will
+blow up if report-descriptors are changed after ->start() has been called.
+So lets be safe and just use the biggest buffer we have.
 
-will do.
+Note that this adds an additional copy to the HIDP input path. If there is
+a way to make sure the skb-buf is big enough, we should use that instead.
 
-> Smileys in commit messages are generally a bad idea.
+The best way would be to make hid-core honor the @size argument, though,
+that sounds easier than it is. So lets just fix the buffer-overflows for
+now and afterwards look for a faster way for all transport drivers.
 
-will drop.
+Signed-off-by: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+Hi
 
-> Please insert '\n's between paragraphs.
+Any ideas how to improve this patch? I'd like to avoid the extra copy but I have
+no clue how the skb stuff works exactly.
 
-Okay.
+I also haven't figured out a nice way to make HID-core honor the "size"
+parameter. hid-input depends on getting the whole input-report.
 
-> Proof read, as some of the sentences are not comprehensible.
+Comments welcome!
+David
 
-I am going to retry.
+ net/bluetooth/hidp/core.c | 16 ++++++++++++++--
+ net/bluetooth/hidp/hidp.h |  4 ++++
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
-> /* MFD Parts */
-> 
->> --- a/drivers/mfd/ti_am335x_tscadc.c
->> +++ b/drivers/mfd/ti_am335x_tscadc.c
->> @@ -24,6 +24,7 @@
-> 
->> -static void am335x_tsc_se_update(struct ti_tscadc_dev *tsadc)
->> +void am335x_tsc_se_set(struct ti_tscadc_dev *tsadc, u32 val)
->>  {
->> +	unsigned long flags;
->> +
->> +	spin_lock_irqsave(&tsadc->reg_lock, flags);
->> +	tsadc->reg_se_cache |= val;
->>  	tscadc_writel(tsadc, REG_SE, tsadc->reg_se_cache);
->> +	spin_unlock_irqrestore(&tsadc->reg_lock, flags);
->>  }
->> +EXPORT_SYMBOL_GPL(am335x_tsc_se_set);
->>  
->> -void am335x_tsc_se_set(struct ti_tscadc_dev *tsadc, u32 val)
->> +void am335x_tsc_se_tsc_set(struct ti_tscadc_dev *tsadc, u32 val)
-> 
-> What's the difference between:
-> 
-> am335x_tsc_se_set()
-> and
-> am335x_tsc_se_tsc_set()
-
-The code is the same. I tried to avoid to call the function with the
-tsc in its name from the adc part. The continuous mode is still using
-this interface because its content has to remain while the TSC is
-updating the register. Only the write of the ADC in single-shot-mode is
-used as a "one-time-thing" and not required later.
-
-> Why don't you have a am335x_tsc_se_tsc_set_tsc_se_tsc_set() ;)
-> 
-> Perhaps a better function name might be in order.
-
-the am335x_tsc is the namespace. se the register followed by the user
-which is tsc or adc but I know what you mean. I will try to replace it
-with _cached and _once so we get rid of the part where is twice in the
-name of the function.
-
-> 
->>  {
->>  	unsigned long flags;
->>  
->>  	spin_lock_irqsave(&tsadc->reg_lock, flags);
->> -	tsadc->reg_se_cache |= val;
->> -	am335x_tsc_se_update(tsadc);
->> +	tsadc->reg_se_cache = val;
->> +	if (tsadc->adc_in_use || tsadc->adc_waiting) {
->> +		if (tsadc->adc_waiting)
->> +			wake_up(&tsadc->reg_se_wait);
-> 
-> So if we're either in-use or waiting, the step mask is never set?
-> 
-> But I guess that the touchscreen driver assumes it has been set.
-> 
-> Is this okay?
-
-Yes this is okay because the ADC driver is waiting to use it
-exclusively. The ADC driver invokes am335x_tsc_se_adc_done() once it is
-done so TSC's mask which is saved here will then be written to the
-register.
-
-> 
->> +	} else {
->> +		tscadc_writel(tsadc, REG_SE, val);
->> +	}
-> 
-> I think this would be better represented as:
-> 
->         if (tsadc->adc_waiting)
->                 wake_up(&tsadc->reg_se_wait);
->         else if (!tsadc->adc_in_use)
->                 tscadc_writel(tsadc, REG_SE, val);
-
-I think that looks fine. I will double check it and take your proposal
-if nothing goes wrong.
-
-Sebastian
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 292e619..d9fb934 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -430,6 +430,16 @@ static void hidp_del_timer(struct hidp_session *session)
+ 		del_timer(&session->timer);
+ }
+ 
++static void hidp_process_report(struct hidp_session *session,
++				int type, const u8 *data, int len, int intr)
++{
++	if (len > HID_MAX_BUFFER_SIZE)
++		len = HID_MAX_BUFFER_SIZE;
++
++	memcpy(session->input_buf, data, len);
++	hid_input_report(session->hid, type, session->input_buf, len, intr);
++}
++
+ static void hidp_process_handshake(struct hidp_session *session,
+ 					unsigned char param)
+ {
+@@ -502,7 +512,8 @@ static int hidp_process_data(struct hidp_session *session, struct sk_buff *skb,
+ 			hidp_input_report(session, skb);
+ 
+ 		if (session->hid)
+-			hid_input_report(session->hid, HID_INPUT_REPORT, skb->data, skb->len, 0);
++			hidp_process_report(session, HID_INPUT_REPORT,
++					    skb->data, skb->len, 0);
+ 		break;
+ 
+ 	case HIDP_DATA_RTYPE_OTHER:
+@@ -584,7 +595,8 @@ static void hidp_recv_intr_frame(struct hidp_session *session,
+ 			hidp_input_report(session, skb);
+ 
+ 		if (session->hid) {
+-			hid_input_report(session->hid, HID_INPUT_REPORT, skb->data, skb->len, 1);
++			hidp_process_report(session, HID_INPUT_REPORT,
++					    skb->data, skb->len, 1);
+ 			BT_DBG("report len %d", skb->len);
+ 		}
+ 	} else {
+diff --git a/net/bluetooth/hidp/hidp.h b/net/bluetooth/hidp/hidp.h
+index ab52414..8798492 100644
+--- a/net/bluetooth/hidp/hidp.h
++++ b/net/bluetooth/hidp/hidp.h
+@@ -24,6 +24,7 @@
+ #define __HIDP_H
+ 
+ #include <linux/types.h>
++#include <linux/hid.h>
+ #include <linux/kref.h>
+ #include <net/bluetooth/bluetooth.h>
+ #include <net/bluetooth/l2cap.h>
+@@ -179,6 +180,9 @@ struct hidp_session {
+ 
+ 	/* Used in hidp_output_raw_report() */
+ 	int output_report_success; /* boolean */
++
++	/* temporary input buffer */
++	u8 input_buf[HID_MAX_BUFFER_SIZE];
+ };
+ 
+ /* HIDP init defines */
+-- 
+1.8.5.1

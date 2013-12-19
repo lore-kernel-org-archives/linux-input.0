@@ -1,52 +1,166 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: input: fix input sysfs path for hid devices
-Date: Thu, 19 Dec 2013 11:05:13 -0500
-Message-ID: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [patch 3/3] HID: multitouch: add support of other generic collections in hid-mt
+Date: Thu, 19 Dec 2013 11:23:11 -0500
+Message-ID: <1387470191-9725-4-git-send-email-benjamin.tissoires@redhat.com>
+References: <1387470191-9725-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:40799 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752777Ab3LSQXV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Dec 2013 11:23:21 -0500
+In-Reply-To: <1387470191-9725-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Edel Maks <edelmaks@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-we used to set the parent of the input device as the parent of
-the hid bus. This was introduced when we created hid as a real bus, and
-to keep backward compatibility. Now, it's time to proper set the parent
-so that sysfs has an idea of which input device is attached to
-which hid device.
+The ANTEC Touch Pad is a device which can switch from a multitouch
+touchpad to a mouse. It thus presents several generic collections which
+are currently ignored by hid-multitouch. Enable them by using the generic
+protocol. Adding also a suffix for them depending on their application.
 
+Reported-by: Edel Maks <edelmaks@gmail.com>
+Tested-by: Edel Maks <edelmaks@gmail.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
+ drivers/hid/hid-ids.h        |  3 +++
+ drivers/hid/hid-multitouch.c | 43 ++++++++++++++++++++++++++++++++++++++++---
+ include/linux/hid.h          |  3 +++
+ 3 files changed, 46 insertions(+), 3 deletions(-)
 
-Hi Jiri,
-
-well, the regression test did not showed anything bad, and a look at the hid
-drivers also showed that no drivers should be armed by that.
-
-I think this is valuable because it will give a better understanding of the
-actual mapping hardware/inputs. Like a touchscreen with pen + touch will have
-the same hid parent, and I expect X/Wayland to be able to detect this at some
-point to keep the mapping correctly between the two input devices and the screen.
-
-I also need that for hid-replay, so that I can be sure which input is attached
-to which uhid device, and give up the heuristics I currently use.
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index d97f232..d50e731 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1279,7 +1279,7 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
- 	input_dev->id.vendor  = hid->vendor;
- 	input_dev->id.product = hid->product;
- 	input_dev->id.version = hid->version;
--	input_dev->dev.parent = hid->dev.parent;
-+	input_dev->dev.parent = &hid->dev;
- 	hidinput->input = input_dev;
- 	list_add_tail(&hidinput->list, &hid->inputs);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 2bf397f..4221494 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -67,6 +67,9 @@
+ #define USB_VENDOR_ID_ALPS		0x0433
+ #define USB_DEVICE_ID_IBM_GAMEPAD	0x1101
  
++#define USB_VENDOR_ID_ANTON		0x1130
++#define USB_DEVICE_ID_ANTON_TOUCH_PAD	0x3101
++
+ #define USB_VENDOR_ID_APPLE		0x05ac
+ #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE	0x0304
+ #define USB_DEVICE_ID_APPLE_MAGICMOUSE	0x030d
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 4dd6c6c..502e5bb 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -84,6 +84,7 @@ struct mt_class {
+ 	__s32 sn_pressure;	/* Signal/noise ratio for pressure events */
+ 	__u8 maxcontacts;
+ 	bool is_indirect;	/* true for touchpads */
++	bool export_all_inputs;	/* do not ignore mouse, keyboards, etc... */
+ };
+ 
+ struct mt_fields {
+@@ -217,6 +218,7 @@ static struct mt_protocol mt_protocol_ignore = { 0 };
+ #define MT_CLS_FLATFROG				0x0107
+ #define MT_CLS_GENERALTOUCH_TWOFINGERS		0x0108
+ #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
++#define MT_CLS_ANTON_TP				0x010a
+ 
+ #define MT_DEFAULT_MAXCONTACT	10
+ #define MT_MAX_MAXCONTACT	250
+@@ -329,13 +331,18 @@ static struct mt_class mt_classes[] = {
+ 		.quirks	= MT_QUIRK_NOT_SEEN_MEANS_UP |
+ 			MT_QUIRK_SLOT_IS_CONTACTID
+ 	},
+-
+ 	{ .name = MT_CLS_FLATFROG,
+ 		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
+ 			MT_QUIRK_NO_AREA,
+ 		.sn_move = 2048,
+ 		.maxcontacts = 40,
+ 	},
++	{ .name = MT_CLS_ANTON_TP,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_CONTACT_CNT_ACCURATE,
++		.is_indirect = true,
++		.export_all_inputs = true,
++	},
+ 	{ }
+ };
+ 
+@@ -846,10 +853,32 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+ 	unsigned report_id = field->report->id;
+ 
++	if (td->mtclass.export_all_inputs) {
++		td->protocols[report_id] = mt_protocol_generic;
++		switch (field->application) {
++		case HID_GD_KEYPAD:
++			td->protocols[report_id].suffix = "Keypad";
++			break;
++		case HID_GD_MOUSE:
++			td->protocols[report_id].suffix = "Mouse";
++			break;
++		case HID_DG_TOUCHSCREEN:
++			td->protocols[report_id].suffix = "Touchscreen";
++			break;
++		case HID_GD_SYSTEM_CONTROL:
++			td->protocols[report_id].suffix = "System Control";
++			break;
++		case HID_CP_CONSUMER_CONTROL:
++			td->protocols[report_id].suffix = "Consumer Control";
++			break;
++		}
++	}
++
+ 	/* Only map fields from TouchScreen or TouchPad collections.
+ 	* We need to ignore fields that belong to other collections
+ 	* such as Mouse that might have the same GenericDesktop usages. */
+-	if (field->application != HID_DG_TOUCHSCREEN &&
++	if (!td->mtclass.export_all_inputs &&
++	    field->application != HID_DG_TOUCHSCREEN &&
+ 	    field->application != HID_DG_PEN &&
+ 	    field->application != HID_DG_TOUCHPAD)
+ 		td->protocols[report_id] = mt_protocol_ignore;
+@@ -859,8 +888,11 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 
+ 	else if (field->application == HID_DG_TOUCHSCREEN ||
+ 	    field->application == HID_DG_PEN ||
+-	    field->application == HID_DG_TOUCHPAD)
++	    field->application == HID_DG_TOUCHPAD) {
+ 		td->protocols[report_id] = mt_protocol_touch;
++		if (td->mtclass.export_all_inputs)
++			td->protocols[report_id].suffix = "Touch";
++	}
+ 
+ 	if (td->protocols[report_id].input_mapping)
+ 		return td->protocols[report_id].input_mapping(hdev, hi,
+@@ -1128,6 +1160,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ACTIONSTAR,
+ 			USB_DEVICE_ID_ACTIONSTAR_1011) },
+ 
++	/* Anton Touch Pad */
++	{ .driver_data = MT_CLS_ANTON_TP,
++		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
++			USB_DEVICE_ID_ANTON_TOUCH_PAD) },
++
+ 	/* Atmel panels */
+ 	{ .driver_data = MT_CLS_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ATMEL,
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 31b9d29..2b2041a 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -201,6 +201,7 @@ struct hid_item {
+ #define HID_GD_VBRZ		0x00010045
+ #define HID_GD_VNO		0x00010046
+ #define HID_GD_FEATURE		0x00010047
++#define HID_GD_SYSTEM_CONTROL	0x00010080
+ #define HID_GD_UP		0x00010090
+ #define HID_GD_DOWN		0x00010091
+ #define HID_GD_RIGHT		0x00010092
+@@ -208,6 +209,8 @@ struct hid_item {
+ 
+ #define HID_DC_BATTERYSTRENGTH	0x00060020
+ 
++#define HID_CP_CONSUMER_CONTROL	0x000c0001
++
+ #define HID_DG_DIGITIZER	0x000d0001
+ #define HID_DG_PEN		0x000d0002
+ #define HID_DG_LIGHTPEN		0x000d0003
 -- 
 1.8.3.1
+

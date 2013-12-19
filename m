@@ -1,30 +1,26 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [v3.11][Regression] HID: hyperv: convert alloc+memcpy to
- memdup
-Date: Thu, 19 Dec 2013 13:59:42 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1312191358410.11852@pobox.suse.cz>
-References: <5237430B.5040009@canonical.com> <20130916203824.GP25896@mwanda> <52376ED9.5080208@canonical.com> <20130916210503.GQ25896@mwanda> <5237A5D5.8010006@canonical.com> <alpine.LNX.2.00.1309241129370.18703@pobox.suse.cz> <52432152.3030100@canonical.com>
- <alpine.LNX.2.00.1309271250130.18703@pobox.suse.cz> <52459942.3020600@canonical.com> <alpine.LNX.2.00.1312161401100.12882@pobox.suse.cz> <CANq1E4QriATWbfruwj7oVnEBHvtLe_s2yhSSU5COXFjomt5R_A@mail.gmail.com> <alpine.LNX.2.00.1312191058100.28730@pobox.suse.cz>
- <CANq1E4RuteNfo23DQ5SvGXpsrpTmotLoJ6Wv1L8hAbE1ict6aA@mail.gmail.com> <CANq1E4R3LSx7pYncZ1dWf-BYY5gvC15=AjhFvurFqp0jaTUqYg@mail.gmail.com>
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: am335x: IIO/ADC fixes if used together with TSC, v2
+Date: Thu, 19 Dec 2013 16:28:26 +0100
+Message-ID: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CANq1E4R3LSx7pYncZ1dWf-BYY5gvC15=AjhFvurFqp0jaTUqYg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Joseph Salisbury <joseph.salisbury@canonical.com>, Dan Carpenter <dan.carpenter@oracle.com>, thomas@m3y3r.de, Haiyang Zhang <haiyangz@microsoft.com>, LKML <linux-kernel@vger.kernel.org>, open@osuosl.org, HID CORE LAYER <linux-input@vger.kernel.org>, "driverdev-devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 19 Dec 2013, David Herrmann wrote:
+The two bigger issues here are fixed by the last patch incuding
+- time outs on the iio/adc side while TSC&ADC is used together
+- a lockup issue which occurs while TSC&ADC is used together.
 
-> As this thread doesn't really contain any oops message nor the exact
-> driver name (except mentioning hyperv and magicmouse), 
+v1=E2=80=A6v2:
+ - spelled checked and re-read each commit message and formated to
+   subject line as Lee suggested.
+ - removed am335x_tsc_se_set(), replaced am335x_tsc_se_tsc_set() by=20
+   am335x_tsc_se_set_cache() and adc variant is now named
+   am335x_tsc_se_set_once()
+ - Added Lee Jones' tags
 
-FWIW I recall the oopses being present somewhere in the ubuntu bug 
-tracker, referenced in this thread.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Sebastian                                                           =20

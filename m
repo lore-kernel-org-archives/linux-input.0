@@ -1,110 +1,75 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/3] HID: multitouch: introduce mt_protocol_generic
-Date: Thu, 19 Dec 2013 11:23:10 -0500
-Message-ID: <1387470191-9725-3-git-send-email-benjamin.tissoires@redhat.com>
-References: <1387470191-9725-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1387470191-9725-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Edel Maks <edelmaks@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] HID: input: fix input sysfs path for hid devices
+Date: Thu, 19 Dec 2013 17:33:40 +0100
+Message-ID: <CANq1E4QrPAJ7zNdN51PGQD5tkD_gTYfRoHOg7=zwVvnu-xOR0g@mail.gmail.com>
+References: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f169.google.com ([209.85.223.169]:48504 "EHLO
+	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752109Ab3LSQdl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Dec 2013 11:33:41 -0500
+In-Reply-To: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-most of the protocol callbacks used by the pen protocol are generic,
-they just ask hid-input to treat the incoming data.
-Introduce a generic protocol to avoid having to copy/paste the pens
-callbacks for other kinds of input reports.
+Hi
 
-Tested-by: Edel Maks <edelmaks@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-multitouch.c | 42 ++++++++++++++++++++++++++----------------
- 1 file changed, 26 insertions(+), 16 deletions(-)
+On Thu, Dec 19, 2013 at 5:05 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> we used to set the parent of the input device as the parent of
+> the hid bus. This was introduced when we created hid as a real bus, and
+> to keep backward compatibility. Now, it's time to proper set the parent
+> so that sysfs has an idea of which input device is attached to
+> which hid device.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>
+> Hi Jiri,
+>
+> well, the regression test did not showed anything bad, and a look at the hid
+> drivers also showed that no drivers should be armed by that.
+>
+> I think this is valuable because it will give a better understanding of the
+> actual mapping hardware/inputs. Like a touchscreen with pen + touch will have
+> the same hid parent, and I expect X/Wayland to be able to detect this at some
+> point to keep the mapping correctly between the two input devices and the screen.
+>
+> I also need that for hid-replay, so that I can be sure which input is attached
+> to which uhid device, and give up the heuristics I currently use.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 1cdc21a..4dd6c6c 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -156,26 +156,36 @@ static struct mt_protocol mt_protocol_touch = {
- 	.input_configured = mt_touch_input_configured,
- };
- 
--static int mt_pen_input_mapping(struct hid_device *hdev,
-+static int mt_generic_input_mapping(struct hid_device *hdev,
- 		struct hid_input *hi, struct hid_field *field,
- 		struct hid_usage *usage, unsigned long **bit, int *max);
--static int mt_pen_input_mapped(struct hid_device *hdev,
-+static int mt_generic_input_mapped(struct hid_device *hdev,
- 		struct hid_input *hi, struct hid_field *field,
- 		struct hid_usage *usage, unsigned long **bit, int *max);
--static int mt_pen_event(struct hid_device *hid,
-+static int mt_generic_event(struct hid_device *hid,
- 		struct hid_field *field, struct hid_usage *usage,
- 		__s32 value);
--static void mt_pen_report(struct hid_device *hid,
-+static void mt_generic_report(struct hid_device *hid,
- 		struct hid_report *report);
-+
-+static struct mt_protocol mt_protocol_generic = {
-+	.suffix = NULL,
-+	.event = mt_generic_event,
-+	.report = mt_generic_report,
-+	.input_mapping = mt_generic_input_mapping,
-+	.input_mapped = mt_generic_input_mapped,
-+	.input_configured = NULL,
-+};
-+
- static void mt_pen_input_configured(struct hid_device *hdev,
- 		struct hid_input *hi);
- 
- static struct mt_protocol mt_protocol_pen = {
- 	.suffix = "Pen",
--	.event = mt_pen_event,
--	.report = mt_pen_report,
--	.input_mapping = mt_pen_input_mapping,
--	.input_mapped = mt_pen_input_mapped,
-+	.event = mt_generic_event,
-+	.report = mt_generic_report,
-+	.input_mapping = mt_generic_input_mapping,
-+	.input_mapped = mt_generic_input_mapped,
- 	.input_configured = mt_pen_input_configured,
- };
- 
-@@ -422,28 +432,28 @@ static void mt_store_field(struct hid_usage *usage, struct mt_device *td,
- 	f->usages[f->length++] = usage->hid;
- }
- 
--static int mt_pen_input_mapping(struct hid_device *hdev, struct hid_input *hi,
--		struct hid_field *field, struct hid_usage *usage,
--		unsigned long **bit, int *max)
-+static int mt_generic_input_mapping(struct hid_device *hdev,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
- {
- 	return 0;
- }
- 
--static int mt_pen_input_mapped(struct hid_device *hdev, struct hid_input *hi,
--		struct hid_field *field, struct hid_usage *usage,
--		unsigned long **bit, int *max)
-+static int mt_generic_input_mapped(struct hid_device *hdev,
-+		struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
- {
- 	return 0;
- }
- 
--static int mt_pen_event(struct hid_device *hid, struct hid_field *field,
-+static int mt_generic_event(struct hid_device *hid, struct hid_field *field,
- 				struct hid_usage *usage, __s32 value)
- {
- 	/* let hid-input handle it */
- 	return 0;
- }
- 
--static void mt_pen_report(struct hid_device *hid, struct hid_report *report)
-+static void mt_generic_report(struct hid_device *hid, struct hid_report *report)
- {
- 	struct hid_field *field = report->field[0];
- 
--- 
-1.8.3.1
+I was just wondering where we have multiple HID devices on a single
+parent, but yeah, uhid is a good example. I actually have no
+objections to this patch and it looks fine. But I cannot tell whether
+anyone relies on this.
+
+I'd say we should give it a try.
+David
+
+> Cheers,
+> Benjamin
+>
+>  drivers/hid/hid-input.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index d97f232..d50e731 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -1279,7 +1279,7 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
+>         input_dev->id.vendor  = hid->vendor;
+>         input_dev->id.product = hid->product;
+>         input_dev->id.version = hid->version;
+> -       input_dev->dev.parent = hid->dev.parent;
+> +       input_dev->dev.parent = &hid->dev;
+>         hidinput->input = input_dev;
+>         list_add_tail(&hidinput->list, &hid->inputs);
+>
+> --
+> 1.8.3.1
+>

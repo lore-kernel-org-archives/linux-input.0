@@ -1,106 +1,88 @@
-From: "Zubair Lutfullah :" <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 5/5] mfd: input: iio: ti_amm335x: Rework TSC/ADC
- synchronization
-Date: Fri, 20 Dec 2013 00:01:31 +0500
-Message-ID: <20131219190126.GA5123@gmail.com>
-References: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de>
- <1387466911-3732-6-git-send-email-bigeasy@linutronix.de>
+From: Tommy Will <tommywill2011@gmail.com>
+Subject: Re: [PATCH v4 1/1] Input: Improve the performance of alps
+ v5-protocol's touchpad
+Date: Fri, 20 Dec 2013 17:35:38 +0800
+Message-ID: <CA+F6ckOG5xxysow-vgne5DauKN9BjqBsriSRbeannAMqjnrLRA@mail.gmail.com>
+References: <1382355711-3211-1-git-send-email-yunkang.tang@cn.alps.com>
+	<20131202064121.GD21404@core.coreip.homeip.net>
+	<CA+F6ckMRwq_1TbBvzQjqGFRBTdJxH74rUTuDUMmdL8c8Nda_Rw@mail.gmail.com>
+	<CA+F6ckOSfTed-0cVYgNdv6k3=NuE1CQcwTHT51KM0p9Zd+0TKQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1387466911-3732-6-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f181.google.com ([209.85.217.181]:39022 "EHLO
+	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756064Ab3LTJfk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Dec 2013 04:35:40 -0500
+Received: by mail-lb0-f181.google.com with SMTP id q8so955688lbi.40
+        for <linux-input@vger.kernel.org>; Fri, 20 Dec 2013 01:35:38 -0800 (PST)
+In-Reply-To: <CA+F6ckOSfTed-0cVYgNdv6k3=NuE1CQcwTHT51KM0p9Zd+0TKQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kevin Cernekee <cernekee@gmail.com>, david turvene <dturvene@dahetral.com>, linux-input@vger.kernel.org, Niels de Vos <ndevos@redhat.com>, Yunkang Tang <yunkang.tang@cn.alps.com>
 
-On Thu, Dec 19, 2013 at 04:28:31PM +0100, Sebastian Andrzej Siewior wrote:
-> The ADC driver always programs all possible ADC values and discards
-> them except for the value IIO asked for. On the am335x-evm the driver
-> programs four values and it takes 500us to gather them. Reducing the number
-> of conversations down to the (required) one also reduces the busy loop down
-> to 125us.
-> 
-> This leads to another error, namely the FIFOCOUNT register is sometimes
-> (like one out of 10 attempts) not updated in time leading to EBUSY.
-> The next read has the FIFOCOUNT register updated.
-> Checking for the ADCSTAT register for being idle isn't a good choice either.
-> The problem is that if TSC is used at the same time, the HW completes the
-> conversation for ADC *and* before the driver noticed it, the HW begins to
-> perform a TSC conversation and so the driver never seen the HW idle. The
-> next time we would have two values in the FIFO but since the driver reads
-> everything we always see the current one.
-> So instead of polling for the IDLE bit in ADCStatus register, we should
-> check the FIFOCOUNT register. It should be one instead of zero because we
-> request one value.
-> 
-> This change in turn leads to another error. Sometimes if TSC & ADC are
-> used together the TSC starts becoming interrupts even if nobody
-> actually touched the touchscreen. The interrupts seem valid because TSC's
-> FIFO is filled with values for each channel of the TSC. This condition stops
-> after a few ADC reads but will occur again. Not good.
-> 
-> On top of this (even without the changes I just mentioned) there is a ADC
-> & TSC lockup condition which was reported to me by Jeff Lance including the
-> following test case:
-> A busy loop of "cat /sys/bus/iio/devices/iio\:device0/in_voltage4_raw"
-> and a mug on touch screen. With this setup, the hardware will lockup after
-> something between 20 minutes and it could take up to a couple of hours.
-> During that lockup, the ADCSTAT register says 0x30 (or 0x70) which means
-> STEP_ID = IDLE and FSM_BUSY = yes. That means the hardware says that it is
-> idle and busy at the same time which is an invalid condition.
-I knew about FSM messing up. But couldn't investigate thouroughly
-and didn't want to rework so much while adding continuous mode. 
+Hi Dmitry,
 
-Good work :)
-> 
-> For all this reasons I decided to rework this TSC/ADC part and add a
-> handshake / synchronization here:
-> First the ADC signals that it needs the HW and writes a 0 mask into the
-> SE register. The HW (if active) will complete the current conversation
-> and become idle. The TSC driver will gather the values from the FIFO
-> (woken up by an interrupt) and won't "enable" another conversation.
-> Instead it will wake up the ADC driver which is already waiting. The ADC
-> driver will start "its" conversation and once it is done, it will
-> enable the TSC steps so the TSC will work again.
-> 
-> After this rework I haven't observed the lockup so far. Plus the busy
-> loop has been reduced from 500us to 125us.
-> 
-> The continues-read mode remains unchanged.
+Could you please share me your opinion of below idea?
+If it's acceptable, I'd prepare a new patch that including both below
+update and previous Kevin's suggestions.
 
-For one-shot reading from ADC, the TSC is 'disabled' for that moment.
-Ok. But for continuous mode, reading from ADC disables TSC for that long time?
+Thanks !
 
-If it doesn't disable the TSC, does that mean that this fix would
-correct the one-shot read. But the continuous mode is still prone to the 
-FSM hanging up?
+Best Regards,
+Tommy
 
-> 
-> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-...
-> @@ -329,34 +347,43 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
->  	unsigned int fifo1count, read, stepid;
->  	bool found = false;
->  	u32 step_en;
-> -	unsigned long timeout = jiffies + usecs_to_jiffies
-> -				(IDLE_TIMEOUT * adc_dev->channels);
-> +	unsigned long timeout;
->  
->  	if (iio_buffer_enabled(indio_dev))
->  		return -EBUSY;
->  
-> -	step_en = get_adc_step_mask(adc_dev);
-> +	step_en = get_adc_chan_step_mask(adc_dev, chan);
-> +	if (!step_en)
-> +		return -EINVAL;
-> +
-> +	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-> +	while (fifo1count--)
-> +		tiadc_readl(adc_dev, REG_FIFO1);
-> +
-Would this flush be needed ideally?
 
-Thanks
-Zubair 
+2013/12/2 Tommy Will <tommywill2011@gmail.com>:
+> Hi Dmitry,
+>
+> I'm suddenly aware that change like below would be better.
+> Do you think so?
+>
+> { { 0x73, 0x03, 0x50 }, 0x0d, ALPS_PROTO_V5, 0xc8, 0xc8, 0 }
+>  => { { 0x73, 0x03, 0x50 }, 0x0d, ALPS_PROTO_V5, 0xc8, 0xd8, 0 }
+>
+> Thanks
+> --
+> Best Regards,
+> Tommy
+>
+>
+> 2013/12/2 Tommy Will <tommywill2011@gmail.com>:
+>> Hi Dmitry,
+>>
+>> Thanks for your review.
+>>
+>> 2013/12/2 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>>
+>>>> +     /* Ignore stick point data */
+>>>> +     if (packet[0] == 0xD8)
+>>>> +             return;
+>>
+>>> Why are we ignoring trackstick data? If there Dolphin models with
+>>> tracksticks that would basically "break" the device for users compared
+>>> withe the emulated Explorer PS/2 mode.
+>>
+>> I'm sorry, I think I used the wrong comment here...
+>> Use comment /* Check if it's an valid touchpad packet */ would be better
+>>
+>> From the V5's spec, "0xC8" is the checkmask for 6byte Raw mode and
+>> 0x10 is the mask for trackpoint's / touchpad's packet.
+>> So, 0xC8 means current packet is from touchpad and 0xD8 for trackpoint.
+>> In current source code, what I wanted to do is just add a protection
+>> logic to double check if it's a valid touchpad packet.
+>>
+>> About your concern, I think there would be no problem because:
+>> 1) In initialization, we did not initialize trackpoint device as Raw
+>> mode and it should always report 3Byte-packet. And in the first of
+>>     alps_process_byte(), 3byte packet would be processed separately.
+>> 2) I checked with my Japanese colleague and in fact, there is no V5
+>> device with trackpoint + touchpad in the world, although V5's spec
+>>    designed the case of trackpoint's packet.
+>>
+>> Thanks
+>> --
+>> Best Regards,
+>> Tommy

@@ -1,56 +1,393 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: input: fix input sysfs path for hid devices
-Date: Fri, 20 Dec 2013 23:36:17 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1312202335300.11949@pobox.suse.cz>
-References: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com> <CANq1E4QrPAJ7zNdN51PGQD5tkD_gTYfRoHOg7=zwVvnu-xOR0g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Subject: [PATCH] ims-pcu: Add commands supported by the new version of the FW
+Date: Sat, 21 Dec 2013 11:16:48 -0800
+Message-ID: <1387653408-10529-1-git-send-email-andrew.smirnov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57676 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751810Ab3LTWgX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Dec 2013 17:36:23 -0500
-In-Reply-To: <CANq1E4QrPAJ7zNdN51PGQD5tkD_gTYfRoHOg7=zwVvnu-xOR0g@mail.gmail.com>
+Received: from mail-pb0-f50.google.com ([209.85.160.50]:46478 "EHLO
+	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755359Ab3LUTRO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 21 Dec 2013 14:17:14 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: andrew.smirnov@gmail.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2013, David Herrmann wrote:
+New version of the PCU firmware supports two new commands:
+  - IMS_PCU_CMD_OFN_SET_CONFIG which allows to write data to the
+  registers of one finger navigation(OFN) chip present on the device
+  - IMS_PCU_CMD_OFN_GET_CONFIG which allows to read data form the
+  registers of said chip.
 
-> <benjamin.tissoires@redhat.com> wrote:
-> > we used to set the parent of the input device as the parent of
-> > the hid bus. This was introduced when we created hid as a real bus, and
-> > to keep backward compatibility. Now, it's time to proper set the parent
-> > so that sysfs has an idea of which input device is attached to
-> > which hid device.
-> >
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> >
-> > Hi Jiri,
-> >
-> > well, the regression test did not showed anything bad, and a look at the hid
-> > drivers also showed that no drivers should be armed by that.
-> >
-> > I think this is valuable because it will give a better understanding of the
-> > actual mapping hardware/inputs. Like a touchscreen with pen + touch will have
-> > the same hid parent, and I expect X/Wayland to be able to detect this at some
-> > point to keep the mapping correctly between the two input devices and the screen.
-> >
-> > I also need that for hid-replay, so that I can be sure which input is attached
-> > to which uhid device, and give up the heuristics I currently use.
-> 
-> I was just wondering where we have multiple HID devices on a single
-> parent, but yeah, uhid is a good example. I actually have no
-> objections to this patch and it looks fine. But I cannot tell whether
-> anyone relies on this.
-> 
-> I'd say we should give it a try.
+This commit adds two helper functions to use those commands and sysfs
+attributes to use them. It also exposes some OFN configuration
+parameters via sysfs.
 
-Agreed, let's take it for 3.14, and if anyone complains about breakage 
-caused by this (which I don't expect), we'll revert to the previous state.
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+---
+ drivers/input/misc/ims-pcu.c | 274 +++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 263 insertions(+), 11 deletions(-)
 
+diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+index e204f26..050c960 100644
+--- a/drivers/input/misc/ims-pcu.c
++++ b/drivers/input/misc/ims-pcu.c
+@@ -68,6 +68,9 @@ struct ims_pcu {
+ 	char bl_version[IMS_PCU_BL_VERSION_LEN];
+ 	char reset_reason[IMS_PCU_BL_RESET_REASON_LEN];
+ 	int update_firmware_status;
++	u8 device_id;
++
++	u8 ofn_reg_addr;
+ 
+ 	struct usb_interface *ctrl_intf;
+ 
+@@ -371,6 +374,8 @@ static void ims_pcu_destroy_gamepad(struct ims_pcu *pcu)
+ #define IMS_PCU_CMD_GET_DEVICE_ID	0xae
+ #define IMS_PCU_CMD_SPECIAL_INFO	0xb0
+ #define IMS_PCU_CMD_BOOTLOADER		0xb1	/* Pass data to bootloader */
++#define IMS_PCU_CMD_OFN_SET_CONFIG	0xb3
++#define IMS_PCU_CMD_OFN_GET_CONFIG	0xb4
+ 
+ /* PCU responses */
+ #define IMS_PCU_RSP_STATUS		0xc0
+@@ -389,6 +394,9 @@ static void ims_pcu_destroy_gamepad(struct ims_pcu *pcu)
+ #define IMS_PCU_RSP_GET_DEVICE_ID	0xce
+ #define IMS_PCU_RSP_SPECIAL_INFO	0xd0
+ #define IMS_PCU_RSP_BOOTLOADER		0xd1	/* Bootloader response */
++#define IMS_PCU_RSP_OFN_SET_CONFIG	0xd2
++#define IMS_PCU_RSP_OFN_GET_CONFIG	0xd3
++
+ 
+ #define IMS_PCU_RSP_EVNT_BUTTONS	0xe0	/* Unsolicited, button state */
+ #define IMS_PCU_GAMEPAD_MASK		0x0001ff80UL	/* Bits 7 through 16 */
+@@ -1216,6 +1224,226 @@ ims_pcu_update_firmware_status_show(struct device *dev,
+ static DEVICE_ATTR(update_firmware_status, S_IRUGO,
+ 		   ims_pcu_update_firmware_status_show, NULL);
+ 
++enum pcu_ofn_offsets {
++	OFN_REG_RESULT_LSB_OFFSET = 2,
++	OFN_REG_RESULT_MSB_OFFSET = 3,
++};
++
++static ssize_t ims_pcu_ofn_reg_data_show(struct device *dev,
++					 struct device_attribute *dattr,
++					 char *buf)
++{
++	struct usb_interface *intf = to_usb_interface(dev);
++	struct ims_pcu *pcu = usb_get_intfdata(intf);
++	int error;
++
++	mutex_lock(&pcu->cmd_mutex);
++
++	error = ims_pcu_execute_command(pcu, OFN_GET_CONFIG,
++					&pcu->ofn_reg_addr,
++					sizeof(pcu->ofn_reg_addr));
++	if (error >= 0) {
++		const s16 result = pcu->cmd_buf[OFN_REG_RESULT_MSB_OFFSET] << 8 |
++			           pcu->cmd_buf[OFN_REG_RESULT_LSB_OFFSET];
++		if (result < 0)
++			error = result;
++		else
++			error = scnprintf(buf, PAGE_SIZE, "%x\n", (u8)result);
++	}
++
++	mutex_unlock(&pcu->cmd_mutex);
++
++	return error;
++}
++
++static ssize_t ims_pcu_ofn_reg_data_store(struct device *dev,
++					  struct device_attribute *dattr,
++					  const char *buf, size_t count)
++{
++	struct usb_interface *intf = to_usb_interface(dev);
++	struct ims_pcu *pcu = usb_get_intfdata(intf);
++	int error;
++	int value;
++	u8 buffer[2];
++
++	error = kstrtoint(buf, 0, &value);
++	if (error)
++		return error;
++
++	buffer[0] = pcu->ofn_reg_addr;
++	buffer[1] = (u8) value;
++
++	mutex_lock(&pcu->cmd_mutex);
++
++	error = ims_pcu_execute_command(pcu, OFN_SET_CONFIG,
++					&buffer, sizeof(buffer));
++
++	mutex_unlock(&pcu->cmd_mutex);
++
++	if (!error) {
++		const s16 result = pcu->cmd_buf[OFN_REG_RESULT_MSB_OFFSET] << 8 |
++			           pcu->cmd_buf[OFN_REG_RESULT_LSB_OFFSET];
++		error = result;
++	}
++
++	return error ?: count;
++}
++
++static DEVICE_ATTR(ofn_reg_data, S_IRUGO | S_IWUSR,
++		   ims_pcu_ofn_reg_data_show, ims_pcu_ofn_reg_data_store);
++
++static ssize_t ims_pcu_ofn_reg_addr_show(struct device *dev,
++					 struct device_attribute *dattr,
++					 char *buf)
++{
++	struct usb_interface *intf = to_usb_interface(dev);
++	struct ims_pcu *pcu = usb_get_intfdata(intf);
++	int error;
++
++	mutex_lock(&pcu->cmd_mutex);
++	error = scnprintf(buf, PAGE_SIZE, "%x\n", pcu->ofn_reg_addr);
++	mutex_unlock(&pcu->cmd_mutex);
++
++	return error;
++}
++
++static ssize_t ims_pcu_ofn_reg_addr_store(struct device *dev,
++					  struct device_attribute *dattr,
++					  const char *buf, size_t count)
++{
++	struct usb_interface *intf = to_usb_interface(dev);
++	struct ims_pcu *pcu = usb_get_intfdata(intf);
++	int error;
++	int value;
++
++	error = kstrtoint(buf, 0, &value);
++	if (error)
++		return error;
++
++	mutex_lock(&pcu->cmd_mutex);
++	pcu->ofn_reg_addr = (u8) value;
++	mutex_unlock(&pcu->cmd_mutex);
++
++	return error ?: count;
++}
++
++static DEVICE_ATTR(ofn_reg_addr, S_IRUGO | S_IWUSR,
++		   ims_pcu_ofn_reg_addr_show, ims_pcu_ofn_reg_addr_store);
++
++static ssize_t ims_pcu_ofn_bit_show(u8 addr, u8 nr,
++				    struct device *dev,
++				    struct device_attribute *dattr,
++				    char *buf)
++{
++	struct usb_interface *intf = to_usb_interface(dev);
++	struct ims_pcu *pcu = usb_get_intfdata(intf);
++	int error;
++
++	mutex_lock(&pcu->cmd_mutex);
++
++	error = ims_pcu_execute_command(pcu, OFN_GET_CONFIG,
++					&addr, sizeof(addr));
++	if (error >= 0) {
++		const s16 result = pcu->cmd_buf[OFN_REG_RESULT_MSB_OFFSET] << 8 |
++			           pcu->cmd_buf[OFN_REG_RESULT_LSB_OFFSET];
++		if (result < 0)
++			error = result;
++		else
++			error = scnprintf(buf, PAGE_SIZE, "%d\n",
++					  !!(result & (1 << nr)));
++	}
++
++	mutex_unlock(&pcu->cmd_mutex);
++	return error;
++}
++
++static ssize_t ims_pcu_ofn_bit_store(u8 addr, u8 nr,
++				     struct device *dev,
++				     struct device_attribute *dattr,
++				     const char *buf, size_t count)
++{
++	struct usb_interface *intf = to_usb_interface(dev);
++	struct ims_pcu *pcu = usb_get_intfdata(intf);
++	int error;
++	int value;
++	u8 contents;
++
++
++	error = kstrtoint(buf, 0, &value);
++	if (error)
++		return error;
++
++	if (value > 1)
++		return -EINVAL;
++
++	mutex_lock(&pcu->cmd_mutex);
++
++	error = ims_pcu_execute_command(pcu, OFN_GET_CONFIG,
++					&addr, sizeof(addr));
++	if (error < 0)
++		goto exit;
++
++	{
++		const s16 result = pcu->cmd_buf[OFN_REG_RESULT_MSB_OFFSET] << 8 |
++			           pcu->cmd_buf[OFN_REG_RESULT_LSB_OFFSET];
++		if (result < 0) {
++			error = result;
++			goto exit;
++		}
++		contents = (u8) result;
++	}
++
++	if (value)
++		contents |= 1 << nr;
++	else
++		contents &= ~(1 << nr);
++
++	{
++		const u8 buffer[] = { addr, contents };
++		error = ims_pcu_execute_command(pcu, OFN_SET_CONFIG,
++						&buffer, sizeof(buffer));
++	}
++
++exit:
++	mutex_unlock(&pcu->cmd_mutex);
++
++	if (!error) {
++		const s16 result = pcu->cmd_buf[OFN_REG_RESULT_MSB_OFFSET] << 8 |
++			           pcu->cmd_buf[OFN_REG_RESULT_LSB_OFFSET];
++		error = result;
++	}
++
++	return error ?: count;
++}
++
++
++#define IMS_PCU_BIT_ATTR(name, addr, nr)				\
++	static ssize_t ims_pcu_##name##_show(struct device *dev,	\
++					     struct device_attribute *dattr, \
++					     char *buf)			\
++	{								\
++		return ims_pcu_ofn_bit_show(addr, nr, dev, dattr, buf);	\
++	}								\
++									\
++	static ssize_t ims_pcu_##name##_store(struct device *dev,	\
++					      struct device_attribute *dattr, \
++					      const char *buf, size_t count) \
++	{								\
++		return ims_pcu_ofn_bit_store(addr, nr, dev, dattr, buf, count); \
++	}								\
++									\
++	static DEVICE_ATTR(name, S_IRUGO | S_IWUSR,			\
++			   ims_pcu_##name##_show, ims_pcu_##name##_store)
++
++IMS_PCU_BIT_ATTR(ofn_engine_enable,   0x60, 7);
++IMS_PCU_BIT_ATTR(ofn_speed_enable,    0x60, 6);
++IMS_PCU_BIT_ATTR(ofn_assert_enable,   0x60, 5);
++IMS_PCU_BIT_ATTR(ofn_xyquant_enable,  0x60, 4);
++IMS_PCU_BIT_ATTR(ofn_xyscale_enable,  0x60, 1);
++
++IMS_PCU_BIT_ATTR(ofn_scale_x2,        0x63, 6);
++IMS_PCU_BIT_ATTR(ofn_scale_y2,        0x63, 7);
++
+ static struct attribute *ims_pcu_attrs[] = {
+ 	&ims_pcu_attr_part_number.dattr.attr,
+ 	&ims_pcu_attr_serial_number.dattr.attr,
+@@ -1226,6 +1454,18 @@ static struct attribute *ims_pcu_attrs[] = {
+ 	&dev_attr_reset_device.attr,
+ 	&dev_attr_update_firmware.attr,
+ 	&dev_attr_update_firmware_status.attr,
++
++#define IMS_PCU_ATTRS_OFN_START_OFFSET (9)
++
++	&dev_attr_ofn_reg_data.attr,
++	&dev_attr_ofn_reg_addr.attr,
++	&dev_attr_ofn_engine_enable.attr,
++	&dev_attr_ofn_speed_enable.attr,
++	&dev_attr_ofn_assert_enable.attr,
++	&dev_attr_ofn_xyquant_enable.attr,
++	&dev_attr_ofn_xyscale_enable.attr,
++	&dev_attr_ofn_scale_x2.attr,
++	&dev_attr_ofn_scale_y2.attr,
+ 	NULL
+ };
+ 
+@@ -1244,8 +1484,21 @@ static umode_t ims_pcu_is_attr_visible(struct kobject *kobj,
+ 			mode = 0;
+ 		}
+ 	} else {
+-		if (attr == &dev_attr_update_firmware_status.attr)
++		if (attr == &dev_attr_update_firmware_status.attr) {
+ 			mode = 0;
++		} else if (pcu->device_id == 5) {
++			/*
++			   PCU-B devices, both GEN_1 and GEN_2(device_id == 5),
++			   have no OFN sensor so exposing those attributes
++			   for them does not make any sense
++			*/
++			int i;
++			for (i = IMS_PCU_ATTRS_OFN_START_OFFSET; ims_pcu_attrs[i]; i++)
++				if (attr == ims_pcu_attrs[i]) {
++					mode = 0;
++					break;
++				}
++		}
+ 	}
+ 
+ 	return mode;
+@@ -1624,7 +1877,6 @@ static int ims_pcu_init_application_mode(struct ims_pcu *pcu)
+ 	static atomic_t device_no = ATOMIC_INIT(0);
+ 
+ 	const struct ims_pcu_device_info *info;
+-	u8 device_id;
+ 	int error;
+ 
+ 	error = ims_pcu_get_device_info(pcu);
+@@ -1633,7 +1885,7 @@ static int ims_pcu_init_application_mode(struct ims_pcu *pcu)
+ 		return error;
+ 	}
+ 
+-	error = ims_pcu_identify_type(pcu, &device_id);
++	error = ims_pcu_identify_type(pcu, &pcu->device_id);
+ 	if (error) {
+ 		dev_err(pcu->dev,
+ 			"Failed to identify device, error: %d\n", error);
+@@ -1645,9 +1897,9 @@ static int ims_pcu_init_application_mode(struct ims_pcu *pcu)
+ 		return 0;
+ 	}
+ 
+-	if (device_id >= ARRAY_SIZE(ims_pcu_device_info) ||
+-	    !ims_pcu_device_info[device_id].keymap) {
+-		dev_err(pcu->dev, "Device ID %d is not valid\n", device_id);
++	if (pcu->device_id >= ARRAY_SIZE(ims_pcu_device_info) ||
++	    !ims_pcu_device_info[pcu->device_id].keymap) {
++		dev_err(pcu->dev, "Device ID %d is not valid\n", pcu->device_id);
+ 		/* Same as above, punt to userspace */
+ 		return 0;
+ 	}
+@@ -1659,7 +1911,7 @@ static int ims_pcu_init_application_mode(struct ims_pcu *pcu)
+ 	if (error)
+ 		return error;
+ 
+-	info = &ims_pcu_device_info[device_id];
++	info = &ims_pcu_device_info[pcu->device_id];
+ 	error = ims_pcu_setup_buttons(pcu, info->keymap, info->keymap_len);
+ 	if (error)
+ 		goto err_destroy_backlight;
+@@ -1783,14 +2035,14 @@ static int ims_pcu_probe(struct usb_interface *intf,
+ 	if (error)
+ 		goto err_stop_io;
+ 
+-	error = sysfs_create_group(&intf->dev.kobj, &ims_pcu_attr_group);
+-	if (error)
+-		goto err_stop_io;
+-
+ 	error = pcu->bootloader_mode ?
+ 			ims_pcu_init_bootloader_mode(pcu) :
+ 			ims_pcu_init_application_mode(pcu);
+ 	if (error)
++		goto err_stop_io;
++
++	error = sysfs_create_group(&intf->dev.kobj, &ims_pcu_attr_group);
++	if (error)
+ 		goto err_remove_sysfs;
+ 
+ 	return 0;
 -- 
-Jiri Kosina
-SUSE Labs
+1.8.3.2
+

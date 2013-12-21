@@ -1,121 +1,55 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [RFC v2] ff-memless-next driver
-Date: Sat, 21 Dec 2013 15:05:01 -0800
-Message-ID: <1387667101.22671.6.camel@joe-AO722>
-References: <2287724.uNI0tVeDgp@geidi-prime>
+From: "J. Domburg" <jeroen@spritesmods.com>
+Subject: Re: T440s Synaptics clickpad: lost sync / KBC bad data
+Date: Sun, 22 Dec 2013 00:17:06 +0100 (CET)
+Message-ID: <alpine.DEB.2.00.1312220001560.4559@icf1.fcevgrfzbqf.pbz>
+References: <alpine.DEB.2.00.1312151507560.6449@icf1.fcevgrfzbqf.pbz> <loom.20131221T224832-537@post.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay0239.hostedemail.com ([216.40.44.239]:42833 "EHLO
-	smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754054Ab3LUXFG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 21 Dec 2013 18:05:06 -0500
-In-Reply-To: <2287724.uNI0tVeDgp@geidi-prime>
+Received: from spritesmods.com ([188.40.123.50]:38743 "EHLO spritesmods.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755858Ab3LUXRK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 21 Dec 2013 18:17:10 -0500
+In-Reply-To: <loom.20131221T224832-537@post.gmane.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@prifuk.cz>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, anssi.hannula@iki.fi, elias.vds@gmail.com
-
-Refactoring can help reduce the line lengths.
-
-For example:
-
-Move the get_envelope function.
-Use get_envelope in set_envelope_times.
----
- drivers/input/ff-memless-next.c | 58 +++++++++++++++++++----------------------
- 1 file changed, 27 insertions(+), 31 deletions(-)
-
-diff --git a/drivers/input/ff-memless-next.c b/drivers/input/ff-memless-next.c
-index 722601a..73e1127 100644
---- a/drivers/input/ff-memless-next.c
-+++ b/drivers/input/ff-memless-next.c
-@@ -104,34 +104,46 @@ static int mlnx_upload_conditional(struct mlnx_device *mlnxdev,
- 	return mlnxdev->control_effect(mlnxdev->dev, mlnxdev->private, &ecmd);
- }
- 
-+static const struct ff_envelope *mlnx_get_envelope(const struct ff_effect *effect)
-+{
-+	static const struct ff_envelope empty;
-+
-+	switch (effect->type) {
-+	case FF_CONSTANT:
-+		return &effect->u.constant.envelope;
-+	case FF_PERIODIC:
-+		return &effect->u.periodic.envelope;
-+	case FF_RAMP:
-+		return &effect->u.ramp.envelope;
-+	default:
-+		return &empty;
-+	}
-+}
-+
- static void mlnx_set_envelope_times(struct mlnx_effect *mlnxeff)
- {
- 	const struct ff_effect *effect = &mlnxeff->effect;
-+	const struct ff_envelope *env;
- 
- 	switch (effect->type) {
--	case FF_CONSTANT:
--		if (effect->u.constant.envelope.attack_length)
--			mlnxeff->attack_stop = mlnxeff->begin_at + msecs_to_jiffies(effect->u.constant.envelope.attack_length);
--		if (effect->replay.length && effect->u.constant.envelope.fade_length)
--			mlnxeff->fade_begin = mlnxeff->stop_at - msecs_to_jiffies(effect->u.constant.envelope.fade_length);
--		break;
- 	case FF_PERIODIC:
- 		pr_debug("Phase: %u, Offset: %d\n",
- 			 effect->u.periodic.phase, effect->u.periodic.offset);
--		if (effect->u.periodic.envelope.attack_length)
--			mlnxeff->attack_stop = mlnxeff->begin_at + msecs_to_jiffies(effect->u.periodic.envelope.attack_length);
--		if (effect->replay.length && effect->u.periodic.envelope.fade_length)
--			mlnxeff->fade_begin = mlnxeff->stop_at - msecs_to_jiffies(effect->u.periodic.envelope.fade_length);
- 		break;
-+	case FF_CONSTANT:
- 	case FF_RAMP:
--		if (effect->u.ramp.envelope.attack_length)
--			mlnxeff->attack_stop = mlnxeff->begin_at + msecs_to_jiffies(effect->u.ramp.envelope.attack_length);
--		if (effect->replay.length && effect->u.ramp.envelope.fade_length)
--			mlnxeff->fade_begin = mlnxeff->stop_at - msecs_to_jiffies(effect->u.ramp.envelope.fade_length);
- 		break;
- 	default:
--		break;
-+		return;
- 	}
-+
-+	env = mlnx_get_envelope(effect);
-+	if (env->attack_length)
-+		mlnxeff->attack_stop = mlnxeff->begin_at +
-+				       msecs_to_jiffies(env->attack_length);
-+	if (effect->replay.length && env->fade_length)
-+		mlnxeff->fade_begin = mlnxeff->stop_at -
-+				      msecs_to_jiffies(env->fade_length);
- }
- 
- static void mlnx_set_trip_times(struct mlnx_effect *mlnxeff,
-@@ -185,22 +197,6 @@ static void mlnx_stop_effect(struct mlnx_device *mlnxdev,
- 	}
- }
- 
--static const struct ff_envelope *mlnx_get_envelope(const struct ff_effect *effect)
--{
--	static const struct ff_envelope empty;
--
--	switch (effect->type) {
--	case FF_CONSTANT:
--		return &effect->u.constant.envelope;
--	case FF_PERIODIC:
--		return &effect->u.periodic.envelope;
--	case FF_RAMP:
--		return &effect->u.ramp.envelope;
--	default:
--		return &empty;
--	}
--}
--
- static s32 mlnx_apply_envelope(const struct mlnx_effect *mlnxeff,
- 			       const s32 level)
- {
+To: Heinz Wiesinger <HMWiesinger@liwjatan.at>
+Cc: linux-input@vger.kernel.org
 
 
+On Sat, 21 Dec 2013, Heinz Wiesinger wrote:
+> J. Domburg <jeroen <at> spritesmods.com> writes:
+> I'm experiencing exactly the same issue. I have my T440s now for a bit more
+> than two weeks. No issues with the touchpad until today when it suddenly
+> started acting up and I now see messages like these in dmesg
+<snip>
+
+Hi Heinz, all,
+
+Always good to know mine is not an isolated case, although in this case, I 
+wouldn't want to wish the issue on anyone else...
+
+FYI: I haven't resolved this issue yet, but I'm thinking this may be a 
+hardware issue after all. I decided to try and see if Win7 has this issue 
+too, and got myself an USB-stick to install it from. I didn't even get 
+past the installer. It gave me exactly the same issues as Linux has: 
+an erratic and finally hanging cursor when using the clickpad.
+
+I can understand Lenovo not wanting to support a Linux-only-issue so up 
+till now I haven't bothered them yet with my issue, but I can't see my 
+laptop not having mouse support in something as commonly used and 
+well-supported by hardware manufacturers as the Win7 installer. This 
+smells like an hardware issue to me, so I filed a warranty case today.
+
+If people here don't mind, I'll keep the list updated, if anything so 
+other people running into the same issues will have a reference and know 
+this isn't necessarily a kernel thing.
+
+Depending on how Lenovo reacts, I'll either have a working laptop or a 
+good reason to go soldering and probing the i2c bus. In any case, I should 
+end up with a solution I'd think :) although it'd be good if someone more 
+versed in the i8042 and related things would look over my shoulder in the 
+latter case.
+
+Cheers,
+Jeroen

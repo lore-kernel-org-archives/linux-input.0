@@ -1,68 +1,331 @@
 From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 4/5] mfd: ti_am335x: Drop am335x_tsc_se_update() from
- resume path
-Date: Sun, 22 Dec 2013 17:48:24 +0000
-Message-ID: <52B725E8.40302@kernel.org>
-References: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de> <1387466911-3732-5-git-send-email-bigeasy@linutronix.de>
+Subject: Re: [PATCH 5/5] mfd: input: iio: ti_amm335x: Rework TSC/ADC synchronization
+Date: Sun, 22 Dec 2013 18:03:06 +0000
+Message-ID: <52B7295A.60309@kernel.org>
+References: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de> <1387466911-3732-6-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:47828 "EHLO
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:48026 "EHLO
 	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754136Ab3LVRsZ (ORCPT
+	with ESMTP id S1754498Ab3LVSDJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Dec 2013 12:48:25 -0500
-In-Reply-To: <1387466911-3732-5-git-send-email-bigeasy@linutronix.de>
+	Sun, 22 Dec 2013 13:03:09 -0500
+In-Reply-To: <1387466911-3732-6-git-send-email-bigeasy@linutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zubair Lutfullah <zubair.lutfullah@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 On 12/19/13 15:28, Sebastian Andrzej Siewior wrote:
-> The update of the SE register in MFD doesn't look right as it has
-> nothing to do with it. The better place to do it is in TSC driver (which
-> is already doing it) and in the ADC driver which needs this only in the
-> continues mode.
+> The ADC driver always programs all possible ADC values and discards
+> them except for the value IIO asked for. On the am335x-evm the driver
+> programs four values and it takes 500us to gather them. Reducing the number
+> of conversations down to the (required) one also reduces the busy loop down
+> to 125us.
 > 
-> Acked-by: Lee Jones <lee.jones@linaro.org>  [MFD part]
+> This leads to another error, namely the FIFOCOUNT register is sometimes
+> (like one out of 10 attempts) not updated in time leading to EBUSY.
+> The next read has the FIFOCOUNT register updated.
+> Checking for the ADCSTAT register for being idle isn't a good choice either.
+> The problem is that if TSC is used at the same time, the HW completes the
+> conversation for ADC *and* before the driver noticed it, the HW begins to
+> perform a TSC conversation and so the driver never seen the HW idle. The
+> next time we would have two values in the FIFO but since the driver reads
+> everything we always see the current one.
+> So instead of polling for the IDLE bit in ADCStatus register, we should
+> check the FIFOCOUNT register. It should be one instead of zero because we
+> request one value.
+> 
+> This change in turn leads to another error. Sometimes if TSC & ADC are
+> used together the TSC starts becoming interrupts even if nobody
+becoming -> generating?
+> actually touched the touchscreen. The interrupts seem valid because TSC's
+> FIFO is filled with values for each channel of the TSC. This condition stops
+> after a few ADC reads but will occur again. Not good.
+> 
+> On top of this (even without the changes I just mentioned) there is a ADC
+> & TSC lockup condition which was reported to me by Jeff Lance including the
+> following test case:
+> A busy loop of "cat /sys/bus/iio/devices/iio\:device0/in_voltage4_raw"
+> and a mug on touch screen. With this setup, the hardware will lockup after
+> something between 20 minutes and it could take up to a couple of hours.
+> During that lockup, the ADCSTAT register says 0x30 (or 0x70) which means
+> STEP_ID = IDLE and FSM_BUSY = yes. That means the hardware says that it is
+> idle and busy at the same time which is an invalid condition.
+> 
+yikes.
+> For all this reasons I decided to rework this TSC/ADC part and add a
+> handshake / synchronization here:
+> First the ADC signals that it needs the HW and writes a 0 mask into the
+> SE register. The HW (if active) will complete the current conversation
+> and become idle. The TSC driver will gather the values from the FIFO
+> (woken up by an interrupt) and won't "enable" another conversation.
+> Instead it will wake up the ADC driver which is already waiting. The ADC
+> driver will start "its" conversation and once it is done, it will
+> enable the TSC steps so the TSC will work again.
+> 
+> After this rework I haven't observed the lockup so far. Plus the busy
+> loop has been reduced from 500us to 125us.
+> 
+> The continues-read mode remains unchanged.
+>
+Thanks for the detailed explanation.
+
 > Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Hmm. I'm not really an expert in this complex driver, but your explanation is clear
+and the code appears to implement what you describe.  Hopefully we'll see a fix for
+the continuous reads as well.
+
+Fiddly little device!
+
 Acked-by: Jonathan Cameron <jic23@kernel.org>
+
 > ---
->  drivers/iio/adc/ti_am335x_adc.c | 2 ++
->  drivers/mfd/ti_am335x_tscadc.c  | 1 -
->  2 files changed, 2 insertions(+), 1 deletion(-)
+>  drivers/iio/adc/ti_am335x_adc.c      | 64 ++++++++++++++++++++++++++----------
+>  drivers/mfd/ti_am335x_tscadc.c       | 63 +++++++++++++++++++++++++++++------
+>  include/linux/mfd/ti_am335x_tscadc.h |  4 +++
+>  3 files changed, 103 insertions(+), 28 deletions(-)
 > 
 > diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-> index b5197a0..6822b9f 100644
+> index 6822b9f..31e786e 100644
 > --- a/drivers/iio/adc/ti_am335x_adc.c
 > +++ b/drivers/iio/adc/ti_am335x_adc.c
-> @@ -199,6 +199,7 @@ static int tiadc_buffer_predisable(struct iio_dev *indio_dev)
->  	tiadc_writel(adc_dev, REG_IRQCLR, (IRQENB_FIFO1THRES |
->  				IRQENB_FIFO1OVRRUN | IRQENB_FIFO1UNDRFLW));
->  	am335x_tsc_se_clr(adc_dev->mfd_tscadc, adc_dev->buffer_en_ch_steps);
-> +	adc_dev->buffer_en_ch_steps = 0;
+> @@ -60,6 +60,24 @@ static u32 get_adc_step_mask(struct tiadc_device *adc_dev)
+>  	return step_en;
+>  }
 >  
->  	/* Flush FIFO of leftover data in the time it takes to disable adc */
->  	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
-> @@ -494,6 +495,7 @@ static int tiadc_resume(struct device *dev)
+> +static u32 get_adc_chan_step_mask(struct tiadc_device *adc_dev,
+> +		struct iio_chan_spec const *chan)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(adc_dev->channel_step); i++) {
+> +		if (chan->channel == adc_dev->channel_line[i]) {
+> +			u32 step;
+> +
+> +			step = adc_dev->channel_step[i];
+> +			/* +1 for the charger */
+> +			return 1 << (step + 1);
+> +		}
+> +	}
+> +	WARN_ON(1);
+> +	return 0;
+> +}
+> +
+>  static u32 get_adc_step_bit(struct tiadc_device *adc_dev, int chan)
+>  {
+>  	return 1 << adc_dev->channel_step[chan];
+> @@ -329,34 +347,43 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
+>  	unsigned int fifo1count, read, stepid;
+>  	bool found = false;
+>  	u32 step_en;
+> -	unsigned long timeout = jiffies + usecs_to_jiffies
+> -				(IDLE_TIMEOUT * adc_dev->channels);
+> +	unsigned long timeout;
+>  
+>  	if (iio_buffer_enabled(indio_dev))
+>  		return -EBUSY;
+>  
+> -	step_en = get_adc_step_mask(adc_dev);
+> +	step_en = get_adc_chan_step_mask(adc_dev, chan);
+> +	if (!step_en)
+> +		return -EINVAL;
+> +
+> +	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
+> +	while (fifo1count--)
+> +		tiadc_readl(adc_dev, REG_FIFO1);
+> +
+>  	am335x_tsc_se_set_once(adc_dev->mfd_tscadc, step_en);
+>  
+> -	/* Wait for ADC sequencer to complete sampling */
+> -	while (tiadc_readl(adc_dev, REG_ADCFSM) & SEQ_STATUS) {
+> -		if (time_after(jiffies, timeout))
+> +	timeout = jiffies + usecs_to_jiffies
+> +				(IDLE_TIMEOUT * adc_dev->channels);
+> +	/* Wait for Fifo threshold interrupt */
+> +	while (1) {
+> +		fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
+> +		if (fifo1count)
+> +			break;
+> +
+> +		if (time_after(jiffies, timeout)) {
+> +			am335x_tsc_se_adc_done(adc_dev->mfd_tscadc);
+>  			return -EAGAIN;
+> +		}
+>  	}
+>  	map_val = chan->channel + TOTAL_CHANNELS;
+>  
+>  	/*
+> -	 * When the sub-system is first enabled,
+> -	 * the sequencer will always start with the
+> -	 * lowest step (1) and continue until step (16).
+> -	 * For ex: If we have enabled 4 ADC channels and
+> -	 * currently use only 1 out of them, the
+> -	 * sequencer still configures all the 4 steps,
+> -	 * leading to 3 unwanted data.
+> -	 * Hence we need to flush out this data.
+> +	 * We check the complete FIFO. We programmed just one entry but in case
+> +	 * something went wrong we left empty handed (-EAGAIN previously) and
+> +	 * then the value apeared somehow in the FIFO we would have two entries.
+> +	 * Therefore we read every item and keep only the latest version of the
+> +	 * requested channel.
+>  	 */
+> -
+> -	fifo1count = tiadc_readl(adc_dev, REG_FIFO1CNT);
+>  	for (i = 0; i < fifo1count; i++) {
+>  		read = tiadc_readl(adc_dev, REG_FIFO1);
+>  		stepid = read & FIFOREAD_CHNLID_MASK;
+> @@ -368,6 +395,7 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
+>  			*val = (u16) read;
+>  		}
+>  	}
+> +	am335x_tsc_se_adc_done(adc_dev->mfd_tscadc);
+>  
+>  	if (found == false)
+>  		return -EBUSY;
+> @@ -495,8 +523,8 @@ static int tiadc_resume(struct device *dev)
 >  	tiadc_writel(adc_dev, REG_CTRL, restore);
 >  
 >  	tiadc_step_config(indio_dev);
-> +	am335x_tsc_se_set(adc_dev->mfd_tscadc, adc_dev->buffer_en_ch_steps);
->  
+> -	am335x_tsc_se_set(adc_dev->mfd_tscadc, adc_dev->buffer_en_ch_steps);
+> -
+> +	am335x_tsc_se_set_cache(adc_dev->mfd_tscadc,
+> +			adc_dev->buffer_en_ch_steps);
 >  	return 0;
 >  }
+>  
 > diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-> index cb0c211..157f569 100644
+> index 157f569..d4e8604 100644
 > --- a/drivers/mfd/ti_am335x_tscadc.c
 > +++ b/drivers/mfd/ti_am335x_tscadc.c
-> @@ -309,7 +309,6 @@ static int tscadc_resume(struct device *dev)
+> @@ -24,6 +24,7 @@
+>  #include <linux/pm_runtime.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> +#include <linux/sched.h>
 >  
->  	if (tscadc_dev->tsc_cell != -1)
->  		tscadc_idle_config(tscadc_dev);
-> -	am335x_tsc_se_update(tscadc_dev);
->  	restore = tscadc_readl(tscadc_dev, REG_CTRL);
->  	tscadc_writel(tscadc_dev, REG_CTRL,
->  			(restore | CNTRLREG_TSCSSENB));
+>  #include <linux/mfd/ti_am335x_tscadc.h>
+>  
+> @@ -48,31 +49,71 @@ static const struct regmap_config tscadc_regmap_config = {
+>  	.val_bits = 32,
+>  };
+>  
+> -static void am335x_tsc_se_update(struct ti_tscadc_dev *tsadc)
+> -{
+> -	tscadc_writel(tsadc, REG_SE, tsadc->reg_se_cache);
+> -}
+> -
+>  void am335x_tsc_se_set_cache(struct ti_tscadc_dev *tsadc, u32 val)
+>  {
+>  	unsigned long flags;
+>  
+>  	spin_lock_irqsave(&tsadc->reg_lock, flags);
+> -	tsadc->reg_se_cache |= val;
+> -	am335x_tsc_se_update(tsadc);
+> +	tsadc->reg_se_cache = val;
+> +	if (tsadc->adc_waiting)
+> +		wake_up(&tsadc->reg_se_wait);
+> +	else if (!tsadc->adc_in_use)
+> +		tscadc_writel(tsadc, REG_SE, val);
+> +
+>  	spin_unlock_irqrestore(&tsadc->reg_lock, flags);
+>  }
+>  EXPORT_SYMBOL_GPL(am335x_tsc_se_set_cache);
+>  
+> +static void am335x_tscadc_need_adc(struct ti_tscadc_dev *tsadc)
+> +{
+> +	DEFINE_WAIT(wait);
+> +	u32 reg;
+> +
+> +	/*
+> +	 * disable TSC steps so it does not run while the ADC is using it. If
+> +	 * write 0 while it is running (it just started or was already running)
+> +	 * then it completes all steps that were enabled and stops then.
+> +	 */
+> +	tscadc_writel(tsadc, REG_SE, 0);
+> +	reg = tscadc_readl(tsadc, REG_ADCFSM);
+> +	if (reg & SEQ_STATUS) {
+> +		tsadc->adc_waiting = true;
+> +		prepare_to_wait(&tsadc->reg_se_wait, &wait,
+> +				TASK_UNINTERRUPTIBLE);
+> +		spin_unlock_irq(&tsadc->reg_lock);
+> +
+> +		schedule();
+> +
+> +		spin_lock_irq(&tsadc->reg_lock);
+> +		finish_wait(&tsadc->reg_se_wait, &wait);
+> +
+> +		reg = tscadc_readl(tsadc, REG_ADCFSM);
+> +		WARN_ON(reg & SEQ_STATUS);
+> +		tsadc->adc_waiting = false;
+> +	}
+> +	tsadc->adc_in_use = true;
+> +}
+> +
+>  void am335x_tsc_se_set_once(struct ti_tscadc_dev *tsadc, u32 val)
+>  {
+> +	spin_lock_irq(&tsadc->reg_lock);
+> +	am335x_tscadc_need_adc(tsadc);
+> +
+> +	tscadc_writel(tsadc, REG_SE, val);
+> +	spin_unlock_irq(&tsadc->reg_lock);
+> +}
+> +EXPORT_SYMBOL_GPL(am335x_tsc_se_set_once);
+> +
+> +void am335x_tsc_se_adc_done(struct ti_tscadc_dev *tsadc)
+> +{
+>  	unsigned long flags;
+>  
+>  	spin_lock_irqsave(&tsadc->reg_lock, flags);
+> -	tscadc_writel(tsadc, REG_SE, tsadc->reg_se_cache | val);
+> +	tsadc->adc_in_use = false;
+> +	tscadc_writel(tsadc, REG_SE, tsadc->reg_se_cache);
+>  	spin_unlock_irqrestore(&tsadc->reg_lock, flags);
+>  }
+> -EXPORT_SYMBOL_GPL(am335x_tsc_se_set_once);
+> +EXPORT_SYMBOL_GPL(am335x_tsc_se_adc_done);
+>  
+>  void am335x_tsc_se_clr(struct ti_tscadc_dev *tsadc, u32 val)
+>  {
+> @@ -80,7 +121,7 @@ void am335x_tsc_se_clr(struct ti_tscadc_dev *tsadc, u32 val)
+>  
+>  	spin_lock_irqsave(&tsadc->reg_lock, flags);
+>  	tsadc->reg_se_cache &= ~val;
+> -	am335x_tsc_se_update(tsadc);
+> +	tscadc_writel(tsadc, REG_SE, tsadc->reg_se_cache);
+>  	spin_unlock_irqrestore(&tsadc->reg_lock, flags);
+>  }
+>  EXPORT_SYMBOL_GPL(am335x_tsc_se_clr);
+> @@ -188,6 +229,8 @@ static	int ti_tscadc_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	spin_lock_init(&tscadc->reg_lock);
+> +	init_waitqueue_head(&tscadc->reg_se_wait);
+> +
+>  	pm_runtime_enable(&pdev->dev);
+>  	pm_runtime_get_sync(&pdev->dev);
+>  
+> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
+> index 2fa9c06..fb96c84 100644
+> --- a/include/linux/mfd/ti_am335x_tscadc.h
+> +++ b/include/linux/mfd/ti_am335x_tscadc.h
+> @@ -159,6 +159,9 @@ struct ti_tscadc_dev {
+>  	int adc_cell;	/* -1 if not used */
+>  	struct mfd_cell cells[TSCADC_CELLS];
+>  	u32 reg_se_cache;
+> +	bool adc_waiting;
+> +	bool adc_in_use;
+> +	wait_queue_head_t reg_se_wait;
+>  	spinlock_t reg_lock;
+>  	unsigned int clk_div;
+>  
+> @@ -179,5 +182,6 @@ static inline struct ti_tscadc_dev *ti_tscadc_dev_get(struct platform_device *p)
+>  void am335x_tsc_se_set_cache(struct ti_tscadc_dev *tsadc, u32 val);
+>  void am335x_tsc_se_set_once(struct ti_tscadc_dev *tsadc, u32 val);
+>  void am335x_tsc_se_clr(struct ti_tscadc_dev *tsadc, u32 val);
+> +void am335x_tsc_se_adc_done(struct ti_tscadc_dev *tsadc);
+>  
+>  #endif
 > 

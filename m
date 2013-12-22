@@ -1,55 +1,49 @@
-From: "J. Domburg" <jeroen@spritesmods.com>
-Subject: Re: T440s Synaptics clickpad: lost sync / KBC bad data
-Date: Sun, 22 Dec 2013 00:17:06 +0100 (CET)
-Message-ID: <alpine.DEB.2.00.1312220001560.4559@icf1.fcevgrfzbqf.pbz>
-References: <alpine.DEB.2.00.1312151507560.6449@icf1.fcevgrfzbqf.pbz> <loom.20131221T224832-537@post.gmane.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 1/5] iio: ti_am335x_adc: Adjust the closing bracket in
+ tiadc_read_raw()
+Date: Sun, 22 Dec 2013 16:55:15 +0000
+Message-ID: <52B71973.1000907@kernel.org>
+References: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de> <1387466911-3732-2-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from spritesmods.com ([188.40.123.50]:38743 "EHLO spritesmods.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755858Ab3LUXRK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 21 Dec 2013 18:17:10 -0500
-In-Reply-To: <loom.20131221T224832-537@post.gmane.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:47142 "EHLO
+	saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753578Ab3LVQzQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 22 Dec 2013 11:55:16 -0500
+In-Reply-To: <1387466911-3732-2-git-send-email-bigeasy@linutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Heinz Wiesinger <HMWiesinger@liwjatan.at>
-Cc: linux-input@vger.kernel.org
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Lee Jones <lee.jones@linaro.org>, Samuel Ortiz <sameo@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Zubair Lutfullah <zubair.lutfullah@gmail.com>, Felipe Balbi <balbi@ti.com>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On 12/19/13 15:28, Sebastian Andrzej Siewior wrote:
+> It somehow looks like the ending bracket belongs to the if statement but
+> it does belong to the while loop. This patch moves the bracket where it
+> belongs.
+> 
+> Reviewed-by: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
 
-On Sat, 21 Dec 2013, Heinz Wiesinger wrote:
-> J. Domburg <jeroen <at> spritesmods.com> writes:
-> I'm experiencing exactly the same issue. I have my T440s now for a bit more
-> than two weeks. No issues with the touchpad until today when it suddenly
-> started acting up and I now see messages like these in dmesg
-<snip>
-
-Hi Heinz, all,
-
-Always good to know mine is not an isolated case, although in this case, I 
-wouldn't want to wish the issue on anyone else...
-
-FYI: I haven't resolved this issue yet, but I'm thinking this may be a 
-hardware issue after all. I decided to try and see if Win7 has this issue 
-too, and got myself an USB-stick to install it from. I didn't even get 
-past the installer. It gave me exactly the same issues as Linux has: 
-an erratic and finally hanging cursor when using the clickpad.
-
-I can understand Lenovo not wanting to support a Linux-only-issue so up 
-till now I haven't bothered them yet with my issue, but I can't see my 
-laptop not having mouse support in something as commonly used and 
-well-supported by hardware manufacturers as the Win7 installer. This 
-smells like an hardware issue to me, so I filed a warranty case today.
-
-If people here don't mind, I'll keep the list updated, if anything so 
-other people running into the same issues will have a reference and know 
-this isn't necessarily a kernel thing.
-
-Depending on how Lenovo reacts, I'll either have a working laptop or a 
-good reason to go soldering and probing the i2c bus. In any case, I should 
-end up with a solution I'd think :) although it'd be good if someone more 
-versed in the i8042 and related things would look over my shoulder in the 
-latter case.
-
-Cheers,
-Jeroen
+Lee, I'm assuming you are fine taking the whole series!
+> ---
+>  drivers/iio/adc/ti_am335x_adc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+> index d4d7482..e948454 100644
+> --- a/drivers/iio/adc/ti_am335x_adc.c
+> +++ b/drivers/iio/adc/ti_am335x_adc.c
+> @@ -341,7 +341,7 @@ static int tiadc_read_raw(struct iio_dev *indio_dev,
+>  	while (tiadc_readl(adc_dev, REG_ADCFSM) & SEQ_STATUS) {
+>  		if (time_after(jiffies, timeout))
+>  			return -EAGAIN;
+> -		}
+> +	}
+>  	map_val = chan->channel + TOTAL_CHANNELS;
+>  
+>  	/*
+> 

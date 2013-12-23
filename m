@@ -1,83 +1,78 @@
-From: Heinz Wiesinger <HMWiesinger@liwjatan.at>
-Subject: Re: T440s Synaptics clickpad: lost sync / KBC bad data
-Date: Mon, 23 Dec 2013 09:00:23 +0100
-Message-ID: <2151662.dpCX0YOWBV@titania>
-References: <alpine.DEB.2.00.1312151507560.6449@icf1.fcevgrfzbqf.pbz> <loom.20131221T224832-537@post.gmane.org> <alpine.DEB.2.00.1312220001560.4559@icf1.fcevgrfzbqf.pbz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1564267.YldFb1JgXz"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: [PATCH] Input: gamepad - use independent axes for analog D-Pad buttons
+Date: Mon, 23 Dec 2013 17:17:43 +0100
+Message-ID: <1387815463-29345-1-git-send-email-ospite@studenti.unina.it>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx09lb.world4you.com ([81.19.149.119]:56571 "EHLO
-	mx09lb.world4you.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750730Ab3LWIdH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Dec 2013 03:33:07 -0500
-In-Reply-To: <alpine.DEB.2.00.1312220001560.4559@icf1.fcevgrfzbqf.pbz>
+Received: from smtp206.alice.it ([82.57.200.102]:22437 "EHLO smtp206.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752505Ab3LWQSU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Dec 2013 11:18:20 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "J. Domburg" <jeroen@spritesmods.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Antonio Ospite <ospite@studenti.unina.it>, David Herrmann <dh.herrmann@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
+Model this part of the API after the Sony PlayStation 3 Controller which
+exposes independent analog values for each one of the D-Pad buttons.
 
---nextPart1564267.YldFb1JgXz
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+The PS3 programming API psl1ght also maps the analog D-Pad buttons
+individually.
 
-On Sunday 22 December 2013 00:17:06 you wrote:
-> On Sat, 21 Dec 2013, Heinz Wiesinger wrote:
-> > J. Domburg <jeroen <at> spritesmods.com> writes:
-> > I'm experiencing exactly the same issue. I have my T440s now for a bit
-> > more
-> > than two weeks. No issues with the touchpad until today when it suddenly
-> > started acting up and I now see messages like these in dmesg
-> 
-> <snip>
-> 
-> Hi Heinz, all,
-> 
-> Always good to know mine is not an isolated case, although in this case, I
-> wouldn't want to wish the issue on anyone else...
-> 
-> FYI: I haven't resolved this issue yet, but I'm thinking this may be a
-> hardware issue after all. I decided to try and see if Win7 has this issue
-> too, and got myself an USB-stick to install it from. I didn't even get
-> past the installer. It gave me exactly the same issues as Linux has:
-> an erratic and finally hanging cursor when using the clickpad.
-> 
-> I can understand Lenovo not wanting to support a Linux-only-issue so up
-> till now I haven't bothered them yet with my issue, but I can't see my
-> laptop not having mouse support in something as commonly used and
-> well-supported by hardware manufacturers as the Win7 installer. This
-> smells like an hardware issue to me, so I filed a warranty case today.
-> 
-> If people here don't mind, I'll keep the list updated, if anything so
-> other people running into the same issues will have a reference and know
-> this isn't necessarily a kernel thing.
-> 
-> Depending on how Lenovo reacts, I'll either have a working laptop or a
-> good reason to go soldering and probing the i2c bus. In any case, I should
-> end up with a solution I'd think :) although it'd be good if someone more
-> versed in the i8042 and related things would look over my shoulder in the
-> latter case.
+Cc: David Herrmann <dh.herrmann@gmail.com>
+Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
+---
 
-I ended up doing the same and just got their reply. They seem to be pretty 
-adamant about it being a software issue, with the argument being if it were a 
-hardware issue the clickpad would either be working fine or not working at all, 
-but not on and off. Did you hear back from them as well?
+Hi,
 
-Grs,
-Heinz
---nextPart1564267.YldFb1JgXz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+as David mentioned no gamepad defines analog D-Pad buttons as mentioned in the
+gamepad API, so the API change should be OK.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+And is it OK too to fill the holes in the ABS space or should I just use
+higher codes?
 
-iF4EABEIAAYFAlK37ZcACgkQp17cM+UqRsq3yAD/WpnvCVuIxCgUqbZJJ5M/VseP
-FMtKHITkrswDI7K/3OwA/iBQbvP035Qt4Y9AoRyUTpqNyPCq6vAocFZaxqPhmz1e
-=gSW/
------END PGP SIGNATURE-----
+Thanks,
+   Antonio
 
---nextPart1564267.YldFb1JgXz--
+ Documentation/input/gamepad.txt       | 4 ++--
+ drivers/staging/et131x/Module.symvers | 0
+ include/uapi/linux/input.h            | 5 +++++
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+ delete mode 100644 drivers/staging/et131x/Module.symvers
+
+diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
+index ed13782..aab000d 100644
+--- a/Documentation/input/gamepad.txt
++++ b/Documentation/input/gamepad.txt
+@@ -124,8 +124,8 @@ D-Pad:
+     Digital buttons are reported as:
+       BTN_DPAD_*
+     Analog buttons are reported as:
+-      ABS_HAT0X and ABS_HAT0Y
+-      (for ABS values negative is left/up, positive is right/down)
++      ABS_DPAD_*
++      (ABS values start at 0, pressure is reported as positive values)
+ 
+ Analog-Sticks:
+   The left analog-stick is reported as ABS_X, ABS_Y. The right analog stick is
+diff --git a/drivers/staging/et131x/Module.symvers b/drivers/staging/et131x/Module.symvers
+deleted file mode 100644
+index e69de29..0000000
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index d3fcbff..dcc73c0 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -842,6 +842,11 @@ struct input_keymap_entry {
+ 
+ #define ABS_VOLUME		0x20
+ 
++#define ABS_DPAD_UP		0x21	/* Analog D-Pad Up for gamepads */
++#define ABS_DPAD_DOWN		0x22	/* Analog D-Pad Down for gamepads */
++#define ABS_DPAD_LEFT		0x23	/* Analog D-Pad Left for gamepads */
++#define ABS_DPAD_RIGHT		0x24	/* Analog D-Pad Right for gamepads */
++
+ #define ABS_MISC		0x28
+ 
+ #define ABS_MT_SLOT		0x2f	/* MT slot being modified */
+-- 
+1.8.5.2
 

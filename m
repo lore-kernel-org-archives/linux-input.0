@@ -1,69 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio_keys: support wakeup system from freeze mode
-Date: Mon, 23 Dec 2013 16:30:36 -0800
-Message-ID: <20131224003036.GA16590@core.coreip.homeip.net>
-References: <1387822880-30382-1-git-send-email-b20788@freescale.com>
+From: Tommy Will <tommywill2011@gmail.com>
+Subject: Re: [Dell Inspiron 17R SE 7720] Synaptics touchpad recognized as PS/2
+ Generic Mouse
+Date: Tue, 24 Dec 2013 09:04:36 +0800
+Message-ID: <CA+F6ckNU9FHSMQfF9Q640QDa1rmsiR5-ZCCM6m7iPMydjBiSwg@mail.gmail.com>
+References: <52B87EE0.5030104@r15n.nl>
+	<CAJiQ=7CG-C4RR7xO_W+SKai-fLKr6xutAn5L0omuLgDPhBtFHg@mail.gmail.com>
+	<52B8875F.9060705@r15n.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f46.google.com ([209.85.220.46]:47114 "EHLO
-	mail-pa0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758409Ab3LXAak (ORCPT
+Received: from mail-lb0-f173.google.com ([209.85.217.173]:48621 "EHLO
+	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753341Ab3LXBEi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Dec 2013 19:30:40 -0500
-Received: by mail-pa0-f46.google.com with SMTP id kp14so3956411pab.5
-        for <linux-input@vger.kernel.org>; Mon, 23 Dec 2013 16:30:40 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1387822880-30382-1-git-send-email-b20788@freescale.com>
+	Mon, 23 Dec 2013 20:04:38 -0500
+Received: by mail-lb0-f173.google.com with SMTP id z5so2591908lbh.18
+        for <linux-input@vger.kernel.org>; Mon, 23 Dec 2013 17:04:37 -0800 (PST)
+In-Reply-To: <52B8875F.9060705@r15n.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anson Huang <b20788@freescale.com>
-Cc: sachin.kamat@linaro.org, linux-input@vger.kernel.org
+To: Robert van Geerenstein <info@r15n.nl>
+Cc: Kevin Cernekee <cernekee@gmail.com>, linux-input@vger.kernel.org, Justin Clift <jclift@redhat.com>
 
-Hi Anson,
+Hi Kevin,
 
-On Mon, Dec 23, 2013 at 01:21:20PM -0500, Anson Huang wrote:
-> For "freeze" mode of suspend, cpu will go into idle and
-> those wakeup sources' irq should NOT be disabled during
-> devices suspend, so we need to add IRQF_NO_SUSPEND flag
-> for those wakeup sources.
-> 
-> Steps to test this patch:
-> 
-> 1. echo freeze > /sys/power/state;
-> 2. press gpio key which has wakeup function, then system
->    will resume.
+Thanks for you following this issue.
+About the trackstick issue, although I still have not got the
+feedback, I'd start preparing the new patch since it
+does not have problem as far as my self testing.
 
-I do no think this is correct approach, otheriwse every driver that can
-be a wakeup source would have to use IRQF_NO_SUSPEND flag. The driver
-does use enable_irq_wake() in its suspend path, and platform code should
-perform all necessary work for this IRQ to be usable as a wakeup source.
+Hi Robert,
 
-Thanks.
+Please wait and try my new patch later. Hopes it could fix your problem.
 
-> 
-> Signed-off-by: Anson Huang <b20788@freescale.com>
-> ---
->  drivers/input/keyboard/gpio_keys.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 2db1324..aadb1db 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -473,6 +473,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  
->  		isr = gpio_keys_gpio_isr;
->  		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
-> +		if (bdata->button->wakeup)
-> +			irqflags |= IRQF_NO_SUSPEND;
->  
->  	} else {
->  		if (!button->irq) {
-> -- 
-> 1.7.9.5
-> 
-> 
+--
+Best Regards,
+Tommy
 
--- 
-Dmitry
+2013/12/24 Robert van Geerenstein <info@r15n.nl>:
+> On 23-12-2013 19:47, Kevin Cernekee wrote:
+>>
+>> On Mon, Dec 23, 2013 at 10:20 AM, Robert van Geerenstein <info@r15n.nl>
+>> wrote:
+>>>
+>>> My touchpad is detected as a PS/2 Generic Mouse on my Dell Inspiron 7720
+>>> (17R SE).
+>>> It only has the functionality of a generic mouse (movement, left clik,
+>>> right
+>>> click) and no scrolling or multitouch.
+>>
+>> Hmm, doesn't this laptop have an ALPS Dolphin V2 touchpad (not Synaptics)?
+>>
+>> Tommy and Justin were working on this a while back.  There are a few
+>> patches in the list archives that you could try out.  I believe
+>> they're mostly ready for merging except for one remaining issue with
+>> the trackstick.
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
+> Hmm, looks like you're right. :/
+> Didn't even notice after all this time, guess back when I made the bugreport
+> on launchpad I was all over the place trying to get it to work.
+>
+> I'll go ahead and see if I can find anything in the archives that might get
+> it to work.
+>
+> Good to hear they're mostly ready for merging though.

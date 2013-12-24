@@ -1,47 +1,84 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@prifuk.cz>
-Subject: Re: [RFC  v3] Add ff-memless-next
-Date: Tue, 24 Dec 2013 03:11:57 +0100
-Message-ID: <16141479.Xuvegy6qFd@geidi-prime>
-References: <1494187.y8mYFDm1lA@geidi-prime> <1387844508.22671.73.camel@joe-AO722>
+From: "Anson.Huang@freescale.com" <Anson.Huang@freescale.com>
+Subject: RE: [PATCH] Input: gpio_keys: support wakeup system from freeze mode
+Date: Tue, 24 Dec 2013 02:29:54 +0000
+Message-ID: <971c266b465e460bbea8b968d3e19cd4@BY2PR03MB315.namprd03.prod.outlook.com>
+References: <1387822880-30382-1-git-send-email-b20788@freescale.com>
+ <20131224003036.GA16590@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from prifuk.spider.cz ([31.31.77.241]:56949 "EHLO prifuk.cz"
-	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1753836Ab3LXCMD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Dec 2013 21:12:03 -0500
-In-Reply-To: <1387844508.22671.73.camel@joe-AO722>
+Received: from mail-bl2lp0212.outbound.protection.outlook.com ([207.46.163.212]:31910
+	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753139Ab3LXCaL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Dec 2013 21:30:11 -0500
+In-Reply-To: <20131224003036.GA16590@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, elias.vds@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "sachin.kamat@linaro.org" <sachin.kamat@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Monday 23 of December 2013 16:21:48 you wrote:
-> On Mon, 2013-12-23 at 23:46 +0100, Michal Mal=FD wrote:
-> > One case where uncombinable effects were mishandled was corrected. =
-Rest of
-> > the changes are just coding style fixes.
->=20
-> trivia:
-> > diff --git a/drivers/input/ff-memless-next.c
-> > b/drivers/input/ff-memless-next.c
-> []
->=20
-> > +static __always_inline s32 mlnx_calculate_x_force(const s32 level,
-> > +						  const u16 direction)
->=20
-> __always_inline is almost never warranted.
-> gcc generally does the right thing.
-I did some reading about __always_inline vs. plain inline and I ran int=
-o
-some contradictory information about what is considered broken. Thanks
-for letting me know...
-
-Is there anything else that needs some reviewing?
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGksIERtaXRyeQ0KDQoJU2VlIGJlbG93Og0KDQpCZXN0IFJlZ2FyZHMuDQpBbnNvbiBodWFuZyDp
+u4Tli4fmiY0NCsKgDQpGcmVlc2NhbGUgU2VtaWNvbmR1Y3RvciBTaGFuZ2hhaQ0K5LiK5rW35rWm
+5Lic5paw5Yy65Lqu5pmv6LevMTky5Y+3QeW6pzLmpbwNCjIwMTIwMw0KVGVsOjAyMS0yODkzNzA1
+OA0KDQoNCj4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPkZyb206IERtaXRyeSBUb3Jva2hv
+diBbbWFpbHRvOmRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb21dDQo+U2VudDogVHVlc2RheSwgRGVj
+ZW1iZXIgMjQsIDIwMTMgODozMSBBTQ0KPlRvOiBIdWFuZyBZb25nY2FpLUIyMDc4OA0KPkNjOiBz
+YWNoaW4ua2FtYXRAbGluYXJvLm9yZzsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnDQo+U3Vi
+amVjdDogUmU6IFtQQVRDSF0gSW5wdXQ6IGdwaW9fa2V5czogc3VwcG9ydCB3YWtldXAgc3lzdGVt
+IGZyb20gZnJlZXplIG1vZGUNCj4NCj5IaSBBbnNvbiwNCj4NCj5PbiBNb24sIERlYyAyMywgMjAx
+MyBhdCAwMToyMToyMFBNIC0wNTAwLCBBbnNvbiBIdWFuZyB3cm90ZToNCj4+IEZvciAiZnJlZXpl
+IiBtb2RlIG9mIHN1c3BlbmQsIGNwdSB3aWxsIGdvIGludG8gaWRsZSBhbmQgdGhvc2Ugd2FrZXVw
+DQo+PiBzb3VyY2VzJyBpcnEgc2hvdWxkIE5PVCBiZSBkaXNhYmxlZCBkdXJpbmcgZGV2aWNlcyBz
+dXNwZW5kLCBzbyB3ZSBuZWVkDQo+PiB0byBhZGQgSVJRRl9OT19TVVNQRU5EIGZsYWcgZm9yIHRo
+b3NlIHdha2V1cCBzb3VyY2VzLg0KPj4NCj4+IFN0ZXBzIHRvIHRlc3QgdGhpcyBwYXRjaDoNCj4+
+DQo+PiAxLiBlY2hvIGZyZWV6ZSA+IC9zeXMvcG93ZXIvc3RhdGU7DQo+PiAyLiBwcmVzcyBncGlv
+IGtleSB3aGljaCBoYXMgd2FrZXVwIGZ1bmN0aW9uLCB0aGVuIHN5c3RlbQ0KPj4gICAgd2lsbCBy
+ZXN1bWUuDQo+DQo+SSBkbyBubyB0aGluayB0aGlzIGlzIGNvcnJlY3QgYXBwcm9hY2gsIG90aGVy
+aXdzZSBldmVyeSBkcml2ZXIgdGhhdCBjYW4gYmUgYQ0KPndha2V1cCBzb3VyY2Ugd291bGQgaGF2
+ZSB0byB1c2UgSVJRRl9OT19TVVNQRU5EIGZsYWcuIFRoZSBkcml2ZXIgZG9lcyB1c2UNCj5lbmFi
+bGVfaXJxX3dha2UoKSBpbiBpdHMgc3VzcGVuZCBwYXRoLCBhbmQgcGxhdGZvcm0gY29kZSBzaG91
+bGQgcGVyZm9ybSBhbGwNCj5uZWNlc3Nhcnkgd29yayBmb3IgdGhpcyBJUlEgdG8gYmUgdXNhYmxl
+IGFzIGEgd2FrZXVwIHNvdXJjZS4NCj4NCj5UaGFua3MuDQoNCg0KRnJvbSB0aGUgc3VzcGVuZCBm
+bG93LCB3ZSBjYW4gc2VlIHRoYXQga2VybmVsIHdpbGwgZGlzYWJsZSBhbGwgZGV2aWNlcycgaXJx
+IHVubGVzcw0KaXRzIElSUUZfTk9fU1VTUEVORCBmbGFnIGlzIHNldC4gRm9yIGZyZWV6ZSBtb2Rl
+LCBhcyBjcHUgd2lsbCBiZSBpbiBpZGxlLCBTT0MgaXMNCm5vdCBpbiBsb3cgcG93ZXIgbW9kZSwg
+dGhhdCBtZWFucyBmcmVlemUgbW9kZSBlcXVhbHMgY3B1IGluIGlkbGUgYW5kIGRldmljZXMNCmlu
+IHN1c3BlbmQuIFRoZSB3YWtldXAgc291cmNlIG11c3QgY29tZSBmcm9tIEdJQy4gWWVzLCBmb3Ig
+bm9ybWFsIHN0YW5kYnkvbWVtIG1vZGUncw0Kc3VzcGVuZCwgdGhlIGVuYWJsZV9pcnFfd2FrZSB3
+aWxsIG1ha2UgZXZlcnl0aGluZyBkb25lIGZvciB3YWtpbmcgdXAgYSBzeXN0ZW0sIGluDQpnaWNf
+c2V0X3dha2Ugcm91dGluZSwgaXQgd2lsbCBjYWxsIGV4dGVybiBpcnEgY2hpcCdzIHdha2V1cCBm
+dW5jdGlvbiwgYnV0IGZvciBmcmVlemUNCm1vZGUsIHRoZSB3YWtldXAgcHJvY2VzcyBpcyBzYW1l
+IGFzIG5vcm1hbCB3YWtldXAgZnJvbSBjcHUgaWRsZSwgc28gdGhlIHdha2V1cCBzb3VyY2UNCm11
+c3QgYmUgbm90IG1hc2tlZCBpbiBnaWMuIA0KDQoJVGFrZSBvdXIgaS5NWDYgU09DIGZvciBleGFt
+cGxlLCB0aGVyZSBpcyBHUEMgbW9kdWxlIHdoaWNoDQppcyB1c2VkIHRvIHdha2UgdXAgU09DIGZy
+b20gU1RPUCBtb2RlKGxvdyBwb3dlciBtb2RlIG9mIFNPQyksIG5vcm1hbCBzdGFuZGJ5L21lbSBt
+b2RlDQpzdXNwZW5kLCB0aGUgd2FrZXVwIHNvdXJjZSdzIGVuYWJsZV9pcnFfd2FrZSB3aWxsIHNl
+dCBHUEMgdG8gbW9uaXRvciB0aGVzZSBpcnEgc291cmNlIGFuZA0Kd2FrZXVwIHN5c3RlbSBmcm9t
+IFNUT1AgbW9kZSB3aGVuIHRoZXJlIGlzIGFuIHdha2V1cCBldmVudC4gQnV0IGZvciBmcmVlemUg
+bW9kZSwga2VybmVsJ3MNCnN1c3BlbmQgZmxvdyB3aWxsIG5vdCBmaW5pc2ggdGhlIFNPQydzIGxv
+dyBsZXZlbCBwb3dlciBtYW5hZ2VtZW50LCB0aGUgc2Vjb25kYXJ5IENQVXMgYXJlDQpldmVuIG5v
+dCBkaXNhYmxlZCwga2VybmVsIGp1c3Qgc3VzcGVuZCB0aGUgZGV2aWNlcyBhbmQgcHV0IENQVSBp
+bnRvIGlkbGUgYW5kIHdhaXRpbmcgZm9yDQp3YWtldXAgZXZlbiwgaW4gR0lDJ3MgZ2ljX3NldF93
+YWtlIHJvdXRpbmUsIGl0IG9ubHkgY2FsbHMgb3VyIEdQQydzIGlteF9ncGNfaXJxX3NldF93YWtl
+LA0KaGVyZSBjb21lcyB0aGUgcHJvYmxlbSwgYXMgb3VyIFNPQyBpcyBub3QgZW50ZXJpbmcgU1RP
+UCBtb2RlLCBHUEMgaGFzIG5vIHVzZSB0byBzZXQgdGhpcw0Kd2FrZXVwIHNvdXJjZSBlbmFibGVk
+LiBTbyBlaXRoZXIgd2Ugc2hvdWxkIGVuYWJsZSBHSUMncyB3YWtldXAgaW4gR0lDIGRyaXZlciwg
+b3IganVzdCBzZXQNCnRoaXMgZmxhZyB0byBtYWtlIGtlcm5lbCBkbyBOT1QgZGlzYWJsZSB0aGlz
+IHdha2V1cCBzb3VyY2UncyBpcnEgd2hlbiBleGVjdXRpbmcgYSBmcmVlemUNCm1vZGUgc3VzcGVu
+ZC4NCg0KCU90aGVyd2lzZSwgd2UgbmVlZCB0byBtb2RpZnkgdGhlIEdJQyBkcml2ZXI/DQoNCg0K
+Pg0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IEFuc29uIEh1YW5nIDxiMjA3ODhAZnJlZXNjYWxlLmNv
+bT4NCj4+IC0tLQ0KPj4gIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvZ3Bpb19rZXlzLmMgfCAgICAy
+ICsrDQo+PiAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKQ0KPj4NCj4+IGRpZmYgLS1n
+aXQgYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2dwaW9fa2V5cy5jDQo+PiBiL2RyaXZlcnMvaW5w
+dXQva2V5Ym9hcmQvZ3Bpb19rZXlzLmMNCj4+IGluZGV4IDJkYjEzMjQuLmFhZGIxZGIgMTAwNjQ0
+DQo+PiAtLS0gYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2dwaW9fa2V5cy5jDQo+PiArKysgYi9k
+cml2ZXJzL2lucHV0L2tleWJvYXJkL2dwaW9fa2V5cy5jDQo+PiBAQCAtNDczLDYgKzQ3Myw4IEBA
+IHN0YXRpYyBpbnQgZ3Bpb19rZXlzX3NldHVwX2tleShzdHJ1Y3QNCj4+IHBsYXRmb3JtX2Rldmlj
+ZSAqcGRldiwNCj4+DQo+PiAgCQlpc3IgPSBncGlvX2tleXNfZ3Bpb19pc3I7DQo+PiAgCQlpcnFm
+bGFncyA9IElSUUZfVFJJR0dFUl9SSVNJTkcgfCBJUlFGX1RSSUdHRVJfRkFMTElORzsNCj4+ICsJ
+CWlmIChiZGF0YS0+YnV0dG9uLT53YWtldXApDQo+PiArCQkJaXJxZmxhZ3MgfD0gSVJRRl9OT19T
+VVNQRU5EOw0KPj4NCj4+ICAJfSBlbHNlIHsNCj4+ICAJCWlmICghYnV0dG9uLT5pcnEpIHsNCj4+
+IC0tDQo+PiAxLjcuOS41DQo+Pg0KPj4NCj4NCj4tLQ0KPkRtaXRyeQ0KPg0KDQo=

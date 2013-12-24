@@ -1,143 +1,370 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH V2] input synaptics-rmi4: Bug fixes to ATTN GPIO handling.
-Date: Mon, 23 Dec 2013 18:44:19 -0800
-Message-ID: <1387853059-19099-1-git-send-email-cheiny@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Yunkang Tang <tommywill2011@gmail.com>
+Subject: [PATCH v5] Input: Improve the performance of alps v5-protocol's touchpad
+Date: Tue, 24 Dec 2013 17:18:37 +0800
+Message-ID: <1387876717-3878-1-git-send-email-yunkang.tang@cn.alps.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:53838 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757729Ab3LXCoX (ORCPT
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:43208 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751340Ab3LXJUe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Dec 2013 21:44:23 -0500
+	Tue, 24 Dec 2013 04:20:34 -0500
+Received: by mail-pb0-f41.google.com with SMTP id jt11so6285292pbb.14
+        for <linux-input@vger.kernel.org>; Tue, 24 Dec 2013 01:20:33 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: dmitry.torokhov@gmail.com, cernekee@gmail.com, dturvene@dahetral.com
+Cc: linux-input@vger.kernel.org, ndevos@redhat.com, jclift@redhat.com, yunkang.tang@cn.alps.com
 
-This patch fixes some bugs in handling of the RMI4 attention line GPIO.
+Hi all,
 
-1) in enable_sensor(), eliminate the complicated check on ATTN and just 
-call process_interrupt_requests().  This will have minimal overhead if ATTN
-is not asserted, and clears the state of the RMI4 device in any case.
+Here is the 5th patch of supporting ALPS v5 protocol's device.
 
-2) Correctly free the GPIO in rmi_driver_remove().
+Change since v4:
+- Use temporary variables to store the result of fls() and ffs(). (Suggestion by Kevin)
+- Use PSMOUSE_* macro instead of raw hex directly. (Suggestion by Kevin)
+- Change V5 device's mask0 from 0xc8 to 0xd8 to protect the abnormal case. (Discuss with Dmitry)
 
-3) in rmi_driver_probe()
-    - declare the name of the attention gpio (GPIO_LABEL)
-    - use gpio_request_one() to get the gpio and export it.
-    - simplify conditional gpio acquisition logic and combine with interrupt
-      setup
+Self test with v5 device:
+- Checked on both 32-bit & 64-bit environment.
+- Cursor moves correctly.
+- 1Finger Tap/Drag works well.
+- 2Finger Tap works well.
+- 2Finger Scroll works well.
+- L/R Buttons do function
 
-4) use gpio_is_valid() instead of comparing to 0.
-
-Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
+Signed-off-by: Yunkang Tang <yunkang.tang@cn.alps.com>
 ---
+ drivers/input/mouse/alps.c | 214 ++++++++++++++++++++++++++++++++++++---------
+ drivers/input/mouse/alps.h |   7 +-
+ 2 files changed, 179 insertions(+), 42 deletions(-)
 
- drivers/input/rmi4/rmi_driver.c | 43 ++++++++++++++++++++++-------------------
- 1 file changed, 23 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index a30c7d3..9b02358 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -140,7 +140,6 @@ static int enable_sensor(struct rmi_device *rmi_dev)
- 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
- 	struct rmi_phys_device *rmi_phys;
- 	int retval = 0;
--	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
- 
- 	if (data->enabled)
- 		return 0;
-@@ -169,11 +168,7 @@ static int enable_sensor(struct rmi_device *rmi_dev)
- 
- 	data->enabled = true;
- 
--	if (!pdata->level_triggered &&
--		    gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity)
--		retval = process_interrupt_requests(rmi_dev);
--
--	return retval;
-+	return process_interrupt_requests(rmi_dev);
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 5cf62e3..fb15c64 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -277,6 +277,57 @@ static void alps_process_packet_v1_v2(struct psmouse *psmouse)
  }
  
- static void rmi_free_function_list(struct rmi_device *rmi_dev)
-@@ -800,13 +795,20 @@ static SIMPLE_DEV_PM_OPS(rmi_driver_pm, rmi_driver_suspend, rmi_driver_resume);
- static int rmi_driver_remove(struct device *dev)
- {
- 	struct rmi_device *rmi_dev = to_rmi_device(dev);
-+	const struct rmi_device_platform_data *pdata =
-+					to_rmi_platform_data(rmi_dev);
- 
- 	disable_sensor(rmi_dev);
- 	rmi_free_function_list(rmi_dev);
- 
-+	if (gpio_is_valid(pdata->attn_gpio))
-+		gpio_free(pdata->attn_gpio);
+ /*
++ * Process bitmap data for V5 protocols. Return value is null.
++ *
++ * The bitmaps don't have enough data to track fingers, so this function
++ * only generates points representing a bounding box of at most two contacts.
++ * These two points are returned in x1, y1, x2, and y2.
++ */
++static void alps_process_bitmap_dolphin(struct alps_data *priv,
++					struct alps_fields *fields,
++					int *x1, int *y1, int *x2, int *y2)
++{
++	int box_middle_x, box_middle_y;
++	unsigned int x_map, y_map;
++	unsigned char start_bit, end_bit;
++	unsigned char x_msb, x_lsb, y_msb, y_lsb;
 +
- 	return 0;
++	x_map = fields->x_map;
++	y_map = fields->y_map;
++
++	if (!x_map || !y_map)
++		return;
++
++	/* Get Most-significant and Least-significant bit */
++	x_msb = fls(x_map);
++	x_lsb = ffs(x_map);
++	y_msb = fls(y_map);
++	y_lsb = ffs(y_map);
++
++	/* Most-significant bit should never exceed max sensor line number */
++	if (x_msb > priv->x_bits || y_msb > priv->y_bits)
++		return;
++
++	*x1 = *y1 = *x2 = *y2 = 0;
++
++	if (fields->fingers > 1) {
++		start_bit = priv->x_bits - x_msb;
++		end_bit = priv->x_bits - x_lsb;
++		box_middle_x = (priv->x_max * (start_bit + end_bit)) /
++				(2 * (priv->x_bits - 1));
++
++		start_bit = y_lsb - 1;
++		end_bit = y_msb - 1;
++		box_middle_y = (priv->y_max * (start_bit + end_bit)) /
++				(2 * (priv->y_bits - 1));
++		*x1 = fields->x;
++		*y1 = fields->y;
++		*x2 = 2 * box_middle_x - *x1;
++		*y2 = 2 * box_middle_y - *y1;
++	}
++}
++
++/*
+  * Process bitmap data from v3 and v4 protocols. Returns the number of
+  * fingers detected. A return value of 0 means at least one of the
+  * bitmaps was empty.
+@@ -481,7 +532,8 @@ static void alps_decode_buttons_v3(struct alps_fields *f, unsigned char *p)
+ 	f->ts_middle = !!(p[3] & 0x40);
  }
  
-+static const char GPIO_LABEL[] = "attn";
-+
- static int rmi_driver_probe(struct device *dev)
+-static void alps_decode_pinnacle(struct alps_fields *f, unsigned char *p)
++static void alps_decode_pinnacle(struct alps_fields *f, unsigned char *p,
++				 struct psmouse *psmouse)
  {
- 	struct rmi_driver *rmi_driver;
-@@ -937,7 +939,7 @@ static int rmi_driver_probe(struct device *dev)
- 		mutex_init(&data->suspend_mutex);
- 	}
+ 	f->first_mp = !!(p[4] & 0x40);
+ 	f->is_mp = !!(p[0] & 0x40);
+@@ -502,48 +554,61 @@ static void alps_decode_pinnacle(struct alps_fields *f, unsigned char *p)
+ 	alps_decode_buttons_v3(f, p);
+ }
  
--	if (pdata->attn_gpio) {
-+	if (gpio_is_valid(pdata->attn_gpio)) {
- 		data->irq = gpio_to_irq(pdata->attn_gpio);
- 		if (pdata->level_triggered) {
- 			data->irq_flags = IRQF_ONESHOT |
-@@ -948,24 +950,17 @@ static int rmi_driver_probe(struct device *dev)
- 				(pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
- 				? IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
- 		}
--	} else
--		data->poll_interval = ktime_set(0,
--			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
--			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
+-static void alps_decode_rushmore(struct alps_fields *f, unsigned char *p)
++static void alps_decode_rushmore(struct alps_fields *f, unsigned char *p,
++				 struct psmouse *psmouse)
+ {
+-	alps_decode_pinnacle(f, p);
++	alps_decode_pinnacle(f, p, psmouse);
+ 
+ 	f->x_map |= (p[5] & 0x10) << 11;
+ 	f->y_map |= (p[5] & 0x20) << 6;
+ }
+ 
+-static void alps_decode_dolphin(struct alps_fields *f, unsigned char *p)
++static void alps_decode_dolphin(struct alps_fields *f, unsigned char *p,
++				struct psmouse *psmouse)
+ {
++	u64 palm_data = 0;
++	struct alps_data *priv = psmouse->private;
++
+ 	f->first_mp = !!(p[0] & 0x02);
+ 	f->is_mp = !!(p[0] & 0x20);
+ 
+-	f->fingers = ((p[0] & 0x6) >> 1 |
++	if (!f->is_mp) {
++		f->x = ((p[1] & 0x7f) | ((p[4] & 0x0f) << 7));
++		f->y = ((p[2] & 0x7f) | ((p[4] & 0xf0) << 3));
++		f->z = (p[0] & 4) ? 0 : p[5] & 0x7f;
++		alps_decode_buttons_v3(f, p);
++	} else {
++		f->fingers = ((p[0] & 0x6) >> 1 |
+ 		     (p[0] & 0x10) >> 2);
+-	f->x_map = ((p[2] & 0x60) >> 5) |
+-		   ((p[4] & 0x7f) << 2) |
+-		   ((p[5] & 0x7f) << 9) |
+-		   ((p[3] & 0x07) << 16) |
+-		   ((p[3] & 0x70) << 15) |
+-		   ((p[0] & 0x01) << 22);
+-	f->y_map = (p[1] & 0x7f) |
+-		   ((p[2] & 0x1f) << 7);
 -
--	if (data->f01_container->dev.driver) {
--		/* Driver already bound, so enable ATTN now. */
--		enable_sensor(rmi_dev);
--	}
+-	f->x = ((p[1] & 0x7f) | ((p[4] & 0x0f) << 7));
+-	f->y = ((p[2] & 0x7f) | ((p[4] & 0xf0) << 3));
+-	f->z = (p[0] & 4) ? 0 : p[5] & 0x7f;
  
--	if (IS_ENABLED(CONFIG_RMI4_DEV) && pdata->attn_gpio) {
--		retval = gpio_export(pdata->attn_gpio, false);
-+		retval = gpio_request_one(pdata->attn_gpio,
-+					  GPIOF_EXPORT | GPIOF_DIR_IN,
-+					  GPIO_LABEL);
- 		if (retval) {
--			dev_warn(dev, "WARNING: Failed to export ATTN gpio!\n");
-+			dev_warn(dev, "WARNING: Failed to request ATTN gpio %d, code=%d.\n",
-+				 pdata->attn_gpio, retval);
- 			retval = 0;
+-	alps_decode_buttons_v3(f, p);
++		palm_data = (p[1] & 0x7f) |
++			    ((p[2] & 0x7f) << 7) |
++			    ((p[4] & 0x7f) << 14) |
++			    ((p[5] & 0x7f) << 21) |
++			    ((p[3] & 0x07) << 28) |
++			    (((u64)p[3] & 0x70) << 27) |
++			    (((u64)p[0] & 0x01) << 34);
++
++		/* Y-profile is stored in P(0) to p(n-1), n = y_bits; */
++		f->y_map = palm_data & (BIT(priv->y_bits) - 1);
++
++		/* X-profile is stored in p(n) to p(n+m-1), m = x_bits; */
++		f->x_map = (palm_data >> priv->y_bits) &
++			   (BIT(priv->x_bits) - 1);
++	}
+ }
+ 
+-static void alps_process_touchpad_packet_v3(struct psmouse *psmouse)
++static void alps_process_touchpad_packet_v3_v5(struct psmouse *psmouse)
+ {
+ 	struct alps_data *priv = psmouse->private;
+ 	unsigned char *packet = psmouse->packet;
+ 	struct input_dev *dev = psmouse->dev;
+ 	struct input_dev *dev2 = priv->dev2;
+ 	int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+-	int fingers = 0, bmap_fingers;
+-	struct alps_fields f;
++	int fingers = 0, bmap_fn;
++	struct alps_fields f = {0};
+ 
+-	priv->decode_fields(&f, packet);
++	priv->decode_fields(&f, packet, psmouse);
+ 
+ 	/*
+ 	 * There's no single feature of touchpad position and bitmap packets
+@@ -560,19 +625,38 @@ static void alps_process_touchpad_packet_v3(struct psmouse *psmouse)
+ 		 */
+ 		if (f.is_mp) {
+ 			fingers = f.fingers;
+-			bmap_fingers = alps_process_bitmap(priv,
+-							   f.x_map, f.y_map,
+-							   &x1, &y1, &x2, &y2);
+-
+-			/*
+-			 * We shouldn't report more than one finger if
+-			 * we don't have two coordinates.
+-			 */
+-			if (fingers > 1 && bmap_fingers < 2)
+-				fingers = bmap_fingers;
+-
+-			/* Now process position packet */
+-			priv->decode_fields(&f, priv->multi_data);
++			if (priv->proto_version == ALPS_PROTO_V3) {
++				bmap_fn = alps_process_bitmap(priv, f.x_map,
++							      f.y_map, &x1, &y1,
++							      &x2, &y2);
++
++				/*
++				 * We shouldn't report more than one finger if
++				 * we don't have two coordinates.
++				 */
++				if (fingers > 1 && bmap_fn < 2)
++					fingers = bmap_fn;
++
++				/* Now process position packet */
++				priv->decode_fields(&f, priv->multi_data,
++						    psmouse);
++			} else {
++				/*
++				 * Because Dolphin uses position packet's
++				 * coordinate data as Pt1 and uses it to
++				 * calculate Pt2, so we need to do position
++				 * packet decode first.
++				 */
++				priv->decode_fields(&f, priv->multi_data,
++						    psmouse);
++
++				/*
++				 * Since Dolphin's finger number is reliable,
++				 * there is no need to compare with bmap_fn.
++				 */
++				alps_process_bitmap_dolphin(priv, &f, &x1, &y1,
++							    &x2, &y2);
++			}
  		} else {
- 			retval = gpio_export_link(dev,
--						  "attn", pdata->attn_gpio);
-+						  GPIO_LABEL, pdata->attn_gpio);
- 			if (retval) {
- 				dev_warn(dev,
- 					"WARNING: Failed to symlink ATTN gpio!\n");
-@@ -975,6 +970,14 @@ static int rmi_driver_probe(struct device *dev)
- 					pdata->attn_gpio);
- 			}
+ 			priv->multi_packet = 0;
  		}
-+	} else
-+		data->poll_interval = ktime_set(0,
-+			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
-+			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
-+
-+	if (data->f01_container->dev.driver) {
-+		/* Driver already bound, so enable ATTN now. */
-+		enable_sensor(rmi_dev);
+@@ -662,7 +746,7 @@ static void alps_process_packet_v3(struct psmouse *psmouse)
+ 		return;
  	}
  
- 	return 0;
+-	alps_process_touchpad_packet_v3(psmouse);
++	alps_process_touchpad_packet_v3_v5(psmouse);
+ }
+ 
+ static void alps_process_packet_v6(struct psmouse *psmouse)
+@@ -1709,6 +1793,52 @@ error:
+ 	return -1;
+ }
+ 
++static int alps_dolphin_get_device_area(struct psmouse *psmouse,
++					struct alps_data *priv)
++{
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
++	unsigned char param[4] = {0};
++	int num_x_electrode, num_y_electrode;
++
++	if (alps_enter_command_mode(psmouse))
++		return -1;
++
++	param[0] = 0x0a;
++	if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_WRAP) ||
++	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETPOLL) ||
++	    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETPOLL) ||
++	    ps2_command(ps2dev, &param[0], PSMOUSE_CMD_SETRATE) ||
++	    ps2_command(ps2dev, &param[0], PSMOUSE_CMD_SETRATE))
++		return -1;
++
++	if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO))
++		return -1;
++
++	/*
++	 * Dolphin's sensor line number is not fixed. It can be calculated
++	 * by adding the device's register value with DOLPHIN_PROFILE_X/YOFFSET.
++	 * Further more, we can get device's x_max and y_max by multiplying
++	 * sensor line number with DOLPHIN_COUNT_PER_ELECTRODE.
++	 *
++	 * e.g. When we get register's sensor_x = 11 & sensor_y = 8,
++	 *	real sensor line number X = 11 + 8 = 19, and
++	 *	real sensor line number Y = 8 + 1 = 9.
++	 *	So, x_max = (19 - 1) * 64 = 1152, and
++	 *	    y_max = (9 - 1) * 64 = 512.
++	 */
++	num_x_electrode = DOLPHIN_PROFILE_XOFFSET + (param[2] & 0x0F);
++	num_y_electrode = DOLPHIN_PROFILE_YOFFSET + ((param[2] >> 4) & 0x0F);
++	priv->x_bits = num_x_electrode;
++	priv->y_bits = num_y_electrode;
++	priv->x_max = (num_x_electrode - 1) * DOLPHIN_COUNT_PER_ELECTRODE;
++	priv->y_max = (num_y_electrode - 1) * DOLPHIN_COUNT_PER_ELECTRODE;
++
++	if (alps_exit_command_mode(psmouse))
++		return -1;
++
++	return 0;
++}
++
+ static int alps_hw_init_dolphin_v1(struct psmouse *psmouse)
+ {
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+@@ -1763,13 +1893,13 @@ static void alps_set_defaults(struct alps_data *priv)
+ 		break;
+ 	case ALPS_PROTO_V5:
+ 		priv->hw_init = alps_hw_init_dolphin_v1;
+-		priv->process_packet = alps_process_packet_v3;
++		priv->process_packet = alps_process_touchpad_packet_v3_v5;
+ 		priv->decode_fields = alps_decode_dolphin;
+ 		priv->set_abs_params = alps_set_abs_params_mt;
+ 		priv->nibble_commands = alps_v3_nibble_commands;
+ 		priv->addr_command = PSMOUSE_CMD_RESET_WRAP;
+ 		priv->byte0 = 0xc8;
+-		priv->mask0 = 0xc8;
++		priv->mask0 = 0xd8;
+ 		priv->flags = 0;
+ 		priv->x_max = 1360;
+ 		priv->y_max = 660;
+@@ -1845,11 +1975,13 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+ 	if (alps_match_table(psmouse, priv, e7, ec) == 0) {
+ 		return 0;
+ 	} else if (e7[0] == 0x73 && e7[1] == 0x03 && e7[2] == 0x50 &&
+-		   ec[0] == 0x73 && ec[1] == 0x01) {
++		   ec[0] == 0x73 && (ec[1] == 0x01 || ec[1] == 0x02)) {
+ 		priv->proto_version = ALPS_PROTO_V5;
+ 		alps_set_defaults(priv);
+-
+-		return 0;
++		if (alps_dolphin_get_device_area(psmouse, priv))
++			return -EIO;
++		else
++			return 0;
+ 	} else if (ec[0] == 0x88 && ec[1] == 0x08) {
+ 		priv->proto_version = ALPS_PROTO_V3;
+ 		alps_set_defaults(priv);
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index 704f0f9..03f88b6 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -19,6 +19,10 @@
+ #define ALPS_PROTO_V5	5
+ #define ALPS_PROTO_V6	6
+ 
++#define DOLPHIN_COUNT_PER_ELECTRODE	64
++#define DOLPHIN_PROFILE_XOFFSET		8	/* x-electrode offset */
++#define DOLPHIN_PROFILE_YOFFSET		1	/* y-electrode offset */
++
+ /**
+  * struct alps_model_info - touchpad ID table
+  * @signature: E7 response string to match.
+@@ -146,7 +150,8 @@ struct alps_data {
+ 
+ 	int (*hw_init)(struct psmouse *psmouse);
+ 	void (*process_packet)(struct psmouse *psmouse);
+-	void (*decode_fields)(struct alps_fields *f, unsigned char *p);
++	void (*decode_fields)(struct alps_fields *f, unsigned char *p,
++			      struct psmouse *psmouse);
+ 	void (*set_abs_params)(struct alps_data *priv, struct input_dev *dev1);
+ 
+ 	int prev_fin;
+-- 
+1.8.1.2
+

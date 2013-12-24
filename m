@@ -1,71 +1,47 @@
-From: Tommy Will <tommywill2011@gmail.com>
-Subject: Re: [Dell Inspiron 17R SE 7720] Synaptics touchpad recognized as PS/2
- Generic Mouse
-Date: Tue, 24 Dec 2013 09:04:36 +0800
-Message-ID: <CA+F6ckNU9FHSMQfF9Q640QDa1rmsiR5-ZCCM6m7iPMydjBiSwg@mail.gmail.com>
-References: <52B87EE0.5030104@r15n.nl>
-	<CAJiQ=7CG-C4RR7xO_W+SKai-fLKr6xutAn5L0omuLgDPhBtFHg@mail.gmail.com>
-	<52B8875F.9060705@r15n.nl>
+From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@prifuk.cz>
+Subject: Re: [RFC  v3] Add ff-memless-next
+Date: Tue, 24 Dec 2013 03:11:57 +0100
+Message-ID: <16141479.Xuvegy6qFd@geidi-prime>
+References: <1494187.y8mYFDm1lA@geidi-prime> <1387844508.22671.73.camel@joe-AO722>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f173.google.com ([209.85.217.173]:48621 "EHLO
-	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753341Ab3LXBEi (ORCPT
+Received: from prifuk.spider.cz ([31.31.77.241]:56949 "EHLO prifuk.cz"
+	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1753836Ab3LXCMD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Dec 2013 20:04:38 -0500
-Received: by mail-lb0-f173.google.com with SMTP id z5so2591908lbh.18
-        for <linux-input@vger.kernel.org>; Mon, 23 Dec 2013 17:04:37 -0800 (PST)
-In-Reply-To: <52B8875F.9060705@r15n.nl>
+	Mon, 23 Dec 2013 21:12:03 -0500
+In-Reply-To: <1387844508.22671.73.camel@joe-AO722>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robert van Geerenstein <info@r15n.nl>
-Cc: Kevin Cernekee <cernekee@gmail.com>, linux-input@vger.kernel.org, Justin Clift <jclift@redhat.com>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, elias.vds@gmail.com
 
-Hi Kevin,
+On Monday 23 of December 2013 16:21:48 you wrote:
+> On Mon, 2013-12-23 at 23:46 +0100, Michal Mal=FD wrote:
+> > One case where uncombinable effects were mishandled was corrected. =
+Rest of
+> > the changes are just coding style fixes.
+>=20
+> trivia:
+> > diff --git a/drivers/input/ff-memless-next.c
+> > b/drivers/input/ff-memless-next.c
+> []
+>=20
+> > +static __always_inline s32 mlnx_calculate_x_force(const s32 level,
+> > +						  const u16 direction)
+>=20
+> __always_inline is almost never warranted.
+> gcc generally does the right thing.
+I did some reading about __always_inline vs. plain inline and I ran int=
+o
+some contradictory information about what is considered broken. Thanks
+for letting me know...
 
-Thanks for you following this issue.
-About the trackstick issue, although I still have not got the
-feedback, I'd start preparing the new patch since it
-does not have problem as far as my self testing.
-
-Hi Robert,
-
-Please wait and try my new patch later. Hopes it could fix your problem.
-
+Is there anything else that needs some reviewing?
 --
-Best Regards,
-Tommy
-
-2013/12/24 Robert van Geerenstein <info@r15n.nl>:
-> On 23-12-2013 19:47, Kevin Cernekee wrote:
->>
->> On Mon, Dec 23, 2013 at 10:20 AM, Robert van Geerenstein <info@r15n.nl>
->> wrote:
->>>
->>> My touchpad is detected as a PS/2 Generic Mouse on my Dell Inspiron 7720
->>> (17R SE).
->>> It only has the functionality of a generic mouse (movement, left clik,
->>> right
->>> click) and no scrolling or multitouch.
->>
->> Hmm, doesn't this laptop have an ALPS Dolphin V2 touchpad (not Synaptics)?
->>
->> Tommy and Justin were working on this a while back.  There are a few
->> patches in the list archives that you could try out.  I believe
->> they're mostly ready for merging except for one remaining issue with
->> the trackstick.
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
-> Hmm, looks like you're right. :/
-> Didn't even notice after all this time, guess back when I made the bugreport
-> on launchpad I was all over the place trying to get it to work.
->
-> I'll go ahead and see if I can find anything in the archives that might get
-> it to work.
->
-> Good to hear they're mostly ready for merging though.
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

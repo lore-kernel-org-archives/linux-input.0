@@ -1,103 +1,41 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [RFC  v3] Add ff-memless-next
-Date: Tue, 24 Dec 2013 11:38:03 -0800
-Message-ID: <52B9E29B.1040005@infradead.org>
-References: <1494187.y8mYFDm1lA@geidi-prime>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 0/5] input: Add new sun4i-ts driver for
+ Allwinner sunxi SoC's
+Date: Tue, 24 Dec 2013 23:24:02 +0100
+Message-ID: <1387923847-1294-1-git-send-email-hdegoede@redhat.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:36536 "EHLO
-	merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752410Ab3LXTiH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Dec 2013 14:38:07 -0500
-In-Reply-To: <1494187.y8mYFDm1lA@geidi-prime>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBDL4X2GMZUKRBD4T5CKQKGQEBVQT5PA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?Michal_Mal=FD?= <madcatxster@prifuk.cz>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, elias.vds@gmail.com, joe@perches.com
 
-On 12/23/13 14:46, Michal Mal=FD wrote:
-> ---
->  Documentation/input/ff-memless-next.txt | 145 ++++++
->  drivers/input/Kconfig                   |  12 +
->  drivers/input/Makefile                  |   2 +
->  drivers/input/ff-memless-next.c         | 786 ++++++++++++++++++++++=
-++++++++++
->  include/linux/input/ff-memless-next.h   |  31 ++
->  5 files changed, 976 insertions(+)
->  create mode 100644 Documentation/input/ff-memless-next.txt
->  create mode 100644 drivers/input/ff-memless-next.c
->  create mode 100644 include/linux/input/ff-memless-next.h
->=20
-> diff --git a/Documentation/input/ff-memless-next.txt b/Documentation/=
-input/ff-memless-next.txt
-> new file mode 100644
-> index 0000000..00f893d
-> --- /dev/null
-> +++ b/Documentation/input/ff-memless-next.txt
-> @@ -0,0 +1,145 @@
-> +"ff-memless-next" force feedback module for memoryless devices.
-> +By Michal Mal=FD <madcatxster@prifuk.cz> on 2013/12/21
-> +--------------------------------------------------------------------=
---------
-> +
-> +1. Introduction
-> +~~~~~~~~~~~~~~~
-> +This document describes basic working principles of the "ff-memless-=
-next"
+Hi Dimitri,
 
-                                                                       =
-      driver
-(or module)
+Here is a new driver for the resistive touchscreen controller found in
+Allwinner sunxi SoC's. Please review, and when ready pull this driver into
+your tree for Linus.
 
-> +and its purpose. This document also contains summary of "ff-memless-=
-next" API
+This series consist of 5 patches, the 1st patch is the actual new driver,
+the 2nd patch extends it with support for the temperature sensor built into
+the rtp controller. Since this depends on the 1st one I would like to ask
+you to pull it into your tree too. I've written and maintain several hwmon
+drivers, so I'm confident the hwmon bits are solid, I've also CC-ed the
+sensors list so that they can review and if they've any comments I will of
+course fix those and send a new version.
 
-                                                a summary of the
+Patch 3-5 are dts patches adding the controller to the dts files describing
+the sunxi SoC variants. These will be merged through Maxime Ripard's tree,
+and are here so that the dts bits can be reviewed at the same time. I'll ask
+Maxime to merge them once you're happy with Patch 1 + 2.
 
-> +and brief instructions on how to use it to write a hardware-specific=
- backend
-> +with "ff-memless-next". Some specifics of ff-memless-next that might=
- be of
-> +interest for userspace developers are also discussed.
+Thanks & Regards,
 
-
-
-> diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-> index a11ff74..893ab00 100644
-> --- a/drivers/input/Kconfig
-> +++ b/drivers/input/Kconfig
-> @@ -77,6 +77,18 @@ config INPUT_MATRIXKMAP
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called matrix-keymap.
-> =20
-> +config INPUT_FF_MEMLESS_NEXT
-> +	tristate "New version of support for memoryless force feedback devi=
-ces"
-> +	help
-> +	  Say Y here if you want to enable support for various memoryless
-> +	  force feedback devices (as of now there is no hardware-specific
-> +	  driver that supports this)
-
-	                       this).
-
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called ff-memless-next.
-> +
->  comment "Userland interfaces"
-> =20
->  config INPUT_MOUSEDEV
-
-
---=20
-~Randy
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hans

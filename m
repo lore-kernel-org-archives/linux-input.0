@@ -1,84 +1,143 @@
-From: "Anson.Huang@freescale.com" <Anson.Huang@freescale.com>
-Subject: RE: [PATCH] Input: gpio_keys: support wakeup system from freeze mode
-Date: Tue, 24 Dec 2013 02:29:54 +0000
-Message-ID: <971c266b465e460bbea8b968d3e19cd4@BY2PR03MB315.namprd03.prod.outlook.com>
-References: <1387822880-30382-1-git-send-email-b20788@freescale.com>
- <20131224003036.GA16590@core.coreip.homeip.net>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH V2] input synaptics-rmi4: Bug fixes to ATTN GPIO handling.
+Date: Mon, 23 Dec 2013 18:44:19 -0800
+Message-ID: <1387853059-19099-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2lp0212.outbound.protection.outlook.com ([207.46.163.212]:31910
-	"EHLO na01-bl2-obe.outbound.protection.outlook.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753139Ab3LXCaL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Dec 2013 21:30:11 -0500
-In-Reply-To: <20131224003036.GA16590@core.coreip.homeip.net>
-Content-Language: en-US
+Received: from us-mx2.synaptics.com ([192.147.44.131]:53838 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757729Ab3LXCoX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Dec 2013 21:44:23 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "sachin.kamat@linaro.org" <sachin.kamat@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-SGksIERtaXRyeQ0KDQoJU2VlIGJlbG93Og0KDQpCZXN0IFJlZ2FyZHMuDQpBbnNvbiBodWFuZyDp
-u4Tli4fmiY0NCsKgDQpGcmVlc2NhbGUgU2VtaWNvbmR1Y3RvciBTaGFuZ2hhaQ0K5LiK5rW35rWm
-5Lic5paw5Yy65Lqu5pmv6LevMTky5Y+3QeW6pzLmpbwNCjIwMTIwMw0KVGVsOjAyMS0yODkzNzA1
-OA0KDQoNCj4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPkZyb206IERtaXRyeSBUb3Jva2hv
-diBbbWFpbHRvOmRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb21dDQo+U2VudDogVHVlc2RheSwgRGVj
-ZW1iZXIgMjQsIDIwMTMgODozMSBBTQ0KPlRvOiBIdWFuZyBZb25nY2FpLUIyMDc4OA0KPkNjOiBz
-YWNoaW4ua2FtYXRAbGluYXJvLm9yZzsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnDQo+U3Vi
-amVjdDogUmU6IFtQQVRDSF0gSW5wdXQ6IGdwaW9fa2V5czogc3VwcG9ydCB3YWtldXAgc3lzdGVt
-IGZyb20gZnJlZXplIG1vZGUNCj4NCj5IaSBBbnNvbiwNCj4NCj5PbiBNb24sIERlYyAyMywgMjAx
-MyBhdCAwMToyMToyMFBNIC0wNTAwLCBBbnNvbiBIdWFuZyB3cm90ZToNCj4+IEZvciAiZnJlZXpl
-IiBtb2RlIG9mIHN1c3BlbmQsIGNwdSB3aWxsIGdvIGludG8gaWRsZSBhbmQgdGhvc2Ugd2FrZXVw
-DQo+PiBzb3VyY2VzJyBpcnEgc2hvdWxkIE5PVCBiZSBkaXNhYmxlZCBkdXJpbmcgZGV2aWNlcyBz
-dXNwZW5kLCBzbyB3ZSBuZWVkDQo+PiB0byBhZGQgSVJRRl9OT19TVVNQRU5EIGZsYWcgZm9yIHRo
-b3NlIHdha2V1cCBzb3VyY2VzLg0KPj4NCj4+IFN0ZXBzIHRvIHRlc3QgdGhpcyBwYXRjaDoNCj4+
-DQo+PiAxLiBlY2hvIGZyZWV6ZSA+IC9zeXMvcG93ZXIvc3RhdGU7DQo+PiAyLiBwcmVzcyBncGlv
-IGtleSB3aGljaCBoYXMgd2FrZXVwIGZ1bmN0aW9uLCB0aGVuIHN5c3RlbQ0KPj4gICAgd2lsbCBy
-ZXN1bWUuDQo+DQo+SSBkbyBubyB0aGluayB0aGlzIGlzIGNvcnJlY3QgYXBwcm9hY2gsIG90aGVy
-aXdzZSBldmVyeSBkcml2ZXIgdGhhdCBjYW4gYmUgYQ0KPndha2V1cCBzb3VyY2Ugd291bGQgaGF2
-ZSB0byB1c2UgSVJRRl9OT19TVVNQRU5EIGZsYWcuIFRoZSBkcml2ZXIgZG9lcyB1c2UNCj5lbmFi
-bGVfaXJxX3dha2UoKSBpbiBpdHMgc3VzcGVuZCBwYXRoLCBhbmQgcGxhdGZvcm0gY29kZSBzaG91
-bGQgcGVyZm9ybSBhbGwNCj5uZWNlc3Nhcnkgd29yayBmb3IgdGhpcyBJUlEgdG8gYmUgdXNhYmxl
-IGFzIGEgd2FrZXVwIHNvdXJjZS4NCj4NCj5UaGFua3MuDQoNCg0KRnJvbSB0aGUgc3VzcGVuZCBm
-bG93LCB3ZSBjYW4gc2VlIHRoYXQga2VybmVsIHdpbGwgZGlzYWJsZSBhbGwgZGV2aWNlcycgaXJx
-IHVubGVzcw0KaXRzIElSUUZfTk9fU1VTUEVORCBmbGFnIGlzIHNldC4gRm9yIGZyZWV6ZSBtb2Rl
-LCBhcyBjcHUgd2lsbCBiZSBpbiBpZGxlLCBTT0MgaXMNCm5vdCBpbiBsb3cgcG93ZXIgbW9kZSwg
-dGhhdCBtZWFucyBmcmVlemUgbW9kZSBlcXVhbHMgY3B1IGluIGlkbGUgYW5kIGRldmljZXMNCmlu
-IHN1c3BlbmQuIFRoZSB3YWtldXAgc291cmNlIG11c3QgY29tZSBmcm9tIEdJQy4gWWVzLCBmb3Ig
-bm9ybWFsIHN0YW5kYnkvbWVtIG1vZGUncw0Kc3VzcGVuZCwgdGhlIGVuYWJsZV9pcnFfd2FrZSB3
-aWxsIG1ha2UgZXZlcnl0aGluZyBkb25lIGZvciB3YWtpbmcgdXAgYSBzeXN0ZW0sIGluDQpnaWNf
-c2V0X3dha2Ugcm91dGluZSwgaXQgd2lsbCBjYWxsIGV4dGVybiBpcnEgY2hpcCdzIHdha2V1cCBm
-dW5jdGlvbiwgYnV0IGZvciBmcmVlemUNCm1vZGUsIHRoZSB3YWtldXAgcHJvY2VzcyBpcyBzYW1l
-IGFzIG5vcm1hbCB3YWtldXAgZnJvbSBjcHUgaWRsZSwgc28gdGhlIHdha2V1cCBzb3VyY2UNCm11
-c3QgYmUgbm90IG1hc2tlZCBpbiBnaWMuIA0KDQoJVGFrZSBvdXIgaS5NWDYgU09DIGZvciBleGFt
-cGxlLCB0aGVyZSBpcyBHUEMgbW9kdWxlIHdoaWNoDQppcyB1c2VkIHRvIHdha2UgdXAgU09DIGZy
-b20gU1RPUCBtb2RlKGxvdyBwb3dlciBtb2RlIG9mIFNPQyksIG5vcm1hbCBzdGFuZGJ5L21lbSBt
-b2RlDQpzdXNwZW5kLCB0aGUgd2FrZXVwIHNvdXJjZSdzIGVuYWJsZV9pcnFfd2FrZSB3aWxsIHNl
-dCBHUEMgdG8gbW9uaXRvciB0aGVzZSBpcnEgc291cmNlIGFuZA0Kd2FrZXVwIHN5c3RlbSBmcm9t
-IFNUT1AgbW9kZSB3aGVuIHRoZXJlIGlzIGFuIHdha2V1cCBldmVudC4gQnV0IGZvciBmcmVlemUg
-bW9kZSwga2VybmVsJ3MNCnN1c3BlbmQgZmxvdyB3aWxsIG5vdCBmaW5pc2ggdGhlIFNPQydzIGxv
-dyBsZXZlbCBwb3dlciBtYW5hZ2VtZW50LCB0aGUgc2Vjb25kYXJ5IENQVXMgYXJlDQpldmVuIG5v
-dCBkaXNhYmxlZCwga2VybmVsIGp1c3Qgc3VzcGVuZCB0aGUgZGV2aWNlcyBhbmQgcHV0IENQVSBp
-bnRvIGlkbGUgYW5kIHdhaXRpbmcgZm9yDQp3YWtldXAgZXZlbiwgaW4gR0lDJ3MgZ2ljX3NldF93
-YWtlIHJvdXRpbmUsIGl0IG9ubHkgY2FsbHMgb3VyIEdQQydzIGlteF9ncGNfaXJxX3NldF93YWtl
-LA0KaGVyZSBjb21lcyB0aGUgcHJvYmxlbSwgYXMgb3VyIFNPQyBpcyBub3QgZW50ZXJpbmcgU1RP
-UCBtb2RlLCBHUEMgaGFzIG5vIHVzZSB0byBzZXQgdGhpcw0Kd2FrZXVwIHNvdXJjZSBlbmFibGVk
-LiBTbyBlaXRoZXIgd2Ugc2hvdWxkIGVuYWJsZSBHSUMncyB3YWtldXAgaW4gR0lDIGRyaXZlciwg
-b3IganVzdCBzZXQNCnRoaXMgZmxhZyB0byBtYWtlIGtlcm5lbCBkbyBOT1QgZGlzYWJsZSB0aGlz
-IHdha2V1cCBzb3VyY2UncyBpcnEgd2hlbiBleGVjdXRpbmcgYSBmcmVlemUNCm1vZGUgc3VzcGVu
-ZC4NCg0KCU90aGVyd2lzZSwgd2UgbmVlZCB0byBtb2RpZnkgdGhlIEdJQyBkcml2ZXI/DQoNCg0K
-Pg0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IEFuc29uIEh1YW5nIDxiMjA3ODhAZnJlZXNjYWxlLmNv
-bT4NCj4+IC0tLQ0KPj4gIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvZ3Bpb19rZXlzLmMgfCAgICAy
-ICsrDQo+PiAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKQ0KPj4NCj4+IGRpZmYgLS1n
-aXQgYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2dwaW9fa2V5cy5jDQo+PiBiL2RyaXZlcnMvaW5w
-dXQva2V5Ym9hcmQvZ3Bpb19rZXlzLmMNCj4+IGluZGV4IDJkYjEzMjQuLmFhZGIxZGIgMTAwNjQ0
-DQo+PiAtLS0gYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2dwaW9fa2V5cy5jDQo+PiArKysgYi9k
-cml2ZXJzL2lucHV0L2tleWJvYXJkL2dwaW9fa2V5cy5jDQo+PiBAQCAtNDczLDYgKzQ3Myw4IEBA
-IHN0YXRpYyBpbnQgZ3Bpb19rZXlzX3NldHVwX2tleShzdHJ1Y3QNCj4+IHBsYXRmb3JtX2Rldmlj
-ZSAqcGRldiwNCj4+DQo+PiAgCQlpc3IgPSBncGlvX2tleXNfZ3Bpb19pc3I7DQo+PiAgCQlpcnFm
-bGFncyA9IElSUUZfVFJJR0dFUl9SSVNJTkcgfCBJUlFGX1RSSUdHRVJfRkFMTElORzsNCj4+ICsJ
-CWlmIChiZGF0YS0+YnV0dG9uLT53YWtldXApDQo+PiArCQkJaXJxZmxhZ3MgfD0gSVJRRl9OT19T
-VVNQRU5EOw0KPj4NCj4+ICAJfSBlbHNlIHsNCj4+ICAJCWlmICghYnV0dG9uLT5pcnEpIHsNCj4+
-IC0tDQo+PiAxLjcuOS41DQo+Pg0KPj4NCj4NCj4tLQ0KPkRtaXRyeQ0KPg0KDQo=
+This patch fixes some bugs in handling of the RMI4 attention line GPIO.
+
+1) in enable_sensor(), eliminate the complicated check on ATTN and just 
+call process_interrupt_requests().  This will have minimal overhead if ATTN
+is not asserted, and clears the state of the RMI4 device in any case.
+
+2) Correctly free the GPIO in rmi_driver_remove().
+
+3) in rmi_driver_probe()
+    - declare the name of the attention gpio (GPIO_LABEL)
+    - use gpio_request_one() to get the gpio and export it.
+    - simplify conditional gpio acquisition logic and combine with interrupt
+      setup
+
+4) use gpio_is_valid() instead of comparing to 0.
+
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+---
+
+ drivers/input/rmi4/rmi_driver.c | 43 ++++++++++++++++++++++-------------------
+ 1 file changed, 23 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index a30c7d3..9b02358 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -140,7 +140,6 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+ 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+ 	struct rmi_phys_device *rmi_phys;
+ 	int retval = 0;
+-	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
+ 
+ 	if (data->enabled)
+ 		return 0;
+@@ -169,11 +168,7 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+ 
+ 	data->enabled = true;
+ 
+-	if (!pdata->level_triggered &&
+-		    gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity)
+-		retval = process_interrupt_requests(rmi_dev);
+-
+-	return retval;
++	return process_interrupt_requests(rmi_dev);
+ }
+ 
+ static void rmi_free_function_list(struct rmi_device *rmi_dev)
+@@ -800,13 +795,20 @@ static SIMPLE_DEV_PM_OPS(rmi_driver_pm, rmi_driver_suspend, rmi_driver_resume);
+ static int rmi_driver_remove(struct device *dev)
+ {
+ 	struct rmi_device *rmi_dev = to_rmi_device(dev);
++	const struct rmi_device_platform_data *pdata =
++					to_rmi_platform_data(rmi_dev);
+ 
+ 	disable_sensor(rmi_dev);
+ 	rmi_free_function_list(rmi_dev);
+ 
++	if (gpio_is_valid(pdata->attn_gpio))
++		gpio_free(pdata->attn_gpio);
++
+ 	return 0;
+ }
+ 
++static const char GPIO_LABEL[] = "attn";
++
+ static int rmi_driver_probe(struct device *dev)
+ {
+ 	struct rmi_driver *rmi_driver;
+@@ -937,7 +939,7 @@ static int rmi_driver_probe(struct device *dev)
+ 		mutex_init(&data->suspend_mutex);
+ 	}
+ 
+-	if (pdata->attn_gpio) {
++	if (gpio_is_valid(pdata->attn_gpio)) {
+ 		data->irq = gpio_to_irq(pdata->attn_gpio);
+ 		if (pdata->level_triggered) {
+ 			data->irq_flags = IRQF_ONESHOT |
+@@ -948,24 +950,17 @@ static int rmi_driver_probe(struct device *dev)
+ 				(pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
+ 				? IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
+ 		}
+-	} else
+-		data->poll_interval = ktime_set(0,
+-			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
+-			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
+-
+-	if (data->f01_container->dev.driver) {
+-		/* Driver already bound, so enable ATTN now. */
+-		enable_sensor(rmi_dev);
+-	}
+ 
+-	if (IS_ENABLED(CONFIG_RMI4_DEV) && pdata->attn_gpio) {
+-		retval = gpio_export(pdata->attn_gpio, false);
++		retval = gpio_request_one(pdata->attn_gpio,
++					  GPIOF_EXPORT | GPIOF_DIR_IN,
++					  GPIO_LABEL);
+ 		if (retval) {
+-			dev_warn(dev, "WARNING: Failed to export ATTN gpio!\n");
++			dev_warn(dev, "WARNING: Failed to request ATTN gpio %d, code=%d.\n",
++				 pdata->attn_gpio, retval);
+ 			retval = 0;
+ 		} else {
+ 			retval = gpio_export_link(dev,
+-						  "attn", pdata->attn_gpio);
++						  GPIO_LABEL, pdata->attn_gpio);
+ 			if (retval) {
+ 				dev_warn(dev,
+ 					"WARNING: Failed to symlink ATTN gpio!\n");
+@@ -975,6 +970,14 @@ static int rmi_driver_probe(struct device *dev)
+ 					pdata->attn_gpio);
+ 			}
+ 		}
++	} else
++		data->poll_interval = ktime_set(0,
++			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
++			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
++
++	if (data->f01_container->dev.driver) {
++		/* Driver already bound, so enable ATTN now. */
++		enable_sensor(rmi_dev);
+ 	}
+ 
+ 	return 0;

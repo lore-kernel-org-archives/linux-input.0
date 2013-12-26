@@ -1,52 +1,185 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Re: [lm-sensors] [PATCH 2/5] input: sun4i-ts: Add
- support for temperature sensor
-Date: Thu, 26 Dec 2013 14:19:53 -0800
-Message-ID: <20131226221953.GB18562@core.coreip.homeip.net>
-References: <1387923847-1294-1-git-send-email-hdegoede@redhat.com>
- <1387923847-1294-3-git-send-email-hdegoede@redhat.com>
- <20131225103723.GA18256@roeck-us.net>
- <52BAB963.30707@redhat.com>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/5] input: Add new sun4i-ts driver for
+ Allwinner sunxi SoC's rtp controller
+Date: Thu, 26 Dec 2013 23:33:06 +0100
+Message-ID: <52BCAEA2.6040607@redhat.com>
+References: <1387923847-1294-1-git-send-email-hdegoede@redhat.com> <1387923847-1294-2-git-send-email-hdegoede@redhat.com> <20131226221558.GA18562@core.coreip.homeip.net>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBC6X6KKQKGQEX2JWJQI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <52BAB963.30707-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Return-path: <linux-sunxi+bncBDL4X2GMZUKRBKW56KKQKGQER7455PA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20131226221558.GA18562-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <http://groups.google.com/group/linux-sunxi>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Dec 25, 2013 at 11:54:27AM +0100, Hans de Goede wrote:
-> On 12/25/2013 11:37 AM, Guenter Roeck wrote:
-> >On Tue, Dec 24, 2013 at 11:24:04PM +0100, Hans de Goede wrote:
-> >>  struct sun4i_ts_data {
-> >>  	struct device *dev;
-> >>  	void __iomem *base;
-> >>  	struct input_dev *input;
-> >>+	struct device *hwmon;
-> >>+	atomic_t temp_data;
-> >
-> >Unless I am missing something, this variable does not have to be an atomic.
-> >Either it was written or it wasn't, but the order should not matter.
-> 
-> That is true, but it does assume that 32 bit int accesses are atomic, in the
-> sense that we can never have a case where one core has only written ie the
-> lower 8 bits when the other reads the variable. I believe that is the
-> case on ARM (the only architecture relevant here), but rather safe then
-> sorry. So I plan to keep this as is until someone, who knows more about
-> these things then me, tells me it is safe to turn it into a regular int.
+Hi Dimitri,
 
-I believe on all arches that we support writes to aligned double word
-memory locations will not be split.
+Thanks for the review. I've one or two small questions / remarks.
+I'll do a v2 addressing your and others comments tomorrow.
 
-Thanks.
+On 12/26/2013 11:15 PM, Dmitry Torokhov wrote:
+>> +static int sun4i_ts_register_input(struct sun4i_ts_data *ts,
+>> +					     const char *name)
+>> +{
+>> +	int ret;
+>> +	struct input_dev *input;
+>> +
+>> +	input = devm_input_allocate_device(ts->dev);
+>> +	if (!input)
+>> +		return -ENOMEM;
+>> +
+>> +	input->name = name;
+>> +	input->phys = "sun4i_ts/input0";
+>> +	input->id.bustype = BUS_HOST;
+>> +	input->id.vendor = 0x0001;
+>> +	input->id.product = 0x0001;
+>> +	input->id.version = 0x0100;
+>> +	input->dev.parent = ts->dev;
+>> +	input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
+>> +	set_bit(BTN_TOUCH, input->keybit);
+>> +	input_set_abs_params(input, ABS_X, 0, 4095, 0, 0);
+>> +	input_set_abs_params(input, ABS_Y, 0, 4095, 0, 0);
+>> +
+>> +	ret = input_register_device(input);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	ts->input = input;
+>> +	return 0;
+>> +}
+>> +
+>> +static int sun4i_ts_remove(struct platform_device *pdev)
+>> +{
+>> +	struct sun4i_ts_data *ts = platform_get_drvdata(pdev);
+>> +
+>> +	/* Deactivate all IRQs */
+>> +	writel(0, ts->base + TP_INT_FIFOC);
+>
+> Should this be moved into close() method of input device?
 
--- 
-Dmitry
+Yes and no, given patch 2/5 we should leave the temp_data irq enabled in the
+close method. But disabling the other irqs on close is a good idea.
+
+
+>
+>> +	msleep(20);
+>
+> Why do you need msleep here? Are you trying to ensure that interrupts
+> are not happening?
+
+Yes.
+
+> In that case synchronize_irq() is better option I think.
+
+I did not know about synchronize_irq(), that definitely is a better
+option.
+
+
+>
+>> +
+>> +	if (ts->input)
+>> +		input_unregister_device(ts->input);
+>
+> Since you are using managed input device you do not need to call
+> input_unregister_device() explicitly.
+
+Yes I was already wondering about that and wanted to check this for v2,
+now I can skip the checking and simply remove this :)
+
+>
+>> +
+>> +	kfree(ts);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int sun4i_ts_probe(struct platform_device *pdev)
+>> +{
+>> +	struct sun4i_ts_data *ts;
+>> +	int ret = -ENOMEM;
+>> +
+>> +	ts = kzalloc(sizeof(struct sun4i_ts_data), GFP_KERNEL);
+>> +	if (!ts)
+>> +		return -ENOMEM;
+>
+> I believe someone already mentioned devm_kzalloc()...
+
+Yep, already fixed locally.
+
+>
+>> +
+>> +	platform_set_drvdata(pdev, ts);
+>> +
+>> +	ts->dev = &pdev->dev;
+>> +	ts->base = devm_ioremap_resource(&pdev->dev,
+>> +			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
+>> +	if (IS_ERR(ts->base)) {
+>> +		ret = PTR_ERR(ts->base);
+>> +		goto error;
+>> +	}
+>> +
+>> +	ret = devm_request_irq(&pdev->dev, platform_get_irq(pdev, 0),
+>> +			       sun4i_ts_irq, 0, "sun4i-ts", ts);
+>> +	if (ret)
+>> +		goto error;
+>> +
+>
+> Are we 1000% sure that the device is quiesced here and we will not get a
+> stray interrupt? Even if we are sure I'd still rather allocate input
+> device earlier, together with ts structure.
+
+I will change things to allocate the input device earlier. What about
+registering it, when is the best time to do that?
+
+>
+>> +	ret = sun4i_ts_register_input(ts, pdev->name);
+>> +	if (ret)
+>> +		goto error;
+>> +
+>> +	/*
+>> +	 * Select HOSC clk, clkin = clk / 6, adc samplefreq = clkin / 8192,
+>> +	 * t_acq = clkin / (16 * 64)
+>> +	 */
+>> +	writel(ADC_CLK_SEL(0) | ADC_CLK_DIV(2) | FS_DIV(7) | T_ACQ(63),
+>> +	       ts->base + TP_CTRL0);
+>> +
+>> +	/*
+>> +	 * sensitive_adjust = 15 : max, which is not all that sensitive,
+>> +	 * tp_mode = 0 : only x and y coordinates, as we don't use dual touch
+>> +	 */
+>> +	writel(TP_SENSITIVE_ADJUST(15) | TP_MODE_SELECT(0),
+>> +	       ts->base + TP_CTRL2);
+>> +
+>> +	/* Enable median filter, type 1 : 5/3 */
+>> +	writel(FILTER_EN(1) | FILTER_TYPE(1), ts->base + TP_CTRL3);
+>> +
+>> +	/* Flush fifo, set trig level to 1, enable data and pen up irqs */
+>> +	writel(DATA_IRQ_EN(1) | FIFO_TRIG(1) | FIFO_FLUSH(1) | TP_UP_IRQ_EN(1),
+>> +	       ts->base + TP_INT_FIFOC);
+>> +
+>> +	/*
+>> +	 * Set stylus up debounce to aprox 10 ms, enable debounce, and
+>> +	 * finally enable tp mode.
+>> +	 */
+>> +	writel(STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1) | TP_MODE_EN(1),
+>> +	       ts->base + TP_CTRL1);
+>
+> Should all of some of this be moved into open() method for your input
+> device?
+
+The flushing of the fifo, and enabling of the input related irqs is probably
+best done in the open method, the rest is also needed for the temp sensor
+parts. I'll move the fifo-flush + irq enabling to the open method.
+
+<snip>
+
+Regards,
+
+Hans

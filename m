@@ -1,108 +1,65 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio_keys: support wakeup system from freeze mode
-Date: Thu, 26 Dec 2013 15:35:30 -0800
-Message-ID: <20131226233530.GG18562@core.coreip.homeip.net>
-References: <1387822880-30382-1-git-send-email-b20788@freescale.com>
- <20131224003036.GA16590@core.coreip.homeip.net>
- <971c266b465e460bbea8b968d3e19cd4@BY2PR03MB315.namprd03.prod.outlook.com>
+Subject: Re: [PATCH] input synaptics-rmi4: Transport layer renaming.
+Date: Thu, 26 Dec 2013 15:43:55 -0800
+Message-ID: <20131226234355.GH18562@core.coreip.homeip.net>
+References: <1387315890-21681-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:34469 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753891Ab3LZXfd (ORCPT
+Received: from mail-pb0-f49.google.com ([209.85.160.49]:33063 "EHLO
+	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753909Ab3LZXn6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Dec 2013 18:35:33 -0500
-Received: by mail-pa0-f49.google.com with SMTP id kx10so8668112pab.36
-        for <linux-input@vger.kernel.org>; Thu, 26 Dec 2013 15:35:33 -0800 (PST)
+	Thu, 26 Dec 2013 18:43:58 -0500
+Received: by mail-pb0-f49.google.com with SMTP id jt11so8527944pbb.8
+        for <linux-input@vger.kernel.org>; Thu, 26 Dec 2013 15:43:57 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <971c266b465e460bbea8b968d3e19cd4@BY2PR03MB315.namprd03.prod.outlook.com>
+In-Reply-To: <1387315890-21681-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Anson.Huang@freescale.com" <Anson.Huang@freescale.com>
-Cc: "sachin.kamat@linaro.org" <sachin.kamat@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Hi Anson,
+On Tue, Dec 17, 2013 at 01:31:30PM -0800, Christopher Heiny wrote:
+> The current RMI4 driver uses the term "physical" for two different logical
+> entities: the communications transport layer (I2C, SPI, and so on), and the
+> actual RMI4 device that is being communicated with.  Such usage makes the
+> code harder to understand due to confusion as to just which elements are
+> being referred to.
+> 
+> This patch renames the transport layer elements in order to eliminate this
+> confusion.  Much of the renaming was accomplished by the following Bash script
+> 
+>   #!/bin/bash
+>   #
+>   # Update RMI4 driver transport layer naming.
+>   #
+> 
+>   files="rmi_bus.c rmi_bus.h rmi_driver.c rmi_driver.h rmi_f01.c rmi_i2c.c"
+>   cd drivers/input/rmi4
+> 
+>   for f in $files ; do
+>     echo $f
+>     sed -i.bak s/rmi_phys_device/rmi_transport_dev/g $f
+>     sed -i.bak s/rmi_phys_info/rmi_transport_info/g $f
+>     sed -i.bak "s/rmi_transport_dev \*phys/rmi_transport_dev \*xport/g" $f
+>     sed -i.bak "s/rmi_transport_dev \*rmi_phys/rmi_transport_dev \*xport/g" $f
+>     sed -i.bak "s/phys\([^i]\)/xport\1/g" $f
+>     sed -i.bak "s/->phys/->xport/g" $f
+>     sed -i.bak "s/register_physical_device/register_transport_device/g" $f
+>     sed -i.bak "s/physical_device_count/transport_device_count/g" $f
+>   done
+> 
+> although some changes proved easier to simply do by hand, particularly in the
+> comments.  Changes are confined strictly to the renaming, to keep the patch
+> relatively simple.
+> 
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Tue, Dec 24, 2013 at 02:29:54AM +0000, Anson.Huang@freescale.com
-wrote:
-> Hi, Dmitry
->=20
-> 	See below:
->=20
-> Best Regards.  Anson huang =E9=BB=84=E5=8B=87=E6=89=8D =C2=A0 Freesca=
-le Semiconductor Shanghai
-> =E4=B8=8A=E6=B5=B7=E6=B5=A6=E4=B8=9C=E6=96=B0=E5=8C=BA=E4=BA=AE=E6=99=
-=AF=E8=B7=AF192=E5=8F=B7A=E5=BA=A72=E6=A5=BC 201203 Tel:021-28937058
->=20
->=20
-> >-----Original Message----- From: Dmitry Torokhov
-> >[mailto:dmitry.torokhov@gmail.com] Sent: Tuesday, December 24, 2013
-> >8:31 AM To: Huang Yongcai-B20788 Cc: sachin.kamat@linaro.org;
-> >linux-input@vger.kernel.org Subject: Re: [PATCH] Input: gpio_keys:
-> >support wakeup system from freeze mode
-> >
-> >Hi Anson,
-> >
-> >On Mon, Dec 23, 2013 at 01:21:20PM -0500, Anson Huang wrote:
-> >> For "freeze" mode of suspend, cpu will go into idle and those
-> >> wakeup sources' irq should NOT be disabled during devices suspend,
-> >> so we need to add IRQF_NO_SUSPEND flag for those wakeup sources.
-> >>
-> >> Steps to test this patch:
-> >>
-> >> 1. echo freeze > /sys/power/state; 2. press gpio key which has
-> >> wakeup function, then system will resume.
-> >
-> >I do no think this is correct approach, otheriwse every driver that
-> >can be a wakeup source would have to use IRQF_NO_SUSPEND flag. The
-> >driver does use enable_irq_wake() in its suspend path, and platform
-> >code should perform all necessary work for this IRQ to be usable as =
-a
-> >wakeup source.
-> >
-> >Thanks.
->=20
->=20
-> From the suspend flow, we can see that kernel will disable all
-> devices' irq unless its IRQF_NO_SUSPEND flag is set. For freeze mode,
-> as cpu will be in idle, SOC is not in low power mode, that means
-> freeze mode equals cpu in idle and devices in suspend. The wakeup
-> source must come from GIC. Yes, for normal standby/mem mode's suspend=
-,
-> the enable_irq_wake will make everything done for waking up a system,
-> in gic_set_wake routine, it will call extern irq chip's wakeup
-> function, but for freeze mode, the wakeup process is same as normal
-> wakeup from cpu idle, so the wakeup source must be not masked in gic.=
-=20
->=20
-> Take our i.MX6 SOC for example, there is GPC module which is used to
-> wake up SOC from STOP mode(low power mode of SOC), normal standby/mem
-> mode suspend, the wakeup source's enable_irq_wake will set GPC to
-> monitor these irq source and wakeup system from STOP mode when there
-> is an wakeup event. But for freeze mode, kernel's suspend flow will
-> not finish the SOC's low level power management, the secondary CPUs
-> are even not disabled, kernel just suspend the devices and put CPU
-> into idle and waiting for wakeup even, in GIC's gic_set_wake routine,
-> it only calls our GPC's imx_gpc_irq_set_wake, here comes the problem,
-> as our SOC is not entering STOP mode, GPC has no use to set this
-> wakeup source enabled. So either we should enable GIC's wakeup in GIC
-> driver, or just set this flag to make kernel do NOT disable this
-> wakeup source's irq when executing a freeze mode suspend.
->
-> Otherwise, we need to modify the GIC driver?
 
-Yes, I believe it is the task of platform code to make sure that
-enable_irq_wake() enables irq wakeup properly, be it suspend or
-hibernate.
+Applied, thank you.
 
-Thanks.
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

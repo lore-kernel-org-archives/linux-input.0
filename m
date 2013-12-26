@@ -1,98 +1,91 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Input: gamepad - use independent axes for analog D-Pad buttons
-Date: Wed, 25 Dec 2013 18:40:10 +0100
-Message-ID: <CANq1E4Rw59A6byvmKXrhXqS_MW0oxYu9Fa4YnE9Vkhi8MLC_-g@mail.gmail.com>
-References: <1387815463-29345-1-git-send-email-ospite@studenti.unina.it>
+From: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 1/5] input: Add new sun4i-ts driver for
+ Allwinner sunxi SoC's rtp controller
+Date: Thu, 26 Dec 2013 09:37:51 +0100
+Message-ID: <20131226093751.3d133371@skate>
+References: <1387923847-1294-1-git-send-email-hdegoede@redhat.com>
+	<1387923847-1294-2-git-send-email-hdegoede@redhat.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f177.google.com ([209.85.223.177]:64761 "EHLO
-	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751624Ab3LYRrN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Dec 2013 12:47:13 -0500
-Received: by mail-ie0-f177.google.com with SMTP id tp5so7645218ieb.8
-        for <linux-input@vger.kernel.org>; Wed, 25 Dec 2013 09:47:12 -0800 (PST)
-In-Reply-To: <1387815463-29345-1-git-send-email-ospite@studenti.unina.it>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBDUK5F6TRYOBBYOV56KQKGQEYX5AAVA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1387923847-1294-2-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-Hi
+Dear Hans de Goede,
 
-On Mon, Dec 23, 2013 at 5:17 PM, Antonio Ospite
-<ospite@studenti.unina.it> wrote:
-> Model this part of the API after the Sony PlayStation 3 Controller which
-> exposes independent analog values for each one of the D-Pad buttons.
->
-> The PS3 programming API psl1ght also maps the analog D-Pad buttons
-> individually.
->
-> Cc: David Herrmann <dh.herrmann@gmail.com>
-> Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
-> ---
->
-> Hi,
->
-> as David mentioned no gamepad defines analog D-Pad buttons as mentioned in the
-> gamepad API, so the API change should be OK.
->
-> And is it OK too to fill the holes in the ABS space or should I just use
-> higher codes?
+On Tue, 24 Dec 2013 23:24:03 +0100, Hans de Goede wrote:
 
-You might wanna try searching git-history, but apart from ABS_MISC to
-ABS_MT_* I think all other spaces can be filled.
-Patch is fine with me, but I'd also be ok with the ABS_DPAD_HORIZ/VERT pair.
+> +/* TP_INT_FIFOS irq and fifo status bits */
+> +#define TEMP_DATA_PENDING	(1 << 18)
+> +#define FIFO_OVERRUN_PENDING	(1 << 17)
+> +#define FIFO_DATA_PENDING	(1 << 16)
+> +#define TP_IDLE_FLG		(1 << 2)
+> +#define TP_UP_PENDING		(1 << 1)
+> +#define TP_DOWN_PENDING		(1 << 0)
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+You could use the BIT() macro for these definitions.
 
-Thanks
-David
 
-> Thanks,
->    Antonio
->
->  Documentation/input/gamepad.txt       | 4 ++--
->  drivers/staging/et131x/Module.symvers | 0
->  include/uapi/linux/input.h            | 5 +++++
->  3 files changed, 7 insertions(+), 2 deletions(-)
->  delete mode 100644 drivers/staging/et131x/Module.symvers
->
-> diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
-> index ed13782..aab000d 100644
-> --- a/Documentation/input/gamepad.txt
-> +++ b/Documentation/input/gamepad.txt
-> @@ -124,8 +124,8 @@ D-Pad:
->      Digital buttons are reported as:
->        BTN_DPAD_*
->      Analog buttons are reported as:
-> -      ABS_HAT0X and ABS_HAT0Y
-> -      (for ABS values negative is left/up, positive is right/down)
-> +      ABS_DPAD_*
-> +      (ABS values start at 0, pressure is reported as positive values)
->
->  Analog-Sticks:
->    The left analog-stick is reported as ABS_X, ABS_Y. The right analog stick is
-> diff --git a/drivers/staging/et131x/Module.symvers b/drivers/staging/et131x/Module.symvers
-> deleted file mode 100644
-> index e69de29..0000000
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index d3fcbff..dcc73c0 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-> @@ -842,6 +842,11 @@ struct input_keymap_entry {
->
->  #define ABS_VOLUME             0x20
->
-> +#define ABS_DPAD_UP            0x21    /* Analog D-Pad Up for gamepads */
-> +#define ABS_DPAD_DOWN          0x22    /* Analog D-Pad Down for gamepads */
-> +#define ABS_DPAD_LEFT          0x23    /* Analog D-Pad Left for gamepads */
-> +#define ABS_DPAD_RIGHT         0x24    /* Analog D-Pad Right for gamepads */
+> +	ret = sun4i_ts_register_input(ts, pdev->name);
+> +	if (ret)
+> +		goto error;
 > +
->  #define ABS_MISC               0x28
->
->  #define ABS_MT_SLOT            0x2f    /* MT slot being modified */
-> --
-> 1.8.5.2
->
+> +	/*
+> +	 * Select HOSC clk, clkin = clk / 6, adc samplefreq = clkin / 8192,
+> +	 * t_acq = clkin / (16 * 64)
+> +	 */
+> +	writel(ADC_CLK_SEL(0) | ADC_CLK_DIV(2) | FS_DIV(7) | T_ACQ(63),
+> +	       ts->base + TP_CTRL0);
+> +
+> +	/*
+> +	 * sensitive_adjust = 15 : max, which is not all that sensitive,
+> +	 * tp_mode = 0 : only x and y coordinates, as we don't use dual touch
+> +	 */
+> +	writel(TP_SENSITIVE_ADJUST(15) | TP_MODE_SELECT(0),
+> +	       ts->base + TP_CTRL2);
+> +
+> +	/* Enable median filter, type 1 : 5/3 */
+> +	writel(FILTER_EN(1) | FILTER_TYPE(1), ts->base + TP_CTRL3);
+> +
+> +	/* Flush fifo, set trig level to 1, enable data and pen up irqs */
+> +	writel(DATA_IRQ_EN(1) | FIFO_TRIG(1) | FIFO_FLUSH(1) | TP_UP_IRQ_EN(1),
+> +	       ts->base + TP_INT_FIFOC);
+> +
+> +	/*
+> +	 * Set stylus up debounce to aprox 10 ms, enable debounce, and
+> +	 * finally enable tp mode.
+> +	 */
+> +	writel(STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1) | TP_MODE_EN(1),
+> +	       ts->base + TP_CTRL1);
+
+It seems weird to do all the hardware initialization *after* the input
+device has been registered. We normally initialize all the hardware
+*and* then register the device, so that we guarantee that userspace
+cannot access the device before it is properly initialized.
+
+
+> +static const struct of_device_id sun4i_ts_of_match[] = {
+> +	{ .compatible = "allwinner,sun4i-ts", },
+> +	{ /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, sun4i_ts_of_match);
+
+You're introducing a new DT binding, so the appropriate documentation
+should be written for it.
+
+Thanks!
+
+Thomas
+-- 
+Thomas Petazzoni, CTO, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com

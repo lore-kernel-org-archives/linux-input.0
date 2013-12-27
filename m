@@ -1,47 +1,102 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5] Input: Improve the performance of alps v5-protocol's
- touchpad
-Date: Thu, 26 Dec 2013 16:00:12 -0800
-Message-ID: <20131227000012.GA8147@core.coreip.homeip.net>
-References: <1387876717-3878-1-git-send-email-yunkang.tang@cn.alps.com>
+Subject: Re: kernel panic on gpio-keys
+Date: Thu, 26 Dec 2013 17:56:58 -0800
+Message-ID: <20131227015658.GA20756@core.coreip.homeip.net>
+References: <52A8BA49.7080507@gmail.com>
+ <20131214093900.GA10799@core.coreip.homeip.net>
+ <52B06B0E.20501@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f50.google.com ([209.85.160.50]:49349 "EHLO
-	mail-pb0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753940Ab3L0AAP (ORCPT
+Received: from mail-pd0-f179.google.com ([209.85.192.179]:42079 "EHLO
+	mail-pd0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754023Ab3L0B5B (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Dec 2013 19:00:15 -0500
-Received: by mail-pb0-f50.google.com with SMTP id rr13so8673022pbb.37
-        for <linux-input@vger.kernel.org>; Thu, 26 Dec 2013 16:00:15 -0800 (PST)
+	Thu, 26 Dec 2013 20:57:01 -0500
+Received: by mail-pd0-f179.google.com with SMTP id r10so8585427pdi.10
+        for <linux-input@vger.kernel.org>; Thu, 26 Dec 2013 17:57:01 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1387876717-3878-1-git-send-email-yunkang.tang@cn.alps.com>
+In-Reply-To: <52B06B0E.20501@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yunkang Tang <tommywill2011@gmail.com>
-Cc: cernekee@gmail.com, dturvene@dahetral.com, linux-input@vger.kernel.org, ndevos@redhat.com, jclift@redhat.com, yunkang.tang@cn.alps.com
+To: Paul Cercueil <pcercuei@gmail.com>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Tue, Dec 24, 2013 at 05:18:37PM +0800, Yunkang Tang wrote:
-> Hi all,
+On Tue, Dec 17, 2013 at 04:17:34PM +0100, Paul Cercueil wrote:
+> On 14/12/2013 10:39, Dmitry Torokhov wrote:
+> >On Wed, Dec 11, 2013 at 08:17:29PM +0100, Paul Cercueil wrote:
+> >>Hi there,
+> >>
+> >>I am trying to use the gpio-keys driver to inject joystick events.
+> >>There seems to be some basic support of it, looking at <linux/gpio_keys.h>.
+> >>
+> >>However, registering the following will trigger a kernel panic in
+> >>the kernel:
+> >>
+> >>static struct gpio_keys_button my_buttons[] {
+> >>	{
+> >>		.gpio = GPIO_FOO,
+> >>		.type = EV_ABS,
+> >>		.code = ABS_HAT0X,
+> >>		.value = 1,
+> >>	},
+> >>};
+> >>
+> >>(tested on kernel 3.12).
+> >>
+> >>I don't know well the input subsystem, so I have no idea of what is
+> >>going wrong. Could anybody try to at least reproduce the issue?
+> >
+> >It woudl be helpful if you poster the stack trace from panic so we'd
+> >have an idea where the fault happens.
+> >
+> >Thanks.
+> >
 > 
-> Here is the 5th patch of supporting ALPS v5 protocol's device.
+> Here is the crash log I get: http://pastebin.com/FzTTGxsR
+> (I did put it on pastebin because it's huge, 200+ lines).
 > 
-> Change since v4:
-> - Use temporary variables to store the result of fls() and ffs(). (Suggestion by Kevin)
-> - Use PSMOUSE_* macro instead of raw hex directly. (Suggestion by Kevin)
-> - Change V5 device's mask0 from 0xc8 to 0xd8 to protect the abnormal case. (Discuss with Dmitry)
-> 
-> Self test with v5 device:
-> - Checked on both 32-bit & 64-bit environment.
-> - Cursor moves correctly.
-> - 1Finger Tap/Drag works well.
-> - 2Finger Tap works well.
-> - 2Finger Scroll works well.
-> - L/R Buttons do function
-> 
-> Signed-off-by: Yunkang Tang <yunkang.tang@cn.alps.com>
+> The first OOPS happen as soon as the GPIO button is pressed; the
+> other ones seem to happen recursively. I included only a part of the
+> log I get, as the OOPSes continue to flow until the watchdog kicks
+> in.
 
-Applied, thank you.
+Hmm, I have an idea: this driver is one of few that does not use
+input_set_abs_info() and this does not allocate memory for absinfo data
+that input core uses to handle absolute events.
+
+Does the patch below work for you?
+
+Thanks.
 
 -- 
 Dmitry
+
+Input: allocate absinfo data when setting ABS capability
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+We need to make sure we allocate absinfo data when we are setting one of
+EV_ABS/ABS_XXX capabilities, otherwise we may bomb when we try to emit this
+event.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/input.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 692435a..1c4c0db 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1909,6 +1909,10 @@ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int
+ 		break;
+ 
+ 	case EV_ABS:
++		input_alloc_absinfo(dev);
++		if (!dev->absinfo)
++			return;
++
+ 		__set_bit(code, dev->absbit);
+ 		break;
+ 

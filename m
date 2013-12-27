@@ -1,305 +1,293 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [lm-sensors] [PATCH v2 2/5] input: sun4i-ts: Add
- support for temperature sensor
-Date: Fri, 27 Dec 2013 08:34:19 -0800
-Message-ID: <20131227163419.GA20135@roeck-us.net>
-References: <1388156399-29677-1-git-send-email-hdegoede@redhat.com>
- <1388156399-29677-3-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Subject: Re: [PATCH] ims-pcu: Add commands supported by the new version of the FW
+Date: Fri, 27 Dec 2013 08:54:10 -0800
+Message-ID: <CAHQ1cqGPORvQQLbA_maguYU=e7hjEJu3O-zKvd4Jt7j0O6E-Tg@mail.gmail.com>
+References: <1387653408-10529-1-git-send-email-andrew.smirnov@gmail.com>
+	<20131226225317.GD18562@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBCKMZDW5VIHBBDOY62KQKGQE2EB2GBI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1388156399-29677-3-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Corentin LABBE <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f175.google.com ([209.85.192.175]:52333 "EHLO
+	mail-pd0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753063Ab3L0QyL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Dec 2013 11:54:11 -0500
+In-Reply-To: <20131226225317.GD18562@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Dec 27, 2013 at 03:59:56PM +0100, Hans de Goede wrote:
-> The sun4i resisitive touchscreen controller also comes with a built-in
-> temperature sensor. This commit adds support for it.
-> 
-> This commit also introduces a new "ts-attached" device-tree property,
-> when this is not set, the input part of the driver won't register. This way
-> the internal temperature sensor can be used to measure the SoC temperature
-> independent of there actually being a touchscreen attached to the controller.
-> 
-> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sorry for the spam, sent the first version of the reply in non plain/text.
 
-Hi Hans,
+>> +static ssize_t ims_pcu_ofn_reg_data_show(struct device *dev,
+>> +                                      struct device_attribute *dattr,
+>> +                                      char *buf)
+>> +{
+>> +     struct usb_interface *intf = to_usb_interface(dev);
+>> +     struct ims_pcu *pcu = usb_get_intfdata(intf);
+>> +     int error;
+>> +
+>> +     mutex_lock(&pcu->cmd_mutex);
+>> +
+>> +     error = ims_pcu_execute_command(pcu, OFN_GET_CONFIG,
+>> +                                     &pcu->ofn_reg_addr,
+>> +                                     sizeof(pcu->ofn_reg_addr));
+>> +     if (error >= 0) {
+>> +             const s16 result = pcu->cmd_buf[OFN_REG_RESULT_MSB_OFFSET] << 8 |
+>> +                                pcu->cmd_buf[OFN_REG_RESULT_LSB_OFFSET];
+>
+> const here seems overkill.
 
-Almost good, except for a couple of nitpicks and one moe question.
-Assuming you fix the nitpicks and the question is not a concern,
-feel free to add
+That variable has a lifetime limited by the scope of if statement and
+during that lifetime its value it constant, so I'm not sure I
+understand what you mean by "overkill"?
 
-Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+I usually try to declare all of the variables values of which I do not
+intend to change as constant to allow the compiler to hopefully make
+more informed decision about optimizing that piece of code and also to
+warn me when I go against my intention and try to change that value.
+Also, IMHO, this makes it easier to read the code since from it's
+declaration I know that that value would not be changed and I don't
+have to wonder if I missed a line of code that actually changes it.
 
-Guenter
+>
+>> +             if (result < 0)
+>> +                     error = result;
+>> +             else
+>> +                     error = scnprintf(buf, PAGE_SIZE, "%x\n", (u8)result);
+>
+> Why cast to u8?
 
-> ---
->  .../bindings/input/touchscreen/sun4i.txt           |   6 +
->  drivers/input/touchscreen/sun4i-ts.c               | 129 ++++++++++++++++-----
->  2 files changed, 109 insertions(+), 26 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> index e45927e..1fffd11 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> @@ -6,10 +6,16 @@ Required properties:
->   - reg: mmio address range of the chip
->   - interrupts: interrupt to which the chip is connected
->  
-> +Optional properties:
-> + - ts-attached: boolean set this to tell the driver that an actual touchscreen
-> +		is attached and that it should register an input device,
-> +		without this it only registers the builtin temperate sensor
-> +
->  Example:
->  
->  	rtp: rtp@01c25000 {
->  		compatible = "allwinner,sun4i-ts";
->  		reg = <0x01c25000 0x100>;
->  		interrupts = <29>;
-> +		ts-attached;
->  	};
-> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
-> index 10839d2..2d437f6 100644
-> --- a/drivers/input/touchscreen/sun4i-ts.c
-> +++ b/drivers/input/touchscreen/sun4i-ts.c
-> @@ -3,6 +3,9 @@
->   *
->   * Copyright (C) 2013 - 2014 Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
->   *
-> + * The hwmon parts are based on work by Corentin LABBE which is:
-> + * Copyright (C) 2013 Corentin LABBE <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> + *
->   * This program is free software; you can redistribute it and/or modify
->   * it under the terms of the GNU General Public License as published by
->   * the Free Software Foundation; either version 2 of the License, or
-> @@ -30,6 +33,7 @@
->   */
->  
->  #include <linux/err.h>
-> +#include <linux/hwmon.h>
->  #include <linux/init.h>
->  #include <linux/input.h>
->  #include <linux/interrupt.h>
-> @@ -106,6 +110,7 @@ struct sun4i_ts_data {
->  	void __iomem *base;
->  	unsigned int irq;
->  	bool ignore_fifo_data;
-> +	int temp_data;
->  };
->  
->  static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
-> @@ -115,6 +120,12 @@ static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
->  
->  	reg_val  = readl(ts->base + TP_INT_FIFOS);
->  
-> +	if (reg_val & TEMP_DATA_PENDING)
-> +		ts->temp_data = readl(ts->base + TEMP_DATA);
+Will fix in the next version.
 
-Is this read guaranteed to return 0 in the upper bit, or in other words is it
-guaranteed to never return 0xffffffff ? Otherwise there might be a problem with
-the implicit conversion to a negative integer.
+>
+>> +     }
+>> +
+>> +     mutex_unlock(&pcu->cmd_mutex);
+>> +
+>> +     return error;
+>> +}
+>> +
+>> +static ssize_t ims_pcu_ofn_reg_data_store(struct device *dev,
+>> +                                       struct device_attribute *dattr,
+>> +                                       const char *buf, size_t count)
+>> +{
+>> +     struct usb_interface *intf = to_usb_interface(dev);
+>> +     struct ims_pcu *pcu = usb_get_intfdata(intf);
+>> +     int error;
+>> +     int value;
+>> +     u8 buffer[2];
+>> +
+>> +     error = kstrtoint(buf, 0, &value);
+>> +     if (error)
+>> +             return error;
+>> +
+>> +     buffer[0] = pcu->ofn_reg_addr;
+>> +     buffer[1] = (u8) value;
+>
+> If you want u8 we have kstrtou8().
 
-> +
-> +	if (!ts->input)
-> +		goto leave;
-> +
->  	if (reg_val & FIFO_DATA_PENDING) {
->  		x = readl(ts->base + TP_DATA);
->  		y = readl(ts->base + TP_DATA);
-> @@ -140,6 +151,7 @@ static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
->  		input_sync(ts->input);
->  	}
->  
-> +leave:
->  	writel(reg_val, ts->base + TP_INT_FIFOS);
->  
->  	return IRQ_HANDLED;
-> @@ -149,9 +161,9 @@ static int sun4i_ts_open(struct input_dev *dev)
->  {
->  	struct sun4i_ts_data *ts = input_get_drvdata(dev);
->  
-> -	/* Flush, set trig level to 1, enable data and up irqs */
-> -	writel(DATA_IRQ_EN(1) | FIFO_TRIG(1) |FIFO_FLUSH(1) | TP_UP_IRQ_EN(1),
-> -	       ts->base + TP_INT_FIFOC);
-> +	/* Flush, set trig level to 1, enable temp, data and up irqs */
-> +	writel(TEMP_IRQ_EN(1) | DATA_IRQ_EN(1) | FIFO_TRIG(1) | FIFO_FLUSH(1) |
-> +		TP_UP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
->  
->  	return 0;
->  }
-> @@ -160,40 +172,76 @@ static void sun4i_ts_close(struct input_dev *dev)
->  {
->  	struct sun4i_ts_data *ts = input_get_drvdata(dev);
->  
-> -	/* Deactivate all IRQs */
-> -	writel(0, ts->base + TP_INT_FIFOC);
-> +	/* Deactivate all input IRQs */
-> +	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
->  	synchronize_irq(ts->irq);
->  }
->  
-> +static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
-> +			 char *buf)
-> +{
-> +	struct sun4i_ts_data *ts = dev_get_drvdata(dev);
-> +
-> +	/* No temp_data until the first irq */
-> +	if (ts->temp_data == -1)
-> +		return -EAGAIN;
-> +
-> +	return sprintf(buf, "%d\n", (ts->temp_data - 1447) * 100);
-> +}
-> +
-> +static ssize_t show_temp_label(struct device *dev,
-> +			      struct device_attribute *devattr, char *buf)
-> +{
-> +	return sprintf(buf, "SoC temperature\n");
-> +}
-> +
-> +static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL);
-> +static DEVICE_ATTR(temp1_label, S_IRUGO, show_temp_label, NULL);
-> +
-> +static struct attribute *sun4i_ts_attrs[] = {
-> +	&dev_attr_temp1_input.attr,
-> +	&dev_attr_temp1_label.attr,
-> +	NULL
-> +};
-> +ATTRIBUTE_GROUPS(sun4i_ts);
-> +
->  static int sun4i_ts_probe(struct platform_device *pdev)
->  {
->  	struct sun4i_ts_data *ts;
->  	struct device *dev = &pdev->dev;
-> +	struct device_node *np =dev->of_node;
+Ditto.
 
-Missing space after '=' (checkpatch error).
+>
+>> +
+>> +     mutex_lock(&pcu->cmd_mutex);
+>> +
+>> +     error = ims_pcu_execute_command(pcu, OFN_SET_CONFIG,
+>> +                                     &buffer, sizeof(buffer));
+>> +
+>> +     mutex_unlock(&pcu->cmd_mutex);
+>> +
+>> +     if (!error) {
+>> +             const s16 result = pcu->cmd_buf[OFN_REG_RESULT_MSB_OFFSET] << 8 |
+>> +                                pcu->cmd_buf[OFN_REG_RESULT_LSB_OFFSET];
+>
+> You should not be checking contents of pcu->cmd_buf after releasing
+> mutex as someone else could be accessing the same sysfs attribute and
+> stomping on your data.
 
-> +	struct device *hwmon;
->  	int ret;
-> +	bool ts_attached;
-> +
-> +	ts_attached = of_property_read_bool(np, "ts-attached");
->  
->  	ts = devm_kzalloc(dev, sizeof(struct sun4i_ts_data), GFP_KERNEL);
->  	if (!ts)
->  		return -ENOMEM;
->  
->  	ts->dev = dev;
-> -
-> -	ts->input = devm_input_allocate_device(dev);
-> -	if (!ts->input)
-> -		return -ENOMEM;
-> -
-> -	ts->input->name = pdev->name;
-> -	ts->input->phys = "sun4i_ts/input0";
-> -	ts->input->open = sun4i_ts_open;
-> -	ts->input->close = sun4i_ts_close;
-> -	ts->input->id.bustype = BUS_HOST;
-> -	ts->input->id.vendor = 0x0001;
-> -	ts->input->id.product = 0x0001;
-> -	ts->input->id.version = 0x0100;
-> -	ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
-> -	set_bit(BTN_TOUCH, ts->input->keybit);
-> -	input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
-> -	input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
-> -	input_set_drvdata(ts->input, ts);
-> +	ts->temp_data = -1;
-> +
-> +	if (ts_attached) {
-> +		ts->input = devm_input_allocate_device(dev);
-> +		if (!ts->input)
-> +			return -ENOMEM;
-> +
-> +		ts->input->name = pdev->name;
-> +		ts->input->phys = "sun4i_ts/input0";
-> +		ts->input->open = sun4i_ts_open;
-> +		ts->input->close = sun4i_ts_close;
-> +		ts->input->id.bustype = BUS_HOST;
-> +		ts->input->id.vendor = 0x0001;
-> +		ts->input->id.product = 0x0001;
-> +		ts->input->id.version = 0x0100;
-> +		ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
-> +		set_bit(BTN_TOUCH, ts->input->keybit);
-> +		input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
-> +		input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
-> +		input_set_drvdata(ts->input, ts);
-> +	}
->  
->  	ts->base = devm_ioremap_resource(dev,
->  			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
-> @@ -232,14 +280,42 @@ static int sun4i_ts_probe(struct platform_device *pdev)
->  	writel(STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1) | TP_MODE_EN(1),
->  	       ts->base + TP_CTRL1);
->  
-> -	ret = input_register_device(ts->input);
-> -	if (ret)
-> -		return ret;
-> +	hwmon = devm_hwmon_device_register_with_groups(ts->dev, "sun4i_ts",
-> +						       ts, sun4i_ts_groups);
-> +	if (IS_ERR(hwmon)) {
-> +		return PTR_ERR(hwmon);
-> +	}
+Ditto.
 
-{ } are not needed here (checkpatch warning).
+>
+>> +             error = result;
+>
+> Does firmware guarantee that it would return errors that make sense to
+> Linux?
 
-> +
-> +	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
-> +
-> +	if (ts_attached) {
-> +		ret = input_register_device(ts->input);
-> +		if (ret) {
-> +			writel(0, ts->base + TP_INT_FIFOC);
-> +			synchronize_irq(ts->irq);
-> +			return ret;
-> +		}
-> +	}
->  
->  	platform_set_drvdata(pdev, ts);
->  	return 0;
->  }
->  
-> +static int sun4i_ts_remove(struct platform_device *pdev)
-> +{
-> +	struct sun4i_ts_data *ts = platform_get_drvdata(pdev);
-> +
-> +	/* Explicit unregister to avoid open/close changing the imask later */
-> +	if (ts->input)
-> +		input_unregister_device(ts->input);
-> +
-> +	/* Deactivate all IRQs */
-> +	writel(0, ts->base + TP_INT_FIFOC);
-> +	synchronize_irq(ts->irq);
-> +
-> +	return 0;
-> +}
-> +
->  static const struct of_device_id sun4i_ts_of_match[] = {
->  	{ .compatible = "allwinner,sun4i-ts", },
->  	{ /* sentinel */ }
-> @@ -253,6 +329,7 @@ static struct platform_driver sun4i_ts_driver = {
->  		.of_match_table = of_match_ptr(sun4i_ts_of_match),
->  	},
->  	.probe	= sun4i_ts_probe,
-> +	.remove	= sun4i_ts_remove,
->  };
->  
->  module_platform_driver(sun4i_ts_driver);
-> -- 
-> 1.8.4.2
-> 
-> 
-> _______________________________________________
-> lm-sensors mailing list
-> lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-> http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
-> 
+Firmware returns -ENOENT.
+
+>
+>> +     }
+>> +
+>> +     return error ?: count;
+>> +}
+>> +
+>> +static DEVICE_ATTR(ofn_reg_data, S_IRUGO | S_IWUSR,
+>> +                ims_pcu_ofn_reg_data_show, ims_pcu_ofn_reg_data_store);
+>> +
+>> +static ssize_t ims_pcu_ofn_reg_addr_show(struct device *dev,
+>> +                                      struct device_attribute *dattr,
+>> +                                      char *buf)
+>> +{
+>> +     struct usb_interface *intf = to_usb_interface(dev);
+>> +     struct ims_pcu *pcu = usb_get_intfdata(intf);
+>> +     int error;
+>> +
+>> +     mutex_lock(&pcu->cmd_mutex);
+>> +     error = scnprintf(buf, PAGE_SIZE, "%x\n", pcu->ofn_reg_addr);
+>> +     mutex_unlock(&pcu->cmd_mutex);
+>> +
+>> +     return error;
+>> +}
+>> +
+>> +static ssize_t ims_pcu_ofn_reg_addr_store(struct device *dev,
+>> +                                       struct device_attribute *dattr,
+>> +                                       const char *buf, size_t count)
+>> +{
+>> +     struct usb_interface *intf = to_usb_interface(dev);
+>> +     struct ims_pcu *pcu = usb_get_intfdata(intf);
+>> +     int error;
+>> +     int value;
+>> +
+>> +     error = kstrtoint(buf, 0, &value);
+>> +     if (error)
+>> +             return error;
+>
+> kstrtou8().
+
+Will fix in the next version.
+
+>
+>> +
+>> +     mutex_lock(&pcu->cmd_mutex);
+>> +     pcu->ofn_reg_addr = (u8) value;
+>> +     mutex_unlock(&pcu->cmd_mutex);
+>> +
+>> +     return error ?: count;
+>> +}
+>> +
+>> +static DEVICE_ATTR(ofn_reg_addr, S_IRUGO | S_IWUSR,
+>> +                ims_pcu_ofn_reg_addr_show, ims_pcu_ofn_reg_addr_store);
+>> +
+>> +static ssize_t ims_pcu_ofn_bit_show(u8 addr, u8 nr,
+>> +                                 struct device *dev,
+>> +                                 struct device_attribute *dattr,
+>> +                                 char *buf)
+>> +{
+>> +     struct usb_interface *intf = to_usb_interface(dev);
+>> +     struct ims_pcu *pcu = usb_get_intfdata(intf);
+>> +     int error;
+>> +
+>> +     mutex_lock(&pcu->cmd_mutex);
+>> +
+>> +     error = ims_pcu_execute_command(pcu, OFN_GET_CONFIG,
+>> +                                     &addr, sizeof(addr));
+>> +     if (error >= 0) {
+>> +             const s16 result = pcu->cmd_buf[OFN_REG_RESULT_MSB_OFFSET] << 8 |
+>> +                                pcu->cmd_buf[OFN_REG_RESULT_LSB_OFFSET];
+>> +             if (result < 0)
+>> +                     error = result;
+>> +             else
+>> +                     error = scnprintf(buf, PAGE_SIZE, "%d\n",
+>> +                                       !!(result & (1 << nr)));
+>> +     }
+>> +
+>> +     mutex_unlock(&pcu->cmd_mutex);
+>> +     return error;
+>> +}
+>> +
+>> +static ssize_t ims_pcu_ofn_bit_store(u8 addr, u8 nr,
+>> +                                  struct device *dev,
+>> +                                  struct device_attribute *dattr,
+>> +                                  const char *buf, size_t count)
+>> +{
+>> +     struct usb_interface *intf = to_usb_interface(dev);
+>> +     struct ims_pcu *pcu = usb_get_intfdata(intf);
+>> +     int error;
+>> +     int value;
+>> +     u8 contents;
+>> +
+>> +
+>> +     error = kstrtoint(buf, 0, &value);
+>> +     if (error)
+>> +             return error;
+>> +
+>> +     if (value > 1)
+>> +             return -EINVAL;
+>> +
+>> +     mutex_lock(&pcu->cmd_mutex);
+>> +
+>> +     error = ims_pcu_execute_command(pcu, OFN_GET_CONFIG,
+>> +                                     &addr, sizeof(addr));
+>> +     if (error < 0)
+>> +             goto exit;
+>> +
+>> +     {
+>
+> Generally dislike artificial code blocks. Please declare all needed
+> variables upfront.
+
+This is done because pre '99 C standard does not allow for variable
+declaration in the middle of the function and I wanted to have the
+result variable to be constant.
+
+But, sure, since you are the author of the driver I don't really want
+to spend any time arguing coding styles, I'll change that in the next
+version.
+
+>
+>> +             const s16 result = pcu->cmd_buf[OFN_REG_RESULT_MSB_OFFSET] << 8 |
+>> +                                pcu->cmd_buf[OFN_REG_RESULT_LSB_OFFSET];
+>> +             if (result < 0) {
+>> +                     error = result;
+>> +                     goto exit;
+>> +             }
+>> +             contents = (u8) result;
+>> +     }
+>> +
+>> +     if (value)
+>> +             contents |= 1 << nr;
+
+>> @@ -1783,14 +2035,14 @@ static int ims_pcu_probe(struct usb_interface *intf,
+>>       if (error)
+>>               goto err_stop_io;
+>>
+>> -     error = sysfs_create_group(&intf->dev.kobj, &ims_pcu_attr_group);
+>> -     if (error)
+>> -             goto err_stop_io;
+>> -
+>>       error = pcu->bootloader_mode ?
+>>                       ims_pcu_init_bootloader_mode(pcu) :
+>>                       ims_pcu_init_application_mode(pcu);
+>>       if (error)
+>> +             goto err_stop_io;
+>> +
+>> +     error = sysfs_create_group(&intf->dev.kobj, &ims_pcu_attr_group);
+>> +     if (error)
+>>               goto err_remove_sysfs;
+>
+> Why did you move sysfs group creation? Now one can not observe progress
+> of firmware update...
+
+I need the device ID to be known before the sysfs group is created in
+order to make the decision about OFN-related attributes visibility,
+and for that I need "ims_pcu_init_application_mode" to be called
+before "sysfs_create_group" call is made.
+
+I see two potential ways of solving this problem:
+
+ 1. Split the calls to "ims_pcu_init_bootlader_mode" and
+"ims_pcu_init_application_mode" and make the former after the group is
+created and the latter before.
+ 2. Remove the "update_firmware_status" attribute (Does the userspace
+in the system that uses this driver actually rely on this argument or
+is just added for convenience? I know that they have a userspace tool
+that they use to update the FW, so that's why I am wondering if they
+ever use it to monitor the progress)
+
+>
+> Thanks.
+>
+> --
+> Dmitry

@@ -1,1131 +1,305 @@
-From: =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@prifuk.cz>
-Subject: [PATCH v3] Add ff-memless-next module
-Date: Fri, 27 Dec 2013 17:02:29 +0100
-Message-ID: <1388160149-9283-1-git-send-email-madcatxster@prifuk.cz>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [lm-sensors] [PATCH v2 2/5] input: sun4i-ts: Add
+ support for temperature sensor
+Date: Fri, 27 Dec 2013 08:34:19 -0800
+Message-ID: <20131227163419.GA20135@roeck-us.net>
+References: <1388156399-29677-1-git-send-email-hdegoede@redhat.com>
+ <1388156399-29677-3-git-send-email-hdegoede@redhat.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.prifuk.cz ([31.31.77.241]:36063 "EHLO prifuk.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751134Ab3L0QFi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Dec 2013 11:05:38 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBCKMZDW5VIHBBDOY62KQKGQE2EB2GBI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1388156399-29677-3-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Corentin LABBE <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, joe@perches.com, elias.vds@gmail.com, =?UTF-8?q?Michal=20Mal=C3=BD?= <madcatxster@prifuk.cz>
 
-Introduce ff-memless-next module as a possible future replacement for
-ff-memless.
+On Fri, Dec 27, 2013 at 03:59:56PM +0100, Hans de Goede wrote:
+> The sun4i resisitive touchscreen controller also comes with a built-in
+> temperature sensor. This commit adds support for it.
+> 
+> This commit also introduces a new "ts-attached" device-tree property,
+> when this is not set, the input part of the driver won't register. This way
+> the internal temperature sensor can be used to measure the SoC temperature
+> independent of there actually being a touchscreen attached to the controller.
+> 
+> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
-Tested-by: Elias Vanderstuyft <elias.vds@gmail.com>
-Signed-off-by: Michal Mal=C3=BD <madcatxster@prifuk.cz>
----
- Documentation/input/ff-memless-next.txt | 149 ++++++
- drivers/input/Kconfig                   |  12 +
- drivers/input/Makefile                  |   2 +
- drivers/input/ff-memless-next.c         | 793 ++++++++++++++++++++++++=
-++++++++
- include/linux/input/ff-memless-next.h   |  31 ++
- 5 files changed, 987 insertions(+)
- create mode 100644 Documentation/input/ff-memless-next.txt
- create mode 100644 drivers/input/ff-memless-next.c
- create mode 100644 include/linux/input/ff-memless-next.h
+Hi Hans,
 
-diff --git a/Documentation/input/ff-memless-next.txt b/Documentation/in=
-put/ff-memless-next.txt
-new file mode 100644
-index 0000000..470a5bc
---- /dev/null
-+++ b/Documentation/input/ff-memless-next.txt
-@@ -0,0 +1,149 @@
-+"ff-memless-next" force feedback module for memoryless devices.
-+By Michal Mal=C3=BD <madcatxster@prifuk.cz> on 2013/12/21
-+----------------------------------------------------------------------=
-------
-+
-+1. Introduction
-+~~~~~~~~~~~~~~~
-+This document describes basic working principles of the "ff-memless-ne=
-xt"
-+module and its purpose. This document also contains a summary
-+of the "ff-memless-next" API and brief instructions on how to use it t=
-o write
-+a hardware-specific backend with "ff-memless-next". Some specifics
-+of ff-memless-next that might be of interest for userspace developers
-+are also discussed.
-+
-+2. Basic principles of ff-memless-next
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+A lot of commonly used force feedback devices do not have a memory of =
-their
-+own. This means that it is not possible to upload a force feedback eff=
-ect
-+to such a device and let the device's CPU handle the playback. Instead=
-,
-+the device relies solely on its driver to tell it what force to genera=
-te.
-+"ff-memless-next" was written to serve in this capacity. Its purpose i=
-s to
-+calculate the overall force the device should apply and pass the resul=
-t to
-+a hardware-specific backend which then submits the appropriate command=
- to
-+the device.
-+
-+"ff-memless-next" differentiates between two types of force feedback e=
-ffects,
-+"combinable" and "uncombinable".
-+"Combinable" effects are effects that generate a force of a given
-+magnitude and direction. The magnitude can change in time according to=
- the
-+envelope of the effect and its waveform; the latter applies only to pe=
-riodic
-+effects. Force generated by "combinable" effect does not depend on the=
- position
-+of the device. Forces generated by each "combinable" effect that is ac=
-tive
-+are periodically recalculated as needed and superposed into one overal=
-l force.
-+"Combinable" effects are FF_CONSTANT, FF_PERIODIC and FF_RAMP.
-+
-+"Uncombinable" effects generate a force that depends on the position o=
-f
-+the device. "ff-memless-next" assumes that the device takes care of pr=
-ocessing
-+such an effect. However, a device might have a limit on how many "unco=
-mbinable"
-+effects can be active at once and this limit might be lower than the m=
-aximum
-+effect count set in "ff-memless-next". "ff-memless-next" allows a
-+hardware-specific driver to check whether the device is able to play
-+an "uncombinable" effect. Error is reported back to userspace if the d=
-evice
-+cannot play the effect. The hardware-specific driver may choose not to
-+perform this check in which case the userspace will have no way of kno=
-wing
-+whether an "uncombinable" effect is really being played or not.
-+"Uncombinable" effects are FF_DAMPER, FF_FRICTION, FF_INERTIA and FF_S=
-PRING.
-+
-+FF_CUSTOM is currently not handled by "ff-memless-next".
-+
-+3. API provided by "ff-memless-next"
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+"ff-memless-next" provides an API for developers of hardware-specific
-+drivers. In order to use the API, the hardware-specific driver should
-+include <linux/input/ff-memless-next.h>
-+Functions and structs defined by this API are:
-+
-+int input_ff_create_mlnx(struct input_dev *dev, void *data,
-+			 int(*control_effect)(struct input_dev *, void *, const struct mlnx=
-_effect_command *),
-+			 const u16 update_rate)
-+- Any hardware-specific driver that wants to use "ff-memless-next" mus=
-t call
-+this function. The function takes care of creating and registering a f=
-orce
-+feedback device within the kernel. It also initializes resources neede=
-d by
-+"ff-memless-next" to handle a new device. No other initialization step=
-s are necessary.
-+	Parameters:
-+	* dev - pointer to valid struct input_dev
-+	* data - pointer to custom data the hardware-specific backend
-+		 might need to pass to the control_effect() callback function
-+		 (discussed later). * data will be freed automatically by
-+		 "ff-memless-next" upon device's destruction.
-+	* control_effect - A callback function. "ff-memless-next" will call
-+			   this function when it is done processing effects.
-+			   Implementation of control_effect() in the
-+			   hardware-specific driver should create an appropriate
-+			   command and submit it to the device.
-+			   This function is called with dev->event_lock
-+			   spinlock held.
-+	update_rate - Rate in milliseconds at which envelopes and periodic
-+		      effects are recalculated. Minimum value is limited by the
-+		      kernel timer resolution and changes with value of
-+		      CONFIG_HZ.
-+
-+struct mlnx_effect_command
-+^^^^^^^^^^^^^^^^^^^^^^^^^^
-+- This struct is passed to the hardware-specific backend in
-+the control_effect() function. See "ff-memless-next.h" for details.
-+
-+enum mlnx_commands
-+^^^^^^^^^^^^^^^^^^
-+- Types of commands generated by ff-memless-next
-+	MLNX_START_COMBINED - Start or update "combinable" effect
-+	MLNX_STOP_COMBINED - Stop "combinable" effect. In most cases this mea=
-ns
-+			     to set the force to zero.
-+	MLNX_UPLOAD_UNCOMB - Check if the device can accept and play
-+			     "uncombinable" effect.
-+			     Hardware-specific driver should return 0
-+			     on success.
-+	MLNX_START_UNCOMB - Start playback of "uncombinable" effect.
-+	MLNX_STOP_UNCOMB - Stop playback of "uncombinable" effect.
-+
-+struct mlnx_simple_force
-+^^^^^^^^^^^^^^^^^^^^^^^^
-+	x - overall force along X axis
-+	y - overall force along Y axis
-+
-+struct mlnx_uncomb_effect
-+^^^^^^^^^^^^^^^^^^^^^^^^^
-+- Information about "uncombinable" effect.
-+	id - internal ID of the effect
-+	* effect - pointer to the internal copy of the effect kept by
-+		   "ff-memless-next". This pointer will remain valid until
-+		   the effect is removed.
-+
-+Sample implementation of a dummy driver that uses "ff-memless-next" is
-+available at "git://prifuk.cz/ff-dummy-device". Link to the source wil=
-l
-+be kept up to date.
-+
-+Direction of the effect's force translates to Cartesian coordinates sy=
-stem
-+as follows:
-+  Direction =3D 0: Down
-+  Direction (0; 16384): 3rd quadrant
-+  Direction =3D 16384: Left
-+  Direction (16385; 32768): 2nd quadrant
-+  Direction =3D 32768: Up
-+  Direction (32769; 49152): 1st quadrant
-+  Direction =3D 49152: Right
-+  Direction (49153; 65535) :4th quadrant
-+  Direction =3D 65565: Down
-+
-+4. Specifics of "ff-memless-next" for userspace developers
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+None of the persons involved in development or testing of "ff-memless-=
-next"
-+is aware of any reference force feedback specifications. "ff-memless-n=
-ext"
-+tries to adhere to Microsoft's DirectInput specifications because we
-+believe that is what most developers have experience with.
-+
-+- Waveforms of periodic effects do not start at the origin, but as fol=
-lows:
-+	SAW_UP: At minimum
-+	SAW_DOWN: At maximum
-+	SQUARE: At maximum
-+	TRIANGLE: At maximum
-+	SINE: At origin
-+
-+- Updating periodic effects:
-+	- All periodic effects are restarted when their parameters are update=
-d.
-+
-+- Updating effects of finite duration:
-+	- Once an effect of finite length finishes playing, it is considered
-+	  stopped. Only effects that are playing can be updated on the fly.
-+	  Therefore effects of finite duration can by updated only until
-+	  they finish playing.
-diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-index a11ff74..4371a12 100644
---- a/drivers/input/Kconfig
-+++ b/drivers/input/Kconfig
-@@ -77,6 +77,18 @@ config INPUT_MATRIXKMAP
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called matrix-keymap.
-=20
-+config INPUT_FF_MEMLESS_NEXT
-+	tristate "New version of support for memoryless force feedback device=
-s"
-+	help
-+	  Say Y here if you want to enable support for various memoryless
-+	  force feedback devices (as of now there is no hardware-specific
-+	  driver that supports this).
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called ff-memless-next.
-+
- comment "Userland interfaces"
-=20
- config INPUT_MOUSEDEV
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 5ca3f63..269a22d 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -16,6 +16,8 @@ obj-$(CONFIG_INPUT_MOUSEDEV)	+=3D mousedev.o
- obj-$(CONFIG_INPUT_JOYDEV)	+=3D joydev.o
- obj-$(CONFIG_INPUT_EVDEV)	+=3D evdev.o
- obj-$(CONFIG_INPUT_EVBUG)	+=3D evbug.o
-+obj-$(CONFIG_INPUT_MATRIXKMAP)	+=3D matrix-keymap.o
-+obj-$(CONFIG_INPUT_FF_MEMLESS_NEXT)	+=3D ff-memless-next.o
-=20
- obj-$(CONFIG_INPUT_KEYBOARD)	+=3D keyboard/
- obj-$(CONFIG_INPUT_MOUSE)	+=3D mouse/
-diff --git a/drivers/input/ff-memless-next.c b/drivers/input/ff-memless=
--next.c
-new file mode 100644
-index 0000000..97de791
---- /dev/null
-+++ b/drivers/input/ff-memless-next.c
-@@ -0,0 +1,793 @@
-+/*
-+ * Force feedback support for memoryless devices
-+ *
-+ * This module is based on "ff-memless" orignally written by Anssi Han=
-nula.
-+ * It is extended to support all force feedback effects currently supp=
-orted
-+ * by the Linux input stack.
-+ *
-+ * Copyright(c) 2013 Michal Maly <madcatxster@prifuk.cz>
-+ *
-+ */
-+
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/spinlock.h>
-+#include <linux/jiffies.h>
-+#include <linux/fixp-arith.h>
-+#include <linux/input/ff-memless-next.h>
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Michal \"MadCatX\" Maly");
-+MODULE_DESCRIPTION("Force feedback support for memoryless force feedba=
-ck devices");
-+
-+#define FF_MAX_EFFECTS 16
-+#define FF_MIN_EFFECT_LENGTH ((1000 / CONFIG_HZ) + 1)
-+#define FF_EFFECT_STARTED 1
-+#define FF_EFFECT_PLAYING 2
-+
-+
-+struct mlnx_effect {
-+	struct ff_effect effect;
-+	unsigned long flags;
-+	unsigned long begin_at;
-+	unsigned long stop_at;
-+	unsigned long updated_at;
-+	unsigned long attack_stop;
-+	unsigned long fade_begin;
-+	int repeat;
-+	u16 playback_time;
-+};
-+
-+struct mlnx_device {
-+	u8 combinable_playing;
-+	unsigned long update_rate_jiffies;
-+	void *private;
-+	struct mlnx_effect effects[FF_MAX_EFFECTS];
-+	int gain;
-+	struct timer_list timer;
-+	struct input_dev *dev;
-+
-+	int (*control_effect)(struct input_dev *, void *,
-+			      const struct mlnx_effect_command *);
-+};
-+
-+static s32 mlnx_calculate_x_force(const s32 level,
-+						  const u16 direction)
-+{
-+	s32 new =3D (level * -fixp_sin(direction)) >> FRAC_N;
-+	pr_debug("x force: %d\n", new);
-+	return new;
-+}
-+
-+static s32 mlnx_calculate_y_force(const s32 level,
-+						  const u16 direction)
-+{
-+	s32 new =3D (level * -fixp_cos(direction)) >> FRAC_N;
-+	pr_debug("y force: %d\n", new);
-+	return new;
-+}
-+
-+static bool mlnx_is_combinable(const struct ff_effect *effect)
-+{
-+	switch (effect->type) {
-+	case FF_CONSTANT:
-+	case FF_PERIODIC:
-+	case FF_RAMP:
-+		return true;
-+	default:
-+		return false;
-+	}
-+}
-+
-+static bool mlnx_is_conditional(const struct ff_effect *effect)
-+{
-+	switch (effect->type) {
-+	case FF_DAMPER:
-+	case FF_FRICTION:
-+	case FF_INERTIA:
-+	case FF_SPRING:
-+		return true;
-+	default:
-+		return false;
-+	}
-+}
-+
-+static bool mlnx_is_square(const struct ff_effect *effect)
-+{
-+	if (effect->type =3D=3D FF_PERIODIC)
-+		return effect->u.periodic.waveform =3D=3D FF_SQUARE;
-+	return false;
-+}
-+
-+static void mlnx_clr_playing(struct mlnx_effect *mlnxeff)
-+{
-+	__clear_bit(FF_EFFECT_PLAYING, &mlnxeff->flags);
-+}
-+
-+static void mlnx_clr_started(struct mlnx_effect *mlnxeff)
-+{
-+	__clear_bit(FF_EFFECT_STARTED, &mlnxeff->flags);
-+}
-+
-+static bool mlnx_is_playing(const struct mlnx_effect *mlnxeff)
-+{
-+	return test_bit(FF_EFFECT_PLAYING, &mlnxeff->flags);
-+}
-+
-+static bool mlnx_is_started(const struct mlnx_effect *mlnxeff)
-+{
-+	return test_bit(FF_EFFECT_STARTED, &mlnxeff->flags);
-+}
-+
-+static bool mlnx_test_set_playing(struct mlnx_effect *mlnxeff)
-+{
-+	return test_and_set_bit(FF_EFFECT_PLAYING, &mlnxeff->flags);
-+}
-+
-+static const struct ff_envelope *mlnx_get_envelope(const struct ff_eff=
-ect *effect)
-+{
-+	static const struct ff_envelope empty;
-+
-+	switch (effect->type) {
-+	case FF_CONSTANT:
-+		return &effect->u.constant.envelope;
-+	case FF_PERIODIC:
-+		return &effect->u.periodic.envelope;
-+	case FF_RAMP:
-+		return &effect->u.ramp.envelope;
-+	default:
-+		return &empty;
-+	}
-+}
-+
-+/* Some devices might have a limit on how many uncombinable effects
-+ * can be played at once */
-+static int mlnx_upload_conditional(struct mlnx_device *mlnxdev,
-+				   const struct ff_effect *effect)
-+{
-+	struct mlnx_effect_command ecmd =3D {
-+		.cmd =3D MLNX_UPLOAD_UNCOMB,
-+		.u.uncomb.id =3D effect->id,
-+		.u.uncomb.effect =3D effect
-+	};
-+	return mlnxdev->control_effect(mlnxdev->dev, mlnxdev->private, &ecmd)=
-;
-+}
-+
-+static void mlnx_set_envelope_times(struct mlnx_effect *mlnxeff)
-+{
-+	const struct ff_effect *effect =3D &mlnxeff->effect;
-+	const struct ff_envelope *envelope =3D mlnx_get_envelope(effect);
-+
-+	if (envelope->attack_length) {
-+		unsigned long j =3D msecs_to_jiffies(envelope->attack_length);
-+		mlnxeff->attack_stop =3D mlnxeff->begin_at + j;
-+	}
-+	if (effect->replay.length && envelope->fade_length) {
-+		unsigned long j =3D msecs_to_jiffies(envelope->fade_length);
-+		mlnxeff->fade_begin =3D mlnxeff->stop_at - j;
-+	}
-+}
-+
-+static void mlnx_set_trip_times(struct mlnx_effect *mlnxeff,
-+				const unsigned long now)
-+{
-+	const struct ff_effect *effect =3D &mlnxeff->effect;
-+	const u16 replay_delay =3D effect->replay.delay;
-+	const u16 replay_length =3D effect->replay.length;
-+
-+	mlnxeff->begin_at =3D now + msecs_to_jiffies(replay_delay);
-+	mlnxeff->stop_at =3D mlnxeff->begin_at + msecs_to_jiffies(replay_leng=
-th);
-+	mlnxeff->updated_at =3D mlnxeff->begin_at;
-+	if (effect->type =3D=3D FF_PERIODIC)
-+		mlnxeff->playback_time =3D effect->u.periodic.phase;
-+}
-+
-+static void mlnx_start_effect(struct mlnx_effect *mlnxeff)
-+{
-+	const unsigned long now =3D jiffies;
-+
-+	mlnx_set_trip_times(mlnxeff, now);
-+	mlnx_set_envelope_times(mlnxeff);
-+	__set_bit(FF_EFFECT_STARTED, &mlnxeff->flags);
-+}
-+
-+static void mlnx_stop_effect(struct mlnx_device *mlnxdev,
-+			     const struct mlnx_effect *mlnxeff)
-+{
-+	switch (mlnxeff->effect.type) {
-+	case FF_CONSTANT:
-+	case FF_PERIODIC:
-+	case FF_RAMP:
-+		if (--mlnxdev->combinable_playing =3D=3D 0) {
-+			const struct mlnx_effect_command c =3D {
-+				.cmd =3D MLNX_STOP_COMBINED
-+			};
-+			mlnxdev->control_effect(mlnxdev->dev, mlnxdev->private,
-+						&c);
-+		}
-+		return;
-+	case FF_DAMPER:
-+	case FF_FRICTION:
-+	case FF_INERTIA:
-+	case FF_SPRING:
-+	{
-+		const struct mlnx_effect_command c =3D {
-+			.cmd =3D MLNX_STOP_UNCOMB,
-+			.u.uncomb.id =3D mlnxeff->effect.id,
-+			.u.uncomb.effect =3D &mlnxeff->effect
-+		};
-+		mlnxdev->control_effect(mlnxdev->dev, mlnxdev->private, &c);
-+		return;
-+	}
-+	default:
-+		return;
-+	}
-+}
-+
-+static int mlnx_restart_effect(struct mlnx_device *mlnxdev,
-+			       struct mlnx_effect *mlnxeff)
-+{
-+	const struct ff_effect *effect =3D &mlnxeff->effect;
-+	const unsigned long now =3D jiffies;
-+
-+	if (mlnx_is_combinable(effect)) {
-+		if (effect->replay.delay)
-+			mlnx_stop_effect(mlnxdev, mlnxeff);
-+		else
-+			mlnxdev->combinable_playing--;
-+	} else if (mlnx_is_conditional(effect)) {
-+		int ret;
-+		if (effect->replay.delay)
-+			mlnx_stop_effect(mlnxdev, mlnxeff);
-+
-+		ret =3D mlnx_upload_conditional(mlnxdev, &mlnxeff->effect);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	mlnx_set_trip_times(mlnxeff, now);
-+	mlnx_set_envelope_times(mlnxeff);
-+
-+	return 0;
-+}
-+
-+static s32 mlnx_apply_envelope(const struct mlnx_effect *mlnxeff,
-+			       const s32 level)
-+{
-+	const struct ff_effect *effect =3D &mlnxeff->effect;
-+	const struct ff_envelope *envelope =3D mlnx_get_envelope(effect);
-+	const unsigned long now =3D jiffies;
-+	const s32 alevel =3D abs(level);
-+
-+	/* Effect has an envelope with nonzero attack time */
-+	if (envelope->attack_length && time_before(now, mlnxeff->attack_stop)=
-) {
-+		const s32 clength =3D jiffies_to_msecs(now - mlnxeff->begin_at);
-+		const s32 alength =3D envelope->attack_length;
-+		const s32 dlevel =3D (alevel - envelope->attack_level)
-+				 * clength / alength;
-+		return level < 0 ? -(dlevel + envelope->attack_level) :
-+				    (dlevel + envelope->attack_level);
-+	} else if (envelope->fade_length && time_before_eq(mlnxeff->fade_begi=
-n, now)) {
-+		const s32 clength =3D jiffies_to_msecs(now - mlnxeff->fade_begin);
-+		const s32 flength =3D envelope->fade_length;
-+		const s32 dlevel =3D (envelope->fade_level - alevel)
-+				 * clength / flength;
-+		return level < 0 ? -(dlevel + alevel) : (dlevel + alevel);
-+	}
-+
-+	return level;
-+}
-+
-+static s32 mlnx_calculate_periodic(struct mlnx_effect *mlnxeff, const =
-s32 level)
-+{
-+	const struct ff_effect *effect =3D &mlnxeff->effect;
-+	const unsigned long now =3D jiffies;
-+	const u16 period =3D effect->u.periodic.period;
-+	const unsigned long dt =3D jiffies_to_msecs(now - mlnxeff->updated_at=
-);
-+	const s16 offset =3D effect->u.periodic.offset;
-+	s32 new =3D level;
-+	u16 t;
-+
-+	mlnxeff->playback_time +=3D dt;
-+	t =3D mlnxeff->playback_time % period;
-+
-+	switch (effect->u.periodic.waveform) {
-+	case FF_SINE:
-+	{
-+		u16 degrees =3D (360 * t) / period;
-+		new =3D ((level * fixp_sin(degrees)) >> FRAC_N) + offset;
-+		break;
-+	}
-+	case FF_SQUARE:
-+	{
-+		u16 degrees =3D (360 * t) / period;
-+		new =3D level * (degrees < 180 ? 1 : -1) + offset;
-+		break;
-+	}
-+	case FF_SAW_UP:
-+		new =3D 2 * level * t / period - level + offset;
-+		break;
-+	case FF_SAW_DOWN:
-+		new =3D level - 2 * level * t / period + offset;
-+		break;
-+	case FF_TRIANGLE:
-+	{
-+		new =3D (2 * abs(level - (2 * level * t) / period));
-+		new =3D new - level + offset;
-+		break;
-+	}
-+	case FF_CUSTOM:
-+		pr_debug("Custom waveform is not handled by this driver\n");
-+		return level;
-+	default:
-+		pr_err("Invalid waveform\n");
-+		return level;
-+	}
-+
-+	mlnxeff->playback_time =3D t;
-+	/* Ensure that the offset did not make the value exceed s16 range */
-+	new =3D clamp(new, -0x7fff, 0x7fff);
-+	pr_debug("level: %d, playback: %u, t: %u, dt: %lu\n",
-+		 new, mlnxeff->playback_time, t, dt);
-+	return new;
-+}
-+
-+static s32 mlnx_calculate_ramp(const struct mlnx_effect *mlnxeff)
-+{
-+	const struct ff_effect *effect =3D &mlnxeff->effect;
-+	const struct ff_envelope *envelope =3D mlnx_get_envelope(effect);
-+	const unsigned long now =3D jiffies;
-+	const u16 length =3D effect->replay.length;
-+	const s16 mean =3D (effect->u.ramp.start_level + effect->u.ramp.end_l=
-evel) / 2;
-+	const u16 t =3D jiffies_to_msecs(now - mlnxeff->begin_at);
-+	s32 start =3D effect->u.ramp.start_level;
-+	s32 end =3D effect->u.ramp.end_level;
-+	s32 new;
-+
-+	if (envelope->attack_length && time_before(now, mlnxeff->attack_stop)=
-) {
-+		const s32 clength =3D jiffies_to_msecs(now - mlnxeff->begin_at);
-+		const s32 alength =3D envelope->attack_length;
-+		s32 attack_level;
-+		if (end > start)
-+			attack_level =3D mean - envelope->attack_level;
-+		else
-+			attack_level =3D mean + envelope->attack_level;
-+		start =3D (start - attack_level) * clength / alength
-+		      + attack_level;
-+	} else if (envelope->fade_length && time_before_eq(mlnxeff->fade_begi=
-n, now)) {
-+		const s32 clength =3D jiffies_to_msecs(now - mlnxeff->fade_begin);
-+		const s32 flength =3D envelope->fade_length;
-+		s32 fade_level;
-+		if (end > start)
-+			fade_level =3D mean + envelope->fade_level;
-+		else
-+			fade_level =3D mean - envelope->fade_level;
-+		end =3D (fade_level - end) * clength / flength + end;
-+	}
-+
-+	new =3D ((end - start) * t) / length + start;
-+	new =3D clamp(new, -0x7fff, 0x7fff);
-+	pr_debug("RAMP level: %d, t: %u\n", new, t);
-+	return new;
-+}
-+
-+static void mlnx_destroy(struct ff_device *dev)
-+{
-+	struct mlnx_device *mlnxdev =3D dev->private;
-+	del_timer_sync(&mlnxdev->timer);
-+
-+	kfree(mlnxdev->private);
-+}
-+
-+static unsigned long mlnx_get_envelope_update_time(const struct mlnx_e=
-ffect *mlnxeff,
-+						   const unsigned long update_rate_jiffies)
-+{
-+	const struct ff_effect *effect =3D &mlnxeff->effect;
-+	const struct ff_envelope *envelope =3D mlnx_get_envelope(effect);
-+	const unsigned long now =3D jiffies;
-+	unsigned long fade_next;
-+
-+	/* Effect has an envelope with nonzero attack time */
-+	if (envelope->attack_length && time_before(now, mlnxeff->attack_stop)=
-) {
-+		if (time_before(mlnxeff->updated_at + update_rate_jiffies, mlnxeff->=
-attack_stop))
-+			return mlnxeff->updated_at + update_rate_jiffies;
-+
-+		return mlnxeff->attack_stop;
-+	}
-+
-+	/* Effect has an envelope with nonzero fade time */
-+	if (mlnxeff->effect.replay.length) {
-+		if (!envelope->fade_length)
-+			return mlnxeff->stop_at;
-+
-+		/* Schedule the next update when the fade begins */
-+		if (time_before(mlnxeff->updated_at, mlnxeff->fade_begin))
-+			return mlnxeff->fade_begin;
-+
-+		/* Already fading */
-+		fade_next =3D mlnxeff->updated_at + update_rate_jiffies;
-+
-+		/* Schedule update when the effect stops */
-+		if (time_after(fade_next, mlnxeff->stop_at))
-+			return mlnxeff->stop_at;
-+		/* Schedule update at the next checkpoint */
-+			return fade_next;
-+	}
-+
-+	/* There is no envelope */
-+
-+	/* Prevent the effect from being started twice */
-+	if (mlnxeff->begin_at =3D=3D now && mlnx_is_playing(mlnxeff))
-+		return now - 1;
-+
-+	return mlnxeff->begin_at;
-+}
-+
-+static unsigned long mlnx_get_update_time(const struct mlnx_effect *ml=
-nxeff,
-+				const unsigned long update_rate_jiffies)
-+{
-+	const unsigned long now =3D jiffies;
-+	unsigned long time, update_periodic;
-+
-+	switch (mlnxeff->effect.type) {
-+	/* Constant effect does not change with time, but it can have
-+	 * an envelope and a duration */
-+	case FF_CONSTANT:
-+		return mlnx_get_envelope_update_time(mlnxeff,
-+						     update_rate_jiffies);
-+	/* Periodic and ramp effects have to be periodically updated */
-+	case FF_PERIODIC:
-+	case FF_RAMP:
-+		time =3D mlnx_get_envelope_update_time(mlnxeff,
-+						     update_rate_jiffies);
-+
-+		if (mlnx_is_square(&mlnxeff->effect)) {
-+			const u16 half_T =3D mlnxeff->effect.u.periodic.period/2;
-+			update_periodic =3D msecs_to_jiffies(half_T)
-+					  + mlnxeff->updated_at;
-+		} else
-+			update_periodic =3D mlnxeff->updated_at
-+					  + update_rate_jiffies;
-+
-+		/* Periodic effect has to be updated earlier than envelope
-+		 * or envelope update time is in the past */
-+		if (time_before(update_periodic, time) || time_before(time, now))
-+			return update_periodic;
-+		/* Envelope needs to be updated */
-+		return time;
-+	case FF_DAMPER:
-+	case FF_FRICTION:
-+	case FF_INERTIA:
-+	case FF_SPRING:
-+	default:
-+		if (time_after_eq(mlnxeff->begin_at, now))
-+			return mlnxeff->begin_at;
-+
-+		return mlnxeff->stop_at;
-+	}
-+}
-+
-+static void mlnx_schedule_playback(struct mlnx_device *mlnxdev)
-+{
-+	struct mlnx_effect *mlnxeff;
-+	const unsigned long now =3D jiffies;
-+	int events =3D 0;
-+	int i;
-+	unsigned long earliest =3D 0;
-+	unsigned long time;
-+
-+	/* Iterate over all effects and determine the earliest
-+	 * time when we have to attend to any */
-+	for (i =3D 0; i < FF_MAX_EFFECTS; i++) {
-+		mlnxeff =3D &mlnxdev->effects[i];
-+
-+		if (!mlnx_is_started(mlnxeff))
-+			continue; /* Effect is not started, skip it */
-+
-+		if (mlnx_is_playing(mlnxeff))
-+			time =3D mlnx_get_update_time(mlnxeff,
-+						mlnxdev->update_rate_jiffies);
-+		else
-+			time =3D mlnxeff->begin_at;
-+
-+		pr_debug("Update time for effect %d: %lu\n", i, time);
-+
-+		/* Scheduled time is in the future and is either
-+		 * before the current earliest time or it is
-+		 * the first valid time value in this pass */
-+		if (time_before_eq(now, time) &&
-+		    (++events =3D=3D 1 || time_before(time, earliest)))
-+			earliest =3D time;
-+	}
-+
-+	if (events) {
-+		pr_debug("Events: %d, earliest: %lu\n", events, earliest);
-+		mod_timer(&mlnxdev->timer, earliest);
-+	}
-+}
-+
-+static void mlnx_add_force(struct mlnx_effect *mlnxeff, s32 *cfx, s32 =
-*cfy,
-+			   const u16 gain)
-+{
-+	const struct ff_effect *effect =3D &mlnxeff->effect;
-+	u16 direction;
-+	s32 level;
-+
-+	pr_debug("Processing effect type %d, ID %d\n",
-+		 mlnxeff->effect.type, mlnxeff->effect.id);
-+
-+	direction =3D mlnxeff->effect.direction * 360 / 0xffff;
-+	pr_debug("Direction deg: %u\n", direction);
-+
-+	switch (mlnxeff->effect.type) {
-+	case FF_CONSTANT:
-+		level =3D mlnx_apply_envelope(mlnxeff, effect->u.constant.level);
-+		break;
-+	case FF_PERIODIC:
-+		level =3D mlnx_apply_envelope(mlnxeff,
-+					    effect->u.periodic.magnitude);
-+		level =3D mlnx_calculate_periodic(mlnxeff, level);
-+		break;
-+	case FF_RAMP:
-+		level =3D mlnx_calculate_ramp(mlnxeff);
-+		break;
-+	default:
-+		pr_err("Effect %d not handled by mlnx_add_force\n",
-+		       mlnxeff->effect.type);
-+		return;
-+	}
-+
-+	*cfx +=3D mlnx_calculate_x_force(level, direction) * gain / 0xffff;
-+	*cfy +=3D mlnx_calculate_y_force(level, direction) * gain / 0xffff;
-+}
-+
-+static void mlnx_play_effects(struct mlnx_device *mlnxdev)
-+{
-+	const u16 gain =3D mlnxdev->gain;
-+	const unsigned long now =3D jiffies;
-+	int i;
-+	int cfx =3D 0;
-+	int cfy =3D 0;
-+
-+	for (i =3D 0; i < FF_MAX_EFFECTS; i++) {
-+		struct mlnx_effect *mlnxeff =3D &mlnxdev->effects[i];
-+
-+		if (!mlnx_is_started(mlnxeff)) {
-+			pr_debug("Effect %hd/%d not started\n",
-+				 mlnxeff->effect.id, i);
-+			continue;
-+		}
-+
-+		if (time_before(now, mlnxeff->begin_at)) {
-+			pr_debug("Effect %hd/%d begins at a later time\n",
-+				 mlnxeff->effect.id, i);
-+			continue;
-+		}
-+
-+		if (time_before_eq(mlnxeff->stop_at, now) && mlnxeff->effect.replay.=
-length) {
-+			pr_debug("Effect %hd/%d has to be stopped\n",
-+				 mlnxeff->effect.id, i);
-+
-+			mlnx_clr_playing(mlnxeff);
-+			if (--mlnxeff->repeat > 0)
-+				mlnx_restart_effect(mlnxdev, mlnxeff);
-+			else {
-+				mlnx_clr_started(mlnxeff);
-+				mlnx_stop_effect(mlnxdev, mlnxeff);
-+			}
-+
-+			continue;
-+		}
-+
-+		switch (mlnxeff->effect.type) {
-+		case FF_CONSTANT:
-+		case FF_PERIODIC:
-+		case FF_RAMP:
-+			if (!mlnx_test_set_playing(mlnxeff)) {
-+				mlnxdev->combinable_playing++;
-+				pr_debug("Starting combinable effect, total %u\n",
-+					 mlnxdev->combinable_playing);
-+			}
-+			mlnx_add_force(mlnxeff, &cfx, &cfy, gain);
-+			break;
-+		case FF_DAMPER:
-+		case FF_FRICTION:
-+		case FF_INERTIA:
-+		case FF_SPRING:
-+			if (!mlnx_test_set_playing(mlnxeff)) {
-+				const struct mlnx_effect_command ecmd =3D {
-+					.cmd =3D MLNX_START_UNCOMB,
-+					.u.uncomb.id =3D i,
-+					.u.uncomb.effect =3D &mlnxeff->effect
-+				};
-+				mlnxdev->control_effect(mlnxdev->dev,
-+						      mlnxdev->private, &ecmd);
-+			}
-+			break;
-+		default:
-+			pr_debug("Unhandled type of effect\n");
-+		}
-+		mlnxeff->updated_at =3D now;
-+	}
-+
-+	if (mlnxdev->combinable_playing) {
-+		const struct mlnx_effect_command ecmd =3D {
-+			.cmd =3D MLNX_START_COMBINED,
-+			.u.simple_force =3D {
-+				.x =3D clamp(cfx, -0x7fff, 0x7fff),
-+				.y =3D clamp(cfy, -0x7fff, 0x7fff)
-+			}
-+		};
-+		mlnxdev->control_effect(mlnxdev->dev, mlnxdev->private, &ecmd);
-+	}
-+
-+	mlnx_schedule_playback(mlnxdev);
-+}
-+
-+static void mlnx_set_gain(struct input_dev *dev, u16 gain)
-+{
-+	struct mlnx_device *mlnxdev =3D dev->ff->private;
-+	int i;
-+
-+	mlnxdev->gain =3D gain;
-+
-+	for (i =3D 0; i < FF_MAX_EFFECTS; i++)
-+		mlnx_clr_playing(&mlnxdev->effects[i]);
-+
-+	mlnx_play_effects(mlnxdev);
-+}
-+
-+static int mlnx_startstop(struct input_dev *dev, int effect_id, int re=
-peat)
-+{
-+	struct mlnx_device *mlnxdev =3D dev->ff->private;
-+	struct mlnx_effect *mlnxeff =3D &mlnxdev->effects[effect_id];
-+
-+	if (repeat > 0) {
-+		pr_debug("Starting effect ID %d\n", effect_id);
-+		mlnxeff->repeat =3D repeat;
-+		if (!mlnx_is_started(mlnxeff))
-+			mlnx_start_effect(mlnxeff);
-+	} else {
-+		pr_debug("Stopping effect ID %d\n", effect_id);
-+		if (mlnx_is_started(mlnxeff)) {
-+			if (mlnx_is_playing(mlnxeff)) {
-+				mlnx_clr_playing(mlnxeff);
-+				mlnx_stop_effect(mlnxdev, mlnxeff);
-+			}
-+			mlnx_clr_started(mlnxeff);
-+		} else {
-+			pr_debug("Effect ID %d already stopped\n", effect_id);
-+			return 0;
-+		}
-+	}
-+	mlnx_play_effects(mlnxdev);
-+
-+	return 0;
-+}
-+
-+static void mlnx_timer_fired(unsigned long data)
-+{
-+	struct input_dev *dev =3D (struct input_dev *)data;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&dev->event_lock, flags);
-+	mlnx_play_effects(dev->ff->private);
-+	spin_unlock_irqrestore(&dev->event_lock, flags);
-+}
-+
-+static int mlnx_upload(struct input_dev *dev, struct ff_effect *effect=
-,
-+		       struct ff_effect *old)
-+{
-+	struct mlnx_device *mlnxdev =3D dev->ff->private;
-+	struct mlnx_effect *mlnxeff =3D &mlnxdev->effects[effect->id];
-+	const u16 length =3D effect->replay.length;
-+	const u16 delay =3D effect->replay.delay;
-+	int ret, fade_from;
-+
-+	/* Effect's timing is below kernel timer resolution */
-+	if (length && length < FF_MIN_EFFECT_LENGTH)
-+		effect->replay.length =3D FF_MIN_EFFECT_LENGTH;
-+	if (delay && delay < FF_MIN_EFFECT_LENGTH)
-+		effect->replay.delay =3D FF_MIN_EFFECT_LENGTH;
-+
-+	/* Periodic effects must have a non-zero period */
-+	if (effect->type =3D=3D FF_PERIODIC) {
-+		if (!effect->u.periodic.period)
-+			return -EINVAL;
-+	}
-+	/* Ramp effects cannot be infinite */
-+	if (effect->type =3D=3D FF_RAMP && !length)
-+		return -EINVAL;
-+
-+	if (mlnx_is_combinable(effect)) {
-+		const struct ff_envelope *envelope =3D mlnx_get_envelope(effect);
-+
-+		/* Infinite effects cannot fade */
-+		if (!length && envelope->fade_length > 0)
-+			return -EINVAL;
-+		/* Fade length cannot be greater than effect duration */
-+		fade_from =3D (int)length - (int)envelope->fade_length;
-+		if (fade_from < 0)
-+			return -EINVAL;
-+		/* Envelope cannot start fading before it finishes attacking */
-+		if (fade_from < envelope->attack_length && fade_from > 0)
-+			return -EINVAL;
-+	}
-+
-+
-+	spin_lock_irq(&dev->event_lock);
-+	mlnxeff->effect =3D *effect; /* Keep internal copy of the effect */
-+	/* Check if the effect being modified is playing */
-+	if (mlnx_is_started(mlnxeff)) {
-+		if (mlnx_is_playing(mlnxeff)) {
-+			mlnx_clr_playing(mlnxeff);
-+			ret =3D mlnx_restart_effect(mlnxdev, mlnxeff);
-+
-+			if (ret) {
-+				/* Restore the original effect */
-+				if (old)
-+					mlnxeff->effect =3D *old;
-+				spin_unlock_irq(&dev->event_lock);
-+				return ret;
-+			}
-+		}
-+
-+		mlnx_schedule_playback(mlnxdev);
-+		spin_unlock_irq(&dev->event_lock);
-+		return 0;
-+	}
-+
-+	if (mlnx_is_conditional(effect)) {
-+		ret =3D mlnx_upload_conditional(mlnxdev, &mlnxeff->effect);
-+		if (ret) {
-+			/* Restore the original effect */
-+			if (old)
-+				mlnxeff->effect =3D *old;
-+			spin_unlock_irq(&dev->event_lock);
-+			return ret;
-+		}
-+	}
-+
-+	spin_unlock_irq(&dev->event_lock);
-+
-+	return 0;
-+}
-+
-+int input_ff_create_mlnx(struct input_dev *dev, void *data,
-+			 int(*control_effect)(struct input_dev *, void *, const struct mlnx=
-_effect_command *),
-+			 const u16 update_rate)
-+{
-+	struct mlnx_device *mlnxdev;
-+	int ret;
-+
-+	mlnxdev =3D kzalloc(sizeof(*mlnxdev), GFP_KERNEL);
-+	if (!mlnxdev)
-+		return -ENOMEM;
-+
-+	mlnxdev->dev =3D dev;
-+	mlnxdev->private =3D data;
-+	mlnxdev->control_effect =3D control_effect;
-+	mlnxdev->gain =3D 0xffff;
-+	mlnxdev->update_rate_jiffies =3D update_rate < FF_MIN_EFFECT_LENGTH ?
-+				       FF_MIN_EFFECT_LENGTH : update_rate;
-+	setup_timer(&mlnxdev->timer, mlnx_timer_fired, (unsigned long)dev);
-+
-+	ret =3D input_ff_create(dev, FF_MAX_EFFECTS);
-+	if (ret) {
-+		kfree(mlnxdev);
-+		return ret;
-+	}
-+
-+	dev->ff->private =3D mlnxdev;
-+	dev->ff->upload =3D mlnx_upload;
-+	dev->ff->set_gain =3D mlnx_set_gain;
-+	dev->ff->destroy =3D mlnx_destroy;
-+	dev->ff->playback =3D mlnx_startstop;
-+
-+	pr_debug("Device successfully registered.\n");
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(input_ff_create_mlnx);
-diff --git a/include/linux/input/ff-memless-next.h b/include/linux/inpu=
-t/ff-memless-next.h
-new file mode 100644
-index 0000000..f2fb080
---- /dev/null
-+++ b/include/linux/input/ff-memless-next.h
-@@ -0,0 +1,31 @@
-+#include <linux/input.h>
-+
-+enum mlnx_commands {
-+	MLNX_START_COMBINED,
-+	MLNX_STOP_COMBINED,
-+	MLNX_START_UNCOMB,
-+	MLNX_STOP_UNCOMB,
-+	MLNX_UPLOAD_UNCOMB
-+};
-+
-+struct mlnx_simple_force {
-+	const s32 x;
-+	const s32 y;
-+};
-+
-+struct mlnx_uncomb_effect {
-+	const int id;
-+	const struct ff_effect *effect;
-+};
-+
-+struct mlnx_effect_command {
-+	const enum mlnx_commands cmd;
-+	union {
-+		const struct mlnx_simple_force simple_force;
-+		const struct mlnx_uncomb_effect uncomb;
-+	} u;
-+};
-+
-+int input_ff_create_mlnx(struct input_dev *dev, void *data,
-+			 int(*control_effect)(struct input_dev *, void *, const struct mlnx=
-_effect_command *),
-+			 const u16 update_rate);
---=20
-1.8.5.2
+Almost good, except for a couple of nitpicks and one moe question.
+Assuming you fix the nitpicks and the question is not a concern,
+feel free to add
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+
+Guenter
+
+> ---
+>  .../bindings/input/touchscreen/sun4i.txt           |   6 +
+>  drivers/input/touchscreen/sun4i-ts.c               | 129 ++++++++++++++++-----
+>  2 files changed, 109 insertions(+), 26 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> index e45927e..1fffd11 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> @@ -6,10 +6,16 @@ Required properties:
+>   - reg: mmio address range of the chip
+>   - interrupts: interrupt to which the chip is connected
+>  
+> +Optional properties:
+> + - ts-attached: boolean set this to tell the driver that an actual touchscreen
+> +		is attached and that it should register an input device,
+> +		without this it only registers the builtin temperate sensor
+> +
+>  Example:
+>  
+>  	rtp: rtp@01c25000 {
+>  		compatible = "allwinner,sun4i-ts";
+>  		reg = <0x01c25000 0x100>;
+>  		interrupts = <29>;
+> +		ts-attached;
+>  	};
+> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
+> index 10839d2..2d437f6 100644
+> --- a/drivers/input/touchscreen/sun4i-ts.c
+> +++ b/drivers/input/touchscreen/sun4i-ts.c
+> @@ -3,6 +3,9 @@
+>   *
+>   * Copyright (C) 2013 - 2014 Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+>   *
+> + * The hwmon parts are based on work by Corentin LABBE which is:
+> + * Copyright (C) 2013 Corentin LABBE <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> + *
+>   * This program is free software; you can redistribute it and/or modify
+>   * it under the terms of the GNU General Public License as published by
+>   * the Free Software Foundation; either version 2 of the License, or
+> @@ -30,6 +33,7 @@
+>   */
+>  
+>  #include <linux/err.h>
+> +#include <linux/hwmon.h>
+>  #include <linux/init.h>
+>  #include <linux/input.h>
+>  #include <linux/interrupt.h>
+> @@ -106,6 +110,7 @@ struct sun4i_ts_data {
+>  	void __iomem *base;
+>  	unsigned int irq;
+>  	bool ignore_fifo_data;
+> +	int temp_data;
+>  };
+>  
+>  static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
+> @@ -115,6 +120,12 @@ static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
+>  
+>  	reg_val  = readl(ts->base + TP_INT_FIFOS);
+>  
+> +	if (reg_val & TEMP_DATA_PENDING)
+> +		ts->temp_data = readl(ts->base + TEMP_DATA);
+
+Is this read guaranteed to return 0 in the upper bit, or in other words is it
+guaranteed to never return 0xffffffff ? Otherwise there might be a problem with
+the implicit conversion to a negative integer.
+
+> +
+> +	if (!ts->input)
+> +		goto leave;
+> +
+>  	if (reg_val & FIFO_DATA_PENDING) {
+>  		x = readl(ts->base + TP_DATA);
+>  		y = readl(ts->base + TP_DATA);
+> @@ -140,6 +151,7 @@ static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
+>  		input_sync(ts->input);
+>  	}
+>  
+> +leave:
+>  	writel(reg_val, ts->base + TP_INT_FIFOS);
+>  
+>  	return IRQ_HANDLED;
+> @@ -149,9 +161,9 @@ static int sun4i_ts_open(struct input_dev *dev)
+>  {
+>  	struct sun4i_ts_data *ts = input_get_drvdata(dev);
+>  
+> -	/* Flush, set trig level to 1, enable data and up irqs */
+> -	writel(DATA_IRQ_EN(1) | FIFO_TRIG(1) |FIFO_FLUSH(1) | TP_UP_IRQ_EN(1),
+> -	       ts->base + TP_INT_FIFOC);
+> +	/* Flush, set trig level to 1, enable temp, data and up irqs */
+> +	writel(TEMP_IRQ_EN(1) | DATA_IRQ_EN(1) | FIFO_TRIG(1) | FIFO_FLUSH(1) |
+> +		TP_UP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+>  
+>  	return 0;
+>  }
+> @@ -160,40 +172,76 @@ static void sun4i_ts_close(struct input_dev *dev)
+>  {
+>  	struct sun4i_ts_data *ts = input_get_drvdata(dev);
+>  
+> -	/* Deactivate all IRQs */
+> -	writel(0, ts->base + TP_INT_FIFOC);
+> +	/* Deactivate all input IRQs */
+> +	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+>  	synchronize_irq(ts->irq);
+>  }
+>  
+> +static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
+> +			 char *buf)
+> +{
+> +	struct sun4i_ts_data *ts = dev_get_drvdata(dev);
+> +
+> +	/* No temp_data until the first irq */
+> +	if (ts->temp_data == -1)
+> +		return -EAGAIN;
+> +
+> +	return sprintf(buf, "%d\n", (ts->temp_data - 1447) * 100);
+> +}
+> +
+> +static ssize_t show_temp_label(struct device *dev,
+> +			      struct device_attribute *devattr, char *buf)
+> +{
+> +	return sprintf(buf, "SoC temperature\n");
+> +}
+> +
+> +static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL);
+> +static DEVICE_ATTR(temp1_label, S_IRUGO, show_temp_label, NULL);
+> +
+> +static struct attribute *sun4i_ts_attrs[] = {
+> +	&dev_attr_temp1_input.attr,
+> +	&dev_attr_temp1_label.attr,
+> +	NULL
+> +};
+> +ATTRIBUTE_GROUPS(sun4i_ts);
+> +
+>  static int sun4i_ts_probe(struct platform_device *pdev)
+>  {
+>  	struct sun4i_ts_data *ts;
+>  	struct device *dev = &pdev->dev;
+> +	struct device_node *np =dev->of_node;
+
+Missing space after '=' (checkpatch error).
+
+> +	struct device *hwmon;
+>  	int ret;
+> +	bool ts_attached;
+> +
+> +	ts_attached = of_property_read_bool(np, "ts-attached");
+>  
+>  	ts = devm_kzalloc(dev, sizeof(struct sun4i_ts_data), GFP_KERNEL);
+>  	if (!ts)
+>  		return -ENOMEM;
+>  
+>  	ts->dev = dev;
+> -
+> -	ts->input = devm_input_allocate_device(dev);
+> -	if (!ts->input)
+> -		return -ENOMEM;
+> -
+> -	ts->input->name = pdev->name;
+> -	ts->input->phys = "sun4i_ts/input0";
+> -	ts->input->open = sun4i_ts_open;
+> -	ts->input->close = sun4i_ts_close;
+> -	ts->input->id.bustype = BUS_HOST;
+> -	ts->input->id.vendor = 0x0001;
+> -	ts->input->id.product = 0x0001;
+> -	ts->input->id.version = 0x0100;
+> -	ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
+> -	set_bit(BTN_TOUCH, ts->input->keybit);
+> -	input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
+> -	input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
+> -	input_set_drvdata(ts->input, ts);
+> +	ts->temp_data = -1;
+> +
+> +	if (ts_attached) {
+> +		ts->input = devm_input_allocate_device(dev);
+> +		if (!ts->input)
+> +			return -ENOMEM;
+> +
+> +		ts->input->name = pdev->name;
+> +		ts->input->phys = "sun4i_ts/input0";
+> +		ts->input->open = sun4i_ts_open;
+> +		ts->input->close = sun4i_ts_close;
+> +		ts->input->id.bustype = BUS_HOST;
+> +		ts->input->id.vendor = 0x0001;
+> +		ts->input->id.product = 0x0001;
+> +		ts->input->id.version = 0x0100;
+> +		ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
+> +		set_bit(BTN_TOUCH, ts->input->keybit);
+> +		input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
+> +		input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
+> +		input_set_drvdata(ts->input, ts);
+> +	}
+>  
+>  	ts->base = devm_ioremap_resource(dev,
+>  			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
+> @@ -232,14 +280,42 @@ static int sun4i_ts_probe(struct platform_device *pdev)
+>  	writel(STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1) | TP_MODE_EN(1),
+>  	       ts->base + TP_CTRL1);
+>  
+> -	ret = input_register_device(ts->input);
+> -	if (ret)
+> -		return ret;
+> +	hwmon = devm_hwmon_device_register_with_groups(ts->dev, "sun4i_ts",
+> +						       ts, sun4i_ts_groups);
+> +	if (IS_ERR(hwmon)) {
+> +		return PTR_ERR(hwmon);
+> +	}
+
+{ } are not needed here (checkpatch warning).
+
+> +
+> +	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+> +
+> +	if (ts_attached) {
+> +		ret = input_register_device(ts->input);
+> +		if (ret) {
+> +			writel(0, ts->base + TP_INT_FIFOC);
+> +			synchronize_irq(ts->irq);
+> +			return ret;
+> +		}
+> +	}
+>  
+>  	platform_set_drvdata(pdev, ts);
+>  	return 0;
+>  }
+>  
+> +static int sun4i_ts_remove(struct platform_device *pdev)
+> +{
+> +	struct sun4i_ts_data *ts = platform_get_drvdata(pdev);
+> +
+> +	/* Explicit unregister to avoid open/close changing the imask later */
+> +	if (ts->input)
+> +		input_unregister_device(ts->input);
+> +
+> +	/* Deactivate all IRQs */
+> +	writel(0, ts->base + TP_INT_FIFOC);
+> +	synchronize_irq(ts->irq);
+> +
+> +	return 0;
+> +}
+> +
+>  static const struct of_device_id sun4i_ts_of_match[] = {
+>  	{ .compatible = "allwinner,sun4i-ts", },
+>  	{ /* sentinel */ }
+> @@ -253,6 +329,7 @@ static struct platform_driver sun4i_ts_driver = {
+>  		.of_match_table = of_match_ptr(sun4i_ts_of_match),
+>  	},
+>  	.probe	= sun4i_ts_probe,
+> +	.remove	= sun4i_ts_remove,
+>  };
+>  
+>  module_platform_driver(sun4i_ts_driver);
+> -- 
+> 1.8.4.2
+> 
+> 
+> _______________________________________________
+> lm-sensors mailing list
+> lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+> http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+> 

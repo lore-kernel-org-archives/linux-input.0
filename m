@@ -1,150 +1,273 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Bluetooth: hidp: make sure input buffers are big enough
-Date: Fri, 27 Dec 2013 13:35:24 +0100
-Message-ID: <CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com>
-References: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com>
-	<3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v2 2/5] input: sun4i-ts: Add support for
+ temperature sensor
+Date: Fri, 27 Dec 2013 15:59:56 +0100
+Message-ID: <1388156399-29677-3-git-send-email-hdegoede@redhat.com>
+References: <1388156399-29677-1-git-send-email-hdegoede@redhat.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f176.google.com ([209.85.223.176]:34519 "EHLO
-	mail-ie0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751307Ab3L0MfY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Dec 2013 07:35:24 -0500
-In-Reply-To: <3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBDL4X2GMZUKRBA5M62KQKGQE2H26JMI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1388156399-29677-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Corentin LABBE <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, "linux-bluetooth@vger.kernel.org development" <linux-bluetooth@vger.kernel.org>, "Gustavo F. Padovan" <gustavo@padovan.org>
 
-Hi Marcel
+The sun4i resisitive touchscreen controller also comes with a built-in
+temperature sensor. This commit adds support for it.
 
-On Fri, Dec 20, 2013 at 2:36 PM, Marcel Holtmann <marcel@holtmann.org> wrote:
-> Hi David,
->
->> HID core expects the input buffers to be at least of size 4096
->> (HID_MAX_BUFFER_SIZE). Other sizes will result in buffer-overflows if an
->> input-report is smaller than advertised. We could, like i2c, compute the
->> biggest report-size instead of using HID_MAX_BUFFER_SIZE, but this will
->> blow up if report-descriptors are changed after ->start() has been called.
->> So lets be safe and just use the biggest buffer we have.
->>
->> Note that this adds an additional copy to the HIDP input path. If there is
->> a way to make sure the skb-buf is big enough, we should use that instead.
->>
->> The best way would be to make hid-core honor the @size argument, though,
->> that sounds easier than it is. So lets just fix the buffer-overflows for
->> now and afterwards look for a faster way for all transport drivers.
->>
->> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
->> ---
->> Hi
->>
->> Any ideas how to improve this patch? I'd like to avoid the extra copy but I have
->> no clue how the skb stuff works exactly.
->
-> the buffers are coming straight from L2CAP. They might come in fragments. We have to reassemble them and while there are large packets for sure, we rather not want to allocate 4096 for every reassembled packet to make HID happy.
->
-> I am not super familiar with the underlying memory management of SKBs, but I assume they use slices of some sort internally. So uses large SKBs for 20 byte HID report will cause an issue with all other protocols running on top of L2CAP
+This commit also introduces a new "ts-attached" device-tree property,
+when this is not set, the input part of the driver won't register. This way
+the internal temperature sensor can be used to measure the SoC temperature
+independent of there actually being a touchscreen attached to the controller.
 
-I was more thinking of an skb call to increase the underlying buffer
-of a single package. We could call this together with skb_linearize()
-in HIDP to guarantee the skb-buf is big enough. Technically, this will
-probably result in the same behavior as my own patch so probably not
-the way to go.
+Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+---
+ .../bindings/input/touchscreen/sun4i.txt           |   6 +
+ drivers/input/touchscreen/sun4i-ts.c               | 129 ++++++++++++++++-----
+ 2 files changed, 109 insertions(+), 26 deletions(-)
 
->> I also haven't figured out a nice way to make HID-core honor the "size"
->> parameter. hid-input depends on getting the whole input-report.
->
-> I think this needs clearly fixing.
-
-And we have a volunteer, yippie! ;)
-
-I think hid_input_report() in hid-core.c is the only place that relies
-on this. Maybe it really is easier to fix it. But I am not even
-slightly familiar with that code. So if no-one of the HID core
-developers steps up to fix it, we should take the transport-driver
-fixes instead. As nearly all transport-drivers are affected by this,
-maybe we should even move this buffer into hid_device and provide
-hid_input_truncated_report() which does this.
-
-Anyhow, waiting for Jiri's comments on this.
-
->> Comments welcome!
->> David
->>
->> net/bluetooth/hidp/core.c | 16 ++++++++++++++--
->> net/bluetooth/hidp/hidp.h |  4 ++++
->> 2 files changed, 18 insertions(+), 2 deletions(-)
->>
->> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
->> index 292e619..d9fb934 100644
->> --- a/net/bluetooth/hidp/core.c
->> +++ b/net/bluetooth/hidp/core.c
->> @@ -430,6 +430,16 @@ static void hidp_del_timer(struct hidp_session *session)
->>               del_timer(&session->timer);
->> }
->>
->> +static void hidp_process_report(struct hidp_session *session,
->> +                             int type, const u8 *data, int len, int intr)
->> +{
->> +     if (len > HID_MAX_BUFFER_SIZE)
->> +             len = HID_MAX_BUFFER_SIZE;
->> +
->> +     memcpy(session->input_buf, data, len);
->> +     hid_input_report(session->hid, type, session->input_buf, len, intr);
->> +}
->> +
->> static void hidp_process_handshake(struct hidp_session *session,
->>                                       unsigned char param)
->> {
->> @@ -502,7 +512,8 @@ static int hidp_process_data(struct hidp_session *session, struct sk_buff *skb,
->>                       hidp_input_report(session, skb);
->>
->>               if (session->hid)
->> -                     hid_input_report(session->hid, HID_INPUT_REPORT, skb->data, skb->len, 0);
->> +                     hidp_process_report(session, HID_INPUT_REPORT,
->> +                                         skb->data, skb->len, 0);
->>               break;
->>
->>       case HIDP_DATA_RTYPE_OTHER:
->> @@ -584,7 +595,8 @@ static void hidp_recv_intr_frame(struct hidp_session *session,
->>                       hidp_input_report(session, skb);
->>
->>               if (session->hid) {
->> -                     hid_input_report(session->hid, HID_INPUT_REPORT, skb->data, skb->len, 1);
->> +                     hidp_process_report(session, HID_INPUT_REPORT,
->> +                                         skb->data, skb->len, 1);
->>                       BT_DBG("report len %d", skb->len);
->>               }
->>       } else {
->> diff --git a/net/bluetooth/hidp/hidp.h b/net/bluetooth/hidp/hidp.h
->> index ab52414..8798492 100644
->> --- a/net/bluetooth/hidp/hidp.h
->> +++ b/net/bluetooth/hidp/hidp.h
->> @@ -24,6 +24,7 @@
->> #define __HIDP_H
->>
->> #include <linux/types.h>
->> +#include <linux/hid.h>
->> #include <linux/kref.h>
->> #include <net/bluetooth/bluetooth.h>
->> #include <net/bluetooth/l2cap.h>
->> @@ -179,6 +180,9 @@ struct hidp_session {
->>
->>       /* Used in hidp_output_raw_report() */
->>       int output_report_success; /* boolean */
->> +
->> +     /* temporary input buffer */
->> +     u8 input_buf[HID_MAX_BUFFER_SIZE];
->> };
->
-> The report does not need any specific alignment?
-
-This is already aligned to native size, isn't it? Anyhow, HID core
-does not have any alignment-restrictions I am aware of. Jiri? I
-thought the extract()/implement() stuff was fixed recently.
-
-Thanks
-David
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+index e45927e..1fffd11 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+@@ -6,10 +6,16 @@ Required properties:
+  - reg: mmio address range of the chip
+  - interrupts: interrupt to which the chip is connected
+ 
++Optional properties:
++ - ts-attached: boolean set this to tell the driver that an actual touchscreen
++		is attached and that it should register an input device,
++		without this it only registers the builtin temperate sensor
++
+ Example:
+ 
+ 	rtp: rtp@01c25000 {
+ 		compatible = "allwinner,sun4i-ts";
+ 		reg = <0x01c25000 0x100>;
+ 		interrupts = <29>;
++		ts-attached;
+ 	};
+diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
+index 10839d2..2d437f6 100644
+--- a/drivers/input/touchscreen/sun4i-ts.c
++++ b/drivers/input/touchscreen/sun4i-ts.c
+@@ -3,6 +3,9 @@
+  *
+  * Copyright (C) 2013 - 2014 Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+  *
++ * The hwmon parts are based on work by Corentin LABBE which is:
++ * Copyright (C) 2013 Corentin LABBE <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
++ *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
+@@ -30,6 +33,7 @@
+  */
+ 
+ #include <linux/err.h>
++#include <linux/hwmon.h>
+ #include <linux/init.h>
+ #include <linux/input.h>
+ #include <linux/interrupt.h>
+@@ -106,6 +110,7 @@ struct sun4i_ts_data {
+ 	void __iomem *base;
+ 	unsigned int irq;
+ 	bool ignore_fifo_data;
++	int temp_data;
+ };
+ 
+ static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
+@@ -115,6 +120,12 @@ static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
+ 
+ 	reg_val  = readl(ts->base + TP_INT_FIFOS);
+ 
++	if (reg_val & TEMP_DATA_PENDING)
++		ts->temp_data = readl(ts->base + TEMP_DATA);
++
++	if (!ts->input)
++		goto leave;
++
+ 	if (reg_val & FIFO_DATA_PENDING) {
+ 		x = readl(ts->base + TP_DATA);
+ 		y = readl(ts->base + TP_DATA);
+@@ -140,6 +151,7 @@ static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
+ 		input_sync(ts->input);
+ 	}
+ 
++leave:
+ 	writel(reg_val, ts->base + TP_INT_FIFOS);
+ 
+ 	return IRQ_HANDLED;
+@@ -149,9 +161,9 @@ static int sun4i_ts_open(struct input_dev *dev)
+ {
+ 	struct sun4i_ts_data *ts = input_get_drvdata(dev);
+ 
+-	/* Flush, set trig level to 1, enable data and up irqs */
+-	writel(DATA_IRQ_EN(1) | FIFO_TRIG(1) |FIFO_FLUSH(1) | TP_UP_IRQ_EN(1),
+-	       ts->base + TP_INT_FIFOC);
++	/* Flush, set trig level to 1, enable temp, data and up irqs */
++	writel(TEMP_IRQ_EN(1) | DATA_IRQ_EN(1) | FIFO_TRIG(1) | FIFO_FLUSH(1) |
++		TP_UP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+ 
+ 	return 0;
+ }
+@@ -160,40 +172,76 @@ static void sun4i_ts_close(struct input_dev *dev)
+ {
+ 	struct sun4i_ts_data *ts = input_get_drvdata(dev);
+ 
+-	/* Deactivate all IRQs */
+-	writel(0, ts->base + TP_INT_FIFOC);
++	/* Deactivate all input IRQs */
++	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+ 	synchronize_irq(ts->irq);
+ }
+ 
++static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
++			 char *buf)
++{
++	struct sun4i_ts_data *ts = dev_get_drvdata(dev);
++
++	/* No temp_data until the first irq */
++	if (ts->temp_data == -1)
++		return -EAGAIN;
++
++	return sprintf(buf, "%d\n", (ts->temp_data - 1447) * 100);
++}
++
++static ssize_t show_temp_label(struct device *dev,
++			      struct device_attribute *devattr, char *buf)
++{
++	return sprintf(buf, "SoC temperature\n");
++}
++
++static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL);
++static DEVICE_ATTR(temp1_label, S_IRUGO, show_temp_label, NULL);
++
++static struct attribute *sun4i_ts_attrs[] = {
++	&dev_attr_temp1_input.attr,
++	&dev_attr_temp1_label.attr,
++	NULL
++};
++ATTRIBUTE_GROUPS(sun4i_ts);
++
+ static int sun4i_ts_probe(struct platform_device *pdev)
+ {
+ 	struct sun4i_ts_data *ts;
+ 	struct device *dev = &pdev->dev;
++	struct device_node *np =dev->of_node;
++	struct device *hwmon;
+ 	int ret;
++	bool ts_attached;
++
++	ts_attached = of_property_read_bool(np, "ts-attached");
+ 
+ 	ts = devm_kzalloc(dev, sizeof(struct sun4i_ts_data), GFP_KERNEL);
+ 	if (!ts)
+ 		return -ENOMEM;
+ 
+ 	ts->dev = dev;
+-
+-	ts->input = devm_input_allocate_device(dev);
+-	if (!ts->input)
+-		return -ENOMEM;
+-
+-	ts->input->name = pdev->name;
+-	ts->input->phys = "sun4i_ts/input0";
+-	ts->input->open = sun4i_ts_open;
+-	ts->input->close = sun4i_ts_close;
+-	ts->input->id.bustype = BUS_HOST;
+-	ts->input->id.vendor = 0x0001;
+-	ts->input->id.product = 0x0001;
+-	ts->input->id.version = 0x0100;
+-	ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
+-	set_bit(BTN_TOUCH, ts->input->keybit);
+-	input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
+-	input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
+-	input_set_drvdata(ts->input, ts);
++	ts->temp_data = -1;
++
++	if (ts_attached) {
++		ts->input = devm_input_allocate_device(dev);
++		if (!ts->input)
++			return -ENOMEM;
++
++		ts->input->name = pdev->name;
++		ts->input->phys = "sun4i_ts/input0";
++		ts->input->open = sun4i_ts_open;
++		ts->input->close = sun4i_ts_close;
++		ts->input->id.bustype = BUS_HOST;
++		ts->input->id.vendor = 0x0001;
++		ts->input->id.product = 0x0001;
++		ts->input->id.version = 0x0100;
++		ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
++		set_bit(BTN_TOUCH, ts->input->keybit);
++		input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
++		input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
++		input_set_drvdata(ts->input, ts);
++	}
+ 
+ 	ts->base = devm_ioremap_resource(dev,
+ 			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
+@@ -232,14 +280,42 @@ static int sun4i_ts_probe(struct platform_device *pdev)
+ 	writel(STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1) | TP_MODE_EN(1),
+ 	       ts->base + TP_CTRL1);
+ 
+-	ret = input_register_device(ts->input);
+-	if (ret)
+-		return ret;
++	hwmon = devm_hwmon_device_register_with_groups(ts->dev, "sun4i_ts",
++						       ts, sun4i_ts_groups);
++	if (IS_ERR(hwmon)) {
++		return PTR_ERR(hwmon);
++	}
++
++	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
++
++	if (ts_attached) {
++		ret = input_register_device(ts->input);
++		if (ret) {
++			writel(0, ts->base + TP_INT_FIFOC);
++			synchronize_irq(ts->irq);
++			return ret;
++		}
++	}
+ 
+ 	platform_set_drvdata(pdev, ts);
+ 	return 0;
+ }
+ 
++static int sun4i_ts_remove(struct platform_device *pdev)
++{
++	struct sun4i_ts_data *ts = platform_get_drvdata(pdev);
++
++	/* Explicit unregister to avoid open/close changing the imask later */
++	if (ts->input)
++		input_unregister_device(ts->input);
++
++	/* Deactivate all IRQs */
++	writel(0, ts->base + TP_INT_FIFOC);
++	synchronize_irq(ts->irq);
++
++	return 0;
++}
++
+ static const struct of_device_id sun4i_ts_of_match[] = {
+ 	{ .compatible = "allwinner,sun4i-ts", },
+ 	{ /* sentinel */ }
+@@ -253,6 +329,7 @@ static struct platform_driver sun4i_ts_driver = {
+ 		.of_match_table = of_match_ptr(sun4i_ts_of_match),
+ 	},
+ 	.probe	= sun4i_ts_probe,
++	.remove	= sun4i_ts_remove,
+ };
+ 
+ module_platform_driver(sun4i_ts_driver);
+-- 
+1.8.4.2

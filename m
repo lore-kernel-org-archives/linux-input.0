@@ -1,40 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 2/5] input: sun4i-ts: Add support for
- temperature sensor
-Date: Fri, 27 Dec 2013 17:13:04 -0800
-Message-ID: <20131228011304.GB14188@core.coreip.homeip.net>
-References: <1388156399-29677-1-git-send-email-hdegoede@redhat.com>
- <1388156399-29677-3-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] Input: keypad-omap - Cleanup header file
+Date: Fri, 27 Dec 2013 17:15:07 -0800
+Message-ID: <20131228011507.GC14188@core.coreip.homeip.net>
+References: <1388145788-6253-1-git-send-email-sachin.kamat@linaro.org>
+ <1388145788-6253-2-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBJGL7CKQKGQE4QKBYVY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1388156399-29677-3-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f42.google.com ([209.85.220.42]:36330 "EHLO
+	mail-pa0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754506Ab3L1BPK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Dec 2013 20:15:10 -0500
+Received: by mail-pa0-f42.google.com with SMTP id lj1so9817571pab.15
+        for <linux-input@vger.kernel.org>; Fri, 27 Dec 2013 17:15:10 -0800 (PST)
 Content-Disposition: inline
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Corentin LABBE <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1388145788-6253-2-git-send-email-sachin.kamat@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: linux-input@vger.kernel.org, patches@linaro.org
 
-On Fri, Dec 27, 2013 at 03:59:56PM +0100, Hans de Goede wrote:
+On Fri, Dec 27, 2013 at 05:33:08PM +0530, Sachin Kamat wrote:
+> Commit 2203747c9771 ("ARM: omap: move platform_data definitions")
+> moved the file to the current location but forgot to remove the pointer
+> to its previous location. Clean it up. While at it also change the header
+> file protection macros appropriately.
+> 
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+
+Applied both, thanks Sachin.
+
+> ---
+>  include/linux/platform_data/keypad-omap.h |    6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/linux/platform_data/keypad-omap.h b/include/linux/platform_data/keypad-omap.h
+> index a6b21eddb212..c3a3abae98f0 100644
+> --- a/include/linux/platform_data/keypad-omap.h
+> +++ b/include/linux/platform_data/keypad-omap.h
+> @@ -1,14 +1,12 @@
+>  /*
+> - *  arch/arm/plat-omap/include/mach/keypad.h
+> - *
+>   *  Copyright (C) 2006 Komal Shah <komal_shah802003@yahoo.com>
+>   *
+>   * This program is free software; you can redistribute it and/or modify
+>   * it under the terms of the GNU General Public License version 2 as
+>   * published by the Free Software Foundation.
+>   */
+> -#ifndef ASMARM_ARCH_KEYPAD_H
+> -#define ASMARM_ARCH_KEYPAD_H
+> +#ifndef __KEYPAD_OMAP_H
+> +#define __KEYPAD_OMAP_H
 >  
-> +Optional properties:
-> + - ts-attached: boolean set this to tell the driver that an actual touchscreen
-> +		is attached and that it should register an input device,
-> +		without this it only registers the builtin temperate sensor
-
-I believe the guidance is to avoid describing kernel behavior in DT
-property so I think it should say:
-
- - ts-attached: boolean indicating that an actual touchscreen is
-		attached to the controller.
-
-Thanks.
+>  #ifndef CONFIG_ARCH_OMAP1
+>  #warning Please update the board to use matrix-keypad driver
+> -- 
+> 1.7.9.5
+> 
 
 -- 
 Dmitry

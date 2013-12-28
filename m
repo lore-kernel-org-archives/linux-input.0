@@ -1,138 +1,234 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH V2] input synaptics-rmi4: Bug fixes to ATTN GPIO handling.
-Date: Fri, 27 Dec 2013 15:43:27 -0800
-Message-ID: <52BE109F.1070904@synaptics.com>
-References: <1387853059-19099-1-git-send-email-cheiny@synaptics.com> <20131226223718.GC18562@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 2/5] input: sun4i-ts: Add support for
+ temperature sensor
+Date: Fri, 27 Dec 2013 17:10:07 -0800
+Message-ID: <20131228011007.GA14188@core.coreip.homeip.net>
+References: <1388156399-29677-1-git-send-email-hdegoede@redhat.com>
+ <1388156399-29677-3-git-send-email-hdegoede@redhat.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:2166 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754920Ab3L0Xnf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Dec 2013 18:43:35 -0500
-In-Reply-To: <20131226223718.GC18562@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDP6N55ZUYDRB46J7CKQKGQEHRLH4ZI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1388156399-29677-3-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Corentin LABBE <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On 12/26/2013 02:37 PM, Dmitry Torokhov wrote:
-> Hi Chris,
->
-> On Mon, Dec 23, 2013 at 06:44:19PM -0800, Christopher Heiny wrote:
->> This patch fixes some bugs in handling of the RMI4 attention line GPIO.
->>
->> 1) in enable_sensor(), eliminate the complicated check on ATTN and just
->> call process_interrupt_requests().  This will have minimal overhead if ATTN
->> is not asserted, and clears the state of the RMI4 device in any case.
->>
->> 2) Correctly free the GPIO in rmi_driver_remove().
->>
->> 3) in rmi_driver_probe()
->>      - declare the name of the attention gpio (GPIO_LABEL)
->>      - use gpio_request_one() to get the gpio and export it.
->>      - simplify conditional gpio acquisition logic and combine with interrupt
->>        setup
->>
->> 4) use gpio_is_valid() instead of comparing to 0.
->>
->> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
->> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->>
->> ---
->>
->>   drivers/input/rmi4/rmi_driver.c | 43 ++++++++++++++++++++++-------------------
->>   1 file changed, 23 insertions(+), 20 deletions(-)
->>
->> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
->> index a30c7d3..9b02358 100644
->> --- a/drivers/input/rmi4/rmi_driver.c
->> +++ b/drivers/input/rmi4/rmi_driver.c
->> @@ -140,7 +140,6 @@ static int enable_sensor(struct rmi_device *rmi_dev)
->>   	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
->>   	struct rmi_phys_device *rmi_phys;
->>   	int retval = 0;
->> -	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
->>
->>   	if (data->enabled)
->>   		return 0;
->> @@ -169,11 +168,7 @@ static int enable_sensor(struct rmi_device *rmi_dev)
->>
->>   	data->enabled = true;
->>
->> -	if (!pdata->level_triggered &&
->> -		    gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity)
->> -		retval = process_interrupt_requests(rmi_dev);
->> -
->> -	return retval;
->> +	return process_interrupt_requests(rmi_dev);
->>   }
->>
->>   static void rmi_free_function_list(struct rmi_device *rmi_dev)
->> @@ -800,13 +795,20 @@ static SIMPLE_DEV_PM_OPS(rmi_driver_pm, rmi_driver_suspend, rmi_driver_resume);
->>   static int rmi_driver_remove(struct device *dev)
->>   {
->>   	struct rmi_device *rmi_dev = to_rmi_device(dev);
->> +	const struct rmi_device_platform_data *pdata =
->> +					to_rmi_platform_data(rmi_dev);
->>
->>   	disable_sensor(rmi_dev);
->>   	rmi_free_function_list(rmi_dev);
->>
->> +	if (gpio_is_valid(pdata->attn_gpio))
->> +		gpio_free(pdata->attn_gpio);
->
-> It looks like you let driver registration to continue even if GPIO
-> request fails. You probably need to introduce a flag indicating whether
-> you successfully requested gpio or not. Or you can treat failure to
-> acquire gpio as fatal.
+Hi Hans,
 
-In testing, the driver continues to work even if the GPIO is not 
-acquired, but some diagnostic features may not be available, so we treat 
-the failure to acquire as a warning.  I'll add a flag to indicate 
-whether it was acquired or not.
+On Fri, Dec 27, 2013 at 03:59:56PM +0100, Hans de Goede wrote:
+> +
+> +	if (!ts->input)
+> +		goto leave;
+> +
+>  	if (reg_val & FIFO_DATA_PENDING) {
+>  		x = readl(ts->base + TP_DATA);
+>  		y = readl(ts->base + TP_DATA);
+> @@ -140,6 +151,7 @@ static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
+>  		input_sync(ts->input);
+>  	}
+>  
+> +leave:
 
->
->> +
->>   	return 0;
->>   }
->>
->> +static const char GPIO_LABEL[] = "attn";
->> +
->>   static int rmi_driver_probe(struct device *dev)
->>   {
->>   	struct rmi_driver *rmi_driver;
->> @@ -937,7 +939,7 @@ static int rmi_driver_probe(struct device *dev)
->>   		mutex_init(&data->suspend_mutex);
->>   	}
->>
->> -	if (pdata->attn_gpio) {
->> +	if (gpio_is_valid(pdata->attn_gpio)) {
->>   		data->irq = gpio_to_irq(pdata->attn_gpio);
->>   		if (pdata->level_triggered) {
->>   			data->irq_flags = IRQF_ONESHOT |
->> @@ -948,24 +950,17 @@ static int rmi_driver_probe(struct device *dev)
->>   				(pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
->>   				? IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
->>   		}
->> -	} else
->> -		data->poll_interval = ktime_set(0,
->> -			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
->> -			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
->> -
->> -	if (data->f01_container->dev.driver) {
->> -		/* Driver already bound, so enable ATTN now. */
->> -		enable_sensor(rmi_dev);
->> -	}
->>
->> -	if (IS_ENABLED(CONFIG_RMI4_DEV) && pdata->attn_gpio) {
->
-> Do you really need to export gpio if you do not have RMI4_DEV option?
+Can we please not introduce gotos where they are not needed? If you
+concerned about extra indent just split touchscreen handling into a
+separate function and then do
 
-Not really, but it doesn't hurt to do so.  I was trying to simplify the 
-driver logic, but I guess that went too far.  I'll re-add the check.
+	if (ts->input)
+		sun4i_ts_handle_touchscreen_data(...);
 
-[snip]
+
+>  	writel(reg_val, ts->base + TP_INT_FIFOS);
+>  
+>  	return IRQ_HANDLED;
+> @@ -149,9 +161,9 @@ static int sun4i_ts_open(struct input_dev *dev)
+>  {
+>  	struct sun4i_ts_data *ts = input_get_drvdata(dev);
+>  
+> -	/* Flush, set trig level to 1, enable data and up irqs */
+> -	writel(DATA_IRQ_EN(1) | FIFO_TRIG(1) |FIFO_FLUSH(1) | TP_UP_IRQ_EN(1),
+> -	       ts->base + TP_INT_FIFOC);
+> +	/* Flush, set trig level to 1, enable temp, data and up irqs */
+> +	writel(TEMP_IRQ_EN(1) | DATA_IRQ_EN(1) | FIFO_TRIG(1) | FIFO_FLUSH(1) |
+> +		TP_UP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+>  
+>  	return 0;
+>  }
+> @@ -160,40 +172,76 @@ static void sun4i_ts_close(struct input_dev *dev)
+>  {
+>  	struct sun4i_ts_data *ts = input_get_drvdata(dev);
+>  
+> -	/* Deactivate all IRQs */
+> -	writel(0, ts->base + TP_INT_FIFOC);
+> +	/* Deactivate all input IRQs */
+> +	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+>  	synchronize_irq(ts->irq);
+
+Hmm, it would be nice we touchscreen methods only affected touchscreen
+functionality. Can you read current state and adjust it as needed
+instead of clobbering it? Then you could do away with remove() method
+altogether.
+
+>  }
+>  
+> +static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
+> +			 char *buf)
+> +{
+> +	struct sun4i_ts_data *ts = dev_get_drvdata(dev);
+> +
+> +	/* No temp_data until the first irq */
+> +	if (ts->temp_data == -1)
+> +		return -EAGAIN;
+> +
+> +	return sprintf(buf, "%d\n", (ts->temp_data - 1447) * 100);
+> +}
+> +
+> +static ssize_t show_temp_label(struct device *dev,
+> +			      struct device_attribute *devattr, char *buf)
+> +{
+> +	return sprintf(buf, "SoC temperature\n");
+> +}
+> +
+> +static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL);
+> +static DEVICE_ATTR(temp1_label, S_IRUGO, show_temp_label, NULL);
+> +
+> +static struct attribute *sun4i_ts_attrs[] = {
+> +	&dev_attr_temp1_input.attr,
+> +	&dev_attr_temp1_label.attr,
+> +	NULL
+> +};
+> +ATTRIBUTE_GROUPS(sun4i_ts);
+> +
+>  static int sun4i_ts_probe(struct platform_device *pdev)
+>  {
+>  	struct sun4i_ts_data *ts;
+>  	struct device *dev = &pdev->dev;
+> +	struct device_node *np =dev->of_node;
+> +	struct device *hwmon;
+>  	int ret;
+> +	bool ts_attached;
+> +
+> +	ts_attached = of_property_read_bool(np, "ts-attached");
+>  
+>  	ts = devm_kzalloc(dev, sizeof(struct sun4i_ts_data), GFP_KERNEL);
+>  	if (!ts)
+>  		return -ENOMEM;
+>  
+>  	ts->dev = dev;
+> -
+> -	ts->input = devm_input_allocate_device(dev);
+> -	if (!ts->input)
+> -		return -ENOMEM;
+> -
+> -	ts->input->name = pdev->name;
+> -	ts->input->phys = "sun4i_ts/input0";
+> -	ts->input->open = sun4i_ts_open;
+> -	ts->input->close = sun4i_ts_close;
+> -	ts->input->id.bustype = BUS_HOST;
+> -	ts->input->id.vendor = 0x0001;
+> -	ts->input->id.product = 0x0001;
+> -	ts->input->id.version = 0x0100;
+> -	ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
+> -	set_bit(BTN_TOUCH, ts->input->keybit);
+> -	input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
+> -	input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
+> -	input_set_drvdata(ts->input, ts);
+> +	ts->temp_data = -1;
+> +
+> +	if (ts_attached) {
+> +		ts->input = devm_input_allocate_device(dev);
+> +		if (!ts->input)
+> +			return -ENOMEM;
+> +
+> +		ts->input->name = pdev->name;
+> +		ts->input->phys = "sun4i_ts/input0";
+> +		ts->input->open = sun4i_ts_open;
+> +		ts->input->close = sun4i_ts_close;
+> +		ts->input->id.bustype = BUS_HOST;
+> +		ts->input->id.vendor = 0x0001;
+> +		ts->input->id.product = 0x0001;
+> +		ts->input->id.version = 0x0100;
+> +		ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
+> +		set_bit(BTN_TOUCH, ts->input->keybit);
+> +		input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
+> +		input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
+> +		input_set_drvdata(ts->input, ts);
+> +	}
+>  
+>  	ts->base = devm_ioremap_resource(dev,
+>  			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
+> @@ -232,14 +280,42 @@ static int sun4i_ts_probe(struct platform_device *pdev)
+>  	writel(STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1) | TP_MODE_EN(1),
+>  	       ts->base + TP_CTRL1);
+>  
+> -	ret = input_register_device(ts->input);
+> -	if (ret)
+> -		return ret;
+> +	hwmon = devm_hwmon_device_register_with_groups(ts->dev, "sun4i_ts",
+> +						       ts, sun4i_ts_groups);
+> +	if (IS_ERR(hwmon)) {
+> +		return PTR_ERR(hwmon);
+> +	}
+> +
+> +	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
+> +
+> +	if (ts_attached) {
+> +		ret = input_register_device(ts->input);
+> +		if (ret) {
+> +			writel(0, ts->base + TP_INT_FIFOC);
+> +			synchronize_irq(ts->irq);
+
+Given that we now can't avoid freeing irq before freeing ts memory or
+input device I think you can do away with synchronize_irq() here and
+elsewhere as freeing irq is guaranteed to wait for current interrupt to
+complete.
+
+> +			return ret;
+> +		}
+> +	}
+>  
+>  	platform_set_drvdata(pdev, ts);
+>  	return 0;
+>  }
+>  
+> +static int sun4i_ts_remove(struct platform_device *pdev)
+> +{
+> +	struct sun4i_ts_data *ts = platform_get_drvdata(pdev);
+> +
+> +	/* Explicit unregister to avoid open/close changing the imask later */
+> +	if (ts->input)
+> +		input_unregister_device(ts->input);
+> +
+> +	/* Deactivate all IRQs */
+> +	writel(0, ts->base + TP_INT_FIFOC);
+> +	synchronize_irq(ts->irq);
+> +
+> +	return 0;
+> +}
+> +
+>  static const struct of_device_id sun4i_ts_of_match[] = {
+>  	{ .compatible = "allwinner,sun4i-ts", },
+>  	{ /* sentinel */ }
+> @@ -253,6 +329,7 @@ static struct platform_driver sun4i_ts_driver = {
+>  		.of_match_table = of_match_ptr(sun4i_ts_of_match),
+>  	},
+>  	.probe	= sun4i_ts_probe,
+> +	.remove	= sun4i_ts_remove,
+>  };
+>  
+>  module_platform_driver(sun4i_ts_driver);
+> -- 
+> 1.8.4.2
+> 
+
+Thanks.
+
+-- 
+Dmitry

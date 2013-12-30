@@ -1,84 +1,89 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: kernel panic on gpio-keys
-Date: Mon, 30 Dec 2013 10:42:33 -0800
-Message-ID: <20131230184233.GA3278@core.coreip.homeip.net>
-References: <52A8BA49.7080507@gmail.com>
- <20131214093900.GA10799@core.coreip.homeip.net>
- <52B06B0E.20501@gmail.com>
- <20131227015658.GA20756@core.coreip.homeip.net>
- <52C18D88.9070707@gmail.com>
+Subject: Re: [PATCH] Input: gamepad - use independent axes for analog D-Pad
+ buttons
+Date: Mon, 30 Dec 2013 10:50:41 -0800
+Message-ID: <20131230185041.GB3278@core.coreip.homeip.net>
+References: <1387815463-29345-1-git-send-email-ospite@studenti.unina.it>
+ <20131230005209.GC11528@core.coreip.homeip.net>
+ <20131230122020.ebaaefb09375e371c2178b38@studenti.unina.it>
+ <CANq1E4TQJs_pqzL8u_zTneDg6_4Bt_s5DBaCJ1ei+mvhVxpgLQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:45051 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932083Ab3L3Smh (ORCPT
+Received: from mail-pd0-f172.google.com ([209.85.192.172]:45295 "EHLO
+	mail-pd0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932069Ab3L3Sup (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Dec 2013 13:42:37 -0500
-Received: by mail-pd0-f173.google.com with SMTP id p10so11576772pdj.4
-        for <linux-input@vger.kernel.org>; Mon, 30 Dec 2013 10:42:37 -0800 (PST)
+	Mon, 30 Dec 2013 13:50:45 -0500
+Received: by mail-pd0-f172.google.com with SMTP id g10so11576349pdj.31
+        for <linux-input@vger.kernel.org>; Mon, 30 Dec 2013 10:50:45 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <52C18D88.9070707@gmail.com>
+In-Reply-To: <CANq1E4TQJs_pqzL8u_zTneDg6_4Bt_s5DBaCJ1ei+mvhVxpgLQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Cercueil <pcercuei@gmail.com>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Antonio Ospite <ospite@studenti.unina.it>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Mon, Dec 30, 2013 at 04:13:12PM +0100, Paul Cercueil wrote:
-> On 27/12/2013 02:56, Dmitry Torokhov wrote:
-> >On Tue, Dec 17, 2013 at 04:17:34PM +0100, Paul Cercueil wrote:
-> >>On 14/12/2013 10:39, Dmitry Torokhov wrote:
-> >>>On Wed, Dec 11, 2013 at 08:17:29PM +0100, Paul Cercueil wrote:
-> >>>>Hi there,
-> >>>>
-> >>>>I am trying to use the gpio-keys driver to inject joystick events.
-> >>>>There seems to be some basic support of it, looking at <linux/gpio_keys.h>.
-> >>>>
-> >>>>However, registering the following will trigger a kernel panic in
-> >>>>the kernel:
-> >>>>
-> >>>>static struct gpio_keys_button my_buttons[] {
-> >>>>	{
-> >>>>		.gpio = GPIO_FOO,
-> >>>>		.type = EV_ABS,
-> >>>>		.code = ABS_HAT0X,
-> >>>>		.value = 1,
-> >>>>	},
-> >>>>};
-> >>>>
-> >>>>(tested on kernel 3.12).
-> >>>>
-> >>>>I don't know well the input subsystem, so I have no idea of what is
-> >>>>going wrong. Could anybody try to at least reproduce the issue?
-> >>>
-> >>>It woudl be helpful if you poster the stack trace from panic so we'd
-> >>>have an idea where the fault happens.
-> >>>
-> >>>Thanks.
-> >>>
-> >>
-> >>Here is the crash log I get: http://pastebin.com/FzTTGxsR
-> >>(I did put it on pastebin because it's huge, 200+ lines).
-> >>
-> >>The first OOPS happen as soon as the GPIO button is pressed; the
-> >>other ones seem to happen recursively. I included only a part of the
-> >>log I get, as the OOPSes continue to flow until the watchdog kicks
-> >>in.
-> >
-> >Hmm, I have an idea: this driver is one of few that does not use
-> >input_set_abs_info() and this does not allocate memory for absinfo data
-> >that input core uses to handle absolute events.
-> >
-> >Does the patch below work for you?
-> >
-> >Thanks.
-> >
+On Mon, Dec 30, 2013 at 12:44:21PM +0100, David Herrmann wrote:
+> Hi
 > 
-> Hi,
+> On Mon, Dec 30, 2013 at 12:20 PM, Antonio Ospite
+> <ospite@studenti.unina.it> wrote:
+> > On Sun, 29 Dec 2013 16:52:09 -0800
+> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> >
+> >> Hi Antonio,
+> >>
+> >> On Mon, Dec 23, 2013 at 05:17:43PM +0100, Antonio Ospite wrote:
+> >> > Model this part of the API after the Sony PlayStation 3 Controller which
+> >> > exposes independent analog values for each one of the D-Pad buttons.
+> >> >
+> >> > The PS3 programming API psl1ght also maps the analog D-Pad buttons
+> >> > individually.
+> >>
+> >> Hmm, even though the hardware is capable of producing independent analog
+> >> values does are they really useful? Looking at my PS3 controller I do
+> >> not think users will be pressing up/down and left/right dpad buttons at
+> >> the same time.
+> >>
+> >
+> > I must agree it's unlikely, while still possible.
+> >
+> >> I'd rather keep using ABS_HAT0X/Y unless there is really good reason for
+> >> introducing new events.
+> >>
+> >
+> > Having analog D-Pad values reported independently was proposed for these
+> > reasons:
+> >
+> >  - it matches _some_ existing hardware closely (that was the main
+> >    reason TBH, to simplify the drivers);
+> >
+> >  - it happens to follow what it's being done for D-Pad digital buttons,
+> >    they are also reported independently.
+> >
+> > However if some other hardware reported D-Pad axis combined already
+> > then I agree that using something like ABS_HAT0X/Y is safer, I see
+> > decomposing HORIZ/VERT into the separate LEFT/RIGHT and UP/DOWN to be
+> > less intuitive (not harder tho).
+> >
+> > Another doubt: David, in the other email you mentioned we could use
+> > ABS_DPAD_HORIZ/VERT, any particular reason to introduce them in place
+> > of ABS_HAT0X/Y?
 > 
-> The patch works just fine, thank you!
+> A "HAT" is an axis on the top of a joystick, nothing else. It seems
+> troublesome to overload the definition (which we did for many years).
+> Device-detection based on advertised ABS-bits gets pretty hard if we
+> reuse ABS-bits for different hardware. The most annoying example of
+> what happens is accelerometers being misdetected by Xorg as
+> mouse-input because they reuse ABS_X/Y.
 
-Thanks Paul.
+But they are good as joysticks (also ABS_X/ABS_Y). I do not think having
+all unique events for all device types is feasible. Can we provide hints
+(via properties) to lessen ambiguity, like we do with direct/indirect
+pointers for touchscreens/tablets?
+
+Thanks.
 
 -- 
 Dmitry

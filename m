@@ -1,86 +1,105 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 3.13-rc6
-Date: Tue, 31 Dec 2013 11:06:18 -0800
-Message-ID: <20131231190618.GE6897@core.coreip.homeip.net>
+Subject: [PATCH] Input: cros_ec_keyb - switch from using uint8_t to u8
+Date: Tue, 31 Dec 2013 11:34:44 -0800
+Message-ID: <20131231193442.GA25208@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f171.google.com ([209.85.192.171]:58667 "EHLO
-	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756128Ab3LaTGV (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:34544 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756438Ab3LaTer (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Dec 2013 14:06:21 -0500
+	Tue, 31 Dec 2013 14:34:47 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Simon Glass <sjg@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Luigi Semenzato <semenzato@chromium.org>, Doug Anderson <dianders@chromium.org>, linux-kernel@vger.kernel.org
+
+u8 is proper in-kernel type for unsigned byte data.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/cros_ec_keyb.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 4083796..d44c5d4 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -50,7 +50,7 @@ struct cros_ec_keyb {
+ 	int row_shift;
+ 	const struct matrix_keymap_data *keymap_data;
+ 	bool ghost_filter;
+-	uint8_t *old_kb_state;
++	u8 *old_kb_state;
+ 
+ 	struct device *dev;
+ 	struct input_dev *idev;
+@@ -60,7 +60,7 @@ struct cros_ec_keyb {
+ 
+ 
+ static bool cros_ec_keyb_row_has_ghosting(struct cros_ec_keyb *ckdev,
+-					  uint8_t *buf, int row)
++					  u8 *buf, int row)
+ {
+ 	int pressed_in_row = 0;
+ 	int row_has_teeth = 0;
+@@ -89,7 +89,7 @@ static bool cros_ec_keyb_row_has_ghosting(struct cros_ec_keyb *ckdev,
+  * Returns true when there is at least one combination of pressed keys that
+  * results in ghosting.
+  */
+-static bool cros_ec_keyb_has_ghosting(struct cros_ec_keyb *ckdev, uint8_t *buf)
++static bool cros_ec_keyb_has_ghosting(struct cros_ec_keyb *ckdev, u8 *buf)
+ {
+ 	int row;
+ 
+@@ -132,7 +132,7 @@ static bool cros_ec_keyb_has_ghosting(struct cros_ec_keyb *ckdev, uint8_t *buf)
+  * per column)
+  */
+ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
+-			 uint8_t *kb_state, int len)
++				 u8 *kb_state, int len)
+ {
+ 	struct input_dev *idev = ckdev->idev;
+ 	int col, row;
+@@ -189,19 +189,19 @@ static void cros_ec_keyb_close(struct input_dev *dev)
+ 					   &ckdev->notifier);
+ }
+ 
+-static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
++static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, u8 *kb_state)
+ {
+ 	return ckdev->ec->command_recv(ckdev->ec, EC_CMD_MKBP_STATE,
+ 					  kb_state, ckdev->cols);
+ }
+ 
+ static int cros_ec_keyb_work(struct notifier_block *nb,
+-		     unsigned long state, void *_notify)
++			     unsigned long state, void *_notify)
+ {
+ 	int ret;
+ 	struct cros_ec_keyb *ckdev = container_of(nb, struct cros_ec_keyb,
+ 						    notifier);
+-	uint8_t kb_state[ckdev->cols];
++	u8 kb_state[ckdev->cols];
+ 
+ 	ret = cros_ec_keyb_get_state(ckdev, kb_state);
+ 	if (ret >= 0)
+@@ -282,8 +282,8 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ /* Clear any keys in the buffer */
+ static void cros_ec_keyb_clear_keyboard(struct cros_ec_keyb *ckdev)
+ {
+-	uint8_t old_state[ckdev->cols];
+-	uint8_t new_state[ckdev->cols];
++	u8 old_state[ckdev->cols];
++	u8 new_state[ckdev->cols];
+ 	unsigned long duration;
+ 	int i, ret;
+ 
+-- 
+1.8.3.1
 
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Linus,
-
-Happy New Year!
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. You will get a fix for panic
-in gpio-keys driver when set up with absolute events, a fixup to the new
-zforce driver and a new keycode definition.
-
-Changelog:
----------
-
-Dmitry Torokhov (1):
-      Input: allocate absinfo data when setting ABS capability
-
-Heiko St=C3=BCbner (1):
-      Input: zforce - fix possible driver hang during suspend
-
-Rafa=C5=82 Mi=C5=82ecki (1):
-      Input: define KEY_WWAN for Wireless WAN
-
-
-Diffstat:
---------
-
- drivers/input/input.c                 |  4 ++++
- drivers/input/touchscreen/zforce_ts.c | 21 +++++++++++++++------
- include/uapi/linux/input.h            |  3 ++-
- 3 files changed, 21 insertions(+), 7 deletions(-)
-
---=20
+-- 
 Dmitry
-
-
---u3/rZRmxL6MmkK24
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSwxWqAAoJEH70+W8r6ZYqXuQQAMFNGyxj063r1bGoWigx0ire
-dfpQNCJrmNIiTeDk6VCOJriDE0AVLP+zlh7aLM2jbS9Zp5i+iIOYmmJ2J4xd0Evc
-jLK7oPgb/HDDojeXN4/1aP2jXWqxwPjFE28u16HR22aXrDJRw8zKrgjmTKHki6f5
-SG7nQ/15RTU9ZO0aOIXNrEDXbFE7sKdnKFmHy8WWdaK2bujhOR61yqqENzMQV8/8
-HZ8x8IY5Ok6YxGJgCkUkRHjEpdXoZgEfLdRuXHN5/VguIjeevbpPOH+czwUF0aei
-pp/AOFFajzs/pPJdiwq9ClGJpVTpdz87TuHLlL1g8XTsThdaudUPZwqlxk1nAwXe
-+ZYkvam+x6mZbZeSQzZnfgfNb6Ec6RBdAuUQCwOFC89rKQ9D1XzvPvSipdnoNvz2
-pPOwG1ENCRU8pMMEqknUmcAPdoTNnP3MWEVfH/SwmzvsPItMRx2Mw2iDUplk0+XN
-eJNiJUxWqyeNA45RjrtGUfVpaeekMQm2xoKC4SETMHvAy4ZOmKUztgiY4vBFujp9
-PNDs9k20CGDS9+deTJmZ6YWy3ilVHvjid1MCo84s+t3NBaaQl0nRF9MKhIJRJgLD
-6YkOloTFPOX7dzerZh5498YWyqbjHDRLXP7PMmOEuzxTiTiv9l3P1YSrKZaiuZyS
-L/8jA4s+Dt9bCHjNEBU5
-=srDb
------END PGP SIGNATURE-----
-
---u3/rZRmxL6MmkK24--

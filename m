@@ -1,58 +1,86 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] input: mt: Add helper function to send end events
-Date: Tue, 31 Dec 2013 10:50:36 -0800
-Message-ID: <20131231185035.GD6897@core.coreip.homeip.net>
-References: <1388455601-17033-1-git-send-email-eu@felipetonello.com>
- <52C28DC7.9020003@euromail.se>
+Subject: [git pull] Input updates for 3.13-rc6
+Date: Tue, 31 Dec 2013 11:06:18 -0800
+Message-ID: <20131231190618.GE6897@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f48.google.com ([209.85.160.48]:39386 "EHLO
-	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756166Ab3LaSuj (ORCPT
+Received: from mail-pd0-f171.google.com ([209.85.192.171]:58667 "EHLO
+	mail-pd0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756128Ab3LaTGV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Dec 2013 13:50:39 -0500
+	Tue, 31 Dec 2013 14:06:21 -0500
 Content-Disposition: inline
-In-Reply-To: <52C28DC7.9020003@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: "Felipe F. Tonello" <eu@felipetonello.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Henrik,
 
-On Tue, Dec 31, 2013 at 10:26:31AM +0100, Henrik Rydberg wrote:
-> Hi Felipe,
-> 
-> > Adds a helper function to send end touch events for active tracking ids.
-> > And also implements it in egalax driver.
-> 
-> What problematic scenario is this supposed to solve?
-> 
-> The 'release on suspend' is only an approximation to the 'close
-> laptop' scenario, it is certainly not correct in the coffee table
-> case,
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Why would it not be correct for coffee table? Do we expect the touches
-to remain valid while the device is asleep?
+Hi Linus,
 
-> for instance. Instead of
-> hardcoding this in the kernel, userland can easily detect long intervals
-> directly using the event time.
+Happy New Year!
 
-But with slots it is not only problem with old events being sent out
-later, it is that we have mix of old (pre-sleep) and new state.
+Please pull from:
 
-> 
-> Unless there is already a reasonable mechanism in your user
-> application which deals with cases like this but fails to account for
-> your particular problem scenario, the patch will not be applied.
-> 
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-We do that for keys (release them when we transition to system sleep)
-and I think it might be worthwhile to do the same for touch data.
+to receive updates for the input subsystem. You will get a fix for panic
+in gpio-keys driver when set up with absolute events, a fixup to the new
+zforce driver and a new keycode definition.
 
-Thanks.
+Changelog:
+---------
 
--- 
+Dmitry Torokhov (1):
+      Input: allocate absinfo data when setting ABS capability
+
+Heiko St=C3=BCbner (1):
+      Input: zforce - fix possible driver hang during suspend
+
+Rafa=C5=82 Mi=C5=82ecki (1):
+      Input: define KEY_WWAN for Wireless WAN
+
+
+Diffstat:
+--------
+
+ drivers/input/input.c                 |  4 ++++
+ drivers/input/touchscreen/zforce_ts.c | 21 +++++++++++++++------
+ include/uapi/linux/input.h            |  3 ++-
+ 3 files changed, 21 insertions(+), 7 deletions(-)
+
+--=20
 Dmitry
+
+
+--u3/rZRmxL6MmkK24
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSwxWqAAoJEH70+W8r6ZYqXuQQAMFNGyxj063r1bGoWigx0ire
+dfpQNCJrmNIiTeDk6VCOJriDE0AVLP+zlh7aLM2jbS9Zp5i+iIOYmmJ2J4xd0Evc
+jLK7oPgb/HDDojeXN4/1aP2jXWqxwPjFE28u16HR22aXrDJRw8zKrgjmTKHki6f5
+SG7nQ/15RTU9ZO0aOIXNrEDXbFE7sKdnKFmHy8WWdaK2bujhOR61yqqENzMQV8/8
+HZ8x8IY5Ok6YxGJgCkUkRHjEpdXoZgEfLdRuXHN5/VguIjeevbpPOH+czwUF0aei
+pp/AOFFajzs/pPJdiwq9ClGJpVTpdz87TuHLlL1g8XTsThdaudUPZwqlxk1nAwXe
++ZYkvam+x6mZbZeSQzZnfgfNb6Ec6RBdAuUQCwOFC89rKQ9D1XzvPvSipdnoNvz2
+pPOwG1ENCRU8pMMEqknUmcAPdoTNnP3MWEVfH/SwmzvsPItMRx2Mw2iDUplk0+XN
+eJNiJUxWqyeNA45RjrtGUfVpaeekMQm2xoKC4SETMHvAy4ZOmKUztgiY4vBFujp9
+PNDs9k20CGDS9+deTJmZ6YWy3ilVHvjid1MCo84s+t3NBaaQl0nRF9MKhIJRJgLD
+6YkOloTFPOX7dzerZh5498YWyqbjHDRLXP7PMmOEuzxTiTiv9l3P1YSrKZaiuZyS
+L/8jA4s+Dt9bCHjNEBU5
+=srDb
+-----END PGP SIGNATURE-----
+
+--u3/rZRmxL6MmkK24--

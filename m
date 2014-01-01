@@ -1,100 +1,29 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Changes on xpad.c
-Date: Wed, 1 Jan 2014 11:24:02 -0800
-Message-ID: <20140101192402.GB30798@core.coreip.homeip.net>
-References: <CAAXmX-mzTOgEPmDWTx2hU_=6hpe3gEZ44_=032diL4rJoDc4vA@mail.gmail.com>
- <20131226233137.GF18562@core.coreip.homeip.net>
- <CAAXmX-ma_xX-AVbBJ-DeOQL09T6ZkE9wsN1R1MTuu=rHxwm58Q@mail.gmail.com>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 0/4] input: Add new sun4i-lradc-keys driver
+Date: Wed,  1 Jan 2014 20:30:06 +0100
+Message-ID: <1388604610-20380-1-git-send-email-hdegoede@redhat.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:47470 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752993AbaAATYG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jan 2014 14:24:06 -0500
-Received: by mail-pa0-f50.google.com with SMTP id kp14so11875606pab.23
-        for <linux-input@vger.kernel.org>; Wed, 01 Jan 2014 11:24:05 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAAXmX-ma_xX-AVbBJ-DeOQL09T6ZkE9wsN1R1MTuu=rHxwm58Q@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDL4X2GMZUKRBS6ZSGLAKGQE44OPOJY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Thomaz de Oliveira dos Reis <thor27@gmail.com>, Mag <magissia@magissia.com>, Ilia Katsnelson <k0009000@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>
 
-Hi Thomaz, Nol, Ilia,
+Hi Dimitri,
 
-Happy New Year!
+Here is another input driver for Allwinner sunxi SoCs. As with the touchscreen
+driver the dts files are posted here for completeness and will be merged
+through Maxime's tree.
 
-On Thu, Dec 26, 2013 at 10:07:58PM -0200, Thomaz de Oliveira dos Reis wrote:
-> Hi!
-> 
-> Hope it is correct.
+Please review and if everything is ok, add this to your tree for Linus.
 
-You forgot to add "Signed-off-by: ..." to your change.
+Thanks & Regards,
 
-Ilia, Nol, you have added the initial mappings for Razer devices and
-chose to map directional pad to buttons instead of HAT0X/Y axis. Could
-you remind me why?
-
-Thanks!
-
-> 2013/12/26 Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> > Hi Tomaz,
-> >
-> > On Sat, Dec 21, 2013 at 09:48:12PM -0200, Thomaz de Oliveira dos Reis
-> > wrote:
-> > > Hi!
-> > >
-> > > I noticed that Razer Onza controller, different from tradional xbox
-> > > gamepad, the dpad doesn't works in most games. (Some games is possibile
-> > to
-> > > configure changing a config file or with interface options but many games
-> > > it doesn't works at all)
-> > >
-> > > Looking at module source code, I saw that  it uses the
-> > MAP_DPAD_TO_BUTTONS
-> > > that was created to use with dance pad (with this controller is not), as
-> > > written on this comment:
-> > >
-> > > Line 69:  *  - dance pads will map D-PAD to buttons, not axes
-> > >
-> > > Change this to 0 improve overal compatibility of the controller in most
-> > > games, without losing any meaningful functionality.
-> > >
-> > > Also, if someone REALLY need this strange configuration, the user can set
-> > > the "dpad_to_buttons" module param as described here:
-> > >
-> > > Line 103: MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather
-> > > than axes for unknown pads");
-> > >
-> > > Attached the modified xpad.c module, downloaded from linux-next git file
-> > > from today.
-> >
-> > Please generate a unified diff for your change. See
-> > Documentation/SubmittngPatches for explanation how to do this.
-> >
-> > Thanks.
-> >
-> >
-> > --
-> > Dmitry
-> >
-
-> --- drivers/input/joystick/xpad.c.orig	2013-12-26 22:02:44.239687200 -0200
-> +++ drivers/input/joystick/xpad.c	2013-12-26 22:03:13.199687196 -0200
-> @@ -166,8 +166,8 @@ static const struct xpad_device {
->  	{ 0x1430, 0x4748, "RedOctane Guitar Hero X-plorer", 0, XTYPE_XBOX360 },
->  	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
->  	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
-> -	{ 0x1689, 0xfd00, "Razer Onza Tournament Edition", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
-> -	{ 0x1689, 0xfd01, "Razer Onza Classic Edition", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
-> +	{ 0x1689, 0xfd00, "Razer Onza Tournament Edition", 0, XTYPE_XBOX360 },
-> +	{ 0x1689, 0xfd01, "Razer Onza Classic Edition", 0, XTYPE_XBOX360 },
->  	{ 0x1bad, 0x0002, "Harmonix Rock Band Guitar", 0, XTYPE_XBOX360 },
->  	{ 0x1bad, 0x0003, "Harmonix Rock Band Drumkit", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
->  	{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
-
-
--- 
-Dmitry
+Hans

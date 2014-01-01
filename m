@@ -1,72 +1,100 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] input: mt: Add helper function to send end events
-Date: Wed, 1 Jan 2014 11:18:39 -0800
-Message-ID: <20140101191838.GA30798@core.coreip.homeip.net>
-References: <1388455601-17033-1-git-send-email-eu@felipetonello.com>
- <52C28DC7.9020003@euromail.se>
- <20131231185035.GD6897@core.coreip.homeip.net>
- <52C43FFE.3010005@euromail.se>
+Subject: Re: Changes on xpad.c
+Date: Wed, 1 Jan 2014 11:24:02 -0800
+Message-ID: <20140101192402.GB30798@core.coreip.homeip.net>
+References: <CAAXmX-mzTOgEPmDWTx2hU_=6hpe3gEZ44_=032diL4rJoDc4vA@mail.gmail.com>
+ <20131226233137.GF18562@core.coreip.homeip.net>
+ <CAAXmX-ma_xX-AVbBJ-DeOQL09T6ZkE9wsN1R1MTuu=rHxwm58Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f52.google.com ([209.85.160.52]:43161 "EHLO
-	mail-pb0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752978AbaAATSn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jan 2014 14:18:43 -0500
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:47470 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752993AbaAATYG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jan 2014 14:24:06 -0500
+Received: by mail-pa0-f50.google.com with SMTP id kp14so11875606pab.23
+        for <linux-input@vger.kernel.org>; Wed, 01 Jan 2014 11:24:05 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <52C43FFE.3010005@euromail.se>
+In-Reply-To: <CAAXmX-ma_xX-AVbBJ-DeOQL09T6ZkE9wsN1R1MTuu=rHxwm58Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: "Felipe F. Tonello" <eu@felipetonello.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Thomaz de Oliveira dos Reis <thor27@gmail.com>, Mag <magissia@magissia.com>, Ilia Katsnelson <k0009000@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>
 
-On Wed, Jan 01, 2014 at 05:19:10PM +0100, Henrik Rydberg wrote:
-> Hi Dmitry,
-> 
-> >> What problematic scenario is this supposed to solve?
-> >>
-> >> The 'release on suspend' is only an approximation to the 'close
-> >> laptop' scenario, it is certainly not correct in the coffee table
-> >> case,
-> > 
-> > Why would it not be correct for coffee table? Do we expect the touches
-> > to remain valid while the device is asleep?
-> 
-> In some scenarios with placed objects (like a cup or a marker), that would be
-> the case, yes.
-> 
-> >> for instance. Instead of
-> >> hardcoding this in the kernel, userland can easily detect long intervals
-> >> directly using the event time.
-> > 
-> > But with slots it is not only problem with old events being sent out
-> > later, it is that we have mix of old (pre-sleep) and new state.
-> 
-> The new state is not really a problem, it will look exactly the same regardless
-> of how 'old' releases are handled.
-> 
-> > We do that for keys (release them when we transition to system sleep)
-> > and I think it might be worthwhile to do the same for touch data.
-> 
-> I agree that keyboard applications seldom look at time intervals and hence are
-> well helped by such a strategy, even though it is not strictly 'correct'.
-> However, touch interfaces are quite dependent on time intervals, and it
-> therefore makes a lot of sense to resolve touch timeouts directly in the
-> application. It also puts less restrictions on what can be done.
-> 
-> Regarding notifications in general, perhaps it would be interesting to be able
-> to send a notification event via the input interface when a device comes back
-> from sleep. It could help resolve other complex issues, if there were any.
-> 
+Hi Thomaz, Nol, Ilia,
 
-OK, fair enough. If there is a demand we could send SYN_SYSTEM_RESUME
-event though the interfaces to allow clients "flush" the state or
-otherwise decide if new touch data is actually old touches that were
-there pre-suspend.
+Happy New Year!
 
-Felipe, will that help in your case?
+On Thu, Dec 26, 2013 at 10:07:58PM -0200, Thomaz de Oliveira dos Reis wrote:
+> Hi!
+> 
+> Hope it is correct.
 
-Thanks.
+You forgot to add "Signed-off-by: ..." to your change.
+
+Ilia, Nol, you have added the initial mappings for Razer devices and
+chose to map directional pad to buttons instead of HAT0X/Y axis. Could
+you remind me why?
+
+Thanks!
+
+> 2013/12/26 Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> > Hi Tomaz,
+> >
+> > On Sat, Dec 21, 2013 at 09:48:12PM -0200, Thomaz de Oliveira dos Reis
+> > wrote:
+> > > Hi!
+> > >
+> > > I noticed that Razer Onza controller, different from tradional xbox
+> > > gamepad, the dpad doesn't works in most games. (Some games is possibile
+> > to
+> > > configure changing a config file or with interface options but many games
+> > > it doesn't works at all)
+> > >
+> > > Looking at module source code, I saw that  it uses the
+> > MAP_DPAD_TO_BUTTONS
+> > > that was created to use with dance pad (with this controller is not), as
+> > > written on this comment:
+> > >
+> > > Line 69:  *  - dance pads will map D-PAD to buttons, not axes
+> > >
+> > > Change this to 0 improve overal compatibility of the controller in most
+> > > games, without losing any meaningful functionality.
+> > >
+> > > Also, if someone REALLY need this strange configuration, the user can set
+> > > the "dpad_to_buttons" module param as described here:
+> > >
+> > > Line 103: MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather
+> > > than axes for unknown pads");
+> > >
+> > > Attached the modified xpad.c module, downloaded from linux-next git file
+> > > from today.
+> >
+> > Please generate a unified diff for your change. See
+> > Documentation/SubmittngPatches for explanation how to do this.
+> >
+> > Thanks.
+> >
+> >
+> > --
+> > Dmitry
+> >
+
+> --- drivers/input/joystick/xpad.c.orig	2013-12-26 22:02:44.239687200 -0200
+> +++ drivers/input/joystick/xpad.c	2013-12-26 22:03:13.199687196 -0200
+> @@ -166,8 +166,8 @@ static const struct xpad_device {
+>  	{ 0x1430, 0x4748, "RedOctane Guitar Hero X-plorer", 0, XTYPE_XBOX360 },
+>  	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+>  	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
+> -	{ 0x1689, 0xfd00, "Razer Onza Tournament Edition", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+> -	{ 0x1689, 0xfd01, "Razer Onza Classic Edition", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+> +	{ 0x1689, 0xfd00, "Razer Onza Tournament Edition", 0, XTYPE_XBOX360 },
+> +	{ 0x1689, 0xfd01, "Razer Onza Classic Edition", 0, XTYPE_XBOX360 },
+>  	{ 0x1bad, 0x0002, "Harmonix Rock Band Guitar", 0, XTYPE_XBOX360 },
+>  	{ 0x1bad, 0x0003, "Harmonix Rock Band Drumkit", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+>  	{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
+
 
 -- 
 Dmitry

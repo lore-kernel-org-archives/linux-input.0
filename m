@@ -1,118 +1,74 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v2 3/4] ARM: dts: sun5i: Add lradc node
-Date: Thu,  2 Jan 2014 10:58:26 +0100
-Message-ID: <1388656707-16181-4-git-send-email-hdegoede@redhat.com>
-References: <1388656707-16181-1-git-send-email-hdegoede@redhat.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Subject: Re: [PATCH 1/4] input: Add new sun4i-lradc-keys drivers
+Date: Thu, 02 Jan 2014 12:59:28 +0100
+Message-ID: <1700375.GaI3zFl6RI@phil>
+References: <1388604610-20380-1-git-send-email-hdegoede@redhat.com> <20140101205603.GA1141@core.coreip.homeip.net> <52C5336B.9010903@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDL4X2GMZUKRBT7QSSLAKGQEIPAL4AI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1388656707-16181-1-git-send-email-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from gloria.sntech.de ([95.129.55.99]:45015 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750913AbaABL7s (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Jan 2014 06:59:48 -0500
+In-Reply-To: <52C5336B.9010903@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-sunxi@googlegroups.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>
 
-Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts | 8 ++++++++
- arch/arm/boot/dts/sun5i-a10s.dtsi                | 7 +++++++
- arch/arm/boot/dts/sun5i-a13-olinuxino.dts        | 8 ++++++++
- arch/arm/boot/dts/sun5i-a13.dtsi                 | 7 +++++++
- 4 files changed, 30 insertions(+)
+Hi Hans, Dmitry,
 
-diff --git a/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts b/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
-index e53fb12..d93318a 100644
---- a/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
-+++ b/arch/arm/boot/dts/sun5i-a10s-olinuxino-micro.dts
-@@ -13,6 +13,7 @@
- 
- /dts-v1/;
- /include/ "sun5i-a10s.dtsi"
-+#include <dt-bindings/input/input.h>
- 
- / {
- 	model = "Olimex A10s-Olinuxino Micro";
-@@ -75,6 +76,13 @@
- 			};
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			allwinner,chan0-step = <200>;
-+			linux,chan0-keycodes = <KEY_VOLUMEUP KEY_VOLUMEDOWN
-+						KEY_MENU KEY_ENTER KEY_HOME>;
-+			status = "okay";
-+		};
-+
- 		uart0: serial@01c28000 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&uart0_pins_a>;
-diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
-index 34dd303..8775bad 100644
---- a/arch/arm/boot/dts/sun5i-a10s.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
-@@ -404,6 +404,13 @@
- 			reg = <0x01c20c90 0x10>;
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			compatible = "allwinner,sun4i-lradc-keys";
-+			reg = <0x01c22800 0x100>;
-+			interrupts = <31>;
-+			status = "disabled";
-+		};
-+
- 		sid: eeprom@01c23800 {
- 			compatible = "allwinner,sun4i-sid";
- 			reg = <0x01c23800 0x10>;
-diff --git a/arch/arm/boot/dts/sun5i-a13-olinuxino.dts b/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
-index ab566f7..4e99f43 100644
---- a/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
-+++ b/arch/arm/boot/dts/sun5i-a13-olinuxino.dts
-@@ -13,6 +13,7 @@
- 
- /dts-v1/;
- /include/ "sun5i-a13.dtsi"
-+#include <dt-bindings/input/input.h>
- 
- / {
- 	model = "Olimex A13-Olinuxino";
-@@ -55,6 +56,13 @@
- 			};
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			allwinner,chan0-step = <200>;
-+			linux,chan0-keycodes = <KEY_VOLUMEUP KEY_VOLUMEDOWN
-+						KEY_MENU KEY_ENTER KEY_HOME>;
-+			status = "okay";
-+		};
-+
- 		uart1: serial@01c28400 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&uart1_pins_b>;
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index 264cfa4..90c1ed3 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -362,6 +362,13 @@
- 			reg = <0x01c20c90 0x10>;
- 		};
- 
-+		lradc: lradc@01c22800 {
-+			compatible = "allwinner,sun4i-lradc-keys";
-+			reg = <0x01c22800 0x100>;
-+			interrupts = <31>;
-+			status = "disabled";
-+		};
-+
- 		sid: eeprom@01c23800 {
- 			compatible = "allwinner,sun4i-sid";
- 			reg = <0x01c23800 0x10>;
--- 
-1.8.4.2
+Am Donnerstag, 2. Januar 2014, 10:37:47 schrieb Hans de Goede:
+> Hi,
+> 
+> On 01/01/2014 09:56 PM, Dmitry Torokhov wrote:
+> > Hi Hans,
+> > 
+> > On Wed, Jan 01, 2014 at 08:30:07PM +0100, Hans de Goede wrote:
+> >> +Required properties:
+> >> + - compatible: "allwinner,sun4i-lradc-keys"
+> >> + - reg: mmio address range of the chip
+> >> + - interrupts: interrupt to which the chip is connected
+> >> + - allwinner,chan0-step: step in mV between keys must be 150 or 200
+> >> + - allwinner,chan0-keycodes: array of include/uapi/linux/input.h KEY_
+> >> codes> 
+> > I think this should be "linux,chan0-keycodes".
+> 
+> Right, because the codes are Linux specific, will fix in v2.
+
+but the property with its "chan0-" thingy would be allwinner-specific if I'm 
+not mistaken.
+
+Also, instead of inventing yet another vendor-specific property, why not re-use 
+a button binding similar to gpio-keys like:
+
+       lradc: lradc@01c22800 {
+               compatible = "allwinner,sun4i-lradc-keys";
+               reg = <0x01c22800 0x100>;
+               interrupts = <31>;
+               allwinner,chan0-step = <200>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		button@0 {
+			reg = <0>; /* your channel index from above */
+			linux,code = <115>; /* already used as dt-property */
+		};
+
+		button@1 {
+			reg = <1>;
+			linux,code = <114>;
+		};
+
+...
+
+       };
+
+But I may be on the wrong track here, so I've included the devicetree-people 
+for help, which I guess should've been included from the beginning.
+
+
+Heiko
+

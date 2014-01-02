@@ -1,106 +1,80 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/4] input: Add new sun4i-lradc-keys drivers
-Date: Thu, 02 Jan 2014 23:36:33 +0100
-Message-ID: <52C5E9F1.9010700@redhat.com>
-References: <1388604610-20380-1-git-send-email-hdegoede@redhat.com> <20140101205603.GA1141@core.coreip.homeip.net> <52C5336B.9010903@redhat.com> <1700375.GaI3zFl6RI@phil> <52C56D79.1060506@redhat.com> <20140102202022.GK3144@lukather>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Felipe Ferreri Tonello <eu@felipetonello.com>
+Subject: Re: [PATCH 0/2] input: mt: Add helper function to send end events
+Date: Thu, 02 Jan 2014 15:20:10 -0800
+Message-ID: <52C5F42A.6010803@felipetonello.com>
+References: <1388455601-17033-1-git-send-email-eu@felipetonello.com> <52C28DC7.9020003@euromail.se> <20131231185035.GD6897@core.coreip.homeip.net> <52C43FFE.3010005@euromail.se> <20140101191838.GA30798@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Return-path: <linux-sunxi+bncBDL4X2GMZUKRBBWUS6LAKGQES6B2WBQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <20140102202022.GK3144@lukather>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: =?ISO-8859-1?Q?Heiko_St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ob0-f169.google.com ([209.85.214.169]:35670 "EHLO
+	mail-ob0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751172AbaABXUO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 2 Jan 2014 18:20:14 -0500
+Received: by mail-ob0-f169.google.com with SMTP id wm4so15110445obc.28
+        for <linux-input@vger.kernel.org>; Thu, 02 Jan 2014 15:20:13 -0800 (PST)
+In-Reply-To: <20140101191838.GA30798@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+Hi Dmitry and Henrik,
 
-On 01/02/2014 09:20 PM, Maxime Ripard wrote:
-> On Thu, Jan 02, 2014 at 02:45:29PM +0100, Hans de Goede wrote:
->>> Also, instead of inventing yet another vendor-specific property, why not re-use
->>> a button binding similar to gpio-keys like:
->>>
->>>         lradc: lradc@01c22800 {
->>>                 compatible = "allwinner,sun4i-lradc-keys";
->>>                 reg = <0x01c22800 0x100>;
->>>                 interrupts = <31>;
->>>                 allwinner,chan0-step = <200>;
->>>
->>> 		#address-cells = <1>;
->>> 		#size-cells = <0>;
->>>
->>> 		button@0 {
->>> 			reg = <0>; /* your channel index from above */
->>> 			linux,code = <115>; /* already used as dt-property */
->>> 		};
->>>
->>> 		button@1 {
->>> 			reg = <1>;
->>> 			linux,code = <114>;
->>> 		};
+On 01/01/2014 11:18 AM, Dmitry Torokhov wrote:
+> On Wed, Jan 01, 2014 at 05:19:10PM +0100, Henrik Rydberg wrote:
+>> Hi Dmitry,
 >>
->> Ugh no. Having a vendor specific property which is KISS certainly
->> beats this, both wrt ease of writing dts files as well as wrt the
->> dts parsing code in the driver.
+>>>> What problematic scenario is this supposed to solve?
+>>>>
+>>>> The 'release on suspend' is only an approximation to the 'close
+>>>> laptop' scenario, it is certainly not correct in the coffee table
+>>>> case,
+>>>
+>>> Why would it not be correct for coffee table? Do we expect the touches
+>>> to remain valid while the device is asleep?
+>>
+>> In some scenarios with placed objects (like a cup or a marker), that would be
+>> the case, yes.
+>>
+>>>> for instance. Instead of
+>>>> hardcoding this in the kernel, userland can easily detect long intervals
+>>>> directly using the event time.
+>>>
+>>> But with slots it is not only problem with old events being sent out
+>>> later, it is that we have mix of old (pre-sleep) and new state.
+>>
+>> The new state is not really a problem, it will look exactly the same regardless
+>> of how 'old' releases are handled.
+>>
+>>> We do that for keys (release them when we transition to system sleep)
+>>> and I think it might be worthwhile to do the same for touch data.
+>>
+>> I agree that keyboard applications seldom look at time intervals and hence are
+>> well helped by such a strategy, even though it is not strictly 'correct'.
+>> However, touch interfaces are quite dependent on time intervals, and it
+>> therefore makes a lot of sense to resolve touch timeouts directly in the
+>> application. It also puts less restrictions on what can be done.
+>>
+>> Regarding notifications in general, perhaps it would be interesting to be able
+>> to send a notification event via the input interface when a device comes back
+>> from sleep. It could help resolve other complex issues, if there were any.
+>>
 >
-> I'd agree with Heiko here. This is pretty much the same construct
-> that's already in use in other input drivers, like gpio-keys.
-
-In the gpio case there is a 1 on 1 relation between a single hw
-entity (the gpio-pin) and a single keycode. Here there is 1 hw entity
-which maps to an array of key-codes, certainly using an array rather
-then a much more complicated construct is the correct data-structure
-to represent this.
-
+> OK, fair enough. If there is a demand we could send SYN_SYSTEM_RESUME
+> event though the interfaces to allow clients "flush" the state or
+> otherwise decide if new touch data is actually old touches that were
+> there pre-suspend.
 >
-> This is also something that can really easily be made generic, since
-> this is something that is rather common.
->
-> Speaking of which. I believe this should actually come in two
-> different drivers:
->    - The ADC driver itself, using IIO
->    - A generic button handler driver on top of IIO.
- >
- > The fact that on most board this adc is used for buttons doesn't make
- > any difference, it's actually a hardware designer choice, we should
- > support that choice, but we should also be able to use it just as an
- > ADC.
+> Felipe, will that help in your case?
 
-No, this is not a generic adc, as mentioned in the commit msg, this
-adc is specifically designed to be used this way.
+Yes, I guess. But why notificate only when it comes back from sleep?
 
-The adc won't start sampling data, and won't generate any interrupts
-until a button is pressed. That is until the input voltage drops below
-2/3 of Vref, this is checked through a built-in analog comparator, which
-hooks into the control logic.
+Because the way it is today, if a user touches a device and suddenly the 
+device sleeps, the user-space will not know that that device went sleep. 
+Then when the device wakes up (resumes) the end touch event will never 
+be sent even if the user releases his finger from it (because the actual 
+hardware is in "sleep" mode or something), thus the user-space will 
+continue to think the finger was not released from the touch screen.
 
-It has button down and button up interrupts, and can detect long
-presses (unused) and generate a second type of down interrupt for those.
-
-This really is an input device, which happens to use an adc.
-
-> Carlo Caione already started to work on an IIO driver for the LRADC:
-> https://github.com/carlocaione/linux/tree/sunxi-lradc
-> maybe you can take over his work.
-
-That won't work because the adc won't sample if the input gets above
-2/3 of Vref. There may be some other mode which does not do that, but
-that is not clearly documented.
-
-Even if an IIO driver turns out to be doable, I strongly believe that
-having a separate input driver for this is best, since this device
-was designed to be used as such. Building input on top of IIO would
-mean polling the adc, while with my driver it actually generates
-button down / up interrupts without any polling being involved.
-
-And no boards I know of are using this as a generic analog input,
-where as many boards are using it as designed.
-
-Regards,
-
-Hans
+Felipe

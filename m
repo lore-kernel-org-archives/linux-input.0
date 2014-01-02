@@ -1,52 +1,69 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/7] Input: pmic8xxx-pwrkey - Migrate to regmap APIs
-Date: Thu, 2 Jan 2014 11:17:57 -0800
-Message-ID: <20140102191757.GA2025@core.coreip.homeip.net>
-References: <1386718996-3733-1-git-send-email-sboyd@codeaurora.org>
- <1386718996-3733-3-git-send-email-sboyd@codeaurora.org>
- <20131215113337.GB14818@core.coreip.homeip.net>
- <20140102184959.GI31886@sirena.org.uk>
+Subject: Re: [PATCH] Input: cros_ec_keyb - switch from using uint8_t to u8
+Date: Thu, 2 Jan 2014 11:27:45 -0800
+Message-ID: <20140102192745.GB2025@core.coreip.homeip.net>
+References: <20131231193442.GA25208@core.coreip.homeip.net>
+ <CAD=FV=VjYtXA5XHiuz-bULpW_MCBWxw2eTvg+SQz9CrgsER4AA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140102184959.GI31886@sirena.org.uk>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Mark Brown <broonie@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org, Stephen Boyd <sboyd@codeaurora.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+In-Reply-To: <CAD=FV=VjYtXA5XHiuz-bULpW_MCBWxw2eTvg+SQz9CrgsER4AA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: linux-input@vger.kernel.org, Simon Glass <sjg@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, Luigi Semenzato <semenzato@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jan 02, 2014 at 06:49:59PM +0000, Mark Brown wrote:
-> On Sun, Dec 15, 2013 at 03:33:37AM -0800, Dmitry Torokhov wrote:
-> > On Tue, Dec 10, 2013 at 03:43:11PM -0800, Stephen Boyd wrote:
+On Thu, Jan 02, 2014 at 08:12:09AM -0800, Doug Anderson wrote:
+> Dmitry,
 > 
-> > > +	regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> > > +	if (!regmap)
-> > > +		return -ENODEV;
+> On Tue, Dec 31, 2013 at 11:34 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > u8 is proper in-kernel type for unsigned byte data.
 > 
-> > And you are leaking memory here...
+> I won't say that I keep up with all the latest trends here, but this
+> surprised me so I did some research.  My findings don't agree with
+> your statement.  Perhaps there are different standards that are used
+> for the input subsystem?
 > 
-> He's not, dev_get_regmap() just gets a pointer to an existing regmap -
-> no reference is taken and nothing is allocated.  It's a helper that's
-> mainly there so that generic code can be written without needing the
-> regmap to be passed around.  The caller is responsible for ensuring that
-> it will stick around for as long as it's used (generally by having it
-> lifetime managed with the device).
+> Specifically looking at
+> <https://www.kernel.org/doc/Documentation/CodingStyle>, I see:
+> 
+>      Therefore, the Linux-specific 'u8/u16/u32/u64' types and their
+>      signed equivalents which are identical to standard types are
+>      permitted -- although they are not mandatory in new code of your
+>      own.
+> 
+>      When editing existing code which already uses one or the other set
+>      of types, you should conform to the existing choices in that code.
+> 
+> That makes it sound like the author of that document would prefer
+> uint8_t but will accept u8.  It also seems like if code is consistent
+> about using a given type (as this code is) that it shouldn't be
+> changed.
+> 
+> I'm always happy to be enlightened, though!
 
-I was not talking about data returned by dev_get_regmap() but all other
-memory that was allocated before as this was pre devm conversion of the
-driver.
+I prefer uXX in kernel because it matches __uXX that we publish in UAPI.
+Also here is Linus's response form the discussion that introduced that
+particular wording in CodingStyle [1]:
+
+"The problem with uint32_t is that it's ugly, it used to be unportable,
+and you can't use it in header files _anyway_.
+
+In other words, there's no _point_ to the "standard type".
+
+I really object to this whole thing. The fact is, "u8" and friends _are_
+the standard types as far as the kernel is concerned.  Claiming that
+they aren't is just silly.
+
+It's the "uint32_t" kind of thing that isn't standard within the kernel.
+You can't use that thing in public header files anyway due to name
+scoping rules, so they have basically no redeeming features."
 
 Thanks.
 
 -- 
 Dmitry
+
+[1] http://marc.info/?l=linux-kernel&m=114659539715468&w=2

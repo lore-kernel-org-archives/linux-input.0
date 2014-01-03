@@ -1,98 +1,46 @@
 From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH v2 02/10] genirq: Add devm_request_any_context_irq()
-Date: Thu,  2 Jan 2014 16:37:32 -0800
-Message-ID: <1388709460-19222-3-git-send-email-sboyd@codeaurora.org>
+Subject: [PATCH v2 10/10] devicetree: bindings: Document PM8921/8058 vibrators
+Date: Thu,  2 Jan 2014 16:37:40 -0800
+Message-ID: <1388709460-19222-11-git-send-email-sboyd@codeaurora.org>
 References: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 In-Reply-To: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Some drivers use request_any_context_irq() but there isn't a
-devm_* function for it. Add one so that these drivers don't need
-to explicitly free the irq on driver detach.
+Document the vibration device found on PM8921 and PM8058 PMICs.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: <devicetree@vger.kernel.org>
 Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 ---
- include/linux/interrupt.h |  5 +++++
- kernel/irq/devres.c       | 45 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 50 insertions(+)
+ .../devicetree/bindings/input/qcom,pm8xxx-vib.txt        | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
 
-diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
-index 0053adde0ed9..a2678d35b5a2 100644
---- a/include/linux/interrupt.h
-+++ b/include/linux/interrupt.h
-@@ -158,6 +158,11 @@ devm_request_irq(struct device *dev, unsigned int irq, irq_handler_t handler,
- 					 devname, dev_id);
- }
- 
-+extern int __must_check
-+devm_request_any_context_irq(struct device *dev, unsigned int irq,
-+		 irq_handler_t handler, unsigned long irqflags,
-+		 const char *devname, void *dev_id);
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
+new file mode 100644
+index 000000000000..dca1b8872cf1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
+@@ -0,0 +1,16 @@
++Qualcomm PM8xxx PMIC Vibrator
 +
- extern void devm_free_irq(struct device *dev, unsigned int irq, void *dev_id);
- 
- /*
-diff --git a/kernel/irq/devres.c b/kernel/irq/devres.c
-index bd8e788d71e0..1ef0606797c9 100644
---- a/kernel/irq/devres.c
-+++ b/kernel/irq/devres.c
-@@ -73,6 +73,51 @@ int devm_request_threaded_irq(struct device *dev, unsigned int irq,
- EXPORT_SYMBOL(devm_request_threaded_irq);
- 
- /**
-+ *	devm_request_any_context_irq - allocate an interrupt line for a managed device
-+ *	@dev: device to request interrupt for
-+ *	@irq: Interrupt line to allocate
-+ *	@handler: Function to be called when the IRQ occurs
-+ *	@thread_fn: function to be called in a threaded interrupt context. NULL
-+ *		    for devices which handle everything in @handler
-+ *	@irqflags: Interrupt type flags
-+ *	@devname: An ascii name for the claiming device
-+ *	@dev_id: A cookie passed back to the handler function
-+ *
-+ *	Except for the extra @dev argument, this function takes the
-+ *	same arguments and performs the same function as
-+ *	request_any_context_irq().  IRQs requested with this function will be
-+ *	automatically freed on driver detach.
-+ *
-+ *	If an IRQ allocated with this function needs to be freed
-+ *	separately, devm_free_irq() must be used.
-+ */
-+int devm_request_any_context_irq(struct device *dev, unsigned int irq,
-+			      irq_handler_t handler, unsigned long irqflags,
-+			      const char *devname, void *dev_id)
-+{
-+	struct irq_devres *dr;
-+	int rc;
++PROPERTIES
 +
-+	dr = devres_alloc(devm_irq_release, sizeof(struct irq_devres),
-+			  GFP_KERNEL);
-+	if (!dr)
-+		return -ENOMEM;
++- compatible:
++	Usage: required
++	Value type: <string>
++	Definition: must be one of:
++		    "qcom,pm8058-vib"
++		    "qcom,pm8921-vib"
 +
-+	rc = request_any_context_irq(irq, handler, irqflags, devname, dev_id);
-+	if (rc) {
-+		devres_free(dr);
-+		return rc;
-+	}
++EXAMPLE
 +
-+	dr->irq = irq;
-+	dr->dev_id = dev_id;
-+	devres_add(dev, dr);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(devm_request_any_context_irq);
-+
-+/**
-  *	devm_free_irq - free an interrupt
-  *	@dev: device to free interrupt for
-  *	@irq: Interrupt line to free
++	vibrator {
++		compatible = "qcom,pm8058-vib";
++	};
 -- 
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
 hosted by The Linux Foundation

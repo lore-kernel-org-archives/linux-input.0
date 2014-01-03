@@ -1,144 +1,235 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH 1/2] HID: sony: Add force feedback for the Dualshock 4
-Date: Fri, 3 Jan 2014 16:03:10 -0500 (EST)
-Message-ID: <alpine.DEB.2.10.1401031518010.29517@franz-virtual-machine>
+Subject: [PATCH 2/2] HID: sony: Add LED controls for Dualshock 4
+Date: Fri, 3 Jan 2014 16:03:46 -0500 (EST)
+Message-ID: <alpine.DEB.2.10.1401031542220.29517@franz-virtual-machine>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:48288 "EHLO
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:62216 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752756AbaACVDX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jan 2014 16:03:23 -0500
+	with ESMTP id S1753152AbaACVD4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 3 Jan 2014 16:03:56 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 
-This patch adds force feedback support for Sony's Dualshock 4 controller.  
-It does this by adding a device ID for the new controller and creating a 
-new dualshock4_worker function to send data commands formatted for the 
-controller.  Unlike the Sixaxis, the Dualshock 4 requires a magnitude 
-value for the small motor so the actual value is now sent to the worker 
-function and the sixaxis worker was modified to clamp it to 1 or 0 as required.
+This patch builds on the previous patch and adds controls for the light 
+bar on the Dualshock 4.  The light bar contains a red, green and blue LED 
+that can independently vary in brightness from 0 to 255.  The LED system 
+in the module had to be extended to support a full byte per led for 
+storing the brightness level as well as storing a count of LEDs on each 
+device.  Like the Sixaxis, LED status is set in the worker function by 
+setting certain bytes in the data packet.
 
-This patch is built against the for-3.14/sony branch in jikos/hid.git and 
-is compatible with the recent fixes.
+Like the force feedback patch, this meant to be applied against the 
+for-3.14/sony branch in jiros/hid.git
 
-Signed-off-by Frank Praznik <frank.praznik@oh.rr.com>
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 
 ---
- drivers/hid/hid-ids.h  |  1 +
- drivers/hid/hid-sony.c | 41 +++++++++++++++++++++++++++++++++++++----
- 2 files changed, 38 insertions(+), 4 deletions(-)
+ drivers/hid/hid-sony.c | 77 ++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 49 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 60336f06..ebbd292 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -769,6 +769,7 @@
- #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
- #define USB_DEVICE_ID_SONY_BUZZ_CONTROLLER		0x0002
- #define USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER	0x1000
-+#define USB_DEVICE_ID_SONY_PS4_CONTROLLER	0x05c4
- 
- #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
- #define USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST	0x0034
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index f57ab5e..f42c866 100644
+index f42c866..445b5f2 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -38,6 +38,7 @@
- #define SIXAXIS_CONTROLLER_BT   BIT(2)
- #define BUZZ_CONTROLLER         BIT(3)
+@@ -40,7 +40,9 @@
  #define PS3REMOTE		BIT(4)
-+#define DUALSHOCK4_CONTROLLER	BIT(5)
+ #define DUALSHOCK4_CONTROLLER	BIT(5)
  
- #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER)
+-#define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER)
++#define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER)
++
++#define MAX_LEDS 4
  
-@@ -615,7 +616,7 @@ error_leds:
- 	return ret;
+ static const u8 sixaxis_rdesc_fixup[] = {
+ 	0x95, 0x13, 0x09, 0x01, 0x81, 0x02, 0x95, 0x0C,
+@@ -227,7 +229,7 @@ static const unsigned int buzz_keymap[] = {
+ 
+ struct sony_sc {
+ 	struct hid_device *hdev;
+-	struct led_classdev *leds[4];
++	struct led_classdev *leds[MAX_LEDS];
+ 	unsigned long quirks;
+ 	struct work_struct state_worker;
+ 
+@@ -236,7 +238,8 @@ struct sony_sc {
+ 	__u8 right;
+ #endif
+ 
+-	__u8 led_state;
++	__u8 led_state[MAX_LEDS];
++	__u8 led_count;
+ };
+ 
+ static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
+@@ -447,7 +450,7 @@ static int sixaxis_set_operational_bt(struct hid_device *hdev)
+ 	return hdev->hid_output_raw_report(hdev, buf, sizeof(buf), HID_FEATURE_REPORT);
  }
  
--static void sony_state_worker(struct work_struct *work)
-+static void sixaxis_state_worker(struct work_struct *work)
+-static void buzz_set_leds(struct hid_device *hdev, int leds)
++static void buzz_set_leds(struct hid_device *hdev, const __u8 *leds)
  {
- 	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
- 	unsigned char buf[] = {
-@@ -630,7 +631,7 @@ static void sony_state_worker(struct work_struct *work)
- 	};
+ 	struct list_head *report_list =
+ 		&hdev->report_enum[HID_OUTPUT_REPORT].report_list;
+@@ -456,23 +459,27 @@ static void buzz_set_leds(struct hid_device *hdev, int leds)
+ 	__s32 *value = report->field[0]->value;
  
- #ifdef CONFIG_SONY_FF
--	buf[3] = sc->right;
-+	buf[3] = sc->right ? 1 : 0;
+ 	value[0] = 0x00;
+-	value[1] = (leds & 1) ? 0xff : 0x00;
+-	value[2] = (leds & 2) ? 0xff : 0x00;
+-	value[3] = (leds & 4) ? 0xff : 0x00;
+-	value[4] = (leds & 8) ? 0xff : 0x00;
++	value[1] = leds[0] ? 0xff : 0x00;
++	value[2] = leds[1] ? 0xff : 0x00;
++	value[3] = leds[2] ? 0xff : 0x00;
++	value[4] = leds[3] ? 0xff : 0x00;
+ 	value[5] = 0x00;
+ 	value[6] = 0x00;
+ 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
+ }
+ 
+-static void sony_set_leds(struct hid_device *hdev, __u8 leds)
++static void sony_set_leds(struct hid_device *hdev, const __u8 *leds, int count)
+ {
+ 	struct sony_sc *drv_data = hid_get_drvdata(hdev);
+-
+-	if (drv_data->quirks & BUZZ_CONTROLLER) {
++	int n;
++
++	BUG_ON(count > MAX_LEDS);
++
++	if (drv_data->quirks & BUZZ_CONTROLLER && count == 4) {
+ 		buzz_set_leds(hdev, leds);
+-	} else if (drv_data->quirks & SIXAXIS_CONTROLLER_USB) {
+-		drv_data->led_state = leds;
++	} else if ((drv_data->quirks & SIXAXIS_CONTROLLER_USB) || (drv_data->quirks & DUALSHOCK4_CONTROLLER)) {
++		for(n = 0; n < count; n++)
++			drv_data->led_state[n] = leds[n];
+ 		schedule_work(&drv_data->state_worker);
+ 	}
+ }
+@@ -492,15 +499,11 @@ static void sony_led_set_brightness(struct led_classdev *led,
+ 		return;
+ 	}
+ 
+-	for (n = 0; n < 4; n++) {
++	for (n = 0; n < drv_data->led_count; n++) {
+ 		if (led == drv_data->leds[n]) {
+-			int on = !!(drv_data->led_state & (1 << n));
+-			if (value == LED_OFF && on) {
+-				drv_data->led_state &= ~(1 << n);
+-				sony_set_leds(hdev, drv_data->led_state);
+-			} else if (value != LED_OFF && !on) {
+-				drv_data->led_state |= (1 << n);
+-				sony_set_leds(hdev, drv_data->led_state);
++			if (value != drv_data->led_state[n]) {
++				drv_data->led_state[n] = value;
++				sony_set_leds(hdev, drv_data->led_state, drv_data->led_count);
+ 			}
+ 			break;
+ 		}
+@@ -522,9 +525,9 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
+ 		return LED_OFF;
+ 	}
+ 
+-	for (n = 0; n < 4; n++) {
++	for (n = 0; n < drv_data->led_count; n++) {
+ 		if (led == drv_data->leds[n]) {
+-			on = !!(drv_data->led_state & (1 << n));
++			on = !!(drv_data->led_state[n]);
+ 			break;
+ 		}
+ 	}
+@@ -541,7 +544,7 @@ static void sony_leds_remove(struct hid_device *hdev)
+ 	drv_data = hid_get_drvdata(hdev);
+ 	BUG_ON(!(drv_data->quirks & SONY_LED_SUPPORT));
+ 
+-	for (n = 0; n < 4; n++) {
++	for (n = 0; n < drv_data->led_count; n++) {
+ 		led = drv_data->leds[n];
+ 		drv_data->leds[n] = NULL;
+ 		if (!led)
+@@ -549,17 +552,21 @@ static void sony_leds_remove(struct hid_device *hdev)
+ 		led_classdev_unregister(led);
+ 		kfree(led);
+ 	}
++
++	drv_data->led_count = 0;
+ }
+ 
+ static int sony_leds_init(struct hid_device *hdev)
+ {
+ 	struct sony_sc *drv_data;
+ 	int n, ret = 0;
++	int max_brightness = 1;
+ 	struct led_classdev *led;
+ 	size_t name_sz;
+ 	char *name;
+ 	size_t name_len;
+ 	const char *name_fmt;
++	static const __u8 initial_values[MAX_LEDS] = { 0x00, 0x00, 0x00, 0x00 };
+ 
+ 	drv_data = hid_get_drvdata(hdev);
+ 	BUG_ON(!(drv_data->quirks & SONY_LED_SUPPORT));
+@@ -574,15 +581,22 @@ static int sony_leds_init(struct hid_device *hdev)
+ 		name_len = strlen("::sony#");
+ 		name_fmt = "%s::sony%d";
+ 	}
++
++	if (drv_data->quirks & DUALSHOCK4_CONTROLLER) {
++		drv_data->led_count = 3;
++		max_brightness = 255;
++	}
++	else
++		drv_data->led_count = 4;
+ 
+ 	/* Clear LEDs as we have no way of reading their initial state. This is
+ 	 * only relevant if the driver is loaded after somebody actively set the
+ 	 * LEDs to on */
+-	sony_set_leds(hdev, 0x00);
++	sony_set_leds(hdev, initial_values, drv_data->led_count);
+ 
+ 	name_sz = strlen(dev_name(&hdev->dev)) + name_len + 1;
+ 
+-	for (n = 0; n < 4; n++) {
++	for (n = 0; n < drv_data->led_count; n++) {
+ 		led = kzalloc(sizeof(struct led_classdev) + name_sz, GFP_KERNEL);
+ 		if (!led) {
+ 			hid_err(hdev, "Couldn't allocate memory for LED %d\n", n);
+@@ -594,7 +608,7 @@ static int sony_leds_init(struct hid_device *hdev)
+ 		snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), n + 1);
+ 		led->name = name;
+ 		led->brightness = 0;
+-		led->max_brightness = 1;
++		led->max_brightness = max_brightness;
+ 		led->brightness_get = sony_led_get_brightness;
+ 		led->brightness_set = sony_led_set_brightness;
+ 
+@@ -635,7 +649,10 @@ static void sixaxis_state_worker(struct work_struct *work)
  	buf[5] = sc->left;
  #endif
  
-@@ -640,6 +641,29 @@ static void sony_state_worker(struct work_struct *work)
+-	buf[10] |= (sc->led_state & 0xf) << 1;
++	buf[10] |= sc->led_state[0] << 1;
++	buf[10] |= sc->led_state[1] << 2;
++	buf[10] |= sc->led_state[2] << 3;
++	buf[10] |= sc->led_state[3] << 4;
+ 
+ 	sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
+ 					HID_OUTPUT_REPORT);
+@@ -660,6 +677,10 @@ static void dualshock4_state_worker(struct work_struct *work)
+ 	buf[5] = sc->left;
+ #endif
+ 
++	buf[6] = sc->led_state[0];
++	buf[7] = sc->led_state[1];
++	buf[8] = sc->led_state[2];
++
+ 	sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
  					HID_OUTPUT_REPORT);
  }
- 
-+static void dualshock4_state_worker(struct work_struct *work)
-+{
-+	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
-+	unsigned char buf[] = {
-+		0x05,
-+		0x03, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00, 0x00, 0x00, 0x00, 0x00,
-+		0x00,
-+	};
-+
-+#ifdef CONFIG_SONY_FF
-+	buf[4] = sc->right;
-+	buf[5] = sc->left;
-+#endif
-+
-+	sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
-+					HID_OUTPUT_REPORT);
-+}
-+
- #ifdef CONFIG_SONY_FF
- static int sony_play_effect(struct input_dev *dev, void *data,
- 			    struct ff_effect *effect)
-@@ -651,7 +675,7 @@ static int sony_play_effect(struct input_dev *dev, void *data,
- 		return 0;
- 
- 	sc->left = effect->u.rumble.strong_magnitude / 256;
--	sc->right = effect->u.rumble.weak_magnitude ? 1 : 0;
-+	sc->right = effect->u.rumble.weak_magnitude / 256;
- 
- 	schedule_work(&sc->state_worker);
- 	return 0;
-@@ -724,10 +748,14 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
- 		hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
- 		ret = sixaxis_set_operational_usb(hdev);
--		INIT_WORK(&sc->state_worker, sony_state_worker);
-+		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
- 	}
- 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
- 		ret = sixaxis_set_operational_bt(hdev);
-+	else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
-+		ret = 0;
-+		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
-+	}
- 	else
- 		ret = 0;
- 
-@@ -787,6 +815,11 @@ static const struct hid_device_id sony_devices[] = {
- 	/* Logitech Harmony Adapter for PS3 */
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3),
- 		.driver_data = PS3REMOTE },
-+	/* Sony Dualshock 4 controllers for PS4 */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
-+		.driver_data = DUALSHOCK4_CONTROLLER },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
-+		.driver_data = DUALSHOCK4_CONTROLLER },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, sony_devices);
 -- 
 1.8.3.2
 

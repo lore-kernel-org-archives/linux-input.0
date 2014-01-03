@@ -1,152 +1,58 @@
 From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH v2 05/10] Input: pmic8xxx-pwrkey - Migrate to DT
-Date: Thu,  2 Jan 2014 16:37:35 -0800
-Message-ID: <1388709460-19222-6-git-send-email-sboyd@codeaurora.org>
-References: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
+Subject: [PATCH v2 00/10] Use regmap+devm+DT in pm8xxx input drivers
+Date: Thu,  2 Jan 2014 16:37:30 -0800
+Message-ID: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
 Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
 Sender: linux-arm-msm-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The driver is only supported on DT enabled platforms. Convert the
-driver to DT so that it can probe properly.
+These patches move the pm8xxx input drivers over to use devm_* APIs
+and regmap. This breaks the dependency of these drivers on the pm8xxx
+specific read/write calls and also simplifies the probe code a bit.
+Finally we add devicetree support to these drivers so they can be probed
+on the platforms that are supported upstream.
 
-Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
----
- drivers/input/misc/pmic8xxx-pwrkey.c  | 33 ++++++++++++++++++++-------------
- include/linux/input/pmic8xxx-pwrkey.h | 31 -------------------------------
- 2 files changed, 20 insertions(+), 44 deletions(-)
+There was no devm_request_any_context_irq() available, so I've added
+it here.
+
+Changes since v1:
+ * Picked up Dmitry's version of devm for pwrkey
+ * Added DT bindings and parsing patches
+ * Dropped patches picked up by Dmitry
+
+Dmitry Torokhov (1):
+  Input: pmic8xxx-pwrkey - switch to using managed resources
+
+Stephen Boyd (9):
+  genirq: Add devm_request_any_context_irq()
+  Input: pmic8xxx-keypad - Switch to using managed resources
+  Input: pmic8xxx-keypad - Migrate to regmap APIs
+  Input: pmic8xxx-pwrkey - Migrate to DT
+  Input: pm8xxx-vibrator - Add DT match table
+  Input: pmic8xxx-keypad - Migrate to DT
+  devicetree: bindings: Document PM8921/8058 keypads
+  devicetree: bindings: Document PM8921/8058 power keys
+  devicetree: bindings: Document PM8921/8058 vibrators
+
+ .../bindings/input/qcom,pm8xxx-keypad.txt          |  72 +++++
+ .../bindings/input/qcom,pm8xxx-pwrkey.txt          |  39 +++
+ .../devicetree/bindings/input/qcom,pm8xxx-vib.txt  |  16 ++
+ drivers/input/keyboard/pmic8xxx-keypad.c           | 291 ++++++++++-----------
+ drivers/input/misc/pm8xxx-vibrator.c               |   8 +
+ drivers/input/misc/pmic8xxx-pwrkey.c               | 107 ++++----
+ include/linux/input/pmic8xxx-keypad.h              |  52 ----
+ include/linux/input/pmic8xxx-pwrkey.h              |  31 ---
+ include/linux/interrupt.h                          |   5 +
+ kernel/irq/devres.c                                |  45 ++++
+ 10 files changed, 361 insertions(+), 305 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
+ create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+ create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
+ delete mode 100644 include/linux/input/pmic8xxx-keypad.h
  delete mode 100644 include/linux/input/pmic8xxx-pwrkey.h
 
-diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
-index aaf332510623..72f629f37211 100644
---- a/drivers/input/misc/pmic8xxx-pwrkey.c
-+++ b/drivers/input/misc/pmic8xxx-pwrkey.c
-@@ -20,8 +20,7 @@
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/log2.h>
--
--#include <linux/input/pmic8xxx-pwrkey.h>
-+#include <linux/of.h>
- 
- #define PON_CNTL_1 0x1C
- #define PON_CNTL_PULL_UP BIT(7)
-@@ -80,6 +79,13 @@ static int pmic8xxx_pwrkey_resume(struct device *dev)
- static SIMPLE_DEV_PM_OPS(pm8xxx_pwr_key_pm_ops,
- 		pmic8xxx_pwrkey_suspend, pmic8xxx_pwrkey_resume);
- 
-+static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
-+	{ .compatible = "qcom,pm8058-pwrkey" },
-+	{ .compatible = "qcom,pm8921-pwrkey" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, pm8xxx_pwr_key_id_table);
-+
- static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- {
- 	struct input_dev *pwr;
-@@ -90,15 +96,15 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 	unsigned int pon_cntl;
- 	struct regmap *regmap;
- 	struct pmic8xxx_pwrkey *pwrkey;
--	const struct pm8xxx_pwrkey_platform_data *pdata =
--					dev_get_platdata(&pdev->dev);
-+	u32 kpd_delay;
-+	bool pull_up;
- 
--	if (!pdata) {
--		dev_err(&pdev->dev, "power key platform data not supplied\n");
--		return -EINVAL;
--	}
-+	if (of_property_read_u32(pdev->dev.of_node, "debounce", &kpd_delay))
-+		kpd_delay = 0;
-+
-+	pull_up = of_property_read_bool(pdev->dev.of_node, "pull-up");
- 
--	if (pdata->kpd_trigger_delay_us > 62500) {
-+	if (kpd_delay > 62500) {
- 		dev_err(&pdev->dev, "invalid power key trigger delay\n");
- 		return -EINVAL;
- 	}
-@@ -126,7 +132,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 	pwr->name = "pmic8xxx_pwrkey";
- 	pwr->phys = "pmic8xxx_pwrkey/input0";
- 
--	delay = (pdata->kpd_trigger_delay_us << 10) / USEC_PER_SEC;
-+	delay = (kpd_delay << 10) / USEC_PER_SEC;
- 	delay = 1 + ilog2(delay);
- 
- 	err = regmap_read(regmap, PON_CNTL_1, &pon_cntl);
-@@ -137,7 +143,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 
- 	pon_cntl &= ~PON_CNTL_TRIG_DELAY_MASK;
- 	pon_cntl |= (delay & PON_CNTL_TRIG_DELAY_MASK);
--	if (pdata->pull_up)
-+	if (pull_up)
- 		pon_cntl |= PON_CNTL_PULL_UP;
- 	else
- 		pon_cntl &= ~PON_CNTL_PULL_UP;
-@@ -173,7 +179,7 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 	}
- 
- 	platform_set_drvdata(pdev, pwrkey);
--	device_init_wakeup(&pdev->dev, pdata->wakeup);
-+	device_init_wakeup(&pdev->dev, 1);
- 
- 	return 0;
- }
-@@ -189,9 +195,10 @@ static struct platform_driver pmic8xxx_pwrkey_driver = {
- 	.probe		= pmic8xxx_pwrkey_probe,
- 	.remove		= pmic8xxx_pwrkey_remove,
- 	.driver		= {
--		.name	= PM8XXX_PWRKEY_DEV_NAME,
-+		.name	= "pm8xxx-pwrkey",
- 		.owner	= THIS_MODULE,
- 		.pm	= &pm8xxx_pwr_key_pm_ops,
-+		.of_match_table = pm8xxx_pwr_key_id_table,
- 	},
- };
- module_platform_driver(pmic8xxx_pwrkey_driver);
-diff --git a/include/linux/input/pmic8xxx-pwrkey.h b/include/linux/input/pmic8xxx-pwrkey.h
-deleted file mode 100644
-index 6d2974e57109..000000000000
---- a/include/linux/input/pmic8xxx-pwrkey.h
-+++ /dev/null
-@@ -1,31 +0,0 @@
--/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 and
-- * only version 2 as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- */
--
--#ifndef __PMIC8XXX_PWRKEY_H__
--#define __PMIC8XXX_PWRKEY_H__
--
--#define PM8XXX_PWRKEY_DEV_NAME "pm8xxx-pwrkey"
--
--/**
-- * struct pm8xxx_pwrkey_platform_data - platform data for pwrkey driver
-- * @pull up:  power on register control for pull up/down configuration
-- * @kpd_trigger_delay_us: time delay for power key state change interrupt
-- *                  trigger.
-- * @wakeup: configure power key as wakeup source
-- */
--struct pm8xxx_pwrkey_platform_data  {
--	bool pull_up;
--	u32  kpd_trigger_delay_us;
--	u32  wakeup;
--};
--
--#endif /* __PMIC8XXX_PWRKEY_H__ */
 -- 
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
 hosted by The Linux Foundation

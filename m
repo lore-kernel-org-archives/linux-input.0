@@ -1,58 +1,98 @@
 From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH v2 00/10] Use regmap+devm+DT in pm8xxx input drivers
-Date: Thu,  2 Jan 2014 16:37:30 -0800
-Message-ID: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
+Subject: [PATCH v2 02/10] genirq: Add devm_request_any_context_irq()
+Date: Thu,  2 Jan 2014 16:37:32 -0800
+Message-ID: <1388709460-19222-3-git-send-email-sboyd@codeaurora.org>
+References: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-These patches move the pm8xxx input drivers over to use devm_* APIs
-and regmap. This breaks the dependency of these drivers on the pm8xxx
-specific read/write calls and also simplifies the probe code a bit.
-Finally we add devicetree support to these drivers so they can be probed
-on the platforms that are supported upstream.
+Some drivers use request_any_context_irq() but there isn't a
+devm_* function for it. Add one so that these drivers don't need
+to explicitly free the irq on driver detach.
 
-There was no devm_request_any_context_irq() available, so I've added
-it here.
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+---
+ include/linux/interrupt.h |  5 +++++
+ kernel/irq/devres.c       | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 50 insertions(+)
 
-Changes since v1:
- * Picked up Dmitry's version of devm for pwrkey
- * Added DT bindings and parsing patches
- * Dropped patches picked up by Dmitry
-
-Dmitry Torokhov (1):
-  Input: pmic8xxx-pwrkey - switch to using managed resources
-
-Stephen Boyd (9):
-  genirq: Add devm_request_any_context_irq()
-  Input: pmic8xxx-keypad - Switch to using managed resources
-  Input: pmic8xxx-keypad - Migrate to regmap APIs
-  Input: pmic8xxx-pwrkey - Migrate to DT
-  Input: pm8xxx-vibrator - Add DT match table
-  Input: pmic8xxx-keypad - Migrate to DT
-  devicetree: bindings: Document PM8921/8058 keypads
-  devicetree: bindings: Document PM8921/8058 power keys
-  devicetree: bindings: Document PM8921/8058 vibrators
-
- .../bindings/input/qcom,pm8xxx-keypad.txt          |  72 +++++
- .../bindings/input/qcom,pm8xxx-pwrkey.txt          |  39 +++
- .../devicetree/bindings/input/qcom,pm8xxx-vib.txt  |  16 ++
- drivers/input/keyboard/pmic8xxx-keypad.c           | 291 ++++++++++-----------
- drivers/input/misc/pm8xxx-vibrator.c               |   8 +
- drivers/input/misc/pmic8xxx-pwrkey.c               | 107 ++++----
- include/linux/input/pmic8xxx-keypad.h              |  52 ----
- include/linux/input/pmic8xxx-pwrkey.h              |  31 ---
- include/linux/interrupt.h                          |   5 +
- kernel/irq/devres.c                                |  45 ++++
- 10 files changed, 361 insertions(+), 305 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
- create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
- create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
- delete mode 100644 include/linux/input/pmic8xxx-keypad.h
- delete mode 100644 include/linux/input/pmic8xxx-pwrkey.h
-
+diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+index 0053adde0ed9..a2678d35b5a2 100644
+--- a/include/linux/interrupt.h
++++ b/include/linux/interrupt.h
+@@ -158,6 +158,11 @@ devm_request_irq(struct device *dev, unsigned int irq, irq_handler_t handler,
+ 					 devname, dev_id);
+ }
+ 
++extern int __must_check
++devm_request_any_context_irq(struct device *dev, unsigned int irq,
++		 irq_handler_t handler, unsigned long irqflags,
++		 const char *devname, void *dev_id);
++
+ extern void devm_free_irq(struct device *dev, unsigned int irq, void *dev_id);
+ 
+ /*
+diff --git a/kernel/irq/devres.c b/kernel/irq/devres.c
+index bd8e788d71e0..1ef0606797c9 100644
+--- a/kernel/irq/devres.c
++++ b/kernel/irq/devres.c
+@@ -73,6 +73,51 @@ int devm_request_threaded_irq(struct device *dev, unsigned int irq,
+ EXPORT_SYMBOL(devm_request_threaded_irq);
+ 
+ /**
++ *	devm_request_any_context_irq - allocate an interrupt line for a managed device
++ *	@dev: device to request interrupt for
++ *	@irq: Interrupt line to allocate
++ *	@handler: Function to be called when the IRQ occurs
++ *	@thread_fn: function to be called in a threaded interrupt context. NULL
++ *		    for devices which handle everything in @handler
++ *	@irqflags: Interrupt type flags
++ *	@devname: An ascii name for the claiming device
++ *	@dev_id: A cookie passed back to the handler function
++ *
++ *	Except for the extra @dev argument, this function takes the
++ *	same arguments and performs the same function as
++ *	request_any_context_irq().  IRQs requested with this function will be
++ *	automatically freed on driver detach.
++ *
++ *	If an IRQ allocated with this function needs to be freed
++ *	separately, devm_free_irq() must be used.
++ */
++int devm_request_any_context_irq(struct device *dev, unsigned int irq,
++			      irq_handler_t handler, unsigned long irqflags,
++			      const char *devname, void *dev_id)
++{
++	struct irq_devres *dr;
++	int rc;
++
++	dr = devres_alloc(devm_irq_release, sizeof(struct irq_devres),
++			  GFP_KERNEL);
++	if (!dr)
++		return -ENOMEM;
++
++	rc = request_any_context_irq(irq, handler, irqflags, devname, dev_id);
++	if (rc) {
++		devres_free(dr);
++		return rc;
++	}
++
++	dr->irq = irq;
++	dr->dev_id = dev_id;
++	devres_add(dev, dr);
++
++	return 0;
++}
++EXPORT_SYMBOL(devm_request_any_context_irq);
++
++/**
+  *	devm_free_irq - free an interrupt
+  *	@dev: device to free interrupt for
+  *	@irq: Interrupt line to free
 -- 
 The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
 hosted by The Linux Foundation

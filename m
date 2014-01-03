@@ -1,31 +1,32 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH v2 06/10] Input: pm8xxx-vibrator - Add DT match table
-Date: Thu, 02 Jan 2014 17:27:15 -0800
-Message-ID: <52C611F3.8090306@codeaurora.org>
-References: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org> <1388709460-19222-7-git-send-email-sboyd@codeaurora.org> <20140103011722.GA9300@core.coreip.homeip.net>
+From: Dylan Paul Thurston <dpthurst@indiana.edu>
+Subject: Another ALPS touchpad
+Date: Thu, 2 Jan 2014 23:59:15 -0500
+Message-ID: <20140103045915.GB30008@whitehail.bostoncoop.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <20140103011722.GA9300@core.coreip.homeip.net>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from whitehail.bostoncoop.net ([74.50.63.164]:41878 "EHLO
+	bostoncoop.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750772AbaACFzt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Jan 2014 00:55:49 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 01/02/14 17:17, Dmitry Torokhov wrote:
-> Hi Stephen,
->
-> On Thu, Jan 02, 2014 at 04:37:36PM -0800, Stephen Boyd wrote:
->> The driver is only supported on DT enabled platforms. Convert the
->> driver to DT so that it can probe properly.
-> I do not see MFD_PM8XXX depending on OF, should it be added if it only
-> supported on DT?
+I just bought a HP Revolve 810 G1 laptop. (This is a convertible
+ultrabook, normally sold with Windows 8.) The touchpad seems to be
+another ALPS touchpad, not yet recognized by the kernel; I tried the
+Debian package of 3.12 and linux-next-20131224 compiled from
+source. Without the proper driver, it is unusuably sensisitive,
+registering clicks when my hands are well away from the touchpad.
+The relevant line from dmesg is
 
-No that would unnecessarily limit the compile coverage of this driver.
-This one is so simple that it doesn't even use any OF APIs because it is
-all hidden behind the platform bus.
+[    2.776630] psmouse serio4: alps: Unknown ALPS touchpad: E7=73 03 0a, EC=88 b3 18
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+Should I try hacking drivers/input/mouse/alps.c to see if one of the
+existing protocols works?
+
+Thanks,
+	Dylan Thurston
+	dpt@bostoncoop.net

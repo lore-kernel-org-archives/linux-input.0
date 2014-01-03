@@ -1,68 +1,75 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 2/7] Input: pmic8xxx-pwrkey - Migrate to regmap APIs
-Date: Fri, 3 Jan 2014 00:50:19 +0000
-Message-ID: <20140103005019.GJ31886@sirena.org.uk>
-References: <1386718996-3733-1-git-send-email-sboyd@codeaurora.org>
- <1386718996-3733-3-git-send-email-sboyd@codeaurora.org>
- <20131215113337.GB14818@core.coreip.homeip.net>
- <20140102184959.GI31886@sirena.org.uk>
- <20140102191757.GA2025@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 06/10] Input: pm8xxx-vibrator - Add DT match table
+Date: Thu, 2 Jan 2014 17:17:23 -0800
+Message-ID: <20140103011722.GA9300@core.coreip.homeip.net>
+References: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
+ <1388709460-19222-7-git-send-email-sboyd@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RAJzu4PW+u81FKHr"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20140102191757.GA2025@core.coreip.homeip.net>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stephen Boyd <sboyd@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+In-Reply-To: <1388709460-19222-7-git-send-email-sboyd@codeaurora.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hi Stephen,
 
---RAJzu4PW+u81FKHr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, Jan 02, 2014 at 04:37:36PM -0800, Stephen Boyd wrote:
+> The driver is only supported on DT enabled platforms. Convert the
+> driver to DT so that it can probe properly.
 
-On Thu, Jan 02, 2014 at 11:17:57AM -0800, Dmitry Torokhov wrote:
-> On Thu, Jan 02, 2014 at 06:49:59PM +0000, Mark Brown wrote:
-> > On Sun, Dec 15, 2013 at 03:33:37AM -0800, Dmitry Torokhov wrote:
+I do not see MFD_PM8XXX depending on OF, should it be added if it only
+supported on DT?
 
-> > > > +	regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> > > > +	if (!regmap)
-> > > > +		return -ENODEV;
+Thanks.
 
-> > > And you are leaking memory here...
+> 
+> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+> ---
+>  drivers/input/misc/pm8xxx-vibrator.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/pm8xxx-vibrator.c
+> index 28251560249d..458d51b88be5 100644
+> --- a/drivers/input/misc/pm8xxx-vibrator.c
+> +++ b/drivers/input/misc/pm8xxx-vibrator.c
+> @@ -142,6 +142,13 @@ static int pm8xxx_vib_play_effect(struct input_dev *dev, void *data,
+>  	return 0;
+>  }
+>  
+> +static const struct of_device_id pm8xxx_vib_id_table[] = {
+> +	{ .compatible = "qcom,pm8058-vib" },
+> +	{ .compatible = "qcom,pm8921-vib" },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, pm8xxx_vib_id_table);
+> +
+>  static int pm8xxx_vib_probe(struct platform_device *pdev)
+>  
+>  {
+> @@ -221,6 +228,7 @@ static struct platform_driver pm8xxx_vib_driver = {
+>  		.name	= "pm8xxx-vib",
+>  		.owner	= THIS_MODULE,
+>  		.pm	= &pm8xxx_vib_pm_ops,
+> +		.of_match_table = pm8xxx_vib_id_table,
+>  	},
+>  };
+>  module_platform_driver(pm8xxx_vib_driver);
+> -- 
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+> hosted by The Linux Foundation
+> 
 
-> > He's not, dev_get_regmap() just gets a pointer to an existing regmap -
-> > no reference is taken and nothing is allocated.  It's a helper that's
-
-> I was not talking about data returned by dev_get_regmap() but all other
-> memory that was allocated before as this was pre devm conversion of the
-> driver.
-
-Ah, OK - I thought you meant that as that was the code immediately prior
-to your reply.  Sorry for the confusion.
-
---RAJzu4PW+u81FKHr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSxglIAAoJELSic+t+oim98YUQAIrK4NWbSX0wT5D3uGf0hu4Y
-ZnQovrZMbuD0r4euLUbKDJ9EV9U9ZgEcbyMl63O3h9ny2z8a0r7Vxg9oxDYmSc+b
-ajn6qVnaunJCamzPFsFM/U8rtvEiK5K6DMOlF/wAX3nNYj/T900zIgtoAfgf3CF2
-JL0PKLpqVuiyhHPyv/USciko93mYEJMKF/YsyAN80VrjerEqAOCmL1dhDEu6Rgn/
-dzyFyuoxPoR9+wJkNo8KI0Tfcwl+bqwayMQlHJCUM2ITMWnEQNCUwREhmdLsWWdA
-/7JMZVxtrPcm+A8VQwhi4KbL6f10eLTDKgz203Li9xppAdE08ek4HqZwisgkCIKx
-+1GtbWDEpRkNJOTk2sYEdZdShCW+18wEEod7WFoivqgjjVrayuyy9IS9hJ5aDgOm
-3RAscKtRLU2CXXHae8o6mSj8ETjFocCdn8Gs91hvGP0NqLHFpWZ69s7CCzBOona1
-39GIe2UO1TSxfH1d6JoQ0o8dI2Pk5ckHnYX0sA8FjLY7sss/J23l8KNIoa4jXqqd
-Lae9LPXXpqxD+shG+ZfTC2tpdaO3dMUKFx6geFXsInPhFtIjx/PJNhZ/zi/3gv0q
-bOwF0hzv3ecKXaSVke9wenDZW55Kt0/iDws1ILA8r20sbnAMWdf7oEGnbB7T6iMe
-/tgN4IutOPvpsHpTrusr
-=OSwj
------END PGP SIGNATURE-----
-
---RAJzu4PW+u81FKHr--
+-- 
+Dmitry

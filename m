@@ -1,32 +1,42 @@
-From: Dylan Paul Thurston <dpthurst@indiana.edu>
-Subject: Another ALPS touchpad
-Date: Thu, 2 Jan 2014 23:59:15 -0500
-Message-ID: <20140103045915.GB30008@whitehail.bostoncoop.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [patch 3/3] HID: multitouch: add support of other generic
+ collections in hid-mt
+Date: Fri, 3 Jan 2014 10:56:35 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1401031056000.14951@pobox.suse.cz>
+References: <1387470191-9725-1-git-send-email-benjamin.tissoires@redhat.com> <1387470191-9725-4-git-send-email-benjamin.tissoires@redhat.com> <52B5F96D.9050400@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from whitehail.bostoncoop.net ([74.50.63.164]:41878 "EHLO
-	bostoncoop.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750772AbaACFzt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Jan 2014 00:55:49 -0500
-Content-Disposition: inline
+Received: from cantor2.suse.de ([195.135.220.15]:55909 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750860AbaACJ4k (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Jan 2014 04:56:40 -0500
+In-Reply-To: <52B5F96D.9050400@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Edel Maks <edelmaks@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-I just bought a HP Revolve 810 G1 laptop. (This is a convertible
-ultrabook, normally sold with Windows 8.) The touchpad seems to be
-another ALPS touchpad, not yet recognized by the kernel; I tried the
-Debian package of 3.12 and linux-next-20131224 compiled from
-source. Without the proper driver, it is unusuably sensisitive,
-registering clicks when my hands are well away from the touchpad.
-The relevant line from dmesg is
+On Sat, 21 Dec 2013, Henrik Rydberg wrote:
 
-[    2.776630] psmouse serio4: alps: Unknown ALPS touchpad: E7=73 03 0a, EC=88 b3 18
+> > The ANTEC Touch Pad is a device which can switch from a multitouch
+> > touchpad to a mouse. It thus presents several generic collections which
+> > are currently ignored by hid-multitouch. Enable them by using the generic
+> > protocol. Adding also a suffix for them depending on their application.
+> 
+> In what way does this and the preceeding patches differ from "else if (is_pen ||
+> export_all_inputs)"? Adding a functional pattern which then is converted to a
+> generic case, such that the usual branching is bound to occur anyways, seems
+> unnecessary.
 
-Should I try hacking drivers/input/mouse/alps.c to see if one of the
-existing protocols works?
+Benjamin,
+
+did you have chance to do any followup work on this?
+
+If this is to go into 3.14, it's the time to have the thing finalized.
 
 Thanks,
-	Dylan Thurston
-	dpt@bostoncoop.net
+
+-- 
+Jiri Kosina
+SUSE Labs

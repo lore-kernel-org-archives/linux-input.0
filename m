@@ -1,68 +1,41 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Input: twl6040_vibra - remove unneeded check for CONFIG_OF
-Date: Sat, 4 Jan 2014 11:30:24 +0100
-Message-ID: <CANq1E4RV-x4VD3yzpf74sU4nYxmu915Fc=JwuBGh11Z-Q6zV+Q@mail.gmail.com>
-References: <20140104081142.GA3987@core.coreip.homeip.net>
+From: Dylan Paul Thurston <dpthurst@indiana.edu>
+Subject: Re: Another ALPS touchpad
+Date: Sat, 4 Jan 2014 08:31:08 -0500
+Message-ID: <20140104133108.GA7296@whitehail.bostoncoop.net>
+References: <20140103045915.GB30008@whitehail.bostoncoop.net>
+ <5612072.Tm4gq8bhLq@dtor-d630.eng.vmware.com>
+ <CA+F6ckPRj0NrerBC7j41QOE6ZsV7tPQ35gZEfk8cFZws7sT1vg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140104081142.GA3987@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from whitehail.bostoncoop.net ([74.50.63.164]:40351 "EHLO
+	bostoncoop.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752042AbaADNbJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 4 Jan 2014 08:31:09 -0500
+Content-Disposition: inline
+In-Reply-To: <CA+F6ckPRj0NrerBC7j41QOE6ZsV7tPQ35gZEfk8cFZws7sT1vg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tommy Will <tommywill2011@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org
 
-Hi
+On Sat, Jan 04, 2014 at 01:27:24PM +0800, Tommy Will wrote:
+> Hi Dmitry,
+> 
+> > Do you have anything in works to support this new model? Or it is
+> > not an ALPS device at all?
+> 
+> Yes, it's an ALPS device and we're now preparing the patch for this new one.
 
-On Sat, Jan 4, 2014 at 9:11 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Since the driver requires DT now we do not need to check if CONFIG_OF is
-> defined.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/misc/twl6040-vibra.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
->
-> diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-> index 89bca76..77dc23b 100644
-> --- a/drivers/input/misc/twl6040-vibra.c
-> +++ b/drivers/input/misc/twl6040-vibra.c
-> @@ -258,17 +258,14 @@ static SIMPLE_DEV_PM_OPS(twl6040_vibra_pm_ops, twl6040_vibra_suspend, NULL);
->  static int twl6040_vibra_probe(struct platform_device *pdev)
->  {
->         struct device *twl6040_core_dev = pdev->dev.parent;
-> -       struct device_node *twl6040_core_node = NULL;
-> +       struct device_node *twl6040_core_node;
->         struct vibra_info *info;
->         int vddvibl_uV = 0;
->         int vddvibr_uV = 0;
->         int ret;
->
-> -#ifdef CONFIG_OF
->         twl6040_core_node = of_find_node_by_name(twl6040_core_dev->of_node,
->                                                  "vibra");
+Glad to hear it's being worked on! I'm eager to test out anything.
 
-If CONFIG_OF=n, of_find_node_by_name() always returns NULL. See
-include/linux/of.h. So no need to depend on DT.
+> BTW, since it's a ClickPad without seperate buttons, simple resting
+> finger logic would be added.
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+I didn't quite follow this or the following discussion. One thing I
+wanted to look into was whether it was possible to have a middle mouse
+click in addition to the left and right clicks. I had reported
+spurious clicks with the generic driver; I'm quite sure I'm not
+actually touching the pad when this happens, in case that's relevant.
 
-Thanks
-David
-
-> -#endif
-> -
->         if (!twl6040_core_node) {
->                 dev_err(&pdev->dev, "parent of node is missing?\n");
->                 return -EINVAL;
-> --
-> 1.8.4.2
->
->
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--Dylan Thurston

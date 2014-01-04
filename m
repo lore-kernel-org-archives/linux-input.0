@@ -1,36 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: ims-pcu - fix error unwinding path in application
- mode
-Date: Fri, 3 Jan 2014 21:29:33 -0800
-Message-ID: <20140104052933.GA32576@core.coreip.homeip.net>
-References: <20140104050058.GA20652@core.coreip.homeip.net>
- <CAHQ1cqGZT7TOCX+5yPhWt1MpsSbAfbr07SProgSxrn7RO=7aig@mail.gmail.com>
+From: Sebastian Reichel <sre@ring0.de>
+Subject: Re: [PATCHv4 0/2] twl4030-keypad DT binding
+Date: Sat, 4 Jan 2014 06:40:06 +0100
+Message-ID: <20140104054006.GA23424@earth.universe>
+References: <1383948866-32672-1-git-send-email-sre@debian.org>
+ <1385830416-12900-1-git-send-email-sre@debian.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f48.google.com ([209.85.160.48]:57259 "EHLO
-	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750795AbaADF3g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2014 00:29:36 -0500
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHQ1cqGZT7TOCX+5yPhWt1MpsSbAfbr07SProgSxrn7RO=7aig@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1385830416-12900-1-git-send-email-sre@debian.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: linux-input@vger.kernel.org, Chris Healy <chealy@imsco-us.com>, linux-kernel@vger.kernel.org
 
-On Fri, Jan 03, 2014 at 09:13:10PM -0800, Andrey Smirnov wrote:
-> Dmitry,
-> 
-> Do you want this patch to go separatly or do you want me to bundle it
-> with my other changes(probably the first one)?
 
-I'll apply it separately.
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Also, offtopic, do you want me to backport this changes to 2.6 kernel
-> that IMS uses or would you do it?
+Dmitry,
 
-It should apply as is, no backport needed as far as I can tell.
+What's the status of this patch? Can you queue this for 3.14?
 
--- 
-Dmitry
+-- Sebastian
+
+--YZ5djTAD1cGYuMQK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBCAAGBQJSx561AAoJENju1/PIO/qaHvAP/jkY4f0ynQ5Xy1zjZjER3wiR
+cFfgEUGE6QO+wSdGo4b2KiQVVC0aoIw503eCZ0R3DbmQX5vATuRNSPxY1IiCs3Va
+4AgPaswDzEhUUghAx1Qm3t/mwz40d+7IJ3k1ks4BPDVhL7BVFASha/nmYiLyydIj
+67RORdbtDiVmQbblW8+yNTebyiQracj98A3VvVW3OzUHdv8XYUvRO9pVvfp33lgS
+HxRpa8+tPxKMfy3OMyvBuYVm+dynyf/V1vdzXmur+ZAYAmvv2UzxbBoqC0X0UpoK
+mhPdvBg4Aj3QMgwR1WHURIrhEgT2fVvNuyNvp3FkI7dO6OxAzQq2gOFcRubyRxT4
+B3QKt6EYMyy8kzv7Dv3KKpR6MgILKkaBt0vKJrMV4CF8Ae/O5OeVxsle4fjpQ5FB
+CMgrAKksfqSxqNC1oH8KhSqniGcRvfsqxGuyORTwNAzUhYooDN5hBkJ/Yj/37XzG
+hYLTaQOy/4u+/Ka0FgsZsGDCAwGCQU4nAq6L3R5loJR+TkX850qGMS+HPW+rRDgi
+EabWG9TgNhGnlawRB0bIP6B+ulEfz2naM5p+SZSfh56HdTDlvdHbQCYIyLV4tSTi
+D2H7+X84I/vdxHvVEgWlo1C/H/kjiq0I2qiHK7USnKfMD72/rxKG4WM2OsIa6Vu8
+t6vYALX9CNua/X1Hhmhe
+=+Ctl
+-----END PGP SIGNATURE-----
+
+--YZ5djTAD1cGYuMQK--

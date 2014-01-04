@@ -1,41 +1,70 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Another ALPS touchpad
-Date: Fri, 3 Jan 2014 21:40:21 -0800
-Message-ID: <20140104054021.GB32576@core.coreip.homeip.net>
-References: <20140103045915.GB30008@whitehail.bostoncoop.net>
- <5612072.Tm4gq8bhLq@dtor-d630.eng.vmware.com>
- <CA+F6ckPRj0NrerBC7j41QOE6ZsV7tPQ35gZEfk8cFZws7sT1vg@mail.gmail.com>
+Subject: Re: [PATCH v2] ims-pcu: Add commands supported by the new version of
+ the FW
+Date: Fri, 3 Jan 2014 21:41:33 -0800
+Message-ID: <20140104054133.GC32576@core.coreip.homeip.net>
+References: <1388623621-32245-1-git-send-email-andrew.smirnov@gmail.com>
+ <20140104013957.GA19702@core.coreip.homeip.net>
+ <CAHQ1cqEvXn3u2joA7dNaiz6fmHELnKjZTWF2F-7vvvBAx+9Drw@mail.gmail.com>
+ <20140104044433.GA20272@core.coreip.homeip.net>
+ <CAHQ1cqHJOi5mLptHSTw3W8dpdyJrUp8QnmCTtYdNX4YCTTNoaA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f47.google.com ([209.85.220.47]:39278 "EHLO
-	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752299AbaADFkY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2014 00:40:24 -0500
-Received: by mail-pa0-f47.google.com with SMTP id kq14so16538979pab.34
-        for <linux-input@vger.kernel.org>; Fri, 03 Jan 2014 21:40:23 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CA+F6ckPRj0NrerBC7j41QOE6ZsV7tPQ35gZEfk8cFZws7sT1vg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <CAHQ1cqHJOi5mLptHSTw3W8dpdyJrUp8QnmCTtYdNX4YCTTNoaA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tommy Will <tommywill2011@gmail.com>
-Cc: Yunkang Tang <yunkang.tang@cn.alps.com>, Dylan Paul Thurston <dpthurst@indiana.edu>, linux-input@vger.kernel.org
 
-Hi Tommy,
-
-On Sat, Jan 04, 2014 at 01:27:24PM +0800, Tommy Will wrote:
-> Hi Dmitry,
+On Fri, Jan 03, 2014 at 09:03:11PM -0800, Andrey Smirnov wrote:
+> On Fri, Jan 3, 2014 at 8:44 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Fri, Jan 03, 2014 at 08:24:17PM -0800, Andrey Smirnov wrote:
+> >> On Fri, Jan 3, 2014 at 5:39 PM, Dmitry Torokhov
+> >> <dmitry.torokhov@gmail.com> wrote:
+> >> > Hi Andrey,
+> >> >
+> >> > On Wed, Jan 01, 2014 at 04:47:01PM -0800, Andrey Smirnov wrote:
+> >> >> New version of the PCU firmware supports two new commands:
+> >> >>   - IMS_PCU_CMD_OFN_SET_CONFIG which allows to write data to the
+> >> >>   registers of one finger navigation(OFN) chip present on the device
+> >> >>   - IMS_PCU_CMD_OFN_GET_CONFIG which allows to read data form the
+> >> >>   registers of said chip.
+> >> >>
+> >> >> This commit adds two helper functions to use those commands and sysfs
+> >> >> attributes to use them. It also exposes some OFN configuration
+> >> >> parameters via sysfs.
+> >> >
+> >> > Thank you for making the changes. I do not still quite like the games we
+> >> > play with the OFN attributes, how about the patch below (on top of
+> >> > yours)?
+> >> >
+> >>
+> >> Yeah, I agree I like it the "two separate sysfs groups" group approach
+> >> better. The only small nitpick about your patch is that I think we
+> >> should use "get_unaligned_le16" instead of "le16_to_cpup"(In case
+> >> anyone decides to run the driver on SuperH or C6x DSPs from TI :-)).
+> >> Let me test it and if everything works as expected I'll apply you
+> >> patch, convert it to "get_unaligned_le16", squash and send v3 of the
+> >> patch.
+> >
+> > Why do we need get_unaligned_le16()? As far as I can see pcu->cmd_buf is
+> > aligned and therefore pcu->cmd_buf[2] is also aligned on word boundary.
 > 
-> > Do you have anything in works to support this new model? Or it is
-> > not an ALPS device at all?
-> 
-> Yes, it's an ALPS device and we're now preparing the patch for this new one.
-> BTW, since it's a ClickPad without seperate buttons, simple resting
-> finger logic would be added.
+> * The "pcu" structure is allocated with kmalloc which doesn't give any
+> guarantees about address alignment.
+> * I am not sure if the cmd_buf field in that structure is aligned, and
+> even if it is, any future changes to that structure may shift its
+> offset.
+> * Also even if the data we are interested in is aligned on 2-byte
+> border, I think all those architectures require 4-byte border
+> alignment.
 
-Hmm, what finger resting logic? We already properly support clickpads in
-X driver (as long as the kernel tells userspace that the device is a
-clickpad) so what is missing?
+As far as I know word access only requires word alignment. Please see
+the other patch I just posted that adds alignment check in balcklight
+handling code.
 
 Thanks.
 

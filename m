@@ -1,70 +1,63 @@
 From: Andrey Smirnov <andrew.smirnov@gmail.com>
-Subject: Re: [PATCH v2] ims-pcu: Add commands supported by the new version of
- the FW
-Date: Fri, 3 Jan 2014 21:03:11 -0800
-Message-ID: <CAHQ1cqHJOi5mLptHSTw3W8dpdyJrUp8QnmCTtYdNX4YCTTNoaA@mail.gmail.com>
-References: <1388623621-32245-1-git-send-email-andrew.smirnov@gmail.com>
-	<20140104013957.GA19702@core.coreip.homeip.net>
-	<CAHQ1cqEvXn3u2joA7dNaiz6fmHELnKjZTWF2F-7vvvBAx+9Drw@mail.gmail.com>
-	<20140104044433.GA20272@core.coreip.homeip.net>
+Subject: Re: [PATCH] Input: ims-pcu - fix error unwinding path in application mode
+Date: Fri, 3 Jan 2014 21:13:10 -0800
+Message-ID: <CAHQ1cqGZT7TOCX+5yPhWt1MpsSbAfbr07SProgSxrn7RO=7aig@mail.gmail.com>
+References: <20140104050058.GA20652@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f53.google.com ([209.85.220.53]:45313 "EHLO
-	mail-pa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750741AbaADFDM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2014 00:03:12 -0500
-In-Reply-To: <20140104044433.GA20272@core.coreip.homeip.net>
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:45066 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750794AbaADFNL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2014 00:13:11 -0500
+In-Reply-To: <20140104050058.GA20652@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Chris Healy <chealy@imsco-us.com>, linux-kernel@vger.kernel.org
 
-On Fri, Jan 3, 2014 at 8:44 PM, Dmitry Torokhov
+Dmitry,
+
+Do you want this patch to go separatly or do you want me to bundle it
+with my other changes(probably the first one)?
+Also, offtopic, do you want me to backport this changes to 2.6 kernel
+that IMS uses or would you do it?
+
+Thanks,
+
+On Fri, Jan 3, 2014 at 9:00 PM, Dmitry Torokhov
 <dmitry.torokhov@gmail.com> wrote:
-> On Fri, Jan 03, 2014 at 08:24:17PM -0800, Andrey Smirnov wrote:
->> On Fri, Jan 3, 2014 at 5:39 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > Hi Andrey,
->> >
->> > On Wed, Jan 01, 2014 at 04:47:01PM -0800, Andrey Smirnov wrote:
->> >> New version of the PCU firmware supports two new commands:
->> >>   - IMS_PCU_CMD_OFN_SET_CONFIG which allows to write data to the
->> >>   registers of one finger navigation(OFN) chip present on the device
->> >>   - IMS_PCU_CMD_OFN_GET_CONFIG which allows to read data form the
->> >>   registers of said chip.
->> >>
->> >> This commit adds two helper functions to use those commands and sysfs
->> >> attributes to use them. It also exposes some OFN configuration
->> >> parameters via sysfs.
->> >
->> > Thank you for making the changes. I do not still quite like the games we
->> > play with the OFN attributes, how about the patch below (on top of
->> > yours)?
->> >
->>
->> Yeah, I agree I like it the "two separate sysfs groups" group approach
->> better. The only small nitpick about your patch is that I think we
->> should use "get_unaligned_le16" instead of "le16_to_cpup"(In case
->> anyone decides to run the driver on SuperH or C6x DSPs from TI :-)).
->> Let me test it and if everything works as expected I'll apply you
->> patch, convert it to "get_unaligned_le16", squash and send v3 of the
->> patch.
+> We first create backlight and then input devices so we shoudl destroy them
+> in opposite order when handling errors.
 >
-> Why do we need get_unaligned_le16()? As far as I can see pcu->cmd_buf is
-> aligned and therefore pcu->cmd_buf[2] is also aligned on word boundary.
-
-* The "pcu" structure is allocated with kmalloc which doesn't give any
-guarantees about address alignment.
-* I am not sure if the cmd_buf field in that structure is aligned, and
-even if it is, any future changes to that structure may shift its
-offset.
-* Also even if the data we are interested in is aligned on 2-byte
-border, I think all those architectures require 4-byte border
-alignment.
-
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
 >
-> Thanks.
+> Andrey, this fixup was split off from the patch I sent earlier today.
+>
+>  drivers/input/misc/ims-pcu.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+> index 4244f47..513ecdf 100644
+> --- a/drivers/input/misc/ims-pcu.c
+> +++ b/drivers/input/misc/ims-pcu.c
+> @@ -1929,10 +1929,10 @@ static int ims_pcu_init_application_mode(struct ims_pcu *pcu)
+>
+>         return 0;
+>
+> -err_destroy_backlight:
+> -       ims_pcu_destroy_backlight(pcu);
+>  err_destroy_buttons:
+>         ims_pcu_destroy_buttons(pcu);
+> +err_destroy_backlight:
+> +       ims_pcu_destroy_backlight(pcu);
+>         return error;
+>  }
+>
+> --
+> 1.8.4.2
+>
 >
 > --
 > Dmitry

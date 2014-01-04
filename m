@@ -1,72 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] ims-pcu: Add commands supported by the new version of
- the FW
-Date: Fri, 3 Jan 2014 21:41:33 -0800
-Message-ID: <20140104054133.GC32576@core.coreip.homeip.net>
-References: <1388623621-32245-1-git-send-email-andrew.smirnov@gmail.com>
- <20140104013957.GA19702@core.coreip.homeip.net>
- <CAHQ1cqEvXn3u2joA7dNaiz6fmHELnKjZTWF2F-7vvvBAx+9Drw@mail.gmail.com>
- <20140104044433.GA20272@core.coreip.homeip.net>
- <CAHQ1cqHJOi5mLptHSTw3W8dpdyJrUp8QnmCTtYdNX4YCTTNoaA@mail.gmail.com>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Subject: Re: [PATCH] Input: ims-pcu - remove unneeded get_unaligned_xxx
+Date: Fri, 3 Jan 2014 21:52:25 -0800
+Message-ID: <CAHQ1cqG2=CX6ypONUgVgzjG_3nVJOBLq5LPYwN0BrzwOLCTxzQ@mail.gmail.com>
+References: <20140104052756.GA32561@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAHQ1cqHJOi5mLptHSTw3W8dpdyJrUp8QnmCTtYdNX4YCTTNoaA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pd0-f169.google.com ([209.85.192.169]:44394 "EHLO
+	mail-pd0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750846AbaADFwZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2014 00:52:25 -0500
+In-Reply-To: <20140104052756.GA32561@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Jan 03, 2014 at 09:03:11PM -0800, Andrey Smirnov wrote:
-> On Fri, Jan 3, 2014 at 8:44 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Fri, Jan 03, 2014 at 08:24:17PM -0800, Andrey Smirnov wrote:
-> >> On Fri, Jan 3, 2014 at 5:39 PM, Dmitry Torokhov
-> >> <dmitry.torokhov@gmail.com> wrote:
-> >> > Hi Andrey,
-> >> >
-> >> > On Wed, Jan 01, 2014 at 04:47:01PM -0800, Andrey Smirnov wrote:
-> >> >> New version of the PCU firmware supports two new commands:
-> >> >>   - IMS_PCU_CMD_OFN_SET_CONFIG which allows to write data to the
-> >> >>   registers of one finger navigation(OFN) chip present on the device
-> >> >>   - IMS_PCU_CMD_OFN_GET_CONFIG which allows to read data form the
-> >> >>   registers of said chip.
-> >> >>
-> >> >> This commit adds two helper functions to use those commands and sysfs
-> >> >> attributes to use them. It also exposes some OFN configuration
-> >> >> parameters via sysfs.
-> >> >
-> >> > Thank you for making the changes. I do not still quite like the games we
-> >> > play with the OFN attributes, how about the patch below (on top of
-> >> > yours)?
-> >> >
-> >>
-> >> Yeah, I agree I like it the "two separate sysfs groups" group approach
-> >> better. The only small nitpick about your patch is that I think we
-> >> should use "get_unaligned_le16" instead of "le16_to_cpup"(In case
-> >> anyone decides to run the driver on SuperH or C6x DSPs from TI :-)).
-> >> Let me test it and if everything works as expected I'll apply you
-> >> patch, convert it to "get_unaligned_le16", squash and send v3 of the
-> >> patch.
-> >
-> > Why do we need get_unaligned_le16()? As far as I can see pcu->cmd_buf is
-> > aligned and therefore pcu->cmd_buf[2] is also aligned on word boundary.
-> 
-> * The "pcu" structure is allocated with kmalloc which doesn't give any
-> guarantees about address alignment.
-> * I am not sure if the cmd_buf field in that structure is aligned, and
-> even if it is, any future changes to that structure may shift its
-> offset.
-> * Also even if the data we are interested in is aligned on 2-byte
-> border, I think all those architectures require 4-byte border
-> alignment.
+On Fri, Jan 3, 2014 at 9:28 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> pcu->cmd_buf[IMS_PCU_DATA_OFFSET] is word aligned so we do not need to use
+> get_unaligned_le16 to access it.
+>
+> Also let's add build time check to make sure it stays aligned.
 
-As far as I know word access only requires word alignment. Please see
-the other patch I just posted that adds alignment check in balcklight
-handling code.
+- AFAIK, there's no guarantee the "pcu" itself is aligned
+- This change assumes that aligning data on the 2-byte boundary is
+sufficient for all architectures that do not allow unaligned data
+access, which I don't think is a good assumption to make
+- On x86 or any other architecture that allows unaligned access
+get_unaligned_le16() is actually results to call to le16_to_cpup(), so
+this change doesn't really save anything while imposing restrictions
+on the arrangement of the fields in struct ims_pcu and causing
+unnecessary build errors.
 
-Thanks.
+So, for what its worth, NACK for this patch from me.
 
--- 
-Dmitry
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/misc/ims-pcu.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+> index 513ecdf..b8f1029 100644
+> --- a/drivers/input/misc/ims-pcu.c
+> +++ b/drivers/input/misc/ims-pcu.c
+> @@ -116,6 +116,8 @@ struct ims_pcu {
+>         bool setup_complete; /* Input and LED devices have been created */
+>  };
+>
+> +#define IMS_PCU_CHECK_CMD_BUF_ALIGNMENT(offset, alignment)     \
+> +       IS_ALIGNED(offsetof(struct ims_pcu, cmd_buf[offset]), alignment)
+>
+>  /*********************************************************************
+>   *             Buttons Input device support                          *
+> @@ -999,8 +1001,10 @@ ims_pcu_backlight_get_brightness(struct led_classdev *cdev)
+>                 /* Assume the LED is OFF */
+>                 brightness = LED_OFF;
+>         } else {
+> -               brightness =
+> -                       get_unaligned_le16(&pcu->cmd_buf[IMS_PCU_DATA_OFFSET]);
+> +               BUILD_BUG_ON(!IMS_PCU_CHECK_CMD_BUF_ALIGNMENT(
+> +                               IMS_PCU_DATA_OFFSET, 2));
+> +               brightness = le16_to_cpup(
+> +                               (__le16 *)&pcu->cmd_buf[IMS_PCU_DATA_OFFSET]);
+>         }
+>
+>         mutex_unlock(&pcu->cmd_mutex);
+> --
+> 1.8.4.2
+>
+>
+> --
+> Dmitry

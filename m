@@ -1,290 +1,160 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [lm-sensors] [PATCH v3 2/5] input: sun4i-ts: Add support for
- temperature sensor
-Date: Sat, 04 Jan 2014 09:35:33 -0800
-Message-ID: <52C84665.5070203@roeck-us.net>
-References: <1388506852-3548-1-git-send-email-hdegoede@redhat.com> <1388506852-3548-3-git-send-email-hdegoede@redhat.com>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
+Subject: Re: [PATCH] Input: ims-pcu - remove unneeded get_unaligned_xxx
+Date: Sat, 4 Jan 2014 09:41:43 -0800
+Message-ID: <CAHQ1cqEmpejiMPij+jQM0YEceShyHPRJ2dPkuaLkuBLYLXQyJg@mail.gmail.com>
+References: <20140104052756.GA32561@core.coreip.homeip.net>
+	<CAHQ1cqG2=CX6ypONUgVgzjG_3nVJOBLq5LPYwN0BrzwOLCTxzQ@mail.gmail.com>
+	<20140104061650.GB20272@core.coreip.homeip.net>
+	<CAHQ1cqEQtXRaPWo6wYgpDrjwGhnAySvb7Jvs8KFRTTRb3g++GQ@mail.gmail.com>
+	<20140104074621.GD20272@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.active-venture.com ([67.228.131.205]:56945 "EHLO
-	mail.active-venture.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752977AbaADRfe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2014 12:35:34 -0500
-In-Reply-To: <1388506852-3548-3-git-send-email-hdegoede@redhat.com>
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:61781 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752977AbaADRln (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2014 12:41:43 -0500
+In-Reply-To: <20140104074621.GD20272@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LM Sensors <lm-sensors@lm-sensors.org>, linux-sunxi@googlegroups.com, Corentin LABBE <clabbe.montjoie@gmail.com>, linux-input@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-arm-kernel@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 12/31/2013 08:20 AM, Hans de Goede wrote:
-> The sun4i resisitive touchscreen controller also comes with a built-in
-> temperature sensor. This commit adds support for it.
+On Fri, Jan 3, 2014 at 11:46 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, Jan 03, 2014 at 10:49:07PM -0800, Andrey Smirnov wrote:
+>> On Fri, Jan 3, 2014 at 10:16 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > On Fri, Jan 03, 2014 at 09:52:25PM -0800, Andrey Smirnov wrote:
+>> >> On Fri, Jan 3, 2014 at 9:28 PM, Dmitry Torokhov
+>> >> <dmitry.torokhov@gmail.com> wrote:
+>> >> > pcu->cmd_buf[IMS_PCU_DATA_OFFSET] is word aligned so we do not need to use
+>> >> > get_unaligned_le16 to access it.
+>> >> >
+>> >> > Also let's add build time check to make sure it stays aligned.
+>> >>
+>> >> - AFAIK, there's no guarantee the "pcu" itself is aligned
+>> >
+>> > Yes. kmalloc returns aligned pointer, otherwise every access to members
+>> > other than u8 would risk unaligned exception.
+>>
+>> OK, fair point.
+>>
+>> >
+>> >> - This change assumes that aligning data on the 2-byte boundary is
+>> >> sufficient for all architectures that do not allow unaligned data
+>> >> access, which I don't think is a good assumption to make
+>> >
+>> > What arches require word access be double-word aligned?
+>>
+>> I don't know and neither do I care. Even if there aren't any in Linux
+>> today do you expect it to never add a support to one that would impose
+>> such a restriction?
 >
-> This commit also introduces a new "ts-attached" device-tree property,
-> when this is not set, the input part of the driver won't register. This way
-> the internal temperature sensor can be used to measure the SoC temperature
-> independent of there actually being a touchscreen attached to the controller.
->
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> There is a lot of assumptions in kernel that might get broken by a
+> random arch.
 
-Couple of minor comments below, though no need to resubmit unless someone else has comments.
+I fact that there are such assumptions in kernel doesn't mean we
+should add more. IMHO, especially input drivers should be as CPU
+architecture agnostic as possible.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> For example, the assumption that pointer and long require
+> the same storage.
 
-> ---
->   .../bindings/input/touchscreen/sun4i.txt           |   5 +
->   drivers/input/touchscreen/sun4i-ts.c               | 140 ++++++++++++++++-----
->   2 files changed, 114 insertions(+), 31 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> index e45927e..6bac67b 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> @@ -6,10 +6,15 @@ Required properties:
->    - reg: mmio address range of the chip
->    - interrupts: interrupt to which the chip is connected
->
-> +Optional properties:
-> + - allwinner,ts-attached: boolean indicating that an actual touchscreen is
-> +			  attached to the controller
-> +
-Brr. While I understand that you were asked to do this, I don't really see the benefit
-of another "allwinner" here. As if this wasn't implied by the "compatible" property.
+That is an assumption about compiler implementation, since the size of
+the basic types is implementation-specific.
 
->   Example:
 >
->   	rtp: rtp@01c25000 {
->   		compatible = "allwinner,sun4i-ts";
->   		reg = <0x01c25000 0x100>;
->   		interrupts = <29>;
-> +		allwinner,ts-attached;
->   	};
-> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
-> index 5945219..16cbb01 100644
-> --- a/drivers/input/touchscreen/sun4i-ts.c
-> +++ b/drivers/input/touchscreen/sun4i-ts.c
-> @@ -3,6 +3,9 @@
->    *
->    * Copyright (C) 2013 - 2014 Hans de Goede <hdegoede@redhat.com>
->    *
-> + * The hwmon parts are based on work by Corentin LABBE which is:
-> + * Copyright (C) 2013 Corentin LABBE <clabbe.montjoie@gmail.com>
-> + *
->    * This program is free software; you can redistribute it and/or modify
->    * it under the terms of the GNU General Public License as published by
->    * the Free Software Foundation; either version 2 of the License, or
-> @@ -30,6 +33,7 @@
->    */
+> Anyway, it looks like gcc has __alignof__(type) construct that will make
+> sure we ensure the right alignment for type.
 >
->   #include <linux/err.h>
-> +#include <linux/hwmon.h>
->   #include <linux/init.h>
->   #include <linux/input.h>
->   #include <linux/interrupt.h>
-> @@ -106,14 +110,12 @@ struct sun4i_ts_data {
->   	void __iomem *base;
->   	unsigned int irq;
->   	bool ignore_fifo_data;
-> +	int temp_data;
->   };
+>>
+>> The whole point of get_unaligned_* "framework" is to provide drivers
+>> with unified interface that would allow you not to care about
+>> alignment.
 >
-> -static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
-> +static void sun4i_ts_irq_handle_input(struct sun4i_ts_data *ts, u32 reg_val)
->   {
-> -	struct sun4i_ts_data *ts = dev_id;
-> -	u32 reg_val, x, y;
-> -
-> -	reg_val  = readl(ts->base + TP_INT_FIFOS);
-> +	u32 x, y;
->
->   	if (reg_val & FIFO_DATA_PENDING) {
->   		x = readl(ts->base + TP_DATA);
-> @@ -139,6 +141,20 @@ static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
->   		input_report_key(ts->input, BTN_TOUCH, 0);
->   		input_sync(ts->input);
->   	}
-> +}
-> +
-> +static irqreturn_t sun4i_ts_irq(int irq, void *dev_id)
-> +{
-> +	struct sun4i_ts_data *ts = dev_id;
-> +	u32 reg_val;
-> +
-> +	reg_val  = readl(ts->base + TP_INT_FIFOS);
-> +
-> +	if (reg_val & TEMP_DATA_PENDING)
-> +		ts->temp_data = readl(ts->base + TEMP_DATA);
-> +
-> +	if (ts->input)
-> +		sun4i_ts_irq_handle_input(ts, reg_val);
->
->   	writel(reg_val, ts->base + TP_INT_FIFOS);
->
-> @@ -149,9 +165,9 @@ static int sun4i_ts_open(struct input_dev *dev)
->   {
->   	struct sun4i_ts_data *ts = input_get_drvdata(dev);
->
-> -	/* Flush, set trig level to 1, enable data and up irqs */
-> -	writel(DATA_IRQ_EN(1) | FIFO_TRIG(1) | FIFO_FLUSH(1) | TP_UP_IRQ_EN(1),
-> -	       ts->base + TP_INT_FIFOC);
-> +	/* Flush, set trig level to 1, enable temp, data and up irqs */
-> +	writel(TEMP_IRQ_EN(1) | DATA_IRQ_EN(1) | FIFO_TRIG(1) | FIFO_FLUSH(1) |
-> +		TP_UP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
->
->   	return 0;
->   }
-> @@ -160,15 +176,48 @@ static void sun4i_ts_close(struct input_dev *dev)
->   {
->   	struct sun4i_ts_data *ts = input_get_drvdata(dev);
->
-> -	/* Deactivate all IRQs */
-> -	writel(0, ts->base + TP_INT_FIFOC);
-> +	/* Deactivate all input IRQs */
-> +	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
-> +}
-> +
-> +static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
-> +			 char *buf)
-> +{
-> +	struct sun4i_ts_data *ts = dev_get_drvdata(dev);
-> +
-> +	/* No temp_data until the first irq */
-> +	if (ts->temp_data == -1)
-> +		return -EAGAIN;
-> +
-> +	return sprintf(buf, "%d\n", (ts->temp_data - 1447) * 100);
-> +}
-> +
-> +static ssize_t show_temp_label(struct device *dev,
-> +			      struct device_attribute *devattr, char *buf)
-> +{
-> +	return sprintf(buf, "SoC temperature\n");
->   }
->
-> +static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL);
-> +static DEVICE_ATTR(temp1_label, S_IRUGO, show_temp_label, NULL);
-> +
+> No, it is not that you do not care about alignment, it is so that you
+> can safely access data that you know to be unaligned.
 
-Just remembered ... there is now also a DEVICE_ATTR_RO() macro.
+Or the data the alignment of which you cannot guarantee, which was
+exactly my point.
 
-> +static struct attribute *sun4i_ts_attrs[] = {
-> +	&dev_attr_temp1_input.attr,
-> +	&dev_attr_temp1_label.attr,
-> +	NULL
-> +};
-> +ATTRIBUTE_GROUPS(sun4i_ts);
-> +
->   static int sun4i_ts_probe(struct platform_device *pdev)
->   {
->   	struct sun4i_ts_data *ts;
->   	struct device *dev = &pdev->dev;
-> +	struct device_node *np = dev->of_node;
-> +	struct device *hwmon;
->   	int ret;
-> +	bool ts_attached;
-> +
-> +	ts_attached = of_property_read_bool(np, "allwinner,ts-attached");
+> Otherwise code would be littered with get_uanligned_*.
 >
->   	ts = devm_kzalloc(dev, sizeof(struct sun4i_ts_data), GFP_KERNEL);
->   	if (!ts)
-> @@ -176,24 +225,27 @@ static int sun4i_ts_probe(struct platform_device *pdev)
+>> "Framework" in which architectures that support unaligned
+>> access can fallback to good old functions like *_to_cpup and
+>> architectures that do would provide the code to handle access in
+>> whatever manner is best suited for them.
+>>
+>> >
+>> >> - On x86 or any other architecture that allows unaligned access
+>> >> get_unaligned_le16() is actually results to call to le16_to_cpup(), so
+>> >> this change doesn't really save anything while imposing restrictions
+>> >> on the arrangement of the fields in struct ims_pcu and causing
+>> >> unnecessary build errors.
+>> >
+>> > Unless somebody changes the layout there won't be any new build errors,
+>> > will there?
+>>
+>> So do you expect that code to never change from now on? I most likely
+>> will be working on changes to support accelerometer data aggregation
+>> and implementing associated with it input devices and this may or may
+>> not require me to add fields to that structure, so what am I supposed
+>> to do in that case? Juggle fields around until I find the right
+>> combination that does not trigger build error?.
+>>
 >
->   	ts->dev = dev;
->   	ts->ignore_fifo_data = true;
-> -
-> -	ts->input = devm_input_allocate_device(dev);
-> -	if (!ts->input)
-> -		return -ENOMEM;
-> -
-> -	ts->input->name = pdev->name;
-> -	ts->input->phys = "sun4i_ts/input0";
-> -	ts->input->open = sun4i_ts_open;
-> -	ts->input->close = sun4i_ts_close;
-> -	ts->input->id.bustype = BUS_HOST;
-> -	ts->input->id.vendor = 0x0001;
-> -	ts->input->id.product = 0x0001;
-> -	ts->input->id.version = 0x0100;
-> -	ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
-> -	set_bit(BTN_TOUCH, ts->input->keybit);
-> -	input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
-> -	input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
-> -	input_set_drvdata(ts->input, ts);
-> +	ts->temp_data = -1;
-> +
-> +	if (ts_attached) {
-> +		ts->input = devm_input_allocate_device(dev);
-> +		if (!ts->input)
-> +			return -ENOMEM;
-> +
-> +		ts->input->name = pdev->name;
-> +		ts->input->phys = "sun4i_ts/input0";
-> +		ts->input->open = sun4i_ts_open;
-> +		ts->input->close = sun4i_ts_close;
-> +		ts->input->id.bustype = BUS_HOST;
-> +		ts->input->id.vendor = 0x0001;
-> +		ts->input->id.product = 0x0001;
-> +		ts->input->id.version = 0x0100;
-> +		ts->input->evbit[0] =  BIT(EV_SYN) | BIT(EV_KEY) | BIT(EV_ABS);
-> +		set_bit(BTN_TOUCH, ts->input->keybit);
-> +		input_set_abs_params(ts->input, ABS_X, 0, 4095, 0, 0);
-> +		input_set_abs_params(ts->input, ABS_Y, 0, 4095, 0, 0);
-> +		input_set_drvdata(ts->input, ts);
-> +	}
->
->   	ts->base = devm_ioremap_resource(dev,
->   			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
-> @@ -232,14 +284,39 @@ static int sun4i_ts_probe(struct platform_device *pdev)
->   	writel(STYLUS_UP_DEBOUN(5) | STYLUS_UP_DEBOUN_EN(1) | TP_MODE_EN(1),
->   	       ts->base + TP_CTRL1);
->
-> -	ret = input_register_device(ts->input);
-> -	if (ret)
-> -		return ret;
-> +	hwmon = devm_hwmon_device_register_with_groups(ts->dev, "sun4i_ts",
-> +						       ts, sun4i_ts_groups);
-> +	if (IS_ERR(hwmon))
-> +		return PTR_ERR(hwmon);
-> +
-> +	writel(TEMP_IRQ_EN(1), ts->base + TP_INT_FIFOC);
-> +
-> +	if (ts_attached) {
-> +		ret = input_register_device(ts->input);
-> +		if (ret) {
-> +			writel(0, ts->base + TP_INT_FIFOC);
-> +			return ret;
-> +		}
-> +	}
->
->   	platform_set_drvdata(pdev, ts);
->   	return 0;
->   }
->
-> +static int sun4i_ts_remove(struct platform_device *pdev)
-> +{
-> +	struct sun4i_ts_data *ts = platform_get_drvdata(pdev);
-> +
-> +	/* Explicit unregister to avoid open/close changing the imask later */
-> +	if (ts->input)
-> +		input_unregister_device(ts->input);
-> +
-> +	/* Deactivate all IRQs */
-> +	writel(0, ts->base + TP_INT_FIFOC);
-> +
-> +	return 0;
-> +}
-> +
->   static const struct of_device_id sun4i_ts_of_match[] = {
->   	{ .compatible = "allwinner,sun4i-ts", },
->   	{ /* sentinel */ }
-> @@ -253,6 +330,7 @@ static struct platform_driver sun4i_ts_driver = {
->   		.of_match_table = of_match_ptr(sun4i_ts_of_match),
->   	},
->   	.probe	= sun4i_ts_probe,
-> +	.remove	= sun4i_ts_remove,
->   };
->
->   module_platform_driver(sun4i_ts_driver);
->
+> Umm, yes? And your juggling will be reduced to nothing if you add new
+> fields at the end of the structure.
 
+Oh, OK. I did not not expect you to be OK with such pointless
+arbitrary limitations placed in order to save a handful of cycles in a
+function that is not very often called, but if you are I don't believe
+we would arrive anywhere with this argument.  Let's at least add an
+appropriate comment to the structure warning the potential user that
+the way it is organized is important, since it may affect layout and
+break the build.
+
+>
+>> I honestly don't understand the purpose of this change, it doesn't
+>> really save any performance,
+>
+> Technically it does as it does not require going through unaligned
+> access on arches that can't do it.
+
+OK, if we are going to stick to technicalities, then technically until
+we actually compiled both versions of the code on the platforms in
+question and did the actual performance measurements nothing can be
+said about performance improvement and we can only speculate about
+potential performance improvements.
+
+>
+>> IMHO decreases potability of the driver,
+>
+> I think that your concern can be solved with alignof.
+
+OK, as I said before I don't think you and I will come to an agreement
+on this one, since I see this change as a premature micro-optimization
+that makes the code less abstract since now it has knowledge of CPU
+alignment(which IMHO should be contained, as much as possible, in
+architecture specific code) and you don't think that those are
+actually problems of the patch. But since you the maintainer of the
+subsystem and the final call about the inclusion of the patch is
+yours, then you should do whatever you see fit(Or as another option
+you can as ask other subsystems maintainers to weigh in on the
+matter).
+
+Anyway, TL;DR of the whole thing is:
+ - Your arguments do not convince me in the slightest
+ - I don't think that mine do you
+ - Let's stop wasting out time
+ - Do as you see fit, since you are the maintainer
+
+Cheers,
+Andrey
+
+>
+> Thanks.
+>
+> --
+> Dmitry

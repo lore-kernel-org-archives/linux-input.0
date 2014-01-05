@@ -1,62 +1,44 @@
-From: Sebastian Reichel <sre@ring0.de>
-Subject: Re: [PATCHv4 0/2] twl4030-keypad DT binding
-Date: Sun, 5 Jan 2014 04:50:36 +0100
-Message-ID: <20140105035032.GB17291@earth.universe>
-References: <1383948866-32672-1-git-send-email-sre@debian.org>
- <1385830416-12900-1-git-send-email-sre@debian.org>
- <20140104054006.GA23424@earth.universe>
- <20140104084901.GA1991@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Another ALPS touchpad
+Date: Sun, 5 Jan 2014 15:47:23 -0800
+Message-ID: <20140105234723.GA32292@core.coreip.homeip.net>
+References: <20140103045915.GB30008@whitehail.bostoncoop.net>
+ <5612072.Tm4gq8bhLq@dtor-d630.eng.vmware.com>
+ <CA+F6ckPRj0NrerBC7j41QOE6ZsV7tPQ35gZEfk8cFZws7sT1vg@mail.gmail.com>
+ <20140104133108.GA7296@whitehail.bostoncoop.net>
+ <CA+F6ckMzRnP2E--nimZA+-cfR_wmbsN4hPvr4AONt4J_c_X4kw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="uZ3hkaAS1mZxFaxD"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ring0.de ([91.143.88.219]:44315 "EHLO smtp.ring0.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750831AbaAEDvA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 4 Jan 2014 22:51:00 -0500
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:44362 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751405AbaAEXr1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jan 2014 18:47:27 -0500
+Received: by mail-pb0-f47.google.com with SMTP id um1so17811845pbc.20
+        for <linux-input@vger.kernel.org>; Sun, 05 Jan 2014 15:47:26 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20140104084901.GA1991@core.coreip.homeip.net>
+In-Reply-To: <CA+F6ckMzRnP2E--nimZA+-cfR_wmbsN4hPvr4AONt4J_c_X4kw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Tommy Will <tommywill2011@gmail.com>
+Cc: Dylan Paul Thurston <dpthurst@indiana.edu>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org
 
+On Sun, Jan 05, 2014 at 10:53:52AM +0800, Tommy Will wrote:
+> 2014/1/4 Dylan Paul Thurston <dpthurst@indiana.edu>:
+> >
+> > I didn't quite follow this or the following discussion. One thing I
+> > wanted to look into was whether it was possible to have a middle mouse
+> > click in addition to the left and right clicks.
+> 
+> Normally, clickpad only supports Left/Right click. I'm afraid middle
+> click would not be supported as standard.
 
---uZ3hkaAS1mZxFaxD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, Jan 04, 2014 at 12:49:01AM -0800, Dmitry Torokhov wrote:
-> On Sat, Jan 04, 2014 at 06:40:06AM +0100, Sebastian Reichel wrote:
-> > What's the status of this patch? Can you queue this for 3.14?
->=20
-> I just queued it.
+On devices that lack middle button middle click is usually emulated by
+pressing both left and right buttons. Also, since this is multi-touch
+device quite often middle click is mapped on 2- or 3-finger tap. All of
+that is done in X driver and not in kernel.
 
 Thanks.
 
--- Sebastian
-
---uZ3hkaAS1mZxFaxD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBCAAGBQJSyNaIAAoJENju1/PIO/qaH6wQAIkdB/qxK25N42E4d38hOSoh
-wMecH85OVStbFMA4jyN9+KeY1egiHbLr9MPnvqW1YmBdjM4RPjsI6kUIlHKasPS6
-hUhMc0+BmJJmwuRD782JgM/7hkLgLCrdv/YBV7hbeMzoP9Tbh4D+/HS/8hjc4NIE
-18OZYLuqLFIIa1eEDgjcdQW/DpK1RLGgrotIFY7dCj2uJmWWMwWzYBNBl25fhq27
-PISzFRYhewXf0kjAE3UKJogfnutKV8pPjfUD+NU6GUpdJCMNfAlRSioxeBnU98+i
-LDk/STSdDmmga4pmpr+lsqORg6wX0xVQo+tRrpNBnk6QN2r+CJL0tlDhH0NeV82u
-e5Tgwgiaeyqc3YZP8P2vIlheF95Y5TZq1TaiZub9lzH2LvnNLlYAedqrw3eWDSjT
-UAkjPBPjZ7Z0s8RSoBk5JXqncRBsZXh9hO9oGq88rngjmrFoXfRnATp0n2Qp+dBK
-sg0grd990Dof4xPaKhcPjSEQ51d4dl6+HbUNYfEur9xMVhkDgi+3aLLnv4CduSkd
-UdGv6sWKcHjS0wbCI/D+LJEO7LopYrKekVMo63qXQALyjQ8CUkzEjUQaFbafSNxR
-h7LEGLr4LwjuoO27JNOn0RNGMLgl+fe2Yc9b3LUd7DAvevhTKoPT9cJjb3ItjOR8
-TIHdJn3XRxz4miBWWxWw
-=Ykwv
------END PGP SIGNATURE-----
-
---uZ3hkaAS1mZxFaxD--
+-- 
+Dmitry

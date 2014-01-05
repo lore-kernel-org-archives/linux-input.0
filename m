@@ -1,41 +1,77 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: ims-pcu - remove unneeded get_unaligned_xxx
-Date: Sat, 4 Jan 2014 14:32:56 -0800
-Message-ID: <20140104223256.GB18213@core.coreip.homeip.net>
-References: <20140104052756.GA32561@core.coreip.homeip.net>
- <CAHQ1cqG2=CX6ypONUgVgzjG_3nVJOBLq5LPYwN0BrzwOLCTxzQ@mail.gmail.com>
- <20140104061650.GB20272@core.coreip.homeip.net>
- <CAHQ1cqEQtXRaPWo6wYgpDrjwGhnAySvb7Jvs8KFRTTRb3g++GQ@mail.gmail.com>
- <20140104074621.GD20272@core.coreip.homeip.net>
- <CAHQ1cqEmpejiMPij+jQM0YEceShyHPRJ2dPkuaLkuBLYLXQyJg@mail.gmail.com>
+From: simon@mungewell.org
+Subject: Re: [PATCH 1/2] HID: sony: Add force feedback for the Dualshock 4
+Date: Sat, 4 Jan 2014 20:10:01 -0500
+Message-ID: <c6470a2c8d6a5ad2e6d3c023ae49e7ef.squirrel@mungewell.org>
+References: <alpine.DEB.2.10.1401031518010.29517@franz-virtual-machine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f41.google.com ([209.85.160.41]:33537 "EHLO
-	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754416AbaADWc7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2014 17:32:59 -0500
-Content-Disposition: inline
-In-Reply-To: <CAHQ1cqEmpejiMPij+jQM0YEceShyHPRJ2dPkuaLkuBLYLXQyJg@mail.gmail.com>
+Received: from host171.canaca.com ([67.55.55.225]:55127 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755152AbaAEBKD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jan 2014 20:10:03 -0500
+In-Reply-To: <alpine.DEB.2.10.1401031518010.29517@franz-virtual-machine>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: linux-input@vger.kernel.org
 
-On Sat, Jan 04, 2014 at 09:41:43AM -0800, Andrey Smirnov wrote:
-> 
-> Anyway, TL;DR of the whole thing is:
->  - Your arguments do not convince me in the slightest
->  - I don't think that mine do you
->  - Let's stop wasting out time
->  - Do as you see fit, since you are the maintainer
-> 
+> This patch adds force feedback support for Sony's Dualshock 4 controller.
+> It does this by adding a device ID for the new controller and creating a
+> new dualshock4_worker function to send data commands formatted for the
+> controller.  Unlike the Sixaxis, the Dualshock 4 requires a magnitude
+> value for the small motor so the actual value is now sent to the worker
+> function and the sixaxis worker was modified to clamp it to 1 or 0 as
+> required.
 
-Nah, I think I'll drop the patch for now, that macro is a bit ugly and
-as you said the code is not in a hot path. I'll reserve the right to
-revisit it based on how accelerometer code looks.
+I was able to build this and the LED patch against the 3.13rc6 kernel
+having first applied this sequence of patches:
+https://patchwork.kernel.org/patch/3203761/
 
-Thanks.
+However I am seeing some weird behaviour in whether FF/LED actually
+functions. It seems that in a 'complete' kernel installation the driver
+does not present FF or LED.
 
--- 
-Dmitry
+But if I use a stock 3.13rc6 kernel, load the 'hid-sony' module from that
+and then remove and install the patched one it does work.
+--
+$ sudo modprobe hid-sony (stock)
+$ sudo rmmod hid-sony
+$ sudo insmod hid-sony.ko (patched)
+--
+
+Not sure what this means, lsmod looks to be the same in both. Perhaps
+there is something which is only initialised in the stock version.
+
+Willing to test if anyone has suggestions/comments. I am testing with the
+DS4 connected with USB (not BT).
+--
+Jan  4 17:55:14 simon-virtual-machine kernel: [  138.964626] usb 1-1: new
+full-speed USB device number 3 using ohci-pci
+Jan  4 17:55:14 simon-virtual-machine mtp-probe: checking bus 1, device 3:
+"/sys/devices/pci0000:00/0000:00:06.0/usb1/1-1"
+Jan  4 17:55:14 simon-virtual-machine mtp-probe: bus: 1, device: 3 was not
+an MTP device
+Jan  4 17:55:14 simon-virtual-machine kernel: [  139.416656] usb 1-1: New
+USB device found, idVendor=054c, idProduct=05c4
+Jan  4 17:55:14 simon-virtual-machine kernel: [  139.416661] usb 1-1: New
+USB device strings: Mfr=1, Product=2, SerialNumber=0
+Jan  4 17:55:14 simon-virtual-machine kernel: [  139.416663] usb 1-1:
+Product: Wireless Controller
+Jan  4 17:55:14 simon-virtual-machine kernel: [  139.416665] usb 1-1:
+Manufacturer: Sony Computer Entertainment
+Jan  4 17:55:14 simon-virtual-machine kernel: [  139.517356] input: Sony
+Computer Entertainment Wireless Controller as
+/devices/pci0000:00/0000:00:06.0/usb1/1-1/1-1:1.0/input/input6
+Jan  4 17:55:14 simon-virtual-machine kernel: [  139.518359] hid-generic
+0003:054C:05C4.0002: input,hidraw0: USB HID v1.11 Gamepad [Sony Computer
+Entertainment Wireless Controller] on usb-0000:00:06.0-1/input0
+--
+simon@simon-virtual-machine:~$ ls /sys/class/leds/
+simon@simon-virtual-machine:~$
+--
+
+Cheers,
+Simon
+

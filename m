@@ -1,67 +1,62 @@
-From: Sebastian Reichel <sre@debian.org>
-Subject: Re: [PATCH] Input: twl4030 - convert to using managed resources
-Date: Sun, 5 Jan 2014 04:47:12 +0100
-Message-ID: <20140105034710.GA17291@earth.universe>
-References: <20140104090147.GA16680@core.coreip.homeip.net>
+From: Sebastian Reichel <sre@ring0.de>
+Subject: Re: [PATCHv4 0/2] twl4030-keypad DT binding
+Date: Sun, 5 Jan 2014 04:50:36 +0100
+Message-ID: <20140105035032.GB17291@earth.universe>
+References: <1383948866-32672-1-git-send-email-sre@debian.org>
+ <1385830416-12900-1-git-send-email-sre@debian.org>
+ <20140104054006.GA23424@earth.universe>
+ <20140104084901.GA1991@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+	protocol="application/pgp-signature"; boundary="uZ3hkaAS1mZxFaxD"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ring0.de ([91.143.88.219]:44299 "EHLO smtp.ring0.de"
+Received: from ring0.de ([91.143.88.219]:44315 "EHLO smtp.ring0.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750805AbaAEDrT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 4 Jan 2014 22:47:19 -0500
+	id S1750831AbaAEDvA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 4 Jan 2014 22:51:00 -0500
 Content-Disposition: inline
-In-Reply-To: <20140104090147.GA16680@core.coreip.homeip.net>
+In-Reply-To: <20140104084901.GA1991@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jingoo Han <jg1.han@samsung.com>, Fugang Duan <B38611@freescale.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, ".linux-kernel"@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---45Z9DzgjV8m4Oswq
+--uZ3hkaAS1mZxFaxD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jan 04, 2014 at 01:01:48AM -0800, Dmitry Torokhov wrote:
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+On Sat, Jan 04, 2014 at 12:49:01AM -0800, Dmitry Torokhov wrote:
+> On Sat, Jan 04, 2014 at 06:40:06AM +0100, Sebastian Reichel wrote:
+> > What's the status of this patch? Can you queue this for 3.14?
 >=20
-> Compile-tested only.
->=20
->  drivers/input/keyboard/twl4030_keypad.c | 70 +++++++++++----------------=
-------
->  1 file changed, 22 insertions(+), 48 deletions(-)
+> I just queued it.
 
-I have successfully booted dtor/input.git:master with this patch on
-top and the addition of twl4030-keypad DT nodes in omap3-n900.dts on
-my N900.
-
-Tested-by: Sebastian Reichel <sre@debian.org>
+Thanks.
 
 -- Sebastian
 
---45Z9DzgjV8m4Oswq
+--uZ3hkaAS1mZxFaxD
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBCAAGBQJSyNW+AAoJENju1/PIO/qaIgQP/0u4ZEdDxgc6tJjWKaHgO/jE
-KzP5ZvAFIKmMZIsrRsWO1iLvwaAcOvpQxgHYxR1OPM/b8mR1NWUEs0OwthHSp7dw
-2l7JjRRIYaKB6/wGWj6YT/V8JbWb8hFfckgwShp/A3v9DxIuJ+rtAWOstVCytmD7
-fV9o7RCbTeWC7kh0RsreSRcIlrokYaOHMzx8VJW2BBcB2DXyfIPqrIepcQsu4Z8j
-C2RFMt+CFUcs1IMUqDD/5baRflW5VNGvy4xjA+TkZgkDGQTGChUKyXn5sQxnlgS/
-IvhYKTQTUEusNvz0QJ4mWJIe9HOJcOlxNk4NNiaFtVDgfPOWZP8zI7WYwzx1meS1
-GIca+vZtvYgO5MYp9XS3gFcRFIXH0Q9lcX+tHpXW3k0lV9U24aWpd6J2/Qx5/V2h
-7msppuIi+sF0qEsAtYp/zq6KVClXX5e+4t4LTy/lDadPrKFmCgCWGNrvjukhaCyd
-JpTQ2gq0LLeBhy2TgKUPjjxJM3meF7Un1K3p0PMBqkJk16l3vWKC68wAPzqVMKko
-mvxJspLAFU4dfu6d2mierrtRVbuANXq1S9fSeQzgtaumxNEl/C/oCjHQAL5nDfXO
-82DTA5AmPY5YUF13Lu98uY26E1AF+vVX6nb+v7fFEHEJBhxTdcYRe5Hvky2HUEzk
-yBnFpvo0vUER4QYZYFFb
-=kMpw
+iQIcBAEBCAAGBQJSyNaIAAoJENju1/PIO/qaH6wQAIkdB/qxK25N42E4d38hOSoh
+wMecH85OVStbFMA4jyN9+KeY1egiHbLr9MPnvqW1YmBdjM4RPjsI6kUIlHKasPS6
+hUhMc0+BmJJmwuRD782JgM/7hkLgLCrdv/YBV7hbeMzoP9Tbh4D+/HS/8hjc4NIE
+18OZYLuqLFIIa1eEDgjcdQW/DpK1RLGgrotIFY7dCj2uJmWWMwWzYBNBl25fhq27
+PISzFRYhewXf0kjAE3UKJogfnutKV8pPjfUD+NU6GUpdJCMNfAlRSioxeBnU98+i
+LDk/STSdDmmga4pmpr+lsqORg6wX0xVQo+tRrpNBnk6QN2r+CJL0tlDhH0NeV82u
+e5Tgwgiaeyqc3YZP8P2vIlheF95Y5TZq1TaiZub9lzH2LvnNLlYAedqrw3eWDSjT
+UAkjPBPjZ7Z0s8RSoBk5JXqncRBsZXh9hO9oGq88rngjmrFoXfRnATp0n2Qp+dBK
+sg0grd990Dof4xPaKhcPjSEQ51d4dl6+HbUNYfEur9xMVhkDgi+3aLLnv4CduSkd
+UdGv6sWKcHjS0wbCI/D+LJEO7LopYrKekVMo63qXQALyjQ8CUkzEjUQaFbafSNxR
+h7LEGLr4LwjuoO27JNOn0RNGMLgl+fe2Yc9b3LUd7DAvevhTKoPT9cJjb3ItjOR8
+TIHdJn3XRxz4miBWWxWw
+=Ykwv
 -----END PGP SIGNATURE-----
 
---45Z9DzgjV8m4Oswq--
+--uZ3hkaAS1mZxFaxD--

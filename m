@@ -1,51 +1,37 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: Re: [PATCH] Input: twl4030 - convert to using managed resources
-Date: Mon, 06 Jan 2014 11:50:46 +0900
-Message-ID: <009301cf0a8a$1963cfd0$4c2b6f70$%han@samsung.com>
-References: <20140104090147.GA16680@core.coreip.homeip.net>
- <007901cf0a86$a0639550$e12abff0$%han@samsung.com>
- <20140106023358.GA11575@earth.universe>
+From: Tommy Will <tommywill2011@gmail.com>
+Subject: Re: Another ALPS touchpad
+Date: Mon, 6 Jan 2014 11:16:09 +0800
+Message-ID: <CA+F6ckM3iuCxDBsGeHHu2JGALBn2jKHRav7ThuT2Wr_cxnCovQ@mail.gmail.com>
+References: <20140103045915.GB30008@whitehail.bostoncoop.net>
+	<5612072.Tm4gq8bhLq@dtor-d630.eng.vmware.com>
+	<CA+F6ckPRj0NrerBC7j41QOE6ZsV7tPQ35gZEfk8cFZws7sT1vg@mail.gmail.com>
+	<20140104133108.GA7296@whitehail.bostoncoop.net>
+	<CA+F6ckMzRnP2E--nimZA+-cfR_wmbsN4hPvr4AONt4J_c_X4kw@mail.gmail.com>
+	<20140105234723.GA32292@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:34211 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752141AbaAFCus (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jan 2014 21:50:48 -0500
-In-reply-to: <20140106023358.GA11575@earth.universe>
-Content-language: ko
+Received: from mail-la0-f49.google.com ([209.85.215.49]:46262 "EHLO
+	mail-la0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751460AbaAFDQM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jan 2014 22:16:12 -0500
+Received: by mail-la0-f49.google.com with SMTP id er20so9292761lab.22
+        for <linux-input@vger.kernel.org>; Sun, 05 Jan 2014 19:16:11 -0800 (PST)
+In-Reply-To: <20140105234723.GA32292@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Sebastian Reichel' <sre@debian.org>
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 'Fugang Duan' <B38611@freescale.com>, 'Peter Ujfalusi' <peter.ujfalusi@ti.com>, ".linux-kernel"@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dylan Paul Thurston <dpthurst@indiana.edu>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org
 
-On Monday, January 06, 2014 11:34 AM, Sebastian Reichel wrote:
-> On Mon, Jan 06, 2014 at 11:25:54AM +0900, Jingoo Han wrote:
-> > IMHO, input_unregister_device() seems to be necessary,
-> > because input_register_device() is still used.
-> > If I am wrong, please let me know kindly.
-> >
-> > Sebastian Reichel,
-> > Would you repeat insmod & rmmod 'twl4030_keypad.ko'?
-> 
-> mh. I only tested with twl4030-keypad compiled into the kernel.
-> I will try building the driver as module and reloading it on
-> the device when I find some time.
+2014/1/6 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On devices that lack middle button middle click is usually emulated by
+> pressing both left and right buttons. Also, since this is multi-touch
+> device quite often middle click is mapped on 2- or 3-finger tap. All of
+> that is done in X driver and not in kernel.
+>
 
-OK, I see. :-)
+Thanks for your info. Got that.
 
-If you repeat at least twice insmod & rmmod 'twl4030_keypad.ko',
-it will be good. If there are some bugs, it will make the error
-messages or kernel panic.
-
-In my case, Samsung Exynos SPI driver made kernel panic when
-Repeating insmod & rmmod twice, after the patch to covert to
-devm_* functions was applied. This was because there was a bug
-of devm_spi_register_master().
-
-Thank you.
-
-Best regards,
-Jingoo Han
-
+-- 
+Best Regards,
+Tommy

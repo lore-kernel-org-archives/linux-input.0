@@ -1,62 +1,111 @@
-From: "'Sebastian Reichel'" <sre@debian.org>
-Subject: Re: [PATCH] Input: twl4030 - convert to using managed resources
-Date: Mon, 6 Jan 2014 23:14:06 +0100
-Message-ID: <20140106221405.GA22325@earth.universe>
-References: <20140104090147.GA16680@core.coreip.homeip.net>
- <007901cf0a86$a0639550$e12abff0$%han@samsung.com>
- <20140106023358.GA11575@earth.universe>
- <009301cf0a8a$1963cfd0$4c2b6f70$%han@samsung.com>
+From: Stephen Boyd <sboyd@codeaurora.org>
+Subject: Re: [PATCH v2 02/10] genirq: Add devm_request_any_context_irq()
+Date: Mon, 06 Jan 2014 14:24:41 -0800
+Message-ID: <52CB2D29.3050107@codeaurora.org>
+References: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org> <1388709460-19222-3-git-send-email-sboyd@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ring0.de ([91.143.88.219]:52040 "EHLO smtp.ring0.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755383AbaAFWOM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 6 Jan 2014 17:14:12 -0500
-Content-Disposition: inline
-In-Reply-To: <009301cf0a8a$1963cfd0$4c2b6f70$%han@samsung.com>
+Received: from smtp.codeaurora.org ([198.145.11.231]:47724 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756049AbaAFWYn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jan 2014 17:24:43 -0500
+In-Reply-To: <1388709460-19222-3-git-send-email-sboyd@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jingoo Han <jg1.han@samsung.com>
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 'Fugang Duan' <B38611@freescale.com>, 'Peter Ujfalusi' <peter.ujfalusi@ti.com>, ".linux-kernel"@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
+On 01/02/14 16:37, Stephen Boyd wrote:
+> Some drivers use request_any_context_irq() but there isn't a
+> devm_* function for it. Add one so that these drivers don't need
+> to explicitly free the irq on driver detach.
+>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 
---W/nzBZO5zC0uMSeA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thomas, can you please review this patch?
 
-On Mon, Jan 06, 2014 at 11:50:46AM +0900, Jingoo Han wrote:
-> If you repeat at least twice insmod & rmmod 'twl4030_keypad.ko',
-> it will be good. If there are some bugs, it will make the error
-> messages or kernel panic.
+> ---
+>  include/linux/interrupt.h |  5 +++++
+>  kernel/irq/devres.c       | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 50 insertions(+)
+>
+> diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+> index 0053adde0ed9..a2678d35b5a2 100644
+> --- a/include/linux/interrupt.h
+> +++ b/include/linux/interrupt.h
+> @@ -158,6 +158,11 @@ devm_request_irq(struct device *dev, unsigned int irq, irq_handler_t handler,
+>  					 devname, dev_id);
+>  }
+>  
+> +extern int __must_check
+> +devm_request_any_context_irq(struct device *dev, unsigned int irq,
+> +		 irq_handler_t handler, unsigned long irqflags,
+> +		 const char *devname, void *dev_id);
+> +
+>  extern void devm_free_irq(struct device *dev, unsigned int irq, void *dev_id);
+>  
+>  /*
+> diff --git a/kernel/irq/devres.c b/kernel/irq/devres.c
+> index bd8e788d71e0..1ef0606797c9 100644
+> --- a/kernel/irq/devres.c
+> +++ b/kernel/irq/devres.c
+> @@ -73,6 +73,51 @@ int devm_request_threaded_irq(struct device *dev, unsigned int irq,
+>  EXPORT_SYMBOL(devm_request_threaded_irq);
+>  
+>  /**
+> + *	devm_request_any_context_irq - allocate an interrupt line for a managed device
+> + *	@dev: device to request interrupt for
+> + *	@irq: Interrupt line to allocate
+> + *	@handler: Function to be called when the IRQ occurs
+> + *	@thread_fn: function to be called in a threaded interrupt context. NULL
+> + *		    for devices which handle everything in @handler
+> + *	@irqflags: Interrupt type flags
+> + *	@devname: An ascii name for the claiming device
+> + *	@dev_id: A cookie passed back to the handler function
+> + *
+> + *	Except for the extra @dev argument, this function takes the
+> + *	same arguments and performs the same function as
+> + *	request_any_context_irq().  IRQs requested with this function will be
+> + *	automatically freed on driver detach.
+> + *
+> + *	If an IRQ allocated with this function needs to be freed
+> + *	separately, devm_free_irq() must be used.
+> + */
+> +int devm_request_any_context_irq(struct device *dev, unsigned int irq,
+> +			      irq_handler_t handler, unsigned long irqflags,
+> +			      const char *devname, void *dev_id)
+> +{
+> +	struct irq_devres *dr;
+> +	int rc;
+> +
+> +	dr = devres_alloc(devm_irq_release, sizeof(struct irq_devres),
+> +			  GFP_KERNEL);
+> +	if (!dr)
+> +		return -ENOMEM;
+> +
+> +	rc = request_any_context_irq(irq, handler, irqflags, devname, dev_id);
+> +	if (rc) {
+> +		devres_free(dr);
+> +		return rc;
+> +	}
+> +
+> +	dr->irq = irq;
+> +	dr->dev_id = dev_id;
+> +	devres_add(dev, dr);
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL(devm_request_any_context_irq);
+> +
+> +/**
+>   *	devm_free_irq - free an interrupt
+>   *	@dev: device to free interrupt for
+>   *	@irq: Interrupt line to free
 
-I tried load & unloading the twl4030_keypad module multiple times.
-I didn't get any error messages or kernel panics. Everything seems
-to behave correctly.
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation
 
--- Sebastian
-
---W/nzBZO5zC0uMSeA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBCAAGBQJSyyqtAAoJENju1/PIO/qa/YMP/25yFI45HXZ19Z3mOWybmHHu
-dSewc4uxrL7i40UI0E2JDC/v85L3En7PjLyw6se50LtrWswMGhqQvlrans2Nm0PL
-YWIWnNxoUxBgQDRmO4Du6W0r6l4FRRNRouObdBiuDEZBivRiER9CdxFE9gqL2nZj
-e8mrJa3NmpeSck15qb2u5t4/FHikkUzRCnzosc6IVOco8X8gi8Rg93l2X8KlMDOj
-SAKzujnndao7ckvvMNIfRoDLi6HXdK9ARzPTykR01AaXzmjPMEcyzPCeTeh9jjN4
-EHH9GWoP41XbAvnnV/vLAewQcAYt3suwJtC29k+yTotOuO7oozm+5PKAoUHsMdKe
-DpC9tKYMt/y1CNFx2kxgzKcEENcvbQ/hUBidByJ5P4Jg1jAQUGFu+gECrCETLGtw
-5Bhp5sTPAGMHNTFFstjbN9gNwvCBg+ZhaiTumjvhw3tSRfmTagLuUXIeeEutz47H
-f3UcZnaYQA7LrMPaXl444m50rstmkTxBHfBaGjNXsPd67Zql9l5FAI2/8JY7gFwA
-hyqwdunvT/B5A6MaZvapCzEKPYgW4kA8vFcLr2k7P5XQ9RfFXJCtWhvDuh8zIgpB
-70AQTrnOYYOAOINBF/S3TaQWnGGuWtE0l8Cu3uP+87Yx8ZAnxkxMTGQ2+hEeiojk
-BELPS4Qj+5MUQv2xQOEE
-=pFGX
------END PGP SIGNATURE-----
-
---W/nzBZO5zC0uMSeA--

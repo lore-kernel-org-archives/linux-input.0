@@ -1,112 +1,48 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH] Input: cros_ec_keyb - avoid variable-length arrays on stack
-Date: Mon, 6 Jan 2014 10:57:14 -0800
-Message-ID: <CAD=FV=UCEcTr+X-=yNxo1VnJ1B8kJ=wDbR7H_S3AYvBGLU7tEw@mail.gmail.com>
-References: <20131231193530.GA25261@core.coreip.homeip.net>
-	<CAD=FV=VZyXs9b+UyzuWNHBwKWEVcEvSZ4xdtsJLD+TFnRJon6A@mail.gmail.com>
-	<20140102194817.GC2025@core.coreip.homeip.net>
-	<CAA25o9ScgzY1TbqKoe2KbSCc-DUBFLstDyYWY=LmdL+ioX82Ug@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Chris Diamand <chris@diamand.org>
+Subject: [PATCH] Input: ALPS - Recognise "Dolphin V2" touchpads
+Date: Mon,  6 Jan 2014 20:10:34 +0000
+Message-ID: <1389039034-14040-1-git-send-email-chris@diamand.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vc0-f169.google.com ([209.85.220.169]:55661 "EHLO
-	mail-vc0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754756AbaAFS5P (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jan 2014 13:57:15 -0500
-Received: by mail-vc0-f169.google.com with SMTP id hu19so9470424vcb.28
-        for <linux-input@vger.kernel.org>; Mon, 06 Jan 2014 10:57:15 -0800 (PST)
-In-Reply-To: <CAA25o9ScgzY1TbqKoe2KbSCc-DUBFLstDyYWY=LmdL+ioX82Ug@mail.gmail.com>
+Received: from mail-we0-f171.google.com ([74.125.82.171]:59625 "EHLO
+	mail-we0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751446AbaAFULk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jan 2014 15:11:40 -0500
+Received: by mail-we0-f171.google.com with SMTP id q58so16015531wes.2
+        for <linux-input@vger.kernel.org>; Mon, 06 Jan 2014 12:11:39 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Luigi Semenzato <semenzato@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Simon Glass <sjg@chromium.org>, Vincent Palatin <vpalatin@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Olof Johansson <olof@lixom.net>
+To: dmitry.torokhov@gmail.com, cernekee@gmail.com, yunkang.tang@cn.alps.com, dturvene@dahetral.com
+Cc: linux-input@vger.kernel.org, Chris Diamand <chris@diamand.org>
 
-On Thu, Jan 2, 2014 at 4:25 PM, Luigi Semenzato <semenzato@chromium.org> wrote:
-> On Thu, Jan 2, 2014 at 11:48 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> Hi Doug,
->>
->> On Thu, Jan 02, 2014 at 09:40:44AM -0800, Doug Anderson wrote:
->>> Dmitry,
->>>
->>> Thanks for cleaning up cros_eckeyb.  :)  I'm a little curious about
->>> the motivation here.  I can't imagine a keyboard with all that many
->>> columns (ours has 13), so it's really not taking a whole lot off of
->>> the stack.  Are you trying to make some sort of automated checker
->>> happy, or just generally trying to keep the kernel consistent?
->>
->> I compile most of the code with sparse so I prefer to keep it happy.
->>
->>>
->>> In any case, I'm not opposed to moving these bytes off the stack.
->>> Comments below, though...
->>>
->>> ---
->>>
->>> On Tue, Dec 31, 2013 at 11:35 AM, Dmitry Torokhov
->>> <dmitry.torokhov@gmail.com> wrote:
-...
->>> > @@ -217,32 +219,40 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
->>> >         struct cros_ec_keyb *ckdev;
->>> >         struct input_dev *idev;
->>> >         struct device_node *np;
->>> > +       unsigned int rows, cols;
->>> > +       size_t size;
->>> >         int err;
->>> >
->>> >         np = pdev->dev.of_node;
->>> >         if (!np)
->>> >                 return -ENODEV;
->>> >
->>> > -       ckdev = devm_kzalloc(&pdev->dev, sizeof(*ckdev), GFP_KERNEL);
->>> > -       if (!ckdev)
->>> > -               return -ENOMEM;
->>> > -       err = matrix_keypad_parse_of_params(&pdev->dev, &ckdev->rows,
->>> > -                                           &ckdev->cols);
->>> > +       err = matrix_keypad_parse_of_params(&pdev->dev, &rows, &cols);
->>> >         if (err)
->>> >                 return err;
->>> > -       ckdev->old_kb_state = devm_kzalloc(&pdev->dev, ckdev->cols, GFP_KERNEL);
->>> > -       if (!ckdev->old_kb_state)
->>> > -               return -ENOMEM;
->>> >
->>> > -       idev = devm_input_allocate_device(&pdev->dev);
->>> > -       if (!idev)
->>> > +       /*
->>> > +        * Double memory for keyboard state so we have space for storing
->>> > +        * current and previous state.
->>> > +        */
->>> > +       size = sizeof(*ckdev) + 2 * cols * sizeof(*ckdev->kb_state);
->>> > +       ckdev = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
->>> > +       if (!ckdev)
->>> >                 return -ENOMEM;
->>>
->>> This change seems like a lot of complexity to save one memory
->>> allocation.  If you insist, I'd be OK with having one allocation for
->>> both buffers (kb_state and old_kb_state) but trying to jam this onto
->>> the end of the structure is non-obvious.  It certainly took me a
->>> minute to understand what you were doing and why.
->>
->> It is not one additional allocation but more as you need to allocate
->> devres data structures and add them there. I think we have quite a few
->> drivers piggy-backing key tables at the end of data structures.
+This is the touchpad used on the Dell Vostro 3360. Without
+this change, the driver reports this as follows:
 
-OK, I will leave this as your call.  To me, piggybacking like this
-make sense if you've got a single chunk of dynamic memory that you
-just want to cram onto the end of the structure.  It just gets more
-complicated when you have two nearly identical chunks of memory and
-one of them is using this piggybacking technique while the other
-isn't.
+psmouse serio1: alps: Unknown ALPS touchpad: E7=73 03 50, EC=73 02 02
 
-What about a compromise and declaring as:
+It seems to use the ALPS V5 protocol, so identify it
+as such by allowing ec[1] == 0x02.
 
- u8 *kb_state;
- u8 *old_kb_state;
- u8 buffers[];
+This is based on src/alps.c from the DKMS driver here:
+http://www.dahetral.com/public-download/alps-psmouse-dlkm-for-3-2-and-3-5/
 
-You still have the same number of memory allocations but (to me) it's
-much clearer what's going on here.  You do pay a penalty of an extra
-memory dereference and an extra 4 bytes of memory, but clarity should
-trump that.
+Signed-off-by: Chris Diamand <chris@diamand.org>
+---
+ drivers/input/mouse/alps.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
--Doug
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 5cf62e3..d5d15eb 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1845,7 +1845,7 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+ 	if (alps_match_table(psmouse, priv, e7, ec) == 0) {
+ 		return 0;
+ 	} else if (e7[0] == 0x73 && e7[1] == 0x03 && e7[2] == 0x50 &&
+-		   ec[0] == 0x73 && ec[1] == 0x01) {
++		   ec[0] == 0x73 && (ec[1] == 0x01 || ec[1] == 0x02)) {
+ 		priv->proto_version = ALPS_PROTO_V5;
+ 		alps_set_defaults(priv);
+ 
+-- 
+1.8.5.2
+

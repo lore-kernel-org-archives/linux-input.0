@@ -1,44 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Another ALPS touchpad
-Date: Sun, 5 Jan 2014 15:47:23 -0800
-Message-ID: <20140105234723.GA32292@core.coreip.homeip.net>
-References: <20140103045915.GB30008@whitehail.bostoncoop.net>
- <5612072.Tm4gq8bhLq@dtor-d630.eng.vmware.com>
- <CA+F6ckPRj0NrerBC7j41QOE6ZsV7tPQ35gZEfk8cFZws7sT1vg@mail.gmail.com>
- <20140104133108.GA7296@whitehail.bostoncoop.net>
- <CA+F6ckMzRnP2E--nimZA+-cfR_wmbsN4hPvr4AONt4J_c_X4kw@mail.gmail.com>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: Re: [PATCH] Input: twl4030 - convert to using managed resources
+Date: Mon, 06 Jan 2014 11:25:54 +0900
+Message-ID: <007901cf0a86$a0639550$e12abff0$%han@samsung.com>
+References: <20140104090147.GA16680@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:44362 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751405AbaAEXr1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jan 2014 18:47:27 -0500
-Received: by mail-pb0-f47.google.com with SMTP id um1so17811845pbc.20
-        for <linux-input@vger.kernel.org>; Sun, 05 Jan 2014 15:47:26 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CA+F6ckMzRnP2E--nimZA+-cfR_wmbsN4hPvr4AONt4J_c_X4kw@mail.gmail.com>
+Received: from mailout2.samsung.com ([203.254.224.25]:28897 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752594AbaAFCZ5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jan 2014 21:25:57 -0500
+In-reply-to: <20140104090147.GA16680@core.coreip.homeip.net>
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tommy Will <tommywill2011@gmail.com>
-Cc: Dylan Paul Thurston <dpthurst@indiana.edu>, Yunkang Tang <yunkang.tang@cn.alps.com>, linux-input@vger.kernel.org
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Sebastian Reichel' <sre@debian.org>
+Cc: linux-input@vger.kernel.org, 'Fugang Duan' <B38611@freescale.com>, 'Peter Ujfalusi' <peter.ujfalusi@ti.com>, ".linux-kernel"@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
 
-On Sun, Jan 05, 2014 at 10:53:52AM +0800, Tommy Will wrote:
-> 2014/1/4 Dylan Paul Thurston <dpthurst@indiana.edu>:
-> >
-> > I didn't quite follow this or the following discussion. One thing I
-> > wanted to look into was whether it was possible to have a middle mouse
-> > click in addition to the left and right clicks.
+On Saturday, January 04, 2014 6:02 PM, Dmitry Torokhov wrote:
 > 
-> Normally, clickpad only supports Left/Right click. I'm afraid middle
-> click would not be supported as standard.
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+> 
+> Compile-tested only.
+> 
+> 
+>  drivers/input/keyboard/twl4030_keypad.c | 70 +++++++++++----------------------
+>  1 file changed, 22 insertions(+), 48 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+> index f663c19..71eb041 100644
+> --- a/drivers/input/keyboard/twl4030_keypad.c
+> +++ b/drivers/input/keyboard/twl4030_keypad.c
 
-On devices that lack middle button middle click is usually emulated by
-pressing both left and right buttons. Also, since this is multi-touch
-device quite often middle click is mapped on 2- or 3-finger tap. All of
-that is done in X driver and not in kernel.
+[.....]
 
-Thanks.
+> -static int twl4030_kp_remove(struct platform_device *pdev)
+> -{
+> -	struct twl4030_keypad *kp = platform_get_drvdata(pdev);
+> -
+> -	free_irq(kp->irq, kp);
+> -	input_unregister_device(kp->input);
 
--- 
-Dmitry
+Hi Dmitry Torokhov,
+
+IMHO, input_unregister_device() seems to be necessary,
+because input_register_device() is still used.
+If I am wrong, please let me know kindly.
+
+Sebastian Reichel,
+Would you repeat insmod & rmmod 'twl4030_keypad.ko'?
+
+Happy New Year! :-)
+
+Best regards,
+Jingoo Han
+

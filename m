@@ -1,109 +1,121 @@
-From: "J. Domburg" <jeroen@spritesmods.com>
-Subject: Re: T440s Synaptics clickpad: lost sync / KBC bad data
-Date: Mon, 6 Jan 2014 11:25:11 +0100 (CET)
-Message-ID: <alpine.DEB.2.00.1401061114400.6346@icf1.fcevgrfzbqf.pbz>
-References: <alpine.DEB.2.00.1312151507560.6449@icf1.fcevgrfzbqf.pbz>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [lm-sensors] [PATCH v3 2/5] input: sun4i-ts: Add
+ support for temperature sensor
+Date: Mon, 6 Jan 2014 12:00:25 +0100
+Message-ID: <20140106110025.GQ3144@lukather>
+References: <1388506852-3548-1-git-send-email-hdegoede@redhat.com>
+ <1388506852-3548-3-git-send-email-hdegoede@redhat.com>
+ <52C84665.5070203@roeck-us.net>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from spritesmods.com ([188.40.123.50]:46605 "EHLO spritesmods.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752292AbaAFKZQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 6 Jan 2014 05:25:16 -0500
-Received: from localhost (localhost [127.0.0.1])
-	by spritesmods.com (Postfix) with ESMTP id D272E800001
-	for <linux-input@vger.kernel.org>; Mon,  6 Jan 2014 11:25:11 +0100 (CET)
-In-Reply-To: <alpine.DEB.2.00.1312151507560.6449@icf1.fcevgrfzbqf.pbz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cnn+CxJy/uys8v1I"
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBXU3VKLAKGQEMGGPALQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52C84665.5070203-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Corentin LABBE <clabbe.montjoie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi all,
 
-A last message about this issue, to help future people who find this 
-data: In my case, it seems the problem was the hardware. For me the 
-problem got increasingly worse, and also showed itself during a Win7 
-installation and Win8 rescue session. Strangely, Windows 8 itself was less 
-affected by the issue; maybe it has drivers that reset the Clickpad IC 
-much quicker than Linux and the Windows installers.
+--cnn+CxJy/uys8v1I
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-With that data, I managed to convince Lenovo Support to exchange the 
-clickpad hardware. (This means exchanging the complete keyboard bezel 
-which means almost completely disassembling the machine, by the way...) 
-The new clickpad has been working without _any_ lost sync byte for about a 
-week now, so I'm a happy camper.
+Hi Guenter,
 
-In the meantime, some other people have contacted me with the same issues. 
-As far as I'm aware, they haven't solved it yet either by software or 
-hardware exchange, but it may mean this is an issue a small amount of 
-T440s's may have in general.
+On Sat, Jan 04, 2014 at 09:35:33AM -0800, Guenter Roeck wrote:
+> On 12/31/2013 08:20 AM, Hans de Goede wrote:
+> >The sun4i resisitive touchscreen controller also comes with a built-in
+> >temperature sensor. This commit adds support for it.
+> >
+> >This commit also introduces a new "ts-attached" device-tree property,
+> >when this is not set, the input part of the driver won't register. This =
+way
+> >the internal temperature sensor can be used to measure the SoC temperatu=
+re
+> >independent of there actually being a touchscreen attached to the contro=
+ller.
+> >
+> >Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+>=20
+> Couple of minor comments below, though no need to resubmit unless someone=
+ else has comments.
+>=20
+> Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+>=20
+> >---
+> >  .../bindings/input/touchscreen/sun4i.txt           |   5 +
+> >  drivers/input/touchscreen/sun4i-ts.c               | 140 +++++++++++++=
++++-----
+> >  2 files changed, 114 insertions(+), 31 deletions(-)
+> >
+> >diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.t=
+xt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> >index e45927e..6bac67b 100644
+> >--- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> >+++ b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> >@@ -6,10 +6,15 @@ Required properties:
+> >   - reg: mmio address range of the chip
+> >   - interrupts: interrupt to which the chip is connected
+> >
+> >+Optional properties:
+> >+ - allwinner,ts-attached: boolean indicating that an actual touchscreen=
+ is
+> >+			  attached to the controller
+> >+
+> Brr. While I understand that you were asked to do this, I don't
+> really see the benefit of another "allwinner" here. As if this
+> wasn't implied by the "compatible" property.
 
-Anyway, sorry for the spam.
+It's actually the ePAPR that recommends this.
 
-Cheers,
-Jeroen
+Section 6.1.1, General Principles
 
-On Sun, 15 Dec 2013, J. Domburg wrote:
+"
+Some recommended practices includes:
+[..]
+  5. If new properties are needed by the binding, the recommended
+     format for property names is: =E2=80=9C<company>,<property-name>=E2=80=
+=9D, where
+     <company> is an OUI or short unique string like a stock ticker
+     that identifies the creator of the binding.
+"
 
-> Hello everyone,
->
-> I hope I'm at the right address here with my problems. If not, please do 
-> point me in the correct direction.
->
-> I have a Lenovo Thinkpad T440s with a Synaptics clickpad and an IBM 
-> trackpoint in it:
->
-> input: PS/2 Synaptics TouchPad as 
-> /devices/platform/i8042/serio1/input/input120
-> psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 
-> 0xd001a3/0x940300/0x127c00, board id: 2668, fw id: 1293989
-> psmouse serio1: synaptics: serio: Synaptics pass-through port at 
-> isa0060/serio1/input0
-> input: SynPS/2 Synaptics TouchPad as 
-> /devices/platform/i8042/serio1/input/input123
-> psmouse serio34: alps: Unknown ALPS touchpad: E7=10 00 64, EC=10 00 64
-> psmouse serio34: trackpoint: IBM TrackPoint firmware: 0x0e, buttons: 3/3 
-> input: TPPS/2 IBM TrackPoint as 
-> /devices/platform/i8042/serio1/serio34/input/input124
->
-> The problem is that the trackpoint behaves incredibly erratic, sometimes 
-> working correctly for minutes at a time, sometimes just jumping around and 
-> many times just hanging. I need to remove and re-insert the psmouse module to 
-> solve that. Alongside this behaviour, my kernel log also is getting spammed 
-> with messages like:
->
-> psmouse serio1: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-> psmouse serio1: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-> psmouse serio1: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-> psmouse serio1: TouchPad at isa0060/serio1/input0 - driver resynced.
-> and psmouse serio1: bad data from KBC - timeout
->
-> What I've tried:
-> - Tried the kernel options i8042.nomux=1 and i8042.reset=1
-> - Disable acpi by passing acpi=off to the kernel
-> - Disabled CPU frequency scaling
-> - Trying other protocols, e.g. by doing modprobe psmouse proto=imps or 
-> proto=bare
-> - Switching from vanilla 3.12 kernel to both the latest&greatest kernel from 
-> Linus' Git and an antique 3.1.0 kernel
-> - Turning on i8042.debug. To my untrained eye, it looks like bytes of PS/2 
-> data are just disappearing when the 'lost sync' messages kick in. I can give 
-> an example of that if needed.
->
-> Strangely, the symptoms have been getting worse in the 10 days I've had this 
-> machine: from the first few days with no trouble to today with the mouse 
-> crapping out almost once every ten seconds or so. I would say it's a DOA and 
-> claim my warranty, if not frustratingly the machine works perfectly fine in 
-> Windows 8, with no touchpad trouble at all.
->
-> I'm willing to try things on this machine, run patches or take any hint in 
-> what I can change to get this working; if it helps I can even poke an 
-> oscilloscope at the PS2 lines. Not having a working touchpad or touchpoint is 
-> getting a bit frustrating...
->
-> Cheers,
-> Jeroen
->
->
->
->
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--cnn+CxJy/uys8v1I
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSyozJAAoJEBx+YmzsjxAgjU0P/RIYTx1rAGb1hvM+wlF73kIS
+nebYQNz7z9/KJbmgqCPF2XRC1NQmL3t2//evAgVrQ9jTqzW6USJ0Erw17YZswWl8
+nPgL35OqRAxdqOFOug1VMxX3EW2+Q6Khi6VSz4Cg9G17K64nsgkIO4a40OUIaEOS
+XdVvdygoNJCN7HO9WxMMe9vbrib2qMZ+UjrO6+YLUK91rQkZB22vWj0/EblUEwj9
+GgCQT3pibzS+AG2xq8GQ4RJJc3bE5GO3BQ6mP/xazI1KOip0cGxanMqYgjhmfPR2
+dGSb+6rvAZSkkQaXsDj6uVOZu2KtOSqTGXYYcHeFzBJcvHJ7nr6PbRiNucOsDtlG
+G1wX4m+94eQMPNtYC4/55Av/TICfF/icZ9Rx2Dz50Uom3Z7QgxbJ1S5oXKdX5j/h
+qe+52Olpp2/G320SrdaMt/7Zt7g2t/GJw9G6GY1KuGwoHrQwAlLLkVy6l4ja6dKF
++QryIOjH9J64bvsjPhM5VxCeFpCVxJByjC8pPx6Dbco6QNfPwADVLz5g0hTw1HAY
+7ZWXFEwPCkLdJmKc8ZQVwM65AQx5eB6eQBJ+o21KFTK0G8BS68Q1d+mxFwkIlnKP
+8ZI+atbPNXiJgOv15aUcpCqc9Vbk4rLzztXex3t1fm/spVJz66If1WXjbLZ/Ugzf
+bmswACwgVxopKv4zA8To
+=SFGh
+-----END PGP SIGNATURE-----
+
+--cnn+CxJy/uys8v1I--

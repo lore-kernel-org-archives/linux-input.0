@@ -1,60 +1,58 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: am335x: IIO/ADC fixes if used together with TSC, v2
-Date: Tue, 7 Jan 2014 08:54:56 +0000
-Message-ID: <20140107085456.GD3182@lee--X1>
-References: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Bluetooth: hidp: make sure input buffers are big
+ enough
+Date: Tue, 7 Jan 2014 13:11:03 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1401071308020.4962@pobox.suse.cz>
+References: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com> <3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org> <CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1387466911-3732-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:57900 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751095AbaAGMLG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Jan 2014 07:11:06 -0500
+In-Reply-To: <CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Marcel Holtmann <marcel@holtmann.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-bluetooth@vger.kernel.org development" <linux-bluetooth@vger.kernel.org>, "Gustavo F. Padovan" <gustavo@padovan.org>
 
-Dmitry, Jonathan,
+On Fri, 27 Dec 2013, David Herrmann wrote:
 
-This is for you.
+> >> I also haven't figured out a nice way to make HID-core honor the 
+> >> "size" parameter. hid-input depends on getting the whole 
+> >> input-report.
+> >
+> > I think this needs clearly fixing.
+> 
+> And we have a volunteer, yippie! ;)
+> 
+> I think hid_input_report() in hid-core.c is the only place that relies
+> on this. Maybe it really is easier to fix it. But I am not even
+> slightly familiar with that code. So if no-one of the HID core
+> developers steps up to fix it, we should take the transport-driver
+> fixes instead. As nearly all transport-drivers are affected by this,
+> maybe we should even move this buffer into hid_device and provide
+> hid_input_truncated_report() which does this.
+> 
+> Anyhow, waiting for Jiri's comments on this.
 
-The following changes since commit 6ce4eac1f600b34f2f7f58f9cd8f0503d79e=
-42ae:
+Hmm, this is really unfortunate situation.
 
-  Linux 3.13-rc1 (2013-11-22 11:30:55 -0800)
+I am now looking into making hid_input_report() honor 'size' properly, but 
+no matter how it'll be done in the end, it'll absolutely not be a simple 
+'fix'. So definitely can be done for 3.15 or so, but not as a fix for 
+current kernels.
 
-are available in the git repository at:
+So doing kzalloc(rsize, GFP_ATOMIC) in the HID-core for now, and copying 
+the buffer around, seems like only viable solution for now, with the 
+outlook of removing this ugliness once hid-core honors 'size' properly.
 
-  git://git.linaro.org/people/ljones/mfd.git tags/ib-iio-input-3.13-1
+I will keep looking into this and maybe some easy way how to hack this 
+together will materialize, but I don't currently see it.
 
-for you to fetch changes up to 7ca6740cd1cd410828a01151a044b51910d06eff=
-:
+Hmm ...
 
-  mfd: input: iio: ti_amm335x: Rework TSC/ADC synchronization (2014-01-=
-07 08:45:00 +0000)
-
-----------------------------------------------------------------
-Immutable branch for IIO and Input
-
-----------------------------------------------------------------
-Sebastian Andrzej Siewior (5):
-      iio: ti_am335x_adc: Adjust the closing bracket in tiadc_read_raw(=
-)
-      mfd: ti_am335x_tscadc: Make am335x_tsc_se_update() local
-      mfd: ti_am335x_tscadc: Don't read back REG_SE
-      mfd: ti_am335x: Drop am335x_tsc_se_update() from resume path
-      mfd: input: iio: ti_amm335x: Rework TSC/ADC synchronization
-
- drivers/iio/adc/ti_am335x_adc.c           | 68 +++++++++++++++++++++++=
-++++++++++++++++++++++++++-------------------
- drivers/input/touchscreen/ti_am335x_tsc.c |  4 ++--
- drivers/mfd/ti_am335x_tscadc.c            | 71 +++++++++++++++++++++++=
-+++++++++++++++++++++++++++++++++++++-----------
- include/linux/mfd/ti_am335x_tscadc.h      |  8 ++++++--
- 4 files changed, 117 insertions(+), 34 deletions(-)
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+-- 
+Jiri Kosina
+SUSE Labs

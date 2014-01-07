@@ -1,111 +1,106 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH v2 02/10] genirq: Add devm_request_any_context_irq()
-Date: Mon, 06 Jan 2014 14:24:41 -0800
-Message-ID: <52CB2D29.3050107@codeaurora.org>
-References: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org> <1388709460-19222-3-git-send-email-sboyd@codeaurora.org>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: Re: [PATCH] Input: twl4030 - convert to using managed resources
+Date: Tue, 07 Jan 2014 09:35:45 +0900
+Message-ID: <000f01cf0b40$670c3720$3524a560$%han@samsung.com>
+References: <20140104090147.GA16680@core.coreip.homeip.net>
+ <007901cf0a86$a0639550$e12abff0$%han@samsung.com>
+ <20140106180705.GB2754@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.11.231]:47724 "EHLO
-	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756049AbaAFWYn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jan 2014 17:24:43 -0500
-In-Reply-To: <1388709460-19222-3-git-send-email-sboyd@codeaurora.org>
+Received: from mailout1.samsung.com ([203.254.224.24]:31584 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752484AbaAGAfw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jan 2014 19:35:52 -0500
+In-reply-to: <20140106180705.GB2754@core.coreip.homeip.net>
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Sebastian Reichel' <sre@debian.org>, linux-input@vger.kernel.org, 'Fugang Duan' <B38611@freescale.com>, 'Peter Ujfalusi' <peter.ujfalusi@ti.com>, ".linux-kernel"@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
 
-On 01/02/14 16:37, Stephen Boyd wrote:
-> Some drivers use request_any_context_irq() but there isn't a
-> devm_* function for it. Add one so that these drivers don't need
-> to explicitly free the irq on driver detach.
->
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+On Tuesday, January 07, 2014 3:07 AM, Dmitry Torokhov wrote:
+> On Mon, Jan 06, 2014 at 11:25:54AM +0900, Jingoo Han wrote:
+> > On Saturday, January 04, 2014 6:02 PM, Dmitry Torokhov wrote:
+> > >
+> > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > ---
+> > >
+> > > Compile-tested only.
+> > >
+> > >
+> > >  drivers/input/keyboard/twl4030_keypad.c | 70 +++++++++++----------------------
+> > >  1 file changed, 22 insertions(+), 48 deletions(-)
+> > >
+> > > diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+> > > index f663c19..71eb041 100644
+> > > --- a/drivers/input/keyboard/twl4030_keypad.c
+> > > +++ b/drivers/input/keyboard/twl4030_keypad.c
+> >
+> > [.....]
+> >
+> > > -static int twl4030_kp_remove(struct platform_device *pdev)
+> > > -{
+> > > -	struct twl4030_keypad *kp = platform_get_drvdata(pdev);
+> > > -
+> > > -	free_irq(kp->irq, kp);
+> > > -	input_unregister_device(kp->input);
+> >
+> > Hi Dmitry Torokhov,
+> >
+> > IMHO, input_unregister_device() seems to be necessary,
+> > because input_register_device() is still used.
+> > If I am wrong, please let me know kindly.
+> 
+> No, input_unregister_device() is not needed (although it can be used)
+> with managed input devices (ones that are allocated with
+> devm_input_allocate_device()) because input_register_device() will
+> automatically insert devres entry for such devices. So for managed input
+> devices that were registered with input subsystem there are 2 separate
+> devres entries: one for unregistering the device and another is to
+> finally release all resources. If you had a sequence:
+> 
+> 	devm_kzalloc(...);
+> 	devm_input_allocate_device(...);
+> 	devm_devm_ioremap_resource(...);
+> 	devm_request_irq(...);
+> 	input_register_device(...);
+> 
+> then unwind sequence will be:
+> 
+> 	unregister input device (but input device structure is still
+> 		present in memory and input_event() can be called, but
+> 		events won't be delivered anywhere - that is done so
+> 		that we can survive releasing IRQs after unregistering
+> 		managed input device)
+> 	free IRQ
+> 	release resources
+> 	free input device structure
+> 	free kzalloc memory
+> 
+> Hope this helps.
 
-Thomas, can you please review this patch?
+Oh, I really appreciate your detailed and kind comments. :-)
 
-> ---
->  include/linux/interrupt.h |  5 +++++
->  kernel/irq/devres.c       | 45 +++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 50 insertions(+)
->
-> diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
-> index 0053adde0ed9..a2678d35b5a2 100644
-> --- a/include/linux/interrupt.h
-> +++ b/include/linux/interrupt.h
-> @@ -158,6 +158,11 @@ devm_request_irq(struct device *dev, unsigned int irq, irq_handler_t handler,
->  					 devname, dev_id);
->  }
->  
-> +extern int __must_check
-> +devm_request_any_context_irq(struct device *dev, unsigned int irq,
-> +		 irq_handler_t handler, unsigned long irqflags,
-> +		 const char *devname, void *dev_id);
-> +
->  extern void devm_free_irq(struct device *dev, unsigned int irq, void *dev_id);
->  
->  /*
-> diff --git a/kernel/irq/devres.c b/kernel/irq/devres.c
-> index bd8e788d71e0..1ef0606797c9 100644
-> --- a/kernel/irq/devres.c
-> +++ b/kernel/irq/devres.c
-> @@ -73,6 +73,51 @@ int devm_request_threaded_irq(struct device *dev, unsigned int irq,
->  EXPORT_SYMBOL(devm_request_threaded_irq);
->  
->  /**
-> + *	devm_request_any_context_irq - allocate an interrupt line for a managed device
-> + *	@dev: device to request interrupt for
-> + *	@irq: Interrupt line to allocate
-> + *	@handler: Function to be called when the IRQ occurs
-> + *	@thread_fn: function to be called in a threaded interrupt context. NULL
-> + *		    for devices which handle everything in @handler
-> + *	@irqflags: Interrupt type flags
-> + *	@devname: An ascii name for the claiming device
-> + *	@dev_id: A cookie passed back to the handler function
-> + *
-> + *	Except for the extra @dev argument, this function takes the
-> + *	same arguments and performs the same function as
-> + *	request_any_context_irq().  IRQs requested with this function will be
-> + *	automatically freed on driver detach.
-> + *
-> + *	If an IRQ allocated with this function needs to be freed
-> + *	separately, devm_free_irq() must be used.
-> + */
-> +int devm_request_any_context_irq(struct device *dev, unsigned int irq,
-> +			      irq_handler_t handler, unsigned long irqflags,
-> +			      const char *devname, void *dev_id)
-> +{
-> +	struct irq_devres *dr;
-> +	int rc;
-> +
-> +	dr = devres_alloc(devm_irq_release, sizeof(struct irq_devres),
-> +			  GFP_KERNEL);
-> +	if (!dr)
-> +		return -ENOMEM;
-> +
-> +	rc = request_any_context_irq(irq, handler, irqflags, devname, dev_id);
-> +	if (rc) {
-> +		devres_free(dr);
-> +		return rc;
-> +	}
-> +
-> +	dr->irq = irq;
-> +	dr->dev_id = dev_id;
-> +	devres_add(dev, dr);
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(devm_request_any_context_irq);
-> +
-> +/**
->   *	devm_free_irq - free an interrupt
->   *	@dev: device to free interrupt for
->   *	@irq: Interrupt line to free
+I checked the following. As you said, input_register_device()
+automatically inserts devres entry.
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+./drivers/input/input.c
+int input_register_device(struct input_dev *dev)
+{
+        struct input_devres *devres = NULL;
+        struct input_handler *handler;
+        unsigned int packet_size;
+        const char *path;
+        int error;
+
+        if (dev->devres_managed) {
+                devres = devres_alloc(devm_input_device_unregister,
+                                      sizeof(struct input_devres), GFP_KERNEL);
+
+Thank you so much.
+
+Best regards,
+Jingoo Han
 

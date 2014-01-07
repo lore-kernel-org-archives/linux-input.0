@@ -1,58 +1,33 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Bluetooth: hidp: make sure input buffers are big
- enough
-Date: Tue, 7 Jan 2014 13:11:03 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1401071308020.4962@pobox.suse.cz>
-References: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com> <3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org> <CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com>
+From: Jonathan Aquilina <eagles051387@gmail.com>
+Subject: Patch from down stream which has been forgotten
+Date: Tue, 07 Jan 2014 14:56:49 +0100
+Message-ID: <49613260.WKf2LBZM10@jaquilina-satellite-s75-a>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57900 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751095AbaAGMLG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Jan 2014 07:11:06 -0500
-In-Reply-To: <CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com>
+Received: from mail-wi0-f171.google.com ([209.85.212.171]:40496 "EHLO
+	mail-wi0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752307AbaAGN4w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jan 2014 08:56:52 -0500
+Received: by mail-wi0-f171.google.com with SMTP id bz8so4154072wib.4
+        for <linux-input@vger.kernel.org>; Tue, 07 Jan 2014 05:56:51 -0800 (PST)
+Received: from jaquilina-satellite-s75-a.localnet (c178-234.i02-5.onvol.net. [213.165.178.234])
+        by mx.google.com with ESMTPSA id uq2sm45447403wjc.5.2014.01.07.05.56.50
+        for <linux-input@vger.kernel.org>
+        (version=TLSv1.1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Tue, 07 Jan 2014 05:56:50 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-bluetooth@vger.kernel.org development" <linux-bluetooth@vger.kernel.org>, "Gustavo F. Padovan" <gustavo@padovan.org>
+To: linux-input@vger.kernel.org
 
-On Fri, 27 Dec 2013, David Herrmann wrote:
+I have a down stream bug from ubuntu which has been forgotten. 
 
-> >> I also haven't figured out a nice way to make HID-core honor the 
-> >> "size" parameter. hid-input depends on getting the whole 
-> >> input-report.
-> >
-> > I think this needs clearly fixing.
-> 
-> And we have a volunteer, yippie! ;)
-> 
-> I think hid_input_report() in hid-core.c is the only place that relies
-> on this. Maybe it really is easier to fix it. But I am not even
-> slightly familiar with that code. So if no-one of the HID core
-> developers steps up to fix it, we should take the transport-driver
-> fixes instead. As nearly all transport-drivers are affected by this,
-> maybe we should even move this buffer into hid_device and provide
-> hid_input_truncated_report() which does this.
-> 
-> Anyhow, waiting for Jiri's comments on this.
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/967399
 
-Hmm, this is really unfortunate situation.
+This fixes multitouch track pads issue where the track pad doesnt work at all.
 
-I am now looking into making hid_input_report() honor 'size' properly, but 
-no matter how it'll be done in the end, it'll absolutely not be a simple 
-'fix'. So definitely can be done for 3.15 or so, but not as a fix for 
-current kernels.
+Can I get an update as to the status of the patch which was upstreamed.
 
-So doing kzalloc(rsize, GFP_ATOMIC) in the HID-core for now, and copying 
-the buffer around, seems like only viable solution for now, with the 
-outlook of removing this ugliness once hid-core honors 'size' properly.
-
-I will keep looking into this and maybe some easy way how to hack this 
-together will materialize, but I don't currently see it.
-
-Hmm ...
-
--- 
-Jiri Kosina
-SUSE Labs
+Thanks
+Jonathan

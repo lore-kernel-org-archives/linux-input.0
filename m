@@ -1,51 +1,41 @@
-From: "Dr. Musa Hamed" <drmusahamed01@gmail.com>
-Subject: I have a very lucrative Business
-Date: Wed, 8 Jan 2014 21:47:31 +0100
-Message-ID: <CALS90i9nMs6jMoH2O5S68sPF=juYOV2sfMAwaBekL8ccz3eSOQ__19395.6495415934$1389215494$gmane$org@mail.gmail.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH] input: synaptics-rmi4 - use snprintf instead of sprintf in rmi_i2c.c
+Date: Wed, 8 Jan 2014 13:37:55 -0800
+Message-ID: <1389217075-28551-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f196.google.com ([209.85.212.196]:53181 "EHLO
-	mail-wi0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757419AbaAHVLS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 16:11:18 -0500
-Received: by mail-wi0-f196.google.com with SMTP id hi5so655217wib.3
-        for <linux-input@vger.kernel.org>; Wed, 08 Jan 2014 13:11:17 -0800 (PST)
+Received: from us-mx2.synaptics.com ([192.147.44.131]:30736 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757798AbaAHViA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 16:38:00 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-ATTN: Dear,
+This is a trivial change to use snprintf rather than sprintf while building
+the diagnostic output buffer.
 
-I am Dr. Musa Hamed Executive Director of the Bank of Africa
-Plc B.O.A,Cotonou Benin Rep. I have a very lucrative Business proposal
-worth of 21,500,000.00 USD.
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-An Iraqi named Hamadi Hashem a business man made a fixed deposit of
-21,500,000.00 USD . Upon maturity several notices was sent to him,
-even during the war,eleven years ago (2003) up till this date. Again
-after the war another notification was sent and still no response came
-from him. it has been found out that Hamadi Hashem and his family had
-been killed during the war in bomb blast that hit their home at
-Mukaradeeb where his personal oil well was. I am prepared to split the
-funds with you 50%:50%.By placing you as the NEXT OF KIN to his
-deposit.
+---
 
-Should you be interested in doing this deal with me, please send me
-the following information:
+ drivers/input/rmi4/rmi_i2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-(1) Your Name
-(2) Resident Address
-(3) Your Occupation
-(4) Your Phone Number
-(5) Date of Birth
-(6) Resident Country
-
-And I will prefer you to reach me privately and securely on my personal
-email address: dr.musahamed30@yahoo.fr
-Tel: +229-988-400-97
-
-I will provide you with further information as soon as I hear
-positively from you.
-
-Regards,
-Dr. Musa Hamed
+diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+index b33074c..43b0e53 100644
+--- a/drivers/input/rmi4/rmi_i2c.c
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -157,7 +157,7 @@ static int copy_to_debug_buf(struct device *dev, struct rmi_i2c_data *data,
+ 	temp = data->debug_buf;
+ 
+ 	for (i = 0; i < len; i++) {
+-		n = sprintf(temp, " %02x", buf[i]);
++		n = snprintf(temp, 3, " %02x", buf[i]);
+ 		temp += n;
+ 	}
+ 

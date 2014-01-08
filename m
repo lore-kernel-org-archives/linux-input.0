@@ -1,59 +1,66 @@
-From: =?UTF-8?B?R2HDq3RhbiBDYXJsaWVy?= <gcembed@gmail.com>
-Subject: Re: Information about Atmel MXT224
-Date: Wed, 08 Jan 2014 13:24:22 +0100
-Message-ID: <52CD4376.50305@gmail.com>
-References: <52CD04F1.8090100@gmail.com> <alpine.DEB.2.01.1401081228580.1454@pmeerw.net>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] HID: input: fix input sysfs path for hid devices
+Date: Wed, 8 Jan 2014 13:33:28 +0100
+Message-ID: <CANq1E4R4H5U6Hqv4ZWWj8cznf6gAbnScs9Cd61BGnH=Mtg1kpA@mail.gmail.com>
+References: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com>
+	<CANq1E4QrPAJ7zNdN51PGQD5tkD_gTYfRoHOg7=zwVvnu-xOR0g@mail.gmail.com>
+	<alpine.LNX.2.00.1312202335300.11949@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f171.google.com ([209.85.215.171]:45879 "EHLO
-	mail-ea0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755200AbaAHMYi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 07:24:38 -0500
-Received: by mail-ea0-f171.google.com with SMTP id h10so779832eak.16
-        for <linux-input@vger.kernel.org>; Wed, 08 Jan 2014 04:24:36 -0800 (PST)
-In-Reply-To: <alpine.DEB.2.01.1401081228580.1454@pmeerw.net>
+Received: from mail-ig0-f182.google.com ([209.85.213.182]:53407 "EHLO
+	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755200AbaAHMd3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 07:33:29 -0500
+In-Reply-To: <alpine.LNX.2.00.1312202335300.11949@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Meerwald <pmeerw@pmeerw.net>
-Cc: linux-input@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Joonyoung Shim <jy0922.shim@samsung.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On 01/08/2014 12:42 PM, Peter Meerwald wrote:
+Hi Jiri
 
-> you need to request them from the distributor I guess, they docs are
-> pretty good
+On Fri, Dec 20, 2013 at 11:36 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Thu, 19 Dec 2013, David Herrmann wrote:
+>
+>> <benjamin.tissoires@redhat.com> wrote:
+>> > we used to set the parent of the input device as the parent of
+>> > the hid bus. This was introduced when we created hid as a real bus, and
+>> > to keep backward compatibility. Now, it's time to proper set the parent
+>> > so that sysfs has an idea of which input device is attached to
+>> > which hid device.
+>> >
+>> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> > ---
+>> >
+>> > Hi Jiri,
+>> >
+>> > well, the regression test did not showed anything bad, and a look at the hid
+>> > drivers also showed that no drivers should be armed by that.
+>> >
+>> > I think this is valuable because it will give a better understanding of the
+>> > actual mapping hardware/inputs. Like a touchscreen with pen + touch will have
+>> > the same hid parent, and I expect X/Wayland to be able to detect this at some
+>> > point to keep the mapping correctly between the two input devices and the screen.
+>> >
+>> > I also need that for hid-replay, so that I can be sure which input is attached
+>> > to which uhid device, and give up the heuristics I currently use.
+>>
+>> I was just wondering where we have multiple HID devices on a single
+>> parent, but yeah, uhid is a good example. I actually have no
+>> objections to this patch and it looks fine. But I cannot tell whether
+>> anyone relies on this.
+>>
+>> I'd say we should give it a try.
+>
+> Agreed, let's take it for 3.14, and if anyone complains about breakage
+> caused by this (which I don't expect), we'll revert to the previous state.
 
-I am in Belgium and we deal with Gleichmann & Co. Electronics in German=
-y=20
-to have their devkit (SMT-C-T10). I have signed a NDA with them to have=
-=20
-MXT224 protocol guide but they never send me Protocol Guide.
-I will try another distributor.
+You dropped the "Reviewed-by:" part in your commit-msg:
+http://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=for-next&id=bbe3175408cde792fbaa5bd1e41e430ea9e4fb4f
 
-> shouldn't this be 16/14?
-You are right, I already try this and test it again but this does not=20
-change anything.
+Not sure, whether you sometimes rebase your tree. If you do, you might
+wanna fix it, otherwise, I don't care. Just wanted to point it out.
 
-> something goes wrong in the initialization; the object table of the
-> chip doesn't match the register data fed in -- the mxt224 can be a bi=
-tch
-> and play dead
-
-So what can I do ? Maybe a problem with the embedded firmware that need=
-=20
-an update (atmel_mxt_ts 0-004b: Family ID: 129 Variant ID: 1=20
-Major.Minor.Build: 2.0.AB)
-
-When I do cat /proc/interrupts and I short-circuit /CHG to ground,=20
-number increases so low-level handling of interrupt is working.
-
-Thanks,
-Ga=C3=ABtan Carlier.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers
+David

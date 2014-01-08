@@ -1,94 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V1] input: fix memory leak in da9052 touchscreen driver
-Date: Wed, 8 Jan 2014 11:12:29 -0800
-Message-ID: <20140108191229.GA25785@core.coreip.homeip.net>
-References: <201401081709.s08H9nMr038265@swsrvapps-02.lan>
- <7aad8e91-f5d9-4527-8a94-bc038a9ccd85@email.android.com>
- <24DF37198A1E704D9811D8F72B87EB51847B1D99@NB-EX-MBX02.diasemi.com>
+From: "Dr. Musa Hamed" <drmusahamed01@gmail.com>
+Subject: I have a very lucrative Business
+Date: Wed, 8 Jan 2014 21:47:31 +0100
+Message-ID: <CALS90i9nMs6jMoH2O5S68sPF=juYOV2sfMAwaBekL8ccz3eSOQ__19395.6495415934$1389215494$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f54.google.com ([209.85.160.54]:41013 "EHLO
-	mail-pb0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750793AbaAHTMd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 14:12:33 -0500
-Content-Disposition: inline
-In-Reply-To: <24DF37198A1E704D9811D8F72B87EB51847B1D99@NB-EX-MBX02.diasemi.com>
+Received: from mail-wi0-f196.google.com ([209.85.212.196]:53181 "EHLO
+	mail-wi0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757419AbaAHVLS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 16:11:18 -0500
+Received: by mail-wi0-f196.google.com with SMTP id hi5so655217wib.3
+        for <linux-input@vger.kernel.org>; Wed, 08 Jan 2014 13:11:17 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>, David Dajun Chen <david.chen@diasemi.com>
 
-On Wed, Jan 08, 2014 at 06:12:27PM +0000, Opensource [Anthony Olech] wrote:
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: 08 January 2014 17:26
-> > To: Opensource [Anthony Olech]
-> > Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Huqiu Liu;
-> > David Dajun Chen
-> > Subject: Re: [PATCH V1] input: fix memory leak in da9052 touchscreen driver
-> > Anthony Olech <anthony.olech.opensource@diasemi.com> wrote:
-> > >The touchscreen component driver for the da9052/3 Dialog PMICs leaks
-> > >memory by not freeing the input device in the remove call.
-> > >This patch matches the existing call to input_alloc_device() in
-> > >da9052_ts_probe() to a new call to input_free_device() in
-> > >da9052_ts_remove()
-> > >Suggested-by: Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>
-> > >Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
-> > >---
-> > >This patch is relative to linux-next repository tag next-20140108
-> > >Many thanks to Huqiu Liu who found the bug.
-> > No, this is not a bug. Please refer to input API spec in input.h
-> > Thanks.
-> 
-> Hi Dmitry,
-> the spec *seems* to say that if the allocation is done via devm_input_allocate_device(dev)
-> then no explicit freeing must be done.
-> 
-> However that is not the case here, so the bug exists.
+ATTN: Dear,
 
-*sigh*
+I am Dr. Musa Hamed Executive Director of the Bank of Africa
+Plc B.O.A,Cotonou Benin Rep. I have a very lucrative Business proposal
+worth of 21,500,000.00 USD.
 
-/**
- * input_free_device - free memory occupied by input_dev structure
- * @dev: input device to free
- *
- * This function should only be used if input_register_device()
- * was not called yet or if it failed. Once device was registered
- * use input_unregister_device() and memory will be freed once last
- * reference to the device is dropped.
+An Iraqi named Hamadi Hashem a business man made a fixed deposit of
+21,500,000.00 USD . Upon maturity several notices was sent to him,
+even during the war,eleven years ago (2003) up till this date. Again
+after the war another notification was sent and still no response came
+from him. it has been found out that Hamadi Hashem and his family had
+been killed during the war in bomb blast that hit their home at
+Mukaradeeb where his personal oil well was. I am prepared to split the
+funds with you 50%:50%.By placing you as the NEXT OF KIN to his
+deposit.
 
-THIS ^^^^^^^^^^^^^^^^^^^^
+Should you be interested in doing this deal with me, please send me
+the following information:
 
- *
- * Device should be allocated by input_allocate_device().
- *
- * NOTE: If there are references to the input device then memory
- * will not be freed until last reference is dropped.
- */
+(1) Your Name
+(2) Resident Address
+(3) Your Occupation
+(4) Your Phone Number
+(5) Date of Birth
+(6) Resident Country
 
-/**
- * input_allocate_device - allocate memory for new input device
- *
- * Returns prepared struct input_dev or %NULL.
- *
- * NOTE: Use input_free_device() to free devices that have not been
- * registered; input_unregister_device() should be used for already
- * registered devices.
+And I will prefer you to reach me privately and securely on my personal
+email address: dr.musahamed30@yahoo.fr
+Tel: +229-988-400-97
 
-and this ^^^^^^^^^^^^^^^^^^^^^^^^
+I will provide you with further information as soon as I hear
+positively from you.
 
- */
-
-> 
-> It does seem that there is an alternative way of resolving the issue, namely to:
-> 1) change from allocate_device() to devm_input_allocate_device(dev) and
-> 2) remove the exiosting input_free_device() from the error path in the probe() function
-
-There is no issue, but if you want to convert the driver to using
-managed resources that would be fine.
-
-Thanks.
-
--- 
-Dmitry
+Regards,
+Dr. Musa Hamed

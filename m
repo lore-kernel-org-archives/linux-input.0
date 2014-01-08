@@ -1,66 +1,74 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] HID: input: fix input sysfs path for hid devices
-Date: Wed, 8 Jan 2014 13:33:28 +0100
-Message-ID: <CANq1E4R4H5U6Hqv4ZWWj8cznf6gAbnScs9Cd61BGnH=Mtg1kpA@mail.gmail.com>
-References: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4QrPAJ7zNdN51PGQD5tkD_gTYfRoHOg7=zwVvnu-xOR0g@mail.gmail.com>
-	<alpine.LNX.2.00.1312202335300.11949@pobox.suse.cz>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 1/2] Input: gpio_keys - use dev instead of pdev in
+ gpio_keys_setup_key()
+Date: Wed, 08 Jan 2014 14:42:39 +0200
+Message-ID: <1389184959.1871.287.camel@smile>
+References: <1386684237-31013-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f182.google.com ([209.85.213.182]:53407 "EHLO
-	mail-ig0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755200AbaAHMd3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 07:33:29 -0500
-In-Reply-To: <alpine.LNX.2.00.1312202335300.11949@pobox.suse.cz>
+Received: from mga01.intel.com ([192.55.52.88]:7104 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755890AbaAHMnP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Jan 2014 07:43:15 -0500
+In-Reply-To: <1386684237-31013-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Jiri
+On Tue, 2013-12-10 at 16:03 +0200, Andy Shevchenko wrote:
+> The platform device is not used in gpio_keys_setup_key(). This patch
+> substitutes it by struct device.
 
-On Fri, Dec 20, 2013 at 11:36 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Thu, 19 Dec 2013, David Herrmann wrote:
->
->> <benjamin.tissoires@redhat.com> wrote:
->> > we used to set the parent of the input device as the parent of
->> > the hid bus. This was introduced when we created hid as a real bus, and
->> > to keep backward compatibility. Now, it's time to proper set the parent
->> > so that sysfs has an idea of which input device is attached to
->> > which hid device.
->> >
->> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> > ---
->> >
->> > Hi Jiri,
->> >
->> > well, the regression test did not showed anything bad, and a look at the hid
->> > drivers also showed that no drivers should be armed by that.
->> >
->> > I think this is valuable because it will give a better understanding of the
->> > actual mapping hardware/inputs. Like a touchscreen with pen + touch will have
->> > the same hid parent, and I expect X/Wayland to be able to detect this at some
->> > point to keep the mapping correctly between the two input devices and the screen.
->> >
->> > I also need that for hid-replay, so that I can be sure which input is attached
->> > to which uhid device, and give up the heuristics I currently use.
->>
->> I was just wondering where we have multiple HID devices on a single
->> parent, but yeah, uhid is a good example. I actually have no
->> objections to this patch and it looks fine. But I cannot tell whether
->> anyone relies on this.
->>
->> I'd say we should give it a try.
->
-> Agreed, let's take it for 3.14, and if anyone complains about breakage
-> caused by this (which I don't expect), we'll revert to the previous state.
+Dmitry do you have any comments on the series? Could it be applied then?
 
-You dropped the "Reviewed-by:" part in your commit-msg:
-http://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=for-next&id=bbe3175408cde792fbaa5bd1e41e430ea9e4fb4f
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/input/keyboard/gpio_keys.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index 2db1324..209d4c6 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -424,13 +424,12 @@ out:
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -static int gpio_keys_setup_key(struct platform_device *pdev,
+> +static int gpio_keys_setup_key(struct device *dev,
+>  				struct input_dev *input,
+>  				struct gpio_button_data *bdata,
+>  				const struct gpio_keys_button *button)
+>  {
+>  	const char *desc = button->desc ? button->desc : "gpio_keys";
+> -	struct device *dev = &pdev->dev;
+>  	irq_handler_t isr;
+>  	unsigned long irqflags;
+>  	int irq, error;
+> @@ -719,7 +718,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
+>  
+>  	input->name = pdata->name ? : pdev->name;
+>  	input->phys = "gpio-keys/input0";
+> -	input->dev.parent = &pdev->dev;
+> +	input->dev.parent = dev;
+>  	input->open = gpio_keys_open;
+>  	input->close = gpio_keys_close;
+>  
+> @@ -736,7 +735,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
+>  		const struct gpio_keys_button *button = &pdata->buttons[i];
+>  		struct gpio_button_data *bdata = &ddata->data[i];
+>  
+> -		error = gpio_keys_setup_key(pdev, input, bdata, button);
+> +		error = gpio_keys_setup_key(dev, input, bdata, button);
+>  		if (error)
+>  			goto fail2;
+>  
 
-Not sure, whether you sometimes rebase your tree. If you do, you might
-wanna fix it, otherwise, I don't care. Just wanted to point it out.
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
 
-Cheers
-David

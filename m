@@ -1,83 +1,58 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/5] HID: logitech-dj: Fix USB 3.0 issue
-Date: Wed,  8 Jan 2014 17:18:45 -0500
-Message-ID: <1389219529-29671-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1389219529-29671-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1389219529-29671-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <adlr@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: synaptics-rmi4 - use snprintf instead of sprintf
+ in rmi_i2c.c
+Date: Wed, 8 Jan 2014 14:44:23 -0800
+Message-ID: <20140108224423.GA27279@core.coreip.homeip.net>
+References: <1389217075-28551-1-git-send-email-cheiny@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:57798 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757056AbaAHWo2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 17:44:28 -0500
+Received: by mail-pa0-f47.google.com with SMTP id kq14so2445409pab.34
+        for <linux-input@vger.kernel.org>; Wed, 08 Jan 2014 14:44:27 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1389217075-28551-1-git-send-email-cheiny@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-From: Benjamin Tisssoires <benjamin.tissoires@redhat.com>
+On Wed, Jan 08, 2014 at 01:37:55PM -0800, Christopher Heiny wrote:
+> This is a trivial change to use snprintf rather than sprintf while building
+> the diagnostic output buffer.
+> 
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> ---
+> 
+>  drivers/input/rmi4/rmi_i2c.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+> index b33074c..43b0e53 100644
+> --- a/drivers/input/rmi4/rmi_i2c.c
+> +++ b/drivers/input/rmi4/rmi_i2c.c
+> @@ -157,7 +157,7 @@ static int copy_to_debug_buf(struct device *dev, struct rmi_i2c_data *data,
+>  	temp = data->debug_buf;
+>  
+>  	for (i = 0; i < len; i++) {
+> -		n = sprintf(temp, " %02x", buf[i]);
+> +		n = snprintf(temp, 3, " %02x", buf[i]);
+>  		temp += n;
+>  	}
+>  
 
-This fix (not very clean though) should fix the long time USB3
-issue that was spotted last year. The rational has been given by
-Hans de Goede:
+I do not think it is right, as if there is truncation you'd move too
+far. In any case please replace the while loop with:
 
- ----
+	snprintf(data->debug_buf, data->debug_buf_size, "%*ph", len, buf);
 
-I think the most likely cause for this is a firmware bug
-in the unifying receiver, likely a race condition.
+Thanks.
 
-The most prominent difference between having a USB-2 device
-plugged into an EHCI (so USB-2 only) port versus an XHCI
-port will be inter packet timing. Specifically if you
-send packets (ie hid reports) one at a time, then with
-the EHCI controller their will be a significant pause
-between them, where with XHCI they will be very close
-together in time.
-
-The reason for this is the difference in EHCI / XHCI
-controller OS <-> driver interfaces.
-
-For non periodic endpoints (control, bulk) the EHCI uses a
-circular linked-list of commands in dma-memory, which it
-follows to execute commands, if the list is empty, it
-will go into an idle state and re-check periodically.
-
-The XHCI uses a ring of commands per endpoint, and if the OS
-places anything new on the ring it will do an ioport write,
-waking up the XHCI making it send the new packet immediately.
-
-For periodic transfers (isoc, interrupt) the delay between
-packets when sending one at a time (rather then queuing them
-up) will be even larger, because they need to be inserted into
-the EHCI schedule 2 ms in the future so the OS driver can be
-sure that the EHCI driver does not try to start executing the
-time slot in question before the insertion has completed.
-
-So a possible fix may be to insert a delay between packets
-being send to the receiver.
-
- ----
-
-I tested this on a buggy Haswell USB 3.0 motherboard, and I always
-get the notification after adding the msleep.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-logitech-dj.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index a7947d8..f45279c 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -516,6 +516,14 @@ static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
- 	dj_report->report_params[CMD_SWITCH_PARAM_TIMEOUT_SECONDS] = (u8)timeout;
- 	retval = logi_dj_recv_send_report(djrcv_dev, dj_report);
- 	kfree(dj_report);
-+
-+	/*
-+	 * Ugly sleep to work around a USB 3.0 bug when the receiver is still
-+	 * processing the "switch-to-dj" command while we send an other command.
-+	 * 50 msec should gives enough time to the receiver to be ready.
-+	 */
-+	msleep(50);
-+
- 	return retval;
- }
- 
 -- 
-1.8.4.2
+Dmitry

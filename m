@@ -1,64 +1,51 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] HID: input: fix input sysfs path for hid devices
-Date: Wed, 8 Jan 2014 17:46:36 +0100
-Message-ID: <CANq1E4TAa=e0PCGdxp-dP7bG3zt42xMzcAJ=hUW1800=LocSSg@mail.gmail.com>
-References: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4QrPAJ7zNdN51PGQD5tkD_gTYfRoHOg7=zwVvnu-xOR0g@mail.gmail.com>
-	<alpine.LNX.2.00.1312202335300.11949@pobox.suse.cz>
-	<CANq1E4R4H5U6Hqv4ZWWj8cznf6gAbnScs9Cd61BGnH=Mtg1kpA@mail.gmail.com>
-	<alpine.LNX.2.00.1401081724440.31628@pobox.suse.cz>
+From: Anthony Olech <anthony.olech.opensource@diasemi.com>
+Subject: [PATCH V1] input: fix memory leak in da9052 touchscreen driver
+Date: Wed, 8 Jan 2014 16:58:10 +0000
+Message-ID: <201401081709.s08H9nMr038265@swsrvapps-02.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:55054 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755928AbaAHQqh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 11:46:37 -0500
-In-Reply-To: <alpine.LNX.2.00.1401081724440.31628@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>, David Dajun Chen <david.chen@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi
+The touchscreen component driver for the da9052/3 Dialog PMICs
+leaks memory by not freeing the input device in the remove call.
 
-On Wed, Jan 8, 2014 at 5:26 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 8 Jan 2014, David Herrmann wrote:
->
->> >> > I think this is valuable because it will give a better understanding of the
->> >> > actual mapping hardware/inputs. Like a touchscreen with pen + touch will have
->> >> > the same hid parent, and I expect X/Wayland to be able to detect this at some
->> >> > point to keep the mapping correctly between the two input devices and the screen.
->> >> >
->> >> > I also need that for hid-replay, so that I can be sure which input is attached
->> >> > to which uhid device, and give up the heuristics I currently use.
->> >>
->> >> I was just wondering where we have multiple HID devices on a single
->> >> parent, but yeah, uhid is a good example. I actually have no
->> >> objections to this patch and it looks fine. But I cannot tell whether
->> >> anyone relies on this.
->> >>
->> >> I'd say we should give it a try.
->> >
->> > Agreed, let's take it for 3.14, and if anyone complains about breakage
->> > caused by this (which I don't expect), we'll revert to the previous state.
->>
->> You dropped the "Reviewed-by:" part in your commit-msg:
->> http://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=for-next&id=bbe3175408cde792fbaa5bd1e41e430ea9e4fb4f
->>
->> Not sure, whether you sometimes rebase your tree. If you do, you might
->> wanna fix it, otherwise, I don't care. Just wanted to point it out.
->
-> Gah, sorry for that. No idea what in my process ate the tag.
->
-> I am really trying to make the tree non-rebasing. If you don't mind, I
-> wouldn't take this as a reson to rebase.
->
-> I can put you twice to some patch later to balance this out :p
->
-> Thanks for understanding,
+This patch matches the existing call to input_alloc_device()
+in da9052_ts_probe() to a new call to input_free_device() in
+da9052_ts_remove()
 
-Haha, don't worry, just saw it during post-review and wanted to let you know.
+Suggested-by: Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>
+Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
+---
+This patch is relative to linux-next repository tag next-20140108
 
-Cheers
-David
+Many thanks to Huqiu Liu who found the bug.
+
+ drivers/input/touchscreen/da9052_tsi.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
+index ab64d58..43a69d1 100644
+--- a/drivers/input/touchscreen/da9052_tsi.c
++++ b/drivers/input/touchscreen/da9052_tsi.c
+@@ -320,6 +320,7 @@ err_free_mem:
+ static int  da9052_ts_remove(struct platform_device *pdev)
+ {
+ 	struct da9052_tsi *tsi = platform_get_drvdata(pdev);
++	struct input_dev *input_dev = tsi->dev;
+ 
+ 	da9052_reg_write(tsi->da9052, DA9052_LDO9_REG, 0x19);
+ 
+@@ -328,6 +329,7 @@ static int  da9052_ts_remove(struct platform_device *pdev)
+ 
+ 	input_unregister_device(tsi->dev);
+ 	kfree(tsi);
++	input_free_device(input_dev);
+ 
+ 	return 0;
+ }
+-- 
+end-of-patch for input: fix memory leak in da9052 touchscreen driver V1

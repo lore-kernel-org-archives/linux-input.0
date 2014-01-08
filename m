@@ -1,69 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V1] input: fix memory leak in da9052 touchscreen driver
-Date: Wed, 08 Jan 2014 09:26:16 -0800
-Message-ID: <7aad8e91-f5d9-4527-8a94-bc038a9ccd85@email.android.com>
+From: "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
+Subject: RE: [PATCH V1] input: fix memory leak in da9052 touchscreen driver
+Date: Wed, 8 Jan 2014 18:12:27 +0000
+Message-ID: <24DF37198A1E704D9811D8F72B87EB51847B1D99@NB-EX-MBX02.diasemi.com>
 References: <201401081709.s08H9nMr038265@swsrvapps-02.lan>
+ <7aad8e91-f5d9-4527-8a94-bc038a9ccd85@email.android.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f48.google.com ([209.85.160.48]:58270 "EHLO
-	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752470AbaAHRnm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 12:43:42 -0500
-In-Reply-To: <201401081709.s08H9nMr038265@swsrvapps-02.lan>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.147]:46582 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751089AbaAHSMa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Jan 2014 13:12:30 -0500
+In-Reply-To: <7aad8e91-f5d9-4527-8a94-bc038a9ccd85@email.android.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>, David Dajun Chen <david.chen@diasemi.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>, David Dajun Chen <david.chen@diasemi.com>
 
-Anthony Olech <anthony.olech.opensource@diasemi.com> wrote:
->The touchscreen component driver for the da9052/3 Dialog PMICs
->leaks memory by not freeing the input device in the remove call.
->
->This patch matches the existing call to input_alloc_device()
->in da9052_ts_probe() to a new call to input_free_device() in
->da9052_ts_remove()
->
->Suggested-by: Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>
->Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
->---
->This patch is relative to linux-next repository tag next-20140108
->
->Many thanks to Huqiu Liu who found the bug.
-
-No, this is not a bug. Please refer to input API spec in input.h
-
-Thanks.
-
->
-> drivers/input/touchscreen/da9052_tsi.c |    2 ++
-> 1 file changed, 2 insertions(+)
->
->diff --git a/drivers/input/touchscreen/da9052_tsi.c
->b/drivers/input/touchscreen/da9052_tsi.c
->index ab64d58..43a69d1 100644
->--- a/drivers/input/touchscreen/da9052_tsi.c
->+++ b/drivers/input/touchscreen/da9052_tsi.c
->@@ -320,6 +320,7 @@ err_free_mem:
-> static int  da9052_ts_remove(struct platform_device *pdev)
-> {
-> 	struct da9052_tsi *tsi = platform_get_drvdata(pdev);
->+	struct input_dev *input_dev = tsi->dev;
-> 
-> 	da9052_reg_write(tsi->da9052, DA9052_LDO9_REG, 0x19);
-> 
->@@ -328,6 +329,7 @@ static int  da9052_ts_remove(struct platform_device
->*pdev)
-> 
-> 	input_unregister_device(tsi->dev);
-> 	kfree(tsi);
->+	input_free_device(input_dev);
-> 
-> 	return 0;
-> }
-
-
--- 
-Dmitry
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBEbWl0cnkgVG9yb2tob3YgW21h
+aWx0bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0KPiBTZW50OiAwOCBKYW51YXJ5IDIwMTQg
+MTc6MjYNCj4gVG86IE9wZW5zb3VyY2UgW0FudGhvbnkgT2xlY2hdDQo+IENjOiBsaW51eC1pbnB1
+dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IEh1cWl1IExp
+dTsNCj4gRGF2aWQgRGFqdW4gQ2hlbg0KPiBTdWJqZWN0OiBSZTogW1BBVENIIFYxXSBpbnB1dDog
+Zml4IG1lbW9yeSBsZWFrIGluIGRhOTA1MiB0b3VjaHNjcmVlbiBkcml2ZXINCj4gQW50aG9ueSBP
+bGVjaCA8YW50aG9ueS5vbGVjaC5vcGVuc291cmNlQGRpYXNlbWkuY29tPiB3cm90ZToNCj4gPlRo
+ZSB0b3VjaHNjcmVlbiBjb21wb25lbnQgZHJpdmVyIGZvciB0aGUgZGE5MDUyLzMgRGlhbG9nIFBN
+SUNzIGxlYWtzDQo+ID5tZW1vcnkgYnkgbm90IGZyZWVpbmcgdGhlIGlucHV0IGRldmljZSBpbiB0
+aGUgcmVtb3ZlIGNhbGwuDQo+ID5UaGlzIHBhdGNoIG1hdGNoZXMgdGhlIGV4aXN0aW5nIGNhbGwg
+dG8gaW5wdXRfYWxsb2NfZGV2aWNlKCkgaW4NCj4gPmRhOTA1Ml90c19wcm9iZSgpIHRvIGEgbmV3
+IGNhbGwgdG8gaW5wdXRfZnJlZV9kZXZpY2UoKSBpbg0KPiA+ZGE5MDUyX3RzX3JlbW92ZSgpDQo+
+ID5TdWdnZXN0ZWQtYnk6IEh1cWl1IExpdSA8bGl1aHExMUBtYWlscy50c2luZ2h1YS5lZHUuY24+
+DQo+ID5TaWduZWQtb2ZmLWJ5OiBBbnRob255IE9sZWNoIDxhbnRob255Lm9sZWNoLm9wZW5zb3Vy
+Y2VAZGlhc2VtaS5jb20+DQo+ID4tLS0NCj4gPlRoaXMgcGF0Y2ggaXMgcmVsYXRpdmUgdG8gbGlu
+dXgtbmV4dCByZXBvc2l0b3J5IHRhZyBuZXh0LTIwMTQwMTA4DQo+ID5NYW55IHRoYW5rcyB0byBI
+dXFpdSBMaXUgd2hvIGZvdW5kIHRoZSBidWcuDQo+IE5vLCB0aGlzIGlzIG5vdCBhIGJ1Zy4gUGxl
+YXNlIHJlZmVyIHRvIGlucHV0IEFQSSBzcGVjIGluIGlucHV0LmgNCj4gVGhhbmtzLg0KDQpIaSBE
+bWl0cnksDQp0aGUgc3BlYyAqc2VlbXMqIHRvIHNheSB0aGF0IGlmIHRoZSBhbGxvY2F0aW9uIGlz
+IGRvbmUgdmlhIGRldm1faW5wdXRfYWxsb2NhdGVfZGV2aWNlKGRldikNCnRoZW4gbm8gZXhwbGlj
+aXQgZnJlZWluZyBtdXN0IGJlIGRvbmUuDQoNCkhvd2V2ZXIgdGhhdCBpcyBub3QgdGhlIGNhc2Ug
+aGVyZSwgc28gdGhlIGJ1ZyBleGlzdHMuDQoNCkl0IGRvZXMgc2VlbSB0aGF0IHRoZXJlIGlzIGFu
+IGFsdGVybmF0aXZlIHdheSBvZiByZXNvbHZpbmcgdGhlIGlzc3VlLCBuYW1lbHkgdG86DQoxKSBj
+aGFuZ2UgZnJvbSBhbGxvY2F0ZV9kZXZpY2UoKSB0byBkZXZtX2lucHV0X2FsbG9jYXRlX2Rldmlj
+ZShkZXYpIGFuZA0KMikgcmVtb3ZlIHRoZSBleGlvc3RpbmcgaW5wdXRfZnJlZV9kZXZpY2UoKSBm
+cm9tIHRoZSBlcnJvciBwYXRoIGluIHRoZSBwcm9iZSgpIGZ1bmN0aW9uDQoNCkkgd2lsbCB1cGRh
+dGUgdGhlIHBhdGNoIHN1Ym1pc3Npb24gdG8gdGhlIGFsdGVybmF0aXZlIHRvbW9ycm93DQoNClRv
+bnkgT2xlY2ggKERpYWxvZyBTZW1pY29uZHVjdG9yKQ0KDQo+ID4gZHJpdmVycy9pbnB1dC90b3Vj
+aHNjcmVlbi9kYTkwNTJfdHNpLmMgfCAgICAyICsrDQo+ID4gMSBmaWxlIGNoYW5nZWQsIDIgaW5z
+ZXJ0aW9ucygrKQ0KPiA+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZGE5
+MDUyX3RzaS5jDQo+ID5iL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZGE5MDUyX3RzaS5jDQo+
+ID5pbmRleCBhYjY0ZDU4Li40M2E2OWQxIDEwMDY0NA0KPiA+LS0tIGEvZHJpdmVycy9pbnB1dC90
+b3VjaHNjcmVlbi9kYTkwNTJfdHNpLmMNCj4gPisrKyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3Jl
+ZW4vZGE5MDUyX3RzaS5jDQo+ID5AQCAtMzIwLDYgKzMyMCw3IEBAIGVycl9mcmVlX21lbToNCj4g
+PiBzdGF0aWMgaW50ICBkYTkwNTJfdHNfcmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBk
+ZXYpICB7DQo+ID4gCXN0cnVjdCBkYTkwNTJfdHNpICp0c2kgPSBwbGF0Zm9ybV9nZXRfZHJ2ZGF0
+YShwZGV2KTsNCj4gPisJc3RydWN0IGlucHV0X2RldiAqaW5wdXRfZGV2ID0gdHNpLT5kZXY7DQo+
+ID4gCWRhOTA1Ml9yZWdfd3JpdGUodHNpLT5kYTkwNTIsIERBOTA1Ml9MRE85X1JFRywgMHgxOSk7
+DQo+ID5AQCAtMzI4LDYgKzMyOSw3IEBAIHN0YXRpYyBpbnQgIGRhOTA1Ml90c19yZW1vdmUoc3Ry
+dWN0DQo+IHBsYXRmb3JtX2RldmljZQ0KPiA+KnBkZXYpDQo+ID4gCWlucHV0X3VucmVnaXN0ZXJf
+ZGV2aWNlKHRzaS0+ZGV2KTsNCj4gPiAJa2ZyZWUodHNpKTsNCj4gPisJaW5wdXRfZnJlZV9kZXZp
+Y2UoaW5wdXRfZGV2KTsNCj4gPiAJcmV0dXJuIDA7DQo+ID4gfQ0KPiAtLQ0KPiBEbWl0cnkNCg==

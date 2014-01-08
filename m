@@ -1,71 +1,39 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: am335x: IIO/ADC fixes if used together with TSC, v2
-Date: Wed, 8 Jan 2014 08:08:54 +0000
-Message-ID: <20140108080854.GB19974@lee--X1>
-References: <1387466911-3732-1-git-send-email-bigeasy@linutronix.de>
- <20140107085456.GD3182@lee--X1>
- <20140108080359.GA16527@core.coreip.homeip.net>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmU6IEluZm9ybWF0aW9uIGFib3V0IEF0bWVsIE1YVDIyNA==?=
+Date: Wed, 08 Jan 2014 13:04:57 +0400
+Message-ID: <1389171897.588258801@f329.i.mail.ru>
+References: <52CD04F1.8090100@gmail.com>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140108080359.GA16527-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Zubair Lutfullah <zubair.lutfullah-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <52CD04F1.8090100@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: =?UTF-8?B?R2HDq3RhbiBDYXJsaWVy?= <gcembed@gmail.com>
+Cc: =?UTF-8?B?Sm9vbnlvdW5nIFNoaW0=?= <jy0922.shim@samsung.com>, =?UTF-8?B?bGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3Jn?= <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-> > Dmitry, Jonathan,
-> >=20
-> > This is for you.
-> >=20
-> > The following changes since commit 6ce4eac1f600b34f2f7f58f9cd8f0503=
-d79e42ae:
-> >=20
-> >   Linux 3.13-rc1 (2013-11-22 11:30:55 -0800)
-> >=20
-> > are available in the git repository at:
-> >=20
-> >   git://git.linaro.org/people/ljones/mfd.git tags/ib-iio-input-3.13=
--1
-> >=20
-> > for you to fetch changes up to 7ca6740cd1cd410828a01151a044b51910d0=
-6eff:
-> >=20
-> >   mfd: input: iio: ti_amm335x: Rework TSC/ADC synchronization (2014=
--01-07 08:45:00 +0000)
-> >=20
-> > ----------------------------------------------------------------
-> > Immutable branch for IIO and Input
-> >=20
-> > ----------------------------------------------------------------
-> > Sebastian Andrzej Siewior (5):
-> >       iio: ti_am335x_adc: Adjust the closing bracket in tiadc_read_=
-raw()
-> >       mfd: ti_am335x_tscadc: Make am335x_tsc_se_update() local
-> >       mfd: ti_am335x_tscadc: Don't read back REG_SE
-> >       mfd: ti_am335x: Drop am335x_tsc_se_update() from resume path
-> >       mfd: input: iio: ti_amm335x: Rework TSC/ADC synchronization
-> >=20
-> >  drivers/iio/adc/ti_am335x_adc.c           | 68 +++++++++++++++++++=
-++++++++++++++++++++++++++++++-------------------
-> >  drivers/input/touchscreen/ti_am335x_tsc.c |  4 ++--
-> >  drivers/mfd/ti_am335x_tscadc.c            | 71 +++++++++++++++++++=
-+++++++++++++++++++++++++++++++++++++++++-----------
-> >  include/linux/mfd/ti_am335x_tscadc.h      |  8 ++++++--
-> >  4 files changed, 117 insertions(+), 34 deletions(-)
->=20
-> I do not have any pending changes to ti_am335x_tsc.c so it can all go
-> through Jonathan's tree.
-
-Well the patches are going through my tree, but in case either of you
-have any changes to the above files you can merge this and Git will do
-the rest during the merge-window. If neither of you do then no need to
-pull. :)
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+0KHRgNC10LTQsCwgIDgg0Y/QvdCy0LDRgNGPIDIwMTQsIDg6NTcgKzAxOjAwINC+0YIgR2HDq3Rh
+biBDYXJsaWVyIDxnY2VtYmVkQGdtYWlsLmNvbT46Cj4gSGVsbG8sCj4gSSBoYXZlIHRyaWVkIGF0
+bWVsX214dF90cyBkcml2ZXIgKG9yaWdpbmFsIGRyaXZlciBmcm9tIGtlcm5lbCAzLjYuMCBhbmQg
+Cj4gZHJpdmVyIGZyb20gbGludXgtbmV4dC9tYXN0ZXIgYnJhbmNoIGNvcGllZCB0byBrZXJuZWwg
+My42LjApIG9uIGkuTVgyNyAKPiBib2FyZC4gVGhlIGNhcGFjaXRpdmUgZ2xhc3MgdXNlZCBpcyBh
+ICJHRSBUb3VjaCIgCj4gU01ULUYtMDU3RzAwNy1CMDExLTQ6My1OUC4gSXQgaGFzIDE2IHBhZHMg
+aW4gWCBhbmQgMTQgcGFkcyBpbiBZLiBJdCBpcyAKPiBjb3JyZWN0bHkgZGV0ZWN0ZWQgKHdpdGgg
+b25lIHdhcm5pbmcvZXJyb3IpLgo+IFRoZSBwb3dlciBzdXBwbHkgb2YgVkREIGFuZCBBVkREIGlz
+IDIuOFYuIEFWREQgd2lsbCBiZSByYWlzZWQgbGF0ZXIgdG8gMy4zVi4KPiBXaGVuIEkgcHVzaCBv
+biBnbGFzcywgbm90aGluZyBvY2N1cnMgaW4gZXZldHN0IG5vciBvbiAvQ0hHIHBpbiBvZiBNWFQy
+MjQuCgpEbyBub3QgZm9yZ2V0IGFib3V0IHNldHVwIElPTVVYIGZvciBJUlEgcGluPwoKLS0tCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1r
+ZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpo
+dHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJu
+ZWwK

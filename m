@@ -1,129 +1,175 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH] input synaptics-rmi4: move rmi_f01 query register parsing to its own function
-Date: Tue, 7 Jan 2014 17:02:10 -0800
-Message-ID: <1389142930-26279-1-git-send-email-cheiny@synaptics.com>
+From: =?UTF-8?B?R2HDq3RhbiBDYXJsaWVy?= <gcembed@gmail.com>
+Subject: Information about Atmel MXT224
+Date: Wed, 08 Jan 2014 08:57:37 +0100
+Message-ID: <52CD04F1.8090100@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:9748 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754037AbaAHBCO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jan 2014 20:02:14 -0500
+Received: from mail-ee0-f53.google.com ([74.125.83.53]:47827 "EHLO
+	mail-ee0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755033AbaAHH56 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 02:57:58 -0500
+Received: by mail-ee0-f53.google.com with SMTP id b57so487479eek.40
+        for <linux-input@vger.kernel.org>; Tue, 07 Jan 2014 23:57:57 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: linux-input@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>
 
-In the near future, query register parsing is going to get a lot more
-complicated.  It's also going to be needed by the reflash code.  Now is the
-time to move this from the F01 initialization into its own function,
-while the code is still fairly simple.
+Hello,
+I have tried atmel_mxt_ts driver (original driver from kernel 3.6.0 and=
+=20
+driver from linux-next/master branch copied to kernel 3.6.0) on i.MX27=20
+board. The capacitive glass used is a "GE Touch"=20
+SMT-F-057G007-B011-4:3-NP. It has 16 pads in X and 14 pads in Y. It is=20
+correctly detected (with one warning/error).
+The power supply of VDD and AVDD is 2.8V. AVDD will be raised later to =
+3.3V.
+When I push on glass, nothing occurs in evetst nor on /CHG pin of MXT22=
+4.
 
-Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Does someone has some informations or the protocol guide, please ?
+Thanks a lot for your help.
+Ga=C3=ABtan Carlier.
 
----
+Below some code and logs.
 
- drivers/input/rmi4/rmi_f01.c | 71 +++++++++++++++++++++++++++-----------------
- 1 file changed, 43 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index d547633..1cb11ea 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -167,6 +167,46 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
- 	return 0;
- }
- 
-+static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
-+				   u16 query_base_addr,
-+				   struct f01_basic_properties *props)
-+{
-+	u8 basic_query[RMI_F01_BASIC_QUERY_LEN];
-+	int error;
-+
-+	error = rmi_read_block(rmi_dev, query_base_addr,
-+			       basic_query, sizeof(basic_query));
-+	if (error < 0) {
-+		dev_err(&rmi_dev->dev, "Failed to read device query registers.\n");
-+		return error;
-+	}
-+
-+	/* Now parse what we got */
-+	props->manufacturer_id = basic_query[0];
-+
-+	props->has_lts = basic_query[1] & RMI_F01_QRY1_HAS_LTS;
-+	props->has_adjustable_doze =
-+			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE;
-+	props->has_adjustable_doze_holdoff =
-+			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE_HOFF;
-+
-+	snprintf(props->dom, sizeof(props->dom),
-+		 "20%02x%02x%02x",
-+		 basic_query[5] & RMI_F01_QRY5_YEAR_MASK,
-+		 basic_query[6] & RMI_F01_QRY6_MONTH_MASK,
-+		 basic_query[7] & RMI_F01_QRY7_DAY_MASK);
-+
-+	memcpy(props->product_id, &basic_query[11],
-+		RMI_PRODUCT_ID_LENGTH);
-+	props->product_id[RMI_PRODUCT_ID_LENGTH] = '\0';
-+
-+	props->productinfo =
-+			((basic_query[2] & RMI_F01_QRY2_PRODINFO_MASK) << 7) |
-+			(basic_query[3] & RMI_F01_QRY2_PRODINFO_MASK);
-+
-+	return 0;
-+}
-+
- static int rmi_f01_initialize(struct rmi_function *fn)
- {
- 	u8 temp;
-@@ -176,7 +216,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
- 	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
- 	struct f01_data *data = fn->data;
- 	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
--	u8 basic_query[RMI_F01_BASIC_QUERY_LEN];
- 
- 	mutex_init(&data->control_mutex);
- 
-@@ -248,36 +287,12 @@ static int rmi_f01_initialize(struct rmi_function *fn)
- 		return error;
- 	}
- 
--	error = rmi_read_block(rmi_dev, fn->fd.query_base_addr,
--			       basic_query, sizeof(basic_query));
-+	error = rmi_f01_read_properties(rmi_dev, fn->fd.query_base_addr,
-+		&data->properties);
- 	if (error < 0) {
--		dev_err(&fn->dev, "Failed to read device query registers.\n");
-+		dev_err(&fn->dev, "Failed to read F01 properties.\n");
- 		return error;
- 	}
--
--	/* Now parse what we got */
--	data->properties.manufacturer_id = basic_query[0];
--
--	data->properties.has_lts = basic_query[1] & RMI_F01_QRY1_HAS_LTS;
--	data->properties.has_adjustable_doze =
--			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE;
--	data->properties.has_adjustable_doze_holdoff =
--			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE_HOFF;
--
--	snprintf(data->properties.dom, sizeof(data->properties.dom),
--		 "20%02x%02x%02x",
--		 basic_query[5] & RMI_F01_QRY5_YEAR_MASK,
--		 basic_query[6] & RMI_F01_QRY6_MONTH_MASK,
--		 basic_query[7] & RMI_F01_QRY7_DAY_MASK);
--
--	memcpy(data->properties.product_id, &basic_query[11],
--		RMI_PRODUCT_ID_LENGTH);
--	data->properties.product_id[RMI_PRODUCT_ID_LENGTH] = '\0';
--
--	data->properties.productinfo =
--			((basic_query[2] & RMI_F01_QRY2_PRODINFO_MASK) << 7) |
--			(basic_query[3] & RMI_F01_QRY2_PRODINFO_MASK);
--
- 	dev_info(&fn->dev, "found RMI device, manufacturer: %s, product: %s\n",
- 		 data->properties.manufacturer_id == 1 ?
- 							"Synaptics" : "unknown",
+Here is my initialization :
+8---------------------------------------------------------
+/* TSP */
+static struct mxt_platform_data mxt_platform_data =3D {
+	.x_line			=3D 18,
+	.y_line			=3D 11,
+	.x_size			=3D 480,
+	.y_size			=3D 640,
+	.blen			=3D 0x1,
+	.threshold		=3D 0x28,
+	.voltage		=3D 2800000,		/* 2.8V */
+	.orient			=3D MXT_DIAGONAL_COUNTER,
+	.irqflags		=3D IRQF_TRIGGER_FALLING,
+};
+
+static struct i2c_board_info imx27gc_i2c0_devices[] =3D {
+	{
+		I2C_BOARD_INFO("atmel_mxt_ts", 0x4b),
+		.platform_data =3D &mxt_platform_data,
+		/* irq number is run-time assigned */
+	},
+	/* more devices can be added using expansion connectors */
+};
+
+static void __init dvip01_init(void)
+{
+	dvip01_i2c0_devices[0].irq =3D gpio_to_irq(MXT_KEY);
+}
+8---------------------------------------------------------
+
+
+Here is log of start-up:
+8---------------------------------------------------------
+atmel_mxt_ts 0-004b: Type 37 Start 106 Size 130 Instances  1 ReportIDs=20
+  0 :   0
+atmel_mxt_ts 0-004b: Type 44 Start 236 Size   1 Instances  1 ReportIDs=20
+  0 :   0
+atmel_mxt_ts 0-004b: Type  5 Start 237 Size   9 Instances  1 ReportIDs=20
+  0 :   0
+atmel_mxt_ts 0-004b: Type  6 Start 246 Size   6 Instances  1 ReportIDs=20
+  1 :   1
+atmel_mxt_ts 0-004b: Type 38 Start 252 Size   8 Instances  1 ReportIDs=20
+  0 :   0
+atmel_mxt_ts 0-004b: Type  7 Start 260 Size   3 Instances  1 ReportIDs=20
+  0 :   0
+atmel_mxt_ts 0-004b: Type  8 Start 263 Size  10 Instances  1 ReportIDs=20
+  0 :   0
+atmel_mxt_ts 0-004b: Type  9 Start 273 Size  35 Instances  1 ReportIDs=20
+  2 :  11
+atmel_mxt_ts 0-004b: Type 18 Start 308 Size   2 Instances  1 ReportIDs=20
+  0 :   0
+atmel_mxt_ts 0-004b: Type 19 Start 310 Size   6 Instances  1 ReportIDs=20
+12 :  12
+atmel_mxt_ts 0-004b: Type 25 Start 316 Size   6 Instances  1 ReportIDs=20
+13 :  13
+atmel_mxt_ts 0-004b: Type 42 Start 322 Size   8 Instances  1 ReportIDs=20
+14 :  14
+atmel_mxt_ts 0-004b: Type 46 Start 330 Size   9 Instances  1 ReportIDs=20
+15 :  15
+atmel_mxt_ts 0-004b: Type 47 Start 339 Size  10 Instances  1 ReportIDs=20
+  0 :   0
+atmel_mxt_ts 0-004b: Type 48 Start 349 Size  54 Instances  1 ReportIDs=20
+16 :  16
+atmel_mxt_ts 0-004b: Type 55 Start 403 Size   4 Instances  1 ReportIDs=20
+  0 :   0
+atmel_mxt_ts 0-004b: No cfg data defined, skipping reg init
+atmel_mxt_ts 0-004b: Invalid object type
+atmel_mxt_ts 0-004b: Family ID: 129 Variant ID: 1 Major.Minor.Build: 2.=
+0.AB
+atmel_mxt_ts 0-004b: Matrix X Size: 16 Matrix Y Size: 14 Object Num: 16
+input: Atmel maXTouch Touchscreen as=20
+/devices/platform/imx-i2c.0/i2c-0/0-004b/input/input0
+8---------------------------------------------------------
+
+Here is evtest information :
+8---------------------------------------------------------
+Input driver version is 1.0.1evdev: (EVIOCGBIT): Suspicious buffer size=
+=20
+511, limiting output to 64 bytes. See http://userweb.kernel.org/~dtorl
+
+Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
+Input device name: "Atmel maXTouch Touchscreen"
+Supported events:
+   Event type 0 (Sync)
+   Event type 1 (Key)
+     Event code 330 (Touch)
+   Event type 3 (Absolute)
+     Event code 0 (X)
+       Value      0
+       Min        0
+       Max      479
+     Event code 1 (Y)
+       Value      0
+       Min        0
+       Max      639
+     Event code 24 (Pressure)
+       Value      0
+       Min        0
+       Max      255
+     Event code 47 (?)
+       Value      0
+       Min        0
+       Max        9
+     Event code 48 (?)
+       Value      0
+       Min        0
+       Max      255
+     Event code 53 (?)
+       Value      0
+       Min        0
+       Max      479
+     Event code 54 (?)
+       Value      0
+       Min        0
+       Max      639
+     Event code 57 (?)
+       Value      0
+       Min        0
+       Max    65535
+     Event code 58 (?)
+       Value      0
+       Min        0
+       Max      255
+Testing ... (interrupt to exit)
+8---------------------------------------------------------
+
+Here is /proc/interrupts:
+8---------------------------------------------------------
+128:          0  gpio-mxc  atmel_mxt_ts
+8---------------------------------------------------------
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

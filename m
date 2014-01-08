@@ -1,46 +1,57 @@
-From: =?UTF-8?B?R2HDq3RhbiBDYXJsaWVy?= <gcembed@gmail.com>
-Subject: Re: Information about Atmel MXT224
-Date: Wed, 08 Jan 2014 13:58:56 +0100
-Message-ID: <52CD4B90.8040509@gmail.com>
-References: <52CD04F1.8090100@gmail.com> <alpine.DEB.2.01.1401081228580.1454@pmeerw.net> <52CD4376.50305@gmail.com> <alpine.DEB.2.01.1401081344451.1454@pmeerw.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: input: fix input sysfs path for hid devices
+Date: Wed, 8 Jan 2014 17:26:16 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1401081724440.31628@pobox.suse.cz>
+References: <1387469113-4129-1-git-send-email-benjamin.tissoires@redhat.com> <CANq1E4QrPAJ7zNdN51PGQD5tkD_gTYfRoHOg7=zwVvnu-xOR0g@mail.gmail.com> <alpine.LNX.2.00.1312202335300.11949@pobox.suse.cz>
+ <CANq1E4R4H5U6Hqv4ZWWj8cznf6gAbnScs9Cd61BGnH=Mtg1kpA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f45.google.com ([74.125.83.45]:35158 "EHLO
-	mail-ee0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756218AbaAHM7N (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jan 2014 07:59:13 -0500
-Received: by mail-ee0-f45.google.com with SMTP id d49so647302eek.18
-        for <linux-input@vger.kernel.org>; Wed, 08 Jan 2014 04:59:11 -0800 (PST)
-In-Reply-To: <alpine.DEB.2.01.1401081344451.1454@pmeerw.net>
+Received: from cantor2.suse.de ([195.135.220.15]:34822 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755750AbaAHQ0T (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Jan 2014 11:26:19 -0500
+In-Reply-To: <CANq1E4R4H5U6Hqv4ZWWj8cznf6gAbnScs9Cd61BGnH=Mtg1kpA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Meerwald <pmeerw@pmeerw.net>
-Cc: linux-input@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Joonyoung Shim <jy0922.shim@samsung.com>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hello,
-> just ask harder; I got it from them
-I am going to ask to another dealer.
+On Wed, 8 Jan 2014, David Herrmann wrote:
 
-> you need to understand the object table and see what object leads to =
-the
-> invalid object message; there is some mismatch between the driver and=
- the
-> chip
-But you have to admit that without Protocol Guide, it is a little bit=20
-harder ;-)
+> >> > I think this is valuable because it will give a better understanding of the
+> >> > actual mapping hardware/inputs. Like a touchscreen with pen + touch will have
+> >> > the same hid parent, and I expect X/Wayland to be able to detect this at some
+> >> > point to keep the mapping correctly between the two input devices and the screen.
+> >> >
+> >> > I also need that for hid-replay, so that I can be sure which input is attached
+> >> > to which uhid device, and give up the heuristics I currently use.
+> >>
+> >> I was just wondering where we have multiple HID devices on a single
+> >> parent, but yeah, uhid is a good example. I actually have no
+> >> objections to this patch and it looks fine. But I cannot tell whether
+> >> anyone relies on this.
+> >>
+> >> I'd say we should give it a try.
+> >
+> > Agreed, let's take it for 3.14, and if anyone complains about breakage
+> > caused by this (which I don't expect), we'll revert to the previous state.
+> 
+> You dropped the "Reviewed-by:" part in your commit-msg:
+> http://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/commit/?h=for-next&id=bbe3175408cde792fbaa5bd1e41e430ea9e4fb4f
+> 
+> Not sure, whether you sometimes rebase your tree. If you do, you might
+> wanna fix it, otherwise, I don't care. Just wanted to point it out.
 
-> if I remember correctly, the mxt224 does periodic interrupts (200ms?)
-> when something is wrong with the config
-That's explain why I previously saw Interrupts running free (100ms or=20
-200ms).
+Gah, sorry for that. No idea what in my process ate the tag.
 
-Thank you,
-Ga=C3=ABtan Carlier
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I am really trying to make the tree non-rebasing. If you don't mind, I 
+wouldn't take this as a reson to rebase.
+
+I can put you twice to some patch later to balance this out :p
+
+Thanks for understanding,
+
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,74 +1,51 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 1/2] Input: gpio_keys - use dev instead of pdev in
- gpio_keys_setup_key()
-Date: Wed, 08 Jan 2014 14:42:39 +0200
-Message-ID: <1389184959.1871.287.camel@smile>
-References: <1386684237-31013-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Peter Meerwald <pmeerw@pmeerw.net>
+Subject: Re: Information about Atmel MXT224
+Date: Wed, 8 Jan 2014 13:50:02 +0100 (CET)
+Message-ID: <alpine.DEB.2.01.1401081344451.1454@pmeerw.net>
+References: <52CD04F1.8090100@gmail.com> <alpine.DEB.2.01.1401081228580.1454@pmeerw.net> <52CD4376.50305@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:7104 "EHLO mga01.intel.com"
+Received: from ns.pmeerw.net ([87.118.82.44]:50255 "EHLO pmeerw.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755890AbaAHMnP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Jan 2014 07:43:15 -0500
-In-Reply-To: <1386684237-31013-1-git-send-email-andriy.shevchenko@linux.intel.com>
+	id S1751764AbaAHMuE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Jan 2014 07:50:04 -0500
+In-Reply-To: <52CD4376.50305@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: =?UTF-8?Q?Ga=C3=ABtan_Carlier?= <gcembed@gmail.com>
+Cc: linux-input@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Joonyoung Shim <jy0922.shim@samsung.com>
 
-On Tue, 2013-12-10 at 16:03 +0200, Andy Shevchenko wrote:
-> The platform device is not used in gpio_keys_setup_key(). This patch
-> substitutes it by struct device.
+Hello,
 
-Dmitry do you have any comments on the series? Could it be applied then?
+> I am in Belgium and we deal with Gleichmann & Co. Electronics in Germany to
+> have their devkit (SMT-C-T10). I have signed a NDA with them to have MXT224
+> protocol guide but they never send me Protocol Guide.
+> I will try another distributor.
 
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 2db1324..209d4c6 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -424,13 +424,12 @@ out:
->  	return IRQ_HANDLED;
->  }
->  
-> -static int gpio_keys_setup_key(struct platform_device *pdev,
-> +static int gpio_keys_setup_key(struct device *dev,
->  				struct input_dev *input,
->  				struct gpio_button_data *bdata,
->  				const struct gpio_keys_button *button)
->  {
->  	const char *desc = button->desc ? button->desc : "gpio_keys";
-> -	struct device *dev = &pdev->dev;
->  	irq_handler_t isr;
->  	unsigned long irqflags;
->  	int irq, error;
-> @@ -719,7 +718,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
->  
->  	input->name = pdata->name ? : pdev->name;
->  	input->phys = "gpio-keys/input0";
-> -	input->dev.parent = &pdev->dev;
-> +	input->dev.parent = dev;
->  	input->open = gpio_keys_open;
->  	input->close = gpio_keys_close;
->  
-> @@ -736,7 +735,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
->  		const struct gpio_keys_button *button = &pdata->buttons[i];
->  		struct gpio_button_data *bdata = &ddata->data[i];
->  
-> -		error = gpio_keys_setup_key(pdev, input, bdata, button);
-> +		error = gpio_keys_setup_key(dev, input, bdata, button);
->  		if (error)
->  			goto fail2;
->  
+just ask harder; I got it from them
+ 
+> > something goes wrong in the initialization; the object table of the
+> > chip doesn't match the register data fed in -- the mxt224 can be a bitch
+> > and play dead
+ 
+> So what can I do ? Maybe a problem with the embedded firmware that need an
+> update (atmel_mxt_ts 0-004b: Family ID: 129 Variant ID: 1 Major.Minor.Build:
+> 2.0.AB)
+
+you need to understand the object table and see what object leads to the 
+invalid object message; there is some mismatch between the driver and the 
+chip
+
+> When I do cat /proc/interrupts and I short-circuit /CHG to ground, number
+> increases so low-level handling of interrupt is working.
+
+if I remember correctly, the mxt224 does periodic interrupts (200ms?) 
+when something is wrong with the config
+
+regards, p.
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
 
+Peter Meerwald
++43-664-2444418 (mobile)

@@ -1,80 +1,196 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: synaptics-rmi4 - use snprintf instead of
- sprintf in rmi_i2c.c
-Date: Thu, 9 Jan 2014 00:28:58 -0800
-Message-ID: <20140109082858.GE27160@core.coreip.homeip.net>
-References: <1389230319-4737-1-git-send-email-cheiny@synaptics.com>
- <20140109080454.GA27160@core.coreip.homeip.net>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH 1/2] HID: sony: Add force feedback for the Dualshock 4
+Date: Thu, 9 Jan 2014 11:38:35 +0100
+Message-ID: <20140109113835.34abce6f4f34bd907a69fbc1@studenti.unina.it>
+References: <alpine.DEB.2.10.1401031518010.29517@franz-virtual-machine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f182.google.com ([209.85.192.182]:35779 "EHLO
-	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751201AbaAII3C (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 03:29:02 -0500
-Received: by mail-pd0-f182.google.com with SMTP id v10so2903389pde.27
-        for <linux-input@vger.kernel.org>; Thu, 09 Jan 2014 00:29:01 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20140109080454.GA27160@core.coreip.homeip.net>
+Received: from smtp205.alice.it ([82.57.200.101]:34196 "EHLO smtp205.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752038AbaAIKir (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Jan 2014 05:38:47 -0500
+In-Reply-To: <alpine.DEB.2.10.1401031518010.29517@franz-virtual-machine>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Jan 09, 2014 at 12:04:54AM -0800, Dmitry Torokhov wrote:
-> On Wed, Jan 08, 2014 at 05:18:39PM -0800, Christopher Heiny wrote:
-> > This is a trivial change to replace the sprintf loop with snprintf using
-> > up-to-date format capability.
+On Fri, 3 Jan 2014 16:03:10 -0500 (EST)
+Frank Praznik <frank.praznik@oh.rr.com> wrote:
+
+Hi Frank,
+
+just some notes about the style.
+
+> This patch adds force feedback support for Sony's Dualshock 4 controller.  
+
+You can just use the imperative form in the long commit message too:
+"Add force feedback support for Sony's Dualshock 4 controller..."
+
+No need to repeat "This patch ..." in the commit message.
+
+> It does this by adding a device ID for the new controller and creating a 
+> new dualshock4_worker function to send data commands formatted for the 
+> controller.  Unlike the Sixaxis, the Dualshock 4 requires a magnitude 
+> value for the small motor so the actual value is now sent to the worker 
+> function and the sixaxis worker was modified to clamp it to 1 or 0 as required.
 > 
-> Hmm, how about we do this instead:
+> This patch is built against the for-3.14/sony branch in jikos/hid.git and 
+> is compatible with the recent fixes.
 
-And another small one...
+this last sentence is more like an annotation, put annotations after the
+three dashes below, just before the diffstat, don't put them in the
+commit message because they will become outdated and they will look odd
+when someone reads the project history at some point in the future.
 
-Input: synaptics-rmi4 - transport name should be a const pointer
+An alternative is to generate a cover-letter with git-format-patch and
+mention there the prerequisites for the patch series.
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by Frank Praznik <frank.praznik@oh.rr.com>
+> 
+> ---
+>  drivers/hid/hid-ids.h  |  1 +
+>  drivers/hid/hid-sony.c | 41 +++++++++++++++++++++++++++++++++++++----
+>  2 files changed, 38 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 60336f06..ebbd292 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -769,6 +769,7 @@
+>  #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
+>  #define USB_DEVICE_ID_SONY_BUZZ_CONTROLLER		0x0002
+>  #define USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER	0x1000
+> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER	0x05c4
+>
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/rmi4/rmi_bus.h |    2 +-
- drivers/input/rmi4/rmi_i2c.c |    4 +---
- 2 files changed, 2 insertions(+), 4 deletions(-)
+You can align the value with the other ones using two TABs in this case.
 
-diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-index 65dd934..3e8b57a 100644
---- a/drivers/input/rmi4/rmi_bus.h
-+++ b/drivers/input/rmi4/rmi_bus.h
-@@ -148,7 +148,7 @@ struct rmi_driver {
-  * @att_count Number of times ATTN assertions have been handled.
-  */
- struct rmi_transport_info {
--	char *proto;
-+	const char *proto;
- 	long tx_count;
- 	long tx_bytes;
- 	long tx_errs;
-diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-index ea01823..ebe74ec 100644
---- a/drivers/input/rmi4/rmi_i2c.c
-+++ b/drivers/input/rmi4/rmi_i2c.c
-@@ -38,8 +38,6 @@ struct rmi_i2c_data {
- #define RMI_PAGE_SELECT_REGISTER 0xff
- #define RMI_I2C_PAGE(addr) (((addr) >> 8) & 0xff)
- 
--static char *xport_proto_name = "i2c";
--
- /*
-  * rmi_set_page - Set RMI page
-  * @xport: The pointer to the rmi_transport_dev struct
-@@ -217,7 +215,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
- 
- 	xport->write_block = rmi_i2c_write_block;
- 	xport->read_block = rmi_i2c_read_block;
--	xport->info.proto = xport_proto_name;
-+	xport->info.proto = "i2c";
- 
- 	mutex_init(&data->page_mutex);
- 
+>  #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
+>  #define USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST	0x0034
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index f57ab5e..f42c866 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -38,6 +38,7 @@
+>  #define SIXAXIS_CONTROLLER_BT   BIT(2)
+>  #define BUZZ_CONTROLLER         BIT(3)
+>  #define PS3REMOTE		BIT(4)
+> +#define DUALSHOCK4_CONTROLLER	BIT(5\)
+
+most of the entries are aligned with spaces here so use spaces,
+PS3REMOTE will be fixed eventually. Also, what about the backslash
+before the parenthesis?
+
+>  #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER)
+>  
+> @@ -615,7 +616,7 @@ error_leds:
+>  	return ret;
+>  }
+>  
+> -static void sony_state_worker(struct work_struct *work)
+> +static void sixaxis_state_worker(struct work_struct *work)
+
+this is a rename, I understand it is in preparation for
+dualshock4_state_worker() but it's not _directly_ related to the topic
+of the patch; split cleanups and cosmetic changes from functional
+changes, it is easier to review and validate logically contained
+patches.
+
+>  {
+>  	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+>  	unsigned char buf[] = {
+> @@ -630,7 +631,7 @@ static void sony_state_worker(struct work_struct *work)
+>  	};
+>  
+>  #ifdef CONFIG_SONY_FF
+> -	buf[3] = sc->right;
+> +	buf[3] = sc->right ? 1 : 0;
+>  	buf[5] = sc->left;
+>  #endif
+>  
+> @@ -640,6 +641,29 @@ static void sony_state_worker(struct work_struct *work)
+>  					HID_OUTPUT_REPORT);
+>  }
+>  
+> +static void dualshock4_state_worker(struct work_struct *work)
+> +{
+> +	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+> +	unsigned char buf[] = {
+> +		0x05,
+> +		0x03, 0x00, 0x00, 0x00, 0x00,
+> +		0x00, 0x00, 0x00, 0x00, 0x00,
+> +		0x00, 0x00, 0x00, 0x00, 0x00,
+> +		0x00, 0x00, 0x00, 0x00, 0x00,
+> +		0x00, 0x00, 0x00, 0x00, 0x00,
+> +		0x00, 0x00, 0x00, 0x00, 0x00,
+> +		0x00,
+> +	};
+> +
+> +#ifdef CONFIG_SONY_FF
+> +	buf[4] = sc->right;
+> +	buf[5] = sc->left;
+> +#endif
+> +
+> +	sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
+> +					HID_OUTPUT_REPORT);
+> +}
+> +
+>  #ifdef CONFIG_SONY_FF
+>  static int sony_play_effect(struct input_dev *dev, void *data,
+>  			    struct ff_effect *effect)
+> @@ -651,7 +675,7 @@ static int sony_play_effect(struct input_dev *dev, void *data,
+>  		return 0;
+>  
+>  	sc->left = effect->u.rumble.strong_magnitude / 256;
+> -	sc->right = effect->u.rumble.weak_magnitude ? 1 : 0;
+> +	sc->right = effect->u.rumble.weak_magnitude / 256;
+>  
+>  	schedule_work(&sc->state_worker);
+>  	return 0;
+> @@ -724,10 +748,14 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
+>  		hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
+>  		ret = sixaxis_set_operational_usb(hdev);
+> -		INIT_WORK(&sc->state_worker, sony_state_worker);
+> +		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+>  	}
+>  	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
+>  		ret = sixaxis_set_operational_bt(hdev);
+> +	else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+> +		ret = 0;
+> +		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
+> +	}
+>  	else
+>  		ret = 0;
+>  
+> @@ -787,6 +815,11 @@ static const struct hid_device_id sony_devices[] = {
+>  	/* Logitech Harmony Adapter for PS3 */
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3),
+>  		.driver_data = PS3REMOTE },
+> +	/* Sony Dualshock 4 controllers for PS4 */
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
+> +		.driver_data = DUALSHOCK4_CONTROLLER },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
+> +		.driver_data = DUALSHOCK4_CONTROLLER },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, sony_devices);
+> -- 
+> 1.8.3.2
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
 
 -- 
-Dmitry
+Antonio Ospite
+http://ao2.it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?

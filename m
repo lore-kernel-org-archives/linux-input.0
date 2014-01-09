@@ -1,142 +1,80 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input synaptics-rmi4: move rmi_f01 query register
- parsing to its own function
-Date: Thu, 9 Jan 2014 00:18:23 -0800
-Message-ID: <20140109081823.GD27160@core.coreip.homeip.net>
-References: <1389142930-26279-1-git-send-email-cheiny@synaptics.com>
+Subject: Re: [PATCH v2] input: synaptics-rmi4 - use snprintf instead of
+ sprintf in rmi_i2c.c
+Date: Thu, 9 Jan 2014 00:28:58 -0800
+Message-ID: <20140109082858.GE27160@core.coreip.homeip.net>
+References: <1389230319-4737-1-git-send-email-cheiny@synaptics.com>
+ <20140109080454.GA27160@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:48451 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755029AbaAIIS1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 03:18:27 -0500
-Received: by mail-pb0-f47.google.com with SMTP id um1so2690969pbc.6
-        for <linux-input@vger.kernel.org>; Thu, 09 Jan 2014 00:18:26 -0800 (PST)
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:35779 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751201AbaAII3C (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 03:29:02 -0500
+Received: by mail-pd0-f182.google.com with SMTP id v10so2903389pde.27
+        for <linux-input@vger.kernel.org>; Thu, 09 Jan 2014 00:29:01 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1389142930-26279-1-git-send-email-cheiny@synaptics.com>
+In-Reply-To: <20140109080454.GA27160@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>
 Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Tue, Jan 07, 2014 at 05:02:10PM -0800, Christopher Heiny wrote:
-> In the near future, query register parsing is going to get a lot more
-> complicated.  It's also going to be needed by the reflash code.  Now is the
-> time to move this from the F01 initialization into its own function,
-> while the code is still fairly simple.
+On Thu, Jan 09, 2014 at 12:04:54AM -0800, Dmitry Torokhov wrote:
+> On Wed, Jan 08, 2014 at 05:18:39PM -0800, Christopher Heiny wrote:
+> > This is a trivial change to replace the sprintf loop with snprintf using
+> > up-to-date format capability.
 > 
-> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
+> Hmm, how about we do this instead:
 
-Applied, thank you.
+And another small one...
 
-> ---
-> 
->  drivers/input/rmi4/rmi_f01.c | 71 +++++++++++++++++++++++++++-----------------
->  1 file changed, 43 insertions(+), 28 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-> index d547633..1cb11ea 100644
-> --- a/drivers/input/rmi4/rmi_f01.c
-> +++ b/drivers/input/rmi4/rmi_f01.c
-> @@ -167,6 +167,46 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
->  	return 0;
->  }
->  
-> +static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
-> +				   u16 query_base_addr,
-> +				   struct f01_basic_properties *props)
-> +{
-> +	u8 basic_query[RMI_F01_BASIC_QUERY_LEN];
-> +	int error;
-> +
-> +	error = rmi_read_block(rmi_dev, query_base_addr,
-> +			       basic_query, sizeof(basic_query));
-> +	if (error < 0) {
-> +		dev_err(&rmi_dev->dev, "Failed to read device query registers.\n");
-> +		return error;
-> +	}
-> +
-> +	/* Now parse what we got */
-> +	props->manufacturer_id = basic_query[0];
-> +
-> +	props->has_lts = basic_query[1] & RMI_F01_QRY1_HAS_LTS;
-> +	props->has_adjustable_doze =
-> +			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE;
-> +	props->has_adjustable_doze_holdoff =
-> +			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE_HOFF;
-> +
-> +	snprintf(props->dom, sizeof(props->dom),
-> +		 "20%02x%02x%02x",
-> +		 basic_query[5] & RMI_F01_QRY5_YEAR_MASK,
-> +		 basic_query[6] & RMI_F01_QRY6_MONTH_MASK,
-> +		 basic_query[7] & RMI_F01_QRY7_DAY_MASK);
-> +
-> +	memcpy(props->product_id, &basic_query[11],
-> +		RMI_PRODUCT_ID_LENGTH);
-> +	props->product_id[RMI_PRODUCT_ID_LENGTH] = '\0';
-> +
-> +	props->productinfo =
-> +			((basic_query[2] & RMI_F01_QRY2_PRODINFO_MASK) << 7) |
-> +			(basic_query[3] & RMI_F01_QRY2_PRODINFO_MASK);
-> +
-> +	return 0;
-> +}
-> +
->  static int rmi_f01_initialize(struct rmi_function *fn)
->  {
->  	u8 temp;
-> @@ -176,7 +216,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
->  	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
->  	struct f01_data *data = fn->data;
->  	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
-> -	u8 basic_query[RMI_F01_BASIC_QUERY_LEN];
->  
->  	mutex_init(&data->control_mutex);
->  
-> @@ -248,36 +287,12 @@ static int rmi_f01_initialize(struct rmi_function *fn)
->  		return error;
->  	}
->  
-> -	error = rmi_read_block(rmi_dev, fn->fd.query_base_addr,
-> -			       basic_query, sizeof(basic_query));
-> +	error = rmi_f01_read_properties(rmi_dev, fn->fd.query_base_addr,
-> +		&data->properties);
->  	if (error < 0) {
-> -		dev_err(&fn->dev, "Failed to read device query registers.\n");
-> +		dev_err(&fn->dev, "Failed to read F01 properties.\n");
->  		return error;
->  	}
-> -
-> -	/* Now parse what we got */
-> -	data->properties.manufacturer_id = basic_query[0];
-> -
-> -	data->properties.has_lts = basic_query[1] & RMI_F01_QRY1_HAS_LTS;
-> -	data->properties.has_adjustable_doze =
-> -			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE;
-> -	data->properties.has_adjustable_doze_holdoff =
-> -			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE_HOFF;
-> -
-> -	snprintf(data->properties.dom, sizeof(data->properties.dom),
-> -		 "20%02x%02x%02x",
-> -		 basic_query[5] & RMI_F01_QRY5_YEAR_MASK,
-> -		 basic_query[6] & RMI_F01_QRY6_MONTH_MASK,
-> -		 basic_query[7] & RMI_F01_QRY7_DAY_MASK);
-> -
-> -	memcpy(data->properties.product_id, &basic_query[11],
-> -		RMI_PRODUCT_ID_LENGTH);
-> -	data->properties.product_id[RMI_PRODUCT_ID_LENGTH] = '\0';
-> -
-> -	data->properties.productinfo =
-> -			((basic_query[2] & RMI_F01_QRY2_PRODINFO_MASK) << 7) |
-> -			(basic_query[3] & RMI_F01_QRY2_PRODINFO_MASK);
-> -
->  	dev_info(&fn->dev, "found RMI device, manufacturer: %s, product: %s\n",
->  		 data->properties.manufacturer_id == 1 ?
->  							"Synaptics" : "unknown",
+Input: synaptics-rmi4 - transport name should be a const pointer
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/rmi4/rmi_bus.h |    2 +-
+ drivers/input/rmi4/rmi_i2c.c |    4 +---
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
+index 65dd934..3e8b57a 100644
+--- a/drivers/input/rmi4/rmi_bus.h
++++ b/drivers/input/rmi4/rmi_bus.h
+@@ -148,7 +148,7 @@ struct rmi_driver {
+  * @att_count Number of times ATTN assertions have been handled.
+  */
+ struct rmi_transport_info {
+-	char *proto;
++	const char *proto;
+ 	long tx_count;
+ 	long tx_bytes;
+ 	long tx_errs;
+diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+index ea01823..ebe74ec 100644
+--- a/drivers/input/rmi4/rmi_i2c.c
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -38,8 +38,6 @@ struct rmi_i2c_data {
+ #define RMI_PAGE_SELECT_REGISTER 0xff
+ #define RMI_I2C_PAGE(addr) (((addr) >> 8) & 0xff)
+ 
+-static char *xport_proto_name = "i2c";
+-
+ /*
+  * rmi_set_page - Set RMI page
+  * @xport: The pointer to the rmi_transport_dev struct
+@@ -217,7 +215,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 
+ 	xport->write_block = rmi_i2c_write_block;
+ 	xport->read_block = rmi_i2c_read_block;
+-	xport->info.proto = xport_proto_name;
++	xport->info.proto = "i2c";
+ 
+ 	mutex_init(&data->page_mutex);
+ 
 
 -- 
 Dmitry

@@ -1,91 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V1] input: use device managed memory in da9052
- touchscreen driver
-Date: Thu, 9 Jan 2014 11:12:36 -0800
-Message-ID: <20140109191236.GA28020@core.coreip.homeip.net>
-References: <201401091252.s09CqsOr042762@swsrvapps-02.lan>
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: Re: [PATCH 1/2] HID: sony: Add force feedback for the Dualshock 4
+Date: Thu, 09 Jan 2014 14:29:22 -0500
+Message-ID: <52CEF892.2000509@oh.rr.com>
+References: <alpine.DEB.2.10.1401031518010.29517@franz-virtual-machine>    <c6470a2c8d6a5ad2e6d3c023ae49e7ef.squirrel@mungewell.org>    <e14a0771e48b8c1d72ee9182eb7d2593.squirrel@mungewell.org> <9702a6d4a97cca7e0f05dd2329dca326.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f49.google.com ([209.85.160.49]:47096 "EHLO
-	mail-pb0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751137AbaAITMr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 14:12:47 -0500
-Content-Disposition: inline
-In-Reply-To: <201401091252.s09CqsOr042762@swsrvapps-02.lan>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:50273 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751137AbaAIT3Z (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 14:29:25 -0500
+In-Reply-To: <9702a6d4a97cca7e0f05dd2329dca326.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>, David Dajun Chen <david.chen@diasemi.com>
+To: simon@mungewell.org
+Cc: linux-input@vger.kernel.org
 
-Hi Anthony,
-
-On Thu, Jan 09, 2014 at 12:51:37PM +0000, Anthony Olech wrote:
-> The touchscreen component driver for the da9052/3 Dialog PMICs
-> is changed to use device managed memory allocation.
-> 
-> This results in simpler error paths as failures in the probe()
-> function do not require explicit calls to free the devm_...
-> allocated memory.
-> The allocation functions used in this driver are:
->     devm_kzalloc()
->     devm_input_allocate_device()
->     devm_request_threaded_irq()
-> 
-> Suggested-by: Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>
-> Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
-> ---
-> This patch is relative to linux-next repository tag next-20140109
-> 
-> Many thanks to Huqiu Liu who instigated this patch.
-> 
->  drivers/input/touchscreen/da9052_tsi.c |   62 ++++++++++++++++----------------
->  1 file changed, 30 insertions(+), 32 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
-> index ab64d58..dcc4cf1 100644
-> --- a/drivers/input/touchscreen/da9052_tsi.c
-> +++ b/drivers/input/touchscreen/da9052_tsi.c
-> @@ -233,18 +233,30 @@ static int da9052_ts_probe(struct platform_device *pdev)
->  	struct da9052_tsi *tsi;
->  	struct input_dev *input_dev;
->  	int error;
-> +	int pdown_irq;
-> +	int ready_irq;
->  
->  	da9052 = dev_get_drvdata(pdev->dev.parent);
->  	if (!da9052)
->  		return -EINVAL;
->  
-> -	tsi = kzalloc(sizeof(struct da9052_tsi), GFP_KERNEL);
-> -	input_dev = input_allocate_device();
-> -	if (!tsi || !input_dev) {
-> -		error = -ENOMEM;
-> -		goto err_free_mem;
-> -	}
-> +	pdown_irq = regmap_irq_get_virq(da9052->irq_data, DA9052_IRQ_PENDOWN);
-> +	if (pdown_irq < 0)
-> +		return pdown_irq;
-...
->  
-> -	error = da9052_request_irq(tsi->da9052, DA9052_IRQ_PENDOWN,
-> -				"pendown-irq", da9052_ts_pendwn_irq, tsi);
-> +	error = devm_request_threaded_irq(&pdev->dev, pdown_irq,
-> +				NULL, da9052_ts_pendwn_irq,
-> +				IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +				"pendown-irq", tsi);
-
-I am uncomfortable with the touchscreen portion of this driver ignoring
-the framework of it's MFD core and mixing native IRQ management with the
-ones done through the core.
-
-What would happen if somebody changes da9052_request_irq() to do some
-thing more than it is doing now so that your open-coded duplicate of the
-same in da9052_ts_probe() is no longer equivalent? Or
-da9052_disable_irq() no longer works correctly with IRQs allocated by
-this sub-module?
-
-Thanks.
-
--- 
-Dmitry
+On 1/9/2014 01:42, simon@mungewell.org wrote:
+>>> However I am seeing some weird behaviour in whether FF/LED actually
+>>> functions. It seems that in a 'complete' kernel installation the driver
+>>> does not present FF or LED.
+>>>
+> Found the problem (or at least a solution), there is no entry in 'hid-core.c'
+> --
+> static const struct hid_device_id hid_have_special_driver[] = {
+> ...
+> 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY,
+> USB_DEVICE_ID_SONY_PS4_CONTROLLER) },
+> --
+>
+> Adding this makes it work for me, although I don't know why the insmod
+> trick was working....
+> Simon
+>
+Ah, I didn't realize that it needed an entry there.  I'll add this to v2 
+of the patch set.  Thanks!

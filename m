@@ -1,90 +1,35 @@
-From: Andrew de los Reyes <andrew-vger@gizmolabs.org>
-Subject: Re: [PATCH 0/5] HID logitech DJ fixes and preps for enabling extended features
-Date: Thu, 9 Jan 2014 13:08:23 -0800
-Message-ID: <CAG_cf+eYoK--k=z+f5xQBx0FP3_z5sbszrSZ1qYq7jR_Zi9Vaw@mail.gmail.com>
-References: <1389219529-29671-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko.stuebner@bqreaders.com>
+Subject: [PATCH 0/3] Input: add dt support to zforce driver
+Date: Thu, 09 Jan 2014 22:19:15 +0100
+Message-ID: <2587208.XYbbI8xJiH@phil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wi0-f176.google.com ([209.85.212.176]:52551 "EHLO
-	mail-wi0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757441AbaAIVIp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 16:08:45 -0500
-In-Reply-To: <1389219529-29671-1-git-send-email-benjamin.tissoires@redhat.com>
+Received: from gloria.sntech.de ([95.129.55.99]:34215 "EHLO gloria.sntech.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756089AbaAIVTh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Jan 2014 16:19:37 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <adlr@chromium.org>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-In general, I'm positive on the change to fix the USB3 issue (yay!),
-and for the others I'm happy it's going upstream. It seem to open up
-the possibility of user-space drivers, which is great, even though we
-don't need this on our team.
+This adds the binding documentation and necessary parsing code to make
+zforce based touchscreen usable on devicetree platforms.
 
-One thing I want to double-check: on some devices (T651, at least),
-the raw data comes in not via HID++, but tacked onto the end of the
-normal mouse reports. Will a driver for this device be able to get all
-packets, not just HID++ ones? Sorry if this was clear and I missed it.
+Heiko Stuebner (3):
+  dt-bindings: bindings for zforce touchscreens
+  Input: zforce: Use internal pdata pointer instead of dev_get_platdata
+  Input: zforce: add devicetree support
 
--andrew
+ .../bindings/input/touchscreen/zforce_ts.txt       |   30 ++++++++++
+ .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+ drivers/input/touchscreen/zforce_ts.c              |   63 ++++++++++++++++++--
+ 3 files changed, 89 insertions(+), 5 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
 
-On Wed, Jan 8, 2014 at 2:18 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Hi Jiri,
->
-> Well, this work is _not_ for 3.14 (except maybe patch 1), especially since it is
-> missing the biggest part where we enable the capabilities of Logitech devices.
->
-> Long story short:
-> This work is based on the work I did back in Summer 2011. I worked at Logitech
-> for a few weeks to show up a demo of a driver for the Logitech Wireless Touchpad.
-> At that time, a first draft has been done, but due to a lack of resources, noone
-> upstreamed it.
-> Since then, the code marinated a little at Logitech and in the ChromeOS kernel
-> tree, but nobody tried to push it upstream. So here I am, trying to push this stuff
-> upstream.
->
-> I can not send the full series right now because I am lacking most of the
-> testing hardware (I mean I only have the oldest Wireless Touchpad).
-> Hopefully, I should receive some other soon, and I'll be able to send the second
-> part then.
->
-> Now, let me roughly explain the patches:
-> - patch 1 can be applied right now I think, but it's entirely up to you Jiri.
->   This patch should fix the missing notifications with some USB 3.0 boards.
-> - patches 2 to 5 allows to forward in both direction the proprietary protocol
->   used by Logitech (HID++ [1]) between the driver and the hardware.
-> - later patches will introduce a transport layer for HID++ and also a driver
->   to support full multitouch on various Logitech touchpads.
->
-> Nestor, Andrew, feel free to add your "Signed-off-by" whereever you want, I lost
-> a little bit the track of who added what.
->
-> Cheers,
-> Benjamin
->
-> [1] HID++: Documentation is provided at
-> https://drive.google.com/a/logitech.com/?tab=mo#folders/0BxbRzx7vEV7eWmgwazJ3NUFfQ28
->
-> Benjamin Tisssoires (5):
->   HID: logitech-dj: Fix USB 3.0 issue
->   HID: core: do not scan reports if the group is already set
->   HID: logitech-dj: rely on hid groups to separate receivers from dj
->     devices
->   HID: logitech-dj: forward incoming HID++ reports to the correct dj
->     device
->   HID: logitech-dj: add .request callback
->
->  drivers/hid/hid-core.c        |   3 +-
->  drivers/hid/hid-logitech-dj.c | 161 +++++++++++++++++++++++++++++++++---------
->  drivers/hid/hid-logitech-dj.h |  16 ++---
->  include/linux/hid.h           |   1 +
->  4 files changed, 136 insertions(+), 45 deletions(-)
->
-> --
-> 1.8.4.2
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+1.7.10.4
+
+

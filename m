@@ -1,38 +1,56 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH 1/2] HID: sony: Add force feedback for the Dualshock 4
-Date: Thu, 9 Jan 2014 01:42:17 -0500
-Message-ID: <9702a6d4a97cca7e0f05dd2329dca326.squirrel@mungewell.org>
-References: <alpine.DEB.2.10.1401031518010.29517@franz-virtual-machine>
-    <c6470a2c8d6a5ad2e6d3c023ae49e7ef.squirrel@mungewell.org>
-    <e14a0771e48b8c1d72ee9182eb7d2593.squirrel@mungewell.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] ims-pcu: Add commands supported by the new version of
+ the FW
+Date: Wed, 8 Jan 2014 22:43:38 -0800
+Message-ID: <20140109064338.GA29893@core.coreip.homeip.net>
+References: <1388623621-32245-1-git-send-email-andrew.smirnov@gmail.com>
+ <20140104013957.GA19702@core.coreip.homeip.net>
+ <CAHQ1cqEvXn3u2joA7dNaiz6fmHELnKjZTWF2F-7vvvBAx+9Drw@mail.gmail.com>
+ <20140104044433.GA20272@core.coreip.homeip.net>
+ <CAHQ1cqHJOi5mLptHSTw3W8dpdyJrUp8QnmCTtYdNX4YCTTNoaA@mail.gmail.com>
+ <20140104054133.GC32576@core.coreip.homeip.net>
+ <20140107071436.GB20074@core.coreip.homeip.net>
+ <CAHQ1cqFaXCXw8UTwRVw72mmf7e_t3QjWNMshccEchsmR-2DVbw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:35189 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751183AbaAIGmV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 01:42:21 -0500
-In-Reply-To: <e14a0771e48b8c1d72ee9182eb7d2593.squirrel@mungewell.org>
+Received: from mail-pd0-f182.google.com ([209.85.192.182]:59244 "EHLO
+	mail-pd0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753412AbaAIGnl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 01:43:41 -0500
+Content-Disposition: inline
+In-Reply-To: <CAHQ1cqFaXCXw8UTwRVw72mmf7e_t3QjWNMshccEchsmR-2DVbw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
->
->> However I am seeing some weird behaviour in whether FF/LED actually
->> functions. It seems that in a 'complete' kernel installation the driver
->> does not present FF or LED.
->>
+On Wed, Jan 08, 2014 at 09:57:20PM -0800, Andrey Smirnov wrote:
+> On Mon, Jan 6, 2014 at 11:14 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> >
+> > Andrey, were you able to test the patch?
+> 
+> Hi Dmitry,
+> 
+> I tested the patch and with exception of a trivial to fix typo/bug it
+> worked fine.
+> 
+> I see that you moved the OFN attributes to a dedicated directory,
+> which I personally like better, but I am not sure if IMS would not
+> want to push back on it since they might have started to use the API
+> already. I'll send a new version to Chris so that he can do some
+> additional testing and see if they can incorporate that naming change.
+> I'll e-mail you v3 of the patch as soon as that matter becomes more
+> clear.
 
-Found the problem (or at least a solution), there is no entry in 'hid-core.c'
---
-static const struct hid_device_id hid_have_special_driver[] = {
-...
-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY,
-USB_DEVICE_ID_SONY_PS4_CONTROLLER) },
---
+Andrey,
 
-Adding this makes it work for me, although I don't know why the insmod
-trick was working....
-Simon
+I am pretty sure that the new sysfs layout with OFN group split makes
+most sense. Luckily this is brand new functionality so IMS should be
+able to adjust their userspace to accommodate it.
 
+Thanks.
+
+-- 
+Dmitry

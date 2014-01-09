@@ -1,79 +1,63 @@
 From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko.stuebner@bqreaders.com>
-Subject: [PATCH 1/3] dt-bindings: bindings for zforce touchscreens
-Date: Thu, 09 Jan 2014 22:21 +0100
-Message-ID: <27790911.Z86OudpR5q@phil>
+Subject: [PATCH 2/3] Input: zforce: Use internal pdata pointer instead of dev_get_platdata
+Date: Thu, 09 Jan 2014 22:21:39 +0100
+Message-ID: <9329039.m1JhHsx7ix@phil>
 References: <2587208.XYbbI8xJiH@phil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gloria.sntech.de ([95.129.55.99]:34256 "EHLO gloria.sntech.de"
+Received: from gloria.sntech.de ([95.129.55.99]:34278 "EHLO gloria.sntech.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756546AbaAIVVY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Jan 2014 16:21:24 -0500
+	id S1756546AbaAIVV5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Jan 2014 16:21:57 -0500
 In-Reply-To: <2587208.XYbbI8xJiH@phil>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, devicetree@vger.kernel.org
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-Binding documentation for Neonode zForce infrared touchscreens.
+When the device is initialized from devicetree the platformdata is created
+locally making dev_get_platdata return NULL.
+
+Therefore directly use the internal pointer to the pdata instead.
 
 Signed-off-by: Heiko Stuebner <heiko.stuebner@bqreaders.com>
 ---
- .../bindings/input/touchscreen/zforce_ts.txt       |   30 ++++++++++++++++++++
- .../devicetree/bindings/vendor-prefixes.txt        |    1 +
- 2 files changed, 31 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+ drivers/input/touchscreen/zforce_ts.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-new file mode 100644
-index 0000000..2f25cd2
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-@@ -0,0 +1,30 @@
-+* Neonode infrared touchscreen controller
-+
-+Required properties:
-+- compatible: must be "neonode,zforce"
-+- reg: I2C address of the chip
-+- interrupts: interrupt to which the chip is connected
-+- gpios: gpios the chip is connected to
-+  first one is the interrupt gpio and second one the reset gpio
-+- x-size: horizontal resolution of touchscreen
-+- y-size: vertical resolution of touchscreen
-+
-+Example:
-+
-+	i2c@00000000 {
-+		/* ... */
-+
-+		zforce_ts@50 {
-+			compatible = "neonode,zforce";
-+			reg = <0x50>;
-+			interrupts = <2 0>;
-+
-+			gpios = <&gpio5 6 0>, /* INT */
-+				<&gpio5 9 0>; /* RST */
-+
-+			x-size = <800>;
-+			y-size = <600>;
-+		};
-+
-+		/* ... */
-+	};
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
-index b458760..e0b15b4 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.txt
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
-@@ -53,6 +53,7 @@ maxim	Maxim Integrated Products
- microchip	Microchip Technology Inc.
- mosaixtech	Mosaix Technologies, Inc.
- national	National Semiconductor
-+neonode		Neonode Inc.
- nintendo	Nintendo
- nvidia	NVIDIA
- nxp	NXP Semiconductors
+diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+index 2175f34..5a1a93b 100644
+--- a/drivers/input/touchscreen/zforce_ts.c
++++ b/drivers/input/touchscreen/zforce_ts.c
+@@ -255,7 +255,7 @@ static int zforce_setconfig(struct zforce_ts *ts, char b1)
+ static int zforce_start(struct zforce_ts *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+-	const struct zforce_ts_platdata *pdata = dev_get_platdata(&client->dev);
++	const struct zforce_ts_platdata *pdata = ts->pdata;
+ 	int ret;
+ 
+ 	dev_dbg(&client->dev, "starting device\n");
+@@ -326,7 +326,7 @@ static int zforce_stop(struct zforce_ts *ts)
+ static int zforce_touch_event(struct zforce_ts *ts, u8 *payload)
+ {
+ 	struct i2c_client *client = ts->client;
+-	const struct zforce_ts_platdata *pdata = dev_get_platdata(&client->dev);
++	const struct zforce_ts_platdata *pdata = ts->pdata;
+ 	struct zforce_point point;
+ 	int count, i, num = 0;
+ 
+@@ -471,7 +471,7 @@ static irqreturn_t zforce_irq_thread(int irq, void *dev_id)
+ {
+ 	struct zforce_ts *ts = dev_id;
+ 	struct i2c_client *client = ts->client;
+-	const struct zforce_ts_platdata *pdata = dev_get_platdata(&client->dev);
++	const struct zforce_ts_platdata *pdata = ts->pdata;
+ 	int ret;
+ 	u8 payload_buffer[512];
+ 	u8 *payload;
 -- 
 1.7.10.4
 

@@ -1,124 +1,107 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko.stuebner@bqreaders.com>
-Subject: [PATCH 3/3] Input: zforce: add devicetree support
-Date: Thu, 09 Jan 2014 22:22:36 +0100
-Message-ID: <6407177.kpp4aUtUkm@phil>
-References: <2587208.XYbbI8xJiH@phil>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 0/5] HID logitech DJ fixes and preps for enabling extended
+ features
+Date: Thu, 09 Jan 2014 16:22:47 -0500
+Message-ID: <52CF1327.3090705@redhat.com>
+References: <1389219529-29671-1-git-send-email-benjamin.tissoires@redhat.com> <CAG_cf+eYoK--k=z+f5xQBx0FP3_z5sbszrSZ1qYq7jR_Zi9Vaw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gloria.sntech.de ([95.129.55.99]:34306 "EHLO gloria.sntech.de"
+Received: from mx1.redhat.com ([209.132.183.28]:63348 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757234AbaAIVWx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Jan 2014 16:22:53 -0500
-In-Reply-To: <2587208.XYbbI8xJiH@phil>
+	id S1756516AbaAIVX3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 9 Jan 2014 16:23:29 -0500
+In-Reply-To: <CAG_cf+eYoK--k=z+f5xQBx0FP3_z5sbszrSZ1qYq7jR_Zi9Vaw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+To: Andrew de los Reyes <andrew-vger@gizmolabs.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <adlr@chromium.org>, Linux Input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 
-This makes the zforce driver usable on devicetree-based platforms too.
+On 09/01/14 16:08, Andrew de los Reyes wrote:
+> In general, I'm positive on the change to fix the USB3 issue (yay!),
+> and for the others I'm happy it's going upstream. It seem to open up
+> the possibility of user-space drivers, which is great, even though we
+> don't need this on our team.
+> 
+> One thing I want to double-check: on some devices (T651, at least),
+> the raw data comes in not via HID++, but tacked onto the end of the
+> normal mouse reports. Will a driver for this device be able to get all
+> packets, not just HID++ ones? Sorry if this was clear and I missed it.
 
-Signed-off-by: Heiko Stuebner <heiko.stuebner@bqreaders.com>
----
- drivers/input/touchscreen/zforce_ts.c |   57 +++++++++++++++++++++++++++++++--
- 1 file changed, 55 insertions(+), 2 deletions(-)
+Yeah, that is partly why I can not send the rest of the series right
+now. Nestor already warned me about those funny devices, so I need to
+double check how to implement HID++.
 
-diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
-index 5a1a93b..a33e173 100644
---- a/drivers/input/touchscreen/zforce_ts.c
-+++ b/drivers/input/touchscreen/zforce_ts.c
-@@ -29,6 +29,8 @@
- #include <linux/sysfs.h>
- #include <linux/input/mt.h>
- #include <linux/platform_data/zforce_ts.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
- 
- #define WAIT_TIMEOUT		msecs_to_jiffies(1000)
- 
-@@ -684,6 +686,45 @@ static void zforce_reset(void *data)
- 	gpio_set_value(ts->pdata->gpio_rst, 0);
- }
- 
-+static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev)
-+{
-+	struct zforce_ts_platdata *pdata;
-+	struct device_node *np = dev->of_node;
-+
-+	if (!np)
-+		return ERR_PTR(-ENOENT);
-+
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata) {
-+		dev_err(dev, "failed to allocate platform data\n");
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	pdata->gpio_int = of_get_gpio(np, 0);
-+	if (!gpio_is_valid(pdata->gpio_int)) {
-+		dev_err(dev, "failed to get interrupt gpio\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	pdata->gpio_rst = of_get_gpio(np, 1);
-+	if (!gpio_is_valid(pdata->gpio_rst)) {
-+		dev_err(dev, "failed to get reset gpio\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	if (of_property_read_u32(np, "x-size", &pdata->x_max)) {
-+		dev_err(dev, "failed to get x-size property\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	if (of_property_read_u32(np, "y-size", &pdata->y_max)) {
-+		dev_err(dev, "failed to get y-size property\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	return pdata;
-+}
-+
- static int zforce_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
-@@ -692,8 +733,11 @@ static int zforce_probe(struct i2c_client *client,
- 	struct input_dev *input_dev;
- 	int ret;
- 
--	if (!pdata)
--		return -EINVAL;
-+	if (!pdata) {
-+		pdata = zforce_parse_dt(&client->dev);
-+		if (IS_ERR(pdata))
-+			return PTR_ERR(pdata);
-+	}
- 
- 	ts = devm_kzalloc(&client->dev, sizeof(struct zforce_ts), GFP_KERNEL);
- 	if (!ts)
-@@ -829,11 +873,20 @@ static struct i2c_device_id zforce_idtable[] = {
- };
- MODULE_DEVICE_TABLE(i2c, zforce_idtable);
- 
-+#ifdef CONFIG_OF
-+static struct of_device_id zforce_dt_idtable[] = {
-+	{ .compatible = "neonode,zforce" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, zforce_dt_idtable);
-+#endif
-+
- static struct i2c_driver zforce_driver = {
- 	.driver = {
- 		.owner	= THIS_MODULE,
- 		.name	= "zforce-ts",
- 		.pm	= &zforce_pm_ops,
-+		.of_match_table	= of_match_ptr(zforce_dt_idtable),
- 	},
- 	.probe		= zforce_probe,
- 	.id_table	= zforce_idtable,
--- 
-1.7.10.4
+On a technical point of view, a driver connected through the unifying
+receiver currently only get the regular input reports, and this series
+adds the HID++ reports to these ones. So yes, a device will receive all
+reports dedicated to it.
 
+Cheers,
+Benjamin
+
+> 
+> -andrew
+> 
+> On Wed, Jan 8, 2014 at 2:18 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> Hi Jiri,
+>>
+>> Well, this work is _not_ for 3.14 (except maybe patch 1), especially since it is
+>> missing the biggest part where we enable the capabilities of Logitech devices.
+>>
+>> Long story short:
+>> This work is based on the work I did back in Summer 2011. I worked at Logitech
+>> for a few weeks to show up a demo of a driver for the Logitech Wireless Touchpad.
+>> At that time, a first draft has been done, but due to a lack of resources, noone
+>> upstreamed it.
+>> Since then, the code marinated a little at Logitech and in the ChromeOS kernel
+>> tree, but nobody tried to push it upstream. So here I am, trying to push this stuff
+>> upstream.
+>>
+>> I can not send the full series right now because I am lacking most of the
+>> testing hardware (I mean I only have the oldest Wireless Touchpad).
+>> Hopefully, I should receive some other soon, and I'll be able to send the second
+>> part then.
+>>
+>> Now, let me roughly explain the patches:
+>> - patch 1 can be applied right now I think, but it's entirely up to you Jiri.
+>>   This patch should fix the missing notifications with some USB 3.0 boards.
+>> - patches 2 to 5 allows to forward in both direction the proprietary protocol
+>>   used by Logitech (HID++ [1]) between the driver and the hardware.
+>> - later patches will introduce a transport layer for HID++ and also a driver
+>>   to support full multitouch on various Logitech touchpads.
+>>
+>> Nestor, Andrew, feel free to add your "Signed-off-by" whereever you want, I lost
+>> a little bit the track of who added what.
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> [1] HID++: Documentation is provided at
+>> https://drive.google.com/a/logitech.com/?tab=mo#folders/0BxbRzx7vEV7eWmgwazJ3NUFfQ28
+>>
+>> Benjamin Tisssoires (5):
+>>   HID: logitech-dj: Fix USB 3.0 issue
+>>   HID: core: do not scan reports if the group is already set
+>>   HID: logitech-dj: rely on hid groups to separate receivers from dj
+>>     devices
+>>   HID: logitech-dj: forward incoming HID++ reports to the correct dj
+>>     device
+>>   HID: logitech-dj: add .request callback
+>>
+>>  drivers/hid/hid-core.c        |   3 +-
+>>  drivers/hid/hid-logitech-dj.c | 161 +++++++++++++++++++++++++++++++++---------
+>>  drivers/hid/hid-logitech-dj.h |  16 ++---
+>>  include/linux/hid.h           |   1 +
+>>  4 files changed, 136 insertions(+), 45 deletions(-)
+>>
+>> --
+>> 1.8.4.2
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

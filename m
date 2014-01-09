@@ -1,30 +1,30 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: synaptics-rmi4 - cleanup rmi_i2c_probe()
-Date: Thu, 9 Jan 2014 00:06:07 -0800
-Message-ID: <20140109080607.GB27160@core.coreip.homeip.net>
-References: <1389219092-32042-1-git-send-email-cheiny@synaptics.com>
+Subject: Re: [PATCH] input synaptics-rmi4 trivial: rmi_f01.c tidy-up
+Date: Thu, 9 Jan 2014 00:11:32 -0800
+Message-ID: <20140109081132.GC27160@core.coreip.homeip.net>
+References: <1389139662-6590-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f44.google.com ([209.85.220.44]:54293 "EHLO
-	mail-pa0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751040AbaAIIGL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 03:06:11 -0500
-Received: by mail-pa0-f44.google.com with SMTP id fa1so2986318pad.31
-        for <linux-input@vger.kernel.org>; Thu, 09 Jan 2014 00:06:10 -0800 (PST)
+Received: from mail-pb0-f45.google.com ([209.85.160.45]:43966 "EHLO
+	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751066AbaAIILg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 03:11:36 -0500
+Received: by mail-pb0-f45.google.com with SMTP id rp16so2705455pbb.4
+        for <linux-input@vger.kernel.org>; Thu, 09 Jan 2014 00:11:35 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1389219092-32042-1-git-send-email-cheiny@synaptics.com>
+In-Reply-To: <1389139662-6590-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>
 Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Wed, Jan 08, 2014 at 02:11:32PM -0800, Christopher Heiny wrote:
-> Moves i2c_check_functionality to occur before the gpio_config() call.  This 
-> can catch some issues that would otherwise result in mysterious problems
-> in gpio_config().
+On Tue, Jan 07, 2014 at 04:07:42PM -0800, Christopher Heiny wrote:
+> This has two trivial changes:
 > 
-> Reduces debugging output; updates remaining output to be more accurate.
+> 1) use CONFIG_PM_SLEEP instead of CONFIG_PM for consistency.
+> 
+> 2) Update the copyright date.
 > 
 > Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -34,49 +34,29 @@ Applied, thank you.
 
 > 
 > ---
+>  drivers/input/rmi4/rmi_f01.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
->  drivers/input/rmi4/rmi_i2c.c | 18 ++++++++----------
->  1 file changed, 8 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index 43b0e53..b4bd8ae 100644
-> --- a/drivers/input/rmi4/rmi_i2c.c
-> +++ b/drivers/input/rmi4/rmi_i2c.c
-> @@ -274,26 +274,24 @@ static int rmi_i2c_probe(struct i2c_client *client,
->  		dev_err(&client->dev, "no platform data\n");
->  		return -EINVAL;
->  	}
-> -	dev_info(&client->dev, "Probing %s at %#02x (IRQ %d).\n",
-> +	dev_dbg(&client->dev, "Probing %s at %#02x (GPIO %d).\n",
->  		pdata->sensor_name ? pdata->sensor_name : "-no name-",
->  		client->addr, pdata->attn_gpio);
+> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+> index 628b082..d547633 100644
+> --- a/drivers/input/rmi4/rmi_f01.c
+> +++ b/drivers/input/rmi4/rmi_f01.c
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Copyright (c) 2011-2012 Synaptics Incorporated
+> + * Copyright (c) 2011-2014 Synaptics Incorporated
+>   * Copyright (c) 2011 Unixphere
+>   *
+>   * This program is free software; you can redistribute it and/or modify it
+> @@ -138,7 +138,7 @@ struct f01_data {
+>  	int irq_count;
+>  	int num_of_irq_regs;
 >  
-> +	retval = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
-> +	if (!retval) {
-> +		dev_err(&client->dev, "i2c_check_functionality error %d.\n",
-> +			retval);
-> +		return retval;
-> +	}
-> +
->  	if (pdata->gpio_config) {
-> -		dev_dbg(&client->dev, "Configuring GPIOs.\n");
->  		retval = pdata->gpio_config(pdata->gpio_data, true);
->  		if (retval < 0) {
->  			dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
->  				retval);
->  			return retval;
->  		}
-> -		dev_info(&client->dev, "Done with GPIO configuration.\n");
-> -	}
-> -
-> -	retval = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
-> -	if (!retval) {
-> -		dev_err(&client->dev, "i2c_check_functionality error %d.\n",
-> -			retval);
-> -		return retval;
->  	}
->  
->  	xport = devm_kzalloc(&client->dev, sizeof(struct rmi_transport_dev),
+> -#ifdef CONFIG_PM
+> +#ifdef CONFIG_PM_SLEEP
+>  	bool suspended;
+>  	bool old_nosleep;
+>  #endif
 
 -- 
 Dmitry

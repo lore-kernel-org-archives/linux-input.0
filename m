@@ -1,38 +1,50 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: Re: [PATCH 1/2] HID: sony: Add force feedback for the Dualshock 4
-Date: Thu, 09 Jan 2014 14:29:22 -0500
-Message-ID: <52CEF892.2000509@oh.rr.com>
-References: <alpine.DEB.2.10.1401031518010.29517@franz-virtual-machine>    <c6470a2c8d6a5ad2e6d3c023ae49e7ef.squirrel@mungewell.org>    <e14a0771e48b8c1d72ee9182eb7d2593.squirrel@mungewell.org> <9702a6d4a97cca7e0f05dd2329dca326.squirrel@mungewell.org>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH] input: synaptics-rmi4 - fix F01 DOM formatting
+Date: Thu, 9 Jan 2014 12:21:33 -0800
+Message-ID: <1389298893-4043-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:50273 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751137AbaAIT3Z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 14:29:25 -0500
-In-Reply-To: <9702a6d4a97cca7e0f05dd2329dca326.squirrel@mungewell.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:31117 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756533AbaAIUVj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jan 2014 15:21:39 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: simon@mungewell.org
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On 1/9/2014 01:42, simon@mungewell.org wrote:
->>> However I am seeing some weird behaviour in whether FF/LED actually
->>> functions. It seems that in a 'complete' kernel installation the driver
->>> does not present FF or LED.
->>>
-> Found the problem (or at least a solution), there is no entry in 'hid-core.c'
-> --
-> static const struct hid_device_id hid_have_special_driver[] = {
-> ...
-> 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY,
-> USB_DEVICE_ID_SONY_PS4_CONTROLLER) },
-> --
->
-> Adding this makes it work for me, although I don't know why the insmod
-> trick was working....
-> Simon
->
-Ah, I didn't realize that it needed an entry there.  I'll add this to v2 
-of the patch set.  Thanks!
+Use a sensible format string for the date of manufacture formatting.
+
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+---
+
+ drivers/input/rmi4/rmi_f01.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index 1cb11ea..9e6a578 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -50,7 +50,7 @@ struct f01_basic_properties {
+ 	bool has_lts;
+ 	bool has_adjustable_doze;
+ 	bool has_adjustable_doze_holdoff;
+-	char dom[9]; /* YYYYMMDD + '\0' */
++	char dom[11]; /* YYYY/MM/DD + '\0' */
+ 	u8 product_id[RMI_PRODUCT_ID_LENGTH + 1];
+ 	u16 productinfo;
+ };
+@@ -190,8 +190,7 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+ 	props->has_adjustable_doze_holdoff =
+ 			basic_query[1] & RMI_F01_QRY1_HAS_ADJ_DOZE_HOFF;
+ 
+-	snprintf(props->dom, sizeof(props->dom),
+-		 "20%02x%02x%02x",
++	snprintf(props->dom, sizeof(props->dom), "20%02d/%02d/%02d",
+ 		 basic_query[5] & RMI_F01_QRY5_YEAR_MASK,
+ 		 basic_query[6] & RMI_F01_QRY6_MONTH_MASK,
+ 		 basic_query[7] & RMI_F01_QRY7_DAY_MASK);

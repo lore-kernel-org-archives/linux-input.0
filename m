@@ -1,193 +1,112 @@
-From: =?utf-8?q?J=C3=BCrgen_Beisert?= <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCHv6] staging/iio/adc: change the MXS touchscreen driver implementation
-Date: Fri, 10 Jan 2014 09:55:45 +0100
-Message-ID: <201401100955.45885.jbe@pengutronix.de>
-References: <1379946998-23041-1-git-send-email-jbe@pengutronix.de> <52CEA4AA.8050503@free-electrons.com>
+From: "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
+Subject: RE: [PATCH V1] input: use device managed memory in da9052
+ touchscreen driver
+Date: Fri, 10 Jan 2014 09:02:10 +0000
+Message-ID: <24DF37198A1E704D9811D8F72B87EB51AC050B52@NB-EX-MBX02.diasemi.com>
+References: <201401091252.s09CqsOr042762@swsrvapps-02.lan>
+ <20140109191236.GA28020@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <52CEA4AA.8050503-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.153]:14950 "EHLO
+	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751216AbaAJJCP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Jan 2014 04:02:15 -0500
+In-Reply-To: <20140109191236.GA28020@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>, David Dajun Chen <david.chen@diasemi.com>
 
-Hi Alexandre,
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: 09 January 2014 19:13
+> To: Opensource [Anthony Olech]
+> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Huqiu Liu;
+> David Dajun Chen
+> Subject: Re: [PATCH V1] input: use device managed memory in da9052
+> touchscreen driver
+> 
+> Hi Anthony,
+> 
+> On Thu, Jan 09, 2014 at 12:51:37PM +0000, Anthony Olech wrote:
+> > The touchscreen component driver for the da9052/3 Dialog PMICs is
+> > changed to use device managed memory allocation.
+> >
+> > This results in simpler error paths as failures in the probe()
+> > function do not require explicit calls to free the devm_...
+> > allocated memory.
+> > The allocation functions used in this driver are:
+> >     devm_kzalloc()
+> >     devm_input_allocate_device()
+> >     devm_request_threaded_irq()
+> >
+> > Suggested-by: Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>
+> > Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
+> > ---
+> > This patch is relative to linux-next repository tag next-20140109
+> >
+> > Many thanks to Huqiu Liu who instigated this patch.
+> >
+> >  drivers/input/touchscreen/da9052_tsi.c |   62 ++++++++++++++++-----------
+> -----
+> >  1 file changed, 30 insertions(+), 32 deletions(-)
+> >
+> > diff --git a/drivers/input/touchscreen/da9052_tsi.c
+> > b/drivers/input/touchscreen/da9052_tsi.c
+> > index ab64d58..dcc4cf1 100644
+> > --- a/drivers/input/touchscreen/da9052_tsi.c
+> > +++ b/drivers/input/touchscreen/da9052_tsi.c
+> > @@ -233,18 +233,30 @@ static int da9052_ts_probe(struct
+> platform_device *pdev)
+> >  	struct da9052_tsi *tsi;
+> >  	struct input_dev *input_dev;
+> >  	int error;
+> > +	int pdown_irq;
+> > +	int ready_irq;
+> >
+> >  	da9052 = dev_get_drvdata(pdev->dev.parent);
+> >  	if (!da9052)
+> >  		return -EINVAL;
+> >
+> > -	tsi = kzalloc(sizeof(struct da9052_tsi), GFP_KERNEL);
+> > -	input_dev = input_allocate_device();
+> > -	if (!tsi || !input_dev) {
+> > -		error = -ENOMEM;
+> > -		goto err_free_mem;
+> > -	}
+> > +	pdown_irq = regmap_irq_get_virq(da9052->irq_data,
+> DA9052_IRQ_PENDOWN);
+> > +	if (pdown_irq < 0)
+> > +		return pdown_irq;
+> ...
+> >
+> > -	error = da9052_request_irq(tsi->da9052, DA9052_IRQ_PENDOWN,
+> > -				"pendown-irq", da9052_ts_pendwn_irq, tsi);
+> > +	error = devm_request_threaded_irq(&pdev->dev, pdown_irq,
+> > +				NULL, da9052_ts_pendwn_irq,
+> > +				IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> > +				"pendown-irq", tsi);
+> 
+> I am uncomfortable with the touchscreen portion of this driver ignoring the
+> framework of it's MFD core and mixing native IRQ management with the
+> ones done through the core.
+> 
+> What would happen if somebody changes da9052_request_irq() to do some
+> thing more than it is doing now so that your open-coded duplicate of the
+> same in da9052_ts_probe() is no longer equivalent? Or
+> da9052_disable_irq() no longer works correctly with IRQs allocated by this
+> sub-module?
+> Thanks.
+> --
+> Dmitry
+Hi Dmitry,
+unfortunately the PMIC is a multifunction device and the component drivers come
+under different subsystem maintainers. Thus it is not possible to do one patch in one
+go to change them all.
+Tony Olech
 
-On Thursday 09 January 2014 14:31:22 Alexandre Belloni wrote:
-> Sorry to chime in only now but it seems that this series is breaking =
-the
-> touchscreen calibration on 3.13 (and -rc7 is out so it might be too
-> late).
->
-> At first, I though I became a terrible clicker ;) but I found some
-> evidences:
->
-> xinput_calibrator is complaining about misclicks, debug output:
-> DEBUG: Adding click 0 (X=3D105, Y=3D59)
-> DEBUG: Not adding click 1 (X=3D100, Y=3D59): within 7 pixels of previ=
-ous click
-> DEBUG: Adding click 1 (X=3D696, Y=3D58)
-> DEBUG: Not adding click 2 (X=3D700, Y=3D55): within 7 pixels of previ=
-ous click
-> DEBUG: Adding click 2 (X=3D103, Y=3D422)
-> DEBUG: Mis-click detected, click 3 (X=3D438, Y=3D415) not aligned wit=
-h click 1 (X=3D696, Y=3D58) or click 2 (X=3D103, Y=3D422) (threshold=3D=
-15)
-> DEBUG: Adding click 0 (X=3D424, Y=3D411)
->
-> Do you see the confusion ? At some point one of the coordinates is no=
-t
-> updated. Successful calibration with 3.12.6 gives:
-> DEBUG: Adding click 0 (X=3D126, Y=3D405)
-> DEBUG: Adding click 1 (X=3D684, Y=3D399)
-> DEBUG: Adding click 2 (X=3D128, Y=3D77)
-> DEBUG: Adding click 3 (X=3D683, Y=3D77)
->
->
-> With ts_calibrate:
-> xres =3D 800, yres =3D 480
-> Took 1 samples...
-> Top left : X =3D  435 Y =3D 3572
-> Took 2 samples...
-> Top right : X =3D 2094 Y =3D 3553
-> Took 2 samples...
-> Bot right : X =3D 2939 Y =3D 2077
-> Took 2 samples...
-> Bot left : X =3D 2060 Y =3D  644
-> Took 2 samples...
-> Center : X =3D 1279 Y =3D 1346
->
-> We experience the same thing, when changing position on an axis, we g=
-et
-> an average between the previous and the new position (probably becaus=
-e
-> we got 2 samples):
->  - Top Left is ok
->  - Top right is almost ok: X should be around 3500/3700
->  - Bot right is starting to get really wrong: X is getting better (it
->    should still be around 3500/3700) but Y should be quite lower
->  - Bot left: Y is ok but X should be lower
->  - Center is completely wrong, both values should be around 2000
->
-> Last test with evtest which is always difficult because it outputs a =
-lot
-> of debug. Two separate touchs, bottom left and then top right (note t=
-hat
-> this is with fsl,ave-ctrl =3D <8>;):
->
-> Event: time 1389210862.451000, type 3 (Absolute), code 0 (X), value 2=
-183
-> Event: time 1389210862.451000, type 3 (Absolute), code 1 (Y), value 7=
-20
-> Event: time 1389210862.451000, type 3 (Absolute), code 24 (Pressure),=
- value 6
-> Event: time 1389210862.451000, type 1 (Key), code 330 (Touch), value =
-1=20
-> Event: time 1389210862.451000, -------------- Report Sync -----------=
--
-> Event: time 1389210862.477721, type 3 (Absolute), code 0 (X), value 4=
-48
-> Event: time 1389210862.477721, type 3 (Absolute), code 1 (Y), value 6=
-67
-> Event: time 1389210862.477721, type 3 (Absolute), code 24 (Pressure),=
- value 595
-> Event: time 1389210862.477721, -------------- Report Sync -----------=
--=20
-> Event: time 1389210862.504718, type 3 (Absolute), code 0 (X), value 4=
-34
-> Event: time 1389210862.504718, type 3 (Absolute), code 1 (Y), value 7=
-04
-> Event: time 1389210862.504718, type 3 (Absolute), code 24 (Pressure),=
- value 580
-> Event: time 1389210862.504718, -------------- Report Sync -----------=
--=20
-> Event: time 1389210862.536688, type 1 (Key), code 330 (Touch), value =
-0
-> Event: time 1389210862.536688, -------------- Report Sync -----------=
--
-> Event: time 1389210863.359697, type 3 (Absolute), code 0 (X), value 4=
-32
-> Event: time 1389210863.359697, type 3 (Absolute), code 1 (Y), value 7=
-26
-> Event: time 1389210863.359697, type 3 (Absolute), code 24 (Pressure),=
- value 210
-> Event: time 1389210863.359697, type 1 (Key), code 330 (Touch), value =
-1=20
-> Event: time 1389210863.359697, -------------- Report Sync -----------=
--
-> Event: time 1389210863.391687, type 1 (Key), code 330 (Touch), value =
-0
-> Event: time 1389210863.391687, -------------- Report Sync -----------=
--
->
-> We get 3 reports for bottom left, then pen up, then one report for to=
-p
-> right that is almost exactly the same a bottom left !
->
-> Output from 3.12:
-> Event: time 1389210022.146809, type 3 (Absolute), code 0 (X), value 2=
-86
-> Event: time 1389210022.146809, type 3 (Absolute), code 1 (Y), value 5=
-04
-> Event: time 1389210022.146809, type 3 (Absolute), code 24 (Pressure),=
- value 3045
-> Event: time 1389210022.146809, type 1 (Key), code 330 (Touch), value =
-1=20
-> Event: time 1389210022.146809, -------------- Report Sync -----------=
--
-> Event: time 1389210022.166830, type 3 (Absolute), code 0 (X), value 2=
-56
-> Event: time 1389210022.166830, type 3 (Absolute), code 1 (Y), value 4=
-89
-> Event: time 1389210022.166830, type 3 (Absolute), code 24 (Pressure),=
- value 3033
-> Event: time 1389210022.166830, -------------- Report Sync -----------=
--=20
-> Event: time 1389210022.186812, type 3 (Absolute), code 24 (Pressure),=
- value 0
-> Event: time 1389210022.186812, type 1 (Key), code 330 (Touch), value =
-0=20
-> Event: time 1389210022.186812, -------------- Report Sync -----------=
--
-> Event: time 1389210025.196808, type 3 (Absolute), code 0 (X), value 3=
-812
-> Event: time 1389210025.196808, type 3 (Absolute), code 1 (Y), value 3=
-637
-> Event: time 1389210025.196808, type 3 (Absolute), code 24 (Pressure),=
- value 4032
-> Event: time 1389210025.196808, type 1 (Key), code 330 (Touch), value =
-1=20
-> Event: time 1389210025.196808, -------------- Report Sync -----------=
--
-> Event: time 1389210025.216819, type 3 (Absolute), code 24 (Pressure),=
- value 0
-> Event: time 1389210025.216819, type 1 (Key), code 330 (Touch), value =
-0=20
-> Event: time 1389210025.216819, -------------- Report Sync -----------=
--
->
->
-> While this is not necessarily an issue with ts_calibrate (it is possi=
-ble
-> to click longer so it collects more samples), I don't see that workin=
-g
-> with xinput_calibrator.
->
-> While I don't have much experience with the TS part of the code but I
-> can investigate if you don't have any idea.
 
-You are right. I have seen the same behaviour here a few times. Current=
-ly I'm
-short in time to dig deeper into this issue, but I will try to do so.
-
-Juergen
-
---=20
-Pengutronix e.K. =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0| Juergen Beisert =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 |
-Linux Solutions for Science and Industry =C2=A0 =C2=A0 =C2=A0| http://w=
-ww.pengutronix.de/  |

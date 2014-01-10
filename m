@@ -1,56 +1,177 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 3/4] Input: synaptics-rmi4 - fix I2C functionality check
-Date: Fri, 10 Jan 2014 15:25:55 -0800
-Message-ID: <52D08183.7090203@synaptics.com>
-References: <1389339867-8399-1-git-send-email-dmitry.torokhov@gmail.com> <1389339867-8399-3-git-send-email-dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 4/4] Input: synaptics-rmi4 - switch to using i2c_transfer()
+Date: Fri, 10 Jan 2014 15:29:19 -0800
+Message-ID: <52D0824F.4040908@synaptics.com>
+References: <1389339867-8399-1-git-send-email-dmitry.torokhov@gmail.com> <1389339867-8399-4-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:5393 "EHLO
+Received: from us-mx2.synaptics.com ([192.147.44.131]:58120 "EHLO
 	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751642AbaAJXZ4 (ORCPT
+	with ESMTP id S1751291AbaAJX3U (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jan 2014 18:25:56 -0500
-In-Reply-To: <1389339867-8399-3-git-send-email-dmitry.torokhov@gmail.com>
+	Fri, 10 Jan 2014 18:29:20 -0500
+In-Reply-To: <1389339867-8399-4-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
 
 On 01/09/2014 11:44 PM, Dmitry Torokhov wrote:
-> When adapter does not support required functionality (I2C_FUNC_I2C) we were
-> returning 0 to the upper layers, making them believe that device bound
-> successfully.
+> Instead of using 2 separate transactions when reading from the device let's
+> use i2c_transfer. Because we now have single point of failure I had to
+> change how we collect statistics. I elected to drop control data from the
+> stats and only track number of bytes read/written for the device data.
+>
+> Also, since we are not prepared to deal with short reads and writes change
+> read_block_data and write_block_data to indicate error if we detect short
+> transfers.
+
+We tried this change once before a couple of years ago, but the 
+conversion was unsuccessful on some older platforms.  I've tested it on 
+some more current platforms, though, and it works there.  The old 
+platforms are running 2.6.xx series kernels, and don't look likely ever 
+to be updated, So....
 
 Acked-by: Christopher Heiny <cheiny@synaptics.com>
 
 >
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->   drivers/input/rmi4/rmi_i2c.c | 9 ++++-----
->   1 file changed, 4 insertions(+), 5 deletions(-)
+>   drivers/input/rmi4/rmi_i2c.c | 71 ++++++++++++++++++++++++--------------------
+>   1 file changed, 39 insertions(+), 32 deletions(-)
 >
 > diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index cdc8527..c176218 100644
+> index c176218..51f5bc8 100644
 > --- a/drivers/input/rmi4/rmi_i2c.c
 > +++ b/drivers/input/rmi4/rmi_i2c.c
-> @@ -193,11 +193,10 @@ static int rmi_i2c_probe(struct i2c_client *client,
->   		pdata->sensor_name ? pdata->sensor_name : "-no name-",
->   		client->addr, pdata->attn_gpio);
+> @@ -57,22 +57,17 @@ struct rmi_i2c_xport {
+>    */
+>   static int rmi_set_page(struct rmi_i2c_xport *rmi_i2c, u8 page)
+>   {
+> -	struct rmi_transport_dev *xport = &rmi_i2c->xport;
+>   	struct i2c_client *client = rmi_i2c->client;
+>   	u8 txbuf[2] = {RMI_PAGE_SELECT_REGISTER, page};
+>   	int retval;
 >
-> -	retval = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
-> -	if (!retval) {
-> -		dev_err(&client->dev, "i2c_check_functionality error %d.\n",
-> -			retval);
-> -		return retval;
-> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-> +		dev_err(&client->dev,
-> +			"adapter does not support required functionality.\n");
-> +		return -ENODEV;
+> -	dev_dbg(&client->dev, "writes 3 bytes: %02x %02x\n",
+> -			txbuf[0], txbuf[1]);
+> -	xport->stats.tx_count++;
+> -	xport->stats.tx_bytes += sizeof(txbuf);
+>   	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
+>   	if (retval != sizeof(txbuf)) {
+> -		xport->stats.tx_errs++;
+>   		dev_err(&client->dev,
+>   			"%s: set page failed: %d.", __func__, retval);
+>   		return (retval < 0) ? retval : -EIO;
+>   	}
+> +
+>   	rmi_i2c->page = page;
+>   	return 0;
+>   }
+> @@ -107,22 +102,27 @@ static int rmi_i2c_write_block(struct rmi_transport_dev *xport, u16 addr,
+>
+>   	if (RMI_I2C_PAGE(addr) != rmi_i2c->page) {
+>   		retval = rmi_set_page(rmi_i2c, RMI_I2C_PAGE(addr));
+> -		if (retval < 0)
+> +		if (retval)
+>   			goto exit;
 >   	}
 >
->   	if (pdata->gpio_config) {
+> +	retval = i2c_master_send(client, rmi_i2c->tx_buf, tx_size);
+> +	if (retval == tx_size)
+> +		retval = 0;
+> +	else if (retval >= 0)
+> +		retval = -EIO;
+> +
+> +exit:
+>   	dev_dbg(&client->dev,
+> -		"writes %zd bytes at %#06x: %*ph\n", len, addr, (int)len, buf);
+> +		"write %zd bytes at %#06x: %d (%*ph)\n",
+> +		len, addr, retval, (int)len, buf);
+>
+>   	xport->stats.tx_count++;
+> -	xport->stats.tx_bytes += tx_size;
+> -	retval = i2c_master_send(client, rmi_i2c->tx_buf, tx_size);
+> -	if (retval < 0)
+> +	if (retval)
+>   		xport->stats.tx_errs++;
+>   	else
+> -		retval--; /* don't count the address byte */
+> +		xport->stats.tx_bytes += len;
+>
+> -exit:
+>   	mutex_unlock(&rmi_i2c->page_mutex);
+>   	return retval;
+>   }
+> @@ -133,40 +133,47 @@ static int rmi_i2c_read_block(struct rmi_transport_dev *xport, u16 addr,
+>   	struct rmi_i2c_xport *rmi_i2c =
+>   		container_of(xport, struct rmi_i2c_xport, xport);
+>   	struct i2c_client *client = rmi_i2c->client;
+> -	u8 txbuf[1] = {addr & 0xff};
+> +	u8 addr_offset = addr & 0xff;
+>   	int retval;
+> +	struct i2c_msg msgs[] = {
+> +		{
+> +			.addr	= client->addr,
+> +			.len	= sizeof(addr_offset),
+> +			.buf	= &addr_offset,
+> +		},
+> +		{
+> +			.addr	= client->addr,
+> +			.flags	= I2C_M_RD,
+> +			.len	= len,
+> +			.buf	= buf,
+> +		},
+> +	};
+>
+>   	mutex_lock(&rmi_i2c->page_mutex);
+>
+>   	if (RMI_I2C_PAGE(addr) != rmi_i2c->page) {
+>   		retval = rmi_set_page(rmi_i2c, RMI_I2C_PAGE(addr));
+> -		if (retval < 0)
+> +		if (retval)
+>   			goto exit;
+>   	}
+>
+> -	dev_dbg(&client->dev, "writes 1 bytes: %02x\n", txbuf[0]);
+> +	retval = i2c_transfer(client->adapter, msgs, sizeof(msgs));
+> +	if (retval == sizeof(msgs))
+> +		retval = 0; /* success */
+> +	else if (retval >= 0)
+> +		retval = -EIO;
+>
+> -	xport->stats.tx_count++;
+> -	xport->stats.tx_bytes += sizeof(txbuf);
+> -	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
+> -	if (retval != sizeof(txbuf)) {
+> -		xport->stats.tx_errs++;
+> -		retval = (retval < 0) ? retval : -EIO;
+> -		goto exit;
+> -	}
+> +exit:
+> +	dev_dbg(&client->dev,
+> +		"read %zd bytes at %#06x: %d (%*ph)\n",
+> +		len, addr, retval, (int)len, buf);
+>
+>   	xport->stats.rx_count++;
+> -	xport->stats.rx_bytes += len;
+> -
+> -	retval = i2c_master_recv(client, buf, len);
+> -	if (retval < 0)
+> +	if (retval)
+>   		xport->stats.rx_errs++;
+>   	else
+> -		dev_dbg(&client->dev,
+> -			"read %zd bytes at %#06x: %*ph\n",
+> -			len, addr, (int)len, buf);
+> +		xport->stats.rx_bytes += len;
+>
+> -exit:
+>   	mutex_unlock(&rmi_i2c->page_mutex);
+>   	return retval;
+>   }
 >
 
 

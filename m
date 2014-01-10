@@ -1,112 +1,65 @@
-From: "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
-Subject: RE: [PATCH V1] input: use device managed memory in da9052
- touchscreen driver
-Date: Fri, 10 Jan 2014 09:02:10 +0000
-Message-ID: <24DF37198A1E704D9811D8F72B87EB51AC050B52@NB-EX-MBX02.diasemi.com>
-References: <201401091252.s09CqsOr042762@swsrvapps-02.lan>
- <20140109191236.GA28020@core.coreip.homeip.net>
+From: franklinbuthelezi1@yahoo.com
+Subject: =?UTF-8?Q?DiePresse.com_Mein_Freund,_der_Fahrradh=C3=A4ndler?=
+Date: Fri, 10 Jan 2014 13:33:08 +0100 (CET)
+Message-ID: <378075983.1389357188259.JavaMail.root@dpoportal4.diepresse.apa.net>
+Reply-To: franklinbuthelezi1@yahoo.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.153]:14950 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751216AbaAJJCP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jan 2014 04:02:15 -0500
-In-Reply-To: <20140109191236.GA28020@core.coreip.homeip.net>
-Content-Language: en-US
+Received: from dpocron.diepresse.apa.net ([194.232.102.6]:41581 "EHLO
+	dpocron.diepresse.apa.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751952AbaAJMjl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Jan 2014 07:39:41 -0500
+Received: from dpoportal4.diepresse.apa.net (dpoportal4.diepresse.local [192.168.0.20])
+	by dpocron.diepresse.apa.net (Postfix) with ESMTP id 442A9445B6
+	for <linux-input@vger.kernel.org>; Fri, 10 Jan 2014 13:33:08 +0100 (CET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>, David Dajun Chen <david.chen@diasemi.com>
+To: linux-input@vger.kernel.org
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: 09 January 2014 19:13
-> To: Opensource [Anthony Olech]
-> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Huqiu Liu;
-> David Dajun Chen
-> Subject: Re: [PATCH V1] input: use device managed memory in da9052
-> touchscreen driver
-> 
-> Hi Anthony,
-> 
-> On Thu, Jan 09, 2014 at 12:51:37PM +0000, Anthony Olech wrote:
-> > The touchscreen component driver for the da9052/3 Dialog PMICs is
-> > changed to use device managed memory allocation.
-> >
-> > This results in simpler error paths as failures in the probe()
-> > function do not require explicit calls to free the devm_...
-> > allocated memory.
-> > The allocation functions used in this driver are:
-> >     devm_kzalloc()
-> >     devm_input_allocate_device()
-> >     devm_request_threaded_irq()
-> >
-> > Suggested-by: Huqiu Liu <liuhq11@mails.tsinghua.edu.cn>
-> > Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
-> > ---
-> > This patch is relative to linux-next repository tag next-20140109
-> >
-> > Many thanks to Huqiu Liu who instigated this patch.
-> >
-> >  drivers/input/touchscreen/da9052_tsi.c |   62 ++++++++++++++++-----------
-> -----
-> >  1 file changed, 30 insertions(+), 32 deletions(-)
-> >
-> > diff --git a/drivers/input/touchscreen/da9052_tsi.c
-> > b/drivers/input/touchscreen/da9052_tsi.c
-> > index ab64d58..dcc4cf1 100644
-> > --- a/drivers/input/touchscreen/da9052_tsi.c
-> > +++ b/drivers/input/touchscreen/da9052_tsi.c
-> > @@ -233,18 +233,30 @@ static int da9052_ts_probe(struct
-> platform_device *pdev)
-> >  	struct da9052_tsi *tsi;
-> >  	struct input_dev *input_dev;
-> >  	int error;
-> > +	int pdown_irq;
-> > +	int ready_irq;
-> >
-> >  	da9052 = dev_get_drvdata(pdev->dev.parent);
-> >  	if (!da9052)
-> >  		return -EINVAL;
-> >
-> > -	tsi = kzalloc(sizeof(struct da9052_tsi), GFP_KERNEL);
-> > -	input_dev = input_allocate_device();
-> > -	if (!tsi || !input_dev) {
-> > -		error = -ENOMEM;
-> > -		goto err_free_mem;
-> > -	}
-> > +	pdown_irq = regmap_irq_get_virq(da9052->irq_data,
-> DA9052_IRQ_PENDOWN);
-> > +	if (pdown_irq < 0)
-> > +		return pdown_irq;
-> ...
-> >
-> > -	error = da9052_request_irq(tsi->da9052, DA9052_IRQ_PENDOWN,
-> > -				"pendown-irq", da9052_ts_pendwn_irq, tsi);
-> > +	error = devm_request_threaded_irq(&pdev->dev, pdown_irq,
-> > +				NULL, da9052_ts_pendwn_irq,
-> > +				IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> > +				"pendown-irq", tsi);
-> 
-> I am uncomfortable with the touchscreen portion of this driver ignoring the
-> framework of it's MFD core and mixing native IRQ management with the
-> ones done through the core.
-> 
-> What would happen if somebody changes da9052_request_irq() to do some
-> thing more than it is doing now so that your open-coded duplicate of the
-> same in da9052_ts_probe() is no longer equivalent? Or
-> da9052_disable_irq() no longer works correctly with IRQs allocated by this
-> sub-module?
-> Thanks.
-> --
-> Dmitry
-Hi Dmitry,
-unfortunately the PMIC is a multifunction device and the component drivers come
-under different subsystem maintainers. Thus it is not possible to do one patch in one
-go to change them all.
-Tony Olech
+=46olgender Artikel auf http://diepresse.com wird Ihnen von Franklin Bu=
+thelezi empfohlen:
+
+Mein Freund, der Fahrradh=C3=A4ndler
+Manche Dinge ver=C3=A4ndern sich =C3=BCber die langen Wintermonate hinw=
+eg.=20
+
+http://diepresse.com/home/leben/mode/kolumnezumtag/548717/index.do
+
+Notiz:
+Dear friend,
+=20
+I am the international operations manager of ABSA bank South Africa. My=
+ name is Franklin Buthelezi. I have a sensitive and private offer from =
+the top executive to seek your partnership in re-profiling some offshor=
+e investment funds worth 11.5M U.S.D (Eleven Million five hundred thous=
+and United States Dollars) I am constrained however to withhold most of=
+ the details for now. This is a legitimate transaction.=20
+=20
+If we agree on the terms you will be given 15% of the total funds, if y=
+ou are interested please write back via email providing me your persona=
+l details and phone number for further directives.
+=20
+If you are interested and willing to render your assistance please resp=
+ond via my private email address stated below.
+=20
+I look forward to your response.
+=20
+Best regards
+=46ranklin Buthelezi
+Email: franklinbuthelezi1@yahoo.com
 
 
+------------------------------------
+DiePresse.com =C3=BCbernimmt keine Haftung f=C3=BCr den Inhalt der pers=
+=C3=B6nlichen Nachricht.
+
+=C2=A9 DiePresse.com - http://diepresse.com
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

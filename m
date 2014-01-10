@@ -1,201 +1,233 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: Re: [PATCH] Introduce Naming Convention in Input Subsystem
-Date: Fri, 10 Jan 2014 16:49:44 +0000 (GMT)
-Message-ID: <25201406.444611389372583656.JavaMail.weblogic@epml19>
-Reply-To: a.mathur@samsung.com
+Date: Fri, 10 Jan 2014 11:11:09 -0800
+Message-ID: <20140110191108.GC10889@core.coreip.homeip.net>
+References: <25201406.444611389372583656.JavaMail.weblogic@epml19>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:50547 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756933AbaAJQtp (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:59625 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751258AbaAJTLP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jan 2014 11:49:45 -0500
-Received: from epcpsbgx1.samsung.com
- (u161.gpu120.samsung.co.kr [203.254.230.161])
- by mailout1.samsung.com (Oracle Communications Messaging Server 7u4-24.01
- (7.0.4.24.0) 64bit (built Nov 17 2011))
- with ESMTP id <0MZ70031M2QWG090@mailout1.samsung.com> for
- linux-input@vger.kernel.org; Sat, 11 Jan 2014 01:49:44 +0900 (KST)
-MIME-version: 1.0
+	Fri, 10 Jan 2014 14:11:15 -0500
+Received: by mail-pa0-f49.google.com with SMTP id bj1so1301185pad.22
+        for <linux-input@vger.kernel.org>; Fri, 10 Jan 2014 11:11:14 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <25201406.444611389372583656.JavaMail.weblogic@epml19>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Aniroop Mathur <a.mathur@samsung.com>, "cpgs ." <cpgs@samsung.com>, Anurag Aggarwal <a.anurag@samsung.com>, Naveen Kumar <naveen.sel@samsung.com>, "aniroop.mathur@gmail.com" <aniroop.mathur@gmail.com>, VIKAS KALA <vikas.kala@samsung.com>, Poorva Srivastava <poorva.s@samsung.com>
+To: Aniroop Mathur <a.mathur@samsung.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "cpgs ." <cpgs@samsung.com>, Anurag Aggarwal <a.anurag@samsung.com>, Naveen Kumar <naveen.sel@samsung.com>, "aniroop.mathur@gmail.com" <aniroop.mathur@gmail.com>, VIKAS KALA <vikas.kala@samsung.com>, Poorva Srivastava <poorva.s@samsung.com>
 
-SGVsbG8gTXIuIFRvcm9raG92LA0KR3JlZXRpbmdzIQ0KDQpPbiBUaHUsIEphbiAwOSwgMjAxNCBh
-dCAxMDoyNzo1NkFNICswNTMwLCBBbmlyb29wIE1hdGh1ciB3cm90ZToNCj4gVGhpcyBwYXRjaCBh
-bGxvd3MgdXNlcihkcml2ZXIpIHRvIHNldCBzeXNmcyBub2RlIG5hbWUgb2YgaW5wdXQNCj4gZGV2
-aWNlcy4gIFRvIHNldCBzeXNmcyBub2RlIG5hbWUsIHVzZXIoZHJpdmVyKSBqdXN0IG5lZWRzIHRv
-IHNldA0KPiBub2RlX25hbWVfdW5pcXVlIHZhcmlhYmxlLiAgSWYgbm9kZV9uYW1lX3VuaXF1ZSBp
-cyBub3Qgc2V0LCBkZWZhdWx0DQo+IG5hbWUgaXMgZ2l2ZW4oYXMgYmVmb3JlKS4gIFNvLCB0aGlz
-IHBhdGNoIGlzIGNvbXBsZXRlbHkNCj4gYmFja3dhcmQtY29tcGF0aWJsZS4NCj4gDQo+IFN5c2Zz
-IElucHV0IG5vZGUgbmFtZSBmb3JtYXQgaXM6IGlucHV0Xw0KPiBTeXNmcyBFdmVudCBub2RlIG5h
-bWUgZm9ybWF0IGlzOiBldmVudF8NCj4NCj4gVGhpcyAibmFtZSIgaXMgZ2l2ZW4gYnkgdXNlciBh
-bmQgYXV0b21hdGljYWxseSwgcHJlZml4KGlucHV0IGFuZA0KPiBldmVudCkgaXMgYWRkZWQgYnkg
-aW5wdXQgY29yZS4NCj4gDQo+IFRoaXMgbmFtZSBtdXN0IGJlIHVuaXF1ZSBhbW9uZyBhbGwgaW5w
-dXQgZGV2aWNlcyBhbmQgZHJpdmVyKHVzZXIpIGhhcw0KPiB0aGUgcmVzcG9uc2liaWxpdHkgdG8g
-ZW5zdXJlIGl0LiAgSWYgc2FtZSBuYW1lIGlzIHVzZWQgYWdhaW4gZm9yIG90aGVyDQo+IGlucHV0
-IGRldmljZSwgcmVnaXN0cmF0aW9uIG9mIHRoYXQgaW5wdXQgZGV2aWNlIHdpbGwgZmFpbCBiZWNh
-dXNlIHR3bw0KPiBpbnB1dCBkZXZpY2VzIGNhbm5vdCBoYXZlIHNhbWUgbmFtZS4NCj4gDQo+IEFk
-dmFudGFnZXMgb2YgdGhpcyBwYXRjaCBhcmU6DQo+IA0KPiAxLiBSZWR1Y2VzIEJvb3RpbmcgVGlt
-ZSBvZiBIQUwvVXBwZXItTGF5ZXIgYmVjYXVzZSBub3cgSEFMIG9yDQo+IFVwcGVyLUxheWVyIGRv
-IG5vdCBuZWVkIHRvIHNlYXJjaCBpbnB1dC9ldmVudCBudW1iZXIgY29ycmVzcG9uZGluZyB0bw0K
-PiBlYWNoIGlucHV0IGRldmljZSBpbiAvZGV2L2lucHV0Ly4uLiAgVGhpcyBzZWFyY2hpbmcgaW4g
-L2Rldi9pbnB1dC8gd2FzDQo+IHRha2luZyB0b28gbXVjaCB0aW1lLiAgKEVzcGVjaWFsbHkgaW4g
-bW9iaWxlIGRldmljZXMsIHdoZXJlIHRoZXJlIGFyZQ0KPiBtYW55IGlucHV0IGRldmljZXMgKG1h
-bnkgc2Vuc29ycywgdG91Y2hzY3JlZW4sIGV0YyksIGl0IHJlZHVjZXMgYSBsb3QNCj4gb2YgYm9v
-dGluZyB0aW1lKQ0KDQpJIGFtIHNvcnJ5LCBob3cgbXVjaCB0aW1lIGRvZXMgaXQgdGFrZSB0byBz
-Y2FuIGEgZGlyZWN0b3J5IG9mIHdoYXQsIDIwDQpkZXZpY2VzPyBJZiBpdCBzdWNoIGEgZmFjdG9y
-IGhhdmUgdWRldiBjcmVhdGUgbm9kZXMgdGhhdCBhcmUgZWFzaWVyIGZvcg0KeW91IHRvIGxvY2F0
-ZSwgc2ltaWxhcmx5IGhvdyB3ZSBhbHJlYWR5IGNyZWF0ZSBub2RlcyBieS1pZCBhbmQgYnktcGF0
-aC4NCkZvciBleGFtcGxlIHlvdSBjYW4gZW5jb2RlIG1ham9yOm1pbm9yIGluIGRldmljZSBuYW1l
-Lg0KDQpSZTogKEFuaXJvb3AgTWF0aHVyKQ0KSXRzIGNvcnJlY3QgdGhhdCB3ZSBjYW4gc2V0IG5h
-bWUgb2YgYSBkZXZpY2Ugbm9kZSB1c2luZyB1ZGV2LiANClllcywgdGhpcyB3aWxsIGNoYW5nZSB0
-aGUgbmFtZSBvZiBkZXZpY2Ugbm9kZSgvZGV2Ly4uLikgYnV0IG5vdCBzeXNmcyBub2RlLigvc3lz
-L2NsYXNzL2lucHV0Ly4uLikNClNvIG5vdywgdGhlIHByb2JsZW0gYXJlYSB3aWxsIHNoaWZ0IGZy
-b20gZGV2IHBhdGggdG8gc3lzZnMgcGF0aCwgDQpiZWNhdXNlIG5vdyB3ZSBkb250IGtub3cgd2hp
-Y2ggc3lzZnMgbm9kZSB0byByZWZlciBmb3IgYSBwYXJ0aWN1bGFyIGlucHV0IGRldmljZQ0KYW5k
-IGhlbmNlIEhBTC9VcHBlci1MYXllciB3aWxsIG5lZWQgdG8gc2VhcmNoIGluIC9zeXMvY2xhc3Mv
-aW5wdXQvLi4uIGluc3RlYWQgb2YgL2Rldi8uLi4gZGlyZWN0b3J5Lg0KDQpNb3Jlb3ZlciwgYXMg
-aSBrbm93LCB1ZGV2IGlzIG1haW5seSBmb3IgaG90LXBsdWdnYWJsZSBkZXZpY2VzLCBidXQgbXkg
-cHJvYmxlbSBpcyBmb3IgcGxhdGZvcm0gZGV2aWNlcywNCndoaWNoIGFyZSBhbHJlYWR5IHByZXNl
-bnQgb24gdGhlIGJvYXJkIGR1cmluZyBib290IHVwLiAoTGlrZSBpbiBFbWJlZGRlZCBkZXZpY2Vz
-KQ0KDQpUbyBhdm9pZCBjb25mdXNpb24gYW5kIG1ha2UgdGhlIHByb2JsZW0gbW9yZSBjbGVhciwg
-DQpJIHdvdWxkIGxpa2UgdG8gZXhwbGFpbiB0aGUgcHJvYmxlbSBhbmQgbXkgc3VnZ2VzdGlvbiBi
-eSB0YWtpbmcgYW4gZXhhbXBsZToNCg0KU3VwcG9zZSBpbiBhIG1vYmlsZSBkZXZpY2UsIHRoZXJl
-IGFyZSAxMCBlbWJlZGRlZCBpbnB1dCBkZXZpY2VzIGFzIGJlbG93Og0KUHJveGltaXR5IC0tLSAg
-ICAgICAgICAgICAgICAvZGV2L2lucHV0MCAgLS0tIC9zeXMvY2xhc3MvaW5wdXQvaW5wdXQwIC0t
-LSAvc3lzL2NsYXNzL2lucHV0L2V2ZW50MA0KTWFnbmV0b21ldGVyIC0tLSAgICAgIC9kZXYvaW5w
-dXQxICAgLS0tIC9zeXMvY2xhc3MvaW5wdXQvaW5wdXQxIC0tLSAvc3lzL2NsYXNzL2lucHV0L2V2
-ZW50MQ0KQWNjZWxlcm9tZXRlciAtLS0gICAgICAvZGV2L2lucHV0MiAgLS0tIC9zeXMvY2xhc3Mv
-aW5wdXQvaW5wdXQyIC0tLSAvc3lzL2NsYXNzL2lucHV0L2V2ZW50Mg0KVG91Y2hzY3JlZW4gLS0t
-ICAgICAgICAgL2Rldi9pbnB1dDMgIC0tLSAvc3lzL2NsYXNzL2lucHV0L2lucHV0MyAtLS0gL3N5
-cy9jbGFzcy9pbnB1dC9ldmVudDMgDQouLi4gNiBtb3JlIGxpa2UgdGhpcw0KKEFsbCB0aGVzZSBh
-cmUgY3JlYXRlZCBkdXJpbmcgYm9vdCB1cCB0aW1lKQ0KDQpLZXJuZWwgaGFzIGNyZWF0ZWQgYWxs
-IHRoZXNlIG5vZGVzLCBzbyB0aGF0IEhBTC9VcHBlckxheWVyIGNhbiByZWFkIG9yIHdyaXRlIHZh
-bHVlcyBmcm9tIGl0Lg0KSEFML1VwcGVyLUxheWVyIG5lZWRzIHRvIGRvIG1haW4gdGFza3MgbGlr
-ZToNCjEuIFJlYWQgcmF3IGRhdGEgLSBkb2VzIHRocm91Z2ggL2Rldi9pbnB1dDxudW0+DQoyLiBF
-bmFibGUgZGV2aWNlIC0gZG9lcyB0aHJvdWdoIHN5cy9jbGFzcy9pbnB1dDxudW0+L2VuYWJsZQ0K
-My4gU2V0IGRlbGF5IC0gZG9lcyB0aHJvdWdoIHN5cy9jbGFzcy9pbnB1dDxudW0+L2RlbGF5DQph
-bmQgbWFueSBtb3JlLi4uDQoNCk5vdywgTGV0cyBzdXBwb3NlIHdlIG5lZWQgdG8gZG8gdGhlc2Ug
-dGFza3MgZm9yIEFjY2VsZXJvbWV0ZXIuDQoNCklmIGRldiBub2RlIG5hbWUgaXMgc2V0LCBIQUwg
-Y2FuIGRpcmVjdGx5IHJlYWQgdmFsdWUgZnJvbSBpdCAobm8gc2VhcmNoIHJlcXVpcmVkKQ0KQnV0
-IGZvciBlbmFibGluZyB0aGUgYWNjZWxlcm9tZXRlciBkZXZpY2Ugb3Igc2V0IHRoZSBkZWxheSBv
-ZiBhIGhhcmR3YXJlIGNoaXAsIA0KdGhlcmUgaXMgbm8gZGlyZWN0IHdheSwgSEFMIGNhbiBrbm93
-IHdoaWNoIGlucHV0IG5vZGUgdG8gcmVmZXIgZm9yIGFjY2VsZXJvbWV0ZXINCmJlY2F1c2UgdGhl
-IGlucHV0IG51bWJlciBpcyBjcmVhdGVkIGR5bmFtaWNhbGx5IGFzIHBlciBkZXZpY2UgcHJvYmUg
-b3JkZXIsDQpzbyB0aGlzIGlucHV0IG51bWJlciBjYW4gYmUgYW55dGhpbmcgKDAsMSwyLDMuLi4p
-DQpTbyBIQUwgd2lsbCBuZWVkIHRvIHNlYXJjaCBldmVyeSBpbnB1dCBub2RlIGFuZCByZWFkIGl0
-cyBuYW1lIGF0dHJpYnV0ZQ0KYW5kIGtlZXAgb24gc2VhcmNoaW5nIHVudGlsIGEgbWF0Y2ggaXMg
-Zm91bmQgYmV0d2VlbiB0aGUgImF0dHJpYnV0ZSBuYW1lIiBhbmQgIm5hbWUgcGFzc2VkIGFzIHBh
-cmFtZXRlciIuIA0KTGlrZSBmb3IgYWNjZWxlcm9tZXRlciwgdGhpcyBzZWFyY2hpbmcgbmVlZHMg
-dG8gYmUgZG9uZSBmb3IgYWxsIG90aGVyIGlucHV0IGRldmljZXMuDQpBbGwgb2YgdGhpcyBwYXJ0
-IGlzIGRvbmUgZHVyaW5nIGJvb3RpbmcgYW5kIHRoaXMgdGFrZXMgYSBsb3QgZm9yIHRpbWUgZnJv
-bSBib290aW5nIHBlcnNwZWN0aXZlLg0KDQpBcyBJIG1lYXN1cmVkLCBpZiB0aGVyZSBhcmUgdGVu
-IGRldmljZXMsIGl0IGlzIHRha2luZyAxIHNlY29uZCB0byBkbyBhbGwgdGhpcyBzZWFyY2hpbmcu
-IChmb3IgYWxsIGRldmljZXMpDQpTbyBmb3IgMjAgZGV2aWNlcywgaSBndWVzcywgaXQgY291bGQg
-dGFrZSB1cHRvIDIgc2Vjb25kcy4NCg0KV2l0aCBuYW1pbmcgY29udmVudGlvbiwgdGhlcmUgaXMg
-bm8gbmVlZCBvZiBzZWFyY2ggbmVpdGhlciBmb3IgZGV2IHBhdGggbm9yIGZvciBzeXNmcyBwYXRo
-DQpiZWNhdXNlIEhBTCBkaXJlY3RseSBrbm93IHdoaWNoIG5vZGUgdG8gcmVmZXIgZm9yIHdoaWNo
-IGlucHV0IGRldmljZQ0KYW5kIGhlbmNlIHRoaXMgMSBzZWNvbmQgaXMgcmVkdWNlZCB0byAxMG1z
-IG9yIGV2ZW4gbGVzcywgdGhlcmVmb3JlIHNhdmluZyA5OTBtcy4NCkkgYmVsaWV2ZSwgdGhpcyBp
-cyBhIHZlcnkgZ29vZCB0aW1lIHNhdmluZy4gKGZyb20gZGV2aWNlIGJvb3RpbmcgcGVyc3BlY3Rp
-dmUpDQoNCihJcyB0aGVyZSBhbnkgZGlyZWN0IHdheSwgd2l0aG91dCBzY2FubmluZyBhbGwgbm9k
-ZXMgZm9yIGV2ZXJ5IGlucHV0IGRldmljZSA/KQ0KDQo+IA0KPiAyLiBJbXByb3ZlcyBSZWFkYWJp
-bHR5IG9mIGlucHV0IGFuZCBldmVudCBzeXNmcyBub2RlIHBhdGhzIGJlY2F1c2UNCj4gbmFtZXMg
-YXJlIHVzZWQgaW5zdGVhZCBvZiBudW1iZXJzLg0KDQpJIGRvIG5vdCBzZWUgd2h5IGl0IGlzIHRo
-YXQgaW1wb3J0YW50LiBJZiBvbmUgd2FudHMgb3ZlcnZpZXcNCi9wcm9jL2J1cy9pbnB1dC9kZXZp
-Y2VzIGdpdmVzIG5pY2UgcGljdHVyZS4NCg0KUmU6IChBbmlyb29wIE1hdGh1cikNCkl0cyBjb3Jy
-ZWN0LCB3ZSBjYW4gZ2V0IGFuIG92ZXJ2aWV3IGZyb20gL3Byb2MvYnVzL2lucHV0L2RldmljZXMu
-DQpBbmQgdGhlcmVmb3JlIHVzaW5nIHRoaXMsIHdlIGNhbiBrbm93IGlucHV0IG5vZGUgbnVtYmVy
-IGZvciBldmVyeSBpbnB1dCBkZXZpY2UuDQpCdXQgdGhlcmUgYXJlIG1hbnkgaW5wdXQgZGV2aWNl
-cyBhbmQgaW5wdXQgbnVtYmVycyBhcmUgbm90IGZpeGVkLCANCnNvIGl0cyBxdWl0ZSBkaWZmaWN1
-bHQgdG8gbWVtb3JpemUgaW5wdXQgbnVtYmVyIGZvciBhbGwgaW5wdXQgZGV2aWNlcy4NClRoZXJl
-Zm9yZSwgaWYgYSB1c2VyIG5lZWRzIHRvIG9wZW4gc29tZSBpbnB1dCBub2RlIGZyb20gc3lzZnMg
-cGF0aCwNCmhlIG5lZWRzIHRvIGNoZWNrIC9wcm9jL2J1cy9pbnB1dC9kZXZpY2VzIGJlZm9yZSBv
-cGVuaW5nIGJlY2F1c2UgDQpoZSBkb2VzIG5vdCBrbm93IHRoZSBpbnB1dCBudW1iZXIuIE1vcmVv
-dmVyLCB0aGlzIGFwcGxpZXMgZm9yIGFsbCBvdGhlcg0KaW5wdXQgZGV2aWNlcyBhbmQgaGVuY2Ug
-YSB1c2VyIG5lZWQgdG8gY2hlY2sgdGhpcyBldmVyeSB0aW1lLg0KDQpJdCBpbXByb3ZlcyByZWFk
-YWJpbHR5IGFzIGJlbG93DQoNCkJlZm9yZToJCQkJQWZ0ZXIgcGF0Y2g6DQovZGV2L2lucHV0MAkJ
-CQkvZGV2L2lucHV0X3Byb3hpbWl0eQ0KL2Rldi9pbnB1dDEJCQkJL2Rldi9pbnB1dF9hY2NlbGVy
-b21ldGVyDQouLi5tYW55IG1vcmUNCg0KL3N5cy9jbGFzcy9pbnB1dC9pbnB1dDAJCQkvc3lzL2Ns
-YXNzL2lucHV0L2lucHV0X3Byb3hpbWl0eQ0KL3N5cy9jbGFzcy9pbnB1dC9pbnB1dDEJCQkvc3lz
-L2NsYXNzL2lucHV0L2lucHV0X2FjY2VsZXJvbWV0ZXINCi4uLm1hbnkgbW9yZQkNCg0KL3N5cy9j
-bGFzcy9pbnB1dC9ldmVudDAJCQkvc3lzL2NsYXNzL2lucHV0L2V2ZW50X3Byb3hpbWl0eQ0KL3N5
-cy9jbGFzcy9pbnB1dC9ldmVudDEJCQkvc3lzL2NsYXNzL2lucHV0L2V2ZW50X2FjY2VsZXJvbWV0
-ZXINCi4uLm1hbnkgbW9yZQ0KDQpTbywganVzdCBieSBsb29raW5nLCB1c2VyIGNhbiBkaXJlY3Rs
-eSBvcGVuIG9yIHJlZmVyIGFueSBpbnB1dCBub2RlLg0KKG5vIG5lZWQgdG8gcmVmZXIgYW55IG90
-aGVyIHBhdGgpDQoNCj4gDQo+IDMuIFJlbW92ZXMgSW5wdXQgRGV2aWNlcyBEZXBlbmRlbmN5LiBJ
-ZiBvbmUgaW5wdXQgZGV2aWNlIHByb2JlIGZhaWxzLA0KPiBvdGhlciBpbnB1dCBkZXZpY2VzIHN0
-aWxsIHdvcmsuICBCZWZvcmUgdGhpcyBwYXRjaCwgaWYgb25lIGlucHV0DQo+IGRldmljZSBwcm9i
-ZSBmYWlscyBiZWZvcmUgaW5wdXRfcmVnaXN0ZXJfZGV2aWNlLCB0aGVuIGlucHV0IG51bWJlciBv
-Zg0KPiBvdGhlciBpbnB1dCBkZXZpY2VzIGNoYW5nZXMgYW5kIGR1ZSB0byB0aGlzIHBlcm1pc3Np
-b24gc2V0dGluZ3MgYXJlDQo+IGRpc3R1cmJlZCBhbmQgaGVuY2UgSEFMIG9yIHVwcGVyIGxheWVy
-IGNhbm5vdCBvcGVuIHRoZSByZXF1aXJlZCBzeXNmcw0KPiBub2RlIGJlY2F1c2UgcGVybWlzc2lv
-biBkZW5pZWQgZXJyb3IgY29tZXMuDQoNCkkgaGF2ZSBvbmx5IG9uZSBzdWdnZXN0aW9uIGhlcmU6
-IGZpeCB5b3VyIHVzZXJzcGFjZSBzbyB0aGF0IGRvZXMgbm90DQpkZXBlbmQgb24gZGV2aWNlIGlu
-aXRpYWxpemF0aW9uIG9yZGVyaW5nLg0KDQpSZTogKEFuaXJvb3AgTWF0aHVyKQ0KV2UgY2Fubm90
-IGZpeCB1c2Vyc3BhY2UgYmVjYXVzZSB0aGVzZSBpbnB1dC9ldmVudC9kZXYgbnVtYmVyIGFyZSBk
-ZWNpZGVkL2FsbG9jYXRlZCBpbiBrZXJuZWwNCmFzIHBlciBkZXZpY2UgaW5pdGlhbGl6YXRpb24g
-b3JkZXJpbmcgZHVyaW5nIGJvb3QgdXAuICh1c2Vyc3BhY2UgaGFzIG5vIHJvbGUgaW4gaXQpDQpT
-bywgdXNlcnNwYWNlIGlzIG5vdCBhd2FyZSwgd2hpY2ggZXhhY3QgaW5wdXQgbnVtYmVyIGNvcnJl
-c3BvbmRzIHRvIHdoaWNoIGlucHV0IGRldmljZSANCnNvIGl0IGVuZHMgdXAgc2VhcmNoaW5nL3Nj
-YW5uaW5nIGV2ZXJ5IGlucHV0IG5vZGUgdW50aWxsIGEgbWF0Y2ggaXMgZm91bmQuDQoNClNvLCB0
-aGVyZSBpcyBpbnB1dCBkZXZpY2UgZGVwZW5kZW5jeSB3aGljaCBuZWVkcyB0byBiZSByZW1vdmVk
-Lg0KDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQoNCklPVyBJIGFtIHRvdGFsbHkgdW5j
-b252aW5jZWQgdGhhdCB0aGlzIGZhY2lsaXR5IGlzIG5lZWRlZC4NCg0KUmU6IChBbmlyb29wIE1h
-dGh1cikNCkkgaG9wZSBteSBwcm9ibGVtIGFuZCBzdWdnZXN0aW9uIGlzIG1vcmUgY2xlYXIgYW5k
-IGNvbnZpbmNpbmcgbm93Lg0KDQoNCkZvciByZWZlcmVuY2UsIGNvcHlpbmcgUGF0Y2ggYWdhaW46
-DQoNCi0tLQ0KZHJpdmVycy9pbnB1dC9ldmRldi5jIHwgICAxMSArKysrKysrKysrLQ0KZHJpdmVy
-cy9pbnB1dC9pbnB1dC5jIHwgICAxMiArKysrKysrKysrKy0NCmluY2x1ZGUvbGludXgvaW5wdXQu
-aCB8ICAgIDQgKysrKw0KMyBmaWxlcyBjaGFuZ2VkLCAyNSBpbnNlcnRpb25zKCspLCAyIGRlbGV0
-aW9ucygtKQ0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9ldmRldi5jIGIvZHJpdmVycy9p
-bnB1dC9ldmRldi5jDQppbmRleCBiNmRlZDE3Li5iNmE1ODQ4IDEwMDY0NA0KLS0tIGEvZHJpdmVy
-cy9pbnB1dC9ldmRldi5jDQorKysgYi9kcml2ZXJzL2lucHV0L2V2ZGV2LmMNCkBAIC0xMTMxLDcg
-KzExMzEsMTYgQEAgc3RhdGljIGludCBldmRldl9jb25uZWN0KHN0cnVjdCBpbnB1dF9oYW5kbGVy
-ICpoYW5kbGVyLCBzdHJ1Y3QgaW5wdXRfZGV2ICpkZXYsDQovKiBOb3JtYWxpemUgZGV2aWNlIG51
-bWJlciBpZiBpdCBmYWxscyBpbnRvIGxlZ2FjeSByYW5nZSAqLw0KaWYgKGRldl9ubyA8IEVWREVW
-X01JTk9SX0JBU0UgKyBFVkRFVl9NSU5PUlMpDQpkZXZfbm8gLT0gRVZERVZfTUlOT1JfQkFTRTsN
-Ci0gZGV2X3NldF9uYW1lKCZldmRldi0+ZGV2LCAiZXZlbnQlZCIsIGRldl9ubyk7DQorDQorIC8q
-DQorICogQXMgcGVyIHVzZXIgY2hvaWNlIChkcml2ZXIpLA0KKyAqIG5hbWUgb2Ygc3lzZnMgbm9k
-ZSBpcyBzZXQsIGFzIG1lbnRpb25lZCBpbiBub2RlX25hbWVfdW5pcXVlIHZhcmlhYmxlLg0KKyAq
-IElmIG5vZGVfbmFtZV91bmlxdWUgaXMgbm90IHNldCwgZGVmYXVsdCBuYW1lIGlzIGdpdmVuLg0K
-KyAqLw0KKyBpZiAoZGV2LT5ub2RlX25hbWVfdW5pcXVlKQ0KKyBkZXZfc2V0X25hbWUoJmV2ZGV2
-LT5kZXYsICJldmVudF8lcyIsIGRldi0+bm9kZV9uYW1lX3VuaXF1ZSk7DQorIGVsc2UNCisgZGV2
-X3NldF9uYW1lKCZldmRldi0+ZGV2LCAiZXZlbnQlZCIsIGRldl9ubyk7DQoNCmV2ZGV2LT5oYW5k
-bGUuZGV2ID0gaW5wdXRfZ2V0X2RldmljZShkZXYpOw0KZXZkZXYtPmhhbmRsZS5uYW1lID0gZGV2
-X25hbWUoJmV2ZGV2LT5kZXYpOw0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvaW5wdXQuYyBi
-L2RyaXZlcnMvaW5wdXQvaW5wdXQuYw0KaW5kZXggYzA0NDY5OS4uYzgxMjZiMyAxMDA2NDQNCi0t
-LSBhL2RyaXZlcnMvaW5wdXQvaW5wdXQuYw0KKysrIGIvZHJpdmVycy9pbnB1dC9pbnB1dC5jDQpA
-QCAtMjA3Myw3ICsyMDczLDE3IEBAIGludCBpbnB1dF9yZWdpc3Rlcl9kZXZpY2Uoc3RydWN0IGlu
-cHV0X2RldiAqZGV2KQ0KaWYgKCFkZXYtPnNldGtleWNvZGUpDQpkZXYtPnNldGtleWNvZGUgPSBp
-bnB1dF9kZWZhdWx0X3NldGtleWNvZGU7DQoNCi0gZGV2X3NldF9uYW1lKCZkZXYtPmRldiwgImlu
-cHV0JWxkIiwNCisgLyoNCisgKiBBcyBwZXIgdXNlciBjaG9pY2UgKGRyaXZlciksDQorICogbmFt
-ZSBvZiBzeXNmcyBub2RlIGlzIHNldCwgYXMgbWVudGlvbmVkIGluIG5vZGVfbmFtZV91bmlxdWUg
-dmFyaWFibGUuDQorICogSWYgbm9kZV9uYW1lX3VuaXF1ZSBpcyBub3Qgc2V0LCBkZWZhdWx0IG5h
-bWUgaXMgZ2l2ZW4uDQorICovDQorIGlmIChkZXYtPm5vZGVfbmFtZV91bmlxdWUpIHsNCisgYXRv
-bWljX2luY19yZXR1cm4oJmlucHV0X25vKTsNCisgZGV2X3NldF9uYW1lKCZkZXYtPmRldiwgImlu
-cHV0XyVzIiwNCisgICAgICBkZXYtPm5vZGVfbmFtZV91bmlxdWUpOw0KKyB9IGVsc2UNCisgZGV2
-X3NldF9uYW1lKCZkZXYtPmRldiwgImlucHV0JWxkIiwNCiAgICAgKHVuc2lnbmVkIGxvbmcpIGF0
-b21pY19pbmNfcmV0dXJuKCZpbnB1dF9ubykgLSAxKTsNCg0KZXJyb3IgPSBkZXZpY2VfYWRkKCZk
-ZXYtPmRldik7DQpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9pbnB1dC5oIGIvaW5jbHVkZS9s
-aW51eC9pbnB1dC5oDQppbmRleCA4MmNlMzIzLi5mZTQ0NjQzIDEwMDY0NA0KLS0tIGEvaW5jbHVk
-ZS9saW51eC9pbnB1dC5oDQorKysgYi9pbmNsdWRlL2xpbnV4L2lucHV0LmgNCkBAIC00Myw2ICs0
-Myw5IEBAIHN0cnVjdCBpbnB1dF92YWx1ZSB7DQogICogQHVuaXE6IHVuaXF1ZSBpZGVudGlmaWNh
-dGlvbiBjb2RlIGZvciB0aGUgZGV2aWNlIChpZiBkZXZpY2UgaGFzIGl0KQ0KICAqIEBpZDogaWQg
-b2YgdGhlIGRldmljZSAoc3RydWN0IGlucHV0X2lkKQ0KICAqIEBwcm9wYml0OiBiaXRtYXAgb2Yg
-ZGV2aWNlIHByb3BlcnRpZXMgYW5kIHF1aXJrcw0KKyAqIEBub2RlX25hbWVfdW5pcXVlOiBuYW1l
-IG9mIGlucHV0IGFuZCBldmVudCBzeXNmcyBkZXZpY2Ugbm9kZSAoY2hhciAqKS4NCisgKiBUaGlz
-IG5hbWUgbXVzdCBiZSB1bmlxdWUgYW1vbmcgYWxsIGlucHV0IGRldmljZXMgYW5kIGRyaXZlcih1
-c2VyKQ0KKyAqIGhhcyB0aGUgcmVzcG9uc2liaWxpdHkgdG8gZW5zdXJlIGl0IChpZiB1c2luZyku
-DQogICogQGV2Yml0OiBiaXRtYXAgb2YgdHlwZXMgb2YgZXZlbnRzIHN1cHBvcnRlZCBieSB0aGUg
-ZGV2aWNlIChFVl9LRVksDQogICogRVZfUkVMLCBldGMuKQ0KICAqIEBrZXliaXQ6IGJpdG1hcCBv
-ZiBrZXlzL2J1dHRvbnMgdGhpcyBkZXZpY2UgaGFzDQpAQCAtMTIzLDYgKzEyNiw3IEBAIHN0cnVj
-dCBpbnB1dF9kZXYgew0KY29uc3QgY2hhciAqcGh5czsNCmNvbnN0IGNoYXIgKnVuaXE7DQpzdHJ1
-Y3QgaW5wdXRfaWQgaWQ7DQorIGNoYXIgKm5vZGVfbmFtZV91bmlxdWU7DQoNCnVuc2lnbmVkIGxv
-bmcgcHJvcGJpdFtCSVRTX1RPX0xPTkdTKElOUFVUX1BST1BfQ05UKV07DQoNCg0KVGhhbmtzLA0K
-QW5pcm9vcCBNYXRodXI=
+Hi Aniroop,
 
+On Fri, Jan 10, 2014 at 04:49:43PM +0000, Aniroop Mathur wrote:
+> Hello Mr. Torokhov,
+> Greetings!
+> 
+> On Thu, Jan 09, 2014 at 10:27:56AM +0530, Aniroop Mathur wrote:
+> > This patch allows user(driver) to set sysfs node name of input
+> > devices.  To set sysfs node name, user(driver) just needs to set
+> > node_name_unique variable.  If node_name_unique is not set, default
+> > name is given(as before).  So, this patch is completely
+> > backward-compatible.
+> > 
+> > Sysfs Input node name format is: input_
+> > Sysfs Event node name format is: event_
+> >
+> > This "name" is given by user and automatically, prefix(input and
+> > event) is added by input core.
+> > 
+> > This name must be unique among all input devices and driver(user) has
+> > the responsibility to ensure it.  If same name is used again for other
+> > input device, registration of that input device will fail because two
+> > input devices cannot have same name.
+> > 
+> > Advantages of this patch are:
+> > 
+> > 1. Reduces Booting Time of HAL/Upper-Layer because now HAL or
+> > Upper-Layer do not need to search input/event number corresponding to
+> > each input device in /dev/input/...  This searching in /dev/input/ was
+> > taking too much time.  (Especially in mobile devices, where there are
+> > many input devices (many sensors, touchscreen, etc), it reduces a lot
+> > of booting time)
+> 
+> I am sorry, how much time does it take to scan a directory of what, 20
+> devices? If it such a factor have udev create nodes that are easier for
+> you to locate, similarly how we already create nodes by-id and by-path.
+> For example you can encode major:minor in device name.
+> 
+> Re: (Aniroop Mathur)
 
+First of all, it would be great if you could use MUA that can properly
+quote and wrap long lines...
+
+> Its correct that we can set name of a device node using udev.  Yes,
+> this will change the name of device node(/dev/...) but not sysfs
+> node.(/sys/class/input/...) So now, the problem area will shift from
+> dev path to sysfs path, because now we dont know which sysfs node to
+> refer for a particular input device and hence HAL/Upper-Layer will
+> need to search in /sys/class/input/... instead of /dev/... directory.
+
+[dtor@dtor-d630 ~]$ mkdir my-sysfs-view
+[dtor@dtor-d630 ~]$ ln -s
+/sys/devices/platform/i8042/serio1/input/input6
+my-sysfs-view/input_touchpad
+[dtor@dtor-d630 ~]$ ls my-sysfs-view/input_touchpad/
+capabilities/ event6/       modalias      name          power/
+subsystem/    uniq
+device/       id/           mouse1/       phys          properties
+uevent
+[dtor@dtor-d630 ~]$ ls my-sysfs-view/input_touchpad/
+capabilities  device  event6  id  modalias  mouse1  name  phys  power
+properties  subsystem  uevent  uniq
+[dtor@dtor-d630 ~]$ ls my-sysfs-view/input_touchpad/event6/
+dev  device  power  subsystem  uevent
+
+Mmmmkay?
+
+> 
+> Moreover, as i know, udev is mainly for hot-pluggable devices, but my
+> problem is for platform devices, which are already present on the
+> board during boot up. (Like in Embedded devices)
+
+No, udev also manages those by requesting to replay all events that
+happened dyuring boot.
+
+> 
+> To avoid confusion and make the problem more clear, 
+> I would like to explain the problem and my suggestion by taking an example:
+> 
+> Suppose in a mobile device, there are 10 embedded input devices as below:
+> Proximity ---                /dev/input0  --- /sys/class/input/input0 --- /sys/class/input/event0
+> Magnetometer ---      /dev/input1   --- /sys/class/input/input1 --- /sys/class/input/event1
+> Accelerometer ---      /dev/input2  --- /sys/class/input/input2 --- /sys/class/input/event2
+> Touchscreen ---         /dev/input3  --- /sys/class/input/input3 --- /sys/class/input/event3 
+> ... 6 more like this
+> (All these are created during boot up time)
+> 
+> Kernel has created all these nodes, so that HAL/UpperLayer can read or
+> write values from it.  HAL/Upper-Layer needs to do main tasks like:
+> 1. Read raw data - does through /dev/input<num>
+> 2. Enable device - does through sys/class/input<num>/enable
+> 3. Set delay - does through sys/class/input<num>/delay
+> and many more...
+> 
+> Now, Lets suppose we need to do these tasks for Accelerometer.
+> 
+> If dev node name is set, HAL can directly read value from it (no
+> search required) But for enabling the accelerometer device or set the
+> delay of a hardware chip, there is no direct way, HAL can know which
+> input node to refer for accelerometer because the input number is
+> created dynamically as per device probe order, so this input number
+> can be anything (0,1,2,3...) So HAL will need to search every input
+> node and read its name attribute and keep on searching until a match
+> is found between the "attribute name" and "name passed as parameter".
+> Like for accelerometer, this searching needs to be done for all other
+> input devices.  All of this part is done during booting and this takes
+> a lot for time from booting perspective.
+>
+
+See the above. You can very easily create your own private 'view' of
+sysfs, no kernel changes needed.
+
+> As I measured, if there are ten devices, it is taking 1 second to do
+> all this searching. (for all devices) So for 20 devices, i guess, it
+> could take upto 2 seconds.
+
+That seems _very_ high, maybe you need to profile your code a bit. To
+search though 2 directories with less than a hundred files each should
+not take 1 second.
+
+> 
+> With naming convention, there is no need of search neither for dev
+> path nor for sysfs path because HAL directly know which node to refer
+> for which input device and hence this 1 second is reduced to 10ms or
+> even less, therefore saving 990ms.  I believe, this is a very good
+> time saving. (from device booting perspective)
+
+OK, so create your own sysfs view and use it to do direct lookups.
+
+> 
+> (Is there any direct way, without scanning all nodes for every input
+> device ?)
+> 
+> > 
+> > 2. Improves Readabilty of input and event sysfs node paths because
+> > names are used instead of numbers.
+> 
+> I do not see why it is that important. If one wants overview
+> /proc/bus/input/devices gives nice picture.
+> 
+> Re: (Aniroop Mathur)
+> Its correct, we can get an overview from /proc/bus/input/devices.
+> And therefore using this, we can know input node number for every input device.
+> But there are many input devices and input numbers are not fixed, 
+> so its quite difficult to memorize input number for all input devices.
+> Therefore, if a user needs to open some input node from sysfs path,
+> he needs to check /proc/bus/input/devices before opening because 
+> he does not know the input number. Moreover, this applies for all other
+> input devices and hence a user need to check this every time.
+> 
+> It improves readabilty as below
+> 
+> Before:				After patch:
+> /dev/input0				/dev/input_proximity
+> /dev/input1				/dev/input_accelerometer
+> ...many more
+> 
+> /sys/class/input/input0			/sys/class/input/input_proximity
+> /sys/class/input/input1			/sys/class/input/input_accelerometer
+> ...many more	
+> 
+> /sys/class/input/event0			/sys/class/input/event_proximity
+> /sys/class/input/event1			/sys/class/input/event_accelerometer
+> ...many more
+> 
+> So, just by looking, user can directly open or refer any input node.
+> (no need to refer any other path)
+
+User as in end user or your HAL layer?
+
+> 
+> > 
+> > 3. Removes Input Devices Dependency. If one input device probe fails,
+> > other input devices still work.  Before this patch, if one input
+> > device probe fails before input_register_device, then input number of
+> > other input devices changes and due to this permission settings are
+> > disturbed and hence HAL or upper layer cannot open the required sysfs
+> > node because permission denied error comes.
+> 
+> I have only one suggestion here: fix your userspace so that does not
+> depend on device initialization ordering.
+> 
+> Re: (Aniroop Mathur)
+> We cannot fix userspace because these input/event/dev number are
+> decided/allocated in kernel as per device initialization ordering
+> during boot up. (userspace has no role in it) So, userspace is not
+> aware, which exact input number corresponds to which input device so
+> it ends up searching/scanning every input node untill a match is
+> found.
+> 
+> So, there is input device dependency which needs to be removed.
+
+Do not use numbers. We emit uevents describing the devices and there a
+_lot_ of data there that helps identifying device, such as its path,
+subsystem, name, etc.
+
+> 
+> ----------------------------
+> 
+> IOW I am totally unconvinced that this facility is needed.
+> 
+> Re: (Aniroop Mathur)
+> I hope my problem and suggestion is more clear and convincing now.
+> 
+
+Not in the slightest, I am sorry.
+
+Thanks.
+
+-- 
+Dmitry

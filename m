@@ -1,287 +1,333 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH] input: synaptics-rmi4 - Count IRQs before creating functions; save F01 container.
-Date: Fri, 10 Jan 2014 13:53:34 -0800
-Message-ID: <1389390814-4063-1-git-send-email-cheiny@synaptics.com>
+Subject: Re: [PATCH 1/4] Input: synaptics-rmi4 - split of transport ops into
+ a separate structure
+Date: Fri, 10 Jan 2014 15:25:18 -0800
+Message-ID: <52D0815E.6010105@synaptics.com>
+References: <1389339867-8399-1-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:62486 "EHLO
+Received: from us-mx2.synaptics.com ([192.147.44.131]:25501 "EHLO
 	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752524AbaAJVxl (ORCPT
+	with ESMTP id S1752011AbaAJXZU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jan 2014 16:53:41 -0500
+	Fri, 10 Jan 2014 18:25:20 -0500
+In-Reply-To: <1389339867-8399-1-git-send-email-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
 
-Because creating a function can trigger events that result in the IRQ related
-storage being accessed, we need to count the IRQs and allocate their storage
-before the functions are created, rather than counting them as the functions
-are created and allocating them afterwards. Since we know the number of IRQs
-already, we can allocate the mask at function creation time, rather than in
-a post-creation loop.  Also, the F01 function_container is needed elsewhere,
-so we need to save it here.
+On 01/09/2014 11:44 PM, Dmitry Torokhov wrote:
+> Split off transport operations from rmi_transport_dev into a separate
+> structure that will be shared between all devices using the same transport
+> and use const pointer to access it.
+>
+> Change signature on transport methods so that length is using the proper
+> tyep - size_t.
+>
+> Also rename rmi_transport_info to rmi_transport_stats and move protocol
+> name (which is the only immutable piece of data there) into the transport
+> device itself.
 
-In order to keep the IRQ count logic sane in bootloader mode, we move the
-check for bootloader mode from F01 initialization to the IRQ counting routine.
+Acked-by: Christopher Heiny <cheiny@synaptics.com>
 
-Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>   drivers/input/rmi4/rmi_bus.h    | 64 ++++++++++++++++++++++++-----------------
+>   drivers/input/rmi4/rmi_driver.c |  8 +++---
+>   drivers/input/rmi4/rmi_i2c.c    | 49 ++++++++++++++++---------------
+>   3 files changed, 67 insertions(+), 54 deletions(-)
+>
+> diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
+> index 3e8b57a..ccf26dc 100644
+> --- a/drivers/input/rmi4/rmi_bus.h
+> +++ b/drivers/input/rmi4/rmi_bus.h
+> @@ -135,26 +135,25 @@ struct rmi_driver {
+>   #define to_rmi_driver(d) \
+>   	container_of(d, struct rmi_driver, driver);
+>
+> -/** struct rmi_transport_info - diagnostic information about the RMI transport
+> +/**
+> + * struct rmi_transport_stats - diagnostic information about the RMI transport
+>    * device, used in the xport_info debugfs file.
+>    *
+>    * @proto String indicating the protocol being used.
+>    * @tx_count Number of transmit operations.
+> - * @tx_bytes Number of bytes transmitted.
+>    * @tx_errs  Number of errors encountered during transmit operations.
+> + * @tx_bytes Number of bytes transmitted.
+>    * @rx_count Number of receive operations.
+> - * @rx_bytes Number of bytes received.
+>    * @rx_errs  Number of errors encountered during receive operations.
+> - * @att_count Number of times ATTN assertions have been handled.
+> + * @rx_bytes Number of bytes received.
+>    */
+> -struct rmi_transport_info {
+> -	const char *proto;
+> -	long tx_count;
+> -	long tx_bytes;
+> -	long tx_errs;
+> -	long rx_count;
+> -	long rx_bytes;
+> -	long rx_errs;
+> +struct rmi_transport_stats {
+> +	unsigned long tx_count;
+> +	unsigned long tx_errs;
+> +	size_t tx_bytes;
+> +	unsigned long rx_count;
+> +	unsigned long rx_errs;
+> +	size_t rx_bytes;
+>   };
+>
+>   /**
+> @@ -162,13 +161,14 @@ struct rmi_transport_info {
+>    *
+>    * @dev: Pointer to the communication device, e.g. i2c or spi
+>    * @rmi_dev: Pointer to the RMI device
+> - * @write_block: Writing a block of data to the specified address
+> - * @read_block: Read a block of data from the specified address.
+>    * @irq_thread: if not NULL, the sensor driver will use this instead of the
+>    * default irq_thread implementation.
+>    * @hard_irq: if not NULL, the sensor driver will use this for the hard IRQ
+>    * handling
+>    * @data: Private data pointer
+> + * @proto_name: name of the transport protocol (SPI, i2c, etc)
+> + * @ops: pointer to transport operations implementation
+> + * @stats: transport statistics
+>    *
+>    * The RMI transport device implements the glue between different communication
+>    * buses such as I2C and SPI.
+> @@ -178,20 +178,30 @@ struct rmi_transport_dev {
+>   	struct device *dev;
+>   	struct rmi_device *rmi_dev;
+>
+> -	int (*write_block)(struct rmi_transport_dev *xport, u16 addr,
+> -			   const void *buf, const int len);
+> -	int (*read_block)(struct rmi_transport_dev *xport, u16 addr,
+> -			  void *buf, const int len);
+> -
+> -	int (*enable_device) (struct rmi_transport_dev *xport);
+> -	void (*disable_device) (struct rmi_transport_dev *xport);
+> -
+>   	irqreturn_t (*irq_thread)(int irq, void *p);
+>   	irqreturn_t (*hard_irq)(int irq, void *p);
+>
+>   	void *data;
+>
+> -	struct rmi_transport_info info;
+> +	const char *proto_name;
+> +	const struct rmi_transport_ops *ops;
+> +	struct rmi_transport_stats stats;
+> +};
+> +
+> +/**
+> + * struct rmi_transport_ops - defines transport protocol operations.
+> + *
+> + * @write_block: Writing a block of data to the specified address
+> + * @read_block: Read a block of data from the specified address.
+> + */
+> +struct rmi_transport_ops {
+> +	int (*write_block)(struct rmi_transport_dev *xport, u16 addr,
+> +			   const void *buf, size_t len);
+> +	int (*read_block)(struct rmi_transport_dev *xport, u16 addr,
+> +			  void *buf, size_t len);
+> +
+> +	int (*enable_device) (struct rmi_transport_dev *xport);
+> +	void (*disable_device) (struct rmi_transport_dev *xport);
+>   };
+>
+>   /**
+> @@ -232,7 +242,7 @@ bool rmi_is_physical_device(struct device *dev);
+>    */
+>   static inline int rmi_read(struct rmi_device *d, u16 addr, void *buf)
+>   {
+> -	return d->xport->read_block(d->xport, addr, buf, 1);
+> +	return d->xport->ops->read_block(d->xport, addr, buf, 1);
+>   }
+>
+>   /**
+> @@ -248,7 +258,7 @@ static inline int rmi_read(struct rmi_device *d, u16 addr, void *buf)
+>   static inline int rmi_read_block(struct rmi_device *d, u16 addr, void *buf,
+>   				 const int len)
+>   {
+> -	return d->xport->read_block(d->xport, addr, buf, len);
+> +	return d->xport->ops->read_block(d->xport, addr, buf, len);
+>   }
+>
+>   /**
+> @@ -262,7 +272,7 @@ static inline int rmi_read_block(struct rmi_device *d, u16 addr, void *buf,
+>    */
+>   static inline int rmi_write(struct rmi_device *d, u16 addr, const u8 data)
+>   {
+> -	return d->xport->write_block(d->xport, addr, &data, 1);
+> +	return d->xport->ops->write_block(d->xport, addr, &data, 1);
+>   }
+>
+>   /**
+> @@ -278,7 +288,7 @@ static inline int rmi_write(struct rmi_device *d, u16 addr, const u8 data)
+>   static inline int rmi_write_block(struct rmi_device *d, u16 addr,
+>   				  const void *buf, const int len)
+>   {
+> -	return d->xport->write_block(d->xport, addr, buf, len);
+> +	return d->xport->ops->write_block(d->xport, addr, buf, len);
+>   }
+>
+>   int rmi_register_transport_device(struct rmi_transport_dev *xport);
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index eb790ff..3483e5b 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -126,8 +126,8 @@ static void disable_sensor(struct rmi_device *rmi_dev)
+>   	if (!data->irq)
+>   		disable_polling(rmi_dev);
+>
+> -	if (rmi_dev->xport->disable_device)
+> -		rmi_dev->xport->disable_device(rmi_dev->xport);
+> +	if (rmi_dev->xport->ops->disable_device)
+> +		rmi_dev->xport->ops->disable_device(rmi_dev->xport);
+>
+>   	if (data->irq) {
+>   		disable_irq(data->irq);
+> @@ -146,8 +146,8 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+>   	if (data->enabled)
+>   		return 0;
+>
+> -	if (rmi_dev->xport->enable_device) {
+> -		retval = rmi_dev->xport->enable_device(rmi_dev->xport);
+> +	if (rmi_dev->xport->ops->enable_device) {
+> +		retval = rmi_dev->xport->ops->enable_device(rmi_dev->xport);
+>   		if (retval)
+>   			return retval;
+>   	}
+> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+> index 12aea8c..40badf3 100644
+> --- a/drivers/input/rmi4/rmi_i2c.c
+> +++ b/drivers/input/rmi4/rmi_i2c.c
+> @@ -61,11 +61,11 @@ static int rmi_set_page(struct rmi_transport_dev *xport, u8 page)
+>
+>   	dev_dbg(&client->dev, "writes 3 bytes: %02x %02x\n",
+>   			txbuf[0], txbuf[1]);
+> -	xport->info.tx_count++;
+> -	xport->info.tx_bytes += sizeof(txbuf);
+> +	xport->stats.tx_count++;
+> +	xport->stats.tx_bytes += sizeof(txbuf);
+>   	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
+>   	if (retval != sizeof(txbuf)) {
+> -		xport->info.tx_errs++;
+> +		xport->stats.tx_errs++;
+>   		dev_err(&client->dev,
+>   			"%s: set page failed: %d.", __func__, retval);
+>   		return (retval < 0) ? retval : -EIO;
+> @@ -75,12 +75,12 @@ static int rmi_set_page(struct rmi_transport_dev *xport, u8 page)
+>   }
+>
+>   static int rmi_i2c_write_block(struct rmi_transport_dev *xport, u16 addr,
+> -			       const void *buf, const int len)
+> +			       const void *buf, size_t len)
+>   {
+>   	struct i2c_client *client = to_i2c_client(xport->dev);
+>   	struct rmi_i2c_data *data = xport->data;
+> +	size_t tx_size = len + 1;
+>   	int retval;
+> -	int tx_size = len + 1;
+>
+>   	mutex_lock(&data->page_mutex);
+>
+> @@ -106,13 +106,13 @@ static int rmi_i2c_write_block(struct rmi_transport_dev *xport, u16 addr,
+>   	}
+>
+>   	dev_dbg(&client->dev,
+> -		"writes %d bytes at %#06x: %*ph\n", len, addr, len, buf);
+> +		"writes %zd bytes at %#06x: %*ph\n", len, addr, (int)len, buf);
+>
+> -	xport->info.tx_count++;
+> -	xport->info.tx_bytes += tx_size;
+> +	xport->stats.tx_count++;
+> +	xport->stats.tx_bytes += tx_size;
+>   	retval = i2c_master_send(client, data->tx_buf, tx_size);
+>   	if (retval < 0)
+> -		xport->info.tx_errs++;
+> +		xport->stats.tx_errs++;
+>   	else
+>   		retval--; /* don't count the address byte */
+>
+> @@ -121,9 +121,8 @@ exit:
+>   	return retval;
+>   }
+>
+> -
+>   static int rmi_i2c_read_block(struct rmi_transport_dev *xport, u16 addr,
+> -			      void *buf, const int len)
+> +			      void *buf, size_t len)
+>   {
+>   	struct i2c_client *client = to_i2c_client(xport->dev);
+>   	struct rmi_i2c_data *data = xport->data;
+> @@ -140,31 +139,36 @@ static int rmi_i2c_read_block(struct rmi_transport_dev *xport, u16 addr,
+>
+>   	dev_dbg(&client->dev, "writes 1 bytes: %02x\n", txbuf[0]);
+>
+> -	xport->info.tx_count++;
+> -	xport->info.tx_bytes += sizeof(txbuf);
+> +	xport->stats.tx_count++;
+> +	xport->stats.tx_bytes += sizeof(txbuf);
+>   	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
+>   	if (retval != sizeof(txbuf)) {
+> -		xport->info.tx_errs++;
+> +		xport->stats.tx_errs++;
+>   		retval = (retval < 0) ? retval : -EIO;
+>   		goto exit;
+>   	}
+>
+> -	retval = i2c_master_recv(client, buf, len);
+> +	xport->stats.rx_count++;
+> +	xport->stats.rx_bytes += len;
+>
+> -	xport->info.rx_count++;
+> -	xport->info.rx_bytes += len;
+> +	retval = i2c_master_recv(client, buf, len);
+>   	if (retval < 0)
+> -		xport->info.rx_errs++;
+> +		xport->stats.rx_errs++;
+>   	else
+>   		dev_dbg(&client->dev,
+> -			"read %d bytes at %#06x: %*ph\n",
+> -			len, addr, len, buf);
+> +			"read %zd bytes at %#06x: %*ph\n",
+> +			len, addr, (int)len, buf);
+>
+>   exit:
+>   	mutex_unlock(&data->page_mutex);
+>   	return retval;
+>   }
+>
+> +static const struct rmi_transport_ops rmi_i2c_ops = {
+> +	.write_block	= rmi_i2c_write_block,
+> +	.read_block	= rmi_i2c_read_block,
+> +};
+> +
+>   static int rmi_i2c_probe(struct i2c_client *client,
+>   			 const struct i2c_device_id *id)
+>   {
+> @@ -214,9 +218,8 @@ static int rmi_i2c_probe(struct i2c_client *client,
+>   	xport->data = data;
+>   	xport->dev = &client->dev;
+>
+> -	xport->write_block = rmi_i2c_write_block;
+> -	xport->read_block = rmi_i2c_read_block;
+> -	xport->info.proto = "i2c";
+> +	xport->proto_name = "i2c";
+> +	xport->ops = &rmi_i2c_ops;
+>
+>   	mutex_init(&data->page_mutex);
+>
+>
 
----
 
- drivers/input/rmi4/rmi_driver.c | 129 +++++++++++++++++++++++++++++-----------
- drivers/input/rmi4/rmi_f01.c    |  11 +---
- 2 files changed, 96 insertions(+), 44 deletions(-)
+-- 
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index f5970f4..f2acd3a 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (c) 2011-2013 Synaptics Incorporated
-+ * Copyright (c) 2011-2014 Synaptics Incorporated
-  * Copyright (c) 2011 Unixphere
-  *
-  * This driver provides the core support for a single RMI4-based device.
-@@ -553,10 +553,19 @@ static int create_function(struct rmi_device *rmi_dev,
- 
- 	rmi_driver_copy_pdt_to_fd(pdt, &fn->fd, page_start);
- 
-+	error = rmi_driver_irq_get_mask(rmi_dev, fn);
-+	if (error < 0) {
-+		dev_err(dev, "%s: Failed to create irq_mask for F%02X.\n",
-+			__func__, pdt->function_number);
-+		return error;
-+	}
-+
- 	error = rmi_register_function(fn);
- 	if (error)
- 		goto err_free_mem;
- 
-+	if (pdt->function_number == 0x01)
-+		data->f01_container = fn;
- 	list_add_tail(&fn->node, &data->function_list);
- 
- 	return 0;
-@@ -566,10 +575,33 @@ err_free_mem:
- 	return error;
- }
- 
--
- #define RMI_SCAN_CONTINUE	0
- #define RMI_SCAN_DONE		1
- 
-+/* Indicates that flash programming is enabled (bootloader mode). */
-+#define RMI_F01_STATUS_BOOTLOADER(status)	(!!((status) & 0x40))
-+
-+/*
-+ * Given the PDT entry for F01, read the device status register to determine
-+ * if we're stuck in bootloader mode or not.
-+ *
-+ */
-+static int check_bootloader_mode(struct rmi_device *rmi_dev, struct pdt_entry *pdt,
-+				     u16 page_start)
-+{
-+	u8 device_status;
-+	int retval = 0;
-+
-+	retval = rmi_read(rmi_dev, pdt->data_base_addr + page_start,
-+			  &device_status);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev, "Failed to read device status.\n");
-+		return retval;
-+	}
-+
-+	return RMI_F01_STATUS_BOOTLOADER(device_status);
-+}
-+
- static int rmi_initial_reset(struct rmi_device *rmi_dev,
- 		void *clbk_ctx, struct pdt_entry *pdt_entry, int page)
- {
-@@ -596,6 +628,23 @@ static int rmi_initial_reset(struct rmi_device *rmi_dev,
- 	return (!page) ? RMI_SCAN_CONTINUE : -ENODEV;
- }
- 
-+static int rmi_count_irqs(struct rmi_device *rmi_dev,
-+		void * clbk_ctx, struct pdt_entry *pdt_entry, int page)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+
-+	data->irq_count += pdt_entry->interrupt_source_count;
-+	if (pdt_entry->function_number == 0x01) {
-+		data->f01_bootloader_mode = check_bootloader_mode(rmi_dev,
-+					pdt_entry, page);
-+		if (data->f01_bootloader_mode)
-+			dev_warn(&rmi_dev->dev,
-+				"WARNING: RMI4 device is in bootloader mode!\n");
-+	}
-+
-+	return RMI_SCAN_CONTINUE;
-+}
-+
- static int rmi_create_functions_clbk(struct rmi_device *rmi_dev,
- 		void *clbk_ctx, struct pdt_entry *entry, int page)
- {
-@@ -608,7 +657,6 @@ static int rmi_create_functions_clbk(struct rmi_device *rmi_dev,
- static int rmi_create_functions(struct rmi_device *rmi_dev)
- {
- 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
--	struct device *dev = &rmi_dev->dev;
- 	int irq_count = 0;
- 	int retval;
- 
-@@ -763,7 +811,6 @@ static int rmi_driver_probe(struct device *dev)
- {
- 	struct rmi_driver *rmi_driver;
- 	struct rmi_driver_data *data = NULL;
--	struct rmi_function *fn;
- 	struct rmi_device_platform_data *pdata;
- 	int retval = 0;
- 	struct rmi_device *rmi_dev;
-@@ -818,28 +865,6 @@ static int rmi_driver_probe(struct device *dev)
- 	if (retval)
- 		dev_warn(dev, "RMI initial reset failed! Continuing in spite of this.\n");
- 
--	retval = rmi_create_functions(rmi_dev);
--	if (retval) {
--		dev_err(dev, "PDT scan for %s failed with code %d.\n",
--			pdata->sensor_name, retval);
--		goto err_free_data;
--	}
--
--	if (!data->f01_container) {
--		dev_err(dev, "missing F01 container!\n");
--		retval = -EINVAL;
--		goto err_free_data;
--	}
--
--	list_for_each_entry(fn, &data->function_list, node) {
--		retval = rmi_driver_irq_get_mask(rmi_dev, fn);
--		if (retval < 0) {
--			dev_err(dev, "%s: Failed to create irq_mask.\n",
--				__func__);
--			goto err_free_data;
--		}
--	}
--
- 	retval = rmi_read(rmi_dev, PDT_PROPERTIES_LOCATION, &data->pdt_props);
- 	if (retval < 0) {
- 		/*
-@@ -850,6 +875,21 @@ static int rmi_driver_probe(struct device *dev)
- 			 PDT_PROPERTIES_LOCATION);
- 	}
- 
-+	/*
-+	 * We need to count the IRQs and allocate their storage before scanning
-+	 * the PDT and creating the function entries, because adding a new
-+	 * function can trigger events that result in the IRQ related storage
-+	 * being accessed.
-+	 */
-+	dev_dbg(dev, "Counting IRQs.\n");
-+	retval = rmi_scan_pdt(rmi_dev, NULL, rmi_count_irqs);
-+	if (retval) {
-+		dev_err(dev, "IRQ counting for %s failed with code %d.\n",
-+			pdata->sensor_name, retval);
-+		goto err_free_data;
-+	}
-+	data->num_of_irq_regs = (data->irq_count + 7) / 8;
-+
- 	mutex_init(&data->irq_mutex);
- 	data->irq_status = devm_kzalloc(dev,
- 		BITS_TO_LONGS(data->irq_count)*sizeof(unsigned long),
-@@ -869,6 +909,28 @@ static int rmi_driver_probe(struct device *dev)
- 		goto err_free_data;
- 	}
- 
-+	data->irq_mask_store = devm_kzalloc(dev,
-+		BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long),
-+		GFP_KERNEL);
-+	if (!data->irq_mask_store) {
-+		dev_err(dev, "Failed to allocate irq_mask_store.\n");
-+		retval = -ENOMEM;
-+		goto err_free_data;
-+	}
-+
-+	retval = rmi_create_functions(rmi_dev);
-+	if (retval) {
-+		dev_err(dev, "Function creation failed with code %d.\n",
-+			retval);
-+		goto err_free_data;
-+	}
-+
-+	if (!data->f01_container) {
-+		dev_err(dev, "missing F01 container!\n");
-+		retval = -EINVAL;
-+		goto err_free_data;
-+	}
-+
- 	retval = rmi_read_block(rmi_dev,
- 				data->f01_container->fd.control_base_addr+1,
- 				data->current_irq_mask, data->num_of_irq_regs);
-@@ -878,14 +940,6 @@ static int rmi_driver_probe(struct device *dev)
- 		goto err_free_data;
- 	}
- 
--	data->irq_mask_store = devm_kzalloc(dev,
--		BITS_TO_LONGS(data->irq_count)*sizeof(unsigned long),
--		GFP_KERNEL);
--	if (!data->irq_mask_store) {
--		dev_err(dev, "Failed to allocate mask store.\n");
--		retval = -ENOMEM;
--		goto err_free_data;
--	}
- 	if (IS_ENABLED(CONFIG_PM)) {
- 		data->pm_data = pdata->pm_data;
- 		data->pre_suspend = pdata->pre_suspend;
-@@ -951,6 +1005,13 @@ static int rmi_driver_probe(struct device *dev)
- 	return 0;
- 
-  err_free_data:
-+	rmi_free_function_list(rmi_dev);
-+	if (gpio_is_valid(pdata->attn_gpio))
-+		gpio_free(pdata->attn_gpio);
-+	devm_kfree(&rmi_dev->dev, data->irq_status);
-+	devm_kfree(&rmi_dev->dev, data->current_irq_mask);
-+	devm_kfree(&rmi_dev->dev, data->irq_mask_store);
-+	devm_kfree(&rmi_dev->dev, data);
- 	return retval;
- }
- 
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index 628b082..c7f2360 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (c) 2011-2012 Synaptics Incorporated
-+ * Copyright (c) 2011-2014 Synaptics Incorporated
-  * Copyright (c) 2011 Unixphere
-  *
-  * This program is free software; you can redistribute it and/or modify it
-@@ -59,8 +59,6 @@ struct f01_basic_properties {
- 
- /* Most recent device status event */
- #define RMI_F01_STATUS_CODE(status)		((status) & 0x0f)
--/* Indicates that flash programming is enabled (bootloader mode). */
--#define RMI_F01_STATUS_BOOTLOADER(status)	(!!((status) & 0x40))
- /* The device has lost its configuration for some reason. */
- #define RMI_F01_STATUS_UNCONFIGURED(status)	(!!((status) & 0x80))
- 
-@@ -358,13 +356,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
- 		goto error_exit;
- 	}
- 
--	driver_data->f01_bootloader_mode =
--			RMI_F01_STATUS_BOOTLOADER(data->device_status);
--	if (driver_data->f01_bootloader_mode)
--		dev_warn(&rmi_dev->dev,
--			 "WARNING: RMI4 device is in bootloader mode!\n");
--
--
- 	if (RMI_F01_STATUS_UNCONFIGURED(data->device_status)) {
- 		dev_err(&fn->dev,
- 			"Device was reset during configuration process, status: %#02x!\n",
+Christopher Heiny
+Senior Staff Firmware Engineer
+Synaptics Incorporated

@@ -1,233 +1,311 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Re: [PATCH] Introduce Naming Convention in Input Subsystem
-Date: Fri, 10 Jan 2014 11:11:09 -0800
-Message-ID: <20140110191108.GC10889@core.coreip.homeip.net>
-References: <25201406.444611389372583656.JavaMail.weblogic@epml19>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH] input synaptics-rmi4: PDT scan cleanup
+Date: Fri, 10 Jan 2014 12:23:15 -0800
+Message-ID: <52D056B3.406@synaptics.com>
+References: <1389126821-4066-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:59625 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751258AbaAJTLP (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:26931 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751209AbaAJUXT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jan 2014 14:11:15 -0500
-Received: by mail-pa0-f49.google.com with SMTP id bj1so1301185pad.22
-        for <linux-input@vger.kernel.org>; Fri, 10 Jan 2014 11:11:14 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <25201406.444611389372583656.JavaMail.weblogic@epml19>
+	Fri, 10 Jan 2014 15:23:19 -0500
+In-Reply-To: <1389126821-4066-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <a.mathur@samsung.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "cpgs ." <cpgs@samsung.com>, Anurag Aggarwal <a.anurag@samsung.com>, Naveen Kumar <naveen.sel@samsung.com>, "aniroop.mathur@gmail.com" <aniroop.mathur@gmail.com>, VIKAS KALA <vikas.kala@samsung.com>, Poorva Srivastava <poorva.s@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Hi Aniroop,
+On 01/07/2014 12:33 PM, Christopher Heiny wrote:
+> Eliminates copy-paste code that handled scans of the Page Descriptor Table,
+> replacing it with a single PDT scan routine that invokes a callback function.
+> The scan routine is not static so that it can be used by the firmware update
+> code (under development, not yet submitted).
+>
+> Updated the copyright dates while we were at it.
 
-On Fri, Jan 10, 2014 at 04:49:43PM +0000, Aniroop Mathur wrote:
-> Hello Mr. Torokhov,
-> Greetings!
-> 
-> On Thu, Jan 09, 2014 at 10:27:56AM +0530, Aniroop Mathur wrote:
-> > This patch allows user(driver) to set sysfs node name of input
-> > devices.  To set sysfs node name, user(driver) just needs to set
-> > node_name_unique variable.  If node_name_unique is not set, default
-> > name is given(as before).  So, this patch is completely
-> > backward-compatible.
-> > 
-> > Sysfs Input node name format is: input_
-> > Sysfs Event node name format is: event_
-> >
-> > This "name" is given by user and automatically, prefix(input and
-> > event) is added by input core.
-> > 
-> > This name must be unique among all input devices and driver(user) has
-> > the responsibility to ensure it.  If same name is used again for other
-> > input device, registration of that input device will fail because two
-> > input devices cannot have same name.
-> > 
-> > Advantages of this patch are:
-> > 
-> > 1. Reduces Booting Time of HAL/Upper-Layer because now HAL or
-> > Upper-Layer do not need to search input/event number corresponding to
-> > each input device in /dev/input/...  This searching in /dev/input/ was
-> > taking too much time.  (Especially in mobile devices, where there are
-> > many input devices (many sensors, touchscreen, etc), it reduces a lot
-> > of booting time)
-> 
-> I am sorry, how much time does it take to scan a directory of what, 20
-> devices? If it such a factor have udev create nodes that are easier for
-> you to locate, similarly how we already create nodes by-id and by-path.
-> For example you can encode major:minor in device name.
-> 
-> Re: (Aniroop Mathur)
+Hi Dmitry,
 
-First of all, it would be great if you could use MUA that can properly
-quote and wrap long lines...
+Could you apply this or provide some feedback on it?  We've got a 
+pending patch that depends on it, and that pending work will bring the 
+driver back to a working (if not necessarily beautiful) state.  I don't 
+want to submit it if this change isn't satisfactory, though.
 
-> Its correct that we can set name of a device node using udev.  Yes,
-> this will change the name of device node(/dev/...) but not sysfs
-> node.(/sys/class/input/...) So now, the problem area will shift from
-> dev path to sysfs path, because now we dont know which sysfs node to
-> refer for a particular input device and hence HAL/Upper-Layer will
-> need to search in /sys/class/input/... instead of /dev/... directory.
+					Thanks,
+						Chris
 
-[dtor@dtor-d630 ~]$ mkdir my-sysfs-view
-[dtor@dtor-d630 ~]$ ln -s
-/sys/devices/platform/i8042/serio1/input/input6
-my-sysfs-view/input_touchpad
-[dtor@dtor-d630 ~]$ ls my-sysfs-view/input_touchpad/
-capabilities/ event6/       modalias      name          power/
-subsystem/    uniq
-device/       id/           mouse1/       phys          properties
-uevent
-[dtor@dtor-d630 ~]$ ls my-sysfs-view/input_touchpad/
-capabilities  device  event6  id  modalias  mouse1  name  phys  power
-properties  subsystem  uevent  uniq
-[dtor@dtor-d630 ~]$ ls my-sysfs-view/input_touchpad/event6/
-dev  device  power  subsystem  uevent
-
-Mmmmkay?
-
-> 
-> Moreover, as i know, udev is mainly for hot-pluggable devices, but my
-> problem is for platform devices, which are already present on the
-> board during boot up. (Like in Embedded devices)
-
-No, udev also manages those by requesting to replay all events that
-happened dyuring boot.
-
-> 
-> To avoid confusion and make the problem more clear, 
-> I would like to explain the problem and my suggestion by taking an example:
-> 
-> Suppose in a mobile device, there are 10 embedded input devices as below:
-> Proximity ---                /dev/input0  --- /sys/class/input/input0 --- /sys/class/input/event0
-> Magnetometer ---      /dev/input1   --- /sys/class/input/input1 --- /sys/class/input/event1
-> Accelerometer ---      /dev/input2  --- /sys/class/input/input2 --- /sys/class/input/event2
-> Touchscreen ---         /dev/input3  --- /sys/class/input/input3 --- /sys/class/input/event3 
-> ... 6 more like this
-> (All these are created during boot up time)
-> 
-> Kernel has created all these nodes, so that HAL/UpperLayer can read or
-> write values from it.  HAL/Upper-Layer needs to do main tasks like:
-> 1. Read raw data - does through /dev/input<num>
-> 2. Enable device - does through sys/class/input<num>/enable
-> 3. Set delay - does through sys/class/input<num>/delay
-> and many more...
-> 
-> Now, Lets suppose we need to do these tasks for Accelerometer.
-> 
-> If dev node name is set, HAL can directly read value from it (no
-> search required) But for enabling the accelerometer device or set the
-> delay of a hardware chip, there is no direct way, HAL can know which
-> input node to refer for accelerometer because the input number is
-> created dynamically as per device probe order, so this input number
-> can be anything (0,1,2,3...) So HAL will need to search every input
-> node and read its name attribute and keep on searching until a match
-> is found between the "attribute name" and "name passed as parameter".
-> Like for accelerometer, this searching needs to be done for all other
-> input devices.  All of this part is done during booting and this takes
-> a lot for time from booting perspective.
+>
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>
+> ---
+>
+>   drivers/input/rmi4/rmi_driver.c | 155 ++++++++++++++++++++--------------------
+>   drivers/input/rmi4/rmi_driver.h |   6 +-
+>   2 files changed, 83 insertions(+), 78 deletions(-)
+>
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index eb790ff..cbd6485 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -1,5 +1,5 @@
+>   /*
+> - * Copyright (c) 2011-2013 Synaptics Incorporated
+> + * Copyright (c) 2011-2014 Synaptics Incorporated
+>    * Copyright (c) 2011 Unixphere
+>    *
+>    * This driver provides the core support for a single RMI4-based device.
+> @@ -566,85 +566,80 @@ err_free_mem:
+>   	return error;
+>   }
+>
+> -/*
+> - * Scan the PDT for F01 so we can force a reset before anything else
+> - * is done.  This forces the sensor into a known state, and also
+> - * forces application of any pending updates from reflashing the
+> - * firmware or configuration.
+> - *
+> - * We have to do this before actually building the PDT because the reflash
+> - * updates (if any) might cause various registers to move around.
+> - */
+> -static int rmi_initial_reset(struct rmi_device *rmi_dev)
+> +
+> +#define RMI_SCAN_CONTINUE	0
+> +#define RMI_SCAN_DONE		1
+> +
+> +static int rmi_initial_reset(struct rmi_device *rmi_dev,
+> +		void *clbk_ctx, struct pdt_entry *pdt_entry, int page)
+>   {
+> -	struct pdt_entry pdt_entry;
+> -	int page;
+> -	struct device *dev = &rmi_dev->dev;
+> -	bool done = false;
+> -	bool has_f01 = false;
+> -	int i;
+>   	int retval;
+> -	const struct rmi_device_platform_data *pdata =
+> -			to_rmi_platform_data(rmi_dev);
+>
+> -	dev_dbg(dev, "Initial reset.\n");
+> +	if (pdt_entry->function_number == 0x01) {
+> +		u16 cmd_addr = page + pdt_entry->command_base_addr;
+> +		u8 cmd_buf = RMI_DEVICE_RESET_CMD;
+> +		const struct rmi_device_platform_data *pdata =
+> +				to_rmi_platform_data(rmi_dev);
+>
+> -	for (page = 0; (page <= RMI4_MAX_PAGE) && !done; page++) {
+> -		u16 page_start = RMI4_PAGE_SIZE * page;
+> -		u16 pdt_start = page_start + PDT_START_SCAN_LOCATION;
+> -		u16 pdt_end = page_start + PDT_END_SCAN_LOCATION;
+> +		retval = rmi_write_block(rmi_dev, cmd_addr, &cmd_buf, 1);
+> +		if (retval < 0) {
+> +			dev_err(&rmi_dev->dev,
+> +				"Initial reset failed. Code = %d.\n", retval);
+> +			return retval;
+> +		}
+> +		mdelay(pdata->reset_delay_ms);
+>
+> -		done = true;
+> -		for (i = pdt_start; i >= pdt_end; i -= RMI_PDT_ENTRY_SIZE) {
+> -			retval = rmi_read_pdt_entry(rmi_dev, &pdt_entry, i);
+> -			if (retval < 0)
+> -				return retval;
+> +		return RMI_SCAN_DONE;
+> +	}
+>
+> -			if (RMI4_END_OF_PDT(pdt_entry.function_number))
+> -				break;
+> -			done = false;
+> +	/* F01 should always be on page 0. If we don't find it there, fail. */
+> +	return (!page) ? RMI_SCAN_CONTINUE : -ENODEV;
+> +}
+>
+> -			if (pdt_entry.function_number == 0x01) {
+> -				u16 cmd_addr = page_start +
+> -					pdt_entry.command_base_addr;
+> -				u8 cmd_buf = RMI_DEVICE_RESET_CMD;
+> -				retval = rmi_write_block(rmi_dev, cmd_addr,
+> -						&cmd_buf, 1);
+> -				if (retval < 0) {
+> -					dev_err(dev, "Initial reset failed. Code = %d.\n",
+> -						retval);
+> -					return retval;
+> -				}
+> -				mdelay(pdata->reset_delay_ms);
+> -				done = true;
+> -				has_f01 = true;
+> -				break;
+> -			}
+> -		}
+> -	}
+> +static int rmi_create_functions_clbk(struct rmi_device *rmi_dev,
+> +		void *clbk_ctx, struct pdt_entry *entry, int page)
+> +{
+> +	int *irq_count = (int *)clbk_ctx;
+>
+> -	if (!has_f01) {
+> -		dev_warn(dev, "WARNING: Failed to find F01 for initial reset.\n");
+> -		return -ENODEV;
+> -	}
+> +	return create_function(rmi_dev, entry, irq_count,
+> +				RMI4_PAGE_SIZE * page);
+> +}
+> +
+> +static int rmi_create_functions(struct rmi_device *rmi_dev)
+> +{
+> +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+> +	struct device *dev = &rmi_dev->dev;
+> +	int irq_count = 0;
+> +	int retval;
+> +
+> +	// XXX need to make sure we create F01 first...
+> +	// XXX or do we?  It might not be required in the updated structure.
+> +	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_functions_clbk);
+> +
+> +	if (retval)
+> +		return retval;
+> +
+> +	// TODO: I think we need to count the IRQs before creating the
+> +	// functions.
+> +	data->irq_count = irq_count;
+> +	data->num_of_irq_regs = (irq_count + 7) / 8;
+>
+>   	return 0;
+>   }
+>
+> -static int rmi_scan_pdt(struct rmi_device *rmi_dev)
+> +int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
+> +		int (*rmi_pdt_scan_clbk)(struct rmi_device *rmi_dev,
+> +		void *clbk_ctx, struct pdt_entry *entry, int page))
+>   {
+> -	struct rmi_driver_data *data;
+> +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+>   	struct pdt_entry pdt_entry;
+>   	int page;
+> -	struct device *dev = &rmi_dev->dev;
+> -	int irq_count = 0;
+> -	bool done = false;
+>   	int i;
+> -	int retval;
+> -
+> -	dev_dbg(dev, "Scanning PDT...\n");
+> +	bool done = false;
+> +	int retval = 0;
+>
+> -	data = dev_get_drvdata(&rmi_dev->dev);
+> +	// TODO: With F01 and reflash as part of the core now, is this
+> +	// lock still required?
+>   	mutex_lock(&data->pdt_mutex);
+>
+>   	for (page = 0; (page <= RMI4_MAX_PAGE) && !done; page++) {
+> @@ -656,27 +651,27 @@ static int rmi_scan_pdt(struct rmi_device *rmi_dev)
+>   		for (i = pdt_start; i >= pdt_end; i -= RMI_PDT_ENTRY_SIZE) {
+>   			retval = rmi_read_pdt_entry(rmi_dev, &pdt_entry, i);
+>   			if (retval < 0)
+> -				goto error_exit;
+> +				return retval;
+>
+>   			if (RMI4_END_OF_PDT(pdt_entry.function_number))
+>   				break;
+>
+> -			dev_dbg(dev, "Found F%02X on page %#04x\n",
+> +			dev_dbg(&rmi_dev->dev, "Found F%02X on page %#04x\n",
+>   					pdt_entry.function_number, page);
+>   			done = false;
+>
+> -			// XXX need to make sure we create F01 first...
+> -			retval = create_function(rmi_dev,
+> -					&pdt_entry, &irq_count, page_start);
+> -
+> -			if (retval)
+> +			retval = rmi_pdt_scan_clbk(rmi_dev, ctx,
+> +							&pdt_entry, page);
+> +			if (retval < 0) {
+>   				goto error_exit;
+> +			} else if (retval == RMI_SCAN_DONE) {
+> +				done = true;
+> +				break;
+> +			}
+>   		}
+>   		done = done || data->f01_bootloader_mode;
+>   	}
+> -	data->irq_count = irq_count;
+> -	data->num_of_irq_regs = (irq_count + 7) / 8;
+> -	dev_dbg(dev, "%s: Done with PDT scan.\n", __func__);
+> +
+>   	retval = 0;
+>
+>   error_exit:
+> @@ -684,6 +679,7 @@ error_exit:
+>   	return retval;
+>   }
+>
+> +
+>   #ifdef CONFIG_PM_SLEEP
+>   static int rmi_driver_suspend(struct device *dev)
+>   {
+> @@ -797,10 +793,15 @@ static int rmi_driver_probe(struct device *dev)
+>
+>   	/*
+>   	 * Right before a warm boot, the sensor might be in some unusual state,
+> -	 * such as F54 diagnostics, or F34 bootloader mode.  In order to clear
+> -	 * the sensor to a known state, we issue a initial reset to clear any
+> +	 * such as F54 diagnostics, or F34 bootloader mode after a firmware
+> +	 * or configuration update.  In order to clear the sensor to a known
+> +	 * state and/or apply any updates, we issue a initial reset to clear any
+>   	 * previous settings and force it into normal operation.
+>   	 *
+> +	 * We have to do this before actually building the PDT because
+> +	 * the reflash updates (if any) might cause various registers to move
+> +	 * around.
+> +	 *
+>   	 * For a number of reasons, this initial reset may fail to return
+>   	 * within the specified time, but we'll still be able to bring up the
+>   	 * driver normally after that failure.  This occurs most commonly in
+> @@ -813,11 +814,11 @@ static int rmi_driver_probe(struct device *dev)
+>   	 */
+>   	if (!pdata->reset_delay_ms)
+>   		pdata->reset_delay_ms = DEFAULT_RESET_DELAY_MS;
+> -	retval = rmi_initial_reset(rmi_dev);
+> +	retval = rmi_scan_pdt(rmi_dev, NULL, rmi_initial_reset);
+>   	if (retval)
+>   		dev_warn(dev, "RMI initial reset failed! Continuing in spite of this.\n");
+>
+> -	retval = rmi_scan_pdt(rmi_dev);
+> +	retval = rmi_create_functions(rmi_dev);
+>   	if (retval) {
+>   		dev_err(dev, "PDT scan for %s failed with code %d.\n",
+>   			pdata->sensor_name, retval);
+> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+> index df9ddd8..f73be73 100644
+> --- a/drivers/input/rmi4/rmi_driver.h
+> +++ b/drivers/input/rmi4/rmi_driver.h
+> @@ -1,5 +1,5 @@
+>   /*
+> - * Copyright (c) 2011-2013 Synaptics Incorporated
+> + * Copyright (c) 2011-2014 Synaptics Incorporated
+>    * Copyright (c) 2011 Unixphere
+>    *
+>    * This program is free software; you can redistribute it and/or modify it
+> @@ -108,6 +108,10 @@ struct pdt_entry {
+>   int rmi_read_pdt_entry(struct rmi_device *rmi_dev, struct pdt_entry *entry,
+>   			u16 pdt_address);
+>
+> +int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
+> +	int (*rmi_pdt_scan_clbk)(struct rmi_device *rmi_dev,
+> +	void *clbk_ctx, struct pdt_entry *entry, int page));
+> +
+>   bool rmi_is_physical_driver(struct device_driver *);
+>   int rmi_register_physical_driver(void);
+>   void rmi_unregister_physical_driver(void);
 >
 
-See the above. You can very easily create your own private 'view' of
-sysfs, no kernel changes needed.
-
-> As I measured, if there are ten devices, it is taking 1 second to do
-> all this searching. (for all devices) So for 20 devices, i guess, it
-> could take upto 2 seconds.
-
-That seems _very_ high, maybe you need to profile your code a bit. To
-search though 2 directories with less than a hundred files each should
-not take 1 second.
-
-> 
-> With naming convention, there is no need of search neither for dev
-> path nor for sysfs path because HAL directly know which node to refer
-> for which input device and hence this 1 second is reduced to 10ms or
-> even less, therefore saving 990ms.  I believe, this is a very good
-> time saving. (from device booting perspective)
-
-OK, so create your own sysfs view and use it to do direct lookups.
-
-> 
-> (Is there any direct way, without scanning all nodes for every input
-> device ?)
-> 
-> > 
-> > 2. Improves Readabilty of input and event sysfs node paths because
-> > names are used instead of numbers.
-> 
-> I do not see why it is that important. If one wants overview
-> /proc/bus/input/devices gives nice picture.
-> 
-> Re: (Aniroop Mathur)
-> Its correct, we can get an overview from /proc/bus/input/devices.
-> And therefore using this, we can know input node number for every input device.
-> But there are many input devices and input numbers are not fixed, 
-> so its quite difficult to memorize input number for all input devices.
-> Therefore, if a user needs to open some input node from sysfs path,
-> he needs to check /proc/bus/input/devices before opening because 
-> he does not know the input number. Moreover, this applies for all other
-> input devices and hence a user need to check this every time.
-> 
-> It improves readabilty as below
-> 
-> Before:				After patch:
-> /dev/input0				/dev/input_proximity
-> /dev/input1				/dev/input_accelerometer
-> ...many more
-> 
-> /sys/class/input/input0			/sys/class/input/input_proximity
-> /sys/class/input/input1			/sys/class/input/input_accelerometer
-> ...many more	
-> 
-> /sys/class/input/event0			/sys/class/input/event_proximity
-> /sys/class/input/event1			/sys/class/input/event_accelerometer
-> ...many more
-> 
-> So, just by looking, user can directly open or refer any input node.
-> (no need to refer any other path)
-
-User as in end user or your HAL layer?
-
-> 
-> > 
-> > 3. Removes Input Devices Dependency. If one input device probe fails,
-> > other input devices still work.  Before this patch, if one input
-> > device probe fails before input_register_device, then input number of
-> > other input devices changes and due to this permission settings are
-> > disturbed and hence HAL or upper layer cannot open the required sysfs
-> > node because permission denied error comes.
-> 
-> I have only one suggestion here: fix your userspace so that does not
-> depend on device initialization ordering.
-> 
-> Re: (Aniroop Mathur)
-> We cannot fix userspace because these input/event/dev number are
-> decided/allocated in kernel as per device initialization ordering
-> during boot up. (userspace has no role in it) So, userspace is not
-> aware, which exact input number corresponds to which input device so
-> it ends up searching/scanning every input node untill a match is
-> found.
-> 
-> So, there is input device dependency which needs to be removed.
-
-Do not use numbers. We emit uevents describing the devices and there a
-_lot_ of data there that helps identifying device, such as its path,
-subsystem, name, etc.
-
-> 
-> ----------------------------
-> 
-> IOW I am totally unconvinced that this facility is needed.
-> 
-> Re: (Aniroop Mathur)
-> I hope my problem and suggestion is more clear and convincing now.
-> 
-
-Not in the slightest, I am sorry.
-
-Thanks.
 
 -- 
-Dmitry
+
+Christopher Heiny
+Senior Staff Firmware Engineer
+Synaptics Incorporated

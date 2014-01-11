@@ -1,182 +1,151 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 4/4] Input: synaptics-rmi4 - switch to using i2c_transfer()
-Date: Fri, 10 Jan 2014 15:29:19 -0800
-Message-ID: <52D0824F.4040908@synaptics.com>
-References: <1389339867-8399-1-git-send-email-dmitry.torokhov@gmail.com> <1389339867-8399-4-git-send-email-dmitry.torokhov@gmail.com>
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH v2 1/3] HID: sony: Add force-feedback support for the Dualshock
+ 4
+Date: Sat, 11 Jan 2014 15:12:42 -0500 (EST)
+Message-ID: <alpine.DEB.2.10.1401111429090.2563@franz-virtual-machine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:58120 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751291AbaAJX3U (ORCPT
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:47436 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751986AbaAKUMq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jan 2014 18:29:20 -0500
-In-Reply-To: <1389339867-8399-4-git-send-email-dmitry.torokhov@gmail.com>
+	Sat, 11 Jan 2014 15:12:46 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-On 01/09/2014 11:44 PM, Dmitry Torokhov wrote:
-> Instead of using 2 separate transactions when reading from the device let's
-> use i2c_transfer. Because we now have single point of failure I had to
-> change how we collect statistics. I elected to drop control data from the
-> stats and only track number of bytes read/written for the device data.
->
-> Also, since we are not prepared to deal with short reads and writes change
-> read_block_data and write_block_data to indicate error if we detect short
-> transfers.
+Adds the Dualshock 4 to the HID device list and enables force-feedback.
 
-We tried this change once before a couple of years ago, but the 
-conversion was unsuccessful on some older platforms.  I've tested it on 
-some more current platforms, though, and it works there.  The old 
-platforms are running 2.6.xx series kernels, and don't look likely ever 
-to be updated, So....
+Adds a Dualshock 4 specific worker function since the Dualshock 4 needs a 
+different report than the Sixaxis.
 
-Acked-by: Christopher Heiny <cheiny@synaptics.com>
+The right motor in the Dualshock 4 is variable so the full rumble value 
+is now passed to the worker function and clamped there if necessary.
 
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->   drivers/input/rmi4/rmi_i2c.c | 71 ++++++++++++++++++++++++--------------------
->   1 file changed, 39 insertions(+), 32 deletions(-)
->
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index c176218..51f5bc8 100644
-> --- a/drivers/input/rmi4/rmi_i2c.c
-> +++ b/drivers/input/rmi4/rmi_i2c.c
-> @@ -57,22 +57,17 @@ struct rmi_i2c_xport {
->    */
->   static int rmi_set_page(struct rmi_i2c_xport *rmi_i2c, u8 page)
->   {
-> -	struct rmi_transport_dev *xport = &rmi_i2c->xport;
->   	struct i2c_client *client = rmi_i2c->client;
->   	u8 txbuf[2] = {RMI_PAGE_SELECT_REGISTER, page};
->   	int retval;
->
-> -	dev_dbg(&client->dev, "writes 3 bytes: %02x %02x\n",
-> -			txbuf[0], txbuf[1]);
-> -	xport->stats.tx_count++;
-> -	xport->stats.tx_bytes += sizeof(txbuf);
->   	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
->   	if (retval != sizeof(txbuf)) {
-> -		xport->stats.tx_errs++;
->   		dev_err(&client->dev,
->   			"%s: set page failed: %d.", __func__, retval);
->   		return (retval < 0) ? retval : -EIO;
->   	}
-> +
->   	rmi_i2c->page = page;
->   	return 0;
->   }
-> @@ -107,22 +102,27 @@ static int rmi_i2c_write_block(struct rmi_transport_dev *xport, u16 addr,
->
->   	if (RMI_I2C_PAGE(addr) != rmi_i2c->page) {
->   		retval = rmi_set_page(rmi_i2c, RMI_I2C_PAGE(addr));
-> -		if (retval < 0)
-> +		if (retval)
->   			goto exit;
->   	}
->
-> +	retval = i2c_master_send(client, rmi_i2c->tx_buf, tx_size);
-> +	if (retval == tx_size)
-> +		retval = 0;
-> +	else if (retval >= 0)
-> +		retval = -EIO;
-> +
-> +exit:
->   	dev_dbg(&client->dev,
-> -		"writes %zd bytes at %#06x: %*ph\n", len, addr, (int)len, buf);
-> +		"write %zd bytes at %#06x: %d (%*ph)\n",
-> +		len, addr, retval, (int)len, buf);
->
->   	xport->stats.tx_count++;
-> -	xport->stats.tx_bytes += tx_size;
-> -	retval = i2c_master_send(client, rmi_i2c->tx_buf, tx_size);
-> -	if (retval < 0)
-> +	if (retval)
->   		xport->stats.tx_errs++;
->   	else
-> -		retval--; /* don't count the address byte */
-> +		xport->stats.tx_bytes += len;
->
-> -exit:
->   	mutex_unlock(&rmi_i2c->page_mutex);
->   	return retval;
->   }
-> @@ -133,40 +133,47 @@ static int rmi_i2c_read_block(struct rmi_transport_dev *xport, u16 addr,
->   	struct rmi_i2c_xport *rmi_i2c =
->   		container_of(xport, struct rmi_i2c_xport, xport);
->   	struct i2c_client *client = rmi_i2c->client;
-> -	u8 txbuf[1] = {addr & 0xff};
-> +	u8 addr_offset = addr & 0xff;
->   	int retval;
-> +	struct i2c_msg msgs[] = {
-> +		{
-> +			.addr	= client->addr,
-> +			.len	= sizeof(addr_offset),
-> +			.buf	= &addr_offset,
-> +		},
-> +		{
-> +			.addr	= client->addr,
-> +			.flags	= I2C_M_RD,
-> +			.len	= len,
-> +			.buf	= buf,
-> +		},
-> +	};
->
->   	mutex_lock(&rmi_i2c->page_mutex);
->
->   	if (RMI_I2C_PAGE(addr) != rmi_i2c->page) {
->   		retval = rmi_set_page(rmi_i2c, RMI_I2C_PAGE(addr));
-> -		if (retval < 0)
-> +		if (retval)
->   			goto exit;
->   	}
->
-> -	dev_dbg(&client->dev, "writes 1 bytes: %02x\n", txbuf[0]);
-> +	retval = i2c_transfer(client->adapter, msgs, sizeof(msgs));
-> +	if (retval == sizeof(msgs))
-> +		retval = 0; /* success */
-> +	else if (retval >= 0)
-> +		retval = -EIO;
->
-> -	xport->stats.tx_count++;
-> -	xport->stats.tx_bytes += sizeof(txbuf);
-> -	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
-> -	if (retval != sizeof(txbuf)) {
-> -		xport->stats.tx_errs++;
-> -		retval = (retval < 0) ? retval : -EIO;
-> -		goto exit;
-> -	}
-> +exit:
-> +	dev_dbg(&client->dev,
-> +		"read %zd bytes at %#06x: %d (%*ph)\n",
-> +		len, addr, retval, (int)len, buf);
->
->   	xport->stats.rx_count++;
-> -	xport->stats.rx_bytes += len;
-> -
-> -	retval = i2c_master_recv(client, buf, len);
-> -	if (retval < 0)
-> +	if (retval)
->   		xport->stats.rx_errs++;
->   	else
-> -		dev_dbg(&client->dev,
-> -			"read %zd bytes at %#06x: %*ph\n",
-> -			len, addr, (int)len, buf);
-> +		xport->stats.rx_bytes += len;
->
-> -exit:
->   	mutex_unlock(&rmi_i2c->page_mutex);
->   	return retval;
->   }
->
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 
+---
 
+ Apply against jikos/hid.git/for-3.14/sony
+
+ drivers/hid/hid-core.c |  2 ++
+ drivers/hid/hid-ids.h  |  1 +
+ drivers/hid/hid-sony.c | 39 ++++++++++++++++++++++++++++++++++++---
+ 3 files changed, 39 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 957d35b..70cc468 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1831,6 +1831,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 60336f06..ce24459 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -766,6 +766,7 @@
+ #define USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE	0x0374
+ #define USB_DEVICE_ID_SONY_PS3_BDREMOTE		0x0306
+ #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
++#define USB_DEVICE_ID_SONY_PS4_CONTROLLER	0x05c4
+ #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
+ #define USB_DEVICE_ID_SONY_BUZZ_CONTROLLER		0x0002
+ #define USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER	0x1000
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index f57ab5e..8020d10 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -38,6 +38,7 @@
+ #define SIXAXIS_CONTROLLER_BT   BIT(2)
+ #define BUZZ_CONTROLLER         BIT(3)
+ #define PS3REMOTE		BIT(4)
++#define DUALSHOCK4_CONTROLLER   BIT(5)
+ 
+ #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER)
+ 
+@@ -630,7 +631,7 @@ static void sony_state_worker(struct work_struct *work)
+ 	};
+ 
+ #ifdef CONFIG_SONY_FF
+-	buf[3] = sc->right;
++	buf[3] = sc->right ? 1 : 0;
+ 	buf[5] = sc->left;
+ #endif
+ 
+@@ -640,6 +641,29 @@ static void sony_state_worker(struct work_struct *work)
+ 					HID_OUTPUT_REPORT);
+ }
+ 
++static void dualshock4_state_worker(struct work_struct *work)
++{
++	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
++	unsigned char buf[] = {
++		0x05,
++		0x03, 0x00, 0x00, 0x00, 0x00,
++		0x00, 0x00, 0x00, 0x00, 0x00,
++		0x00, 0x00, 0x00, 0x00, 0x00,
++		0x00, 0x00, 0x00, 0x00, 0x00,
++		0x00, 0x00, 0x00, 0x00, 0x00,
++		0x00, 0x00, 0x00, 0x00, 0x00,
++		0x00,
++	};
++
++#ifdef CONFIG_SONY_FF
++	buf[4] = sc->right;
++	buf[5] = sc->left;
++#endif
++
++	sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
++					HID_OUTPUT_REPORT);
++}
++
+ #ifdef CONFIG_SONY_FF
+ static int sony_play_effect(struct input_dev *dev, void *data,
+ 			    struct ff_effect *effect)
+@@ -651,7 +675,7 @@ static int sony_play_effect(struct input_dev *dev, void *data,
+ 		return 0;
+ 
+ 	sc->left = effect->u.rumble.strong_magnitude / 256;
+-	sc->right = effect->u.rumble.weak_magnitude ? 1 : 0;
++	sc->right = effect->u.rumble.weak_magnitude / 256;
+ 
+ 	schedule_work(&sc->state_worker);
+ 	return 0;
+@@ -728,8 +752,12 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
+ 		ret = sixaxis_set_operational_bt(hdev);
+-	else
++	else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+ 		ret = 0;
++		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
++	} else {
++		ret = 0;
++	}
+ 
+ 	if (ret < 0)
+ 		goto err_stop;
+@@ -787,6 +815,11 @@ static const struct hid_device_id sony_devices[] = {
+ 	/* Logitech Harmony Adapter for PS3 */
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3),
+ 		.driver_data = PS3REMOTE },
++	/* Sony Dualshock 4 controllers for PS4 */
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
++		.driver_data = DUALSHOCK4_CONTROLLER },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
++		.driver_data = DUALSHOCK4_CONTROLLER },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, sony_devices);
 -- 
+1.8.3.2
 
-Christopher Heiny
-Senior Staff Firmware Engineer
-Synaptics Incorporated

@@ -1,73 +1,50 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH] ARM: Kirkwood: Add DT description of QNAP 419
-Date: Sat, 11 Jan 2014 22:04:43 +0100
-Message-ID: <20140111210443.GT9681@lunn.ch>
-References: <1389048557-16364-1-git-send-email-andrew@lunn.ch>
- <1389174517.12612.87.camel@kazak.uk.xensource.com>
+From: simon@mungewell.org
+Subject: Re: [PATCH v2 1/3] HID: sony: Add force-feedback support for the
+ Dualshock 4
+Date: Sat, 11 Jan 2014 19:25:21 -0500
+Message-ID: <3d578d7d8524e9e9a16d151507990276.squirrel@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vps0.lunn.ch ([178.209.37.122]:50898 "EHLO vps0.lunn.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751026AbaAKVGI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Jan 2014 16:06:08 -0500
-Content-Disposition: inline
-In-Reply-To: <1389174517.12612.87.camel@kazak.uk.xensource.com>
+Received: from host171.canaca.com ([67.55.55.225]:37138 "EHLO
+	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750843AbaALAZX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 11 Jan 2014 19:25:23 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ian Campbell <ijc@hellion.org.uk>, devicetree@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>, Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>, Gregory Clement <gregory.clement@free-electrons.com>, linux ARM <linux-arm-kernel@lists.infradead.org>, tbm@cyrius.com
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Jan 08, 2014 at 09:48:37AM +0000, Ian Campbell wrote:
-> On Mon, 2014-01-06 at 23:49 +0100, Andrew Lunn wrote:
+> Adds the Dualshock 4 to the HID device list and enables force-feedback.
+Adds a Dualshock 4 specific worker function since the Dualshock 4 needs
+a
+> different report than the Sixaxis.
+> The right motor in the Dualshock 4 is variable so the full rumble value
+is now passed to the worker function and clamped there if necessary.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 
-Hi Ian
+I was able to build this and the LED patch against the 3.13rc7 kernel
+having first applied this sequence of patches:
+https://patchwork.kernel.org/patch/3203761/
 
-I added in the devicetree list and the input list and added my
-thoughts below.
- 
-> The other issue I spotted is
-> that /dev/input/by-path/platform-gpio-keys-event has
-> become /dev/input/by-path/platform-gpio_keys.3-event. Is it considered
-> valid for a by-path name to change? In particular the 3 here is
-> apparently the node depth in the DTB, which doesn't make much logical
-> sense as a "path" in this context I don't think (I expect it to be some
-> sort of path through the hardware buses, perhaps my expectation is
-> wrong?).
+I can confirm that FF/LEDs appears to work OK with USB connected
+Dualshock4, Dualshock3(SixAxis) and 3rd part wired PS3 controller.
 
-The ts41x-setup.c board file creates the gpio keys platform device
-using the following structure:
+I wasn't able to get Dualshock4 working over BT, but I think that the
+problem is with my system - I am yet to figure out getting the HIDP
+connection to work properly.
 
-static struct platform_device qnap_ts41x_button_device = {
-        .name           = "gpio-keys",
-        .id             = -1,
-        .num_resources  = 0,
-        .dev            = {
-                .platform_data  = &qnap_ts41x_button_data,
-        }
-};
+I can use the depricated 'HIDD --connect xxx' to have LEDs are listed in
+'/sys/class/leds', but they don't change when instructed. They stay solid
+white.
 
-The id of -1 causes platform_device_add() to set the device name to
-plain "gpio-keys".
+Cheers,
+Simon
 
-When using DT, the device name is created by the function
-of_device_make_bus_id(). It has the following comment:
+Tested-by: Simon Wood <simon@mungewell.org>
 
- * This routine will first try using either the dcr-reg or the reg property
- * value to derive a unique name.  As a last resort it will use the node
- * name followed by a unique number.
 
-Since the gpio_keys node does not have a reg properties, it gets a
-unique number appended to it. We end up with the device name
-"gpio_keys.3"
 
-So as it stands, it does not appear i can make the DT system use the
-same device name as a board system.
 
-But i'm also a little bit concerned by the "unique number" and this
-ending up in /dev/input/by-path/platform-gpio_keys.3-event. Is this
-path supposed to be stable? This unique number is not stable. An
-unwitting change to the DT could cause its value to change. Do we need
-to make it stable?
-
-   Andrew

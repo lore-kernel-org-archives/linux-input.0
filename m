@@ -1,50 +1,44 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH v2 1/3] HID: sony: Add force-feedback support for the
- Dualshock 4
-Date: Sat, 11 Jan 2014 19:25:21 -0500
-Message-ID: <3d578d7d8524e9e9a16d151507990276.squirrel@mungewell.org>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] Drivers: input: serio:hyperv-keyoard: Handle 0xE1 prefix
+Date: Sat, 11 Jan 2014 19:41:50 -0800
+Message-ID: <1389498110-4790-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:37138 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750843AbaALAZX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Jan 2014 19:25:23 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: driverdev-devel-bounces@linuxdriverproject.org
+To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, vojtech@suse.cz, olaf@aepfle.de, apw@canonical.com, jasowang@redhat.com
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-> Adds the Dualshock 4 to the HID device list and enables force-feedback.
-Adds a Dualshock 4 specific worker function since the Dualshock 4 needs
-a
-> different report than the Sixaxis.
-> The right motor in the Dualshock 4 is variable so the full rumble value
-is now passed to the worker function and clamped there if necessary.
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+Handle the 0xE1 prefix.
 
-I was able to build this and the LED patch against the 3.13rc7 kernel
-having first applied this sequence of patches:
-https://patchwork.kernel.org/patch/3203761/
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+---
+ drivers/input/serio/hyperv-keyboard.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-I can confirm that FF/LEDs appears to work OK with USB connected
-Dualshock4, Dualshock3(SixAxis) and 3rd part wired PS3 controller.
-
-I wasn't able to get Dualshock4 working over BT, but I think that the
-problem is with my system - I am yet to figure out getting the HIDP
-connection to work properly.
-
-I can use the depricated 'HIDD --connect xxx' to have LEDs are listed in
-'/sys/class/leds', but they don't change when instructed. They stay solid
-white.
-
-Cheers,
-Simon
-
-Tested-by: Simon Wood <simon@mungewell.org>
-
-
-
-
+diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
+index 3a83c3c..6132619 100644
+--- a/drivers/input/serio/hyperv-keyboard.c
++++ b/drivers/input/serio/hyperv-keyboard.c
+@@ -160,7 +160,9 @@ static void hv_kbd_on_receive(struct hv_device *hv_dev,
+ 			if (info & IS_E0)
+ 				serio_interrupt(kbd_dev->hv_serio,
+ 						XTKBD_EMUL0, 0);
+-
++			if (info & IS_E1)
++				serio_interrupt(kbd_dev->hv_serio,
++						XTKBD_EMUL1, 0);
+ 			scan_code = __le16_to_cpu(ks_msg->make_code);
+ 			if (info & IS_BREAK)
+ 				scan_code |= XTKBD_RELEASE;
+-- 
+1.7.4.1

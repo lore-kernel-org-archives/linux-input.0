@@ -1,44 +1,38 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Drivers: input: serio:hyperv-keyoard: Handle 0xE1 prefix
-Date: Sat, 11 Jan 2014 19:41:50 -0800
-Message-ID: <1389498110-4790-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, vojtech@suse.cz, olaf@aepfle.de, apw@canonical.com, jasowang@redhat.com
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH TRIVIAL] Input: logips2pp - Spelling s/reciver/receiver/
+Date: Sun, 12 Jan 2014 14:01:48 +0100
+Message-ID: <1389531708-6095-1-git-send-email-geert@linux-m68k.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from gerard.telenet-ops.be ([195.130.132.48]:43593 "EHLO
+	gerard.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751287AbaALNBu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 12 Jan 2014 08:01:50 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <trivial@kernel.org>
+Cc: linux-input@vger.kernel.org, Geert Uytterhoeven <geert+renesas@linux-m68k.org>
 
-Handle the 0xE1 prefix.
+From: Geert Uytterhoeven <geert+renesas@linux-m68k.org>
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@linux-m68k.org>
 ---
- drivers/input/serio/hyperv-keyboard.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+ drivers/input/mouse/logips2pp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
-index 3a83c3c..6132619 100644
---- a/drivers/input/serio/hyperv-keyboard.c
-+++ b/drivers/input/serio/hyperv-keyboard.c
-@@ -160,7 +160,9 @@ static void hv_kbd_on_receive(struct hv_device *hv_dev,
- 			if (info & IS_E0)
- 				serio_interrupt(kbd_dev->hv_serio,
- 						XTKBD_EMUL0, 0);
--
-+			if (info & IS_E1)
-+				serio_interrupt(kbd_dev->hv_serio,
-+						XTKBD_EMUL1, 0);
- 			scan_code = __le16_to_cpu(ks_msg->make_code);
- 			if (info & IS_BREAK)
- 				scan_code |= XTKBD_RELEASE;
+diff --git a/drivers/input/mouse/logips2pp.c b/drivers/input/mouse/logips2pp.c
+index 84de2fc6acc1..136e222e2a16 100644
+--- a/drivers/input/mouse/logips2pp.c
++++ b/drivers/input/mouse/logips2pp.c
+@@ -220,7 +220,7 @@ static const struct ps2pp_info *get_model_info(unsigned char model)
+ 		{ 61,	PS2PP_KIND_MX,					/* MX700 */
+ 				PS2PP_WHEEL | PS2PP_SIDE_BTN | PS2PP_TASK_BTN |
+ 				PS2PP_EXTRA_BTN | PS2PP_NAV_BTN },
+-		{ 66,	PS2PP_KIND_MX,					/* MX3100 reciver */
++		{ 66,	PS2PP_KIND_MX,					/* MX3100 receiver */
+ 				PS2PP_WHEEL | PS2PP_SIDE_BTN | PS2PP_TASK_BTN |
+ 				PS2PP_EXTRA_BTN | PS2PP_NAV_BTN | PS2PP_HWHEEL },
+ 		{ 72,	PS2PP_KIND_TRACKMAN,	0 },			/* T-CH11: TrackMan Marble */
 -- 
-1.7.4.1
+1.7.9.5
+

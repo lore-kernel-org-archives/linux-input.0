@@ -1,101 +1,41 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/4] Input: uinput: add full absinfo support
-Date: Sun, 12 Jan 2014 11:40:58 -0800
-Message-ID: <20140112194057.GD13131@core.coreip.homeip.net>
-References: <1387295334-1744-1-git-send-email-dh.herrmann@gmail.com>
- <1387295334-1744-2-git-send-email-dh.herrmann@gmail.com>
- <20131218222732.GA6315@yabbi.redhat.com>
+From: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
+Subject: [PATCH 1/2] DT: Add vendor prefix for Emerging Display Technologies
+Date: Mon, 13 Jan 2014 11:17:03 +0100
+Message-ID: <1389608224-9975-1-git-send-email-LW@KARO-electronics.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f176.google.com ([209.85.192.176]:61825 "EHLO
-	mail-pd0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751192AbaALTlD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Jan 2014 14:41:03 -0500
-Content-Disposition: inline
-In-Reply-To: <20131218222732.GA6315@yabbi.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Silvio F <silvio.fricke-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Antonio Ospite <ospite@studenti.unina.it>, linux-kernel@vger.kernel.org, input-tools@lists.freedesktop.org
 
-On Thu, Dec 19, 2013 at 08:27:32AM +1000, Peter Hutterer wrote:
-> On Tue, Dec 17, 2013 at 04:48:51PM +0100, David Herrmann wrote:
-> > +
-> > +	user_dev2->version = UINPUT_VERSION;
-> > +	memcpy(user_dev2->name, user_dev->name, UINPUT_MAX_NAME_SIZE);
-> > +	memcpy(&user_dev2->id, &user_dev->id, sizeof(struct input_id));
-> 
-> you copy the id bits one-by-one into the input_dev but you memcpy it here.
-> is this intentional?
 
-That should simply be:
+Signed-off-by: Lothar Wa=C3=9Fmann <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
+---
+ .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-	user_dev2->id = user_dev->id;
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Do=
+cumentation/devicetree/bindings/vendor-prefixes.txt
+index b458760..49774c3 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -29,6 +29,7 @@ dallas	Maxim Integrated Products (formerly Dallas Sem=
+iconductor)
+ davicom	DAVICOM Semiconductor, Inc.
+ denx	Denx Software Engineering
+ dmo	Data Modul AG
++edt	Emerging Display Technologies
+ emmicro	EM Microelectronic
+ epson	Seiko Epson Corp.
+ est	ESTeem Wireless Modems
+--=20
+1.7.2.5
 
-and in othe rplace as well I think.
-
-> 
-> > +	user_dev2->ff_effects_max = user_dev->ff_effects_max;
-> > +
-> > +	for (i = 0; i < ABS_CNT; ++i) {
-> > +		user_dev2->abs[i].value = 0;
-> > +		user_dev2->abs[i].maximum = user_dev->absmax[i];
-> > +		user_dev2->abs[i].minimum = user_dev->absmin[i];
-> > +		user_dev2->abs[i].fuzz = user_dev->absfuzz[i];
-> > +		user_dev2->abs[i].flat = user_dev->absflat[i];
-> > +		user_dev2->abs[i].resolution = 0;
-> > +	}
-> > +
-> > +	retval = uinput_setup_device(udev, user_dev2, ABS_CNT);
-> >  
-> > - exit:
-> >  	kfree(user_dev);
-> > -	return retval;
-> > +	kfree(user_dev2);
-> > +
-> > +	return retval ? retval : count;
-> > +}
-> > +
-> > +static int uinput_setup_device2(struct uinput_device *udev,
-> > +			       const char __user *buffer, size_t count)
-> > +{
-> > +	struct uinput_user_dev2	*user_dev2;
-> > +	int			retval;
-> > +	size_t			off, abscnt, max;
-> > +
-> > +	/* The first revision of "uinput_user_dev2" is bigger than
-> > +	 * "uinput_user_dev" and growing. Disallow any smaller payloads. */
-> > +	if (count <= sizeof(struct uinput_user_dev))
-> > +		return -EINVAL;
-> > +
-> > +	/* rough check to avoid huge kernel space allocations */
-> > +	max = ABS_CNT * sizeof(*user_dev2->abs) + sizeof(*user_dev2);
-> > +	if (count > max)
-> > +		return -EINVAL;
-> > +
-> > +	user_dev2 = memdup_user(buffer, count);
-> > +	if (IS_ERR(user_dev2))
-> > +		return PTR_ERR(user_dev2);
-> > +
-> > +	if (user_dev2->version > UINPUT_VERSION) {
-> > +		retval = -EINVAL;
-> > +	} else {
-> > +		off = offsetof(struct uinput_user_dev2, abs);
-> > +		abscnt = (count - off) / sizeof(*user_dev2->abs);
-> > +		retval = uinput_setup_device(udev, user_dev2, abscnt);
-> > +	}
-> > +
-> 
-> I really wish uinput would be a bit easier to debug than just returning
-> -EINVAL when it's not happy. having said that, the only errno that would
-> remotely make sense is -ERANGE for count > max and even that is a bit meh.
-
-Maybe we should add a few dev_dbg() and rely on having dynamic debug to
-activate logging on demand?
-
-Thanks.
-
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

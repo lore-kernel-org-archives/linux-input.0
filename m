@@ -1,205 +1,309 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH] HID: i2c-hid: add runtime PM support
-Date: Tue, 14 Jan 2014 12:13:58 +0200
-Message-ID: <1389694438-18614-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Aniroop Mathur <a.mathur@samsung.com>
+Subject: Re(3): [PATCH] Introduce Naming Convention in Input Subsystem
+Date: Tue, 14 Jan 2014 16:29:24 +0000 (GMT)
+Message-ID: <212338.518931389716963649.JavaMail.weblogic@epml19>
+Reply-To: a.mathur@samsung.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([143.182.124.21]:17364 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751354AbaANKOI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jan 2014 05:14:08 -0500
+Received: from mailout3.samsung.com ([203.254.224.33]:28085 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751760AbaANQaS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jan 2014 11:30:18 -0500
+Received: from epcpsbgx3.samsung.com
+ (u163.gpu120.samsung.co.kr [203.254.230.163])
+ by mailout3.samsung.com (Oracle Communications Messaging Server 7u4-24.01
+ (7.0.4.24.0) 64bit (built Nov 17 2011))
+ with ESMTP id <0MZE00JKQGH03S10@mailout3.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 15 Jan 2014 01:29:24 +0900 (KST)
+MIME-version: 1.0
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Aniroop Mathur <aniroop.mathur@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "cpgs ." <cpgs@samsung.com>, Anurag Aggarwal <a.anurag@samsung.com>, Naveen Kumar <naveen.sel@samsung.com>, VIKAS KALA <vikas.kala@samsung.com>, Poorva Srivastava <poorva.s@samsung.com>
 
-This patch adds runtime PM support for the HID over I2C driver. When the
-i2c-hid device is first opened we power it on and on the last close we
-power it off.
+SGVsbG8gTXIuIFRvcm9raG92LA0KR3JlZXRpbmdzIQ0KDQpGaXJzdCBvZiBhbGwsIGkgYW0gc29y
+cnkgYnV0IGkgYW0gdXNpbmcgb2ZmaWNlJ3MgY29tcHV0ZXIsIA0Kc28gY2Fubm90IGluc3RhbGwg
+YW55IDNyZCBwYXJ0eSBzb2Z0d2FyZSBkdWUgdG8gcmVzdHJpY3Rpb24uDQpVc2luZywgUmUoMik6
+IChBbmlyb29wIE1hdGh1cikgZm9yIG15IGNvbW1lbnRzLg0KDQpPbiBTYXQsIEphbiAxMSwgMjAx
+NCBhdCAwMjo1NTozM0FNICswNTMwLCBBbmlyb29wIE1hdGh1ciB3cm90ZToNCj4gSGVsbG8gTXIu
+IFRvcm9raG92LA0KPiBHcmVldGluZ3MhDQo+IA0KPiBGaXJzdCBvZiBhbGwsIFNvIHNvcnJ5LCB1
+bmZvcnR1bmF0ZWx5IGkgdXNlZCBIVE1MIHRleHQgYWdhaW4uDQo+IGFuZCBNYW55IHRoYW5rcyBm
+b3IgYWxsIHJlcGxpZXMuDQo+IA0KPiBTZW5kaW5nIGVtYWlsIGFnYWluIGluIHBsYWluIHRleHQu
+DQo+IA0KPiANCj4gT24gU2F0LCBKYW4gMTEsIDIwMTQgYXQgMTI6NDEgQU0sIERtaXRyeSBUb3Jv
+a2hvdg0KPiB3cm90ZToNCj4gPiBIaSBBbmlyb29wLA0KPiA+DQo+ID4gT24gRnJpLCBKYW4gMTAs
+IDIwMTQgYXQgMDQ6NDk6NDNQTSArMDAwMCwgQW5pcm9vcCBNYXRodXIgd3JvdGU6DQo+ID4+IEhl
+bGxvIE1yLiBUb3Jva2hvdiwNCj4gPj4gR3JlZXRpbmdzIQ0KPiA+Pg0KPiA+PiBPbiBUaHUsIEph
+biAwOSwgMjAxNCBhdCAxMDoyNzo1NkFNICswNTMwLCBBbmlyb29wIE1hdGh1ciB3cm90ZToNCj4g
+Pj4gPiBUaGlzIHBhdGNoIGFsbG93cyB1c2VyKGRyaXZlcikgdG8gc2V0IHN5c2ZzIG5vZGUgbmFt
+ZSBvZiBpbnB1dA0KPiA+PiA+IGRldmljZXMuICBUbyBzZXQgc3lzZnMgbm9kZSBuYW1lLCB1c2Vy
+KGRyaXZlcikganVzdCBuZWVkcyB0byBzZXQNCj4gPj4gPiBub2RlX25hbWVfdW5pcXVlIHZhcmlh
+YmxlLiAgSWYgbm9kZV9uYW1lX3VuaXF1ZSBpcyBub3Qgc2V0LCBkZWZhdWx0DQo+ID4+ID4gbmFt
+ZSBpcyBnaXZlbihhcyBiZWZvcmUpLiAgU28sIHRoaXMgcGF0Y2ggaXMgY29tcGxldGVseQ0KPiA+
+PiA+IGJhY2t3YXJkLWNvbXBhdGlibGUuDQo+ID4+ID4NCj4gPj4gPiBTeXNmcyBJbnB1dCBub2Rl
+IG5hbWUgZm9ybWF0IGlzOiBpbnB1dF8NCj4gPj4gPiBTeXNmcyBFdmVudCBub2RlIG5hbWUgZm9y
+bWF0IGlzOiBldmVudF8NCj4gPj4gPg0KPiA+PiA+IFRoaXMgIm5hbWUiIGlzIGdpdmVuIGJ5IHVz
+ZXIgYW5kIGF1dG9tYXRpY2FsbHksIHByZWZpeChpbnB1dCBhbmQNCj4gPj4gPiBldmVudCkgaXMg
+YWRkZWQgYnkgaW5wdXQgY29yZS4NCj4gPj4gPg0KPiA+PiA+IFRoaXMgbmFtZSBtdXN0IGJlIHVu
+aXF1ZSBhbW9uZyBhbGwgaW5wdXQgZGV2aWNlcyBhbmQgZHJpdmVyKHVzZXIpIGhhcw0KPiA+PiA+
+IHRoZSByZXNwb25zaWJpbGl0eSB0byBlbnN1cmUgaXQuICBJZiBzYW1lIG5hbWUgaXMgdXNlZCBh
+Z2FpbiBmb3Igb3RoZXINCj4gPj4gPiBpbnB1dCBkZXZpY2UsIHJlZ2lzdHJhdGlvbiBvZiB0aGF0
+IGlucHV0IGRldmljZSB3aWxsIGZhaWwgYmVjYXVzZSB0d28NCj4gPj4gPiBpbnB1dCBkZXZpY2Vz
+IGNhbm5vdCBoYXZlIHNhbWUgbmFtZS4NCj4gPj4gPg0KPiA+PiA+IEFkdmFudGFnZXMgb2YgdGhp
+cyBwYXRjaCBhcmU6DQo+ID4+ID4NCj4gPj4gPiAxLiBSZWR1Y2VzIEJvb3RpbmcgVGltZSBvZiBI
+QUwvVXBwZXItTGF5ZXIgYmVjYXVzZSBub3cgSEFMIG9yDQo+ID4+ID4gVXBwZXItTGF5ZXIgZG8g
+bm90IG5lZWQgdG8gc2VhcmNoIGlucHV0L2V2ZW50IG51bWJlciBjb3JyZXNwb25kaW5nIHRvDQo+
+ID4+ID4gZWFjaCBpbnB1dCBkZXZpY2UgaW4gL2Rldi9pbnB1dC8uLi4gIFRoaXMgc2VhcmNoaW5n
+IGluIC9kZXYvaW5wdXQvIHdhcw0KPiA+PiA+IHRha2luZyB0b28gbXVjaCB0aW1lLiAgKEVzcGVj
+aWFsbHkgaW4gbW9iaWxlIGRldmljZXMsIHdoZXJlIHRoZXJlIGFyZQ0KPiA+PiA+IG1hbnkgaW5w
+dXQgZGV2aWNlcyAobWFueSBzZW5zb3JzLCB0b3VjaHNjcmVlbiwgZXRjKSwgaXQgcmVkdWNlcyBh
+IGxvdA0KPiA+PiA+IG9mIGJvb3RpbmcgdGltZSkNCj4gPj4NCj4gPj4gSSBhbSBzb3JyeSwgaG93
+IG11Y2ggdGltZSBkb2VzIGl0IHRha2UgdG8gc2NhbiBhIGRpcmVjdG9yeSBvZiB3aGF0LCAyMA0K
+PiA+PiBkZXZpY2VzPyBJZiBpdCBzdWNoIGEgZmFjdG9yIGhhdmUgdWRldiBjcmVhdGUgbm9kZXMg
+dGhhdCBhcmUgZWFzaWVyIGZvcg0KPiA+PiB5b3UgdG8gbG9jYXRlLCBzaW1pbGFybHkgaG93IHdl
+IGFscmVhZHkgY3JlYXRlIG5vZGVzIGJ5LWlkIGFuZCBieS1wYXRoLg0KPiA+PiBGb3IgZXhhbXBs
+ZSB5b3UgY2FuIGVuY29kZSBtYWpvcjptaW5vciBpbiBkZXZpY2UgbmFtZS4NCj4gPj4NCj4gPj4g
+UmU6IChBbmlyb29wIE1hdGh1cikNCj4gPg0KPiA+IEZpcnN0IG9mIGFsbCwgaXQgd291bGQgYmUg
+Z3JlYXQgaWYgeW91IGNvdWxkIHVzZSBNVUEgdGhhdCBjYW4gcHJvcGVybHkNCj4gPiBxdW90ZSBh
+bmQgd3JhcCBsb25nIGxpbmVzLi4uDQo+ID4NCj4gPj4gSXRzIGNvcnJlY3QgdGhhdCB3ZSBjYW4g
+c2V0IG5hbWUgb2YgYSBkZXZpY2Ugbm9kZSB1c2luZyB1ZGV2LiAgWWVzLA0KPiA+PiB0aGlzIHdp
+bGwgY2hhbmdlIHRoZSBuYW1lIG9mIGRldmljZSBub2RlKC9kZXYvLi4uKSBidXQgbm90IHN5c2Zz
+DQo+ID4+IG5vZGUuKC9zeXMvY2xhc3MvaW5wdXQvLi4uKSBTbyBub3csIHRoZSBwcm9ibGVtIGFy
+ZWEgd2lsbCBzaGlmdCBmcm9tDQo+ID4+IGRldiBwYXRoIHRvIHN5c2ZzIHBhdGgsIGJlY2F1c2Ug
+bm93IHdlIGRvbnQga25vdyB3aGljaCBzeXNmcyBub2RlIHRvDQo+ID4+IHJlZmVyIGZvciBhIHBh
+cnRpY3VsYXIgaW5wdXQgZGV2aWNlIGFuZCBoZW5jZSBIQUwvVXBwZXItTGF5ZXIgd2lsbA0KPiA+
+PiBuZWVkIHRvIHNlYXJjaCBpbiAvc3lzL2NsYXNzL2lucHV0Ly4uLiBpbnN0ZWFkIG9mIC9kZXYv
+Li4uIGRpcmVjdG9yeS4NCj4gPg0KPiA+IFtkdG9yQGR0b3ItZDYzMCB+XSQgbWtkaXIgbXktc3lz
+ZnMtdmlldw0KPiA+IFtkdG9yQGR0b3ItZDYzMCB+XSQgbG4gLXMNCj4gPiAvc3lzL2RldmljZXMv
+cGxhdGZvcm0vaTgwNDIvc2VyaW8xL2lucHV0L2lucHV0Ng0KPiA+IG15LXN5c2ZzLXZpZXcvaW5w
+dXRfdG91Y2hwYWQNCj4gPiBbZHRvckBkdG9yLWQ2MzAgfl0kIGxzIG15LXN5c2ZzLXZpZXcvaW5w
+dXRfdG91Y2hwYWQvDQo+ID4gY2FwYWJpbGl0aWVzLyBldmVudDYvICAgICAgIG1vZGFsaWFzICAg
+ICAgbmFtZSAgICAgICAgICBwb3dlci8NCj4gPiBzdWJzeXN0ZW0vICAgIHVuaXENCj4gPiBkZXZp
+Y2UvICAgICAgIGlkLyAgICAgICAgICAgbW91c2UxLyAgICAgICBwaHlzICAgICAgICAgIHByb3Bl
+cnRpZXMNCj4gPiB1ZXZlbnQNCj4gPiBbZHRvckBkdG9yLWQ2MzAgfl0kIGxzIG15LXN5c2ZzLXZp
+ZXcvaW5wdXRfdG91Y2hwYWQvDQo+ID4gY2FwYWJpbGl0aWVzICBkZXZpY2UgIGV2ZW50NiAgaWQg
+IG1vZGFsaWFzICBtb3VzZTEgIG5hbWUgIHBoeXMgIHBvd2VyDQo+ID4gcHJvcGVydGllcyAgc3Vi
+c3lzdGVtICB1ZXZlbnQgIHVuaXENCj4gPiBbZHRvckBkdG9yLWQ2MzAgfl0kIGxzIG15LXN5c2Zz
+LXZpZXcvaW5wdXRfdG91Y2hwYWQvZXZlbnQ2Lw0KPiA+IGRldiAgZGV2aWNlICBwb3dlciAgc3Vi
+c3lzdGVtICB1ZXZlbnQNCj4gPg0KPiA+IE1tbW1rYXk/DQo+ID4NCj4gDQo+IFllcywgYWdyZWVk
+LCB3ZSBjYW4gdXNlIHVkZXYgYW5kIHNvZnQgbGlua3MgdG8gYWNoaWV2ZSB0aGlzLg0KPiBCdXQg
+aSB0aGluayB0aGVyZSBpcyBzb21ldGhpbmcgbW9yZSB0byB0YWtlIGNhcmUuDQo+IA0KPiBTbyBm
+YXIsIGFzIHBlciBkaXNjdXNzaW9uLCBpIHVuZGVyc3Rvb2QgdGhhdCBpZiBhbiBlbmQgdXNlciB3
+YW50cyB0byB1c2UNCj4gbm9kZSBuYW1lcyBpbnN0ZWFkIG9mIG51bWJlcnMsIGhlL3NoZSBoYXMg
+dG8gZG8gdGhlIGZvbGxvd2luZyB0aGluZ3M6DQoNCk5vLCBub3QgdGhlIGVuZCB1c2VyLCBzeXN0
+ZW0gaW50ZWdyYXRvciwgd2hpY2ggaXMgcXVpdGUgZGlmZmVyZW50DQpiZWFzdC4NCg0KUmUoMik6
+IChBbmlyb29wIE1hdGh1cikNClVtbS4uIFNvcnJ5LCBpIHVzZWQgd3Jvbmcgd29yZCAiZW5kIHVz
+ZXIiLg0KSSBtZWFudCB0byBzYXkgInN5c3RlbSBpbnRlZ3JhdG9yIiBvbmx5Lg0KDQo+IDEuIENy
+ZWF0ZSBydWxlcyBmb3IgYWxsIGlucHV0IGRldmljZXMgaW4gdWRldiBydWxlIGZpbGUgaS5lLiBz
+ZXQgYXRsZWFzdA0KPiB1bmlxdWUgaWQgYW5kIHVuaXF1ZSBuYW1lLg0KPiAoZW5kIHVzZXIgbmVl
+ZCB0byBkZXRlcm1pbmUgdW5pcXVlIGlkIHRvbyBmb3IgZXZlcnkgaW5wdXQgZGV2aWNlKQ0KPiAy
+LiBDcmVhdGUgbGlua3MgZm9yIGFsbCBpbnB1dCBkZXZpY2Ugbm9kZXMgdXNpbmcgbmFtZXMuDQo+
+IChpbiBwcm9iZSBmdW5jdGlvbiwgYWZ0ZXIgaW5wdXRfcmVnaXN0ZXJfZGV2aWNlKQ0KPiANCj4g
+QnkgZm9sbG93aW5nIGFib3ZlIHR3byBzdGVwcywgdGhlIGZpbGUgc3RydWN0dXJlIHdpbGwgbG9v
+ayBsaWtlOg0KPiBkZXZmcyAtIC9kZXYvaW5wdXRfcHJveGltaXR5DQo+IHN5c2ZzIC0gbXktc3lz
+ZnMtdmlldy9pbnB1dF9wcm94aW1pdHkgLS0+IHN5cy9jbGFzcy9pbnB1dC9pbnB1dDINCj4gc3lz
+ZnMgLSBteS1zeXNmcy12aWV3L2V2ZW50X3Byb3hpbWl0eSAtLT4gc3lzL2NsYXNzL2lucHV0L2V2
+ZW50Mg0KPiANCj4gQnV0IG15IGNvbmNlcm4gaXMgd2h5IHRvIGNyZWF0ZSB0cm91YmxlIGZvciBl
+bmQgdXNlciB0byBwZXJmb3JtDQo+IGFuZCBzcGVuZCB0aW1lIGZvciB0d28gZXh0cmEgc3RlcHMs
+IHdoZW4gYW4gZWFzeSB3YXkgaXMgcG9zc2libGUNCj4gdG8gYWNoaWV2ZSB0aGUgc2FtZSB0YXNr
+ID8NCj4gDQo+IFdpdGggdGhpcyBwYXRjaCwgZW5kIHVzZXIgb25seSBuZWVkIHRvIHNldCBub2Rl
+X25hbWVfdW5pcXVlIHZhcmlhYmxlDQo+IGFuZCByaWdodCBhZnRlciB0aGF0LCBib3RoIGZvciBk
+ZXZmcyBhbmQgc3lzZnMsc2FtZSBub2RlIG5hbWUgaXMgc2V0Lg0KPiBFbmQgdXNlciBkb2VzIG5v
+dCBuZWVkIHRvIGRvIG9yIHRha2UgY2FyZSBvZiBhbnkgb3RoZXIgZXh0cmEgd29yaywNCj4gbGlr
+ZSBjcmVhdGluZyBlbnRyeSBpbiB1ZGV2IHJ1bGVzLCBjcmVhdGluZyBsaW5rcywgZXRjDQo+IA0K
+PiBBbHNvLCB3aXRoIGNyZWF0aW5nIGxpbmtzIGZvciBhbGwgaW5wdXQgZGV2aWNlcyBhbmQgY2hl
+Y2tpbmcgdWRldiBydWxlcw0KPiBiZWZvcmUgYWN0dWFsbHkgY3JlYXRpbmcgYSBkZXZpY2Ugbm9k
+ZSwgd2lsbCBvbmx5IGluY3JlYXNlIGNvbXB1dGF0aW9uDQo+IGFuZCB0aW1lIGluIGtlcm5lbCBj
+b2RlLg0KDQpTbyBkbyBub3QgY3JlYXRlIGxpbmtzLCB1c2Ugc29tZXRoaW5nIGVsc2UgdG8gdHJh
+Y2sgZGV2aWNlcy4gWW91IGFyZQ0KZ2V0dGluZyB1ZXZlbnRzLCB0aGF0IGlzIGFsbCB5b3UgbmVl
+ZC4NCg0KUmUoMik6IChBbmlyb29wIE1hdGh1cikNCg0KRmlyc3RseSwNCkZvciBpbnB1dCBkZXZp
+Y2UgZXZlbnQgbm9kZSwgKC9pbnB1dC9pbnB1dDEvZXZlbnQxKQ0Kd2UgZ2V0IGJlbG93IDcgdWV2
+ZW50cyBvbmx5Og0KQWN0aW9uLCBEZXZwYXRoLCBTdWJzeXN0ZW0sIE1ham9yLCBNaW5vciwgRGV2
+bmFtZSwgU2VxbnVtDQpJdCBpcyBpbXBvc3NpYmxlIHRvIHVuaXF1ZWx5IGlkZW50aWZ5IHRoZSBk
+ZXZpY2UgdXNpbmcNCnRoZXNlIDcgdWV2ZW50IHZhcmlhYmxlcywgYmVjYXVzZSBhbGwgdGhpcyBp
+cyBzZXQgaW4NCmlucHV0IHN1YnN5c3RlbSBhbmQgbm90IGJ5IGRyaXZlciBkZXZlbG9wZXIgb3Ig
+c3lzdGVtIGludGVncmF0b3IuDQpEZXZwYXRoLCBEZXZuYW1lLCBtaW5vciBpcyBhbGwgc2V0IGJ5
+IGlucHV0IHN1YnN5dGVtLg0KU28sIHRoZXNlIHVldmVudHMgYXJlIG5vdCBzdWZmaWNpZW50IHRv
+IGlkZW50aWZ5IHRoZSBkZXZpY2UuDQoNClNlY29uZGx5LA0KRm9yIGlucHV0IGRldmljZSBpbnB1
+dCBub2RlICgvaW5wdXQvaW5wdXQxKSwNCkkga25vdyB3ZSBnZXQgbW9yZSB1ZXZlbnRzIGxpa2Ug
+TmFtZSwgUGh5cywgZXRjLA0KQnV0IHByb2JsZW0gYXJlYSBpcyBub3QgaW5wdXQgbm9kZSBiZWNh
+dXNlIHRoYXQgd2UgY2FuIA0KYWxyZWFkeSBkbyB0aGlzIHVzaW5nIGRldl9zZXRfbmFtZShpbnB1
+dF9kZXYtPmRldikgb3IgDQp1c2luZyBpbml0X25hbWUgdmFyaWFibGUgaW4gZHJpdmVyIGNvZGUu
+DQpCdXQgZXZkZXYgKGV2ZW50IGRldmljZSkgc3RydWN0dXJlIGlzIG5vdCBhY2Nlc3NpYmxlIHRv
+IGRyaXZlciANCnNvIHdlIGNhbm5vdCB1c2UgdGhlIHNhbWUgZm9yIHRoaXMuDQoNClRoaXJkbHks
+DQpJIGtub3cgaWYgdGhlc2UgZGVmYXVsdCB1ZXZlbnRzIGFyZSBub3Qgc3VmZmljaWVudCwgDQph
+ZGRpdGlvbmFsbHksIHdlIGNhbiByZWFkIHN5c2ZzIGF0dHJpYnV0ZSB0byBpZGVudGlmeSBkZXZp
+Y2UsDQpidXQgYXMgaSBhbHJlYWR5IHNhaWQsIGFsbCB0aGlzKHVkZXYgcnVsZXMgb3IgbGlua3Mp
+LCANCndpbGwgb25seSBpbmNyZWFzZSBjb21wdXRhdGlvbiB0aW1lLCBhbmQgbXkgcHVycG9zZSBp
+cyB0byBzYXZlIHRpbWUgDQphbmQgYWNoaWV2aW5nIHRoZSBzYW1lIHRhc2sgYWxsIHRvZ2V0aGVy
+Lg0KDQo+IA0KPiBNeSBwdXJwb3NlIGlzIHRvIGF2b2lkIGV4dHJhIHdvcmsgbG9hZCBhbmQgZGly
+ZWN0bHkgY3JlYXRlIG5vZGUgbmFtZXMNCj4gd2l0aGluIGlucHV0IHN1YnN5c3RlbS4gQWxzbyBi
+YWNrd2FyZCBjb21wYXRpYmlsaXR5IGlzIHRoZXJlLg0KPiBTbyBpIHRoaW5rLCBpdCBpcyBiZXR0
+ZXIgdGhhbiB0aGUgb3RoZXIgYWx0ZXJuYXRpdmUgd2F5Lg0KPiBJc24ndCB0aGlzIG1vcmUgZWFz
+eSA/IElzIHRoZXJlIGFueSBzaWRlLWVmZmVjdCBvciBkcmF3YmFjayBvZiB0aGlzIHBhdGNoID8N
+Cg0KWWVzLCB0aGVyZSBpcyBodWdlIHNpZGUgZWZmZWN0IC0gaXQgaXMgbWFpbnRlbmFuY2Ugbmln
+aHRtYXJlLCB3aGVyZSBvbmUNCmRyaXZlciBjYW4gbm93IGNhdXNlIGZhaWx1cmUgZm9yIG90aGVy
+cy4gV2hhdCBpZiBJIGhhdmUgMiBwcm94aW1pdHkNCnNlbnNvcnM/IDIgYWNjZWxlcm9tZXRlcnM/
+IEhvdyB3aWxsIGdlbmVyaWMgZHJpdmVycyBzZWxlY3QgbmFtZXMgdGhhdA0Kd2lsbCBzYXRpc2Z5
+IGFsbCBib2FyZHMgdGhhdCBtaWdodCB1c2UgdGhlIGNoaXBzIG91dCB0aGVyZT8gQXJlIHlvdQ0K
+cHJvcG9zaW5nIHRvIHB1dCB0aGlzIGRhdGEgaW4gZGV2aWNlIHRyZWUgZm9yIGV4YW1wbGU/IEJv
+YXJkIGZpbGVzPw0KDQpJT1cgbm8sIHRoaXMgaXMgbm90IHJpZ2h0IHNvbHV0aW9uIGFuZCB0aGUg
+cGF0Y2ggd2lsbCBub3QgYmUgYWNjZXB0ZWQuDQoNClJlOjogKEFuaXJvb3AgTWF0aHVyKQ0KRmly
+c3RseSwNClllcywgaSB3aWxsIHB1dCBuYW1lIG9mIGFsbCBpbnB1dCBkZXZpY2VzIGluIG9uZSBw
+bGFjZSBpLmUuIA0KaW4gYm9hcmQgZmlsZSBvciBkZXZpY2UgdHJlZS4gV2l0aCB0aGlzLCBpdCBp
+cyB2ZXJ5IGVhc3kgZm9yIHN5c3RlbQ0KaW50ZWdyYXRvciB0byBhc3NpZ24gdW5pcXVlIG5hbWVz
+IGZvciBhbGwgaW5wdXQgZGV2aWNlcy4NCg0KU2Vjb25kbHksDQpBcyBhbHJlYWR5IG1lbnRpb25l
+ZCwgdGhpcyBwYXRjaCBpcyBiYWNrd2FyZCBjb21wYXRpYmxlLg0KSXQgaXMgbm90IGNvbXB1bHNv
+cnkgdG8gdXNlIG5vZGVfbmFtZV91bmlxdWUgdmFyaWFibGUuDQpTbyBnZW5lcmljIGRyaXZlcnMg
+Y2FuIHN0aWxsIHVzZSB0aGUgc2FtZSBudW1iZXJpbmcgc3lzdGVtLg0KQWxzbywgaWYgdGhlcmUg
+YXJlIHR3byBhY2NlbGVyb21ldGVycywgc3lzdGVtIGludGVncmF0b3IgY2FuDQplYXNpbHkgZ2l2
+ZSAiYWNjZWxlcm9tZXRlcjEiIGFuZCAiYWNjZWxlcm9tZXRlcjIiIGFzIG5hbWVzLg0KTW9yZW92
+ZXIsIHRoaXMgc2FtZSBwcm9ibGVtIGlzIGZvciBleGlzdGluZyBrZXJuZWwgc3lzdGVtIGFsc28u
+DQpBcyB5b3Uga25vdywgdXNpbmcgZGV2X3NldF9uYW1lIGZ1bmN0aW9uIG9yIGluaXRfbmFtZSB2
+YXJpYWJsZSwNCndlIGNhbiBzZXQgbmFtZSBvZiBpbnB1dCBub2RlKG5vdCBldmVudCBub2RlKS4g
+U28sIGlmIHNhbWUgbmFtZQ0KaXMgdXNlZCwgZGV2aWNlX2FkZCBvZiB0aGF0IGlucHV0IGRldmlj
+ZSB3aWxsIGZhaWwgaGVyZSBhbHNvDQppbiBleGlzdGluZyBrZXJuZWwgY29kZS4NCg0KVGhpcmRs
+eSwNClVzaW5nIHRoZSBleGlzdGluZyBpbml0X25hbWUgdmFyaWFibGUgYWxzbywgd2UgY2FuIGFk
+ZCBuYW1pbmcgY29udmVudGlvbiANCmluIGlucHV0IHN1YnlzdGVtLiBJIGNhbiBhbHNvIHN1Ym1p
+dCBwYXRjaCB1c2luZyB0aGlzIHZhcmlhYmxlIGFscmVhZHkgcHJlc2VudA0KaW4ga2VybmVsLg0K
+DQo+IA0KPiA+Pg0KPiA+PiBNb3Jlb3ZlciwgYXMgaSBrbm93LCB1ZGV2IGlzIG1haW5seSBmb3Ig
+aG90LXBsdWdnYWJsZSBkZXZpY2VzLCBidXQgbXkNCj4gPj4gcHJvYmxlbSBpcyBmb3IgcGxhdGZv
+cm0gZGV2aWNlcywgd2hpY2ggYXJlIGFscmVhZHkgcHJlc2VudCBvbiB0aGUNCj4gPj4gYm9hcmQg
+ZHVyaW5nIGJvb3QgdXAuIChMaWtlIGluIEVtYmVkZGVkIGRldmljZXMpDQo+ID4NCj4gPiBObywg
+dWRldiBhbHNvIG1hbmFnZXMgdGhvc2UgYnkgcmVxdWVzdGluZyB0byByZXBsYXkgYWxsIGV2ZW50
+cyB0aGF0DQo+ID4gaGFwcGVuZWQgZHl1cmluZyBib290Lg0KPiA+DQo+ID4+DQo+ID4+IFRvIGF2
+b2lkIGNvbmZ1c2lvbiBhbmQgbWFrZSB0aGUgcHJvYmxlbSBtb3JlIGNsZWFyLA0KPiA+PiBJIHdv
+dWxkIGxpa2UgdG8gZXhwbGFpbiB0aGUgcHJvYmxlbSBhbmQgbXkgc3VnZ2VzdGlvbiBieSB0YWtp
+bmcgYW4gZXhhbXBsZToNCj4gPj4NCj4gPj4gU3VwcG9zZSBpbiBhIG1vYmlsZSBkZXZpY2UsIHRo
+ZXJlIGFyZSAxMCBlbWJlZGRlZCBpbnB1dCBkZXZpY2VzIGFzIGJlbG93Og0KPiA+PiBQcm94aW1p
+dHkgLS0tICAgICAgICAgICAgICAgIC9kZXYvaW5wdXQwICAtLS0gL3N5cy9jbGFzcy9pbnB1dC9p
+bnB1dDAgLS0tIC9zeXMvY2xhc3MvaW5wdXQvZXZlbnQwDQo+ID4+IE1hZ25ldG9tZXRlciAtLS0g
+ICAgICAvZGV2L2lucHV0MSAgIC0tLSAvc3lzL2NsYXNzL2lucHV0L2lucHV0MSAtLS0gL3N5cy9j
+bGFzcy9pbnB1dC9ldmVudDENCj4gPj4gQWNjZWxlcm9tZXRlciAtLS0gICAgICAvZGV2L2lucHV0
+MiAgLS0tIC9zeXMvY2xhc3MvaW5wdXQvaW5wdXQyIC0tLSAvc3lzL2NsYXNzL2lucHV0L2V2ZW50
+Mg0KPiA+PiBUb3VjaHNjcmVlbiAtLS0gICAgICAgICAvZGV2L2lucHV0MyAgLS0tIC9zeXMvY2xh
+c3MvaW5wdXQvaW5wdXQzIC0tLSAvc3lzL2NsYXNzL2lucHV0L2V2ZW50Mw0KPiA+PiAuLi4gNiBt
+b3JlIGxpa2UgdGhpcw0KPiA+PiAoQWxsIHRoZXNlIGFyZSBjcmVhdGVkIGR1cmluZyBib290IHVw
+IHRpbWUpDQo+ID4+DQo+ID4+IEtlcm5lbCBoYXMgY3JlYXRlZCBhbGwgdGhlc2Ugbm9kZXMsIHNv
+IHRoYXQgSEFML1VwcGVyTGF5ZXIgY2FuIHJlYWQgb3INCj4gPj4gd3JpdGUgdmFsdWVzIGZyb20g
+aXQuICBIQUwvVXBwZXItTGF5ZXIgbmVlZHMgdG8gZG8gbWFpbiB0YXNrcyBsaWtlOg0KPiA+PiAx
+LiBSZWFkIHJhdyBkYXRhIC0gZG9lcyB0aHJvdWdoIC9kZXYvaW5wdXQNCj4gPj4gMi4gRW5hYmxl
+IGRldmljZSAtIGRvZXMgdGhyb3VnaCBzeXMvY2xhc3MvaW5wdXQvZW5hYmxlDQo+ID4+IDMuIFNl
+dCBkZWxheSAtIGRvZXMgdGhyb3VnaCBzeXMvY2xhc3MvaW5wdXQvZGVsYXkNCj4gPj4gYW5kIG1h
+bnkgbW9yZS4uLg0KPiA+Pg0KPiA+PiBOb3csIExldHMgc3VwcG9zZSB3ZSBuZWVkIHRvIGRvIHRo
+ZXNlIHRhc2tzIGZvciBBY2NlbGVyb21ldGVyLg0KPiA+Pg0KPiA+PiBJZiBkZXYgbm9kZSBuYW1l
+IGlzIHNldCwgSEFMIGNhbiBkaXJlY3RseSByZWFkIHZhbHVlIGZyb20gaXQgKG5vDQo+ID4+IHNl
+YXJjaCByZXF1aXJlZCkgQnV0IGZvciBlbmFibGluZyB0aGUgYWNjZWxlcm9tZXRlciBkZXZpY2Ug
+b3Igc2V0IHRoZQ0KPiA+PiBkZWxheSBvZiBhIGhhcmR3YXJlIGNoaXAsIHRoZXJlIGlzIG5vIGRp
+cmVjdCB3YXksIEhBTCBjYW4ga25vdyB3aGljaA0KPiA+PiBpbnB1dCBub2RlIHRvIHJlZmVyIGZv
+ciBhY2NlbGVyb21ldGVyIGJlY2F1c2UgdGhlIGlucHV0IG51bWJlciBpcw0KPiA+PiBjcmVhdGVk
+IGR5bmFtaWNhbGx5IGFzIHBlciBkZXZpY2UgcHJvYmUgb3JkZXIsIHNvIHRoaXMgaW5wdXQgbnVt
+YmVyDQo+ID4+IGNhbiBiZSBhbnl0aGluZyAoMCwxLDIsMy4uLikgU28gSEFMIHdpbGwgbmVlZCB0
+byBzZWFyY2ggZXZlcnkgaW5wdXQNCj4gPj4gbm9kZSBhbmQgcmVhZCBpdHMgbmFtZSBhdHRyaWJ1
+dGUgYW5kIGtlZXAgb24gc2VhcmNoaW5nIHVudGlsIGEgbWF0Y2gNCj4gPj4gaXMgZm91bmQgYmV0
+d2VlbiB0aGUgImF0dHJpYnV0ZSBuYW1lIiBhbmQgIm5hbWUgcGFzc2VkIGFzIHBhcmFtZXRlciIu
+DQo+ID4+IExpa2UgZm9yIGFjY2VsZXJvbWV0ZXIsIHRoaXMgc2VhcmNoaW5nIG5lZWRzIHRvIGJl
+IGRvbmUgZm9yIGFsbCBvdGhlcg0KPiA+PiBpbnB1dCBkZXZpY2VzLiAgQWxsIG9mIHRoaXMgcGFy
+dCBpcyBkb25lIGR1cmluZyBib290aW5nIGFuZCB0aGlzIHRha2VzDQo+ID4+IGEgbG90IGZvciB0
+aW1lIGZyb20gYm9vdGluZyBwZXJzcGVjdGl2ZS4NCj4gPj4NCj4gPg0KPiA+IFNlZSB0aGUgYWJv
+dmUuIFlvdSBjYW4gdmVyeSBlYXNpbHkgY3JlYXRlIHlvdXIgb3duIHByaXZhdGUgJ3ZpZXcnIG9m
+DQo+ID4gc3lzZnMsIG5vIGtlcm5lbCBjaGFuZ2VzIG5lZWRlZC4NCj4gPg0KPiA+PiBBcyBJIG1l
+YXN1cmVkLCBpZiB0aGVyZSBhcmUgdGVuIGRldmljZXMsIGl0IGlzIHRha2luZyAxIHNlY29uZCB0
+byBkbw0KPiA+PiBhbGwgdGhpcyBzZWFyY2hpbmcuIChmb3IgYWxsIGRldmljZXMpIFNvIGZvciAy
+MCBkZXZpY2VzLCBpIGd1ZXNzLCBpdA0KPiA+PiBjb3VsZCB0YWtlIHVwdG8gMiBzZWNvbmRzLg0K
+PiA+DQo+ID4gVGhhdCBzZWVtcyBfdmVyeV8gaGlnaCwgbWF5YmUgeW91IG5lZWQgdG8gcHJvZmls
+ZSB5b3VyIGNvZGUgYSBiaXQuIFRvDQo+ID4gc2VhcmNoIHRob3VnaCAyIGRpcmVjdG9yaWVzIHdp
+dGggbGVzcyB0aGFuIGEgaHVuZHJlZCBmaWxlcyBlYWNoIHNob3VsZA0KPiA+IG5vdCB0YWtlIDEg
+c2Vjb25kLg0KPiA+DQo+IA0KPiBJbiB0aGlzIGkgYW0gaW5jbHVkaW5nIHRpbWUgdG8gb3BlbiBh
+IGRpcmVjdG9yeSwgY2xvc2UgYSBkaXJlY3RvcnksIG9wZW4gZmlsZSBvZg0KPiB0aGF0IGRpcmVj
+dG9yeSwgY2xvc2UgZmlsZSBvZiB0aGF0IGRpcmVjdG9yeSwgc2VhcmNoaW5nIGFuZCBjb21wdXRh
+dGlvbiBwYXJ0Lg0KPiBJbmNsdWRpbmcgYWxsIHRoZXNlLCBldmVyeSB0aW1lIGZvciBlYWNoIGlu
+cHV0IGRldmljZS4NCj4gQWxsIHRoaXMgc3VtcyB1cHRvIDEgc2Vjb25kLg0KDQpXaHkgYXJlIHlv
+dSBkb2luZyBpdCBvbmUgYXQgYXQgdGltZT8gSXQgYXBwZWFycyB0aGF0IHRoaXMgaGFwcGVucyBp
+bg0KYnVpbGQgYXQgYm9vdCB1cCBmb3IgeW91Li4uDQoNClJlOjogKEFuaXJvb3AgTWF0aHVyKQ0K
+WWVzLCB0aGlzIGhhcHBlbm5zIGF0IGJvb3QgdXAgb2YgdXBwZXItbGF5ZXIuDQpKdXN0IGFzIGlu
+IGtlcm5lbCwgcHJvYmUgb2YgZWFjaCBkZXZpY2UgaXMgDQpjYWxsZWQgYnkgb25lIGJ5IG9uZSwg
+aW4gdXBwZXItbGF5ZXIgdG9vLCBpbnB1dCBkZXZpY2UgaW5pdGlhbGl6YXRpb24NCmlzIGRvbmUg
+b25lIGJ5IG9uZSBpbiBzb21lIG9yZGVyIGFuZCBpbnB1dCBkZXZpY2UgbnVtYmVyIGlzIHNlYXJj
+aGVkLg0KU28gdGhpcyBpcyBkb25lIGV2ZXJ5IHRpbWUuDQpNb3Jlb3Zlciwgd2l0aCBuYW1pbmcg
+Y29udmVudGlvbiwgc2Nhbm5pbmcgaXMgdG90YWxseSByZW1vdmVkLg0KTm8gbmVlZCB0byBzY2Fu
+L3NlYXJjaCBldmVuIG9uY2UuDQoNCj4gDQo+ID4+DQo+ID4+IFdpdGggbmFtaW5nIGNvbnZlbnRp
+b24sIHRoZXJlIGlzIG5vIG5lZWQgb2Ygc2VhcmNoIG5laXRoZXIgZm9yIGRldg0KPiA+PiBwYXRo
+IG5vciBmb3Igc3lzZnMgcGF0aCBiZWNhdXNlIEhBTCBkaXJlY3RseSBrbm93IHdoaWNoIG5vZGUg
+dG8gcmVmZXINCj4gPj4gZm9yIHdoaWNoIGlucHV0IGRldmljZSBhbmQgaGVuY2UgdGhpcyAxIHNl
+Y29uZCBpcyByZWR1Y2VkIHRvIDEwbXMgb3INCj4gPj4gZXZlbiBsZXNzLCB0aGVyZWZvcmUgc2F2
+aW5nIDk5MG1zLiAgSSBiZWxpZXZlLCB0aGlzIGlzIGEgdmVyeSBnb29kDQo+ID4+IHRpbWUgc2F2
+aW5nLiAoZnJvbSBkZXZpY2UgYm9vdGluZyBwZXJzcGVjdGl2ZSkNCj4gPg0KPiA+IE9LLCBzbyBj
+cmVhdGUgeW91ciBvd24gc3lzZnMgdmlldyBhbmQgdXNlIGl0IHRvIGRvIGRpcmVjdCBsb29rdXBz
+Lg0KPiA+DQo+ID4+DQo+ID4+IChJcyB0aGVyZSBhbnkgZGlyZWN0IHdheSwgd2l0aG91dCBzY2Fu
+bmluZyBhbGwgbm9kZXMgZm9yIGV2ZXJ5IGlucHV0DQo+ID4+IGRldmljZSA/KQ0KPiA+Pg0KPiA+
+PiA+DQo+ID4+ID4gMi4gSW1wcm92ZXMgUmVhZGFiaWx0eSBvZiBpbnB1dCBhbmQgZXZlbnQgc3lz
+ZnMgbm9kZSBwYXRocyBiZWNhdXNlDQo+ID4+ID4gbmFtZXMgYXJlIHVzZWQgaW5zdGVhZCBvZiBu
+dW1iZXJzLg0KPiA+Pg0KPiA+PiBJIGRvIG5vdCBzZWUgd2h5IGl0IGlzIHRoYXQgaW1wb3J0YW50
+LiBJZiBvbmUgd2FudHMgb3ZlcnZpZXcNCj4gPj4gL3Byb2MvYnVzL2lucHV0L2RldmljZXMgZ2l2
+ZXMgbmljZSBwaWN0dXJlLg0KPiA+Pg0KPiA+PiBSZTogKEFuaXJvb3AgTWF0aHVyKQ0KPiA+PiBJ
+dHMgY29ycmVjdCwgd2UgY2FuIGdldCBhbiBvdmVydmlldyBmcm9tIC9wcm9jL2J1cy9pbnB1dC9k
+ZXZpY2VzLg0KPiA+PiBBbmQgdGhlcmVmb3JlIHVzaW5nIHRoaXMsIHdlIGNhbiBrbm93IGlucHV0
+IG5vZGUgbnVtYmVyIGZvciBldmVyeSBpbnB1dCBkZXZpY2UuDQo+ID4+IEJ1dCB0aGVyZSBhcmUg
+bWFueSBpbnB1dCBkZXZpY2VzIGFuZCBpbnB1dCBudW1iZXJzIGFyZSBub3QgZml4ZWQsDQo+ID4+
+IHNvIGl0cyBxdWl0ZSBkaWZmaWN1bHQgdG8gbWVtb3JpemUgaW5wdXQgbnVtYmVyIGZvciBhbGwg
+aW5wdXQgZGV2aWNlcy4NCj4gPj4gVGhlcmVmb3JlLCBpZiBhIHVzZXIgbmVlZHMgdG8gb3BlbiBz
+b21lIGlucHV0IG5vZGUgZnJvbSBzeXNmcyBwYXRoLA0KPiA+PiBoZSBuZWVkcyB0byBjaGVjayAv
+cHJvYy9idXMvaW5wdXQvZGV2aWNlcyBiZWZvcmUgb3BlbmluZyBiZWNhdXNlDQo+ID4+IGhlIGRv
+ZXMgbm90IGtub3cgdGhlIGlucHV0IG51bWJlci4gTW9yZW92ZXIsIHRoaXMgYXBwbGllcyBmb3Ig
+YWxsIG90aGVyDQo+ID4+IGlucHV0IGRldmljZXMgYW5kIGhlbmNlIGEgdXNlciBuZWVkIHRvIGNo
+ZWNrIHRoaXMgZXZlcnkgdGltZS4NCj4gPj4NCj4gPj4gSXQgaW1wcm92ZXMgcmVhZGFiaWx0eSBh
+cyBiZWxvdw0KPiA+Pg0KPiA+PiBCZWZvcmU6ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IEFmdGVyIHBhdGNoOg0KPiA+PiAvZGV2L2lucHV0MCAgICAgICAgICAgICAgICAgICAgICAgICAg
+IC9kZXYvaW5wdXRfcHJveGltaXR5DQo+ID4+IC9kZXYvaW5wdXQxICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgL2Rldi9pbnB1dF9hY2NlbGVyb21ldGVyDQo+ID4+IC4uLm1hbnkgbW9yZQ0KPiA+
+Pg0KPiA+PiAvc3lzL2NsYXNzL2lucHV0L2lucHV0MCAgICAgICAgICAgICAgICAgICAgICAgL3N5
+cy9jbGFzcy9pbnB1dC9pbnB1dF9wcm94aW1pdHkNCj4gPj4gL3N5cy9jbGFzcy9pbnB1dC9pbnB1
+dDEgICAgICAgICAgICAgICAgICAgICAgIC9zeXMvY2xhc3MvaW5wdXQvaW5wdXRfYWNjZWxlcm9t
+ZXRlcg0KPiA+PiAuLi5tYW55IG1vcmUNCj4gPj4NCj4gPj4gL3N5cy9jbGFzcy9pbnB1dC9ldmVu
+dDAgICAgICAgICAgICAgICAgICAgICAgIC9zeXMvY2xhc3MvaW5wdXQvZXZlbnRfcHJveGltaXR5
+DQo+ID4+IC9zeXMvY2xhc3MvaW5wdXQvZXZlbnQxICAgICAgICAgICAgICAgICAgICAgICAvc3lz
+L2NsYXNzL2lucHV0L2V2ZW50X2FjY2VsZXJvbWV0ZXINCj4gPj4gLi4ubWFueSBtb3JlDQo+ID4+
+DQo+ID4+IFNvLCBqdXN0IGJ5IGxvb2tpbmcsIHVzZXIgY2FuIGRpcmVjdGx5IG9wZW4gb3IgcmVm
+ZXIgYW55IGlucHV0IG5vZGUuDQo+ID4+IChubyBuZWVkIHRvIHJlZmVyIGFueSBvdGhlciBwYXRo
+KQ0KPiA+DQo+ID4gVXNlciBhcyBpbiBlbmQgdXNlciBvciB5b3VyIEhBTCBsYXllcj8NCj4gPg0K
+PiANCj4gRW5kIHVzZXIuDQoNCldoeSB3b3VsZCBlbmQgdXNlciBjYXJlPyBIZSB3YW50cyBoaXMg
+dG91Y2hzY3JlZW4gdG8gd29yaywgbm90IGZpZGRsZQ0Kd2l0aCBpdHMgc2V0dGluZ3MsIEFuZCB3
+ZSBhbGVhZHkgZGlzY3Vzc2VkIHdoYXQgc3lzdGVtIGludGVncmF0b3Igc2hvdWxkDQpkby4NCg0K
+DQpSZTo6IChBbmlyb29wIE1hdGh1cikNClllYWgsIGkgbWVhbnQgc3lzdGVtIGludGVncmF0b3Ig
+b25seS4NClNvcnJ5LCBub3QgZW5kIHVzZXIgKGkgdXNlZCB3cm9uZyB0ZXJtKS4NClN5c3RlbSBp
+bnRlZ3JhdG9yIG9yIGNvZGUgZGV2ZWxvcGVyIGNhcmVzIGZvciB0aGlzLg0KDQo+IA0KPiA+Pg0K
+PiA+PiA+DQo+ID4+ID4gMy4gUmVtb3ZlcyBJbnB1dCBEZXZpY2VzIERlcGVuZGVuY3kuIElmIG9u
+ZSBpbnB1dCBkZXZpY2UgcHJvYmUgZmFpbHMsDQo+ID4+ID4gb3RoZXIgaW5wdXQgZGV2aWNlcyBz
+dGlsbCB3b3JrLiAgQmVmb3JlIHRoaXMgcGF0Y2gsIGlmIG9uZSBpbnB1dA0KPiA+PiA+IGRldmlj
+ZSBwcm9iZSBmYWlscyBiZWZvcmUgaW5wdXRfcmVnaXN0ZXJfZGV2aWNlLCB0aGVuIGlucHV0IG51
+bWJlciBvZg0KPiA+PiA+IG90aGVyIGlucHV0IGRldmljZXMgY2hhbmdlcyBhbmQgZHVlIHRvIHRo
+aXMgcGVybWlzc2lvbiBzZXR0aW5ncyBhcmUNCj4gPj4gPiBkaXN0dXJiZWQgYW5kIGhlbmNlIEhB
+TCBvciB1cHBlciBsYXllciBjYW5ub3Qgb3BlbiB0aGUgcmVxdWlyZWQgc3lzZnMNCj4gPj4gPiBu
+b2RlIGJlY2F1c2UgcGVybWlzc2lvbiBkZW5pZWQgZXJyb3IgY29tZXMuDQo+ID4+DQo+ID4+IEkg
+aGF2ZSBvbmx5IG9uZSBzdWdnZXN0aW9uIGhlcmU6IGZpeCB5b3VyIHVzZXJzcGFjZSBzbyB0aGF0
+IGRvZXMgbm90DQo+ID4+IGRlcGVuZCBvbiBkZXZpY2UgaW5pdGlhbGl6YXRpb24gb3JkZXJpbmcu
+DQo+ID4+DQo+ID4+IFJlOiAoQW5pcm9vcCBNYXRodXIpDQo+ID4+IFdlIGNhbm5vdCBmaXggdXNl
+cnNwYWNlIGJlY2F1c2UgdGhlc2UgaW5wdXQvZXZlbnQvZGV2IG51bWJlciBhcmUNCj4gPj4gZGVj
+aWRlZC9hbGxvY2F0ZWQgaW4ga2VybmVsIGFzIHBlciBkZXZpY2UgaW5pdGlhbGl6YXRpb24gb3Jk
+ZXJpbmcNCj4gPj4gZHVyaW5nIGJvb3QgdXAuICh1c2Vyc3BhY2UgaGFzIG5vIHJvbGUgaW4gaXQp
+IFNvLCB1c2Vyc3BhY2UgaXMgbm90DQo+ID4+IGF3YXJlLCB3aGljaCBleGFjdCBpbnB1dCBudW1i
+ZXIgY29ycmVzcG9uZHMgdG8gd2hpY2ggaW5wdXQgZGV2aWNlIHNvDQo+ID4+IGl0IGVuZHMgdXAg
+c2VhcmNoaW5nL3NjYW5uaW5nIGV2ZXJ5IGlucHV0IG5vZGUgdW50aWxsIGEgbWF0Y2ggaXMNCj4g
+Pj4gZm91bmQuDQo+ID4+DQo+ID4+IFNvLCB0aGVyZSBpcyBpbnB1dCBkZXZpY2UgZGVwZW5kZW5j
+eSB3aGljaCBuZWVkcyB0byBiZSByZW1vdmVkLg0KPiA+DQo+ID4gRG8gbm90IHVzZSBudW1iZXJz
+LiBXZSBlbWl0IHVldmVudHMgZGVzY3JpYmluZyB0aGUgZGV2aWNlcyBhbmQgdGhlcmUgYQ0KPiA+
+IF9sb3RfIG9mIGRhdGEgdGhlcmUgdGhhdCBoZWxwcyBpZGVudGlmeWluZyBkZXZpY2UsIHN1Y2gg
+YXMgaXRzIHBhdGgsDQo+ID4gc3Vic3lzdGVtLCBuYW1lLCBldGMuDQo+ID4NCj4gDQo+IFNvcnJ5
+LCBJIGFtIG5vdCBhYmxlIHRvIHVuZGVyc3RhbmQgdGhpcyBwb2ludCB3aXRoIHJlc3BlY3QgdG8g
+cmVtb3ZpbmcgaW5wdXQNCj4gZGV2aWNlIGRlcGVuZGVuY3kuIFBsZWFzZSBlbGFib3JhdGUgYSBi
+aXQgbW9yZS4NCg0KTG9vayBhdCB0aGUgZGF0YSB0aGF0IGlzIHBhc3NlZCBpbiB1ZXZlbnRzIHRo
+YXQgYXJlIHNlbnQgZWl0aGVyIHdoZW4gbmV3DQppbnB1dCBkZXZpY2UgaXMgY3JlYXRlZCwgb3Ig
+d2hlbiB5b3UgcmVxdWVzdCByZXBsYXkgb2Ygc3VjaCBldmVuc3QsDQpyZWFsaXplIHRoYXQgaXQg
+aXMgZW5vdWdoIHRvIGlkZW50aWZ5IHRoZSBkZXZpY2UgYW5kIHN0b3AgcmVseWluZyBvbg0KaW5w
+dXRYIG5hbWVzIHRvIHJlbWFpbiBzdGF0aWMuIFRoYXQncyBpdC4NCg0KVGhhbmtzLg0KDQotLSAN
+CkRtaXRyeQ0KDQpUaGFua3MsDQpBbmlyb29wIE1hdGh1cg==
 
-The implementation is not the most power efficient because it needs some
-interaction from the userspace (e.g close the device node whenever we are
-no more interested in getting events), nevertheless it allows us to save
-some power and works with devices that are not wake capable.
-
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/hid/i2c-hid/i2c-hid.c | 81 ++++++++++++++++++++++++++++---------------
- 1 file changed, 54 insertions(+), 27 deletions(-)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index d1f81f52481a..ff767d03d60e 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -25,6 +25,7 @@
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/pm.h>
-+#include <linux/pm_runtime.h>
- #include <linux/device.h>
- #include <linux/wait.h>
- #include <linux/err.h>
-@@ -454,10 +455,18 @@ static void i2c_hid_init_reports(struct hid_device *hid)
- 		return;
- 	}
- 
-+	/*
-+	 * The device must be powered on while we fetch initial reports
-+	 * from it.
-+	 */
-+	pm_runtime_get_sync(&client->dev);
-+
- 	list_for_each_entry(report,
- 		&hid->report_enum[HID_FEATURE_REPORT].report_list, list)
- 		i2c_hid_init_report(report, inbuf, ihid->bufsize);
- 
-+	pm_runtime_put(&client->dev);
-+
- 	kfree(inbuf);
- }
- 
-@@ -703,8 +712,8 @@ static int i2c_hid_open(struct hid_device *hid)
- 
- 	mutex_lock(&i2c_hid_open_mut);
- 	if (!hid->open++) {
--		ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
--		if (ret) {
-+		ret = pm_runtime_get_sync(&client->dev);
-+		if (ret < 0) {
- 			hid->open--;
- 			goto done;
- 		}
-@@ -712,7 +721,7 @@ static int i2c_hid_open(struct hid_device *hid)
- 	}
- done:
- 	mutex_unlock(&i2c_hid_open_mut);
--	return ret;
-+	return ret < 0 ? ret : 0;
- }
- 
- static void i2c_hid_close(struct hid_device *hid)
-@@ -729,37 +738,17 @@ static void i2c_hid_close(struct hid_device *hid)
- 		clear_bit(I2C_HID_STARTED, &ihid->flags);
- 
- 		/* Save some power */
--		i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
-+		pm_runtime_put(&client->dev);
- 	}
- 	mutex_unlock(&i2c_hid_open_mut);
- }
- 
--static int i2c_hid_power(struct hid_device *hid, int lvl)
--{
--	struct i2c_client *client = hid->driver_data;
--	struct i2c_hid *ihid = i2c_get_clientdata(client);
--	int ret = 0;
--
--	i2c_hid_dbg(ihid, "%s lvl:%d\n", __func__, lvl);
--
--	switch (lvl) {
--	case PM_HINT_FULLON:
--		ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
--		break;
--	case PM_HINT_NORMAL:
--		ret = i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
--		break;
--	}
--	return ret;
--}
--
- static struct hid_ll_driver i2c_hid_ll_driver = {
- 	.parse = i2c_hid_parse,
- 	.start = i2c_hid_start,
- 	.stop = i2c_hid_stop,
- 	.open = i2c_hid_open,
- 	.close = i2c_hid_close,
--	.power = i2c_hid_power,
- 	.request = i2c_hid_request,
- };
- 
-@@ -973,13 +962,17 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	if (ret < 0)
- 		goto err;
- 
-+	pm_runtime_get_noresume(&client->dev);
-+	pm_runtime_set_active(&client->dev);
-+	pm_runtime_enable(&client->dev);
-+
- 	ret = i2c_hid_fetch_hid_descriptor(ihid);
- 	if (ret < 0)
--		goto err;
-+		goto err_pm;
- 
- 	ret = i2c_hid_init_irq(client);
- 	if (ret < 0)
--		goto err;
-+		goto err_pm;
- 
- 	hid = hid_allocate_device();
- 	if (IS_ERR(hid)) {
-@@ -1010,6 +1003,7 @@ static int i2c_hid_probe(struct i2c_client *client,
- 		goto err_mem_free;
- 	}
- 
-+	pm_runtime_put(&client->dev);
- 	return 0;
- 
- err_mem_free:
-@@ -1018,6 +1012,10 @@ err_mem_free:
- err_irq:
- 	free_irq(client->irq, ihid);
- 
-+err_pm:
-+	pm_runtime_put_noidle(&client->dev);
-+	pm_runtime_disable(&client->dev);
-+
- err:
- 	i2c_hid_free_buffers(ihid);
- 	kfree(ihid);
-@@ -1029,6 +1027,11 @@ static int i2c_hid_remove(struct i2c_client *client)
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	struct hid_device *hid;
- 
-+	pm_runtime_get_sync(&client->dev);
-+	pm_runtime_disable(&client->dev);
-+	pm_runtime_set_suspended(&client->dev);
-+	pm_runtime_put_noidle(&client->dev);
-+
- 	hid = ihid->hid;
- 	hid_destroy_device(hid);
- 
-@@ -1074,7 +1077,31 @@ static int i2c_hid_resume(struct device *dev)
- }
- #endif
- 
--static SIMPLE_DEV_PM_OPS(i2c_hid_pm, i2c_hid_suspend, i2c_hid_resume);
-+#ifdef CONFIG_PM_RUNTIME
-+static int i2c_hid_runtime_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
-+	disable_irq(client->irq);
-+	return 0;
-+}
-+
-+static int i2c_hid_runtime_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	enable_irq(client->irq);
-+	i2c_hid_set_power(client, I2C_HID_PWR_ON);
-+	return 0;
-+}
-+#endif
-+
-+static const struct dev_pm_ops i2c_hid_pm = {
-+	SET_SYSTEM_SLEEP_PM_OPS(i2c_hid_suspend, i2c_hid_resume)
-+	SET_RUNTIME_PM_OPS(i2c_hid_runtime_suspend, i2c_hid_runtime_resume,
-+			   NULL)
-+};
- 
- static const struct i2c_device_id i2c_hid_id_table[] = {
- 	{ "hid", 0 },
--- 
-1.8.5.2
 

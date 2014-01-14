@@ -1,176 +1,115 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 4/4] Input: synaptics-rmi4 - switch to using i2c_transfer()
-Date: Tue, 14 Jan 2014 00:26:47 -0800
-Message-ID: <52D4F4C7.8000706@synaptics.com>
-References: <1389339867-8399-1-git-send-email-dmitry.torokhov@gmail.com> <1389339867-8399-4-git-send-email-dmitry.torokhov@gmail.com>
+From: Stephen Boyd <sboyd@codeaurora.org>
+Subject: Re: [PATCH v2 02/10] genirq: Add devm_request_any_context_irq()
+Date: Tue, 14 Jan 2014 12:47:34 -0800
+Message-ID: <52D5A266.5000504@codeaurora.org>
+References: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org> <1388709460-19222-3-git-send-email-sboyd@codeaurora.org> <52CB2D29.3050107@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1389339867-8399-4-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.11.231]:44866 "EHLO
+	smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751696AbaANUrg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jan 2014 15:47:36 -0500
+In-Reply-To: <52CB2D29.3050107@codeaurora.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On 01/09/2014 11:44 PM, Dmitry Torokhov wrote:
-> Instead of using 2 separate transactions when reading from the device let's
-> use i2c_transfer. Because we now have single point of failure I had to
-> change how we collect statistics. I elected to drop control data from the
-> stats and only track number of bytes read/written for the device data.
->
-> Also, since we are not prepared to deal with short reads and writes change
-> read_block_data and write_block_data to indicate error if we detect short
-> transfers.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->   drivers/input/rmi4/rmi_i2c.c | 71 ++++++++++++++++++++++++--------------------
->   1 file changed, 39 insertions(+), 32 deletions(-)
->
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index c176218..51f5bc8 100644
-> --- a/drivers/input/rmi4/rmi_i2c.c
-> +++ b/drivers/input/rmi4/rmi_i2c.c
-> @@ -57,22 +57,17 @@ struct rmi_i2c_xport {
->    */
->   static int rmi_set_page(struct rmi_i2c_xport *rmi_i2c, u8 page)
->   {
-> -	struct rmi_transport_dev *xport = &rmi_i2c->xport;
->   	struct i2c_client *client = rmi_i2c->client;
->   	u8 txbuf[2] = {RMI_PAGE_SELECT_REGISTER, page};
->   	int retval;
->
-> -	dev_dbg(&client->dev, "writes 3 bytes: %02x %02x\n",
-> -			txbuf[0], txbuf[1]);
-> -	xport->stats.tx_count++;
-> -	xport->stats.tx_bytes += sizeof(txbuf);
->   	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
->   	if (retval != sizeof(txbuf)) {
-> -		xport->stats.tx_errs++;
->   		dev_err(&client->dev,
->   			"%s: set page failed: %d.", __func__, retval);
->   		return (retval < 0) ? retval : -EIO;
->   	}
-> +
->   	rmi_i2c->page = page;
->   	return 0;
->   }
-> @@ -107,22 +102,27 @@ static int rmi_i2c_write_block(struct rmi_transport_dev *xport, u16 addr,
->
->   	if (RMI_I2C_PAGE(addr) != rmi_i2c->page) {
->   		retval = rmi_set_page(rmi_i2c, RMI_I2C_PAGE(addr));
-> -		if (retval < 0)
-> +		if (retval)
->   			goto exit;
->   	}
->
-> +	retval = i2c_master_send(client, rmi_i2c->tx_buf, tx_size);
-> +	if (retval == tx_size)
-> +		retval = 0;
-> +	else if (retval >= 0)
-> +		retval = -EIO;
-> +
-> +exit:
->   	dev_dbg(&client->dev,
-> -		"writes %zd bytes at %#06x: %*ph\n", len, addr, (int)len, buf);
-> +		"write %zd bytes at %#06x: %d (%*ph)\n",
-> +		len, addr, retval, (int)len, buf);
->
->   	xport->stats.tx_count++;
-> -	xport->stats.tx_bytes += tx_size;
-> -	retval = i2c_master_send(client, rmi_i2c->tx_buf, tx_size);
-> -	if (retval < 0)
-> +	if (retval)
->   		xport->stats.tx_errs++;
->   	else
-> -		retval--; /* don't count the address byte */
-> +		xport->stats.tx_bytes += len;
->
-> -exit:
->   	mutex_unlock(&rmi_i2c->page_mutex);
->   	return retval;
->   }
-> @@ -133,40 +133,47 @@ static int rmi_i2c_read_block(struct rmi_transport_dev *xport, u16 addr,
->   	struct rmi_i2c_xport *rmi_i2c =
->   		container_of(xport, struct rmi_i2c_xport, xport);
->   	struct i2c_client *client = rmi_i2c->client;
-> -	u8 txbuf[1] = {addr & 0xff};
-> +	u8 addr_offset = addr & 0xff;
->   	int retval;
-> +	struct i2c_msg msgs[] = {
-> +		{
-> +			.addr	= client->addr,
-> +			.len	= sizeof(addr_offset),
-> +			.buf	= &addr_offset,
-> +		},
-> +		{
-> +			.addr	= client->addr,
-> +			.flags	= I2C_M_RD,
-> +			.len	= len,
-> +			.buf	= buf,
-> +		},
-> +	};
->
->   	mutex_lock(&rmi_i2c->page_mutex);
->
->   	if (RMI_I2C_PAGE(addr) != rmi_i2c->page) {
->   		retval = rmi_set_page(rmi_i2c, RMI_I2C_PAGE(addr));
-> -		if (retval < 0)
-> +		if (retval)
->   			goto exit;
->   	}
->
-> -	dev_dbg(&client->dev, "writes 1 bytes: %02x\n", txbuf[0]);
-> +	retval = i2c_transfer(client->adapter, msgs, sizeof(msgs));
-> +	if (retval == sizeof(msgs))
+On 01/06/14 14:24, Stephen Boyd wrote:
+> On 01/02/14 16:37, Stephen Boyd wrote:
+>> Some drivers use request_any_context_irq() but there isn't a
+>> devm_* function for it. Add one so that these drivers don't need
+>> to explicitly free the irq on driver detach.
+>>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+> Thomas, can you please review this patch?
 
-I think this should be:
-	retval = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
-	if (retval == ARRAY_SIZE(msgs))
-At least, that change resolved some random misbehaviors, including 
-kernel panics.
+ping?
 
-
-> +		retval = 0; /* success */
-> +	else if (retval >= 0)
-> +		retval = -EIO;
->
-> -	xport->stats.tx_count++;
-> -	xport->stats.tx_bytes += sizeof(txbuf);
-> -	retval = i2c_master_send(client, txbuf, sizeof(txbuf));
-> -	if (retval != sizeof(txbuf)) {
-> -		xport->stats.tx_errs++;
-> -		retval = (retval < 0) ? retval : -EIO;
-> -		goto exit;
-> -	}
-> +exit:
-> +	dev_dbg(&client->dev,
-> +		"read %zd bytes at %#06x: %d (%*ph)\n",
-> +		len, addr, retval, (int)len, buf);
->
->   	xport->stats.rx_count++;
-> -	xport->stats.rx_bytes += len;
-> -
-> -	retval = i2c_master_recv(client, buf, len);
-> -	if (retval < 0)
-> +	if (retval)
->   		xport->stats.rx_errs++;
->   	else
-> -		dev_dbg(&client->dev,
-> -			"read %zd bytes at %#06x: %*ph\n",
-> -			len, addr, (int)len, buf);
-> +		xport->stats.rx_bytes += len;
->
-> -exit:
->   	mutex_unlock(&rmi_i2c->page_mutex);
->   	return retval;
->   }
->
+>> ---
+>>  include/linux/interrupt.h |  5 +++++
+>>  kernel/irq/devres.c       | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>>  2 files changed, 50 insertions(+)
+>>
+>> diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+>> index 0053adde0ed9..a2678d35b5a2 100644
+>> --- a/include/linux/interrupt.h
+>> +++ b/include/linux/interrupt.h
+>> @@ -158,6 +158,11 @@ devm_request_irq(struct device *dev, unsigned int irq, irq_handler_t handler,
+>>  					 devname, dev_id);
+>>  }
+>>  
+>> +extern int __must_check
+>> +devm_request_any_context_irq(struct device *dev, unsigned int irq,
+>> +		 irq_handler_t handler, unsigned long irqflags,
+>> +		 const char *devname, void *dev_id);
+>> +
+>>  extern void devm_free_irq(struct device *dev, unsigned int irq, void *dev_id);
+>>  
+>>  /*
+>> diff --git a/kernel/irq/devres.c b/kernel/irq/devres.c
+>> index bd8e788d71e0..1ef0606797c9 100644
+>> --- a/kernel/irq/devres.c
+>> +++ b/kernel/irq/devres.c
+>> @@ -73,6 +73,51 @@ int devm_request_threaded_irq(struct device *dev, unsigned int irq,
+>>  EXPORT_SYMBOL(devm_request_threaded_irq);
+>>  
+>>  /**
+>> + *	devm_request_any_context_irq - allocate an interrupt line for a managed device
+>> + *	@dev: device to request interrupt for
+>> + *	@irq: Interrupt line to allocate
+>> + *	@handler: Function to be called when the IRQ occurs
+>> + *	@thread_fn: function to be called in a threaded interrupt context. NULL
+>> + *		    for devices which handle everything in @handler
+>> + *	@irqflags: Interrupt type flags
+>> + *	@devname: An ascii name for the claiming device
+>> + *	@dev_id: A cookie passed back to the handler function
+>> + *
+>> + *	Except for the extra @dev argument, this function takes the
+>> + *	same arguments and performs the same function as
+>> + *	request_any_context_irq().  IRQs requested with this function will be
+>> + *	automatically freed on driver detach.
+>> + *
+>> + *	If an IRQ allocated with this function needs to be freed
+>> + *	separately, devm_free_irq() must be used.
+>> + */
+>> +int devm_request_any_context_irq(struct device *dev, unsigned int irq,
+>> +			      irq_handler_t handler, unsigned long irqflags,
+>> +			      const char *devname, void *dev_id)
+>> +{
+>> +	struct irq_devres *dr;
+>> +	int rc;
+>> +
+>> +	dr = devres_alloc(devm_irq_release, sizeof(struct irq_devres),
+>> +			  GFP_KERNEL);
+>> +	if (!dr)
+>> +		return -ENOMEM;
+>> +
+>> +	rc = request_any_context_irq(irq, handler, irqflags, devname, dev_id);
+>> +	if (rc) {
+>> +		devres_free(dr);
+>> +		return rc;
+>> +	}
+>> +
+>> +	dr->irq = irq;
+>> +	dr->dev_id = dev_id;
+>> +	devres_add(dev, dr);
+>> +
+>> +	return 0;
+>> +}
+>> +EXPORT_SYMBOL(devm_request_any_context_irq);
+>> +
+>> +/**
+>>   *	devm_free_irq - free an interrupt
+>>   *	@dev: device to free interrupt for
+>>   *	@irq: Interrupt line to free
 
 
 -- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation
 
-Christopher Heiny
-Senior Staff Firmware Engineer
-Synaptics Incorporated

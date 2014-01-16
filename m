@@ -1,35 +1,35 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 1/3] HID: sony: Add force-feedback support for the
- Dualshock 4
-Date: Thu, 16 Jan 2014 22:46:48 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1401162246320.23018@pobox.suse.cz>
-References: <alpine.DEB.2.10.1401111429090.2563@franz-virtual-machine>
+Subject: Re: [PATCH 1/5] HID: logitech-dj: Fix USB 3.0 issue
+Date: Thu, 16 Jan 2014 22:50:04 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1401162249150.23018@pobox.suse.cz>
+References: <1389219529-29671-1-git-send-email-benjamin.tissoires@redhat.com> <1389219529-29671-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53253 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:53278 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750974AbaAPVqw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jan 2014 16:46:52 -0500
-In-Reply-To: <alpine.DEB.2.10.1401111429090.2563@franz-virtual-machine>
+	id S1750750AbaAPVuJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jan 2014 16:50:09 -0500
+In-Reply-To: <1389219529-29671-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>
-Cc: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Andrew de los Reyes <adlr@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, 11 Jan 2014, Frank Praznik wrote:
+On Wed, 8 Jan 2014, Benjamin Tissoires wrote:
 
-> Adds the Dualshock 4 to the HID device list and enables force-feedback.
+> From: Benjamin Tisssoires <benjamin.tissoires@redhat.com>
 > 
-> Adds a Dualshock 4 specific worker function since the Dualshock 4 needs a 
-> different report than the Sixaxis.
-> 
-> The right motor in the Dualshock 4 is variable so the full rumble value 
-> is now passed to the worker function and clamped there if necessary.
-> 
-> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+> This fix (not very clean though) should fix the long time USB3
+> issue that was spotted last year. The rational has been given by
+> Hans de Goede:
 
-I have now applied the whole series, thanks Frank.
+Man this is so ugly ... makes one wonder how come that other OSes don't 
+suffer from this. Are they really *that much* slower? :)
+
+I have applied this (and just this) one for 3.14.
+
+Thanks,
 
 -- 
 Jiri Kosina

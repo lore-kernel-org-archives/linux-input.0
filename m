@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: [PATCHv2 1/3] Input: edt_ft5x06: use devm_* functions where appropriate
-Date: Thu, 16 Jan 2014 09:02:16 +0100
-Message-ID: <1389859338-11685-2-git-send-email-LW@KARO-electronics.de>
+Subject: [PATCHv2 2/3] DT: Add vendor prefix for Emerging Display Technologies
+Date: Thu, 16 Jan 2014 09:02:17 +0100
+Message-ID: <1389859338-11685-3-git-send-email-LW@KARO-electronics.de>
 References: <1389859338-11685-1-git-send-email-LW@KARO-electronics.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,155 +13,26 @@ To: linux-input@vger.kernel.org, Simon Budig <simon.budig@kernelconcepts.de>, Ro
 Cc: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
 List-Id: linux-input@vger.kernel.org
 
-Simplify the error path and remove() function by using devm_*
-functions for requesting gpios and irq and allocating the input
-device.
 
 Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
 ---
- drivers/input/touchscreen/edt-ft5x06.c |   62 ++++++++++--------------=
--------
- 1 files changed, 20 insertions(+), 42 deletions(-)
+ .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/tou=
-chscreen/edt-ft5x06.c
-index af0d68b..acb6b9f 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -623,8 +623,9 @@ static int edt_ft5x06_ts_reset(struct i2c_client *c=
-lient,
-=20
- 	if (gpio_is_valid(reset_pin)) {
- 		/* this pulls reset down, enabling the low active reset */
--		error =3D gpio_request_one(reset_pin, GPIOF_OUT_INIT_LOW,
--					 "edt-ft5x06 reset");
-+		error =3D devm_gpio_request_one(&client->dev, reset_pin,
-+					GPIOF_OUT_INIT_LOW,
-+					"edt-ft5x06 reset");
- 		if (error) {
- 			dev_err(&client->dev,
- 				"Failed to request GPIO %d as reset pin, error %d\n",
-@@ -723,7 +724,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *c=
-lient,
- 		return error;
-=20
- 	if (gpio_is_valid(pdata->irq_pin)) {
--		error =3D gpio_request_one(pdata->irq_pin,
-+		error =3D devm_gpio_request_one(&client->dev, pdata->irq_pin,
- 					 GPIOF_IN, "edt-ft5x06 irq");
- 		if (error) {
- 			dev_err(&client->dev,
-@@ -734,11 +735,10 @@ static int edt_ft5x06_ts_probe(struct i2c_client =
-*client,
- 	}
-=20
- 	tsdata =3D kzalloc(sizeof(*tsdata), GFP_KERNEL);
--	input =3D input_allocate_device();
--	if (!tsdata || !input) {
--		dev_err(&client->dev, "failed to allocate driver data.\n");
--		error =3D -ENOMEM;
--		goto err_free_mem;
-+	input =3D devm_input_allocate_device(&client->dev);
-+	if (!input) {
-+		dev_err(&client->dev, "failed to allocate input device.\n");
-+		return -ENOMEM;
- 	}
-=20
- 	mutex_init(&tsdata->mutex);
-@@ -749,7 +749,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *c=
-lient,
- 	error =3D edt_ft5x06_ts_identify(client, tsdata->name, fw_version);
- 	if (error) {
- 		dev_err(&client->dev, "touchscreen probe failed\n");
--		goto err_free_mem;
-+		return error;
- 	}
-=20
- 	edt_ft5x06_ts_get_defaults(tsdata, pdata);
-@@ -776,27 +776,30 @@ static int edt_ft5x06_ts_probe(struct i2c_client =
-*client,
- 	error =3D input_mt_init_slots(input, MAX_SUPPORT_POINTS, 0);
- 	if (error) {
- 		dev_err(&client->dev, "Unable to init MT slots.\n");
--		goto err_free_mem;
-+		return error;
- 	}
-=20
- 	input_set_drvdata(input, tsdata);
- 	i2c_set_clientdata(client, tsdata);
-=20
--	error =3D request_threaded_irq(client->irq, NULL, edt_ft5x06_ts_isr,
--				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
--				     client->name, tsdata);
-+	error =3D devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+					edt_ft5x06_ts_isr,
-+					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+					client->name, tsdata);
- 	if (error) {
- 		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
--		goto err_free_mem;
-+		return error;
- 	}
-=20
- 	error =3D sysfs_create_group(&client->dev.kobj, &edt_ft5x06_attr_grou=
-p);
- 	if (error)
--		goto err_free_irq;
-+		return error;
-=20
- 	error =3D input_register_device(input);
--	if (error)
--		goto err_remove_attrs;
-+	if (error) {
-+		sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_attr_group);
-+		return error;
-+	}
-=20
- 	edt_ft5x06_ts_prepare_debugfs(tsdata, dev_driver_string(&client->dev)=
-);
- 	device_init_wakeup(&client->dev, 1);
-@@ -806,40 +809,15 @@ static int edt_ft5x06_ts_probe(struct i2c_client =
-*client,
- 		pdata->irq_pin, pdata->reset_pin);
-=20
- 	return 0;
--
--err_remove_attrs:
--	sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_attr_group);
--err_free_irq:
--	free_irq(client->irq, tsdata);
--err_free_mem:
--	input_free_device(input);
--	kfree(tsdata);
--
--	if (gpio_is_valid(pdata->irq_pin))
--		gpio_free(pdata->irq_pin);
--
--	return error;
- }
-=20
- static int edt_ft5x06_ts_remove(struct i2c_client *client)
- {
--	const struct edt_ft5x06_platform_data *pdata =3D
--						dev_get_platdata(&client->dev);
- 	struct edt_ft5x06_ts_data *tsdata =3D i2c_get_clientdata(client);
-=20
- 	edt_ft5x06_ts_teardown_debugfs(tsdata);
- 	sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_attr_group);
-=20
--	free_irq(client->irq, tsdata);
--	input_unregister_device(tsdata->input);
--
--	if (gpio_is_valid(pdata->irq_pin))
--		gpio_free(pdata->irq_pin);
--	if (gpio_is_valid(pdata->reset_pin))
--		gpio_free(pdata->reset_pin);
--
--	kfree(tsdata);
--
- 	return 0;
- }
-=20
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Do=
+cumentation/devicetree/bindings/vendor-prefixes.txt
+index b458760..49774c3 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -29,6 +29,7 @@ dallas	Maxim Integrated Products (formerly Dallas Sem=
+iconductor)
+ davicom	DAVICOM Semiconductor, Inc.
+ denx	Denx Software Engineering
+ dmo	Data Modul AG
++edt	Emerging Display Technologies
+ emmicro	EM Microelectronic
+ epson	Seiko Epson Corp.
+ est	ESTeem Wireless Modems
 --=20
 1.7.2.5
 

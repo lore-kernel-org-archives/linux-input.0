@@ -1,80 +1,196 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 4/4] HID: sony: Map gyroscopes and accelerometers to axes
-Date: Fri, 17 Jan 2014 18:38:02 +0100
-Message-ID: <CANq1E4R6V_V9UaKzHjy2gqr98hUAvB8dxVjzpFcA=EhMncz45Q@mail.gmail.com>
-References: <alpine.DEB.2.10.1401162137400.15779@franz-virtual-machine>
-	<20140117125137.ad402d6be31de52a25fedd4a@studenti.unina.it>
-	<alpine.LNX.2.00.1401171319500.23018@pobox.suse.cz>
-	<52D96619.7000209@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH v2] Input: wacom - add support for DTU-1031
+Date: Fri, 17 Jan 2014 10:25:19 -0800
+Message-ID: <1389983119-17069-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f170.google.com ([209.85.223.170]:48357 "EHLO
-	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752100AbaAQRiD (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:49323 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753038AbaAQSZZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jan 2014 12:38:03 -0500
-Received: by mail-ie0-f170.google.com with SMTP id u16so3956159iet.29
-        for <linux-input@vger.kernel.org>; Fri, 17 Jan 2014 09:38:02 -0800 (PST)
-In-Reply-To: <52D96619.7000209@gmail.com>
+	Fri, 17 Jan 2014 13:25:25 -0500
+Received: by mail-pa0-f47.google.com with SMTP id kp14so4444838pab.20
+        for <linux-input@vger.kernel.org>; Fri, 17 Jan 2014 10:25:24 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ospite@studenti.unina.it>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>
 
-Hi
+Signed-off-by: Ping Cheng <pingc@wacom.com>
+---
+v2: use get_unaligned_be16 instead of be16_to_cpup for
+    unaligned data ([3] and [5])
 
-On Fri, Jan 17, 2014 at 6:19 PM, Frank Praznik <frank.praznik@gmail.com> wrote:
-> On 1/17/2014 07:21, Jiri Kosina wrote:
->>
->> On Fri, 17 Jan 2014, Antonio Ospite wrote:
->>
->>>> Use a modified HID descriptor for the Dualshock 4 to assign the
->>>> gyroscope
->>>> sensors and accelerometers to axes.
->>>>
->>> What about putting the descriptor fixup on hold for now?
->>> Jiri, have you already pushed these patches?
->>>
->>> Once the ABS2 stuff from David Hermann is done then proper mapping
->>> following the Gamepad API[1] and the Motion-Tracking API[2] could be
->>> added.
->>>
->>> [1] Documentation/input/gamepad.txt
->>> [2] Documentation/input/motion-tracking.txt
->>>
->>> We could even have the DS3 and DS4 expose the same mapping.
->>>
->>> Just a suggestion.
->>
->> Hi,
->>
->> yes, I have already pushed it, but we can of course discuss not including
->> it into pull for Linus if necessary.
->>
->> My understanding is that once ABS2 stuff is done, this can just be
->> switched to using it in a backwards-compatible way, and the report fixup
->> could be dropped, no?
->>
-> The default descriptor doesn't map the accelerometers or gyros to anything.
-> It's just a 'user defined' page that causes the HID system to skip over the
-> bytes in the report.  My changes to the descriptor map the accelerometers to
-> usage 0x40, 0x41 and 0x42 and the gyroscope values to 0x43, 0x44 and 0x45.
-> These are the proper HID usage values for accelerometers and gyros according
-> to the HID spec and according to the updated motion-tracking.txt this is
-> exactly what they need to be mapped to to work with the ABS2 changes.
-> Unless I'm missing something,  these descriptor changes should be
-> forward-compatible.
+ drivers/input/tablet/wacom_wac.c | 76 +++++++++++++++++++++++++++++++++++++++-
+ drivers/input/tablet/wacom_wac.h |  6 +++-
+ 2 files changed, 80 insertions(+), 2 deletions(-)
 
-Your patch is fine. Issue is, once we introduce the interfaces
-described in motion-tracking.txt, we would have to decide whether we
-want to adjust hid-input.c to use it. If we do that, we might break
-user-space, but if we don't do that, we will never map the stuff
-correctly. Not that easy to fix.
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 0bcc7a6..fed56a7 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -210,6 +210,66 @@ static int wacom_dtu_irq(struct wacom_wac *wacom)
+ 	return 1;
+ }
+ 
++static int wacom_dtus_irq(struct wacom_wac *wacom)
++{
++	char *data = wacom->data;
++	struct input_dev *input = wacom->input;
++	unsigned short prox, pressure = 0;
++	int retval = 0;
++
++	if (data[0] != WACOM_REPORT_DTUS && data[0] != WACOM_REPORT_DTUSPAD) {
++		dev_dbg(input->dev.parent,
++		"%s: received unknown report #%d", __func__, data[0]);
++	} else if (data[0] == WACOM_REPORT_DTUSPAD) {
++		input_report_key(input, BTN_0, (data[1] & 0x01));
++		input_report_key(input, BTN_1, (data[1] & 0x02));
++		input_report_key(input, BTN_2, (data[1] & 0x04));
++		input_report_key(input, BTN_3, (data[1] & 0x08));
++		if (data[1] & 0x0f) {
++			input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
++		} else {
++			input_report_abs(input, ABS_MISC, 0);
++		}
++		/* serial number is required when expresskeys are
++		 * reported through pen interface.
++		 */
++		input_event(input, EV_MSC, MSC_SERIAL, 0xf0);
++		retval = 1;
++	} else {
++
++		prox = data[1] & 0x80;
++		if (prox) {
++			switch ((data[1] >> 3) & 3) {
++			case 1: /* Rubber */
++				wacom->tool[0] = BTN_TOOL_RUBBER;
++				wacom->id[0] = ERASER_DEVICE_ID;
++				break;
++
++			case 2: /* Pen */
++				wacom->tool[0] = BTN_TOOL_PEN;
++				wacom->id[0] = STYLUS_DEVICE_ID;
++				break;
++			}
++		}
++
++		input_report_key(input, BTN_STYLUS, data[1] & 0x20);
++		input_report_key(input, BTN_STYLUS2, data[1] & 0x40);
++		input_report_abs(input, ABS_X, get_unaligned_be16(&data[3]));
++		input_report_abs(input, ABS_Y, get_unaligned_be16(&data[5]));
++		pressure = ((data[1] & 0x03) << 8) | (data[2] & 0xff);
++		input_report_abs(input, ABS_PRESSURE, pressure);
++		input_report_key(input, BTN_TOUCH, pressure > 10);
++
++		if (!prox) /* out-prox */
++			wacom->id[0] = 0;
++		input_report_key(input, wacom->tool[0], prox);
++		input_report_abs(input, ABS_MISC, wacom->id[0]);
++		input_event(input, EV_MSC, MSC_SERIAL, 1);
++		retval = 1;
++	}
++	return retval;
++}
++
+ static int wacom_graphire_irq(struct wacom_wac *wacom)
+ {
+ 	struct wacom_features *features = &wacom->features;
+@@ -1371,6 +1431,10 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+ 		sync = wacom_dtu_irq(wacom_wac);
+ 		break;
+ 
++	case DTUS:
++		sync = wacom_dtus_irq(wacom_wac);
++		break;
++
+ 	case INTUOS:
+ 	case INTUOS3S:
+ 	case INTUOS3:
+@@ -1562,7 +1626,7 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 	wacom_abs_set_axis(input_dev, wacom_wac);
+ 
+-	switch (wacom_wac->features.type) {
++	switch (features->type) {
+ 	case WACOM_MO:
+ 		input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
+ 		/* fall through */
+@@ -1773,8 +1837,14 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 		/* fall through */
+ 
++	case DTUS:
+ 	case PL:
+ 	case DTU:
++		if (features->type == DTUS) {
++			input_set_capability(input_dev, EV_MSC, MSC_SERIAL);
++			for (i = 0; i < 3; i++)
++				__set_bit(BTN_0 + i, input_dev->keybit);
++		}
+ 		__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+ 		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
+ 		__set_bit(BTN_STYLUS, input_dev->keybit);
+@@ -2096,6 +2166,9 @@ static const struct wacom_features wacom_features_0xCE =
+ static const struct wacom_features wacom_features_0xF0 =
+ 	{ "Wacom DTU1631",        WACOM_PKGLEN_GRAPHIRE,  34623, 19553,  511,
+ 	  0, DTU, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0xFB =
++	{ "Wacom DTU1031",        WACOM_PKGLEN_DTUS,      22096, 13960,  511,
++	  0, DTUS, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+ static const struct wacom_features wacom_features_0x57 =
+ 	{ "Wacom DTK2241",        WACOM_PKGLEN_INTUOS,    95840, 54260, 2047,
+ 	  63, DTK, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES};
+@@ -2402,6 +2475,7 @@ const struct usb_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0xF8) },
+ 	{ USB_DEVICE_DETAILED(0xF6, USB_CLASS_HID, 0, 0) },
+ 	{ USB_DEVICE_WACOM(0xFA) },
++	{ USB_DEVICE_WACOM(0xFB) },
+ 	{ USB_DEVICE_WACOM(0x0307) },
+ 	{ USB_DEVICE_DETAILED(0x0309, USB_CLASS_HID, 0, 0) },
+ 	{ USB_DEVICE_LENOVO(0x6004) },
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index 3600cf7..f69c0eb 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -12,7 +12,7 @@
+ #include <linux/types.h>
+ 
+ /* maximum packet length for USB devices */
+-#define WACOM_PKGLEN_MAX	64
++#define WACOM_PKGLEN_MAX	68
+ 
+ #define WACOM_NAME_MAX		64
+ 
+@@ -29,6 +29,7 @@
+ #define WACOM_PKGLEN_WIRELESS	32
+ #define WACOM_PKGLEN_MTOUCH	62
+ #define WACOM_PKGLEN_MTTPC	40
++#define WACOM_PKGLEN_DTUS	68
+ 
+ /* wacom data size per MT contact */
+ #define WACOM_BYTES_PER_MT_PACKET	11
+@@ -47,11 +48,13 @@
+ #define WACOM_REPORT_INTUOSWRITE	6
+ #define WACOM_REPORT_INTUOSPAD		12
+ #define WACOM_REPORT_INTUOS5PAD		3
++#define WACOM_REPORT_DTUSPAD		21
+ #define WACOM_REPORT_TPC1FG		6
+ #define WACOM_REPORT_TPC2FG		13
+ #define WACOM_REPORT_TPCMT		13
+ #define WACOM_REPORT_TPCHID		15
+ #define WACOM_REPORT_TPCST		16
++#define WACOM_REPORT_DTUS		17
+ #define WACOM_REPORT_TPC1FGE		18
+ #define WACOM_REPORT_24HDT		1
+ #define WACOM_REPORT_WL			128
+@@ -70,6 +73,7 @@ enum {
+ 	PTU,
+ 	PL,
+ 	DTU,
++	DTUS,
+ 	INTUOS,
+ 	INTUOS3S,
+ 	INTUOS3,
+-- 
+1.8.3.2
 
-So in case we postpone your patch, we could make sure it maps to the
-new bits right from the beginning. But I'm not so sure it's worth it
-as ABS2 is still not fully discussed.
-
-Thanks
-David

@@ -1,28 +1,158 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: hid-sensor-hub:Fix buggy report descriptors
-Date: Thu, 16 Jan 2014 22:53:27 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1401162253160.23018@pobox.suse.cz>
-References: <1389720620-17418-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv2 3/3] Input: edt-ft5x06: Add DT support
+Date: Thu, 16 Jan 2014 16:26:49 -0800
+Message-ID: <20140117002649.GA837@core.coreip.homeip.net>
+References: <1389859338-11685-1-git-send-email-LW@KARO-electronics.de>
+ <1389859338-11685-4-git-send-email-LW@KARO-electronics.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53300 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750968AbaAPVxb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jan 2014 16:53:31 -0500
-In-Reply-To: <1389720620-17418-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:50801 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751374AbaAQA0y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jan 2014 19:26:54 -0500
+Content-Disposition: inline
+In-Reply-To: <1389859338-11685-4-git-send-email-LW@KARO-electronics.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: linux-input@vger.kernel.org
+To: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
+Cc: linux-input@vger.kernel.org, Simon Budig <simon.budig@kernelconcepts.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Thierry Reding <thierry.reding@gmail.com>, Grant Likely <grant.likely@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Shawn Guo <shawn.guo@linaro.org>, Silvio F <silvio.fricke@gmail.com>, Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Jingoo Han <jg1.han@samsung.com>, Fugang Duan <B38611@freescale.com>, Sachin Kamat <sachin.kamat@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 14 Jan 2014, Srinivas Pandruvada wrote:
+Hi Lothar,
 
-> This addresses regression caused by commit id "751d17e23a9f7"
->  iio: hid-sensors: Fix power and report state.
+On Thu, Jan 16, 2014 at 09:02:18AM +0100, Lothar Wa=DFmann wrote:
+>=20
+> Signed-off-by: Lothar Wa=DFmann <LW@KARO-electronics.de>
+> ---
+>  .../bindings/input/touchscreen/edt-ft5x06.txt      |   29 +++++
+>  drivers/input/touchscreen/edt-ft5x06.c             |  121 ++++++++++=
++++++++---
+>  2 files changed, 132 insertions(+), 18 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscre=
+en/edt-ft5x06.txt
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-=
+ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft=
+5x06.txt
+> new file mode 100644
+> index 0000000..8d94cdc
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.=
+txt
+> @@ -0,0 +1,29 @@
+> +* EDT FT5x06 Multiple Touch Controller
+> +
+> +Required properties:
+> +- compatible: must be "edt,ft5x06"
+> +- reg: i2c slave address
+> +- interrupt-parent: the phandle for the interrupt controller
+> +- interrupts: touch controller interrupt
+> +
+> +Optional properties:
+> +- reset-gpios: the gpio pin to be used for resetting the controller
+> +- wake-gpios:  the gpio pin to be used for waking up the controller
+> +
+> +  The following properties provide default values for the
+> +  corresponding parameters (see Documentation/input/edt-ft5x06.txt)
+> +- edt,threshold: allows setting the "click"-threshold in the range f=
+rom 20 to 80.
+> +- edt,gain: sensitivity (0..31) (lower value -> higher sensitivity)
+> +- edt,offset: edge compensation (0..31)
+> +- edt,report-rate: report rate (3..14)
 
-Applied, thanks Srinivas.
+I wonder if we really need to have it in device tree? Can users needing
+top tweak the settings do it via udev rules?
 
--- 
-Jiri Kosina
-SUSE Labs
+> +
+> +Example:
+> +
+> +	edt_ft5x06@38 {
+> +		compatible =3D "edt,ft5x06";
+> +		reg =3D <0x38>;
+> +		interrupt-parent =3D <&gpio2>;
+> +		interrupts =3D <5 0>;
+> +		reset-gpios =3D <&gpio2 6 1>;
+> +		wake-gpios =3D <&gpio4 9 0>;
+> +	};
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/t=
+ouchscreen/edt-ft5x06.c
+> index acb6b9f..0467591 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -33,6 +33,7 @@
+>  #include <linux/debugfs.h>
+>  #include <linux/slab.h>
+>  #include <linux/gpio.h>
+> +#include <linux/of_gpio.h>
+>  #include <linux/input/mt.h>
+>  #include <linux/input/edt-ft5x06.h>
+> =20
+> @@ -65,6 +66,10 @@ struct edt_ft5x06_ts_data {
+>  	u16 num_x;
+>  	u16 num_y;
+> =20
+> +	int reset_pin;
+> +	int irq_pin;
+> +	int wake_pin;
+> +
+>  #if defined(CONFIG_DEBUG_FS)
+>  	struct dentry *debug_dir;
+>  	u8 *raw_buffer;
+> @@ -617,25 +622,38 @@ edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x0=
+6_ts_data *tsdata)
+> =20
+> =20
+>  static int edt_ft5x06_ts_reset(struct i2c_client *client,
+> -					 int reset_pin)
+> +			struct edt_ft5x06_ts_data *tsdata)
+>  {
+>  	int error;
+> =20
+> -	if (gpio_is_valid(reset_pin)) {
+> +	if (gpio_is_valid(tsdata->wake_pin)) {
+> +		error =3D devm_gpio_request_one(&client->dev, tsdata->wake_pin,
+> +					GPIOF_OUT_INIT_LOW, "edt-ft5x06 wake");
+> +		if (error) {
+> +			dev_err(&client->dev,
+> +				"Failed to request GPIO %d as wake pin, error %d\n",
+> +				tsdata->wake_pin, error);
+> +			return error;
+> +		}
+> +
+> +		mdelay(5);
+> +		gpio_set_value(tsdata->wake_pin, 1);
+> +	}
+> +	if (gpio_is_valid(tsdata->reset_pin)) {
+>  		/* this pulls reset down, enabling the low active reset */
+> -		error =3D devm_gpio_request_one(&client->dev, reset_pin,
+> +		error =3D devm_gpio_request_one(&client->dev, tsdata->reset_pin,
+>  					GPIOF_OUT_INIT_LOW,
+>  					"edt-ft5x06 reset");
+>  		if (error) {
+>  			dev_err(&client->dev,
+>  				"Failed to request GPIO %d as reset pin, error %d\n",
+> -				reset_pin, error);
+> +				tsdata->reset_pin, error);
+>  			return error;
+>  		}
+> =20
+> -		mdelay(50);
+> -		gpio_set_value(reset_pin, 1);
+> -		mdelay(100);
+> +		mdelay(5);
+> +		gpio_set_value(tsdata->reset_pin, 1);
+> +		mdelay(300);
+
+Hmm, this change seems unrelated to DT support.
+
+Thanks.
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

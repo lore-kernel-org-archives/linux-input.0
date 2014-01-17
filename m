@@ -1,120 +1,43 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v2] HID: sony: Cache the output report for the Dualshock 4
-Date: Fri, 17 Jan 2014 14:46:26 -0500 (EST)
-Message-ID: <alpine.DEB.2.10.1401171443040.3454@franz-virtual-machine>
+From: Nick Dyer <nick.dyer@itdev.co.uk>
+Subject: Re: Atmel updates to atmel_mxt_ts touch controller driver - v6
+Date: Fri, 17 Jan 2014 20:01:51 +0000
+Message-ID: <52D98C2F.60001@itdev.co.uk>
+References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>	<20130718194739.GA559@polaris.bitmath.org>	<520CFA0D.4090905@itdev.co.uk>	<20130815160734.GB12196@core.coreip.homeip.net>	<522F2590.1080103@itdev.co.uk>	<CAPDwgkOo7FYLujk16kJM=BqmXRKvZ2S_LOYURW0cXT5t=cmi6w@mail.gmail.com>	<52D66699.8020309@itdev.co.uk> <CAPDwgkOsP4K7r0-Mo-U52X9knRbGgbuD4dGptmj3x-LMTN75BA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:38467 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752689AbaAQTqb (ORCPT
+Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:18366 "EHLO
+	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752942AbaAQUCA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jan 2014 14:46:31 -0500
+	Fri, 17 Jan 2014 15:02:00 -0500
+In-Reply-To: <CAPDwgkOsP4K7r0-Mo-U52X9knRbGgbuD4dGptmj3x-LMTN75BA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
+To: Yufeng Shen <miletus@google.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, adlr@chromium.org
 
-Retrieve and cache the output report for the Dualshock 4 in sony_probe()
-instead of repeatedly walking the report list in the worker function.
+Yufeng Shen wrote:
+> On Wed, Jan 15, 2014 at 5:44 AM, Nick Dyer <nick.dyer@itdev.co.uk
+> <mailto:nick.dyer@itdev.co.uk>> wrote:
+>     > We (Chromium authors) are planning on bringing our local tree of atmel
+>     > driver to be as close as possible to
+>     > upstream and trying to figure out what's the best tree to rebase against.
+> 
+>     I was considering picking up the patches that Dimitry has already reviewed
+>     and rebasing them against the current mainline to try and get things moving
+>     again - would that be useful?
+> 
+> That would certainly be useful. Please let me know the branch/tag name once
+> you finish that.
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+I've rebased Dimitry's atmel-mxt-ts branch against his dtor/next tree. You
+can find it at
 
----
+https://github.com/ndyer/linux/tree/for-next-20140117-dtor-rebase
 
- Apply against jikos/hid.git/for-3.14/sony
+I needed to update the INIT_COMPLETION api. So far I have verified it
+builds, will do some testing on it next week.
 
- drivers/hid/hid-sony.c | 55 ++++++++++++++++++++++++++++++++------------------
- 1 file changed, 35 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index edffe2c..277da77 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -298,6 +298,7 @@ static const unsigned int buzz_keymap[] = {
- struct sony_sc {
- 	struct hid_device *hdev;
- 	struct led_classdev *leds[MAX_LEDS];
-+	struct hid_report *output_report;
- 	unsigned long quirks;
- 	struct work_struct state_worker;
- 
-@@ -743,26 +744,9 @@ static void dualshock4_state_worker(struct work_struct *work)
- {
- 	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
- 	struct hid_device *hdev = sc->hdev;
--	struct list_head *head, *list;
--	struct hid_report *report;
--	__s32 *value;
--
--	list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
--
--	list_for_each(head, list) {
--		report = list_entry(head, struct hid_report, list);
--
--		/* Report 5 is used to send data to the controller via USB */
--		if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && report->id == 5)
--			break;
--	}
--
--	if (head == list) {
--		hid_err(hdev, "Dualshock 4 output report not found\n");
--		return;
--	}
-+	struct hid_report *report = sc->output_report;
-+	__s32 *value = report->field[0]->value;
- 
--	value = report->field[0]->value;
- 	value[0] = 0x03;
- 
- #ifdef CONFIG_SONY_FF
-@@ -822,6 +806,33 @@ static void sony_destroy_ff(struct hid_device *hdev)
- }
- #endif
- 
-+static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
-+{
-+	struct list_head *head, *list;
-+	struct hid_report *report;
-+	struct hid_device *hdev = sc->hdev;
-+
-+	list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
-+
-+	list_for_each(head, list) {
-+		report = list_entry(head, struct hid_report, list);
-+
-+		if (report->id == req_id) {
-+			if (report->size < req_size) {
-+				hid_err(hdev, "Output report 0x%02x (%i bits) is smaller than requested size (%i bits)\n",
-+					req_id, report->size, req_size);
-+				return -EINVAL;
-+			}
-+			sc->output_report = report;
-+			return 0;
-+		}
-+	}
-+
-+	hid_err(hdev, "Unable to locate output report 0x%02x\n", req_id);
-+
-+	return -EINVAL;
-+}
-+
- static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret;
-@@ -866,7 +877,11 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
- 		ret = sixaxis_set_operational_bt(hdev);
- 	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
--		ret = 0;
-+		/* Report 5 (31 bytes) is used to send data to the controller via USB */
-+		ret = sony_set_output_report(sc, 0x05, 248);
-+		if (ret < 0)
-+			goto err_stop;
-+
- 		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
- 	} else {
- 		ret = 0;
--- 
-1.8.3.2
-
+I will also need to port my previous patchset on top of this branch.

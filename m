@@ -1,185 +1,298 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3] input/uinput: add UI_GET_SYSNAME ioctl to retrieve the sysfs path
-Date: Fri, 17 Jan 2014 14:12:51 -0500
-Message-ID: <1389985971-541-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Jonathan Aquilina <eagles051387@gmail.com>
+Subject: Re: [PATCH] drivers/input/mouse/elantech elantech driver for Lenovo L530 trackpoint
+Date: Fri, 17 Jan 2014 20:20:41 +0100
+Message-ID: <16749299.jhxHrdDLge@jaquilina-satellite-s75-a>
+References: <1375220650.66420.YahooMailNeo@web120605.mail.ne1.yahoo.com> <CANq1E4QQf62cvU0XXHRNqRCPqZfHH1PMV_MbKWNiSx-TEaxbOw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:12310 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752638AbaAQTNH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jan 2014 14:13:07 -0500
+Received: from mail-ea0-f170.google.com ([209.85.215.170]:36289 "EHLO
+	mail-ea0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752805AbaAQTUo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jan 2014 14:20:44 -0500
+Received: by mail-ea0-f170.google.com with SMTP id k10so1941664eaj.29
+        for <linux-input@vger.kernel.org>; Fri, 17 Jan 2014 11:20:43 -0800 (PST)
+In-Reply-To: <CANq1E4QQf62cvU0XXHRNqRCPqZfHH1PMV_MbKWNiSx-TEaxbOw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Ulrik De Bie <ulrik_opensource-kernel@yahoo.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-Evemu [1] uses uinput to replay devices traces it has recorded. However,
-the way evemu uses uinput is slightly different from how uinput is
-supposed to be used.
-Evemu relies on libevdev, which creates the device node through uinput.
-It then injects events through the input device node directly (and it
-completely skips the uinput node).
+I tested this on another device which was not a lenovo and it sadly did not fix 
+the problem for me :(. But please dont let it stop you from including this for 
+others that have the above mentioned device.
 
-Currently, libevdev relies on an heuristic to guess which input node was
-created. The problem is that is heuristic is subjected to races between
-different uinput devices or even with physical devices. Having a way
-to retrieve the sysfs path allows us to find the event node without
-having to rely on this heuristic.
+Thanks
 
-[1] http://www.freedesktop.org/wiki/Evemu/
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
-
-Ok, I am resurrecting this. The original patch was sent last July here:
-https://patchwork.kernel.org/patch/2827524/
-
-changes since v2:
-- the ioctl returns only the device name, thus I renamed the ioctl to UI_GET_SYSNAME
-- reordered uinput_str_to_user() arguments
-- be sure to terminate the user string we send by \0
-- abort if udev->state is not UIST_CREATED
-- dropped the patch 1/2 (adding resolution to uinput) because I think David has
-  already it in one of his queues (ABS2 IIRC)
-
-I also posted the corresponding libevdev here:
-http://lists.freedesktop.org/archives/input-tools/2014-January/000757.html
-
-Cheers,
-Benjamin
-
- drivers/input/misc/uinput.c | 46 ++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/uinput.h      |  2 ++
- include/uapi/linux/uinput.h | 13 ++++++++++++-
- 3 files changed, 59 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 7728359..0203219 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -20,6 +20,8 @@
-  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-  *
-  * Changes/Revisions:
-+ *	0.4	01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
-+ *		- add UI_GET_SYSNAME ioctl
-  *	0.3	09/04/2006 (Anssi Hannula <anssi.hannula@gmail.com>)
-  *		- updated ff support for the changes in kernel interface
-  *		- added MODULE_VERSION
-@@ -670,6 +672,27 @@ static int uinput_ff_upload_from_user(const char __user *buffer,
- 	__ret;						\
- })
- 
-+static int uinput_str_to_user(void __user *dest, const char *str,
-+			      unsigned int maxlen)
-+{
-+	int len, ret;
-+
-+	if (!str)
-+		return -ENOENT;
-+
-+	len = strlen(str) + 1;
-+	if (len > maxlen)
-+		len = maxlen;
-+
-+	ret = copy_to_user(dest, str, len);
-+	if (ret)
-+		return -EFAULT;
-+
-+	/* force terminating '\0' */
-+	ret = copy_to_user(dest + len - 1, "\0", 1);
-+	return ret ? -EFAULT : len;
-+}
-+
- static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 				 unsigned long arg, void __user *p)
- {
-@@ -679,6 +702,8 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 	struct uinput_ff_erase  ff_erase;
- 	struct uinput_request   *req;
- 	char			*phys;
-+	const char		*name;
-+	unsigned int		size;
- 
- 	retval = mutex_lock_interruptible(&udev->mutex);
- 	if (retval)
-@@ -831,7 +856,26 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 			break;
- 
- 		default:
--			retval = -EINVAL;
-+			retval = -EAGAIN;
-+	}
-+
-+	if (retval == -EAGAIN) {
-+		size = _IOC_SIZE(cmd);
-+
-+		/* Now check variable-length commands */
-+		switch (cmd & ~IOCSIZE_MASK) {
-+			case UI_GET_SYSNAME(0):
-+				if (udev->state != UIST_CREATED) {
-+					retval = -ENOENT;
-+					goto out;
-+				}
-+				name = dev_name(&udev->dev->dev);
-+				retval = uinput_str_to_user(p, name, size);
-+				break;
-+
-+			default:
-+				retval = -EINVAL;
-+		}
- 	}
- 
-  out:
-diff --git a/include/linux/uinput.h b/include/linux/uinput.h
-index 0a4487d..0994c0d 100644
---- a/include/linux/uinput.h
-+++ b/include/linux/uinput.h
-@@ -20,6 +20,8 @@
-  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-  *
-  * Changes/Revisions:
-+ *	0.4	01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
-+ *		- add UI_GET_SYSNAME ioctl
-  *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
-  *		- update ff support for the changes in kernel interface
-  *		- add UINPUT_VERSION
-diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
-index fe46431..0389b48 100644
---- a/include/uapi/linux/uinput.h
-+++ b/include/uapi/linux/uinput.h
-@@ -20,6 +20,8 @@
-  * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-  *
-  * Changes/Revisions:
-+ *	0.4	01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
-+ *		- add UI_GET_SYSNAME ioctl
-  *	0.3	24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
-  *		- update ff support for the changes in kernel interface
-  *		- add UINPUT_VERSION
-@@ -35,7 +37,7 @@
- #include <linux/types.h>
- #include <linux/input.h>
- 
--#define UINPUT_VERSION		3
-+#define UINPUT_VERSION		4
- 
- 
- struct uinput_ff_upload {
-@@ -73,6 +75,15 @@ struct uinput_ff_erase {
- #define UI_BEGIN_FF_ERASE	_IOWR(UINPUT_IOCTL_BASE, 202, struct uinput_ff_erase)
- #define UI_END_FF_ERASE		_IOW(UINPUT_IOCTL_BASE, 203, struct uinput_ff_erase)
- 
-+/**
-+ * UI_GET_SYSNAME - get the sysfs name of the created uinput device
-+ *
-+ * @return the sysfs name of the created virtual input device.
-+ * The complete sysfs path is then /sys/devices/virtual/input/--NAME--
-+ * Usually, it is in the form "inputN"
-+ */
-+#define UI_GET_SYSNAME(len)	_IOC(_IOC_READ, UINPUT_IOCTL_BASE, 300, len)
-+
- /*
-  * To write a force-feedback-capable driver, the upload_effect
-  * and erase_effect callbacks in input_dev must be implemented.
--- 
-1.8.3.1
+On Friday 17 January 2014 18:19:11 David Herrmann wrote:
+> Hi
+> 
+> According to Jonathan this patch is still not applied, would anyone
+> care to resend it as proper git patch so we can review it and
+> eventually apply it?
+> 
+> Thanks
+> David
+> 
+> On Tue, Jul 30, 2013 at 11:44 PM, Ulrik De Bie
+> 
+> <ulrik_opensource-kernel@yahoo.com> wrote:
+> > Hi,
+> > 
+> > I've a new work laptop Lenovo L530. For 3.2 and 3.9 kernel, the trackpoint
+> > does not work out of the box. It gives sync errors as shown below when the
+> > trackpoint or trackpoint mouse buttons are pressed and no input is
+> > received by userspace: [   29.010641] psmouse serio1: Touchpad at
+> > isa0060/serio1/input0 lost sync at byte 6 The touchpad does work.
+> > 
+> > The alternative is to do a downgrade to generic ps/2 mouse (modprobe
+> > psmouse proto=bare) but this has the disadvantage that touchpad can't be
+> > disabled (I want trackpoint, not touchpad).
+> > 
+> > I did some analysis of the psmouse packets generated, and it became
+> > apparent that the generated packets are according to a very strict format
+> > as described in the elantech_report_trackpoint function in the patch
+> > below.
+> > 
+> > With this patch, the trackpoint is provided as another input device;
+> > currently called 'My stick' The trackpoint now succesfully works and I
+> > can disable the touchpad with synclient TouchPadOff=1 The patch will also
+> > output messages that do not follow the expected pattern. In the mean time
+> > I've seen 2 unknown packets occasionally:
+> > 0x04 , 0x00 , 0x00 , 0x00 , 0x00 , 0x00
+> > 0x00 , 0x00 , 0x00 , 0x02 , 0x00 , 0x00
+> > I don't know what those are for, but they can be safely ignored.
+> > 
+> > Currently all packets that are not known to v3 touchpad and where
+> > packet[3] (the fourth byte) lowest nibble is 6 are now recognized as
+> > PACKET_TRACKPOINT and processed by the new elantech_report_trackpoint.
+> > 
+> > 
+> > The first feedback I would appreciate on the patch:
+> > 1a) Do you think that the creation of the extra input device is the
+> > correct way to go ? I saw also a synaptics-pt but I was not able to
+> > figure it out and the extra input gave me a desirable result fast.
+> > 
+> > 1b) What would be the requirements for the name and the phys parameter of
+> > the device ?
+> > 
+> > 
+> > 2) Is the patch correct with regards to ps/2 protocol semantics ? Should
+> > it be more restrictive; maybe limited to the 4 patterns used to dump
+> > unexpected packets ?
+> > 
+> > 3) Would a 'trackpoint' detection be required ? I have no idea how to do
+> > this because I have a lack of elantech version/capabilities samples, I
+> > have just the one on my laptop: psmouse serio1: elantech: assuming
+> > hardware version 3 (with firmware version 0x350f02) psmouse serio1:
+> > elantech: Synaptics capabilities query result 0xb9, 0x15, 0x0c.
+> > 
+> > 4) Is there anyone else with different hardware/firmwareversion/synaptics
+> > capabilities where this patch also works ?
+> > 
+> > The patch below was ported to 3.10.4 kernel (originally made for 3.2
+> > kernel which is the default kernel on my laptop)
+> > 
+> > Thanks for all feedback and your time,
+> > Ulrik
+> > 
+> > 
+> > 
+> > 
+> > diff -uprN -X linux-3.10.4-vanilla/Documentation/dontdiff
+> > linux-3.10.4-vanilla/drivers/input/mouse/elantech.c
+> > linux-3.10.4/drivers/input/mouse/elantech.c ---
+> > linux-3.10.4-vanilla/drivers/input/mouse/elantech.c    2013-07-29
+> > 01:30:49.000000000 +0200 +++ linux-3.10.4/drivers/input/mouse/elantech.c 
+> >   2013-07-30 23:06:12.000000000 +0200 @@ -402,6 +402,54 @@ static void
+> > elantech_report_absolute_v2(
+> > 
+> >     input_sync(dev);
+> > 
+> > }
+> > 
+> > +static void elantech_report_trackpoint(struct psmouse *psmouse,
+> > +                       int packet_type)
+> > +{
+> > +    /* byte 0:  0   0 ~sx ~sy   0   M   R   L */
+> > +    /* byte 1: sx   0   0   0   0   0   0   0 */
+> > +    /* byte 2: sy   0   0   0   0   0   0   0 */
+> > +    /* byte 3:  0   0  sy  sx   0   1   1   0 */
+> > +    /* byte 4: x7  x6  x5  x4  x3  x2  x1  x0 */
+> > +    /* byte 5: y7  y6  y5  y4  y3  y2  y1  y0 */
+> > +
+> > +    /*
+> > +     * x and y are written in two's complement spread
+> > +     * over 9 bits with sx/sy the relative top bit and
+> > +     * x7..x0 and y7..y0 the lower bits.
+> > +     * The sign of y is opposite to what the input driver
+> > +     * expects for a relative movement
+> > +     */
+> > +
+> > +    struct elantech_data *etd = psmouse->private;
+> > +    struct input_dev *dev2 = etd->dev2;
+> > +    unsigned char *packet = psmouse->packet;
+> > +    int x, y;
+> > +    input_report_key(dev2, BTN_LEFT, packet[0] & 0x01);
+> > +    input_report_key(dev2, BTN_RIGHT, packet[0] & 0x02);
+> > +    input_report_key(dev2, BTN_MIDDLE, packet[0] & 0x04);
+> > +    x = (s32) ((u32) ((packet[1] & 0x80) ? 0UL : 0xFFFFFF00UL) | (u32)
+> > +           packet[4]);
+> > +    y = -(s32) ((u32) ((packet[2] & 0x80) ? 0UL : 0xFFFFFF00UL) | (u32)
+> > +            packet[5]);
+> > +    input_report_rel(dev2, REL_X, x);
+> > +    input_report_rel(dev2, REL_Y, y);
+> > +    switch ((((u32) packet[0] & 0xF8) << 24) | ((u32) packet[1] << 16)
+> > +        | (u32) packet[2] << 8 | (u32) packet[3]) {
+> > +    case 0x00808036UL:
+> > +    case 0x10008026UL:
+> > +    case 0x20800016UL:
+> > +    case 0x30000006UL:
+> > +        break;
+> > +    default:
+> > +        /* Dump unexpected packet sequences if debug=1 (default) */
+> > +        if (etd->debug == 1)
+> > +            elantech_packet_dump(psmouse);
+> > +        break;
+> > +    }
+> > +
+> > +    input_sync(dev2);
+> > +}
+> > +
+> > /*
+> > 
+> >   * Interpret complete data packets and report absolute mode input events
+> >   for
+> >   * hardware version 3. (12 byte packets for two fingers)
+> > 
+> > @@ -688,6 +736,8 @@ static int elantech_packet_check_v3(stru
+> > 
+> >     if ((packet[0] & 0x0c) == 0x0c && (packet[3] & 0xce) == 0x0c)
+> >     
+> >         return PACKET_V3_TAIL;
+> > 
+> > +    if ((packet[3]&0x0f) == 0x06)
+> > +        return PACKET_TRACKPOINT;
+> > 
+> >     return PACKET_UNKNOWN;
+> > 
+> > }
+> > 
+> > @@ -752,7 +802,10 @@ static psmouse_ret_t elantech_process_by
+> > 
+> >         if (packet_type == PACKET_UNKNOWN)
+> >         
+> >             return PSMOUSE_BAD_DATA;
+> > 
+> > -        elantech_report_absolute_v3(psmouse, packet_type);
+> > +        if (packet_type == PACKET_TRACKPOINT)
+> > +            elantech_report_trackpoint(psmouse, packet_type);
+> > +        else
+> > +            elantech_report_absolute_v3(psmouse, packet_type);
+> > 
+> >         break;
+> >     
+> >     case 4:
+> > @@ -1236,8 +1289,10 @@ int elantech_detect(struct psmouse *psmo
+> > 
+> >   */
+> > 
+> > static void elantech_disconnect(struct psmouse *psmouse)
+> > {
+> > +    struct elantech_data *etd = psmouse->private;
+> > 
+> >     sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
+> >     
+> >                &elantech_attr_group);
+> > 
+> > +    input_unregister_device(etd->dev2);
+> > 
+> >     kfree(psmouse->private);
+> >     psmouse->private = NULL;
+> > 
+> > }
+> > @@ -1323,10 +1378,15 @@ int elantech_init(struct psmouse *psmous
+> > 
+> >     struct elantech_data *etd;
+> >     int i, error;
+> >     unsigned char param[3];
+> > 
+> > +    struct input_dev *dev2;
+> > 
+> >     psmouse->private = etd = kzalloc(sizeof(struct elantech_data),
+> >     GFP_KERNEL);
+> >     if (!etd)
+> >     
+> >         return -ENOMEM;
+> > 
+> > +    dev2 = input_allocate_device();
+> > +    if (!dev2)
+> > +        goto init_fail;
+> > +    etd->dev2 = dev2;
+> > 
+> >     psmouse_reset(psmouse);
+> > 
+> > @@ -1386,9 +1446,26 @@ int elantech_init(struct psmouse *psmous
+> > 
+> >     psmouse->reconnect = elantech_reconnect;
+> >     psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
+> > 
+> > +    snprintf(etd->phys, sizeof(etd->phys), "%s/input1",
+> > +        psmouse->ps2dev.serio->phys);
+> > +    dev2->phys = etd->phys;
+> > +    dev2->name = "My stick";
+> > +    dev2->id.bustype = BUS_I8042;
+> > +    dev2->id.vendor  = 0x0002;
+> > +    dev2->id.product = PSMOUSE_ELANTECH;
+> > +    dev2->id.version = 0x0000;
+> > +    dev2->dev.parent = &psmouse->ps2dev.serio->dev;
+> > +    dev2->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
+> > +    dev2->relbit[BIT_WORD(REL_X)] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
+> > +    dev2->keybit[BIT_WORD(BTN_LEFT)] =
+> > +        BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
+> > +
+> > +    if (input_register_device(etd->dev2))
+> > +        goto init_fail;
+> > 
+> >     return 0;
+> >   
+> >   init_fail:
+> > +    input_free_device(dev2);
+> > 
+> >     kfree(etd);
+> >     return -1;
+> > 
+> > }
+> > diff -uprN -X linux-3.10.4-vanilla/Documentation/dontdiff
+> > linux-3.10.4-vanilla/drivers/input/mouse/elantech.h
+> > linux-3.10.4/drivers/input/mouse/elantech.h ---
+> > linux-3.10.4-vanilla/drivers/input/mouse/elantech.h    2013-07-29
+> > 01:30:49.000000000 +0200 +++ linux-3.10.4/drivers/input/mouse/elantech.h 
+> >   2013-07-30 21:14:09.000000000 +0200 @@ -94,6 +94,7 @@
+> > #define PACKET_V4_HEAD            0x05
+> > #define PACKET_V4_MOTION        0x06
+> > #define PACKET_V4_STATUS        0x07
+> > +#define PACKET_TRACKPOINT        0x08
+> > 
+> > /*
+> > 
+> >   * track up to 5 fingers for v4 hardware
+> > 
+> > @@ -114,6 +115,8 @@ struct finger_pos {
+> > };
+> > 
+> > struct elantech_data {
+> > +    struct input_dev *dev2;        /* Relative device */
+> > +    char    phys[32];
+> > 
+> >     unsigned char reg_07;
+> >     unsigned char reg_10;
+> >     unsigned char reg_11;
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

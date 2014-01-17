@@ -1,52 +1,62 @@
-From: Jonathan Aquilina <eagles051387@gmail.com>
-Subject: Re: Patch from down stream which has been forgotten
-Date: Fri, 17 Jan 2014 13:57:42 +0100
-Message-ID: <77233948.Tr1EyVgN9m@jaquilina-satellite-s75-a>
-References: <49613260.WKf2LBZM10@jaquilina-satellite-s75-a> <CANq1E4QZ22zMagrV37YDm8EYuxcJDK7vXmj9=G7UsPnADe0bkQ@mail.gmail.com>
+From: Tommy Will <tommywill2011@gmail.com>
+Subject: Re: ALPS: Cirque Smart Cat Pro AG Touchpad Support
+Date: Sat, 18 Jan 2014 00:01:19 +0800
+Message-ID: <CA+F6ckMgiF-TrCf1rxNGvGrPHubxdVCtTBsLOKHpg=StRt8BvA@mail.gmail.com>
+References: <52D6B45A.4050202@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ea0-f177.google.com ([209.85.215.177]:60687 "EHLO
-	mail-ea0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751004AbaAQM5p (ORCPT
+Received: from mail-la0-f45.google.com ([209.85.215.45]:52344 "EHLO
+	mail-la0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752656AbaAQQBU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jan 2014 07:57:45 -0500
-Received: by mail-ea0-f177.google.com with SMTP id n15so1763965ead.8
-        for <linux-input@vger.kernel.org>; Fri, 17 Jan 2014 04:57:44 -0800 (PST)
-In-Reply-To: <CANq1E4QZ22zMagrV37YDm8EYuxcJDK7vXmj9=G7UsPnADe0bkQ@mail.gmail.com>
+	Fri, 17 Jan 2014 11:01:20 -0500
+Received: by mail-la0-f45.google.com with SMTP id b8so3788308lan.32
+        for <linux-input@vger.kernel.org>; Fri, 17 Jan 2014 08:01:19 -0800 (PST)
+In-Reply-To: <52D6B45A.4050202@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Jonathan Aquilina <eagles051387@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: AJ Guillon <aj.guillon@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-I can confirm that the bug still exists as per the launchpad bug.
+Hi AJ,
 
-I am on kubuntu 13.10 with kernel 3.11.0 
+This is Tommy from ALPS. From the PCI ID you attached, it looks like
+an external USB touchpad (?)
+If so, modify alps.c may not let touchpad work since its only for PS/2 device.
 
-What are the next steps.
+I'm sorry although I work in ALPS, I'm not so familar with the
+products made by Cirque.
+However, I'll try to ask our Cirque's colleagues if they have schedule
+to support their products for Linux mainstring.
+Thanks !
 
-On Friday 17 January 2014 13:40:26 David Herrmann wrote:
-> Hi
-> 
-> On Tue, Jan 7, 2014 at 2:56 PM, Jonathan Aquilina
-> 
-> <eagles051387@gmail.com> wrote:
-> > I have a down stream bug from ubuntu which has been forgotten.
-> > 
-> > https://bugs.launchpad.net/ubuntu/+source/linux/+bug/967399
-> > 
-> > This fixes multitouch track pads issue where the track pad doesnt work at
-> > all.
-> > 
-> > Can I get an update as to the status of the patch which was upstreamed.
-> 
-> You mean that one?
->   http://www.spinics.net/lists/linux-input/msg26869.html
-> 
-> It never got applied, would be nice to hear whether that bug still
-> exist and have it resubmitted.
-> 
-> Thanks
-> David
+-- 
+Best Regards,
+Tommy
 
+2014/1/16 AJ Guillon <aj.guillon@gmail.com>:
+> Hi everyone,
+>
+> I bought a Cirque Glidepoint (Model GP415U-5321) that I would like to
+> use with Linux.  I haven't hacked on the kernel before, but I'm happy to
+> test and modify alps.c as required to get this device working.
+>
+> I downloaded alps-reg-dump from
+> git://kernel.ubuntu.com/sforshee/alps-reg-dump.git and it reports:
+>
+> Found serio mouse at /sys/bus/serio/devices/serio1/
+> Invalid ack byte 0xfe after command
+> Invalid ack byte 0xfe after command
+> E6 report failed, not an ALPS touchpad
+>
+> The PCI ID of the device is: 0488:0282
+>
+> I'm not sure if there is anything else I should try.  I am currently
+> running Ubuntu 12.04 with kernel 3.2.0-29-generic.
+>
+> AJ
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

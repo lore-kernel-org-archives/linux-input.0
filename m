@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: [PATCHv3 2/4] Input: edt_ft5x06: use devm_* functions where appropriate
-Date: Fri, 17 Jan 2014 13:28:36 +0100
-Message-ID: <1389961718-8130-3-git-send-email-LW@KARO-electronics.de>
+Subject: [PATCHv3 4/4] Input: edt-ft5x06 adjust reset delays according to datasheet
+Date: Fri, 17 Jan 2014 13:28:38 +0100
+Message-ID: <1389961718-8130-5-git-send-email-LW@KARO-electronics.de>
 References: <1389961718-8130-1-git-send-email-LW@KARO-electronics.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,167 +13,36 @@ To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutl
 Cc: =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW@KARO-electronics.de>
 List-Id: linux-input@vger.kernel.org
 
-Simplify the error path and remove() function by using devm_*
-functions for requesting gpios and irq and allocating memory.
+The FT5x06 datasheet specifies a minimum reset width of 5ms and a
+delay between deassertion of reset and start of reporting of 300ms.
+Adjust the delays to conform to the datasheet.
+
+With the original delays I sometimes experienced communication
+timeouts when initializing the controller.
 
 Signed-off-by: Lothar Wa=C3=9Fmann <LW@KARO-electronics.de>
 ---
- drivers/input/touchscreen/edt-ft5x06.c |   66 +++++++++++-------------=
---------
- 1 files changed, 23 insertions(+), 43 deletions(-)
+ drivers/input/touchscreen/edt-ft5x06.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/tou=
 chscreen/edt-ft5x06.c
-index af0d68b..583c053 100644
+index ec6b3e5..bd42845 100644
 --- a/drivers/input/touchscreen/edt-ft5x06.c
 +++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -366,7 +366,9 @@ static int edt_ft5x06_factory_mode(struct edt_ft5x0=
-6_ts_data *tsdata)
- 	if (!tsdata->raw_buffer) {
- 		tsdata->raw_bufsize =3D tsdata->num_x * tsdata->num_y *
- 				      sizeof(u16);
--		tsdata->raw_buffer =3D kzalloc(tsdata->raw_bufsize, GFP_KERNEL);
-+		tsdata->raw_buffer =3D devm_kzalloc(&client->dev,
-+						tsdata->raw_bufsize,
-+						GFP_KERNEL);
- 		if (!tsdata->raw_buffer) {
- 			error =3D -ENOMEM;
- 			goto err_out;
-@@ -623,8 +625,9 @@ static int edt_ft5x06_ts_reset(struct i2c_client *c=
+@@ -653,9 +653,9 @@ static int edt_ft5x06_ts_reset(struct i2c_client *c=
 lient,
-=20
- 	if (gpio_is_valid(reset_pin)) {
- 		/* this pulls reset down, enabling the low active reset */
--		error =3D gpio_request_one(reset_pin, GPIOF_OUT_INIT_LOW,
--					 "edt-ft5x06 reset");
-+		error =3D devm_gpio_request_one(&client->dev, reset_pin,
-+					GPIOF_OUT_INIT_LOW,
-+					"edt-ft5x06 reset");
- 		if (error) {
- 			dev_err(&client->dev,
- 				"Failed to request GPIO %d as reset pin, error %d\n",
-@@ -723,7 +726,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *c=
-lient,
- 		return error;
-=20
- 	if (gpio_is_valid(pdata->irq_pin)) {
--		error =3D gpio_request_one(pdata->irq_pin,
-+		error =3D devm_gpio_request_one(&client->dev, pdata->irq_pin,
- 					 GPIOF_IN, "edt-ft5x06 irq");
- 		if (error) {
- 			dev_err(&client->dev,
-@@ -733,12 +736,11 @@ static int edt_ft5x06_ts_probe(struct i2c_client =
-*client,
+ 			return error;
  		}
+=20
+-		mdelay(50);
++		mdelay(5);
+ 		gpio_set_value(tsdata->reset_pin, 1);
+-		mdelay(100);
++		msleep(300);
  	}
-=20
--	tsdata =3D kzalloc(sizeof(*tsdata), GFP_KERNEL);
--	input =3D input_allocate_device();
-+	tsdata =3D devm_kzalloc(&client->dev, sizeof(*tsdata), GFP_KERNEL);
-+	input =3D devm_input_allocate_device(&client->dev);
- 	if (!tsdata || !input) {
--		dev_err(&client->dev, "failed to allocate driver data.\n");
--		error =3D -ENOMEM;
--		goto err_free_mem;
-+		dev_err(&client->dev, "failed to allocate input device.\n");
-+		return -ENOMEM;
- 	}
-=20
- 	mutex_init(&tsdata->mutex);
-@@ -749,7 +751,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *c=
-lient,
- 	error =3D edt_ft5x06_ts_identify(client, tsdata->name, fw_version);
- 	if (error) {
- 		dev_err(&client->dev, "touchscreen probe failed\n");
--		goto err_free_mem;
-+		return error;
- 	}
-=20
- 	edt_ft5x06_ts_get_defaults(tsdata, pdata);
-@@ -776,27 +778,30 @@ static int edt_ft5x06_ts_probe(struct i2c_client =
-*client,
- 	error =3D input_mt_init_slots(input, MAX_SUPPORT_POINTS, 0);
- 	if (error) {
- 		dev_err(&client->dev, "Unable to init MT slots.\n");
--		goto err_free_mem;
-+		return error;
- 	}
-=20
- 	input_set_drvdata(input, tsdata);
- 	i2c_set_clientdata(client, tsdata);
-=20
--	error =3D request_threaded_irq(client->irq, NULL, edt_ft5x06_ts_isr,
--				     IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
--				     client->name, tsdata);
-+	error =3D devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+					edt_ft5x06_ts_isr,
-+					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-+					client->name, tsdata);
- 	if (error) {
- 		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
--		goto err_free_mem;
-+		return error;
- 	}
-=20
- 	error =3D sysfs_create_group(&client->dev.kobj, &edt_ft5x06_attr_grou=
-p);
- 	if (error)
--		goto err_free_irq;
-+		return error;
-=20
- 	error =3D input_register_device(input);
--	if (error)
--		goto err_remove_attrs;
-+	if (error) {
-+		sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_attr_group);
-+		return error;
-+	}
-=20
- 	edt_ft5x06_ts_prepare_debugfs(tsdata, dev_driver_string(&client->dev)=
-);
- 	device_init_wakeup(&client->dev, 1);
-@@ -806,40 +811,15 @@ static int edt_ft5x06_ts_probe(struct i2c_client =
-*client,
- 		pdata->irq_pin, pdata->reset_pin);
 =20
  	return 0;
--
--err_remove_attrs:
--	sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_attr_group);
--err_free_irq:
--	free_irq(client->irq, tsdata);
--err_free_mem:
--	input_free_device(input);
--	kfree(tsdata);
--
--	if (gpio_is_valid(pdata->irq_pin))
--		gpio_free(pdata->irq_pin);
--
--	return error;
- }
-=20
- static int edt_ft5x06_ts_remove(struct i2c_client *client)
- {
--	const struct edt_ft5x06_platform_data *pdata =3D
--						dev_get_platdata(&client->dev);
- 	struct edt_ft5x06_ts_data *tsdata =3D i2c_get_clientdata(client);
-=20
- 	edt_ft5x06_ts_teardown_debugfs(tsdata);
- 	sysfs_remove_group(&client->dev.kobj, &edt_ft5x06_attr_group);
-=20
--	free_irq(client->irq, tsdata);
--	input_unregister_device(tsdata->input);
--
--	if (gpio_is_valid(pdata->irq_pin))
--		gpio_free(pdata->irq_pin);
--	if (gpio_is_valid(pdata->reset_pin))
--		gpio_free(pdata->reset_pin);
--
--	kfree(tsdata);
--
- 	return 0;
- }
-=20
 --=20
 1.7.2.5
 

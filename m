@@ -1,86 +1,40 @@
-From: Simon Budig <simon.budig@kernelconcepts.de>
-Subject: Re: [PATCH 2/2] Input: edt-ft5x06: Add DT support
-Date: Fri, 17 Jan 2014 02:39:52 +0100
-Message-ID: <52D889E8.6070603@kernelconcepts.de>
-References: <1389608224-9975-1-git-send-email-LW@KARO-electronics.de> <1389608224-9975-2-git-send-email-LW@KARO-electronics.de> <20140113134441.GD1273@e106331-lin.cambridge.arm.com> <20140116084943.17da0226@ipc1.ka-ro>
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH 0/4] HID: sony: Additional fixes and improvements for the
+ Dualshock 4
+Date: Thu, 16 Jan 2014 21:42:17 -0500 (EST)
+Message-ID: <alpine.DEB.2.10.1401162110240.15779@franz-virtual-machine>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="bcW2Isj5vRf1KifWxSwhmSWCGJVPdxpEs"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernelconcepts.de ([212.60.202.196]:36669 "EHLO
-	mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750898AbaAQBuS (ORCPT
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:41694 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751601AbaAQCmV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jan 2014 20:50:18 -0500
-In-Reply-To: <20140116084943.17da0226@ipc1.ka-ro>
+	Thu, 16 Jan 2014 21:42:21 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?TG90aGFyIFdhw59tYW5u?= <LW@KARO-electronics.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "grant.likely@linaro.org" <grant.likely@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Shawn Guo <shawn.guo@linaro.org>, Silvio F <silvio.fricke@gmail.com>, Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Jingoo Han <jg1.han@samsung.com>, Fugang Duan <B38611@freescale.com>, Sachin Kamat <sachin.kamat@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---bcW2Isj5vRf1KifWxSwhmSWCGJVPdxpEs
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+These series of patches makes some fixes and improvements to the Dualshock 
+4 driver.
 
-On 16/01/14 08:49, Lothar Wa=C3=9Fmann wrote:
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.=
-txt
->>> @@ -0,0 +1,31 @@
->>> +* EDT FT5x06 Multiple Touch Controller
->>> +
-> [...]
->>> +- threshold: allows setting the "click"-threshold in the range from =
-20 to 80.
->>> +- gain: sensitivity (0..31) (lower value -> higher sensitivity)
->>> +- offset: edge compensation (0..31)
->>> +- report_rate: report rate (3..14)
->>
->> s/_/-/ on property names please. Also, it may make sense to prefix the=
-se
->> as they're rather generic sounding names.
->>
->> Could you elaborate on these a litle please? What units are each of
->> these in? Why does it make sense to have them in the dt?
->>
-> I just converted them from being passed via platform_data. I have no
-> idea what they actually control and what units they use. I could not
-> even find a manual where they are documented.
-> Maybe Simon Budig can help out here as the original driver author.
+There seems to be an issue in Bluez that prevents these controllers from 
+connecting via bluetooth, so rumble and LED support for Bluetooth devices 
+is currently missing from the driver since it can't be tested. The 
+first two patches will make it easier to add these capabilities later once 
+the issues are fixed. 
 
-The units are not specified in the datasheets available to me. I suspect
-that these are some sort of counter values related to the cap sensing.
+The first patch adds separate identifiers for USB and Bluetooth connected 
+controllers as they each require different report formats when 
+communicating with the controller.
 
-The defaults differ for the different size glasses, so I really suspect
-these are basically just numbers.
+The second changes the dualshock4_worker function to use the standard HID 
+output report system to write data to the controller instead of using a 
+raw packet. Thanks to Simon Mungewell for the concept code.
 
-The only somewhat reasonable unit is available for the report-rate: it
-is specified as about <value> * 10 touch reports per second.
+The third patch is just minor cosmetic fixes.
 
-Bye,
-        Simon
-
---=20
-       Simon Budig                        kernel concepts GmbH
-       simon.budig@kernelconcepts.de      Sieghuetter Hauptweg 48
-       +49-271-771091-17                  D-57072 Siegen
-
-
-
---bcW2Isj5vRf1KifWxSwhmSWCGJVPdxpEs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-Comment: Using GnuPG with Icedove - http://www.enigmail.net/
-
-iEYEARECAAYFAlLYiegACgkQO2O/RXesiHAaAACcDPpmHZMki2/Pl6ZTFezHku1I
-X28An1QWb+yfOogf0Dz9Bs6vzuiCH+/O
-=/cPA
------END PGP SIGNATURE-----
-
---bcW2Isj5vRf1KifWxSwhmSWCGJVPdxpEs--
+The fourth patch adds support for the accelerometers and gyroscope 
+sensors. To do this, a modified HID descriptor is used instead of the 
+defauly with additional usage fields to map the 6 signed short values to axes.

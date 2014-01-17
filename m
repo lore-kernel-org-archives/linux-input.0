@@ -1,43 +1,46 @@
-From: Nick Dyer <nick.dyer@itdev.co.uk>
-Subject: Re: Atmel updates to atmel_mxt_ts touch controller driver - v6
-Date: Fri, 17 Jan 2014 20:01:51 +0000
-Message-ID: <52D98C2F.60001@itdev.co.uk>
-References: <1372337366-9286-1-git-send-email-nick.dyer@itdev.co.uk>	<20130718194739.GA559@polaris.bitmath.org>	<520CFA0D.4090905@itdev.co.uk>	<20130815160734.GB12196@core.coreip.homeip.net>	<522F2590.1080103@itdev.co.uk>	<CAPDwgkOo7FYLujk16kJM=BqmXRKvZ2S_LOYURW0cXT5t=cmi6w@mail.gmail.com>	<52D66699.8020309@itdev.co.uk> <CAPDwgkOsP4K7r0-Mo-U52X9knRbGgbuD4dGptmj3x-LMTN75BA@mail.gmail.com>
+From: Rob Herring <robherring2@gmail.com>
+Subject: Re: [PATCHv3 1/4] DT: Add vendor prefix for Emerging Display Technologies
+Date: Fri, 17 Jan 2014 16:18:14 -0600
+Message-ID: <CAL_JsqKTJBZyHjsEYRgYdr6gqGSNtUK1HnOOM5ediH-xZci1mA@mail.gmail.com>
+References: <1389961718-8130-1-git-send-email-LW@KARO-electronics.de>
+	<1389961718-8130-2-git-send-email-LW@KARO-electronics.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kdh-gw.itdev.co.uk ([89.21.227.133]:18366 "EHLO
-	hermes.kdh.itdev.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752942AbaAQUCA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jan 2014 15:02:00 -0500
-In-Reply-To: <CAPDwgkOsP4K7r0-Mo-U52X9knRbGgbuD4dGptmj3x-LMTN75BA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1389961718-8130-2-git-send-email-LW@KARO-electronics.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: =?ISO-8859-1?Q?Lothar_Wa=DFmann?= <LW@karo-electronics.de>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Grant Likely <grant.likely@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Shawn Guo <shawn.guo@linaro.org>, Silvio F <silvio.fricke@gmail.com>, Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Jingoo Han <jg1.han@samsung.com>, Fugang Duan <B38611@freescale.com>, Sachin Kamat <sachin.kamat@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Yufeng Shen <miletus@google.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Daniel Kurtz <djkurtz@chromium.org>, Joonyoung Shim <jy0922.shim@samsung.com>, Alan Bowens <Alan.Bowens@atmel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>, Benson Leung <bleung@chromium.org>, Olof Johansson <olofj@chromium.org>, adlr@chromium.org
 
-Yufeng Shen wrote:
-> On Wed, Jan 15, 2014 at 5:44 AM, Nick Dyer <nick.dyer@itdev.co.uk
-> <mailto:nick.dyer@itdev.co.uk>> wrote:
->     > We (Chromium authors) are planning on bringing our local tree of atmel
->     > driver to be as close as possible to
->     > upstream and trying to figure out what's the best tree to rebase against.
-> 
->     I was considering picking up the patches that Dimitry has already reviewed
->     and rebasing them against the current mainline to try and get things moving
->     again - would that be useful?
-> 
-> That would certainly be useful. Please let me know the branch/tag name once
-> you finish that.
+On Fri, Jan 17, 2014 at 6:28 AM, Lothar Wa=DFmann <LW@karo-electronics.=
+de> wrote:
+>
+> Signed-off-by: Lothar Wa=DFmann <LW@KARO-electronics.de>
+> ---
+>  .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
 
-I've rebased Dimitry's atmel-mxt-ts branch against his dtor/next tree. You
-can find it at
+Applied.
 
-https://github.com/ndyer/linux/tree/for-next-20140117-dtor-rebase
+Rob
 
-I needed to update the INIT_COMPLETION api. So far I have verified it
-builds, will do some testing on it next week.
-
-I will also need to port my previous patchset on top of this branch.
+>
+> diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/=
+Documentation/devicetree/bindings/vendor-prefixes.txt
+> index b458760..49774c3 100644
+> --- a/Documentation/devicetree/bindings/vendor-prefixes.txt
+> +++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+> @@ -29,6 +29,7 @@ dallas        Maxim Integrated Products (formerly D=
+allas Semiconductor)
+>  davicom        DAVICOM Semiconductor, Inc.
+>  denx   Denx Software Engineering
+>  dmo    Data Modul AG
+> +edt    Emerging Display Technologies
+>  emmicro        EM Microelectronic
+>  epson  Seiko Epson Corp.
+>  est    ESTeem Wireless Modems
+> --
+> 1.7.2.5
+>

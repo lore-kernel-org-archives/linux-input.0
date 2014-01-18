@@ -1,252 +1,132 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 1/3] input: appletouch: parametrize and set saner defaults
- for fuzz and threshold
-Date: Sat, 18 Jan 2014 08:07:28 +0100
-Message-ID: <52DA2830.103@euromail.se>
-References: <52D9DE7A.7040509@gmail.com> <52D9DF09.9090709@gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v2] HID: sony: Cache the output report for the Dualshock 4
+Date: Sat, 18 Jan 2014 11:32:11 +0100
+Message-ID: <CANq1E4QH_XbShAMQrCAW46dKkP7wmz6jRjA0+3xE0ag=fhDHQQ@mail.gmail.com>
+References: <alpine.DEB.2.10.1401171443040.3454@franz-virtual-machine>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h31.telenor.se ([213.150.131.4]:38954 "EHLO
-	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751830AbaARHDA (ORCPT
+Received: from mail-ie0-f175.google.com ([209.85.223.175]:64157 "EHLO
+	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751814AbaARKk1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jan 2014 02:03:00 -0500
-Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
-	by smtprelay-h31.telenor.se (Postfix) with ESMTP id 4617FE9327
-	for <linux-input@vger.kernel.org>; Sat, 18 Jan 2014 08:02:58 +0100 (CET)
-In-Reply-To: <52D9DF09.9090709@gmail.com>
+	Sat, 18 Jan 2014 05:40:27 -0500
+Received: by mail-ie0-f175.google.com with SMTP id ar20so1830462iec.34
+        for <linux-input@vger.kernel.org>; Sat, 18 Jan 2014 02:40:26 -0800 (PST)
+In-Reply-To: <alpine.DEB.2.10.1401171443040.3454@franz-virtual-machine>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Clinton Sprain <clintonsprain@gmail.com>, linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-Hi Clinton,
+Hi
 
-> Dials back the default fuzz and threshold settings for
-> most devices using this driver, based on values from
-> user feedback from forums and bug reports. This
-> increases smoothness and movement granularity. No
-> changes were made for the older devices that use the
-> driver, as I did not find any user feedback for them
-> regarding these settings; however, the two settings can
-> also now both be specified as module parameters in case
-> there is a desire to change the values for devices that
-> do not have new defaults.
-> 
-> There are also a couple of style cleanups per checkpatch.pl.
-> 
-> Signed-off-by: Clinton Sprain <clintonsprain@gmail.com>
+On Fri, Jan 17, 2014 at 8:46 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
+> Retrieve and cache the output report for the Dualshock 4 in sony_probe()
+> instead of repeatedly walking the report list in the worker function.
+
+Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+
+Thanks
+David
+
+> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+>
 > ---
->  drivers/input/mouse/appletouch.c |   66 ++++++++++++++++++++++++--------------
->  1 file changed, 42 insertions(+), 24 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-> index e42f1fa..f5a16ee 100644
-> --- a/drivers/input/mouse/appletouch.c
-> +++ b/drivers/input/mouse/appletouch.c
-> @@ -43,12 +43,14 @@
->   */
->  struct atp_info {
->  	int xsensors;				/* number of X sensors */
-> -	int xsensors_17;			/* 17" models have more sensors */
-> +	int xsensors_17;			/* 17" model has more sensors */
->  	int ysensors;				/* number of Y sensors */
->  	int xfact;				/* X multiplication factor */
->  	int yfact;				/* Y multiplication factor */
->  	int datalen;				/* size of USB transfers */
->  	void (*callback)(struct urb *);		/* callback function */
-> +	int fuzz;				/* fuzz touchpad generates */
-> +	int threshold;				/* sensitivity threshold */
->  };
->  
->  static void atp_complete_geyser_1_2(struct urb *urb);
-> @@ -62,6 +64,8 @@ static const struct atp_info fountain_info = {
->  	.yfact		= 43,
->  	.datalen	= 81,
->  	.callback	= atp_complete_geyser_1_2,
-> +	.fuzz		= 16,
-> +	.threshold	= 5,
->  };
->  
->  static const struct atp_info geyser1_info = {
-> @@ -72,6 +76,8 @@ static const struct atp_info geyser1_info = {
->  	.yfact		= 43,
->  	.datalen	= 81,
->  	.callback	= atp_complete_geyser_1_2,
-> +	.fuzz		= 16,
-> +	.threshold	= 5,
->  };
->  
->  static const struct atp_info geyser2_info = {
-> @@ -82,6 +88,8 @@ static const struct atp_info geyser2_info = {
->  	.yfact		= 43,
->  	.datalen	= 64,
->  	.callback	= atp_complete_geyser_1_2,
-> +	.fuzz		= 0,
-> +	.threshold	= 3,
->  };
->  
->  static const struct atp_info geyser3_info = {
-> @@ -91,6 +99,8 @@ static const struct atp_info geyser3_info = {
->  	.yfact		= 64,
->  	.datalen	= 64,
->  	.callback	= atp_complete_geyser_3_4,
-> +	.fuzz		= 0,
-> +	.threshold	= 3,
->  };
->  
->  static const struct atp_info geyser4_info = {
-> @@ -100,6 +110,8 @@ static const struct atp_info geyser4_info = {
->  	.yfact		= 64,
->  	.datalen	= 64,
->  	.callback	= atp_complete_geyser_3_4,
-> +	.fuzz		= 0,
-> +	.threshold	= 3,
->  };
->  
->  #define ATP_DEVICE(prod, info)					\
-> @@ -156,18 +168,9 @@ MODULE_DEVICE_TABLE(usb, atp_table);
->  #define ATP_XSENSORS	26
->  #define ATP_YSENSORS	16
->  
-> -/* amount of fuzz this touchpad generates */
-> -#define ATP_FUZZ	16
+>
+>  Apply against jikos/hid.git/for-3.14/sony
+>
+>  drivers/hid/hid-sony.c | 55 ++++++++++++++++++++++++++++++++------------------
+>  1 file changed, 35 insertions(+), 20 deletions(-)
+>
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index edffe2c..277da77 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -298,6 +298,7 @@ static const unsigned int buzz_keymap[] = {
+>  struct sony_sc {
+>         struct hid_device *hdev;
+>         struct led_classdev *leds[MAX_LEDS];
+> +       struct hid_report *output_report;
+>         unsigned long quirks;
+>         struct work_struct state_worker;
+>
+> @@ -743,26 +744,9 @@ static void dualshock4_state_worker(struct work_struct *work)
+>  {
+>         struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+>         struct hid_device *hdev = sc->hdev;
+> -       struct list_head *head, *list;
+> -       struct hid_report *report;
+> -       __s32 *value;
 > -
->  /* maximum pressure this driver will report */
->  #define ATP_PRESSURE	300
->  
-> -/*
-> - * Threshold for the touchpad sensors. Any change less than ATP_THRESHOLD is
-> - * ignored.
-> - */
-> -#define ATP_THRESHOLD	 5
+> -       list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
 > -
->  /* Geyser initialization constants */
->  #define ATP_GEYSER_MODE_READ_REQUEST_ID		1
->  #define ATP_GEYSER_MODE_WRITE_REQUEST_ID	9
-> @@ -213,14 +216,16 @@ struct atp {
->  	struct work_struct	work;
->  };
->  
-> -#define dbg_dump(msg, tab) \
-> +#define dbg_dump(msg, tab)						\
-> +{									\
->  	if (debug > 1) {						\
->  		int __i;						\
->  		printk(KERN_DEBUG "appletouch: %s", msg);		\
->  		for (__i = 0; __i < ATP_XSENSORS + ATP_YSENSORS; __i++)	\
->  			printk(" %02x", tab[__i]);			\
->  		printk("\n");						\
-> -	}
-> +	}								\
+> -       list_for_each(head, list) {
+> -               report = list_entry(head, struct hid_report, list);
+> -
+> -               /* Report 5 is used to send data to the controller via USB */
+> -               if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && report->id == 5)
+> -                       break;
+> -       }
+> -
+> -       if (head == list) {
+> -               hid_err(hdev, "Dualshock 4 output report not found\n");
+> -               return;
+> -       }
+> +       struct hid_report *report = sc->output_report;
+> +       __s32 *value = report->field[0]->value;
+>
+> -       value = report->field[0]->value;
+>         value[0] = 0x03;
+>
+>  #ifdef CONFIG_SONY_FF
+> @@ -822,6 +806,33 @@ static void sony_destroy_ff(struct hid_device *hdev)
+>  }
+>  #endif
+>
+> +static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
+> +{
+> +       struct list_head *head, *list;
+> +       struct hid_report *report;
+> +       struct hid_device *hdev = sc->hdev;
+> +
+> +       list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
+> +
+> +       list_for_each(head, list) {
+> +               report = list_entry(head, struct hid_report, list);
+> +
+> +               if (report->id == req_id) {
+> +                       if (report->size < req_size) {
+> +                               hid_err(hdev, "Output report 0x%02x (%i bits) is smaller than requested size (%i bits)\n",
+> +                                       req_id, report->size, req_size);
+> +                               return -EINVAL;
+> +                       }
+> +                       sc->output_report = report;
+> +                       return 0;
+> +               }
+> +       }
+> +
+> +       hid_err(hdev, "Unable to locate output report 0x%02x\n", req_id);
+> +
+> +       return -EINVAL;
 > +}
-
-Looks like the patch needs cleaning.
-
->  
->  #define dprintk(format, a...)						\
->  	do {								\
-> @@ -236,14 +241,20 @@ MODULE_AUTHOR("Sven Anders");
->  MODULE_DESCRIPTION("Apple PowerBook and MacBook USB touchpad driver");
->  MODULE_LICENSE("GPL");
->  
-> -/*
-> - * Make the threshold a module parameter
-> - */
-> -static int threshold = ATP_THRESHOLD;
-> +static int threshold = -1;
->  module_param(threshold, int, 0644);
->  MODULE_PARM_DESC(threshold, "Discard any change in data from a sensor"
->  			    " (the trackpad has many of these sensors)"
-> -			    " less than this value.");
-> +			    " less than this value. Devices have defaults;"
-> +			    " this parameter overrides them.");
-> +static int fuzz = -1;
 > +
-> +module_param(fuzz, int, 0644);
-> +MODULE_PARM_DESC(fuzz, "Fuzz the trackpad generates. The higher"
-> +		       " this is, the less sensitive the trackpad"
-> +		       " will feel, but values too low may generate"
-> +		       " random movement. Devices have defaults;"
-> +		       " this parameter overrides them.");
-
-The fuzz can be modified via the input subsystem ioctls (EVIOCSABS), so no need
-to add a parameter here.
-
->  static int debug;
->  module_param(debug, int, 0644);
-> @@ -363,7 +374,8 @@ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
->  		    (!is_increasing && xy_sensors[i - 1] < xy_sensors[i])) {
->  			(*fingers)++;
->  			is_increasing = 1;
-> -		} else if (i > 0 && (xy_sensors[i - 1] - xy_sensors[i] > threshold)) {
-> +		} else if (i > 0 && (xy_sensors[i - 1] -
-> +			xy_sensors[i] > threshold)) {
->  			is_increasing = 0;
->  		}
-
-More noise, please clean the patchset.
-
-> @@ -456,7 +468,7 @@ static void atp_detect_size(struct atp *dev)
->  			input_set_abs_params(dev->input, ABS_X, 0,
->  					     (dev->info->xsensors_17 - 1) *
->  							dev->info->xfact - 1,
-> -					     ATP_FUZZ, 0);
-> +					     fuzz, 0);
-
-where is this variable defined?
-
->  			break;
->  		}
->  	}
-> @@ -513,7 +525,8 @@ static void atp_complete_geyser_1_2(struct urb *urb)
->  
->  			/* Y values */
->  			dev->xy_cur[ATP_XSENSORS + i] = dev->data[5 * i +  1];
-> -			dev->xy_cur[ATP_XSENSORS + i + 8] = dev->data[5 * i + 3];
-> +			dev->xy_cur[ATP_XSENSORS + i + 8] =
-> +				dev->data[5 * i + 3];
->  		}
->  	}
->  
-> @@ -809,12 +822,17 @@ static int atp_probe(struct usb_interface *iface,
->  	dev->info = info;
->  	dev->overflow_warned = false;
->  
-> +	if (fuzz < 0)
-> +		fuzz = dev->info->fuzz;
-> +	if (threshold < 0)
-> +		threshold = dev->info->threshold;
+>  static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  {
+>         int ret;
+> @@ -866,7 +877,11 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>         else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
+>                 ret = sixaxis_set_operational_bt(hdev);
+>         else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+> -               ret = 0;
+> +               /* Report 5 (31 bytes) is used to send data to the controller via USB */
+> +               ret = sony_set_output_report(sc, 0x05, 248);
+> +               if (ret < 0)
+> +                       goto err_stop;
 > +
->  	dev->urb = usb_alloc_urb(0, GFP_KERNEL);
->  	if (!dev->urb)
->  		goto err_free_devs;
->  
-> -	dev->data = usb_alloc_coherent(dev->udev, dev->info->datalen, GFP_KERNEL,
-> -				       &dev->urb->transfer_dma);
-> +	dev->data = usb_alloc_coherent(dev->udev, dev->info->datalen,
-> +					GFP_KERNEL, &dev->urb->transfer_dma);
->  	if (!dev->data)
->  		goto err_free_urb;
->  
-> @@ -844,10 +862,10 @@ static int atp_probe(struct usb_interface *iface,
->  
->  	input_set_abs_params(input_dev, ABS_X, 0,
->  			     (dev->info->xsensors - 1) * dev->info->xfact - 1,
-> -			     ATP_FUZZ, 0);
-> +			     fuzz, 0);
->  	input_set_abs_params(input_dev, ABS_Y, 0,
->  			     (dev->info->ysensors - 1) * dev->info->yfact - 1,
-> -			     ATP_FUZZ, 0);
-> +			     fuzz, 0);
->  	input_set_abs_params(input_dev, ABS_PRESSURE, 0, ATP_PRESSURE, 0, 0);
->  
->  	set_bit(EV_KEY, input_dev->evbit);
-> 
-
-Thanks,
-Henrik
-
-
+>                 INIT_WORK(&sc->state_worker, dualshock4_state_worker);
+>         } else {
+>                 ret = 0;
+> --
+> 1.8.3.2
+>

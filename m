@@ -1,71 +1,51 @@
-From: Omar Loggiodice <ologgio@yahoo.com>
-Subject: New ALPS not detected EC=88 b6 06 - Lenovo Ideapad Flex 15D
-Date: Fri, 17 Jan 2014 16:06:50 -0800 (PST)
-Message-ID: <1390003610.16861.YahooMailNeo@web162404.mail.bf1.yahoo.com>
-Reply-To: Omar Loggiodice <ologgio@yahoo.com>
+From: Clinton Sprain <clintonsprain@gmail.com>
+Subject: [PATCH 0/3] input: appletouch: fixes for jagged/uneven cursor movement
+Date: Fri, 17 Jan 2014 19:52:58 -0600
+Message-ID: <52D9DE7A.7040509@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm9-vm0.bullet.mail.bf1.yahoo.com ([98.139.213.154]:40216 "EHLO
-	nm9-vm0.bullet.mail.bf1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750937AbaARAMG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Jan 2014 19:12:06 -0500
+Received: from mail-ig0-f179.google.com ([209.85.213.179]:57618 "EHLO
+	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751892AbaARBxA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jan 2014 20:53:00 -0500
+Received: by mail-ig0-f179.google.com with SMTP id c10so3200268igq.0
+        for <linux-input@vger.kernel.org>; Fri, 17 Jan 2014 17:53:00 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 
-Hi,
+Resubmitting the appletouch patches from last week with a couple of
+updates, as no one's taken a look yet.
 
+The appletouch driver can make some trackpads feel insensitive, with movement
+that tends to jerk in steps. This is particularly evident when moving
+diagonally. This can greatly hamper the trackpad's usability. These patches
+address this by dialing back the fuzz and threshold parameters, by
+implementing a new cursor movement smoothing algorithm and by discarding
+movements that directly coincide with a change in the number of fingers
+detected on the trackpad.
 
-=A0=A0 First, thank you for your excellent work. I recently bought a ne=
-w Lenovo Ideapad Flex 15D, it comes with Windows 8.1.
+Revisions since last week:
 
-I have been able to run linux, however the ALPS touchpad is only recogn=
-ized as a PS/2 mouse. I also have some problems with the screen=20
-turning off and the GPU stalling, but this is outside of the scope of=20
-this list.=A0 This is what dmesg shows for the touchpad:
+Patch 1/3: Fuzz/threshold fix is identical, except for a typo (2 -> 3)
 
-psmouse serio1: alps: Unknown ALPS touchpad: E7=3D73 03 0a, EC=3D88 b6 =
-06
+Patch 2/3: Smoothing algorithm is no longer inertia-based and is more
+predictable / less complicated. I also dropped a change in atp_calculate_abs
+that I couldn't definitively prove was beneficial.
 
-I hacked alps.c with the following code in alps_identify(...):
+Patch 3/3: (New) Addresses issues related to when a second finger enters
+or leaves the trackpad, causing the cursor to jump or the page to scroll
+unexpectedly; now, we discard any movement that happens at the exact moment
+we detect a change in the number of fingers touching the trackpad.
 
-[...]
+Signed-off-by: Clinton Sprain <clintonsprain@gmail.com>
 
-} else if (ec[0] =3D=3D 0x88 && ec[1] =3D=3D 0xb6 &&
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ec[2] =3D=3D 0x0=
-6 )
- {
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 priv->proto_version =3D A=
-LPS_PROTO_V5;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 alps_set_defaults(priv);=20
+ drivers/input/mouse/appletouch.c |  206 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 162 insertions(+), 44 deletions(-)
 
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 return 0;
-=A0=A0=A0=A0=A0=A0=A0 }
-[...]
-
-With this code the module seems to recognize the card and dmesg reports=
- the following:
-
-[=A0 791.663876] input: PS/2 Mouse as /devices/platform/i8042/serio1/in=
-put/input22
-[=A0 791.692023] input: AlpsPS/2 ALPS GlidePoint as /devices/platform/i=
-8042/serio1/input/input21
-
-
-However, the touchpad still operates only as a PS/2 mouse (no scroll, n=
-o middle=20
-button emulation, no touch gestures) even if I disable the PS/2 mouse=20
-with xinput.
-
-any help would be appreciated, I am willing to test patches if you send=
- them to me.
-
-Thanks!
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+1.7.9.5

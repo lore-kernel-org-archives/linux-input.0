@@ -1,116 +1,252 @@
-From: Omar Loggiodice <ologgio@yahoo.com>
-Subject: Re: New ALPS not detected EC=88 b6 06 - Lenovo Ideapad Flex 15D
-Date: Fri, 17 Jan 2014 21:18:12 -0800 (PST)
-Message-ID: <1390022292.30501.YahooMailNeo@web162402.mail.bf1.yahoo.com>
-References: <1390003610.16861.YahooMailNeo@web162404.mail.bf1.yahoo.com> <CA+F6ckMtidbKYONs=cFLvhqePwWhg14UDRCxVZ+8eTa_8P2hAA@mail.gmail.com>
-Reply-To: Omar Loggiodice <ologgio@yahoo.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 1/3] input: appletouch: parametrize and set saner defaults
+ for fuzz and threshold
+Date: Sat, 18 Jan 2014 08:07:28 +0100
+Message-ID: <52DA2830.103@euromail.se>
+References: <52D9DE7A.7040509@gmail.com> <52D9DF09.9090709@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm11-vm1.bullet.mail.bf1.yahoo.com ([98.139.213.152]:48949 "EHLO
-	nm11-vm1.bullet.mail.bf1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751495AbaARFSN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jan 2014 00:18:13 -0500
-In-Reply-To: <CA+F6ckMtidbKYONs=cFLvhqePwWhg14UDRCxVZ+8eTa_8P2hAA@mail.gmail.com>
+Received: from smtprelay-h31.telenor.se ([213.150.131.4]:38954 "EHLO
+	smtprelay-h31.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751830AbaARHDA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Jan 2014 02:03:00 -0500
+Received: from ipb4.telenor.se (ipb4.telenor.se [195.54.127.167])
+	by smtprelay-h31.telenor.se (Postfix) with ESMTP id 4617FE9327
+	for <linux-input@vger.kernel.org>; Sat, 18 Jan 2014 08:02:58 +0100 (CET)
+In-Reply-To: <52D9DF09.9090709@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tommy Will <tommywill2011@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Elaine Chen <elaineee66@gmail.com>, Qiting Chen <qiting.chen@cn.alps.com>
+To: Clinton Sprain <clintonsprain@gmail.com>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-The patch works very well! I now need to adjust the settings. I wanted =
-to let you know=A0 two=20
-finger middle button works, along with two finger scrolling, circular=20
-scrolling, edge scrolling, right button, etc. Everything is working.=20
+Hi Clinton,
+
+> Dials back the default fuzz and threshold settings for
+> most devices using this driver, based on values from
+> user feedback from forums and bug reports. This
+> increases smoothness and movement granularity. No
+> changes were made for the older devices that use the
+> driver, as I did not find any user feedback for them
+> regarding these settings; however, the two settings can
+> also now both be specified as module parameters in case
+> there is a desire to change the values for devices that
+> do not have new defaults.
+> 
+> There are also a couple of style cleanups per checkpatch.pl.
+> 
+> Signed-off-by: Clinton Sprain <clintonsprain@gmail.com>
+> ---
+>  drivers/input/mouse/appletouch.c |   66 ++++++++++++++++++++++++--------------
+>  1 file changed, 42 insertions(+), 24 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
+> index e42f1fa..f5a16ee 100644
+> --- a/drivers/input/mouse/appletouch.c
+> +++ b/drivers/input/mouse/appletouch.c
+> @@ -43,12 +43,14 @@
+>   */
+>  struct atp_info {
+>  	int xsensors;				/* number of X sensors */
+> -	int xsensors_17;			/* 17" models have more sensors */
+> +	int xsensors_17;			/* 17" model has more sensors */
+>  	int ysensors;				/* number of Y sensors */
+>  	int xfact;				/* X multiplication factor */
+>  	int yfact;				/* Y multiplication factor */
+>  	int datalen;				/* size of USB transfers */
+>  	void (*callback)(struct urb *);		/* callback function */
+> +	int fuzz;				/* fuzz touchpad generates */
+> +	int threshold;				/* sensitivity threshold */
+>  };
+>  
+>  static void atp_complete_geyser_1_2(struct urb *urb);
+> @@ -62,6 +64,8 @@ static const struct atp_info fountain_info = {
+>  	.yfact		= 43,
+>  	.datalen	= 81,
+>  	.callback	= atp_complete_geyser_1_2,
+> +	.fuzz		= 16,
+> +	.threshold	= 5,
+>  };
+>  
+>  static const struct atp_info geyser1_info = {
+> @@ -72,6 +76,8 @@ static const struct atp_info geyser1_info = {
+>  	.yfact		= 43,
+>  	.datalen	= 81,
+>  	.callback	= atp_complete_geyser_1_2,
+> +	.fuzz		= 16,
+> +	.threshold	= 5,
+>  };
+>  
+>  static const struct atp_info geyser2_info = {
+> @@ -82,6 +88,8 @@ static const struct atp_info geyser2_info = {
+>  	.yfact		= 43,
+>  	.datalen	= 64,
+>  	.callback	= atp_complete_geyser_1_2,
+> +	.fuzz		= 0,
+> +	.threshold	= 3,
+>  };
+>  
+>  static const struct atp_info geyser3_info = {
+> @@ -91,6 +99,8 @@ static const struct atp_info geyser3_info = {
+>  	.yfact		= 64,
+>  	.datalen	= 64,
+>  	.callback	= atp_complete_geyser_3_4,
+> +	.fuzz		= 0,
+> +	.threshold	= 3,
+>  };
+>  
+>  static const struct atp_info geyser4_info = {
+> @@ -100,6 +110,8 @@ static const struct atp_info geyser4_info = {
+>  	.yfact		= 64,
+>  	.datalen	= 64,
+>  	.callback	= atp_complete_geyser_3_4,
+> +	.fuzz		= 0,
+> +	.threshold	= 3,
+>  };
+>  
+>  #define ATP_DEVICE(prod, info)					\
+> @@ -156,18 +168,9 @@ MODULE_DEVICE_TABLE(usb, atp_table);
+>  #define ATP_XSENSORS	26
+>  #define ATP_YSENSORS	16
+>  
+> -/* amount of fuzz this touchpad generates */
+> -#define ATP_FUZZ	16
+> -
+>  /* maximum pressure this driver will report */
+>  #define ATP_PRESSURE	300
+>  
+> -/*
+> - * Threshold for the touchpad sensors. Any change less than ATP_THRESHOLD is
+> - * ignored.
+> - */
+> -#define ATP_THRESHOLD	 5
+> -
+>  /* Geyser initialization constants */
+>  #define ATP_GEYSER_MODE_READ_REQUEST_ID		1
+>  #define ATP_GEYSER_MODE_WRITE_REQUEST_ID	9
+> @@ -213,14 +216,16 @@ struct atp {
+>  	struct work_struct	work;
+>  };
+>  
+> -#define dbg_dump(msg, tab) \
+> +#define dbg_dump(msg, tab)						\
+> +{									\
+>  	if (debug > 1) {						\
+>  		int __i;						\
+>  		printk(KERN_DEBUG "appletouch: %s", msg);		\
+>  		for (__i = 0; __i < ATP_XSENSORS + ATP_YSENSORS; __i++)	\
+>  			printk(" %02x", tab[__i]);			\
+>  		printk("\n");						\
+> -	}
+> +	}								\
+> +}
+
+Looks like the patch needs cleaning.
+
+>  
+>  #define dprintk(format, a...)						\
+>  	do {								\
+> @@ -236,14 +241,20 @@ MODULE_AUTHOR("Sven Anders");
+>  MODULE_DESCRIPTION("Apple PowerBook and MacBook USB touchpad driver");
+>  MODULE_LICENSE("GPL");
+>  
+> -/*
+> - * Make the threshold a module parameter
+> - */
+> -static int threshold = ATP_THRESHOLD;
+> +static int threshold = -1;
+>  module_param(threshold, int, 0644);
+>  MODULE_PARM_DESC(threshold, "Discard any change in data from a sensor"
+>  			    " (the trackpad has many of these sensors)"
+> -			    " less than this value.");
+> +			    " less than this value. Devices have defaults;"
+> +			    " this parameter overrides them.");
+> +static int fuzz = -1;
+> +
+> +module_param(fuzz, int, 0644);
+> +MODULE_PARM_DESC(fuzz, "Fuzz the trackpad generates. The higher"
+> +		       " this is, the less sensitive the trackpad"
+> +		       " will feel, but values too low may generate"
+> +		       " random movement. Devices have defaults;"
+> +		       " this parameter overrides them.");
+
+The fuzz can be modified via the input subsystem ioctls (EVIOCSABS), so no need
+to add a parameter here.
+
+>  static int debug;
+>  module_param(debug, int, 0644);
+> @@ -363,7 +374,8 @@ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+>  		    (!is_increasing && xy_sensors[i - 1] < xy_sensors[i])) {
+>  			(*fingers)++;
+>  			is_increasing = 1;
+> -		} else if (i > 0 && (xy_sensors[i - 1] - xy_sensors[i] > threshold)) {
+> +		} else if (i > 0 && (xy_sensors[i - 1] -
+> +			xy_sensors[i] > threshold)) {
+>  			is_increasing = 0;
+>  		}
+
+More noise, please clean the patchset.
+
+> @@ -456,7 +468,7 @@ static void atp_detect_size(struct atp *dev)
+>  			input_set_abs_params(dev->input, ABS_X, 0,
+>  					     (dev->info->xsensors_17 - 1) *
+>  							dev->info->xfact - 1,
+> -					     ATP_FUZZ, 0);
+> +					     fuzz, 0);
+
+where is this variable defined?
+
+>  			break;
+>  		}
+>  	}
+> @@ -513,7 +525,8 @@ static void atp_complete_geyser_1_2(struct urb *urb)
+>  
+>  			/* Y values */
+>  			dev->xy_cur[ATP_XSENSORS + i] = dev->data[5 * i +  1];
+> -			dev->xy_cur[ATP_XSENSORS + i + 8] = dev->data[5 * i + 3];
+> +			dev->xy_cur[ATP_XSENSORS + i + 8] =
+> +				dev->data[5 * i + 3];
+>  		}
+>  	}
+>  
+> @@ -809,12 +822,17 @@ static int atp_probe(struct usb_interface *iface,
+>  	dev->info = info;
+>  	dev->overflow_warned = false;
+>  
+> +	if (fuzz < 0)
+> +		fuzz = dev->info->fuzz;
+> +	if (threshold < 0)
+> +		threshold = dev->info->threshold;
+> +
+>  	dev->urb = usb_alloc_urb(0, GFP_KERNEL);
+>  	if (!dev->urb)
+>  		goto err_free_devs;
+>  
+> -	dev->data = usb_alloc_coherent(dev->udev, dev->info->datalen, GFP_KERNEL,
+> -				       &dev->urb->transfer_dma);
+> +	dev->data = usb_alloc_coherent(dev->udev, dev->info->datalen,
+> +					GFP_KERNEL, &dev->urb->transfer_dma);
+>  	if (!dev->data)
+>  		goto err_free_urb;
+>  
+> @@ -844,10 +862,10 @@ static int atp_probe(struct usb_interface *iface,
+>  
+>  	input_set_abs_params(input_dev, ABS_X, 0,
+>  			     (dev->info->xsensors - 1) * dev->info->xfact - 1,
+> -			     ATP_FUZZ, 0);
+> +			     fuzz, 0);
+>  	input_set_abs_params(input_dev, ABS_Y, 0,
+>  			     (dev->info->ysensors - 1) * dev->info->yfact - 1,
+> -			     ATP_FUZZ, 0);
+> +			     fuzz, 0);
+>  	input_set_abs_params(input_dev, ABS_PRESSURE, 0, ATP_PRESSURE, 0, 0);
+>  
+>  	set_bit(EV_KEY, input_dev->evbit);
+> 
+
+Thanks,
+Henrik
 
 
-Thank you all for the good work you do for the linux community.
-
-
-
-
-
-On Friday, January 17, 2014 9:49 PM, Tommy Will <tommywill2011@gmail.co=
-m> wrote:
-Hi Omar,
-
-Thanks for your mail. This is Tommy from ALPS.
-According to your info "E7=3D73 03 0a, EC=3D88 b6 06", I think you're n=
-ow
-using ALPS_PROTO_V7 device.
-My colleague Elaine(Qiting) is now working with this touchpad's
-support and has released a patch last week.
-You can have a try ~
-
-=A0 =A0 http://www.spinics.net/lists/linux-input/msg29084.html
-
-If you find any issue or have any suggestion, please kindly let us
-know. We'll try our best to make the driver better.
-
-Thanks!
-
---=20
-Best Regards,
-Tommy
-
-
-2014/1/18 Omar Loggiodice <ologgio@yahoo.com>:
-> Hi,
->
->
->=A0 =A0 First, thank you for your excellent work. I recently bought a =
-new Lenovo Ideapad Flex 15D, it comes with Windows 8.1.
->
-> I have been able to run linux, however the ALPS touchpad is only reco=
-gnized as a PS/2 mouse. I also have some problems with the screen
-> turning off and the GPU stalling, but this is outside of the scope of
-> this list.=A0 This is what dmesg shows for the touchpad:
->
-> psmouse serio1: alps: Unknown ALPS touchpad: E7=3D73 03 0a, EC=3D88 b=
-6 06
->
-> I hacked alps.c with the following code in alps_identify(...):
->
-> [...]
->
-> } else if (ec[0] =3D=3D 0x88 && ec[1] =3D=3D 0xb6 &&
->=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ec[2] =3D=3D 0x06 )
->=A0 {
->=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0  priv->proto_version =3D ALPS_PROTO_V5=
-;
->=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0  alps_set_defaults(priv);
->
->=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0  return 0;
->=A0 =A0 =A0 =A0  }
-> [...]
->
-> With this code the module seems to recognize the card and dmesg repor=
-ts the following:
->
-> [=A0 791.663876] input: PS/2 Mouse as /devices/platform/i8042/serio1/=
-input/input22
-> [=A0 791.692023] input: AlpsPS/2 ALPS GlidePoint as /devices/platform=
-/i8042/serio1/input/input21
->
->
-> However, the touchpad still operates only as a PS/2 mouse (no scroll,=
- no middle
-> button emulation, no touch gestures) even if I disable the PS/2 mouse
-> with xinput.
->
-> any help would be appreciated, I am willing to test patches if you se=
-nd them to me.
->
-> Thanks!
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at=A0 http://vger.kernel.org/majordomo-info.html
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

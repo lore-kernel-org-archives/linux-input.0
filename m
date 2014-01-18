@@ -1,211 +1,111 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH v3] input/uinput: add UI_GET_SYSNAME ioctl to retrieve the
- sysfs path
-Date: Sat, 18 Jan 2014 11:51:31 +0100
-Message-ID: <CANq1E4SHqy4Q3+iPZMoQjJnoNZTUw0YstLnsvto2E5GKv6XaSw@mail.gmail.com>
-References: <1389985971-541-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Tommy Will <tommywill2011@gmail.com>
+Subject: Re: New ALPS not detected EC=88 b6 06 - Lenovo Ideapad Flex 15D
+Date: Sat, 18 Jan 2014 20:45:53 +0800
+Message-ID: <CA+F6ckOKEtbP=+bk8UY+uhv2qjD7GDV9Tg_KSgM_8qUzNuQ=1g@mail.gmail.com>
+References: <1390003610.16861.YahooMailNeo@web162404.mail.bf1.yahoo.com>
+	<CA+F6ckMtidbKYONs=cFLvhqePwWhg14UDRCxVZ+8eTa_8P2hAA@mail.gmail.com>
+	<1390022292.30501.YahooMailNeo@web162402.mail.bf1.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:36816 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751966AbaARKvc (ORCPT
+Received: from mail-la0-f54.google.com ([209.85.215.54]:45880 "EHLO
+	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752194AbaARMpy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jan 2014 05:51:32 -0500
-In-Reply-To: <1389985971-541-1-git-send-email-benjamin.tissoires@redhat.com>
+	Sat, 18 Jan 2014 07:45:54 -0500
+Received: by mail-la0-f54.google.com with SMTP id y1so4467139lam.27
+        for <linux-input@vger.kernel.org>; Sat, 18 Jan 2014 04:45:53 -0800 (PST)
+In-Reply-To: <1390022292.30501.YahooMailNeo@web162402.mail.bf1.yahoo.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Omar Loggiodice <ologgio@yahoo.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Elaine Chen <elaineee66@gmail.com>, Qiting Chen <qiting.chen@cn.alps.com>
 
-Hi
+Hi Omar,
 
-On Fri, Jan 17, 2014 at 8:12 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Evemu [1] uses uinput to replay devices traces it has recorded. However,
-> the way evemu uses uinput is slightly different from how uinput is
-> supposed to be used.
-> Evemu relies on libevdev, which creates the device node through uinput.
-> It then injects events through the input device node directly (and it
-> completely skips the uinput node).
->
-> Currently, libevdev relies on an heuristic to guess which input node was
-> created. The problem is that is heuristic is subjected to races between
-> different uinput devices or even with physical devices. Having a way
-> to retrieve the sysfs path allows us to find the event node without
-> having to rely on this heuristic.
->
-> [1] http://www.freedesktop.org/wiki/Evemu/
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->
-> Ok, I am resurrecting this. The original patch was sent last July here:
-> https://patchwork.kernel.org/patch/2827524/
->
-> changes since v2:
-> - the ioctl returns only the device name, thus I renamed the ioctl to UI_GET_SYSNAME
-> - reordered uinput_str_to_user() arguments
-> - be sure to terminate the user string we send by \0
-> - abort if udev->state is not UIST_CREATED
-> - dropped the patch 1/2 (adding resolution to uinput) because I think David has
->   already it in one of his queues (ABS2 IIRC)
->
-> I also posted the corresponding libevdev here:
-> http://lists.freedesktop.org/archives/input-tools/2014-January/000757.html
->
-> Cheers,
-> Benjamin
->
->  drivers/input/misc/uinput.c | 46 ++++++++++++++++++++++++++++++++++++++++++++-
->  include/linux/uinput.h      |  2 ++
->  include/uapi/linux/uinput.h | 13 ++++++++++++-
->  3 files changed, 59 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> index 7728359..0203219 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -20,6 +20,8 @@
->   * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
->   *
->   * Changes/Revisions:
-> + *     0.4     01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
-> + *             - add UI_GET_SYSNAME ioctl
->   *     0.3     09/04/2006 (Anssi Hannula <anssi.hannula@gmail.com>)
->   *             - updated ff support for the changes in kernel interface
->   *             - added MODULE_VERSION
-> @@ -670,6 +672,27 @@ static int uinput_ff_upload_from_user(const char __user *buffer,
->         __ret;                                          \
->  })
->
-> +static int uinput_str_to_user(void __user *dest, const char *str,
-> +                             unsigned int maxlen)
-> +{
-> +       int len, ret;
-> +
-> +       if (!str)
-> +               return -ENOENT;
-> +
-> +       len = strlen(str) + 1;
-> +       if (len > maxlen)
-> +               len = maxlen;
-> +
-> +       ret = copy_to_user(dest, str, len);
-> +       if (ret)
-> +               return -EFAULT;
-> +
-> +       /* force terminating '\0' */
-> +       ret = copy_to_user(dest + len - 1, "\0", 1);
+I'm glad to hear this good news and also thanks for your trying with
+our patch : )
 
-You must make sure "maxlen != 0", otherwise you write beyond buffer
-boundaries here. I'd say return -EINVAL in case maxlen == 0.
-
-btw., you can also use: put_user(0, (char*)dest + len - 1);
-
-> +       return ret ? -EFAULT : len;
-> +}
-> +
->  static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
->                                  unsigned long arg, void __user *p)
->  {
-> @@ -679,6 +702,8 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
->         struct uinput_ff_erase  ff_erase;
->         struct uinput_request   *req;
->         char                    *phys;
-> +       const char              *name;
-> +       unsigned int            size;
->
->         retval = mutex_lock_interruptible(&udev->mutex);
->         if (retval)
-> @@ -831,7 +856,26 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
->                         break;
->
->                 default:
-> -                       retval = -EINVAL;
-> +                       retval = -EAGAIN;
-> +       }
-> +
-> +       if (retval == -EAGAIN) {
-
-Ehh, in case another ioctl returns -EAGAIN, we overwrite the error
-with -EINVAL below in the "default:" clause. Maybe we should first
-convert all the "break;" commands to "goto out;".
-
-Patch looks good to me.
 Thanks
-David
+-- 
+Best Regards,
+Tommy
 
-> +               size = _IOC_SIZE(cmd);
-> +
-> +               /* Now check variable-length commands */
-> +               switch (cmd & ~IOCSIZE_MASK) {
-> +                       case UI_GET_SYSNAME(0):
-> +                               if (udev->state != UIST_CREATED) {
-> +                                       retval = -ENOENT;
-> +                                       goto out;
-> +                               }
-> +                               name = dev_name(&udev->dev->dev);
-> +                               retval = uinput_str_to_user(p, name, size);
-> +                               break;
-> +
-> +                       default:
-> +                               retval = -EINVAL;
-> +               }
->         }
->
->   out:
-> diff --git a/include/linux/uinput.h b/include/linux/uinput.h
-> index 0a4487d..0994c0d 100644
-> --- a/include/linux/uinput.h
-> +++ b/include/linux/uinput.h
-> @@ -20,6 +20,8 @@
->   * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
->   *
->   * Changes/Revisions:
-> + *     0.4     01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
-> + *             - add UI_GET_SYSNAME ioctl
->   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
->   *             - update ff support for the changes in kernel interface
->   *             - add UINPUT_VERSION
-> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
-> index fe46431..0389b48 100644
-> --- a/include/uapi/linux/uinput.h
-> +++ b/include/uapi/linux/uinput.h
-> @@ -20,6 +20,8 @@
->   * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
->   *
->   * Changes/Revisions:
-> + *     0.4     01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
-> + *             - add UI_GET_SYSNAME ioctl
->   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
->   *             - update ff support for the changes in kernel interface
->   *             - add UINPUT_VERSION
-> @@ -35,7 +37,7 @@
->  #include <linux/types.h>
->  #include <linux/input.h>
->
-> -#define UINPUT_VERSION         3
-> +#define UINPUT_VERSION         4
+2014/1/18 Omar Loggiodice <ologgio@yahoo.com>:
+> The patch works very well! I now need to adjust the settings. I wanted to let you know  two
+> finger middle button works, along with two finger scrolling, circular
+> scrolling, edge scrolling, right button, etc. Everything is working.
 >
 >
->  struct uinput_ff_upload {
-> @@ -73,6 +75,15 @@ struct uinput_ff_erase {
->  #define UI_BEGIN_FF_ERASE      _IOWR(UINPUT_IOCTL_BASE, 202, struct uinput_ff_erase)
->  #define UI_END_FF_ERASE                _IOW(UINPUT_IOCTL_BASE, 203, struct uinput_ff_erase)
+> Thank you all for the good work you do for the linux community.
 >
-> +/**
-> + * UI_GET_SYSNAME - get the sysfs name of the created uinput device
-> + *
-> + * @return the sysfs name of the created virtual input device.
-> + * The complete sysfs path is then /sys/devices/virtual/input/--NAME--
-> + * Usually, it is in the form "inputN"
-> + */
-> +#define UI_GET_SYSNAME(len)    _IOC(_IOC_READ, UINPUT_IOCTL_BASE, 300, len)
-> +
->  /*
->   * To write a force-feedback-capable driver, the upload_effect
->   * and erase_effect callbacks in input_dev must be implemented.
+>
+>
+>
+>
+> On Friday, January 17, 2014 9:49 PM, Tommy Will <tommywill2011@gmail.com> wrote:
+> Hi Omar,
+>
+> Thanks for your mail. This is Tommy from ALPS.
+> According to your info "E7=73 03 0a, EC=88 b6 06", I think you're now
+> using ALPS_PROTO_V7 device.
+> My colleague Elaine(Qiting) is now working with this touchpad's
+> support and has released a patch last week.
+> You can have a try ~
+>
+>     http://www.spinics.net/lists/linux-input/msg29084.html
+>
+> If you find any issue or have any suggestion, please kindly let us
+> know. We'll try our best to make the driver better.
+>
+> Thanks!
+>
 > --
-> 1.8.3.1
+> Best Regards,
+> Tommy
+>
+>
+> 2014/1/18 Omar Loggiodice <ologgio@yahoo.com>:
+>> Hi,
+>>
+>>
+>>    First, thank you for your excellent work. I recently bought a new Lenovo Ideapad Flex 15D, it comes with Windows 8.1.
+>>
+>> I have been able to run linux, however the ALPS touchpad is only recognized as a PS/2 mouse. I also have some problems with the screen
+>> turning off and the GPU stalling, but this is outside of the scope of
+>> this list.  This is what dmesg shows for the touchpad:
+>>
+>> psmouse serio1: alps: Unknown ALPS touchpad: E7=73 03 0a, EC=88 b6 06
+>>
+>> I hacked alps.c with the following code in alps_identify(...):
+>>
+>> [...]
+>>
+>> } else if (ec[0] == 0x88 && ec[1] == 0xb6 &&
+>>                    ec[2] == 0x06 )
+>>  {
+>>                 priv->proto_version = ALPS_PROTO_V5;
+>>                 alps_set_defaults(priv);
+>>
+>>                 return 0;
+>>         }
+>> [...]
+>>
+>> With this code the module seems to recognize the card and dmesg reports the following:
+>>
+>> [  791.663876] input: PS/2 Mouse as /devices/platform/i8042/serio1/input/input22
+>> [  791.692023] input: AlpsPS/2 ALPS GlidePoint as /devices/platform/i8042/serio1/input/input21
+>>
+>>
+>> However, the touchpad still operates only as a PS/2 mouse (no scroll, no middle
+>> button emulation, no touch gestures) even if I disable the PS/2 mouse
+>> with xinput.
+>>
+>> any help would be appreciated, I am willing to test patches if you send them to me.
+>>
+>> Thanks!
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >

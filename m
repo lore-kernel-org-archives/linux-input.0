@@ -1,20 +1,60 @@
-From: Chevrolet UK <egomez@pulp.com.py>
-Subject: You've won
-Date: Sat, 18 Jan 2014 16:32:09 -0300 (PYST)
-Message-ID: <837588984.4978986.1390073529018.JavaMail.root@pulp.com.py>
-Reply-To: Chevrolet UK <claims@chevrolet-online.uk.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Subject: [PATCH] USB: input: gtco.c: fix usb_dev leak
+Date: Sun, 19 Jan 2014 03:24:26 +0400
+Message-ID: <1390087466-9898-1-git-send-email-khoroshilov@ispras.ru>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.pulp.com.py ([200.85.60.250]:12861 "EHLO mail.pulp.com.py"
+Received: from mail.ispras.ru ([83.149.199.45]:44903 "EHLO mail.ispras.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751272AbaARTlg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jan 2014 14:41:36 -0500
+	id S1751790AbaARXYh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Jan 2014 18:24:37 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 
+There is usb_get_dev() in gtco_probe(), but there is no usb_put_dev()
+anywhere in the driver.
 
+The patch adds usb_get_dev() to failure handling code of gtco_probe()
+and to gtco_disconnect(().
 
-You've won 1,000,000 GBP from Chevrolet UK. To claim prize, reply to: claims@chevrolet-online.uk.com +447024044421
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+---
+ drivers/input/tablet/gtco.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
+index 29e01ab6859f..6ec8a3a04672 100644
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -858,7 +858,7 @@ static int gtco_probe(struct usb_interface *usbinterface,
+ 	if (!gtco->buffer) {
+ 		dev_err(&usbinterface->dev, "No more memory for us buffers\n");
+ 		error = -ENOMEM;
+-		goto err_free_devs;
++		goto err_put_usb;
+ 	}
+ 
+ 	/* Allocate URB for reports */
+@@ -990,6 +990,8 @@ static int gtco_probe(struct usb_interface *usbinterface,
+  err_free_buf:
+ 	usb_free_coherent(gtco->usbdev, REPORT_MAX_SIZE,
+ 			  gtco->buffer, gtco->buf_dma);
++ err_put_usb:
++	usb_put_dev(gtco->usbdev);
+  err_free_devs:
+ 	input_free_device(input_dev);
+ 	kfree(gtco);
+@@ -1013,6 +1015,7 @@ static void gtco_disconnect(struct usb_interface *interface)
+ 		usb_free_urb(gtco->urbinfo);
+ 		usb_free_coherent(gtco->usbdev, REPORT_MAX_SIZE,
+ 				  gtco->buffer, gtco->buf_dma);
++		usb_put_dev(gtco->usbdev);
+ 		kfree(gtco);
+ 	}
+ 
+-- 
+1.8.3.2
 

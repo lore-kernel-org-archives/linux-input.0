@@ -1,138 +1,77 @@
-From: Vadim Fint <mocksoul@gmail.com>
-Subject: Re: T440s Synaptics clickpad: lost sync / KBC bad data
-Date: Mon, 20 Jan 2014 21:50:04 +0400
-Message-ID: <2617481.nqZfKbekRf@t440s>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: airstream58429@gmail.com
+Subject: RE: LOCAL MAP OPTIMIZATION FOR : mail-archive.com (Less Than
+ $99/Month)
+Date: Mon, 20 Jan 2014 23:22:30 +0530
+Message-ID: <52dd625d.23c8440a.42ec.ffffde88@mx.google.com>
+Reply-To: LORI76557@gmail.com
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f50.google.com ([209.85.214.50]:43043 "EHLO
-	mail-bk0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750787AbaATRtY convert rfc822-to-8bit (ORCPT
+Received: from mail-pd0-f195.google.com ([209.85.192.195]:52956 "EHLO
+	mail-pd0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750744AbaATR6D (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jan 2014 12:49:24 -0500
-Received: by mail-bk0-f50.google.com with SMTP id w16so1995807bkz.37
-        for <linux-input@vger.kernel.org>; Mon, 20 Jan 2014 09:49:22 -0800 (PST)
-Received: from t440s.localnet ([2a02:6b8:0:40c:5e51:4fff:fe87:b478])
-        by mx.google.com with ESMTPSA id sx5sm1603760bkb.0.2014.01.20.09.49.21
+	Mon, 20 Jan 2014 12:58:03 -0500
+Received: by mail-pd0-f195.google.com with SMTP id x10so4082593pdj.6
+        for <linux-input@vger.kernel.org>; Mon, 20 Jan 2014 09:58:00 -0800 (PST)
+Received: from localhost.localdomain ([124.253.33.120])
+        by mx.google.com with ESMTPSA id jp3sm4490597pbc.36.2014.01.20.09.52.27
         for <linux-input@vger.kernel.org>
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 20 Jan 2014 09:49:21 -0800 (PST)
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Mon, 20 Jan 2014 09:52:29 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 
-Hello!
+Good Morning Sir / Mam
 
-I was having exactly the same issues with brand new T440s from Lenovo. =
-psmouse=20
-get lost sync every time I did a physical click on clickpad.
+Is your business ranking in local maps shown on PAGE 1 of google ? With new
+google policies they have specifically asked local business owners to
+optimize their website for local maps rather than JUST organics. Do you know
+the reason why you are not ranked well on google MAPs or why there is drop
+in your website rankings? Prime reason for bad rankings for a busniess is
+lack of local presence and local citations ie getting your business listed
+on directories like YELP, MANTA & Many more. These websites not just give
+your business a push but also help you Maintain a good Online Reputation.
 
-But for me that was HW issue: after disassembling notebook I saw touchp=
-ad=20
-cable was not snapped into touchpad at all. Because latch (with cable) =
-moves=20
-2-3mm each click -- what was bad contact during that.
+Why you need to optimize your website for local MAP Listings ?
 
-To deal with that issue I did removed only internal battery pack and lo=
-cked a=20
-cable on touchpad with a screwdriver :) (15-20 minutes for whole operat=
-ion)
+- MAP listings get 10 times more clicks than organic listings
+- Increased conversions because of real reviews posted on your Google Plus
+Page
+- Every year there is 30% increase in searches for local keywords
+- Increases legitimacy of a Business
 
-Dont know what Windows internaly do with synaptics protocol, but there =
-was no=20
-issues in Windows at all (but in recovery mode clickpad was not working=
- at=20
-all).
+We will help you get your website ranked well on google for the related
+keywords in your niche. We specialize in LOCAL SEARCH ENGINE OPTIMIZATION
+increasing visibility for small businesses by ranking them for
+geographically-related keywords. Say for eg-: you want to search a plumber
+in your city, You will be typing in keywords like Plumbers + City Or
+Plumbers + IN + City. We make sure your website comes in google MAP listings
+shown on page 1 for each such keyword.
 
-Anyway, no problems in Gentoo with 3.12-3-pf kernel for me now! And no =
-more=20
-that weird =E2=80=9Cout of sync=E2=80=9D messages from psmouse at all.
+Now Google believes in - BE ORIGINAL, HAVE ORIGINAL AND GIVE ORIGINAL which
+means that google wants to end up that frustrating experience of users who
+are searching for Service Or Product and seeing the results that are not
+even close to what they are looking for. Google only wants to give their
+user original and relevant results. This makes it even more important that
+we showcase our business in the best possible way and make sure our website
+in valued high by google.
 
-Hope this helps!!
+We at TheLOCALIST will make google feel the importance of your business by
+following their guidelines thus ranking your website higher in serach
+results. We are presently offering LOCAL OPTIMIZATION to more than 400
+websites and they all rank page 1 for all possible keywords !!! Each month
+your website is submitted to more than 50 citations and social presence is
+controlled by posting videos and blogs all over the web.
 
-> Hello everyone,
->=20
-> I hope I'm at the right address here with my problems. If not, please=
- do
-> point me in the correct direction.
->=20
-> I have a Lenovo Thinkpad T440s with a Synaptics clickpad and an IBM
-> trackpoint in it:
->=20
-> input: PS/2 Synaptics TouchPad as
-> /devices/platform/i8042/serio1/input/input120 psmouse serio1: synapti=
-cs:
-> Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 0xd001a3/0x940300/0x12=
-7c00,
-> board id: 2668, fw id: 1293989 psmouse serio1: synaptics: serio: Syna=
-ptics
-> pass-through port at isa0060/serio1/input0 input: SynPS/2 Synaptics
-> TouchPad as /devices/platform/i8042/serio1/input/input123 psmouse ser=
-io34:
-> alps: Unknown ALPS touchpad: E7=3D10 00 64, EC=3D10 00 64 psmouse ser=
-io34:
-> trackpoint: IBM TrackPoint firmware: 0x0e, buttons: 3/3 input: TPPS/2=
- IBM
-> TrackPoint as /devices/platform/i8042/serio1/serio34/input/input124
->=20
-> The problem is that the trackpoint behaves incredibly erratic, someti=
-mes
-> working correctly for minutes at a time, sometimes just jumping aroun=
-d and
-> many times just hanging. I need to remove and re-insert the psmouse m=
-odule
-> to solve that. Alongside this behaviour, my kernel log also is gettin=
-g
-> spammed with messages like:
->=20
-> psmouse serio1: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-> psmouse serio1: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-> psmouse serio1: TouchPad at isa0060/serio1/input0 lost sync at byte 1
-> psmouse serio1: TouchPad at isa0060/serio1/input0 - driver resynced.
-> and psmouse serio1: bad data from KBC - timeout
->=20
-> What I've tried:
-> - Tried the kernel options i8042.nomux=3D1 and i8042.reset=3D1
-> - Disable acpi by passing acpi=3Doff to the kernel
-> - Disabled CPU frequency scaling
-> - Trying other protocols, e.g. by doing modprobe psmouse proto=3Dimps=
- or
-> proto=3Dbare - Switching from vanilla 3.12 kernel to both the latest&=
-greatest
-> kernel from Linus' Git and an antique 3.1.0 kernel - Turning on
-> i8042.debug. To my untrained eye, it looks like bytes of PS/2 data ar=
-e just
-> disappearing when the 'lost sync' messages kick in. I can give an exa=
-mple
-> of that if needed.
->=20
-> Strangely, the symptoms have been getting worse in the 10 days I've h=
-ad this
-> machine: from the first few days with no trouble to today with the mo=
-use
-> crapping out almost once every ten seconds or so. I would say it's a =
-DOA
-> and claim my warranty, if not frustratingly the machine works perfect=
-ly
-> fine in Windows 8, with no touchpad trouble at all.
->=20
-> I'm willing to try things on this machine, run patches or take any hi=
-nt in
-> what I can change to get this working; if it helps I can even poke an
-> oscilloscope at the PS2 lines. Not having a working touchpad or touch=
-point
-> is getting a bit frustrating...
->=20
-> Cheers,
-> Jeroen
+Email us back with your website & phone number so we can discuss this
+further with you. Our Packages start from as low as 99$/month.
 
---
-Regards,
-Vadim Fint,
-Moscow, Ru.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Thanks For Taking Time To Read Our Email
+
+Polly Martin
+Local SEO Manager ( THE Localist )
+Address : 24 ST Suite 32 Downtown Provo Utah
+
+-------------------
+NOT INTERESTED ? REPLY WITH NOT INTERESTED IN THE SUBJECT LINE 

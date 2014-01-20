@@ -1,77 +1,507 @@
-From: airstream58429@gmail.com
-Subject: RE: LOCAL MAP OPTIMIZATION FOR : mail-archive.com (Less Than
- $99/Month)
-Date: Mon, 20 Jan 2014 23:22:30 +0530
-Message-ID: <52dd625d.23c8440a.42ec.ffffde88@mx.google.com>
-Reply-To: LORI76557@gmail.com
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Re: [PATCH] Introduce Naming Convention in Input Subsystem
+Date: Mon, 20 Jan 2014 13:27:14 -0500
+Message-ID: <CAN+gG=GEjkS+NGmbNLPdGWJG3Emd57ETz-On0g2piZcQ6QhBaQ@mail.gmail.com>
+References: <25201406.444611389372583656.JavaMail.weblogic@epml19>
+	<20140110191108.GC10889@core.coreip.homeip.net>
+	<CADYu30_qxKV7SmUdUc1Y-sN+KDYbWyz6Yv_H6BsSA-koK9aWYQ@mail.gmail.com>
+	<20140110214604.GA19779@core.coreip.homeip.net>
+	<CADYu309xpKK7Zj_KjXWPO=cQ__qQ85zsHR91ky2_EMsW8Nk6ZA@mail.gmail.com>
+	<CAN+gG=HXcjmBcaxaBJczMWjNdKXdFiZzQGducQwMU6mdrS-R0Q@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f195.google.com ([209.85.192.195]:52956 "EHLO
-	mail-pd0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750744AbaATR6D (ORCPT
+Received: from mail-lb0-f179.google.com ([209.85.217.179]:47096 "EHLO
+	mail-lb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750824AbaATS1Q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jan 2014 12:58:03 -0500
-Received: by mail-pd0-f195.google.com with SMTP id x10so4082593pdj.6
-        for <linux-input@vger.kernel.org>; Mon, 20 Jan 2014 09:58:00 -0800 (PST)
-Received: from localhost.localdomain ([124.253.33.120])
-        by mx.google.com with ESMTPSA id jp3sm4490597pbc.36.2014.01.20.09.52.27
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Mon, 20 Jan 2014 09:52:29 -0800 (PST)
+	Mon, 20 Jan 2014 13:27:16 -0500
+Received: by mail-lb0-f179.google.com with SMTP id l4so3512744lbv.24
+        for <linux-input@vger.kernel.org>; Mon, 20 Jan 2014 10:27:14 -0800 (PST)
+In-Reply-To: <CAN+gG=HXcjmBcaxaBJczMWjNdKXdFiZzQGducQwMU6mdrS-R0Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Aniroop Mathur <aniroop.mathur@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "cpgs ." <cpgs@samsung.com>
 
-Good Morning Sir / Mam
+OK, sorry for the noise, my previous message contained HTML and was
+refused by the server... Re-posting it
 
-Is your business ranking in local maps shown on PAGE 1 of google ? With new
-google policies they have specifically asked local business owners to
-optimize their website for local maps rather than JUST organics. Do you know
-the reason why you are not ranked well on google MAPs or why there is drop
-in your website rankings? Prime reason for bad rankings for a busniess is
-lack of local presence and local citations ie getting your business listed
-on directories like YELP, MANTA & Many more. These websites not just give
-your business a push but also help you Maintain a good Online Reputation.
+Cheers,
+Benjamin
 
-Why you need to optimize your website for local MAP Listings ?
-
-- MAP listings get 10 times more clicks than organic listings
-- Increased conversions because of real reviews posted on your Google Plus
-Page
-- Every year there is 30% increase in searches for local keywords
-- Increases legitimacy of a Business
-
-We will help you get your website ranked well on google for the related
-keywords in your niche. We specialize in LOCAL SEARCH ENGINE OPTIMIZATION
-increasing visibility for small businesses by ranking them for
-geographically-related keywords. Say for eg-: you want to search a plumber
-in your city, You will be typing in keywords like Plumbers + City Or
-Plumbers + IN + City. We make sure your website comes in google MAP listings
-shown on page 1 for each such keyword.
-
-Now Google believes in - BE ORIGINAL, HAVE ORIGINAL AND GIVE ORIGINAL which
-means that google wants to end up that frustrating experience of users who
-are searching for Service Or Product and seeing the results that are not
-even close to what they are looking for. Google only wants to give their
-user original and relevant results. This makes it even more important that
-we showcase our business in the best possible way and make sure our website
-in valued high by google.
-
-We at TheLOCALIST will make google feel the importance of your business by
-following their guidelines thus ranking your website higher in serach
-results. We are presently offering LOCAL OPTIMIZATION to more than 400
-websites and they all rank page 1 for all possible keywords !!! Each month
-your website is submitted to more than 50 citations and social presence is
-controlled by posting videos and blogs all over the web.
-
-Email us back with your website & phone number so we can discuss this
-further with you. Our Packages start from as low as 99$/month.
-
-
-Thanks For Taking Time To Read Our Email
-
-Polly Martin
-Local SEO Manager ( THE Localist )
-Address : 24 ST Suite 32 Downtown Provo Utah
-
--------------------
-NOT INTERESTED ? REPLY WITH NOT INTERESTED IN THE SUBJECT LINE 
+On Mon, Jan 20, 2014 at 1:24 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> Hi Aniroop,
+>
+> [sorry for top posting, but I really don't know where to put this regarding
+> your answers].
+>
+> I _think_ I get one of the reasons you don't understand Dmitry, and why
+> Dmitry does not understand you. From the different mails, I would say that
+> you are referring to an Android platform.
+> If it's not the case, then sorry for the noise.
+>
+> So, the last time I checked with android, this system does _not_ have an
+> udev user-space daemon, which means that what you seem to be doing is
+> parsing manually the sysfs tree to retrieve the inputs and their properties.
+> This, IMO, is a very bad idea. Parsing the entire sysfs tree is indeed
+> costly and you will have to build everything by hand.
+>
+> On regular distros, we use udev. This daemon builds its device database from
+> the events generated by the kernels directly (the uevents). Once the events
+> are emitted, we never (except for some user-space drivers) use them in the
+> kernel drivers (at least, I never saw that).
+>
+> So if you want to create symlinks, then indeed, you just add 2 or 3 rules in
+> /etc/udev/rules.d, and then the user space (and the system integrator) can
+> see the different devices with the "correct" symlink.
+> However, the kernel developer will never see them (and especially in the
+> ->probe callback). However, the user-space tools which receives the udev
+> events (emitted from udev, not the kernel this time) can easily retrieve
+> many information from the event. Just run "udevadm info --export-db" on a
+> regular Linux, and you will see that the device which presents the event
+> node (/dev/input/eventX) has all the requirements to identify itself (VID,
+> PID, path, etc...)
+>
+> Without udev, you are basically screwed, and I think it is definitively not
+> the fault of the kernel, but of android. They had their reasons to not
+> include it, so I hope they have an equivalent to help system integrators to
+> do their job.
+>
+> Cheers,
+> Benjamin
+>
+>
+>
+> On Sun, Jan 19, 2014 at 10:19 AM, Aniroop Mathur <aniroop.mathur@gmail.com>
+> wrote:
+>>
+>> Hello Mr.Torokhov
+>> Greetings of the day !!
+>>
+>> I have sent you a mail few days back but unfortunately did not
+>> received a mail back.
+>> Thereore, sending mail again.
+>> I hope to hear from you soon.
+>>
+>>
+>> On Sat, Jan 11, 2014 at 3:16 AM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > On Sat, Jan 11, 2014 at 02:55:33AM +0530, Aniroop Mathur wrote:
+>> >> Hello Mr. Torokhov,
+>> >> Greetings!
+>> >>
+>> >> First of all, So sorry, unfortunately i used HTML text again.
+>> >> and Many thanks for all replies.
+>> >>
+>> >> Sending email again in plain text.
+>> >>
+>> >>
+>> >> On Sat, Jan 11, 2014 at 12:41 AM, Dmitry Torokhov
+>> >> <dmitry.torokhov@gmail.com> wrote:
+>> >> > Hi Aniroop,
+>> >> >
+>> >> > On Fri, Jan 10, 2014 at 04:49:43PM +0000, Aniroop Mathur wrote:
+>> >> >> Hello Mr. Torokhov,
+>> >> >> Greetings!
+>> >> >>
+>> >> >> On Thu, Jan 09, 2014 at 10:27:56AM +0530, Aniroop Mathur wrote:
+>> >> >> > This patch allows user(driver) to set sysfs node name of input
+>> >> >> > devices.  To set sysfs node name, user(driver) just needs to set
+>> >> >> > node_name_unique variable.  If node_name_unique is not set,
+>> >> >> > default
+>> >> >> > name is given(as before).  So, this patch is completely
+>> >> >> > backward-compatible.
+>> >> >> >
+>> >> >> > Sysfs Input node name format is: input_
+>> >> >> > Sysfs Event node name format is: event_
+>> >> >> >
+>> >> >> > This "name" is given by user and automatically, prefix(input and
+>> >> >> > event) is added by input core.
+>> >> >> >
+>> >> >> > This name must be unique among all input devices and driver(user)
+>> >> >> > has
+>> >> >> > the responsibility to ensure it.  If same name is used again for
+>> >> >> > other
+>> >> >> > input device, registration of that input device will fail because
+>> >> >> > two
+>> >> >> > input devices cannot have same name.
+>> >> >> >
+>> >> >> > Advantages of this patch are:
+>> >> >> >
+>> >> >> > 1. Reduces Booting Time of HAL/Upper-Layer because now HAL or
+>> >> >> > Upper-Layer do not need to search input/event number corresponding
+>> >> >> > to
+>> >> >> > each input device in /dev/input/...  This searching in /dev/input/
+>> >> >> > was
+>> >> >> > taking too much time.  (Especially in mobile devices, where there
+>> >> >> > are
+>> >> >> > many input devices (many sensors, touchscreen, etc), it reduces a
+>> >> >> > lot
+>> >> >> > of booting time)
+>> >> >>
+>> >> >> I am sorry, how much time does it take to scan a directory of what,
+>> >> >> 20
+>> >> >> devices? If it such a factor have udev create nodes that are easier
+>> >> >> for
+>> >> >> you to locate, similarly how we already create nodes by-id and
+>> >> >> by-path.
+>> >> >> For example you can encode major:minor in device name.
+>> >> >>
+>> >> >> Re: (Aniroop Mathur)
+>> >> >
+>> >> > First of all, it would be great if you could use MUA that can
+>> >> > properly
+>> >> > quote and wrap long lines...
+>> >> >
+>> >> >> Its correct that we can set name of a device node using udev.  Yes,
+>> >> >> this will change the name of device node(/dev/...) but not sysfs
+>> >> >> node.(/sys/class/input/...) So now, the problem area will shift from
+>> >> >> dev path to sysfs path, because now we dont know which sysfs node to
+>> >> >> refer for a particular input device and hence HAL/Upper-Layer will
+>> >> >> need to search in /sys/class/input/... instead of /dev/...
+>> >> >> directory.
+>> >> >
+>> >> > [dtor@dtor-d630 ~]$ mkdir my-sysfs-view
+>> >> > [dtor@dtor-d630 ~]$ ln -s
+>> >> > /sys/devices/platform/i8042/serio1/input/input6
+>> >> > my-sysfs-view/input_touchpad
+>> >> > [dtor@dtor-d630 ~]$ ls my-sysfs-view/input_touchpad/
+>> >> > capabilities/ event6/       modalias      name          power/
+>> >> > subsystem/    uniq
+>> >> > device/       id/           mouse1/       phys          properties
+>> >> > uevent
+>> >> > [dtor@dtor-d630 ~]$ ls my-sysfs-view/input_touchpad/
+>> >> > capabilities  device  event6  id  modalias  mouse1  name  phys  power
+>> >> > properties  subsystem  uevent  uniq
+>> >> > [dtor@dtor-d630 ~]$ ls my-sysfs-view/input_touchpad/event6/
+>> >> > dev  device  power  subsystem  uevent
+>> >> >
+>> >> > Mmmmkay?
+>> >> >
+>> >>
+>> >> Yes, agreed, we can use udev and soft links to achieve this.
+>> >> But i think there is something more to take care.
+>> >>
+>> >> So far, as per discussion, i understood that if an end user wants to
+>> >> use
+>> >> node names instead of numbers, he/she has to do the following things:
+>> >
+>> > No, not the end user, system integrator, which is quite different
+>> > beast.
+>> >
+>>
+>>  Umm.. Sorry, i used wrong word "end user".
+>>  I meant to say "system integrator" only all the time.
+>>
+>> >> 1. Create rules for all input devices in udev rule file i.e. set
+>> >> atleast
+>> >> unique id and unique name.
+>> >> (end user need to determine unique id too for every input device)
+>> >> 2. Create links for all input device nodes using names.
+>> >> (in probe function, after input_register_device)
+>> >>
+>> >> By following above two steps, the file structure will look like:
+>> >> devfs - /dev/input_proximity
+>> >> sysfs - my-sysfs-view/input_proximity --> sys/class/input/input2
+>> >> sysfs - my-sysfs-view/event_proximity --> sys/class/input/event2
+>> >>
+>> >> But my concern is why to create trouble for end user to perform
+>> >> and spend time for two extra steps, when an easy way is possible
+>> >> to achieve the same task ?
+>> >>
+>> >> With this patch, end user only need to set node_name_unique variable
+>> >> and right after that, both for devfs and sysfs,same node name is set.
+>> >> End user does not need to do or take care of any other extra work,
+>> >> like creating entry in udev rules, creating links, etc
+>> >>
+>> >> Also, with creating links for all input devices and checking udev rules
+>> >> before actually creating a device node, will only increase computation
+>> >> and time in kernel code.
+>> >
+>> > So do not create links, use something else to track devices. You are
+>> > getting uevents, that is all you need.
+>> >
+>>
+>> Firstly,
+>> For input device event node, (/input/input1/event1)
+>> we get below 7 uevents only:
+>> Action, Devpath, Subsystem, Major, Minor, Devname, Seqnum
+>> It is impossible to uniquely identify the device using
+>> these 7 uevent variables, because all this is set in
+>> input subsystem and not by driver developer or system integrator.
+>> Devpath, Devname, minor is all set by input subsytem.
+>> So, these uevents are not sufficient to identify the device.
+>>
+>> Secondly,
+>> For input device input node (/input/input1),
+>> I know we get more uevents like Name, Phys, etc,
+>> But problem area is not input node because that we can
+>> already do this using dev_set_name(input_dev->dev) or
+>> using init_name variable in driver code.
+>> But evdev (event device) structure is not accessible to driver
+>> so we cannot use the same for this.
+>>
+>> Thirdly,
+>> I know if these default uevents are not sufficient,
+>> additionally, we can read sysfs attribute to identify device,
+>> but as i already said, all this(udev rules or links),
+>> will only increase computation time, and my purpose is to save time
+>> and achieving the same task all together.
+>>
+>> >>
+>> >> My purpose is to avoid extra work load and directly create node names
+>> >> within input subsystem. Also backward compatibility is there.
+>> >> So i think, it is better than the other alternative way.
+>> >> Isn't this more easy ? Is there any side-effect or drawback of this
+>> >> patch ?
+>> >
+>> > Yes, there is huge side effect - it is maintenance nightmare, where one
+>> > driver can now cause failure for others. What if I have 2 proximity
+>> > sensors? 2 accelerometers? How will generic drivers select names that
+>> > will satisfy all boards that might use the chips out there? Are you
+>> > proposing to put this data in device tree for example? Board files?
+>> >
+>> > IOW no, this is not right solution and the patch will not be accepted.
+>> >
+>>
+>> Firstly,
+>> Yes, i will put name of all input devices in one place i.e.
+>> in board file or device tree. With this, it is very easy for system
+>> integrator to assign unique names for all input devices.
+>>
+>> Secondly,
+>> As already mentioned, this patch is backward compatible.
+>> It is not compulsory to use node_name_unique variable.
+>> So generic drivers can still use the same numbering system.
+>> Also, if there are two accelerometers, system integrator can
+>> easily give "accelerometer1" and "accelerometer2" as names.
+>> Moreover, this same problem is for existing kernel system also.
+>> As you know, using dev_set_name function or init_name variable,
+>> we can set name of input node(not event node). So, if same name
+>> is used, device_add of that input device will fail here also
+>> in existing kernel code.
+>>
+>> Thirdly,
+>> Using the existing init_name variable also, we can add naming convention
+>> in input subystem. I can also submit patch using this variable already
+>> present
+>> in kernel. shall i ?
+>>
+>> >>
+>> >> >>
+>> >> >> Moreover, as i know, udev is mainly for hot-pluggable devices, but
+>> >> >> my
+>> >> >> problem is for platform devices, which are already present on the
+>> >> >> board during boot up. (Like in Embedded devices)
+>> >> >
+>> >> > No, udev also manages those by requesting to replay all events that
+>> >> > happened dyuring boot.
+>> >> >
+>> >> >>
+>> >> >> To avoid confusion and make the problem more clear,
+>> >> >> I would like to explain the problem and my suggestion by taking an
+>> >> >> example:
+>> >> >>
+>> >> >> Suppose in a mobile device, there are 10 embedded input devices as
+>> >> >> below:
+>> >> >> Proximity ---                /dev/input0  ---
+>> >> >> /sys/class/input/input0 --- /sys/class/input/event0
+>> >> >> Magnetometer ---      /dev/input1   --- /sys/class/input/input1 ---
+>> >> >> /sys/class/input/event1
+>> >> >> Accelerometer ---      /dev/input2  --- /sys/class/input/input2 ---
+>> >> >> /sys/class/input/event2
+>> >> >> Touchscreen ---         /dev/input3  --- /sys/class/input/input3 ---
+>> >> >> /sys/class/input/event3
+>> >> >> ... 6 more like this
+>> >> >> (All these are created during boot up time)
+>> >> >>
+>> >> >> Kernel has created all these nodes, so that HAL/UpperLayer can read
+>> >> >> or
+>> >> >> write values from it.  HAL/Upper-Layer needs to do main tasks like:
+>> >> >> 1. Read raw data - does through /dev/input<num>
+>> >> >> 2. Enable device - does through sys/class/input<num>/enable
+>> >> >> 3. Set delay - does through sys/class/input<num>/delay
+>> >> >> and many more...
+>> >> >>
+>> >> >> Now, Lets suppose we need to do these tasks for Accelerometer.
+>> >> >>
+>> >> >> If dev node name is set, HAL can directly read value from it (no
+>> >> >> search required) But for enabling the accelerometer device or set
+>> >> >> the
+>> >> >> delay of a hardware chip, there is no direct way, HAL can know which
+>> >> >> input node to refer for accelerometer because the input number is
+>> >> >> created dynamically as per device probe order, so this input number
+>> >> >> can be anything (0,1,2,3...) So HAL will need to search every input
+>> >> >> node and read its name attribute and keep on searching until a match
+>> >> >> is found between the "attribute name" and "name passed as
+>> >> >> parameter".
+>> >> >> Like for accelerometer, this searching needs to be done for all
+>> >> >> other
+>> >> >> input devices.  All of this part is done during booting and this
+>> >> >> takes
+>> >> >> a lot for time from booting perspective.
+>> >> >>
+>> >> >
+>> >> > See the above. You can very easily create your own private 'view' of
+>> >> > sysfs, no kernel changes needed.
+>> >> >
+>> >> >> As I measured, if there are ten devices, it is taking 1 second to do
+>> >> >> all this searching. (for all devices) So for 20 devices, i guess, it
+>> >> >> could take upto 2 seconds.
+>> >> >
+>> >> > That seems _very_ high, maybe you need to profile your code a bit. To
+>> >> > search though 2 directories with less than a hundred files each
+>> >> > should
+>> >> > not take 1 second.
+>> >> >
+>> >>
+>> >> In this i am including time to open a directory, close a directory,
+>> >> open file of
+>> >> that directory, close file of that directory, searching and computation
+>> >> part.
+>> >> Including all these, every time for each input device.
+>> >> All this sums upto 1 second.
+>> >
+>> > Why are you doing it one at at time? It appears that this happens in
+>> > build at boot up for you...
+>> >
+>>
+>> Yes, this happenns at boot up of upper-layer.
+>> Just as in kernel, probe of each device is
+>> called by one by one, in upper-layer too, input device initialization
+>> is done one by one in some order and input device number is searched.
+>> So this is done every time.
+>> Moreover, with naming convention, scanning is totally removed.
+>> No need to scan/search even once.
+>>
+>> >>
+>> >> >>
+>> >> >> With naming convention, there is no need of search neither for dev
+>> >> >> path nor for sysfs path because HAL directly know which node to
+>> >> >> refer
+>> >> >> for which input device and hence this 1 second is reduced to 10ms or
+>> >> >> even less, therefore saving 990ms.  I believe, this is a very good
+>> >> >> time saving. (from device booting perspective)
+>> >> >
+>> >> > OK, so create your own sysfs view and use it to do direct lookups.
+>> >> >
+>> >> >>
+>> >> >> (Is there any direct way, without scanning all nodes for every input
+>> >> >> device ?)
+>> >> >>
+>> >> >> >
+>> >> >> > 2. Improves Readabilty of input and event sysfs node paths because
+>> >> >> > names are used instead of numbers.
+>> >> >>
+>> >> >> I do not see why it is that important. If one wants overview
+>> >> >> /proc/bus/input/devices gives nice picture.
+>> >> >>
+>> >> >> Re: (Aniroop Mathur)
+>> >> >> Its correct, we can get an overview from /proc/bus/input/devices.
+>> >> >> And therefore using this, we can know input node number for every
+>> >> >> input device.
+>> >> >> But there are many input devices and input numbers are not fixed,
+>> >> >> so its quite difficult to memorize input number for all input
+>> >> >> devices.
+>> >> >> Therefore, if a user needs to open some input node from sysfs path,
+>> >> >> he needs to check /proc/bus/input/devices before opening because
+>> >> >> he does not know the input number. Moreover, this applies for all
+>> >> >> other
+>> >> >> input devices and hence a user need to check this every time.
+>> >> >>
+>> >> >> It improves readabilty as below
+>> >> >>
+>> >> >> Before:                               After patch:
+>> >> >> /dev/input0                           /dev/input_proximity
+>> >> >> /dev/input1                           /dev/input_accelerometer
+>> >> >> ...many more
+>> >> >>
+>> >> >> /sys/class/input/input0
+>> >> >> /sys/class/input/input_proximity
+>> >> >> /sys/class/input/input1
+>> >> >> /sys/class/input/input_accelerometer
+>> >> >> ...many more
+>> >> >>
+>> >> >> /sys/class/input/event0
+>> >> >> /sys/class/input/event_proximity
+>> >> >> /sys/class/input/event1
+>> >> >> /sys/class/input/event_accelerometer
+>> >> >> ...many more
+>> >> >>
+>> >> >> So, just by looking, user can directly open or refer any input node.
+>> >> >> (no need to refer any other path)
+>> >> >
+>> >> > User as in end user or your HAL layer?
+>> >> >
+>> >>
+>> >> End user.
+>> >
+>> > Why would end user care? He wants his touchscreen to work, not fiddle
+>> > with its settings, And we aleady discussed what system integrator should
+>> > do.
+>> >
+>>
+>> Yeah, i meant system integrator only.
+>> Sorry, not end user (i used wrong term).
+>> System integrator or code developer cares for this.
+>>
+>> >>
+>> >> >>
+>> >> >> >
+>> >> >> > 3. Removes Input Devices Dependency. If one input device probe
+>> >> >> > fails,
+>> >> >> > other input devices still work.  Before this patch, if one input
+>> >> >> > device probe fails before input_register_device, then input number
+>> >> >> > of
+>> >> >> > other input devices changes and due to this permission settings
+>> >> >> > are
+>> >> >> > disturbed and hence HAL or upper layer cannot open the required
+>> >> >> > sysfs
+>> >> >> > node because permission denied error comes.
+>> >> >>
+>> >> >> I have only one suggestion here: fix your userspace so that does not
+>> >> >> depend on device initialization ordering.
+>> >> >>
+>> >> >> Re: (Aniroop Mathur)
+>> >> >> We cannot fix userspace because these input/event/dev number are
+>> >> >> decided/allocated in kernel as per device initialization ordering
+>> >> >> during boot up. (userspace has no role in it) So, userspace is not
+>> >> >> aware, which exact input number corresponds to which input device so
+>> >> >> it ends up searching/scanning every input node untill a match is
+>> >> >> found.
+>> >> >>
+>> >> >> So, there is input device dependency which needs to be removed.
+>> >> >
+>> >> > Do not use numbers. We emit uevents describing the devices and there
+>> >> > a
+>> >> > _lot_ of data there that helps identifying device, such as its path,
+>> >> > subsystem, name, etc.
+>> >> >
+>> >>
+>> >> Sorry, I am not able to understand this point with respect to removing
+>> >> input
+>> >> device dependency. Please elaborate a bit more.
+>> >
+>> > Look at the data that is passed in uevents that are sent either when new
+>> > input device is created, or when you request replay of such evenst,
+>> > realize that it is enough to identify the device and stop relying on
+>> > inputX names to remain static. That's it.
+>> >
+>> > Thanks.
+>> >
+>> > --
+>> > Dmitry
+>>
+>> As already mentioned above, the default uevents are not sufficient to
+>> uniquely identify the input device. Can it ?
+>>
+>> Thanks and have a nice day,
+>> Aniroop Mathur
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>

@@ -1,149 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Re: [PATCH] Introduce Naming Convention in Input Subsystem
-Date: Mon, 20 Jan 2014 13:49:33 -0800
-Message-ID: <20140120214933.GA4270@core.coreip.homeip.net>
-References: <25201406.444611389372583656.JavaMail.weblogic@epml19>
- <20140110191108.GC10889@core.coreip.homeip.net>
- <CADYu30_qxKV7SmUdUc1Y-sN+KDYbWyz6Yv_H6BsSA-koK9aWYQ@mail.gmail.com>
- <20140110214604.GA19779@core.coreip.homeip.net>
- <CADYu309xpKK7Zj_KjXWPO=cQ__qQ85zsHR91ky2_EMsW8Nk6ZA@mail.gmail.com>
- <CAN+gG=HXcjmBcaxaBJczMWjNdKXdFiZzQGducQwMU6mdrS-R0Q@mail.gmail.com>
- <CADYu309oDWRZGfnnNaBrwsP_uzCZsA_MS7KxOMBrGKPV9H6X8w@mail.gmail.com>
+Subject: Re: [PATCH v3] input/uinput: add UI_GET_SYSNAME ioctl to retrieve
+ the sysfs path
+Date: Mon, 20 Jan 2014 13:53:13 -0800
+Message-ID: <20140120215313.GB4270@core.coreip.homeip.net>
+References: <1389985971-541-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f174.google.com ([209.85.192.174]:41444 "EHLO
-	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750743AbaATVti (ORCPT
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:46074 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751290AbaATVxQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jan 2014 16:49:38 -0500
-Received: by mail-pd0-f174.google.com with SMTP id z10so2065045pdj.19
-        for <linux-input@vger.kernel.org>; Mon, 20 Jan 2014 13:49:38 -0800 (PST)
+	Mon, 20 Jan 2014 16:53:16 -0500
 Content-Disposition: inline
-In-Reply-To: <CADYu309oDWRZGfnnNaBrwsP_uzCZsA_MS7KxOMBrGKPV9H6X8w@mail.gmail.com>
+In-Reply-To: <1389985971-541-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, "cpgs ." <cpgs@samsung.com>, Aniroop Mathur <a.mathur@samsung.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Aniroop,
+Hi Benjamin,
 
-On Tue, Jan 21, 2014 at 01:34:07AM +0530, Aniroop Mathur wrote:
-> Hello Mr Tissoires
-> Greetings !!
+On Fri, Jan 17, 2014 at 02:12:51PM -0500, Benjamin Tissoires wrote:
+> Evemu [1] uses uinput to replay devices traces it has recorded. However,
+> the way evemu uses uinput is slightly different from how uinput is
+> supposed to be used.
+> Evemu relies on libevdev, which creates the device node through uinput.
+> It then injects events through the input device node directly (and it
+> completely skips the uinput node).
 > 
-> On Jan 20, 2014 11:54 PM, "Benjamin Tissoires" <benjamin.tissoires@gmail.com>
-> wrote:
-> >
-> > Hi Aniroop,
-> >
-> > [sorry for top posting, but I really don't know where to put this
-> regarding your answers].
-> >
-> No problem at all.
-> In fact I am quite happy to hear from
-> Linux community again
-> Its my pleasure.
-> 
-> > I _think_ I get one of the reasons you don't understand Dmitry, and why
-> Dmitry does not understand you. From the different mails, I would say that
-> you are referring to an Android platform.
-> > If it's not the case, then sorry for the noise.
-> >
-> No I am not specifically referring to
-> Android platform
-> But yes, I am from android background
-> and through android only I came up with
-> this idea.
-> 
-> > So, the last time I checked with android, this system does _not_ have an
-> udev user-space daemon, which means that what you seem to be doing is
-> parsing manually the sysfs tree to retrieve the inputs and their properties.
-> > This, IMO, is a very bad idea. Parsing the entire sysfs tree is indeed
-> costly and you will have to build everything by hand.
-> >
-> No, Android also have a daemon but it is not udev daemon. There is a
-> separate daemon in android different from generic
-> udev daemon. It is different but basic is
-> still same.
-> Just like udev daemon, android daemon
-> also receives uevents from kernel
-> and creates devfs nodes for us,
-> that is /Dev/input/event1/2/3... based
-> on uevent env variables.
-> Android daemon is different from generic
-> daemon in a sense it does not see any file
-> like udev rules before creating nodes. Instead it directly create nodes as
-> per uevent env variables in the structure.
-> So without opening any extra udev rule
-> file, it create nodes.
-> So I understand it has also a limitation that it only has to be dependent
-> only on default uevents and cannot read any sysfs attribute to identify the
-> device if default uevents are not sufficient.
+> Currently, libevdev relies on an heuristic to guess which input node was
+> created. The problem is that is heuristic is subjected to races between
+> different uinput devices or even with physical devices. Having a way
+> to retrieve the sysfs path allows us to find the event node without
+> having to rely on this heuristic.
 
-Why can it not?
-
-> 
-> But the problem I am referring  is for both in case of generic kernel and
-> android kernel.
-
-So far I really do not see it as generic kernel problem since we do have
-existing infrastructure in userspace that is quite efficient.
-
-> 
-> > On regular distros, we use udev. This daemon builds its device database
-> from the events generated by the kernels directly (the uevents). Once the
-> events are emitted, we never (except for some user-space drivers) use them
-> in the kernel drivers (at least, I never saw that).
-> >
-> > So if you want to create symlinks, then indeed, you just add 2 or 3 rules
-> in /etc/udev/rules.d, and then the user space (and the system integrator)
-> can see the different devices with the "correct" symlink.
-> > However, the kernel developer will never see them (and especially in the
-> ->probe callback). However, the user-space tools which receives the udev
-> events (emitted from udev, not the kernel this time) can easily retrieve
-> many information from the event. Just run "udevadm info --export-db" on a
-> regular Linux, and you will see that the device which presents the event
-> node (/dev/input/eventX) has all the requirements to identify itself (VID,
-> PID, path, etc...)
-> >
-> Yes udev gives so many uevents but as I checked through logs specifically
-> in case of /Dev/input/event1/2/3/4....it does not give sufficient uevents
-> to identify the device.
-> As I found in logs it gives only 7 env variable like action, subsystem, Dev
-> name, Dev path, major, minor and seq number.
-> It does not give vendor Id or pid.
-> Now with these uevent we cannot identify the input device whether its
-> accelerometer or touchscreen. Can we ??
-
-While information sent in uevent emitted for creation of event device
-might not be enough to identify and classify input device you can:
-
-1. Capture udevent sent a few moments earlier for the input device
-   itself, or
-
-2. Read /sys/class/$DEVNAME/device/uevent to retrieve input device's
-uevent data:
-
-[dtor@dtor-d630 work]$ cat /sys/class/input/event6/uevent 
-MAJOR=13
-MINOR=70
-DEVNAME=input/event6
-[dtor@dtor-d630 work]$ cat /sys/class/input/event6/device/uevent 
-PRODUCT=11/2/8/300
-NAME="AlpsPS/2 ALPS DualPoint TouchPad"
-PHYS="isa0060/serio1/input0"
-PROP=8
-EV=b
-KEY=e420 70000 0 0 0 0
-ABS=260800001000003
-MODALIAS=input:b0011v0002p0008e0300-e0,1,3,k110,111,112,145,14A,14D,14E,14F,ra0,1,18,2F,35,36,39,mlsfw
-[dtor@dtor-d630 work]$ 
-
-That should give you plenty data to work with. Yes, the 2nd option
-involves additional filesystem operations, but this is sysfs (so you are
-not hitting real media) and you only need a few (open, read, and close)
-per device.
+I have been thinking about it and I think that providing tight coupling
+between uinput and resulting event device is wrong thing to do. We do
+allow sending input events through uinput interface and I think evemu
+should be using it, instead of going halfway through uinput and halfway
+though evdev. Replaying though uinput would actually be more correct as
+it would involve the same code paths throgugh input core as with using
+real devices (see input_event() vs. input_inject_event() that is used by
+input handlers).
 
 Thanks.
 

@@ -1,154 +1,151 @@
-From: "Vadim Klishko" <vadim@cirque.com>
-Subject: Re: ALPS: Cirque Smart Cat Pro AG Touchpad Support
-Date: Mon, 20 Jan 2014 13:01:26 -0700
-Message-ID: <96BD1741C22B446CAA6FA3ABC0B6724B@cirque.local>
-References: <52D6B45A.4050202@gmail.com>	<CA+F6ckMgiF-TrCf1rxNGvGrPHubxdVCtTBsLOKHpg=StRt8BvA@mail.gmail.com>	<52D955A3.9040802@gmail.com>	<CA+F6ckPDkigiy1qKPTXE7Ec1xgj3Jk-fXa-vrpjwd_vJmzU2Yg@mail.gmail.com> <CA+F6ckP1JHJF0q8HZXKFPf1on8PB+QX6suNmavu8eWT4gSK0rA@mail.gmail.com> <52DCA136.5030207@gmail.com> <9A2D41DC5C294BAE8568615F106C72F2@HITLER> <52DCAC4D.40206@gmail.com> <B087429E37D344BD9FB56A029514CADB@HITLER> <52DCB323.6070200@gmail.com> <4451DE5582E243FDA7455A649E172C7F@HITLER> <52DCB922.7020300@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Re: [PATCH] Introduce Naming Convention in Input Subsystem
+Date: Mon, 20 Jan 2014 13:49:33 -0800
+Message-ID: <20140120214933.GA4270@core.coreip.homeip.net>
+References: <25201406.444611389372583656.JavaMail.weblogic@epml19>
+ <20140110191108.GC10889@core.coreip.homeip.net>
+ <CADYu30_qxKV7SmUdUc1Y-sN+KDYbWyz6Yv_H6BsSA-koK9aWYQ@mail.gmail.com>
+ <20140110214604.GA19779@core.coreip.homeip.net>
+ <CADYu309xpKK7Zj_KjXWPO=cQ__qQ85zsHR91ky2_EMsW8Nk6ZA@mail.gmail.com>
+ <CAN+gG=HXcjmBcaxaBJczMWjNdKXdFiZzQGducQwMU6mdrS-R0Q@mail.gmail.com>
+ <CADYu309oDWRZGfnnNaBrwsP_uzCZsA_MS7KxOMBrGKPV9H6X8w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from p01c11o148.mxlogic.net ([208.65.144.71]:44623 "EHLO
-	p01c11o148.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751290AbaATUB2 convert rfc822-to-8bit (ORCPT
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:41444 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750743AbaATVti (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jan 2014 15:01:28 -0500
-Received: by mail-ie0-f173.google.com with SMTP id e14so8778447iej.18
-        for <linux-input@vger.kernel.org>; Mon, 20 Jan 2014 12:01:27 -0800 (PST)
+	Mon, 20 Jan 2014 16:49:38 -0500
+Received: by mail-pd0-f174.google.com with SMTP id z10so2065045pdj.19
+        for <linux-input@vger.kernel.org>; Mon, 20 Jan 2014 13:49:38 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CADYu309oDWRZGfnnNaBrwsP_uzCZsA_MS7KxOMBrGKPV9H6X8w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: AJ Guillon <aj.guillon@gmail.com>
-Cc: linux-input@vger.kernel.org, Tommy Will <tommywill2011@gmail.com>
+To: Aniroop Mathur <aniroop.mathur@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, "cpgs ." <cpgs@samsung.com>, Aniroop Mathur <a.mathur@samsung.com>
 
-Hello AJ,
+Hi Aniroop,
 
-I have heard from our customers before that using a touchpad is easier on one's hand than a mouse. Using a touchpad for moving and pointing should already reduce the strain. Being able to adjust touchpad settings may not give you any additional strain reduction benefits, but it could certainly make the experience of using a touchpad more pleasant.
-
-But that is really beside the point. I am not trying to tell you what you need or don't need. You have the right to want a driver for your touchpad for whatever reason, and I sincerely apologize that we don't have one for Linux. We would really love to be able to provide one, but, unfortunately, we don't have one available. If we had, it would be a closed source user-space driver.
-
-I can raise the question of reviving our Linux driver project with our management, but it might take a while before it is completed.
-
-Can you suggest any other solution?
-
-Sincerely,
-
-Vadim
-
-
------ Original Message ----- 
-From: "AJ Guillon" <aj.guillon@gmail.com>
-To: "Vadim Klishko" <vadim@cirque.com>
-Cc: <linux-input@vger.kernel.org>; "Tommy Will" <tommywill2011@gmail.com>
-Sent: Sunday, January 19, 2014 10:50 PM
-Subject: Re: ALPS: Cirque Smart Cat Pro AG Touchpad Support
-
-
-> Hi Vadim,
+On Tue, Jan 21, 2014 at 01:34:07AM +0530, Aniroop Mathur wrote:
+> Hello Mr Tissoires
+> Greetings !!
 > 
-> I'm a professional developer and it was suggested to me that I use a
-> Cirque touchpad to reduce strain based on my work habits.  Since 100% of
-> my development is done on Linux systems, this touchpad is only useful to
-> me in that environment.
+> On Jan 20, 2014 11:54 PM, "Benjamin Tissoires" <benjamin.tissoires@gmail.com>
+> wrote:
+> >
+> > Hi Aniroop,
+> >
+> > [sorry for top posting, but I really don't know where to put this
+> regarding your answers].
+> >
+> No problem at all.
+> In fact I am quite happy to hear from
+> Linux community again
+> Its my pleasure.
 > 
-> I'm not entirely sure what features this touchpad actually supports, but
-> it would be nice if I could use it to its full potential.  The side
-> buttons, I suppose, are programmable so it would be nice for me to be
-> able to set them to switch desktops or something.  Ideally, I would like
-> to script this touchpad as much as I can to reduce potential for injury.
+> > I _think_ I get one of the reasons you don't understand Dmitry, and why
+> Dmitry does not understand you. From the different mails, I would say that
+> you are referring to an Android platform.
+> > If it's not the case, then sorry for the noise.
+> >
+> No I am not specifically referring to
+> Android platform
+> But yes, I am from android background
+> and through android only I came up with
+> this idea.
 > 
-> AJ
+> > So, the last time I checked with android, this system does _not_ have an
+> udev user-space daemon, which means that what you seem to be doing is
+> parsing manually the sysfs tree to retrieve the inputs and their properties.
+> > This, IMO, is a very bad idea. Parsing the entire sysfs tree is indeed
+> costly and you will have to build everything by hand.
+> >
+> No, Android also have a daemon but it is not udev daemon. There is a
+> separate daemon in android different from generic
+> udev daemon. It is different but basic is
+> still same.
+> Just like udev daemon, android daemon
+> also receives uevents from kernel
+> and creates devfs nodes for us,
+> that is /Dev/input/event1/2/3... based
+> on uevent env variables.
+> Android daemon is different from generic
+> daemon in a sense it does not see any file
+> like udev rules before creating nodes. Instead it directly create nodes as
+> per uevent env variables in the structure.
+> So without opening any extra udev rule
+> file, it create nodes.
+> So I understand it has also a limitation that it only has to be dependent
+> only on default uevents and cannot read any sysfs attribute to identify the
+> device if default uevents are not sufficient.
+
+Why can it not?
+
 > 
-> On 14-01-20 12:40 AM, Vadim Klishko wrote:
->> Hi AJ,
->> 
->> Apparently, the Linux kernel doesn't have support for that touchpad. In fact, I am not sure it has support for any USB touchpads.
->> 
->> At one point, Cirque tried to create a driver for Linux, but we ran into legal issues with the GPL. We then started working on a user-space driver, but there didn't seem to be enough demand or interest in it, so we have never finished it.
->> 
->> What kind of interesting things are you looking to do with the touchpad?
->> 
->> Vadim
->> 
->> 
->> ----- Original Message ----- 
->> From: "AJ Guillon" <aj.guillon@gmail.com>
->> To: "Vadim Klishko" <vadim@cirque.com>
->> Cc: <linux-input@vger.kernel.org>; "Tommy Will" <tommywill2011@gmail.com>
->> Sent: Sunday, January 19, 2014 10:24 PM
->> Subject: Re: ALPS: Cirque Smart Cat Pro AG Touchpad Support
->> 
->> 
->> USB.  Model GP415U-5321.
->> 
->> AJ
->> 
->> On 14-01-20 12:23 AM, Vadim Klishko wrote:
->>> Is it a USB or PS/2 touchpad?
->>>
->>>
->>> ----- Original Message ----- 
->>> From: "AJ Guillon" <aj.guillon@gmail.com>
->>> To: "Vadim Klishko" <vadim@cirque.com>
->>> Cc: <linux-input@vger.kernel.org>; "Tommy Will" <tommywill2011@gmail.com>
->>> Sent: Sunday, January 19, 2014 9:55 PM
->>> Subject: Re: ALPS: Cirque Smart Cat Pro AG Touchpad Support
->>>
->>>
->>> Hi Vadim,
->>>
->>> I am currently on Kubuntu 12.04 (3.2.0-29-generic), and this device is
->>> not recognized as a touchpad.  I have not yet tested a nightly build
->>> with a recent kernel to see if that works.
->>>
->>> It is detected and works as a mouse right now, but my understanding is
->>> that if it is recognized as a touchpad I can do more interesting things
->>> with it ;-)
->>>
->>> AJ
->>>
->>> On 14-01-19 11:41 PM, Vadim Klishko wrote:
->>>> Hello AJ,
->>>>
->>>> I thought it was I who was supposed to be helping. :-)
->>>>
->>>> Can you please describe the problem?
->>>>
->>>> Vadim
->>>>
->>>>
->>>> ----- Original Message ----- 
->>>> From: "AJ Guillon" <aj.guillon@gmail.com>
->>>> To: "Tommy Will" <tommywill2011@gmail.com>; <vadim@cirque.com>
->>>> Cc: <linux-input@vger.kernel.org>
->>>> Sent: Sunday, January 19, 2014 9:08 PM
->>>> Subject: Re: ALPS: Cirque Smart Cat Pro AG Touchpad Support
->>>>
->>>>
->>>> Hi,
->>>>
->>>> Thanks Tommy!
->>>>
->>>> Vadim: Let me know what I can do to help.
->>>>
->>>> AJ
->>>>
->>>> On 14-01-19 08:06 PM, Tommy Will wrote:
->>>>> Hi AJ,
->>>>>
->>>>> Sorry for reply late. I have got the positive reply from my Cirque's
->>>>> colleague and please allow me to introduce Vadim to you.
->>>>> He's now main for S/W development of Cirque's product and he would
->>>>> help you of your "Cirque Smart Cat Pro AG Touchpad".
->>>>>
->>>>> Thanks
->>>>>
->>>>
->>>
->>
+> But the problem I am referring  is for both in case of generic kernel and
+> android kernel.
+
+So far I really do not see it as generic kernel problem since we do have
+existing infrastructure in userspace that is quite efficient.
+
+> 
+> > On regular distros, we use udev. This daemon builds its device database
+> from the events generated by the kernels directly (the uevents). Once the
+> events are emitted, we never (except for some user-space drivers) use them
+> in the kernel drivers (at least, I never saw that).
+> >
+> > So if you want to create symlinks, then indeed, you just add 2 or 3 rules
+> in /etc/udev/rules.d, and then the user space (and the system integrator)
+> can see the different devices with the "correct" symlink.
+> > However, the kernel developer will never see them (and especially in the
+> ->probe callback). However, the user-space tools which receives the udev
+> events (emitted from udev, not the kernel this time) can easily retrieve
+> many information from the event. Just run "udevadm info --export-db" on a
+> regular Linux, and you will see that the device which presents the event
+> node (/dev/input/eventX) has all the requirements to identify itself (VID,
+> PID, path, etc...)
+> >
+> Yes udev gives so many uevents but as I checked through logs specifically
+> in case of /Dev/input/event1/2/3/4....it does not give sufficient uevents
+> to identify the device.
+> As I found in logs it gives only 7 env variable like action, subsystem, Dev
+> name, Dev path, major, minor and seq number.
+> It does not give vendor Id or pid.
+> Now with these uevent we cannot identify the input device whether its
+> accelerometer or touchscreen. Can we ??
+
+While information sent in uevent emitted for creation of event device
+might not be enough to identify and classify input device you can:
+
+1. Capture udevent sent a few moments earlier for the input device
+   itself, or
+
+2. Read /sys/class/$DEVNAME/device/uevent to retrieve input device's
+uevent data:
+
+[dtor@dtor-d630 work]$ cat /sys/class/input/event6/uevent 
+MAJOR=13
+MINOR=70
+DEVNAME=input/event6
+[dtor@dtor-d630 work]$ cat /sys/class/input/event6/device/uevent 
+PRODUCT=11/2/8/300
+NAME="AlpsPS/2 ALPS DualPoint TouchPad"
+PHYS="isa0060/serio1/input0"
+PROP=8
+EV=b
+KEY=e420 70000 0 0 0 0
+ABS=260800001000003
+MODALIAS=input:b0011v0002p0008e0300-e0,1,3,k110,111,112,145,14A,14D,14E,14F,ra0,1,18,2F,35,36,39,mlsfw
+[dtor@dtor-d630 work]$ 
+
+That should give you plenty data to work with. Yes, the 2nd option
+involves additional filesystem operations, but this is sysfs (so you are
+not hitting real media) and you only need a few (open, read, and close)
+per device.
+
+Thanks.
 
 -- 
-This message and any attachment are confidential. It may also be privileged 
-or otherwise protected by work product immunity or other legal rules. If 
-you have received it by mistake, please let us know by e-mail reply and 
-delete it from your system, you may not copy this message or disclose its 
-contents to anyone.
-Cirque Corporation
+Dmitry

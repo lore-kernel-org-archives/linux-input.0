@@ -1,238 +1,78 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3] input/uinput: add UI_GET_SYSNAME ioctl to retrieve the
- sysfs path
-Date: Mon, 20 Jan 2014 13:59:46 -0500
-Message-ID: <CAN+gG=G1Rn-pHea5E3Gq2p7a_wCZVOGDxRB9eAOk94t7iyG5QA@mail.gmail.com>
-References: <1389985971-541-1-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4SHqy4Q3+iPZMoQjJnoNZTUw0YstLnsvto2E5GKv6XaSw@mail.gmail.com>
+From: Justin Clift <justin@gluster.org>
+Subject: Re: ALPS: Cirque Smart Cat Pro AG Touchpad Support
+Date: Mon, 20 Jan 2014 19:13:54 +0000
+Message-ID: <20140120191354.b0ab492287f5378e84243447@gluster.org>
+References: <52D6B45A.4050202@gmail.com>
+	<CA+F6ckMgiF-TrCf1rxNGvGrPHubxdVCtTBsLOKHpg=StRt8BvA@mail.gmail.com>
+	<52D955A3.9040802@gmail.com>
+	<CA+F6ckPDkigiy1qKPTXE7Ec1xgj3Jk-fXa-vrpjwd_vJmzU2Yg@mail.gmail.com>
+	<CA+F6ckP1JHJF0q8HZXKFPf1on8PB+QX6suNmavu8eWT4gSK0rA@mail.gmail.com>
+	<52DCA136.5030207@gmail.com>
+	<9A2D41DC5C294BAE8568615F106C72F2@HITLER>
+	<52DCAC4D.40206@gmail.com>
+	<B087429E37D344BD9FB56A029514CADB@HITLER>
+	<52DCB323.6070200@gmail.com>
+	<4451DE5582E243FDA7455A649E172C7F@HITLER>
+	<20140120183223.a68ab1f874c9d845082d9039@gluster.org>
+	<98E846BA153041B8A4860E2F12558E64@cirque.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f54.google.com ([209.85.215.54]:65185 "EHLO
-	mail-la0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751380AbaATS7s (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jan 2014 13:59:48 -0500
-In-Reply-To: <CANq1E4SHqy4Q3+iPZMoQjJnoNZTUw0YstLnsvto2E5GKv6XaSw@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:53487 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750824AbaATTNn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Jan 2014 14:13:43 -0500
+In-Reply-To: <98E846BA153041B8A4860E2F12558E64@cirque.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Vadim Klishko <vadim@cirque.com>
+Cc: linux-input@vger.kernel.org, Tommy Will <tommywill2011@gmail.com>
 
-Hi David,
+On Mon, 20 Jan 2014 11:43:35 -0700
+"Vadim Klishko" <vadim@cirque.com> wrote:
+> On Sun, 20 Jan 2014 11:32 -0700
+> "Justin Clift" <justin@gluster.org> wrote:
+<snip>
+> > Out of curiosity, do you remember offhand what the legal
+> > issues you ran into are?
+> > 
+> Yes, of course, I do. GPL doesn't allow closed source in kernel.
 
-thanks for the review
+Ahhh, got it. :)
 
-On Sat, Jan 18, 2014 at 5:51 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi
->
-> On Fri, Jan 17, 2014 at 8:12 PM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
->> Evemu [1] uses uinput to replay devices traces it has recorded. However,
->> the way evemu uses uinput is slightly different from how uinput is
->> supposed to be used.
->> Evemu relies on libevdev, which creates the device node through uinput.
->> It then injects events through the input device node directly (and it
->> completely skips the uinput node).
->>
->> Currently, libevdev relies on an heuristic to guess which input node was
->> created. The problem is that is heuristic is subjected to races between
->> different uinput devices or even with physical devices. Having a way
->> to retrieve the sysfs path allows us to find the event node without
->> having to rely on this heuristic.
->>
->> [1] http://www.freedesktop.org/wiki/Evemu/
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>
->> Ok, I am resurrecting this. The original patch was sent last July here:
->> https://patchwork.kernel.org/patch/2827524/
->>
->> changes since v2:
->> - the ioctl returns only the device name, thus I renamed the ioctl to UI_GET_SYSNAME
->> - reordered uinput_str_to_user() arguments
->> - be sure to terminate the user string we send by \0
->> - abort if udev->state is not UIST_CREATED
->> - dropped the patch 1/2 (adding resolution to uinput) because I think David has
->>   already it in one of his queues (ABS2 IIRC)
->>
->> I also posted the corresponding libevdev here:
->> http://lists.freedesktop.org/archives/input-tools/2014-January/000757.html
->>
->> Cheers,
->> Benjamin
->>
->>  drivers/input/misc/uinput.c | 46 ++++++++++++++++++++++++++++++++++++++++++++-
->>  include/linux/uinput.h      |  2 ++
->>  include/uapi/linux/uinput.h | 13 ++++++++++++-
->>  3 files changed, 59 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
->> index 7728359..0203219 100644
->> --- a/drivers/input/misc/uinput.c
->> +++ b/drivers/input/misc/uinput.c
->> @@ -20,6 +20,8 @@
->>   * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
->>   *
->>   * Changes/Revisions:
->> + *     0.4     01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
->> + *             - add UI_GET_SYSNAME ioctl
->>   *     0.3     09/04/2006 (Anssi Hannula <anssi.hannula@gmail.com>)
->>   *             - updated ff support for the changes in kernel interface
->>   *             - added MODULE_VERSION
->> @@ -670,6 +672,27 @@ static int uinput_ff_upload_from_user(const char __user *buffer,
->>         __ret;                                          \
->>  })
->>
->> +static int uinput_str_to_user(void __user *dest, const char *str,
->> +                             unsigned int maxlen)
->> +{
->> +       int len, ret;
->> +
->> +       if (!str)
->> +               return -ENOENT;
->> +
->> +       len = strlen(str) + 1;
->> +       if (len > maxlen)
->> +               len = maxlen;
->> +
->> +       ret = copy_to_user(dest, str, len);
->> +       if (ret)
->> +               return -EFAULT;
->> +
->> +       /* force terminating '\0' */
->> +       ret = copy_to_user(dest + len - 1, "\0", 1);
->
-> You must make sure "maxlen != 0", otherwise you write beyond buffer
-> boundaries here. I'd say return -EINVAL in case maxlen == 0.
-
-oh, yes, you are right.
-
->
-> btw., you can also use: put_user(0, (char*)dest + len - 1);
-
-k, will amend
-
->
->> +       return ret ? -EFAULT : len;
->> +}
->> +
->>  static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
->>                                  unsigned long arg, void __user *p)
->>  {
->> @@ -679,6 +702,8 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
->>         struct uinput_ff_erase  ff_erase;
->>         struct uinput_request   *req;
->>         char                    *phys;
->> +       const char              *name;
->> +       unsigned int            size;
->>
->>         retval = mutex_lock_interruptible(&udev->mutex);
->>         if (retval)
->> @@ -831,7 +856,26 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
->>                         break;
->>
->>                 default:
->> -                       retval = -EINVAL;
->> +                       retval = -EAGAIN;
->> +       }
->> +
->> +       if (retval == -EAGAIN) {
->
-> Ehh, in case another ioctl returns -EAGAIN, we overwrite the error
-> with -EINVAL below in the "default:" clause. Maybe we should first
-> convert all the "break;" commands to "goto out;".
-
-yep, that was one of the thing which also made me some trouble by
-re-reading the patch after this amount of time.
-Either I can make a "goto out" patch before, or I can just add a bool
-probe_variable_length which would be set be the previous default case.
-The latter implies less changes, but might be more ugly than the previous.
-Any preferences?
+Yeah, wanting to keep the driver code closed source would
+definitely be a problem there. ;>
 
 
->
-> Patch looks good to me.
+> > If it's useful, we could (nicely) ask Red Hat's Legal team
+> > for their insight and general thoughts/advice if they have
+> > the time (no idea if they do).
+> > 
+> > They're very good, and have lots of experience working
+> > through GPL legal issues, figuring out practical
+> > approaches/solutions.
+> > 
+> > ?
+> 
+> I doubt it will help.
 
-Thanks!
+You could be right.  The only thing I can think of, is that
+they might know of good ways for Cirque for become ok with
+going open source for the USB touchpad drivers, instead of
+keeping closed source.
 
-Cheers,
-Benjamin
+  eg some way to make the benefits of going open source be
+     greater than the benefits of keeping closed source
 
-> Thanks
-> David
->
->> +               size = _IOC_SIZE(cmd);
->> +
->> +               /* Now check variable-length commands */
->> +               switch (cmd & ~IOCSIZE_MASK) {
->> +                       case UI_GET_SYSNAME(0):
->> +                               if (udev->state != UIST_CREATED) {
->> +                                       retval = -ENOENT;
->> +                                       goto out;
->> +                               }
->> +                               name = dev_name(&udev->dev->dev);
->> +                               retval = uinput_str_to_user(p, name, size);
->> +                               break;
->> +
->> +                       default:
->> +                               retval = -EINVAL;
->> +               }
->>         }
->>
->>   out:
->> diff --git a/include/linux/uinput.h b/include/linux/uinput.h
->> index 0a4487d..0994c0d 100644
->> --- a/include/linux/uinput.h
->> +++ b/include/linux/uinput.h
->> @@ -20,6 +20,8 @@
->>   * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
->>   *
->>   * Changes/Revisions:
->> + *     0.4     01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
->> + *             - add UI_GET_SYSNAME ioctl
->>   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
->>   *             - update ff support for the changes in kernel interface
->>   *             - add UINPUT_VERSION
->> diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
->> index fe46431..0389b48 100644
->> --- a/include/uapi/linux/uinput.h
->> +++ b/include/uapi/linux/uinput.h
->> @@ -20,6 +20,8 @@
->>   * Author: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
->>   *
->>   * Changes/Revisions:
->> + *     0.4     01/09/2014 (Benjamin Tissoires <benjamin.tissoires@redhat.com>)
->> + *             - add UI_GET_SYSNAME ioctl
->>   *     0.3     24/05/2006 (Anssi Hannula <anssi.hannulagmail.com>)
->>   *             - update ff support for the changes in kernel interface
->>   *             - add UINPUT_VERSION
->> @@ -35,7 +37,7 @@
->>  #include <linux/types.h>
->>  #include <linux/input.h>
->>
->> -#define UINPUT_VERSION         3
->> +#define UINPUT_VERSION         4
->>
->>
->>  struct uinput_ff_upload {
->> @@ -73,6 +75,15 @@ struct uinput_ff_erase {
->>  #define UI_BEGIN_FF_ERASE      _IOWR(UINPUT_IOCTL_BASE, 202, struct uinput_ff_erase)
->>  #define UI_END_FF_ERASE                _IOW(UINPUT_IOCTL_BASE, 203, struct uinput_ff_erase)
->>
->> +/**
->> + * UI_GET_SYSNAME - get the sysfs name of the created uinput device
->> + *
->> + * @return the sysfs name of the created virtual input device.
->> + * The complete sysfs path is then /sys/devices/virtual/input/--NAME--
->> + * Usually, it is in the form "inputN"
->> + */
->> +#define UI_GET_SYSNAME(len)    _IOC(_IOC_READ, UINPUT_IOCTL_BASE, 300, len)
->> +
->>  /*
->>   * To write a force-feedback-capable driver, the upload_effect
->>   * and erase_effect callbacks in input_dev must be implemented.
->> --
->> 1.8.3.1
->>
+But, up to you.  Not going to push it if you're not really
+interested. :)
+
+Regards and best wishes,
+
+Justin Clift
+
+-- 
+GlusterFS Project: http://www.gluster.org
+Justin Clift <justin@gluster.org>
+

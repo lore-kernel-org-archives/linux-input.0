@@ -1,91 +1,44 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v3] input/uinput: add UI_GET_SYSNAME ioctl to retrieve
- the sysfs path
-Date: Tue, 21 Jan 2014 08:56:51 +1000
-Message-ID: <20140120225651.GA30049@yabbi.local>
-References: <1389985971-541-1-git-send-email-benjamin.tissoires@redhat.com>
- <20140120215313.GB4270@core.coreip.homeip.net>
- <CAN+gG=EPXLR5H_h0UgaMOmAbwAivxCohtg3Gocws5fJucz4+eg@mail.gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: Regression: commit e696c68363740d3a8fe495e353de3ff26b86257a
+ prevents Linux 3.13 from booting on Lenovo X1 Carbon.
+Date: Mon, 20 Jan 2014 15:53:58 -0800
+Message-ID: <20140120235358.GC5012@kroah.com>
+References: <20140120232652.GA5815@weetamoe.luzern.taprogge.wh>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:50764 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751760AbaATWxc (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:36543 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751127AbaATXxM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jan 2014 17:53:32 -0500
+	Mon, 20 Jan 2014 18:53:12 -0500
 Content-Disposition: inline
-In-Reply-To: <CAN+gG=EPXLR5H_h0UgaMOmAbwAivxCohtg3Gocws5fJucz4+eg@mail.gmail.com>
+In-Reply-To: <20140120232652.GA5815@weetamoe.luzern.taprogge.wh>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jens Taprogge <jens.taprogge@taprogge.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thomas Hellstrom <thellstrom@vmware.com>, linux-input@vger.kernel.org
 
-On Mon, Jan 20, 2014 at 05:17:08PM -0500, Benjamin Tissoires wrote:
-> On Mon, Jan 20, 2014 at 4:53 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Benjamin,
-> >
-> > On Fri, Jan 17, 2014 at 02:12:51PM -0500, Benjamin Tissoires wrote:
-> >> Evemu [1] uses uinput to replay devices traces it has recorded. However,
-> >> the way evemu uses uinput is slightly different from how uinput is
-> >> supposed to be used.
-> >> Evemu relies on libevdev, which creates the device node through uinput.
-> >> It then injects events through the input device node directly (and it
-> >> completely skips the uinput node).
-> >>
-> >> Currently, libevdev relies on an heuristic to guess which input node was
-> >> created. The problem is that is heuristic is subjected to races between
-> >> different uinput devices or even with physical devices. Having a way
-> >> to retrieve the sysfs path allows us to find the event node without
-> >> having to rely on this heuristic.
-> >
-> > I have been thinking about it and I think that providing tight coupling
-> > between uinput and resulting event device is wrong thing to do. We do
-> > allow sending input events through uinput interface and I think evemu
-> > should be using it, instead of going halfway through uinput and halfway
-> > though evdev. Replaying though uinput would actually be more correct as
-> > it would involve the same code paths throgugh input core as with using
-> > real devices (see input_event() vs. input_inject_event() that is used by
-> > input handlers).
-> >
+On Tue, Jan 21, 2014 at 12:26:52AM +0100, Jens Taprogge wrote:
+> Hello,
 > 
-> Yes, I am perfectly aware of the fact that evemu is not using uinput
-> in the way it is intended to be.
-> I agree that it should be using the uinput node to inject events but
-> this means that only the process which has created the virtual device
-> can access it. It seems weird, I know, but the typical use of evemu is
-> the following:
-> - in a first terminal: $> sudo evemu-device mydevice.desc
-> - In a second: $> sudo evemu-play /dev/input/event12 < mydevice.events
+> I have bisected the boot failure of a Lenovo Thinkpad X1 Carbon to the
+> merge ea4ebd1cb093c8ec5d7f4bf9070dc444184c3971.  What I call "boot
+> failure" refers to the fact that no console is shown, the machine only
+> reads from the disc for a very short time, and the machine does not
+> respond to Ctrl-Alt-Del, etc.
 > 
-> It looks weird here, but it allows to inject different events
-> recording for the same virtual device node. 
+> As it turns out reverting e696c68363740d3a8fe495e353de3ff26b86257a
+> (Input: serio - fix sysfs layout) on top of v3.13 makes the machine boot
+> again.  So far I have now clue how this commit can affect early boot
+> / showing of the console.
+> 
+> Does it ring any bells for you?
 
-it also allows replaying an event through the device it was recorded on.
-it's not always necessary or desirable to create a uinput device, sometimes
-replaying it through the actual device is better to reproduce a certain bug.
+No, not at all, I don't see how that patch could prevent booting,
+especially as it is fixing a regression (i.e. putting things back the
+way they originally were.)
 
-Cheers,
-   Peter
+very odd.
 
-
-
-> Using the uinput node to
-> inject events will force us to change the user "interface" and rely on
-> pipes to get the same separation of describe/inject.
-> Note that I am modifying evemu-play to be able to also create the
-> virtual device, so I am not entirely convinced about this argument
-> (but we have users).
-> 
-> The other use case I should have mentioned in the commit message is
-> that we extensively rely on evemu for the xorg-integration-tests (and
-> the upcoming wayland test suite if I am not wrong).
-> The tests are fully automatized, and we need to know which input node
-> has just been created to record the correct one and test against it.
-> 
-> 
-> Ok, I am stopping here because Peter already answered about this in his mail :)
-> 
-> Cheers,
-> Benjamin
+greg k-h

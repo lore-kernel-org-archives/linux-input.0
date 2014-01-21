@@ -1,58 +1,70 @@
-From: Jens Taprogge <jens.taprogge@taprogge.org>
-Subject: Re: Regression: commit e696c68363740d3a8fe495e353de3ff26b86257a
- prevents Linux 3.13 from booting on Lenovo X1 Carbon.
-Date: Tue, 21 Jan 2014 01:20:11 +0100
-Message-ID: <20140121002011.GB5815@weetamoe.luzern.taprogge.wh>
-References: <20140120232652.GA5815@weetamoe.luzern.taprogge.wh>
- <20140120235358.GC5012@kroah.com>
+From: Reyad Attiyat <reyad.attiyat@gmail.com>
+Subject: [PATCH] Add HID's to hid-microsoft driver of Surface Type/Touch Cover
+ 2 to fix bug
+Date: Mon, 20 Jan 2014 18:42:06 -0600
+Message-ID: <CA+BWVUTkaUt8Ys_40r7zFV_wBtY7iWTTmUUL+bHj=e3NwAtgNg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from shamrock.taprogge.org ([213.146.117.139]:50321 "EHLO
-	shamrock.taprogge.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751380AbaAUAUQ (ORCPT
+Received: from mail-we0-f182.google.com ([74.125.82.182]:59209 "EHLO
+	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751750AbaAUAm1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jan 2014 19:20:16 -0500
-Content-Disposition: inline
-In-Reply-To: <20140120235358.GC5012@kroah.com>
+	Mon, 20 Jan 2014 19:42:27 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thomas Hellstrom <thellstrom@vmware.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Jan 20, 2014 at 03:53:58PM -0800, Greg Kroah-Hartman wrote:
-> On Tue, Jan 21, 2014 at 12:26:52AM +0100, Jens Taprogge wrote:
-> > Hello,
-> > 
-> > I have bisected the boot failure of a Lenovo Thinkpad X1 Carbon to the
-> > merge ea4ebd1cb093c8ec5d7f4bf9070dc444184c3971.  What I call "boot
-> > failure" refers to the fact that no console is shown, the machine only
-> > reads from the disc for a very short time, and the machine does not
-> > respond to Ctrl-Alt-Del, etc.
-> > 
-> > As it turns out reverting e696c68363740d3a8fe495e353de3ff26b86257a
-> > (Input: serio - fix sysfs layout) on top of v3.13 makes the machine boot
-> > again.  So far I have now clue how this commit can affect early boot
-> > / showing of the console.
-> > 
-> > Does it ring any bells for you?
-> 
-> No, not at all, I don't see how that patch could prevent booting,
-> especially as it is fixing a regression (i.e. putting things back the
-> way they originally were.)
-> 
-> very odd.
-> 
-> greg k-h
+The below patch fixes a bug 64811
+(https://bugzilla.kernel.org/show_bug.cgi?id=64811) of the Microsoft
+Surface Type/Touch cover 2 devices being detected as a multitouch
+device.
+The fix adds the HID of the two devices to hid-microsoft driver. This
+ensures that hid-input will eventually be used for the device and not
+hid-multitouch.
 
-I agree.  This machine had some very weird boot issues a while ago.
-I was starting to suspect it had some alignment issue of some vector
-that the EFI firmware uses when handing over control to the kernel.
-(Note that I know very little about EFI.)  Does that make any sense?
+>From 866c814f3f6740a5a79858fdf8bf5bbcdc3b57f8 Mon Sep 17 00:00:00 2001
+From: Reyad Attiyat <reyad.attiyat@gmail.com>
+Date: Mon, 20 Jan 2014 16:24:49 -0600
+Subject: [PATCH 1/2] Added in ID's for Surface Type/Touch cover 2 to the
+ hid-microsoft driver
 
-See this thread http://www.spinics.net/lists/stable/msg09886.html for
-the old discussion.  Back then, the problem disappeared with later
-version of the kernel / compiler.
+---
+ drivers/hid/hid-ids.h       | 4 +++-
+ drivers/hid/hid-microsoft.c | 4 ++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-Best Regards,
-Jens
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index f9304cb..b523a8b 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -611,7 +611,9 @@
+ #define USB_DEVICE_ID_MS_PRESENTER_8K_USB    0x0713
+ #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K    0x0730
+ #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500    0x076c
+-
++#define USB_DEVICE_ID_MS_TOUCH_COVER_2 0x07a7
++#define USB_DEVICE_ID_MS_TYPE_COVER_2  0x07a9
++
+ #define USB_VENDOR_ID_MOJO        0x8282
+ #define USB_DEVICE_ID_RETRO_ADAPTER    0x3201
+
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 551795b..2599de8 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -207,6 +207,10 @@ static const struct hid_device_id ms_devices[] = {
+         .driver_data = MS_NOGET },
+     { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
+         .driver_data = MS_DUPLICATE_USAGES },
++    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2),
++        .driver_data = 0 },
++    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2),
++        .driver_data = 0 },
+
+     { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT,
+USB_DEVICE_ID_MS_PRESENTER_8K_BT),
+         .driver_data = MS_PRESENTER },
+-- 
+1.8.4.2

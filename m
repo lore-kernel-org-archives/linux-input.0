@@ -1,70 +1,82 @@
-From: Reyad Attiyat <reyad.attiyat@gmail.com>
-Subject: [PATCH] Add HID's to hid-microsoft driver of Surface Type/Touch Cover
- 2 to fix bug
-Date: Mon, 20 Jan 2014 18:42:06 -0600
-Message-ID: <CA+BWVUTkaUt8Ys_40r7zFV_wBtY7iWTTmUUL+bHj=e3NwAtgNg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] input/uinput: add UI_GET_SYSNAME ioctl to retrieve
+ the sysfs path
+Date: Mon, 20 Jan 2014 20:12:37 -0800
+Message-ID: <20140121041237.GA7709@core.coreip.homeip.net>
+References: <1389985971-541-1-git-send-email-benjamin.tissoires@redhat.com>
+ <20140120215313.GB4270@core.coreip.homeip.net>
+ <CAN+gG=EPXLR5H_h0UgaMOmAbwAivxCohtg3Gocws5fJucz4+eg@mail.gmail.com>
+ <20140120225651.GA30049@yabbi.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f182.google.com ([74.125.82.182]:59209 "EHLO
-	mail-we0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751750AbaAUAm1 (ORCPT
+Received: from mail-pb0-f41.google.com ([209.85.160.41]:34187 "EHLO
+	mail-pb0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751136AbaAUEMl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jan 2014 19:42:27 -0500
+	Mon, 20 Jan 2014 23:12:41 -0500
+Content-Disposition: inline
+In-Reply-To: <20140120225651.GA30049@yabbi.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-The below patch fixes a bug 64811
-(https://bugzilla.kernel.org/show_bug.cgi?id=64811) of the Microsoft
-Surface Type/Touch cover 2 devices being detected as a multitouch
-device.
-The fix adds the HID of the two devices to hid-microsoft driver. This
-ensures that hid-input will eventually be used for the device and not
-hid-multitouch.
+On Tue, Jan 21, 2014 at 08:56:51AM +1000, Peter Hutterer wrote:
+> On Mon, Jan 20, 2014 at 05:17:08PM -0500, Benjamin Tissoires wrote:
+> > On Mon, Jan 20, 2014 at 4:53 PM, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > > Hi Benjamin,
+> > >
+> > > On Fri, Jan 17, 2014 at 02:12:51PM -0500, Benjamin Tissoires wrote:
+> > >> Evemu [1] uses uinput to replay devices traces it has recorded. However,
+> > >> the way evemu uses uinput is slightly different from how uinput is
+> > >> supposed to be used.
+> > >> Evemu relies on libevdev, which creates the device node through uinput.
+> > >> It then injects events through the input device node directly (and it
+> > >> completely skips the uinput node).
+> > >>
+> > >> Currently, libevdev relies on an heuristic to guess which input node was
+> > >> created. The problem is that is heuristic is subjected to races between
+> > >> different uinput devices or even with physical devices. Having a way
+> > >> to retrieve the sysfs path allows us to find the event node without
+> > >> having to rely on this heuristic.
+> > >
+> > > I have been thinking about it and I think that providing tight coupling
+> > > between uinput and resulting event device is wrong thing to do. We do
+> > > allow sending input events through uinput interface and I think evemu
+> > > should be using it, instead of going halfway through uinput and halfway
+> > > though evdev. Replaying though uinput would actually be more correct as
+> > > it would involve the same code paths throgugh input core as with using
+> > > real devices (see input_event() vs. input_inject_event() that is used by
+> > > input handlers).
+> > >
+> > 
+> > Yes, I am perfectly aware of the fact that evemu is not using uinput
+> > in the way it is intended to be.
+> > I agree that it should be using the uinput node to inject events but
+> > this means that only the process which has created the virtual device
+> > can access it. It seems weird, I know, but the typical use of evemu is
+> > the following:
+> > - in a first terminal: $> sudo evemu-device mydevice.desc
+> > - In a second: $> sudo evemu-play /dev/input/event12 < mydevice.events
+> > 
+> > It looks weird here, but it allows to inject different events
+> > recording for the same virtual device node. 
+> 
+> it also allows replaying an event through the device it was recorded on.
+> it's not always necessary or desirable to create a uinput device, sometimes
+> replaying it through the actual device is better to reproduce a certain bug.
 
->From 866c814f3f6740a5a79858fdf8bf5bbcdc3b57f8 Mon Sep 17 00:00:00 2001
-From: Reyad Attiyat <reyad.attiyat@gmail.com>
-Date: Mon, 20 Jan 2014 16:24:49 -0600
-Subject: [PATCH 1/2] Added in ID's for Surface Type/Touch cover 2 to the
- hid-microsoft driver
+I was not saying that we should remove ability to inject events through
+evdev nodes, so I am not sure why you are bringing your last point, but
+form your and Benjamin's other mails I can see why going through evdev
+(that has a separate device node) might be beneficial.
 
----
- drivers/hid/hid-ids.h       | 4 +++-
- drivers/hid/hid-microsoft.c | 4 ++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+Benjamin, please clean up the issues brought up by David and I should be
+able to apply the patch.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index f9304cb..b523a8b 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -611,7 +611,9 @@
- #define USB_DEVICE_ID_MS_PRESENTER_8K_USB    0x0713
- #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K    0x0730
- #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500    0x076c
--
-+#define USB_DEVICE_ID_MS_TOUCH_COVER_2 0x07a7
-+#define USB_DEVICE_ID_MS_TYPE_COVER_2  0x07a9
-+
- #define USB_VENDOR_ID_MOJO        0x8282
- #define USB_DEVICE_ID_RETRO_ADAPTER    0x3201
+Thanks.
 
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 551795b..2599de8 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -207,6 +207,10 @@ static const struct hid_device_id ms_devices[] = {
-         .driver_data = MS_NOGET },
-     { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
-         .driver_data = MS_DUPLICATE_USAGES },
-+    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2),
-+        .driver_data = 0 },
-+    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2),
-+        .driver_data = 0 },
-
-     { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT,
-USB_DEVICE_ID_MS_PRESENTER_8K_BT),
-         .driver_data = MS_PRESENTER },
 -- 
-1.8.4.2
+Dmitry

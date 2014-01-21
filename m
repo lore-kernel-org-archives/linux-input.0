@@ -1,169 +1,120 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH] Add HID's to hid-microsoft driver of Surface Type/Touch
- Cover 2 to fix bug
-Date: Tue, 21 Jan 2014 11:24:27 -0500
-Message-ID: <CAN+gG=Fy7+ugZY2V_qgdp5FVf8YzAK-BhGGtz+HKEvCO8zcAwg@mail.gmail.com>
-References: <CA+BWVUTkaUt8Ys_40r7zFV_wBtY7iWTTmUUL+bHj=e3NwAtgNg@mail.gmail.com>
-	<alpine.LRH.2.00.1401210747120.12934@twin.jikos.cz>
-	<CA+BWVUQnyZ=YP95V25BoiM9QLBaL78Hd0fC8DOrSfoH60cvD3A@mail.gmail.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH] input synaptics-rmi4: PDT scan cleanup
+Date: Tue, 21 Jan 2014 11:33:15 -0800
+Message-ID: <52DECB7B.7080107@synaptics.com>
+References: <1389126821-4066-1-git-send-email-cheiny@synaptics.com> <52D056B3.406@synaptics.com> <1754181.lppeTWGTml@dtor-d630.eng.vmware.com> <52D06B1C.1090403@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f177.google.com ([209.85.217.177]:53027 "EHLO
-	mail-lb0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755084AbaAUQY3 (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:18050 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751358AbaAUTdQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jan 2014 11:24:29 -0500
-In-Reply-To: <CA+BWVUQnyZ=YP95V25BoiM9QLBaL78Hd0fC8DOrSfoH60cvD3A@mail.gmail.com>
+	Tue, 21 Jan 2014 14:33:16 -0500
+In-Reply-To: <52D06B1C.1090403@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Reyad Attiyat <reyad.attiyat@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Hi Reyad,
 
-On Tue, Jan 21, 2014 at 2:33 AM, Reyad Attiyat <reyad.attiyat@gmail.com> wrote:
-> On Tue, Jan 21, 2014 at 12:47 AM, Jiri Kosina <jkosina@suse.cz> wrote:
->> On Mon, 20 Jan 2014, Reyad Attiyat wrote:
+Ping - any followup on this and related patches?
+
+On 01/10/2014 01:50 PM, Christopher Heiny wrote:
+> On 01/10/2014 12:31 PM, Dmitry Torokhov wrote:
+>> On Friday, January 10, 2014 12:23:15 PM Christopher Heiny wrote:
+>>> >On 01/07/2014 12:33 PM, Christopher Heiny wrote:
+>>>> > >Eliminates copy-paste code that handled scans of the Page Descriptor
+>>>> > >Table,
+>>>> > >replacing it with a single PDT scan routine that invokes a callback
+>>>> > >function. The scan routine is not static so that it can be used
+>>>> by the
+>>>> > >firmware update code (under development, not yet submitted).
+>>>> > >
+>>>> > >Updated the copyright dates while we were at it.
+>>> >
+>>> >Hi Dmitry,
+>>> >
+>>> >Could you apply this or provide some feedback on it?  We've got a
+>>> >pending patch that depends on it, and that pending work will bring the
+>>> >driver back to a working (if not necessarily beautiful) state.  I don't
+>>> >want to submit it if this change isn't satisfactory, though.
+>  >
+>> Speaking of the devil. I was just thinking about it and I wanted to ask
+>> you to send me an example of how it is used as I can;t make my mind about
+>> it.
 >>
->>> The below patch fixes a bug 64811
->>> (https://bugzilla.kernel.org/show_bug.cgi?id=64811) of the Microsoft
->>> Surface Type/Touch cover 2 devices being detected as a multitouch
->>> device.
->>> The fix adds the HID of the two devices to hid-microsoft driver. This
->>> ensures that hid-input will eventually be used for the device and not
->>> hid-multitouch.
+>> In general it is OK to submit a few patches at a time even if they are
+>> depend on each other - it gives me better context (as long as there
+>> aren't 80 of those so that I down in them ;) ).
 >>
->> Hi,
->>
->> your patch is missing hid_have_special_driver[] entry, therefore correct
->> driver binding is not guaranteed.
->>
->> --
->> Jiri Kosina
->> SUSE Labs
->>
+>> Thanks.
 >
-> Hi,
+> No problem!
 >
-> Thanks for reminding me of hid_have_special_driver[]. I noticed that
-> this device has the HID_DG_CONTACTID and in the comment of the
-> hid_have_sepcial_driver[]
+> Currently the rmi_driver.c iterates over the PDT twice during probe():
 >
-> * Please note that for multitouch devices (driven by hid-multitouch driver),
-> * there is a proper autodetection and autoloading in place (based on presence
-> * of HID_DG_CONTACTID), so those devices don't need to be added to this list,
-> * as we are doing the right thing in hid_scan_usage().
+> 1) find F01 and reset the ASIC;
+> 2) create and initialize the function devices & count the number of
+> interrupt sources.
 >
-> This device should not be driven by hid-multitouch as it does not
-> handle keyboard/mouse input devices.
-> I submitted a new patch below with it added. I believe it should still
-> be part of this array, in case this kind of implementation is
-> fixed/updated.
-
-This implementation is perfectly fine (I am referring to the "fixed/updated"):
-- if your device should be driven by hid-multitouch, then you _don't_
-add it to hid_have_special_driver
-- if your device should not be driven by hid-multitouch, then you
-_need_ to add it to hid_have_special_driver.
-
-Adding the device to hid_have_special_driver prevents the detection of
-the group HID_GRP_MULTITOUCH, so you will not end with a race between
-hid-multitouch and your special hid driver.
-
+> followed by
 >
-> From 291742873dcf181faf9657b41279487f31302c73 Mon Sep 17 00:00:00 2001
-> From: Reyad Attiyat <reyad.attiyat@gmail.com>
-> Date: Tue, 21 Jan 2014 01:22:25 -0600
-> Subject: [PATCH 1/1] Added in HID's for Microsoft Surface Type/Touch cover 2.
->  This is to fix bug 64811 where this device is detected as a multitouch device
+> 3) a loop over the function devices allocating each one's interrupt
+> related bitmasks.
 >
-
-You are missing a commit message here (the first message you sent
-would fit perfectly here).
-
-Other than that, I played a little with the report descriptor pointed
-in the bugzilla.
-
-I think I will be able to handle this touch cover in hid-multitouch,
-but that would require more testings/debugging. Microsoft seems to
-have implemented an indirect (dual) touchpad here, but until we know
-which mode we should put it into, it's going to be tricky to set it up
-correctly.
-
-One last thing, in the bugzilla, in the comment 2 you say: "I still
-have issues with the type cover 2 even with this fix". Are you still
-experiencing those disconnection? If so, maybe we should switch to
-hid-multitouch at some point.
-
-
-So to sum up, with the commit message amended:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
-
-> ---
->  drivers/hid/hid-core.c      | 3 +++
->  drivers/hid/hid-ids.h       | 4 +++-
->  drivers/hid/hid-microsoft.c | 4 ++++
->  3 files changed, 10 insertions(+), 1 deletion(-)
+> Unfortunately, depending on how the function drivers are loaded, a
+> function driver might access the device's and the function device's
+> bitmasks before step (3) is complete.  This causes all kinds of
+> unintended consequences, none of which are amusing.
 >
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 253fe23..88eb4a6 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1778,6 +1778,9 @@ static const struct hid_device_id
-> hid_have_special_driver[] = {
->      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> USB_DEVICE_ID_MS_PRESENTER_8K_USB) },
->      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
->      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
-> +    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2) },
-> +    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> USB_DEVICE_ID_MS_TOUCH_COVER_2) },
-> +
->      { HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
->      { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
->      { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index f9304cb..b523a8b 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -611,7 +611,9 @@
->  #define USB_DEVICE_ID_MS_PRESENTER_8K_USB    0x0713
->  #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K    0x0730
->  #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500    0x076c
-> -
-> +#define USB_DEVICE_ID_MS_TOUCH_COVER_2 0x07a7
-> +#define USB_DEVICE_ID_MS_TYPE_COVER_2  0x07a9
-> +
->  #define USB_VENDOR_ID_MOJO        0x8282
->  #define USB_DEVICE_ID_RETRO_ADAPTER    0x3201
+> We considered fixing this by splitting the function device creation and
+> initialization, like so:
 >
-> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-> index 551795b..2599de8 100644
-> --- a/drivers/hid/hid-microsoft.c
-> +++ b/drivers/hid/hid-microsoft.c
-> @@ -207,6 +207,10 @@ static const struct hid_device_id ms_devices[] = {
->          .driver_data = MS_NOGET },
->      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
->          .driver_data = MS_DUPLICATE_USAGES },
-> +    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2),
-> +        .driver_data = 0 },
-> +    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2),
-> +        .driver_data = 0 },
+> 1) first to find F01 and reset the ASIC;
+> 2) count the number of interrupt sources and create the function devices
 >
->      { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> USB_DEVICE_ID_MS_PRESENTER_8K_BT),
->          .driver_data = MS_PRESENTER },
-> --
-> 1.8.4.2
+> followed by
+>
+> 3) a loop over the function devices to allocate their interrupt related
+> bitmasks and initialize the function devices
+>
+> However, this led to function device setup being in two different
+> places, which obscured the code and could lead to bugs if someone added
+> new code in the wrong place (initialization instead of creation, or vice
+> versa).
+>
+> The PDT scan loops have a lot of redundant boilerplate and were quite
+> large compared to the core code that was being iterated, obscuring just
+> what the loop was supposed to be doing.  We found it clearer to
+> implement a single PDT scan routine, and put the logic for the different
+> step in callbacks.  Plus it eliminated the maintenance headaches of
+> three (or more, see reflash, below) copy-paste PDT scan loops.
+>
+> The pending patch (I'll send that right after this note) changes
+> rmi_driver.c the order to scan the PDT 3 times:
+>
+> 1) first to find F01 and reset the ASIC;
+> 2) count the number of interrupt sources
+> 3) create and initialize the function devices
+>
+> Similar logic applies in the reflash code, which has rescan the PDT
+> after forcing the touch sensor firmware into bootloader mode (the
+> bootloader might have a different register map, unfortunately).  Once we
+> had the scan+callback routine in rmi_driver.c, it only made sense for
+> the reflash library to use that as well.
+>
+>                  Thanks,
+>                      Chris
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-input" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+-- 
+
+Christopher Heiny
+Senior Staff Firmware Engineer
+Synaptics Incorporated

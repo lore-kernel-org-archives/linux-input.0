@@ -1,64 +1,74 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 0/4] HID: implement new transport-driver callbacks
-Date: Wed, 22 Jan 2014 20:01:21 +0100
-Message-ID: <CANq1E4RHBpbnQ6bGtT-uv7LYmOCw=khACsNWCyoqpKCPXrJJrQ@mail.gmail.com>
-References: <1390416584-3667-1-git-send-email-frank.praznik@oh.rr.com>
+From: Reyad Attiyat <reyad.attiyat@gmail.com>
+Subject: [PATCH] hid-microsoft: Add ID's for Surface Type/Touch Cover 2
+Date: Wed, 22 Jan 2014 13:54:16 -0600
+Message-ID: <52E021E8.8060608@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f175.google.com ([209.85.213.175]:32823 "EHLO
-	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752580AbaAVTBW (ORCPT
+Received: from mail-ie0-f180.google.com ([209.85.223.180]:43592 "EHLO
+	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752437AbaAVTyT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jan 2014 14:01:22 -0500
-Received: by mail-ig0-f175.google.com with SMTP id uq10so14723275igb.2
-        for <linux-input@vger.kernel.org>; Wed, 22 Jan 2014 11:01:22 -0800 (PST)
-In-Reply-To: <1390416584-3667-1-git-send-email-frank.praznik@oh.rr.com>
+	Wed, 22 Jan 2014 14:54:19 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-Hi
+This patch fixes bug 64811 (https://bugzilla.kernel.org/show_bug.cgi?id=64811)
+The Microsoft Surface Type/Touch cover 2 devices have the flag HID_DG_CONTACTID in their reports.This causes the device to bind to the hid-multitouch driver, which doesn't handle generic keyboard/mouse input events.
+The patch adds the hardware id's of the device to hid-microsoft and to the HID special driver array, which makes the device get handled by hid-generic/hid-input properly.
 
-On Wed, Jan 22, 2014 at 7:49 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
-> These patches are originally the work of David Herrmann who suggested that I
-> update and submit them as their functionality is required for some pending
-> patches to the hid-sony driver.
->
-> These patches implement the SET/GET_REPORT and raw intr OUTPUT requests for all
-> transport drivers.  It adds two callbacks to the hid_ll_driver struct:
->
-> int (*raw_request)(struct hid_device *hdev, unsigned char reportnum,
->                    __u8 *buf, size_t len, unsigned char rtype, int reqtype);
->
-> int (*output_report)(struct hid_device *hdev, __u8 *buf, size_t len);
->
-> along with the necessary support fuctions in the USBHID, and HIDP drivers.
->
-> UHID is not converted yet.
+Singed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
+Reviewed-by: Benjamin Tissoires<benjamin.tissoires@redhat.com>
 
-Thanks for picking it up. As background, people should read my HID
-summary which originally was part of this series:
-  http://cgit.freedesktop.org/~dvdhrm/linux/tree/Documentation/hid/hid-transport.txt?h=hid&id=86c08bb28302bb31dcd3b9aaf22b222f890397e0
+---
+  drivers/hid/hid-core.c      | 2 ++
+  drivers/hid/hid-ids.h       | 2 ++
+  drivers/hid/hid-microsoft.c | 4 ++++
+  3 files changed, 8 insertions(+)
 
-Our current hid_output_raw_report() callbacks are implemented
-differently in the USBHID, HIDP, I2CHID and UHID backends (I even
-think they're all mutually different). We cannot easily change these
-as drivers actually depend on the backends to do it differently.
-Therefore, I proposed the raw_request() and output_report() functions.
-raw_request() is basically the same as request() but takes a raw
-buffer instead of an hid_report. output_report() is what HIDP
-currently does with hid_output_raw_report() and sends the report as
-asynchronous intr report.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 253fe23..b10f6d0 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1778,6 +1778,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_USB) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index f9304cb..bb77d22 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -611,6 +611,8 @@
+  #define USB_DEVICE_ID_MS_PRESENTER_8K_USB	0x0713
+  #define USB_DEVICE_ID_MS_DIGITAL_MEDIA_3K	0x0730
+  #define USB_DEVICE_ID_MS_COMFORT_MOUSE_4500	0x076c
++#define USB_DEVICE_ID_MS_TOUCH_COVER_2 0x07a7
++#define USB_DEVICE_ID_MS_TYPE_COVER_2  0x07a9
+  
+  #define USB_VENDOR_ID_MOJO		0x8282
+  #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 551795b..277e545 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -207,6 +207,10 @@ static const struct hid_device_id ms_devices[] = {
+  		.driver_data = MS_NOGET },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500),
+  		.driver_data = MS_DUPLICATE_USAGES },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2),
++		.driver_data = 0 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2),
++		.driver_data = 0 },
+  
+  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
+  		.driver_data = MS_PRESENTER },
+-- 
+1.8.4.2
 
-The plan should be to use request(), raw_request() and output_report()
-exclusively and carefully port drivers to use them. Once we're done,
-we can remove hid_output_raw_report() (and any other legacy). This
-should guarantee, that drivers can choose between ctrl-SET_REPORT and
-intr-OUTPUT_REPORT messages without depending on the underlying
-backend to choose the right one.
-
-I hope that information helps.
-Thanks
-David

@@ -1,97 +1,315 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers/hid/wacom: fixed coding style issues
-Date: Tue, 21 Jan 2014 22:40:45 -0800
-Message-ID: <20140122064045.GA4143@core.coreip.homeip.net>
-References: <20140121195153.GA4198@fedora.fritz.box>
- <20140121200645.GC29615@core.coreip.homeip.net>
- <20140121202944.GA4554@fedora.fritz.box>
- <20140121211823.GD29615@core.coreip.homeip.net>
- <1390339554.31946.6.camel@joe-AO722>
- <20140121224203.GA12427@fedora.fritz.box>
+Subject: Re: [PATCH] input synaptics-rmi4: PDT scan cleanup
+Date: Tue, 21 Jan 2014 22:50:15 -0800
+Message-ID: <20140122065015.GB4143@core.coreip.homeip.net>
+References: <1389126821-4066-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f51.google.com ([209.85.220.51]:61244 "EHLO
-	mail-pa0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750823AbaAVGkt (ORCPT
+Received: from mail-pa0-f47.google.com ([209.85.220.47]:56846 "EHLO
+	mail-pa0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750873AbaAVGuT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jan 2014 01:40:49 -0500
+	Wed, 22 Jan 2014 01:50:19 -0500
+Received: by mail-pa0-f47.google.com with SMTP id kp14so9446308pab.6
+        for <linux-input@vger.kernel.org>; Tue, 21 Jan 2014 22:50:19 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20140121224203.GA12427@fedora.fritz.box>
+In-Reply-To: <1389126821-4066-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Schroer <sulamiification@gmail.com>
-Cc: Joe Perches <joe@perches.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Tue, Jan 21, 2014 at 11:42:03PM +0100, Rob Schroer wrote:
-> On Tue, Jan 21, 2014 at 01:25:54PM -0800, Joe Perches wrote:
-> > On Tue, 2014-01-21 at 13:18 -0800, Dmitry Torokhov wrote:
-> > > On Tue, Jan 21, 2014 at 09:29:44PM +0100, Rob Schroer wrote:
-> > > > As far as I can see, kstrtoXXX() might be an alternative, but I was just
-> > > > fixing coding style issues, no need to break anything IMO.
-> > > 
-> > > You could do the breaking in a follow up patch ;)
-> > 
-> > Yes please.
-> > 
-> > Include the breaking of multiple statements
-> > into multiple lines too please like
-> > 
-> > from:
-> > 	case USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH:
-> > 		rep_data[0] = 0x03; rep_data[1] = 0x00;
-> > 
-> > to:
-> > 	case USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH:
-> > 		rep_data[0] = 0x03;
-> > 		rep_data[1] = 0x00;
-> > 
-> > 
+Hi Christopher,
+
+On Tue, Jan 07, 2014 at 12:33:41PM -0800, Christopher Heiny wrote:
+> Eliminates copy-paste code that handled scans of the Page Descriptor Table,
+> replacing it with a single PDT scan routine that invokes a callback function.
+> The scan routine is not static so that it can be used by the firmware update
+> code (under development, not yet submitted).
 > 
-> Added a cosmetical linebreak, switched an occurence of sscanf to kstrtoint.
+> Updated the copyright dates while we were at it.
 > 
-> Signed-off-by: Robin Schroer <sulamiification@gmail.com>
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
 > ---
->  drivers/hid/hid-wacom.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> index ebcca0d..5daf80c 100644
-> --- a/drivers/hid/hid-wacom.c
-> +++ b/drivers/hid/hid-wacom.c
-> @@ -336,7 +336,8 @@ static void wacom_set_features(struct hid_device *hdev, u8 speed)
+>  drivers/input/rmi4/rmi_driver.c | 155 ++++++++++++++++++++--------------------
+>  drivers/input/rmi4/rmi_driver.h |   6 +-
+>  2 files changed, 83 insertions(+), 78 deletions(-)
 > 
->  	switch (hdev->product) {
->  	case USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH:
-> -		rep_data[0] = 0x03; rep_data[1] = 0x00;
-> +		rep_data[0] = 0x03;
-> +		rep_data[1] = 0x00;
->  		limit = 3;
->  		do {
->  			ret = hdev->hid_output_raw_report(hdev, rep_data, 2,
-> @@ -404,7 +405,7 @@ static ssize_t wacom_store_speed(struct device *dev,
->  	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
->  	int new_speed;
-> 
-> -	if (sscanf(buf, "%1d", &new_speed) != 1)
-> +	if (kstrtoint(buf, 10, &new_speed))
->  		return -EINVAL;
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index eb790ff..cbd6485 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Copyright (c) 2011-2013 Synaptics Incorporated
+> + * Copyright (c) 2011-2014 Synaptics Incorporated
+>   * Copyright (c) 2011 Unixphere
+>   *
+>   * This driver provides the core support for a single RMI4-based device.
+> @@ -566,85 +566,80 @@ err_free_mem:
+>  	return error;
+>  }
+>  
+> -/*
+> - * Scan the PDT for F01 so we can force a reset before anything else
+> - * is done.  This forces the sensor into a known state, and also
+> - * forces application of any pending updates from reflashing the
+> - * firmware or configuration.
+> - *
+> - * We have to do this before actually building the PDT because the reflash
+> - * updates (if any) might cause various registers to move around.
+> - */
+> -static int rmi_initial_reset(struct rmi_device *rmi_dev)
+> +
+> +#define RMI_SCAN_CONTINUE	0
+> +#define RMI_SCAN_DONE		1
 
-I think this should be
+Can we add RMI_SCAN_ERROR here and use it instead of -EXXXX errors: I'd
+rather not mix the 2 namespaces.
 
-	error = kstrtoint(buf, 10, &new_speed);
-	if (error)
-		return error;
+> +
+> +static int rmi_initial_reset(struct rmi_device *rmi_dev,
+> +		void *clbk_ctx, struct pdt_entry *pdt_entry, int page)
+>  {
+> -	struct pdt_entry pdt_entry;
+> -	int page;
+> -	struct device *dev = &rmi_dev->dev;
+> -	bool done = false;
+> -	bool has_f01 = false;
+> -	int i;
+>  	int retval;
+> -	const struct rmi_device_platform_data *pdata =
+> -			to_rmi_platform_data(rmi_dev);
+>  
+> -	dev_dbg(dev, "Initial reset.\n");
+> +	if (pdt_entry->function_number == 0x01) {
+> +		u16 cmd_addr = page + pdt_entry->command_base_addr;
+> +		u8 cmd_buf = RMI_DEVICE_RESET_CMD;
+> +		const struct rmi_device_platform_data *pdata =
+> +				to_rmi_platform_data(rmi_dev);
+>  
+> -	for (page = 0; (page <= RMI4_MAX_PAGE) && !done; page++) {
+> -		u16 page_start = RMI4_PAGE_SIZE * page;
+> -		u16 pdt_start = page_start + PDT_START_SCAN_LOCATION;
+> -		u16 pdt_end = page_start + PDT_END_SCAN_LOCATION;
+> +		retval = rmi_write_block(rmi_dev, cmd_addr, &cmd_buf, 1);
+> +		if (retval < 0) {
+> +			dev_err(&rmi_dev->dev,
+> +				"Initial reset failed. Code = %d.\n", retval);
+> +			return retval;
+> +		}
+> +		mdelay(pdata->reset_delay_ms);
+>  
+> -		done = true;
+> -		for (i = pdt_start; i >= pdt_end; i -= RMI_PDT_ENTRY_SIZE) {
+> -			retval = rmi_read_pdt_entry(rmi_dev, &pdt_entry, i);
+> -			if (retval < 0)
+> -				return retval;
+> +		return RMI_SCAN_DONE;
+> +	}
+>  
+> -			if (RMI4_END_OF_PDT(pdt_entry.function_number))
+> -				break;
+> -			done = false;
+> +	/* F01 should always be on page 0. If we don't find it there, fail. */
+> +	return (!page) ? RMI_SCAN_CONTINUE : -ENODEV;
+> +}
+>  
+> -			if (pdt_entry.function_number == 0x01) {
+> -				u16 cmd_addr = page_start +
+> -					pdt_entry.command_base_addr;
+> -				u8 cmd_buf = RMI_DEVICE_RESET_CMD;
+> -				retval = rmi_write_block(rmi_dev, cmd_addr,
+> -						&cmd_buf, 1);
+> -				if (retval < 0) {
+> -					dev_err(dev, "Initial reset failed. Code = %d.\n",
+> -						retval);
+> -					return retval;
+> -				}
+> -				mdelay(pdata->reset_delay_ms);
+> -				done = true;
+> -				has_f01 = true;
+> -				break;
+> -			}
+> -		}
+> -	}
+> +static int rmi_create_functions_clbk(struct rmi_device *rmi_dev,
+> +		void *clbk_ctx, struct pdt_entry *entry, int page)
+> +{
+> +	int *irq_count = (int *)clbk_ctx;
+>  
+> -	if (!has_f01) {
+> -		dev_warn(dev, "WARNING: Failed to find F01 for initial reset.\n");
+> -		return -ENODEV;
+> -	}
+> +	return create_function(rmi_dev, entry, irq_count,
+> +				RMI4_PAGE_SIZE * page);
+> +}
+> +
+> +static int rmi_create_functions(struct rmi_device *rmi_dev)
+> +{
+> +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+> +	struct device *dev = &rmi_dev->dev;
+> +	int irq_count = 0;
+> +	int retval;
+> +
+> +	// XXX need to make sure we create F01 first...
+> +	// XXX or do we?  It might not be required in the updated structure.
 
-> 
->  	if (new_speed == 0 || new_speed == 1) {
-> --
-> 1.8.4.2
-> 
-> Well, I hope this works as intended.
-> 
-> --
-> Robin
+Prefer not add more C99-style comments.
+
+> +	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_functions_clbk);
+> +
+> +	if (retval)
+> +		return retval;
+> +
+> +	// TODO: I think we need to count the IRQs before creating the
+> +	// functions.
+
+Same here.
+
+> +	data->irq_count = irq_count;
+> +	data->num_of_irq_regs = (irq_count + 7) / 8;
+>  
+>  	return 0;
+>  }
+>  
+> -static int rmi_scan_pdt(struct rmi_device *rmi_dev)
+> +int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
+> +		int (*rmi_pdt_scan_clbk)(struct rmi_device *rmi_dev,
+> +		void *clbk_ctx, struct pdt_entry *entry, int page))
+>  {
+> -	struct rmi_driver_data *data;
+> +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+>  	struct pdt_entry pdt_entry;
+>  	int page;
+> -	struct device *dev = &rmi_dev->dev;
+> -	int irq_count = 0;
+> -	bool done = false;
+>  	int i;
+> -	int retval;
+> -
+> -	dev_dbg(dev, "Scanning PDT...\n");
+> +	bool done = false;
+> +	int retval = 0;
+>  
+> -	data = dev_get_drvdata(&rmi_dev->dev);
+> +	// TODO: With F01 and reflash as part of the core now, is this
+> +	// lock still required?
+>  	mutex_lock(&data->pdt_mutex);
+>  
+>  	for (page = 0; (page <= RMI4_MAX_PAGE) && !done; page++) {
+> @@ -656,27 +651,27 @@ static int rmi_scan_pdt(struct rmi_device *rmi_dev)
+>  		for (i = pdt_start; i >= pdt_end; i -= RMI_PDT_ENTRY_SIZE) {
+>  			retval = rmi_read_pdt_entry(rmi_dev, &pdt_entry, i);
+>  			if (retval < 0)
+> -				goto error_exit;
+> +				return retval;
+>  
+>  			if (RMI4_END_OF_PDT(pdt_entry.function_number))
+>  				break;
+>  
+> -			dev_dbg(dev, "Found F%02X on page %#04x\n",
+> +			dev_dbg(&rmi_dev->dev, "Found F%02X on page %#04x\n",
+>  					pdt_entry.function_number, page);
+>  			done = false;
+>  
+> -			// XXX need to make sure we create F01 first...
+> -			retval = create_function(rmi_dev,
+> -					&pdt_entry, &irq_count, page_start);
+> -
+> -			if (retval)
+> +			retval = rmi_pdt_scan_clbk(rmi_dev, ctx,
+> +							&pdt_entry, page);
+> +			if (retval < 0) {
+>  				goto error_exit;
+> +			} else if (retval == RMI_SCAN_DONE) {
+> +				done = true;
+> +				break;
+> +			}
+>  		}
+>  		done = done || data->f01_bootloader_mode;
+
+This should be simplified even more: the callback should return
+RMI_SCAN_DONE if device is in bootloader mode.
+
+>  	}
+> -	data->irq_count = irq_count;
+> -	data->num_of_irq_regs = (irq_count + 7) / 8;
+> -	dev_dbg(dev, "%s: Done with PDT scan.\n", __func__);
+> +
+>  	retval = 0;
+>  
+>  error_exit:
+> @@ -684,6 +679,7 @@ error_exit:
+>  	return retval;
+>  }
+>  
+> +
+>  #ifdef CONFIG_PM_SLEEP
+>  static int rmi_driver_suspend(struct device *dev)
+>  {
+> @@ -797,10 +793,15 @@ static int rmi_driver_probe(struct device *dev)
+>  
+>  	/*
+>  	 * Right before a warm boot, the sensor might be in some unusual state,
+> -	 * such as F54 diagnostics, or F34 bootloader mode.  In order to clear
+> -	 * the sensor to a known state, we issue a initial reset to clear any
+> +	 * such as F54 diagnostics, or F34 bootloader mode after a firmware
+> +	 * or configuration update.  In order to clear the sensor to a known
+> +	 * state and/or apply any updates, we issue a initial reset to clear any
+>  	 * previous settings and force it into normal operation.
+>  	 *
+> +	 * We have to do this before actually building the PDT because
+> +	 * the reflash updates (if any) might cause various registers to move
+> +	 * around.
+> +	 *
+>  	 * For a number of reasons, this initial reset may fail to return
+>  	 * within the specified time, but we'll still be able to bring up the
+>  	 * driver normally after that failure.  This occurs most commonly in
+> @@ -813,11 +814,11 @@ static int rmi_driver_probe(struct device *dev)
+>  	 */
+>  	if (!pdata->reset_delay_ms)
+>  		pdata->reset_delay_ms = DEFAULT_RESET_DELAY_MS;
+> -	retval = rmi_initial_reset(rmi_dev);
+> +	retval = rmi_scan_pdt(rmi_dev, NULL, rmi_initial_reset);
+>  	if (retval)
+>  		dev_warn(dev, "RMI initial reset failed! Continuing in spite of this.\n");
+>  
+> -	retval = rmi_scan_pdt(rmi_dev);
+> +	retval = rmi_create_functions(rmi_dev);
+>  	if (retval) {
+>  		dev_err(dev, "PDT scan for %s failed with code %d.\n",
+>  			pdata->sensor_name, retval);
+> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+> index df9ddd8..f73be73 100644
+> --- a/drivers/input/rmi4/rmi_driver.h
+> +++ b/drivers/input/rmi4/rmi_driver.h
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Copyright (c) 2011-2013 Synaptics Incorporated
+> + * Copyright (c) 2011-2014 Synaptics Incorporated
+>   * Copyright (c) 2011 Unixphere
+>   *
+>   * This program is free software; you can redistribute it and/or modify it
+> @@ -108,6 +108,10 @@ struct pdt_entry {
+>  int rmi_read_pdt_entry(struct rmi_device *rmi_dev, struct pdt_entry *entry,
+>  			u16 pdt_address);
+>  
+> +int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
+> +	int (*rmi_pdt_scan_clbk)(struct rmi_device *rmi_dev,
+> +	void *clbk_ctx, struct pdt_entry *entry, int page));
+> +
+>  bool rmi_is_physical_driver(struct device_driver *);
+>  int rmi_register_physical_driver(void);
+>  void rmi_unregister_physical_driver(void);
+
+Thanks.
 
 -- 
 Dmitry

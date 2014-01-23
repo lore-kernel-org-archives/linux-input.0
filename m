@@ -1,52 +1,63 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/3 RESEND] mfd: tc3589x: Reform device tree probing
-Date: Thu, 23 Jan 2014 15:11:23 +0000
-Message-ID: <20140123151123.GE8586@lee--X1>
-References: <1390481008-23900-1-git-send-email-linus.walleij@linaro.org>
- <20140123133141.GD8586@lee--X1>
- <CACRpkdZjRG=cmWHmmFNS+=guCwQoFpu8T3r4YHr6t_XihvmaWA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: multitouch: add FocalTech FTxxxx support
+Date: Thu, 23 Jan 2014 16:33:14 -0500
+Message-ID: <1390512794-3825-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-we0-f173.google.com ([74.125.82.173]:50538 "EHLO
-	mail-we0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753000AbaAWPLa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jan 2014 10:11:30 -0500
-Received: by mail-we0-f173.google.com with SMTP id t60so1319216wes.32
-        for <linux-input@vger.kernel.org>; Thu, 23 Jan 2014 07:11:29 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CACRpkdZjRG=cmWHmmFNS+=guCwQoFpu8T3r4YHr6t_XihvmaWA@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:59503 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751184AbaAWVdY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jan 2014 16:33:24 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Mark Rutland <mark.rutland@arm.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> > Patch looks good to me. Is there any reason why we should rush this=
- in
-> > for v3.14, or is it okay to go to -next?
->=20
-> No rush, but it's been on review like forever so unless there is
-> some noise from the DT people at -rc1 I'd be very happy if you
-> could apply patches 1 & 2 by then.
+This is a Win7 device which does not work correctly with the default
+settings (not the previous default BT).
+However, the quirk ALWAYS_TRUE makes it working like a charm.
 
-I'm just waiting for their Ack. If I don't have it soon I'll review it
-myself and any changes will have to come in via subsequent patch
-submissions.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
-I think it's sensible to head for v3.15 for this set.
+Hi Jiri,
 
-> The third one can be applied out-of-order to the input tree after
-> that.
+well, it's been a long time since I did not add those kind of small patches.
+And I really hope not having to do some gain soon :)
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Benjamin
+
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 5 +++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 92b40c0..67f89dd 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -240,6 +240,7 @@
+ 
+ #define USB_VENDOR_ID_CYGNAL		0x10c4
+ #define USB_DEVICE_ID_CYGNAL_RADIO_SI470X	0x818a
++#define USB_DEVICE_ID_FOCALTECH_FTXXXX_MULTITOUCH	0x81b9
+ 
+ #define USB_VENDOR_ID_CYPRESS		0x04b4
+ #define USB_DEVICE_ID_CYPRESS_MOUSE	0x0001
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index f134d73..221d503 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1166,6 +1166,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_FLATFROG,
+ 			USB_DEVICE_ID_MULTITOUCH_3200) },
+ 
++	/* FocalTech Panels */
++	{ .driver_data = MT_CLS_SERIAL,
++		MT_USB_DEVICE(USB_VENDOR_ID_CYGNAL,
++			USB_DEVICE_ID_FOCALTECH_FTXXXX_MULTITOUCH) },
++
+ 	/* GeneralTouch panel */
+ 	{ .driver_data = MT_CLS_GENERALTOUCH_TWOFINGERS,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
+-- 
+1.8.3.1
+

@@ -1,279 +1,156 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: [PATCH v2] input: synaptics-rmi4 - Count IRQs before creating functions; save F01 container.
-Date: Wed, 22 Jan 2014 17:35:37 -0800
-Message-ID: <1390440937-14856-1-git-send-email-cheiny@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 1/3 RESEND] mfd: tc3589x: Add device tree bindings
+Date: Thu, 23 Jan 2014 13:43:14 +0100
+Message-ID: <1390480994-23861-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:41030 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752331AbaAWBfq (ORCPT
+Received: from mail-wg0-f47.google.com ([74.125.82.47]:54463 "EHLO
+	mail-wg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752623AbaAWMnZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jan 2014 20:35:46 -0500
+	Thu, 23 Jan 2014 07:43:25 -0500
+Received: by mail-wg0-f47.google.com with SMTP id m15so1382580wgh.26
+        for <linux-input@vger.kernel.org>; Thu, 23 Jan 2014 04:43:24 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>
 
-Because creating a function can trigger events that result in the IRQ
-related storage being accessed, we need to count the IRQs and allocate
-their storage before the functions are created, rather than counting
-them as the functions are created and allocating them afterwards. Since
-we know the number of IRQs already, we can allocate the mask at 
-function creation time, rather than in a post-creation loop.  Also, the
-F01 function_container is needed elsewhere, so we need to save it here.
+This defines the device tree bindings for the Toshiba TC3589x
+series of multi-purpose expanders. Only the stuff I can test
+is defined: GPIO and keypad. Others may implement more
+subdevices further down the road.
 
-In order to keep the IRQ count logic sane in bootloader mode, we move
-the check for bootloader mode from F01 initialization to the IRQ
-counting routine.
+This is to complement
+commit a435ae1d51e2f18414f2a87219fdbe068231e692
+"mfd: Enable the tc3589x for Device Tree" which left off
+the definition of the device tree bindings.
 
-Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
+ChangeLog v2->v3:
+- Fix the keys/rows bindings to be u32 rather than
+  /bits/ 8, inconsistency noted by Mark Rutland.
+ChangeLog v1->v2:
+- Include a verbose example in the DT bindings.
+- Explain why this is a stand-alone bindings patch.
+---
+ Documentation/devicetree/bindings/mfd/tc3589x.txt | 107 ++++++++++++++++++++++
+ 1 file changed, 107 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/tc3589x.txt
 
- drivers/input/rmi4/rmi_driver.c | 122 ++++++++++++++++++++++++++++++----------
- drivers/input/rmi4/rmi_driver.h |   1 -
- drivers/input/rmi4/rmi_f01.c    |  11 +---
- 3 files changed, 92 insertions(+), 42 deletions(-)
+diff --git a/Documentation/devicetree/bindings/mfd/tc3589x.txt b/Documentation/devicetree/bindings/mfd/tc3589x.txt
+new file mode 100644
+index 000000000000..c6ac5bd2ce51
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/tc3589x.txt
+@@ -0,0 +1,107 @@
++* Toshiba TC3589x multi-purpose expander
++
++The Toshiba TC3589x series are I2C-based MFD devices which may expose the
++following built-in devices: gpio, keypad, rotator (vibrator), PWM (for
++e.g. LEDs or vibrators) The included models are:
++
++- TC35890
++- TC35892
++- TC35893
++- TC35894
++- TC35895
++- TC35896
++
++Required properties:
++ - compatible : must be "toshiba,tc35890", "toshiba,tc35892", "toshiba,tc35893",
++   "toshiba,tc35894", "toshiba,tc35895" or "toshiba,tc35896"
++ - reg : I2C address of the device
++ - interrupt-parent : specifies which IRQ controller we're connected to
++ - interrupts : the interrupt on the parent the controller is connected to
++ - interrupt-controller : marks the device node as an interrupt controller
++ - #interrupt-cells : should be <1>, the first cell is the IRQ offset on this
++   TC3589x interrupt controller.
++
++Optional nodes:
++
++- GPIO
++  This GPIO module inside the TC3589x has 24 (TC35890, TC35892) or 20
++  (other models) GPIO lines.
++ - compatible : must be "toshiba,tc3589x-gpio"
++ - interrupts : interrupt on the parent, which must be the tc3589x MFD device
++ - interrupt-controller : marks the device node as an interrupt controller
++ - #interrupt-cells : should be <2>, the first cell is the IRQ offset on this
++   TC3589x GPIO interrupt controller, the second cell is the interrupt flags
++   in accordance with <dt-bindings/interrupt-controller/irq.h>. The following
++   flags are valid:
++   - IRQ_TYPE_LEVEL_LOW
++   - IRQ_TYPE_LEVEL_HIGH
++   - IRQ_TYPE_EDGE_RISING
++   - IRQ_TYPE_EDGE_FALLING
++   - IRQ_TYPE_EDGE_BOTH
++ - gpio-controller : marks the device node as a GPIO controller
++ - #gpio-cells : should be <2>, the first cell is the GPIO offset on this
++   GPIO controller, the second cell is the flags.
++
++- Keypad
++  This keypad is the same on all variants, supporting up to 96 different
++  keys. The linux-specific properties are modeled on those already existing
++  in other input drivers.
++ - compatible : must be "toshiba,tc3589x-keypad"
++ - debounce-delay-ms : debounce interval in milliseconds
++ - keypad,num-rows : number of rows in the matrix, see
++   bindings/input/matrix-keymap.txt
++ - keypad,num-columns : number of columns in the matrix, see
++   bindings/input/matrix-keymap.txt
++ - linux,keymap: the definition can be found in
++   bindings/input/matrix-keymap.txt
++ - linux,no-autorepeat: do no enable autorepeat feature.
++ - linux,wakeup: use any event on keypad as wakeup event.
++
++Example:
++
++tc35893@44 {
++	compatible = "toshiba,tc35893";
++	reg = <0x44>;
++	interrupt-parent = <&gpio6>;
++	interrupts = <26 IRQ_TYPE_EDGE_RISING>;
++
++	interrupt-controller;
++	#interrupt-cells = <1>;
++
++	tc3589x_gpio {
++		compatible = "toshiba,tc3589x-gpio";
++		interrupts = <0>;
++
++		interrupt-controller;
++		#interrupt-cells = <2>;
++		gpio-controller;
++		#gpio-cells = <2>;
++	};
++	tc3589x_keypad {
++		compatible = "toshiba,tc3589x-keypad";
++		interrupts = <6>;
++		debounce-delay-ms = <4>;
++		keypad,num-columns = <8>;
++		keypad,num-rows = <8>;
++		linux,no-autorepeat;
++		linux,wakeup;
++		linux,keymap = <0x0301006b
++			        0x04010066
++				0x06040072
++				0x040200d7
++				0x0303006a
++				0x0205000e
++				0x0607008b
++				0x0500001c
++				0x0403000b
++				0x03040034
++				0x05020067
++				0x0305006c
++				0x040500e7
++				0x0005009e
++				0x06020073
++				0x01030039
++				0x07060069
++				0x050500d9>;
++	};
++};
+-- 
+1.8.4.2
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index ce0520c..5d338ef 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -560,10 +560,19 @@ static int create_function(struct rmi_device *rmi_dev, void *clbk_ctx,
- 
- 	rmi_driver_copy_pdt_to_fd(pdt, &fn->fd, page_start);
- 
-+	error = rmi_driver_irq_get_mask(rmi_dev, fn);
-+	if (error < 0) {
-+		dev_err(dev, "%s: Failed to create irq_mask for F%02X.\n",
-+			__func__, pdt->function_number);
-+		return error;
-+	}
-+
- 	error = rmi_register_function(fn);
- 	if (error)
- 		goto err_free_mem;
- 
-+	if (pdt->function_number == 0x01)
-+		data->f01_container = fn;
- 	list_add_tail(&fn->node, &data->function_list);
- 
- 	return RMI_SCAN_CONTINUE;
-@@ -573,6 +582,30 @@ err_free_mem:
- 	return RMI_SCAN_ERROR;
- }
- 
-+/* Indicates that flash programming is enabled (bootloader mode). */
-+#define RMI_F01_STATUS_BOOTLOADER(status)	(!!((status) & 0x40))
-+
-+/*
-+ * Given the PDT entry for F01, read the device status register to determine
-+ * if we're stuck in bootloader mode or not.
-+ *
-+ */
-+static int check_bootloader_mode(struct rmi_device *rmi_dev, struct pdt_entry *pdt,
-+				     u16 page_start)
-+{
-+	u8 device_status;
-+	int retval = 0;
-+
-+	retval = rmi_read(rmi_dev, pdt->data_base_addr + page_start,
-+			  &device_status);
-+	if (retval < 0) {
-+		dev_err(&rmi_dev->dev, "Failed to read device status.\n");
-+		return retval;
-+	}
-+
-+	return RMI_F01_STATUS_BOOTLOADER(device_status);
-+}
-+
- static int rmi_initial_reset(struct rmi_device *rmi_dev,
- 		void *clbk_ctx, struct pdt_entry *pdt_entry, int page)
- {
-@@ -599,6 +632,23 @@ static int rmi_initial_reset(struct rmi_device *rmi_dev,
- 	return (!page) ? RMI_SCAN_CONTINUE : RMI_SCAN_ERROR;
- }
- 
-+static int rmi_count_irqs(struct rmi_device *rmi_dev,
-+		void * clbk_ctx, struct pdt_entry *pdt_entry, int page)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+
-+	data->irq_count += pdt_entry->interrupt_source_count;
-+	if (pdt_entry->function_number == 0x01) {
-+		data->f01_bootloader_mode = check_bootloader_mode(rmi_dev,
-+					pdt_entry, page);
-+		if (data->f01_bootloader_mode)
-+			dev_warn(&rmi_dev->dev,
-+				"WARNING: RMI4 device is in bootloader mode!\n");
-+	}
-+
-+	return RMI_SCAN_CONTINUE;
-+}
-+
- static int rmi_create_functions(struct rmi_device *rmi_dev)
- {
- 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-@@ -766,7 +816,6 @@ static int rmi_driver_probe(struct device *dev)
- {
- 	struct rmi_driver *rmi_driver;
- 	struct rmi_driver_data *data = NULL;
--	struct rmi_function *fn;
- 	struct rmi_device_platform_data *pdata;
- 	int retval = 0;
- 	struct rmi_device *rmi_dev;
-@@ -821,28 +870,6 @@ static int rmi_driver_probe(struct device *dev)
- 	if (retval)
- 		dev_warn(dev, "RMI initial reset failed! Continuing in spite of this.\n");
- 
--	retval = rmi_create_functions(rmi_dev);
--	if (retval) {
--		dev_err(dev, "PDT scan for %s failed.\n", pdata->sensor_name);
--		retval = -ENODEV;
--		goto err_free_data;
--	}
--
--	if (!data->f01_container) {
--		dev_err(dev, "missing F01 container!\n");
--		retval = -EINVAL;
--		goto err_free_data;
--	}
--
--	list_for_each_entry(fn, &data->function_list, node) {
--		retval = rmi_driver_irq_get_mask(rmi_dev, fn);
--		if (retval < 0) {
--			dev_err(dev, "%s: Failed to create irq_mask.\n",
--				__func__);
--			goto err_free_data;
--		}
--	}
--
- 	retval = rmi_read(rmi_dev, PDT_PROPERTIES_LOCATION, &data->pdt_props);
- 	if (retval < 0) {
- 		/*
-@@ -853,6 +880,22 @@ static int rmi_driver_probe(struct device *dev)
- 			 PDT_PROPERTIES_LOCATION);
- 	}
- 
-+	/*
-+	 * We need to count the IRQs and allocate their storage before scanning
-+	 * the PDT and creating the function entries, because adding a new
-+	 * function can trigger events that result in the IRQ related storage
-+	 * being accessed.
-+	 */
-+	dev_dbg(dev, "Counting IRQs.\n");
-+	retval = rmi_scan_pdt(rmi_dev, NULL, rmi_count_irqs);
-+	if (retval) {
-+		retval = -ENODEV;
-+		dev_err(dev, "IRQ counting for %s.\n",
-+			pdata->sensor_name);
-+		goto err_free_data;
-+	}
-+	data->num_of_irq_regs = (data->irq_count + 7) / 8;
-+
- 	mutex_init(&data->irq_mutex);
- 	data->irq_status = devm_kzalloc(dev,
- 		BITS_TO_LONGS(data->irq_count)*sizeof(unsigned long),
-@@ -872,6 +915,28 @@ static int rmi_driver_probe(struct device *dev)
- 		goto err_free_data;
- 	}
- 
-+	data->irq_mask_store = devm_kzalloc(dev,
-+		BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long),
-+		GFP_KERNEL);
-+	if (!data->irq_mask_store) {
-+		dev_err(dev, "Failed to allocate irq_mask_store.\n");
-+		retval = -ENOMEM;
-+		goto err_free_data;
-+	}
-+
-+	retval = rmi_create_functions(rmi_dev);
-+	if (retval) {
-+		retval = -ENODEV;
-+		dev_err(dev, "Function creation failed.\n");
-+		goto err_free_data;
-+	}
-+
-+	if (!data->f01_container) {
-+		dev_err(dev, "missing F01 container!\n");
-+		retval = -EINVAL;
-+		goto err_free_data;
-+	}
-+
- 	retval = rmi_read_block(rmi_dev,
- 				data->f01_container->fd.control_base_addr+1,
- 				data->current_irq_mask, data->num_of_irq_regs);
-@@ -881,14 +946,6 @@ static int rmi_driver_probe(struct device *dev)
- 		goto err_free_data;
- 	}
- 
--	data->irq_mask_store = devm_kzalloc(dev,
--		BITS_TO_LONGS(data->irq_count)*sizeof(unsigned long),
--		GFP_KERNEL);
--	if (!data->irq_mask_store) {
--		dev_err(dev, "Failed to allocate mask store.\n");
--		retval = -ENOMEM;
--		goto err_free_data;
--	}
- 	if (IS_ENABLED(CONFIG_PM)) {
- 		data->pm_data = pdata->pm_data;
- 		data->pre_suspend = pdata->pre_suspend;
-@@ -954,6 +1011,9 @@ static int rmi_driver_probe(struct device *dev)
- 	return 0;
- 
- err_free_data:
-+	rmi_free_function_list(rmi_dev);
-+	if (gpio_is_valid(pdata->attn_gpio))
-+		gpio_free(pdata->attn_gpio);
- 	return retval;
- }
- 
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index 2c1c63f..e5566c4 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -100,7 +100,6 @@ struct pdt_entry {
- #define RMI_SCAN_ERROR		-1
- #define RMI_SCAN_CONTINUE	0
- #define RMI_SCAN_DONE		1
--
- int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
- 	int (*rmi_pdt_scan_clbk)(struct rmi_device *rmi_dev,
- 	void *clbk_ctx, struct pdt_entry *entry, int page));
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index 628b082..c7f2360 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (c) 2011-2012 Synaptics Incorporated
-+ * Copyright (c) 2011-2014 Synaptics Incorporated
-  * Copyright (c) 2011 Unixphere
-  *
-  * This program is free software; you can redistribute it and/or modify it
-@@ -59,8 +59,6 @@ struct f01_basic_properties {
- 
- /* Most recent device status event */
- #define RMI_F01_STATUS_CODE(status)		((status) & 0x0f)
--/* Indicates that flash programming is enabled (bootloader mode). */
--#define RMI_F01_STATUS_BOOTLOADER(status)	(!!((status) & 0x40))
- /* The device has lost its configuration for some reason. */
- #define RMI_F01_STATUS_UNCONFIGURED(status)	(!!((status) & 0x80))
- 
-@@ -358,13 +356,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
- 		goto error_exit;
- 	}
- 
--	driver_data->f01_bootloader_mode =
--			RMI_F01_STATUS_BOOTLOADER(data->device_status);
--	if (driver_data->f01_bootloader_mode)
--		dev_warn(&rmi_dev->dev,
--			 "WARNING: RMI4 device is in bootloader mode!\n");
--
--
- 	if (RMI_F01_STATUS_UNCONFIGURED(data->device_status)) {
- 		dev_err(&fn->dev,
- 			"Device was reset during configuration process, status: %#02x!\n",

@@ -1,54 +1,33 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Input: add short note about ABS_MISC+<n> axes
-Date: Thu, 23 Jan 2014 15:39:55 +0100
-Message-ID: <CANq1E4SRhgGD_c=vAMseWGmV8NQB_BTygsFoVHf_MLuM8udv2A@mail.gmail.com>
-References: <1387207386-4601-1-git-send-email-dh.herrmann@gmail.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/3 RESEND] mfd: tc3589x: Reform device tree probing
+Date: Thu, 23 Jan 2014 16:04:57 +0100
+Message-ID: <CACRpkdZjRG=cmWHmmFNS+=guCwQoFpu8T3r4YHr6t_XihvmaWA@mail.gmail.com>
+References: <1390481008-23900-1-git-send-email-linus.walleij@linaro.org>
+	<20140123133141.GD8586@lee--X1>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f178.google.com ([209.85.223.178]:36907 "EHLO
-	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752748AbaAWOsP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jan 2014 09:48:15 -0500
-Received: by mail-ie0-f178.google.com with SMTP id x13so1202081ief.37
-        for <linux-input@vger.kernel.org>; Thu, 23 Jan 2014 06:48:14 -0800 (PST)
-In-Reply-To: <1387207386-4601-1-git-send-email-dh.herrmann@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140123133141.GD8586@lee--X1>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>
 
-Hi Dmitry
+On Thu, Jan 23, 2014 at 2:31 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
 
-ping?
+> Patch looks good to me. Is there any reason why we should rush this in
+> for v3.14, or is it okay to go to -next?
 
-David
+No rush, but it's been on review like forever so unless there is
+some noise from the DT people at -rc1 I'd be very happy if you
+could apply patches 1 & 2 by then.
 
-On Mon, Dec 16, 2013 at 4:23 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> We must not reassign those axes or we will break backwards-compat. Add a
-> small note for that so we don't accidentally some day reuse these.
->
-> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
-> ---
->  include/uapi/linux/input.h | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-> index a372627..da1125e 100644
-> --- a/include/uapi/linux/input.h
-> +++ b/include/uapi/linux/input.h
-> @@ -816,6 +816,10 @@ struct input_keymap_entry {
->
->  #define ABS_MISC               0x28
->
-> +/* ABS_MISC+x is used by HID to assign to unknown axes. Note that they used to
-> + * flow over into the MT definitions. For backwards-compatibility, we must
-> + * not reassign [0x29-0x2e] */
-> +
->  #define ABS_MT_SLOT            0x2f    /* MT slot being modified */
->  #define ABS_MT_TOUCH_MAJOR     0x30    /* Major axis of touching ellipse */
->  #define ABS_MT_TOUCH_MINOR     0x31    /* Minor axis (omit if circular) */
-> --
-> 1.8.5.1
->
+The third one can be applied out-of-order to the input tree after
+that.
+
+Yours,
+Linus Walleij
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

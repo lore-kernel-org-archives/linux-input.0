@@ -1,63 +1,65 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: multitouch: add FocalTech FTxxxx support
-Date: Thu, 23 Jan 2014 16:33:14 -0500
-Message-ID: <1390512794-3825-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Courtney Cavin <courtney.cavin@sonymobile.com>
+Subject: [PATCH 00/15] Input: synaptics-rmi4 - cleanup and add DT support
+Date: Thu, 23 Jan 2014 16:00:08 -0800
+Message-ID: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59503 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751184AbaAWVdY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jan 2014 16:33:24 -0500
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:19657 "EHLO
+	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751957AbaAWX7E (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jan 2014 18:59:04 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, cheiny@synaptics.com
 
-This is a Win7 device which does not work correctly with the default
-settings (not the previous default BT).
-However, the quirk ALWAYS_TRUE makes it working like a charm.
+This is an attempt to get this driver closer to being in an upstream-able form.
+In the process, this drops legacy callback methods for managing power and GPIO
+configuration, in favor of the already existing frameworks.  Most of this
+series is cleanup, but there are a few intermixed bug fixes to make it all
+work.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+This patch series is based off of the synaptics-rmi4 branch merged into
+Linus' 3.13.  A tree is available at [1].
 
-Hi Jiri,
+This was tested on Synaptics TM2281-001 & TM2282-001.
 
-well, it's been a long time since I did not add those kind of small patches.
-And I really hope not having to do some gain soon :)
+[1] http://github.com/courtc/linux.git
+	tag for-input/synaptics-rmi4
 
-Cheers,
-Benjamin
+Courtney Cavin (15):
+  Input: synaptics-rmi4 - fix checkpatch.pl, sparse and GCC warnings
+  Input: synaptics-rmi4 - don't kfree devm_ alloced memory
+  Input: synaptics-rmi4 - don't free devices directly
+  Input: synaptics-rmi4 - remove sensor name from platform data
+  Input: synaptics-rmi4 - remove gpio handling and polling
+  Input: synaptics-rmi4 - remove platform suspend callbacks
+  Input: synaptics-rmi4 - remove remaining debugfs code
+  Input: synaptics-rmi4 - cleanup platform data
+  Input: synaptics-rmi4 - remove unused defines and variables
+  Input: synaptics-rmi4 - add devicetree support
+  Input: synaptics-rmi4 - add regulator support
+  Input: synaptics-rmi4 - don't immediately set page on probe
+  Input: synaptics-rmi4 - properly set F01 container on PDT scan
+  Input: synaptics-rmi4 - ensure we have IRQs before reading status
+  Input: synaptics-rmi4 - correct RMI4 spec url
 
- drivers/hid/hid-ids.h        | 1 +
- drivers/hid/hid-multitouch.c | 5 +++++
- 2 files changed, 6 insertions(+)
+ Documentation/devicetree/bindings/input/rmi4.txt   | 117 +++++
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ drivers/input/rmi4/Kconfig                         |   1 -
+ drivers/input/rmi4/rmi_bus.c                       | 131 +-----
+ drivers/input/rmi4/rmi_bus.h                       |  18 +-
+ drivers/input/rmi4/rmi_driver.c                    | 321 +++++--------
+ drivers/input/rmi4/rmi_driver.h                    |  33 +-
+ drivers/input/rmi4/rmi_f01.c                       | 163 ++++---
+ drivers/input/rmi4/rmi_f11.c                       | 523 ++++++---------------
+ drivers/input/rmi4/rmi_i2c.c                       |  55 +--
+ include/linux/rmi.h                                | 219 ++-------
+ 11 files changed, 551 insertions(+), 1031 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/rmi4.txt
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 92b40c0..67f89dd 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -240,6 +240,7 @@
- 
- #define USB_VENDOR_ID_CYGNAL		0x10c4
- #define USB_DEVICE_ID_CYGNAL_RADIO_SI470X	0x818a
-+#define USB_DEVICE_ID_FOCALTECH_FTXXXX_MULTITOUCH	0x81b9
- 
- #define USB_VENDOR_ID_CYPRESS		0x04b4
- #define USB_DEVICE_ID_CYPRESS_MOUSE	0x0001
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index f134d73..221d503 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1166,6 +1166,11 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_FLATFROG,
- 			USB_DEVICE_ID_MULTITOUCH_3200) },
- 
-+	/* FocalTech Panels */
-+	{ .driver_data = MT_CLS_SERIAL,
-+		MT_USB_DEVICE(USB_VENDOR_ID_CYGNAL,
-+			USB_DEVICE_ID_FOCALTECH_FTXXXX_MULTITOUCH) },
-+
- 	/* GeneralTouch panel */
- 	{ .driver_data = MT_CLS_GENERALTOUCH_TWOFINGERS,
- 		MT_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH,
 -- 
-1.8.3.1
+1.8.1.5
 

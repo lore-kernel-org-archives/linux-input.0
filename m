@@ -1,395 +1,187 @@
 From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: [PATCH 05/15] Input: synaptics-rmi4 - remove gpio handling and polling
-Date: Thu, 23 Jan 2014 16:00:13 -0800
-Message-ID: <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
+Subject: [PATCH 06/15] Input: synaptics-rmi4 - remove platform suspend callbacks
+Date: Thu, 23 Jan 2014 16:00:14 -0800
+Message-ID: <1390521623-6491-7-git-send-email-courtney.cavin@sonymobile.com>
 References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-4-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-5-git-send-email-courtney.cavin@sonymobile.com>
+ <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:19783 "EHLO
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:19794 "EHLO
 	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753624AbaAWX7e (ORCPT
+	by vger.kernel.org with ESMTP id S1753624AbaAWX7j (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jan 2014 18:59:34 -0500
-In-Reply-To: <1390521623-6491-5-git-send-email-courtney.cavin@sonymobile.com>
+	Thu, 23 Jan 2014 18:59:39 -0500
+In-Reply-To: <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, cheiny@synaptics.com
 
-Since all the configuration needed for an irq can be provided in other
-ways, remove all gpio->irq functionality. This cleans up the code quite
-a bit.
-
-This also gets rid of polling functionality, as this should be done
-elsewhere if absolutely needed.
+These are unnecessary and ugly. Remove them, and all related code.
 
 Cc: Christopher Heiny <cheiny@synaptics.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
 ---
- drivers/input/rmi4/rmi_driver.c | 143 +++++-----------------------------------
- drivers/input/rmi4/rmi_driver.h |   7 --
- drivers/input/rmi4/rmi_i2c.c    |  24 +------
- include/linux/rmi.h             |  31 +--------
- 4 files changed, 20 insertions(+), 185 deletions(-)
+ drivers/input/rmi4/rmi_driver.c | 57 ++---------------------------------------
+ drivers/input/rmi4/rmi_driver.h | 10 --------
+ include/linux/rmi.h             | 20 ---------------
+ 3 files changed, 2 insertions(+), 85 deletions(-)
 
 diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 5fb582c..780742f 100644
+index 780742f..691b6fb 100644
 --- a/drivers/input/rmi4/rmi_driver.c
 +++ b/drivers/input/rmi4/rmi_driver.c
-@@ -20,7 +20,6 @@
- #include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/fs.h>
--#include <linux/gpio.h>
- #include <linux/kconfig.h>
- #include <linux/list.h>
- #include <linux/module.h>
-@@ -50,74 +49,17 @@ static irqreturn_t rmi_irq_thread(int irq, void *p)
- 	struct rmi_transport_dev *xport = p;
- 	struct rmi_device *rmi_dev = xport->rmi_dev;
- 	struct rmi_driver *driver = rmi_dev->driver;
--	struct rmi_device_platform_data *pdata = xport->dev->platform_data;
- 	struct rmi_driver_data *data;
- 
- 	data = dev_get_drvdata(&rmi_dev->dev);
--
--	if (IRQ_DEBUG(data))
--		dev_dbg(xport->dev, "ATTN gpio, value: %d.\n",
--				gpio_get_value(pdata->attn_gpio));
--
--	if (gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity) {
--		data->attn_count++;
--		if (driver && driver->irq_handler && rmi_dev)
--			driver->irq_handler(rmi_dev, irq);
--	}
-+	if (driver && driver->irq_handler && rmi_dev)
-+		driver->irq_handler(rmi_dev, irq);
- 
- 	return IRQ_HANDLED;
- }
- 
- static int process_interrupt_requests(struct rmi_device *rmi_dev);
- 
--static void rmi_poll_work(struct work_struct *work)
--{
--	struct rmi_driver_data *data =
--			container_of(work, struct rmi_driver_data, poll_work);
--	struct rmi_device *rmi_dev = data->rmi_dev;
--
--	process_interrupt_requests(rmi_dev);
--}
--
--/*
-- * This is the timer function for polling - it simply has to schedule work
-- * and restart the timer.
-- */
--static enum hrtimer_restart rmi_poll_timer(struct hrtimer *timer)
--{
--	struct rmi_driver_data *data =
--			container_of(timer, struct rmi_driver_data, poll_timer);
--
--	if (!data->enabled)
--		return HRTIMER_NORESTART;
--	if (!work_pending(&data->poll_work))
--		schedule_work(&data->poll_work);
--	hrtimer_start(&data->poll_timer, data->poll_interval, HRTIMER_MODE_REL);
--	return HRTIMER_NORESTART;
--}
--
--static int enable_polling(struct rmi_device *rmi_dev)
--{
--	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
--
--	dev_dbg(&rmi_dev->dev, "Polling enabled.\n");
--	INIT_WORK(&data->poll_work, rmi_poll_work);
--	hrtimer_init(&data->poll_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
--	data->poll_timer.function = rmi_poll_timer;
--	hrtimer_start(&data->poll_timer, data->poll_interval, HRTIMER_MODE_REL);
--
--	return 0;
--}
--
--static void disable_polling(struct rmi_device *rmi_dev)
--{
--	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
--
--	dev_dbg(&rmi_dev->dev, "Polling disabled.\n");
--	hrtimer_cancel(&data->poll_timer);
--	cancel_work_sync(&data->poll_work);
--}
--
- static void disable_sensor(struct rmi_device *rmi_dev)
+@@ -621,60 +621,16 @@ error_exit:
+ #ifdef CONFIG_PM_SLEEP
+ static int rmi_driver_suspend(struct device *dev)
  {
- 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-@@ -125,9 +67,6 @@ static void disable_sensor(struct rmi_device *rmi_dev)
- 	if (!data->enabled)
- 		return;
- 
--	if (!data->irq)
--		disable_polling(rmi_dev);
--
- 	if (rmi_dev->xport->ops->disable_device)
- 		rmi_dev->xport->ops->disable_device(rmi_dev->xport);
- 
-@@ -155,20 +94,14 @@ static int enable_sensor(struct rmi_device *rmi_dev)
- 	}
- 
- 	xport = rmi_dev->xport;
--	if (data->irq) {
--		retval = request_threaded_irq(data->irq,
--				xport->hard_irq ? xport->hard_irq : NULL,
--				xport->irq_thread ?
--					xport->irq_thread : rmi_irq_thread,
--				data->irq_flags,
--				dev_name(&rmi_dev->dev), xport);
--		if (retval)
--			return retval;
--	} else {
--		retval = enable_polling(rmi_dev);
--		if (retval < 0)
--			return retval;
--	}
-+	retval = request_threaded_irq(data->irq,
-+			xport->hard_irq ? xport->hard_irq : NULL,
-+			xport->irq_thread ?
-+				xport->irq_thread : rmi_irq_thread,
-+			IRQF_ONESHOT,
-+			dev_name(&rmi_dev->dev), xport);
-+	if (retval)
-+		return retval;
- 
- 	data->enabled = true;
- 
-@@ -751,16 +684,9 @@ static SIMPLE_DEV_PM_OPS(rmi_driver_pm, rmi_driver_suspend, rmi_driver_resume);
- static int rmi_driver_remove(struct device *dev)
- {
+-	struct rmi_driver_data *data;
+-	int retval = 0;
  	struct rmi_device *rmi_dev = to_rmi_device(dev);
--	const struct rmi_device_platform_data *pdata =
--					to_rmi_platform_data(rmi_dev);
--	const struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+ 
+-	data = dev_get_drvdata(&rmi_dev->dev);
+-
+-	mutex_lock(&data->suspend_mutex);
+-
+-	if (data->pre_suspend) {
+-		retval = data->pre_suspend(data->pm_data);
+-		if (retval)
+-			goto exit;
+-	}
 -
  	disable_sensor(rmi_dev);
- 	rmi_free_function_list(rmi_dev);
- 
--	if (data->gpio_held)
--		gpio_free(pdata->attn_gpio);
 -
- 	return 0;
+-	if (data->post_suspend)
+-		retval = data->post_suspend(data->pm_data);
+-
+-exit:
+-	mutex_unlock(&data->suspend_mutex);
+-	return retval;
++	return 0;
  }
  
-@@ -895,51 +821,12 @@ static int rmi_driver_probe(struct device *dev)
- 		mutex_init(&data->suspend_mutex);
- 	}
- 
--	if (gpio_is_valid(pdata->attn_gpio)) {
--		static const char GPIO_LABEL[] = "attn";
--		unsigned long gpio_flags = GPIOF_DIR_IN;
+ static int rmi_driver_resume(struct device *dev)
+ {
+-	struct rmi_driver_data *data;
+-	int retval = 0;
+ 	struct rmi_device *rmi_dev = to_rmi_device(dev);
 -
--		data->irq = gpio_to_irq(pdata->attn_gpio);
--		if (pdata->level_triggered) {
--			data->irq_flags = IRQF_ONESHOT |
--				((pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
--				? IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW);
--		} else {
--			data->irq_flags =
--				(pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
--				? IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
--		}
-+	data->irq = pdata->irq;
-+	if (data->irq < 0) {
-+		dev_err(dev, "Failed to get attn IRQ.\n");
-+		retval = data->irq;
-+		goto err_free_data;
- 
--		if (IS_ENABLED(CONFIG_RMI4_DEV))
--			gpio_flags |= GPIOF_EXPORT;
+-	data = dev_get_drvdata(&rmi_dev->dev);
+-	mutex_lock(&data->suspend_mutex);
 -
--		retval = gpio_request_one(pdata->attn_gpio, gpio_flags,
--					  GPIO_LABEL);
--		if (retval) {
--			dev_warn(dev, "WARNING: Failed to request ATTN gpio %d, code=%d.\n",
--				 pdata->attn_gpio, retval);
--			retval = 0;
--		} else {
--			dev_info(dev, "Obtained ATTN gpio %d.\n",
--					pdata->attn_gpio);
--			data->gpio_held = true;
--			if (IS_ENABLED(CONFIG_RMI4_DEV)) {
--				retval = gpio_export_link(dev,
--						GPIO_LABEL, pdata->attn_gpio);
--				if (retval) {
--					dev_warn(dev,
--						"WARNING: Failed to symlink ATTN gpio!\n");
--					retval = 0;
--				} else {
--					dev_info(dev, "Exported ATTN gpio %d.",
--						pdata->attn_gpio);
--				}
--			}
--		}
--	} else {
--		data->poll_interval = ktime_set(0,
--			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
--			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
- 	}
- 
- 	if (data->f01_container->dev.driver) {
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index 4f44a54..aef5521 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -39,9 +39,7 @@ struct rmi_driver_data {
- 
- 	u32 attn_count;
- 	u32 irq_debug;	/* Should be bool, but debugfs wants u32 */
--	bool gpio_held;
- 	int irq;
--	int irq_flags;
- 	int num_of_irq_regs;
- 	int irq_count;
- 	unsigned long *irq_status;
-@@ -50,11 +48,6 @@ struct rmi_driver_data {
- 	bool irq_stored;
- 	struct mutex irq_mutex;
- 
--	/* Following are used when polling. */
--	struct hrtimer poll_timer;
--	struct work_struct poll_work;
--	ktime_t poll_interval;
--
- 	struct mutex pdt_mutex;
- 	u8 pdt_props;
- 	u8 bsr;
-diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-index 910f05c..aebf974 100644
---- a/drivers/input/rmi4/rmi_i2c.c
-+++ b/drivers/input/rmi4/rmi_i2c.c
-@@ -196,8 +196,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
- 		return -EINVAL;
- 	}
- 
--	dev_dbg(&client->dev, "Probing %#02x (GPIO %d).\n",
--		client->addr, pdata->attn_gpio);
-+	dev_dbg(&client->dev, "Probing %#02x.\n", client->addr);
- 
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
- 		dev_err(&client->dev,
-@@ -205,15 +204,6 @@ static int rmi_i2c_probe(struct i2c_client *client,
- 		return -ENODEV;
- 	}
- 
--	if (pdata->gpio_config) {
--		retval = pdata->gpio_config(pdata->gpio_data, true);
--		if (retval < 0) {
--			dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
--				retval);
--			return retval;
--		}
+-	if (data->pre_resume) {
+-		retval = data->pre_resume(data->pm_data);
+-		if (retval)
+-			goto exit;
 -	}
 -
- 	rmi_i2c = devm_kzalloc(&client->dev, sizeof(struct rmi_i2c_xport),
- 				GFP_KERNEL);
- 	if (!rmi_i2c)
-@@ -240,7 +230,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
- 	if (retval) {
- 		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
- 			client->addr);
--		goto err_gpio;
-+		goto err;
+-	retval = enable_sensor(rmi_dev);
+-	if (retval)
+-		goto exit;
+-
+-
+-	if (data->post_resume) {
+-		retval = data->post_resume(data->pm_data);
+-		if (retval)
+-			goto exit;
+-	}
+-
+-	data->suspended = false;
+-exit:
+-	mutex_unlock(&data->suspend_mutex);
+-	return retval;
++	return enable_sensor(rmi_dev);
+ }
+ 
+ #endif /* CONFIG_PM_SLEEP */
+@@ -811,15 +767,6 @@ static int rmi_driver_probe(struct device *dev)
+ 		retval = -ENOMEM;
+ 		goto err_free_data;
  	}
- 
- 	i2c_set_clientdata(client, rmi_i2c);
-@@ -249,24 +239,16 @@ static int rmi_i2c_probe(struct i2c_client *client,
- 			client->addr);
- 	return 0;
- 
--err_gpio:
--	if (pdata->gpio_config)
--		pdata->gpio_config(pdata->gpio_data, false);
+-	if (IS_ENABLED(CONFIG_PM)) {
+-		data->pm_data = pdata->pm_data;
+-		data->pre_suspend = pdata->pre_suspend;
+-		data->post_suspend = pdata->post_suspend;
+-		data->pre_resume = pdata->pre_resume;
+-		data->post_resume = pdata->post_resume;
 -
-+err:
- 	return retval;
- }
+-		mutex_init(&data->suspend_mutex);
+-	}
  
- static int rmi_i2c_remove(struct i2c_client *client)
- {
--	const struct rmi_device_platform_data *pdata =
--				dev_get_platdata(&client->dev);
- 	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
+ 	data->irq = pdata->irq;
+ 	if (data->irq < 0) {
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index aef5521..f28166f 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -53,16 +53,6 @@ struct rmi_driver_data {
+ 	u8 bsr;
  
- 	rmi_unregister_transport_device(&rmi_i2c->xport);
- 
--	if (pdata->gpio_config)
--		pdata->gpio_config(pdata->gpio_data, false);
+ 	bool enabled;
+-#ifdef CONFIG_PM_SLEEP
+-	bool suspended;
+-	struct mutex suspend_mutex;
 -
- 	return 0;
- }
+-	void *pm_data;
+-	int (*pre_suspend) (const void *pm_data);
+-	int (*post_suspend) (const void *pm_data);
+-	int (*pre_resume) (const void *pm_data);
+-	int (*post_resume) (const void *pm_data);
+-#endif
  
+ #ifdef CONFIG_RMI4_DEBUG
+ 	struct dentry *debugfs_delay;
 diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-index 65b59b5..326e741 100644
+index 326e741..41c2c04 100644
 --- a/include/linux/rmi.h
 +++ b/include/linux/rmi.h
-@@ -23,11 +23,6 @@
- #include <linux/wait.h>
- #include <linux/debugfs.h>
- 
--enum rmi_attn_polarity {
--	RMI_ATTN_ACTIVE_LOW = 0,
--	RMI_ATTN_ACTIVE_HIGH = 1
--};
--
- /**
-  * struct rmi_f11_axis_alignment - target axis alignment
-  * @swap_axes: set to TRUE if desired to swap x- and y-axis
-@@ -194,25 +189,10 @@ struct rmi_device_platform_data_spi {
- /**
-  * struct rmi_device_platform_data - system specific configuration info.
-  *
-+ * @irq - attention IRQ
-  * @firmware_name - if specified will override default firmware name,
-  * for reflashing.
-  *
-- * @attn_gpio - the index of a GPIO that will be used to provide the ATTN
-- * interrupt from the touch sensor.
-- * @attn_polarity - indicates whether ATTN is active high or low.
-- * @level_triggered - by default, the driver uses edge triggered interrupts.
-- * However, this can cause problems with suspend/resume on some platforms.  In
-- * that case, set this to 1 to use level triggered interrupts.
-- * @gpio_config - a routine that will be called when the driver is loaded to
-- * perform any platform specific GPIO configuration, and when it is unloaded
-- * for GPIO de-configuration.  This is typically used to configure the ATTN
-- * GPIO and the I2C or SPI pins, if necessary.
-- * @gpio_data - platform specific data to be passed to the GPIO configuration
-- * function.
+@@ -204,8 +204,6 @@ struct rmi_device_platform_data_spi {
+  * @f11_rezero_wait - if non-zero, this is how may milliseconds the F11 2D
+  * sensor will wait before being be rezeroed on exit from suspend.  If
+  * this value is zero, the F11 2D sensor will not be rezeroed on resume.
+- * @pre_suspend - this will be called before any other suspend operations are
+- * done.
+  * @power_management - overrides default touch sensor doze mode settings (see
+  * above)
+  * @f19_button_map - provide initial input subsystem key mappings for F19.
+@@ -213,16 +211,6 @@ struct rmi_device_platform_data_spi {
+  * @gpioled_map - provides initial settings for GPIOs and LEDs controlled by
+  * F30.
+  * @f41_button_map - provide initial input subsystem key mappings for F41.
 - *
-- * @poll_interval_ms - the time in milliseconds between reads of the interrupt
-- * status register.  This is ignored if attn_gpio is non-zero.
-- *
-  * @reset_delay_ms - after issuing a reset command to the touch sensor, the
-  * driver waits a few milliseconds to give the firmware a chance to
-  * to re-initialize.  You can override the default wait period here.
-@@ -245,14 +225,7 @@ struct rmi_device_platform_data_spi {
-  * functions.
+- * @post_suspend - this will be called after all suspend operations are
+- * completed.  This is the ONLY safe place to power off an RMI sensor
+- * during the suspend process.
+- * @pre_resume - this is called before any other resume operations.  If you
+- * powered off the RMI4 sensor in post_suspend(), then you MUST power it back
+- * here, and you MUST wait an appropriate time for the ASIC to come up
+- * (100ms to 200ms, depending on the sensor) before returning.
+- * @pm_data - this will be passed to the various (pre|post)_(suspend/resume)
+- * functions.
   */
  struct rmi_device_platform_data {
--	int attn_gpio;
--	enum rmi_attn_polarity attn_polarity;
--	bool level_triggered;
--	void *gpio_data;
--	int (*gpio_config)(void *gpio_data, bool configure);
+ 	int irq;
+@@ -242,14 +230,6 @@ struct rmi_device_platform_data {
+ #ifdef CONFIG_RMI4_FWLIB
+ 	char *firmware_name;
+ #endif
 -
--	int poll_interval_ms;
--
-+	int irq;
- 	int reset_delay_ms;
+-#ifdef	CONFIG_PM
+-	void *pm_data;
+-	int (*pre_suspend) (const void *pm_data);
+-	int (*post_suspend) (const void *pm_data);
+-	int (*pre_resume) (const void *pm_data);
+-	int (*post_resume) (const void *pm_data);
+-#endif
+ };
  
- 	struct rmi_device_platform_data_spi spi_data;
+ /**
 -- 
 1.8.1.5
 

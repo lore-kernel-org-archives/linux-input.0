@@ -1,7 +1,7 @@
 From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: [PATCH 13/15] Input: synaptics-rmi4 - properly set F01 container on PDT scan
-Date: Thu, 23 Jan 2014 16:00:21 -0800
-Message-ID: <1390521623-6491-14-git-send-email-courtney.cavin@sonymobile.com>
+Subject: [PATCH 14/15] Input: synaptics-rmi4 - ensure we have IRQs before reading status
+Date: Thu, 23 Jan 2014 16:00:22 -0800
+Message-ID: <1390521623-6491-15-git-send-email-courtney.cavin@sonymobile.com>
 References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com>
@@ -15,15 +15,16 @@ References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-11-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-12-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-13-git-send-email-courtney.cavin@sonymobile.com>
+ <1390521623-6491-14-git-send-email-courtney.cavin@sonymobile.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:19858 "EHLO
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:19874 "EHLO
 	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753624AbaAXAAE (ORCPT
+	by vger.kernel.org with ESMTP id S1755578AbaAXAAH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jan 2014 19:00:04 -0500
-In-Reply-To: <1390521623-6491-13-git-send-email-courtney.cavin@sonymobile.com>
+	Thu, 23 Jan 2014 19:00:07 -0500
+In-Reply-To: <1390521623-6491-14-git-send-email-courtney.cavin@sonymobile.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -33,22 +34,36 @@ Cc: Christopher Heiny <cheiny@synaptics.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
 ---
- drivers/input/rmi4/rmi_driver.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/rmi4/rmi_f01.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 52345ae..9d8d6ec 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -488,6 +488,8 @@ static int create_function(struct rmi_device *rmi_dev,
- 		return error;
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index 22b57f2..06fc5bc 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -318,13 +318,15 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+ 	ctrl_base_addr += sizeof(u8);
  
- 	list_add_tail(&fn->node, &data->function_list);
-+	if (pdt->function_number == 0x01)
-+		data->f01_container = fn;
+ 	data->interrupt_enable_addr = ctrl_base_addr;
+-	error = rmi_read_block(rmi_dev, ctrl_base_addr,
+-				data->device_control.interrupt_enable,
+-				sizeof(u8) * (data->num_of_irq_regs));
+-	if (error < 0) {
+-		dev_err(&fn->dev,
+-			"Failed to read F01 control interrupt enable register.\n");
+-		goto error_exit;
++	if (data->num_of_irq_regs > 0) {
++		error = rmi_read_block(rmi_dev, ctrl_base_addr,
++					data->device_control.interrupt_enable,
++					sizeof(u8) * (data->num_of_irq_regs));
++		if (error < 0) {
++			dev_err(&fn->dev,
++				"Failed to read F01 control interrupt enable register.\n");
++			goto error_exit;
++		}
+ 	}
  
- 	return 0;
- }
+ 	ctrl_base_addr += data->num_of_irq_regs;
 -- 
 1.8.1.5
 

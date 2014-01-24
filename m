@@ -1,73 +1,117 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 1/2] hid: hid-sensor-hub: Add selector api
-Date: Thu, 23 Jan 2014 18:50:21 -0800
-Message-ID: <1390531822-7640-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 2/2] iio: hid-sensor-hub: Remove hard coded indexes
+Date: Thu, 23 Jan 2014 18:50:22 -0800
+Message-ID: <1390531822-7640-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+References: <1390531822-7640-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:54241 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751268AbaAXCuj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jan 2014 21:50:39 -0500
+In-Reply-To: <1390531822-7640-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jic23@kernel.org, jkosina@suse.cz
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-In some report descriptors, they leave holes in the selectors. In
-this case if we use hardcoded selector values, this will result
-in invalid values. For example, if there is selectors defined for
-Power State from OFF to D0 to D3. We can't use indexes of these states
-if some states are not implemented or not present in the report decriptors.
-In this case, we need to get the indexes from report descriptors.
+Remove the hard coded indexes, instead search for usage id and
+use the index to set the power and report state.
+This will fix issue, where the report descriptor doesn't contain
+the full list of possible selector for power and report state.
 
-One API is added to get the index of a selector. This API will
-search for usage id in the field usage list and return the index.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/hid-sensor-hub.c   | 22 ++++++++++++++++++++++
- include/linux/hid-sensor-hub.h |  3 +++
- 2 files changed, 25 insertions(+)
+ .../iio/common/hid-sensors/hid-sensor-trigger.c    | 39 ++++++++++++++--------
+ include/linux/hid-sensor-ids.h                     | 16 ++++-----
+ 2 files changed, 33 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 46f4480..ad2b869 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -291,6 +291,28 @@ err_free:
- }
- EXPORT_SYMBOL_GPL(sensor_hub_input_attr_get_raw_value);
- 
-+int hid_sensor_get_usage_index(struct hid_sensor_hub_device *hsdev,
-+				u32 report_id, int field_index, u32 usage_id)
-+{
-+	struct hid_report *report;
-+	struct hid_field *field;
-+	int i;
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index 7dcf839..dbefbda 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -38,29 +38,40 @@ static int hid_sensor_data_rdy_trigger_set_state(struct iio_trigger *trig,
+ 	if (state) {
+ 		if (sensor_hub_device_open(st->hsdev))
+ 			return -EIO;
+-		state_val =
+-		HID_USAGE_SENSOR_PROP_POWER_STATE_D0_FULL_POWER_ENUM;
+-		report_val =
+-		HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM;
+-
++		state_val = hid_sensor_get_usage_index(st->hsdev,
++			st->power_state.report_id,
++			st->power_state.index,
++			HID_USAGE_SENSOR_PROP_POWER_STATE_D0_FULL_POWER_ENUM);
++		report_val = hid_sensor_get_usage_index(st->hsdev,
++			st->report_state.report_id,
++			st->report_state.index,
++			HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM);
+ 	} else {
+ 		sensor_hub_device_close(st->hsdev);
+-		state_val =
+-		HID_USAGE_SENSOR_PROP_POWER_STATE_D4_POWER_OFF_ENUM;
+-		report_val =
+-		HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM;
++		state_val = hid_sensor_get_usage_index(st->hsdev,
++			st->power_state.report_id,
++			st->power_state.index,
++			HID_USAGE_SENSOR_PROP_POWER_STATE_D4_POWER_OFF_ENUM);
++		report_val = hid_sensor_get_usage_index(st->hsdev,
++			st->report_state.report_id,
++			st->report_state.index,
++			HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM);
+ 	}
+-
+ 	st->data_ready = state;
+-	state_val += st->power_state.logical_minimum;
+-	report_val += st->report_state.logical_minimum;
+-	sensor_hub_set_feature(st->hsdev, st->power_state.report_id,
 +
-+	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
-+	if (!report || (field_index >= report->maxfield))
-+		goto done_proc;
-+
-+	field = report->field[field_index];
-+	for (i = 0; i < field->maxusage; ++i) {
-+		if (field->usage[i].hid == usage_id)
-+			return field->usage[i].usage_index;
++	if (state_val >= 0) {
++		state_val += st->power_state.logical_minimum;
++		sensor_hub_set_feature(st->hsdev, st->power_state.report_id,
+ 					st->power_state.index,
+ 					(s32)state_val);
 +	}
-+
-+done_proc:
-+	return -EINVAL;
-+}
-+EXPORT_SYMBOL_GPL(hid_sensor_get_usage_index);
-+
- int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
- 				u8 type,
- 				u32 usage_id,
-diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
-index b914ca3..205eba0 100644
---- a/include/linux/hid-sensor-hub.h
-+++ b/include/linux/hid-sensor-hub.h
-@@ -218,4 +218,7 @@ int hid_sensor_write_samp_freq_value(struct hid_sensor_common *st,
- int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
- 					int *val1, int *val2);
  
-+int hid_sensor_get_usage_index(struct hid_sensor_hub_device *hsdev,
-+				u32 report_id, int field_index, u32 usage_id);
-+
+-	sensor_hub_set_feature(st->hsdev, st->report_state.report_id,
++	if (report_val >= 0) {
++		report_val += st->report_state.logical_minimum;
++		sensor_hub_set_feature(st->hsdev, st->report_state.report_id,
+ 					st->report_state.index,
+ 					(s32)report_val);
++	}
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
+index beaf965..f860760 100644
+--- a/include/linux/hid-sensor-ids.h
++++ b/include/linux/hid-sensor-ids.h
+@@ -130,15 +130,15 @@
+ #define HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS		0x1000
+ 
+ /* Power state enumerations */
+-#define HID_USAGE_SENSOR_PROP_POWER_STATE_UNDEFINED_ENUM		0x00
+-#define HID_USAGE_SENSOR_PROP_POWER_STATE_D0_FULL_POWER_ENUM		0x01
+-#define HID_USAGE_SENSOR_PROP_POWER_STATE_D1_LOW_POWER_ENUM		0x02
+-#define HID_USAGE_SENSOR_PROP_POWER_STATE_D2_STANDBY_WITH_WAKE_ENUM	0x03
+-#define HID_USAGE_SENSOR_PROP_POWER_STATE_D3_SLEEP_WITH_WAKE_ENUM	0x04
+-#define HID_USAGE_SENSOR_PROP_POWER_STATE_D4_POWER_OFF_ENUM		0x05
++#define HID_USAGE_SENSOR_PROP_POWER_STATE_UNDEFINED_ENUM	0x200850
++#define HID_USAGE_SENSOR_PROP_POWER_STATE_D0_FULL_POWER_ENUM	0x200851
++#define HID_USAGE_SENSOR_PROP_POWER_STATE_D1_LOW_POWER_ENUM	0x200852
++#define HID_USAGE_SENSOR_PROP_POWER_STATE_D2_STANDBY_WITH_WAKE_ENUM 0x200853
++#define HID_USAGE_SENSOR_PROP_POWER_STATE_D3_SLEEP_WITH_WAKE_ENUM 0x200854
++#define HID_USAGE_SENSOR_PROP_POWER_STATE_D4_POWER_OFF_ENUM	0x200855
+ 
+ /* Report State enumerations */
+-#define HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM		0x00
+-#define HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM		0x01
++#define HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM	0x200840
++#define HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM	0x200841
+ 
  #endif
 -- 
 1.8.3.2
+

@@ -1,7 +1,7 @@
 From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: [PATCH 11/15] Input: synaptics-rmi4 - add regulator support
-Date: Thu, 23 Jan 2014 16:00:19 -0800
-Message-ID: <1390521623-6491-12-git-send-email-courtney.cavin@sonymobile.com>
+Subject: [PATCH 12/15] Input: synaptics-rmi4 - don't immediately set page on probe
+Date: Thu, 23 Jan 2014 16:00:20 -0800
+Message-ID: <1390521623-6491-13-git-send-email-courtney.cavin@sonymobile.com>
 References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com>
@@ -13,188 +13,54 @@ References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-9-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-10-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-11-git-send-email-courtney.cavin@sonymobile.com>
+ <1390521623-6491-12-git-send-email-courtney.cavin@sonymobile.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:19835 "EHLO
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:19839 "EHLO
 	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752062AbaAWX76 (ORCPT
+	by vger.kernel.org with ESMTP id S1752734AbaAXAAB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jan 2014 18:59:58 -0500
-In-Reply-To: <1390521623-6491-11-git-send-email-courtney.cavin@sonymobile.com>
+	Thu, 23 Jan 2014 19:00:01 -0500
+In-Reply-To: <1390521623-6491-12-git-send-email-courtney.cavin@sonymobile.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, cheiny@synaptics.com
 
-Add support for VDD and VIO power supplies.  Since we may need a delay
-after turning on the chip, adjust code to manage that.  This removes the
-scanning for active interrupts on resume, as we should get an interrupt
-when the chip is ready.
+Since at the point of I2C probe, we cannot know if the voltage
+regulators are on, wait until the physical driver requests a read before
+setting the page.
 
 Cc: Christopher Heiny <cheiny@synaptics.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
 ---
- Documentation/devicetree/bindings/input/rmi4.txt | 10 +++++
- drivers/input/rmi4/rmi_driver.c                  | 53 +++++++++++++++++++++++-
- drivers/input/rmi4/rmi_driver.h                  |  4 ++
- 3 files changed, 66 insertions(+), 1 deletion(-)
+ drivers/input/rmi4/rmi_i2c.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/rmi4.txt b/Documentation/devicetree/bindings/input/rmi4.txt
-index fff9db7..d41beac 100644
---- a/Documentation/devicetree/bindings/input/rmi4.txt
-+++ b/Documentation/devicetree/bindings/input/rmi4.txt
-@@ -12,6 +12,16 @@ interrupts:
- 	Desc: See devicetree/bindings/interrupt-controller/interrupts.txt;
- 		Trigger sense required in mask
+diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+index 377d4cc..50ed5fd 100644
+--- a/drivers/input/rmi4/rmi_i2c.c
++++ b/drivers/input/rmi4/rmi_i2c.c
+@@ -209,15 +209,8 @@ static int rmi_i2c_probe(struct i2c_client *client,
+ 	rmi_i2c->xport.proto_name = "i2c";
+ 	rmi_i2c->xport.ops = &rmi_i2c_ops;
  
-+vdd-supply:
-+	Usage: optional (default: no regulator)
-+	Type: <prop-encoded-array>
-+	Desc: VDD power supply; See devicetree/bindings/regulator/regulator.txt
-+
-+vio-supply:
-+	Usage: optional (default: no regulator)
-+	Type: <prop-encoded-array>
-+	Desc: VIO power supply; See devicetree/bindings/regulator/regulator.txt
-+
- syn,reset-delay:
- 	Usage: optional (default: 100)
- 	Type: u32, milliseconds
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 92415ce..52345ae 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -28,6 +28,7 @@
- #include <linux/uaccess.h>
- #include <linux/of_irq.h>
- #include <linux/of.h>
-+#include <linux/regulator/consumer.h>
- #include <uapi/linux/input.h>
- #include "rmi_bus.h"
- #include "rmi_driver.h"
-@@ -101,7 +102,7 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+-	/*
+-	 * Setting the page to zero will (a) make sure the PSR is in a
+-	 * known state, and (b) make sure we can talk to the device.
+-	 */
+-	retval = rmi_set_page(rmi_i2c, 0);
+-	if (retval) {
+-		dev_err(&client->dev, "Failed to set page select to 0.\n");
+-		return retval;
+-	}
++	/* make sure we set the page on the first write */
++	rmi_i2c->page = -1;
  
- 	data->enabled = true;
- 
--	return process_interrupt_requests(rmi_dev);
-+	return 0;
- }
- 
- static void rmi_free_function_list(struct rmi_device *rmi_dev)
-@@ -616,14 +617,29 @@ error_exit:
- static int rmi_driver_suspend(struct device *dev)
- {
- 	struct rmi_device *rmi_dev = to_rmi_device(dev);
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
- 
- 	disable_sensor(rmi_dev);
-+
-+	regulator_disable(data->vio);
-+	regulator_disable(data->vdd);
-+
- 	return 0;
- }
- 
- static int rmi_driver_resume(struct device *dev)
- {
- 	struct rmi_device *rmi_dev = to_rmi_device(dev);
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+	int retval;
-+
-+	retval = regulator_enable(data->vdd);
-+	if (retval)
-+		return retval;
-+	retval = regulator_enable(data->vio);
-+	if (retval)
-+		return retval;
-+
- 	return enable_sensor(rmi_dev);
- }
- 
-@@ -634,7 +650,12 @@ static SIMPLE_DEV_PM_OPS(rmi_driver_pm, rmi_driver_suspend, rmi_driver_resume);
- static int rmi_driver_remove(struct device *dev)
- {
- 	struct rmi_device *rmi_dev = to_rmi_device(dev);
-+	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-+
- 	disable_sensor(rmi_dev);
-+
-+	regulator_disable(data->vio);
-+	regulator_disable(data->vdd);
- 	rmi_free_function_list(rmi_dev);
- 
- 	return 0;
-@@ -649,6 +670,7 @@ static int rmi_driver_probe(struct device *dev)
- 	int retval = 0;
- 	struct rmi_device *rmi_dev;
- 	unsigned int irq;
-+	bool delay_start = false;
- 	u32 reset_delay;
- 
- 	dev_dbg(dev, "%s: Starting probe.\n", __func__);
-@@ -696,6 +718,33 @@ static int rmi_driver_probe(struct device *dev)
- 	dev_set_drvdata(&rmi_dev->dev, data);
- 	mutex_init(&data->pdt_mutex);
- 
-+	data->vdd = devm_regulator_get_optional(dev, "vdd");
-+	if (IS_ERR(data->vdd)) {
-+		dev_err(dev, "Failed to get regulator 'vdd'\n");
-+		return PTR_ERR(data->vdd);
-+	}
-+	data->vio = devm_regulator_get_optional(dev, "vio");
-+	if (IS_ERR(data->vio)) {
-+		dev_err(dev, "Failed to get regulator 'vio'\n");
-+		return PTR_ERR(data->vio);
-+	}
-+
-+	if (data->vdd && !regulator_is_enabled(data->vdd))
-+		delay_start = true;
-+	if (data->vio && !regulator_is_enabled(data->vio))
-+		delay_start = true;
-+
-+	retval = regulator_enable(data->vdd);
-+	if (retval) {
-+		dev_err(dev, "Failed to enable regulator\n");
-+		return retval;
-+	}
-+	retval = regulator_enable(data->vio);
-+	if (retval) {
-+		dev_err(dev, "Failed to enable regulator\n");
-+		return retval;
-+	}
-+
- 	/*
- 	 * Right before a warm boot, the sensor might be in some unusual state,
- 	 * such as F54 diagnostics, or F34 bootloader mode.  In order to clear
-@@ -714,6 +763,8 @@ static int rmi_driver_probe(struct device *dev)
- 	 */
- 	if (!reset_delay)
- 		reset_delay = DEFAULT_RESET_DELAY_MS;
-+	if (delay_start)
-+		mdelay(reset_delay);
- 	retval = rmi_initial_reset(rmi_dev, reset_delay);
- 	if (retval)
- 		dev_warn(dev, "RMI initial reset failed! Continuing in spite of this.\n");
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index eafbdb3..d553722 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -29,9 +29,13 @@
- 
- #define RMI_PDT_PROPS_HAS_BSR 0x02
- 
-+struct regulator;
-+
- struct rmi_driver_data {
- 	struct list_head function_list;
- 
-+	struct regulator *vdd;
-+	struct regulator *vio;
- 	struct rmi_device *rmi_dev;
- 
- 	struct rmi_function *f01_container;
+ 	retval = rmi_register_transport_device(&rmi_i2c->xport);
+ 	if (retval) {
 -- 
 1.8.1.5
 

@@ -1,137 +1,290 @@
-From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: Re: [PATCH 00/15] Input: synaptics-rmi4 - cleanup and add DT support
-Date: Fri, 24 Jan 2014 17:08:50 -0800
-Message-ID: <20140125010845.GC19653@sonymobile.com>
-References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
- <52E2F62B.80101@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH 1/2] HID: sony: Add battery status reporting for the Sixaxis and Dualshock 4 controllers.
+Date: Fri, 24 Jan 2014 22:27:00 -0500
+Message-ID: <1390620421-11365-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:3520 "EHLO
-	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751167AbaAYBHK (ORCPT
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:34227 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751416AbaAYD1a (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jan 2014 20:07:10 -0500
-Content-Disposition: inline
-In-Reply-To: <52E2F62B.80101@synaptics.com>
+	Fri, 24 Jan 2014 22:27:30 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Sat, Jan 25, 2014 at 12:24:27AM +0100, Christopher Heiny wrote:
-> On 01/23/2014 04:00 PM, Courtney Cavin wrote:
-> > This is an attempt to get this driver closer to being in an upstream-able form.
-> > In the process, this drops legacy callback methods for managing power and GPIO
-> > configuration, in favor of the already existing frameworks.  Most of this
-> > series is cleanup, but there are a few intermixed bug fixes to make it all
-> > work.
-> 
-> Hi Courtney!
-> 
-> Thanks for the extensive patches.  There's a great deal of cool stuff in 
-> there that we're really happy to see (as in "buy Courtney a beer! No, 
-> make it two beers!" levels of happy).  We really want to get the driver 
-> upstream, and your improvements will help a lot.  The device tree work 
-> looks to be particularly helpful.
-> 
+Add battery status reporting for the Sixaxis and Dualshock 4 controllers.
 
-Thanks. Glad to help!
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+---
+ drivers/hid/hid-sony.c | 186 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 185 insertions(+), 1 deletion(-)
 
-> Unfortunately some of your cleanup is too aggressive, and winds up 
-> breaking code outside of the current patch submissions.  The current 
-> patch codebase is significantly reduced in size in order to be more 
-> manageable, but there's a non-trivial amount of production code outside 
-> that codebase that depends on things like the current GPIO/IRQ handling, 
-> the debugfs infrastructure, platform suspend/resume, and so on.  This 
-> code will be submitted after the core of the driver is upstreamed. 
-> Tearing out the supporting code now and then putting it all back later 
-> just makes more work for all concerned.
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 1235405..04fd611 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -30,6 +30,8 @@
+ #include <linux/slab.h>
+ #include <linux/usb.h>
+ #include <linux/leds.h>
++#include <linux/power_supply.h>
++#include <linux/spinlock.h>
+ 
+ #include "hid-ids.h"
+ 
+@@ -42,6 +44,7 @@
+ #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
+ 
+ #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER_USB)
++#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_USB)
+ 
+ #define MAX_LEDS 4
+ 
+@@ -487,18 +490,30 @@ static const unsigned int buzz_keymap[] = {
+ 	[20] = BTN_TRIGGER_HAPPY20,
+ };
+ 
++static enum power_supply_property sony_battery_props[] = {
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_SCOPE,
++	POWER_SUPPLY_PROP_STATUS,
++};
++
+ struct sony_sc {
++	spinlock_t lock;
+ 	struct hid_device *hdev;
+ 	struct led_classdev *leds[MAX_LEDS];
+ 	struct hid_report *output_report;
+ 	unsigned long quirks;
+ 	struct work_struct state_worker;
++	struct power_supply battery;
+ 
+ #ifdef CONFIG_SONY_FF
+ 	__u8 left;
+ 	__u8 right;
+ #endif
+ 
++	__u8 cable_state;
++	__u8 battery_charging;
++	__u8 battery_capacity;
+ 	__u8 led_state[MAX_LEDS];
+ 	__u8 led_count;
+ };
+@@ -599,6 +614,63 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	return rdesc;
+ }
+ 
++static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
++{
++	static const __u8 sixaxis_battery_capacity[] = { 0, 1, 25, 50, 75, 100 };
++	unsigned long flags;
++	__u8 cable_state, battery_capacity, battery_charging;
++
++	/* The sixaxis is charging if the battery value is 0xee
++	 * and it is fully charged if the value is 0xef.
++	 * It does not report the actual level while charging so it
++	 * is set to 100% while charging is in progress.
++	 */
++	if (rd[30] >= 0xee) {
++		battery_capacity = 100;
++		battery_charging = rd[30] & 0x01;
++	} else {
++		battery_capacity = sixaxis_battery_capacity[rd[30]];
++		battery_charging = 0;
++	}
++	cable_state = (rd[31] >> 4) & 0x01;
++
++	spin_lock_irqsave(&sc->lock, flags);
++	sc->cable_state = cable_state;
++	sc->battery_capacity = battery_capacity;
++	sc->battery_charging = battery_charging;
++	spin_unlock_irqrestore(&sc->lock, flags);
++}
++
++static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
++{
++	unsigned long flags;
++	__u8 cable_state, battery_capacity, battery_charging;
++
++	/* The lower 4 bits of byte 30 contain the battery level
++	 * and the 5th bit contains the USB cable state.
++	 */
++	cable_state = (rd[30] >> 4) & 0x01;
++	battery_capacity = rd[30] & 0x0F;
++
++	/* On USB the Dualshock 4 battery level goes from 0 to 11.
++	 * A battery level of 11 means fully charged.
++	 */
++	if (cable_state && battery_capacity == 11)
++		battery_charging = 0;
++	else
++		battery_charging = 1;
++
++	if (battery_capacity > 10)
++		battery_capacity--;
++	battery_capacity *= 10;
++
++	spin_lock_irqsave(&sc->lock, flags);
++	sc->cable_state = cable_state;
++	sc->battery_capacity = battery_capacity;
++	sc->battery_charging = battery_charging;
++	spin_unlock_irqrestore(&sc->lock, flags);
++}
++
+ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		__u8 *rd, int size)
+ {
+@@ -613,6 +685,11 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		swap(rd[43], rd[44]);
+ 		swap(rd[45], rd[46]);
+ 		swap(rd[47], rd[48]);
++
++		sixaxis_parse_report(sc, rd, size);
++	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
++			size == 64) {
++		dualshock4_parse_report(sc, rd, size);
+ 	}
+ 
+ 	return 0;
+@@ -1011,6 +1088,91 @@ static void sony_destroy_ff(struct hid_device *hdev)
+ }
+ #endif
+ 
++static int sony_battery_get_property(struct power_supply *psy,
++				     enum power_supply_property psp,
++				     union power_supply_propval *val)
++{
++	struct sony_sc *sc = container_of(psy, struct sony_sc, battery);
++	unsigned long flags;
++	int ret = 0;
++	u8 battery_charging, battery_capacity, cable_state;
++
++	spin_lock_irqsave(&sc->lock, flags);
++	battery_charging = sc->battery_charging;
++	battery_capacity = sc->battery_capacity;
++	cable_state = sc->cable_state;
++	spin_unlock_irqrestore(&sc->lock, flags);
++
++	switch (psp) {
++	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = 1;
++		break;
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		break;
++	case POWER_SUPPLY_PROP_CAPACITY:
++		val->intval = battery_capacity;
++		break;
++	case POWER_SUPPLY_PROP_STATUS:
++		if (battery_charging)
++			val->intval = POWER_SUPPLY_STATUS_CHARGING;
++		else
++			if (battery_capacity == 100 && cable_state)
++				val->intval = POWER_SUPPLY_STATUS_FULL;
++			else
++				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
++		break;
++	default:
++		ret = -EINVAL;
++		break;
++	}
++	return ret;
++}
++
++static int sony_battery_probe(struct sony_sc *sc)
++{
++	static atomic_t power_id_seq = ATOMIC_INIT(0);
++	unsigned long power_id;
++	struct hid_device *hdev = sc->hdev;
++	int ret;
++
++	power_id = (unsigned long)atomic_inc_return(&power_id_seq);
++
++	sc->battery.properties = sony_battery_props;
++	sc->battery.num_properties = ARRAY_SIZE(sony_battery_props);
++	sc->battery.get_property = sony_battery_get_property;
++	sc->battery.type = POWER_SUPPLY_TYPE_BATTERY;
++	sc->battery.use_for_apm = 0;
++	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%lu",
++				     power_id);
++	if (!sc->battery.name)
++		return -ENOMEM;
++
++	ret = power_supply_register(&hdev->dev, &sc->battery);
++	if (ret) {
++		hid_err(hdev, "Unable to register battery device\n");
++		goto err_free;
++	}
++
++	power_supply_powers(&sc->battery, &hdev->dev);
++	return 0;
++
++err_free:
++	kfree(sc->battery.name);
++	sc->battery.name = NULL;
++	return ret;
++}
++
++static void sony_battery_remove(struct sony_sc *sc)
++{
++	if (!sc->battery.name)
++		return;
++
++	power_supply_unregister(&sc->battery);
++	kfree(sc->battery.name);
++	sc->battery.name = NULL;
++}
++
+ static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
+ {
+ 	struct list_head *head, *list;
+@@ -1101,14 +1263,31 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			goto err_stop;
+ 	}
+ 
++	if (sc->quirks & SONY_BATTERY_SUPPORT) {
++		ret = sony_battery_probe(sc);
++		if (ret < 0)
++			goto err_stop;
++
++		/* Open the device to receive reports with battery info */
++		ret = hid_hw_open(hdev);
++		if (ret < 0) {
++			hid_err(hdev, "hw open failed\n");
++			goto err_stop;
++		}
++	}
++
+ 	ret = sony_init_ff(hdev);
+ 	if (ret < 0)
+-		goto err_stop;
++		goto err_close;
+ 
+ 	return 0;
++err_close:
++	hid_hw_close(hdev);
+ err_stop:
+ 	if (sc->quirks & SONY_LED_SUPPORT)
+ 		sony_leds_remove(hdev);
++	if (sc->quirks & SONY_BATTERY_SUPPORT)
++		sony_battery_remove(sc);
+ 	hid_hw_stop(hdev);
+ 	return ret;
+ }
+@@ -1120,6 +1299,11 @@ static void sony_remove(struct hid_device *hdev)
+ 	if (sc->quirks & SONY_LED_SUPPORT)
+ 		sony_leds_remove(hdev);
+ 
++	if (sc->quirks & SONY_BATTERY_SUPPORT) {
++		hid_hw_close(hdev);
++		sony_battery_remove(sc);
++	}
++
+ 	sony_destroy_ff(hdev);
+ 
+ 	hid_hw_stop(hdev);
+-- 
+1.8.3.2
 
-I can definitely understand that some of your production code must
-manage older kernels and alternative features.  The problem I see here is
-that the driver will never get upstreamed with the GPIO/IRQ handling and
-unused variables in the first place.  It is unnecessary in mainline, and
-therefore should not exist in mainline.  I am not the maintainer though,
-so... Dmitry should probably chime in on this.
-
-> 
-> Additionally, some of your changes are redundant to, or in conflict 
-> with, patches submitted over the past few weeks.  Have you been 
-> following that series and discussions relating to them?  It would 
-> probably be more efficient for you to offer comments on those patches, 
-> rather than submitting conflicting work.
-> 
-
-I did not see any specific logical conflicts other than saving the F01
-container, which was needed for testing, and was independent of IRQ
-counting.  Other than that, there should only need to be rebasing
-one-way or the other.  I am simply basing my patches off of what exists
-in the tree, which prevents awkward patch-series dependencies.
-
-I did look at your patches, but didn't comment because I had nothing to
-say.  I'll be sure to participate in patch discussions if I have
-something to add.
-
-... and after double checking, I just noticed that 1/15 conflicts
-with your PDT scan cleanup, as we both have C++ comment style cleanup.
-Whoops.
-
-> We'll be going over the new feature and bug fix parts of this patch 
-> series, and will send comments in the next couple of workdays.
-> 
-> 				Thanks,
-> 					Chris
-> 
-
-I'm looking forward to some comments.
-
--Courtney
-
-> >
-> > This patch series is based off of the synaptics-rmi4 branch merged into
-> > Linus' 3.13.  A tree is available at [1].
-> >
-> > This was tested on Synaptics TM2281-001 & TM2282-001.
-> >
-> > [1] http://github.com/courtc/linux.git
-> > 	tag for-input/synaptics-rmi4
-> >
-> > Courtney Cavin (15):
-> >    Input: synaptics-rmi4 - fix checkpatch.pl, sparse and GCC warnings
-> >    Input: synaptics-rmi4 - don't kfree devm_ alloced memory
-> >    Input: synaptics-rmi4 - don't free devices directly
-> >    Input: synaptics-rmi4 - remove sensor name from platform data
-> >    Input: synaptics-rmi4 - remove gpio handling and polling
-> >    Input: synaptics-rmi4 - remove platform suspend callbacks
-> >    Input: synaptics-rmi4 - remove remaining debugfs code
-> >    Input: synaptics-rmi4 - cleanup platform data
-> >    Input: synaptics-rmi4 - remove unused defines and variables
-> >    Input: synaptics-rmi4 - add devicetree support
-> >    Input: synaptics-rmi4 - add regulator support
-> >    Input: synaptics-rmi4 - don't immediately set page on probe
-> >    Input: synaptics-rmi4 - properly set F01 container on PDT scan
-> >    Input: synaptics-rmi4 - ensure we have IRQs before reading status
-> >    Input: synaptics-rmi4 - correct RMI4 spec url
-> >
-> >   Documentation/devicetree/bindings/input/rmi4.txt   | 117 +++++
-> >   .../devicetree/bindings/vendor-prefixes.txt        |   1 +
-> >   drivers/input/rmi4/Kconfig                         |   1 -
-> >   drivers/input/rmi4/rmi_bus.c                       | 131 +-----
-> >   drivers/input/rmi4/rmi_bus.h                       |  18 +-
-> >   drivers/input/rmi4/rmi_driver.c                    | 321 +++++--------
-> >   drivers/input/rmi4/rmi_driver.h                    |  33 +-
-> >   drivers/input/rmi4/rmi_f01.c                       | 163 ++++---
-> >   drivers/input/rmi4/rmi_f11.c                       | 523 ++++++---------------
-> >   drivers/input/rmi4/rmi_i2c.c                       |  55 +--
-> >   include/linux/rmi.h                                | 219 ++-------
-> >   11 files changed, 551 insertions(+), 1031 deletions(-)
-> >   create mode 100644 Documentation/devicetree/bindings/input/rmi4.txt
-> >
-> 
-> 
-> -- 
-> 
-> Christopher Heiny
-> Senior Staff Firmware Engineer
-> Synaptics Incorporated

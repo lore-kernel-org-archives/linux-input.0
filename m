@@ -1,71 +1,57 @@
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: Re: [PATCH] Input: i8042-io - Exclude mips platforms when
- allocating/deallocating IO regions.
-Date: Mon, 27 Jan 2014 22:24:35 +0200
-Message-ID: <20140127202435.GA589@drone.musicnaut.iki.fi>
-References: <1390676514-30880-1-git-send-email-raghu.gandham@imgtec.com>
- <20140126214952.GD18840@core.coreip.homeip.net>
- <E2EE47005FA75F44B80E1019FDD2EBBB6E38B06D@BADAG02.ba.imgtec.org>
- <20140127065638.GB11945@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC][PATCH] module: allow multiple calls to
+ MODULE_DEVICE_TABLE() per module
+Date: Mon, 27 Jan 2014 12:30:01 -0800
+Message-ID: <20140127203001.GA18575@core.coreip.homeip.net>
+References: <1390849795-2155-1-git-send-email-teg@jklm.no>
+ <20140127195422.GB21018@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from filtteri1.pp.htv.fi ([213.243.153.184]:37651 "EHLO
-	filtteri1.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753763AbaA0UZT (ORCPT
+Received: from mail-pa0-f49.google.com ([209.85.220.49]:59812 "EHLO
+	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754007AbaA0UaF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jan 2014 15:25:19 -0500
+	Mon, 27 Jan 2014 15:30:05 -0500
 Content-Disposition: inline
-In-Reply-To: <20140127065638.GB11945@core.coreip.homeip.net>
+In-Reply-To: <20140127195422.GB21018@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Raghu Gandham <Raghu.Gandham@imgtec.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Tom Gundersen <teg@jklm.no>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, kay@vrfy.org, Rusty Russell <rusty@rustcorp.com.au>
 
-Hi,
-
-On Sun, Jan 26, 2014 at 10:56:38PM -0800, Dmitry Torokhov wrote:
-> On Mon, Jan 27, 2014 at 12:32:36AM +0000, Raghu Gandham wrote:
-> > > On Sat, Jan 25, 2014 at 11:01:54AM -0800, Raghu Gandham wrote:
-> > > > The standard IO regions are already reserved by the platform code on
-> > > > most MIPS devices(malta, cobalt, sni). The Commit
-> > > > 197a1e96c8be5b6005145af3a4c0e45e2d651444
-> > > > ("Input: i8042-io - fix up region handling on MIPS") introduced a bug
-> > > > on these MIPS platforms causing i8042 driver to fail when trying to
-> > > > reserve IO ports.
-> > > > Prior to the above mentioned commit request_region is skipped on MIPS
-> > > > but release_region is called.
-> > > >
-> > > > This patch reverts commit 197a1e96c8be5b6005145af3a4c0e45e2d651444
-> > > > and also avoids calling release_region for MIPS.
-> > > 
-> > > The problem is that IO regions are reserved on _most_, but not _all_
-> > > devices.
-> > > MIPS should figure out what they want to do with i8042 registers and be
-> > > consistent on all devices.
+On Mon, Jan 27, 2014 at 11:54:22AM -0800, Greg Kroah-Hartman wrote:
+> On Mon, Jan 27, 2014 at 08:09:55PM +0100, Tom Gundersen wrote:
+> > Commit 78551277e4df5: "Input: i8042 - add PNP modaliases" had a bug, where the
+> > second call to MODULE_DEVICE_TABLE() overrode the first resulting in not all
+> > the modaliases being exposed.
 > > 
-> > Please examine the attached patch which went upstream in April of 2004.
-> > Since then it had been a convention not to call request_region routine in
-> > i8042 for MIPS. The attached patch had a glitch that it guarded
-> > request_region in i8042-io.h but skipped guarding release_region in
-> > i8042-io.h. I believe that the issue Aaro saw was due to this 
-> > glitch. Below is the error quoted in Aaro's commit message.
+> > This fixes the problem by including the name of the device_id table in the
+> > __mod_*_device_table alias, allowing us to export several device_id tables
+> > per module.
 > > 
-> >     [    2.112000] Trying to free nonexistent resource <0000000000000060-000000000000006f>
-> > 
-> > My patch reinstates the convention followed on MIPS devices along with
-> > fixing Aaro's issue.
+> > Suggested-by: Kay Sievers <kay@vrfy.org>
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: Rusty Russell <rusty@rustcorp.com.au>
+> > ---
+> >  include/linux/module.h   |  2 +-
+> >  scripts/mod/file2alias.c | 14 +++++++++-----
+> >  2 files changed, 10 insertions(+), 6 deletions(-)
 > 
-> I assume that Aaro did test his patch and on his box request_region()
-> succeeds. That would indicate that various MIPS sub-arches still not
-> settled on the topic.
+> Ah, very nice, I've wanted this for a while now, it would make a number
+> of different drivers much smaller and simpler to add new device ids to
+> (no multiple lists of ids, one for the module loader and one for the
+> sub-driver that is in the single file.)
+> 
+> If this doesn't break any userspace tools, I have no objection to it at
+> all:
+> 
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-request_region() succeeds on Loongson and OCTEON.
+Looks great to me as long as module tools keep working.
 
-On OCTEONs without PCI, request_region() will fail which is correct as
-there is no I/O space.
+Thanks.
 
-I wasn't aware of that 2004 patch (it pre-dates GIT history of mainline
-Linux). Why the regions are already reserved by the platform code?
-
-A.
+-- 
+Dmitry

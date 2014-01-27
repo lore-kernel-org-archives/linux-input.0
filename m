@@ -1,39 +1,27 @@
-From: Allan Crooks <allan@amcone.net>
-Subject: Dell Latitude E7440 - ALPS touchpad keeps having state reset
-Date: Mon, 27 Jan 2014 15:23:02 +0000
-Message-ID: <CAPhwt3YC9zvdg6XrFvUt5giehrMHXft5p81UB6Z4rwBOTJ2ioA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Luis Ortega <luiorpe1@upv.es>
+Subject: Input: zforce - fix various small issues
+Date: Mon, 27 Jan 2014 19:46:09 +0100
+Message-ID: <1390848373-7723-1-git-send-email-luiorpe1@upv.es>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f51.google.com ([209.85.214.51]:47282 "EHLO
-	mail-bk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753651AbaA0PXX (ORCPT
+Received: from mail-we0-f176.google.com ([74.125.82.176]:42292 "EHLO
+	mail-we0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753719AbaA0Rqz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jan 2014 10:23:23 -0500
-Received: by mail-bk0-f51.google.com with SMTP id w10so2936182bkz.10
-        for <linux-input@vger.kernel.org>; Mon, 27 Jan 2014 07:23:22 -0800 (PST)
+	Mon, 27 Jan 2014 12:46:55 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: heiko@sntech.de, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+As a kernel newbie and owner of a Barnes & Noble e-reader I was
+curious to review this driver to learn more about the touchscreen.
 
-I've reported the problem I'm having in more detail here:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1258837
+The first two patches are fairly innocuous whereas the last two
+slightly modify the code to fix two small issues I discovered.
+I don't have the setup to test them but they look logically correct
+to me.
 
-In summary - I keep suffering from the mouse pointer jumping around
-erratically, with the following messages output to syslog:
- psmouse serio1: DualPoint TouchPad at isa0060/serio1/input0 lost sync at byte 1
- psmouse serio1: DualPoint TouchPad at isa0060/serio1/input0 - driver resynced.
-
-Other people have reported the same problem in that bug report.
-Bisecting the kernel, the problem seems to have always been in place
-as soon as the touchpad was correctly identified; according to xinput
-- it's a "AlpsPS/2 ALPS DualPoint TouchPad". When it was being
-identified as a generic PS/2 mouse, there's no problem (though of
-course, there's also no touchpad functionality available either).
-
-Is there anything I can do to help provide information to get this fixed?
-
-Thanks,
-Allan.
+[PATCH 1/4] Input: zforce - fix spelling errors
+[PATCH 2/4] Input: zforce - fix lines exceeding 80 columns
+[PATCH 3/4] Input: zforce - Remove unnecessary payload data checks
+[PATCH 4/4] Input: zforce - reduce stack memory allocated to frames

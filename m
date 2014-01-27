@@ -1,59 +1,48 @@
-From: Lauri Peltonen <lauri.peltonen@gmail.com>
-Subject: HID_REQ_GET_REPORT and report not filled during hid_pidff_init
-Date: Mon, 27 Jan 2014 21:31:53 +0200
-Message-ID: <CAMvWtwT_J7rL1yFXZ3PyK1EEmmd=z3CgRUtQcgG+Yeh1tcWNrg@mail.gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [RFC][PATCH] module: allow multiple calls to
+ MODULE_DEVICE_TABLE() per module
+Date: Mon, 27 Jan 2014 11:54:22 -0800
+Message-ID: <20140127195422.GB21018@kroah.com>
+References: <1390849795-2155-1-git-send-email-teg@jklm.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ve0-f175.google.com ([209.85.128.175]:33767 "EHLO
-	mail-ve0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753769AbaA0Tby (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:36073 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753580AbaA0TxR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jan 2014 14:31:54 -0500
-Received: by mail-ve0-f175.google.com with SMTP id c14so3719206vea.20
-        for <linux-input@vger.kernel.org>; Mon, 27 Jan 2014 11:31:54 -0800 (PST)
+	Mon, 27 Jan 2014 14:53:17 -0500
+Content-Disposition: inline
+In-Reply-To: <1390849795-2155-1-git-send-email-teg@jklm.no>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz
+To: Tom Gundersen <teg@jklm.no>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, kay@vrfy.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>
 
-Hi.
+On Mon, Jan 27, 2014 at 08:09:55PM +0100, Tom Gundersen wrote:
+> Commit 78551277e4df5: "Input: i8042 - add PNP modaliases" had a bug, where the
+> second call to MODULE_DEVICE_TABLE() overrode the first resulting in not all
+> the modaliases being exposed.
+> 
+> This fixes the problem by including the name of the device_id table in the
+> __mod_*_device_table alias, allowing us to export several device_id tables
+> per module.
+> 
+> Suggested-by: Kay Sievers <kay@vrfy.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> ---
+>  include/linux/module.h   |  2 +-
+>  scripts/mod/file2alias.c | 14 +++++++++-----
+>  2 files changed, 10 insertions(+), 6 deletions(-)
 
-I'm making some enhancements to hid/usbhid/hid-pidff.c to support more
-force feedback devices, but I've encountered some weird behaviour. I'm
-not sure whether it's a bug or something else.
+Ah, very nice, I've wanted this for a while now, it would make a number
+of different drivers much smaller and simpler to add new device ids to
+(no multiple lists of ids, one for the module loader and one for the
+sub-driver that is in the single file.)
 
-My changes depend on knowing some device information (like memory) in
-the initialization phase, and luckily hid-pidff reads the info from
-PID_POOL report in hid_pidff_init -> pidff_reset. [1] and [2]
+If this doesn't break any userspace tools, I have no objection to it at
+all:
 
-However, I noticed that the report struct never gets filled (all
-zeros), even though with usbmon I can see the ctrl message out and the
-report coming in with correct data (300 bytes of memory etc). I
-managed to locate the line which causes the report to be dropped in
-hid/hid-core.c , in hid_input_repor(..)t checking for
-driver_input_lock. [3] Commenting out the following lines "fixes" the
-issue, and the struct gets filled correctly. Anyways, I think that is
-not a real solution.
-
-if (down_trylock(&hid->driver_input_lock))
- return -EBUSY;
-
-Now, I wonder if there is a reason why the locking fails? Is the
-driver locked during the initialization and hid_hw_request(...
-HID_REQ_GET_REPORT) cannot be used? If that is so, what is the correct
-way to read device reports during the init? And does the hid-pidff
-driver ever read the pool report correctly, or is this just with my
-Saitek device?
-
-I'm using kernel 3.13.
-
-Best regards, Lauri Peltonen
-
-[1] http://lxr.free-electrons.com/source/drivers/hid/usbhid/hid-pidff.c#L1268
-[2] http://lxr.free-electrons.com/source/drivers/hid/usbhid/hid-pidff.c#L1172
-[3] http://lxr.free-electrons.com/source/drivers/hid/hid-core.c#L1392
-
--- 
-Lauri Peltonen
-lauri.peltonen@gmail.com
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>

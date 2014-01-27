@@ -1,50 +1,57 @@
 From: Frank Praznik <frank.praznik@gmail.com>
 Subject: Re: [PATCH v2 2/2] HID: sony: Add output events for the multi-touch
  pad on the Dualshock 4.
-Date: Mon, 27 Jan 2014 16:02:31 -0500
-Message-ID: <52E6C967.9060704@gmail.com>
-References: <1390835857-4523-1-git-send-email-frank.praznik@oh.rr.com>    <1390835857-4523-2-git-send-email-frank.praznik@oh.rr.com> <d3172725c00c3ddcc924d036820b7f5c.squirrel@mungewell.org>
+Date: Mon, 27 Jan 2014 16:28:06 -0500
+Message-ID: <52E6CF66.7090102@gmail.com>
+References: <1390835857-4523-1-git-send-email-frank.praznik@oh.rr.com>    <1390835857-4523-2-git-send-email-frank.praznik@oh.rr.com> <ddf2398947f6323430699b45bc509091.squirrel@mungewell.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f54.google.com ([209.85.220.54]:63665 "EHLO
-	mail-pa0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754085AbaA0VCj (ORCPT
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:43649 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753926AbaA0V2P (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jan 2014 16:02:39 -0500
-Received: by mail-pa0-f54.google.com with SMTP id fa1so6408091pad.13
-        for <linux-input@vger.kernel.org>; Mon, 27 Jan 2014 13:02:39 -0800 (PST)
-In-Reply-To: <d3172725c00c3ddcc924d036820b7f5c.squirrel@mungewell.org>
+	Mon, 27 Jan 2014 16:28:15 -0500
+Received: by mail-pb0-f47.google.com with SMTP id rp16so6343212pbb.6
+        for <linux-input@vger.kernel.org>; Mon, 27 Jan 2014 13:28:15 -0800 (PST)
+In-Reply-To: <ddf2398947f6323430699b45bc509091.squirrel@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: simon@mungewell.org, Frank Praznik <frank.praznik@oh.rr.com>
 Cc: linux-input@vger.kernel.org, jkosina@suse.cz
 
-On 1/27/2014 15:40, simon@mungewell.org wrote:
->> +	for (n = 0; n < 2; n++) {
->> +		__u16 x, y;
+On 1/27/2014 12:47, simon@mungewell.org wrote:
 >> +
->> +		x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
->> +		y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
->> +
->> +		input_mt_slot(input_dev, n);
->> +		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
->> +					!(rd[offset] >> 7));
->> +		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
->> +		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
->> +
->> +		offset += 4;
->> +	}
-> Sorry I have another point/question....
+>> +	/* The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB.
+>> +	 * The first 7 bits of the first byte is a counter and bit 8 is a touch
+>> +	 * indicator that is 0 when pressed and 1 when not pressed.
+>> +	 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
+>> +	 * The data for the second touch is in the same format and immediatly
+>> +	 * follows the data for the first.
+>> +	 */
+> Hi Frank,
+> I don't know if it helps multitouch, but there is a second set of data in
+> the HID stream, that is present when a figure is moving/swiping on the
+> touchpad. This gives us a 'vector' rather than a 'point'.
 >
-> Doesn't this 'spam' the Multitouch interface every incoming report,
-> regardless on whether anything has actually change? ie. Should HID-Sony
-> track the values, and only send when it detects a change...
+> I previously attempted to describe the format here:
+> http://www.spinics.net/lists/linux-input/msg28525.html
 >
-> Simon
+> Ahead of the 'event counter' is a 'point or vector' byte and what might be
+> a 'pressure' measurement (couldn't really tell).
 >
-No, the HID layer tracks the current state and only sends events when 
-something changes so there is no need to shadow it again.  If you watch 
-the output in evtest, events are only sent when something changes.  All 
-this does is manually parse the touch data for the HID layer.
+> Interspersed with the data you mention is a second set of X1/Y1/X2/Y2
+> containing the starting position of the swipe/vector. These are
+> differentiated with '02' (rather than '01') in the 34'th byte.
+>
+> Simon.
+>
+All the device driver is concerned with is the sending the 'raw' touch 
+points to the HID layer (ie. point 1/2 is up/down at position X and Y).  
+The HID layer then tracks the IDs for each contact point and sends the 
+appropriate events to the user application.  It's then up to the 
+application software to track and interpret it.
+
+See this document for information on the multi-touch protocol:
+https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt

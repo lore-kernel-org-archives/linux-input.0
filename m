@@ -1,45 +1,48 @@
-From: Petr Sebor <petr@scssoft.com>
-Subject: [PATCH v2] Input: xpad - do not map the DPAD to buttons with xbox 360 wireless controllers
-Date: Mon, 27 Jan 2014 23:53:26 +0100
-Message-ID: <1390863206-11278-1-git-send-email-petr@scssoft.com>
-References: <10f1d8a1b4e46e767197c00c77719f77@mail.scs>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.scssoft.com ([213.151.92.134]:44313 "EHLO mail.scssoft.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754498AbaA0Wxm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jan 2014 17:53:42 -0500
-In-Reply-To: <10f1d8a1b4e46e767197c00c77719f77@mail.scs>
-Sender: linux-input-owner@vger.kernel.org
+From: Yufeng Shen <miletus@chromium.org>
+Subject: [PATCH] HID: usbhid: quirk for CY-TM75 75 inch Touch Overlay
+Date: Mon, 27 Jan 2014 18:02:46 -0500
+Message-ID: <1390863766-14491-1-git-send-email-miletus@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, miletus@chromium.org, adlr@chromium.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Petr Sebor <petr@scssoft.com>
 
-Having the DPAD mapped to buttons makes the wireless gamepad behave
-differently from the wired counterpart. Given the MAP_DPAD_TO_BUTTONS
-flag is typically used for dance pads, this was probably added by
-a mistake. Not specifying the flag makes the controller's hat switch
-behave as expected.
+There is timeout error during initialization:
+kernel: [   11.733104] hid-multitouch 0003:1870:0110.0001: usb_submit_urb(ctrl) failed: -1
+kernel: [   11.734093] hid-multitouch 0003:1870:0110.0001: timeout initializing reports
 
-Signed-off-by: Petr Sebor <petr@scssoft.com>
+Adding quirk HID_QUIRK_NO_INIT_REPORTS can solve the problem.
+
+Signed-off-by: Yufeng Shen <miletus@chromium.org>
 ---
- drivers/input/joystick/xpad.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-ids.h           | 1 +
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 603fe0d..a433636 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -121,8 +121,8 @@ static const struct xpad_device {
- 	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 0, XTYPE_XBOX360 },
--	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
--	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
-+	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", 0, XTYPE_XBOX360W },
-+	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", 0, XTYPE_XBOX360W },
- 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
- 	{ 0x046d, 0xc21d, "Logitech Gamepad F310", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xc21f, "Logitech Gamepad F710", 0, XTYPE_XBOX360 },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index f9304cb..ece2997 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -636,6 +636,7 @@
+ 
+ #define USB_VENDOR_ID_NEXIO		0x1870
+ #define USB_DEVICE_ID_NEXIO_MULTITOUCH_420	0x010d
++#define USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750	0x0110
+ 
+ #define USB_VENDOR_ID_NEXTWINDOW	0x1926
+ #define USB_DEVICE_ID_NEXTWINDOW_TOUCHSCREEN	0x0003
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 0db9a67..be5270a 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -74,6 +74,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GX680R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
 -- 
-1.8.3.2
-
+1.8.5.3

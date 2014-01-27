@@ -1,128 +1,39 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH v2 2/2] HID: sony: Add output events for the multi-touch pad on the Dualshock 4.
-Date: Mon, 27 Jan 2014 10:17:37 -0500
-Message-ID: <1390835857-4523-2-git-send-email-frank.praznik@oh.rr.com>
-References: <1390835857-4523-1-git-send-email-frank.praznik@oh.rr.com>
+From: Allan Crooks <allan@amcone.net>
+Subject: Dell Latitude E7440 - ALPS touchpad keeps having state reset
+Date: Mon, 27 Jan 2014 15:23:02 +0000
+Message-ID: <CAPhwt3YC9zvdg6XrFvUt5giehrMHXft5p81UB6Z4rwBOTJ2ioA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:51844 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753577AbaA0PSE (ORCPT
+Received: from mail-bk0-f51.google.com ([209.85.214.51]:47282 "EHLO
+	mail-bk0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753651AbaA0PXX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jan 2014 10:18:04 -0500
-In-Reply-To: <1390835857-4523-1-git-send-email-frank.praznik@oh.rr.com>
+	Mon, 27 Jan 2014 10:23:23 -0500
+Received: by mail-bk0-f51.google.com with SMTP id w10so2936182bkz.10
+        for <linux-input@vger.kernel.org>; Mon, 27 Jan 2014 07:23:22 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Add output events for the multi-touch pad on the Dualshock 4.
+Hi,
 
-The touchpad has a resolution of 1920x940 and is capable of 2 simultaneous
-touches. A 'Type B' stateful slot protocol is implemented as defined in
-Documentation/input/multi-touch-protocol.txt
+I've reported the problem I'm having in more detail here:
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1258837
 
-Applications can use the touchpad data by processing the ABS_MT_SLOT,
-ABS_MT_TRACKING_ID, ABS_MT_POSITION_X and ABS_MT_POSITION_Y events.
+In summary - I keep suffering from the mouse pointer jumping around
+erratically, with the following messages output to syslog:
+ psmouse serio1: DualPoint TouchPad at isa0060/serio1/input0 lost sync at byte 1
+ psmouse serio1: DualPoint TouchPad at isa0060/serio1/input0 - driver resynced.
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
----
- drivers/hid/hid-sony.c | 54 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+Other people have reported the same problem in that bug report.
+Bisecting the kernel, the problem seems to have always been in place
+as soon as the touchpad was correctly identified; according to xinput
+- it's a "AlpsPS/2 ALPS DualPoint TouchPad". When it was being
+identified as a generic PS/2 mouse, there's no problem (though of
+course, there's also no touchpad functionality available either).
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 04fd611..2bd3f13 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -32,6 +32,7 @@
- #include <linux/leds.h>
- #include <linux/power_supply.h>
- #include <linux/spinlock.h>
-+#include <linux/input/mt.h>
- 
- #include "hid-ids.h"
- 
-@@ -643,7 +644,11 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
- 
- static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
- {
-+	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
-+						struct hid_input, list);
-+	struct input_dev *input_dev = hidinput->input;
- 	unsigned long flags;
-+	int n, offset = 35;
- 	__u8 cable_state, battery_capacity, battery_charging;
- 
- 	/* The lower 4 bits of byte 30 contain the battery level
-@@ -669,6 +674,28 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
- 	sc->battery_capacity = battery_capacity;
- 	sc->battery_charging = battery_charging;
- 	spin_unlock_irqrestore(&sc->lock, flags);
-+
-+	/* The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB.
-+	 * The first 7 bits of the first byte is a counter and bit 8 is a touch
-+	 * indicator that is 0 when pressed and 1 when not pressed.
-+	 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
-+	 * The data for the second touch is in the same format and immediatly
-+	 * follows the data for the first.
-+	 */
-+	for (n = 0; n < 2; n++) {
-+		__u16 x, y;
-+
-+		x = rd[offset+1] | ((rd[offset+2] & 0xF) << 8);
-+		y = ((rd[offset+2] & 0xF0) >> 4) | (rd[offset+3] << 4);
-+
-+		input_mt_slot(input_dev, n);
-+		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER,
-+					!(rd[offset] >> 7));
-+		input_report_abs(input_dev, ABS_MT_POSITION_X, x);
-+		input_report_abs(input_dev, ABS_MT_POSITION_Y, y);
-+
-+		offset += 4;
-+	}
- }
- 
- static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
-@@ -1200,6 +1227,26 @@ static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
- 	return -EINVAL;
- }
- 
-+static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
-+					int w, int h)
-+{
-+	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
-+						struct hid_input, list);
-+	struct input_dev *input_dev = hidinput->input;
-+	int ret;
-+
-+	ret = input_mt_init_slots(input_dev, touch_count, 0);
-+	if (ret < 0) {
-+		hid_err(sc->hdev, "Unable to initialize multi-touch slots\n");
-+		return ret;
-+	}
-+
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
-+
-+	return 0;
-+}
-+
- static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret;
-@@ -1249,6 +1296,13 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		if (ret < 0)
- 			goto err_stop;
- 
-+		/* The Dualshock 4 touchpad supports 2 touches and has a
-+		 * resolution of 1920x940.
-+		 */
-+		ret = sony_register_touchpad(sc, 2, 1920, 940);
-+		if (ret < 0)
-+			goto err_stop;
-+
- 		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
- 	} else {
- 		ret = 0;
--- 
-1.8.3.2
+Is there anything I can do to help provide information to get this fixed?
 
+Thanks,
+Allan.

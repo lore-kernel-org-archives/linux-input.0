@@ -1,66 +1,78 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC][PATCH] module: allow multiple calls to MODULE_DEVICE_TABLE() per module
-Date: Tue, 28 Jan 2014 12:04:53 +1030
-Message-ID: <87mwigzy6a.fsf@rustcorp.com.au>
-References: <1390849795-2155-1-git-send-email-teg@jklm.no> <20140127195422.GB21018@kroah.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: usbhid: quirk for CY-TM75 75 inch Touch Overlay
+Date: Mon, 27 Jan 2014 21:57:33 -0500
+Message-ID: <CAN+gG=F3EQ4o99HW3Qid52_Kp1g-yziW1yeNetP5mE9DmEmS2w@mail.gmail.com>
+References: <1390863766-14491-1-git-send-email-miletus@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ozlabs.org ([203.10.76.45]:54309 "EHLO ozlabs.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751425AbaA1C2X (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jan 2014 21:28:23 -0500
-In-Reply-To: <20140127195422.GB21018@kroah.com>
+Received: from mail-lb0-f171.google.com ([209.85.217.171]:56061 "EHLO
+	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753428AbaA1C5f (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 27 Jan 2014 21:57:35 -0500
+In-Reply-To: <1390863766-14491-1-git-send-email-miletus@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tom Gundersen <teg@jklm.no>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, kay@vrfy.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Yufeng Shen <miletus@chromium.org>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-> On Mon, Jan 27, 2014 at 08:09:55PM +0100, Tom Gundersen wrote:
->> Commit 78551277e4df5: "Input: i8042 - add PNP modaliases" had a bug, where the
->> second call to MODULE_DEVICE_TABLE() overrode the first resulting in not all
->> the modaliases being exposed.
->> 
->> This fixes the problem by including the name of the device_id table in the
->> __mod_*_device_table alias, allowing us to export several device_id tables
->> per module.
->> 
->> Suggested-by: Kay Sievers <kay@vrfy.org>
->> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: Rusty Russell <rusty@rustcorp.com.au>
->> ---
->>  include/linux/module.h   |  2 +-
->>  scripts/mod/file2alias.c | 14 +++++++++-----
->>  2 files changed, 10 insertions(+), 6 deletions(-)
+Hi,
+
+On Mon, Jan 27, 2014 at 6:02 PM, Yufeng Shen <miletus@chromium.org> wrote:
+> There is timeout error during initialization:
+> kernel: [   11.733104] hid-multitouch 0003:1870:0110.0001: usb_submit_urb(ctrl) failed: -1
+> kernel: [   11.734093] hid-multitouch 0003:1870:0110.0001: timeout initializing reports
 >
-> Ah, very nice, I've wanted this for a while now, it would make a number
-> of different drivers much smaller and simpler to add new device ids to
-> (no multiple lists of ids, one for the module loader and one for the
-> sub-driver that is in the single file.)
+> Adding quirk HID_QUIRK_NO_INIT_REPORTS can solve the problem.
 
-You never asked :(
+Could you please test the quirk HID_QUIRK_NO_INIT_INPUT_REPORTS instead?
+The patch is perfectly fine, but usually when it fails, only the input
+reports are non-readable, whereas features should. This way, you will
+still get the value of the features, which _may_ be sensible for the
+maxcontact information.
 
-I've applied, this, but I'm actually amazed this patch works.  C is
-weird sometimes.  It changes declarations of the form:
+BTW, HID_QUIRK_NO_INIT_INPUT_REPORTS has been introduced in v3.12 and
+is the default for Win 8 certified devices.
 
-extern const struct pci_device_id __mod_pci_device_id_table
-        __attribute__ ((unused, alias("e1000_pci_tbl"));
+Cheers,
+Benjamin
 
-Into:
-
-extern const struct pci__e1000_pci_tbl_device_id __mod_pci__e1000_pci_tbl_device_id_table
-        __attribute__ ((unused, alias("e1000_pci_tbl"));
-
-Now, that's a completely unknown type, but gcc doesn't care because it's
-just an extern declaration.  It does insert the alias, which is all we
-care about.
-
-We would normally use a special section for this, so it's mainly
-historical.  Now we have DEFINE_PCI_DEVICE_TABLE etc, we should
-use those to put it in a special section (eg. "pci_ids") and
-grab that directly.
-
-Volunteers welcome :)
-Rusty.
+>
+> Signed-off-by: Yufeng Shen <miletus@chromium.org>
+> ---
+>  drivers/hid/hid-ids.h           | 1 +
+>  drivers/hid/usbhid/hid-quirks.c | 1 +
+>  2 files changed, 2 insertions(+)
+>
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index f9304cb..ece2997 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -636,6 +636,7 @@
+>
+>  #define USB_VENDOR_ID_NEXIO            0x1870
+>  #define USB_DEVICE_ID_NEXIO_MULTITOUCH_420     0x010d
+> +#define USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750 0x0110
+>
+>  #define USB_VENDOR_ID_NEXTWINDOW       0x1926
+>  #define USB_DEVICE_ID_NEXTWINDOW_TOUCHSCREEN   0x0003
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 0db9a67..be5270a 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -74,6 +74,7 @@ static const struct hid_blacklist {
+>         { USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28, HID_QUIRK_NOGET },
+>         { USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_NOGET },
+>         { USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GX680R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+> +       { USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
+>         { USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
+>         { USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NO_INIT_REPORTS },
+>         { USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN1, HID_QUIRK_NO_INIT_REPORTS },
+> --
+> 1.8.5.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

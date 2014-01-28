@@ -1,43 +1,68 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: Can I limit the scope of an input device to specific processes ?
-Date: Tue, 28 Jan 2014 12:15:48 +0100
-Message-ID: <CANq1E4ReNtJgC7zArLo=Bo87YZXOukFTTuxjYf_nupfmUkCL+A@mail.gmail.com>
-References: <S1754733AbaA1IxR/20140128085317Z+41@vger.kernel.org>
-	<52E78481.6040606@UKE.Uni-Hamburg.de>
+From: "Dr. Zimmermann" <R.Zimmermann@UKE.Uni-Hamburg.de>
+Subject: Re: Can I limit the scope of an input device to specific processes
+ ?
+Date: Tue, 28 Jan 2014 13:28:45 +0100
+Message-ID: <52E7A27D.4090404@UKE.Uni-Hamburg.de>
+References: <S1754733AbaA1IxR/20140128085317Z+41@vger.kernel.org> <52E78481.6040606@UKE.Uni-Hamburg.de> <CANq1E4ReNtJgC7zArLo=Bo87YZXOukFTTuxjYf_nupfmUkCL+A@mail.gmail.com>
+Reply-To: <R.Zimmermann@UKE.Uni-Hamburg.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f175.google.com ([209.85.213.175]:47851 "EHLO
-	mail-ig0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754993AbaA1LPt (ORCPT
+Received: from iplexus2.uke.uni-hamburg.de ([134.100.102.33]:40391 "EHLO
+	IPLEXUS2.uke.uni-hamburg.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755136AbaA1M2r (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jan 2014 06:15:49 -0500
-Received: by mail-ig0-f175.google.com with SMTP id uq10so11785998igb.2
-        for <linux-input@vger.kernel.org>; Tue, 28 Jan 2014 03:15:49 -0800 (PST)
-In-Reply-To: <52E78481.6040606@UKE.Uni-Hamburg.de>
+	Tue, 28 Jan 2014 07:28:47 -0500
+In-Reply-To: <CANq1E4ReNtJgC7zArLo=Bo87YZXOukFTTuxjYf_nupfmUkCL+A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: R.Zimmermann@uke.uni-hamburg.de
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-Hi
+QW0gMjguMDEuMjAxNCAxMjoxNSwgc2NocmllYiBEYXZpZCBIZXJybWFubjoKPiBIaQo+Cj4gT24g
+VHVlLCBKYW4gMjgsIDIwMTQgYXQgMTE6MjAgQU0sIERyLiBaaW1tZXJtYW5uCj4gPFIuWmltbWVy
+bWFubkB1a2UudW5pLWhhbWJ1cmcuZGU+IHdyb3RlOgo+PiBIaSwKPj4KPj4gd2UndmUgZ290IGEg
+c3BlY2lhbCB0eXBlIG9mIGtleWJvYXJkIHdoaWNoIHNob3VsZCBvbmx5IGJlIGF2YWlsYWJsZSBp
+biBvbmUKPj4gc3BlY2lmaWMgcHJvY2VzcyBhbmQgbm90IHB1YmxpY2x5LCBhcyB1c3VhbGx5IGtl
+eWJvYXJkcyBhcmUuCj4+Cj4+IElzIGl0IHBvc3NpYmxlIHRvIGxpbWl0IHRoZSBzY29wZSBvZiBh
+IHNwZWNpZmljIGtleWJvYXJkPwo+Pgo+PiBPciBpcyB0aGVyZSBhIG1vcmUgc3VpdGVkIGZvcnVt
+IHdoZXJlIHRvIGFzaz8KCkhpIERhdmlkLAo+Cj4gVGhlcmUgaXMgbm8gc3VjaCBpbnRlcmZhY2Ug
+aW4gdGhlIGtlcm5lbC4gSG93ZXZlciwgd2l0aCBjYXJlZnVsCj4gYWNjZXNzLW1hbmFnZW1lbnQs
+IHlvdSBjYW4gZ2V0IHdoYXQgeW91IHdhbnQgYnkganVzdCBhbGxvd2luZyB5b3VyCj4gc2luZ2xl
+IHByb2Nlc3MgYWNjZXNzIHRvIHRoZSBkZXZpY2UuIEJ1dCBJIGd1ZXNzIHlvdSBhcmUgd29ya2lu
+ZyB3aXRoCj4gYW4gWDExIHN5c3RlbSwgc28gYSBkZXNjcmlwdGlvbiBvZiB3aGF0IHlvdSBhY3R1
+YWxseSB3YW50IHRvIGFjaGlldmUKPiB3b3VsZCBoZWxwIGEgbG90LgoKVGhueCBmb3IgWW91ciBx
+dWljayByZXBseS4KCihZZXMsIHdlIGFyZSB1c2luZyBYLiBObywgdGhlIHByb2JsZW0gaXMgbm90
+IHNwZWNpZmljIHRvIFg6IEl0J2xsIGFsc28gCm9jY3VyIHdoZW4gWW91IHN3aXRjaCBiZXR3ZWVu
+IHN5c3RlbSBjb25zb2xlcy4pCgpGb3IgcmVzZWFyY2ggcHVycG9zZXMgd2UgYXJlIG1lYXN1cmlu
+ZyBodW1hbiBicmFpbiBhY3Rpdml0eSB1bmRlciB0aGUgCmluZmx1ZW5jZSBvZiBleHRlcm5hbCBz
+dGltdWxpICh2aXN1YWwvYXVkaXRvcnkvc29tYXRvc2Vuc29yeSkuIFRoZSAKc3ViamVjdCBoYXMg
+dG8gcmVwbHkgdG8gdGFza3MgdXNpbmcgJ2J1dHRvbiBib3hlcycgd2hpY2ggYXJlIGltcGxlbWVu
+dGVkIAphcyBrZXlib2FyZHMuIFVzdWFsbHksIHR5cGUgYW5kIHRpbWUgb2YgdGhlIGJ1dHRvbnBy
+ZXNzIGFyZSBvZiAKaW1wb3J0YW5jZSAoYW5kIHdpbGwgcHJvYmFibHkgY2hhbmdlIGZ1cnRoZXIg
+cHJvY2VkZXJlKS4gS2V5Ym9hcmQgCnJlc3BvbnNlcyB1c3VhbGx5IGdvIHRvIHRoYXQgd2luZG93
+IChvciBzeXN0ZW0gY29uc29sZSkgd2hpY2ggaGFzIHRoZSAKY3VycmVudCBmb2N1cyBvciBpcyBh
+Y3RpdmUgYW5kICp0aGlzKiBpcyBzb21ldGhpbmcsIHdlIGRvIG5vdCB3YW50LgoKU29tZXRpbWVz
+IHdlIHNob3cgdmlzdWFsIHN0aW11bGkgb24gb25lIHNjcmVlbigjMSkgYW5kIG9wZXJhdGUgdGhl
+IApzeXN0ZW0gZnJvbSBhbm90aGVyIHNjcmVlbigjMikuIFNvbWV0aW1lcyB3ZSBldmVuIGhhdmUg
+bm8gdmlzdWFsIHN0aW11bGkgCmF0IGFsbCwgYnV0IGxpa2UgdG8gcmVhZCBzdWJqZWN0IHJlc3Bv
+bnNlcyBhbmQgY29udHJvbCB0aGUgc3RpbXVsaSBmcm9tIAp3aXRoaW4gYSBjb250cm9sIHdpbmRv
+dy4gSW4gYWxsIGNhc2VzIGl0IHdvdWxkIGJlIGhlbHBmdWwgaWYgdGhlIApyZXNwb25zZS1ib3hl
+cyB3b3VsZCBub3QgYXV0b21hdGljYWxseSBzZW5kIHRoZWlyIG91dHB1dCB0byB0aGUgYWN0aXZl
+IAp3aW5kb3cgcmVzcC4gYXBwbGljYXRpb24uCgpIZWxwZnVsIHdvdWxkIGJlLCBpZiB0aGUgb3V0
+cHV0IG9mIHRoZSByZXNwb25zZS1ib3gta2V5Ym9hcmRzCiogY291bGQgYmUgcmVzdHJpY3RlZCB0
+byBhIHNwZWNpZmljIHByb2Nlc3MKKiBpcyBub3Qgc2VudCBhdXRvbWF0aWNhbGx5LCBidXQgb25s
+eSB0byBhIHByb2dyYW0gd2hpY2ggJ29wZW5lZCcgdGhlIGRldmljZQoqIGlzIG5vdCBzZW50IGF1
+dG9tYXRpY2FsbHksIGJ1dCBoYXMgdG8gYmUgcmVhZCBmcm9tIGEgZGV2aWNlLgooQ291bGQgdGhp
+cyBiZSBkb25lIHByZXNlcnZpbmcgdGhlIGV4YWN0IHRpbWVwb2ludCBvZiBlYWNoIGJ1dHRvbnBy
+ZXNzPykKCkhvcGUgdGhhdCB3YXMgbm90IHRvbyBsZW5ndGh5Li4uCj4KPiBUaGFua3MKPiBEYXZp
+ZAo+CgpUaGFua3MsIFJvZ2VyCgotLQ0KDQpCZXN1Y2hlbiBTaWUgdW5zIGF1Zjogd3d3LnVrZS5k
+ZQ0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fDQoNClVuaXZlcnNpdMOkdHNrbGluaWt1bSBIYW1idXJnLUVwcGVuZG9y
+ZjsgS8O2cnBlcnNjaGFmdCBkZXMgw7ZmZmVudGxpY2hlbiBSZWNodHM7IEdlcmljaHRzc3RhbmQ6
+IEhhbWJ1cmcNClZvcnN0YW5kc21pdGdsaWVkZXI6IFByb2YuIERyLiBDaHJpc3RpYW4gR2VybG9m
+ZiAoVmVydHJldGVyIGRlcyBWb3JzaXR6ZW5kZW4pLCBQcm9mLiBEci4gRHIuIFV3ZSBLb2NoLUdy
+b211cywgSm9hY2hpbSBQcsO2bMOfLCBSYWluZXIgU2Nob3BwaWsNCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KDQpT
+QVZFIFBBUEVSIC0gVEhJTksgQkVGT1JFIFBSSU5USU5HCg==
 
-On Tue, Jan 28, 2014 at 11:20 AM, Dr. Zimmermann
-<R.Zimmermann@uke.uni-hamburg.de> wrote:
-> Hi,
->
-> we've got a special type of keyboard which should only be available in one
-> specific process and not publicly, as usually keyboards are.
->
-> Is it possible to limit the scope of a specific keyboard?
->
-> Or is there a more suited forum where to ask?
-
-There is no such interface in the kernel. However, with careful
-access-management, you can get what you want by just allowing your
-single process access to the device. But I guess you are working with
-an X11 system, so a description of what you actually want to achieve
-would help a lot.
-
-Thanks
-David

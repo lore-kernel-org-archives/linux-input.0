@@ -1,38 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Input: zforce - fix various small issues
-Date: Mon, 27 Jan 2014 22:44:27 -0800
-Message-ID: <20140128064427.GA16142@core.coreip.homeip.net>
-References: <1390848373-7723-1-git-send-email-luiorpe1@upv.es>
+Subject: Re: [PATCH 0/3] Input: add dt support to zforce driver
+Date: Mon, 27 Jan 2014 22:45:40 -0800
+Message-ID: <20140128064540.GB16142@core.coreip.homeip.net>
+References: <2587208.XYbbI8xJiH@phil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f49.google.com ([209.85.220.49]:48316 "EHLO
-	mail-pa0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754161AbaA1Gob (ORCPT
+Received: from mail-pd0-f170.google.com ([209.85.192.170]:59787 "EHLO
+	mail-pd0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750816AbaA1Gpo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jan 2014 01:44:31 -0500
+	Tue, 28 Jan 2014 01:45:44 -0500
+Received: by mail-pd0-f170.google.com with SMTP id p10so6710954pdj.15
+        for <linux-input@vger.kernel.org>; Mon, 27 Jan 2014 22:45:43 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1390848373-7723-1-git-send-email-luiorpe1@upv.es>
+In-Reply-To: <2587208.XYbbI8xJiH@phil>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Luis Ortega <luiorpe1@upv.es>
-Cc: heiko@sntech.de, yongjun_wei@trendmicro.com.cn, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Heiko =?iso-8859-1?Q?St=FCbner?= <heiko.stuebner@bqreaders.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Mon, Jan 27, 2014 at 07:46:09PM +0100, Luis Ortega wrote:
-> As a kernel newbie and owner of a Barnes & Noble e-reader I was
-> curious to review this driver to learn more about the touchscreen.
-> 
-> The first two patches are fairly innocuous whereas the last two
-> slightly modify the code to fix two small issues I discovered.
-> I don't have the setup to test them but they look logically correct
-> to me.
-> 
-> [PATCH 1/4] Input: zforce - fix spelling errors
-> [PATCH 2/4] Input: zforce - fix lines exceeding 80 columns
-> [PATCH 3/4] Input: zforce - Remove unnecessary payload data checks
-> [PATCH 4/4] Input: zforce - reduce stack memory allocated to frames
+Hi Heiko,
 
-Applied all 4, thank you.
+On Thu, Jan 09, 2014 at 10:19:15PM +0100, Heiko St=FCbner wrote:
+> This adds the binding documentation and necessary parsing code to mak=
+e
+> zforce based touchscreen usable on devicetree platforms.
+>=20
+> Heiko Stuebner (3):
+>   dt-bindings: bindings for zforce touchscreens
+>   Input: zforce: Use internal pdata pointer instead of dev_get_platda=
+ta
+>   Input: zforce: add devicetree support
+>=20
+>  .../bindings/input/touchscreen/zforce_ts.txt       |   30 ++++++++++
+>  .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+>  drivers/input/touchscreen/zforce_ts.c              |   63 ++++++++++=
+++++++++--
+>  3 files changed, 89 insertions(+), 5 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscre=
+en/zforce_ts.txt
+>=20
 
--- 
+I applied the 2nd one and then folded parts of 1st into the 3rd, leavin=
+g
+changes to devicetree/bindings/vendor-prefixes.txt out. Please resubmit
+them to DT maintainers.
+
+Thanks.
+
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

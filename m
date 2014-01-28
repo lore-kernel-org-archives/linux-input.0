@@ -1,106 +1,278 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: [PATCH] module: allow multiple calls to MODULE_DEVICE_TABLE() per module
-Date: Tue, 28 Jan 2014 14:42:26 +0100
-Message-ID: <1390916546-27155-1-git-send-email-teg@jklm.no>
-References: <87k3dkzy4t.fsf@rustcorp.com.au>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ee0-f53.google.com ([74.125.83.53]:36290 "EHLO
-	mail-ee0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754574AbaA1NmI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jan 2014 08:42:08 -0500
-Received: by mail-ee0-f53.google.com with SMTP id t10so238677eei.26
-        for <linux-input@vger.kernel.org>; Tue, 28 Jan 2014 05:42:06 -0800 (PST)
-In-Reply-To: <87k3dkzy4t.fsf@rustcorp.com.au>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: i2c-hid: add runtime PM support
+Date: Tue, 28 Jan 2014 09:19:33 -0500
+Message-ID: <CAN+gG=GPHyWdM+G=dzswfqVT4Jm8kEbnQs58jq2M_7_-FVB0=w@mail.gmail.com>
+References: <1389694438-18614-1-git-send-email-mika.westerberg@linux.intel.com>
+	<CAN+gG=Fa+H53V1evKXiWK6OpWj29pF4z8rGJAXWs3C7mHm1mLQ@mail.gmail.com>
+	<20140128091258.GY18029@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140128091258.GY18029@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, kay@vrfy.org, Tom Gundersen <teg@jklm.no>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>
 
-Commit 78551277e4df5: "Input: i8042 - add PNP modaliases" had a bug, where the
-second call to MODULE_DEVICE_TABLE() overrode the first resulting in not all
-the modaliases being exposed.
+On Tue, Jan 28, 2014 at 4:12 AM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> On Mon, Jan 27, 2014 at 10:36:25PM -0500, Benjamin Tissoires wrote:
+>> On Tue, Jan 14, 2014 at 5:13 AM, Mika Westerberg
+>> <mika.westerberg@linux.intel.com> wrote:
+>> > This patch adds runtime PM support for the HID over I2C driver. When the
+>> > i2c-hid device is first opened we power it on and on the last close we
+>> > power it off.
+>> >
+>> > The implementation is not the most power efficient because it needs some
+>> > interaction from the userspace (e.g close the device node whenever we are
+>> > no more interested in getting events), nevertheless it allows us to save
+>> > some power and works with devices that are not wake capable.
+>> >
+>>
+>> Hi Mika,
+>>
+>> I am a little bit puzzled here. The commit message just says that you
+>> changed the implementation of the power saving with the exact same
+>> behavior...  At least that's what I understand.
+>> Currently, the devices should be put on sleep if nobody is reading,
+>> and back alive if a reader arrives.
+>> I think there is a gain with the patch, but my knowledge of the pm
+>> subsystem is far too limited to see it :(
+>
+> Yes, there should be gain. If there is power domain involved like, ACPI in
+> our case, runtime suspending the device on close will let ACPI to move the
+> device to D3cold (e.g full off) which saves more power.
 
-This fixes the problem by including the name of the device_id table in the
-__mod_*_device_table alias, allowing us to export several device_id tables
-per module.
+Oh, right. So, if you could just put this last sentence in the commit
+message, that would be great.
 
-Suggested-by: Kay Sievers <kay@vrfy.org>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Tom Gundersen <teg@jklm.no>
----
- include/linux/module.h   |  2 +-
- scripts/mod/file2alias.c | 14 +++++++++-----
- 2 files changed, 10 insertions(+), 6 deletions(-)
+>
+>> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>> > ---
+>> >  drivers/hid/i2c-hid/i2c-hid.c | 81 ++++++++++++++++++++++++++++---------------
+>> >  1 file changed, 54 insertions(+), 27 deletions(-)
+>> >
+>> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+>> > index d1f81f52481a..ff767d03d60e 100644
+>> > --- a/drivers/hid/i2c-hid/i2c-hid.c
+>> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
+>> > @@ -25,6 +25,7 @@
+>> >  #include <linux/delay.h>
+>> >  #include <linux/slab.h>
+>> >  #include <linux/pm.h>
+>> > +#include <linux/pm_runtime.h>
+>> >  #include <linux/device.h>
+>> >  #include <linux/wait.h>
+>> >  #include <linux/err.h>
+>> > @@ -454,10 +455,18 @@ static void i2c_hid_init_reports(struct hid_device *hid)
+>> >                 return;
+>> >         }
+>> >
+>> > +       /*
+>> > +        * The device must be powered on while we fetch initial reports
+>> > +        * from it.
+>> > +        */
+>> > +       pm_runtime_get_sync(&client->dev);
+>> > +
+>> >         list_for_each_entry(report,
+>> >                 &hid->report_enum[HID_FEATURE_REPORT].report_list, list)
+>> >                 i2c_hid_init_report(report, inbuf, ihid->bufsize);
+>> >
+>> > +       pm_runtime_put(&client->dev);
+>> > +
+>> >         kfree(inbuf);
+>> >  }
+>> >
+>> > @@ -703,8 +712,8 @@ static int i2c_hid_open(struct hid_device *hid)
+>> >
+>> >         mutex_lock(&i2c_hid_open_mut);
+>> >         if (!hid->open++) {
+>> > -               ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
+>> > -               if (ret) {
+>> > +               ret = pm_runtime_get_sync(&client->dev);
+>>
+>> dummy question (kind of late here...). Is there a counter of how many
+>> get/put has been called in pm_runtime which could allow us to get rid
+>> of the hid->open count?
+>
+> There is a counter but I'm not sure if drivers are supposed to use that. I
+> would prefer not to use that.
 
-diff --git a/include/linux/module.h b/include/linux/module.h
-index 15cd6b1..7732d76 100644
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -143,7 +143,7 @@ extern const struct gtype##_id __mod_##gtype##_table		\
- #define MODULE_DESCRIPTION(_description) MODULE_INFO(description, _description)
- 
- #define MODULE_DEVICE_TABLE(type,name)		\
--  MODULE_GENERIC_TABLE(type##_device,name)
-+  MODULE_GENERIC_TABLE(type##__##name##_device,name)
- 
- /* Version of form [<epoch>:]<version>[-<extra-version>].
-    Or for CVS/RCS ID version, everything but the number is stripped.
-diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-index 2370863..6778381 100644
---- a/scripts/mod/file2alias.c
-+++ b/scripts/mod/file2alias.c
-@@ -42,7 +42,7 @@ typedef unsigned char	__u8;
- 
- /* This array collects all instances that use the generic do_table */
- struct devtable {
--	const char *device_id; /* name of table, __mod_<name>_device_table. */
-+	const char *device_id; /* name of table, __mod_<name>__*_device_table. */
- 	unsigned long id_size;
- 	void *function;
- };
-@@ -146,7 +146,8 @@ static void device_id_check(const char *modname, const char *device_id,
- 
- 	if (size % id_size || size < id_size) {
- 		fatal("%s: sizeof(struct %s_device_id)=%lu is not a modulo "
--		      "of the size of section __mod_%s_device_table=%lu.\n"
-+		      "of the size of "
-+		      "section __mod_%s__<identifier>_device_table=%lu.\n"
- 		      "Fix definition of struct %s_device_id "
- 		      "in mod_devicetable.h\n",
- 		      modname, device_id, id_size, device_id, size, device_id);
-@@ -1206,7 +1207,7 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
- {
- 	void *symval;
- 	char *zeros = NULL;
--	const char *name;
-+	const char *name, *identifier;
- 	unsigned int namelen;
- 
- 	/* We're looking for a section relative symbol */
-@@ -1217,7 +1218,7 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
- 	if (ELF_ST_TYPE(sym->st_info) != STT_OBJECT)
- 		return;
- 
--	/* All our symbols are of form <prefix>__mod_XXX_device_table. */
-+	/* All our symbols are of form <prefix>__mod_<name>__<identifier>_device_table. */
- 	name = strstr(symname, "__mod_");
- 	if (!name)
- 		return;
-@@ -1227,7 +1228,10 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
- 		return;
- 	if (strcmp(name + namelen - strlen("_device_table"), "_device_table"))
- 		return;
--	namelen -= strlen("_device_table");
-+	identifier = strstr(name, "__");
-+	if (!identifier)
-+		return;
-+	namelen = identifier - name;
- 
- 	/* Handle all-NULL symbols allocated into .bss */
- 	if (info->sechdrs[get_secindex(info, sym)].sh_type & SHT_NOBITS) {
--- 
-1.8.5.3
+ok
 
+>
+>>
+>> > +               if (ret < 0) {
+>> >                         hid->open--;
+>> >                         goto done;
+>> >                 }
+>> > @@ -712,7 +721,7 @@ static int i2c_hid_open(struct hid_device *hid)
+>> >         }
+>> >  done:
+>> >         mutex_unlock(&i2c_hid_open_mut);
+>> > -       return ret;
+>> > +       return ret < 0 ? ret : 0;
+>> >  }
+>> >
+>> >  static void i2c_hid_close(struct hid_device *hid)
+>> > @@ -729,37 +738,17 @@ static void i2c_hid_close(struct hid_device *hid)
+>> >                 clear_bit(I2C_HID_STARTED, &ihid->flags);
+>> >
+>> >                 /* Save some power */
+>> > -               i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+>> > +               pm_runtime_put(&client->dev);
+>> >         }
+>> >         mutex_unlock(&i2c_hid_open_mut);
+>> >  }
+>> >
+>> > -static int i2c_hid_power(struct hid_device *hid, int lvl)
+>> > -{
+>> > -       struct i2c_client *client = hid->driver_data;
+>> > -       struct i2c_hid *ihid = i2c_get_clientdata(client);
+>> > -       int ret = 0;
+>> > -
+>> > -       i2c_hid_dbg(ihid, "%s lvl:%d\n", __func__, lvl);
+>> > -
+>> > -       switch (lvl) {
+>> > -       case PM_HINT_FULLON:
+>> > -               ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
+>> > -               break;
+>> > -       case PM_HINT_NORMAL:
+>> > -               ret = i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+>> > -               break;
+>> > -       }
+>> > -       return ret;
+>> > -}
+>> > -
+>> >  static struct hid_ll_driver i2c_hid_ll_driver = {
+>> >         .parse = i2c_hid_parse,
+>> >         .start = i2c_hid_start,
+>> >         .stop = i2c_hid_stop,
+>> >         .open = i2c_hid_open,
+>> >         .close = i2c_hid_close,
+>> > -       .power = i2c_hid_power,
+>>
+>> If I understand correctly, here you are trying to fix hidraw (with
+>> i2c_hid tramsport) which used to set_power on/off twice with the first
+>> reader, right?
+>
+> Right.
+>
+>> I don't think we have other i2c_hid users of hid_hw_power, but I am a
+>> little bit worried of simply removing the callback.
+>
+> OK.
+>
+>> What if we just change i2c_hid_set_power in i2c_hid_power by the
+>> corresponding pm_runtime calls?
+>
+> Sure, I'll change that in the next version.
+>
+>>
+>> >         .request = i2c_hid_request,
+>> >  };
+>> >
+>> > @@ -973,13 +962,17 @@ static int i2c_hid_probe(struct i2c_client *client,
+>> >         if (ret < 0)
+>> >                 goto err;
+>> >
+>> > +       pm_runtime_get_noresume(&client->dev);
+>> > +       pm_runtime_set_active(&client->dev);
+>> > +       pm_runtime_enable(&client->dev);
+>> > +
+>> >         ret = i2c_hid_fetch_hid_descriptor(ihid);
+>> >         if (ret < 0)
+>> > -               goto err;
+>> > +               goto err_pm;
+>> >
+>> >         ret = i2c_hid_init_irq(client);
+>> >         if (ret < 0)
+>> > -               goto err;
+>> > +               goto err_pm;
+>> >
+>> >         hid = hid_allocate_device();
+>> >         if (IS_ERR(hid)) {
+>> > @@ -1010,6 +1003,7 @@ static int i2c_hid_probe(struct i2c_client *client,
+>> >                 goto err_mem_free;
+>> >         }
+>> >
+>> > +       pm_runtime_put(&client->dev);
+>> >         return 0;
+>> >
+>> >  err_mem_free:
+>> > @@ -1018,6 +1012,10 @@ err_mem_free:
+>> >  err_irq:
+>> >         free_irq(client->irq, ihid);
+>> >
+>> > +err_pm:
+>> > +       pm_runtime_put_noidle(&client->dev);
+>> > +       pm_runtime_disable(&client->dev);
+>> > +
+>> >  err:
+>> >         i2c_hid_free_buffers(ihid);
+>> >         kfree(ihid);
+>> > @@ -1029,6 +1027,11 @@ static int i2c_hid_remove(struct i2c_client *client)
+>> >         struct i2c_hid *ihid = i2c_get_clientdata(client);
+>> >         struct hid_device *hid;
+>> >
+>> > +       pm_runtime_get_sync(&client->dev);
+>> > +       pm_runtime_disable(&client->dev);
+>> > +       pm_runtime_set_suspended(&client->dev);
+>> > +       pm_runtime_put_noidle(&client->dev);
+>> > +
+>> >         hid = ihid->hid;
+>> >         hid_destroy_device(hid);
+>> >
+>> > @@ -1074,7 +1077,31 @@ static int i2c_hid_resume(struct device *dev)
+>> >  }
+>> >  #endif
+>> >
+>> > -static SIMPLE_DEV_PM_OPS(i2c_hid_pm, i2c_hid_suspend, i2c_hid_resume);
+>> > +#ifdef CONFIG_PM_RUNTIME
+>> > +static int i2c_hid_runtime_suspend(struct device *dev)
+>> > +{
+>> > +       struct i2c_client *client = to_i2c_client(dev);
+>> > +
+>> > +       i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+>> > +       disable_irq(client->irq);
+>> > +       return 0;
+>> > +}
+>> > +
+>> > +static int i2c_hid_runtime_resume(struct device *dev)
+>> > +{
+>> > +       struct i2c_client *client = to_i2c_client(dev);
+>> > +
+>> > +       enable_irq(client->irq);
+>> > +       i2c_hid_set_power(client, I2C_HID_PWR_ON);
+>> > +       return 0;
+>> > +}
+>>
+>> These two functions looks very similar to i2c_hid_suspend and
+>> i2c_hid_resume, without the reset and the irq_wake :(
+>> So, my question here is can we use some common code for them?
+>> It may not be possible regarding CONFIG_PM_RUNTIME and
+>> CONFIG_PM_SLEEP, but it still looks ugly to me.
+>
+> It looks ugly, I agree and we can probably reuse some code in the
+> callbacks. I'll look into that.
+
+well, anyway, if this involve something even more ugly, we can for
+sure stick with this version :)
+
+>
+>> I tested this today, and it works, so you should be right, but I'd
+>> like to have your opinion on this.
+>
+> Thanks for testing and comments.
+>
+> I'll prepare a new version with the suggested changes if you are OK with my
+> explanations ;-)
+
+Sure I am. Thanks for handling the whole ACPI part of this module. I
+was really pleased the other day to see that the touchscreen of a Bay
+trail tablet is now working out of the box :) I still have many other
+problems with this tablet, but still, having the input working is
+always good with a tablet...
+
+Cheers,
+Benjamin

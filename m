@@ -1,42 +1,45 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: usbhid: quirk for CY-TM75 75 inch Touch Overlay
-Date: Tue, 28 Jan 2014 16:12:59 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1401281612020.3763@pobox.suse.cz>
-References: <1390863766-14491-1-git-send-email-miletus@chromium.org> <CAN+gG=F3EQ4o99HW3Qid52_Kp1g-yziW1yeNetP5mE9DmEmS2w@mail.gmail.com>
+Subject: Re: [PATCH] hid-microsoft: Add ID's for Surface Type/Touch Cover 2
+Date: Tue, 28 Jan 2014 16:21:49 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1401281620580.3763@pobox.suse.cz>
+References: <52E021E8.8060608@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60411 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:60670 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754645AbaA1PND (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jan 2014 10:13:03 -0500
-In-Reply-To: <CAN+gG=F3EQ4o99HW3Qid52_Kp1g-yziW1yeNetP5mE9DmEmS2w@mail.gmail.com>
+	id S1754631AbaA1PVw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Jan 2014 10:21:52 -0500
+In-Reply-To: <52E021E8.8060608@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Yufeng Shen <miletus@chromium.org>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org, Andrew de los Reyes <adlr@chromium.org>
+To: Reyad Attiyat <reyad.attiyat@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Mon, 27 Jan 2014, Benjamin Tissoires wrote:
+On Wed, 22 Jan 2014, Reyad Attiyat wrote:
 
-> > There is timeout error during initialization:
-> > kernel: [   11.733104] hid-multitouch 0003:1870:0110.0001: usb_submit_urb(ctrl) failed: -1
-> > kernel: [   11.734093] hid-multitouch 0003:1870:0110.0001: timeout initializing reports
-> >
-> > Adding quirk HID_QUIRK_NO_INIT_REPORTS can solve the problem.
+> This patch fixes bug 64811 (https://bugzilla.kernel.org/show_bug.cgi?id=64811)
+> The Microsoft Surface Type/Touch cover 2 devices have the flag
+> HID_DG_CONTACTID in their reports.This causes the device to bind to the
+> hid-multitouch driver, which doesn't handle generic keyboard/mouse input
+> events.
+> The patch adds the hardware id's of the device to hid-microsoft and to the HID
+> special driver array, which makes the device get handled by
+> hid-generic/hid-input properly.
 > 
-> Could you please test the quirk HID_QUIRK_NO_INIT_INPUT_REPORTS instead?
-> The patch is perfectly fine, but usually when it fails, only the input
-> reports are non-readable, whereas features should. This way, you will
-> still get the value of the features, which _may_ be sensible for the
-> maxcontact information.
-> 
-> BTW, HID_QUIRK_NO_INIT_INPUT_REPORTS has been introduced in v3.12 and
-> is the default for Win 8 certified devices.
+> Singed-off-by: Reyad Attiyat <reyad.attiyat@gmail.com>
+> Reviewed-by: Benjamin Tissoires<benjamin.tissoires@redhat.com>
 
-Ah, I have noticed this only after pushing the patch out. Good point.
+I have now applied the patch.
 
-Yufeng, if you test with HID_QUIRK_NO_INIT_INPUT_REPORTS successfully, 
-please let me know, and I'll apply a followup patch on top.
+Please fix your mail client for your next submissions so that it doesn't 
+whitespace-damage the patches.
+
+I have fixed it now by hand. See Documentation/email-clients.txt for some 
+hints on how to do this properly next time.
+
+Thanks,
+
 -- 
 Jiri Kosina
 SUSE Labs

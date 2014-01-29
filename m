@@ -1,65 +1,96 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/4] HID: implement new transport-driver callbacks
-Date: Tue, 28 Jan 2014 21:53:51 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1401282153141.22492@pobox.suse.cz>
-References: <1390416584-3667-1-git-send-email-frank.praznik@oh.rr.com> <CANq1E4RHBpbnQ6bGtT-uv7LYmOCw=khACsNWCyoqpKCPXrJJrQ@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] module: allow multiple calls to MODULE_DEVICE_TABLE() per module
+Date: Wed, 29 Jan 2014 12:05:50 +1030
+Message-ID: <87bnyvzi15.fsf@rustcorp.com.au>
+References: <87k3dkzy4t.fsf@rustcorp.com.au> <1390916546-27155-1-git-send-email-teg@jklm.no>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37897 "EHLO mx2.suse.de"
+Received: from ozlabs.org ([203.10.76.45]:50124 "EHLO ozlabs.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932134AbaA1Uxx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jan 2014 15:53:53 -0500
-In-Reply-To: <CANq1E4RHBpbnQ6bGtT-uv7LYmOCw=khACsNWCyoqpKCPXrJJrQ@mail.gmail.com>
+	id S1751669AbaA2Cdu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Jan 2014 21:33:50 -0500
+In-Reply-To: <1390916546-27155-1-git-send-email-teg@jklm.no>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, kay@vrfy.org, Tom Gundersen <teg@jklm.no>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, 22 Jan 2014, David Herrmann wrote:
+Tom Gundersen <teg@jklm.no> writes:
+> Commit 78551277e4df5: "Input: i8042 - add PNP modaliases" had a bug, where the
+> second call to MODULE_DEVICE_TABLE() overrode the first resulting in not all
+> the modaliases being exposed.
+>
+> This fixes the problem by including the name of the device_id table in the
+> __mod_*_device_table alias, allowing us to export several device_id tables
+> per module.
 
-> > These patches are originally the work of David Herrmann who suggested that I
-> > update and submit them as their functionality is required for some pending
-> > patches to the hid-sony driver.
-> >
-> > These patches implement the SET/GET_REPORT and raw intr OUTPUT requests for all
-> > transport drivers.  It adds two callbacks to the hid_ll_driver struct:
-> >
-> > int (*raw_request)(struct hid_device *hdev, unsigned char reportnum,
-> >                    __u8 *buf, size_t len, unsigned char rtype, int reqtype);
-> >
-> > int (*output_report)(struct hid_device *hdev, __u8 *buf, size_t len);
-> >
-> > along with the necessary support fuctions in the USBHID, and HIDP drivers.
-> >
-> > UHID is not converted yet.
-> 
-> Thanks for picking it up. As background, people should read my HID
-> summary which originally was part of this series:
->   http://cgit.freedesktop.org/~dvdhrm/linux/tree/Documentation/hid/hid-transport.txt?h=hid&id=86c08bb28302bb31dcd3b9aaf22b222f890397e0
-> 
-> Our current hid_output_raw_report() callbacks are implemented
-> differently in the USBHID, HIDP, I2CHID and UHID backends (I even
-> think they're all mutually different). We cannot easily change these
-> as drivers actually depend on the backends to do it differently.
-> Therefore, I proposed the raw_request() and output_report() functions.
-> raw_request() is basically the same as request() but takes a raw
-> buffer instead of an hid_report. output_report() is what HIDP
-> currently does with hid_output_raw_report() and sends the report as
-> asynchronous intr report.
-> 
-> The plan should be to use request(), raw_request() and output_report()
-> exclusively and carefully port drivers to use them. Once we're done,
-> we can remove hid_output_raw_report() (and any other legacy). This
-> should guarantee, that drivers can choose between ctrl-SET_REPORT and
-> intr-OUTPUT_REPORT messages without depending on the underlying
-> backend to choose the right one.
+Thanks, applied.
 
-I haven't finished reviewing the patchset yet, but anyway -- David, can I 
-consider your e-mail as a potential Acked-by:?
+I also put this on top:
 
-Thanks,
+module: remove MODULE_GENERIC_TABLE
 
--- 
-Jiri Kosina
-SUSE Labs
+MODULE_DEVICE_TABLE() calles MODULE_GENERIC_TABLE(); make it do the
+work directly.  This also removes a wart introduced in the last patch,
+where the alias is defined to be an unknown struct type "struct
+type##__##name##_device_id" instead of "struct type##_device_id" (it's
+an extern so GCC doesn't care, but it's wrong).
+
+The other user of MODULE_GENERIC_TABLE (ISAPNP_CARD_TABLE) is unused,
+so delete it.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff --git a/include/linux/isapnp.h b/include/linux/isapnp.h
+index e2d28b026a8c..3c77bf9b1efd 100644
+--- a/include/linux/isapnp.h
++++ b/include/linux/isapnp.h
+@@ -56,10 +56,6 @@
+ #define ISAPNP_DEVICE_ID(_va, _vb, _vc, _function) \
+ 		{ .vendor = ISAPNP_VENDOR(_va, _vb, _vc), .function = ISAPNP_FUNCTION(_function) }
+ 
+-/* export used IDs outside module */
+-#define ISAPNP_CARD_TABLE(name) \
+-		MODULE_GENERIC_TABLE(isapnp_card, name)
+-
+ struct isapnp_card_id {
+ 	unsigned long driver_data;	/* data private to the driver */
+ 	unsigned short card_vendor, card_device;
+diff --git a/include/linux/module.h b/include/linux/module.h
+index ad18f6006f86..5686b37e11d6 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -82,15 +82,6 @@ void sort_extable(struct exception_table_entry *start,
+ void sort_main_extable(void);
+ void trim_init_extable(struct module *m);
+ 
+-#ifdef MODULE
+-#define MODULE_GENERIC_TABLE(gtype, name)			\
+-extern const struct gtype##_id __mod_##gtype##_table		\
+-  __attribute__ ((unused, alias(__stringify(name))))
+-
+-#else  /* !MODULE */
+-#define MODULE_GENERIC_TABLE(gtype, name)
+-#endif
+-
+ /* Generic info of form tag = "info" */
+ #define MODULE_INFO(tag, info) __MODULE_INFO(tag, tag, info)
+ 
+@@ -141,8 +132,14 @@ extern const struct gtype##_id __mod_##gtype##_table		\
+ /* What your module does. */
+ #define MODULE_DESCRIPTION(_description) MODULE_INFO(description, _description)
+ 
+-#define MODULE_DEVICE_TABLE(type, name)		\
+-  MODULE_GENERIC_TABLE(type##__##name##_device, name)
++#ifdef MODULE
++/* Creates an alias so file2alias.c can find device table. */
++#define MODULE_DEVICE_TABLE(type, name)					\
++  extern const struct type##_device_id __mod_##type##__##name##_device_table \
++  __attribute__ ((unused, alias(__stringify(name))))
++#else  /* !MODULE */
++#define MODULE_DEVICE_TABLE(type, name)
++#endif
+ 
+ /* Version of form [<epoch>:]<version>[-<extra-version>].
+  * Or for CVS/RCS ID version, everything but the number is stripped.

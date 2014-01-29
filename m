@@ -1,143 +1,227 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 0/5] HID logitech DJ fixes and preps for enabling extended features
-Date: Wed, 29 Jan 2014 13:42:43 -0500
-Message-ID: <CAN+gG=Ga85+X+sx9K6FVG=92-w2RYbWYwpoM-68i9s2Hk2VmQQ@mail.gmail.com>
-References: <1389219529-29671-1-git-send-email-benjamin.tissoires@redhat.com>
-	<CAG_cf+eYoK--k=z+f5xQBx0FP3_z5sbszrSZ1qYq7jR_Zi9Vaw@mail.gmail.com>
-	<52CF1327.3090705@redhat.com>
-	<CAAfQ=8_r2Pc34qXhU874qV=38dk_gAEaji+mgjRY2BELBCb7Zw@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: add runtime PM support
+Date: Wed, 29 Jan 2014 14:48:29 -0500
+Message-ID: <CAN+gG=HxhTy90C-VGPeETbsxV=8P50UKnXwehjmHJqXABL22xw@mail.gmail.com>
+References: <1390987476-1905-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f176.google.com ([209.85.217.176]:34186 "EHLO
-	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752122AbaA2Smp (ORCPT
+Received: from mail-la0-f52.google.com ([209.85.215.52]:35953 "EHLO
+	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750875AbaA2Tsc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jan 2014 13:42:45 -0500
-In-Reply-To: <CAAfQ=8_r2Pc34qXhU874qV=38dk_gAEaji+mgjRY2BELBCb7Zw@mail.gmail.com>
+	Wed, 29 Jan 2014 14:48:32 -0500
+In-Reply-To: <1390987476-1905-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew de los Reyes <adlr@chromium.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew de los Reyes <andrew-vger@gizmolabs.org>, Jiri Kosina <jkosina@suse.cz>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Andrew,
-
-On Wed, Jan 29, 2014 at 1:21 PM, Andrew de los Reyes <adlr@chromium.org> wrote:
-> Just curious, what is the status of these patches?
-
-Currently, Jiri had taken only the USB3 fix. The rest is still under
-review/testing.
-
+On Wed, Jan 29, 2014 at 4:24 AM, Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
+> This patch adds runtime PM support for the HID over I2C driver. When the
+> i2c-hid device is first opened we power it on and on the last close we
+> power it off. This is actually what the driver is already doing but in
+> addition it allows subsystems, like ACPI power domain to power off the
+> device during runtime PM suspend, which should save even more power.
 >
-> Benjamin, should I rebase Chrome OS's Logitech patches on top of these
-> and look at sending them upstream as well?
+> The implementation is not the most power efficient because it needs some
+> interaction from the userspace (e.g close the device node whenever we are
+> no more interested in getting events), nevertheless it allows us to save
+> some power and works with devices that are not wake capable.
+>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
+> v2:
+>   - Update changelog to mention that ACPI power domain for example can
+>     power off the device on suspend.
+>   - Make i2c_hid_power to just call RPM get/put
+>
 
-I would say wait a little bit more :)
-I received the testing devices 2 weeks ago, and I managed to get the
-Wireless Touchpad, T650, T651 and TK820 working with them.
-I still don't know the fate regarding the touch mice.
+Alright, tested this v2, and it also works flawlessly.
 
-I put a WIP on my github repo here (these are not the final patches though):
-https://github.com/bentiss/hid-logitech-dj/tree/for-whot (branch for-whot).
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Still, I need to rework on the patch 5/5 of this series, because it's
-not working with bluetooth devices. I will also have to check if I can
-use David's latest patches regarding the transport layer.
-
-So until it has been accepted upstream by Jiri, do not consider this
-better than what you have in ChromeOS, it may still change, and you
-will have to redo the work again and again :)
+Thanks Mika!
 
 Cheers,
 Benjamin
 
+>  drivers/hid/i2c-hid/i2c-hid.c | 68 ++++++++++++++++++++++++++++++++++++-------
+>  1 file changed, 57 insertions(+), 11 deletions(-)
 >
-> On Thu, Jan 9, 2014 at 1:22 PM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
->> On 09/01/14 16:08, Andrew de los Reyes wrote:
->>> In general, I'm positive on the change to fix the USB3 issue (yay!),
->>> and for the others I'm happy it's going upstream. It seem to open up
->>> the possibility of user-space drivers, which is great, even though we
->>> don't need this on our team.
->>>
->>> One thing I want to double-check: on some devices (T651, at least),
->>> the raw data comes in not via HID++, but tacked onto the end of the
->>> normal mouse reports. Will a driver for this device be able to get all
->>> packets, not just HID++ ones? Sorry if this was clear and I missed it.
->>
->> Yeah, that is partly why I can not send the rest of the series right
->> now. Nestor already warned me about those funny devices, so I need to
->> double check how to implement HID++.
->>
->> On a technical point of view, a driver connected through the unifying
->> receiver currently only get the regular input reports, and this series
->> adds the HID++ reports to these ones. So yes, a device will receive all
->> reports dedicated to it.
->>
->> Cheers,
->> Benjamin
->>
->>>
->>> -andrew
->>>
->>> On Wed, Jan 8, 2014 at 2:18 PM, Benjamin Tissoires
->>> <benjamin.tissoires@redhat.com> wrote:
->>>> Hi Jiri,
->>>>
->>>> Well, this work is _not_ for 3.14 (except maybe patch 1), especially since it is
->>>> missing the biggest part where we enable the capabilities of Logitech devices.
->>>>
->>>> Long story short:
->>>> This work is based on the work I did back in Summer 2011. I worked at Logitech
->>>> for a few weeks to show up a demo of a driver for the Logitech Wireless Touchpad.
->>>> At that time, a first draft has been done, but due to a lack of resources, noone
->>>> upstreamed it.
->>>> Since then, the code marinated a little at Logitech and in the ChromeOS kernel
->>>> tree, but nobody tried to push it upstream. So here I am, trying to push this stuff
->>>> upstream.
->>>>
->>>> I can not send the full series right now because I am lacking most of the
->>>> testing hardware (I mean I only have the oldest Wireless Touchpad).
->>>> Hopefully, I should receive some other soon, and I'll be able to send the second
->>>> part then.
->>>>
->>>> Now, let me roughly explain the patches:
->>>> - patch 1 can be applied right now I think, but it's entirely up to you Jiri.
->>>>   This patch should fix the missing notifications with some USB 3.0 boards.
->>>> - patches 2 to 5 allows to forward in both direction the proprietary protocol
->>>>   used by Logitech (HID++ [1]) between the driver and the hardware.
->>>> - later patches will introduce a transport layer for HID++ and also a driver
->>>>   to support full multitouch on various Logitech touchpads.
->>>>
->>>> Nestor, Andrew, feel free to add your "Signed-off-by" whereever you want, I lost
->>>> a little bit the track of who added what.
->>>>
->>>> Cheers,
->>>> Benjamin
->>>>
->>>> [1] HID++: Documentation is provided at
->>>> https://drive.google.com/a/logitech.com/?tab=mo#folders/0BxbRzx7vEV7eWmgwazJ3NUFfQ28
->>>>
->>>> Benjamin Tisssoires (5):
->>>>   HID: logitech-dj: Fix USB 3.0 issue
->>>>   HID: core: do not scan reports if the group is already set
->>>>   HID: logitech-dj: rely on hid groups to separate receivers from dj
->>>>     devices
->>>>   HID: logitech-dj: forward incoming HID++ reports to the correct dj
->>>>     device
->>>>   HID: logitech-dj: add .request callback
->>>>
->>>>  drivers/hid/hid-core.c        |   3 +-
->>>>  drivers/hid/hid-logitech-dj.c | 161 +++++++++++++++++++++++++++++++++---------
->>>>  drivers/hid/hid-logitech-dj.h |  16 ++---
->>>>  include/linux/hid.h           |   1 +
->>>>  4 files changed, 136 insertions(+), 45 deletions(-)
->>>>
->>>> --
->>>> 1.8.4.2
->>>>
->>>> --
->>>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->>>> the body of a message to majordomo@vger.kernel.org
->>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index d1f81f52481a..923ff818a1bf 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -25,6 +25,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/slab.h>
+>  #include <linux/pm.h>
+> +#include <linux/pm_runtime.h>
+>  #include <linux/device.h>
+>  #include <linux/wait.h>
+>  #include <linux/err.h>
+> @@ -454,10 +455,18 @@ static void i2c_hid_init_reports(struct hid_device *hid)
+>                 return;
+>         }
+>
+> +       /*
+> +        * The device must be powered on while we fetch initial reports
+> +        * from it.
+> +        */
+> +       pm_runtime_get_sync(&client->dev);
+> +
+>         list_for_each_entry(report,
+>                 &hid->report_enum[HID_FEATURE_REPORT].report_list, list)
+>                 i2c_hid_init_report(report, inbuf, ihid->bufsize);
+>
+> +       pm_runtime_put(&client->dev);
+> +
+>         kfree(inbuf);
+>  }
+>
+> @@ -703,8 +712,8 @@ static int i2c_hid_open(struct hid_device *hid)
+>
+>         mutex_lock(&i2c_hid_open_mut);
+>         if (!hid->open++) {
+> -               ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
+> -               if (ret) {
+> +               ret = pm_runtime_get_sync(&client->dev);
+> +               if (ret < 0) {
+>                         hid->open--;
+>                         goto done;
+>                 }
+> @@ -712,7 +721,7 @@ static int i2c_hid_open(struct hid_device *hid)
+>         }
+>  done:
+>         mutex_unlock(&i2c_hid_open_mut);
+> -       return ret;
+> +       return ret < 0 ? ret : 0;
+>  }
+>
+>  static void i2c_hid_close(struct hid_device *hid)
+> @@ -729,7 +738,7 @@ static void i2c_hid_close(struct hid_device *hid)
+>                 clear_bit(I2C_HID_STARTED, &ihid->flags);
+>
+>                 /* Save some power */
+> -               i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+> +               pm_runtime_put(&client->dev);
+>         }
+>         mutex_unlock(&i2c_hid_open_mut);
+>  }
+> @@ -738,19 +747,18 @@ static int i2c_hid_power(struct hid_device *hid, int lvl)
+>  {
+>         struct i2c_client *client = hid->driver_data;
+>         struct i2c_hid *ihid = i2c_get_clientdata(client);
+> -       int ret = 0;
+>
+>         i2c_hid_dbg(ihid, "%s lvl:%d\n", __func__, lvl);
+>
+>         switch (lvl) {
+>         case PM_HINT_FULLON:
+> -               ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
+> +               pm_runtime_get_sync(&client->dev);
+>                 break;
+>         case PM_HINT_NORMAL:
+> -               ret = i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+> +               pm_runtime_put(&client->dev);
+>                 break;
+>         }
+> -       return ret;
+> +       return 0;
+>  }
+>
+>  static struct hid_ll_driver i2c_hid_ll_driver = {
+> @@ -973,13 +981,17 @@ static int i2c_hid_probe(struct i2c_client *client,
+>         if (ret < 0)
+>                 goto err;
+>
+> +       pm_runtime_get_noresume(&client->dev);
+> +       pm_runtime_set_active(&client->dev);
+> +       pm_runtime_enable(&client->dev);
+> +
+>         ret = i2c_hid_fetch_hid_descriptor(ihid);
+>         if (ret < 0)
+> -               goto err;
+> +               goto err_pm;
+>
+>         ret = i2c_hid_init_irq(client);
+>         if (ret < 0)
+> -               goto err;
+> +               goto err_pm;
+>
+>         hid = hid_allocate_device();
+>         if (IS_ERR(hid)) {
+> @@ -1010,6 +1022,7 @@ static int i2c_hid_probe(struct i2c_client *client,
+>                 goto err_mem_free;
+>         }
+>
+> +       pm_runtime_put(&client->dev);
+>         return 0;
+>
+>  err_mem_free:
+> @@ -1018,6 +1031,10 @@ err_mem_free:
+>  err_irq:
+>         free_irq(client->irq, ihid);
+>
+> +err_pm:
+> +       pm_runtime_put_noidle(&client->dev);
+> +       pm_runtime_disable(&client->dev);
+> +
+>  err:
+>         i2c_hid_free_buffers(ihid);
+>         kfree(ihid);
+> @@ -1029,6 +1046,11 @@ static int i2c_hid_remove(struct i2c_client *client)
+>         struct i2c_hid *ihid = i2c_get_clientdata(client);
+>         struct hid_device *hid;
+>
+> +       pm_runtime_get_sync(&client->dev);
+> +       pm_runtime_disable(&client->dev);
+> +       pm_runtime_set_suspended(&client->dev);
+> +       pm_runtime_put_noidle(&client->dev);
+> +
+>         hid = ihid->hid;
+>         hid_destroy_device(hid);
+>
+> @@ -1074,7 +1096,31 @@ static int i2c_hid_resume(struct device *dev)
+>  }
+>  #endif
+>
+> -static SIMPLE_DEV_PM_OPS(i2c_hid_pm, i2c_hid_suspend, i2c_hid_resume);
+> +#ifdef CONFIG_PM_RUNTIME
+> +static int i2c_hid_runtime_suspend(struct device *dev)
+> +{
+> +       struct i2c_client *client = to_i2c_client(dev);
+> +
+> +       i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+> +       disable_irq(client->irq);
+> +       return 0;
+> +}
+> +
+> +static int i2c_hid_runtime_resume(struct device *dev)
+> +{
+> +       struct i2c_client *client = to_i2c_client(dev);
+> +
+> +       enable_irq(client->irq);
+> +       i2c_hid_set_power(client, I2C_HID_PWR_ON);
+> +       return 0;
+> +}
+> +#endif
+> +
+> +static const struct dev_pm_ops i2c_hid_pm = {
+> +       SET_SYSTEM_SLEEP_PM_OPS(i2c_hid_suspend, i2c_hid_resume)
+> +       SET_RUNTIME_PM_OPS(i2c_hid_runtime_suspend, i2c_hid_runtime_resume,
+> +                          NULL)
+> +};
+>
+>  static const struct i2c_device_id i2c_hid_id_table[] = {
+>         { "hid", 0 },
+> --
+> 1.8.5.2
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

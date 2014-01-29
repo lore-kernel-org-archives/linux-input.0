@@ -1,53 +1,72 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Bluetooth: hidp: make sure input buffers are big enough
-Date: Wed, 29 Jan 2014 09:36:30 +0100
-Message-ID: <CANq1E4TW+GU=oaW0tXb=Tun9HMtr26u-PC3H6BsLot560ANgog@mail.gmail.com>
-References: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com>
-	<3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org>
-	<CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com>
-	<alpine.LNX.2.00.1401071308020.4962@pobox.suse.cz>
-	<CANq1E4SxrDnbOCsohZXYoYL-HQjEc-xcOnXfAm=npHG2QfMS9A@mail.gmail.com>
-	<alpine.LNX.2.00.1401071811530.4962@pobox.suse.cz>
-	<alpine.LNX.2.00.1401282152140.22492@pobox.suse.cz>
+Subject: Re: [PATCH 0/4] HID: implement new transport-driver callbacks
+Date: Wed, 29 Jan 2014 09:37:38 +0100
+Message-ID: <CANq1E4S8sqsWa-y5nQFUr6EaO0ct6HgqzFRBJ2KOLxZReujV4Q@mail.gmail.com>
+References: <1390416584-3667-1-git-send-email-frank.praznik@oh.rr.com>
+	<CANq1E4RHBpbnQ6bGtT-uv7LYmOCw=khACsNWCyoqpKCPXrJJrQ@mail.gmail.com>
+	<alpine.LNX.2.00.1401282153141.22492@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f179.google.com ([209.85.213.179]:53508 "EHLO
-	mail-ig0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750834AbaA2Igb (ORCPT
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:59604 "EHLO
+	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750851AbaA2Ihi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jan 2014 03:36:31 -0500
-In-Reply-To: <alpine.LNX.2.00.1401282152140.22492@pobox.suse.cz>
+	Wed, 29 Jan 2014 03:37:38 -0500
+Received: by mail-ie0-f173.google.com with SMTP id e14so1784926iej.4
+        for <linux-input@vger.kernel.org>; Wed, 29 Jan 2014 00:37:38 -0800 (PST)
+In-Reply-To: <alpine.LNX.2.00.1401282153141.22492@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Marcel Holtmann <marcel@holtmann.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-bluetooth@vger.kernel.org development" <linux-bluetooth@vger.kernel.org>, "Gustavo F. Padovan" <gustavo@padovan.org>
+Cc: Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
 Hi
 
 On Tue, Jan 28, 2014 at 9:53 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 7 Jan 2014, Jiri Kosina wrote:
+> On Wed, 22 Jan 2014, David Herrmann wrote:
 >
->> > > So doing kzalloc(rsize, GFP_ATOMIC) in the HID-core for now, and copying
->> > > the buffer around, seems like only viable solution for now, with the
->> > > outlook of removing this ugliness once hid-core honors 'size' properly.
+>> > These patches are originally the work of David Herrmann who suggested that I
+>> > update and submit them as their functionality is required for some pending
+>> > patches to the hid-sony driver.
 >> >
->> > Should I resend the patches and move it to hid_input_report() for now?
->> > Or are you getting something in yourself?
+>> > These patches implement the SET/GET_REPORT and raw intr OUTPUT requests for all
+>> > transport drivers.  It adds two callbacks to the hid_ll_driver struct:
+>> >
+>> > int (*raw_request)(struct hid_device *hdev, unsigned char reportnum,
+>> >                    __u8 *buf, size_t len, unsigned char rtype, int reqtype);
+>> >
+>> > int (*output_report)(struct hid_device *hdev, __u8 *buf, size_t len);
+>> >
+>> > along with the necessary support fuctions in the USBHID, and HIDP drivers.
+>> >
+>> > UHID is not converted yet.
 >>
->> Due to various reasons I will not have access to any testing HW for the
->> upcoming 2-3 days, so if you can cook something up in that timeframe, it'd
->> be appreciated.
+>> Thanks for picking it up. As background, people should read my HID
+>> summary which originally was part of this series:
+>>   http://cgit.freedesktop.org/~dvdhrm/linux/tree/Documentation/hid/hid-transport.txt?h=hid&id=86c08bb28302bb31dcd3b9aaf22b222f890397e0
 >>
->> Otherwise I'll be working on it by the end of this week.
+>> Our current hid_output_raw_report() callbacks are implemented
+>> differently in the USBHID, HIDP, I2CHID and UHID backends (I even
+>> think they're all mutually different). We cannot easily change these
+>> as drivers actually depend on the backends to do it differently.
+>> Therefore, I proposed the raw_request() and output_report() functions.
+>> raw_request() is basically the same as request() but takes a raw
+>> buffer instead of an hid_report. output_report() is what HIDP
+>> currently does with hid_output_raw_report() and sends the report as
+>> asynchronous intr report.
+>>
+>> The plan should be to use request(), raw_request() and output_report()
+>> exclusively and carefully port drivers to use them. Once we're done,
+>> we can remove hid_output_raw_report() (and any other legacy). This
+>> should guarantee, that drivers can choose between ctrl-SET_REPORT and
+>> intr-OUTPUT_REPORT messages without depending on the underlying
+>> backend to choose the right one.
 >
-> David,
->
-> just got back to this, finally ... did you have time to work on this at
-> all, or should I just start from scratch?
+> I haven't finished reviewing the patchset yet, but anyway -- David, can I
+> consider your e-mail as a potential Acked-by:?
 
-Sorry, no. Fosdem is this weekend and I needed to get my code ready
-for that. But I'll finally have time again next week.
+Yes, definitely. It's basically my 1-year old patch split into 3.
 
 Thanks
 David

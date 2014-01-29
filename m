@@ -1,125 +1,41 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH 1/7] HID: sony: Change dualshock4_state_worker to use the low-level transport driver function
-Date: Wed, 29 Jan 2014 12:33:11 -0500
-Message-ID: <1391016797-12842-2-git-send-email-frank.praznik@oh.rr.com>
-References: <1391016797-12842-1-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH 0/7] HID: sony: Add full support for the Dualshock 4 on Bluetooth
+Date: Wed, 29 Jan 2014 12:33:10 -0500
+Message-ID: <1391016797-12842-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:40514 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753093AbaA2Rdt (ORCPT
+	with ESMTP id S1753092AbaA2Rdq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jan 2014 12:33:49 -0500
-In-Reply-To: <1391016797-12842-1-git-send-email-frank.praznik@oh.rr.com>
+	Wed, 29 Jan 2014 12:33:46 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Use the new low-level transport driver functions to send the output reports to
-the controller.
+Since the low-level transport driver changes are queued up, I can submit the
+patches which enable full Bluetooth functionality for the Dualshock 4.
 
-Remove sony_set_output_report since it is no longer used.
+Note that BlueZ 5.14 or newer is required to successfully pair a Dualshock 4
+controller via Bluetooth.
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+This uses the new low-level transport driver functions as the Dualshock 4 wants 
+output reports sent on the control channel instead of the interrupt channel when
+connected via Bluetooth. If someone wants to test this, they will have to merge
+the for-3.15/ll-driver-new-callbacks branch into the for-3.15/sony branch.
 
----
- drivers/hid/hid-sony.c | 56 +++++++++++++-------------------------------------
- 1 file changed, 14 insertions(+), 42 deletions(-)
+The HID descriptor had to be rewritten as once an output report is sent to the
+controller it starts sending back data in report 17 instead of 1, which is
+unmapped in the default descriptor.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 2bd3f13..a3cefdec 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -502,7 +502,6 @@ struct sony_sc {
- 	spinlock_t lock;
- 	struct hid_device *hdev;
- 	struct led_classdev *leds[MAX_LEDS];
--	struct hid_report *output_report;
- 	unsigned long quirks;
- 	struct work_struct state_worker;
- 	struct power_supply battery;
-@@ -1053,21 +1052,26 @@ static void dualshock4_state_worker(struct work_struct *work)
- {
- 	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
- 	struct hid_device *hdev = sc->hdev;
--	struct hid_report *report = sc->output_report;
--	__s32 *value = report->field[0]->value;
-+	int offset;
-+
-+	__u8 buf[32] = { 0 };
- 
--	value[0] = 0x03;
-+	buf[0] = 0x05;
-+	buf[1] = 0x03;
-+	offset = 4;
- 
- #ifdef CONFIG_SONY_FF
--	value[3] = sc->right;
--	value[4] = sc->left;
-+	buf[offset++] = sc->right;
-+	buf[offset++] = sc->left;
-+#else
-+	offset += 2;
- #endif
- 
--	value[5] = sc->led_state[0];
--	value[6] = sc->led_state[1];
--	value[7] = sc->led_state[2];
-+	buf[offset++] = sc->led_state[0];
-+	buf[offset++] = sc->led_state[1];
-+	buf[offset++] = sc->led_state[2];
- 
--	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
-+	hdev->ll_driver->output_report(hdev, buf, sizeof(buf));
- }
- 
- #ifdef CONFIG_SONY_FF
-@@ -1200,33 +1204,6 @@ static void sony_battery_remove(struct sony_sc *sc)
- 	sc->battery.name = NULL;
- }
- 
--static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
--{
--	struct list_head *head, *list;
--	struct hid_report *report;
--	struct hid_device *hdev = sc->hdev;
--
--	list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
--
--	list_for_each(head, list) {
--		report = list_entry(head, struct hid_report, list);
--
--		if (report->id == req_id) {
--			if (report->size < req_size) {
--				hid_err(hdev, "Output report 0x%02x (%i bits) is smaller than requested size (%i bits)\n",
--					req_id, report->size, req_size);
--				return -EINVAL;
--			}
--			sc->output_report = report;
--			return 0;
--		}
--	}
--
--	hid_err(hdev, "Unable to locate output report 0x%02x\n", req_id);
--
--	return -EINVAL;
--}
--
- static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
- 					int w, int h)
- {
-@@ -1291,11 +1268,6 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
- 		ret = sixaxis_set_operational_bt(hdev);
- 	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
--		/* Report 5 (31 bytes) is used to send data to the controller via USB */
--		ret = sony_set_output_report(sc, 0x05, 248);
--		if (ret < 0)
--			goto err_stop;
--
- 		/* The Dualshock 4 touchpad supports 2 touches and has a
- 		 * resolution of 1920x940.
- 		 */
--- 
-1.8.5.3
+The format of the data in the input and output reports is the same on Bluetooth
+as on USB, but it starts at different offsets.
 
+When no USB cable is connected and the battery is discharging, the battery level
+is reported from 0 to 9 instead of from 0 to 11.
+
+A single controller can show up as two devices in the event that a user connects
+it via USB while it is already connected via Bluetooth. To remedy this a global
+list of connected controllers and their MAC addresses is maintained and newly
+connected controllers are checked against this list. If it is already connected
+via some other means, the probe function returns with a code of EEXIST.

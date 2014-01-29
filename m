@@ -1,51 +1,125 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4/4] input: hid-microsoft: Add support for 2 reserved usage ids used on ms office kb
-Date: Wed, 29 Jan 2014 17:57:44 +0100
-Message-ID: <1391014664-2642-5-git-send-email-hdegoede@redhat.com>
-References: <1391014664-2642-1-git-send-email-hdegoede@redhat.com>
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH 1/7] HID: sony: Change dualshock4_state_worker to use the low-level transport driver function
+Date: Wed, 29 Jan 2014 12:33:11 -0500
+Message-ID: <1391016797-12842-2-git-send-email-frank.praznik@oh.rr.com>
+References: <1391016797-12842-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46684 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753179AbaA2Q55 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jan 2014 11:57:57 -0500
-In-Reply-To: <1391014664-2642-1-git-send-email-hdegoede@redhat.com>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:40514 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753093AbaA2Rdt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Jan 2014 12:33:49 -0500
+In-Reply-To: <1391016797-12842-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Use the new low-level transport driver functions to send the output reports to
+the controller.
+
+Remove sony_set_output_report since it is no longer used.
+
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+
 ---
- drivers/hid/hid-microsoft.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/hid/hid-sony.c | 56 +++++++++++++-------------------------------------
+ 1 file changed, 14 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 992252b..10dd20f 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -62,6 +62,22 @@ static int ms_ergonomy_kb_quirk(struct hid_input *hi, struct hid_usage *usage,
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 2bd3f13..a3cefdec 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -502,7 +502,6 @@ struct sony_sc {
+ 	spinlock_t lock;
+ 	struct hid_device *hdev;
+ 	struct led_classdev *leds[MAX_LEDS];
+-	struct hid_report *output_report;
+ 	unsigned long quirks;
+ 	struct work_struct state_worker;
+ 	struct power_supply battery;
+@@ -1053,21 +1052,26 @@ static void dualshock4_state_worker(struct work_struct *work)
  {
- 	struct input_dev *input = hi->input;
- 
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER) {
-+		switch (usage->hid & HID_USAGE) {
-+		/*
-+		 * Microsoft uses these 2 reserved usage ids for 2 keys on
-+		 * the MS office kb labelled "Office Home" and "Task Pane".
-+		 */
-+		case 0x29d:
-+			ms_map_key_clear(KEY_PROG1);
-+			return 1;
-+		case 0x29e:
-+			ms_map_key_clear(KEY_PROG2);
-+			return 1;
-+		}
-+		return 0;
-+	}
+ 	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+ 	struct hid_device *hdev = sc->hdev;
+-	struct hid_report *report = sc->output_report;
+-	__s32 *value = report->field[0]->value;
++	int offset;
 +
- 	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_MSVENDOR)
- 		return 0;
++	__u8 buf[32] = { 0 };
  
+-	value[0] = 0x03;
++	buf[0] = 0x05;
++	buf[1] = 0x03;
++	offset = 4;
+ 
+ #ifdef CONFIG_SONY_FF
+-	value[3] = sc->right;
+-	value[4] = sc->left;
++	buf[offset++] = sc->right;
++	buf[offset++] = sc->left;
++#else
++	offset += 2;
+ #endif
+ 
+-	value[5] = sc->led_state[0];
+-	value[6] = sc->led_state[1];
+-	value[7] = sc->led_state[2];
++	buf[offset++] = sc->led_state[0];
++	buf[offset++] = sc->led_state[1];
++	buf[offset++] = sc->led_state[2];
+ 
+-	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
++	hdev->ll_driver->output_report(hdev, buf, sizeof(buf));
+ }
+ 
+ #ifdef CONFIG_SONY_FF
+@@ -1200,33 +1204,6 @@ static void sony_battery_remove(struct sony_sc *sc)
+ 	sc->battery.name = NULL;
+ }
+ 
+-static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
+-{
+-	struct list_head *head, *list;
+-	struct hid_report *report;
+-	struct hid_device *hdev = sc->hdev;
+-
+-	list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
+-
+-	list_for_each(head, list) {
+-		report = list_entry(head, struct hid_report, list);
+-
+-		if (report->id == req_id) {
+-			if (report->size < req_size) {
+-				hid_err(hdev, "Output report 0x%02x (%i bits) is smaller than requested size (%i bits)\n",
+-					req_id, report->size, req_size);
+-				return -EINVAL;
+-			}
+-			sc->output_report = report;
+-			return 0;
+-		}
+-	}
+-
+-	hid_err(hdev, "Unable to locate output report 0x%02x\n", req_id);
+-
+-	return -EINVAL;
+-}
+-
+ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+ 					int w, int h)
+ {
+@@ -1291,11 +1268,6 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
+ 		ret = sixaxis_set_operational_bt(hdev);
+ 	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+-		/* Report 5 (31 bytes) is used to send data to the controller via USB */
+-		ret = sony_set_output_report(sc, 0x05, 248);
+-		if (ret < 0)
+-			goto err_stop;
+-
+ 		/* The Dualshock 4 touchpad supports 2 touches and has a
+ 		 * resolution of 1920x940.
+ 		 */
 -- 
-1.8.4.2
+1.8.5.3
 

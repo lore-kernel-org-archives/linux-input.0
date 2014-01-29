@@ -1,92 +1,361 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Sony Vaio Duo 11: getting middle mouse button to work
-Date: Wed, 29 Jan 2014 10:07:40 -0500
-Message-ID: <CAN+gG=EOqfyOid8bDYH5GYCsOOqYysuUdusg5XOh6LtUMShd_g@mail.gmail.com>
-References: <1674012.xCMptsh8XR@myon.chronox.de>
-	<2093581.PZC0zrVCWg@myon.chronox.de>
-	<CAN+gG=Ev=ebkx8Usa=BgXMYVMQekG-s2gwa5N2TQSw7hisMT_w@mail.gmail.com>
-	<3981247.bRK36pG72j@tauon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH] HID: Add HID transport driver documentation
+Date: Wed, 29 Jan 2014 10:28:43 -0500
+Message-ID: <1391009323-3122-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f179.google.com ([209.85.217.179]:59329 "EHLO
-	mail-lb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751702AbaA2PHm (ORCPT
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:54405 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750936AbaA2P3I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jan 2014 10:07:42 -0500
-In-Reply-To: <3981247.bRK36pG72j@tauon>
+	Wed, 29 Jan 2014 10:29:08 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephan Mueller <smueller@chronox.de>
-Cc: Mattia Dongili <malattia@linux.it>, platform-driver-x86@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, dh.herrmann@gmail.com, Frank Praznik <frank.praznik@oh.rr.com>
 
-On Wed, Jan 29, 2014 at 9:59 AM, Stephan Mueller <smueller@chronox.de> wrote:
-> Am Mittwoch, 29. Januar 2014, 09:53:03 schrieb Benjamin Tissoires:
->
-> Hi Benjamin,
->
->>On Fri, Jan 24, 2014 at 11:51 PM, Stephan Mueller <smueller@chronox.de>
-> wrote:
->>> Am Samstag, 25. Januar 2014, 12:17:13 schrieb Mattia Dongili:
->>>
->>> Hi Mattia,
->>>
->>>> I'd try with the input subsystem and the synaptics_usb driver first
->>>> but it's just a wild guess. Your kernel log should give you more
->>>> hints about which driver is bound to the device and the sysfs tree
->>>> under
->>>> /sys/class/input/event*/device/* has all the capabilities and
->>>> identifiers.
->>>
->>> The following did not help:
->>>
->>> modprobe synaptics_usb
->>> cd /sys/bus/usb/drivers/usbhid
->>> echo -n "1-1.3:1.0" > unbind
->>> #now the mouse is without driver, does not move, and
->>> #/sys/class/input/event2/device/device is without driver
->>> cd /sys/bus/usb/drivers/synaptics_usb
->>> echo -n "1-1.3:1.0" > bind
->>> #error: no such device, mouse does not work, nothing in dmesg
->>> cd /sys/bus/usb/drivers/usbhid
->>> echo -n "1-1.3:1.0" > bind
->>> #mouse works again without middle button
->>
->>Hi Stephan,
->>
->>in this case, you definitively want to talk to HID (and input) folks.
->>Adding Jiri, the HID maintainer in the discussion.
->>
->>Your mouse does not seem to be handled properly by the hid subsystem
->>and needs quirks, or fix.
->>
->>Can you send us some hid-recorder[1] traces of your device? We should
->>then be able to check what's wrong and hopefully fix the problem.
->
-> Thanks a lot for the helping hand. I will try your suggestion tonight
-> and report back.
->
-> But please allow me to point out that I have doubts that HID or input is
-> at fault, because when sniffing on the USB bus with usbmon, I do *not*
-> see any information transported when pressing the middle button.
-> Therefore, I would suspect it is rather the base USB driver that somehow
-> needs a quirk to access the mouse properly.
->
+Add David Herrmann's documentation for the new low-level HID transport driver
+functions. 
 
-Oh, then in this case it may be that your device needs to be put in a
-special mode, and the report descriptors will show us some hints on
-how to do it (maybe).
-I strongly doubt that USB is in fault here. I can not see any reasons
-why the USB or underlying driver would select which packets are
-transmitted.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 
-What you can also do is setup a windows virtual machine, assign the
-usb device to it, and sniff through usbmon or wireshark what packets
-are emitted from/to the mouse. Then, we will duplicate this behavior
-in the hid driver, and you would be good to go. Still, having the
-reports descriptors (which are provided by hid-recorder, or in
-/sys/kernel/debug/hid/DEVICE/rdesc, or in lsusb -vv when the usbhid
-driver is not bound) would help us to understand the mouse firmware.
+---
+ 
+ Sorry, I forgot to include this in the original patch set.
 
-Cheers,
-Benjamin
+ Documentation/hid/hid-transport.txt | 324 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 324 insertions(+)
+ create mode 100644 Documentation/hid/hid-transport.txt
+
+diff --git a/Documentation/hid/hid-transport.txt b/Documentation/hid/hid-transport.txt
+new file mode 100644
+index 0000000..14b1c18
+--- /dev/null
++++ b/Documentation/hid/hid-transport.txt
+@@ -0,0 +1,324 @@
++                          HID I/O Transport Drivers
++                         ===========================
++
++The HID subsystem is independent of the underlying transport driver. Initially,
++only USB was supported, but other specifications adopted the HID design and
++provided new transport drivers. The kernel includes at least support for USB,
++Bluetooth, I2C and user-space I/O drivers.
++
++1) HID Bus
++==========
++
++The HID subsystem is designed as a bus. Any I/O subsystem may provide HID
++devices and register them with the HID bus. HID core then loads generic device
++drivers on top of it. The transport drivers are responsible of raw data
++transport and device setup/management. HID core is responsible of
++report-parsing, report interpretation and the user-space API. Device specifics
++and quirks are handled by all layers depending on the quirk.
++
++ +-----------+  +-----------+            +-----------+  +-----------+
++ | Device #1 |  | Device #i |            | Device #j |  | Device #k |
++ +-----------+  +-----------+            +-----------+  +-----------+
++          \\      //                              \\      //
++        +------------+                          +------------+
++        | I/O Driver |                          | I/O Driver |
++        +------------+                          +------------+
++              ||                                      ||
++     +------------------+                    +------------------+
++     | Transport Driver |                    | Transport Driver |
++     +------------------+                    +------------------+
++                       \___                ___/
++                           \              /
++                          +----------------+
++                          |    HID Core    |
++                          +----------------+
++                           /  |        |  \
++                          /   |        |   \
++             ____________/    |        |    \_________________
++            /                 |        |                      \
++           /                  |        |                       \
++ +----------------+  +-----------+  +------------------+  +------------------+
++ | Generic Driver |  | MT Driver |  | Custom Driver #1 |  | Custom Driver #2 |
++ +----------------+  +-----------+  +------------------+  +------------------+
++
++Example Drivers:
++  I/O: USB, I2C, Bluetooth-l2cap
++  Transport: USB-HID, I2C-HID, BT-HIDP
++
++Everything below "HID Core" is simplified in this graph as it is only of
++interest to HID device drivers. Transport drivers do not need to know the
++specifics.
++
++1.1) Device Setup
++-----------------
++
++I/O drivers normally provide hotplug detection or device enumeration APIs to the
++transport drivers. Transport drivers use this to find any suitable HID device.
++They allocate HID device objects and register them with HID core. Transport
++drivers are not required to register themselves with HID core. HID core is never
++aware of which transport drivers are available and is not interested in it. It
++is only interested in devices.
++
++Transport drivers attach a constant "struct hid_ll_driver" object with each
++device. Once a device is registered with HID core, the callbacks provided via
++this struct are used by HID core to communicate with the device.
++
++Transport drivers are responsible of detecting device failures and unplugging.
++HID core will operate a device as long as it is registered regardless of any
++device failures. Once transport drivers detect unplug or failure events, they
++must unregister the device from HID core and HID core will stop using the
++provided callbacks.
++
++1.2) Transport Driver Requirements
++----------------------------------
++
++The terms "asynchronous" and "synchronous" in this document describe the
++transmission behavior regarding acknowledgements. An asynchronous channel must
++not perform any synchronous operations like waiting for acknowledgements or
++verifications. Generally, HID calls operating on asynchronous channels must be
++running in atomic-context just fine.
++On the other hand, synchronous channels can be implemented by the transport
++driver in whatever way they like. They might just be the same as asynchronous
++channels, but they can also provide acknowledgement reports, automatic
++retransmission on failure, etc. in a blocking manner. If such functionality is
++required on asynchronous channels, a transport-driver must implement that via
++its own worker threads.
++
++HID core requires transport drivers to follow a given design. A Transport
++driver must provide two bi-directional I/O channels to each HID device. These
++channels must not necessarily be bi-directional in the hardware itself. A
++transport driver might just provide 4 uni-directional channels. Or it might
++multiplex all four on a single physical channel. However, in this document we
++will describe them as two bi-directional channels as they have several
++properties in common.
++
++ - Interrupt Channel (intr): The intr channel is used for asynchronous data
++   reports. No management commands or data acknowledgements are sent on this
++   channel. Any unrequested incoming or outgoing data report must be sent on
++   this channel and is never acknowledged by the remote side. Devices usually
++   send their input events on this channel. Outgoing events are normally
++   not send via intr, except if high throughput is required.
++ - Control Channel (ctrl): The ctrl channel is used for synchronous requests and
++   device management. Unrequested data input events must not be sent on this
++   channel and are normally ignored. Instead, devices only send management
++   events or answers to host requests on this channel.
++   The control-channel is used for direct blocking queries to the device
++   independent of any events on the intr-channel.
++   Outgoing reports are usually sent on the ctrl channel via synchronous
++   SET_REPORT requests.
++
++Communication between devices and HID core is mostly done via HID reports. A
++report can be of one of three types:
++
++ - INPUT Report: Input reports provide data from device to host. This
++   data may include button events, axis events, battery status or more. This
++   data is generated by the device and sent to the host with or without
++   requiring explicit requests. Devices can choose to send data continuously or
++   only on change.
++ - OUTPUT Report: Output reports change device states. They are sent from host
++   to device and may include LED requests, rumble requests or more. Output
++   reports are never sent from device to host, but a host can retrieve their
++   current state.
++   Hosts may choose to send output reports either continuously or only on
++   change.
++ - FEATURE Report: Feature reports are used for specific static device features
++   and never reported spontaneously. A host can read and/or write them to access
++   data like battery-state or device-settings.
++   Feature reports are never sent without requests. A host must explicitly set
++   or retrieve a feature report. This also means, feature reports are never sent
++   on the intr channel as this channel is asynchronous.
++
++INPUT and OUTPUT reports can be sent as pure data reports on the intr channel.
++For INPUT reports this is the usual operational mode. But for OUTPUT reports,
++this is rarely done as OUTPUT reports are normally quite scarce. But devices are
++free to make excessive use of asynchronous OUTPUT reports (for instance, custom
++HID audio speakers make great use of it).
++
++Plain reports must not be sent on the ctrl channel, though. Instead, the ctrl
++channel provides synchronous GET/SET_REPORT requests. Plain reports are only
++allowed on the intr channel and are the only means of data there.
++
++ - GET_REPORT: A GET_REPORT request has a report ID as payload and is sent
++   from host to device. The device must answer with a data report for the
++   requested report ID on the ctrl channel as a synchronous acknowledgement.
++   Only one GET_REPORT request can be pending for each device. This restriction
++   is enforced by HID core as several transport drivers don't allow multiple
++   simultaneous GET_REPORT requests.
++   Note that data reports which are sent as answer to a GET_REPORT request are
++   not handled as generic device events. That is, if a device does not operate
++   in continuous data reporting mode, an answer to GET_REPORT does not replace
++   the raw data report on the intr channel on state change.
++   GET_REPORT is only used by custom HID device drivers to query device state.
++   Normally, HID core caches any device state so this request is not necessary
++   on devices that follow the HID specs except during device initialization to
++   retrieve the current state.
++   GET_REPORT requests can be sent for any of the 3 report types and shall
++   return the current report state of the device. However, OUTPUT reports as
++   payload may be blocked by the underlying transport driver if the
++   specification does not allow them.
++ - SET_REPORT: A SET_REPORT request has a report ID plus data as payload. It is
++   sent from host to device and a device must update it's current report state
++   according to the given data. Any of the 3 report types can be used. However,
++   INPUT reports as payload might be blocked by the underlying transport driver
++   if the specification does not allow them.
++   A device must answer with a synchronous acknowledgement. However, HID core
++   does not require transport drivers to forward this acknowledgement to HID
++   core.
++   Same as for GET_REPORT, only one SET_REPORT can be pending at a time. This
++   restriction is enforced by HID core as some transport drivers do not support
++   multiple synchronous SET_REPORT requests.
++
++Other ctrl-channel requests are supported by USB-HID but are not available
++(or deprecated) in most other transport level specifications:
++
++ - GET/SET_IDLE: Only used by USB-HID and I2C-HID.
++ - GET/SET_PROTOCOL: Not used by HID core.
++ - RESET: Used by I2C-HID, not hooked up in HID core.
++ - SET_POWER: Used by I2C-HID, not hooked up in HID core.
++
++2) HID API
++==========
++
++2.1) Initialization
++-------------------
++
++Transport drivers normally use the following procedure to register a new device
++with HID core:
++
++	struct hid_device *hid;
++	int ret;
++
++	hid = hid_allocate_device();
++	if (IS_ERR(hid)) {
++		ret = PTR_ERR(hid);
++		goto err_<...>;
++	}
++
++	strlcpy(hid->name, <device-name-src>, 127);
++	strlcpy(hid->phys, <device-phys-src>, 63);
++	strlcpy(hid->uniq, <device-uniq-src>, 63);
++
++	hid->ll_driver = &custom_ll_driver;
++	hid->bus = <device-bus>;
++	hid->vendor = <device-vendor>;
++	hid->product = <device-product>;
++	hid->version = <device-version>;
++	hid->country = <device-country>;
++	hid->dev.parent = <pointer-to-parent-device>;
++	hid->driver_data = <transport-driver-data-field>;
++
++	ret = hid_add_device(hid);
++	if (ret)
++		goto err_<...>;
++
++Once hid_add_device() is entered, HID core might use the callbacks provided in
++"custom_ll_driver". Note that fields like "country" can be ignored by underlying
++transport-drivers if not supported.
++
++To unregister a device, use:
++
++	hid_destroy_device(hid);
++
++Once hid_destroy_device() returns, HID core will no longer make use of any
++driver callbacks.
++
++2.2) hid_ll_driver operations
++-----------------------------
++
++The available HID callbacks are:
++ - int (*start) (struct hid_device *hdev)
++   Called from HID device drivers once they want to use the device. Transport
++   drivers can choose to setup their device in this callback. However, normally
++   devices are already set up before transport drivers register them to HID core
++   so this is mostly only used by USB-HID.
++
++ - void (*stop) (struct hid_device *hdev)
++   Called from HID device drivers once they are done with a device. Transport
++   drivers can free any buffers and deinitialize the device. But note that
++   ->start() might be called again if another HID device driver is loaded on the
++   device.
++   Transport drivers are free to ignore it and deinitialize devices after they
++   destroyed them via hid_destroy_device().
++
++ - int (*open) (struct hid_device *hdev)
++   Called from HID device drivers once they are interested in data reports.
++   Usually, while user-space didn't open any input API/etc., device drivers are
++   not interested in device data and transport drivers can put devices asleep.
++   However, once ->open() is called, transport drivers must be ready for I/O.
++   ->open() calls are nested for each client that opens the HID device.
++
++ - void (*close) (struct hid_device *hdev)
++   Called from HID device drivers after ->open() was called but they are no
++   longer interested in device reports. (Usually if user-space closed any input
++   devices of the driver).
++   Transport drivers can put devices asleep and terminate any I/O of all
++   ->open() calls have been followed by a ->close() call. However, ->start() may
++   be called again if the device driver is interested in input reports again.
++
++ - int (*parse) (struct hid_device *hdev)
++   Called once during device setup after ->start() has been called. Transport
++   drivers must read the HID report-descriptor from the device and tell HID core
++   about it via hid_parse_report().
++
++ - int (*power) (struct hid_device *hdev, int level)
++   Called by HID core to give PM hints to transport drivers. Usually this is
++   analogical to the ->open() and ->close() hints and redundant.
++
++ - void (*request) (struct hid_device *hdev, struct hid_report *report,
++                    int reqtype)
++   Send an HID request on the ctrl channel. "report" contains the report that
++   should be sent and "reqtype" the request type. Request-type can be
++   HID_REQ_SET_REPORT or HID_REQ_GET_REPORT.
++   This callback is optional. If not provided, HID core will assemble a raw
++   report following the HID specs and send it via the ->raw_request() callback.
++   The transport driver is free to implement this asynchronously.
++
++ - int (*wait) (struct hid_device *hdev)
++   Used by HID core before calling ->request() again. A transport driver can use
++   it to wait for any pending requests to complete if only one request is
++   allowed at a time.
++
++ - int (*raw_request) (struct hid_device *hdev, unsigned char reportnum,
++                       __u8 *buf, size_t count, unsigned char rtype,
++                       int reqtype)
++   Same as ->request() but provides the report as raw buffer. This request shall
++   be synchronous. A transport driver must not use ->wait() to complete such
++   requests.
++
++ - int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len)
++   Send raw output report via intr channel. Used by some HID device drivers
++   which require high throughput for outgoing requests on the intr channel. This
++   must not cause SET_REPORT calls! This must be implemented as asynchronous
++   output report on the intr channel!
++
++ - int (*hidinput_input_event) (struct input_dev *idev, unsigned int type,
++                                unsigned int code, int value)
++   Obsolete callback used by logitech converters. It is called when userspace
++   writes input events to the input device (eg., EV_LED). A driver can use this
++   callback to convert it into an output report and send it to the device. If
++   this callback is not provided, HID core will use ->request() or
++   ->raw_request() respectively.
++
++ - int (*idle) (struct hid_device *hdev, int report, int idle, int reqtype)
++   Perform SET/GET_IDLE request. Only used by USB-HID, do not implement!
++
++2.3) Data Path
++--------------
++
++Transport drivers are responsible of reading data from I/O devices. They must
++handle any I/O-related state-tracking themselves. HID core does not implement
++protocol handshakes or other management commands which can be required by the
++given HID transport specification.
++
++Every raw data packet read from a device must be fed into HID core via
++hid_input_report(). You must specify the channel-type (intr or ctrl) and report
++type (input/output/feature). Under normal conditions, only input reports are
++provided via this API.
++
++Responses to GET_REPORT requests via ->request() must also be provided via this
++API. Responses to ->raw_request() are synchronous and must be intercepted by the
++transport driver and not passed to hid_input_report().
++Acknowledgements to SET_REPORT requests are not of interest to HID core.
++
++----------------------------------------------------
++Written 2013, David Herrmann <dh.herrmann@gmail.com>
+-- 
+1.8.3.2
+

@@ -1,41 +1,72 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH 0/7] HID: sony: Add full support for the Dualshock 4 on Bluetooth
-Date: Wed, 29 Jan 2014 12:33:10 -0500
-Message-ID: <1391016797-12842-1-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH 3/7] HID: sony: Add Bluetooth output report formatting for the Dualshock 4
+Date: Wed, 29 Jan 2014 12:33:13 -0500
+Message-ID: <1391016797-12842-4-git-send-email-frank.praznik@oh.rr.com>
+References: <1391016797-12842-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:40514 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753092AbaA2Rdq (ORCPT
+	with ESMTP id S1752603AbaA2Rdv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 29 Jan 2014 12:33:46 -0500
+	Wed, 29 Jan 2014 12:33:51 -0500
+In-Reply-To: <1391016797-12842-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, Frank Praznik <frank.praznik@oh.rr.com>
 
-Since the low-level transport driver changes are queued up, I can submit the
-patches which enable full Bluetooth functionality for the Dualshock 4.
+When connected via Bluetooth the Dualshock 4 wants rumble and LED data sent in
+report 17, which is 77 bytes.
 
-Note that BlueZ 5.14 or newer is required to successfully pair a Dualshock 4
-controller via Bluetooth.
+The format of the rumble and LED data is identical to running over USB, but the
+starting offset is at 6 bytes instead of 4.
 
-This uses the new low-level transport driver functions as the Dualshock 4 wants 
-output reports sent on the control channel instead of the interrupt channel when
-connected via Bluetooth. If someone wants to test this, they will have to merge
-the for-3.15/ll-driver-new-callbacks branch into the for-3.15/sony branch.
+Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 
-The HID descriptor had to be rewritten as once an output report is sent to the
-controller it starts sending back data in report 17 instead of 1, which is
-unmapped in the default descriptor.
+---
+ drivers/hid/hid-sony.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-The format of the data in the input and output reports is the same on Bluetooth
-as on USB, but it starts at different offsets.
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 8e82073f..b35535e 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1268,11 +1268,18 @@ static void dualshock4_state_worker(struct work_struct *work)
+ 	struct hid_device *hdev = sc->hdev;
+ 	int offset;
+ 
+-	__u8 buf[32] = { 0 };
++	__u8 buf[78] = { 0 };
+ 
+-	buf[0] = 0x05;
+-	buf[1] = 0x03;
+-	offset = 4;
++	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
++		buf[0] = 0x05;
++		buf[1] = 0x03;
++		offset = 4;
++	} else {
++		buf[0] = 0x11;
++		buf[1] = 0xB0;
++		buf[3] = 0x0F;
++		offset = 6;
++	}
+ 
+ #ifdef CONFIG_SONY_FF
+ 	buf[offset++] = sc->right;
+@@ -1285,7 +1292,11 @@ static void dualshock4_state_worker(struct work_struct *work)
+ 	buf[offset++] = sc->led_state[1];
+ 	buf[offset++] = sc->led_state[2];
+ 
+-	hdev->ll_driver->output_report(hdev, buf, sizeof(buf));
++	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
++		hdev->ll_driver->output_report(hdev, buf, 32);
++	else
++		hdev->ll_driver->raw_request(hdev, 0x11, buf, 78,
++				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+ }
+ 
+ #ifdef CONFIG_SONY_FF
+-- 
+1.8.5.3
 
-When no USB cable is connected and the battery is discharging, the battery level
-is reported from 0 to 9 instead of from 0 to 11.
-
-A single controller can show up as two devices in the event that a user connects
-it via USB while it is already connected via Bluetooth. To remedy this a global
-list of connected controllers and their MAC addresses is maintained and newly
-connected controllers are checked against this list. If it is already connected
-via some other means, the probe function returns with a code of EEXIST.

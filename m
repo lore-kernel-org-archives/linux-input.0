@@ -1,286 +1,273 @@
-From: "Dr. Zimmermann" <R.Zimmermann@UKE.Uni-Hamburg.de>
-Subject: Re: Can I limit the scope of an input device to specific processes
- ?
-Date: Thu, 30 Jan 2014 10:25:40 +0100
-Message-ID: <52EA1A94.8090300@UKE.Uni-Hamburg.de>
-References: <S1754733AbaA1IxR/20140128085317Z+41@vger.kernel.org> <52E78481.6040606@UKE.Uni-Hamburg.de> <CANq1E4ReNtJgC7zArLo=Bo87YZXOukFTTuxjYf_nupfmUkCL+A@mail.gmail.com> <52E7A24E.20601@UKE.Uni-Hamburg.de> <CANq1E4TUjuB9yfu5U0NJx97ysmNOo+7aeFSFYQgxi+eTu_PYQA@mail.gmail.com> <52E8CD67.4010705@UKE.Uni-Hamburg.de> <CAM18vYqBk7_WrUsdNQq7fjuPC1cm0vb1KTmJW7877OyYFeKj0g@mail.gmail.com>
-Reply-To: <R.Zimmermann@UKE.Uni-Hamburg.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="------------070706070701060104060409"
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH RFC] Input: Add Microchip AR1021 i2c touchscreen
+Date: Thu, 30 Jan 2014 10:29:45 +0100
+Message-ID: <1391074185-26973-1-git-send-email-christian.gmeiner@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iplexus1.uke.uni-hamburg.de ([134.100.102.32]:63916 "EHLO
-	IPLEXUS1.uke.uni-hamburg.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751201AbaA3JZn (ORCPT
+Received: from mail-ea0-f170.google.com ([209.85.215.170]:34918 "EHLO
+	mail-ea0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751107AbaA3J3x (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jan 2014 04:25:43 -0500
-In-Reply-To: <CAM18vYqBk7_WrUsdNQq7fjuPC1cm0vb1KTmJW7877OyYFeKj0g@mail.gmail.com>
+	Thu, 30 Jan 2014 04:29:53 -0500
+Received: by mail-ea0-f170.google.com with SMTP id k10so1500776eaj.1
+        for <linux-input@vger.kernel.org>; Thu, 30 Jan 2014 01:29:52 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?Fabien_Andr=E9?= <andre@lii-enac.fr>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Christian Gmeiner <christian.gmeiner@gmail.com>
 
---------------070706070701060104060409
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
+This driver is quite simple and only supports the Touch
+Reporting Protocol.
 
-Am 29.01.2014 13:31, schrieb Fabien Andr=E9:
-> An alternative to X config file is the xinput command line tool
->
-> $> xinput list
-> to get the name and id of your device
-> $>xinput float NAME_OR_ID
-> to "detach" the device from the virtual core keyboard
-> (the name will be stable while id can change after unplug or restart, thus
-> name is a better candidate for scripting)
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+---
+ drivers/input/touchscreen/Kconfig      |   12 ++
+ drivers/input/touchscreen/Makefile     |    1 +
+ drivers/input/touchscreen/ar1021_i2c.c |  201 ++++++++++++++++++++++++++++++++
+ 3 files changed, 214 insertions(+)
+ create mode 100644 drivers/input/touchscreen/ar1021_i2c.c
 
-Hi Fabien,
-
-that looks promising: I was able to separate our response-box-keyboards =
-
-from the core keyboard so that pressed (response-)keys are no longer =
-
-transmitted by default anymore.
-
-Can You shortly point me to the next steps necessary?
--> Create e new core pointer/keyboard pair and connect the =
-
-reponse-box-keyboard to it?
-
-Or is there a better forum to ask about X (input) stuff?
-
-Thanx, Roger
->
->
->
-> On Wed, Jan 29, 2014 at 10:44 AM, Dr. Zimmermann <
-> R.Zimmermann@uke.uni-hamburg.de> wrote:
->
->> Am 28.01.2014 13:49, schrieb David Herrmann:
->>
->>> Hi
->>>
->>>   Hi David,
->>
->>   On Tue, Jan 28, 2014 at 1:27 PM, Dr. Zimmermann
->>> <R.Zimmermann@uke.uni-hamburg.de> wrote:
->>>
->>>> Am 28.01.2014 12:15, schrieb David Herrmann:
->>>>
->>>>   Hi
->>>>>
->>>>> On Tue, Jan 28, 2014 at 11:20 AM, Dr. Zimmermann
->>>>> <R.Zimmermann@uke.uni-hamburg.de> wrote:
->>>>>
->>>>>>
->>>>>> Hi,
->>>>>>
->>>>>> we've got a special type of keyboard which should only be available =
-in
->>>>>> one
->>>>>> specific process and not publicly, as usually keyboards are.
->>>>>>
->>>>>> Is it possible to limit the scope of a specific keyboard?
->>>>>>
->>>>>> Or is there a more suited forum where to ask?
->>>>>>
->>>>>
->>>>
->>>> Hi David,
->>>>
->>>>
->>>>
->>>>> There is no such interface in the kernel. However, with careful
->>>>> access-management, you can get what you want by just allowing your
->>>>> single process access to the device. But I guess you are working with
->>>>> an X11 system, so a description of what you actually want to achieve
->>>>> would help a lot.
->>>>>
->>>>
->>>>
->>>> Thnx for Your quick reply.
->>>>
->>>> (Yes, we are using X. No, the problem is not specific to X: It'll also
->>>> occur
->>>> when You switch between system consoles.)
->>>>
->>>
->>> Just don't use the system-console for that. It's not intended for that
->>> purpose and no-one will enhance it to do device-separation (why would
->>> you.. it's mainly meant as system-administrator fallback). But see
->>> below..
->>>
->>
->> We've never intended to use it for our purposes, still the effect that
->> we've got is the same than under X.
->>
->>
->>>   For research purposes we are measuring human brain activity under the
->>>> influence of external stimuli (visual/auditory/somatosensory). The
->>>> subject
->>>> has to reply to tasks using 'button boxes' which are implemented as
->>>> keyboards. Usually, type and time of the buttonpress are of importance
->>>> (and
->>>> will probably change further procedere). Keyboard responses usually go=
- to
->>>> that window (or system console) which has the current focus or is acti=
-ve
->>>> and
->>>> *this* is something, we do not want.
->>>>
->>>> Sometimes we show visual stimuli on one screen(#1) and operate the sys=
-tem
->>>> from another screen(#2). Sometimes we even have no visual stimuli at a=
-ll,
->>>> but like to read subject responses and control the stimuli from within=
- a
->>>> control window. In all cases it would be helpful if the response-boxes
->>>> would
->>>> not automatically send their output to the active window resp.
->>>> application.
->>>>
->>>> Helpful would be, if the output of the response-box-keyboards
->>>> * could be restricted to a specific process
->>>> * is not sent automatically, but only to a program which 'opened' the
->>>> device
->>>> * is not sent automatically, but has to be read from a device.
->>>> (Could this be done preserving the exact timepoint of each buttonpress=
-?)
->>>>
->>>
->>> First of all, nothing is "sent automatically". Processes have to read
->>> the events from the kernel, so point #3 doesn't make much sense to me.
->>>
->>
->> Think of me as quite unaware in these matters. I'm seeing this 'signal'
->> (keyboard events) distributed by default to every application which gets
->> active/the focus.
->>
->>   But regarding your issue: You should simply configure you xserver to
->>> not use the devices in question. Add an X11 config to
->>> /etc/X11/xorg.conf.d/50-ignore-custom-devices.conf which contains
->>> something like:
->>>
->>> Section "InputClass"
->>>       Identifier "Custom Input Blacklist"
->>>       MatchProduct "<Product-Name-of-Your-Device>"
->>>       MatchDevicePath "/dev/input/event*"
->>>       Option "Ignore" "on"
->>> EndSection
->>>
->>> You can read the product-name of your device via: `cat
->>> /sys/class/input/input<num>/name`
->>> where "input<num>" is your device in question.
->>>
->>> This will cause the Xserver to stop using your input devices and no
->>> window will get any events from them. Now you can program your custom
->>> applications to open the correct devices manually and reading events
->>> from them. However, this requires modifications to these applications.
->>> But if you just want your xserver to route specific events to specific
->>> processes, your applications must be XInput2-aware/capable.
->>>
->>> Instructing the kernel to route specific events to specific processes
->>> is the wrong approach here (except regarding the linux-console, which
->>> is special but *really* shouldn't be used for such stuff). The kernel
->>> does not care for policy but only provides hardware-abstraction. It's
->>> up to your applications to use the correct X11 APIs to only read
->>> events from specific XInput2-devices. So the correct people to ask
->>> about this are actually the developers of your applications and the
->>> X11 people. The kernel, by default, restricts input-device access to
->>> root, so basically *no* user gets input access. The X-Server now
->>> applies some default policies on these devices to route events to X11
->>> applications. By default, hot-plugging is enabled in new X-Servers and
->>> all devices are markes as Master devices. This means, their events are
->>> broad-casted to all X11 windows. If you don't want that, you can mark
->>> devices as "Floating", which means, the device will not broadcast
->>> events, but use the XInput API to report input events. Only
->>> applications which use XInput can now request events from the device.
->>>
->>> You can mark devices as floating via:
->>> Section "InputClass"
->>>       Identifier "Custom Input Blacklist"
->>>       MatchProduct "<Product-Name-of-Your-Device>"
->>>       MatchDevicePath "/dev/input/event*"
->>>       Option "Floating" "on"
->>> EndSection
->>>
->>> Also see "man xorg.conf" and search for "Floating".
->>>
->>
->> Thanks for this explanation. It helped a lot and I now see, which 'path'
->> to go on...
->>
->>>
->>> I hope that helps! I it's still unclear, let me know.
->>> As a side-note, please always put the mailing-lists on CC. I'm not
->>> doing that myself now, as I don't know whether you excluded them on
->>> purpose. But if you start a discussion on the mailing-list, you should
->>> keep it there so other people can comment, too. Most mail-clients
->>> provide the "reply to all" feature to do that automatically.
->>>
->> My mailer didn't do it correctly. But short time after the mail to You,
->> the same mail was sent to the list manually...
->>
->>>
->>> Thanks
->>> David
->>>
->>
->> Thanks again & Regards,
->> Roger
->>
->>   .
->>>
->>>
->> --
->>
->> Besuchen Sie uns auf: www.uke.de
->> _____________________________________________________________________
->>
->> Universit=E4tsklinikum Hamburg-Eppendorf; K=F6rperschaft des =F6ffentlic=
-hen
->> Rechts; Gerichtsstand: Hamburg
->> Vorstandsmitglieder: Prof. Dr. Christian Gerloff (Vertreter des
->> Vorsitzenden), Prof. Dr. Dr. Uwe Koch-Gromus, Joachim Pr=F6l=DF, Rainer =
-Schoppik
->> _____________________________________________________________________
->>
->> SAVE PAPER - THINK BEFORE PRINTING
->>
->
-
---
-
-Besuchen Sie uns auf: www.uke.de
-_____________________________________________________________________
-
-Universit=E4tsklinikum Hamburg-Eppendorf; K=F6rperschaft des =F6ffentlichen=
- Rechts; Gerichtsstand: Hamburg
-Vorstandsmitglieder: Prof. Dr. Christian Gerloff (Vertreter des Vorsitzende=
-n), Prof. Dr. Dr. Uwe Koch-Gromus, Joachim Pr=F6l=DF, Rainer Schoppik
-_____________________________________________________________________
-
-SAVE PAPER - THINK BEFORE PRINTING
-
---------------070706070701060104060409
-Content-Type: text/x-vcard; charset="utf-8"; name="R_Zimmermann.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="R_Zimmermann.vcf"
-
-begin:vcard
-fn:Dr. Roger Zimmermann
-n:Zimmermann;Dr. Roger
-org;quoted-printable;quoted-printable:Zentrum f=C3=BCr exp. Medizin;Institut f=C3=BCr Neuro- und Pathophysiologie
-adr;quoted-printable:;;Martinistra=C3=9Fe 52;Hamburg;;20246;Germany
-email;internet:R.Zimmermann@UKE.Uni-Hamburg.de
-tel;work:..49 (0)40 42803 5351
-tel;fax:..49 (0)40 42803 7255
-x-mozilla-html:FALSE
-url:http://www.uke.uni-hamburg.de
-version:2.1
-end:vcard
-
-
---------------070706070701060104060409--
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 07e9e82..15cc9a1 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -86,6 +86,18 @@ config TOUCHSCREEN_AD7879_SPI
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ad7879-spi.
+ 
++config TOUCHSCREEN_AR1021_I2C
++	tristate "Microchip AR1021 i2c touchscreen"
++	depends on I2C && OF
++	help
++	  Say Y here if you have the Microchip AR1021 touchscreen controller
++	  chip in your system.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called microchip_ar1021_i2c.
++
+ config TOUCHSCREEN_ATMEL_MXT
+ 	tristate "Atmel mXT I2C Touchscreen"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 62801f2..efaa328 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -12,6 +12,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879)	+= ad7879.o
+ obj-$(CONFIG_TOUCHSCREEN_AD7879_I2C)	+= ad7879-i2c.o
+ obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
+ obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
++obj-$(CONFIG_TOUCHSCREEN_AR1021_I2C)	+= ar1021_i2c.o
+ obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+= atmel_mxt_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)	+= atmel_tsadcc.o
+ obj-$(CONFIG_TOUCHSCREEN_AUO_PIXCIR)	+= auo-pixcir-ts.o
+diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
+new file mode 100644
+index 0000000..c77ce05
+--- /dev/null
++++ b/drivers/input/touchscreen/ar1021_i2c.c
+@@ -0,0 +1,201 @@
++/*
++ * Microchip AR1021 driver for I2C
++ *
++ * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
++ *
++ * License: GPL as published by the FSF.
++ */
++
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/of.h>
++#include <linux/i2c.h>
++#include <linux/slab.h>
++#include <linux/irq.h>
++#include <linux/interrupt.h>
++#include <linux/gpio.h>
++#include <asm/unaligned.h>
++
++#define AR1021_TOCUH_PKG_SIZE	5
++
++struct ar1021_i2c {
++	struct i2c_client *client;
++	struct input_dev *input;
++	u8 data[AR1021_TOCUH_PKG_SIZE];
++};
++
++static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
++{
++	struct ar1021_i2c *ar1021 = dev_id;
++	struct input_dev *input = ar1021->input;
++	u8 *data = ar1021->data;
++	unsigned int x, y, button;
++	int error;
++
++	error = i2c_master_recv(ar1021->client,
++				ar1021->data, sizeof(ar1021->data));
++	if (error < 0)
++		goto out;
++
++	button = !(data[0] & BIT(0));
++	x = ((data[2] & 0x1f) << 7) | (data[1] & 0x7f);
++	y = ((data[4] & 0x1f) << 7) | (data[3] & 0x7f);
++
++	input_report_key(input, BTN_TOUCH, button);
++	input_report_abs(input, ABS_X, x);
++	input_report_abs(input, ABS_Y, y);
++	input_sync(input);
++
++out:
++	return IRQ_HANDLED;
++}
++
++static int ar1021_i2c_open(struct input_dev *dev)
++{
++	struct ar1021_i2c *wac_i2c = input_get_drvdata(dev);
++	struct i2c_client *client = wac_i2c->client;
++
++	enable_irq(client->irq);
++
++	return 0;
++}
++
++static void ar1021_i2c_close(struct input_dev *dev)
++{
++	struct ar1021_i2c *wac_i2c = input_get_drvdata(dev);
++	struct i2c_client *client = wac_i2c->client;
++
++	disable_irq(client->irq);
++}
++
++static int ar1021_i2c_probe(struct i2c_client *client,
++				     const struct i2c_device_id *id)
++{
++	struct ar1021_i2c *ar1021;
++	struct input_dev *input;
++	int error;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev, "i2c_check_functionality error\n");
++		return -EIO;
++	}
++
++	ar1021 = devm_kzalloc(client->dev, sizeof(*ar1021), GFP_KERNEL);
++	input = input_allocate_device();
++	if (!ar1021 || !input) {
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	ar1021->client = client;
++	ar1021->input = input;
++
++	input->name = "ar1021 I2C Touchscreen";
++	input->id.bustype = BUS_I2C;
++	input->dev.parent = &client->dev;
++	input->open = ar1021_i2c_open;
++	input->close = ar1021_i2c_close;
++
++	input->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++
++	__set_bit(BTN_TOOL_PEN, input->keybit);
++
++	input_set_abs_params(input, ABS_X, 0, 4095, 0, 0);
++	input_set_abs_params(input, ABS_Y, 0, 4095, 0, 0);
++
++	input_set_drvdata(input, ar1021);
++
++	error = request_threaded_irq(client->irq, NULL, ar1021_i2c_irq,
++				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++				     "ar1021_i2c", ar1021);
++	if (error) {
++		dev_err(&client->dev,
++			"Failed to enable IRQ, error: %d\n", error);
++		goto err_free_mem;
++	}
++
++	/* Disable the IRQ, we'll enable it in wac_i2c_open() */
++	disable_irq(client->irq);
++
++	error = input_register_device(ar1021->input);
++	if (error) {
++		dev_err(&client->dev,
++			"Failed to register input device, error: %d\n", error);
++		goto err_free_irq;
++	}
++
++	i2c_set_clientdata(client, ar1021);
++	return 0;
++
++err_free_irq:
++	free_irq(client->irq, ar1021);
++err_free_mem:
++	input_free_device(input);
++
++	return error;
++}
++
++static int ar1021_i2c_remove(struct i2c_client *client)
++{
++	struct ar1021_i2c *ar1021 = i2c_get_clientdata(client);
++
++	free_irq(client->irq, ar1021);
++	input_unregister_device(ar1021->input);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int ar1021_i2c_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	disable_irq(client->irq);
++
++	return 0;
++}
++
++static int ar1021_i2c_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++
++	enable_irq(client->irq);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(ar1021_i2c_pm, ar1021_i2c_suspend, ar1021_i2c_resume);
++
++static const struct i2c_device_id ar1021_i2c_id[] = {
++	{ "MICROCHIP_AR1021_I2C", 0 },
++	{ },
++};
++MODULE_DEVICE_TABLE(i2c, ar1021_i2c_id);
++
++#ifdef CONFIG_OF
++static struct of_device_id ar1021_i2c_of_match[] = {
++	{ .compatible = "mc,ar1021-i2c", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ar1021_i2c_of_match);
++#endif
++
++static struct i2c_driver ar1021_i2c_driver = {
++	.driver	= {
++		.name	= "ar1021_i2c",
++		.owner	= THIS_MODULE,
++		.pm	= &ar1021_i2c_pm,
++		.of_match_table = of_match_ptr(ar1021_i2c_of_match),
++	},
++
++	.probe		= ar1021_i2c_probe,
++	.remove		= ar1021_i2c_remove,
++	.id_table	= ar1021_i2c_id,
++};
++module_i2c_driver(ar1021_i2c_driver);
++
++MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
++MODULE_DESCRIPTION("Microchip AR1021 I2C Driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:ar1021_i2c");
+-- 
+1.7.10.4
 

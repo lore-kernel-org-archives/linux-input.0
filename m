@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4/7] Input: xpad: Set the correct LED number
-Date: Fri, 31 Jan 2014 14:03:31 +0100
-Message-ID: <1391173414-6199-5-git-send-email-gregkh@linuxfoundation.org>
+Subject: [PATCH 3/7] Input: xpad: move the input device creation to a new function
+Date: Fri, 31 Jan 2014 14:03:30 +0100
+Message-ID: <1391173414-6199-4-git-send-email-gregkh@linuxfoundation.org>
 References: <1391173414-6199-1-git-send-email-gregkh@linuxfoundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:47829 "EHLO
+Received: from mail.linuxfoundation.org ([140.211.169.12]:47823 "EHLO
 	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932241AbaAaNDA (ORCPT
+	with ESMTP id S932241AbaAaNC5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Jan 2014 08:03:00 -0500
+	Fri, 31 Jan 2014 08:02:57 -0500
 In-Reply-To: <1391173414-6199-1-git-send-email-gregkh@linuxfoundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -17,88 +17,258 @@ Cc: linux-input@vger.kernel.org, "Pierre-Loup A. Griffais" <pgriffais@valvesoftw
 
 From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 
-The LED number should not just be incremented every time, that doesn't
-work, set the number based on the number it actually is.
-
-Note, the joydev subsystem doesn't allow us to easily find out the minor
-number, so we have to walk all devices in order to find a joystick
-device by looking at the name of the device.  Odds are, this isn't the
-best way to do it, but I don't know of any other way at the moment.
+To allow us to later create / destroy the input device from the urb
+callback, we need to initialize the input device from a separate
+function.  So pull that logic out now to make later patches more
+"obvious" as to what they do.
 
 Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ drivers/input/joystick/xpad.c | 171 ++++++++++++++++++++++++------------------
+ 1 file changed, 97 insertions(+), 74 deletions(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 5b5a84dae54a..7997ae89a877 100644
+index aabff9140aaa..5b5a84dae54a 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
 @@ -293,6 +293,7 @@ struct usb_xpad {
  
  	int mapping;			/* map d-pad to buttons or to axes */
  	int xtype;			/* type of xbox device */
-+	int joydev_id;			/* the minor of the device */
- 	const char *name;		/* name of the device */
++	const char *name;		/* name of the device */
  };
  
-@@ -789,11 +790,6 @@ static int xpad_led_probe(struct usb_xpad *xpad)
- 		return error;
- 	}
- 
--	/*
--	 * Light up the segment corresponding to controller number
--	 */
--	xpad_send_led_command(xpad, (led_no % 4) + 2);
--
- 	return 0;
- }
- 
-@@ -809,6 +805,7 @@ static void xpad_led_disconnect(struct usb_xpad *xpad)
- #else
- static int xpad_led_probe(struct usb_xpad *xpad) { return 0; }
- static void xpad_led_disconnect(struct usb_xpad *xpad) { }
-+static void xpad_send_led_command(struct usb_xpad *xpad, int command) { }
- #endif
- 
- 
-@@ -859,9 +856,17 @@ static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
+ /*
+@@ -858,70 +859,21 @@ static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
  	}
  }
  
-+static int xpad_find_joydev(struct device *dev, void *data)
-+{
-+	if (strstr(dev_name(dev), "js"))
-+		return 1;
-+	return 0;
-+}
-+
- static int xpad_init_input(struct usb_xpad *xpad)
+-static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id)
++static int xpad_init_input(struct usb_xpad *xpad)
  {
+-	struct usb_device *udev = interface_to_usbdev(intf);
+-	struct usb_xpad *xpad;
  	struct input_dev *input_dev;
-+	struct device *joydev_dev;
+-	struct usb_endpoint_descriptor *ep_irq_in;
  	int i, error;
  
+-	for (i = 0; xpad_device[i].idVendor; i++) {
+-		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
+-		    (le16_to_cpu(udev->descriptor.idProduct) == xpad_device[i].idProduct))
+-			break;
+-	}
+-
+-	xpad = kzalloc(sizeof(struct usb_xpad), GFP_KERNEL);
  	input_dev = input_allocate_device();
-@@ -930,6 +935,17 @@ static int xpad_init_input(struct usb_xpad *xpad)
- 	if (error)
- 		goto fail_input_register;
+-	if (!xpad || !input_dev) {
+-		error = -ENOMEM;
+-		goto fail1;
+-	}
+-
+-	xpad->idata = usb_alloc_coherent(udev, XPAD_PKT_LEN,
+-					 GFP_KERNEL, &xpad->idata_dma);
+-	if (!xpad->idata) {
+-		error = -ENOMEM;
+-		goto fail1;
+-	}
+-
+-	xpad->irq_in = usb_alloc_urb(0, GFP_KERNEL);
+-	if (!xpad->irq_in) {
+-		error = -ENOMEM;
+-		goto fail2;
+-	}
+-
+-	xpad->udev = udev;
+-	xpad->intf = intf;
+-	xpad->mapping = xpad_device[i].mapping;
+-	xpad->xtype = xpad_device[i].xtype;
+-
+-	if (xpad->xtype == XTYPE_UNKNOWN) {
+-		if (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC) {
+-			if (intf->cur_altsetting->desc.bInterfaceProtocol == 129)
+-				xpad->xtype = XTYPE_XBOX360W;
+-			else
+-				xpad->xtype = XTYPE_XBOX360;
+-		} else
+-			xpad->xtype = XTYPE_XBOX;
+-
+-		if (dpad_to_buttons)
+-			xpad->mapping |= MAP_DPAD_TO_BUTTONS;
+-		if (triggers_to_buttons)
+-			xpad->mapping |= MAP_TRIGGERS_TO_BUTTONS;
+-		if (sticks_to_null)
+-			xpad->mapping |= MAP_STICKS_TO_NULL;
+-	}
++	if (!input_dev)
++		return -ENOMEM;
  
-+	joydev_dev = device_find_child(&xpad->dev->dev, NULL,
-+				       xpad_find_joydev);
-+	if (joydev_dev) {
-+		dev_dbg(&xpad->dev->dev, "Found xpad with minor %i\n",
-+			MINOR(joydev_dev->devt));
-+		xpad->joydev_id = MINOR(joydev_dev->devt);
+ 	xpad->dev = input_dev;
+-	usb_make_path(udev, xpad->phys, sizeof(xpad->phys));
+-	strlcat(xpad->phys, "/input0", sizeof(xpad->phys));
+ 
+-	input_dev->name = xpad_device[i].name;
++	input_dev->name = xpad->name;
+ 	input_dev->phys = xpad->phys;
+-	usb_to_input_id(udev, &input_dev->id);
+-	input_dev->dev.parent = &intf->dev;
++	usb_to_input_id(xpad->udev, &input_dev->id);
++	input_dev->dev.parent = &xpad->intf->dev;
+ 
+ 	input_set_drvdata(input_dev, xpad);
+ 
+@@ -966,17 +918,92 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 			xpad_set_up_abs(input_dev, xpad_abs_triggers[i]);
+ 	}
+ 
+-	error = xpad_init_output(intf, xpad);
+-	if (error)
+-		goto fail3;
+-
+ 	error = xpad_init_ff(xpad);
+ 	if (error)
+-		goto fail4;
++		goto fail_init_ff;
+ 
+ 	error = xpad_led_probe(xpad);
+ 	if (error)
+-		goto fail5;
++		goto fail_init_led;
 +
-+		/* Light up the segment corresponding to controller number */
-+		xpad_send_led_command(xpad, (xpad->joydev_id % 4) + 2);
++	error = input_register_device(xpad->dev);
++	if (error)
++		goto fail_input_register;
++
++	return 0;
++
++fail_input_register:
++	xpad_led_disconnect(xpad);
++
++fail_init_led:
++	input_ff_destroy(input_dev);
++
++fail_init_ff:
++	input_free_device(input_dev);
++	return error;
++}
++
++static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id)
++{
++	struct usb_device *udev = interface_to_usbdev(intf);
++	struct usb_xpad *xpad;
++	struct usb_endpoint_descriptor *ep_irq_in;
++	int i, error;
++
++	for (i = 0; xpad_device[i].idVendor; i++) {
++		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
++		    (le16_to_cpu(udev->descriptor.idProduct) == xpad_device[i].idProduct))
++			break;
 +	}
 +
++	xpad = kzalloc(sizeof(struct usb_xpad), GFP_KERNEL);
++	if (!xpad) {
++		error = -ENOMEM;
++		goto fail1;
++	}
++
++	usb_make_path(udev, xpad->phys, sizeof(xpad->phys));
++	strlcat(xpad->phys, "/input0", sizeof(xpad->phys));
++
++	xpad->idata = usb_alloc_coherent(udev, XPAD_PKT_LEN,
++					 GFP_KERNEL, &xpad->idata_dma);
++	if (!xpad->idata) {
++		error = -ENOMEM;
++		goto fail1;
++	}
++
++	xpad->irq_in = usb_alloc_urb(0, GFP_KERNEL);
++	if (!xpad->irq_in) {
++		error = -ENOMEM;
++		goto fail2;
++	}
++
++	xpad->udev = udev;
++	xpad->intf = intf;
++	xpad->mapping = xpad_device[i].mapping;
++	xpad->xtype = xpad_device[i].xtype;
++	xpad->name = xpad_device[i].name;
++
++	if (xpad->xtype == XTYPE_UNKNOWN) {
++		if (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC) {
++			if (intf->cur_altsetting->desc.bInterfaceProtocol == 129)
++				xpad->xtype = XTYPE_XBOX360W;
++			else
++				xpad->xtype = XTYPE_XBOX360;
++		} else
++			xpad->xtype = XTYPE_XBOX;
++
++		if (dpad_to_buttons)
++			xpad->mapping |= MAP_DPAD_TO_BUTTONS;
++		if (triggers_to_buttons)
++			xpad->mapping |= MAP_TRIGGERS_TO_BUTTONS;
++		if (sticks_to_null)
++			xpad->mapping |= MAP_STICKS_TO_NULL;
++	}
++
++	error = xpad_init_output(intf, xpad);
++	if (error)
++		goto fail3;
+ 
+ 	ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
+ 	usb_fill_int_urb(xpad->irq_in, udev,
+@@ -986,10 +1013,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	xpad->irq_in->transfer_dma = xpad->idata_dma;
+ 	xpad->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ 
+-	error = input_register_device(xpad->dev);
+-	if (error)
+-		goto fail6;
+-
+ 	usb_set_intfdata(intf, xpad);
+ 
+ 	if (xpad->xtype == XTYPE_XBOX360W) {
+@@ -1000,7 +1023,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
+ 		if (!xpad->bulk_out) {
+ 			error = -ENOMEM;
+-			goto fail7;
++			goto fail4;
+ 		}
+ 
+ 		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
+@@ -1048,24 +1071,24 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		 */
+ 		xpad->irq_in->dev = xpad->udev;
+ 		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
+-		if (error)
++		if (error) {
++			usb_kill_urb(xpad->irq_in);
+ 			goto fail9;
++		}
+ 	}
++	xpad->pad_present = 1;
++	error = xpad_init_input(xpad);
++	if (error)
++		goto fail9;
+ 
  	return 0;
  
- fail_input_register:
+  fail9:	kfree(xpad->bdata);
+  fail8:	usb_free_urb(xpad->bulk_out);
+- fail7:	input_unregister_device(input_dev);
+-	input_dev = NULL;
+- fail6:	xpad_led_disconnect(xpad);
+- fail5:	if (input_dev)
+-		input_ff_destroy(input_dev);
+  fail4:	xpad_deinit_output(xpad);
+  fail3:	usb_free_urb(xpad->irq_in);
+  fail2:	usb_free_coherent(udev, XPAD_PKT_LEN, xpad->idata, xpad->idata_dma);
+- fail1:	input_free_device(input_dev);
+-	kfree(xpad);
++ fail1:	kfree(xpad);
+ 	return error;
+ 
+ }
 -- 
 1.8.5.3
 

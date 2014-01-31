@@ -1,70 +1,68 @@
-From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH 3/6] HID: Add support for setting client_addr in uhid.
-Date: Fri, 31 Jan 2014 12:32:50 -0500
-Message-ID: <1391189573-2591-4-git-send-email-frank.praznik@oh.rr.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 0/6] HID: Add a stable method for retrieving the client
+ MAC address of a HID device
+Date: Fri, 31 Jan 2014 14:10:38 -0500
+Message-ID: <CAN+gG=EVcVmQ8rr2YtoapfftSHaDeYnSu5rCnuZjL=S-v1xU4Q@mail.gmail.com>
 References: <1391189573-2591-1-git-send-email-frank.praznik@oh.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:52176 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932642AbaAaRdD (ORCPT
+Received: from mail-lb0-f173.google.com ([209.85.217.173]:41464 "EHLO
+	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932236AbaAaTKm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Jan 2014 12:33:03 -0500
+	Fri, 31 Jan 2014 14:10:42 -0500
+Received: by mail-lb0-f173.google.com with SMTP id y6so3795743lbh.32
+        for <linux-input@vger.kernel.org>; Fri, 31 Jan 2014 11:10:41 -0800 (PST)
 In-Reply-To: <1391189573-2591-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, dh.herrmann@gmail.com, Frank Praznik <frank.praznik@oh.rr.com>
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>
 
-Add support for setting the client address of a device in uhid.
+Hi Frank,
 
-Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
----
- drivers/hid/uhid.c        | 5 +++++
- include/uapi/linux/uhid.h | 1 +
- 2 files changed, 6 insertions(+)
+just a quick review:
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index cedc6da..cfd2b93 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -259,6 +259,7 @@ struct uhid_create_req_compat {
- 	__u8 name[128];
- 	__u8 phys[64];
- 	__u8 uniq[64];
-+	__u8 client_addr[6];
- 
- 	compat_uptr_t rd_data;
- 	__u16 rd_size;
-@@ -308,6 +309,8 @@ static int uhid_event_from_user(const char __user *buffer, size_t len,
- 				sizeof(compat->phys));
- 			memcpy(event->u.create.uniq, compat->uniq,
- 				sizeof(compat->uniq));
-+			memcpy(event->u.create.client_addr, compat->client_addr,
-+				sizeof(compat->client_addr));
- 
- 			event->u.create.rd_data = compat_ptr(compat->rd_data);
- 			event->u.create.rd_size = compat->rd_size;
-@@ -375,6 +378,8 @@ static int uhid_dev_create(struct uhid_device *uhid,
- 	hid->phys[63] = 0;
- 	strncpy(hid->uniq, ev->u.create.uniq, 63);
- 	hid->uniq[63] = 0;
-+	memcpy(hid->client_addr, ev->u.create.client_addr,
-+		sizeof(hid->client_addr));
- 
- 	hid->ll_driver = &uhid_hid_driver;
- 	hid->hid_get_raw_report = uhid_hid_get_raw;
-diff --git a/include/uapi/linux/uhid.h b/include/uapi/linux/uhid.h
-index 414b74b..5e48acc 100644
---- a/include/uapi/linux/uhid.h
-+++ b/include/uapi/linux/uhid.h
-@@ -40,6 +40,7 @@ struct uhid_create_req {
- 	__u8 name[128];
- 	__u8 phys[64];
- 	__u8 uniq[64];
-+	__u8 client_addr[6];
- 	__u8 __user *rd_data;
- 	__u16 rd_size;
- 
--- 
-1.8.5.3
+On Fri, Jan 31, 2014 at 12:32 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
+> Currently there is no reliable way for a device module or hidraw application to
+> retrieve the client MAC address of the associated wireless device.  This series
+> of patches adds a stable way of retrieving this information.
 
+Well, if I look at the uevent of a Bluetooth mouse I have:
+
+$ cat /sys/devices/pci0000\:00/0000\:00\:14.0/usb3/3-2/3-2\:1.0/bluetooth/hci0/hci0\:43/0005\:046D\:B00D.001F/uevent
+DRIVER=hid-generic
+HID_ID=0005:0000046D:0000B00D
+HID_NAME=Ultrathin Touch Mouse
+HID_PHYS=00:10:60:ea:df:ae
+HID_UNIQ=00:1f:20:96:33:47
+MODALIAS=hid:b0005g0001v0000046Dp0000B00D
+
+I would say that HID_UNIQ is the client MAC address set by hidp, no?
+So you don't need to duplicate the info by adding a new field in
+hid_device.
+
+I also have few general comments on the patches, I'll comment in them.
+
+Cheers,
+Benjamin
+
+>
+> The first patch adds a new client_addr member to the hid_device struct.  This
+> member, when populated, will be guaranteed to contain the client hardware
+> address of a connected wireless device.
+>
+> The second patch modifies HIDP to populate the client_addr member of the
+> hid_device struct with the client MAC address of the connected wireless device.
+>
+> The third patch adds support for setting the client_addr value in a uhid
+> device.
+>
+> The final patches add support for retrieving the client_addr value as a string
+> in the hidraw interface via a new ioctl called HIDIOCGRAWCLIENTADDR.  The
+> hidraw documentation and example program are also updated.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,86 +1,308 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Is the hid-multitouch default driver for multitouch screen ?
-Date: Thu, 30 Jan 2014 18:47:05 -0500
-Message-ID: <CAN+gG=GJgwDL7jvk3KNZmJN_Tc9usASU4eP6uBp6D=bcC6ysWg@mail.gmail.com>
-References: <CAPDwgkMf2j9kmDa1Q7LgMjtqGXfqEDMv7JNC+eO6j3Vk9DPysQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RFC] Input: Add Microchip AR1021 i2c touchscreen
+Date: Thu, 30 Jan 2014 17:01:31 -0800
+Message-ID: <20140131010131.GA29566@core.coreip.homeip.net>
+References: <1391074185-26973-1-git-send-email-christian.gmeiner@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bk0-f43.google.com ([209.85.214.43]:54485 "EHLO
-	mail-bk0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753294AbaA3XrH (ORCPT
+Received: from mail-pa0-f45.google.com ([209.85.220.45]:38694 "EHLO
+	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752983AbaAaBBg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jan 2014 18:47:07 -0500
-Received: by mail-bk0-f43.google.com with SMTP id mx11so1834598bkb.30
-        for <linux-input@vger.kernel.org>; Thu, 30 Jan 2014 15:47:05 -0800 (PST)
-In-Reply-To: <CAPDwgkMf2j9kmDa1Q7LgMjtqGXfqEDMv7JNC+eO6j3Vk9DPysQ@mail.gmail.com>
+	Thu, 30 Jan 2014 20:01:36 -0500
+Received: by mail-pa0-f45.google.com with SMTP id lf10so3806198pab.18
+        for <linux-input@vger.kernel.org>; Thu, 30 Jan 2014 17:01:35 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1391074185-26973-1-git-send-email-christian.gmeiner@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yufeng Shen <miletus@chromium.org>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Yufeng,
+Hi Christian,
 
-On Thu, Jan 30, 2014 at 5:52 PM, Yufeng Shen <miletus@chromium.org> wrote:
-> Hi,
->
-> I was under the impression that in recent kernel (I am testing on 3.8)
-> hid-multitouch
-> is the default driver for touchscreen.
+On Thu, Jan 30, 2014 at 10:29:45AM +0100, Christian Gmeiner wrote:
+> This driver is quite simple and only supports the Touch
+> Reporting Protocol.
 
-yes, and no. hid-multitouch is the default for Win 7 / Win 8 certified
-touchscreens, which tends to be a lot.
-For instance, here is a list of device I know of:
-http://lii-enac.fr/en/architecture/linux-input/multitouch-devices.html
+Pretty clean and neat, just a few comments.
 
-So given that on x86 most manufacturers wants the Microsoft
-certification, their devices use hid-multitouch. However, on the
-Android side, or the embedded world more generally, people use their
-own protocol and communication bus and they have to write their own
-driver.
-Side note, I think they should consider switching to HID over i2c,
-they will not need to write any driver this way. But that's just my
-opinion.
+> 
+> Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+> ---
+>  drivers/input/touchscreen/Kconfig      |   12 ++
+>  drivers/input/touchscreen/Makefile     |    1 +
+>  drivers/input/touchscreen/ar1021_i2c.c |  201 ++++++++++++++++++++++++++++++++
+>  3 files changed, 214 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/ar1021_i2c.c
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 07e9e82..15cc9a1 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -86,6 +86,18 @@ config TOUCHSCREEN_AD7879_SPI
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called ad7879-spi.
+>  
+> +config TOUCHSCREEN_AR1021_I2C
+> +	tristate "Microchip AR1021 i2c touchscreen"
+> +	depends on I2C && OF
+> +	help
+> +	  Say Y here if you have the Microchip AR1021 touchscreen controller
+> +	  chip in your system.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called microchip_ar1021_i2c.
 
-> And I found one case that there is this
-> RNDPLUS PulseIR Touchscreen pid/vid 2512:5004 defaults to generic-usb driver.
+s/microchip_ar1021_i2c/ar1021_i2c
 
-Hmm... the RNDPLUS 5003 (as written in the table I mentioned above)
-uses hid-multitouch. And given the fact that you refer to generic-usb
-driver, I think (but I may be wrong) that last time you checked this
-device, it was on a kernel before 3.2. Now it should be handled by
-hid-multitouch. Or it is just a single touch touchscreen.
+> +
+>  config TOUCHSCREEN_ATMEL_MXT
+>  	tristate "Atmel mXT I2C Touchscreen"
+>  	depends on I2C
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 62801f2..efaa328 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -12,6 +12,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879)	+= ad7879.o
+>  obj-$(CONFIG_TOUCHSCREEN_AD7879_I2C)	+= ad7879-i2c.o
+>  obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
+>  obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
+> +obj-$(CONFIG_TOUCHSCREEN_AR1021_I2C)	+= ar1021_i2c.o
+>  obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+= atmel_mxt_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)	+= atmel_tsadcc.o
+>  obj-$(CONFIG_TOUCHSCREEN_AUO_PIXCIR)	+= auo-pixcir-ts.o
+> diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
+> new file mode 100644
+> index 0000000..c77ce05
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/ar1021_i2c.c
+> @@ -0,0 +1,201 @@
+> +/*
+> + * Microchip AR1021 driver for I2C
+> + *
+> + * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
+> + *
+> + * License: GPL as published by the FSF.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/input.h>
+> +#include <linux/of.h>
+> +#include <linux/i2c.h>
+> +#include <linux/slab.h>
+> +#include <linux/irq.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/gpio.h>
+> +#include <asm/unaligned.h>
+> +
+> +#define AR1021_TOCUH_PKG_SIZE	5
+> +
+> +struct ar1021_i2c {
+> +	struct i2c_client *client;
+> +	struct input_dev *input;
+> +	u8 data[AR1021_TOCUH_PKG_SIZE];
+> +};
+> +
+> +static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
+> +{
+> +	struct ar1021_i2c *ar1021 = dev_id;
+> +	struct input_dev *input = ar1021->input;
+> +	u8 *data = ar1021->data;
+> +	unsigned int x, y, button;
+> +	int error;
+> +
+> +	error = i2c_master_recv(ar1021->client,
+> +				ar1021->data, sizeof(ar1021->data));
+> +	if (error < 0)
+> +		goto out;
+> +
+> +	button = !(data[0] & BIT(0));
+> +	x = ((data[2] & 0x1f) << 7) | (data[1] & 0x7f);
+> +	y = ((data[4] & 0x1f) << 7) | (data[3] & 0x7f);
+> +
+> +	input_report_key(input, BTN_TOUCH, button);
+> +	input_report_abs(input, ABS_X, x);
+> +	input_report_abs(input, ABS_Y, y);
+> +	input_sync(input);
+> +
+> +out:
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int ar1021_i2c_open(struct input_dev *dev)
+> +{
+> +	struct ar1021_i2c *wac_i2c = input_get_drvdata(dev);
+> +	struct i2c_client *client = wac_i2c->client;
+> +
+> +	enable_irq(client->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static void ar1021_i2c_close(struct input_dev *dev)
+> +{
+> +	struct ar1021_i2c *wac_i2c = input_get_drvdata(dev);
+> +	struct i2c_client *client = wac_i2c->client;
+> +
+> +	disable_irq(client->irq);
+> +}
+> +
+> +static int ar1021_i2c_probe(struct i2c_client *client,
+> +				     const struct i2c_device_id *id)
+> +{
+> +	struct ar1021_i2c *ar1021;
+> +	struct input_dev *input;
+> +	int error;
+> +
+> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+> +		dev_err(&client->dev, "i2c_check_functionality error\n");
+> +		return -EIO;
+> +	}
+> +
+> +	ar1021 = devm_kzalloc(client->dev, sizeof(*ar1021), GFP_KERNEL);
+> +	input = input_allocate_device();
 
->
-> If you search
-> "HID-Multitouch Kernel Driver Installation for Android OS IDSPulse"
-> there is a setup document shows one need to add its pid/vid to
-> hid_have_special_driver[]
-> list so it will pick up hid-multitouch.  Do we still need to do that
-> in recent kernel ?
+Use devm_input_allocate_device() and later devm_request_threaded_irq()
+as well.
 
-No.
-- Starting from 3.2 multitouch devices where rejected by hid-core and
-had to be added manually to hid-multiouch
-- in 3.4, there were a non generic attempt to automatically bind them
-to hid-multitouch (attempt which was doing its job though)
-- starting from 3.5, there is a much better generic solution and
-multitouch screens are bound to hid-multitouch, and sensors to
-hid-sensorhub for instance.
+> +	if (!ar1021 || !input) {
+> +		error = -ENOMEM;
+> +		goto err_free_mem;
+> +	}
+> +
+> +	ar1021->client = client;
+> +	ar1021->input = input;
+> +
+> +	input->name = "ar1021 I2C Touchscreen";
+> +	input->id.bustype = BUS_I2C;
+> +	input->dev.parent = &client->dev;
+> +	input->open = ar1021_i2c_open;
+> +	input->close = ar1021_i2c_close;
+> +
+> +	input->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> +
+> +	__set_bit(BTN_TOOL_PEN, input->keybit);
+> +
+> +	input_set_abs_params(input, ABS_X, 0, 4095, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, 4095, 0, 0);
+> +
+> +	input_set_drvdata(input, ar1021);
+> +
+> +	error = request_threaded_irq(client->irq, NULL, ar1021_i2c_irq,
+> +				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> +				     "ar1021_i2c", ar1021);
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +			"Failed to enable IRQ, error: %d\n", error);
+> +		goto err_free_mem;
+> +	}
+> +
+> +	/* Disable the IRQ, we'll enable it in wac_i2c_open() */
 
-So to sum up, no, multitouch screen do not need to be added to
-hid_have_special_driver[] except some rare cases which are already in
-the kernel.
+No, not in wac_i2c_open ;) It looks like you might want to update
+copyright notice to mentioned what driver you used as a base...
 
-Cheers,
-Benjamin
+> +	disable_irq(client->irq);
+> +
+> +	error = input_register_device(ar1021->input);
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +			"Failed to register input device, error: %d\n", error);
+> +		goto err_free_irq;
+> +	}
+> +
+> +	i2c_set_clientdata(client, ar1021);
+> +	return 0;
+> +
+> +err_free_irq:
+> +	free_irq(client->irq, ar1021);
+> +err_free_mem:
+> +	input_free_device(input);
+> +
+> +	return error;
+> +}
+> +
+> +static int ar1021_i2c_remove(struct i2c_client *client)
+> +{
+> +	struct ar1021_i2c *ar1021 = i2c_get_clientdata(client);
+> +
+> +	free_irq(client->irq, ar1021);
+> +	input_unregister_device(ar1021->input);
+> +
+> +	return 0;
+> +}
 
->
->
-> Thanks,
->
-> Yufeng Shen
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If you use devm throughout you won't need ar1021_i2c_remove method at
+all.
+
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int ar1021_i2c_suspend(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +
+> +	disable_irq(client->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static int ar1021_i2c_resume(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +
+> +	enable_irq(client->irq);
+
+You do not want to enable IRQ if there are no users (nobody opened
+device).
+
+> +
+> +	return 0;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(ar1021_i2c_pm, ar1021_i2c_suspend, ar1021_i2c_resume);
+> +
+> +static const struct i2c_device_id ar1021_i2c_id[] = {
+> +	{ "MICROCHIP_AR1021_I2C", 0 },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(i2c, ar1021_i2c_id);
+> +
+> +#ifdef CONFIG_OF
+> +static struct of_device_id ar1021_i2c_of_match[] = {
+> +	{ .compatible = "mc,ar1021-i2c", },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(of, ar1021_i2c_of_match);
+> +#endif
+> +
+> +static struct i2c_driver ar1021_i2c_driver = {
+> +	.driver	= {
+> +		.name	= "ar1021_i2c",
+> +		.owner	= THIS_MODULE,
+> +		.pm	= &ar1021_i2c_pm,
+> +		.of_match_table = of_match_ptr(ar1021_i2c_of_match),
+> +	},
+> +
+> +	.probe		= ar1021_i2c_probe,
+> +	.remove		= ar1021_i2c_remove,
+> +	.id_table	= ar1021_i2c_id,
+> +};
+> +module_i2c_driver(ar1021_i2c_driver);
+> +
+> +MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
+> +MODULE_DESCRIPTION("Microchip AR1021 I2C Driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:ar1021_i2c");
+
+Why platform if it is I2C driver? This MODULE_ALIAS is not needed at
+all.
+
+Thanks.
+
+-- 
+Dmitry

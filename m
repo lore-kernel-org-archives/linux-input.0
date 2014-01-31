@@ -1,92 +1,333 @@
-From: Stephan Mueller <smueller@chronox.de>
-Subject: Re: Sony Vaio Duo 11: getting middle mouse button to work
-Date: Fri, 31 Jan 2014 05:31:53 +0100
-Message-ID: <13914184.mVhhUrzN60@myon.chronox.de>
-References: <1674012.xCMptsh8XR@myon.chronox.de> <2193004.SWLhWZ2AvA@tauon> <CAN+gG=HAXE4LT_tN+3tE8-T_L5g+2HAE35CN+z8KCEQcmJ=JWw@mail.gmail.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: Re: [PATCH RFC] Input: Add Microchip AR1021 i2c touchscreen
+Date: Fri, 31 Jan 2014 12:40:19 +0100
+Message-ID: <CAH9NwWfb1zVrgeKB7+fPyS80yC6BuokvmA4TE0tr7BAs_jwQSA@mail.gmail.com>
+References: <1391074185-26973-1-git-send-email-christian.gmeiner@gmail.com> <20140131010131.GA29566@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="nextPart3762602.0SCRtIrO20"
-Content-Transfer-Encoding: 7Bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <CAN+gG=HAXE4LT_tN+3tE8-T_L5g+2HAE35CN+z8KCEQcmJ=JWw@mail.gmail.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Mattia Dongili <malattia@linux.it>, platform-driver-x86@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wg0-f44.google.com ([74.125.82.44]:50251 "EHLO
+	mail-wg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753951AbaAaLkl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 31 Jan 2014 06:40:41 -0500
+Received: by mail-wg0-f44.google.com with SMTP id l18so8616211wgh.35
+        for <linux-input@vger.kernel.org>; Fri, 31 Jan 2014 03:40:39 -0800 (PST)
+In-Reply-To: <20140131010131.GA29566@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi Dmitry.
 
---nextPart3762602.0SCRtIrO20
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
 
-Am Donnerstag, 30. Januar 2014, 22:50:25 schrieb Benjamin Tissoires:
+> On Thu, Jan 30, 2014 at 10:29:45AM +0100, Christian Gmeiner wrote:
+>> This driver is quite simple and only supports the Touch
+>> Reporting Protocol.
+>
+> Pretty clean and neat, just a few comments.
+>
 
-Hi Benjamin,
+Thanks for the review.
 
-> > Can you please help me how to do that? I install Windows in a KVM with
-> > the mouse device as a USB-passthrough device -- shall I detach the Linux
-> > USB driver?
-> 
-> No, you don't have to detach the Linux USB driver (it's done for you
-> by KVM IIRC).
+>>
+>> Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+>> ---
+>>  drivers/input/touchscreen/Kconfig      |   12 ++
+>>  drivers/input/touchscreen/Makefile     |    1 +
+>>  drivers/input/touchscreen/ar1021_i2c.c |  201 ++++++++++++++++++++++++++++++++
+>>  3 files changed, 214 insertions(+)
+>>  create mode 100644 drivers/input/touchscreen/ar1021_i2c.c
+>>
+>> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+>> index 07e9e82..15cc9a1 100644
+>> --- a/drivers/input/touchscreen/Kconfig
+>> +++ b/drivers/input/touchscreen/Kconfig
+>> @@ -86,6 +86,18 @@ config TOUCHSCREEN_AD7879_SPI
+>>         To compile this driver as a module, choose M here: the
+>>         module will be called ad7879-spi.
+>>
+>> +config TOUCHSCREEN_AR1021_I2C
+>> +     tristate "Microchip AR1021 i2c touchscreen"
+>> +     depends on I2C && OF
+>> +     help
+>> +       Say Y here if you have the Microchip AR1021 touchscreen controller
+>> +       chip in your system.
+>> +
+>> +       If unsure, say N.
+>> +
+>> +       To compile this driver as a module, choose M here: the
+>> +       module will be called microchip_ar1021_i2c.
+>
+> s/microchip_ar1021_i2c/ar1021_i2c
+>
 
-Correct, libvirtd is the one that detaches the driver when I start the VM.
-> 
-> > Now, shall I use hid-recorder on that device or rather usbmon while
-> > Windows is booting?
-> 
-> usbmon is the tool you need. hid-recorder will not work because the
-> hid subsystem will be disconnected as the device is used by Windows.
-> 
-> You can even use wireshark now. It gives you a nice interface and
-> interpretation of the USB packets :)
+ups
 
-Please see attached for the USB sniffing on the USB bus with the Crucialtec 
-touch pad when Windows starts up and shuts down. To drive the device, Windows 
-uses the Crucialtec driver according to its device settings display.
+>> +
+>>  config TOUCHSCREEN_ATMEL_MXT
+>>       tristate "Atmel mXT I2C Touchscreen"
+>>       depends on I2C
+>> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+>> index 62801f2..efaa328 100644
+>> --- a/drivers/input/touchscreen/Makefile
+>> +++ b/drivers/input/touchscreen/Makefile
+>> @@ -12,6 +12,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879)    += ad7879.o
+>>  obj-$(CONFIG_TOUCHSCREEN_AD7879_I2C) += ad7879-i2c.o
+>>  obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI) += ad7879-spi.o
+>>  obj-$(CONFIG_TOUCHSCREEN_ADS7846)    += ads7846.o
+>> +obj-$(CONFIG_TOUCHSCREEN_AR1021_I2C) += ar1021_i2c.o
+>>  obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)  += atmel_mxt_ts.o
+>>  obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)       += atmel_tsadcc.o
+>>  obj-$(CONFIG_TOUCHSCREEN_AUO_PIXCIR) += auo-pixcir-ts.o
+>> diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
+>> new file mode 100644
+>> index 0000000..c77ce05
+>> --- /dev/null
+>> +++ b/drivers/input/touchscreen/ar1021_i2c.c
+>> @@ -0,0 +1,201 @@
+>> +/*
+>> + * Microchip AR1021 driver for I2C
+>> + *
+>> + * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
+>> + *
+>> + * License: GPL as published by the FSF.
+>> + */
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/input.h>
+>> +#include <linux/of.h>
+>> +#include <linux/i2c.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/irq.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/gpio.h>
+>> +#include <asm/unaligned.h>
+>> +
+>> +#define AR1021_TOCUH_PKG_SIZE        5
+>> +
+>> +struct ar1021_i2c {
+>> +     struct i2c_client *client;
+>> +     struct input_dev *input;
+>> +     u8 data[AR1021_TOCUH_PKG_SIZE];
+>> +};
+>> +
+>> +static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
+>> +{
+>> +     struct ar1021_i2c *ar1021 = dev_id;
+>> +     struct input_dev *input = ar1021->input;
+>> +     u8 *data = ar1021->data;
+>> +     unsigned int x, y, button;
+>> +     int error;
+>> +
+>> +     error = i2c_master_recv(ar1021->client,
+>> +                             ar1021->data, sizeof(ar1021->data));
+>> +     if (error < 0)
+>> +             goto out;
+>> +
+>> +     button = !(data[0] & BIT(0));
+>> +     x = ((data[2] & 0x1f) << 7) | (data[1] & 0x7f);
+>> +     y = ((data[4] & 0x1f) << 7) | (data[3] & 0x7f);
+>> +
+>> +     input_report_key(input, BTN_TOUCH, button);
+>> +     input_report_abs(input, ABS_X, x);
+>> +     input_report_abs(input, ABS_Y, y);
+>> +     input_sync(input);
+>> +
+>> +out:
+>> +     return IRQ_HANDLED;
+>> +}
+>> +
+>> +static int ar1021_i2c_open(struct input_dev *dev)
+>> +{
+>> +     struct ar1021_i2c *wac_i2c = input_get_drvdata(dev);
+>> +     struct i2c_client *client = wac_i2c->client;
+>> +
+>> +     enable_irq(client->irq);
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static void ar1021_i2c_close(struct input_dev *dev)
+>> +{
+>> +     struct ar1021_i2c *wac_i2c = input_get_drvdata(dev);
+>> +     struct i2c_client *client = wac_i2c->client;
+>> +
+>> +     disable_irq(client->irq);
+>> +}
+>> +
+>> +static int ar1021_i2c_probe(struct i2c_client *client,
+>> +                                  const struct i2c_device_id *id)
+>> +{
+>> +     struct ar1021_i2c *ar1021;
+>> +     struct input_dev *input;
+>> +     int error;
+>> +
+>> +     if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+>> +             dev_err(&client->dev, "i2c_check_functionality error\n");
+>> +             return -EIO;
+>> +     }
+>> +
+>> +     ar1021 = devm_kzalloc(client->dev, sizeof(*ar1021), GFP_KERNEL);
+>> +     input = input_allocate_device();
+>
+> Use devm_input_allocate_device() and later devm_request_threaded_irq()
+> as well.
+>
 
-The attached log contains the log information for the mouse (device 001:005) 
-and the USB bridge (device 001:002). I cut out the listing for the touch pad 
-which is also attached to that bridge.
+Thats a very good idea...
 
-The strange thing, however, is the following: the mouse works in Windows when 
-I do not sniff on the USB bus using usbmon. But as soon as I start sniffing, 
-it does not work any more.
+>> +     if (!ar1021 || !input) {
+>> +             error = -ENOMEM;
+>> +             goto err_free_mem;
+>> +     }
+>> +
+>> +     ar1021->client = client;
+>> +     ar1021->input = input;
+>> +
+>> +     input->name = "ar1021 I2C Touchscreen";
+>> +     input->id.bustype = BUS_I2C;
+>> +     input->dev.parent = &client->dev;
+>> +     input->open = ar1021_i2c_open;
+>> +     input->close = ar1021_i2c_close;
+>> +
+>> +     input->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+>> +
+>> +     __set_bit(BTN_TOOL_PEN, input->keybit);
+>> +
+>> +     input_set_abs_params(input, ABS_X, 0, 4095, 0, 0);
+>> +     input_set_abs_params(input, ABS_Y, 0, 4095, 0, 0);
+>> +
+>> +     input_set_drvdata(input, ar1021);
+>> +
+>> +     error = request_threaded_irq(client->irq, NULL, ar1021_i2c_irq,
+>> +                                  IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+>> +                                  "ar1021_i2c", ar1021);
+>> +     if (error) {
+>> +             dev_err(&client->dev,
+>> +                     "Failed to enable IRQ, error: %d\n", error);
+>> +             goto err_free_mem;
+>> +     }
+>> +
+>> +     /* Disable the IRQ, we'll enable it in wac_i2c_open() */
+>
+> No, not in wac_i2c_open ;) It looks like you might want to update
+> copyright notice to mentioned what driver you used as a base...
+>
 
-Is that log helpful?
+Will do :)
 
-Ciao
-Stephan
--- 
-| Cui bono? |
---nextPart3762602.0SCRtIrO20
-Content-Disposition: attachment; filename="sony-vaio-duo-11-usbsniff.bz2"
-Content-Transfer-Encoding: base64
-Content-Type: application/x-bzip; name="sony-vaio-duo-11-usbsniff.bz2"
+>> +     disable_irq(client->irq);
+>> +
+>> +     error = input_register_device(ar1021->input);
+>> +     if (error) {
+>> +             dev_err(&client->dev,
+>> +                     "Failed to register input device, error: %d\n", error);
+>> +             goto err_free_irq;
+>> +     }
+>> +
+>> +     i2c_set_clientdata(client, ar1021);
 
-QlpoOTFBWSZTWcP3RjEADf7fgEgQQAJ/9gggCAA/IIgAYAf8PhzSYBWhVKUgNaVmAUAAAAAEiBNT
-UTUmQNAFAAAAABJpFEBRoDQNqFAAAAAAqRBAgqekIaZHBAD+kkIwD6sfal1nlrj3eM98rrjuhRFN
-ZWNcxbiuPLrtKwWayrylHKWukM1daqqPlquNUVZbVa0VQCdflJ6AdiILBD264itpfk/5zIncTX7u
-aWjMexzJqR0saKRulb0fofziS5NxeTDJSnTK1P4iiNtZwYXJSfXvWmpUiKFSBfBcPhhxFjTL7GWz
-CfJKR1FRKVOEj0QYYfOJp8Y8jtF3TJXJRx1y5FhdEhDVgcJf1s3lTMbjqad7m8r6dyVl5Gbsa5vO
-Nxt6bzlPc/YyMiEEIIiAgJBSGmhrvWPFG9307vzOcnsxmwTzTIyJ3MrkbkxDuYv1S9pSiwEv3SGk
-IGA2CbILIqyP6oQQCWEhgQQw8AU/iQSUhpMMIIS0UiUwKJKFCOxSUFGJSXHTvx63+pO4JySHNFSc
-+nVllSnNVzGsSVMqPxs+OSnslMlfww/Z46eOFOUQw1SuS52hFRUkqFEnh5HxiYj2L5kkoVCiwWiX
-KTEYSCjfC01R4y3GClJV/S5KSoXJZpMMVKpLjUdsRwt3obmovkYkuTEXFRpwWc0bWRlpgxypJ6Kg
-3VDUcKTe3JNtmJLQho4BDYMmcOFgkYeTkZp2MOZDGXGzjMywpRa2mIuRCpIo4pGqDrQe4mQTjg2k
-jnUbnPOWU1yYOyKg65MsM4ZVJp9jtuNUk1FRK8ScE/tOI26OCfEVJuPsXDlTLJcOm+PHHy9+ucq5
-vI8e3RiDeFXJ0zLJpUYcTnjMZT+lr8dYOJpKCzFkk2pEW8J8+IfvngMO1w4DCX7FF02eNS+xhYI6
-+66005hnlqZd8MysFcddhrXxJEoNDAISQ2krCwhFTJzYh3r5NSBA2p2XHEniiTb4bt6qVfphoKqF
-J1y/EXHZrnbOC0XpZs9s785dyZ44k1qE+eJIL2DBBECwciOMSw20veeFIxTHHXWMOu3a+AfXaT4n
-yTJHod13Xr3Vayo9lBqSnjeUwo7pTVjznBxRqkkR6ez489gX4dI5J6mPLw8mi9MhvwAgox10cJPv
-RwypVVQ67nBdlUllSvGfPMt48hlLO0bnVRy2tucWs6pMVkrUCTPU+p5UZUxJJsXVvA6UVTL5HosO
-mjGnnbH5vlV5HTpw0gw0JkzXPAjma74PnA6FFiph4j4Hm+FWgyH5JcwXqT0O9dLLZXkLywEDEwRH
-yCOGHrmwqfTMuOWEIx1RFQeyJU+7plU2WfcESZ7bKXalsrZiGHEq8PSPUjDZibbKJgy3Jufc6RzN
-nnDRYUMYIaPbmJJ7B66RPN3u3oc9+h29iToHYRGPezw08GDOzqKuNhMQNoC/KjadXeRjI+wj86Jn
-4Chinq+nRUZ4yvzzXMcEf2mD9LFG0nVEe6CQRH2MgS4fFA0Wi8IoPc/pTcq2ZMzbl5YQTphNKvuE
-Bxr68/IkhfgudJTYKRcKP3oWPZ3z7/Pfzi8bt46n0w4cSNKS+bBt1k5aKunmzT5U2ibySfQRVChA
-Vwut6TaaG9UTmhbQoMIgjGjBECgMKqSWTgkhKVkX0ehEQGShSKRUhSKSS9ZbYMV1EkHxiRUdR0yy
-VJX1wfCvSM8KSfyNJP2OkmWNKLR+lJ7JlcemzLlJadjCeo/JHST3IcwdKIk5T8YPCM8yeNwYSRK1
-FWkif4kif0h/5QikUI4gn/xdyRThQkMP3RjE
 
---nextPart3762602.0SCRtIrO20--
+Do I need the i2c_set_clientdata(..) call at all?
+
+>> +     return 0;
+>> +
+>> +err_free_irq:
+>> +     free_irq(client->irq, ar1021);
+>> +err_free_mem:
+>> +     input_free_device(input);
+>> +
+>> +     return error;
+>> +}
+>> +
+>> +static int ar1021_i2c_remove(struct i2c_client *client)
+>> +{
+>> +     struct ar1021_i2c *ar1021 = i2c_get_clientdata(client);
+>> +
+>> +     free_irq(client->irq, ar1021);
+>> +     input_unregister_device(ar1021->input);
+>> +
+>> +     return 0;
+>> +}
+>
+> If you use devm throughout you won't need ar1021_i2c_remove method at
+> all.
+>
+
+Correct.. will do it in the final patch.
+
+>> +
+>> +#ifdef CONFIG_PM_SLEEP
+>> +static int ar1021_i2c_suspend(struct device *dev)
+>> +{
+>> +     struct i2c_client *client = to_i2c_client(dev);
+>> +
+>> +     disable_irq(client->irq);
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static int ar1021_i2c_resume(struct device *dev)
+>> +{
+>> +     struct i2c_client *client = to_i2c_client(dev);
+>> +
+>> +     enable_irq(client->irq);
+>
+> You do not want to enable IRQ if there are no users (nobody opened
+> device).
+>
+
+Okay.. but then I also do not need the disable_irq(..) call in
+ar1021_i2c_suspend
+and can totally remove the PM stuff - or?
+
+>> +
+>> +     return 0;
+>> +}
+>> +#endif
+>> +
+>> +static SIMPLE_DEV_PM_OPS(ar1021_i2c_pm, ar1021_i2c_suspend, ar1021_i2c_resume);
+>> +
+>> +static const struct i2c_device_id ar1021_i2c_id[] = {
+>> +     { "MICROCHIP_AR1021_I2C", 0 },
+>> +     { },
+>> +};
+>> +MODULE_DEVICE_TABLE(i2c, ar1021_i2c_id);
+>> +
+>> +#ifdef CONFIG_OF
+>> +static struct of_device_id ar1021_i2c_of_match[] = {
+>> +     { .compatible = "mc,ar1021-i2c", },
+>> +     { },
+>> +};
+>> +MODULE_DEVICE_TABLE(of, ar1021_i2c_of_match);
+>> +#endif
+>> +
+>> +static struct i2c_driver ar1021_i2c_driver = {
+>> +     .driver = {
+>> +             .name   = "ar1021_i2c",
+>> +             .owner  = THIS_MODULE,
+>> +             .pm     = &ar1021_i2c_pm,
+>> +             .of_match_table = of_match_ptr(ar1021_i2c_of_match),
+>> +     },
+>> +
+>> +     .probe          = ar1021_i2c_probe,
+>> +     .remove         = ar1021_i2c_remove,
+>> +     .id_table       = ar1021_i2c_id,
+>> +};
+>> +module_i2c_driver(ar1021_i2c_driver);
+>> +
+>> +MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
+>> +MODULE_DESCRIPTION("Microchip AR1021 I2C Driver");
+>> +MODULE_LICENSE("GPL");
+>> +MODULE_ALIAS("platform:ar1021_i2c");
+>
+> Why platform if it is I2C driver? This MODULE_ALIAS is not needed at
+> all.
+
+Ok
+
+Thanks
+--
+Christian Gmeiner, MSc

@@ -1,308 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RFC] Input: Add Microchip AR1021 i2c touchscreen
-Date: Thu, 30 Jan 2014 17:01:31 -0800
-Message-ID: <20140131010131.GA29566@core.coreip.homeip.net>
-References: <1391074185-26973-1-git-send-email-christian.gmeiner@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Sony Vaio Duo 11: getting middle mouse button to work
+Date: Thu, 30 Jan 2014 22:50:25 -0500
+Message-ID: <CAN+gG=HAXE4LT_tN+3tE8-T_L5g+2HAE35CN+z8KCEQcmJ=JWw@mail.gmail.com>
+References: <1674012.xCMptsh8XR@myon.chronox.de>
+	<2981174.bDZe6OjLCj@myon.chronox.de>
+	<CAN+gG=F_L1UdSqpi2d--JeerADT66s2d04t8hv+ZoVSL6dQgbg@mail.gmail.com>
+	<2193004.SWLhWZ2AvA@tauon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f45.google.com ([209.85.220.45]:38694 "EHLO
-	mail-pa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752983AbaAaBBg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jan 2014 20:01:36 -0500
-Received: by mail-pa0-f45.google.com with SMTP id lf10so3806198pab.18
-        for <linux-input@vger.kernel.org>; Thu, 30 Jan 2014 17:01:35 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1391074185-26973-1-git-send-email-christian.gmeiner@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <2193004.SWLhWZ2AvA@tauon>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Stephan Mueller <smueller@chronox.de>
+Cc: Mattia Dongili <malattia@linux.it>, platform-driver-x86@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Christian,
+On Thu, Jan 30, 2014 at 5:07 PM, Stephan Mueller <smueller@chronox.de> wrote:
+> Am Donnerstag, 30. Januar 2014, 16:44:02 schrieb Benjamin Tissoires:
+>
+> Hi Benjamin,
+>
+>>Hi Stephan,
+>>
+>>thanks for the traces.
+>>Well, the device definitively presents an Output and an Input report
+>>on the report ID 2. That means that the windows driver can send and
+>>read configuration to the trackpoint through this report.
+>>
+>>I think our best chance here is to capture the initialization protocol
+>>from a Windows virtual machine, and then mimic the behavior under
+>>Linux.
+>
+> Thanks.
+>
+> Can you please help me how to do that? I install Windows in a KVM with
+> the mouse device as a USB-passthrough device -- shall I detach the Linux
+> USB driver?
 
-On Thu, Jan 30, 2014 at 10:29:45AM +0100, Christian Gmeiner wrote:
-> This driver is quite simple and only supports the Touch
-> Reporting Protocol.
+No, you don't have to detach the Linux USB driver (it's done for you
+by KVM IIRC).
 
-Pretty clean and neat, just a few comments.
+>
+> Now, shall I use hid-recorder on that device or rather usbmon while
+> Windows is booting?
 
-> 
-> Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-> ---
->  drivers/input/touchscreen/Kconfig      |   12 ++
->  drivers/input/touchscreen/Makefile     |    1 +
->  drivers/input/touchscreen/ar1021_i2c.c |  201 ++++++++++++++++++++++++++++++++
->  3 files changed, 214 insertions(+)
->  create mode 100644 drivers/input/touchscreen/ar1021_i2c.c
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 07e9e82..15cc9a1 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -86,6 +86,18 @@ config TOUCHSCREEN_AD7879_SPI
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called ad7879-spi.
->  
-> +config TOUCHSCREEN_AR1021_I2C
-> +	tristate "Microchip AR1021 i2c touchscreen"
-> +	depends on I2C && OF
-> +	help
-> +	  Say Y here if you have the Microchip AR1021 touchscreen controller
-> +	  chip in your system.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called microchip_ar1021_i2c.
+usbmon is the tool you need. hid-recorder will not work because the
+hid subsystem will be disconnected as the device is used by Windows.
 
-s/microchip_ar1021_i2c/ar1021_i2c
+You can even use wireshark now. It gives you a nice interface and
+interpretation of the USB packets :)
 
-> +
->  config TOUCHSCREEN_ATMEL_MXT
->  	tristate "Atmel mXT I2C Touchscreen"
->  	depends on I2C
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-> index 62801f2..efaa328 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -12,6 +12,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879)	+= ad7879.o
->  obj-$(CONFIG_TOUCHSCREEN_AD7879_I2C)	+= ad7879-i2c.o
->  obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
->  obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
-> +obj-$(CONFIG_TOUCHSCREEN_AR1021_I2C)	+= ar1021_i2c.o
->  obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+= atmel_mxt_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)	+= atmel_tsadcc.o
->  obj-$(CONFIG_TOUCHSCREEN_AUO_PIXCIR)	+= auo-pixcir-ts.o
-> diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-> new file mode 100644
-> index 0000000..c77ce05
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/ar1021_i2c.c
-> @@ -0,0 +1,201 @@
-> +/*
-> + * Microchip AR1021 driver for I2C
-> + *
-> + * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
-> + *
-> + * License: GPL as published by the FSF.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/input.h>
-> +#include <linux/of.h>
-> +#include <linux/i2c.h>
-> +#include <linux/slab.h>
-> +#include <linux/irq.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/gpio.h>
-> +#include <asm/unaligned.h>
-> +
-> +#define AR1021_TOCUH_PKG_SIZE	5
-> +
-> +struct ar1021_i2c {
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	u8 data[AR1021_TOCUH_PKG_SIZE];
-> +};
-> +
-> +static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
-> +{
-> +	struct ar1021_i2c *ar1021 = dev_id;
-> +	struct input_dev *input = ar1021->input;
-> +	u8 *data = ar1021->data;
-> +	unsigned int x, y, button;
-> +	int error;
-> +
-> +	error = i2c_master_recv(ar1021->client,
-> +				ar1021->data, sizeof(ar1021->data));
-> +	if (error < 0)
-> +		goto out;
-> +
-> +	button = !(data[0] & BIT(0));
-> +	x = ((data[2] & 0x1f) << 7) | (data[1] & 0x7f);
-> +	y = ((data[4] & 0x1f) << 7) | (data[3] & 0x7f);
-> +
-> +	input_report_key(input, BTN_TOUCH, button);
-> +	input_report_abs(input, ABS_X, x);
-> +	input_report_abs(input, ABS_Y, y);
-> +	input_sync(input);
-> +
-> +out:
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int ar1021_i2c_open(struct input_dev *dev)
-> +{
-> +	struct ar1021_i2c *wac_i2c = input_get_drvdata(dev);
-> +	struct i2c_client *client = wac_i2c->client;
-> +
-> +	enable_irq(client->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +static void ar1021_i2c_close(struct input_dev *dev)
-> +{
-> +	struct ar1021_i2c *wac_i2c = input_get_drvdata(dev);
-> +	struct i2c_client *client = wac_i2c->client;
-> +
-> +	disable_irq(client->irq);
-> +}
-> +
-> +static int ar1021_i2c_probe(struct i2c_client *client,
-> +				     const struct i2c_device_id *id)
-> +{
-> +	struct ar1021_i2c *ar1021;
-> +	struct input_dev *input;
-> +	int error;
-> +
-> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-> +		dev_err(&client->dev, "i2c_check_functionality error\n");
-> +		return -EIO;
-> +	}
-> +
-> +	ar1021 = devm_kzalloc(client->dev, sizeof(*ar1021), GFP_KERNEL);
-> +	input = input_allocate_device();
-
-Use devm_input_allocate_device() and later devm_request_threaded_irq()
-as well.
-
-> +	if (!ar1021 || !input) {
-> +		error = -ENOMEM;
-> +		goto err_free_mem;
-> +	}
-> +
-> +	ar1021->client = client;
-> +	ar1021->input = input;
-> +
-> +	input->name = "ar1021 I2C Touchscreen";
-> +	input->id.bustype = BUS_I2C;
-> +	input->dev.parent = &client->dev;
-> +	input->open = ar1021_i2c_open;
-> +	input->close = ar1021_i2c_close;
-> +
-> +	input->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> +
-> +	__set_bit(BTN_TOOL_PEN, input->keybit);
-> +
-> +	input_set_abs_params(input, ABS_X, 0, 4095, 0, 0);
-> +	input_set_abs_params(input, ABS_Y, 0, 4095, 0, 0);
-> +
-> +	input_set_drvdata(input, ar1021);
-> +
-> +	error = request_threaded_irq(client->irq, NULL, ar1021_i2c_irq,
-> +				     IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +				     "ar1021_i2c", ar1021);
-> +	if (error) {
-> +		dev_err(&client->dev,
-> +			"Failed to enable IRQ, error: %d\n", error);
-> +		goto err_free_mem;
-> +	}
-> +
-> +	/* Disable the IRQ, we'll enable it in wac_i2c_open() */
-
-No, not in wac_i2c_open ;) It looks like you might want to update
-copyright notice to mentioned what driver you used as a base...
-
-> +	disable_irq(client->irq);
-> +
-> +	error = input_register_device(ar1021->input);
-> +	if (error) {
-> +		dev_err(&client->dev,
-> +			"Failed to register input device, error: %d\n", error);
-> +		goto err_free_irq;
-> +	}
-> +
-> +	i2c_set_clientdata(client, ar1021);
-> +	return 0;
-> +
-> +err_free_irq:
-> +	free_irq(client->irq, ar1021);
-> +err_free_mem:
-> +	input_free_device(input);
-> +
-> +	return error;
-> +}
-> +
-> +static int ar1021_i2c_remove(struct i2c_client *client)
-> +{
-> +	struct ar1021_i2c *ar1021 = i2c_get_clientdata(client);
-> +
-> +	free_irq(client->irq, ar1021);
-> +	input_unregister_device(ar1021->input);
-> +
-> +	return 0;
-> +}
-
-If you use devm throughout you won't need ar1021_i2c_remove method at
-all.
-
-> +
-> +#ifdef CONFIG_PM_SLEEP
-> +static int ar1021_i2c_suspend(struct device *dev)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +
-> +	disable_irq(client->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +static int ar1021_i2c_resume(struct device *dev)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +
-> +	enable_irq(client->irq);
-
-You do not want to enable IRQ if there are no users (nobody opened
-device).
-
-> +
-> +	return 0;
-> +}
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(ar1021_i2c_pm, ar1021_i2c_suspend, ar1021_i2c_resume);
-> +
-> +static const struct i2c_device_id ar1021_i2c_id[] = {
-> +	{ "MICROCHIP_AR1021_I2C", 0 },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(i2c, ar1021_i2c_id);
-> +
-> +#ifdef CONFIG_OF
-> +static struct of_device_id ar1021_i2c_of_match[] = {
-> +	{ .compatible = "mc,ar1021-i2c", },
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(of, ar1021_i2c_of_match);
-> +#endif
-> +
-> +static struct i2c_driver ar1021_i2c_driver = {
-> +	.driver	= {
-> +		.name	= "ar1021_i2c",
-> +		.owner	= THIS_MODULE,
-> +		.pm	= &ar1021_i2c_pm,
-> +		.of_match_table = of_match_ptr(ar1021_i2c_of_match),
-> +	},
-> +
-> +	.probe		= ar1021_i2c_probe,
-> +	.remove		= ar1021_i2c_remove,
-> +	.id_table	= ar1021_i2c_id,
-> +};
-> +module_i2c_driver(ar1021_i2c_driver);
-> +
-> +MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
-> +MODULE_DESCRIPTION("Microchip AR1021 I2C Driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:ar1021_i2c");
-
-Why platform if it is I2C driver? This MODULE_ALIAS is not needed at
-all.
-
-Thanks.
-
--- 
-Dmitry
+Cheers,
+Benjamin

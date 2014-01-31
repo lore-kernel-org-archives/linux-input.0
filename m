@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5/7] Input: xpad: disconnect all Wireless controllers at init
-Date: Fri, 31 Jan 2014 14:03:32 +0100
-Message-ID: <1391173414-6199-6-git-send-email-gregkh@linuxfoundation.org>
+Subject: [PATCH 6/7] Input: xpad: handle "present" and "gone" correctly
+Date: Fri, 31 Jan 2014 14:03:33 +0100
+Message-ID: <1391173414-6199-7-git-send-email-gregkh@linuxfoundation.org>
 References: <1391173414-6199-1-git-send-email-gregkh@linuxfoundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:47831 "EHLO
+Received: from mail.linuxfoundation.org ([140.211.169.12]:47835 "EHLO
 	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932241AbaAaNDD (ORCPT
+	with ESMTP id S932241AbaAaNDG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Jan 2014 08:03:03 -0500
+	Fri, 31 Jan 2014 08:03:06 -0500
 In-Reply-To: <1391173414-6199-1-git-send-email-gregkh@linuxfoundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -17,112 +17,121 @@ Cc: linux-input@vger.kernel.org, "Pierre-Loup A. Griffais" <pgriffais@valvesoftw
 
 From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 
-We initializing the driver/device, we really don't know how many
-controllers are connected.  So send a "disconnect all" command to the
-base-station, and let the user pair the controllers in the order in
-which they want them assigned.
+Handle the "a new device is present" message properly by dynamically
+creating the input device at this point in time.  This requires a
+workqueue as we are in interrupt context when we learn about this.
 
-Note, this means we now do not "preallocate" all 4 devices when a single
-wireless base station is seen, but require the device to be properly
-connected to the base station before that can happen.  The allocation of
-the device happens in the next patch, not here, so in a way, this patch
-breaks all wireless devices...
-
-Because we want to talk to the device, we have to set up the output urbs
-no matter if we have CONFIG_JOYSTICK_XPAD_FF or
-CONFIG_JOYSTICK_XPAD_LEDS enabled not, so take out the code that allows
-those variables and code to be disabled (it's so small it should never
-matter...)
+Also properly disconnect any devices that we are told are removed.
 
 Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/xpad.c | 46 ++++++++++++++++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 12 deletions(-)
+ drivers/input/joystick/xpad.c | 50 ++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 40 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 7997ae89a877..7a07b95790d7 100644
+index 7a07b95790d7..d342d41a7a0d 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -278,12 +278,10 @@ struct usb_xpad {
- 	struct urb *bulk_out;
- 	unsigned char *bdata;
+@@ -293,8 +293,11 @@ struct usb_xpad {
+ 	int xtype;			/* type of xbox device */
+ 	int joydev_id;			/* the minor of the device */
+ 	const char *name;		/* name of the device */
++	struct work_struct work;	/* to init/remove device from callback */
+ };
  
--#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
- 	struct urb *irq_out;		/* urb for interrupt out report */
- 	unsigned char *odata;		/* output data */
- 	dma_addr_t odata_dma;
- 	struct mutex odata_mutex;
--#endif
- 
- #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
- 	struct xpad_led *led;
-@@ -537,7 +535,6 @@ static void xpad_bulk_out(struct urb *urb)
- 	}
- }
- 
--#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
- static void xpad_irq_out(struct urb *urb)
- {
- 	struct usb_xpad *xpad = urb->context;
-@@ -623,11 +620,6 @@ static void xpad_deinit_output(struct usb_xpad *xpad)
- 				xpad->odata, xpad->odata_dma);
- 	}
- }
--#else
--static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
--static void xpad_deinit_output(struct usb_xpad *xpad) {}
--static void xpad_stop_output(struct usb_xpad *xpad) {}
--#endif
- 
- #ifdef CONFIG_JOYSTICK_XPAD_FF
- static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
-@@ -1091,11 +1083,41 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 			usb_kill_urb(xpad->irq_in);
- 			goto fail9;
- 		}
++static int xpad_init_input(struct usb_xpad *xpad);
 +
-+		/*
-+		 * We don't know how to check the controller state at driver
-+		 * load, so just disconnect them all, requiring the user to
-+		 * repair the device in the order they want them used.  Good
-+		 * point is that we don't connect devices in "random" order,
-+		 * but the extra step seems a bit harsh as other operating
-+		 * systems don't require this at the moment.
-+		 *
-+		 * Power-off packet information came from an OS-X
-+		 * reverse-engineered driver located at:
-+		 * http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/OsxDriver#toc1
-+		 */
-+		mutex_lock(&xpad->odata_mutex);
-+		xpad->odata[0] = 0x00;
-+		xpad->odata[1] = 0x00;
-+		xpad->odata[2] = 0x08;
-+		xpad->odata[3] = 0xC0;
-+		xpad->odata[4] = 0x00;
-+		xpad->odata[5] = 0x00;
-+		xpad->odata[6] = 0x00;
-+		xpad->odata[7] = 0x00;
-+		xpad->odata[8] = 0x00;
-+		xpad->odata[9] = 0x00;
-+		xpad->odata[10] = 0x00;
-+		xpad->odata[11] = 0x00;
-+		xpad->irq_out->transfer_buffer_length = 12;
-+		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+		mutex_unlock(&xpad->odata_mutex);
-+	} else {
-+		xpad->pad_present = 1;
+ /*
+  *	xpad_process_packet
+  *
+@@ -437,6 +440,22 @@ static void xpad360_process_packet(struct usb_xpad *xpad,
+ 	input_sync(dev);
+ }
+ 
++static void presence_work_function(struct work_struct *work)
++{
++	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work);
++	int error;
++
++	if (xpad->pad_present) {
 +		error = xpad_init_input(xpad);
-+		if (error)
-+			goto fail9;
++		if (error) {
++			/* complain only, not much else we can do here */
++			dev_err(&xpad->dev->dev, "unable to init device\n");
++		}
++	} else {
++		input_unregister_device(xpad->dev);
++	}
++}
++
+ /*
+  * xpad360w_process_packet
+  *
+@@ -451,16 +470,22 @@ static void xpad360_process_packet(struct usb_xpad *xpad,
+  * 01.1 - Pad state (Bytes 4+) valid
+  *
+  */
+-
+ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
+ {
+ 	/* Presence change */
+ 	if (data[0] & 0x08) {
+ 		if (data[1] & 0x80) {
+-			xpad->pad_present = 1;
+-			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
+-		} else
+-			xpad->pad_present = 0;
++			if (!xpad->pad_present) {
++				xpad->pad_present = 1;
++				usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
++				schedule_work(&xpad->work);
++			}
++		} else {
++			if (xpad->pad_present) {
++				xpad->pad_present = 0;
++				schedule_work(&xpad->work);
++			}
++		}
  	}
--	xpad->pad_present = 1;
--	error = xpad_init_input(xpad);
--	if (error)
--		goto fail9;
  
- 	return 0;
+ 	/* Valid pad data */
+@@ -507,10 +532,13 @@ static void xpad_irq_in(struct urb *urb)
+ 	}
  
+ exit:
+-	retval = usb_submit_urb(urb, GFP_ATOMIC);
+-	if (retval)
+-		dev_err(dev, "%s - usb_submit_urb failed with result %d\n",
+-			__func__, retval);
++	if (xpad->pad_present) {
++		retval = usb_submit_urb(urb, GFP_ATOMIC);
++		if (retval)
++			dev_err(dev,
++				"%s - usb_submit_urb failed with result %d\n",
++				__func__, retval);
++	}
+ }
+ 
+ static void xpad_bulk_out(struct urb *urb)
+@@ -991,6 +1019,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	xpad->mapping = xpad_device[i].mapping;
+ 	xpad->xtype = xpad_device[i].xtype;
+ 	xpad->name = xpad_device[i].name;
++	INIT_WORK(&xpad->work, presence_work_function);
+ 
+ 	if (xpad->xtype == XTYPE_UNKNOWN) {
+ 		if (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC) {
+@@ -1136,7 +1165,8 @@ static void xpad_disconnect(struct usb_interface *intf)
+ 	struct usb_xpad *xpad = usb_get_intfdata (intf);
+ 
+ 	xpad_led_disconnect(xpad);
+-	input_unregister_device(xpad->dev);
++	if (xpad->pad_present)
++		input_unregister_device(xpad->dev);
+ 	xpad_deinit_output(xpad);
+ 
+ 	if (xpad->xtype == XTYPE_XBOX360W) {
 -- 
 1.8.5.3
 

@@ -1,72 +1,62 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Sony Vaio Duo 11: getting middle mouse button to work
-Date: Fri, 31 Jan 2014 11:20:10 -0500
-Message-ID: <CAN+gG=EB5DguOQ7+ZdUbRFcBt3qj3qeW6kiq-eJP7SCFjrsriA@mail.gmail.com>
-References: <1674012.xCMptsh8XR@myon.chronox.de>
-	<2193004.SWLhWZ2AvA@tauon>
-	<CAN+gG=HAXE4LT_tN+3tE8-T_L5g+2HAE35CN+z8KCEQcmJ=JWw@mail.gmail.com>
-	<13914184.mVhhUrzN60@myon.chronox.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RFC] Input: Add Microchip AR1021 i2c touchscreen
+Date: Fri, 31 Jan 2014 09:15:21 -0800
+Message-ID: <20140131171521.GA20872@core.coreip.homeip.net>
+References: <1391074185-26973-1-git-send-email-christian.gmeiner@gmail.com>
+ <20140131010131.GA29566@core.coreip.homeip.net>
+ <CAH9NwWfb1zVrgeKB7+fPyS80yC6BuokvmA4TE0tr7BAs_jwQSA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <13914184.mVhhUrzN60@myon.chronox.de>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Stephan Mueller <smueller@chronox.de>
-Cc: Mattia Dongili <malattia@linux.it>, platform-driver-x86@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pb0-f54.google.com ([209.85.160.54]:43819 "EHLO
+	mail-pb0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932331AbaAaRPZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 31 Jan 2014 12:15:25 -0500
+Received: by mail-pb0-f54.google.com with SMTP id uo5so4695637pbc.27
+        for <linux-input@vger.kernel.org>; Fri, 31 Jan 2014 09:15:25 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CAH9NwWfb1zVrgeKB7+fPyS80yC6BuokvmA4TE0tr7BAs_jwQSA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Jan 30, 2014 at 11:31 PM, Stephan Mueller <smueller@chronox.de> wrote:
-> Am Donnerstag, 30. Januar 2014, 22:50:25 schrieb Benjamin Tissoires:
->
-> Hi Benjamin,
->
->> > Can you please help me how to do that? I install Windows in a KVM with
->> > the mouse device as a USB-passthrough device -- shall I detach the Linux
->> > USB driver?
->>
->> No, you don't have to detach the Linux USB driver (it's done for you
->> by KVM IIRC).
->
-> Correct, libvirtd is the one that detaches the driver when I start the VM.
->>
->> > Now, shall I use hid-recorder on that device or rather usbmon while
->> > Windows is booting?
->>
->> usbmon is the tool you need. hid-recorder will not work because the
->> hid subsystem will be disconnected as the device is used by Windows.
->>
->> You can even use wireshark now. It gives you a nice interface and
->> interpretation of the USB packets :)
->
-> Please see attached for the USB sniffing on the USB bus with the Crucialtec
-> touch pad when Windows starts up and shuts down. To drive the device, Windows
-> uses the Crucialtec driver according to its device settings display.
->
-> The attached log contains the log information for the mouse (device 001:005)
-> and the USB bridge (device 001:002). I cut out the listing for the touch pad
-> which is also attached to that bridge.
->
-> The strange thing, however, is the following: the mouse works in Windows when
-> I do not sniff on the USB bus using usbmon. But as soon as I start sniffing,
-> it does not work any more.
->
-> Is that log helpful?
+Hi Chrisitian,
 
-Not really :(
-I would have expected to see something like that:
-XXXXXXXXXXXXXXXX XXXXXXXXXX S Co:1:XXX:0 s 21 09 0202 0002 0004 4 = XXXXXXXX
-XXXXXXXXXXXXXXXX XXXXXXXXXX C Co:1:XXX:0 0 4 >
+On Fri, Jan 31, 2014 at 12:40:19PM +0100, Christian Gmeiner wrote:
+> >> --- /dev/null
+> >> +++ b/drivers/input/touchscreen/ar1021_i2c.c
+> >> @@ -0,0 +1,201 @@
+> >> +/*
+> >> + * Microchip AR1021 driver for I2C
+> >> + *
+> >> + * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
+> >> + *
+> >> + * License: GPL as published by the FSF.
 
-(SET_REPORT on the report ID 02 with a data length of 4)
+By the way, you probably do not want GPL v1 to apply... Maybe say GPL v2
+or GPL v2 and later (depending on your preference and the license of the
+code you used as a base)?
 
-The capture seems to confuse the windows driver and it is not
-initialized correctly.
+> >> +
+> >> +static int ar1021_i2c_resume(struct device *dev)
+> >> +{
+> >> +     struct i2c_client *client = to_i2c_client(dev);
+> >> +
+> >> +     enable_irq(client->irq);
+> >
+> > You do not want to enable IRQ if there are no users (nobody opened
+> > device).
+> >
+> 
+> Okay.. but then I also do not need the disable_irq(..) call in
+> ar1021_i2c_suspend
+> and can totally remove the PM stuff - or?
 
-Long shot: maybe if you start the capture before attaching the device
-to the Windows VM (or launching it) it will be in a better shape.
+No, I think you still need the PM methods, you just need to check if
+device is opened (take dev->mutex, check dev->users) and decide if you
+need to enable/disable IRQ or not.
 
-I would say that as long as the device do not work under the VM with
-the capture, we are really screwed.
-
-Cheers,
-Benjamin
+-- 
+Dmitry

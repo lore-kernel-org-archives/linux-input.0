@@ -1,40 +1,39 @@
 From: Frank Praznik <frank.praznik@oh.rr.com>
-Subject: [PATCH 2/6] HID: hidp: Store the device MAC in client_addr.
-Date: Fri, 31 Jan 2014 12:32:49 -0500
-Message-ID: <1391189573-2591-3-git-send-email-frank.praznik@oh.rr.com>
+Subject: [PATCH 1/6] HID: Add the client_addr member to the hid_device struct
+Date: Fri, 31 Jan 2014 12:32:48 -0500
+Message-ID: <1391189573-2591-2-git-send-email-frank.praznik@oh.rr.com>
 References: <1391189573-2591-1-git-send-email-frank.praznik@oh.rr.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:34862 "EHLO
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:52176 "EHLO
 	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932630AbaAaRdD (ORCPT
+	with ESMTP id S932515AbaAaRdC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Jan 2014 12:33:03 -0500
+	Fri, 31 Jan 2014 12:33:02 -0500
 In-Reply-To: <1391189573-2591-1-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, dh.herrmann@gmail.com, Frank Praznik <frank.praznik@oh.rr.com>
 
-Have hidp store the client device MAC address in client_addr
+Add the client_addr member to the hid_device struct for storing the client
+address of a connected device.
 
 Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 ---
- net/bluetooth/hidp/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/hid.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index 292e619..f256f33 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -772,6 +772,9 @@ static int hidp_setup_hid(struct hidp_session *session,
- 	snprintf(hid->uniq, sizeof(hid->uniq), "%pMR",
- 		 &l2cap_pi(session->ctrl_sock->sk)->chan->dst);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 31b9d29..283fc6e 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -495,6 +495,7 @@ struct hid_device {							/* device report descriptor */
+ 	char name[128];							/* Device name */
+ 	char phys[64];							/* Device physical location */
+ 	char uniq[64];							/* Device unique identifier (serial #) */
++	__u8 client_addr[6];						/* Device client address (if wireless) */
  
-+	memcpy(hid->client_addr, &l2cap_pi(session->ctrl_sock->sk)->chan->dst,
-+		sizeof(hid->client_addr));
-+
- 	hid->dev.parent = &session->conn->hcon->dev;
- 	hid->ll_driver = &hidp_hid_driver;
+ 	void *driver_data;
  
 -- 
 1.8.5.3

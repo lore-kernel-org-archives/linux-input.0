@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 02/11] HID: i2c-hid: implement ll_driver transport-layer callbacks
-Date: Sat,  1 Feb 2014 23:50:21 -0500
-Message-ID: <1391316630-29541-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 07/11] HID: HIDp: remove duplicated coded
+Date: Sat,  1 Feb 2014 23:50:26 -0500
+Message-ID: <1391316630-29541-8-git-send-email-benjamin.tissoires@redhat.com>
 References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -9,56 +9,107 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add output_report and raw_request to i2c-hid.
-Hopefully, we will manage to have the same transport level between
-all the transport drivers.
+- Move hidp_output_report() above
+- Removed duplicated code in hidp_output_raw_report()
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/i2c-hid/i2c-hid.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ net/bluetooth/hidp/core.c | 68 ++++++++---------------------------------------
+ 1 file changed, 11 insertions(+), 57 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index ce68a12..5099f1f 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -574,6 +574,28 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 469e61b..02670b3 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -373,62 +373,25 @@ err:
  	return ret;
  }
  
-+static int i2c_hid_output_report(struct hid_device *hid, __u8 *buf,
-+		size_t count)
-+{
-+	return i2c_hid_output_raw_report(hid, buf, count, HID_OUTPUT_REPORT);
-+}
-+
-+static int i2c_hid_raw_request(struct hid_device *hid, unsigned char reportnum,
-+			       __u8 *buf, size_t len, unsigned char rtype,
-+			       int reqtype)
-+{
-+	switch (reqtype) {
-+	case HID_REQ_GET_REPORT:
-+		return i2c_hid_get_raw_report(hid, reportnum, buf, len, rtype);
-+	case HID_REQ_SET_REPORT:
-+		if (buf[0] != reportnum)
-+			return -EINVAL;
-+		return i2c_hid_output_raw_report(hid, buf, len, rtype);
-+	default:
-+		return -EIO;
-+	}
-+}
-+
- static void i2c_hid_request(struct hid_device *hid, struct hid_report *rep,
- 		int reqtype)
+-static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data, size_t count,
+-		unsigned char report_type)
++static int hidp_output_report(struct hid_device *hid, __u8 *data, size_t count)
  {
-@@ -761,6 +783,8 @@ static struct hid_ll_driver i2c_hid_ll_driver = {
- 	.close = i2c_hid_close,
- 	.power = i2c_hid_power,
- 	.request = i2c_hid_request,
-+	.output_report = i2c_hid_output_report,
-+	.raw_request = i2c_hid_raw_request,
- };
+ 	struct hidp_session *session = hid->driver_data;
+-	int ret;
  
- static int i2c_hid_init_irq(struct i2c_client *client)
++	return hidp_send_intr_message(session,
++				      HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT,
++				      data, count);
++}
++
++static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data,
++		size_t count, unsigned char report_type)
++{
+ 	if (report_type == HID_OUTPUT_REPORT) {
+-		report_type = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
+-		return hidp_send_intr_message(session, report_type,
+-					      data, count);
++		return hidp_output_report(hid, data, count);
+ 	} else if (report_type != HID_FEATURE_REPORT) {
+ 		return -EINVAL;
+ 	}
+ 
+-	if (mutex_lock_interruptible(&session->report_mutex))
+-		return -ERESTARTSYS;
+-
+-	/* Set up our wait, and send the report request to the device. */
+-	set_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
+-	report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE;
+-	ret = hidp_send_ctrl_message(session, report_type, data, count);
+-	if (ret)
+-		goto err;
+-
+-	/* Wait for the ACK from the device. */
+-	while (test_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags) &&
+-	       !atomic_read(&session->terminate)) {
+-		int res;
+-
+-		res = wait_event_interruptible_timeout(session->report_queue,
+-			!test_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags)
+-				|| atomic_read(&session->terminate),
+-			10*HZ);
+-		if (res == 0) {
+-			/* timeout */
+-			ret = -EIO;
+-			goto err;
+-		}
+-		if (res < 0) {
+-			/* signal */
+-			ret = -ERESTARTSYS;
+-			goto err;
+-		}
+-	}
+-
+-	if (!session->output_report_success) {
+-		ret = -EIO;
+-		goto err;
+-	}
+-
+-	ret = count;
+-
+-err:
+-	clear_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
+-	mutex_unlock(&session->report_mutex);
+-	return ret;
++	return hidp_set_raw_report(hid, data[0], data, count, report_type);
+ }
+ 
+ static int hidp_raw_request(struct hid_device *hid, unsigned char reportnum,
+@@ -445,15 +408,6 @@ static int hidp_raw_request(struct hid_device *hid, unsigned char reportnum,
+ 	}
+ }
+ 
+-static int hidp_output_report(struct hid_device *hid, __u8 *data, size_t count)
+-{
+-	struct hidp_session *session = hid->driver_data;
+-
+-	return hidp_send_intr_message(session,
+-				      HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT,
+-				      data, count);
+-}
+-
+ static void hidp_idle_timeout(unsigned long arg)
+ {
+ 	struct hidp_session *session = (struct hidp_session *) arg;
 -- 
 1.8.3.1

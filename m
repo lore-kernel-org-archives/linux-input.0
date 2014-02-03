@@ -1,83 +1,123 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 01/11] HID: uHID: implement .raw_request
-Date: Mon, 3 Feb 2014 16:26:21 +0100
-Message-ID: <CANq1E4RD0OVTSVOXHPTchop0Y0q0p1_NEZZexSE4kvkp-17TKw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 05/11] HID: HIDp: remove hidp_hidinput_event
+Date: Mon, 3 Feb 2014 10:28:18 -0500
+Message-ID: <CAN+gG=GR7kfRYzTW6NQ_anHFpgXOyCWezafMEnJxXqYXkrO1-A@mail.gmail.com>
 References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1391316630-29541-2-git-send-email-benjamin.tissoires@redhat.com>
+	<1391316630-29541-6-git-send-email-benjamin.tissoires@redhat.com>
+	<CANq1E4S+RLDpDd+zxgBRKsEw0-29un9mzS5jYBcoeJgQf5Upjg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f171.google.com ([209.85.223.171]:46384 "EHLO
-	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751472AbaBCP0V (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 10:26:21 -0500
-In-Reply-To: <1391316630-29541-2-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CANq1E4S+RLDpDd+zxgBRKsEw0-29un9mzS5jYBcoeJgQf5Upjg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi
-
-On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> It was missing, so adding it.
+On Mon, Feb 3, 2014 at 10:10 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
 >
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/hid/uhid.c | 17 +++++++++++++++++
->  1 file changed, 17 insertions(+)
+> On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> hidp uses its own ->hidinput_input_event() instead of the generic binding
+>> in hid-input.
+>> Moving the handling of LEDs towards hidp_hidinput_event() allows two things:
+>> - remove hidinput_input_event definitively from struct hid_device
+>> - hidraw user space programs can also set the LEDs
 >
-> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-> index f5a2b19..438c9f1 100644
-> --- a/drivers/hid/uhid.c
-> +++ b/drivers/hid/uhid.c
-> @@ -270,6 +270,22 @@ static int uhid_hid_output_report(struct hid_device *hid, __u8 *buf,
->         return count;
->  }
+> This one looks good. hid-input uses output_raw_report(), which is on
+> INTR for BT-HID, which is equivalent to what hidp_send_report() does.
+> So:
 >
-> +static int uhid_raw_request(struct hid_device *hid, unsigned char reportnum,
-> +                           __u8 *buf, size_t len, unsigned char rtype,
-> +                           int reqtype)
-> +{
-> +       switch (reqtype) {
-> +       case HID_REQ_GET_REPORT:
-> +               return uhid_hid_get_raw(hid, reportnum, buf, len, rtype);
-> +       case HID_REQ_SET_REPORT:
-> +               if (buf[0] != reportnum)
-> +                       return -EINVAL;
-> +               return uhid_hid_output_raw(hid, buf, len, rtype);
-
-But that one looks wrong. UHID does not have any SET_REPORT query in
-the protocol, yet. You turn a SET_REPORT into an OUTPUT_REPORT here.
-So if user-space gets the UHID_OUTPUT event, it doesn't know whether
-to send a SET_REPORT@ctrl to the device, or an async
-OUTPUT_REPORT@intr. This at least matters for low-energy BT in bluez,
-which uses uhid.
-
-So we'd have to add an UHID_SET_REPORT event. Note that currently
-UHID_FEATURE is the equivalent of UHID_GET_REPORT, but just horribly
-named..
+> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
 Thanks
-David
 
-> +       default:
-> +               return -EIO;
-> +       }
-> +}
-> +
->  static struct hid_ll_driver uhid_hid_driver = {
->         .start = uhid_hid_start,
->         .stop = uhid_hid_stop,
-> @@ -277,6 +293,7 @@ static struct hid_ll_driver uhid_hid_driver = {
->         .close = uhid_hid_close,
->         .parse = uhid_hid_parse,
->         .output_report = uhid_hid_output_report,
-> +       .raw_request = uhid_raw_request,
->  };
 >
->  #ifdef CONFIG_COMPAT
-> --
-> 1.8.3.1
+> Btw., you might have to keep hidp_send_report() if you drop earlier
+> patches (haven't exactly looked at the order), but feel free to keep
+> my r-b anyway.
+
+No need to keep it, patches 1 to 4 do not touch HIDp, so no one else
+use hidp_send_report().
+
+Cheers,
+Benjamin
+
 >
+> Thanks
+> David
+>
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
+>>  net/bluetooth/hidp/core.c | 46 ----------------------------------------------
+>>  1 file changed, 46 deletions(-)
+>>
+>> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+>> index b062cee..469e61b 100644
+>> --- a/net/bluetooth/hidp/core.c
+>> +++ b/net/bluetooth/hidp/core.c
+>> @@ -223,51 +223,6 @@ static void hidp_input_report(struct hidp_session *session, struct sk_buff *skb)
+>>         input_sync(dev);
+>>  }
+>>
+>> -static int hidp_send_report(struct hidp_session *session, struct hid_report *report)
+>> -{
+>> -       unsigned char hdr;
+>> -       u8 *buf;
+>> -       int rsize, ret;
+>> -
+>> -       buf = hid_alloc_report_buf(report, GFP_ATOMIC);
+>> -       if (!buf)
+>> -               return -EIO;
+>> -
+>> -       hid_output_report(report, buf);
+>> -       hdr = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
+>> -
+>> -       rsize = ((report->size - 1) >> 3) + 1 + (report->id > 0);
+>> -       ret = hidp_send_intr_message(session, hdr, buf, rsize);
+>> -
+>> -       kfree(buf);
+>> -       return ret;
+>> -}
+>> -
+>> -static int hidp_hidinput_event(struct input_dev *dev, unsigned int type,
+>> -                              unsigned int code, int value)
+>> -{
+>> -       struct hid_device *hid = input_get_drvdata(dev);
+>> -       struct hidp_session *session = hid->driver_data;
+>> -       struct hid_field *field;
+>> -       int offset;
+>> -
+>> -       BT_DBG("session %p type %d code %d value %d",
+>> -              session, type, code, value);
+>> -
+>> -       if (type != EV_LED)
+>> -               return -1;
+>> -
+>> -       offset = hidinput_find_field(hid, type, code, &field);
+>> -       if (offset == -1) {
+>> -               hid_warn(dev, "event field not found\n");
+>> -               return -1;
+>> -       }
+>> -
+>> -       hid_set_field(field, offset, value);
+>> -
+>> -       return hidp_send_report(session, field->report);
+>> -}
+>> -
+>>  static int hidp_get_raw_report(struct hid_device *hid,
+>>                 unsigned char report_number,
+>>                 unsigned char *data, size_t count,
+>> @@ -817,7 +772,6 @@ static struct hid_ll_driver hidp_hid_driver = {
+>>         .close = hidp_close,
+>>         .raw_request = hidp_raw_request,
+>>         .output_report = hidp_output_report,
+>> -       .hidinput_input_event = hidp_hidinput_event,
+>>  };
+>>
+>>  /* This function sets up the hid device. It does not add it
+>> --
+>> 1.8.3.1
+>>

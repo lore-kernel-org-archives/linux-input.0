@@ -1,279 +1,204 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 10/11] HID: introduce helper to access hid_output_raw_report()
-Date: Mon, 3 Feb 2014 17:14:48 +0100
-Message-ID: <CANq1E4RsBpRiR_CaR7w6-jFZU99cBp1ob79ti9_uL8NKt_R7sA@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 04/11] HID: logitech-dj: remove hidinput_input_event
+Date: Mon, 3 Feb 2014 11:21:25 -0500
+Message-ID: <CAN+gG=EesWpKiz-M4LrLTM0ne+o8=XE3vdQnwBPuHOyEgwEJKw@mail.gmail.com>
 References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1391316630-29541-11-git-send-email-benjamin.tissoires@redhat.com>
+	<1391316630-29541-5-git-send-email-benjamin.tissoires@redhat.com>
+	<CANq1E4Rn=rijG8Xv97okj2k4iv=ZG6wa30xQrxgjhutQovD+dg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1391316630-29541-11-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lb0-f176.google.com ([209.85.217.176]:38225 "EHLO
+	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751678AbaBCQV1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 11:21:27 -0500
+In-Reply-To: <CANq1E4Rn=rijG8Xv97okj2k4iv=ZG6wa30xQrxgjhutQovD+dg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi
+On Mon, Feb 3, 2014 at 11:06 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
+>
+> On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> hid-logitech-dj uses its own ->hidinput_input_event() instead of
+>> the generic binding in hid-input.
+>> Moving the handling of LEDs towards logi_dj_output_hidraw_report()
+>> allows two things:
+>> - remove hidinput_input_event in struct hid_device
+>> - hidraw user space programs can also set the LEDs
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
+>>  drivers/hid/hid-logitech-dj.c | 99 +++++++++++++++----------------------------
+>>  1 file changed, 35 insertions(+), 64 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+>> index f45279c..61d2bbf 100644
+>> --- a/drivers/hid/hid-logitech-dj.c
+>> +++ b/drivers/hid/hid-logitech-dj.c
+>> @@ -44,14 +44,6 @@ static const char kbd_descriptor[] = {
+>>         0x19, 0xE0,             /*   USAGE_MINIMUM (Left Control)   */
+>>         0x29, 0xE7,             /*   USAGE_MAXIMUM (Right GUI)      */
+>>         0x81, 0x02,             /*   INPUT (Data,Var,Abs)       */
+>> -       0x95, 0x05,             /*   REPORT COUNT (5)           */
+>> -       0x05, 0x08,             /*   USAGE PAGE (LED page)      */
+>> -       0x19, 0x01,             /*   USAGE MINIMUM (1)          */
+>> -       0x29, 0x05,             /*   USAGE MAXIMUM (5)          */
+>> -       0x91, 0x02,             /*   OUTPUT (Data, Variable, Absolute)  */
+>> -       0x95, 0x01,             /*   REPORT COUNT (1)           */
+>> -       0x75, 0x03,             /*   REPORT SIZE (3)            */
+>> -       0x91, 0x01,             /*   OUTPUT (Constant)          */
+>>         0x95, 0x06,             /*   REPORT_COUNT (6)           */
+>>         0x75, 0x08,             /*   REPORT_SIZE (8)            */
+>>         0x15, 0x00,             /*   LOGICAL_MINIMUM (0)        */
+>> @@ -60,6 +52,18 @@ static const char kbd_descriptor[] = {
+>>         0x19, 0x00,             /*   USAGE_MINIMUM (no event)       */
+>>         0x2A, 0xFF, 0x00,       /*   USAGE_MAXIMUM (reserved)       */
+>>         0x81, 0x00,             /*   INPUT (Data,Ary,Abs)       */
+>> +       0x85, 0x0e,             /* REPORT_ID (14)               */
+>> +       0x05, 0x08,             /*   USAGE PAGE (LED page)      */
+>> +       0x95, 0x05,             /*   REPORT COUNT (5)           */
+>> +       0x75, 0x01,             /*   REPORT SIZE (1)            */
+>> +       0x15, 0x00,             /*   LOGICAL_MINIMUM (0)        */
+>> +       0x25, 0x01,             /*   LOGICAL_MAXIMUM (1)        */
+>> +       0x19, 0x01,             /*   USAGE MINIMUM (1)          */
+>> +       0x29, 0x05,             /*   USAGE MAXIMUM (5)          */
+>> +       0x91, 0x02,             /*   OUTPUT (Data, Variable, Absolute)  */
+>> +       0x95, 0x01,             /*   REPORT COUNT (1)           */
+>> +       0x75, 0x03,             /*   REPORT SIZE (3)            */
+>> +       0x91, 0x01,             /*   OUTPUT (Constant)          */
+>>         0xC0
+>>  };
+>>
+>> @@ -544,10 +548,30 @@ static int logi_dj_output_hidraw_report(struct hid_device *hid, u8 * buf,
+>>                                         size_t count,
+>>                                         unsigned char report_type)
+>>  {
+>> -       /* Called by hid raw to send data */
+>> -       dbg_hid("%s\n", __func__);
+>> +       struct dj_device *djdev = hid->driver_data;
+>> +       struct dj_receiver_dev *djrcv_dev = djdev->dj_receiver_dev;
+>> +       u8 *out_buf;
+>> +       int ret;
+>>
+>> -       return 0;
+>> +       if (buf[0] != REPORT_TYPE_LEDS)
+>> +               return -EINVAL;
+>> +
+>> +       out_buf = kzalloc(DJREPORT_SHORT_LENGTH, GFP_ATOMIC);
+>> +       if (!out_buf)
+>> +               return -ENOMEM;
+>> +
+>> +       if (count < DJREPORT_SHORT_LENGTH - 2)
+>> +               count = DJREPORT_SHORT_LENGTH - 2;
+>> +
+>> +       out_buf[0] = REPORT_ID_DJ_SHORT;
+>> +       out_buf[1] = djdev->device_index;
+>> +       memcpy(out_buf + 2, buf, count);
+>> +
+>> +       ret = djrcv_dev->hdev->hid_output_raw_report(djrcv_dev->hdev, out_buf,
+>> +               DJREPORT_SHORT_LENGTH, report_type);
+>
+> Strictly speaking the code below uses HID_REQ_SET_REPORT and you
+> replace it with hid_output_raw_report() here (which at least for BTHID
+> is not equivalent). Anyhow, HID-core uses hid_output_raw_report(),
+> too, so this should be fine.
 
-On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> Add a helper to access hdev->hid_output_raw_report().
->
-> To convert the drivers, use the following snippets:
->
-> for i in drivers/hid/*.c
-> do
->   sed -i.bak "s/[^ \t]*->hid_output_raw_report(/hid_output_raw_report(/g" $i
-> done
->
-> Then manually fix for checkpatch.pl
+Yes, you are right. This fires back on me yesterday when I tried to
+remove the hid_output_raw_report() calls.
+It occurs it works because usbhid_out_raw_report() uses set_report
+when there is no urbout, which is the case with logitech receivers.
+So I guess an ideal solution would be to implement a hid_hw_request call.
 
-Looks all good. I guess you didn't use the hid_hw_* prefix as it's not
-a hdrv but hdev callback? But we hopefully can remove this soon,
-anyway. So:
+However, the only concern I have with hid_hw_request is that it does
+not allow hidraw to play with the LEDs given that hidraw does not have
+an ioctl for SET_REPORT (or GET_REPORT). I already seen this issue
+regarding i2c_hid at some point, but it was "solved" in i2c_hid by
+using the same ugly trick that we have in USB-hid.
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
-
-Thanks
-David
+Cheers,
+Benjamin
 
 >
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/hid/hid-input.c        |  2 +-
->  drivers/hid/hid-lg.c           |  6 ++++--
->  drivers/hid/hid-logitech-dj.c  |  2 +-
->  drivers/hid/hid-magicmouse.c   |  2 +-
->  drivers/hid/hid-sony.c         |  5 +++--
->  drivers/hid/hid-thingm.c       |  4 ++--
->  drivers/hid/hid-wacom.c        | 16 +++++++---------
->  drivers/hid/hid-wiimote-core.c |  2 +-
->  drivers/hid/hidraw.c           |  2 +-
->  include/linux/hid.h            | 16 ++++++++++++++++
->  10 files changed, 37 insertions(+), 20 deletions(-)
+> Thanks
+> David
 >
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 1de5997..78293c3 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1184,7 +1184,7 @@ static void hidinput_led_worker(struct work_struct *work)
->
->         hid_output_report(report, buf);
->         /* synchronous output report */
-> -       hid->hid_output_raw_report(hid, buf, len, HID_OUTPUT_REPORT);
-> +       hid_output_raw_report(hid, buf, len, HID_OUTPUT_REPORT);
->         kfree(buf);
->  }
->
-> diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-> index 9fe9d4a..76ed7e5 100644
-> --- a/drivers/hid/hid-lg.c
-> +++ b/drivers/hid/hid-lg.c
-> @@ -692,7 +692,8 @@ static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
->         if (hdev->product == USB_DEVICE_ID_LOGITECH_WII_WHEEL) {
->                 unsigned char buf[] = { 0x00, 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
->
-> -               ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf), HID_FEATURE_REPORT);
-> +               ret = hid_output_raw_report(hdev, buf, sizeof(buf),
-> +                                           HID_FEATURE_REPORT);
->
->                 if (ret >= 0) {
->                         /* insert a little delay of 10 jiffies ~ 40ms */
-> @@ -704,7 +705,8 @@ static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
->                         buf[1] = 0xB2;
->                         get_random_bytes(&buf[2], 2);
->
-> -                       ret = hdev->hid_output_raw_report(hdev, buf, sizeof(buf), HID_FEATURE_REPORT);
-> +                       ret = hid_output_raw_report(hdev, buf, sizeof(buf),
-> +                                                   HID_FEATURE_REPORT);
->                 }
->         }
->
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> index 61d2bbf..9347625 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -567,7 +567,7 @@ static int logi_dj_output_hidraw_report(struct hid_device *hid, u8 * buf,
->         out_buf[1] = djdev->device_index;
->         memcpy(out_buf + 2, buf, count);
->
-> -       ret = djrcv_dev->hdev->hid_output_raw_report(djrcv_dev->hdev, out_buf,
-> +       ret = hid_output_raw_report(djrcv_dev->hdev, out_buf,
->                 DJREPORT_SHORT_LENGTH, report_type);
->
->         kfree(out_buf);
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 3b43d1c..cb5db3a 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -538,7 +538,7 @@ static int magicmouse_probe(struct hid_device *hdev,
->          * but there seems to be no other way of switching the mode.
->          * Thus the super-ugly hacky success check below.
->          */
-> -       ret = hdev->hid_output_raw_report(hdev, feature, sizeof(feature),
-> +       ret = hid_output_raw_report(hdev, feature, sizeof(feature),
->                         HID_FEATURE_REPORT);
->         if (ret != -EIO && ret != sizeof(feature)) {
->                 hid_err(hdev, "unable to request touch data (%d)\n", ret);
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index 3930acb..8494b8c 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -720,7 +720,8 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
->  static int sixaxis_set_operational_bt(struct hid_device *hdev)
->  {
->         unsigned char buf[] = { 0xf4,  0x42, 0x03, 0x00, 0x00 };
-> -       return hdev->hid_output_raw_report(hdev, buf, sizeof(buf), HID_FEATURE_REPORT);
-> +       return hid_output_raw_report(hdev, buf, sizeof(buf),
-> +                                    HID_FEATURE_REPORT);
->  }
->
->  static void buzz_set_leds(struct hid_device *hdev, const __u8 *leds)
-> @@ -942,7 +943,7 @@ static void sixaxis_state_worker(struct work_struct *work)
->         buf[10] |= sc->led_state[2] << 3;
->         buf[10] |= sc->led_state[3] << 4;
->
-> -       sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
-> +       hid_output_raw_report(sc->hdev, buf, sizeof(buf),
->                                         HID_OUTPUT_REPORT);
->  }
->
-> diff --git a/drivers/hid/hid-thingm.c b/drivers/hid/hid-thingm.c
-> index 99342cf..7dd3197 100644
-> --- a/drivers/hid/hid-thingm.c
-> +++ b/drivers/hid/hid-thingm.c
-> @@ -48,8 +48,8 @@ static int blink1_send_command(struct blink1_data *data,
->                         buf[0], buf[1], buf[2], buf[3], buf[4],
->                         buf[5], buf[6], buf[7], buf[8]);
->
-> -       ret = data->hdev->hid_output_raw_report(data->hdev, buf,
-> -                       BLINK1_CMD_SIZE, HID_FEATURE_REPORT);
-> +       ret = hid_output_raw_report(data->hdev, buf, BLINK1_CMD_SIZE,
-> +                                   HID_FEATURE_REPORT);
->
->         return ret < 0 ? ret : 0;
->  }
-> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> index 60c75dc..c720db9 100644
-> --- a/drivers/hid/hid-wacom.c
-> +++ b/drivers/hid/hid-wacom.c
-> @@ -128,8 +128,7 @@ static void wacom_set_image(struct hid_device *hdev, const char *image,
->
->         rep_data[0] = WAC_CMD_ICON_START_STOP;
->         rep_data[1] = 0;
-> -       ret = hdev->hid_output_raw_report(hdev, rep_data, 2,
-> -                               HID_FEATURE_REPORT);
-> +       ret = hid_output_raw_report(hdev, rep_data, 2, HID_FEATURE_REPORT);
->         if (ret < 0)
->                 goto err;
->
-> @@ -143,15 +142,14 @@ static void wacom_set_image(struct hid_device *hdev, const char *image,
->                         rep_data[j + 3] = p[(i << 6) + j];
->
->                 rep_data[2] = i;
-> -               ret = hdev->hid_output_raw_report(hdev, rep_data, 67,
-> +               ret = hid_output_raw_report(hdev, rep_data, 67,
->                                         HID_FEATURE_REPORT);
->         }
->
->         rep_data[0] = WAC_CMD_ICON_START_STOP;
->         rep_data[1] = 0;
->
-> -       ret = hdev->hid_output_raw_report(hdev, rep_data, 2,
-> -                               HID_FEATURE_REPORT);
-> +       ret = hid_output_raw_report(hdev, rep_data, 2, HID_FEATURE_REPORT);
->
->  err:
->         return;
-> @@ -183,7 +181,7 @@ static void wacom_leds_set_brightness(struct led_classdev *led_dev,
->                 buf[3] = value;
->                 /* use fixed brightness for OLEDs */
->                 buf[4] = 0x08;
-> -               hdev->hid_output_raw_report(hdev, buf, 9, HID_FEATURE_REPORT);
-> +               hid_output_raw_report(hdev, buf, 9, HID_FEATURE_REPORT);
->                 kfree(buf);
->         }
->
-> @@ -339,7 +337,7 @@ static void wacom_set_features(struct hid_device *hdev, u8 speed)
->                 rep_data[0] = 0x03 ; rep_data[1] = 0x00;
->                 limit = 3;
->                 do {
-> -                       ret = hdev->hid_output_raw_report(hdev, rep_data, 2,
-> +                       ret = hid_output_raw_report(hdev, rep_data, 2,
->                                         HID_FEATURE_REPORT);
->                 } while (ret < 0 && limit-- > 0);
->
-> @@ -352,7 +350,7 @@ static void wacom_set_features(struct hid_device *hdev, u8 speed)
->                         rep_data[1] = 0x00;
->                         limit = 3;
->                         do {
-> -                               ret = hdev->hid_output_raw_report(hdev,
-> +                               ret = hid_output_raw_report(hdev,
->                                         rep_data, 2, HID_FEATURE_REPORT);
->                         } while (ret < 0 && limit-- > 0);
->
-> @@ -378,7 +376,7 @@ static void wacom_set_features(struct hid_device *hdev, u8 speed)
->                 rep_data[0] = 0x03;
->                 rep_data[1] = wdata->features;
->
-> -               ret = hdev->hid_output_raw_report(hdev, rep_data, 2,
-> +               ret = hid_output_raw_report(hdev, rep_data, 2,
->                                         HID_FEATURE_REPORT);
->                 if (ret >= 0)
->                         wdata->high_speed = speed;
-> diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-> index abb20db..d7dc6c5b 100644
-> --- a/drivers/hid/hid-wiimote-core.c
-> +++ b/drivers/hid/hid-wiimote-core.c
-> @@ -35,7 +35,7 @@ static int wiimote_hid_send(struct hid_device *hdev, __u8 *buffer,
->         if (!buf)
->                 return -ENOMEM;
->
-> -       ret = hdev->hid_output_raw_report(hdev, buf, count, HID_OUTPUT_REPORT);
-> +       ret = hid_output_raw_report(hdev, buf, count, HID_OUTPUT_REPORT);
->
->         kfree(buf);
->         return ret;
-> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> index 4b2dc95..f8708c9 100644
-> --- a/drivers/hid/hidraw.c
-> +++ b/drivers/hid/hidraw.c
-> @@ -153,7 +153,7 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer,
->                 goto out_free;
->         }
->
-> -       ret = dev->hid_output_raw_report(dev, buf, count, report_type);
-> +       ret = hid_output_raw_report(dev, buf, count, report_type);
->  out_free:
->         kfree(buf);
->  out:
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index c56681a..a837ede 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -1012,6 +1012,22 @@ static inline int hid_hw_output_report(struct hid_device *hdev, __u8 *buf,
->  }
->
->  /**
-> + * hid_output_raw_report - send an output or a feature report to the device
-> + *
-> + * @hdev: hid device
-> + * @buf: raw data to transfer
-> + * @len: length of buf
-> + * @report_type: HID_FEATURE_REPORT or HID_OUTPUT_REPORT
-> + *
-> + * @return: count of data transfered, negative if error
-> + */
-> +static inline int hid_output_raw_report(struct hid_device *hdev, __u8 *buf,
-> +                                       size_t len, unsigned char report_type)
-> +{
-> +       return hdev->hid_output_raw_report(hdev, buf, len, report_type);
-> +}
-> +
-> +/**
->   * hid_hw_idle - send idle request to device
->   *
->   * @hdev: hid device
-> --
-> 1.8.3.1
->
+>> +
+>> +       kfree(out_buf);
+>> +       return ret;
+>>  }
+>>
+>>  static void rdcat(char *rdesc, unsigned int *rsize, const char *data, unsigned int size)
+>> @@ -613,58 +637,6 @@ static int logi_dj_ll_parse(struct hid_device *hid)
+>>         return retval;
+>>  }
+>>
+>> -static int logi_dj_ll_input_event(struct input_dev *dev, unsigned int type,
+>> -                                 unsigned int code, int value)
+>> -{
+>> -       /* Sent by the input layer to handle leds and Force Feedback */
+>> -       struct hid_device *dj_hiddev = input_get_drvdata(dev);
+>> -       struct dj_device *dj_dev = dj_hiddev->driver_data;
+>> -
+>> -       struct dj_receiver_dev *djrcv_dev =
+>> -           dev_get_drvdata(dj_hiddev->dev.parent);
+>> -       struct hid_device *dj_rcv_hiddev = djrcv_dev->hdev;
+>> -       struct hid_report_enum *output_report_enum;
+>> -
+>> -       struct hid_field *field;
+>> -       struct hid_report *report;
+>> -       unsigned char *data;
+>> -       int offset;
+>> -
+>> -       dbg_hid("%s: %s, type:%d | code:%d | value:%d\n",
+>> -               __func__, dev->phys, type, code, value);
+>> -
+>> -       if (type != EV_LED)
+>> -               return -1;
+>> -
+>> -       offset = hidinput_find_field(dj_hiddev, type, code, &field);
+>> -
+>> -       if (offset == -1) {
+>> -               dev_warn(&dev->dev, "event field not found\n");
+>> -               return -1;
+>> -       }
+>> -       hid_set_field(field, offset, value);
+>> -
+>> -       data = hid_alloc_report_buf(field->report, GFP_ATOMIC);
+>> -       if (!data) {
+>> -               dev_warn(&dev->dev, "failed to allocate report buf memory\n");
+>> -               return -1;
+>> -       }
+>> -
+>> -       hid_output_report(field->report, &data[0]);
+>> -
+>> -       output_report_enum = &dj_rcv_hiddev->report_enum[HID_OUTPUT_REPORT];
+>> -       report = output_report_enum->report_id_hash[REPORT_ID_DJ_SHORT];
+>> -       hid_set_field(report->field[0], 0, dj_dev->device_index);
+>> -       hid_set_field(report->field[0], 1, REPORT_TYPE_LEDS);
+>> -       hid_set_field(report->field[0], 2, data[1]);
+>> -
+>> -       hid_hw_request(dj_rcv_hiddev, report, HID_REQ_SET_REPORT);
+>> -
+>> -       kfree(data);
+>> -
+>> -       return 0;
+>> -}
+>> -
+>>  static int logi_dj_ll_start(struct hid_device *hid)
+>>  {
+>>         dbg_hid("%s\n", __func__);
+>> @@ -683,7 +655,6 @@ static struct hid_ll_driver logi_dj_ll_driver = {
+>>         .stop = logi_dj_ll_stop,
+>>         .open = logi_dj_ll_open,
+>>         .close = logi_dj_ll_close,
+>> -       .hidinput_input_event = logi_dj_ll_input_event,
+>>  };
+>>
+>>
+>> --
+>> 1.8.3.1
+>>

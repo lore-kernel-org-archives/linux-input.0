@@ -1,87 +1,95 @@
-From: Huei-Horng Yo <hiroshi@ghostsinthelab.org>
-Subject: [PATCH] HID: Add Apple wireless keyboard 2011 JIS model support
-Date: Tue, 04 Feb 2014 01:41:13 +0800
-Message-ID: <52EFD4B9.9070603@ghostsinthelab.org>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 0/6] HID: Add a stable method for retrieving the client
+ MAC address of a HID device
+Date: Mon, 3 Feb 2014 18:45:52 +0100
+Message-ID: <CANq1E4Q+oaovc-G9D07hSKQxE4SO_ziKLbKnRH8cH9NwV3YXnQ@mail.gmail.com>
+References: <1391189573-2591-1-git-send-email-frank.praznik@oh.rr.com>
+	<CAN+gG=EVcVmQ8rr2YtoapfftSHaDeYnSu5rCnuZjL=S-v1xU4Q@mail.gmail.com>
+	<52EC01DF.6050309@oh.rr.com>
+	<CAN+gG=GxXUU2rNNg7T1o50RPzXopnnqWbhQ4+-uWN3mbLUUyDw@mail.gmail.com>
+	<52ED1B8D.80208@gmail.com>
+	<CAN+gG=H6A93ozP=Q52GXnEjARC1tX4s6k=Oi6MoHK7Mh6kBPiw@mail.gmail.com>
+	<CANq1E4TYrwOhBd6ZVUCzuRyB_8ivaCsZVbBKz6n5hPodHjtOmg@mail.gmail.com>
+	<CAH+9E3oNifQgGDOp9POpxMm2uaMo3AUdRttC7L=WtGOyU8_nBA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f47.google.com ([209.85.160.47]:62452 "EHLO
-	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752760AbaBCRlQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 12:41:16 -0500
-Received: by mail-pb0-f47.google.com with SMTP id rp16so7272959pbb.6
-        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 09:41:16 -0800 (PST)
-Received: from [192.168.1.101] ([49.159.89.73])
-        by mx.google.com with ESMTPSA id vg1sm57988800pbc.44.2014.02.03.09.41.14
-        for <linux-input@vger.kernel.org>
-        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Mon, 03 Feb 2014 09:41:15 -0800 (PST)
+Received: from mail-ie0-f172.google.com ([209.85.223.172]:44782 "EHLO
+	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751686AbaBCRpw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 12:45:52 -0500
+Received: by mail-ie0-f172.google.com with SMTP id e14so6592380iej.3
+        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 09:45:52 -0800 (PST)
+In-Reply-To: <CAH+9E3oNifQgGDOp9POpxMm2uaMo3AUdRttC7L=WtGOyU8_nBA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Frank Praznik <frank.praznik@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-Hello,
+Hi
 
-I bought an Apple wireless keyboard 2011 JIS model,
-the 'fn' key isn't work as expected in Linux 3.12.9.
+Adding Dmitry+Jiri, maybe they can clarify this.
 
-What my patch mainly does is to add support for that model.
+[snip]
+>>>
+>>> Yes
+>>>
+>>>> hidp sets it to point to the hci_conn struct from which src address for the
+>>>> Bluetooth connection can be obtained, but making assumptions about an opaque
+>>>> pointer like that seems dangerous.  Is the parent pointer guaranteed to
+>>>> point to the hci_conn struct as long as the bus type is Bluetooth?
+>>>
+>>> And nope. If you use uhid, then the parent will not be a hci_conn.
+>>>
+>>> With enough guards, you should be able to use it, but it's not ideal I agree.
+>>> I really want to have David's opinion regarding the UNIQ field. IMO,
+>>> this seems to be the most transport-agnostic way of doing it.
+>>
+>> UNIQ is definitely wrong. It is used to assign a run-time *unique*
+>> value to the connection. So ideally it should be different if a device
+>> is reconnected. The PHYS field is actually used to identify a physical
+>> device. So please, if we're doing this, then we should do it via PHYS.
+>>
+>> I'm fine with hard-coding PHYS as bt-address for BT-HID, but please
+>> add a comment to hidp_setup_hid() in net/bluetooth/hidp/core.c before
+>> doing the snprintf() there.
+>>
+>> The reason why I disliked hard-coding this behavior is that if a
+>> single BT-device is connected twice to us, we usually want two
+>> different PHYS entries for both depending on which service this
+>> connection provides. However, this seems like an unlikely and
+>> overengineered problem so lets not do that. Furthermore, while BT-HID
+>> would allow such setups with some hacks, it isn't supported in a clean
+>> way. So yeah, I'm actually fine with using PHYS for that.
+>>
+>> Thanks
+>> David
+>
+> PHYS should definitely be changed if this is the case because right
+> now it is set to the MAC of the host adapter which means that it's the
+> same for every Bluetooth device and connection.  I believe that the
+> hidraw documentation also specifies that for Bluetooth devices the
+> HIDIOCGRAWPHYS ioctl should return a string with the MAC address of
+> the associated device rather than that of the host adapter as the
+> current behavior does.
 
-Before applying this patch, the keyboard behaves like a general keyboard,
-its 'fn' key has no function to be used with arrow keys to do Home, End, 
-Page Up and Page Down.
+Oh, yes, nice catch!
+Ok, maybe we need to clear up what PHYS and UNIQ do before relying on
+them. I thought, they were defined as:
 
-I found that this is because the HID IDs list hasn't it in vendor ID 
-0x05ac (APPLE) section,
-so I add the production ID 0x0257 (got the value by using bluetoothctl) 
-in drivers/hid/hid-ids.h
-and add the corresponding codes in drivers/hid/hid-apple.c & 
-drivers/hid/hid-core.c.
+PHYS: A string describing the physical device. It should be the same
+if a device reconnects. It can be used by user-space to track devices
+across disconnects
 
-Thanks,
-Huei-Horng Yo
+UNIQ: A string describing the current connection to a device. If the
+device reconnects, the UNIQ string should change. It can be used by
+user-space to track a single device-session.
 
+afaik both strings have no common format and drivers are free to
+provide any kind of information, as long as it follows the given
+rules. That's why I disliked the idea of relying on them and parsing
+them. But maybe I just have no idea what the original intention was
+behind them?
 
-P.S. Also reported in Bugzilla:https://bugzilla.kernel.org/show_bug.cgi?id=69681  <https://bugzilla.kernel.org/show_bug.cgi?id=69681>
-
-
-apple-alu-wireless-kbd-jis.patch
-
-Signed-off-by: Huei-Horng Yo <hiroshi@ghostsinthelab.org>
-diff -uprN linux-3.12.vanilla/drivers/hid/hid-apple.c linux-3.12/drivers/hid/hid-apple.c
---- linux-3.12.vanilla/drivers/hid/hid-apple.c	2013-11-04 07:41:51.000000000 +0800
-+++ linux-3.12/drivers/hid/hid-apple.c	2014-02-01 01:15:37.532768035 +0800
-@@ -447,6 +447,9 @@ static const struct hid_device_id apple_
-  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-  				USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
-  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
-+				USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS),
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
-  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS),
-  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
-diff -uprN linux-3.12.vanilla/drivers/hid/hid-core.c linux-3.12/drivers/hid/hid-core.c
---- linux-3.12.vanilla/drivers/hid/hid-core.c	2013-11-04 07:41:51.000000000 +0800
-+++ linux-3.12/drivers/hid/hid-core.c	2014-02-01 01:15:37.532768035 +0800
-@@ -1680,6 +1680,7 @@ static const struct hid_device_id hid_ha
-  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
-  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI) },
-  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS) },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
-  	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
-diff -uprN linux-3.12.vanilla/drivers/hid/hid-ids.h linux-3.12/drivers/hid/hid-ids.h
---- linux-3.12.vanilla/drivers/hid/hid-ids.h	2013-11-04 07:41:51.000000000 +0800
-+++ linux-3.12/drivers/hid/hid-ids.h	2014-02-01 01:15:37.532768035 +0800
-@@ -135,6 +135,7 @@
-  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
-  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI  0x0255
-  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO   0x0256
-+#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS   0x0257
-  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI	0x0290
-  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO	0x0291
-  #define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS	0x0292
-
+Thanks
+David

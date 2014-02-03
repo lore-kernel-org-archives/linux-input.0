@@ -1,204 +1,129 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 04/11] HID: logitech-dj: remove hidinput_input_event
-Date: Mon, 3 Feb 2014 11:21:25 -0500
-Message-ID: <CAN+gG=EesWpKiz-M4LrLTM0ne+o8=XE3vdQnwBPuHOyEgwEJKw@mail.gmail.com>
-References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1391316630-29541-5-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4Rn=rijG8Xv97okj2k4iv=ZG6wa30xQrxgjhutQovD+dg@mail.gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 0/6] HID: Add a stable method for retrieving the client
+ MAC address of a HID device
+Date: Mon, 3 Feb 2014 17:24:06 +0100
+Message-ID: <CANq1E4TYrwOhBd6ZVUCzuRyB_8ivaCsZVbBKz6n5hPodHjtOmg@mail.gmail.com>
+References: <1391189573-2591-1-git-send-email-frank.praznik@oh.rr.com>
+	<CAN+gG=EVcVmQ8rr2YtoapfftSHaDeYnSu5rCnuZjL=S-v1xU4Q@mail.gmail.com>
+	<52EC01DF.6050309@oh.rr.com>
+	<CAN+gG=GxXUU2rNNg7T1o50RPzXopnnqWbhQ4+-uWN3mbLUUyDw@mail.gmail.com>
+	<52ED1B8D.80208@gmail.com>
+	<CAN+gG=H6A93ozP=Q52GXnEjARC1tX4s6k=Oi6MoHK7Mh6kBPiw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f176.google.com ([209.85.217.176]:38225 "EHLO
-	mail-lb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751678AbaBCQV1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 11:21:27 -0500
-In-Reply-To: <CANq1E4Rn=rijG8Xv97okj2k4iv=ZG6wa30xQrxgjhutQovD+dg@mail.gmail.com>
+Received: from mail-ie0-f180.google.com ([209.85.223.180]:39729 "EHLO
+	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751886AbaBCQYG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 11:24:06 -0500
+Received: by mail-ie0-f180.google.com with SMTP id at1so6433474iec.11
+        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 08:24:06 -0800 (PST)
+In-Reply-To: <CAN+gG=H6A93ozP=Q52GXnEjARC1tX4s6k=Oi6MoHK7Mh6kBPiw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Frank Praznik <frank.praznik@gmail.com>, Frank Praznik <frank.praznik@oh.rr.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Mon, Feb 3, 2014 at 11:06 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi
+Hi
+
+On Sat, Feb 1, 2014 at 5:28 PM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Sat, Feb 1, 2014 at 11:06 AM, Frank Praznik <frank.praznik@gmail.com> wrote:
+>> On 1/31/2014 15:45, Benjamin Tissoires wrote:
+>>>
+>>> On Fri, Jan 31, 2014 at 3:04 PM, Frank Praznik <frank.praznik@oh.rr.com>
+>>> wrote:
+>>>>
+>>>> On 1/31/2014 14:10, Benjamin Tissoires wrote:
+>>>>>
+>>>>> Hi Frank,
+>>>>>
+>>>>> just a quick review:
+>>>>>
+>>>>> On Fri, Jan 31, 2014 at 12:32 PM, Frank Praznik
+>>>>> <frank.praznik@oh.rr.com>
+>>>>> wrote:
+>>>>>>
+>>>>>> Currently there is no reliable way for a device module or hidraw
+>>>>>> application to
+>>>>>> retrieve the client MAC address of the associated wireless device.
+>>>>>> This
+>>>>>> series
+>>>>>> of patches adds a stable way of retrieving this information.
+>>>>>
+>>>>> Well, if I look at the uevent of a Bluetooth mouse I have:
+>>>>>
+>>>>> $ cat
+>>>>>
+>>>>> /sys/devices/pci0000\:00/0000\:00\:14.0/usb3/3-2/3-2\:1.0/bluetooth/hci0/hci0\:43/0005\:046D\:B00D.001F/uevent
+>>>>> DRIVER=hid-generic
+>>>>> HID_ID=0005:0000046D:0000B00D
+>>>>> HID_NAME=Ultrathin Touch Mouse
+>>>>> HID_PHYS=00:10:60:ea:df:ae
+>>>>> HID_UNIQ=00:1f:20:96:33:47
+>>>>> MODALIAS=hid:b0005g0001v0000046Dp0000B00D
+>>>>>
+>>>>> I would say that HID_UNIQ is the client MAC address set by hidp, no?
+>>>>> So you don't need to duplicate the info by adding a new field in
+>>>>> hid_device.
+>>>>>
+>>>> In a patch I recently submitted I was using the UNIQ field for retrieving
+>>>> a
+>>>> Bluetooth device MAC address and was warned against it because "UNIQ is a
+>>>> way to provide unique identifiers for devices, but it's not guaranteed to
+>>>> stay the same".  HIDP happens to store the MAC in the UNIQ data, but
+>>>> there
+>>>> is no guarantee that it will always be there.  With these patches you can
+>>>> be
+>>>> completely sure that the data in client_addr is the client device MAC
+>>>> address.
+>>>
+>>> ok. But still, adding a transport-specific information to hid_device
+>>> is IMO a bad idea. We fought to make HID agnostic of the transport
+>>> layer enough.
+>>>
+>>> David, could you elaborate why you think that UNIQ may change in the
+>>> future regarding BT?
+>>> If the BT MAC address is the same principle of an ethernet MAC
+>>> address, UNIQ seems to fit perfectly well.
+>>>
+>>> Otherwise, you may be able to retrieve the MAC address by using the
+>>> parent of the current device.
+>>>
+>>> Cheers,
+>>> Benjamin
+>>
+>> Are you referring to using the hid_device::dev.parent pointer?  I know that
 >
-> On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
->> hid-logitech-dj uses its own ->hidinput_input_event() instead of
->> the generic binding in hid-input.
->> Moving the handling of LEDs towards logi_dj_output_hidraw_report()
->> allows two things:
->> - remove hidinput_input_event in struct hid_device
->> - hidraw user space programs can also set the LEDs
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>  drivers/hid/hid-logitech-dj.c | 99 +++++++++++++++----------------------------
->>  1 file changed, 35 insertions(+), 64 deletions(-)
->>
->> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
->> index f45279c..61d2bbf 100644
->> --- a/drivers/hid/hid-logitech-dj.c
->> +++ b/drivers/hid/hid-logitech-dj.c
->> @@ -44,14 +44,6 @@ static const char kbd_descriptor[] = {
->>         0x19, 0xE0,             /*   USAGE_MINIMUM (Left Control)   */
->>         0x29, 0xE7,             /*   USAGE_MAXIMUM (Right GUI)      */
->>         0x81, 0x02,             /*   INPUT (Data,Var,Abs)       */
->> -       0x95, 0x05,             /*   REPORT COUNT (5)           */
->> -       0x05, 0x08,             /*   USAGE PAGE (LED page)      */
->> -       0x19, 0x01,             /*   USAGE MINIMUM (1)          */
->> -       0x29, 0x05,             /*   USAGE MAXIMUM (5)          */
->> -       0x91, 0x02,             /*   OUTPUT (Data, Variable, Absolute)  */
->> -       0x95, 0x01,             /*   REPORT COUNT (1)           */
->> -       0x75, 0x03,             /*   REPORT SIZE (3)            */
->> -       0x91, 0x01,             /*   OUTPUT (Constant)          */
->>         0x95, 0x06,             /*   REPORT_COUNT (6)           */
->>         0x75, 0x08,             /*   REPORT_SIZE (8)            */
->>         0x15, 0x00,             /*   LOGICAL_MINIMUM (0)        */
->> @@ -60,6 +52,18 @@ static const char kbd_descriptor[] = {
->>         0x19, 0x00,             /*   USAGE_MINIMUM (no event)       */
->>         0x2A, 0xFF, 0x00,       /*   USAGE_MAXIMUM (reserved)       */
->>         0x81, 0x00,             /*   INPUT (Data,Ary,Abs)       */
->> +       0x85, 0x0e,             /* REPORT_ID (14)               */
->> +       0x05, 0x08,             /*   USAGE PAGE (LED page)      */
->> +       0x95, 0x05,             /*   REPORT COUNT (5)           */
->> +       0x75, 0x01,             /*   REPORT SIZE (1)            */
->> +       0x15, 0x00,             /*   LOGICAL_MINIMUM (0)        */
->> +       0x25, 0x01,             /*   LOGICAL_MAXIMUM (1)        */
->> +       0x19, 0x01,             /*   USAGE MINIMUM (1)          */
->> +       0x29, 0x05,             /*   USAGE MAXIMUM (5)          */
->> +       0x91, 0x02,             /*   OUTPUT (Data, Variable, Absolute)  */
->> +       0x95, 0x01,             /*   REPORT COUNT (1)           */
->> +       0x75, 0x03,             /*   REPORT SIZE (3)            */
->> +       0x91, 0x01,             /*   OUTPUT (Constant)          */
->>         0xC0
->>  };
->>
->> @@ -544,10 +548,30 @@ static int logi_dj_output_hidraw_report(struct hid_device *hid, u8 * buf,
->>                                         size_t count,
->>                                         unsigned char report_type)
->>  {
->> -       /* Called by hid raw to send data */
->> -       dbg_hid("%s\n", __func__);
->> +       struct dj_device *djdev = hid->driver_data;
->> +       struct dj_receiver_dev *djrcv_dev = djdev->dj_receiver_dev;
->> +       u8 *out_buf;
->> +       int ret;
->>
->> -       return 0;
->> +       if (buf[0] != REPORT_TYPE_LEDS)
->> +               return -EINVAL;
->> +
->> +       out_buf = kzalloc(DJREPORT_SHORT_LENGTH, GFP_ATOMIC);
->> +       if (!out_buf)
->> +               return -ENOMEM;
->> +
->> +       if (count < DJREPORT_SHORT_LENGTH - 2)
->> +               count = DJREPORT_SHORT_LENGTH - 2;
->> +
->> +       out_buf[0] = REPORT_ID_DJ_SHORT;
->> +       out_buf[1] = djdev->device_index;
->> +       memcpy(out_buf + 2, buf, count);
->> +
->> +       ret = djrcv_dev->hdev->hid_output_raw_report(djrcv_dev->hdev, out_buf,
->> +               DJREPORT_SHORT_LENGTH, report_type);
+> Yes
 >
-> Strictly speaking the code below uses HID_REQ_SET_REPORT and you
-> replace it with hid_output_raw_report() here (which at least for BTHID
-> is not equivalent). Anyhow, HID-core uses hid_output_raw_report(),
-> too, so this should be fine.
-
-Yes, you are right. This fires back on me yesterday when I tried to
-remove the hid_output_raw_report() calls.
-It occurs it works because usbhid_out_raw_report() uses set_report
-when there is no urbout, which is the case with logitech receivers.
-So I guess an ideal solution would be to implement a hid_hw_request call.
-
-However, the only concern I have with hid_hw_request is that it does
-not allow hidraw to play with the LEDs given that hidraw does not have
-an ioctl for SET_REPORT (or GET_REPORT). I already seen this issue
-regarding i2c_hid at some point, but it was "solved" in i2c_hid by
-using the same ugly trick that we have in USB-hid.
-
-Cheers,
-Benjamin
-
+>> hidp sets it to point to the hci_conn struct from which src address for the
+>> Bluetooth connection can be obtained, but making assumptions about an opaque
+>> pointer like that seems dangerous.  Is the parent pointer guaranteed to
+>> point to the hci_conn struct as long as the bus type is Bluetooth?
 >
-> Thanks
-> David
+> And nope. If you use uhid, then the parent will not be a hci_conn.
 >
->> +
->> +       kfree(out_buf);
->> +       return ret;
->>  }
->>
->>  static void rdcat(char *rdesc, unsigned int *rsize, const char *data, unsigned int size)
->> @@ -613,58 +637,6 @@ static int logi_dj_ll_parse(struct hid_device *hid)
->>         return retval;
->>  }
->>
->> -static int logi_dj_ll_input_event(struct input_dev *dev, unsigned int type,
->> -                                 unsigned int code, int value)
->> -{
->> -       /* Sent by the input layer to handle leds and Force Feedback */
->> -       struct hid_device *dj_hiddev = input_get_drvdata(dev);
->> -       struct dj_device *dj_dev = dj_hiddev->driver_data;
->> -
->> -       struct dj_receiver_dev *djrcv_dev =
->> -           dev_get_drvdata(dj_hiddev->dev.parent);
->> -       struct hid_device *dj_rcv_hiddev = djrcv_dev->hdev;
->> -       struct hid_report_enum *output_report_enum;
->> -
->> -       struct hid_field *field;
->> -       struct hid_report *report;
->> -       unsigned char *data;
->> -       int offset;
->> -
->> -       dbg_hid("%s: %s, type:%d | code:%d | value:%d\n",
->> -               __func__, dev->phys, type, code, value);
->> -
->> -       if (type != EV_LED)
->> -               return -1;
->> -
->> -       offset = hidinput_find_field(dj_hiddev, type, code, &field);
->> -
->> -       if (offset == -1) {
->> -               dev_warn(&dev->dev, "event field not found\n");
->> -               return -1;
->> -       }
->> -       hid_set_field(field, offset, value);
->> -
->> -       data = hid_alloc_report_buf(field->report, GFP_ATOMIC);
->> -       if (!data) {
->> -               dev_warn(&dev->dev, "failed to allocate report buf memory\n");
->> -               return -1;
->> -       }
->> -
->> -       hid_output_report(field->report, &data[0]);
->> -
->> -       output_report_enum = &dj_rcv_hiddev->report_enum[HID_OUTPUT_REPORT];
->> -       report = output_report_enum->report_id_hash[REPORT_ID_DJ_SHORT];
->> -       hid_set_field(report->field[0], 0, dj_dev->device_index);
->> -       hid_set_field(report->field[0], 1, REPORT_TYPE_LEDS);
->> -       hid_set_field(report->field[0], 2, data[1]);
->> -
->> -       hid_hw_request(dj_rcv_hiddev, report, HID_REQ_SET_REPORT);
->> -
->> -       kfree(data);
->> -
->> -       return 0;
->> -}
->> -
->>  static int logi_dj_ll_start(struct hid_device *hid)
->>  {
->>         dbg_hid("%s\n", __func__);
->> @@ -683,7 +655,6 @@ static struct hid_ll_driver logi_dj_ll_driver = {
->>         .stop = logi_dj_ll_stop,
->>         .open = logi_dj_ll_open,
->>         .close = logi_dj_ll_close,
->> -       .hidinput_input_event = logi_dj_ll_input_event,
->>  };
->>
->>
->> --
->> 1.8.3.1
->>
+> With enough guards, you should be able to use it, but it's not ideal I agree.
+> I really want to have David's opinion regarding the UNIQ field. IMO,
+> this seems to be the most transport-agnostic way of doing it.
+
+UNIQ is definitely wrong. It is used to assign a run-time *unique*
+value to the connection. So ideally it should be different if a device
+is reconnected. The PHYS field is actually used to identify a physical
+device. So please, if we're doing this, then we should do it via PHYS.
+
+I'm fine with hard-coding PHYS as bt-address for BT-HID, but please
+add a comment to hidp_setup_hid() in net/bluetooth/hidp/core.c before
+doing the snprintf() there.
+
+The reason why I disliked hard-coding this behavior is that if a
+single BT-device is connected twice to us, we usually want two
+different PHYS entries for both depending on which service this
+connection provides. However, this seems like an unlikely and
+overengineered problem so lets not do that. Furthermore, while BT-HID
+would allow such setups with some hacks, it isn't supported in a clean
+way. So yeah, I'm actually fine with using PHYS for that.
+
+Thanks
+David

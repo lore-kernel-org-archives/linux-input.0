@@ -1,30 +1,138 @@
-From: "Webmail.Support" <adminscare20@mail.md>
-Subject: Dear Web-mail User::
-Date: Tue, 4 Feb 2014 01:49:06 +0530
-Message-ID: <20140203194124.M12116__27859.7441189506$1391460221$gmane$org@smail.iitm.ac.in>
-Reply-To: adminscare20@mail.md
+From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+Subject: Re: [PATCH 5/7] Input: xpad: disconnect all Wireless controllers
+ at init
+Date: Mon, 3 Feb 2014 14:22:32 -0800
+Message-ID: <52F016A8.4060208@valvesoftware.com>
+References: <1391173414-6199-1-git-send-email-gregkh@linuxfoundation.org> <1391173414-6199-6-git-send-email-gregkh@linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=utf-8
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [203.199.213.4] ([203.199.213.4]:34074 "EHLO smail.iitm.ac.in"
-	rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1751322AbaBCUnc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Feb 2014 15:43:32 -0500
+Received: from mx3.valvesoftware.com ([208.64.203.145]:51476 "EHLO
+	mx3.valvesoftware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753257AbaBCWhq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 17:37:46 -0500
+Received: from mx3.valvesoftware.com (127.0.0.1) id hu0d3k0171se for <linux-input@vger.kernel.org>; Mon, 3 Feb 2014 14:22:37 -0800 (envelope-from <pgriffais@valvesoftware.com>)
+In-Reply-To: <1391173414-6199-6-git-send-email-gregkh@linuxfoundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-Dear Web-mail User,
-Your Mail quota has reached limit, You
-might not be able to send or receive new mail until you re-validate your
-mailbox .To re-validate your IN-BOX from 20G to 20.9G
-mailbox reply to this mail and fill your.
+There's apparently a packet you can send to the receiver that prompts it 
+to immediately send feedback about all the paired controllers that would 
+be ideal as a replacement for this kludge. I will test it and send out a 
+replacement patch for 5/7 in that series if it turns out to work well. 
+Thanks a lot to Zachary Lund for pointing this out.
 
-{user-name:
-{Password:
-{Confirm Password:
-{mobile Number:
+On 01/31/2014 05:03 AM, Greg Kroah-Hartman wrote:
+> From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+>
+> We initializing the driver/device, we really don't know how many
+> controllers are connected.  So send a "disconnect all" command to the
+> base-station, and let the user pair the controllers in the order in
+> which they want them assigned.
+>
+> Note, this means we now do not "preallocate" all 4 devices when a single
+> wireless base station is seen, but require the device to be properly
+> connected to the base station before that can happen.  The allocation of
+> the device happens in the next patch, not here, so in a way, this patch
+> breaks all wireless devices...
+>
+> Because we want to talk to the device, we have to set up the output urbs
+> no matter if we have CONFIG_JOYSTICK_XPAD_FF or
+> CONFIG_JOYSTICK_XPAD_LEDS enabled not, so take out the code that allows
+> those variables and code to be disabled (it's so small it should never
+> matter...)
+>
+> Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>   drivers/input/joystick/xpad.c | 46 ++++++++++++++++++++++++++++++++-----------
+>   1 file changed, 34 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index 7997ae89a877..7a07b95790d7 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -278,12 +278,10 @@ struct usb_xpad {
+>   	struct urb *bulk_out;
+>   	unsigned char *bdata;
+>
+> -#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+>   	struct urb *irq_out;		/* urb for interrupt out report */
+>   	unsigned char *odata;		/* output data */
+>   	dma_addr_t odata_dma;
+>   	struct mutex odata_mutex;
+> -#endif
+>
+>   #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
+>   	struct xpad_led *led;
+> @@ -537,7 +535,6 @@ static void xpad_bulk_out(struct urb *urb)
+>   	}
+>   }
+>
+> -#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+>   static void xpad_irq_out(struct urb *urb)
+>   {
+>   	struct usb_xpad *xpad = urb->context;
+> @@ -623,11 +620,6 @@ static void xpad_deinit_output(struct usb_xpad *xpad)
+>   				xpad->odata, xpad->odata_dma);
+>   	}
+>   }
+> -#else
+> -static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
+> -static void xpad_deinit_output(struct usb_xpad *xpad) {}
+> -static void xpad_stop_output(struct usb_xpad *xpad) {}
+> -#endif
+>
+>   #ifdef CONFIG_JOYSTICK_XPAD_FF
+>   static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
+> @@ -1091,11 +1083,41 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+>   			usb_kill_urb(xpad->irq_in);
+>   			goto fail9;
+>   		}
+> +
+> +		/*
+> +		 * We don't know how to check the controller state at driver
+> +		 * load, so just disconnect them all, requiring the user to
+> +		 * repair the device in the order they want them used.  Good
+> +		 * point is that we don't connect devices in "random" order,
+> +		 * but the extra step seems a bit harsh as other operating
+> +		 * systems don't require this at the moment.
+> +		 *
+> +		 * Power-off packet information came from an OS-X
+> +		 * reverse-engineered driver located at:
+> +		 * http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/OsxDriver#toc1
+> +		 */
+> +		mutex_lock(&xpad->odata_mutex);
+> +		xpad->odata[0] = 0x00;
+> +		xpad->odata[1] = 0x00;
+> +		xpad->odata[2] = 0x08;
+> +		xpad->odata[3] = 0xC0;
+> +		xpad->odata[4] = 0x00;
+> +		xpad->odata[5] = 0x00;
+> +		xpad->odata[6] = 0x00;
+> +		xpad->odata[7] = 0x00;
+> +		xpad->odata[8] = 0x00;
+> +		xpad->odata[9] = 0x00;
+> +		xpad->odata[10] = 0x00;
+> +		xpad->odata[11] = 0x00;
+> +		xpad->irq_out->transfer_buffer_length = 12;
+> +		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+> +		mutex_unlock(&xpad->odata_mutex);
+> +	} else {
+> +		xpad->pad_present = 1;
+> +		error = xpad_init_input(xpad);
+> +		if (error)
+> +			goto fail9;
+>   	}
+> -	xpad->pad_present = 1;
+> -	error = xpad_init_input(xpad);
+> -	if (error)
+> -		goto fail9;
+>
+>   	return 0;
+>
+>
 
-Technical Support
-192.168.0.1
-user.Mail.

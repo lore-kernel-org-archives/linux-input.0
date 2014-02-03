@@ -1,129 +1,144 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 0/6] HID: Add a stable method for retrieving the client
- MAC address of a HID device
-Date: Mon, 3 Feb 2014 17:24:06 +0100
-Message-ID: <CANq1E4TYrwOhBd6ZVUCzuRyB_8ivaCsZVbBKz6n5hPodHjtOmg@mail.gmail.com>
-References: <1391189573-2591-1-git-send-email-frank.praznik@oh.rr.com>
-	<CAN+gG=EVcVmQ8rr2YtoapfftSHaDeYnSu5rCnuZjL=S-v1xU4Q@mail.gmail.com>
-	<52EC01DF.6050309@oh.rr.com>
-	<CAN+gG=GxXUU2rNNg7T1o50RPzXopnnqWbhQ4+-uWN3mbLUUyDw@mail.gmail.com>
-	<52ED1B8D.80208@gmail.com>
-	<CAN+gG=H6A93ozP=Q52GXnEjARC1tX4s6k=Oi6MoHK7Mh6kBPiw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/6] HID: sony: Use low-level transport driver functions
+Date: Mon, 3 Feb 2014 17:26:20 +0100
+Message-ID: <CANq1E4QM_r74PR=hYH8yrybB4O2MUmdKUGf5yPhqVyG5D=wuhA@mail.gmail.com>
+References: <1391102648-19381-1-git-send-email-frank.praznik@oh.rr.com>
+	<1391102648-19381-2-git-send-email-frank.praznik@oh.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f180.google.com ([209.85.223.180]:39729 "EHLO
-	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751886AbaBCQYG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 11:24:06 -0500
-Received: by mail-ie0-f180.google.com with SMTP id at1so6433474iec.11
-        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 08:24:06 -0800 (PST)
-In-Reply-To: <CAN+gG=H6A93ozP=Q52GXnEjARC1tX4s6k=Oi6MoHK7Mh6kBPiw@mail.gmail.com>
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:34232 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752819AbaBCQ0V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 11:26:21 -0500
+Received: by mail-ie0-f170.google.com with SMTP id u16so6485961iet.1
+        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 08:26:20 -0800 (PST)
+In-Reply-To: <1391102648-19381-2-git-send-email-frank.praznik@oh.rr.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Frank Praznik <frank.praznik@gmail.com>, Frank Praznik <frank.praznik@oh.rr.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
 Hi
 
-On Sat, Feb 1, 2014 at 5:28 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Sat, Feb 1, 2014 at 11:06 AM, Frank Praznik <frank.praznik@gmail.com> wrote:
->> On 1/31/2014 15:45, Benjamin Tissoires wrote:
->>>
->>> On Fri, Jan 31, 2014 at 3:04 PM, Frank Praznik <frank.praznik@oh.rr.com>
->>> wrote:
->>>>
->>>> On 1/31/2014 14:10, Benjamin Tissoires wrote:
->>>>>
->>>>> Hi Frank,
->>>>>
->>>>> just a quick review:
->>>>>
->>>>> On Fri, Jan 31, 2014 at 12:32 PM, Frank Praznik
->>>>> <frank.praznik@oh.rr.com>
->>>>> wrote:
->>>>>>
->>>>>> Currently there is no reliable way for a device module or hidraw
->>>>>> application to
->>>>>> retrieve the client MAC address of the associated wireless device.
->>>>>> This
->>>>>> series
->>>>>> of patches adds a stable way of retrieving this information.
->>>>>
->>>>> Well, if I look at the uevent of a Bluetooth mouse I have:
->>>>>
->>>>> $ cat
->>>>>
->>>>> /sys/devices/pci0000\:00/0000\:00\:14.0/usb3/3-2/3-2\:1.0/bluetooth/hci0/hci0\:43/0005\:046D\:B00D.001F/uevent
->>>>> DRIVER=hid-generic
->>>>> HID_ID=0005:0000046D:0000B00D
->>>>> HID_NAME=Ultrathin Touch Mouse
->>>>> HID_PHYS=00:10:60:ea:df:ae
->>>>> HID_UNIQ=00:1f:20:96:33:47
->>>>> MODALIAS=hid:b0005g0001v0000046Dp0000B00D
->>>>>
->>>>> I would say that HID_UNIQ is the client MAC address set by hidp, no?
->>>>> So you don't need to duplicate the info by adding a new field in
->>>>> hid_device.
->>>>>
->>>> In a patch I recently submitted I was using the UNIQ field for retrieving
->>>> a
->>>> Bluetooth device MAC address and was warned against it because "UNIQ is a
->>>> way to provide unique identifiers for devices, but it's not guaranteed to
->>>> stay the same".  HIDP happens to store the MAC in the UNIQ data, but
->>>> there
->>>> is no guarantee that it will always be there.  With these patches you can
->>>> be
->>>> completely sure that the data in client_addr is the client device MAC
->>>> address.
->>>
->>> ok. But still, adding a transport-specific information to hid_device
->>> is IMO a bad idea. We fought to make HID agnostic of the transport
->>> layer enough.
->>>
->>> David, could you elaborate why you think that UNIQ may change in the
->>> future regarding BT?
->>> If the BT MAC address is the same principle of an ethernet MAC
->>> address, UNIQ seems to fit perfectly well.
->>>
->>> Otherwise, you may be able to retrieve the MAC address by using the
->>> parent of the current device.
->>>
->>> Cheers,
->>> Benjamin
->>
->> Are you referring to using the hid_device::dev.parent pointer?  I know that
+On Thu, Jan 30, 2014 at 6:24 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
+> From: Franz Frank Praznik <frank.praznik@oh.rr.com>
 >
-> Yes
+> Change the dualshock4_state_worker function to use the low-level output_report
+> function.
 >
->> hidp sets it to point to the hci_conn struct from which src address for the
->> Bluetooth connection can be obtained, but making assumptions about an opaque
->> pointer like that seems dangerous.  Is the parent pointer guaranteed to
->> point to the hci_conn struct as long as the bus type is Bluetooth?
+> Remove sony_set_output_report since it is no longer used.
 >
-> And nope. If you use uhid, then the parent will not be a hci_conn.
+> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+> ---
+>  drivers/hid/hid-sony.c | 58 ++++++++++++++++----------------------------------
+>  1 file changed, 18 insertions(+), 40 deletions(-)
 >
-> With enough guards, you should be able to use it, but it's not ideal I agree.
-> I really want to have David's opinion regarding the UNIQ field. IMO,
-> this seems to be the most transport-agnostic way of doing it.
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index 2bd3f13..7a6d7c9 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -502,7 +502,6 @@ struct sony_sc {
+>         spinlock_t lock;
+>         struct hid_device *hdev;
+>         struct led_classdev *leds[MAX_LEDS];
+> -       struct hid_report *output_report;
+>         unsigned long quirks;
+>         struct work_struct state_worker;
+>         struct power_supply battery;
+> @@ -1053,21 +1052,26 @@ static void dualshock4_state_worker(struct work_struct *work)
+>  {
+>         struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+>         struct hid_device *hdev = sc->hdev;
+> -       struct hid_report *report = sc->output_report;
+> -       __s32 *value = report->field[0]->value;
+> +       int offset;
+> +
+> +       __u8 buf[32] = { 0 };
+>
+> -       value[0] = 0x03;
+> +       buf[0] = 0x05;
+> +       buf[1] = 0x03;
+> +       offset = 4;
+>
+>  #ifdef CONFIG_SONY_FF
+> -       value[3] = sc->right;
+> -       value[4] = sc->left;
+> +       buf[offset++] = sc->right;
+> +       buf[offset++] = sc->left;
+> +#else
+> +       offset += 2;
+>  #endif
+>
+> -       value[5] = sc->led_state[0];
+> -       value[6] = sc->led_state[1];
+> -       value[7] = sc->led_state[2];
+> +       buf[offset++] = sc->led_state[0];
+> +       buf[offset++] = sc->led_state[1];
+> +       buf[offset++] = sc->led_state[2];
+>
+> -       hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
+> +       hdev->ll_driver->output_report(hdev, buf, sizeof(buf));
 
-UNIQ is definitely wrong. It is used to assign a run-time *unique*
-value to the connection. So ideally it should be different if a device
-is reconnected. The PHYS field is actually used to identify a physical
-device. So please, if we're doing this, then we should do it via PHYS.
-
-I'm fine with hard-coding PHYS as bt-address for BT-HID, but please
-add a comment to hidp_setup_hid() in net/bluetooth/hidp/core.c before
-doing the snprintf() there.
-
-The reason why I disliked hard-coding this behavior is that if a
-single BT-device is connected twice to us, we usually want two
-different PHYS entries for both depending on which service this
-connection provides. However, this seems like an unlikely and
-overengineered problem so lets not do that. Furthermore, while BT-HID
-would allow such setups with some hacks, it isn't supported in a clean
-way. So yeah, I'm actually fine with using PHYS for that.
+Ugh? You change SET_REPORT to output_report() here, which is not
+supposed to be identical. Are you sure that works? A correct HID
+device should accept both, but we're talking about gamepads here..
 
 Thanks
 David
+
+>  }
+>
+>  #ifdef CONFIG_SONY_FF
+> @@ -1200,33 +1204,6 @@ static void sony_battery_remove(struct sony_sc *sc)
+>         sc->battery.name = NULL;
+>  }
+>
+> -static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
+> -{
+> -       struct list_head *head, *list;
+> -       struct hid_report *report;
+> -       struct hid_device *hdev = sc->hdev;
+> -
+> -       list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
+> -
+> -       list_for_each(head, list) {
+> -               report = list_entry(head, struct hid_report, list);
+> -
+> -               if (report->id == req_id) {
+> -                       if (report->size < req_size) {
+> -                               hid_err(hdev, "Output report 0x%02x (%i bits) is smaller than requested size (%i bits)\n",
+> -                                       req_id, report->size, req_size);
+> -                               return -EINVAL;
+> -                       }
+> -                       sc->output_report = report;
+> -                       return 0;
+> -               }
+> -       }
+> -
+> -       hid_err(hdev, "Unable to locate output report 0x%02x\n", req_id);
+> -
+> -       return -EINVAL;
+> -}
+> -
+>  static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+>                                         int w, int h)
+>  {
+> @@ -1291,10 +1268,11 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>         else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
+>                 ret = sixaxis_set_operational_bt(hdev);
+>         else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+> -               /* Report 5 (31 bytes) is used to send data to the controller via USB */
+> -               ret = sony_set_output_report(sc, 0x05, 248);
+> -               if (ret < 0)
+> +               if (hdev->ll_driver->output_report == NULL) {
+> +                       hid_err(hdev, "NULL output_report handler\n");
+> +                       ret = -EINVAL;
+>                         goto err_stop;
+> +               }
+>
+>                 /* The Dualshock 4 touchpad supports 2 touches and has a
+>                  * resolution of 1920x940.
+> --
+> 1.8.5.3
+>

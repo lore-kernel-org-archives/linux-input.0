@@ -1,99 +1,100 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 01/11] HID: uHID: implement .raw_request
-Date: Mon, 3 Feb 2014 14:07:56 -0500
-Message-ID: <CAN+gG=Hsf1r12mq=b9DutHDOJwcvMgYgDL9o6VOMTY2fjxTobg@mail.gmail.com>
+Subject: Re: [PATCH 00/11] HID: spring cleaning
+Date: Mon, 3 Feb 2014 14:19:57 -0500
+Message-ID: <CAN+gG=FtkmTKNTwM3Jbb4Cfw0g5kgz2aaGN-mWU0FfHmTnW1BQ@mail.gmail.com>
 References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1391316630-29541-2-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4RD0OVTSVOXHPTchop0Y0q0p1_NEZZexSE4kvkp-17TKw@mail.gmail.com>
+	<CANq1E4RWXXXYMSHFnrMubvqjJDu4tE3ikKsrhNfEUXdNASdcgA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f173.google.com ([209.85.217.173]:63295 "EHLO
-	mail-lb0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752350AbaBCTH6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 14:07:58 -0500
-In-Reply-To: <CANq1E4RD0OVTSVOXHPTchop0Y0q0p1_NEZZexSE4kvkp-17TKw@mail.gmail.com>
+Received: from mail-lb0-f181.google.com ([209.85.217.181]:58845 "EHLO
+	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752608AbaBCTT7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 14:19:59 -0500
+In-Reply-To: <CANq1E4RWXXXYMSHFnrMubvqjJDu4tE3ikKsrhNfEUXdNASdcgA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@gmail.com>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Mon, Feb 3, 2014 at 10:26 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+On Mon, Feb 3, 2014 at 11:48 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
 > Hi
 >
 > On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
 > <benjamin.tissoires@redhat.com> wrote:
->> It was missing, so adding it.
+>> Hi guys,
 >>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>  drivers/hid/uhid.c | 17 +++++++++++++++++
->>  1 file changed, 17 insertions(+)
+>> This is an attempt to complete the branch for-3.15/ll-driver-new-callbacks:
+>> - try to implement as much as possible ll_driver callbacks (some are still
+>>   missing, but I did not had the time to complete it)
+>> - add inliners hid_hw_* for all the ll_driver callbacks
+>> - remove transport dependant callbacks in struct hid_device
+>> - remove the so called "obsolete" hidinput_input_event handler which was used
+>>   in 2/4 transport drivers
 >>
->> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
->> index f5a2b19..438c9f1 100644
->> --- a/drivers/hid/uhid.c
->> +++ b/drivers/hid/uhid.c
->> @@ -270,6 +270,22 @@ static int uhid_hid_output_report(struct hid_device *hid, __u8 *buf,
->>         return count;
->>  }
+>> Bonus point: 14 files changed, 213 insertions(+), 272 deletions(-)
+>> Yay!
 >>
->> +static int uhid_raw_request(struct hid_device *hid, unsigned char reportnum,
->> +                           __u8 *buf, size_t len, unsigned char rtype,
->> +                           int reqtype)
->> +{
->> +       switch (reqtype) {
->> +       case HID_REQ_GET_REPORT:
->> +               return uhid_hid_get_raw(hid, reportnum, buf, len, rtype);
->> +       case HID_REQ_SET_REPORT:
->> +               if (buf[0] != reportnum)
->> +                       return -EINVAL;
->> +               return uhid_hid_output_raw(hid, buf, len, rtype);
+>> I made sure I kept the PS3 controller working and the LEDs (on logitech-dj and
+>> on bluetooth keyboard) working. The rest do not mostly need further testing,
+>> the code path did not changed. But still, a review (and some tests) would be a
+>> good idea :)
 >
-> But that one looks wrong. UHID does not have any SET_REPORT query in
-> the protocol, yet. You turn a SET_REPORT into an OUTPUT_REPORT here.
-> So if user-space gets the UHID_OUTPUT event, it doesn't know whether
-> to send a SET_REPORT@ctrl to the device, or an async
-> OUTPUT_REPORT@intr. This at least matters for low-energy BT in bluez,
-> which uses uhid.
+> Thanks a lot! Looks all good except for the uhid and i2c changes. But
+> I have commented on those.
 
-right. So we can drop this for now.
+Thanks David for the review. Very appreciated.
 
->
-> So we'd have to add an UHID_SET_REPORT event. Note that currently
-> UHID_FEATURE is the equivalent of UHID_GET_REPORT, but just horribly
-> named..
+Jiri, I think the simpler way to handle this is that I send out a v2
+of the patches with the reviewed-by David:
+I will drop 1, 2 and 11 and rework a little on 4 (hid-logitech-dj).
 
-ouch. I think this is something which can be fixed quite easily (by
-marking UHID_FEATURE obsolete and creating the two events).
-However, I don't think I will have the time to make the change and do
-proper testings in the next few days/weeks.
-
-Can somebody else take this?
+Then, I'll send out the second series where I will remove
+hid_output_raw_report, implement a generic .request() on top of
+.raw_request(), and I have some more cleanup to come (less aggressive
+this time I think).
 
 Cheers,
 Benjamin
 
 >
-> Thanks
+> Cheers
 > David
 >
->> +       default:
->> +               return -EIO;
->> +       }
->> +}
->> +
->>  static struct hid_ll_driver uhid_hid_driver = {
->>         .start = uhid_hid_start,
->>         .stop = uhid_hid_stop,
->> @@ -277,6 +293,7 @@ static struct hid_ll_driver uhid_hid_driver = {
->>         .close = uhid_hid_close,
->>         .parse = uhid_hid_parse,
->>         .output_report = uhid_hid_output_report,
->> +       .raw_request = uhid_raw_request,
->>  };
+>> Cheers,
+>> Benjamin
 >>
->>  #ifdef CONFIG_COMPAT
+>> PS: obviously, this goes on top on the branch for-3.15/ll-driver-new-callbacks
+>>
+>> Benjamin Tissoires (11):
+>>   HID: uHID: implement .raw_request
+>>   HID: i2c-hid: implement ll_driver transport-layer callbacks
+>>   HID: add inliners for ll_driver transport-layer callbacks
+>>   HID: logitech-dj: remove hidinput_input_event
+>>   HID: HIDp: remove hidp_hidinput_event
+>>   HID: remove hidinput_input_event handler
+>>   HID: HIDp: remove duplicated coded
+>>   HID: usbhid: remove duplicated code
+>>   HID: remove hid_get_raw_report in struct hid_device
+>>   HID: introduce helper to access hid_output_raw_report()
+>>   HID: move hid_output_raw_report to hid_ll_driver
+>>
+>>  drivers/hid/hid-input.c        |  12 ++---
+>>  drivers/hid/hid-lg.c           |   6 ++-
+>>  drivers/hid/hid-logitech-dj.c  | 101 +++++++++++++---------------------
+>>  drivers/hid/hid-magicmouse.c   |   2 +-
+>>  drivers/hid/hid-sony.c         |  19 +++++--
+>>  drivers/hid/hid-thingm.c       |   4 +-
+>>  drivers/hid/hid-wacom.c        |  16 +++---
+>>  drivers/hid/hid-wiimote-core.c |   4 +-
+>>  drivers/hid/hidraw.c           |  11 ++--
+>>  drivers/hid/i2c-hid/i2c-hid.c  |  27 +++++++++-
+>>  drivers/hid/uhid.c             |  20 ++++++-
+>>  drivers/hid/usbhid/hid-core.c  |  67 +++++------------------
+>>  include/linux/hid.h            |  77 ++++++++++++++++++++++----
+>>  net/bluetooth/hidp/core.c      | 119 +++++------------------------------------
+>>  14 files changed, 213 insertions(+), 272 deletions(-)
+>>
 >> --
 >> 1.8.3.1
 >>

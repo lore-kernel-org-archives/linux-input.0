@@ -1,173 +1,83 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 07/11] HID: HIDp: remove duplicated coded
-Date: Mon, 3 Feb 2014 16:19:04 +0100
-Message-ID: <CANq1E4TUaiHi3y1Nk+HObpMP3Q2m8HnrmX_fPT=4x1-3c2zhnw@mail.gmail.com>
+Subject: Re: [PATCH 01/11] HID: uHID: implement .raw_request
+Date: Mon, 3 Feb 2014 16:26:21 +0100
+Message-ID: <CANq1E4RD0OVTSVOXHPTchop0Y0q0p1_NEZZexSE4kvkp-17TKw@mail.gmail.com>
 References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1391316630-29541-8-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4S6jCc4Kd2EKoG0SgSc68TrBBSfnKChGV6Tn3fGKGRnSQ@mail.gmail.com>
-	<CAN+gG=G3njr09E3Q_6kd1SSp5k-Wcn1+aeHee5-Q6tWwFtuA1w@mail.gmail.com>
+	<1391316630-29541-2-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f170.google.com ([209.85.223.170]:59949 "EHLO
-	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750967AbaBCPTE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 10:19:04 -0500
-In-Reply-To: <CAN+gG=G3njr09E3Q_6kd1SSp5k-Wcn1+aeHee5-Q6tWwFtuA1w@mail.gmail.com>
+Received: from mail-ie0-f171.google.com ([209.85.223.171]:46384 "EHLO
+	mail-ie0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751472AbaBCP0V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 10:26:21 -0500
+In-Reply-To: <1391316630-29541-2-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
 Hi
 
-On Mon, Feb 3, 2014 at 4:11 PM, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Mon, Feb 3, 2014 at 10:02 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
->> Hi
->>
->> On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
->> <benjamin.tissoires@redhat.com> wrote:
->>> - Move hidp_output_report() above
->>> - Removed duplicated code in hidp_output_raw_report()
->>>
->>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->>> ---
->>>  net/bluetooth/hidp/core.c | 68 ++++++++---------------------------------------
->>>  1 file changed, 11 insertions(+), 57 deletions(-)
->>>
->>> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
->>> index 469e61b..02670b3 100644
->>> --- a/net/bluetooth/hidp/core.c
->>> +++ b/net/bluetooth/hidp/core.c
->>> @@ -373,62 +373,25 @@ err:
->>>         return ret;
->>>  }
->>>
->>> -static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data, size_t count,
->>> -               unsigned char report_type)
->>> +static int hidp_output_report(struct hid_device *hid, __u8 *data, size_t count)
->>>  {
->>>         struct hidp_session *session = hid->driver_data;
->>> -       int ret;
->>>
->>> +       return hidp_send_intr_message(session,
->>> +                                     HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT,
->>> +                                     data, count);
->>> +}
->>> +
->>> +static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data,
->>> +               size_t count, unsigned char report_type)
->>> +{
->>>         if (report_type == HID_OUTPUT_REPORT) {
->>> -               report_type = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
->>> -               return hidp_send_intr_message(session, report_type,
->>> -                                             data, count);
->>> +               return hidp_output_report(hid, data, count);
->>
->> NAK, that does not work with BT. hidp_output_raw_report() can do both,
->> a synchronous SET_REPORT and an async OUTPUT_REPORT. It's currently
->> screwed up, as for RTYPE_OUTPUT it uses the intr-channel, for
->> RTYPE_FEATURE the ctrl-channel.
+On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> It was missing, so adding it.
 >
-> David, please, re-review it carefully, and see that there is _no_
-> change in the code path with this refactoring:
-> hidp_output_report() calls exactly one hidp_send_intr_message() with
-> the same arguments.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/hid/uhid.c | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
 >
-> And for the rest, you will see that the code path is still the same also.
+> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+> index f5a2b19..438c9f1 100644
+> --- a/drivers/hid/uhid.c
+> +++ b/drivers/hid/uhid.c
+> @@ -270,6 +270,22 @@ static int uhid_hid_output_report(struct hid_device *hid, __u8 *buf,
+>         return count;
+>  }
+>
+> +static int uhid_raw_request(struct hid_device *hid, unsigned char reportnum,
+> +                           __u8 *buf, size_t len, unsigned char rtype,
+> +                           int reqtype)
+> +{
+> +       switch (reqtype) {
+> +       case HID_REQ_GET_REPORT:
+> +               return uhid_hid_get_raw(hid, reportnum, buf, len, rtype);
+> +       case HID_REQ_SET_REPORT:
+> +               if (buf[0] != reportnum)
+> +                       return -EINVAL;
+> +               return uhid_hid_output_raw(hid, buf, len, rtype);
 
-Sorry, my bad. I thought you changed hidp_output_raw_report() to call
-hidp_output_report() unconditionally. You're indeed right, the
-code-paths are the same and they now highlight the very horrible hack
-hid_output_raw_report() has been in the past for HIDP.
+But that one looks wrong. UHID does not have any SET_REPORT query in
+the protocol, yet. You turn a SET_REPORT into an OUTPUT_REPORT here.
+So if user-space gets the UHID_OUTPUT event, it doesn't know whether
+to send a SET_REPORT@ctrl to the device, or an async
+OUTPUT_REPORT@intr. This at least matters for low-energy BT in bluez,
+which uses uhid.
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+So we'd have to add an UHID_SET_REPORT event. Note that currently
+UHID_FEATURE is the equivalent of UHID_GET_REPORT, but just horribly
+named..
 
 Thanks
 David
 
->>
->> This function is exactly the reason why we added raw_report() and
->> output_report(). So I'd like to keep it as it and just remove it once
->> we have no more users of hidp_output_raw_report().
+> +       default:
+> +               return -EIO;
+> +       }
+> +}
+> +
+>  static struct hid_ll_driver uhid_hid_driver = {
+>         .start = uhid_hid_start,
+>         .stop = uhid_hid_stop,
+> @@ -277,6 +293,7 @@ static struct hid_ll_driver uhid_hid_driver = {
+>         .close = uhid_hid_close,
+>         .parse = uhid_hid_parse,
+>         .output_report = uhid_hid_output_report,
+> +       .raw_request = uhid_raw_request,
+>  };
 >
-> I worked on that yesterday, so I can make this happening soon (not
-> today though).
+>  #ifdef CONFIG_COMPAT
+> --
+> 1.8.3.1
 >
-> Cheers,
-> Benjamin
->
->>
->> Thanks
->> David
->>
->>>         } else if (report_type != HID_FEATURE_REPORT) {
->>>                 return -EINVAL;
->>>         }
->>>
->>> -       if (mutex_lock_interruptible(&session->report_mutex))
->>> -               return -ERESTARTSYS;
->>> -
->>> -       /* Set up our wait, and send the report request to the device. */
->>> -       set_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
->>> -       report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE;
->>> -       ret = hidp_send_ctrl_message(session, report_type, data, count);
->>> -       if (ret)
->>> -               goto err;
->>> -
->>> -       /* Wait for the ACK from the device. */
->>> -       while (test_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags) &&
->>> -              !atomic_read(&session->terminate)) {
->>> -               int res;
->>> -
->>> -               res = wait_event_interruptible_timeout(session->report_queue,
->>> -                       !test_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags)
->>> -                               || atomic_read(&session->terminate),
->>> -                       10*HZ);
->>> -               if (res == 0) {
->>> -                       /* timeout */
->>> -                       ret = -EIO;
->>> -                       goto err;
->>> -               }
->>> -               if (res < 0) {
->>> -                       /* signal */
->>> -                       ret = -ERESTARTSYS;
->>> -                       goto err;
->>> -               }
->>> -       }
->>> -
->>> -       if (!session->output_report_success) {
->>> -               ret = -EIO;
->>> -               goto err;
->>> -       }
->>> -
->>> -       ret = count;
->>> -
->>> -err:
->>> -       clear_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
->>> -       mutex_unlock(&session->report_mutex);
->>> -       return ret;
->>> +       return hidp_set_raw_report(hid, data[0], data, count, report_type);
->>>  }
->>>
->>>  static int hidp_raw_request(struct hid_device *hid, unsigned char reportnum,
->>> @@ -445,15 +408,6 @@ static int hidp_raw_request(struct hid_device *hid, unsigned char reportnum,
->>>         }
->>>  }
->>>
->>> -static int hidp_output_report(struct hid_device *hid, __u8 *data, size_t count)
->>> -{
->>> -       struct hidp_session *session = hid->driver_data;
->>> -
->>> -       return hidp_send_intr_message(session,
->>> -                                     HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT,
->>> -                                     data, count);
->>> -}
->>> -
->>>  static void hidp_idle_timeout(unsigned long arg)
->>>  {
->>>         struct hidp_session *session = (struct hidp_session *) arg;
->>> --
->>> 1.8.3.1
->>>

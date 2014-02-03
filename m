@@ -1,127 +1,87 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 7/7] Input: xpad: properly name the LED class devices
-Date: Mon, 3 Feb 2014 18:39:20 +0100
-Message-ID: <CANq1E4SwvEXeZ3L235PKnSKZaepDfvx+wVy7Q2o6hAA3g-2OTw@mail.gmail.com>
-References: <1391173414-6199-1-git-send-email-gregkh@linuxfoundation.org>
-	<1391173414-6199-8-git-send-email-gregkh@linuxfoundation.org>
+From: Huei-Horng Yo <hiroshi@ghostsinthelab.org>
+Subject: [PATCH] HID: Add Apple wireless keyboard 2011 JIS model support
+Date: Tue, 04 Feb 2014 01:41:13 +0800
+Message-ID: <52EFD4B9.9070603@ghostsinthelab.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f180.google.com ([209.85.223.180]:62941 "EHLO
-	mail-ie0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752558AbaBCRjV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 12:39:21 -0500
-Received: by mail-ie0-f180.google.com with SMTP id at1so6509418iec.11
-        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 09:39:20 -0800 (PST)
-In-Reply-To: <1391173414-6199-8-git-send-email-gregkh@linuxfoundation.org>
+Received: from mail-pb0-f47.google.com ([209.85.160.47]:62452 "EHLO
+	mail-pb0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752760AbaBCRlQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 12:41:16 -0500
+Received: by mail-pb0-f47.google.com with SMTP id rp16so7272959pbb.6
+        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 09:41:16 -0800 (PST)
+Received: from [192.168.1.101] ([49.159.89.73])
+        by mx.google.com with ESMTPSA id vg1sm57988800pbc.44.2014.02.03.09.41.14
+        for <linux-input@vger.kernel.org>
+        (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Mon, 03 Feb 2014 09:41:15 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+To: linux-input@vger.kernel.org
 
-Hi
+Hello,
 
-On Fri, Jan 31, 2014 at 2:03 PM, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> Don't just increment the LED device number, but use the joystick id so
-> that you have a chance to associate the LED device to the correct xpad
-> device by the name, instead of having to use the sysfs tree, which
-> really doesn't work.
->
-> Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/input/joystick/xpad.c | 40 +++++++++++++++++-----------------------
->  1 file changed, 17 insertions(+), 23 deletions(-)
->
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index d342d41a7a0d..ae156de46a12 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -781,8 +781,6 @@ static void xpad_led_set(struct led_classdev *led_cdev,
->
->  static int xpad_led_probe(struct usb_xpad *xpad)
->  {
-> -       static atomic_t led_seq = ATOMIC_INIT(0);
-> -       long led_no;
->         struct xpad_led *led;
->         struct led_classdev *led_cdev;
->         int error;
-> @@ -794,9 +792,7 @@ static int xpad_led_probe(struct usb_xpad *xpad)
->         if (!led)
->                 return -ENOMEM;
->
-> -       led_no = (long)atomic_inc_return(&led_seq) - 1;
-> -
-> -       snprintf(led->name, sizeof(led->name), "xpad%ld", led_no);
-> +       snprintf(led->name, sizeof(led->name), "xpad%d", xpad->joydev_id);
+I bought an Apple wireless keyboard 2011 JIS model,
+the 'fn' key isn't work as expected in Linux 3.12.9.
 
-I guess that patch should be dropped, too?
-Why not use the usb-interface here? It's quite common to use bt-mac
-addresses for BT devices, so something similar for USB seems fine to
-me.
+What my patch mainly does is to add support for that model.
 
-Thanks
-David
+Before applying this patch, the keyboard behaves like a general keyboard,
+its 'fn' key has no function to be used with arrow keys to do Home, End, 
+Page Up and Page Down.
 
->         led->xpad = xpad;
->
->         led_cdev = &led->led_cdev;
-> @@ -944,16 +940,17 @@ static int xpad_init_input(struct usb_xpad *xpad)
->         }
->
->         error = xpad_init_ff(xpad);
-> -       if (error)
-> -               goto fail_init_ff;
-> -
-> -       error = xpad_led_probe(xpad);
-> -       if (error)
-> -               goto fail_init_led;
-> +       if (error) {
-> +               input_free_device(input_dev);
-> +               return error;
-> +       }
->
->         error = input_register_device(xpad->dev);
-> -       if (error)
-> -               goto fail_input_register;
-> +       if (error) {
-> +               input_ff_destroy(input_dev);
-> +               input_free_device(input_dev);
-> +               return error;
-> +       }
->
->         joydev_dev = device_find_child(&xpad->dev->dev, NULL,
->                                        xpad_find_joydev);
-> @@ -966,17 +963,14 @@ static int xpad_init_input(struct usb_xpad *xpad)
->                 xpad_send_led_command(xpad, (xpad->joydev_id % 4) + 2);
->         }
->
-> -       return 0;
-> -
-> -fail_input_register:
-> -       xpad_led_disconnect(xpad);
-> -
-> -fail_init_led:
-> -       input_ff_destroy(input_dev);
-> +       error = xpad_led_probe(xpad);
-> +       if (error) {
-> +               input_ff_destroy(input_dev);
-> +               input_unregister_device(input_dev);
-> +               return error;
-> +       }
->
-> -fail_init_ff:
-> -       input_free_device(input_dev);
-> -       return error;
-> +       return 0;
->  }
->
->  static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id)
-> --
-> 1.8.5.3
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I found that this is because the HID IDs list hasn't it in vendor ID 
+0x05ac (APPLE) section,
+so I add the production ID 0x0257 (got the value by using bluetoothctl) 
+in drivers/hid/hid-ids.h
+and add the corresponding codes in drivers/hid/hid-apple.c & 
+drivers/hid/hid-core.c.
+
+Thanks,
+Huei-Horng Yo
+
+
+P.S. Also reported in Bugzilla:https://bugzilla.kernel.org/show_bug.cgi?id=69681  <https://bugzilla.kernel.org/show_bug.cgi?id=69681>
+
+
+apple-alu-wireless-kbd-jis.patch
+
+Signed-off-by: Huei-Horng Yo <hiroshi@ghostsinthelab.org>
+diff -uprN linux-3.12.vanilla/drivers/hid/hid-apple.c linux-3.12/drivers/hid/hid-apple.c
+--- linux-3.12.vanilla/drivers/hid/hid-apple.c	2013-11-04 07:41:51.000000000 +0800
++++ linux-3.12/drivers/hid/hid-apple.c	2014-02-01 01:15:37.532768035 +0800
+@@ -447,6 +447,9 @@ static const struct hid_device_id apple_
+  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+  				USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
+  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++				USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS),
+  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
+diff -uprN linux-3.12.vanilla/drivers/hid/hid-core.c linux-3.12/drivers/hid/hid-core.c
+--- linux-3.12.vanilla/drivers/hid/hid-core.c	2013-11-04 07:41:51.000000000 +0800
++++ linux-3.12/drivers/hid/hid-core.c	2014-02-01 01:15:37.532768035 +0800
+@@ -1680,6 +1680,7 @@ static const struct hid_device_id hid_ha
+  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI) },
+  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
+diff -uprN linux-3.12.vanilla/drivers/hid/hid-ids.h linux-3.12/drivers/hid/hid-ids.h
+--- linux-3.12.vanilla/drivers/hid/hid-ids.h	2013-11-04 07:41:51.000000000 +0800
++++ linux-3.12/drivers/hid/hid-ids.h	2014-02-01 01:15:37.532768035 +0800
+@@ -135,6 +135,7 @@
+  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
+  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI  0x0255
+  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO   0x0256
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS   0x0257
+  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI	0x0290
+  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO	0x0291
+  #define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS	0x0292
+

@@ -1,64 +1,54 @@
-From: Archana Patni <archana.patni@linux.intel.com>
-Subject: [PATCH] HID: hid-sensor-hub: quirk for STM Sensor hub
-Date: Mon,  3 Feb 2014 12:44:16 +0530
-Message-ID: <1391411656-32684-1-git-send-email-archana.patni@linux.intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 4/7] Input: xpad: Set the correct LED number
+Date: Mon, 3 Feb 2014 09:22:11 +0100
+Message-ID: <20140203082211.GB21279@kroah.com>
+References: <1391173414-6199-1-git-send-email-gregkh@linuxfoundation.org>
+ <1391173414-6199-5-git-send-email-gregkh@linuxfoundation.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([143.182.124.21]:17740 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751298AbaBCHOj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Feb 2014 02:14:39 -0500
+Received: from mail.linuxfoundation.org ([140.211.169.12]:41289 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750716AbaBCIUo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 03:20:44 -0500
+Content-Disposition: inline
+In-Reply-To: <1391173414-6199-5-git-send-email-gregkh@linuxfoundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: jic23@kernel.org, linux-input@vger.kernel.org, srinivas.pandruvada@linux.intel.com, Archana Patni <archana.patni@linux.intel.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 
-Added STM sensor hub vendor id in HID_SENSOR_HUB_ENUM_QUIRK to
-fix report descriptors. These devices uses old FW which uses
-logical 0 as minimum. In these, HID reports are not using proper
-collection classes. So we need to fix report descriptors,for
-such devices. This will not have any impact, if the FW uses
-logical 1 as minimum.
+On Fri, Jan 31, 2014 at 02:03:31PM +0100, Greg Kroah-Hartman wrote:
+> From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+> 
+> The LED number should not just be incremented every time, that doesn't
+> work, set the number based on the number it actually is.
+> 
+> Note, the joydev subsystem doesn't allow us to easily find out the minor
+> number, so we have to walk all devices in order to find a joystick
+> device by looking at the name of the device.  Odds are, this isn't the
+> best way to do it, but I don't know of any other way at the moment.
+> 
+> Signed-off-by: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  drivers/input/joystick/xpad.c | 26 +++++++++++++++++++++-----
+>  1 file changed, 21 insertions(+), 5 deletions(-)
 
-We look for usage id for "power and report state", and modify
-logical minimum value to 1.
+I'll preempt David's NAK of this patch before he gets a chance to catch
+up on his email from being at FOSDEM :)
 
-This is a follow-up patch to commit id 875e36f8.
+I spent some time talking with David about this, and I think I know a
+better way to handle this instead of the "walk the joystick devices"
+mess that should work for systems that don't even use joydev (which
+"modern" systems shouldn't be using anyway.)
 
-Signed-off-by: Archana Patni <archana.patni@linux.intel.com>
-Reviewed-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/hid-ids.h        |    3 +++
- drivers/hid/hid-sensor-hub.c |    3 +++
- 2 files changed, 6 insertions(+)
+So I'll do a respin of this patch series in a week or so when I catch up
+with my other stuff and send it out again...
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5a5248f..1fc5bee 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -451,6 +451,9 @@
- #define USB_VENDOR_ID_INTEL_1		0x8087
- #define USB_DEVICE_ID_INTEL_HID_SENSOR	0x09fa
- 
-+#define USB_VENDOR_ID_STM_0             0x0483
-+#define USB_DEVICE_ID_STM_HID_SENSOR    0x91d1
-+
- #define USB_VENDOR_ID_ION		0x15e4
- #define USB_DEVICE_ID_ICADE		0x0132
- 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 46f4480..9c22e14 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -665,6 +665,9 @@ static const struct hid_device_id sensor_hub_devices[] = {
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_1,
- 			USB_DEVICE_ID_INTEL_HID_SENSOR),
- 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
-+			USB_DEVICE_ID_STM_HID_SENSOR),
-+			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
- 		     HID_ANY_ID) },
- 	{ }
--- 
-1.7.9.5
+But, if someone wants to review the other 6 in this series, that would
+be great.
 
+thanks,
+
+greg k-h

@@ -1,100 +1,77 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 00/11] HID: spring cleaning
-Date: Mon, 3 Feb 2014 14:19:57 -0500
-Message-ID: <CAN+gG=FtkmTKNTwM3Jbb4Cfw0g5kgz2aaGN-mWU0FfHmTnW1BQ@mail.gmail.com>
-References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4RWXXXYMSHFnrMubvqjJDu4tE3ikKsrhNfEUXdNASdcgA@mail.gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 7/7] Input: xpad: properly name the LED class devices
+Date: Mon, 3 Feb 2014 20:46:31 +0100
+Message-ID: <20140203194631.GB3625@kroah.com>
+References: <1391173414-6199-1-git-send-email-gregkh@linuxfoundation.org>
+ <1391173414-6199-8-git-send-email-gregkh@linuxfoundation.org>
+ <CANq1E4SwvEXeZ3L235PKnSKZaepDfvx+wVy7Q2o6hAA3g-2OTw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f181.google.com ([209.85.217.181]:58845 "EHLO
-	mail-lb0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752608AbaBCTT7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 14:19:59 -0500
-In-Reply-To: <CANq1E4RWXXXYMSHFnrMubvqjJDu4tE3ikKsrhNfEUXdNASdcgA@mail.gmail.com>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:45517 "EHLO
+	mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752350AbaBCTpD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 14:45:03 -0500
+Content-Disposition: inline
+In-Reply-To: <CANq1E4SwvEXeZ3L235PKnSKZaepDfvx+wVy7Q2o6hAA3g-2OTw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 
-On Mon, Feb 3, 2014 at 11:48 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+On Mon, Feb 03, 2014 at 06:39:20PM +0100, David Herrmann wrote:
 > Hi
->
-> On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
->> Hi guys,
->>
->> This is an attempt to complete the branch for-3.15/ll-driver-new-callbacks:
->> - try to implement as much as possible ll_driver callbacks (some are still
->>   missing, but I did not had the time to complete it)
->> - add inliners hid_hw_* for all the ll_driver callbacks
->> - remove transport dependant callbacks in struct hid_device
->> - remove the so called "obsolete" hidinput_input_event handler which was used
->>   in 2/4 transport drivers
->>
->> Bonus point: 14 files changed, 213 insertions(+), 272 deletions(-)
->> Yay!
->>
->> I made sure I kept the PS3 controller working and the LEDs (on logitech-dj and
->> on bluetooth keyboard) working. The rest do not mostly need further testing,
->> the code path did not changed. But still, a review (and some tests) would be a
->> good idea :)
->
-> Thanks a lot! Looks all good except for the uhid and i2c changes. But
-> I have commented on those.
+> 
+> On Fri, Jan 31, 2014 at 2:03 PM, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> > Don't just increment the LED device number, but use the joystick id so
+> > that you have a chance to associate the LED device to the correct xpad
+> > device by the name, instead of having to use the sysfs tree, which
+> > really doesn't work.
+> >
+> > Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > ---
+> >  drivers/input/joystick/xpad.c | 40 +++++++++++++++++-----------------------
+> >  1 file changed, 17 insertions(+), 23 deletions(-)
+> >
+> > diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> > index d342d41a7a0d..ae156de46a12 100644
+> > --- a/drivers/input/joystick/xpad.c
+> > +++ b/drivers/input/joystick/xpad.c
+> > @@ -781,8 +781,6 @@ static void xpad_led_set(struct led_classdev *led_cdev,
+> >
+> >  static int xpad_led_probe(struct usb_xpad *xpad)
+> >  {
+> > -       static atomic_t led_seq = ATOMIC_INIT(0);
+> > -       long led_no;
+> >         struct xpad_led *led;
+> >         struct led_classdev *led_cdev;
+> >         int error;
+> > @@ -794,9 +792,7 @@ static int xpad_led_probe(struct usb_xpad *xpad)
+> >         if (!led)
+> >                 return -ENOMEM;
+> >
+> > -       led_no = (long)atomic_inc_return(&led_seq) - 1;
+> > -
+> > -       snprintf(led->name, sizeof(led->name), "xpad%ld", led_no);
+> > +       snprintf(led->name, sizeof(led->name), "xpad%d", xpad->joydev_id);
+> 
+> I guess that patch should be dropped, too?
 
-Thanks David for the review. Very appreciated.
+Yes it should.
 
-Jiri, I think the simpler way to handle this is that I send out a v2
-of the patches with the reviewed-by David:
-I will drop 1, 2 and 11 and rework a little on 4 (hid-logitech-dj).
+> Why not use the usb-interface here? It's quite common to use bt-mac
+> addresses for BT devices, so something similar for USB seems fine to
+> me.
 
-Then, I'll send out the second series where I will remove
-hid_output_raw_report, implement a generic .request() on top of
-.raw_request(), and I have some more cleanup to come (less aggressive
-this time I think).
+I don't know if the interface number of the device corrisponds to the
+"number" of the order that the devices are connected to the wireless
+basestation.  I'll have to do some debugging to determine this first...
 
-Cheers,
-Benjamin
+But yes, we should use something like that instead of the joydev minor
+number, especially if we don't want people to use joydev anymore :)
 
->
-> Cheers
-> David
->
->> Cheers,
->> Benjamin
->>
->> PS: obviously, this goes on top on the branch for-3.15/ll-driver-new-callbacks
->>
->> Benjamin Tissoires (11):
->>   HID: uHID: implement .raw_request
->>   HID: i2c-hid: implement ll_driver transport-layer callbacks
->>   HID: add inliners for ll_driver transport-layer callbacks
->>   HID: logitech-dj: remove hidinput_input_event
->>   HID: HIDp: remove hidp_hidinput_event
->>   HID: remove hidinput_input_event handler
->>   HID: HIDp: remove duplicated coded
->>   HID: usbhid: remove duplicated code
->>   HID: remove hid_get_raw_report in struct hid_device
->>   HID: introduce helper to access hid_output_raw_report()
->>   HID: move hid_output_raw_report to hid_ll_driver
->>
->>  drivers/hid/hid-input.c        |  12 ++---
->>  drivers/hid/hid-lg.c           |   6 ++-
->>  drivers/hid/hid-logitech-dj.c  | 101 +++++++++++++---------------------
->>  drivers/hid/hid-magicmouse.c   |   2 +-
->>  drivers/hid/hid-sony.c         |  19 +++++--
->>  drivers/hid/hid-thingm.c       |   4 +-
->>  drivers/hid/hid-wacom.c        |  16 +++---
->>  drivers/hid/hid-wiimote-core.c |   4 +-
->>  drivers/hid/hidraw.c           |  11 ++--
->>  drivers/hid/i2c-hid/i2c-hid.c  |  27 +++++++++-
->>  drivers/hid/uhid.c             |  20 ++++++-
->>  drivers/hid/usbhid/hid-core.c  |  67 +++++------------------
->>  include/linux/hid.h            |  77 ++++++++++++++++++++++----
->>  net/bluetooth/hidp/core.c      | 119 +++++------------------------------------
->>  14 files changed, 213 insertions(+), 272 deletions(-)
->>
->> --
->> 1.8.3.1
->>
+thanks,
+
+greg k-h

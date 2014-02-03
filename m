@@ -1,17 +1,17 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 02/11] HID: i2c-hid: implement ll_driver transport-layer callbacks
-Date: Mon, 3 Feb 2014 17:04:19 +0100
-Message-ID: <CANq1E4S0WjuqW3coJDKqH9Gm5JWwb_W_CEU8Ety15m0CjhOqZQ@mail.gmail.com>
+Subject: Re: [PATCH 04/11] HID: logitech-dj: remove hidinput_input_event
+Date: Mon, 3 Feb 2014 17:06:53 +0100
+Message-ID: <CANq1E4Rn=rijG8Xv97okj2k4iv=ZG6wa30xQrxgjhutQovD+dg@mail.gmail.com>
 References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1391316630-29541-3-git-send-email-benjamin.tissoires@redhat.com>
+	<1391316630-29541-5-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:61563 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751686AbaBCQEU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 11:04:20 -0500
-In-Reply-To: <1391316630-29541-3-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-ie0-f179.google.com ([209.85.223.179]:59388 "EHLO
+	mail-ie0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751999AbaBCQGy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 11:06:54 -0500
+In-Reply-To: <1391316630-29541-5-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -21,109 +21,166 @@ Hi
 
 On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
 <benjamin.tissoires@redhat.com> wrote:
-> Add output_report and raw_request to i2c-hid.
-> Hopefully, we will manage to have the same transport level between
-> all the transport drivers.
+> hid-logitech-dj uses its own ->hidinput_input_event() instead of
+> the generic binding in hid-input.
+> Moving the handling of LEDs towards logi_dj_output_hidraw_report()
+> allows two things:
+> - remove hidinput_input_event in struct hid_device
+> - hidraw user space programs can also set the LEDs
 >
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
->  drivers/hid/i2c-hid/i2c-hid.c | 24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
+>  drivers/hid/hid-logitech-dj.c | 99 +++++++++++++++----------------------------
+>  1 file changed, 35 insertions(+), 64 deletions(-)
 >
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index ce68a12..5099f1f 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -574,6 +574,28 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
->         return ret;
->  }
+> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+> index f45279c..61d2bbf 100644
+> --- a/drivers/hid/hid-logitech-dj.c
+> +++ b/drivers/hid/hid-logitech-dj.c
+> @@ -44,14 +44,6 @@ static const char kbd_descriptor[] = {
+>         0x19, 0xE0,             /*   USAGE_MINIMUM (Left Control)   */
+>         0x29, 0xE7,             /*   USAGE_MAXIMUM (Right GUI)      */
+>         0x81, 0x02,             /*   INPUT (Data,Var,Abs)       */
+> -       0x95, 0x05,             /*   REPORT COUNT (5)           */
+> -       0x05, 0x08,             /*   USAGE PAGE (LED page)      */
+> -       0x19, 0x01,             /*   USAGE MINIMUM (1)          */
+> -       0x29, 0x05,             /*   USAGE MAXIMUM (5)          */
+> -       0x91, 0x02,             /*   OUTPUT (Data, Variable, Absolute)  */
+> -       0x95, 0x01,             /*   REPORT COUNT (1)           */
+> -       0x75, 0x03,             /*   REPORT SIZE (3)            */
+> -       0x91, 0x01,             /*   OUTPUT (Constant)          */
+>         0x95, 0x06,             /*   REPORT_COUNT (6)           */
+>         0x75, 0x08,             /*   REPORT_SIZE (8)            */
+>         0x15, 0x00,             /*   LOGICAL_MINIMUM (0)        */
+> @@ -60,6 +52,18 @@ static const char kbd_descriptor[] = {
+>         0x19, 0x00,             /*   USAGE_MINIMUM (no event)       */
+>         0x2A, 0xFF, 0x00,       /*   USAGE_MAXIMUM (reserved)       */
+>         0x81, 0x00,             /*   INPUT (Data,Ary,Abs)       */
+> +       0x85, 0x0e,             /* REPORT_ID (14)               */
+> +       0x05, 0x08,             /*   USAGE PAGE (LED page)      */
+> +       0x95, 0x05,             /*   REPORT COUNT (5)           */
+> +       0x75, 0x01,             /*   REPORT SIZE (1)            */
+> +       0x15, 0x00,             /*   LOGICAL_MINIMUM (0)        */
+> +       0x25, 0x01,             /*   LOGICAL_MAXIMUM (1)        */
+> +       0x19, 0x01,             /*   USAGE MINIMUM (1)          */
+> +       0x29, 0x05,             /*   USAGE MAXIMUM (5)          */
+> +       0x91, 0x02,             /*   OUTPUT (Data, Variable, Absolute)  */
+> +       0x95, 0x01,             /*   REPORT COUNT (1)           */
+> +       0x75, 0x03,             /*   REPORT SIZE (3)            */
+> +       0x91, 0x01,             /*   OUTPUT (Constant)          */
+>         0xC0
+>  };
 >
-> +static int i2c_hid_output_report(struct hid_device *hid, __u8 *buf,
-> +               size_t count)
-> +{
-> +       return i2c_hid_output_raw_report(hid, buf, count, HID_OUTPUT_REPORT);
-> +}
+> @@ -544,10 +548,30 @@ static int logi_dj_output_hidraw_report(struct hid_device *hid, u8 * buf,
+>                                         size_t count,
+>                                         unsigned char report_type)
+>  {
+> -       /* Called by hid raw to send data */
+> -       dbg_hid("%s\n", __func__);
+> +       struct dj_device *djdev = hid->driver_data;
+> +       struct dj_receiver_dev *djrcv_dev = djdev->dj_receiver_dev;
+> +       u8 *out_buf;
+> +       int ret;
+>
+> -       return 0;
+> +       if (buf[0] != REPORT_TYPE_LEDS)
+> +               return -EINVAL;
 > +
-> +static int i2c_hid_raw_request(struct hid_device *hid, unsigned char reportnum,
-> +                              __u8 *buf, size_t len, unsigned char rtype,
-> +                              int reqtype)
-> +{
-> +       switch (reqtype) {
-> +       case HID_REQ_GET_REPORT:
-> +               return i2c_hid_get_raw_report(hid, reportnum, buf, len, rtype);
-> +       case HID_REQ_SET_REPORT:
-> +               if (buf[0] != reportnum)
-> +                       return -EINVAL;
-> +               return i2c_hid_output_raw_report(hid, buf, len, rtype);
+> +       out_buf = kzalloc(DJREPORT_SHORT_LENGTH, GFP_ATOMIC);
+> +       if (!out_buf)
+> +               return -ENOMEM;
+> +
+> +       if (count < DJREPORT_SHORT_LENGTH - 2)
+> +               count = DJREPORT_SHORT_LENGTH - 2;
+> +
+> +       out_buf[0] = REPORT_ID_DJ_SHORT;
+> +       out_buf[1] = djdev->device_index;
+> +       memcpy(out_buf + 2, buf, count);
+> +
+> +       ret = djrcv_dev->hdev->hid_output_raw_report(djrcv_dev->hdev, out_buf,
+> +               DJREPORT_SHORT_LENGTH, report_type);
 
-I just skimmed the I2C-HID specs and it defines three methods for
-input/output reports:
-
-1) Section 6.2:
-raw async output-reports can be sent by writing the data at any time
-to wOutputRegister.
-This should be used as method for hid->output_report().
-
-2) Section 7.1:
-SET_REPORT can be issued by writing the right OPCODE + report-ID into
-wCommandRegister and the data into wDataRegister.
-This should be used as method for hid->raw_request() + HID_REQ_SET_REPORT.
-
-3) Section 7.1:
-GET_REPORT can be issued by writing the right OPCODE + report-ID into
-wCommandRegister and then waiting for the device to write the data
-into wDataRegister.
-This should be used for hid->raw_request() + HID_REQ_GET_REPORT
-
-
-The GET_REPORT implementation looks fine to me, but the
-i2c_hid_set_report() seems to support both 1) and 2) depending on the
-passed type and capabilities:
- - it uses 2) for FEATURE_REPORT reports or if the max OUTPUT_LENGTH is 0
- - it uses 1) otherwise
-
-I'm not sure whether the i2c-hid-spec mandates this behavior, so I am
-not saying it's wrong. I just wanna understand what we do here. So if
-we use hid->output_report() with HID_FEATURE_REPORT, the current code
-turns this into a SET_REPORT. Likewise, an hid->raw_request() with
-HID_REQ_SET_REPORT but with HID_OUTPUT_REPORT turns into an
-output-report.
-
-I'd rather expect this behavior:
-
-hid->output_report() should always do this:
-  args[index++] = outputRegister & 0xFF;
-  args[index++] = outputRegister >> 8;
-  hidcmd = &hid_no_cmd;
-
-while hid->raw_request() should always do this:
-  args[index++] = dataRegister & 0xFF;
-  args[index++] = dataRegister >> 8;
-
-The special case for maxOutputLength==0 seems fine to me, but the
-"reportType == 0x03" looks weird.
-
+Strictly speaking the code below uses HID_REQ_SET_REPORT and you
+replace it with hid_output_raw_report() here (which at least for BTHID
+is not equivalent). Anyhow, HID-core uses hid_output_raw_report(),
+too, so this should be fine.
 
 Thanks
 David
 
-> +       default:
-> +               return -EIO;
-> +       }
-> +}
 > +
->  static void i2c_hid_request(struct hid_device *hid, struct hid_report *rep,
->                 int reqtype)
+> +       kfree(out_buf);
+> +       return ret;
+>  }
+>
+>  static void rdcat(char *rdesc, unsigned int *rsize, const char *data, unsigned int size)
+> @@ -613,58 +637,6 @@ static int logi_dj_ll_parse(struct hid_device *hid)
+>         return retval;
+>  }
+>
+> -static int logi_dj_ll_input_event(struct input_dev *dev, unsigned int type,
+> -                                 unsigned int code, int value)
+> -{
+> -       /* Sent by the input layer to handle leds and Force Feedback */
+> -       struct hid_device *dj_hiddev = input_get_drvdata(dev);
+> -       struct dj_device *dj_dev = dj_hiddev->driver_data;
+> -
+> -       struct dj_receiver_dev *djrcv_dev =
+> -           dev_get_drvdata(dj_hiddev->dev.parent);
+> -       struct hid_device *dj_rcv_hiddev = djrcv_dev->hdev;
+> -       struct hid_report_enum *output_report_enum;
+> -
+> -       struct hid_field *field;
+> -       struct hid_report *report;
+> -       unsigned char *data;
+> -       int offset;
+> -
+> -       dbg_hid("%s: %s, type:%d | code:%d | value:%d\n",
+> -               __func__, dev->phys, type, code, value);
+> -
+> -       if (type != EV_LED)
+> -               return -1;
+> -
+> -       offset = hidinput_find_field(dj_hiddev, type, code, &field);
+> -
+> -       if (offset == -1) {
+> -               dev_warn(&dev->dev, "event field not found\n");
+> -               return -1;
+> -       }
+> -       hid_set_field(field, offset, value);
+> -
+> -       data = hid_alloc_report_buf(field->report, GFP_ATOMIC);
+> -       if (!data) {
+> -               dev_warn(&dev->dev, "failed to allocate report buf memory\n");
+> -               return -1;
+> -       }
+> -
+> -       hid_output_report(field->report, &data[0]);
+> -
+> -       output_report_enum = &dj_rcv_hiddev->report_enum[HID_OUTPUT_REPORT];
+> -       report = output_report_enum->report_id_hash[REPORT_ID_DJ_SHORT];
+> -       hid_set_field(report->field[0], 0, dj_dev->device_index);
+> -       hid_set_field(report->field[0], 1, REPORT_TYPE_LEDS);
+> -       hid_set_field(report->field[0], 2, data[1]);
+> -
+> -       hid_hw_request(dj_rcv_hiddev, report, HID_REQ_SET_REPORT);
+> -
+> -       kfree(data);
+> -
+> -       return 0;
+> -}
+> -
+>  static int logi_dj_ll_start(struct hid_device *hid)
 >  {
-> @@ -761,6 +783,8 @@ static struct hid_ll_driver i2c_hid_ll_driver = {
->         .close = i2c_hid_close,
->         .power = i2c_hid_power,
->         .request = i2c_hid_request,
-> +       .output_report = i2c_hid_output_report,
-> +       .raw_request = i2c_hid_raw_request,
+>         dbg_hid("%s\n", __func__);
+> @@ -683,7 +655,6 @@ static struct hid_ll_driver logi_dj_ll_driver = {
+>         .stop = logi_dj_ll_stop,
+>         .open = logi_dj_ll_open,
+>         .close = logi_dj_ll_close,
+> -       .hidinput_input_event = logi_dj_ll_input_event,
 >  };
 >
->  static int i2c_hid_init_irq(struct i2c_client *client)
+>
 > --
 > 1.8.3.1
 >

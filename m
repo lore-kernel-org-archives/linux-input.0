@@ -1,56 +1,137 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Bluetooth: hidp: make sure input buffers are big enough
-Date: Mon, 3 Feb 2014 12:27:20 +0100
-Message-ID: <CANq1E4S++uqMzQue_0jC3N=Lm8Os5V-48Hw5M4vWvM+2Vx91yA@mail.gmail.com>
-References: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com>
-	<3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org>
-	<CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com>
-	<alpine.LNX.2.00.1401071308020.4962@pobox.suse.cz>
-	<CANq1E4SxrDnbOCsohZXYoYL-HQjEc-xcOnXfAm=npHG2QfMS9A@mail.gmail.com>
-	<alpine.LNX.2.00.1401071811530.4962@pobox.suse.cz>
-	<alpine.LNX.2.00.1401282152140.22492@pobox.suse.cz>
-	<CANq1E4TW+GU=oaW0tXb=Tun9HMtr26u-PC3H6BsLot560ANgog@mail.gmail.com>
-	<alpine.LNX.2.00.1402031107310.14066@pobox.suse.cz>
+Subject: Re: [PATCH 07/11] HID: HIDp: remove duplicated coded
+Date: Mon, 3 Feb 2014 16:02:13 +0100
+Message-ID: <CANq1E4S6jCc4Kd2EKoG0SgSc68TrBBSfnKChGV6Tn3fGKGRnSQ@mail.gmail.com>
+References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1391316630-29541-8-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f171.google.com ([209.85.213.171]:41205 "EHLO
-	mail-ig0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751785AbaBCL1V (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 06:27:21 -0500
-In-Reply-To: <alpine.LNX.2.00.1402031107310.14066@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1391316630-29541-8-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Marcel Holtmann <marcel@holtmann.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-bluetooth@vger.kernel.org development" <linux-bluetooth@vger.kernel.org>, "Gustavo F. Padovan" <gustavo@padovan.org>
 
-Hi Jiri
+Hi
 
-On Mon, Feb 3, 2014 at 11:08 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 29 Jan 2014, David Herrmann wrote:
+On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> - Move hidp_output_report() above
+> - Removed duplicated code in hidp_output_raw_report()
 >
->> >> Due to various reasons I will not have access to any testing HW for the
->> >> upcoming 2-3 days, so if you can cook something up in that timeframe, it'd
->> >> be appreciated.
->> >>
->> >> Otherwise I'll be working on it by the end of this week.
->> >
->> > David,
->> >
->> > just got back to this, finally ... did you have time to work on this at
->> > all, or should I just start from scratch?
->>
->> Sorry, no. Fosdem is this weekend and I needed to get my code ready
->> for that. But I'll finally have time again next week.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  net/bluetooth/hidp/core.c | 68 ++++++++---------------------------------------
+>  1 file changed, 11 insertions(+), 57 deletions(-)
 >
-> Okay, thanks. I then guess we should proceed with this bandaid (double
-> allocation) for 3.14
+> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+> index 469e61b..02670b3 100644
+> --- a/net/bluetooth/hidp/core.c
+> +++ b/net/bluetooth/hidp/core.c
+> @@ -373,62 +373,25 @@ err:
+>         return ret;
+>  }
+>
+> -static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data, size_t count,
+> -               unsigned char report_type)
+> +static int hidp_output_report(struct hid_device *hid, __u8 *data, size_t count)
+>  {
+>         struct hidp_session *session = hid->driver_data;
+> -       int ret;
+>
+> +       return hidp_send_intr_message(session,
+> +                                     HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT,
+> +                                     data, count);
+> +}
+> +
+> +static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data,
+> +               size_t count, unsigned char report_type)
+> +{
+>         if (report_type == HID_OUTPUT_REPORT) {
+> -               report_type = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
+> -               return hidp_send_intr_message(session, report_type,
+> -                                             data, count);
+> +               return hidp_output_report(hid, data, count);
 
-It would be really nice if we could get the HIDP patch into 3.14-rc2
-and backported to stable. There have been quite a bunch of reports now
-and I dislike adding a GFP_ATOMIC allocation in HID core. I am back
-home now and will try to make HID core honor the length, but that's
-quite invasive and shouldn't be used for stable.
+NAK, that does not work with BT. hidp_output_raw_report() can do both,
+a synchronous SET_REPORT and an async OUTPUT_REPORT. It's currently
+screwed up, as for RTYPE_OUTPUT it uses the intr-channel, for
+RTYPE_FEATURE the ctrl-channel.
 
-Sorry for the delay,
+This function is exactly the reason why we added raw_report() and
+output_report(). So I'd like to keep it as it and just remove it once
+we have no more users of hidp_output_raw_report().
+
+Thanks
 David
+
+>         } else if (report_type != HID_FEATURE_REPORT) {
+>                 return -EINVAL;
+>         }
+>
+> -       if (mutex_lock_interruptible(&session->report_mutex))
+> -               return -ERESTARTSYS;
+> -
+> -       /* Set up our wait, and send the report request to the device. */
+> -       set_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
+> -       report_type = HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE;
+> -       ret = hidp_send_ctrl_message(session, report_type, data, count);
+> -       if (ret)
+> -               goto err;
+> -
+> -       /* Wait for the ACK from the device. */
+> -       while (test_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags) &&
+> -              !atomic_read(&session->terminate)) {
+> -               int res;
+> -
+> -               res = wait_event_interruptible_timeout(session->report_queue,
+> -                       !test_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags)
+> -                               || atomic_read(&session->terminate),
+> -                       10*HZ);
+> -               if (res == 0) {
+> -                       /* timeout */
+> -                       ret = -EIO;
+> -                       goto err;
+> -               }
+> -               if (res < 0) {
+> -                       /* signal */
+> -                       ret = -ERESTARTSYS;
+> -                       goto err;
+> -               }
+> -       }
+> -
+> -       if (!session->output_report_success) {
+> -               ret = -EIO;
+> -               goto err;
+> -       }
+> -
+> -       ret = count;
+> -
+> -err:
+> -       clear_bit(HIDP_WAITING_FOR_SEND_ACK, &session->flags);
+> -       mutex_unlock(&session->report_mutex);
+> -       return ret;
+> +       return hidp_set_raw_report(hid, data[0], data, count, report_type);
+>  }
+>
+>  static int hidp_raw_request(struct hid_device *hid, unsigned char reportnum,
+> @@ -445,15 +408,6 @@ static int hidp_raw_request(struct hid_device *hid, unsigned char reportnum,
+>         }
+>  }
+>
+> -static int hidp_output_report(struct hid_device *hid, __u8 *data, size_t count)
+> -{
+> -       struct hidp_session *session = hid->driver_data;
+> -
+> -       return hidp_send_intr_message(session,
+> -                                     HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT,
+> -                                     data, count);
+> -}
+> -
+>  static void hidp_idle_timeout(unsigned long arg)
+>  {
+>         struct hidp_session *session = (struct hidp_session *) arg;
+> --
+> 1.8.3.1
+>

@@ -1,121 +1,158 @@
-From: Frank Praznik <frank.praznik@gmail.com>
-Subject: Re: [PATCH 0/6] HID: Add a stable method for retrieving the client
- MAC address of a HID device
-Date: Mon, 3 Feb 2014 13:33:19 -0500
-Message-ID: <CAH+9E3p+8G4rugaLJnh5fw-60J=7NsQ6QBbbqYgvVa8dTzH=uw@mail.gmail.com>
-References: <1391189573-2591-1-git-send-email-frank.praznik@oh.rr.com>
-	<CAN+gG=EVcVmQ8rr2YtoapfftSHaDeYnSu5rCnuZjL=S-v1xU4Q@mail.gmail.com>
-	<52EC01DF.6050309@oh.rr.com>
-	<CAN+gG=GxXUU2rNNg7T1o50RPzXopnnqWbhQ4+-uWN3mbLUUyDw@mail.gmail.com>
-	<52ED1B8D.80208@gmail.com>
-	<CAN+gG=H6A93ozP=Q52GXnEjARC1tX4s6k=Oi6MoHK7Mh6kBPiw@mail.gmail.com>
-	<CANq1E4TYrwOhBd6ZVUCzuRyB_8ivaCsZVbBKz6n5hPodHjtOmg@mail.gmail.com>
-	<CAH+9E3oNifQgGDOp9POpxMm2uaMo3AUdRttC7L=WtGOyU8_nBA@mail.gmail.com>
-	<CANq1E4Q+oaovc-G9D07hSKQxE4SO_ziKLbKnRH8cH9NwV3YXnQ@mail.gmail.com>
-	<20140203175704.GA2229@core.coreip.homeip.net>
-	<CANq1E4TxLBzhyf5b5SD5gP1iPRNZSLEg4-uwaqAhybovZn62uQ@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH 02/11] HID: i2c-hid: implement ll_driver transport-layer callbacks
+Date: Mon, 3 Feb 2014 14:00:00 -0500
+Message-ID: <CAN+gG=G7G4Twr6-6cftKXXdfgSRZ54ZmaYzLcOLiQhMhgCX5og@mail.gmail.com>
+References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
+	<1391316630-29541-3-git-send-email-benjamin.tissoires@redhat.com>
+	<CANq1E4S0WjuqW3coJDKqH9Gm5JWwb_W_CEU8Ety15m0CjhOqZQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ob0-f180.google.com ([209.85.214.180]:36317 "EHLO
-	mail-ob0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751912AbaBCSdT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 13:33:19 -0500
-Received: by mail-ob0-f180.google.com with SMTP id wp4so8217914obc.39
-        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 10:33:19 -0800 (PST)
-In-Reply-To: <CANq1E4TxLBzhyf5b5SD5gP1iPRNZSLEg4-uwaqAhybovZn62uQ@mail.gmail.com>
+Received: from mail-la0-f50.google.com ([209.85.215.50]:40249 "EHLO
+	mail-la0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752643AbaBCTAC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 14:00:02 -0500
+In-Reply-To: <CANq1E4S0WjuqW3coJDKqH9Gm5JWwb_W_CEU8Ety15m0CjhOqZQ@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: David Herrmann <dh.herrmann@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Mon, Feb 3, 2014 at 1:06 PM, David Herrmann <dh.herrmann@gmail.com> wrote:
+On Mon, Feb 3, 2014 at 11:04 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
 > Hi
 >
-> On Mon, Feb 3, 2014 at 6:57 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Mon, Feb 03, 2014 at 06:45:52PM +0100, David Herrmann wrote:
->>> Hi
->>>
->>> Adding Dmitry+Jiri, maybe they can clarify this.
->>>
->>> [snip]
->>> >>>
->>> >>> Yes
->>> >>>
->>> >>>> hidp sets it to point to the hci_conn struct from which src address for the
->>> >>>> Bluetooth connection can be obtained, but making assumptions about an opaque
->>> >>>> pointer like that seems dangerous.  Is the parent pointer guaranteed to
->>> >>>> point to the hci_conn struct as long as the bus type is Bluetooth?
->>> >>>
->>> >>> And nope. If you use uhid, then the parent will not be a hci_conn.
->>> >>>
->>> >>> With enough guards, you should be able to use it, but it's not ideal I agree.
->>> >>> I really want to have David's opinion regarding the UNIQ field. IMO,
->>> >>> this seems to be the most transport-agnostic way of doing it.
->>> >>
->>> >> UNIQ is definitely wrong. It is used to assign a run-time *unique*
->>> >> value to the connection. So ideally it should be different if a device
->>> >> is reconnected. The PHYS field is actually used to identify a physical
->>> >> device. So please, if we're doing this, then we should do it via PHYS.
->>> >>
->>> >> I'm fine with hard-coding PHYS as bt-address for BT-HID, but please
->>> >> add a comment to hidp_setup_hid() in net/bluetooth/hidp/core.c before
->>> >> doing the snprintf() there.
->>> >>
->>> >> The reason why I disliked hard-coding this behavior is that if a
->>> >> single BT-device is connected twice to us, we usually want two
->>> >> different PHYS entries for both depending on which service this
->>> >> connection provides. However, this seems like an unlikely and
->>> >> overengineered problem so lets not do that. Furthermore, while BT-HID
->>> >> would allow such setups with some hacks, it isn't supported in a clean
->>> >> way. So yeah, I'm actually fine with using PHYS for that.
->>> >>
->>> >> Thanks
->>> >> David
->>> >
->>> > PHYS should definitely be changed if this is the case because right
->>> > now it is set to the MAC of the host adapter which means that it's the
->>> > same for every Bluetooth device and connection.  I believe that the
->>> > hidraw documentation also specifies that for Bluetooth devices the
->>> > HIDIOCGRAWPHYS ioctl should return a string with the MAC address of
->>> > the associated device rather than that of the host adapter as the
->>> > current behavior does.
->>>
->>> Oh, yes, nice catch!
->>> Ok, maybe we need to clear up what PHYS and UNIQ do before relying on
->>> them. I thought, they were defined as:
->>>
->>> PHYS: A string describing the physical device. It should be the same
->>> if a device reconnects. It can be used by user-space to track devices
->>> across disconnects
->>>
->>> UNIQ: A string describing the current connection to a device. If the
->>> device reconnects, the UNIQ string should change. It can be used by
->>> user-space to track a single device-session.
->>>
->>> afaik both strings have no common format and drivers are free to
->>> provide any kind of information, as long as it follows the given
->>> rules. That's why I disliked the idea of relying on them and parsing
->>> them. But maybe I just have no idea what the original intention was
->>> behind them?
+> On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> Add output_report and raw_request to i2c-hid.
+>> Hopefully, we will manage to have the same transport level between
+>> all the transport drivers.
 >>
->> PHYS: describes physical connection of the device in a given box,
->> supposed to be unique within a box.
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
+>>  drivers/hid/i2c-hid/i2c-hid.c | 24 ++++++++++++++++++++++++
+>>  1 file changed, 24 insertions(+)
 >>
->> UNIQ: unique identifier (if exists) assigned to the device, should
->> ideally be unique globally and should not change when device is moved
->> within a box out between boxes. Think serial number in USB descriptors.
+>> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+>> index ce68a12..5099f1f 100644
+>> --- a/drivers/hid/i2c-hid/i2c-hid.c
+>> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+>> @@ -574,6 +574,28 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
+>>         return ret;
+>>  }
+>>
+>> +static int i2c_hid_output_report(struct hid_device *hid, __u8 *buf,
+>> +               size_t count)
+>> +{
+>> +       return i2c_hid_output_raw_report(hid, buf, count, HID_OUTPUT_REPORT);
+>> +}
+>> +
+>> +static int i2c_hid_raw_request(struct hid_device *hid, unsigned char reportnum,
+>> +                              __u8 *buf, size_t len, unsigned char rtype,
+>> +                              int reqtype)
+>> +{
+>> +       switch (reqtype) {
+>> +       case HID_REQ_GET_REPORT:
+>> +               return i2c_hid_get_raw_report(hid, reportnum, buf, len, rtype);
+>> +       case HID_REQ_SET_REPORT:
+>> +               if (buf[0] != reportnum)
+>> +                       return -EINVAL;
+>> +               return i2c_hid_output_raw_report(hid, buf, len, rtype);
 >
-> Thanks, so it's basically the other way around as I thought. So I
-> think using UNIQ is the way to go, sorry for the confusion.
+> I just skimmed the I2C-HID specs and it defines three methods for
+> input/output reports:
+>
+> 1) Section 6.2:
+> raw async output-reports can be sent by writing the data at any time
+> to wOutputRegister.
+> This should be used as method for hid->output_report().
+>
+> 2) Section 7.1:
+> SET_REPORT can be issued by writing the right OPCODE + report-ID into
+> wCommandRegister and the data into wDataRegister.
+> This should be used as method for hid->raw_request() + HID_REQ_SET_REPORT.
+>
+> 3) Section 7.1:
+> GET_REPORT can be issued by writing the right OPCODE + report-ID into
+> wCommandRegister and then waiting for the device to write the data
+> into wDataRegister.
+> This should be used for hid->raw_request() + HID_REQ_GET_REPORT
+>
+>
+> The GET_REPORT implementation looks fine to me, but the
+> i2c_hid_set_report() seems to support both 1) and 2) depending on the
+> passed type and capabilities:
+>  - it uses 2) for FEATURE_REPORT reports or if the max OUTPUT_LENGTH is 0
+>  - it uses 1) otherwise
+>
+> I'm not sure whether the i2c-hid-spec mandates this behavior, so I am
+> not saying it's wrong. I just wanna understand what we do here. So if
+> we use hid->output_report() with HID_FEATURE_REPORT, the current code
+> turns this into a SET_REPORT. Likewise, an hid->raw_request() with
+> HID_REQ_SET_REPORT but with HID_OUTPUT_REPORT turns into an
+> output-report.
+
+Ok, just for the record (I think that you already answered this in the
+4/11 review):
+this behavior has been added in commit
+811adb9622de310efbb661531c3ec0ae5d2b2bc0 for Synaptics so they can
+talk to their HID/I2C firmware.
+The use they are making is through hdev->hid_output_raw_report(), and
+at that time output_report() did not exist.
+
+I guess that with the new API (output_report() and raw_request() ) we
+can revert this and it will not bother them given that rmi-hid.c is
+still not upstream.
+
+I have no clue if anyone else is using hdev->hid_output_raw_report()
+for I2C devices, but we could still try to clean this right now given
+that those devices are not well spread (besides some hid-multitouch
+touchscreens which do not use OUTPUT reports).
+
+I am still a little bit concerned by hidraw not able to call
+set_report in this case, but this could be fixed also by adding an
+ioctl.
+
+How does that sound?
+
+Cheers,
+Benjamin
+
+>
+> I'd rather expect this behavior:
+>
+> hid->output_report() should always do this:
+>   args[index++] = outputRegister & 0xFF;
+>   args[index++] = outputRegister >> 8;
+>   hidcmd = &hid_no_cmd;
+>
+> while hid->raw_request() should always do this:
+>   args[index++] = dataRegister & 0xFF;
+>   args[index++] = dataRegister >> 8;
+>
+> The special case for maxOutputLength==0 seems fine to me, but the
+> "reportType == 0x03" looks weird.
+>
 >
 > Thanks
 > David
-
-Thanks for clearing this up.  It sounds like UNIQ should be safe for
-getting the client MAC of a Bluetooth device as long as the
-appropriate sanity checks are performed to make sure that it's not a
-custom string from a uhid device.  Or, going back to the earlier
-question, is there still some reason as to why HIDP might change the
-behavior of UNIQ in the future?
+>
+>> +       default:
+>> +               return -EIO;
+>> +       }
+>> +}
+>> +
+>>  static void i2c_hid_request(struct hid_device *hid, struct hid_report *rep,
+>>                 int reqtype)
+>>  {
+>> @@ -761,6 +783,8 @@ static struct hid_ll_driver i2c_hid_ll_driver = {
+>>         .close = i2c_hid_close,
+>>         .power = i2c_hid_power,
+>>         .request = i2c_hid_request,
+>> +       .output_report = i2c_hid_output_report,
+>> +       .raw_request = i2c_hid_raw_request,
+>>  };
+>>
+>>  static int i2c_hid_init_irq(struct i2c_client *client)
+>> --
+>> 1.8.3.1
+>>

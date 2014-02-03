@@ -1,123 +1,102 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 05/11] HID: HIDp: remove hidp_hidinput_event
-Date: Mon, 3 Feb 2014 10:28:18 -0500
-Message-ID: <CAN+gG=GR7kfRYzTW6NQ_anHFpgXOyCWezafMEnJxXqYXkrO1-A@mail.gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH 03/11] HID: add inliners for ll_driver transport-layer callbacks
+Date: Mon, 3 Feb 2014 16:29:23 +0100
+Message-ID: <CANq1E4Q2uuz5avEpEXHZdjysRi=TWZm9SvUzyOYyWTt7k-dSBQ@mail.gmail.com>
 References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1391316630-29541-6-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4S+RLDpDd+zxgBRKsEw0-29un9mzS5jYBcoeJgQf5Upjg@mail.gmail.com>
+	<1391316630-29541-4-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CANq1E4S+RLDpDd+zxgBRKsEw0-29un9mzS5jYBcoeJgQf5Upjg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f178.google.com ([209.85.223.178]:59502 "EHLO
+	mail-ie0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753013AbaBCP3Y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 10:29:24 -0500
+In-Reply-To: <1391316630-29541-4-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Mon, Feb 3, 2014 at 10:10 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi
->
-> On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
->> hidp uses its own ->hidinput_input_event() instead of the generic binding
->> in hid-input.
->> Moving the handling of LEDs towards hidp_hidinput_event() allows two things:
->> - remove hidinput_input_event definitively from struct hid_device
->> - hidraw user space programs can also set the LEDs
->
-> This one looks good. hid-input uses output_raw_report(), which is on
-> INTR for BT-HID, which is equivalent to what hidp_send_report() does.
-> So:
->
-> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
+Hi
+
+On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Those callbacks are not mandatory, so it's better to add inliners
+> to use them safely.
+
+Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
 Thanks
+David
 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  include/linux/hid.h | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 45 insertions(+)
 >
-> Btw., you might have to keep hidp_send_report() if you drop earlier
-> patches (haven't exactly looked at the order), but feel free to keep
-> my r-b anyway.
-
-No need to keep it, patches 1 to 4 do not touch HIDp, so no one else
-use hidp_send_report().
-
-Cheers,
-Benjamin
-
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 003cc8e..dddcad0 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -680,6 +680,8 @@ struct hid_driver {
+>   *        shouldn't allocate anything to not leak memory
+>   * @request: send report request to device (e.g. feature report)
+>   * @wait: wait for buffered io to complete (send/recv reports)
+> + * @raw_request: send raw report request to device (e.g. feature report)
+> + * @output_report: send output report to device
+>   * @idle: send idle request to device
+>   */
+>  struct hid_ll_driver {
+> @@ -974,6 +976,49 @@ static inline void hid_hw_request(struct hid_device *hdev,
+>  }
 >
-> Thanks
-> David
+>  /**
+> + * hid_hw_raw_request - send report request to device
+> + *
+> + * @hdev: hid device
+> + * @reportnum: report ID
+> + * @buf: in/out data to transfer
+> + * @len: length of buf
+> + * @rtype: HID report type
+> + * @reqtype: HID_REQ_GET_REPORT or HID_REQ_SET_REPORT
+> + *
+> + * @return: count of data transfered, negative if error
+> + *
+> + * Same behavior as hid_hw_request, but with raw buffers instead.
+> + */
+> +static inline int hid_hw_raw_request(struct hid_device *hdev,
+> +                                 unsigned char reportnum, __u8 *buf,
+> +                                 size_t len, unsigned char rtype, int reqtype)
+> +{
+> +       if (hdev->ll_driver->raw_request)
+> +               return hdev->ll_driver->raw_request(hdev, reportnum, buf, len,
+> +                                                   rtype, reqtype);
+> +
+> +       return -ENOSYS;
+> +}
+> +
+> +/**
+> + * hid_hw_output_report - send output report to device
+> + *
+> + * @hdev: hid device
+> + * @buf: raw data to transfer
+> + * @len: length of buf
+> + *
+> + * @return: count of data transfered, negative if error
+> + */
+> +static inline int hid_hw_output_report(struct hid_device *hdev, __u8 *buf,
+> +                                       size_t len)
+> +{
+> +       if (hdev->ll_driver->output_report)
+> +               return hdev->ll_driver->output_report(hdev, buf, len);
+> +
+> +       return -ENOSYS;
+> +}
+> +
+> +/**
+>   * hid_hw_idle - send idle request to device
+>   *
+>   * @hdev: hid device
+> --
+> 1.8.3.1
 >
->>
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>  net/bluetooth/hidp/core.c | 46 ----------------------------------------------
->>  1 file changed, 46 deletions(-)
->>
->> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
->> index b062cee..469e61b 100644
->> --- a/net/bluetooth/hidp/core.c
->> +++ b/net/bluetooth/hidp/core.c
->> @@ -223,51 +223,6 @@ static void hidp_input_report(struct hidp_session *session, struct sk_buff *skb)
->>         input_sync(dev);
->>  }
->>
->> -static int hidp_send_report(struct hidp_session *session, struct hid_report *report)
->> -{
->> -       unsigned char hdr;
->> -       u8 *buf;
->> -       int rsize, ret;
->> -
->> -       buf = hid_alloc_report_buf(report, GFP_ATOMIC);
->> -       if (!buf)
->> -               return -EIO;
->> -
->> -       hid_output_report(report, buf);
->> -       hdr = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
->> -
->> -       rsize = ((report->size - 1) >> 3) + 1 + (report->id > 0);
->> -       ret = hidp_send_intr_message(session, hdr, buf, rsize);
->> -
->> -       kfree(buf);
->> -       return ret;
->> -}
->> -
->> -static int hidp_hidinput_event(struct input_dev *dev, unsigned int type,
->> -                              unsigned int code, int value)
->> -{
->> -       struct hid_device *hid = input_get_drvdata(dev);
->> -       struct hidp_session *session = hid->driver_data;
->> -       struct hid_field *field;
->> -       int offset;
->> -
->> -       BT_DBG("session %p type %d code %d value %d",
->> -              session, type, code, value);
->> -
->> -       if (type != EV_LED)
->> -               return -1;
->> -
->> -       offset = hidinput_find_field(hid, type, code, &field);
->> -       if (offset == -1) {
->> -               hid_warn(dev, "event field not found\n");
->> -               return -1;
->> -       }
->> -
->> -       hid_set_field(field, offset, value);
->> -
->> -       return hidp_send_report(session, field->report);
->> -}
->> -
->>  static int hidp_get_raw_report(struct hid_device *hid,
->>                 unsigned char report_number,
->>                 unsigned char *data, size_t count,
->> @@ -817,7 +772,6 @@ static struct hid_ll_driver hidp_hid_driver = {
->>         .close = hidp_close,
->>         .raw_request = hidp_raw_request,
->>         .output_report = hidp_output_report,
->> -       .hidinput_input_event = hidp_hidinput_event,
->>  };
->>
->>  /* This function sets up the hid device. It does not add it
->> --
->> 1.8.3.1
->>

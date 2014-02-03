@@ -1,108 +1,83 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH v2 6/6] HID: sony: Add conditionals to enable all features
- in Bluetooth mode
-Date: Mon, 3 Feb 2014 17:31:28 +0100
-Message-ID: <CANq1E4SdMD8Psgjp2+xrBqEQ4KcHpkJisn61BLa2+akyunAzCw@mail.gmail.com>
-References: <1391102648-19381-1-git-send-email-frank.praznik@oh.rr.com>
-	<1391102648-19381-7-git-send-email-frank.praznik@oh.rr.com>
+Subject: Re: [PATCH 00/11] HID: spring cleaning
+Date: Mon, 3 Feb 2014 17:48:49 +0100
+Message-ID: <CANq1E4RWXXXYMSHFnrMubvqjJDu4tE3ikKsrhNfEUXdNASdcgA@mail.gmail.com>
+References: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ig0-f181.google.com ([209.85.213.181]:43357 "EHLO
-	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751678AbaBCQb2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 11:31:28 -0500
-Received: by mail-ig0-f181.google.com with SMTP id j1so4477171iga.2
-        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 08:31:28 -0800 (PST)
-In-Reply-To: <1391102648-19381-7-git-send-email-frank.praznik@oh.rr.com>
+Received: from mail-ie0-f172.google.com ([209.85.223.172]:41609 "EHLO
+	mail-ie0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751912AbaBCQst (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Feb 2014 11:48:49 -0500
+In-Reply-To: <1391316630-29541-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frank Praznik <frank.praznik@oh.rr.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
 Hi
 
-On Thu, Jan 30, 2014 at 6:24 PM, Frank Praznik <frank.praznik@oh.rr.com> wrote:
-> Add the necessary conditionals to enable battery reporting, rumble, LED
-> settings and touchpad parsing.
+On Sun, Feb 2, 2014 at 5:50 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Hi guys,
 >
-> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
+> This is an attempt to complete the branch for-3.15/ll-driver-new-callbacks:
+> - try to implement as much as possible ll_driver callbacks (some are still
+>   missing, but I did not had the time to complete it)
+> - add inliners hid_hw_* for all the ll_driver callbacks
+> - remove transport dependant callbacks in struct hid_device
+> - remove the so called "obsolete" hidinput_input_event handler which was used
+>   in 2/4 transport drivers
 >
-> ---
->  drivers/hid/hid-sony.c | 20 +++++++++++++-------
->  1 file changed, 13 insertions(+), 7 deletions(-)
+> Bonus point: 14 files changed, 213 insertions(+), 272 deletions(-)
+> Yay!
 >
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index eee56d7..d920362 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -44,8 +44,10 @@
->  #define DUALSHOCK4_CONTROLLER_USB BIT(5)
->  #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
->
-> -#define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER_USB)
-> -#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_USB)
-> +#define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | \
-> +                         DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_CONTROLLER_BT)
-> +#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT | \
-> +                             DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_CONTROLLER_BT)
+> I made sure I kept the PS3 controller working and the LEDs (on logitech-dj and
+> on bluetooth keyboard) working. The rest do not mostly need further testing,
+> the code path did not changed. But still, a review (and some tests) would be a
+> good idea :)
 
-How about adding:
+Thanks a lot! Looks all good except for the uhid and i2c changes. But
+I have commented on those.
 
-#define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |
-DUALSHOCK4_CONTROLLER_BT)
-
-and then simplifying the chunks below? Seems a bit redundant to always
-check for both, _USB and _BT in the dualshock4 case.
-
-Thanks
+Cheers
 David
 
+> Cheers,
+> Benjamin
 >
->  #define MAX_LEDS 4
+> PS: obviously, this goes on top on the branch for-3.15/ll-driver-new-callbacks
 >
-> @@ -939,8 +941,9 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
->                 swap(rd[47], rd[48]);
+> Benjamin Tissoires (11):
+>   HID: uHID: implement .raw_request
+>   HID: i2c-hid: implement ll_driver transport-layer callbacks
+>   HID: add inliners for ll_driver transport-layer callbacks
+>   HID: logitech-dj: remove hidinput_input_event
+>   HID: HIDp: remove hidp_hidinput_event
+>   HID: remove hidinput_input_event handler
+>   HID: HIDp: remove duplicated coded
+>   HID: usbhid: remove duplicated code
+>   HID: remove hid_get_raw_report in struct hid_device
+>   HID: introduce helper to access hid_output_raw_report()
+>   HID: move hid_output_raw_report to hid_ll_driver
 >
->                 sixaxis_parse_report(sc, rd, size);
-> -       } else if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
-> -                       size == 64) {
-> +       } else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
-> +                       size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
-> +                       && rd[0] == 0x11 && size == 78)) {
->                 dualshock4_parse_report(sc, rd, size);
->         }
+>  drivers/hid/hid-input.c        |  12 ++---
+>  drivers/hid/hid-lg.c           |   6 ++-
+>  drivers/hid/hid-logitech-dj.c  | 101 +++++++++++++---------------------
+>  drivers/hid/hid-magicmouse.c   |   2 +-
+>  drivers/hid/hid-sony.c         |  19 +++++--
+>  drivers/hid/hid-thingm.c       |   4 +-
+>  drivers/hid/hid-wacom.c        |  16 +++---
+>  drivers/hid/hid-wiimote-core.c |   4 +-
+>  drivers/hid/hidraw.c           |  11 ++--
+>  drivers/hid/i2c-hid/i2c-hid.c  |  27 +++++++++-
+>  drivers/hid/uhid.c             |  20 ++++++-
+>  drivers/hid/usbhid/hid-core.c  |  67 +++++------------------
+>  include/linux/hid.h            |  77 ++++++++++++++++++++++----
+>  net/bluetooth/hidp/core.c      | 119 +++++------------------------------------
+>  14 files changed, 213 insertions(+), 272 deletions(-)
 >
-> @@ -1079,7 +1082,8 @@ static void sony_set_leds(struct hid_device *hdev, const __u8 *leds, int count)
->         if (drv_data->quirks & BUZZ_CONTROLLER && count == 4) {
->                 buzz_set_leds(hdev, leds);
->         } else if ((drv_data->quirks & SIXAXIS_CONTROLLER_USB) ||
-> -                  (drv_data->quirks & DUALSHOCK4_CONTROLLER_USB)) {
-> +                  (drv_data->quirks & DUALSHOCK4_CONTROLLER_USB) ||
-> +                  (drv_data->quirks & DUALSHOCK4_CONTROLLER_BT)) {
->                 for (n = 0; n < count; n++)
->                         drv_data->led_state[n] = leds[n];
->                 schedule_work(&drv_data->state_worker);
-> @@ -1184,7 +1188,8 @@ static int sony_leds_init(struct hid_device *hdev)
->                 /* Validate expected report characteristics. */
->                 if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
->                         return -ENODEV;
-> -       } else if (drv_data->quirks & DUALSHOCK4_CONTROLLER_USB) {
-> +       } else if ((drv_data->quirks & DUALSHOCK4_CONTROLLER_USB) ||
-> +                  (drv_data->quirks & DUALSHOCK4_CONTROLLER_BT)) {
->                 drv_data->led_count = 3;
->                 max_brightness = 255;
->                 use_colors = 1;
-> @@ -1509,7 +1514,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->         }
->         else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
->                 ret = sixaxis_set_operational_bt(hdev);
-> -       else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
-> +       else if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) ||
-> +                (sc->quirks & DUALSHOCK4_CONTROLLER_BT)) {
->                 if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) &&
->                      hdev->ll_driver->output_report == NULL) {
->                         hid_err(hdev, "NULL output_report handler\n");
 > --
-> 1.8.5.3
+> 1.8.3.1
 >

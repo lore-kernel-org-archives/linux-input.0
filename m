@@ -1,33 +1,47 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 00/05] input: RMI4 Synaptics RMI4 Touchscreen Driver
-Date: Tue, 4 Feb 2014 08:56:14 +0100
-Message-ID: <CACRpkdbf6YGdSC6sWuzfFkzYq99jjFbgB=uBFgBh-jK9H66gPg@mail.gmail.com>
-References: <1358557965-29065-1-git-send-email-cheiny@synaptics.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH] Bluetooth: hidp: make sure input buffers are big
+ enough
+Date: Tue, 4 Feb 2014 14:46:47 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1402041446130.14066@pobox.suse.cz>
+References: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com> <3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org> <CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com> <alpine.LNX.2.00.1401071308020.4962@pobox.suse.cz>
+ <CANq1E4SxrDnbOCsohZXYoYL-HQjEc-xcOnXfAm=npHG2QfMS9A@mail.gmail.com> <alpine.LNX.2.00.1401071811530.4962@pobox.suse.cz> <alpine.LNX.2.00.1401282152140.22492@pobox.suse.cz> <CANq1E4TW+GU=oaW0tXb=Tun9HMtr26u-PC3H6BsLot560ANgog@mail.gmail.com>
+ <alpine.LNX.2.00.1402031107310.14066@pobox.suse.cz> <CANq1E4S++uqMzQue_0jC3N=Lm8Os5V-48Hw5M4vWvM+2Vx91yA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f53.google.com ([209.85.219.53]:61058 "EHLO
-	mail-oa0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752691AbaBDH4P (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2014 02:56:15 -0500
-Received: by mail-oa0-f53.google.com with SMTP id m1so9511124oag.12
-        for <linux-input@vger.kernel.org>; Mon, 03 Feb 2014 23:56:14 -0800 (PST)
-In-Reply-To: <1358557965-29065-1-git-send-email-cheiny@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANq1E4S++uqMzQue_0jC3N=Lm8Os5V-48Hw5M4vWvM+2Vx91yA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, "open list:HID CORE LAYER" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org development" <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Gustavo F. Padovan" <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>
 
-On Sat, Jan 19, 2013 at 2:12 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
+On Mon, 3 Feb 2014, David Herrmann wrote:
 
-> This patchset implements changes based on the synaptics-rmi4 branch of
-> Dmitry's input tree.
+> >> >> Due to various reasons I will not have access to any testing HW for the
+> >> >> upcoming 2-3 days, so if you can cook something up in that timeframe, it'd
+> >> >> be appreciated.
+> >> >>
+> >> >> Otherwise I'll be working on it by the end of this week.
+> >> >
+> >> > David,
+> >> >
+> >> > just got back to this, finally ... did you have time to work on this at
+> >> > all, or should I just start from scratch?
+> >>
+> >> Sorry, no. Fosdem is this weekend and I needed to get my code ready
+> >> for that. But I'll finally have time again next week.
+> >
+> > Okay, thanks. I then guess we should proceed with this bandaid (double
+> > allocation) for 3.14
+> 
+> It would be really nice if we could get the HIDP patch into 3.14-rc2
+> and backported to stable. There have been quite a bunch of reports now
+> and I dislike adding a GFP_ATOMIC allocation in HID core. 
 
-What is happening to the RMI4 driver stuff?
+I agree with David; Gustavo, what is your take on this, please?
 
-Has this development stalled? The branch in Dmitry's git
-seems to be maintained but not much is happening or is
-there any progress?
+Thanks,
 
-Yours,
-Linus Walleij
+-- 
+Jiri Kosina
+SUSE Labs

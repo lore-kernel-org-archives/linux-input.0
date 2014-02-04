@@ -1,46 +1,36 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH] Bluetooth: hidp: make sure input buffers are big
- enough
-Date: Tue, 4 Feb 2014 14:46:47 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1402041446130.14066@pobox.suse.cz>
-References: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com> <3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org> <CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com> <alpine.LNX.2.00.1401071308020.4962@pobox.suse.cz>
- <CANq1E4SxrDnbOCsohZXYoYL-HQjEc-xcOnXfAm=npHG2QfMS9A@mail.gmail.com> <alpine.LNX.2.00.1401071811530.4962@pobox.suse.cz> <alpine.LNX.2.00.1401282152140.22492@pobox.suse.cz> <CANq1E4TW+GU=oaW0tXb=Tun9HMtr26u-PC3H6BsLot560ANgog@mail.gmail.com>
- <alpine.LNX.2.00.1402031107310.14066@pobox.suse.cz> <CANq1E4S++uqMzQue_0jC3N=Lm8Os5V-48Hw5M4vWvM+2Vx91yA@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Kconfig updates for the Sony module
+Date: Tue, 4 Feb 2014 15:24:38 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1402041524090.14066@pobox.suse.cz>
+References: <1391269198-8210-1-git-send-email-frank.praznik@oh.rr.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANq1E4S++uqMzQue_0jC3N=Lm8Os5V-48Hw5M4vWvM+2Vx91yA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Herrmann <dh.herrmann-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, "open list:HID CORE LAYER" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org development" <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Gustavo F. Padovan" <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:55792 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751214AbaBDOYm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 4 Feb 2014 09:24:42 -0500
+In-Reply-To: <1391269198-8210-1-git-send-email-frank.praznik@oh.rr.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Frank Praznik <frank.praznik@oh.rr.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 3 Feb 2014, David Herrmann wrote:
+On Sat, 1 Feb 2014, Frank Praznik wrote:
 
-> >> >> Due to various reasons I will not have access to any testing HW for the
-> >> >> upcoming 2-3 days, so if you can cook something up in that timeframe, it'd
-> >> >> be appreciated.
-> >> >>
-> >> >> Otherwise I'll be working on it by the end of this week.
-> >> >
-> >> > David,
-> >> >
-> >> > just got back to this, finally ... did you have time to work on this at
-> >> > all, or should I just start from scratch?
-> >>
-> >> Sorry, no. Fosdem is this weekend and I needed to get my code ready
-> >> for that. But I'll finally have time again next week.
-> >
-> > Okay, thanks. I then guess we should proceed with this bandaid (double
-> > allocation) for 3.14
+> Update the HID_SONY config with 'select POWER_SUPPLY' to fix build issues
+> relating to undefined references to the  power_supply_* functions in
+> certain build configurations.
 > 
-> It would be really nice if we could get the HIDP patch into 3.14-rc2
-> and backported to stable. There have been quite a bunch of reports now
-> and I dislike adding a GFP_ATOMIC allocation in HID core. 
+> Update the description text to reflect that Playstation 4 controllers are now
+> supported.
+> 
+> Signed-off-by: Frank Praznik <frank.praznik@oh.rr.com>
 
-I agree with David; Gustavo, what is your take on this, please?
+I have dropped the POWER_SUPPLY part of the patch, as I've already fixed 
+that in my tree as a followup to Fengguang's report.
 
-Thanks,
+I have applied the rest, thanks.
 
 -- 
 Jiri Kosina

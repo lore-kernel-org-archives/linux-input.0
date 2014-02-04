@@ -1,49 +1,56 @@
-From: Michal =?ISO-8859-1?Q?Mal=FD?= <madcatxster@prifuk.cz>
-Subject: [PATCH 5/5] Remove the note that no driver currently uses ff-memless-next
-Date: Tue, 04 Feb 2014 23:14:53 +0100
-Message-ID: <2010881.Fh1vPVWlHG@geidi-prime>
-References: <1602354.DiHhm9tiaI@geidi-prime> <2603901.tycGoWUc45@geidi-prime> <1602355.m08XyDkxUs@geidi-prime>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH 02/15] Input: synaptics-rmi4 - don't kfree devm_ alloced
+ memory
+Date: Tue, 4 Feb 2014 15:08:19 -0800
+Message-ID: <52F172E3.7050601@synaptics.com>
+References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from prifuk.spider.cz ([31.31.77.241]:39355 "EHLO prifuk.cz"
-	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S933998AbaBDWOz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2014 17:14:55 -0500
-In-Reply-To: <1602355.m08XyDkxUs@geidi-prime>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:63783 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936591AbaBDXIU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2014 18:08:20 -0500
+In-Reply-To: <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, jkosina@suse.cz, elias.vds@gmail.com, simon@mungewell.org, linux-input@vger.kernel.org
+To: Courtney Cavin <courtney.cavin@sonymobile.com>, linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-Remove the note that no driver currently uses ff-memless-next
+On 01/23/2014 04:00 PM, Courtney Cavin wrote:
+> Cc: Christopher Heiny <cheiny@synaptics.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
 
-Signed-off-by: Michal Mal=FD <madcatxster@prifuk.cz>
----
- drivers/input/Kconfig | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+This is redundant with patch code submitted 2013/01/22.  See here:
+     http://www.spinics.net/lists/linux-input/msg29280.html
 
-diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-index 4371a12..ba05100 100644
---- a/drivers/input/Kconfig
-+++ b/drivers/input/Kconfig
-@@ -81,8 +81,7 @@ config INPUT_FF_MEMLESS_NEXT
- 	tristate "New version of support for memoryless force feedback device=
-s"
- 	help
- 	  Say Y here if you want to enable support for various memoryless
--	  force feedback devices (as of now there is no hardware-specific
--	  driver that supports this).
-+	  force feedback devices.
-=20
- 	  If unsure, say N.
-=20
---=20
-1.8.5.3
+and in any case, Dmitry has submitted a more thorough tidy up here:
+     http://www.spinics.net/lists/linux-input/msg29323.html
+
+> ---
+>   drivers/input/rmi4/rmi_f01.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+> index cf1081f..98bc65a9 100644
+> --- a/drivers/input/rmi4/rmi_f01.c
+> +++ b/drivers/input/rmi4/rmi_f01.c
+> @@ -390,7 +390,7 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+>   	return 0;
+>
+>    error_exit:
+> -	kfree(data);
+> +	devm_kfree(&fn->dev, data);
+>   	return error;
+>   }
+>
+>
 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+
+Christopher Heiny
+Senior Staff Firmware Engineer
+Synaptics Incorporated

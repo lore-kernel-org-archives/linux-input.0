@@ -1,98 +1,52 @@
-From: Andreas Mohr <andi@lisas.de>
-Subject: [REPORT] i8042 keyboard IRQ lockup (non-permanent!), on 3.8.0-34
- (Ubuntu LTS) x86_64
-Date: Tue, 4 Feb 2014 16:29:32 +0100
-Message-ID: <20140204152931.GA3785@rhlx01.hs-esslingen.de>
-Mime-Version: 1.0
+From: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [PATCH] Bluetooth: hidp: make sure input buffers are big enough
+Date: Tue, 4 Feb 2014 08:39:18 -0800
+Message-ID: <20573666-E2A0-4D6B-986A-09DAFC0FB64B@holtmann.org>
+References: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com> <3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org> <CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com> <alpine.LNX.2.00.1401071308020.4962@pobox.suse.cz> <CANq1E4SxrDnbOCsohZXYoYL-HQjEc-xcOnXfAm=npHG2QfMS9A@mail.gmail.com> <alpine.LNX.2.00.1401071811530.4962@pobox.suse.cz> <alpine.LNX.2.00.1401282152140.22492@pobox.suse.cz> <CANq1E4TW+GU=oaW0tXb=Tun9HMtr26u-PC3H6BsLot560ANgog@mail.gmail.com> <alpine.LNX.2.00.1402031107310.14066@pobox.suse.cz> <CANq1E4S++uqMzQue_0jC3N=Lm8Os5V-48Hw5M4vWvM+2Vx91yA@mail.gmail.com> <alpine.LNX.2.00.1402041446130.14066@pobox.suse.cz>
+Mime-Version: 1.0 (Mac OS X Mail 7.1 \(1827\))
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from senator.holtmann.net ([87.106.208.187]:54586 "EHLO
+	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753192AbaBDQjY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2014 11:39:24 -0500
+In-Reply-To: <alpine.LNX.2.00.1402041446130.14066@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: David Herrmann <dh.herrmann@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-bluetooth@vger.kernel.org development" <linux-bluetooth@vger.kernel.org>, "Gustavo F. Padovan" <gustavo@padovan.org>
 
-Hi,
+Hi Jiri,
 
-got a Dell Optiplex 9010 i5 here, with ancient HP KB-0133 PS/2 keyboard:
+>>>>>> Due to various reasons I will not have access to any testing HW for the
+>>>>>> upcoming 2-3 days, so if you can cook something up in that timeframe, it'd
+>>>>>> be appreciated.
+>>>>>> 
+>>>>>> Otherwise I'll be working on it by the end of this week.
+>>>>> 
+>>>>> David,
+>>>>> 
+>>>>> just got back to this, finally ... did you have time to work on this at
+>>>>> all, or should I just start from scratch?
+>>>> 
+>>>> Sorry, no. Fosdem is this weekend and I needed to get my code ready
+>>>> for that. But I'll finally have time again next week.
+>>> 
+>>> Okay, thanks. I then guess we should proceed with this bandaid (double
+>>> allocation) for 3.14
+>> 
+>> It would be really nice if we could get the HIDP patch into 3.14-rc2
+>> and backported to stable. There have been quite a bunch of reports now
+>> and I dislike adding a GFP_ATOMIC allocation in HID core. 
+> 
+> I agree with David; Gustavo, what is your take on this, please?
 
-Linux [HOSTNAME] 3.8.0-34-generic #49~precise1-Ubuntu SMP Wed Nov 13 18:05:00 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux
+I leave this up to Gustavo to get this into wireless tree for 3.14-rc2.
 
-which incidentally I'm always suspending to RAM (which may e.g. cause
-some quirky I/O register values).
+Acked-by: Marcel Holtmann <marcel@holtmann.org>
 
-After an uptime of 47 days (equalling perhaps 40 suspends)
-it just happened that after some quite possibly frantic (mis-directed)
-typing activity in X.Org
-keyboard processing locked up, full stop
-(with Caps Lock LED accidentally activated, BTW).
+Regards
 
-Caps Lock was NOT intentional (IOW, pretty much activated right the moment
-that it locked up),
-so it might be that special (i.e., somewhat non-hotpath)
-keyboard mode kernel handling caused IRQ-related things to go haywire
-(please also note that this is quad-core SMP).
+Marcel
 
-Symptoms were that i8042 IRQ was NOT incrementing any more,
-yet with USB-based mouse still working,
-and with i8042 IRQ counts very similar to the current post-lockup status:
-
-# cat /proc/interrupts 
-           CPU0       CPU1       CPU2       CPU3       
-  0:         15          0          0          0  IR-IO-APIC-edge      timer
-  1:    3731516          1          2          1  IR-IO-APIC-edge      i8042
-  4:          2          0          0          0  IR-IO-APIC-edge    
-  8:          0          0          0          1  IR-IO-APIC-edge      rtc0
-  9:         44          0          0          0  IR-IO-APIC-fasteoi   acpi
- 16:        848         51         46          6  IR-IO-APIC-fasteoi   ehci_hcd:usb1
- 23:       1030         21         28         27  IR-IO-APIC-fasteoi   ehci_hcd:usb2
- 40:          0          0          0          0  DMAR_MSI-edge      dmar0
- 41:          0          0          0          0  DMAR_MSI-edge      dmar1
- 42:    4706685          4      19241          1  IR-PCI-MSI-edge      xhci_hcd
- 43:         26          0          0          0  IR-PCI-MSI-edge      mei
- 44:   11758582       1031        737        407  IR-PCI-MSI-edge      ahci
- 45:       8634          0          0          0  IR-PCI-MSI-edge      eth0
- 46:   16395534    1172456     434192    3091691  IR-PCI-MSI-edge      i915
- 47:        149          0          0          0  IR-PCI-MSI-edge      snd_hda_intel
-NMI:       4358     191563     192436     199591   Non-maskable interrupts
-LOC:   54195238   49071989   50750421   51893922   Local timer interrupts
-SPU:          0          0          0          0   Spurious interrupts
-PMI:       4358     191563     192436     199591   Performance monitoring interrupts
-IWI:          0          0          0          0   IRQ work interrupts
-RTR:          0          0          0          0   APIC ICR read retries
-RES:   24539990   11668206    5062037    4591010   Rescheduling interrupts
-CAL:        306        729        671        649   Function call interrupts
-TLB:    3450457    3374213    3213836    3361641   TLB shootdowns
-TRM:          0          0          0          0   Thermal event interrupts
-THR:          0          0          0          0   Threshold APIC interrupts
-MCE:          0          0          0          0   Machine check exceptions
-MCP:       2957       2942       2942       2942   Machine check polls
-
-
-
-Manual pm-suspend via ssh remote login then MANAGED TO FIX IT!
-
-(please also note that Caps Lock stayed lit while suspended,
-and then got switched off soon - BIOS-initiated? - during resuming!!)
-
-According to https://bugs.launchpad.net/ubuntu/+source/pm-utils/+bug/23497
-a simple unbind/rebind of i8042 instead of a full pm-suspend
-might possibly have helped, too (will do further experimentation next time).
-
-Useful ways for more detailed investigation on semi-running system?
-(i8042 register dump, etc.)
-
-Will try to have some more "mis-directed frantic typing" joy, perhaps it's
-reproducable.
-
-Not demanding much useful discussion given this non-current and non-mainline
-kernel version - mainly submitting this as a "data item"
-for other people to research and possibly extend
-(and not even sure whether this is a kernel issue,
-or rather a hardware mishap instead).
-
-keywords: kernel i8042 apic irq lockup keyboard optiplex dell
-
-Thanks,
-
-Andreas Mohr

@@ -1,406 +1,300 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 05/15] Input: synaptics-rmi4 - remove gpio handling and
- polling
-Date: Tue, 4 Feb 2014 15:08:35 -0800
-Message-ID: <52F172F3.7090003@synaptics.com>
-References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-4-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-5-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
+Subject: Re: [PATCH 08/15] Input: synaptics-rmi4 - cleanup platform data
+Date: Tue, 4 Feb 2014 15:10:00 -0800
+Message-ID: <52F17348.6000400@synaptics.com>
+References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-4-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-5-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-7-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-8-git-send-email-courtney.cavin@sonymobile.com> <1390521623-6491-9-git-send-email-courtney.cavin@sonymobile.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:20301 "EHLO
+Received: from us-mx2.synaptics.com ([192.147.44.131]:43718 "EHLO
 	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935048AbaBDXIg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2014 18:08:36 -0500
-In-Reply-To: <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
+	with ESMTP id S933694AbaBDXKB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2014 18:10:01 -0500
+In-Reply-To: <1390521623-6491-9-git-send-email-courtney.cavin@sonymobile.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Courtney Cavin <courtney.cavin@sonymobile.com>, linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com
 
 On 01/23/2014 04:00 PM, Courtney Cavin wrote:
-> Since all the configuration needed for an irq can be provided in other
-> ways, remove all gpio->irq functionality. This cleans up the code quite
-> a bit.
+> Update platform data documentation and remove unneeded/unused stuff in
+> platform data.
+>
+> If these items are needed at some later point, they should be added
+> then.  Until that point, we should unclutter the code.
 
-In certain diagnostic modes, we need to be able to release the IRQ so 
-the GPIO can be monitored from userspace.  This patch removes that 
-capability.
-
-> This also gets rid of polling functionality, as this should be done
-> elsewhere if absolutely needed.
-
-As mentioned in previous patch discussions, the polling functionality is 
-quite useful during new system integration, so we need to retain that. 
-If you have a proposal for where else it could be done, we'd certainly 
-entertain a patch that implements that.
-
-					Thanks,
-						Chris
+Taking them out to "unclutter the code" and then putting them back 
+(which will be required almost immediately) is just busy work.  It would 
+probably be better to concentrate on constructive changes.
 
 >
 > Cc: Christopher Heiny <cheiny@synaptics.com>
 > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
 > ---
->   drivers/input/rmi4/rmi_driver.c | 143 +++++-----------------------------------
->   drivers/input/rmi4/rmi_driver.h |   7 --
->   drivers/input/rmi4/rmi_i2c.c    |  24 +------
->   include/linux/rmi.h             |  31 +--------
->   4 files changed, 20 insertions(+), 185 deletions(-)
+>   drivers/input/rmi4/rmi_f11.c |  14 ++--
+>   include/linux/rmi.h          | 157 ++++++++++---------------------------------
+>   2 files changed, 40 insertions(+), 131 deletions(-)
 >
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index 5fb582c..780742f 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -20,7 +20,6 @@
->   #include <linux/delay.h>
->   #include <linux/device.h>
->   #include <linux/fs.h>
-> -#include <linux/gpio.h>
->   #include <linux/kconfig.h>
->   #include <linux/list.h>
->   #include <linux/module.h>
-> @@ -50,74 +49,17 @@ static irqreturn_t rmi_irq_thread(int irq, void *p)
->   	struct rmi_transport_dev *xport = p;
->   	struct rmi_device *rmi_dev = xport->rmi_dev;
->   	struct rmi_driver *driver = rmi_dev->driver;
-> -	struct rmi_device_platform_data *pdata = xport->dev->platform_data;
->   	struct rmi_driver_data *data;
+> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
+> index 87d85ab..9d94b1a 100644
+> --- a/drivers/input/rmi4/rmi_f11.c
+> +++ b/drivers/input/rmi4/rmi_f11.c
+> @@ -1109,7 +1109,7 @@ static void f11_set_abs_params(struct rmi_function *fn)
+>   	/* We assume touchscreen unless demonstrably a touchpad or specified
+>   	 * as a touchpad in the platform data
+>   	 */
+> -	if (sensor->sensor_type == rmi_f11_sensor_touchpad ||
+> +	if (sensor->sensor_type == RMI_F11_SENSOR_INDIRECT ||
+>   			(sensor->sens_query.has_info2 &&
+>   				!sensor->sens_query.is_clear))
+>   		input_flags = INPUT_PROP_POINTER;
+> @@ -1192,7 +1192,7 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+>   		return -ENOMEM;
 >
->   	data = dev_get_drvdata(&rmi_dev->dev);
-> -
-> -	if (IRQ_DEBUG(data))
-> -		dev_dbg(xport->dev, "ATTN gpio, value: %d.\n",
-> -				gpio_get_value(pdata->attn_gpio));
-> -
-> -	if (gpio_get_value(pdata->attn_gpio) == pdata->attn_polarity) {
-> -		data->attn_count++;
-> -		if (driver && driver->irq_handler && rmi_dev)
-> -			driver->irq_handler(rmi_dev, irq);
+>   	fn->data = f11;
+> -	f11->rezero_wait_ms = pdata->f11_rezero_wait;
+> +	f11->rezero_wait_ms = pdata->f11_sensor_data.rezero_wait;
+>
+>   	query_base_addr = fn->fd.query_base_addr;
+>   	control_base_addr = fn->fd.control_base_addr;
+> @@ -1225,13 +1225,9 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+>   		return rc;
+>   	}
+>
+> -	if (pdata->f11_sensor_data) {
+> -		sensor->axis_align =
+> -			pdata->f11_sensor_data->axis_align;
+> -		sensor->type_a = pdata->f11_sensor_data->type_a;
+> -		sensor->sensor_type =
+> -				pdata->f11_sensor_data->sensor_type;
 > -	}
-> +	if (driver && driver->irq_handler && rmi_dev)
-> +		driver->irq_handler(rmi_dev, irq);
+> +	sensor->axis_align = pdata->f11_sensor_data.axis_align;
+> +	sensor->type_a = pdata->f11_sensor_data.type_a;
+> +	sensor->sensor_type = pdata->f11_sensor_data.sensor_type;
 >
->   	return IRQ_HANDLED;
->   }
->
->   static int process_interrupt_requests(struct rmi_device *rmi_dev);
->
-> -static void rmi_poll_work(struct work_struct *work)
-> -{
-> -	struct rmi_driver_data *data =
-> -			container_of(work, struct rmi_driver_data, poll_work);
-> -	struct rmi_device *rmi_dev = data->rmi_dev;
-> -
-> -	process_interrupt_requests(rmi_dev);
-> -}
-> -
-> -/*
-> - * This is the timer function for polling - it simply has to schedule work
-> - * and restart the timer.
-> - */
-> -static enum hrtimer_restart rmi_poll_timer(struct hrtimer *timer)
-> -{
-> -	struct rmi_driver_data *data =
-> -			container_of(timer, struct rmi_driver_data, poll_timer);
-> -
-> -	if (!data->enabled)
-> -		return HRTIMER_NORESTART;
-> -	if (!work_pending(&data->poll_work))
-> -		schedule_work(&data->poll_work);
-> -	hrtimer_start(&data->poll_timer, data->poll_interval, HRTIMER_MODE_REL);
-> -	return HRTIMER_NORESTART;
-> -}
-> -
-> -static int enable_polling(struct rmi_device *rmi_dev)
-> -{
-> -	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> -
-> -	dev_dbg(&rmi_dev->dev, "Polling enabled.\n");
-> -	INIT_WORK(&data->poll_work, rmi_poll_work);
-> -	hrtimer_init(&data->poll_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> -	data->poll_timer.function = rmi_poll_timer;
-> -	hrtimer_start(&data->poll_timer, data->poll_interval, HRTIMER_MODE_REL);
-> -
-> -	return 0;
-> -}
-> -
-> -static void disable_polling(struct rmi_device *rmi_dev)
-> -{
-> -	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> -
-> -	dev_dbg(&rmi_dev->dev, "Polling disabled.\n");
-> -	hrtimer_cancel(&data->poll_timer);
-> -	cancel_work_sync(&data->poll_work);
-> -}
-> -
->   static void disable_sensor(struct rmi_device *rmi_dev)
->   {
->   	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> @@ -125,9 +67,6 @@ static void disable_sensor(struct rmi_device *rmi_dev)
->   	if (!data->enabled)
->   		return;
->
-> -	if (!data->irq)
-> -		disable_polling(rmi_dev);
-> -
->   	if (rmi_dev->xport->ops->disable_device)
->   		rmi_dev->xport->ops->disable_device(rmi_dev->xport);
->
-> @@ -155,20 +94,14 @@ static int enable_sensor(struct rmi_device *rmi_dev)
->   	}
->
->   	xport = rmi_dev->xport;
-> -	if (data->irq) {
-> -		retval = request_threaded_irq(data->irq,
-> -				xport->hard_irq ? xport->hard_irq : NULL,
-> -				xport->irq_thread ?
-> -					xport->irq_thread : rmi_irq_thread,
-> -				data->irq_flags,
-> -				dev_name(&rmi_dev->dev), xport);
-> -		if (retval)
-> -			return retval;
-> -	} else {
-> -		retval = enable_polling(rmi_dev);
-> -		if (retval < 0)
-> -			return retval;
-> -	}
-> +	retval = request_threaded_irq(data->irq,
-> +			xport->hard_irq ? xport->hard_irq : NULL,
-> +			xport->irq_thread ?
-> +				xport->irq_thread : rmi_irq_thread,
-> +			IRQF_ONESHOT,
-> +			dev_name(&rmi_dev->dev), xport);
-> +	if (retval)
-> +		return retval;
->
->   	data->enabled = true;
->
-> @@ -751,16 +684,9 @@ static SIMPLE_DEV_PM_OPS(rmi_driver_pm, rmi_driver_suspend, rmi_driver_resume);
->   static int rmi_driver_remove(struct device *dev)
->   {
->   	struct rmi_device *rmi_dev = to_rmi_device(dev);
-> -	const struct rmi_device_platform_data *pdata =
-> -					to_rmi_platform_data(rmi_dev);
-> -	const struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> -
->   	disable_sensor(rmi_dev);
->   	rmi_free_function_list(rmi_dev);
->
-> -	if (data->gpio_held)
-> -		gpio_free(pdata->attn_gpio);
-> -
->   	return 0;
->   }
->
-> @@ -895,51 +821,12 @@ static int rmi_driver_probe(struct device *dev)
->   		mutex_init(&data->suspend_mutex);
->   	}
->
-> -	if (gpio_is_valid(pdata->attn_gpio)) {
-> -		static const char GPIO_LABEL[] = "attn";
-> -		unsigned long gpio_flags = GPIOF_DIR_IN;
-> -
-> -		data->irq = gpio_to_irq(pdata->attn_gpio);
-> -		if (pdata->level_triggered) {
-> -			data->irq_flags = IRQF_ONESHOT |
-> -				((pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
-> -				? IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW);
-> -		} else {
-> -			data->irq_flags =
-> -				(pdata->attn_polarity == RMI_ATTN_ACTIVE_HIGH)
-> -				? IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
-> -		}
-> +	data->irq = pdata->irq;
-> +	if (data->irq < 0) {
-> +		dev_err(dev, "Failed to get attn IRQ.\n");
-> +		retval = data->irq;
-> +		goto err_free_data;
->
-> -		if (IS_ENABLED(CONFIG_RMI4_DEV))
-> -			gpio_flags |= GPIOF_EXPORT;
-> -
-> -		retval = gpio_request_one(pdata->attn_gpio, gpio_flags,
-> -					  GPIO_LABEL);
-> -		if (retval) {
-> -			dev_warn(dev, "WARNING: Failed to request ATTN gpio %d, code=%d.\n",
-> -				 pdata->attn_gpio, retval);
-> -			retval = 0;
-> -		} else {
-> -			dev_info(dev, "Obtained ATTN gpio %d.\n",
-> -					pdata->attn_gpio);
-> -			data->gpio_held = true;
-> -			if (IS_ENABLED(CONFIG_RMI4_DEV)) {
-> -				retval = gpio_export_link(dev,
-> -						GPIO_LABEL, pdata->attn_gpio);
-> -				if (retval) {
-> -					dev_warn(dev,
-> -						"WARNING: Failed to symlink ATTN gpio!\n");
-> -					retval = 0;
-> -				} else {
-> -					dev_info(dev, "Exported ATTN gpio %d.",
-> -						pdata->attn_gpio);
-> -				}
-> -			}
-> -		}
-> -	} else {
-> -		data->poll_interval = ktime_set(0,
-> -			(pdata->poll_interval_ms ? pdata->poll_interval_ms :
-> -			DEFAULT_POLL_INTERVAL_MS) * 1000 * 1000);
->   	}
->
->   	if (data->f01_container->dev.driver) {
-> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-> index 4f44a54..aef5521 100644
-> --- a/drivers/input/rmi4/rmi_driver.h
-> +++ b/drivers/input/rmi4/rmi_driver.h
-> @@ -39,9 +39,7 @@ struct rmi_driver_data {
->
->   	u32 attn_count;
->   	u32 irq_debug;	/* Should be bool, but debugfs wants u32 */
-> -	bool gpio_held;
->   	int irq;
-> -	int irq_flags;
->   	int num_of_irq_regs;
->   	int irq_count;
->   	unsigned long *irq_status;
-> @@ -50,11 +48,6 @@ struct rmi_driver_data {
->   	bool irq_stored;
->   	struct mutex irq_mutex;
->
-> -	/* Following are used when polling. */
-> -	struct hrtimer poll_timer;
-> -	struct work_struct poll_work;
-> -	ktime_t poll_interval;
-> -
->   	struct mutex pdt_mutex;
->   	u8 pdt_props;
->   	u8 bsr;
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index 910f05c..aebf974 100644
-> --- a/drivers/input/rmi4/rmi_i2c.c
-> +++ b/drivers/input/rmi4/rmi_i2c.c
-> @@ -196,8 +196,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
->   		return -EINVAL;
->   	}
->
-> -	dev_dbg(&client->dev, "Probing %#02x (GPIO %d).\n",
-> -		client->addr, pdata->attn_gpio);
-> +	dev_dbg(&client->dev, "Probing %#02x.\n", client->addr);
->
->   	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
->   		dev_err(&client->dev,
-> @@ -205,15 +204,6 @@ static int rmi_i2c_probe(struct i2c_client *client,
->   		return -ENODEV;
->   	}
->
-> -	if (pdata->gpio_config) {
-> -		retval = pdata->gpio_config(pdata->gpio_data, true);
-> -		if (retval < 0) {
-> -			dev_err(&client->dev, "Failed to configure GPIOs, code: %d.\n",
-> -				retval);
-> -			return retval;
-> -		}
-> -	}
-> -
->   	rmi_i2c = devm_kzalloc(&client->dev, sizeof(struct rmi_i2c_xport),
->   				GFP_KERNEL);
->   	if (!rmi_i2c)
-> @@ -240,7 +230,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
->   	if (retval) {
->   		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
->   			client->addr);
-> -		goto err_gpio;
-> +		goto err;
->   	}
->
->   	i2c_set_clientdata(client, rmi_i2c);
-> @@ -249,24 +239,16 @@ static int rmi_i2c_probe(struct i2c_client *client,
->   			client->addr);
->   	return 0;
->
-> -err_gpio:
-> -	if (pdata->gpio_config)
-> -		pdata->gpio_config(pdata->gpio_data, false);
-> -
-> +err:
->   	return retval;
->   }
->
->   static int rmi_i2c_remove(struct i2c_client *client)
->   {
-> -	const struct rmi_device_platform_data *pdata =
-> -				dev_get_platdata(&client->dev);
->   	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
->
->   	rmi_unregister_transport_device(&rmi_i2c->xport);
->
-> -	if (pdata->gpio_config)
-> -		pdata->gpio_config(pdata->gpio_data, false);
-> -
->   	return 0;
->   }
->
+>   	rc = rmi_read_block(rmi_dev,
+>   		control_base_addr + F11_CTRL_SENSOR_MAX_X_POS_OFFSET,
 > diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> index 65b59b5..326e741 100644
+> index f3775eb..60ddd98 100644
 > --- a/include/linux/rmi.h
 > +++ b/include/linux/rmi.h
-> @@ -23,11 +23,6 @@
->   #include <linux/wait.h>
->   #include <linux/debugfs.h>
+> @@ -37,8 +37,8 @@
+>    *               the specified value
+>    * @offset_x - this value will be added to all reported X coordinates
+>    * @offset_y - this value will be added to all reported Y coordinates
+> - * @rel_report_enabled - if set to true, the relative reporting will be
+> - *               automatically enabled for this sensor.
+> + * @delta_x_threshold - delta X movement required before reporting event
+> + * @delta_y_threshold - delta Y movement required before reporting event
+>    */
+>   struct rmi_f11_2d_axis_alignment {
+>   	bool swap_axes;
+> @@ -57,34 +57,36 @@ struct rmi_f11_2d_axis_alignment {
+>   /** This is used to override any hints an F11 2D sensor might have provided
+>    * as to what type of sensor it is.
+>    *
+> - * @rmi_f11_sensor_default - do not override, determine from F11_2D_QUERY14 if
+> - * available.
+> - * @rmi_f11_sensor_touchscreen - treat the sensor as a touchscreen (direct
+> - * pointing).
+> - * @rmi_f11_sensor_touchpad - thread the sensor as a touchpad (indirect
+> - * pointing).
+> + * @RMI_F11_SENSOR_DEFAULT - determine from F11_2D_QUERY14 if available.
+> + * @RMI_F11_SENSOR_DIRECT - direct pointing sensor (e.g. touchscreen)
+> + * @RMI_F11_SENSOR_INDIRECT - indirect pointing sensor (e.g touchpad)
+>    */
+>   enum rmi_f11_sensor_type {
+> -	rmi_f11_sensor_default = 0,
+> -	rmi_f11_sensor_touchscreen,
+> -	rmi_f11_sensor_touchpad
+> +	RMI_F11_SENSOR_DEFAULT = 0,
+> +	RMI_F11_SENSOR_DIRECT,
+> +	RMI_F11_SENSOR_INDIRECT
+>   };
 >
-> -enum rmi_attn_polarity {
-> -	RMI_ATTN_ACTIVE_LOW = 0,
-> -	RMI_ATTN_ACTIVE_HIGH = 1
+>   /**
+>    * struct rmi_f11_sensor_data - overrides defaults for a single F11 2D sensor.
+> + *
+>    * @axis_align - provides axis alignment overrides (see above).
+>    * @type_a - all modern RMI F11 firmwares implement Multifinger Type B
+> - * protocol.  Set this to true to force MF Type A behavior, in case you find
+> - * an older sensor.
+> + *           protocol.  Set this to true to force MF Type A behavior, in case
+> + *           you find an older sensor.
+>    * @sensor_type - Forces the driver to treat the sensor as an indirect
+> - * pointing device (touchpad) rather than a direct pointing device
+> - * (touchscreen).  This is useful when F11_2D_QUERY14 register is not
+> - * available.
+> + *                pointing device (touchpad) rather than a direct pointing
+> + *                device (touchscreen).  This is useful when F11_2D_QUERY14
+> + *                register is not available.
+> + * @rezero_wait - if non-zero, this is how may milliseconds the sensor will
+> + *                wait before being be re-zeroed on exit from suspend.  If this
+> + *                value is zero, the sensor will not be re-zeroed on resume.
+>    */
+>   struct rmi_f11_sensor_data {
+>   	struct rmi_f11_2d_axis_alignment axis_align;
+>   	bool type_a;
+>   	enum rmi_f11_sensor_type sensor_type;
+> +	u16 rezero_wait;
+>   };
+>
+>   /**
+> @@ -98,20 +100,22 @@ enum rmi_f01_nosleep {
+>   };
+>
+>   /**
+> - * struct rmi_f01_power_management -When non-zero, these values will be written
+> - * to the touch sensor to override the default firmware settigns.  For a
+> - * detailed explanation of what each field does, see the corresponding
+> - * documention in the RMI4 specification.
+> + * struct rmi_f01_power_management - touch sensor power settings
+> + *
+> + * When non-zero, these values will be written to the touch sensor to override
+> + * the default firmware settings.  For a detailed explanation of what each
+> + * field does, see the corresponding documentation in the RMI4 specification.
+>    *
+>    * @nosleep - specifies whether the device is permitted to sleep or doze (that
+> - * is, enter a temporary low power state) when no fingers are touching the
+> - * sensor.
+> + *            is, enter a temporary low power state) when no fingers are
+> + *            touching the sensor.
+>    * @wakeup_threshold - controls the capacitance threshold at which the touch
+> - * sensor will decide to wake up from that low power state.
+> + *                     sensor will decide to wake up from that low power state.
+>    * @doze_holdoff - controls how long the touch sensor waits after the last
+> - * finger lifts before entering the doze state, in units of 100ms.
+> + *                 finger lifts before entering the doze state, in units of
+> + *                 100ms.
+>    * @doze_interval - controls the interval between checks for finger presence
+> - * when the touch sensor is in doze mode, in units of 10ms.
+> + *                  when the touch sensor is in doze mode, in units of 10ms.
+>    */
+>   struct rmi_f01_power_management {
+>   	enum rmi_f01_nosleep nosleep;
+> @@ -121,114 +125,23 @@ struct rmi_f01_power_management {
+>   };
+>
+>   /**
+> - * struct rmi_button_map - used to specify the initial input subsystem key
+> - * event codes to be generated by buttons (or button like entities) on the
+> - * touch sensor.
+> - * @nbuttons - length of the button map.
+> - * @map - the key event codes for the corresponding buttons on the touch
+> - * sensor.
+> - */
+> -struct rmi_button_map {
+> -	u8 nbuttons;
+> -	u8 *map;
 > -};
 > -
->   /**
->    * struct rmi_f11_axis_alignment - target axis alignment
->    * @swap_axes: set to TRUE if desired to swap x- and y-axis
-> @@ -194,25 +189,10 @@ struct rmi_device_platform_data_spi {
->   /**
+> -struct rmi_f30_gpioled_map {
+> -	u8 ngpioleds;
+> -	u8 *map;
+> -};
+> -
+> -/**
+> - * struct rmi_device_platform_data_spi - provides parameters used in SPI
+> - * communications.  All Synaptics SPI products support a standard SPI
+> - * interface; some also support what is called SPI V2 mode, depending on
+> - * firmware and/or ASIC limitations.  In V2 mode, the touch sensor can
+> - * support shorter delays during certain operations, and these are specified
+> - * separately from the standard mode delays.
+> - *
+> - * @block_delay - for standard SPI transactions consisting of both a read and
+> - * write operation, the delay (in microseconds) between the read and write
+> - * operations.
+> - * @split_read_block_delay_us - for V2 SPI transactions consisting of both a
+> - * read and write operation, the delay (in microseconds) between the read and
+> - * write operations.
+> - * @read_delay_us - the delay between each byte of a read operation in normal
+> - * SPI mode.
+> - * @write_delay_us - the delay between each byte of a write operation in normal
+> - * SPI mode.
+> - * @split_read_byte_delay_us - the delay between each byte of a read operation
+> - * in V2 mode.
+> - * @pre_delay_us - the delay before the start of a SPI transaction.  This is
+> - * typically useful in conjunction with custom chip select assertions (see
+> - * below).
+> - * @post_delay_us - the delay after the completion of an SPI transaction.  This
+> - * is typically useful in conjunction with custom chip select assertions (see
+> - * below).
+> - * @cs_assert - For systems where the SPI subsystem does not control the CS/SSB
+> - * line, or where such control is broken, you can provide a custom routine to
+> - * handle a GPIO as CS/SSB.  This routine will be called at the beginning and
+> - * end of each SPI transaction.  The RMI SPI implementation will wait
+> - * pre_delay_us after this routine returns before starting the SPI transfer;
+> - * and post_delay_us after completion of the SPI transfer(s) before calling it
+> - * with assert==FALSE.
+> - */
+> -struct rmi_device_platform_data_spi {
+> -	u32 block_delay_us;
+> -	u32 split_read_block_delay_us;
+> -	u32 read_delay_us;
+> -	u32 write_delay_us;
+> -	u32 split_read_byte_delay_us;
+> -	u32 pre_delay_us;
+> -	u32 post_delay_us;
+> -
+> -	void *cs_assert_data;
+> -	int (*cs_assert) (const void *cs_assert_data, const bool assert);
+> -};
+> -
+> -/**
 >    * struct rmi_device_platform_data - system specific configuration info.
 >    *
-> + * @irq - attention IRQ
->    * @firmware_name - if specified will override default firmware name,
->    * for reflashing.
->    *
-> - * @attn_gpio - the index of a GPIO that will be used to provide the ATTN
-> - * interrupt from the touch sensor.
-> - * @attn_polarity - indicates whether ATTN is active high or low.
-> - * @level_triggered - by default, the driver uses edge triggered interrupts.
-> - * However, this can cause problems with suspend/resume on some platforms.  In
-> - * that case, set this to 1 to use level triggered interrupts.
-> - * @gpio_config - a routine that will be called when the driver is loaded to
-> - * perform any platform specific GPIO configuration, and when it is unloaded
-> - * for GPIO de-configuration.  This is typically used to configure the ATTN
-> - * GPIO and the I2C or SPI pins, if necessary.
-> - * @gpio_data - platform specific data to be passed to the GPIO configuration
-> - * function.
-> - *
-> - * @poll_interval_ms - the time in milliseconds between reads of the interrupt
-> - * status register.  This is ignored if attn_gpio is non-zero.
+>    * @irq - attention IRQ
+> - * @firmware_name - if specified will override default firmware name,
+> - * for reflashing.
 > - *
 >    * @reset_delay_ms - after issuing a reset command to the touch sensor, the
->    * driver waits a few milliseconds to give the firmware a chance to
->    * to re-initialize.  You can override the default wait period here.
-> @@ -245,14 +225,7 @@ struct rmi_device_platform_data_spi {
->    * functions.
+> - * driver waits a few milliseconds to give the firmware a chance to
+> - * to re-initialize.  You can override the default wait period here.
+> - *
+> - * @spi_data - override default settings for SPI delays and SSB management (see
+> - * above).
+> - *
+> + *                   driver waits a few milliseconds to give the firmware a
+> + *                   chance to to re-initialize.  You can override the default
+> + *                   wait period here.
+>    * @f11_sensor_data - platform data for the F11 2D sensor.
+> - * @f11_rezero_wait - if non-zero, this is how may milliseconds the F11 2D
+> - * sensor will wait before being be rezeroed on exit from suspend.  If
+> - * this value is zero, the F11 2D sensor will not be rezeroed on resume.
+> - * @power_management - overrides default touch sensor doze mode settings (see
+> - * above)
+> - * @f19_button_map - provide initial input subsystem key mappings for F19.
+> - * @f1a_button_map - provide initial input subsystem key mappings for F1A.
+> - * @gpioled_map - provides initial settings for GPIOs and LEDs controlled by
+> - * F30.
+> - * @f41_button_map - provide initial input subsystem key mappings for F41.
+> + * @power_management - touch sensor power settings (see above)
 >    */
 >   struct rmi_device_platform_data {
-> -	int attn_gpio;
-> -	enum rmi_attn_polarity attn_polarity;
-> -	bool level_triggered;
-> -	void *gpio_data;
-> -	int (*gpio_config)(void *gpio_data, bool configure);
+>   	int irq;
+> -	int reset_delay_ms;
 > -
-> -	int poll_interval_ms;
-> -
-> +	int irq;
->   	int reset_delay_ms;
+> -	struct rmi_device_platform_data_spi spi_data;
+> +	u32 reset_delay_ms;
 >
->   	struct rmi_device_platform_data_spi spi_data;
+>   	/* function handler pdata */
+> -	struct rmi_f11_sensor_data *f11_sensor_data;
+> -	u16 f11_rezero_wait;
+> +	struct rmi_f11_sensor_data f11_sensor_data;
+>   	struct rmi_f01_power_management power_management;
+> -	struct rmi_button_map *f19_button_map;
+> -	struct rmi_button_map *f1a_button_map;
+> -	struct rmi_f30_gpioled_map *gpioled_map;
+> -	struct rmi_button_map *f41_button_map;
+> -
+> -#ifdef CONFIG_RMI4_FWLIB
+> -	char *firmware_name;
+> -#endif
+>   };
+>
+>   /**
 >
 
 

@@ -1,52 +1,38 @@
-From: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH] Bluetooth: hidp: make sure input buffers are big enough
-Date: Tue, 4 Feb 2014 08:39:18 -0800
-Message-ID: <20573666-E2A0-4D6B-986A-09DAFC0FB64B@holtmann.org>
-References: <1387451372-6881-1-git-send-email-dh.herrmann@gmail.com> <3109C2D8-E01C-4728-A593-1978BB3D202D@holtmann.org> <CANq1E4TOHvb3--H6SoRhB09sUwuYkrvSAXCNN2Y0PaVSOEte=w@mail.gmail.com> <alpine.LNX.2.00.1401071308020.4962@pobox.suse.cz> <CANq1E4SxrDnbOCsohZXYoYL-HQjEc-xcOnXfAm=npHG2QfMS9A@mail.gmail.com> <alpine.LNX.2.00.1401071811530.4962@pobox.suse.cz> <alpine.LNX.2.00.1401282152140.22492@pobox.suse.cz> <CANq1E4TW+GU=oaW0tXb=Tun9HMtr26u-PC3H6BsLot560ANgog@mail.gmail.com> <alpine.LNX.2.00.1402031107310.14066@pobox.suse.cz> <CANq1E4S++uqMzQue_0jC3N=Lm8Os5V-48Hw5M4vWvM+2Vx91yA@mail.gmail.com> <alpine.LNX.2.00.1402041446130.14066@pobox.suse.cz>
-Mime-Version: 1.0 (Mac OS X Mail 7.1 \(1827\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from senator.holtmann.net ([87.106.208.187]:54586 "EHLO
-	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753192AbaBDQjY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2014 11:39:24 -0500
-In-Reply-To: <alpine.LNX.2.00.1402041446130.14066@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH 00/05] input: RMI4 Synaptics RMI4 Touchscreen Driver
+Date: Tue, 4 Feb 2014 12:20:09 -0800
+Message-ID: <52F14B79.7050702@synaptics.com>
+References: <1358557965-29065-1-git-send-email-cheiny@synaptics.com> <CACRpkdbf6YGdSC6sWuzfFkzYq99jjFbgB=uBFgBh-jK9H66gPg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdbf6YGdSC6sWuzfFkzYq99jjFbgB=uBFgBh-jK9H66gPg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Alexandra Chin <alexandra.chin@tw.synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, Mathieu Poirier <mathieu.poirier@linaro.org>, Linus Walleij <linus.walleij@stericsson.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: David Herrmann <dh.herrmann@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-bluetooth@vger.kernel.org development" <linux-bluetooth@vger.kernel.org>, "Gustavo F. Padovan" <gustavo@padovan.org>
 
-Hi Jiri,
+On 02/03/2014 11:56 PM, Linus Walleij wrote:
+> On Sat, Jan 19, 2013 at 2:12 AM, Christopher Heiny <cheiny@synaptics.com> wrote:
+>
+>> This patchset implements changes based on the synaptics-rmi4 branch of
+>> Dmitry's input tree.
+>
+> What is happening to the RMI4 driver stuff?
+>
+> Has this development stalled? The branch in Dmitry's git
+> seems to be maintained but not much is happening or is
+> there any progress?
 
->>>>>> Due to various reasons I will not have access to any testing HW for the
->>>>>> upcoming 2-3 days, so if you can cook something up in that timeframe, it'd
->>>>>> be appreciated.
->>>>>> 
->>>>>> Otherwise I'll be working on it by the end of this week.
->>>>> 
->>>>> David,
->>>>> 
->>>>> just got back to this, finally ... did you have time to work on this at
->>>>> all, or should I just start from scratch?
->>>> 
->>>> Sorry, no. Fosdem is this weekend and I needed to get my code ready
->>>> for that. But I'll finally have time again next week.
->>> 
->>> Okay, thanks. I then guess we should proceed with this bandaid (double
->>> allocation) for 3.14
->> 
->> It would be really nice if we could get the HIDP patch into 3.14-rc2
->> and backported to stable. There have been quite a bunch of reports now
->> and I dislike adding a GFP_ATOMIC allocation in HID core. 
-> 
-> I agree with David; Gustavo, what is your take on this, please?
+Hi Linus,
 
-I leave this up to Gustavo to get this into wireless tree for 3.14-rc2.
+Development stalled for several months last year, but picked up again 
+last fall.  We've been submitting patches against Dmitry's input tree, 
+sending them to linux-input rather than linux-kernel.  If you check the 
+linux-input archives on spinics, you can see what's been going on.
 
-Acked-by: Marcel Holtmann <marcel@holtmann.org>
+If you'd like, we'll make sure to cc you on upcoming patches.  I've got 
+some due - hopefully later today.
 
-Regards
-
-Marcel
-
+					Chris

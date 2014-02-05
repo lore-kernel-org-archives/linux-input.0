@@ -1,248 +1,60 @@
 From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: Re: [PATCH 11/15] Input: synaptics-rmi4 - add regulator support
-Date: Tue, 4 Feb 2014 18:38:18 -0800
-Message-ID: <20140205023818.GK1706@sonymobile.com>
-References: <1390521623-6491-4-git-send-email-courtney.cavin@sonymobile.com>
- <1390521623-6491-5-git-send-email-courtney.cavin@sonymobile.com>
- <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
+Subject: Re: [PATCH 13/15] Input: synaptics-rmi4 - properly set F01 container
+ on PDT scan
+Date: Tue, 4 Feb 2014 18:39:02 -0800
+Message-ID: <20140205023901.GL1706@sonymobile.com>
+References: <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-7-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-8-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-9-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-10-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-11-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-12-git-send-email-courtney.cavin@sonymobile.com>
- <52F17368.1030808@synaptics.com>
+ <1390521623-6491-13-git-send-email-courtney.cavin@sonymobile.com>
+ <1390521623-6491-14-git-send-email-courtney.cavin@sonymobile.com>
+ <52F17371.7030507@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:14547 "EHLO
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:14611 "EHLO
 	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932095AbaBECgf (ORCPT
+	by vger.kernel.org with ESMTP id S932137AbaBEChS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Feb 2014 21:36:35 -0500
+	Tue, 4 Feb 2014 21:37:18 -0500
 Content-Disposition: inline
-In-Reply-To: <52F17368.1030808@synaptics.com>
+In-Reply-To: <52F17371.7030507@synaptics.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, linus.walleij@linaro.org
 
-On Wed, Feb 05, 2014 at 12:10:32AM +0100, Christopher Heiny wrote:
+On Wed, Feb 05, 2014 at 12:10:41AM +0100, Christopher Heiny wrote:
 > On 01/23/2014 04:00 PM, Courtney Cavin wrote:
-> > Add support for VDD and VIO power supplies.  Since we may need a delay
-> > after turning on the chip, adjust code to manage that.  This removes the
-> > scanning for active interrupts on resume, as we should get an interrupt
-> > when the chip is ready.
 > 
-> This looks potentially useful.  But what happens in devices where you 
-> want to power the touch sensor on at initial boot, but need to leave it 
-> power on during suspend/resume states?  Also, how does this work when 
-> there are multiple RMI4 sensors in the system?
-
-This can be handled in a few different ways depending on the system:
-	- You can specify nothing for the regulator, and you'll get a
-	  dummy/NULL one, which will make enable/disable no-ops.
-	- You can turn on the regulator in platform setup, and
-	  enable/disable will just refcount the regulator.
-	- You can use an "always-on" regulator, for which enable/disable
-	  will be no-ops.
-
-In the case that there are multiple sensors on the system, you can
-specify the regulators 'vdd' and/or 'vio' in each sensor's DT node and
-everything will just work.  You can even have them on the same
-regulator(s), if you want.
-
-If you don't have DT support, or are using a legacy platform, the
-regulators are associated with the device name as well as the names
-'vdd' and 'vio'.
-
+> Although necessary, this is redundant to changes already submitted.
 > 
-> See also comments below.
-> 
+
+Indeed. Sorry.
+
 > > Cc: Christopher Heiny <cheiny@synaptics.com>
 > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > > Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
 > > ---
-> >   Documentation/devicetree/bindings/input/rmi4.txt | 10 +++++
-> >   drivers/input/rmi4/rmi_driver.c                  | 53 +++++++++++++++++++++++-
-> >   drivers/input/rmi4/rmi_driver.h                  |  4 ++
-> >   3 files changed, 66 insertions(+), 1 deletion(-)
+> >   drivers/input/rmi4/rmi_driver.c | 2 ++
+> >   1 file changed, 2 insertions(+)
 > >
-> > diff --git a/Documentation/devicetree/bindings/input/rmi4.txt b/Documentation/devicetree/bindings/input/rmi4.txt
-> > index fff9db7..d41beac 100644
-> > --- a/Documentation/devicetree/bindings/input/rmi4.txt
-> > +++ b/Documentation/devicetree/bindings/input/rmi4.txt
-> > @@ -12,6 +12,16 @@ interrupts:
-> >   	Desc: See devicetree/bindings/interrupt-controller/interrupts.txt;
-> >   		Trigger sense required in mask
-> >
-> > +vdd-supply:
-> > +	Usage: optional (default: no regulator)
-> > +	Type: <prop-encoded-array>
-> > +	Desc: VDD power supply; See devicetree/bindings/regulator/regulator.txt
-> > +
-> > +vio-supply:
-> > +	Usage: optional (default: no regulator)
-> > +	Type: <prop-encoded-array>
-> > +	Desc: VIO power supply; See devicetree/bindings/regulator/regulator.txt
-> > +
-> >   syn,reset-delay:
-> >   	Usage: optional (default: 100)
-> >   	Type: u32, milliseconds
 > > diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> > index 92415ce..52345ae 100644
+> > index 52345ae..9d8d6ec 100644
 > > --- a/drivers/input/rmi4/rmi_driver.c
 > > +++ b/drivers/input/rmi4/rmi_driver.c
-> > @@ -28,6 +28,7 @@
-> >   #include <linux/uaccess.h>
-> >   #include <linux/of_irq.h>
-> >   #include <linux/of.h>
-> > +#include <linux/regulator/consumer.h>
-> >   #include <uapi/linux/input.h>
-> >   #include "rmi_bus.h"
-> >   #include "rmi_driver.h"
-> > @@ -101,7 +102,7 @@ static int enable_sensor(struct rmi_device *rmi_dev)
+> > @@ -488,6 +488,8 @@ static int create_function(struct rmi_device *rmi_dev,
+> >   		return error;
 > >
-> >   	data->enabled = true;
-> >
-> > -	return process_interrupt_requests(rmi_dev);
-> > +	return 0;
-> 
-> enable_sensor() and disable_sensor() may be called in a variety of 
-> contexts, and there may be pending interrupts at the time 
-> enable_sensor() is called.
-> 
-> >   }
-
-Yep, this should be handled by the irq subsystem by calling your
-interrupt handler if I'm not mistaken.  Otherwise, request_irq() needs to
-be moved to probe, and enable/disable_sensor() should call
-enable/disable_irq() instead of request/free_irq().
-
-> >
-> >   static void rmi_free_function_list(struct rmi_device *rmi_dev)
-> > @@ -616,14 +617,29 @@ error_exit:
-> >   static int rmi_driver_suspend(struct device *dev)
-> >   {
-> >   	struct rmi_device *rmi_dev = to_rmi_device(dev);
-> > +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> >
-> >   	disable_sensor(rmi_dev);
-> > +
-> > +	regulator_disable(data->vio);
-> > +	regulator_disable(data->vdd);
-> > +
-> >   	return 0;
-> >   }
-> >
-> >   static int rmi_driver_resume(struct device *dev)
-> >   {
-> >   	struct rmi_device *rmi_dev = to_rmi_device(dev);
-> > +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> > +	int retval;
-> > +
-> > +	retval = regulator_enable(data->vdd);
-> > +	if (retval)
-> > +		return retval;
-> > +	retval = regulator_enable(data->vio);
-> > +	if (retval)
-> > +		return retval;
-> 
-> If you've toggled power to the sensor, you may need to do a reset wait 
-> here, just like you did on initialization.
-> 
-
-This is why I removed process_interrupt_requests() from enable_sensor(),
-as in the case that we turned on the sensor, it should raise ATTN when
-it is booted, so we don't need to wait for it here.  If we haven't
-turned the sensor on, then it should raise ATTN when it has some data
-for us.
-
-> > +
-> >   	return enable_sensor(rmi_dev);
-> >   }
-> >
-> > @@ -634,7 +650,12 @@ static SIMPLE_DEV_PM_OPS(rmi_driver_pm, rmi_driver_suspend, rmi_driver_resume);
-> >   static int rmi_driver_remove(struct device *dev)
-> >   {
-> >   	struct rmi_device *rmi_dev = to_rmi_device(dev);
-> > +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> > +
-> >   	disable_sensor(rmi_dev);
-> > +
-> > +	regulator_disable(data->vio);
-> > +	regulator_disable(data->vdd);
-> >   	rmi_free_function_list(rmi_dev);
+> >   	list_add_tail(&fn->node, &data->function_list);
+> > +	if (pdt->function_number == 0x01)
+> > +		data->f01_container = fn;
 > >
 > >   	return 0;
-> > @@ -649,6 +670,7 @@ static int rmi_driver_probe(struct device *dev)
-> >   	int retval = 0;
-> >   	struct rmi_device *rmi_dev;
-> >   	unsigned int irq;
-> > +	bool delay_start = false;
-> >   	u32 reset_delay;
-> >
-> >   	dev_dbg(dev, "%s: Starting probe.\n", __func__);
-> > @@ -696,6 +718,33 @@ static int rmi_driver_probe(struct device *dev)
-> >   	dev_set_drvdata(&rmi_dev->dev, data);
-> >   	mutex_init(&data->pdt_mutex);
-> >
-> > +	data->vdd = devm_regulator_get_optional(dev, "vdd");
-> > +	if (IS_ERR(data->vdd)) {
-> > +		dev_err(dev, "Failed to get regulator 'vdd'\n");
-> > +		return PTR_ERR(data->vdd);
-> > +	}
-> > +	data->vio = devm_regulator_get_optional(dev, "vio");
-> > +	if (IS_ERR(data->vio)) {
-> > +		dev_err(dev, "Failed to get regulator 'vio'\n");
-> > +		return PTR_ERR(data->vio);
-> > +	}
-> > +
-> > +	if (data->vdd && !regulator_is_enabled(data->vdd))
-> > +		delay_start = true;
-> > +	if (data->vio && !regulator_is_enabled(data->vio))
-> > +		delay_start = true;
-> > +
-> > +	retval = regulator_enable(data->vdd);
-> > +	if (retval) {
-> > +		dev_err(dev, "Failed to enable regulator\n");
-> > +		return retval;
-> > +	}
-> > +	retval = regulator_enable(data->vio);
-> > +	if (retval) {
-> > +		dev_err(dev, "Failed to enable regulator\n");
-> > +		return retval;
-> > +	}
-> > +
-> >   	/*
-> >   	 * Right before a warm boot, the sensor might be in some unusual state,
-> >   	 * such as F54 diagnostics, or F34 bootloader mode.  In order to clear
-> > @@ -714,6 +763,8 @@ static int rmi_driver_probe(struct device *dev)
-> >   	 */
-> >   	if (!reset_delay)
-> >   		reset_delay = DEFAULT_RESET_DELAY_MS;
-> > +	if (delay_start)
-> > +		mdelay(reset_delay);
-> >   	retval = rmi_initial_reset(rmi_dev, reset_delay);
-> >   	if (retval)
-> >   		dev_warn(dev, "RMI initial reset failed! Continuing in spite of this.\n");
-> > diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-> > index eafbdb3..d553722 100644
-> > --- a/drivers/input/rmi4/rmi_driver.h
-> > +++ b/drivers/input/rmi4/rmi_driver.h
-> > @@ -29,9 +29,13 @@
-> >
-> >   #define RMI_PDT_PROPS_HAS_BSR 0x02
-> >
-> > +struct regulator;
-> > +
-> >   struct rmi_driver_data {
-> >   	struct list_head function_list;
-> >
-> > +	struct regulator *vdd;
-> > +	struct regulator *vio;
-> >   	struct rmi_device *rmi_dev;
-> >
-> >   	struct rmi_function *f01_container;
+> >   }
 > >

@@ -1,8 +1,7 @@
 From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: Re: [PATCH 07/15] Input: synaptics-rmi4 - remove remaining debugfs
- code
-Date: Tue, 4 Feb 2014 18:33:52 -0800
-Message-ID: <20140205023351.GG1706@sonymobile.com>
+Subject: Re: [PATCH 08/15] Input: synaptics-rmi4 - cleanup platform data
+Date: Tue, 4 Feb 2014 18:34:58 -0800
+Message-ID: <20140205023457.GH1706@sonymobile.com>
 References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com>
@@ -11,397 +10,308 @@ References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-7-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-8-git-send-email-courtney.cavin@sonymobile.com>
- <52F17342.7050502@synaptics.com>
+ <1390521623-6491-9-git-send-email-courtney.cavin@sonymobile.com>
+ <52F17348.6000400@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:13961 "EHLO
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:14144 "EHLO
 	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754563AbaBECcI (ORCPT
+	by vger.kernel.org with ESMTP id S1753844AbaBECdP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Feb 2014 21:32:08 -0500
+	Tue, 4 Feb 2014 21:33:15 -0500
 Content-Disposition: inline
-In-Reply-To: <52F17342.7050502@synaptics.com>
+In-Reply-To: <52F17348.6000400@synaptics.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, linus.walleij@linaro.org
 
-On Wed, Feb 05, 2014 at 12:09:54AM +0100, Christopher Heiny wrote:
+On Wed, Feb 05, 2014 at 12:10:00AM +0100, Christopher Heiny wrote:
 > On 01/23/2014 04:00 PM, Courtney Cavin wrote:
-> > As most of this code was already removed, the remainder does nothing.
-> > Remove it.
-> 
-> Actually, the code does something.  The functionality that it supports 
-> is not currently being submitted as patches in order to keep the working 
-> set size down.  We're trying to keep the submitted code consistent with 
-> the production, since that makes it easier to develop the patches and 
-> keeps the patches similar to the code that is used in production.
-> 
+> > Update platform data documentation and remove unneeded/unused stuff in
+> > platform data.
+> >
+> > If these items are needed at some later point, they should be added
+> > then.  Until that point, we should unclutter the code.
+>
+> Taking them out to "unclutter the code" and then putting them back
+> (which will be required almost immediately) is just busy work.  It would
+> probably be better to concentrate on constructive changes.
+>
 
-This is getting tedious.  The problem I'm trying to solve here is the
-fact that the code in it's current form is not in an upstreamable state.
-What you keep saying is that some other tree depends on this code, so we
-can't change any of it.  Either you need to break that dependency, or
-you need to abort trying to upstream this code.
+I'm not sure what "almost immediately" is in this case, but I doubt SPI,
+F19, F1A, F30 and F41 functionality will be added in a single commit.
+Until the point at which these are added, they are unnecessary.
+Additionally, the necessity and validity of this information in platform
+data should be evaluated along-side the code, when submitted.
 
 > >
 > > Cc: Christopher Heiny <cheiny@synaptics.com>
 > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > > Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
 > > ---
-> >   drivers/input/rmi4/Kconfig      |   1 -
-> >   drivers/input/rmi4/rmi_bus.c    | 103 ----------------------------------------
-> >   drivers/input/rmi4/rmi_bus.h    |  12 -----
-> >   drivers/input/rmi4/rmi_driver.c |   3 --
-> >   drivers/input/rmi4/rmi_driver.h |  12 -----
-> >   drivers/input/rmi4/rmi_f11.c    |   2 +-
-> >   include/linux/rmi.h             |   7 ++-
-> >   7 files changed, 4 insertions(+), 136 deletions(-)
-> >
-> > diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-> > index d0c7b6e..22d5599 100644
-> > --- a/drivers/input/rmi4/Kconfig
-> > +++ b/drivers/input/rmi4/Kconfig
-> > @@ -14,7 +14,6 @@ config RMI4_CORE
-> >   config RMI4_DEBUG
-> >   	bool "RMI4 Debugging"
-> >   	depends on RMI4_CORE
-> > -	select DEBUG_FS
-> >   	help
-> >   	  Say Y here to enable debug feature in the RMI4 driver.
-> >
-> > diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-> > index fd14acb..a51e6b4 100644
-> > --- a/drivers/input/rmi4/rmi_bus.c
-> > +++ b/drivers/input/rmi4/rmi_bus.c
-> > @@ -15,14 +15,9 @@
-> >   #include <linux/rmi.h>
-> >   #include <linux/slab.h>
-> >   #include <linux/types.h>
-> > -#include <linux/debugfs.h>
-> >   #include "rmi_bus.h"
-> >   #include "rmi_driver.h"
-> >
-> > -#ifdef CONFIG_RMI4_DEBUG
-> > -static struct dentry *rmi_debugfs_root;
-> > -#endif
-> > -
-> >   /*
-> >    * RMI Physical devices
-> >    *
-> > @@ -47,34 +42,6 @@ bool rmi_is_physical_device(struct device *dev)
-> >   	return dev->type == &rmi_device_type;
-> >   }
-> >
-> > -#ifdef CONFIG_RMI4_DEBUG
-> > -
-> > -static void rmi_physical_setup_debugfs(struct rmi_device *rmi_dev)
-> > -{
-> > -	rmi_dev->debugfs_root = debugfs_create_dir(dev_name(&rmi_dev->dev),
-> > -						   rmi_debugfs_root);
-> > -	if (!rmi_dev->debugfs_root)
-> > -		dev_warn(&rmi_dev->dev, "Failed to create debugfs root.\n");
-> > -}
-> > -
-> > -static void rmi_physical_teardown_debugfs(struct rmi_device *rmi_dev)
-> > -{
-> > -	if (rmi_dev->debugfs_root)
-> > -		debugfs_remove_recursive(rmi_dev->debugfs_root);
-> > -}
-> > -
-> > -#else
-> > -
-> > -static void rmi_physical_setup_debugfs(struct rmi_device *rmi_dev)
-> > -{
-> > -}
-> > -
-> > -static void rmi_physical_teardown_debugfs(struct rmi_device *rmi_dev)
-> > -{
-> > -}
-> > -
-> > -#endif
-> > -
-> >   /**
-> >    * rmi_register_transport_device - register a transport device connection
-> >    * on the RMI bus.  Transport drivers provide communication from the devices
-> > @@ -108,8 +75,6 @@ int rmi_register_transport_device(struct rmi_transport_dev *xport)
-> >
-> >   	xport->rmi_dev = rmi_dev;
-> >
-> > -	rmi_physical_setup_debugfs(rmi_dev);
-> > -
-> >   	error = device_register(&rmi_dev->dev);
-> >   	if (error) {
-> >   		put_device(&rmi_dev->dev);
-> > @@ -132,7 +97,6 @@ void rmi_unregister_transport_device(struct rmi_transport_dev *xport)
-> >   {
-> >   	struct rmi_device *rmi_dev = xport->rmi_dev;
-> >
-> > -	rmi_physical_teardown_debugfs(rmi_dev);
-> >   	device_unregister(&rmi_dev->dev);
-> >   }
-> >   EXPORT_SYMBOL(rmi_unregister_transport_device);
-> > @@ -156,37 +120,6 @@ bool rmi_is_function_device(struct device *dev)
-> >   	return dev->type == &rmi_function_type;
-> >   }
-> >
-> > -#ifdef CONFIG_RMI4_DEBUG
-> > -
-> > -static void rmi_function_setup_debugfs(struct rmi_function *fn)
-> > -{
-> > -	char dirname[12];
-> > -
-> > -	snprintf(dirname, sizeof(dirname), "F%02X", fn->fd.function_number);
-> > -	fn->debugfs_root = debugfs_create_dir(dirname,
-> > -					      fn->rmi_dev->debugfs_root);
-> > -	if (!fn->debugfs_root)
-> > -		dev_warn(&fn->dev, "Failed to create debugfs dir.\n");
-> > -}
-> > -
-> > -static void rmi_function_teardown_debugfs(struct rmi_function *fn)
-> > -{
-> > -	if (fn->debugfs_root)
-> > -		debugfs_remove_recursive(fn->debugfs_root);
-> > -}
-> > -
-> > -#else
-> > -
-> > -static void rmi_function_setup_debugfs(struct rmi_function *fn)
-> > -{
-> > -}
-> > -
-> > -static void rmi_function_teardown_debugfs(struct rmi_function *fn)
-> > -{
-> > -}
-> > -
-> > -#endif
-> > -
-> >   static int rmi_function_match(struct device *dev, struct device_driver *drv)
-> >   {
-> >   	struct rmi_function_handler *handler = to_rmi_function_handler(drv);
-> > @@ -234,8 +167,6 @@ int rmi_register_function(struct rmi_function *fn)
-> >   	fn->dev.type = &rmi_function_type;
-> >   	fn->dev.bus = &rmi_bus_type;
-> >
-> > -	rmi_function_setup_debugfs(fn);
-> > -
-> >   	error = device_register(&fn->dev);
-> >   	if (error) {
-> >   		dev_err(&rmi_dev->dev,
-> > @@ -250,13 +181,11 @@ int rmi_register_function(struct rmi_function *fn)
-> >   	return 0;
-> >
-> >   error_exit:
-> > -	rmi_function_teardown_debugfs(fn);
-> >   	return error;
-> >   }
-> >
-> >   void rmi_unregister_function(struct rmi_function *fn)
-> >   {
-> > -	rmi_function_teardown_debugfs(fn);
-> >   	device_unregister(&fn->dev);
-> >   }
-> >
-> > @@ -325,34 +254,6 @@ struct bus_type rmi_bus_type = {
-> >   	.name		= "rmi",
-> >   };
-> >
-> > -#ifdef CONFIG_RMI4_DEBUG
-> > -
-> > -static void rmi_bus_setup_debugfs(void)
-> > -{
-> > -	rmi_debugfs_root = debugfs_create_dir(rmi_bus_type.name, NULL);
-> > -	if (!rmi_debugfs_root)
-> > -		pr_err("%s: Failed to create debugfs root\n",
-> > -		       __func__);
-> > -}
-> > -
-> > -static void rmi_bus_teardown_debugfs(void)
-> > -{
-> > -	if (rmi_debugfs_root)
-> > -		debugfs_remove_recursive(rmi_debugfs_root);
-> > -}
-> > -
-> > -#else
-> > -
-> > -static void rmi_bus_setup_debugfs(void)
-> > -{
-> > -}
-> > -
-> > -static void rmi_bus_teardown_debugfs(void)
-> > -{
-> > -}
-> > -
-> > -#endif
-> > -
-> >   static int __init rmi_bus_init(void)
-> >   {
-> >   	int error;
-> > @@ -364,8 +265,6 @@ static int __init rmi_bus_init(void)
-> >   		return error;
-> >   	}
-> >
-> > -	rmi_bus_setup_debugfs();
-> > -
-> >   	error = rmi_register_f01_handler();
-> >   	if (error) {
-> >   		pr_err("%s: error registering the RMI F01 handler: %d\n",
-> > @@ -385,7 +284,6 @@ static int __init rmi_bus_init(void)
-> >   err_unregister_f01:
-> >   	rmi_unregister_f01_handler();
-> >   err_unregister_bus:
-> > -	rmi_bus_teardown_debugfs();
-> >   	bus_unregister(&rmi_bus_type);
-> >   	return error;
-> >   }
-> > @@ -400,7 +298,6 @@ static void __exit rmi_bus_exit(void)
-> >
-> >   	rmi_unregister_physical_driver();
-> >   	rmi_unregister_f01_handler();
-> > -	rmi_bus_teardown_debugfs();
-> >   	bus_unregister(&rmi_bus_type);
-> >   }
-> >   module_exit(rmi_bus_exit);
-> > diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-> > index 2bad2ed..62fd544 100644
-> > --- a/drivers/input/rmi4/rmi_bus.h
-> > +++ b/drivers/input/rmi4/rmi_bus.h
-> > @@ -19,7 +19,6 @@
-> >   #include <linux/stat.h>
-> >   #include <linux/types.h>
-> >   #include <linux/wait.h>
-> > -#include <linux/debugfs.h>
-> >   #include <linux/rmi.h>
-> >
-> >   struct rmi_device;
-> > @@ -39,7 +38,6 @@ struct rmi_device;
-> >    * @data: Private data pointer
-> >    *
-> >    * @node: entry in device's list of functions
-> > - * @debugfs_root: used during debugging
-> >    */
-> >   struct rmi_function {
-> >   	struct rmi_function_descriptor fd;
-> > @@ -50,10 +48,6 @@ struct rmi_function {
-> >   	unsigned long *irq_mask;
-> >   	void *data;
-> >   	struct list_head node;
-> > -
-> > -#ifdef CONFIG_RMI4_DEBUG
-> > -	struct dentry *debugfs_root;
-> > -#endif
-> >   };
-> >
-> >   #define to_rmi_function(d)	container_of(d, struct rmi_function, dev)
-> > @@ -208,8 +202,6 @@ struct rmi_transport_ops {
-> >    * @number: Unique number for the device on the bus.
-> >    * @driver: Pointer to associated driver
-> >    * @xport: Pointer to the transport interface
-> > - * @debugfs_root: base for this particular sensor device.
-> > - *
-> >    */
-> >   struct rmi_device {
-> >   	struct device dev;
-> > @@ -217,10 +209,6 @@ struct rmi_device {
-> >
-> >   	struct rmi_driver *driver;
-> >   	struct rmi_transport_dev *xport;
-> > -
-> > -#ifdef CONFIG_RMI4_DEBUG
-> > -	struct dentry *debugfs_root;
-> > -#endif
-> >   };
-> >
-> >   #define to_rmi_device(d) container_of(d, struct rmi_device, dev)
-> > diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> > index 691b6fb..e44eff7 100644
-> > --- a/drivers/input/rmi4/rmi_driver.c
-> > +++ b/drivers/input/rmi4/rmi_driver.c
-> > @@ -16,7 +16,6 @@
-> >
-> >   #include <linux/kernel.h>
-> >   #include <linux/bitmap.h>
-> > -#include <linux/debugfs.h>
-> >   #include <linux/delay.h>
-> >   #include <linux/device.h>
-> >   #include <linux/fs.h>
-> > @@ -42,8 +41,6 @@
-> >
-> >   #define DEFAULT_POLL_INTERVAL_MS	13
-> >
-> > -#define IRQ_DEBUG(data) (IS_ENABLED(CONFIG_RMI4_DEBUG) && data->irq_debug)
-> > -
-> >   static irqreturn_t rmi_irq_thread(int irq, void *p)
-> >   {
-> >   	struct rmi_transport_dev *xport = p;
-> > diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-> > index f28166f..eafbdb3 100644
-> > --- a/drivers/input/rmi4/rmi_driver.h
-> > +++ b/drivers/input/rmi4/rmi_driver.h
-> > @@ -38,7 +38,6 @@ struct rmi_driver_data {
-> >   	bool f01_bootloader_mode;
-> >
-> >   	u32 attn_count;
-> > -	u32 irq_debug;	/* Should be bool, but debugfs wants u32 */
-> >   	int irq;
-> >   	int num_of_irq_regs;
-> >   	int irq_count;
-> > @@ -54,17 +53,6 @@ struct rmi_driver_data {
-> >
-> >   	bool enabled;
-> >
-> > -#ifdef CONFIG_RMI4_DEBUG
-> > -	struct dentry *debugfs_delay;
-> > -	struct dentry *debugfs_xport;
-> > -	struct dentry *debugfs_reg_ctl;
-> > -	struct dentry *debugfs_reg;
-> > -	struct dentry *debugfs_irq;
-> > -	struct dentry *debugfs_attn_count;
-> > -	u16 reg_debug_addr;
-> > -	u8 reg_debug_size;
-> > -#endif
-> > -
-> >   	void *data;
-> >   };
+> >   drivers/input/rmi4/rmi_f11.c |  14 ++--
+> >   include/linux/rmi.h          | 157 ++++++++++---------------------------------
+> >   2 files changed, 40 insertions(+), 131 deletions(-)
 > >
 > > diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-> > index 553afd8..87d85ab 100644
+> > index 87d85ab..9d94b1a 100644
 > > --- a/drivers/input/rmi4/rmi_f11.c
 > > +++ b/drivers/input/rmi4/rmi_f11.c
-> > @@ -515,7 +515,7 @@ struct f11_2d_sensor {
-> >   	u8 *data_pkt;
-> >   	int pkt_size;
-> >   	u8 sensor_index;
-> > -	u32 type_a;	/* boolean but debugfs API requires u32 */
-> > +	bool type_a;
-> >   	enum rmi_f11_sensor_type sensor_type;
-> >   	struct input_dev *input;
-> >   	struct input_dev *mouse_input;
+> > @@ -1109,7 +1109,7 @@ static void f11_set_abs_params(struct rmi_function *fn)
+> >       /* We assume touchscreen unless demonstrably a touchpad or specified
+> >        * as a touchpad in the platform data
+> >        */
+> > -     if (sensor->sensor_type == rmi_f11_sensor_touchpad ||
+> > +     if (sensor->sensor_type == RMI_F11_SENSOR_INDIRECT ||
+> >                       (sensor->sens_query.has_info2 &&
+> >                               !sensor->sens_query.is_clear))
+> >               input_flags = INPUT_PROP_POINTER;
+> > @@ -1192,7 +1192,7 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+> >               return -ENOMEM;
+> >
+> >       fn->data = f11;
+> > -     f11->rezero_wait_ms = pdata->f11_rezero_wait;
+> > +     f11->rezero_wait_ms = pdata->f11_sensor_data.rezero_wait;
+> >
+> >       query_base_addr = fn->fd.query_base_addr;
+> >       control_base_addr = fn->fd.control_base_addr;
+> > @@ -1225,13 +1225,9 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+> >               return rc;
+> >       }
+> >
+> > -     if (pdata->f11_sensor_data) {
+> > -             sensor->axis_align =
+> > -                     pdata->f11_sensor_data->axis_align;
+> > -             sensor->type_a = pdata->f11_sensor_data->type_a;
+> > -             sensor->sensor_type =
+> > -                             pdata->f11_sensor_data->sensor_type;
+> > -     }
+> > +     sensor->axis_align = pdata->f11_sensor_data.axis_align;
+> > +     sensor->type_a = pdata->f11_sensor_data.type_a;
+> > +     sensor->sensor_type = pdata->f11_sensor_data.sensor_type;
+> >
+> >       rc = rmi_read_block(rmi_dev,
+> >               control_base_addr + F11_CTRL_SENSOR_MAX_X_POS_OFFSET,
 > > diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> > index 41c2c04..f3775eb 100644
+> > index f3775eb..60ddd98 100644
 > > --- a/include/linux/rmi.h
 > > +++ b/include/linux/rmi.h
-> > @@ -21,7 +21,6 @@
-> >   #include <linux/stat.h>
-> >   #include <linux/types.h>
-> >   #include <linux/wait.h>
-> > -#include <linux/debugfs.h>
-> >
-> >   /**
-> >    * struct rmi_f11_axis_alignment - target axis alignment
-> > @@ -42,9 +41,9 @@
-> >    *               automatically enabled for this sensor.
+> > @@ -37,8 +37,8 @@
+> >    *               the specified value
+> >    * @offset_x - this value will be added to all reported X coordinates
+> >    * @offset_y - this value will be added to all reported Y coordinates
+> > - * @rel_report_enabled - if set to true, the relative reporting will be
+> > - *               automatically enabled for this sensor.
+> > + * @delta_x_threshold - delta X movement required before reporting event
+> > + * @delta_y_threshold - delta Y movement required before reporting event
 > >    */
 > >   struct rmi_f11_2d_axis_alignment {
-> > -	u32 swap_axes;	/* boolean, but u32 is needed by debugfs API */
-> > -	u32 flip_x;	/* boolean */
-> > -	u32 flip_y;	/* boolean */
-> > +	bool swap_axes;
-> > +	bool flip_x;
-> > +	bool flip_y;
-> >   	u16 clip_x_low;
-> >   	u16 clip_y_low;
-> >   	u16 clip_x_high;
+> >       bool swap_axes;
+> > @@ -57,34 +57,36 @@ struct rmi_f11_2d_axis_alignment {
+> >   /** This is used to override any hints an F11 2D sensor might have provided
+> >    * as to what type of sensor it is.
+> >    *
+> > - * @rmi_f11_sensor_default - do not override, determine from F11_2D_QUERY14 if
+> > - * available.
+> > - * @rmi_f11_sensor_touchscreen - treat the sensor as a touchscreen (direct
+> > - * pointing).
+> > - * @rmi_f11_sensor_touchpad - thread the sensor as a touchpad (indirect
+> > - * pointing).
+> > + * @RMI_F11_SENSOR_DEFAULT - determine from F11_2D_QUERY14 if available.
+> > + * @RMI_F11_SENSOR_DIRECT - direct pointing sensor (e.g. touchscreen)
+> > + * @RMI_F11_SENSOR_INDIRECT - indirect pointing sensor (e.g touchpad)
+> >    */
+> >   enum rmi_f11_sensor_type {
+> > -     rmi_f11_sensor_default = 0,
+> > -     rmi_f11_sensor_touchscreen,
+> > -     rmi_f11_sensor_touchpad
+> > +     RMI_F11_SENSOR_DEFAULT = 0,
+> > +     RMI_F11_SENSOR_DIRECT,
+> > +     RMI_F11_SENSOR_INDIRECT
+> >   };
+> >
+> >   /**
+> >    * struct rmi_f11_sensor_data - overrides defaults for a single F11 2D sensor.
+> > + *
+> >    * @axis_align - provides axis alignment overrides (see above).
+> >    * @type_a - all modern RMI F11 firmwares implement Multifinger Type B
+> > - * protocol.  Set this to true to force MF Type A behavior, in case you find
+> > - * an older sensor.
+> > + *           protocol.  Set this to true to force MF Type A behavior, in case
+> > + *           you find an older sensor.
+> >    * @sensor_type - Forces the driver to treat the sensor as an indirect
+> > - * pointing device (touchpad) rather than a direct pointing device
+> > - * (touchscreen).  This is useful when F11_2D_QUERY14 register is not
+> > - * available.
+> > + *                pointing device (touchpad) rather than a direct pointing
+> > + *                device (touchscreen).  This is useful when F11_2D_QUERY14
+> > + *                register is not available.
+> > + * @rezero_wait - if non-zero, this is how may milliseconds the sensor will
+> > + *                wait before being be re-zeroed on exit from suspend.  If this
+> > + *                value is zero, the sensor will not be re-zeroed on resume.
+> >    */
+> >   struct rmi_f11_sensor_data {
+> >       struct rmi_f11_2d_axis_alignment axis_align;
+> >       bool type_a;
+> >       enum rmi_f11_sensor_type sensor_type;
+> > +     u16 rezero_wait;
+> >   };
+> >
+> >   /**
+> > @@ -98,20 +100,22 @@ enum rmi_f01_nosleep {
+> >   };
+> >
+> >   /**
+> > - * struct rmi_f01_power_management -When non-zero, these values will be written
+> > - * to the touch sensor to override the default firmware settigns.  For a
+> > - * detailed explanation of what each field does, see the corresponding
+> > - * documention in the RMI4 specification.
+> > + * struct rmi_f01_power_management - touch sensor power settings
+> > + *
+> > + * When non-zero, these values will be written to the touch sensor to override
+> > + * the default firmware settings.  For a detailed explanation of what each
+> > + * field does, see the corresponding documentation in the RMI4 specification.
+> >    *
+> >    * @nosleep - specifies whether the device is permitted to sleep or doze (that
+> > - * is, enter a temporary low power state) when no fingers are touching the
+> > - * sensor.
+> > + *            is, enter a temporary low power state) when no fingers are
+> > + *            touching the sensor.
+> >    * @wakeup_threshold - controls the capacitance threshold at which the touch
+> > - * sensor will decide to wake up from that low power state.
+> > + *                     sensor will decide to wake up from that low power state.
+> >    * @doze_holdoff - controls how long the touch sensor waits after the last
+> > - * finger lifts before entering the doze state, in units of 100ms.
+> > + *                 finger lifts before entering the doze state, in units of
+> > + *                 100ms.
+> >    * @doze_interval - controls the interval between checks for finger presence
+> > - * when the touch sensor is in doze mode, in units of 10ms.
+> > + *                  when the touch sensor is in doze mode, in units of 10ms.
+> >    */
+> >   struct rmi_f01_power_management {
+> >       enum rmi_f01_nosleep nosleep;
+> > @@ -121,114 +125,23 @@ struct rmi_f01_power_management {
+> >   };
+> >
+> >   /**
+> > - * struct rmi_button_map - used to specify the initial input subsystem key
+> > - * event codes to be generated by buttons (or button like entities) on the
+> > - * touch sensor.
+> > - * @nbuttons - length of the button map.
+> > - * @map - the key event codes for the corresponding buttons on the touch
+> > - * sensor.
+> > - */
+> > -struct rmi_button_map {
+> > -     u8 nbuttons;
+> > -     u8 *map;
+> > -};
+> > -
+> > -struct rmi_f30_gpioled_map {
+> > -     u8 ngpioleds;
+> > -     u8 *map;
+> > -};
+> > -
+> > -/**
+> > - * struct rmi_device_platform_data_spi - provides parameters used in SPI
+> > - * communications.  All Synaptics SPI products support a standard SPI
+> > - * interface; some also support what is called SPI V2 mode, depending on
+> > - * firmware and/or ASIC limitations.  In V2 mode, the touch sensor can
+> > - * support shorter delays during certain operations, and these are specified
+> > - * separately from the standard mode delays.
+> > - *
+> > - * @block_delay - for standard SPI transactions consisting of both a read and
+> > - * write operation, the delay (in microseconds) between the read and write
+> > - * operations.
+> > - * @split_read_block_delay_us - for V2 SPI transactions consisting of both a
+> > - * read and write operation, the delay (in microseconds) between the read and
+> > - * write operations.
+> > - * @read_delay_us - the delay between each byte of a read operation in normal
+> > - * SPI mode.
+> > - * @write_delay_us - the delay between each byte of a write operation in normal
+> > - * SPI mode.
+> > - * @split_read_byte_delay_us - the delay between each byte of a read operation
+> > - * in V2 mode.
+> > - * @pre_delay_us - the delay before the start of a SPI transaction.  This is
+> > - * typically useful in conjunction with custom chip select assertions (see
+> > - * below).
+> > - * @post_delay_us - the delay after the completion of an SPI transaction.  This
+> > - * is typically useful in conjunction with custom chip select assertions (see
+> > - * below).
+> > - * @cs_assert - For systems where the SPI subsystem does not control the CS/SSB
+> > - * line, or where such control is broken, you can provide a custom routine to
+> > - * handle a GPIO as CS/SSB.  This routine will be called at the beginning and
+> > - * end of each SPI transaction.  The RMI SPI implementation will wait
+> > - * pre_delay_us after this routine returns before starting the SPI transfer;
+> > - * and post_delay_us after completion of the SPI transfer(s) before calling it
+> > - * with assert==FALSE.
+> > - */
+> > -struct rmi_device_platform_data_spi {
+> > -     u32 block_delay_us;
+> > -     u32 split_read_block_delay_us;
+> > -     u32 read_delay_us;
+> > -     u32 write_delay_us;
+> > -     u32 split_read_byte_delay_us;
+> > -     u32 pre_delay_us;
+> > -     u32 post_delay_us;
+> > -
+> > -     void *cs_assert_data;
+> > -     int (*cs_assert) (const void *cs_assert_data, const bool assert);
+> > -};
+> > -
+> > -/**
+> >    * struct rmi_device_platform_data - system specific configuration info.
+> >    *
+> >    * @irq - attention IRQ
+> > - * @firmware_name - if specified will override default firmware name,
+> > - * for reflashing.
+> > - *
+> >    * @reset_delay_ms - after issuing a reset command to the touch sensor, the
+> > - * driver waits a few milliseconds to give the firmware a chance to
+> > - * to re-initialize.  You can override the default wait period here.
+> > - *
+> > - * @spi_data - override default settings for SPI delays and SSB management (see
+> > - * above).
+> > - *
+> > + *                   driver waits a few milliseconds to give the firmware a
+> > + *                   chance to to re-initialize.  You can override the default
+> > + *                   wait period here.
+> >    * @f11_sensor_data - platform data for the F11 2D sensor.
+> > - * @f11_rezero_wait - if non-zero, this is how may milliseconds the F11 2D
+> > - * sensor will wait before being be rezeroed on exit from suspend.  If
+> > - * this value is zero, the F11 2D sensor will not be rezeroed on resume.
+> > - * @power_management - overrides default touch sensor doze mode settings (see
+> > - * above)
+> > - * @f19_button_map - provide initial input subsystem key mappings for F19.
+> > - * @f1a_button_map - provide initial input subsystem key mappings for F1A.
+> > - * @gpioled_map - provides initial settings for GPIOs and LEDs controlled by
+> > - * F30.
+> > - * @f41_button_map - provide initial input subsystem key mappings for F41.
+> > + * @power_management - touch sensor power settings (see above)
+> >    */
+> >   struct rmi_device_platform_data {
+> >       int irq;
+> > -     int reset_delay_ms;
+> > -
+> > -     struct rmi_device_platform_data_spi spi_data;
+> > +     u32 reset_delay_ms;
+> >
+> >       /* function handler pdata */
+> > -     struct rmi_f11_sensor_data *f11_sensor_data;
+> > -     u16 f11_rezero_wait;
+> > +     struct rmi_f11_sensor_data f11_sensor_data;
+> >       struct rmi_f01_power_management power_management;
+> > -     struct rmi_button_map *f19_button_map;
+> > -     struct rmi_button_map *f1a_button_map;
+> > -     struct rmi_f30_gpioled_map *gpioled_map;
+> > -     struct rmi_button_map *f41_button_map;
+> > -
+> > -#ifdef CONFIG_RMI4_FWLIB
+> > -     char *firmware_name;
+> > -#endif
+> >   };
+> >
+> >   /**
 > >

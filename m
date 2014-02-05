@@ -1,10 +1,9 @@
 From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: Re: [PATCH 13/15] Input: synaptics-rmi4 - properly set F01 container
- on PDT scan
-Date: Tue, 4 Feb 2014 18:39:02 -0800
-Message-ID: <20140205023901.GL1706@sonymobile.com>
-References: <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
- <1390521623-6491-7-git-send-email-courtney.cavin@sonymobile.com>
+Subject: Re: [PATCH 14/15] Input: synaptics-rmi4 - ensure we have IRQs before
+ reading status
+Date: Tue, 4 Feb 2014 18:40:05 -0800
+Message-ID: <20140205024004.GM1706@sonymobile.com>
+References: <1390521623-6491-7-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-8-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-9-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-10-git-send-email-courtney.cavin@sonymobile.com>
@@ -12,49 +11,70 @@ References: <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-12-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-13-git-send-email-courtney.cavin@sonymobile.com>
  <1390521623-6491-14-git-send-email-courtney.cavin@sonymobile.com>
- <52F17371.7030507@synaptics.com>
+ <1390521623-6491-15-git-send-email-courtney.cavin@sonymobile.com>
+ <52F17379.6030306@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:14611 "EHLO
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:14694 "EHLO
 	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S932137AbaBEChS (ORCPT
+	by vger.kernel.org with ESMTP id S1754424AbaBECiV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Feb 2014 21:37:18 -0500
+	Tue, 4 Feb 2014 21:38:21 -0500
 Content-Disposition: inline
-In-Reply-To: <52F17371.7030507@synaptics.com>
+In-Reply-To: <52F17379.6030306@synaptics.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, linus.walleij@stericsson.com, linus.walleij@linaro.org
 
-On Wed, Feb 05, 2014 at 12:10:41AM +0100, Christopher Heiny wrote:
+On Wed, Feb 05, 2014 at 12:10:49AM +0100, Christopher Heiny wrote:
 > On 01/23/2014 04:00 PM, Courtney Cavin wrote:
-> 
-> Although necessary, this is redundant to changes already submitted.
-> 
-
-Indeed. Sorry.
-
 > > Cc: Christopher Heiny <cheiny@synaptics.com>
 > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > > Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
 > > ---
-> >   drivers/input/rmi4/rmi_driver.c | 2 ++
-> >   1 file changed, 2 insertions(+)
+> >   drivers/input/rmi4/rmi_f01.c | 16 +++++++++-------
+> >   1 file changed, 9 insertions(+), 7 deletions(-)
 > >
-> > diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> > index 52345ae..9d8d6ec 100644
-> > --- a/drivers/input/rmi4/rmi_driver.c
-> > +++ b/drivers/input/rmi4/rmi_driver.c
-> > @@ -488,6 +488,8 @@ static int create_function(struct rmi_device *rmi_dev,
-> >   		return error;
+> > diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+> > index 22b57f2..06fc5bc 100644
+> > --- a/drivers/input/rmi4/rmi_f01.c
+> > +++ b/drivers/input/rmi4/rmi_f01.c
+> > @@ -318,13 +318,15 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+> >   	ctrl_base_addr += sizeof(u8);
 > >
-> >   	list_add_tail(&fn->node, &data->function_list);
-> > +	if (pdt->function_number == 0x01)
-> > +		data->f01_container = fn;
+> >   	data->interrupt_enable_addr = ctrl_base_addr;
+> > -	error = rmi_read_block(rmi_dev, ctrl_base_addr,
+> > -				data->device_control.interrupt_enable,
+> > -				sizeof(u8) * (data->num_of_irq_regs));
+> > -	if (error < 0) {
+> > -		dev_err(&fn->dev,
+> > -			"Failed to read F01 control interrupt enable register.\n");
+> > -		goto error_exit;
+> > +	if (data->num_of_irq_regs > 0) {
+> > +		error = rmi_read_block(rmi_dev, ctrl_base_addr,
+> > +					data->device_control.interrupt_enable,
+> > +					sizeof(u8) * (data->num_of_irq_regs));
+> > +		if (error < 0) {
+> > +			dev_err(&fn->dev,
+> > +				"Failed to read F01 control interrupt enable register.\n");
+> > +			goto error_exit;
+> > +		}
+> 
+> If we don't know the number of IRQ registers at this point, we're 
+> basically screwed, as most of the control register positions will be 
+> known correctly.  The previously submitted IRQ counting patch ensures 
+> that number of IRQ registers is know by this point - if they aren't, 
+> then we should probably fail entirely rather than just muddling along.
+> 
+
+Sounds good.  I just needed this to prevent random failure cases during
+testing.  If your patch solves this problem, then it's probably a much
+better way to address this.
+
+> >   	}
 > >
-> >   	return 0;
-> >   }
+> >   	ctrl_base_addr += data->num_of_irq_regs;
 > >

@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 3/9] HID: HIDp: remove hidp_hidinput_event
-Date: Wed,  5 Feb 2014 16:33:18 -0500
-Message-ID: <1391636004-29354-4-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 1/9] HID: add inliners for ll_driver transport-layer callbacks
+Date: Wed,  5 Feb 2014 16:33:16 -0500
+Message-ID: <1391636004-29354-2-git-send-email-benjamin.tissoires@redhat.com>
 References: <1391636004-29354-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1391636004-29354-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -9,81 +9,77 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-hidp uses its own ->hidinput_input_event() instead of the generic binding
-in hid-input.
-Moving the handling of LEDs towards hidp_hidinput_event() allows two things:
-- remove hidinput_input_event definitively from struct hid_device
-- hidraw user space programs can also set the LEDs
+Those callbacks are not mandatory, so it's better to add inliners
+to use them safely.
 
 Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- net/bluetooth/hidp/core.c | 46 ----------------------------------------------
- 1 file changed, 46 deletions(-)
+ include/linux/hid.h | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index b062cee..469e61b 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -223,51 +223,6 @@ static void hidp_input_report(struct hidp_session *session, struct sk_buff *skb)
- 	input_sync(dev);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 003cc8e..dddcad0 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -680,6 +680,8 @@ struct hid_driver {
+  *	   shouldn't allocate anything to not leak memory
+  * @request: send report request to device (e.g. feature report)
+  * @wait: wait for buffered io to complete (send/recv reports)
++ * @raw_request: send raw report request to device (e.g. feature report)
++ * @output_report: send output report to device
+  * @idle: send idle request to device
+  */
+ struct hid_ll_driver {
+@@ -974,6 +976,49 @@ static inline void hid_hw_request(struct hid_device *hdev,
  }
  
--static int hidp_send_report(struct hidp_session *session, struct hid_report *report)
--{
--	unsigned char hdr;
--	u8 *buf;
--	int rsize, ret;
--
--	buf = hid_alloc_report_buf(report, GFP_ATOMIC);
--	if (!buf)
--		return -EIO;
--
--	hid_output_report(report, buf);
--	hdr = HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUPUT;
--
--	rsize = ((report->size - 1) >> 3) + 1 + (report->id > 0);
--	ret = hidp_send_intr_message(session, hdr, buf, rsize);
--
--	kfree(buf);
--	return ret;
--}
--
--static int hidp_hidinput_event(struct input_dev *dev, unsigned int type,
--			       unsigned int code, int value)
--{
--	struct hid_device *hid = input_get_drvdata(dev);
--	struct hidp_session *session = hid->driver_data;
--	struct hid_field *field;
--	int offset;
--
--	BT_DBG("session %p type %d code %d value %d",
--	       session, type, code, value);
--
--	if (type != EV_LED)
--		return -1;
--
--	offset = hidinput_find_field(hid, type, code, &field);
--	if (offset == -1) {
--		hid_warn(dev, "event field not found\n");
--		return -1;
--	}
--
--	hid_set_field(field, offset, value);
--
--	return hidp_send_report(session, field->report);
--}
--
- static int hidp_get_raw_report(struct hid_device *hid,
- 		unsigned char report_number,
- 		unsigned char *data, size_t count,
-@@ -817,7 +772,6 @@ static struct hid_ll_driver hidp_hid_driver = {
- 	.close = hidp_close,
- 	.raw_request = hidp_raw_request,
- 	.output_report = hidp_output_report,
--	.hidinput_input_event = hidp_hidinput_event,
- };
- 
- /* This function sets up the hid device. It does not add it
+ /**
++ * hid_hw_raw_request - send report request to device
++ *
++ * @hdev: hid device
++ * @reportnum: report ID
++ * @buf: in/out data to transfer
++ * @len: length of buf
++ * @rtype: HID report type
++ * @reqtype: HID_REQ_GET_REPORT or HID_REQ_SET_REPORT
++ *
++ * @return: count of data transfered, negative if error
++ *
++ * Same behavior as hid_hw_request, but with raw buffers instead.
++ */
++static inline int hid_hw_raw_request(struct hid_device *hdev,
++				  unsigned char reportnum, __u8 *buf,
++				  size_t len, unsigned char rtype, int reqtype)
++{
++	if (hdev->ll_driver->raw_request)
++		return hdev->ll_driver->raw_request(hdev, reportnum, buf, len,
++						    rtype, reqtype);
++
++	return -ENOSYS;
++}
++
++/**
++ * hid_hw_output_report - send output report to device
++ *
++ * @hdev: hid device
++ * @buf: raw data to transfer
++ * @len: length of buf
++ *
++ * @return: count of data transfered, negative if error
++ */
++static inline int hid_hw_output_report(struct hid_device *hdev, __u8 *buf,
++					size_t len)
++{
++	if (hdev->ll_driver->output_report)
++		return hdev->ll_driver->output_report(hdev, buf, len);
++
++	return -ENOSYS;
++}
++
++/**
+  * hid_hw_idle - send idle request to device
+  *
+  * @hdev: hid device
 -- 
 1.8.3.1

@@ -1,61 +1,63 @@
-From: Simon Wood <simon@mungewell.org>
-Subject: [PATCH] HID: hid-sony Report actual brightness value when reading LED
-Date: Wed,  5 Feb 2014 12:34:18 -0700
-Message-ID: <1391628858-2916-1-git-send-email-simon@mungewell.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 0/9] HID: spring cleanup v2
+Date: Wed,  5 Feb 2014 16:33:15 -0500
+Message-ID: <1391636004-29354-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:42567 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751950AbaBETe3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Feb 2014 14:34:29 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:43059 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753686AbaBEVdf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 5 Feb 2014 16:33:35 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, simon@mungewell.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The Dualshock4 controller contains a RGB LED, which is enabled via
-the '/sys/class/leds' interface. At present the driver only returns
-whether each of the RGB LEDs is lit (ie not off), but no indication
-of it's brightness.
+Hi guys,
 
-This patch fixes the reading of the current brightnes so that it
-returns the value (rather than just off=0, on=LED_FULL).
+well, here comes the promised v2 of the ll_transport cleanup.
 
-Tested on the DS4 and SixAxis (for compatibility).
+As I said, I removed patches which need some more work, and kept only the
+trivial ones. I also added David's documentation, which gives us a net
+difference of +210 lines of code :(
+Let's say that we still have a net worth of -106 lines of actual code :)
 
-Signed-off-by: Simon Wood <simon@mungewell.org>
----
- drivers/hid/hid-sony.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+Cheers,
+Benjamin
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 1235405..f9a7610 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -790,7 +790,6 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
- 	struct sony_sc *drv_data;
- 
- 	int n;
--	int on = 0;
- 
- 	drv_data = hid_get_drvdata(hdev);
- 	if (!drv_data) {
-@@ -799,13 +798,11 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
- 	}
- 
- 	for (n = 0; n < drv_data->led_count; n++) {
--		if (led == drv_data->leds[n]) {
--			on = !!(drv_data->led_state[n]);
--			break;
--		}
-+		if (led == drv_data->leds[n])
-+			return drv_data->led_state[n];
- 	}
- 
--	return on ? LED_FULL : LED_OFF;
-+	return LED_OFF;
- }
- 
- static void sony_leds_remove(struct hid_device *hdev)
+Changes since v1:
+- removed uhid, i2c-hid patches
+- removed the previous 11/11 (move hid_output_raw_report to hid_ll_driver)
+- hid-logitech-dj: use hid_hw_raw_request instead of hid_output_report (2/9)
+- add documentation - I removed the hid_input_event() doc (9/9)
+
+Benjamin Tissoires (9):
+  HID: add inliners for ll_driver transport-layer callbacks
+  HID: logitech-dj: remove hidinput_input_event
+  HID: HIDp: remove hidp_hidinput_event
+  HID: remove hidinput_input_event handler
+  HID: HIDp: remove duplicated coded
+  HID: usbhid: remove duplicated code
+  HID: remove hid_get_raw_report in struct hid_device
+  HID: introduce helper to access hid_output_raw_report()
+  HID: Add HID transport driver documentation
+
+ Documentation/hid/hid-transport.txt | 316 ++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-input.c             |  12 +-
+ drivers/hid/hid-lg.c                |   6 +-
+ drivers/hid/hid-logitech-dj.c       | 106 +++++-------
+ drivers/hid/hid-magicmouse.c        |   2 +-
+ drivers/hid/hid-sony.c              |   9 +-
+ drivers/hid/hid-thingm.c            |   4 +-
+ drivers/hid/hid-wacom.c             |  16 +-
+ drivers/hid/hid-wiimote-core.c      |   2 +-
+ drivers/hid/hidraw.c                |   9 +-
+ drivers/hid/i2c-hid/i2c-hid.c       |   1 -
+ drivers/hid/uhid.c                  |   1 -
+ drivers/hid/usbhid/hid-core.c       |  65 ++------
+ include/linux/hid.h                 |  68 +++++++-
+ net/bluetooth/hidp/core.c           | 115 ++-----------
+ 15 files changed, 471 insertions(+), 261 deletions(-)
+ create mode 100644 Documentation/hid/hid-transport.txt
+
 -- 
-1.8.1.2
+1.8.3.1
 

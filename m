@@ -1,38 +1,84 @@
-From: simon@mungewell.org
-Subject: Re: [PATCH 2/5] Port hid-lg4ff to ff-memless-next
-Date: Tue, 4 Feb 2014 19:08:43 -0500
-Message-ID: <63cea0aa616907d1186526ea155ff1d0.squirrel@mungewell.org>
-References: <1602354.DiHhm9tiaI@geidi-prime>
-    <CADbOyBS8C+OR5D6EhNCY4O-nMsb5XXdHmkN+8wzj=vT7kXy4pw@mail.gmail.com>
-    <2759650.caO9v0gpIz@geidi-prime> <11410308.cAygrS0hGQ@geidi-prime>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] drivers: hid: hid-wiimote-modules: fixed code style errors
+Date: Wed, 5 Feb 2014 01:18:58 +0100
+Message-ID: <CANq1E4SZz3oUmOqoN7iqF4+gdMDCAf_jwOK8smbS2+vUh51Brg@mail.gmail.com>
+References: <1391558068-10715-1-git-send-email-sebastiankeller@fastmail.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host171.canaca.com ([67.55.55.225]:41289 "EHLO
-	host171.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932590AbaBEAIs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2014 19:08:48 -0500
-In-Reply-To: <11410308.cAygrS0hGQ@geidi-prime>
+Received: from mail-ig0-f181.google.com ([209.85.213.181]:57632 "EHLO
+	mail-ig0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754981AbaBEAS6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Feb 2014 19:18:58 -0500
+Received: by mail-ig0-f181.google.com with SMTP id j1so370838iga.2
+        for <linux-input@vger.kernel.org>; Tue, 04 Feb 2014 16:18:58 -0800 (PST)
+In-Reply-To: <1391558068-10715-1-git-send-email-sebastiankeller@fastmail.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?=22Michal_Mal=FD=22?= <madcatxster@prifuk.cz>
-Cc: Elias Vanderstuyft <elias.vds@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org
+To: Sebastian Keller <sebastiankeller@fastmail.net>
+Cc: David Herrmann <dh.herrmann@googlemail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 
+Hi
 
-> Ahh... please disregard this. 2/5 should have the same fix for zero force
-> as
-> we have right now - it should effectively stop the effect when the force
-> is zero.
+On Wed, Feb 5, 2014 at 12:54 AM, Sebastian Keller
+<sebastiankeller@fastmail.net> wrote:
+> Realigned the switch case blocks
+> Added a space to an (void *) cast
+>
+> Signed-off-by: Sebastian Keller <sebastiankeller@fastmail.net>
+> ---
+>  drivers/hid/hid-wiimote-modules.c | 20 ++++++++++----------
+>  1 file changed, 10 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
+> index 6b61f01..1882bce 100644
+> --- a/drivers/hid/hid-wiimote-modules.c
+> +++ b/drivers/hid/hid-wiimote-modules.c
+> @@ -353,7 +353,7 @@ static int wiimod_led_probe(const struct wiimod_ops *ops,
+>         if (!led)
+>                 return -ENOMEM;
+>
+> -       name = (void*)&led[1];
+> +       name = (void *)&led[1];
 
-Hi,
-We need to think carefully on this as a '+10' combined with '-10' force
-will result in '0'; however we do not want to deactivate the wheel
-(no-resistance mode) as this will result in 'ticking' on the wheel as
-force transitions through 0.... ideally we'd need to know that there are
-no forces set.
+We don't put spaces there if it's a cast. We only do that for type/var
+definitions.
 
-I'll attempt to build these patches this week and give them a test,
-Simon.
+>         snprintf(name, namesz, "%s:blue:p%lu", dev_name(dev), ops->arg);
+>         led->name = name;
+>         led->brightness = 0;
+> @@ -689,15 +689,15 @@ static int wiimod_ir_change(struct wiimote_data *wdata, __u16 mode)
+>
+>         /* put IR cam into desired state */
+>         switch (mode) {
+> -               case WIIPROTO_FLAG_IR_FULL:
+> -                       format = 5;
+> -                       break;
+> -               case WIIPROTO_FLAG_IR_EXT:
+> -                       format = 3;
+> -                       break;
+> -               case WIIPROTO_FLAG_IR_BASIC:
+> -                       format = 1;
+> -                       break;
+> +       case WIIPROTO_FLAG_IR_FULL:
+> +               format = 5;
+> +               break;
+> +       case WIIPROTO_FLAG_IR_EXT:
+> +               format = 3;
+> +               break;
+> +       case WIIPROTO_FLAG_IR_BASIC:
+> +               format = 1;
+> +               break;
 
+That one looks good. Can you resend without the cast-change? Feel free
+to add my "Reviewed-by: David Herrmann <dh.herrmann@gmail.com>".
 
+Thanks
+David
+
+>         }
+>         ret = wiimote_cmd_write(wdata, 0xb00033, &format, sizeof(format));
+>         if (ret)
+> --
+> 1.8.5.3
+>

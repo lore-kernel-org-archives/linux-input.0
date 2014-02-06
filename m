@@ -1,94 +1,133 @@
-From: Zachary Lund <admin@computerquip.com>
-Subject: Re: [PATCH 0/7] Input: xpad: Fix wireless controller connection and leds
-Date: Thu, 6 Feb 2014 03:11:11 +0000 (UTC)
-Message-ID: <loom.20140206T035948-368@post.gmane.org>
-References: <1391173414-6199-1-git-send-email-gregkh@linuxfoundation.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input synaptics-rmi4: rmi_driver.c tidying
+Date: Wed, 5 Feb 2014 22:07:27 -0800
+Message-ID: <20140206060727.GA8130@core.coreip.homeip.net>
+References: <1391652949-21083-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from plane.gmane.org ([80.91.229.3]:49074 "EHLO plane.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751296AbaBFDPF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 5 Feb 2014 22:15:05 -0500
-Received: from list by plane.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1WBFQe-0005lZ-Ev
-	for linux-input@vger.kernel.org; Thu, 06 Feb 2014 04:15:04 +0100
-Received: from li40-72.members.linode.com ([72.14.178.72])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Thu, 06 Feb 2014 04:15:04 +0100
-Received: from admin by li40-72.members.linode.com with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Thu, 06 Feb 2014 04:15:04 +0100
+Received: from mail-pb0-f51.google.com ([209.85.160.51]:62685 "EHLO
+	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751319AbaBFGHc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Feb 2014 01:07:32 -0500
+Received: by mail-pb0-f51.google.com with SMTP id un15so1342692pbc.24
+        for <linux-input@vger.kernel.org>; Wed, 05 Feb 2014 22:07:31 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1391652949-21083-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-Greg Kroah-Hartman <gregkh <at> linuxfoundation.org> writes:
+On Wed, Feb 05, 2014 at 06:15:49PM -0800, Christopher Heiny wrote:
+> Remove pdt_mutex, since it's no longer needed.
+> 
+> Remove obsolete comment in rmi_drive_irq_save().  Fix
+> some operator spacing (or lack thereof) in rmi_drive_irq_save().
+> 
+> Remove XXX comment about F01 ordering.  New structure doesn't
+> require F01 to be first.
+> 
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 
-> 
-> Here's a series of patches from Pierre-Loup and I that rework the xpad
-> driver to fix the issue where when a wireless xpad controller is plugged
-> in, 4 joystick devices are created, no matter how many are really
-> attached to the system.  Pierre-Loup's patches fix this by dynamically
-> creating the devices only when they are found by the wireless
-> controller.
-> 
-> Bonus is that the LEDs now work correctly with this series too, when
-> mixing wireless and wired, we can properly identify which device is
-> which on the X-LED.  We also now name the LED device based on the
-> joystick id, not on an atomic number that keeps incrementing, never
-> decrementing when removed from the system.
-> 
-> Note, patch 4/7 is a crazy hack to get the minor number of the joystick
-> id that we have registered with the system.  Pierre-Loup came up with
-> this, and I really can't figure out any other way to do it, the joydev
-> layer doesn't even know this information, otherwise I would have added
-> it to that layer so the xpad driver could call it.  Am I missing
-> something here that we could do instead?
-> 
-> The first patch in the series fixes a really annoying bug when plugging
-> in one of these controllers to a USB 3 system.  The URB type is
-> incorrect so the xhci driver complains about it, rightly so.  I think
-> the original code was incorrect, but left it alone incase there is
-> really a crazy device with a bulk endpoint instead of interrupt.
-> 
-> Also, even with this series applied, the xpad driver needs a bunch of
-> work.  The LED device seems pointless as it doesn't actually work, and
-> given that the number/name of the LED device was impossible to actually
-> map to the proper xpad device, there's no way userspace code could ever
-> actually use it.  I think it should be removed entirely.  There's also
-> some other USB things that should be cleaned up, the bulk urb doesn't
-> need to be always running (with lots of disconnect/connect cycles you
-> can get a warning about it running when trying to submit it again), and
-> the urb callbacks seem a bit strange.  I'll work on those issues next...
-> 
-> This series was based on a larger patch from Pierre-Loup that I broke up
-> into pieces, and added some of my own where needed to resolve other
-> issues.
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo <at> vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> 
+Applied, thank you.
 
-Since it may help, I'll add a link to my driver here. I have no intention of 
-trying to mainstream this driver and have used it personally for slightly 
-better support than what's provided now. I've recently done even more work 
-on it for the fun of it (not sure if I'm cut out for kernel hacking...).
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Cc: Linux Walleij <linus.walleij@linaro.org>
+> Cc: David Herrmann <dh.herrmann@gmail.com>
+> Cc: Jiri Kosina <jkosina@suse.cz>
+> 
+> ---
+> 
+>  drivers/input/rmi4/rmi_driver.c | 24 ++----------------------
+>  drivers/input/rmi4/rmi_driver.h |  1 -
+>  2 files changed, 2 insertions(+), 23 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index 96bb47d..2943b2c4 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -347,21 +347,15 @@ static int rmi_driver_irq_save(struct rmi_device *rmi_dev,
+>  	if (!data->irq_stored) {
+>  		/* Save current enabled interrupts */
+>  		retval = rmi_read_block(rmi_dev,
+> -				data->f01_container->fd.control_base_addr+1,
+> +				data->f01_container->fd.control_base_addr + 1,
+>  				data->irq_mask_store, data->num_of_irq_regs);
+>  		if (retval < 0) {
+>  			dev_err(dev, "%s: Failed to read enabled interrupts!",
+>  								__func__);
+>  			goto error_unlock;
+>  		}
+> -		/*
+> -		 * Disable every interrupt except for function 54
+> -		 * TODO:Will also want to not disable function 1-like functions.
+> -		 * No need to take care of this now, since there's no good way
+> -		 * to identify them.
+> -		 */
+>  		retval = rmi_write_block(rmi_dev,
+> -				data->f01_container->fd.control_base_addr+1,
+> +				data->f01_container->fd.control_base_addr + 1,
+>  				new_ints, data->num_of_irq_regs);
+>  		if (retval < 0) {
+>  			dev_err(dev, "%s: Failed to change enabled interrupts!",
+> @@ -562,24 +556,15 @@ static int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
+>  					void *ctx,
+>  					const struct pdt_entry *entry))
+>  {
+> -	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+>  	int page;
+>  	int retval = RMI_SCAN_DONE;
+>  
+> -	/*
+> -	 * TODO: With F01 and reflash as part of the core now, is this
+> -	 * lock still required?
+> -	 */
+> -	mutex_lock(&data->pdt_mutex);
+> -
+>  	for (page = 0; page <= RMI4_MAX_PAGE; page++) {
+>  		retval = rmi_scan_pdt_page(rmi_dev, page, ctx, callback);
+>  		if (retval != RMI_SCAN_CONTINUE)
+>  			break;
+>  	}
+>  
+> -	mutex_unlock(&data->pdt_mutex);
+> -
+>  	return retval < 0 ? retval : 0;
+>  }
+>  
+> @@ -829,7 +814,6 @@ static int rmi_driver_probe(struct device *dev)
+>  	INIT_LIST_HEAD(&data->function_list);
+>  	data->rmi_dev = rmi_dev;
+>  	dev_set_drvdata(&rmi_dev->dev, data);
+> -	mutex_init(&data->pdt_mutex);
+>  
+>  	/*
+>  	 * Right before a warm boot, the sensor might be in some unusual state,
+> @@ -897,10 +881,6 @@ static int rmi_driver_probe(struct device *dev)
+>  	data->current_irq_mask	= irq_memory + size * 2;
+>  	data->irq_mask_store	= irq_memory + size * 3;
+>  
+> -	/*
+> -	 * XXX need to make sure we create F01 first...
+> -	 * XXX or do we?  It might not be required in the updated structure.
+> -	 */
+>  	irq_count = 0;
+>  	dev_dbg(dev, "Creating functions.");
+>  	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_function);
+> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+> index d071ff5..a22a4e6 100644
+> --- a/drivers/input/rmi4/rmi_driver.h
+> +++ b/drivers/input/rmi4/rmi_driver.h
+> @@ -56,7 +56,6 @@ struct rmi_driver_data {
+>  	struct work_struct poll_work;
+>  	ktime_t poll_interval;
+>  
+> -	struct mutex pdt_mutex;
+>  	u8 pdt_props;
+>  	u8 bsr;
+>  
 
-Use at your own risk:
-https://github.com/computerquip/xpad360wr
-
-I find that the main problem with any of this is that I don't know how to 
-query features e.g. whether or not a device actually has FF capabilities. 
-It's currently just assumed to have FF capabilities. I suspect its in the 
-announce packet for wireless devices. For wired, it's just matched up 
-against a table of devices to determine what features it has. 
-
-
-
+-- 
+Dmitry

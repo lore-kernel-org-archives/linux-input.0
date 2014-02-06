@@ -1,85 +1,23 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 1/9] HID: add inliners for ll_driver transport-layer callbacks
-Date: Wed,  5 Feb 2014 16:33:16 -0500
-Message-ID: <1391636004-29354-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1391636004-29354-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1391636004-29354-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Frank Praznik <frank.praznik@oh.rr.com>
+Subject: [PATCH v3 0/6] HID: sony: Add full Bluetooth support for the Dualshock 4
+Date: Wed,  5 Feb 2014 20:03:43 -0500
+Message-ID: <1391648629-3077-1-git-send-email-frank.praznik@oh.rr.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:56652 "EHLO
+	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753036AbaBFBEO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Feb 2014 20:04:14 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, dh.herrmann@gmail.com, Frank Praznik <frank.praznik@oh.rr.com>
 
-Those callbacks are not mandatory, so it's better to add inliners
-to use them safely.
+v3 of this patch series rebases the code against Benjamin Tissoires' HID
+transport layer changes to use the safe inline hid_hw_* functions which
+eliminates the need to check the function pointers manually.
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- include/linux/hid.h | 45 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 45 insertions(+)
+It adds an explicit Bluetooth initialization function instead of the controller
+input report state being set as a side effect of initializing the LED system.
 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 003cc8e..dddcad0 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -680,6 +680,8 @@ struct hid_driver {
-  *	   shouldn't allocate anything to not leak memory
-  * @request: send report request to device (e.g. feature report)
-  * @wait: wait for buffered io to complete (send/recv reports)
-+ * @raw_request: send raw report request to device (e.g. feature report)
-+ * @output_report: send output report to device
-  * @idle: send idle request to device
-  */
- struct hid_ll_driver {
-@@ -974,6 +976,49 @@ static inline void hid_hw_request(struct hid_device *hdev,
- }
- 
- /**
-+ * hid_hw_raw_request - send report request to device
-+ *
-+ * @hdev: hid device
-+ * @reportnum: report ID
-+ * @buf: in/out data to transfer
-+ * @len: length of buf
-+ * @rtype: HID report type
-+ * @reqtype: HID_REQ_GET_REPORT or HID_REQ_SET_REPORT
-+ *
-+ * @return: count of data transfered, negative if error
-+ *
-+ * Same behavior as hid_hw_request, but with raw buffers instead.
-+ */
-+static inline int hid_hw_raw_request(struct hid_device *hdev,
-+				  unsigned char reportnum, __u8 *buf,
-+				  size_t len, unsigned char rtype, int reqtype)
-+{
-+	if (hdev->ll_driver->raw_request)
-+		return hdev->ll_driver->raw_request(hdev, reportnum, buf, len,
-+						    rtype, reqtype);
-+
-+	return -ENOSYS;
-+}
-+
-+/**
-+ * hid_hw_output_report - send output report to device
-+ *
-+ * @hdev: hid device
-+ * @buf: raw data to transfer
-+ * @len: length of buf
-+ *
-+ * @return: count of data transfered, negative if error
-+ */
-+static inline int hid_hw_output_report(struct hid_device *hdev, __u8 *buf,
-+					size_t len)
-+{
-+	if (hdev->ll_driver->output_report)
-+		return hdev->ll_driver->output_report(hdev, buf, len);
-+
-+	return -ENOSYS;
-+}
-+
-+/**
-  * hid_hw_idle - send idle request to device
-  *
-  * @hdev: hid device
--- 
-1.8.3.1
+It also uses a new DUALSHOCK4_CONTROLLER macro to simplify conditional cases
+where the connection type is irrelevant.

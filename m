@@ -1,133 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input synaptics-rmi4: rmi_driver.c tidying
-Date: Wed, 5 Feb 2014 22:07:27 -0800
-Message-ID: <20140206060727.GA8130@core.coreip.homeip.net>
-References: <1391652949-21083-1-git-send-email-cheiny@synaptics.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: hid-sony Report actual brightness value when reading
+ LED
+Date: Thu, 6 Feb 2014 09:46:35 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1402060946260.24838@pobox.suse.cz>
+References: <1391628858-2916-1-git-send-email-simon@mungewell.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f51.google.com ([209.85.160.51]:62685 "EHLO
-	mail-pb0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751319AbaBFGHc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Feb 2014 01:07:32 -0500
-Received: by mail-pb0-f51.google.com with SMTP id un15so1342692pbc.24
-        for <linux-input@vger.kernel.org>; Wed, 05 Feb 2014 22:07:31 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1391652949-21083-1-git-send-email-cheiny@synaptics.com>
+Received: from cantor2.suse.de ([195.135.220.15]:37860 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755405AbaBFIqk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Feb 2014 03:46:40 -0500
+In-Reply-To: <1391628858-2916-1-git-send-email-simon@mungewell.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2014 at 06:15:49PM -0800, Christopher Heiny wrote:
-> Remove pdt_mutex, since it's no longer needed.
-> 
-> Remove obsolete comment in rmi_drive_irq_save().  Fix
-> some operator spacing (or lack thereof) in rmi_drive_irq_save().
-> 
-> Remove XXX comment about F01 ordering.  New structure doesn't
-> require F01 to be first.
-> 
-> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+On Wed, 5 Feb 2014, Simon Wood wrote:
 
-Applied, thank you.
+> The Dualshock4 controller contains a RGB LED, which is enabled via
+> the '/sys/class/leds' interface. At present the driver only returns
+> whether each of the RGB LEDs is lit (ie not off), but no indication
+> of it's brightness.
+> 
+> This patch fixes the reading of the current brightnes so that it
+> returns the value (rather than just off=0, on=LED_FULL).
+> 
+> Tested on the DS4 and SixAxis (for compatibility).
+> 
+> Signed-off-by: Simon Wood <simon@mungewell.org>
 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: Linux Walleij <linus.walleij@linaro.org>
-> Cc: David Herrmann <dh.herrmann@gmail.com>
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> 
-> ---
-> 
->  drivers/input/rmi4/rmi_driver.c | 24 ++----------------------
->  drivers/input/rmi4/rmi_driver.h |  1 -
->  2 files changed, 2 insertions(+), 23 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index 96bb47d..2943b2c4 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -347,21 +347,15 @@ static int rmi_driver_irq_save(struct rmi_device *rmi_dev,
->  	if (!data->irq_stored) {
->  		/* Save current enabled interrupts */
->  		retval = rmi_read_block(rmi_dev,
-> -				data->f01_container->fd.control_base_addr+1,
-> +				data->f01_container->fd.control_base_addr + 1,
->  				data->irq_mask_store, data->num_of_irq_regs);
->  		if (retval < 0) {
->  			dev_err(dev, "%s: Failed to read enabled interrupts!",
->  								__func__);
->  			goto error_unlock;
->  		}
-> -		/*
-> -		 * Disable every interrupt except for function 54
-> -		 * TODO:Will also want to not disable function 1-like functions.
-> -		 * No need to take care of this now, since there's no good way
-> -		 * to identify them.
-> -		 */
->  		retval = rmi_write_block(rmi_dev,
-> -				data->f01_container->fd.control_base_addr+1,
-> +				data->f01_container->fd.control_base_addr + 1,
->  				new_ints, data->num_of_irq_regs);
->  		if (retval < 0) {
->  			dev_err(dev, "%s: Failed to change enabled interrupts!",
-> @@ -562,24 +556,15 @@ static int rmi_scan_pdt(struct rmi_device *rmi_dev, void *ctx,
->  					void *ctx,
->  					const struct pdt_entry *entry))
->  {
-> -	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
->  	int page;
->  	int retval = RMI_SCAN_DONE;
->  
-> -	/*
-> -	 * TODO: With F01 and reflash as part of the core now, is this
-> -	 * lock still required?
-> -	 */
-> -	mutex_lock(&data->pdt_mutex);
-> -
->  	for (page = 0; page <= RMI4_MAX_PAGE; page++) {
->  		retval = rmi_scan_pdt_page(rmi_dev, page, ctx, callback);
->  		if (retval != RMI_SCAN_CONTINUE)
->  			break;
->  	}
->  
-> -	mutex_unlock(&data->pdt_mutex);
-> -
->  	return retval < 0 ? retval : 0;
->  }
->  
-> @@ -829,7 +814,6 @@ static int rmi_driver_probe(struct device *dev)
->  	INIT_LIST_HEAD(&data->function_list);
->  	data->rmi_dev = rmi_dev;
->  	dev_set_drvdata(&rmi_dev->dev, data);
-> -	mutex_init(&data->pdt_mutex);
->  
->  	/*
->  	 * Right before a warm boot, the sensor might be in some unusual state,
-> @@ -897,10 +881,6 @@ static int rmi_driver_probe(struct device *dev)
->  	data->current_irq_mask	= irq_memory + size * 2;
->  	data->irq_mask_store	= irq_memory + size * 3;
->  
-> -	/*
-> -	 * XXX need to make sure we create F01 first...
-> -	 * XXX or do we?  It might not be required in the updated structure.
-> -	 */
->  	irq_count = 0;
->  	dev_dbg(dev, "Creating functions.");
->  	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_function);
-> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-> index d071ff5..a22a4e6 100644
-> --- a/drivers/input/rmi4/rmi_driver.h
-> +++ b/drivers/input/rmi4/rmi_driver.h
-> @@ -56,7 +56,6 @@ struct rmi_driver_data {
->  	struct work_struct poll_work;
->  	ktime_t poll_interval;
->  
-> -	struct mutex pdt_mutex;
->  	u8 pdt_props;
->  	u8 bsr;
->  
+Applied, thanks Simon.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

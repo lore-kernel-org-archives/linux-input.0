@@ -1,59 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 01/15] Input: synaptics-rmi4 - fix checkpatch.pl, sparse
- and GCC warnings
-Date: Wed, 5 Feb 2014 17:09:39 -0800
-Message-ID: <20140206010938.GA27770@core.coreip.homeip.net>
-References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
- <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com>
- <52F172DC.5090900@synaptics.com>
+Subject: Re: [PATCH v3] input synaptics-rmi4: PDT scan cleanup
+Date: Wed, 5 Feb 2014 17:13:21 -0800
+Message-ID: <20140206011321.GB27770@core.coreip.homeip.net>
+References: <1391563997-11155-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f45.google.com ([209.85.160.45]:63983 "EHLO
-	mail-pb0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754196AbaBFBJn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Feb 2014 20:09:43 -0500
-Received: by mail-pb0-f45.google.com with SMTP id un15so1080763pbc.18
-        for <linux-input@vger.kernel.org>; Wed, 05 Feb 2014 17:09:42 -0800 (PST)
+Received: from mail-pa0-f50.google.com ([209.85.220.50]:34972 "EHLO
+	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752935AbaBFBNZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Feb 2014 20:13:25 -0500
+Received: by mail-pa0-f50.google.com with SMTP id kp14so1044662pab.37
+        for <linux-input@vger.kernel.org>; Wed, 05 Feb 2014 17:13:25 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <52F172DC.5090900@synaptics.com>
+In-Reply-To: <1391563997-11155-1-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Courtney Cavin <courtney.cavin@sonymobile.com>, linux-input@vger.kernel.org
+Cc: Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Tue, Feb 04, 2014 at 03:08:12PM -0800, Christopher Heiny wrote:
-> On 01/23/2014 04:00 PM, Courtney Cavin wrote:
-> >Cc: Christopher Heiny <cheiny@synaptics.com>
-> >Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >Signed-off-by: Courtney Cavin <courtney.cavin@sonymobile.com>
-> >---
-> >  drivers/input/rmi4/rmi_bus.c    |  4 ++--
-> >  drivers/input/rmi4/rmi_bus.h    |  2 +-
-> >  drivers/input/rmi4/rmi_driver.c | 17 ++++++++++++-----
-> >  drivers/input/rmi4/rmi_f11.c    |  4 +++-
-> >  4 files changed, 18 insertions(+), 9 deletions(-)
-> >
-> >diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-> >index 96a76e7..8a939f3 100644
-> >--- a/drivers/input/rmi4/rmi_bus.c
-> >+++ b/drivers/input/rmi4/rmi_bus.c
-> >@@ -37,7 +37,7 @@ static void rmi_release_device(struct device *dev)
-> >  	kfree(rmi_dev);
-> >  }
-> >
-> >-struct device_type rmi_device_type = {
-> >+static struct device_type rmi_device_type = {
-> >  	.name		= "rmi_sensor",
-> >  	.release	= rmi_release_device,
-> >  };
+On Tue, Feb 04, 2014 at 05:33:17PM -0800, Christopher Heiny wrote:
+> This builds on Dmitry's patch of 2014-01-27, with some bug fixes.  It's been
+> tested on a Nexus 4.
 > 
-> This struct is used by diagnostic modules to identify sensor
-> devices, so it cannot be static.
+> Eliminates copy-paste code that handled scans of the Page Descriptor
+> Table, replacing it with a single PDT scan routine that invokes a 
+> callback function.
+> 
+> Updated the copyright dates and eliminate C++ style comments while we
+> were at it.
+> 
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
 
-Then we need to declare it somewhere or provide an accessor function.
-
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

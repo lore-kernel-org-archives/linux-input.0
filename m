@@ -1,52 +1,51 @@
-From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: Re: [PATCH 05/15] Input: synaptics-rmi4 - remove gpio handling and
- polling
-Date: Thu, 6 Feb 2014 17:47:13 -0800
-Message-ID: <20140207014712.GP1706@sonymobile.com>
-References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
- <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com>
- <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com>
- <1390521623-6491-4-git-send-email-courtney.cavin@sonymobile.com>
- <1390521623-6491-5-git-send-email-courtney.cavin@sonymobile.com>
- <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
- <52F172F3.7090003@synaptics.com>
- <20140205023113.GE1706@sonymobile.com>
- <52F3EAF1.9000505@synaptics.com>
+From: Tommy Will <tommywill2011@gmail.com>
+Subject: Fwd: FW: Dell Latitude E7440 - ALPS touchpad keeps having state reset
+Date: Fri, 7 Feb 2014 15:46:48 +0800
+Message-ID: <CA+F6ckMmWEikbm=chDSqPQp7TfL8bYi8rKwdA40eLbxq7FQxog@mail.gmail.com>
+References: <373dee7dc0664723a28e543c240fdce1@SINPR04MB282.apcprd04.prod.outlook.com>
+	<CA+F6ckM4gTBAE5Z3ymc=V8Oo73CV4p5tRTCZYMMVi2+3SK+U6g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:6480 "EHLO
-	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751187AbaBGBp3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Feb 2014 20:45:29 -0500
-Content-Disposition: inline
-In-Reply-To: <52F3EAF1.9000505@synaptics.com>
-Content-Language: en-US
+Received: from mail-lb0-f175.google.com ([209.85.217.175]:58031 "EHLO
+	mail-lb0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750729AbaBGHqt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Feb 2014 02:46:49 -0500
+Received: by mail-lb0-f175.google.com with SMTP id p9so2361806lbv.34
+        for <linux-input@vger.kernel.org>; Thu, 06 Feb 2014 23:46:48 -0800 (PST)
+In-Reply-To: <CA+F6ckM4gTBAE5Z3ymc=V8Oo73CV4p5tRTCZYMMVi2+3SK+U6g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linus.walleij@stericsson.com" <linus.walleij@stericsson.com>, "linus.walleij@linaro.org" <linus.walleij@linaro.org>
+To: allan@amcone.net
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, Feb 06, 2014 at 09:05:05PM +0100, Christopher Heiny wrote:
-> On 02/04/2014 06:31 PM, Courtney Cavin wrote:
-> > On Wed, Feb 05, 2014 at 12:08:35AM +0100, Christopher Heiny wrote:
-> >> On 01/23/2014 04:00 PM, Courtney Cavin wrote:
-> >>> Since all the configuration needed for an irq can be provided in other
-> >>> ways, remove all gpio->irq functionality. This cleans up the code quite
-> >>> a bit.
-> >>
-> >> In certain diagnostic modes, we need to be able to release the IRQ so
-> >> the GPIO can be monitored from userspace.  This patch removes that
-> >> capability.
-> >>
-> >
-> > Polling a GPIO from userspace is poor design regardless of the use-case, if
-> > you ask me.  It certainly doesn't motivate the extra gpio<->IRQ code.
-> 
-> Fortunately, neither the in-driver polling implementation nor the user
-> space diagnostic applications are implemented that way.
+Hi Allan,
 
-I'm missing something here then.  If the userspace diagnostic
-applications do not poll the GPIO, then what exactly is the purpose of
-them accessing the GPIO at all?
+This is Tommy from ALPS. Thanks for your contact and so sorry for my
+overlooking your last week's mail.
+
+> I've reported the problem I'm having in more detail here:
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1258837
+>
+> In summary - I keep suffering from the mouse pointer jumping around erratically, with the following messages output to syslog:
+>  psmouse serio1: DualPoint TouchPad at isa0060/serio1/input0 lost sync at byte 1  psmouse serio1: DualPoint TouchPad at isa0060/serio1/input0 - driver resynced.
+>
+> Other people have reported the same problem in that bug report.
+> Bisecting the kernel, the problem seems to have always been in place as soon as the touchpad was correctly identified; according to xinput
+> - it's a "AlpsPS/2 ALPS DualPoint TouchPad". When it was being identified as a generic PS/2 mouse, there's no problem (though of course, there's also no touchpad functionality available either).
+>
+
+It seems that with the latest kernel, your touchpad became crazy
+erratically and almost cannot use?
+It looks like that our kernel driver did not let touchpad enter the
+correct mode or did not use the correct way to decode the raw data.
+
+>From another mail sent by Vasily, he met the same issue with touchpad
+on Dell E7440 as yours.
+According to his touchpad info "E7: 73-03-0A EC: 88-08-22", I think we
+can start the investigation.
+Please give me some time and I'll feedback you later. Thanks!
+
+--
+Best Regards,
+Tommy

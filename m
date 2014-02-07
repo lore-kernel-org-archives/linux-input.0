@@ -1,33 +1,33 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: Re: [PATCH v2] Input: add i2c/smbus driver for elan touchpad
-Date: Thu, 6 Feb 2014 16:21:37 -0800
-Message-ID: <CANLzEkv6YiY40QnSao7p=17SsZsnCPHT6zOMYNGCpbsa5d_OcA@mail.gmail.com>
-References: <1389064083-11018-1-git-send-email-dusonlin@emc.com.tw>
-	<CANLzEksP3nT2=GUu8sAA95ikNbyA0KD_s4qVGhno2MHYp7_1YQ@mail.gmail.com>
+From: Clinton Sprain <clintonsprain@gmail.com>
+Subject: [PATCH v2 0/3] input: appletouch: fixes for jagged/uneven cursor
+ movement
+Date: Thu, 06 Feb 2014 18:38:06 -0600
+Message-ID: <52F42AEE.3040505@gmail.com>
+References: <52D9DE7A.7040509@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CANLzEksP3nT2=GUu8sAA95ikNbyA0KD_s4qVGhno2MHYp7_1YQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Duson Lin <dusonlin@emc.com.tw>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, agnescheng@chromium.org, phoenix@emc.com.tw, "Jeff.Chuang" <jeff.chuang@emc.com.tw>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ie0-f173.google.com ([209.85.223.173]:53075 "EHLO
+	mail-ie0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751770AbaBGAiI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Feb 2014 19:38:08 -0500
+Received: by mail-ie0-f173.google.com with SMTP id e14so1242263iej.32
+        for <linux-input@vger.kernel.org>; Thu, 06 Feb 2014 16:38:08 -0800 (PST)
+In-Reply-To: <52D9DE7A.7040509@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 
-On Fri, Jan 10, 2014 at 12:30 PM, Benson Leung <bleung@chromium.org> wrote:
-> On Mon, Jan 6, 2014 at 7:08 PM, Duson Lin <dusonlin@emc.com.tw> wrote:
->> This driver adds support for elan i2c/smbus touchpad found on some laptops PC
->>
->> Signed-off-by: Duson Lin <dusonlin@emc.com.tw>
->
-> Reviewed-by: Benson Leung <bleung@chromium.org>
->
+These patches address some usability issues by dialing back the fuzz and threshold parameters, by implementing some smoothing for the sensor data and by discarding movements that directly coincide with a change in the number of fingers detected on the touchpad.
 
-Hi Dmitry, This should be the most up to date version of this driver.
-Disregard the one I pinged from Dec 17, 2013 . Could you take another
-look at this?
+Changes since last time:
 
+1/3: Remove extraneous cleanup - I'll submit a separate patch another day
+2/3: Apply smoothing to the sensor data before position calculation, eliminating the need to toss values based on a threshold; simplify formula for averaging with prior values
 
--- 
-Benson Leung
-Software Engineer, Chrom* OS
-bleung@chromium.org
+Signed-off-by: Clinton Sprain <clintonsprain@gmail.com>
+
+ drivers/input/mouse/appletouch.c |  131 ++++++++++++++++++++++++++------------
+ 1 file changed, 92 insertions(+), 39 deletions(-)

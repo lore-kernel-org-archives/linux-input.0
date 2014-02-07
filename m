@@ -1,121 +1,86 @@
-From: Clinton Sprain <clintonsprain@gmail.com>
-Subject: [PATCH v2 3/3] input: appletouch: fix jumps when additional fingers
- are detected
-Date: Thu, 06 Feb 2014 18:46:21 -0600
-Message-ID: <52F42CDD.30703@gmail.com>
-References: <52D9DE7A.7040509@gmail.com> <52F42AEE.3040505@gmail.com>
+From: Courtney Cavin <courtney.cavin@sonymobile.com>
+Subject: Re: [PATCH 05/15] Input: synaptics-rmi4 - remove gpio handling and
+ polling
+Date: Thu, 6 Feb 2014 17:45:14 -0800
+Message-ID: <20140207014513.GO1706@sonymobile.com>
+References: <1390521623-6491-1-git-send-email-courtney.cavin@sonymobile.com>
+ <1390521623-6491-2-git-send-email-courtney.cavin@sonymobile.com>
+ <1390521623-6491-3-git-send-email-courtney.cavin@sonymobile.com>
+ <1390521623-6491-4-git-send-email-courtney.cavin@sonymobile.com>
+ <1390521623-6491-5-git-send-email-courtney.cavin@sonymobile.com>
+ <1390521623-6491-6-git-send-email-courtney.cavin@sonymobile.com>
+ <52F172F3.7090003@synaptics.com>
+ <20140205023113.GE1706@sonymobile.com>
+ <CACRpkdYtGM283y71yWm-GAHXz9UuvxPRddY3wzzvcn40VfHbUw@mail.gmail.com>
+ <52F3EAF5.7030203@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f169.google.com ([209.85.223.169]:55402 "EHLO
-	mail-ie0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751673AbaBGAqW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Feb 2014 19:46:22 -0500
-Received: by mail-ie0-f169.google.com with SMTP id to1so1260307ieb.28
-        for <linux-input@vger.kernel.org>; Thu, 06 Feb 2014 16:46:22 -0800 (PST)
-In-Reply-To: <52F42AEE.3040505@gmail.com>
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:6170 "EHLO
+	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751187AbaBGBna (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Feb 2014 20:43:30 -0500
+Content-Disposition: inline
+In-Reply-To: <52F3EAF5.7030203@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Linus WALLEIJ <linus.walleij@stericsson.com>
 
-Discard cursor movements if they directly coincide with a change in the number of fingers detected. This helps with two issues - a sudden jump of the cursor when a second finger enters or leaves the touchpad, and an unexpected jump in page scrolling under the same scenario. The fix doesn't completely eliminate the problem but does greatly reduce its frequency and severity.
+On Thu, Feb 06, 2014 at 09:05:09PM +0100, Christopher Heiny wrote:
+> On 02/06/2014 01:28 AM, Linus Walleij wrote:
+> > On Wed, Feb 5, 2014 at 3:31 AM, Courtney Cavin
+> > <courtney.cavin@sonymobile.com>  wrote:
+> >> >On Wed, Feb 05, 2014 at 12:08:35AM +0100, Christopher Heiny wrote:
+> >>> >>On 01/23/2014 04:00 PM, Courtney Cavin wrote:
+> >>>> >> >Since all the configuration needed for an irq can be provided in other
+> >>>> >> >ways, remove all gpio->irq functionality. This cleans up the code quite
+> >>>> >> >a bit.
+> >>> >>
+> >>> >>In certain diagnostic modes, we need to be able to release the IRQ so
+> >>> >>the GPIO can be monitored from userspace.  This patch removes that
+> >>> >>capability.
+> >> >
+> >> >Polling a GPIO from userspace is poor design regardless of the use-case, if
+> >> >you ask me.  It certainly doesn't motivate the extra gpio<->IRQ code.
+>  >
+> > I think Courtney is right here, if you want this kind of stuff for debugging
+> > it should be debug-add-on-patches, not part of the normal execution
+> > path for the driver.
+> 
+> I'm OK with replacing the current polling implementation with an 
+> add-on-patch, as long as the support for the debug-add-on-patches 
+> doesn't get torn out of the driver because "hey, I don't see what this 
+> is used for in the core driver code, so it must be unnecessary".
 
-Signed-off-by: Clinton Sprain <clintonsprain@gmail.com>
----
- drivers/input/mouse/appletouch.c |   23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+An add-on patch shouldn't force dependencies on the code which it
+patches.  Thus, the code shouldn't need support for debug add-ons.
 
-diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-index edbdd95..370d0e9 100644
---- a/drivers/input/mouse/appletouch.c
-+++ b/drivers/input/mouse/appletouch.c
-@@ -212,6 +212,7 @@ struct atp {
- 	signed char		xy_old[ATP_XSENSORS + ATP_YSENSORS];
- 	int			xy_acc[ATP_XSENSORS + ATP_YSENSORS];
- 	int			idlecount;	/* number of empty packets */
-+	int			fingers_old;	/* last reported finger count */
- 	struct work_struct	work;
- };
- 
-@@ -505,6 +506,7 @@ static void atp_complete_geyser_1_2(struct urb *urb)
- 	int x, y, x_z, y_z, x_f, y_f;
- 	int retval, i, j;
- 	int key;
-+	int fingers;
- 	struct atp *dev = urb->context;
- 	int status = atp_status_check(urb);
- 
-@@ -587,7 +589,9 @@ static void atp_complete_geyser_1_2(struct urb *urb)
- 			      dev->info->yfact, &y_z, &y_f);
- 	key = dev->data[dev->info->datalen - 1] & ATP_STATUS_BUTTON;
- 
--	if (x && y) {
-+	fingers = max(x_f, y_f);
-+
-+	if (x && y && (fingers == dev->fingers_old)) {
- 		if (dev->x_old != -1) {
- 			x = (dev->x_old * 7 + x) >> 3;
- 			y = (dev->y_old * 7 + y) >> 3;
-@@ -604,7 +608,7 @@ static void atp_complete_geyser_1_2(struct urb *urb)
- 			input_report_abs(dev->input, ABS_Y, y);
- 			input_report_abs(dev->input, ABS_PRESSURE,
- 					 min(ATP_PRESSURE, x_z + y_z));
--			atp_report_fingers(dev->input, max(x_f, y_f));
-+			atp_report_fingers(dev->input, fingers);
- 		}
- 		dev->x_old = x;
- 		dev->y_old = y;
-@@ -620,6 +624,10 @@ static void atp_complete_geyser_1_2(struct urb *urb)
- 		memset(dev->xy_acc, 0, sizeof(dev->xy_acc));
- 	}
- 
-+	if (fingers != dev->fingers_old)
-+		dev->x_old = dev->y_old = -1;
-+	dev->fingers_old = fingers;
-+
- 	input_report_key(dev->input, BTN_LEFT, key);
- 	input_sync(dev->input);
- 
-@@ -638,6 +646,7 @@ static void atp_complete_geyser_3_4(struct urb *urb)
- 	int x, y, x_z, y_z, x_f, y_f;
- 	int retval, i, j;
- 	int key;
-+	int fingers;
- 	struct atp *dev = urb->context;
- 	int status = atp_status_check(urb);
- 
-@@ -699,7 +708,9 @@ static void atp_complete_geyser_3_4(struct urb *urb)
- 			      dev->info->yfact, &y_z, &y_f);
- 	key = dev->data[dev->info->datalen - 1] & ATP_STATUS_BUTTON;
- 
--	if (x && y) {
-+	fingers = max(x_f, y_f);
-+
-+	if (x && y && (fingers == dev->fingers_old)) {
- 		if (dev->x_old != -1) {
- 			x = (dev->x_old * 7 + x) >> 3;
- 			y = (dev->y_old * 7 + y) >> 3;
-@@ -716,7 +727,7 @@ static void atp_complete_geyser_3_4(struct urb *urb)
- 			input_report_abs(dev->input, ABS_Y, y);
- 			input_report_abs(dev->input, ABS_PRESSURE,
- 					 min(ATP_PRESSURE, x_z + y_z));
--			atp_report_fingers(dev->input, max(x_f, y_f));
-+			atp_report_fingers(dev->input, fingers);
- 		}
- 		dev->x_old = x;
- 		dev->y_old = y;
-@@ -732,6 +743,10 @@ static void atp_complete_geyser_3_4(struct urb *urb)
- 		memset(dev->xy_acc, 0, sizeof(dev->xy_acc));
- 	}
- 
-+	if (fingers != dev->fingers_old)
-+		dev->x_old = dev->y_old = -1;
-+	dev->fingers_old = fingers;
-+
- 	input_report_key(dev->input, BTN_LEFT, key);
- 	input_sync(dev->input);
- 
--- 
-1.7.9.5
+Besides, try "hey, this isn't used in the core driver code, so it is
+unnecessary."  This whole "there's another tree which depends on things
+staying the way they are," isn't conducive to actually making changes to
+improve the driver.
+
+> >>> >>As mentioned in previous patch discussions, the polling functionality is
+> >>> >>quite useful during new system integration, so we need to retain that.
+> >>> >>If you have a proposal for where else it could be done, we'd certainly
+> >>> >>entertain a patch that implements that.
+> >> >
+> >> >Do you actually have systems that have these hooked up to GPIOs without
+> >> >IRQ support?
+> >> >
+> >> >Regardless, if this is the case, implementing a GPIO polling IRQ chip
+> >> >should be possible, if extremely ugly.
+> > OMG that would be quite horrible.
+> >
+> >> >Linus may have some comments in this area, though.  Linus?
+>  >
+> > A driver may rely on polling but a driver may not rely on polling
+> > done from userspace.
+> 
+> Fortunately, the driver doesn't rely on polling from user space.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

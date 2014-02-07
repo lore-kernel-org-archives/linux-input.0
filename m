@@ -1,168 +1,141 @@
 From: Clinton Sprain <clintonsprain@gmail.com>
-Subject: [PATCH v2 1/3] input: appletouch: parametrize and set saner defaults
- for fuzz and threshold
-Date: Thu, 06 Feb 2014 18:40:08 -0600
-Message-ID: <52F42B68.9010905@gmail.com>
+Subject: [PATCH v2 2/3] input: appletouch: use better cursor movement smoothing
+ algorithm
+Date: Thu, 06 Feb 2014 18:43:30 -0600
+Message-ID: <52F42C32.8080408@gmail.com>
 References: <52D9DE7A.7040509@gmail.com> <52F42AEE.3040505@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f175.google.com ([209.85.223.175]:54990 "EHLO
-	mail-ie0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751271AbaBGAkK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Feb 2014 19:40:10 -0500
-Received: by mail-ie0-f175.google.com with SMTP id ar20so1220091iec.20
-        for <linux-input@vger.kernel.org>; Thu, 06 Feb 2014 16:40:09 -0800 (PST)
+Received: from mail-ie0-f170.google.com ([209.85.223.170]:60469 "EHLO
+	mail-ie0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751271AbaBGAnc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Feb 2014 19:43:32 -0500
+Received: by mail-ie0-f170.google.com with SMTP id u16so1265307iet.29
+        for <linux-input@vger.kernel.org>; Thu, 06 Feb 2014 16:43:31 -0800 (PST)
 In-Reply-To: <52F42AEE.3040505@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>
 
-Dials back the default fuzz and threshold settings for most devices using this driver, based on user input from forums and bug reports, increasing sensitivity. These two settings can also now both be overridden as module parameters in the event that users have hardware that does not respond well to the new defaults, or there is a desire to change the values for devices that do not have new defaults.
+Use smoothed version of sensor array data to calculate movement and add weight to prior values when calculating average. This gives more granular and more predictable movement.
 
 Signed-off-by: Clinton Sprain <clintonsprain@gmail.com>
 ---
- drivers/input/mouse/appletouch.c |   48 ++++++++++++++++++++++++--------------
- 1 file changed, 31 insertions(+), 17 deletions(-)
+ drivers/input/mouse/appletouch.c |   60 ++++++++++++++++++++++++++------------
+ 1 file changed, 42 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-index 800ca7d..d48181b 100644
+index d48181b..edbdd95 100644
 --- a/drivers/input/mouse/appletouch.c
 +++ b/drivers/input/mouse/appletouch.c
-@@ -48,6 +48,8 @@ struct atp_info {
- 	int yfact;				/* Y multiplication factor */
- 	int datalen;				/* size of USB transfers */
- 	void (*callback)(struct urb *);		/* callback function */
-+	int fuzz;				/* fuzz touchpad generates */
-+	int threshold;				/* sensitivity threshold */
- };
- 
- static void atp_complete_geyser_1_2(struct urb *urb);
-@@ -61,6 +63,8 @@ static const struct atp_info fountain_info = {
- 	.yfact		= 43,
- 	.datalen	= 81,
- 	.callback	= atp_complete_geyser_1_2,
-+	.fuzz		= 16,
-+	.threshold	= 5,
- };
- 
- static const struct atp_info geyser1_info = {
-@@ -71,6 +75,8 @@ static const struct atp_info geyser1_info = {
- 	.yfact		= 43,
- 	.datalen	= 81,
- 	.callback	= atp_complete_geyser_1_2,
-+	.fuzz		= 16,
-+	.threshold	= 5,
- };
- 
- static const struct atp_info geyser2_info = {
-@@ -81,6 +87,8 @@ static const struct atp_info geyser2_info = {
- 	.yfact		= 43,
- 	.datalen	= 64,
- 	.callback	= atp_complete_geyser_1_2,
-+	.fuzz		= 0,
-+	.threshold	= 3,
- };
- 
- static const struct atp_info geyser3_info = {
-@@ -90,6 +98,8 @@ static const struct atp_info geyser3_info = {
- 	.yfact		= 64,
- 	.datalen	= 64,
- 	.callback	= atp_complete_geyser_3_4,
-+	.fuzz		= 0,
-+	.threshold	= 3,
- };
- 
- static const struct atp_info geyser4_info = {
-@@ -99,6 +109,8 @@ static const struct atp_info geyser4_info = {
- 	.yfact		= 64,
- 	.datalen	= 64,
- 	.callback	= atp_complete_geyser_3_4,
-+	.fuzz		= 0,
-+	.threshold	= 3,
- };
- 
- #define ATP_DEVICE(prod, info)					\
-@@ -155,18 +167,9 @@ MODULE_DEVICE_TABLE(usb, atp_table);
- #define ATP_XSENSORS	26
- #define ATP_YSENSORS	16
- 
--/* amount of fuzz this touchpad generates */
--#define ATP_FUZZ	16
--
- /* maximum pressure this driver will report */
- #define ATP_PRESSURE	300
- 
--/*
-- * Threshold for the touchpad sensors. Any change less than ATP_THRESHOLD is
-- * ignored.
-- */
--#define ATP_THRESHOLD	 5
--
- /* Geyser initialization constants */
- #define ATP_GEYSER_MODE_READ_REQUEST_ID		1
- #define ATP_GEYSER_MODE_WRITE_REQUEST_ID	9
-@@ -235,14 +238,20 @@ MODULE_AUTHOR("Sven Anders");
- MODULE_DESCRIPTION("Apple PowerBook and MacBook USB touchpad driver");
- MODULE_LICENSE("GPL");
- 
--/*
-- * Make the threshold a module parameter
-- */
--static int threshold = ATP_THRESHOLD;
-+static int threshold = -1;
- module_param(threshold, int, 0644);
- MODULE_PARM_DESC(threshold, "Discard any change in data from a sensor"
- 			    " (the trackpad has many of these sensors)"
--			    " less than this value.");
-+			    " less than this value. Devices have defaults;"
-+			    " this parameter overrides them.");
-+static int fuzz = -1;
+@@ -338,21 +338,51 @@ static void atp_reinit(struct work_struct *work)
+ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+ 			     int *z, int *fingers)
+ {
+-	int i;
++	int i, k;
++	int smooth[nb_sensors + 2];
++	int smooth_tmp[nb_sensors + 2];
 +
-+module_param(fuzz, int, 0644);
-+MODULE_PARM_DESC(fuzz, "Fuzz the trackpad generates. The higher"
-+		       " this is, the less sensitive the trackpad"
-+		       " will feel, but values too low may generate"
-+		       " random movement. Devices have defaults;"
-+		       " this parameter overrides them.");
+ 	/* values to calculate mean */
+ 	int pcum = 0, psum = 0;
+ 	int is_increasing = 0;
  
- static int debug;
- module_param(debug, int, 0644);
-@@ -455,7 +464,7 @@ static void atp_detect_size(struct atp *dev)
- 			input_set_abs_params(dev->input, ABS_X, 0,
- 					     (dev->info->xsensors_17 - 1) *
- 							dev->info->xfact - 1,
--					     ATP_FUZZ, 0);
-+					     fuzz, 0);
- 			break;
+ 	*fingers = 0;
+ 
++	/*
++	 * Use a smoothed version of sensor data for movement calculations, to
++	 * combat noise without needing to toss out values based on a threshold.
++	 * This improves tracking. Finger count is calculated separately based
++	 * on raw data.
++	 */
++
++	for (i = 0; i < nb_sensors; i++) {           /* Scale up to minimize */
++		smooth[i] = xy_sensors[i] << 12;     /* rounding/truncation. */
++	}
++
++	/* Mitigate some of the data loss from smoothing on the edge sensors. */
++	smooth[-1] = smooth[0] >> 2;
++	smooth[nb_sensors] = smooth[nb_sensors - 1] >> 2;
++
++	for (k = 0; k < 4; k++) {
++		for (i = 0; i < nb_sensors; i++) {   /* Blend with neighbors. */
++			smooth_tmp[i] = (smooth[i - 1] + smooth[i] * 2 + smooth[i + 1]) >> 2;
++		}
++
++		for (i = 0; i < nb_sensors; i++) {
++			smooth[i] = smooth_tmp[i];
++			if (k == 3)     /* Last go-round, so scale back down. */
++				smooth[i] = smooth[i] >> 12;
++		}
++
++		smooth[-1] = smooth[0] >> 2;
++		smooth[nb_sensors] = smooth[nb_sensors - 1] >> 2;
++	}
++
+ 	for (i = 0; i < nb_sensors; i++) {
+ 		if (xy_sensors[i] < threshold) {
+ 			if (is_increasing)
+ 				is_increasing = 0;
+ 
+-			continue;
+-		}
+-
+ 		/*
+ 		 * Makes the finger detection more versatile.  For example,
+ 		 * two fingers with no gap will be detected.  Also, my
+@@ -367,7 +397,8 @@ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+ 		 *
+ 		 * - Jason Parekh <jasonparekh@gmail.com>
+ 		 */
+-		if (i < 1 ||
++
++		} else if (i < 1 ||
+ 		    (!is_increasing && xy_sensors[i - 1] < xy_sensors[i])) {
+ 			(*fingers)++;
+ 			is_increasing = 1;
+@@ -375,15 +406,8 @@ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+ 			is_increasing = 0;
  		}
+ 
+-		/*
+-		 * Subtracts threshold so a high sensor that just passes the
+-		 * threshold won't skew the calculated absolute coordinate.
+-		 * Fixes an issue where slowly moving the mouse would
+-		 * occasionally jump a number of pixels (slowly moving the
+-		 * finger makes this issue most apparent.)
+-		 */
+-		pcum += (xy_sensors[i] - threshold) * i;
+-		psum += (xy_sensors[i] - threshold);
++		pcum += (smooth[i]) * i;
++		psum += (smooth[i]);
  	}
-@@ -808,6 +817,11 @@ static int atp_probe(struct usb_interface *iface,
- 	dev->info = info;
- 	dev->overflow_warned = false;
  
-+	if (fuzz < 0)
-+		fuzz = dev->info->fuzz;
-+	if (threshold < 0)
-+		threshold = dev->info->threshold;
-+
- 	dev->urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!dev->urb)
- 		goto err_free_devs;
-@@ -843,10 +857,10 @@ static int atp_probe(struct usb_interface *iface,
+ 	if (psum > 0) {
+@@ -565,8 +589,8 @@ static void atp_complete_geyser_1_2(struct urb *urb)
  
- 	input_set_abs_params(input_dev, ABS_X, 0,
- 			     (dev->info->xsensors - 1) * dev->info->xfact - 1,
--			     ATP_FUZZ, 0);
-+			     fuzz, 0);
- 	input_set_abs_params(input_dev, ABS_Y, 0,
- 			     (dev->info->ysensors - 1) * dev->info->yfact - 1,
--			     ATP_FUZZ, 0);
-+			     fuzz, 0);
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, ATP_PRESSURE, 0, 0);
+ 	if (x && y) {
+ 		if (dev->x_old != -1) {
+-			x = (dev->x_old * 3 + x) >> 2;
+-			y = (dev->y_old * 3 + y) >> 2;
++			x = (dev->x_old * 7 + x) >> 3;
++			y = (dev->y_old * 7 + y) >> 3;
+ 			dev->x_old = x;
+ 			dev->y_old = y;
  
- 	set_bit(EV_KEY, input_dev->evbit);
+@@ -677,8 +701,8 @@ static void atp_complete_geyser_3_4(struct urb *urb)
+ 
+ 	if (x && y) {
+ 		if (dev->x_old != -1) {
+-			x = (dev->x_old * 3 + x) >> 2;
+-			y = (dev->y_old * 3 + y) >> 2;
++			x = (dev->x_old * 7 + x) >> 3;
++			y = (dev->y_old * 7 + y) >> 3;
+ 			dev->x_old = x;
+ 			dev->y_old = y;
+ 
 -- 
 1.7.9.5

@@ -1,36 +1,36 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH v2 02/10] genirq: Add devm_request_any_context_irq()
-Date: Fri, 7 Feb 2014 13:08:17 -0800
-Message-ID: <20140207210816.GD12815@codeaurora.org>
-References: <1388709460-19222-1-git-send-email-sboyd@codeaurora.org>
- <1388709460-19222-3-git-send-email-sboyd@codeaurora.org>
- <52CB2D29.3050107@codeaurora.org>
- <52D5A266.5000504@codeaurora.org>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/2] iio: hid-sensor-hub: Remove hard coded indexes
+Date: Sat, 08 Feb 2014 11:49:29 +0000
+Message-ID: <52F619C9.8060701@kernel.org>
+References: <1390531822-7640-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1390531822-7640-2-git-send-email-srinivas.pandruvada@linux.intel.com> <alpine.LNX.2.00.1401291412230.21385@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <52D5A266.5000504@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-arm-msm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LNX.2.00.1401291412230.21385-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 01/14, Stephen Boyd wrote:
-> On 01/06/14 14:24, Stephen Boyd wrote:
-> > On 01/02/14 16:37, Stephen Boyd wrote:
-> >> Some drivers use request_any_context_irq() but there isn't a
-> >> devm_* function for it. Add one so that these drivers don't need
-> >> to explicitly free the irq on driver detach.
-> >>
-> >> Cc: Thomas Gleixner <tglx@linutronix.de>
-> >> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
-> > Thomas, can you please review this patch?
-> 
-> ping?
+On 29/01/14 13:13, Jiri Kosina wrote:
+> On Thu, 23 Jan 2014, Srinivas Pandruvada wrote:
+>
+>> Remove the hard coded indexes, instead search for usage id and
+>> use the index to set the power and report state.
+>> This will fix issue, where the report descriptor doesn't contain
+>> the full list of possible selector for power and report state.
+>>
+>> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>
+> Jonathan, I'd probably take this together with the patch for HID API
+> change. Could you please provide your Ack/Signoff, and I'll take it
+> through my tree, if you agree?
+Agreed. Help yourself ;)
 
-ping?
-
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+Thanks and sorry for the slow response.  Amazing the backlog that builds
+up if you take about 3 weeks out (more or less)
+>
+> Thanks.
+>

@@ -1,86 +1,48 @@
 From: Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH 0/7] Remove HAVE_PWM config option
-Date: Mon, 10 Feb 2014 10:07:20 +0900
-Message-ID: <003901cf25fc$73002790$590076b0$%han@samsung.com>
+Subject: [PATCH 5/7] Input: max8997_haptic: remove HAVE_PWM dependencies
+Date: Mon, 10 Feb 2014 10:15:12 +0900
+Message-ID: <003e01cf25fd$8c310490$a4930db0$%han@samsung.com>
+References: <003901cf25fc$73002790$590076b0$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:20852 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752179AbaBJBH0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Feb 2014 20:07:26 -0500
+Received: from mailout3.samsung.com ([203.254.224.33]:64860 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751996AbaBJBPO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Feb 2014 20:15:14 -0500
+In-reply-to: <003901cf25fc$73002790$590076b0$%han@samsung.com>
 Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Arnd Bergmann' <arnd@arndb.de>, 'Ralf Baechle' <ralf@linux-mips.org>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Thierry Reding' <thierry.reding@gmail.com>
-Cc: 'Linus Walleij' <linus.walleij@linaro.org>, 'Russell King - ARM Linux' <linux@arm.linux.org.uk>, 'Eric Miao' <eric.y.miao@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, linux-input@vger.kernel.org, linux-pwm@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 The HAVE_PWM symbol is only for legacy platforms that provide
-the PWM API without using the generic framework, while PWM symbol
-is used for PWM drivers using the generic PWM framework.
+the PWM API without using the generic framework. However, legacy
+PWM drivers were already moved to the generic PWM framework.
+Thus, HAVE_PWM should be removed, because HAVE_PWM is not
+required anymore.
 
-I looked at all HAVE_PWMs in the latest mainline kernel 3.14-rc1.
-Three platforms are still using HAVE_PWM as below:
+Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+---
+ drivers/input/misc/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-1. ARM - PXA
-  ./arch/arm/mach-pxa/Kconfig
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 7904ab0..ae74df7 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -156,7 +156,7 @@ config INPUT_MAX8925_ONKEY
+ 
+ config INPUT_MAX8997_HAPTIC
+ 	tristate "MAXIM MAX8997 haptic controller support"
+-	depends on PWM && HAVE_PWM && MFD_MAX8997
++	depends on PWM && MFD_MAX8997
+ 	select INPUT_FF_MEMLESS
+ 	help
+ 	  This option enables device driver support for the haptic controller
+-- 
+1.7.10.4
 
-2. ARM - NXP LPC32XX
-  ./arch/arm/Kconfig
-  config ARCH_LPC32XX
-  	select HAVE_PWM
-
-3. MIPS - Ingenic JZ4740 based machines
-  ./arch/mips/Kconfig
-  config MACH_JZ4740
-  	select HAVE_PWM
-
-However, the legacy PWM drivers for PXA, LPC32XX, and JZ474 were
-already moved to the generic PWM framework.
-  ./drivers/pwm/pwm-pxa.c
-  ./drivers/pwm/pwm-lpc32xx.c
-  ./drivers/pwm/pwm-jz4740.c
-
-In conclusion, HAVE_PWM should be removed, because HAVE_PWM is
-NOT required anymore.
-
-Jingoo Han (7):
-      ARM: pxa: don't select HAVE_PWM
-      ARM: lpc32xx: don't select HAVE_PWM
-      ARM: remove HAVE_PWM config option
-      MIPS: jz4740: don't select HAVE_PWM
-      Input: max8997_haptic: remove HAVE_PWM dependencies
-      Input: pwm-beepe: remove HAVE_PWM dependencies
-      pwm: don't use IS_ENABLED(CONFIG_HAVE_PWM)
-
- arch/arm/Kconfig           |    4 ----
- arch/arm/mach-pxa/Kconfig  |   15 ---------------
- arch/mips/Kconfig          |    1 -
- drivers/input/misc/Kconfig |    4 ++--
- include/linux/pwm.h        |    2 +-
- 5 files changed, 3 insertions(+), 23 deletions(-)
-
-I would like to merge these patches as below:
-
-1. Through arm-soc tree
-  [PATCH 1/7] ARM: pxa: don't select HAVE_PWM
-  [PATCH 2/7] ARM: lpc32xx: don't select HAVE_PWM
-  [PATCH 3/7] ARM: remove HAVE_PWM config option
-
-2. Through MIPS tree
-  [PATCH 4/7] MIPS: jz4740: don't select HAVE_PWM
-
-3. Through Input tree
-  [PATCH 5/7] Input: max8997_haptic: remove HAVE_PWM dependencies
-  [PATCH 6/7] Input: pwm-beepe: remove HAVE_PWM dependencies
-
-4. Through PWM tree
-  [PATCH 7/7] pwm: don't use IS_ENABLED(CONFIG_HAVE_PWM)
-
-After merging these patches, all HAVE_PWM will be removed from
-the mainline kernel. Thank you. :-)
-
-Best regards,
-Jingoo Han
 

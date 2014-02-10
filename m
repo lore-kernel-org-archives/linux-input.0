@@ -1,213 +1,214 @@
 From: Alexander Shiyan <shc_work@mail.ru>
-Subject: [PATCH 1/2] input: gpio_keys_polled: Convert to devm-* API
-Date: Mon, 10 Feb 2014 08:22:05 +0400
-Message-ID: <1392006125-10189-1-git-send-email-shc_work@mail.ru>
+Subject: [PATCH 1/4] input: mc13783: Make mc13xxx_buttons_platform_data more flexible
+Date: Mon, 10 Feb 2014 08:22:09 +0400
+Message-ID: <1392006129-10227-1-git-send-email-shc_work@mail.ru>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp47.i.mail.ru ([94.100.177.107]:36645 "EHLO smtp47.i.mail.ru"
+Received: from smtp30.i.mail.ru ([94.100.177.90]:52208 "EHLO smtp30.i.mail.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751612AbaBJEWL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 9 Feb 2014 23:22:11 -0500
+	id S1751612AbaBJEWQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 9 Feb 2014 23:22:16 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Shiyan <shc_work@mail.ru>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Shawn Guo <shawn.guo@linaro.org>, Sascha Hauer <kernel@pengutronix.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Alexander Shiyan <shc_work@mail.ru>
 
-Replace existing resource handling in the driver with managed
-device resource, this ensures more consistent error values and
-simplifies error paths.
-kzalloc -> devm_kzalloc
-gpio_request_one -> devm_gpio_request_one
+Instead of define each button in separate variable, make an array
+for storing all buttons. This change will help to add support for
+other types of PMIC and add support for probing with devicetree
+in the future.
 
 Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 ---
- drivers/input/keyboard/gpio_keys_polled.c | 87 ++++++++-----------------------
- 1 file changed, 23 insertions(+), 64 deletions(-)
+ arch/arm/mach-imx/mach-mx31moboard.c   |  9 ++++--
+ drivers/input/misc/mc13783-pwrbutton.c | 56 +++++++++++++++++-----------------
+ include/linux/mfd/mc13xxx.h            | 28 +++++++++--------
+ 3 files changed, 49 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index e571e19..3a5e49b 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -108,9 +108,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 	struct device_node *node, *pp;
- 	struct gpio_keys_platform_data *pdata;
- 	struct gpio_keys_button *button;
--	int error;
--	int nbuttons;
--	int i;
-+	int i, nbuttons;
+diff --git a/arch/arm/mach-imx/mach-mx31moboard.c b/arch/arm/mach-imx/mach-mx31moboard.c
+index b3738e6..7f13c47 100644
+--- a/arch/arm/mach-imx/mach-mx31moboard.c
++++ b/arch/arm/mach-imx/mach-mx31moboard.c
+@@ -276,9 +276,12 @@ static struct mc13xxx_leds_platform_data moboard_leds = {
+ };
  
- 	node = dev->of_node;
- 	if (!node)
-@@ -120,12 +118,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 	if (nbuttons == 0)
- 		return NULL;
+ static struct mc13xxx_buttons_platform_data moboard_buttons = {
+-	.b1on_flags = MC13783_BUTTON_DBNC_750MS | MC13783_BUTTON_ENABLE |
+-			MC13783_BUTTON_POL_INVERT,
+-	.b1on_key = KEY_POWER,
++	.buttons[0] = {
++		.keycode	= KEY_POWER,
++		.flags		= MC13XXX_BUTTON_ENABLE |
++				  MC13XXX_BUTTON_DBNC_750MS |
++				  MC13XXX_BUTTON_POL_INVERT,
++	},
+ };
  
--	pdata = kzalloc(sizeof(*pdata) + nbuttons * (sizeof *button),
--			GFP_KERNEL);
--	if (!pdata) {
--		error = -ENOMEM;
--		goto err_out;
--	}
-+	pdata = devm_kzalloc(dev, sizeof(*pdata) + nbuttons * sizeof(*button),
-+			     GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
+ static struct mc13xxx_codec_platform_data moboard_codec = {
+diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/misc/mc13783-pwrbutton.c
+index 0df6e8d..60be67a 100644
+--- a/drivers/input/misc/mc13783-pwrbutton.c
++++ b/drivers/input/misc/mc13783-pwrbutton.c
+@@ -36,7 +36,7 @@ struct mc13783_pwrb {
+ #define MC13783_PWRB_B2_POL_INVERT	(1 << 1)
+ #define MC13783_PWRB_B3_POL_INVERT	(1 << 2)
+ 	int flags;
+-	unsigned short keymap[3];
++	unsigned short keymap[MAX13XXX_NUM_BUTTONS];
+ };
  
- 	pdata->buttons = (struct gpio_keys_button *)(pdata + 1);
- 	pdata->nbuttons = nbuttons;
-@@ -146,12 +142,11 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
+ #define MC13783_REG_INTERRUPT_SENSE_1		5
+@@ -116,24 +116,24 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ 		goto free_input_dev;
+ 	}
  
- 		gpio = of_get_gpio_flags(pp, 0, &flags);
- 		if (gpio < 0) {
--			error = gpio;
--			if (error != -EPROBE_DEFER)
-+			if (gpio != -EPROBE_DEFER)
- 				dev_err(dev,
- 					"Failed to get gpio flags, error: %d\n",
--					error);
--			goto err_free_pdata;
-+					gpio);
-+			return ERR_PTR(gpio);
+-	reg |= (pdata->b1on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
+-	reg |= (pdata->b2on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON2BDBNC;
+-	reg |= (pdata->b3on_flags & 0x3) << MC13783_POWER_CONTROL_2_ON3BDBNC;
++	reg |= (pdata->buttons[0].flags & 0x3) << MC13783_POWER_CONTROL_2_ON1BDBNC;
++	reg |= (pdata->buttons[1].flags & 0x3) << MC13783_POWER_CONTROL_2_ON2BDBNC;
++	reg |= (pdata->buttons[2].flags & 0x3) << MC13783_POWER_CONTROL_2_ON3BDBNC;
+ 
+ 	priv->pwr = pwr;
+ 	priv->mc13783 = mc13783;
+ 
+ 	mc13xxx_lock(mc13783);
+ 
+-	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE) {
+-		priv->keymap[0] = pdata->b1on_key;
+-		if (pdata->b1on_key != KEY_RESERVED)
+-			__set_bit(pdata->b1on_key, pwr->keybit);
++	if (pdata->buttons[0].flags & MC13XXX_BUTTON_ENABLE) {
++		priv->keymap[0] = pdata->buttons[0].keycode;
++		if (priv->keymap[0] != KEY_RESERVED)
++			__set_bit(priv->keymap[0], pwr->keybit);
+ 
+-		if (pdata->b1on_flags & MC13783_BUTTON_POL_INVERT)
++		if (pdata->buttons[0].flags & MC13XXX_BUTTON_POL_INVERT)
+ 			priv->flags |= MC13783_PWRB_B1_POL_INVERT;
+ 
+-		if (pdata->b1on_flags & MC13783_BUTTON_RESET_EN)
++		if (pdata->buttons[0].flags & MC13XXX_BUTTON_RESET_EN)
+ 			reg |= MC13783_POWER_CONTROL_2_ON1BRSTEN;
+ 
+ 		err = mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD1,
+@@ -144,15 +144,15 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
  		}
+ 	}
  
- 		button = &pdata->buttons[i++];
-@@ -162,8 +157,7 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 		if (of_property_read_u32(pp, "linux,code", &button->code)) {
- 			dev_err(dev, "Button without keycode: 0x%x\n",
- 				button->gpio);
--			error = -EINVAL;
--			goto err_free_pdata;
-+			return ERR_PTR(-EINVAL);
+-	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE) {
+-		priv->keymap[1] = pdata->b2on_key;
+-		if (pdata->b2on_key != KEY_RESERVED)
+-			__set_bit(pdata->b2on_key, pwr->keybit);
++	if (pdata->buttons[1].flags & MC13XXX_BUTTON_ENABLE) {
++		priv->keymap[1] = pdata->buttons[1].keycode;
++		if (priv->keymap[1] != KEY_RESERVED)
++			__set_bit(priv->keymap[1], pwr->keybit);
+ 
+-		if (pdata->b2on_flags & MC13783_BUTTON_POL_INVERT)
++		if (pdata->buttons[1].flags & MC13XXX_BUTTON_POL_INVERT)
+ 			priv->flags |= MC13783_PWRB_B2_POL_INVERT;
+ 
+-		if (pdata->b2on_flags & MC13783_BUTTON_RESET_EN)
++		if (pdata->buttons[1].flags & MC13XXX_BUTTON_RESET_EN)
+ 			reg |= MC13783_POWER_CONTROL_2_ON2BRSTEN;
+ 
+ 		err = mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD2,
+@@ -163,15 +163,15 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
  		}
- 
- 		button->desc = of_get_property(pp, "label", NULL);
-@@ -178,17 +172,10 @@ static struct gpio_keys_platform_data *gpio_keys_polled_get_devtree_pdata(struct
- 			button->debounce_interval = 5;
  	}
  
--	if (pdata->nbuttons == 0) {
--		error = -EINVAL;
--		goto err_free_pdata;
--	}
-+	if (!pdata->nbuttons)
-+		return ERR_PTR(-EINVAL);
+-	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE) {
+-		priv->keymap[2] = pdata->b3on_key;
+-		if (pdata->b3on_key != KEY_RESERVED)
+-			__set_bit(pdata->b3on_key, pwr->keybit);
++	if (pdata->buttons[2].flags & MC13XXX_BUTTON_ENABLE) {
++		priv->keymap[2] = pdata->buttons[2].keycode;
++		if (priv->keymap[2] != KEY_RESERVED)
++			__set_bit(priv->keymap[2], pwr->keybit);
  
- 	return pdata;
--
--err_free_pdata:
--	kfree(pdata);
--err_out:
--	return ERR_PTR(error);
- }
+-		if (pdata->b3on_flags & MC13783_BUTTON_POL_INVERT)
++		if (pdata->buttons[2].flags & MC13XXX_BUTTON_POL_INVERT)
+ 			priv->flags |= MC13783_PWRB_B3_POL_INVERT;
  
- static struct of_device_id gpio_keys_polled_of_match[] = {
-@@ -228,24 +215,21 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+-		if (pdata->b3on_flags & MC13783_BUTTON_RESET_EN)
++		if (pdata->buttons[2].flags & MC13XXX_BUTTON_RESET_EN)
+ 			reg |= MC13783_POWER_CONTROL_2_ON3BRSTEN;
  
- 	if (!pdata->poll_interval) {
- 		dev_err(dev, "missing poll_interval value\n");
--		error = -EINVAL;
--		goto err_free_pdata;
-+		return -EINVAL;
- 	}
+ 		err = mc13xxx_irq_request(mc13783, MC13783_IRQ_ONOFD3,
+@@ -208,15 +208,15 @@ static int mc13783_pwrbutton_probe(struct platform_device *pdev)
+ free_irq:
+ 	mc13xxx_lock(mc13783);
  
--	bdev = kzalloc(sizeof(struct gpio_keys_polled_dev) +
--		       pdata->nbuttons * sizeof(struct gpio_keys_button_data),
--		       GFP_KERNEL);
-+	bdev = devm_kzalloc(&pdev->dev, sizeof(struct gpio_keys_polled_dev) +
-+		pdata->nbuttons * sizeof(struct gpio_keys_button_data),
-+		GFP_KERNEL);
- 	if (!bdev) {
- 		dev_err(dev, "no memory for private data\n");
--		error = -ENOMEM;
--		goto err_free_pdata;
-+		return -ENOMEM;
- 	}
+-	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE)
++	if (pdata->buttons[2].flags & MC13XXX_BUTTON_ENABLE)
+ 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD3, priv);
  
- 	poll_dev = input_allocate_polled_device();
- 	if (!poll_dev) {
- 		dev_err(dev, "no memory for polled device\n");
--		error = -ENOMEM;
--		goto err_free_bdev;
-+		return -ENOMEM;
- 	}
+ free_irq_b2:
+-	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE)
++	if (pdata->buttons[1].flags & MC13XXX_BUTTON_ENABLE)
+ 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD2, priv);
  
- 	poll_dev->private = bdev;
-@@ -278,15 +262,15 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 		if (button->wakeup) {
- 			dev_err(dev, DRV_NAME " does not support wakeup\n");
- 			error = -EINVAL;
--			goto err_free_gpio;
-+			goto err_out;
- 		}
+ free_irq_b1:
+-	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
++	if (pdata->buttons[0].flags & MC13XXX_BUTTON_ENABLE)
+ 		mc13xxx_irq_free(mc13783, MC13783_IRQ_ONOFD1, priv);
  
--		error = gpio_request_one(gpio, GPIOF_IN,
--					 button->desc ?: DRV_NAME);
-+		error = devm_gpio_request_one(&pdev->dev, gpio, GPIOF_IN,
-+					      button->desc ? : DRV_NAME);
- 		if (error) {
- 			dev_err(dev, "unable to claim gpio %u, err=%d\n",
- 				gpio, error);
--			goto err_free_gpio;
-+			goto err_out;
- 		}
+ free_priv:
+@@ -238,11 +238,11 @@ static int mc13783_pwrbutton_remove(struct platform_device *pdev)
  
- 		bdata->can_sleep = gpio_cansleep(gpio);
-@@ -306,7 +290,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 	if (error) {
- 		dev_err(dev, "unable to register polled device, err=%d\n",
- 			error);
--		goto err_free_gpio;
-+		goto err_out;
- 	}
+ 	mc13xxx_lock(priv->mc13783);
  
- 	/* report initial state of the buttons */
-@@ -316,45 +300,20 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+-	if (pdata->b3on_flags & MC13783_BUTTON_ENABLE)
++	if (pdata->buttons[2].flags & MC13XXX_BUTTON_ENABLE)
+ 		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD3, priv);
+-	if (pdata->b2on_flags & MC13783_BUTTON_ENABLE)
++	if (pdata->buttons[1].flags & MC13XXX_BUTTON_ENABLE)
+ 		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD2, priv);
+-	if (pdata->b1on_flags & MC13783_BUTTON_ENABLE)
++	if (pdata->buttons[0].flags & MC13XXX_BUTTON_ENABLE)
+ 		mc13xxx_irq_free(priv->mc13783, MC13783_IRQ_ONOFD1, priv);
  
- 	return 0;
+ 	mc13xxx_unlock(priv->mc13783);
+diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
+index a326c85..4cedec4 100644
+--- a/include/linux/mfd/mc13xxx.h
++++ b/include/linux/mfd/mc13xxx.h
+@@ -172,20 +172,22 @@ struct mc13xxx_leds_platform_data {
+ 	u32 led_control[MAX_LED_CONTROL_REGS];
+ };
  
--err_free_gpio:
--	while (--i >= 0)
--		gpio_free(pdata->buttons[i].gpio);
--
-+err_out:
- 	input_free_polled_device(poll_dev);
++#define MAX13XXX_NUM_BUTTONS	3
++
++struct mc13xxx_button {
++	u16		keycode;
++	unsigned int	flags;
++#define MC13XXX_BUTTON_DBNC_0MS		0
++#define MC13XXX_BUTTON_DBNC_30MS	1
++#define MC13XXX_BUTTON_DBNC_150MS	2
++#define MC13XXX_BUTTON_DBNC_750MS	3
++#define MC13XXX_BUTTON_ENABLE		(1 << 2)
++#define MC13XXX_BUTTON_POL_INVERT	(1 << 3)
++#define MC13XXX_BUTTON_RESET_EN		(1 << 4)
++};
++
+ struct mc13xxx_buttons_platform_data {
+-#define MC13783_BUTTON_DBNC_0MS		0
+-#define MC13783_BUTTON_DBNC_30MS	1
+-#define MC13783_BUTTON_DBNC_150MS	2
+-#define MC13783_BUTTON_DBNC_750MS	3
+-#define MC13783_BUTTON_ENABLE		(1 << 2)
+-#define MC13783_BUTTON_POL_INVERT	(1 << 3)
+-#define MC13783_BUTTON_RESET_EN		(1 << 4)
+-	int b1on_flags;
+-	unsigned short b1on_key;
+-	int b2on_flags;
+-	unsigned short b2on_key;
+-	int b3on_flags;
+-	unsigned short b3on_key;
++	struct mc13xxx_button	buttons[MAX13XXX_NUM_BUTTONS];
+ };
  
--err_free_bdev:
--	kfree(bdev);
--
--err_free_pdata:
--	/* If we have no platform_data, we allocated pdata dynamically.  */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
--
- 	return error;
- }
- 
- static int gpio_keys_polled_remove(struct platform_device *pdev)
- {
- 	struct gpio_keys_polled_dev *bdev = platform_get_drvdata(pdev);
--	const struct gpio_keys_platform_data *pdata = bdev->pdata;
--	int i;
- 
- 	input_unregister_polled_device(bdev->poll_dev);
- 
--	for (i = 0; i < pdata->nbuttons; i++)
--		gpio_free(pdata->buttons[i].gpio);
--
- 	input_free_polled_device(bdev->poll_dev);
- 
--	/*
--	 * If we had no platform_data, we allocated pdata dynamically and
--	 * must free it here.
--	 */
--	if (!dev_get_platdata(&pdev->dev))
--		kfree(pdata);
--
--	kfree(bdev);
--
- 	return 0;
- }
- 
+ struct mc13xxx_ts_platform_data {
 -- 
 1.8.3.2
 

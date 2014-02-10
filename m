@@ -1,106 +1,129 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH 2/4] input: mc13783: Use module_platform_driver_probe()
-Date: Mon, 10 Feb 2014 08:18:44 +0100
-Message-ID: <20140210071844.GN17045@pengutronix.de>
-References: <1392006138-10341-1-git-send-email-shc_work@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Barry Song <21cnbao@gmail.com>
+Subject: [PATCH] input: sirfsoc-onkey - report onkey untouch event by detecting pin status
+Date: Mon, 10 Feb 2014 18:07:39 +0800
+Message-ID: <1392026859-4977-1-git-send-email-21cnbao@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:48450 "EHLO
-	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751108AbaBJHSs (ORCPT
+Received: from mail-pb0-f44.google.com ([209.85.160.44]:34252 "EHLO
+	mail-pb0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752516AbaBJKID (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Feb 2014 02:18:48 -0500
-Content-Disposition: inline
-In-Reply-To: <1392006138-10341-1-git-send-email-shc_work@mail.ru>
+	Mon, 10 Feb 2014 05:08:03 -0500
+Received: by mail-pb0-f44.google.com with SMTP id rq2so6049060pbb.31
+        for <linux-input@vger.kernel.org>; Mon, 10 Feb 2014 02:08:02 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Shiyan <shc_work@mail.ru>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Shawn Guo <shawn.guo@linaro.org>, Sascha Hauer <kernel@pengutronix.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, workgroup.linux@csr.com, Xianglong Du <Xianglong.Du@csr.com>, Rongjun Ying <Rongjun.Ying@csr.com>, Barry Song <Baohua.Song@csr.com>
 
-On Mon, Feb 10, 2014 at 08:22:18AM +0400, Alexander Shiyan wrote:
-> Driver should be probed from MC13XXX MFD core only, so change
-> driver declaration to use module_platform_driver_probe().
-That reasoning is broken I think. At least it doesn't mean that a
-button-device is only created at boot or module load time. I didn't tes=
-t
-it, but I'd expect that you can unbind/bind the mc13xxx driver via sysf=
-s
-and that makes the button support disappear.
+From: Xianglong Du <Xianglong.Du@csr.com>
 
-(That doesn't necessarily means your change is wrong, just the reason
-you provided to justify it is invalid.)
+this patch adds a delayed_work to detect the untouch of onkey since HW will
+not generate interrupt for it.
 
-Best regards
-Uwe
+at the same time, we move the KEY event to POWER instead of SUSPEND, which
+will be suitable for both Android and Linux. Userspace PowerManager Daemon
+will decide to suspend or shutdown based on how long we have touched onkey
 
-> Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-> ---
->  drivers/input/misc/mc13783-pwrbutton.c | 13 +++++--------
->  1 file changed, 5 insertions(+), 8 deletions(-)
->=20
-> diff --git a/drivers/input/misc/mc13783-pwrbutton.c b/drivers/input/m=
-isc/mc13783-pwrbutton.c
-> index 60be67a..a1e45235 100644
-> --- a/drivers/input/misc/mc13783-pwrbutton.c
-> +++ b/drivers/input/misc/mc13783-pwrbutton.c
-> @@ -88,7 +88,7 @@ static irqreturn_t button_irq(int irq, void *_priv)
->  	return IRQ_HANDLED;
->  }
-> =20
-> -static int mc13783_pwrbutton_probe(struct platform_device *pdev)
-> +static int __init mc13xxx_pwrbutton_probe(struct platform_device *pd=
-ev)
->  {
->  	const struct mc13xxx_buttons_platform_data *pdata;
->  	struct mc13xxx *mc13783 =3D dev_get_drvdata(pdev->dev.parent);
-> @@ -229,7 +229,7 @@ free_input_dev:
->  	return err;
->  }
-> =20
-> -static int mc13783_pwrbutton_remove(struct platform_device *pdev)
-> +static int mc13xxx_pwrbutton_remove(struct platform_device *pdev)
->  {
->  	struct mc13783_pwrb *priv =3D platform_get_drvdata(pdev);
->  	const struct mc13xxx_buttons_platform_data *pdata;
-> @@ -253,18 +253,15 @@ static int mc13783_pwrbutton_remove(struct plat=
-form_device *pdev)
->  	return 0;
->  }
-> =20
-> -static struct platform_driver mc13783_pwrbutton_driver =3D {
-> -	.probe		=3D mc13783_pwrbutton_probe,
-> -	.remove		=3D mc13783_pwrbutton_remove,
-> +static struct platform_driver mc13xxx_pwrbutton_driver =3D {
->  	.driver		=3D {
->  		.name	=3D "mc13783-pwrbutton",
->  		.owner	=3D THIS_MODULE,
->  	},
-> +	.remove		=3D mc13xxx_pwrbutton_remove,
->  };
-> +module_platform_driver_probe(mc13xxx_pwrbutton_driver, mc13xxx_pwrbu=
-tton_probe);
-> =20
-> -module_platform_driver(mc13783_pwrbutton_driver);
-> -
-> -MODULE_ALIAS("platform:mc13783-pwrbutton");
->  MODULE_DESCRIPTION("MC13783 Power Button");
->  MODULE_LICENSE("GPL v2");
->  MODULE_AUTHOR("Philippe Retornaz");
-> --=20
-> 1.8.3.2
->=20
->=20
+Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
+Signed-off-by: Rongjun Ying <Rongjun.Ying@csr.com>
+Signed-off-by: Barry Song <Baohua.Song@csr.com>
+---
+ drivers/input/misc/sirfsoc-onkey.c |   48 ++++++++++++++++++++++++++++-------
+ 1 files changed, 38 insertions(+), 10 deletions(-)
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
+index e8897c3..9cd810b 100644
+--- a/drivers/input/misc/sirfsoc-onkey.c
++++ b/drivers/input/misc/sirfsoc-onkey.c
+@@ -13,16 +13,44 @@
+ #include <linux/input.h>
+ #include <linux/rtc/sirfsoc_rtciobrg.h>
+ #include <linux/of.h>
++#include <linux/workqueue.h>
+ 
+ struct sirfsoc_pwrc_drvdata {
+ 	u32			pwrc_base;
+ 	struct input_dev	*input;
++	struct delayed_work	work;
+ };
+ 
+ #define PWRC_ON_KEY_BIT			(1 << 0)
+ 
+ #define PWRC_INT_STATUS			0xc
+ #define PWRC_INT_MASK			0x10
++#define PWRC_PIN_STATUS			0x14
++#define PWRC_KEY_DETECT_UP_TIME		20	/* ms*/
++
++static inline int sirfsoc_pwrc_is_on_key_down(
++		struct sirfsoc_pwrc_drvdata *pwrcdrv)
++{
++	int state = sirfsoc_rtc_iobrg_readl(
++				pwrcdrv->pwrc_base + PWRC_PIN_STATUS)
++				& PWRC_ON_KEY_BIT;
++	return !state; /* ON_KEY is active low */
++}
++
++static void sirfsoc_pwrc_report_event(struct work_struct *work)
++{
++	struct sirfsoc_pwrc_drvdata *pwrcdrv =
++				container_of((struct delayed_work *)work,
++				struct sirfsoc_pwrc_drvdata, work);
++
++	if (!sirfsoc_pwrc_is_on_key_down(pwrcdrv)) {
++		input_event(pwrcdrv->input, EV_PWR, KEY_POWER, 0);
++		input_sync(pwrcdrv->input);
++	} else {
++		schedule_delayed_work(&pwrcdrv->work,
++			msecs_to_jiffies(PWRC_KEY_DETECT_UP_TIME));
++	}
++}
+ 
+ static irqreturn_t sirfsoc_pwrc_isr(int irq, void *dev_id)
+ {
+@@ -34,17 +62,11 @@ static irqreturn_t sirfsoc_pwrc_isr(int irq, void *dev_id)
+ 	sirfsoc_rtc_iobrg_writel(int_status & ~PWRC_ON_KEY_BIT,
+ 				 pwrcdrv->pwrc_base + PWRC_INT_STATUS);
+ 
+-	/*
+-	 * For a typical Linux system, we report KEY_SUSPEND to trigger apm-power.c
+-	 * to queue a SUSPEND APM event
+-	 */
+-	input_event(pwrcdrv->input, EV_PWR, KEY_SUSPEND, 1);
+-	input_sync(pwrcdrv->input);
+ 
+-	/*
+-	 * Todo: report KEY_POWER event for Android platforms, Android PowerManager
+-	 * will handle the suspend and powerdown/hibernation
+-	 */
++	input_event(pwrcdrv->input, EV_PWR, KEY_POWER, 1);
++	input_sync(pwrcdrv->input);
++	schedule_delayed_work(&pwrcdrv->work,
++		msecs_to_jiffies(PWRC_KEY_DETECT_UP_TIME));
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -88,6 +110,8 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
+ 	pwrcdrv->input->phys = "pwrc/input0";
+ 	pwrcdrv->input->evbit[0] = BIT_MASK(EV_PWR);
+ 
++	INIT_DELAYED_WORK(&pwrcdrv->work, sirfsoc_pwrc_report_event);
++
+ 	irq = platform_get_irq(pdev, 0);
+ 	error = devm_request_irq(&pdev->dev, irq,
+ 				 sirfsoc_pwrc_isr, IRQF_SHARED,
+@@ -119,8 +143,12 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
+ 
+ static int sirfsoc_pwrc_remove(struct platform_device *pdev)
+ {
++	struct sirfsoc_pwrc_drvdata *pwrcdrv = dev_get_drvdata(&pdev->dev);
++
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
++	cancel_delayed_work_sync(&pwrcdrv->work);
++
+ 	return 0;
+ }
+ 
+-- 
+1.7.5.4
+

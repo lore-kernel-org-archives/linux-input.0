@@ -1,34 +1,54 @@
-From: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
-Subject: [PATCH 2/2] gpio: adp5588 - add support for gpio names
-Date: Mon, 10 Feb 2014 12:24:05 -0500
-Message-ID: <1392053045-12121-2-git-send-email-jeff.dagenais@gmail.com>
-References: <1392053045-12121-1-git-send-email-jeff.dagenais@gmail.com>
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1392053045-12121-1-git-send-email-jeff.dagenais@gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: michael.hennerich@analog.com, dmitry.torokhov@gmail.com, dtor@mail.ru, linus.walleij@linaro.org, gnurou@gmail.com
-Cc: linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Jean-Francois Dagenais <jeff.dagenais@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 01/14] HID: uHID: remove duplicated code
+Date: Mon, 10 Feb 2014 12:58:46 -0500
+Message-ID: <1392055139-19631-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-which is already found in the common header for adp5588
+uhid_hid_output_report() can be implemented through a simple call
+to uhid_hid_output_raw().
 
-Signed-off-by: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/gpio/gpio-adp5588.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/uhid.c | 22 +---------------------
+ 1 file changed, 1 insertion(+), 21 deletions(-)
 
-diff --git a/drivers/gpio/gpio-adp5588.c b/drivers/gpio/gpio-adp5588.c
-index 7d3c8d9..d974020 100644
---- a/drivers/gpio/gpio-adp5588.c
-+++ b/drivers/gpio/gpio-adp5588.c
-@@ -397,6 +397,7 @@ static int adp5588_gpio_probe(struct i2c_client *client,
- 	gc->ngpio = ADP5588_MAXGPIO;
- 	gc->label = client->name;
- 	gc->owner = THIS_MODULE;
-+	gc->names = pdata->names;
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 12439e1..b6de903 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -247,27 +247,7 @@ static int uhid_hid_output_raw(struct hid_device *hid, __u8 *buf, size_t count,
+ static int uhid_hid_output_report(struct hid_device *hid, __u8 *buf,
+ 				  size_t count)
+ {
+-	struct uhid_device *uhid = hid->driver_data;
+-	unsigned long flags;
+-	struct uhid_event *ev;
+-
+-	if (count < 1 || count > UHID_DATA_MAX)
+-		return -EINVAL;
+-
+-	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
+-	if (!ev)
+-		return -ENOMEM;
+-
+-	ev->type = UHID_OUTPUT;
+-	ev->u.output.size = count;
+-	ev->u.output.rtype = UHID_OUTPUT_REPORT;
+-	memcpy(ev->u.output.data, buf, count);
+-
+-	spin_lock_irqsave(&uhid->qlock, flags);
+-	uhid_queue(uhid, ev);
+-	spin_unlock_irqrestore(&uhid->qlock, flags);
+-
+-	return count;
++	return uhid_hid_output_raw(hid, buf, count, HID_OUTPUT_REPORT);
+ }
  
- 	mutex_init(&dev->lock);
- 
+ static struct hid_ll_driver uhid_hid_driver = {
 -- 
-1.8.5.3
-
+1.8.3.1

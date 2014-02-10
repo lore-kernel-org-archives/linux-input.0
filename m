@@ -1,48 +1,39 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH 6/7] Input: pwm-beepe: remove HAVE_PWM dependencies
-Date: Mon, 10 Feb 2014 10:16:19 +0900
-Message-ID: <003f01cf25fd$b3e274b0$1ba75e10$%han@samsung.com>
-References: <003901cf25fc$73002790$590076b0$%han@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Alexander Shiyan <shc_work@mail.ru>
+Subject: [PATCH RESEND] input: Add commonly used event types
+Date: Mon, 10 Feb 2014 08:21:49 +0400
+Message-ID: <1392006109-10113-1-git-send-email-shc_work@mail.ru>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:10676 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752211AbaBJBQU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Feb 2014 20:16:20 -0500
-In-reply-to: <003901cf25fc$73002790$590076b0$%han@samsung.com>
-Content-language: ko
+Received: from smtp31.i.mail.ru ([94.100.177.91]:47125 "EHLO smtp31.i.mail.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751556AbaBJEWF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 9 Feb 2014 23:22:05 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 'Jingoo Han' <jg1.han@samsung.com>, 'Lars-Peter Clausen' <lars@metafoo.de>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Alexander Shiyan <shc_work@mail.ru>
 
-The HAVE_PWM symbol is only for legacy platforms that provide
-the PWM API without using the generic framework. However, legacy
-PWM drivers were already moved to the generic PWM framework.
-Thus, HAVE_PWM should be removed, because HAVE_PWM is not
-required anymore.
+Patch adds commonly used event types (EV_KEY and EV_SW) to
+devicetree bindings header for input subsystem.
 
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
 ---
- drivers/input/misc/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/dt-bindings/input/input.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index ae74df7..762e6d2 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -470,7 +470,7 @@ config INPUT_PCF8574
+diff --git a/include/dt-bindings/input/input.h b/include/dt-bindings/input/input.h
+index 042e7b3..3a141d92 100644
+--- a/include/dt-bindings/input/input.h
++++ b/include/dt-bindings/input/input.h
+@@ -9,6 +9,9 @@
+ #ifndef _DT_BINDINGS_INPUT_INPUT_H
+ #define _DT_BINDINGS_INPUT_INPUT_H
  
- config INPUT_PWM_BEEPER
- 	tristate "PWM beeper support"
--	depends on PWM && HAVE_PWM
-+	depends on PWM
- 	help
- 	  Say Y here to get support for PWM based beeper devices.
- 
++#define EV_KEY			0x01
++#define EV_SW			0x05
++
+ #define KEY_RESERVED		0
+ #define KEY_ESC			1
+ #define KEY_1			2
 -- 
-1.7.10.4
-
+1.8.3.2
 

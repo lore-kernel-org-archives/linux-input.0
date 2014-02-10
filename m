@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 01/14] HID: uHID: remove duplicated code
-Date: Mon, 10 Feb 2014 12:58:46 -0500
-Message-ID: <1392055139-19631-2-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 06/14] HID: usbhid: change return error of usbhid_output_report
+Date: Mon, 10 Feb 2014 12:58:51 -0500
+Message-ID: <1392055139-19631-7-git-send-email-benjamin.tissoires@redhat.com>
 References: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -9,46 +9,26 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-uhid_hid_output_report() can be implemented through a simple call
-to uhid_hid_output_raw().
+If there is no urbout when sending a output report, ENOSYS (Function
+not implemented) is a better error than EIO (I/O error).
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/uhid.c | 22 +---------------------
- 1 file changed, 1 insertion(+), 21 deletions(-)
+ drivers/hid/usbhid/hid-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 12439e1..b6de903 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -247,27 +247,7 @@ static int uhid_hid_output_raw(struct hid_device *hid, __u8 *buf, size_t count,
- static int uhid_hid_output_report(struct hid_device *hid, __u8 *buf,
- 				  size_t count)
- {
--	struct uhid_device *uhid = hid->driver_data;
--	unsigned long flags;
--	struct uhid_event *ev;
--
--	if (count < 1 || count > UHID_DATA_MAX)
--		return -EINVAL;
--
--	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
--	if (!ev)
--		return -ENOMEM;
--
--	ev->type = UHID_OUTPUT;
--	ev->u.output.size = count;
--	ev->u.output.rtype = UHID_OUTPUT_REPORT;
--	memcpy(ev->u.output.data, buf, count);
--
--	spin_lock_irqsave(&uhid->qlock, flags);
--	uhid_queue(uhid, ev);
--	spin_unlock_irqrestore(&uhid->qlock, flags);
--
--	return count;
-+	return uhid_hid_output_raw(hid, buf, count, HID_OUTPUT_REPORT);
- }
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index b9a770f..0d1d875 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -922,7 +922,7 @@ static int usbhid_output_report(struct hid_device *hid, __u8 *buf, size_t count)
+ 	int actual_length, skipped_report_id = 0, ret;
  
- static struct hid_ll_driver uhid_hid_driver = {
+ 	if (!usbhid->urbout)
+-		return -EIO;
++		return -ENOSYS;
+ 
+ 	if (buf[0] == 0x0) {
+ 		/* Don't send the Report ID */
 -- 
 1.8.3.1

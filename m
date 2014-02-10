@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 13/14] HID: remove hid_output_raw_report
-Date: Mon, 10 Feb 2014 12:58:58 -0500
-Message-ID: <1392055139-19631-14-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 11/14] HID: sony: remove hid_output_raw_report calls
+Date: Mon, 10 Feb 2014 12:58:56 -0500
+Message-ID: <1392055139-19631-12-git-send-email-benjamin.tissoires@redhat.com>
 References: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -9,159 +9,163 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-hid_output_raw_report() is not used anymore, delete it.
+We can not directly change the underlying struct hid_ll_driver here
+as we did for hdev->hid_output_raw_report.
+So allocate a struct ll_driver, and replace the old one when removing
+the device.
+To get a fully functional driver, we must also split the function
+sixaxis_usb_output_raw_report() in 2, one regarding output_report, and
+the other for raw_request.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/i2c-hid/i2c-hid.c | 14 --------------
- drivers/hid/uhid.c            |  1 -
- drivers/hid/usbhid/hid-core.c | 12 ------------
- include/linux/hid.h           | 19 -------------------
- net/bluetooth/hidp/core.c     | 14 --------------
- 5 files changed, 60 deletions(-)
+ drivers/hid/hid-sony.c | 75 ++++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 52 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 925fb8d..d3b8d7a 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -596,19 +596,6 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
- 	return ret;
- }
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index d980943..dbbcd0c8 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -507,6 +507,8 @@ struct sony_sc {
+ 	struct work_struct state_worker;
+ 	struct power_supply battery;
  
--static int __i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
--		size_t count, unsigned char report_type)
--{
--	struct i2c_client *client = hid->driver_data;
--	struct i2c_hid *ihid = i2c_get_clientdata(client);
--	bool data = true; /* SET_REPORT */
--
--	if (report_type == HID_OUTPUT_REPORT)
--		data = le16_to_cpu(ihid->hdesc.wMaxOutputLength) == 0;
--
--	return i2c_hid_output_raw_report(hid, buf, count, report_type, data);
--}
--
- static int i2c_hid_output_report(struct hid_device *hid, __u8 *buf,
- 		size_t count)
- {
-@@ -1023,7 +1010,6 @@ static int i2c_hid_probe(struct i2c_client *client,
++	struct hid_ll_driver *prev_ll_driver;
++
+ #ifdef CONFIG_SONY_FF
+ 	__u8 left;
+ 	__u8 right;
+@@ -760,38 +762,52 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
  
- 	hid->driver_data = client;
- 	hid->ll_driver = &i2c_hid_ll_driver;
--	hid->hid_output_raw_report = __i2c_hid_output_raw_report;
- 	hid->dev.parent = &client->dev;
- 	ACPI_COMPANION_SET(&hid->dev, ACPI_COMPANION(&client->dev));
- 	hid->bus = BUS_I2C;
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 60acee4..7ed79be 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -400,7 +400,6 @@ static int uhid_dev_create(struct uhid_device *uhid,
- 	hid->uniq[63] = 0;
- 
- 	hid->ll_driver = &uhid_hid_driver;
--	hid->hid_output_raw_report = uhid_hid_output_raw;
- 	hid->bus = ev->u.create.bus;
- 	hid->vendor = ev->u.create.vendor;
- 	hid->product = ev->u.create.product;
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 0d1d875..02b3256 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -945,17 +945,6 @@ static int usbhid_output_report(struct hid_device *hid, __u8 *buf, size_t count)
- 	return ret;
- }
- 
--static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf,
--		size_t count, unsigned char report_type)
--{
--	struct usbhid_device *usbhid = hid->driver_data;
--
--	if (usbhid->urbout && report_type != HID_FEATURE_REPORT)
--		return usbhid_output_report(hid, buf, count);
--
--	return usbhid_set_raw_report(hid, buf[0], buf, count, report_type);
--}
--
- static void usbhid_restart_queues(struct usbhid_device *usbhid)
- {
- 	if (usbhid->urbout && !test_bit(HID_OUT_RUNNING, &usbhid->iofl))
-@@ -1289,7 +1278,6 @@ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *
- 
- 	usb_set_intfdata(intf, hid);
- 	hid->ll_driver = &usb_hid_driver;
--	hid->hid_output_raw_report = usbhid_output_raw_report;
- 	hid->ff_init = hid_pidff_init;
- #ifdef CONFIG_USB_HIDDEV
- 	hid->hiddev_connect = hiddev_connect;
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 09fbbd7..fa07639 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -508,9 +508,6 @@ struct hid_device {							/* device report descriptor */
- 				  struct hid_usage *, __s32);
- 	void (*hiddev_report_event) (struct hid_device *, struct hid_report *);
- 
--	/* handler for raw output data, used by hidraw */
--	int (*hid_output_raw_report) (struct hid_device *, __u8 *, size_t, unsigned char);
--
- 	/* debugging support via debugfs */
- 	unsigned short debug;
- 	struct dentry *debug_dir;
-@@ -1015,22 +1012,6 @@ static inline int hid_hw_output_report(struct hid_device *hdev, __u8 *buf,
- }
- 
- /**
-- * hid_output_raw_report - send an output or a feature report to the device
+ /*
+  * The Sony Sixaxis does not handle HID Output Reports on the Interrupt EP
+- * like it should according to usbhid/hid-core.c::usbhid_output_raw_report()
++ * like it should according to usbhid/hid-core.c::usbhid_output_report()
+  * so we need to override that forcing HID Output Reports on the Control EP.
 - *
-- * @hdev: hid device
-- * @buf: raw data to transfer
-- * @len: length of buf
-- * @report_type: HID_FEATURE_REPORT or HID_OUTPUT_REPORT
-- *
-- * @return: count of data transfered, negative if error
-- */
--static inline int hid_output_raw_report(struct hid_device *hdev, __u8 *buf,
--					size_t len, unsigned char report_type)
--{
--	return hdev->hid_output_raw_report(hdev, buf, len, report_type);
--}
--
--/**
-  * hid_hw_idle - send idle request to device
-  *
-  * @hdev: hid device
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index 77c4bad..89da18d 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -382,18 +382,6 @@ static int hidp_output_report(struct hid_device *hid, __u8 *data, size_t count)
- 				      data, count);
- }
- 
--static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data,
+- * There is also another issue about HID Output Reports via USB, the Sixaxis
+- * does not want the report_id as part of the data packet, so we have to
+- * discard buf[0] when sending the actual control message, even for numbered
+- * reports, humpf!
+  */
+-static int sixaxis_usb_output_raw_report(struct hid_device *hid, __u8 *buf,
 -		size_t count, unsigned char report_type)
--{
++static int sixaxis_usb_output_report(struct hid_device *hid, __u8 *buf,
++		size_t count)
++{
++	return hid_hw_raw_request(hid, buf[0], buf, count, HID_OUTPUT_REPORT,
++		HID_REQ_SET_REPORT);
++}
++
++/*
++ * There is also another issue about the SET_REPORT command via USB,
++ * the Sixaxis does not want the report_id as part of the data packet, so
++ * we have to discard buf[0] when sending the actual control message, even
++ * for numbered reports, humpf!
++ */
++static int sixaxis_usb_raw_request(struct hid_device *hid,
++				   unsigned char reportnum, __u8 *buf,
++				   size_t len, unsigned char rtype, int reqtype)
+ {
+ 	struct usb_interface *intf = to_usb_interface(hid->dev.parent);
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct usb_host_interface *interface = intf->cur_altsetting;
+-	int report_id = buf[0];
+ 	int ret;
++	u8 usb_dir;
++	unsigned int usb_pipe;
+ 
 -	if (report_type == HID_OUTPUT_REPORT) {
--		return hidp_output_report(hid, data, count);
--	} else if (report_type != HID_FEATURE_REPORT) {
--		return -EINVAL;
--	}
--
--	return hidp_set_raw_report(hid, data[0], data, count, report_type);
--}
--
- static int hidp_raw_request(struct hid_device *hid, unsigned char reportnum,
- 			    __u8 *buf, size_t len, unsigned char rtype,
- 			    int reqtype)
-@@ -773,8 +761,6 @@ static int hidp_setup_hid(struct hidp_session *session,
- 	hid->dev.parent = &session->conn->hcon->dev;
- 	hid->ll_driver = &hidp_hid_driver;
++	if (reqtype == HID_REQ_SET_REPORT) {
+ 		/* Don't send the Report ID */
+ 		buf++;
+-		count--;
++		len--;
++		usb_dir = USB_DIR_OUT;
++		usb_pipe = usb_sndctrlpipe(dev, 0);
++	} else {
++		usb_dir = USB_DIR_IN;
++		usb_pipe = usb_rcvctrlpipe(dev, 0);
+ 	}
  
--	hid->hid_output_raw_report = hidp_output_raw_report;
--
- 	/* True if device is blacklisted in drivers/hid/hid-core.c */
- 	if (hid_ignore(hid)) {
- 		hid_destroy_device(session->hid);
+-	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+-		HID_REQ_SET_REPORT,
+-		USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+-		((report_type + 1) << 8) | report_id,
+-		interface->desc.bInterfaceNumber, buf, count,
++	ret = usb_control_msg(dev, usb_pipe, reqtype,
++		usb_dir | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
++		((rtype + 1) << 8) | reportnum,
++		interface->desc.bInterfaceNumber, buf, len,
+ 		USB_CTRL_SET_TIMEOUT);
+ 
+-	/* Count also the Report ID, in case of an Output report. */
+-	if (ret > 0 && report_type == HID_OUTPUT_REPORT)
++	/* Count also the Report ID. */
++	if (ret > 0 && reqtype == HID_REQ_SET_REPORT)
+ 		ret++;
+ 
+ 	return ret;
+@@ -1047,7 +1063,7 @@ static void sixaxis_state_worker(struct work_struct *work)
+ 	buf[10] |= sc->led_state[2] << 3;
+ 	buf[10] |= sc->led_state[3] << 4;
+ 
+-	hid_output_raw_report(sc->hdev, buf, sizeof(buf), HID_OUTPUT_REPORT);
++	hid_hw_output_report(sc->hdev, buf, sizeof(buf));
+ }
+ 
+ static void dualshock4_state_worker(struct work_struct *work)
+@@ -1254,6 +1270,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	unsigned long quirks = id->driver_data;
+ 	struct sony_sc *sc;
+ 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
++	struct hid_ll_driver *ll_driver;
+ 
+ 	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
+ 	if (sc == NULL) {
+@@ -1285,13 +1302,20 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
+-		hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
++		ll_driver = devm_kzalloc(&hdev->dev, sizeof(*ll_driver),
++					     GFP_KERNEL);
++		if (ll_driver == NULL)
++			return -ENOMEM;
++		sc->prev_ll_driver = hdev->ll_driver;
++		*ll_driver = *hdev->ll_driver;
++		hdev->ll_driver = ll_driver;
++		ll_driver->output_report = sixaxis_usb_output_report;
++		ll_driver->raw_request = sixaxis_usb_raw_request;
+ 		ret = sixaxis_set_operational_usb(hdev);
+ 		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+-	}
+-	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
++	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
+ 		ret = sixaxis_set_operational_bt(hdev);
+-	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
++	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+ 		/* Report 5 (31 bytes) is used to send data to the controller via USB */
+ 		ret = sony_set_output_report(sc, 0x05, 248);
+ 		if (ret < 0)
+@@ -1339,6 +1363,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ err_close:
+ 	hid_hw_close(hdev);
+ err_stop:
++	if (sc->prev_ll_driver)
++		hdev->ll_driver = sc->prev_ll_driver;
+ 	if (sc->quirks & SONY_LED_SUPPORT)
+ 		sony_leds_remove(hdev);
+ 	if (sc->quirks & SONY_BATTERY_SUPPORT)
+@@ -1351,6 +1377,9 @@ static void sony_remove(struct hid_device *hdev)
+ {
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
+ 
++	if (sc->prev_ll_driver)
++		hdev->ll_driver = sc->prev_ll_driver;
++
+ 	if (sc->quirks & SONY_LED_SUPPORT)
+ 		sony_leds_remove(hdev);
+ 
 -- 
 1.8.3.1

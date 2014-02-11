@@ -1,100 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V1] da9052: ONKEY: use correct register bit for key status
-Date: Tue, 11 Feb 2014 09:06:21 -0800
-Message-ID: <20140211170621.GA13049@core.coreip.homeip.net>
-References: <201402111610.s1BGAXJo056493@swsrvapps-02.lan>
- <20140211162857.GA12106@core.coreip.homeip.net>
- <24DF37198A1E704D9811D8F72B87EB51BCFD52F3@NB-EX-MBX02.diasemi.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [PATCH] input synaptics-rmi4: rmi_f01.c storage fix
+Date: Tue, 11 Feb 2014 15:13:00 -0800
+Message-ID: <1392160380-8221-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f53.google.com ([209.85.160.53]:63300 "EHLO
-	mail-pb0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751316AbaBKRG1 (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:16052 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751316AbaBKXNF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Feb 2014 12:06:27 -0500
-Content-Disposition: inline
-In-Reply-To: <24DF37198A1E704D9811D8F72B87EB51BCFD52F3@NB-EX-MBX02.diasemi.com>
+	Tue, 11 Feb 2014 18:13:05 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Tue, Feb 11, 2014 at 04:57:47PM +0000, Opensource [Anthony Olech] wrote:
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: 11 February 2014 16:29
-> ..[snip]..
-> > >  static void da9052_onkey_query(struct da9052_onkey *onkey)  {
-> > > -	int key_stat;
-> > > +	int ret, key_stat;
-> > >
-> > > -	key_stat = da9052_reg_read(onkey->da9052,
-> > DA9052_EVENT_B_REG);
-> > > -	if (key_stat < 0) {
-> > > +	ret = da9052_reg_read(onkey->da9052, DA9052_STATUS_A_REG);
-> > > +	if (ret < 0) {
-> > >  		dev_err(onkey->da9052->dev,
-> > > -			"Failed to read onkey event %d\n", key_stat);
-> > > +			"Failed to read onkey event err=%d\n", ret);
-> > > +		key_stat = false;
-> > 
-> > Why do you need this assignment? Also, key_stat is integer, why are we
-> > using boolean values for it?
-> > 
-> > >  	} else {
-> > >  		/*
-> > >  		 * Since interrupt for deassertion of ONKEY pin is not
-> > >  		 * generated, onkey event state determines the onkey
-> > >  		 * button state.
-> > >  		 */
-> > > -		key_stat &= DA9052_EVENTB_ENONKEY;
-> > > +		if (ret & DA9052_STATUSA_NONKEY)
-> > > +			key_stat = false;
-> > > +		else
-> > > +			key_stat = true;
-> > 
-> > It seems to me that the relevant changes are replacement of
-> > DA9052_EVENT_B_REG -> DA9052_STATUS_A_REG in da9052_reg_read()
-> > and doing:
-> > 
-> > 		key_stat &= DA9052_STATUSA_NONKEY;
-> > 		input_report_key(onkey->input, KEY_POWER, !key_stat);
-> > 
-> > Right?
-> 
-> Right as far as the register and the bit within it.
-> 
-> However, should the register read fail due to the PMIC not responding
-> on the i2c bus then the previous code would just loop round the work
-> queue.  By explicitly using key_stat as a boolean it makes the code
-> very clear that in the case of failure a 'false' value is set.
+Correctly free driver related data when initialization fails.
 
-Then it should be defined as boolean.
+Trivial: Clarify a diagnostic message.
 
-> As it
-> was the negative value of the error code would be treated as true,
-> since -EFAULT being non-zero will be treated as true.
+Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Linux Walleij <linus.walleij@linaro.org>
+Cc: David Herrmann <dh.herrmann@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
 
-This is however not what your patch description said it does; it only
-mentioned the incorrect register assignment. Maybe we shoudl do the
-following then:
+---
 
-	...
-	} else {
-		bool pressed = !(ret & DA9052_STATUSA_NONKEY);
+ drivers/input/rmi4/rmi_f01.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-		input_report_key(onkey->input, KEY_POWER, pressed);
-		input_sync(onkey->input);
-
-		if (pressed)
-			schedule_work(...);
-	}
-
-And mention that we are changing polling (no longer re-poll on read
-errors) in addition to changing register/bits used.
-
-Thanks.
-
--- 
-Dmitry
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index 381ad60..e4a6df9 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -149,7 +149,7 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
+ 
+ 	f01 = devm_kzalloc(&fn->dev, sizeof(struct f01_data), GFP_KERNEL);
+ 	if (!f01) {
+-		dev_err(&fn->dev, "Failed to allocate fn_01_data.\n");
++		dev_err(&fn->dev, "Failed to allocate f01_data.\n");
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -158,6 +158,7 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
+ 			GFP_KERNEL);
+ 	if (!f01->device_control.interrupt_enable) {
+ 		dev_err(&fn->dev, "Failed to allocate interrupt enable.\n");
++		devm_kfree(&fn->dev, f01);
+ 		return -ENOMEM;
+ 	}
+ 	fn->data = f01;
+@@ -381,7 +382,8 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+ 	return 0;
+ 
+  error_exit:
+-	kfree(data);
++	devm_kfree(&fn->dev, data->device_control.interrupt_enable);
++	devm_kfree(&fn->dev, data);
+ 	return error;
+ }
+ 

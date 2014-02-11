@@ -1,103 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RFC] Input: Add Microchip AR1021 i2c touchscreen
-Date: Tue, 11 Feb 2014 08:34:09 -0800
-Message-ID: <20140211163409.GC12106@core.coreip.homeip.net>
-References: <1391074185-26973-1-git-send-email-christian.gmeiner@gmail.com>
- <20140131010131.GA29566@core.coreip.homeip.net>
- <CAH9NwWfb1zVrgeKB7+fPyS80yC6BuokvmA4TE0tr7BAs_jwQSA@mail.gmail.com>
- <20140131171521.GA20872@core.coreip.homeip.net>
- <20140131171647.GB20872@core.coreip.homeip.net>
- <CAH9NwWcpttFN9=QKeCM_StJiLsvcYSapuDqcwtKQJTAxfQLGng@mail.gmail.com>
+From: "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
+Subject: RE: [PATCH V1] da9052: ONKEY: use correct register bit for key
+ status
+Date: Tue, 11 Feb 2014 16:57:47 +0000
+Message-ID: <24DF37198A1E704D9811D8F72B87EB51BCFD52F3@NB-EX-MBX02.diasemi.com>
+References: <201402111610.s1BGAXJo056493@swsrvapps-02.lan>
+ <20140211162857.GA12106@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f177.google.com ([209.85.192.177]:57555 "EHLO
-	mail-pd0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752979AbaBKQeN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Feb 2014 11:34:13 -0500
-Received: by mail-pd0-f177.google.com with SMTP id x10so7708242pdj.36
-        for <linux-input@vger.kernel.org>; Tue, 11 Feb 2014 08:34:13 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CAH9NwWcpttFN9=QKeCM_StJiLsvcYSapuDqcwtKQJTAxfQLGng@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140211162857.GA12106@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Opensource [Anthony Olech]" <anthony.olech.opensource@diasemi.com>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, David Dajun Chen <david.chen@diasemi.com>
 List-Id: linux-input@vger.kernel.org
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On Tue, Feb 11, 2014 at 02:10:50PM +0100, Christian Gmeiner wrote:
-> Hi Dmitry
-> 
-> 2014-01-31 18:16 GMT+01:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > On Fri, Jan 31, 2014 at 09:15:21AM -0800, Dmitry Torokhov wrote:
-> >> Hi Chrisitian,
-> >>
-> >> On Fri, Jan 31, 2014 at 12:40:19PM +0100, Christian Gmeiner wrote:
-> >> > >> --- /dev/null
-> >> > >> +++ b/drivers/input/touchscreen/ar1021_i2c.c
-> >> > >> @@ -0,0 +1,201 @@
-> >> > >> +/*
-> >> > >> + * Microchip AR1021 driver for I2C
-> >> > >> + *
-> >> > >> + * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
-> >> > >> + *
-> >> > >> + * License: GPL as published by the FSF.
-> >>
-> >> By the way, you probably do not want GPL v1 to apply... Maybe say GPL v2
-> >> or GPL v2 and later (depending on your preference and the license of the
-> >> code you used as a base)?
-> >>
-> >> > >> +
-> >> > >> +static int ar1021_i2c_resume(struct device *dev)
-> >> > >> +{
-> >> > >> +     struct i2c_client *client = to_i2c_client(dev);
-> >> > >> +
-> >> > >> +     enable_irq(client->irq);
-> >> > >
-> >> > > You do not want to enable IRQ if there are no users (nobody opened
-> >> > > device).
-> >> > >
-> >> >
-> >> > Okay.. but then I also do not need the disable_irq(..) call in
-> >> > ar1021_i2c_suspend
-> >> > and can totally remove the PM stuff - or?
-> >>
-> >> No, I think you still need the PM methods, you just need to check if
-> >> device is opened (take dev->mutex, check dev->users) and decide if you
-> >> need to enable/disable IRQ or not.
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: 11 February 2014 16:29
+..[snip]..
+> >  static void da9052_onkey_query(struct da9052_onkey *onkey)  {
+> > -	int key_stat;
+> > +	int ret, key_stat;
 > >
-> > Hmm, on the other hand enable/disable does the counting for you so maybe
-> > you should leave it all as it was.
+> > -	key_stat = da9052_reg_read(onkey->da9052,
+> DA9052_EVENT_B_REG);
+> > -	if (key_stat < 0) {
+> > +	ret = da9052_reg_read(onkey->da9052, DA9052_STATUS_A_REG);
+> > +	if (ret < 0) {
+> >  		dev_err(onkey->da9052->dev,
+> > -			"Failed to read onkey event %d\n", key_stat);
+> > +			"Failed to read onkey event err=%d\n", ret);
+> > +		key_stat = false;
 > 
-> ok
+> Why do you need this assignment? Also, key_stat is integer, why are we
+> using boolean values for it?
 > 
-> At the moment I am doing the final tests of the driver and it fails to
-> load via device tree :(
-> I changed the compatible string from "mc,ar1021-i2c" to "microchip,ar1021-i2c".
+> >  	} else {
+> >  		/*
+> >  		 * Since interrupt for deassertion of ONKEY pin is not
+> >  		 * generated, onkey event state determines the onkey
+> >  		 * button state.
+> >  		 */
+> > -		key_stat &= DA9052_EVENTB_ENONKEY;
+> > +		if (ret & DA9052_STATUSA_NONKEY)
+> > +			key_stat = false;
+> > +		else
+> > +			key_stat = true;
 > 
-> and this is how my dts looks like on an imx6d board:
+> It seems to me that the relevant changes are replacement of
+> DA9052_EVENT_B_REG -> DA9052_STATUS_A_REG in da9052_reg_read()
+> and doing:
 > 
-> &i2c2 {
->        status = "okay";
->        clock-frequency = <100000>;
->        pinctrl-names = "default";
->        pinctrl-0 = <&pinctrl_i2c2_1>;
+> 		key_stat &= DA9052_STATUSA_NONKEY;
+> 		input_report_key(onkey->input, KEY_POWER, !key_stat);
 > 
->        ar1021@4d {
->                compatible = "microchip,ar1021-i2c";
->                reg = <0x4d>;
->                interrupt-parent = <&gpio3>;
->                interrupts = <26 0x2>;
->        };
-> };
-> 
-> 
-> Any hints?
+> Right?
 
-Not really. Does the driver bind to the device if you define I2C device
-in the board code? Are there any errors reported by the kernel?
+Right as far as the register and the bit within it.
 
-Thanks.
+However, should the register read fail due to the PMIC not responding on the i2c bus then the previous code would just loop round the work queue.
+By explicitly using key_stat as a boolean it makes the code very clear that in the case of failure a 'false' value is set. As it was the negative value of the error code would be treated as true, since -EFAULT being non-zero will be treated as true.
 
--- 
-Dmitry
+Tony Olech
+
+> Thanks.
+> Dmitry

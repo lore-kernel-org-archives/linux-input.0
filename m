@@ -1,117 +1,148 @@
 From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: Re: [PATCH] input synaptics-rmi4: Use put_device() and
- device_type.release() to free storage.
-Date: Wed, 12 Feb 2014 09:09:11 -0800
-Message-ID: <20140212170910.GC1706@sonymobile.com>
-References: <1392160410-8293-1-git-send-email-cheiny@synaptics.com>
- <20140212015929.GZ1706@sonymobile.com>
- <52FAD9D5.5070900@synaptics.com>
- <20140212024940.GA1706@sonymobile.com>
- <52FAE7E7.4090905@synaptics.com>
- <20140212045452.GB1706@sonymobile.com>
- <20140212064342.GB15855@core.coreip.homeip.net>
+Subject: Re: [PATCH] input synaptics-rmi4: rmi_f01.c storage fix
+Date: Wed, 12 Feb 2014 13:48:19 -0800
+Message-ID: <20140212214819.GE1706@sonymobile.com>
+References: <1392160380-8221-1-git-send-email-cheiny@synaptics.com>
+ <20140212064049.GA15855@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:1405 "EHLO
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:3263 "EHLO
 	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751703AbaBLRH1 (ORCPT
+	by vger.kernel.org with ESMTP id S1751894AbaBLVqf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Feb 2014 12:07:27 -0500
+	Wed, 12 Feb 2014 16:46:35 -0500
 Content-Disposition: inline
-In-Reply-To: <20140212064342.GB15855@core.coreip.homeip.net>
+In-Reply-To: <20140212064049.GA15855@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Christopher Heiny <cheiny@synaptics.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Feb 12, 2014 at 07:43:42AM +0100, Dmitry Torokhov wrote:
-> On Tue, Feb 11, 2014 at 08:54:53PM -0800, Courtney Cavin wrote:
-> > On Wed, Feb 12, 2014 at 04:17:59AM +0100, Christopher Heiny wrote:
-> > > On 02/11/2014 06:49 PM, Courtney Cavin wrote:
-> > > > On Wed, Feb 12, 2014 at 03:17:57AM +0100, Christopher Heiny wrote:
-> > > >> On 02/11/2014 05:59 PM, Courtney Cavin wrote:
-> > > >>> On Wed, Feb 12, 2014 at 12:13:30AM +0100, Christopher Heiny wrote:
-> > > >>>> For rmi_sensor and rmi_function device_types, use put_device() and
-> > > >>>> the assocated device_type.release() function to clean up related
-> > > >>>> structures and storage in the correct and safe order.
-> > > >>>>
-> > > >>>> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-> > > >>>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > >>>> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > >>>> Cc: Linux Walleij <linus.walleij@linaro.org>
-> > > >>>> Cc: David Herrmann <dh.herrmann@gmail.com>
-> > > >>>> Cc: Jiri Kosina <jkosina@suse.cz>
-> > > >>>> Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
-> > > >>>
-> > > >>> I'm not a huge fan of you taking my patches, re-formatting them and
-> > > >>> sending them as your own.  More out of principle then actually caring
-> > > >>> about ownership.  You at least cc'd me on this one....
-> > > >>
-> > > >> Sorry - no slight was intended at all!  I wasn't sure what the protocol
-> > > >> was for picking up an idea from someone else's patch and building on
-> > > >> that idea, so I just went with the CC.  I definitely prefer to attribute
-> > > >> sources correctly - if you could clarify what should be done (beyond the
-> > > >> CC) to acknowledge the author of the original patch, I'd appreciate it.
-> > > >
-> > > > Sure.  In short, follow Documentation/SubmittingPatches , esp. section
-> > > > 12) Sign your work.
-> > > >
-> > > > Generally the patch should read something like the following:
-> > > >
-> > > >   From: Original Author <original.author@example.org>
-> > > >
-> > > >   *BLURB*
-> > > >
-> > > >   Signed-off-by: Original Author <original.author@example.org>
-> > > >   [additional.author@example.org: changed x and y]
-> > > >   Signed-off-by: Additional Author <additional.author@example.org>
-> > > >
-> > > > Assuming the original author actually signed-off the patch in the first
-> > > > place, of course.  The square bracket part is optional, but can be
-> > > > helpful for reviewers.
-> > > >
-> > > > I'm somewhat surprised that you are not aware of this procedure, as this
-> > > > is how Dmitry has replied to some of your patches in the past.'
-> > > 
-> > > Thanks very much.
-> > > 
-> > > I was actually aware of that, but thought the work was sufficiently 
-> > > different from your original patch that applying your Signed-off-by: to 
-> > > it wouldn't be appropriate (I dislike being signed off on things I don't 
-> > > necessarily agree with as much as lack of attribution).  I'll be less 
-> > > paranoid about that in the future.
-> > 
-> > I don't see how they were different enough, when clearly these two
-> > patches attempt to fix the same bugs, using the same methods with
-> > slightly modified flow.  Perhaps the patches may be small enough
-> > to be interpreted either way, but at the very least reported-by (since
-> > this is a bug-fix) or suggested-by is more appropriate than Cc.  This is
-> > a public list, so I'm sure someone will tell you when you are wrong, if
-> > nothing else.
-> > 
-> > Along the same topic, I guess I should also mention that it is typically
-> > frowned upon to takeover someone else's patches without giving them
-> > due-time to fix any outstanding review comments.
-> > 
-> > In both of these cases, you neither asked for me to submit the patches
-> > separately, outside of my DT-series, nor to make any specific changes.
-> > I was under the impression that you were still participating in the
-> > discussion for that series.
-> > 
-> > While it is apparent that we have differing views on how this particular
-> > driver development should proceed, and we should definitely discuss
-> > them, please do not think that I'm not willing to apply my patches
-> > individually to what's in tree now.
-> > 
-> > My main concern here is that I cannot actually properly test this driver
-> > without DT, non-gpio irq, and regulator support.  Likewise, pre-3.7 is
-> > ancient, and would require back-porting hundreds of changes.
+On Wed, Feb 12, 2014 at 07:40:49AM +0100, Dmitry Torokhov wrote:
+> Hi Chris,
 > 
-> I can rebase to something more recent; I just did not want to cause
-> additional work for Chris. Once he finishes pushing his code I was going
-> to rebase anyway.
+> On Tue, Feb 11, 2014 at 03:13:00PM -0800, Christopher Heiny wrote:
+> > Correctly free driver related data when initialization fails.
+> >
+> > Trivial: Clarify a diagnostic message.
+> >
+> > Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Cc: Linux Walleij <linus.walleij@linaro.org>
+> > Cc: David Herrmann <dh.herrmann@gmail.com>
+> > Cc: Jiri Kosina <jkosina@suse.cz>
+> >
+> > ---
+> >
+> >  drivers/input/rmi4/rmi_f01.c | 6 ++++--
+> >  1 file changed, 4 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+> > index 381ad60..e4a6df9 100644
+> > --- a/drivers/input/rmi4/rmi_f01.c
+> > +++ b/drivers/input/rmi4/rmi_f01.c
+> > @@ -149,7 +149,7 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
+> >
+> >       f01 = devm_kzalloc(&fn->dev, sizeof(struct f01_data), GFP_KERNEL);
+> >       if (!f01) {
+> > -             dev_err(&fn->dev, "Failed to allocate fn_01_data.\n");
+> > +             dev_err(&fn->dev, "Failed to allocate f01_data.\n");
+> >               return -ENOMEM;
+> >       }
+> >
+> > @@ -158,6 +158,7 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
+> >                       GFP_KERNEL);
+> >       if (!f01->device_control.interrupt_enable) {
+> >               dev_err(&fn->dev, "Failed to allocate interrupt enable.\n");
+> > +             devm_kfree(&fn->dev, f01);
+> 
+> As Courtney mentioned if you are calling devm_kfree() you are most
+> likely doing something wrong.
+> 
+> How about the patch below? Please check the XXX comment, I have some
+> concerns about lts vs doze_holdoff check mismatch in probe() and
+> config().
+> 
+> Thanks.
+> 
+> --
+> Dmitry
+> 
+> Input: synaptics-rmi4 - F01 initialization cleanup
+> 
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> - rename data to f01 where appropriate;
+> - switch to using rmi_read()/rmi_write() for single-byte data;
+> - allocate interrupt mask together with the main structure;
+> - do not kfree() memory allocated with devm;
+> - do not write config data in probe(), we have config() for that;
+> - drop unneeded rmi_f01_remove().
 
-That would be great! Thanks.
+These seem like unrelated changes and make this patch hard to read, I
+would prefer if we could separate these out.  Perhaps like so?
+	[1] bug-fix
+		- do not kfree() memory allocated with devm
+	[2] simplify probe/remove logic
+		- allocate interrupt mask together with the main structure
+		- do not write config data in probe(), we have config() for that
+		- drop unneeded rmi_f01_remove()
+	[3] non-behavioral changes/cleanup
+		- switch to using rmi_read()/rmi_write() for single-byte data
+		- rename data to f01 where appropriate
+
+Disregarding that, and the nitpick below, it looks good to me.
+
+> 
+> Reported-by: Courtney Cavin <courtney.cavin@sonymobile.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/rmi4/rmi_f01.c |  397 ++++++++++++++++++------------------------
+>  1 file changed, 172 insertions(+), 225 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+> index 381ad60..8f7840e 100644
+> --- a/drivers/input/rmi4/rmi_f01.c
+> +++ b/drivers/input/rmi4/rmi_f01.c
+[...] 
+> -static int rmi_f01_initialize(struct rmi_function *fn)
+> +static int rmi_f01_probe(struct rmi_function *fn)
+>  {
+> -       u8 temp;
+> -       int error;
+> -       u16 ctrl_base_addr;
+>         struct rmi_device *rmi_dev = fn->rmi_dev;
+>         struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
+> -       struct f01_data *data = fn->data;
+> -       struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
+> +       const struct rmi_device_platform_data *pdata =
+> +                               to_rmi_platform_data(rmi_dev);
+> +       struct f01_data *f01;
+> +       size_t f01_size;
+> +       int error;
+> +       u16 ctrl_base_addr;
+> +       u8 device_status;
+> +       u8 temp;
+> +
+> +       f01_size = sizeof(struct f01_data) +
+> +                               sizeof(u8) * driver_data->num_of_irq_regs;
+> +       f01 = devm_kzalloc(&fn->dev, f01_size, GFP_KERNEL);
+> +       if (!f01) {
+> +               dev_err(&fn->dev, "Failed to allocate fn01_data.\n");
+
+Nitpick: Can we drop this printout in the process?  It's much less
+useful than the error and backtrace coming from kmalloc on failure anyway.
+
+> +               return -ENOMEM;
+> +       }
+[...]
+
+> +       /* XXX: why we check has_lts here but has_adjustable_doze in probe? */
+
+Hrm.  This register is poorly documented in the spec.  All of these bits
+are reserved.  Chris, is there a newer version of the spec which
+documents these bits?
 
 -Courtney

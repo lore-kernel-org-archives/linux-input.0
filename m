@@ -1,18 +1,19 @@
 From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH 13/14] HID: remove hid_output_raw_report
-Date: Wed, 12 Feb 2014 11:50:29 +0100
-Message-ID: <CANq1E4Q_7_75wvDcXQcMJFR_5dqimjrUPrJ3VK6ddav7KAn8tw@mail.gmail.com>
+Subject: Re: [PATCH 14/14] HID: core: check parameters when sending/receiving
+ data from the device
+Date: Wed, 12 Feb 2014 11:51:22 +0100
+Message-ID: <CANq1E4T6GCtJ_E4YiEL0bmYjhAFMQ2qEA2-Z2p6M+eB-zwfh_Q@mail.gmail.com>
 References: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1392055139-19631-14-git-send-email-benjamin.tissoires@redhat.com>
+	<1392055139-19631-15-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ie0-f177.google.com ([209.85.223.177]:57908 "EHLO
-	mail-ie0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751811AbaBLKu3 (ORCPT
+Received: from mail-ig0-f172.google.com ([209.85.213.172]:58026 "EHLO
+	mail-ig0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751460AbaBLKvW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Feb 2014 05:50:29 -0500
-In-Reply-To: <1392055139-19631-14-git-send-email-benjamin.tissoires@redhat.com>
+	Wed, 12 Feb 2014 05:51:22 -0500
+In-Reply-To: <1392055139-19631-15-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -22,9 +23,7 @@ Hi
 
 On Mon, Feb 10, 2014 at 6:58 PM, Benjamin Tissoires
 <benjamin.tissoires@redhat.com> wrote:
-> hid_output_raw_report() is not used anymore, delete it.
-
-yippieh!
+> It is better to check them soon enough before triggering any kernel panic.
 
 Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 
@@ -33,156 +32,47 @@ David
 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
->  drivers/hid/i2c-hid/i2c-hid.c | 14 --------------
->  drivers/hid/uhid.c            |  1 -
->  drivers/hid/usbhid/hid-core.c | 12 ------------
->  include/linux/hid.h           | 19 -------------------
->  net/bluetooth/hidp/core.c     | 14 --------------
->  5 files changed, 60 deletions(-)
+>  drivers/hid/i2c-hid/i2c-hid.c | 2 +-
+>  include/linux/hid.h           | 6 ++++++
+>  2 files changed, 7 insertions(+), 1 deletion(-)
 >
 > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 925fb8d..d3b8d7a 100644
+> index d3b8d7a..b50860d 100644
 > --- a/drivers/hid/i2c-hid/i2c-hid.c
 > +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -596,19 +596,6 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
->         return ret;
->  }
+> @@ -277,7 +277,7 @@ static int i2c_hid_set_or_send_report(struct i2c_client *client, u8 reportType,
+>         u16 outputRegister = le16_to_cpu(ihid->hdesc.wOutputRegister);
+>         u16 maxOutputLength = le16_to_cpu(ihid->hdesc.wMaxOutputLength);
 >
-> -static int __i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
-> -               size_t count, unsigned char report_type)
-> -{
-> -       struct i2c_client *client = hid->driver_data;
-> -       struct i2c_hid *ihid = i2c_get_clientdata(client);
-> -       bool data = true; /* SET_REPORT */
-> -
-> -       if (report_type == HID_OUTPUT_REPORT)
-> -               data = le16_to_cpu(ihid->hdesc.wMaxOutputLength) == 0;
-> -
-> -       return i2c_hid_output_raw_report(hid, buf, count, report_type, data);
-> -}
-> -
->  static int i2c_hid_output_report(struct hid_device *hid, __u8 *buf,
->                 size_t count)
->  {
-> @@ -1023,7 +1010,6 @@ static int i2c_hid_probe(struct i2c_client *client,
->
->         hid->driver_data = client;
->         hid->ll_driver = &i2c_hid_ll_driver;
-> -       hid->hid_output_raw_report = __i2c_hid_output_raw_report;
->         hid->dev.parent = &client->dev;
->         ACPI_COMPANION_SET(&hid->dev, ACPI_COMPANION(&client->dev));
->         hid->bus = BUS_I2C;
-> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-> index 60acee4..7ed79be 100644
-> --- a/drivers/hid/uhid.c
-> +++ b/drivers/hid/uhid.c
-> @@ -400,7 +400,6 @@ static int uhid_dev_create(struct uhid_device *uhid,
->         hid->uniq[63] = 0;
->
->         hid->ll_driver = &uhid_hid_driver;
-> -       hid->hid_output_raw_report = uhid_hid_output_raw;
->         hid->bus = ev->u.create.bus;
->         hid->vendor = ev->u.create.vendor;
->         hid->product = ev->u.create.product;
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 0d1d875..02b3256 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -945,17 +945,6 @@ static int usbhid_output_report(struct hid_device *hid, __u8 *buf, size_t count)
->         return ret;
->  }
->
-> -static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf,
-> -               size_t count, unsigned char report_type)
-> -{
-> -       struct usbhid_device *usbhid = hid->driver_data;
-> -
-> -       if (usbhid->urbout && report_type != HID_FEATURE_REPORT)
-> -               return usbhid_output_report(hid, buf, count);
-> -
-> -       return usbhid_set_raw_report(hid, buf[0], buf, count, report_type);
-> -}
-> -
->  static void usbhid_restart_queues(struct usbhid_device *usbhid)
->  {
->         if (usbhid->urbout && !test_bit(HID_OUT_RUNNING, &usbhid->iofl))
-> @@ -1289,7 +1278,6 @@ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *
->
->         usb_set_intfdata(intf, hid);
->         hid->ll_driver = &usb_hid_driver;
-> -       hid->hid_output_raw_report = usbhid_output_raw_report;
->         hid->ff_init = hid_pidff_init;
->  #ifdef CONFIG_USB_HIDDEV
->         hid->hiddev_connect = hiddev_connect;
+> -       /* hidraw already checked that data_len < HID_MAX_BUFFER_SIZE */
+> +       /* hid_hw_* already checked that data_len < HID_MAX_BUFFER_SIZE */
+>         u16 size =      2                       /* size */ +
+>                         (reportID ? 1 : 0)      /* reportID */ +
+>                         data_len                /* buf */;
 > diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 09fbbd7..fa07639 100644
+> index fa07639..f801506 100644
 > --- a/include/linux/hid.h
 > +++ b/include/linux/hid.h
-> @@ -508,9 +508,6 @@ struct hid_device {                                                 /* device report descriptor */
->                                   struct hid_usage *, __s32);
->         void (*hiddev_report_event) (struct hid_device *, struct hid_report *);
+> @@ -986,6 +986,9 @@ static inline int hid_hw_raw_request(struct hid_device *hdev,
+>                                   unsigned char reportnum, __u8 *buf,
+>                                   size_t len, unsigned char rtype, int reqtype)
+>  {
+> +       if (len < 1 || len > HID_MAX_BUFFER_SIZE || !buf)
+> +               return -EINVAL;
+> +
+>         if (hdev->ll_driver->raw_request)
+>                 return hdev->ll_driver->raw_request(hdev, reportnum, buf, len,
+>                                                     rtype, reqtype);
+> @@ -1005,6 +1008,9 @@ static inline int hid_hw_raw_request(struct hid_device *hdev,
+>  static inline int hid_hw_output_report(struct hid_device *hdev, __u8 *buf,
+>                                         size_t len)
+>  {
+> +       if (len < 1 || len > HID_MAX_BUFFER_SIZE || !buf)
+> +               return -EINVAL;
+> +
+>         if (hdev->ll_driver->output_report)
+>                 return hdev->ll_driver->output_report(hdev, buf, len);
 >
-> -       /* handler for raw output data, used by hidraw */
-> -       int (*hid_output_raw_report) (struct hid_device *, __u8 *, size_t, unsigned char);
-> -
->         /* debugging support via debugfs */
->         unsigned short debug;
->         struct dentry *debug_dir;
-> @@ -1015,22 +1012,6 @@ static inline int hid_hw_output_report(struct hid_device *hdev, __u8 *buf,
->  }
->
->  /**
-> - * hid_output_raw_report - send an output or a feature report to the device
-> - *
-> - * @hdev: hid device
-> - * @buf: raw data to transfer
-> - * @len: length of buf
-> - * @report_type: HID_FEATURE_REPORT or HID_OUTPUT_REPORT
-> - *
-> - * @return: count of data transfered, negative if error
-> - */
-> -static inline int hid_output_raw_report(struct hid_device *hdev, __u8 *buf,
-> -                                       size_t len, unsigned char report_type)
-> -{
-> -       return hdev->hid_output_raw_report(hdev, buf, len, report_type);
-> -}
-> -
-> -/**
->   * hid_hw_idle - send idle request to device
->   *
->   * @hdev: hid device
-> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> index 77c4bad..89da18d 100644
-> --- a/net/bluetooth/hidp/core.c
-> +++ b/net/bluetooth/hidp/core.c
-> @@ -382,18 +382,6 @@ static int hidp_output_report(struct hid_device *hid, __u8 *data, size_t count)
->                                       data, count);
->  }
->
-> -static int hidp_output_raw_report(struct hid_device *hid, unsigned char *data,
-> -               size_t count, unsigned char report_type)
-> -{
-> -       if (report_type == HID_OUTPUT_REPORT) {
-> -               return hidp_output_report(hid, data, count);
-> -       } else if (report_type != HID_FEATURE_REPORT) {
-> -               return -EINVAL;
-> -       }
-> -
-> -       return hidp_set_raw_report(hid, data[0], data, count, report_type);
-> -}
-> -
->  static int hidp_raw_request(struct hid_device *hid, unsigned char reportnum,
->                             __u8 *buf, size_t len, unsigned char rtype,
->                             int reqtype)
-> @@ -773,8 +761,6 @@ static int hidp_setup_hid(struct hidp_session *session,
->         hid->dev.parent = &session->conn->hcon->dev;
->         hid->ll_driver = &hidp_hid_driver;
->
-> -       hid->hid_output_raw_report = hidp_output_raw_report;
-> -
->         /* True if device is blacklisted in drivers/hid/hid-core.c */
->         if (hid_ignore(hid)) {
->                 hid_destroy_device(session->hid);
 > --
 > 1.8.3.1
 >

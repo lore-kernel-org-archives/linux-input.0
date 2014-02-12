@@ -1,152 +1,92 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Courtney Cavin <courtney.cavin@sonymobile.com>
 Subject: Re: [PATCH] input synaptics-rmi4: rmi_f01.c storage fix
-Date: Wed, 12 Feb 2014 15:28:00 -0800
-Message-ID: <20140212232800.GB29769@core.coreip.homeip.net>
+Date: Wed, 12 Feb 2014 15:35:33 -0800
+Message-ID: <20140212233533.GF1706@sonymobile.com>
 References: <1392160380-8221-1-git-send-email-cheiny@synaptics.com>
  <20140212064049.GA15855@core.coreip.homeip.net>
  <20140212214819.GE1706@sonymobile.com>
+ <52FC0202.7020003@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f173.google.com ([209.85.192.173]:56776 "EHLO
-	mail-pd0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753086AbaBLX2G (ORCPT
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:7644 "EHLO
+	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750767AbaBLXdt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Feb 2014 18:28:06 -0500
-Received: by mail-pd0-f173.google.com with SMTP id y10so9651748pdj.4
-        for <linux-input@vger.kernel.org>; Wed, 12 Feb 2014 15:28:04 -0800 (PST)
+	Wed, 12 Feb 2014 18:33:49 -0500
 Content-Disposition: inline
-In-Reply-To: <20140212214819.GE1706@sonymobile.com>
+In-Reply-To: <52FC0202.7020003@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Courtney Cavin <courtney.cavin@sonymobile.com>
-Cc: Christopher Heiny <cheiny@synaptics.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Feb 12, 2014 at 01:48:19PM -0800, Courtney Cavin wrote:
-> On Wed, Feb 12, 2014 at 07:40:49AM +0100, Dmitry Torokhov wrote:
-> > Hi Chris,
-> > 
-> > On Tue, Feb 11, 2014 at 03:13:00PM -0800, Christopher Heiny wrote:
-> > > Correctly free driver related data when initialization fails.
-> > >
-> > > Trivial: Clarify a diagnostic message.
-> > >
-> > > Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > Cc: Linux Walleij <linus.walleij@linaro.org>
-> > > Cc: David Herrmann <dh.herrmann@gmail.com>
-> > > Cc: Jiri Kosina <jkosina@suse.cz>
-> > >
-> > > ---
-> > >
-> > >  drivers/input/rmi4/rmi_f01.c | 6 ++++--
-> > >  1 file changed, 4 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-> > > index 381ad60..e4a6df9 100644
-> > > --- a/drivers/input/rmi4/rmi_f01.c
-> > > +++ b/drivers/input/rmi4/rmi_f01.c
-> > > @@ -149,7 +149,7 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
-> > >
-> > >       f01 = devm_kzalloc(&fn->dev, sizeof(struct f01_data), GFP_KERNEL);
-> > >       if (!f01) {
-> > > -             dev_err(&fn->dev, "Failed to allocate fn_01_data.\n");
-> > > +             dev_err(&fn->dev, "Failed to allocate f01_data.\n");
-> > >               return -ENOMEM;
-> > >       }
-> > >
-> > > @@ -158,6 +158,7 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
-> > >                       GFP_KERNEL);
-> > >       if (!f01->device_control.interrupt_enable) {
-> > >               dev_err(&fn->dev, "Failed to allocate interrupt enable.\n");
-> > > +             devm_kfree(&fn->dev, f01);
-> > 
-> > As Courtney mentioned if you are calling devm_kfree() you are most
-> > likely doing something wrong.
-> > 
-> > How about the patch below? Please check the XXX comment, I have some
-> > concerns about lts vs doze_holdoff check mismatch in probe() and
-> > config().
-> > 
-> > Thanks.
-> > 
-> > --
-> > Dmitry
-> > 
-> > Input: synaptics-rmi4 - F01 initialization cleanup
-> > 
-> > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > 
-> > - rename data to f01 where appropriate;
-> > - switch to using rmi_read()/rmi_write() for single-byte data;
-> > - allocate interrupt mask together with the main structure;
-> > - do not kfree() memory allocated with devm;
-> > - do not write config data in probe(), we have config() for that;
-> > - drop unneeded rmi_f01_remove().
+On Thu, Feb 13, 2014 at 12:21:38AM +0100, Christopher Heiny wrote:
+> On 02/12/2014 01:48 PM, Courtney Cavin wrote:
+> > On Wed, Feb 12, 2014 at 07:40:49AM +0100, Dmitry Torokhov wrote:
+> >> Hi Chris,
+> >>
+> >> On Tue, Feb 11, 2014 at 03:13:00PM -0800, Christopher Heiny wrote:
+> > [...]
+> >> -static int rmi_f01_initialize(struct rmi_function *fn)
+> >> +static int rmi_f01_probe(struct rmi_function *fn)
+> >>   {
+> >> -       u8 temp;
+> >> -       int error;
+> >> -       u16 ctrl_base_addr;
+> >>          struct rmi_device *rmi_dev = fn->rmi_dev;
+> >>          struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
+> >> -       struct f01_data *data = fn->data;
+> >> -       struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
+> >> +       const struct rmi_device_platform_data *pdata =
+> >> +                               to_rmi_platform_data(rmi_dev);
+> >> +       struct f01_data *f01;
+> >> +       size_t f01_size;
+> >> +       int error;
+> >> +       u16 ctrl_base_addr;
+> >> +       u8 device_status;
+> >> +       u8 temp;
+> >> +
+> >> +       f01_size = sizeof(struct f01_data) +
+> >> +                               sizeof(u8) * driver_data->num_of_irq_regs;
+> >> +       f01 = devm_kzalloc(&fn->dev, f01_size, GFP_KERNEL);
+> >> +       if (!f01) {
+> >> +               dev_err(&fn->dev, "Failed to allocate fn01_data.\n");
+> >
+> > Nitpick: Can we drop this printout in the process?  It's much less
+> > useful than the error and backtrace coming from kmalloc on failure anyway.
 > 
-> These seem like unrelated changes and make this patch hard to read, I
-> would prefer if we could separate these out.  Perhaps like so?
-> 	[1] bug-fix
-> 		- do not kfree() memory allocated with devm
-> 	[2] simplify probe/remove logic
-> 		- allocate interrupt mask together with the main structure
-> 		- do not write config data in probe(), we have config() for that
-> 		- drop unneeded rmi_f01_remove()
-> 	[3] non-behavioral changes/cleanup
-> 		- switch to using rmi_read()/rmi_write() for single-byte data
-> 		- rename data to f01 where appropriate
+> We print messages like that in a lot of places.  Based on your prior 
+> comments, I figured to do a blanket up date that removes all of those at 
+> once across the driver.  Would that be an OK solution?
+
+It's not really necessary to do a bulk cleanup of this, as it's not a
+huge thing.  I just thought that since we were changing the text anyway, we
+might as well get rid of the unnecessary stuff.  Dmitry's new email in this
+thread settles the issue though, he prefers it, so it stays.
+
+> >> +               return -ENOMEM;
+> >> +       }
+> > [...]
+> >
+> >> +       /* XXX: why we check has_lts here but has_adjustable_doze in probe? */
+> >
+> > Hrm.  This register is poorly documented in the spec.  All of these bits
+> > are reserved.  Chris, is there a newer version of the spec which
+> > documents these bits?
 > 
-> Disregarding that, and the nitpick below, it looks good to me.
-
-OK, I can do that...
-
+> Unfortunately, no.  I've filed a bug on that.  In the meantime, I've 
+> found the following:
 > 
-> > 
-> > Reported-by: Courtney Cavin <courtney.cavin@sonymobile.com>
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/input/rmi4/rmi_f01.c |  397 ++++++++++++++++++------------------------
-> >  1 file changed, 172 insertions(+), 225 deletions(-)
-> > 
-> > diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-> > index 381ad60..8f7840e 100644
-> > --- a/drivers/input/rmi4/rmi_f01.c
-> > +++ b/drivers/input/rmi4/rmi_f01.c
-> [...] 
-> > -static int rmi_f01_initialize(struct rmi_function *fn)
-> > +static int rmi_f01_probe(struct rmi_function *fn)
-> >  {
-> > -       u8 temp;
-> > -       int error;
-> > -       u16 ctrl_base_addr;
-> >         struct rmi_device *rmi_dev = fn->rmi_dev;
-> >         struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
-> > -       struct f01_data *data = fn->data;
-> > -       struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
-> > +       const struct rmi_device_platform_data *pdata =
-> > +                               to_rmi_platform_data(rmi_dev);
-> > +       struct f01_data *f01;
-> > +       size_t f01_size;
-> > +       int error;
-> > +       u16 ctrl_base_addr;
-> > +       u8 device_status;
-> > +       u8 temp;
-> > +
-> > +       f01_size = sizeof(struct f01_data) +
-> > +                               sizeof(u8) * driver_data->num_of_irq_regs;
-> > +       f01 = devm_kzalloc(&fn->dev, f01_size, GFP_KERNEL);
-> > +       if (!f01) {
-> > +               dev_err(&fn->dev, "Failed to allocate fn01_data.\n");
+> * It looks like there's a control register F01_RMI_Ctrl4 which is 
+> present if the has_lts bit is set, but is not used in any shipped LTS 
+> products.
 > 
-> Nitpick: Can we drop this printout in the process?  It's much less
-> useful than the error and backtrace coming from kmalloc on failure anyway.
+> * Both F01_RMI_Ctrl2 and F01_RMI_Ctrl3 (doze_interval and 
+> wakeup_threshold) are controlled by the has_adjustable_doze bit.
+> 
+> The patch I sent a bit ago includes fixes based on this info.
 
-Actually I like messages: who knows when we decided to change kmalloc
-behavior and it also helps when there are several allocations in the
-same function to know which one failed.
+Ah, OK.  Thanks for the info!
 
-Thanks.
-
--- 
-Dmitry
+-Courtney

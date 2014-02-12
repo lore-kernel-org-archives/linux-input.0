@@ -1,97 +1,117 @@
-From: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Subject: [PATCH V2] ONKEY: da9052: Use correct register bit for key status
-Date: Wed, 12 Feb 2014 14:11:34 +0000
-Message-ID: <201402121518.s1CFIkDP009092@swsrvapps-02.lan>
+From: Courtney Cavin <courtney.cavin@sonymobile.com>
+Subject: Re: [PATCH] input synaptics-rmi4: Use put_device() and
+ device_type.release() to free storage.
+Date: Wed, 12 Feb 2014 09:09:11 -0800
+Message-ID: <20140212170910.GC1706@sonymobile.com>
+References: <1392160410-8293-1-git-send-email-cheiny@synaptics.com>
+ <20140212015929.GZ1706@sonymobile.com>
+ <52FAD9D5.5070900@synaptics.com>
+ <20140212024940.GA1706@sonymobile.com>
+ <52FAE7E7.4090905@synaptics.com>
+ <20140212045452.GB1706@sonymobile.com>
+ <20140212064342.GB15855@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.bemta5.messagelabs.com ([195.245.231.139]:11184 "EHLO
-	mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751572AbaBLPSw (ORCPT
+Received: from seldrel01.sonyericsson.com ([212.209.106.2]:1405 "EHLO
+	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751703AbaBLRH1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Feb 2014 10:18:52 -0500
+	Wed, 12 Feb 2014 12:07:27 -0500
+Content-Disposition: inline
+In-Reply-To: <20140212064342.GB15855@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Dajun Chen <david.chen@diasemi.com>
+Cc: Christopher Heiny <cheiny@synaptics.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-The wrong register bit of the DA9052/3 PMIC registers was
-used to determine the status on the ONKEY.
+On Wed, Feb 12, 2014 at 07:43:42AM +0100, Dmitry Torokhov wrote:
+> On Tue, Feb 11, 2014 at 08:54:53PM -0800, Courtney Cavin wrote:
+> > On Wed, Feb 12, 2014 at 04:17:59AM +0100, Christopher Heiny wrote:
+> > > On 02/11/2014 06:49 PM, Courtney Cavin wrote:
+> > > > On Wed, Feb 12, 2014 at 03:17:57AM +0100, Christopher Heiny wrote:
+> > > >> On 02/11/2014 05:59 PM, Courtney Cavin wrote:
+> > > >>> On Wed, Feb 12, 2014 at 12:13:30AM +0100, Christopher Heiny wrote:
+> > > >>>> For rmi_sensor and rmi_function device_types, use put_device() and
+> > > >>>> the assocated device_type.release() function to clean up related
+> > > >>>> structures and storage in the correct and safe order.
+> > > >>>>
+> > > >>>> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> > > >>>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > >>>> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > >>>> Cc: Linux Walleij <linus.walleij@linaro.org>
+> > > >>>> Cc: David Herrmann <dh.herrmann@gmail.com>
+> > > >>>> Cc: Jiri Kosina <jkosina@suse.cz>
+> > > >>>> Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
+> > > >>>
+> > > >>> I'm not a huge fan of you taking my patches, re-formatting them and
+> > > >>> sending them as your own.  More out of principle then actually caring
+> > > >>> about ownership.  You at least cc'd me on this one....
+> > > >>
+> > > >> Sorry - no slight was intended at all!  I wasn't sure what the protocol
+> > > >> was for picking up an idea from someone else's patch and building on
+> > > >> that idea, so I just went with the CC.  I definitely prefer to attribute
+> > > >> sources correctly - if you could clarify what should be done (beyond the
+> > > >> CC) to acknowledge the author of the original patch, I'd appreciate it.
+> > > >
+> > > > Sure.  In short, follow Documentation/SubmittingPatches , esp. section
+> > > > 12) Sign your work.
+> > > >
+> > > > Generally the patch should read something like the following:
+> > > >
+> > > >   From: Original Author <original.author@example.org>
+> > > >
+> > > >   *BLURB*
+> > > >
+> > > >   Signed-off-by: Original Author <original.author@example.org>
+> > > >   [additional.author@example.org: changed x and y]
+> > > >   Signed-off-by: Additional Author <additional.author@example.org>
+> > > >
+> > > > Assuming the original author actually signed-off the patch in the first
+> > > > place, of course.  The square bracket part is optional, but can be
+> > > > helpful for reviewers.
+> > > >
+> > > > I'm somewhat surprised that you are not aware of this procedure, as this
+> > > > is how Dmitry has replied to some of your patches in the past.'
+> > > 
+> > > Thanks very much.
+> > > 
+> > > I was actually aware of that, but thought the work was sufficiently 
+> > > different from your original patch that applying your Signed-off-by: to 
+> > > it wouldn't be appropriate (I dislike being signed off on things I don't 
+> > > necessarily agree with as much as lack of attribution).  I'll be less 
+> > > paranoid about that in the future.
+> > 
+> > I don't see how they were different enough, when clearly these two
+> > patches attempt to fix the same bugs, using the same methods with
+> > slightly modified flow.  Perhaps the patches may be small enough
+> > to be interpreted either way, but at the very least reported-by (since
+> > this is a bug-fix) or suggested-by is more appropriate than Cc.  This is
+> > a public list, so I'm sure someone will tell you when you are wrong, if
+> > nothing else.
+> > 
+> > Along the same topic, I guess I should also mention that it is typically
+> > frowned upon to takeover someone else's patches without giving them
+> > due-time to fix any outstanding review comments.
+> > 
+> > In both of these cases, you neither asked for me to submit the patches
+> > separately, outside of my DT-series, nor to make any specific changes.
+> > I was under the impression that you were still participating in the
+> > discussion for that series.
+> > 
+> > While it is apparent that we have differing views on how this particular
+> > driver development should proceed, and we should definitely discuss
+> > them, please do not think that I'm not willing to apply my patches
+> > individually to what's in tree now.
+> > 
+> > My main concern here is that I cannot actually properly test this driver
+> > without DT, non-gpio irq, and regulator support.  Likewise, pre-3.7 is
+> > ancient, and would require back-porting hundreds of changes.
+> 
+> I can rebase to something more recent; I just did not want to cause
+> additional work for Chris. Once he finishes pushing his code I was going
+> to rebase anyway.
 
-Also a failure in reading the status register will no longer
-result in the work queue being rescheduled as that would result
-in a (potentially) endless retry.
+That would be great! Thanks.
 
-Signed-off-by: Anthony Olech <anthony.olech.opensource@diasemi.com>
-Acked-by: David Dajun Chen <david.chen@diasemi.com>
----
-
-This patch is relative to linux-next repository tag next-20140212
-
-The bug that this patch fixes affects only the DA9052 ONKEY driver.
-
-The problem was detected whilst running a scripted set of functional
-regression tests whilst investigating a different problem.
-
-This patch has been test compiled on an amd64 server for both x86
-and arm targets.
-
-This patch has been spot verified using an SMDK6410 platform
-fly-wired to a Dialog da9053 EVB.
-
- drivers/input/misc/da9052_onkey.c |   29 ++++++++++++++++-------------
- 1 file changed, 16 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/input/misc/da9052_onkey.c b/drivers/input/misc/da9052_onkey.c
-index 1f695f2..184c8f2 100644
---- a/drivers/input/misc/da9052_onkey.c
-+++ b/drivers/input/misc/da9052_onkey.c
-@@ -27,29 +27,32 @@ struct da9052_onkey {
- 
- static void da9052_onkey_query(struct da9052_onkey *onkey)
- {
--	int key_stat;
-+	int ret;
- 
--	key_stat = da9052_reg_read(onkey->da9052, DA9052_EVENT_B_REG);
--	if (key_stat < 0) {
-+	ret = da9052_reg_read(onkey->da9052, DA9052_STATUS_A_REG);
-+	if (ret < 0) {
- 		dev_err(onkey->da9052->dev,
--			"Failed to read onkey event %d\n", key_stat);
-+			"Failed to read onkey event err=%d\n", ret);
- 	} else {
- 		/*
- 		 * Since interrupt for deassertion of ONKEY pin is not
- 		 * generated, onkey event state determines the onkey
- 		 * button state.
- 		 */
--		key_stat &= DA9052_EVENTB_ENONKEY;
--		input_report_key(onkey->input, KEY_POWER, key_stat);
-+		bool pressed = !(ret & DA9052_STATUSA_NONKEY);
-+
-+		input_report_key(onkey->input, KEY_POWER, pressed);
- 		input_sync(onkey->input);
--	}
- 
--	/*
--	 * Interrupt is generated only when the ONKEY pin is asserted.
--	 * Hence the deassertion of the pin is simulated through work queue.
--	 */
--	if (key_stat)
--		schedule_delayed_work(&onkey->work, msecs_to_jiffies(50));
-+		/*
-+		 * Interrupt is generated only when the ONKEY pin
-+		 * is asserted.  Hence the deassertion of the pin
-+		 * is simulated through work queue.
-+		 */
-+		if (pressed)
-+			schedule_delayed_work(&onkey->work,
-+						msecs_to_jiffies(50));
-+	}
- }
- 
- static void da9052_onkey_work(struct work_struct *work)
--- 
-end-of-patch for ONKEY: da9052: Use correct register bit for key status V2
-
+-Courtney

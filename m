@@ -1,69 +1,107 @@
-From: Courtney Cavin <courtney.cavin@sonymobile.com>
-Subject: Re: [PATCH] input synaptics-rmi4: Use put_device() and
- device_type.release() to free storage.
-Date: Tue, 11 Feb 2014 18:49:41 -0800
-Message-ID: <20140212024940.GA1706@sonymobile.com>
-References: <1392160410-8293-1-git-send-email-cheiny@synaptics.com>
- <20140212015929.GZ1706@sonymobile.com>
- <52FAD9D5.5070900@synaptics.com>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: Re: [PATCH] input synaptics-rmi4: rmi_f01.c storage fix
+Date: Tue, 11 Feb 2014 19:03:16 -0800
+Message-ID: <52FAE474.3050704@synaptics.com>
+References: <1392160380-8221-1-git-send-email-cheiny@synaptics.com> <20140212012606.GY1706@sonymobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldrel01.sonyericsson.com ([212.209.106.2]:2360 "EHLO
-	seldrel01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752108AbaBLCr6 (ORCPT
+Received: from us-mx2.synaptics.com ([192.147.44.131]:27658 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751933AbaBLDDR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Feb 2014 21:47:58 -0500
-Content-Disposition: inline
-In-Reply-To: <52FAD9D5.5070900@synaptics.com>
+	Tue, 11 Feb 2014 22:03:17 -0500
+In-Reply-To: <20140212012606.GY1706@sonymobile.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
+To: Courtney Cavin <courtney.cavin@sonymobile.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Feb 12, 2014 at 03:17:57AM +0100, Christopher Heiny wrote:
-> On 02/11/2014 05:59 PM, Courtney Cavin wrote:
-> > On Wed, Feb 12, 2014 at 12:13:30AM +0100, Christopher Heiny wrote:
-> >> For rmi_sensor and rmi_function device_types, use put_device() and
-> >> the assocated device_type.release() function to clean up related
-> >> structures and storage in the correct and safe order.
-> >>
-> >> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-> >> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >> Cc: Linux Walleij <linus.walleij@linaro.org>
-> >> Cc: David Herrmann <dh.herrmann@gmail.com>
-> >> Cc: Jiri Kosina <jkosina@suse.cz>
-> >> Cc: Courtney Cavin <courtney.cavin@sonymobile.com>
-> >
-> > I'm not a huge fan of you taking my patches, re-formatting them and
-> > sending them as your own.  More out of principle then actually caring
-> > about ownership.  You at least cc'd me on this one....
-> 
-> Sorry - no slight was intended at all!  I wasn't sure what the protocol 
-> was for picking up an idea from someone else's patch and building on 
-> that idea, so I just went with the CC.  I definitely prefer to attribute 
-> sources correctly - if you could clarify what should be done (beyond the 
-> CC) to acknowledge the author of the original patch, I'd appreciate it.
+On 02/11/2014 05:26 PM, Courtney Cavin wrote:
+> On Wed, Feb 12, 2014 at 12:13:00AM +0100, Christopher Heiny wrote:
+>> Correctly free driver related data when initialization fails.
+>>
+>> Trivial: Clarify a diagnostic message.
+>>
+>> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> Cc: Linux Walleij <linus.walleij@linaro.org>
+>> Cc: David Herrmann <dh.herrmann@gmail.com>
+>> Cc: Jiri Kosina <jkosina@suse.cz>
+>>
+>> ---
+>>
+>>   drivers/input/rmi4/rmi_f01.c | 6 ++++--
+>>   1 file changed, 4 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+>> index 381ad60..e4a6df9 100644
+>> --- a/drivers/input/rmi4/rmi_f01.c
+>> +++ b/drivers/input/rmi4/rmi_f01.c
+>> @@ -149,7 +149,7 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
+>>
+>>   	f01 = devm_kzalloc(&fn->dev, sizeof(struct f01_data), GFP_KERNEL);
+>>   	if (!f01) {
+>> -		dev_err(&fn->dev, "Failed to allocate fn_01_data.\n");
+>> +		dev_err(&fn->dev, "Failed to allocate f01_data.\n");
+>
+> Just remove this printout, as it won't help any user in the case of OOM.
+> Additionally, there's already plenty of (more useful) information
+> printed out if kmalloc fails.
 
-Sure.  In short, follow Documentation/SubmittingPatches , esp. section
-12) Sign your work.
+Good point.  There's similar messages in a number of places, so we'll do 
+a single patch to clean them all up at once.
 
-Generally the patch should read something like the following:
+>
+>>   		return -ENOMEM;
+>>   	}
+>>
+>> @@ -158,6 +158,7 @@ static int rmi_f01_alloc_memory(struct rmi_function *fn,
+>>   			GFP_KERNEL);
+>>   	if (!f01->device_control.interrupt_enable) {
+>>   		dev_err(&fn->dev, "Failed to allocate interrupt enable.\n");
+>> +		devm_kfree(&fn->dev, f01);
+>
+> Unnecessary, devres_release_all() will release this, from:
+> 	- really_probe() -> rmi_function_probe() -> rmi_f01_probe()
+> 	- driver_probe_device()
+> 	- __driver_attach()
+> 	- driver_attach()
+> 	- bus_add_driver()
+> 	- driver_register()
+> 	- __rmi_register_function_handler()
 
- From: Original Author <original.author@example.org>
+As mentioned before, we've received a lot of conflicting advice on 
+devm_k*.  Thanks very much for the clarification - it makes more sense now.
 
- *BLURB*
+>>   		return -ENOMEM;
+>>   	}
+>>   	fn->data = f01;
+>> @@ -381,7 +382,8 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+>>   	return 0;
+>>
+>>    error_exit:
+>> -	kfree(data);
+>> +	devm_kfree(&fn->dev, data->device_control.interrupt_enable);
+>> +	devm_kfree(&fn->dev, data);
+>
+> Same as above for these two.
+>
+>>   	return error;
+>>   }
+>>
+>
+> Generally devm_ release functions are unnecessary to call, as all
+> resources will get released on driver detach, whether abnormal or not.
+>
+> -Courtney
+>
 
- Signed-off-by: Original Author <original.author@example.org>
- [additional.author@example.org: changed x and y]
- Signed-off-by: Additional Author <additional.author@example.org>
 
-Assuming the original author actually signed-off the patch in the first
-place, of course.  The square bracket part is optional, but can be
-helpful for reviewers.
+-- 
 
-I'm somewhat surprised that you are not aware of this procedure, as this
-is how Dmitry has replied to some of your patches in the past.
-
--Courtney
+Christopher Heiny
+Senior Staff Firmware Engineer
+Synaptics Incorporated

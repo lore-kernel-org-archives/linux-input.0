@@ -1,64 +1,56 @@
 From: Barry Song <21cnbao@gmail.com>
-Subject: [PATCH 4/4] input: sirfsoc-onkey - update copyright years to 2014
-Date: Thu, 13 Feb 2014 14:40:24 +0800
-Message-ID: <1392273624-22920-5-git-send-email-21cnbao@gmail.com>
-References: <1392273624-22920-1-git-send-email-21cnbao@gmail.com>
+Subject: Re: [PATCH] input: sirfsoc-onkey - report onkey untouch event by
+ detecting pin status
+Date: Thu, 13 Feb 2014 14:48:09 +0800
+Message-ID: <CAGsJ_4wzZFbw=+=sfMSGd0x2hitUYHoiuy_UZN9oTv7QfrZ=yw@mail.gmail.com>
+References: <1392026859-4977-1-git-send-email-21cnbao@gmail.com>
+ <20140212231131.GA29769@core.coreip.homeip.net> <CAGsJ_4wzQYmNkd421vzau5BiTyewRX=vzEiy=BiSnttb+rEC8Q@mail.gmail.com>
+ <892ec8be-638e-48d6-9e7d-5175694a7eaf@email.android.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f50.google.com ([209.85.220.50]:60727 "EHLO
-	mail-pa0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751675AbaBMGlK (ORCPT
+Received: from mail-pa0-f43.google.com ([209.85.220.43]:60842 "EHLO
+	mail-pa0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751246AbaBMGsa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Feb 2014 01:41:10 -0500
-Received: by mail-pa0-f50.google.com with SMTP id kp14so10336618pab.37
-        for <linux-input@vger.kernel.org>; Wed, 12 Feb 2014 22:41:09 -0800 (PST)
-In-Reply-To: <1392273624-22920-1-git-send-email-21cnbao@gmail.com>
+	Thu, 13 Feb 2014 01:48:30 -0500
+Received: by mail-pa0-f43.google.com with SMTP id rd3so10329762pab.30
+        for <linux-input@vger.kernel.org>; Wed, 12 Feb 2014 22:48:29 -0800 (PST)
+In-Reply-To: <892ec8be-638e-48d6-9e7d-5175694a7eaf@email.android.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: workgroup.linux@csr.com, Barry Song <Baohua.Song@csr.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, Xianglong Du <Xianglong.Du@csr.com>, Rongjun Ying <Rongjun.Ying@csr.com>, Barry Song <Baohua.Song@csr.com>
 
-From: Barry Song <Baohua.Song@csr.com>
+2014-02-13 11:41 GMT+08:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On February 12, 2014 6:32:03 PM PST, Barry Song <21cnbao@gmail.com> wrote:
+>>2014-02-13 7:11 GMT+08:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>>> Hi Barry,
+>>>
+>>> On Mon, Feb 10, 2014 at 06:07:39PM +0800, Barry Song wrote:
+>>>>
+>>>>  static int sirfsoc_pwrc_remove(struct platform_device *pdev)
+>>>>  {
+>>>> +     struct sirfsoc_pwrc_drvdata *pwrcdrv =
+>>dev_get_drvdata(&pdev->dev);
+>>>> +
+>>>>       device_init_wakeup(&pdev->dev, 0);
+>>>>
+>>>> +     cancel_delayed_work_sync(&pwrcdrv->work);
+>>>> +
+>>>
+>>> This is racy: interrupt is freed later and can schedule work again.
+>>
+>>thanks, Dmitry. i will do a manual devm_free_irq() before cancelling
+>>the work and before devres removes the resources.
+>
+> Another option would be to use devm custom action to ensure that work is canceled after freeing IRQ.
 
-Happy the year of horse, 2014.
+yes. you did a great job to have a devm_add_action() API.
 
-                             ,((((^`\
-                            ((((  (6 \
-                          ,((((( ,    \
-      ,,,_              ,(((((  /"._  ,`,
-     ((((\\ ,...       ,((((   /    `-.-'
-     )))  ;'    `"'"'""((((   (
-    (((  /            (((      \
-     )) |                      |
-    ((  |        .       '     |
-    ))  \     _ '      `t   ,.')
-    (   |   y;- -,-""'"-.\   \/
-    )   / ./  ) /         `\  \
-       |./   ( (           / /'
-       ||     \\          //'|
-       ||      \\       _//'||
-       ||       ))     |_/  ||
-       \_\     |_/          ||
-       `'"                  \_\
-                            `'"
-Signed-off-by: Barry Song <Baohua.Song@csr.com>
----
- drivers/input/misc/sirfsoc-onkey.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+>
+>
+> --
+> Dmitry
 
-diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
-index 8e45bf11..1a11207 100644
---- a/drivers/input/misc/sirfsoc-onkey.c
-+++ b/drivers/input/misc/sirfsoc-onkey.c
-@@ -1,7 +1,8 @@
- /*
-  * Power key driver for SiRF PrimaII
-  *
-- * Copyright (c) 2013 Cambridge Silicon Radio Limited, a CSR plc group company.
-+ * Copyright (c) 2013 - 2014 Cambridge Silicon Radio Limited, a CSR plc group
-+ * company.
-  *
-  * Licensed under GPLv2 or later.
-  */
--- 
-1.7.5.4
-
+-barry

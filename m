@@ -1,166 +1,111 @@
 From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 03/14] HID: core: implement generic .request()
-Date: Thu, 13 Feb 2014 10:21:39 -0500
-Message-ID: <CAN+gG=EcXQLivrUPXCk8imrY0T2n3Twc9yujxPGmi=LeoOrsCg@mail.gmail.com>
+Subject: Re: [PATCH 07/14] HID: input: hid-input remove hid_output_raw_report call
+Date: Thu, 13 Feb 2014 10:38:59 -0500
+Message-ID: <CAN+gG=GFOMJ_ud3p=pzyBcpnuWJn8rhtJLXHR5kfadfWL0v+Og@mail.gmail.com>
 References: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1392055139-19631-4-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4TjLJUts20nVYE3WT5FXu_eswKrM0CLwQAu25df3GEDig@mail.gmail.com>
+	<1392055139-19631-8-git-send-email-benjamin.tissoires@redhat.com>
+	<CANq1E4QvC936A_r6GPgO_gikpXGrD6UwBdBEcwUBwtjxW9iw6Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lb0-f171.google.com ([209.85.217.171]:56499 "EHLO
-	mail-lb0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751071AbaBMPVl (ORCPT
+Received: from mail-la0-f52.google.com ([209.85.215.52]:51277 "EHLO
+	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751185AbaBMPjD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Feb 2014 10:21:41 -0500
-In-Reply-To: <CANq1E4TjLJUts20nVYE3WT5FXu_eswKrM0CLwQAu25df3GEDig@mail.gmail.com>
+	Thu, 13 Feb 2014 10:39:03 -0500
+In-Reply-To: <CANq1E4QvC936A_r6GPgO_gikpXGrD6UwBdBEcwUBwtjxW9iw6Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@gmail.com>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Wed, Feb 12, 2014 at 5:25 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+On Wed, Feb 12, 2014 at 5:35 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
 > Hi
 >
 > On Mon, Feb 10, 2014 at 6:58 PM, Benjamin Tissoires
 > <benjamin.tissoires@redhat.com> wrote:
->> .request() can be emulated through .raw_request()
->> we can implement this emulation in hid-core, and make .request
->> not mandatory for transport layer drivers.
+>> hid_output_raw_report() is not a ll_driver callback and should not be used.
+>> To keep the same code path than before, we are forced to play with the
+>> different hid_hw_* calls: if the usb or i2c device does not support
+>> direct output reports, then we will rely on the SET_REPORT HID call.
 >>
 >> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 >> ---
->>  drivers/hid/hid-core.c | 45 ++++++++++++++++++++++++++++++++++++++++++++-
->>  include/linux/hid.h    |  5 ++++-
->>  2 files changed, 48 insertions(+), 2 deletions(-)
+>>  drivers/hid/hid-input.c | 10 +++++++---
+>>  1 file changed, 7 insertions(+), 3 deletions(-)
 >>
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index 18fe49b..f36778a 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -1248,6 +1248,11 @@ void hid_output_report(struct hid_report *report, __u8 *data)
+>> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+>> index eb00a5b..6b7bdca 100644
+>> --- a/drivers/hid/hid-input.c
+>> +++ b/drivers/hid/hid-input.c
+>> @@ -1153,7 +1153,7 @@ static void hidinput_led_worker(struct work_struct *work)
+>>                                               led_work);
+>>         struct hid_field *field;
+>>         struct hid_report *report;
+>> -       int len;
+>> +       int len, ret;
+>>         __u8 *buf;
+>>
+>>         field = hidinput_get_led_field(hid);
+>> @@ -1187,7 +1187,10 @@ static void hidinput_led_worker(struct work_struct *work)
+>>
+>>         hid_output_report(report, buf);
+>>         /* synchronous output report */
+>> -       hid_output_raw_report(hid, buf, len, HID_OUTPUT_REPORT);
+>> +       ret = hid_hw_output_report(hid, buf, len);
+>> +       if (ret == -ENOSYS)
+>> +               hid_hw_raw_request(hid, buf[0], buf, len, HID_OUTPUT_REPORT,
+>> +                               HID_REQ_SET_REPORT);
+>
+> Does HID core always set the report-id in buf[0]? Even if none are
+> used? I know the incoming data may lack the report-id, but I always
+> thought we do the same for outgoing if it's implicit?
+
+oh, yes, you are right. The HID spec says: "The meaning of the request
+fields for the Set_Report request is the same as for the Get_Report
+request, however the data direction is reversed and the Report Data is
+sent from host to device. "
+
+So this is wrong... We should use (report->id) instead of buf[0].
+
+Will fix in v2.
+
+>
+> I also already see devices with broken OUTPUT_REPORTs.. I guess at
+> some point we have to introduce a quirk-flag to choose between both
+> calls. But lets wait for that to happen, maybe we're lucky.
+>
+>>         kfree(buf);
 >>  }
->>  EXPORT_SYMBOL_GPL(hid_output_report);
 >>
->> +static int hid_report_len(struct hid_report *report)
->> +{
->> +       return ((report->size - 1) >> 3) + 1 + (report->id > 0) + 7;
->
-> Just for clarity, this is equivalent to the following, right?
->
-> return DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) + 7;
-
-yes, it should (at least that's what I understand too :)
-
->
-> I always have to read that shifting code twice to get it.. Maybe add a
-> comment explaining the different entries here.
-
-good idea.
-
->
->> +}
->> +
->>  /*
->>   * Allocator for buffer that is going to be passed to hid_output_report()
->>   */
->> @@ -1258,7 +1263,7 @@ u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags)
->>          * of implement() working on 8 byte chunks
->>          */
+>> @@ -1266,7 +1269,8 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
+>>         }
 >>
->> -       int len = ((report->size - 1) >> 3) + 1 + (report->id > 0) + 7;
->> +       int len = hid_report_len(report);
->>
->>         return kmalloc(len, flags);
->>  }
->> @@ -1314,6 +1319,44 @@ static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
->>         return report;
->>  }
->>
->> +/*
->> + * Implement a generic .request() callback, using .raw_request()
->> + * DO NOT USE in hid drivers directly, but through hid_hw_request instead.
->> + */
->> +void __hid_request(struct hid_device *hid, struct hid_report *report,
->> +               int reqtype)
->> +{
->> +       char *buf;
->> +       int ret;
->> +       int len;
->> +
->> +       if (!hid->ll_driver->raw_request)
->> +               return;
->> +
->> +       buf = hid_alloc_report_buf(report, GFP_KERNEL);
->> +       if (!buf)
->> +               return;
->> +
->> +       len = hid_report_len(report);
+>>         input_set_drvdata(input_dev, hid);
+>> -       if (hid->ll_driver->request || hid->hid_output_raw_report)
+>> +       if (hid->ll_driver->request || hid->ll_driver->output_report ||
+>> +           hid->ll_driver->raw_request)
+>
+> Isn't raw_request mandatory? So we could remove that whole if() thing here.
 
-actually, after sending the patches, I was wondering if we should use
-the +7 in hid_report_len.
-"len" is used in .raw_request(), and the +7 was only for the implement(), right?
+Currently, it's not (see hid_hw_raw_request). However, all the
+upstream hid transport drivers implement it.
 
-So maybe a device can reject this because the size of the report is too big...
+We can make it mandatory, but we should check it while adding the
+device in hid_add_device.
 
-Jiri, David, any ideas?
+will do for v2 too.
 
 Cheers,
 Benjamin
 
->> +
->> +       if (reqtype == HID_REQ_SET_REPORT)
->> +               hid_output_report(report, buf);
->> +
->> +       ret = hid->ll_driver->raw_request(hid, report->id, buf, len,
->> +                                         report->type, reqtype);
->> +       if (ret < 0) {
->> +               dbg_hid("unable to complete request: %d\n", ret);
->> +               goto out;
->> +       }
->> +
->> +       if (reqtype == HID_REQ_GET_REPORT)
->> +               hid_input_report(hid, report->type, buf, ret, 0);
->> +
->> +out:
->> +       kfree(buf);
->> +}
->> +EXPORT_SYMBOL_GPL(__hid_request);
->> +
->
-> Looks good to me.
->
-> Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
 >
 > Thanks
 > David
 >
->>  int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
->>                 int interrupt)
->>  {
->> diff --git a/include/linux/hid.h b/include/linux/hid.h
->> index a837ede..09fbbd7 100644
->> --- a/include/linux/hid.h
->> +++ b/include/linux/hid.h
->> @@ -753,6 +753,7 @@ struct hid_field *hidinput_get_led_field(struct hid_device *hid);
->>  unsigned int hidinput_count_leds(struct hid_device *hid);
->>  __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
->>  void hid_output_report(struct hid_report *report, __u8 *data);
->> +void __hid_request(struct hid_device *hid, struct hid_report *rep, int reqtype);
->>  u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags);
->>  struct hid_device *hid_allocate_device(void);
->>  struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
->> @@ -965,7 +966,9 @@ static inline void hid_hw_request(struct hid_device *hdev,
->>                                   struct hid_report *report, int reqtype)
->>  {
->>         if (hdev->ll_driver->request)
->> -               hdev->ll_driver->request(hdev, report, reqtype);
->> +               return hdev->ll_driver->request(hdev, report, reqtype);
->> +
->> +       __hid_request(hdev, report, reqtype);
->>  }
->>
->>  /**
+>>                 input_dev->event = hidinput_input_event;
+>>         input_dev->open = hidinput_open;
+>>         input_dev->close = hidinput_close;
 >> --
 >> 1.8.3.1
 >>

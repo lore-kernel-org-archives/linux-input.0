@@ -1,33 +1,99 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 2/2] gpio: adp5588 - add support for gpio names
-Date: Thu, 13 Feb 2014 13:53:27 +0100
-Message-ID: <CACRpkdZaL-2GtD8U1FNKfhKXPZbxH8vpz4atVbDC7JDkNARifg@mail.gmail.com>
-References: <1392053045-12121-1-git-send-email-jeff.dagenais@gmail.com>
-	<1392053045-12121-2-git-send-email-jeff.dagenais@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 0/9] HID: spring cleanup v2
+Date: Thu, 13 Feb 2014 10:11:16 -0500
+Message-ID: <CAN+gG=Gs94bQPNuW4rivEcGrySXkp2DNAVVt1PA1m2=FqR0AkQ@mail.gmail.com>
+References: <1391636004-29354-1-git-send-email-benjamin.tissoires@redhat.com>
+	<CANq1E4RvavkaPvz8vozUvgOs6fSmYNR=2=sn76aFFCbR5caaBA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oa0-f45.google.com ([209.85.219.45]:41028 "EHLO
-	mail-oa0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753189AbaBMMx2 (ORCPT
+Received: from mail-la0-f52.google.com ([209.85.215.52]:37368 "EHLO
+	mail-la0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751095AbaBMPLS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Feb 2014 07:53:28 -0500
-Received: by mail-oa0-f45.google.com with SMTP id i11so12643652oag.18
-        for <linux-input@vger.kernel.org>; Thu, 13 Feb 2014 04:53:28 -0800 (PST)
-In-Reply-To: <1392053045-12121-2-git-send-email-jeff.dagenais@gmail.com>
+	Thu, 13 Feb 2014 10:11:18 -0500
+In-Reply-To: <CANq1E4RvavkaPvz8vozUvgOs6fSmYNR=2=sn76aFFCbR5caaBA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru, Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+To: David Herrmann <dh.herrmann@gmail.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Frank Praznik <frank.praznik@oh.rr.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Mon, Feb 10, 2014 at 6:24 PM, Jean-Francois Dagenais
-<jeff.dagenais@gmail.com> wrote:
+Hi David,
 
-> which is already found in the common header for adp5588
+On Wed, Feb 12, 2014 at 5:13 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Hi
 >
-> Signed-off-by: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
+> On Wed, Feb 5, 2014 at 10:33 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> Hi guys,
+>>
+>> well, here comes the promised v2 of the ll_transport cleanup.
+>>
+>> As I said, I removed patches which need some more work, and kept only the
+>> trivial ones. I also added David's documentation, which gives us a net
+>> difference of +210 lines of code :(
+>> Let's say that we still have a net worth of -106 lines of actual code :)
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> Changes since v1:
+>> - removed uhid, i2c-hid patches
+>> - removed the previous 11/11 (move hid_output_raw_report to hid_ll_driver)
+>> - hid-logitech-dj: use hid_hw_raw_request instead of hid_output_report (2/9)
+>> - add documentation - I removed the hid_input_event() doc (9/9)
+>>
+>> Benjamin Tissoires (9):
+>>   HID: add inliners for ll_driver transport-layer callbacks
+>>   HID: logitech-dj: remove hidinput_input_event
+>
+> Apart from this logitech-dj patch, which I feel uncomfortable with
+> reviewing if I don't have the hardware, this series looks really good.
+> I think all patches already carry my r-b, otherwise feel free to add
+> them.
 
-Patch applied with Michael's ACK.
+Thanks a lot for the review!
 
-Yours,
-Linus Walleij
+I tested the logitech one with a TK820 which has a LED on the
+capslock, and it's working fine. Still adding Nestor in the loop if he
+manages to find some time to review it.
+
+Nestor, could you have a look at 2/9
+(https://patchwork.kernel.org/patch/3591381/)?
+
+Cheers,
+Benjamin
+
+>
+> Thanks a lot for the cleanup!
+> David
+>
+>>   HID: HIDp: remove hidp_hidinput_event
+>>   HID: remove hidinput_input_event handler
+>>   HID: HIDp: remove duplicated coded
+>>   HID: usbhid: remove duplicated code
+>>   HID: remove hid_get_raw_report in struct hid_device
+>>   HID: introduce helper to access hid_output_raw_report()
+>>   HID: Add HID transport driver documentation
+>>
+>>  Documentation/hid/hid-transport.txt | 316 ++++++++++++++++++++++++++++++++++++
+>>  drivers/hid/hid-input.c             |  12 +-
+>>  drivers/hid/hid-lg.c                |   6 +-
+>>  drivers/hid/hid-logitech-dj.c       | 106 +++++-------
+>>  drivers/hid/hid-magicmouse.c        |   2 +-
+>>  drivers/hid/hid-sony.c              |   9 +-
+>>  drivers/hid/hid-thingm.c            |   4 +-
+>>  drivers/hid/hid-wacom.c             |  16 +-
+>>  drivers/hid/hid-wiimote-core.c      |   2 +-
+>>  drivers/hid/hidraw.c                |   9 +-
+>>  drivers/hid/i2c-hid/i2c-hid.c       |   1 -
+>>  drivers/hid/uhid.c                  |   1 -
+>>  drivers/hid/usbhid/hid-core.c       |  65 ++------
+>>  include/linux/hid.h                 |  68 +++++++-
+>>  net/bluetooth/hidp/core.c           | 115 ++-----------
+>>  15 files changed, 471 insertions(+), 261 deletions(-)
+>>  create mode 100644 Documentation/hid/hid-transport.txt
+>>
+>> --
+>> 1.8.3.1
+>>

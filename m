@@ -1,122 +1,98 @@
 From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 10/11] Input: synaptics-rmi4 - make accessor for platform
- data return const pointer
-Date: Thu, 13 Feb 2014 12:00:11 -0800
-Message-ID: <52FD244B.1050307@synaptics.com>
-References: <1392269277-16391-1-git-send-email-dmitry.torokhov@gmail.com> <1392269277-16391-10-git-send-email-dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 06/11] Input: synaptics-rmi4 - remove device_status form
+ f01_data
+Date: Thu, 13 Feb 2014 13:15:40 -0800
+Message-ID: <52FD35FC.1060706@synaptics.com>
+References: <1392269277-16391-1-git-send-email-dmitry.torokhov@gmail.com> <1392269277-16391-6-git-send-email-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1392269277-16391-10-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx2.synaptics.com ([192.147.44.131]:47782 "EHLO
+	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751918AbaBMVPp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Feb 2014 16:15:45 -0500
+In-Reply-To: <1392269277-16391-6-git-send-email-dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Courtney Cavin <courtney.cavin@sonymobile.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-List-Id: linux-input@vger.kernel.org
 
 On 02/12/2014 09:27 PM, Dmitry Torokhov wrote:
-> When accessing platform data of RMI device let's make sure we do not
-> accidentally change data that may be shared by returning const pointer.
-> Also switch to an inline function instead of macro to ensure type safety.
-
-That's a good idea.  We'll want to look at some of our other #define 
-accessors as well, I think.
-
-Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-
+> We do not need to persist it - we read it when signalled.
 >
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Acked-by: Christopher Heiny <cheiny@synaptics.com>
+
 > ---
->   drivers/input/rmi4/rmi_bus.h    | 7 ++++++-
->   drivers/input/rmi4/rmi_driver.c | 8 ++++----
->   drivers/input/rmi4/rmi_f01.c    | 2 +-
->   drivers/input/rmi4/rmi_f11.c    | 2 +-
->   4 files changed, 12 insertions(+), 7 deletions(-)
+>   drivers/input/rmi4/rmi_f01.c | 15 +++++++--------
+>   1 file changed, 7 insertions(+), 8 deletions(-)
 >
-> diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-> index 8d47f52..02a2af8 100644
-> --- a/drivers/input/rmi4/rmi_bus.h
-> +++ b/drivers/input/rmi4/rmi_bus.h
-> @@ -224,7 +224,12 @@ struct rmi_device {
->   };
->
->   #define to_rmi_device(d) container_of(d, struct rmi_device, dev)
-> -#define to_rmi_platform_data(d) ((d)->xport->dev->platform_data)
-> +
-> +static inline const struct rmi_device_platform_data *
-> +rmi_get_platform_data(struct rmi_device *d)
-> +{
-> +	return dev_get_platdata(d->xport->dev);
-> +}
->
->   bool rmi_is_physical_device(struct device *dev);
->
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index 736cfbd..473efbc 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -598,7 +598,7 @@ static int rmi_initial_reset(struct rmi_device *rmi_dev,
->   		u16 cmd_addr = pdt->page_start + pdt->command_base_addr;
->   		u8 cmd_buf = RMI_DEVICE_RESET_CMD;
->   		const struct rmi_device_platform_data *pdata =
-> -				to_rmi_platform_data(rmi_dev);
-> +				rmi_get_platform_data(rmi_dev);
->
->   		error = rmi_write_block(rmi_dev, cmd_addr, &cmd_buf, 1);
->   		if (error) {
-> @@ -621,7 +621,7 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
->   {
->   	struct device *dev = &rmi_dev->dev;
->   	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> -	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
-> +	const struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
->   	int *current_irq_count = ctx;
->   	struct rmi_function *fn;
->   	int i;
-> @@ -745,7 +745,7 @@ static int rmi_driver_remove(struct device *dev)
->   	struct rmi_device *rmi_dev = to_rmi_device(dev);
->   	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
->   	const struct rmi_device_platform_data *pdata =
-> -					to_rmi_platform_data(rmi_dev);
-> +					rmi_get_platform_data(rmi_dev);
->
->   	disable_sensor(rmi_dev);
->   	rmi_free_function_list(rmi_dev);
-> @@ -781,7 +781,7 @@ static int rmi_driver_probe(struct device *dev)
->   	rmi_driver = to_rmi_driver(dev->driver);
->   	rmi_dev->driver = rmi_driver;
->
-> -	pdata = to_rmi_platform_data(rmi_dev);
-> +	pdata = rmi_get_platform_data(rmi_dev);
->
->   	data = devm_kzalloc(dev, sizeof(struct rmi_driver_data), GFP_KERNEL);
->   	if (!data) {
 > diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-> index 0e21004..36fcf8d 100644
+> index 6f90a6c..1e49ab4 100644
 > --- a/drivers/input/rmi4/rmi_f01.c
 > +++ b/drivers/input/rmi4/rmi_f01.c
-> @@ -184,7 +184,7 @@ static int rmi_f01_probe(struct rmi_function *fn)
+> @@ -126,8 +126,6 @@ struct f01_data {
+>
+>   	struct f01_device_control device_control;
+>
+> -	u8 device_status;
+> -
+>   	u16 interrupt_enable_addr;
+>   	u16 doze_interval_addr;
+>   	u16 wakeup_threshold_addr;
+> @@ -212,6 +210,7 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+>   	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
+>   	struct f01_data *data = fn->data;
+>   	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
+> +	u8 device_status;
+>
+>   	/*
+>   	 * Set the configured bit and (optionally) other important stuff
+> @@ -346,16 +345,16 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+>   	}
+>
+>   	error = rmi_read_block(rmi_dev, fn->fd.data_base_addr,
+> -		&data->device_status, sizeof(data->device_status));
+> +		&device_status, sizeof(device_status));
+>   	if (error < 0) {
+>   		dev_err(&fn->dev, "Failed to read device status.\n");
+>   		return error;
+>   	}
+>
+> -	if (RMI_F01_STATUS_UNCONFIGURED(data->device_status)) {
+> +	if (RMI_F01_STATUS_UNCONFIGURED(device_status)) {
+>   		dev_err(&fn->dev,
+>   			"Device was reset during configuration process, status: %#02x!\n",
+> -			RMI_F01_STATUS_CODE(data->device_status));
+> +			RMI_F01_STATUS_CODE(device_status));
+>   		return -EINVAL;
+>   	}
+>
+> @@ -497,18 +496,18 @@ static int rmi_f01_attention(struct rmi_function *fn,
+>   			     unsigned long *irq_bits)
 >   {
 >   	struct rmi_device *rmi_dev = fn->rmi_dev;
->   	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
-> -	const struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
-> +	const struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
->   	struct f01_data *f01;
->   	size_t f01_size;
->   	int error;
-> diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-> index 2aa7d17..5072437 100644
-> --- a/drivers/input/rmi4/rmi_f11.c
-> +++ b/drivers/input/rmi4/rmi_f11.c
-> @@ -1176,7 +1176,7 @@ static int rmi_f11_initialize(struct rmi_function *fn)
->   	u16 control_base_addr;
->   	u16 max_x_pos, max_y_pos, temp;
->   	int rc;
-> -	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
-> +	const struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
->   	struct f11_2d_sensor *sensor;
->   	u8 buf;
+> -	struct f01_data *data = fn->data;
+>   	int retval;
+> +	u8 device_status;
 >
+>   	retval = rmi_read_block(rmi_dev, fn->fd.data_base_addr,
+> -		&data->device_status, sizeof(data->device_status));
+> +		&device_status, sizeof(device_status));
+>   	if (retval < 0) {
+>   		dev_err(&fn->dev, "Failed to read device status, code: %d.\n",
+>   			retval);
+>   		return retval;
+>   	}
+>
+> -	if (RMI_F01_STATUS_UNCONFIGURED(data->device_status)) {
+> +	if (RMI_F01_STATUS_UNCONFIGURED(device_status)) {
+>   		dev_warn(&fn->dev, "Device reset detected.\n");
+>   		retval = rmi_dev->driver->reset_handler(rmi_dev);
+>   		if (retval < 0)
 >
 
 

@@ -1,223 +1,85 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 11/14] HID: sony: remove hid_output_raw_report calls
-Date: Thu, 13 Feb 2014 10:46:56 -0500
-Message-ID: <CAN+gG=H+ix0g+ugLTA1tdXUEU_anyn3JCr0COn8gkKh5xMTwRg@mail.gmail.com>
-References: <1392055139-19631-1-git-send-email-benjamin.tissoires@redhat.com>
-	<1392055139-19631-12-git-send-email-benjamin.tissoires@redhat.com>
-	<CANq1E4TjAdiMMPmqX9N__3Bqf2SVu2sV6_P-kOZ0dvZHwXDWwQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/4] input: sirfsoc-onkey - use dev_get_drvdata instead
+ of platform_get_drvdata
+Date: Thu, 13 Feb 2014 08:39:23 -0800
+Message-ID: <20140213163923.GA26175@core.coreip.homeip.net>
+References: <1392273624-22920-1-git-send-email-21cnbao@gmail.com>
+ <1392273624-22920-4-git-send-email-21cnbao@gmail.com>
+ <20140213072459.GB23392@core.coreip.homeip.net>
+ <CAGsJ_4ze3k2_ZQxkrRNiptqMVMm5taRTbFr0wmO9q5Q0kJLoNw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-la0-f48.google.com ([209.85.215.48]:65254 "EHLO
-	mail-la0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751538AbaBMPq6 (ORCPT
+Received: from mail-pd0-f174.google.com ([209.85.192.174]:35062 "EHLO
+	mail-pd0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751516AbaBMQj2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Feb 2014 10:46:58 -0500
-In-Reply-To: <CANq1E4TjAdiMMPmqX9N__3Bqf2SVu2sV6_P-kOZ0dvZHwXDWwQ@mail.gmail.com>
+	Thu, 13 Feb 2014 11:39:28 -0500
+Received: by mail-pd0-f174.google.com with SMTP id z10so10779789pdj.33
+        for <linux-input@vger.kernel.org>; Thu, 13 Feb 2014 08:39:28 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CAGsJ_4ze3k2_ZQxkrRNiptqMVMm5taRTbFr0wmO9q5Q0kJLoNw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Barry Song <21cnbao@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, Xianglong Du <Xianglong.Du@csr.com>, Barry Song <Baohua.Song@csr.com>
 
-On Wed, Feb 12, 2014 at 5:47 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
-> Hi
->
-> On Mon, Feb 10, 2014 at 6:58 PM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
->> We can not directly change the underlying struct hid_ll_driver here
->> as we did for hdev->hid_output_raw_report.
->> So allocate a struct ll_driver, and replace the old one when removing
->> the device.
->> To get a fully functional driver, we must also split the function
->> sixaxis_usb_output_raw_report() in 2, one regarding output_report, and
->> the other for raw_request.
->
-> Sorry, i cannot follow here. Could you explain why this is needed? And
+On Thu, Feb 13, 2014 at 03:47:33PM +0800, Barry Song wrote:
+> 2014-02-13 15:24 GMT+08:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> > On Thu, Feb 13, 2014 at 02:40:23PM +0800, Barry Song wrote:
+> >> From: Xianglong Du <Xianglong.Du@csr.com>
+> >>
+> >> In resume entry, use dev_get_drvdata() instead of to_platform_device(dev) +
+> >> platform_get_drvdata(pdev).
+> >>
+> >> Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
+> >> Signed-off-by: Barry Song <Baohua.Song@csr.com>
+> >> ---
+> >>  drivers/input/misc/sirfsoc-onkey.c |    3 +--
+> >>  1 files changed, 1 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
+> >> index 097c10a..8e45bf11 100644
+> >> --- a/drivers/input/misc/sirfsoc-onkey.c
+> >> +++ b/drivers/input/misc/sirfsoc-onkey.c
+> >> @@ -157,8 +157,7 @@ static int sirfsoc_pwrc_remove(struct platform_device *pdev)
+> >>  #ifdef CONFIG_PM_SLEEP
+> >>  static int sirfsoc_pwrc_resume(struct device *dev)
+> >>  {
+> >> -     struct platform_device *pdev = to_platform_device(dev);
+> >> -     struct sirfsoc_pwrc_drvdata *pwrcdrv = platform_get_drvdata(pdev);
+> >> +     struct sirfsoc_pwrc_drvdata *pwrcdrv = dev_get_drvdata(dev);
+> >
+> > I believe we should use accessors matching the object type. Currently
+> > dev_get_drvdata and platform_get_drvdata return the same object, but
+> > they do not have to.
+> >
+> > IOW I prefer the original code.
+> 
+> i did see many commits in kernel which did same jobs with this one. e.g:
+> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=a1216394e620d0dfbb03c712ae3210e7b77c9e11
+> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=bab8b563ef08455440badca7fe79b2c700bd1b75
+> ...
+> 
+> in my understand, the changed context is a general pm_ops to general
+> "driver" and not a legacy suspend/resume in "platform_driver" bound
+> with pdev, so in the context, we are caring about "device" more than
+> "pdev".
 
-Well, as mentioned in the original comments, the sixaxis has two problem:
-- when you send an output report, you should call hid_hw_raw_request
-instead (though there is an interrupt output endpoint)
-- when you send a raw_request, you should drop the reportID in the
-buffer you are sending, but keep it in the SET_REPORT call... (quite
-annoying).
+It is more about who owns the data - generic device or platform device?
 
-Splitting this in two (it was all implemented in hid_output_report)
-allows to transparently use the hid_hw_call, not matter who calls
-what.
+> 
+> how do you think if i do a more change in probe() with this by:
+> 
+> - platform_set_drvdata(pdev, pwrcdrv);
+> + dev_set_drvdata(&pdev->dev, pwrcdrv);
+> 
+> would this make everything look fine?
 
-> I also don't think you're supposed to change the ll_driver unlocked.
-> The real ll_driver might access it in any way. I don't think we do it
-> right now, but it might happen.
+Yes, it would, since we would now know that it is generic driver layer
+that has ownership of this data item.
 
-Yeah, I am not a big fan of this either. My other concern regarding
-that is the dependency against usb, while it could be a uHID device.
+Thanks.
 
->
-> Why can't we introduce QUIRK flags that make HID core drop the
-> report_id for outgoing messages?
-
-I did not want to come with because it would make the bright new
-ll_transport interface ugly, but this may be the only way to have
-something generic and drop the usb dependency and the races that may
-appears (plus the ugly alloc/free).
-
-Cheers,
-Benjamin
-
->
-> Thanks
-> David
->
->> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> ---
->>  drivers/hid/hid-sony.c | 75 ++++++++++++++++++++++++++++++++++----------------
->>  1 file changed, 52 insertions(+), 23 deletions(-)
->>
->> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
->> index d980943..dbbcd0c8 100644
->> --- a/drivers/hid/hid-sony.c
->> +++ b/drivers/hid/hid-sony.c
->> @@ -507,6 +507,8 @@ struct sony_sc {
->>         struct work_struct state_worker;
->>         struct power_supply battery;
->>
->> +       struct hid_ll_driver *prev_ll_driver;
->> +
->>  #ifdef CONFIG_SONY_FF
->>         __u8 left;
->>         __u8 right;
->> @@ -760,38 +762,52 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
->>
->>  /*
->>   * The Sony Sixaxis does not handle HID Output Reports on the Interrupt EP
->> - * like it should according to usbhid/hid-core.c::usbhid_output_raw_report()
->> + * like it should according to usbhid/hid-core.c::usbhid_output_report()
->>   * so we need to override that forcing HID Output Reports on the Control EP.
->> - *
->> - * There is also another issue about HID Output Reports via USB, the Sixaxis
->> - * does not want the report_id as part of the data packet, so we have to
->> - * discard buf[0] when sending the actual control message, even for numbered
->> - * reports, humpf!
->>   */
->> -static int sixaxis_usb_output_raw_report(struct hid_device *hid, __u8 *buf,
->> -               size_t count, unsigned char report_type)
->> +static int sixaxis_usb_output_report(struct hid_device *hid, __u8 *buf,
->> +               size_t count)
->> +{
->> +       return hid_hw_raw_request(hid, buf[0], buf, count, HID_OUTPUT_REPORT,
->> +               HID_REQ_SET_REPORT);
->> +}
->> +
->> +/*
->> + * There is also another issue about the SET_REPORT command via USB,
->> + * the Sixaxis does not want the report_id as part of the data packet, so
->> + * we have to discard buf[0] when sending the actual control message, even
->> + * for numbered reports, humpf!
->> + */
->> +static int sixaxis_usb_raw_request(struct hid_device *hid,
->> +                                  unsigned char reportnum, __u8 *buf,
->> +                                  size_t len, unsigned char rtype, int reqtype)
->>  {
->>         struct usb_interface *intf = to_usb_interface(hid->dev.parent);
->>         struct usb_device *dev = interface_to_usbdev(intf);
->>         struct usb_host_interface *interface = intf->cur_altsetting;
->> -       int report_id = buf[0];
->>         int ret;
->> +       u8 usb_dir;
->> +       unsigned int usb_pipe;
->>
->> -       if (report_type == HID_OUTPUT_REPORT) {
->> +       if (reqtype == HID_REQ_SET_REPORT) {
->>                 /* Don't send the Report ID */
->>                 buf++;
->> -               count--;
->> +               len--;
->> +               usb_dir = USB_DIR_OUT;
->> +               usb_pipe = usb_sndctrlpipe(dev, 0);
->> +       } else {
->> +               usb_dir = USB_DIR_IN;
->> +               usb_pipe = usb_rcvctrlpipe(dev, 0);
->>         }
->>
->> -       ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
->> -               HID_REQ_SET_REPORT,
->> -               USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
->> -               ((report_type + 1) << 8) | report_id,
->> -               interface->desc.bInterfaceNumber, buf, count,
->> +       ret = usb_control_msg(dev, usb_pipe, reqtype,
->> +               usb_dir | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
->> +               ((rtype + 1) << 8) | reportnum,
->> +               interface->desc.bInterfaceNumber, buf, len,
->>                 USB_CTRL_SET_TIMEOUT);
->>
->> -       /* Count also the Report ID, in case of an Output report. */
->> -       if (ret > 0 && report_type == HID_OUTPUT_REPORT)
->> +       /* Count also the Report ID. */
->> +       if (ret > 0 && reqtype == HID_REQ_SET_REPORT)
->>                 ret++;
->>
->>         return ret;
->> @@ -1047,7 +1063,7 @@ static void sixaxis_state_worker(struct work_struct *work)
->>         buf[10] |= sc->led_state[2] << 3;
->>         buf[10] |= sc->led_state[3] << 4;
->>
->> -       hid_output_raw_report(sc->hdev, buf, sizeof(buf), HID_OUTPUT_REPORT);
->> +       hid_hw_output_report(sc->hdev, buf, sizeof(buf));
->>  }
->>
->>  static void dualshock4_state_worker(struct work_struct *work)
->> @@ -1254,6 +1270,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>         unsigned long quirks = id->driver_data;
->>         struct sony_sc *sc;
->>         unsigned int connect_mask = HID_CONNECT_DEFAULT;
->> +       struct hid_ll_driver *ll_driver;
->>
->>         sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
->>         if (sc == NULL) {
->> @@ -1285,13 +1302,20 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>         }
->>
->>         if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
->> -               hdev->hid_output_raw_report = sixaxis_usb_output_raw_report;
->> +               ll_driver = devm_kzalloc(&hdev->dev, sizeof(*ll_driver),
->> +                                            GFP_KERNEL);
->> +               if (ll_driver == NULL)
->> +                       return -ENOMEM;
->> +               sc->prev_ll_driver = hdev->ll_driver;
->> +               *ll_driver = *hdev->ll_driver;
->> +               hdev->ll_driver = ll_driver;
->> +               ll_driver->output_report = sixaxis_usb_output_report;
->> +               ll_driver->raw_request = sixaxis_usb_raw_request;
->>                 ret = sixaxis_set_operational_usb(hdev);
->>                 INIT_WORK(&sc->state_worker, sixaxis_state_worker);
->> -       }
->> -       else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
->> +       } else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
->>                 ret = sixaxis_set_operational_bt(hdev);
->> -       else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
->> +       } else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
->>                 /* Report 5 (31 bytes) is used to send data to the controller via USB */
->>                 ret = sony_set_output_report(sc, 0x05, 248);
->>                 if (ret < 0)
->> @@ -1339,6 +1363,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>  err_close:
->>         hid_hw_close(hdev);
->>  err_stop:
->> +       if (sc->prev_ll_driver)
->> +               hdev->ll_driver = sc->prev_ll_driver;
->>         if (sc->quirks & SONY_LED_SUPPORT)
->>                 sony_leds_remove(hdev);
->>         if (sc->quirks & SONY_BATTERY_SUPPORT)
->> @@ -1351,6 +1377,9 @@ static void sony_remove(struct hid_device *hdev)
->>  {
->>         struct sony_sc *sc = hid_get_drvdata(hdev);
->>
->> +       if (sc->prev_ll_driver)
->> +               hdev->ll_driver = sc->prev_ll_driver;
->> +
->>         if (sc->quirks & SONY_LED_SUPPORT)
->>                 sony_leds_remove(hdev);
->>
->> --
->> 1.8.3.1
->>
+-- 
+Dmitry

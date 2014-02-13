@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 11/11] Input: synaptics-rmi4 - remove data pointer from RMI fucntion structure
-Date: Wed, 12 Feb 2014 21:27:57 -0800
-Message-ID: <1392269277-16391-11-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 08/11] Input: synaptics-rmi4 - use rmi_read/rmi_write in F01
+Date: Wed, 12 Feb 2014 21:27:54 -0800
+Message-ID: <1392269277-16391-8-git-send-email-dmitry.torokhov@gmail.com>
 References: <1392269277-16391-1-git-send-email-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1392269277-16391-1-git-send-email-dmitry.torokhov@gmail.com>
@@ -10,253 +10,310 @@ To: Christopher Heiny <cheiny@synaptics.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Courtney Cavin <courtney.cavin@sonymobile.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Device core provides way of accessing driver-private data, we should
-use it.
+Use rmi_read()/rmi_write() for reading/writing single-byte data. Also print
+error code when IO fails.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/rmi4/rmi_bus.h |  1 -
- drivers/input/rmi4/rmi_f01.c | 14 +++++------
- drivers/input/rmi4/rmi_f11.c | 57 ++++++++++++++++++++------------------------
- 3 files changed, 32 insertions(+), 40 deletions(-)
+ drivers/input/rmi4/rmi_f01.c | 170 ++++++++++++++++++++++---------------------
+ 1 file changed, 88 insertions(+), 82 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-index 02a2af8..5ad94c6 100644
---- a/drivers/input/rmi4/rmi_bus.h
-+++ b/drivers/input/rmi4/rmi_bus.h
-@@ -48,7 +48,6 @@ struct rmi_function {
- 	int num_of_irqs;
- 	int irq_pos;
- 	unsigned long *irq_mask;
--	void *data;
- 	struct list_head node;
- 
- #ifdef CONFIG_RMI4_DEBUG
 diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index 36fcf8d..e646f60 100644
+index 1219e0c..a2f05bc 100644
 --- a/drivers/input/rmi4/rmi_f01.c
 +++ b/drivers/input/rmi4/rmi_f01.c
-@@ -354,14 +354,14 @@ static int rmi_f01_probe(struct rmi_function *fn)
- 		return -EINVAL;
+@@ -171,8 +171,9 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+ 
+ 	error = rmi_read_block(rmi_dev, query_base_addr,
+ 			       basic_query, sizeof(basic_query));
+-	if (error < 0) {
+-		dev_err(&rmi_dev->dev, "Failed to read device query registers.\n");
++	if (error) {
++		dev_err(&rmi_dev->dev,
++			"Failed to read device query registers: %d\n", error);
+ 		return error;
  	}
  
--	fn->data = f01;
-+	dev_set_drvdata(&fn->dev, f01);
+@@ -205,25 +206,25 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+ {
+ 	u8 temp;
+ 	int error;
+-	u16 ctrl_base_addr;
+ 	struct rmi_device *rmi_dev = fn->rmi_dev;
+ 	struct rmi_driver_data *driver_data = dev_get_drvdata(&rmi_dev->dev);
+ 	struct f01_data *f01 = fn->data;
+-	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
++	const struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
++	u16 ctrl_base_addr = fn->fd.control_base_addr;
+ 	u8 device_status;
  
- 	return 0;
- }
+ 	/*
+ 	 * Set the configured bit and (optionally) other important stuff
+ 	 * in the device control register.
+ 	 */
+-	ctrl_base_addr = fn->fd.control_base_addr;
+-	error = rmi_read_block(rmi_dev, fn->fd.control_base_addr,
+-			&f01->device_control.ctrl0,
+-			sizeof(f01->device_control.ctrl0));
+-	if (error < 0) {
+-		dev_err(&fn->dev, "Failed to read F01 control.\n");
++
++	error = rmi_read(rmi_dev, fn->fd.control_base_addr,
++			 &f01->device_control.ctrl0);
++	if (error) {
++		dev_err(&fn->dev, "Failed to read F01 control: %d\n", error);
+ 		return error;
+ 	}
++
+ 	switch (pdata->power_management.nosleep) {
+ 	case RMI_F01_NOSLEEP_DEFAULT:
+ 		break;
+@@ -249,11 +250,10 @@ static int rmi_f01_initialize(struct rmi_function *fn)
  
+ 	f01->device_control.ctrl0 |= RMI_F01_CRTL0_CONFIGURED_BIT;
+ 
+-	error = rmi_write_block(rmi_dev, fn->fd.control_base_addr,
+-				&f01->device_control.ctrl0,
+-				sizeof(f01->device_control.ctrl0));
+-	if (error < 0) {
+-		dev_err(&fn->dev, "Failed to write F01 control.\n");
++	error = rmi_write(rmi_dev, fn->fd.control_base_addr,
++			  f01->device_control.ctrl0);
++	if (error) {
++		dev_err(&fn->dev, "Failed to write F01 control: %d\n", error);
+ 		return error;
+ 	}
+ 
+@@ -265,9 +265,10 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+ 	error = rmi_read_block(rmi_dev, ctrl_base_addr,
+ 				f01->device_control.interrupt_enable,
+ 				sizeof(u8) * (f01->num_of_irq_regs));
+-	if (error < 0) {
++	if (error) {
+ 		dev_err(&fn->dev,
+-			"Failed to read F01 control interrupt enable register.\n");
++			"Failed to read F01 control interrupt enable register: %d\n",
++			error);
+ 		return error;
+ 	}
+ 
+@@ -302,8 +303,10 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+ 		} else {
+ 			error = rmi_read(rmi_dev, f01->doze_interval_addr,
+ 					 &f01->device_control.doze_interval);
+-			if (error < 0) {
+-				dev_err(&fn->dev, "Failed to read F01 doze interval register.\n");
++			if (error) {
++				dev_err(&fn->dev,
++					"Failed to read F01 doze interval register: %d\n",
++					error);
+ 				return error;
+ 			}
+ 		}
+@@ -318,7 +321,9 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+ 			error = rmi_read(rmi_dev, f01->wakeup_threshold_addr,
+ 					 &f01->device_control.wakeup_threshold);
+ 			if (error < 0) {
+-				dev_err(&fn->dev, "Failed to read F01 wakeup threshold register.\n");
++				dev_err(&fn->dev,
++					"Failed to read F01 wakeup threshold register: %d\n",
++					error);
+ 				return error;
+ 			}
+ 		}
+@@ -337,17 +342,19 @@ static int rmi_f01_initialize(struct rmi_function *fn)
+ 		} else {
+ 			error = rmi_read(rmi_dev, f01->doze_holdoff_addr,
+ 					 &f01->device_control.doze_holdoff);
+-			if (error < 0) {
+-				dev_err(&fn->dev, "Failed to read F01 doze holdoff register.\n");
++			if (error) {
++				dev_err(&fn->dev,
++					"Failed to read F01 doze holdoff register: %d\n",
++					error);
+ 				return error;
+ 			}
+ 		}
+ 	}
+ 
+-	error = rmi_read_block(rmi_dev, fn->fd.data_base_addr,
+-		&device_status, sizeof(device_status));
++	error = rmi_read(rmi_dev, fn->fd.data_base_addr, &device_status);
+ 	if (error < 0) {
+-		dev_err(&fn->dev, "Failed to read device status.\n");
++		dev_err(&fn->dev,
++			"Failed to read device status: %d\n", error);
+ 		return error;
+ 	}
+ 
+@@ -364,50 +371,53 @@ static int rmi_f01_initialize(struct rmi_function *fn)
  static int rmi_f01_config(struct rmi_function *fn)
  {
--	struct f01_data *f01 = fn->data;
-+	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+ 	struct f01_data *f01 = fn->data;
+-	int retval;
+-
+-	retval = rmi_write_block(fn->rmi_dev, fn->fd.control_base_addr,
+-				 &f01->device_control.ctrl0,
+-				 sizeof(f01->device_control.ctrl0));
+-	if (retval < 0) {
+-		dev_err(&fn->dev, "Failed to write device_control.reg.\n");
+-		return retval;
++	int error;
++
++	error = rmi_write(fn->rmi_dev, fn->fd.control_base_addr,
++			  f01->device_control.ctrl0);
++	if (error) {
++		dev_err(&fn->dev,
++			"Failed to write device_control register: %d\n", error);
++		return error;
+ 	}
+ 
+-	retval = rmi_write_block(fn->rmi_dev, f01->interrupt_enable_addr,
+-				 f01->device_control.interrupt_enable,
+-				 sizeof(u8) * f01->num_of_irq_regs);
+-	if (retval < 0) {
+-		dev_err(&fn->dev, "Failed to write interrupt enable.\n");
+-		return retval;
++	error = rmi_write_block(fn->rmi_dev, f01->interrupt_enable_addr,
++				f01->device_control.interrupt_enable,
++				sizeof(u8) * f01->num_of_irq_regs);
++	if (error) {
++		dev_err(&fn->dev,
++			"Failed to write interrupt enable: %d\n", error);
++		return error;
+ 	}
+ 
+ 	if (f01->properties.has_adjustable_doze) {
+-		retval = rmi_write_block(fn->rmi_dev, f01->doze_interval_addr,
+-					 &f01->device_control.doze_interval,
+-					 sizeof(u8));
+-		if (retval < 0) {
+-			dev_err(&fn->dev, "Failed to write doze interval.\n");
+-			return retval;
++		error = rmi_write(fn->rmi_dev, f01->doze_interval_addr,
++				  f01->device_control.doze_interval);
++		if (error) {
++			dev_err(&fn->dev,
++				"Failed to write doze interval: %d\n", error);
++			return error;
+ 		}
+ 
+-		retval = rmi_write_block(fn->rmi_dev,
++		error = rmi_write_block(fn->rmi_dev,
+ 					 f01->wakeup_threshold_addr,
+ 					 &f01->device_control.wakeup_threshold,
+ 					 sizeof(u8));
+-		if (retval < 0) {
+-			dev_err(&fn->dev, "Failed to write wakeup threshold.\n");
+-			return retval;
++		if (error) {
++			dev_err(&fn->dev,
++				"Failed to write wakeup threshold: %d\n",
++				error);
++			return error;
+ 		}
+ 	}
+ 
+ 	if (f01->properties.has_adjustable_doze_holdoff) {
+-		retval = rmi_write_block(fn->rmi_dev, f01->doze_holdoff_addr,
+-					 &f01->device_control.doze_holdoff,
+-					 sizeof(u8));
+-		if (retval < 0) {
+-			dev_err(&fn->dev, "Failed to write doze holdoff.\n");
+-			return retval;
++		error = rmi_write(fn->rmi_dev, f01->doze_holdoff_addr,
++				  f01->device_control.doze_holdoff);
++		if (error) {
++			dev_err(&fn->dev,
++				"Failed to write doze holdoff: %d\n", error);
++			return error;
+ 		}
+ 	}
+ 
+@@ -439,23 +449,19 @@ static int rmi_f01_suspend(struct device *dev)
+ 	struct f01_data *f01 = fn->data;
  	int error;
  
- 	error = rmi_write(fn->rmi_dev, fn->fd.control_base_addr,
-@@ -419,8 +419,7 @@ static int rmi_f01_config(struct rmi_function *fn)
- static int rmi_f01_suspend(struct device *dev)
- {
- 	struct rmi_function *fn = to_rmi_function(dev);
--	struct rmi_device *rmi_dev = fn->rmi_dev;
--	struct f01_data *f01 = fn->data;
-+	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
- 	int error;
+-	f01->old_nosleep = f01->device_control.ctrl0 &
+-					RMI_F01_CRTL0_NOSLEEP_BIT;
++	f01->old_nosleep =
++		f01->device_control.ctrl0 & RMI_F01_CRTL0_NOSLEEP_BIT;
+ 	f01->device_control.ctrl0 &= ~RMI_F01_CRTL0_NOSLEEP_BIT;
  
- 	f01->old_nosleep =
-@@ -430,7 +429,7 @@ static int rmi_f01_suspend(struct device *dev)
  	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
  	f01->device_control.ctrl0 |= RMI_SLEEP_MODE_SENSOR_SLEEP;
  
--	error = rmi_write(rmi_dev, fn->fd.control_base_addr,
-+	error = rmi_write(fn->rmi_dev, fn->fd.control_base_addr,
- 			  f01->device_control.ctrl0);
- 	if (error) {
- 		dev_err(&fn->dev, "Failed to write sleep mode: %d.\n", error);
-@@ -447,8 +446,7 @@ static int rmi_f01_suspend(struct device *dev)
- static int rmi_f01_resume(struct device *dev)
- {
- 	struct rmi_function *fn = to_rmi_function(dev);
--	struct rmi_device *rmi_dev = fn->rmi_dev;
--	struct f01_data *f01 = fn->data;
-+	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
- 	int error;
- 
- 	if (f01->old_nosleep)
-@@ -457,7 +455,7 @@ static int rmi_f01_resume(struct device *dev)
+-	error = rmi_write_block(rmi_dev,
+-				fn->fd.control_base_addr,
+-				&f01->device_control.ctrl0,
+-				sizeof(f01->device_control.ctrl0));
+-	if (error < 0) {
+-		dev_err(&fn->dev, "Failed to write sleep mode. Code: %d.\n",
+-			error);
++	error = rmi_write(rmi_dev, fn->fd.control_base_addr,
++			  f01->device_control.ctrl0);
++	if (error) {
++		dev_err(&fn->dev, "Failed to write sleep mode: %d.\n", error);
+ 		if (f01->old_nosleep)
+-			f01->device_control.ctrl0 |=
+-					RMI_F01_CRTL0_NOSLEEP_BIT;
++			f01->device_control.ctrl0 |= RMI_F01_CRTL0_NOSLEEP_BIT;
+ 		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
+ 		f01->device_control.ctrl0 |= RMI_SLEEP_MODE_NORMAL;
+ 		return error;
+@@ -477,13 +483,11 @@ static int rmi_f01_resume(struct device *dev)
  	f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_SLEEP_MODE_MASK;
  	f01->device_control.ctrl0 |= RMI_SLEEP_MODE_NORMAL;
  
--	error = rmi_write(rmi_dev, fn->fd.control_base_addr,
-+	error = rmi_write(fn->rmi_dev, fn->fd.control_base_addr,
- 			  f01->device_control.ctrl0);
- 	if (error) {
+-	error = rmi_write_block(rmi_dev, fn->fd.control_base_addr,
+-				&f01->device_control.ctrl0,
+-				sizeof(f01->device_control.ctrl0));
+-	if (error < 0) {
++	error = rmi_write(rmi_dev, fn->fd.control_base_addr,
++			  f01->device_control.ctrl0);
++	if (error) {
  		dev_err(&fn->dev,
-diff --git a/drivers/input/rmi4/rmi_f11.c b/drivers/input/rmi4/rmi_f11.c
-index 5072437..a26b944 100644
---- a/drivers/input/rmi4/rmi_f11.c
-+++ b/drivers/input/rmi4/rmi_f11.c
-@@ -1087,9 +1087,8 @@ static int rmi_f11_get_query_parameters(struct rmi_device *rmi_dev,
- /* This operation is done in a number of places, so we have a handy routine
-  * for it.
-  */
--static void f11_set_abs_params(struct rmi_function *fn)
-+static void f11_set_abs_params(struct rmi_function *fn, struct f11_data *f11)
- {
--	struct f11_data *f11 = fn->data;
- 	struct f11_2d_sensor *sensor = &f11->sensor;
- 	struct input_dev *input = sensor->input;
- 	/* These two lines are not doing what we want them to.  So we use
-@@ -1190,7 +1189,6 @@ static int rmi_f11_initialize(struct rmi_function *fn)
- 	if (!f11)
- 		return -ENOMEM;
- 
--	fn->data = f11;
- 	f11->rezero_wait_ms = pdata->f11_rezero_wait;
- 
- 	query_base_addr = fn->fd.query_base_addr;
-@@ -1280,13 +1278,16 @@ static int rmi_f11_initialize(struct rmi_function *fn)
+-			"Failed to restore normal operation. Code: %d.\n",
+-			error);
++			"Failed to restore normal operation: %d.\n", error);
+ 		return error;
  	}
  
- 	mutex_init(&f11->dev_controls_mutex);
-+
-+	dev_set_drvdata(&fn->dev, f11);
+@@ -497,23 +501,25 @@ static int rmi_f01_attention(struct rmi_function *fn,
+ 			     unsigned long *irq_bits)
+ {
+ 	struct rmi_device *rmi_dev = fn->rmi_dev;
+-	int retval;
++	int error;
+ 	u8 device_status;
+ 
+-	retval = rmi_read_block(rmi_dev, fn->fd.data_base_addr,
+-		&device_status, sizeof(device_status));
+-	if (retval < 0) {
+-		dev_err(&fn->dev, "Failed to read device status, code: %d.\n",
+-			retval);
+-		return retval;
++	error = rmi_read(rmi_dev, fn->fd.data_base_addr, &device_status);
++	if (error) {
++		dev_err(&fn->dev,
++			"Failed to read device status: %d.\n", error);
++		return error;
+ 	}
+ 
+ 	if (RMI_F01_STATUS_UNCONFIGURED(device_status)) {
+ 		dev_warn(&fn->dev, "Device reset detected.\n");
+-		retval = rmi_dev->driver->reset_handler(rmi_dev);
+-		if (retval < 0)
+-			return retval;
++		error = rmi_dev->driver->reset_handler(rmi_dev);
++		if (error) {
++			dev_err(&fn->dev, "Device reset failed: %d\n", error);
++			return error;
++		}
+ 	}
 +
  	return 0;
  }
  
- static int rmi_f11_register_devices(struct rmi_function *fn)
- {
- 	struct rmi_device *rmi_dev = fn->rmi_dev;
--	struct f11_data *f11 = fn->data;
-+	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
- 	struct input_dev *input_dev;
- 	struct input_dev *input_dev_mouse;
- 	struct rmi_driver *driver = rmi_dev->driver;
-@@ -1304,8 +1305,8 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
- 		rc = driver->set_input_params(rmi_dev, input_dev);
- 		if (rc < 0) {
- 			dev_err(&fn->dev,
--			"%s: Error in setting input device.\n",
--			__func__);
-+				"%s: Error in setting input device.\n",
-+				__func__);
- 			goto error_unregister;
- 		}
- 	}
-@@ -1319,7 +1320,7 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
- 	set_bit(EV_ABS, input_dev->evbit);
- 	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
- 
--	f11_set_abs_params(fn);
-+	f11_set_abs_params(fn, f11);
- 
- 	if (sensor->sens_query.has_rel) {
- 		set_bit(EV_REL, input_dev->evbit);
-@@ -1327,7 +1328,7 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
- 		set_bit(REL_Y, input_dev->relbit);
- 	}
- 	rc = input_register_device(input_dev);
--	if (rc < 0) {
-+	if (rc) {
- 		input_free_device(input_dev);
- 		sensor->input = NULL;
- 		goto error_unregister;
-@@ -1347,8 +1348,8 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
- 				input_dev_mouse);
- 			if (rc < 0) {
- 				dev_err(&fn->dev,
--				"%s: Error in setting input device.\n",
--				__func__);
-+					"%s: Error in setting input device.\n",
-+					__func__);
- 				goto error_unregister;
- 			}
- 		}
-@@ -1366,7 +1367,7 @@ static int rmi_f11_register_devices(struct rmi_function *fn)
- 		set_bit(BTN_RIGHT, input_dev_mouse->keybit);
- 
- 		rc = input_register_device(input_dev_mouse);
--		if (rc < 0) {
-+		if (rc) {
- 			input_free_device(input_dev_mouse);
- 			sensor->mouse_input = NULL;
- 			goto error_unregister;
-@@ -1390,19 +1391,9 @@ error_unregister:
- 	return rc;
- }
- 
--static void rmi_f11_free_devices(struct rmi_function *fn)
--{
--	struct f11_data *f11 = fn->data;
--
--	if (f11->sensor.input)
--		input_unregister_device(f11->sensor.input);
--	if (f11->sensor.mouse_input)
--		input_unregister_device(f11->sensor.mouse_input);
--}
--
- static int rmi_f11_config(struct rmi_function *fn)
- {
--	struct f11_data *f11 = fn->data;
-+	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
- 	int rc;
- 
- 	rc = f11_write_control_regs(fn, &f11->sensor.sens_query,
-@@ -1416,7 +1407,7 @@ static int rmi_f11_config(struct rmi_function *fn)
- static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
- {
- 	struct rmi_device *rmi_dev = fn->rmi_dev;
--	struct f11_data *f11 = fn->data;
-+	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
- 	u16 data_base_addr = fn->fd.data_base_addr;
- 	u16 data_base_addr_offset = 0;
- 	int error;
-@@ -1425,7 +1416,7 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
- 			data_base_addr + data_base_addr_offset,
- 			f11->sensor.data_pkt,
- 			f11->sensor.pkt_size);
--	if (error < 0)
-+	if (error)
- 		return error;
- 
- 	rmi_f11_finger_handler(f11, &f11->sensor);
-@@ -1438,18 +1429,17 @@ static int rmi_f11_attention(struct rmi_function *fn, unsigned long *irq_bits)
- static int rmi_f11_resume(struct device *dev)
- {
- 	struct rmi_function *fn = to_rmi_function(dev);
--	struct rmi_device *rmi_dev = fn->rmi_dev;
--	struct f11_data *data = fn->data;
-+	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
- 	int error;
- 
- 	dev_dbg(&fn->dev, "Resuming...\n");
--	if (!data->rezero_wait_ms)
-+	if (!f11->rezero_wait_ms)
- 		return 0;
- 
--	mdelay(data->rezero_wait_ms);
-+	mdelay(f11->rezero_wait_ms);
- 
--	error = rmi_write(rmi_dev, fn->fd.command_base_addr, RMI_F11_REZERO);
--	if (error < 0) {
-+	error = rmi_write(fn->rmi_dev, fn->fd.command_base_addr, RMI_F11_REZERO);
-+	if (error) {
- 		dev_err(&fn->dev,
- 			"%s: failed to issue rezero command, error = %d.",
- 			__func__, error);
-@@ -1479,7 +1469,12 @@ static int rmi_f11_probe(struct rmi_function *fn)
- 
- static void rmi_f11_remove(struct rmi_function *fn)
- {
--	rmi_f11_free_devices(fn);
-+	struct f11_data *f11 = dev_get_drvdata(&fn->dev);
-+
-+	if (f11->sensor.input)
-+		input_unregister_device(f11->sensor.input);
-+	if (f11->sensor.mouse_input)
-+		input_unregister_device(f11->sensor.mouse_input);
- }
- 
- static struct rmi_function_handler rmi_f11_handler = {
 -- 
 1.8.5.3

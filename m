@@ -1,190 +1,133 @@
-From: Xianglong Du <Xianglong.Du@csr.com>
-Subject: RE: [PATCH v3] input: sirfsoc-onkey - report onkey untouch event by
- detecting pin status
-Date: Fri, 14 Feb 2014 10:32:08 +0000
-Message-ID: <847BC5012124A94BB5CA1B26E022CCA3012BAFDC27@SHAASIEXM01.ASIA.ROOT.PRI>
-References: <1392348001-4950-1-git-send-email-21cnbao@gmail.com>
- <20140214075717.GA14682@core.coreip.homeip.net>,
- <CAGsJ_4xqnZAO6vpkgTEHmfp9+nbWa1qwQ4pda6B2sSrEtbV3ZA@mail.gmail.com>
+From: Nestor Lopez Casado <nlopezcasad@logitech.com>
+Subject: Re: [PATCH 1/5] HID: logitech-dj: Fix USB 3.0 issue
+Date: Fri, 14 Feb 2014 14:35:19 +0100
+Message-ID: <CAE7qMrqek3tw13jLu8KW0Ns4Uv8QdPrnGoLoRkPw4ebf=EVynw@mail.gmail.com>
+References: <1389219529-29671-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1389219529-29671-2-git-send-email-benjamin.tissoires@redhat.com>
+ <alpine.LNX.2.00.1401162249150.23018@pobox.suse.cz> <CAE7qMrpEKYesrcHkhTYxCCOW3TRA7P8SOX9brj83zqY7y=3_3g@mail.gmail.com>
+ <CAE7qMrpEnF3y-dVP14190y33YNidCdjtJeO9PcMVcBBJDJsYuw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAGsJ_4xqnZAO6vpkgTEHmfp9+nbWa1qwQ4pda6B2sSrEtbV3ZA@mail.gmail.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Barry Song <21cnbao@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rongjun Ying <Rongjun.Ying@csr.com>, DL-SHA-WorkGroupLinux <DL-SHA-WorkGroupLinux@internal.csr.com>, Barry Song <Barry.Song@csr.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAE7qMrpEnF3y-dVP14190y33YNidCdjtJeO9PcMVcBBJDJsYuw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Andrew de los Reyes <adlr@chromium.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Tested-by: Xianglong Du <Xianglong.Du@csr.com>
+We discussed this issue with one of the receiver firmware developers today.
 
-________________________________________
-From: Barry Song [21cnbao@gmail.com]
-Sent: Friday, February 14, 2014 16:49
-To: Dmitry Torokhov
-Cc: linux-input@vger.kernel.org; linux-arm-kernel@lists.infradead.org; DL-SHA-WorkGroupLinux; Xianglong Du; Rongjun Ying; Barry Song
-Subject: Re: [PATCH v3] input: sirfsoc-onkey - report onkey untouch event by detecting pin status
+We do see a clear issue when more than one DJ command (those with
+report id 0x20, 0x21) are sent to the receiver in quick sequence. The
+second command can be trashed if the first is still under processing,
+and there is no way for the host to know when the receiver has
+actually finished processing the first DJ command.
 
-2014-02-14 15:57 GMT+08:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> Hi Barry,
+Both the first and the second commands are ACKed at the USB level.
+
+For hidpp commands (those with report id 0x10, 0x11) there is a
+response sent from the receiver to the host, and the host should wait
+for the response before sending a new command.
+
+For some DJ commands (those with report id 0x20, 0x21) there is no
+response at all, as is the case for the 0x80 (switch to dj mode with
+keep alive)
+
+So the ugly sleep accounts to workaround this issue on the receiver.
+
+There may be a cleaner workaround that could be tested (I did not test
+myself, but looking at the receiver code it does seem as a plausible
+solution)
+
+Invert the order in which the commands are sent to the receiver:
+
+First send the CMD_GET_PAIRED_DEVICES (0x81) to the receiver, and wait
+to get all the device paired notifications, (the last notification is
+specially tagged), then send the CMD_SWITCH (0x80).
+Using this mechanism we guarantee that the receiver never sees a
+second command while still processing the previous one and no explicit
+sleep will be required.
+
+For me, the ugly sleep suffices, as long as we understand the root
+cause of the problem.
+
+Cheers,
+-nestor
+
+On Fri, Feb 14, 2014 at 2:32 PM, Nestor Lopez Casado
+<nlopezcasad@logitech.com> wrote:
+> We discussed this issue with one of the receiver firmware developers today.
 >
-> On Fri, Feb 14, 2014 at 11:20:01AM +0800, Barry Song wrote:
->> From: Xianglong Du <Xianglong.Du@csr.com>
+> We do see a clear issue when more than one DJ command (those with report id
+> 0x20, 0x21) are sent to the receiver in quick sequence. The second command
+> can be trashed if the first is still under processing, and there is no way
+> for the host to know when the receiver has actually finished processing the
+> first DJ command.
+>
+> Both the first and the second commands are ACKed at the USB level.
+>
+> For hidpp commands (those with report id 0x10, 0x11) there is a response
+> sent from the receiver to the host, and the host should wait for the
+> response before sending a new command.
+>
+> For some DJ commands (those with report id 0x20, 0x21) there is no response
+> at all, as is the case for the 0x80 (switch to dj mode with keep alive)
+>
+> So the ugly sleep accounts to workaround this issue on the receiver.
+>
+> There may be a cleaner workaround that could be tested (I did not test
+> myself, but looking at the receiver code it does seem as a plausible
+> solution)
+>
+> Invert the order in which the commands are sent to the receiver:
+>
+> First send the CMD_GET_PAIRED_DEVICES (0x81) to the receiver, and wait to
+> get all the device paired notifications, (the last notification is specially
+> tagged), then send the CMD_SWITCH (0x80).
+> Using this mechanism we guarantee that the receiver never sees a second
+> command while still processing the previous one and no explicit sleep will
+> be required.
+>
+> For me, the ugly sleep suffices, as long as we understand the root cause of
+> the problem.
+>
+> Cheers,
+> -nestor
+>
+>
+> On Fri, Jan 17, 2014 at 9:48 AM, Nestor Lopez Casado
+> <nlopezcasad@logitech.com> wrote:
 >>
->> this patch adds a delayed_work to detect the untouch of onkey since HW will
->> not generate interrupt for it.
+>> On Thu, Jan 16, 2014 at 10:50 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> > On Wed, 8 Jan 2014, Benjamin Tissoires wrote:
+>> >
+>> >> From: Benjamin Tisssoires <benjamin.tissoires@redhat.com>
+>> >>
+>> >> This fix (not very clean though) should fix the long time USB3
+>> >> issue that was spotted last year. The rational has been given by
+>> >> Hans de Goede:
+>> >
+>> > Man this is so ugly ... makes one wonder how come that other OSes don't
+>> > suffer from this. Are they really *that much* slower? :)
+>> >
+>> > I have applied this (and just this) one for 3.14.
 >>
->> at the same time, we move the KEY event to POWER instead of SUSPEND, which
->> will be suitable for both Android and Linux. Userspace PowerManager Daemon
->> will decide to suspend or shutdown based on how long we have touched onkey
+>> This is clearly a workaround for an underlying bug.
+>> Most probably the issue is in the receiver firmware, and the bug
+>> happens to become apparent easier when it is plugged in a usb 3.0
+>> port.
+>> We are experiencing some issues when the receiver is plugged to usb
+>> 3.0 ports in other OSes as well, these could also be explained by the
+>> same phenomenon of vendor requests being missed by the receiver. But
+>> we dont have a clear understanding of the problem yet.
 >>
->> Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
->> Signed-off-by: Rongjun Ying <Rongjun.Ying@csr.com>
->> Signed-off-by: Barry Song <Baohua.Song@csr.com>
->> ---
->>  -v3: move to use custom devres action
->
-> Thank you for making the changes, however it seems that we can control
-> whether the device generates interrupts or not and so we can implement
-> open and close methods. If patch below works then your
-> cancel_delayed_work() call should go into sirfosc_pwrc_close() and we do
-> not need to use devm_free_irq() not custom action.
-
-this one looks making lots of senses. it makes sure HW will not
-trigger any SW behaviour before probe() finishes, and also makes sure
-HW will not trigger any SW behaviour in remove(). i'd like xianglong
-to give a quick test on it.
-
->
-> Thanks.
->
-> --
-> Dmitry
+>> >
+>> > Thanks,
+>> >
+>> > --
+>> > Jiri Kosina
+>> > SUSE Labs
+>> Cheers,
+>> -nestor
 >
 >
-> Input: sirfsoc-onkey - implement open and close methods
->
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> We can control whetehr device generates interrupts or not so let's
-> implement open and close methods of input device so that we do not do any
-> processing until there are users.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/misc/sirfsoc-onkey.c |   50 +++++++++++++++++++++++++++++-------
->  1 file changed, 40 insertions(+), 10 deletions(-)
->
-> diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
-> index e8897c3..dc7db65 100644
-> --- a/drivers/input/misc/sirfsoc-onkey.c
-> +++ b/drivers/input/misc/sirfsoc-onkey.c
-> @@ -49,6 +49,35 @@ static irqreturn_t sirfsoc_pwrc_isr(int irq, void *dev_id)
->         return IRQ_HANDLED;
->  }
->
-> +static void sirfsoc_pwrc_toggle_interrupts(struct sirfsoc_pwrc_drvdata *pwrcdrv,
-> +                                          bool enable)
-> +{
-> +       u32 int_mask;
-> +
-> +       int_mask = sirfsoc_rtc_iobrg_readl(pwrcdrv->pwrc_base + PWRC_INT_MASK);
-> +       if (enable)
-> +               int_mask |= PWRC_ON_KEY_BIT;
-> +       else
-> +               int_mask &= ~PWRC_ON_KEY_BIT;
-> +       sirfsoc_rtc_iobrg_writel(int_mask, pwrcdrv->pwrc_base + PWRC_INT_MASK);
-> +}
-> +
-> +static int sirfsoc_pwrc_open(struct input_dev *input)
-> +{
-> +       struct sirfsoc_pwrc_drvdata *pwrcdrv = input_get_drvdata(input);
-> +
-> +       sirfsoc_pwrc_toggle_interrupts(pwrcdrv, true);
-> +
-> +       return 0;
-> +}
-> +
-> +static void sirfsoc_pwrc_close(struct input_dev *input)
-> +{
-> +       struct sirfsoc_pwrc_drvdata *pwrcdrv = input_get_drvdata(input);
-> +
-> +       sirfsoc_pwrc_toggle_interrupts(pwrcdrv, false);
-> +}
-> +
->  static const struct of_device_id sirfsoc_pwrc_of_match[] = {
->         { .compatible = "sirf,prima2-pwrc" },
->         {},
-> @@ -70,7 +99,7 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
->         }
->
->         /*
-> -        * we can't use of_iomap because pwrc is not mapped in memory,
-> +        * We can't use of_iomap because pwrc is not mapped in memory,
->          * the so-called base address is only offset in rtciobrg
->          */
->         error = of_property_read_u32(np, "reg", &pwrcdrv->pwrc_base);
-> @@ -88,6 +117,11 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
->         pwrcdrv->input->phys = "pwrc/input0";
->         pwrcdrv->input->evbit[0] = BIT_MASK(EV_PWR);
->
-> +       pwrcdrv->input->open = sirfsoc_pwrc_open;
-> +       pwrcdrv->input->close = sirfsoc_pwrc_close;
-> +
-> +       input_set_drvdata(pwrcdrv->input, pwrcdrv);
-> +
->         irq = platform_get_irq(pdev, 0);
->         error = devm_request_irq(&pdev->dev, irq,
->                                  sirfsoc_pwrc_isr, IRQF_SHARED,
-> @@ -98,11 +132,6 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
->                 return error;
->         }
->
-> -       sirfsoc_rtc_iobrg_writel(
-> -               sirfsoc_rtc_iobrg_readl(pwrcdrv->pwrc_base + PWRC_INT_MASK) |
-> -                       PWRC_ON_KEY_BIT,
-> -               pwrcdrv->pwrc_base + PWRC_INT_MASK);
-> -
->         error = input_register_device(pwrcdrv->input);
->         if (error) {
->                 dev_err(&pdev->dev,
-> @@ -129,15 +158,16 @@ static int pwrc_resume(struct device *dev)
->  {
->         struct platform_device *pdev = to_platform_device(dev);
->         struct sirfsoc_pwrc_drvdata *pwrcdrv = platform_get_drvdata(pdev);
-> +       struct input_dev *input = pwrcdrv->input;
->
->         /*
->          * Do not mask pwrc interrupt as we want pwrc work as a wakeup source
->          * if users touch X_ONKEY_B, see arch/arm/mach-prima2/pm.c
->          */
-> -       sirfsoc_rtc_iobrg_writel(
-> -               sirfsoc_rtc_iobrg_readl(
-> -               pwrcdrv->pwrc_base + PWRC_INT_MASK) | PWRC_ON_KEY_BIT,
-> -               pwrcdrv->pwrc_base + PWRC_INT_MASK);
-> +       mutex_lock(&input->mutex);
-> +       if (input->users)
-> +               sirfsoc_pwrc_toggle_interrupts(pwrcdrv, true);
-> +       mutex_unlock(&input->mutex);
->
->         return 0;
->  }
-
--barry
-
-
- To report this email as spam click https://www.mailcontrol.com/sr/MZbqvYs5QwJvpeaetUwhCQ== .
-
-
-Member of the CSR plc group of companies. CSR plc registered in England and Wales, registered number 4187346, registered office Churchill House, Cambridge Business Park, Cowley Road, Cambridge, CB4 0WZ, United Kingdom
-More information can be found at www.csr.com. Keep up to date with CSR on our technical blog, www.csr.com/blog, CSR people blog, www.csr.com/people, YouTube, www.youtube.com/user/CSRplc, Facebook, www.facebook.com/pages/CSR/191038434253534, or follow us on Twitter at www.twitter.com/CSR_plc.
-New for 2014, you can now access the wide range of products powered by aptX at www.aptx.com.

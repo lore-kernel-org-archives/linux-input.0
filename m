@@ -1,61 +1,145 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [PATCH 05/11] Input: synaptics-rmi4 - remove control_mutex from
- f01_data
-Date: Thu, 13 Feb 2014 15:01:50 -0800
-Message-ID: <52FD4EDE.20208@synaptics.com>
-References: <1392269277-16391-1-git-send-email-dmitry.torokhov@gmail.com> <1392269277-16391-5-git-send-email-dmitry.torokhov@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Barry Song <21cnbao@gmail.com>
+Subject: [PATCH v3] input: sirfsoc-onkey - report onkey untouch event by detecting pin status
+Date: Fri, 14 Feb 2014 11:20:01 +0800
+Message-ID: <1392348001-4950-1-git-send-email-21cnbao@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx2.synaptics.com ([192.147.44.131]:35399 "EHLO
-	us-mx2.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751185AbaBMXBv (ORCPT
+Received: from mail-pb0-f48.google.com ([209.85.160.48]:51837 "EHLO
+	mail-pb0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751050AbaBNDUT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Feb 2014 18:01:51 -0500
-In-Reply-To: <1392269277-16391-5-git-send-email-dmitry.torokhov@gmail.com>
+	Thu, 13 Feb 2014 22:20:19 -0500
+Received: by mail-pb0-f48.google.com with SMTP id rr13so11739456pbb.35
+        for <linux-input@vger.kernel.org>; Thu, 13 Feb 2014 19:20:19 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Linus Walleij <linus.walleij@stericsson.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Courtney Cavin <courtney.cavin@sonymobile.com>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, workgroup.linux@csr.com, Xianglong Du <Xianglong.Du@csr.com>, Rongjun Ying <Rongjun.Ying@csr.com>, Barry Song <Baohua.Song@csr.com>
 
-On 02/12/2014 09:27 PM, Dmitry Torokhov wrote:
-> It is not used by anyone.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Xianglong Du <Xianglong.Du@csr.com>
 
-Acked-by: Christopher Heiny <cheiny@synaptics.com>
+this patch adds a delayed_work to detect the untouch of onkey since HW will
+not generate interrupt for it.
 
-> ---
->   drivers/input/rmi4/rmi_f01.c | 3 ---
->   1 file changed, 3 deletions(-)
->
-> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-> index 30e0b50..6f90a6c 100644
-> --- a/drivers/input/rmi4/rmi_f01.c
-> +++ b/drivers/input/rmi4/rmi_f01.c
-> @@ -125,7 +125,6 @@ struct f01_data {
->   	struct f01_basic_properties properties;
->
->   	struct f01_device_control device_control;
-> -	struct mutex control_mutex;
->
->   	u8 device_status;
->
-> @@ -214,8 +213,6 @@ static int rmi_f01_initialize(struct rmi_function *fn)
->   	struct f01_data *data = fn->data;
->   	struct rmi_device_platform_data *pdata = to_rmi_platform_data(rmi_dev);
->
-> -	mutex_init(&data->control_mutex);
-> -
->   	/*
->   	 * Set the configured bit and (optionally) other important stuff
->   	 * in the device control register.
->
+at the same time, we move the KEY event to POWER instead of SUSPEND, which
+will be suitable for both Android and Linux. Userspace PowerManager Daemon
+will decide to suspend or shutdown based on how long we have touched onkey
 
+Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
+Signed-off-by: Rongjun Ying <Rongjun.Ying@csr.com>
+Signed-off-by: Barry Song <Baohua.Song@csr.com>
+---
+ -v3: move to use custom devres action
 
+ drivers/input/misc/sirfsoc-onkey.c |   60 +++++++++++++++++++++++++++++------
+ 1 files changed, 49 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
+index e8897c3..b354da8 100644
+--- a/drivers/input/misc/sirfsoc-onkey.c
++++ b/drivers/input/misc/sirfsoc-onkey.c
+@@ -13,16 +13,44 @@
+ #include <linux/input.h>
+ #include <linux/rtc/sirfsoc_rtciobrg.h>
+ #include <linux/of.h>
++#include <linux/workqueue.h>
+ 
+ struct sirfsoc_pwrc_drvdata {
+ 	u32			pwrc_base;
+ 	struct input_dev	*input;
++	struct delayed_work	work;
+ };
+ 
+ #define PWRC_ON_KEY_BIT			(1 << 0)
+ 
+ #define PWRC_INT_STATUS			0xc
+ #define PWRC_INT_MASK			0x10
++#define PWRC_PIN_STATUS			0x14
++#define PWRC_KEY_DETECT_UP_TIME		20	/* ms*/
++
++static inline int sirfsoc_pwrc_is_on_key_down(
++		struct sirfsoc_pwrc_drvdata *pwrcdrv)
++{
++	int state = sirfsoc_rtc_iobrg_readl(
++				pwrcdrv->pwrc_base + PWRC_PIN_STATUS)
++				& PWRC_ON_KEY_BIT;
++	return !state; /* ON_KEY is active low */
++}
++
++static void sirfsoc_pwrc_report_event(struct work_struct *work)
++{
++	struct sirfsoc_pwrc_drvdata *pwrcdrv =
++				container_of((struct delayed_work *)work,
++				struct sirfsoc_pwrc_drvdata, work);
++
++	if (!sirfsoc_pwrc_is_on_key_down(pwrcdrv)) {
++		input_event(pwrcdrv->input, EV_KEY, KEY_POWER, 0);
++		input_sync(pwrcdrv->input);
++	} else {
++		schedule_delayed_work(&pwrcdrv->work,
++			msecs_to_jiffies(PWRC_KEY_DETECT_UP_TIME));
++	}
++}
+ 
+ static irqreturn_t sirfsoc_pwrc_isr(int irq, void *dev_id)
+ {
+@@ -34,21 +62,22 @@ static irqreturn_t sirfsoc_pwrc_isr(int irq, void *dev_id)
+ 	sirfsoc_rtc_iobrg_writel(int_status & ~PWRC_ON_KEY_BIT,
+ 				 pwrcdrv->pwrc_base + PWRC_INT_STATUS);
+ 
+-	/*
+-	 * For a typical Linux system, we report KEY_SUSPEND to trigger apm-power.c
+-	 * to queue a SUSPEND APM event
+-	 */
+-	input_event(pwrcdrv->input, EV_PWR, KEY_SUSPEND, 1);
+-	input_sync(pwrcdrv->input);
+ 
+-	/*
+-	 * Todo: report KEY_POWER event for Android platforms, Android PowerManager
+-	 * will handle the suspend and powerdown/hibernation
+-	 */
++	input_event(pwrcdrv->input, EV_KEY, KEY_POWER, 1);
++	input_sync(pwrcdrv->input);
++	schedule_delayed_work(&pwrcdrv->work,
++		msecs_to_jiffies(PWRC_KEY_DETECT_UP_TIME));
+ 
+ 	return IRQ_HANDLED;
+ }
+ 
++static void sirfsoc_pwrc_stop_updetect(void *data)
++{
++	struct sirfsoc_pwrc_drvdata *pwrcdrv = data;
++
++	cancel_delayed_work_sync(&pwrcdrv->work);
++}
++
+ static const struct of_device_id sirfsoc_pwrc_of_match[] = {
+ 	{ .compatible = "sirf,prima2-pwrc" },
+ 	{},
+@@ -86,7 +115,9 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
+ 
+ 	pwrcdrv->input->name = "sirfsoc pwrckey";
+ 	pwrcdrv->input->phys = "pwrc/input0";
+-	pwrcdrv->input->evbit[0] = BIT_MASK(EV_PWR);
++	pwrcdrv->input->evbit[0] = BIT_MASK(EV_KEY);
++
++	INIT_DELAYED_WORK(&pwrcdrv->work, sirfsoc_pwrc_report_event);
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	error = devm_request_irq(&pdev->dev, irq,
+@@ -98,6 +129,13 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
+ 
++	error = devm_add_action(&pdev->dev, sirfsoc_pwrc_stop_updetect, pwrcdrv);
++	if (error) {
++		dev_err(&pdev->dev, "failed to add stop untouch detection action, %d\n",
++			error);
++		return error;
++	}
++
+ 	sirfsoc_rtc_iobrg_writel(
+ 		sirfsoc_rtc_iobrg_readl(pwrcdrv->pwrc_base + PWRC_INT_MASK) |
+ 			PWRC_ON_KEY_BIT,
 -- 
+1.7.5.4
 
-Christopher Heiny
-Senior Staff Firmware Engineer
-Synaptics Incorporated

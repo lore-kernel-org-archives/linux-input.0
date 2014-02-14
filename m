@@ -1,24 +1,38 @@
-From: Barry Song <21cnbao@gmail.com>
-Subject: Re: [PATCH v3] input: sirfsoc-onkey - report onkey untouch event by
+From: Xianglong Du <Xianglong.Du@csr.com>
+Subject: RE: [PATCH v3] input: sirfsoc-onkey - report onkey untouch event by
  detecting pin status
-Date: Fri, 14 Feb 2014 16:49:27 +0800
-Message-ID: <CAGsJ_4xqnZAO6vpkgTEHmfp9+nbWa1qwQ4pda6B2sSrEtbV3ZA@mail.gmail.com>
-References: <1392348001-4950-1-git-send-email-21cnbao@gmail.com> <20140214075717.GA14682@core.coreip.homeip.net>
+Date: Fri, 14 Feb 2014 10:32:08 +0000
+Message-ID: <847BC5012124A94BB5CA1B26E022CCA3012BAFDC27@SHAASIEXM01.ASIA.ROOT.PRI>
+References: <1392348001-4950-1-git-send-email-21cnbao@gmail.com>
+ <20140214075717.GA14682@core.coreip.homeip.net>,
+ <CAGsJ_4xqnZAO6vpkgTEHmfp9+nbWa1qwQ4pda6B2sSrEtbV3ZA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pa0-f48.google.com ([209.85.220.48]:38465 "EHLO
-	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751643AbaBNItr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Feb 2014 03:49:47 -0500
-Received: by mail-pa0-f48.google.com with SMTP id kx10so11978724pab.7
-        for <linux-input@vger.kernel.org>; Fri, 14 Feb 2014 00:49:47 -0800 (PST)
-In-Reply-To: <20140214075717.GA14682@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAGsJ_4xqnZAO6vpkgTEHmfp9+nbWa1qwQ4pda6B2sSrEtbV3ZA@mail.gmail.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Barry Song <21cnbao@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rongjun Ying <Rongjun.Ying@csr.com>, DL-SHA-WorkGroupLinux <DL-SHA-WorkGroupLinux@internal.csr.com>, Barry Song <Barry.Song@csr.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, Xianglong Du <Xianglong.Du@csr.com>, Rongjun Ying <Rongjun.Ying@csr.com>, Barry Song <Baohua.Song@csr.com>
+
+Tested-by: Xianglong Du <Xianglong.Du@csr.com>
+
+________________________________________
+From: Barry Song [21cnbao@gmail.com]
+Sent: Friday, February 14, 2014 16:49
+To: Dmitry Torokhov
+Cc: linux-input@vger.kernel.org; linux-arm-kernel@lists.infradead.org; DL-SHA-WorkGroupLinux; Xianglong Du; Rongjun Ying; Barry Song
+Subject: Re: [PATCH v3] input: sirfsoc-onkey - report onkey untouch event by detecting pin status
 
 2014-02-14 15:57 GMT+08:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
 > Hi Barry,
@@ -166,3 +180,11 @@ to give a quick test on it.
 >  }
 
 -barry
+
+
+ To report this email as spam click https://www.mailcontrol.com/sr/MZbqvYs5QwJvpeaetUwhCQ== .
+
+
+Member of the CSR plc group of companies. CSR plc registered in England and Wales, registered number 4187346, registered office Churchill House, Cambridge Business Park, Cowley Road, Cambridge, CB4 0WZ, United Kingdom
+More information can be found at www.csr.com. Keep up to date with CSR on our technical blog, www.csr.com/blog, CSR people blog, www.csr.com/people, YouTube, www.youtube.com/user/CSRplc, Facebook, www.facebook.com/pages/CSR/191038434253534, or follow us on Twitter at www.twitter.com/CSR_plc.
+New for 2014, you can now access the wide range of products powered by aptX at www.aptx.com.

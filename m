@@ -1,140 +1,214 @@
-From: Barry Song <21cnbao@gmail.com>
-Subject: Re: [PATCH v3] input: sirfsoc-onkey - report onkey untouch event by
- detecting pin status
-Date: Fri, 14 Feb 2014 21:41:06 +0800
-Message-ID: <CAGsJ_4zjtWV3Z1AJ2bqekXn54rm=k8d4iOi_zzainCEnNGefCw@mail.gmail.com>
-References: <1392348001-4950-1-git-send-email-21cnbao@gmail.com>
- <20140214075717.GA14682@core.coreip.homeip.net> <CAGsJ_4xqnZAO6vpkgTEHmfp9+nbWa1qwQ4pda6B2sSrEtbV3ZA@mail.gmail.com>
- <847BC5012124A94BB5CA1B26E022CCA3012BAFDC27@SHAASIEXM01.ASIA.ROOT.PRI>
+From: Ulrik De Bie <ulrik.debie-os@e2big.org>
+Subject: [PATCH] Input: Support in the elantech driver of the trackpoint
+ present on for instance Lenovo L530
+Date: Fri, 14 Feb 2014 21:51:26 +0100
+Message-ID: <20140214205126.GB15526@lantern>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pb0-f43.google.com ([209.85.160.43]:45773 "EHLO
-	mail-pb0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752025AbaBNNl1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Feb 2014 08:41:27 -0500
-Received: by mail-pb0-f43.google.com with SMTP id md12so12347906pbc.30
-        for <linux-input@vger.kernel.org>; Fri, 14 Feb 2014 05:41:26 -0800 (PST)
-In-Reply-To: <847BC5012124A94BB5CA1B26E022CCA3012BAFDC27@SHAASIEXM01.ASIA.ROOT.PRI>
+Received: from e2big.org ([198.61.226.133]:55487 "EHLO e2big.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752031AbaBNVe1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Feb 2014 16:34:27 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Xianglong Du <Xianglong.Du@csr.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, DL-SHA-WorkGroupLinux <DL-SHA-WorkGroupLinux@internal.csr.com>, Rongjun Ying <Rongjun.Ying@csr.com>, Barry Song <Barry.Song@csr.com>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Jonathan Aquilina <eagles051387@gmail.com>, Ulrik De Bie <ulrik_opensource-kernel@yahoo.com>
 
->> Input: sirfsoc-onkey - implement open and close methods
->>
->> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>
->> We can control whetehr device generates interrupts or not so let's
->> implement open and close methods of input device so that we do not do any
->> processing until there are users.
->>
->> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Sorry it took me some time to have an email addres that would allow clean
+mails. Below you can find the updated patch previously sent on linux-input
+mailinglist. David Herrman asked to resent this patch as a proper git patch so
+here it is now. 
 
-Tested-by: Xianglong Du <Xianglong.Du@csr.com>
+It also available on https://github.com/ulrikdb/linux.git elantech_trackpoint
+from commit 38dbfb59d1175ef458d006556061adeaa8751b72 (Linus 3.14-rc1) up to 
+d69e103a35c944721966105790d14adf79098a4c 
 
-Dmitry, will you push this one to your tree so that i can rebase others?
+Please when responding please send either to linux-input or put Ulrik De Bie <ulrik.debie-os@e2big.org> in CC:, Thanks.
 
->> ---
->>  drivers/input/misc/sirfsoc-onkey.c |   50 +++++++++++++++++++++++++++++-------
->>  1 file changed, 40 insertions(+), 10 deletions(-)
->>
->> diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
->> index e8897c3..dc7db65 100644
->> --- a/drivers/input/misc/sirfsoc-onkey.c
->> +++ b/drivers/input/misc/sirfsoc-onkey.c
->> @@ -49,6 +49,35 @@ static irqreturn_t sirfsoc_pwrc_isr(int irq, void *dev_id)
->>         return IRQ_HANDLED;
->>  }
->>
->> +static void sirfsoc_pwrc_toggle_interrupts(struct sirfsoc_pwrc_drvdata *pwrcdrv,
->> +                                          bool enable)
->> +{
->> +       u32 int_mask;
->> +
->> +       int_mask = sirfsoc_rtc_iobrg_readl(pwrcdrv->pwrc_base + PWRC_INT_MASK);
->> +       if (enable)
->> +               int_mask |= PWRC_ON_KEY_BIT;
->> +       else
->> +               int_mask &= ~PWRC_ON_KEY_BIT;
->> +       sirfsoc_rtc_iobrg_writel(int_mask, pwrcdrv->pwrc_base + PWRC_INT_MASK);
->> +}
->> +
->> +static int sirfsoc_pwrc_open(struct input_dev *input)
->> +{
->> +       struct sirfsoc_pwrc_drvdata *pwrcdrv = input_get_drvdata(input);
->> +
->> +       sirfsoc_pwrc_toggle_interrupts(pwrcdrv, true);
->> +
->> +       return 0;
->> +}
->> +
->> +static void sirfsoc_pwrc_close(struct input_dev *input)
->> +{
->> +       struct sirfsoc_pwrc_drvdata *pwrcdrv = input_get_drvdata(input);
->> +
->> +       sirfsoc_pwrc_toggle_interrupts(pwrcdrv, false);
->> +}
->> +
->>  static const struct of_device_id sirfsoc_pwrc_of_match[] = {
->>         { .compatible = "sirf,prima2-pwrc" },
->>         {},
->> @@ -70,7 +99,7 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
->>         }
->>
->>         /*
->> -        * we can't use of_iomap because pwrc is not mapped in memory,
->> +        * We can't use of_iomap because pwrc is not mapped in memory,
->>          * the so-called base address is only offset in rtciobrg
->>          */
->>         error = of_property_read_u32(np, "reg", &pwrcdrv->pwrc_base);
->> @@ -88,6 +117,11 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
->>         pwrcdrv->input->phys = "pwrc/input0";
->>         pwrcdrv->input->evbit[0] = BIT_MASK(EV_PWR);
->>
->> +       pwrcdrv->input->open = sirfsoc_pwrc_open;
->> +       pwrcdrv->input->close = sirfsoc_pwrc_close;
->> +
->> +       input_set_drvdata(pwrcdrv->input, pwrcdrv);
->> +
->>         irq = platform_get_irq(pdev, 0);
->>         error = devm_request_irq(&pdev->dev, irq,
->>                                  sirfsoc_pwrc_isr, IRQF_SHARED,
->> @@ -98,11 +132,6 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
->>                 return error;
->>         }
->>
->> -       sirfsoc_rtc_iobrg_writel(
->> -               sirfsoc_rtc_iobrg_readl(pwrcdrv->pwrc_base + PWRC_INT_MASK) |
->> -                       PWRC_ON_KEY_BIT,
->> -               pwrcdrv->pwrc_base + PWRC_INT_MASK);
->> -
->>         error = input_register_device(pwrcdrv->input);
->>         if (error) {
->>                 dev_err(&pdev->dev,
->> @@ -129,15 +158,16 @@ static int pwrc_resume(struct device *dev)
->>  {
->>         struct platform_device *pdev = to_platform_device(dev);
->>         struct sirfsoc_pwrc_drvdata *pwrcdrv = platform_get_drvdata(pdev);
->> +       struct input_dev *input = pwrcdrv->input;
->>
->>         /*
->>          * Do not mask pwrc interrupt as we want pwrc work as a wakeup source
->>          * if users touch X_ONKEY_B, see arch/arm/mach-prima2/pm.c
->>          */
->> -       sirfsoc_rtc_iobrg_writel(
->> -               sirfsoc_rtc_iobrg_readl(
->> -               pwrcdrv->pwrc_base + PWRC_INT_MASK) | PWRC_ON_KEY_BIT,
->> -               pwrcdrv->pwrc_base + PWRC_INT_MASK);
->> +       mutex_lock(&input->mutex);
->> +       if (input->users)
->> +               sirfsoc_pwrc_toggle_interrupts(pwrcdrv, true);
->> +       mutex_unlock(&input->mutex);
->>
->>         return 0;
->>  }
->
-> -barry
 
--barry
+The Lenovo L530 trackpoint does not work out of the box. It gives sync errors
+as shown below when the trackpoint or trackpoint mouse buttons are pressed and
+no input is received by userspace:
+[   29.010641] psmouse serio1: Touchpad at isa0060/serio1/input0 lost sync at byte 6
+The touchpad does work.
+
+The alternative is to do a downgrade to generic ps/2 mouse (modprobe psmouse proto=bare)
+but this has the disadvantage that touchpad can't be disabled (I want trackpoint, not touchpad).
+
+With this patch, the trackpoint is provided as another input device; currently called 'TPPS/2 IBM TrackPoint'
+The trackpoint now succesfully works and I can disable the touchpad with synclient TouchPadOff=1
+The patch will also output messages that do not follow the expected pattern.
+In the mean time I've seen 2 unknown packets occasionally:
+0x04 , 0x00 , 0x00 , 0x00 , 0x00 , 0x00
+0x00 , 0x00 , 0x00 , 0x02 , 0x00 , 0x00
+I don't know what those are for, but they can be safely ignored.
+
+Currently all packets that are not known to v3 touchpad and where packet[3] (the fourth byte) lowest
+nibble is 6 are now recognized as PACKET_TRACKPOINT and processed by the new elantech_report_trackpoint.
+
+This has been verified to work on a laptop where the touchpad/trackpoint combined identify themselves as:
+psmouse serio1: elantech: assuming hardware version 3 (with firmware version 0x350f02)
+psmouse serio1: elantech: Synaptics capabilities query result 0xb9, 0x15, 0x0c.
+
+Since I can't send clean email from yahoo, I've switched to a different email address: ulrik.debie-os@e2big.org
+Signed-off-by: Ulrik De Bie <ulrik_opensource-kernel@yahoo.com>
+Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+
+Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+---
+ drivers/input/mouse/elantech.c | 78 +++++++++++++++++++++++++++++++++++++++++-
+ drivers/input/mouse/elantech.h |  3 ++
+ 2 files changed, 80 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index ef1cf52..21d693b 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -402,6 +402,54 @@ static void elantech_report_absolute_v2(struct psmouse *psmouse)
+ 	input_sync(dev);
+ }
+ 
++static void elantech_report_trackpoint(struct psmouse *psmouse,
++				       int packet_type)
++{
++	/* byte 0:  0   0 ~sx ~sy   0   M   R   L */
++	/* byte 1: sx   0   0   0   0   0   0   0 */
++	/* byte 2: sy   0   0   0   0   0   0   0 */
++	/* byte 3:  0   0  sy  sx   0   1   1   0 */
++	/* byte 4: x7  x6  x5  x4  x3  x2  x1  x0 */
++	/* byte 5: y7  y6  y5  y4  y3  y2  y1  y0 */
++
++	/*
++	 * x and y are written in two's complement spread
++	 * over 9 bits with sx/sy the relative top bit and
++	 * x7..x0 and y7..y0 the lower bits.
++	 * The sign of y is opposite to what the input driver
++	 * expects for a relative movement
++	 */
++
++	struct elantech_data *etd = psmouse->private;
++	struct input_dev *dev2 = etd->dev2;
++	unsigned char *packet = psmouse->packet;
++	int x, y;
++	input_report_key(dev2, BTN_LEFT, packet[0] & 0x01);
++	input_report_key(dev2, BTN_RIGHT, packet[0] & 0x02);
++	input_report_key(dev2, BTN_MIDDLE, packet[0] & 0x04);
++	x = (s32) ((u32) ((packet[1] & 0x80) ? 0UL : 0xFFFFFF00UL) | (u32)
++		   packet[4]);
++	y = -(s32) ((u32) ((packet[2] & 0x80) ? 0UL : 0xFFFFFF00UL) | (u32)
++		    packet[5]);
++	input_report_rel(dev2, REL_X, x);
++	input_report_rel(dev2, REL_Y, y);
++	switch ((((u32) packet[0] & 0xF8) << 24) | ((u32) packet[1] << 16)
++		| (u32) packet[2] << 8 | (u32) packet[3]) {
++	case 0x00808036UL:
++	case 0x10008026UL:
++	case 0x20800016UL:
++	case 0x30000006UL:
++		break;
++	default:
++		/* Dump unexpected packet sequences if debug=1 (default) */
++		if (etd->debug == 1)
++			elantech_packet_dump(psmouse);
++		break;
++	}
++
++	input_sync(dev2);
++}
++
+ /*
+  * Interpret complete data packets and report absolute mode input events for
+  * hardware version 3. (12 byte packets for two fingers)
+@@ -700,8 +748,11 @@ static int elantech_packet_check_v3(struct psmouse *psmouse)
+ 
+ 		if ((packet[0] & 0x0c) == 0x0c && (packet[3] & 0xce) == 0x0c)
+ 			return PACKET_V3_TAIL;
++		if ((packet[3]&0x0f) == 0x06)
++			return PACKET_TRACKPOINT;
+ 	}
+ 
++
+ 	return PACKET_UNKNOWN;
+ }
+ 
+@@ -783,7 +834,10 @@ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
+ 		if (packet_type == PACKET_UNKNOWN)
+ 			return PSMOUSE_BAD_DATA;
+ 
+-		elantech_report_absolute_v3(psmouse, packet_type);
++		if (packet_type == PACKET_TRACKPOINT)
++			elantech_report_trackpoint(psmouse, packet_type);
++		else
++			elantech_report_absolute_v3(psmouse, packet_type);
+ 		break;
+ 
+ 	case 4:
+@@ -1400,10 +1454,15 @@ int elantech_init(struct psmouse *psmouse)
+ 	struct elantech_data *etd;
+ 	int i, error;
+ 	unsigned char param[3];
++	struct input_dev *dev2;
+ 
+ 	psmouse->private = etd = kzalloc(sizeof(struct elantech_data), GFP_KERNEL);
+ 	if (!etd)
+ 		return -ENOMEM;
++	dev2 = input_allocate_device();
++	if (!dev2)
++		goto init_fail;
++	etd->dev2 = dev2;
+ 
+ 	psmouse_reset(psmouse);
+ 
+@@ -1463,9 +1522,26 @@ int elantech_init(struct psmouse *psmouse)
+ 	psmouse->reconnect = elantech_reconnect;
+ 	psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
+ 
++	snprintf(etd->phys, sizeof(etd->phys), "%s/input1",
++		psmouse->ps2dev.serio->phys);
++	dev2->phys = etd->phys;
++	dev2->name = "TPPS/2 IBM TrackPoint";
++	dev2->id.bustype = BUS_I8042;
++	dev2->id.vendor  = 0x0002;
++	dev2->id.product = PSMOUSE_ELANTECH;
++	dev2->id.version = 0x0000;
++	dev2->dev.parent = &psmouse->ps2dev.serio->dev;
++	dev2->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
++	dev2->relbit[BIT_WORD(REL_X)] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
++	dev2->keybit[BIT_WORD(BTN_LEFT)] =
++		BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
++
++	if (input_register_device(etd->dev2))
++		goto init_fail;
+ 	return 0;
+ 
+  init_fail:
++	input_free_device(dev2);
+ 	kfree(etd);
+ 	return -1;
+ }
+diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+index 036a04a..27cf191 100644
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -94,6 +94,7 @@
+ #define PACKET_V4_HEAD			0x05
+ #define PACKET_V4_MOTION		0x06
+ #define PACKET_V4_STATUS		0x07
++#define PACKET_TRACKPOINT		0x08
+ 
+ /*
+  * track up to 5 fingers for v4 hardware
+@@ -114,6 +115,8 @@ struct finger_pos {
+ };
+ 
+ struct elantech_data {
++	struct input_dev *dev2;		/* Relative device */
++	char	phys[32];
+ 	unsigned char reg_07;
+ 	unsigned char reg_10;
+ 	unsigned char reg_11;
+-- 
+1.8.5.3
+

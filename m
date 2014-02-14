@@ -1,157 +1,168 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input synaptics-rmi4: Use put_device() and
- device_type.release() to free storage.
-Date: Thu, 13 Feb 2014 14:10:48 -0800
-Message-ID: <20140213221048.GA6650@core.coreip.homeip.net>
-References: <1392160410-8293-1-git-send-email-cheiny@synaptics.com>
- <20140212064925.GC15855@core.coreip.homeip.net>
- <52FC2E68.1060709@synaptics.com>
- <20140213061524.GA15260@core.coreip.homeip.net>
- <20140213215930.GH1706@sonymobile.com>
+From: Barry Song <21cnbao@gmail.com>
+Subject: Re: [PATCH v3] input: sirfsoc-onkey - report onkey untouch event by
+ detecting pin status
+Date: Fri, 14 Feb 2014 16:49:27 +0800
+Message-ID: <CAGsJ_4xqnZAO6vpkgTEHmfp9+nbWa1qwQ4pda6B2sSrEtbV3ZA@mail.gmail.com>
+References: <1392348001-4950-1-git-send-email-21cnbao@gmail.com> <20140214075717.GA14682@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pd0-f181.google.com ([209.85.192.181]:61212 "EHLO
-	mail-pd0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751885AbaBNIZr (ORCPT
+Received: from mail-pa0-f48.google.com ([209.85.220.48]:38465 "EHLO
+	mail-pa0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751643AbaBNItr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Feb 2014 03:25:47 -0500
-Received: by mail-pd0-f181.google.com with SMTP id y10so11619283pdj.40
-        for <linux-input@vger.kernel.org>; Fri, 14 Feb 2014 00:25:47 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20140213215930.GH1706@sonymobile.com>
+	Fri, 14 Feb 2014 03:49:47 -0500
+Received: by mail-pa0-f48.google.com with SMTP id kx10so11978724pab.7
+        for <linux-input@vger.kernel.org>; Fri, 14 Feb 2014 00:49:47 -0800 (PST)
+In-Reply-To: <20140214075717.GA14682@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Courtney Cavin <courtney.cavin@sonymobile.com>
-Cc: Christopher Heiny <cheiny@synaptics.com>, Linux Input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Vincent Huang <vincent.huang@tw.synaptics.com>, Vivian Ly <vly@synaptics.com>, Daniel Rosenberg <daniel.rosenberg@synaptics.com>, Jean Delvare <khali@linux-fr.org>, Joerie de Gram <j.de.gram@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, DL-SHA-WorkGroupLinux <workgroup.linux@csr.com>, Xianglong Du <Xianglong.Du@csr.com>, Rongjun Ying <Rongjun.Ying@csr.com>, Barry Song <Baohua.Song@csr.com>
 
-On Thu, Feb 13, 2014 at 01:59:31PM -0800, Courtney Cavin wrote:
-> On Thu, Feb 13, 2014 at 07:15:24AM +0100, Dmitry Torokhov wrote:
-> > On Wed, Feb 12, 2014 at 06:31:04PM -0800, Christopher Heiny wrote:
-> > > Input: synaptics-rmi4 - Use put_device() and device_type.release()
-> > > to free storage.
-> > > 
-> > > From: Christopher Heiny <cheiny@synaptics.com>
-> > > 
-> > > For rmi_sensor and rmi_function device_types, use put_device() and
-> > > the assocated device_type.release() function to clean up related
-> > > structures and storage in the correct and safe order.
-> > > 
-> > > Allocate irq_mask as part of struct rmi_function.
-> > > 
-> > > Delete unused rmi_driver_irq_get_mask() function.
-> [...]
-> > Input: synaptics-rmi4 - use put_device() to free devices
-> > 
-> > From: Christopher Heiny <cheiny@synaptics.com>
-> > 
-> > For rmi_sensor and rmi_function device_types, use put_device() and
-> > the associated device_type->release() function to clean up related
-> > structures and storage in the correct and safe order.
-> > 
-> > Allocate irq_mask as part of struct rmi_function.
-> > 
-> > Suggested-by: Courtney Cavin <courtney.cavin@sonymobile.com>
-> > Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/input/rmi4/rmi_bus.c    |   30 +++++++++++++++++++++---------
-> >  drivers/input/rmi4/rmi_bus.h    |    7 ++++---
-> >  drivers/input/rmi4/rmi_driver.c |   25 +++++++------------------
-> >  3 files changed, 32 insertions(+), 30 deletions(-)
-> > 
-> > diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-> [...]  
-> > @@ -142,6 +150,7 @@ EXPORT_SYMBOL(rmi_unregister_transport_device);
-> >  static void rmi_release_function(struct device *dev)
-> >  {
-> >  	struct rmi_function *fn = to_rmi_function(dev);
-> > +
-> >  	kfree(fn);
-> >  }
-> 
-> Ownership of this memory is a bit weird...
-> 
-> [...]
-> >  void rmi_unregister_function(struct rmi_function *fn)
-> >  {
-> > +	device_del(&fn->dev);
-> >  	rmi_function_teardown_debugfs(fn);
-> > -	device_unregister(&fn->dev);
-> > +	put_device(&fn->dev);
-> >  }
-> 
-> Here clearly the bus code owns it...
-> 
-> > diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> [...]  
-> >  static int rmi_create_function(struct rmi_device *rmi_dev,
-> > -			      void *ctx, const struct pdt_entry *pdt)
-> > +			       void *ctx, const struct pdt_entry *pdt)
-> >  {
-> >  	struct device *dev = &rmi_dev->dev;
-> >  	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> > @@ -630,7 +629,9 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
-> >  	dev_dbg(dev, "Initializing F%02X for %s.\n",
-> >  		pdt->function_number, pdata->sensor_name);
-> >  
-> > -	fn = kzalloc(sizeof(struct rmi_function), GFP_KERNEL);
-> > +	fn = kzalloc(sizeof(struct rmi_function) +
-> > +			BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long),
-> > +		     GFP_KERNEL);
-> 
-> But it's allocated in the chip driver...
-> 
-> >  	if (!fn) {
-> >  		dev_err(dev, "Failed to allocate memory for F%02X\n",
-> >  			pdt->function_number);
-> > @@ -646,22 +647,12 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
-> >  	fn->irq_pos = *current_irq_count;
-> >  	*current_irq_count += fn->num_of_irqs;
-> >  
-> > -	fn->irq_mask = kzalloc(
-> > -		BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long),
-> > -		GFP_KERNEL);
-> > -	if (!fn->irq_mask) {
-> > -		dev_err(dev, "%s: Failed to create irq_mask for F%02X.\n",
-> > -			__func__, pdt->function_number);
-> > -		error = -ENOMEM;
-> > -		goto err_free_mem;
-> > -	}
-> > -
-> >  	for (i = 0; i < fn->num_of_irqs; i++)
-> >  		set_bit(fn->irq_pos + i, fn->irq_mask);
-> >  
-> >  	error = rmi_register_function(fn);
-> >  	if (error)
-> > -		goto err_free_irq_mask;
-> > +		goto err_put_fn;
-> >  
-> >  	if (pdt->function_number == 0x01)
-> >  		data->f01_container = fn;
-> > @@ -670,10 +661,8 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
-> >  
-> >  	return RMI_SCAN_CONTINUE;
-> >  
-> > -err_free_irq_mask:
-> > -	kfree(fn->irq_mask);
-> > -err_free_mem:
-> > -	kfree(fn);
-> > +err_put_fn:
-> > +	put_device(&fn->dev);
-> 
-> And the chip driver now is expected to know it's a device, and trust
-> that the bus code knows how to free the memory.
+2014-02-14 15:57 GMT+08:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> Hi Barry,
+>
+> On Fri, Feb 14, 2014 at 11:20:01AM +0800, Barry Song wrote:
+>> From: Xianglong Du <Xianglong.Du@csr.com>
+>>
+>> this patch adds a delayed_work to detect the untouch of onkey since HW will
+>> not generate interrupt for it.
+>>
+>> at the same time, we move the KEY event to POWER instead of SUSPEND, which
+>> will be suitable for both Android and Linux. Userspace PowerManager Daemon
+>> will decide to suspend or shutdown based on how long we have touched onkey
+>>
+>> Signed-off-by: Xianglong Du <Xianglong.Du@csr.com>
+>> Signed-off-by: Rongjun Ying <Rongjun.Ying@csr.com>
+>> Signed-off-by: Barry Song <Baohua.Song@csr.com>
+>> ---
+>>  -v3: move to use custom devres action
+>
+> Thank you for making the changes, however it seems that we can control
+> whether the device generates interrupts or not and so we can implement
+> open and close methods. If patch below works then your
+> cancel_delayed_work() call should go into sirfosc_pwrc_close() and we do
+> not need to use devm_free_irq() not custom action.
 
-Yeah. That is why for input devices I have a separate
-input_allocate_device and input_free_device... But given that RMI is
-pretty-much self-contained I think we can live with this.
+this one looks making lots of senses. it makes sure HW will not
+trigger any SW behaviour before probe() finishes, and also makes sure
+HW will not trigger any SW behaviour in remove(). i'd like xianglong
+to give a quick test on it.
 
-> 
-> As this clearly fixes a bug or two, I say we should take this patch
-> as-is and worry about proper ownership at some other time.
-> 
-> -Courtney
+>
+> Thanks.
+>
+> --
+> Dmitry
+>
+>
+> Input: sirfsoc-onkey - implement open and close methods
+>
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>
+> We can control whetehr device generates interrupts or not so let's
+> implement open and close methods of input device so that we do not do any
+> processing until there are users.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/misc/sirfsoc-onkey.c |   50 +++++++++++++++++++++++++++++-------
+>  1 file changed, 40 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
+> index e8897c3..dc7db65 100644
+> --- a/drivers/input/misc/sirfsoc-onkey.c
+> +++ b/drivers/input/misc/sirfsoc-onkey.c
+> @@ -49,6 +49,35 @@ static irqreturn_t sirfsoc_pwrc_isr(int irq, void *dev_id)
+>         return IRQ_HANDLED;
+>  }
+>
+> +static void sirfsoc_pwrc_toggle_interrupts(struct sirfsoc_pwrc_drvdata *pwrcdrv,
+> +                                          bool enable)
+> +{
+> +       u32 int_mask;
+> +
+> +       int_mask = sirfsoc_rtc_iobrg_readl(pwrcdrv->pwrc_base + PWRC_INT_MASK);
+> +       if (enable)
+> +               int_mask |= PWRC_ON_KEY_BIT;
+> +       else
+> +               int_mask &= ~PWRC_ON_KEY_BIT;
+> +       sirfsoc_rtc_iobrg_writel(int_mask, pwrcdrv->pwrc_base + PWRC_INT_MASK);
+> +}
+> +
+> +static int sirfsoc_pwrc_open(struct input_dev *input)
+> +{
+> +       struct sirfsoc_pwrc_drvdata *pwrcdrv = input_get_drvdata(input);
+> +
+> +       sirfsoc_pwrc_toggle_interrupts(pwrcdrv, true);
+> +
+> +       return 0;
+> +}
+> +
+> +static void sirfsoc_pwrc_close(struct input_dev *input)
+> +{
+> +       struct sirfsoc_pwrc_drvdata *pwrcdrv = input_get_drvdata(input);
+> +
+> +       sirfsoc_pwrc_toggle_interrupts(pwrcdrv, false);
+> +}
+> +
+>  static const struct of_device_id sirfsoc_pwrc_of_match[] = {
+>         { .compatible = "sirf,prima2-pwrc" },
+>         {},
+> @@ -70,7 +99,7 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
+>         }
+>
+>         /*
+> -        * we can't use of_iomap because pwrc is not mapped in memory,
+> +        * We can't use of_iomap because pwrc is not mapped in memory,
+>          * the so-called base address is only offset in rtciobrg
+>          */
+>         error = of_property_read_u32(np, "reg", &pwrcdrv->pwrc_base);
+> @@ -88,6 +117,11 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
+>         pwrcdrv->input->phys = "pwrc/input0";
+>         pwrcdrv->input->evbit[0] = BIT_MASK(EV_PWR);
+>
+> +       pwrcdrv->input->open = sirfsoc_pwrc_open;
+> +       pwrcdrv->input->close = sirfsoc_pwrc_close;
+> +
+> +       input_set_drvdata(pwrcdrv->input, pwrcdrv);
+> +
+>         irq = platform_get_irq(pdev, 0);
+>         error = devm_request_irq(&pdev->dev, irq,
+>                                  sirfsoc_pwrc_isr, IRQF_SHARED,
+> @@ -98,11 +132,6 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
+>                 return error;
+>         }
+>
+> -       sirfsoc_rtc_iobrg_writel(
+> -               sirfsoc_rtc_iobrg_readl(pwrcdrv->pwrc_base + PWRC_INT_MASK) |
+> -                       PWRC_ON_KEY_BIT,
+> -               pwrcdrv->pwrc_base + PWRC_INT_MASK);
+> -
+>         error = input_register_device(pwrcdrv->input);
+>         if (error) {
+>                 dev_err(&pdev->dev,
+> @@ -129,15 +158,16 @@ static int pwrc_resume(struct device *dev)
+>  {
+>         struct platform_device *pdev = to_platform_device(dev);
+>         struct sirfsoc_pwrc_drvdata *pwrcdrv = platform_get_drvdata(pdev);
+> +       struct input_dev *input = pwrcdrv->input;
+>
+>         /*
+>          * Do not mask pwrc interrupt as we want pwrc work as a wakeup source
+>          * if users touch X_ONKEY_B, see arch/arm/mach-prima2/pm.c
+>          */
+> -       sirfsoc_rtc_iobrg_writel(
+> -               sirfsoc_rtc_iobrg_readl(
+> -               pwrcdrv->pwrc_base + PWRC_INT_MASK) | PWRC_ON_KEY_BIT,
+> -               pwrcdrv->pwrc_base + PWRC_INT_MASK);
+> +       mutex_lock(&input->mutex);
+> +       if (input->users)
+> +               sirfsoc_pwrc_toggle_interrupts(pwrcdrv, true);
+> +       mutex_unlock(&input->mutex);
+>
+>         return 0;
+>  }
 
--- 
-Dmitry
+-barry
